@@ -1,0 +1,5 @@
+copy libnet.a to C:\Dev-Cpp\lib
+copy libnet.h to C:\Dev-Cpp\include
+
+
+link with libnet.a and libwsock32.a

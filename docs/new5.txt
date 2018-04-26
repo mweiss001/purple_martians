@@ -1,0 +1,3889 @@
+
+
+------------------------------------------------
+20180314 pi day
+
+OK here I am converting to Allegro 5
+
+imported the project from .dev into code::blocks
+
+removed all e_ files and n_ files
+
+in pm.h undefined sound DUMB netplay
+
+now lets see if I can get it to compile...
+
+first thing in that the new allegro headers cant be found:
+
+
+al_fixed that..
+
+al_fixed has been replaced with al_fixed???
+
+when I'm doing things like this should I not do it for my entire project?
+
+yes...
+
+fixed -> al_fixed
+BITMAP -> ALLEGRO_BITMAP
+al_destroy_bitmap -> al_destroy_bitmap
+
+DIALOG gone from 5
+disable for now, maybe get EGG_DIALOG later
+
+PALLETE ????? ditch it
+
+
+END_OF_FUNCTION(inc_timer_passcount);
+
+
+void inc_timer_passcount()
+{
+   timer_passcount++;
+}
+END_OF_FUNCTION(inc_timer_passcount);
+
+void second_timer()
+{
+   fps = passcount - last_fps_passcount;
+   last_fps_passcount = passcount;
+
+   frames_skipped_last_second = (players1[active_local_player].frames_skipped - last_frames_skipped);
+   last_frames_skipped = players1[active_local_player].frames_skipped;
+}
+END_OF_FUNCTION(second_timer);
+
+
+
+   LOCK_VARIABLE(timer_passcount);
+   LOCK_FUNCTION(inc_timer_passcount);
+
+   LOCK_VARIABLE(fps);
+   LOCK_VARIABLE(last_fps_passcount);
+
+   // this is for the fps
+   LOCK_FUNCTION(second_timer);
+   install_int_ex(second_timer, BPS_TO_TIMER(1));
+
+
+
+it looks like the old timers, called a function...
+where the new ones generate an event
+
+
+I only have 2 timers:
+1 to count actual frames per second
+1 to control the frame rate
+both are only used in the game loop
+I'm having trouble thinking why I want to do this with events...
+
+one solution is to spawn another thread that does nothing but update passcount
+
+or in my loop, at the frame delay I can wait until i get an event...
+
+
+
+
+al_create_timer
+ALLEGRO_TIMER *al_create_timer(double speed_secs)
+
+Allocates and initializes a timer.
+If successful, a pointer to a new timer object is returned, otherwise NULL is returned.
+speed_secs is in seconds per "tick", and must be positive. The new timer is initially stopped.
+Usage note: typical granularity is on the order of microseconds, but with some drivers might only be milliseconds.
+
+See also: al_start_timer, al_destroy_timer
+
+al_start_timer
+
+
+al_get_timer_count
+int64_t al_get_timer_count(const ALLEGRO_TIMER *timer)
+Source Code
+
+Return the timer's counter value. The timer can be started or stopped.
+
+See also: al_set_timer_count
+
+I think with this i don't need events at all
+
+
+
+'fps_timer' will be the name of my new timer
+
+ALLEGRO_TIMER * fps_timer = al_create_timer(0.025);
+
+
+"timer_passcount" used to be the variable that got incremented in the
+old timer loop.
+
+now it will be al_get_timer_count(fps_timer);
+
+
+void al_set_timer_speed(ALLEGRO_TIMER *timer, double new_speed_secs)
+Set the timer's speed, i.e. the rate at which its counter will be incremented when it is started.
+This can be done when the timer is started or stopped.
+If the timer is currently running, it is made to look as though the speed change occurred precisely at the last tick.
+
+void al_set_timer_count(ALLEGRO_TIMER *timer, int64_t new_count)
+Set the timer's counter value. The timer can be started or stopped.
+The count value may be positive or negative, but will always be incremented by +1 at each tick.
+
+
+
+
+disable the fps per second one for now...
+commented out in main
+
+
+
+change the timer:
+
+add global and extern in pm.h
+ALLEGRO_TIMER * fps_timer ;
+
+create timer in initial setup:
+fps_timer = al_create_timer(1/fps_passcount_timer);
+
+
+look for all mentions of timer_passcount and replace with al_get_timer_count(fps_timer);
+or set...  done
+
+
+
+
+sprintf() needed <stdio.h>?? why didn't it need it before??'
+
+
+config is all fucked.. more more int float string, now its all string
+will need to make convertors...atoi and itoa...etc
+
+
+also I need to load the config file first...
+
+where do I do these things in my program?
+
+right after allegro_init
+
+set_config_file("pm.cfg");
+
+
+why don't I load it in initial setup
+and destroy right after.
+
+whenever I want to save a change i will need to load the file
+make the change and save it.
+
+
+i should have one function that saves everything to config
+and also one that loads everything
+
+what do i do about defaults??
+
+make my own load data from config fucntion
+
+
+
+
+----------
+fixtoi --done
+fixtof -- done
+itofix - done
+ftofix - done
+
+rest all chnged to al_rest
+
+al_create_bitmap done all
+
+
+
+scrn.cpp
+killed most of screen setup
+
+just make a 800x600 window
+
+global and externed
+ALLEGRO_DISPLAY *display = NULL;
+
+
+   display = al_create_display(640, 640);
+   if(!display) {
+      fprintf(stderr, "failed to create display!\n");
+      return -1;
+   }
+
+
+
+
+
+blit( src, dst, 0, 0, dx, dy, src->w, src->h)	al_draw_bitmap( src, dx, dy, 0)
+blit( src, dst, sx, sy, dx, dy, sw, sh)	al_draw_bitmap_region( src, sx, sy, sw, sh, dx, dy, 0)
+blit
+
+
+first set al_set_target_bitmap
+
+screen_buffer will need to be replaced with the back buffer
+
+what do i do with SCREEN_H and W??
+global and extern SCREEN_H
+
+
+
+al_get_display_width
+int al_get_display_width(ALLEGRO_DISPLAY *display)
+Source Code
+
+Gets the width of the display. This is like SCREEN_W in Allegro 4.x.
+
+See also: al_get_display_height
+
+al_get_display_height
+int al_get_display_height(ALLEGRO_DISPLAY *display)
+
+
+made scrn.cpp compile by gutting it...
+
+
+sound compiles...
+
+player compiles
+
+
+
+
+now i'm in menu how am i going to do key input??
+
+void al_get_keyboard_state(ALLEGRO_KEYBOARD_STATE *ret_state)
+
+
+
+
+// Returns whether or not a specified key is being pressed
+bool key_pressed(int key)
+{
+   ALLEGRO_KEYBOARD_STATE s;
+   al_get_keyboard_state(&s);
+   return al_key_down(&s, key);
+}
+This was a function I wrote for Deluxe Pacman 2 to wait for a keypress or xxxx amount of milliseconds before continuing (this is the trimmed down version)...
+
+#SelectExpand
+  1// Waits a specified time (in ms, 1000=1s) for a key to be pressed.
+  2// Will also respond if a mouse or joystick button is clicked.
+  3// If the time passes before a key/mouse/joystick is pressed, the function returns
+  4// If the time specified is zero, the function will wait indefinitely.
+  5bool wait_for_keypress(double wait_time)
+  6{
+  7   double ts = al_get_time(); // time stamp
+  8   double elapsed_time;
+  9
+ 10   al_flush_event_queue(event_queue);
+ 11
+ 12   bool done = false;
+ 13
+ 14   // Wait until the specified time passes or a key is pressed.
+ 15   do {
+ 16      al_wait_for_event(event_queue, &event);
+ 17
+ 18      if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+ 19         shut_down(); // free resources
+ 20         exit(0);
+ 21      }
+ 22
+ 23      else if(wait_time && event.type == ALLEGRO_EVENT_TIMER) {
+ 24         elapsed_time = al_get_time() - ts;
+ 25         if(elapsed_time >= wait_time) return false;
+ 26      }
+ 27
+ 28      // Wait for key to be pressed and released to continue
+ 29      else if(event.type == ALLEGRO_EVENT_KEY_UP) {
+ 30         if(event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) return true;
+ 31         else done = true;
+ 32      }
+ 33
+ 34      // And if a key wasn't pressed, maybe a mouse button was...
+ 35      else if(event.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP) {
+ 36         done = true;
+ 37      }
+ 38   }
+ 39   while(!done);
+ 40
+ 41   return false;
+ 42}
+---
+
+
+maybe I can register an event loop once in my program and then use it for menus
+and whatever as well as the main game loop...
+
+
+where am i??
+
+either in menu or in loop
+
+
+i got menu to compile
+
+loop compiles..
+
+
+
+now in lifts...
+what am i going to do about color?
+
+I'll make my own palette, with hookers and blackjack...
+
+I can even still call it palette color...
+
+all I need is the seed for each color...
+
+make an array of colors:
+
+ALLEGRO_COLOR palette_color[256];
+palette_color[0]  = al_map_rgb(  0,   0,    0); // black
+palette_color[1]  = al_map_rgb(191, 108,  232); // alt purple 1
+palette_color[2]  = al_map_rgb(136,  32,  172); // alt purple 2
+palette_color[3]  = al_map_rgb(60,  127,  255); // alt blue
+palette_color[4]  = al_map_rgb(224,  28,   72); // alt red
+palette_color[5]  = al_map_rgb(255,   0,  232); // pink
+palette_color[6]  = al_map_rgb(255,  191, 127); // taan
+palette_color[7]  = al_map_rgb(255,  127,   0); // orange
+palette_color[8]  = al_map_rgb(127,    0, 255); // original purple
+palette_color[9]  = al_map_rgb(  0,  255, 127); // alt green
+palette_color[10] = al_map_rgb(255,    0,   0); // red
+palette_color[11] = al_map_rgb(  0,  255,   0); // green
+palette_color[12] = al_map_rgb(  0,    0, 255); // blue
+palette_color[13] = al_map_rgb(  0,  255, 255); // lt blue
+palette_color[14] = al_map_rgb(255,  255,   0); // yellow
+palette_color[15] = al_map_rgb(255,  255, 255); // white
+
+for (int x=1; x<16; x++)
+{
+   int c = (x+1)*16 - 1;
+   palette_color[x*16]  = al_map_rgb(c, c, c);
+}
+
+this is my old fade proc
+
+         int x;
+         int cn = b1_color;
+         float ns = 15;
+         for (x=0; x<ns; x++)
+         {
+            pallete[cn+(x*16)].r = (unsigned char) ( pallete[cn].r * (1 - (x/ns)) );
+            pallete[cn+(x*16)].g = (unsigned char) ( pallete[cn].g * (1 - (x/ns)) );
+            pallete[cn+(x*16)].b = (unsigned char) ( pallete[cn].b * (1 - (x/ns)) );
+         }
+
+
+
+it seems to work good..
+
+i just had a thought...
+all this stuff I have always been doing with the way i set up my palette...
+its just basically an alpha channel...
+by adding 16 to the color i decrease the alpha because that s how i set up my palette
+
+
+im just testing things in mtest for now...
+
+so far I have
+
+load sprit
+drawing primitives
+made my own palettte
+textout
+
+I really need to figure out keyboard input
+
+
+make an event loop...done...
+
+it looks like the example i followed show an easy way to re-implement the old key[KEY_*] fucntionality
+
+first of all i need to create key[256] with names for all the actual keys
+
+i want to reuse as much as possible....
+
+al5 aleady has somthing like this...ALLEGRO_KEY_*
+
+looks like I can already if I use
+bool pressed_keys[ALLEGRO_KEY_MAX];
+pressed_keys[key_code] = true;
+
+
+---------------
+create my own array like:
+
+bool key[ALLEGRO_KEY_MAX];
+
+now in my event loop get key downs and up events, run function to set my array
+
+the only thing i won't be able to do is while(key[KEY_ESC]);
+
+unless i process in that loop..
+
+am i getting lost here??
+
+what do I need to do to make my menu work
+
+make an event loop in initial setup..
+register screen and keyboard events
+poll it in the menu
+
+ok im ready to go back to the game....
+
+lift color is what I was working on
+
+add primitives to game
+
+patch my colors into the game...done
+
+
+lifts now compiles
+
+
+can i do a global replace for textout??
+
+al_draw_text(font, color, x, y, ALLEGRO_ALIGN_CENTRE, msg);
+
+i might need to specify a display or bitmap..
+
+items compiles
+
+fnx compiles
+
+file compiles by commenting everything out...
+
+emove compiles
+
+
+on to control
+
+I have to do something about keyboard input...
+
+- set up event loop and hook keyboard up to it
+
+process the event que in proc_controls...
+
+i want a non blocking way to look for events...
+
+control done...
+
+bullets done
+
+yfilecom..done
+
+now.. remove all other files from project and try to compile...
+
+
+got as far as trying to start a game...
+
+
+i can run the game..with lots of problems..
+
+rotation of bitmaps..
+
+players bitmap not filled
+filled but need top change colors
+
+control does not works.fixed
+
+items do not show...fixed
+
+make scaler work...
+
+
+make function keys work...
+re-enable function keys
+scaler works
+speed no
+
+up screen res to 1024 768 for now
+
+
+make lift prox rect work
+mostly done..just need to patch in vertical name when rtext is fixed
+
+do the transparency of player properly
+
+where should I do transparency?
+
+when I created the bitmaps on load??
+
+does it make any sense to keep color 0 in there??
+
+
+
+convert mask to alpha at bitmap load and also when making player bitmaps
+
+now do door bitmaps...done...
+
+
+now fix item draw.
+
+door done..
+
+now key in ans..
+
+
+what is left to do for item draw:
+key in final seq...
+stretch draw for bombs
+
+
+now make enemy draw better...
+
+I fixed the rotating conversion from fixed to float
+
+I am having trouble converting my rotations
+what point do i pivot on??
+
+it was as simple as setting the center pivot point to 10,10
+and then offsetting then pos x and y by 10
+
+works for player too...!!
+
+i want to get speed working again.. and top display..
+ok done...
+
+time for a backup and work...
+
+
+20180316 7:45
+
+seems like I'm skipping a lot of frames...
+
+rocket draw...fixed
+
+removing blocks with key or breakable leaves lines..fixed
+
+bullets alpha looks good...
+
+block walker block to show...done
+
+
+
+frame and title to show frame...done
+
+that is using the backbuffer, instead of screen buffer
+i think I should do this in all cases anyway
+its an extra layer of complexitry to do both..
+
+frame during game...done
+this uses the screen buffer
+
+run the menu using proc controls..done
+
+still needs some work...
+
+
+
+
+game seems to run slow...
+can i run it wide open
+
+like in speed test...
+
+still only get like 20 fps
+
+make the fps skipped per sec and actual
+
+how??
+
+
+create a second timer
+check it in proc frame delay
+
+
+
+looks like draw item and set draw item shape are high up on the profiler list...
+
+also _mcount private??
+
+
+i get 22-23 fps
+with item_draw_disabled I can get 29-30 fps
+
+
+everything seems slow...
+
+
+20 fps base
+
+- get new background 28
+- draw items 28
+- both 38
+
+also
+- draw enemy 56
+- draw lift 56
+- draw player
+
+no dif
+
+draw pbullets is really bad... why???
+no its not that...
+that was just the last thing i disabled
+
+with all these disabled i get 170fps
+
+         // these all draw on level_buffer
+//         get_new_background();
+
+
+//         draw_lifts();
+//         draw_items();
+//         draw_enemy();
+//         draw_ebullets();
+//         draw_pbullets();
+//         draw_screen_msg();
+//         draw_players();
+
+
+as soon as any one of them is enabled it drops to 50
+
+
+all those functions have in common is:
+al_set_target_bitmap(level_buffer);
+
+
+set this:
+al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+
+made things a lot faster...
+
+now...
+
+
+base 32
+no item draw 52
+no enemy draw 90
+all others but get background no change
+get background (all disabled) 256
+
+
+I guess i was mistaken about memory_bitmaps
+with allegro 5 they are slow, and video bitmaps are the way to go...
+
+
+next, why is draw items so slow...
+
+-------------
+
+my bitmap are created with 4 byte per pixel and 32 bits per format
+
+lets try to half that...
+
+
+al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_REQUIRE);
+
+al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA); ..fails
+al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA); ..works
+
+
+
+
+
+base 40 fps with get_new_background only
+
+
+al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+90
+
+al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_REQUIRE);
+94
+
+al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_REQUIRE);
+al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA); ..works
+102
+
+
+
+base 22 fps all
+
+al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+32
+
+al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_REQUIRE);
+28
+
+al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_REQUIRE);
+al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA); ..works
+34
+
+al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA); ..works
+34
+
+
+
+draw items does a weird thing were it gets the bitmap to draw in dtemp
+if i disable that it gets faster...
+
+
+
+
+
+
+tried creating display with windowed, resizeable window no fps diff
+
+fullscreen window went from 32fps to 28
+screen size went from 1024x768 to 2048x1152
+
+actual full screen was about the same..
+
+
+fixed item draw to not use dtemp
+
+new base 1024x768 windows all on
+52 fps
+
+enemy draws with dtemp too...fixed
+new base 1024x768 windows all on
+80 fps
+
+
+draw enemy is completely done
+
+draw items need to have stretch implemented...
+for bombs and moving keys
+
+
+i think draw items is done, but i would like to simplify it...
+rot is used by key and rocket only...
+stretch is used by key only, and maybe explosion??
+key uses 11 for scale 10 for rot (/10)
+rocket uses 10 for rot
+lit bomb uses 10 for scale ()/ 100)
+if I change:
+lit bomb to use 11 to scale..
+and make all these / 100
+other items uses 11 and 10...
+leave this for now
+
+
+
+
+item draw and enemy draw are done, game runs at good speed
+
+let make the menu better...
+
+keys left and right need holdoff...
+how about if menu is started with those keys pressed, wait for release...
+
+
+menu and start screen are all fixed..
+
+lets do the health display and progress bar...done
+
+now free men...done
+
+now frame..done
+
+now small text on door bitmaps...
+
+
+im going to make or use two bitmaps to do this...
+
+1014 in.
+1015 out.
+
+do this when creating door bitmaps
+small text for doors is done
+
+
+now how about controller setup
+
+maybe i should do the save config first...
+
+
+201801318 5:00 I did a lot yesterday...
+
+
+today I want to:
+finish cfg file
+controller setup
+remove use of screen buffer in game and switch to backbuffer
+sound
+help
+
+add to all error msg, native dialog pop up
+
+test keys is done
+most of controls is done, still left
+key names...done
+
+joystick..
+
+
+use the same key struct as keys
+
+in controll set the appropriate key...
+
+
+its looking good,
+
+
+only works for first joystick right now...
+
+i'm not sure how to do more..
+
+the joystick struct does not correspond to id..
+leave it for now
+edgar reynaldo posted a solution...
+
+code is good now...
+
+
+
+
+
+
+
+
+
+
+
+lets do some sound...
+
+
+scalers were from 0-9
+
+a typical example for bullet is:
+
+(180 * se_scaler)/9
+
+(180/255)  = .71 * (float) se_scaler / 9
+
+
+sounds are coming along nicely..
+
+i need a way to stop them, especially fuse hiss...
+
+// this plays pm.xm just fine...time to kill DUMB!!!!
+
+   temp_song_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
+   al_attach_audio_stream_to_mixer(temp_song_stream, al_get_default_mixer());
+
+nowhere in the sources is dumb found!!!
+
+make a seperate mixer for se and st and make it work with scalers
+
+do i need sound on/off???
+
+just patch it in the mixer somehow
+
+
+im having hard time with config files
+
+
+make load do nothing but get values and test limits
+
+then call save to set menu's and whatever else
+
+save also called when program changes values
+
+
+done....
+
+
+
+remove use of screen buffer in game and switch to backbuffer
+
+
+mostly done, do the rest as it get uncommented
+
+
+i want to fix mtextout done
+bottom message and level done is good...
+
+now I want to fix tsw()...done
+
+
+
+rtextout done...
+screen message done...
+join_quit_done...
+
+
+
+20180318..got a lot done today....
+
+
+20180319
+
+
+
+native error messages..done
+
+screen change by dragging...done, it was easy...
+hot key for full screen F12..done..
+
+changing volume when sound off causes crash..fixed
+fps to show up on menu to start...fixed
+
+next to do...
+
+file selectors
+help
+graphical level select
+mdw_logo and splash screen
+new menu for all of my option that need setting
+
+20180319 0650
+
+
+stimp and stamp done
+
+
+change proc_controls to return int
+0 normal return
+not 0 = scan code of keypress
+
+mdw logo is done... looks a little thin...
+
+i could spend a lot of time making the logo look awesome...
+
+i would like to make the thickness automatic based on the size...
+i would like to do some fading with real colors instead of palette..
+
+done
+
+now patch in the splash screen toggle...
+
+do i have to reload everthing from config?  why not??
+
+mdw_logo and splash screen done...
+
+menu redraws map every frame
+this takes time.
+
+when on options menu is not drawn and mdw_ans run much faster...
+
+could i also re-purpose proc_controllers() to do delay?
+i could think of my proc_controllers() as my event loop processor...
+
+maybe later...
+
+
+20180320 6:50
+
+next to do:
+help
+graphical level select
+new menu for all of my option that need setting
+
+
+
+20180321 6:55
+
+native file select working...
+paths were a bitch.. lots of conversions and checks
+full path is used, might break run game from command line...
+demo mode has been fixed also
+
+bug in changing scale, leaves artifacts if smaller than entire screen.
+fixed, in get new background, clear to color after setting backbuffer..
+
+bug: demo mode can be cancelled with any key except ESC, just starts new demo
+run game can be cancelled with any key, make it just esc..fixed
+demo timeout not reset..done
+
+figure out how to use code blocks to make a nice backup solution..
+
+20180321 1200
+
+next to do:
+help
+graphical level select
+new menu for all of my option that need setting
+timer to make menus run at same speed
+
+help is coming along nicely...
+help is completley done...20180321 16:45
+
+
+next to do:
+graphical level select
+new menu for all of my options that need setting
+timer to make menus run at same speed
+some way of saving the screen size...
+netplay
+overlay screens
+
+
+20180322 6:50
+graphical level select is done..., but...
+doesn't work with mouse...never did anyway only button
+cant handle screen size change..fixed
+used global Redraw...
+
+
+20180322 10:00
+
+next to do:
+timer to make menus run at same speed
+new menu for all of my options that need setting
+some way of saving the screen size...
+netplay
+overlay screens
+
+
+timer to make menus run at same speed
+should I block in proc_controllers() ???
+yes but only for menu..
+
+menu timer things is working good now...
+
+next
+overlay screens
+netplay
+new method for all of my options that need setting
+some way of saving the screen size...
+
+
+
+network
+
+
+libnet.h
+where should i put it? in my local stuff?? why not..seem to work
+
+zlib was found with me doing anything...
+comes with mingw..
+version 1.2.11, January 15th, 2017
+
+
+everything compiles because I have NETPLAY undefined....
+now I have tons...
+replace allegro error with m_err
+
+now everything compiles, i just need the library...
+
+C:\Program Files (x86)\mingw-w64\i686-7.2.0-posix-dwarf-rt_v5-rev1\mingw32\i686-w64-mingw32\include\libnet.h
+C:\Program Files (x86)\mingw-w64\i686-7.2.0-posix-dwarf-rt_v5-rev1\mingw32\i686-w64-mingw32\lib\libnet.a
+
+link with:
+C:\Program Files (x86)\mingw-w64\i686-7.2.0-posix-dwarf-rt_v5-rev1\mingw32\i686-w64-mingw32\lib\libnet.a
+C:\Program Files (x86)\mingw-w64\i686-7.2.0-posix-dwarf-rt_v5-rev1\mingw32\i686-w64-mingw32\lib\libwsock32.a
+C:\Program Files (x86)\mingw-w64\i686-7.2.0-posix-dwarf-rt_v5-rev1\mingw32\i686-w64-mingw32\lib\libz.a
+
+compiles and links...
+
+need to fix the timer adjust in client...done...
+
+now I need to fix many, many text lines in overlay...done...
+
+now lunch and some real work...
+12:40
+
+hooked up the mouse to the event loop...
+used it to make adjust spline work...
+
+
+
+
+
+
+tested netplay with i990 server and old version 6 on m7667...worked perfectly..
+
+
+
+tried to compile on i990 and dir struct if different
+mingw is in C:\al5
+
+
+i like my i990 version better
+codeblocks, mingw and allegro are all in c:\AL5
+
+C:\al5\mingw-w64\i686-7.2.0-posix-dwarf-rt_v5-rev1\mingw32\i686-w64-mingw32\include\libnet.h
+C:\al5\mingw-w64\i686-7.2.0-posix-dwarf-rt_v5-rev1\mingw32\i686-w64-mingw32\lib\libnet.a
+
+
+actually i can do better than that:
+
+C:\al5\mingw32\i686-w64-mingw32\include\libnet.h
+C:\al5\mingw32\i686-w64-mingw32\lib\libnet.a
+
+
+compiles on both machines goodly now...
+
+
+
+net game works between 2 a5 games
+
+save and load server_ip to cfg file...done
+
+
+now add screen stuff to logging...
+
+
+what is screen stuff going to look like now?
+
+same:
+sx, sy
+scale_factor
+show_splash_screen
+
+
+add:
+window x pos, y pos
+full_screen
+
+
+lose
+gfx_card
+color_depth??
+auto_full_screen
+
+
+-----
+done...now save and load them in config..done
+
+
+now make them work...
+
+what comes first?
+init screen or get config?? fixed..
+
+reads on init just fine
+
+save on change
+
+Question about ALLEGRO_FULLSCREEN_WINDOW
+
+I am trying to save the window size and position, so that it will
+persist when the game is started again.
+
+Mostly everything is working good, except for a few minor things:
+
+Here is what works:
+
+- I create a display with a certain width and height
+- then I let the user resize and move the window
+- I save the display size and position in my config file
+- It comes back perfectly the next time the game is run
+
+
+Here is what doesn't:
+
+When I switch to ALLEGRO_FULLSCREEN_WINDOW and back,
+the window uses the values that were used to create the display
+not the window size that it previously was
+
+I can store my changed position, and then when I change back
+- restore the position (easy)
+- resize the display (takes a whole other resize)
+
+What I would really like to do, is be able to modify the values
+in the display structure, so that switching back, goes to the values
+that were there before I switched into ALLEGRO_FULLSCREEN_WINDOW,
+and not the ones used when creating the display.
+
+
+From the manual:
+
+"The passed width and height are only used if the window is switched
+out of fullscreen mode later but will be ignored initially."
+
+
+I suppose I could just destroy and re-create the display, but that
+seems like a bit of overkill.
+
+
+Does anyone have any advice on how I can achieve what I'm trying to do here?
+
+
+---------------
+
+I have a thought...
+
+instead of changing to fullscreen using the screen thingy
+i could just resize it my self to max size...
+
+
+// moved all the screen change code to one place
+
+
+variables
+
+display position (relative to desktop)
+
+disp_x_curr (either wind in windowed mode or 0 in fullscreen mode)
+disp_y_curr
+
+disp_x_wind (use when restoring from fullscreen)
+disp_y_wind
+
+disp_w_curr (either wind or full)
+disp_w_wind
+disp_w_full
+
+
+
+it seems to work, but still takes a while to resize...
+
+now i need a reliable way to get the desktop width and height
+
+how about I create a fullscreen window, grab the w and h then switch out and resize
+
+
+also my window keeps creeping up....fixed
+
+
+how can i make reloading bitmaps faster...
+
+store them in memory??
+
+ok
+
+
+first load puts them in both
+
+next loads from mem to vid...
+
+
+---------------------------
+20180324 0500
+
+cleaned up the screen code a lot
+made separate functions to show flags, option, etc..
+
+
+created temp memory bitmap fro reloading..
+
+fill them at creation
+
+sprit player door
+doesnt seem any faster
+
+what if i make them all sub_bitmaps and just restore the parent??
+
+first make a video and memory bitmap to store the tiles 640 x 640
+then create memory bitmaps with clone_bitmap
+
+seems much faster...
+
+now players and doors...
+
+
+first....
+
+create them and save them to disk as bitmaps.. just like tiles
+
+what size...
+
+
+players 19 x 16 = 380 x 320
+
+doors 16 x 8 x 2 = 320 x 320
+
+doors 8 x 32 or (160 x 640)
+
+
+
+looking good...
+
+permanently save IN OUT to tilemap..
+
+can I save tilemap??
+
+haven't since a4
+done..
+my saves now are 24bit bmp and are 3x the old size of 8 bit...
+
+
+shit is super fast now...
+
+
+
+
+
+bugs:
+
+resizing display in help, need to reset last line...done
+
+coming out of help, need to redraw menu map
+if in game exit, screen change has to recreate the level buffer too.
+it should be doing that already...
+draw_level..but blocks are gone????
+only if screen changed during help...
+what does load level do that i don't do...
+cant tell...
+i know that the bitmaps are getting reloaded...
+initl2000 is getting called
+l2000 is blank, but why????
+at the end of help the target bitmap is cleared....!!!!!
+fixed
+
+help screen bitmaps are gone when resized
+used global Redraw to fix this...
+
+rtext for lifts..done in game..maybe some in level editor i'll get later
+
+save scaler when changed, i think it is...done
+
+create cfg file if none exists...done
+
+
+
+-----------------------------
+20180324 0936
+
+coming along real good now...
+
+new to do:
+do something with screen size menu thing...not needed
+
+save game...
+
+method to change options...
+try menu??
+
+splash_screen_on...dont save the current value
+make another called splash_screen_done for current stuff
+
+extern int show_splash_screen;
+extern int splash_screen_done;
+done..........
+
+bug, when on options menu, change screen then go back to main menu
+stuff is getting drawn on level buffer, no l2000
+i could make l2000 set cabk buffer back...
+but shouldn't other make sure its drawing on right thing??
+done.. at start of menu, set target...
+
+
+
+
+
+ALLEGRO_MENU *menu = al_create_menu();
+ALLEGRO_MENU *file_menu = al_create_menu();
+al_append_menu_item(file_menu, "Exit", FILE_EXIT_ID, 0, NULL, NULL);
+al_append_menu_item(menu, "File", 0, 0, NULL, file_menu);
+al_set_display_menu(display, menu);
+
+al_register_event_source(queue, al_get_default_menu_event_source());
+al_wait_for_event(queue, &event);
+
+if (event.type == ALLEGRO_EVENT_MENU_CLICK) {
+   if (event.user.data1 == FILE_EXIT_ID) {
+      exit_program();
+   }
+}
+
+I have set everything in the menu that I can...
+basically only bools...
+
+I would really like to set:
+server IP, fuck it, do it from commandline...
+
+works great, except i get random hard crashes...
+
+bug; clear keys at level done
+
+music loop only plays once
+
+
+
+lets try it on more machines...
+
+XP???
+the procedure entry point _time32 could not be located in the
+dynamic link library msvcrt.dll
+
+10...works good...
+still get crashes from options menu toggle....
+
+
+i see lots of frames skipped but doesnt show on client
+need to fix that..shows on overlay...
+
+key shifts....
+
+
+
+make it so that you can't put the window off the screen
+
+fix the fake keypress mode...
+
+make overlay have an opaque background...done
+
+
+make it so that you can't put the window off the screen
+only on first start...
+only in windowed...
+done
+
+
+i see lots of frames skipped but doesnt show on client
+need to fix that..shows on overlay...
+
+
+make run game work from command line..done
+
+finish active player list on run game overlay..done
+
+
+key shifts done
+done for level inc dec
+done for speed inc dec
+what else is there?? ...log file viewer
+
+blind_save_game_moves(1);
+done
+now text version...done
+now we just need the file selector version :()
+done
+
+
+random hard crashes after using menu toggles
+fixed by not creating second display
+
+
+save_log_file();
+log_file_viewer
+done
+20180324 1039
+
+i have got a lot done today...!!
+
+
+bug; clear keys at level done
+added clear key array to start mode
+
+map..done
+
+
+screenshot.. done but PRINTSCREEN does not work. had to use PAUSE
+fixed
+
+I have been thinking overnight....
+
+I have a couple of big issues...
+- speed up the game so it doesn't skip frames
+- fix the bug I'm still having about wrong player input...
+
+
+
+
+
+
+lets look at the bitmaps i'm using...
+
+
+
+first of all the display
+
+display flags:
+ALLEGRO_WINDOWED
+ALLEGRO_DIRECT3D_INTERNAL
+ALLEGRO_RESIZABLE
+display options
+ALLEGRO_RED_SIZE:8
+ALLEGRO_GREEN_SIZE:8
+ALLEGRO_BLUE_SIZE:8
+ALLEGRO_ALPHA_SIZE:0
+ALLEGRO_RED_SHIFT:16
+ALLEGRO_GREEN_SHIFT:8
+ALLEGRO_BLUE_SHIFT:0
+ALLEGRO_ALPHA_SHIFT:0
+ALLEGRO_ACC_RED_SIZE:0
+ALLEGRO_ACC_GREEN_SIZE:0
+ALLEGRO_ACC_BLUE_SIZE:0
+ALLEGRO_ACC_ALPHA_SIZE:0
+ALLEGRO_STEREO:0
+ALLEGRO_AUX_BUFFERS:0
+ALLEGRO_COLOR_SIZE:32
+ALLEGRO_DEPTH_SIZE:0
+ALLEGRO_STENCIL_SIZE:0
+ALLEGRO_SAMPLE_BUFFERS:0
+ALLEGRO_SAMPLES:0
+ALLEGRO_RENDER_METHOD:0
+ALLEGRO_FLOAT_COLOR:0
+ALLEGRO_FLOAT_DEPTH:0
+ALLEGRO_SINGLE_BUFFER:0
+ALLEGRO_SWAP_METHOD:0
+ALLEGRO_COMPATIBLE_DISPLAY:1
+ALLEGRO_UPDATE_DISPLAY_REGION:0
+ALLEGRO_VSYNC:0
+ALLEGRO_MAX_BITMAP_SIZE:8192
+ALLEGRO_SUPPORT_NPOT_BITMAP:1
+ALLEGRO_SUPPORT_SEPARATE_ALPHA:1
+ALLEGRO_AUTO_CONVERT_BITMAPS:1
+ALLEGRO_SUPPORTED_ORIENTATIONS:0
+ALLEGRO_OPENGL_MAJOR_VERSION:0
+ALLEGRO_OPENGL_MINOR_VERSION:0
+ALLEGRO_DISPLAY_OPTIONS_COUNT:0
+pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN
+refresh rate:0
+---------------------------------
+
+the important stuff is:
+
+ALLEGRO_DIRECT3D_INTERNAL
+ALLEGRO_COLOR_SIZE:32
+pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+
+now let look at some bitmaps i create like l2000 and level_buffer
+
+
+pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN
+refresh rate:0
+tilemap
+pixel format:ALLEGRO_PIXEL_FORMAT_ARGB_8888
+bitmap flags:
+ALLEGRO_VIDEO_BITMAP
+ALLEGRO_NO_PRESERVE_TEXTURE
+M_tilemap
+pixel format:ALLEGRO_PIXEL_FORMAT_ARGB_8888
+bitmap flags:
+ALLEGRO_MEMORY_BITMAP
+---------------------------------
+
+
+lets try creating a display with ALLEGRO_OPENGL
+crashed...
+ALLEGRO_OPENGL_3_0 starts but both that and ALLEGRO_DIRECT3D_INTERNAL
+are listed...
+
+abandon this for now
+
+
+al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_REQUIRE)
+
+desktop w:2048 h:1152
+display flags:
+ALLEGRO_WINDOWED
+ALLEGRO_DIRECT3D_INTERNAL
+ALLEGRO_RESIZABLE
+display options
+ALLEGRO_RED_SIZE:5
+ALLEGRO_GREEN_SIZE:6
+ALLEGRO_BLUE_SIZE:5
+ALLEGRO_ALPHA_SIZE:0
+ALLEGRO_RED_SHIFT:11
+ALLEGRO_GREEN_SHIFT:5
+ALLEGRO_BLUE_SHIFT:0
+ALLEGRO_ALPHA_SHIFT:0
+ALLEGRO_ACC_RED_SIZE:0
+ALLEGRO_ACC_GREEN_SIZE:0
+ALLEGRO_ACC_BLUE_SIZE:0
+ALLEGRO_ACC_ALPHA_SIZE:0
+ALLEGRO_STEREO:0
+ALLEGRO_AUX_BUFFERS:0
+ALLEGRO_COLOR_SIZE:16
+ALLEGRO_DEPTH_SIZE:0
+ALLEGRO_STENCIL_SIZE:0
+ALLEGRO_SAMPLE_BUFFERS:0
+ALLEGRO_SAMPLES:0
+ALLEGRO_RENDER_METHOD:0
+ALLEGRO_FLOAT_COLOR:0
+ALLEGRO_FLOAT_DEPTH:0
+ALLEGRO_SINGLE_BUFFER:0
+ALLEGRO_SWAP_METHOD:0
+ALLEGRO_COMPATIBLE_DISPLAY:1
+ALLEGRO_UPDATE_DISPLAY_REGION:0
+ALLEGRO_VSYNC:0
+ALLEGRO_MAX_BITMAP_SIZE:8192
+ALLEGRO_SUPPORT_NPOT_BITMAP:1
+ALLEGRO_SUPPORT_SEPARATE_ALPHA:1
+ALLEGRO_AUTO_CONVERT_BITMAPS:1
+ALLEGRO_SUPPORTED_ORIENTATIONS:0
+ALLEGRO_OPENGL_MAJOR_VERSION:0
+ALLEGRO_OPENGL_MINOR_VERSION:0
+ALLEGRO_DISPLAY_OPTIONS_COUNT:0
+pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN
+refresh rate:0
+tilemap
+pixel format:ALLEGRO_PIXEL_FORMAT_ARGB_8888
+bitmap flags:
+ALLEGRO_VIDEO_BITMAP
+ALLEGRO_NO_PRESERVE_TEXTURE
+M_tilemap
+pixel format:ALLEGRO_PIXEL_FORMAT_ARGB_8888
+bitmap flags:
+ALLEGRO_MEMORY_BITMAP
+---------------------------------
+
+
+the bitmaps don't seem to have changed..
+the game seems to run faster
+
+
+can i do a 24??
+
+
+desktop w:2048 h:1152
+display flags:
+ALLEGRO_WINDOWED
+ALLEGRO_DIRECT3D_INTERNAL
+ALLEGRO_RESIZABLE
+ALLEGRO_FRAMELESS
+display options
+ALLEGRO_RED_SIZE:8
+ALLEGRO_GREEN_SIZE:8
+ALLEGRO_BLUE_SIZE:8
+ALLEGRO_ALPHA_SIZE:0
+ALLEGRO_RED_SHIFT:16
+ALLEGRO_GREEN_SHIFT:8
+ALLEGRO_BLUE_SHIFT:0
+ALLEGRO_ALPHA_SHIFT:0
+ALLEGRO_ACC_RED_SIZE:0
+ALLEGRO_ACC_GREEN_SIZE:0
+ALLEGRO_ACC_BLUE_SIZE:0
+ALLEGRO_ACC_ALPHA_SIZE:0
+ALLEGRO_STEREO:0
+ALLEGRO_AUX_BUFFERS:0
+ALLEGRO_COLOR_SIZE:32
+ALLEGRO_DEPTH_SIZE:0
+ALLEGRO_STENCIL_SIZE:0
+ALLEGRO_SAMPLE_BUFFERS:0
+ALLEGRO_SAMPLES:0
+ALLEGRO_RENDER_METHOD:0
+ALLEGRO_FLOAT_COLOR:0
+ALLEGRO_FLOAT_DEPTH:0
+ALLEGRO_SINGLE_BUFFER:0
+ALLEGRO_SWAP_METHOD:0
+ALLEGRO_COMPATIBLE_DISPLAY:1
+ALLEGRO_UPDATE_DISPLAY_REGION:0
+ALLEGRO_VSYNC:0
+ALLEGRO_MAX_BITMAP_SIZE:8192
+ALLEGRO_SUPPORT_NPOT_BITMAP:1
+ALLEGRO_SUPPORT_SEPARATE_ALPHA:1
+ALLEGRO_AUTO_CONVERT_BITMAPS:1
+ALLEGRO_SUPPORTED_ORIENTATIONS:0
+ALLEGRO_OPENGL_MAJOR_VERSION:0
+ALLEGRO_OPENGL_MINOR_VERSION:0
+ALLEGRO_DISPLAY_OPTIONS_COUNT:0
+pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN
+refresh rate:0
+tilemap
+pixel format:ALLEGRO_PIXEL_FORMAT_ARGB_8888
+bitmap flags:
+ALLEGRO_VIDEO_BITMAP
+ALLEGRO_NO_PRESERVE_TEXTURE
+M_tilemap
+pixel format:ALLEGRO_PIXEL_FORMAT_ARGB_8888
+bitmap flags:
+ALLEGRO_MEMORY_BITMAP
+
+exactly the same as 32 bit
+
+
+OK go back to 16 and lets look at bitmaps
+
+
+al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA)
+gets: ALLEGRO_PIXEL_FORMAT_ARGB_8888
+
+
+al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA)
+fails to create
+
+
+al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA)
+gets: ALLEGRO_PIXEL_FORMAT_RGB_565
+works but has no alpha...duh!
+
+al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA)
+fails to create
+
+what if i made l2000 and level buffer 16 with no alpha
+
+that seems to work...
+
+lets test and see the dif..
+
+display 16 or 32
+l2000 and level_buffer 16 no alpha
+
+
+fullscreen 2048x1152
+d32 l32  (55-60fps)
+d16 l32  (55-60fps)
+d16 l16  (58-62fps) slightly better
+
+
+what is the bottleneck?
+
+is is the huge l2000 to level_buffer each frame??
+
+
+what if I made that only do a region??
+let try and see if it gets faster...
+
+//   al_draw_bitmap(l2000, 0, 0, 0);
+   al_draw_bitmap_region(l2000, 0, 0, 1000, 1000, 0, 0, 0);
+
+that got way faster...like 100-110
+
+lets only do it for the section that maps to the screen...
+
+
+
+what are SH, SW, WX, WY?
+
+WY, WY are global but are used in
+seem to be used only in stimp, stamp, and get_new_screen_buffer
+
+SW, SH
+used locally in set_scale_factor, get_new_screen_buffer, stimp and stamp
+
+
+make global to tell what region on l2000 is currently being shown
+
+call them:
+
+int level_display_region_x;
+int level_display_region_y;
+int level_display_region_w;
+int level_display_region_h;
+
+that seems to be a lot faster
+
+map on menu is messed
+
+set in stimp and stamp
+
+no, unless in a game do it all..
+
+use game_exit?? yes
+
+this all seems great and seem a lot faster
+
+lets test...
+
+
+
+speed test
+ill need to redo it...
+i should just run it wide open and manually adjust the screen to start...
+
+nv59 starts out fullscreen 1600x1200 at >100fps then drops to less than 40 in 15s
+sometimes jumps to 80
+
+
+nv59 sp  w 200 drops to 100
+nv59 sp  f 80 drops to 35
+
+nv59 demo w 60 drops to 35
+nv59 demo f 20
+
+i990 sp   600w 100f
+i990 demo 180w 72f
+
+m7667 can do 386 fps in a window!!! and 200 fullscreen
+
+eid can do 800 in windows and 400 fullscreen
+
+demo mode why slower???
+
+disabled all screen overlays, should not be that..
+disabled rungame_key_check()
+changed proc_game_move() look back thing
+all no diff
+
+going back...
+
+I have a new idea about speed test.
+
+run game, or demo and record fps every second
+
+then adjust screen resolution on the fly...
+
+make a pretty graph...
+
+
+name and screen resolution in screen title...done
+
+make get new background get a little larger..done
+what order is stuff drawn in??
+
+
+log file viewer file select
+make a new file... zlog.cpp
+do it....done....
+
+
+redraw map when leaving controller menu
+test keys...fixed...
+
+
+bomb's explosion animation seq is too low, center it better
+looks good to me...
+
+
+
+
+
+
+
+
+level_editor
+
+bring in the files...e_editor
+
+coming along goodly....
+
+
+status window creates new bitmap every time its drawn
+make it draw itself every time...
+now dont need code to draw its bmp or even its bitmap...
+
+
+status and select window are now perfect...
+1 day later even more perfect...
+removed all bitmaps they draw on.
+only one function for each, draw and process
+disable resizing of blocks and special sub windows
+
+
+moving on...
+
+
+pop up menu is transparent..make background opaque...done
+
+
+next...zoom full screen...
+
+looking good...
+i can copy and paste
+
+file stuff disabled for now
+
+screen size change messes with text button positions
+
+clear disabled until erase lifts brought back..done
+
+blocks on off not updating fsel?? looks good now...
+
+
+new backup
+
+20180328 0700
+
+
+
+
+should I make my own file select dialog?
+I hate the way the native windows one looks...
+
+i would have to implement a list box...
+
+what if I just make a wrapper for the gui so i can call it in one line_draw_modelike I used to:
+
+      FILE *filepntr;
+      extern char sel_filename[500];
+      sprintf(sel_filename, "sel\\");
+      if (file_select_ex("Save Selection", sel_filename, "sel", 500, 0, 0))
+      {
+         filepntr = fopen(sel_filename,"w");
+
+
+
+
+re_implement file_select_ex as
+mw_file_select(const char * title, char * filename, const char * ext, ALLEGRO_COLOR col);
+
+works great, add option save  and force extension..done..
+
+i could re-do my file access to use the allegro methods...maybe when I've got too much time on my hands...
+
+
+re do it for rungame save...no that has a special case where i only need the filename and I add my own extensions .gm and .txt
+
+OK whats left in zoom full screen???
+
+random...done
+
+brf...done...
+
+look like zoom fullscreen is totally done..
+
+so is everything in e_editor...
+
+next ...
+
+viewers...will be huge...
+
+but first:
+
+status and select window positions when screen changes
+
+where does db and lefsm get changed when screen size changes??
+all done in set map var...
+
+after screen resize items and enemies are gone?
+try draw big..
+
+
+backup...
+20180329-0700
+
+
+
+object viewer is looking very good
+map move too...
+
+
+
+--------------------
+20180330 0700
+
+item viewer
+creators
+pop message editor
+save and load
+all done
+
+next big thing...lifts
+
+
+lifts is all done except for text...
+
+replace all alert with native msg...
+
+
+//      gui_fg_color = palette_color[14];  gui_bg_color = palette_color[14+224];
+//      alert("Error creating lift step:", (char)NULL, "40 steps is the maximum", "OK", (char)NULL, (char)NULL, (char)NULL);
+//      gui_fg_color = palette_color[9]; gui_bg_color = palette_color[0];
+
+         al_show_native_message_box(display,
+               "Error", "No creator exists for the current item type",
+               "Copy from an existing item of that type, or get one from the selection window",
+                NULL, ALLEGRO_MESSAGEBOX_ERROR);
+
+
+
+
+now alert3
+
+if (alert("Move the key's", "block range also?","","Move", "Leave", 'M', 'L')==1)
+
+if (al_show_native_message_box(display,
+               "Move?", "Move the key's", "block range also?",
+                NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION );
+
+
+if (al_show_native_message_box(display,
+            "Move?", "Move the key's block range also?", NULL, NULL,
+             ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+
+
+
+
+level viewer is mostly done...
+
+it used a trick where the grid was not redrawn
+
+in order to make it work now, i'll need and temp bitmap
+what size...?? 1000 x 1000
+
+e_lev is all done:
+
+next to do:
+
+text input for lift...
+
+
+glt is totally done too...
+
+
+the only files that are not back in the project are:
+e_bitmap
+e_guifnx
+and they will probably not come back....
+pde is mostly disabled too...
+
+
+
+kill all scrn_buffer...
+153 refs...
+all done except for some unused re-szir code in special
+also fix all clips..
+
+
+
+draw pop message on item viewer leaves artifacts
+but only when switching from one message to another
+why does it not redraw then?
+as far as i can tell, it should redraw every frame..
+
+it was because draw pop message set target to something else
+
+
+
+sproingy adjust...done
+crosshairs line 16 inside rect
+928 for highlighted rect
+text entry box done!!!
+
+
+help quits to far..trap esc or mouseb...done
+
+make screen adjust work with level editor and les
+looks good in zfs, obj and lift viewers...
+
+make les adjustable in le done
+
+used F2, same as speed testing in game
+
+I need a variable to tell me if i'm in the level editor
+
+level_editor_running done
+
+mouse off map in main editor...done
+
+
+
+
+
+lots done over long weekeknd
+
+new backup...
+20180401 1025
+
+mouse shown during game and menu screens...done
+make save level have filename automatically filled in...done
+
+
+
+I am new to the whole blender thing and have spent many hours trying
+to figure out what I though would be a simple task.
+
+I am trying to draw a bitmap onto the backbuffer and blend it with the
+backbuffer.
+
+This code from the examples works great:
+
+al_set_blend_color(al_map_rgba_f(0.5, 0.5, 0.5, 0.5));
+al_set_blender(ALLEGRO_ADD, ALLEGRO_CONST_COLOR, ALLEGRO_CONST_COLOR);
+
+But my source bitmap has an alpha channel, and I can't figure out how
+to get that respected...no matter how many different combination I try
+I always get the zero pixels blended also.
+
+I have tried al_set_separate_blender with many different combinations
+and gotten nowhere.
+
+I have read the docuemntation many times, and looked at other explanations
+of blending of the web.  But I can't seem to make it work.
+
+
+<code>
+// this draws a background of colored squares
+   ALLEGRO_COLOR c[5];
+   c[0] = al_map_rgb(255, 0, 0);
+   c[1] = al_map_rgb(0, 255, 0);
+   c[2] = al_map_rgb(0, 0, 255);
+   c[3] = al_map_rgb(255, 255, 255);
+   c[4] = al_map_rgb(0, 0, 0);
+
+   al_set_target_backbuffer(display);
+   al_flip_display();
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   int ci = 0;
+   for (int y=0; y<10; y++)
+      for (int x=0; x<10; x++)
+      {
+         al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, c[ci]);
+         if (++ci>2) ci = 0;
+      }
+
+
+
+// this is the bitmap I am drawing
+   sprintf(msg, "Test") ;
+   int sw = strlen(msg) * 8;
+   ALLEGRO_BITMAP *temp = al_create_bitmap(sw, 8);
+   al_set_target_bitmap(temp);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_text(font, ci[3], sw/2, 0, ALLEGRO_ALIGN_CENTRE, msg);
+   al_convert_mask_to_alpha(temp, al_map_rgb(0, 0, 0));
+
+
+// here is where I have tried just about every blender combination I can think of
+
+   al_set_blend_color(al_map_rgba_f(0.5, 0.5, 0.5, 0.5));
+   al_set_blender(ALLEGRO_ADD, ALLEGRO_CONST_COLOR, ALLEGRO_CONST_COLOR);
+
+
+
+// this is where i actually draw  it
+   al_set_target_backbuffer(display);
+   al_draw_scaled_rotated_bitmap(temp, sw/2, 4, 88, 48, 4, 4, 0, 0);
+   al_flip_display();
+   al_destroy_bitmap(temp);
+
+</code>
+
+
+When I don't specify any blender I get a nice masked text over background.
+
+When I try this:
+al_set_blend_color(al_map_rgba_f(0.5, 0.5, 0.5, 0.5));
+al_set_blender(ALLEGRO_ADD, ALLEGRO_CONST_COLOR, ALLEGRO_CONST_COLOR);
+
+I get a nice blended source and dest, just like what I wanted,
+except the alpha is not respected and I get a rectangle around the text.
+
+
+I tried:
+al_set_blend_color(al_map_rgba_f(0.5, 0.5, 0.5, 0));
+al_set_blend_color(al_map_rgba_f(0.5, 0.5, 0.5, 1));
+al_set_blend_color(al_map_rgb_f(0.5, 0.5, 0.5));
+but they all made no difference.
+
+I tried:
+al_set_blend_color(al_map_rgb_f(0.5, 0.5, 0.5));
+al_set_separate_blender(ALLEGRO_ADD, ALLEGRO_CONST_COLOR, ALLEGRO_CONST_COLOR, ALLEGRO_ADD, ALLEGRO_ONE, ALLEGRO_ZERO);
+
+al_set_blend_color(al_map_rgb_f(0.5, 0.5, 0.5));
+al_set_separate_blender(ALLEGRO_ADD, ALLEGRO_CONST_COLOR, ALLEGRO_CONST_COLOR, ALLEGRO_ADD, ALLEGRO_ALPHA, ALLEGRO_ZERO);
+
+plus many more combinations, but I can never get the alpha mask to work...
+
+Can anyone with more experience with blenders help me?
+
+Do I somehow have to do this with 2 steps?
+
+My overall goal is simply to have a partially transparent bitmap superimposed over
+another bitmap (the backbuffer), (kind like a water mark), but I want it masked so the
+zero pixels are not blended with the background.
+
+
+
+
+pixel format:ALLEGRO_PIXEL_FORMAT_ARGB_8888
+pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+
+
+
+
+looking at different fonts..
+
+great vibes is a free calligraphic font I might use for logo
+by typesetit
+licensed under OFL
+
+I should make my own larger text display function
+
+it purpose to display very large text based on screen and font size
+one and two line versions
+
+
+
+for a few days now I have been working with ttf
+
+I have a nice new script font I'm using for ichael avid eiss
+
+It's called 'Great Vibes'
+by: typesetit
+license: OFL
+
+I also like:
+SaucerBB.ttf
+but it only free for non-commercial use..
+It looks good as my main logo..
+
+
+I have replaced mtextout() with a similar function
+mtextout() was slow, so the new one uses pre-draw bitmaps
+for ichael avid eiss
+seems a lot faster...
+
+I moved all code for logo and splash screen to its own file: zlogo.cpp
+
+I think I am finally happy with the beginning splash screen
+
+now I want to redo demo mode...
+
+its too slow to draw the large text every frame
+I could make another temp bitmap like the others...done...
+
+what am i doing?
+
+I am spending a lot of time making fonts and stuff look pretty...
+
+when will it end???
+
+to do:
+-width of splines smooth change
+-splash screen to not flash when quitting
+-new title with new font
+
+all this is done
+
+predefined enemies editor..done
+
+
+map not redrawn completely,
+probably due to not drawing all of level buffer...
+yes...lets disable map
+just at the function key level...
+
+
+
+
+
+orthographic stretch during game, and or menu screens
+move to F11
+choose another key for controller test exit other than F11
+auto choose ortho based on screen size
+maybe I could make othro strecth CTRL SHIFT F12
+done...
+
+
+now make les auto chosen based on screen size...
+
+where??
+init screen
+also screen change
+
+make a seperate function
+
+set_les()
+
+
+how?
+
+
+rebuild bitmaps does this:
+
+   SCREEN_W = disp_w_curr/les;
+   SCREEN_H = disp_h_curr/les;
+   ALLEGRO_TRANSFORM trans;
+   al_identity_transform(&trans);
+   al_orthographic_transform(&trans, 0, 0, -1.0, disp_w_curr/les, disp_h_curr/les, 1.0);
+   al_use_projection_transform(&trans);
+
+
+init screen does this:
+
+   SCREEN_W = disp_w_curr/les;
+   SCREEN_H = disp_h_curr/les;
+
+
+   ALLEGRO_TRANSFORM trans;
+   al_identity_transform(&trans);
+   al_orthographic_transform(&trans, 0, 0, -1.0, disp_w_curr/les, disp_h_curr/les, 1.0);
+   al_use_projection_transform(&trans);
+
+
+why dont i put that in set_les
+
+
+need a function to set ortho
+called by init and change
+
+make set_les do auto
+
+
+rebuild does
+set ortho
+
+init does:
+auto_set_les();
+set_ortho();
+
+change does:
+auto_set_les();
+rebuild
+( set_ortho(); is done in rebuild bitmaps)
+
+F12 does
+rebuild
+
+this works...
+
+now to auto set
+never auto choose 3
+
+SCREEN_W > 1024 les = 2
+
+looks good in game, but level editor??
+
+does scale change with les??
+
+it should...done
+but when its saved with a different les???
+its good
+
+
+demo mode
+resize
+fullscreen...
+goes really slow and no title..
+2 resizes...
+only in demo mode
+fixed..font not destroyed before recreate
+
+
+
+do I need to load fonts at 400??
+what does 200 look like?
+"saucer"
+used for:
+main tile Purple Martains
+main title created by
+menu title
+level done
+demo mode
+240 is good enough
+
+"a charming font"
+used for ichael avid eiss
+240 is good
+
+
+locked exit to show number left
+
+
+bottom display to not conflict with frame display (mostly in demo mode)
+moved up BORDER_WIDTH
+
+
+
+m7667 resize ok but going in or out of fullscreen causes exit when client
+do I still have F12 exit key in client??
+yes in 4 places...change to F11 for now
+done....
+
+
+
+client quits game, but freezes locally..
+walk me through the sequence of client quitting
+client presses ESC
+client local control gets comp move of 127 and sends cdat to server
+server add to game move array
+in add game move special move exit is entered instead of escape
+player state change to incative
+in proc game move for local client become inactive...
+this is the problem:
+while (key[ALLEGRO_KEY_ESCAPE]); // wait for release, but send cdat first
+do i even need this???
+
+
+no mouse for options menu..fixed
+restore full screen mode when leaving options toggles..done
+
+
+log file viewer les...done
+
+
+
+
+level viewer won't load good
+keeps saying cant find file...400 times
+fixed...
+
+
+
+simplify num_enemy
+int num_enemy in main in pm.h
+counted in game in enemy collision
+counted in level editor in sort_enemy
+only only enemy_data now, no duplicate in lev
+
+same for items..done
+
+
+
+start level editor from command line
+les is bad fixed
+
+
+make my own option setting screens with my own sliders and buttons
+
+netgame server text
+deathmatch_pbullets_damage slider
+
+I could do it with the menus that I have now..
+make netgame menu...done
+call it from old menu toggles..
+done...
+now implement the toggles
+in config load set the menu values...done
+edit and change with menu
+this is all done....yay!!!
+now if I do logging I can kill the stupid toggle menu...
+done....!!!!
+kill it!!!!
+
+
+number pad keys to work in help...done
+
+fix logo in help..done
+
+when ortho changes
+help divider lines off screen...fixed
+
+
+close holes in menu
+-bitmap editor is all that is left
+do I still have release in pm.h??
+
+Random mode in zfs
+menu in editor
+fake keypress mode
+copy files to clients
+packet test
+log file viewer
+temp test -g
+record video
+debug overlay for client and server
+
+
+
+
+
+
+---------------------------------------------------------
+should I make my background totally black?
+---------------------------------------------------------
+modify shapes 0-32 to remove really light pixels?
+how could i do this??
+save_sprit() is still there just commented out
+load, modify, save...done
+
+
+---------------------------------------------------------
+what if my whoel drawing routine is too complicated
+---------------------------------------------------------
+right now:
+I have l2000 with all the blocks and lift lines drawn
+every frame I start with this and copy it to level buffer
+then all objectrs draw on the level buffer
+then i take a screen sized region of the level buffer and copy it to the backbuffer
+then I draw overlay on that
+then finally I flip display
+
+how many target bitmap changes: 2
+switch to level buffer
+and get new background
+draw on level buffer
+switch to screen buffer
+
+how could i make it easier??
+
+draw background directly on backbuffer from memory bitmaps
+draw objects directly on backbuffer
+draw overlay
+flip
+
+or...
+
+draw background directly on backbuffer from l2000 (just like get new screen buffer)
+draw objects directly on backbuffer (just need to change offsets)
+draw overlay (same)
+flip
+
+test this and see if its faster...
+made 1 change in get_new_screen_buffer()
+
+i just realized, i have scaling going on too
+i cant just switch from drawing on level buffer which is unscaled
+to screen buffer, which is...fuck it, i'm not doing this
+
+
+
+
+speed testing...
+
+while speed testing use number keys to disable stuff to see the
+performance hit
+
+get_new background
+screen meassges
+bottom messages
+
+show fps independent of overlay
+
+wow, i got somewhere!
+I found that bottom msg slows stuff down...
+on nv59 it down a lot....
+
+
+make the keys active at any time, not just speed test
+show when something is disabled only
+
+test big netgame...
+
+
+it gets a lot faster when screen and bottom msg are disabled..
+
+I should see if there is some way to optimize them..
+
+like not using temp bitmaps...
+like not drawing as many of them..
+player health screen messages could be only for local player not all
+
+basically i dont want to switch my target bitmap during game loop
+and all of my fancy text routine do that...
+
+what about screen overlay? should be just straight text...yes
+what about percent bar?? no switch...its good
+
+move show_player_join_quit to loop for disabling...
+if (show_player_join_quit_timer) show_player_join_quit();
+done
+
+disable by default: 3 4 5 ...done
+
+test some more...
+
+what if i evened out frame skip
+like every other farem, or every 3 or 4 frame...etc
+why?  if one frame is slow wont they all be??
+
+
+what if i made the fancy text drawing stuff off when frames skipped?
+
+profile the text drawing stuff...
+in game loop make a function that draw 100 rtext things to screen every drame
+
+change health display to show +H or -H
+use regular text
+
+found a very small font called: pixel gosub
+"Pixel Sagas" and "Neale Davidson" may be used interchangeably in this agreement. These all refer to the intellectual and legal property of Neale Davidson.
+Usage
+Pixel Saga's Shareware Fonts are free to use for personal, non-commercial purposes. No payment is necessary to use Pixel Saga's Freeware Fonts for personal use, and there is no limit to the amount of prints, pages, or other medium to be produced using them. However, you cannot offer the font for commercial sale, or offer for direct download. The inclusion of the font name and/or site URL in the credits or documentation when it is used is appreciated, but this is not mandatory.
+
+is is otf but loads fine
+i load with size 7
+f3 = al_load_ttf_font("bitmaps/PixelGosub.otf", 7, ALLEGRO_TTF_MONOCHROME);
+f3 = al_load_ttf_font("bitmaps/PixelGosub.otf", -8, ALLEGRO_TTF_MONOCHROME);
+these both look good
+its looks like 3x5 on the screen
+
+ok now I never need screen message...
+
+
+how about bottom display
+i like how it looks...
+but so what?, if its slow it needs to go...
+fixed...
+
+in draw player health display all is good...
+
+in bottom message all is good
+
+screen message, disabled
+
+all that's left is join_quit..lets leave it
+
+lifts use rtextout_centre()...
+but only in vertical mode
+its rare enough i'm going to leave it for now
+
+speed seems good now across all clients except nv59
+but nv59 has always had issues...
+
+what if i did nv59 in a desktop screen size
+less than the huge 1600x1200 i have been using??
+
+
+
+
+
+---------------------------------------------------------
+hysteresis window does not work
+---------------------------------------------------------
+always stuck to lower right corner
+WX and WY needed to persist
+made it a global again
+bug happened after I made it local..
+
+
+
+---------------------------------------------------------
+------------------------ linux --------------------------
+---------------------------------------------------------
+
+got it to compile and run..
+
+complains it can't create built in font
+
+also can't load a4.tga
+
+gcc version 5.4.0
+allegro version 5.2.5??
+
+i'm editting in 2 places at once
+thats a recipe for disaster...
+
+edit only on linux for now
+
+the second crash was that I couldn't create a 16 bit display
+fixed that...
+
+splash screen has no large Purple Martians but has created by??
+same font??
+logo works
+crashes a soon as splash screen done..
+
+i'm running into max bitmap size
+
+it says it 2048
+
+when I create the title its close...
+
+2090 one time
+2034 another timeval
+why the fuck is it different???
+
+I don't know...
+
+I would like the title as high a resoultion as i can...
+
+'Purple Martians!' is 14 char
+
+take max bitmap size and divide by 16
+
+2048/16 = 128
+
+8192/16 = 512
+
+
+changed the load font function to create saucer font by
+max bitmap / 16
+
+also changed load built in font to try a4_font.bmp if it fails
+
+left achafont at 240...
+what's its max length?  'ichael' 6 char
+
+2048/6 = 341
+8192/6 = 1365
+just leave at 240 for now...looks good...
+
+
+as far as the display bit depth, i'll try 16 "SUGGEST"
+works on linux just fine, gets 32 bit...
+
+
+on linux the built in font seems to work now that I have a display...
+
+
+its really slow
+
+linux:
+32 bit
+opengl
+render method: 2
+max bitmap size: 2048
+support seperate alpha: no
+
+win:
+16 or 32 bit
+D3D
+render method: 0
+max bitmap size: 8192
+support seperate alpha: yes
+
+
+no matter what I disable, linux runs at 60fps
+
+2 things..
+
+downgrade allegro to 5.2.4..done
+get gcc-7..done
+rebuild allegro with gcc-7...
+
+that made exactly no difference...
+
+
+I tried opengl on windows and I got exactly 60fps also...
+
+its the exact same as the desktop refresh rate..
+I changed the desktop to 40 and my game followed...
+
+try open gl 3
+
+sudo apt-get install mesa-utils
+
+glxinfo | grep "render string"
+
+
+open_gl
+seems to wait for vertical retrace before doing al_flip_display()
+
+u swap method:0 same as w
+
+w render method:0
+w vsync:0
+
+u render method = 2
+u vsync:0
+
+none of this works...
+vblank_mode=0  (from command line)
+
+GLX_EXT_swap_control
+GLX_MESA_swap_control
+
+moving on......
+
+l seems to not change screen zize nicely..
+in control...make sure all resize event are received before actually resizing
+
+when switching away from fullscreen mode
+sizes all look good, but still fullscreen??
+
+in linux i try to set to fullscreen but get slightly less???
+
+
+on the plus side, it looks like everything else is working good in linux
+
+all that i need to figure out is the open gl stuff
+with fullscreen, resizing, ortho, les, etc...
+
+
+init screen
+fullscreen:0 les:1
+x:  10 y:  10 w: 800 h: 600 - curr
+x:  10 y:  10 w: 800 h: 600 - wind
+x:  10 y:  10 w: 800 h: 600 - disp
+0:   0 0:   0 w: 800 h: 600 - scrn
+----------------------------------
+Display change
+x:  43 y:  47 w: 800 h: 600 fs:0
+window moved
+fullscreen:0 les:1
+x:  43 y:  47 w: 800 h: 600 - curr
+x:  43 y:  47 w: 800 h: 600 - wind
+x:  43 y:  47 w: 800 h: 600 - disp
+0:   0 0:   0 w: 800 h: 600 - scrn
+Display change
+x:   0 y:   0 w: 800 h: 600 fs:1
+changed to fullscreen
+fullscreen:1 les:2
+x:   0 y:   0 w:1280 h:1024 - curr
+x:  43 y:  47 w: 800 h: 600 - wind
+x:  35 y:  18 w:1245 h:1006 - disp
+0:   0 0:   0 w: 640 h: 512 - scrn
+Display change
+x:   0 y:   0 w: 640 h: 512 fs:0
+changed away from fullscreen
+fullscreen:0 les:1
+x:  43 y:  47 w: 800 h: 600 - curr
+x:  43 y:  47 w: 800 h: 600 - wind
+x:  35 y:  18 w: 800 h: 600 - disp
+0:   0 0:   0 w: 800 h: 600 - scrn
+Display change
+x:  35 y:  18 w: 800 h: 600 fs:0
+window moved
+fullscreen:0 les:1
+x:  35 y:  18 w: 800 h: 600 - curr
+x:  35 y:  18 w: 800 h: 600 - wind
+x:  35 y:  18 w: 800 h: 600 - disp
+0:   0 0:   0 w: 800 h: 600 - scrn
+Display change
+x:  35 y:  18 w:1245 h:1006 fs:0
+window resized
+fullscreen:0 les:2
+x:  35 y:  18 w:1245 h:1006 - curr
+x:  35 y:  18 w:1245 h:1006 - wind
+x:  35 y:  18 w:1245 h:1006 - disp
+0:   0 0:   0 w: 622 h: 503 - scrn
+
+
+what if I tried ALLEGRO_FULLSCREEN_WINDOW....
+
+
+
+this could be happening:
+
+fullscreen mode is set
+linux change to slightly less than fullscreen
+my proc_screen_change() has no case to deal with this...
+
+I should update the full screen sizes
+
+
+
+
+ripped out all the custom fullscreen window shit
+now it works good in win and lin except for
+lin background wrong size??
+
+fullscreen and back OK, only when resize...
+
+
+l2000 get drawn wrong after resize and I don't know why
+code is just about identical...
+
+when I am setting ortho, I need to make sure i'm setting it for the backbuffer...problem solved
+
+
+the good thing is that almost everything else works great..
+
+
+lin window moves down 21 pixels, every time fs on/off
+
+
+
+
+
+
+
+---------------------------------------------------------
+------------------------ Static Linking------------------
+---------------------------------------------------------
+why?
+so i dont have to distribute dlls with my project?
+
+my method now (dynamic)
+
+link with allegro_monolith-5.2
+
+I need to distribute with executable:
+allegro_monolith-5.2.dll (15,218K)
+libgcc_s_dw2-1.dll (112K)
+libstdc++-6.dll (1,504K)
+libwinpthread-1.dll (46K)
+
+my exectutable is (3,209K)
+
+total: 20,089K
+
+what do I need to do static linking?
+
+build allegro with static linking
+
+
+
+From Neil:
+https://www.allegro.cc/forums/thread/617338
+In Code::Blocks, I use "allegro_monolith-static".
+
+For my linked libs, I have (copy and pasted from my codeblocks project file). Maybe this will help...
+
+<Linker>
+   <Add option="-m32" />
+   <Add option="-static" />
+   <Add option="-static-libgcc" />
+   <Add library="mingw32" />
+   <Add library="dumb" />
+   <Add library="FLAC" />
+   <Add library="vorbisfile" />
+   <Add library="vorbis" />
+   <Add library="freetype" />
+   <Add library="ogg" />
+   <Add library="physfs" />
+   <Add library="png16" />
+   <Add library="zlibstatic" />
+   <Add library="gdiplus" />
+   <Add library="uuid" />
+   <Add library="kernel32" />
+   <Add library="winmm" />
+   <Add library="psapi" />
+   <Add library="opengl32" />
+   <Add library="glu32" />
+   <Add library="user32" />
+   <Add library="comdlg32" />
+   <Add library="gdi32" />
+   <Add library="shell32" />
+   <Add library="ole32" />
+   <Add library="advapi32" />
+   <Add library="ws2_32" />
+   <Add library="shlwapi" />
+   <Add library="dsound" />
+   <Add library="jpeg" />
+   <Add library="opusfile" />
+   <Add library="opus" />
+</Linker>
+
+From wiki:
+https://wiki.allegro.cc/index.php?title=Windows,_Code::Blocks_and_Allegro_5
+
+-lallegro_monolith-debug-static
+-ljpeg
+-ldumb
+-lFLAC
+-lfreetype
+-lvorbisfile
+-lvorbis
+-logg
+-lphysfs
+-lpng16
+-lzlibstatic
+-ldsound
+-lgdiplus
+-luuid
+-lkernel32
+-lwinmm
+-lpsapi
+-lopengl32
+-lglu32
+-luser32
+-lcomdlg32
+-lgdi32
+-lshell32
+-lole32
+-ladvapi32
+-lws2_32
+-lshlwapi
+-static-libstdc++
+-static-libgcc
+
+
+compile allegro with shared off
+
+
+this is my cobeblock project file:
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="pm" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="default">
+				<Option output="pm" prefix_auto="1" extension_auto="1" />
+				<Option object_output="o" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-pg" />
+					<Add option="-Og" />
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+					<Add option="-static-libstdc++" />
+					<Add option="-static-libgcc" />
+					<Add option="-static" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-pg" />
+			<Add option="-g" />
+			<Add directory="C:/mingw32/include" />
+		</Compiler>
+		<Linker>
+			<Add option="-pg -lgmon" />
+			<Add library="C:/mingw32/lib/liballegro_monolith.dll.a" />
+			<Add library="C:/mingw32/lib/libnet.a" />
+			<Add library="C:/mingw32/i686-w64-mingw32/lib/libwsock32.a" />
+			<Add library="C:/mingw32/i686-w64-mingw32/lib/libz.a" />
+			<Add directory="C:/al5/allegro-i686-w64-mingw32-gcc-7.2.0-posix-dwarf-dynamic-5.2.4.1/allegro/lib" />
+		</Linker>
+		<Unit filename="docs/new5.txt" />
+		<Unit filename="docs/new5_todo.txt" />
+		<Unit filename="src/e_editor.cpp" />
+		<Unit filename="src/e_fnx.cpp" />
+		<Unit filename="src/e_glt.cpp" />
+		<Unit filename="src/e_item.cpp" />
+		<Unit filename="src/e_lev.cpp" />
+		<Unit filename="src/e_menu.cpp" />
+		<Unit filename="src/e_nev.cpp" />
+		<Unit filename="src/e_nlv.cpp" />
+		<Unit filename="src/e_pde.cpp" />
+		<Unit filename="src/e_sel.cpp" />
+		<Unit filename="src/e_sliders.cpp" />
+		<Unit filename="src/e_special.cpp" />
+		<Unit filename="src/n_client.cpp" />
+		<Unit filename="src/n_client.h" />
+		<Unit filename="src/n_network.cpp" />
+		<Unit filename="src/n_network.h" />
+		<Unit filename="src/n_packet.cpp" />
+		<Unit filename="src/n_packet.h" />
+		<Unit filename="src/n_server.cpp" />
+		<Unit filename="src/n_server.h" />
+		<Unit filename="src/pm.h" />
+		<Unit filename="src/yfilecom.cpp" />
+		<Unit filename="src/zbullets.cpp" />
+		<Unit filename="src/zcontrol.cpp" />
+		<Unit filename="src/zemove.cpp" />
+		<Unit filename="src/zfile.cpp" />
+		<Unit filename="src/zfnx.cpp" />
+		<Unit filename="src/zitem.cpp" />
+		<Unit filename="src/zlifts.cpp" />
+		<Unit filename="src/zlog.cpp" />
+		<Unit filename="src/zlogo.cpp" />
+		<Unit filename="src/zloop.cpp" />
+		<Unit filename="src/zmain.cpp" />
+		<Unit filename="src/zmenu.cpp" />
+		<Unit filename="src/zplayer.cpp" />
+		<Unit filename="src/zscrn.cpp" />
+		<Unit filename="src/zsound.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
+
+
+static version   liballegro_monolith-static.a
+
+dynamic version  liballegro_monolith.dll.a
+
+in build options tried moving from lefthand side with full path
+to right hand side like this:
+
+old:
+C:\mingw32\lib\liballegro_monolith.dll.a
+C:\mingw32\lib\libnet.a
+C:\mingw32\i686-w64-mingw32\lib\libz.a
+C:\mingw32\i686-w64-mingw32\lib\libwsock32.a
+new:
+-lallegro_monolith.dll
+-lnet
+-lzlib
+-lwsock32
+worked...
+
+
+
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="pm" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="dynamic">
+				<Option output="pm" prefix_auto="1" extension_auto="1" />
+				<Option object_output="o" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-pg" />
+					<Add option="-Og" />
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+					<Add option="-lallegro_monolith.dll" />
+					<Add option="-lnet" />
+					<Add option="-lzlib" />
+					<Add option="-lwsock32" />
+				</Linker>
+			</Target>
+			<Target title="static">
+				<Option output="pm" prefix_auto="1" extension_auto="1" />
+				<Option object_output="o" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-pg" />
+					<Add option="-Og" />
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+					<Add option="-static-libstdc++" />
+					<Add option="-static-libgcc" />
+					<Add option="-static" />
+					<Add option="-lallegro_monolith-static" />
+					<Add option="-ljpeg" />
+					<Add option="-ldumb" />
+					<Add option="-lFLAC" />
+					<Add option="-lfreetype" />
+					<Add option="-lvorbisfile" />
+					<Add option="-lvorbis" />
+					<Add option="-logg" />
+					<Add option="-lphysfs" />
+					<Add option="-lpng16" />
+					<Add option="-lzlib" />
+					<Add option="-ldsound" />
+					<Add option="-lgdiplus" />
+					<Add option="-luuid" />
+					<Add option="-lkernel32" />
+					<Add option="-lwinmm" />
+					<Add option="-lpsapi" />
+					<Add option="-lopengl32" />
+					<Add option="-lglu32" />
+					<Add option="-luser32" />
+					<Add option="-lcomdlg32" />
+					<Add option="-lgdi32" />
+					<Add option="-lshell32" />
+					<Add option="-lole32" />
+					<Add option="-ladvapi32" />
+					<Add option="-lws2_32" />
+					<Add option="-lshlwapi" />
+					<Add option="-lnet" />
+					<Add option="-lwsock32" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-pg" />
+			<Add option="-Og" />
+			<Add option="-g" />
+			<Add directory="C:/mingw32/include" />
+		</Compiler>
+		<Linker>
+			<Add option="-pg -lgmon" />
+			<Add directory="C:/al5/allegro-i686-w64-mingw32-gcc-7.2.0-posix-dwarf-dynamic-5.2.4.1/allegro/lib" />
+		</Linker>
+		<Unit filename="docs/new5.txt" />
+		<Unit filename="docs/new5_todo.txt" />
+		<Unit filename="src/e_editor.cpp" />
+		<Unit filename="src/e_fnx.cpp" />
+		<Unit filename="src/e_glt.cpp" />
+		<Unit filename="src/e_item.cpp" />
+		<Unit filename="src/e_lev.cpp" />
+		<Unit filename="src/e_menu.cpp" />
+		<Unit filename="src/e_nev.cpp" />
+		<Unit filename="src/e_nlv.cpp" />
+		<Unit filename="src/e_pde.cpp" />
+		<Unit filename="src/e_sel.cpp" />
+		<Unit filename="src/e_sliders.cpp" />
+		<Unit filename="src/e_special.cpp" />
+		<Unit filename="src/n_client.cpp" />
+		<Unit filename="src/n_client.h" />
+		<Unit filename="src/n_network.cpp" />
+		<Unit filename="src/n_network.h" />
+		<Unit filename="src/n_packet.cpp" />
+		<Unit filename="src/n_packet.h" />
+		<Unit filename="src/n_server.cpp" />
+		<Unit filename="src/n_server.h" />
+		<Unit filename="src/pm.h" />
+		<Unit filename="src/yfilecom.cpp" />
+		<Unit filename="src/zbullets.cpp" />
+		<Unit filename="src/zcontrol.cpp" />
+		<Unit filename="src/zemove.cpp" />
+		<Unit filename="src/zfile.cpp" />
+		<Unit filename="src/zfnx.cpp" />
+		<Unit filename="src/zitem.cpp" />
+		<Unit filename="src/zlifts.cpp" />
+		<Unit filename="src/zlog.cpp" />
+		<Unit filename="src/zlogo.cpp" />
+		<Unit filename="src/zloop.cpp" />
+		<Unit filename="src/zmain.cpp" />
+		<Unit filename="src/zmenu.cpp" />
+		<Unit filename="src/zplayer.cpp" />
+		<Unit filename="src/zscrn.cpp" />
+		<Unit filename="src/zsound.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
+
+
+
+
+
+
+
+Having trouble with static linking
+
+I am new to static linking, have always used dynamic with no problem.
+Thought I'd try it.
+
+ - First of all, what are the advantages of static vs dynamic?
+
+ - Second, what extra files do I need to include with my game?
+
+With dynamic it seems I need:
+allegro_monolith-5.2.dll (15,218K)
+libgcc_s_dw2-1.dll (112K)
+libstdc++-6.dll (1,504K)
+libwinpthread-1.dll (46K)
+
+I don't know what static will require as I havent been able to get it working yet.
+
+
+I am using:
+
+mingw-w64
+Version:7.2.0
+Architecture:i686
+Threads:posix
+Exception:dwarf
+Build revison:1
+
+Allegro 5.2.4 (from source)
+
+Code::Blocks 17.12
+
+
+I built both the dynamic and static monolith debug release versions of allegro
+
+The only thing I did different for static was uncheck the SHARED flag in CMake
+
+I changed the linker library list from:
+-lallegro_monolith.dll
+-lzlib
+-lnet
+-lwsock32
+
+to:
+-lallegro_monolith-static
+-ljpeg
+-ldumb
+-lFLAC
+-lfreetype
+-lvorbisfile
+-lvorbis
+-logg
+-lphysfs
+-lpng16
+-lzlib
+-ldsound
+-lgdiplus
+-luuid
+-lkernel32
+-lwinmm
+-lpsapi
+-lopengl32
+-lglu32
+-luser32
+-lcomdlg32
+-lgdi32
+-lshell32
+-lole32
+-ladvapi32
+-lws2_32
+-lshlwapi
+-lnet
+-lwsock32
+
+I also set these compiler flags:
+Static libgcc [-static-libgcc]
+Static libstdc++ [-static-libstdc++]
+Static linking [-static]
+
+
+
+My project compiles, links and runs fine with dynamic linking.
+But I am getting linker errors when I try static.
+
+There seem to be 2 things linker can't find:
+
+fixed point routines in fmaths.inl:
+C:\mingw32\include\allegro5\inline\fmaths.inl|46|undefined reference to `_imp__al_fixtorad_r'|
+
+and opus stuff:
+C:\devel\Allegro5\addons\acodec\opus.c|102|undefined reference to `op_free'|
+
+
+I am lost here.  I don't know how to fix these errors.
+I barely understand how I got this far...
+
+
+Any advice on static vs dynamic as it applies to Allegro would be greatly appreciated.
+
+Do I even want or need to do this?
+Should I just use dynamic and not worry about static?
+
+I needed to compile with -DALLEGRO_STATICLINK
+
+
+now everything is in the executable...
+pm.exe 17,084K and needs nothing else
+
+later i may try to trim out things i dont need...
+
+
+level editor les
+main is good in les=1
+but zfs and viewers don;t get there until i cycle with F12
+probably set map var...
+actually instead of running ortho, run rebuild_bitmaps()..fixed
+
+
+---------------------------------------------------------
+bug pop-up message viewer on linux has extra blank line at end
+---------------------------------------------------------
+
+I looked at the string and there is an extra 13 at the end
+but only on linux????
+
+I changed to read files in binary mode and it seem to work the same in both now...
+no it doesn't....
+
+what the hell is going on??
+
+in windows \n is 10 and \r is 13
+
+it look like my file reading stuff uses \n (10) as a seperator
+
+for messages why don't i just leave 126 as my newline
+
+lets revert back...done
+
+went back to opening in 'r' mode
+now i dont do any messing with converting, i just leave 126 as my newline
+works same in linux, but now I get ^ at end of text
+
+when I load text, ignore 13...
+
+this seems to work now...
+
+
+lets look at the editor..its good too...
+
+this is all done
+
+
+
+when players health is clamped past 100 it generates a - health display
+fixed....
+
+
+
+
+
+
+
+i'm losing keypresses
+like F12 key up...
+in control i'm trying to filter multiple resize events
+is it needed in linux...yes..
+
+redid the control loop, seems to work good now...
+
+
+
+can't quit demo mode
+fixed
+
+
+
+icons...
+
+what does allegro say...
+
+in windows I have one for the window and in the taskbar
+
+I made a file called icon.rc
+#include <windows.h>
+allegro_icon  ICON  bitmaps/pm.ico
+added it to my project and that's literally all it took!!!
+
+what about linux...
+
+the function:
+al_x_set_initial_icon(tmp);
+is supposed to be called before you create the display
+need to include:
+#define ALLEGRO_UNSTABLE
+#include <allegro5/allegro_x.h>
+and the fucntion will not be found on a windows system
+but after all that it doesn't seem to do anything...
+I made a pm.desktop file in ubuntu
+you can specify an icon in that..
+not sure how usefull that will be...
+
+
+
+
+
+after playing a netgame for 3 level dones
+server player is getting random moves..
+
+this bug is hard to reproduce...
+
+
+could it be something to do with re-joining after level done??
+
+
+reproduced on 8  player game after a loooooooonnnnnggg time
+level 12 about 50 frames in
+
+
+i had logging on!!!
+
+server log file:20180418-165728.txt
+17,746 KB
+313400 lines
+16897 frames
+/ 40 = 422 seconds
+/60 = 7 minutes
+
+log file starts at level 5
+and ends on level 5 7 minutes later...
+wtf??
+where are the rest of my logs!!!?????
+
+does the passcount not reset??
+
+--------------------------
+
+level 14 approx 100 sec or 4000 frames
+
+20180418-185448
+5,501KB
+98,894 lines
+4830 frames
+
+looks like there were only 6 players that joined
+player 7 did not
+i have stats for player 7 at the end but no name at the top...weird
+
+p0 i990
+p1 nv59
+p2 pfv
+p3 e6430
+p4 y510
+p5 eid
+p6 e6410
+p7 m-4230-3
+
+
+could be my log file viewer....tis...
+fixed that, now I have all 7 clients
+
+moving on...
+
+cant see anything on the server that would explain it
+
+looked on client nv59, but its lin and even though i copied
+i had old version cause its not compiled...
+
+i'll need to look on a windows machine..
+looked on pfv...found nothing
+looked on y510...found nothing
+
+looked on e6430:
+file: 20180418-185448
+it looks like a server file...wtf
+
+----------------------------------------------------------
+
+try to reproduce again
+
+
+did it again...
+level 14 100 frames in
+when i took player nv59 off F1 mode
+20180419-043626
+
+p0 i990
+p1 nv59
+p2 pfv
+p3 e6430
+p4 eid
+p5 e6410
+p6 m-4230-3
+p7 y510
+
+
+notes:
+end of level player array on nv59
+server is mode 9??
+at start server is mode 2
+looks like they are all like that...
+
+
+p0 i990
+p1 nv59 ns
+p2 pfv ns
+p3 e6430 ns
+p4 eid ns
+p5 e6410 ns
+p6 m-4230-3 ns
+p7 y510 ns
+
+none are pretending to be server...
+
+what now??
+
+is the corruption on the server and just propogated backtop the clients?
+i'm thinking thats the case...
+because if it wasn't i would be getting lots of chdf corrections
+and i'm not
+
+what can i do now??
+
+look more closely at when cdats are rx'd
+
+nv59
+got game move on 2556 from server frame 2557
+that i am pretty sure he did not send a cdat for...
+actually thats not true...
+
+
+
+------------------------------------
+
+did it again
+
+this time all players were acting weird even after i stopped f1 modes
+
+lev 14 frame 42-50 on pfv was where i first noticed it...
+20180419-060449
+
+nv59 log
+no moves received from server that were not sent by cdat
+looks like f1 fake mode was stopped at frame 921
+
+then manual keys pressed at
+1022
+1031
+
+that does not match up with what i saw...
+i get no game moves received for player 1 from 925 to 1022
+then 5 manaul move from 1022 to 1098
+then nothing until
+5 manual moves from 1272 to 1285
+then nothing until 8000 with fake mode again
+ended with 12 chdf corrections
+
+i got nothing....
+why is it so fucky??
+
+should i look in game moves??
+compare server and client?
+
+not until moves gets to 16000 or so on level 14
+
+
+got another
+level 14 around 40-50
+look in game moves
+
+on m-4230-3 at frame 1576 stopped f1 mode
+then only got a few manual keys
+1607
+1651
+1689
+1710
+1734
+1783
+so there should be no player 1 entries in game move after that
+i don't see any on the server's game move
+
+
+
+
+
+tried again this time only level 13 then 14
+
+did not happen until 180 sec into game
+
+what is getting counted up to???
+
+game moves look identical
+
+is it because how i am reading from the game moves array....
+
+how can i check this...
+
+
+what reads the game move array...
+
+proc_game_move()
+run once per frame
+uses to iterate and or search
+
+
+
+and this is run once per frame for each player
+
+// common for all players;  get controls from game_move
+int found = 0;
+for (int g=game_move_entry_pos; g>0; g--)  // look back from entry pos
+   if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
+      if (game_moves[g][0] <= passcount) // check to make sure its not in the future
+      {
+         found = 1;
+         set_controls_from_comp_move(g);
+         game_move_current_pos = g; // for savegame running only
+         g = 0; // break out of loop
+      }
+if (!found) clear_keys(p); // if no match found
+
+
+game_move_entry_pos
+
+
+there is a global, and there is also one in players1 struct
+
+53 matches in total..
+
+i should un ambiguate this....
+
+int game_move_entry_pos; (global variable)
+- used to keep track of the entry point of the game move array
+
+when a new game move is put in the array this is used
+there should only be one way a new game move gets put in the array
+add_game_move()
+server calls it 6 time..
+loop calls it twice when loading annd starting a new level
+control call it twice
+once for level done
+once in single player local control
+
+int game_move_entry_pos; (global variable)
+- also used as a start point when reverse searching game_move array
+like in proc_game_move() and when player gets move from game array
+
+when do i reset it..
+
+
+I THINK I FOUND SOMETHING!!!
+
+
+if (start_mode != 2) // skip this when start_mode == 2 ; run game
+{
+   // reset game_move array
+   for (int x=0; x<10000; x++)
+      for (int y=0; y<4; y++)
+         game_moves[x][y] = 0;
+   game_move_entry_pos = 0;
+
+
+i am only erasing the first 10,000 entries.....
+its actually 1,000,000 now
+
+10,000 / (7 moves per frame * 40 frames per second)
+= 35 seconds
+
+1,000,000 / (7 moves per frame * 40 frames per second)
+= 58 minutes (at max keypresses per second)
+
+log file name to have level and hostname..done
+
+client log file to have full player array at end...done
+
+start of log file after level done to have header with
+hostname and player array..done
+
+change game move logging (which is client only)
+tag the logged move with the player it is for...
+right now its tagged with the active local player...
+
+
+
+what is client sync error that keeps showing up on clients?
+when a client gets game moves with passcounts in the past
+that will never be processed
+its bad, but chdf will fix it..
+lets not have that show, except in debug overlay..done
+
+
+
+---------------------------------------------------------
+in order for save game to play back correctly
+they need to have the same values for pbullets, etc...
+---------------------------------------------------------
+save as 3 ints at start of gm
+restore after by loading config
+modified gm and txt save
+modified gm load..
+modified existing demos
+added 1 5 1...
+in demo mode and run game restore after...done
+this should be done
+
+
+
+make some automated post build setup stuff...
+
+make a folder called pm_win_release
+
+can i do it from the command line..
+all i really want to do is copy stuff...
+
+made a windows batch file that does what i want....
+
+to make a windows release...
+
+set version number in code and in help file
+define pm_release
+
+compile the project with win_static_release build target
+run the batch file
+zip and rename
+
+how can I static build in linux
+too complicated...
+
+compile
+run bash file
+compress
+
+make some more stand alone text files, like
+setting up dev env on win and lin
+
+
+
+death animation??
+enemies have them, why not for player??
+
+editing timeset with gimp
+
+image->configure grid
+view-> show grid
+view-> snap to grid
+view-> snap to canvas edges
+
+file->overwrite (save back in same format)
+
+to make a proper death animation seq
+it will have to be for each player's color ....
+
+what if I just do a shrink, rotate, and draw item disapear ans...
+
+where would I do this??
+
+at the end of player move, do the shrink and rotate
+in draw_player() superimpose the item disapear thingy
+done...
+
+
+
+files still not added (probably never...)
+- e_bitmap
+- e_guifnx
+
+I just realize I have no way of setting blocks drawable
+copying and moving blocks
+or doing anything with animation sequences
+
+I could probably make some of e_bitmap work...
+
+like select bitmap and animation sequence..
+
+i made select bitmap and animiation work
+but no link to them...
+
+make select bitmap, coopy bitmap accsesiable from animation
+
+also add save...
+
+done...now link to it in editor...done
+
+
+
+re-write help file
+font and credits..done
+screen mode..done
+in game function keys..done
+commandline..done
+history update..done
+installing..done
+linux..done
+add pixel_sub font credits..done
+
+
+
+---------------------------------------------------------
+what are my difs that happen every frame??
+---------------------------------------------------------
+tested and found a dif when other player joined and color was updated
+also got archwag: type 3 difs
+Ei[][1]  off by 5
+Ei[][5]  off by 5
+Efi[][0] // once  (x)
+Efi[][1] // many  (y)
+its usually this pair
+Ei[][5]  off by 5
+Efi[][1] off by .5, 1 , 3...
+
+played a huge long netgame and they don't happen every frame...
+actually quite infrequently....
+
+
+
+
+
+add source available on request...
+license: none
+just a copyright notice...
+
+
+what version number? 7.0
+
+
+trying other linux os's
+linuxmint-18.3-cinnamon-64bit.iso
+
+missing: libopenal.so.1
+
+copied from m-4230j
+
+what if i recompile allegro on m-4320
+to disallow open al
+and redo all that...
+or I could just distribute libopenal.so.1...
+I recompiled the game so I don;t need the file now.
+
+title on main menu screen is cut off when text is too wide?
+only on cinnamon mint??
+
+has max size as 8192
+and is creating same size as other one
+
+4865 violet missing V and !
+4888 mauve  missing !
+4767 bluey  missing !
+6777 reddy  missing !
+4219 pink   good
+4335 taan   missing !
+5213 orange missing O and !
+5136 purple missing P and !
+5088 forest missing F and !
+4089 red    good
+4874 green  missing !
+4444 blue   missing !
+4462 aqua   missing !
+5164 yellow missing Y and !
+4600 white  missing !
+
+fixed by changing size of title bitmap..
+old was max bitmap / 16
+new is max bitmasp / 20
+
+now mint works great....
+
+
+
+updated windows version to 7.01, now with demo files!!!
+
+updated linux version to 7.01,
+now updated allegro libary that dosent require png support...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

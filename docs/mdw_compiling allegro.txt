@@ -1,0 +1,1529 @@
+
+see if I can build allegro from sources
+then I can make a debug build...
+
+looks insanely complicated....
+
+but I can build a version for profiling....
+
+
+---------------------------------------------------------
+Development directory
+---------------------------------------------------------
+Step 1:
+Create a development directory under the C drive called "devel"
+(i.e. you will have a directory C:\devel).
+
+
+
+---------------------------------------------------------
+Dependency sources
+---------------------------------------------------------
+Installation steps:
+
+Download the dependency sourcepack: File:A5 sourcepack.zip.
+Extract it into the development directory (C:\devel)
+You will now have a directory (C:\devel\a5_sourcepack) that contains the sources
+of the various third party dependencies.
+After you are done with this guide, it is safe to delete it.
+
+got dependency package:
+allegro_deps-i686-w64-mingw32-gcc-7.2.0-posix-dwarf-1.7.0.zip
+
+and extracted it to C:\devel
+
+so that I have just a lib and inlude dir in c:\devel
+
+
+---------------------------------------------------------
+MinGW
+---------------------------------------------------------
+MinGW will provide you with a C/C++ compiler and a MSYS shell that will be
+used to build some dependencies
+
+Installation steps:
+
+Download and run the MinGW installer:
+ http://sourceforge.net/projects/mingw/files/latest/download?source=files
+Select "Download latest repository catalogues" in the "Repository Catalogues" step
+Keep the installation directory unchanged ("C:\MinGW")
+Select the following components when prompted
+C Compiler
+C++ Compiler
+MSYS basic system
+After the installation is complete, open the Command Prompt
+(Press Win+R, type "cmd" and press Enter) and enter the following command
+(this will allow the use of MinGW tools from the command line):
+set path="C:\MinGW\bin;%path%"
+
+I did not do any of this... I already have MinGW-w64 installed
+
+this is my path: C:\al5\mingw32\bin
+
+C:\Users\m>gcc -v
+Using built-in specs.
+COLLECT_GCC=gcc
+Target: i686-w64-mingw32
+Configured with: ../../../src/gcc-7.2.0/configure --host=i686-w64-mingw32 --buil
+d=i686-w64-mingw32 --target=i686-w64-mingw32 --prefix=/mingw32 --with-sysroot=/c
+/mingw720/i686-720-posix-dwarf-rt_v5-rev1/mingw32 --enable-shared --enable-stati
+c --disable-multilib --enable-languages=c,c++,fortran,lto --enable-libstdcxx-tim
+e=yes --enable-threads=posix --enable-libgomp --enable-libatomic --enable-lto --
+enable-graphite --enable-checking=release --enable-fully-dynamic-string --enable
+-version-specific-runtime-libs --enable-libstdcxx-filesystem-ts=yes --disable-sj
+lj-exceptions --with-dwarf2 --disable-libstdcxx-pch --disable-libstdcxx-debug --
+enable-bootstrap --disable-rpath --disable-win32-registry --disable-nls --disabl
+e-werror --disable-symvers --with-gnu-as --with-gnu-ld --with-arch=i686 --with-t
+une=generic --with-libiconv --with-system-zlib --with-gmp=/c/mingw720/prerequisi
+tes/i686-w64-mingw32-static --with-mpfr=/c/mingw720/prerequisites/i686-w64-mingw
+32-static --with-mpc=/c/mingw720/prerequisites/i686-w64-mingw32-static --with-is
+l=/c/mingw720/prerequisites/i686-w64-mingw32-static --with-pkgversion='i686-posi
+x-dwarf-rev1, Built by MinGW-W64 project' --with-bugurl=https://sourceforge.net/
+projects/mingw-w64 CFLAGS='-O2 -pipe -fno-ident -I/c/mingw720/i686-720-posix-dwa
+rf-rt_v5-rev1/mingw32/opt/include -I/c/mingw720/prerequisites/i686-zlib-static/i
+nclude -I/c/mingw720/prerequisites/i686-w64-mingw32-static/include' CXXFLAGS='-O
+2 -pipe -fno-ident -I/c/mingw720/i686-720-posix-dwarf-rt_v5-rev1/mingw32/opt/inc
+lude -I/c/mingw720/prerequisites/i686-zlib-static/include -I/c/mingw720/prerequi
+sites/i686-w64-mingw32-static/include' CPPFLAGS=' -I/c/mingw720/i686-720-posix-d
+warf-rt_v5-rev1/mingw32/opt/include -I/c/mingw720/prerequisites/i686-zlib-static
+/include -I/c/mingw720/prerequisites/i686-w64-mingw32-static/include' LDFLAGS='-
+pipe -fno-ident -L/c/mingw720/i686-720-posix-dwarf-rt_v5-rev1/mingw32/opt/lib -L
+/c/mingw720/prerequisites/i686-zlib-static/lib -L/c/mingw720/prerequisites/i686-
+w64-mingw32-static/lib -Wl,--large-address-aware'
+Thread model: posix
+gcc version 7.2.0 (i686-posix-dwarf-rev1, Built by MinGW-W64 project)
+
+C:\Users\m>
+
+
+
+---------------------------------------------------------
+CMake
+---------------------------------------------------------
+CMake is used to build Allegro and some dependencies
+
+Installation steps:
+
+Download and run the Win32 installer from http://www.cmake.org/cmake/resources/software.html
+Select "Add CMake to the system path for current user" in the "Install Options" step
+
+cmake-3.11.0-win64-x64.msi
+
+
+
+
+---------------------------------------------------------
+Git
+---------------------------------------------------------
+Git is a version control system necessary to fetch Allegro sources.
+
+Installation steps:
+
+Download and run the latest installer from http://git-scm.com/downloads
+Select "Run git from the Windows Command Prompt" in the "Adjusting your PATH environment" step
+
+
+Git-2.16.2-64-bit.exe
+
+
+lots of options im not sure i understood...
+
+
+---------------------------------------------------------
+Required Dependencies
+---------------------------------------------------------
+Allegro5 has only a single required dependency, the DirectX SDK. Note that if you only install this dependency Allegro5 will be severely limited in what it can do, so you probably should install the optional dependencies as well!
+
+DirectX SDK
+??? Why are we advising the use of the FULL DXSDK?
+
+Installation steps:
+
+Download and run the DirectX SDK installer from https://www.microsoft.com/en-us/download/details.aspx?id=6812
+Note: This is a huge download... feel free to do the optional dependencies while the download completes!
+Note: You might get an error during the installation (code S1023). Follow the directions at http://support.microsoft.com/kb/2728613 to resolve it.
+Deselect DirectX documentation, and DirectX samples and source code. You don't need them.
+Change the installation directory to C:\devel\DXSDK (if you have the option to do so)
+After the installation is complete, open the Command Prompt (Press Win+R, type "cmd" and press Enter) and enter the following command (this will install a missing header):
+copy /Y C:\devel\a5_sourcepack\dxfixes\sal.h C:\MinGW\include\
+As an alternative, you may download a minimal version of the DXSDK from liballeg.org here : dx9mgw.zip. It contains all the DX files you need to compile allegro with. Just extract into your mingw directory.
+
+https://www.microsoft.com/en-us/download/confirmation.aspx?id=6812
+
+got DXSDK_Jun10.exe (572M)
+
+installed to C:\devel\DXSDK
+
+
+---------------------------------------------------------
+Optional Dependencies
+---------------------------------------------------------
+These are the third-party dependencies that are necessary for Allegro5 to do the things it does. Some of these dependencies are built from the command prompt and some are built from the MSYS shell.
+
+To launch the command prompt: Press Win+R and then type "cmd" (no quotes) and press Enter.
+
+To launch the MSYS shell: Press Win+R and then type "C:/mingw/msys/1.0/msys.bat" (no quotes) and press Enter. Also on a modern Windows you can press Win, and type "MinGW shell" and press Enter.
+
+Note: You don't need to launch a new command prompt or MSYS shell for each operation (except when building Allegro), you can just reuse the already opened shell for the relevant dependencies.
+
+Note: You should install these dependencies in order they are presented here
+
+Note: The Allegro5 README also lists OpenAL as a dependency in addition to those listed here.
+
+ZLib
+Required for: Image loading
+
+Installation steps:
+
+Launch the Command Prompt and enter the following commands
+cd C:\devel\a5_sourcepack\zlib
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=C:\MinGW -G "MinGW Makefiles"
+mingw32-make install
+LibPNG
+Required for: Loading PNG images
+
+Installation steps:
+
+Launch the Command Prompt and enter the following commands
+cd C:\devel\a5_sourcepack\libpng
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=C:\MinGW -G "MinGW Makefiles"
+mingw32-make install
+LibJPEG
+Required for: Loading JPEG images
+
+Launch the MSYS shell and enter the following commands
+cd C:/devel/a5_sourcepack/jpeg
+./configure --prefix=/c/mingw
+make install
+Freetype
+Required for: Loading and displaying TrueType fonts
+
+Launch the MSYS shell and enter the following commands
+cd C:/devel/a5_sourcepack/freetype
+./configure --prefix=/c/mingw
+make -i install
+Note: FreeType's build system is very screwy and will probably tell you that there were some (ignored) errors. That is fine, it will still have installed correctly. The errors deal with some programs that are not necessary for Allegro.
+
+LibOGG
+Required for: Loading and playing OGG audio files
+
+Launch the MSYS shell and enter the following commands
+cd C:/devel/a5_sourcepack/libogg
+./configure --prefix=/c/mingw
+make install
+LibVorbis
+Required for: Loading and playing OGG audio files
+
+Launch the MSYS shell and enter the following commands
+cd C:/devel/a5_sourcepack/libvorbis
+./configure --prefix=/c/mingw
+make install
+LibTheora
+Required for: Loading and playing OGV video files. Allegro 5.1 only!
+
+Launch the MSYS shell and enter the following commands
+cd C:/devel/a5_sourcepack/libtheora
+./configure --prefix=/c/mingw
+make install
+FLAC
+Required for: Loading and playing FLAC audio files
+
+Launch the MSYS shell and enter the following commands
+cd C:/devel/a5_sourcepack/flac
+./configure --prefix=/c/mingw  --disable-xmms-plugin --disable-cpplibs
+make install
+PhysFS
+Required for: Loading files from compressed archives (e.g. .zip files)
+
+Installation steps:
+
+Launch the Command Prompt and enter the following commands
+cd C:\devel\a5_sourcepack\physfs
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=C:\MinGW -G "MinGW Makefiles"
+mingw32-make install
+DUMB
+Required for: Loading and playing audio tracker files (e.g. .mod, .it etc)
+
+Installation steps:
+
+Launch the Command Prompt and run
+cd C:\devel\a5_sourcepack\dumb
+mingw32-make MINGDIR=C:\MinGW
+Enter "M" to select MinGW and "N" to say no to Allegro support (they mean Allegro 4, which we are not interested in)
+Enter the following commands
+mingw32-make install MINGDIR=C:\MinGW
+
+
+the dependancies I downloaded seemed to already be compiled so i copied
+the lib and include dirs to C:\al5\mingw32
+
+
+
+
+---------------------------------------------------------
+Building Allegro
+---------------------------------------------------------
+After you have installed of the dependencies, you can now build and install Allegro.
+
+Installation steps:
+
+Launch a new Command Prompt and type these commands into the command prompt:
+cd C:\devel
+git clone https://github.com/liballeg/allegro5.git Allegro5
+cd Allegro5
+By default, the source you downloaded is for the latest release of Allegro (5.2.2). To make sure, type the following into the command prompt :
+git checkout 5.2.2
+Now we are ready to build Allegro. First, issue these commands:
+mkdir build
+cd build
+cmake .. -G "MinGW Makefiles"
+This will configure the build system to build the release version of Allegro with debug information. If you don't want that, issue these commands afterward:
+
+For the debug version (useful to generate allegro.log)
+cmake .. -DCMAKE_BUILD_TYPE=Debug
+For the release version without debug symbols (sometimes useful to conserve space)
+cmake .. -DCMAKE_BUILD_TYPE=Release
+For the profiling version (you rarely need this)
+cmake .. -DCMAKE_BUILD_TYPE=Profile
+For the default version
+cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
+To build the monolithic version of Allegro, add the following to your cmake command :
+-DWANT_MONOLITH=On
+To build the static version of Allegro, add the following to your cmake command :
+-DSHARED=Off
+Build and install allegro by issuing this command:
+mingw32-make install
+Assuming there are no errors, this completes the installation. Have fun using Allegro 5!
+Note: Occasionally CMake will get confused about things... if you think that is happening, delete the CMakeCache.txt file from the build directory (C:\devel\Allegro5\build) and repeat steps 2-4. Usually you don't need to do this.
+
+Note: If you want to update Allegro to the newest version, follow these steps:
+
+Open up a Command Prompt and issue this command:
+cd C:\devel\Allegro5
+Check out the latest release branch (5.2.2 or master for latest development) that you want to update:
+git checkout 5.2.2
+Now update the branch by issuing this command:
+git pull
+Now just repeat the Installation steps 2-4.
+
+
+
+after cloning cd to the Allegro5 dir
+then type:
+git checkout 5.2.4
+git pull
+Already up to date.
+
+
+-------------------------------------
+-------------------------------------
+--------------------------------------
+after reading this file I decide to move to dependencies again...
+
+
+
+CMake options
+-------------
+
+Our build system supports many options.  Here are some of them:
+
+The option `CMAKE_BUILD_TYPE` selects release, debug or profiling
+configurations.  Valid values are: Release, Debug, RelWithDebInfo, MinSizeRel,
+Profile.
+
+The option `SHARED` controls whether libraries are built as shared libraries
+or static libraries.  Shared libraries are built by default.
+
+*Note:* For MinGW with gcc < 4, you cannot build a static library because
+TLS (thread local storage, using __thread) support was not introduced
+until version 4.
+
+There are many options named WANT_*.  Unselecting these will prevent the
+associated addon or feature from being built.
+
+HTML and man page documentation will be built by default, but Info and PDF
+(through pdfLaTeX) can also be selected from the CMake options.
+
+
+
+deps subdirectory
+-----------------
+
+As a convenience, you may create a subdirectory called "deps" in the main
+Allegro directory, or in the build directory.  Inside you can place header and
+library files for dependencies that Allegro will search for.  Allegro will
+search in these locations:
+
+        deps/include
+        deps/lib
+        deps/<anything>/include
+        deps/<anything>/lib
+
+
+
+
+
+
+
+
+
+C:\devel>
+C:\devel>
+C:\devel>path
+PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32
+\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;C:\Program Files\Git\cmd;C:\Pro
+gram Files\CMake\bin
+
+C:\devel\Allegro5\build>cmake .. -G "MinGW Makefiles"
+CMake Error: Error: generator : MinGW Makefiles
+Does not match the generator used previously: NMake Makefiles
+Either remove the CMakeCache.txt file and CMakeFiles directory or choose a diffe
+rent binary directory.
+
+C:\devel\Allegro5\build>cmake .. -G "MinGW Makefiles"
+CMake Error: CMake was unable to find a build program corresponding to "MinGW Ma
+kefiles".  CMAKE_MAKE_PROGRAM is not set.  You probably need to select a differe
+nt build tool.
+CMake Error: CMake was unable to find a build program corresponding to "MinGW Ma
+kefiles".  CMAKE_MAKE_PROGRAM is not set.  You probably need to select a differe
+nt build tool.
+CMake Error: CMAKE_C_COMPILER not set, after EnableLanguage
+CMake Error: CMAKE_CXX_COMPILER not set, after EnableLanguage
+-- Configuring incomplete, errors occurred!
+
+
+
+
+set path=C:\MinGW\bin;%path%
+
+
+
+C:\devel\Allegro5>path
+PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32
+\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;C:\Program Files\Git\cmd;C:\Pro
+gram Files\CMake\bin
+
+C:\devel\Allegro5>set path="C:\MinGW\bin;%path%"
+
+C:\devel\Allegro5>path
+PATH="C:\MinGW\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Wi
+ndows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;C:\Program Files\
+Git\cmd;C:\Program Files\CMake\bin"
+
+C:\devel\Allegro5>cd build
+
+C:\devel\Allegro5\build>cmake .. -G "MinGW Makefiles"
+'cmake' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\devel\Allegro5\build>
+
+
+set path=C:\al5\mingw32\bin
+
+
+
+
+i'm putting mingw32 in c:\
+
+lets see if that helps
+
+
+
+
+missing libwinpthread-1.dll
+
+where should i put it?...
+somehwere in path...
+
+
+
+
+
+set path=C\:mingw32\bin
+
+set path="C:\mingw2\bin;%path%"
+
+holy fuck! will I ever get the path right!!
+
+setx /M PATH "%PATH%;C:\mingw2\bin;%path%"
+
+
+
+PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32
+\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;C:\Program Files\Git\cmd;C:\cma
+ke\bin;C:\mingw2\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\
+Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;C:\Program File
+s\Git\cmd;C:\cmake\bin;C:\cmake\bin
+
+i doubled it...
+
+
+PATH=
+
+C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;
+C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;
+C:\Program Files\Git\cmd;C:\cmake\bin;C:\mingw2\bin;
+
+C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;
+C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;
+C:\Program Files\Git\cmd;C:\cmake\bin;C:\cmake\bin
+
+
+
+old one
+
+PATH="C:\MinGW\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Wi
+ndows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;C:\Program Files\
+Git\cmd;C:\Program Files\CMake\bin;C:\mingw2\bin;"
+
+
+setx /M PATH "C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;C:\Program Files\Git\cmd;C:\CMake\bin;C:\mingw32\bin;"
+
+
+C:\Users\m\Desktop>path
+PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32
+\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;C:\Program Files\Git\cmd;C:\CMa
+ke\bin;C:\mingw32\bin;C:\cmake\bin
+
+hopefully this path will work....
+
+it works a lot better....
+
+
+
+The C compiler identification is GNU 7.2.0
+The CXX compiler identification is GNU 7.2.0
+Check for working C compiler: C:/mingw32/bin/gcc.exe
+Check for working C compiler: C:/mingw32/bin/gcc.exe -- works
+Detecting C compiler ABI info
+Detecting C compiler ABI info - done
+Detecting C compile features
+Detecting C compile features - done
+Check for working CXX compiler: C:/mingw32/bin/g++.exe
+Check for working CXX compiler: C:/mingw32/bin/g++.exe -- works
+Detecting CXX compiler ABI info
+Detecting CXX compiler ABI info - done
+Detecting CXX compile features
+Detecting CXX compile features - done
+Adding C:/devel/Allegro5/deps to CMAKE_PREFIX_PATH
+Guessed MinGW directory: C:/mingw32
+Performing Test HAVE_DM_POSITION
+Performing Test HAVE_DM_POSITION - Success
+Could NOT find PkgConfig (missing: PKG_CONFIG_EXECUTABLE)
+Check if the system is big endian
+Searching 16 bit integer
+Looking for sys/types.h
+Looking for sys/types.h - found
+Looking for stdint.h
+Looking for stdint.h - found
+Looking for stddef.h
+Looking for stddef.h - found
+Check size of unsigned short
+Check size of unsigned short - done
+Using unsigned short
+Check if the system is big endian - little endian
+Looking for include file dirent.h
+Looking for include file dirent.h - found
+Looking for include file inttypes.h
+Looking for include file inttypes.h - found
+Looking for include file linux/input.h
+Looking for include file linux/input.h - not found
+Looking for include file stdbool.h
+Looking for include file stdbool.h - found
+Looking for include file stdint.h
+Looking for include file stdint.h - found
+Looking for include file sys/io.h
+Looking for include file sys/io.h - not found
+Looking for include file sys/stat.h
+Looking for include file sys/stat.h - found
+Looking for include file sys/time.h
+Looking for include file sys/time.h - found
+Looking for include file time.h
+Looking for include file time.h - found
+Looking for include file sys/utsname.h
+Looking for include file sys/utsname.h - not found
+Looking for include file sys/types.h
+Looking for include file sys/types.h - found
+Looking for include file soundcard.h
+Looking for include file soundcard.h - not found
+Looking for include file sys/soundcard.h
+Looking for include file sys/soundcard.h - not found
+Looking for include file machine/soundcard.h
+Looking for include file machine/soundcard.h - not found
+Looking for include file linux/soundcard.h
+Looking for include file linux/soundcard.h - not found
+Looking for include file libkern/OSAtomic.h
+Looking for include file libkern/OSAtomic.h - not found
+Looking for include file sys/inotify.h
+Looking for include file sys/inotify.h - not found
+Looking for include file sal.h
+Looking for include file sal.h - found
+Looking for getexecname
+Looking for getexecname - not found
+Looking for mkstemp
+Looking for mkstemp - found
+Looking for mmap
+Looking for mmap - not found
+Looking for mprotect
+Looking for mprotect - found
+Looking for sched_yield
+Looking for sched_yield - found
+Looking for sysconf
+Looking for sysconf - not found
+Looking for fseeko
+Looking for fseeko - found
+Looking for ftello
+Looking for ftello - found
+Looking for strerror_r
+Looking for strerror_r - not found
+Looking for strerror_s
+Looking for strerror_s - found
+Looking for _ftelli64
+Looking for _ftelli64 - found
+Looking for _fseeki64
+Looking for _fseeki64 - found
+Check size of _Bool
+Check size of _Bool - done
+Performing Test ALLEGRO_HAVE_PROCFS_ARGCV
+Performing Test ALLEGRO_HAVE_PROCFS_ARGCV - Failed
+Performing Test ALLEGRO_HAVE_SV_PROCFS_H
+Performing Test ALLEGRO_HAVE_SV_PROCFS_H - Failed
+Performing Test ALLEGRO_HAVE_VA_COPY
+Performing Test ALLEGRO_HAVE_VA_COPY - Success
+Found OpenGL: opengl32
+Found DINPUT: C:/mingw32/i686-w64-mingw32/include
+Found D3D9: C:/mingw32/i686-w64-mingw32/include
+Found D3DX9: C:/mingw32/i686-w64-mingw32/include
+Found DSOUND: C:/mingw32/i686-w64-mingw32/include
+Found XINPUT: C:/mingw32/i686-w64-mingw32/include
+Could NOT find GDIPLUS (missing: GDIPLUS_INCLUDE_DIR GDIPLUS_LIBRARY)
+WARNING: cannot use GDI+. Will try other libraries.
+Found ZLIB: C:/devel/Allegro5/deps/lib/libzlib.a (found version "1.2.11")
+Found PNG: C:/devel/Allegro5/deps/lib/libpng16.a (found version "1.6.30")
+Found JPEG: C:/devel/Allegro5/deps/lib/libjpeg.a
+Performing Test JPEG_COMPILES
+Performing Test JPEG_COMPILES - Success
+Could NOT find PkgConfig (missing: PKG_CONFIG_EXECUTABLE)
+Could NOT find WebP (missing: WEBP_INCLUDE_DIRS WEBP_LIBRARIES)
+WARNING: libwebp not found, disabling support
+Could NOT find OpenAL (missing: OPENAL_LIBRARY OPENAL_INCLUDE_DIR)
+Could NOT find OPENSL (missing: OPENSL_INCLUDE_DIR OPENSL_LIBRARY)
+Found FLAC: C:/devel/Allegro5/deps/include
+Performing Test FLAC_COMPILES
+Performing Test FLAC_COMPILES - Success
+Found DUMB: C:/devel/Allegro5/deps/include
+Performing Test DUMB_COMPILES
+Performing Test DUMB_COMPILES - Success
+Found OGG: C:/devel/Allegro5/deps/include
+Found VORBIS: C:/devel/Allegro5/deps/include
+Performing Test VORBIS_COMPILES
+Performing Test VORBIS_COMPILES - Success
+Found OPUS: C:/devel/Allegro5/deps/include/opus
+Performing Test OPUS_COMPILES
+Performing Test OPUS_COMPILES - Success
+Found Freetype: C:/devel/Allegro5/deps/lib/libfreetype.a (found version "2.8.0")
+Performing Test TTF_COMPILES
+Performing Test TTF_COMPILES - Failed
+Performing Test TTF_COMPILES_WITH_EXTRA_DEPS
+Performing Test TTF_COMPILES_WITH_EXTRA_DEPS - Failed
+CMake Warning at addons/CMakeLists.txt:126 (message):
+  FreeType doesn't compile.  Disabling support.
+
+
+Found PhysFS: C:/devel/Allegro5/deps/lib/libphysfs.a
+Found PHYSFS: C:/devel/Allegro5/deps/lib/libphysfs.a
+Performing Test PHYSFS_IMPLICIT_ZLIB
+Performing Test PHYSFS_IMPLICIT_ZLIB - Failed
+Found THEORA: C:/devel/Allegro5/deps/include
+Not building ex_color
+Not building ex_depth_mask
+Not building ex_haptic2
+Not building ex_font_justify
+Not building ex_font_multiline
+Not building ex_logo
+Not building ex_projection
+Not building ex_ttf
+Not building ex_audio_chain
+Not building ex_synth
+Could NOT find ENET (missing: ENET_INCLUDE_DIR ENET_LIBRARY)
+Not building tests due to missing library. Have: allegro allegro_main allegro_image allegro_color allegro_font  allegro_primitives
+Could NOT find LATEX (missing: LATEX_COMPILER)
+Configuring done
+
+
+
+these warnings i think i can ignore:
+WARNING: cannot use GDI+. Will try other libraries.
+WARNING: libwebp not found, disabling support
+but i should figure this one out:
+
+Performing Test TTF_COMPILES
+Performing Test TTF_COMPILES - Failed
+Performing Test TTF_COMPILES_WITH_EXTRA_DEPS
+Performing Test TTF_COMPILES_WITH_EXTRA_DEPS - Failed
+CMake Warning at addons/CMakeLists.txt:126 (message):
+  FreeType doesn't compile.  Disabling support.
+
+
+SiegeLord says:
+Freetype is unfortunately a bit of an annoying dependency, as it has dependencies of its own that
+there's no good way to automatically detect.
+To get the freetype in the dependency package to link,
+you need to pass -DFREETYPE_ZLIB=on -DFREETYPE_PNG=on when calling Allegro's cmake.
+
+tried add entry in cmake gui
+BOOL
+DFREETYPE_ZLIB
+DFREETYPE_PNG
+and set to on
+but still get same warning about FreeType
+
+moving on clicked generate
+done in one line
+
+then go to build dir and run mingw32-make
+
+seems to be running!!!!
+i didn't actually configure it...
+
+
+most of the tests seem to work
+
+
+where am I going to put the allegro dlls
+
+C:\current_allegro_dlls
+
+c:\dll\cur
+
+setx /M PATH "%path%;C:\dll\cur"
+
+C:\Users\m\Desktop>path
+PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32
+\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;C:\Program Files\Git\cmd;C:\CMa
+ke\bin;C:\mingw32\bin;C:\cmake\bin;C:\dll\cur;C:\cmake\bin
+
+
+why does cmake keep adding paths? there are 3 of them now...
+
+
+my game needs monolith cause thats how i made it
+
+the other libs...
+gcc stdc and winpthread are now in path with mingw32
+but are still required to make the game work..
+
+
+lets make a monolith version...
+
+new folder build_monolith
+
+
+-DWANT_MONOLITH=On
+6:29 start
+6:32 done
+
+exactly the same as last time
+i don't think my methods of adding
+DFREETYPE_ZLIB
+DFREETYPE_PNG
+DWANT_MONOLITH
+are working...
+
+ok im dumb.. they are already there, i just need to check them
+
+erase and do it again...
+free type errors are gone
+
+
+my game wont run with it
+
+what if I relinked with the new library
+old: C:\al5\allegro-i686-w64-mingw32-gcc-7.2.0-posix-dwarf-dynamic-5.2.4.1\allegro\lib\liballegro_monolith.dll.a
+new
+that worked...
+
+
+i'm making progress here...  yay!!
+
+
+20180409..
+
+
+next I want to make a profile version
+
+linked but get no profile info
+
+i get profile info with relWithDebugInfo
+
+
+try debug version
+done
+
+
+next i want to try static....
+
+
+
+release static...
+
+
+
+
+How do I build an executable that runs on any Linux distro?
+Link to and distribute monolithic Allegro builds for both 64- and 32-bit platforms.[7]
+
+
+
+
+
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+
+That was my first attempt...
+I'm going to try it again on a different computer and refine my install
+
+
+20180310
+
+
+
+
+
+
+------------------------------------------------------------
+STEP 1  mingw32 to C:\mingw32
+------------------------------------------------------------
+Version:7.2.0
+Architecture:i686
+Threads:posix
+Exception:dwarf
+Build revison:1
+installed to c:\mingw32
+this gave me: c:\mingw32\mingw32\bin
+so i removed the parent dir to get: c:\mingw32\bin
+open cmd prompt window as admin:
+setx /M PATH "%PATH%;C:\mingw32\bin;"
+
+------------------------------------------------------------
+STEP 2  cmake to C:\cmake
+------------------------------------------------------------
+cmake-3.11.0-win64-x64.msi
+check: Add CMake to system PATH for all users
+installed to c:\cmake
+this gave me: c:\cmake\bin
+
+---------------------------------------------------------
+STEP 3 Git
+---------------------------------------------------------
+Git-2.16.2-64-bit.exe
+installed to c:\git
+this gave me: c:\git\bin
+unchecked Window explorer integration
+nano as text editor
+"Use Git from the Windows Command Prompt"
+"Use the OpenSSL library"
+"Check out Winodws-style, commit Unix-style line endings"
+"Use MinTTY"
+leave "Enable file system caching checked"
+uncheck "Enable Git Credential Manager"
+click finish...
+
+this gave me: c:\git\bin
+and added to path
+
+
+Getting Allegro sources from git
+mkdir C:\devel
+cd C:\devel
+git clone https://github.com/liballeg/allegro5.git Allegro5
+that's it...
+to check:
+cd Allegro5
+git pull
+
+
+---------------------------------------------------------
+STEP 4 install DX SDK
+---------------------------------------------------------
+
+https://www.microsoft.com/en-us/download/confirmation.aspx?id=6812
+
+got DXSDK_Jun10.exe (572M)
+
+installed to C:\devel\DXSDK
+
+agree to license
+opt out of Customer Experience Improvement Program
+install to C:\devel\DXSDK
+
+unselect Documentation
+unselect Samples and Source Code
+
+
+---------------------------------------------------------
+STEP 5 other dependencies
+---------------------------------------------------------
+
+got dependency package:
+extracted allegro_deps-i686-w64-mingw32-gcc-7.2.0-posix-dwarf-1.7.0.zip
+
+renamed allegro_deps to deps and put in Allegro dir like this:
+
+C:\devel\Allegro5\deps\include
+C:\devel\Allegro5\deps\lib
+
+
+
+
+
+---------------------------------------------------------
+STEP 6 Building Allegro
+---------------------------------------------------------
+
+Now we are ready to build Allegro. First, issue these commands:
+mkdir build_test
+cd build_test
+
+
+
+run CMake-gui
+
+src:   C:\devel\Allegro5
+build: C:\devel\Allegro5\build_test
+
+click configure:
+select MinGW Makefiles
+Use default native compilers
+wait for it...
+everything comes up red
+click configure again
+
+complain about GDI..ignore
+complains about libwebp..ignore
+complains about FreeType...
+check FREETYPE_PNG
+check FREETYPE_ZLIB
+run configure again
+
+now only complains abot GDI and webp
+
+
+change CMAKE_BUILD_TYPE...
+options: RelWithDebInfo, Debug, Profile, Release, MinSizeRelease
+
+optional
+check WANT_MONOLITH
+
+To build the static version of Allegro: SHARED=Off
+
+click Generate
+
+
+from the command prompt in the build directory you created , type:
+
+mingw32-make
+
+started 4:53 on nv59
+took approx 10 min
+
+
+
+
+
+
+next install and configure code::blocks
+
+installed to c:\codeblocks
+
+in global compiler settings, changed toolchain executable path
+from C:\mingw to c:\mingw32
+
+
+
+
+should I put allegro headers and libs in the mingw dir???
+
+copied the allegro header files in:
+C:\devel\Allegro5\include\allegro5
+to:
+C:\mingw32\include\allegro5
+
+and:
+C:\devel\Allegro5\build_test\include\allegro5
+to:
+C:\mingw32\include\allegro5
+
+and 
+allegro_monolith-5.2.dll
+liballegro_monolith.dll.a
+from: C:\devel\Allegro5\build_test\lib
+to 
+C:\mingw32\lib
+
+
+
+now lets try to compile my project..
+
+in project build options:
+
+changed my linker settings:
+C:\al5\allegro-i686-w64-mingw32-gcc-7.2.0-posix-dwarf-dynamic-5.2.4.1\allegro\lib\liballegro_monolith.dll.a
+to
+C:\mingw32\lib\liballegro_monolith.dll.a
+
+
+C:\al5\mingw32\i686-w64-mingw32\lib\libnet.a
+to:
+C:\mingw32\i686-w64-mingw32\lib\libnet.a
+
+same for libwsock32.a and libz.a
+
+changed search directories from:
+C:\al5\allegro-i686-w64-mingw32-gcc-7.2.0-posix-dwarf-dynamic-5.2.4.1\allegro\include
+to none:
+
+
+
+
+
+
+got this error:
+
+
+
+
+Project/Target: "pm - default":
+  The compiler's setup (GNU GCC Compiler) is invalid, so Code::Blocks cannot find/run the compiler.
+  Probably the toolchain path within the compiler options is not setup correctly?!
+  Do you have a compiler installed?
+Goto "Settings->Compiler...->Global compiler settings->GNU GCC Compiler->Toolchain executables" and fix the compiler's setup.
+
+Tried to run compiler executable 'C:\MinGW32/bin/mingw32-gcc.exe', but failed!
+
+
+the names are different
+
+code blocks is set to look for:
+mingw32-gcc.exe ... etc
+
+but in bin I only have:
+gcc.exe and i686-w64-mingw32-gcc.exe
+
+ill use the shorter ones...
+
+
+
+now it complains it cant find the allegro headers
+
+
+added:
+C:\mingw32\include
+
+to project build options search directories
+
+
+
+now can find native dialog.h
+
+
+what if i tried to run make install?
+
+does it know where to put things??
+
+in Cmake:
+CMAKE_INSTALL_PREFIX: c:/mingw32
+
+looks good lets try...
+
+
+mingw32-make install
+
+
+Install the project...
+-- Install configuration: "RelWithDebInfo"
+-- Installing: C:/mingw32/include/allegro5/allegro5.h
+-- Installing: C:/mingw32/include/allegro5/allegro.h
+-- Installing: C:/mingw32/include/allegro5/alcompat.h
+-- Installing: C:/mingw32/include/allegro5/altime.h
+-- Installing: C:/mingw32/include/allegro5/base.h
+-- Installing: C:/mingw32/include/allegro5/bitmap.h
+-- Installing: C:/mingw32/include/allegro5/bitmap_draw.h
+-- Installing: C:/mingw32/include/allegro5/bitmap_io.h
+-- Installing: C:/mingw32/include/allegro5/bitmap_lock.h
+-- Installing: C:/mingw32/include/allegro5/blender.h
+-- Installing: C:/mingw32/include/allegro5/clipboard.h
+-- Installing: C:/mingw32/include/allegro5/color.h
+-- Installing: C:/mingw32/include/allegro5/config.h
+-- Installing: C:/mingw32/include/allegro5/cpu.h
+-- Installing: C:/mingw32/include/allegro5/debug.h
+-- Installing: C:/mingw32/include/allegro5/display.h
+-- Installing: C:/mingw32/include/allegro5/drawing.h
+-- Installing: C:/mingw32/include/allegro5/error.h
+-- Installing: C:/mingw32/include/allegro5/events.h
+-- Installing: C:/mingw32/include/allegro5/file.h
+-- Installing: C:/mingw32/include/allegro5/fixed.h
+-- Installing: C:/mingw32/include/allegro5/fmaths.h
+-- Installing: C:/mingw32/include/allegro5/fshook.h
+-- Installing: C:/mingw32/include/allegro5/fullscreen_mode.h
+-- Installing: C:/mingw32/include/allegro5/haptic.h
+-- Installing: C:/mingw32/include/allegro5/joystick.h
+-- Installing: C:/mingw32/include/allegro5/keyboard.h
+-- Installing: C:/mingw32/include/allegro5/keycodes.h
+-- Installing: C:/mingw32/include/allegro5/memory.h
+-- Installing: C:/mingw32/include/allegro5/monitor.h
+-- Installing: C:/mingw32/include/allegro5/mouse.h
+-- Installing: C:/mingw32/include/allegro5/mouse_cursor.h
+-- Installing: C:/mingw32/include/allegro5/path.h
+-- Installing: C:/mingw32/include/allegro5/render_state.h
+-- Installing: C:/mingw32/include/allegro5/shader.h
+-- Installing: C:/mingw32/include/allegro5/system.h
+-- Installing: C:/mingw32/include/allegro5/threads.h
+-- Installing: C:/mingw32/include/allegro5/tls.h
+-- Installing: C:/mingw32/include/allegro5/touch_input.h
+-- Installing: C:/mingw32/include/allegro5/timer.h
+-- Installing: C:/mingw32/include/allegro5/transformations.h
+-- Installing: C:/mingw32/include/allegro5/utf8.h
+-- Installing: C:/mingw32/include/allegro5/allegro_direct3d.h
+-- Installing: C:/mingw32/include/allegro5/allegro_opengl.h
+-- Installing: C:/mingw32/include/allegro5/inline/fmaths.inl
+-- Installing: C:/mingw32/include/allegro5/internal/alconfig.h
+-- Installing: C:/mingw32/include/allegro5/platform/alandroid.h
+-- Installing: C:/mingw32/include/allegro5/platform/alandroidcfg.h
+-- Installing: C:/mingw32/include/allegro5/platform/albcc32.h
+-- Installing: C:/mingw32/include/allegro5/platform/aliphone.h
+-- Installing: C:/mingw32/include/allegro5/platform/aliphonecfg.h
+-- Installing: C:/mingw32/include/allegro5/platform/almngw32.h
+-- Installing: C:/mingw32/include/allegro5/platform/almsvc.h
+-- Installing: C:/mingw32/include/allegro5/platform/alosx.h
+-- Installing: C:/mingw32/include/allegro5/platform/alosxcfg.h
+-- Installing: C:/mingw32/include/allegro5/platform/alraspberrypi.h
+-- Installing: C:/mingw32/include/allegro5/platform/alraspberrypicfg.h
+-- Installing: C:/mingw32/include/allegro5/platform/alucfg.h
+-- Installing: C:/mingw32/include/allegro5/platform/alunix.h
+-- Installing: C:/mingw32/include/allegro5/platform/alwatcom.h
+-- Installing: C:/mingw32/include/allegro5/platform/alwin.h
+-- Installing: C:/mingw32/include/allegro5/platform/astdbool.h
+-- Installing: C:/mingw32/include/allegro5/platform/astdint.h
+-- Installing: C:/mingw32/include/allegro5/platform/allegro_sdl_config.h
+-- Installing: C:/mingw32/include/allegro5/allegro_windows.h
+-- Installing: C:/mingw32/include/allegro5/opengl/gl_ext.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_alias.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_defs.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_alias.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_defs.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_alias.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_defs.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_api.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_list.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_api.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_list.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_api.h
+-- Installing: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_list.h
+-- Installing: C:/mingw32/include/allegro5/platform/alplatf.h
+-- Installing: C:/mingw32/lib/liballegro_monolith.dll.a
+-- Installing: C:/mingw32/bin/allegro_monolith-5.2.dll
+-- Installing: C:/mingw32/include/allegro5/allegro_primitives.h
+-- Installing: C:/mingw32/include/allegro5/allegro_image.h
+-- Installing: C:/mingw32/include/allegro5/allegro_font.h
+-- Installing: C:/mingw32/include/allegro5/allegro_audio.h
+-- Installing: C:/mingw32/include/allegro5/allegro_acodec.h
+-- Installing: C:/mingw32/include/allegro5/allegro_ttf.h
+-- Installing: C:/mingw32/include/allegro5/allegro_color.h
+-- Installing: C:/mingw32/include/allegro5/allegro_memfile.h
+-- Installing: C:/mingw32/include/allegro5/allegro_physfs.h
+-- Installing: C:/mingw32/include/allegro5/allegro_native_dialog.h
+-- Installing: C:/mingw32/include/allegro5/allegro_video.h
+
+manually copy libnet.h to C:\mingw32\include
+manually copy libnet.a to C:\mingw32\lib
+
+now it compiles and runs....
+
+should change my main dev to do the same... yes...
+
+
+
+
+
+
+building a static version
+
+all i did different was uncheck "shared"
+
+Install the project...
+-- Install configuration: "RelWithDebInfo"
+-- Installing: C:/mingw32/lib/liballegro-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro5.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro.h
+-- Up-to-date: C:/mingw32/include/allegro5/alcompat.h
+-- Up-to-date: C:/mingw32/include/allegro5/altime.h
+-- Up-to-date: C:/mingw32/include/allegro5/base.h
+-- Up-to-date: C:/mingw32/include/allegro5/bitmap.h
+-- Up-to-date: C:/mingw32/include/allegro5/bitmap_draw.h
+-- Up-to-date: C:/mingw32/include/allegro5/bitmap_io.h
+-- Up-to-date: C:/mingw32/include/allegro5/bitmap_lock.h
+-- Up-to-date: C:/mingw32/include/allegro5/blender.h
+-- Up-to-date: C:/mingw32/include/allegro5/clipboard.h
+-- Up-to-date: C:/mingw32/include/allegro5/color.h
+-- Up-to-date: C:/mingw32/include/allegro5/config.h
+-- Up-to-date: C:/mingw32/include/allegro5/cpu.h
+-- Up-to-date: C:/mingw32/include/allegro5/debug.h
+-- Up-to-date: C:/mingw32/include/allegro5/display.h
+-- Up-to-date: C:/mingw32/include/allegro5/drawing.h
+-- Up-to-date: C:/mingw32/include/allegro5/error.h
+-- Up-to-date: C:/mingw32/include/allegro5/events.h
+-- Up-to-date: C:/mingw32/include/allegro5/file.h
+-- Up-to-date: C:/mingw32/include/allegro5/fixed.h
+-- Up-to-date: C:/mingw32/include/allegro5/fmaths.h
+-- Up-to-date: C:/mingw32/include/allegro5/fshook.h
+-- Up-to-date: C:/mingw32/include/allegro5/fullscreen_mode.h
+-- Up-to-date: C:/mingw32/include/allegro5/haptic.h
+-- Up-to-date: C:/mingw32/include/allegro5/joystick.h
+-- Up-to-date: C:/mingw32/include/allegro5/keyboard.h
+-- Up-to-date: C:/mingw32/include/allegro5/keycodes.h
+-- Up-to-date: C:/mingw32/include/allegro5/memory.h
+-- Up-to-date: C:/mingw32/include/allegro5/monitor.h
+-- Up-to-date: C:/mingw32/include/allegro5/mouse.h
+-- Up-to-date: C:/mingw32/include/allegro5/mouse_cursor.h
+-- Up-to-date: C:/mingw32/include/allegro5/path.h
+-- Up-to-date: C:/mingw32/include/allegro5/render_state.h
+-- Up-to-date: C:/mingw32/include/allegro5/shader.h
+-- Up-to-date: C:/mingw32/include/allegro5/system.h
+-- Up-to-date: C:/mingw32/include/allegro5/threads.h
+-- Up-to-date: C:/mingw32/include/allegro5/tls.h
+-- Up-to-date: C:/mingw32/include/allegro5/touch_input.h
+-- Up-to-date: C:/mingw32/include/allegro5/timer.h
+-- Up-to-date: C:/mingw32/include/allegro5/transformations.h
+-- Up-to-date: C:/mingw32/include/allegro5/utf8.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_direct3d.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_opengl.h
+-- Up-to-date: C:/mingw32/include/allegro5/inline/fmaths.inl
+-- Up-to-date: C:/mingw32/include/allegro5/internal/alconfig.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alandroid.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alandroidcfg.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/albcc32.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/aliphone.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/aliphonecfg.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/almngw32.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/almsvc.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alosx.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alosxcfg.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alraspberrypi.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alraspberrypicfg.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alucfg.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alunix.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alwatcom.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alwin.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/astdbool.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/astdint.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/allegro_sdl_config.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_windows.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/gl_ext.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_alias.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_defs.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_alias.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_defs.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_alias.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_defs.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_api.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_list.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_api.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_list.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_api.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_list.h
+-- Installing: C:/mingw32/include/allegro5/platform/alplatf.h
+-- Installing: C:/mingw32/lib/liballegro_primitives-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_primitives.h
+-- Installing: C:/mingw32/lib/liballegro_image-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_image.h
+-- Installing: C:/mingw32/lib/liballegro_font-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_font.h
+-- Installing: C:/mingw32/lib/liballegro_audio-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_audio.h
+-- Installing: C:/mingw32/lib/liballegro_acodec-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_acodec.h
+-- Installing: C:/mingw32/lib/liballegro_ttf-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_ttf.h
+-- Installing: C:/mingw32/lib/liballegro_color-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_color.h
+-- Installing: C:/mingw32/lib/liballegro_memfile-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_memfile.h
+-- Installing: C:/mingw32/lib/liballegro_physfs-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_physfs.h
+-- Installing: C:/mingw32/lib/liballegro_dialog-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_native_dialog.h
+-- Installing: C:/mingw32/lib/liballegro_video-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_video.h
+-- Installing: C:/mingw32/lib/liballegro_main-static.a
+
+forgot to check monolith...doing it again....
+
+
+
+
+
+Install the project...
+-- Install configuration: "RelWithDebInfo"
+-- Up-to-date: C:/mingw32/include/allegro5/allegro5.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro.h
+-- Up-to-date: C:/mingw32/include/allegro5/alcompat.h
+-- Up-to-date: C:/mingw32/include/allegro5/altime.h
+-- Up-to-date: C:/mingw32/include/allegro5/base.h
+-- Up-to-date: C:/mingw32/include/allegro5/bitmap.h
+-- Up-to-date: C:/mingw32/include/allegro5/bitmap_draw.h
+-- Up-to-date: C:/mingw32/include/allegro5/bitmap_io.h
+-- Up-to-date: C:/mingw32/include/allegro5/bitmap_lock.h
+-- Up-to-date: C:/mingw32/include/allegro5/blender.h
+-- Up-to-date: C:/mingw32/include/allegro5/clipboard.h
+-- Up-to-date: C:/mingw32/include/allegro5/color.h
+-- Up-to-date: C:/mingw32/include/allegro5/config.h
+-- Up-to-date: C:/mingw32/include/allegro5/cpu.h
+-- Up-to-date: C:/mingw32/include/allegro5/debug.h
+-- Up-to-date: C:/mingw32/include/allegro5/display.h
+-- Up-to-date: C:/mingw32/include/allegro5/drawing.h
+-- Up-to-date: C:/mingw32/include/allegro5/error.h
+-- Up-to-date: C:/mingw32/include/allegro5/events.h
+-- Up-to-date: C:/mingw32/include/allegro5/file.h
+-- Up-to-date: C:/mingw32/include/allegro5/fixed.h
+-- Up-to-date: C:/mingw32/include/allegro5/fmaths.h
+-- Up-to-date: C:/mingw32/include/allegro5/fshook.h
+-- Up-to-date: C:/mingw32/include/allegro5/fullscreen_mode.h
+-- Up-to-date: C:/mingw32/include/allegro5/haptic.h
+-- Up-to-date: C:/mingw32/include/allegro5/joystick.h
+-- Up-to-date: C:/mingw32/include/allegro5/keyboard.h
+-- Up-to-date: C:/mingw32/include/allegro5/keycodes.h
+-- Up-to-date: C:/mingw32/include/allegro5/memory.h
+-- Up-to-date: C:/mingw32/include/allegro5/monitor.h
+-- Up-to-date: C:/mingw32/include/allegro5/mouse.h
+-- Up-to-date: C:/mingw32/include/allegro5/mouse_cursor.h
+-- Up-to-date: C:/mingw32/include/allegro5/path.h
+-- Up-to-date: C:/mingw32/include/allegro5/render_state.h
+-- Up-to-date: C:/mingw32/include/allegro5/shader.h
+-- Up-to-date: C:/mingw32/include/allegro5/system.h
+-- Up-to-date: C:/mingw32/include/allegro5/threads.h
+-- Up-to-date: C:/mingw32/include/allegro5/tls.h
+-- Up-to-date: C:/mingw32/include/allegro5/touch_input.h
+-- Up-to-date: C:/mingw32/include/allegro5/timer.h
+-- Up-to-date: C:/mingw32/include/allegro5/transformations.h
+-- Up-to-date: C:/mingw32/include/allegro5/utf8.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_direct3d.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_opengl.h
+-- Up-to-date: C:/mingw32/include/allegro5/inline/fmaths.inl
+-- Up-to-date: C:/mingw32/include/allegro5/internal/alconfig.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alandroid.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alandroidcfg.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/albcc32.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/aliphone.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/aliphonecfg.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/almngw32.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/almsvc.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alosx.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alosxcfg.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alraspberrypi.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alraspberrypicfg.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alucfg.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alunix.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alwatcom.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alwin.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/astdbool.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/astdint.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/allegro_sdl_config.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_windows.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/gl_ext.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_alias.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_defs.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_alias.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_defs.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_alias.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_defs.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_api.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/gl_ext_list.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_api.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/glx_ext_list.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_api.h
+-- Up-to-date: C:/mingw32/include/allegro5/opengl/GLext/wgl_ext_list.h
+-- Up-to-date: C:/mingw32/include/allegro5/platform/alplatf.h
+-- Installing: C:/mingw32/lib/liballegro_monolith-static.a
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_primitives.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_image.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_font.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_audio.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_acodec.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_ttf.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_color.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_memfile.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_physfs.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_native_dialog.h
+-- Up-to-date: C:/mingw32/include/allegro5/allegro_video.h
+
+
+
+Static libgcc [-static-libgcc]
+Static libstdc++ [-static-libstdc++]
+Static linking [-static]
+
+
+
+
+
+
+-------------------------
+
+minimal win version
+
+type: Release
+
+freetype_png checked
+freetype_zlib checked
+
+shared unchecked
+
+want monolith on
+
+
+
+
+
+
+off
+alas
+aqueue
+color
+demo
+3 x docs
+embed
+examples
+flac
+webp
+ogg video
+open al
+open sl
+opus
+physfs
+release logging
+test
+video
+vorbis
+x11 x 4
+
+
+
+mingw32-make
+
+mingw32-make install
+
+
+took 90seconds on i990
+
+
+
+
+trimming my link line...
+
+
+original...
+
+-lallegro_monolith-static
+-ljpeg
+-ldumb
+-lFLAC
+-lfreetype
+-lvorbisfile
+-lvorbis
+-logg
+-lphysfs
+-lpng16
+-lzlib
+-ldsound
+-lgdiplus
+-luuid
+-lkernel32
+-lwinmm
+-lpsapi
+-lopengl32
+-lglu32
+-luser32
+-lcomdlg32
+-lgdi32
+-lshell32
+-lole32
+-ladvapi32
+-lws2_32
+-lshlwapi
+-lnet
+-lwsock32
+-lopusfile
+-lopus
+
+
+trimmed:
+
+-lallegro_monolith-static
+-ljpeg
+-ldumb
+-lfreetype
+-lpng16
+-lzlib
+-ldsound
+-lgdiplus
+-luuid
+-lkernel32
+-lwinmm
+-lpsapi
+-lopengl32
+-lglu32
+-luser32
+-lcomdlg32
+-lgdi32
+-lshell32
+-lole32
+-ladvapi32
+-lws2_32
+-lshlwapi
+-lnet
+-lwsock32
+
+
+
+now my exe is 6M (used to be 17)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

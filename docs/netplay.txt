@@ -1,0 +1,674 @@
+I am going to document netplay:
+
+
+The method I use is called "deterministic lockstep".
+
+The theory is that the game is perfectly deterministic,
+for the same set of inputs the results will be exactly the same.
+
+All that is needed is to replicate the same set of inputs across all the players.
+
+I was having troubles with this for a long time, till I finally replaced
+all floats in my game with fixed points.
+
+Floats are great and very precise, but I could not get them to be perfectly deterministic.
+
+
+The steps for a client to make a move are:
+
+- client presses a control
+- client sends a packet with that data to the server
+- server puts it in the master game_moves array
+- master game_moves array is synced back to the client
+- the client moves by reading the game move from its locally synced game_move array
+    
+This requires that the clients run a few frames behind the server.
+
+It also means there is a delay between when the client presses a control and
+when the client responds but it is small enough to be barely noticeable.
+ 
+These are the packets that are exchanged to make this happen.
+
+
+-----------------------------------------------------------------------
+-- Packets ------------------------------------------------------------
+-----------------------------------------------------------------------
+
+[CJON] (sent by a client to server requesting to join)
+-----------------------------------------
+- 1 byte (requested color)
+
+[SJON] (reply from server with joining confirmation and information)
+-----------------------------------------
+- 1 byte (play level)
+- 1 byte (frame rate)
+- 1 byte (player number)
+- 1 byte (player color)
+
+
+[cdat]  (client data sent to the server)
+-----------------------------------------
+- 3 bytes (passcount)
+- 1 byte  (player number)
+- 1 byte  (comp move)
+
+
+[sdat]  (data sent from the server to a specific client)
+-----------------------------------------
+  header
+-----------------------------------------
+- 3 bytes (passcount)
+- 2 bytes (start entry)
+- 2 bytes (number of entries)
+-----------------------------------------
+  and then one or more entries:
+-----------------------------------------
+- 3 bytes (game_moves[x][0]); // passcount
+- 2 bytes (game_moves[x][1]); // type
+- 2 bytes (game_moves[x][2]); // data 1
+- 2 bytes (game_moves[x][3]); // data 2
+-----------------------------------------
+
+[sdak]  (acknowledge sent from client to the server)
+-----------------------------------------
+- 3 bytes (passcount)
+- 2 bytes (new entry position)
+
+
+
+The server keeps a record of the last acknowledged entry from each client.
+When the server has data to send to a client it sends from the last 
+acknowlegded entry to the most current in a single data packet.
+
+When the client receives the data it puts it in its own locally game move array
+and send acknowledgement of the last entry received.
+
+The client uses the passcounts from the server to adjust its own frame rate
+slightly to maintain the slight delay behind the server.
+
+
+------------------------------------------------------------------------
+-- Variables in player structure ---------------------------------------
+------------------------------------------------------------------------
+   int who;
+   - libnet network id of client
+   - used to send packet to a specific clinet
+   
+   int game_move_entry_pos;
+   - server only for client game_move data sync
+ 
+   int server_last_sdat_sent_frame;
+   - only server uses it, to keep track of when last sdat was sent to client
+   - it is used to thin the amount of sdats sent when chasing sync
+   - currently is only send a packet every 4 passcounts with a holdoff counter
+
+   int server_sync; 
+   - calculated on the server when a sdak packet is rx'd
+   - difference between rx'd sdak packet passcount and server passcount
+
+   int sync_good_frames;
+   - when locking, after a certain number of good_sync_frames, we are locked and player becomes active
+
+   int c_sync;
+   - when server get a cdat packet, its passcount should greater than the servers passcount
+
+   int c_sync_err;
+   - keep a count of c_sync errors
+
+
+------------------------------------------
+ - Type of errors and tracking variables -
+------------------------------------------
+
+-------------------------------------------
+- c_sync (server) -
+-------------------------------------------
+
+Basically the move data from the client needs to be tagged with a passcount in the future
+so it can be put into the game_moves array and processed.
+
+When the clients move data is received on the server,
+c_sync is how many frames ahead of the servers passcount, the data is. 
+
+If it is data from the past, it cannot be used and and error is raised
+
+
+How is it calculated? 
+---------------------
+In the function: "server_control()" , when a cdat packet is received from a client,
+the enclosed passcount is compared with the server passcount to get c_sync:
+players[p].c_sync = pc - passcount;
+
+
+What variables does it use?
+---------------------------
+players[p].c_sync
+players[p].c_sync_err
+players[p].c_sync_min
+
+What is the relevant code?
+--------------------------
+if(PacketRead("cdat"))  
+{
+   int pc = Packet3ByteRead();
+   int p = PacketGetByte();
+   int cm = PacketGetByte();
+   players[p].who = who; // set who in player array; later may be redundant; do it join 
+
+   // how far ahead is the passcount for this move, compare to server passcount 
+   int c_sync = players[p].c_sync = pc - passcount;
+
+   // add to game_move array, unless late, then drop and inc error
+   if (c_sync > 1) add_game_move(pc, 5, p, cm); 
+   else players[p].c_sync_err++; 
+
+   // keep track of the minimum c_sync 
+   if (c_sync < players[p].c_sync_min) players[p].c_sync_min = c_sync; 
+
+
+What happens if an error is detected?
+-------------------------------------
+If the server gets move data tagged with a passcount older than the server passcount,
+the move data is discarded, an error is flagged, and it is as if the player never made the move.
+THIS SHOULD NOT CAUSE THE GAME TO GO OUT OF SYNC!!
+
+What is a typical value?
+------------------------
+2-4 when running good and CLIENT_LEAD_FRAME = 5;
+
+
+-------------------------------------------
+- c_sync (client) -
+-------------------------------------------
+
+How is it calculated? 
+---------------------
+When game_moves in a sdat packet are read and inserted in game_move array by the function:
+"void read_game_step_from_packet(int x, int clf_check)"
+The passcount of the entered game_move is compared to the client's current passcount
+Note:because of this, c_sync is only caluclated when the server sends game_move to client
+An sdat packet sent only for sync, that has no game_moves, will not update c_sync
+
+
+What variables does it use?
+---------------------------
+players[p].c_sync
+players[p].c_sync_err
+players[p].c_sync_min        
+
+What is the relevant code?
+--------------------------
+cs = g0 - passcount;                    // calculate c_csync
+players[p].c_sync = cs;                 // set in player struct
+if (cs < 0 ) players[p].c_sync_err++;   // check for error
+if (cs < players[p].c_sync_min)         // check and set min 
+players[p].c_sync_min = cs;        
+
+What happens if an error is detected?
+-------------------------------------
+Basically if a client is entering game_move that happened in the past,
+they will have occured on the server, but will not occur on the client as they are too late.
+THIS WILL CAUSE THE GAME TO BE OUT OF SYNC!!
+
+
+what if they are duplicate enetries?....
+
+
+What is a typical value?
+------------------------
+2-4 when running good and CLIENT_LEAD_FRAME = 5;
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------
+- server_sync (server) -
+-------------------------------------------
+When the server gets an "sdak" packet from a client, it contains the client passcount (client_pc)
+
+Server_sync is calculated and set in the player structure like this:
+players[p].server_sync = passcount - client_pc;
+
+Basically the server needs to be ahead of the client, and server_sync is measure of how many frames ahead.
+
+If the server is ahead by a large amount the client adjusts its fps_timer to catch up
+If it goes negative it means that the client is ahead of the server and bad things will happen. 
+
+
+How is it calculated? 
+---------------------
+players[p].server_sync = passcount - client_pc;
+
+
+What variables does it use?
+---------------------------
+players[p].server_sync
+players[p].sync_good_frames
+
+
+What is the relevant code?
+--------------------------
+
+if(PacketRead("sdak"))  
+{
+   int client_pc = Packet3ByteRead();
+   int p = PacketGetByte();
+   int new_entry_pos = Packet2ByteRead();
+
+   // mark as rx'ed by setting new entry pos
+   players[p].game_move_entry_pos = new_entry_pos; 
+
+   // set server_sync in player struct 
+   players[p].server_sync = passcount - client_pc;
+
+   // if (-2 < sync < 4) add to sync_good_frames or reset
+   if ((players[p].server_sync < 4) && (players[p].server_sync > -2))
+      players[p].sync_good_frames++;
+   else  players[p].sync_good_frames = 0;
+
+   // if good sync 4 times in row set player active in future 
+   if ((players[p].sync_good_frames == 4)  && (players[p].active == 0))            
+   {
+        add_game_move(passcount + 10, 2, p, players[p].color);
+        add_game_move(passcount + 10, 1, p, 1);
+   }     
+
+What happens if an error is detected?
+-------------------------------------
+If it goes negative, the client has passed the server, and bad things will happen.
+
+What is a typical value?
+------------------------
+1-2 with CLIENT_LEAD_FRAME = 5;
+
+
+
+
+
+
+-------------------------------------------
+- server_sync (client) -
+-------------------------------------------
+When the client receives an sdat packet, the passcount sent by the server is compared the client's passcount
+
+
+How is it calculated? 
+---------------------
+server_sync = last_sdat_fpc - passcount;
+
+
+What variables does it use?
+---------------------------
+server_sync
+
+
+What is the relevant code?
+--------------------------
+if(PacketRead("sdat"))
+{
+   last_sdat_fpc = Packet3ByteRead();
+   int start_entry = Packet2ByteRead(); 
+   int num_entries = Packet2ByteRead(); 
+
+   server_sync = last_sdat_fpc - passcount; // ahead or behind
+   fps_chase = passcount_timer_fps + server_sync;
+   if (fps_chase < 4) fps_chase = 4; // never let this go negative
+   install_int_ex(inc_timer_passcount, BPS_TO_TIMER(fps_chase)); // adjust timer
+   last_fps_adjust_pc = passcount;
+
+
+What happens if an error is detected?
+-------------------------------------
+i don't think any error checking is done...
+
+
+What is a typical value?
+------------------------
+1-2 when  CLIENT_LEAD_FRAME = 5;
+
+
+
+
+--------------------------------------------------------------
+--          How does the chase sync thing work?
+--------------------------------------------------------------
+
+When the client joins, on the server side this is set:
+
+players[cn].active = 0;          //server client view only
+players[cn].control_method = 2;  //server client view only
+
+On the server the client will never become active.
+The server processes all clients with control_method 2.
+
+The next part of the joining process is called chasing.
+This is where the server sends packets to the client to catch them up on game moves.
+
+Variables used are:
+
+         if (players[p].game_move_entry_pos < game_move_entry_pos) // client needs more data
+         {
+            int start_entry = players[p].game_move_entry_pos;
+            int end_entry = game_move_entry_pos; 
+            int num_entries = end_entry - start_entry;
+            if (num_entries > 100) num_entries = 100;
+
+Actually, the above has nothing to do with chase sync.
+
+The only thing that matters is the variable 'server_sync'
+Calculated on the server for each client, whenever an sdak packet is rx'd
+
+players[p].server_sync = passcount - client_pc;
+
+Once server_sync is low enough to be considered good 4 times in a row:
+
+            if ((players[p].server_sync < 4) && (players[p].server_sync > -2))
+               players[p].sync_good_frames++;
+            else  players[p].sync_good_frames = 0;
+
+
+The server sets an active packet 10 frames in the future:
+
+
+            if ((players[p].sync_good_frames == 4)  && (players[p].active == 0))            
+            {
+#ifdef PACKET_LOGGING_sdak
+               sprintf(msg,"[%4d] ------player:%d has locked and will become active in 10 frames!\n", passcount, p);
+               add_log_entry(msg);
+#endif
+                 add_game_move(passcount + 10, 2, p, players[p].color);
+                 add_game_move(passcount + 10, 1, p, 1);
+            }     
+
+
+When chasing sync the variables to watch are:
+     - server sync
+     - how many game moves left to sync
+
+
+
+
+Chasing on the client
+
+client calculates server_sync to find out how many frames behind
+
+if behind then skip drawing or waiting for next frame
+
+
+how can I acheive this??
+
+
+
+
+
+---------------------------------------------------------------------
+-- what is client lead frames?
+---------------------------------------------------------------------
+When a client's controls change, they are sent to the server in a cdat packet
+The passcount sent has CONTROL_LEAD_FRAMES added to it
+
+The basically mean that the delay between a clients control change
+and the change occurring on the clients game is that many frames
+
+This can be fine tuned, but for now is set to 5
+
+Too low and very bad things will happen!
+
+Too high and the lag will be noticeable.
+
+
+
+      players[p].old_comp_move = players[p].comp_move;
+      int fpc = passcount + CONTROL_LEAD_FRAMES;  // add  to passcount
+      int cm = players[p].comp_move;
+
+      Packet("cdat");
+      PacketAdd3Bytes(fpc);
+      PacketAddByte(p);
+      PacketAddByte(cm);
+      ClientSend(packetbuffer, packetsize);
+#ifdef PACKET_LOGGING_cdat
+         sprintf(msg,"[%4d][ctx cdat]clc - passcount:%d p:%d cm:%d\n", passcount, fpc, p, cm);
+         add_log_entry(msg);
+#endif
+
+
+
+----------------------------------------------
+-- Main timer adjusting
+----------------------------------------------
+
+On client the main timer is adjusted to speed up the game while chasing to sync
+
+The adjustments happen in 2 places in the client_control function
+
+- once everytime through the function
+- and one evertime a sdat packet is rx'd
+
+They both rest a hold off so it can happen every 20 frames, using 'last_fps_adjust_pc'
+
+Normally sdat packets are received at least every 10 frames, but when the game is
+chasing and has a high frame rate, this might not be so.
+
+- the first one will only happen at high frame rates when chasing
+- otherwise the second one will work when rx'ing a sdat packet at least every 10 frames
+- and then the holdoff prevents the first one from triggering
+
+After reviewing I found the first one only gets called when the frame rate is very high,
+like when chasing and the timer is set so high that calls to the second one might get missed
+
+The second one does adjust all the time, even when sync'd, which is probably a good thing
+is case the timers do not sync perfectly....
+
+--------------------------------------------
+
+
+
+
+--------------------------------------------
+- players control methods
+--------------------------------------------
+players[p].control_method
+
+0 = local player
+1 = file play (run game)
+
+
+
+2
+-client players on server, and server and other clients on client side 
+-remote view for both client and server
+-any player that is not the active local player will have control method 2
+
+
+3 = server player on server
+4 = client player on client 
+
+
+99 = used client in current level (to prevent re-use in same level)
+
+
+server is always player 0
+clients can be from 1-7
+
+
+
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+2018-Feb-20
+
+Well a lot has changed.  I've gone to the dark side.  Even worse I'm on both sides now.
+
+
+My method of deterministic lockstep was not robust enough.  I kept getting little errors.
+
+So I made a method to send object's positions to the clients, just to check that they
+were not out of sync.  Then I found a few more errors and inconsistancies and fixed them.
+
+But it still was not perfect.
+
+Next I made a copy of all the game items, enemies, players and blocks.
+That was only approximately 105,000 bytes!
+
+zlib to the rescue. I was able to compress to 5000-6000 bytes worst case.
+Then I broke that into packets of 1000 and sent to the clients.
+The clients re-assembled them, decompressed, compared and copied them to the
+clients local state.
+
+
+This method was only to check if things had drifted, but soon I was just copying
+it and not worrying too much about the differences.
+
+I was doing this at a much lesser interval than the original and still used method
+to syncronize game moves.
+
+It even worked kind of, until I added more clients and actually sent data from 
+clients at the same time.  Then there was just too much data.
+
+So I went one step further and did a dif before compressing.
+
+I basically just compared one state to another and generated a third state that
+was just the difference.  That compressed better, I was around 600-1500 bytes.
+
+That would easily fit in 2 packets.
+
+It was a litte more complex though, I need to keep previous states to dif against.
+
+On the client I only needed one extra.  When I succesfully applied a dif to the 
+current state, I saved that state for the next dif.
+
+On the server I needed to keep 2 copies for each client.
+The last state that the client has acknowledged as good, so that I can make
+the next dif based on that.  And the most recent dif that I used so that if the client
+sends an ack for that I will have a copy to use as the new base.
+
+I made some functions to abstract some of the details away:
+
+void reset_states(void);
+void chnk_to_state(char* b);
+void state_to_chunk(char* b);
+void show_chunk_dif(char* a, char* b);
+void get_chunk_dif(char*a, char* b, char* c, int size);
+void apply_chunk_dif(char* a, char* c, int size);
+
+after I found that it was working good, I re-wrote my code around it
+and it seems to be the best system yet.
+
+I made a random key generator to stress test it.  Basically the clients will
+send a random set of control inputs that changes every frame (40 fps).
+
+I tested with 1 server and 7 clients each sending 40 unique keypresses each second
+and I am happy to report, that everything works!
+
+I have run 30 minute games, with no errors, and using approx 50kB/sec
+
+
+
+
+
+
+these are the variables that control netplay:
+
+
+in cfg file:
+
+server_IP = i990
+deathmatch_pbullets = 1
+suicide_pbullets = 1
+
+
+control_lead_frames = 4
+----------------------------
+- when client's controls change and cdat is sent to server,
+tag input with a frame this far in the future 
+
+server_lead_frames = 1
+----------------------------
+- the client will adjust frame rate to maintain a lag of 
+this many frames behind the server
+
+
+chdf_freq = 40
+-------------------
+-how often the server sends chdf packets to clients
+
+
+variables that can't be changed without recompile
+
+UDP or TCP
+- what type of packets to use
+define needs to be changed and recompiled
+lots of functions that are named the same..
+
+zlib compression level (7)
+
+amount of frames the client lag the server
+that will trigger server to drop client (100)
+
+amount of frames the server will go without receiving an ack from client
+that will trigger server to drop client (100)
+
+
+--------------------------------------------
+what do i show on the client to show how the netgame is going ?
+
+
+
+
+the log files have a lot of data
+
+
+
+i was thinking of making my own log file viewer
+- i would tag every line with a type...
+
+then i would color code types
+show/hide types
+
+it would basically be a text viewer, with colors and the options of removing sections
+
+the sections would mostly follow the logging defines i already have
+
+
+all would begin with:
+
+[xx] 2 digit type
+[passcount]
+
+should it be stand alone, or part of the game?
+
+it will kind of look like help...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

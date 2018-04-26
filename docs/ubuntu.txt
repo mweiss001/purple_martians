@@ -1,0 +1,256 @@
+setting up nv59 ubuntu
+
+
+16.0.4
+
+set it to not turn off when screen closed but still does...
+
+changed software server to us.archive.ubuntu.com
+
+lets see if i can run my game with no install..
+
+installed:
+
+sudo apt-get install openssh-server
+
+made shared folder on desktop...
+
+
+first of all complains about missing shared lib
+liballegro_monolith.so.5.2
+
+put that in usr/lib now missing:
+libdumb.so.1
+libphysfs.so.1
+
+those were the only three i needed...
+
+
+liballegro_monolith.so.5.2
+libdumb.so.1
+libphysfs.so.1
+
+can I somehow put them with the game...
+
+
+
+Should I try to compile statically??
+
+
+How do I build an executable that runs on any Linux distro?
+Link to and distribute monolithic Allegro builds for both 64- and 32-bit platforms.[7]
+
+
+
+
+how do I bundle libraries with my application in linux..
+
+
+
+LD_LIBRARY_PATH=. ./binary
+
+
+
+re-complie allegro for ubuntu without physfs
+
+
+----------------------------
+----------------------------
+some basic ubuntu commands:
+----------------------------
+----------------------------
+
+
+update the repository
+----------------------
+sudo apt-get update
+
+
+apt-cache search xxx
+apt-cache show
+
+
+
+install openssh
+----------------------
+sudo apt-get install openssh_server
+
+
+install new version of gcc
+----------------------
+sudo add-apt-repository ppa:jonathonf/gcc-7.2
+sudo apt-get update
+sudo apt-get install gcc-7
+sudo apt-get install g++-7
+
+
+check version of gcc and g++
+----------------------
+gcc -v
+g++ -v
+
+
+show link:
+----------------------
+ls -la /usr/bin | grep gcc-4.4
+ls -la /usr/bin | grep g++-4.4
+
+So what we need to do is remove the GCC symlink and the G++ symlink and then recreate them linked to GCC 4.3 and G++ 4.3:
+rm /usr/bin/gcc
+rm /usr/bin/g++
+
+
+make new links
+--------------
+ln -s /usr/bin/gcc-4.3 /usr/bin/gcc
+ln -s /usr/bin/g++-4.3 /usr/bin/g++
+
+
+change permissions and owners
+----------------------------
+chown m:m -R /home/m/Desktop/pm_clientx
+chmod 777 -R /home/m/Desktop/pm_clientx
+
+or current dir:
+chown m:m -R .
+
+
+
+disable opengl vsync (one time)
+-----------------------------------------
+vblank_mode=0 ./executable
+
+
+disable opengl vsync (per session?)
+-----------------------------------------
+export vblank_mode=0
+
+
+run open gl tests
+-----------------------------------------
+sudo apt-get install mesa-utils
+glxinfo
+glxgears
+
+export vblank_mode=0
+glxgears
+i get 1800 fps on nv59
+
+
+my game fps:
+nv59
+1600x1200
+scale factor 1
+les 1
+135fps
+
+
+finally nv59 is working good
+always had issues in win7
+should be really fast, its an i3
+
+
+after installing mesa i only get 80 fps??
+
+sudo apt-get remove --purge meas-utils
+90  fps  les:1 sf:1
+110 fps  les:2 sf:1
+105 fps  les:3 sf:1
+123 fps  les:1 sf:3
+
+
+with mesa:
+65  fps  les:1 sf:1
+76  fps  les:2 sf:1
+75  fps  les:3 sf:1
+83  fps  les:1 sf:3
+
+
+
+
+
+
+
+
+
+
+So now in linux...
+
+
+build allegro and only change:
+add monolith and remove physfs
+
+
+copy liballegro_monolith.so to same dir as executable
+and rename to: liballegro_monolith.so.5.2
+
+copy libdumb.so.1 to same dir as executable
+
+run game with:
+LD_LIBRARY_PATH=. ./pm
+
+
+
+actually lets put the libs in their own folder: linux_libs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

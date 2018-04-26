@@ -1,0 +1,380 @@
+List of things to do for my project 'pm'
+---------------------------------------------------------------
+----- Bugs: ---------------------------------------------------
+---------------------------------------------------------------
+
+do some more testing...
+looking good
+
+
+
+
+
+server log at end of full game has last player stats missing first three lines...???
+
+
+
+---------------------------------------------------------------
+linux sometime crashes...
+
+document all linux crashes...
+
+game exit from full screen
+
+04/02/18 20:07
+crashed from menu screen
+just loaded and compiled
+ran splash and logo anaimation was running on menu. then froze
+
+07/02/18 05:43
+crashed hard when exiting
+
+al_fixed some ALLEGRO_BITMAP initialization that might fix that...
+
+27/02/18 06:30
+game exit from full screen
+
+
+
+---------------------------------------------------------------
+----- Things that need to be done before release: -------------
+---------------------------------------------------------------
+
+get some really good demo levels
+
+test better youtube upload...
+
+test1.gm 30s
+
+what res?
+
+1280x1024 skips when recording on obs
+
+
+720p: 1280x720.
+
+recorded 20s at 1280x720 no skip
+bitrate 2500
+encoder software x264
+mp4
+hi q med file size
+
+filesize 9242
+looks beautiful
+prev one looks good too.
+problem was youtube making it only look good in chrome...
+
+upload to youtube
+
+put a couple videos on youtube...
+
+add sound to recorded videos
+
+looking at OBS studio
+needed vcredist 2013 86 and 64
+then direct x stuff
+
+set canvas to 1024x768
+capture window
+mp4
+
+1024x768
+60 fps
+mp4
+quality:ind
+1 min
+33M
+
+1280x1024
+60 fps
+mp4
+quality:ind
+32s
+22M
+skips
+
+
+i like this setting best
+1024x768
+40 fps
+mp4
+quality:med
+26s
+12M
+
+
+did a 1 min video
+22 meg
+level 5
+
+looks great but after uploading to youtube is been butchered..very grainy
+
+
+today could be the day!!!
+
+
+- get bio section ready for allegro.cc
+
+- make videos and upload to youtube...
+- link to my youtube page
+
+- remove personal stuff from sources
+- nah, fuck it..
+
+- license???
+
+- i should get a new webpage
+
+- test a big long netplay with xp, 7, 10, 16.04 and record
+
+
+---------------------------------------------------------------
+----- Add to Help ---------------------------------------------
+---------------------------------------------------------------
+
+
+
+---------------------------------------------------------------
+----- Add to Options file and gui -----------------------------
+---------------------------------------------------------------
+
+
+
+---------------------------------------------------------------
+----- Thing to remove or disable for release ------------------
+--------------------------------------------------------------
+
+command line switches..done
+menu items in editor..done
+ZFS random..done
+F1 key..done
+
+
+
+
+---------------------------------------------------------------
+----- Things that would be nice to do: ------------------------
+---------------------------------------------------------------
+
+
+demo mode...
+play a few levels
+
+
+log flie viewer to load most recent
+
+load gm to not require .gm
+
+
+
+
+I wonder if i can do a work around to load by bitmaps and convert to
+a different color depth...
+
+
+range of levels in vls leave at 1 - 100...done
+
+do the movie file thing...
+should be fun and easy...
+its going to be a command line only type thing
+it will convert a saved game file to movies
+run the saved game and save a snapshot each frame...
+
+
+make a function called clean from command line...
+removes unneeded files for release
+
+
+make linux have a makefile?
+
+
+make some way to look at all of my older levels....
+there are some that i want to check out
+
+what if I changed run lift prox so the mouse would act as the player
+triggering the lift??
+
+
+
+why do items fall off lifts when lifts go down?
+only if you start them that way...if they fall onto lift they are fine...
+not sure why???
+
+
+
+---------------------------------------------------------------
+make option in key to do instant.. not a big priority
+---------------------------------------------------------------
+
+should I remove russel's music?
+the only reason i have DUMB is to play it..
+or convert it to mp3?
+can i play mp3 in plain allegro?
+doesnt look easy..lets just leave this for now
+
+
+re-factor enemy move
+
+re-use code between bouncer and cannon
+also block walker and archwagon
+
+make enemies that inflict damage on player, add that to their health bonus flower!!
+if they have done a bunch of damage to player, they should give up more health on death
+
+
+Windows 10 bugs.....
+----------------------------
+color 5 is black
+frame and low level rects and lines are slow
+load sprit is slow... probably due to get_pixel
+
+----------------------------------------------------------
+
+max size of buttons, in viewers...
+640 x 480
+ms = 400
+panel size = 240 (lools good)
+
+800 x 600
+ms = 200
+panel size = 200 (ok but cramped a little)
+
+txc sets the centered text position
+but lots of stuff ignores it....
+leave this for now, too much effort and its fine the way it is
+----------------------------------------------------------
+
+----------------------------------------------------------------------------
+- replace the custom multiline text input for pmsg
+- make pmsg static and not dynamically allocate..maybe
+- how about make a custom gui for this, that shows the message as its being created
+no its just fine like it is...don;t waste the time....
+----------------------------------------------------------------------------
+
+
+---------------------------------------------------------------
+make cannon prox look like trakbot prox
+---------------------------------------------------------------
+cannon has not prox...duh
+----------------------------------------------------------------
+what if cannon has a bullet prox like podzilla that will not fire bullet unless player in range?
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+make a completely new way to keep track of solid, empty, etc..
+add another dimension to the l array
+l[100][100][2]
+then in that int you can store:
+solid, empty, breakable, bombable, etc
+then you can make anything shape act like anything
+
+you can have secret passages, blocks that look solid but are not...
+you can have anything be destroyable by bombs....
+
+----------------------------------------------------------
+
+straighten out where collision checking takes place
+
+p bullets happens in proc_pbullets
+
+e bullets happens in enemy_collision
+
+enemy to player collision happens in enemy collision
+
+been thinking about giving a level some text that goes with the start block
+
+
+been thinking about multiple start blocks for multiplayer.
+the lowest numbered player gets this first start and so on
+
+how about some special coins, stars, moons, items, etc that are optional to be found in each level...
+
+
+how about some special weapons, bubble, bubble style...
+
+in the center of the level, after much unlocking is a special potion
+that will destroy all enemies that are inreasingly clonig as you get there.
+
+
+----------------------------------------------------------------
+make a block type that takes multiple hits to destroy
+----------------------------------------------------------------
+to implement maybe have a sequence of shapes
+can't store extra info in a block, or can I...
+l[100][100] uses ints and I only go up to 1024 so I have some space up there....
+
+
+---------------------------------------------------------
+make lifts extensions that change lift size, color, etc
+---------------------------------------------------------
+
+---------------------------------------------------------
+make an enemy that throws bullets that have gravity
+---------------------------------------------------------
+
+---------------------------------------------------------
+make bullets that have gravity
+---------------------------------------------------------
+
+---------------------------------------------------------
+make bullets that seek
+can change actively change direction towards player
+by a set ammount
+---------------------------------------------------------
+
+--------------------------------------------------------------
+make a sideways (horizontal) sproingy
+--------------------------------------------------------------
+
+----------------------------------------------------------
+make ladders
+completely invisble to enemies, bullets, players, unless up is pressed and player grabs ladder
+then player moves with up, down, left, right,
+can fall off if goes to far.  can jump off
+----------------------------------------------------------
+
+----------------------------------------------------------
+make ropes (horizontal ropes)
+
+completely invisble to enemies, bullets, players, unless up is pressed and player grabs rope
+then player moves with left, right, fall off with down
+fall off if go past the end far
+can jump off (will just fall)
+
+----------------------------------------------------------
+
+------------------------------------------------------------------------------------------------
+make an end of level screen that show's the number of bullets fired, number of enemy's killed
+start and end times
+
+for each player....
+
+shots fired
+enemies hit
+enemies killed with bullets
+enemies killed with bombs
+damage taken
+lives lost
+free men picked up
+other players killed
+other players damaged
+damage taken from other players
+times killed by other players
+------------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------
+make portal styles switches that only activate when you are standing on them
+-------------------------------------------------------------------------------------------------
+and also have a delay before they switch back after you leave
+
+----------------------------------------------------------------------
+make a switch that activates when player is within a range
+----------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------
+make portal stlye companion cube that you can put on switches
+-------------------------------------------------------------------------------------------------
+
+
+

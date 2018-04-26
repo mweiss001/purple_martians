@@ -1,0 +1,308 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This game has been a long time in the making.
+
+My first introduction to computers was in 1978 when I was 10.
+
+My dad taught electronics at the local college and he brought home
+a brand new Commodore PET so he could figure out how they were going
+to teach programming to their students.  A few years later it was
+replaced with an Apple II+.
+
+I taught myself BASIC and 6502 assembly and tried to write a video game.
+
+Many, many hours and years and thousands of lines of code,
+but I was not successfull.
+
+Intrepreted BASIC was too slow, assembly was too complicated,
+and my skills were not enough.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+In 1997 I started with DJGPP, RHIDE, and Allegro 
+
+The earliest version I can still find 19980922, has this in the help file.
+
+1997-1998
+compiled with DJGPP
+(the awesome free C compiler!)
+
+and using Allegro
+(the awesome game library for DJGPP!)
+ 
+this is NOT the shareware version
+please do not distribute
+  
+Contact me: mweiss@pacificcoast.net
+or phone 250-519-0098 (Canada)
+
+
+----
+
+in 19990905 i found a version of help that said I was using allegro 2.2
+
+on the allegro site 2.2 was released in feb 1997
+that's probably the version i started with
+
+
+
+
+
+I started with Allegro in 1997 in a basement in Victoria, BC, Canada.
+
+I hade been trying to write a game for a long time.
+
+In 1978, when I was 10, I learned BASIC on a Commodore PET
+and wrote a few simple programs to manipulate and draw text .
+
+From 1980-1987, I had access to an Apple II+ and spent a lot of time
+learning how to program on that.  (280 x 192 hires graphics mode!)
+I made some games in BASIC, and assembly.
+
+The BASIC games could not not get fast enough, no matter what.
+Probably due to an interpreted language and my lack of skills.
+
+Assembly was better, but my skills were not enough to write such a
+complex program in just assembly. 
+
+Then for many years I had no access to a computer, or the time or 
+inclination to do anything about it.
+
+I still wanted to create the game I had in my head, with a little man
+running around a level, jumping from platform to platform.
+
+Then in 1997, I was in a seasonal layoff from my job over the winter,
+waiting on unemployment benefits, and I had a laptop and internet access.
+
+I decided I was going to work on the game I had in my head.
+
+I searched for some proper tools to create games.  I was thinking even
+if I had to pirate something, I was going to figure out how to make
+my game a reality.  All of the microsoft crap did not appeal to me,
+but I resigned myself to go there if I had to.
+
+What I found instead was Allegro.  It looked awesome.  The more I read about
+it the more I knew it was what I was looking for.  And the best part was
+that it was free!  Nothing to pirate!
+
+The only catch... I would have to learn how to program in C.
+
+I got DJGPP, with RHIDE as my IDE, added Allegro 2.2 and the adventure began!
+
+As I learned C, I was amazed at how logical, simple, precise, elegant it was.
+No gotos or line numbers.  And it was really fast!
+
+In my game I built everything from scratch. (Well, except for Allegro!)
+
+I started by learning how to draw on the screen.
+Then I made some shapes to blit here and there.
+Early on I decided to make my game sprites 20x20 pixels.
+I made an bitmap editor to draw and edit these sprites.
+I built my own routine for saving and loading bitmaps to disk,
+(one get_pixel and put_pixel at a time!)
+
+I decided on a level size or 100x100 blocks made of these shapes.
+I used an array of 10,000 ints, int l[100][100].
+
+When I was figuring out how to run my game loop flicker free with a 
+screen buffer,  I created a bitmap the size of the whole level:
+2000 x 2000 pixels.  4 million pixels!
+
+From 1997 to 2003 I call the first phase of the development.
+
+I always knew I wanted to do some kind of multiplayer.
+The game would just be so much better with more players.
+It had to be simultaneous multiplayer, just two players
+taking turns was never even considered.
+
+Initially, I came up with a split screen method.
+I created a second player and re-wrote a lot of code that assumed
+there was only one player.
+
+That worked, but the split screens were kind of small.
+Still it was really cool to play simultaneously with another player.
+
+I came to realize how awesome it would be if I could do networked multiplayer.
+
+I found libnet and made a simple packet exchange of moves.
+That was not too hard, but it didn't do anything to synchronize game states.
+
+I spent a lot of time trying different concepts and abandoning them when
+I realized they wouldn't work or I thought of a better way to do it.
+
+In 2003 I released version 5. The netplay stuff didn't work yet, so I 
+disabled all traces of it with #ifdef's in the source.
+
+I let it go for a few years until I came back with a vengenance
+in 2009-2010 to solve the netplay stuff.
+
+I made a lot of changes and improvements, but still had sync issues.
+It would almost run perfectly until they slightly went out of sync.
+
+I had made a lot of changes, but because netplay was broken I didn't
+want to release without it.
+
+I let it go again for many years.
+
+I had been thinking about the various methods of syncing, but
+was still convicned my method should work.
+
+The method I use is called deterministic lockstep, and I wrote in
+depth about it in netplay.txt.
+
+I was almost going to try something like Unity that had built in
+network multiplayer.  I even spent a few hours bulding a test project
+in Unity and seeing what it would be like to re-do the game in that.
+I decided not to for a few reasons.  I wanted do it my way.  I wanted to
+figure it out myself.  I didn't want to spend a huge amount of time figuring
+out a new platform and porting my game to it.
+
+In 2017-2018 I came back again and tested a new idea I had.
+Basically I removed all floats and replaced them with fixed point numbers.
+Floats, while very precise, were not as perfectly deterministic across
+different systems as I needed. 
+Fixed points, while not as accurate, gave the exact same results every time.
+After a lot of rewriting, I finally was getting good sync.
+I could play some really long games with 3 and 4 players with no problems.
+
+Then I cleaned up a lot of things in the code that I had broken,
+refactored just about every line in the game, added new features, removed
+some old ones, went through all the levels, updated the help screens,
+made a fancy new rotating logo with splines for the splash screen...
+
+Finally here we are with Version 6.
+Netplayer with up to 8 players.
+Works on Windows XP, Windows 7, Windows 10, Ubuntu 16.04.
+
+This will be the final release on Allegro 4.
+
+For the next version, I'll convert to Allegro 5.
+
+
+
+
+
+
+
+
+
+
+versions...
+
+1997 started...
+
+first shareware version 19981120
+
+version 2 19991202 (still had shareware and full version)
+
+20000326
+   textout_centre(screen, font, "Michael's Version xx.x", SCREEN_W/2,SCREEN_H-10, 15);
+#else
+   textout_centre(screen, font, "Version 3.0a", SCREEN_W/2,SCREEN_H-10,15);
+
+
+20000806
+#ifdef MV
+   textout_centre(screen, font, "Michael's Version 7.x", SCREEN_W/2,SCREEN_H-9, 15);
+#else
+   textout_centre(screen, font, "Version 3.01", SCREEN_W/2,SCREEN_H-9,15);
+#endif
+   destroy_bitmap(pm_title);
+
+
+
+
+20010405
+#ifdef MV
+   textout_centre(screen, font, "Michael's Version x.x", SCREEN_W/2,SCREEN_H-9, 15);
+#else
+   textout_centre(screen, font, "Version 4.01", SCREEN_W/2,SCREEN_H-9,15);
+#endif
+
+
+
+
+
+
+
+20011227 -- now using dev-cpp
+#ifdef MV
+   textout_centre(screen, font, "Michael's Version 5.011223w", SCREEN_W/2,SCREEN_H-9, 15);
+#else
+   textout_centre(screen, font, "Version 5.0", SCREEN_W/2,SCREEN_H-9,15);
+#endif
+
+
+
+
+
+
+
+version 5 20030622 (release for Roy)
+
+this version stayed up on allegro.cc until 2018 when I finally released version 6
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,2 @@
+sudo chmod 777 -R .
+sudo chown m:m -R .

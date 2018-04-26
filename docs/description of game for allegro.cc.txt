@@ -1,0 +1,152 @@
+-----------------------------------------------------------------------------------------------------------
+new-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+
+
+A really cool platform game like Bubble Bobble, Lode Runner, or Super Mario.
+
+Its completely free.
+
+Features:
+
+ - many fun and challenging levels
+ - lots of items and enemies that are completely customizable with the level editor
+ - bombs you can carry and throw
+ - rockets you can ride and steer
+ - moveable lifts you can ride
+ - switches that change blocks solid and back
+ - springs that let you jump very high
+ - keys that open locked blocks
+ - doors to transport you to other places in the level
+ - cloner that copy enemies and items
+ - podzilla plants that pop up and shoot at you
+ - helpful pop-up messages to help you figure stuff out 
+
+ - LAN networked game mode with up to eight players
+
+ - user defineable setup for keyboard and/or joystick
+ - homemade sound effects
+ - a music track by Russel Hoy
+ - fancy scrolling help screens with images and animations
+ 
+ - the game can handle almost any screen resolution you can throw at it
+ - it will adapt and re-size
+ 
+ - very smooth moving graphics
+ - you can zoom in or out to make the amount of level shown on the screen bigger or smaller
+ - you can adjust the frames per second to anything you like
+ - you can choose betwen 15 different colors for your player
+ - a nice graphical level selector  
+  
+And the best feature of all: The Level Editor to make your own levels!
+
+If you create new levels, please send them to me.
+The only levels I get to play are ones that I created myself, and how challenging could that be? 
+
+System Requirements:
+Window 7
+Windowns XP 
+Windows 10
+ubunutu 16.0.4
+
+The netgame works just fine across XP, 7 and 10 and ubuntu;
+
+If you download it, please take a few minutes to send me some feedback.
+
+Send your comments to:
+mweiss001@gmail.com
+Email me your new levels as e-mail attachments.
+
+Created with:
+
+Allegro 4.4.2
+Dev-C++ 4.9.9.2
+MinGW
+DUMB-0.9.3
+libnet-0.10.11
+zlib-1.2.8
+
+Russel Hoy wrote some music for the game that I use as background music for the game.
+I use the music library DUMB to play his .xm music file in both windows and linux.
+
+See the help file for more details.
+
+
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------
+-----------orignal------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+
+A really cool platform game like Bubble Bobble, Lode Runner, or Super Mario.
+
+Its completely free!!
+
+Features:
+ - the game works identically in Linux and Windows
+ - two players can play at the same time
+ - 35 huge levels (plus you can build more!)
+ - 3 difficulty levels (easy, normal, hard)
+ - user defineable setup for keyboard and/or joystick
+ - sound effects and a soundtrack by Russel Hoy
+ - bombs you can carry and throw
+ - rockets you can ride and steer
+ - lots of bad dudes and items that are completely customizable with the level editor
+ - zooming game map (looks cool)
+
+And the best feature of all: The Level Editor to make your own levels!
+
+System Requirements:
+Processor: Pentium or better
+You can get more speed by choosing a smaller screen size (but its more fun to play with larger one)
+Memory: 8M (might work with less, never tried)
+Disk Space: 5M
+
+If you download it, please take a few minutes to send me some feedback.
+
+And if you create new levels, you simply must send them to me as well.  The only levels I get to play are ones that I created myself, and how challenging could that be? 
+
+Send your comments to:
+mweiss001@gmail.com
+Email me your new levels as e-mail attachments.
+
+Happy gaming.
+
+P.S. How this game came to be.
+I was sitting there one night, playing Bubble Bobble, (I had just discovered MAME) and I decided to search the internet for some game tools.  What I found was djgpp, Allegro, and thus began my introduction to the open source movement.  I love it.  I can't stress that enough.  Open systems are so awesome, adjectives fail me.  I had been trying to write a video game since elementary school in the 70's when I taught myself BASIC on the Commodore PET.  Then I moved to the Apple II and learned some assembly, but I still couldn't write the game I wanted.  As soon as it got barely complex enough to be interesting, it ground to a halt.  So with djgpp and Allegro I finally had all the tools I needed.  The only catch was, I had to learn C.  Which I did.  It is the most elegant language I've used yet, just learning it helped me program more methodically, logically, elegantly, than I ever did in BASIC or assembly.  I wrote this game as I was learning C in the late 90's.
+
+I have been making minor improvements to the game, and in 
+the next release I will have network multiplayer capability.
+
+The project is completely C++ now and although I don't use any objects, I would like to redo a lot of the project with objects someday...
+
+Thanks to using 99% Allegro functions to create the program,
+I was able to port it to linux with only minor changes.
+
+Russel Hoy wrote some music for the game that I use as background music for the game.  I use the music library DUMB
+to play the music in both windows and linux. I have not been 
+able to get a hold of Russell for years now, if anyone knows
+how to contact him please let me know.
+
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+
+
+

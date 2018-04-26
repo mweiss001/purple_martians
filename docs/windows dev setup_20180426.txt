@@ -1,0 +1,235 @@
+First lets get allegro from source and compile it..
+
+------------------------------------------------------------
+STEP 1  mingw32 to C:\mingw32
+------------------------------------------------------------
+Version:7.2.0
+Architecture:i686
+Threads:posix
+Exception:dwarf
+Build revison:1
+installed to c:\mingw32
+this gave me: c:\mingw32\mingw32\bin
+so i removed the parent dir to get: c:\mingw32\bin
+open cmd prompt window as admin:
+setx /M PATH "%PATH%;C:\mingw32\bin;"
+
+------------------------------------------------------------
+STEP 2  cmake to C:\cmake
+------------------------------------------------------------
+cmake-3.11.0-win64-x64.msi
+check: Add CMake to system PATH for all users
+installed to c:\cmake
+this gave me: c:\cmake\bin
+
+---------------------------------------------------------
+STEP 3 Git
+---------------------------------------------------------
+Git-2.16.2-64-bit.exe
+installed to c:\git
+this gave me: c:\git\bin
+unchecked Window explorer integration
+nano as text editor
+"Use Git from the Windows Command Prompt"
+"Use the OpenSSL library"
+"Check out Winodws-style, commit Unix-style line endings"
+"Use MinTTY"
+leave "Enable file system caching checked"
+uncheck "Enable Git Credential Manager"
+click finish...
+
+this gave me: c:\git\bin
+and added to path
+
+
+Getting Allegro sources from git
+mkdir C:\devel
+cd C:\devel
+git clone https://github.com/liballeg/allegro5.git Allegro5
+that's it...
+to check:
+cd Allegro5
+git pull
+
+what gave me allegro 5.2.5
+
+what can i do to get 5.2.4...
+
+git checkout 5.2.4
+git pull --rebase origin 5.2.4
+
+---------------------------------------------------------
+STEP 4 install DX SDK
+---------------------------------------------------------
+
+https://www.microsoft.com/en-us/download/confirmation.aspx?id=6812
+
+got DXSDK_Jun10.exe (572M)
+
+installed to C:\devel\DXSDK
+
+agree to license
+opt out of Customer Experience Improvement Program
+install to C:\devel\DXSDK
+
+unselect Documentation
+unselect Samples and Source Code
+
+
+---------------------------------------------------------
+STEP 5 other dependencies
+---------------------------------------------------------
+
+got dependency package:
+extracted allegro_deps-i686-w64-mingw32-gcc-7.2.0-posix-dwarf-1.7.0.zip
+
+renamed allegro_deps to deps and put in Allegro dir like this:
+
+C:\devel\Allegro5\deps\include
+C:\devel\Allegro5\deps\lib
+
+
+---------------------------------------------------------
+STEP 6 Building Allegro
+---------------------------------------------------------
+
+Now we are ready to build Allegro. First, issue these commands:
+mkdir build_test
+cd build_test
+run CMake-gui
+
+src:   C:\devel\Allegro5
+build: C:\devel\Allegro5\build_test
+
+
+
+minimal win version
+
+type: Release
+
+CMAKE_INSTALL_PREFIX C:/mingw32
+
+shared unchecked
+want monolith on
+
+freetype_png checked
+freetype_zlib checked
+
+
+off
+alsa
+aqueue
+color
+demo
+3 x docs
+embed
+examples
+flac
+jpg
+png
+webp
+ogg video
+open al
+open sl
+opus
+physfs
+release logging
+test
+video
+vorbis
+x11 x 4
+
+click Generate
+
+
+from the command prompt in the build directory you created , type:
+
+mingw32-make
+took 2:45 on nv59
+
+mingw32-make install
+
+
+
+
+now at link I'm missing:
+
+-lzlib
+
+found in allegro5/deps
+copied to mingw32/lib
+
+now dynamic links..
+
+
+had to manualy add '-DALLEGRO_STATICLINK'  under compiler flags
+doesnt seem to be saved with project?
+
+
+static can't find dumb and freetype 
+found in allegro5/deps
+copied to mingw32/lib
+
+now i get a long list of undefined ref to png stuff
+
+does free type need png??
+yes lpng16.
+
+
+so i needed to copy these from deps to ming32/lib
+libzlib.a
+libdumb.a
+libfreetype.a
+libpng16.a
+
+my new linker line is...
+
+-lallegro_monolith-static
+-ldumb
+-lfreetype
+-lpng16
+-lzlib
+-ldsound
+-lgdiplus
+-luuid
+-lkernel32
+-lwinmm
+-lpsapi
+-lopengl32
+-lglu32
+-luser32
+-lcomdlg32
+-lgdi32
+-lshell32
+-lole32
+-ladvapi32
+-lws2_32
+-lshlwapi
+-lnet
+-lwsock32
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

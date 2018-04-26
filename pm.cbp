@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="pm" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="dynamic">
+				<Option output="pm" prefix_auto="1" extension_auto="1" />
+				<Option object_output="o" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-pg" />
+					<Add option="-g" />
+					<Add directory="C:/mingw32/include" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+					<Add option="-pg" />
+					<Add option="-lallegro_monolith.dll" />
+					<Add option="-lnet" />
+					<Add option="-lzlib" />
+					<Add option="-lwsock32" />
+				</Linker>
+			</Target>
+			<Target title="static">
+				<Option output="pm" prefix_auto="1" extension_auto="1" />
+				<Option object_output="o" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-DALLEGRO_STATICLINK" />
+					<Add option="-pg" />
+					<Add option="-Og" />
+					<Add option="-g" />
+					<Add directory="C:/mingw32/include" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+					<Add option="-static-libstdc++" />
+					<Add option="-static-libgcc" />
+					<Add option="-static" />
+					<Add option="-lallegro_monolith-static" />
+					<Add option="-ldumb" />
+					<Add option="-lfreetype" />
+					<Add option="-lpng16" />
+					<Add option="-lzlib" />
+					<Add option="-ldsound" />
+					<Add option="-lgdiplus" />
+					<Add option="-luuid" />
+					<Add option="-lkernel32" />
+					<Add option="-lwinmm" />
+					<Add option="-lpsapi" />
+					<Add option="-lopengl32" />
+					<Add option="-lglu32" />
+					<Add option="-luser32" />
+					<Add option="-lcomdlg32" />
+					<Add option="-lgdi32" />
+					<Add option="-lshell32" />
+					<Add option="-lole32" />
+					<Add option="-ladvapi32" />
+					<Add option="-lws2_32" />
+					<Add option="-lshlwapi" />
+					<Add option="-lnet" />
+					<Add option="-lwsock32" />
+				</Linker>
+			</Target>
+			<Target title="ldm">
+				<Option output="pm" prefix_auto="1" extension_auto="1" />
+				<Option object_output="o" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-pg" />
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+					<Add option="-pg" />
+					<Add option="-lallegro_monolith" />
+					<Add option="-lz" />
+					<Add option="-lnet" />
+					<Add option="-lpthread" />
+				</Linker>
+			</Target>
+			<Target title="win_static_release">
+				<Option output="pm" prefix_auto="1" extension_auto="1" />
+				<Option object_output="o" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-Wall" />
+					<Add option="-DALLEGRO_STATICLINK" />
+					<Add directory="C:/mingw32/include" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libstdc++" />
+					<Add option="-static-libgcc" />
+					<Add option="-static" />
+					<Add option="-lallegro_monolith-static" />
+					<Add option="-ldumb" />
+					<Add option="-lfreetype" />
+					<Add option="-lpng16" />
+					<Add option="-lzlib" />
+					<Add option="-ldsound" />
+					<Add option="-lgdiplus" />
+					<Add option="-luuid" />
+					<Add option="-lkernel32" />
+					<Add option="-lwinmm" />
+					<Add option="-lpsapi" />
+					<Add option="-lopengl32" />
+					<Add option="-lglu32" />
+					<Add option="-luser32" />
+					<Add option="-lcomdlg32" />
+					<Add option="-lgdi32" />
+					<Add option="-lshell32" />
+					<Add option="-lole32" />
+					<Add option="-ladvapi32" />
+					<Add option="-lws2_32" />
+					<Add option="-lshlwapi" />
+					<Add option="-lnet" />
+					<Add option="-lwsock32" />
+				</Linker>
+			</Target>
+			<Target title="ldm_release">
+				<Option output="pm" prefix_auto="1" extension_auto="1" />
+				<Option object_output="o" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-Wall" />
+				</Compiler>
+				<Linker>
+					<Add option="-lallegro_monolith" />
+					<Add option="-lz" />
+					<Add option="-lnet" />
+					<Add option="-lpthread" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="docs/new5.txt" />
+		<Unit filename="docs/new5_todo.txt" />
+		<Unit filename="icon.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="dynamic" />
+			<Option target="static" />
+			<Option target="win_static_release" />
+		</Unit>
+		<Unit filename="src/e_bitmap.cpp" />
+		<Unit filename="src/e_editor.cpp" />
+		<Unit filename="src/e_fnx.cpp" />
+		<Unit filename="src/e_glt.cpp" />
+		<Unit filename="src/e_item.cpp" />
+		<Unit filename="src/e_lev.cpp" />
+		<Unit filename="src/e_menu.cpp" />
+		<Unit filename="src/e_nev.cpp" />
+		<Unit filename="src/e_nlv.cpp" />
+		<Unit filename="src/e_pde.cpp" />
+		<Unit filename="src/e_sel.cpp" />
+		<Unit filename="src/e_sliders.cpp" />
+		<Unit filename="src/e_special.cpp" />
+		<Unit filename="src/n_client.cpp" />
+		<Unit filename="src/n_client.h" />
+		<Unit filename="src/n_network.cpp" />
+		<Unit filename="src/n_network.h" />
+		<Unit filename="src/n_packet.cpp" />
+		<Unit filename="src/n_packet.h" />
+		<Unit filename="src/n_server.cpp" />
+		<Unit filename="src/n_server.h" />
+		<Unit filename="src/pm.h" />
+		<Unit filename="src/yfilecom.cpp" />
+		<Unit filename="src/zbullets.cpp" />
+		<Unit filename="src/zcontrol.cpp" />
+		<Unit filename="src/zemove.cpp" />
+		<Unit filename="src/zfile.cpp" />
+		<Unit filename="src/zfnx.cpp" />
+		<Unit filename="src/zitem.cpp" />
+		<Unit filename="src/zlifts.cpp" />
+		<Unit filename="src/zlog.cpp" />
+		<Unit filename="src/zlogo.cpp" />
+		<Unit filename="src/zloop.cpp" />
+		<Unit filename="src/zmain.cpp" />
+		<Unit filename="src/zmenu.cpp" />
+		<Unit filename="src/zplayer.cpp" />
+		<Unit filename="src/zscrn.cpp" />
+		<Unit filename="src/zsound.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

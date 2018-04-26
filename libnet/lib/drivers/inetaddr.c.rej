@@ -1,0 +1,7 @@
+***************
+*** 23,26
+- #if defined __USE_REAL_WSOCK_DOS__
+- #include <netinet/in.h>
+- #endif
+- 
+--- 0 -----

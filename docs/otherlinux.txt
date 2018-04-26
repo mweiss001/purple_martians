@@ -1,0 +1,55 @@
+linuxmint-18.3-cinnamon-64bit
+works great from live version
+
+elementaryos-0.4.1-stable.20180214
+works great from live version
+
+ubuntu-17.10.1-desktop-amd64
+works great from live version
+
+antergos-18.4-x86_64
+works great from live version
+
+
+CentOS-7-x86_64-LiveGNOME-1708.iso
+works great from live version
+need to disable firewall:
+sudo systemctl stop firewalld
+
+
+CentOS-7-x86_64-LiveKDE-1708.iso
+works great from live version
+need to disable firewall:
+sudo systemctl stop firewalld
+
+Fedora-Workstation-Live-x86_64-27-1.6
+works great from live version
+
+
+
+
+
+
+
+
+
+openSUSE-Tumbleweed-Kubic-DVD-x86_64-Snapshot20180420-Media
+looks like it wants to install, no live??
+installed, got to shell...gave up
+
+archlinux-2018.04.01-x86_64
+needs more config than i wanted right now
+
+
+Mageia-6-LiveDVD-Plasma-x86_64-DVD
+wont load past boot screen on nv59
+
+
+
+
+
+
+
+
+
+

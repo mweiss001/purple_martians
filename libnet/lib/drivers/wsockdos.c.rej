@@ -1,0 +1,4 @@
+***************
+*** 29
+- extern int __libnet_internal_wsockdos__dns_lookup (const char *, int, void *);
+--- 0 -----

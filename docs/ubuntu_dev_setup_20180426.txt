@@ -1,0 +1,577 @@
+---------------------------------------------------------
+---------------------------------------------------------
+------------------ Linux --------------------------------
+---------------------------------------------------------
+---------------------------------------------------------
+
+Start with a clean slate...
+
+Downloaded and did a fresh install of ubuntu 16.04.4
+
+In system settings -> system -> details
+
+it prompted to dowbload and install 65M of updates then reboot
+
+checked 'software and updates' all 4 repos were already selected
+
+changed server from canada to US (us.archive.ubuntu.com)
+
+sudo apt-get update
+
+sudo apt-get install openssh-server (to work remotely)
+
+
+
+ubuntu guide
+
+min
+$ sudo apt-get install libgl1-mesa-dev libglu1-mesa-dev cmake build-essential make libxcursor-dev
+all
+$ sudo apt-get install -y cmake g++ freeglut3-dev libxcursor-dev libpng12-dev libjpeg-dev libfreetype6-dev libgtk2.0-dev libasound2-dev libpulse-dev libopenal-dev libflac-dev libdumb1-dev libvorbis-dev libphysfs-dev
+
+debian guide:
+
+Required Dependencies
+apt-get install build-essential git cmake cmake-curses-gui xorg-dev libgl1-mesa-dev libglu-dev
+
+Optional Dependencies
+apt-get install libpng-dev libcurl4-openssl-dev libfreetype6-dev libjpeg-dev libvorbis-dev libopenal-dev libphysfs-dev \
+ libgtk2.0-dev libasound-dev libpulse-dev libflac-dev libdumb1-dev
+
+
+
+
+
+
+I did the debian guide and ran these:
+
+sudo apt-get install build-essential git cmake cmake-curses-gui xorg-dev libgl1-mesa-dev libglu-dev
+
+sudo apt-get install libpng-dev libcurl4-openssl-dev libfreetype6-dev libjpeg-dev libvorbis-dev libopenal-dev libphysfs-dev  libgtk2.0-dev libasound-dev libpulse-dev libflac-dev libdumb1-dev
+
+
+---------------------------------------------------------
+Get the sources with git
+---------------------------------------------------------
+in a terminal, pwd = /home/m
+
+git clone https://github.com/liballeg/allegro5.git
+
+done...
+
+
+---------------------------------------------------------
+make a build dir and configure with cmake
+---------------------------------------------------------
+
+mkdir build; cd build
+Running CMake
+Now for the fun part. You have a couple options, you can use cmake directly, use the bundled ccmake (curses) gui, or a Qt based graphical interface. I normally use ccmake, so that is what I'm going to explain here.
+
+
+ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+ccmake allows you to specify build settings on the command line, as well as inside the curses interface. Here I've told it to set the install prefix (where allegro is going to install to) to /usr. Why? It's cuts out a couple steps, adding /usr/local/lib to /etc/ld.so.conf and running ldconfig as root.
+
+Once you've run that, press "c" twice, and then "g". You should now be back to a console.
+
+You can however change any setting you like in the list, like disabling certain optional features. If you want to build static libraries, set SHARED to OFF.
+
+Compiling Allegro
+Now its time to get down to it. Time to run make.
+
+make
+Yes it really is that easy. You may have to wait a few minutes for this to finish.
+
+Installing Allegro
+Almost done. Time to install. If you left the CMAKE_INSTALL_PREFIX as default, or used my suggestion to install to /usr, you are going to want to install as root, either using sudo, or su.
+
+sudo make install
+Congratulations, you now have Allegro 5 installed.
+
+
+wow that was easy....
+
+
+
+---------------------
+
+
+im going to try making the static version
+
+
+set
+shared:off
+
+monolith on
+
+prefer static deps:????  on
+
+
+
+
+color off
+dsound off
+embed off
+flac off
+frameworks off
+
+aqueue off
+d3d off
+docs:off
+demo:off
+example:off
+image webp off
+ogg video off
+opus off
+open sl off
+physfs off
+
+release logging off
+shaders d3d off
+shaders gl off
+tests off
+want video off
+vorbis off
+
+
+it made:
+liballegro_monolith-static.a
+
+and also pkgcfg...
+
+
+gave up on the static version...link problems
+
+
+
+
+
+---------------------------------------------------------
+Code::Blocks
+---------------------------------------------------------
+Ubuntu 16.04.4 in Software Manager version 13.12
+
+that's pretty old...lets see what else I can find...
+
+To install Code::Blocks from PPA, open a terminal and type:
+
+sudo add-apt-repository ppa:damien-moore/codeblocks-stable
+sudo apt-get update
+sudo apt-get install codeblocks codeblocks-contrib
+
+Current stable version of Code::Blocks IDE (16.01)
+
+
+---------------------------------------------------------
+Set up samba share on desktop for project files
+---------------------------------------------------------
+
+made a folder on the desktop 'pm_client7' and shared it
+prompted to install samba, did it with no problems
+needed to restart session
+shared again, checked:
+'allow other to create and delete files in this folder'
+'guest access (for people without an account)'
+clicked 'create share'
+chose 'set permissions automatically'
+
+
+---------------------------------------------------------
+Install libnet
+---------------------------------------------------------
+- from my local copy of the sources
+from a terminal go to the folder 'libnet' in the game folder
+'make lib'
+'sudo make install'
+(puts libnet.h in /usr/include/)
+(puts libnet.a in /usr/lib/x86_64-linux-gnu/)
+
+cd bu	
+---------------------------------------------------------
+Linker setting for my project
+---------------------------------------------------------
+-lallegro_monolith
+-lz
+-lnet
+-lpthread
+
+
+
+I have allegro 5.2.5...
+what can i do to get 5.2.4...
+
+git checkout 5.2.4
+git pull --rebase origin 5.2.4
+
+configured, recompiled allegro..
+re complied my project
+now version says 5.2.4.1
+
+
+
+By default you will be on the master branch. You can change the branch from your working tree like this:
+
+git checkout 5.0
+git checkout 4.4
+git checkout master
+Usage
+A quick reminder how to use git.
+
+To get the repository:
+
+git clone https://github.com/liballeg/allegro5.git
+Remember to tell git your name and email address:
+
+git config --global user.name "My Name"
+git config --global user.email "USERNAME@example.net"
+To make sure you're in the right branch and have the latest changes:
+
+cd allegro
+git checkout master
+git pull --rebase origin master
+
+
+
+i have gcc 5.4.0
+i should have 7.2.4
+
+
+
+How to switch GCC version using update-alternatives
+ Ashwin   Uncategorized   February 26, 2015  1 Minute
+Multiple versions of GCC can be installed and used on Ubuntu as described here. The update-alternatives tool makes it easy to switch between multiple versions of GCC.
+
+On Ubuntu, gcc and g++ are just symbolic links to the actual binaries of a specific version of GCC. By switching the version, invoking gcc will execute the particular version of the compiler binary that you wish. You can make any of these version as the default at any time effortlessly.
+
+As an example, I had installed GCC version 4.8 from the Ubuntu repositories. This was the default version of GCC, so gcc was a symlink to gcc-4.8 binary. Wanting to use some new C++11 features I installed version 4.9 of GCC. This compiler can be invoked using gcc-4.9. I now want to switch the default gcc to invoke gcc-4.9. I also want the freedom to switch back 4.8 as the default whenever I want. You can switch the symlinks yourself manually, but using this tool makes it easy and clean.
+
+Let us begin:
+
+Decide which set of symbolic links you want to group together as one unit. I like to switch /usr/bin/gcc and /usr/bin/g++ together.
+Pass update-alternatives the first version of these symbolic links. Here I will inform about the 4.8 version of these tools and links:
+
+1
+$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 100 --slave /usr/bin/g++ g++ /usr/bin/g++-4.8
+Here, we have provided the gcc as the master and g++ as slave. Multiple slaves can be appended along with master. When master symbolic link is changed, the slaves will be changed too.
+
+Pass the second version of these tools to be recorded:
+1
+$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9 
+Now you can switch between these versions by using:
+1
+$ sudo update-alternatives --config gcc
+Tried with: Ubuntu 14.04
+
+
+
+
+sudo add-apt-repository ppa:jonathonf/gcc-7.2
+sudo apt-get update
+sudo apt-get install gcc-7
+sudo apt-get install g++-7
+
+
+or alternatively ubuntu 17.10 is supposed to come with 7.2
+
+now I have it, but not linked...
+
+
+
+gcc still shows 5.4
+gcc-7 shows 7.2
+
+
+gcc -v
+g++ -v
+Okay, so that part is fairly simple. The tricky part is that when you issue the command GCC it is actually a sybolic link to which ever version of GCC you are using. What this means is we can create a symbolic link from GCC to whichever version of GCC we want.
+
+You can see the symbolic link :
+ls -la /usr/bin | grep gcc-4.4
+ls -la /usr/bin | grep g++-4.4
+So what we need to do is remove the GCC symlink and the G++ symlink and then recreate them linked to GCC 4.3 and G++ 4.3:
+rm /usr/bin/gcc
+rm /usr/bin/g++
+
+ln -s /usr/bin/gcc-4.3 /usr/bin/gcc
+ln -s /usr/bin/g++-4.3 /usr/bin/g++
+Now if we check the symbolic links again we will see GCC & G++ are now linked to GCC 4.3 and G++ 4.3:
+ls -la /usr/bin/ | grep gcc
+ls -la /usr/bin/ | grep g++
+Finally we can check our GCC -v again and make sure we are using the correct version:
+gcc -v
+g++ -v
+
+
+ls -la /usr/bin | grep gcc-7
+ls -la /usr/bin | grep g++-7
+
+rm /usr/bin/gcc
+rm /usr/bin/g++
+
+ln -s /usr/bin/gcc-7 /usr/bin/gcc
+ln -s /usr/bin/g++-7 /usr/bin/g++
+
+
+erased cmake files from my buildc
+and rebuilt allegro
+
+same...
+
+problem is with open_gl
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------
+
+
+I am using the dynamic monolith version
+
+build it again, but remove open al and some others
+
+
+ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+
+
+build type Release
+
+off:
+color
+d3d
+demo
+docs
+embed
+examples
+flac
+webp
+png
+jpg
+ogg video
+openal
+opensl
+opus
+physfs
+release logging
+tests
+video
+vorbis
+
+monolith on
+
+
+took 90s to compile
+
+now liballegro_monolith.so.5.2 is 1.7M instead of: 7.2M 
+
+I only need this file and libdumb.so.1
+
+
+
+
+
+---------------------------------------------------------------
+---------------------------------------------------------------
+---------------------------------------------------------------
+---------------------------------------------------------------
+---------------------------------------------------------------
+
+
+20180425
+
+I'm going to set up a new dev system on linux and document every step...
+
+starting with ubuntu 16.04.4 on nv59
+
+---------------------------------------------------------------
+basic ubuntu setup
+---------------------------------------------------------------
+checked 'software and updates' all 4 repos were already selected
+changed server from 'Server for Canada' to 'Main server'
+
+In system settings -> system -> details
+It checked fot updates then prompted to download and install 65M of updates then reboot
+
+sudo apt-get update
+sudo apt-get install openssh-server (to work remotely)
+
+---------------------------------------------------------------
+get packages for compiling allegro
+---------------------------------------------------------------
+sudo apt-get install build-essential git cmake cmake-curses-gui xorg-dev libgl1-mesa-dev libglu-dev
+
+
+---------------------------------------------------------------
+get packages for allegro's dependencies
+---------------------------------------------------------------
+sudo apt-get install libcurl4-openssl-dev libfreetype6-dev libgtk2.0-dev libasound-dev libpulse-dev libdumb1-dev
+
+
+---------------------------------------------------------
+Get the sources with git
+---------------------------------------------------------
+in a terminal, pwd = /home/m
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+git checkout 5.2.4
+git pull --rebase origin 5.2.4
+
+---------------------------------------------------------
+make a build dir and configure with cmake
+---------------------------------------------------------
+int the allegro5 dir
+mkdir build; cd build
+
+ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+
+build type: Release
+monolith: on
+all these off:
+color
+d3d
+demo
+docs
+embed
+examples
+flac
+webp
+png
+jpg
+ogg video
+openal
+opensl
+opus
+physfs
+release logging
+tests
+video
+vorbis
+
+press "c" twice, and then "g". You should now be back to a console.
+
+---------------------------------------------------------
+compile allegro and install
+---------------------------------------------------------
+make
+took 71s to compile
+
+sudo make install
+Installed /usr/lib/liballegro_monolith.so.5.2.4 (size 1.7M)
+
+
+---------------------------------------------------------
+Install libnet
+---------------------------------------------------------
+- from my local copy of the sources
+from a terminal go to the folder 'libnet' in the game folder
+'make lib'
+'sudo make install'
+(puts libnet.h in /usr/include/)
+(puts libnet.a in /usr/lib/x86_64-linux-gnu/)
+
+m@nv59:~/Desktop/pm_client13/libnet$ make lib
+make -C lib/ lib
+make[1]: Entering directory '/home/m/Desktop/pm_client13/libnet/lib'
+make[1]: Nothing to be done for 'lib'.
+make[1]: Leaving directory '/home/m/Desktop/pm_client13/libnet/lib'
+m@nv59:~/Desktop/pm_client13/libnet$ sudo make install
+make -C lib/ install
+make[1]: Entering directory '/home/m/Desktop/pm_client13/libnet/lib'
+Copying libnet.a to library directory...
+cp -f ../lib/libnet.a /usr/lib/x86_64-linux-gnu/libnet.a
+Copying libnet.h to include directory...
+cp -f ../include/libnet.h /usr/include/libnet.h
+make[1]: Leaving directory '/home/m/Desktop/pm_client13/libnet/lib'
+m@nv59:~/Desktop/pm_client13/libnet$
+
+
+---------------------------------------------------------
+Code::Blocks
+---------------------------------------------------------
+Ubuntu 16.04.4 in Software Manager has Code::Blocks version 13.12
+that's pretty old...lets see what else I can find...
+
+To install Code::Blocks version 16.01 from PPA, open a terminal and type:
+sudo add-apt-repository ppa:damien-moore/codeblocks-stable
+sudo apt-get update
+sudo apt-get install codeblocks codeblocks-contrib
+
+
+
+---------------------------------------------------------
+Set up samba share on desktop for project files
+---------------------------------------------------------
+
+made a folder on the desktop 'pm_client7' and shared it
+prompted to install samba, did it with no problems
+needed to restart session
+shared again, checked:
+'allow other to create and delete files in this folder'
+'guest access (for people without an account)'
+clicked 'create share'
+chose 'set permissions automatically'
+
+copy sources to this shared folder then run sudo ./op to
+set owner and permissions for all the files to 777 m:m
+
+
+---------------------------------------------------------
+Open project in code::blocks and compile
+---------------------------------------------------------
+First time code::blocks is run it complains about default compiler
+just choose gcc and it wont complain after first time
+
+gcc -v gives 5.4.0
+once I updated to 7.2, but it seems to work fine on 5.4 as well
+
+build settings:
+
+compiler:
+I always use -Wall
+
+in ldm:
+-g
+-pg
+
+in ldm_release:
+-O3
+
+linker:
+-lallegro_monolith
+-lz
+-lnet
+-lpthread
+
+
+
+---------------------------------------------------------
+Make a release
+---------------------------------------------------------
+manually copy the needed libraries to /linux_libs
+
+cp /usr/lib/liballegro_monolith.so.5.2 ./linux_libs/
+cp /usr/lib/x86_64-linux-gnu/libdumb.so.1 ./linux_libs
+
+run 'lin_make_release'
+
+a folder called 'purple_martians__linux' is created and needed files are copied to it
+rename the folder like this: 'purple_martians_7.xx_linux'
+right click on the folder and compress to tar.gz
+....?
+profit
+
+
+
+
+
+
+
+
+
+

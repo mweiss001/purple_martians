@@ -1,0 +1,18 @@
+The executable is called 'pm'
+
+But you can't run it directly until the libraries are set up.
+
+Option 1:
+Use the script 'pml' to run the game:
+The contents of pml are:  "LD_LIBRARY_PATH=./linux_libs ./pm"
+
+Option 2:
+Copy the contents of /linux_libs to /usr/lib
+Then you can run 'pm' without needing the script
+
+
+Currently only 2 libraries are needed:
+liballegro_monolith.so.5.2
+libdumb.so.1
+
+

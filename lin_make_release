@@ -1,0 +1,26 @@
+cp /usr/lib/liballegro_monolith.so.5.2 ./linux_libs/
+cp /usr/lib/x86_64-linux-gnu/libdumb.so.1 ./linux_libs
+
+mkdir purple_martians__linux
+mkdir purple_martians__linux/bitmaps
+mkdir purple_martians__linux/help
+mkdir purple_martians__linux/levels
+mkdir purple_martians__linux/linux_libs
+mkdir purple_martians__linux/logs
+mkdir purple_martians__linux/savegame
+mkdir purple_martians__linux/savegame/demo
+mkdir purple_martians__linux/screenshots
+mkdir purple_martians__linux/sel
+mkdir purple_martians__linux/snd
+
+cp bitmaps/*       purple_martians__linux/bitmaps
+cp help/*          purple_martians__linux/help
+cp snd/*           purple_martians__linux/snd
+cp levels/level0*  purple_martians__linux/levels
+cp linux_libs/*    purple_martians__linux/linux_libs
+cp savegame/demo/* purple_martians__linux/savegame/demo
+
+cp pm purple_martians__linux/
+cp pml purple_martians__linux/
+cp readme_linux purple_martians__linux/
+

@@ -1,0 +1,2635 @@
+<section>Contents and Using Help
+
+
+
+
+
+
+
+
+
+
+<c08>________________________________
+
+<c13>Navigating Help
+<c08>________________________________
+
+
+<l15>                  Move up and down with <l09>[UP]<l15> and <l09>[DOWN].
+<title>
+<mdw1>
+<l15>              Move by sections with <l09>[PAGE UP]<l15> and <l09>[PAGE DOWN].
+
+
+<l15>               Jump to the start or end with <l09>[HOME]<l15> or <l09>[END].
+
+
+<l15>           Jump to a section by typing the 2 digit section number.
+
+
+<l15>                             Use <l09>[ESC]<l15> to quit.
+
+
+<section>Table of Contents
+
+
+<c15> Type the 2 digit section number to jump to that section
+
+
+<l13>              Section Title
+<l13>              _______ _____
+
+
+
+<section>Overview
+
+
+<c10>Player
+
+
+
+<l15>     You are a Purple Martian..... <a09> ............(or other color).
+
+
+
+<p01>  <p02>  <p03>  <p04>  <p05>  <p06>  <p07>  <p08>  <p09>  <p10>  <p11>  <p12>  <p13>  <p14>  <p15>
+<l15>___________________________________________________________________________
+
+<c10>Mission
+
+<c15>Your mission is to escape from the dungeons of a strange planet
+
+<c15>where your ship crashed.  Armed only with your plasma pistol,
+
+<c15>you must fight enemies who want to kill you and find the exit.
+
+
+
+      <a01>       <a02>       <a14>       <a15>       <a17>       <a29>       <a31>
+<l15>___________________________________________________________________________
+
+<c04>Exits
+
+<c15>Every level has at least one exit.
+
+
+                         <l13>        Normal exit
+                              <a22>
+
+
+<c15>Some exits are locked until the number of enemies
+
+<c15>left alive is less than a specified number.
+
+
+                         <l13>        Locked Exit
+                              <s367>
+<l15>___________________________________________________________________________
+
+<c04>Health
+
+<c15>The health indicator at the top of the screen shows your health.
+
+
+
+
+<hb100>
+<c15>It is 100 and solid green when you start.
+
+
+
+<hb054
+<c15>When you are hit by an enemy or a bullet your health will go down.
+
+
+
+<hb000>
+<c15>If your health indicator reaches 0, you will lose a life.
+
+
+
+
+<c15>To get more health, find a health bonus.
+
+
+
+            <a23>   <s928>   <s929>   <s930>   <s931>   <s932>   <s933>   <s934>   <s935>
+
+            <a27>   <s960>   <s961>   <s962>   <s963>   <s964>   <s965>   <s966>   <s967>
+
+
+<section>Player Colors
+
+
+
+<c13> You can choose the color of your player from the options menu.
+
+<c13> Move to "Change Color" then use [LEFT] and [RIGHT]
+
+
+
+
+ <p01>  <p02>  <p03>  <p04>  <p05>  <p06>  <p07>  <p08>  <p09>  <p10>  <p11>  <p12>  <p13>  <p14>  <p15>
+
+
+        <p01> <p02> <p03> <p04> <p05> <p06> <p07> <p08> <p09> <p10> <p11> <p12> <p13> <p14> <p15>
+
+
+               <p01><p02><p03><p04><p05><p06><p07><p08><p09><p10><p11><p12><p13><p14><p15>
+
+
+<pc01>
+
+
+<pc02>
+
+
+<pc03>
+
+
+<pc04>
+
+
+<pc05>
+
+
+<pc06>
+
+
+<pc07>
+
+
+<pc08>
+
+
+<pc09>
+
+
+<pc10>
+
+
+<pc11>
+
+
+<pc12>
+
+
+<pc13>
+
+
+<pc14>
+
+
+<pc15>
+
+
+               <p01><p02><p03><p04><p05><p06><p07><p08><p09><p10><p11><p12><p13><p14><p15>
+
+
+        <p01> <p02> <p03> <p04> <p05> <p06> <p07> <p08> <p09> <p10> <p11> <p12> <p13> <p14> <p15>
+
+
+ <p01>  <p02>  <p03>  <p04>  <p05>  <p06>  <p07>  <p08>  <p09>  <p10>  <p11>  <p12>  <p13>  <p14>  <p15>
+
+
+<section>Game Controls
+
+
+
+<c15>To keep things simple, Purple Martians has only 6 game controls.
+
+
+<l09>               [UP]
+<l09>          [LEFT]  [RIGHT]   [JUMP] [FIRE]
+<l09>              [DOWN]
+
+
+<c15>You can customize the controls with "Controller Setup" on the options menu.
+
+
+
+<c13>Control Descriptions
+<l15>___________________________________________________________________________
+
+<l09>  [LEFT] and [RIGHT]
+
+<l15>- moves player left or right.
+
+<l04>   also
+
+<l15>- steers a rocket you are riding.
+<l15>___________________________________________________________________________
+
+<l09>  [JUMP]
+
+<l15>- tap for small hops. Hold for higher jumps.
+<l15>___________________________________________________________________________
+
+<l09>  [FIRE]
+
+<l15>- shoots a bullet in the direction you are facing.
+
+<l04>   also
+
+<l15>- hold to pick up and carry an item.
+
+<l15>- release to let go of the item.
+
+<l15>- if [UP] is held when you let go of an item it will be thrown upwards.
+
+<l04>   also
+
+<l15>- hold to ride a rocket.
+
+<l15>- release to let go of the rocket.
+
+<l15>___________________________________________________________________________
+
+<l09>  [UP] and [DOWN]
+
+<l15>- use to shoot up and down.
+
+<l04>   also
+
+<l15>- some doors are activated with up or down
+
+<l04>   also
+
+<l15>- if [UP] is pressed when you let go of an item it will be thrown upwards.
+
+
+
+<section>In Game Function Keys
+
+
+<c15>While the game is running, these Function Keys are active:
+<l15>___________________________________________________________________________
+
+
+<l14>         [F5] - Zoom Out (decrease scale factor)
+<l14>         [F6] - Zoom In (increase scale factor)
+<l14>    [F5]+[F6] - Reset Zoom (set scale factor to 1.0)
+
+<l09>         [F7] - Speed Decrease (by 1 frame per second)
+<l57>  [SHIFT][F7] - Speed Decrease (by 20 frames per second)
+<l89>[CONTROL][F7] - Speed Decrease (by 100 frames per second)
+
+<l09>    [F7]+[F8] - Reset Speed (set frames per second to 40)
+
+<l09>         [F8] - Speed Increase (by 1 frame per second)
+<l57>  [SHIFT][F8] - Speed Increase (by 20 frames per second)
+<l89>[CONTROL][F8] - Speed Increase (by 100 frames per second)
+
+<l15>        [F10] - Toggle the debug overlay
+
+<l05>[PRINTSCREEN] - Saves a screen shot in the screenshot folder
+
+<l13>        [F12] - Toggle Full Screen Mode
+
+
+
+<section>Enemies
+
+
+<l13>    ArchWagon
+<a02> Jumps over holes and obstacles, shoots arrows.
+
+
+<l13>    TrakBot
+<a17> Clings to walls and ceilings, drops when you pass under.
+
+
+<l13>    Cannon
+<a19> Bounces, seeks and shoots deadly cannonballs.
+
+
+<l13>    Podzilla
+<a15> Pops up and shoots when you trigger it.
+
+
+<l13>    Cloner
+<a53> Makes copies of things.
+
+
+<l13>    Flapper
+<a61> Bounces and flaps.
+
+
+<l13>    Block Walker
+<a56> Turns into a solid block when shot.
+
+
+<l13>    FlutterBy
+<a14> Bounces and seeks.
+
+
+<l13>    Flicken
+<a29> Bounces and seeks.
+
+
+<l13>    Seeker
+<a31> Bounces and seeks.
+
+
+<section>Items
+
+
+<l13>    Start
+<a21> Where the player begins a level.
+
+
+<l13>    Exit
+<a22> Find this to finish a level.
+
+
+<l13>    Door
+<a05> Takes you somewhere in the current level.
+
+
+<l13>    Sproingy
+<a52> Hold [JUMP] to jump extra high.
+
+
+<l13>    Health Bonus (10)
+<a23> Gives you more health (1/10 of full health)
+
+
+<l13>    Health Bonus (50)
+<a27> Gives you more health (1/2 of full health)
+
+
+<l13>    Free Man
+<a38> Gives you an extra life.
+
+
+<l13>    Mine
+<a24> Lose health by touching.
+
+
+<l13>    Message
+<a36> Displays a helpful message.
+
+
+
+<l13>             Switch
+<s841><s745><s777><s809> Swap solid and empty blocks.   <a88>  <a89>
+
+
+
+<l13>    Key
+<a48> Opens matching locked blocks of the same color.
+
+   Locked Block 1      Locked Block 2      Locked Block 3
+<a49>                 <a50>                 <a51>
+
+
+<section>Bombs
+
+
+
+<ac25>
+
+<c04>    Description:
+
+
+<c13>Bombs have various blast sizes and fuse lengths.  Any enemy in the blast
+
+<c13>area will be killed.  Certain blocks are destroyed (but not items).  If you
+
+<c13>are in the blast area you will lose some health.
+
+
+<c11>To light a bomb; touch it.
+
+
+<c10>To carry a bomb; hold [FIRE]
+
+
+<c09>To drop a bomb; release [FIRE]
+
+
+<c75>(If you are looking up when you release [FIRE]
+
+<c75>the bomb will be thrown upwards!)
+
+
+<section>Rockets
+
+
+
+<ac26>
+
+<c04>    Description:
+
+
+<c13>When lit, rockets blast upwards until they hit something.
+
+<c13>Then they explode just like a bomb.
+
+
+<c11>To light a rocket; touch it.
+
+
+<c10>To ride a rocket; hold [FIRE]
+
+
+<c09>To let go of a rocket; release [FIRE]
+
+
+<c75>To steer the rocket use [LEFT] and [RIGHT]
+
+
+<section>Blocks
+
+
+<l04>Solid Blocks
+
+<l15>Player and enemies can stand on them, they stop bullets,
+
+<l15>and bombs and rockets have no effect on them.
+
+
+<ms128129130131132133134135136137138139140141142143160161162163
+
+
+<ms576577578579580608609610611612640641642643644165165165165165
+<l15>___________________________________________________________________________
+
+<l04>Empty Blocks
+
+Empty space!
+
+
+<ms000007008009010011012013014015165165165165165165165165165165
+<l15>___________________________________________________________________________
+
+<l04>SemiSolid Blocks
+
+Player and enemies can jump through from below.
+
+Bullets pass through in all directions.
+
+
+<ms032033034035165165165165165165165165165165165165165165165165
+<l15>___________________________________________________________________________
+
+<l04>Breakable Blocks
+
+Shoot these blocks to break them. (Enemy's bullets will break them too.)
+
+
+<ms096097098099100165165165165165165165165165165165165165165165
+<l15>___________________________________________________________________________
+
+<l04>Bombable Block
+
+Bombs and rockets will destroy these blocks.
+
+
+<ms064165165165165165165165165165165165165165165165165165165165
+
+
+<section>Netgame
+
+
+<c13>LAN Network Multiplayer Game Mode
+<c15>_________________________________
+
+
+<c15>To run a Netgame, the computers must be in the
+
+<c15>same subnet and be able to ping each other.
+
+<c15>_________________________________
+
+
+<c15>One player will act as the Server and host the Netgame.
+
+<c15>Up to seven other players can join as Clients.
+
+<c15>_________________________________
+
+
+<c15>Each Client needs to have the Server's IP or hostname set in:
+
+<c15>"Options Menu" -> "Netgame Options"
+
+<c15>_________________________________
+
+
+<c15>Clients will use what the Server tells them for:
+
+<c15>Player Color,  Level,  FPS (frames per second)
+
+<c15>Deathmatch Player Bullets, Suicide Player Bullets
+
+
+<b15>
+
+<c15>Netgame has couple of specific game options:
+
+
+<c09>Deathmatch Player Bullets:[ON|OFF]
+<c09>____________________________________
+
+<c15>Can a player's bullets hurt another player?
+
+<c15>If [OFF] they will have no effect on other players.
+
+
+<c09>Suicide Player Bullets:[ON|OFF]
+<c09>_________________________________
+
+<c15>Can a player hurt themselves with their own bullets?
+
+<c15>I know what you are thinking.  How can a player shoot themselves?
+
+<c15>Well suppose they shoot a bullet, then travel instantly with
+
+<c15>a door to a place where their own bullet can hit them.
+
+<c15>If [ON] a player will be able to shoot themself.
+
+
+<c09>Deathmatch Bullets Damage:
+<c09>____________________________
+
+<c15>How much damage player's bullets do to other players and themselves.
+
+<c15>100 will instantly kill. 0 will do no damage (but still recoil).
+
+<c15>You can even set a negative value to give health!
+
+
+
+<section>Command Line
+
+
+<c15>Command line switches and arguments
+
+
+<l09>Immediately start playing a level
+<l09>_________________________________
+
+
+<l14>pm <int>
+
+ - start the game and run level <int>
+
+
+<l14>pm -p <int>
+
+ - start the game and run level <int>
+
+
+
+<l09>Immediately start the level editor
+<l09>__________________________________
+
+
+<l14>pm -e
+
+- start the level editor
+
+
+<l14>pm -e <int>
+
+- start the level editor with level <int>
+
+
+
+<l09>Immediately start the game and run a saved game file
+<l09>____________________________________________________
+
+
+<l14>pm -f <file>
+
+- runs saved game <file>
+
+
+
+<l09>Immediately start a Client Netgame
+<l09>__________________________________
+
+
+<l14>pm -c <IP or hostname>
+
+- starts a Client Netgame and tries to connect to <IP or hostname>
+
+
+<l14>pm -c
+
+- starts a Client Netgame and uses the saved value for <IP or hostname>
+
+
+
+<l09>Immediately start a Server Netgame
+<l09>__________________________________
+
+
+<l14>pm -s <int>
+
+- starts a Server Netgame on level <int>
+
+
+<l14>pm -s
+
+- starts a Server Netgame using the saved start level
+
+
+
+<l15>Display help screens
+<l09>____________________
+
+
+<l14>pm -h
+
+- displays the help screens
+
+
+
+<section>Screen Size
+
+
+<c15>___________________________________________________________________
+
+
+<l06>     Toggle from window to full screen with <l09>[F12]
+
+<c15>___________________________________________________________________
+
+
+<l06>     In windowed mode resize and move the windows like any other window.
+
+<c15>___________________________________________________________________
+
+
+<l06>     While playing, zoom out with <l09>[F5] <l06>and zoom in with <l09>[F6]
+
+<c15>___________________________________________________________________
+
+
+<l06>     Reset zoom to 1.00 by pressing both <l09>[F5] <l06>and <l09>[F6]
+
+<c15>___________________________________________________________________
+
+
+
+
+<section>Installation and System Requirements
+
+
+
+
+<c13>The game does not need to be installed.  Run it from its own folder.
+
+<c13>It is self contained and does not store anything outside this folder.
+
+
+<c15>_____________________________________________________________________
+
+
+
+Recently, the game has been developed and tested on Windows 7.
+
+Here is list of other systems I have tested the game on:
+
+Windows XP 
+Windows 7
+Windows 10
+ubuntu-16.04.4-desktop-amd64
+ubuntu-17.10.1-desktop-amd64
+linuxmint-18.3-cinnamon-64bit
+elementaryos-0.4.1-stable.20180214
+antergos-18.4-x86_64
+CentOS-7-x86_64-LiveGNOME-1708
+CentOS-7-x86_64-LiveKDE-1708
+Fedora-Workstation-Live-x86_64-27-1.6
+
+To run in windows, extract and run 'pm.exe'
+
+To run in linux, extract and run the script 'pml'
+- the executable is 'pm', the script 'pml' sets up some libaries first
+- optionally you could copy the contents of /linux_libs to /usr/lib
+
+
+
+
+<section>Config File
+
+
+
+<l13>The game uses the config file "pm.cfg" to store persistant data
+
+<l13>If the file is deleted, it will be re-created with defaults
+
+
+"pm.cfg"
+
+[SCREEN]
+disp_w_wind=800
+disp_h_wind=600
+disp_x_wind=10
+disp_y_wind=10
+fullscreen=0
+scale_factor = 1.00
+show_splash_screen = 1
+
+[GAME]
+color = 8
+start_level = 1
+speed = 40
+
+[SOUND]
+sound_on = 1
+se_scaler = 5 <l09>[sound effect volume 0-10]
+st_scaler = 5 <l09>[sound track volume 0-10]
+
+[GAMECONTROLS]
+p1_up_key = 84
+p1_down_key = 85
+p1_right_key = 83
+p1_left_key = 82
+p1_jump_key = 75
+p1_fire_key = 3
+p1_menu_key = 59
+
+[NETWORK]
+server_IP = 192.168.1.1
+deathmatch_pbullets = 0
+suicide_pbullets = 0
+control_lead_frames = 3
+server_lead_frames = 1
+chdf_freq = 40
+zlib_cmp = 7
+
+[LOGGING]
+auto_save_game_on_level_done = 0
+auto_save_game_on_exit = 0
+LOGGING = 0
+LOGGING_NETPLAY = 0
+LOGGING_NETPLAY_JOIN = 0
+LOGGING_NETPLAY_bandwidth = 0
+LOGGING_NETPLAY_client_timer_adjust = 0
+LOGGING_NETPLAY_cdat = 0
+LOGGING_NETPLAY_game_move = 0
+LOGGING_NETPLAY_sdat = 0
+LOGGING_NETPLAY_sdak = 0
+LOGGING_NETPLAY_chdf = 0
+LOGGING_NETPLAY_chdf_all_packets = 0
+LOGGING_NETPLAY_chdf_when_to_apply = 0
+LOGGING_NETPLAY_show_dif1 = 0
+LOGGING_NETPLAY_show_dif2 = 0
+
+
+<section>Level Editor Basics
+
+
+<c07>Mouse Controls
+<c15>____________________________________________________
+
+<c09>Left click and release
+
+<c15>Inserts the current Draw Item at the mouse position
+
+
+<c09>Left click and hold, then drag to draw a box
+
+<c15>Fills the box with the Draw Item. (block only)
+
+
+<c09>Right Click and Release
+
+<c15>Copies current View Item to Draw Item
+
+
+<c09>Right Click and Hold
+
+<c15>Displays the Pop Up Menu
+
+
+<c09>Mouse Pointer on Edge of Screen
+
+<c15>Scrolls the level in the direction of the edge
+
+
+
+<c07>Using the Pop Up Menu
+<c15>_________________________________________________________________
+
+<c15>Press and hold the right mouse button to display the Pop Up Menu.
+
+<c15>Move the selection by moving the mouse up or down.
+
+<c15>Release the right mouse button to choose the current selection.
+
+
+
+<c07>For Example
+<c15>_________________________________________________________________
+
+<l15>  To quit the Level Editor:
+
+<l15>    1) Press and hold the right mouse button.
+
+<l15>    2) Scroll down with the mouse until 'Quit Level Editor' is selected.
+
+<l15>    3) Release the right mouse button.
+
+
+<section>Pop Up Menu
+
+
+
+<c14>To use the Pop Up Menu, press and hold the right mouse button.
+
+<c14>Then scroll up and down to make your selection.
+
+<c14>Release the right mouse button to complete your choice.
+
+<c15>______________________________________________________
+
+
+<c13(Note: For the first three menu choices, [item] is
+
+<c13>set to the View Item before the menu is started)
+
+<c15>______________________________________________________
+
+
+<c09>Copy [item]
+
+<c15>Sets the Draw Item to [item].
+
+
+<c09>View (item)
+
+<c15>Opens the viewer/editor for [item].
+
+
+<c09>Delete [item]
+
+<c15>Removes [item].
+
+
+<c09>Zoom Full Screen
+
+<c15>Switches to the Zoom Full Screen display
+
+
+<c09>Show Status Window
+
+<c15>If the Status Window has been turned off, this will display it again.
+
+
+<c09>Show Selection Window
+
+<c15>If the Selection Window has been turned off, this will display it again.
+
+
+<c09>Load Level
+
+<c15>Opens the Load Level File Select Dialog.
+
+
+<c09>Save Level
+
+<c15>Opens the Save Level File Select Dialog.
+
+
+<c09>Save and Quit
+
+<c15>Opens the Save Level File Select Dialog, then quits the Level Editor.
+
+
+<c09>Help Screens
+
+<c15>Starts the Help Screens
+
+
+<c09>Quit Level Editor
+
+<c15>Quits the Level Editor
+
+
+<section>Status Window
+
+
+
+
+<sta_w>
+
+
+
+
+
+
+<c09>The Status Window consists of three main parts:
+
+<l15>               1) The Title bar,
+
+<l15>               2) The Draw Item Display and,
+
+<l15>               3) The View Item Display.
+
+
+<l09>The Title Bar
+
+<l15> - The title bar is the box at the top of the Status Window.
+
+<l15> - In the middle is the current level display.
+
+<l15> - To the right is the current x and y position in the level.
+
+<l15> - On the extreme right is an X which will hide the Status Window.
+
+
+<l09>The Draw Item Display
+
+<l15> - shows what will be inserted into the current level when the left
+
+<l15>   mouse button is pressed.
+
+
+<l09>The View Item Display
+
+<l15> - shows what the mouse is pointing at in the current level.
+
+
+<l09>Moving the Status Window
+
+<l15> - Position the mouse on the title bar of the Status Window.
+
+<l15>   (the border of the title bar should change to yellow)
+
+<l15> - Press and hold the left mouse button.
+
+<l15> - Drag the Status Window to its new location.
+
+<l15> - Release the left mouse button.
+
+
+<l09>Hiding the Status Window
+
+<l15> - Position the mouse over the X on the extreme right of the Status
+
+<l15>   Window Title bar (the X should change to yellow).
+
+<l15> - Press and release the left mouse button
+
+<l15> - To show it again select "Show Status Window" from the Pop Up Menu
+
+
+<section>Selection Window
+
+
+
+
+<sel_w>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<c09>The Selection Window consists of three main parts:
+
+<l15>              1) The Title Bar,
+
+<l15>              2) The Block Selection sub-window, and
+
+<l15>              3) The Special Items sub-window.
+
+
+<l09> The Title Bar
+
+<l15> - In the middle are two words "Blocks" and "Special" which toggle the
+
+<l15> - block and special sub-windows.
+
+<l15> - On the extreme right is an "X" which will hide the Selection Window.
+
+<l09> The Block Selection sub-window
+
+<l15> - Position the mouse over a block to display a description of the block.
+
+<l15> - Press the left mouse button to select a block.  The block is copied
+
+<l15> - to the Draw Item.
+
+<l09>The Special Items sub-window
+
+<l15> - Position the mouse over an item to display a description of the item.
+
+<l15> - Press the left mouse button to select the item.  Depending on the
+
+<l15> - item, a creator will run, or the item will be copied to the Draw Item.
+
+<l09>Moving the Selection Window
+
+<l15> - Position the mouse on the title bar of the Selection Window.
+
+<l15> - The border of the title bar should change to yellow.
+
+<l15> - Press and hold the left mouse button.
+
+<l15> - Drag the Selection Window to its new location.
+
+<l15> - Release the left mouse button.
+
+<l09>Hiding and Showing the sub-windows
+
+<l15> - Position the mouse on the word "Blocks" or "Special" in the Title Bar
+
+<l15> - The word should change to yellow.
+
+<l15> - Press the left mouse button to toggle the sub-window on and off.
+
+<l09>Resizing the sub-windows
+
+<l15> - Click the "+" and "-" symbols on the Title Bar of the sub-window.
+
+<l15> - If the sub-window is shrunk below one line it will automatically hide
+
+<l15>   and must be turned back on with the controls on the Title Bar.
+
+
+<section>Zoom Full Screen
+
+
+<l15> Lets you perform tasks on rectangular selections of the level.
+
+
+<l09>Changing the Selection
+
+<l15> - Click and drag on the map to set a new selection.
+
+
+<l09>Selection Display
+
+<l15>Selection data is displayed in a yellow box above the buttons
+
+<l15>   x: y:           (position of the selection)
+
+<l15>   height: width:  (size of the selection)
+
+<l15>   Enemies:        (number of enemies in selection)
+
+<l15>   Items:          (number of items in selection)
+
+<l15>   Lifts:          (number of items in selection)
+
+
+<l09>Filters
+
+<l15>The four filter buttons (blocks, items, enemies, lifts) work with the
+
+<l15>Paste, Copy, Save, and Clear functions as a filter.  If the filter is
+
+<l15>off for a group, the functions will not be applied to that group.
+
+<l15> - Press a filter button to toggle it on and off.
+
+
+<l09>Moving the Selection (see Filters)
+
+<l15> - Press the 'Move Selection' button to select it.
+
+<l15> - Position the 'paste selection window' with the mouse.
+
+<l15> - Press the left mouse button to paste.
+
+<l15> - Press the 'Paste Selection' button to de-select it.
+
+
+<l09>Pasting the Selection (see Filters)
+
+<l15> - Press the 'Paste Selection' button to select it.
+
+<l15> - Position the 'paste selection window' with the mouse.
+
+<l15> - Press the left mouse button to paste.
+
+<l15> - Press the 'Paste Selection' button to de-select it.
+
+
+<l09>Copying the Selection to Disk (see Filters)
+
+<l15> - Press the 'Copy Selection' button.
+
+<l15> - Choose a filename and click OK.
+
+
+<l09>Pasting a Selection from Disk (see Filters)
+
+<l15> - Press the 'Paste From Disk' button to select it.
+
+<l15> - Choose a filename and click OK.
+
+<l15> - Position the selection with the mouse.
+
+<l15> - Press the left mouse button to paste.
+
+<l15> - Press the 'Paste from Disk' button to de-select it.
+
+
+<l09>Clearing a Selection (see Filters)
+
+<l15> - Press the 'Clear Selection' button.
+
+
+<l09>Block Fill
+
+<l15> - Fills the selection with the current Draw Item.
+
+
+<l09>Block Frame
+
+<l15> - Frames the selection with the current Draw Item.
+
+
+<l09>Block Floodfill
+
+<l15> - Replaces all adjacent similar blocks with the current Draw Item.
+
+
+<l09>Exiting Zoom Full Screen
+
+<l15>Press the right mouse button or ESC to exit.
+
+
+<section>Viewer Basics, Common Buttons, and Viewer Map
+
+
+
+<l04>   Viewer Basics
+
+
+<l15> When 'View [object]' is selected from the pop-up menu, the viewer for
+
+<l15> that type of object is started.  The viewer has a row of buttons
+
+<l15> and sliders to modify objects of that type.
+
+
+<l09> To toggle a button, or cycle the range of options:
+
+<l15>  - click with the left mouse button
+
+
+<l09> To change a value on a slider:
+
+<l15>  - drag the slider bar left or right with the mouse
+
+
+<l09> To change the value on a slider a very small amount:
+
+<l15>  - position the mouse over the slider bar
+
+<l15>  - press and hold the mouse scroll wheel button
+
+<l15>  - while the button is pressed roll the mouse wheel up or down
+
+
+<l15>___________________________________________________________________________
+
+
+<l04>   Viewer Common Buttons
+
+
+<l15> All viewers share these common buttons:
+
+
+<l09> Prev
+
+<l15>  - moves to the previous item of the same type.
+
+<l15>  - you can also use the [LEFT] key
+
+
+<l09> Next
+
+<l15>  - moves to the next item of the same type.
+
+<l15>  - you can also use the [RIGHT] key
+
+
+<l09> Locked
+
+<l15>  - Locks the viewer to the current item to prevent the
+
+<l15>  - map from changing it  (see Viewer Map)
+
+
+<l09> Move
+
+<l15>  - moves the location of the object
+
+
+<l09> Create
+
+<l15>  - runs the creator for the current object type
+
+
+<l09> Delete
+
+<l15>  - deletes the item.
+
+
+<l09> Viewer Help
+
+<l15>  - shows help related to the Viewer
+
+
+<l09> [object] Help
+
+<l15>  - shows help related to the specifc object you are viewing
+
+
+<l15>___________________________________________________________________________
+
+
+<l04>   Object Specific Buttons and Sliders
+
+
+<l15> Each type of object will have buttons and sliders specific to its type.
+
+
+<l15> Refer to the help section for each object type.
+
+
+<l15>___________________________________________________________________________
+
+
+<l04>   Viewer Map
+
+
+<l15>The map area shows where the object is located in the level.
+
+<l15>The object is marked with a light blue rectangle and crosshairs.
+
+
+<l15>If there are other things related to that object they also be shown.
+
+<l15>(For example, doors have linked exits, keys have block ranges, etc.)
+
+
+<l15>On the bottom right, the map legend tells you what the colors mean.
+
+<l15>If you mouse over an item on the legend, that item will flash on the map.
+
+
+<l15>___________________________________________________________________________
+
+
+<l04>   Changing things with the Viewer Map
+
+
+<l15>You can move an object by clicking and dragging it on the map.
+
+
+<l15>You can also adjust some other properties on the map, like:
+
+<l15> - cloner and podzilla trigger box
+
+<l15> - cloner source and destination boxes
+
+<l15> - keys locked block range
+
+<l15> - message display position
+
+<l15> - sproingy jump height
+
+
+
+<l15>If the mouse on the map touches another object, the viewer
+
+<l15>will immediately switch to the viewer for the new object.
+
+
+<l15>To disable this behaviour, click the 'Locked' button or
+
+<l15>hold the 'Z' key while the mouse is on the map.
+
+
+<l15>___________________________________________________________________________
+
+
+<l04>   Editing rectangular sections (boxes) on the map
+
+<l04>   (trigger box, cloner source, key block range)
+
+
+<l15>To move a box:
+
+<l15> - position the mouse in the upper left corner of the box
+
+<l15> - the mouse pointer will change to a 4 way arrow
+
+<l15> - click and drag the box to a new location
+
+
+
+<l15>To re-size a box:
+
+<l15> - position the mouse in the lower right corner of the box
+
+<l15> - the mouse pointer will change to a 2 way arrow
+
+<l15> - click and drag to resize the box
+
+
+
+
+<section>Start Viewer
+
+
+<l14>    Start
+<a21>
+<b15>
+
+<l04>    Description:
+
+<l15> This marks where the player enters the level.
+
+<l15> A level should only have one.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> [Stationary:Fall:Carry]
+
+<l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<section>Exit Viewer
+
+
+<l14>    Exit
+<a22>
+<b15>
+
+<l04>    Description:
+
+<l15> An exit completes the level and takes you to the next one.
+
+<l15> Can be locked until the enemy count is below a certain value.
+
+<l15> A level can have multiple exits, with different values for locking.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> [Stationary:Fall:Carry]
+
+<l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<l09> Exit with x enemies left
+
+<l15>  - The exit is locked until the enemy count is below this value
+
+<l15>  - If set to 100, the exit will never be locked
+
+<l15>  - If set to 0, the exit will not be unlocked until every enemy is dead
+
+
+<section>Message Viewer
+
+
+<l14>    Pop-Up Message
+<a36>
+<b15>
+
+<l04>    Description:
+
+<l15> When the player touches the scroll, a message is shown.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> [Stationary:Fall:Carry]
+
+<l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<l09> Set Message Position
+
+<l15>  - Prompts you to set a new place on the level to display the message.
+
+
+<l09> Message Display Time
+
+<l15>  - How long the message displays after being triggered.
+
+
+<l09> Select Text Color:
+
+<l15> - Sets the color of the text.
+
+
+<l09> Select Frame Color:
+
+<l15> - Sets the color of the frame.
+
+
+<l09> Edit Message:
+
+<l15> - Starts the text editor immediately below the button.
+
+<l15> - Edit the text in place, in the message below.
+
+<l15> - You can use [LEFT], [RIGHT], [BACKSPACE], [DELETE]
+
+<l15> - [ENTER] makes a new line, [ESCAPE] aborts
+
+<l15> - When done click (Ok) or (Cancel) above the message
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Set new message display position by dragging the message on the map.
+
+
+
+<section>Door Viewer
+
+
+<l14>        Door
+<a83> <a05>
+<b15>
+
+<l04>    Description:
+
+<l15> Takes the player to a new location in the current level.
+
+<l15> A door is always linked to another door unless it's an "Exit Only".
+
+<l15> A pair of doors can be linked to each other creating a two way door.
+
+<l15> Three or more doors can be linked to each other in a ring or loop.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> [Stationary:Fall:Carry]
+
+<l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<l09> Set Destination Item
+
+<l15>  - Prompts to set the item used in "Linked Destination" mode.
+
+
+<l09> [Linked Destination (x) | Exit Only]
+
+<l15>  - Changes between "Linked Destination" mode and "Exit Only" mode.
+
+<l15>  - In "Linked Destination" mode the number of the linked item is shown.
+
+<l15>  - In "Exit Only" mode most other buttons are disabled.
+
+
+<l09> Entry Type: [[up] to enter | [down] to enter | Enter Immediately]
+
+<l15>  - Sets the conditions required to enter the door.
+
+<l15>  - "[up] to enter" requires [up] to be pressed.
+
+<l15>  - "[down] to enter" requires [down] to be pressed.
+
+<l15>  - "Enter Immediately" enters as soon as the player touches the door.
+
+
+<l09> Move type: [Automatic | Force Instant | Force Move]
+
+<l15>  - The journey to the next door can either be:
+
+<l15>    - "Instant" - Immediately teleport to the destination.
+
+<l15>    - "Move"    - travel in real time, with a nice visual.
+
+<l15>  - In "Automatic" mode, if the destination door is not
+
+<l15>  - stationary, the move type is set to "Instant".
+
+<l15>  - (This prevents the destination door from moving
+
+<l15>  - while the player is travelling to it.)
+
+<l15>  - Otherwise "Automatic" will set "Move" mode.
+
+<l15>  - This behaviour can be overidden with "Force Instant" and "Force Move"
+
+
+<l09> Exit Link: [never show | always show | when player touches]
+
+<l15>  - Draw a line to the "Linked Destination"
+
+<l15>  - always, never, or only when the player is touching on the door
+
+
+<l09> Door Shape
+
+<l15>  - Toggles the door's display shape
+
+
+<l09> Select Door Color
+
+<l15>  - Choose a new color for the door
+
+
+<section>Key Viewer
+
+
+<l14>    Key
+<a39>
+<b15>
+
+<l04>    Description:
+
+<l15> Removes blocks in the specified block range.
+
+<b15>
+
+<l04>    Buttons:
+
+
+<l09> Fall:[On or Off]
+
+<l15>  - Does the item obey gravity or is it stationary?
+
+
+<l09> Get New Block Range
+
+<l15>  - Sets a new Block Range area that will be affected by the key.
+
+<l10> (shown on the map as a red rectangle)
+
+
+<l09> [Erase only matching blocks | Erase all blocks in range]
+
+<l15>  - If only matching is chosen, only blocks with a matching
+
+<l15>  - color lock in the block range will be removed.
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Move block range by dragging from the upper left corner on the map.
+
+<l15> - Re-size block range by dragging from the lower right corner on the map.
+
+
+<section>Mine Viewer
+
+
+<l14>    Mine
+<a24>
+<b15>
+
+<l04>    Description:
+
+<l15> When touched, mines take health from the player.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> [Stationary:Fall:Carry]
+
+<l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<l09> Damage Rate:
+
+<l15>  - Sets amount of Health that is lost while touching it.
+
+
+<section>Health Bonus Viewer
+
+
+<l14>    Health Bonus (10)
+<a23>
+<b15>
+
+<l14>    Health Bonus (50)
+<a27>
+<b15>
+
+<l04>    Description:
+
+<l15> Gives the player more health.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> [Stationary:Fall:Carry]
+
+<l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<l09> Health Bonus:
+
+<l15>  - the amount of health given (100 = full health)
+
+
+<section>Free Man Viewer
+
+
+<l14>    Free Man
+<a38>
+<b15>
+
+<l04>    Description:
+
+<l15> Gives the player an extra life.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> Fall:[On or Off]
+
+<l15>  - Does the item obey gravity or is it stationary?
+
+
+<section>Bomb Viewer
+
+
+<l14>    Bomb
+<a25>
+<b15>
+
+<l04>    Description:
+
+<l15> When a bomb is touched by a player, the fuse starts burning.
+
+<l15> When the fuse is done, the bomb expodes!
+
+<l15> Bombs have various blast sizes and fuse lengths.
+
+<l15> All enemies in the blast area are killed.
+<l15> (unless they take more than one hit to kill)
+
+<l15> Items and lifts are unaffected by bombs.
+
+<l15> Certain blocks can be destroyed by bombs, but most can't.
+
+<l15> If a player is in the blast area they will lose health.
+
+<l15> Bombs can be carried and thrown by players.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> [Stationary:Fall:Carry]
+
+<l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<l09> Fuse Length:
+
+<l15>  - How long before the bomb explods.
+
+
+<l09> Damage Range:
+
+<l15>  - The size of the blast area.
+
+<l14>   (shown on the map as a yellow rectangle)
+
+
+<section>Rocket Viewer
+
+
+<l14>    Rocket
+<a26>
+<b15>
+
+<l04>    Description:
+
+<l15> When activated by being touched by a player, the rocket travels
+
+<l15> until it hits something solid, then explodes like a bomb.
+
+<l15> Players can ride rockets by holding the [FIRE] button and
+
+<l15> using [LEFT] and [RIGHT] to steer.
+
+<b15>
+
+<l04>    Buttons:
+
+
+<l09> Fall:[On or Off]
+
+<l15>  - Does the item obey gravity or is it stationary?
+
+
+<l09> Set New Direction:
+
+<l15>  - Sets a new initial direction for the rocket.
+
+
+<l09> Damage Range:
+
+<l15>  - The size of the blast area.
+
+<l14> (shown on the map as a yellow rectangle)
+
+
+<l09> Acceleration:[10-100]:
+
+<l15>  - How fast the rocket accelaertes.
+
+
+<l09> Maximum Speed[8-20]:
+
+<l15>  - The maximum speed of the rocket.
+
+
+<l09> Steerability:[1-50]:
+
+<l15>  - How fast the rocket turns with [LEFT] and [RIGHT].
+
+
+<section>Switch Viewer
+
+
+<l14>             Switches
+<s745><s777><s809><s841>
+<b15>
+
+<l04>    Description:
+
+<l15> When you jump on a switch, solid and hollow blocks switch.
+
+<b15>
+
+<l14>             Solid Blocks
+<s172><s173><s174><s175>
+
+<b15>
+
+<l14>             Hollow Blocks
+<s007><s008><s009><s010>
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> [Stationary:Fall:Carry]
+
+<l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<section>Sproingy Viewer
+
+
+<l14>    Sproingy
+<a52>
+<b15>
+
+<l04>    Description:
+
+<l15> When you land on a Sproingy while holding [JUMP]
+
+<l15> you will jump extra high.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> [Stationary:Fall:Carry]
+
+<l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<l09> Sproingieness[40-200]:
+
+<l15>  - How sproingy the sproingy is. (200 = sproingiest)
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> On the map, the height of the jump is shown as a yellow box.
+
+<l15> Click and drag the yellow box to adjust the jump height.
+
+
+
+<section>Archwagon Viewer
+
+
+<l14>    ArchWagon
+<a02>
+<b15>
+
+<l04>    Description:
+
+<l15> ArchWagons shoot arrows at the player.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> X - Speed:[0.7-5.0]
+<l15>  - horizontal speed
+
+<l09> Y - Speed:[0.7-5.0]
+<l15>  - vertical speed (for jump and fall)
+
+<l09> Direction:[Right:Left]
+<l15>  - The direction of the Archwagon.
+
+<l09> [Bounce Mode-Follow Mode]
+<l15>  - bounce off walls, or blindly follow player
+
+<l09> Jump Wait:[0-500](0 = Off)
+<l15>  - waits for the specified number of ticks, then attempts to jump
+
+<l09> Jump When Under Width:[0-800](0 = Off)
+<l15>  - When the ArchWagon is directly under (+/- width)
+<l15>  - the player, a jump is attempted.
+
+<l09> Jump before wall:[0-500](0 = Off)
+<l15>  - Attempts to jump the specified distance before an hitting an obstacle.
+
+<l09> Jump before hole:[0-40](0 = Off)
+<l15>  - Attempts to jump the specified distance before falling.
+
+<l09> Bullet Speed:[0.3 - 20.0]
+<l15>  - The speed of the arrows.
+
+<l09> Bullet Prox:[20-600]
+<l15>  - If the player is out of Bullet Prox area no arrows will be fired
+
+<l09> Retrigger Time:[0-300]
+<l15>  - After firing an arrow, the ArchWagon waits for the
+<l15>    specified retrigger time before it can fire another.
+
+<l09> Collision Box:[8-18]
+<l15>  - An area around the Archwagon that takes Health from the
+<l15>    player, when the player is in it. (see Health Decrement)
+
+<l09> Health Decrement:[0.1-2.0]
+<l15>  - The amount to subtract from players Health
+<l15>    when player is in the Collision Box.
+
+<l09> Health Bonus:
+<l15>  - The amount of health in the post-death flower.
+
+
+<section>Trakbot Viewer
+
+
+<l14>    Trakbot
+<a17>
+<b15>
+
+<l04>    Description:
+
+<l15> Trakbots cling to walls and ceilings.  Trakbots will drop
+
+<l15> from ceiling when above player, if drop mode is on.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> X - Speed:[0.5-4.0]
+<l15>  - horizontal speed
+
+<l09> Y - Speed:[0.5-4.0]
+<l15>  - vertical speed
+
+<l09> Direction:[Right-Left]
+<l15>  - Initial floor direction.
+
+<l09> Drop Mode:[On-Off]
+<l15>  - when TrakBot on ceiling, drop on player.
+
+<l09> Bullet Speed:
+<l15>  - The speed of the bullet.
+
+<l09> Bullet Prox:
+<l15>  - If the player is out of Bullet Prox area no bullets will be fired.
+<l14> (shown on the map as a yellow rectangle)
+
+<l09> Retrigger Time:[0-300]
+<l15>  - After firing a bullet, the TrakBot waits for the
+<l15>    specified retrigger time before it can fire another.
+
+<l09> Collision Box:[8-18]
+<l15>  - An area around the TrakBot that takes Health from the
+<l15>    player, when the player is in it. (see Health Decrement)
+
+<l09> Health Decrement:[0.1-2.0]
+<l15>  - The amount to subtract from players Health
+<l15>    when player is in the Collision Box.
+
+<l09> Health Bonus:
+<l15>  - The amount of health in the post-death flower.
+
+
+<section>Bouncer Viewer
+
+
+<l14>    Bouncer
+<a14>
+<b15>
+
+<l04>    Description:
+
+<l15> Bounces off walls, ignores gravity.  Counts bounces
+
+<l15> then seeks the player directly.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> Set New Direction
+<l15>  - prompts you to set the new direction.  The spot you pick on
+<l15>    the screen is where the bouncer will aim for initially.
+
+<l09> Speed:[1.0-8.0]
+<l15>  - speed of the Bouncer.
+
+<l09> Seek Count:[0-500]
+<l15>  - number of bounces before seek.
+
+<l09> Main Shape:[click to toggle shape]
+<l15>  - The shape used when in bounce mode.
+
+<l09> Seek Shape:[click to toggle shape]
+<l15>  - The shape used when in seek mode.
+
+<l09> Collision Box:[8-18]
+<l15>  - An area around the Bouncer that takes Health from the
+<l15>    player, when the player is in it. (see Health Decrement)
+
+<l09> Health Decrement:[0.1-2.0]
+<l15>  - The amount to subtract from players Health
+<l15>    when player is in the Collision Box.
+
+<l09> Health Bonus:
+<l15>  - The amount of health in the post-death flower.
+
+
+<section>Cannon Viewer
+
+
+<l14>    Cannon
+<a19>
+<b15>
+
+<l04>    Description:
+
+<l15> Bounces and shoots cannonballs at the player.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> Set New Direction
+<l15>  - prompts you to set the new direction.  The spot you pick on
+<l15>    the screen is where the bouncer will aim for initially.
+
+<l09> Speed:[1.0-8.0]
+<l15>  - The speed of the Bouncing Cannon.
+
+<l09> Seek Count:[0-500]
+<l15>  - Number of bounces before seek.
+
+<l09> Bullet Speed:[1.0-8.0]
+<l15>  - The speed of the cannonball.
+
+<l09> Retrigger Time:[0-500]
+<l15>  - After firing a cannonball, the Cannon waits for the
+<l15>    specified time before it fires another.
+
+<l09> Collision Box:[8-18]
+<l15>  - An area around the Cannon that takes Health from the
+<l15>    player, when the player is in it. (see Health Decrement)
+
+<l09> Health Decrement:[0.1-2.0]
+<l15>  - The amount to subtract from players Health
+<l15>    when player is in the Collision Box.
+
+<l09> Extra Hits To Kill:
+<l15>  - The number of time cannon must be shot to kill it.
+
+<l09> Health Bonus:
+<l15>  - The amount of health in the post-death flower.
+
+
+<section>Cloner Viewer
+
+
+<l14>    Cloner
+<a53>
+<b15>
+
+<l04>    Description:
+
+<l15> When the delay timer runs out, Cloner copies all enemies
+
+<l15> and items in the source area to the destination area.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> Create Delay[0-500]
+<l15>  - The delay between succesive clonings!
+
+
+<l09> [Normal:Reset On Trigger:Immediate On Trigger]
+
+<l09> Normal
+<l15>  - when the player is in the Trigger Area the Create Delay runs
+<l15>  - when the Create Delay is done, a clone is made
+
+<l09> Reset On Trigger
+<l15>  - when the player enters the Trigger Area the Create Delay is reset
+<l15>  - the Create Delay runs while the player remains in the Trigger Area
+<l15>  - when the Create Delay is done, the clone is made
+
+<l09> Immediate On Trigger
+<l15>  - as soon as the player enters the Trigger Area a clone is made
+<l15>  - the Create Delay runs while the player remains in the Trigger Area
+<l15>  - when the Create Delay is done, another clone is made
+
+<l10> Get New Source Area
+<l10>  - Prompts you to draw a new cloning source area.
+
+<l11> Set Destination
+<l11>  - Prompts you to position the destination area.
+
+<l14> Set Trigger Box
+<l14>  - Prompts you to draw a new Trigger Box.
+
+<l09> Collision Box:[8 - 18]
+<l15>  - An area around the Cloner that takes Health from the
+<l15>    player, when the player is in it. (see Health Decrement)
+
+<l09> Health Decrement:[0.1 - 2.0]
+<l15>  - The amount to subtract from players Health
+<l15>    when player is in the Collision Box.
+
+<l09> Health Bonus:
+<l15>  - The amount of health in the post-death flower.
+
+<b15>
+
+<l04>   Map Controls:
+
+<l14> - Move trigger box by dragging from the upper left corner on the map.
+<l14> - Re-size trigger box by dragging from the lower right corner on the map.
+
+<l10> - Move source area by dragging from the upper left corner on the map.
+<l10> - Re-size source area by dragging from the lower right corner on the map.
+
+<l11> - Move destination area by dragging from the upper left corner on the map.
+
+<l15> - Move the cloner and all three boxes together by dragging from the map.
+<l15> - (to move just the main item, use the move button)
+
+
+<section>Flapper Viewer
+
+
+<l14>    Flapper
+<a61>
+<b15>
+
+<l04>    Description:
+
+<l15>  Flies in the X axis and bounces when it hits something solid.
+
+<l15>  If a player is in the trigger box and in front of the flapper:
+<l15>  - the flapper will attempt to seek in the y direction at Y Speed
+<l15>  - the flapper will fire a bullet at the player
+
+<l15>  The flapper attempt to keeps its Y distance from the player
+<l15>  at the value set by "Height Above Player"
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> X Speed:<l13>[0.5 - 8.0]
+<l15>  - maximum horizontal speed
+
+<l09> X Accel:<l13>[0.01 - 2.0]
+<l15>  - horizontal acceleration
+
+<l09> Initial Direction:<l13>[LEFT | RIGHT]
+<l15>  - the initial direction the flapper is facing
+
+<l09> Y Speed:<l13>[0.0 - 5.0]
+<l15>  - vertical speed when seeking player
+
+<l09> Y Flap:<l13>[0.0 - 4.0]
+<l15>  - vertical movement with each flap
+
+<l09> Height Above Player<l13>[-1000 to +1000]
+<l15>  - the distance above (or below if negative) that the
+<l15>    flapper will try to maintain in respect to the player
+
+<l09> Bullet Speed:<l13>[0.8 - 20.0]
+<l15>  - The speed of the bullet.
+
+<l09> Bullet Retrigger Time:<l13>[1 - 200]
+<l15>  - After firing a bullet, the Flapper waits for the
+<l15>    specified retrigger time before it can fire another.
+
+<l09> Trigger Box Width :<l13>[20 - 500]
+<l09> Trigger Box Height:<l13>[0 - 600]
+<l09> Trigger Box Depth :<l13>[0 - 600]
+<l14> (shown on the map as a yellow rectangle)
+<l15>  If a player is in the trigger box and in front of the flapper:
+<l15>  - the flapper will attempt to seek in the y direction at Y Speed
+<l15>  - the flapper will fire a bullet at the player
+
+<l09> Collision Box:<l13>[8 - 18]
+<l15>  - An area around the Cloner that takes Health from the
+<l15>    player, when the player is in it. (see Health Decrement)
+
+<l09> Health Decrement:<l13>[0.1 - 2.0]
+<l15>  - The amount to subtract from players Health
+<l15>    when player is in the Collision Box.
+
+<l09> Health Bonus:<l13>[0 -50]
+<l15>  - The amount of health in the post-death flower.
+
+
+<section>Podzilla Viewer
+
+
+<l14>    Podzilla
+<a15>
+<b15>
+
+<l04>    Description:
+
+<l15> When the player enters the trigger box, the Podzilla
+<l15> pops up and shoots a green bullet at the player.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> Speed:[1-30]
+<l15>  - The speed of the Podzilla when it moves.
+
+<l09> Wait Time:[0-500]
+<l15>  - The delay before shooting and retreating.
+
+<l09> Bullet Speed:[1.0-8.0]
+<l15>  - The speed of the Podzilla's green balls.
+
+<l10> Move Extended Position
+<l10>  - Prompts you to set a new extended position.
+
+<l14> Move Trigger Box
+<l14>  - Prompts you to draw a new trigger box.
+
+<l09> Collision Box:[8-18]
+<l15>  - An area around the Podzilla that takes Health from the
+<l15>    player, when the player is in it. (see Health Decrement)
+
+<l09> Health Decrement:[0.1-2.0]
+<l15>  - The amount to subtract from players Health
+<l15>    when player is in the Collision Box.
+
+<l09> Health Bonus:
+<l15>  - The amount of health in the post-death flower.
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Move trigger box by dragging from the upper left corner on the map.
+
+<l15> - Re-size trigger box by dragging from the lower right corner on the map.
+
+
+
+<section>Block Walker Viewer
+
+
+<l14>    Block Walker
+<a56>
+<b15>
+
+<l04>    Description:
+
+<l15> When shot by the player, a Block Walker changes to a solid block.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> X - Speed:[0.7-5.0]
+<l15>  - horizontal speed
+
+<l09> Y - Speed:[0.7-5.0]
+<l15>  - vertical speed (for jump and fall)
+
+<l09> Direction:[Right:Left]
+<l15>  - The direction of the Archwagon.
+
+<l09> [Bounce Mode-Follow Mode]
+<l15>  - bounce off walls, or blindly follow player
+
+<l09> Jump Wait:[0-500](0 = Off)
+<l15>  - waits for the specified number of ticks, then attempts to jump
+
+<l09> Jump When Under Width:[0-800](0 = Off)
+<l15>  - When the ArchWagon is directly under (+/- width)
+<l15>  - the player, a jump is attempted.
+
+<l09> Jump before wall:[0-500](0 = Off)
+<l15>  - Attempts to jump the specified distance before an hitting an obstacle.
+
+<l09> Jump before hole:[0-40](0 = Off)
+<l15>  - Attempts to jump the specified distance before falling.
+
+<l09> Collision Box:[8-18]
+<l15>  - An area around the Archwagon that takes Health from the
+<l15>    player, when the player is in it. (see Health Decrement)
+
+<l09> Health Decrement:[0.1-2.0]
+<l15>  - The amount to subtract from players Health
+<l15>    when player is in the Collision Box.
+
+
+<section>Lift Viewer
+
+
+
+<l04>    Description:<lift>
+
+<l15> A lift is a moveable solid rectangular block.
+
+<l15> In most ways, lifts act like regular solid blocks, except they move.
+
+<l15> Players, enemies and items can stand on and get carried by lifts.
+
+<l15> Lifts can push players, enemies and items sideways.
+
+<l15> If a player is squished between a lift and a solid block
+
+<l15> the player will lose health.
+
+<l15> Both player bullets and enemy bullets can pass through lifts.
+
+<l15> Lifts can pass through other stationary blocks and other lifts.
+
+
+
+<l04>    Lift Steps:
+
+<l15> Lifts follow a looped sequence of up to 40 steps.
+
+<l15> There are 4 types of steps:
+
+<l13>  Move Location<l15> - moves to a specified location at a specifed speed.
+
+<l13>  Wait Time<l15> - waits for a specifed time before continuing.
+
+<l13>  Wait Prox<l15> - waits till a player is within the range before continuing.
+
+<l13>  Loop to Step 0<l15> - the last step links to the first one.
+
+
+<l04>    Buttons:
+
+<l09> Lift Width:[1-100]<l15>  - sets the lift width
+
+<l09> Lift Height:[1-100]<l15> - sets the lift height
+
+<l09> Lift Color:<l15>         - sets the lift color
+
+<l09> Lift Name:<l15>          - opens a dialog to change the lift name
+
+<l09> Run Lifts
+
+<l15>  - sets all the lifts in motion, ignoring wait proximity steps
+
+<l15>  - use as a troubleshooting tool to see how your lifts will move
+
+<l15>  - press [ESC] to stop running lifts
+
+
+<l04>    List of Steps
+
+<l15> The steps for the Current Lift are listed, and the Current Step is shown.
+
+<l15> The Current Lift and Current Step are also marked on the map.
+
+<l15> Click a step button to make it the Current Step.
+
+<l15> You can also set the Current Lift and Step by touching a Step on the map.
+
+<l15> To lock the viewer to the Current Lift, click the <l07>'Locked' <l15>button.
+
+
+<l15> To edit a value in a step, drag the slider with the mouse.
+
+
+<l15> Click and hold the right mouse button on a step to show the step menu.
+
+<l15> From there you can you can move, delete, or insert new steps.
+
+
+<l04>    Moving Steps
+
+<l15> The easiest way to move a step is to drag it to a new location on the map.
+
+<l15> You can also choose 'Move' from the Pop-Up Menu.
+
+
+<l04>    Step Pop-Up Menu
+
+<l15> To access the Step Pop-Up Menu, right click and hold on either
+
+<l15> a step in the list of steps, or the step itself on the map.
+
+<l15> While holding the right mouse button, move the mouse up and down
+
+<l15> to highlight your choice, then release the mouse button to select.
+
+
+<l04>    Inserting Steps
+
+<l15> Position the mouse on the step to want to insert new steps before.
+
+<l15> Press and hold the right mouse button and then select "Insert Step".
+
+<l15> Choose the type of step you wish to add from the list.
+
+<l15>  (You are prompted to keep adding more steps until you press 'Cancel')
+
+
+
+
+<section>History
+
+
+
+I started with Allegro in 1997 in a basement in Victoria, BC, Canada.
+
+I hade been trying to write a game for a long time.
+
+In 1978, when I was 10, I learned BASIC on a Commodore PET
+and wrote a few simple programs to manipulate and draw text.
+
+From 1980-1987, I had access to an Apple II+ and spent a lot of time
+learning how to program on that.  (280 x 192 hires graphics mode!)
+I made some games in BASIC, and assembly.
+
+The BASIC games could not not get fast enough, no matter what.
+Probably due to an interpreted language and my lack of skills.
+
+Assembly was better, but my skills were not enough to write that
+complex of a program in assembly.
+
+For many years I had no access to a computer, or the time or
+inclination to do anything about it.
+
+I still wanted to create the game I had in my head, with a little man
+running around a level, jumping from platform to platform.
+
+Then in 1997, I was in a seasonal layoff from my job over the winter,
+waiting on unemployment benefits, and I had a laptop and internet access.
+
+I decided I was going to work on the game I had in my head.
+
+I searched for some proper tools to create games.  I was thinking even
+if I had to pirate something, I was going to figure out how to make
+my game a reality.  All of the microsoft crap did not appeal to me,
+but I resigned myself to go there if I had to.
+
+What I found instead was Allegro.  It looked awesome.  The more I read,
+the more I knew it was what I was looking for.  And the best part was
+that it was free!  Nothing to pirate!
+
+The only catch... I would have to learn how to program in C.
+
+I downloaded DJGPP, used RHIDE as my IDE, and added Allegro 2.2.
+
+As I learned C, I was amazed at how logical, simple, precise and elegant
+it is.  No gotos or line numbers.  And it's really fast!
+
+In my game I built everything from scratch. (Well, except for Allegro!)
+I started by learning how to draw on the screen.
+Then I made some shapes to blit here and there.
+Early on I decided to make my game sprites 20x20 pixels.
+I made an bitmap editor to draw and edit these sprites.
+I built my own routine for saving and loading bitmaps to disk,
+(one get_pixel and put_pixel at a time!)
+
+I decided on a level size or 100x100 blocks made of these shapes.
+I used an array of 10,000 ints, int l[100][100].
+
+When I was figuring out how to run my game loop flicker free with a
+screen buffer,  I created a bitmap the size of the whole level:
+2000 x 2000 pixels.  4 million pixels!
+
+From 1997 to 2003 I call the first phase of the development.
+
+I always knew I wanted to do some kind of multiplayer.
+The game would just be so much better with more players.
+It had to be simultaneous multiplayer, just two players
+taking turns was never even considered.
+
+Initially, I came up with a split screen method.
+I created a second player and re-wrote a lot of code that assumed
+there was only one player.
+
+That worked, but the split screens were kind of small.
+Still it was really cool to play simultaneously with another player.
+
+I started to think about how amazing networked multiplayer would be.
+
+I found libnet and made a simple packet exchange of moves.
+Exchanging game move packets was easy, but synchronizing the game was not.
+
+I spent a lot of time trying different concepts and abandoning them when
+I realized they wouldn't work or I thought of a better way to do it.
+
+In 2003 I released version 5. The netplay stuff didn't work yet, so I
+disabled all traces of it with #ifdef's in the source.
+
+I let it go for a few years until I came back with a vengenance
+in 2009-2010 to solve the netplay stuff.
+
+I made a lot of changes and improvements, but still had sync issues.
+It would almost run perfectly until they slightly went out of sync.
+
+I had made a lot of changes, but because netplay was broken I didn't
+want to release without it.
+
+I let it go again for many years.
+
+I had been thinking about the various methods of syncing, but
+was still convinced my method should work.
+
+The method I use is called deterministic lockstep, and I wrote in
+depth about it in netplay.txt.
+
+I was almost going to try something like Unity that had built in
+network multiplayer.  I even spent a few hours bulding a test project
+in Unity and seeing what it would be like to re-do the game in that.
+I decided not to for a few reasons.  I wanted do it my way.  I wanted to
+figure it out myself.  I didn't want to spend a huge amount of time
+figuring out a new platform and porting my game to it.
+
+In 2017-2018 I came back again and tested a new idea I had.
+Basically I removed all floats and replaced them with fixed point numbers.
+Floats, while very precise, were not as perfectly deterministic across
+different systems as I needed.
+Fixed points, while not as accurate, gave the exact same results every time.
+After a lot of rewriting, I finally was getting good sync.
+I could play some really long games with 3 and 4 players with no problems.
+
+Then I cleaned up a lot of things in the code that I had broken,
+refactored just about every line in the game, added new features, removed
+some old ones, went through all the levels, updated the help screens,
+made a fancy new rotating logo with splines for the splash screen...
+
+Finally here we are on March 11, 2018 with Version 6.
+
+Netplayer with up to 8 players.
+Works on Windows XP, Windows 7, Windows 10, Ubuntu 16.04.
+
+This will be the final release on Allegro 4.
+For the next version, I'll convert to Allegro 5.
+
+Well here we are again on April 22, 2018 with Version 7.
+Now with Allegro 5.2.4!
+Just about every line (25K) of code has been re-factored.
+The display routines have been completely redone.
+Now with dynamic resizing while the game is playing!
+The linux version now is a precompiled executable.
+Numerous small bug fixes and improvements.
+
+
+
+<section>Credits
+
+
+
+
+
+
+
+
+
+<c09>Created by:
+
+<c08>Michael David Weiss
+
+<c15>Copyright 1997-2018
+<c15>(released under no-license, copyright only)
+<c15>(source code available upon request)
+<title>
+<mdw1>
+<c15>Last Update: April 22, 2018 to version 7.0
+
+<c09>Contact the author:
+<c15>mweiss001@gmail.com
+
+<c09>Purple Martians on allegro.cc (and lots of other allegro games)
+<c15>https://www.allegro.cc/depot/PurpleMartians/
+
+<c09>Music by Russel Hoy - Copyright 2000
+
+
+
+<c07>Created with:
+
+
+<c11>Allegro 5.2.4
+<c15>Allegro is a game programming library for C/C++ distributed
+<c15>freely.  It provides many functions for graphics, sounds, player
+<c15>input (keyboard, mouse and joystick) and timers.
+
+
+<c11>MinGW-w64 7.2.0
+<c15>The MinGW-w64 project is a complete runtime environment for gcc to
+<c15>support binaries native to Windows 64-bit and 32-bit operating systems.
+
+
+<c11>Code Blocks 17.12
+<c15>The open source, cross-Platform IDE
+
+
+<c11>libnet-0.10.11
+<c15>A generic interface to a variety of network drivers.
+
+
+<c11>zlib-1.2.8
+<c15> A Massively Spiffy Yet Delicately Unobtrusive Compression Library
+<c15>(Also Free, Not To Mention, Unencumbered by Patents)
+
+
+<c11>SaucerBB.ttf
+<c15> copyright 2012 & 2016 Nate Piekos for Blambot Fonts
+<c15> license: free for non-profit use
+<c15> Font used for main logo and titles
+
+
+<c11>Achafont.ttf
+<c15> "A Charming Font" by Gem Fonts
+<c15> license: free
+<c15> Font used for small letters on author's name
+
+<c11>PixelGosub.ttf
+<c15> by Pixel Sagas (Neale Davidson)
+<c15> license: free for non-commercial use
+<c15> Font used for very small letters on sprites
+
+<end of file>

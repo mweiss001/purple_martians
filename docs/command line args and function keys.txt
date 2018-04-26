@@ -1,0 +1,90 @@
+---------------------------------------
+- Command line switches and arguments -
+---------------------------------------
+
+pm.exe <int>          (play)
+ - start the game and run level <int>
+
+pm.exe -p <int>       (play)
+ - start the game and run level <int>
+
+
+
+pm.exe -e             (editor)
+- start the level editor 
+
+pm.exe -e <int>       (editor)
+- start the level editor with level <int>
+
+
+
+
+pm.exe -f <string>    (file)  
+- start the game and run saved game <string>
+
+
+ 
+pm.exe -c <string>    (client)
+- start client netgame on server IP <string> or hostname
+
+pm.exe -s <int>       (server)
+- start server netgame on level <int>
+
+
+
+pm.exe -u
+- copy all files to clients
+
+pm.exe -t
+- copy only pm.exe to clients
+
+
+pm -b x y
+- sets the resolution to x by y
+
+
+pm -h
+- help
+
+
+
+
+
+
+
+--------------------------
+ - In game function keys -
+--------------------------
+
+[F7] decrement frame rate by 1
+[F8] increment frame rate by 1
+
+[SHIFT][F7] decrement frame rate by 10
+[SHIFT][F8] increment frame rate by 10
+
+[CONTROL][F7] decrement frame rate by 100
+[CONTROL][F8] increment frame rate by 100
+
+
+[F5] decrement screen scaler
+[F6] increment screen scaler
+
+
+[F3] = next map size
+[F4] = next map mode 
+
+
+[F10] - toggle debug screen overlay
+
+
+[PRINTSCREEN] saves a screenshot
+
+
+
+
+
+----------------------
+ - Level editor keys -
+----------------------
+
+[S] shows all lifts
