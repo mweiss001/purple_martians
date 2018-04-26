@@ -1,10 +1,9 @@
 /o
 /*.o
-/sel
 /logs
-/build
-/pm.exe
-/pm
+
+/savegame/*.gm
+
 /pm.cfg
 /gmon.out
 /pm.depend
