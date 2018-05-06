@@ -112,7 +112,6 @@ void save_gm_gm(char *sfname)
 }
 
 
-
 void save_gm()
 {
    char fname[1024];
@@ -122,7 +121,7 @@ void save_gm()
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
    sprintf(fname, "%s\\", al_get_fs_entry_name(FS_fname));
    //printf("FS_fname:%s\n", fname);
-   ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Save Game Filename", "*.gm", ALLEGRO_FILECHOOSER_SAVE);
+   ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Save Demo Filename", "*.gm", ALLEGRO_FILECHOOSER_SAVE);
 
    if (al_show_native_file_dialog(display, afc))
    {
@@ -213,7 +212,7 @@ int load_gm(char *sfname )
 
       //printf("FS_fname:%s\n", fname);
 
-      ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Run Game Filename", "*.gm", 0);
+      ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Run Demo Filename", "*.gm", 0);
 
       if (al_show_native_file_dialog(display, afc))
       {

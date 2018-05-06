@@ -952,35 +952,76 @@ void get_config_values(void)
    players[0].bitmap_index = players[0].color - 1;
 
 
+//
+//
+//new default keys:
+//arrows, x, z
+//
+//p0_up_key=84
+//p0_down_key=85
+//p0_left_key=82
+//p0_right_key=83
+//p0_jump_key=24
+//p0_fire_key=26
+//p0_menu_key=59
+
 
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_up_key");
-   if (!val) players1[0].up_key = 9; //ALLEGRO_KEY_I;
+   if (!val) players1[0].up_key = ALLEGRO_KEY_UP;
    else players1[0].up_key = atoi(val);
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_down_key");
-   if (!val) players1[0].down_key = ALLEGRO_KEY_K;
+   if (!val) players1[0].down_key = ALLEGRO_KEY_DOWN;
    else players1[0].down_key = atoi(val);
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_left_key");
-   if (!val) players1[0].left_key = ALLEGRO_KEY_J;
+   if (!val) players1[0].left_key = ALLEGRO_KEY_LEFT;
    else players1[0].left_key = atoi(val);
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_right_key");
-   if (!val) players1[0].right_key = ALLEGRO_KEY_L;
+   if (!val) players1[0].right_key = ALLEGRO_KEY_RIGHT;
    else players1[0].right_key = atoi(val);
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_jump_key");
-   if (!val) players1[0].jump_key = ALLEGRO_KEY_SPACE;
+   if (!val) players1[0].jump_key = ALLEGRO_KEY_X;
    else players1[0].jump_key = atoi(val);
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_fire_key");
-   if (!val) players1[0].fire_key = ALLEGRO_KEY_C;
+   if (!val) players1[0].fire_key = ALLEGRO_KEY_Z;
    else players1[0].fire_key = atoi(val);
+
+//   val = al_get_config_value(cfg, "GAMECONTROLS", "p0_up_key");
+//   if (!val) players1[0].up_key = ALLEGRO_KEY_I;
+//   else players1[0].up_key = atoi(val);
+//
+//   val = al_get_config_value(cfg, "GAMECONTROLS", "p0_down_key");
+//   if (!val) players1[0].down_key = ALLEGRO_KEY_K;
+//   else players1[0].down_key = atoi(val);
+//
+//   val = al_get_config_value(cfg, "GAMECONTROLS", "p0_left_key");
+//   if (!val) players1[0].left_key = ALLEGRO_KEY_J;
+//   else players1[0].left_key = atoi(val);
+//
+//   val = al_get_config_value(cfg, "GAMECONTROLS", "p0_right_key");
+//   if (!val) players1[0].right_key = ALLEGRO_KEY_L;
+//   else players1[0].right_key = atoi(val);
+//
+//   val = al_get_config_value(cfg, "GAMECONTROLS", "p0_jump_key");
+//   if (!val) players1[0].jump_key = ALLEGRO_KEY_SPACE;
+//   else players1[0].jump_key = atoi(val);
+//
+//   val = al_get_config_value(cfg, "GAMECONTROLS", "p0_fire_key");
+//   if (!val) players1[0].fire_key = ALLEGRO_KEY_C;
+//   else players1[0].fire_key = atoi(val);
+//
+
+
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_menu_key");
    if (!val) players1[0].menu_key = ALLEGRO_KEY_ESCAPE;
    else players1[0].menu_key = atoi(val);
+
 
    val = al_get_config_value(cfg, "SOUND", "sound_on");
    if (!val) sound_on = 1;

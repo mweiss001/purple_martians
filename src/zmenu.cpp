@@ -702,8 +702,8 @@ void menu_setup(void)
    strcpy (global_string[8][9], "Sound Track Volume:9");
    strcpy (global_string[8][10], "Logging Options");
    strcpy (global_string[8][11], "Splash Screen:ON");
-   strcpy (global_string[8][12], "Save Game");
-   strcpy (global_string[8][13], "Run Game");
+   strcpy (global_string[8][12], "Save Demo");
+   strcpy (global_string[8][13], "Run Demo");
    strcpy (global_string[8][14], "end");
 
 

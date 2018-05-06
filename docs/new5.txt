@@ -3889,9 +3889,93 @@ make 7.03 release for win and lin...done
 
 
 
+crashes on exit in win 10
+
+try removing all bitmap destrying in final wrapup
+
+also remove:
+al_destroy_event_queue(event_queue);
+al_destroy_display(display);
+
+also remove complile optimizations
+
+
+seems crash free on win 10 exit now...
+linux version exits good too...
+lets make release version 7.04
+
+
+rename save and run game...
+to what?
+save demo
+run demo
+
+the best way to do that is to use the logging options
+because as soon as a level ends, its too late to save it anymore
+what if i remove save game completely?
+its only use is when you stop a game mid-level and want to save...
+just rename them for now..
 
 
 
+
+When archwag y speed is set to 9 (max) they fall through floors...
+
+found the bug!!
+
+Ei[EN][5] +=5; // gravity
+
+// this line is wrong!!!!
+if (Ei[EN][5] < -160) Ei[EN][5] = -160; // terminal velocity
+
+//fixed
+if (Ei[EN][5] > 160) Ei[EN][5] = 160; // terminal velocity
+
+
+now are all my demos going to be fucked?  probably any that used archwag...
+
+dl_01 (pretty short anyway) kill it
+dl_02 (pretty short anyway) kill it
+
+dl_13 no archwag, good keep
+dl_14 still good keep
+dl_15 doesnt look good kill it
+
+24 has a million arch wags, needs to be redone
+26 doesn't work
+27 bad
+29 bad
+
+30 good
+33 good
+
+zm21...bad  :(
+
+
+after all these are the one I can keep
+
+
+redid some demo levels, now I have:
+13
+14
+20
+23
+24
+26
+30
+33
+
+
+new default keys:
+arrows, x, z
+
+p0_up_key=84
+p0_down_key=85
+p0_left_key=82
+p0_right_key=83
+p0_jump_key=24
+p0_fire_key=26
+p0_menu_key=59
 
 
 

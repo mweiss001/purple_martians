@@ -543,7 +543,7 @@ void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color
          cursor_row = row;
          cursor_col = col;
       }
-      if (f[a] == 13) // line break
+      if (f[a] == 126) // line break
       {
          row++;
          col=0;
@@ -614,7 +614,7 @@ void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, i
 
       for (int a=0; a<len+1; a++)
       {
-         if (f[a] == 13) // line break
+         if (f[a] == 126) // line break
          {
             if (show_line_breaks)
             {
@@ -687,7 +687,6 @@ void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, i
 }
 
 
-
 int edit_pmsg_text(int c, int new_msg)
 {
    int tc = item[c][8];
@@ -742,8 +741,6 @@ int edit_pmsg_text(int c, int new_msg)
       int y2 = my + item[c][13]-9;
       al_draw_rectangle(x1, y1, x2, y2, palette_color[14], 1);
 
-
-
       a = -3; //back up from the message to the buttons;;
       extern int bts;
       int by = my-bts/2-2;
@@ -781,12 +778,10 @@ int edit_pmsg_text(int c, int new_msg)
       if (key[ALLEGRO_KEY_RIGHT])
       {
          if (++cursor_pos >= char_count) cursor_pos = char_count-1;
-         //redraw = 1;
       }
       if (key[ALLEGRO_KEY_LEFT])
       {
          if (--cursor_pos < 0) cursor_pos = 0;
-         //redraw = 1;
       }
       if ((key[ALLEGRO_KEY_DELETE]) && (cursor_pos < char_count))
       {
@@ -795,7 +790,6 @@ int edit_pmsg_text(int c, int new_msg)
          char_count--;
          // set last to NULL
          f[char_count] = (char)NULL;
-         //redraw = 1;
       }
       if ((key[ALLEGRO_KEY_BACKSPACE]) && (cursor_pos > 0))
       {
@@ -805,48 +799,38 @@ int edit_pmsg_text(int c, int new_msg)
          char_count--;
          // set last to NULL
          f[char_count] = (char)NULL;
-         //redraw = 1;
       }
       if (key[ALLEGRO_KEY_DOWN])
       {
          // find next line break
-         while ((++cursor_pos < char_count) && (f[cursor_pos] != 13));
+         while ((++cursor_pos < char_count) && (f[cursor_pos] != 126));
          cursor_pos++;
          // make sure we are not past the end
          if (cursor_pos >= char_count) cursor_pos = char_count-1;
-         //redraw = 1;
       }
       if (key[ALLEGRO_KEY_UP])
       {
          // find previous line break
-         while ((--cursor_pos > 0) && (f[cursor_pos] != 13));
+         while ((--cursor_pos > 0) && (f[cursor_pos] != 126));
          cursor_pos--;
          // make sure we are not before the start
          if (cursor_pos < 0) cursor_pos = 0;
-         //redraw = 1;
       }
       if (key[ALLEGRO_KEY_HOME])
       {
          cursor_pos = 0;
-         //redraw = 1;
       }
       if (key[ALLEGRO_KEY_END])
       {
          cursor_pos = char_count-1;
-         //redraw = 1;
       }
-
 
       if (k)
       {
-         // convert my scancode key to ascii....
-         //printf("raw:[%d] char:[%c]  uc:[%c]  uci:[%d]\n", k, k, Key_pressed_ASCII, Key_pressed_ASCII);
-
-         //printf("cursor_pos:[%d] char_count:[%d]\n", cursor_pos, char_count);
-
          k = Key_pressed_ASCII;
+         if (k==13) k = 126; // replace enter with 126 ~
 
-         if ( ((k>31) && (k<127)) || (k == 13)) // insert if alphanumeric or return
+         if ((k>31) && (k<127)) // if alphanumeric
          {
             // move over to make room
             for (a = char_count; a>=cursor_pos; a--)
@@ -861,7 +845,6 @@ int edit_pmsg_text(int c, int new_msg)
 
             // set last to NULL
             f[char_count] = (char)NULL;
-            //redraw = 1;
          }
       }
 

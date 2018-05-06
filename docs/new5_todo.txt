@@ -2,26 +2,38 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-crashes on exit in win 10
-
-try removing all bitmap destrying in final wrapup
-
-also remove:
-al_destroy_event_queue(event_queue);
-al_destroy_display(display);
-
-also remove complile optimizations
-
-
-seems crash free on win 10 exit now...
-linux version exits good too...
-lets make release version 7.04
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+re-arrange levels and move less fun ones to the end...
+
+
+these are lame and should be segregated...
+
+
+5
+6
+7
+8
+9
+10
+11
+12
+15
+16
+18
+19
+40
+
+
+
+
+
+
+
+
+
 
 
 ---------------------------------------------------------
@@ -42,6 +54,9 @@ lets make release version 7.04
 ---------------------- Wish List ------------------------
 ---------------------------------------------------------
 
+
+make more items that help the puzzle aspect.
+like??
 
 make more shapes for player, I don't like static shape whe jumping or falling
 

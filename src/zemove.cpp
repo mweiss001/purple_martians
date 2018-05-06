@@ -1889,11 +1889,12 @@ void enemy_archwagon()
    if ((!on_solid) && (!on_lift) && (Ei[EN][5] >= 0)) // not solid and falling
    {
       Ei[EN][5] +=5; // gravity
-      if (Ei[EN][5] < -160) Ei[EN][5] = -160; // terminal velocity
+      if (Ei[EN][5] > 160) Ei[EN][5] = 160; // terminal velocity
 
       // apply y move
       al_fixed ym = Ei[EN][5] * Efi[EN][3];
       al_fixed ym1 = ym/100;
+
       Efi[EN][1] += ym1;
 
       EYint = al_fixtoi(Efi[EN][1]);
