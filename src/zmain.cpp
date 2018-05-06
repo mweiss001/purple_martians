@@ -61,6 +61,7 @@ int level_display_region_h;
 
 int les = 3; // level editor scale
 int level_editor_running = 0;
+int help_screens_running = 0;
 
 
 
@@ -561,24 +562,45 @@ int fw = 4; // frame width for block editor
 
 // end of global from old e_main
 
-
 void final_wrapup(void)
 {
-   for (int x=0; x<16; x++) // player bitmaps
-      for (int y=0; y<32; y++)
-         al_destroy_bitmap( player_bitmap[x][y] );
 
-   for (int c=0; c<NUM_SPRITES; c++)
-      al_destroy_bitmap(memory_bitmap[c]);
-   al_destroy_bitmap(l2000);
-   al_destroy_bitmap(level_buffer);
-   al_destroy_bitmap(dtemp);
-   al_destroy_bitmap(lefsm);
 
-   //extern ALLEGRO_BITMAP * grid_bmp;
-   //al_destroy_bitmap(grid_bmp);
+//   for (int x=0; x<16; x++) // player bitmaps
+//      for (int y=0; y<19; y++)
+//         al_destroy_bitmap( player_bitmap[x][y] );
+//
+//   al_destroy_bitmap(M_ptilemap);
+//   al_destroy_bitmap(ptilemap);
+//
+//   for (int x=0; x<16; x++) // door bitmaps
+//      for (int y=0; y<8; y++)
+//      {
+//         al_destroy_bitmap(door_bitmap[0][x][y]);
+//         al_destroy_bitmap(door_bitmap[1][x][y]);
+//      }
+//   al_destroy_bitmap(M_dtilemap);
+//   al_destroy_bitmap(dtilemap);
+//
+//   for (int c=0; c<NUM_SPRITES; c++)
+//      al_destroy_bitmap(memory_bitmap[c]);
+//
+//   al_destroy_bitmap(M_tilemap);
+//   al_destroy_bitmap(tilemap);
+//
+//   al_destroy_bitmap(l2000);
+//   al_destroy_bitmap(level_buffer);
+//   al_destroy_bitmap(dtemp);
+//   al_destroy_bitmap(lefsm);
+//
+//   extern ALLEGRO_BITMAP * grid_bmp;
+//   al_destroy_bitmap(grid_bmp);
 
-   remove_sound();
+   // what is the proper order to shut down allegro?
+//   al_destroy_event_queue(event_queue);
+//   al_destroy_display(display);
+
+
    al_uninstall_system();
 }
 
@@ -586,7 +608,7 @@ void final_wrapup(void)
 
 void fast_exit(int why)
 {
-   // don't overwrite if zero
+   // don't overwrite if not zero
    if (why != 0) players1[active_local_player].quit_reason = why;
 
    if (ima_client) log_ending_stats();
@@ -1901,8 +1923,8 @@ int main(int argument_count, char **argument_array)
 #ifndef RELEASE
    if (argument_count == 2) // example 'pmwin x'
    {
-      void copy_files_to_clients(int exe_only);
-      int ret;
+      int copy_files_to_clients(int exe_only);
+      int ret = 0;
 
       if (strcmp(argument_array[1],"-x") == 0 )
       {
@@ -2175,20 +2197,20 @@ int copy_files_to_clients(int exe_only)
    char client[20][255];
    int num_clients = 0;
 
-   sprintf(client[num_clients++], "\\\\E6400\\pm_client1");  //  E6400
-   sprintf(client[num_clients++], "\\\\E6410\\pm_client2");  // win7 portable dev system
+//   sprintf(client[num_clients++], "\\\\E6400\\pm_client1");  //  E6400
+//   sprintf(client[num_clients++], "\\\\E6410\\pm_client2");  // win7 portable dev system
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client3");  // win7 acer laptop
-   sprintf(client[num_clients++], "\\\\E6430\\pm_client4");  // win7 studio pc
-   sprintf(client[num_clients++], "\\\\E6420\\pm_client5");  // win7 2560x1600 (my room)
-   sprintf(client[num_clients++], "\\\\pfv\\pm_client6");    // XP 1600x1200
+//   sprintf(client[num_clients++], "\\\\E6430\\pm_client4");  // win7 studio pc
+//   sprintf(client[num_clients++], "\\\\E6420\\pm_client5");  // win7 2560x1600 (my room)
+//   sprintf(client[num_clients++], "\\\\pfv\\pm_client6");    // XP 1600x1200
    sprintf(client[num_clients++], "\\\\m-4230-3\\pm_client7"); // ubuntu acer laptop
-//   sprintf(client[num_clients++], "\\\\DESKTOP-DBNSJH8\\pm_client8"); // win 10 EID work laptop
+   sprintf(client[num_clients++], "\\\\DESKTOP-DBNSJH8\\pm_client8"); // win 10 EID work laptop
 //   sprintf(client[num_clients++], "\\\\e4230f\\pm_client9"); // acer laptop
 //   sprintf(client[num_clients++], "\\\\4230a\\pm_client10"); // acer laptop
 //   sprintf(client[num_clients++], "\\\\insp9400\\pm_client11"); // dell insp 9400 (backup machine)
 //   sprintf(client[num_clients++], "\\\\m7667\\pm_client12"); // core2 2G 32bit GeForce 7500 LE
-   sprintf(client[num_clients++], "\\\\nv59\\pm_client13");  // gateway nv59 i3 4G 1600x1200
-   sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
+//   sprintf(client[num_clients++], "\\\\nv59\\pm_client13");  // gateway nv59 i3 4G 1600x1200
+   //sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
 
 
 //   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden

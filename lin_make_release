@@ -23,4 +23,8 @@ cp savegame/demo/* purple_martians__linux/savegame/demo
 cp pm purple_martians__linux/
 cp pml purple_martians__linux/
 cp readme_linux purple_martians__linux/
+cp license.txt purple_martians__linux/
+
+tar -zcvf ./purple_martians__linux.tar.gz ./purple_martians__linux/*
+
 

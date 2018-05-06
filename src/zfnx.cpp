@@ -1962,15 +1962,15 @@ void temp_test(void)
 
   //select_bitmap_proc();
   //copy_bitmap_proc();
-  animation_proc();
+  // animation_proc();
 
 
 
 
-//               void spline_adjust(void);
+               void spline_adjust(void);
    //            void mdw_an(void);
-   //            spline_test();
-//               spline_adjust();
+//               spline_test();
+               spline_adjust();
 
 
 

@@ -4,9 +4,7 @@
 
 char fst[80];
 void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore, int rot);
-
 extern char m_serveraddress[256];
-
 void edit_server_name(void)
 {
    strcpy(fst, m_serveraddress);

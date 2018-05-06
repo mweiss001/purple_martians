@@ -1,0 +1,274 @@
+Compiling Purple Martians
+
+Setting up the development environment 
+
+
+
+20180310
+--------
+windows 7
+
+run dev-cpp-4.9.9.2.exe
+
+Add these packages with Package Manager
+- allegro-4.4.2-1len.DevPak
+- dumb-CVS_20050418-1mol.DevPak
+- zlib-1.2.8-1ext.DevPak
+
+use my own local version of the libnet sources like this:
+copy libnet.a to C:\Dev-Cpp\lib
+copy libnet.h to C:\Dev-Cpp\include
+
+linker:
+"C:\Dev-Cpp\lib\libaldmb.a"
+"C:\Dev-Cpp\lib\libdumb.a" 
+"C:\Dev-Cpp/lib/libnet.a"
+"C:\Dev-Cpp/lib/libwsock32.a"
+"C:\Dev-Cpp/lib/liballegro-4.4.2-mt.a"
+"C:\Dev-Cpp/lib/libz.a"
+
+open the project file pm.dev with Dev-cpp
+
+
+
+
+20180310
+--------
+
+Ubuntu 16.0.4.3 desktop is the only Linux system I've tested on,
+but there is no reason it should not work on others.
+
+
+I did a full install of Ubuntu and erased everything on disk.
+
+
+'sudo apt-get update'
+
+'apt-get install liballegro4-dev'
+
+'apt-get install libaldmb1-dev'
+
+extract the game files to the desktop
+
+- install libnet  (from my local copy of the sources)
+from a terminal go to the folder 'libnet' in the game folder
+'make lib'
+'sudo make install'
+(puts libnet.h in /usr/include/)
+(puts libnet.a in /usr/lib/x86_64-linux-gnu/)
+
+
+You now have all the prerequisites to compile the game.
+In a terminal navigate to the 'src' directory of the game.
+Run the compile script 'cb' like this './cb'
+
+This is the compile line:
+(It has no line breaks, but I have put some here for readablity.)
+-----------------------------------------------------------------------------
+g++ -w
+e_bitmap.cpp e_editor.cpp e_fnx.cpp e_glt.cpp e_guifnx.cpp
+e_item.cpp e_lev.cpp e_menu.cpp e_nev.cpp e_nlv.cpp e_pde.cpp
+e_sel.cpp e_sliders.cpp e_special.cpp yfilecom.cpp zbullets.cpp
+zcontrol.cpp zemove.cpp zfile.cpp zfnx.cpp zitem.cpp zlifts.cpp
+zloop.cpp zmain.cpp zmenu.cpp zplayer.cpp zscrn.cpp zsound.cpp
+n_network.cpp n_packet.cpp n_client.cpp n_server.cpp 
+-ldumb -laldmb -lalleg -lnet -lpthread -lz -o ../pmlin
+-----------------------------------------------------------------------------
+
+-w (no warnings)
+
+-ldumb -laldmb (these are for DUMB, they need to go before allegro)
+
+-lalleg (the allegro library)
+
+-lnet -lpthread (these are for libnet)
+
+-lz (zlib compression library, for packet compression)
+
+-o ../pmlin (put the executable in the parent directory)
+
+After compiling, go to the main directory and run the game with:
+
+'./pmlin'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+older setups......
+
+
+
+
+windows 7
+---------
+20140305
+
+still the latest version of dev-cpp is 4.9.9.2
+
+run dev-cpp-4.9.9.2.exe
+added allegro-4.2.1-1mol.DevPak with package manager
+added dumb-CVS_20050418-1mol.DevPak with package manager
+
+libnet 0.10.11 seem to still be the latest version
+extract to C:\libnet 
+copy mingw.mak from makfiles to top dir
+rename to port.mak
+SET PATH=C:\Dev-Cpp\bin
+SET MINGDIR=C:\Dev-Cpp
+make does not work until I remove -Werror from port.mak
+make install does not seem to work
+so I manually copy the 2 files like this:
+copy libnet.a from \lib      to C:\Dev-Cpp\lib
+copy libnet.h from \include  to C:\Dev-Cpp\include
+
+
+
+XP SP2
+-------
+
+20091209 latest version
+
+run dev-cpp-4.9.9.2.exe
+
+added allegro-4.2.2-1len.DevPak with package manager
+
+dumb-0.9.3
+from the command line:
+cd to the top directory (the one that contains the src directory)
+type:
+SET PATH=C:\Dev-Cpp\bin
+SET MINGDIR=C:\Dev-Cpp
+make
+choose M for Ming not D for DJGPP
+choose yes for allegro support
+make install
+
+
+libnet-0.10.11
+copy mingw.mak from makfiles to top dir
+rename to port.mak
+SET PATH=C:\Dev-Cpp\bin
+SET MINGDIR=C:\Dev-Cpp
+make does not work until I remove -Werror from port.mak
+make install does not seem to work
+so I manually copy the 2 files like this:
+copy libnet.a from \lib      to C:\Dev-Cpp\lib
+copy libnet.h from \include  to C:\Dev-Cpp\include
+
+compiles clean with no deprecated functions 20091210
+
+
+Windows XP
+----------
+Installed DevCpp 4.980
+ran alleg4DC.exe and extracted to c:\Dev-Cpp
+
+extract dumb-0.9.2
+from the command line:
+cd to the top directory (the one that contains the src directory)
+type:
+SET PATH=C:\Dev-Cpp\bin
+SET MINGDIR=C:\Dev-Cpp
+make
+make install
+
+To get libnet to work...
+
+extract libnet 0.10.9
+copy mingw.mak from makfiles to top dir
+rename to port.mak
+SET PATH=C:\Dev-Cpp\bin
+SET MINGDIR=C:\Dev-Cpp
+make does not work until I remove -Werror from port.mak
+make install does not seem to work
+so I manually copy the 2 files like this:
+copy libnet.a from \lib      to C:\Dev-Cpp\lib
+copy libnet.h from \include  to C:\Dev-Cpp\include
+
+Using
+-----
+use libnet.h in the source 
+link with libnet.a and libwsock32.a
+
+
+Windows 98 First Edition
+------------------------
+DirectX 8.1 installed (from file DX81end.exe)
+Dev-C++ 4 Installed with typical settings (from devcpp4.zip)
+Allegro from superdave (alleg4.zip) unzipped in devc directory (C:\DEV-C++)
+Dev-C run once to associate files
+Found alleg40.dll on the net and copied to C:\WINDOWS\SYSTEM
+There are two project:
+The game (pmwin.dev)
+The editor (pm_editor.dev) 
+
+extract dumb-0.9.2
+cd to the top directory (the one that contains the src directory) 
+type 'fix mingw'
+
+add C:\Dev-C++\bin to PATH (for make)
+SET MINGDIR to C:\Dev-Cpp
+
+'makeall' does not seem to work
+so I use 'make' and make 'DEBUGMODE=1'
+
+'make install' does not seem to work even after:
+SET MINGDIR to C:\Dev-C++
+
+so I manually copy files like this:
+copy *.a from \lib\mingw to C:\Dev-Cpp\lib
+copy *.h from \include  to C:\Dev-Cpp\include
+
+You should now be able to compile and execute from the Dev-C IDE
+The game executable is pmwin.exe
+The level editor executable is pmfle.exe
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

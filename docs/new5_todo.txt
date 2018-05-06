@@ -2,21 +2,31 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+crashes on exit in win 10
+
+try removing all bitmap destrying in final wrapup
+
+also remove:
+al_destroy_event_queue(event_queue);
+al_destroy_display(display);
+
+also remove complile optimizations
+
+
+seems crash free on win 10 exit now...
+linux version exits good too...
+lets make release version 7.04
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
-
-make the releases...
-put on allegro.cc...
-...
-profit?
-
 
 
 ---------------------------------------------------------
 ------------------------ linux --------------------------
 ---------------------------------------------------------
-
 
 
 ---------------------------------------------------------
@@ -33,7 +43,7 @@ profit?
 ---------------------------------------------------------
 
 
-
+make more shapes for player, I don't like static shape whe jumping or falling
 
 better profiling to find bottleneck
 

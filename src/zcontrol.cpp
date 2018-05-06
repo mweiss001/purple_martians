@@ -1205,7 +1205,7 @@ int proc_controllers()
 
    if (key[ALLEGRO_KEY_PRINTSCREEN]) key[ALLEGRO_KEY_PRINTSCREEN] = 0; // special exception to make PRINTSCREEN work
    Key_pressed_ASCII = 0;
-   if (!fullscreen)
+   if (!fullscreen) // detect if window was moved
    {
       al_get_window_position(display, &l_spx, &l_spy);
       if ((l_spx != disp_x_curr) || (l_spy != disp_y_curr))

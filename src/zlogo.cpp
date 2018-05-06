@@ -180,10 +180,6 @@ void draw_large_2lines(ALLEGRO_FONT *tf, char * m1, char * m2, int color, float 
    al_destroy_bitmap(t2);
 }
 
-
-
-
-
 void idw(int txt, int x, int y, float x_scale, float y_scale)
 {
    //just like mtext only with predrawn text bitmaps
@@ -218,27 +214,11 @@ void idw(int txt, int x, int y, float x_scale, float y_scale)
       al_convert_mask_to_alpha(logo_eiss, al_map_rgb(0, 0, 0)) ;
    }
 
-
    // scale the scale...
-
-   // great vibes
-//   x_scale *=  36 / (float) al_get_font_line_height(gv);
-//   y_scale *=  18 / (float) al_get_font_line_height(gv);
-
-   // A charming font
    x_scale *=  72 / (float) al_get_font_line_height(f1);
    y_scale *=  24 / (float) al_get_font_line_height(f1);
 
-
-//   x_scale *=  48 / (float) al_get_font_line_height(gv);
-//   x_scale *=  36 / (float) al_get_font_line_height(gv);
-//   y_scale *=  24 / (float) al_get_font_line_height(gv);
-
-//   y_scale *=  24 / (float) al_get_font_line_height(gv);
-//   y_scale *=  36 / (float) al_get_font_line_height(gv);
-
    int flags = 0;
-
    if (x_scale < 0) flags |= ALLEGRO_FLIP_HORIZONTAL;
    if (y_scale < 0) flags |= ALLEGRO_FLIP_VERTICAL;
 
@@ -253,7 +233,6 @@ void idw(int txt, int x, int y, float x_scale, float y_scale)
    if (txt == 1) al_draw_scaled_rotated_bitmap(logo_ichael, 0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
    if (txt == 2) al_draw_scaled_rotated_bitmap(logo_avid,   0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
    if (txt == 3) al_draw_scaled_rotated_bitmap(logo_eiss,   0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
-
 }
 
 
@@ -390,8 +369,6 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
    int c2 = 8;  //color 2
    int c3 = 10; //color 3
 
-
-
 //   int t = line_thickness;
 
 //   float max_scale = fabs(x_scale);
@@ -410,26 +387,22 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
    for (int j=0; j<10; j++)
       for (int i=0; i<8; i+=2)
       {
-         draw_points[j][i] = (int) ( (float) points[j][i] * x_scale);
-         draw_points[j][i+1] = (int) ( (float) points[j][i+1] * y_scale);
+         draw_points[j][i]   = points[j][i]   * x_scale;
+         draw_points[j][i+1] = points[j][i+1] * y_scale;
       }
 
    // apply offset
    for (int j=0; j<10; j++)
       for (int i=0; i<8; i+=2)
       {
-         draw_points[j][i] += x;
+         draw_points[j][i]   += x;
          draw_points[j][i+1] += y;
       }
 
-   //mark the center
-   //circle(b, x, y, 4, palette_color[8]);
-
    // drawing order
-   int order = 0; // normal with arms in front
+   int order = 0; // normal with inner arms in front
    if (x_scale < 0) order = !order;
    if (y_scale < 0) order = !order;
-
 
    if (order)
    {
@@ -457,17 +430,13 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
    }
 
    // show the rest of the name
-   //void mtextout(char *txt1, int x, int y, float x_scale, float y_scale, int col);
-   //sprintf(msg, "ichael"); mtextout(msg, (int)(x - 50  * x_scale), (int)(y - 130 * y_scale), xs, ys, c2);
-   //sprintf(msg, "avid"); mtextout(msg, (int)(x + 96  * x_scale), (int)(y -  15 * y_scale), xs, ys, c2);
-   //sprintf(msg, "eiss"); mtextout(msg, (int)(x + 150 * x_scale), (int)(y + 120 * y_scale), xs, ys, c2);
    float xs = x_scale * 2;
    float ys = y_scale * 3;
-   void idw(int txt, int x, int y, float x_scale, float y_scale);
    idw(1, (int)(x - 54  * x_scale), (int)(y - 130 * y_scale), xs, ys); // ichael
    idw(2, (int)(x + 90  * x_scale), (int)(y -  15 * y_scale), xs, ys); // avid
    idw(3, (int)(x + 146 * x_scale), (int)(y + 120 * y_scale), xs, ys); // eiss
 }
+
 
 // 0 1 are the outer parts of M
 // 2 3 are the inner parts of M
@@ -485,11 +454,10 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
 // that spot is the origin 0, 0
 // this makes scaling easy as I can mutlipy all the values by the same scaler
 
-
-
 void seed_mdw(void)
 {
-   // outer arms start and end pos are all al_fixed
+   // outer arms start and end pos are all fixed
+
    points[0][0] = -200;
    points[0][1] = 0;
    points[0][6] = -200;

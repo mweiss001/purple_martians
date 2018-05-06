@@ -530,9 +530,6 @@ void show_all_pmsg(void)
    tsw(); // wait for keypress
 }
 
-
-
-
 void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore, int rot)
 {
    int len = strlen(f);

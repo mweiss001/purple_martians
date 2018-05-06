@@ -9,21 +9,6 @@ extern int lit_item;
 extern int fuse_loop_playing;
 
 
-void remove_sound(void)
-{
-//   for (int c=0; c<num_sounds; c++)
-//      al_destroy_sample(snd[c]);
-
-//   al_destroy_sample_instance(sid_hiss);
-//   al_destroy_audio_stream(pm_theme_stream);
-//   al_destroy_mixer(mn_mixer);
-//   al_destroy_mixer(se_mixer);
-//   al_destroy_mixer(st_mixer);
-//   al_destroy_voice(voice);
-//   al_uninstall_audio();
-}
-
-
 void stop_sound(void)
 {
    if (sound_on)
@@ -153,7 +138,6 @@ void sound_toggle(void)
    if (sound_on)
    {
       sound_on = 0;
-      remove_sound();
    }
    else
    {
@@ -162,6 +146,7 @@ void sound_toggle(void)
    }
    save_config();
 }
+
 
 
 

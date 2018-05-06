@@ -5,6 +5,7 @@ mkdir purple_martians__windows\savegame
 mkdir purple_martians__windows\savegame\demo
 
 xcopy pm.exe purple_martians__windows\  /y /i
+xcopy license.txt purple_martians__windows\  /y /i
 #xcopy pm.cfg purple_martians__windows\  /y /i
 
 xcopy bitmaps purple_martians__windows\bitmaps  /y /i

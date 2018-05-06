@@ -3867,12 +3867,29 @@ updated linux version to 7.01,
 now updated allegro libary that dosent require png support...
 
 
+help screens width when changing les..fixed
+
+fixed final_wrapup()
+now hopefully wont die as much in linux
 
 
-testing out new github acct...
+make the releases...
+put on allegro.cc...
+...
+profit?
 
 
-test 456
+new license (zlib)
+
+change help.. done
+
+add license.txt.. done
+
+make 7.03 release for win and lin...done
+
+
+
+
 
 
 

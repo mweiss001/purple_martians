@@ -155,12 +155,7 @@ void set_block_range(void)
                if (a == bx1)   l[a][b] = 161;
                if (a == bx2-1) l[a][b] = 163;
             }
-            else if ( (draw_item_num >= 33) && (draw_item_num <= 35) ) // semi solid screen draw special
-            {
-               l[a][b] = 34; // default
-               if (b == by1)   l[a][b] = 33;
-               if (b == by2-1) l[a][b] = 35;
-            }
+
             else if ((draw_item_num >= 177) && (draw_item_num <= 179))  // brown brick shape draw special
             {
                l[a][b] = 178; // default
@@ -238,9 +233,26 @@ void set_block_range(void)
             }
             else l[a][b] = draw_item_num;
          }
+
+
+
          if ( (bx2-bx1>1) && (by2-by1==1) ) // horizontal line with end caps
          {
             l[a][b] = draw_item_num;
+            if ( (draw_item_num >= 33) && (draw_item_num <= 35) ) // semi solid screen draw special
+            {
+               l[a][b] = 34; // default
+               if (b == by1)   l[a][b] = 33;
+               if (b == by2-1) l[a][b] = 35;
+            }
+
+            else if ( (draw_item_num >= 36) && (draw_item_num <= 38) ) // semi solid screen draw special
+            {
+               l[a][b] = 37; // default
+               if (a == bx1)   l[a][b] = 36;
+               if (a == bx2-1) l[a][b] = 38;
+            }
+
             if ((draw_item_num >= 161)
               && (draw_item_num <= 163))  // lined platform shape draw special
             {
@@ -273,11 +285,13 @@ void set_block_range(void)
                if (a == bx2-1) l[a][b] = 588+32; // right end cap
             }
          }
+
+
+
          if ( (bx2-bx1==1) && (by2-by1>1) ) // vertical line with end caps
          {
             l[a][b] = draw_item_num;
-            if ( (draw_item_num >= 33)
-              && (draw_item_num <= 35) ) // semi solid screen draw special
+            if ( (draw_item_num >= 33) && (draw_item_num <= 35) ) // semi solid screen draw special
             {
                l[a][b] = 34; // default
                if (b == by1)   l[a][b] = 33;

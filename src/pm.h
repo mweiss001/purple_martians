@@ -113,6 +113,7 @@ extern int level_display_region_h;
 extern int les; // level editor scale
 
 extern int level_editor_running;
+extern int help_screens_running;
 
 void log_ending_stats_server();
 void log_ending_stats();
@@ -147,7 +148,6 @@ extern int l_spx, l_spy, fullscreen;
 
 extern int SCREEN_W, SCREEN_H;
 
-void remove_sound(void);
 
 void proc_screen_change(int new_sw, int new_sh, int new_sx, int new_sy, int new_fs);
 
@@ -254,7 +254,7 @@ extern char version_string[80];
 
 // #define CLONERLINES
 
-#define RELEASE
+// #define RELEASE
 
 
 void fast_exit(int why);

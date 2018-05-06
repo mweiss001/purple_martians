@@ -294,17 +294,25 @@ void load_fonts(void)
 void auto_set_les(void)
 {
    les = 1;
-   if (disp_w_curr > 1024) les = 2;
 
-   if (disp_w_curr > 1024) les = 2;
-   if (disp_h_curr > 1024) les = 2;
+   if (disp_w_curr > 1023) les = 2;
+   if (disp_h_curr > 1023) les = 2;
 
-   if (disp_w_curr < 1000) les = 1;
+   if (disp_w_curr < 1024) les = 1;
    if (disp_h_curr < 700) les = 1;
 
    if (level_editor_running) les = 1;
 
+   if (help_screens_running)
+   {
+      if (disp_w_curr > 1279) les = 2;
+      if (disp_w_curr < 1280) les = 1;
+   }
+
+
 }
+
+
 
 void set_ortho(void)
 {

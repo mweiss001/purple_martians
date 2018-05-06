@@ -60,6 +60,11 @@ void help(char *topic)
 {
 //   if (SCREEN_H < 480) return;       // wont work with SCREEN_H < 480
 
+   help_screens_running = 1;
+   void auto_set_les(void);
+   auto_set_les();
+   rebuild_bitmaps();
+
 
    int num_of_lines = load_help();
    char section_names[60][80];
@@ -392,8 +397,8 @@ void help(char *topic)
             nexttag = -1;                         // default if no next tag found
 
 
-             if ((!processed_tag_this_time_through) && (msg[0] == '<')) // bad tag
-                msg[0] = '*';
+            if ((!processed_tag_this_time_through) && (msg[0] == '<')) // bad tag
+               msg[0] = '*';
 
             int len = strlen(msg);
             if (len>1)
@@ -465,6 +470,9 @@ void help(char *topic)
    al_destroy_bitmap(status_window);
    al_destroy_bitmap(selection_window);
    al_destroy_bitmap(hlift);
+   help_screens_running = 0;
+   auto_set_les();
+   rebuild_bitmaps();
 }
 
 
