@@ -1183,7 +1183,7 @@ int initial_setup(void)
    al_init();
 
    // set version name
-   sprintf(version_string, "Version 7.0");
+   sprintf(version_string, "Version 7.05");
    sprintf(msg, "Purple Martians %s", version_string);
    printf("\n%s\n", msg);
 //   int title_len = strlen(msg);

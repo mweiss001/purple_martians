@@ -2572,7 +2572,7 @@ Numerous small bug fixes and improvements.
 <c09>Copyright (c) (1997-2018) (Michael David Weiss)
 
 
-<c15>Last Update: April 22, 2018 to version 7.0
+<c15>Last Update: May 6, 2018 to version 7.05
 
 <c15>__________________________________________
 <title>
@@ -2585,7 +2585,7 @@ Numerous small bug fixes and improvements.
 
 <c15>Send me an email (mweiss001@gmail.com) requesting the sources
 
-<c15>Attach a new level for the game that you have created (please)
+<c15>Attach a new level for the game that you have created (optional)
 
 <c15>Promise not to laugh at the nasty hacks and kludges in my code!
 
