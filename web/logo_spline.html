@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+
+<link href="themes/prism.css" rel="stylesheet" />
+
+<title>Purple Martains Logo Spline</title>
+</head>
+<body>
+
+
+<style type = "text/css">
+  h12 {
+  font-size: 120%;
+  }
+ </style>
+
+
+<script src="prism.js"></script>
+
+<div style="text-align: center;"><h1>Purple Martians</h1></div>
+
+<div style="text-align: center;"><h3>Splash screen spline text</h3></div>
+
+
+<div style="text-align: center;"><video src="images/logo.mp4" poster="images/logo1.png" controls width="800" height="600" preload="auto"></video></div>
+
+<br><br><hr>
+<h12>The splash screen logo of my name is made with a few different techniques:<br>
+The large capital letters (M, D, W) are generated with splines.<br>
+In Allegro5 drawing primitives add-on I use the function:
+</h12>
+<hr>
+<pre><code class="language-cpp">void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
+Draws a Bézier spline given 4 control points.
+Parameters:
+points - An array of 4 pairs of coordinates of the 4 control points
+color - Color of the spline
+thickness - Thickness of the spline
+</code></pre>
+<hr>
+
+<br><br><h12>I made a wrapper function for al_draw_spline() to add circles at the ends of the lines:</h12>
+<hr><pre><code class="language-cpp">void mspline(float *par, ALLEGRO_COLOR col, int thickness)
+{
+   al_draw_spline(par, col, thickness);
+   float r = (float)thickness * .8;
+   al_draw_filled_circle(par[0], par[1], r, col);
+   al_draw_filled_circle(par[6], par[7], r, col);
+}</code></pre><hr>
+
+<br><br>
+<h12>Then I made another wrapper function to add a fading effect:</h12> 
+<hr><pre><code class="language-cpp">void mfspline(float *par, int col, int thickness)
+{
+   ALLEGRO_COLOR c = palette_color[col];
+   float r, g, b;
+   al_unmap_rgb_f(c, &r, &g, &b);
+
+   for (int a = thickness; a>0; a--)
+   {
+      float f = (float)(a) / (float)(thickness); // fade in
+      // float f = (float)(thickness-a) / (float)(thickness); // fade out
+      mspline(par, al_map_rgb_f(r*f, g*f, b*f), a);
+   }
+}</code></pre><hr>
+
+<br><br><h12>
+All of the points are on cartesian grid with the center at 0,0.<br>
+The upper left corner is -200, -200 and the lower right corner is +200, +200.<br>
+This was chosen so that the entire image can be scaled in the x and y axis independently by multiplying x or y coordinates by a scaling value.<br>
+The "M" and "W" are each made of 4 splines, but the right most two of each are just mirrored copies of the first two.<br>
+The "D" is one spline.<br>
+Here is how I set up all the points in code:</h12>
+
+<hr><pre><code class="language-cpp">float points[10][8];
+// 0 1 are the outer parts of M
+// 2 3 are the inner parts of M
+// 4 D
+// 5 (not used)
+// 6 7 outer W
+// 8 9 inner W
+
+// 0 is copied to 1 6 7
+// 2 is copied to 3 8 9
+
+void seed_mdw(void)
+{
+   // outer arms start and end pos are all fixed
+   points[0][0] = -200;
+   points[0][1] = 0;
+   points[0][6] = -200;
+   points[0][7] = -200;
+
+   points[1][0] = 0;
+   points[1][1] = 0;
+   points[1][6] = 0;
+   points[1][7] = -200;
+   
+   points[6][0] = 0;
+   points[6][1] = 0;
+   points[6][6] = 0;
+   points[6][7] = 200;
+
+   points[7][0] = 200;
+   points[7][1] = 0;
+   points[7][6] = 200;
+   points[7][7] = 200;
+
+   // outer arm 0 control points are relative to outer arm 0 positon
+   points[0][2] = points[0][6] + 85;
+   points[0][3] = points[0][7] + 107;
+   points[0][4] = points[0][6] + 95;
+   points[0][5] = points[0][7] + 31;
+
+   // inner arm is relative to outer arm
+   points[2][0] = points[0][6] + 30;
+   points[2][1] = points[0][7] + 30;
+   points[2][2] = points[0][6] + 77;
+   points[2][3] = points[0][7] + 32;
+   points[2][4] = points[0][6] + 93;
+   points[2][5] = points[0][7] + 53;
+   points[2][6] = points[0][6] + 109;
+   points[2][7] = points[0][7] + 69;
+
+   // 'D' has only 1 spline, start point and first control point are mirrored in the y axis
+   points[4][0] = -70;
+   points[4][1] = -40;
+   points[4][2] = 132;
+   points[4][3] = -88;
+}
+
+void fill_mdw(void)
+{
+   // get control point 1 from spline 0
+   float cp1x = points[0][0] - points[0][2];
+   float cp1y = points[0][1] - points[0][3];
+
+   // get control point 2 from spline 0
+   float cp2x = points[0][0] - points[0][4];
+   float cp2y = points[0][1] - points[0][5];
+
+   // apply to other splines
+   points[1][2] = points[1][0] + cp1x;
+   points[1][3] = points[1][1] - cp1y;
+   points[1][4] = points[1][0] + cp2x;
+   points[1][5] = points[1][1] - cp2y;
+
+   points[6][2] = points[6][0] - cp1x;
+   points[6][3] = points[6][1] + cp1y;
+   points[6][4] = points[6][0] - cp2x;
+   points[6][5] = points[6][1] + cp2y;
+
+   points[7][2] = points[7][0] + cp1x;
+   points[7][3] = points[7][1] + cp1y;
+   points[7][4] = points[7][0] + cp2x;
+   points[7][5] = points[7][1] + cp2y;
+
+   // these are the 4 inner arms and their positions are relative to the outer arms
+
+   // get inner arm offsets from outer arm
+   float ia1x = points[0][0] - points[2][0]; // inner arm x1
+   float ia1y = points[0][1] - points[2][1]; // inner arm y1
+   float ia2x = points[0][0] - points[2][6]; // inner arm x2
+   float ia2y = points[0][1] - points[2][7]; // inner arm y2
+
+   // get inner arm control points
+   cp1x = points[2][0] - points[2][2]; // inner arm x1
+   cp1y = points[2][1] - points[2][3]; // inner arm y1
+   cp2x = points[2][0] - points[2][4]; // inner arm x2
+   cp2y = points[2][1] - points[2][5]; // inner arm y2
+
+
+   // apply to other inner arms
+   points[3][0] = points[1][0] + ia1x;
+   points[3][1] = points[1][1] - ia1y;
+   points[3][6] = points[1][0] + ia2x;
+   points[3][7] = points[1][1] - ia2y;
+
+   points[3][2] = points[3][0] + cp1x;
+   points[3][3] = points[3][1] - cp1y;
+   points[3][4] = points[3][0] + cp2x;
+   points[3][5] = points[3][1] - cp2y;
+
+   points[8][0] = points[6][0] - ia1x;
+   points[8][1] = points[6][1] + ia1y;
+   points[8][6] = points[6][0] - ia2x;
+   points[8][7] = points[6][1] + ia2y;
+
+   points[8][2] = points[8][0] - cp1x;
+   points[8][3] = points[8][1] + cp1y;
+   points[8][4] = points[8][0] - cp2x;
+   points[8][5] = points[8][1] + cp2y;
+
+   points[9][0] = points[7][0] + ia1x;
+   points[9][1] = points[7][1] + ia1y;
+   points[9][6] = points[7][0] + ia2x;
+   points[9][7] = points[7][1] + ia2y;
+
+   points[9][2] = points[9][0] + cp1x;
+   points[9][3] = points[9][1] + cp1y;
+   points[9][4] = points[9][0] + cp2x;
+   points[9][5] = points[9][1] + cp2y;
+
+   // "D" mirroring
+   points[4][6] =  points[4][0]; // same x
+   points[4][7] = -points[4][1]; // mirror y
+   points[4][4] =  points[4][2]; // same x
+   points[4][5] = -points[4][3]; // mirror y
+} </code></pre><hr>
+
+<br><br><h12>All of the constants in the above code, I got from another piece of code I wrote to set up the curves.<br>
+I would drag the control points with the mouse until I like how it looked, <br>
+then I wrote down the coordinates and hard coded them like you see in in the code above.<br><br>
+Finally here is the function that draws the whole thing:</h12>
+<hr><pre><code class="language-cpp">void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
+{
+   int c1 = 10; //color 1 red
+   int c2 = 8;  //color 2 purple
+   int c3 = 10; //color 3 red
+
+   // determine thickness based on both scales
+   float hy_scale = sqrt( (x_scale * x_scale) + (y_scale * y_scale));
+   float t = 2 + hy_scale * 7;
+
+   float draw_points[10][8];
+
+   // apply scale
+   for (int j=0; j<10; j++)
+      for (int i=0; i<8; i+=2)
+      {
+         draw_points[j][i]   = points[j][i]   * x_scale;
+         draw_points[j][i+1] = points[j][i+1] * y_scale;
+      }
+
+   // apply offset
+   for (int j=0; j<10; j++)
+      for (int i=0; i<8; i+=2)
+      {
+         draw_points[j][i] += x;
+         draw_points[j][i+1] += y;
+      }
+
+   // drawing order
+   int order = 0; // normal with inner arms in front
+   if (x_scale < 0) order = !order;
+   if (y_scale < 0) order = !order;
+
+   if (order)
+   {
+      mfspline(draw_points[4], c3, t);
+      mfspline(draw_points[2], c1, t);
+      mfspline(draw_points[3], c1, t);
+      mfspline(draw_points[8], c1, t);
+      mfspline(draw_points[9], c1, t);
+      mfspline(draw_points[0], c2, t);
+      mfspline(draw_points[1], c2, t);
+      mfspline(draw_points[6], c2, t);
+      mfspline(draw_points[7], c2, t);
+   }
+   else
+   {
+      mfspline(draw_points[0], c2, t);
+      mfspline(draw_points[1], c2, t);
+      mfspline(draw_points[6], c2, t);
+      mfspline(draw_points[7], c2, t);
+      mfspline(draw_points[4], c3, t);
+      mfspline(draw_points[2], c1, t);
+      mfspline(draw_points[3], c1, t);
+      mfspline(draw_points[8], c1, t);
+      mfspline(draw_points[9], c1, t);
+   }
+
+   // show the rest of the name
+   float xs = x_scale * 2;
+   float ys = y_scale * 3;
+   void idw(int txt, int x, int y, float x_scale, float y_scale);
+   idw(1, (int)(x - 54  * x_scale), (int)(y - 130 * y_scale), xs, ys); // ichael
+   idw(2, (int)(x + 90  * x_scale), (int)(y -  15 * y_scale), xs, ys); // avid
+   idw(3, (int)(x + 146 * x_scale), (int)(y + 120 * y_scale), xs, ys); // eiss
+}</code></pre><hr>
+
+<br><br><h12>
+Here is the code that draws the small letters:</h12>
+<hr><pre><code class="language-cpp">void idw(int txt, int x, int y, float x_scale, float y_scale)
+{
+   int bbx1, bby1, bbw1, bbh1;
+   al_get_text_dimensions(f1, "ichael", &bbx1, &bby1, &bbw1, &bbh1);
+
+   if (logo_text_bitmaps_create)
+   {
+      logo_text_bitmaps_create = 0;
+      al_destroy_bitmap(logo_ichael);
+      logo_ichael = al_create_bitmap(bbw1,bbh1);
+      al_set_target_bitmap(logo_ichael);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_draw_text(f1, palette_color[8], 0-bbx1, 0-bby1, 0, "ichael");
+      al_convert_mask_to_alpha(logo_ichael, al_map_rgb(0, 0, 0)) ;
+
+      al_destroy_bitmap(logo_avid);
+      logo_avid = al_create_bitmap(bbw1,bbh1);
+      al_set_target_bitmap(logo_avid);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_draw_text(f1, palette_color[90], 0-bbx1, 0-bby1, 0, "avid");
+      al_convert_mask_to_alpha(logo_avid, al_map_rgb(0, 0, 0)) ;
+
+      al_destroy_bitmap(logo_eiss);
+      logo_eiss = al_create_bitmap(bbw1,bbh1);
+      al_set_target_bitmap(logo_eiss);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_draw_text(f1, palette_color[8], 0-bbx1, 0-bby1, 0, "eiss");
+      al_convert_mask_to_alpha(logo_eiss, al_map_rgb(0, 0, 0)) ;
+   }
+
+   x_scale *=  72 / (float) al_get_font_line_height(f1);
+   y_scale *=  24 / (float) al_get_font_line_height(f1);
+
+   int flags = 0;
+   if (x_scale < 0) flags |= ALLEGRO_FLIP_HORIZONTAL;
+   if (y_scale < 0) flags |= ALLEGRO_FLIP_VERTICAL;
+
+   // offset x pos if scale is negative
+   if (x_scale < 0) x -= abs( (int) ((float)bbw1 * x_scale) );
+
+   // offset y pos if scale is negative
+   if (y_scale < 0) y -= abs( (int) ((float)bbh1 * y_scale) );
+
+   al_set_target_backbuffer(display);
+
+   if (txt == 1) al_draw_scaled_rotated_bitmap(logo_ichael, 0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
+   if (txt == 2) al_draw_scaled_rotated_bitmap(logo_avid,   0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
+   if (txt == 3) al_draw_scaled_rotated_bitmap(logo_eiss,   0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
+}
+</code></pre><hr>
+
+<br><br><h12>
+Here is some code that draws a spinning logo.<br>
+Its is non-blocking and needs to be called in a loop, so I can do other things like process my event loop, etc.</h12>
+<hr><pre><code class="language-cpp">int mdw_an2(void)
+{
+   float x_scale = mdw_splash_logo_scale;
+   float y_scale = mdw_splash_logo_scale;
+
+   // 1st grow while rotating 256   0    - 255
+   // 2nd xlink                64   256  - 319
+   // 3nd static              128   320  - 447
+   // 4th spin back for dual  192   448  - 639
+   // 5th dual flip           256   640  - 895
+   // 6th spin back to orig    64   896  - 959
+   // total shrink frames 320 (mode 5 and 6)
+
+   if (++mdw_an_seq > 959) return 1;
+
+   // grow and spin in both axis
+   if ((mdw_an_seq > -1) && (mdw_an_seq < 256))
+   {
+      al_fixed t = al_itofix(mdw_an_seq);
+      float s = (float)mdw_an_seq / 320;
+      if (s > 1) s = 1;
+      x_scale = s * mdw_splash_logo_scale * al_fixtof(al_fixsin(t));
+      y_scale = s * mdw_splash_logo_scale * al_fixtof(al_fixcos(t));
+   }
+   // fix x scale
+   if ((mdw_an_seq > 255) && (mdw_an_seq < 319))
+   {
+      al_fixed t = al_itofix(mdw_an_seq-256);
+      float s = (float)mdw_an_seq / 320;
+      if (s > 1) s = 1;
+      x_scale = s * mdw_splash_logo_scale * al_fixtof(al_fixsin(t));
+      y_scale = s * mdw_splash_logo_scale;
+   }
+   // freeze
+   if ((mdw_an_seq > 319) && (mdw_an_seq < 448))
+   {
+      x_scale = mdw_splash_logo_scale;
+      y_scale = mdw_splash_logo_scale;
+   }
+   // spin back to prepare for dual flip...
+   if ((mdw_an_seq > 447) && (mdw_an_seq < 640))
+   {
+      al_fixed t = al_itofix(mdw_an_seq-448);
+      x_scale = mdw_splash_logo_scale * al_fixtof(al_fixcos(t));
+   }
+   // shrink and move
+   if ((mdw_an_seq > 639) && (mdw_an_seq < 960))
+   {
+      mdw_splash_logo_x -= mdw_logo_x_dec;
+      mdw_splash_logo_y -= mdw_logo_y_dec;
+      mdw_splash_logo_scale -= mdw_logo_scale_dec;
+   }
+   // dual flip
+   if ((mdw_an_seq > 639) && (mdw_an_seq < 896))
+   {
+      al_fixed t = al_itofix(mdw_an_seq-640);
+      x_scale = mdw_splash_logo_scale * al_fixtof(al_fixsin(t));
+      y_scale = mdw_splash_logo_scale * al_fixtof(al_fixcos(t));
+   }
+   // back to original
+   if ((mdw_an_seq > 895) && (mdw_an_seq < 960))
+   {
+      al_fixed t = al_itofix(mdw_an_seq-896);
+      x_scale = mdw_splash_logo_scale * al_fixtof(al_fixsin(t));
+      y_scale = mdw_splash_logo_scale;
+   }
+   draw_mdw((int)mdw_splash_logo_x, (int)mdw_splash_logo_y, x_scale, y_scale, mdw_splash_logo_th);
+   return 0;
+}
+</code></pre><hr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

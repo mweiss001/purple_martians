@@ -2422,14 +2422,12 @@ now if I do logging I can kill the stupid toggle menu...
 done....!!!!
 kill it!!!!
 
-
 number pad keys to work in help...done
 
 fix logo in help..done
 
 when ortho changes
 help divider lines off screen...fixed
-
 
 close holes in menu
 -bitmap editor is all that is left
@@ -2460,7 +2458,7 @@ load, modify, save...done
 
 
 ---------------------------------------------------------
-what if my whoel drawing routine is too complicated
+what if my whole drawing routine is too complicated
 ---------------------------------------------------------
 right now:
 I have l2000 with all the blocks and lift lines drawn
@@ -3977,6 +3975,79 @@ p0_jump_key=24
 p0_fire_key=26
 p0_menu_key=59
 
+
+20180508
+copy in zfs has rect 1 block to big in x and y...fixed
+
+20180508
+adding new enemies erases last...wtf
+only after copy paste enemies in zfs??
+i broke something in level 42
+now any enemy that I add either from draw_item copy paste or selection window
+erases the last enemy...why??
+bug in code in editor line 1160
+should be:
+int c = get_empty_enemy(); // get a place to put it
+not:
+int c = get_empty_item(); // get a place to put it
+bug first appeared 20180401
+fixed...
+
+
+
+Make a way to do "new level" in level editor
+
+right now what I do is:
+- load level (optional)
+- save level (and choose filename that doesn't exist yet)
+- go to zoom full screen
+- select entire level
+- click clear
+
+add a menu item 'new level'
+- prompts you for a filename to save
+- clears level and saves as new filename
+
+made the menu item
+
+made erase_level_data() a seperate function and call from
+load_level() and initial_setup()
+
+now it goes like this...
+
+if (al_show_native_message_box(display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
+{
+   zero_level_data();
+   draw_big(1);
+   update_editor_background();
+   al_flip_display();
+   save();
+}
+load_level(level_num, 0); // blind load
+
+seems to work just like I want...call it done
+
+
+make a function that serially reads keys to call debug functions..
+
+while game running:
+STON  speed test on
+STOFF speed test OFF
+
+while level_editor_running:
+SPLADJ  spline adjust
+SPLTEST spline test
+
+while not game running
+LOGVIEW run the logfile viewer
+
+
+if ima_client
+FAKEKEY toggle
+
+does it work with CAPS?? ..NO
+
+done...
 
 
 

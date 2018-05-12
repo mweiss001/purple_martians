@@ -283,20 +283,21 @@ void text_setup()
    strcpy (global_string[9][7], "Show Status Window");
    strcpy (global_string[9][8], "Show Selection Window");
    strcpy (global_string[9][9], "------");
-   strcpy (global_string[9][10],"Load Level");
-   strcpy (global_string[9][11],"Save Level");
-   strcpy (global_string[9][12],"Save and Quit");
-   strcpy (global_string[9][13],"Help Screens");
-   strcpy (global_string[9][14],"Quit Level Editor");
-   strcpy (global_string[9][15],"end");
+   strcpy (global_string[9][10],"New Level");
+   strcpy (global_string[9][11],"Load Level");
+   strcpy (global_string[9][12],"Save Level");
+   strcpy (global_string[9][13],"Save and Quit");
+   strcpy (global_string[9][14],"Help Screens");
+   strcpy (global_string[9][15],"Quit Level Editor");
+   strcpy (global_string[9][16],"end");
 
 #ifndef RELEASE
-   strcpy (global_string[9][15],"----");
-   strcpy (global_string[9][16],"Predefined Enemy Editor");
-   strcpy (global_string[9][17],"Global Level Thingy!!");
-   strcpy (global_string[9][18],"Level Viewer!");
-   strcpy (global_string[9][19],"Bitmap and Animation Editor");
-   strcpy (global_string[9][20],"end");
+   strcpy (global_string[9][16],"----");
+   strcpy (global_string[9][17],"Predefined Enemy Editor");
+   strcpy (global_string[9][18],"Global Level Thingy!!");
+   strcpy (global_string[9][19],"Level Viewer!");
+   strcpy (global_string[9][20],"Bitmap and Animation Editor");
+   strcpy (global_string[9][21],"end");
 #endif
 
 

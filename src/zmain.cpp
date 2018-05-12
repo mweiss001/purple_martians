@@ -58,6 +58,9 @@ int level_display_region_w;
 int level_display_region_h;
 
 
+char skc[64];
+int skc_index = 0;
+
 
 int les = 3; // level editor scale
 int level_editor_running = 0;
@@ -1403,59 +1406,29 @@ int initial_setup(void)
       al_register_event_source(event_queue, al_get_joystick_event_source());
    }
 
-
-
    if (sound_on) load_sound();
 
-
+   // create timers
    fps_timer = al_create_timer(1/(float)passcount_timer_fps);
    sec_timer = al_create_timer(1);
    mnu_timer = al_create_timer(.01);
-   //printf("created timer\n");
 
+   // register timer event source
    al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
 
-
+   // start timers
    al_start_timer(fps_timer);
    al_start_timer(sec_timer);
    al_start_timer(mnu_timer);
-   //printf("started timer\n");
 
-
-
-   // init all
+   // init all players
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
 
    // set all but 0 to inactive
    for (int p=1; p<NUM_PLAYERS; p++) players[p].active = 0;
-
-   for (int c=0; c<100; c++) // clear block array
-      for (int y=0; y<100; y++) l[c][y]=0;
-
-   for (int i=0; i < 500; i++) // clear items
-   {
-      for (int y=0; y<16; y++) item[i][y] = 0;
-      for (int y=0; y<4; y++) itemf[i][y] = al_itofix(0);
-   }
-
-   for (int EN=0; EN < 100; EN++) // clear enemies
-   {
-       for (int y=0; y < 32; y++) Ei[EN][y]  = 0;
-       for (int y=0; y < 16; y++) Efi[EN][y] = al_itofix(0);
-   }
-
-   for (int li=0; li < NUM_LIFTS; li++) // clear lifts
-   {
-      clear_lift(li);
-      for (int step=0; step<40; step++) clear_lift_step(li, step);
-   }
-   num_lifts = 0;
-
-
+   zero_level_data();
    reset_animation_sequence_passcounts(0);
-
    //printf("end of initial setup\n");
-
    return 1;
 }
 

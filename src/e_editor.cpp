@@ -824,7 +824,7 @@ int zoom_full_screen(int wx, int wy, int draw_item)
             al_set_clipping_rectangle(0, 0, les*db*100-1, les*db*100-1);
             al_draw_bitmap(ft_bmp, x1*db, y1*db, 0);
             al_draw_text(font, palette_color[42], x1*db+2, y1*db-11, 0, "paste selection");
-            al_draw_rectangle(x1*db, y1*db, (x2+1)*db-1, (y2+1)*db-1, palette_color[10], 1);
+            al_draw_rectangle(x1*db, y1*db, x2*db-1, y2*db-1, palette_color[10], 1);
             al_reset_clipping_rectangle();
 
          }
@@ -1157,7 +1157,7 @@ int edit_menu(int el)
             break;
             case 3:    // enemy
             {
-               int c = get_empty_item(); // get a place to put it
+               int c = get_empty_enemy(); // get a place to put it
                if (c == -1)  break;
                for (x=0; x<32; x++) Ei[c][x]  = Ei[draw_item_num][x];
                for (x=0; x<16; x++) Efi[c][x] = Efi[draw_item_num][x];
@@ -1221,7 +1221,7 @@ int edit_menu(int el)
             }
             if (PDEi[draw_item_num][0] < 99) // put enemy
             {
-               int d = get_empty_item(); // get a place to put it
+               int d = get_empty_enemy(); // get a place to put it
                if (d == -1)  break;
                for (x=0; x<32; x++) Ei[d][x]  = PDEi[draw_item_num][x];
                for (x=0; x<16; x++) Efi[d][x] = PDEfx[draw_item_num][x];
@@ -1234,29 +1234,25 @@ int edit_menu(int el)
          } // end of switch case
       } // end of put draw item
 
-
-
+      if (key[ALLEGRO_KEY_L])
+      {
+         while (key[ALLEGRO_KEY_L]) proc_controllers();
+         show_all_lifts();
+      }
       if (key[ALLEGRO_KEY_E])
       {
          while (key[ALLEGRO_KEY_E]) proc_controllers();
          show_all_enemies();
-      }
-
-      if (key[ALLEGRO_KEY_P])
-      {
-         while (key[ALLEGRO_KEY_P]) proc_controllers();
-         show_all_pmsg();
       }
       if (key[ALLEGRO_KEY_I])
       {
          while (key[ALLEGRO_KEY_I]) proc_controllers();
          show_all_items();
       }
-
-      if (key[ALLEGRO_KEY_S])
+      if (key[ALLEGRO_KEY_P])
       {
-         while (key[ALLEGRO_KEY_S]) proc_controllers();
-         show_all_lifts();
+         while (key[ALLEGRO_KEY_P]) proc_controllers();
+         show_all_pmsg();
       }
 
       if ((mouse_b2) && (!mpow))  // pop up menu
@@ -1368,33 +1364,46 @@ int edit_menu(int el)
                select_window_active = 1;
                check_s_window_pos(1);
             break;
-            case 10: // load
+
+            case 10: // new level
+            if (al_show_native_message_box(display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
+            {
+               zero_level_data();
+               draw_big(1);
+               update_editor_background();
+               al_flip_display();
+               save();
+            }
+            load_level(level_num, 0); // blind load
+            break;
+
+            case 11: // load level
                load();
                set_wx_from_start_block();
                sort_enemy();
                item_sort();
                draw_big(1);
             break;
-            case 11: // save
+            case 12: // save level
                save();
             break;
-            case 12: // save and exit
+            case 13: // save and exit
             {
                extern int exit_link;
                if (save()) em_quit=1;
                exit_link = 1;
             }
             break;
-            case 13: // help
+            case 14: // help
                help((char *)"Level Editor Basics");
             break;
-            case 14: // exit
+            case 15: // exit
                em_quit=1;
             break;
-            case 16: predefined_enemies(); break;
-            case 17: global_level(); break;
-            case 18: level_viewer(); break;
-            case 19: animation_proc(); break;
+            case 17: predefined_enemies(); break;
+            case 18: global_level(); break;
+            case 19: level_viewer(); break;
+            case 20: animation_proc(); break;
 
          } // end of switch case
          al_set_mouse_xy(display, temp_mouse_x, temp_mouse_y);

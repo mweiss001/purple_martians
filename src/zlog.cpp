@@ -252,14 +252,11 @@ void log_ending_stats_server()
 
 }
 
-
-
-
-
 void save_log_file(void)
 {
    if (L_LOGGING)
    {
+      al_make_directory("logs"); // create if not already created
       FILE *filepntr;
       char f1[256];
       char filename[256];
@@ -423,7 +420,7 @@ void add_log_entry_header(int type, int player, char *txt, int blank_lines)
 
 int fill_filename_array(ALLEGRO_FS_ENTRY *fs, void * extra)
 {
-   if (num_filenames > 999) return 0; // only get 1090 max
+   if (num_filenames > 999) return 0; // only get 1000 max
    filenames[num_filenames] = al_create_fs_entry(al_get_fs_entry_name(fs));
    num_filenames++;
    return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
@@ -444,10 +441,11 @@ int log_file_viewer(int type)
    int ch=0;
 
    sprintf(fname, "logs/");
-
    //printf("fname:%s\n", fname);
-   // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
+   // convert to 'ALLEGRO_FS_ENTRY' (to makes fully qualified path)
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
+
+   // convert back to string
    sprintf(fname, "%s\\", al_get_fs_entry_name(FS_fname));
    //printf("FS_fname:%s\n", fname);
 
@@ -476,9 +474,9 @@ int log_file_viewer(int type)
 
    if (type == 2) // most recent file
    {
-      num_demo_filenames = 0;
+      num_filenames = 0;
 
-      // iterate levels in demo folder and put in filename array
+      // iterate levels in log folder and put in filename array
       al_for_each_fs_entry(FS_fname, fill_filename_array, NULL);
 
       if (num_filenames == 0)

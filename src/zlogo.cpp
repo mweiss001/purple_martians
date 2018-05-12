@@ -383,7 +383,7 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
 
    float draw_points[10][8];
 
-   // apply x_scale
+   // apply scale
    for (int j=0; j<10; j++)
       for (int i=0; i<8; i+=2)
       {

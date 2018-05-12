@@ -1,0 +1,546 @@
+<!DOCTYPE HTML>
+<!--
+	TXT by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Purple Martians by Michael David Weiss</title>
+		<meta charset="utf-8" />
+
+
+
+
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+
+
+
+
+
+
+
+<style type = "text/css">
+  @font-face {
+  font-family: "Saucer";
+  src: url("SaucerBB.ttf");
+  }
+  h10 {
+  font-family: Saucer;
+  font-size: 400%;
+  }
+  h11 {
+  font-family: Saucer;
+  font-size: 1000%;
+  
+  }
+
+  h12 {
+  font-size: 12;
+  
+  }
+ </style>
+
+
+	</head>
+	<body class="homepage">
+		<div id="page-wrapper">
+
+
+			<!-- Banner -->
+				<div id="banner-wrapper">
+					<section id="banner">
+                  <br>  
+                  <div style="text-align: center;"><h11 style="color:#8800FF">Purple</h11></div>
+                  <br>
+                  <br>
+                  <div style="text-align: center;"><h11 style="color:#8800FF">Martians</h11></div>
+                  <br>
+						<h3>created by</h3>
+                  <br>  
+						<h10 style="color:blue">Michael David Weiss</h10>
+                  <br><br>  
+						<p>A free platformer style video game written in C with the Allegro game programming library</p>
+					</section>
+				</div>
+
+
+
+
+			<!-- Main -->
+					<div id="main" class="container">
+
+
+         
+
+						<div class="row 200%">
+							<div class="12u">
+
+								<!-- Features -->
+									<section class="box features">
+										<h2 class="major"><span>Youtube Multiplayer Demonstration Video</span></h2>
+										<div>
+
+<div style="text-align: center;"><iframe width="854" height="480" src="https://www.youtube.com/embed/UKJ7DcF8p7o" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+</div>
+
+
+										</div>
+									</section>
+							</div>
+						</div>
+
+
+						<div class="row 200%">
+							<div class="12u">
+
+								<!-- Features -->
+									<section class="box features">
+										<h2 class="major"><span>Supported Systems</span></h2>
+										<div>
+<div style="text-align: center;"><h3>Purple Martians works on most versions on Windows and Linux</h3></div>
+<pre>
+These are systems the game has been successfully tested on:
+Windows XP 
+Windows 7
+Windows 10
+ubuntu-16.04.4-desktop-amd64
+ubuntu-17.10.1-desktop-amd64
+linuxmint-18.3-cinnamon-64bit
+elementaryos-0.4.1-stable.20180214
+antergos-18.4-x86_64
+CentOS-7-x86_64-LiveGNOME-1708
+CentOS-7-x86_64-LiveKDE-1708
+Fedora-Workstation-Live-x86_64-27-1.6
+</pre>
+
+
+
+
+										</div>
+									</section>
+							</div>
+						</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+						<div class="row 200%">
+							<div class="12u">
+								<!-- Features -->
+									<section class="box features">
+										<h2 class="major"><span>Description</span></h2>
+										<div>
+<pre>
+
+Purple Martians is completely free 2D "platform" style game.
+
+Features:
+ - many fun and challenging levels (plus you can create more with the level editor)
+ - enemies to shoot or kill with explosions
+ - many interesting puzzles to solve
+ - bombs you can carry and throw
+ - rockets you can ride and steer
+ - movable lifts you can ride
+ - switches that toggle blocks between solid and empty
+ - springs that let you jump very high
+ - keys that open locked blocks
+ - doors to transport you to other places in the level
+ - cloners that copy enemies and items
+ - podzilla plants that pop up and shoot at you
+ - helpful pop-up messages to help you figure stuff out 
+
+ - user definable setup for keyboard and/or joystick
+ - homemade sound effects
+ - fancy scrolling help screens with images and animations
+ 
+ - the game can handle almost any screen resolution you can throw at it from 320x200 to 4K
+ - change to/from fullscreen or resize and move the window during gameplay 
+ - you can zoom in and out of the level view with F5 and F6 during gameplay
+ 
+ - very smooth moving graphics
+ - 15 different colors for your player and other connected players 
+
+ - a nice graphical level selector to choose what level to play  
+  
+ - a very nicely done level editor to create new levels
+
+ - LAN networked game mode with up to eight players
+
+
+If you create new levels, please send them to me.
+The only levels I get to play are ones that I created myself, and how challenging could that be? 
+
+The netgame works identically across all platforms
+
+See the help file for more details, or email me. (mweiss001@gmail.com)
+
+If you download it, please take a few minutes to send me some feedback.
+
+Send your comments to:
+mweiss001@gmail.com
+Email me your new levels as e-mail attachments.
+
+Created with:
+
+Allegro 5.2.4
+MinGW-w64 7.2.0
+Code Blocks 17.12
+libnet-0.10.11
+zlib-1.2.8
+
+Russel Hoy wrote me a cool background soundtrack in 2000.
+
+
+
+</pre>
+
+
+
+
+										</div>
+									</section>
+							</div>
+						</div>
+
+
+
+
+
+
+
+
+
+
+						<div class="row 200%">
+							<div class="12u">
+
+								<!-- Features -->
+									<section class="box features">
+										<h2 class="major"><span>Links to other Sites</span></h2>
+										<div>
+											<div class="row">
+												<div class="4u 12u(mobile)">
+
+													<!-- Feature -->
+														<section class="box feature">
+															<a href="https://mweiss001.itch.io/purple-martians" class="image featured"><img src="images/itch.io.png" alt="" /></a>
+															<h3><a href="https://mweiss001.itch.io/purple-martians">Download from itch.io</a></h3>
+															<p>
+																Download the latest version from itch.io
+															</p>
+														</section>
+
+												</div>
+												<div class="4u 12u(mobile)">
+
+													<!-- Feature -->
+														<section class="box feature">
+															<a href="https://www.allegro.cc/depot/PurpleMartians" class="image featured"><img src="images/allegro.cc.png" alt="" /></a>
+															<h3><a href="https://www.allegro.cc/depot/PurpleMartians">Project page on Allegro.cc</a></h3>
+															<p>
+																Go to the Purple Martians project page on allegro.cc
+															</p>
+														</section>
+
+												</div>
+												<div class="4u 12u(mobile)">
+
+													<!-- Feature -->
+														<section class="box feature">
+															<a href="https://www.youtube.com/user/mweiss0001" class="image featured"><img src="images/yt2.png" alt="" /></a>
+															<h3><a href="https://www.youtube.com/user/mweiss0001">YouTube channel</a></h3>
+															<p>
+																The youtube channel of the creator, Michael Weiss.  Contains videos of the 
+																game and original music.
+															</p>
+														</section>
+
+												</div>
+
+
+
+<!--
+
+												<div class="3u 12u(mobile)">
+
+														<section class="box feature">
+															<a href="#" class="image featured"><img src="images/desc.png" alt="" /></a>
+															<h3><a href="#">Technical Descriptions</a></h3>
+															<p>
+																View articles about the the inner workings and design.
+															</p>
+														</section>
+
+												</div>
+											</div>
+
+
+											<div class="row">
+												<div class="12u">
+													<ul class="actions">
+														<li><a href="#" class="button big">Do Something</a></li>
+														<li><a href="#" class="button alt big">Think About It</a></li>
+													</ul>
+												</div>
+											</div>
+-->
+										</div>
+									</section>
+							</div>
+						</div>
+
+
+
+						<div class="row 200%">
+							<div class="12u">
+
+								<!-- Features -->
+									<section class="box features">
+										<h2 class="major"><span>History</span></h2>
+										<div>
+
+
+<div style="text-align: center;">Click on the date to download.</div>
+<br>
+<div style="text-align: center;">Note: You will need <a href="https://www.dosbox.com/">DOSBOX</a> to run anything before version 5</div>
+<br>
+
+<style>
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+    text-align: center;
+
+
+}
+th {
+    font-weight: bold;
+}
+</style>
+
+<table style="width:100%">
+  <tr>
+    <th>Version</th>
+    <th>Date</th> 
+    <th>Platform</th>
+    <th>Allegro Version</th>
+    <th>Compiler</th>
+    <th>IDE</th>
+    <th>Screen Modes</th>
+    <th>Level Editor</th>
+    <th>Multiplayer</th>
+    <th>Linux</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td>-</td>
+    <td><a href="old_versions/pm0_19980922.zip">19980922</a></td> 
+    <td>DOS/WIN98</td>
+    <td>2.2</td>
+    <td>DJGPP</td>
+    <td>RHIDE</td>
+    <td>320x200</td>
+    <td>integrated</td>
+    <td>no</td>
+    <td>no</td>
+    <td>Earliest surviving version (no sources)</td>
+  </tr>
+  <tr>
+    <td>-</td>
+    <td><a href="old_versions/pm0_19981112.zip">19981112</a></td> 
+    <td>DOS/WIN98</td>
+    <td>2.2</td>
+    <td>DJGPP</td>
+    <td>RHIDE</td>
+    <td>320x200</td>
+    <td>integrated</td>
+    <td>no</td>
+    <td>no</td>
+    <td>Earliest surviving version with sources</td>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td><a href="old_versions/pm1_19981120.zip">19981120</a></td> 
+    <td>DOS/WIN98</td>
+    <td>2.2</td>
+    <td>DJGPP</td>
+    <td>RHIDE</td>
+    <td>320x200</td>
+    <td>integrated</td>
+    <td>no</td>
+    <td>no</td>
+    <td>Not released. Mentions shareware and full versions but not implemented</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td><a href="old_versions/pm2_19991202.zip">19991202</a></td> 
+    <td>DOS/WIN98</td>
+    <td>2.2</td>
+    <td>DJGPP</td>
+    <td>RHIDE</td>
+    <td>640x480 800x600 1024x768</td>
+    <td>standalone</td>
+    <td>no</td>
+    <td>no</td>
+    <td>First version actually released. Has shareware and full version for $10</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td><a href="old_versions/pm3_20000404.zip">20000404</a></td> 
+    <td>DOS/WIN98</td>
+    <td>3.12</td>
+    <td>DJGPP</td>
+    <td>RHIDE</td>
+    <td>Allegro Screen Mode GUI</td>
+    <td>standalone</td>
+    <td>no</td>
+    <td>no</td>
+    <td>Changed to free from now on</td>
+  </tr>
+  <tr>
+    <td>4</td>
+    <td><a href="old_versions/pm4_20010301.zip">20010301</a></td> 
+    <td>DOS/WIN98</td>
+    <td>3.12</td>
+    <td>DJGPP</td>
+    <td>RHIDE</td>
+    <td>Allegro Screen Mode GUI</td>
+    <td>standalone</td>
+    <td>no</td>
+    <td>no</td>
+    <td>More levels, added sliders in level editor</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td><a href="old_versions/pm5_20030622.zip">20030622</a></td> 
+    <td>WIN98/WINXP/linux</td>
+    <td>4.0</td>
+    <td>MinGW</td>
+    <td>Dev-Cpp</td>
+    <td>Allegro Screen Mode GUI with windowed mode</td>
+    <td>standalone</td>
+    <td>2 player split screen</td>
+    <td>source</td>
+    <td>2 player split screen</td>
+  </tr>
+    <td>6</td>
+    <td><a href="old_versions/pm6_20180311.zip">20180311</a></td> 
+    <td>WINXP/WIN7/WIN10/linux</td>
+    <td>4.4.2</td>
+    <td>MinGW</td>
+    <td>Dev-Cpp</td>
+    <td>Allegro Screen Mode GUI with windowed mode</td>
+    <td>integrated</td>
+    <td>8 player netgame</td>
+    <td>source</td>
+    <td>Finally got netplay to work! Many other changes.</td>
+  </tr>
+    <td>7</td>
+    <td><a href="https://mweiss001.itch.io/purple-martians">20180422</a></td> 
+    <td>WINXP/WIN7/WIN10/linux</td>
+    <td>5.2.4</td>
+    <td>MinGW-w64</td>
+    <td>Code::Blocks</td>
+    <td>Dynamically resizeable window and fullscreen</td>
+    <td>integrated</td>
+    <td>8 player netgame</td>
+    <td>binary</td>
+    <td>Ported to Allegro 5.</td>
+  </tr>
+</table>
+
+
+
+
+
+
+
+
+
+										</div>
+									</section>
+							</div>
+						</div>
+
+
+
+						<div class="row 200%">
+							<div class="12u">
+
+								<!-- Features -->
+									<section class="box features">
+										<h2 class="major"><span>Detailed Code Descriptions</span></h2>
+										<div>
+
+                                 <div style="text-align: center;"><a href="logo_spline.html" target="_top">Spinning spline text for splash screen</a></div>
+
+
+										</div>
+									</section>
+							</div>
+						</div>
+
+
+
+
+					</div>
+
+			<!-- Footer -->
+				<footer id="footer" class="container">
+					<div class="row 200%">
+						<div class="12u">
+
+							<!-- About -->
+								<section>
+
+                           <h2>Contact</h2> 
+
+                           <address>
+                           <a href="mailto:mweiss001@gmail.com">email Michael Weiss</a> 
+                           </address>
+
+								</section>
+
+						</div>
+					</div>
+
+
+
+					<!-- Copyright -->
+						<div id="copyright">
+							<ul class="menu">
+								<li>&copy; 2018 Michael Weiss. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+							</ul>
+						</div>
+
+				</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/skel-viewport.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

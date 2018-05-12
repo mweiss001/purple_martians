@@ -1091,6 +1091,95 @@ void proc_game_move(void)
    } // end of look back from entry pos
 }
 
+void serial_key_check(int key)
+{
+   skc[skc_index] = key;
+   skc_index++;
+   if (skc_index > 63) skc_index = 0;
+   skc[skc_index] = 0;
+
+//   printf("%s\n", skc);
+
+
+   char tst[16];
+   int tl = 0;
+
+   sprintf(tst, "test");
+   tl = strlen(tst);
+   if (skc_index > tl-1)
+   {
+      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+         printf("test matched!!!\n");
+
+   }
+
+   sprintf(tst, "ston");
+   tl = strlen(tst);
+   if (skc_index > tl-1)
+   {
+      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+         speed_testing = 1;
+   }
+
+   sprintf(tst, "stoff");
+   tl = strlen(tst);
+   if (skc_index > tl-1)
+   {
+      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+         speed_testing = 0;
+
+   }
+
+   if (ima_client)
+   {
+      sprintf(tst, "fakekey");
+      tl = strlen(tst);
+      if (skc_index > tl-1)
+      {
+         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+         {
+            players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
+            printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
+         }
+      }
+   }
+
+   if (game_exit)
+   {
+      sprintf(tst, "logview");
+      tl = strlen(tst);
+      if (skc_index > tl-1)
+      {
+         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+            log_file_viewer(1);
+
+      }
+   }
+
+   if (level_editor_running)
+   {
+      sprintf(tst, "spladj");
+      tl = strlen(tst);
+      if (skc_index > tl-1)
+      {
+         void spline_adjust(void);
+         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+            spline_adjust();
+
+      }
+
+      sprintf(tst, "spltest");
+      tl = strlen(tst);
+      if (skc_index > tl-1)
+      {
+         void spline_adjust(void);
+         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+            spline_test();
+
+      }
+   }
+}
+
 void set_controls_from_game_move(int p)
 {
    // this will search back from entry position until it finds the first 'move' type
@@ -1156,6 +1245,7 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
    if (ev.type == ALLEGRO_EVENT_KEY_CHAR)
    {
       Key_pressed_ASCII = ev.keyboard.unichar;
+      serial_key_check(Key_pressed_ASCII);
    }
    if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS)
    {
@@ -1205,12 +1295,14 @@ int proc_controllers()
 
    if (key[ALLEGRO_KEY_PRINTSCREEN]) key[ALLEGRO_KEY_PRINTSCREEN] = 0; // special exception to make PRINTSCREEN work
    Key_pressed_ASCII = 0;
+
    if (!fullscreen) // detect if window was moved
    {
       al_get_window_position(display, &l_spx, &l_spy);
       if ((l_spx != disp_x_curr) || (l_spy != disp_y_curr))
       proc_screen_change(disp_w_curr, disp_h_curr, l_spx, l_spy, fullscreen);
    }
+
    while (!done)
    {
       done = 1; // default
@@ -1218,7 +1310,6 @@ int proc_controllers()
       {
          ALLEGRO_EVENT ev;
          if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
-
          if (al_get_next_event(event_queue, &ev))
          {
             if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)

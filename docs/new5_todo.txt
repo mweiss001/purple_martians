@@ -2,11 +2,19 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+make my webpage part of the sources
+
+
+
+
 re-arrange levels and move less fun ones to the end...
+
+I want to have a very solid set of levels with no duds
 
 
 these are lame and should be segregated...
@@ -26,7 +34,9 @@ these are lame and should be segregated...
 19
 40
 
+what if I had an overiding script that chose the order of levels...
 
+start by moving lame ones to 50++
 
 
 
@@ -54,9 +64,44 @@ these are lame and should be segregated...
 ---------------------- Wish List ------------------------
 ---------------------------------------------------------
 
+end of level stats:
+
+number of:
+
+enemies left
+enemies killed
+bullets fired
+
+per player:
+enemies killed
+bullets fired
+damage taken
+health picked up
+
+
 
 make more items that help the puzzle aspect.
 like??
+
+a key and lock type thing where you need to bring the key to the lock
+
+companion cubes you can carry around
+to jump off or weigh down switches
+
+
+blocks that take more that one hit to clear
+
+helpless victims that you need to rescue by bringing them to a safe spot
+
+enemy that freezes when you look at it
+
+
+
+
+
+
+
+
 
 make more shapes for player, I don't like static shape whe jumping or falling
 

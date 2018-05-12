@@ -607,18 +607,12 @@ void read_game_step_from_packet(int x, int clf_check)
 void client_timer_adjust(void)
 {
    int p = active_local_player;
-
    if (passcount == players1[p].last_sdat_lpc)  // only if just received sdat; use for sync
    {
       players1[p].server_sync = players1[p].last_sdat_fpc - passcount;
       int fps_chase = passcount_timer_fps + players1[p].server_sync - server_lead_frames;
       if (fps_chase < 4) fps_chase = 4; // never let this go negative
-      //install_int_ex(inc_timer_passcount, BPS_TO_TIMER(fps_chase)); // adjust timer
-
       al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
-
-      //fps_timer = al_create_timer(1/(float)passcount_timer_fps);
-
       if (L_LOGGING_NETPLAY_client_timer_adjust)
       {
          #ifdef LOGGING_NETPLAY_client_timer_adjust

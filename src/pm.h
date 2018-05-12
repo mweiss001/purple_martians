@@ -109,6 +109,9 @@ extern int level_display_region_y;
 extern int level_display_region_w;
 extern int level_display_region_h;
 
+extern char skc[64];
+extern int skc_index;
+
 
 extern int les; // level editor scale
 
@@ -907,7 +910,6 @@ int find_closest_player(int EN);
 void fire_enemy_bulleta(int EN, int , int p);
 int find_closest_player_quad(int EN, int quad, int prox);
 void draw_lift_lines(void);
-int load_level(int level_to_load, int);
 
 int construct_lift(int, char *, int, int, int, int);
 int construct_lift_step(int, int, int, int, int, int);
@@ -1319,6 +1321,8 @@ void level_viewer(void);
 
 
 // all from yfilecom.cpp
+
+void zero_level_data(void);
 void make_filename(int x);
 int load();
 int save();

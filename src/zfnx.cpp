@@ -1969,8 +1969,8 @@ void temp_test(void)
 
                void spline_adjust(void);
    //            void mdw_an(void);
-//               spline_test();
-               spline_adjust();
+               spline_test();
+//               spline_adjust();
 
 
 

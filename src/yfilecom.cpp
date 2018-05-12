@@ -196,6 +196,38 @@ int load_sprit(void)
    if (sprit_load_error) return 0;
    else return 1;
 }
+
+void zero_level_data(void)
+{
+   for (int c=0; c<100; c++)    // blocks
+      for (int x=0; x<100; x++)
+           l[c][x] = 0;
+
+
+   for (int c=0; c<500; c++)  // items
+   {
+      if (item[c][0] == 10) free (pmsg[c]);
+      for (int x=0; x<16; x++) item[c][x] = 0;
+      for (int x=0; x<4; x++) itemf[c][x] = al_itofix(0);
+   }
+   for (int c=0; c<100; c++)
+   {
+      for (int x=0; x<16; x++)  Efi[c][x] = al_itofix(0); // enemy al_fixed
+      for (int x=0; x<32; x++)  Ei[c][x] = 0;          // enemy ints
+   }
+   for (int c=0; c<40; c++) // lifts
+   {
+      clear_lift(c);
+      for (int x=0; x<40; x++)
+         clear_lift_step(c,x);
+   }
+   for (int x=0; x<20; x++)
+      level_header[x] = 0;
+
+}
+
+
+
 int load_level(int level_to_load, int display)
 {
    display = 0; // force display on or off
@@ -208,34 +240,9 @@ int load_level(int level_to_load, int display)
    int loop, ch, c, x, y;
    char buff[2000];
 
-   // erase all old data
-
    //printf("load level\n");
 
-
-   for (c=0; c<100; c++)    // blocks
-      for (x=0; x<100; x++)
-           l[c][x] = 0;
-
-   for (c=0; c < 500; c++)  // items
-   {
-      if (item[c][0] == 10) free (pmsg[c]);
-      for (x=0; x<16; x++)
-         item[c][x] = 0;
-   }
-   for (c=0; c < 100; c++)
-   {
-      for (x=0; x<16; x++)  Efi[c][x] = al_itofix(0); // enemy al_fixed
-      for (x=0; x<32; x++)  Ei[c][x] = 0;          // enemy ints
-   }
-   for (c = 0; c < level_header[5]; c++) // lifts
-   {
-      for (x = 0; x<lifts[c].num_steps; x++)
-         clear_lift_step(c,x);
-      clear_lift(c);
-   }
-   for (x=0; x<20; x++)
-      level_header[x] = 0;
+   zero_level_data();
 
    while (level_to_load > 1000) level_to_load -= 1000;
 
@@ -340,12 +347,12 @@ int load_level(int level_to_load, int display)
               ch = fgetc(filepntr);
               while((ch != '\n') && (ch != EOF))
               {
-                  if (ch != 13) // igonore and don't add if 13 ( needed for linux)
-                  {
-                     buff[loop] = ch;
-                     loop++;
-                  }
-                  ch = fgetc(filepntr);
+                 if (ch != 13) // ignore and don't add if 13 ( needed for linux)
+                 {
+                    buff[loop] = ch;
+                    loop++;
+                 }
+                 ch = fgetc(filepntr);
               }
               buff[loop] = 0;
               pmsg[c] = (char*) malloc (strlen(buff)+1);
@@ -570,11 +577,11 @@ int mw_file_select(const char * title, char * fn, const char * ext, int save)
    char wext[100];
    sprintf(wext, "*%s", ext);
 
-   printf("fn:%s\n", fn);
+   //printf("fn:%s\n", fn);
    // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fn);
    sprintf(fn, "%s", al_get_fs_entry_name(FS_fname));
-   printf("FS_fn:%s\n", fn);
+   //printf("FS_fn:%s\n", fn);
    ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fn, title, wext, mode);
    if (afc==NULL) printf("failed to create native filechooser dialog\n");
 
@@ -588,7 +595,7 @@ int mw_file_select(const char * title, char * fn, const char * ext, int save)
          //enforce extension
          if (save)
          {
-            printf("save file name and path is:%s\n", fn);
+            //printf("save file name and path is:%s\n", fn);
             ALLEGRO_PATH *tp = al_create_path(fn);
             const char * pfn = al_get_path_filename(tp);
             if (pfn == NULL)
@@ -597,7 +604,7 @@ int mw_file_select(const char * title, char * fn, const char * ext, int save)
                al_destroy_native_file_dialog(afc);
                return 0;
             }
-            printf("save file name is:%s\n", pfn);
+            //printf("save file name is:%s\n", pfn);
 
 
             const char * pfe = al_get_path_extension(tp);
@@ -613,9 +620,9 @@ int mw_file_select(const char * title, char * fn, const char * ext, int save)
                al_set_path_extension(tp, ext);
             }
 
-            printf("extension is:%s\n", pfe);
+            //printf("extension is:%s\n", pfe);
             sprintf(fn, "%s", al_path_cstr(tp, ALLEGRO_NATIVE_PATH_SEP));
-            printf("final path and filename is:%s\n", fn);
+            //printf("final path and filename is:%s\n", fn);
 
          }
 
@@ -623,7 +630,7 @@ int mw_file_select(const char * title, char * fn, const char * ext, int save)
          return 1;
       }
    }
-   else printf("file select cancelled\n" );
+   //else printf("file select cancelled\n" );
    al_destroy_native_file_dialog(afc);
    return 0;
 }
