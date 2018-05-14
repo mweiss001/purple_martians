@@ -79,7 +79,7 @@ void show_all_items(void)
    test_items();
    int text_pos = 0;
 
-   int num_items = item_sort();
+   int num_items = sort_item();
    text_pos = item_data(10, text_pos);
 
    for (int i=0; i<num_items; i++)
@@ -115,7 +115,7 @@ void show_all_items(void)
 }
 
 
-int item_sort(void)
+int sort_item(void)
 {
    // to not break linked items
    for (int c=0; c < 500; c++)
@@ -1519,7 +1519,7 @@ void object_viewer(int obt, int num)
                if (obt==2)
                {
                   erase_item(num);
-                  item_sort();
+                  sort_item();
                   if (num >= item_first_num[type]+item_num_of_type[type]) num--;
                   if (item_num_of_type[type] < 1) quit = 1;
                }

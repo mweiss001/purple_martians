@@ -8,7 +8,7 @@ extern int lit_item;
 
 int item_data(int x_pos, int y_pos)
 {
-   int inum = item_sort();
+   int inum = sort_item();
    al_draw_textf(font, palette_color[12], x_pos, y_pos, 0, "%d Items", inum); y_pos += 8;
    al_draw_textf(font, palette_color[12], x_pos, y_pos, 0, "--------"); y_pos += 8;
    al_draw_textf(font, palette_color[13], x_pos, y_pos, 0, "%d Starts",  item_num_of_type[5]); y_pos += 8;
@@ -134,9 +134,10 @@ void draw_pop_message(int c)
    int py2 = py1 + (num_lines+3) * 8; // bottom edge is set from number of lines of text
 
    int fc = item[c][9];               // frame color
-   for (int a=0; a<8; a++)            // frame
+   for (int a=0; a<12; a++)            // frame
       //al_draw_rectangle(px1+a, py1+a, px2-a, py2-a, palette_color[fc+a*16], 1);
-      al_draw_rounded_rectangle(px1+a, py1+a, px2-a, py2-a, 4, 4, palette_color[fc+a*16], 2);
+//      al_draw_rounded_rectangle(px1+a, py1+a, px2-a, py2-a, 4, 4, palette_color[fc+a*16], 2);
+      al_draw_filled_rounded_rectangle(px1+a, py1+a, px2-a, py2-a, 4, 4, palette_color[fc+a*16]);
 
    int tc = item[c][8];               // text color
    for (row=0; row<=num_lines; row++) // text

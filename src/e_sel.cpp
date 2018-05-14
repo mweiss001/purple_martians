@@ -126,7 +126,7 @@ int load_selection(void)
             ch = fgetc(filepntr);
             while((ch != '\n') && (ch != EOF))
             {
-               if (ch == 126) ch = 13;
+               //if (ch == 126) ch = 13;
                buff[loop] = ch;
                loop++;
                ch = fgetc(filepntr);
@@ -656,7 +656,7 @@ void do_fcopy(int qx1, int qy1)
       } // end of iterate items ft
    } // end of if copy items
    sort_enemy();
-   item_sort();
+   sort_item();
    draw_big(1);
 }
 
@@ -943,7 +943,7 @@ void do_rnd(void)
 
                   }
    sort_enemy();
-   item_sort();
+   sort_item();
 
 }
 
@@ -986,7 +986,7 @@ void do_clear(void)
          if ((lifts[b].x1 >= x1) && (lifts[b].x1 < x2))
             if ((lifts[b].y1 >= y1) && (lifts[b].y1 < y2)) erase_lift(b);
 
-   item_sort();
+   sort_item();
    sort_enemy();
    draw_big(1);
 }
@@ -1048,8 +1048,7 @@ void draw_fsel(void)
            al_draw_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color+((9-a)*16)], 1 );
          al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color]);
          al_draw_text(font, palette_color[color+160], tx, ty, ALLEGRO_ALIGN_CENTER, ft_ln[d]);
-
-      } // end of if active
+      }
    al_destroy_bitmap(ft_bmp);
    ft_bmp = al_create_bitmap(ft_w, ft_h);
    al_set_target_bitmap(ft_bmp);

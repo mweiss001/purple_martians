@@ -804,7 +804,7 @@ extern char level_filename[80];
 
 extern char global_string[20][25][80];
 
-extern char* pmsg[500];
+extern char *pmsg[500];
 
 int load_help(void);
 
@@ -990,7 +990,7 @@ void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int item
 
 
 
-int item_sort(void);
+int sort_item(void);
 void sort_enemy(void);
 int save_level(int );
 void load_sound();

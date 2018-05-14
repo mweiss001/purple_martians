@@ -1168,7 +1168,7 @@ void serial_key_check(int key)
 
       }
 
-      sprintf(tst, "spltest");
+      sprintf(tst, "sptst");
       tl = strlen(tst);
       if (skc_index > tl-1)
       {

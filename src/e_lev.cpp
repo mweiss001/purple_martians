@@ -432,7 +432,7 @@ void load_visual_level_select(void)
 
    // level range to look for
    int lll = 1; // lower level limit
-   int ull = 50; // upper level limit
+   int ull = 99; // upper level limit
 
 /*   int lll = 190; // lower level limit
    int ull = 250; // upper level limit

@@ -260,6 +260,20 @@ Ef[y][9] = 0;
 */
 
 /*
+     if (le[x] == 61)
+      for (int y=0; y<500; y++)
+         if (item[y][0] == 1) // door only
+            if (item[y][6] == 8) // color 8 only
+               if (item[y][8] == 1) // linked only
+               {
+                    printf("lev%d door:%d move_type:%d\n", le[x], y, item[y][7] );
+
+                    item[y][7] = 1;
+               }
+
+*/
+
+/*
 
       for (int y=0; y<500; y++)
          if (item[y][0] == 14) // switch only
@@ -478,6 +492,8 @@ Ef[y][9] = 0;
 
 */
 /*
+
+
       for (y=0; y<500; y++)
          if (item[y][0] == 2)
          {

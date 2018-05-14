@@ -818,12 +818,13 @@ int zoom_full_screen(int wx, int wy, int draw_item)
          {
             x2 = x1 + ft_level_header[8];
             y2 = y1 + ft_level_header[9];
-            if (x2 > 99) x2 = 99;
-            if (y2 > 99) y2 = 99;
+            if (x2 > 100) x2 = 100;
+            if (y2 > 100) y2 = 100;
 
             al_set_clipping_rectangle(0, 0, les*db*100-1, les*db*100-1);
             al_draw_bitmap(ft_bmp, x1*db, y1*db, 0);
             al_draw_text(font, palette_color[42], x1*db+2, y1*db-11, 0, "paste selection");
+            //al_draw_textf(font, palette_color[42], x1*db+2, y1*db-19, 0, "%d %d %d %d", x1, y1, x2, y2);
             al_draw_rectangle(x1*db, y1*db, x2*db-1, y2*db-1, palette_color[10], 1);
             al_reset_clipping_rectangle();
 
@@ -989,7 +990,7 @@ int edit_menu(int el)
    draw_big(1);
 
    sort_enemy();
-   item_sort();
+   sort_item();
 
    draw_item_type = 1;
    draw_item_num  = 0;
@@ -1152,7 +1153,7 @@ int edit_menu(int el)
                   pmsg[c] = (char*) malloc (strlen(pmsg[draw_item_num])+1);
                   strcpy(pmsg[c], pmsg[draw_item_num]);
                }
-               item_sort();
+               sort_item();
                draw_big(1);
             break;
             case 3:    // enemy
@@ -1216,7 +1217,7 @@ int edit_menu(int el)
                item[d][0] -= 100;
                item[d][4] = x100*20;
                item[d][5] = y100*20;
-               item_sort();
+               sort_item();
                draw_big(1);
             }
             if (PDEi[draw_item_num][0] < 99) // put enemy
@@ -1322,7 +1323,7 @@ int edit_menu(int el)
                      }
                      for (a=0; a<16; a++)
                         item [point_item_num][a] = 0;
-                     item_sort();
+                     sort_item();
                   break;
                   case 3: // zero enemy
                      // are you deleting the draw item
@@ -1381,7 +1382,7 @@ int edit_menu(int el)
                load();
                set_wx_from_start_block();
                sort_enemy();
-               item_sort();
+               sort_item();
                draw_big(1);
             break;
             case 12: // save level

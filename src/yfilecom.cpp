@@ -55,7 +55,7 @@ int save()
       g[2] = level_filename[len-5];
       g[3] = 0;
       num = atoi(g);
-      level_header[3] = item_sort(); // num_of_items
+      level_header[3] = sort_item(); // num_of_items
 
       sort_enemy();
       level_header[4] = num_enemy; // num_of_enemies
@@ -206,26 +206,35 @@ void zero_level_data(void)
 
    for (int c=0; c<500; c++)  // items
    {
-      if (item[c][0] == 10) free (pmsg[c]);
+      if (item[c][0] == 10)
+      {
+         free (pmsg[c]);
+         pmsg[c] = NULL;
+      }
       for (int x=0; x<16; x++) item[c][x] = 0;
       for (int x=0; x<4; x++) itemf[c][x] = al_itofix(0);
    }
+   sort_item();
+
    for (int c=0; c<100; c++)
    {
       for (int x=0; x<16; x++)  Efi[c][x] = al_itofix(0); // enemy al_fixed
       for (int x=0; x<32; x++)  Ei[c][x] = 0;          // enemy ints
    }
+   sort_enemy();
+
    for (int c=0; c<40; c++) // lifts
    {
       clear_lift(c);
       for (int x=0; x<40; x++)
          clear_lift_step(c,x);
    }
+   num_lifts = 0;
+
    for (int x=0; x<20; x++)
       level_header[x] = 0;
 
 }
-
 
 
 int load_level(int level_to_load, int display)
@@ -509,7 +518,7 @@ int save_level(int level_to_save)
    extern int level_num;
    level_num = level_to_save;
 
-   level_header[3] = item_sort(); // num_of_items
+   level_header[3] = sort_item(); // num_of_items
    sort_enemy();
    level_header[4] = num_enemy; // num_of_enemies
    level_header[5] = num_lifts;

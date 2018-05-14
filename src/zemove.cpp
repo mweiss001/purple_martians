@@ -7,7 +7,6 @@ int EXint, EYint, EN;
 
 void enemy_killed(int EN);
 void enemy_player_hit_proc(int EN);
-
 int enemy_data(int x_pos, int y_pos)
 {
    extern int e_num_of_type[50];
@@ -35,15 +34,10 @@ void get_enemy_draw_shape(int e)
 
    al_set_target_bitmap(dtemp);
    al_clear_to_color(palette_color[0]);
-   float rot = al_fixmul(Efi[e][14], al_fixtorad_r);
+   float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
    al_draw_rotated_bitmap(memory_bitmap[Ei[e][1]], 10, 10, 10, 10, rot, flags);
-
 //   if (Ei[e][0] == 8) // show trakbot mode
-//   {
-//      sprintf(msg, "%d" ,Ei[e][5] );
-//      textout_centre_ex(dtemp, font, msg, 10, 6, palette_color[10], 0); // red
-//   }
-
+//      al_draw_textf(font, palette_color[10], 10, 6, ALLEGRO_ALIGN_CENTER, "%d" ,Ei[e][5] );
 }
 
 

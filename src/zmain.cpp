@@ -393,8 +393,7 @@ int level_num;
 char level_filename[80];
 
 int level_header[20];
-char* pmsg[500];
-
+char *pmsg[500] = { NULL };
 
 int zz[20][NUM_ANS];
 int passcount;
@@ -1520,6 +1519,7 @@ void game_menu(void)
          // restore menu items
          set_start_level(play_level);
          set_speed();
+
          pm_main();
       }
 

@@ -4050,12 +4050,129 @@ does it work with CAPS?? ..NO
 done...
 
 
+new level does not blank the number of lifts...fixed
+
+new level has bad pmsg data
+fixed method of declaring pmsg pointer and freeing and setting to NULL
+
+
+Should I make pmsg not have clear center?? yes...
+
+
+i messed with pmsg and now I get crashes and I'm not sure why
+
+this was the code used to erase level data..
+
+if (item[c][0] == 10) free (pmsg[c]);
+i didn't like it because it didn't reset the pointer to NULL
+
+I replaced it with:
+if (pmsg[c] != NULL)
+{
+   free (pmsg[c]);
+   pmsg[c] = NULL;
+}
+
+and then just:
+free (pmsg[c]);
+pmsg[c] = NULL;
+
+because if it's NULL, free() should not do anything
+
+I get random crashes and I don't like it, so I went back to the original plus this:
+
+if (item[c][0] == 10)
+{
+   free (pmsg[c]);
+   pmsg[c] = NULL;
+}
 
 
 
+trakbot initial direction button works, but the rotated display in enemy viewer is wrong...fixed
+
+sel outline rect too small when at rl edges..fixed
+
+make my webpage part of the sources
+
+re-arrange levels and move less fun ones to the end...
+
+I want to have a very solid set of levels with no duds
+
+these are lame and should be segregated...
+
+5
+6
+7
+8
+9
+10
+11
+12
+15
+16
+18
+19
+40
+
+what if I had an overiding script that chose the order of levels...
+
+start by moving lame ones to 50++
+
+
+did a lot of that...
+
+need to make the demo's line up
+
+
+what if I gave all my levels names like anything.pml
+
+then I made an array of playable levels
+that would end my renaming bullshit
 
 
 
+hard code into the program:
+for each:
+
+filenames
+title
+description
+
+
+make a playlist of levels
+
+int level_playlist[400]
+
+this gets iterated through when playing
+and is used by visual_level_select()
+
+level_num is an index into this
+
+how about do this, but still use numbers for levels
+
+menu item "level set"
+LEVEL SET:TRAINER
+LEVEL SET:MAIN
+LEVEL SET:EXTRA
+LEVEL SET:ALL
+
+
+
+This is what I actually did.
+
+I made 3 levels that I call trainers and moved them to 90, 91, 92
+
+I made a warp there and back from level 1
+
+I think it works good enough...
+
+made some more changes to the levels and then are looking good.
+
+1 - trainer select
+2-24 main levels
+50-64 extra levels
+90-93 training levels
 
 
 

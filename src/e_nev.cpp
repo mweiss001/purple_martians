@@ -34,7 +34,7 @@ int get_empty_item(int type) // finds, sets type, sorts, refinds
          item[mt][0] = type; // set type
          item[mt][9] = 9999; // mark to find after sort !!
          if (item[mt][0] == 10) pmsg[mt] = (char*) malloc(2); // to prevent empty message crashes
-         item_sort();
+         sort_item();
          mt = 0;
          while ((mt < 500) && (item[mt][9] != 9999)) mt++;
          item[mt][9] = 0; // remove mark
@@ -483,6 +483,10 @@ void show_all_pmsg(void)
    int text_pos = 0;
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_draw_text(font, palette_color[15], 20, text_pos, 0, "List of pmsg:");
+   text_pos +=8;
+
    for (int i=0; i<500; i++)
    {
       if (pmsg[i] != NULL)
@@ -505,7 +509,7 @@ void show_all_pmsg(void)
             {
                al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "[%d][%d]", j, pmsg[i][j]);
 
-               if (pmsg[i][j] == 13)
+               if (pmsg[i][j] == 126)
                {
                   lines++;
                   if (tlc > mll) mll = tlc;
@@ -513,6 +517,7 @@ void show_all_pmsg(void)
                }
                else tlc++;
             }
+            if (tlc > mll) mll = tlc;
             al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "[%2d] len:%3d lines:%2d max length:%2d", i, len, lines, mll);
             text_pos +=8;
 
@@ -1127,7 +1132,7 @@ int create_door(int type)
 
       break;
    }
-   return item_sort();
+   return sort_item();
 }
 
 
@@ -1150,7 +1155,7 @@ int create_item(int type)
       case 10: if (!create_pmsg(c))        erase_item(c); break;
    }
 
-   item_sort();
+   sort_item();
    c = item_first_num[type]+item_num_of_type[type]-1;
    draw_big(1);
    show_big();

@@ -2,48 +2,17 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+sometimes I see trails in level_buffer when stimp/stamp or screen change
+hard to reproduce..
+
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-make my webpage part of the sources
+fix demos
 
-
-
-
-re-arrange levels and move less fun ones to the end...
-
-I want to have a very solid set of levels with no duds
-
-
-these are lame and should be segregated...
-
-
-5
-6
-7
-8
-9
-10
-11
-12
-15
-16
-18
-19
-40
-
-what if I had an overiding script that chose the order of levels...
-
-start by moving lame ones to 50++
-
-
-
-
-
-
-
+auto create dir sel, like logs
 
 
 ---------------------------------------------------------
