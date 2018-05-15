@@ -525,9 +525,6 @@ int init_screen(void)
 //   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
 
 
-
-
-
    al_set_new_display_flags(flags);
    display = al_create_display(disp_w_wind, disp_h_wind);//
    if(!display)
@@ -568,13 +565,13 @@ int init_screen(void)
    return 1;
 }
 
-void get_new_background(void)
+void get_new_background(int full)
 {
    al_set_target_bitmap(level_buffer);
-//   al_draw_bitmap(l2000, 0, 0, 0);
-   if (game_exit) al_draw_bitmap(l2000, 0, 0, 0);
+   if (full) al_draw_bitmap(l2000, 0, 0, 0);
    else
    {
+      // this only grabs the visible region, in the interests of speed
       int x = level_display_region_x - 20; if (x < 0) x = 0;
       int y = level_display_region_y - 20; if (y < 0) y = 0;
       int w = level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
@@ -583,9 +580,276 @@ void get_new_background(void)
    }
 }
 
+
+void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor);
+
+void stimp(void)
+{
+   // transition from menu to game
+   al_set_target_backbuffer(display);
+   int num_steps = 40;
+   float delay = .01;
+
+   // find the size of the source screen from actual screen size and scaler
+   extern float scale_factor_current;
+   int bw = BORDER_WIDTH;
+   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
+   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
+
+   if (SW > 2000) SW = 2000;
+   if (SH > 2000) SH = 2000;
+
+   // find where to grab the source screen from based on the players position
+   int alp = active_local_player;
+   int PX = al_fixtoi(players[alp].PX) + 10;
+   int PY = al_fixtoi(players[alp].PY) + 10;
+
+   // this method has a hysteresis rectangle in the middle of the screem where there is no scroll
+   int x_size = SW / 18; // larger number is smaller window
+   int y_size = SH / 18;
+   if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size;
+   if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size;
+   if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size;
+   if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size;
+
+   // correct for edges
+   if (WX < 0) WX = 0;
+   if (WY < 0) WY = 0;
+   if (WX > (2000 - SW)) WX = 2000 - SW;
+   if (WY > (2000 - SH)) WY = 2000 - SH;
+
+   // this is where the player will be when stimp is done and the level starts
+   PX = al_fixtoi(players[alp].PX);
+   PY = al_fixtoi(players[alp].PY);
+
+   float px_final = (PX-WX) * scale_factor_current + bw;
+   float py_final = (PY-WY) * scale_factor_current + bw;
+
+
+   // offset if entire level is smaller than screen
+   int sbw = SCREEN_W-bw*2;
+   int sbh = SCREEN_H-bw*2;
+
+   // how big is the entire level after scale factor is applied?
+   extern float scale_factor_current;
+   int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
+
+   // is the entire level smaller than the screen buffer width?
+   if (sls < sbw)
+   {
+      int a = sbw - sls; // how much smaller?
+      px_final += a/2;
+
+   }
+   // is the entire level smaller than the screen buffer height?
+   if (sls < sbh)
+   {
+      int a = sbh - sls; // how much smaller?
+      py_final += a/2;
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   // this is the menu map's position and size
+   y_size = SCREEN_H-160;
+   x_size = SCREEN_W-260;
+   int size;
+   if (y_size < x_size) size = y_size;
+   else size = x_size;
+   if (size < 10) size = 10;
+   int mx = SCREEN_W/2-(size/2);
+   int my = 140;
+
+   // get the players position on the menu map
+   int map_px = mx + PX * size / 2000;
+   int map_py = my + PY * size / 2000;
+
+
+   float sc = (float)size / 2000;
+   float scf = scale_factor_current;
+   // do the scale increment as a percent change so that the zoom speed is constant
+   // use the compound interest formula to find the percent change per step I need
+   float a, per = 1.000;
+   do
+   {
+       per += .0001;
+       a = sc * pow(per, num_steps);
+   }
+   while (a < scf);
+
+   float fmx = (float)map_px;
+   float fmxf = px_final;
+   float fmxinc = (fmxf - fmx) / num_steps;
+
+   float fmy = (float)map_py;
+   float fmyf = py_final;
+   float fmyinc = (fmyf - fmy) / num_steps;
+
+   for (int steps = 0; steps<num_steps; steps++)
+   {
+      al_clear_to_color(al_map_rgb(0,0,0));
+      draw_level_centered((int)fmx, (int)fmy, PX, PY,  sc);
+      al_flip_display();
+      sc *= per;
+      fmx += fmxinc;
+      fmy += fmyinc;
+      al_rest(delay);
+   }
+}
+
+
+void stamp(void)
+{
+   // transition from game to menu
+
+   draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
+
+   int num_steps = 40;
+   float delay = .01;
+
+   // find the size of the source screen from actual screen size and scaler
+   extern float scale_factor_current;
+   int bw = BORDER_WIDTH;
+   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
+   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
+   if (SW > 2000) SW = 2000;
+   if (SH > 2000) SH = 2000;
+
+   // find where to grab the source screen from based on the players position
+   int alp = active_local_player;
+   int PX = al_fixtoi(players[alp].PX) + 10;
+   int PY = al_fixtoi(players[alp].PY) + 10;
+
+   // this method has a hysteresis rectangle in the middle of the screem where there is no scroll
+   int x_size = SW / 18; // larger number is smaller window
+   int y_size = SH / 18;
+   if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size;
+   if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size;
+   if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size;
+   if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size;
+
+   // correct for edges
+   if (WX < 0) WX = 0;
+   if (WY < 0) WY = 0;
+   if (WX > (2000 - SW)) WX = 2000 - SW;
+   if (WY > (2000 - SH)) WY = 2000 - SH;
+
+   // this is where the player will be when stimp is done and the level starts
+   PX = al_fixtoi(players[alp].PX);
+   PY = al_fixtoi(players[alp].PY);
+
+   float px_final = (PX-WX) * scale_factor_current + bw;
+   float py_final = (PY-WY) * scale_factor_current + bw;
+
+
+
+   // offset if entire level is smaller than screen
+   int sbw = SCREEN_W-bw*2;
+   int sbh = SCREEN_H-bw*2;
+
+   // how big is the entire level after scale factor is applied?
+   extern float scale_factor_current;
+   int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
+
+   // is the entire level smaller than the screen buffer width?
+   if (sls < sbw)
+   {
+      int a = sbw - sls; // how much smaller?
+      px_final += a/2;
+
+   }
+   // is the entire level smaller than the screen buffer height?
+   if (sls < sbh)
+   {
+      int a = sbh - sls; // how much smaller?
+      py_final += a/2;
+   }
+
+
+
+
+
+
+
+   // this is the menu map's position and size
+   y_size = SCREEN_H-160;
+   x_size = SCREEN_W-260;
+   int size;
+   if (y_size < x_size) size = y_size;
+   else size = x_size;
+   if (size < 10) size = 10;
+   int mx = SCREEN_W/2-(size/2);
+   int my = 140;
+
+   // get the players position on the menu map
+   int map_px = mx + PX * size / 2000;
+   int map_py = my + PY * size / 2000;
+
+   float sc = scale_factor_current;
+   float scf = (float)size / 2000;
+
+   // do the scale increment as a percent change so that the zoom speed is constant
+   // use the compound interest formula to find the percent change per step I need
+   float a, per = 1.000;
+   do
+   {
+       per -= .0001;
+       a = sc * pow(per, num_steps);
+   }
+   while (a > scf);
+
+   float fmx = px_final;
+   float fmxf = (float)map_px;
+   float fmxinc = (fmxf - fmx) / num_steps;
+
+   float fmy = py_final;
+   float fmyf = (float)map_py;
+   float fmyinc = (fmyf - fmy) / num_steps;
+
+   for (int steps = 0; steps<num_steps; steps++)
+   {
+      al_clear_to_color(al_map_rgb(0,0,0));
+      draw_level_centered((int)fmx, (int)fmy, PX, PY,  sc);
+      al_flip_display();
+      sc *= per;
+      fmx += fmxinc;
+      fmy += fmyinc;
+      al_rest(delay);
+   }
+}
+
+
+
+
+
 void get_new_screen_buffer(void)
 {
-
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
@@ -633,20 +897,13 @@ void get_new_screen_buffer(void)
    int PX = al_fixtoi(players[alp].PX) + 10;
    int PY = al_fixtoi(players[alp].PY) + 10;
 
-/*   // this method always has the player in the middle of the screen
-   int WX = PX - SW/2 -10; // set window from PX, PY
-   int WY = PY - SH/2 -10;
-*/
+   // this method always has the player in the middle of the screen
+   //int WX = PX - SW/2 -10; // set window from PX, PY
+   //int WY = PY - SH/2 -10;
 
    // this method has a hysteresis rectangle in the middle of the screen where there is no scroll
-   // show this at end of function after we get scrn buffer....
-
    int x_size = SW / 8; // larger number is smaller window
    int y_size = SH / 12;
-
-//   int x_size = SW / 18; // larger number is smaller window
-//   int y_size = SH / 18;
-
 
    if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size; // hit right edge
    if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size; // hit left edge
@@ -658,7 +915,6 @@ void get_new_screen_buffer(void)
    if (WY < 0) WY = 0;
    if (WX > (2000 - SW)) WX = 2000 - SW;
    if (WY > (2000 - SH)) WY = 2000 - SH;
-
 
    // used by get_new_background to only get what is needed
    level_display_region_x = WX;
@@ -701,11 +957,6 @@ void get_new_screen_buffer(void)
 
 
 }
-
-
-
-
-
 
 void set_map_var(void)
 {
@@ -842,7 +1093,6 @@ void set_scale_factor(int instant)
 }
 
 
-
 void init_l2000(void) // fill l2000 with blocks and lift lines (called by load_level only and level editor)
 {
    //printf("init_l2000\n");
@@ -858,14 +1108,9 @@ void init_l2000(void) // fill l2000 with blocks and lift lines (called by load_l
    draw_lift_lines();
 }
 
-void draw_ebullets(void);
-void draw_pbullets(void);
-
-
 void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)
 {
-
-   if (blocks) get_new_background();
+   if (blocks) get_new_background(1);
    if (valid_level_loaded)
    {
       if (lifts)   draw_lifts();
@@ -882,8 +1127,6 @@ void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int item
    else al_set_target_bitmap(b);
    al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mx, my, ms, ms, 0);
 }
-
-
 
 void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor)
 {
@@ -938,51 +1181,6 @@ void draw_level(void) // draws the map on the menu screen
    else al_draw_text(font, palette_color[10], tmtx, tmty, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
 }
 
-
-
-void old_draw_title(int tx, int ty, int color)
-{
-   //sprintf(msg, "Purple Martians!");// default title
-   sprintf(msg, "%s Martians!", color_name[color]); // overwrite with color name
-
-   // draw the big fancy title on its own bitmap
-   ALLEGRO_BITMAP *pm_title = al_create_bitmap(280,20);
-   ALLEGRO_BITMAP *temp_title = al_create_bitmap(140,8);
-
-
-   // outer most faded 0-4
-   al_set_target_bitmap(temp_title);
-   al_draw_text(font, palette_color[color+192], 70, 0, ALLEGRO_ALIGN_CENTRE, msg);
-   al_set_target_bitmap(pm_title);
-   for (int x=0; x<5; x++)
-      for (int y=0; y<5; y++)
-         al_draw_scaled_bitmap(temp_title, 0, 0, 140, 8, x, y, 280, 16, 0);
-
-   // next ring in (1 and 3)
-   al_set_target_bitmap(temp_title);
-   al_draw_text(font, palette_color[color+128], 70, 0, ALLEGRO_ALIGN_CENTRE, msg);
-   al_set_target_bitmap(pm_title);
-   al_draw_scaled_bitmap(temp_title, 0, 0, 140, 8, 1, 1, 280, 16, 0);
-   al_draw_scaled_bitmap(temp_title, 0, 0, 140, 8, 1, 3, 280, 16, 0);
-   al_draw_scaled_bitmap(temp_title, 0, 0, 140, 8, 3, 1, 280, 16, 0);
-   al_draw_scaled_bitmap(temp_title, 0, 0, 140, 8, 3, 3, 280, 16, 0);
-
-   // top inner ring (2 only)
-   al_set_target_bitmap(temp_title);
-   al_draw_text(font, palette_color[color], 70, 0, ALLEGRO_ALIGN_CENTRE, msg);
-   al_set_target_bitmap(pm_title);
-   al_draw_scaled_bitmap(temp_title, 0, 0, 140, 8, 2, 2, 280, 16, 0);
-
-
-   al_set_target_backbuffer(display);
-   al_draw_bitmap(pm_title, tx, ty, 0);
-
-   al_destroy_bitmap(pm_title);
-   al_destroy_bitmap(temp_title);
-}
-
-
-
 void frame_and_title(int show_players)
 {
    int p = active_local_player;
@@ -993,7 +1191,6 @@ void frame_and_title(int show_players)
       al_draw_rectangle(x+0.5f, x+0.5f, (SCREEN_W-1-x)+0.5f, (SCREEN_H-1-x)+0.5f,  palette_color[color + (x * 16)], 1);
 
    // draw the title on top on the border
-   //draw_title((SCREEN_W/2)-140, 2, color);
    draw_title(SCREEN_W/2, 2, 322, 32, color);
 
    // draw the version text centered on the bottom of the border
@@ -1047,180 +1244,6 @@ void frame_and_title(int show_players)
 }
 
 
-void stimp(void)
-{
-   al_set_target_backbuffer(display);
-   int num_steps = 20;
-   float delay = .002;
-
-   // find the size of the source screen from actual screen size and scaler
-   extern float scale_factor_current;
-   int bw = BORDER_WIDTH;
-   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
-   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
-
-   if (SW > 2000) SW = 2000;
-   if (SH > 2000) SH = 2000;
-
-   // find where to grab the source screen from based on the players position
-   int alp = active_local_player;
-   int PX = al_fixtoi(players[alp].PX) + 10;
-   int PY = al_fixtoi(players[alp].PY) + 10;
-
-   // this method has a hysteresis rectangle in the middle of the screem where there is no scroll
-   int x_size = SW / 18; // larger number is smaller window
-   int y_size = SH / 18;
-   if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size;
-   if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size;
-   if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size;
-   if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size;
-
-   // correct for edges
-   if (WX < 0) WX = 0;
-   if (WY < 0) WY = 0;
-   if (WX > (2000 - SW)) WX = 2000 - SW;
-   if (WY > (2000 - SH)) WY = 2000 - SH;
-
-   // this is where the player will be when stimp is done and the level starts
-   PX = al_fixtoi(players[alp].PX);
-   PY = al_fixtoi(players[alp].PY);
-
-   float px_final = (PX-WX) * scale_factor_current + bw;
-   float py_final = (PY-WY) * scale_factor_current + bw;
-
-   // this is the menu map's position and size
-   y_size = SCREEN_H-160;
-   x_size = SCREEN_W-260;
-   int size;
-   if (y_size < x_size) size = y_size;
-   else size = x_size;
-   if (size < 10) size = 10;
-   int mx = SCREEN_W/2-(size/2);
-   int my = 140;
-
-   // get the players position on the menu map
-   int map_px = mx + PX * size / 2000;
-   int map_py = my + PY * size / 2000;
-
-
-   float sc = (float)size / 2000;
-   float scf = scale_factor_current;
-   // do the scale increment as a percent change so that the zoom speed is constant
-   // use the compound interest formula to find the percent change per step I need
-   float a, per = 1.000;
-   do
-   {
-       per += .0001;
-       a = sc * pow(per, num_steps);
-   }
-   while (a < scf);
-
-   float fmx = (float)map_px;
-   float fmxf = px_final;
-   float fmxinc = (fmxf - fmx) / num_steps;
-
-   float fmy = (float)map_py;
-   float fmyf = py_final;
-   float fmyinc = (fmyf - fmy) / num_steps;
-
-   for (int steps = 0; steps<num_steps; steps++)
-   {
-      al_clear_to_color(al_map_rgb(0,0,0));
-      draw_level_centered((int)fmx, (int)fmy, PX, PY,  sc);
-      al_flip_display();
-      sc *= per;
-      fmx += fmxinc;
-      fmy += fmyinc;
-      al_rest(delay);
-   }
-}
-
-
-void stamp(void)
-{
-   int num_steps = 20;
-   float delay = .002;
-
-   // find the size of the source screen from actual screen size and scaler
-   extern float scale_factor_current;
-   int bw = BORDER_WIDTH;
-   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
-   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
-   if (SW > 2000) SW = 2000;
-   if (SH > 2000) SH = 2000;
-
-   // find where to grab the source screen from based on the players position
-   int alp = active_local_player;
-   int PX = al_fixtoi(players[alp].PX) + 10;
-   int PY = al_fixtoi(players[alp].PY) + 10;
-
-   // this method has a hysteresis rectangle in the middle of the screem where there is no scroll
-   int x_size = SW / 18; // larger number is smaller window
-   int y_size = SH / 18;
-   if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size;
-   if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size;
-   if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size;
-   if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size;
-
-   // correct for edges
-   if (WX < 0) WX = 0;
-   if (WY < 0) WY = 0;
-   if (WX > (2000 - SW)) WX = 2000 - SW;
-   if (WY > (2000 - SH)) WY = 2000 - SH;
-
-   // this is where the player will be when stimp is done and the level starts
-   PX = al_fixtoi(players[alp].PX);
-   PY = al_fixtoi(players[alp].PY);
-
-   float px_final = (PX-WX) * scale_factor_current + bw;
-   float py_final = (PY-WY) * scale_factor_current + bw;
-
-   // this is the menu map's position and size
-   y_size = SCREEN_H-160;
-   x_size = SCREEN_W-260;
-   int size;
-   if (y_size < x_size) size = y_size;
-   else size = x_size;
-   if (size < 10) size = 10;
-   int mx = SCREEN_W/2-(size/2);
-   int my = 140;
-
-   // get the players position on the menu map
-   int map_px = mx + PX * size / 2000;
-   int map_py = my + PY * size / 2000;
-
-   float sc = scale_factor_current;
-   float scf = (float)size / 2000;
-
-   // do the scale increment as a percent change so that the zoom speed is constant
-   // use the compound interest formula to find the percent change per step I need
-   float a, per = 1.000;
-   do
-   {
-       per -= .0001;
-       a = sc * pow(per, num_steps);
-   }
-   while (a > scf);
-
-   float fmx = px_final;
-   float fmxf = (float)map_px;
-   float fmxinc = (fmxf - fmx) / num_steps;
-
-   float fmy = py_final;
-   float fmyf = (float)map_py;
-   float fmyinc = (fmyf - fmy) / num_steps;
-
-   for (int steps = 0; steps<num_steps; steps++)
-   {
-      al_clear_to_color(al_map_rgb(0,0,0));
-      draw_level_centered((int)fmx, (int)fmy, PX, PY,  sc);
-      al_flip_display();
-      sc *= per;
-      fmx += fmxinc;
-      fmy += fmyinc;
-      al_rest(delay);
-   }
-}
 
 void proc_scale_factor_change(void)
 {
@@ -1506,6 +1529,16 @@ void draw_percent_bar(int cx, int y, int width, int height, int percent)
    al_draw_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, palette_color[15], 1); //  white frame
 }
 
+
+
+void draw_screen_overlay(void)
+{
+   // these all draw on screen buffer
+   if (speed_testing) draw_speed_test_data();
+   draw_top_display();
+   draw_bottom_msg();
+   show_player_join_quit();
+}
 
 
 void show_player_join_quit(void)

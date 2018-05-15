@@ -2,8 +2,6 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-sometimes I see trails in level_buffer when stimp/stamp or screen change
-hard to reproduce..
 
 
 ---------------------------------------------------------
@@ -12,7 +10,25 @@ hard to reproduce..
 
 fix demos
 
-auto create dir sel, like logs
+old demos from version 7.04
+
+
+20 17
+23 12
+
+---done
+
+9
+10
+13
+14
+16
+
+
+zm_11
+
+only good to about 200s in 8000 frames
+
 
 
 ---------------------------------------------------------

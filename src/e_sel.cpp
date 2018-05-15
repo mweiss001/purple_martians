@@ -348,6 +348,7 @@ void save_selection(int save)
 
    if (save)
    {
+      al_make_directory("sel"); // create if not already created
       FILE *filepntr;
       extern char sel_filename[500];
       sprintf(sel_filename, "sel\\");

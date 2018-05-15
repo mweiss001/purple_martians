@@ -657,12 +657,12 @@ void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, i
       al_clear_to_color(al_map_rgb(0,0,0));
 
       // draw the message frame
-      for (int a=0; a<8; a++)
-         al_draw_rectangle(a, a, pxw-a, pyh-a, palette_color[fc+a*16], 1);
+      for (int a=0; a<12; a++)
+         al_draw_filled_rounded_rectangle(a, a, pxw-a, pyh-a, 4, 4, palette_color[fc+a*16]);
 
       // draw the message text
       for (row=0; row<=num_lines; row++)
-         al_draw_text(font, palette_color[tc], pxw/2, 9+row*8, ALLEGRO_ALIGN_CENTER, dt[row]);
+         al_draw_text(font, palette_color[tc], pxw/2+1, 10+row*8, ALLEGRO_ALIGN_CENTER, dt[row]);
 
      // draw on screen
      al_set_target_backbuffer(display);
@@ -737,14 +737,6 @@ int edit_pmsg_text(int c, int new_msg)
 
       // draw the message
       display_pop_message(c, f, mx, my, 1, 0);
-
-
-      // mark message we are editing with a yellow rectangle
-      int x1 = mx - item[c][12]/2-2;
-      int y1 = my - 10;
-      int x2 = mx + item[c][12]/2;
-      int y2 = my + item[c][13]-9;
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[14], 1);
 
       a = -3; //back up from the message to the buttons;;
       extern int bts;

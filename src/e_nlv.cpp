@@ -756,7 +756,7 @@ int lift_editor(int lift)
 
          int rot = 0;
          if ((lifts[lift].width == 1) && (lifts[lift].height > 1)) rot = 64;
-         rtextout_centre(NULL, lifts[lift].lift_name, ((x1+x2)/2), ((y1+y2)/2), color+160, 1, rot, 1);
+         rtextout_centre(NULL, lifts[lift].lift_name, ((x1+x2)/2), ((y1+y2)/2)+1, color+160, 1, rot, 1);
       }
       while (key[ALLEGRO_KEY_ESCAPE])
       {

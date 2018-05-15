@@ -757,6 +757,12 @@ extern char color_name[16][20];
 extern char lift_step_type_name[10][10];
 
 
+void proc_ebullets(void);
+void draw_ebullets(void);
+void proc_pbullets(void);
+void draw_pbullets(void);
+
+void draw_screen_overlay(void);
 
 // ---------- all global ALLEGRO_BITMAP extern declarations here --------
 extern ALLEGRO_BITMAP *tilemap;
@@ -822,6 +828,8 @@ extern int num_lifts;
 
 extern int ima_server;
 extern int ima_client;
+
+
 
 
 
@@ -922,7 +930,7 @@ void draw_top_display(void);
 void draw_map(void);
 void move_lifts(int ignore_prox);
 int proc_controllers(void);
-void get_new_background(void);
+void get_new_background(int full);
 void get_new_screen_buffer(void);
 void draw_items(void);
 void draw_lifts(void);

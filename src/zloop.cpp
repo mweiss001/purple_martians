@@ -1,10 +1,6 @@
 #include "pm.h"
 
 
-void proc_ebullets(void);
-void draw_ebullets(void);
-void proc_pbullets(void);
-void draw_pbullets(void);
 
 // global variables
 
@@ -779,7 +775,6 @@ void pm_main(void) // game loop!
          // reset player data
          for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 2);
 
-
          for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear_key array
 
          // reset sound counters
@@ -799,14 +794,12 @@ void pm_main(void) // game loop!
          if (sound_on) al_set_audio_stream_playing(pm_theme_stream, 1);
       } // end of if (start_mode)
 
-
       proc_scale_factor_change();
       move_lifts(0);
       proc_item_collision();
       proc_item_move();
       proc_lit_bomb();
       proc_lit_rocket();
-
 #ifdef NETPLAY
       if (ima_server) server_control(); // runs only once per frame
       if (ima_client) client_control(); // runs only once per frame
@@ -822,23 +815,12 @@ void pm_main(void) // game loop!
       proc_player_health();
       proc_sound();
 
-
-
-
       proc_frame_delay();
-
-
 
       if (draw_frame)
       {
          // these all draw on level_buffer
-
-         //al_set_target_bitmap(level_buffer);
-
-//         al_lock_bitmap(level_buffer, ALLEGRO_LOCK_WRITEONLY, al_get_bitmap_format(level_buffer));
-
-         //if (KEY_1_b) get_new_background();
-         get_new_background();
+         get_new_background(0);
          draw_lifts();
          draw_items();
          draw_enemy();
@@ -846,32 +828,11 @@ void pm_main(void) // game loop!
          draw_pbullets();
          draw_players();
 
-
-
-//         al_unlock_bitmap(level_buffer);
-
          get_new_screen_buffer();
-
-
-//         if (KEY_2_b) get_new_screen_buffer();
-//         else  al_set_target_backbuffer(display);
-
-         // these all draw on screen buffer
-
-         if (speed_testing) draw_speed_test_data();
-
-         draw_top_display();
-         draw_bottom_msg();
-         show_player_join_quit();
-
-         //if (KEY_5_b) show_player_join_quit();
-         //if (KEY_6_b) draw_top_display();
-         //draw_map();
-
+         draw_screen_overlay();
          al_flip_display();
       }
    } // end of while (!game_exit)
    stop_sound();
    stamp();
 }
-

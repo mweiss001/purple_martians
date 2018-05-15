@@ -4174,5 +4174,69 @@ made some more changes to the levels and then are looking good.
 50-64 extra levels
 90-93 training levels
 
+20180514 new commit
+
+auto create dir sel, like logs...done
+
+
+sometimes I see trails in level_buffer when stimp/stamp or screen change
+hard to reproduce..
+re-did get new background to do full or region only
+did a redraw at start of stamp
+also slowed down stimp and stamp to make more visible
+trails during stamp are good
+
+
+when stimp and game zoom shows lots of the level, it doesn't line up
+
+its like stimp and stamp expect the game position to be more left than it is
+
+
+
+
+stimp and stamp have code with hystersis window like get_new_screen_buffer()
+
+make that common??
+
+
+what is found out by either function?
+in get new background: WX, WY, SW, SH, sbx, sby, sbw, sbh
+
+
+in stimp and stamp I just patched in an offest like this:
+
+   // offset if entire level is smaller than screen
+   int sbw = SCREEN_W-bw*2;
+   int sbh = SCREEN_H-bw*2;
+
+   // how big is the entire level after scale factor is applied?
+   extern float scale_factor_current;
+   int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
+
+   // is the entire level smaller than the screen buffer width?
+   if (sls < sbw)
+   {
+      int a = sbw - sls; // how much smaller?
+      px_final += a/2;
+
+   }
+   // is the entire level smaller than the screen buffer height?
+   if (sls < sbh)
+   {
+      int a = sbh - sls; // how much smaller?
+      py_final += a/2;
+   }
+
+works now...
+
+cursor height in text editor
+
+draw lift..good
+server name good
+p message..fixed
+
+
+
+
 
 
