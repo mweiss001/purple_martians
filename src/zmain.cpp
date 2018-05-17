@@ -1,6 +1,8 @@
 #include "pm.h"
-#include <zlib.h>
 
+
+// --------------- Global Variables ---------------
+// all global variables should be declared here and externed in pm.h
 
 ALLEGRO_TIMER * fps_timer;
 ALLEGRO_TIMER * sec_timer;
@@ -14,10 +16,8 @@ ALLEGRO_FONT *f1 = NULL;
 ALLEGRO_FONT *f2 = NULL;
 ALLEGRO_FONT *f3 = NULL;
 
-
 ALLEGRO_JOYSTICK *joy0 = NULL;
 ALLEGRO_JOYSTICK *joy1 = NULL;
-
 
 ALLEGRO_VOICE *voice = NULL;
 ALLEGRO_MIXER *mn_mixer = NULL;
@@ -35,7 +35,6 @@ int sample_delay[8];
 int se_scaler=5;
 int st_scaler=5;
 
-
 ALLEGRO_BITMAP *logo_ichael = NULL;
 ALLEGRO_BITMAP *logo_avid = NULL;
 ALLEGRO_BITMAP *logo_eiss = NULL;
@@ -45,28 +44,21 @@ ALLEGRO_BITMAP *text_demo = NULL;
 ALLEGRO_BITMAP *text_mode = NULL;
 int text_demomode_bitmaps_create = 1;
 
-
 ALLEGRO_BITMAP *text_title = NULL;
 int text_title_bitmaps_create = 1;
 int text_title_draw_color = -1;
-
-
 
 int level_display_region_x;
 int level_display_region_y;
 int level_display_region_w;
 int level_display_region_h;
 
-
 char skc[64];
 int skc_index = 0;
-
 
 int les = 3; // level editor scale
 int level_editor_running = 0;
 int help_screens_running = 0;
-
-
 
 bool key[ALLEGRO_KEY_MAX];
 
@@ -87,9 +79,6 @@ int mouse_b4 = 0;
 
 int visual_level_select_running = 0;
 
-
-// --------------- Global Variables ---------------
-// all global variables should be declared here and externed in pm.h
 
 
 ALLEGRO_FS_ENTRY *filenames[1000];
@@ -121,9 +110,7 @@ int disp_h_full;
 
 int SCREEN_W, SCREEN_H;
 
-
 int WX, WY;
-
 
 int fullscreen = 1;
 
@@ -131,10 +118,8 @@ int fullscreen = 1;
 int l_spx;
 int l_spy;
 
-
 char local_hostname[80];
 char version_string[80];
-
 
 int TCP = 0;
 
@@ -152,8 +137,6 @@ int L_LOGGING_NETPLAY_chdf_all_packets = 0;
 int L_LOGGING_NETPLAY_chdf_when_to_apply = 0;
 int L_LOGGING_NETPLAY_show_dif1 = 0;
 int L_LOGGING_NETPLAY_show_dif2 = 0;
-
-
 
 
 // server chdf
@@ -192,12 +175,11 @@ int l[100][100];    // level
 int Ei[100][32];    // enemy ints
 al_fixed Efi[100][16]; // enemy fixeds
 int item[500][16];  // item ints
-al_fixed itemf[500][4]; // item al_fixed points
+al_fixed itemf[500][4]; // item al_fixed_points
 
 int num_lifts;
 struct lift lifts[NUM_LIFTS];
 struct lift_step lift_steps[NUM_LIFTS][40];
-
 
 
 int db;  // level editor zoom fullscreen double
@@ -210,11 +192,9 @@ int new_size = 0;
 int txc;
 
 
-
 int Redraw = 1;
 int Num_legend_lines = 2;
 int Viewer_lock = 0;
-
 
 int menu_map_x;
 int menu_map_y;
@@ -222,11 +202,9 @@ int menu_map_size;
 
 int item_num_of_type[20];
 
-
 int ssfnsn = 0; // screen shot file name sequence number
 int making_video = 0;
 int speed_testing = 0;
-
 
 
 struct screen_msg screen_msgs[100];
@@ -248,10 +226,6 @@ int KEY_6_b = 1;
 int KEY_7_b = 1;
 int KEY_8_b = 1;
 int KEY_9_b = 1;
-
-
-
-
 
 int KEY_1_held = 0;
 int KEY_2_held = 0;
@@ -281,13 +255,10 @@ int KEY_PRTSCR_held = 0;
 
 int test_int = 3;
 
-
 int actual_fps;
 int last_frames_skipped = 0;
 int frames_skipped_last_second;
 int last_fps_passcount = 0;
-
-
 
 int ima_server = 0;
 int ima_client = 0;
@@ -320,9 +291,6 @@ float scale_factor_current  = 1.0;
 float scale_factor_inc = 0.03;
 int show_scale_factor;
 
-// ---------- all global ALLEGRO_BITMAP declarations here --------
-
-
 ALLEGRO_BITMAP *tilemap = NULL;
 ALLEGRO_BITMAP *ptilemap = NULL;
 ALLEGRO_BITMAP *dtilemap = NULL;
@@ -339,19 +307,14 @@ ALLEGRO_BITMAP *level_buffer = NULL;
 ALLEGRO_BITMAP *dtemp = NULL; // temp draw
 ALLEGRO_BITMAP *lefsm = NULL; // level editor fullscreen map
 
-
 ALLEGRO_BITMAP *mp = NULL;     //  mouse_pointer
 ALLEGRO_BITMAP *ft_bmp = NULL;  //  file temp paste bmp
-
-
 
 int show_splash_screen = 1;
 int splash_screen_done = 0;
 
 int auto_save_game_on_exit = 0;
 int auto_save_game_on_level_done = 0;
-
-
 
 int mdw_an_seq = 0; // mdw animation sequence number
 float points[10][8]; // for mdw logo
@@ -365,15 +328,9 @@ float mdw_splash_logo_y;
 int mdw_splash_logo_th;
 float mdw_splash_logo_scale;
 
-
 float mdw_logo_scale_dec;
 float mdw_logo_x_dec;
 float mdw_logo_y_dec;
-
-
-
-// other global variables
-
 
 char global_string[20][25][80];
 
@@ -382,12 +339,7 @@ int tmtx, tmty; // text position
 int mx, my;
 float steps;
 
-
 int sa[NUM_SPRITES][2];
-
-
-
-
 
 int level_num;
 char level_filename[80];
@@ -403,7 +355,6 @@ int speed = 40;
 int play_level;
 int start_mode = 1;
 int valid_level_loaded = 0;
-
 
 int resume_allowed=0;
 int top_menu_sel = 3;
@@ -423,17 +374,10 @@ int level_done = 0;
 int game_exit = 1;
 int num_enemy;
 
-
 // counters and temp string
 char b_msg[40][80];
 int bottom_msg=0;
-
 int game_map_on = 0;
-
-
-
-// ------------- global variables from old e_main---------------------------
-
 
 // enemies
 int e_num_of_type[50];
@@ -455,18 +399,15 @@ char item_desc[20][5][40];
 int swbl[NUM_SPRITES][2];
 int swbn;
 
-
 int ty = 46;   // button start
 int tw = 94;   // button width
 int bts = 12;  // button spacing
-
 
 char sel_filename[500];
 
 int exit_link = 0;
 int bx1, bx2, by1, by2;
 int slx0=0, sly0=0, slx1=20, sly1=20;
-
 
 int bmp_index = 255; // used by edit menu
 int zzindx = 3;
@@ -488,7 +429,6 @@ int copy_mode = 0;
 int brf_mode =0;
 
 int lc;
-
 
 int ft_level_header[20];
 int ft_l[100][100];
@@ -517,9 +457,7 @@ int old_line_draw_mode;
 int line_draw_mode;
 int grid_flag = 0;
 
-
 int pop_msg_viewer_pos;
-
 
 // status window
 int status_window_active = 1;
@@ -547,62 +485,9 @@ int select_window_special_y;
 int stext_draw_flag;
 int sw_mouse_gone = 0;
 
-// color selection pallete
-int cs=0;
-int cspx = 3;   // color selection pallete
-int cspy = 40;
-int csps = 10;
-int cspf = 0;
-
-int cbx = 220; // current bitmap  for gui
-int cby = 40;
-int cbs = 20;
-int old_px;
-int old_py;
-
-int fw = 4; // frame width for block editor
-
-// end of global from old e_main
 
 void final_wrapup(void)
 {
-
-
-//   for (int x=0; x<16; x++) // player bitmaps
-//      for (int y=0; y<19; y++)
-//         al_destroy_bitmap( player_bitmap[x][y] );
-//
-//   al_destroy_bitmap(M_ptilemap);
-//   al_destroy_bitmap(ptilemap);
-//
-//   for (int x=0; x<16; x++) // door bitmaps
-//      for (int y=0; y<8; y++)
-//      {
-//         al_destroy_bitmap(door_bitmap[0][x][y]);
-//         al_destroy_bitmap(door_bitmap[1][x][y]);
-//      }
-//   al_destroy_bitmap(M_dtilemap);
-//   al_destroy_bitmap(dtilemap);
-//
-//   for (int c=0; c<NUM_SPRITES; c++)
-//      al_destroy_bitmap(memory_bitmap[c]);
-//
-//   al_destroy_bitmap(M_tilemap);
-//   al_destroy_bitmap(tilemap);
-//
-//   al_destroy_bitmap(l2000);
-//   al_destroy_bitmap(level_buffer);
-//   al_destroy_bitmap(dtemp);
-//   al_destroy_bitmap(lefsm);
-//
-//   extern ALLEGRO_BITMAP * grid_bmp;
-//   al_destroy_bitmap(grid_bmp);
-
-   // what is the proper order to shut down allegro?
-//   al_destroy_event_queue(event_queue);
-//   al_destroy_display(display);
-
-
    al_uninstall_system();
 }
 
@@ -640,8 +525,6 @@ void get_hostname(void)
    local_hostname[loop] = 0;
    fclose(fp);
 }
-
-void show_disp_values(void);
 
 void save_config(void)
 {
@@ -1464,7 +1347,6 @@ void game_menu(void)
       }
       if (top_menu_sel == 2) // start level
       {
-         int visual_level_select(void);
          int pl = visual_level_select();
          if (pl)
          {
@@ -1547,7 +1429,6 @@ void game_menu(void)
                   netgame_menu_sel = zmenu(4, netgame_menu_sel, tmy + 20);
                   if (netgame_menu_sel == 3) // edit server name
                   {
-                     void edit_server_name(void);
                      edit_server_name();
                      save_config();
                   }
@@ -1937,9 +1818,7 @@ int main(int argument_count, char **argument_array)
 #ifndef RELEASE
    if (argument_count == 2) // example 'pmwin x'
    {
-      int copy_files_to_clients(int exe_only);
       int ret = 0;
-
       if (strcmp(argument_array[1],"-x") == 0 )
       {
           ret = copy_files_to_clients(2); // src only
@@ -1991,7 +1870,6 @@ int main(int argument_count, char **argument_array)
          #ifndef RELEASE
 //         // run packet test server
 //         void nc_server(void);
-//         void nc_client(void);
 //         if (strcmp(argument_array[1],"-x") == 0 )
 //         {
 //            nc_server();

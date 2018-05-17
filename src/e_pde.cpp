@@ -319,7 +319,6 @@ void PDE_sort(void)
          } // end of swap
       } // end of for x
    } // end of while swap flag
-//   draw_select_window();
 }
 
 

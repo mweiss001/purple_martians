@@ -1,7 +1,5 @@
-// menu.cpp  (20100220 cleanup)
+// e_menu.cpp  (20100220 cleanup)
 #include "pm.h"
-
-
 
 
 int pmenu(int menu_num)  // this menu function does not pass through like the next one

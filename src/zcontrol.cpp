@@ -1162,20 +1162,14 @@ void serial_key_check(int key)
       tl = strlen(tst);
       if (skc_index > tl-1)
       {
-         void spline_adjust(void);
-         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-            spline_adjust();
-
+         if (memcmp((skc + skc_index-tl), tst, tl) == 0) spline_adjust();
       }
 
       sprintf(tst, "sptst");
       tl = strlen(tst);
       if (skc_index > tl-1)
       {
-         void spline_adjust(void);
-         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-            spline_test();
-
+         if (memcmp((skc + skc_index-tl), tst, tl) == 0) spline_test();
       }
    }
 }

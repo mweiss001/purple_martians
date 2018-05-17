@@ -4237,6 +4237,30 @@ p message..fixed
 
 
 
+fix demos
+
+old demos from version 7.04
+
+
+9
+10
+12
+13
+14
+16
+17
+zm_11 chopped to 200s or 8000 frames
+
+---done
+
+commit done
+made an old style backu too...
+
+when run demo stimp of wrong level..fixed
+cleaned up function prototypes
+20180517 commit
+
+
 
 
 

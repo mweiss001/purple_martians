@@ -1,4 +1,3 @@
-#include <libnet.h>
 #include "pm.h"
 #ifdef NETPLAY
 

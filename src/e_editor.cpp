@@ -690,7 +690,6 @@ int zoom_full_screen(int wx, int wy, int draw_item)
       if (key[ALLEGRO_KEY_R])
       {
          while (key[ALLEGRO_KEY_R]) proc_controllers();
-         void do_rnd(void);
          do_rnd();
          Redraw = 1;
       }
@@ -984,7 +983,7 @@ int edit_menu(int el)
 
    load_PDE();
 
-   if (!el) load(); // load prompt
+   if (!el) load_level_prompt(); // load prompt
    else load_level(el, 0); // blind load
 
    draw_big(1);
@@ -1373,25 +1372,25 @@ int edit_menu(int el)
                draw_big(1);
                update_editor_background();
                al_flip_display();
-               save();
+               save_level_prompt();
             }
             load_level(level_num, 0); // blind load
             break;
 
             case 11: // load level
-               load();
+               load_level_prompt();
                set_wx_from_start_block();
                sort_enemy();
                sort_item();
                draw_big(1);
             break;
             case 12: // save level
-               save();
+               save_level_prompt();
             break;
             case 13: // save and exit
             {
                extern int exit_link;
-               if (save()) em_quit=1;
+               if (save_level_prompt()) em_quit=1;
                exit_link = 1;
             }
             break;

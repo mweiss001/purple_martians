@@ -61,7 +61,6 @@ void help(char *topic)
 //   if (SCREEN_H < 480) return;       // wont work with SCREEN_H < 480
 
    help_screens_running = 1;
-   void auto_set_les(void);
    auto_set_les();
    rebuild_bitmaps();
 
@@ -241,23 +240,14 @@ void help(char *topic)
 
             if (strncmp(msg, "<mdw>", 5) == 0) // show mdw logo
             {
-
                float sc = .5;
-
                int xo = (int)(200 * sc)+16;
-
-               void mdw_an3(int x, int y, float sc, int th);
                mdw_an3(dx+320 + sxc-xo, sy+xo+16, sc, 3);
                mdw_an3(dx+320 - sxc+xo, sy+xo+16, sc, 3);
-
                mdw_an3(dx+sxc, sy+50, .1, 1);
                mdw_an3(dx+sxc, sy+200, .2, 1);
-
                float bs = (float)640 / (float)560;
-
-
                mdw_an3(dx+sxc, sy+500, bs, 5);
-
                msg[0]= 0;
             }
             if (strncmp(msg, "<mdw1>", 6) == 0) // show mdw logo
@@ -265,7 +255,6 @@ void help(char *topic)
                al_set_clipping_rectangle((dx+12)*les, (12*les), (639-12*2)*les, (SCREEN_H-12*2)*les);
                float sc = .25;
                int xo = (int)(200 * sc)+16;
-               void mdw_an3(int x, int y, float sc, int th);
                mdw_an3(dx+320 + sxc-xo, sy+xo+16-140, sc, 2);
                mdw_an3(dx+320 - sxc+xo, sy+xo+16-140, sc, 2);
                msg[0]= 0;

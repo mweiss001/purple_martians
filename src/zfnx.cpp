@@ -1,7 +1,4 @@
 #include "pm.h"
-#include <zlib.h>
-
-
 
 int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
 {
@@ -250,16 +247,6 @@ int find_closest_player(int EN)
          }
       }
    return closest_player;
-}
-
-al_fixed fixmod(al_fixed in, int mod)
-{
-   int t = al_fixtoi(in);
-   int u = t / 20;
-   int s = u * 20;
-   al_fixed r = al_itofix(s);
-//   printf("%f %d %d %d %f\n", al_fixtof(in), t, u, s, al_fixtof(s));
-   return r;
 }
 
 void fire_enemy_bulleta(int EN, int bullet_ans, int p)
@@ -1706,24 +1693,8 @@ void temp_test(void)
 {
 
 
-
-
-  //select_bitmap_proc();
-  //copy_bitmap_proc();
-  // animation_proc();
-
-
-
-
-               void spline_adjust(void);
-   //            void mdw_an(void);
-               spline_test();
+//               spline_test();
 //               spline_adjust();
-
-
-
-
-
 
 
 
@@ -2018,14 +1989,6 @@ void temp_test(void)
 
    //     load_gm(NULL);
 
-
-   //            void spline_test(void);
-   //            spline_test();
-
-
-   //            void spline_test(void);
-   //            void spline_adjust(void);
-   //            void mdw_an(void);
    //            spline_test();
    //            spline_adjust();
    //            mdw_an();

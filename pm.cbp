@@ -171,13 +171,9 @@
 		<Unit filename="src/e_sliders.cpp" />
 		<Unit filename="src/e_special.cpp" />
 		<Unit filename="src/n_client.cpp" />
-		<Unit filename="src/n_client.h" />
 		<Unit filename="src/n_network.cpp" />
-		<Unit filename="src/n_network.h" />
 		<Unit filename="src/n_packet.cpp" />
-		<Unit filename="src/n_packet.h" />
 		<Unit filename="src/n_server.cpp" />
-		<Unit filename="src/n_server.h" />
 		<Unit filename="src/pm.h" />
 		<Unit filename="src/yfilecom.cpp" />
 		<Unit filename="src/zbullets.cpp" />

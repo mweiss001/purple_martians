@@ -376,7 +376,6 @@ void rebuild_bitmaps(void)
    extern int load_visual_level_select_done;
    load_visual_level_select_done = 0;
 
-   void load_visual_level_select(void);
    if (visual_level_select_running) load_visual_level_select();
 }
 
@@ -580,13 +579,13 @@ void get_new_background(int full)
    }
 }
 
-
-void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor);
-
 void stimp(void)
 {
+   draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
+
    // transition from menu to game
    al_set_target_backbuffer(display);
+
    int num_steps = 40;
    float delay = .01;
 
@@ -604,7 +603,7 @@ void stimp(void)
    int PX = al_fixtoi(players[alp].PX) + 10;
    int PY = al_fixtoi(players[alp].PY) + 10;
 
-   // this method has a hysteresis rectangle in the middle of the screem where there is no scroll
+   // this method has a hysteresis rectangle in the middle of the screen where there is no scroll
    int x_size = SW / 18; // larger number is smaller window
    int y_size = SH / 18;
    if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size;

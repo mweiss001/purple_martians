@@ -1,16 +1,6 @@
 // e_item.cpp (20100220 cleanup)
 #include "pm.h"
 
-
-al_fixed get_sproingy_jump_height(int item);
-
-
-void draw_edit_item_shape(int x, int y, int obt, int sub_type, int num)
-{
-   if (obt == 2) draw_item_shape(num, x, y);
-   if (obt == 3) draw_enemy_shape(num, x, y);
-}
-
 void crosshairs(int mx, int my, int x, int y, int color) // function to draw rectangle and crosshairs
 {
    //al_draw_filled_rectangle(mx+(x*db), my+(y*db), mx+(x*db)+db-1, my+(y*db)+db-1, palette_color[color]);

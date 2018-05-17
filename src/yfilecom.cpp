@@ -17,7 +17,7 @@ void make_filename(int x)
    strcpy(level_filename, temp);
 
 }
-int load()
+int load_level_prompt()
 {
    sprintf(level_filename,"levels\\");
    if (mw_file_select("Load Selection", level_filename, ".pml", 0))
@@ -34,7 +34,7 @@ int load()
    return 0;
 }
 
-int save()
+int save_level_prompt()
 {
    extern int level_header[20];
    char title[80];

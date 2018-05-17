@@ -1,12 +1,8 @@
 #include "pm.h"
 
-
 // global variables
-
 int EXint, EYint, EN;
 
-void enemy_killed(int EN);
-void enemy_player_hit_proc(int EN);
 int enemy_data(int x_pos, int y_pos)
 {
    extern int e_num_of_type[50];
@@ -341,12 +337,6 @@ void enemy_collision(void)
 //   Efi[EN][13] =
 //   Efi[EN][14] =
 //   Efi[EN][15] =
-
-
-
-
-
-int find_closest_player_flapper(int EN, int dir);
 
 void enemy_flapper(void)
 {
@@ -942,9 +932,6 @@ void enemy_cloner(void)
 
    if (Ei[EN][5] == 2)  // mode 2 - create
    {
-
-      int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);
-
       Ei[EN][5] = 1; // set mode 1 - in trig box
       Ei[EN][7] = Ei[EN][6]; // reset counter
       Ei[EN][1] = zz[15][53]; // full red
@@ -1112,12 +1099,6 @@ void set_trakbot_mode(int EN, int mode)
 //     Efi[EN][11] = scale multiplier
 //     Efi[EN][12] = scale;
 //     Efi[EN][13] = rot inc
-
-
-al_fixed    is_up_solidfm(al_fixed x, al_fixed y, int move, int dir );
-al_fixed  is_down_solidfm(al_fixed x, al_fixed y, int move, int dir );
-al_fixed  is_left_solidfm(al_fixed x, al_fixed y, int move, int dir );
-al_fixed is_right_solidfm(al_fixed x, al_fixed y, int move, int dir );
 
 
 void enemy_trakbot(void)

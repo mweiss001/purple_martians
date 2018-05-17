@@ -3,7 +3,6 @@
 #include "pm.h"
 
 char fst[80];
-void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore, int rot);
 extern char m_serveraddress[256];
 void edit_server_name(void)
 {
@@ -197,12 +196,6 @@ int edit_lift_name(int lift, int step_ty, int bts)
 }
 
 
-// function prototypes
-void set_lift(int lift, int step);
-void draw_lift_mp(int);
-void insert_steps_until_quit(int lift, int step);
-void redraw_lift_viewer(int lift, int step);
-void set_bts(int lift);
 extern int bts;
 
 void show_all_lifts(void)

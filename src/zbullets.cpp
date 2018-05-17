@@ -83,7 +83,6 @@ void proc_pbullets()
             pbullet[b][0] = 0;  // bullet dies
             if ((d > 95) && (d < 128)) // breakable wall
             {
-               void remove_block(int, int);
                remove_block(x, y);
                draw_lift_lines();
             }
@@ -175,7 +174,6 @@ void proc_ebullets()
             e_bullet_active[b] = 0;        // bullet dies
             if ((d > 95) && (d < 128))     // remove breakable wall
             {
-               void remove_block(int, int);
                remove_block(xi, yi);
                draw_lift_lines();
             }

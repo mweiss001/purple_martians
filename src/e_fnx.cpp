@@ -475,7 +475,6 @@ int getxy(char *txt, int obj_type, int sub_type, int num )
                draw_bs(14);            // show bullseye map
 
                al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
-               void highlight_current_lift(int lift);
                highlight_current_lift(lift);   // crosshairs and rect on current lift
                al_reset_clipping_rectangle();
             }

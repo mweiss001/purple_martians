@@ -1,9 +1,3 @@
-#include <libnet.h>
-#include <zlib.h>
-
-#include "n_network.h"
-#include "n_server.h"
-#include "n_packet.h"
 #include "pm.h"
 #ifdef NETPLAY
 
@@ -699,10 +693,6 @@ void proc_server_check(void)
                }
          }
 }
-
-
-
-void process_bandwidth_counters(int p);
 
 
 // check to see if this packet is from who its supposed to be and is valid

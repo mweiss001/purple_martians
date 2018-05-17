@@ -11,7 +11,7 @@ void get_player_start_pos(int p)
       players[p].PY = itemf[c][1];
    }
 }
-void player_move()
+void player_move(void)
 {
    al_fixed z = al_itofix(0);
    al_fixed gravity = al_ftofix(.60);
@@ -507,7 +507,7 @@ void draw_player(int p)
 
 
 
-void draw_players()
+void draw_players(void)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       draw_player(p);
@@ -714,23 +714,14 @@ void fill_door_bitmap(void)
          }
    }
 
-
-//
-//
-//   void draw_small_text(ALLEGRO_BITMAP * bmp, int x, int y, int col, int textnum);
 //   int text_col = 15;
 //   draw_small_text(memory_bitmap[1014], 7, 8, text_col, 2); // "IN"
 //   draw_small_text(memory_bitmap[1015], 5, 8, text_col, 1); // "OUT"
-//
-//
 //   al_set_target_bitmap(tilemap);
 //   al_draw_bitmap(memory_bitmap[1014], 22*20, 31*20, 0);
 //   al_draw_bitmap(memory_bitmap[1015], 23*20, 31*20, 0);
-//
-//
 //   al_set_target_bitmap(M_tilemap);
 //   al_draw_bitmap(tilemap, 0, 0, 0);
-//
 //   al_save_bitmap("bitmaps/tiles2.bmp", M_tilemap);
 
 

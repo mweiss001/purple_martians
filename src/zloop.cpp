@@ -23,8 +23,8 @@ extern char b_msg[40][80];
 extern int bottom_msg;
 extern int mx;
 extern int my;
-void add_screen_msg(char *txt, int x, int y, int delay, int ssn, int z1, int z2, int z3, int z4);
-void draw_screen_msg(void);
+
+
 
 
 
@@ -683,11 +683,7 @@ void proc_level_done(void)
       void server_flush(void);
       server_flush();
    }
-   if (ima_client)
-   {
-      void client_flush(void);
-      client_flush();
-   }
+   if (ima_client) client_flush();
 
    if ((ima_server) || (ima_client))
       for (int p=0; p<NUM_PLAYERS; p++)

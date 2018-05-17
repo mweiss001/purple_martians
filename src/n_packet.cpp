@@ -1,4 +1,3 @@
-#include "n_packet.h"
 #include "pm.h"
 #ifdef NETPLAY
 

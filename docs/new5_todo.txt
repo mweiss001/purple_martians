@@ -3,31 +3,29 @@
 ---------------------------------------------------------
 
 
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-fix demos
 
-old demos from version 7.04
+working on cleaning up pm.h
 
+pm.h has all function definitions listed by files
+and sorted through
 
-20 17
-23 12
-
----done
-
-9
-10
-13
-14
-16
+next I should work on global variables... I have a lot of them...
 
 
-zm_11
+the beginning of main, where they are declared,
+should mirror pm.h where they are externed
 
-only good to about 200s in 8000 frames
+also remove lots of not used ones
+
+also move all declarations from other source files to main
+
+
+I have 500 lines of extern variables!!!
+
 
 
 
@@ -84,11 +82,11 @@ enemy that freezes when you look at it
 
 
 
+, like logs...done
 
 
 
-
-make more shapes for player, I don't like static shape whe jumping or falling
+make more shapes for player, I don't like static shape when jumping or falling
 
 better profiling to find bottleneck
 

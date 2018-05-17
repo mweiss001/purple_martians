@@ -1,9 +1,3 @@
-#include <libnet.h>
-#include <zlib.h>
-
-#include "n_network.h"
-#include "n_client.h"
-#include "n_packet.h"
 #include "pm.h"
 
 #ifdef NETPLAY
@@ -13,8 +7,6 @@
 //-----------------------------------------------------------------------------------------------------
 NET_CONN *ServerConn = NULL;
 NET_CHANNEL *ServerChannel;
-
-
 
 int ClientInit(char *serveraddress)
 {
@@ -865,7 +857,6 @@ void client_block_until_good_chdf_received(void)
    client_apply_diff();
 
    // redraw blocks just in case
-   void init_l2000(void);
    init_l2000();
 
 

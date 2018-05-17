@@ -367,14 +367,13 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num,
             if (bn == 5)
             {
                item[num][6] = color;     // door color
-               void change_linked_door_color_and_shape(int door);
                change_linked_door_color_and_shape(num);
             }
             Redraw = 1;
          }
 }
 
-void draw_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
+void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
    // erase with background color ( never shows unless if (aa > 224) break; is enabled below
    int d = y2-y1;
@@ -401,7 +400,7 @@ void draw_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, 
 int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
                 int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
-   draw_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);             // draw button frame
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);             // draw button frame
    fill_smsg_button(bn, obt, type, num);                                   // get button text
    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
@@ -436,7 +435,6 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       {
          if (item[num][8] == 1) // Set Linked Item
          {
-             int get_item(char *txt, int obj_type, int sub_type, int num );
              int i = get_item((char *)"Select Another Door To Link To", 2, 1, num );
              if (i > -1) item[num][9] = i;
              Redraw = 1;
@@ -584,10 +582,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          if ((shape != 448) && (shape != 1083)) shape = 1083;
          item[num][13] = shape;
          item[num][1] = shape;
-
-         void change_linked_door_color_and_shape(int door);
          change_linked_door_color_and_shape(num);
-
          Redraw = 1;
       }
       if (bn == 53)
@@ -712,7 +707,7 @@ void mdw_slider(int x1, int y1, int x2, int y2,
    }
 
    // draw the slider
-   draw_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
    dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
    fill_smsg_slider(bn, type, num);
    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
@@ -741,7 +736,7 @@ void mdw_slider(int x1, int y1, int x2, int y2,
                f = round(f/sinc) * sinc;         // round to sinc
                update_var(bn, type, num, f);
             }
-            draw_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
             fill_smsg_slider(bn, type, num);
             al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
             draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
@@ -777,7 +772,7 @@ void mdw_slider(int x1, int y1, int x2, int y2,
             f = round(f/sinc) * sinc;   // round to sinc
             update_var(bn, type, num, f);
 
-            draw_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
             fill_smsg_slider(bn, type, num);
             al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
             draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
