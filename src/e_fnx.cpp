@@ -75,19 +75,18 @@ void set_rocket_rot(int num, int x2, int y2)
 
 void set_wx(int x, int y)
 {
-     extern int wx, wy;
-     int d;
-     wx = x - SCREEN_W/40;
-     wy = y - SCREEN_H/40;
+   int d;
+   wx = x - SCREEN_W/40;
+   wy = y - SCREEN_H/40;
 
-    // check limits
-    d = 100 - (SCREEN_W/20);
-    if (wx>d) wx = d;
-    if (wx<0) wx = 0;
+   // check limits
+   d = 100 - (SCREEN_W/20);
+   if (wx>d) wx = d;
+   if (wx<0) wx = 0;
 
-    d = 100 - (SCREEN_H/20);
-    if (wy>d) wy = d;
-    if (wy<0) wy = 0;
+   d = 100 - (SCREEN_H/20);
+   if (wy>d) wy = d;
+   if (wy<0) wy = 0;
 }
 void set_wx_from_start_block(void)
 {
@@ -161,8 +160,8 @@ void draw_bs(int cc)
 
    int ccz = (((ssz/20)-1)/2); // 7 = 3, 5 = 2, 3 = 1
 
-   int mx = -ssz/2 + (db*100) + (SCREEN_W-(db*100)) / 2;
-   int my = (db*100)-ssz-2;
+   int smx = -ssz/2 + (db*100) + (SCREEN_W-(db*100)) / 2;
+   int smy = (db*100)-ssz-2;
 
    int ex = dx*20 - (ssz/2-10);
    int ey = dy*20 - (ssz/2-10);
@@ -190,20 +189,20 @@ void draw_bs(int cc)
 
 
       al_set_target_backbuffer(display);
-      al_draw_bitmap(jtemp, mx+1, my+1, 0);
+      al_draw_bitmap(jtemp, smx+1, smy+1, 0);
       al_destroy_bitmap(jtemp);
       // frame bullseye
-      al_draw_rectangle(mx, my, mx+ssz+1, my+ssz+1, palette_color[10], 1);
+      al_draw_rectangle(smx, smy, smx+ssz+1, smy+ssz+1, palette_color[10], 1);
       al_reset_clipping_rectangle();
-      al_draw_textf(font, palette_color[15], txc, my-9, ALLEGRO_ALIGN_CENTER, " x=%-2d     y=%-2d ", dx, dy );
+      al_draw_textf(font, palette_color[15], txc, smy-9, ALLEGRO_ALIGN_CENTER, " x=%-2d     y=%-2d ", dx, dy );
    }
    else
    {
-      al_draw_text(font, palette_color[14], txc, my-9, ALLEGRO_ALIGN_CENTER, "  mouse off map  ");
+      al_draw_text(font, palette_color[14], txc, smy-9, ALLEGRO_ALIGN_CENTER, "  mouse off map  ");
       // erase bullseye map
-      al_draw_filled_rectangle(mx, my, mx+ssz, my+ssz, palette_color[0]);
+      al_draw_filled_rectangle(smx, smy, smx+ssz, smy+ssz, palette_color[0]);
       // frame bullseye
-      al_draw_rectangle(mx, my, mx+ssz+1, my+ssz+1, palette_color[10], 1);
+      al_draw_rectangle(smx, smy, smx+ssz+1, smy+ssz+1, palette_color[10], 1);
    }
 }
 

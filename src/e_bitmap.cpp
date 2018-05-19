@@ -1,9 +1,11 @@
 // e_bitmap.cpp (20100220 cleanup)
 #include "pm.h"
 
+int bmp_index = 0;
+int zzindx = 3;
+
 int select_bitmap_ans(int zzindx)
 {
-   extern int bmp_index;
    int quit = 0;
    while (!quit)
    {
@@ -24,7 +26,7 @@ int select_bitmap_ans(int zzindx)
 
       al_draw_textf(font, palette_color[14], 80, 666, 0, "Get Shape %d ", zz[4][zzindx] );
 
-      sprintf(msg, "Current Sequence %d",zzindx);
+      sprintf(msg, "Current Sequence %d", zzindx);
       int l = 2+strlen(msg)*4;
       al_draw_text(font, palette_color[13], xc+150, yc+2, ALLEGRO_ALIGN_CENTER, msg);
       al_draw_rectangle(xc+150-l, yc+1, xc+150+l, yc+11, palette_color[13], 1);
@@ -66,10 +68,6 @@ int animation_proc()
       les = 1;
       rebuild_bitmaps();
    }
-
-
-   extern int zzindx;
-   extern int bmp_index;
    int pointer = zzindx;
    int as_quit = 0;
    int quit = 0;
@@ -228,7 +226,6 @@ int animation_proc()
 
 int select_bitmap_proc()
 {
-   extern int bmp_index;
    int x, y;
    int quit = 0;
    int view_attrib = 0;
@@ -367,7 +364,6 @@ int select_bitmap_proc()
 
 int copy_bitmap_proc()
 {
-   extern int bmp_index;
    int quit = 0;
 
    al_set_target_backbuffer(display);

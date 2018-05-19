@@ -1,21 +1,5 @@
 #include "pm.h"
 
-
-//void screen_shot_for_video(void)
-//{
-//   ALLEGRO_BITMAP *ss_bmp = NULL;
-//   PALETTE ss_pal;
-//   get_palette(ss_pal);
-//   ss_bmp = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
-//   char filename[80];
-//   sprintf(filename, "screenshots\\frame%05d.bmp", ssfnsn);
-//   save_bitmap(filename, ss_bmp, ss_pal);
-//   al_destroy_bitmap(ss_bmp);
-//   ssfnsn++;// screen shot file name sequence number
-//}
-
-
-
 void show_bitmap_flags(int flags)
 {
    printf("bitmap flags:\n");
@@ -959,18 +943,7 @@ void get_new_screen_buffer(void)
 
 void set_map_var(void)
 {
-   extern int tmy;   // menu pos
-   extern int tmtx, tmty; // text position
-   extern int mx;
-   extern int my;
-
-   extern float steps;
-
-   md = 1; // defaults
-   steps = 10;
-   tmy = 10;
-   my = tmy + 130;
-   tmty = my-16; // text
+   txc = SCREEN_W - (SCREEN_W - db*100) / 2;
 
    // set intial map size based on minimum screen dimension / 3
    int smin = 0;
@@ -979,42 +952,28 @@ void set_map_var(void)
    new_size = smin / 3;
    map_size = new_size;
 
-
-   md = ( (SCREEN_H-130) /100);
-
-   mx = SCREEN_W/2-(md*50);
-   tmtx = mx+(md*50); //text pos
-
-
    // set db and create map for level editor
    db = (SCREEN_H/100);
    if (db < 4) db = 4;
    if (db > 20) db = 20;
-   // check to see if there is enough space for buttons on the right panel...
+   // check to see if there is enough space for buttons on the right panel...if not, re-adjust
    while (SCREEN_W - db*100 < 200) db--;
    if (db < 2) db = 2;
    al_destroy_bitmap(lefsm);
    lefsm = al_create_bitmap(db*100,db*100);
 
-   txc = SCREEN_W - (SCREEN_W - db*100) / 2;
-
+   // check that status and select windows are not off screen
    check_s_window_pos(1);
 
    // create a bitmap to use as a mouse pointer
    mp = al_create_bitmap(db*25,db*25);
 
-   // moved this here from draw_level
-   extern int menu_map_size;
-   extern int menu_map_x;
-   extern int menu_map_y;
-
+   // determine menu_map_size and position
    int y_size = SCREEN_H-160;
    int x_size = SCREEN_W-260;
-
    if (y_size < x_size) menu_map_size = y_size;
    else menu_map_size = x_size;
    if (menu_map_size < 10) menu_map_size = 10;
-
    menu_map_x = SCREEN_W/2-(menu_map_size/2);
    menu_map_y = 140;
 
@@ -1040,7 +999,6 @@ void set_map_var(void)
    mdw_logo_x_dec = (mdw_splash_logo_x - (float)mdw_map_logo_x) / 320;
    mdw_logo_y_dec = (mdw_splash_logo_y - (float)mdw_map_logo_y) / 320;
 
-
 //   printf("slx %f sly %f\n", mdw_splash_logo_x, mdw_splash_logo_y );
 //   printf("mlx %d mly %d\n", mdw_map_logo_x, mdw_map_logo_y );
 
@@ -1054,6 +1012,7 @@ void set_map_var(void)
    if (mdw_map_logo_scale >  .7) mdw_map_logo_th = 5;
   // printf("%d %f\n", mdw_map_logo_th, mdw_map_logo_scale);
 */
+
 }
 
 
@@ -1136,32 +1095,24 @@ void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, f
    al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mgx, mgy, size, size, 0);
 }
 
+
+
+
+
+
+
+
 void draw_level(void) // draws the map on the menu screen
 {
    int blocks = 0;
    if (valid_level_loaded) blocks = 1;
 
-   extern int menu_map_size;
-   extern int menu_map_x;
-   extern int menu_map_y;
-
-   int y_size = SCREEN_H-160;
-   int x_size = SCREEN_W-260;
-
-   if (y_size < x_size) menu_map_size = y_size;
-   else menu_map_size = x_size;
-   if (menu_map_size < 10) menu_map_size = 10;
-
-   menu_map_x = SCREEN_W/2-(menu_map_size/2);
-   menu_map_y = 140;
-
-
    draw_level2(NULL, menu_map_x, menu_map_y, menu_map_size, blocks, 1, 1, 1, 1);
 
-   int y_pos = 140;
-   int x_pos = SCREEN_W/2+(menu_map_size/2);
 
    // show level data
+   int y_pos = 140;
+   int x_pos = SCREEN_W/2+(menu_map_size/2);
    if (valid_level_loaded)
    {
       y_pos = enemy_data(x_pos, y_pos) + 8;
@@ -1170,14 +1121,15 @@ void draw_level(void) // draws the map on the menu screen
       al_draw_text(font, palette_color[15], x_pos, y_pos+8,  0, "-------");
    }
 
-   int tmtx = SCREEN_W / 2;
-   int tmty = 124;
-   al_draw_textf(font, palette_color[11], tmtx, tmty, ALLEGRO_ALIGN_CENTRE, " Level %d ", start_level );
-   tmty+=8;
 
-   if (resume_allowed) al_draw_text(font, palette_color[14], tmtx, tmty, ALLEGRO_ALIGN_CENTRE, "  (paused)  ");
-   else if (valid_level_loaded) al_draw_text(font, palette_color[9], tmtx, tmty, ALLEGRO_ALIGN_CENTRE, "  start level  ");
-   else al_draw_text(font, palette_color[10], tmtx, tmty, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
+   int text_x = SCREEN_W / 2;
+   int text_y = menu_map_y - 16;
+   al_draw_textf(font, palette_color[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", start_level );
+   text_y += 8;
+
+   if (resume_allowed) al_draw_text(font, palette_color[14], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  (paused)  ");
+   else if (valid_level_loaded) al_draw_text(font, palette_color[9], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  start level  ");
+   else al_draw_text(font, palette_color[10], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
 }
 
 void frame_and_title(int show_players)
@@ -1663,9 +1615,6 @@ void draw_top_display(void)
       al_draw_text(font, palette_color[14], tdx, tdy+2,  0, msg);
       tdx += strlen(msg)*8 + 16;
    }
-
-   if (!making_video) draw_fps_display(8);
-
    // draw health bar
    draw_percent_bar(tdx+44, tdy, 88, 10, al_fixtoi(players[p].LIFE));
    al_draw_textf(font, palette_color[14], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", al_fixtoi(players[p].LIFE));
@@ -2070,98 +2019,60 @@ void draw_top_display(void)
             break; // exit loop immed
          }
 
-
       int bdx = BORDER_WIDTH;
       int bdy = SCREEN_H - 10;
       int ts = 0;  // text spacing
 
-      if (making_video)
+      cy+=4;
+      sprintf(msg, "Running Saved Game ");
+      al_draw_text(font, palette_color[14], bdx, bdy, 0, msg);
+      ts += strlen(msg)*8;
+      if (show_debug_overlay)
       {
-         //screen_shot_for_video();
-         printf("Time:[%d%%]\n", passcount*100/last_pc);
-         al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "Recording Video From Saved Game  ");
-         al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+8, ALLEGRO_ALIGN_CENTER, "Time:[%d%%] ", passcount*100/last_pc);
+         al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
       }
-      else
+
+      sprintf(msg, "[%d%%] ", passcount*100/last_pc);
+      al_draw_text(font, palette_color[14], bdx + ts, bdy, 0, msg);
+      ts += strlen(msg)*8;
+      if (show_debug_overlay)
       {
-         cy+=4;
-         sprintf(msg, "Running Saved Game ");
-         al_draw_text(font, palette_color[14], bdx, bdy, 0, msg);
-         ts += strlen(msg)*8;
-         if (show_debug_overlay)
-         {
-            al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
-            al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
-         }
+         sprintf(msg, "Time:[%d%%] ", passcount*100/last_pc);
+         al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
+      }
 
-         sprintf(msg, "[%d%%] ", passcount*100/last_pc);
-         al_draw_text(font, palette_color[14], bdx + ts, bdy, 0, msg);
-         ts += strlen(msg)*8;
-         if (show_debug_overlay)
+      int m = (game_move_current_pos * 100) / game_move_entry_pos;
+      sprintf(msg, "Moves:[%d%%] ", m);
+      if (show_debug_overlay)
+      {
+         al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
+      }
+      for (int ap=0; ap<NUM_PLAYERS; ap++)
+      {
+         if (players[ap].active)
          {
-            sprintf(msg, "Time:[%d%%] ", passcount*100/last_pc);
-            al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
-            al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
-         }
-
-         int m = (game_move_current_pos * 100) / game_move_entry_pos;
-         sprintf(msg, "Moves:[%d%%] ", m);
-//         al_draw_text(font, palette_color[14], bdx + ts, bdy, 0, msg);
-//         ts += strlen(msg)*8;
-         if (show_debug_overlay)
-         {
-            al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
-            al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
-         }
-
-//         sprintf(msg, "Active player:[%d] ",active_local_player);
-//         //al_draw_text(font, palette_color[14], bdx + ts, bdy, 0, msg);
-//         //ts += strlen(msg)*8;
-//         if (show_debug_overlay)
-//         {
-//            //al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
-//            //al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
-//         }
-//
-//         if (show_debug_overlay)
-//         {
-//             //cy+=4;
-//             sprintf(msg, "Players:");
-//             al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
-//             al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
-//         }
-
-         for (int ap=0; ap<NUM_PLAYERS; ap++)
-         {
-            if (players[ap].active)
+            //sprintf(msg, "%d", ap);
+            //al_draw_text(font, palette_color[players[ap].color], bdx + ts, bdy, 0, msg);
+            //ts += strlen(msg)*8;
+            if (show_debug_overlay)
             {
-               //sprintf(msg, "%d", ap);
-               //al_draw_text(font, palette_color[players[ap].color], bdx + ts, bdy, 0, msg);
-               //ts += strlen(msg)*8;
-               if (show_debug_overlay)
-               {
-                  if (ap == active_local_player) sprintf(msg, "Player:%d <- active", ap);
-                  else sprintf(msg, "Player:%d", ap);
-                  al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
-                  al_draw_text(font, palette_color[players[ap].color], cx, cy+=8, 0, msg);
-               }
+               if (ap == active_local_player) sprintf(msg, "Player:%d <- active", ap);
+               else sprintf(msg, "Player:%d", ap);
+               al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+               al_draw_text(font, palette_color[players[ap].color], cx, cy+=8, 0, msg);
             }
          }
       }
    }
 }
 
-
-
-
-
-
 void old_draw_bottom_msg()
 {
-   extern int bottom_msg;
    if (--bottom_msg > 0)
    {
-      extern char b_msg[40][80];
       int a;
       int nb = 8;    // NUM_BOTTOM_MSG_LINES
 
@@ -2191,11 +2102,8 @@ void old_draw_bottom_msg()
 
 void draw_bottom_msg()
 {
-   extern int bottom_msg;
    if (--bottom_msg > 0)
-//   if (1)
    {
-      extern char b_msg[40][80];
       int a;
       int nb = 3;    // NUM_BOTTOM_MSG_LINES
 

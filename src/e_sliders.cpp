@@ -1,15 +1,6 @@
 // e_sliders.cpp  (20100220 cleanup)
 #include "pm.h"
 
-
-extern int e_num_of_type[50];   // sort results
-extern int e_first_num[50];
-extern int item_first_num[20];
-extern char item_desc[20][40];
-extern int bts;
-
-
-
 char smsg[80];
 int bw = 3; // slider adjustment bar width
 
@@ -236,8 +227,8 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    }
    if (bn == 57)
    {
-       if (obt == 2) sprintf(smsg,"%s Help", item_desc[type]);
-       if (obt == 3) sprintf(smsg,"%s Help", (const char *)eitype_desc[type]);
+       if (obt == 2) sprintf(smsg,"%s Help", item_name[type]);
+       if (obt == 3) sprintf(smsg,"%s Help", (const char *)enemy_name[type]);
        if (obt == 4) sprintf(smsg,"Lift Help");
    }
    if (bn == 70) sprintf(smsg, "#  Step Type     ");

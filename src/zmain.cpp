@@ -4,65 +4,128 @@
 // --------------- Global Variables ---------------
 // all global variables should be declared here and externed in pm.h
 
-ALLEGRO_TIMER * fps_timer;
-ALLEGRO_TIMER * sec_timer;
-ALLEGRO_TIMER * mnu_timer;
 
-ALLEGRO_EVENT_QUEUE *event_queue = NULL;
-ALLEGRO_DISPLAY *display = NULL;
-ALLEGRO_COLOR palette_color[256];
-ALLEGRO_FONT *font = NULL;
-ALLEGRO_FONT *f1 = NULL;
-ALLEGRO_FONT *f2 = NULL;
-ALLEGRO_FONT *f3 = NULL;
+// level editor unsorted
+char sel_filename[500];
 
-ALLEGRO_JOYSTICK *joy0 = NULL;
-ALLEGRO_JOYSTICK *joy1 = NULL;
+int ty = 46;   // button start
+int bts = 12;  // button spacing
 
-ALLEGRO_VOICE *voice = NULL;
-ALLEGRO_MIXER *mn_mixer = NULL;
-ALLEGRO_MIXER *se_mixer = NULL;
-ALLEGRO_MIXER *st_mixer = NULL;
+// level editor start block UL corner
+int wx=0;
+int wy=0;
+int pop_msg_viewer_pos;
+int Redraw = 1;
+int Num_legend_lines = 2;
+int Viewer_lock = 0;
 
-ALLEGRO_SAMPLE *snd[20];
-int num_sounds = 9;
-ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
-ALLEGRO_AUDIO_STREAM *pm_theme_stream;
 
-int lit_item;
-int fuse_loop_playing;
-int sample_delay[8];
-int se_scaler=5;
-int st_scaler=5;
+// ------------------------------------------------
+// ----- return values from getxy and getbox ------
+// ------------------------------------------------
+int bx1, bx2, by1, by2;
+int get100_x, get100_y; // used by edit functions
 
-ALLEGRO_BITMAP *logo_ichael = NULL;
-ALLEGRO_BITMAP *logo_avid = NULL;
-ALLEGRO_BITMAP *logo_eiss = NULL;
-int logo_text_bitmaps_create = 1;
+// ------------------------------------------------
+// ------------ game moves array ------------------
+// ------------------------------------------------
+int game_moves[1000000][4];
+int game_move_entry_pos = 0;
+int game_move_current_pos = 0; // for savegame running only
 
-ALLEGRO_BITMAP *text_demo = NULL;
-ALLEGRO_BITMAP *text_mode = NULL;
-int text_demomode_bitmaps_create = 1;
 
-ALLEGRO_BITMAP *text_title = NULL;
-int text_title_bitmaps_create = 1;
-int text_title_draw_color = -1;
 
-int level_display_region_x;
-int level_display_region_y;
-int level_display_region_w;
-int level_display_region_h;
+// ------------------------------------------------
+// ------------- screen messages ------------------
+// ------------------------------------------------
+struct screen_msg screen_msgs[100];
+char b_msg[40][80];
+int bottom_msg=0;
 
+
+
+// ------------------------------------------------
+// -----------status and selection window----------
+// ------------------------------------------------
+// status window
+int status_window_active = 1;
+int status_window_x = 9999;
+int status_window_y = 35;
+int status_window_w = 320;
+int status_window_h = 43;
+int draw_item_num;
+int draw_item_type;
+int point_item_num;
+int point_item_type;
+
+// select window
+int select_window_active = 1;
+int select_window_x = 9999;
+int select_window_y = 100;
+int select_window_w = 322;
+int select_window_h;
+int select_window_text_y;
+int select_window_block_on = 1;
+int swnbl;
+int swnbl_cur = 0;
+int swbl[NUM_SPRITES][2];
+
+int select_window_block_y;
+int btext_draw_flag;
+int select_window_special_on = 1;
+int select_window_num_special_lines = 3;
+int select_window_special_y;
+int stext_draw_flag;
+int sw_mouse_gone = 0;
+
+// ------------------------------------------------
+// ---------------zoom full screen ----------------
+// ------------------------------------------------
+int stx=10;  // zfs selection window
+int sty=10;
+int sux=40;
+int suy=30;
+
+int copy_blocks=1;
+int copy_enemies=1;
+int copy_items=1;
+int copy_lifts=1;
+int copy_mode = 0;
+int brf_mode =0;
+
+int ft_level_header[20];
+int ft_l[100][100];
+int ft_item[500][16];
+char* ft_pmsg[500];
+int ft_Ei[100][32];
+al_fixed ft_Efi[100][16];
+
+char ft_ln[NUM_LIFTS][80];
+int ft_lift[NUM_LIFTS][4];
+int ft_ls[NUM_LIFTS][40][4];
+
+
+// ------------------------------------------------
+// ----------------- demo mode --------------------
+// ------------------------------------------------
+ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
+int demo_played[100];
+int num_demo_filenames = 0;
+int demo_mode_on = 0;
+int demo_mode_countdown;
+
+// ------------------------------------------------
+// ----------------- mouse and keys ---------------
+// ------------------------------------------------
+
+// serial key check
 char skc[64];
 int skc_index = 0;
 
-int les = 3; // level editor scale
-int level_editor_running = 0;
-int help_screens_running = 0;
-
 bool key[ALLEGRO_KEY_MAX];
-
 int Key_pressed_ASCII;
+
+float mouse_loop_pause = 0;
 
 int mouse_x = 0;
 int mouse_y = 0;
@@ -74,148 +137,6 @@ int mouse_b1 = 0;
 int mouse_b2 = 0;
 int mouse_b3 = 0;
 int mouse_b4 = 0;
-
-
-
-int visual_level_select_running = 0;
-
-
-
-ALLEGRO_FS_ENTRY *filenames[1000];
-int num_filenames;
-
-
-
-ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
-int demo_played[100];
-int num_demo_filenames = 0;
-int demo_mode_on = 0;
-int demo_mode_countdown;
-
-
-int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
-int disp_y_curr;
-int disp_w_curr;
-int disp_h_curr;
-
-int disp_x_wind; // use when restoring from fullscreen
-int disp_y_wind;
-int disp_w_wind;
-int disp_h_wind;
-
-int disp_x_full = 0;
-int disp_y_full = 0;
-int disp_w_full;
-int disp_h_full;
-
-int SCREEN_W, SCREEN_H;
-
-int WX, WY;
-
-int fullscreen = 1;
-
-// last screen pos, to tell if it changed
-int l_spx;
-int l_spy;
-
-char local_hostname[80];
-char version_string[80];
-
-int TCP = 0;
-
-int L_LOGGING = 0;
-int L_LOGGING_NETPLAY = 0;
-int L_LOGGING_NETPLAY_JOIN = 0;
-int L_LOGGING_NETPLAY_bandwidth = 0;
-int L_LOGGING_NETPLAY_client_timer_adjust = 0;
-int L_LOGGING_NETPLAY_cdat = 0;
-int L_LOGGING_NETPLAY_game_move = 0;
-int L_LOGGING_NETPLAY_sdat = 0;
-int L_LOGGING_NETPLAY_sdak = 0;
-int L_LOGGING_NETPLAY_chdf = 0;
-int L_LOGGING_NETPLAY_chdf_all_packets = 0;
-int L_LOGGING_NETPLAY_chdf_when_to_apply = 0;
-int L_LOGGING_NETPLAY_show_dif1 = 0;
-int L_LOGGING_NETPLAY_show_dif2 = 0;
-
-
-// server chdf
-char client_chdf[8][2][CHUNK_SIZE];
-int client_chdf_id[8][2]; // passcount id
-
-// client chdf
-char chdf[CHUNK_SIZE];         // for client chdf building
-int chdf_pieces[16];
-
-char clientl_chdf[CHUNK_SIZE]; // last ack state for diffing
-int clientl_chdf_id;           // passcount id of last state
-
-char dif[CHUNK_SIZE];
-int dif_id[2]; //   (0 = src, 1 = dst)
-
-int zlib_cmp = 7;
-int chdf_freq = 40;
-int control_lead_frames = 3;
-int server_lead_frames = 1;
-
-int deathmatch_pbullets = 0;
-int deathmatch_pbullets_damage = 5;
-int suicide_pbullets = 0;
-
-
-float mouse_loop_pause = 0;
-
-char msg[256];
-
-
-struct player players[NUM_PLAYERS];
-struct player1 players1[NUM_PLAYERS];
-
-int l[100][100];    // level
-int Ei[100][32];    // enemy ints
-al_fixed Efi[100][16]; // enemy fixeds
-int item[500][16];  // item ints
-al_fixed itemf[500][4]; // item al_fixed_points
-
-int num_lifts;
-struct lift lifts[NUM_LIFTS];
-struct lift_step lift_steps[NUM_LIFTS][40];
-
-
-int db;  // level editor zoom fullscreen double
-int md;         // menu map double
-int map_double; // level editor map double
-int map_x = BORDER_WIDTH;
-int map_y = BORDER_WIDTH;
-int map_size = 0;
-int new_size = 0;
-int txc;
-
-
-int Redraw = 1;
-int Num_legend_lines = 2;
-int Viewer_lock = 0;
-
-int menu_map_x;
-int menu_map_y;
-int menu_map_size;
-
-int item_num_of_type[20];
-
-int ssfnsn = 0; // screen shot file name sequence number
-int making_video = 0;
-int speed_testing = 0;
-
-
-struct screen_msg screen_msgs[100];
-
-char log_msg[100000000]; // for logging
-int log_msg_pos = 0;
-char log_lines[1000000][100]; // for log file viewer
-int log_lines_int[1000000][3]; // for log file viewer
-
-
-int log_timer;
 
 int KEY_1_b = 1;
 int KEY_2_b = 1;
@@ -253,43 +174,28 @@ int KEY_F12_held = 0;
 int KEY_PRTSCR_held = 0;
 
 
-int test_int = 3;
+// ------------------------------------------------
+// ----------------- setup ------------------------
+// ------------------------------------------------
 
-int actual_fps;
-int last_frames_skipped = 0;
-int frames_skipped_last_second;
-int last_fps_passcount = 0;
+ALLEGRO_TIMER * fps_timer;
+ALLEGRO_TIMER * sec_timer;
+ALLEGRO_TIMER * mnu_timer;
 
-int ima_server = 0;
-int ima_client = 0;
-int active_local_player = 0;
+ALLEGRO_EVENT_QUEUE *event_queue = NULL;
+ALLEGRO_DISPLAY *display = NULL;
+ALLEGRO_COLOR palette_color[256];
+ALLEGRO_FONT *font = NULL;
+ALLEGRO_FONT *f1 = NULL;
+ALLEGRO_FONT *f2 = NULL;
+ALLEGRO_FONT *f3 = NULL;
 
+ALLEGRO_JOYSTICK *joy0 = NULL;
+ALLEGRO_JOYSTICK *joy1 = NULL;
 
-char m_serveraddress[256] = "192.168.1.2";
-
-int game_moves[1000000][4];
-int game_move_entry_pos = 0;
-int game_move_current_pos = 0; // for savegame running only
-
-
-char enemy_name[50][32];
-char lift_step_type_name[10][10];
-
-char color_name[16][20];
-
-int pm_bullet_collision_box = 8;
-int map_on = 0;
-int show_debug_overlay = 0;
-
-int show_player_join_quit_timer = 0;
-int show_player_join_quit_player = 0;
-int show_player_join_quit_jq = 0;
-
-
-float scale_factor = 1.0;
-float scale_factor_current  = 1.0;
-float scale_factor_inc = 0.03;
-int show_scale_factor;
+// ------------------------------------------------
+// ----------------- bitmaps ----------------------
+// ------------------------------------------------
 
 ALLEGRO_BITMAP *tilemap = NULL;
 ALLEGRO_BITMAP *ptilemap = NULL;
@@ -299,6 +205,8 @@ ALLEGRO_BITMAP *M_ptilemap = NULL;
 ALLEGRO_BITMAP *M_dtilemap = NULL;
 
 ALLEGRO_BITMAP *memory_bitmap[NUM_SPRITES];
+int sa[NUM_SPRITES][2]; // shape attributes
+
 ALLEGRO_BITMAP *player_bitmap[16][32];
 ALLEGRO_BITMAP *door_bitmap[2][16][8];
 ALLEGRO_BITMAP *l2000 = NULL;
@@ -310,14 +218,222 @@ ALLEGRO_BITMAP *lefsm = NULL; // level editor fullscreen map
 ALLEGRO_BITMAP *mp = NULL;     //  mouse_pointer
 ALLEGRO_BITMAP *ft_bmp = NULL;  //  file temp paste bmp
 
-int show_splash_screen = 1;
-int splash_screen_done = 0;
+ALLEGRO_BITMAP *logo_ichael = NULL;
+ALLEGRO_BITMAP *logo_avid = NULL;
+ALLEGRO_BITMAP *logo_eiss = NULL;
+int logo_text_bitmaps_create = 1;
+
+ALLEGRO_BITMAP *text_demo = NULL;
+ALLEGRO_BITMAP *text_mode = NULL;
+int text_demomode_bitmaps_create = 1;
+
+ALLEGRO_BITMAP *text_title = NULL;
+int text_title_bitmaps_create = 1;
+int text_title_draw_color = -1;
+
+
+
+
+
+
+
+
+
+
+// ------------------------------------------------
+// ----------------- netgame ----------------------
+// ------------------------------------------------
+
+int ima_server = 0;
+int ima_client = 0;
+char m_serveraddress[256] = "192.168.1.2";
+
+int TCP = 0;
+
+// server chdf
+char client_chdf[8][2][CHUNK_SIZE];
+int client_chdf_id[8][2]; // passcount id
+
+// client chdf
+char chdf[CHUNK_SIZE];         // for client chdf building
+int chdf_pieces[16];
+char clientl_chdf[CHUNK_SIZE]; // last ack state for diffing
+int clientl_chdf_id;           // passcount id of last state
+
+char dif[CHUNK_SIZE];
+int dif_id[2]; //   (0 = src, 1 = dst)
+
+int zlib_cmp = 7;
+int chdf_freq = 40;
+int control_lead_frames = 3;
+int server_lead_frames = 1;
+
+int deathmatch_pbullets = 0;
+int deathmatch_pbullets_damage = 5;
+int suicide_pbullets = 0;
+
+
+
+// ------------------------------------------------
+// ----------------- logging ----------------------
+// ------------------------------------------------
+char log_msg[100000000]; // for logging
+int log_msg_pos = 0;
+char log_lines[1000000][100]; // for log file viewer
+int log_lines_int[1000000][3]; // for log file viewer
+int log_timer;
+
+
+int L_LOGGING = 0;
+int L_LOGGING_NETPLAY = 0;
+int L_LOGGING_NETPLAY_JOIN = 0;
+int L_LOGGING_NETPLAY_bandwidth = 0;
+int L_LOGGING_NETPLAY_client_timer_adjust = 0;
+int L_LOGGING_NETPLAY_cdat = 0;
+int L_LOGGING_NETPLAY_game_move = 0;
+int L_LOGGING_NETPLAY_sdat = 0;
+int L_LOGGING_NETPLAY_sdak = 0;
+int L_LOGGING_NETPLAY_chdf = 0;
+int L_LOGGING_NETPLAY_chdf_all_packets = 0;
+int L_LOGGING_NETPLAY_chdf_when_to_apply = 0;
+int L_LOGGING_NETPLAY_show_dif1 = 0;
+int L_LOGGING_NETPLAY_show_dif2 = 0;
 
 int auto_save_game_on_exit = 0;
 int auto_save_game_on_level_done = 0;
 
-int mdw_an_seq = 0; // mdw animation sequence number
-float points[10][8]; // for mdw logo
+
+// ------------------------------------------------
+// ---------------- sound -------------------------
+// ------------------------------------------------
+ALLEGRO_VOICE *voice = NULL;
+ALLEGRO_MIXER *mn_mixer = NULL;
+ALLEGRO_MIXER *se_mixer = NULL;
+ALLEGRO_MIXER *st_mixer = NULL;
+ALLEGRO_SAMPLE *snd[20];
+ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
+ALLEGRO_AUDIO_STREAM *pm_theme_stream;
+int fuse_loop_playing;
+int sample_delay[8];
+int se_scaler=5;
+int st_scaler=5;
+int lit_item;
+int sound_on = 1;
+
+
+
+// ------------------------------------------------
+// ---------------- players -----------------------
+// ------------------------------------------------
+struct player players[NUM_PLAYERS];
+struct player1 players1[NUM_PLAYERS];
+int active_local_player = 0;
+
+
+// ------------------------------------------------
+// ---------------- lifts -----------------------
+// ------------------------------------------------
+struct lift lifts[NUM_LIFTS];
+struct lift_step lift_steps[NUM_LIFTS][40];
+int num_lifts;
+char lift_step_type_name[10][10];
+
+
+// ------------------------------------------------
+// ---------------- level -------------------------
+// ------------------------------------------------
+int l[100][100];
+int start_level;
+int play_level;
+int valid_level_loaded;
+int level_num; // used by level editor and load file to keep track of last level loaded
+int resume_allowed=0;
+
+// items
+int item[500][16];      // item ints
+al_fixed itemf[500][4]; // item fixeds
+int item_num_of_type[20];
+int item_first_num[20];
+char item_name[20][40];
+char *pmsg[500] = { NULL };
+
+
+// enemies
+int Ei[100][32];        // enemy ints
+al_fixed Efi[100][16];  // enemy fixeds
+int e_num_of_type[50];
+int e_first_num[50];
+char enemy_name[20][40];
+int num_enemy;
+
+// PDE
+int PDEi[100][32];
+al_fixed PDEfx[100][16];
+char PDEt[100][20][40];
+
+// bullets
+int pbullet[50][6];
+int e_bullet_active[50];
+int e_bullet_shape[50];
+al_fixed e_bullet_fx[50];
+al_fixed e_bullet_fy[50];
+al_fixed e_bullet_fxinc[50];
+al_fixed e_bullet_fyinc[50];
+int pm_bullet_collision_box = 8;
+
+int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
+int disp_y_curr;
+int disp_w_curr;
+int disp_h_curr;
+
+int disp_x_wind; // use when restoring from fullscreen
+int disp_y_wind;
+int disp_w_wind;
+int disp_h_wind;
+
+int disp_x_full = 0;
+int disp_y_full = 0;
+int disp_w_full;
+int disp_h_full;
+
+int SCREEN_W;
+int SCREEN_H;
+int WX;
+int WY;
+int fullscreen = 1;
+
+// last screen pos, to tell if it changed
+int l_spx;
+int l_spy;
+
+// used to only redraw a region of background to increase fps
+int level_display_region_x;
+int level_display_region_y;
+int level_display_region_w;
+int level_display_region_h;
+
+int les = 3; // level editor scale
+
+int level_editor_running = 0;
+int help_screens_running = 0;
+int visual_level_select_running = 0;
+
+int show_debug_overlay = 0;
+
+int show_player_join_quit_timer = 0;
+int show_player_join_quit_player = 0;
+int show_player_join_quit_jq = 0;
+
+float scale_factor = 1.0;
+float scale_factor_current  = 1.0;
+float scale_factor_inc = 0.03;
+int show_scale_factor;
+
+int show_splash_screen = 1;
+int splash_screen_done = 0;
+
+int mdw_an_seq = 0;   // mdw animation sequence number
+float points[10][8];  // for mdw logo
 int mdw_map_logo_x = 100;
 int mdw_map_logo_y = 140;
 int mdw_map_logo_th = 1;
@@ -332,166 +448,62 @@ float mdw_logo_scale_dec;
 float mdw_logo_x_dec;
 float mdw_logo_y_dec;
 
-char global_string[20][25][80];
 
-int tmy;   // menu pos
-int tmtx, tmty; // text position
-int mx, my;
-float steps;
+// position and size of map on menu screen
+int menu_map_x;
+int menu_map_y;
+int menu_map_size;
 
-int sa[NUM_SPRITES][2];
+int db;  // level editor zoom fullscreen map double
+int txc; // center of right hand side panel in level editor
 
-int level_num;
+// game map
+int game_map_on;
+int map_x = BORDER_WIDTH;
+int map_y = BORDER_WIDTH;
+int map_size = 0;
+int new_size = 0;
+
+// -----------------------------------------------------------------------------------------------
+// not sorted yet
+
+ALLEGRO_FS_ENTRY *filenames[1000];
+int num_filenames;
+
 char level_filename[80];
+char local_hostname[80];
+char version_string[80];
+char global_string[20][25][80];
+char msg[256];
+char color_name[16][20];
+
+
+int speed_testing = 0;
+int actual_fps;
+int last_frames_skipped = 0;
+int frames_skipped_last_second;
+int last_fps_passcount = 0;
+int draw_frame;
+int speed = 40;
+int passcount_timer_fps= 40;
+int passcount;
 
 int level_header[20];
-char *pmsg[500] = { NULL };
 
 int zz[20][NUM_ANS];
-int passcount;
-int draw_frame;
 
-int speed = 40;
-int play_level;
-int start_mode = 1;
-int valid_level_loaded = 0;
-
-int resume_allowed=0;
-int top_menu_sel = 3;
 int level_time;
-int LIVES;
-
-int start_level=1;
-int sound_on = 1;
-int passcount_timer_fps= 40;
-
-int pbullet[50][6];
-
-int e_bullet_active[50], e_bullet_shape[50];
-al_fixed e_bullet_fx[50], e_bullet_fy[50], e_bullet_fxinc[50], e_bullet_fyinc[50];
-
+int start_mode = 0;
 int level_done = 0;
 int game_exit = 1;
-int num_enemy;
 
-// counters and temp string
-char b_msg[40][80];
-int bottom_msg=0;
-int game_map_on = 0;
 
-// enemies
-int e_num_of_type[50];
-int e_first_num[50];
-int PDEi[100][32];
-al_fixed PDEfx[100][16];
-char PDEt[100][20][40];
-char eftype_desc[50][16][40];
-char eitype_desc[50][32][40];
-
-// items
-int item_first_num[20];
-int item_coloc_num;
-int item_coloc_x;
-int item_coloc_y;
-char item_edit_text[80];
-char item_desc[20][5][40];
-
-int swbl[NUM_SPRITES][2];
-int swbn;
-
-int ty = 46;   // button start
-int tw = 94;   // button width
-int bts = 12;  // button spacing
-
-char sel_filename[500];
-
-int exit_link = 0;
-int bx1, bx2, by1, by2;
-int slx0=0, sly0=0, slx1=20, sly1=20;
-
-int bmp_index = 255; // used by edit menu
-int zzindx = 3;
-int b1_color = 3, bs_win = 0;
-
-int get100_x, get100_y; // used by edit functions
-
-// zoom full screen stuff
-int stx=10;  // selection window
-int sty=10;
-int sux=40;
-int suy=30;
-
-int copy_blocks=1;
-int copy_enemies=1;
-int copy_items=1;
-int copy_lifts=1;
-int copy_mode = 0;
-int brf_mode =0;
-
-int lc;
-
-int ft_level_header[20];
-int ft_l[100][100];
-int ft_item[500][16];
-char* ft_pmsg[500];
-int ft_Ei[100][32];
-al_fixed ft_Efi[100][16];
-
-char ft_ln[NUM_LIFTS][80];
-int ft_lift[NUM_LIFTS][4];
-int ft_ls[NUM_LIFTS][40][4];
-
-// gui stuff
-int text_draw_flag=0;
-
-int wx=0;
-int wy=0;
-
-int draw_item_num;
-int draw_item_type;
-int point_item_num;
-int point_item_type;
-
-int old_line_draw_mode;
-
-int line_draw_mode;
-int grid_flag = 0;
-
-int pop_msg_viewer_pos;
-
-// status window
-int status_window_active = 1;
-int status_window_x = 9999;
-int status_window_y = 35;
-int status_window_w = 320;
-int status_window_h = 43;
-
-// select window
-int select_window_active = 1;
-int select_window_x = 9999;
-int select_window_y = 100;
-int select_window_w = 322;
-int select_window_h;
-int select_window_text_y;
-int select_window_block_on = 1;
-int swnbl;
-int swnbl_cur = 0;
-
-int select_window_block_y;
-int btext_draw_flag;
-int select_window_special_on = 1;
-int select_window_num_special_lines = 3;
-int select_window_special_y;
-int stext_draw_flag;
-int sw_mouse_gone = 0;
 
 
 void final_wrapup(void)
 {
    al_uninstall_system();
 }
-
-
 
 void fast_exit(int why)
 {
@@ -1317,7 +1329,7 @@ int initial_setup(void)
 
 void game_menu(void)
 {
-
+   int top_menu_sel = 3;
    if (!splash_screen_done)
    {
       splash_screen();
@@ -1328,7 +1340,7 @@ void game_menu(void)
    do
    {
       //printf("post load level\n");
-      top_menu_sel = zmenu(7, top_menu_sel, tmy);
+      top_menu_sel = zmenu(7, top_menu_sel, 10);
 
       // this must be before 3 because sometimes 3 calls 4 immed
       if ((top_menu_sel == 4) && (resume_allowed)) // resume game
@@ -1420,13 +1432,13 @@ void game_menu(void)
          int options_menu_sel = 2;
          do
          {
-            options_menu_sel = zmenu(8, options_menu_sel, tmy + 20);
+            options_menu_sel = zmenu(8, options_menu_sel, 30);
             if (options_menu_sel == 3)
             {
                int netgame_menu_sel = 2;
                do
                {
-                  netgame_menu_sel = zmenu(4, netgame_menu_sel, tmy + 20);
+                  netgame_menu_sel = zmenu(4, netgame_menu_sel, 30);
                   if (netgame_menu_sel == 3) // edit server name
                   {
                      edit_server_name();
@@ -1478,7 +1490,7 @@ void game_menu(void)
                int logging_menu_sel = 2;
                do
                {
-                  logging_menu_sel = zmenu(3, logging_menu_sel, tmy + 20);
+                  logging_menu_sel = zmenu(3, logging_menu_sel, 30);
                   if (logging_menu_sel == 3) // all on
                   {
                      L_LOGGING=1;
@@ -1635,7 +1647,7 @@ void game_menu(void)
                int p1_menu_sel = 2;
                do
                {
-                  p1_menu_sel = zmenu(9, p1_menu_sel, tmy+16);
+                  p1_menu_sel = zmenu(9, p1_menu_sel, 30);
                   if (p1_menu_sel == 3) test_keys();
 
                   if (p1_menu_sel == 4) get_all_keys(0);
@@ -1721,13 +1733,11 @@ void game_menu(void)
                }
                if (options_menu_sel == 8) // sound effects vol ++
                {
-                  extern int se_scaler;
                   if (++se_scaler > 9) se_scaler = 9;
                   set_se_scaler();
                }
                if (options_menu_sel == 9) // sound track vol ++
                {
-                  extern int st_scaler;
                   if (++st_scaler > 9) st_scaler = 9;
                   set_st_scaler();
                }
@@ -1752,13 +1762,11 @@ void game_menu(void)
                }
                if (options_menu_sel == 8) // sound effects vol --
                {
-                  extern int se_scaler;
                   if (--se_scaler < 0) se_scaler = 0;
                   set_se_scaler();
                }
                if (options_menu_sel == 9) // sound track vol --
                {
-                  extern int st_scaler;
                   if (--st_scaler < 0) st_scaler = 0;
                   set_st_scaler();
                }
@@ -2006,37 +2014,6 @@ int main(int argument_count, char **argument_array)
                fast_exit(0);
             }
          }
-
-//         #ifndef RELEASE
-//         // run saved game file and record video
-//         if (strcmp(argument_array[1],"-v") == 0 )
-//         {
-//            if (load_gm(argument_array[2]))
-//            {
-//               printf("running game file:%s\n", argument_array[2]);
-//               players[0].control_method = 1;
-//               start_mode = 2; // load level and start, but skip game array erasing
-//               game_exit = 0;
-//               making_video = 1;
-//
-//               char sys_cmd[500];
-//               sprintf(sys_cmd, "del screenshots\\frame*.*");
-//               printf("%s\n",sys_cmd);
-//               system(sys_cmd);
-//
-//               sprintf(sys_cmd, "del out.mp4");
-//               printf("%s\n",sys_cmd);
-//               system(sys_cmd);
-//
-//               pm_main();
-//
-//               sprintf(sys_cmd, "screenshots\\ffmpeg.exe -framerate 40 -start_number 000 -i \"screenshots\\frame%%05d.bmp\" -c:v h264 -r 40 -pix_fmt yuv420p out.mp4");
-//               printf("%s\n",sys_cmd);
-//               system(sys_cmd);
-//            }
-//         }
-//         #endif
-
          #ifdef NETPLAY
          if (strcmp(argument_array[1],"-c") == 0 )
          {

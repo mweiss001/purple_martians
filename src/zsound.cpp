@@ -1,12 +1,6 @@
 #include "pm.h"
 
 
-extern int sound_on;
-extern int st_scaler;
-extern int se_scaler;
-extern ALLEGRO_SAMPLE *snd[20];
-extern int lit_item;
-extern int fuse_loop_playing;
 
 
 void stop_sound(void)
@@ -85,7 +79,7 @@ void load_sound() // for normal loading of sound driver and samples
          {
             al_set_default_mixer(se_mixer);
             al_reserve_samples(20);
-            for (int x=0; x<num_sounds; x++)
+            for (int x=0; x<9; x++)
             {
                char fn[20] = "snd/snd00.wav";
                char *filename;
@@ -121,14 +115,12 @@ void load_sound() // for normal loading of sound driver and samples
 
 void set_se_scaler(void)
 {
-   extern int se_scaler;
    if (sound_on) al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
    save_config();
 }
 
 void set_st_scaler(void)
 {
-   extern int st_scaler;
    if (sound_on) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
    save_config();
 }

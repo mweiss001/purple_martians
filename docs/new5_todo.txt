@@ -8,6 +8,13 @@
 ---------------------------------------------------------
 
 
+put log file viewer in logging menu
+
+
+
+
+
+
 working on cleaning up pm.h
 
 pm.h has all function definitions listed by files
@@ -25,6 +32,121 @@ also move all declarations from other source files to main
 
 
 I have 500 lines of extern variables!!!
+
+
+
+
+
+tmty
+tmtx
+position of text above the map on menu screen_msg
+used in draw_level
+set in set_map_var
+
+I also have:
+menu_map_x
+menu_map_y
+menu_map_size
+
+I should use these get the text position and then get rid of tmtx and tmty
+step 1
+use them in draw level
+now search and get rid of  tmtx and tmty done...
+
+
+now how about md
+used only to to make mx
+mx is used a lot
+made md local to set map var
+md is gone now, local only to set_map_var
+
+int map_double; // level editor map double
+not used, removed...
+
+
+
+tmy is the top_menu y_pos
+
+always set to 10, never anything else
+used to set mx = tmy + 130;
+make that constant..
+tmy is gone...
+
+float steps is gone...
+
+mx, my
+what are they used for?
+mx is used a lot locally
+replace with smx if locally used
+down to 89
+turns out almost all my and my were local...
+i kept a lot of them, just killed the extern ones
+mx and my are not global anymore...
+
+txc is used for the center of the right hand side panel in level editor...keep
+
+that has cleaned up lots...
+
+what is next?
+
+group globals by function and make sure main and pm follow same format...
+
+make item_name and enemy_name the same
+
+both
+
+
+menu_setup for game in zmenu
+
+text_setup for level editor in e_menu
+
+make them common...
+
+both use global_string[9]
+
+le uses 5 and 9
+gm uses 3, 4, 7, 8, 9
+
+make le use 6 instead of 9..done
+move code from ts to ms done
+remove e_menu.cpp from project...done
+make enemy_name like item_name
+replace ei_type_desc with enemy_name
+6 used for lift pop up menu?? need to move editor menu to 2?
+done...
+
+
+
+4:30 AM
+
+main
+300 sorted
+200 not
+
+pm
+550 sorted
+200 not
+
+5:30
+400 sorted
+100 not
+
+pm
+625 sorted
+125 not
+
+
+wx and wy are used 34 times
+mostly as the origin block on the main level editor..
+
+
+6:40
+main 20 not sorted
+pm same...
+
+
+
+
 
 
 

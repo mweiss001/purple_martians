@@ -244,7 +244,6 @@ int load_level(int level_to_load, int display)
    valid_level_loaded = 0;
 
    extern int level_header[20];
-   extern int level_num;
    int level_load_error = 0;
    int loop, ch, c, x, y;
    char buff[2000];
@@ -515,7 +514,6 @@ int save_level(int level_to_save)
 
    filepntr = fopen(level_filename,"w");
 
-   extern int level_num;
    level_num = level_to_save;
 
    level_header[3] = sort_item(); // num_of_items

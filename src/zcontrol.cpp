@@ -79,82 +79,6 @@ char *key_names[] =
   (char*) "SCROLLLOCK",(char*) "NUMLOCK",   (char*) "CAPSLOCK"
 };
 
-//
-//char *key_names[] =
-//{
-//   "(none)",     "A",          "B",          "C",
-//   "D",          "E",          "F",          "G",
-//   "H",          "I",          "J",          "K",
-//   "L",          "M",          "N",          "O",
-//   "P",          "Q",          "R",          "S",
-//   "T",          "U",          "V",          "W",
-//   "X",          "Y",          "Z",          "0",
-//   "1",          "2",          "3",          "4",
-//   "5",          "6",          "7",          "8",
-//   "9",          "PAD 0",      "PAD 1",      "PAD 2",
-//   "PAD 3",      "PAD 4",      "PAD 5",      "PAD 6",
-//   "PAD 7",      "PAD 8",      "PAD 9",      "F1",
-//   "F2",         "F3",         "F4",         "F5",
-//   "F6",         "F7",         "F8",         "F9",
-//   "F10",        "F11",        "F12",        "ESCAPE",
-//   "KEY60",      "KEY61",      "KEY62",      "BACKSPACE",
-//   "TAB",        "KEY65",      "KEY66",      "ENTER",
-//   "KEY68",      "KEY69",      "BACKSLASH",  "KEY71",
-//   "KEY72",      "KEY73",      "KEY74",      "SPACE",
-//   "INSERT",     "DELETE",     "HOME",       "END",
-//   "PGUP",       "PGDN",       "LEFT",       "RIGHT",
-//   "UP",         "DOWN",       "PAD /",      "PAD *",
-//   "PAD -",      "PAD +",      "PAD DELETE", "PAD ENTER",
-//   "PRINTSCREEN","PAUSE",      "KEY94",      "KEY95",
-//   "KEY96",      "KEY97",      "KEY98",      "KEY99",
-//   "KEY100",     "KEY101",     "KEY102",     "PAD =",
-//   "KEY104",     "KEY105",     "KEY106",     "KEY107",
-//   "KEY108",     "KEY109",     "KEY110",     "KEY111",
-//   "KEY112",     "KEY113",     "KEY114",     "KEY115",
-//   "KEY116",     "KEY117",     "KEY118",     "KEY119",
-//   "KEY120",     "KEY121",     "KEY122",     "KEY123",
-//   "KEY124",     "KEY125",     "KEY126",     "KEY127",
-//
-//   // joystick equivalents
-//   // 128-
-//           "joy1-up","joy1-down","joy1-left","joy1-right",
-//           "joy1-b0","joy1-b1","joy1-b2","joy1-b3","joy1-b4","joy1-b5","joy1-b6","joy1-b7",
-//           "joy1-b8","joy1-b9","joy1-b10","joy1-b11","joy1-b12","joy1-b13","joy1-b14","joy1-b15",
-//   // 148-
-//           "joy2-up","joy2-down","joy2-left","joy2-right",
-//           "joy2-b0","joy2-b1","joy2-b2","joy2-b3","joy2-b4","joy2-b5","joy2-b6","joy2-b7",
-//           "joy2-b8","joy2-b9","joy2-b10","joy2-b11","joy2-b12","joy2-b13","joy2-b14","joy2-b15"
-//
-////   "KEY128",     "KEY129",     "KEY130",     "KEY131",
-////   "KEY132",     "KEY133",     "KEY134",     "KEY135",
-////   "KEY136",     "KEY137",     "KEY138",     "KEY139",
-////   "KEY140",     "KEY141",     "KEY142",     "KEY143",
-////   "KEY144",     "KEY145",     "KEY146",     "KEY147",
-////
-////   "KEY148",     "KEY149",     "KEY150",     "KEY151",
-////   "KEY152",     "KEY153",     "KEY154",     "KEY155",
-////   "KEY156",     "KEY157",     "KEY158",     "KEY159",
-////   "KEY160",     "KEY161",     "KEY162",     "KEY163",
-////   "KEY164",     "KEY165",     "KEY166",     "KEY167",
-//
-//   "KEY168",     "KEY169",     "KEY170",     "KEY171",
-//   "KEY172",     "KEY173",     "KEY174",     "KEY175",
-//   "KEY176",     "KEY177",     "KEY178",     "KEY179",
-//   "KEY180",     "KEY181",     "KEY182",     "KEY183",
-//   "KEY184",     "KEY185",     "KEY186",     "KEY187",
-//   "KEY188",     "KEY189",     "KEY190",     "KEY191",
-//   "KEY192",     "KEY193",     "KEY194",     "KEY195",
-//   "KEY196",     "KEY197",     "KEY198",     "KEY199",
-//   "KEY200",     "KEY201",     "KEY202",     "KEY203",
-//   "KEY204",     "KEY205",     "KEY206",     "KEY207",
-//   "KEY208",     "KEY209",     "KEY210",     "KEY211",
-//   "KEY212",     "KEY213",     "KEY214",     "LSHIFT",
-//   "RSHIFT",     "LCTRL",      "RCTRL",      "ALT",
-//   "ALTGR",      "LWIN",       "RWIN",       "MENU",
-//   "SCROLLLOCK", "NUMLOCK",    "CAPSLOCK"
-//};
-
-
 int getJoystickNum(ALLEGRO_JOYSTICK* joy) // Thanks Edgar Reynaldo!
 {
    for (int i=0 ; i<al_get_num_joysticks(); ++i)
@@ -448,36 +372,6 @@ void function_key_check(void)
 {
    extern int speed;
    extern float scale_factor;
-
-
-//   extern int KEY_1_held;
-//   extern int KEY_2_held;
-//   extern int KEY_3_held;
-//   extern int KEY_4_held;
-//   extern int KEY_5_held;
-//   extern int KEY_6_held;
-//   extern int KEY_7_held;
-//   extern int KEY_8_held;
-//   extern int KEY_9_held;
-
-
-   extern int KEY_F1_held;
-   extern int KEY_F2_held;
-   extern int KEY_F3_held;
-   extern int KEY_F4_held;
-   extern int KEY_F5_held;
-   extern int KEY_F6_held;
-   extern int KEY_F7_held;
-   extern int KEY_F8_held;
-   extern int KEY_F9_held;
-   extern int KEY_F10_held;
-   extern int KEY_F11_held;
-   extern int KEY_F12_held;
-   extern int KEY_PRTSCR_held;
-
-
-
-
 
 /*
 

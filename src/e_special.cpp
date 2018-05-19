@@ -545,8 +545,7 @@ return 999;
 
 void set_swbl(void)
 {
-   extern int swbn;
-   swbn = 0; // set number of blocks to zero initially
+   int swbn = 0;
    // erase array
    for (int c=0; c<NUM_SPRITES; c++)
    {

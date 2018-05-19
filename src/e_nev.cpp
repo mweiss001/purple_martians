@@ -709,15 +709,15 @@ int edit_pmsg_text(int c, int new_msg)
    int xa = 4+SCREEN_W-(SCREEN_W-(db*100));
    int xb = SCREEN_W-4;
 
-   int mx = txc;  // x center
-   int my = pop_msg_viewer_pos;
+   int smx = txc;  // x center
+   int smy = pop_msg_viewer_pos;
 
    int bad=0;
    //clear_keybuf();
 
    if (new_msg)
    {
-      my = 200;
+      smy = 200;
       f[0] = (char)NULL;
       f[1] = (char)NULL;
       char_count = 1;
@@ -736,11 +736,10 @@ int edit_pmsg_text(int c, int new_msg)
       al_set_target_backbuffer(display);
 
       // draw the message
-      display_pop_message(c, f, mx, my, 1, 0);
+      display_pop_message(c, f, smx, smy, 1, 0);
 
       a = -3; //back up from the message to the buttons;;
-      extern int bts;
-      int by = my-bts/2-2;
+      int by = smy-bts/2-2;
 
       mdw_button(xa, by+a*bts, xb, by+(a+1)*bts-2, 7, 999, 0, 0, 0, 14, 15,  0, 1,0,0,0);  // edit text placeholder
 
@@ -759,13 +758,13 @@ int edit_pmsg_text(int c, int new_msg)
       }
 
       if (blink_counter++ < blink_count)
-         show_cursor(f, cursor_pos, mx, my, tc, 0, 0);
-      else show_cursor(f, cursor_pos, mx, my, tc, 1, 0);
+         show_cursor(f, cursor_pos, smx, smy, tc, 0, 0);
+      else show_cursor(f, cursor_pos, smx, smy, tc, 1, 0);
       if (blink_counter> blink_count*2) blink_counter = 0;
 
       if (cursor_pos != old_cp)
       {
-         show_cursor(f, old_cp, mx, my, tc, 1, 0); // erase old blinking cursor if moved
+         show_cursor(f, old_cp, smx, smy, tc, 1, 0); // erase old blinking cursor if moved
          old_cp = cursor_pos;
          blink_counter = 0;
       }

@@ -2,26 +2,6 @@
 
 #include "pm.h"
 
-
-extern int copy_blocks;
-extern int copy_enemies;
-extern int copy_items;
-extern int copy_lifts;
-extern int stx, sty, sux, suy;
-
-
-extern int ft_level_header[20];
-extern int ft_l[100][100];
-extern int ft_item[500][16];
-extern char *ft_pmsg[500];
-
-extern int ft_Ei[100][32];
-extern al_fixed ft_Efi[100][16];
-
-extern char ft_ln[NUM_LIFTS][80];
-extern int ft_lift[NUM_LIFTS][4];
-extern int ft_ls[NUM_LIFTS][40][4];
-
 void clear_ft(void)
 {
    for (int x=0; x<20; x++) // level_header
@@ -57,7 +37,6 @@ void clear_ft(void)
 int load_selection(void)
 {
    FILE *filepntr;
-   extern char sel_filename[500];
    int loop, ch, c, x, y;
    char buff[2000];
    sprintf(sel_filename,"sel\\");
@@ -350,7 +329,6 @@ void save_selection(int save)
    {
       al_make_directory("sel"); // create if not already created
       FILE *filepntr;
-      extern char sel_filename[500];
       sprintf(sel_filename, "sel\\");
       if (mw_file_select("Save Selection", sel_filename, ".sel", 1))
       {

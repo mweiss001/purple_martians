@@ -1,10 +1,5 @@
 #include "pm.h"
 
-extern int e_bullet_active[50], e_bullet_shape[50];
-extern al_fixed e_bullet_fx[50], e_bullet_fy[50], e_bullet_fxinc[50], e_bullet_fyinc[50];
-
-extern int pbullet[50][6];
-extern int pm_bullet_collision_box;
 
 
 void proc_pbullets()

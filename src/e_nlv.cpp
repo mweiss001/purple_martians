@@ -3,7 +3,6 @@
 #include "pm.h"
 
 char fst[80];
-extern char m_serveraddress[256];
 void edit_server_name(void)
 {
    strcpy(fst, m_serveraddress);
@@ -18,15 +17,15 @@ void edit_server_name(void)
    {
       int tx = SCREEN_W/2;
       int ty = SCREEN_H/2;
-      int tw = (char_count+1)*4;
+      int w = (char_count+1)*4;
 
       al_flip_display();
       // clear text background
-      al_draw_filled_rectangle(tx-tw-8, ty-4-2, tx+tw+18, ty+4+3, palette_color[0]);
+      al_draw_filled_rectangle(tx-w-8, ty-4-2, tx+w+18, ty+4+3, palette_color[0]);
 
       al_draw_text(font, palette_color[15], tx, ty-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
       // frame text
-      al_draw_rectangle       (tx-tw-1, ty-4-1, tx+tw+6, ty+6, palette_color[15], 1);
+      al_draw_rectangle       (tx-w-1, ty-4-1, tx+w+6, ty+6, palette_color[15], 1);
 
       rtextout_centre(NULL, fst, tx, ty+1, 15, 1, 0, 1);
 
@@ -120,15 +119,15 @@ int edit_lift_name(int lift, int step_ty, int bts)
 
       int tx = ((x1+x2)/2);
       int ty = ((y1+y2)/2);
-      int tw = (char_count+1) *4;
+      int w = (char_count+1) *4;
 
       int rot = 0;
       if ((lifts[lift].width == 1) && (lifts[lift].height > 1)) rot = 64;
       int color = lifts[lift].color;
 
       // clear text background
-      if (rot == 64) al_draw_filled_rectangle(tx-4, ty-tw, tx+4, ty+tw, palette_color[0]);
-      else           al_draw_filled_rectangle(tx-tw, ty-4, tx+tw, ty+4, palette_color[0]);
+      if (rot == 64) al_draw_filled_rectangle(tx-4, ty-w, tx+4, ty+w, palette_color[0]);
+      else           al_draw_filled_rectangle(tx-w, ty-4, tx+w, ty+4, palette_color[0]);
 
       for (a=0; a<10; a++)
          al_draw_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color + ((9 - a)*16)], 1 );
@@ -195,8 +194,6 @@ int edit_lift_name(int lift, int step_ty, int bts)
    }
 }
 
-
-extern int bts;
 
 void show_all_lifts(void)
 {
@@ -583,25 +580,25 @@ void insert_steps_until_quit(int lift, int step)
 
 void step_popup_menu(int lift, int step)
 {
-   int mx, my;
+   int smx, smy;
    if ((mouse_x < db*100) && (mouse_x < db*100)) // called from map
    {
-      mx = mouse_x;
+      smx = mouse_x;
       int lift_ypos = lifts[lift].y2;
-      my = lift_ypos*db/20 + 27;
+      smy = lift_ypos*db/20 + 27;
    }
    else // called from step buttons
    {
-      mx = txc;
-      my = 86 + (step + 9) * bts;
+      smx = txc;
+      smy = 86 + (step + 9) * bts;
    }
 
-   if (mx > SCREEN_W-100) mx = SCREEN_W-100;
-   if (my > SCREEN_H-100) my = SCREEN_H-100;
-   if (mx < 100) mx = 100;
-   if (my < 30) my = 30;
+   if (smx > SCREEN_W-100) smx = SCREEN_W-100;
+   if (smy > SCREEN_H-100) smy = SCREEN_H-100;
+   if (smx < 100) smx = 100;
+   if (smy < 30) smy = 30;
 
-   al_set_mouse_xy(display, mx * les, my * les);
+   al_set_mouse_xy(display, smx * les, smy * les);
    proc_controllers(); // to deal with mouse warp
 
    sprintf(global_string[6][0],"Lift:%d Step:%d", lift+1, step);
@@ -620,8 +617,8 @@ void step_popup_menu(int lift, int step)
       sprintf(global_string[6][4],"end");
 
       // blank and frame for menu
-      al_draw_filled_rectangle(mx-70, my-24, mx+70, my+14, palette_color[0]);
-             al_draw_rectangle(mx-70, my-24, mx+70, my+14, palette_color[13], 1);
+      al_draw_filled_rectangle(smx-70, smy-24, smx+70, smy+14, palette_color[0]);
+             al_draw_rectangle(smx-70, smy-24, smx+70, smy+14, palette_color[13], 1);
 
       // call the menu
       if (pmenu(6) == 3) move_lift_step(lift, step);
@@ -635,8 +632,8 @@ void step_popup_menu(int lift, int step)
       sprintf(global_string[6][4],"end");
 
       // blank and frame for menu
-      al_draw_filled_rectangle(mx-70, my-24, mx+70, my+14, palette_color[0]);
-             al_draw_rectangle(mx-70, my-24, mx+70, my+14, palette_color[13], 1);
+      al_draw_filled_rectangle(smx-70, smy-24, smx+70, smy+14, palette_color[0]);
+             al_draw_rectangle(smx-70, smy-24, smx+70, smy+14, palette_color[13], 1);
 
       // call the menu
       if (pmenu(6) == 3) insert_steps_until_quit(lift, step);
@@ -654,8 +651,8 @@ void step_popup_menu(int lift, int step)
          sprintf(global_string[6][6],"end");
 
          // blank and frame for menu
-         al_draw_filled_rectangle(mx-70, my-24, mx+70, my+30, palette_color[0]);
-                al_draw_rectangle(mx-70, my-24, mx+70, my+30, palette_color[13], 1);
+         al_draw_filled_rectangle(smx-70, smy-24, smx+70, smy+30, palette_color[0]);
+                al_draw_rectangle(smx-70, smy-24, smx+70, smy+30, palette_color[13], 1);
 
          // call the menu
          int msel = pmenu(6);
@@ -676,8 +673,8 @@ void step_popup_menu(int lift, int step)
          sprintf(global_string[6][5],"end");
 
          // blank and frame for menu
-         al_draw_filled_rectangle(mx-70, my-24, mx+70, my+14, palette_color[0]);
-                al_draw_rectangle(mx-70, my-24, mx+70, my+22, palette_color[13], 1);
+         al_draw_filled_rectangle(smx-70, smy-24, smx+70, smy+14, palette_color[0]);
+                al_draw_rectangle(smx-70, smy-24, smx+70, smy+22, palette_color[13], 1);
 
          // call the menu
          int msel = pmenu(6);

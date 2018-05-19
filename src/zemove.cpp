@@ -236,10 +236,7 @@ void draw_enemy(void)
 
 void enemy_collision(void)
 {
-   extern int pbullet[50][6];
-   extern int pm_bullet_collision_box;
    num_enemy = 0; // count enemies
-
    for (int e=0; e<100; e++)
    {
 

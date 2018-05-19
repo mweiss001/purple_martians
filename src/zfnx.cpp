@@ -23,7 +23,6 @@ int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
 
 void erase_last_bmsg(void)
 {
-    extern char b_msg[40][80];
     int c;
     if (strcmp(b_msg[0],b_msg[1])==0) /* if last two are the same */
        for (c=0; c<39; c++)
@@ -31,7 +30,6 @@ void erase_last_bmsg(void)
 }
 void slide_bmsg(void)
 {
-    extern char b_msg[40][80];
     int c;
     for (c=39; c>0; c--)
        sprintf(b_msg[c], "%s", b_msg[c-1]);

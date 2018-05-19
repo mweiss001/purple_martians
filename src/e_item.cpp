@@ -1,19 +1,19 @@
 // e_item.cpp (20100220 cleanup)
 #include "pm.h"
 
-void crosshairs(int mx, int my, int x, int y, int color) // function to draw rectangle and crosshairs
+void crosshairs(int smx, int smy, int x, int y, int color) // function to draw rectangle and crosshairs
 {
-   //al_draw_filled_rectangle(mx+(x*db), my+(y*db), mx+(x*db)+db-1, my+(y*db)+db-1, palette_color[color]);
-   al_draw_filled_rectangle(mx+(x*db)-1, my+(y*db)-1, mx+(x*db)+db, my+(y*db)+db, palette_color[color]);
-   al_draw_line(mx+1, my+(y*db)+db/2, mx+(100*db)-2, my+(y*db)+db/2, palette_color[color], 1);
-   al_draw_line(mx+(x*db)+db/2, my+1, mx+(x*db)+db/2, my+(100*db)-2, palette_color[color], 1);
+   //al_draw_filled_rectangle(smx+(x*db), smy+(y*db), smx+(x*db)+db-1, smy+(y*db)+db-1, palette_color[color]);
+   al_draw_filled_rectangle(smx+(x*db)-1, smy+(y*db)-1, smx+(x*db)+db, smy+(y*db)+db, palette_color[color]);
+   al_draw_line(smx+1, smy+(y*db)+db/2, smx+(100*db)-2, smy+(y*db)+db/2, palette_color[color], 1);
+   al_draw_line(smx+(x*db)+db/2, smy+1, smx+(x*db)+db/2, smy+(100*db)-2, palette_color[color], 1);
 }
 
-void crosshairs_nodb(int mx, int my, int x, int y, int db, int color) // funtion to draw rectangle and crosshairs
+void crosshairs_nodb(int smx, int smy, int x, int y, int db, int color) // funtion to draw rectangle and crosshairs
 {
-   al_draw_filled_rectangle(mx+(x), my+(y), mx+(x)+db-1, my+(y)+db-1, palette_color[color]);
-   al_draw_line(mx, my+(y)+db/2, mx+(100*db), my+(y)+db/2, palette_color[color], 1);
-   al_draw_line(mx+(x)+db/2, my, mx+(x)+db/2, my+(100*db), palette_color[color], 1);
+   al_draw_filled_rectangle(smx+(x), smy+(y), smx+(x)+db-1, smy+(y)+db-1, palette_color[color]);
+   al_draw_line(smx, smy+(y)+db/2, smx+(100*db), smy+(y)+db/2, palette_color[color], 1);
+   al_draw_line(smx+(x)+db/2, smy, smx+(x)+db/2, smy+(100*db), palette_color[color], 1);
 }
 
 void title(char *txt, int y, int tc, int fc)
@@ -218,15 +218,6 @@ int sort_item(void)
 
 void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int highlight_color)
 {
-   extern int e_num_of_type[50];      // sort results
-   extern int e_first_num[50];
-   extern char eitype_desc[50][32][40];
-
-   extern int item_first_num[20];
-   extern char item_desc[20][40];
-
-   extern int tw;   // button width
-
    char lmsg[5][80];
    int legend_color[5];
 
@@ -304,10 +295,10 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
    }
    if (obj_type == 3)  // enemies
    {
-      al_draw_rectangle(txc-tw, 20, txc+tw, 43, palette_color[15], 1);
-      draw_enemy_shape(num, txc-tw+2, 22);
-      sprintf(msg,"%s %d of %d", (const char *)eitype_desc[sub_type],1+num - e_first_num[sub_type],e_num_of_type[sub_type]);
-      al_draw_text(font, palette_color[13], txc-tw+28, 29, 0, msg);
+      al_draw_rectangle(txc-94, 20, txc+94, 43, palette_color[15], 1);
+      draw_enemy_shape(num, txc-92, 22);
+      sprintf(msg,"%s %d of %d", (const char *)enemy_name[sub_type],1+num - e_first_num[sub_type],e_num_of_type[sub_type]);
+      al_draw_text(font, palette_color[13], txc-94+28, 29, 0, msg);
       al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
       switch (sub_type)
       {
@@ -501,10 +492,10 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
    {
       if (!legend_highlight)
       {
-         al_draw_rectangle(txc-tw, 20, txc+tw, 43, palette_color[15], 1);
-         draw_item_shape( num, txc-tw+2, 22);
-         sprintf(msg,"%s %d of %d", item_desc[sub_type], 1+num - item_first_num[sub_type],item_num_of_type[sub_type]);
-         al_draw_text(font, palette_color[13], txc-tw+28, 29, 0, msg);
+         al_draw_rectangle(txc-94, 20, txc+94, 43, palette_color[15], 1);
+         draw_item_shape( num, txc-92, 22);
+         sprintf(msg,"%s %d of %d", item_name[sub_type], 1+num - item_first_num[sub_type],item_num_of_type[sub_type]);
+         al_draw_text(font, palette_color[13], txc+94-28, 29, 0, msg);
       }
       al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
       switch (sub_type)
@@ -652,12 +643,12 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             al_fixed fy = al_itofix(y1) - al_fixdiv(jump_height, al_itofix(20));
             fy = al_fixmul(fy, al_itofix(db));
             int y = al_fixtoi(fy);
-            int mx = 0;
-            int my = 0;
+            int smx = 0;
+            int smy = 0;
             int qx = x1;
-            al_draw_rectangle(mx+(qx*db), my+(y), mx+(qx*db)+db-1, my+(y)+db-1, palette_color[color], 1);
-            al_draw_line(mx, my+(y)+db/2, mx+(100*db), my+(y)+db/2, palette_color[color], 1);
-            al_draw_line(mx+(qx*db)+db/2, my, mx+(qx*db)+db/2, my+(100*db), palette_color[color], 1);
+            al_draw_rectangle(smx+(qx*db), smy+(y), smx+(qx*db)+db-1, smy+(y)+db-1, palette_color[color], 1);
+            al_draw_line(smx, smy+(y)+db/2, smx+(100*db), smy+(y)+db/2, palette_color[color], 1);
+            al_draw_line(smx+(qx*db)+db/2, smy, smx+(qx*db)+db/2, smy+(100*db), palette_color[color], 1);
          }
          break;
       } // end of switch case
@@ -1129,8 +1120,6 @@ void object_viewer(int obt, int num)
    extern int e_num_of_type[50];      // sort results
    extern int e_first_num[50];
    extern int item_first_num[20];
-   extern int ty;   // button start
-   extern int bts;  // button spacing
 
    int mb;   // button selection
    int type=0; // enemy or item type

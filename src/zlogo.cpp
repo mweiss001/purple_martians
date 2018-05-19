@@ -35,7 +35,7 @@ void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, char * txt)
 // You Died!
 
 
-void draw_title(int tx, int ty, int tw, int th, int color)
+void draw_title(int tx, int ty, int w, int h, int color)
 {
    sprintf(msg, "%s Martians!", color_name[color]); // overwrite with color name
    int bbx1, bby1, bbw1, bbh1;
@@ -60,7 +60,7 @@ void draw_title(int tx, int ty, int tw, int th, int color)
       al_convert_mask_to_alpha(text_title, al_map_rgb(0, 0, 0)) ;
    }
    al_set_target_backbuffer(display);
-   al_draw_scaled_bitmap(text_title, 0, 0, bbw1, bbh1, tx - tw/2, ty, tw, th, 0);
+   al_draw_scaled_bitmap(text_title, 0, 0, bbw1, bbh1, tx - w/2, ty, w, h, 0);
 }
 
 

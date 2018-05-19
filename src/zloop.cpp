@@ -1,31 +1,11 @@
 #include "pm.h"
 
-
-
 // global variables
-
-//extern int timer_passcount;
-extern int draw_frame;
 
 // timer variables
 extern int level_time;
-
 extern int speed;
-extern int sound_on;
-
-extern int pbullet[50][6];
-extern int pm_bullet_collision_box;
-
 extern int level_done;
-
-// counters and temp string
-extern char b_msg[40][80];
-extern int bottom_msg;
-extern int mx;
-extern int my;
-
-
-
 
 
 void add_screen_msg(char *txt, int x, int y, int delay, int ssn, int z1, int z2, int z3, int z4 )
@@ -455,7 +435,6 @@ void new_bmsg(char *nb)
 
 void event(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
-   extern int sample_delay[8];
    int text_on = 1;
    int screen_messages_on = 1;
    if (sound_on)
@@ -598,7 +577,7 @@ void proc_frame_delay(void)
       frames_skipped_last_second = (players1[active_local_player].frames_skipped - last_frames_skipped);
       last_frames_skipped = players1[active_local_player].frames_skipped;
    }
-   if ((making_video) || (speed_testing)) // draw every frame no matter how fast or slow it is
+   if (speed_testing) // draw every frame no matter how fast or slow it is
    {
       draw_frame = 1;
       al_set_timer_count(fps_timer, passcount);

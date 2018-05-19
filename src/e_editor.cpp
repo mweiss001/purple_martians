@@ -61,7 +61,6 @@ void draw_enemy_shape(int e, int x, int y)
 
 void draw_PDE_shape(int pde, int x, int y)
 {
-   extern int PDEi[100][32];
    int a = PDEi[pde][1]; // bmp or ans
    if (a > 999) a = zz[5][a-1000]; // ans
    al_set_target_backbuffer(display);
@@ -70,28 +69,16 @@ void draw_PDE_shape(int pde, int x, int y)
 
 void show_draw_item_cursor(void)
 {
-   extern int PDEi[100][32];
-   extern int wx, wy;
-   extern int draw_item_type;
-   extern int draw_item_num;
-   extern int point_item_type;
-   extern int point_item_num;
-
    int x100 = mouse_x/20 + wx;
    int y100 = mouse_y/20 + wy;
-
    if (x100>99) x100 = 99;
    if (y100>99) y100 = 99;
-
    int x = (x100-wx)*20;
    int y = (y100-wy)*20;
-
    // determine is shapes are the same
    int same = 0;
-
    if ((draw_item_type == 1) && (point_item_type == 1)) // both blocks
       if (draw_item_num == point_item_num) same = 1;    // same block
-
 
    if ((draw_item_type == 2) && (point_item_type == 2))      // both items
       if (item[draw_item_num][0] == item[point_item_num][0]) // same type
@@ -100,7 +87,6 @@ void show_draw_item_cursor(void)
    if ((draw_item_type == 3) && (point_item_type == 3))  // both enemies
       if (Ei[draw_item_num][0] == Ei[point_item_num][0]) // same type
          same = 1;
-
 
    if (draw_item_type == 5) //PDE
    {
@@ -321,9 +307,7 @@ void set_block_range(void)
 
 void get_new_box(void) // keep the mouse !!
 {
-   extern int wx, wy;
    int z; // for swap
-
    bx2 = bx1; // set all three to intial
    by2 = by1;
    int x1 = bx1;
@@ -375,7 +359,6 @@ void get_new_box(void) // keep the mouse !!
 
 void update_editor_background(void)
 {
-   extern int wx, wy;
    al_set_target_backbuffer(display);
    al_draw_bitmap_region(l2000, wx*20, wy*20, (SCREEN_W/20)*20, (SCREEN_H/20)*20, 0, 0, 0);
 
@@ -390,11 +373,8 @@ void update_editor_background(void)
 int process_scrolledge(void)
 {
    int scrolledge=10;
-   extern int wx, wy;
-
    int old_wx = wx;
    int old_wy = wy;
-
    if (mouse_x < scrolledge) wx--;           // scroll left
    if (mouse_x > SCREEN_W-scrolledge) wx++;  // scroll right
    if (mouse_y < scrolledge) wy--;           // scroll up
@@ -412,7 +392,6 @@ int process_scrolledge(void)
    {
       al_rest(.02);
    }
-
    return 0;
 }
 void pointer_text(int x, int y, int ty)
@@ -422,10 +401,8 @@ void pointer_text(int x, int y, int ty)
       al_draw_text( font, palette_color[15], txc, ty-39, ALLEGRO_ALIGN_CENTER, "Pointer");
       al_draw_textf(font, palette_color[15], txc, ty-31, ALLEGRO_ALIGN_CENTER, "  x:%d    y:%d ", x, y);
    }
-   extern int stx, sty, sux, suy;
    int b, d;
    int sey = -20;
-
    int rx1 = stx *20;    // source x
    int ry1 = sty *20;    // source y
    int rx2 = sux *20;    // sizes
@@ -433,7 +410,6 @@ void pointer_text(int x, int y, int ty)
    int eib=0;
    int iib=0;
    int lib=0;
-
    al_fixed frx1 = al_itofix(rx1);    // source x
    al_fixed fry1 = al_itofix(ry1);    // source y
    al_fixed frx2 = al_itofix(rx2);    // sizes
@@ -551,43 +527,21 @@ void do_brf(int x, int y, int flood_block)
 
 }
 
-
-
-
-
 int zoom_full_screen(int wx, int wy, int draw_item)
 {
    extern int draw_item_type;
    extern int draw_item_num;
-   extern int ft_level_header[20];
-//   extern char sel_filename[500];
-
-   extern int stx, sty, sux, suy;
    int jh;
-   extern int copy_mode;
-   extern int brf_mode;
-
-   extern int copy_blocks;
-   extern int copy_enemies;
-   extern int copy_items;
-   extern int copy_lifts;
-
    int ty = 60;
    int x1, y1, x2, y2;
-
    int x, y, exit =0;
-
    copy_mode = 0;
    brf_mode = 0;
-
-
-
 
 //   // return window size
 //   int rw_x1, rw_y1, rw_x2, rw_y2;
 //   int rw_w = (SCREEN_W/20);
 //   int rw_h = (SCREEN_H/20);
-
 
 // i don't like this, its usually too big
 // and it always reset everytime you come here
@@ -600,11 +554,7 @@ int zoom_full_screen(int wx, int wy, int draw_item)
 //   sux = stx + (SCREEN_W/20);
 //   suy = sty + (SCREEN_H/20);
 
-
-
    while (mouse_b2) proc_controllers();
-
-
    while (!exit)
    {
       al_set_target_backbuffer(display);
@@ -887,13 +837,6 @@ int zoom_full_screen(int wx, int wy, int draw_item)
 
 void draw_item_info(int x, int y, int color, int type, int num)
 {
-   extern int e_first_num[50];
-   extern int e_num_of_type[50];
-   extern int item_first_num[20];
-   extern char PDEt[100][20][40];
-   extern int PDEi[100][32];
-   extern char item_desc[20][40];
-   extern char eitype_desc[50][32][40];
    int a, b;
    switch (type)
    {
@@ -911,13 +854,13 @@ void draw_item_info(int x, int y, int color, int type, int num)
       case 2:
          draw_item_shape(num, x, y);
          a = item[num][0]; // type
-         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", item_desc[a]);
+         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", item_name[a]);
          al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - item_first_num[a],item_num_of_type[a]);
       break;
       case 3:
          draw_enemy_shape(num, x, y);
          a = Ei[num][0]; // type
-         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", eitype_desc[a][0]);
+         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", enemy_name[a]);
          al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - e_first_num[a],e_num_of_type[a]);
       break;
       case 4:
@@ -954,22 +897,11 @@ int edit_menu(int el)
    {
       les = 1;
       rebuild_bitmaps();
-      //set_ortho();
    }
-
    al_show_mouse_cursor(display);
-   extern int PDEi[100][32];
-   extern al_fixed PDEfx[100][16];
-   extern char item_desc[20][40];
-
    resume_allowed = 0;
-
    int mpow;
-
    int em_quit = 0;
-   extern int wx;
-   extern int wy;
-
    int x100, y100, x2000, y2000;
    int a, b, c, d, e, x, y;
 
@@ -980,7 +912,6 @@ int edit_menu(int el)
    if (lesh > 1999) lesh = 1999;
 
    check_s_window_pos(1);
-
    load_PDE();
 
    if (!el) load_level_prompt(); // load prompt
@@ -996,8 +927,6 @@ int edit_menu(int el)
 
    initialize_zz();
    set_wx_from_start_block();
-
-   text_setup(); // item, enemy, and  menu
 
    al_set_mouse_xy(display, SCREEN_W/2, SCREEN_H/2);
    proc_controllers();
@@ -1257,7 +1186,6 @@ int edit_menu(int el)
 
       if ((mouse_b2) && (!mpow))  // pop up menu
       {
-         extern char eitype_desc[50][32][40];
          extern int select_window_active;
 
          int pop_menu_selection = 999;
@@ -1266,30 +1194,30 @@ int edit_menu(int el)
          switch (point_item_type)
          {
             case 1:
-               sprintf(global_string[9][2], "Copy Block    ");
-               sprintf(global_string[9][3], "              ");
-               sprintf(global_string[9][4], "                ");
+               sprintf(global_string[2][2], "Copy Block    ");
+               sprintf(global_string[2][3], "              ");
+               sprintf(global_string[2][4], "                ");
             break;
             case 2:
-               sprintf(global_string[9][2], "Copy %s  ", item_desc[ item[point_item_num][0] ]);
-               sprintf(global_string[9][3], "View %s  ", item_desc[ item[point_item_num][0] ]);
-               sprintf(global_string[9][4], "Delete %s ", item_desc[ item[point_item_num][0] ]);
+               sprintf(global_string[2][2], "Copy %s  ",  item_name[item[point_item_num][0]]);
+               sprintf(global_string[2][3], "View %s  ",  item_name[item[point_item_num][0]]);
+               sprintf(global_string[2][4], "Delete %s ", item_name[item[point_item_num][0]]);
             break;
             case 3:
-               sprintf(global_string[9][2], "Copy %s  ", (const char *)eitype_desc[ Ei[point_item_num][0]]);
-               sprintf(global_string[9][3], "View %s  ", (const char *)eitype_desc[ Ei[point_item_num][0]]);
-               sprintf(global_string[9][4], "Delete %s ", (const char *)eitype_desc[ Ei[point_item_num][0]]);
+               sprintf(global_string[2][2], "Copy %s  ",  (const char *)enemy_name[Ei[point_item_num][0]]);
+               sprintf(global_string[2][3], "View %s  ",  (const char *)enemy_name[Ei[point_item_num][0]]);
+               sprintf(global_string[2][4], "Delete %s ", (const char *)enemy_name[Ei[point_item_num][0]]);
             break;
             case 4:
-               sprintf(global_string[9][2], "              ");
-               sprintf(global_string[9][3], "View Lift '%s'", lifts[point_item_num].lift_name);
-               sprintf(global_string[9][4], "Delete Lift '%s'", lifts[point_item_num].lift_name);
+               sprintf(global_string[2][2], "              ");
+               sprintf(global_string[2][3], "View Lift '%s'",   lifts[point_item_num].lift_name);
+               sprintf(global_string[2][4], "Delete Lift '%s'", lifts[point_item_num].lift_name);
             break;
          }
 
          temp_mouse_x = mouse_x*les;
          temp_mouse_y = mouse_y*les;
-         pop_menu_selection = pmenu(9);
+         pop_menu_selection = pmenu(2);
          al_set_mouse_xy(display, temp_mouse_x, temp_mouse_y);
          proc_controllers();
 
@@ -1388,11 +1316,7 @@ int edit_menu(int el)
                save_level_prompt();
             break;
             case 13: // save and exit
-            {
-               extern int exit_link;
                if (save_level_prompt()) em_quit=1;
-               exit_link = 1;
-            }
             break;
             case 14: // help
                help((char *)"Level Editor Basics");
@@ -1454,9 +1378,7 @@ int edit_menu(int el)
          em_quit = 1;
       }
    } while (!em_quit);
-   menu_setup(); // restore for game
    level_editor_running = 0;
-
    if (original_les != les)
    {
       les = original_les;
@@ -1465,7 +1387,6 @@ int edit_menu(int el)
    }
 
    al_hide_mouse_cursor(display);
-   extern int level_num;
    return level_num;
 }   // end of editor menu
 

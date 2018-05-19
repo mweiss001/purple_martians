@@ -1,9 +1,6 @@
 #include "pm.h"
 
-
 extern int level_done;
-extern int LIVES;
-extern int lit_item;
 
 
 int item_data(int x_pos, int y_pos)

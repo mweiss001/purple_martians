@@ -593,6 +593,24 @@ void menu_setup(void)
    strcpy (lift_step_type_name[3], "Prox");
    strcpy (lift_step_type_name[4], "Loop");
 
+
+   strcpy (item_name[0],"item_empty");
+   strcpy (item_name[1],"Door");
+   strcpy (item_name[2],"Bonus");
+   strcpy (item_name[3],"Exit");
+   strcpy (item_name[4],"Key");
+   strcpy (item_name[5],"Start");
+   strcpy (item_name[6],"Free Man");
+   strcpy (item_name[7],"Mine");
+   strcpy (item_name[8],"Bomb");
+   strcpy (item_name[9], "undefined");
+   strcpy (item_name[10],"Message");
+   strcpy (item_name[11],"Rocket");
+   strcpy (item_name[12],"Warp");
+   strcpy (item_name[14],"Switch");
+   strcpy (item_name[15],"Sproingy");
+
+   strcpy (enemy_name[0], "empty");
    strcpy (enemy_name[3], "ArchWagon");
    strcpy (enemy_name[4], "Bouncer");
    strcpy (enemy_name[6], "Cannon");
@@ -620,6 +638,38 @@ void menu_setup(void)
    strcpy (color_name[15], "White");
 
 
+
+   strcpy (global_string[2][0], "Level Editor Pop-Up Menu");
+   strcpy (global_string[2][1], "------------------------");
+   strcpy (global_string[2][2], "Copy ---");
+   strcpy (global_string[2][3], "View ---");
+   strcpy (global_string[2][4], "Delete ---");
+   strcpy (global_string[2][5], "------------------------");
+   strcpy (global_string[2][6], "Zoom Full Screen");
+   strcpy (global_string[2][7], "Show Status Window");
+   strcpy (global_string[2][8], "Show Selection Window");
+   strcpy (global_string[2][9], "------");
+   strcpy (global_string[2][10],"New Level");
+   strcpy (global_string[2][11],"Load Level");
+   strcpy (global_string[2][12],"Save Level");
+   strcpy (global_string[2][13],"Save and Quit");
+   strcpy (global_string[2][14],"Help Screens");
+   strcpy (global_string[2][15],"Quit Level Editor");
+   strcpy (global_string[2][16],"end");
+
+#ifndef RELEASE
+   strcpy (global_string[2][16],"----");
+   strcpy (global_string[2][17],"Predefined Enemy Editor");
+   strcpy (global_string[2][18],"Global Level Thingy!!");
+   strcpy (global_string[2][19],"Level Viewer!");
+   strcpy (global_string[2][20],"Bitmap and Animation Editor");
+   strcpy (global_string[2][21],"end");
+#endif
+
+
+
+
+
    strcpy (global_string[3][0], "Logging Options Menu");
    strcpy (global_string[3][1], "--------------------");
    strcpy (global_string[3][2], "Back to Game Menu");
@@ -644,8 +694,6 @@ void menu_setup(void)
    strcpy (global_string[3][21], "end");
 
 
-
-
    strcpy (global_string[4][0], "Netgame Options Menu");
    strcpy (global_string[4][1], "--------------------");
    strcpy (global_string[4][2], "Back to Game Menu");
@@ -656,8 +704,16 @@ void menu_setup(void)
    strcpy (global_string[4][7], "Deathmatch Bullet Damage:5");
    strcpy (global_string[4][8], "end");
 
-   // 5 used for PDE
-   // 6 USED FOR lift pop up menu
+   strcpy (global_string[5][0],"PUT"); // PD sub menu
+   strcpy (global_string[5][1],"PREV");
+   strcpy (global_string[5][2],"NEXT");
+   strcpy (global_string[5][3],"");
+   strcpy (global_string[5][4],"COPY");
+   strcpy (global_string[5][5],"SAVE");
+   strcpy (global_string[5][6],"LOAD");
+   strcpy (global_string[5][7],"BACK");
+
+   // 6 used for lift pop up menu
 
    strcpy (global_string[7][0], ""); // main menu
    strcpy (global_string[7][1], "");
@@ -678,7 +734,6 @@ void menu_setup(void)
    strcpy (global_string[7][10], "Help Screens");
    strcpy (global_string[7][11], "end");
 
-
    strcpy (global_string[8][0], "Options Menu");
    strcpy (global_string[8][1], "----------");
    strcpy (global_string[8][2], "Back to Game Menu");
@@ -695,7 +750,6 @@ void menu_setup(void)
    strcpy (global_string[8][13], "Run Demo");
    strcpy (global_string[8][14], "end");
 
-
    strcpy (global_string[9][0],  "Controller Setup Menu");
    strcpy (global_string[9][1],  "---------------------");
    strcpy (global_string[9][2],  "Back to Options Menu");
@@ -707,6 +761,9 @@ void menu_setup(void)
    strcpy (global_string[9][8],  "Set all to IJKL SPACE C" );
    strcpy (global_string[9][9],  " ----------------------" );
    strcpy (global_string[9][23], "end");
+
+
+
 }
 
 void set_key_menu(int menu, int p, int start_row)
@@ -734,10 +791,88 @@ void set_key_menu(int menu, int p, int start_row)
 
 }
 
+int pmenu(int menu_num)  // this menu function does not pass through like the next one
+{                        // it waits for a selection and then exits
+                         // its is entered with mouse_b 2 pressed and exits when released
+   int highlight = 2;
+   int selection = 999;
+   int last_list_item;
+   int c, b;
 
+   int kx = mouse_x;
+   if (kx < 100) kx = 100;
+   if (kx > SCREEN_W-100) kx = SCREEN_W-100;
 
+   int up = 0;
+   int ky = mouse_y-20;
+   if (menu_num == 9) if (ky > SCREEN_H - 160) up=1;
+   if (menu_num == 6) if (ky > SCREEN_H - 60)  up=1;
 
+   if (!up) // reverse version !
+   {
+      do   // until selection is made
+      {
+         c = 0;
+         al_rest(0.02);
+         //show_mouse(NULL);
+         while (strcmp(global_string[menu_num][c],"end") != 0)
+         {
+            b = 9 + 96;
+            if (c == 0) b = 9;
+            if (c == highlight) b=9;
+            int w = strlen(global_string[menu_num][c])*4;
+            al_draw_filled_rectangle(kx-w, ky+(c*8), kx+w, ky+(c*8)+8, palette_color[0]);
+            al_draw_text(font, palette_color[b], kx, ky+(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
+            c++;
+         }
+         last_list_item = c-1;
+         al_flip_display();
+         proc_controllers();
 
+         highlight = 2;
+         if ( (mouse_x > (kx - 100)) && (mouse_x < (kx+100)) )
+            if ( (mouse_y > ky ) && (mouse_y < ky + ((last_list_item+1)*8)) )
+               highlight = (mouse_y-ky) / 8;
+         if (!(mouse_b2)) selection = highlight; // mouse b2 released
+
+      } while (selection == 999);
+   }
+   if (up)  // normal version
+   {
+      ky = mouse_y+12;
+      if (ky > SCREEN_H) ky = SCREEN_H;
+      do   // until selection is made
+      {
+         c = 0;
+         al_rest(0.02);
+         //show_mouse(NULL);
+         while (strcmp(global_string[menu_num][c],"end") != 0)
+         {
+            b = 9+96;
+            if (c == 0) b = 9;
+            if (c == highlight) b=9;
+            int w = strlen(global_string[menu_num][c])*4;
+            al_draw_filled_rectangle(kx-w, ky-(c*8), kx+w, ky-(c*8)+8, palette_color[0]);
+            al_draw_text(font, palette_color[b], kx, ky-(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
+            c++;
+         }
+         last_list_item = c-1;
+
+         al_flip_display();
+         proc_controllers();
+
+         //show_mouse(screen);
+         highlight = 2;
+         if ( (mouse_x > (kx - 100)) && (mouse_x < (kx+100)) )
+            if ( (mouse_y < ky ) && (mouse_y > ky - ((last_list_item+1)*8) ) )
+               highlight = (ky-mouse_y+8) / 8;
+         if (!(mouse_b2)) selection = highlight; // mouse b2 released
+
+      } while (selection == 999);
+   }
+   //show_mouse(NULL);
+   return selection;
+}
 
 
 

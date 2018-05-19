@@ -14,8 +14,204 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
+#include <libnet.h>
+#include <zlib.h>
 
-extern int num_enemy;
+#define NETPLAY
+#define CONNECTION // tcp
+#define CHANNEL    // udp
+
+#define NUM_SPRITES 1024
+#define NUM_ANS 256
+#define NUM_PLAYERS 8
+#define BORDER_WIDTH 14
+#define NUM_LIFTS 40
+
+
+
+
+// ------------------------------------------------
+// ----- level editor unsorted --------------------
+// ------------------------------------------------
+
+extern int wx, wy; // level editor start block UL corner
+extern int Redraw;
+extern int Num_legend_lines;
+extern int Viewer_lock;
+
+extern char sel_filename[500];
+
+extern int ty;   // button start
+extern int bts;  // button spacing
+
+extern int pop_msg_viewer_pos;
+
+
+// ------------------------------------------------
+// ----- return values from getxy and getbox ------
+// ------------------------------------------------
+extern int bx1, bx2, by1, by2;
+extern int get100_x, get100_y;
+
+// ------------------------------------------------
+// ------------ game moves array ------------------
+// ------------------------------------------------
+extern int game_moves[1000000][4];
+extern int game_move_entry_pos;
+extern int game_move_current_pos;
+
+// ------------------------------------------------
+// ------------- screen messages ------------------
+// ------------------------------------------------
+
+extern char b_msg[40][80];
+extern int bottom_msg;
+
+struct screen_msg
+{
+   int active;
+   int delay;
+   int original_x;
+   int original_y;
+
+   int x;
+   int y;
+   char text[80];
+
+   int color;
+   int color_inc;
+
+   int color_inc_holdoff;
+   int current_holdoff;
+
+   int ssn; //type of msg; used to select processing and initalization
+
+   int current_step; // used by certain ssn's for multi-mode
+
+   float size;
+   float size_inc;
+
+   float xinc;
+   float yinc;
+
+   int rot;  /// (0-255)
+   int rot_inc;
+
+};
+extern struct screen_msg screen_msgs[100];
+
+
+
+
+
+
+
+// ------------------------------------------------
+// -----------status and selection window----------
+// ------------------------------------------------
+// status window
+extern int status_window_active;
+extern int status_window_x;
+extern int status_window_y;
+extern int status_window_w;
+extern int status_window_h;
+
+extern int draw_item_num;
+extern int draw_item_type;
+extern int point_item_type;
+extern int point_item_num;
+
+// select window
+extern int select_window_active;
+extern int select_window_x;
+extern int select_window_y;
+extern int select_window_w;
+extern int select_window_h;
+extern int select_window_text_y;
+extern int select_window_block_on;
+extern int swnbl;
+extern int swnbl_cur;
+extern int swbl[NUM_SPRITES][2];
+
+extern int select_window_block_y;
+extern int btext_draw_flag;
+extern int select_window_special_on;
+extern int select_window_num_special_lines;
+extern int select_window_special_y;
+extern int stext_draw_flag;
+extern int sw_mouse_gone;
+
+
+
+
+
+
+
+// ------------------------------------------------
+// ---------------zoom full screen ----------------
+// ------------------------------------------------
+extern int stx;
+extern int sty;
+extern int sux;
+extern int suy;
+
+extern int copy_blocks;
+extern int copy_enemies;
+extern int copy_items;
+extern int copy_lifts;
+extern int copy_mode;
+extern int brf_mode;
+
+
+
+extern int ft_level_header[20];
+extern int ft_l[100][100];
+extern int ft_item[500][16];
+extern char *ft_pmsg[500];
+
+extern int ft_Ei[100][32];
+extern al_fixed ft_Efi[100][16];
+
+extern char ft_ln[NUM_LIFTS][80];
+extern int ft_lift[NUM_LIFTS][4];
+extern int ft_ls[NUM_LIFTS][40][4];
+
+
+// ------------------------------------------------
+// ----------------- demo mode --------------------
+// ------------------------------------------------
+extern ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
+extern int demo_played[100];
+extern int num_demo_filenames;
+extern int demo_mode_on;
+extern int demo_mode_countdown;
+
+// ------------------------------------------------
+// ----------------- mouse and keys ---------------
+// ------------------------------------------------
+
+#define MAP_LOCK_KEY ALLEGRO_KEY_Z
+
+extern char skc[64]; // serial key check
+extern int skc_index;
+
+
+extern char *key_names[];
+extern bool key[ALLEGRO_KEY_MAX];
+extern int Key_pressed_ASCII;
+
+extern float mouse_loop_pause;
+
+extern int mouse_x;
+extern int mouse_y;
+extern int mouse_z;
+extern int mouse_dx;
+extern int mouse_dy;
+extern int mouse_dz;
+extern int mouse_b1;
+extern int mouse_b2;
+extern int mouse_b3;
+extern int mouse_b4;
 
 extern int KEY_1_b;
 extern int KEY_2_b;
@@ -27,8 +223,33 @@ extern int KEY_7_b;
 extern int KEY_8_b;
 extern int KEY_9_b;
 
-extern int WX, WY;
+extern int KEY_1_held;
+extern int KEY_2_held;
+extern int KEY_3_held;
+extern int KEY_4_held;
+extern int KEY_5_held;
+extern int KEY_6_held;
+extern int KEY_7_held;
+extern int KEY_8_held;
+extern int KEY_9_held;
 
+extern int KEY_F1_held;
+extern int KEY_F2_held;
+extern int KEY_F3_held;
+extern int KEY_F4_held;
+extern int KEY_F5_held;
+extern int KEY_F6_held;
+extern int KEY_F7_held;
+extern int KEY_F8_held;
+extern int KEY_F9_held;
+extern int KEY_F10_held;
+extern int KEY_F11_held;
+extern int KEY_F12_held;
+extern int KEY_PRTSCR_held;
+
+// ------------------------------------------------
+// ----------------- setup ------------------------
+// ------------------------------------------------
 extern ALLEGRO_TIMER * fps_timer;
 extern ALLEGRO_TIMER * sec_timer;
 extern ALLEGRO_TIMER * mnu_timer;
@@ -42,21 +263,29 @@ extern ALLEGRO_FONT *f3;
 extern ALLEGRO_JOYSTICK *joy0;
 extern ALLEGRO_JOYSTICK *joy1;
 
+// ------------------------------------------------
+// ----------------- bitmaps ----------------------
+// ------------------------------------------------
+extern ALLEGRO_BITMAP *tilemap;
+extern ALLEGRO_BITMAP *ptilemap;
+extern ALLEGRO_BITMAP *dtilemap;
+extern ALLEGRO_BITMAP *M_tilemap;
+extern ALLEGRO_BITMAP *M_ptilemap;
+extern ALLEGRO_BITMAP *M_dtilemap;
 
-extern ALLEGRO_VOICE *voice;
-extern ALLEGRO_MIXER *mn_mixer;
-extern ALLEGRO_MIXER *se_mixer;
-extern ALLEGRO_MIXER *st_mixer;
+extern ALLEGRO_BITMAP *memory_bitmap[NUM_SPRITES];
+extern int sa[NUM_SPRITES][2];
 
-extern ALLEGRO_SAMPLE *snd[20];
-extern int num_sounds;
-extern ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
-extern ALLEGRO_AUDIO_STREAM *pm_theme_stream;
+extern ALLEGRO_BITMAP *player_bitmap[16][32];
+extern ALLEGRO_BITMAP *door_bitmap[2][16][8];
+extern ALLEGRO_BITMAP *l2000;
 
+extern ALLEGRO_BITMAP *level_buffer;
+extern ALLEGRO_BITMAP *dtemp; // temp draw
+extern ALLEGRO_BITMAP *lefsm; // level editor fullscreen map
 
-extern ALLEGRO_FS_ENTRY *filenames[1000];
-extern int num_filenames;
-
+extern ALLEGRO_BITMAP *mp;     //  mouse_pointer
+extern ALLEGRO_BITMAP *ft_bmp;  //  file temp paste bmp
 
 extern ALLEGRO_BITMAP *logo_ichael;
 extern ALLEGRO_BITMAP *logo_avid;
@@ -71,77 +300,15 @@ extern ALLEGRO_BITMAP *text_title;
 extern int text_title_bitmaps_create;
 extern int text_title_draw_color;
 
-
-
-extern int level_display_region_x;
-extern int level_display_region_y;
-extern int level_display_region_w;
-extern int level_display_region_h;
-
-extern char skc[64];
-extern int skc_index;
-
-
-extern int les; // level editor scale
-
-extern int level_editor_running;
-extern int help_screens_running;
-
-
-extern int disp_x_curr; //either wind in windowed mode or 0 in fullscreen mode)
-extern int disp_y_curr;
-
-extern int disp_x_wind; // use when restoring from fullscreen
-extern int disp_y_wind;
-
-extern int disp_x_full;
-extern int disp_y_full;
-
-extern int disp_w_curr; //(either wind or full)
-extern int disp_h_curr;
-
-extern int disp_w_wind;
-extern int disp_h_wind;
-
-extern int disp_w_full;
-extern int disp_h_full;
-
-extern int l_spx, l_spy, fullscreen;
-
-extern int SCREEN_W, SCREEN_H;
-
-extern int visual_level_select_running;
-
-extern int fuse_loop_playing;
-extern int phit_loop_playing;
-extern int sample_delay[8];
-
-extern bool key[ALLEGRO_KEY_MAX];
-
-extern int Key_pressed_ASCII;
-
-extern int mouse_x;
-extern int mouse_y;
-extern int mouse_z;
-extern int mouse_dx;
-extern int mouse_dy;
-extern int mouse_dz;
-extern int mouse_b1;
-extern int mouse_b2;
-extern int mouse_b3;
-extern int mouse_b4;
-
-extern int actual_fps;
-extern int frames_skipped_last_second;
-extern int last_frames_skipped;
-extern int last_fps_passcount;
-
-
-
+// ------------------------------------------------
+// ----------------- netgame ----------------------
+// ------------------------------------------------
+extern int ima_server;
+extern int ima_client;
+extern char m_serveraddress[256];
+extern int TCP;
 
 #define CHUNK_SIZE 104640
-
-
 // server chdf
 extern char client_chdf[8][2][CHUNK_SIZE];
 extern int client_chdf_id[8][2]; // passcount id
@@ -164,28 +331,14 @@ extern int deathmatch_pbullets;
 extern int deathmatch_pbullets_damage;
 extern int suicide_pbullets;
 
-
-extern float mouse_loop_pause;
-
-extern char local_hostname[80];
-extern char version_string[80];
-
-// #define CLONERLINES
-// #define RELEASE
-
-#define NETPLAY
-#ifdef NETPLAY
-void server_control(void);
-void server_local_control(int);
-int server_init(void);
-void server_exit(void);
-void server_flush(void);
-#endif
-#define CONNECTION // tcp
-#define CHANNEL    // udp
-
-
-extern int TCP;
+// ------------------------------------------------
+// ----------------- logging ----------------------
+// ------------------------------------------------
+extern char log_msg[100000000]; // for logging
+extern int log_msg_pos;
+extern char log_lines[1000000][100]; // for log file viewer
+extern int log_lines_int[1000000][3]; // for log file viewer
+extern int log_timer;
 
 extern int L_LOGGING;
 extern int L_LOGGING_NETPLAY;
@@ -202,9 +355,10 @@ extern int L_LOGGING_NETPLAY_chdf_when_to_apply;
 extern int L_LOGGING_NETPLAY_show_dif1;
 extern int L_LOGGING_NETPLAY_show_dif2;
 
+extern int auto_save_game_on_exit;
+extern int auto_save_game_on_level_done;
 
 #define NETPLAY_bandwidth_tracking
-
 #define LOGGING
 #define LOGGING_NETPLAY
 #define LOGGING_NETPLAY_JOIN
@@ -219,73 +373,13 @@ extern int L_LOGGING_NETPLAY_show_dif2;
 #define LOGGING_NETPLAY_chdf_when_to_apply
 #define LOGGING_NETPLAY_show_dif1
 #define LOGGING_NETPLAY_show_dif2
-
-
 // #define LOGGING_ZFS // zoom full screen
 
-
-
-#define MAP_LOCK_KEY ALLEGRO_KEY_Z
-
-
-#define NUM_SPRITES 1024
-#define NUM_ANS 256
-#define NUM_PLAYERS 8
-#define BORDER_WIDTH 14
-
-#define NUM_LIFTS 40
-
-
-
-extern ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
-extern int demo_played[100];
-extern int num_demo_filenames;
-extern int demo_mode_on;
-extern int demo_mode_countdown;
-
-
-extern int resume_allowed;
-extern int start_mode;
-extern int game_exit;
-
-
-
-struct screen_msg
-{
-   int active;
-   int delay;
-   int original_x;
-   int original_y;
-
-   int x;
-   int y;
-   char text[80];
-
-   int color;
-   int color_inc;
-
-   int color_inc_holdoff;
-   int current_holdoff;
-
-//    if color_inc = 0 no proc done; else
-// countdown current_holdoff till 0; then reload and apply color_inc
-
-   int ssn; //type of msg; used to select processing and initalization
-
-   int current_step; // used by certain ssn's for multi-mode
-
-   float size;
-   float size_inc;
-
-   float xinc; // doesn't do much good if x and y are ints!!
-   float yinc;
-
-   int rot;  /// (0-255)
-   int rot_inc;
-
-};
-extern struct screen_msg screen_msgs[100];
-
+// ------------------------------------------------
+// ---------------- players -----------------------
+// ------------------------------------------------
+extern struct player players[NUM_PLAYERS];
+extern struct player1 players1[NUM_PLAYERS];
 extern int active_local_player;
 
 struct player
@@ -295,7 +389,6 @@ struct player
    int paused_type; // 1 = death, 2 = door move
    int paused_mode;
    int paused_mode_count;
-
 
    al_fixed PX, PY;       // players position
    al_fixed xinc, yinc;   // players momentum
@@ -309,8 +402,7 @@ struct player
    int shape; // index to player_bitmap
    int color; // used to draw frames and stuff in players color
 
-
-   int   door_draw_rot_num_steps; //20
+   int  door_draw_rot_num_steps;
 
    al_fixed door_draw_rot;
    al_fixed door_draw_rot_inc;
@@ -323,10 +415,9 @@ struct player
    int door_yinc;
    int door_num_steps;
 
-
    int left_right; // determines the direction the player is facing
 
-   int player_ride, carry_item; //30
+   int player_ride, carry_item;
 
    // flags that indicate a control has been activated or held
    int up, down, left, right, jump, fire, fire_held, menu;
@@ -354,9 +445,7 @@ struct player
 // converted to control_method
    int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
 
-
 };
-extern struct player players[NUM_PLAYERS];
 
 struct player1
 {
@@ -365,7 +454,6 @@ struct player1
    int health_display;
    int last_health_adjust;
 
-
    int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;
 
    int comp_move, old_comp_move;
@@ -373,29 +461,21 @@ struct player1
    // position and size of players on screen buffer (used to see if map is covering player)
    int sbx1,sby1,sbx2,sby2;
 
-
    // these are netgame and will be different from client to server
-
    int old_control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
-
    int game_move_entry_pos;         // server only for client game_move data sync
-
    int server_last_sdat_sent_frame; // only server uses it, to keep track of when last sdat was sent to client
    int server_last_sdat_sent_start;
    int server_last_sdat_sent_num;
 
    int last_sdak_rx; // used by server to see if client is still alive
 
-
    int last_sdat_fpc;
    int last_sdat_lpc;
-
-
 
    int who; // for network id of clients
 
    char hostname[16];
-
 
    int server_sync;
    int sync_good_frames;
@@ -403,16 +483,6 @@ struct player1
    int c_sync;
    int c_sync_min;
    int c_sync_err;
-
-
-
-/*
-   client_statistic[0] = 0; // sdat total
-   client_statistic[1] = 0; // sdat skipped
-   client_statistic[4] = 0;   // moves entered
-   client_statistic[5] = 0;   // moves skipped
-*/
-
 
    int cdat_packets_tx;
    int sdat_total;
@@ -422,13 +492,10 @@ struct player1
    int moves_skipped_tally;
    int moves_skipped_last_tally;
 
-
-
    int serr_c_sync_err;
    int serr_display_timer;
 
    int fake_keypress_mode;
-
 
    int dif_corr;
 
@@ -442,25 +509,13 @@ struct player1
    int num_dif_packets;
    int cmp_dif_size;
 
-
-
-
-
-
-
 // common to server and client
    int join_frame;
    int quit_frame;
    int quit_reason;
 
-
-   //server only (player 0)
-
-
    // next client to send chdf to
    int n_chdf;
-
-
 
    // used to add up until frame end
    int tx_current_bytes_for_this_frame;
@@ -471,7 +526,6 @@ struct player1
    int rx_current_packets_for_this_frame;
    int rx_max_bytes_per_frame;
    int rx_max_packets_per_frame;
-
 
    // used to add up until tally end
    int tx_packets_tally;
@@ -495,267 +549,238 @@ struct player1
    int rx_total_bytes;
    int rx_total_packets;
 
-
-
-
-
-
-
-
-
-
-
-
-
    int chdf_rx;
    int chdf_on_time;
    int chdf_late;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    // client only
    int client_sync_good;
-
-
-
-
-
-
-
-
 };
-extern struct player1 players1[NUM_PLAYERS];
 
-
-struct lift
-   {
-      al_fixed fx;
-      al_fixed fy;
-      al_fixed fxinc;
-      al_fixed fyinc;
-      int x1;
-      int y1;
-      int x2;
-      int y2;
-      int width;
-      int height;
-      int color;
-      int current_step;
-      int num_steps;
-      int limit_counter;
-      int limit_type;
-      char lift_name[40];
-   };
+// ------------------------------------------------
+// ---------------- lifts -----------------------
+// ------------------------------------------------
 extern struct lift lifts[NUM_LIFTS];
-
-
-struct lift_step
-   {
-      int type;
-      int val;
-      int x;
-      int y;
-   };
 extern struct lift_step lift_steps[NUM_LIFTS][40];
+extern int num_lifts;
+extern char lift_step_type_name[10][10];
+struct lift
+{
+   al_fixed fx;
+   al_fixed fy;
+   al_fixed fxinc;
+   al_fixed fyinc;
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+   int width;
+   int height;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+struct lift_step
+{
+   int type;
+   int val;
+   int x;
+   int y;
+};
+
+// ------------------------------------------------
+// ---------------- sound -------------------------
+// ------------------------------------------------
+extern ALLEGRO_VOICE *voice;
+extern ALLEGRO_MIXER *mn_mixer;
+extern ALLEGRO_MIXER *se_mixer;
+extern ALLEGRO_MIXER *st_mixer;
+extern ALLEGRO_SAMPLE *snd[20];
+extern ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
+extern ALLEGRO_AUDIO_STREAM *pm_theme_stream;
+extern int fuse_loop_playing;
+extern int sample_delay[8];
+extern int st_scaler;
+extern int se_scaler;
+extern int lit_item;
+extern int sound_on;
 
 
 
-// stuff for recording video
-// void screen_shot_for_video(void);
-extern int making_video;
-extern int ssfnsn; // screen shot file name sequence number
+// ------------------------------------------------
+// ---------------- level -------------------------
+// ------------------------------------------------
+extern int l[100][100];
+extern int start_level;
+extern int play_level;
+extern int valid_level_loaded;
+extern int level_num;
+extern int resume_allowed;
 
-extern int speed_testing;
+// items
+extern int item[500][16];      // item ints
+extern al_fixed itemf[500][4]; // item fixeds
+extern int item_num_of_type[20];
+extern int item_first_num[20];
+extern char item_name[20][40];
+extern char *pmsg[500];
 
-extern int auto_save_game_on_exit;
-extern int auto_save_game_on_level_done;
+// enemies
+extern int Ei[100][32];        // enemy ints
+extern al_fixed Efi[100][16];  // enemy fixeds
+extern int e_num_of_type[50];
+extern int e_first_num[50];
+extern char enemy_name[20][40];
+extern int num_enemy;
+
+// PDE
+extern int PDEi[100][32];
+extern al_fixed PDEfx[100][16];
+extern char PDEt[100][20][40];
+
+// bullets
+extern int pbullet[50][6];
+extern int e_bullet_active[50];
+extern int e_bullet_shape[50];
+extern al_fixed e_bullet_fx[50];
+extern al_fixed e_bullet_fy[50];
+extern al_fixed e_bullet_fxinc[50];
+extern al_fixed e_bullet_fyinc[50];
+extern int pm_bullet_collision_box;
+
+
+
+extern int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
+extern int disp_y_curr;
+extern int disp_w_curr;
+extern int disp_h_curr;
+
+extern int disp_x_wind; // use when restoring from fullscreen
+extern int disp_y_wind;
+extern int disp_w_wind;
+extern int disp_h_wind;
+
+extern int disp_x_full;
+extern int disp_y_full;
+extern int disp_w_full;
+extern int disp_h_full;
+
+extern int SCREEN_W;
+extern int SCREEN_H;
+extern int WX;
+extern int WY;
+extern int fullscreen;
+
+// last screen pos, to tell if it changed
+extern int l_spx;
+extern int l_spy;
+
+// used to only redraw a region of background to increase fps
+extern int level_display_region_x;
+extern int level_display_region_y;
+extern int level_display_region_w;
+extern int level_display_region_h;
+
+extern int les; // level editor scale
+
+extern int level_editor_running;
+extern int help_screens_running;
+extern int visual_level_select_running;
+
+extern int show_debug_overlay;
+
+extern int show_player_join_quit_timer;
+extern int show_player_join_quit_player;
+extern int show_player_join_quit_jq;
+
+extern float scale_factor;
+extern float scale_factor_current;
+extern float scale_factor_inc;
+extern int show_scale_factor;
 
 extern int show_splash_screen;
 extern int splash_screen_done;
 
-extern int mdw_an_seq; // mdw animation sequence number
-extern float points[10][8]; // for mdw logo
+extern int mdw_an_seq;   // mdw animation sequence number
+extern float points[10][8];  // for mdw logo
 extern int mdw_map_logo_x;
 extern int mdw_map_logo_y;
 extern int mdw_map_logo_th;
 extern float mdw_map_logo_scale;
+
 extern float mdw_splash_logo_x;
 extern float mdw_splash_logo_y;
 extern int mdw_splash_logo_th;
 extern float mdw_splash_logo_scale;
+
 extern float mdw_logo_scale_dec;
 extern float mdw_logo_x_dec;
 extern float mdw_logo_y_dec;
 
-extern int show_scale_factor;
-extern int show_debug_overlay;
-
-
-extern char msg[256];
-extern int l[100][100];
-extern int Ei[100][32];
-extern al_fixed Efi[100][16];
-extern int item[500][16];
-extern al_fixed itemf[500][4];
+// position and size of map on menu screen
+extern int menu_map_size;
+extern int menu_map_x;
+extern int menu_map_y;
 
 extern int db;  // level editor zoom fullscreen double
-extern int md;         // menu map double
-extern int map_double; // level editor map double
+extern int txc; // center of right hand side panel in level editor
 
+// game map
 extern int game_map_on;
-extern int map_x, map_y;
+extern int map_x;
+extern int map_y;
 extern int map_size;
 extern int new_size;
 
 
-extern int Redraw;
-extern int Num_legend_lines;
-extern int Viewer_lock;
 
-extern int start_level;
-extern int play_level;
 
-extern int valid_level_loaded;
+// -----------------------------------------------------------------------------------------------
+// not sorted yet
 
-extern int txc;
+extern ALLEGRO_FS_ENTRY *filenames[1000];
+extern int num_filenames;
 
-extern char enemy_name[50][32]; // for game
-extern char eitype_desc[50][32][40]; // for level editor
+extern int draw_frame;
+extern int actual_fps;
+extern int frames_skipped_last_second;
+extern int last_frames_skipped;
+extern int last_fps_passcount;
+
+extern char local_hostname[80];
+extern char version_string[80];
+
+// #define CLONERLINES
+// #define RELEASE
+
+extern int start_mode;
+extern int game_exit;
+
+extern int speed_testing;
+
+extern char msg[256];
+
 
 extern char color_name[16][20];
-
-extern char lift_step_type_name[10][10];
-
-
-
-
-// ---------- all global ALLEGRO_BITMAP extern declarations here --------
-extern ALLEGRO_BITMAP *tilemap;
-extern ALLEGRO_BITMAP *ptilemap;
-extern ALLEGRO_BITMAP *dtilemap;
-extern ALLEGRO_BITMAP *M_tilemap;
-extern ALLEGRO_BITMAP *M_ptilemap;
-extern ALLEGRO_BITMAP *M_dtilemap;
-
-extern ALLEGRO_BITMAP *memory_bitmap[NUM_SPRITES];
-extern ALLEGRO_BITMAP *player_bitmap[16][32];
-extern ALLEGRO_BITMAP *door_bitmap[2][16][8];
-extern ALLEGRO_BITMAP *l2000;
-
-extern ALLEGRO_BITMAP *level_buffer;
-extern ALLEGRO_BITMAP *dtemp; // temp draw
-
-extern ALLEGRO_BITMAP *lefsm; // level editor fullscreen map
-
-
-extern ALLEGRO_BITMAP *mp;     //  mouse_pointer
-extern ALLEGRO_BITMAP *ft_bmp;  //  file temp paste bmp
-
-extern float points[10][8];
-
-
-
 
 extern int zz[20][NUM_ANS];
 
 extern int passcount;
 extern int passcount_timer_fps;
 
-extern int item_num_of_type[20];
-
-extern int sa[NUM_SPRITES][2];
-
 extern char level_filename[80];
 
 extern char global_string[20][25][80];
 
-extern char *pmsg[500];
 
 
 
-extern char log_msg[100000000]; // for logging
-extern int log_msg_pos;
-extern char log_lines[1000000][100]; // for log file viewer
-extern int log_lines_int[1000000][3]; // for log file viewer
-extern int log_timer;
 
 
-extern struct lift lifts[NUM_LIFTS];
-extern struct lift_step lift_steps[NUM_LIFTS][40];
-extern int num_lifts;
 
-
-extern int ima_server;
-extern int ima_client;
-
-extern int show_player_join_quit_timer;
-extern int show_player_join_quit_player;
-extern int show_player_join_quit_jq;
-
-extern int game_moves[1000000][4];
-extern int game_move_entry_pos;
-extern int game_move_current_pos;
-
-extern char *key_names[];
-
-
-extern int get100_x, get100_y;
-extern int bx1, by1, bx2, by2;
-extern int pop_msg_viewer_pos;
-
-
-// all from e_special.cpp
-extern int level_num;
-extern int status_window_active;
-extern int status_window_x;
-extern int status_window_y;
-extern int status_window_w;
-extern int status_window_h;
-
-extern int draw_item_num;
-extern int draw_item_type;
-extern int point_item_type;
-extern int point_item_num;
-extern int wx, wy;
-
-extern int select_window_w;
-extern int select_window_h;
-
-extern int select_window_block_on;
-extern int swnbl_cur;
-extern int swnbl;
-
-extern int select_window_block_y;
-extern int select_window_special_on;
-extern int select_window_num_special_lines;
-
-extern int PDEi[100][32];
-extern char PDEt[100][20][40];
-
-extern int select_window_x;
-extern int select_window_y;
-extern int select_window_active;
-
-extern int select_window_special_y;
-extern int select_window_text_y;
-extern int swbl[NUM_SPRITES][2];
-
-extern int sw_mouse_gone;
-
-extern int stext_draw_flag;
-extern int btext_draw_flag;
 
 // ---------------------------------------------------------------------
 // -------- new list of function prototypes 20180515 -------------------
@@ -825,10 +850,6 @@ void level_viewer(void);
 void show_cur_vs(int cur, int x1, int y1, int size, int fc);
 void load_visual_level_select(void);
 int visual_level_select(void);
-
-// e_menu.h - done
-int pmenu(int menu_num);
-void text_setup();
 
 // e_nev.h - done
 void erase_item(int num);
@@ -915,10 +936,6 @@ int process_status_window(int draw_only);
 int process_select_window(int draw_only);
 void set_swbl(void);
 
-
-#include <libnet.h>
-#include <zlib.h>
-
 // n_client.h - done
 int ClientInit(char *serveraddress);
 int ClientCheckResponse(void);
@@ -947,22 +964,16 @@ int NetworkInit();
 // n_packet.h
 extern char packetbuffer[1024];
 extern int packetsize;
-
 void Packet(char *id);
 int PacketRead(char *id);
-
 void PacketAddByte(char b);
 char PacketGetByte(void);
-
 void PacketAdd2Bytes(int);
 int Packet2ByteRead(void);
-
 void PacketAdd3Bytes(int);
 int Packet3ByteRead(void);
-
 void PacketAdd4Bytes(int);
 int Packet4ByteRead(void);
-
 void PacketAddString(char*);
 void PacketReadString(char*);
 
@@ -978,7 +989,17 @@ int ServerListen(void);
 int ServerReceive(void *data, int *sender);
 void ServerBroadcast(void *data, int len);
 void ServerSendTo(void *data, int len, int who);
-
+void nc_server(void);
+int server_init(void);
+void server_exit(void);
+void server_send_chdf(int p);
+void server_send_chdf(void);
+void server_send_sdat(void);
+void proc_player_drop(void);
+void proc_server_check(void);
+int check_packet_who(int p, int who, int type);
+void server_control();
+void server_local_control(int p);
 
 // yfilecom.h - done
 void make_filename(int x);
@@ -1128,7 +1149,7 @@ int log_file_viewer(int type);
 
 // zlogo.h - done
 void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, char * txt);
-void draw_title(int tx, int ty, int tw, int th, int color);
+void draw_title(int tx, int ty, int ttw, int tth, int color);
 void draw_demo_mode_overlay(void);
 void draw_large_2lines(ALLEGRO_FONT *tf, char * m1, char * m2, int color, float opa );
 void idw(int txt, int x, int y, float x_scale, float y_scale);
@@ -1177,6 +1198,7 @@ void help(char *topic);
 int zmenu(int menu_num, int menu_pos, int y);
 void menu_setup(void);
 void set_key_menu(int menu, int p, int start_row);
+int pmenu(int menu_num);
 
 // zplayer.h - done
 void get_player_start_pos(int p);
