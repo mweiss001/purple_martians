@@ -1,4 +1,5 @@
-// e_special.cpp (20100220 cleanup)
+// e_special.cpp
+
 #include "pm.h"
 
 void check_s_window_pos(int reset_pos)
@@ -420,8 +421,19 @@ int process_select_window(int draw_only)
             {
                // set  text length (number of lines)
                for (x=0; x<20; x++)
-                  if (strcmp(PDEt[ret][x],"<end>") == 0) tl = x;
+                  if (strncmp(PDEt[ret][x],"<end>", 5) == 0) tl = x;
                if (tl<5) tl = 5;
+
+                // remove line endings
+               for (x=0; x<20; x++)
+                  for (int z=0; z<40; z++)
+                  {
+                     if (PDEt[ret][x][z] == 10) PDEt[ret][x][z] = 32;
+                     if (PDEt[ret][x][z] == 13) PDEt[ret][x][z] = 32;
+                  }
+
+
+
 
                // erase and frame
                al_draw_filled_rectangle(swx1, syt, swx2, 12+syt+3+(8*tl), palette_color[0]);
@@ -461,7 +473,7 @@ int process_select_window(int draw_only)
                      }
                      draw_big(1);
                      return 1001;
-                  } // end of if creator   extern int sw_mouse_gone;
+                  } // end of if creator
 
                } // end of if (mouse_b & 1)
             }
@@ -503,9 +515,9 @@ int process_select_window(int draw_only)
             if ((ret > 31  ) && (ret < 64 ))          sprintf(t,"semi-solid ");
             if (ret < 32 )                            sprintf(t,"empty");
 
-            al_draw_text (font, palette_color[15], swx1+2, syt+14, 0, "-----------------------");
+            al_draw_text (font, palette_color[15], swx1+2, syt+14, 0, "---------------------");
             al_draw_textf(font, palette_color[15], swx1+2, syt+22, 0, "Block %d - %s ", ret, t);
-            al_draw_text (font, palette_color[15], swx1+2, syt+30, 0, "-----------------------");
+            al_draw_text (font, palette_color[15], swx1+2, syt+30, 0, "---------------------");
 
             if (mouse_b1)
             {

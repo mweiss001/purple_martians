@@ -1,9 +1,6 @@
-// e_nev.cpp (20100220 cleanup)
+// e_nev.cpp
+
 #include "pm.h"
-
-
-extern int get100_x, get100_y;
-
 
 void erase_item(int num)
 {
@@ -55,14 +52,9 @@ int get_empty_enemy(void)
    return en;
 }
 
-
-
 int get_empty_enemy(int type)
 {
-   extern int e_num_of_type[50];   // sort stuff used by others
-   extern int e_first_num[50];
    int en=0, d;
-
    // cycle backwards to find first empty enemy
    for (d=99; d>-1; d--)
       if (Ei[d][0] == 0) en = d;
@@ -167,19 +159,12 @@ void show_all_enemies(void)
 }
 
 
-
-
-
 void sort_enemy(void)
 {
-   extern int e_num_of_type[50];   // sort stuff used by others
-   extern int e_first_num[50];
-
    int swap_flag = 1;
    int do_swap = 0;
    int temp;
    al_fixed ftemp;
-   //int num_enem;
    int c, d, x, y;
 
    while (swap_flag)
@@ -188,11 +173,6 @@ void sort_enemy(void)
       swap_flag = 0;
       for (x=0; x<99; x++)
       {
-
-//         for (y=0; y<16; y++)
-//            Efi[x][y] = al_ftofix(Ef[x][y]) ; // set all al_fixed here
-
-
          if (Ei[x][0] < Ei[x+1][0]) do_swap = 1;
          if (do_swap) // do the swap
          {
@@ -244,8 +224,6 @@ void sort_enemy(void)
 
 void create_cloner(void)
 {
-   extern int e_num_of_type[50];   // sort stuff used by others
-   extern int e_first_num[50];
    int rx=0, ry=0, en=0;
 
    // cycle backwards to find first empty
@@ -918,9 +896,6 @@ int create_pmsg(int c)
 
 int create_obj(int obt, int sub_type, int sent_num)
 {
-   extern int e_num_of_type[50];   // sort stuff used by others
-   extern int e_first_num[50];
-
    int num = sent_num; // default
    int ret;
 
@@ -1132,10 +1107,8 @@ int create_door(int type)
 int create_item(int type)
 {
    // check for no creator
-   if ((type != 1) && (type != 3) && (type != 4) && (type != 5) && (type != 10))
-      return 9999;
+   if ((type != 1) && (type != 3) && (type != 4) && (type != 5) && (type != 10)) return 9999;
 
-   extern int item_first_num[20];
    int c = get_empty_item(type); // get a place to put it
    if (c > 499) return c; // no items
    switch (type)

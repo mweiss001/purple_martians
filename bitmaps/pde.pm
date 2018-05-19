@@ -4822,12 +4822,9 @@ erases any other entrance.
 01 Level Exit Creator
 ---------------------
 
-Normal
+Where the player exits. 
 
-When the player reaches this
-block, the level is done!
-
-Multiple exits alllowed.
+Multiple exits are alllowed.
 
 <end>
 
@@ -4838,13 +4835,15 @@ Multiple exits alllowed.
 
 
 
-----------------
+
+
+
+---------------
 02 Door Creator
-----------------
+---------------
 
 One way door. 
 
-
 <end>
  
  
@@ -4858,13 +4857,13 @@ One way door.
 
 
 
-----------------
+
+---------------
 03 Door Creator       
----------------- 
+--------------- 
 
 2 way linked doors
- 
- 
+
 <end>
  
  
@@ -4872,6 +4871,7 @@ One way door.
  
  
  
+
 
 
 
@@ -4882,16 +4882,16 @@ One way door.
 04 Key/Locked Block Creator
 ---------------------------
 
-(1st) Choose the color set
+(1st) Choose the key color.
 
-(2nd) Get the key location
+(2nd) Set the key location.
 
-(3rd) Set the block range
-
-All blocks in the range are
-removed when key is hit.
+(3rd) Set the block range.
 
 <end>
+
+
+
 
 
 
@@ -4922,16 +4922,16 @@ Step 3 - Draw trigger box.
 08 Lift Creator
 --------------- 
  
-Step 1 - Set lift color, width,
-         and height.
+Step 1 - Set initial location.
+
+Step 2 - Add additional steps.
  
-Step 2 - Set initial location.
- 
-Step 3 - Add additional steps.
- 
-Step 4 - End with loop to zero.
+Step 3 - Edit with lift viewer.
 
 <end>
+
+
+
 
 
 
@@ -4962,14 +4962,15 @@ Runs the message creator
 10 Cloner Creator  
 ----------------- 
  
-Step 1 - Set location of 
-         cloner.
+Step 1 - Set cloner location.
 
-Step 2 - Draw the source area
+Step 2 - Draw source area.
 
 Step 3 - Position destination
          area.                 
- 
+
+Step 4 - Draw trigger area.
+
 <end>
 
 
@@ -4977,7 +4978,6 @@ Step 3 - Position destination
 
 
 
-
  
  
  
@@ -5118,9 +5118,9 @@ Step 3 - Position destination
 
 
 
-----------
-Door 00
-----------
+----
+Door
+----
 
 Door with no exit link 
  
@@ -5139,7 +5139,7 @@ Door with no exit link
  
  
 ---------------
-Health Bonus 00
+Health Bonus 10
 ---------------
  
 1/10 of Full Health
@@ -5159,7 +5159,7 @@ Health Bonus 00
 
 
 ---------------
-Health Bonus 01
+Health Bonus 50
 ---------------
  
 1/2 of Full Health
@@ -5178,11 +5178,11 @@ Health Bonus 01
 
 
 
------------
-Free Man 00
------------
+--------
+Free Man
+--------
 
-Extra Man!
+Extra Life!
 
 <end>
 
@@ -5198,9 +5198,9 @@ Extra Man!
 
 
 
--------
-Mine 00
--------
+----
+Mine
+----
 
 damage rate = 5
 
@@ -5219,7 +5219,7 @@ damage rate = 5
 
 
 -------
-Bomb 00
+Bomb #1
 -------
  
 #1 Bomb with 1 sec fuse
@@ -5239,7 +5239,7 @@ Fuse:40
 
 
 -------
-Bomb 01
+Bomb #2
 -------
  
 #2 Bomb with 2 sec fuse
@@ -5259,7 +5259,7 @@ Fuse:80
 
 
 -------
-Bomb 02
+Bomb #3
 -------
  
 #3 bomb with 3 sec fuse
@@ -5279,7 +5279,7 @@ Fuse:120
 
 
 -------
-Bomb 04
+Bomb #4
 -------
  
 #4 bomb with 4 sec fuse
@@ -5298,9 +5298,9 @@ Fuse:160
 
 
 
----------
-Rocket 00
----------
+------
+Rocket
+------
  
 Damage:80
 
@@ -5318,9 +5318,9 @@ Damage:80
 
 
 
------------
-Switch 01
------------
+-------------
+Purple Switch
+-------------
 
 Jump on this!
 
@@ -5339,7 +5339,7 @@ Jump on this!
 
 
 -----------
-Switch 02
+Blue Switch
 -----------
 
 Jump on this!
@@ -5358,9 +5358,9 @@ Jump on this!
 
 
 
------------
-Switch 03
------------
+------------
+Green Switch
+------------
 
 Jump on this!
 
@@ -5378,9 +5378,9 @@ Jump on this!
 
 
 
------------
-Switch 04
------------
+----------
+Red Switch
+----------
 
 Jump on this!
 
@@ -5398,9 +5398,9 @@ Jump on this!
 
 
 
------------
-Sproingy 00
------------
+--------
+Sproingy
+--------
 
 Bounce on this!
 
@@ -5438,9 +5438,9 @@ Bounce on this!
 
 
 
-------------
-ArchWagon 00
-------------
+-----------
+ArchWagon 1
+-----------
 
 Standard
 
@@ -5458,9 +5458,9 @@ Standard
 
 
 
-------------
-ArchWagon 01
-------------
+-----------
+ArchWagon 2
+-----------
  
 Faster
 
@@ -5478,9 +5478,9 @@ Faster
 
 
 
------------- 
-FlickenBy 00
-------------
+----------- 
+FlickenBy 1
+-----------
 
 Normal Speed 
  
@@ -5498,9 +5498,9 @@ Pod seek ans!
 
 
 
------------- 
-FlickenBy 01
-------------
+----------- 
+FlickenBy 2
+-----------
 
 Faster Speed 
  
@@ -5518,9 +5518,9 @@ Pod seek ans!
 
 
 
------------- 
-FlutterBy 00
-------------
+----------- 
+FlutterBy 1
+-----------
 
 Normal Speed 
  
@@ -5538,9 +5538,9 @@ Pod seek ans!
 
 
 
------------- 
-FlutterBy 01
-------------
+----------- 
+FlutterBy 2
+-----------
 
 Faster Speed 
  
@@ -5558,9 +5558,9 @@ Pod seek ans!
 
 
 
----------
-Cannon 00
----------
+--------
+Cannon 1
+--------
  
 Standard
 
@@ -5578,9 +5578,9 @@ Standard
 
 
 
----------
-Cannon 01
----------
+--------
+Cannon 2
+--------
  
 Stationary
 
@@ -5598,9 +5598,9 @@ Stationary
 
 
 
----------
-Cannon 02
----------
+--------
+Cannon 3
+--------
  
 Faster
 
@@ -5618,10 +5618,10 @@ Faster
 
 
 
----------------
-Wall Climber 00
---------------- 
- 
+---------
+Trakbot 1
+---------
+
 Standard
 
 <end>
@@ -5638,9 +5638,9 @@ Standard
 
 
 
----------------
-Wall Climber 01
----------------
+---------
+Trakbot 2
+---------
  
 Faster! 
 
@@ -5658,9 +5658,9 @@ Faster!
 
 
 
----------------
-Block Walker 00
----------------
+------------
+Block Walker
+------------
 
 Standard
 
@@ -5678,9 +5678,9 @@ Standard
 
 
 
----------------
-Flapper 00
----------------
+-------
+Flapper
+-------
 
 Standard
 

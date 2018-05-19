@@ -1,4 +1,4 @@
-//  e_sel.cpp (20100220 cleanup)
+// e_sel.cpp
 
 #include "pm.h"
 
@@ -9,7 +9,6 @@ void clear_ft(void)
 
    for (int x=0; x<100; x++) // blocks
       for (int y=0; y<100; y++) ft_l[x][y] = 0;
-
    for (int c=0; c<500; c++) // items
    {
       free (ft_pmsg[c]);
@@ -20,7 +19,6 @@ void clear_ft(void)
       for (int x=0; x<32; x++) ft_Ei[c][x] = 0;
       for (int x=0; x<16; x++) ft_Efi[c][x] = al_itofix(0);
    }
-
    for (int l=0; l<NUM_LIFTS; l++)  // lifts
    {
      ft_ln[l][0] = 0; // erase lift name
@@ -31,8 +29,6 @@ void clear_ft(void)
            ft_ls[l][s][x] = 0;
    }
 }
-
-
 
 int load_selection(void)
 {
@@ -55,7 +51,6 @@ int load_selection(void)
          m_err(msg);
          return 0;
       }
-
       for (c=0; c<20; c++) // level header
       {
          loop = 0;
@@ -644,7 +639,6 @@ void do_fcopy(int qx1, int qy1)
 
 void do_rnd(void)
 {
-   extern int stx, sty, sux, suy;
    int x1 = stx *20;  // source box
    int y1 = sty *20;
    int x2 = sux *20;

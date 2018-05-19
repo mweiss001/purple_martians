@@ -1,16 +1,60 @@
-#include "pm.h"
+// zmain.cpp
 
+#include "pm.h"
 
 // --------------- Global Variables ---------------
 // all global variables should be declared here and externed in pm.h
 
 
-// level editor unsorted
-char sel_filename[500];
+// ------------------------------------------------
+// ----- visual level select ----------------------
+// ------------------------------------------------
+ALLEGRO_BITMAP * grid_bmp = NULL;
+ALLEGRO_BITMAP * level_icon_bmp[NUM_LEV];
+int le[NUM_LEV]; // level exists array
+int num_levs;
+int sel_x, sel_y, sel_size;
+int grid_cols, grid_rows, grid_size, grid_width, grid_height;
+int load_visual_level_select_done = 0;
 
+
+// speed, frames per second, passcount stuff
+int speed_testing = 0;
+int actual_fps;
+int last_frames_skipped = 0;
+int frames_skipped_last_second;
+int last_fps_passcount = 0;
+int draw_frame;
+int speed = 40;
+int passcount_timer_fps= 40;
+int passcount;
+
+// global game control
+int start_mode = 0;
+int level_done = 0;
+int game_exit = 1;
+
+// some global strings
+char level_filename[80];
+char local_hostname[80];
+char version_string[80];
+char global_string[20][25][80];
+char msg[256];
+char color_name[16][20];
+
+// for log file viewer code to find most recent log file
+ALLEGRO_FS_ENTRY *filenames[1000];
+int num_filenames;
+
+// animation sequence array
+int zz[20][NUM_ANS];
+
+// ------------------------------------------------
+// ----- level editor unsorted --------------------
+// ------------------------------------------------
+char sel_filename[500];
 int ty = 46;   // button start
 int bts = 12;  // button spacing
-
 // level editor start block UL corner
 int wx=0;
 int wy=0;
@@ -18,7 +62,6 @@ int pop_msg_viewer_pos;
 int Redraw = 1;
 int Num_legend_lines = 2;
 int Viewer_lock = 0;
-
 
 // ------------------------------------------------
 // ----- return values from getxy and getbox ------
@@ -33,16 +76,12 @@ int game_moves[1000000][4];
 int game_move_entry_pos = 0;
 int game_move_current_pos = 0; // for savegame running only
 
-
-
 // ------------------------------------------------
 // ------------- screen messages ------------------
 // ------------------------------------------------
 struct screen_msg screen_msgs[100];
 char b_msg[40][80];
 int bottom_msg=0;
-
-
 
 // ------------------------------------------------
 // -----------status and selection window----------
@@ -463,41 +502,6 @@ int map_x = BORDER_WIDTH;
 int map_y = BORDER_WIDTH;
 int map_size = 0;
 int new_size = 0;
-
-// -----------------------------------------------------------------------------------------------
-// not sorted yet
-
-ALLEGRO_FS_ENTRY *filenames[1000];
-int num_filenames;
-
-char level_filename[80];
-char local_hostname[80];
-char version_string[80];
-char global_string[20][25][80];
-char msg[256];
-char color_name[16][20];
-
-
-int speed_testing = 0;
-int actual_fps;
-int last_frames_skipped = 0;
-int frames_skipped_last_second;
-int last_fps_passcount = 0;
-int draw_frame;
-int speed = 40;
-int passcount_timer_fps= 40;
-int passcount;
-
-int level_header[20];
-
-int zz[20][NUM_ANS];
-
-int level_time;
-int start_mode = 0;
-int level_done = 0;
-int game_exit = 1;
-
-
 
 
 void final_wrapup(void)
@@ -1614,6 +1618,10 @@ void game_menu(void)
                      auto_save_game_on_exit= !auto_save_game_on_exit;
                      save_config();
                   }
+                  if (logging_menu_sel == 21)
+                  {
+                     log_file_viewer(1);
+                  }
                }  while (logging_menu_sel != 2); // end of netgame options menu
             }
 
@@ -2073,7 +2081,7 @@ int copy_files_to_clients(int exe_only)
 //   sprintf(client[num_clients++], "\\\\E6420\\pm_client5");  // win7 2560x1600 (my room)
 //   sprintf(client[num_clients++], "\\\\pfv\\pm_client6");    // XP 1600x1200
    sprintf(client[num_clients++], "\\\\m-4230-3\\pm_client7"); // ubuntu acer laptop
-   sprintf(client[num_clients++], "\\\\DESKTOP-DBNSJH8\\pm_client8"); // win 10 EID work laptop
+//   sprintf(client[num_clients++], "\\\\DESKTOP-DBNSJH8\\pm_client8"); // win 10 EID work laptop
 //   sprintf(client[num_clients++], "\\\\e4230f\\pm_client9"); // acer laptop
 //   sprintf(client[num_clients++], "\\\\4230a\\pm_client10"); // acer laptop
 //   sprintf(client[num_clients++], "\\\\insp9400\\pm_client11"); // dell insp 9400 (backup machine)

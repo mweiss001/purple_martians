@@ -1,7 +1,6 @@
+// zitem.cpp
+
 #include "pm.h"
-
-extern int level_done;
-
 
 int item_data(int x_pos, int y_pos)
 {
@@ -1078,7 +1077,6 @@ void proc_item_collision()
                   break;
                   case 12: // warp
                   {
-                     extern int start_mode;
                      play_level = item[x][8];
                      start_mode = 1;
                   }

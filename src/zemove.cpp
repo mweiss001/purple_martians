@@ -1,3 +1,5 @@
+// zemove.cpp
+
 #include "pm.h"
 
 // global variables
@@ -5,7 +7,6 @@ int EXint, EYint, EN;
 
 int enemy_data(int x_pos, int y_pos)
 {
-   extern int e_num_of_type[50];
    sort_enemy();
    al_draw_textf(font, palette_color[4], x_pos, y_pos, 0, "%-2d Enemies", num_enemy); y_pos += 8;
    al_draw_text(font, palette_color[4], x_pos, y_pos,  0, "----------"); y_pos += 8;

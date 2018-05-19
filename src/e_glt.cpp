@@ -1,4 +1,5 @@
-// glt.cpp (20100220 cleanup)
+// e_glt.cpp
+
 #include "pm.h"
 
 

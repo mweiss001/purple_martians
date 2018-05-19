@@ -1,7 +1,5 @@
 // pm.h - header file for both the game and the level editor
 
-//#define VERSION_HACK
-
 #include <stdio.h>
 #include <math.h>
 
@@ -28,24 +26,81 @@
 #define NUM_LIFTS 40
 
 
+// #define CLONERLINES
+#define RELEASE
 
+
+
+// ------------------------------------------------
+// ------------------------------------------------
+// ----------- Global variables -------------------
+// ------------------------------------------------
+// ------------------------------------------------
+// --- declared in zmain.cpp and externed here ----
+// ------------------------------------------------
+// -- (I know globals are bad programming style) --
+// ------------------------------------------------
+// ------------------------------------------------
+// ------------------------------------------------
+
+
+// ------------------------------------------------
+// ----- visual level select ----------------------
+// ------------------------------------------------
+#define NUM_LEV 400
+extern ALLEGRO_BITMAP * grid_bmp;
+extern ALLEGRO_BITMAP * level_icon_bmp[NUM_LEV];
+extern int le[NUM_LEV];
+extern int num_levs;
+extern int sel_x, sel_y, sel_size;
+extern int grid_cols, grid_rows, grid_size, grid_width, grid_height;
+extern int load_visual_level_select_done;
+
+
+
+// speed, frames per second, passcount stuff
+extern int speed_testing;
+extern int actual_fps;
+extern int last_frames_skipped;
+extern int frames_skipped_last_second;
+extern int last_fps_passcount;
+extern int draw_frame;
+extern int speed;
+extern int passcount_timer_fps;
+extern int passcount;
+
+// global game control
+extern int start_mode;
+extern int game_exit;
+extern int level_done;
+
+// some global strings
+extern char level_filename[80];
+extern char local_hostname[80];
+extern char version_string[80];
+extern char global_string[20][25][80];
+extern char msg[256];
+extern char color_name[16][20];
+
+// for log file viewer code to find most recent log file
+extern ALLEGRO_FS_ENTRY *filenames[1000];
+extern int num_filenames;
+
+// animation sequence array
+extern int zz[20][NUM_ANS];
 
 // ------------------------------------------------
 // ----- level editor unsorted --------------------
 // ------------------------------------------------
-
-extern int wx, wy; // level editor start block UL corner
+extern char sel_filename[500];
+extern int ty;   // button start
+extern int bts;  // button spacing
+extern int wx; // level editor start block UL corner
+extern int wy;
+extern int pop_msg_viewer_pos;
 extern int Redraw;
 extern int Num_legend_lines;
 extern int Viewer_lock;
-
-extern char sel_filename[500];
-
-extern int ty;   // button start
-extern int bts;  // button spacing
-
-extern int pop_msg_viewer_pos;
-
 
 // ------------------------------------------------
 // ----- return values from getxy and getbox ------
@@ -66,7 +121,6 @@ extern int game_move_current_pos;
 
 extern char b_msg[40][80];
 extern int bottom_msg;
-
 struct screen_msg
 {
    int active;
@@ -609,7 +663,6 @@ extern int lit_item;
 extern int sound_on;
 
 
-
 // ------------------------------------------------
 // ---------------- level -------------------------
 // ------------------------------------------------
@@ -650,7 +703,6 @@ extern al_fixed e_bullet_fy[50];
 extern al_fixed e_bullet_fxinc[50];
 extern al_fixed e_bullet_fyinc[50];
 extern int pm_bullet_collision_box;
-
 
 
 extern int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
@@ -725,7 +777,7 @@ extern int menu_map_size;
 extern int menu_map_x;
 extern int menu_map_y;
 
-extern int db;  // level editor zoom fullscreen double
+extern int db;  // level editor zoom fullscreen map double
 extern int txc; // center of right hand side panel in level editor
 
 // game map
@@ -736,54 +788,14 @@ extern int map_size;
 extern int new_size;
 
 
-
-
-// -----------------------------------------------------------------------------------------------
-// not sorted yet
-
-extern ALLEGRO_FS_ENTRY *filenames[1000];
-extern int num_filenames;
-
-extern int draw_frame;
-extern int actual_fps;
-extern int frames_skipped_last_second;
-extern int last_frames_skipped;
-extern int last_fps_passcount;
-
-extern char local_hostname[80];
-extern char version_string[80];
-
-// #define CLONERLINES
-// #define RELEASE
-
-extern int start_mode;
-extern int game_exit;
-
-extern int speed_testing;
-
-extern char msg[256];
-
-
-extern char color_name[16][20];
-
-extern int zz[20][NUM_ANS];
-
-extern int passcount;
-extern int passcount_timer_fps;
-
-extern char level_filename[80];
-
-extern char global_string[20][25][80];
-
-
-
-
-
-
-
-
 // ---------------------------------------------------------------------
-// -------- new list of function prototypes 20180515 -------------------
+// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// -------- Function prototypes ----------------------------------------
+// ---------------------------------------------------------------------
+// -------- (grouped by source file) -----------------------------------
+// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
 
 //e_bitmap.h - done
@@ -809,7 +821,6 @@ void draw_item_info(int x, int y, int color, int type, int num);
 int edit_menu(int el);
 
 // e_fnx.h - done
-int mouse_changed(void);
 al_fixed get_sproingy_jump_height(int num);
 void set_xyinc_rot(int EN, int x2, int y2);
 void set_rocket_rot(int num, int x2, int y2);

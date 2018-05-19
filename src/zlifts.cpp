@@ -1,8 +1,6 @@
+// zlifts.cpp
+
 #include "pm.h"
-
-
-
-
 
 int construct_lift(int l, char* lift_name, int width, int height, int color, int num_steps)
 {

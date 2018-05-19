@@ -1,17 +1,19 @@
+// zscrn.cpp
+
 #include "pm.h"
 
 void show_bitmap_flags(int flags)
 {
    printf("bitmap flags:\n");
-   if (flags & ALLEGRO_MEMORY_BITMAP) printf("ALLEGRO_MEMORY_BITMAP\n");
-   if (flags & ALLEGRO_VIDEO_BITMAP) printf("ALLEGRO_VIDEO_BITMAP\n");
-   if (flags & ALLEGRO_CONVERT_BITMAP) printf("ALLEGRO_CONVERT_BITMAP\n");
-   if (flags & ALLEGRO_FORCE_LOCKING) printf("ALLEGRO_FORCE_LOCKING\n");
+   if (flags & ALLEGRO_MEMORY_BITMAP)       printf("ALLEGRO_MEMORY_BITMAP\n");
+   if (flags & ALLEGRO_VIDEO_BITMAP)        printf("ALLEGRO_VIDEO_BITMAP\n");
+   if (flags & ALLEGRO_CONVERT_BITMAP)      printf("ALLEGRO_CONVERT_BITMAP\n");
+   if (flags & ALLEGRO_FORCE_LOCKING)       printf("ALLEGRO_FORCE_LOCKING\n");
    if (flags & ALLEGRO_NO_PRESERVE_TEXTURE) printf("ALLEGRO_NO_PRESERVE_TEXTURE\n");
-   if (flags & ALLEGRO_ALPHA_TEST) printf("ALLEGRO_ALPHA_TEST\n");
-   if (flags & ALLEGRO_MIN_LINEAR) printf("ALLEGRO_MIN_LINEAR\n");
-   if (flags & ALLEGRO_MAG_LINEAR) printf("ALLEGRO_MAG_LINEAR\n");
-   if (flags & ALLEGRO_MIPMAP) printf("ALLEGRO_MIPMAP\n");
+   if (flags & ALLEGRO_ALPHA_TEST)          printf("ALLEGRO_ALPHA_TEST\n");
+   if (flags & ALLEGRO_MIN_LINEAR)          printf("ALLEGRO_MIN_LINEAR\n");
+   if (flags & ALLEGRO_MAG_LINEAR)          printf("ALLEGRO_MAG_LINEAR\n");
+   if (flags & ALLEGRO_MIPMAP)              printf("ALLEGRO_MIPMAP\n");
 }
 
 void show_pixel_format(int df)
@@ -357,7 +359,6 @@ void rebuild_bitmaps(void)
    set_map_var();
    Redraw = 1;
 
-   extern int load_visual_level_select_done;
    load_visual_level_select_done = 0;
 
    if (visual_level_select_running) load_visual_level_select();
@@ -574,7 +575,6 @@ void stimp(void)
    float delay = .01;
 
    // find the size of the source screen from actual screen size and scaler
-   extern float scale_factor_current;
    int bw = BORDER_WIDTH;
    int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
    int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
@@ -614,7 +614,6 @@ void stimp(void)
    int sbh = SCREEN_H-bw*2;
 
    // how big is the entire level after scale factor is applied?
-   extern float scale_factor_current;
    int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
 
    // is the entire level smaller than the screen buffer width?
@@ -717,7 +716,6 @@ void stamp(void)
    float delay = .01;
 
    // find the size of the source screen from actual screen size and scaler
-   extern float scale_factor_current;
    int bw = BORDER_WIDTH;
    int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
    int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
@@ -757,7 +755,6 @@ void stamp(void)
    int sbh = SCREEN_H-bw*2;
 
    // how big is the entire level after scale factor is applied?
-   extern float scale_factor_current;
    int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
 
    // is the entire level smaller than the screen buffer width?
@@ -851,7 +848,6 @@ void get_new_screen_buffer(void)
    int sbh = SCREEN_H-bw*2;
 
    // how big is the entire level after scale factor is applied?
-   extern float scale_factor_current;
    int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
 
    // is the entire level smaller than the screen buffer width?
@@ -943,7 +939,6 @@ void get_new_screen_buffer(void)
 
 void set_map_var(void)
 {
-   txc = SCREEN_W - (SCREEN_W - db*100) / 2;
 
    // set intial map size based on minimum screen dimension / 3
    int smin = 0;
@@ -961,6 +956,8 @@ void set_map_var(void)
    if (db < 2) db = 2;
    al_destroy_bitmap(lefsm);
    lefsm = al_create_bitmap(db*100,db*100);
+
+   txc = SCREEN_W - (SCREEN_W - db*100) / 2;
 
    // check that status and select windows are not off screen
    check_s_window_pos(1);
@@ -1020,7 +1017,6 @@ void set_scale_factor(int instant)
 {
    show_scale_factor = 80;
    float sfr = 0.01; // scale factor round
-   extern float scale_factor;
    int preserve_aspect_ratio = 0;
    scale_factor = round(scale_factor/sfr) * sfr;
 
@@ -1043,11 +1039,7 @@ void set_scale_factor(int instant)
       }
    }
    save_config();
-   if (instant)
-   {
-      extern float scale_factor_current;
-      scale_factor_current = scale_factor;
-   }
+   if (instant) scale_factor_current = scale_factor;
 }
 
 
@@ -1199,9 +1191,6 @@ void frame_and_title(int show_players)
 void proc_scale_factor_change(void)
 {
    show_scale_factor--;
-   extern float scale_factor;
-   extern float scale_factor_current;
-   extern float scale_factor_inc;
    if (scale_factor_current < scale_factor)
    {
        // try to scale the inc, larger as scale_factor gets larger
@@ -1626,7 +1615,6 @@ void draw_top_display(void)
 
    if (show_scale_factor > 0)
    {
-      extern float scale_factor;
       al_draw_textf(font, palette_color[15],SCREEN_W*2/3, 2, ALLEGRO_ALIGN_CENTER, "Scale:%-3.2f", scale_factor);
    }
 
@@ -1652,10 +1640,6 @@ void draw_top_display(void)
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "disp_full %d x %d ", disp_w_full, disp_h_full);
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "display  %d x %d ", al_get_display_width(display), al_get_display_height(display));
 
-
-
-
-      extern float scale_factor;
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "scale_factor:%f", scale_factor);
       cy+=4;
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "FPS set:%d act:%d", passcount_timer_fps, actual_fps);

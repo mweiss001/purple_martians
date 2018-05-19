@@ -1,39 +1,22 @@
+// zlogo.cpp
+
 #include "pm.h"
-
-
-
-// i want a function that will draw centered text to a specified percentage of screen size
-
 
 // used by "created by:"
 void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, char * txt)
 {
    int bbx1, bby1, bbw1, bbh1;
    al_get_text_dimensions(tf, txt, &bbx1, &bby1, &bbw1, &bbh1);
-
    ALLEGRO_BITMAP *t1 = al_create_bitmap(bbw1, bbh1);
    al_set_target_bitmap(t1);
    al_clear_to_color(al_map_rgb(0,0,0));
    al_draw_text(tf, palette_color[col], 0-bbx1, 0-bby1, 0, txt);
    al_convert_mask_to_alpha(t1, al_map_rgb(0, 0, 0));
-
    float xs = ( (float)SCREEN_W * x_pc) / (float) bbw1 ; // x scale
-
-
    al_set_target_backbuffer(display);
    al_draw_scaled_rotated_bitmap(t1, bbw1/2, bbh1/2, SCREEN_W/2, SCREEN_H/2, xs, xs, 0, 0);
-
-   //al_draw_line(0, SCREEN_H/2, SCREEN_W, SCREEN_H/2, palette_color[15], 1);
-   //al_draw_line(SCREEN_W/2, 0, SCREEN_W/2, SCREEN_H, palette_color[15], 1);
-
    al_destroy_bitmap(t1);
 }
-
-// Demo Mode
-// Purple Martians
-// Level Done
-// You Died!
-
 
 void draw_title(int tx, int ty, int w, int h, int color)
 {
@@ -53,7 +36,6 @@ void draw_title(int tx, int ty, int w, int h, int color)
          m_err(msg);
       }
       //else printf("created text_title %d %d\n", bbw1,bbh1);
-
       al_set_target_bitmap(text_title);
       al_clear_to_color(al_map_rgb(0,0,0));
       al_draw_text(f2, palette_color[color], 0-bbx1, 0-bby1, 0, msg);
@@ -62,8 +44,6 @@ void draw_title(int tx, int ty, int w, int h, int color)
    al_set_target_backbuffer(display);
    al_draw_scaled_bitmap(text_title, 0, 0, bbw1, bbh1, tx - w/2, ty, w, h, 0);
 }
-
-
 
 void draw_demo_mode_overlay(void)
 {
@@ -90,7 +70,6 @@ void draw_demo_mode_overlay(void)
       al_convert_mask_to_alpha(text_mode, al_map_rgb(0, 0, 0)) ;
 
       al_set_target_backbuffer(display);
-
    }
 
    //int xs = SCREEN_W*7/8; // x size
@@ -116,12 +95,8 @@ void draw_demo_mode_overlay(void)
 
    al_draw_tinted_scaled_bitmap(text_demo, fc, 0, 0, bbw1, bbh1, x1, yu1, x2, yu2, 0);
 //   al_draw_tinted_scaled_bitmap(text_mode, fc, 0, 0, bbw1, bbh1, x1, yl1, x2, yl2, 0);
-
 //   al_draw_line(0, SCREEN_H/2, SCREEN_W, SCREEN_H/2, palette_color[15], 1);
 //   al_draw_line(SCREEN_W/2, 0, SCREEN_W/2, SCREEN_H, palette_color[15], 1);
-
-
-
 }
 
 

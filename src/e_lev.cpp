@@ -1,8 +1,6 @@
-// e_lev.cpp (20171118)  // level viewer and renamer
+// e_lev.cpp // level viewer and renamer
 
 #include "pm.h"
-
-#define NUM_LEV 400
 
 // globals
 int sel = 0;
@@ -413,16 +411,6 @@ void show_cur_vs(int cur, int x1, int y1, int size, int fc)
    }
    else al_draw_text(font, palette_color[10], xc, y1+30, ALLEGRO_ALIGN_CENTER, "not found" );
 }
-
-#define NUM_LEV 400
-
-ALLEGRO_BITMAP * grid_bmp = NULL;
-ALLEGRO_BITMAP * level_icon_bmp[NUM_LEV];
-int le[NUM_LEV]; // level exists array
-int num_levs;
-int sel_x, sel_y, sel_size;
-int grid_cols, grid_rows, grid_size, grid_width, grid_height;
-int load_visual_level_select_done = 0;
 
 void load_visual_level_select(void)
 {

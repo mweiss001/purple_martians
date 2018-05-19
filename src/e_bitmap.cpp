@@ -1,9 +1,8 @@
-// e_bitmap.cpp (20100220 cleanup)
+// e_bitmap.cpp
+
 #include "pm.h"
 
 int bmp_index = 0;
-int zzindx = 3;
-
 int select_bitmap_ans(int zzindx)
 {
    int quit = 0;
@@ -68,6 +67,7 @@ int animation_proc()
       les = 1;
       rebuild_bitmaps();
    }
+   int zzindx = 3;
    int pointer = zzindx;
    int as_quit = 0;
    int quit = 0;

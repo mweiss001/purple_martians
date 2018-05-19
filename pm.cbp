@@ -163,7 +163,6 @@
 		<Unit filename="src/e_glt.cpp" />
 		<Unit filename="src/e_item.cpp" />
 		<Unit filename="src/e_lev.cpp" />
-		<Unit filename="src/e_menu.cpp" />
 		<Unit filename="src/e_nev.cpp" />
 		<Unit filename="src/e_nlv.cpp" />
 		<Unit filename="src/e_pde.cpp" />
