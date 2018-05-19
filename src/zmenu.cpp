@@ -1,5 +1,6 @@
-#include "pm.h"
+// zmenu.cpp
 
+#include "pm.h"
 
 char help_string[5000][200];
 
@@ -581,6 +582,14 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
          selection = 2; // default position for back
          if (menu_num == 7)  selection = 1; // for top menu only
       }
+
+      if (key[ALLEGRO_KEY_PGDN]) highlight = last_list_item;
+      if (key[ALLEGRO_KEY_PGUP]) highlight = 2;
+
+
+
+
+
    }
    return selection;
 }
@@ -691,7 +700,8 @@ void menu_setup(void)
    strcpy (global_string[3][18], "LOGGING_NETPLAY_show_dif2");
    strcpy (global_string[3][19], "Auto Save Game On Level Done");
    strcpy (global_string[3][20], "Auto Save Game On Exit");
-   strcpy (global_string[3][21], "end");
+   strcpy (global_string[3][21], "Log File Viewer");
+   strcpy (global_string[3][22], "end");
 
 
    strcpy (global_string[4][0], "Netgame Options Menu");

@@ -1,3 +1,5 @@
+// n_client.cpp
+
 #include "pm.h"
 
 #ifdef NETPLAY
@@ -847,8 +849,6 @@ void client_block_until_good_chdf_received(void)
 
    // set passcounts
    passcount = dif_id[1];
-//   extern int timer_passcount;
-//   timer_passcount = passcount;
    al_set_timer_count(fps_timer, passcount);
 
    players1[p].last_sdat_lpc = passcount + 200;

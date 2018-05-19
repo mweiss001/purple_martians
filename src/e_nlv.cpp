@@ -1,4 +1,4 @@
-// e_nlv.cpp (20100220 cleanup)
+// e_nlv.cpp
 
 #include "pm.h"
 
@@ -719,7 +719,6 @@ int lift_editor(int lift)
 {
    int current_step = 0;
    int step_pointer=0;
-   extern int ty;
    int ret = 0;
    int quit = 0;
    while (!quit)

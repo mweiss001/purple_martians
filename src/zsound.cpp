@@ -1,7 +1,6 @@
+// zsound.cpp
+
 #include "pm.h"
-
-
-
 
 void stop_sound(void)
 {
@@ -97,10 +96,9 @@ void load_sound() // for normal loading of sound driver and samples
             al_set_sample_instance_playmode(sid_hiss, ALLEGRO_PLAYMODE_LOOP);
             al_attach_sample_instance_to_mixer(sid_hiss, se_mixer);
 
-            //pm_theme_stream = al_load_audio_stream("snd/rol.wav", 8, 1024);
             pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
             if (pm_theme_stream == NULL) printf("error loading snd/pm.xm\n");
-            //else printf("loading snd/pm.xm\n");
+            //else printf("loaded snd/pm.xm\n");
 
             al_set_audio_stream_playmode(pm_theme_stream, ALLEGRO_PLAYMODE_LOOP);
             al_set_audio_stream_playing(pm_theme_stream, 0);
@@ -138,42 +136,3 @@ void sound_toggle(void)
    }
    save_config();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

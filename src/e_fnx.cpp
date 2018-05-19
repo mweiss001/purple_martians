@@ -1,41 +1,6 @@
-// e_fnx.cpp (20100220 cleanup)
+// e_fnx.cpp
+
 #include "pm.h"
-
-int old_mouse_x;
-int old_mouse_y;
-int old_mouse_b1;
-int old_mouse_b2;
-
-int mouse_changed(void)
-{
-   int change = 0;
-   if (old_mouse_x != mouse_x)
-   {
-      old_mouse_x = mouse_x;
-      change = 1;
-//      printf("x\n");
-   }
-   if (old_mouse_y != mouse_y)
-   {
-      old_mouse_y = mouse_y;
-      change = 1;
-//      printf("y\n");
-   }
-   if (old_mouse_b1 != mouse_b1)
-   {
-      old_mouse_b1 = mouse_b1;
-      change = 1;
-//      printf("b\n");
-   }
-   if (old_mouse_b2 != mouse_b2)
-   {
-      old_mouse_b2 = mouse_b2;
-      change = 1;
-//      printf("b\n");
-   }
-   return change;
-}
-
 
 al_fixed get_sproingy_jump_height(int num)
 {

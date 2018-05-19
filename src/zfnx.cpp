@@ -1,3 +1,5 @@
+// zfnx.cpp
+
 #include "pm.h"
 
 int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
@@ -249,8 +251,6 @@ int find_closest_player(int EN)
 
 void fire_enemy_bulleta(int EN, int bullet_ans, int p)
 {
-   extern int e_bullet_active[50], e_bullet_shape[50];
-   extern al_fixed e_bullet_fx[50], e_bullet_fy[50], e_bullet_fxinc[50], e_bullet_fyinc[50];
    al_fixed xlen = players[p].PX - Efi[EN][0];   // get the x distance between enemy and player
    al_fixed ylen = players[p].PY - Efi[EN][1];   // get the y distance between enemy and player
    al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
@@ -284,8 +284,6 @@ void fire_enemy_bulleta(int EN, int bullet_ans, int p)
 
 void fire_enemy_x_bullet(int EN, int p)
 {
-   extern int e_bullet_active[50], e_bullet_shape[50];
-   extern al_fixed e_bullet_fx[50], e_bullet_fy[50], e_bullet_fxinc[50], e_bullet_fyinc[50];
    al_fixed x_bullet_speed = Efi[EN][7];
    for (int z=0; z<50; z++)  // find empty e_bullet
       if (!e_bullet_active[z])

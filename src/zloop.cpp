@@ -1,12 +1,6 @@
+// zloop.cpp
+
 #include "pm.h"
-
-// global variables
-
-// timer variables
-extern int level_time;
-extern int speed;
-extern int level_done;
-
 
 void add_screen_msg(char *txt, int x, int y, int delay, int ssn, int z1, int z2, int z3, int z4 )
 {

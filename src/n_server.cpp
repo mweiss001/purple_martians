@@ -1,3 +1,5 @@
+// n_server.cpp
+
 #include "pm.h"
 #ifdef NETPLAY
 
@@ -1018,7 +1020,6 @@ void server_local_control(int p)
       int cm = players1[p].comp_move;
       add_game_move(fpc, 5, p, cm);
    }
-   extern int level_done;
    if (level_done) add_game_move(fpc, 6, 0, 0);             // insert level done into game move
 }
 #endif

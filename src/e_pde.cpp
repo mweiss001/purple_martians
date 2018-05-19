@@ -1,13 +1,10 @@
-// e_pde.cpp (20100220 cleanup)
-#include "pm.h"
+// e_pde.cpp
 
+#include "pm.h"
 
 int load_PDE()
 {
    FILE *filepntr;
-   extern int PDEi[100][32];
-   extern al_fixed PDEfx[100][16];
-   extern char PDEt[100][20][40];
    int PDE_load_error;
    int loop, ch, c, x;
    char buff[80];
@@ -100,9 +97,6 @@ int load_PDE()
 void save_PDE()
 {
    FILE *filepntr;
-   extern char PDEt[100][20][40];
-   extern int PDEi[100][32];
-   extern al_fixed PDEfx[100][16];
    int c, x;
    filepntr = fopen("bitmaps/pde.pm","w");
    for (c=0; c < 100; c++)  // enemy al_fixed
@@ -235,14 +229,6 @@ al_fixed edit_fix(int x, int y, al_fixed val)
    al_show_mouse_cursor(display);
    return val;
 }
-
-
-
-
-
-extern int PDEi[100][32];
-extern al_fixed PDEfx[100][16];
-extern char PDEt[100][20][40];
 
 void PDE_swap(int s1, int s2)
 {

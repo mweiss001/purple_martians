@@ -1,4 +1,5 @@
-// e_sliders.cpp  (20100220 cleanup)
+// e_sliders.cpp
+
 #include "pm.h"
 
 char smsg[80];
@@ -6,11 +7,7 @@ int bw = 3; // slider adjustment bar width
 
 void update_var(int bn, int type, int num, float f)
 {
-
    if (bn == 1) item[num][7] = (int)f;      // health bonus
-
-
-
    if (bn == 4) item[num][7] = (int)f;      // blast size
    if (bn == 5) item[num][9] = (int)f;      // fuse length
    if (bn == 6) item[num][9] = (int)f;      // accel
@@ -24,15 +21,6 @@ void update_var(int bn, int type, int num, float f)
       Efi[num][6] = al_ftofix(f);
       if (Efi[num][2] > al_itofix(0)) Efi[num][2] = Efi[num][6];
       if (Efi[num][2] < al_itofix(0)) Efi[num][2] = -Efi[num][6];
-
-/*
-      Efi[num][2] = -Efi[num][6];
-
-      Efi[num][6] = al_ftofix(f);
-      if (Ei[num][2]) Efi[num][2] =  Efi[num][6];
-      else            Efi[num][2] = -Efi[num][6];
-*/
-
 
    }
    if (bn == 13) Efi[num][3] = al_ftofix(f);  // y - speed
@@ -190,8 +178,6 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    }
    if (bn == 49) // door type
    {
-//      if (item[num][8] == 0) sprintf(smsg, "Exit Only");
-//      if (item[num][8] == 1) sprintf(smsg, "Linked Destination (%d)", item[num][9]);
       if (item[num][8] == 0) sprintf(smsg, "Door Type:Exit Only");
       if (item[num][8] == 1) sprintf(smsg, "Door Type:Normal   ");
    }
@@ -209,7 +195,7 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (item[num][12] == 2) sprintf(smsg, "Exit link: when touched");
       if (item[num][8] == 0 ) sprintf(smsg, "disabled");
    }
-   if (bn == 52) sprintf(smsg, "Door Shape");
+   if (bn == 52) sprintf(smsg, "Change Door Shape");
 
    if (bn == 53) // door move type
    {
@@ -283,7 +269,6 @@ void fill_smsg_slider(int bn, int type, int num)
 //   if (bn == 26) sprintf(smsg, "%s", "" ); // button height
    if (bn == 26) sprintf(smsg, "%d", bts ); // button height
 
-
    if (bn == 27) sprintf(smsg, "Initial Time:%d", item[num][8]);
    if (bn == 28) sprintf(smsg, "Warp Level:%d", item[num][8]);
    if (bn == 29) sprintf(smsg, "Speed:%-2.1f", al_fixtof(Efi[num][9]));
@@ -340,7 +325,7 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num,
    if (bn == 3) sprintf(smsg, "Select Frame Color");
    if (bn == 4) sprintf(smsg, "Select Lift Color");
    if (bn == 5) sprintf(smsg, "Select Door Color");
-   al_draw_text(font, palette_color[0], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   al_draw_text(font, palette_color[0], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
     // draw outline
    al_draw_rectangle(x1, y1, x2, y2, palette_color[15], 1);
@@ -391,8 +376,8 @@ void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, i
 int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
                 int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);             // draw button frame
-   fill_smsg_button(bn, obt, type, num);                                   // get button text
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+   fill_smsg_button(bn, obt, type, num);                              // get button text
    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
    if (bn == 13)
@@ -406,13 +391,6 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       al_draw_rotated_bitmap(memory_bitmap[zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
 
-   if (bn == 52)
-   {
-      get_item_draw_shape(num);
-      al_convert_mask_to_alpha(dtemp, al_map_rgb(0, 0, 0));
-      al_set_target_backbuffer(display);
-      al_draw_scaled_bitmap(dtemp, 0, 0, 20, 20, (x2+x1)/2+60, y1, bts-2, bts-2, 0) ;
-   }
    // is mouse pressed on this button?
    if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
@@ -461,7 +439,6 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 10) // set new direction
          if (getxy((char *)"Set New Direction", 96, 4, num) == 1)
          {
-            extern int get100_x, get100_y;
             set_xyinc_rot(num, get100_x*20, get100_y*20);
             Redraw = 1;
          }

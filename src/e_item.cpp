@@ -1,4 +1,5 @@
-// e_item.cpp (20100220 cleanup)
+// e_item.cpp
+
 #include "pm.h"
 
 void crosshairs(int smx, int smy, int x, int y, int color) // function to draw rectangle and crosshairs
@@ -111,9 +112,6 @@ int sort_item(void)
    for (int c=0; c < 500; c++)
       if (item[c][0] == 1) //door
          item[c][15] = c; // tag this door with its original item number
-
-
-   extern int item_first_num[20];
    int inum, c, d, quit, temp, swap;
    quit=0;
    while (!quit) // sort item list
@@ -298,7 +296,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
       al_draw_rectangle(txc-94, 20, txc+94, 43, palette_color[15], 1);
       draw_enemy_shape(num, txc-92, 22);
       sprintf(msg,"%s %d of %d", (const char *)enemy_name[sub_type],1+num - e_first_num[sub_type],e_num_of_type[sub_type]);
-      al_draw_text(font, palette_color[13], txc-94+28, 29, 0, msg);
+      al_draw_text(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, msg);
       al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
       switch (sub_type)
       {
@@ -495,7 +493,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          al_draw_rectangle(txc-94, 20, txc+94, 43, palette_color[15], 1);
          draw_item_shape( num, txc-92, 22);
          sprintf(msg,"%s %d of %d", item_name[sub_type], 1+num - item_first_num[sub_type],item_num_of_type[sub_type]);
-         al_draw_text(font, palette_color[13], txc+94-28, 29, 0, msg);
+         al_draw_text(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, msg);
       }
       al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
       switch (sub_type)
@@ -1116,18 +1114,10 @@ void object_viewer(int obt, int num)
    al_flip_display();
    al_clear_to_color(al_map_rgb(0,0,0));
 
-
-   extern int e_num_of_type[50];      // sort results
-   extern int e_first_num[50];
-   extern int item_first_num[20];
-
    int mb;   // button selection
    int type=0; // enemy or item type
-
    int highlight_counter=0;
    int a;
-
-
    while (!quit)
    {
       // button x position
@@ -1382,8 +1372,6 @@ void object_viewer(int obt, int num)
                   int abc = 11; // regular button frame color
                   int atc = 15; // regular button text color
 
-                  int cbc = item[num][14];  // door color
-
                   if (item[num][8] == 0) // if exit only change color of inactive buttons
                   {
                       abc = 15;
@@ -1395,7 +1383,7 @@ void object_viewer(int obt, int num)
                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 50, num, type, obt, 0, abc, atc,  0, 1,0,0,0); a++; // enter mode (up | down)
                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 53, num, type, obt, 0, abc, atc,  0, 1,0,0,0); a++; // move type
                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 51, num, type, obt, 0, abc, atc,  0, 1,0,0,0); a++; // exit link show
-                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 52, num, type, obt, 0, cbc,  15,  0, 1,0,0,0); a++; // get new shape
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 52, num, type, obt, 0,  13,  15,  0, 1,0,0,0); a++; // get new shape
                   mdw_colsel(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 5,  num, type, obt, 0,   0,   0,  0, 0,0,0,0);      // change color
                }
                break;
@@ -1513,7 +1501,6 @@ void object_viewer(int obt, int num)
                if ((obt==2) && (--num < item_first_num[type])) num++;
             break;
             case 23: // copy to draw item
-               extern int draw_item_num, draw_item_type;
                draw_item_num = num;
                draw_item_type = obt;
             break;

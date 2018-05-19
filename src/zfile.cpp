@@ -1,9 +1,9 @@
+// zfile.cpp
+
 #include "pm.h"
 
-extern FILE *filepntr;
 
 char tmp[100];
-
 char* cmtos(int cm)
 {
    sprintf(tmp, " ");
@@ -95,6 +95,7 @@ void save_gm_txt(char *sfname)
 
 void save_gm_gm(char *sfname)
 {
+   FILE *filepntr;
    char fname[80];
    sprintf(fname, "savegame/%s.gm", sfname);
    filepntr = fopen(fname,"w");
@@ -168,6 +169,7 @@ void blind_save_game_moves(int d)
 
 int load_gm(char *sfname )
 {
+   FILE *filepntr;
    char fname[1024];
    sprintf(fname, "%s", sfname);
    //printf("fname:%s\n", fname);

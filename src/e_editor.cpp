@@ -1,4 +1,5 @@
-// e_editor.cpp (20100220 cleanup)
+// e_editor.cpp
+
 #include "pm.h"
 
 // draws item on dtemp, with rotation if required
@@ -125,7 +126,6 @@ void show_draw_item_cursor(void)
 
 void set_block_range(void)
 {
-   extern int draw_item_num;
    int a, b;
    for (a = bx1; a < bx2; a++)       // cycle the range
       for (b = by1; b < by2; b++)
@@ -529,8 +529,6 @@ void do_brf(int x, int y, int flood_block)
 
 int zoom_full_screen(int wx, int wy, int draw_item)
 {
-   extern int draw_item_type;
-   extern int draw_item_num;
    int jh;
    int ty = 60;
    int x1, y1, x2, y2;
@@ -1186,11 +1184,8 @@ int edit_menu(int el)
 
       if ((mouse_b2) && (!mpow))  // pop up menu
       {
-         extern int select_window_active;
-
          int pop_menu_selection = 999;
          int temp_mouse_x, temp_mouse_y;
-
          switch (point_item_type)
          {
             case 1:

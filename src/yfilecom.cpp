@@ -1,7 +1,8 @@
+// yfilecom.cpp
+
 #include "pm.h"
 
 FILE *filepntr;
-extern int level_header[20];
 
 void make_filename(int x)
 {
@@ -36,7 +37,6 @@ int load_level_prompt()
 
 int save_level_prompt()
 {
-   extern int level_header[20];
    char title[80];
    int len = strlen(level_filename);
    char g[10];
@@ -55,12 +55,6 @@ int save_level_prompt()
       g[2] = level_filename[len-5];
       g[3] = 0;
       num = atoi(g);
-      level_header[3] = sort_item(); // num_of_items
-
-      sort_enemy();
-      level_header[4] = num_enemy; // num_of_enemies
-
-      level_header[5] = num_lifts;
       save_level(num+1000);
       return 1;
    }
@@ -230,20 +224,17 @@ void zero_level_data(void)
          clear_lift_step(c,x);
    }
    num_lifts = 0;
-
-   for (int x=0; x<20; x++)
-      level_header[x] = 0;
-
 }
 
 
 int load_level(int level_to_load, int display)
 {
+   int level_header[20];
+
    display = 0; // force display on or off
    int error_logging = 0;
    valid_level_loaded = 0;
 
-   extern int level_header[20];
    int level_load_error = 0;
    int loop, ch, c, x, y;
    char buff[2000];
@@ -506,7 +497,7 @@ int load_level(int level_to_load, int display)
 
 int save_level(int level_to_save)
 {
-   extern int level_header[20];
+   int level_header[20];
    int c, x, y;
 
    while (level_to_save > 1000) level_to_save -= 1000;

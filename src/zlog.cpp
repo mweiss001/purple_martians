@@ -1,4 +1,5 @@
 // zlog.cpp
+
 #include "pm.h"
 
 
@@ -425,8 +426,6 @@ int fill_filename_array(ALLEGRO_FS_ENTRY *fs, void * extra)
    num_filenames++;
    return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
 }
-
-
 
 int log_file_viewer(int type)
 {

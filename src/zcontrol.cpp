@@ -1,3 +1,5 @@
+// zcontrol.cpp
+
 #include "pm.h"
 
 
@@ -266,7 +268,6 @@ void set_passcount_timer_fps(int x)
 
 void set_speed(void)
 {
-   extern int speed;
    sprintf(global_string[8][6],"Speed:%2dfps", speed);
    set_passcount_timer_fps(speed);
 }
@@ -370,8 +371,6 @@ void player_key_check(int p)
 
 void function_key_check(void)
 {
-   extern int speed;
-   extern float scale_factor;
 
 /*
 
@@ -611,8 +610,6 @@ void function_key_check(void)
          scale_factor /= sfa;
          //printf("2scale factor:%f\n", scale_factor);
 
-
-         extern float scale_factor_current;
          scale_factor_current = scale_factor;
 
          rebuild_bitmaps();
@@ -1226,8 +1223,6 @@ int proc_controllers()
       else // this is run if a game is in progress
       {
          function_key_check();
-         extern int level_done;
-
          for (int p=0; p<NUM_PLAYERS; p++)
             if (players[p].active) // cycle all active players
             {
