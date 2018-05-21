@@ -1,0 +1,351 @@
+Subject: 
+        Re: harsh comments on the new site
+   Date: 
+        Sun, 30 Apr 2000 22:20:13 -0500
+   From: 
+        "Matthew" <matthew@aeroinc.net>
+     To: 
+        "Michael David Weiss" <mweiss@pacificcoast.net>
+
+
+
+
+>I don't like a lot of the changes very much.
+>
+
+Well, I think you're kind of missing the whole concept of the 'changes'.
+Why quotes around changes? Because it's a new site, not really changes
+to the old. The AGD has been discontinued.
+
+>1) What was wrong the name 'Allegro Games Depot'?  I don't find the new
+>name an improvement.
+
+The new site is actually nameless. It is called Allegro.cc because that 
+is the name of the domain. COM,NET,ORG were already taken, so I decided
+to go with CC. If you want to continue to call it "Allegro Games Depot",
+then feel free to. The old URL "depot.allegro.cc" will eventually
+point to the Depot section of the site.
+
+>2) You broke my links to my project on your site
+
+Not at all... it's the same exact data. If you're site is hosted
+on something like GeoCities, then they may be blocking external links.
+
+>3) You broke the download counter (stats)
+
+It's not broken, it was reset. I altered the database so I could 
+better track usage, bandwidth and external linking. Once there is 
+enough data collected, a better user stat tracking system will be 
+in place. In the mean time, you can see how many times your project
+was viewed, and if it is a top download, see how many times it was
+downloaded.
+
+>4) I would like to have the line 'source code:email me' but I am stuck
+>with yes or no
+
+This is how it has always been, so I don't understand why this is 
+on your list of changes. Boolean values always come in On/Off, Yes/No,
+etc. Perhaps I may change it to a drop down with the choices,
+"Yes","No","Available upon Request".
+
+>5) Its not very easy to find the bleeding link to send you email
+>
+
+Again, this is the same as it's always been. A link on the bottom of 
+every single page, as well as on the about section. I think that's a 
+pretty standard way of doing it.
+
+>All the things that I used to like about the AGD I still like about the
+>new site, except where you broke them
+>Forgive me for sounding harsh but you seem to be changing things just
+>for the sake of changing them.
+>If it ain't broke, don't fix it!
+>
+
+I don't mind your comments at all. If all everyone says is "I love the
+site!", it won't get any better. But let me explain a few things about
+Allegro.cc.
+
+It is not just a compilation of games any more. It is a site that covers
+any Allegro related (and semi-related) subjects. This means, it will 
+hopefully become a resource for news, games, projects, libraries, 
+utilities, etc. I asked many times for people to volunteer to help run
+things. I got absolutely no responses. Therefore I felt the best way
+was to consolodate everything into a single place so I could easily 
+moderate it. If you would like to start up a site pertaining solely to
+Allegro games, feel fine. You can model it after any of the old AGD 
+looks if you wish. In the meantime, I will continue trying to take steps
+forward by adding content to Allegro.cc and improving what is alreay 
+there. And I hope to continue to hear suggestions from you and the other
+Allegro.cc visitors.
+
+--
+Matthew Leverton - matthew@aeroinc.net
+http://www.allegro.cc
+
+
+Subject: 
+        Re: harsh comments on the new site
+   Date: 
+        Mon, 1 May 2000 17:09:06 -0500
+   From: 
+        "Matthew Leverton" <matthew@aeroinc.net>
+     To: 
+        "Michael David Weiss" <mweiss@pacificcoast.net>
+
+
+
+
+*** Ignore the first e-mail, I accidently hit CTRL-S, and it sent before i
+was done ***
+
+
+>The link I used to use was:depot.allegro.cc/game.taf?id=319
+>
+>The link I now have to use
+is:www.allegro.cc/home.taf?_body=viewproject&_id=10631&_noCache=616345&_User
+Reference=858766D6B7993AF4390BA105
+>
+>Please let me know if I'm doing something wrong or if there is an easier
+way
+>to do this.
+>
+
+Ah, I understand what you meant. I thought you were referring to allegro.cc
+linking to your site, not your site linking to allegro.cc. You should
+actually take the UserReference part of it off and you might as well leave
+off the
+noCache as well.
+
+http://www.allegro.cc/home.taf?_body=viewproject&_id=10631
+
+That is the link you should use. If you keep the UserReference on there,
+that
+could potentially be dangerous, because it will fool the server into
+thinking
+that person A & B are the same. Therefore if person A & B both click on that
+link and to Allegro.cc, and A logs on as "Mr. Doe", then B is now also
+logged
+on as "Mr. Doe".
+
+>As far as the counter goes, I used to be able to tell how many people had
+>downloaded my game
+>(albeit it was very small number 50 or so), the day that the downloads had
+>occured on, and the IP address
+>of the download, now all I get is page hits?
+>
+
+Correct, but there will be more advanced stats later on.
+
+
+
+--
+Matthew Leverton - matthew@aeroinc.net -
+http://www.allegro.cc
+
+
+Subject: 
+            Re: harsh comments on the new site
+       Date: 
+            Wed, 03 May 2000 06:54:51 -0700
+      From: 
+            Michael David Weiss <mweiss@pacificcoast.net>
+        To: 
+            Matthew Leverton <matthew@aeroinc.net>
+ References: 
+            1
+
+
+
+
+Thank you so much for taking the time to
+personally respond and (oh my god!) even
+help by sending HTML code examples.
+
+I never expected so high a level of service from
+a free site.
+
+I'm sorry again that I was so harsh in criticizing
+the site in my first email.
+
+Keep up the good work!
+
+Michael David Weiss
+
+
+
+Subject: 
+            Re: harsh comments on the new site
+       Date: 
+            Mon, 01 May 2000 12:18:57 -0700
+      From: 
+            Michael David Weiss <mweiss@pacificcoast.net>
+        To: 
+            Matthew <matthew@aeroinc.net>
+ References: 
+            1
+
+
+
+
+Sorry I was so negative.  I actually like the site.  Overall the good parts
+outweigh any minor complaints I might have.
+
+About the Boolean value: source code:[yes|no]
+OK so that wasn't a change, but I still would like to register my complaint,
+and humbly ask for a change.
+
+As far as the broken link thing goes. I don't use geocities.
+
+The link I used to use was:depot.allegro.cc/game.taf?id=319
+
+The link I now have to use is:www.allegro.cc/home.taf?_body=viewproject&_id=10631&_noCache=616345&_UserReference=858766D6B7993AF4390BA105
+
+Please let me know if I'm doing something wrong or if there is an easier way
+to do this.
+
+As far as the counter goes, I used to be able to tell how many people had
+downloaded my game
+(albeit it was very small number 50 or so), the day that the downloads had
+occured on, and the IP address
+of the download, now all I get is page hits?
+
+And as far as the email link on the bottom of every page, I see it now, and
+it makes perfect sense,
+but I was too stupid to realize it earlier, my mistake!  I searched high and
+low before I found one on the about page.
+
+I just re-read my original post, and I'm sorry for sounding so harsh, I was
+just trying to let you know some things
+that had frustrated me.  Please don't think that I don't apprecite the
+wonderful site you are building.
+
+Michael Weiss
+
+
+
+Matthew wrote:
+
+> >I don't like a lot of the changes very much.
+> >
+>
+> Well, I think you're kind of missing the whole concept of the 'changes'.
+> Why quotes around changes? Because it's a new site, not really changes
+> to the old. The AGD has been discontinued.
+>
+> >1) What was wrong the name 'Allegro Games Depot'?  I don't find the new
+> >name an improvement.
+>
+> The new site is actually nameless. It is called Allegro.cc because that
+> is the name of the domain. COM,NET,ORG were already taken, so I decided
+> to go with CC. If you want to continue to call it "Allegro Games Depot",
+> then feel free to. The old URL "depot.allegro.cc" will eventually
+> point to the Depot section of the site.
+>
+> >2) You broke my links to my project on your site
+>
+> Not at all... it's the same exact data. If you're site is hosted
+> on something like GeoCities, then they may be blocking external links.
+>
+> >3) You broke the download counter (stats)
+>
+> It's not broken, it was reset. I altered the database so I could
+> better track usage, bandwidth and external linking. Once there is
+> enough data collected, a better user stat tracking system will be
+> in place. In the mean time, you can see how many times your project
+> was viewed, and if it is a top download, see how many times it was
+> downloaded.
+>
+> >4) I would like to have the line 'source code:email me' but I am stuck
+> >with yes or no
+>
+> This is how it has always been, so I don't understand why this is
+> on your list of changes. Boolean values always come in On/Off, Yes/No,
+> etc. Perhaps I may change it to a drop down with the choices,
+> "Yes","No","Available upon Request".
+>
+> >5) Its not very easy to find the bleeding link to send you email
+> >
+>
+> Again, this is the same as it's always been. A link on the bottom of
+> every single page, as well as on the about section. I think that's a
+> pretty standard way of doing it.
+>
+> >All the things that I used to like about the AGD I still like about the
+> >new site, except where you broke them
+> >Forgive me for sounding harsh but you seem to be changing things just
+> >for the sake of changing them.
+> >If it ain't broke, don't fix it!
+> >
+>
+> I don't mind your comments at all. If all everyone says is "I love the
+> site!", it won't get any better. But let me explain a few things about
+> Allegro.cc.
+>
+> It is not just a compilation of games any more. It is a site that covers
+> any Allegro related (and semi-related) subjects. This means, it will
+> hopefully become a resource for news, games, projects, libraries,
+> utilities, etc. I asked many times for people to volunteer to help run
+> things. I got absolutely no responses. Therefore I felt the best way
+> was to consolodate everything into a single place so I could easily
+> moderate it. If you would like to start up a site pertaining solely to
+> Allegro games, feel fine. You can model it after any of the old AGD
+> looks if you wish. In the meantime, I will continue trying to take steps
+> forward by adding content to Allegro.cc and improving what is alreay
+> there. And I hope to continue to hear suggestions from you and the other
+> Allegro.cc visitors.
+>
+> --
+> Matthew Leverton - matthew@aeroinc.net
+> http://www.allegro.cc
+
+--
+Michael David Weiss  a.a. #1494
+
+Download free MP3's of my latest music at:
+www.mp3.com/michaelweiss
+
+Check the video game that I wrote at:
+members.xoom.com/mdavidweiss/purple.htm
+
+And visit my home page at:
+www.pacificcoast.net/~mweiss/initial.htm
+
+
+Subject: 
+        harsh comments on the new site
+   Date: 
+        Sat, 29 Apr 2000 20:21:54 -0700
+   From: 
+        Michael David Weiss <mweiss@pacificcoast.net>
+     To: 
+        matthew@aeroinc.net
+
+
+I don't like a lot of the changes very much.
+
+1) What was wrong the name 'Allegro Games Depot'?  I don't find the new
+name an improvement.
+2) You broke my links to my project on your site
+3) You broke the download counter (stats)
+4) I would like to have the line 'source code:email me' but I am stuck
+with yes or no
+5) Its not very easy to find the bleeding link to send you email
+
+All the things that I used to like about the AGD I still like about the
+new site, except where you broke them
+Forgive me for sounding harsh but you seem to be changing things just
+for the sake of changing them.
+If it ain't broke, don't fix it!
+
+Michael David Weiss
+
+Download free MP3's of my latest music at:
+www.mp3.com/michaelweiss
+
+Check the video game that I wrote at:
+members.xoom.com/mdavidweiss/purple.htm
+
+And visit my home page at:
+www.pacificcoast.net/~mweiss/initial.htm
+
