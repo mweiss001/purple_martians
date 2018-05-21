@@ -1,6 +1,4 @@
-Compiling Purple Martians
-
-Setting up the development environment 
+Setting up Allegro 4 development environment
 
 
 

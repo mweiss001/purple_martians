@@ -28,11 +28,6 @@ works great from live version
 
 
 
-
-
-
-
-
 openSUSE-Tumbleweed-Kubic-DVD-x86_64-Snapshot20180420-Media
 looks like it wants to install, no live??
 installed, got to shell...gave up

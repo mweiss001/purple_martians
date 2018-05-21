@@ -1,0 +1,28 @@
+Return-Path: <allegro@emuware.com>
+Received: from mail.aeroinc.net (aeroinc.net [208.247.248.6])
+	by buddy.pacificcoast.net (8.9.1a/8.9.1) with SMTP id IAA21875
+	for <mweiss@pacificcoast.net>; Tue, 14 Dec 1999 08:17:50 -0800
+Received: from aeroinc.net (208.247.248.67)
+          by mail.aeroinc.net with MERCUR-SMTP/POP3/IMAP4-Server (v3.10.07 AS-0098309)
+          for <mweiss@pacificcoast.net>; Tue, 14 Dec 1999  10:21:27 -0600
+Subject: [AGD] You are now a member!
+Date: Tue, 14 Dec 1999 10:18:47 -0600
+From: "The Allegro Games Depot" <allegro@emuware.com>
+To: mweiss@pacificcoast.net
+Message-Id: <991214102127737500@mail.aeroinc.net>
+X-UIDL: 17e98a9d3e28b50262362493fac18920
+
+Michael Weiss,
+
+You have been added as a member to the AGD.
+
+username: mweiss
+password: uxlispcw
+
+Please read the user's guide at:
+http://depot.allegro.cc/userguide
+
+If you have any questions, direct them to allegro@emuware.com
+
+-The Allegro Games Depot
+http://depot.allegro.cc

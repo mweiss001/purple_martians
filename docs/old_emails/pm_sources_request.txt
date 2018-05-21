@@ -1,0 +1,199 @@
+Subject: 
+        source code
+   Date: 
+        Thu, 18 May 2000 14:32:06 +0100 (BST)
+   From: 
+        Lee Knapp <knapp_lee@yahoo.co.uk>
+     To: 
+        mweiss@pacificcoast.net
+
+
+
+Could you please send me the source code to your
+Purple Martians game.  I promise I won't laugh!!!!
+
+Regards,
+
+Lee.
+
+
+
+Subject: 
+            Re: source code
+       Date: 
+            Wed, 24 May 2000 23:50:09 -0700
+      From: 
+            Michael David Weiss <mweiss@pacificcoast.net>
+        To: 
+            Lee Knapp <knapp_lee@yahoo.co.uk>
+ References: 
+            1
+
+
+
+
+OK, here is the source code.
+Sorry about the delay, I was on vacation for a while.
+email me if you need more info...
+
+
+
+Lee Knapp wrote:
+
+> Could you please send me the source code to your
+> Purple Martians game.  I promise I won't laugh!!!!
+>
+> Regards,
+>
+> Lee.
+>
+> ____________________________________________________________
+> Do You Yahoo!?
+> Get your free @yahoo.co.uk address at http://mail.yahoo.co.uk
+> or your free @yahoo.ie address at http://mail.yahoo.ie
+
+
+
+   pmsources.zip
+
+                  Name: 
+                        pmsources.zip
+                  Type: 
+                        Zip Compressed Data (application/x-zip-compressed)
+               Encoding: 
+                        base64
+
+
+
+
+
+
+
+Subject: 
+        RE: Purple Martians Source Code
+   Date: 
+        Wed, 5 Apr 2000 22:42:56 -0800
+   From: 
+        Michael David Weiss, Michael David Weiss
+     To: 
+        'andrey szkolnik'
+    CC: 
+        Michael Weiss (E-mail)
+
+
+
+
+Sure, OK, you talked me into it!
+
+Here is the source, and yes, you can post it.
+
+You can do anything you want with it, use routines, hack it to pieces,
+
+But please leave the credit page intact!!
+
+By the way the map stretching routines are pretty simple..see stimp() and stamp()...hee hee hee
+
+The level editor is PMFLE
+And the game is PMFV
+
+ 
+Michael David Weiss
+
+Download free mp3's of my latest music at: www.mp3.com/michaelweiss
+Check out the video game that I wrote at: http://depot.allegro.cc/game.taf?id=319
+And visit my home page at: www.pacificcoast.net/~mweiss/initial.htm
+
+-----Original Message-----
+From:   andrey szkolnik [SMTP:rastlore@yahoo.ca]
+Sent:   Wednesday, April 05, 2000 6:51 PM
+To:     mweiss@pacificcoast.net
+Subject:        Purple Martians Source Code
+
+
+
+Hi, I know you haven't given out your source code because you think people might make fun, or there is just some cryptic kludge in there that even you can't figure it out anymore, but I think it might be helpful to some people.  I myself am a beginner as well.  I have only made Pong and am now making Space Invader/Galaga type game.  I am interested in something like what you did.  The screen scrolling and shrinking of the screen to show the whole map, then the zooming in was awesome by the way.
+Anyways, I got a site, you can check it out if you like, I am not going to post the source on my site unless you say its cool (and if you give it to me) But I would like it just to check it out myself, and maybe learn something.
+My Site is at: 
+http://newbiegameprogrammers.genxer.net
+
+_______________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.ca address at http://mail.yahoo.ca
+
+
+
+       Name: 
+        Type: 
+             unspecified type (application/octet-stream)
+    Encoding: 
+             base64
+
+
+
+Subject: 
+        Purple Martians Source Code
+   Date: 
+        Wed, 5 Apr 2000 18:50:50 -0800
+   From: 
+        andrey szkolnik, andrey szkolnik
+     To: 
+        mweiss@pacificcoast.net
+
+
+
+
+Hi, I know you haven't given out your source code
+because you think people might make fun, or there is
+just some cryptic kludge in there that even you can't
+figure it out anymore, but I think it might be helpful
+to some people.  I myself am a beginner as well.  I
+have only made Pong and am now making Space
+Invader/Galaga type game.  I am interested in
+something like what you did.  The screen scrolling and
+shrinking of the screen to show the whole map, then
+the zooming in was awesome by the way.
+
+Anyways, I got a site, you can check it out if you
+like, I am not going to post the source on my site
+unless you say its cool (and if you give it to me) But
+I would like it just to check it out myself, and maybe
+learn something.
+
+My Site is at: 
+
+http://newbiegameprogrammers.genxer.net
+
+_______________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.ca address at http://mail.yahoo.ca
+
+
+Subject: 
+        Cool Code But..
+   Date: 
+        Fri, 4 Feb 2000 15:49:46 -0800
+   From: 
+        Daniel Gill, Daniel Gill
+     To: 
+        mweiss@pacificcoast.net
+
+
+
+
+Hey I like the game but you need some revamp on your images, and tilesets. Do you have a friend that is good a drawing?, because that is what me and my friend Leo do, He is a great coder, and I am good at the art, and design concept. So we both contribute to make the games have a little more style. It is fun. Cool Game!
+-Daniel Gill 
+-Graphics-DeLirious Programing-
+
+
+
+
+       Name: 
+        Type: 
+             unspecified type (application/octet-stream)
+    Encoding: 
+             base64
+
+
+
+
+

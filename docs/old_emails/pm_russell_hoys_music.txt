@@ -1,0 +1,130 @@
+
+ From: 
+        "Russell Hoy" <rhoy@globalnet.co.uk> Save Address - Block Sender
+ To: 
+        <mweiss76@hotmail.com> Save Address
+ Subject: 
+        Purple martians source
+ Date: 
+        Sun, 17 Sep 2000 16:55:59 +0100
+
+
+Hi Michael
+
+I've just downloaded your *VERY* cool Purple Martians, I can't stop playing
+it :o)
+
+I'm trying to write my own game too, but not having allot of success. I'm
+learning C but I'm running into some difficulties.
+
+Can you please e-mail me your source for Purple Martians, It would help me
+allot to see how it's done. In return I will write a sound track for it if
+you like.
+
+Thanks
+
+Russ.
+
+
+ From: 
+        "Russell Hoy" <rhoy@globalnet.co.uk> Save Address - Block Sender
+ To: 
+        "Michael Weiss" <mweiss76@hotmail.com> Save Address
+ Subject: 
+        PM source
+ Date: 
+        Wed, 20 Sep 2000 19:57:23 +0100
+
+
+Hi Michael
+
+I would like to give you a *BIG* thanks for sending your Purple Martians
+source, I look forward to the next version. If I have time I will maybe do a
+Christmas level with blocks in the shape of Santa or something :o)
+
+Did you want any music done for PM, if you do, what format would you like it
+to be.
+
+Thanks
+
+Russ.
+
+
+ From: 
+        "Russell Hoy" <rhoy@globalnet.co.uk> Save Address - Block Sender
+ To: 
+        "Michael Weiss" <mweiss76@hotmail.com> Save Address
+ Subject: 
+        PM music
+ Date: 
+        Mon, 2 Oct 2000 23:05:26 +0100
+
+
+Hi Michael
+
+I have attached some music for PM :o) It is not finished yet, but have a
+listen. I hope it's OK, if you like it I will finish it.
+
+Russ.
+
+     Attachment: PM.xm (759k) -- View Attachment
+
+
+
+ From: 
+        "Russell Hoy" <rhoy@globalnet.co.uk> Save Address - Block Sender
+ To: 
+        "Michael Weiss" <mweiss76@hotmail.com> Save Address
+ Subject: 
+        Re: PM music
+ Date: 
+        Thu, 5 Oct 2000 16:08:19 +0100
+
+
+Hi Michael
+
+You can listen to the music using Modplayer at http://www.modplug.com
+
+I use Jgmod to play music in allegro, it's a *VERY* good library, you can
+get it at http://www.geocities.com/siliconvalley/vista/8890
+
+Russ.
+
+
+----- Original Message -----
+From: "Michael Weiss" <mweiss76@hotmail.com>
+To: <rhoy@globalnet.co.uk>
+Sent: Wednesday, October 04, 2000 2:52 PM
+Subject: Re: PM music
+
+
+> Hello Russell,
+>
+> What format is the music file in? (I don't recognize *.xm)
+>
+> I haven't had a chance to listen to it yet, I'll have to copy it to a
+floppy
+> and take it home.  (I use the internet at school)
+>
+> How do I hook it up to the game? (Not in detail, just the basics)
+>
+> How's your programming going?  Did my sources help any?
+> If you have any questions, I'll be happy to try to answer them.
+>
+> Michael Weiss
+>
+>
+> >From: "Russell Hoy" <rhoy@globalnet.co.uk>
+> >To: "Michael Weiss" <mweiss76@hotmail.com>
+> >Subject: PM music
+> >Date: Mon, 2 Oct 2000 23:05:26 +0100
+> >
+> >Hi Michael
+> >
+> >I have attached some music for PM :o) It is not finished yet, but have a
+> >listen. I hope it's OK, if you like it I will finish it.
+> >
+> >Russ.
+> ><< PM.xm >>
+>
+>
