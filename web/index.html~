@@ -71,12 +71,76 @@
 
 
 			<!-- Main -->
+
+
+
+
+
 					<div id="main" class="container">
 
 
-         
+
+
+
 
 						<div class="row 200%">
+							<div class="12u">
+
+								<!-- Features -->
+									<section class="box features">
+										<h2 class="major"><span>Links to other Sites</span></h2>
+										<div>
+											<div class="row">
+												<div class="4u 12u(mobile)">
+
+													<!-- Feature -->
+														<section class="box feature">
+															<a href="https://mweiss001.itch.io/purple-martians" class="image featured"><img src="images/itch.io.png" alt="" /></a>
+															<h3><a href="https://mweiss001.itch.io/purple-martians">Download from itch.io</a></h3>
+															<p>
+																Download the latest version from itch.io
+															</p>
+														</section>
+
+												</div>
+												<div class="4u 12u(mobile)">
+
+													<!-- Feature -->
+														<section class="box feature">
+															<a href="https://www.allegro.cc/depot/PurpleMartians" class="image featured"><img src="images/allegro.cc.png" alt="" /></a>
+															<h3><a href="https://www.allegro.cc/depot/PurpleMartians">Project page on Allegro.cc</a></h3>
+															<p>
+																Go to the Purple Martians project page on allegro.cc
+															</p>
+														</section>
+
+												</div>
+												<div class="4u 12u(mobile)">
+
+													<!-- Feature -->
+														<section class="box feature">
+															<a href="https://www.youtube.com/user/mweiss0001" class="image featured"><img src="images/yt2.png" alt="" /></a>
+															<h3><a href="https://www.youtube.com/user/mweiss0001">YouTube channel</a></h3>
+															<p>
+																The youtube channel of the creator, Michael Weiss.  Contains videos of the 
+																game and original music.
+															</p>
+														</section>
+
+												</div>
+
+
+
+
+
+
+
+
+
+						<div class="row 200%">
+
+
+
 							<div class="12u">
 
 								<!-- Features -->
@@ -101,26 +165,26 @@
 									<section class="box features">
 										<h2 class="major"><span>Supported Systems</span></h2>
 										<div>
-<div style="text-align: center;"><h3>Purple Martians works on most versions on Windows and Linux</h3></div>
-<pre>
-These are systems the game has been successfully tested on:
-Windows XP 
-Windows 7
-Windows 10
-ubuntu-16.04.4-desktop-amd64
-ubuntu-17.10.1-desktop-amd64
-linuxmint-18.3-cinnamon-64bit
-elementaryos-0.4.1-stable.20180214
-antergos-18.4-x86_64
-CentOS-7-x86_64-LiveGNOME-1708
-CentOS-7-x86_64-LiveKDE-1708
-Fedora-Workstation-Live-x86_64-27-1.6
-</pre>
 
 
+<div style="text-align: center;">
+<h3>Purple Martians works on most versions on Windows and Linux</h3>
+<h5>These are systems the game has been successfully tested on:</h5>
 
 
-										</div>
+Windows XP<br> 
+Windows 7<br>
+Windows 10<br>
+ubuntu-16.04.4-desktop-amd64<br>
+ubuntu-17.10.1-desktop-amd64<br>
+linuxmint-18.3-cinnamon-64bit<br>
+elementaryos-0.4.1-stable.20180214<br>
+antergos-18.4-x86_64<br>
+CentOS-7-x86_64-LiveGNOME-1708<br>
+CentOS-7-x86_64-LiveKDE-1708<br>
+Fedora-Workstation-Live-x86_64-27-1.6<br>
+</div>
+
 									</section>
 							</div>
 						</div>
@@ -224,51 +288,6 @@ Russel Hoy wrote me a cool background soundtrack in 2000.
 
 
 
-						<div class="row 200%">
-							<div class="12u">
-
-								<!-- Features -->
-									<section class="box features">
-										<h2 class="major"><span>Links to other Sites</span></h2>
-										<div>
-											<div class="row">
-												<div class="4u 12u(mobile)">
-
-													<!-- Feature -->
-														<section class="box feature">
-															<a href="https://mweiss001.itch.io/purple-martians" class="image featured"><img src="images/itch.io.png" alt="" /></a>
-															<h3><a href="https://mweiss001.itch.io/purple-martians">Download from itch.io</a></h3>
-															<p>
-																Download the latest version from itch.io
-															</p>
-														</section>
-
-												</div>
-												<div class="4u 12u(mobile)">
-
-													<!-- Feature -->
-														<section class="box feature">
-															<a href="https://www.allegro.cc/depot/PurpleMartians" class="image featured"><img src="images/allegro.cc.png" alt="" /></a>
-															<h3><a href="https://www.allegro.cc/depot/PurpleMartians">Project page on Allegro.cc</a></h3>
-															<p>
-																Go to the Purple Martians project page on allegro.cc
-															</p>
-														</section>
-
-												</div>
-												<div class="4u 12u(mobile)">
-
-													<!-- Feature -->
-														<section class="box feature">
-															<a href="https://www.youtube.com/user/mweiss0001" class="image featured"><img src="images/yt2.png" alt="" /></a>
-															<h3><a href="https://www.youtube.com/user/mweiss0001">YouTube channel</a></h3>
-															<p>
-																The youtube channel of the creator, Michael Weiss.  Contains videos of the 
-																game and original music.
-															</p>
-														</section>
-
-												</div>
 
 
 

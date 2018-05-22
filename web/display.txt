@@ -1,0 +1,96 @@
+Graphics, Sprites and Displays.
+
+
+The game is tile based.  Each tile is 20x20.  A design decision made in 1997.
+
+Each level is 100x100 tiles.
+
+The visible or playable section of the level does not need to be that big.
+
+
+Each tile is stored in an array of bitmaps called memory_bitmap[1024]
+
+From the very beginning in DOS to 2018, they were 256 color, 8 bit bitmaps.
+I made my own custom palette with 15 colors, with each color being faded 16 times.
+
+
+I made my own bitmap editor and palette creator and drew all my bitamps with that.
+
+I used to save them to disk one get_pixel at a time and load them one put_pixel at a time.
+
+I'm kind of embarassed to say I continued to do that up until 2018!
+
+The level_array is a 100x100 array of integers.  
+The integer is the sprite that is draw at that position on the level.
+
+I have certain special ranges:
+0  - 31  - empty
+32 - 63  - semi-solid (players and enemies can jump through from below)
+64 - 95  - bombable   (will be destroyed by bombs)
+96 - 127 - breakable  (will be destroyed by bullets)
+128+     - solid  
+
+
+
+I use 2 BITMAPS, each 2000 x 2000 pixels, called l2000, and level_buffer
+
+When the level is first loaded the level background is drawn on l2000. (all 10,000 tiles)
+
+
+Then every frame:
+- level_buffer gets completely overwriiten with a fresh copy of l2000
+- everything else (players, enemies, items, lifts, bullets) is then drawn on level_buffer
+- the rectangular section of level_buffer that will be shown on the screen is copied and scaled to the back buffer
+- the screen overlays are them drawn on top of the back buffer
+- flip display
+
+This is lot of data being copied each frame.
+Especially if the screen is zoomed out so a large portion of the entire level is shown.
+
+To make things faster, all the bitmaps are created with ALLEGRO_NO_PRESERVE_TEXTURE.
+
+This has no effect on the bitmaps that are redrawn every frame.
+
+But the ones that are not, like l2000 (the level background) have mechanisms so that they
+will be redrawn if the screen changes (because they will lose their data).
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
