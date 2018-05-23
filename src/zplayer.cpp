@@ -345,6 +345,7 @@ void player_move(void)
                players[p].xinc = al_itofix(0);
                players[p].yinc = al_itofix(0);
                get_player_start_pos(p); // get starting position from start block
+               draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
             }
          }
          if (players[p].paused_type == 2)// paused type 2: door move
@@ -458,11 +459,6 @@ void player_move(void)
    } // end if player iterate
 }
 
-
-
-
-
-
 void draw_player(int p)
 {
    if (players[p].active)
@@ -477,7 +473,7 @@ void draw_player(int p)
       int flags = ALLEGRO_FLIP_HORIZONTAL;
       if (players[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
 
-      al_draw_scaled_rotated_bitmap(player_bitmap[players[p].bitmap_index][players[p].shape], 10, 10,  AX+10, AY+10, scale, scale, rot, flags);
+      al_draw_scaled_rotated_bitmap(player_tile[players[p].bitmap_index][players[p].shape], 10, 10,  AX+10, AY+10, scale, scale, rot, flags);
 
       // death sequence star overlay
       if ((players[p].paused) && (players[p].paused_type == 1))
@@ -488,7 +484,7 @@ void draw_player(int p)
          if ((pp < st) && (pp > st-sp*8))
          {
             int seq = (st-players[p].paused) / sp;
-            al_draw_bitmap(memory_bitmap[952+seq], AX, AY, flags);
+            al_draw_bitmap(tile[952+seq], AX, AY, flags);
          }
       }
 
@@ -505,9 +501,6 @@ void draw_player(int p)
       }
    }
 }
-
-
-
 
 void draw_players(void)
 {
@@ -541,414 +534,16 @@ void get_players_shape(int p)
       pos = (rx / 4) % 5;  // try 5 for now
    }
 
-
    // does paused always mean dead??
    // can it also mean in door travel
-
 
    // if paused use static shape
    //if (players[p].paused) pos = 0;
    if (players[p].paused) players[p].shape = 0;
    else players[p].shape = index + pos;
-
-
 }
 
 
-void fill_door_bitmap(void)
-{
-   if (1) // load from disk
-   {
-      dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
-      if (!dtilemap) m_err((char*)"Can't load tiles from bitmaps/door_tiles.bmp");
-      else
-      {
-         //printf("load good\n");
-         al_convert_mask_to_alpha(dtilemap, al_map_rgb(0, 0, 0)) ;
-         al_set_target_bitmap(M_dtilemap);
-         al_draw_bitmap(dtilemap, 0, 0, 0);
-
-         for (int a=0; a<16; a++)
-            for (int b=0; b<8; b++)
-               door_bitmap[0][a][b] = al_create_sub_bitmap(dtilemap, b*20, a*20, 20, 20);
-
-         for (int a=0; a<16; a++)
-            for (int b=0; b<8; b++)
-               door_bitmap[1][a][b] = al_create_sub_bitmap(dtilemap, b*20, 320+a*20, 20, 20);
-      }
-   }
-
-   if (0) // create from shapes
-   {
-      // new set
-      for (int a=0; a<16; a++)
-         for (int b=0; b<8; b++)
-         {
-            al_set_target_bitmap(door_bitmap[0][a][b]);
-            al_draw_bitmap(memory_bitmap[972+b], 0, 0, 0);
-         }
-
-      // old set
-      for (int a=0; a<16; a++)
-         for (int b=0; b<7; b++)
-         {
-            al_set_target_bitmap(door_bitmap[1][a][b]);
-            al_draw_bitmap(memory_bitmap[448+b], 0, 0, 0);
-         }
-
-      // i use color 12 and 3
-      // 12 dark blue for the corners and center that do not move
-      // 3 light blue for the lines that move
-      // lets just change 3 for now
-
-
-      // change index to lowest value (color -2)
-      int cs = -2;
-      for (int b=0; b<8; b++) //cycle 8 shapes
-      {
-         al_set_target_bitmap(door_bitmap[0][0][b]);
-         al_lock_bitmap(door_bitmap[0][0][b],al_get_bitmap_format(door_bitmap[0][0][b]),ALLEGRO_LOCK_READWRITE);
-
-         for (int x=0; x<20; x++)
-            for (int y=0; y<20; y++)
-            {
-               ALLEGRO_COLOR p = al_get_pixel(door_bitmap[0][0][b], x, y);
-
-               float D = 0.1;
-               if (  (abs(p.r - palette_color[3].r) < D) &&
-                     (abs(p.g - palette_color[3].g) < D) &&
-                     (abs(p.b - palette_color[3].b) < D) ) al_put_pixel(x, y, palette_color[(3+cs)]);
-
-            }
-            //   if (getpixel(door_bitmap[0][0][b], x, y) == palette_color[3])  putpixel(door_bitmap[0][0][b], x, y, palette_color[1]);
-
-         al_unlock_bitmap(door_bitmap[0][0][b]);
-      }
-
-      //set rest of table
-      for (int a=1; a<16; a++)
-         for (int b=0; b<8; b++)
-         {
-            al_lock_bitmap(door_bitmap[0][0][b],al_get_bitmap_format(door_bitmap[0][0][b]),ALLEGRO_LOCK_READONLY);
-            al_lock_bitmap(door_bitmap[0][a][b],al_get_bitmap_format(door_bitmap[0][a][b]),ALLEGRO_LOCK_READWRITE);
-            al_set_target_bitmap(door_bitmap[0][a][b]);
-
-            for (int x=0; x<20; x++)
-               for (int y=0; y<20; y++)
-               {
-                  ALLEGRO_COLOR p = al_get_pixel(door_bitmap[0][0][b], x, y);
-
-                  float D = 0.1;
-                  if (  (abs(p.r - palette_color[1].r) < D) &&
-                        (abs(p.g - palette_color[1].g) < D) &&
-                        (abs(p.b - palette_color[1].b) < D) ) al_put_pixel(x, y, palette_color[a]);
-               }
-                  //if (getpixel(door_bitmap[0][0][b], x, y) == palette_color[1])  putpixel(door_bitmap[0][a][b], x, y, palette_color[a] );
-            al_unlock_bitmap(door_bitmap[0][0][b]);
-            al_unlock_bitmap(door_bitmap[0][a][b]);
-            al_convert_mask_to_alpha(door_bitmap[0][a][b], al_map_rgb(0, 0, 0)) ;
-
-         }
-
-
-
-      // old door uses colors 12, 76, 124
-      // change index to lowest value (color -11
-      cs = -11;
-      for (int b=0; b<7; b++) // cycle 7 shapes
-      {
-         al_set_target_bitmap(door_bitmap[1][0][b]);
-         al_lock_bitmap(door_bitmap[1][0][b],al_get_bitmap_format(door_bitmap[1][0][b]),ALLEGRO_LOCK_READWRITE);
-
-         for (int x=0; x<20; x++)
-            for (int y=0; y<20; y++)
-            {
-               ALLEGRO_COLOR p = al_get_pixel(door_bitmap[1][0][b], x, y);
-
-               float D = 0.1;
-               if (  (abs(p.r - palette_color[12].r) < D) &&
-                     (abs(p.g - palette_color[12].g) < D) &&
-                     (abs(p.b - palette_color[12].b) < D) ) al_put_pixel(x, y, palette_color[12+cs]);
-
-               if (  (abs(p.r - palette_color[76].r) < D) &&
-                     (abs(p.g - palette_color[76].g) < D) &&
-                     (abs(p.b - palette_color[76].b) < D) ) al_put_pixel(x, y, palette_color[76+cs]);
-
-               if (  (abs(p.r - palette_color[124].r) < D) &&
-                     (abs(p.g - palette_color[124].g) < D) &&
-                     (abs(p.b - palette_color[124].b) < D) ) al_put_pixel(x, y, palette_color[124+cs]);
-            }
-         al_unlock_bitmap(door_bitmap[1][0][b]);
-      }
-
-      // set rest of table
-      for (int a=1; a<16; a++)
-         for (int b=0; b<7; b++) // cycle 7 shapes
-         {
-            al_lock_bitmap(door_bitmap[1][0][b],al_get_bitmap_format(door_bitmap[1][0][b]),ALLEGRO_LOCK_READONLY);
-            al_lock_bitmap(door_bitmap[1][a][b],al_get_bitmap_format(door_bitmap[1][a][b]),ALLEGRO_LOCK_READWRITE);
-            al_set_target_bitmap(door_bitmap[1][a][b]);
-
-            for (int x=0; x<20; x++)
-               for (int y=0; y<20; y++)
-
-               {
-                  ALLEGRO_COLOR p = al_get_pixel(door_bitmap[1][0][b], x, y);
-
-                  float D = 0.1;
-                  if (  (abs(p.r - palette_color[1].r) < D) &&
-                        (abs(p.g - palette_color[1].g) < D) &&
-                        (abs(p.b - palette_color[1].b) < D) ) al_put_pixel(x, y, palette_color[a]);
-
-                  if (  (abs(p.r - palette_color[65].r) < D) &&
-                        (abs(p.g - palette_color[65].g) < D) &&
-                        (abs(p.b - palette_color[65].b) < D) ) al_put_pixel(x, y, palette_color[64+a]);
-
-                  if (  (abs(p.r - palette_color[113].r) < D) &&
-                        (abs(p.g - palette_color[113].g) < D) &&
-                        (abs(p.b - palette_color[113].b) < D) ) al_put_pixel(x, y, palette_color[112+a]);
-               }
-
-            al_unlock_bitmap(door_bitmap[1][0][b]);
-            al_unlock_bitmap(door_bitmap[1][a][b]);
-            al_convert_mask_to_alpha(door_bitmap[1][a][b], al_map_rgb(0, 0, 0)) ;
-
-         }
-   }
-
-//   int text_col = 15;
-//   draw_small_text(memory_bitmap[1014], 7, 8, text_col, 2); // "IN"
-//   draw_small_text(memory_bitmap[1015], 5, 8, text_col, 1); // "OUT"
-//   al_set_target_bitmap(tilemap);
-//   al_draw_bitmap(memory_bitmap[1014], 22*20, 31*20, 0);
-//   al_draw_bitmap(memory_bitmap[1015], 23*20, 31*20, 0);
-//   al_set_target_bitmap(M_tilemap);
-//   al_draw_bitmap(tilemap, 0, 0, 0);
-//   al_save_bitmap("bitmaps/tiles2.bmp", M_tilemap);
-
-
-
-   /*
-   al_set_target_backbuffer(display);
-   al_draw_bitmap(memory_bitmap[1014], 100, 100, 0);
-   al_draw_bitmap(memory_bitmap[1015], 100, 120, 0);
-
-al_draw_scaled_bitmap(memory_bitmap[1014],0, 0, 20, 20, 200, 100, 100, 100, 0);
-al_draw_scaled_bitmap(memory_bitmap[1015],0, 0, 20, 20, 200, 200, 100, 100, 0);
-
-       al_flip_display();
-       al_rest(2);
-
-*/
-
-
-   if (0)
-   {
-       // save to disk
-       al_set_target_bitmap(dtilemap);
-       for (int a=0; a<16; a++)
-          for (int b=0; b<8; b++)
-             al_draw_bitmap(door_bitmap[0][a][b], b*20, a*20, 0);
-
-       for (int a=0; a<16; a++)
-          for (int b=0; b<8; b++)
-             al_draw_bitmap(door_bitmap[1][a][b], b*20, 320+a*20, 0);
-
-
-       al_set_target_backbuffer(display);
-       al_draw_bitmap(dtilemap, 0, 0, 0);
-       al_flip_display();
-
-       al_save_bitmap("bitmaps/door_tiles.bmp", dtilemap);
-       tsw();
-   }
-
-
-
-   // show all
-   if (0)
-   {
-       al_set_target_backbuffer(display);
-       for (int a=0; a<16; a++)
-          for (int b=0; b<8; b++)
-             al_draw_bitmap(door_bitmap[0][a][b], b*20, a*20, 0);
-       for (int a=0; a<16; a++)
-          for (int b=0; b<8; b++)
-             al_draw_bitmap(door_bitmap[1][a][b], b*20, 340+a*20, 0);
-       al_flip_display();
-       tsw();
-   }
-
-}
-
-
-void fill_player_bitmap(void)
-{
-   //printf("fill player bitmap\n");
-   int a, b, x, y;
-
-   if (1) // load from disk
-   {
-      ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
-      if (!ptilemap) m_err((char*)"Can't load tiles from bitmaps/player_tiles.bmp");
-      else
-      {
-         //printf("load good\n");
-         al_convert_mask_to_alpha(ptilemap, al_map_rgb(0, 0, 0)) ;
-
-         al_set_target_bitmap(M_ptilemap);
-         al_draw_bitmap(ptilemap, 0, 0, 0);
-
-         // create sub bitmaps
-         for (a=0; a<16; a++)
-            for (b=0; b<19; b++)
-               player_bitmap[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
-      }
-   }
-
-
-
-   if (0) // create from shapes
-   {
-      //int bf = al_get_bitmap_format(player_bitmap[0][0]);
-      //printf("bitmap format %d\n", bf);
-
-
-   // fill the player_bitmap
-   // fill the top row first and make it color = 1 then generate all next row aoutomatically
-      for (a=0; a<16; a++) // set all to default shapes
-      {
-         al_set_target_bitmap(player_bitmap[a][0]); al_draw_bitmap(memory_bitmap[400], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][1]); al_draw_bitmap(memory_bitmap[401], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][2]); al_draw_bitmap(memory_bitmap[402], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][3]); al_draw_bitmap(memory_bitmap[403], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][4]); al_draw_bitmap(memory_bitmap[404], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][5]); al_draw_bitmap(memory_bitmap[405], 0, 0, 0);
-
-         al_set_target_bitmap(player_bitmap[a][6]); al_draw_bitmap(memory_bitmap[368], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][7]); al_draw_bitmap(memory_bitmap[369], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][8]); al_draw_bitmap(memory_bitmap[370], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][9]); al_draw_bitmap(memory_bitmap[371], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][10]); al_draw_bitmap(memory_bitmap[372], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][11]); al_draw_bitmap(memory_bitmap[373], 0, 0, 0);
-
-         al_set_target_bitmap(player_bitmap[a][12]); al_draw_bitmap(memory_bitmap[384], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][13]); al_draw_bitmap(memory_bitmap[385], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][14]); al_draw_bitmap(memory_bitmap[386], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][15]); al_draw_bitmap(memory_bitmap[387], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][16]); al_draw_bitmap(memory_bitmap[388], 0, 0, 0);
-         al_set_target_bitmap(player_bitmap[a][17]); al_draw_bitmap(memory_bitmap[389], 0, 0, 0);
-
-         al_set_target_bitmap(player_bitmap[a][18]); al_draw_bitmap(memory_bitmap[755], 0, 0, 0);
-      }
-
-      // change index to lowest value (color -7)
-      int cs = - 7; // first pass will set index(0) to lowest value possible (1)
-      for (b=0; b<19; b++) //cycle 19 bitmaps for one color
-      {
-         al_set_target_bitmap(player_bitmap[0][b]);
-         al_lock_bitmap(player_bitmap[0][b],al_get_bitmap_format(player_bitmap[0][b]),ALLEGRO_LOCK_READWRITE);
-
-         for (x=0; x<20; x++)
-            for (y=0; y<20; y++)
-            {
-               ALLEGRO_COLOR p = al_get_pixel(player_bitmap[0][b], x, y);
-
-   /*          if (p == 8  ) putpixel(player_bitmap[0][b], x, y, (p+cs) );
-               if (p == 56 ) putpixel(player_bitmap[0][b], x, y, (p+cs) );
-               if (p == 136) putpixel(player_bitmap[0][b], x, y, (p+cs) );
-   */
-             // new method also works with true color
-   //        if (!memcmp(&p, &palette_color[8], sizeof(ALLEGRO_COLOR))) al_put_pixel(x, y, palette_color[(8+cs)] );
-
-   //            printf ("x%d y%d - pr%f pg%f pb%f cr%f cg%f cb%f\n", x, y, p.r, p.g, p.b,
-   //                     palette_color[8].r, palette_color[8].g, palette_color[8].b );
-
-                 float D = 0.1;
-                 if (  (abs(p.r - palette_color[8].r) < D) &&
-                       (abs(p.g - palette_color[8].g) < D) &&
-                       (abs(p.b - palette_color[8].b) < D) ) al_put_pixel(x, y, palette_color[(8+cs)]);
-
-                 if (  (abs(p.r - palette_color[56].r) < D) &&
-                       (abs(p.g - palette_color[56].g) < D) &&
-                       (abs(p.b - palette_color[56].b) < D) ) al_put_pixel(x, y, palette_color[(56+cs)]);
-
-                 if (  (abs(p.r - palette_color[136].r) < D) &&
-                       (abs(p.g - palette_color[136].g) < D) &&
-                       (abs(p.b - palette_color[136].b) < D) ) al_put_pixel(x, y, palette_color[(136+cs)]);
-            }
-        al_unlock_bitmap(player_bitmap[0][b]);
-        al_convert_mask_to_alpha(player_bitmap[0][b], al_map_rgb(0, 0, 0)) ;
-      }
-
-      //set rest of table
-      for (a=1; a<16; a++) //cycle 15 player colors (no zero)
-      {
-         //printf("%d\n",a);
-         for (b=0; b<19; b++) //cycle 18 bitmaps for one player
-         {
-            al_set_target_bitmap(player_bitmap[a][b]);
-            al_lock_bitmap(player_bitmap[a][b],al_get_bitmap_format(player_bitmap[a][b]),ALLEGRO_LOCK_READWRITE);
-            al_lock_bitmap(player_bitmap[0][b],al_get_bitmap_format(player_bitmap[0][b]),ALLEGRO_LOCK_READONLY);
-
-            for (x=0; x<20; x++)
-               for (y=0; y<20; y++)
-               {
-                  ALLEGRO_COLOR p = al_get_pixel(player_bitmap[0][b], x, y); // always read from 0 index if reference
-
-
-                 float D = 0.1;
-                 if (  (abs(p.r - palette_color[1].r) < D) &&
-                       (abs(p.g - palette_color[1].g) < D) &&
-                       (abs(p.b - palette_color[1].b) < D) ) al_put_pixel(x, y, palette_color[(1+a)]);
-
-                 if (  (abs(p.r - palette_color[49].r) < D) &&
-                       (abs(p.g - palette_color[49].g) < D) &&
-                       (abs(p.b - palette_color[49].b) < D) ) al_put_pixel(x, y, palette_color[(49+a)]);
-
-                 if (  (abs(p.r - palette_color[129].r) < D) &&
-                       (abs(p.g - palette_color[129].g) < D) &&
-                       (abs(p.b - palette_color[129].b) < D) ) al_put_pixel(x, y, palette_color[(129+a)]);
-               }
-            al_unlock_bitmap(player_bitmap[0][b]);
-            al_unlock_bitmap(player_bitmap[a][b]);
-            al_convert_mask_to_alpha(player_bitmap[a][b], al_map_rgb(0, 0, 0)) ;
-         }
-      }
-   }
-
-   if (0)
-   {
-       // show all new player shapes
-       al_set_target_backbuffer(display);
-       for (a=0; a<16; a++)
-          for (b=0; b<19; b++)
-             al_draw_bitmap(player_bitmap[a][b], b*20, a*20, 0);
-       al_flip_display();
-       tsw();
-   }
-
-
-   if (0)
-   {
-       // save to disk
-       al_set_target_bitmap(ptilemap);
-       for (a=0; a<16; a++)
-          for (b=0; b<19; b++)
-             al_draw_bitmap(player_bitmap[a][b], b*20, a*20, 0);
-
-       al_set_target_backbuffer(display);
-       al_draw_bitmap(ptilemap, 0, 0, 0);
-
-       al_flip_display();
-
-       al_save_bitmap("bitmaps/player_tiles.bmp", ptilemap);
-
-       tsw();
-   }
-
-
-}
 
 void init_player(int p, int t)
 {

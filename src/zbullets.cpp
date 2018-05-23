@@ -143,8 +143,8 @@ void draw_pbullets()
          int p = pbullet[b][1];
          int x = pbullet[b][2];
          int y = pbullet[b][3];
-         //draw_sprite(level_buffer, player_bitmap[players[p].bitmap_index][18], x, y);
-         al_draw_bitmap(player_bitmap[players[p].bitmap_index][18], x, y, 0);
+         //draw_sprite(level_buffer, player_tile[players[p].bitmap_index][18], x, y);
+         al_draw_bitmap(player_tile[players[p].bitmap_index][18], x, y, 0);
       }
 }
 
@@ -248,12 +248,12 @@ void draw_ebullets()
          {
             int d = e_bullet_shape[b]-1000;
             d = zz[0][d];
-            //draw_sprite(level_buffer, memory_bitmap[d], ex, ey);
-            al_draw_bitmap(memory_bitmap[d], ex, ey, 0);
+            //draw_sprite(level_buffer, tile[d], ex, ey);
+            al_draw_bitmap(tile[d], ex, ey, 0);
          }
          else
-            //draw_sprite(level_buffer, memory_bitmap[e_bullet_shape[b]], ex, ey);
-            al_draw_bitmap(memory_bitmap[e_bullet_shape[b]], ex, ey, 0);
+            //draw_sprite(level_buffer, tile[e_bullet_shape[b]], ex, ey);
+            al_draw_bitmap(tile[e_bullet_shape[b]], ex, ey, 0);
       }
 }
 

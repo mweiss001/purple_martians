@@ -73,8 +73,8 @@ void show_big(void)
 
 void draw_big(int draw_lifts)
 {
-   init_l2000(); // fill l2000 with blocks and lift lines
-   draw_level2(l2000, 0, 0, 2000, 1, 1, 1, 1, 0);
+   init_level_background(); // fill level_background with blocks and lift lines
+   draw_level2(level_background, 0, 0, 2000, 1, 1, 1, 1, 0);
    draw_level2(lefsm, 0, 0, db*100, 1, 1, 1, draw_lifts, 0);
    al_set_target_backbuffer(display);
 }
@@ -99,7 +99,7 @@ void draw_cloner_boxes(int num)
    int tx2 = Ei[num][13] * db + db;
    int ty2 = Ei[num][14] * db + db;
 
-   al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+   al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
    al_draw_rectangle(cx1*db, cy1*db, cx2*db, cy2*db, palette_color[10], 1); // src
    al_draw_rectangle(cx3*db, cy3*db, cx4*db, cy4*db, palette_color[11], 1); // dest
    al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[14], 1);             // trig
@@ -133,10 +133,10 @@ void draw_bs(int cc)
 
    if ((dx<100) && (dy < 100))
    {
-      // get background from l2000 for bullseye map sized ssz x ssz
+      // get background from level_background for bullseye map sized ssz x ssz
       jtemp = al_create_bitmap(ssz, ssz);
       al_set_target_bitmap(jtemp);
-      al_draw_bitmap_region(l2000, ex, ey, ssz, ssz, 0, 0, 0);
+      al_draw_bitmap_region(level_background, ex, ey, ssz, ssz, 0, 0, 0);
 
       // clear edges if necessary
       if (dx < ccz)    al_draw_filled_rectangle(0,   0,  ((ccz-dx)*20)-1,    ssz-1,   palette_color[0]);
@@ -150,7 +150,7 @@ void draw_bs(int cc)
       al_draw_line(ssz/2-10,          0,  ssz/2-10,     ssz-1,  palette_color[10],1);
       al_draw_line(ssz/2+11,          0,  ssz/2+11,     ssz-1,  palette_color[10],1);
 
-      al_set_clipping_rectangle(les*db*100+1, 0, SCREEN_W-2, SCREEN_H-1);
+      al_set_clipping_rectangle(display_transform_double*db*100+1, 0, SCREEN_W-2, SCREEN_H-1);
 
 
       al_set_target_backbuffer(display);
@@ -232,7 +232,7 @@ int getbox(char *txt, int obj_type, int sub_type, int num )
             // show selection rectangle
             bx2 = (mouse_x/db)+1;
             by2 = (mouse_y/db)+1;
-            al_set_clipping_rectangle(0, 0, les*db*100-1, les*db*100-1);
+            al_set_clipping_rectangle(0, 0, display_transform_double*db*100-1, display_transform_double*db*100-1);
             al_draw_rectangle((bx1)*db, (by1)*db, (bx2)*db, (by2)*db, palette_color[15], 1);
             al_reset_clipping_rectangle();
 
@@ -342,7 +342,7 @@ int getxy(char *txt, int obj_type, int sub_type, int num )
                if (sub_type == 1010) // message display only
                {
                   show_big();
-                  al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+                  al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
                   al_draw_bitmap(mp, dx*db, dy*db, 0);
                   al_reset_clipping_rectangle();
                }
@@ -355,7 +355,7 @@ int getxy(char *txt, int obj_type, int sub_type, int num )
                   draw_big(1);
                   show_big();
                   draw_bs(14);            // show bullseye map
-                  al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+                  al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
                   al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[127-32], 1); // draw box to show cursor
                   al_reset_clipping_rectangle();
                }
@@ -366,7 +366,7 @@ int getxy(char *txt, int obj_type, int sub_type, int num )
                draw_big(1);
                show_big();
                draw_bs(14);            // show bullseye map
-               al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
                al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[127-32], 1); // draw box to show cursor
                al_reset_clipping_rectangle();
             break;
@@ -381,7 +381,7 @@ int getxy(char *txt, int obj_type, int sub_type, int num )
                int ey = al_fixtoi(Efi[num][1])*db/20;
                int px = al_fixtoi(Efi[num][5])*db/20;
                int py = al_fixtoi(Efi[num][6])*db/20;
-               al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
                al_draw_rectangle(ex, ey, ex+db-1, ey+db-1, palette_color[13], 1);           // draw box to show pod location
                al_draw_filled_rectangle(px, py, px+db-1, py+db-1, palette_color[10]);       // draw box to show pod extended
                al_draw_line(ex+db/2, ey+db/2, px+db/2, py+db/2, palette_color[10], 1); // connect with line
@@ -405,7 +405,7 @@ int getxy(char *txt, int obj_type, int sub_type, int num )
                draw_bs(14);
                int ix = item[num][4]*db/20;
                int iy = item[num][5]*db/20;
-               al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
                al_draw_rectangle(ix, iy, ix+db-1, iy+db-1, palette_color[13], 1);                     // show rocket location
                al_draw_filled_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[10]);   // show cursor
                al_draw_line(ix+db/2, iy+db/2, dx*db+db/2, dy*db+db/2, palette_color[10], 1);     // connect with line
@@ -419,7 +419,7 @@ int getxy(char *txt, int obj_type, int sub_type, int num )
                draw_bs(14);
                int ex = al_fixtoi(Efi[num][0])*db/20;
                int ey = al_fixtoi(Efi[num][1])*db/20;
-               al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
                al_draw_rectangle(ex, ey, ex+db-1, ey+db-1, palette_color[13], 1);                   // draw box to show enemy location
                al_draw_filled_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[10]); // draw box to show cursor
                al_draw_line(ex+db/2, ey+db/2, dx*db+db/2, dy*db+db/2, palette_color[10], 1);   // connect with line
@@ -438,7 +438,7 @@ int getxy(char *txt, int obj_type, int sub_type, int num )
                show_big();
                draw_bs(14);            // show bullseye map
 
-               al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
                highlight_current_lift(lift);   // crosshairs and rect on current lift
                al_reset_clipping_rectangle();
             }

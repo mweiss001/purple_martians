@@ -17,7 +17,7 @@ int select_bitmap_ans(int zzindx)
       // draw 32x32 bitmaps
       for (int y = 0; y < 32; y++)
          for (int x = 0; x < 32; x++)
-            al_draw_bitmap(memory_bitmap[x+(y*32)],x*20, y*20, 0);
+            al_draw_bitmap(tile[x+(y*32)],x*20, y*20, 0);
       al_draw_rectangle(0.5, 0.5, 640.5, 640.5, palette_color[13], 1);
 
       int xc = 180;
@@ -32,7 +32,7 @@ int select_bitmap_ans(int zzindx)
 
       for (int c=0; c < zz[4][zzindx] + 1; c++)   // show current seq shapes
          if (( zz[5+c][zzindx] < NUM_SPRITES) && (zz[5+c][zzindx] > 0))
-            al_draw_bitmap(memory_bitmap[ zz[5+c][zzindx] ], xc+1+c*20, yc+12, 0);
+            al_draw_bitmap(tile[ zz[5+c][zzindx] ], xc+1+c*20, yc+12, 0);
       al_draw_rectangle(xc+0.5, yc+11.5, xc+302.5, yc+32.5, palette_color[13], 1);
 
 
@@ -40,7 +40,7 @@ int select_bitmap_ans(int zzindx)
       {
          int pointer = (mouse_x/20) + (mouse_y/20) * 32 ;
          al_draw_textf(font, palette_color[13], 522, 648, 0, "pointer %-2d", pointer );
-         al_draw_bitmap(memory_bitmap[pointer], 620, 642, 0);
+         al_draw_bitmap(tile[pointer], 620, 642, 0);
 
          al_draw_rectangle(518, 640.5, 640.5, 662.5, palette_color[13], 1);
 
@@ -62,9 +62,9 @@ int select_bitmap_ans(int zzindx)
 
 int animation_proc()
 {
-   if (les != 1)
+   if (display_transform_double != 1)
    {
-      les = 1;
+      display_transform_double = 1;
       rebuild_bitmaps();
    }
    int zzindx = 3;
@@ -136,14 +136,14 @@ int animation_proc()
 
       for (c = 0; c < zz[4][zzindx] + 1; c++)   // show current seq shapes
          if (( zz[5+c][zzindx] < NUM_SPRITES) && (zz[5+c][zzindx] > 0))
-            al_draw_bitmap(memory_bitmap[ zz[5+c][zzindx] ], 1+c*20, 212, 0);
+            al_draw_bitmap(tile[ zz[5+c][zzindx] ], 1+c*20, 212, 0);
       al_draw_rectangle(0.5, 211.5, 302.5, 232.5, palette_color[13], 1);
 
       for (c=0; c < 32; c++)   // draw 32x8 grid of animation sequences
          for (x=0; x < 8; x++)
             if (zz[4][c + (x * 32)] != 0)
                if ((zz[0][c + (x * 32)] < NUM_SPRITES) && (zz[0][c + (x * 32)] > 0 ))
-                  al_draw_bitmap(memory_bitmap[zz[0][c + (x * 32)]], 2+c*20, 30+x*20, 0);
+                  al_draw_bitmap(tile[zz[0][c + (x * 32)]], 2+c*20, 30+x*20, 0);
       al_draw_rectangle(0.5, 29.5, 642.5, 190.5, palette_color[9], 1);
 
 
@@ -204,7 +204,7 @@ int animation_proc()
                break;
                case 3: select_bitmap_proc(); break;
                case 4: copy_bitmap_proc(); break;
-               case 5: save_sprit(); break;
+               case 5: save_tiles(); break;
             }
          }
       }
@@ -250,7 +250,7 @@ int select_bitmap_proc()
       for (x = 0; x < 32; x++)
          for (y = 0; y < 32; y++)
          {
-            al_draw_bitmap(memory_bitmap[x+(y*32)],x*20, y*20, 0);
+            al_draw_bitmap(tile[x+(y*32)],x*20, y*20, 0);
             int color = 240; // normal color = white
             if (view_attrib)
             {
@@ -266,7 +266,7 @@ int select_bitmap_proc()
       {
          int pointer = (mouse_x/20) + (mouse_y/20) * 32 ;
          al_draw_textf(font, palette_color[4], 0, 680, 0, "pointer %-2d  ", pointer );
-         al_draw_bitmap(memory_bitmap[pointer], 95, 671, 0);
+         al_draw_bitmap(tile[pointer], 95, 671, 0);
 
          if (mouse_b1)
          {
@@ -383,21 +383,21 @@ int copy_bitmap_proc()
       // draw 32x32 bitmaps
       for (int y = 0; y < 32; y++)
          for (int x = 0; x < 32; x++)
-            al_draw_bitmap(memory_bitmap[x+(y*32)], x*20, y*20, 0);
+            al_draw_bitmap(tile[x+(y*32)], x*20, y*20, 0);
 
 
       if ((mouse_y < 640) && (mouse_x < 640))
       {
          int pointer = (mouse_x/20) + (mouse_y/20) * 32 ;
          al_draw_textf(font, palette_color[4], 0, 680, 0, "pointer %-2d  ", pointer );
-         al_draw_bitmap(memory_bitmap[pointer], 95, 671, 0);
+         al_draw_bitmap(tile[pointer], 95, 671, 0);
 
          if (mouse_b2) bmp_index = pointer;
          if (mouse_b1)
          {
-            al_set_target_bitmap(memory_bitmap[pointer]);
-             //blit (memory_bitmap[bmp_index], memory_bitmap[pointer], 0, 0, 0, 0, 20, 20);
-            al_draw_bitmap(memory_bitmap[bmp_index], 0, 0, 0);
+            al_set_target_bitmap(tile[pointer]);
+             //blit (tile[bmp_index], tile[pointer], 0, 0, 0, 0, 20, 20);
+            al_draw_bitmap(tile[bmp_index], 0, 0, 0);
             al_set_target_backbuffer(display);
          }
       }

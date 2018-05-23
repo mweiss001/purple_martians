@@ -86,9 +86,9 @@ void change_linked_door_color_and_shape(int door)
 void remove_block(int x, int y)
 {
    l[x][y] = 0;
-   al_set_target_bitmap(l2000);
+   al_set_target_bitmap(level_background);
    al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-   al_draw_bitmap(memory_bitmap[0], x*20, y*20, 0);
+   al_draw_bitmap(tile[0], x*20, y*20, 0);
 }
 
 
@@ -290,8 +290,8 @@ void draw_door(int c, int x, int y)
       //if (col == 15) text_col = 14;  // except for white!
       int shape = item[c][1];       // get shape
       int si = shape-448;           // convert to index to bitmap sequence
-      //al_draw_bitmap(door_bitmap[1][col][si], 0, 0, 0);
-      tmp = door_bitmap[1][col][si];
+      //al_draw_bitmap(door_tile[1][col][si], 0, 0, 0);
+      tmp = door_tile[1][col][si];
 
    }
    else // new style doors
@@ -299,8 +299,8 @@ void draw_door(int c, int x, int y)
       //if (col == 0) text_col = 15;    // all use same color as door, except for door color 0
       int an = zz[1][83];             // cheat and use shape index from base door animation sequence
       if (item[c][8] == 0) an = 7-an; // exit only, run the sequence backwards
-      //al_draw_bitmap(door_bitmap[0][col][an], 0, 0, 0);
-      tmp = door_bitmap[0][col][an];
+      //al_draw_bitmap(door_tile[0][col][an], 0, 0, 0);
+      tmp = door_tile[0][col][an];
    }
 
    int drawn = 0;
@@ -325,8 +325,8 @@ void draw_door(int c, int x, int y)
             // bigger door when player touching it
             al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, x-5, y-6, 30, 26, 0 );
 
-            if (item[c][8] == 0) al_draw_scaled_bitmap(memory_bitmap[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
-            else al_draw_scaled_bitmap(memory_bitmap[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
+            if (item[c][8] == 0) al_draw_scaled_bitmap(tile[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
+            else al_draw_scaled_bitmap(tile[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
 
 
 
@@ -345,8 +345,8 @@ void draw_door(int c, int x, int y)
    {
       al_draw_bitmap(tmp, x, y, 0); // if not drawn yet
 
-      if (item[c][8] == 0) al_draw_bitmap(memory_bitmap[1015], x, y, 0); // OUT
-      else al_draw_bitmap(memory_bitmap[1014], x, y, 0); // IN
+      if (item[c][8] == 0) al_draw_bitmap(tile[1015], x, y, 0); // OUT
+      else al_draw_bitmap(tile[1014], x, y, 0); // IN
 
 
 
@@ -397,7 +397,7 @@ void draw_items(void)
             // stretch the key
             float sc = 1 + 4*((10 - (float)item[c][11]) / 10);
             float rot = al_fixtof(al_fixmul(al_itofix(item[c][10]/10), al_fixtorad_r));
-            al_draw_scaled_rotated_bitmap(memory_bitmap[shape],10, 10, x+10, y+10, sc, sc, rot, 0);
+            al_draw_scaled_rotated_bitmap(tile[shape],10, 10, x+10, y+10, sc, sc, rot, 0);
             drawn = 1;
 
             // draw a collapsing rectangle
@@ -420,7 +420,7 @@ void draw_items(void)
         if (item[c][0] == 99) // stretch draw for lit bombs only
         {
             float sc = (float) item[c][10] / 100;
-            al_draw_scaled_rotated_bitmap(memory_bitmap[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
+            al_draw_scaled_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
             drawn = 1;
 
             // show blast area
@@ -445,20 +445,20 @@ void draw_items(void)
             ((item[c][0] == 4) && (item[c][11] > 0))) // moving key
          {
             float rot = al_fixtof(al_fixmul(al_itofix(item[c][10]/10), al_fixtorad_r));
-            al_draw_rotated_bitmap(memory_bitmap[shape], 10, 10, x+10, y+10, rot, 0);
+            al_draw_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, rot, 0);
             drawn = 1;
          }
 
          if (item[c][0] == 3) // exit
          {
-            al_draw_bitmap(memory_bitmap[399], x, y, 0); // 'exit' text not shown
+            al_draw_bitmap(tile[399], x, y, 0); // 'exit' text not shown
             if (passcount % 60 > 30)
                al_draw_text(f3, palette_color[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
 
             int exit_enemys_left = num_enemy - item[c][8];
             if (exit_enemys_left > 0) // locked
             {
-               al_draw_bitmap(memory_bitmap[366], x, y, 0); // show lock
+               al_draw_bitmap(tile[366], x, y, 0); // show lock
                if (passcount % 60 < 30)
                   al_draw_textf(f3, palette_color[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
 
@@ -467,7 +467,7 @@ void draw_items(void)
          }
 
          // default draw if nothing else has drawn it up to now
-         if (!drawn) al_draw_bitmap(memory_bitmap[shape], x, y, 0);
+         if (!drawn) al_draw_bitmap(tile[shape], x, y, 0);
 
 
 
@@ -1097,7 +1097,7 @@ void proc_item_collision()
                            item[x][6] = !item[x][6];
                            if (item[x][6]) item[x][1] = item[x][8]; // on bmp
                            else            item[x][1] = item[x][9]; // off bmp
-                           al_set_target_bitmap(l2000);
+                           al_set_target_bitmap(level_background);
                            // toggle blocks
                            for (c=0; c<100; c++)
                               for (y=0; y<100; y++)
@@ -1106,15 +1106,13 @@ void proc_item_collision()
                                  {
                                     l[c][y] = item[x][10]; // replace with solid switch block
                                     al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
-                                    al_draw_bitmap(memory_bitmap[l[c][y]], c*20, y*20, 0 );
+                                    al_draw_bitmap(tile[l[c][y]], c*20, y*20, 0 );
                                  }
                                  else if (l[c][y] == item[x][10]) // solid switch block
                                  {
                                     l[c][y] = item[x][11]; // replace with empty switch block
-                                    //rectfill(l2000, c*20, y*20, c*20+19, y*20+19, 0);
-                                    //draw_sprite(l2000, memory_bitmap[l[c][y]], c*20, y*20);
                                     al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
-                                    al_draw_bitmap(memory_bitmap[l[c][y]], c*20, y*20, 0 );
+                                    al_draw_bitmap(tile[l[c][y]], c*20, y*20, 0 );
                                  }
 
                               } // end of toggle blocks

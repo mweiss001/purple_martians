@@ -88,7 +88,7 @@ void draw_lift_lines()
       int py = sy;
       int nx = 0;
       int ny = 0;
-      al_set_target_bitmap(l2000);
+      al_set_target_bitmap(level_background);
       if (lifts[x].num_steps > 1) // only draw lines if more than one step
       {
          for (int y=0; y<lifts[x].num_steps; y++)  // cycle step

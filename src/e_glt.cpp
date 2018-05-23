@@ -11,7 +11,7 @@ void show_block_list(void)
    for (int z=0; z<NUM_SPRITES; z++)
       if (blt[z])
       {
-         al_draw_bitmap(memory_bitmap[z], 180, y, 0);
+         al_draw_bitmap(tile[z], 180, y, 0);
          //al_draw_textf(font, palette_color[11], 200, 10+y, 0, "sa%d   block# %d   count %d ",sa[z][0],  z, blt[z] );
          al_draw_textf(font, palette_color[11], 200, y, 0, "block:%d count:%d ", z, blt[z] );
          y+=20;

@@ -1,0 +1,461 @@
+
+
+
+
+void test_window_size_and_pos(void)
+{
+   int adj = 0;
+   // test if window origin (UL) is off screen
+   if ((disp_x_wind > disp_w_full) || (disp_x_wind < 0))
+   {
+      disp_x_curr = disp_x_wind = 32;
+      adj = 1;
+   }
+
+   if ((disp_y_wind > disp_h_full) || (disp_y_wind < 0))
+   {
+      disp_y_curr = disp_y_wind = 32;
+      adj = 1;
+   }
+
+   // test if window (LR) is off screen
+   if ((disp_x_wind+disp_w_wind) > disp_w_full)
+   {
+      disp_x_curr = disp_x_wind = 32;
+      adj = 1;
+
+      if ((disp_x_wind+disp_w_wind) > disp_w_full) // still off screen?
+      {
+          disp_w_curr = disp_w_wind = disp_w_full - disp_x_wind - 32;;
+      }
+   }
+
+   if (disp_y_wind + disp_h_wind > disp_h_full)
+   {
+      disp_y_curr = disp_y_wind = 32;
+      adj = 1;
+
+      if (disp_y_wind + disp_h_wind > disp_h_full) // still off screen?
+      {
+          disp_h_curr = disp_h_wind = disp_h_full - disp_y_wind - 32;
+      }
+   }
+   if (adj) save_config();
+}
+
+
+void fill_door_tile(void)
+{
+   if (1) // load from disk
+   {
+      dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
+      if (!dtilemap) m_err((char*)"Can't load tiles from bitmaps/door_tiles.bmp");
+      else
+      {
+         //printf("load good\n");
+         al_convert_mask_to_alpha(dtilemap, al_map_rgb(0, 0, 0)) ;
+         al_set_target_bitmap(M_dtilemap);
+         al_draw_bitmap(dtilemap, 0, 0, 0);
+
+         for (int a=0; a<16; a++)
+            for (int b=0; b<8; b++)
+               door_tile[0][a][b] = al_create_sub_bitmap(dtilemap, b*20, a*20, 20, 20);
+
+         for (int a=0; a<16; a++)
+            for (int b=0; b<8; b++)
+               door_tile[1][a][b] = al_create_sub_bitmap(dtilemap, b*20, 320+a*20, 20, 20);
+      }
+   }
+
+   if (0) // create from shapes
+   {
+      // new set
+      for (int a=0; a<16; a++)
+         for (int b=0; b<8; b++)
+         {
+            al_set_target_bitmap(door_tile[0][a][b]);
+            al_draw_bitmap(tile[972+b], 0, 0, 0);
+         }
+
+      // old set
+      for (int a=0; a<16; a++)
+         for (int b=0; b<7; b++)
+         {
+            al_set_target_bitmap(door_tile[1][a][b]);
+            al_draw_bitmap(tile[448+b], 0, 0, 0);
+         }
+
+      // i use color 12 and 3
+      // 12 dark blue for the corners and center that do not move
+      // 3 light blue for the lines that move
+      // lets just change 3 for now
+
+
+      // change index to lowest value (color -2)
+      int cs = -2;
+      for (int b=0; b<8; b++) //cycle 8 shapes
+      {
+         al_set_target_bitmap(door_tile[0][0][b]);
+         al_lock_bitmap(door_tile[0][0][b],al_get_bitmap_format(door_tile[0][0][b]),ALLEGRO_LOCK_READWRITE);
+
+         for (int x=0; x<20; x++)
+            for (int y=0; y<20; y++)
+            {
+               ALLEGRO_COLOR p = al_get_pixel(door_tile[0][0][b], x, y);
+
+               float D = 0.1;
+               if (  (abs(p.r - palette_color[3].r) < D) &&
+                     (abs(p.g - palette_color[3].g) < D) &&
+                     (abs(p.b - palette_color[3].b) < D) ) al_put_pixel(x, y, palette_color[(3+cs)]);
+
+            }
+            //   if (getpixel(door_tile[0][0][b], x, y) == palette_color[3])  putpixel(door_tile[0][0][b], x, y, palette_color[1]);
+
+         al_unlock_bitmap(door_tile[0][0][b]);
+      }
+
+      //set rest of table
+      for (int a=1; a<16; a++)
+         for (int b=0; b<8; b++)
+         {
+            al_lock_bitmap(door_tile[0][0][b],al_get_bitmap_format(door_tile[0][0][b]),ALLEGRO_LOCK_READONLY);
+            al_lock_bitmap(door_tile[0][a][b],al_get_bitmap_format(door_tile[0][a][b]),ALLEGRO_LOCK_READWRITE);
+            al_set_target_bitmap(door_tile[0][a][b]);
+
+            for (int x=0; x<20; x++)
+               for (int y=0; y<20; y++)
+               {
+                  ALLEGRO_COLOR p = al_get_pixel(door_tile[0][0][b], x, y);
+
+                  float D = 0.1;
+                  if (  (abs(p.r - palette_color[1].r) < D) &&
+                        (abs(p.g - palette_color[1].g) < D) &&
+                        (abs(p.b - palette_color[1].b) < D) ) al_put_pixel(x, y, palette_color[a]);
+               }
+                  //if (getpixel(door_tile[0][0][b], x, y) == palette_color[1])  putpixel(door_tile[0][a][b], x, y, palette_color[a] );
+            al_unlock_bitmap(door_tile[0][0][b]);
+            al_unlock_bitmap(door_tile[0][a][b]);
+            al_convert_mask_to_alpha(door_tile[0][a][b], al_map_rgb(0, 0, 0)) ;
+
+         }
+
+
+
+      // old door uses colors 12, 76, 124
+      // change index to lowest value (color -11
+      cs = -11;
+      for (int b=0; b<7; b++) // cycle 7 shapes
+      {
+         al_set_target_bitmap(door_tile[1][0][b]);
+         al_lock_bitmap(door_tile[1][0][b],al_get_bitmap_format(door_tile[1][0][b]),ALLEGRO_LOCK_READWRITE);
+
+         for (int x=0; x<20; x++)
+            for (int y=0; y<20; y++)
+            {
+               ALLEGRO_COLOR p = al_get_pixel(door_tile[1][0][b], x, y);
+
+               float D = 0.1;
+               if (  (abs(p.r - palette_color[12].r) < D) &&
+                     (abs(p.g - palette_color[12].g) < D) &&
+                     (abs(p.b - palette_color[12].b) < D) ) al_put_pixel(x, y, palette_color[12+cs]);
+
+               if (  (abs(p.r - palette_color[76].r) < D) &&
+                     (abs(p.g - palette_color[76].g) < D) &&
+                     (abs(p.b - palette_color[76].b) < D) ) al_put_pixel(x, y, palette_color[76+cs]);
+
+               if (  (abs(p.r - palette_color[124].r) < D) &&
+                     (abs(p.g - palette_color[124].g) < D) &&
+                     (abs(p.b - palette_color[124].b) < D) ) al_put_pixel(x, y, palette_color[124+cs]);
+            }
+         al_unlock_bitmap(door_tile[1][0][b]);
+      }
+
+      // set rest of table
+      for (int a=1; a<16; a++)
+         for (int b=0; b<7; b++) // cycle 7 shapes
+         {
+            al_lock_bitmap(door_tile[1][0][b],al_get_bitmap_format(door_tile[1][0][b]),ALLEGRO_LOCK_READONLY);
+            al_lock_bitmap(door_tile[1][a][b],al_get_bitmap_format(door_tile[1][a][b]),ALLEGRO_LOCK_READWRITE);
+            al_set_target_bitmap(door_tile[1][a][b]);
+
+            for (int x=0; x<20; x++)
+               for (int y=0; y<20; y++)
+
+               {
+                  ALLEGRO_COLOR p = al_get_pixel(door_tile[1][0][b], x, y);
+
+                  float D = 0.1;
+                  if (  (abs(p.r - palette_color[1].r) < D) &&
+                        (abs(p.g - palette_color[1].g) < D) &&
+                        (abs(p.b - palette_color[1].b) < D) ) al_put_pixel(x, y, palette_color[a]);
+
+                  if (  (abs(p.r - palette_color[65].r) < D) &&
+                        (abs(p.g - palette_color[65].g) < D) &&
+                        (abs(p.b - palette_color[65].b) < D) ) al_put_pixel(x, y, palette_color[64+a]);
+
+                  if (  (abs(p.r - palette_color[113].r) < D) &&
+                        (abs(p.g - palette_color[113].g) < D) &&
+                        (abs(p.b - palette_color[113].b) < D) ) al_put_pixel(x, y, palette_color[112+a]);
+               }
+
+            al_unlock_bitmap(door_tile[1][0][b]);
+            al_unlock_bitmap(door_tile[1][a][b]);
+            al_convert_mask_to_alpha(door_tile[1][a][b], al_map_rgb(0, 0, 0)) ;
+
+         }
+   }
+
+//   int text_col = 15;
+//   draw_small_text(tile[1014], 7, 8, text_col, 2); // "IN"
+//   draw_small_text(tile[1015], 5, 8, text_col, 1); // "OUT"
+//   al_set_target_bitmap(tilemap);
+//   al_draw_bitmap(tile[1014], 22*20, 31*20, 0);
+//   al_draw_bitmap(tile[1015], 23*20, 31*20, 0);
+//   al_set_target_bitmap(M_tilemap);
+//   al_draw_bitmap(tilemap, 0, 0, 0);
+//   al_save_bitmap("bitmaps/tiles2.bmp", M_tilemap);
+
+
+
+   /*
+   al_set_target_backbuffer(display);
+   al_draw_bitmap(tile[1014], 100, 100, 0);
+   al_draw_bitmap(tile[1015], 100, 120, 0);
+
+al_draw_scaled_bitmap(tile[1014],0, 0, 20, 20, 200, 100, 100, 100, 0);
+al_draw_scaled_bitmap(tile[1015],0, 0, 20, 20, 200, 200, 100, 100, 0);
+
+       al_flip_display();
+       al_rest(2);
+
+*/
+
+
+   if (0)
+   {
+       // save to disk
+       al_set_target_bitmap(dtilemap);
+       for (int a=0; a<16; a++)
+          for (int b=0; b<8; b++)
+             al_draw_bitmap(door_tile[0][a][b], b*20, a*20, 0);
+
+       for (int a=0; a<16; a++)
+          for (int b=0; b<8; b++)
+             al_draw_bitmap(door_tile[1][a][b], b*20, 320+a*20, 0);
+
+
+       al_set_target_backbuffer(display);
+       al_draw_bitmap(dtilemap, 0, 0, 0);
+       al_flip_display();
+
+       al_save_bitmap("bitmaps/door_tiles.bmp", dtilemap);
+       tsw();
+   }
+
+
+
+   // show all
+   if (0)
+   {
+       al_set_target_backbuffer(display);
+       for (int a=0; a<16; a++)
+          for (int b=0; b<8; b++)
+             al_draw_bitmap(door_tile[0][a][b], b*20, a*20, 0);
+       for (int a=0; a<16; a++)
+          for (int b=0; b<8; b++)
+             al_draw_bitmap(door_tile[1][a][b], b*20, 340+a*20, 0);
+       al_flip_display();
+       tsw();
+   }
+
+}
+
+
+void fill_player_tile(void)
+{
+   //printf("fill player bitmap\n");
+   int a, b, x, y;
+
+   if (1) // load from disk
+   {
+      ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
+      if (!ptilemap) m_err((char*)"Can't load tiles from bitmaps/player_tiles.bmp");
+      else
+      {
+         //printf("load good\n");
+         al_convert_mask_to_alpha(ptilemap, al_map_rgb(0, 0, 0)) ;
+
+         al_set_target_bitmap(M_ptilemap);
+         al_draw_bitmap(ptilemap, 0, 0, 0);
+
+         // create sub bitmaps
+         for (a=0; a<16; a++)
+            for (b=0; b<19; b++)
+               player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
+      }
+   }
+
+
+
+   if (0) // create from shapes
+   {
+      //int bf = al_get_bitmap_format(player_tile[0][0]);
+      //printf("bitmap format %d\n", bf);
+
+
+   // fill the player_tile
+   // fill the top row first and make it color = 1 then generate all next row aoutomatically
+      for (a=0; a<16; a++) // set all to default shapes
+      {
+         al_set_target_bitmap(player_tile[a][0]); al_draw_bitmap(tile[400], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][1]); al_draw_bitmap(tile[401], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][2]); al_draw_bitmap(tile[402], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][3]); al_draw_bitmap(tile[403], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][4]); al_draw_bitmap(tile[404], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][5]); al_draw_bitmap(tile[405], 0, 0, 0);
+
+         al_set_target_bitmap(player_tile[a][6]); al_draw_bitmap(tile[368], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][7]); al_draw_bitmap(tile[369], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][8]); al_draw_bitmap(tile[370], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][9]); al_draw_bitmap(tile[371], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][10]); al_draw_bitmap(tile[372], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][11]); al_draw_bitmap(tile[373], 0, 0, 0);
+
+         al_set_target_bitmap(player_tile[a][12]); al_draw_bitmap(tile[384], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][13]); al_draw_bitmap(tile[385], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][14]); al_draw_bitmap(tile[386], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][15]); al_draw_bitmap(tile[387], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][16]); al_draw_bitmap(tile[388], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][17]); al_draw_bitmap(tile[389], 0, 0, 0);
+
+         al_set_target_bitmap(player_tile[a][18]); al_draw_bitmap(tile[755], 0, 0, 0);
+      }
+
+      // change index to lowest value (color -7)
+      int cs = - 7; // first pass will set index(0) to lowest value possible (1)
+      for (b=0; b<19; b++) //cycle 19 bitmaps for one color
+      {
+         al_set_target_bitmap(player_tile[0][b]);
+         al_lock_bitmap(player_tile[0][b],al_get_bitmap_format(player_tile[0][b]),ALLEGRO_LOCK_READWRITE);
+
+         for (x=0; x<20; x++)
+            for (y=0; y<20; y++)
+            {
+               ALLEGRO_COLOR p = al_get_pixel(player_tile[0][b], x, y);
+
+   /*          if (p == 8  ) putpixel(player_tile[0][b], x, y, (p+cs) );
+               if (p == 56 ) putpixel(player_tile[0][b], x, y, (p+cs) );
+               if (p == 136) putpixel(player_tile[0][b], x, y, (p+cs) );
+   */
+             // new method also works with true color
+   //        if (!memcmp(&p, &palette_color[8], sizeof(ALLEGRO_COLOR))) al_put_pixel(x, y, palette_color[(8+cs)] );
+
+   //            printf ("x%d y%d - pr%f pg%f pb%f cr%f cg%f cb%f\n", x, y, p.r, p.g, p.b,
+   //                     palette_color[8].r, palette_color[8].g, palette_color[8].b );
+
+                 float D = 0.1;
+                 if (  (abs(p.r - palette_color[8].r) < D) &&
+                       (abs(p.g - palette_color[8].g) < D) &&
+                       (abs(p.b - palette_color[8].b) < D) ) al_put_pixel(x, y, palette_color[(8+cs)]);
+
+                 if (  (abs(p.r - palette_color[56].r) < D) &&
+                       (abs(p.g - palette_color[56].g) < D) &&
+                       (abs(p.b - palette_color[56].b) < D) ) al_put_pixel(x, y, palette_color[(56+cs)]);
+
+                 if (  (abs(p.r - palette_color[136].r) < D) &&
+                       (abs(p.g - palette_color[136].g) < D) &&
+                       (abs(p.b - palette_color[136].b) < D) ) al_put_pixel(x, y, palette_color[(136+cs)]);
+            }
+        al_unlock_bitmap(player_tile[0][b]);
+        al_convert_mask_to_alpha(player_tile[0][b], al_map_rgb(0, 0, 0)) ;
+      }
+
+      //set rest of table
+      for (a=1; a<16; a++) //cycle 15 player colors (no zero)
+      {
+         //printf("%d\n",a);
+         for (b=0; b<19; b++) //cycle 18 bitmaps for one player
+         {
+            al_set_target_bitmap(player_tile[a][b]);
+            al_lock_bitmap(player_tile[a][b],al_get_bitmap_format(player_tile[a][b]),ALLEGRO_LOCK_READWRITE);
+            al_lock_bitmap(player_tile[0][b],al_get_bitmap_format(player_tile[0][b]),ALLEGRO_LOCK_READONLY);
+
+            for (x=0; x<20; x++)
+               for (y=0; y<20; y++)
+               {
+                  ALLEGRO_COLOR p = al_get_pixel(player_tile[0][b], x, y); // always read from 0 index if reference
+
+
+                 float D = 0.1;
+                 if (  (abs(p.r - palette_color[1].r) < D) &&
+                       (abs(p.g - palette_color[1].g) < D) &&
+                       (abs(p.b - palette_color[1].b) < D) ) al_put_pixel(x, y, palette_color[(1+a)]);
+
+                 if (  (abs(p.r - palette_color[49].r) < D) &&
+                       (abs(p.g - palette_color[49].g) < D) &&
+                       (abs(p.b - palette_color[49].b) < D) ) al_put_pixel(x, y, palette_color[(49+a)]);
+
+                 if (  (abs(p.r - palette_color[129].r) < D) &&
+                       (abs(p.g - palette_color[129].g) < D) &&
+                       (abs(p.b - palette_color[129].b) < D) ) al_put_pixel(x, y, palette_color[(129+a)]);
+               }
+            al_unlock_bitmap(player_tile[0][b]);
+            al_unlock_bitmap(player_tile[a][b]);
+            al_convert_mask_to_alpha(player_tile[a][b], al_map_rgb(0, 0, 0)) ;
+         }
+      }
+   }
+
+   if (0)
+   {
+       // show all new player shapes
+       al_set_target_backbuffer(display);
+       for (a=0; a<16; a++)
+          for (b=0; b<19; b++)
+             al_draw_bitmap(player_tile[a][b], b*20, a*20, 0);
+       al_flip_display();
+       tsw();
+   }
+
+
+   if (0)
+   {
+       // save to disk
+       al_set_target_bitmap(ptilemap);
+       for (a=0; a<16; a++)
+          for (b=0; b<19; b++)
+             al_draw_bitmap(player_tile[a][b], b*20, a*20, 0);
+
+       al_set_target_backbuffer(display);
+       al_draw_bitmap(ptilemap, 0, 0, 0);
+
+       al_flip_display();
+
+       al_save_bitmap("bitmaps/player_tiles.bmp", ptilemap);
+
+       tsw();
+   }
+
+
+}
+
+
+void show_resize_msg(int type)
+{
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   float sc = (float)SCREEN_W / 120; // fill horizontally
+   sc /=2;
+   if (type == 1) rtextout_centre(NULL, (char*)"Resizing Screen ", SCREEN_W/2, SCREEN_H/2, 10, sc, 0, 1);
+   if (type == 2) rtextout_centre(NULL, (char*)"Reloading Shapes", SCREEN_W/2, SCREEN_H/2, 10, sc, 0, 1);
+   if (type == 3) rtextout_centre(NULL, (char*)"Options", SCREEN_W/2, SCREEN_H/2, 9, sc, 0, 1);
+   al_flip_display();
+}
+
+
+
+
+
+
+
+

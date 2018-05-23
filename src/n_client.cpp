@@ -856,7 +856,7 @@ void client_block_until_good_chdf_received(void)
    client_apply_diff();
 
    // redraw blocks just in case
-   init_l2000();
+   init_level_background();
 
 
    log_timer = clock(); // start timing for chase and lock

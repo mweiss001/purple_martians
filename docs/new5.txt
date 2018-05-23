@@ -2254,7 +2254,7 @@ also screen change
 
 make a seperate function
 
-set_les()
+set_display_transform_double()
 
 
 how?
@@ -4449,25 +4449,6 @@ upload to itch.io
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 - define RELEASE in pm.h
 
 
@@ -4475,6 +4456,117 @@ upload to itch.io
 
 
 
+------------------------
+20180523
+
+Refactoring....
+
+
+I need to sort out how the three tile bitmaps get load and such.....
+
+right now its spread across too many places....done
+
+now all 3 are load and initialy created in load sprit
+only load sprit is called from main
+
+recreate bitmaps destroys all sub bitmaps ane re-creates...
+
+
+why is tilemap created in load_sprit, but ptilemap and dttilemap are not ???
+
+this is a mess and should be straightened out...
+
+make tilemap, ptilemap and dtilemap local to load sprit only.
+all they do is create the M_ versions that need to be global...or do they??
+
+fix this...
+
+
+
+-------------------------------------------------------------------------------
+these bitmaps are created when 'create_bmp()' is called from 'init_screen()'
+this is the only time that 'create_bmp()' is called...
+
+tilemap = al_create_bitmap(640, 640);
+ptilemap = al_create_bitmap(380,320);
+dtilemap = al_create_bitmap(160,640);
+
+level_background = al_create_bitmap(2000,2000);
+level_buffer = al_create_bitmap(2000,2000);
+
+M_tilemap = al_create_bitmap(640,640);
+M_ptilemap = al_create_bitmap(380,320);
+M_dtilemap = al_create_bitmap(160,640);
+
+
+
+-------------------------------------------------------------------------
+in 'rebuild_bitmaps()'
+M_tilemaps are drawn to tilemaps
+sub_bitmaps are created / recreated from tilemaps
+
+
+-------------------------------------------------------------------------
+in 'load_sprit()'
+tilemaps are loaded from file
+M_tilemaps are created from tilemaps
+rebuild_bitmaps()' is called
+
+
+
+fill_door_bitmap() and fill_player_bitmap() are not called
+so I commented them out
+
+
+to do:
+
+make load_sprit not create local copy of tilemap....done
+make load_sprit only load M_, then call rebuild_bitmaps();
+
+I tried to load M_ directly, but for some reason,
+I need to load as video bitmap then convert alpha and store in M_
+
+
+I would like to rename:
+
+l2000 to level_background..done
+memory_bitmap to tile...done
+player_bitmap to player_tile...done
+door_bitmap to door_tile..done
+
+rename load and save sprit to load and save tiles..done
+
+
+
+
+
+what is not used:
+
+void test_window_size_and_pos(void) // never used...move to old...
+
+// only declared and externed, never used.. removed
+int disp_x_full = 0;
+int disp_y_full = 0;
+int disp_w_full;
+int disp_h_full;
+
+// last screen pos, to tell if it changed -- does not need to be global!!
+int l_spx;
+int l_spy;
+
+what is saved to config:
+disp_x_wind
+disp_y_wind
+disp_w_wind
+disp_h_wind
+fullscreen
+
+
+renamed les to display_transform_double...done
+
+renamed set_ortho() to set_display_transform()..done
+
+after death, trails show on undrawn level background..fixed
 
 
 

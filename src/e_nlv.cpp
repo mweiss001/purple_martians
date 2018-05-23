@@ -329,7 +329,7 @@ void highlight_current_lift(int lift)
    int x2 = x1 + x3-4;
    int y2 = y1 + y3-4;
 
-   al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+   al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
 
    // mark current lift with crosshairs and rect
    al_draw_line(((x1+x2)/2)*db/20, 1, ((x1+x2)/2)*db/20, db*100-2, palette_color[10], 1);
@@ -429,7 +429,7 @@ void move_lift_step(int lift, int step)
    {
       int nx = ((lift_steps[lift][step].x + lifts[lift].width  * 10) *db)/20;
       int ny = ((lift_steps[lift][step].y + lifts[lift].height * 10) *db)/20;
-      al_set_mouse_xy(display, nx*les, ny*les);
+      al_set_mouse_xy(display, nx*display_transform_double, ny*display_transform_double);
       getxy((char *)"Set new location", 4,  lift, step);
    }
 }
@@ -492,7 +492,7 @@ int get_new_lift_step(int lift, int step)
    if (sty > SCREEN_H-60) sty = SCREEN_H-60;
 
    // position the mouse
-   al_set_mouse_xy(display, txc * les, (sty+24) * les);
+   al_set_mouse_xy(display, txc * display_transform_double, (sty+24) * display_transform_double);
 
    int quit = 0;
    while (!quit)
@@ -598,7 +598,7 @@ void step_popup_menu(int lift, int step)
    if (smx < 100) smx = 100;
    if (smy < 30) smy = 30;
 
-   al_set_mouse_xy(display, smx * les, smy * les);
+   al_set_mouse_xy(display, smx * display_transform_double, smy * display_transform_double);
    proc_controllers(); // to deal with mouse warp
 
    sprintf(global_string[6][0],"Lift:%d Step:%d", lift+1, step);
@@ -846,7 +846,7 @@ int lift_editor(int lift)
                            step_popup_menu(x, y);
                         }
                         // first time only to snap to middle of lift step we're moving
-                        if (mouse_b1) al_set_mouse_xy(display, (nx+w/2) * les, (ny+h/2) * les);
+                        if (mouse_b1) al_set_mouse_xy(display, (nx+w/2) * display_transform_double, (ny+h/2) * display_transform_double);
                         while (mouse_b1)
                         {
                            al_rest(0.01);
@@ -867,7 +867,7 @@ int lift_editor(int lift)
 
                            set_lift(lift, current_step);   // set current step in current lift
 
-                           al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+                           al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
                            draw_big(1);
                            show_big();
                            highlight_current_lift(lift);   // crosshairs and rect on current lift

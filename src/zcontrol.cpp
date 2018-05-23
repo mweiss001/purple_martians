@@ -83,26 +83,20 @@ char *key_names[] =
 
 int getJoystickNum(ALLEGRO_JOYSTICK* joy) // Thanks Edgar Reynaldo!
 {
-   for (int i=0 ; i<al_get_num_joysticks(); ++i)
+   for (int i=0; i<al_get_num_joysticks(); ++i)
    {
       if (joy == al_get_joystick(i)) {return i;}
    }
    return -1;
 }
 
-int get_scan_code_from_joystick(int joy, int b_a, int num)
+int get_scan_code_from_joystick(int joy, int button, int num)
 {
    int ret = 0;
    int base = 128;
    if (joy == 0) base = 128;
    if (joy == 1) base = 148;
-   if (b_a) // button
-   {
-      ret = num + 4;
-   }
-   else // axis
-   {
-   }
+   if (button) ret = num + 4;
    return base + ret;
 }
 
@@ -272,8 +266,6 @@ void set_speed(void)
    set_passcount_timer_fps(speed);
 }
 
-
-
 void set_comp_move_from_controls(int p)
 {
    players1[p].comp_move = 0;
@@ -339,9 +331,6 @@ void set_controls_from_comp_move(int g)
    }
 }
 
-
-
-
 void set_comp_move_from_player_key_check(int p) // but don't set controls !!!
 {
    int cm = 0;
@@ -371,74 +360,6 @@ void player_key_check(int p)
 
 void function_key_check(void)
 {
-
-/*
-
-      if ((key[ALLEGRO_KEY_1]) && (!KEY_1_held))
-      {
-         KEY_1_held = 1;
-         KEY_1_b = !KEY_1_b;
-      }
-      if (!key[ALLEGRO_KEY_1]) KEY_1_held = 0;
-
-      if ((key[ALLEGRO_KEY_2]) && (!KEY_2_held))
-      {
-         KEY_2_held = 1;
-         KEY_2_b = !KEY_2_b;
-      }
-      if (!key[ALLEGRO_KEY_2]) KEY_2_held = 0;
-
-      if ((key[ALLEGRO_KEY_3]) && (!KEY_3_held))
-      {
-         KEY_3_held = 1;
-         KEY_3_b = !KEY_3_b;
-      }
-      if (!key[ALLEGRO_KEY_3]) KEY_3_held = 0;
-
-      if ((key[ALLEGRO_KEY_4]) && (!KEY_4_held))
-      {
-         KEY_4_held = 1;
-         KEY_4_b = !KEY_4_b;
-      }
-      if (!key[ALLEGRO_KEY_4]) KEY_4_held = 0;
-
-      if ((key[ALLEGRO_KEY_5]) && (!KEY_5_held))
-      {
-         KEY_5_held = 1;
-         KEY_5_b = !KEY_5_b;
-      }
-      if (!key[ALLEGRO_KEY_5]) KEY_5_held = 0;
-
-      if ((key[ALLEGRO_KEY_6]) && (!KEY_6_held))
-      {
-         KEY_6_held = 1;
-         KEY_6_b = !KEY_6_b;
-      }
-      if (!key[ALLEGRO_KEY_6]) KEY_6_held = 0;
-
-      if ((key[ALLEGRO_KEY_7]) && (!KEY_7_held))
-      {
-         KEY_7_held = 1;
-         KEY_7_b = !KEY_7_b;
-      }
-      if (!key[ALLEGRO_KEY_7]) KEY_7_held = 0;
-
-      if ((key[ALLEGRO_KEY_8]) && (!KEY_8_held))
-      {
-         KEY_8_held = 1;
-         KEY_8_b = !KEY_8_b;
-      }
-      if (!key[ALLEGRO_KEY_8]) KEY_8_held = 0;
-
-      if ((key[ALLEGRO_KEY_9]) && (!KEY_9_held))
-      {
-         KEY_9_held = 1;
-         KEY_9_b = !KEY_9_b;
-      }
-      if (!key[ALLEGRO_KEY_9]) KEY_9_held = 0;
-
-*/
-
    if (!game_exit)
    {
       if ((key[ALLEGRO_KEY_F1]) && (!KEY_F1_held))
@@ -589,7 +510,6 @@ void function_key_check(void)
       if ((key[ALLEGRO_KEY_F11]) && (!KEY_F11_held))
       {
          KEY_F11_held = 1;
-         //init_l2000();
       }
       if (!key[ALLEGRO_KEY_F11]) KEY_F11_held = 0;
 
@@ -599,12 +519,12 @@ void function_key_check(void)
       if ( ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) &&
            ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) )
       {
-         float old_les = les;
-         if (++les>3) les = 1;
-         float new_les = les;
-         float sfa = new_les/old_les;
+         float old_display_transform_double = display_transform_double;
+         if (++display_transform_double>3) display_transform_double = 1;
+         float new_display_transform_double = display_transform_double;
+         float sfa = new_display_transform_double/old_display_transform_double;
 
-         //printf("old_les:%f new_les:%f sfa:%f \n", old_les, new_les, sfa);
+         //printf("old_display_transform_double:%f new_display_transform_double:%f sfa:%f \n", old_display_transform_double, new_display_transform_double, sfa);
 
          //printf("1scale factor:%f\n", scale_factor);
          scale_factor /= sfa;
@@ -696,7 +616,7 @@ void rungame_key_check(int p, int ret)
 }
 
 void add_game_move(int pc, int type, int data1, int data2)
- {
+{
    if (type == 6) // special level done move
    {
       game_moves[game_move_entry_pos][0] = pc;
@@ -1089,14 +1009,14 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
    if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
    if (ev.type == ALLEGRO_EVENT_MOUSE_WARPED)
    {
-      mouse_x = ev.mouse.x / les;
-      mouse_y = ev.mouse.y / les;
+      mouse_x = ev.mouse.x / display_transform_double;
+      mouse_y = ev.mouse.y / display_transform_double;
    }
    if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
    {
-      mouse_x = ev.mouse.x / les;
-      mouse_y = ev.mouse.y / les;
-      mouse_z = ev.mouse.z / les;
+      mouse_x = ev.mouse.x / display_transform_double;
+      mouse_y = ev.mouse.y / display_transform_double;
+      mouse_z = ev.mouse.z / display_transform_double;
       mouse_dx = ev.mouse.dx;
       mouse_dy = ev.mouse.dy;
       mouse_dz = ev.mouse.dz;
@@ -1183,6 +1103,7 @@ int proc_controllers()
 
    if (!fullscreen) // detect if window was moved
    {
+      int l_spx, l_spy;
       al_get_window_position(display, &l_spx, &l_spy);
       if ((l_spx != disp_x_curr) || (l_spy != disp_y_curr))
       proc_screen_change(disp_w_curr, disp_h_curr, l_spx, l_spy, fullscreen);
@@ -1201,7 +1122,6 @@ int proc_controllers()
             {
                // check to see if we have more resize events piling up
                ALLEGRO_EVENT ev2;
-
                while (al_get_next_event(event_queue, &ev2))
                {
                   if (ev2.type == ALLEGRO_EVENT_DISPLAY_RESIZE) ev = ev2;
@@ -1212,7 +1132,6 @@ int proc_controllers()
             else ret = proc_events(ev, ret);
          }
       }
-
       if (game_exit) // if called from menu only do key check for active local player
       {
           clear_keys(active_local_player);
@@ -1220,7 +1139,7 @@ int proc_controllers()
           function_key_check();
           if (menu_timer_wait) done = 0;
       }
-      else // this is run if a game is in progress
+      else // game is in progress
       {
          function_key_check();
          for (int p=0; p<NUM_PLAYERS; p++)
@@ -1229,9 +1148,7 @@ int proc_controllers()
                if (players[p].control_method == 0) // local single player control
                {
                   if (level_done) add_game_move(passcount, 6, 0, 0); // insert level done into game move
-                  clear_keys(p);
-                  player_key_check(p);
-                  set_comp_move_from_controls(p);
+                  set_comp_move_from_player_key_check(p); // but don't set controls !!!
                   if (players1[p].comp_move != players1[p].old_comp_move)
                   {
                      players1[p].old_comp_move = players1[p].comp_move;
@@ -1251,6 +1168,26 @@ int proc_controllers()
    //printf("ret:%d\n", ret);
    return ret;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

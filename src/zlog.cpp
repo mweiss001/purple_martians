@@ -672,8 +672,8 @@ int log_file_viewer(int type)
          if (pos > end_pc) pos = end_pc;
       }
 
-      les = 1;
-      set_ortho();
+      display_transform_double = 1;
+      set_display_transform();
       al_set_target_backbuffer(display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));

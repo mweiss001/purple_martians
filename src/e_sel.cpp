@@ -981,7 +981,7 @@ void draw_fsel(void)
       for (x=0; x<ft_level_header[8]; x++)
          for (y=0; y<ft_level_header[9]; y++)
             if ((ft_l[x][y] < NUM_SPRITES) && (ft_l[x][y] > 0))
-               al_draw_bitmap(memory_bitmap[ft_l[x][y]], x*20, y*20, 0);
+               al_draw_bitmap(tile[ft_l[x][y]], x*20, y*20, 0);
 
    if (copy_enemies)
       for (x=0; x<100; x++)
@@ -994,7 +994,7 @@ void draw_fsel(void)
             a = ft_Ei[x][1]; // bmp or ans
             if (a < NUM_SPRITES) b = a; // bmp
             if (a > 999) b = zz[5][a-1000]; // ans
-            al_draw_bitmap(memory_bitmap[b], ex, ey, 0);
+            al_draw_bitmap(tile[b], ex, ey, 0);
          }
    if (copy_items)
       for (x=0; x<500; x++)
@@ -1005,7 +1005,7 @@ void draw_fsel(void)
             int ey = ft_item[x][5];
             b = ft_item[x][1]; // bmp or ans
             if (b > 1000) b = zz[0][b-1000]; // ans
-            al_draw_bitmap(memory_bitmap[b], ex, ey, 0);
+            al_draw_bitmap(tile[b], ex, ey, 0);
          }
    if (copy_lifts)
       for (d=0; d<ft_level_header[5]; d++)

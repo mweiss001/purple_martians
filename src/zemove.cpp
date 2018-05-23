@@ -32,7 +32,7 @@ void get_enemy_draw_shape(int e)
    al_set_target_bitmap(dtemp);
    al_clear_to_color(palette_color[0]);
    float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
-   al_draw_rotated_bitmap(memory_bitmap[Ei[e][1]], 10, 10, 10, 10, rot, flags);
+   al_draw_rotated_bitmap(tile[Ei[e][1]], 10, 10, 10, 10, rot, flags);
 //   if (Ei[e][0] == 8) // show trakbot mode
 //      al_draw_textf(font, palette_color[10], 10, 6, ALLEGRO_ALIGN_CENTER, "%d" ,Ei[e][5] );
 }
@@ -55,7 +55,7 @@ void draw_enemy(void)
 
          float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
          float sc = al_fixtof(Efi[e][12]);
-         al_draw_scaled_rotated_bitmap(memory_bitmap[Ei[e][1]], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
+         al_draw_scaled_rotated_bitmap(tile[Ei[e][1]], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
 
 
 //         if ((Ei[e][0] == 7) || (Ei[e][0] == 9))// show podzilla or cloner trigger box
@@ -686,11 +686,10 @@ void enemy_block_walker(void)
       int ty = EYint/20;
 
       l[tx][ty] = 168;
-//      blit(memory_bitmap[168], l2000, 0, 0, (tx*20), (ty*20), 20, 20);
 
-   al_set_target_bitmap(l2000);
+   al_set_target_bitmap(level_background);
    al_draw_filled_rectangle(tx*20, ty*20, tx*20+20, ty*20+20, palette_color[0]);
-   al_draw_bitmap(memory_bitmap[168], tx*20, ty*20, 0);
+   al_draw_bitmap(tile[168], tx*20, ty*20, 0);
 
 
       event(13, EXint, EYint, EN, 0, 0, 0);

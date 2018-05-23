@@ -62,7 +62,7 @@ void help(char *topic)
 //   if (SCREEN_H < 480) return;       // wont work with SCREEN_H < 480
 
    help_screens_running = 1;
-   auto_set_les();
+   auto_set_display_transform_double();
    rebuild_bitmaps();
 
 
@@ -196,7 +196,7 @@ void help(char *topic)
 
             if (strncmp(msg, "<title>", 7) == 0) // show title
             {
-                al_set_clipping_rectangle((dx+12)*les, (12*les), (639-12*2)*les, (SCREEN_H-12*2)*les);
+                al_set_clipping_rectangle((dx+12)*display_transform_double, (12*display_transform_double), (639-12*2)*display_transform_double, (SCREEN_H-12*2)*display_transform_double);
                 draw_title(dx+sxc+10, sy-108, 360, 64, 8);
                 msg[0]= 0;
                 al_reset_clipping_rectangle();
@@ -253,7 +253,7 @@ void help(char *topic)
             }
             if (strncmp(msg, "<mdw1>", 6) == 0) // show mdw logo
             {
-               al_set_clipping_rectangle((dx+12)*les, (12*les), (639-12*2)*les, (SCREEN_H-12*2)*les);
+               al_set_clipping_rectangle((dx+12)*display_transform_double, (12*display_transform_double), (639-12*2)*display_transform_double, (SCREEN_H-12*2)*display_transform_double);
                float sc = .25;
                int xo = (int)(200 * sc)+16;
                mdw_an3(dx+320 + sxc-xo, sy+xo+16-140, sc, 2);
@@ -268,7 +268,7 @@ void help(char *topic)
                 buff2[2] = msg[5];
                 buff2[3] = 0;
                 int ans = zz[0][atoi(buff2)];
-                al_draw_bitmap(memory_bitmap[ans], dx+sxc, sy, 0 );
+                al_draw_bitmap(tile[ans], dx+sxc, sy, 0 );
                 msg[0]= 0;
             }
             if (strncmp(msg, "<a", 2) == 0) // <axx> show animation sequence (left just)
@@ -278,7 +278,7 @@ void help(char *topic)
                 buff2[1] = msg[3];
                 buff2[2] = 0;
                 int ans = zz[0][atoi(buff2)];
-                al_draw_bitmap(memory_bitmap[ans], dx+sx, sy, 0 );
+                al_draw_bitmap(tile[ans], dx+sx, sy, 0 );
 
                 chop_first_x_char(msg, 5);
                 xindent +=24;
@@ -301,7 +301,7 @@ void help(char *topic)
                 buff2[2] = 0;
                 int pco = atoi(buff2);
                 int ans = zz[1][9];
-                al_draw_bitmap(player_bitmap[pco-1][ans], dx+sxc-40, sy, 0 );
+                al_draw_bitmap(player_tile[pco-1][ans], dx+sxc-40, sy, 0 );
                 al_draw_text(font, palette_color[pco], dx+sxc+24-40, sy+6, 0, color_name[pco]);
                 msg[0]= 0;
             }
@@ -313,7 +313,7 @@ void help(char *topic)
                 buff2[2] = 0;
                 int pco = atoi(buff2);
                 int ans = zz[1][9];
-                al_draw_bitmap(player_bitmap[pco-1][ans], dx+sx, sy, 0 );
+                al_draw_bitmap(player_tile[pco-1][ans], dx+sx, sy, 0 );
                 chop_first_x_char(msg, 5);
                 xindent +=24;
             }
@@ -325,7 +325,7 @@ void help(char *topic)
                buff2[2] = msg[4];
                buff2[3] = 0;
                int ans = atoi(buff2);
-               al_draw_bitmap(memory_bitmap[ans], dx+sx, sy, 0 );
+               al_draw_bitmap(tile[ans], dx+sx, sy, 0 );
                chop_first_x_char(msg, 6);
                xindent +=24;
             }
@@ -339,7 +339,7 @@ void help(char *topic)
                   buff2[2] = msg[5+z*3];
                   buff2[3] = 0;
                   int ans = atoi(buff2);
-                  al_draw_bitmap(memory_bitmap[ans], dx+sx+(z*20), sy, 0 );
+                  al_draw_bitmap(tile[ans], dx+sx+(z*20), sy, 0 );
                }
                msg[0]= 0;
             }
@@ -461,7 +461,7 @@ void help(char *topic)
    al_destroy_bitmap(selection_window);
    al_destroy_bitmap(hlift);
    help_screens_running = 0;
-   auto_set_les();
+   auto_set_display_transform_double();
    rebuild_bitmaps();
 }
 
