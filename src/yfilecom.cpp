@@ -61,13 +61,13 @@ int save_level_prompt()
    else return 0; // user pressed cancel
 }
 
-int save_sprit(void)
+int save_tiles(void)
 {
    ALLEGRO_BITMAP* temp = al_create_bitmap(640, 640);
    al_set_target_bitmap(temp);
    for (int y = 0; y < 32; y++)
       for (int x = 0; x < 32; x++)
-         al_draw_bitmap(memory_bitmap[y*32 + x], (x*20), (y*20), 0);
+         al_draw_bitmap(tile[y*32 + x], (x*20), (y*20), 0);
 
    al_save_bitmap("bitmaps/tiles.bmp", temp);
    al_destroy_bitmap(temp);
@@ -98,16 +98,18 @@ int save_sprit(void)
    return 0;
 }
 
-int load_sprit(void)
-{
-   int sprit_load_error = 0;
 
-   ALLEGRO_BITMAP* tilemap = al_load_bitmap("bitmaps/tiles.bmp");
+int load_tiles(void)
+{
+   int load_error = 0;
+
+   // get main tiles
+   tilemap = al_load_bitmap("bitmaps/tiles.bmp");
    if (!tilemap)
    {
       sprintf(msg, "Can't load tiles from bitmaps/tiles.bmp");
       m_err(msg);
-      sprit_load_error = 1;
+      load_error = 1;
    }
    else
    {
@@ -115,43 +117,44 @@ int load_sprit(void)
       al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
       al_set_target_bitmap(M_tilemap);
       al_draw_bitmap(tilemap, 0, 0, 0);
-
-      // convert to sub bitmaps
-      for (int y = 0; y < 32; y++)
-         for (int x = 0; x < 32; x++)
-            memory_bitmap[y*32 + x] = al_create_sub_bitmap(tilemap, x*20, y*20, 20, 20);
-
-//      // convert to shapes
-//      for (int y = 0; y < 32; y++)
-//         for (int x = 0; x < 32; x++)
-//         {
-//            al_set_target_bitmap(memory_bitmap[y*32 + x]);
-//            al_clear_to_color(al_map_rgb(0, 0, 0));
-//            al_draw_bitmap_region(temp, x*20, y*20, 20, 20, 0, 0, 0);
-//            al_convert_mask_to_alpha(memory_bitmap[y*32 + x], al_map_rgb(0, 0, 0)) ;
-//
-//            // also store in memory bitmaps
-//
-//            al_set_target_bitmap(M_memory_bitmap[y*32 + x]);
-//            al_clear_to_color(al_map_rgb(0, 0, 0));
-//            al_draw_bitmap(memory_bitmap[y*32 + x], 0, 0, 0);
-//            //al_convert_mask_to_alpha(memory_bitmap[y*32 + x], al_map_rgb(0, 0, 0)) ;
-//         }
-
-
    }
-   if (0) // show tiles
+
+   // get player tiles
+   ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
+   if (!ptilemap)
    {
-      al_set_target_backbuffer(display);
-      al_clear_to_color(al_map_rgb(0, 0, 0));
-      for (int y = 0; y < 32; y++)
-         for (int x = 0; x < 32; x++)
-            al_draw_bitmap(memory_bitmap[y*32 + x], (x*20), (y*20), 0);
-      al_flip_display();
-      tsw();
+      sprintf(msg, "Can't load tiles from bitmaps/player_tiles.bmp");
+      m_err(msg);
+      load_error = 1;
+   }
+   else
+   {
+      //printf("load good\n");
+      al_convert_mask_to_alpha(ptilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(M_ptilemap);
+      al_draw_bitmap(ptilemap, 0, 0, 0);
    }
 
 
+   // get door tiles
+   dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
+   if (!dtilemap)
+   {
+      sprintf(msg, "Can't load tiles from bitmaps/door_tiles.bmp");
+      m_err(msg);
+      load_error = 1;
+   }
+   else
+   {
+      //printf("load good\n");
+      al_convert_mask_to_alpha(dtilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(M_dtilemap);
+      al_draw_bitmap(dtilemap, 0, 0, 0);
+   }
+
+   rebuild_bitmaps();
+
+   // get animation sequences and shape attributes
    char sprit_filename[20] = "bitmaps/sprit001.pm";
 //   if (exists(sprit_filename) == 0) // does file exist?
    if (0)
@@ -159,20 +162,22 @@ int load_sprit(void)
       sprintf(msg, "Can't find sprit %s ", sprit_filename);
       //textout_ex(screen, font, msg, SCREEN_W/2, ((SCREEN_H*3)/4)+10, palette_color[1], 0);
       //m_err(msg);
-      sprit_load_error = 1;
+      load_error = 1;
    }
-   if (!sprit_load_error)  // open file
+
+
+   if (!load_error)  // open file
       if ((filepntr=fopen(sprit_filename,"rb")) == 0)
       {
          printf("Error opening %s ", sprit_filename);
          //sprintf(msg, "Error opening %s ", sprit_filename);
          //m_err(msg);
          //textout_ex(screen, font, msg, SCREEN_W/2, ((SCREEN_H*3)/4)+10, palette_color[1], 0);
-         sprit_load_error = 1;
+         load_error = 1;
       }
-   if (!sprit_load_error)  // file open !
+   if (!load_error)  // file open !
    {
-      // get animation   seq
+      // get animation seq
       for (int c=0; c<NUM_ANS; c++)
          for (int y=0; y<20; y++)
          {
@@ -186,10 +191,10 @@ int load_sprit(void)
             sa[c][y] = fgetc(filepntr);
    } // end of if not sprit load error
    fclose(filepntr);
-   //set_pallete(pallete);
-   if (sprit_load_error) return 0;
+   if (load_error) return 0;
    else return 1;
 }
+
 
 void zero_level_data(void)
 {
@@ -485,7 +490,7 @@ int load_level(int level_to_load, int display)
    {
       if (error_logging) printf("level loading complete with no errors\n");
       valid_level_loaded = 1;
-      init_l2000(); // draw blocks and lift lines on l2000
+      init_level_background(); // draw blocks and lift lines on level_background
       if (error_logging) printf("blocks drawn\n");
       reset_animation_sequence_passcounts(0);
       if (error_logging) printf("ans seq reset\n");

@@ -297,7 +297,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
       draw_enemy_shape(num, txc-92, 22);
       sprintf(msg,"%s %d of %d", (const char *)enemy_name[sub_type],1+num - e_first_num[sub_type],e_num_of_type[sub_type]);
       al_draw_text(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, msg);
-      al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+      al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
       switch (sub_type)
       {
          case 3: // archwagon
@@ -495,7 +495,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          sprintf(msg,"%s %d of %d", item_name[sub_type], 1+num - item_first_num[sub_type],item_num_of_type[sub_type]);
          al_draw_text(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, msg);
       }
-      al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+      al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
       switch (sub_type)
       {
          case 1: // door
@@ -695,7 +695,7 @@ int move_obt_with_map(int obt, int type, int num)
       int mx = mouse_x / db;
       int my = mouse_y / db;
 
-      al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+      al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
 
       // search for extra's for currently selected obt
       if ((obt == 3) && ((type == 7) || (type == 9))) // podzilla or cloner trigger box
@@ -905,8 +905,8 @@ int move_obt_with_map(int obt, int type, int num)
 
       if (mouse_b1) // only when mouse_b is first pressed, move mouse position
       {
-         if (mouse_on_tb_lr)  al_set_mouse_xy(display, (mouse_x-db) * les, (mouse_y-db) * les);  // move back one block
-         if (mouse_on_kbr_lr) al_set_mouse_xy(display, (mouse_x-db) * les, (mouse_y-db) * les); // move back one block
+         if (mouse_on_tb_lr)  al_set_mouse_xy(display, (mouse_x-db) * display_transform_double, (mouse_y-db) * display_transform_double);  // move back one block
+         if (mouse_on_kbr_lr) al_set_mouse_xy(display, (mouse_x-db) * display_transform_double, (mouse_y-db) * display_transform_double); // move back one block
          if (mouse_on_sp) old_my = mouse_y;
       }
 

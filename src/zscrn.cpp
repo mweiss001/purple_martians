@@ -52,7 +52,6 @@ void show_pixel_format(int df)
    if (df == 30) printf("ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5\n");
 }
 
-
 void show_display_flags(int flags)
 {
    printf("display flags:\n");
@@ -145,71 +144,52 @@ void show_fullscreen_modes(void)
 // done at start only now
 void create_bmp(void)
 {
-   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-
+   // create tilemap bitmaps
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
+   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+   tilemap = al_create_bitmap(640, 640);
+   ptilemap = al_create_bitmap(380,320);
+   dtilemap = al_create_bitmap(160,640);
 
-   al_destroy_bitmap(tilemap);
-   tilemap = al_create_bitmap(640,640);
+   // create memory bitmaps as temp storage for restoring tilemaps after screen change
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   M_tilemap = al_create_bitmap(640,640);
+   M_ptilemap = al_create_bitmap(380,320);
+   M_dtilemap = al_create_bitmap(160,640);
+
+
 //   if (tilemap == NULL) printf("failed to create tilemap\n");
 //   printf("tilemap\n");
 //   show_pixel_format(al_get_bitmap_format(tilemap));
 //   show_bitmap_flags(al_get_bitmap_flags(tilemap));
 
 
-   al_destroy_bitmap(ptilemap);
-   ptilemap = al_create_bitmap(380,320);
 
-   al_destroy_bitmap(dtilemap);
-   dtilemap = al_create_bitmap(160,640);
-
+   // create level_background and level_buffer bitmaps
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA);
-
-   al_destroy_bitmap(l2000);
-   l2000 = al_create_bitmap(2000,2000);
-
-//   printf("l2000\n");
-//   show_pixel_format(al_get_bitmap_format(l2000));
-//   show_bitmap_flags(al_get_bitmap_flags(l2000));
-
-   al_destroy_bitmap(level_buffer);
+   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+   level_background = al_create_bitmap(2000,2000);
    level_buffer = al_create_bitmap(2000,2000);
 
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
+//   printf("level_background\n");
+//   show_pixel_format(al_get_bitmap_format(level_background));
+//   show_bitmap_flags(al_get_bitmap_flags(level_background));
 
-   al_destroy_bitmap(dtemp);
-   dtemp = al_create_bitmap(20,20);
-
-   // create memory bitmaps as temp storage for restoring after screen change
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-
-   al_destroy_bitmap(M_tilemap);
-   M_tilemap = al_create_bitmap(640,640);
 
 //   printf("M_tilemap\n");
 //   show_pixel_format(al_get_bitmap_format(M_tilemap));
 //   show_bitmap_flags(al_get_bitmap_flags(M_tilemap));
 
-   al_destroy_bitmap(M_ptilemap);
-   M_ptilemap = al_create_bitmap(380,320);
 
-   al_destroy_bitmap(M_dtilemap);
-   M_dtilemap = al_create_bitmap(160,640);
-
+   // reset defaults to use for new bitmaps
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+
+   // temp bitmap for passing draw shape
+   dtemp = al_create_bitmap(20,20);
+
 }
 
-void show_resize_msg(int type)
-{
-   al_set_target_backbuffer(display);
-   al_clear_to_color(al_map_rgb(0,0,0));
-   float sc = (float)SCREEN_W / 120; // fill horizontally
-   sc /=2;
-   if (type == 1) rtextout_centre(NULL, (char*)"Resizing Screen ", SCREEN_W/2, SCREEN_H/2, 10, sc, 0, 1);
-   if (type == 2) rtextout_centre(NULL, (char*)"Reloading Shapes", SCREEN_W/2, SCREEN_H/2, 10, sc, 0, 1);
-   if (type == 3) rtextout_centre(NULL, (char*)"Options", SCREEN_W/2, SCREEN_H/2, 9, sc, 0, 1);
-   al_flip_display();
-}
 
 
 void load_fonts(void)
@@ -277,34 +257,30 @@ void load_fonts(void)
 
 }
 
-void auto_set_les(void)
+void auto_set_display_transform_double(void)
 {
-   les = 1;
+   display_transform_double = 1;
 
-   if (disp_w_curr > 1023) les = 2;
-   if (disp_h_curr > 1023) les = 2;
+   if (disp_w_curr > 1023) display_transform_double = 2;
+   if (disp_h_curr > 1023) display_transform_double = 2;
 
-   if (disp_w_curr < 1024) les = 1;
-   if (disp_h_curr < 700) les = 1;
+   if (disp_w_curr < 1024) display_transform_double = 1;
+   if (disp_h_curr < 700) display_transform_double = 1;
 
-   if (level_editor_running) les = 1;
+   if (level_editor_running) display_transform_double = 1;
 
    if (help_screens_running)
    {
-      if (disp_w_curr > 1279) les = 2;
-      if (disp_w_curr < 1280) les = 1;
+      if (disp_w_curr > 1279) display_transform_double = 2;
+      if (disp_w_curr < 1280) display_transform_double = 1;
    }
-
-
 }
 
-
-
-void set_ortho(void)
+void set_display_transform(void)
 {
    al_set_target_backbuffer(display);
-   SCREEN_W = disp_w_curr/les;
-   SCREEN_H = disp_h_curr/les;
+   SCREEN_W = disp_w_curr/display_transform_double;
+   SCREEN_H = disp_h_curr/display_transform_double;
    ALLEGRO_TRANSFORM trans;
    al_identity_transform(&trans);
    al_orthographic_transform(&trans, 0, 0, -1.0, SCREEN_W, SCREEN_H, 1.0);
@@ -316,57 +292,57 @@ void rebuild_bitmaps(void)
 {
    //printf("rebuild bitmaps\n");
 
-   set_ortho();
+   // rebuild main tiles
+   al_set_target_bitmap(tilemap);
+   al_draw_bitmap(M_tilemap, 0, 0, 0);
+   for (int y=0; y<32; y++)
+      for (int x=0; x<32; x++)
+      {
+         al_destroy_bitmap(tile[y*32 + x]);
+         tile[y*32 + x] = al_create_sub_bitmap(tilemap, x*20, y*20, 20, 20);
+      }
 
+   // rebuild player tiles
+   al_set_target_bitmap(ptilemap);
+   al_draw_bitmap(M_ptilemap, 0, 0, 0);
+   for (int a=0; a<16; a++)
+      for (int b=0; b<19; b++)
+      {
+         al_destroy_bitmap(player_tile[a][b]);
+         player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
+      }
+
+   // rebuild door tiles
+   al_set_target_bitmap(dtilemap);
+   al_draw_bitmap(M_dtilemap, 0, 0, 0);
+   for (int a=0; a<16; a++)
+      for (int b=0; b<8; b++)
+      {
+         al_destroy_bitmap(door_tile[0][a][b]);
+         al_destroy_bitmap(door_tile[1][a][b]);
+         door_tile[0][a][b] = al_create_sub_bitmap(dtilemap, b*20,     a*20, 20, 20);
+         door_tile[1][a][b] = al_create_sub_bitmap(dtilemap, b*20, 320+a*20, 20, 20);
+      }
+
+   init_level_background();
+
+   set_display_transform();
    load_fonts();
 
    logo_text_bitmaps_create = 1;
    text_demomode_bitmaps_create = 1;
    text_title_bitmaps_create = 1;
 
-   //load_sprit();
-   al_set_target_bitmap(tilemap);
-   al_draw_bitmap(M_tilemap, 0, 0, 0);
-
-   for (int y = 0; y < 32; y++)
-      for (int x = 0; x < 32; x++)
-      {
-         al_destroy_bitmap(memory_bitmap[y*32 + x]);
-         memory_bitmap[y*32 + x] = al_create_sub_bitmap(tilemap, x*20, y*20, 20, 20);
-      }
-
-   //fill_player_bitmap();
-   al_set_target_bitmap(ptilemap);
-   al_draw_bitmap(M_ptilemap, 0, 0, 0);
-   for (int a=0; a<16; a++)
-      for (int b=0; b<19; b++)
-      {
-         player_bitmap[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
-      }
-
-   //fill_door_bitmap();
-   al_set_target_bitmap(dtilemap);
-   al_draw_bitmap(M_dtilemap, 0, 0, 0);
-
-   for (int a=0; a<16; a++)
-      for (int b=0; b<8; b++)
-      {
-         door_bitmap[0][a][b] = al_create_sub_bitmap(dtilemap, b*20,     a*20, 20, 20);
-         door_bitmap[1][a][b] = al_create_sub_bitmap(dtilemap, b*20, 320+a*20, 20, 20);
-      }
-
-   init_l2000();
    set_map_var();
    Redraw = 1;
 
    load_visual_level_select_done = 0;
-
    if (visual_level_select_running) load_visual_level_select();
 }
 
 void show_disp_values(void)
 {
-   printf("fullscreen:%d les:%d\n", fullscreen, les);
+   printf("fullscreen:%d display_transform_double:%d\n", fullscreen, display_transform_double);
    printf("x:%4d y:%4d w:%4d h:%4d - curr\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
    printf("x:%4d y:%4d w:%4d h:%4d - wind\n", disp_x_wind, disp_y_wind, disp_w_wind, disp_h_wind);
    int x, y;
@@ -387,12 +363,10 @@ void proc_screen_change(int new_sw, int new_sh, int new_sx, int new_sy, int new_
    {
       fullscreen = 1;
       al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 1);
-
       al_get_window_position(display, &disp_x_curr, &disp_y_curr);
       disp_w_curr = al_get_display_width(display);
       disp_h_curr = al_get_display_height(display);
-
-      auto_set_les();
+      auto_set_display_transform_double();
       rebuild_bitmaps();
       save_config();
       Redraw = 1;
@@ -402,20 +376,18 @@ void proc_screen_change(int new_sw, int new_sh, int new_sx, int new_sy, int new_
    else if ((fullscreen) && (!new_fs)) //  changing away from fullscreen
    {
       fullscreen = 0;
-      disp_x_curr = disp_x_wind;
-      disp_y_curr = disp_y_wind;
-      disp_w_curr = disp_w_wind;
-      disp_h_curr = disp_h_wind;
-
-      al_resize_display(display, disp_w_curr, disp_h_curr);
+      al_resize_display(display, disp_w_wind, disp_h_wind);
       al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 0);
-      al_set_window_position(display, disp_x_curr, disp_y_curr);
+      al_set_window_position(display, disp_x_wind, disp_y_wind);
 
-      auto_set_les();
+      al_get_window_position(display, &disp_x_curr, &disp_y_curr);
+      disp_w_curr = al_get_display_width(display);
+      disp_h_curr = al_get_display_height(display);
+      auto_set_display_transform_double();
       rebuild_bitmaps();
       save_config();
       Redraw = 1;
-      window_title();
+      //window_title();
       //printf("changed away from fullscreen\n");
       //show_disp_values();
    }
@@ -425,23 +397,20 @@ void proc_screen_change(int new_sw, int new_sh, int new_sx, int new_sy, int new_
       if ((new_sw != disp_w_curr) || (new_sh != disp_h_curr)) // window has been resized
       {
          al_acknowledge_resize(display);
-         disp_w_wind = disp_w_curr = al_get_display_width(display);
-         disp_h_wind = disp_h_curr = al_get_display_height(display);
-         auto_set_les();
+         disp_w_curr = disp_w_wind = al_get_display_width(display);
+         disp_h_curr = disp_h_wind = al_get_display_height(display);
+         auto_set_display_transform_double();
          rebuild_bitmaps();
          save_config();
          Redraw = 1;
-         window_title();
+         //window_title();
          //printf("window resized\n");
          //show_disp_values();
      }
-
      if ((new_sx != disp_x_curr) || (new_sy != disp_y_curr)) // window has been moved
      {
-        disp_x_wind = new_sx;
-        disp_y_wind = new_sy;
-        disp_x_curr = disp_x_wind;
-        disp_y_curr = disp_y_wind;
+        disp_x_curr = disp_x_wind = new_sx;;
+        disp_y_curr = disp_y_wind = new_sy;;
         save_config();
         //printf("window moved\n");
         //show_disp_values();
@@ -449,46 +418,7 @@ void proc_screen_change(int new_sw, int new_sh, int new_sx, int new_sy, int new_
   }
 }
 
-void test_window_size_and_pos(void)
-{
-   int adj = 0;
-   // test if window origin (UL) is off screen
-   if ((disp_x_wind > disp_w_full) || (disp_x_wind < 0))
-   {
-      disp_x_curr = disp_x_wind = 32;
-      adj = 1;
-   }
 
-   if ((disp_y_wind > disp_h_full) || (disp_y_wind < 0))
-   {
-      disp_y_curr = disp_y_wind = 32;
-      adj = 1;
-   }
-
-   // test if window (LR) is off screen
-   if ((disp_x_wind+disp_w_wind) > disp_w_full)
-   {
-      disp_x_curr = disp_x_wind = 32;
-      adj = 1;
-
-      if ((disp_x_wind+disp_w_wind) > disp_w_full) // still off screen?
-      {
-          disp_w_curr = disp_w_wind = disp_w_full - disp_x_wind - 32;;
-      }
-   }
-
-   if (disp_y_wind + disp_h_wind > disp_h_full)
-   {
-      disp_y_curr = disp_y_wind = 32;
-      adj = 1;
-
-      if (disp_y_wind + disp_h_wind > disp_h_full) // still off screen?
-      {
-          disp_h_curr = disp_h_wind = disp_h_full - disp_y_wind - 32;
-      }
-   }
-   if (adj) save_config();
-}
 
 
 int init_screen(void)
@@ -531,8 +461,8 @@ int init_screen(void)
    al_get_window_position(display, &disp_x_curr, &disp_y_curr);
    //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
 
-   auto_set_les();
-   set_ortho();
+   auto_set_display_transform_double();
+   set_display_transform();
 
    window_title();
 
@@ -552,7 +482,7 @@ int init_screen(void)
 void get_new_background(int full)
 {
    al_set_target_bitmap(level_buffer);
-   if (full) al_draw_bitmap(l2000, 0, 0, 0);
+   if (full) al_draw_bitmap(level_background, 0, 0, 0);
    else
    {
       // this only grabs the visible region, in the interests of speed
@@ -560,15 +490,13 @@ void get_new_background(int full)
       int y = level_display_region_y - 20; if (y < 0) y = 0;
       int w = level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
       int h = level_display_region_h + 40; if (y+h > 2000) h = 2000-y;
-      al_draw_bitmap_region(l2000, x, y, w, h, x, y, 0);
+      al_draw_bitmap_region(level_background, x, y, w, h, x, y, 0);
    }
 }
 
-void stimp(void)
+void stimp(void) // transition from menu to game
 {
    draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
-
-   // transition from menu to game
    al_set_target_backbuffer(display);
 
    int num_steps = 40;
@@ -632,32 +560,6 @@ void stimp(void)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    // this is the menu map's position and size
    y_size = SCREEN_H-160;
    x_size = SCREEN_W-260;
@@ -706,10 +608,8 @@ void stimp(void)
 }
 
 
-void stamp(void)
+void stamp(void) // transition from game to menu
 {
-   // transition from game to menu
-
    draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
 
    int num_steps = 40;
@@ -730,6 +630,7 @@ void stamp(void)
    // this method has a hysteresis rectangle in the middle of the screem where there is no scroll
    int x_size = SW / 18; // larger number is smaller window
    int y_size = SH / 18;
+
    if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size;
    if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size;
    if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size;
@@ -747,8 +648,6 @@ void stamp(void)
 
    float px_final = (PX-WX) * scale_factor_current + bw;
    float py_final = (PY-WY) * scale_factor_current + bw;
-
-
 
    // offset if entire level is smaller than screen
    int sbw = SCREEN_W-bw*2;
@@ -823,9 +722,6 @@ void stamp(void)
       al_rest(delay);
    }
 }
-
-
-
 
 
 void get_new_screen_buffer(void)
@@ -957,6 +853,7 @@ void set_map_var(void)
    al_destroy_bitmap(lefsm);
    lefsm = al_create_bitmap(db*100,db*100);
 
+   // center of right side panel in level editor
    txc = SCREEN_W - (SCREEN_W - db*100) / 2;
 
    // check that status and select windows are not off screen
@@ -1042,18 +939,17 @@ void set_scale_factor(int instant)
    if (instant) scale_factor_current = scale_factor;
 }
 
-
-void init_l2000(void) // fill l2000 with blocks and lift lines (called by load_level only and level editor)
+void init_level_background(void) // fill level_background with blocks and lift lines
 {
-   //printf("init_l2000\n");
-   al_set_target_bitmap(l2000);
+   //printf("init_level_background\n");
+   al_set_target_bitmap(level_background);
    al_clear_to_color(al_map_rgb(0,0,0));
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++)
       {
          int c = l[x][y];
          if (c < NUM_SPRITES)
-            al_draw_bitmap(memory_bitmap[c], x*20, y*20, 0);
+            al_draw_bitmap(tile[c], x*20, y*20, 0);
       }
    draw_lift_lines();
 }
@@ -1159,7 +1055,7 @@ void frame_and_title(int show_players)
          x_pos -= 11*flsc;                   // spacing based on scale
          x_pos -= x_sp;                      // extra spacing stretch row to edge of screen
          flsc *= .78;                        // reduce scale by 78%
-         al_draw_scaled_rotated_bitmap(player_bitmap[color - 1][1], 0, 0, x+10, y+10, flsc, flsc, 0, 0);
+         al_draw_scaled_rotated_bitmap(player_tile[color - 1][1], 0, 0, x+10, y+10, flsc, flsc, 0, 0);
          if (++color > 15) color = 1;        // cycle through players colors
       }
 
@@ -1180,7 +1076,7 @@ void frame_and_title(int show_players)
          x_pos += x_sp;                       // extra spacing stretch row to edge of screen
          flsc *= .78;                         // reduce scale by 78%
          x_sp += .5;                          // hack to make things line up on right hand side of screen
-         al_draw_scaled_rotated_bitmap(player_bitmap[color - 1][1], 0, 0, x+10, y+10, flsc, flsc, 0, ALLEGRO_FLIP_HORIZONTAL);
+         al_draw_scaled_rotated_bitmap(player_tile[color - 1][1], 0, 0, x+10, y+10, flsc, flsc, 0, ALLEGRO_FLIP_HORIZONTAL);
          if (++color > 15) color = 1;        // cycle through players colors
       }
    }
@@ -1522,9 +1418,6 @@ void show_player_join_quit(void)
    }
 }
 
-
-
-
 void draw_fps_display(int show_type)
 {
    int p = active_local_player;
@@ -1551,38 +1444,15 @@ void draw_fps_display(int show_type)
    if (show_type == 4) sprintf(msg, "total frames skipped:%d", fs);
    if (show_type == 5) sprintf(msg, "frame skip:%d  total:%d", fsls, fs);
    if (show_type) al_draw_text(font, palette_color[15], SCREEN_W - (strlen(msg)+2) * 8, y, 0, msg);
-
-
-
-//   sprintf(msg, "frame skip:[%d]  FPS set:%d act:%d", fsls, passcount_timer_fps, actual_fps);
-//   //sprintf(msg, "FPS set:%d skipped:%d", passcount_timer_fps, fs);
-//   al_draw_text(font, palette_color[15], SCREEN_W - (strlen(msg)+2) * 8, y, 0, msg);
-
-
 }
-
-
 
 void draw_speed_test_data(void)
 {
-   int x = SCREEN_W/2 - 200;
+   int x = BORDER_WIDTH + 10;
    int y = BORDER_WIDTH + 10;
-
-   al_draw_filled_rectangle(x, y, x+300, y+72, palette_color[0]);
-
-   al_draw_textf(font, palette_color[15], x, y+8,  0, "  %d fps", actual_fps);
-   al_draw_textf(font, palette_color[14], x, y+16, 0, "1 %d - get new background", KEY_1_b);
-   al_draw_textf(font, palette_color[14], x, y+24, 0, "2 %d - get new screen buffer", KEY_2_b);
-   al_draw_textf(font, palette_color[14], x, y+32, 0, "3 %d - draw screen msg", KEY_3_b);
-   al_draw_textf(font, palette_color[14], x, y+40, 0, "4 %d - draw bottom msg", KEY_4_b);
-   al_draw_textf(font, palette_color[14], x, y+48, 0, "5 %d - show join quit ", KEY_5_b);
-   al_draw_textf(font, palette_color[14], x, y+56, 0, "6 %d - draw top display", KEY_6_b);
-   al_draw_textf(font, palette_color[14], x, y+64, 0, "7 %d - draw player health bar ", KEY_7_b);
-//   al_draw_textf(font, palette_color[14], x, y+72, 0,"8 %d", KEY_8_b);
-//   al_draw_textf(font, palette_color[14], x, y+80, 0,"9 %d", KEY_9_b);
+   al_draw_filled_rectangle(x, y, x+100, y+8, palette_color[0]);
+   al_draw_textf(font, palette_color[15], x, y,  0, "%d fps", actual_fps);
 }
-
-
 
 void draw_top_display(void)
 {
@@ -1611,7 +1481,7 @@ void draw_top_display(void)
 
    // draw free men
    for (int a=0; a<players[p].LIVES; a++)
-      al_draw_scaled_rotated_bitmap(player_bitmap[players[p].bitmap_index][1], 10, 10, tdx+8+(a*10), tdy+6, .5, .5, 0, 0);
+      al_draw_scaled_rotated_bitmap(player_tile[players[p].bitmap_index][1], 10, 10, tdx+8+(a*10), tdy+6, .5, .5, 0, 0);
 
    if (show_scale_factor > 0)
    {
@@ -1635,9 +1505,8 @@ void draw_top_display(void)
 
       al_draw_filled_rectangle(cx-4, cy+6, cx+230, cy+54, palette_color[0]);
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "SCREEN %d x %d", SCREEN_W, SCREEN_H);
-      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "full:%d les:%d ", fullscreen, les);
+      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "full:%d display_transform_double:%d ", fullscreen, display_transform_double);
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "disp_curr %d x %d ", disp_w_curr, disp_h_curr);
-      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "disp_full %d x %d ", disp_w_full, disp_h_full);
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "display  %d x %d ", al_get_display_width(display), al_get_display_height(display));
 
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "scale_factor:%f", scale_factor);
@@ -2053,57 +1922,59 @@ void draw_top_display(void)
    }
 }
 
-void old_draw_bottom_msg()
-{
-   if (--bottom_msg > 0)
-   {
-      int a;
-      int nb = 8;    // NUM_BOTTOM_MSG_LINES
-
-      float chs = 1.3; // current h size
-      float hss = .15;  // h size step
-
-      float cvs = 1.3; // current v size
-      float vss = .15;  // v size step
-
-      int cc = 15;  // current color
-      int ci = 32;  // color inc use  only 16, 32, 48, 64 etc
-
-      float ypos = SCREEN_H - BORDER_WIDTH - (chs*8);
-      for (a=0; a< nb; a++)
-      {
-         mtextout_centre(b_msg[a], SCREEN_W/2, (int)ypos, cvs, chs, cc);
-         chs = chs - hss;
-         cvs = cvs - vss;
-         cc = cc + ci;
-         float xh = (chs*8);
-         ypos -= xh;
-      }
-   }
-   else bottom_msg = 0;
-}
-
-
 void draw_bottom_msg()
 {
-   if (--bottom_msg > 0)
+   int type = 2;
+   if (type == 1) // old style may cause low fps, due to scaled drawing and target bitmap changes
    {
-      int a;
-      int nb = 3;    // NUM_BOTTOM_MSG_LINES
-
-      int cc = 15;  // current color
-      int ci = 32;  // color inc use  only 16, 32, 48, 64 etc
-
-      float ypos = SCREEN_H - 10;
-      for (a=0; a< nb; a++)
+      if (--bottom_msg > 0)
       {
-         al_draw_text(font, palette_color[cc], SCREEN_W/2, ypos, ALLEGRO_ALIGN_CENTER, b_msg[a]);
-         cc = cc + ci;
-         if (a == 0) cc = cc + ci*4;
-         ypos -= 8;
+         int a;
+         int nb = 8;    // NUM_BOTTOM_MSG_LINES
+
+         float chs = 1.3; // current h size
+         float hss = .15;  // h size step
+
+         float cvs = 1.3; // current v size
+         float vss = .15;  // v size step
+
+         int cc = 15;  // current color
+         int ci = 32;  // color inc use  only 16, 32, 48, 64 etc
+
+         float ypos = SCREEN_H - BORDER_WIDTH - (chs*8);
+         for (a=0; a< nb; a++)
+         {
+            mtextout_centre(b_msg[a], SCREEN_W/2, (int)ypos, cvs, chs, cc);
+            chs = chs - hss;
+            cvs = cvs - vss;
+            cc = cc + ci;
+            float xh = (chs*8);
+            ypos -= xh;
+         }
       }
+      else bottom_msg = 0;
    }
-   else bottom_msg = 0;
+   if (type == 2) // new style - faster but not as nice looking
+   {
+      if (--bottom_msg > 0)
+      {
+         int a;
+         int nb = 3;    // NUM_BOTTOM_MSG_LINES
+
+         int cc = 15;  // current color
+         int ci = 32;  // color inc use  only 16, 32, 48, 64 etc
+
+         float ypos = SCREEN_H - 10;
+         for (a=0; a< nb; a++)
+         {
+            al_draw_text(font, palette_color[cc], SCREEN_W/2, ypos, ALLEGRO_ALIGN_CENTER, b_msg[a]);
+            cc = cc + ci;
+            if (a == 0) cc = cc + ci*4;
+            ypos -= 8;
+         }
+      }
+      else bottom_msg = 0;
+   }
 }
 
 

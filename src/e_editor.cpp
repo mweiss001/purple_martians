@@ -10,7 +10,7 @@ void get_item_draw_shape(int i)
    int drawn = 0;
    int shape = item[i][1];                       // get shape
    if (shape > 999) shape = zz[0][shape-1000];   // ans
-   // doors needs to get special colorized shapes from door_bitmap[][]
+   // doors needs to get special colorized shapes from door_tile[][]
    if (item[i][0] == 1)
    {
       int col = item[i][6];
@@ -21,15 +21,15 @@ void get_item_draw_shape(int i)
          //if (col == 15) text_col = 14;  // except for white!
          int shape = item[i][1];       // get shape
          int si = shape-448;           // convert to index to bitmap sequence
-         //draw_sprite(dtemp, door_bitmap[1][col][si], 0, 0);
-         al_draw_bitmap(door_bitmap[1][col][si], 0, 0, 0);
+         //draw_sprite(dtemp, door_tile[1][col][si], 0, 0);
+         al_draw_bitmap(door_tile[1][col][si], 0, 0, 0);
       }
       else // new style doors
       {
          //if (col == 0) text_col = 15;    // all use same color as door, except for door color 0
          int an = zz[1][83];             // cheat and use shape index from base door animation sequence
          if (item[i][8] == 0) an = 7-an; // exit only, run the sequence backwards
-         al_draw_bitmap(door_bitmap[0][col][an], 0, 0, 0);
+         al_draw_bitmap(door_tile[0][col][an], 0, 0, 0);
       }
       drawn = 1;
    }
@@ -37,13 +37,13 @@ void get_item_draw_shape(int i)
    // these types need rotation
    if (item[i][0] == 11) // rocket
    {
-      //rotate_sprite(dtemp, memory_bitmap[shape], 0, 0, itofix(item[i][10]/10));
-      al_draw_bitmap(memory_bitmap[shape], 0, 0, 0);
+      //rotate_sprite(dtemp, tile[shape], 0, 0, itofix(item[i][10]/10));
+      al_draw_bitmap(tile[shape], 0, 0, 0);
       drawn = 1;
    }
 
    // every other item draws like this
-   if (!drawn) al_draw_bitmap(memory_bitmap[shape], 0, 0, 0);
+   if (!drawn) al_draw_bitmap(tile[shape], 0, 0, 0);
 }
 
 void draw_item_shape(int i, int x, int y)
@@ -65,7 +65,7 @@ void draw_PDE_shape(int pde, int x, int y)
    int a = PDEi[pde][1]; // bmp or ans
    if (a > 999) a = zz[5][a-1000]; // ans
    al_set_target_backbuffer(display);
-   al_draw_bitmap(memory_bitmap[a], x, y, 0);
+   al_draw_bitmap(tile[a], x, y, 0);
 }
 
 void show_draw_item_cursor(void)
@@ -114,10 +114,10 @@ void show_draw_item_cursor(void)
       }
    }
    al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
-   if (same) al_draw_bitmap(memory_bitmap[255], x, y, 0);
+   if (same) al_draw_bitmap(tile[255], x, y, 0);
    else switch (draw_item_type)
    {
-      case 1: al_draw_bitmap(memory_bitmap[draw_item_num], x, y, 0); break;
+      case 1: al_draw_bitmap(tile[draw_item_num], x, y, 0); break;
       case 2: draw_item_shape(draw_item_num, x, y); break;
       case 3: draw_enemy_shape(draw_item_num, x, y); break;
       case 5: draw_PDE_shape(draw_item_num, x, y);  break;
@@ -360,7 +360,7 @@ void get_new_box(void) // keep the mouse !!
 void update_editor_background(void)
 {
    al_set_target_backbuffer(display);
-   al_draw_bitmap_region(l2000, wx*20, wy*20, (SCREEN_W/20)*20, (SCREEN_H/20)*20, 0, 0, 0);
+   al_draw_bitmap_region(level_background, wx*20, wy*20, (SCREEN_W/20)*20, (SCREEN_H/20)*20, 0, 0, 0);
 
    int lesw = (SCREEN_W/20)*20-1;
    int lesh = (SCREEN_H/20)*20-1;
@@ -768,7 +768,7 @@ int zoom_full_screen(int wx, int wy, int draw_item)
             if (x2 > 100) x2 = 100;
             if (y2 > 100) y2 = 100;
 
-            al_set_clipping_rectangle(0, 0, les*db*100-1, les*db*100-1);
+            al_set_clipping_rectangle(0, 0, display_transform_double*db*100-1, display_transform_double*db*100-1);
             al_draw_bitmap(ft_bmp, x1*db, y1*db, 0);
             al_draw_text(font, palette_color[42], x1*db+2, y1*db-11, 0, "paste selection");
             //al_draw_textf(font, palette_color[42], x1*db+2, y1*db-19, 0, "%d %d %d %d", x1, y1, x2, y2);
@@ -839,7 +839,7 @@ void draw_item_info(int x, int y, int color, int type, int num)
    switch (type)
    {
       case 1:
-         al_draw_bitmap(memory_bitmap[num], x, y, 0);
+         al_draw_bitmap(tile[num], x, y, 0);
          al_draw_textf(font, palette_color[color], x+22, y+2, 0, "Block #%d",num);
          sprintf(msg, "Solid");  // default
          if (num < 32) sprintf(msg, "Empty");
@@ -880,7 +880,7 @@ void draw_item_info(int x, int y, int color, int type, int num)
          a = PDEi[num][1]; // bmp or ans
          if (a < NUM_SPRITES) b = a; // bmp
          if (a > 999) b = zz[5][a-1000]; // ans
-         al_draw_bitmap(memory_bitmap[b], x, y, 0);
+         al_draw_bitmap(tile[b], x, y, 0);
          a = Ei[num][0]; // type
          al_draw_text(font, palette_color[color], x+22, y+2, 0, "Special Item");
          al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%s", PDEt[num][1]);
@@ -890,10 +890,10 @@ void draw_item_info(int x, int y, int color, int type, int num)
 int edit_menu(int el)
 {
    level_editor_running = 1;
-   int original_les = les;
-   if (les != 1)
+   int original_display_transform_double = display_transform_double;
+   if (display_transform_double != 1)
    {
-      les = 1;
+      display_transform_double = 1;
       rebuild_bitmaps();
    }
    al_show_mouse_cursor(display);
@@ -936,7 +936,7 @@ int edit_menu(int el)
 
    do
    {
-      set_ortho();
+      set_display_transform();
 
       x100 = mouse_x/20 + wx;
       y100 = mouse_y/20 + wy;
@@ -1210,8 +1210,8 @@ int edit_menu(int el)
             break;
          }
 
-         temp_mouse_x = mouse_x*les;
-         temp_mouse_y = mouse_y*les;
+         temp_mouse_x = mouse_x*display_transform_double;
+         temp_mouse_y = mouse_y*display_transform_double;
          pop_menu_selection = pmenu(2);
          al_set_mouse_xy(display, temp_mouse_x, temp_mouse_y);
          proc_controllers();
@@ -1374,10 +1374,10 @@ int edit_menu(int el)
       }
    } while (!em_quit);
    level_editor_running = 0;
-   if (original_les != les)
+   if (original_display_transform_double != display_transform_double)
    {
-      les = original_les;
-      //set_ortho();
+      display_transform_double = original_display_transform_double;
+      //set_display_transform();
       rebuild_bitmaps();
    }
 

@@ -1699,15 +1699,15 @@ void temp_test(void)
 
 
 /*
-   load_sprit();
+   load_tiles();
    for (int z = 0; z < 32; z++)
    {
-      al_set_target_bitmap(memory_bitmap[z]);
-      al_lock_bitmap(memory_bitmap[z], al_get_bitmap_format(memory_bitmap[z]), ALLEGRO_LOCK_READWRITE);
+      al_set_target_bitmap(tile[z]);
+      al_lock_bitmap(tile[z], al_get_bitmap_format(tile[z]), ALLEGRO_LOCK_READWRITE);
       for (int x = 0; x < 20; x++)
          for (int y = 0; y < 20; y++)
          {
-            ALLEGRO_COLOR c = al_get_pixel(memory_bitmap[z], x, y);
+            ALLEGRO_COLOR c = al_get_pixel(tile[z], x, y);
             float r, g, b;
             al_unmap_rgb_f(c, &r, &g, &b);
 
@@ -1715,9 +1715,9 @@ void temp_test(void)
                al_put_pixel(x, y, al_map_rgb(0,0,0));
 
          }
-      al_unlock_bitmap(memory_bitmap[z]);
+      al_unlock_bitmap(tile[z]);
    }
-    save_sprit();
+    save_tiles();
 */
 
 
@@ -1868,7 +1868,7 @@ void temp_test(void)
 
    int c, r, g, b;
 
-   c = getpixel(memory_bitmap[400], 6, 3);
+   c = getpixel(tile[400], 6, 3);
    r = getr(c);
    g = getg(c);
    b = getb(c);
@@ -1886,8 +1886,8 @@ void temp_test(void)
    printf("c:%4d   r:%3d g:%3d b:%3d   32:%d  ccc:%d  cc8:%d\n", c, r, g, b, c32, ccc, cc8);
 
 
-   c = getpixel(memory_bitmap[400], 7, 3);
-   c = getpixel(memory_bitmap[400], 8, 3);
+   c = getpixel(tile[400], 7, 3);
+   c = getpixel(tile[400], 8, 3);
 
    */
 

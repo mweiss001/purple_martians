@@ -212,7 +212,7 @@ int process_select_window(int draw_only)
          else a = 0;
          if (a < NUM_SPRITES) b = a; // bmp
          if (a > 999) b = zz[5][a-1000]; // ans
-         al_draw_bitmap(memory_bitmap[b], swx1+(c-((c/16)*16) )*20+1, swy1+14+select_window_special_y+1+(c/16*20), 0 );
+         al_draw_bitmap(tile[b], swx1+(c-((c/16)*16) )*20+1, swy1+14+select_window_special_y+1+(c/16*20), 0 );
       }
    }
 
@@ -227,7 +227,7 @@ int process_select_window(int draw_only)
       al_draw_text(font, palette_color[9], swx2-41, syb+2, 0, "+");
 
       for (c=0; c<16*swnbl_cur; c++)
-         al_draw_bitmap(memory_bitmap[swbl[c][0]], swx1+(c-((c/16)*16) )*20+1, swy1+select_window_block_y+1+14+(c/16*20), 0 );
+         al_draw_bitmap(tile[swbl[c][0]], swx1+(c-((c/16)*16) )*20+1, swy1+select_window_block_y+1+14+(c/16*20), 0 );
 
 
    }

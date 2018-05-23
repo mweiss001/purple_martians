@@ -383,12 +383,12 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
    if (bn == 13)
    {
       float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-      al_draw_rotated_bitmap(memory_bitmap[zz[0][Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      al_draw_rotated_bitmap(tile[zz[0][Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
    if (bn == 14)
    {
       float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-      al_draw_rotated_bitmap(memory_bitmap[zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      al_draw_rotated_bitmap(tile[zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
 
    // is mouse pressed on this button?

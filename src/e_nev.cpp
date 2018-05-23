@@ -351,7 +351,7 @@ int create_key(int c)
    al_draw_text(font, palette_color[15], SCREEN_W/2, 188, ALLEGRO_ALIGN_CENTER, "b2 or <esc> to quit");
 
    for (int x=0; x<4; x++)
-      al_draw_bitmap(memory_bitmap[220+x], SCREEN_W/2, (x*20)+60, 0);
+      al_draw_bitmap(tile[220+x], SCREEN_W/2, (x*20)+60, 0);
 
    al_flip_display();
 
@@ -653,7 +653,7 @@ void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, i
       int mmx = item[c][10] * db;
       int mmy = item[c][11] * db;
 
-      al_set_clipping_rectangle(1, 1, les*db*100-2, les*db*100-2);
+      al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
       al_draw_scaled_bitmap(tmp, 0, 0, pxw, pyh, mmx, mmy, pxw*db/20, pyh*db/20, 0);
       al_reset_clipping_rectangle();
 

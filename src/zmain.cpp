@@ -177,27 +177,6 @@ int mouse_b2 = 0;
 int mouse_b3 = 0;
 int mouse_b4 = 0;
 
-int KEY_1_b = 1;
-int KEY_2_b = 1;
-int KEY_3_b = 0;
-int KEY_4_b = 0;
-int KEY_5_b = 0;
-int KEY_6_b = 1;
-int KEY_7_b = 1;
-int KEY_8_b = 1;
-int KEY_9_b = 1;
-
-int KEY_1_held = 0;
-int KEY_2_held = 0;
-int KEY_3_held = 0;
-int KEY_4_held = 0;
-int KEY_5_held = 0;
-int KEY_6_held = 0;
-int KEY_7_held = 0;
-int KEY_8_held = 0;
-int KEY_9_held = 0;
-
-
 int KEY_F1_held = 0;
 int KEY_F2_held = 0;
 int KEY_F3_held = 0;
@@ -243,12 +222,17 @@ ALLEGRO_BITMAP *M_tilemap = NULL;
 ALLEGRO_BITMAP *M_ptilemap = NULL;
 ALLEGRO_BITMAP *M_dtilemap = NULL;
 
-ALLEGRO_BITMAP *memory_bitmap[NUM_SPRITES];
+
+ALLEGRO_BITMAP *tile[NUM_SPRITES] = {NULL};
+
 int sa[NUM_SPRITES][2]; // shape attributes
 
-ALLEGRO_BITMAP *player_bitmap[16][32];
-ALLEGRO_BITMAP *door_bitmap[2][16][8];
-ALLEGRO_BITMAP *l2000 = NULL;
+ALLEGRO_BITMAP *player_tile[16][32] = {NULL};
+ALLEGRO_BITMAP *door_tile[2][16][8] = {NULL};
+
+
+
+ALLEGRO_BITMAP *level_background = NULL;
 
 ALLEGRO_BITMAP *level_buffer = NULL;
 ALLEGRO_BITMAP *dtemp = NULL; // temp draw
@@ -430,20 +414,11 @@ int disp_y_wind;
 int disp_w_wind;
 int disp_h_wind;
 
-int disp_x_full = 0;
-int disp_y_full = 0;
-int disp_w_full;
-int disp_h_full;
-
 int SCREEN_W;
 int SCREEN_H;
 int WX;
 int WY;
 int fullscreen = 1;
-
-// last screen pos, to tell if it changed
-int l_spx;
-int l_spy;
 
 // used to only redraw a region of background to increase fps
 int level_display_region_x;
@@ -451,7 +426,7 @@ int level_display_region_y;
 int level_display_region_w;
 int level_display_region_h;
 
-int les = 3; // level editor scale
+int display_transform_double = 3; // level editor scale
 
 int level_editor_running = 0;
 int help_screens_running = 0;
@@ -1116,7 +1091,7 @@ void window_title(void)
 {
    sprintf(msg, "Purple Martians");
 //   sprintf(msg, "Purple Martians %s   [%d x %d]", version_string, SCREEN_W, SCREEN_H);
-//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", version_string, SCREEN_W, SCREEN_H,  disp_w_curr, disp_h_curr, les);
+//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", version_string, SCREEN_W, SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
    al_set_window_title(display, msg);
 }
 
@@ -1273,11 +1248,9 @@ int initial_setup(void)
    al_hide_mouse_cursor(display);
    al_register_event_source(event_queue, al_get_mouse_event_source());
 
+   load_tiles();
 
-   load_sprit();
-   al_set_display_icon(display, memory_bitmap[401]);
-   fill_player_bitmap();
-   fill_door_bitmap();
+   al_set_display_icon(display, tile[401]);
 
    seed_mdw();  // for mdw logo
    fill_mdw();

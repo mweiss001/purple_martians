@@ -267,26 +267,6 @@ extern int mouse_b2;
 extern int mouse_b3;
 extern int mouse_b4;
 
-extern int KEY_1_b;
-extern int KEY_2_b;
-extern int KEY_3_b;
-extern int KEY_4_b;
-extern int KEY_5_b;
-extern int KEY_6_b;
-extern int KEY_7_b;
-extern int KEY_8_b;
-extern int KEY_9_b;
-
-extern int KEY_1_held;
-extern int KEY_2_held;
-extern int KEY_3_held;
-extern int KEY_4_held;
-extern int KEY_5_held;
-extern int KEY_6_held;
-extern int KEY_7_held;
-extern int KEY_8_held;
-extern int KEY_9_held;
-
 extern int KEY_F1_held;
 extern int KEY_F2_held;
 extern int KEY_F3_held;
@@ -327,14 +307,15 @@ extern ALLEGRO_BITMAP *M_tilemap;
 extern ALLEGRO_BITMAP *M_ptilemap;
 extern ALLEGRO_BITMAP *M_dtilemap;
 
-extern ALLEGRO_BITMAP *memory_bitmap[NUM_SPRITES];
+extern ALLEGRO_BITMAP *tile[NUM_SPRITES];
 extern int sa[NUM_SPRITES][2];
 
-extern ALLEGRO_BITMAP *player_bitmap[16][32];
-extern ALLEGRO_BITMAP *door_bitmap[2][16][8];
-extern ALLEGRO_BITMAP *l2000;
+extern ALLEGRO_BITMAP *player_tile[16][32];
+extern ALLEGRO_BITMAP *door_tile[2][16][8];
 
+extern ALLEGRO_BITMAP *level_background;
 extern ALLEGRO_BITMAP *level_buffer;
+
 extern ALLEGRO_BITMAP *dtemp; // temp draw
 extern ALLEGRO_BITMAP *lefsm; // level editor fullscreen map
 
@@ -452,8 +433,8 @@ struct player
    al_fixed old_LIFE;
    int LIVES;
 
-   int bitmap_index; // index to player_bitmap (player_bitmap[player.color][player.shape])
-   int shape; // index to player_bitmap
+   int bitmap_index; // index to player_tile (player_tile[player.color][player.shape])
+   int shape; // index to player_tile
    int color; // used to draw frames and stuff in players color
 
    int  door_draw_rot_num_steps;
@@ -715,20 +696,11 @@ extern int disp_y_wind;
 extern int disp_w_wind;
 extern int disp_h_wind;
 
-extern int disp_x_full;
-extern int disp_y_full;
-extern int disp_w_full;
-extern int disp_h_full;
-
 extern int SCREEN_W;
 extern int SCREEN_H;
 extern int WX;
 extern int WY;
 extern int fullscreen;
-
-// last screen pos, to tell if it changed
-extern int l_spx;
-extern int l_spy;
 
 // used to only redraw a region of background to increase fps
 extern int level_display_region_x;
@@ -736,7 +708,7 @@ extern int level_display_region_y;
 extern int level_display_region_w;
 extern int level_display_region_h;
 
-extern int les; // level editor scale
+extern int display_transform_double; // level editor scale
 
 extern int level_editor_running;
 extern int help_screens_running;
@@ -1016,8 +988,8 @@ void server_local_control(int p);
 void make_filename(int x);
 int load_level_prompt(void);
 int save_level_prompt(void);
-int save_sprit(void);
-int load_sprit(void);
+int save_tiles(void);
+int load_tiles(void);
 void zero_level_data(void);
 int load_level(int level_to_load, int display);
 int save_level(int level_to_save);
@@ -1217,8 +1189,8 @@ void player_move(void);
 void draw_player(int p);
 void draw_players(void);
 void get_players_shape(int p);
-void fill_door_bitmap(void);
-void fill_player_bitmap(void);
+void fill_door_tile(void);
+void fill_player_tile(void);
 void init_player(int p, int t);
 
 // zscrn.h - done
@@ -1229,14 +1201,12 @@ void show_display_options(void);
 void show_display_orienation(void);
 void show_fullscreen_modes(void);
 void create_bmp(void);
-void show_resize_msg(int type);
 void load_fonts(void);
-void auto_set_les(void);
-void set_ortho(void);
+void auto_set_display_transform_double(void);
+void set_display_transform(void);
 void rebuild_bitmaps(void);
 void show_disp_values(void);
 void proc_screen_change(int new_sw, int new_sh, int new_sx, int new_sy, int new_fs);
-void test_window_size_and_pos(void);
 int init_screen(void);
 void get_new_background(int full);
 void stimp(void);
@@ -1244,7 +1214,7 @@ void stamp(void);
 void get_new_screen_buffer(void);
 void set_map_var(void);
 void set_scale_factor(int instant);
-void init_l2000(void);
+void init_level_background(void);
 void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
 void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor);
 void draw_level(void);

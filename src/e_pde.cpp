@@ -148,8 +148,8 @@ int bottom_menu(int menu_num)
 
 int edit_int(int x, int y, int val, int inc, int lv, int uv)
 {
-   int imx = mouse_x * les;
-   int imy = mouse_y * les;
+   int imx = mouse_x * display_transform_double;
+   int imy = mouse_y * display_transform_double;
    int old_mouse;
    al_hide_mouse_cursor(display);
    while (mouse_b1)
@@ -182,8 +182,8 @@ al_fixed edit_fix(int x, int y, al_fixed val)
    al_fixed flv   = al_ftofix(-2000);  // lv
    al_fixed fuv   = al_ftofix(2000);   // uv
 
-   int imx = mouse_x * les; // initial mouse position
-   int imy = mouse_y * les;
+   int imx = mouse_x * display_transform_double; // initial mouse position
+   int imy = mouse_y * display_transform_double;
    int old_mouse_x;
    int old_mouse_y;
    al_hide_mouse_cursor(display);
@@ -332,7 +332,7 @@ void predefined_enemies(void)
             if (a < NUM_SPRITES) b = a; // bmp
             if (a > 999) b = zz[5][a-1000]; // ans
 
-            al_draw_bitmap(memory_bitmap[b], 0,0,0);
+            al_draw_bitmap(tile[b], 0,0,0);
 
             for (x=0; x<20; x++)
                al_draw_text(font, palette_color[15], 0, 20+(x*8), 0, PDEt[EN][x]);
