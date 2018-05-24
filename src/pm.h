@@ -58,15 +58,15 @@ extern int load_visual_level_select_done;
 
 
 
-// speed, frames per second, passcount stuff
+// frame_speed, frames per second, passcount stuff
 extern int speed_testing;
 extern int actual_fps;
 extern int last_frames_skipped;
 extern int frames_skipped_last_second;
 extern int last_fps_passcount;
 extern int draw_frame;
-extern int speed;
-extern int passcount_timer_fps;
+extern int frame_speed;
+//extern int passcount_timer_fps;
 extern int passcount;
 
 // global game control
@@ -1009,7 +1009,6 @@ int my_readkey(void);
 void get_all_keys(int p);
 void test_keys(void);
 void set_start_level(int s);
-void set_passcount_timer_fps(int x);
 void set_speed(void);
 void set_comp_move_from_controls(int p);
 void clear_keys(int p);

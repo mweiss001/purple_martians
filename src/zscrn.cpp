@@ -164,7 +164,6 @@ void create_bmp(void)
 //   show_bitmap_flags(al_get_bitmap_flags(tilemap));
 
 
-
    // create level_background and level_buffer bitmaps
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA);
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
@@ -274,6 +273,8 @@ void auto_set_display_transform_double(void)
       if (disp_w_curr > 1279) display_transform_double = 2;
       if (disp_w_curr < 1280) display_transform_double = 1;
    }
+   set_display_transform();
+   set_map_var();
 }
 
 void set_display_transform(void)
@@ -295,38 +296,19 @@ void rebuild_bitmaps(void)
    // rebuild main tiles
    al_set_target_bitmap(tilemap);
    al_draw_bitmap(M_tilemap, 0, 0, 0);
-   for (int y=0; y<32; y++)
-      for (int x=0; x<32; x++)
-      {
-         al_destroy_bitmap(tile[y*32 + x]);
-         tile[y*32 + x] = al_create_sub_bitmap(tilemap, x*20, y*20, 20, 20);
-      }
 
    // rebuild player tiles
    al_set_target_bitmap(ptilemap);
    al_draw_bitmap(M_ptilemap, 0, 0, 0);
-   for (int a=0; a<16; a++)
-      for (int b=0; b<19; b++)
-      {
-         al_destroy_bitmap(player_tile[a][b]);
-         player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
-      }
 
    // rebuild door tiles
    al_set_target_bitmap(dtilemap);
    al_draw_bitmap(M_dtilemap, 0, 0, 0);
-   for (int a=0; a<16; a++)
-      for (int b=0; b<8; b++)
-      {
-         al_destroy_bitmap(door_tile[0][a][b]);
-         al_destroy_bitmap(door_tile[1][a][b]);
-         door_tile[0][a][b] = al_create_sub_bitmap(dtilemap, b*20,     a*20, 20, 20);
-         door_tile[1][a][b] = al_create_sub_bitmap(dtilemap, b*20, 320+a*20, 20, 20);
-      }
 
    init_level_background();
 
    set_display_transform();
+
    load_fonts();
 
    logo_text_bitmaps_create = 1;
@@ -462,8 +444,6 @@ int init_screen(void)
    //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
 
    auto_set_display_transform_double();
-   set_display_transform();
-
    window_title();
 
    //show_display_flags(al_get_display_flags(display));
@@ -475,7 +455,6 @@ int init_screen(void)
    //printf("init screen\n");
    //show_disp_values();
    create_bmp();
-   set_map_var();
    return 1;
 }
 
@@ -1428,7 +1407,7 @@ void draw_fps_display(int show_type)
    // are we not in a netgame
    if ((players[p].control_method == 0) || (players[p].control_method == 1))
    {
-      if (passcount_timer_fps != 40) show_type = 1;
+      if (frame_speed != 40) show_type = 1;
       //if (fs) show_type = 2;
       if (fsls) show_type = 2;
    }
@@ -1438,9 +1417,9 @@ void draw_fps_display(int show_type)
       if (fsls) show_type = 5;
    }
    if (show_type == 8) sprintf(msg, "%dfps", actual_fps);
-   if (show_type == 1) sprintf(msg, "FPS set:%d act:%d", passcount_timer_fps, actual_fps);
-   if (show_type == 2) sprintf(msg, "frame skip:[%d]  FPS set:%d act:%d", fsls, passcount_timer_fps, actual_fps);
-   if (show_type == 3) sprintf(msg, "skip:%d total:%d FPS set:%d act:%d", fsls, fs, passcount_timer_fps, actual_fps);
+   if (show_type == 1) sprintf(msg, "FPS set:%d act:%d", frame_speed, actual_fps);
+   if (show_type == 2) sprintf(msg, "frame skip:[%d]  FPS set:%d act:%d", fsls, frame_speed, actual_fps);
+   if (show_type == 3) sprintf(msg, "skip:%d total:%d FPS set:%d act:%d", fsls, fs, frame_speed, actual_fps);
    if (show_type == 4) sprintf(msg, "total frames skipped:%d", fs);
    if (show_type == 5) sprintf(msg, "frame skip:%d  total:%d", fsls, fs);
    if (show_type) al_draw_text(font, palette_color[15], SCREEN_W - (strlen(msg)+2) * 8, y, 0, msg);
@@ -1511,7 +1490,7 @@ void draw_top_display(void)
 
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "scale_factor:%f", scale_factor);
       cy+=4;
-      al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "FPS set:%d act:%d", passcount_timer_fps, actual_fps);
+      al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "FPS set:%d act:%d", frame_speed, actual_fps);
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "frames skipped last second:%d", fsls);
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total frames skipped:%d",fs);
       cy+=4;

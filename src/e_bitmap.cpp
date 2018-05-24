@@ -62,11 +62,6 @@ int select_bitmap_ans(int zzindx)
 
 int animation_proc()
 {
-   if (display_transform_double != 1)
-   {
-      display_transform_double = 1;
-      rebuild_bitmaps();
-   }
    int zzindx = 3;
    int pointer = zzindx;
    int as_quit = 0;
