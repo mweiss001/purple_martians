@@ -254,16 +254,10 @@ void set_start_level(int s)
    save_config();
 }
 
-void set_passcount_timer_fps(int x)
-{
-   passcount_timer_fps = x;
-   al_set_timer_speed(fps_timer, 1/(float)passcount_timer_fps);
-}
-
 void set_speed(void)
 {
-   sprintf(global_string[8][6],"Speed:%2dfps", speed);
-   set_passcount_timer_fps(speed);
+   sprintf(global_string[8][6],"Speed:%2dfps", frame_speed);
+   al_set_timer_speed(fps_timer, 1/(float)frame_speed);
 }
 
 void set_comp_move_from_controls(int p)
@@ -450,11 +444,11 @@ void function_key_check(void)
       {
          if ((key[ALLEGRO_KEY_F7]) && (!KEY_F7_held))
          {
-            KEY_F7_held = speed/4;
-            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) speed -=100;
-            else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) speed -=20;
-            else speed -= 1;
-            if (speed < 10) speed = 10;
+            KEY_F7_held = frame_speed/4;
+            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) frame_speed -=100;
+            else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) frame_speed -=20;
+            else frame_speed -= 1;
+            if (frame_speed < 10) frame_speed = 10;
             set_speed();
          }
          if (!key[ALLEGRO_KEY_F7]) KEY_F7_held = 0;
@@ -463,11 +457,11 @@ void function_key_check(void)
 
          if ((key[ALLEGRO_KEY_F8]) && (!KEY_F8_held))
          {
-            KEY_F8_held = speed/4;
-            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) speed +=100;
-            else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) speed +=20;
-            else speed += 1;
-            if (speed > 10000) speed = 10000;
+            KEY_F8_held = frame_speed/4;
+            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) frame_speed +=100;
+            else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) frame_speed +=20;
+            else frame_speed += 1;
+            if (frame_speed > 10000) frame_speed = 10000;
             set_speed();
          }
          if (!key[ALLEGRO_KEY_F8]) KEY_F8_held = 0;
@@ -478,7 +472,7 @@ void function_key_check(void)
       {
          KEY_F7_held = 10;
          KEY_F8_held = 10;
-         speed = 40;
+         frame_speed = 40;
          set_speed();
       }
 
@@ -532,7 +526,9 @@ void function_key_check(void)
 
          scale_factor_current = scale_factor;
 
-         rebuild_bitmaps();
+         set_display_transform();
+         set_map_var();
+
          window_title();
       }
       else

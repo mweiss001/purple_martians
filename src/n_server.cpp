@@ -970,7 +970,7 @@ void server_control() // this is the main server loop to process packet send and
             PacketAdd2Bytes(play_level);
             PacketAdd4Bytes(passcount);
             PacketAdd4Bytes(game_move_entry_pos);
-            PacketAddByte(passcount_timer_fps);
+            PacketAddByte(frame_speed);
             PacketAddByte(cn);
             PacketAddByte(color);
             PacketAddByte(deathmatch_pbullets);
@@ -986,7 +986,7 @@ void server_control() // this is the main server loop to process packet send and
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
                sprintf(msg,"Level:[%d]", play_level);
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
-               sprintf(msg,"Frame Rate:[%d]", passcount_timer_fps);
+               sprintf(msg,"Frame Rate:[%d]", frame_speed);
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
                sprintf(msg,"Player Number:[%d]", cn);
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");

@@ -18,15 +18,15 @@ int grid_cols, grid_rows, grid_size, grid_width, grid_height;
 int load_visual_level_select_done = 0;
 
 
-// speed, frames per second, passcount stuff
+// frame_speed, frames per second, passcount stuff
 int speed_testing = 0;
 int actual_fps;
 int last_frames_skipped = 0;
 int frames_skipped_last_second;
 int last_fps_passcount = 0;
 int draw_frame;
-int speed = 40;
-int passcount_timer_fps= 40;
+int frame_speed = 40;
+//int passcount_timer_fps= 40;
 int passcount;
 
 // global game control
@@ -231,10 +231,9 @@ ALLEGRO_BITMAP *player_tile[16][32] = {NULL};
 ALLEGRO_BITMAP *door_tile[2][16][8] = {NULL};
 
 
-
 ALLEGRO_BITMAP *level_background = NULL;
-
 ALLEGRO_BITMAP *level_buffer = NULL;
+
 ALLEGRO_BITMAP *dtemp = NULL; // temp draw
 ALLEGRO_BITMAP *lefsm = NULL; // level editor fullscreen map
 
@@ -1280,7 +1279,7 @@ int initial_setup(void)
    if (sound_on) load_sound();
 
    // create timers
-   fps_timer = al_create_timer(1/(float)passcount_timer_fps);
+   fps_timer = al_create_timer(1/(float)frame_speed);
    sec_timer = al_create_timer(1);
    mnu_timer = al_create_timer(.01);
 
@@ -1707,9 +1706,9 @@ void game_menu(void)
                   save_config();
                }
 
-               if (options_menu_sel == 6) // speed ++
+               if (options_menu_sel == 6) // frame_speed ++
                {
-                  if (++speed > 500) speed = 500;
+                  if (++frame_speed > 500) frame_speed = 500;
                   set_speed();
                }
                if (options_menu_sel == 8) // sound effects vol ++
@@ -1736,9 +1735,9 @@ void game_menu(void)
                      players[p].bitmap_index = players[p].color - 1;
                   save_config();
                }
-               if (options_menu_sel == 6) // speed --
+               if (options_menu_sel == 6) // frame_speed --
                {
-                  if (--speed < 1) speed = 1;
+                  if (--frame_speed < 1) frame_speed = 1;
                   set_speed();
                }
                if (options_menu_sel == 8) // sound effects vol --

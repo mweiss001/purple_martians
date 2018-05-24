@@ -4569,6 +4569,79 @@ renamed set_ortho() to set_display_transform()..done
 after death, trails show on undrawn level background..fixed
 
 
+----------------------------
+
+Do I have to re-create all my tile sub bitmaps every time I rebuild bitmaps?
+No, if I just reload the parent bitmaps the subs do NOT need to be re-created...done
+
+
+
+
+trimmed down the number of calls to rebuild_bitmaps()
+
+actually its called a lot more often that than.... why???
+3 time in proc screen change
+
+1 time in filecom after load_tiles
+
+
+2 times in menu...at start and end of menu right after auto_set_display_transform_double
+
+1 time in control after F12 to set display_transform_double
+
+
+1 time in bitmap in animation at start when display_transform_double set to 1
+
+2 time in editor at start and end of help when display_transform_double changed
+
+? can I just add it to auto_set_display_transform_double()
+
+? make manual set version and set it there too??
+
+
+try to change the one in control...
+replaced  rebuild_bitmaps();
+with:
+set_display_transform();
+set_map_var();
+
+bitmap..removed
+
+add to end of auto set:
+set_display_transform
+set_map_var
+done
+
+find all call to this and remove rebuild_bitmaps...done
+help x 2
+
+now after all that: rebuild_bitmaps() is called only from proc_screen_change
+
+
+-----------------------------------------------
+
+do I need 'speed' to be seperate from passcount_timer_fps?
+
+rename speed in the game to frame_speed for now, so I can tell it apart from the 150 mentions of speed
+
+found 21 refs to 'frame_speed'
+found 13 refs to 'passcount_timer_fps'
+
+why do they need to be different?
+
+what if I replaced all passcount_timer_fps with frame_speed??
+
+done...
+
+now remove:
+void set_passcount_timer_fps(int x)
+
+32 refs to frame_speed
+
+should be done....
+
+hopefully it didn't break anything....
+
 
 
 

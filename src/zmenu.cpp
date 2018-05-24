@@ -63,8 +63,6 @@ void help(char *topic)
 
    help_screens_running = 1;
    auto_set_display_transform_double();
-   rebuild_bitmaps();
-
 
    int num_of_lines = load_help();
    char section_names[60][80];
@@ -462,7 +460,6 @@ void help(char *topic)
    al_destroy_bitmap(hlift);
    help_screens_running = 0;
    auto_set_display_transform_double();
-   rebuild_bitmaps();
 }
 
 

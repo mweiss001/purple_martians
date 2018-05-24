@@ -387,7 +387,10 @@ int client_init_join(void)
          else // join allowed
          {
             play_level = pl;
-            set_passcount_timer_fps(z);
+
+            frame_speed = z;
+            al_set_timer_speed(fps_timer, 1/(float)frame_speed);
+
 
             players[0].active = 1;          // server is alway player 0 on the client
             players[0].control_method = 2; // reset from server local to remote view
@@ -603,7 +606,7 @@ void client_timer_adjust(void)
    if (passcount == players1[p].last_sdat_lpc)  // only if just received sdat; use for sync
    {
       players1[p].server_sync = players1[p].last_sdat_fpc - passcount;
-      int fps_chase = passcount_timer_fps + players1[p].server_sync - server_lead_frames;
+      int fps_chase = frame_speed + players1[p].server_sync - server_lead_frames;
       if (fps_chase < 4) fps_chase = 4; // never let this go negative
       al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
       if (L_LOGGING_NETPLAY_client_timer_adjust)

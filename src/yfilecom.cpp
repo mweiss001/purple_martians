@@ -117,6 +117,9 @@ int load_tiles(void)
       al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
       al_set_target_bitmap(M_tilemap);
       al_draw_bitmap(tilemap, 0, 0, 0);
+      for (int y=0; y<32; y++)
+         for (int x=0; x<32; x++)
+            tile[y*32 + x] = al_create_sub_bitmap(tilemap, x*20, y*20, 20, 20);
    }
 
    // get player tiles
@@ -133,8 +136,10 @@ int load_tiles(void)
       al_convert_mask_to_alpha(ptilemap, al_map_rgb(0, 0, 0)) ;
       al_set_target_bitmap(M_ptilemap);
       al_draw_bitmap(ptilemap, 0, 0, 0);
+      for (int a=0; a<16; a++)
+         for (int b=0; b<19; b++)
+            player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
    }
-
 
    // get door tiles
    dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
@@ -150,9 +155,14 @@ int load_tiles(void)
       al_convert_mask_to_alpha(dtilemap, al_map_rgb(0, 0, 0)) ;
       al_set_target_bitmap(M_dtilemap);
       al_draw_bitmap(dtilemap, 0, 0, 0);
+      for (int a=0; a<16; a++)
+         for (int b=0; b<8; b++)
+         {
+            door_tile[0][a][b] = al_create_sub_bitmap(dtilemap, b*20,     a*20, 20, 20);
+            door_tile[1][a][b] = al_create_sub_bitmap(dtilemap, b*20, 320+a*20, 20, 20);
+         }
    }
 
-   rebuild_bitmaps();
 
    // get animation sequences and shape attributes
    char sprit_filename[20] = "bitmaps/sprit001.pm";

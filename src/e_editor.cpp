@@ -894,7 +894,8 @@ int edit_menu(int el)
    if (display_transform_double != 1)
    {
       display_transform_double = 1;
-      rebuild_bitmaps();
+      set_display_transform();
+      set_map_var();
    }
    al_show_mouse_cursor(display);
    resume_allowed = 0;
@@ -1377,10 +1378,9 @@ int edit_menu(int el)
    if (original_display_transform_double != display_transform_double)
    {
       display_transform_double = original_display_transform_double;
-      //set_display_transform();
-      rebuild_bitmaps();
+      set_display_transform();
+      set_map_var();
    }
-
    al_hide_mouse_cursor(display);
    return level_num;
 }   // end of editor menu
