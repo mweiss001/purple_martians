@@ -138,146 +138,6 @@ void draw_pop_message(int c)
       al_draw_text(font, palette_color[tc], pxc+4, py1+row*8+9, ALLEGRO_ALIGN_CENTRE, dt[row]);
 }
 
-
-int small_letter(ALLEGRO_BITMAP *bmp, int x, int col, char *t)
-{
-
-
-   int text_width = 0;
-   switch(t[0])
-   {
-/*      case 68: // D
-             rect(bmp, x+0, 0, x+2, 3, palette_color[col]);
-         putpixel(bmp, x+2, 0,    palette_color[0]);
-         putpixel(bmp, x+2, 3,    palette_color[0]);
-         text_width = 4;
-      break;
-*/
-
-      case 73: // I
-            al_draw_line(x+0.5f, 0.5f, x+0.5f, 4.5, palette_color[col], 1);
-         text_width = 2;
-      break;
-      case 78: // N
-         al_draw_line(x+0.5f, 0.5f, x+0.5f, 4.5, palette_color[col], 1);
-         al_draw_line(x+3.5f, 0.5f, x+3.5f, 4.5, palette_color[col], 1);
-         al_put_pixel(x+1, 1, palette_color[col]);
-         al_put_pixel(x+2, 2, palette_color[col]);
-         text_width = 5;
-      break;
-
-
-
-
-      case 79: // O
-         al_draw_rectangle(x+0.5f, 0+0.5f, x+2+0.5f, 3+0.5f, palette_color[col], 1);
-         text_width = 4;
-      break;
-
-/*
-      case 80: // P
-             rect(bmp, x+0, 0, x+2, 2, palette_color[col]);
-         putpixel(bmp, x+0, 3,    palette_color[col]);
-         text_width = 4;
-      break;
-  */
-
-      case 84: // T
-            //vline(bmp, x+1, 0, 3, palette_color[col]);
-         al_draw_line(x+1.5f, 0.5f, x+1.5f, 4.5, palette_color[col], 1);
-         al_put_pixel(x+0, 0, palette_color[col]);
-         al_put_pixel(x+2, 0, palette_color[col]);
-         text_width = 4;
-      break;
-
-
-      case 85: // U
-         al_draw_line(x+0.5f, 0.5f, x+0.5f, 4.5, palette_color[col], 1);
-         al_draw_line(x+2.5f, 0.5f, x+2.5f, 4.5, palette_color[col], 1);
-         al_put_pixel(x+1, 3, palette_color[col]);
-         text_width = 4;
-      break;
-
-
-/*
-
-      case 87: // W
-            vline(bmp, x+0, 0, 2, palette_color[col]);
-            vline(bmp, x+4, 0, 2, palette_color[col]);
-         putpixel(bmp, x+1, 3,    palette_color[col]);
-         putpixel(bmp, x+3, 3,    palette_color[col]);
-         putpixel(bmp, x+2, 2,    palette_color[col]);
-         text_width = 6;
-      break;
-*/
-
-   }
-
-
-   return text_width;
-
-
-}
-
-void draw_small_text(ALLEGRO_BITMAP * bmp, int x, int y, int col, int textnum)
-{
-
-   int xpos = 0;
-   ALLEGRO_BITMAP *temp = NULL;
-
-   if (textnum == 1) // OUT
-   {
-      temp = al_create_bitmap(11,4);
-      al_set_target_bitmap(temp);
-      al_clear_to_color(al_map_rgb(0,0,0));
-      xpos += small_letter(temp, xpos, col, (char*)"O");
-      xpos += small_letter(temp, xpos, col, (char*)"U");
-      xpos += small_letter(temp, xpos, col, (char*)"T");
-      al_set_target_bitmap(bmp);
-      al_draw_bitmap(temp, x, y, 0);
-   }
-   if (textnum == 2) // IN
-   {
-      temp = al_create_bitmap(6,4);
-      al_set_target_bitmap(temp);
-      al_clear_to_color(al_map_rgb(0,0,0));
-      xpos += small_letter(temp, xpos, col, (char*)"I");
-      xpos += small_letter(temp, xpos, col, (char*)"N");
-      al_set_target_bitmap(bmp);
-      al_draw_bitmap(temp, x, y, 0);
-   }
-/*
-   if (textnum == 3) // UP
-   {
-      temp = al_create_bitmap(7,4);
-      clear(temp);
-      xpos += small_letter(temp, xpos, col, "U");
-      xpos += small_letter(temp, xpos, col, "P");
-      draw_sprite(bmp, temp, x, y);
-   }
-   if (textnum == 4) // DOWN
-   {
-      temp = al_create_bitmap(19,4);
-      clear(temp);
-      xpos += small_letter(temp, xpos, col, "D");
-      xpos += small_letter(temp, xpos, col, "O");
-      xpos += small_letter(temp, xpos, col, "W");
-      xpos += small_letter(temp, xpos, col, "N");
-      draw_sprite(bmp, temp, x, y);
-   }
-
-*/
-   al_destroy_bitmap(temp);
-
-
-
-}
-
-
-
-
-
-
 void draw_door(int c, int x, int y)
 {
    ALLEGRO_BITMAP *tmp = NULL;
@@ -353,15 +213,6 @@ void draw_door(int c, int x, int y)
    }
 
 }
-
-
-
-
-
-
-
-
-
 
 void draw_items(void)
 {
@@ -1328,13 +1179,6 @@ void proc_lit_rocket(void)
             }
       }
 }
-
-
-
-
-
-
-
 
 
 

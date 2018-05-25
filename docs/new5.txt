@@ -4642,6 +4642,58 @@ should be done....
 
 hopefully it didn't break anything....
 
+-----------
+
+sound...
+
+why do I have lit_item and fuse_loop_playing?
+
+do I need both??
+
+
+
+lit_item
+- set to zero in proc_sound
+- set to one in proc lit rocket and bomb
+
+used by proc_sound to continue fuse hiss...
+
+code stats: 0524
+36 files
+19393  code only
+ 5368  empty lines
+ 3726  comment lines
+ 3376  code and comment
+31863  total
+
+
+
+-----------------
+
+what if I rename passcount to frame_num?
+
+or just frame?
+
+I don't like having both...
+
+also increment passcount in proc_frame_delay(), not animation_proc()
+
+how many passcount do I have? 165
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

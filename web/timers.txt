@@ -22,7 +22,7 @@ int initial_setup(void)
 {
 
    // create timers
-   fps_timer = al_create_timer(1/(float)passcount_timer_fps);
+   fps_timer = al_create_timer(1 / (float) frame_speed );
    sec_timer = al_create_timer(1);
    mnu_timer = al_create_timer(.01);
 
@@ -43,7 +43,7 @@ int initial_setup(void)
 
 The speed of the menu loop is controlled by mnu_timer.
 
-When the menu is running, it is running a loop that processes the menu and also processes the logo animation.
+The menu runs in a loop that processes the menu and also processes the logo animation.
 
 In this loop proc_controller() is called.
 
@@ -78,7 +78,6 @@ int proc_controllers()
 }
 
 
-
 ------------------------------------
 --- sec_timer ---------------------- 
 ------------------------------------
@@ -87,12 +86,13 @@ sec_timer is used to count the actual frames per second and the number of skippe
 
 the algorithm uses the following global varaibles:
 
+int passcount;
+int last_fps_passcount = 0;
 int actual_fps;
+
+players1[active_local_player].frames_skipped
 int last_frames_skipped = 0;
 int frames_skipped_last_second;
-int last_fps_passcount = 0;
-int passcount;
-players1[active_local_player].frames_skipped
 
 
 void proc_frame_delay(void)
@@ -115,14 +115,101 @@ void proc_frame_delay(void)
    
 fps_timer is used to control the speed of the game
    
-the global variable 'frame_speed' sets the frame rate of the game
+The global variable 'frame_speed' sets the frame rate of the game
 int frame_speed= 40;
    
-The timer is set as a reciprocal of fps like this:
+fps_timer is set as a reciprocal of frame_speed like this:
+
 al_set_timer_speed(fps_timer, 1/(float)frame_speed);
 
 
- 
+
+The game speed is controlled by the function: 'proc_frame_delay()'
+
+void proc_frame_delay(void)
+{
+   if (speed_testing) // draw every frame no matter how fast or slow it is
+   {
+      draw_frame = 1;
+      al_set_timer_count(fps_timer, passcount);
+   }
+   else
+   {
+      if (passcount <=  al_get_timer_count(fps_timer)) // skip drawing frame
+      {
+         draw_frame = 0;
+         players1[active_local_player].frames_skipped++;
+      }
+      else draw_frame = 1;
+      while (passcount > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+   }
+}
+
+When the game is running normally, proc_frame_delay() will block until fps_timer catches up to the next passcount.
+
+When the game is lagging, proc_frame_delay() will skip drawing for the current frame.
+
+In speed test mode:
+- every frame is drawn, no matter what
+- there is no waiting for the timer, it runs as fast as it can
+
+
+
+
+
+------------------------------------
+--- Speed adjust during netgame. ---
+------------------------------------
+
+During a netgame the server runs at 40 fps and is the master timing source.
+
+The clients all make small adjustments to their speeds to try to maintain the
+proper timing relation to the server.
+
+The value 'server_lead_frames' is a global int and can be set in the config file,
+but should be left at its default value of 1.
+This means that the clients try to stay 1 frame behind the server.
+
+The packet 'sdat' (server_data) is sent from the server to a client when the server has data
+for that client, or if there is no data, an empty 'sdat' is sent periodically for sync purposes.
+
+The 'sdat' packet is time stamped with the passcount of the server.
+The client compares this to its own passcount and makes speed adjustments as follows.
+
+void client_timer_adjust(void)
+{
+   int p = active_local_player;
+   if (passcount == players1[p].last_sdat_lpc)  // only if just received sdat; use for sync
+   {
+      players1[p].server_sync = players1[p].last_sdat_fpc - passcount;
+      int fps_chase = frame_speed + players1[p].server_sync - server_lead_frames;
+      al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
