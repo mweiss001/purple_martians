@@ -447,6 +447,7 @@ void help(char *topic)
       }
 
       al_flip_display();
+      frame_num++;
       update_animation();
       al_rest(0.02);
       while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))

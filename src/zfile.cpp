@@ -341,7 +341,7 @@ int load_gm(char *sfname )
 
          // set play level
          for (int x=0; x<game_move_entry_pos; x++)
-            if (game_moves[x][0] == 0) // passcount 0
+            if (game_moves[x][0] == 0) // frame_num 0
                if (game_moves[x][1] == 0) // type 0
                {
                   play_level = game_moves[x][2];

@@ -285,7 +285,7 @@ void draw_items(void)
             y +=10; y /= 20; y *= 20;
 
             // alternate between red outer and yellow inner
-            int bmd = passcount % 10;
+            int bmd = frame_num % 10;
             if ((bmd > 0) && (bmd < 5)) al_draw_rectangle(x-b, y-b, x+d, y+d, palette_color[10], 1); // red outer
             b -=4; d-=4;
             if ((bmd > 4) && (bmd < 10)) al_draw_rectangle(x-b, y-b, x+d, y+d, palette_color[14], 1); // yellow inner
@@ -303,14 +303,14 @@ void draw_items(void)
          if (item[c][0] == 3) // exit
          {
             al_draw_bitmap(tile[399], x, y, 0); // 'exit' text not shown
-            if (passcount % 60 > 30)
+            if (frame_num % 60 > 30)
                al_draw_text(f3, palette_color[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
 
             int exit_enemys_left = num_enemy - item[c][8];
             if (exit_enemys_left > 0) // locked
             {
                al_draw_bitmap(tile[366], x, y, 0); // show lock
-               if (passcount % 60 < 30)
+               if (frame_num % 60 < 30)
                   al_draw_textf(f3, palette_color[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
 
             }
@@ -711,12 +711,12 @@ void proc_item_collision()
                                  // to prevent immediate triggering when destination door, wait for release and re-press
 
                                  // if key held is old, ignore
-                                 if (item[x][10] && item[x][10] < passcount-1) item[x][10] = 0;
+                                 if (item[x][10] && item[x][10] < frame_num-1) item[x][10] = 0;
 
                                  // up pressed and !pressed last frame
                                  if ((players[p].up) && (!item[x][10])) do_entry = 1;
 
-                                 if (players[p].up) item[x][10] = passcount;
+                                 if (players[p].up) item[x][10] = frame_num;
                                  else item[x][10] = 0;
 
                               }
@@ -726,12 +726,12 @@ void proc_item_collision()
                                  // to prevent immediate triggering when destination door, wait for release and re-press
 
                                  // if key held is old, ignore
-                                 if (item[x][10] && item[x][10] < passcount-1) item[x][10] = 0;
+                                 if (item[x][10] && item[x][10] < frame_num-1) item[x][10] = 0;
 
                                  // down pressed and !pressed last frame
                                  if ((players[p].down) && (!item[x][10])) do_entry = 1;
 
-                                 if (players[p].down) item[x][10] = passcount;
+                                 if (players[p].down) item[x][10] = frame_num;
                                  else item[x][10] = 0;
                               }
                            }
@@ -775,7 +775,7 @@ void proc_item_collision()
 
                               if (!bad_exit)
                               {
-                                 event(32, itx, ity, 0, 0, 0, 0 ); // In Door
+                                 game_event(32, itx, ity, 0, 0, 0, 0 ); // In Door
 
                                  int instant_move = 0;
                                  if (item[x][7] == 0) // 0 = auto
@@ -790,7 +790,7 @@ void proc_item_collision()
                                  {
                                     players[p].PX = itemf[li][0];
                                     players[p].PY = itemf[li][1];
-                                    item[li][10] = passcount;
+                                    item[li][10] = frame_num;
                                  }
                                  else
                                  {
@@ -849,9 +849,9 @@ void proc_item_collision()
                            item[x][0] = 0;
                            players[p].LIFE += al_itofix(item[x][7]);
                            if (players[p].LIFE > f100) players[p].LIFE = f100;
-                           event(6, itx, ity, item[x][7], 0, 0, 0);
+                           game_event(6, itx, ity, item[x][7], 0, 0, 0);
                         }
-                        else  event(26, itx, ity, 0, 0, 0, 0); // already have 100 health
+                        else  game_event(26, itx, ity, 0, 0, 0, 0); // already have 100 health
                      }
                   }
                   break;
@@ -862,14 +862,14 @@ void proc_item_collision()
                      if (exit_enemys_left <= 0)
                      {
                         level_done = 1;
-                        event(4, itx, ity, 0, 0, 0, 0);
+                        game_event(4, itx, ity, 0, 0, 0, 0);
                      }
-                     else event(3, itx, ity, exit_enemys_left, 0, 0, 0); // not enough dead yet
+                     else game_event(3, itx, ity, exit_enemys_left, 0, 0, 0); // not enough dead yet
                   }
                   break;
                   case 4: // key
                   {
-                     event(2, itx, ity, p, item[x][1], 0, 0);   // send player and item shape
+                     game_event(2, itx, ity, p, item[x][1], 0, 0);   // send player and item shape
                      int x2 = (item[x][6] + item[x][8]) * 10;   // get the center of the block range
                      int y2 = (item[x][7] + item[x][9]) * 10;
                      al_fixed xlen = al_itofix(x2) - itemf[x][0];     // distance between block range and key
@@ -894,14 +894,14 @@ void proc_item_collision()
                   {
                      item[x][0] = 0;
                      players[p].LIVES++;
-                     event(9, itx, ity, 0, 0, 0, 0);
+                     game_event(9, itx, ity, 0, 0, 0, 0);
                   }
                   break;
                   case 7: // mine
                   {
                      players[p].LIFE -= al_itofix(item[x][8]) / 10;
-                     event(10, itx, ity, 0, 0, 0, 0);
-                     event(7, itx, ity, item[x][8], 0, 0, 0);
+                     game_event(10, itx, ity, 0, 0, 0, 0);
+                     game_event(7, itx, ity, item[x][8], 0, 0, 0);
                   }
                   break;
                   case 8: // un-lit bomb
@@ -919,7 +919,7 @@ void proc_item_collision()
                   break;
                   case 11: // rocket
                   {
-                     event(25, itx, ity, 0, 0, 0, 0);
+                     game_event(25, itx, ity, 0, 0, 0, 0);
                      item[x][0] = 98;   // new type - lit rocket
                      item[x][1] = 1026; // new ans
                      item[x][3] = -1;   // carryable
@@ -934,7 +934,7 @@ void proc_item_collision()
                   break;
                   case 14: // switch
                   {
-                     if (item[x][7] < passcount) // if not lockout
+                     if (item[x][7] < frame_num) // if not lockout
                      {
                         // if falling and landing on it
                         if ( (players[p].PX  > itemf[x][0] - al_itofix(12)) &&
@@ -943,8 +943,8 @@ void proc_item_collision()
                              (players[p].PY  < itemf[x][1] - al_itofix(8)) &&
                              (players[p].yinc > al_itofix(0)) )  // falling
                         {
-                           event(30, itx, ity, 0, 0, 0, 0);
-                           item[x][7] = passcount + 4; // switch lockout for next 4 frames
+                           game_event(30, itx, ity, 0, 0, 0, 0);
+                           item[x][7] = frame_num + 4; // switch lockout for next 4 frames
                            item[x][6] = !item[x][6];
                            if (item[x][6]) item[x][1] = item[x][8]; // on bmp
                            else            item[x][1] = item[x][9]; // off bmp
@@ -982,7 +982,7 @@ void proc_item_collision()
                           (players[p].yinc > al_itofix(0)) && // falling
                           (players[p].jump) )   //  jump pressed
                      {
-                        event(31, itx, ity, 0, 0, 0, 0);
+                        game_event(31, itx, ity, 0, 0, 0, 0);
                         players[p].yinc = al_itofix(0) - al_fixdiv(al_itofix(item[x][7]), al_ftofix(7.1));
                      }
                   }
@@ -1005,7 +1005,7 @@ void do_bomb_damage(int i)
          if ((Efi[e][0] > x1) && (Efi[e][0] < x2) && (Efi[e][1] > y1) && (Efi[e][1] < y2))
          {
             Ei[e][31] = 2; // set bomb hit
-            event(23, x, y, 0, 0, 0, 0);
+            game_event(23, x, y, 0, 0, 0, 0);
          }
    for (int p=0; p<NUM_PLAYERS; p++) // players in damage window
       if ((players[p].active) && (!players[p].paused) )
@@ -1018,8 +1018,8 @@ void do_bomb_damage(int i)
             damage *= 20; // multiple by 20 (scale of 20-80)
             if (damage > al_itofix(80)) damage = al_itofix(80);
             players[p].LIFE -= damage;
-            event(7, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), al_fixtoi(damage), 0, 0, 0);
-            event(8, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), 0, 0, 0, 0);
+            game_event(7, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), al_fixtoi(damage), 0, 0, 0);
+            game_event(8, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), 0, 0, 0, 0);
          }
 
    // remove bombable blocks on level
@@ -1104,7 +1104,7 @@ void proc_lit_bomb(void)
             //printf("[%d]explosion ratio:%f seq_shape:%d scale:%f 10:%d \n", c, r, si, scale, item[c][10]);
 
             if (item[c][8] == 12) // explosion sound
-               event(22, 0, 0, 0, 0, 0, 0);
+               game_event(22, 0, 0, 0, 0, 0, 0);
 
             if (item[c][8] == 6) // do damage
                do_bomb_damage(c);

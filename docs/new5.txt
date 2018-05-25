@@ -4667,25 +4667,27 @@ code stats: 0524
 31863  total
 
 
-
 -----------------
 
-what if I rename passcount to frame_num?
+increment passcount in proc_frame_delay(), not update_animation()..done
+here is how it moved in the game loop:
+proc_controllers();
+player_move();
+proc_player_carry();
+update_animation();  <- from here
+enemy_move();
+enemy_collision();
+proc_ebullets();
+proc_pbullets();
+proc_player_health();
+proc_sound();
+proc_frame_delay();  <- to here
 
-or just frame?
+hope this doesn't break anything!
 
-I don't like having both...
+Rename passcount to frame_num...done
 
-also increment passcount in proc_frame_delay(), not animation_proc()
-
-how many passcount do I have? 165
-
-
-
-
-
-
-
+rename event to game_event...done
 
 
 

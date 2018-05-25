@@ -692,7 +692,7 @@ void enemy_block_walker(void)
    al_draw_bitmap(tile[168], tx*20, ty*20, 0);
 
 
-      event(13, EXint, EYint, EN, 0, 0, 0);
+      game_event(13, EXint, EYint, EN, 0, 0, 0);
       Ei[EN][0] = 0;
       return; // break;  to stop rest of execution
    }
@@ -793,8 +793,8 @@ void enemy_block_walker(void)
 
    if (on_solid)
    {
-      // passcount jump
-      if ((Ei[EN][6] > 0) && ((passcount % Ei[EN][6]) == 1)) Ei[EN][5] = -160;
+      // frame_num jump
+      if ((Ei[EN][6] > 0) && ((frame_num % Ei[EN][6]) == 1)) Ei[EN][5] = -160;
 
       // check for jump if player passes above
       if (Ei[EN][7] > 0)
@@ -944,7 +944,7 @@ void enemy_cloner(void)
       else cl = 600; // no limit is same as max limit
       if (no < cl) // if number of objects < create limit
       {
-         event(14, EXint, EYint, 0, 0, 0, 0);
+         game_event(14, EXint, EYint, 0, 0, 0, 0);
          for (int b=0; b<100; b++)
             if (Ei[b][0])     // check for enemies in box
                if ((Efi[b][0] > x1) && (Efi[b][0] < x2) && (Efi[b][1] > y1) && (Efi[b][1] < y2) && (no < cl))
@@ -1481,22 +1481,22 @@ void enemy_podzilla(void)
       if (--Ei[EN][6] == 0)  // counter done?
       {
          Ei[EN][5] = 2; // set next mode
-         Ei[EN][8] = passcount;
+         Ei[EN][8] = frame_num;
       }
    }
    if (Ei[EN][5] == 2)  // mode 2; wait then shoot
    {
-      if (Ei[EN][8] < (passcount-Ei[EN][9]))
+      if (Ei[EN][8] < (frame_num-Ei[EN][9]))
       {
          int p = find_closest_player(EN);
          fire_enemy_bulleta(EN, 54, p);
          Ei[EN][5] = 3; // set next mode
-         Ei[EN][8] = passcount;
+         Ei[EN][8] = frame_num;
       }
    }
    if (Ei[EN][5] == 3)  // mode 3; post shoot pause
    {
-      if (Ei[EN][8] < (passcount-Ei[EN][9]) )
+      if (Ei[EN][8] < (frame_num-Ei[EN][9]) )
       {
          Ei[EN][5] = 4;        // next mode
          Ei[EN][6] = Ei[EN][7]; // set retract counter
@@ -1731,7 +1731,7 @@ void enemy_bouncer()
    int tsl = nf * ns;
 
    // get mod
-   int pm = passcount % tsl;
+   int pm = frame_num % tsl;
 
    // get sequences number from mod
    int ss = pm / nf;
@@ -1896,8 +1896,8 @@ void enemy_archwagon()
 
    if ((on_solid) || (on_lift))
    {
-      // passcount jump
-      if ((Ei[EN][6] > 0) && ((passcount % Ei[EN][6]) == 1)) Ei[EN][5] = -160;
+      // frame_num jump
+      if ((Ei[EN][6] > 0) && ((frame_num % Ei[EN][6]) == 1)) Ei[EN][5] = -160;
 
       // check for jump if player passes above
       if (Ei[EN][7] > 0)
@@ -2065,7 +2065,7 @@ void enemy_killed(int EN)
 
          zz[0][na] = zz[5][na]; // set shape
          zz[1][na] = 0;         // point to zero
-         zz[2][na] = passcount; // set counter
+         zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
       case 4:
@@ -2081,7 +2081,7 @@ void enemy_killed(int EN)
 
          zz[0][na] = zz[5][na]; // set shape
          zz[1][na] = 0;         // point to zero
-         zz[2][na] = passcount; // set counter
+         zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
       case 6:
@@ -2093,7 +2093,7 @@ void enemy_killed(int EN)
 
          zz[0][na] = zz[5][na]; // set shape
          zz[1][na] = 0;         // point to zero
-         zz[2][na] = passcount; // set counter
+         zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
       case 7:
@@ -2106,7 +2106,7 @@ void enemy_killed(int EN)
 
          zz[0][na] = zz[5][na]; // set shape
          zz[1][na] = 0;         // point to zero
-         zz[2][na] = passcount; // set counter
+         zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
       case 8:
@@ -2118,7 +2118,7 @@ void enemy_killed(int EN)
 
          zz[0][na] = zz[5][na]; // set shape
          zz[1][na] = 0;         // point to zero
-         zz[2][na] = passcount; // set counter
+         zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
       case 9:
@@ -2130,7 +2130,7 @@ void enemy_killed(int EN)
 
          zz[0][na] = zz[5][na]; // set shape
          zz[1][na] = 0;         // point to zero
-         zz[2][na] = passcount; // set counter
+         zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / zz[4][na]; // set ans timer
       break;
       case 11:
@@ -2145,7 +2145,7 @@ void enemy_killed(int EN)
 
          zz[0][na] = zz[5][na]; // set shape
          zz[1][na] = 0;         // point to zero
-         zz[2][na] = passcount; // set counter
+         zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / zz[4][na]; // set ans timer
       break;
 
@@ -2154,7 +2154,7 @@ void enemy_killed(int EN)
    // almost all do this but not enough to do by default
    if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==12 )
    {
-      event(13, EXint, EYint, EN, 0, 0, 0); // set type to death loop
+      game_event(13, EXint, EYint, EN, 0, 0, 0); // set type to death loop
       Ei[EN][0] = 99;
    }
 }
@@ -2168,8 +2168,8 @@ void enemy_player_hit_proc(int EN)
          int p = Ei[EN][22]-1;
          players[p].LIFE -= Efi[EN][4];
 
-         event(7, EXint, EYint, al_fixtoi(Efi[EN][4]), 0, 0, 0);
-         event(12, EXint, EYint, EN, 0, 0, 0);
+         game_event(7, EXint, EYint, al_fixtoi(Efi[EN][4]), 0, 0, 0);
+         game_event(12, EXint, EYint, EN, 0, 0, 0);
          Ei[EN][22] = 0;  // clear hit
          Ei[EN][23] = 60; // set retrigger amount
       }

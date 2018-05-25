@@ -105,7 +105,7 @@ int animation_proc()
 
       jh=2;
       al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Passcount Delay %-2d  ",zz[3][zzindx]);
+      sprintf(msg,"Animation Delay %-2d  ",zz[3][zzindx]);
       al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
 
       jh=3;
@@ -204,8 +204,9 @@ int animation_proc()
          }
       }
 
-
+      frame_num++;
       update_animation();
+
 
       while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
       {

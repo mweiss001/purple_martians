@@ -13,6 +13,53 @@ void get_player_start_pos(int p)
       players[p].PY = itemf[c][1];
    }
 }
+
+void proc_player_health(void)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      if ((players[p].active) && (!players[p].paused))
+      {
+         if (players[p].old_LIFE != players[p].LIFE)
+         {
+            players1[p].last_health_adjust = al_fixtoi(players[p].LIFE - players[p].old_LIFE);
+            players[p].old_LIFE = players[p].LIFE;
+            players1[p].health_display = 80;
+         }
+         if (players[p].LIFE>al_itofix(100))
+         {
+             players[p].LIFE = al_itofix(100); // enforce max
+             players[p].old_LIFE = al_itofix(100); // to prevent display
+         }
+         if (players[p].LIFE < al_itofix(1)) // is LIFE < 1
+         {
+            players[p].LIFE = al_itofix(0);
+            if (L_LOGGING_NETPLAY)
+            {
+               #ifdef LOGGING_NETPLAY
+               sprintf(msg,"PLAYER:%d DIED!", p);
+               add_log_entry_header(10, 0, msg, 1);
+               #endif
+            }
+            game_event(21, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), 0, 0, 0, 0);  // player death
+
+            show_player_join_quit_timer = 60;
+            show_player_join_quit_player = p;
+            show_player_join_quit_jq = 3;
+
+            players1[p].health_display = 200;
+            players[p].paused = 100;
+            players[p].paused_type = 1;
+
+            if (--players[p].LIVES < 0) // GAME OVER
+            {
+               players[p].LIVES = 5;
+            }
+         }
+      }
+   }
+}
+
 void player_move(void)
 {
    al_fixed z = al_itofix(0);
@@ -43,8 +90,8 @@ void player_move(void)
          if ((su == 1) && (sd) && (sl) && (sr))
          {
             players[p].LIFE -= al_itofix(1);
-            event(7, x, y, 1, 0, 0, 0);
-            event(35, x, y, 0, 0, 0, 0);
+            game_event(7, x, y, 1, 0, 0, 0);
+            game_event(35, x, y, 0, 0, 0, 0);
 
          }
 
@@ -122,8 +169,8 @@ void player_move(void)
                else // player is getting squished
                {
                   players[p].LIFE -= al_itofix(1);
-                  event(7, x, y, 1, 0, 0, 0);
-                  event(34, x, y, 0, 0, 0, 0);
+                  game_event(7, x, y, 1, 0, 0, 0);
+                  game_event(34, x, y, 0, 0, 0, 0);
 
                }
             }
@@ -148,8 +195,8 @@ void player_move(void)
                else // player is getting squished
                {
                   players[p].LIFE -= al_itofix(1);
-                  event(7, x, y, 1, 0, 0, 0);
-                  event(34, x, y, 0, 0, 0, 0);
+                  game_event(7, x, y, 1, 0, 0, 0);
+                  game_event(34, x, y, 0, 0, 0, 0);
                }
             }
             else if (players[p].xinc > z) // moving right and block collision
@@ -200,8 +247,8 @@ void player_move(void)
             {
                players[p].player_ride = 0;     // player knocked off lift due to collision above
                players[p].LIFE -= al_itofix(1);   // take some damage
-               event(7, x, y, 1, 0, 0, 0);
-               event(34, x, y, 0, 0, 0, 0);
+               game_event(7, x, y, 1, 0, 0, 0);
+               game_event(34, x, y, 0, 0, 0, 0);
 
 
             }
@@ -211,8 +258,8 @@ void player_move(void)
             {
                players[p].player_ride = 0;     // player knocked off lift due to collision above
                players[p].LIFE -= al_itofix(1);   // take some damage
-               event(7, x, y, 1, 0, 0, 0);
-               event(34, x, y, 0, 0, 0, 0);
+               game_event(7, x, y, 1, 0, 0, 0);
+               game_event(34, x, y, 0, 0, 0, 0);
             }
 
             if (players[p].player_ride)                    // if still riding
@@ -240,7 +287,7 @@ void player_move(void)
                {
                   players[p].yinc = initial_jump_velocity;
                   players[p].PY += players[p].yinc;                 // apply yinc
-                  event(15, x, y, 0, 0, 0, 0);
+                  game_event(15, x, y, 0, 0, 0, 0);
                }
             }
 
@@ -284,8 +331,8 @@ void player_move(void)
                   {
                      // take some damage
                      players[p].LIFE -= al_itofix(1);
-                     event(7, x, y, 1, 0, 0, 0);
-                     event(34, x, y, 0, 0, 0, 0);
+                     game_event(7, x, y, 1, 0, 0, 0);
+                     game_event(34, x, y, 0, 0, 0, 0);
                   }
 
                   if (players[p].jump)                              // if jump pressed
@@ -296,7 +343,7 @@ void player_move(void)
                      if ((a == 0) || (a == 2))                      // only jump if nothing above
                      {
                         players[p].yinc = initial_jump_velocity;
-                        event(15, x, y, 0, 0, 0, 0);
+                        game_event(15, x, y, 0, 0, 0, 0);
                      }
                   }
                }  // end of if floor below
@@ -416,7 +463,7 @@ void player_move(void)
                      players[p].PX  = itemf[li][0];
                      players[p].PY  = itemf[li][1];
                      // set destination key held to prevent immediate retriggering
-                     item[li][10] = passcount;
+                     item[li][10] = frame_num;
                   }
                 }
             } // end of mode 2
@@ -448,7 +495,7 @@ void player_move(void)
                      int li = item[x][9]; // linked item number
                      if (item[li][13] == 448)
                         item[li][1] = 448;   // restore door shape
-                     item[li][10] = passcount;   // key hold off
+                     item[li][10] = frame_num;   // key hold off
 
                   }
                   players[p].paused = 0;  // the entire thing is done
@@ -720,7 +767,7 @@ void init_player(int p, int t)
 
    if (t == 3) // netplay join
    {
-      players1[p].last_sdak_rx = passcount + 200;
+      players1[p].last_sdak_rx = frame_num + 200;
    }
 
 

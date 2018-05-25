@@ -370,7 +370,7 @@ int client_init_join(void)
       {
          SJON = 1;
          int pl = Packet2ByteRead();   // play level
-         int server_SJON_passcount      =  Packet4ByteRead(); //
+         int server_SJON_frame_num      =  Packet4ByteRead(); //
          int server_game_move_entry_pos =  Packet4ByteRead(); //
          int z = PacketGetByte();      // frame rate
          int cp = PacketGetByte();     // client player number
@@ -417,7 +417,7 @@ int client_init_join(void)
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
                sprintf(msg,"Player Color:[%d]", color);
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
-               sprintf(msg,"Server Passcount:[%d]", server_SJON_passcount);
+               sprintf(msg,"Server Frame Num:[%d]", server_SJON_frame_num);
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
                sprintf(msg,"Server Game Moves:[%d]", server_game_move_entry_pos);
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
@@ -472,7 +472,7 @@ void client_exit(void)
 
 int client_init(void)
 {
-   passcount = 0;  // just in case its not
+   frame_num = 0;  // just in case its not
    sprintf(msg, "Client mode started on host:[%s]",local_hostname);
    printf("%s\n", msg);
    if (L_LOGGING_NETPLAY)
@@ -579,7 +579,7 @@ void read_game_step_from_packet(int x, int clf_check)
       if (clf_check)
       {
          int p = active_local_player;
-         cs = g0 - passcount;                    // calculate c_csync
+         cs = g0 - frame_num;                    // calculate c_csync
          players1[p].c_sync = cs;                 // set in player struct
          if (cs < 0 ) players1[p].c_sync_err++;   // check for error
          if (cs < players1[p].c_sync_min)         // check and set min
@@ -603,9 +603,9 @@ void read_game_step_from_packet(int x, int clf_check)
 void client_timer_adjust(void)
 {
    int p = active_local_player;
-   if (passcount == players1[p].last_sdat_lpc)  // only if just received sdat; use for sync
+   if (frame_num == players1[p].last_sdat_lpc)  // only if just received sdat; use for sync
    {
-      players1[p].server_sync = players1[p].last_sdat_fpc - passcount;
+      players1[p].server_sync = players1[p].last_sdat_fpc - frame_num;
       int fps_chase = frame_speed + players1[p].server_sync - server_lead_frames;
       if (fps_chase < 4) fps_chase = 4; // never let this go negative
       al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
@@ -623,8 +623,8 @@ int process_chdf_packet(void)
 {
    int retval = 0;
    int p = PacketGetByte();
-   int chdf_src_passcount = Packet4ByteRead();
-   int chdf_dst_passcount = Packet4ByteRead();
+   int chdf_src_frame_num = Packet4ByteRead();
+   int chdf_dst_frame_num = Packet4ByteRead();
    int chdf_seq = PacketGetByte();
    int chdf_max_seq = PacketGetByte();
    int chdf_sb = Packet4ByteRead();
@@ -644,17 +644,17 @@ int process_chdf_packet(void)
       if (L_LOGGING_NETPLAY_chdf_all_packets)
       {
          #ifdef LOGGING_NETPLAY_chdf_all_packets
-         sprintf(msg, "rx chdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", chdf_seq+1, chdf_max_seq, chdf_src_passcount, chdf_dst_passcount, chdf_sb, chdf_sz);
+         sprintf(msg, "rx chdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", chdf_seq+1, chdf_max_seq, chdf_src_frame_num, chdf_dst_frame_num, chdf_sb, chdf_sz);
          add_log_entry2(28, active_local_player, msg);
          #endif
       }
       memcpy(chdf+chdf_sb, packetbuffer+23, chdf_sz);  // put the data in the buffer
-      chdf_pieces[chdf_seq] = chdf_dst_passcount;      // mark it with chdf_dst_passcount
+      chdf_pieces[chdf_seq] = chdf_dst_frame_num;      // mark it with chdf_dst_frame_num
 
       // did we just get the last packet?
       int good = 1; // yes by default
       for (int i=0; i< chdf_max_seq; i++)
-         if (chdf_pieces[i] != chdf_dst_passcount) good = 0; // no, if any piece not at latest passcount
+         if (chdf_pieces[i] != chdf_dst_frame_num) good = 0; // no, if any piece not at latest frame_num
 
       if (good)
       {
@@ -663,9 +663,9 @@ int process_chdf_packet(void)
          char tmsg3[80];
 
          players1[active_local_player].chdf_rx++;
-         sprintf(tmsg1, "rx chdf complete [%d to %d]", chdf_src_passcount, chdf_dst_passcount);
+         sprintf(tmsg1, "rx chdf complete [%d to %d]", chdf_src_frame_num, chdf_dst_frame_num);
 
-         if (chdf_dst_passcount < passcount)
+         if (chdf_dst_frame_num < frame_num)
          {
             players1[active_local_player].chdf_late++;
             sprintf(tmsg2, "LATE!");
@@ -683,8 +683,8 @@ int process_chdf_packet(void)
          if (destLen == CHUNK_SIZE)
          {
             sprintf(tmsg3, "good decompress");
-            dif_id[0] = chdf_src_passcount;
-            dif_id[1] = chdf_dst_passcount;
+            dif_id[0] = chdf_src_frame_num;
+            dif_id[1] = chdf_dst_frame_num;
             retval = 1;
          }
          else sprintf(tmsg3, "bad decompress");
@@ -712,8 +712,8 @@ void client_apply_diff()
       add_log_entry2(29, p, msg);
       #endif
    }
-   // check to see if passcounts match and its time to apply dif
-   if (passcount == dif_id[1]) // current passcount is dif target
+   // check to see if frame_nums match and its time to apply dif
+   if (frame_num == dif_id[1]) // current frame_num is dif target
    {
 
       if (clientl_chdf_id != dif_id[0])  // stored state is NOT dif source
@@ -754,7 +754,7 @@ void client_apply_diff()
          apply_chunk_dif(clientl_chdf, dif, CHUNK_SIZE);
 
 
-         if (dif_id[0] != 0) // check dif, except for passcount 0
+         if (dif_id[0] != 0) // check dif, except for frame_num 0
          {
 
 
@@ -796,7 +796,7 @@ void client_apply_diff()
             // copy modified base state to current game state
             chnk_to_state(clientl_chdf);
          }
-         clientl_chdf_id = passcount; // update client base passcount
+         clientl_chdf_id = frame_num; // update client base frame_num
 
 
          // restore control methods
@@ -815,7 +815,7 @@ void client_apply_diff()
          Packet((char *)"chak");
          PacketAddByte(p);
          PacketAddByte(dif_corr);
-         PacketAdd4Bytes(passcount);
+         PacketAdd4Bytes(frame_num);
          ClientSend(packetbuffer, packetsize);
 
       }
@@ -850,11 +850,11 @@ void client_block_until_good_chdf_received(void)
       }
    }
 
-   // set passcounts
-   passcount = dif_id[1];
-   al_set_timer_count(fps_timer, passcount);
+   // set frame_nums
+   frame_num = dif_id[1];
+   al_set_timer_count(fps_timer, frame_num);
 
-   players1[p].last_sdat_lpc = passcount + 200;
+   players1[p].last_sdat_lpc = frame_num + 200;
 
    client_apply_diff();
 
@@ -866,7 +866,7 @@ void client_block_until_good_chdf_received(void)
    if (L_LOGGING_NETPLAY_JOIN)
    {
       #ifdef LOGGING_NETPLAY_JOIN
-      sprintf(msg, "Passcounts updated - starting chase and lock");
+      sprintf(msg, "frame_nums updated - starting chase and lock");
       add_log_entry_header(11, p, msg, 1);
        //printf("%s", msg);
       #endif
@@ -883,7 +883,7 @@ void client_block_until_good_chdf_received(void)
    // send ack up to this point (we don't care about previous game moves anymore)
    Packet((char *)"sdak");
    PacketAddByte(p);
-   PacketAdd4Bytes(passcount);
+   PacketAdd4Bytes(frame_num);
    PacketAdd4Bytes(players1[p].game_move_entry_pos); // new entry pos
    PacketAdd4Bytes(players1[p].chdf_late);
    PacketAdd4Bytes(players1[p].frames_skipped);
@@ -922,7 +922,7 @@ void process_bandwidth_counters(int p)
    players1[p].rx_current_bytes_for_this_frame = 0;
    players1[p].rx_current_packets_for_this_frame = 0;
 
-   if (passcount % 40 == 0) // tally freq = 40 frames = 1s
+   if (frame_num % 40 == 0) // tally freq = 40 frames = 1s
    {
       // get maximums per tally
       if (players1[p].tx_bytes_per_tally > players1[p].tx_max_bytes_per_tally)
@@ -969,10 +969,10 @@ void client_control(void)
    int p = active_local_player;
 
    // check to see if game has gone bad and we need to quit
-   if ((passcount > 0) && (players1[p].last_sdat_lpc > 0))
+   if ((frame_num > 0) && (players1[p].last_sdat_lpc > 0))
    {
-       int ss = passcount - players1[p].last_sdat_lpc;
-       // printf("pc:%d lspc:%d  ss:%d\n", passcount, players1[p].last_sdat_lpc, ss);
+       int ss = frame_num - players1[p].last_sdat_lpc;
+       // printf("pc:%d lspc:%d  ss:%d\n", frame_num, players1[p].last_sdat_lpc, ss);
        if (ss > 120)
        {
           sprintf(msg, "Player %d LOST SERVER CONNECTION", p);
@@ -980,7 +980,7 @@ void client_control(void)
           #ifdef LOGGING_NETPLAY
           add_log_entry_header(10, p, msg, 2);
           char tmsg[100];
-          sprintf(tmsg, "passcount:[%d] last_sdat_rx:[%d] dif:[%d]", passcount, players1[p].last_sdat_lpc, ss);
+          sprintf(tmsg, "frame_num:[%d] last_sdat_rx:[%d] dif:[%d]", frame_num, players1[p].last_sdat_lpc, ss);
           add_log_entry_header(10, p, tmsg, 1);
           #endif
 
@@ -995,7 +995,7 @@ void client_control(void)
    }
 
 
-   if (passcount == 0) client_block_until_good_chdf_received();
+   if (frame_num == 0) client_block_until_good_chdf_received();
 
    process_bandwidth_counters(p);
 
@@ -1003,7 +1003,7 @@ void client_control(void)
    if (key[ALLEGRO_KEY_F11]) fast_exit(65); // in case we get trapped here and need a way out
 
 
-   while ((packetsize = ClientReceive(packetbuffer))) // rx multiple per passcount
+   while ((packetsize = ClientReceive(packetbuffer))) // rx multiple per frame_num
    {
       if (key[ALLEGRO_KEY_F11]) fast_exit(65); // in case we get trapped here and need a way out
 
@@ -1013,7 +1013,7 @@ void client_control(void)
       {
          int sp = PacketGetByte();
          int serr_type = PacketGetByte();
-         int serr_passcount = Packet4ByteRead();
+         int serr_frame_num = Packet4ByteRead();
          int serr_c_sync = Packet4ByteRead();
          int serr_c_sync_err = Packet4ByteRead();
 
@@ -1032,7 +1032,7 @@ void client_control(void)
             players1[p].serr_c_sync_err = serr_c_sync_err;
             players1[p].serr_display_timer = 120;
 
-            sprintf(msg,"Error: server dropped cdat s_pc:%d  s_csync:%d  tot_err:%d\n", serr_passcount, serr_c_sync, serr_c_sync_err);
+            sprintf(msg,"Error: server dropped cdat s_pc:%d  s_csync:%d  tot_err:%d\n", serr_frame_num, serr_c_sync, serr_c_sync_err);
             if (L_LOGGING_NETPLAY_cdat)
             {
                #ifdef LOGGING_NETPLAY_cdat
@@ -1062,7 +1062,7 @@ void client_control(void)
             players1[p].sdat_total++ ; // total sdat packets rx'd
 
 
-            players1[p].last_sdat_lpc = passcount; // client's local passcount of last sync packet
+            players1[p].last_sdat_lpc = frame_num; // client's local frame_num of last sync packet
 
             if (num_entries == 0) sprintf(tmsg,"sync only");
 
@@ -1092,7 +1092,7 @@ void client_control(void)
 
             Packet((char *)"sdak");
             PacketAddByte(p);
-            PacketAdd4Bytes(passcount);
+            PacketAdd4Bytes(frame_num);
             PacketAdd4Bytes(nep);
             PacketAdd4Bytes(players1[p].chdf_late);
             PacketAdd4Bytes(players1[p].frames_skipped);
@@ -1129,7 +1129,7 @@ void client_local_control(int p)
    if (players1[p].comp_move != players1[p].old_comp_move)  // players keys have changed
    {
       players1[p].old_comp_move = players1[p].comp_move;
-      int fpc = passcount + control_lead_frames;  // add  to passcount
+      int fpc = frame_num + control_lead_frames;  // add  to frame_num
       int cm = players1[p].comp_move;
 
       Packet((char *)"cdat");

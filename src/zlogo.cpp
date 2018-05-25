@@ -344,15 +344,19 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
    int c2 = 8;  //color 2
    int c3 = 10; //color 3
 
-//   int t = line_thickness;
+
+   float t;
+   if (line_thickness == -1) // auto
+   {
+      float hy_scale = sqrt( (x_scale * x_scale) + (y_scale * y_scale));
+      t = 2 + hy_scale * 7;
+   }
+   else t = line_thickness;
+
 
 //   float max_scale = fabs(x_scale);
 //   if (fabs(y_scale) > fabs(x_scale)) max_scale = fabs(y_scale);
 //   float t = 2.5 + max_scale *6;
-
-   float hy_scale = sqrt( (x_scale * x_scale) + (y_scale * y_scale));
-   float t = 2 + hy_scale * 7;
-
 //   if (t<1) t = 1;
 //   printf("t:%d\n", t);
 
@@ -633,7 +637,7 @@ void mdw_an3(int x, int y, float sc, int th)
       t = al_itofix(mdw_an_seq - 960);
       x_scale = mdw_help_logo_scale * al_fixtof(al_fixsin(t));
    }
-   draw_mdw(x, y, x_scale, y_scale, th);
+   draw_mdw(x, y, x_scale, y_scale, -1);
 }
 
 
@@ -703,7 +707,8 @@ int mdw_an2(void)
       x_scale = mdw_splash_logo_scale * al_fixtof(al_fixsin(t));
       y_scale = mdw_splash_logo_scale;
    }
-   draw_mdw((int)mdw_splash_logo_x, (int)mdw_splash_logo_y, x_scale, y_scale, mdw_splash_logo_th);
+   //draw_mdw((int)mdw_splash_logo_x, (int)mdw_splash_logo_y, x_scale, y_scale, mdw_splash_logo_th);
+   draw_mdw((int)mdw_splash_logo_x, (int)mdw_splash_logo_y, x_scale, y_scale, -1);
    return 0;
 }
 
@@ -762,7 +767,8 @@ void mdw_an(void)
       t = al_itofix(mdw_an_seq - 960);
       x_scale = mdw_map_logo_scale * al_fixtof(al_fixsin(t));
    }
-   draw_mdw(mdw_map_logo_x, mdw_map_logo_y, x_scale, y_scale, mdw_map_logo_th);
+   //draw_mdw(mdw_map_logo_x, mdw_map_logo_y, x_scale, y_scale, mdw_map_logo_th);
+   draw_mdw(mdw_map_logo_x, mdw_map_logo_y, x_scale, y_scale, -1);
 }
 
 
@@ -776,9 +782,11 @@ void spline_test(void)
 
    float x_scale = 1.0;
    float y_scale = 1.0;
-   int th = 2;
+   int th = -1;
 
-   //float rv = 0.02;
+   float x_scale_inc = 0.01;
+   float y_scale_inc = 0.01;
+
 
    int quit = 0;
    while (!quit)
@@ -787,34 +795,28 @@ void spline_test(void)
 
       if (key[ALLEGRO_KEY_RIGHT])
       {
-//         while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();;
-         x_scale += .1;
+         x_scale += x_scale_inc;
       }
       if (key[ALLEGRO_KEY_LEFT])
       {
-//         while (key[ALLEGRO_KEY_LEFT]) proc_controllers();;
-         x_scale -= .1;
+         x_scale -= x_scale_inc;
 
       }
       if (key[ALLEGRO_KEY_UP])
       {
-//       while (key[ALLEGRO_KEY_UP]) proc_controllers();;
-         y_scale += .1;
+         y_scale += y_scale_inc;
       }
       if (key[ALLEGRO_KEY_DOWN])
       {
-//         while (key[ALLEGRO_KEY_DOWN]) proc_controllers();;
-         y_scale -= .1;
+         y_scale -= y_scale_inc;
       }
 
       if (key[ALLEGRO_KEY_I])
       {
-//         while (key[ALLEGRO_KEY_I]) proc_controllers();;
          th++;
       }
       if (key[ALLEGRO_KEY_K])
       {
-//         while (key[ALLEGRO_KEY_K]) proc_controllers();;
          th--;
       }
 
@@ -833,7 +835,7 @@ void spline_test(void)
 void redraw_spline(int s)
 {
    fill_mdw();
-   draw_mdw(200, 200, 1.0, 1.0, 1);
+   draw_mdw(200, 200, 1.0, 1.0, -1);
    al_draw_textf(font, palette_color[15], 100, 402, 0, "current spline:%d", s);
 
    for (int i=0; i<8; i+=2)
