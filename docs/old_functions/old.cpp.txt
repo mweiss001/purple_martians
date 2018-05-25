@@ -456,6 +456,650 @@ void show_resize_msg(int type)
 
 
 
+int small_letter(ALLEGRO_BITMAP *bmp, int x, int col, char *t)
+{
+
+
+   int text_width = 0;
+   switch(t[0])
+   {
+/*      case 68: // D
+             rect(bmp, x+0, 0, x+2, 3, palette_color[col]);
+         putpixel(bmp, x+2, 0,    palette_color[0]);
+         putpixel(bmp, x+2, 3,    palette_color[0]);
+         text_width = 4;
+      break;
+*/
+
+      case 73: // I
+            al_draw_line(x+0.5f, 0.5f, x+0.5f, 4.5, palette_color[col], 1);
+         text_width = 2;
+      break;
+      case 78: // N
+         al_draw_line(x+0.5f, 0.5f, x+0.5f, 4.5, palette_color[col], 1);
+         al_draw_line(x+3.5f, 0.5f, x+3.5f, 4.5, palette_color[col], 1);
+         al_put_pixel(x+1, 1, palette_color[col]);
+         al_put_pixel(x+2, 2, palette_color[col]);
+         text_width = 5;
+      break;
+
+
+
+
+      case 79: // O
+         al_draw_rectangle(x+0.5f, 0+0.5f, x+2+0.5f, 3+0.5f, palette_color[col], 1);
+         text_width = 4;
+      break;
+
+/*
+      case 80: // P
+             rect(bmp, x+0, 0, x+2, 2, palette_color[col]);
+         putpixel(bmp, x+0, 3,    palette_color[col]);
+         text_width = 4;
+      break;
+  */
+
+      case 84: // T
+            //vline(bmp, x+1, 0, 3, palette_color[col]);
+         al_draw_line(x+1.5f, 0.5f, x+1.5f, 4.5, palette_color[col], 1);
+         al_put_pixel(x+0, 0, palette_color[col]);
+         al_put_pixel(x+2, 0, palette_color[col]);
+         text_width = 4;
+      break;
+
+
+      case 85: // U
+         al_draw_line(x+0.5f, 0.5f, x+0.5f, 4.5, palette_color[col], 1);
+         al_draw_line(x+2.5f, 0.5f, x+2.5f, 4.5, palette_color[col], 1);
+         al_put_pixel(x+1, 3, palette_color[col]);
+         text_width = 4;
+      break;
+
+
+/*
+
+      case 87: // W
+            vline(bmp, x+0, 0, 2, palette_color[col]);
+            vline(bmp, x+4, 0, 2, palette_color[col]);
+         putpixel(bmp, x+1, 3,    palette_color[col]);
+         putpixel(bmp, x+3, 3,    palette_color[col]);
+         putpixel(bmp, x+2, 2,    palette_color[col]);
+         text_width = 6;
+      break;
+*/
+
+   }
+
+
+   return text_width;
+
+
+}
+
+void draw_small_text(ALLEGRO_BITMAP * bmp, int x, int y, int col, int textnum)
+{
+
+   int xpos = 0;
+   ALLEGRO_BITMAP *temp = NULL;
+
+   if (textnum == 1) // OUT
+   {
+      temp = al_create_bitmap(11,4);
+      al_set_target_bitmap(temp);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      xpos += small_letter(temp, xpos, col, (char*)"O");
+      xpos += small_letter(temp, xpos, col, (char*)"U");
+      xpos += small_letter(temp, xpos, col, (char*)"T");
+      al_set_target_bitmap(bmp);
+      al_draw_bitmap(temp, x, y, 0);
+   }
+   if (textnum == 2) // IN
+   {
+      temp = al_create_bitmap(6,4);
+      al_set_target_bitmap(temp);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      xpos += small_letter(temp, xpos, col, (char*)"I");
+      xpos += small_letter(temp, xpos, col, (char*)"N");
+      al_set_target_bitmap(bmp);
+      al_draw_bitmap(temp, x, y, 0);
+   }
+/*
+   if (textnum == 3) // UP
+   {
+      temp = al_create_bitmap(7,4);
+      clear(temp);
+      xpos += small_letter(temp, xpos, col, "U");
+      xpos += small_letter(temp, xpos, col, "P");
+      draw_sprite(bmp, temp, x, y);
+   }
+   if (textnum == 4) // DOWN
+   {
+      temp = al_create_bitmap(19,4);
+      clear(temp);
+      xpos += small_letter(temp, xpos, col, "D");
+      xpos += small_letter(temp, xpos, col, "O");
+      xpos += small_letter(temp, xpos, col, "W");
+      xpos += small_letter(temp, xpos, col, "N");
+      draw_sprite(bmp, temp, x, y);
+   }
+
+*/
+   al_destroy_bitmap(temp);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+int st_sr(int sx, int sy, int cd, int gfx_card)
+{
+   set_color_depth(cd);
+   if (set_gfx_mode(gfx_card, sx, sy, 0, 0) == 0)
+   {
+      if (gfx_card == 1) sprintf(msg, "[%4d x %4d] %2d bit fullscreen..", sx, sy, cd);
+      if (gfx_card == 2) sprintf(msg, "[%4d x %4d] %2d bit windowed....", sx, sy, cd);
+
+      strcat(log_msg, msg);
+      printf("%s", msg);
+      return 1;
+   }
+   else  // failed
+   {
+      sprintf(msg, "Error setting: [%d x %d] gfx_card:%d color_depth:%d\n", sx, sy, gfx_card, cd);
+      strcat(log_msg, msg);
+      printf("%s", msg);
+      return 0;
+   }
+}
+
+
+void st_run(void)
+{
+   load_gm("test1.gm");
+   players[0].control_method = 1;
+   start_mode = 2; // load level and start, but skip game array erasing
+   game_exit = 0;
+
+   int start_timer = clock();
+   pm_main();
+   int finish_time = clock();
+   int time = finish_time - start_timer;
+
+   int cps = CLOCKS_PER_SEC;
+
+   sprintf(msg, "[%3d] Frames per second -- [%dms] per frame\n",(passcount*cps) / time, time/passcount);
+   printf("%s", msg);
+   strcat(log_msg, msg);
+
+}
+
+void speed_test(void)
+{
+   sprintf(msg, "\n---------------------------------\n- Speed test for %s\n", local_hostname);
+   printf("%s", msg);
+   strcpy(log_msg, msg);
+
+   get_desktop_resolution(&desktop_sx, &desktop_sy);
+   desktop_colordepth = desktop_color_depth();
+
+   sprintf(msg, "Desktop resolution: [%d x %d] %d bit\n", desktop_sx, desktop_sy, desktop_colordepth);
+   printf("%s", msg);
+   strcat(log_msg, msg);
+
+   // get operating system type
+   show_os_detected();
+   strcat(log_msg, msg);
+   strcat(log_msg, "\n");
+
+   int cps = CLOCKS_PER_SEC;
+   sprintf(msg, "CLOCKS_PER_SEC [%d]\n", cps);
+   printf("%s", msg);
+   strcat(log_msg, msg);
+
+   // get allegro id
+   sprintf(msg, "Allegro version:    [%s]\n\n", allegro_id);
+   printf("%s", msg);
+   strcat(log_msg, msg);
+
+   speed_testing = 1;
+
+
+
+
+
+
+
+
+//   if (st_sr(desktop_sx, desktop_sy, 32, 1)) st_run();
+//   if (st_sr(desktop_sx, desktop_sy, 16, 1)) st_run();
+//   if (st_sr(desktop_sx, desktop_sy, 8, 1)) st_run();
+//
+//   if (st_sr(1024, 768, 32, 2)) st_run();
+//   if (st_sr(1024, 768, 16, 2)) st_run();
+//   if (st_sr(1024, 768, 8, 2)) st_run();
+//
+//
+//
+//   if (st_sr(1024, 768, 32, 1)) st_run();
+//   if (st_sr(1024, 768, 16, 1)) st_run();
+//   if (st_sr(1024, 768, 8, 1)) st_run();
+
+
+
+//   if (st_sr(800, 600, 32, 2)) st_run();
+
+
+
+//   if (st_sr(800, 600, 16, 2)) st_run();
+//   if (st_sr(800, 600, 8, 2)) st_run();
+//
+//   if (st_sr(800, 600, 32, 1)) st_run();
+//   if (st_sr(800, 600, 16, 1)) st_run();
+//   if (st_sr(800, 600, 8, 1)) st_run();
+
+
+   FILE *filepntr;
+   char filename[140];
+   sprintf(filename, "logs/speedtest[%s].txt", local_hostname);
+   filepntr = fopen(filename,"w");
+   fprintf(filepntr, "%s", log_msg);
+   fclose(filepntr);
+}
+
+*/
+
+
+
+
+
+
+
+
+
+/*
+   load_tiles();
+   for (int z = 0; z < 32; z++)
+   {
+      al_set_target_bitmap(tile[z]);
+      al_lock_bitmap(tile[z], al_get_bitmap_format(tile[z]), ALLEGRO_LOCK_READWRITE);
+      for (int x = 0; x < 20; x++)
+         for (int y = 0; y < 20; y++)
+         {
+            ALLEGRO_COLOR c = al_get_pixel(tile[z], x, y);
+            float r, g, b;
+            al_unmap_rgb_f(c, &r, &g, &b);
+
+            if ( (r < 0.2) && (g < 0.2) && (b < 0.2) )
+               al_put_pixel(x, y, al_map_rgb(0,0,0));
+
+         }
+      al_unlock_bitmap(tile[z]);
+   }
+    save_tiles();
+*/
+
+
+
+
+//   draw_large_2lines(gv, "Purple", "Martians", 8, 1);
+//   al_flip_display();
+//   tsw();
+
+//   ALLEGRO_COLOR c[5];
+//   c[0] = al_map_rgb(255, 0, 0);
+//   c[1] = al_map_rgb(0, 255, 0);
+//   c[2] = al_map_rgb(0, 0, 255);
+//   c[3] = al_map_rgb(255, 255, 255);
+//   c[4] = al_map_rgb(0, 0, 0);
+//
+//   int quit = 0;
+//   while (!quit)
+//   {
+//      proc_controllers();
+//      if (key[ALLEGRO_KEY_ESCAPE]) quit =1;
+//
+//      char m1[256];
+//      char m2[256];
+//      int bbx1, bby1, bbw1, bbh1;
+//      int bbx2, bby2, bbw2, bbh2;
+//
+//      sprintf(m1, "Michael") ;
+//      sprintf(m2, "Weiss") ;
+//
+//      sprintf(m1, "Purple") ;
+//      sprintf(m2, "Martians") ;
+//      al_get_text_dimensions(gv, m1, &bbx1, &bby1, &bbw1, &bbh1);
+//      al_get_text_dimensions(gv, m2, &bbx2, &bby2, &bbw2, &bbh2);
+//
+//      // get max w and h
+//      float bbw3 = bbw1; if (bbw2 > bbw1) bbw3 = bbw2;
+//      float bbh3 = bbh1; if (bbh2 > bbh1) bbh3 = bbh2;
+//
+//      printf("bbx1:%d bby1:%d bbw1:%d bbh1:%d\n",bbx1, bby1, bbw1, bbh1);
+//      printf("bbx2:%d bby2:%d bbw2:%d bbh2:%d\n",bbx2, bby2, bbw2, bbh2);
+//
+//      ALLEGRO_BITMAP *t1 = al_create_bitmap(bbw3, bbh3);
+//      al_set_target_bitmap(t1);
+//      al_clear_to_color(al_map_rgb(0,0,0));
+//      al_draw_text(gv, palette_color[8], 0-bbx1 + (bbw3-bbw1)/2, 0-bby1, 0, m1);
+//      al_convert_mask_to_alpha(t1, al_map_rgb(0, 0, 0));
+//
+//      ALLEGRO_BITMAP *t2 = al_create_bitmap(bbw3, bbh3);
+//      al_set_target_bitmap(t2);
+//      al_clear_to_color(al_map_rgb(0,0,0));
+//      al_draw_text(gv, palette_color[8], 0-bbx2 + (bbw3-bbw2)/2, 0-bby2, 0, m2);
+//      al_convert_mask_to_alpha(t2, al_map_rgb(0, 0, 0));
+//
+//
+//      int xs = SCREEN_W*7/8; // x size
+//      int ys = SCREEN_H*3/8; // y size
+//
+//
+//      int x1 = (SCREEN_W - xs)/2;
+//      int x2 = xs;
+//
+//      int yu1 = SCREEN_H*1/4 - ys/2;
+//      int yu2 = ys;
+//
+//      int yl1 = SCREEN_H*3/4 - ys/2;
+//      int yl2 = ys;
+//
+//
+//
+//
+//      al_set_target_backbuffer(display);
+//
+////      al_draw_line(0, SCREEN_H*1/4, SCREEN_W, SCREEN_H*1/4, c[2], 1);
+////      al_draw_line(0, SCREEN_H*2/4, SCREEN_W, SCREEN_H*2/4, c[2], 1);
+////      al_draw_line(0, SCREEN_H*3/4, SCREEN_W, SCREEN_H*3/4, c[2], 1);
+//
+//
+//
+//      al_draw_scaled_bitmap(t1, 0, 0, bbw3, bbh3, x1, yu1, x2, yu2, 0);
+//      al_draw_scaled_bitmap(t2, 0, 0, bbw3, bbh3, x1, yl1, x2, yl2, 0);
+//
+//      al_flip_display();
+//      al_clear_to_color(al_map_rgb(0,0,0));
+//
+//      al_destroy_bitmap(t1);
+//      al_destroy_bitmap(t2);
+//   }
+//
+
+
+//   char fn[1000];
+//   sprintf(fn, "help/");
+//   int ret = mw_file_select("Test get filename", fn, ".txt", 0);
+//   printf("ret:%d  filename:[%s]", ret, fn);
+
+
+   //options_menu();
+
+   /*
+
+   int c, r, g, b;
+
+   c = palette_color[3];
+   r = getr(c);
+   g = getg(c);
+   b = getb(c);
+   printf("3 c:%4d   r:%3d g:%3d b:%3d \n", c, r, g, b);
+
+   c = palette_color[9];
+   r = getr(c);
+   g = getg(c);
+   b = getb(c);
+   printf("9 c:%4d   r:%3d g:%3d b:%3d \n", c, r, g, b);
+
+   c = palette_color[10];
+   r = getr(c);
+   g = getg(c);
+   b = getb(c);
+   printf("10 c:%4d   r:%3d g:%3d b:%3d \n", c, r, g, b);
+
+   c = palette_color[13];
+   r = getr(c);
+   g = getg(c);
+   b = getb(c);
+   printf("13 c:%4d   r:%3d g:%3d b:%3d \n", c, r, g, b);
+
+   c = palette_color[15];
+   r = getr(c);
+   g = getg(c);
+   b = getb(c);
+   printf("15 c:%4d   r:%3d g:%3d b:%3d \n", c, r, g, b);
+
+
+   c = palette_color[173];
+   r = getr(c);
+   g = getg(c);
+   b = getb(c);
+   printf("173 c:%4d   r:%3d g:%3d b:%3d \n", c, r, g, b);
+
+   c = palette_color[141];
+   r = getr(c);
+   g = getg(c);
+   b = getb(c);
+   printf("141 c:%4d   r:%3d g:%3d b:%3d \n", c, r, g, b);
+
+   //            tsw();
+
+   int c, r, g, b;
+
+   c = getpixel(tile[400], 6, 3);
+   r = getr(c);
+   g = getg(c);
+   b = getb(c);
+
+   int c32 = makecol32(r, g, b);
+
+   int ccc = 56;
+   //            int ccc = palette_color[c];
+
+   int cc8 = palette_color[8];
+
+   //            int cc8 = 23;
+
+
+   printf("c:%4d   r:%3d g:%3d b:%3d   32:%d  ccc:%d  cc8:%d\n", c, r, g, b, c32, ccc, cc8);
+
+
+   c = getpixel(tile[400], 7, 3);
+   c = getpixel(tile[400], 8, 3);
+
+   */
+
+
+
+
+   /*
+
+   int size = sizeof(players);
+   int lim = size / 1;
+
+   memmove(c_players, players, size); // copy to temp player struct for comparison
+
+   //            players[0].active++;
+
+   //            players[0].paused+=256;
+
+   //            players[0].shape = 256;
+
+
+
+   for (i=0; i<lim; i++)
+      if (memcmp(&players+i, &c_players+i, 1) != 0)
+         printf("difference found in player struct at %d bytes\n", i);
+   */
+
+   /*
+   int size = sizeof(players);
+   char b1[size];
+   char b2[size];
+
+   memcpy(b1, players, size);
+
+   players[0].active++;
+
+   players[0].active = 256;
+
+   players[1].active = 256;
+
+   memcpy(b2, players, size);
+
+
+   for (int i=0; i<size; i++)
+      if (b1[i] != b2[i])
+         printf("difference found in player struct at %d bytes\n", i);
+
+
+   tsw();
+
+   */
+
+   /*
+
+     load_level(39, 1);
+     void chunk(void);
+     chunk();
+
+   */
+
+
+   /*
+
+   ALLEGRO_PATH * exe  = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+
+   // remove the filename part
+   al_set_path_filename(exe, NULL);
+
+   // add savegame as last dir in path
+   al_append_path_component(exe, "savegame");
+
+   // convert to string
+   const char * cpathx  = al_path_cstr(exe, ALLEGRO_NATIVE_PATH_SEP);
+   const char * ret;
+
+   ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(cpathx, "Run Game Filename", "*.gm", 0);
+
+   if (al_show_native_file_dialog(display, afc))
+   {
+
+   if (al_get_native_file_dialog_count(afc) == 1)
+   {
+   ret =  al_get_native_file_dialog_path(afc, 0);
+   printf("file selected:%s\n", ret);
+
+   }
+
+   }
+   else printf("file select cancelled\n" );
+
+   al_destroy_native_file_dialog(afc);
+
+
+
+   */
+
+   //     load_gm(NULL);
+
+   //            spline_test();
+   //            spline_adjust();
+   //            mdw_an();
+
+
+   // get some random numbers
+
+   // suppose i want from 2-5 with .01
+
+   // scale for int = *100;
+   // 200-500
+
+   // range = 300
+   // 300
+
+   /*
+
+   for (int y = 0; y<100; y++)
+   {
+      int r = 200 + rand() % 300;
+      al_fixed s = al_itofix(r) / 100;
+      printf("[%3.2f]",al_fixtof(s));
+   }
+   tsw();
+
+
+
+   //void solid_test(void);
+
+   //   solid_test();
+
+   //void run_dialog_netgame_conf(void);
+   //run_dialog_netgame_conf();
+
+
+   //void speed_test(void);
+   //speed_test();
+
+
+
+
+   // test nested if else
+
+
+    int a = 5;
+    int b = 18;
+    int c = 10;
+
+    if (a == 5)
+       if (b == 8)
+          if (c == 10) printf("test1\n");
+             else printf("test2\n");
+
+   tsw();
+
+
+
+
+   int d =4;
+   while (d > 0)
+   {
+      rect(screen, SCREEN_W/2-164, SCREEN_H/2-42, SCREEN_W/2+160, SCREEN_H/2-24, 11);
+      sprintf(msg, "Chasing to passcount");
+      rtextout_centre(screen, msg, SCREEN_W/2, SCREEN_H/2-32, 10, 2, 0);
+      rectfill(screen, SCREEN_W/2-180, SCREEN_H/2-20, SCREEN_W/2+180, SCREEN_H/2+20, 0);
+      rect(screen, SCREEN_W/2-180, SCREEN_H/2-20, SCREEN_W/2+180, SCREEN_H/2+16, 10);
+      sprintf(msg, "[%d]", d);
+      rtextout_centre(screen, msg, SCREEN_W/2, SCREEN_H/2, 10, 4, 0);
+       d--;
+    }
+
+   tsw();*/
+
+
+
+
+
+
+
 
 
 

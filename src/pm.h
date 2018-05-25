@@ -66,7 +66,6 @@ extern int frames_skipped_last_second;
 extern int last_fps_passcount;
 extern int draw_frame;
 extern int frame_speed;
-//extern int passcount_timer_fps;
 extern int passcount;
 
 // global game control
@@ -770,13 +769,13 @@ extern int new_size;
 // ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
 
-//e_bitmap.h - done
+//e_bitmap.h
 int select_bitmap_ans(int zzindx);
 int animation_proc();
 int select_bitmap_proc();
 int copy_bitmap_proc();
 
-// e_editor.h - done
+// e_editor.h
 void get_item_draw_shape(int i);
 void draw_item_shape(int i, int x, int y);
 void draw_enemy_shape(int e, int x, int y);
@@ -792,7 +791,7 @@ int zoom_full_screen(int wx, int wy, int draw_item);
 void draw_item_info(int x, int y, int color, int type, int num);
 int edit_menu(int el);
 
-// e_fnx.h - done
+// e_fnx.h
 al_fixed get_sproingy_jump_height(int num);
 void set_xyinc_rot(int EN, int x2, int y2);
 void set_rocket_rot(int num, int x2, int y2);
@@ -807,11 +806,11 @@ int getxy(char *txt, int obj_type, int sub_type, int num );
 int get_item(char *txt, int obj_type, int sub_type, int num );
 void initialize_zz(void);
 
-// glt.h - done
+// glt.h
 void show_block_list(void);
 void global_level();
 
-// e_item.h - done
+// e_item.h
 void crosshairs(int mx, int my, int x, int y, int color);
 void crosshairs_nodb(int mx, int my, int x, int y, int db, int color);
 void title(char *txt, int y, int tc, int fc);
@@ -822,7 +821,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
 int move_obt_with_map(int obt, int type, int num);
 void object_viewer(int obt, int num);
 
-// e_lev.h - done
+// e_lev.h
 int lev_show_level_data(int x_pos, int y_pos);
 void mark_rect(int sel, int color);
 void show_cur(void);
@@ -834,7 +833,7 @@ void show_cur_vs(int cur, int x1, int y1, int size, int fc);
 void load_visual_level_select(void);
 int visual_level_select(void);
 
-// e_nev.h - done
+// e_nev.h
 void erase_item(int num);
 int get_empty_item(void);
 int get_empty_item(int type);
@@ -859,7 +858,7 @@ int create_obj(int obt, int sub_type, int sent_num);
 int create_door(int type);
 int create_item(int type);
 
-// e_nlv.h - done
+// e_nlv.h
 void edit_server_name(void);
 int edit_lift_name(int lift, int step_ty, int bts);
 void show_all_lifts(void);
@@ -882,7 +881,7 @@ void redraw_lift_viewer(int lift, int step);
 int lift_editor(int lift);
 
 
-// e_pde.h - done
+// e_pde.h
 int load_PDE();
 void save_PDE();
 int bottom_menu(int menu_num);
@@ -892,7 +891,7 @@ void PDE_swap(int s1, int s2);
 void PDE_sort(void);
 void predefined_enemies(void);
 
-// e_sel.h - done
+// e_sel.h
 void clear_ft(void);
 int load_selection(void);
 void save_selection(int save);
@@ -903,7 +902,7 @@ void do_rnd(void);
 void do_clear(void);
 void draw_fsel(void);
 
-// e_sliders.h - done
+// e_sliders.h
 void update_var(int bn, int type, int num, float f);
 void fill_smsg_button(int bn, int obt, int type, int num);
 void fill_smsg_slider(int bn, int type, int num);
@@ -919,7 +918,7 @@ int process_status_window(int draw_only);
 int process_select_window(int draw_only);
 void set_swbl(void);
 
-// n_client.h - done
+// n_client.h
 int ClientInit(char *serveraddress);
 int ClientCheckResponse(void);
 int ClientReceive(void *data);
@@ -984,7 +983,7 @@ int check_packet_who(int p, int who, int type);
 void server_control();
 void server_local_control(int p);
 
-// yfilecom.h - done
+// yfilecom.h
 void make_filename(int x);
 int load_level_prompt(void);
 int save_level_prompt(void);
@@ -995,14 +994,19 @@ int load_level(int level_to_load, int display);
 int save_level(int level_to_save);
 int mw_file_select(const char * title, char * fn, const char * ext, int save);
 
-// zbullets.h - done
+// zbullets.h
 void proc_pbullets(void);
 void draw_pbullets(void);
 void proc_ebullets(void);
 void draw_ebullets(void);
 void clear_bullets(void);
 
-// zcontrol.h - done
+// zcfg.cpp
+void save_config(void);
+void get_config_values(void);
+
+
+// zcontrol.h
 int getJoystickNum(ALLEGRO_JOYSTICK* joy);
 int get_scan_code_from_joystick(int joy, int b_a, int num);
 int my_readkey(void);
@@ -1024,7 +1028,7 @@ void set_controls_from_game_move(int p);
 int proc_events(ALLEGRO_EVENT ev, int ret);
 int proc_controllers(void);
 
-// zemove.h - done
+// zemove.h
 int enemy_data(int x_pos, int y_pos);
 void get_enemy_draw_shape(int e);
 void draw_enemy(void);
@@ -1044,7 +1048,7 @@ void enemy_move(void);
 void enemy_killed(int EN);
 void enemy_player_hit_proc(int EN);
 
-// zfile.h - done
+// zfile.h
 char* cmtos(int cm);
 void save_gm_txt(char *sfname);
 void save_gm_gm(char *sfname);
@@ -1052,7 +1056,11 @@ void save_gm(void);
 void blind_save_game_moves(int d);
 int load_gm(char *sfname);
 
-// zfnx.h - done
+// zfnx.h
+void get_hostname(void);
+void make_palette(void);
+void m_err(char * err_msg);
+void window_title(void);
 int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);
 void erase_last_bmsg(void);
 void slide_bmsg(void);
@@ -1086,13 +1094,11 @@ int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 void demo_mode(void);
 void temp_test(void);
 
-// zitem.h - done
+// zitem.h
 int item_data(int x_pos, int y_pos);
 void change_linked_door_color_and_shape(int door);
 void remove_block(int x, int y);
 void draw_pop_message(int c);
-int small_letter(ALLEGRO_BITMAP *bmp, int x, int col, char *t);
-void draw_small_text(ALLEGRO_BITMAP * bmp, int x, int y, int col, int textnum);
 void draw_door(int c, int x, int y);
 void draw_items(void);
 void proc_item_move(void);
@@ -1103,7 +1109,7 @@ void do_bomb_damage(int i);
 void proc_lit_bomb(void);
 void proc_lit_rocket(void);
 
-// zlifts.h - done
+// zlifts.h
 int construct_lift(int l, char* lift_name, int width, int height, int color, int num_steps);
 void clear_lift(int l);
 int construct_lift_step(int lift, int step, int x, int y, int val, int type);
@@ -1114,7 +1120,7 @@ void draw_lifts(void);
 void set_lift_xyinc(int d, int step);
 void move_lifts(int ignore_prox);
 
-// zlog.h - done
+// zlog.h
 void log_bandwidth_stats(int p);
 void log_reason_for_client_quit(int p);
 void log_player_array(void);
@@ -1129,7 +1135,7 @@ void add_log_entry_header(int type, int player, char *txt, int blank_lines);
 int fill_filename_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 int log_file_viewer(int type);
 
-// zlogo.h - done
+// zlogo.h
 void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, char * txt);
 void draw_title(int tx, int ty, int ttw, int tth, int color);
 void draw_demo_mode_overlay(void);
@@ -1149,7 +1155,7 @@ void spline_test(void);
 void redraw_spline(int s);
 void spline_adjust(void);
 
-// zloop.h - done
+// zloop.h
 void add_screen_msg(char *txt, int x, int y, int delay, int ssn, int z1, int z2, int z3, int z4);
 void draw_screen_msg(void);
 void new_bmsg(char *nb);
@@ -1159,21 +1165,15 @@ void proc_player_health(void);
 void proc_level_done(void);
 void pm_main(void);
 
-// zmain.h - done
+// zmain.h
 void final_wrapup(void);
 void fast_exit(int why);
-void get_hostname(void);
-void save_config(void);
-void get_config_values(void);
-void make_palette(void);
-void m_err(char * err_msg);
-void window_title(void);
 int initial_setup(void);
 void game_menu(void);
 int main(int argument_count, char **argument_array);
 int copy_files_to_clients(int exe_only);
 
-// zmenu.h - done
+// zmenu.h
 int load_help(void);
 void chop_first_x_char(char *str, int n);
 void help(char *topic);
@@ -1182,7 +1182,7 @@ void menu_setup(void);
 void set_key_menu(int menu, int p, int start_row);
 int pmenu(int menu_num);
 
-// zplayer.h - done
+// zplayer.h
 void get_player_start_pos(int p);
 void player_move(void);
 void draw_player(int p);
@@ -1192,7 +1192,7 @@ void fill_door_tile(void);
 void fill_player_tile(void);
 void init_player(int p, int t);
 
-// zscrn.h - done
+// zscrn.h
 void show_bitmap_flags(int flags);
 void show_pixel_format(int df);
 void show_display_flags(int flags);
@@ -1235,7 +1235,8 @@ void draw_speed_test_data(void);
 void draw_top_display(void);
 void draw_bottom_msg(void);
 
-// zsound.h - done
+// zsound.h
+void start_music(int resume);
 void stop_sound(void);
 void proc_sound(void);
 void load_sound(void);

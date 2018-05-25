@@ -2,34 +2,6 @@
 
 #include "pm.h"
 
-void stop_sound(void)
-{
-   if (sound_on)
-   {
-      al_set_audio_stream_playing(pm_theme_stream, 0);
-      al_set_sample_instance_playing(sid_hiss, 0);
-      fuse_loop_playing = 0;
-   }
-}
-
-void proc_sound()  // called once per frame
-{
-   if (sound_on)
-   {
-      if ((!fuse_loop_playing) && (lit_item))
-      {
-         fuse_loop_playing = 1;
-         al_set_sample_instance_playing(sid_hiss, 1);
-      }
-      if ((fuse_loop_playing) && (!lit_item))
-      {
-         fuse_loop_playing = 0;
-         al_set_sample_instance_playing(sid_hiss, 0);
-      }
-      lit_item = 0;
-   }
-}
-
 void load_sound() // for normal loading of sound driver and samples
 {
    int err = 0;
@@ -56,7 +28,6 @@ void load_sound() // for normal loading of sound driver and samples
       }
       else
       {
-
          voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
          if (voice == NULL) m_err((char*)"Failed to create voice.\n");
          al_set_default_voice(voice);
@@ -74,39 +45,27 @@ void load_sound() // for normal loading of sound driver and samples
          if (!al_attach_mixer_to_mixer(se_mixer, mn_mixer)) m_err((char*)"Failed attaching se_mixer\n");
          if (!al_attach_mixer_to_mixer(st_mixer, mn_mixer)) m_err((char*)"Failed attaching st_mixer\n");
 
-         if (sound_on)
+         al_set_default_mixer(se_mixer);
+         al_reserve_samples(20);
+         char fn[20] = "snd/snd00.wav";
+         for (int x=0; x<9; x++)
          {
-            al_set_default_mixer(se_mixer);
-            al_reserve_samples(20);
-            for (int x=0; x<9; x++)
-            {
-               char fn[20] = "snd/snd00.wav";
-               char *filename;
-               if (x>9)
-               {
-                  fn[3+4] = 49; // 1
-                  fn[4+4] = 48 + (x-10);
-               }
-               else fn[4+4] = 48 + x;
-               filename = fn;
-               //printf("loading sample %s\n", filename);
-               snd[x] = al_load_sample(filename);
-            }
-            sid_hiss = al_create_sample_instance(snd[3]);
-            al_set_sample_instance_playmode(sid_hiss, ALLEGRO_PLAYMODE_LOOP);
-            al_attach_sample_instance_to_mixer(sid_hiss, se_mixer);
-
-            pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
-            if (pm_theme_stream == NULL) printf("error loading snd/pm.xm\n");
-            //else printf("loaded snd/pm.xm\n");
-
-            al_set_audio_stream_playmode(pm_theme_stream, ALLEGRO_PLAYMODE_LOOP);
-            al_set_audio_stream_playing(pm_theme_stream, 0);
-            al_attach_audio_stream_to_mixer(pm_theme_stream, st_mixer);
-
-            set_se_scaler();
-            set_st_scaler();
+            fn[8] = 48 + x;
+            snd[x] = al_load_sample(fn);
          }
+         sid_hiss = al_create_sample_instance(snd[3]);
+         al_set_sample_instance_playmode(sid_hiss, ALLEGRO_PLAYMODE_LOOP);
+         al_attach_sample_instance_to_mixer(sid_hiss, se_mixer);
+
+         pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
+         if (pm_theme_stream == NULL) m_err((char*)"Error loading snd/pm.xm\n");
+
+         al_set_audio_stream_playmode(pm_theme_stream, ALLEGRO_PLAYMODE_LOOP);
+         al_set_audio_stream_playing(pm_theme_stream, 0);
+         al_attach_audio_stream_to_mixer(pm_theme_stream, st_mixer);
+
+         set_se_scaler();
+         set_st_scaler();
       }
    }
 }
@@ -123,12 +82,37 @@ void set_st_scaler(void)
    save_config();
 }
 
-void sound_toggle(void)
+void start_music(int resume)
 {
    if (sound_on)
    {
-      sound_on = 0;
+      if (!resume) al_rewind_audio_stream(pm_theme_stream);
+      al_set_audio_stream_playing(pm_theme_stream, 1);
    }
+}
+
+void stop_sound(void)
+{
+   if (sound_on)
+   {
+      al_set_audio_stream_playing(pm_theme_stream, 0);
+      al_set_sample_instance_playing(sid_hiss, 0);
+   }
+}
+
+void proc_sound()  // called once per frame
+{
+   if (sound_on)
+   {
+      if (lit_item) al_set_sample_instance_playing(sid_hiss, 1);
+      else          al_set_sample_instance_playing(sid_hiss, 0);
+      lit_item = 0;
+   }
+}
+
+void sound_toggle(void)
+{
+   if (sound_on) sound_on = 0;
    else
    {
       sound_on = 1;

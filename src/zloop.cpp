@@ -460,7 +460,6 @@ void event(int ev, int x, int y, int z1, int z2, int z3, int z4)
            {
               sample_delay[2] = passcount;
               al_play_sample(snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-              //stop_sample(snd[2]); play_sample( snd[2], (200*se_scaler)/9, 127, 1000, 0);
            }
         break;
         case 11: // player got shot
@@ -471,7 +470,6 @@ void event(int ev, int x, int y, int z1, int z2, int z3, int z4)
            {
               sample_delay[7] = passcount;
               al_play_sample(snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-              //stop_sample(snd[7]); play_sample( snd[7], (127*se_scaler)/9, 127, 1000, 0);
            }
         break;
         case 13: // enemy killed
@@ -482,7 +480,6 @@ void event(int ev, int x, int y, int z1, int z2, int z3, int z4)
         break;
         case 22: // explosion
              al_play_sample(snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-            //stop_sample(snd[5]); play_sample( snd[5], (200*se_scaler)/9, 127, 1000, 0);
         break;
       }
    }
@@ -687,7 +684,7 @@ void pm_main(void) // game loop!
    {
       stimp();
       al_set_timer_count(fps_timer, passcount); // sync timer_passcount to actual
-      if (sound_on) al_set_audio_stream_playing(pm_theme_stream, 1);
+      start_music(1); // resume playing theme
    }
    while (!game_exit) // game loop
    {
@@ -759,8 +756,8 @@ void pm_main(void) // game loop!
          start_mode = 0;
          stimp();
          al_set_timer_count(fps_timer, passcount);
-         if (sound_on) al_rewind_audio_stream(pm_theme_stream);
-         if (sound_on) al_set_audio_stream_playing(pm_theme_stream, 1);
+         start_music(0); // rewind and start theme
+
       } // end of if (start_mode)
 
       proc_scale_factor_change();
