@@ -18,15 +18,15 @@ int grid_cols, grid_rows, grid_size, grid_width, grid_height;
 int load_visual_level_select_done = 0;
 
 
-// frame_speed, frames per second, passcount stuff
+// frame_speed, frames per second, frame_num stuff
 int speed_testing = 0;
 int actual_fps;
 int last_frames_skipped = 0;
 int frames_skipped_last_second;
-int last_fps_passcount = 0;
+int last_fps_frame_num = 0;
 int draw_frame;
 int frame_speed = 40;
-int passcount;
+int frame_num;
 
 // global game control
 int start_mode = 0;
@@ -273,13 +273,13 @@ int TCP = 0;
 
 // server chdf
 char client_chdf[8][2][CHUNK_SIZE];
-int client_chdf_id[8][2]; // passcount id
+int client_chdf_id[8][2]; // frame_num id
 
 // client chdf
 char chdf[CHUNK_SIZE];         // for client chdf building
 int chdf_pieces[16];
 char clientl_chdf[CHUNK_SIZE]; // last ack state for diffing
-int clientl_chdf_id;           // passcount id of last state
+int clientl_chdf_id;           // frame_num id of last state
 
 char dif[CHUNK_SIZE];
 int dif_id[2]; //   (0 = src, 1 = dst)
@@ -701,7 +701,7 @@ int initial_setup(void)
    // set all but 0 to inactive
    for (int p=1; p<NUM_PLAYERS; p++) players[p].active = 0;
    zero_level_data();
-   reset_animation_sequence_passcounts(0);
+   reset_animation_sequence_frame_nums(0);
    //printf("end of initial setup\n");
    return 1;
 }
@@ -726,7 +726,7 @@ void game_menu(void)
       if ((top_menu_sel == 4) && (resume_allowed)) // resume game
       {
          start_mode = 0;
-         al_set_timer_count(fps_timer, passcount); // sync timer_passcount to actual
+         al_set_timer_count(fps_timer, frame_num); // sync timer_frame_num to actual
          game_exit = 0;
          pm_main();
       }

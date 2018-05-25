@@ -152,23 +152,23 @@ void tsw(void)
    while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
 }
 
-void reset_animation_sequence_passcounts(int pc)
+void reset_animation_sequence_frame_nums(int pc)
 {
    int c;
    for (c=0; c<NUM_ANS; c++)
    {
-     zz[2][c] = pc;       // reset the passcounts
+     zz[2][c] = pc;       // reset the frame_nums
      zz[1][c] = 0;        // set the bitmap indexes to 0
      zz[0][c] = zz[5][c]; // put the first shapes in 0
    }
-   passcount = pc;
+   frame_num = pc;
 }
 
 void update_animation(void)
 {
    // 0 = current shape
    // 1 = current shape index
-   // 2 = passcount of last seq change
+   // 2 = frame_num of last seq change
    // 3 = seq change delay count
    // 4 = num of shapes in seq
    // 5 = shape 0
@@ -176,12 +176,12 @@ void update_animation(void)
    // 19 = shape 14
    // 15 shapes is tha max
 
-   passcount++;
+   //frame_num++;
    for (int y=0; y<NUM_ANS; y++)
       if (zz[4][y] != 0)
-         if ((passcount - zz[2][y]) > zz[3][y])
+         if ((frame_num - zz[2][y]) > zz[3][y])
          {
-            zz[2][y] = passcount;                     // set counter
+            zz[2][y] = frame_num;                     // set counter
             zz[1][y]++;                               // next bitmap
             if (zz[1][y] > zz[4][y]) zz[1][y] = 0;    // is bitmap past end?
             zz[0][y] = zz[ 5 + zz[1][y] ] [y];        // put shape in 0
@@ -370,9 +370,9 @@ void fire_enemy_bulleta(int EN, int bullet_ans, int p)
 
          switch (bullet_ans)
          {
-            case 54: event(17, EXint, EYint, 0, 0, 0, 0); break; // green
-            case 55: event(18, EXint, EYint, 0, 0, 0, 0); break; // cannonball
-            case 20: event(19, EXint, EYint, 0, 0, 0, 0); break; // twirly
+            case 54: game_event(17, EXint, EYint, 0, 0, 0, 0); break; // green
+            case 55: game_event(18, EXint, EYint, 0, 0, 0, 0); break; // cannonball
+            case 20: game_event(19, EXint, EYint, 0, 0, 0, 0); break; // twirly
          }
          z=50;
       }
@@ -398,7 +398,7 @@ void fire_enemy_x_bullet(int EN, int p)
             e_bullet_fxinc[z] = -x_bullet_speed;
             e_bullet_shape[z] = 489;
          }
-         event(16, al_fixtoi(Efi[EN][0]), al_fixtoi(Efi[EN][1]), 0, 0, 0, 0);
+         game_event(16, al_fixtoi(Efi[EN][0]), al_fixtoi(Efi[EN][1]), 0, 0, 0, 0);
          z=50; // end loop
       }
 }
@@ -1002,15 +1002,15 @@ void reset_states(void)
 {
    // reset base state on client
    memset(clientl_chdf, 0, CHUNK_SIZE);
-   clientl_chdf_id = 0;  // passcount id
+   clientl_chdf_id = 0;  // frame_num id
 
 
-   // reset dif buffer and passcount
+   // reset dif buffer and frame_num
    memset(dif, 0, CHUNK_SIZE);
-   dif_id[0] = -1; // -1 will never match a passcount
+   dif_id[0] = -1; // -1 will never match a frame_num
    dif_id[1] = -1;
 
-   // reset buffer and passcounts used to build compressed chdf from packets
+   // reset buffer and frame_nums used to build compressed chdf from packets
    memset(chdf, 0, CHUNK_SIZE);
    for (int i=0; i<16; i++)
       chdf_pieces[i] = -1;
@@ -1020,8 +1020,8 @@ void reset_states(void)
    {
       memset(client_chdf[i][0], 0, CHUNK_SIZE);
       memset(client_chdf[i][1], 0, CHUNK_SIZE);
-      client_chdf_id[i][0] = 0; // src passcount id
-      client_chdf_id[i][1] = -3; // dst passcount id
+      client_chdf_id[i][0] = 0; // src frame_num id
+      client_chdf_id[i][1] = -3; // dst frame_num id
    }
 }
 

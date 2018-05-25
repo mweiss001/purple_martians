@@ -502,7 +502,7 @@ int load_level(int level_to_load, int display)
       valid_level_loaded = 1;
       init_level_background(); // draw blocks and lift lines on level_background
       if (error_logging) printf("blocks drawn\n");
-      reset_animation_sequence_passcounts(0);
+      reset_animation_sequence_frame_nums(0);
       if (error_logging) printf("ans seq reset\n");
       get_player_start_pos(0);
       if (error_logging) printf("got start\n");

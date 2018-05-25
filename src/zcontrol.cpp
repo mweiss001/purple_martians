@@ -596,7 +596,7 @@ void rungame_key_check(int p, int ret)
 // maybe if games_moves doesn't end with an explicit exit and run game just keeps on going??
 
 //   int last_pc = game_moves[game_move_entry_pos-4][0];
-//   if ((last_pc < passcount - 100) || (key[ALLEGRO_KEY_ESCAPE]))
+//   if ((last_pc < frame_num - 100) || (key[ALLEGRO_KEY_ESCAPE]))
 
    if (key[ALLEGRO_KEY_ESCAPE])
    {
@@ -664,10 +664,10 @@ void add_game_move(int pc, int type, int data1, int data2)
 
 void proc_game_move(void)
 {
-  /*  this function looks in the game_moves array for an exact passcount match
+  /*  this function looks in the game_moves array for an exact frame_num match
       this only processes system moves, not regular game_moves
-      its likely that an exact passcount match won't be found and nothing will be done
-      if multiple passcounts match they all will be processed
+      its likely that an exact frame_num match won't be found and nothing will be done
+      if multiple frame_nums match they all will be processed
   */
 
 //   for (int x=game_move_entry_pos; x>game_move_entry_pos-20; x--)  // only look back 20 steps at most
@@ -685,9 +685,9 @@ void proc_game_move(void)
 
 
 
-   for (int x=game_move_entry_pos; x>ll; x--)  // look back for passcount
+   for (int x=game_move_entry_pos; x>ll; x--)  // look back for frame_num
    {
-      if (game_moves[x][0] == passcount)
+      if (game_moves[x][0] == frame_num)
       {
          switch (game_moves[x][1])
          {
@@ -724,7 +724,7 @@ void proc_game_move(void)
                if (val > 63) // player becomes inactive
                {
                   players1[p].quit_reason = val;
-                  players1[p].quit_frame = passcount;
+                  players1[p].quit_frame = frame_num;
 
                   if ((players[p].active == 0) && (players[p].control_method == 2))
                   {
@@ -732,7 +732,7 @@ void proc_game_move(void)
                      sprintf(msg,"PLAYER:%d never became ACTIVE", p);
                      add_log_entry_header(10, p, msg, 1);
                      #endif
-                     players1[p].join_frame = passcount;
+                     players1[p].join_frame = frame_num;
                      players1[p].quit_reason = 74;
                      players[p].control_method = 9; // prevent re-use of this player number in this level
                      players1[p].who = 99;
@@ -855,7 +855,7 @@ void proc_game_move(void)
                   players[p].color = val;
                   players[p].bitmap_index = val - 1;
 
-                  players1[p].join_frame = passcount;
+                  players1[p].join_frame = frame_num;
 
                   if (L_LOGGING_NETPLAY)
                   {
@@ -893,7 +893,7 @@ void proc_game_move(void)
             }
             break; // end of case 1 player state
 
-         } // end of passcount match
+         } // end of frame_num match
       }
    } // end of look back from entry pos
 }
@@ -906,7 +906,6 @@ void serial_key_check(int key)
    skc[skc_index] = 0;
 
 //   printf("%s\n", skc);
-
 
    char tst[16];
    int tl = 0;
@@ -951,28 +950,16 @@ void serial_key_check(int key)
       }
    }
 
-   if (game_exit)
-   {
-      sprintf(tst, "logview");
-      tl = strlen(tst);
-      if (skc_index > tl-1)
-      {
-         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-            log_file_viewer(1);
-
-      }
-   }
-
    if (level_editor_running)
    {
-      sprintf(tst, "spladj");
+      sprintf(tst, "mdwa");
       tl = strlen(tst);
       if (skc_index > tl-1)
       {
          if (memcmp((skc + skc_index-tl), tst, tl) == 0) spline_adjust();
       }
 
-      sprintf(tst, "sptst");
+      sprintf(tst, "mdwt");
       tl = strlen(tst);
       if (skc_index > tl-1)
       {
@@ -985,12 +972,10 @@ void set_controls_from_game_move(int p)
 {
    // this will search back from entry position until it finds the first 'move' type
    // entry that matches the player and is not in the future
-   //
-
    int found = 0;
    for (int g=game_move_entry_pos; g>0; g--)  // look back from entry pos
       if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
-         if (game_moves[g][0] <= passcount) // check to make sure its not in the future
+         if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
          {
             set_controls_from_comp_move(g);
             game_move_current_pos = g; // for savegame running only
@@ -1143,12 +1128,12 @@ int proc_controllers()
             {
                if (players[p].control_method == 0) // local single player control
                {
-                  if (level_done) add_game_move(passcount, 6, 0, 0); // insert level done into game move
+                  if (level_done) add_game_move(frame_num, 6, 0, 0); // insert level done into game move
                   set_comp_move_from_player_key_check(p); // but don't set controls !!!
                   if (players1[p].comp_move != players1[p].old_comp_move)
                   {
                      players1[p].old_comp_move = players1[p].comp_move;
-                     add_game_move(passcount, 5, p, players1[p].comp_move);
+                     add_game_move(frame_num, 5, p, players1[p].comp_move);
                   }
                }
                if (players[p].control_method == 1) rungame_key_check(p, ret); // run game from file

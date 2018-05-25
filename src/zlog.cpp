@@ -11,13 +11,13 @@ void log_bandwidth_stats(int p)
    sprintf(msg,"max tx bytes per frame....[%d]", players1[p].tx_max_bytes_per_frame);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
-   sprintf(msg,"avg tx bytes per frame....[%d]", players1[p].tx_total_bytes / passcount);
+   sprintf(msg,"avg tx bytes per frame....[%d]", players1[p].tx_total_bytes / frame_num);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
    sprintf(msg,"max rx bytes per second...[%d]", players1[p].tx_max_bytes_per_tally);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
-   sprintf(msg,"avg tx bytes per sec......[%d]", (players1[p].tx_total_bytes *40)/ passcount);
+   sprintf(msg,"avg tx bytes per sec......[%d]", (players1[p].tx_total_bytes *40)/ frame_num);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
    sprintf(msg,"total tx packets..........[%d]", players1[p].tx_total_packets);
@@ -36,13 +36,13 @@ void log_bandwidth_stats(int p)
    sprintf(msg,"max rx bytes per frame....[%d]", players1[p].rx_max_bytes_per_frame);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
-   sprintf(msg,"avg rx bytes per frame....[%d]", players1[p].rx_total_bytes / passcount);
+   sprintf(msg,"avg rx bytes per frame....[%d]", players1[p].rx_total_bytes / frame_num);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
    sprintf(msg,"max rx bytes per second...[%d]", players1[p].rx_max_bytes_per_tally);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
-   sprintf(msg,"avg rx bytes per sec......[%d]", (players1[p].rx_total_bytes *40)/ passcount);
+   sprintf(msg,"avg rx bytes per sec......[%d]", (players1[p].rx_total_bytes *40)/ frame_num);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
    sprintf(msg,"total rx packets..........[%d]", players1[p].rx_total_packets);
@@ -123,12 +123,12 @@ void log_ending_stats()
 
    add_log_entry_sdat_rx_and_game_move_entered(22, p);
    add_log_entry_centered_text(22, p, 76, (char*)"", (char*)"+", (char*)"-");
-   sprintf(msg,"total game frames.........[%d]", passcount);
+   sprintf(msg,"total game frames.........[%d]", frame_num);
    add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|",(char*) " ");
    sprintf(msg,"frame when client joined..[%d]", players1[p].join_frame);
    add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
 
-   if (players1[p].quit_frame == 0) players1[p].quit_frame = passcount;
+   if (players1[p].quit_frame == 0) players1[p].quit_frame = frame_num;
    sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
    add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
 
@@ -191,16 +191,16 @@ void log_ending_stats_server()
    sprintf(msg,"level.....................[%d]", play_level);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
-   sprintf(msg,"total frames..............[%d]", passcount);
+   sprintf(msg,"total frames..............[%d]", frame_num);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
    sprintf(msg,"total moves...............[%d]", game_move_entry_pos);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
-   sprintf(msg,"total time (seconds)......[%d]", passcount/40);
+   sprintf(msg,"total time (seconds)......[%d]", frame_num/40);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
-   sprintf(msg,"total time (minutes)......[%d]", passcount/40/60);
+   sprintf(msg,"total time (minutes)......[%d]", frame_num/40/60);
    add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
 
    sprintf(msg,"server frames skipped.. ..[%d]", players1[0].frames_skipped);
@@ -220,7 +220,7 @@ void log_ending_stats_server()
          sprintf(msg,"frame when client joined..[%d]", players1[p].join_frame);
          add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
 
-         if (players1[p].quit_frame == 0) players1[p].quit_frame = passcount;
+         if (players1[p].quit_frame == 0) players1[p].quit_frame = frame_num;
          sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
          add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
 
@@ -321,7 +321,7 @@ void add_log_entry_sdat_rx_and_game_move_entered(int type, int player)
 void add_log_entry2(int type, int player, char *txt)
 {
    char tmsg[200];
-   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, passcount, txt);
+   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, frame_num, txt);
    // strcat(log_msg, tmsg);
    memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
    log_msg_pos += strlen(tmsg);
@@ -607,7 +607,7 @@ int log_file_viewer(int type)
       }
       if (!bad_tags)
       {
-         // get third tag - (passcount) in the format "[xxx..]"
+         // get third tag - (frame_num) in the format "[xxx..]"
          char * pch1 = strchr(log_lines[i], '[');
          char * pch2 = strchr(log_lines[i], ']');
          int p1 = pch1-log_lines[i];
@@ -617,7 +617,7 @@ int log_file_viewer(int type)
             for(int j=0; j<p2; j++)
                buff2[j] = log_lines[i][j+1];
             buff2[p2] = 0;
-            log_lines_int[i][2] = atoi(buff2); // passcount
+            log_lines_int[i][2] = atoi(buff2); // frame_num
             chop_first_x_char(log_lines[i], p2+1);
          }
          else bad_tags = 1;
@@ -630,13 +630,13 @@ int log_file_viewer(int type)
    }
 
 
-   // get start and end passcounts
+   // get start and end frame_nums
    int start_pc = log_lines_int[0][2];
    int end_pc = 0;
    for (int i=0; i<num_lines; i++)
       if (log_lines_int[i][2] > end_pc) end_pc = log_lines_int[i][2];
 
-   int pos = 0; // the top passcount line on the screen
+   int pos = 0; // the top frame_num line on the screen
    int quit = 0;
    //int redraw = 1;
 
@@ -686,7 +686,7 @@ int log_file_viewer(int type)
       if (line_mode) first_line = line_pos;
       else // pascount mode
       {
-         // find index of first line that is equal to or greater than current passcount
+         // find index of first line that is equal to or greater than current frame_num
          for (int i=0; i<num_lines; i++)
             if (log_lines_int[i][2] >= pos)
             {
@@ -722,7 +722,7 @@ int log_file_viewer(int type)
       ly+=8;
 
       if (line_mode) sprintf(msg, "Line Mode");
-      else sprintf(msg, "Passcount Mode");
+      else sprintf(msg, "frame_num Mode");
       al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
 
 
@@ -889,7 +889,7 @@ int log_file_viewer(int type)
             for (int j=0; j<4; j++)
                data[i][j] = 0;
 
-         // 0 = passcount
+         // 0 = frame_num
          // 1 = player
          // 2  tx b
          // 3  rx b
@@ -1005,7 +1005,7 @@ int log_file_viewer(int type)
                   y_scale = (float)(graph_h-40) / (float)max;
 
                   // set x scale based on graph width and end frame
-                  p2g = (float)graph_w / (float)end_pc;  // passcount to graph scaler
+                  p2g = (float)graph_w / (float)end_pc;  // frame_num to graph scaler
                }
 
                // draw x scale lines every second

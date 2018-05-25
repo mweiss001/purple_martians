@@ -58,15 +58,15 @@ extern int load_visual_level_select_done;
 
 
 
-// frame_speed, frames per second, passcount stuff
+// frame_speed, frames per second, frame_num stuff
 extern int speed_testing;
 extern int actual_fps;
 extern int last_frames_skipped;
 extern int frames_skipped_last_second;
-extern int last_fps_passcount;
+extern int last_fps_frame_num;
 extern int draw_frame;
 extern int frame_speed;
-extern int passcount;
+extern int frame_num;
 
 // global game control
 extern int start_mode;
@@ -345,13 +345,13 @@ extern int TCP;
 #define CHUNK_SIZE 104640
 // server chdf
 extern char client_chdf[8][2][CHUNK_SIZE];
-extern int client_chdf_id[8][2]; // passcount id
+extern int client_chdf_id[8][2]; // frame_num id
 
 // client chdf
 extern char chdf[CHUNK_SIZE];          // for client chdf building
 extern int chdf_pieces[16];
 extern char clientl_chdf[CHUNK_SIZE];  // last ack state for diffing
-extern int clientl_chdf_id;            // passcount id
+extern int clientl_chdf_id;            // frame_num id
 
 extern char dif[CHUNK_SIZE];
 extern int dif_id[2]; //   (0 = src, 1 = dst)
@@ -971,6 +971,7 @@ int ServerListen(void);
 int ServerReceive(void *data, int *sender);
 void ServerBroadcast(void *data, int len);
 void ServerSendTo(void *data, int len, int who);
+void server_flush(void);
 void nc_server(void);
 int server_init(void);
 void server_exit(void);
@@ -1004,7 +1005,6 @@ void clear_bullets(void);
 // zcfg.cpp
 void save_config(void);
 void get_config_values(void);
-
 
 // zcontrol.h
 int getJoystickNum(ALLEGRO_JOYSTICK* joy);
@@ -1065,7 +1065,7 @@ int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);
 void erase_last_bmsg(void);
 void slide_bmsg(void);
 void tsw(void);
-void reset_animation_sequence_passcounts(int pc);
+void reset_animation_sequence_frame_nums(int pc);
 void update_animation(void);
 al_fixed get_rot_from_xyinc(int EN);
 al_fixed get_rot_from_PXY(int EN, int p);
@@ -1156,13 +1156,9 @@ void redraw_spline(int s);
 void spline_adjust(void);
 
 // zloop.h
-void add_screen_msg(char *txt, int x, int y, int delay, int ssn, int z1, int z2, int z3, int z4);
-void draw_screen_msg(void);
-void new_bmsg(char *nb);
-void event(int ev, int x, int y, int z1, int z2, int z3, int z4);
 void proc_frame_delay(void);
-void proc_player_health(void);
 void proc_level_done(void);
+void proc_start_mode(void);
 void pm_main(void);
 
 // zmain.h
@@ -1172,6 +1168,12 @@ int initial_setup(void);
 void game_menu(void);
 int main(int argument_count, char **argument_array);
 int copy_files_to_clients(int exe_only);
+
+// zmap.h
+void set_map_position(void);
+void next_map_mode(void);
+void next_map_size(void);
+void draw_map(void);
 
 // zmenu.h
 int load_help(void);
@@ -1184,6 +1186,7 @@ int pmenu(int menu_num);
 
 // zplayer.h
 void get_player_start_pos(int p);
+void proc_player_health(void);
 void player_move(void);
 void draw_player(int p);
 void draw_players(void);
@@ -1223,17 +1226,19 @@ void rtextout_centre(ALLEGRO_BITMAP *dbmp, char *txt1, int x, int y, int col, fl
 void mtextout(char *txt1, int x, int y, float x_scale, float y_scale, int col);
 void mtextout_centre(char *txt1, int x, int y, float x_scale, float y_scale, int col);
 void show_level_done(int keypress);
-void set_map_position(void);
-void next_map_mode(void);
-void next_map_size(void);
-void draw_map(void);
 void draw_percent_bar(int cx, int y, int width, int height, int percent);
+
+// zsrn_overlay.h
 void draw_screen_overlay(void);
 void show_player_join_quit(void);
 void draw_fps_display(int show_type);
 void draw_speed_test_data(void);
 void draw_top_display(void);
-void draw_bottom_msg(void);
+void add_screen_msg(char *txt, int x, int y, int delay, int ssn, int z1, int z2, int z3, int z4);
+void draw_screen_msg(void);
+void new_bmsg(char *nb);
+void draw_bottom_msg();
+void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
 
 // zsound.h
 void start_music(int resume);

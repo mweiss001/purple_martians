@@ -2,8 +2,6 @@
 
 #include "pm.h"
 
-
-
 void proc_pbullets()
 {
    int b,d,p,x,y;
@@ -49,7 +47,7 @@ void proc_pbullets()
                         players[p].fire_held = 1;
 
                         // extra data is player number, bullet number
-                        event(1, x, y, p, b, 0, 0);
+                        game_event(1, x, y, p, b, 0, 0);
 
                         break; // to break out of for loop
                      }
@@ -103,7 +101,7 @@ void proc_pbullets()
 
                         players[p].LIFE -= al_itofix(deathmatch_pbullets_damage);
 
-                        event(7, px, py, deathmatch_pbullets_damage, 0, 0, 0);
+                        game_event(7, px, py, deathmatch_pbullets_damage, 0, 0, 0);
 
                         al_fixed bxinc = al_ftofix(pbullet[b][4]/3);
                         al_fixed z = al_itofix(0);
@@ -124,7 +122,7 @@ void proc_pbullets()
                         }
 
                         pbullet[b][0] = 0;  // bullet dies
-                        event(11, px, py, 0, 0, 0, 0);
+                        game_event(11, px, py, 0, 0, 0, 0);
                         p = NUM_PLAYERS; // break out of loop
 
                      }
@@ -143,7 +141,6 @@ void draw_pbullets()
          int p = pbullet[b][1];
          int x = pbullet[b][2];
          int y = pbullet[b][3];
-         //draw_sprite(level_buffer, player_tile[players[p].bitmap_index][18], x, y);
          al_draw_bitmap(player_tile[players[p].bitmap_index][18], x, y, 0);
       }
 }
@@ -208,8 +205,8 @@ void proc_ebullets()
                   }
                   players[p].LIFE -= al_itofix(damage);
 
-                  event(7, ex, ey, damage, 0, 0, 0);
-                  event(11, ex, ey, 0, 0, 0, 0);
+                  game_event(7, ex, ey, damage, 0, 0, 0);
+                  game_event(11, ex, ey, 0, 0, 0, 0);
 
 
                   // recoil !!

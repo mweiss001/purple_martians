@@ -385,7 +385,7 @@ void nc_server(void) // for specialized packet testing only
 
 int server_init(void)
 {
-   passcount = 0;  // just in case its not
+   frame_num = 0;  // just in case its not
    if (L_LOGGING_NETPLAY)
    {
       #ifdef LOGGING_NETPLAY
@@ -478,8 +478,8 @@ void server_send_chdf(int p)
    char dif[CHUNK_SIZE];
    char cmp[CHUNK_SIZE];
 
-   // set dif dest to current passcount
-   client_chdf_id[p][1] = passcount;
+   // set dif dest to current frame_num
+   client_chdf_id[p][1] = frame_num;
 
    // get current state
    state_to_chunk(client_chdf[p][1]);
@@ -530,8 +530,8 @@ void server_send_chdf(int p)
 
       Packet((char *)"chdf");
       PacketAddByte(p);
-      PacketAdd4Bytes(client_chdf_id[p][0]); // src passcount
-      PacketAdd4Bytes(client_chdf_id[p][1]); // dst passcount
+      PacketAdd4Bytes(client_chdf_id[p][0]); // src frame_num
+      PacketAdd4Bytes(client_chdf_id[p][1]); // dst frame_num
       PacketAddByte(pk);
       PacketAddByte(num_packets);
       PacketAdd4Bytes(start_byte);
@@ -548,9 +548,9 @@ void server_send_chdf(int p)
 void server_send_chdf(void)
 {
    // figure out when and what players to send chdf to
-   if (passcount > 1)
+   if (frame_num > 1)
    {
-      if (passcount % chdf_freq == 0)
+      if (frame_num % chdf_freq == 0)
       {
          int p = players1[0].n_chdf; // get last player we sent to
          int not_found = 0;
@@ -562,7 +562,7 @@ void server_send_chdf(void)
          if (not_found == 8) p = 0;   // if no clients found set to 0 so no send will happen
          players1[0].n_chdf = p;      // set last player we sent to
          if (p) server_send_chdf(p);  // send
-         //printf("[%4d] p:%d\n", passcount, p);
+         //printf("[%4d] p:%d\n", frame_num, p);
       }
 
       // send if player has just joined
@@ -596,13 +596,13 @@ void server_send_sdat(void)
 
                Packet((char *)"sdat");
                PacketAddByte(p);
-               PacketAdd4Bytes(passcount);
+               PacketAdd4Bytes(frame_num);
                PacketAdd4Bytes(start_entry);
                PacketAddByte(num_entries);
 
                for (int x=start_entry; x<start_entry + num_entries; x++)
                {
-                  PacketAdd4Bytes(game_moves[x][0]); // passcount
+                  PacketAdd4Bytes(game_moves[x][0]); // frame_num
                   PacketAddByte(game_moves[x][1]); // type
                   PacketAddByte(game_moves[x][2]); // data 1
                   PacketAddByte(game_moves[x][3]); // data 2
@@ -618,14 +618,14 @@ void server_send_sdat(void)
                }
             }
          }
-         else if (passcount > players1[p].server_last_sdat_sent_frame + 19) // send even if no data, every 20 frames for sync
+         else if (frame_num > players1[p].server_last_sdat_sent_frame + 19) // send even if no data, every 20 frames for sync
          {
-            players1[p].server_last_sdat_sent_frame = passcount;
+            players1[p].server_last_sdat_sent_frame = frame_num;
             int start_entry = players1[p].game_move_entry_pos;
 
             Packet((char *)"sdat");
             PacketAddByte(p);
-            PacketAdd4Bytes(passcount);
+            PacketAdd4Bytes(frame_num);
             PacketAdd4Bytes(start_entry);
             PacketAddByte(0);
             ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
@@ -650,8 +650,8 @@ void proc_player_drop(void)
       {
          if ((players[p].active) && (players1[p].server_sync > 100))
          {
-            //printf("[%4d] server_sync:[%4d] drop p:%d \n", passcount, players1[p].server_sync, p);
-            add_game_move(passcount + 4, 1, p, 71); // make client inactive (reason sync > 100)
+            //printf("[%4d] server_sync:[%4d] drop p:%d \n", frame_num, players1[p].server_sync, p);
+            add_game_move(frame_num + 4, 1, p, 71); // make client inactive (reason sync > 100)
 
             #ifdef LOGGING_NETPLAY
             sprintf(msg,"Server dropped player:%d (server sync > 100)", p);
@@ -660,10 +660,10 @@ void proc_player_drop(void)
 
          }
 
-         if (players1[p].last_sdak_rx + 100 < passcount)
+         if (players1[p].last_sdak_rx + 100 < frame_num)
          {
-            //printf("[%4d][%4d] drop p:%d \n", passcount, players1[p].last_sdak_rx, p);
-            add_game_move(passcount + 4, 1, p, 71); // make client inactive (reason no sdak for 100 frames)
+            //printf("[%4d][%4d] drop p:%d \n", frame_num, players1[p].last_sdak_rx, p);
+            add_game_move(frame_num + 4, 1, p, 71); // make client inactive (reason no sdak for 100 frames)
 
             #ifdef LOGGING_NETPLAY
             sprintf(msg,"Server dropped player:%d (last sdat rx > 100)", p);
@@ -734,7 +734,7 @@ void server_control() // this is the main server loop to process packet send and
 {
    static int who;
 
-   if (passcount == 0) reset_states(); // for chdf
+   if (frame_num == 0) reset_states(); // for chdf
 
    for(int p=0; p<NUM_PLAYERS; p++)
       if (players[p].active) process_bandwidth_counters(p);
@@ -758,8 +758,8 @@ void server_control() // this is the main server loop to process packet send and
 
          if (check_packet_who(p, who, 1))
          {
-            // how far ahead is the passcount for this move, compare to server passcount
-            int c_sync = players1[p].c_sync = pc - passcount;
+            // how far ahead is the frame_num for this move, compare to server frame_num
+            int c_sync = players1[p].c_sync = pc - frame_num;
 
             // keep track of the minimum c_sync
             if (c_sync < players1[p].c_sync_min) players1[p].c_sync_min = c_sync;
@@ -786,7 +786,7 @@ void server_control() // this is the main server loop to process packet send and
                   Packet((char *)"serr"); // server error
                   PacketAddByte(p);
                   PacketAddByte(1); // error type 1
-                  PacketAdd4Bytes(passcount);
+                  PacketAdd4Bytes(frame_num);
                   PacketAdd4Bytes(c_sync);
                   PacketAdd4Bytes(players1[p].c_sync_err);
                   ServerSendTo(packetbuffer, packetsize, who, p);
@@ -824,7 +824,7 @@ void server_control() // this is the main server loop to process packet send and
             {
                // acknowledged state is out new base state
                memcpy(client_chdf[p][0], client_chdf[p][1], CHUNK_SIZE); // copy 1 to 0
-               client_chdf_id[p][0] = ack_pc; // new passcount
+               client_chdf_id[p][0] = ack_pc; // new frame_num
                sprintf(tmsg2, "set new base");
             }
             else // we don't have a copy of acknowledged state !!!
@@ -834,7 +834,7 @@ void server_control() // this is the main server loop to process packet send and
                // reset base to all zero
                memset(client_chdf[p][0], 0, CHUNK_SIZE);
 
-               // set base passcount to 0
+               // set base frame_num to 0
                client_chdf_id[p][0] = 0;
 
             }
@@ -864,10 +864,10 @@ void server_control() // this is the main server loop to process packet send and
             players1[p].game_move_entry_pos = new_entry_pos;
 
             // set server_sync in player struct
-            players1[p].server_sync = passcount - client_pc;
+            players1[p].server_sync = frame_num - client_pc;
 
             // this is used to see if client is still alive
-            players1[p].last_sdak_rx = passcount;
+            players1[p].last_sdak_rx = frame_num;
 
             if (L_LOGGING_NETPLAY_sdak)
             {
@@ -882,7 +882,7 @@ void server_control() // this is the main server loop to process packet send and
             if ((!players1[p].made_active_holdoff) && (players[p].active == 0) && (players[p].control_method == 2) && (players1[p].server_sync < 4) && (players1[p].server_sync > -2))
             {
                players1[p].made_active_holdoff = 6;
-               add_game_move(passcount + 4, 1, p, players[p].color);
+               add_game_move(frame_num + 4, 1, p, players[p].color);
 
                if (L_LOGGING_NETPLAY_JOIN)
                {
@@ -961,14 +961,14 @@ void server_control() // this is the main server loop to process packet send and
             players[cn].active = 0; //server client view only
             players[cn].control_method = 2; //server client view only
             players1[cn].who = who;
-            players1[cn].last_sdak_rx = passcount + 200;
+            players1[cn].last_sdak_rx = frame_num + 200;
             players1[cn].game_move_entry_pos = game_move_entry_pos; // so server wont try to sync any moves less than this
 
             sprintf(players1[cn].hostname, "%s", temp_name);
 
             Packet((char *)"SJON"); // reply with SJON
             PacketAdd2Bytes(play_level);
-            PacketAdd4Bytes(passcount);
+            PacketAdd4Bytes(frame_num);
             PacketAdd4Bytes(game_move_entry_pos);
             PacketAddByte(frame_speed);
             PacketAddByte(cn);
@@ -992,7 +992,7 @@ void server_control() // this is the main server loop to process packet send and
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
                sprintf(msg,"Player Color:[%d]", color);
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
-               sprintf(msg,"Server Passcount:[%d]", passcount);
+               sprintf(msg,"Server frame_num:[%d]", frame_num);
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
                sprintf(msg,"Server Game Moves:[%d]", game_move_entry_pos);
                add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
@@ -1013,7 +1013,7 @@ void server_control() // this is the main server loop to process packet send and
 void server_local_control(int p)
 {
    set_comp_move_from_player_key_check(p);                  // but don't set controls !!!
-   int fpc = passcount + control_lead_frames;               // add CLF to passcount
+   int fpc = frame_num + control_lead_frames;               // add CLF to frame_num
    if (players1[p].comp_move != players1[p].old_comp_move)  // players keys have changed
    {
       players1[p].old_comp_move = players1[p].comp_move;
