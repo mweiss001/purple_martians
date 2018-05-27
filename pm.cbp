@@ -176,6 +176,7 @@
 		<Unit filename="src/pm.h" />
 		<Unit filename="src/yfilecom.cpp" />
 		<Unit filename="src/zbullets.cpp" />
+		<Unit filename="src/zcfg.cpp" />
 		<Unit filename="src/zcontrol.cpp" />
 		<Unit filename="src/zemove.cpp" />
 		<Unit filename="src/zfile.cpp" />
@@ -186,9 +187,11 @@
 		<Unit filename="src/zlogo.cpp" />
 		<Unit filename="src/zloop.cpp" />
 		<Unit filename="src/zmain.cpp" />
+		<Unit filename="src/zmap.cpp" />
 		<Unit filename="src/zmenu.cpp" />
 		<Unit filename="src/zplayer.cpp" />
 		<Unit filename="src/zscrn.cpp" />
+		<Unit filename="src/zscrn_overlay.cpp" />
 		<Unit filename="src/zsound.cpp" />
 		<Extensions>
 			<code_completion />

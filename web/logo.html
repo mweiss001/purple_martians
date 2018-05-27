@@ -1,58 +1,75 @@
-<!DOCTYPE html>
+<!doctype html>
+<title>Logo</title>
+
 <html>
-<head>
-<meta charset="utf-8" />
 
-<link href="themes/prism.css" rel="stylesheet" />
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
 
-<title>Purple Martains Logo Spline</title>
-</head>
-<body>
+    
+    <body>
+        <nav class="col-1">
+
+<div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="index.html#external links" target="_top">Links</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+            
+            
+        </nav>
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh5>Logo</mh5><hr>
+            </header>
+
+            <main class="content">
+                <article>
+
+                    <div style="text-align: center;"><video src="images/logo.mp4" poster="images/logo1.png" controls width="800" height="600" preload="auto"></video></div>
 
 
-<style type = "text/css">
-  h12 {
-  font-size: 120%;
-  }
- </style>
+                    <mh3>
+The splash screen logo of my name is made with a few different techniques.
 
+The large capital letters (M, D, W) are generated with splines.
 
-<script src="prism.js"></script>
+In 'Allegro5 drawing primitives add-on' I use the function: 'al_draw_spline()'
+                    </mh3>
 
-<div style="text-align: center;"><h1>Purple Martians</h1></div>
-
-<div style="text-align: center;"><h3>Splash screen spline text</h3></div>
-
-
-<div style="text-align: center;"><video src="images/logo.mp4" poster="images/logo1.png" controls width="800" height="600" preload="auto"></video></div>
-
-<br><br><hr>
-<h12>The splash screen logo of my name is made with a few different techniques:<br>
-The large capital letters (M, D, W) are generated with splines.<br>
-In Allegro5 drawing primitives add-on I use the function:
-</h12>
-<hr>
-<pre><code class="language-cpp">void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
+                    <pre><code class="language-cpp">void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
 Draws a Bézier spline given 4 control points.
 Parameters:
 points - An array of 4 pairs of coordinates of the 4 control points
 color - Color of the spline
 thickness - Thickness of the spline
 </code></pre>
-<hr>
 
-<br><br><h12>I made a wrapper function for al_draw_spline() to add circles at the ends of the lines:</h12>
-<hr><pre><code class="language-cpp">void mspline(float *par, ALLEGRO_COLOR col, int thickness)
+
+                    <hr>
+
+
+                    <mh3>
+I made a wrapper function for al_draw_spline() to add circles at the ends of the lines:
+                    </mh3>
+
+
+                    <pre><code class="language-cpp">void mspline(float *par, ALLEGRO_COLOR col, int thickness)
 {
    al_draw_spline(par, col, thickness);
    float r = (float)thickness * .8;
    al_draw_filled_circle(par[0], par[1], r, col);
    al_draw_filled_circle(par[6], par[7], r, col);
-}</code></pre><hr>
+}</code></pre>
 
-<br><br>
-<h12>Then I made another wrapper function to add a fading effect:</h12> 
-<hr><pre><code class="language-cpp">void mfspline(float *par, int col, int thickness)
+                    <mh3>
+Then I made another wrapper function to add a fading effect:
+                    </mh3>
+
+                    <pre><code class="language-cpp">void mfspline(float *par, int col, int thickness)
 {
    ALLEGRO_COLOR c = palette_color[col];
    float r, g, b;
@@ -64,17 +81,23 @@ thickness - Thickness of the spline
       // float f = (float)(thickness-a) / (float)(thickness); // fade out
       mspline(par, al_map_rgb_f(r*f, g*f, b*f), a);
    }
-}</code></pre><hr>
+}</code></pre>
 
-<br><br><h12>
-All of the points are on cartesian grid with the center at 0,0.<br>
-The upper left corner is -200, -200 and the lower right corner is +200, +200.<br>
-This was chosen so that the entire image can be scaled in the x and y axis independently by multiplying x or y coordinates by a scaling value.<br>
-The "M" and "W" are each made of 4 splines, but the right most two of each are just mirrored copies of the first two.<br>
-The "D" is one spline.<br>
-Here is how I set up all the points in code:</h12>
+                    <mh3>
+The "M" and "W" are each made of 4 splines, and the "D" is one spline.
+The large outer arms of the 'M' and 'W' are just mirrored copies of each other.
+The small inner arms of the 'M' and 'W' are mirrored as well.
+The 'D' has its lower end point and control point mirrored from the top ones.    
 
-<hr><pre><code class="language-cpp">float points[10][8];
+Al of the points for these splines are on cartesian grid with the center at 0,0.
+The upper left corner is -200, -200 and the lower right corner is +200, +200.
+This was chosen so that the entire image can be scaled in the x and y axis independently
+by multiplying x or y coordinates by a scaling value.
+
+Here is how I set up all the points in code:
+                    </mh3>              
+
+                    <pre><code class="language-cpp">float points[10][8];
 // 0 1 are the outer parts of M
 // 2 3 are the inner parts of M
 // 4 D
@@ -97,7 +120,7 @@ void seed_mdw(void)
    points[1][1] = 0;
    points[1][6] = 0;
    points[1][7] = -200;
-   
+
    points[6][0] = 0;
    points[6][1] = 0;
    points[6][6] = 0;
@@ -208,13 +231,16 @@ void fill_mdw(void)
    points[4][7] = -points[4][1]; // mirror y
    points[4][4] =  points[4][2]; // same x
    points[4][5] = -points[4][3]; // mirror y
-} </code></pre><hr>
+} </code></pre>
 
-<br><br><h12>All of the constants in the above code, I got from another piece of code I wrote to set up the curves.<br>
-I would drag the control points with the mouse until I like how it looked, <br>
-then I wrote down the coordinates and hard coded them like you see in in the code above.<br><br>
-Finally here is the function that draws the whole thing:</h12>
-<hr><pre><code class="language-cpp">void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
+                    <mh3>                    
+All of the constants in seed_mdw(), I got from another function I wrote to set up the curves.
+I would adjust the control points till I like how they looked, then hard code them into seed_mdw().
+
+Finally here is the function that draws the whole thing:
+                    </mh3>
+
+                    <pre><code class="language-cpp">void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
 {
    int c1 = 10; //color 1 red
    int c2 = 8;  //color 2 purple
@@ -279,11 +305,19 @@ Finally here is the function that draws the whole thing:</h12>
    idw(1, (int)(x - 54  * x_scale), (int)(y - 130 * y_scale), xs, ys); // ichael
    idw(2, (int)(x + 90  * x_scale), (int)(y -  15 * y_scale), xs, ys); // avid
    idw(3, (int)(x + 146 * x_scale), (int)(y + 120 * y_scale), xs, ys); // eiss
-}</code></pre><hr>
+}</code></pre>
 
-<br><br><h12>
-Here is the code that draws the small letters:</h12>
-<hr><pre><code class="language-cpp">void idw(int txt, int x, int y, float x_scale, float y_scale)
+
+                    <mh3>
+To draw the small letters, I made a function to draw scaled text.
+X and Y can be scaled independantly, and if either scale is negative the text is mirrored!
+
+I used to create the text bitmaps every time, but in the interests of speed, I re-wrote it so that
+they are pre-generated.
+
+Here is the code that draws the small letters:
+                    </mh3>
+                    <pre><code class="language-cpp">void idw(int txt, int x, int y, float x_scale, float y_scale)
 {
    int bbx1, bby1, bbw1, bbh1;
    al_get_text_dimensions(f1, "ichael", &bbx1, &bby1, &bbw1, &bbh1);
@@ -332,12 +366,13 @@ Here is the code that draws the small letters:</h12>
    if (txt == 2) al_draw_scaled_rotated_bitmap(logo_avid,   0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
    if (txt == 3) al_draw_scaled_rotated_bitmap(logo_eiss,   0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
 }
-</code></pre><hr>
+</code></pre>
 
-<br><br><h12>
+                    <mh3>
 Here is some code that draws a spinning logo.<br>
-Its is non-blocking and needs to be called in a loop, so I can do other things like process my event loop, etc.</h12>
-<hr><pre><code class="language-cpp">int mdw_an2(void)
+Its is non-blocking and needs to be called in a loop, so I can do other things like process my event loop, etc.
+                    </mh3>
+                    <pre><code class="language-cpp">int mdw_an2(void)
 {
    float x_scale = mdw_splash_logo_scale;
    float y_scale = mdw_splash_logo_scale;
@@ -406,28 +441,18 @@ Its is non-blocking and needs to be called in a loop, so I can do other things l
    draw_mdw((int)mdw_splash_logo_x, (int)mdw_splash_logo_y, x_scale, y_scale, mdw_splash_logo_th);
    return 0;
 }
-</code></pre><hr>
+</code></pre>
 
 
+                </article>
+            </main>
+            <footer>
+                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2018, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+            </footer>
+        </div>
+    </body>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</body>
 </html>
