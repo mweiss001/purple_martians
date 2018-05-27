@@ -1,0 +1,208 @@
+<!doctype html>
+<title>Timers</title>
+
+<html>
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    <body>
+        
+        <nav class="col-1">
+            
+<div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="index.html#external links" target="_top">Links</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+            
+            
+        </nav>
+
+        
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh5>Timers</mh5><hr>
+            </header>
+
+            <main class="content">
+                <article>
+                
+<mh3>
+Three timers are used in the game:
+
+ALLEGRO_TIMER * fps_timer;
+- used to control the speed of the game
+    
+ALLEGRO_TIMER * sec_timer;
+- used to count the actual frames per second
+    
+ALLEGRO_TIMER * mnu_timer;
+- used to control the speed of the menu
+</mh3>
+
+
+<pre><code class="language-cpp">int initial_setup(void)
+{
+   // create timers
+   fps_timer = al_create_timer(1 / (float) frame_speed );
+   sec_timer = al_create_timer(1);
+   mnu_timer = al_create_timer(.01);
+
+   // register timer event source
+   al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
+
+   // start timers
+   al_start_timer(fps_timer);
+   al_start_timer(sec_timer);
+   al_start_timer(mnu_timer);
+...
+</code></pre>
+
+
+<hr><mh4>
+Menu Timer (mnu_timer)
+</mh4>
+<mh3>        
+The menu runs in a loop that processes the menu and logo animation.
+The speed of the menu loop is controlled by mnu_timer.
+The function 'proc_controller()' is called in this loop and will block until it gets a timer event.
+</mh3>
+<pre><code class="language-cpp">int proc_controllers()
+{
+   int done = 0;
+   int menu_timer_wait = 1;
+   while (!done)
+   {
+      done = 1; // default
+      while (!al_is_event_queue_empty(event_queue))
+      {
+         ALLEGRO_EVENT ev;
+         if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
+      }
+      if (game_exit) // only true if menu active
+      {
+          if (menu_timer_wait) done = 0;
+      }
+   }
+}
+</code></pre>
+<hr><mh4>
+Second Timer (sec_timer)    
+</mh4>
+<mh3>
+Used to count the actual frames per second and the number of skipped frames in the last second.
+
+The algorithm makes use of the following global variables:
+
+int frame_num;
+int last_fps_frame_num = 0;
+int actual_fps;
+
+int players1[active_local_player].frames_skipped
+int last_frames_skipped = 0;
+int frames_skipped_last_second;
+
+</mh3>
+<pre><code class="language-cpp">void proc_frame_delay(void)
+{
+   if (al_get_timer_count(sec_timer) > 0)
+   {
+      al_set_timer_count(sec_timer, 0); // reset_second_timer
+      actual_fps = frame_num - last_fps_frame_num;
+      last_fps_frame_num = frame_num;
+      frames_skipped_last_second = (players1[active_local_player].frames_skipped - last_frames_skipped);
+      last_frames_skipped = players1[active_local_player].frames_skipped;
+   }
+...
+</code></pre>
+
+<hr><mh4>
+Frames per Second Timer (fps_timer)   
+</mh4>
+<mh3>
+Used to control the speed of the game.
+   
+The global variable: 'int frame_speed' sets the target frame rate of the game in frames per second.
+   
+fps_timer is set as a reciprocal of frame_speed like this:
+
+al_set_timer_speed(fps_timer, 1/(float)frame_speed);
+
+The game speed is regulated by the function: 'proc_frame_delay()'
+</mh3>
+<pre><code class="language-cpp">void proc_frame_delay(void)
+{
+   if (speed_testing) // draw every frame no matter how fast or slow it is
+   {
+      draw_frame = 1;
+      al_set_timer_count(fps_timer, frame_num);
+   }
+   else
+   {
+      if (frame_num <=  al_get_timer_count(fps_timer)) // skip drawing frame
+      {
+         draw_frame = 0;
+         players1[active_local_player].frames_skipped++;
+      }
+      else draw_frame = 1;
+      while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+   }
+}
+</code></pre>
+
+<mh3>
+When the game is running normally, proc_frame_delay() will wait until fps_timer catches up to the current frame.
+
+When the game is lagging, proc_frame_delay() will skip drawing for the current frame.
+
+In speed test mode:
+- every frame is forced to be drawn
+- waiting for fps_timer is disabled, the game runs as fast or slow as it is able
+</mh3>
+
+<hr><mh4>
+Speed adjust during netgame.
+</mh4>
+<mh3>
+During a netgame the server runs at 40 fps and is the master timing source.
+
+The clients all make small adjustments to their speeds to try to maintain the
+proper timing relation to the server.
+
+The value 'server_lead_frames' is a global int and can be set in the config file,
+but should be left at its default value of 1.
+This means that the clients try to stay 1 frame behind the server.
+
+The packet 'sdat' (server_data) is sent from the server to a client when the server has data
+for that client, or if there is no data, an empty 'sdat' is sent periodically for sync purposes.
+
+The 'sdat' packet is time stamped with the frame_num of the server.
+The client compares this to its own frame_num and makes speed adjustments as follows.
+
+</mh3>
+<pre><code class="language-cpp">void client_timer_adjust(void)
+{
+   int p = active_local_player;
+   if (frame_num == players1[p].last_sdat_lpc)  // only if just received sdat; use for sync
+   {
+      players1[p].server_sync = players1[p].last_sdat_fpc - frame_num;
+      int fps_chase = frame_speed + players1[p].server_sync - server_lead_frames;
+      al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+   }
+}
+</code></pre>
+
+
+
+
+                </article>
+            </main>
+            <footer>Footer</footer>
+        </div>
+    </body>
+
+</html>
