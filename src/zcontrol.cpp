@@ -542,9 +542,11 @@ void function_key_check(void)
    if ((key[ALLEGRO_KEY_PRINTSCREEN]) && (!KEY_PRTSCR_held))
    {
       KEY_PRTSCR_held = 1;
-      ALLEGRO_BITMAP *ss_bmp = al_create_bitmap(SCREEN_W, SCREEN_H);
+      ALLEGRO_BITMAP *ss_bmp = al_create_bitmap(disp_w_curr, disp_h_curr);
       al_set_target_bitmap(ss_bmp);
       al_draw_bitmap(al_get_backbuffer(display), 0, 0, 0);
+
+      al_make_directory("screenshots"); // create if not already created
 
       char filename[80];
       struct tm *timenow;
@@ -1070,7 +1072,6 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
    }
    return ret;
 }
-
 
 
 int proc_controllers()

@@ -4757,7 +4757,23 @@ fixed:
          }
       }
 
-      now menu's seem to run a lot faster
+now menu's seem to run a lot faster...fixed
+
+make screenshots folder auto created...done
+fix screenshot to use actual screen size instead of ortho doubled...done
+
+make it so demo counter will not run when game is paused
+cause when it does, paused game is lost...done
+
+changed logo drawing to use max x or y scale instead of hypot for thickness
+
+
+
+
+
+
+
+
 
 
 
