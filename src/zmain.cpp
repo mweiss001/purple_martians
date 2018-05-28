@@ -424,7 +424,7 @@ int level_display_region_y;
 int level_display_region_w;
 int level_display_region_h;
 
-int display_transform_double = 3; // level editor scale
+int display_transform_double = 1;
 
 int level_editor_running = 0;
 int help_screens_running = 0;
@@ -440,6 +440,8 @@ float scale_factor = 1.0;
 float scale_factor_current  = 1.0;
 float scale_factor_inc = 0.03;
 int show_scale_factor;
+
+
 
 int show_splash_screen = 1;
 int splash_screen_done = 0;
@@ -459,6 +461,7 @@ float mdw_splash_logo_scale;
 float mdw_logo_scale_dec;
 float mdw_logo_x_dec;
 float mdw_logo_y_dec;
+
 
 
 // position and size of map on menu screen

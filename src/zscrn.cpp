@@ -755,7 +755,7 @@ void get_new_screen_buffer(void)
    //int WX = PX - SW/2 -10; // set window from PX, PY
    //int WY = PY - SH/2 -10;
 
-   // this method has a hysteresis rectangle in the middle of the screen where there is no scroll
+   // set the scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
    int x_size = SW / 8; // larger number is smaller window
    int y_size = SH / 12;
 
@@ -776,7 +776,7 @@ void get_new_screen_buffer(void)
    level_display_region_w = SW;
    level_display_region_h = SH;
 
-   // this is the what all the previous calculation have been building up to
+   // this is what all the previous calculation have been building up to:
    al_draw_scaled_bitmap(level_buffer, WX, WY, SW, SH, sbx, sby, sbw, sbh, 0);
 
    //printf("WX:%d, WY:%d, SW:%d, SH:%d, sbx:%d, sby:%d, sbw:%d, sbh:%d\n", WX, WY, SW, SH, sbx, sby, sbw, sbh);
@@ -879,31 +879,13 @@ void set_map_var(void)
 
 void set_scale_factor(int instant)
 {
-   show_scale_factor = 80;
-   float sfr = 0.01; // scale factor round
-   int preserve_aspect_ratio = 0;
-   scale_factor = round(scale_factor/sfr) * sfr;
-
    // enforce max and min
    if (scale_factor < .2) scale_factor = .2;
    if (scale_factor > 40) scale_factor = 40;
-
-   // check aspect ratio
-   if (preserve_aspect_ratio)
-   {
-      int bw = BORDER_WIDTH;
-      int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor);
-      int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor);
-      while ((SW > 1999) || (SH > 1999))
-      {
-         scale_factor += sfr;
-         scale_factor = round(scale_factor/sfr) * sfr;
-         SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor);
-         SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor);
-      }
-   }
    save_config();
+
    if (instant) scale_factor_current = scale_factor;
+   show_scale_factor = 80;
 }
 
 void init_level_background(void) // fill level_background with blocks and lift lines
@@ -1041,7 +1023,6 @@ void frame_and_title(int show_players)
       }
    }
 }
-
 
 
 void proc_scale_factor_change(void)
