@@ -260,7 +260,6 @@ void splash_screen(void)
       al_flip_display();
    }
 
-   al_set_timer_speed(mnu_timer, .005);
    while (!quit)
    {
       al_clear_to_color(al_map_rgb(0,0,0));
@@ -268,7 +267,6 @@ void splash_screen(void)
       al_flip_display();
       if (proc_controllers()) quit = 1;
    }
-   al_set_timer_speed(mnu_timer, .01);
 
    al_clear_to_color(al_map_rgb(0,0,0));
    al_flip_display();
@@ -348,17 +346,16 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
    float t;
    if (line_thickness == -1) // auto
    {
-      float hy_scale = sqrt( (x_scale * x_scale) + (y_scale * y_scale));
-      t = 2 + hy_scale * 7;
+      // this methods uses the hypotenuse of both scales
+      //float hy_scale = sqrt( (x_scale * x_scale) + (y_scale * y_scale));
+      //t = 2 + hy_scale * 7;
+
+      // this method uses the max scale, x or y
+      float max_scale = fabs(x_scale);
+      if (fabs(y_scale) > fabs(x_scale)) max_scale = fabs(y_scale);
+      t = 3 + max_scale * 7;
    }
    else t = line_thickness;
-
-
-//   float max_scale = fabs(x_scale);
-//   if (fabs(y_scale) > fabs(x_scale)) max_scale = fabs(y_scale);
-//   float t = 2.5 + max_scale *6;
-//   if (t<1) t = 1;
-//   printf("t:%d\n", t);
 
    float draw_points[10][8];
 

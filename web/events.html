@@ -65,41 +65,203 @@ Allegro 5 is event based.  When I converted my game from Allegro 4, I had to do 
 
 There is now an event queue that needs to be processed.
     
-Usually in all the examples I've seen, the event queue proccessing is the main loop of whatever program its in.
-    
-It sits there and processes the event queue, and only does things in response to events, like input, timers, etc..
-    
+In the examples I've seen, the event queue proccessing is the main control loop of the program, like this:
+</mh3>    
+<pre><code class="language-cpp">while (1)
+{
+   al_wait_for_event(queue, &event);
 
-I didn't want to re-do everything in my program, so I came up with an alternatice approach that seem to work just fine.
-    
-    
-In my main game loop (the one that runs at 40fps) I call a function, proc_controllers(), that handles all the input.
-    
-To make it work in Allegro 5, I added the event queue processing to proc_controllers().
-    
+   if (event.type == ALLEGRO_EVENT_TIMER)
+   {
+      handle_game_tick();
+      need_redraw = true;
+   }
 
-This seem to work just fine for me.
+   if (need_draw && al_event_queue_is_empty(queue))
+   {
+      render_last_frame();
+      need_redraw = false;
+   }
+}
+</code></pre>               
+<mh3>
+It sits there and waits for an event, and only ever does things in response to events, like input, timers, etc..
+
+This is not how I process the event queue in my game.    
     
-I never, ever sit there and wait for events.
+I didn't want to re-do everything in my game, so I came up with an alternative approach that seem to work just fine.
+I have function 'proc_controllers()' that I call from my main game loop that handles all the input for the game.
+I re-purposed it and now it also processes the event queue processing.
+
+It seems to work just fine for me. 
     
-I do this and process all the events in the queue:
+I never wait for events.  Once every game loop, I process all events in the queue and move on.     
     
-while (!al_is_event_queue_empty(event_queue))
-        
-            
+When the game is not running and I'm in a menu, or the level editor, or whatever,
+all I have to do is call 'proc_controllers()' in whatever loop I'm in.
+
+    
+Here is how I process the event queue:
+</mh3>
+<pre><code class="language-cpp">int proc_controllers()
+{
+   int ret = 0;
+   int done = 0;
+   int menu_timer_wait = 1;
+
+   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work
+   Key_pressed_ASCII = 0;
+
+   while (!done)
+   {
+      done = 1; // default
+      while (!al_is_event_queue_empty(event_queue))
+      {
+         ALLEGRO_EVENT ev;
+         if (al_get_next_event(event_queue, &ev))
+         {
+            if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
+            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
+            {
+               // check to see if we have more resize events piling up
+               ALLEGRO_EVENT ev2;
+               while (al_get_next_event(event_queue, &ev2))
+               {
+                  if (ev2.type == ALLEGRO_EVENT_DISPLAY_RESIZE) ev = ev2;
+                  else ret = proc_events(ev2, ret);
+               }
+               proc_screen_change(ev.display.width, ev.display.height, disp_x_curr, disp_y_curr, fullscreen);
+            }
+            else ret = proc_events(ev, ret);
+         }
+      }
+      if (game_exit) // if called from menu only do key check for active local player
+      {
+          clear_keys(active_local_player);
+          player_key_check(active_local_player);
+          function_key_check();
+          if (menu_timer_wait) done = 0;
+      }
+   }
+   return ret;
+}</code></pre>               
+
+<mh3>   
+And here is how I process events:
 </mh3>
 
+<pre><code class="language-cpp">int proc_events(ALLEGRO_EVENT ev, int ret)
+{
+   if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
+   if (ev.type == ALLEGRO_EVENT_MOUSE_WARPED)
+   {
+      mouse_x = ev.mouse.x / display_transform_double;
+      mouse_y = ev.mouse.y / display_transform_double;
+   }
+   if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
+   {
+      mouse_x = ev.mouse.x / display_transform_double;
+      mouse_y = ev.mouse.y / display_transform_double;
+      mouse_z = ev.mouse.z / display_transform_double;
+      mouse_dx = ev.mouse.dx;
+      mouse_dy = ev.mouse.dy;
+      mouse_dz = ev.mouse.dz;
+   }
+   if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+   {
+      if (ev.mouse.button == 1) mouse_b1 = 1;
+      if (ev.mouse.button == 2) mouse_b2 = 1;
+      if (ev.mouse.button == 3) mouse_b3 = 1;
+      if (ev.mouse.button == 4) mouse_b4 = 1;
+   }
+   if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+   {
+      if (ev.mouse.button == 1) mouse_b1 = 0;
+      if (ev.mouse.button == 2) mouse_b2 = 0;
+      if (ev.mouse.button == 3) mouse_b3 = 0;
+      if (ev.mouse.button == 4) mouse_b4 = 0;
+   }
+   if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+   {
+      int k = ev.keyboard.keycode;
+      key[k] = true;
+      ret = k;
+   }
+   if (ev.type == ALLEGRO_EVENT_KEY_UP)
+   {
+      int k = ev.keyboard.keycode;
+      key[k] = false;
+      if (k == ALLEGRO_KEY_PRINTSCREEN) key[k] = true; // special exception to make PRINTSCREEN work
+   }
+   if (ev.type == ALLEGRO_EVENT_KEY_CHAR)
+   {
+      Key_pressed_ASCII = ev.keyboard.unichar;
+      serial_key_check(Key_pressed_ASCII);
+   }
+   if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS)
+   {
+      int jy = getJoystickNum(ev.joystick.id);
+      int jo = 0; // offset
+      if (jy == 0) jo = 0;
+      if (jy == 1) jo = 20;
+      int ax = ev.joystick.axis;
+      float pos = ev.joystick.pos;
+      if (ax == 0) // x axis
+      {
+         key[130+jo] = false;
+         key[131+jo] = false;
+         if (pos > 0) key[131+jo] = true;
+         if (pos < 0) key[130+jo] = true;
+      }
+      if (ax == 1) // y axis
+      {
+         key[128+jo] = false;
+         key[129+jo] = false;
+         if (pos > 0) key[129+jo] = true;
+         if (pos < 0) key[128+jo] = true;
+      }
+   }
+   if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN)
+   {
+      int jy = getJoystickNum(ev.joystick.id);
+      int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
+      key[sc] = true;
+   }
+   if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP)
+   {
+      int jy = getJoystickNum(ev.joystick.id);
+      int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
+      key[sc] = false;
+   }
+   return ret;
+}
+
+</code></pre>               
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             
 
 
             
 <br><mh7>How I Handle Multiple ALLEGRO_EVENT_DISPLAY_RESIZE Events Piling Up</mh7>
 <mh3>
-If I get an ALLEGRO_EVENT_DISPLAY_RESIZE event, the first thing I do is check to see if I have other events in the queue.
+If I get an ALLEGRO_EVENT_DISPLAY_RESIZE event, the first thing I do is check to see there are more events in the queue.
 If there are, then I check to see if they are also ALLEGRO_EVENT_DISPLAY_RESIZE events.
 If they are not, I process them right away.
-If they are I set the first event (ev) to the second one (ev2), overwriting and losing the first one.    
-When I no longer have any events in the queue, then I drop back to the outer loop and process the event there.    
+If they are I set the first event (ev) to the second one (ev2), overwriting and losing the first one.  
+When I no longer have any events in the queue, then I process the resize event in ev.    
 
 This method allows me to ignore all but the last ALLEGRO_EVENT_DISPLAY_RESIZE event, while still processing all other events.
     
@@ -107,7 +269,6 @@ This method allows me to ignore all but the last ALLEGRO_EVENT_DISPLAY_RESIZE ev
 <pre><code class="language-cpp">while (!al_is_event_queue_empty(event_queue))
 {
    ALLEGRO_EVENT ev;
-   if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
    if (al_get_next_event(event_queue, &ev))
    {
       if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)

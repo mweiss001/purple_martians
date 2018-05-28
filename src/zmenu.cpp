@@ -509,6 +509,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
             demo_mode_countdown = 800;
             return 9;
          }
+         if (resume_allowed) demo_mode_countdown = 800;
          sprintf(global_string[7][9], "Demo Mode (%d)", demo_mode_countdown / 80);
       }
 
