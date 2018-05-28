@@ -11,8 +11,8 @@
             margin: 0;
         }
         .col-1 {
+            min-width: 180px;
             background: #D7E8D4;
-            flex: 1;
         }
         .col-2 {
             display: flex;
@@ -24,7 +24,7 @@
             width: 1050px;
             display: flex;
             flex-direction: row;
-            border: solid #8f11eb;
+            border: solid #d4e6f0;
          }
 
         .linkitem1 {
@@ -39,8 +39,8 @@
         .linkitem2 {
             width: 350px;
             background: #FFE8D4;
-            border-right: 2px solid #8f11eb;
-            border-left: 2px solid #8f11eb;
+            border-right: 2px solid #d4e6f0;
+            border-left: 2px solid #d4e6f0;
             padding: 1em;
             text-align:center;            
             font-size: 120%;
@@ -55,7 +55,7 @@
             font-size: 120%;
             color: #09146c;
 
-}
+        }
 
         .content {
             display: flex;
@@ -69,11 +69,18 @@
 
 
         header{
-            background: #c4c9d1;
+            background: #d4e6f0;
             height: 240px; 
+            white-space:nowrap;
+            
+        }
+        header_main{
+            background: #d4e6f0;
+            height: 268px; 
+            padding: 1em;
         }
         footer {
-            background: #c4c9d1;
+            background: #d4e6f0;
             height: 200px; 
         }
         header, footer, article, nav {
@@ -87,12 +94,13 @@
         }
         mh10 {
             font-family: Saucer;
-            font-size: 500%;
+            font-size: 300%;
+            color:#191fb7;
         }
         mh11 {
             font-family: Saucer;
             font-size: 600%;
-            color:#8800FF;
+            color:#7600ff;
         }
 
         mh12 {
@@ -106,7 +114,7 @@
         }
         mh3 {
             font-size: 120%;
-            white-space: pre; 
+            white-space: pre-wrap; 
         }
 
         mh4 {
@@ -123,7 +131,17 @@
             font-size: 200%;
             font-weight: bold;
             color: #09146c;
-            background: #d8b6b6;
+            background: #d4e6f0;
+            padding-bottom: .3em;
+            padding-top: .3em;
+            padding-left: .3em;
+            
+        }
+        mh7 {
+            font-size: 150%;
+            font-weight: bold;
+            color: #09146c;
+            background: #d4e6f0;
             padding-bottom: .3em;
             padding-top: .3em;
             padding-left: .3em;

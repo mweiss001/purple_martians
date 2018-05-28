@@ -4692,7 +4692,72 @@ rename event to game_event...done
 
 
 
+in proc_controller()
 
+change
+if (key[ALLEGRO_KEY_PRINTSCREEN]) key[ALLEGRO_KEY_PRINTSCREEN] = 0; // special exception to make PRINTSCREEN work
+to
+key[ALLEGRO_KEY_PRINTSCREEN] = 0; // special exception to make PRINTSCREEN work
+
+also this line:
+
+if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
+looks like its in the wrong spot
+
+orig:
+
+   while (!done)
+   {
+      done = 1; // default
+      while (!al_is_event_queue_empty(event_queue))
+      {
+         ALLEGRO_EVENT ev;
+         if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
+         if (al_get_next_event(event_queue, &ev))
+         {
+            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
+            {
+               // check to see if we have more resize events piling up
+               ALLEGRO_EVENT ev2;
+               while (al_get_next_event(event_queue, &ev2))
+               {
+                  if (ev2.type == ALLEGRO_EVENT_DISPLAY_RESIZE) ev = ev2;
+                  else ret = proc_events(ev2, ret);
+               }
+               proc_screen_change(ev.display.width, ev.display.height, disp_x_curr, disp_y_curr, fullscreen);
+            }
+            else ret = proc_events(ev, ret);
+         }
+      }
+
+fixed:
+
+
+   while (!done)
+   {
+      done = 1; // default
+      while (!al_is_event_queue_empty(event_queue))
+      {
+         ALLEGRO_EVENT ev;
+         if (al_get_next_event(event_queue, &ev))
+         {
+            if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
+            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
+            {
+               // check to see if we have more resize events piling up
+               ALLEGRO_EVENT ev2;
+               while (al_get_next_event(event_queue, &ev2))
+               {
+                  if (ev2.type == ALLEGRO_EVENT_DISPLAY_RESIZE) ev = ev2;
+                  else ret = proc_events(ev2, ret);
+               }
+               proc_screen_change(ev.display.width, ev.display.height, disp_x_curr, disp_y_curr, fullscreen);
+            }
+            else ret = proc_events(ev, ret);
+         }
+      }
+
+      now menu's seem to run a lot faster
 
 
 

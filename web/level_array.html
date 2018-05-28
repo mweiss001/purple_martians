@@ -1,0 +1,367 @@
+<!doctype html>
+<title>Level Array</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+            
+            <div style="text-align: center;">Navigation</div><hr>    
+
+            <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+            <div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
+            <div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
+            <div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
+            <div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
+            <div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
+            <div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
+            <div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+
+            <br><div style="text-align: center;">Technical Descriptions</div><hr>    
+            
+            <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+            <div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+            <div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+            <div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+            <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+            <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+            <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+            
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh5>Level Array</mh5><hr>
+            </header>
+
+
+            
+<br><mh7>Level Array</mh7>
+<mh3>
+Each level is 100 x 100 tiles or 2000 x 2000 pixels.
+
+The level array is a 100 x 100 array of integers.
+</mh3>    
+<pre><code class="language-cpp">extern int l[100][100];</code></pre>
+<mh3>
+Each integer is an index to tile[1024] (the tile that is drawn at that position on the level)
+The integer has certain special ranges:
+</mh3>
+<pre><code class="language-cpp">0  - 31  - empty
+32 - 63  - semi-solid (players and enemies can jump through from below)
+64 - 95  - bombable   (will be destroyed by bombs)
+96 - 127 - breakable  (will be destroyed by bullets)
+128+     - solid  
+</code></pre>
+            
+<br><mh7>Drawing the Level Array</mh7>
+
+<mh3>
+Two bitmaps are used, each 2000 x 2000 pixels:
+</mh3>
+<pre><code class="language-cpp">extern ALLEGRO_BITMAP *level_background = NULL;
+extern ALLEGRO_BITMAP *level_buffer = NULL;
+void create_bmp(void)
+{
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA);
+   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+   level_background = al_create_bitmap(2000,2000);
+   level_buffer = al_create_bitmap(2000,2000);
+}</code></pre>
+<mh3>
+When a level is loaded, all 10,000 tiles are drawn to the level_background.
+</mh3>
+<pre><code class="language-cpp">void init_level_background(void) // fill level_background with blocks and lift lines
+{
+   al_set_target_bitmap(level_background);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++)
+      {
+         int c = l[x][y];
+         if (c < NUM_SPRITES)
+            al_draw_bitmap(tile[c], x*20, y*20, 0);
+      }
+   draw_lift_lines();
+}</code></pre>
+
+<br><mh7>Rebuilding level_background</mh7>
+<mh3>
+To make things faster, all the bitmaps are created with ALLEGRO_NO_PRESERVE_TEXTURE.
+That means that if the display changes the contents will be lost.
+This has no effect on the bitmaps that are redrawn every frame like level_buffer.
+However level_background is not redrawn each frame and must be redrawn if the display changes.
+</mh3>
+
+<pre><code class="language-cpp">void rebuild_bitmaps(void)
+{
+   init_level_background();
+}</code></pre>
+
+<br><mh7>Drawing Sequence in the Game Loop</mh7>
+<mh3>
+This happens every frame (unless drawing is skipped)
+</mh3>
+<pre><code class="language-cpp">if (draw_frame)
+{
+   get_new_background(0);
+   draw_lifts();
+   draw_items();
+   draw_enemy();
+   draw_ebullets();
+   draw_pbullets();
+   draw_players();
+
+   get_new_screen_buffer();
+   draw_screen_overlay();
+   al_flip_display();
+}</code></pre>
+
+<mh3>
+- level_buffer is overwritten with a fresh copy of level_background with 'get_new_background()'
+
+- everything else (lifts, items, enemies, bullets, players) is drawn on level_buffer
+
+- the region of level_buffer that will be shown on the screen is scaled to the backbuffer with 'get_new_screen_buffer()'
+
+- the screen overlays are drawn on the backbuffer with 'draw_screen_overlay()'
+
+- the backbuffer is swapped to the screen with 'al_flip_display()'
+
+</mh3>
+
+<br><mh7>Get New Background</mh7>
+<pre><code class="language-cpp">void get_new_background(int full)
+{
+   al_set_target_bitmap(level_buffer);
+   if (full) al_draw_bitmap(level_background, 0, 0, 0);
+   else
+   {
+      // this only grabs the visible region, in the interests of speed
+      int x = level_display_region_x - 20; if (x < 0) x = 0;
+      int y = level_display_region_y - 20; if (y < 0) y = 0;
+      int w = level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
+      int h = level_display_region_h + 40; if (y+h > 2000) h = 2000-y;
+      al_draw_bitmap_region(level_background, x, y, w, h, x, y, 0);
+   }
+}</code></pre>
+
+
+<br><mh7>Get New Screen Buffer</mh7>
+<pre><code class="language-cpp">void get_new_screen_buffer(void)
+{
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   int alp = active_local_player;
+   int c = players[alp].color;
+
+   // draw frame in local player's color
+   for (int x = 0; x < BORDER_WIDTH; x++)
+      al_draw_rectangle(x+0.5f, x+0.5f, (SCREEN_W-1-x)+0.5f, (SCREEN_H-1-x)+0.5f,  palette_color[c + (x * 16)], 1);
+
+   // default place and size to draw on screen_buffer
+   int bw = BORDER_WIDTH;
+   int sbx = bw;
+   int sby = bw;
+   int sbw = SCREEN_W-bw*2;
+   int sbh = SCREEN_H-bw*2;
+
+   // how big is the entire level after scale factor is applied?
+   int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
+
+   // is the entire level smaller than the screen buffer width?
+   if (sls < sbw)
+   {
+      int a = sbw - sls; // how much smaller?
+      sbw = sls;         // new screen_buffer blit width = sls
+      sbx += a/2;        // new screen_buffer blit xpos
+   }
+
+   // is the entire level smaller than the screen buffer height?
+   if (sls < sbh)
+   {
+      int a = sbh - sls; // how much smaller?
+      sbh = sls;         // new screen_buffer blit height = sls
+      sby += a/2;        // new screen_buffer blit ypos
+   }
+
+   // find the size of the source screen from actual screen size and scaler
+   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
+   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
+   if (SW > 2000) SW = 2000;
+   if (SH > 2000) SH = 2000;
+
+   // find where to grab the source screen from based on the players position
+   int PX = al_fixtoi(players[alp].PX) + 10;
+   int PY = al_fixtoi(players[alp].PY) + 10;
+
+   // set the scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
+   int x_size = SW / 8; // larger number is smaller window
+   int y_size = SH / 12;
+
+   if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size; // hit right edge
+   if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size; // hit left edge
+   if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size; // hit bottom edge
+   if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size; // hit top edge
+
+   // correct for edges
+   if (WX < 0) WX = 0;
+   if (WY < 0) WY = 0;
+   if (WX > (2000 - SW)) WX = 2000 - SW;
+   if (WY > (2000 - SH)) WY = 2000 - SH;
+
+   // used by get_new_background to only get what is needed
+   level_display_region_x = WX;
+   level_display_region_y = WY;
+   level_display_region_w = SW;
+   level_display_region_h = SH;
+
+   // this is what all the previous calculations have been building up to:
+   al_draw_scaled_bitmap(level_buffer, WX, WY, SW, SH, sbx, sby, sbw, sbh, 0);
+}</code></pre>
+
+<br><mh7>Scale Factor</mh7>
+<mh3>
+Scale factor controls how much the of the level is shown on the screen.
+
+At scale factor 1.00 everything is drawn at a 1:1 ratio.
+At values larger than 1.00 all of the level elements appear larger and less of the level is shown.
+At values smaller than 1.00 all of the level elements appear smaller and more of the level is shown.
+
+This only applies to the level view while the game is playing.  Menu's and screen overlays are not affected.
+
+While the game is running, F5 decreases scale factor and F6 increases it.
+Pressing F5 and F6 at the same time resets scale factor to 1.00.
+
+These are the global variables used by this code:
+</mh3>
+<pre><code class="language-cpp">
+float scale_factor;         // the target scale_factor
+float scale_factor_current; // the current scale_factor
+float scale_factor_inc;     // how fast the current scale_factor changes to meet the target scale_factor
+int show_scale_factor;      // used to briefly display the scale_factor on the screen overlay when it changes
+</code></pre>
+
+<mh3>
+This is how F5 and F6 change scale factor:
+</mh3>
+<pre><code class="language-cpp">if ((key[ALLEGRO_KEY_F5]) && (!KEY_F5_held))
+{
+   KEY_F5_held = 10;
+   scale_factor *= .90;
+   set_scale_factor(0);
+}
+if (!key[ALLEGRO_KEY_F5]) KEY_F5_held = 0;
+if (key[ALLEGRO_KEY_F5]) if (--KEY_F5_held < 0) KEY_F5_held = 0;
+if ((key[ALLEGRO_KEY_F6]) && (!KEY_F6_held))
+{
+   KEY_F6_held = 10;
+   scale_factor *= 1.1;
+   set_scale_factor(0);
+}
+if (!key[ALLEGRO_KEY_F6]) KEY_F6_held = 0;
+if (key[ALLEGRO_KEY_F6]) if (--KEY_F6_held < 0) KEY_F6_held = 0;
+
+if ((KEY_F5_held) && (KEY_F6_held))
+{
+   KEY_F5_held = 10;
+   KEY_F6_held = 10;
+   scale_factor = 1.0;
+   set_scale_factor(1);
+}</code></pre>
+
+<mh3>
+This is how scale factor is set, bounds checked and saved to config file:
+</mh3>
+<pre><code class="language-cpp">void set_scale_factor(int instant)
+{
+   // enforce max and min
+   if (scale_factor < .2) scale_factor = .2;
+   if (scale_factor > 40) scale_factor = 40;
+   save_config();
+
+   if (instant) scale_factor_current = scale_factor;
+   show_scale_factor = 80;
+}</code></pre>
+
+
+<mh3>
+This is called once every game loop to make scale_factor_current gradually change to match scale_factor
+</mh3>
+
+<pre><code class="language-cpp">void proc_scale_factor_change(void)
+{
+   show_scale_factor--;
+   if (scale_factor_current < scale_factor)
+   {
+       // try to scale the inc, larger as scale_factor gets larger
+       float inc = scale_factor_inc * scale_factor_current/3;
+       scale_factor_current += inc;
+       // if we overshoot set to exact to prevent oscillation
+       if (scale_factor_current > scale_factor) scale_factor_current = scale_factor;
+   }
+   if (scale_factor_current > scale_factor)
+   {
+       // try to scale the inc, larger as scale_factor gets larger
+       float inc = scale_factor_inc * scale_factor_current/3;
+       scale_factor_current -= inc;
+       // if we overshoot set to exact to prevent oscillation
+       if (scale_factor_current < scale_factor) scale_factor_current = scale_factor;
+   }
+}
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+               <footer>
+                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2018, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+            </footer>
+
+        </div>
+    </body>
+
+</html>

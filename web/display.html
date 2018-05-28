@@ -1,0 +1,269 @@
+<!doctype html>
+<title>Display</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+            
+            <div style="text-align: center;">Navigation</div><hr>    
+
+            <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+            <div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
+            <div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
+            <div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
+            <div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
+            <div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
+            <div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
+            <div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+
+            <br><div style="text-align: center;">Technical Descriptions</div><hr>    
+            
+            <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+            <div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+            <div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+            <div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+            <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+            <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+            <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+            
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh5>Display</mh5><hr>
+            </header>
+
+
+        
+<mh3>
+I use these global variables for the display:
+</mh3>
+    
+<pre><code class="language-cpp">ALLEGRO_DISPLAY *display;
+int fullscreen;
+
+// current size and position
+int disp_x_curr; 
+int disp_y_curr;
+int disp_w_curr;
+int disp_h_curr;
+
+// size and position of windowed mode
+int disp_x_wind;
+int disp_y_wind;
+int disp_w_wind;
+int disp_h_wind;
+
+// In windowed mode current values are same as windowed values.
+// In fullscreen mode, they are read from the display struct.
+
+int display_transform_double = 2;
+int SCREEN_W;
+int SCREEN_H;
+</code></pre>
+
+<mh3>
+These values are also saved in the config file:
+</mh3>    
+<pre><code class="language-cpp">int fullscreen;
+int disp_x_wind;
+int disp_y_wind;
+int disp_w_wind;
+int disp_h_wind;
+</code></pre>
+            
+<br><mh7>Creating the Display</mh7>
+
+<pre><code class="language-cpp">int init_screen(void)
+{
+   al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
+   // (most of the time I get a 32 bit anyway, but if I get 16, it can be faster)
+
+   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
+   if (fullscreen) flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
+   al_set_new_display_flags(flags);
+
+   display = al_create_display(disp_w_wind, disp_h_wind);//
+   if(!display)
+   {
+      sprintf(msg, "Error creating display\n");
+      m_err(msg);
+      exit(0);
+   }
+
+   if (!fullscreen)
+   {
+      disp_x_curr = disp_x_wind;
+      disp_y_curr = disp_y_wind;
+      al_set_window_position(display, disp_x_curr, disp_y_curr);
+   }
+
+   disp_w_curr = al_get_display_width(display);
+   disp_h_curr = al_get_display_height(display);
+   al_get_window_position(display, &disp_x_curr, &disp_y_curr);
+
+   auto_set_display_transform_double();
+   return 1;
+}</code></pre>
+
+<br><mh7>Process Screen Change</mh7>
+<mh3>
+This function is called when:
+    
+- an event 'ALLEGRO_EVENT_DISPLAY_RESIZE' is received
+- F12 is used to toggle fullscreen
+- proc_controllers() detects the window has been moved
+    
+</mh3>
+<pre><code class="language-cpp">void proc_screen_change(int new_sw, int new_sh, int new_sx, int new_sy, int new_fs)
+{
+   if ((!fullscreen) && (new_fs)) //  changing to fullscreen
+   {
+      fullscreen = 1;
+      al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 1);
+      al_get_window_position(display, &disp_x_curr, &disp_y_curr);
+      disp_w_curr = al_get_display_width(display);
+      disp_h_curr = al_get_display_height(display);
+      auto_set_display_transform_double();
+      rebuild_bitmaps();
+      save_config();
+      Redraw = 1;
+   }
+   else if ((fullscreen) && (!new_fs)) //  changing away from fullscreen
+   {
+      fullscreen = 0;
+      al_resize_display(display, disp_w_wind, disp_h_wind);
+      al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 0);
+      al_set_window_position(display, disp_x_wind, disp_y_wind);
+      al_get_window_position(display, &disp_x_curr, &disp_y_curr);
+      disp_w_curr = al_get_display_width(display);
+      disp_h_curr = al_get_display_height(display);
+      auto_set_display_transform_double();
+      rebuild_bitmaps();
+      save_config();
+      Redraw = 1;
+   }
+   else if (!fullscreen)
+   {
+      if ((new_sw != disp_w_curr) || (new_sh != disp_h_curr)) // window has been resized
+      {
+         al_acknowledge_resize(display);
+         disp_w_curr = disp_w_wind = al_get_display_width(display);
+         disp_h_curr = disp_h_wind = al_get_display_height(display);
+         auto_set_display_transform_double();
+         rebuild_bitmaps();
+         save_config();
+         Redraw = 1;
+     }
+     if ((new_sx != disp_x_curr) || (new_sy != disp_y_curr)) // window has been moved
+     {
+        disp_x_curr = disp_x_wind = new_sx;;
+        disp_y_curr = disp_y_wind = new_sy;;
+        save_config();
+     }
+  }
+}</code></pre>
+
+            
+
+<br><mh7>Display Transform Double</mh7>
+<mh3>
+I also use an orthographic transform to double or triple the screen size.
+</mh3>
+<pre><code class="language-cpp">void set_display_transform(void)
+{
+   al_set_target_backbuffer(display);
+   SCREEN_W = disp_w_curr/display_transform_double;
+   SCREEN_H = disp_h_curr/display_transform_double;
+   ALLEGRO_TRANSFORM trans;
+   al_identity_transform(&trans);
+   al_orthographic_transform(&trans, 0, 0, -1.0, SCREEN_W, SCREEN_H, 1.0);
+   al_use_projection_transform(&trans);
+}</code></pre>
+<mh3>
+This was implemented to address large screen sizes and small text on menus and overlays.
+</mh3>
+<pre><code class="language-cpp">void auto_set_display_transform_double(void)
+{
+   display_transform_double = 1;
+
+   if (disp_w_curr > 1023) display_transform_double = 2;
+   if (disp_h_curr > 1023) display_transform_double = 2;
+
+   if (disp_w_curr < 1024) display_transform_double = 1;
+   if (disp_h_curr < 700) display_transform_double = 1;
+
+   if (level_editor_running) display_transform_double = 1;
+
+   if (help_screens_running)
+   {
+      if (disp_w_curr > 1279) display_transform_double = 2;
+      if (disp_w_curr < 1280) display_transform_double = 1;
+   }
+}</code></pre>
+<mh3>    
+This extern variable controls the doubling:    
+</mh3>
+<pre><code class="language-cpp">extern int display_transform_double = 1;
+// 1 = normal (no double)
+// 2 = double
+// 3 = triple
+</code></pre>
+<mh3>    
+Then all of my drawing functions throughout the rest of the game that need to know screen size use
+the prescaled 'SCREEN_W' and 'SCREEN_H' instead of the actual sizes.
+
+The mouse_x and mouse_y positions are also scaled like this:
+</mh3>
+<pre><code class="language-cpp">mouse_x = ev.mouse.x / display_transform_double;
+mouse_y = ev.mouse.y / display_transform_double;
+</code></pre>
+
+
+<br><mh7>Detecting Window Move</mh7>
+<mh3>
+Because no events are triggered when the display window is moved,  I had to detect it myself.
+
+Every frame, in the function 'proc_controllers()',  I compare the display's window position to the stored values.
+
+If they differ, I call 'proc_screen_change()' with the new values.
+</mh3>
+<pre><code class="language-cpp">if (!fullscreen) // detect if window was moved
+{
+   int x, y;
+   al_get_window_position(display, &x, &y);
+   if ((x != disp_x_curr) || (y != disp_y_curr))
+   proc_screen_change(disp_w_curr, disp_h_curr, x, y, fullscreen);
+}
+</code></pre>
+
+
+
+               <footer>
+                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2018, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+            </footer>
+
+        </div>
+    </body>
+
+</html>

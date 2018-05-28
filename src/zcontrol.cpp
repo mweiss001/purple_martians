@@ -1079,15 +1079,15 @@ int proc_controllers()
    int done = 0;
    int menu_timer_wait = 1;
 
-   if (key[ALLEGRO_KEY_PRINTSCREEN]) key[ALLEGRO_KEY_PRINTSCREEN] = 0; // special exception to make PRINTSCREEN work
+   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work
    Key_pressed_ASCII = 0;
 
    if (!fullscreen) // detect if window was moved
    {
-      int l_spx, l_spy;
-      al_get_window_position(display, &l_spx, &l_spy);
-      if ((l_spx != disp_x_curr) || (l_spy != disp_y_curr))
-      proc_screen_change(disp_w_curr, disp_h_curr, l_spx, l_spy, fullscreen);
+      int x, y;
+      al_get_window_position(display, &x, &y);
+      if ((x != disp_x_curr) || (y != disp_y_curr))
+      proc_screen_change(disp_w_curr, disp_h_curr, x, y, fullscreen);
    }
 
    while (!done)
@@ -1096,9 +1096,9 @@ int proc_controllers()
       while (!al_is_event_queue_empty(event_queue))
       {
          ALLEGRO_EVENT ev;
-         if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
          if (al_get_next_event(event_queue, &ev))
          {
+            if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
             if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
             {
                // check to see if we have more resize events piling up

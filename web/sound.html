@@ -1,0 +1,293 @@
+<!doctype html>
+<title>Sound</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+            
+            <div style="text-align: center;">Navigation</div><hr>    
+
+            <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+            <div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
+            <div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
+            <div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
+            <div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
+            <div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
+            <div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
+            <div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+
+            <br><div style="text-align: center;">Technical Descriptions</div><hr>    
+            
+            <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+            <div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+            <div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+            <div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+            <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+            <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+            <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+            
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh5>Sound</mh5><hr>
+            </header>
+
+
+<mh3>
+Sound is one of the easiest and most straight forward things that I do in the game.
+
+- I create a voice (main output)
+- Then a main mixer to attach to the voice
+- Then two other mixers to attach to the main mixer
+
+- se_mixer is for the sound effects
+- st_mixer is for the sound track
+
+This is done so I can control the volume of the soundtrack and sound effects independantly.
+
+I then attach samples, sample instances, and streams to these mixers.
+</mh3>    
+
+<br><mh7>Sound Setup</mh7>
+<mh3>
+These are the global variables used:</mh3>    
+        
+<pre><code class="language-cpp">ALLEGRO_VOICE *voice = NULL;
+ALLEGRO_MIXER *mn_mixer = NULL;
+ALLEGRO_MIXER *se_mixer = NULL;
+ALLEGRO_MIXER *st_mixer = NULL;
+ALLEGRO_SAMPLE *snd[20];
+ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
+ALLEGRO_AUDIO_STREAM *pm_theme_stream;
+int sample_delay[8];
+int lit_item;
+
+// these variables are also saved in the config file:
+int sound_on = 1;
+int se_scaler=5;
+int st_scaler=5;
+</code></pre>
+
+<mh3>
+In intial_setup() I call load_sound():
+</mh3>
+        
+<pre><code class="language-cpp">void load_sound() // for normal loading of sound driver and samples
+{
+   int err = 0;
+   if (sound_on)
+   {
+      if(!al_install_audio())
+      {
+         m_err((char*)"Failed to initialize audio.\n");
+         err = 1;
+      }
+      if ((!err) && (!al_init_acodec_addon()))
+      {
+         m_err((char*)"Failed to initialize audio codecs.\n");
+         err = 1;
+      }
+      if (err)
+      {
+         sound_on = 0;
+         save_config();
+      }
+      else
+      {
+         voice = al_create_voice(44100, ALLEGRO_AUDIO_DEPTH_INT16, ALLEGRO_CHANNEL_CONF_2);
+         if (voice == NULL) m_err((char*)"Failed to create voice.\n");
+         al_set_default_voice(voice);
+
+         mn_mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
+         if (mn_mixer == NULL) m_err((char*)"Failed to create mn_mixer\n");
+
+         se_mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
+         if (se_mixer == NULL) m_err((char*)"Failed to create se_mixer\n");
+
+         st_mixer = al_create_mixer(44100, ALLEGRO_AUDIO_DEPTH_FLOAT32, ALLEGRO_CHANNEL_CONF_2);
+         if (st_mixer == NULL) m_err((char*)"Failed to create st_mixer\n");
+
+         if (!al_attach_mixer_to_voice(mn_mixer, voice)) m_err((char*)"Failed attaching mn_mixer\n");
+         if (!al_attach_mixer_to_mixer(se_mixer, mn_mixer)) m_err((char*)"Failed attaching se_mixer\n");
+         if (!al_attach_mixer_to_mixer(st_mixer, mn_mixer)) m_err((char*)"Failed attaching st_mixer\n");
+
+         al_set_default_mixer(se_mixer);
+         al_reserve_samples(20);
+         char fn[20] = "snd/snd00.wav";
+         for (int x=0; x<9; x++)
+         {
+            fn[8] = 48 + x;
+            snd[x] = al_load_sample(fn);
+         }
+         sid_hiss = al_create_sample_instance(snd[3]);
+         al_set_sample_instance_playmode(sid_hiss, ALLEGRO_PLAYMODE_LOOP);
+         al_attach_sample_instance_to_mixer(sid_hiss, se_mixer);
+
+         pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
+         if (pm_theme_stream == NULL) m_err((char*)"Error loading snd/pm.xm\n");
+
+         al_set_audio_stream_playmode(pm_theme_stream, ALLEGRO_PLAYMODE_LOOP);
+         al_set_audio_stream_playing(pm_theme_stream, 0);
+         al_attach_audio_stream_to_mixer(pm_theme_stream, st_mixer);
+
+         set_se_scaler();
+         set_st_scaler();
+      }
+   }
+}</code></pre>
+
+
+<br><mh7>Mixer Volume Controls</mh7>
+<mh3>
+I set the volume of se_mixer and st_mixer with se_scaler and st_scaler. 
+se_scaler and st_scaler are integers that range from 0-9.
+They are set by the user in 'Options Menu' and are also saved in the config file.
+When they are changed or set, these functions apply the values to the mixers:
+</mh3>
+<pre><code class="language-cpp">void set_se_scaler(void)
+{
+   if (sound_on) al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
+   save_config();
+}
+void set_st_scaler(void)
+{
+   if (sound_on) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
+   save_config();
+}</code></pre>
+
+
+<br><mh7>Theme Music</mh7>
+<mh3>
+The theme music is started like this when a game is started or resumed.
+The only difference is that resume does not rewind before starting.
+</mh3>
+<pre><code class="language-cpp">void start_music(int resume)
+{
+   if (sound_on)
+   {
+      if (!resume) al_rewind_audio_stream(pm_theme_stream);
+      al_set_audio_stream_playing(pm_theme_stream, 1);
+   }
+}</code></pre>
+
+<mh3>
+Theme music and sound effects are stopped like this when the game is exited:</mh3>
+<pre><code class="language-cpp">void stop_sound(void)
+{
+   if (sound_on)
+   {
+      al_set_audio_stream_playing(pm_theme_stream, 0);
+      al_set_sample_instance_playing(sid_hiss, 0);
+   }
+}</code></pre>
+
+
+<br><mh7>Sound Effects</mh7>
+
+<mh3>
+When an event in the game requires a sound to be played, here is how I do that:
+</mh3>
+<pre><code class="language-cpp">switch (ev)
+      {
+         /*  sample numbers
+         0 - player shoots
+         1 - d'OH
+         2 - bonus
+         3 - hiss
+         4 - la dee dah  door, key, exit
+         5 - explosion
+         6 - grunt 1 shot
+         7 - grunt 2 hit
+         8 - enemy killed  */
+        case  1: // player shoots
+           al_play_sample(snd[0], 0.71, 0, .8, ALLEGRO_PLAYMODE_ONCE, NULL);
+        break;
+        case  2: case  4: case  5: // la dee dah (key, exit, door)
+           if (sample_delay[4]+30 < frame_num)
+           {
+              sample_delay[4] = frame_num;
+              al_play_sample(snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+           }
+        break;
+        case  6: case  9: // health bonus and free man
+           if (sample_delay[2]+30 < frame_num)
+           {
+              sample_delay[2] = frame_num;
+              al_play_sample(snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+           }
+        break;
+        case 11: // player got shot
+           al_play_sample(snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+        break;
+        case 8: case 10: case 12: case 34: case 35: // player got hit (bomb, mine, enemy collision, squished, stuck)
+           if (sample_delay[7]+14 < frame_num)
+           {
+              sample_delay[7] = frame_num;
+              al_play_sample(snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+           }
+        break;
+        case 13: // enemy killed
+             al_play_sample(snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
+        break;
+        case 21: // d'Oh (player died)
+             al_play_sample(snd[1], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+        break;
+        case 22: // explosion
+             al_play_sample(snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+        break;
+      }
+</code></pre>
+<br><mh7>Sample Delay</mh7>
+<mh3>
+I have implemented a simple system to prevent re-triggering a sample while it is still playing.
+
+int sample_delay[20] keeps track of the frame_num when a sample was played.
+
+Won't allow the same sample to be re-played until a specified number of frames has passed.
+</mh3>
+
+<br><mh7>Processing the Hiss Sound</mh7>
+<mh3>
+To process the hiss sound (when a bomb fuse is burning or a rocket is lit), I call this function once per frame:
+</mh3>
+<pre><code class="language-cpp">void proc_sound()
+{
+   if (sound_on)
+   {
+      if (lit_item) al_set_sample_instance_playing(sid_hiss, 1);
+      else          al_set_sample_instance_playing(sid_hiss, 0);
+      lit_item = 0;
+   }
+}</code></pre>
+<mh3>lit_item is set to 0 at the end of this function.
+
+When bombs and rockets are processed, they will set lit_item if they are lit.
+</mh3>
+
+
+    
+               <footer>
+               <mh11>Purple Martians</mh11><hr>
+               <div id="copyright">Copyright &copy; 2018, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a></div>
+               </footer>
+        </div>
+    </body>
+</html>
