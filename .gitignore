@@ -1,9 +1,14 @@
 /o
 /*.o
-/logs
+
+/logs/*
 
 /savegame/*.gm
 
 /pm.cfg
 /gmon.out
 /pm.depend
+
+/screenshots/*
+
+
