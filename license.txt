@@ -21,11 +21,12 @@ freely, subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 ------------------------------------------------------------------------------
 
-Source code available on request:
+Source code available on github: https://github.com/mweiss001/purple_martians
 
-Here is a list of tasks you must perform to get the source code:
+If you play the game or clone the repository, I humbly request that you do the following:
 
-1. Send me an email (mweiss001@gmail.com) requesting the sources
-2. Attach a new level for the game that you have created (optional)
-3. Promise not to laugh at the nasty hacks and kludges in my code!
+- Send me an email (mweiss001@gmail.com)
 
+- Attach a new level for the game that you have created
+
+- Promise not to laugh at the nasty hacks and kludges in my code!
