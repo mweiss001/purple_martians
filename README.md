@@ -7,13 +7,12 @@ Works identically in windows and linux, including LAN network multiplayer
 
 The official master repository is: https://github.com/mweiss001/purple_martians
 
-This project is written in C/C++ and uses:
-Allegro 5
-MinGW-w64
-zlib
-libnet
-Code::Blocks
-
+This project is written in C/C++ and uses:  
+Allegro 5  
+MinGW-w64  
+zlib  
+libnet  
+Code::Blocks  
 
 Development envoronments can be set up for windows or linux, see: docs/dev_setup/
 
