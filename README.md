@@ -12,7 +12,8 @@ Allegro 5
 MinGW-w64
 zlib
 libnet
-Code::Block
+Code::Blocks
+
 
 Development envoronments can be set up for windows or linux, see: docs/dev_setup/
 
