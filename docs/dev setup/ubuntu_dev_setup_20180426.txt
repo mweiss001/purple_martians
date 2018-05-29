@@ -1,8 +1,21 @@
----------------------------------------------------------
----------------------------------------------------------
------------------- Linux --------------------------------
----------------------------------------------------------
----------------------------------------------------------
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+---- Setting up Allegro 5.2.4 developement environmnet on Linux -----
+---------------------------------------------------------------------
+---------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------------
+Note: this is the first time I did this and there are many false starts and unnecessary steps.
+
+Skip down further to see the second and third times, which are must more concise and to the point.
+
+2nd time: 20180425 (ubuntu 16.04 fresh install)
+
+3rd time: 20180428 (ubuntu 18.04 fresh install)
+-------------------------------------------------------------------------------------------------
+
+
 
 Start with a clean slate...
 
@@ -186,7 +199,7 @@ from a terminal go to the folder 'libnet' in the game folder
 (puts libnet.h in /usr/include/)
 (puts libnet.a in /usr/lib/x86_64-linux-gnu/)
 
-cd bu	
+
 ---------------------------------------------------------
 Linker setting for my project
 ---------------------------------------------------------
@@ -208,12 +221,11 @@ re complied my project
 now version says 5.2.4.1
 
 
-
 By default you will be on the master branch. You can change the branch from your working tree like this:
-
 git checkout 5.0
 git checkout 4.4
 git checkout master
+
 Usage
 A quick reminder how to use git.
 
@@ -229,7 +241,6 @@ To make sure you're in the right branch and have the latest changes:
 cd allegro
 git checkout master
 git pull --rebase origin master
-
 
 
 i have gcc 5.4.0
@@ -263,8 +274,6 @@ $ sudo update-alternatives --config gcc
 Tried with: Ubuntu 14.04
 
 
-
-
 sudo add-apt-repository ppa:jonathonf/gcc-7.2
 sudo apt-get update
 sudo apt-get install gcc-7
@@ -274,7 +283,6 @@ sudo apt-get install g++-7
 or alternatively ubuntu 17.10 is supposed to come with 7.2
 
 now I have it, but not linked...
-
 
 
 gcc still shows 5.4
@@ -301,7 +309,6 @@ Finally we can check our GCC -v again and make sure we are using the correct ver
 gcc -v
 g++ -v
 
-
 ls -la /usr/bin | grep gcc-7
 ls -la /usr/bin | grep g++-7
 
@@ -311,34 +318,16 @@ rm /usr/bin/g++
 ln -s /usr/bin/gcc-7 /usr/bin/gcc
 ln -s /usr/bin/g++-7 /usr/bin/g++
 
-
-erased cmake files from my buildc
+erased cmake files from my build dir
 and rebuilt allegro
 
-same...
-
-problem is with open_gl
-
-
-
-
-
-
-
-
-
-
-
 ------------------------------------
-
 
 I am using the dynamic monolith version
 
 build it again, but remove open al and some others
 
-
 ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
-
 
 build type Release
 
@@ -365,7 +354,6 @@ vorbis
 
 monolith on
 
-
 took 90s to compile
 
 now liballegro_monolith.so.5.2 is 1.7M instead of: 7.2M 
@@ -375,13 +363,12 @@ I only need this file and libdumb.so.1
 
 
 
-
 ---------------------------------------------------------------
 ---------------------------------------------------------------
 ---------------------------------------------------------------
 ---------------------------------------------------------------
 ---------------------------------------------------------------
-
+---------------------------------------------------------------
 
 20180425
 
@@ -503,11 +490,9 @@ sudo apt-get update
 sudo apt-get install codeblocks codeblocks-contrib
 
 
-
 ---------------------------------------------------------
 Set up samba share on desktop for project files
 ---------------------------------------------------------
-
 made a folder on the desktop 'pm_client7' and shared it
 prompted to install samba, did it with no problems
 needed to restart session
@@ -528,7 +513,7 @@ First time code::blocks is run it complains about default compiler
 just choose gcc and it wont complain after first time
 
 gcc -v gives 5.4.0
-once I updated to 7.2, but it seems to work fine on 5.4 as well
+in the past I tried updating to 7.2, but it seems to work fine on 5.4 as well
 
 build settings:
 
@@ -549,7 +534,6 @@ linker:
 -lpthread
 
 
-
 ---------------------------------------------------------
 Make a release
 ---------------------------------------------------------
@@ -560,7 +544,7 @@ cp /usr/lib/x86_64-linux-gnu/libdumb.so.1 ./linux_libs
 
 run 'lin_make_release'
 
-a folder called 'purple_martians__linux' is created and needed files are copied to it
+A folder called 'purple_martians__linux' is created and needed files are copied to it
 rename the folder like this: 'purple_martians_7.xx_linux'
 right click on the folder and compress to tar.gz
 ....?
@@ -568,10 +552,8 @@ profit
 
 
 
-
-
-
-
+----------------------------------------------------------------------
+----------------------------------------------------------------------
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
 ----------------------------------------------------------------------
@@ -730,6 +712,11 @@ rename the folder like this: 'purple_martians_7.xx_linux'
 right click on the folder and compress to tar.gz
 ....?
 profit
+
+
+
+
+
 
 
 

@@ -6,7 +6,6 @@
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-
 web docs
 
 rename events
@@ -17,20 +16,12 @@ input to have key, mouse, joystick
 game moves array to have its own files
 
 
-
-
-
 rename level_array
 how about level drawing
-
-
-
-
 
 ---------------------------------------------------------
 ------------------------ linux --------------------------
 ---------------------------------------------------------
-
 
 ---------------------------------------------------------
 ------------------------ A5 fixes -----------------------
@@ -40,6 +31,36 @@ how about level drawing
 ---------------------------------------------------------
 ------------------------ Help file ---------------------
 ---------------------------------------------------------
+
+add more bombable and semi-solid blocks
+
+change viewer common 'item' to 'object'
+
+level editor basics and mouse control both refer to pop-up menu
+
+
+
+The level editor has three major modes:
+
+1 - Main editor
+- partial level in background, scrollable by moving mouse to screen edges
+- most common way to draw block and add objects from selection window
+- also can set draw item with mouse b2 and put draw item with mouse b1
+- the only mode that has the pop-up menu
+
+2 - Zoom Full Screen
+- entire level shown in UL corner
+- mostly used for manipulating rectagular selections of the level
+- clear, copy, paste, move, save and load selection to disk...
+- block file, block frame, block floodfill
+
+3 - Object Viewer
+- entire level shown in UL corner
+- used for manipulating indiviudual objects, (items, enemies, lifts)
+- can move and  edit object properties with buttons and slider
+- can move and  edit object properties with map
+
+
 
 ---------------------------------------------------------
 ---------------------- Wish List ------------------------
