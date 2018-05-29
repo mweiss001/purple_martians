@@ -100,7 +100,7 @@ int disp_h_wind;
    if (fullscreen) flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
    al_set_new_display_flags(flags);
 
-   display = al_create_display(disp_w_wind, disp_h_wind);//
+   display = al_create_display(disp_w_wind, disp_h_wind);
    if(!display)
    {
       sprintf(msg, "Error creating display\n");
