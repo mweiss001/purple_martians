@@ -1077,10 +1077,9 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
 int proc_controllers()
 {
    int ret = 0;
-   int done = 0;
-   int menu_timer_wait = 1;
+   int menu_timer_block = 1;
 
-   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work
+   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
    Key_pressed_ASCII = 0;
 
    if (!fullscreen) // detect if window was moved
@@ -1091,15 +1090,14 @@ int proc_controllers()
       proc_screen_change(disp_w_curr, disp_h_curr, x, y, fullscreen);
    }
 
-   while (!done)
+   while (menu_timer_block)
    {
-      done = 1; // default
       while (!al_is_event_queue_empty(event_queue))
       {
          ALLEGRO_EVENT ev;
          if (al_get_next_event(event_queue, &ev))
          {
-            if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
+            if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_block = 0;
             if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
             {
                // check to see if we have more resize events piling up
@@ -1119,10 +1117,10 @@ int proc_controllers()
           clear_keys(active_local_player);
           player_key_check(active_local_player);
           function_key_check();
-          if (menu_timer_wait) done = 0;
       }
       else // game is in progress
       {
+         menu_timer_block = 0;
          function_key_check();
          for (int p=0; p<NUM_PLAYERS; p++)
             if (players[p].active) // cycle all active players

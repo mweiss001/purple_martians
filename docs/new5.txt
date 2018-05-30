@@ -4767,12 +4767,128 @@ cause when it does, paused game is lost...done
 
 changed logo drawing to use max x or y scale instead of hypot for thickness
 
+-------
+fixed linux line ending on text files
+removed license.md
+edited license.txt and readme.md
 
 
 
 
 
 
+
+i want to simplify the 2 variables used for menu timer wait in proc_controllers()
+
+right now I use done and menu timer wait
+
+done is used 3 time; menu_timer_wait is used 2 times
+
+code before changes...
+
+
+int proc_controllers()
+{
+   int ret = 0;
+   int done = 0;
+   int menu_timer_wait = 1;
+
+   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work
+   Key_pressed_ASCII = 0;
+
+   if (!fullscreen) // detect if window was moved
+   {
+      int x, y;
+      al_get_window_position(display, &x, &y);
+      if ((x != disp_x_curr) || (y != disp_y_curr))
+      proc_screen_change(disp_w_curr, disp_h_curr, x, y, fullscreen);
+   }
+
+   while (!done)
+   {
+      done = 1; // default
+      while (!al_is_event_queue_empty(event_queue))
+      {
+         ALLEGRO_EVENT ev;
+         if (al_get_next_event(event_queue, &ev))
+         {
+            if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
+            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
+            {
+               // check to see if we have more resize events piling up
+               ALLEGRO_EVENT ev2;
+               while (al_get_next_event(event_queue, &ev2))
+               {
+                  if (ev2.type == ALLEGRO_EVENT_DISPLAY_RESIZE) ev = ev2;
+                  else ret = proc_events(ev2, ret);
+               }
+               proc_screen_change(ev.display.width, ev.display.height, disp_x_curr, disp_y_curr, fullscreen);
+            }
+            else ret = proc_events(ev, ret);
+         }
+      }
+      if (game_exit) // if called from menu only do key check for active local player
+      {
+          clear_keys(active_local_player);
+          player_key_check(active_local_player);
+          function_key_check();
+          if (menu_timer_wait) done = 0;
+      }
+
+
+
+
+new version:
+
+menu_timer_block only and used in three places...much better
+
+int proc_controllers()
+{
+   int ret = 0;
+   int menu_timer_block = 1;
+
+   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
+   Key_pressed_ASCII = 0;
+
+   if (!fullscreen) // detect if window was moved
+   {
+      int x, y;
+      al_get_window_position(display, &x, &y);
+      if ((x != disp_x_curr) || (y != disp_y_curr))
+      proc_screen_change(disp_w_curr, disp_h_curr, x, y, fullscreen);
+   }
+
+   while (menu_timer_block)
+   {
+      while (!al_is_event_queue_empty(event_queue))
+      {
+         ALLEGRO_EVENT ev;
+         if (al_get_next_event(event_queue, &ev))
+         {
+            if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_block = 0;
+            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
+            {
+               // check to see if we have more resize events piling up
+               ALLEGRO_EVENT ev2;
+               while (al_get_next_event(event_queue, &ev2))
+               {
+                  if (ev2.type == ALLEGRO_EVENT_DISPLAY_RESIZE) ev = ev2;
+                  else ret = proc_events(ev2, ret);
+               }
+               proc_screen_change(ev.display.width, ev.display.height, disp_x_curr, disp_y_curr, fullscreen);
+            }
+            else ret = proc_events(ev, ret);
+         }
+      }
+      if (game_exit) // if called from menu only do key check for active local player
+      {
+          clear_keys(active_local_player);
+          player_key_check(active_local_player);
+          function_key_check();
+      }
+      else // game is in progress
+      {
+         menu_timer_block = 0;
 
 
 

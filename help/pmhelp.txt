@@ -470,7 +470,7 @@ Player and enemies can jump through from below.
 Bullets pass through in all directions.
 
 
-<ms032033034035165165165165165165165165165165165165165165165165
+<ms032033034035036037038039165165165165165165165165165165165165
 <l15>___________________________________________________________________________
 
 <l04>Breakable Blocks
@@ -486,7 +486,7 @@ Shoot these blocks to break them. (Enemy's bullets will break them too.)
 Bombs and rockets will destroy these blocks.
 
 
-<ms064165165165165165165165165165165165165165165165165165165165
+<ms064065066165165165165165165165165165165165165165165165165165
 
 
 <section>Netgame
@@ -1230,21 +1230,21 @@ LOGGING_NETPLAY_show_dif2 = 0
 
 <l09> Prev
 
-<l15>  - moves to the previous item of the same type.
+<l15>  - moves to the previous object of the same type.
 
 <l15>  - you can also use the [LEFT] key
 
 
 <l09> Next
 
-<l15>  - moves to the next item of the same type.
+<l15>  - moves to the next object of the same type.
 
 <l15>  - you can also use the [RIGHT] key
 
 
 <l09> Locked
 
-<l15>  - Locks the viewer to the current item to prevent the
+<l15>  - Locks the viewer to the current object to prevent the
 
 <l15>  - map from changing it  (see Viewer Map)
 
@@ -1261,7 +1261,7 @@ LOGGING_NETPLAY_show_dif2 = 0
 
 <l09> Delete
 
-<l15>  - deletes the item.
+<l15>  - deletes the object.
 
 
 <l09> Viewer Help

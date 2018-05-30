@@ -16,8 +16,16 @@ input to have key, mouse, joystick
 game moves array to have its own files
 
 
+
 rename level_array
 how about level drawing
+
+
+working on events...
+
+
+
+
 
 ---------------------------------------------------------
 ------------------------ linux --------------------------
@@ -32,13 +40,11 @@ how about level drawing
 ------------------------ Help file ---------------------
 ---------------------------------------------------------
 
-add more bombable and semi-solid blocks
+add more bombable and semi-solid blocks..done
 
-change viewer common 'item' to 'object'
+change viewer common 'item' to 'object'..done
 
 level editor basics and mouse control both refer to pop-up menu
-
-
 
 The level editor has three major modes:
 

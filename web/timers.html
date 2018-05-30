@@ -54,19 +54,14 @@
                 
 <mh3>
 Three timers are used in the game:
-
-ALLEGRO_TIMER * fps_timer;
-- used to control the speed of the game
     
-ALLEGRO_TIMER * sec_timer;
-- used to count the actual frames per second
-    
-ALLEGRO_TIMER * mnu_timer;
-- used to control the speed of the menu
 </mh3>
 
+<pre><code class="language-cpp">ALLEGRO_TIMER * fps_timer;  // used to control the speed of the game
+ALLEGRO_TIMER * mnu_timer;  // used to control the speed of the menu
+ALLEGRO_TIMER * sec_timer;  // used to count the actual frames per second
 
-<pre><code class="language-cpp">int initial_setup(void)
+int initial_setup(void)
 {
    // create timers
    fps_timer = al_create_timer(1 / (float) frame_speed );
@@ -84,36 +79,43 @@ ALLEGRO_TIMER * mnu_timer;
 </code></pre>
 
 
-<hr><mh4>
-Menu Timer (mnu_timer)
-</mh4>
+<br><mh7>Menu Timer (mnu_timer)</mh7>
+        
 <mh3>        
-The menu runs in a loop that processes the menu and logo animation.
-The speed of the menu loop is controlled by mnu_timer.
-The function 'proc_controller()' is called in this loop and will block until it gets a timer event.
+The menu runs in a loop that processes both the menu and the logo animation.
+
+The speed of this loop is controlled by mnu_timer.
+
+The function 'proc_controller()' is called by the menu in this loop and will block until it gets a timer event.
+    
 </mh3>
 <pre><code class="language-cpp">int proc_controllers()
 {
-   int done = 0;
-   int menu_timer_wait = 1;
-   while (!done)
+   int menu_timer_block = 1;
+   while (menu_timer_block)
    {
-      done = 1; // default
       while (!al_is_event_queue_empty(event_queue))
       {
          ALLEGRO_EVENT ev;
-         if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_wait = 0;
+         if (al_get_next_event(event_queue, &ev))
+         {
+            if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_block = 0;
+            // process other events........
+         }
       }
-      if (game_exit) // only true if menu active
+      if (game_exit) // if not in a game, must be in a menu loop
       {
-          if (menu_timer_wait) done = 0;
+         //.....
+      }
+      else // game is in progress
+      {
+         menu_timer_block = 0;
       }
    }
 }
 </code></pre>
-<hr><mh4>
-Second Timer (sec_timer)    
-</mh4>
+
+<br><mh7>Second Timer (sec_timer)</mh7>
 <mh3>
 Used to count the actual frames per second and the number of skipped frames in the last second.
 
@@ -141,9 +143,7 @@ int frames_skipped_last_second;
 ...
 </code></pre>
 
-<hr><mh4>
-Frames per Second Timer (fps_timer)   
-</mh4>
+<br><mh7>Frames per Second Timer (fps_timer)</mh7>
 <mh3>
 Used to control the speed of the game.
    
@@ -185,21 +185,17 @@ In speed test mode:
 - waiting for fps_timer is disabled, the game runs as fast or slow as it is able
 </mh3>
 
-<hr><mh4>
-Speed adjust during netgame.
-</mh4>
+<br><mh7>Speed adjust during netgame</mh7>
 <mh3>
 During a netgame the server runs at 40 fps and is the master timing source.
 
-The clients all make small adjustments to their speeds to try to maintain the
-proper timing relation to the server.
+The clients all make small adjustments to their speeds to try to maintain the proper timing relation to the server.
 
-The value 'server_lead_frames' is a global int and can be set in the config file,
-but should be left at its default value of 1.
+The value 'server_lead_frames' is a global int and can be set in the config file, but should be left at its default value of 1.
 This means that the clients try to stay 1 frame behind the server.
 
-The packet 'sdat' (server_data) is sent from the server to a client when the server has data
-for that client, or if there is no data, an empty 'sdat' is sent periodically for sync purposes.
+The packet 'sdat' (server_data) is sent from the server to a client when the server has data for that client,
+or if there is no data, an empty 'sdat' is sent periodically for sync purposes.
 
 The 'sdat' packet is time stamped with the frame_num of the server.
 The client compares this to its own frame_num and makes speed adjustments as follows.
