@@ -195,9 +195,10 @@ int KEY_PRTSCR_held = 0;
 // ----------------- setup ------------------------
 // ------------------------------------------------
 
-ALLEGRO_TIMER * fps_timer;
-ALLEGRO_TIMER * sec_timer;
-ALLEGRO_TIMER * mnu_timer;
+ALLEGRO_TIMER * fps_timer;  // used to control the speed of the game
+ALLEGRO_TIMER * mnu_timer;  // used to control the speed of the menu
+ALLEGRO_TIMER * sec_timer;  // used to count the actual frames per second
+
 
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 ALLEGRO_DISPLAY *display = NULL;

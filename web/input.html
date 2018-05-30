@@ -1,0 +1,698 @@
+<!doctype html>
+<title>Input</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+            
+            <div style="text-align: center;">Navigation</div><hr>    
+
+            <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+            <div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
+            <div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
+            <div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
+            <div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
+            <div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
+            <div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
+            <div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+
+            <br><div style="text-align: center;">Technical Descriptions</div><hr>    
+            
+            <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+            <div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+            <div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+            <div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+            <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+            <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+            <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+            <div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+            
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh5>Input</mh5><hr>
+            </header>
+
+            
+<mh3>
+I really missed the way that Allegro 4 handled input, so I recreated parts of it.
+</mh3>
+
+
+            
+            
+<br><mh7>Keyboard Input</mh7>
+
+<mh3>
+In Allegro 4, there is an array of keys that is updated asynchronously:</mh3>    
+<pre><code class="language-cpp">extern volatile char key[KEY_MAX];</code></pre>   
+<mh3>
+You could do stuff like:
+</mh3>    
+<pre><code class="language-cpp">if (key[KEY_I])
+{
+   while (key[KEY_I]); // wait for key to be released
+   // do something
+}</code></pre>
+    
+<mh3>
+So in Allegro 5, I made my own key array and set it with keyboard events like this:
+</mh3>    
+    
+<pre><code class="language-cpp">extern bool key[ALLEGRO_KEY_MAX]; // global variable
+if (ev.type == ALLEGRO_EVENT_KEY_DOWN) key[ev.keyboard.keycode] = true;
+if (ev.type == ALLEGRO_EVENT_KEY_UP)   key[ev.keyboard.keycode] = false;</code></pre>
+
+<mh3>
+Now in Allegro 5, I can do something similar to what I used to do in Allegro 4:
+</mh3>    
+
+<pre><code class="language-cpp">if (key[ALLEGRO_KEY_I])
+{
+   while (key[ALLEGRO_KEY_I]) proc_controllers(); // wait for key to be released
+   // do something
+}</code></pre>
+
+            
+<br><mh7>PRINTSCREEN hack</mh7>
+
+<mh3>
+There is a known bug with the PRINTSCREEN key in windows.
+
+It does not generate ALLEGRO_EVENT_KEY_DOWN events, only ALLEGRO_EVENT_KEY_UP.
+
+So I made the following work around so I could use PRINTSCREEN for my screenshot function.
+
+At the start of my event processing I clear the key like this:
+</mh3>
+
+<pre><code class="language-cpp">key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN work
+</code></pre>           
+<mh3>
+Then I add an exception to my key up section like this:
+</mh3>
+
+<pre><code class="language-cpp">if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
+{
+   int k = ev.keyboard.keycode;
+   key[k] = true;
+   ret = k;
+}
+if (ev.type == ALLEGRO_EVENT_KEY_UP)
+{
+   int k = ev.keyboard.keycode;
+   key[k] = false;
+   if (k == ALLEGRO_KEY_PRINTSCREEN) key[k] = true; // hack to make PRINTSCREEN work
+}
+</code></pre>           
+
+            
+            
+<br><mh7>Mouse Input</mh7>
+
+<mh3>
+For mouse input, I do something similar to what I do for keyboard.
+    
+Allegro 4 has external variables asynchronously updated, for the mouse position and button state.
+
+In Allegro 5, I re-implement them and set them with mouse events:
+</mh3>    
+        
+            
+<pre><code class="language-cpp">// global variables
+int mouse_x = 0;
+int mouse_y = 0;
+int mouse_z = 0;
+int mouse_dx = 0;
+int mouse_dy = 0;
+int mouse_dz = 0;
+int mouse_b1 = 0;
+int mouse_b2 = 0;
+int mouse_b3 = 0;
+int mouse_b4 = 0;
+
+if (ev.type == ALLEGRO_EVENT_MOUSE_WARPED)
+{
+   mouse_x = ev.mouse.x;
+   mouse_y = ev.mouse.y;
+}
+if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
+{
+   mouse_x = ev.mouse.x;
+   mouse_y = ev.mouse.y;
+   mouse_z = ev.mouse.z;
+   mouse_dx = ev.mouse.dx;
+   mouse_dy = ev.mouse.dy;
+   mouse_dz = ev.mouse.dz;
+}
+if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+{
+   if (ev.mouse.button == 1) mouse_b1 = 1;
+   if (ev.mouse.button == 2) mouse_b2 = 1;
+   if (ev.mouse.button == 3) mouse_b3 = 1;
+   if (ev.mouse.button == 4) mouse_b4 = 1;
+}
+if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
+{
+   if (ev.mouse.button == 1) mouse_b1 = 0;
+   if (ev.mouse.button == 2) mouse_b2 = 0;
+   if (ev.mouse.button == 3) mouse_b3 = 0;
+   if (ev.mouse.button == 4) mouse_b4 = 0;
+}</code></pre>
+
+<br><mh7>Joystick Input</mh7>
+
+<mh3>
+I do something really weird for the joystick.  I've done it for many years.
+
+I take a section of usused key codes (I use from 128 to 167) and map them to to joystick inputs:
+</mh3>
+
+    
+<pre><code class="language-cpp">char *key_names[] =
+{
+  (char*) "(none)",     (char*) "A",         (char*) "B",         (char*) "C",
+  (char*) "D",          (char*) "E",         (char*) "F",         (char*) "G",
+  (char*) "H",          (char*) "I",         (char*) "J",         (char*) "K",
+  (char*) "L",          (char*) "M",         (char*) "N",         (char*) "O",
+  (char*) "P",          (char*) "Q",         (char*) "R",         (char*) "S",
+  (char*) "T",          (char*) "U",         (char*) "V",         (char*) "W",
+  (char*) "X",          (char*) "Y",         (char*) "Z",         (char*) "0",
+  (char*) "1",          (char*) "2",         (char*) "3",         (char*) "4",
+  (char*) "5",          (char*) "6",         (char*) "7",         (char*) "8",
+  (char*) "9",          (char*) "PAD 0",     (char*) "PAD 1",     (char*) "PAD 2",
+  (char*) "PAD 3",      (char*) "PAD 4",     (char*) "PAD 5",     (char*) "PAD 6",
+  (char*) "PAD 7",      (char*) "PAD 8",     (char*) "PAD 9",     (char*) "F1",
+  (char*) "F2",         (char*) "F3",        (char*) "F4",        (char*) "F5",
+  (char*) "F6",         (char*) "F7",        (char*) "F8",        (char*) "F9",
+  (char*) "F10",        (char*) "F11",       (char*) "F12",       (char*) "ESCAPE",
+  (char*) "KEY60",      (char*) "KEY61",     (char*) "KEY62",     (char*) "BACKSPACE",
+  (char*) "TAB",        (char*) "KEY65",     (char*) "KEY66",     (char*) "ENTER",
+  (char*) "KEY68",      (char*) "KEY69",     (char*) "BACKSLASH", (char*) "KEY71",
+  (char*) "KEY72",      (char*) "KEY73",     (char*) "KEY74",     (char*) "SPACE",
+  (char*) "INSERT",     (char*) "DELETE",    (char*) "HOME",      (char*) "END",
+  (char*) "PGUP",       (char*) "PGDN",      (char*) "LEFT",      (char*) "RIGHT",
+  (char*) "UP",         (char*) "DOWN",      (char*) "PAD /",     (char*) "PAD *",
+  (char*) "PAD -",      (char*) "PAD +",     (char*) "PAD DELETE",(char*) "PAD ENTER",
+  (char*) "PRINTSCREEN",(char*) "PAUSE",     (char*) "KEY94",     (char*) "KEY95",
+  (char*) "KEY96",      (char*) "KEY97",     (char*) "KEY98",     (char*) "KEY99",
+  (char*) "KEY100",     (char*) "KEY101",    (char*) "KEY102",    (char*) "PAD =",
+  (char*) "KEY104",     (char*) "KEY105",    (char*) "KEY106",    (char*) "KEY107",
+  (char*) "KEY108",     (char*) "KEY109",    (char*) "KEY110",    (char*) "KEY111",
+  (char*) "KEY112",     (char*) "KEY113",    (char*) "KEY114",    (char*) "KEY115",
+  (char*) "KEY116",     (char*) "KEY117",    (char*) "KEY118",    (char*) "KEY119",
+  (char*) "KEY120",     (char*) "KEY121",    (char*) "KEY122",    (char*) "KEY123",
+  (char*) "KEY124",     (char*) "KEY125",    (char*) "KEY126",    (char*) "KEY127",
+
+   // joystick equivalents
+   // 128-
+          (char*) "joy1-up", (char*) "joy1-down",(char*) "joy1-left",(char*) "joy1-right",
+          (char*) "joy1-b0", (char*) "joy1-b1",  (char*) "joy1-b2",  (char*) "joy1-b3",
+          (char*) "joy1-b4", (char*) "joy1-b5",  (char*) "joy1-b6",  (char*) "joy1-b7",
+          (char*) "joy1-b8", (char*) "joy1-b9",  (char*) "joy1-b10", (char*) "joy1-b11",
+          (char*) "joy1-b12",(char*) "joy1-b13", (char*) "joy1-b14", (char*) "joy1-b15",
+   // 148-
+          (char*) "joy2-up", (char*) "joy2-down",(char*) "joy2-left",(char*) "joy2-right",
+          (char*) "joy2-b0", (char*) "joy2-b1",  (char*) "joy2-b2",  (char*) "joy2-b3",
+          (char*) "joy2-b4", (char*) "joy2-b5",  (char*) "joy2-b6",  (char*) "joy2-b7",
+          (char*) "joy2-b8", (char*) "joy2-b9",  (char*) "joy2-b10", (char*) "joy2-b11",
+          (char*) "joy2-b12",(char*) "joy2-b13", (char*) "joy2-b14", (char*) "joy2-b15",
+
+//  (char*) "KEY128",    (char*) "KEY129",    (char*) "KEY130",    (char*) "KEY131",
+//  (char*) "KEY132",    (char*) "KEY133",    (char*) "KEY134",    (char*) "KEY135",
+//  (char*) "KEY136",    (char*) "KEY137",    (char*) "KEY138",    (char*) "KEY139",
+//  (char*) "KEY140",    (char*) "KEY141",    (char*) "KEY142",    (char*) "KEY143",
+//  (char*) "KEY144",    (char*) "KEY145",    (char*) "KEY146",    (char*) "KEY147",
+//
+//  (char*) "KEY148",    (char*) "KEY149",    (char*) "KEY150",    (char*) "KEY151",
+//  (char*) "KEY152",    (char*) "KEY153",    (char*) "KEY154",    (char*) "KEY155",
+//  (char*) "KEY156",    (char*) "KEY157",    (char*) "KEY158",    (char*) "KEY159",
+//  (char*) "KEY160",    (char*) "KEY161",    (char*) "KEY162",    (char*) "KEY163",
+//  (char*) "KEY164",    (char*) "KEY165",    (char*) "KEY166",    (char*) "KEY167",
+
+  (char*) "KEY168",    (char*) "KEY169",    (char*) "KEY170",    (char*) "KEY171",
+  (char*) "KEY172",    (char*) "KEY173",    (char*) "KEY174",    (char*) "KEY175",
+  (char*) "KEY176",    (char*) "KEY177",    (char*) "KEY178",    (char*) "KEY179",
+  (char*) "KEY180",    (char*) "KEY181",    (char*) "KEY182",    (char*) "KEY183",
+  (char*) "KEY184",    (char*) "KEY185",    (char*) "KEY186",    (char*) "KEY187",
+  (char*) "KEY188",    (char*) "KEY189",    (char*) "KEY190",    (char*) "KEY191",
+  (char*) "KEY192",    (char*) "KEY193",    (char*) "KEY194",    (char*) "KEY195",
+  (char*) "KEY196",    (char*) "KEY197",    (char*) "KEY198",    (char*) "KEY199",
+  (char*) "KEY200",    (char*) "KEY201",    (char*) "KEY202",    (char*) "KEY203",
+  (char*) "KEY204",    (char*) "KEY205",    (char*) "KEY206",    (char*) "KEY207",
+  (char*) "KEY208",    (char*) "KEY209",    (char*) "KEY210",    (char*) "KEY211",
+  (char*) "KEY212",    (char*) "KEY213",    (char*) "KEY214",    (char*) "LSHIFT",
+  (char*) "RSHIFT",    (char*) "LCTRL",     (char*) "RCTRL",     (char*) "ALT",
+  (char*) "ALTGR",     (char*) "LWIN",      (char*) "RWIN",      (char*) "MENU",
+  (char*) "SCROLLLOCK",(char*) "NUMLOCK",   (char*) "CAPSLOCK"
+};</code></pre>
+
+<mh3>    
+In my key array, when a key is pressed, its index in the array is set TRUE and when the key is released it's set FALSE.
+
+I do the exact same thing with joystick inputs.
+
+When a joystick control is pressed, its index in the key array is set TRUE, and when released, FALSE.
+
+This method makes it easier to set up the controller bindings for the game.
+
+For example, the game control [FIRE] could be mapped to a keyboard key like "C" or a joystick control like "joy-b5", and the code to detect that would be the same.  I just check if that key array index is set.
+
+When I display or change the key bindings I use the char array above and both key and joystick bindings show a text description.
+
+Here is how I use events to set joystick controls in the key array:
+</mh3>
+
+<pre><code class="language-cpp">if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS)
+{
+   int jy = getJoystickNum(ev.joystick.id);
+   int jo = 0; // offset
+   if (jy == 0) jo = 0;
+   if (jy == 1) jo = 20;
+   int ax = ev.joystick.axis;
+   float pos = ev.joystick.pos;
+   if (ax == 0) // x axis
+   {
+      key[130+jo] = false;
+      key[131+jo] = false;
+      if (pos > 0) key[131+jo] = true;
+      if (pos < 0) key[130+jo] = true;
+   }
+   if (ax == 1) // y axis
+   {
+      key[128+jo] = false;
+      key[129+jo] = false;
+      if (pos > 0) key[129+jo] = true;
+      if (pos < 0) key[128+jo] = true;
+   }
+}
+if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN)
+{
+   int jy = getJoystickNum(ev.joystick.id);
+   int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
+   key[sc] = true;
+}
+if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP)
+{
+   int jy = getJoystickNum(ev.joystick.id);
+   int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
+   key[sc] = false;
+}
+
+int getJoystickNum(ALLEGRO_JOYSTICK* joy) // Thanks Edgar Reynaldo!
+{
+   for (int i=0; i < al_get_num_joysticks(); ++i)
+   {
+      if (joy == al_get_joystick(i)) {return i;}
+   }
+   return -1;
+}
+
+int get_scan_code_from_joystick(int joy, int button, int num)
+{
+   int ret = 0;
+   int base = 128;
+   if (joy == 0) base = 128;
+   if (joy == 1) base = 148;
+   if (button) ret = num + 4;
+   return base + ret;
+}</code></pre>
+
+
+<br><mh7>Bindings vs Controls</mh7>
+
+<mh3>
+There is a clear distinction between the key_bindings and the controls.
+
+In the player struct, for each player we have the key bindings:</mh3>
+<pre><code class="language-cpp">int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;</code></pre>
+
+<mh3>
+And then we have variables to indicate if a particular control is active for that frame: </mh3>
+<pre><code class="language-cpp">int up, down, left, right, jump, fire, menu;</code></pre>
+
+<mh3>
+For single player games, these control are set from the key array.
+- the event loop is processed and any input events are used to set the key[] array
+- the key[] array is compared to the key bindings and used to set players controls
+- the game logic uses the controls to move the player
+
+This may seem more complicated than it needs to be, but it is needed for when we are
+doing things more complicated than single player.
+
+For example, to run a demo game from a file, the keys are read from a file and then used
+to set the controls, bypassing the key binding stuff completely.
+</mh3>
+
+<br><mh7>The Game Moves Array</mh7>
+<mh3>
+There is actually another layer before the actual players controls are set:
+
+The game moves array.
+
+int game_moves[1000000][4];
+
+The game_moves array can hold 1 million game moves.
+
+1 million might seem exessive but:
+
+40 possible changes per second (if the players could actually press the controls that fast!)
+x 8 players
+320 game moves per second
+19200 game moves per minute
+1,152,000 game moves per hour
+
+Each game_moves entry has 4 elements:
+0 - frame  (the frame the change occured on)
+1 - player (the player whose controls changed)
+2 - type   (5 is for normal game move)
+3 - data   (bitfield of the controls)
+
+The game_moves array does not have entries for every frame, only when a player's controls have changed.
+
+here is some raw data: </mh3>
+<pre><code class="language-cpp">
+16
+5
+0
+2
+frame:16
+player:0
+type:5 (move)
+data: 2 
+
+25
+5
+0
+34
+frame:25
+player:0
+type:5 (move)
+data: 34 (32 + 2) 
+
+26
+5
+0
+50
+frame:26
+player:0
+type:5 (move)
+data: 50 (32 + 16 + 2) 
+
+27
+5
+0
+18
+frame:27
+player:0
+type:5 (move)
+data: 18 (16 + 2)</code></pre>
+
+<mh3>Here is a nicely formatted version:</mh3>
+<pre><code class="language-cpp">[  16][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[  25][0][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[  26][0][50]  [FIRE][JUMP][    ][  ][RIGHT][    ]
+[  27][0][18]  [    ][JUMP][    ][  ][RIGHT][    ]</code></pre>
+
+<mh3>The data field is a bitfield of the controls and is set like this:</mh3>
+
+<pre><code class="language-cpp">void set_comp_move_from_player_key_check(int p)
+{
+   int cm = 0;
+   if (key[players1[p].left_key])  cm += 1;
+   if (key[players1[p].right_key]) cm += 2;
+   if (key[players1[p].up_key])    cm += 4;
+   if (key[players1[p].down_key])  cm += 8;
+   if (key[players1[p].jump_key])  cm += 16;
+   if (key[players1[p].fire_key])  cm += 32;
+
+   // if menu key ignore everything else and set to 127
+   if (key[players1[p].menu_key]) cm = 127;
+   if (key[ALLEGRO_KEY_ESCAPE]) cm = 127;
+   players1[p].comp_move = cm;
+}</code></pre>
+
+<mh3>
+This is how game_move entries are added in single player mode:
+</mh3>
+
+<pre><code class="language-cpp">set_comp_move_from_player_key_check(p);
+if (players1[p].comp_move != players1[p].old_comp_move)
+{
+   players1[p].old_comp_move = players1[p].comp_move;
+   add_game_move(frame_num, 5, p, players1[p].comp_move);
+}
+
+void add_game_move(int pc, int type, int data1, int data2)
+{
+   game_moves[game_move_entry_pos][0] = pc;
+   game_moves[game_move_entry_pos][1] = type;
+   game_moves[game_move_entry_pos][2] = data1;
+   game_moves[game_move_entry_pos][3] = data2;
+   game_move_entry_pos++;
+}</code></pre>
+
+<mh3>
+Finally here is how the actual controls in the player struct are set from game_move array:
+</mh3>
+
+<pre><code class="language-cpp">void set_controls_from_game_move(int p)
+{
+   // this will search back from entry position until it finds the first 'move' type
+   // entry that matches the player and is not in the future
+
+   int found = 0;
+   for (int g=game_move_entry_pos; g>0; g--)  // look back from entry pos
+      if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
+         if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
+         {
+            set_controls_from_comp_move(g);
+            game_move_current_pos = g; // for savegame running only
+            g = 0; // break out of loop
+            found = 1;
+         }
+   if (!found) clear_keys(p); // if no match found (no move entry for player in entire game move array)
+}
+
+void set_controls_from_comp_move(int g)
+{
+   int p = game_moves[g][2];
+   int t = game_moves[g][3];
+   clear_keys(p);
+   if (t == 127)
+   {
+      players[p].menu = 1;
+      t -= 127;
+   }
+   if (t > 31)
+   {
+      t -= 32;
+      players[p].fire = 1;
+   }
+   if (t > 15)
+   {
+      t -= 16;
+      players[p].jump = 1;
+   }
+   if (t > 7)
+   {
+      t -= 8;
+      players[p].down = 1;
+   }
+   if (t > 3)
+   {
+      t -= 4;
+      players[p].up = 1;
+   }
+   if (t > 1)
+   {
+      t -= 2;
+      players[p].right = 1;
+   }
+   if (t > 0)
+   {
+      t -= 1;
+      players[p].left = 1;
+   }
+}</code></pre>
+
+<br><mh7>Netgame</mh7>
+<mh3>
+In netgame things are done differently.
+
+For clients, when a control changes happens, it's NOT put in the client's local game_moves array, instead it's sent to the server:
+</mh3>
+
+<pre><code class="language-cpp">set_comp_move_from_player_key_check(p);
+if (players1[p].comp_move != players1[p].old_comp_move)
+{
+   players1[p].old_comp_move = players1[p].comp_move;
+   int fpc = frame_num + control_lead_frames;  // add  to frame_num
+   int cm = players1[p].comp_move;
+
+   Packet((char *)"cdat");
+   PacketAddByte(p);
+   PacketAdd4Bytes(fpc);
+   PacketAddByte(cm);
+   ClientSend(packetbuffer, packetsize);
+}</code></pre>
+
+<mh3>
+When the server receives the packet, the client's game move is puts in the server's master game_moves array.
+Unless its late, in which case it's dropped.
+</mh3>
+
+<pre><code class="language-cpp">if(PacketRead((char *)"cdat"))
+{
+   int p = PacketGetByte();
+   int pc = Packet4ByteRead();
+   int cm = PacketGetByte();
+
+   // how far ahead is the frame_num for this move, compare to server frame_num
+   int c_sync = players1[p].c_sync = pc - frame_num;
+
+   if (c_sync >= 0) add_game_move(pc, 5, p, cm); // add to game_move array
+   else                                          // unless late, then drop and inc error
+   {
+      players1[p].c_sync_err++;
+   }
+}</code></pre>
+
+
+<mh3>
+The server then syncs its master game_moves array back to all the clients, by sending sdat packets
+</mh3>
+
+<pre><code class="language-cpp">void server_send_sdat(void)
+{
+   for (int p=1; p < NUM_PLAYERS; p++)
+      if (players[p].control_method == 2)
+      {
+         if (players1[p].game_move_entry_pos < game_move_entry_pos) // client needs more data
+         {
+            int start_entry = players1[p].game_move_entry_pos;
+            int end_entry = game_move_entry_pos;
+            int num_entries = end_entry - start_entry;
+            if (num_entries > 100) num_entries = 100;
+
+            if ((players1[p].server_last_sdat_sent_start != start_entry) || // dif start pos
+               (players1[p].server_last_sdat_sent_num != num_entries))      // dif num entries
+            {
+
+               players1[p].server_last_sdat_sent_start = start_entry;
+               players1[p].server_last_sdat_sent_num = num_entries;
+
+               Packet((char *)"sdat");
+               PacketAddByte(p);
+               PacketAdd4Bytes(frame_num);
+               PacketAdd4Bytes(start_entry);
+               PacketAddByte(num_entries);
+
+               for (int x=start_entry; x < start_entry + num_entries; x++)
+               {
+                  PacketAdd4Bytes(game_moves[x][0]); // frame_num
+                  PacketAddByte(game_moves[x][1]); // type
+                  PacketAddByte(game_moves[x][2]); // data 1
+                  PacketAddByte(game_moves[x][3]); // data 2
+               }
+               ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+            }
+         }
+      }
+}</code></pre>
+
+
+<mh3>
+When a client gets an sdat packet, it adds the game_moves to its local game_moves array:
+</mh3>
+
+<pre><code class="language-cpp">if(PacketRead((char *)"sdat"))
+{
+   int sp = PacketGetByte();
+   players1[p].last_sdat_fpc = Packet4ByteRead();
+   int start_entry = Packet4ByteRead();
+   int num_entries = PacketGetByte();
+
+   players1[p].last_sdat_lpc = frame_num; // client's local frame_num of last sync packet
+   int nep = start_entry + num_entries; // new entry position
+   if (nep > game_move_entry_pos) // only enter if they are newer
+   {
+      for (int x=start_entry; x < nep; x++)
+         read_game_step_from_packet(x, 1);
+      game_move_entry_pos = nep;
+   }
+}
+void read_game_step_from_packet(int x, int clf_check)
+{
+   // read from the packet
+   int g0 = Packet4ByteRead();
+   int g1 = PacketGetByte();
+   int g2 = PacketGetByte();
+   int g3 = PacketGetByte();
+
+   // put in the game array
+   game_moves[x][0] = g0;
+   game_moves[x][1] = g1;
+   game_moves[x][2] = g2;
+   game_moves[x][3] = g3;
+
+  int cs;
+  if (clf_check)
+  {
+     int p = active_local_player;
+     cs = g0 - frame_num;                     // calculate c_csync
+     if (cs < 0 ) players1[p].c_sync_err++;   // check for error
+     if (cs < players1[p].c_sync_min)         // check and set min
+        players1[p].c_sync_min = cs;
+  }
+} </code></pre>
+
+<mh3>
+If a game move is entered that is marked with a frame_num that has alreay passed, that is really bad!
+
+The client will never be able to apply that move because it was received too late.
+However, the server has applied it, and synced it to other clients.
+
+The client's game will almost certainly be out of sync.  There are, however, methods to recover from this.
+
+See the detailed code description for netgame.
+
+
+
+</mh3>
+
+
+
+
+
+
+            
+               <footer>
+                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2018, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+            </footer>
+
+        </div>
+    </body>
+
+</html>
