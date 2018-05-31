@@ -131,7 +131,7 @@ if (ev.type == ALLEGRO_EVENT_KEY_UP)
 <mh3>
 For mouse input, I do something similar to what I do for keyboard.
     
-Allegro 4 has external variables asynchronously updated, for the mouse position and button state.
+Allegro 4 has external variables for mouse position and button state that are asynchronously updated.
 
 In Allegro 5, I re-implement them and set them with mouse events:
 </mh3>    
@@ -278,7 +278,7 @@ For example, the game control [FIRE] could be mapped to a keyboard key like "C" 
 
 When I display or change the key bindings I use the char array above and both key and joystick bindings show a text description.
 
-Here is how I use events to set joystick controls in the key array:
+Here is how I use joystick events to set joystick controls in the key array:
 </mh3>
 
 <pre><code class="language-cpp">if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS)
@@ -364,29 +364,27 @@ to set the controls, bypassing the key binding stuff completely.
 
 <br><mh7>The Game Moves Array</mh7>
 <mh3>
-There is actually another layer before the actual players controls are set:
+There is actually another layer before the actual players controls are set.
 
-The game moves array.
+The game_moves array contains an entry for every frame that a player's controls change.
 
 int game_moves[1000000][4];
 
 The game_moves array can hold 1 million game moves.
 
-1 million might seem exessive but:
+1 million might seem excessive but at 40fps:
+8 players x 40 possible control changes per second (if the players could actually press the controls that fast!)
+= 320 game_moves per second
+or 19200 game_moves per minute
+or 1,152,000 game_moves per hour
 
-40 possible changes per second (if the players could actually press the controls that fast!)
-x 8 players
-320 game moves per second
-19200 game moves per minute
-1,152,000 game moves per hour
-
-Each game_moves entry has 4 elements:
+Each game_move entry has 4 elements:
 0 - frame  (the frame the change occured on)
 1 - player (the player whose controls changed)
 2 - type   (5 is for normal game move)
 3 - data   (bitfield of the controls)
 
-The game_moves array does not have entries for every frame, only when a player's controls have changed.
+The game_moves array does not have an entry for every frame, only when a player's controls have changed.
 
 here is some raw data: </mh3>
 <pre><code class="language-cpp">

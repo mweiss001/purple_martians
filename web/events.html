@@ -255,6 +255,7 @@ When I no longer have any events in the queue, then I process the resize event i
 This method allows me to ignore all but the last ALLEGRO_EVENT_DISPLAY_RESIZE event, while still processing all other events.
     
 </mh3>
+<img src="images/event_pileup.png" width=676 height=481 alt="flowchart">
 <pre><code class="language-cpp">while (!al_is_event_queue_empty(event_queue))
 {
    ALLEGRO_EVENT ev;
@@ -274,7 +275,13 @@ This method allows me to ignore all but the last ALLEGRO_EVENT_DISPLAY_RESIZE ev
       else ret = proc_events(ev, ret);
    }
 }</code></pre>           
-            
+
+
+
+
+
+
+
                <footer>
                 <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">
