@@ -34,6 +34,7 @@
             <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
             <div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
             <div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+            <div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
             <div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
             <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
             <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
@@ -47,21 +48,235 @@
             <header>
                 <mh11>Purple Martians</mh11><hr>
                 <mh1>Technical Code Descriptions</mh1><hr>
-                <mh5>Netgame</mh5><hr>
             </header>
 
 
+<mh8>Netgame</mh8>
 
-                    <pre><code class="language-cpp"></code></pre>
-
-
-
-
-
-
-<br><mh7>Packets</mh7>
+            
+<br><mh7>Overview</mh7>
 <mh3>
+There are two methods used in netgame:
+- game move sync
+- state correction            
+
+Game move sync relies on the game being perfectly deterministic. (The same set of inputs will produce the exact same results)
+All that is needed is to replicate the same set of inputs across all the clients.
+    
+For a long time, game move sync was the only approach I used, and it almost worked perfectly.
+But when it didn't, all was lost.  The game would go out of sync between server and client and become unplayable.   
+I spent years refining and troubleshooting, added a very complex logging system, replaced floats with fixed points...
+I failed.  I could not get it to work reliably enough.
+
+I came upon the second method, state correction, while I was adding code to check if the game had gone out of sync.
+I was having the server send player state info to the clients and having them check if that agreed with their local state.
+Eventually I expanded this method to send the entire game state periodically, and just overwrite the clients state.
+That fixed any drift or loss of sync that occured with the first method. 
+</mh3>    
+    
+    
+    
+<br><mh7>Game Move Sync</mh7>
+<mh3>
+
+The game_moves array is at the heart of this method.
+
+It is an array that contains all of the inputs for the game.
+    
+The only inputs that effect the game state are the players' inputs.    
+    
+The game moves array stores these inputs indexed by the frame that they occured on.
+    
+There is only an entry for when the controls change, not one for every frame.
+    
+Each entry also is marked with the player number, so that all players use the same array.
+
+    
+The server has the master game moves array and syncs that to the clients' local copies of the array.
+    
+The clients' moves are not put directly in their own local game moves array, they are sent to the server and sysnced back to the clients.
+    
+    
+- client presses a control
+- client sends a packet with that data to the server
+- server puts it in the master game_moves array
+- master game_moves array is synced back to the client
+- the client moves by reading the game move from its locally synced game_move array
+    
+This requires that the clients run a few frames behind the server.
+
+It also means there is a delay between when the client presses a control and when the client responds but it is small enough to be barely noticeable.
+
+</mh3>    
+    
+<br><mh7>Client sends control change</mh7>
+    
+<mh3>    
+The part where a client sends a control change to the server is very simple:
+
+The client checks to see if its controls have changed from the last frame.
+
+If the client's controls have changed, the client sends a 'cdat' packet to the server like this:
 </mh3>
+<pre><code class="language-cpp">void client_local_control(int p)
+{
+   set_comp_move_from_player_key_check(p); 
+   if (players1[p].comp_move != players1[p].old_comp_move)  // players keys have changed
+   {
+      players1[p].old_comp_move = players1[p].comp_move;
+      int fpc = frame_num + control_lead_frames;  // add control_lead_frames to frame_num
+      int cm = players1[p].comp_move;
+
+      Packet((char *)"cdat");
+      PacketAddByte(p);
+      PacketAdd4Bytes(fpc);
+      PacketAddByte(cm);
+      ClientSend(packetbuffer, packetsize);
+   }
+}</code></pre>
+
+<br><mh7>Server receives control change</mh7>
+<mh3>    
+When the server receives a 'cdat' packet, it adds the game move to its master game moves array, unless,
+
+If the game move is old, (contains a frame_num that has already passed on the server), the move is discarded and and an error is flagged.
+
+This will not cause any sync issues, it will be as if the control was never pressed at all.
+</mh3>    
+            
+<pre><code class="language-cpp">if(PacketRead((char *)"cdat"))
+{
+   int p = PacketGetByte();
+   int pc = Packet4ByteRead();
+   int cm = PacketGetByte();
+
+   // how far ahead is the frame_num for this move, compare to server frame_num
+   int c_sync = players1[p].c_sync = pc - frame_num;
+
+   if (c_sync >= 0) add_game_move(pc, 5, p, cm);  // add to game_move array
+   else players1[p].c_sync_err++;                 // unless late, then drop and inc error
+}</code></pre>
+            
+<br><mh7>Server sends game move data to clients</mh7>
+<mh3>    
+The method that the server uses to sync its master game moves array back to the clients works like this:
+
+The global variable int game_move_entry_pos, keeps track of the last entered game_move into the game_moves array.
+    
+The server also tracks the last acknowledged game_move_entry_pos for each player in the player struct.
+    
+Every frame the server checks to see if at has more data than the clients have acknowledged receiving.
+    
+If there is data to send, the server constructs a packet with the needed game moves and sends it to the client
+    
+The server does this independantly for each client. 
+    
+Here is the actual code:</mh3>
+<pre><code class="language-cpp">void server_send_sdat(void)
+{
+   for (int p=1; p < NUM_PLAYERS; p++)
+      if (players[p].control_method == 2)
+      {
+         if (players1[p].game_move_entry_pos < game_move_entry_pos) // client needs more data
+         {
+            int start_entry = players1[p].game_move_entry_pos;
+            int end_entry = game_move_entry_pos;
+            int num_entries = end_entry - start_entry;
+            if (num_entries > 100) num_entries = 100;
+
+            Packet((char *)"sdat");
+            PacketAddByte(p);
+            PacketAdd4Bytes(frame_num);
+            PacketAdd4Bytes(start_entry);
+            PacketAddByte(num_entries);
+
+            for (int x=start_entry; x < start_entry + num_entries; x++)
+            {
+               PacketAdd4Bytes(game_moves[x][0]); // frame_num
+               PacketAddByte(game_moves[x][1]); // type
+               PacketAddByte(game_moves[x][2]); // data 1
+               PacketAddByte(game_moves[x][3]); // data 2
+            }
+            ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+         }
+      }
+}</code></pre>
+    
+<br><mh7>Client receives game move data from server</mh7>
+<mh3>    
+When a client receives the game move data from the server it puts it in its own local game moves array and sends acknowledgement of the last entry received.
+</mh3>    
+<pre><code class="language-cpp">if(PacketRead((char *)"sdat"))
+{
+   int sp = PacketGetByte();
+   players1[p].last_sdat_fpc = Packet4ByteRead();
+   int start_entry = Packet4ByteRead();
+   int num_entries = PacketGetByte();
+   int nep = start_entry + num_entries; // new entry position
+   if (nep > game_move_entry_pos) // only enter if they are newer
+   {
+      for (int x=start_entry; x < nep; x++)
+         read_game_step_from_packet(x, 1);
+      game_move_entry_pos = nep;
+   }
+   Packet((char *)"sdak");
+   PacketAddByte(p);
+   PacketAdd4Bytes(frame_num);
+   PacketAdd4Bytes(nep);
+   PacketAdd4Bytes(players1[p].chdf_late);
+   PacketAdd4Bytes(players1[p].frames_skipped);
+   ClientSend(packetbuffer, packetsize);
+
+}</code></pre>
+    
+    
+</mh3>    
+
+<br><mh7>Packets used for game move sync</mh7>
+
+<pk0>Packet: 'cdat'</pk0>
+<pk1>description: 'client data'
+direction: client to server
+- 1 byte  (player)
+- 4 bytes (client frame_num of control change)
+- 1 byte  (comp move of control change)
+</pk1><br>
+        
+
+<pk0>Packet: 'sdat'</pk0>
+<pk1>description: 'server data
+sent from server to client
+
+header:
+-----------------------------
+- 1 byte (player)
+- 4 bytes (server frame_num)
+- 4 bytes (game_moves start entry)
+- 1 byte (number of entries)
+
+and then one or more entries:
+-----------------------------
+- 4 bytes (game_moves[x][0]); // frame_num
+- 1 byte (game_moves[x][1]);  // type
+- 1 byte (game_moves[x][2]);  // data 1
+- 1 byte (game_moves[x][3]);  // data 2
+</pk1><br>
+
+<pk0>Packet: 'sdak'</pk0>
+<pk1>description: 'sdat acknowledge'
+direction: client to server
+- 1 byte (player)
+- 4 bytes (client frame_num)
+- 4 bytes (game_moves new entry position)
+- 4 bytes (chdf late count)
+- 4 bytes (frames skipped count)
+</pk1><br>
+
+            
+            
+            
+
+<br><mh7>All Packets</mh7>
 
 <pk0>Packet: 'cdat'</pk0>
 <pk1>description: 'client data'
@@ -76,15 +291,13 @@ direction: client to server
 <pk1>description: 'server data
 sent from server to client
 
--------    
 header:
--------
+-----------------------------
 - 1 byte (player)
 - 4 bytes (server frame_num)
 - 4 bytes (game_moves start entry)
 - 1 byte (number of entries)
 
------------------------------
 and then one or more entries:
 -----------------------------
 - 4 bytes (game_moves[x][0]); // frame_num
@@ -156,91 +369,11 @@ direction: server to client
 - 1 byte (deathmatch_pbullets_damage)
 - 1 byte (suicide_pbullets)
 </pk1>        
+
+
+            
     
-    
-
-
-
-
-
-
-
-I am going to document netplay:
-
-
-The method I use is called "deterministic lockstep".
-
-The theory is that the game is perfectly deterministic,
-for the same set of inputs the results will be exactly the same.
-
-All that is needed is to replicate the same set of inputs across all the players.
-
-I was having troubles with this for a long time, till I finally replaced
-all floats in my game with fixed points.
-
-Floats are great and very precise, but I could not get them to be perfectly deterministic.
-
-
-The steps for a client to make a move are:
-
-- client presses a control
-- client sends a packet with that data to the server
-- server puts it in the master game_moves array
-- master game_moves array is synced back to the client
-- the client moves by reading the game move from its locally synced game_move array
-    
-This requires that the clients run a few frames behind the server.
-
-It also means there is a delay between when the client presses a control and
-when the client responds but it is small enough to be barely noticeable.
- 
-These are the packets that are exchanged to make this happen.
-
-
------------------------------------------------------------------------
--- Packets ------------------------------------------------------------
------------------------------------------------------------------------
-
-[CJON] (sent by a client to server requesting to join)
------------------------------------------
-- 1 byte (requested color)
-
-[SJON] (reply from server with joining confirmation and information)
------------------------------------------
-- 1 byte (play level)
-- 1 byte (frame rate)
-- 1 byte (player number)
-- 1 byte (player color)
-
-
-[cdat]  (client data sent to the server)
------------------------------------------
-- 3 bytes (passcount)
-- 1 byte  (player number)
-- 1 byte  (comp move)
-
-
-[sdat]  (data sent from the server to a specific client)
------------------------------------------
-  header
------------------------------------------
-- 3 bytes (passcount)
-- 2 bytes (start entry)
-- 2 bytes (number of entries)
------------------------------------------
-  and then one or more entries:
------------------------------------------
-- 3 bytes (game_moves[x][0]); // passcount
-- 2 bytes (game_moves[x][1]); // type
-- 2 bytes (game_moves[x][2]); // data 1
-- 2 bytes (game_moves[x][3]); // data 2
------------------------------------------
-
-[sdak]  (acknowledge sent from client to the server)
------------------------------------------
-- 3 bytes (passcount)
-- 2 bytes (new entry position)
-
+        
 
 
 The server keeps a record of the last acknowledged entry from each client.

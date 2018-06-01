@@ -34,6 +34,7 @@
             <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
             <div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
             <div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+            <div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
             <div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
             <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
             <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
@@ -47,18 +48,13 @@
             <header>
                 <mh11>Purple Martians</mh11><hr>
                 <mh1>Technical Code Descriptions</mh1><hr>
-                <mh5>Events</mh5><hr>
             </header>
 
+        
+            
+<br><mh8>Events</mh8>
 
-            
-        
-    
-            
-            
-            
-            
-        
+<br><mh7>Overview</mh7>
             
 <mh3>
 Allegro 5 is event based.  When I converted my game from Allegro 4, I had to do a lot of things differently.
@@ -94,10 +90,11 @@ I never call al_wait_for_event().  Once every game loop, I process all events in
 When the game is not running and I'm in a menu or the level editor, or whatever, I just call 'proc_controllers()' in whatever loop I'm in.
     
 The speed of the game and menu are controlled by timers. (see detailed description of <a href="timers.html" target="_top">timers</a>)
+</mh3>    
+<br><mh7>Processing the event queue</mh7>
     
-    
-Here is how I process the event queue:
-</mh3>
+<mh3>
+Here is how the event queue is processed:</mh3>
 <pre><code class="language-cpp">int proc_controllers()
 {
    int ret = 0;
@@ -136,9 +133,10 @@ Here is how I process the event queue:
    return ret;
 }</code></pre>               
 
-<mh3>   
-And here is how I process events:
-</mh3>
+<br><mh7>Processing events</mh7>
+    
+<mh3>
+And here is how events are processed:</mh3>
 
 <pre><code class="language-cpp">int proc_events(ALLEGRO_EVENT ev, int ret)
 {
@@ -224,14 +222,9 @@ And here is how I process events:
       key[sc] = false;
    }
    return ret;
-}
-
-</code></pre>               
+}</code></pre>               
             
-
-
-            
-<br><mh7>How I Handle Multiple Resize Events Piling Up</mh7>
+<br><mh7>Handling multiple resize events</mh7>
 <mh3>
 When the display changes, an ALLEGRO_EVENT_DISPLAY_RESIZE event is generated.
 This is usually when the window is resized by the user.

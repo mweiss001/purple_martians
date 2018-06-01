@@ -34,6 +34,7 @@
             <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
             <div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
             <div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+            <div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
             <div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
             <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
             <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
@@ -47,22 +48,31 @@
             <header>
                 <mh11>Purple Martians</mh11><hr>
                 <mh1>Technical Code Descriptions</mh1><hr>
-                <mh5>Logo</mh5><hr>
             </header>
 
 
-                    <div style="text-align: center;"><video src="images/logo.mp4" poster="images/logo1.png" controls width="800" height="600" preload="auto"></video></div>
+<mh8>Logo</mh8>
+            
+            
+            
+<br><mh7>Demo Video</mh7>
+            
+                    <div style="text-align: left;"><video src="images/logo.mp4" poster="images/logo1.png" controls width="800" height="600" preload="auto"></video></div>
 
-
-                    <mh3>
+<br><mh7>Overview</mh7>
+<mh3>
 The splash screen logo of my name is made with a few different techniques.
 
 The large capital letters (M, D, W) are generated with splines.
 
+The small letters are font based and drawn by a function that scales x and y independantly and mirrors if the scales are negative.
+</mh3>
+<br><mh7>Splines</mh7>
+<mh3>                        
 In 'Allegro5 drawing primitives add-on' I use the function: 'al_draw_spline()'
-                    </mh3>
+</mh3>
 
-                    <pre><code class="language-cpp">void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
+<pre><code class="language-cpp">void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
 Draws a Bézier spline given 4 control points.
 Parameters:
 points - An array of 4 pairs of coordinates of the 4 control points
@@ -70,16 +80,9 @@ color - Color of the spline
 thickness - Thickness of the spline
 </code></pre>
 
-
-                    <hr>
-
-
-                    <mh3>
-I made a wrapper function for al_draw_spline() to add circles at the ends of the lines:
-                    </mh3>
-
-
-                    <pre><code class="language-cpp">void mspline(float *par, ALLEGRO_COLOR col, int thickness)
+<mh3>
+I made a wrapper function for al_draw_spline() to add circles at the ends of the lines:</mh3>
+<pre><code class="language-cpp">void mspline(float *par, ALLEGRO_COLOR col, int thickness)
 {
    al_draw_spline(par, col, thickness);
    float r = (float)thickness * .8;
@@ -87,11 +90,9 @@ I made a wrapper function for al_draw_spline() to add circles at the ends of the
    al_draw_filled_circle(par[6], par[7], r, col);
 }</code></pre>
 
-                    <mh3>
-Then I made another wrapper function to add a fading effect:
-                    </mh3>
-
-                    <pre><code class="language-cpp">void mfspline(float *par, int col, int thickness)
+<mh3>
+Then I made another wrapper function to add a fading effect:</mh3>
+<pre><code class="language-cpp">void mfspline(float *par, int col, int thickness)
 {
    ALLEGRO_COLOR c = palette_color[col];
    float r, g, b;
@@ -104,8 +105,10 @@ Then I made another wrapper function to add a fading effect:
       mspline(par, al_map_rgb_f(r*f, g*f, b*f), a);
    }
 }</code></pre>
-
-                    <mh3>
+            
+<br><mh7>Setup of points on the grid</mh7>
+            
+<mh3>
 The "M" and "W" are each made of 4 splines, and the "D" is one spline.
 The large outer arms of the 'M' and 'W' are just mirrored copies of each other.
 The small inner arms of the 'M' and 'W' are mirrored as well.

@@ -70,7 +70,7 @@
 
         header{
             background: #d4e6f0;
-            height: 240px; 
+            height: 200px; 
             white-space:nowrap;
             
         }
@@ -147,6 +147,19 @@
             padding-left: .3em;
             
         }
+
+        mh8 {
+            font-size: 300%;
+            font-weight: bold;
+            color: black;
+            padding-bottom: .3em;
+            padding-top: .3em;
+            padding-left: .3em;
+            
+        }
+
+
+
 
         pk0 {
             white-space: pre-wrap; 
