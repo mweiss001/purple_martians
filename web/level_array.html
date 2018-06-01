@@ -34,6 +34,7 @@
             <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
             <div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
             <div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+            <div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
             <div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
             <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
             <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
@@ -48,20 +49,20 @@
             <header>
                 <mh11>Purple Martians</mh11><hr>
                 <mh1>Technical Code Descriptions</mh1><hr>
-                <mh5>Level Array</mh5><hr>
             </header>
 
+<mh8>Level Array</mh8>
+<br><mh7>Overview</mh7>
+        
 
-            
-<br><mh7>Level Array</mh7>
 <mh3>
 Each level is 100 x 100 tiles or 2000 x 2000 pixels.
 
 The level array is a 100 x 100 array of integers.
 </mh3>    
 <pre><code class="language-cpp">extern int l[100][100];</code></pre>
-<mh3>
-Each integer is an index to tile[1024] (the tile that is drawn at that position on the level)
+<mh3>Each integer is an index to the tile that is drawn at that position on the level. (see <a href="tiles.html" target="_top">tiles</a>)
+    
 The integer has certain special ranges:
 </mh3>
 <pre><code class="language-cpp">0  - 31  - empty

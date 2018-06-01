@@ -6,25 +6,52 @@
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-web docs
 
-rename events
-or move out input to its own file
 
-input to have key, mouse, joystick
 
-game moves array to have its own files
+---------------------------------------------------------
+------------------ web docs -----------------------------
+---------------------------------------------------------
+
+look into pandoc...
+
+
+
 
 
 
 rename level_array
 how about level drawing
 
-
 working on events...
 
+I don't know if I document re-build bitmaps.
+In tiles there is some of it and also some in level background.
+
+At the bottom of files add links to other related docs
 
 
+netplay...
+
+
+
+
+
+
+
+
+
+---------------------------------------------------------
+------------------- reduce globals ----------------------
+---------------------------------------------------------
+
+edit_fix()
+edit_int()
+dont even use globals anymore, they just return the val
+
+getxy()  19 calls
+getbox() 5 calls
+pass pointer to values we want to edit...
 
 
 ---------------------------------------------------------

@@ -4898,3 +4898,30 @@ int proc_controllers()
 
 
 
+
+
+web docs:
+rename events
+or move out input to its own file..done
+input to have key, mouse, joystick and game moves array...done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
