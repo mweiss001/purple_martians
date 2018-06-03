@@ -167,7 +167,7 @@ void blind_save_game_moves(int d)
    }
 }
 
-int load_gm(char *sfname )
+int load_gm(const char *sfname )
 {
    FILE *filepntr;
    char fname[1024];

@@ -17,7 +17,7 @@ void crosshairs_nodb(int smx, int smy, int x, int y, int db, int color) // funti
    al_draw_line(smx+(x)+db/2, smy, smx+(x)+db/2, smy+(100*db), palette_color[color], 1);
 }
 
-void title(char *txt, int y, int tc, int fc)
+void title(const char *txt, int y, int tc, int fc)
 {
    for (int x=0; x<15; x++)
       al_draw_line(db*100, y+x, SCREEN_W-2, y+x, palette_color[fc+(x*16)], 1);
@@ -1456,7 +1456,7 @@ void object_viewer(int obt, int num)
          switch(mb)
          {
             case 18: // move
-               if (getxy((char *)"Set New Location",obt, type, num) == 1)
+               if (getxy("Set New Location",obt, type, num) == 1)
                {
                   if (obt==3) // enemy
                   {
@@ -1505,35 +1505,35 @@ void object_viewer(int obt, int num)
                draw_item_type = obt;
             break;
             case 24:  // viewer help
-               help((char *)"Viewer Basics");
+               help("Viewer Basics");
             break;
             case 25:  // object help
             if (obt==3)
             {
-               if (type == 3)  help((char *)"Archwagon Viewer");
-               if (type == 4)  help((char *)"Bouncer Viewer");
-               if (type == 6)  help((char *)"Cannon Viewer");
-               if (type == 7)  help((char *)"Podzilla Viewer");
-               if (type == 8)  help((char *)"Trakbot Viewer");
-               if (type == 9)  help((char *)"Cloner Viewer");
-               if (type == 11) help((char *)"Block Walker Viewer");
-               if (type == 12) help((char *)"Flapper Viewer");
+               if (type == 3)  help("Archwagon Viewer");
+               if (type == 4)  help("Bouncer Viewer");
+               if (type == 6)  help("Cannon Viewer");
+               if (type == 7)  help("Podzilla Viewer");
+               if (type == 8)  help("Trakbot Viewer");
+               if (type == 9)  help("Cloner Viewer");
+               if (type == 11) help("Block Walker Viewer");
+               if (type == 12) help("Flapper Viewer");
             }
             if (obt==2)
             {
-               if (type == 1)  help((char *)"Door Viewer");
-               if (type == 2)  help((char *)"Health Bonus Viewer");
-               if (type == 3)  help((char *)"Exit Viewer");
-               if (type == 4)  help((char *)"Key Viewer");
-               if (type == 5)  help((char *)"Start Viewer");
-               if (type == 6)  help((char *)"Free Man Viewer");
-               if (type == 7)  help((char *)"Mine Viewer");
-               if (type == 8)  help((char *)"Bomb Viewer");
-               if (type == 10) help((char *)"Message Viewer");
-               if (type == 11) help((char *)"Rocket Viewer");
-               if (type == 12) help((char *)"Warp Viewer");
-               if (type == 14) help((char *)"Switch Viewer");
-               if (type == 15) help((char *)"Sproingy Viewer");
+               if (type == 1)  help("Door Viewer");
+               if (type == 2)  help("Health Bonus Viewer");
+               if (type == 3)  help("Exit Viewer");
+               if (type == 4)  help("Key Viewer");
+               if (type == 5)  help("Start Viewer");
+               if (type == 6)  help("Free Man Viewer");
+               if (type == 7)  help("Mine Viewer");
+               if (type == 8)  help("Bomb Viewer");
+               if (type == 10) help("Message Viewer");
+               if (type == 11) help("Rocket Viewer");
+               if (type == 12) help("Warp Viewer");
+               if (type == 14) help("Switch Viewer");
+               if (type == 15) help("Sproingy Viewer");
             }
             break;
          } // end of switch (mb)

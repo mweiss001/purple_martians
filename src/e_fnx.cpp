@@ -171,7 +171,7 @@ void draw_bs(int cc)
    }
 }
 
-int getbox(char *txt, int obj_type, int sub_type, int num )
+int getbox(const char *txt, int obj_type, int sub_type, int num )
 {
    int bs_on = 1;
    int quit = 0;
@@ -281,7 +281,7 @@ int getbox(char *txt, int obj_type, int sub_type, int num )
 
 
 
-int getxy(char *txt, int obj_type, int sub_type, int num )
+int getxy(const char *txt, int obj_type, int sub_type, int num )
 {
    int dx=0, dy=0;
 
@@ -524,7 +524,7 @@ int getxy(char *txt, int obj_type, int sub_type, int num )
 }
 
 
-int get_item(char *txt, int obj_type, int sub_type, int num )
+int get_item(const char *txt, int obj_type, int sub_type, int num )
 {
    int itx, ity, dx, dy;
    int mouse_on_item = 0;

@@ -3,49 +3,50 @@
 #include "pm.h"
 #ifdef NETPLAY
 
-/* A global memory buffer for the current network packet. */
+// global memory buffer for the current network packet
 char packetbuffer[1024];
 int packetsize;
-
 static int packetpos;
 
-/* Create a new packet. */
-void Packet(char *id) {
+// create a new packet
+void Packet(const char *id)
+{
 	strncpy(packetbuffer, id, 4);
 	packetsize = 4;
 }
 
-/* Append a byte to the packet. */
-void PacketAddByte(char b) {
-	packetbuffer[packetsize] = b;
-	packetsize++;
-}
-
-/* Check if currently a packet with the given id can be read. */
-int PacketRead(char *id) {
-	if(packetsize >= 4 && !strncmp(packetbuffer, id, 4)) {
+// check if a packet with the given id can be read
+int PacketRead(const char *id)
+{
+	if(packetsize >= 4 && !strncmp(packetbuffer, id, 4))
+   {
 		packetpos = 4;
 		return 1;
 	}
 	return 0;
 }
 
-/* Get the next byte from the packet. */
-char PacketGetByte(void) {
+// append a byte to the packet
+void PacketAddByte(char b)
+{
+	packetbuffer[packetsize] = b;
+	packetsize++;
+}
+
+// get the next byte from the packet
+char PacketGetByte(void)
+{
 	char b = packetbuffer[packetpos];
 	packetpos++;
 	return b;
 }
 
-// ---------------------------------------------------------------------------------------------------------------
-// ***************************************************************************************************************
-//----------------------------------------------------------------------------------------------------------------
 
 
 void PacketAddString(char* s)
 {
-   for (int i=0; i<15; i++) PacketAddByte(s[i]); // copy first 15 char
-   PacketAddByte(0);                             // for safety terminate with NULL
+   for (int i=0; i<15; i++) PacketAddByte(s[i]); // copy first 15 char only
+   PacketAddByte(0); // for safety terminate with NULL in case string is longer than 15
 }
 
 void PacketReadString(char* s)
@@ -53,7 +54,15 @@ void PacketReadString(char* s)
    for (int i=0; i<16; i++) s[i] = PacketGetByte();
 }
 
-void PacketAdd2Bytes(int b)
+
+
+
+void PacketPut1ByteInt(int b)
+{
+   unsigned char lo_b = (unsigned char) (b);
+   PacketAddByte(lo_b);
+}
+void PacketPut2ByteInt(int b)
 {
    unsigned char hi_b = (unsigned char) (b/256);
    PacketAddByte(hi_b);
@@ -61,8 +70,7 @@ void PacketAdd2Bytes(int b)
    unsigned char lo_b = (unsigned char) (b - (hi_b*256));
    PacketAddByte(lo_b);
 }
-
-void PacketAdd3Bytes(int b)
+void PacketPut3ByteInt(int b)
 {
    int t = b;
 
@@ -78,7 +86,7 @@ void PacketAdd3Bytes(int b)
    PacketAddByte(lo_b);
 }
 
-void PacketAdd4Bytes(int b)
+void PacketPut4ByteInt(int b)
 {
    int t = b;
 
@@ -98,14 +106,20 @@ void PacketAdd4Bytes(int b)
    PacketAddByte(lo_b);
 }
 
-int Packet2ByteRead(void)
+int PacketGet1ByteInt(void)
+{
+   unsigned char byte_lo = (unsigned char)PacketGetByte();
+   int b = byte_lo;
+	return b;
+}
+int PacketGet2ByteInt(void)
 {
    unsigned char byte_ho = (unsigned char)PacketGetByte();
    unsigned char byte_lo = (unsigned char)PacketGetByte();
    int b = (byte_ho * 256) + byte_lo;
    return b;
 }
-int Packet3ByteRead(void)
+int PacketGet3ByteInt(void)
 {
    unsigned char byte_sh = (unsigned char)PacketGetByte();
    unsigned char byte_ho = (unsigned char)PacketGetByte();
@@ -113,7 +127,7 @@ int Packet3ByteRead(void)
    int b = (byte_sh*65536) + (byte_ho*256) + byte_lo;
    return b;
 }
-int Packet4ByteRead(void)
+int PacketGet4ByteInt(void)
 {
    unsigned char byte_uh = (unsigned char)PacketGetByte();
    unsigned char byte_sh = (unsigned char)PacketGetByte();
@@ -122,8 +136,6 @@ int Packet4ByteRead(void)
    int b = (byte_uh*16777216) + (byte_sh*65536) + (byte_ho*256) + byte_lo;
    return b;
 }
-
-
 
 #endif
 

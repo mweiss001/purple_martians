@@ -6,53 +6,53 @@
 void log_bandwidth_stats(int p)
 {
    sprintf(msg,"total tx bytes............[%d]", players1[p].tx_total_bytes);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max tx bytes per frame....[%d]", players1[p].tx_max_bytes_per_frame);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"avg tx bytes per frame....[%d]", players1[p].tx_total_bytes / frame_num);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx bytes per second...[%d]", players1[p].tx_max_bytes_per_tally);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"avg tx bytes per sec......[%d]", (players1[p].tx_total_bytes *40)/ frame_num);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total tx packets..........[%d]", players1[p].tx_total_packets);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max tx packets per frame..[%d]", players1[p].tx_max_packets_per_frame);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max tx packets per second.[%d]", players1[p].tx_max_packets_per_tally);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
 
    sprintf(msg,"total rx bytes............[%d]", players1[p].rx_total_bytes);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx bytes per frame....[%d]", players1[p].rx_max_bytes_per_frame);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"avg rx bytes per frame....[%d]", players1[p].rx_total_bytes / frame_num);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx bytes per second...[%d]", players1[p].rx_max_bytes_per_tally);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"avg rx bytes per sec......[%d]", (players1[p].rx_total_bytes *40)/ frame_num);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total rx packets..........[%d]", players1[p].rx_total_packets);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx packets per frame..[%d]", players1[p].rx_max_packets_per_frame);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx packets per second.[%d]", players1[p].rx_max_packets_per_tally);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 }
 
 void log_reason_for_client_quit(int p)
@@ -71,14 +71,14 @@ void log_reason_for_client_quit(int p)
    if (r == 91) sprintf(tmsg,"local server quit");
    if (r == 92) sprintf(tmsg,"remote server quit");
    sprintf(msg,"reason for quit...........[%s]", tmsg);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 }
 
 
 void log_player_array()
 {
-   add_log_entry_header(22, 0, (char*) "Player Array", 0);
-   add_log_entry_position_text(22, 0, 76, 10, (char*)"[p][wh][a][co][m]", (char*)"|", (char*)" ");
+   add_log_entry_header(22, 0,  "Player Array", 0);
+   add_log_entry_position_text(22, 0, 76, 10, "[p][wh][a][co][m]", "|", " ");
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       char ms[80];
@@ -107,9 +107,9 @@ void log_player_array()
                                                );
 
 
-      add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+      add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
    }
-   add_log_entry_centered_text(22, 0, 76, (char*)"", (char*)"+", (char*)"-");
+   add_log_entry_centered_text(22, 0, 76, "", "+", "-");
 }
 
 
@@ -122,55 +122,55 @@ void log_ending_stats()
    add_log_entry_header(22, 0, msg, 0);
 
    add_log_entry_sdat_rx_and_game_move_entered(22, p);
-   add_log_entry_centered_text(22, p, 76, (char*)"", (char*)"+", (char*)"-");
+   add_log_entry_centered_text(22, p, 76, "", "+", "-");
    sprintf(msg,"total game frames.........[%d]", frame_num);
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|",(char*) " ");
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
    sprintf(msg,"frame when client joined..[%d]", players1[p].join_frame);
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    if (players1[p].quit_frame == 0) players1[p].quit_frame = frame_num;
    sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    log_reason_for_client_quit(p);
 
    sprintf(msg,"frames client was active..[%d]", players1[p].quit_frame - players1[p].join_frame);
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"frames skipped............[%d]", players1[p].frames_skipped);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"cdat packets tx'd.........[%d]", players1[p].cdat_packets_tx);
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+   sprintf(msg,"cdat packets tx'd.........[%d]", players1[p].client_cdat_packets_tx);
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"cdat late to server.......[%d]", players1[p].serr_c_sync_err);
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
-   sprintf(msg,"minimum c_sync............[%d]", players1[p].c_sync_min);
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
-   sprintf(msg,"c_sync errors.............[%d]", players1[p].c_sync_err);
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   sprintf(msg,"minimum c_sync............[%d]", players1[p].client_game_move_sync_min);
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   sprintf(msg,"c_sync errors.............[%d]", players1[p].client_game_move_sync_err);
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"chdf received.............[%d]", players1[p].chdf_rx );
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"chdf received on time.....[%d]", players1[p].chdf_on_time );
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"chdf received late........[%d]", players1[p].chdf_late );
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    if (players1[p].chdf_rx > 0)
    {
       sprintf(msg,"percent of late chdf......[%d]", (players1[p].chdf_late*100) / players1[p].chdf_rx);
-      add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+      add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
    }
 
    sprintf(msg,"chdf corrections..........[%d]", players1[p].dif_corr);
-   add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    log_bandwidth_stats(p);
 
-   add_log_entry_centered_text(22, p, 76, (char*)"", (char*)"+", (char*)"-");
+   add_log_entry_centered_text(22, p, 76, "", "+", "-");
 
 
    // lets get more date here temporarily
@@ -186,64 +186,64 @@ void log_ending_stats_server()
    sprintf(msg,"Server (%s) ending stats", local_hostname);
    add_log_entry_header(22, 0, msg, 0);
 
-   add_log_entry_centered_text(22, 0, 76, (char*)"", (char*)"+", (char*)"-");
+   add_log_entry_centered_text(22, 0, 76, "", "+", "-");
 
    sprintf(msg,"level.....................[%d]", play_level);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total frames..............[%d]", frame_num);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total moves...............[%d]", game_move_entry_pos);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total time (seconds)......[%d]", frame_num/40);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total time (minutes)......[%d]", frame_num/40/60);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"server frames skipped.. ..[%d]", players1[0].frames_skipped);
-   add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
    log_bandwidth_stats(0);
 
-   add_log_entry_centered_text(22, 0, 76, (char*)"", (char*)"+", (char*)"-");
+   add_log_entry_centered_text(22, 0, 76, "", "+", "-");
 
    for (int p=1; p<NUM_PLAYERS; p++)
    {
       if ((players[p].control_method == 2) || (players[p].control_method == 9))
       {
          sprintf(msg,"Player:%d (%s)", p, players1[p].hostname);
-         add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
          sprintf(msg,"frame when client joined..[%d]", players1[p].join_frame);
-         add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
          if (players1[p].quit_frame == 0) players1[p].quit_frame = frame_num;
          sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
-         add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
          log_reason_for_client_quit(p);
 
          sprintf(msg,"frames client was active..[%d]", players1[p].quit_frame - players1[p].join_frame);
-         add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-         sprintf(msg,"cdat late to server.......[%d]", players1[p].c_sync_err);
-         add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+         sprintf(msg,"cdat late to server.......[%d]", players1[p].client_game_move_sync_err);
+         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
          sprintf(msg,"chdf late.................[%d]", players1[p].chdf_late);
-         add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
          sprintf(msg,"chdf corrections..........[%d]", players1[p].dif_corr);
-         add_log_entry_position_text(22, p, 76, 10, msg, (char*)"|", (char*)" ");
+         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
          sprintf(msg,"frames skipped............[%d]", players1[p].frames_skipped);
-         add_log_entry_position_text(22, 0, 76, 10, msg, (char*)"|", (char*)" ");
+         add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
          log_bandwidth_stats(p);
 
-         add_log_entry_centered_text(22, p, 76,(char*) "", (char*)"+", (char*)"-");
+         add_log_entry_centered_text(22, p, 76, "", "+", "-");
 
 
       }
@@ -284,17 +284,17 @@ void save_log_file(void)
 
 void add_log_entry_sdat_rx_and_game_move_entered(int type, int player)
 {
-   add_log_entry_centered_text(type, player, 76, (char*)"", (char*)"+", (char*)"-");
+   add_log_entry_centered_text(type, player, 76, "", "+", "-");
 
-   int st = players1[player].sdat_total;
-   int ss = players1[player].sdat_skipped;
+   int st = players1[player].client_sdat_packets_rx;
+   int ss = players1[player].client_sdat_packets_skipped;
    float sdpc=0;                 // % skipped
    if (st != 0) // prevent divide by zero
    {
       sdpc = (float)ss * 100 / (float)st;
    }
    sprintf(msg,"sdat packets rx'd:[%3d]  skipped:[%3d][%4.1f%%%%]", st, ss, sdpc);
-   add_log_entry_position_text(type, player, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(type, player, 76, 10, msg, "|", " ");
 
 
    int mt = players1[player].moves_entered + players1[player].moves_skipped; // moves total
@@ -305,9 +305,9 @@ void add_log_entry_sdat_rx_and_game_move_entered(int type, int player)
       mspc = (float)ms * 100 / (float)mt;
    }
    sprintf(msg,"moves entered:    [%3d]  skipped:[%3d][%4.1f%%%%]", mt, ms, mspc);
-   add_log_entry_position_text(type, player, 76, 10, msg, (char*)"|", (char*)" ");
+   add_log_entry_position_text(type, player, 76, 10, msg, "|", " ");
 
-   add_log_entry_centered_text(type, player, 76, (char*)"", (char*)"+", (char*)"-");
+   add_log_entry_centered_text(type, player, 76, "", "+", "-");
 
 }
 
@@ -332,7 +332,7 @@ void add_log_entry2(int type, int player, char *txt)
 }
 
 
-void add_log_entry_position_text(int type, int player, int width, int pos, char *txt, char *border, char *fill)
+void add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill)
 {
    int l = strlen(txt);
    int j1 = pos-2;
@@ -375,7 +375,7 @@ void add_log_entry_position_text(int type, int player, int width, int pos, char 
 
 }
 
-void add_log_entry_centered_text(int type, int player, int width, char *txt, char *border, char *fill)
+void add_log_entry_centered_text(int type, int player, int width, const char *txt, const char *border, const char *fill)
 {
 
 
@@ -397,23 +397,23 @@ void add_log_entry_centered_text(int type, int player, int width, char *txt, cha
 
 }
 
-void add_log_entry_header(int type, int player, char *txt, int blank_lines)
+void add_log_entry_header(int type, int player, const char *txt, int blank_lines)
 {
 
    char htext[80]; // make a copy so that doesn't get overwritten
    sprintf(htext, "%s", txt);
 
-   add_log_entry_centered_text(type, player, 76, (char*)"", (char*)"+", (char*)"-");
+   add_log_entry_centered_text(type, player, 76, "", "+", "-");
 
    for (int i=0; i<blank_lines; i++)
-      add_log_entry_centered_text(type, player, 76, (char*)"", (char*)"|", (char*)" ");
+      add_log_entry_centered_text(type, player, 76, "", "|", " ");
 
-   add_log_entry_centered_text(type, player, 76, htext, (char*)"|", (char*)" ");
+   add_log_entry_centered_text(type, player, 76, htext, "|", " ");
 
    for (int i=0; i<blank_lines; i++)
-      add_log_entry_centered_text(type, player, 76, (char*)"", (char*)"|", (char*)" ");
+      add_log_entry_centered_text(type, player, 76, "", "|", " ");
 
-   add_log_entry_centered_text(type, player, 76, (char*)"", (char*)"+", (char*)"-");
+   add_log_entry_centered_text(type, player, 76, "", "+", "-");
 
 }
 

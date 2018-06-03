@@ -566,7 +566,7 @@ int zoom_full_screen(int wx, int wy, int draw_item)
       draw_big(1);
       show_big();
 
-      title((char *)"Zoom Full Screen",  0, 15, 13);
+      title("Zoom Full Screen",  0, 15, 13);
       // menu and buttons
       int bc1 = 10;
       int bc0 = 9;
@@ -1315,7 +1315,7 @@ int edit_menu(int el)
                if (save_level_prompt()) em_quit=1;
             break;
             case 14: // help
-               help((char *)"Level Editor Basics");
+               help("Level Editor Basics");
             break;
             case 15: // exit
                em_quit=1;

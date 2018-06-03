@@ -10,7 +10,7 @@
 NET_CONN *ServerConn = NULL;
 NET_CHANNEL *ServerChannel;
 
-int ClientInit(char *serveraddress)
+int ClientInit(const char *serveraddress)
 {
 	if(NetworkInit())
    {
@@ -123,7 +123,7 @@ int ClientCheckResponse(void) // check for a repsonse from the server
       #ifdef CHANNEL
       char address[32];
       // send data to server
-      Packet((char *)"1234");
+      Packet("1234");
       ClientSend(packetbuffer, packetsize);
       al_rest(0.1);
       // check for a response
@@ -219,7 +219,7 @@ void ClientExit(void)
 
 void nc_client(void) // for specialized packet testing only
 {
-   if (ClientInit((char *)"192.168.1.170"))  printf("Client init failed\n");
+   if (ClientInit("192.168.1.170"))  printf("Client init failed\n");
 //   if (ClientCheckResponse())        printf("No server response\n");
    while (ClientCheckResponse()); // wait until its zero        printf("No server response\n");
    int quit = 0;
@@ -229,16 +229,16 @@ void nc_client(void) // for specialized packet testing only
       packetsize = ClientReceive(packetbuffer);
       if (packetsize > 0)
       {
-         if(PacketRead((char *)"peep"))
+         if(PacketRead("peep"))
          {
-            int pc = Packet2ByteRead();
+            int pc = PacketGet2ByteInt();
 //            printf("client rx peep:[%d]\n", pc);
             pc++;
             if (pc < 1000)
             {
 //               printf("client tx poop:[%d]\n",pc);
-               Packet((char *)"poop");
-               PacketAdd2Bytes(pc);
+               Packet("poop");
+               PacketPut2ByteInt(pc);
                ClientSend(packetbuffer, packetsize);
             }
             else
@@ -254,8 +254,8 @@ void nc_client(void) // for specialized packet testing only
          while (key[ALLEGRO_KEY_1]);
          log_timer = clock(); // start the timer...
          printf("Sending poop packet to server\n");
-         Packet((char *)"poop");
-         PacketAddByte(0);
+         Packet("poop");
+         PacketPut1ByteInt(0);
          ClientSend(packetbuffer, packetsize);
       }
    }
@@ -345,8 +345,8 @@ int client_init_join(void)
 {
    //textout_centre_ex(screen, font, "Joining..........",SCREEN_W/2, SCREEN_H/2, palette_color[13], 0);
 
-   Packet((char *)"CJON");
-   PacketAddByte(players[0].color); // request the color of current player 0
+   Packet("CJON");
+   PacketPut1ByteInt(players[0].color); // request the color of current player 0
    PacketAddString(local_hostname);
    ClientSend(packetbuffer, packetsize);
 
@@ -354,9 +354,9 @@ int client_init_join(void)
    {
       #ifdef LOGGING_NETPLAY_JOIN
       sprintf(msg,"Client sent join request to server with player color:[%2d]", players[0].color);
-      add_log_entry_centered_text(11, 0, 76, (char *)"", (char *)"+", (char *)"-");
-      add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
-      add_log_entry_centered_text(11, 0, 76, (char *)"", (char *)"+", (char *)"-");
+      add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+      add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+      add_log_entry_centered_text(11, 0, 76, "", "+", "-");
       #endif
    }
 
@@ -366,18 +366,18 @@ int client_init_join(void)
       al_rest(0.02);
       if (key[ALLEGRO_KEY_ESCAPE]) SJON = 98; // emergency exit
       packetsize = ClientReceive(packetbuffer);
-      if ((packetsize) && (PacketRead((char *)"SJON"))) // sent by server to client wanting to join
+      if ((packetsize) && (PacketRead("SJON"))) // sent by server to client wanting to join
       {
          SJON = 1;
-         int pl = Packet2ByteRead();   // play level
-         int server_SJON_frame_num      =  Packet4ByteRead(); //
-         int server_game_move_entry_pos =  Packet4ByteRead(); //
-         int z = PacketGetByte();      // frame rate
-         int cp = PacketGetByte();     // client player number
-         int color = PacketGetByte();  // client player color
-         deathmatch_pbullets = PacketGetByte();
-         deathmatch_pbullets_damage = PacketGetByte();
-         suicide_pbullets = PacketGetByte();
+         int pl = PacketGet2ByteInt();   // play level
+         int server_SJON_frame_num      =  PacketGet4ByteInt(); //
+         int server_game_move_entry_pos =  PacketGet4ByteInt(); //
+         int z = PacketGet1ByteInt();      // frame rate
+         int cp = PacketGet1ByteInt();     // client player number
+         int color = PacketGet1ByteInt();  // client player color
+         deathmatch_pbullets = PacketGet1ByteInt();
+         deathmatch_pbullets_damage = PacketGet1ByteInt();
+         suicide_pbullets = PacketGet1ByteInt();
 
 
          if (cp == 99) //server full, join denied
@@ -408,26 +408,26 @@ int client_init_join(void)
             {
                #ifdef LOGGING_NETPLAY_JOIN
                sprintf(msg,"Client received join invitation from server");
-               add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
+               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                sprintf(msg,"Level:[%d]", play_level);
-               add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
+               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                sprintf(msg,"Frame Rate:[%d]", z);
-               add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
+               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                sprintf(msg,"Player Number:[%d]", cp);
-               add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
+               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                sprintf(msg,"Player Color:[%d]", color);
-               add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
+               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                sprintf(msg,"Server Frame Num:[%d]", server_SJON_frame_num);
-               add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
+               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                sprintf(msg,"Server Game Moves:[%d]", server_game_move_entry_pos);
-               add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
+               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                sprintf(msg,"Deathmatch player bullets:[%d]", deathmatch_pbullets);
-               add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
+               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                sprintf(msg,"Deathmatch player bullet damage:[%d]", deathmatch_pbullets_damage);
-               add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
+               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                sprintf(msg,"Suicide player bullets:[%d]", suicide_pbullets);
-               add_log_entry_position_text(11, 0, 76, 10, msg, (char *)"|", (char *)" ");
-               add_log_entry_centered_text(11, 0, 76, (char *)"", (char *)"+",(char *) "-");
+               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+               add_log_entry_centered_text(11, 0, 76, "", "+", "-");
                #endif
             }
 
@@ -478,8 +478,8 @@ int client_init(void)
    if (L_LOGGING_NETPLAY)
    {
       #ifdef LOGGING_NETPLAY
-      add_log_entry_centered_text(10, 0, 76, (char *)"", (char *)"+", (char *)"-");
-      add_log_entry_position_text(10, 0, 76, 10, msg, (char *)"|", (char *)" ");
+      add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       #endif
    }
    sprintf(msg, "Looking for server:[%s]", m_serveraddress);
@@ -488,7 +488,7 @@ int client_init(void)
    if (L_LOGGING_NETPLAY)
    {
       #ifdef LOGGING_NETPLAY
-      add_log_entry_position_text(10, 0, 76, 10, msg, (char *)"|", (char *)" ");
+      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       #endif
    }
 
@@ -504,8 +504,8 @@ int client_init(void)
    if (L_LOGGING_NETPLAY)
    {
       #ifdef LOGGING_NETPLAY
-      add_log_entry_position_text(10, 0, 76, 10, msg, (char *)"|", (char *)" ");
-      add_log_entry_centered_text(10, 0, 76, (char *)"", (char *)"+", (char *)"-");
+      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      add_log_entry_centered_text(10, 0, 76, "", "+", "-");
       #endif
    }
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -540,14 +540,13 @@ int client_init(void)
 }
 
 
-
 void read_game_step_from_packet(int x, int clf_check)
 {
    // read from the packet
-   int g0 = Packet4ByteRead();
-   int g1 = PacketGetByte();
-   int g2 = PacketGetByte();
-   int g3 = PacketGetByte();
+   int g0 = PacketGet4ByteInt();
+   int g1 = PacketGet1ByteInt();
+   int g2 = PacketGet1ByteInt();
+   int g3 = PacketGet1ByteInt();
 
    char tmsg1[80];
    char tmsg2[80];
@@ -580,10 +579,10 @@ void read_game_step_from_packet(int x, int clf_check)
       {
          int p = active_local_player;
          cs = g0 - frame_num;                    // calculate c_csync
-         players1[p].c_sync = cs;                 // set in player struct
-         if (cs < 0 ) players1[p].c_sync_err++;   // check for error
-         if (cs < players1[p].c_sync_min)         // check and set min
-            players1[p].c_sync_min = cs;
+         players1[p].client_game_move_sync = cs;                 // set in player struct
+         if (cs < 0 ) players1[p].client_game_move_sync_err++;   // check for error
+         if (cs < players1[p].client_game_move_sync_min)         // check and set min
+            players1[p].client_game_move_sync_min = cs;
          if (cs == 0) sprintf(tmsg4,"<---[WARNING!]");
          if (cs < 0)  sprintf(tmsg4,"<---[ERROR!]");
          sprintf(tmsg3,"- frame lead:[%d]%s", cs, tmsg4);
@@ -600,35 +599,16 @@ void read_game_step_from_packet(int x, int clf_check)
    }
 }
 
-void client_timer_adjust(void)
-{
-   int p = active_local_player;
-   if (frame_num == players1[p].last_sdat_lpc)  // only if just received sdat; use for sync
-   {
-      players1[p].server_sync = players1[p].last_sdat_fpc - frame_num;
-      int fps_chase = frame_speed + players1[p].server_sync - server_lead_frames;
-      if (fps_chase < 4) fps_chase = 4; // never let this go negative
-      al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
-      if (L_LOGGING_NETPLAY_client_timer_adjust)
-      {
-         #ifdef LOGGING_NETPLAY_client_timer_adjust
-         sprintf(msg,"[timer adjust] server_sync:[%d] fps:[%d] server_lead_frames:%d\n", players1[p].server_sync, fps_chase, server_lead_frames);
-         add_log_entry2(25, p, msg);
-         #endif
-      }
-   }
-}
-
 int process_chdf_packet(void)
 {
    int retval = 0;
-   int p = PacketGetByte();
-   int chdf_src_frame_num = Packet4ByteRead();
-   int chdf_dst_frame_num = Packet4ByteRead();
-   int chdf_seq = PacketGetByte();
-   int chdf_max_seq = PacketGetByte();
-   int chdf_sb = Packet4ByteRead();
-   int chdf_sz = Packet4ByteRead();
+   int p = PacketGet1ByteInt();
+   int chdf_src_frame_num = PacketGet4ByteInt();
+   int chdf_dst_frame_num = PacketGet4ByteInt();
+   int chdf_seq = PacketGet1ByteInt();
+   int chdf_max_seq = PacketGet1ByteInt();
+   int chdf_sb = PacketGet4ByteInt();
+   int chdf_sz = PacketGet4ByteInt();
 
    if (p != active_local_player)
    {
@@ -812,10 +792,10 @@ void client_apply_diff()
             #endif
          }
          // send ack to server
-         Packet((char *)"chak");
-         PacketAddByte(p);
-         PacketAddByte(dif_corr);
-         PacketAdd4Bytes(frame_num);
+         Packet("chak");
+         PacketPut1ByteInt(p);
+         PacketPut1ByteInt(dif_corr);
+         PacketPut4ByteInt(frame_num);
          ClientSend(packetbuffer, packetsize);
 
       }
@@ -843,7 +823,7 @@ void client_block_until_good_chdf_received(void)
       if (key[ALLEGRO_KEY_F11]) fast_exit(65); // in case we get trapped here and need a way out
       if ((packetsize = ClientReceive(packetbuffer)))
       {
-         if(PacketRead((char *)"chdf"))
+         if(PacketRead("chdf"))
          {
              done = process_chdf_packet();
          }
@@ -854,7 +834,7 @@ void client_block_until_good_chdf_received(void)
    frame_num = dif_id[1];
    al_set_timer_count(fps_timer, frame_num);
 
-   players1[p].last_sdat_lpc = frame_num + 200;
+   players1[p].client_last_sdat_rx_frame_num = frame_num + 200;
 
    client_apply_diff();
 
@@ -881,12 +861,12 @@ void client_block_until_good_chdf_received(void)
 
 
    // send ack up to this point (we don't care about previous game moves anymore)
-   Packet((char *)"sdak");
-   PacketAddByte(p);
-   PacketAdd4Bytes(frame_num);
-   PacketAdd4Bytes(players1[p].game_move_entry_pos); // new entry pos
-   PacketAdd4Bytes(players1[p].chdf_late);
-   PacketAdd4Bytes(players1[p].frames_skipped);
+   Packet("sdak");
+   PacketPut1ByteInt(p);
+   PacketPut4ByteInt(frame_num);
+   PacketPut4ByteInt(players1[p].game_move_entry_pos); // new entry pos
+   PacketPut4ByteInt(players1[p].chdf_late);
+   PacketPut4ByteInt(players1[p].frames_skipped);
    ClientSend(packetbuffer, packetsize);
 }
 
@@ -969,10 +949,10 @@ void client_control(void)
    int p = active_local_player;
 
    // check to see if game has gone bad and we need to quit
-   if ((frame_num > 0) && (players1[p].last_sdat_lpc > 0))
+   if ((frame_num > 0) && (players1[p].client_last_sdat_rx_frame_num > 0))
    {
-       int ss = frame_num - players1[p].last_sdat_lpc;
-       // printf("pc:%d lspc:%d  ss:%d\n", frame_num, players1[p].last_sdat_lpc, ss);
+       int ss = frame_num - players1[p].client_last_sdat_rx_frame_num;
+       // printf("pc:%d lspc:%d  ss:%d\n", frame_num, players1[p].client_last_sdat_rx_frame_num, ss);
        if (ss > 120)
        {
           sprintf(msg, "Player %d LOST SERVER CONNECTION", p);
@@ -980,7 +960,7 @@ void client_control(void)
           #ifdef LOGGING_NETPLAY
           add_log_entry_header(10, p, msg, 2);
           char tmsg[100];
-          sprintf(tmsg, "frame_num:[%d] last_sdat_rx:[%d] dif:[%d]", frame_num, players1[p].last_sdat_lpc, ss);
+          sprintf(tmsg, "frame_num:[%d] last_sdat_rx:[%d] dif:[%d]", frame_num, players1[p].client_last_sdat_rx_frame_num, ss);
           add_log_entry_header(10, p, tmsg, 1);
           #endif
 
@@ -1007,15 +987,15 @@ void client_control(void)
    {
       if (key[ALLEGRO_KEY_F11]) fast_exit(65); // in case we get trapped here and need a way out
 
-      if(PacketRead((char *)"chdf")) process_chdf_packet();
+      if(PacketRead("chdf")) process_chdf_packet();
 
-      if(PacketRead((char *)"serr"))
+      if(PacketRead("serr"))
       {
-         int sp = PacketGetByte();
-         int serr_type = PacketGetByte();
-         int serr_frame_num = Packet4ByteRead();
-         int serr_c_sync = Packet4ByteRead();
-         int serr_c_sync_err = Packet4ByteRead();
+         int sp = PacketGet1ByteInt();
+         int serr_type = PacketGet1ByteInt();
+         int serr_frame_num = PacketGet4ByteInt();
+         int serr_c_sync = PacketGet4ByteInt();
+         int serr_c_sync_err = PacketGet4ByteInt();
 
          if (sp != p)
          {
@@ -1041,13 +1021,13 @@ void client_control(void)
             }
          }
       }
-      if(PacketRead((char *)"sdat"))
+      if(PacketRead("sdat"))
       {
          char tmsg[20];
-         int sp = PacketGetByte();
-         players1[p].last_sdat_fpc = Packet4ByteRead();
-         int start_entry = Packet4ByteRead();
-         int num_entries = PacketGetByte();
+         int sp = PacketGet1ByteInt();
+         int sdat_frame_num = PacketGet4ByteInt();
+         int start_entry = PacketGet4ByteInt();
+         int num_entries = PacketGet1ByteInt();
 
          if (sp != p)
          {
@@ -1059,10 +1039,20 @@ void client_control(void)
          }
          else
          {
-            players1[p].sdat_total++ ; // total sdat packets rx'd
+            players1[p].client_sdat_packets_rx++; // total sdat packets rx'd
 
-
-            players1[p].last_sdat_lpc = frame_num; // client's local frame_num of last sync packet
+            // this used to be a function , client timer adjust
+            players1[p].client_sync = sdat_frame_num - frame_num;
+            int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
+            if (fps_chase < 4) fps_chase = 4; // never let this go negative
+            al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+            if (L_LOGGING_NETPLAY_client_timer_adjust)
+            {
+               #ifdef LOGGING_NETPLAY_client_timer_adjust
+               sprintf(msg,"[timer adjust] client_sync:[%d] fps:[%d] server_lead_frames:%d\n", players1[p].client_sync, fps_chase, server_lead_frames);
+               add_log_entry2(25, p, msg);
+               #endif
+            }
 
             if (num_entries == 0) sprintf(tmsg,"sync only");
 
@@ -1071,14 +1061,14 @@ void client_control(void)
             else if (num_entries)
             {
                sprintf(tmsg,"no new moves");
-               players1[p].sdat_skipped++ ; // total sdat packets skipped
+               players1[p].client_sdat_packets_skipped++ ; // total sdat packets skipped
                players1[p].moves_skipped += num_entries;  // moves skipped
 
             }
             if (L_LOGGING_NETPLAY_sdat)
             {
                #ifdef LOGGING_NETPLAY_sdat
-               sprintf(msg,"rx sdat [server_frame:%d] - strt:%d num:%d - %s\n", players1[p].last_sdat_fpc, start_entry, num_entries, tmsg);
+               sprintf(msg,"rx sdat [server_frame:%d] - strt:%d num:%d - %s\n", sdat_frame_num, start_entry, num_entries, tmsg);
                add_log_entry2(37, p, msg);
                #endif
             }
@@ -1090,12 +1080,12 @@ void client_control(void)
                game_move_entry_pos = nep;
             }
 
-            Packet((char *)"sdak");
-            PacketAddByte(p);
-            PacketAdd4Bytes(frame_num);
-            PacketAdd4Bytes(nep);
-            PacketAdd4Bytes(players1[p].chdf_late);
-            PacketAdd4Bytes(players1[p].frames_skipped);
+            Packet("sdak"); // send acknowledgement of game moves received
+            PacketPut1ByteInt(p);
+            PacketPut4ByteInt(frame_num);
+            PacketPut4ByteInt(nep);
+            PacketPut4ByteInt(players1[p].chdf_late);
+            PacketPut4ByteInt(players1[p].frames_skipped);
             ClientSend(packetbuffer, packetsize);
 
             if (L_LOGGING_NETPLAY_sdak)
@@ -1112,8 +1102,6 @@ void client_control(void)
 
    client_apply_diff();
 
-   client_timer_adjust();  // every frame
-
 }
 
 void client_local_control(int p)
@@ -1126,25 +1114,22 @@ void client_local_control(int p)
    else set_comp_move_from_player_key_check(p);                // but don't set controls !!!
 
 
-   if (players1[p].comp_move != players1[p].old_comp_move)  // players keys have changed
+   if (players1[p].old_comp_move != players1[p].comp_move)  // players controls have changed
    {
       players1[p].old_comp_move = players1[p].comp_move;
-      int fpc = frame_num + control_lead_frames;  // add  to frame_num
-      int cm = players1[p].comp_move;
-
-      Packet((char *)"cdat");
-      PacketAddByte(p);
-      PacketAdd4Bytes(fpc);
-      PacketAddByte(cm);
+      Packet("cdat");
+      PacketPut1ByteInt(p);
+      PacketPut4ByteInt(frame_num + control_lead_frames); // add control_lead_frames to frame_num
+      PacketPut1ByteInt(players1[p].comp_move);
       ClientSend(packetbuffer, packetsize);
-      players1[p].cdat_packets_tx++;
+      players1[p].client_cdat_packets_tx++;
 
 //      while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers(); // wait for release, but send cdat first
 
       if (L_LOGGING_NETPLAY_cdat)
       {
          #ifdef LOGGING_NETPLAY_cdat
-         sprintf(msg,"tx cdat - move:%d\n", cm);
+         sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
          add_log_entry2(35, active_local_player, msg);
          #endif
       }

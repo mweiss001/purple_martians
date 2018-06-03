@@ -4895,30 +4895,146 @@ int proc_controllers()
 
 
 
-
-
-
-
-
 web docs:
 rename events
 or move out input to its own file..done
 input to have key, mouse, joystick and game moves array...done
 
 
+---------------
+found a better way to get rid of warning like:
+warning: ISO C++ forbids converting a string constant to 'char*' [-Wwrite-strings]|
+
+previously i change all the time i called a funtion with a literal string from:
+Packet("sdak");
+to:
+Packet((char *)"sdak");
+
+but bamcaig said that wasn't actually correct
+
+now I am going to redo them all by changing the function from:
+void Packet(char *id) {
+to:
+void Packet(const char *id) {
+
+that is the correct way.
+
+I just changed 20 instances of Packet()
+moving on...
+20 x Packet()
+12 PacketRead()
+4 title()
+30 help()
+23 getxy()
+5 getbox()
+1 get_item()
+2 ClientInit()
+30 add_log_entry_centered_text()
+94 add_log_entry_position_text()
+
+all done....
+
+
+what if I sort out the names for packet add and read
+
+new...
+
+void PacketPut1ByteInt(int b)
+void PacketPut2ByteInt(int b)
+void PacketPut3ByteInt(int b)
+void PacketPut4ByteInt(int b)
+
+int PacketGet1ByteInt(void)
+int PacketGet2ByteInt(void)
+int PacketGet3ByteInt(void)
+int PacketGet4ByteInt(void)
+
+
+void PacketPut1ByteInt(int b) replace 32
+int PacketGet1ByteInt(void) replaced 22
+
+void PacketPut2ByteInt(int b) replaced 3
+int PacketGet2ByteInt(void) replaced 3
+
+void PacketPut3ByteInt(int b) replaced 0
+int PacketGet3ByteInt(void) replaced 0
+
+void PacketPut4ByteInt(int b) replaced 26
+int PacketGet4ByteInt(void) replaced 18
+
+
+2 byte is only used for:
+- play level in SJON and CJON
+- specialized packet testing
+
+I could remove the tests I put in for player num matching who...nah leave it...
 
 
 
+what site did i use for my flowchart?
 
 
 
+where is server_sync used..
+
+
+client and server
+
+in player1 struct
+
+
+overlay
+client while waiting for sync
+client bottom overlay
+server per client
+
+
+I want to make them unique..
+
+on client server_sync is used for display only and for adjust timer
+
+rename that one to client_sync
+
+add new var in player struct:client_sync
+should be done....
+
+
+next:
+
+   int c_sync;
+   int c_sync_min;
+   int c_sync_err;
+
+how about:
+
+client_game_move_sync;
+client_game_move_sync_min;
+client_game_move_sync_err;
+
+and
+
+server_game_move_sync;
+server_game_move_sync_min;
+server_game_move_sync_err;
 
 
 
+change client first....
+make new var...
+clear in player
+fix in client
+fix in overlay
+fix in log
+done
 
+change server next....
+make new var...
+clear in player
+fix in server
+fix in overlay
+done
 
-
-
+still seems to work
 
 
 

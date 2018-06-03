@@ -6,17 +6,11 @@
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-
-
-
 ---------------------------------------------------------
 ------------------ web docs -----------------------------
 ---------------------------------------------------------
 
 look into pandoc...
-
-
-
 
 
 
@@ -30,8 +24,17 @@ In tiles there is some of it and also some in level background.
 
 At the bottom of files add links to other related docs
 
-
 netplay...
+done a lot
+game move sync
+
+
+
+
+
+
+
+
 
 
 
@@ -51,7 +54,8 @@ dont even use globals anymore, they just return the val
 
 getxy()  19 calls
 getbox() 5 calls
-pass pointer to values we want to edit...
+pass pointers to values we want to edit...
+
 
 
 ---------------------------------------------------------

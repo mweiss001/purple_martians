@@ -509,9 +509,9 @@ int initial_setup(void)
    if (L_LOGGING)
    {
       #ifdef LOGGING
-      add_log_entry_centered_text(20, 0, 76, (char*)"", (char*)"+", (char*)"-");
-      add_log_entry_position_text(20, 0, 76, 10, msg, (char*)"|", (char*)" ");
-      add_log_entry_centered_text(20, 0, 76, (char*)"", (char*)"+", (char*)"-");
+      add_log_entry_centered_text(20, 0, 76, "", "+", "-");
+      add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
+      add_log_entry_centered_text(20, 0, 76, "", "+", "-");
       #endif
    }
    // get allegro version
@@ -525,7 +525,7 @@ int initial_setup(void)
    if (L_LOGGING)
    {
       #ifdef LOGGING
-      add_log_entry_position_text(20, 0, 76, 10, msg, (char*)"|", (char*)" ");
+      add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
       #endif
    }
 
@@ -548,7 +548,7 @@ int initial_setup(void)
    if (L_LOGGING)
    {
       #ifdef LOGGING
-      add_log_entry_centered_text(20, 0, 76, (char*)"", (char*)"+", (char*)"-");
+      add_log_entry_centered_text(20, 0, 76, "", "+", "-");
       #endif
    }
 
@@ -576,28 +576,28 @@ int initial_setup(void)
 
    if(!al_init_native_dialog_addon())
    {
-      m_err((char*)"Failed to initialize native dialog addon.\n");
+      m_err("Failed to initialize native dialog addon.\n");
       return -1;
    }
    //else printf("init native_dialog addon\n");
 
    if(!al_init_image_addon())
    {
-      m_err((char*)"Failed to initialize image addon.\n");
+      m_err("Failed to initialize image addon.\n");
       return -1;
    }
    //else printf("init image addon\n");
 
    if(!al_init_primitives_addon())
    {
-      m_err((char*)"Failed to initialize primitives addon.\n");
+      m_err("Failed to initialize primitives addon.\n");
       return -1;
    }
    //else printf("init primitives addon\n");
 
    if(!al_init_font_addon())
    {
-      m_err((char*)"Failed to initialize font addon.\n");
+      m_err("Failed to initialize font addon.\n");
       return -1;
    }
    //else printf("init font addon\n");
@@ -605,7 +605,7 @@ int initial_setup(void)
 
    if(!al_init_ttf_addon())
    {
-      m_err((char*)"Failed to initialize ttf addon.\n");
+      m_err("Failed to initialize ttf addon.\n");
       return -1;
    }
    //else printf("init ttf addon\n");
@@ -618,7 +618,7 @@ int initial_setup(void)
 
    if (!al_install_keyboard())
    {
-      m_err((char*)"Failed to install keyboard.\n");
+      m_err("Failed to install keyboard.\n");
       return -1;
    }
    //else printf("installed keyboard\n");
@@ -626,7 +626,7 @@ int initial_setup(void)
    event_queue = al_create_event_queue();
    if(!event_queue)
    {
-      m_err((char*)"Failed to create event queue.\n");
+      m_err("Failed to create event queue.\n");
       return -1;
    }
    //else printf("created event queue\n");
@@ -640,7 +640,7 @@ int initial_setup(void)
 
    if (!al_install_mouse())
    {
-      m_err((char*)"Failed to install mouse.\n");
+      m_err("Failed to install mouse.\n");
       return -1;
    }
    //else printf("installed mouse\n");
@@ -656,7 +656,7 @@ int initial_setup(void)
 
    if (!al_install_joystick())
    {
-      m_err((char*)"Failed to install joystick.\n");
+      m_err("Failed to install joystick.\n");
       return -1;
    }
    //else printf("installed joystick\n");
@@ -793,8 +793,7 @@ void game_menu(void)
          pm_main();
       }
 
-      if (top_menu_sel == 10) help((char*)""); // help
-
+      if (top_menu_sel == 10) help(""); // help
 
       if (top_menu_sel == 15) // dummy mode to redraw
       {
@@ -1002,7 +1001,7 @@ void game_menu(void)
             if (options_menu_sel == 12) save_gm();
             if (options_menu_sel == 13) // run game
             {
-               if (load_gm((char*)"-"))
+               if (load_gm("-"))
                {
                   players[0].control_method = 1;
                   start_mode = 2; // load level and start, but skip game array erasing
@@ -1250,7 +1249,7 @@ int main(int argument_count, char **argument_array)
 
          if (strcmp(argument_array[1],"-h") == 0 )  // help
          {
-            help((char*)"Command Line");
+            help("Command Line");
             fast_exit(0);
          }
 
@@ -1452,10 +1451,10 @@ int copy_files_to_clients(int exe_only)
 //   sprintf(client[num_clients++], "\\\\E6430\\pm_client4");  // win7 studio pc
 //   sprintf(client[num_clients++], "\\\\E6420\\pm_client5");  // win7 2560x1600 (my room)
 //   sprintf(client[num_clients++], "\\\\pfv\\pm_client6");    // XP 1600x1200
-   sprintf(client[num_clients++], "\\\\m-4230-3\\pm_client7"); // ubuntu acer laptop
+//   sprintf(client[num_clients++], "\\\\m-4230-3\\pm_client7"); // ubuntu acer laptop
 //   sprintf(client[num_clients++], "\\\\DESKTOP-DBNSJH8\\pm_client8"); // win 10 EID work laptop
 //   sprintf(client[num_clients++], "\\\\e4230f\\pm_client9"); // acer laptop
-//   sprintf(client[num_clients++], "\\\\4230a\\pm_client10"); // acer laptop
+   sprintf(client[num_clients++], "\\\\4230a\\pm_client10"); // acer laptop
 //   sprintf(client[num_clients++], "\\\\insp9400\\pm_client11"); // dell insp 9400 (backup machine)
 //   sprintf(client[num_clients++], "\\\\m7667\\pm_client12"); // core2 2G 32bit GeForce 7500 LE
 //   sprintf(client[num_clients++], "\\\\nv59\\pm_client13");  // gateway nv59 i3 4G 1600x1200

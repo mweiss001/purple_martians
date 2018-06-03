@@ -404,13 +404,13 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       {
          if (item[num][8] == 1) // Set Linked Item
          {
-             int i = get_item((char *)"Select Another Door To Link To", 2, 1, num );
+             int i = get_item("Select Another Door To Link To", 2, 1, num );
              if (i > -1) item[num][9] = i;
              Redraw = 1;
          }
       }
       if (bn == 5)
-         if (getbox((char *) "Block Range", 2, 4, num) == 1)
+         if (getbox( "Block Range", 2, 4, num) == 1)
          {
             if (--bx2 < bx1) bx2++;
             if (--by2 < by1) by2++;
@@ -421,7 +421,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Redraw = 1;
          }
       if (bn == 6)
-         if (getxy((char *)"Set New Direction", 97, 11, num) == 1)
+         if (getxy("Set New Direction", 97, 11, num) == 1)
          {
             set_rocket_rot(num, get100_x*20, get100_y*20);
             Redraw = 1;
@@ -437,7 +437,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       }
       if (bn == 9) Ei[num][8] = !Ei[num][8];
       if (bn == 10) // set new direction
-         if (getxy((char *)"Set New Direction", 96, 4, num) == 1)
+         if (getxy("Set New Direction", 96, 4, num) == 1)
          {
             set_xyinc_rot(num, get100_x*20, get100_y*20);
             Redraw = 1;
@@ -476,7 +476,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 15) move_pod_extended(num);
       if (bn == 16) move_trigger_box(num, 9);
       if (bn == 17)
-         if (getbox((char *)"Cloner Source Area", 3, 9, num))
+         if (getbox("Cloner Source Area", 3, 9, num))
          {
             Ei[num][15] = bx1;
             Ei[num][16] = by1;
@@ -485,7 +485,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Redraw = 1;
          }
       if (bn == 18)
-         if (getxy((char *)"Set Cloner Destination", 98, 9, num) == 1)
+         if (getxy("Set Cloner Destination", 98, 9, num) == 1)
          {
             Ei[num][17] = get100_x;
             Ei[num][18] = get100_y;
@@ -560,7 +560,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       }
       if (bn == 55)
       {
-         if (getxy((char *)"Set Message Position", 2, 1010, num) == 1)
+         if (getxy("Set Message Position", 2, 1010, num) == 1)
          {
             item[num][10] = get100_x;
             item[num][11] = get100_y;

@@ -68,7 +68,7 @@ int get_empty_enemy(int type)
 
 int move_trigger_box(int num, int type)
 {
-   if (getbox((char *)"Trigger Box", 3, type, num) == 1)
+   if (getbox("Trigger Box", 3, type, num) == 1)
       {
           Ei[num][11] = bx1;
           Ei[num][12] = by1;
@@ -105,7 +105,7 @@ void recalc_pod(int EN)
 
 int move_pod_extended(int num)
 {
-   if (getxy((char *)"Set Extended Position", 99, 7, num) == 1)
+   if (getxy("Set Extended Position", 99, 7, num) == 1)
    {
       Efi[num][5] = al_itofix(get100_x * 20);  // set dest x,y
       Efi[num][6] = al_itofix(get100_y * 20);
@@ -234,7 +234,7 @@ void create_cloner(void)
    sort_enemy();
    en = e_first_num[9]+e_num_of_type[9]-1;
 
-   if (getxy((char *) "Set Cloner Location", 3, 9, en) == 1)
+   if (getxy( "Set Cloner Location", 3, 9, en) == 1)
    {
       rx = get100_x;
       ry = get100_y;
@@ -261,7 +261,7 @@ void create_cloner(void)
       draw_big(1);
       show_big();
 
-      if (getbox((char *)"Cloner Source Area", 3, 9, en ))
+      if (getbox("Cloner Source Area", 3, 9, en ))
       {
          Ei[en][15] = bx1;
          Ei[en][16] = by1;
@@ -270,7 +270,7 @@ void create_cloner(void)
 
          draw_big(1);
 
-         if (getxy((char *)"Set Cloner Destination Area", 98, 9, en ) == 1)
+         if (getxy("Set Cloner Destination Area", 98, 9, en ) == 1)
          {
             Ei[en][17] = get100_x;
             Ei[en][18] = get100_y;
@@ -299,7 +299,7 @@ int create_pod(void)
 {
    int create_failed = 0;
    int en = get_empty_enemy(7); // type
-   if (getxy((char *)"Set Podzilla Location", 3, 7, en) == 1)
+   if (getxy("Set Podzilla Location", 3, 7, en) == 1)
    {
       int rx = get100_x;      // used to set return window
       int ry = get100_y;
@@ -377,7 +377,7 @@ int create_key(int c)
    // then set the key location
    if (!bad)
    {
-      if (getxy((char *)"Set Key Location", 2, 4, c) == 1)
+      if (getxy("Set Key Location", 2, 4, c) == 1)
       {
          item[c][0] = 4;     // type 4 - key
          item[c][1] = 1039 + key_color; // animation seq
@@ -393,7 +393,7 @@ int create_key(int c)
    // then set the block range
    if (!bad)
    {
-      if (getbox((char *)"Block Range", 2, 4, c))
+      if (getbox("Block Range", 2, 4, c))
       {
          bx2 -= 1;
          by2 -= 1;
@@ -415,7 +415,7 @@ int create_key(int c)
 
 int create_start_block(int c)
 {
-   if (getxy((char *)"Put Start Location", 2, 5, c) == 1)
+   if (getxy("Put Start Location", 2, 5, c) == 1)
    {
       // erase all other starts
       for (int x=0; x<500; x++)
@@ -437,7 +437,7 @@ int create_start_block(int c)
 
 int create_exit(int c)
 {
-   if (getxy((char *)"Put Exit Location", 2, 3, c) == 1) // xorg, yorg
+   if (getxy("Put Exit Location", 2, 3, c) == 1) // xorg, yorg
    {
       item[c][0] = 3 ;           // type 3 - exit
       item[c][1] = 1022;         // default animation seq
@@ -709,7 +709,7 @@ int edit_pmsg_text(int c, int new_msg)
    while (!quit)
    {
 
-      title((char *)"Message Creator", 2, 15, 12);
+      title("Message Creator", 2, 15, 12);
 
       al_set_target_backbuffer(display);
 
@@ -869,7 +869,7 @@ int create_pmsg(int c)
 
    if (!bad)
    {
-      if (getxy((char *)"Set Location", 2, 10, c) == 1)
+      if (getxy("Set Location", 2, 10, c) == 1)
       {
          item[c][4] = get100_x*20;
          item[c][5] = get100_y*20;
@@ -880,7 +880,7 @@ int create_pmsg(int c)
 
    if (!bad)
    {
-      if (getxy((char *)"Set Display Position", 2, 1010, c) == 1)
+      if (getxy("Set Display Position", 2, 1010, c) == 1)
       {
          item[c][10] = get100_x;
          item[c][11] = get100_y;
@@ -952,7 +952,7 @@ int create_door(int type)
 
          if (found_empty_items)
          {
-            if (getxy((char *)"Put door location", 2, 1, c) == 1)
+            if (getxy("Put door location", 2, 1, c) == 1)
             {
                item[c][4] = get100_x*20;
                item[c][5] = get100_y*20;
@@ -978,7 +978,7 @@ int create_door(int type)
                show_big();
 
 
-               if (getxy((char *)"Put door destination", 2, 1, d) == 1)
+               if (getxy("Put door destination", 2, 1, d) == 1)
                {
                   item[c][9] = d;    // linked exit
 
@@ -1033,7 +1033,7 @@ int create_door(int type)
 
          if (found_empty_items)
          {
-            if (getxy((char *)"Put first door", 2, 1, c) == 1)
+            if (getxy("Put first door", 2, 1, c) == 1)
             {
                item[c][4] = get100_x*20;
                item[c][5] = get100_y*20;
@@ -1057,7 +1057,7 @@ int create_door(int type)
                show_big();
 
 
-               if (getxy((char *)"Put second door", 2, 1, d) == 1)
+               if (getxy("Put second door", 2, 1, d) == 1)
                {
                   item[c][9] = d;    // linked exit
 

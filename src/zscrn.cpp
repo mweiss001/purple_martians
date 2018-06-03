@@ -1122,7 +1122,7 @@ void mtextout(char *txt1, int x, int y, float x_scale, float y_scale, int col)
    al_destroy_bitmap(temps);
 }
 
-void mtextout_centre(char *txt1, int x, int y, float x_scale, float y_scale, int col)
+void mtextout_centre(const char *txt1, int x, int y, float x_scale, float y_scale, int col)
 {
    // used only by bottom message and level done
    int sw = strlen(txt1) * 8;      // string length in pixels
@@ -1157,7 +1157,7 @@ void show_level_done(int keypress)
 
    int col = players[active_local_player].color;
 
-   draw_large_2lines(f2, (char*)"Level", (char*)"Done!", col, .6);
+   draw_large_2lines(f2, "Level", "Done!", col, .6);
 
 
 //   int yu = y - (int)(y_scale*8);
@@ -1181,7 +1181,7 @@ void show_level_done(int keypress)
       y_scale = x_scale;
       //y = SCREEN_H - (int)(y_scale*9) - BORDER_WIDTH;
       y = SCREEN_H/2 - y_scale*4;
-      mtextout_centre((char*)"...press any key to continue...", x, y, x_scale, y_scale, 5);
+      mtextout_centre("...press any key to continue...", x, y, x_scale, y_scale, 5);
       al_flip_display();
       tsw();
    }
