@@ -108,7 +108,7 @@ int process_status_window(int draw_only)
          if (mouse_b1)
          {
             while (mouse_b1) proc_controllers();
-            help((char *)"Status Window");
+            help("Status Window");
             return 1001;
          }
       }
@@ -271,7 +271,7 @@ int process_select_window(int draw_only)
                if (mouse_b1)
                {
                   while (mouse_b1) proc_controllers();  // wait for release
-                  help((char *)"Selection Window");
+                  help("Selection Window");
                   return 1001;
                }
             }

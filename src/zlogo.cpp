@@ -3,7 +3,7 @@
 #include "pm.h"
 
 // used by "created by:"
-void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, char * txt)
+void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt)
 {
    int bbx1, bby1, bbw1, bbh1;
    al_get_text_dimensions(tf, txt, &bbx1, &bby1, &bbw1, &bbh1);
@@ -101,7 +101,7 @@ void draw_demo_mode_overlay(void)
 
 
 
-void draw_large_2lines(ALLEGRO_FONT *tf, char * m1, char * m2, int color, float opa )
+void draw_large_2lines(ALLEGRO_FONT *tf, const char * m1, const char * m2, int color, float opa )
 {
    int bbx1, bby1, bbw1, bbh1;
    int bbx2, bby2, bbw2, bbh2;
@@ -220,7 +220,7 @@ void splash_screen(void)
    al_flip_display();
    al_clear_to_color(al_map_rgb(0, 0, 0));
 
-   draw_large_2lines(f2, (char*)"Purple", (char*)"Martians", 8, 1);
+   draw_large_2lines(f2, "Purple", "Martians", 8, 1);
    al_flip_display();
    al_clear_to_color(al_map_rgb(0, 0, 0));
 
@@ -241,7 +241,7 @@ void splash_screen(void)
 
    if (!quit)
    {
-      mw_text(f2, 12, .80, (char*)"created by:");
+      mw_text(f2, 12, .80, "created by:");
       al_flip_display();
    }
 

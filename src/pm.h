@@ -356,6 +356,11 @@ extern int clientl_chdf_id;            // frame_num id
 extern char dif[CHUNK_SIZE];
 extern int dif_id[2]; //   (0 = src, 1 = dst)
 
+
+
+
+
+
 extern int chdf_freq;
 extern int control_lead_frames;
 extern int server_lead_frames;
@@ -489,67 +494,80 @@ struct player1
    int last_health_adjust;
 
    int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;
-
    int comp_move, old_comp_move;
+
+   int fake_keypress_mode;
+
+   int frames_skipped;
+
 
    // position and size of players on screen buffer (used to see if map is covering player)
    int sbx1,sby1,sbx2,sby2;
 
-   // these are netgame and will be different from client to server
-   int old_control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
-   int game_move_entry_pos;         // server only for client game_move data sync
-   int server_last_sdat_sent_frame; // only server uses it, to keep track of when last sdat was sent to client
-   int server_last_sdat_sent_start;
-   int server_last_sdat_sent_num;
 
-   int last_sdak_rx; // used by server to see if client is still alive
-
-   int last_sdat_fpc;
-   int last_sdat_lpc;
 
    int who; // for network id of clients
-
    char hostname[16];
 
+   // these are netgame and will be different from client to server
+   int old_control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
+
+   int game_move_entry_pos;         // server only for client game_move data sync
+
+   int server_last_sdat_sent_frame_num; // only server uses it, to keep track of when last sdat was sent to client
+   int server_last_sdat_sent_start;
+   int server_last_sdat_sent_num;
+   int server_last_sdak_rx_frame_num; // used by server to see if client is still alive
+
+   int client_last_sdat_rx_frame_num; // used by client to see if game gone bad
+
+   int client_sync;
    int server_sync;
-   int sync_good_frames;
 
-   int c_sync;
-   int c_sync_min;
-   int c_sync_err;
+   int client_game_move_sync;
+   int client_game_move_sync_min;
+   int client_game_move_sync_err;
 
-   int cdat_packets_tx;
-   int sdat_total;
-   int sdat_skipped;
+   int server_game_move_sync;
+   int server_game_move_sync_min;
+   int server_game_move_sync_err;
+
+   int client_cdat_packets_tx;
+   int client_sdat_packets_rx;
+   int client_sdat_packets_skipped;
+
+
    int moves_entered;
    int moves_skipped;
    int moves_skipped_tally;
    int moves_skipped_last_tally;
 
+   // server error sync'd back to client
    int serr_c_sync_err;
    int serr_display_timer;
 
-   int fake_keypress_mode;
-
-   int dif_corr;
 
    int made_active_holdoff;
-
    int join_chdf_sent;
 
-   int frames_skipped;
-
-   // client
-   int num_dif_packets;
-   int cmp_dif_size;
-
-// common to server and client
    int join_frame;
    int quit_frame;
    int quit_reason;
 
-   // next client to send chdf to
+   int chdf_rx;
+   int chdf_on_time;
+   int chdf_late;
+   int dif_corr;
+
+   // server only - next client to send chdf to
    int n_chdf;
+
+   // used only to display on server screen overlay in client grid
+   int num_dif_packets;
+   int cmp_dif_size;
+
+
+   // bandwidth counters and tallies
 
    // used to add up until frame end
    int tx_current_bytes_for_this_frame;
@@ -583,12 +601,6 @@ struct player1
    int rx_total_bytes;
    int rx_total_packets;
 
-   int chdf_rx;
-   int chdf_on_time;
-   int chdf_late;
-
-   // client only
-   int client_sync_good;
 };
 
 // ------------------------------------------------
@@ -801,9 +813,9 @@ void show_big(void);
 void draw_big(int draw_lifts);
 void draw_cloner_boxes(int num);
 void draw_bs(int cc);
-int getbox(char *txt, int obj_type, int sub_type, int num );
-int getxy(char *txt, int obj_type, int sub_type, int num );
-int get_item(char *txt, int obj_type, int sub_type, int num );
+int getbox(const char *txt, int obj_type, int sub_type, int num );
+int getxy(const char *txt, int obj_type, int sub_type, int num );
+int get_item(const char *txt, int obj_type, int sub_type, int num );
 void initialize_zz(void);
 
 // glt.h
@@ -813,7 +825,7 @@ void global_level();
 // e_item.h
 void crosshairs(int mx, int my, int x, int y, int color);
 void crosshairs_nodb(int mx, int my, int x, int y, int db, int color);
-void title(char *txt, int y, int tc, int fc);
+void title(const char *txt, int y, int tc, int fc);
 void test_items(void);
 int sort_item(void);
 void show_all_items(void);
@@ -919,7 +931,7 @@ int process_select_window(int draw_only);
 void set_swbl(void);
 
 // n_client.h
-int ClientInit(char *serveraddress);
+int ClientInit(const char *serveraddress);
 int ClientCheckResponse(void);
 int ClientReceive(void *data);
 void ClientSend(void *data, int len);
@@ -931,7 +943,6 @@ int client_init_join(void);
 void client_exit(void);
 int client_init(void);
 void read_game_step_from_packet(int x, int clf_check);
-void client_timer_adjust(void);
 int process_chdf_packet(void);
 void client_apply_diff();
 void client_block_until_good_chdf_received(void);
@@ -946,18 +957,32 @@ int NetworkInit();
 // n_packet.h
 extern char packetbuffer[1024];
 extern int packetsize;
-void Packet(char *id);
-int PacketRead(char *id);
+void Packet(const char *id);
+int PacketRead(const char *id);
+
 void PacketAddByte(char b);
 char PacketGetByte(void);
-void PacketAdd2Bytes(int);
-int Packet2ByteRead(void);
-void PacketAdd3Bytes(int);
-int Packet3ByteRead(void);
-void PacketAdd4Bytes(int);
-int Packet4ByteRead(void);
+
 void PacketAddString(char*);
 void PacketReadString(char*);
+
+void PacketPut1ByteInt(int b);
+void PacketPut2ByteInt(int b);
+void PacketPut3ByteInt(int b);
+void PacketPut4ByteInt(int b);
+
+int PacketGet1ByteInt(void);
+int PacketGet2ByteInt(void);
+int PacketGet3ByteInt(void);
+int PacketGet4ByteInt(void);
+
+
+
+
+
+
+
+
 
 //n_server.h
 #define MAX_CLIENTS 32
@@ -1054,12 +1079,12 @@ void save_gm_txt(char *sfname);
 void save_gm_gm(char *sfname);
 void save_gm(void);
 void blind_save_game_moves(int d);
-int load_gm(char *sfname);
+int load_gm(const char *sfname);
 
 // zfnx.h
 void get_hostname(void);
 void make_palette(void);
-void m_err(char * err_msg);
+void m_err(const char * err_msg);
 void window_title(void);
 int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);
 void erase_last_bmsg(void);
@@ -1129,17 +1154,17 @@ void log_ending_stats_server(void);
 void save_log_file(void);
 void add_log_entry_sdat_rx_and_game_move_entered(int type, int player);
 void add_log_entry2(int type, int player, char *txt);
-void add_log_entry_position_text(int type, int player, int width, int pos, char *txt, char *border, char *fill);
-void add_log_entry_centered_text(int type, int player, int width, char *txt, char *border, char *fill);
-void add_log_entry_header(int type, int player, char *txt, int blank_lines);
+void add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill);
+void add_log_entry_centered_text(int type, int player, int width, const char *txt, const char *border, const char *fill);
+void add_log_entry_header(int type, int player, const char *txt, int blank_lines);
 int fill_filename_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 int log_file_viewer(int type);
 
 // zlogo.h
-void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, char * txt);
+void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt);
 void draw_title(int tx, int ty, int ttw, int tth, int color);
 void draw_demo_mode_overlay(void);
-void draw_large_2lines(ALLEGRO_FONT *tf, char * m1, char * m2, int color, float opa );
+void draw_large_2lines(ALLEGRO_FONT *tf, const char * m1, const char * m2, int color, float opa );
 void idw(int txt, int x, int y, float x_scale, float y_scale);
 void splash_screen(void);
 void splash_toggle(void);
@@ -1178,7 +1203,7 @@ void draw_map(void);
 // zmenu.h
 int load_help(void);
 void chop_first_x_char(char *str, int n);
-void help(char *topic);
+void help(const char *topic);
 int zmenu(int menu_num, int menu_pos, int y);
 void menu_setup(void);
 void set_key_menu(int menu, int p, int start_row);
@@ -1224,7 +1249,7 @@ void frame_and_title(int show_players);
 void proc_scale_factor_change(void);
 void rtextout_centre(ALLEGRO_BITMAP *dbmp, char *txt1, int x, int y, int col, float scale, int rot, float op);
 void mtextout(char *txt1, int x, int y, float x_scale, float y_scale, int col);
-void mtextout_centre(char *txt1, int x, int y, float x_scale, float y_scale, int col);
+void mtextout_centre(const char *txt1, int x, int y, float x_scale, float y_scale, int col);
 void show_level_done(int keypress);
 void draw_percent_bar(int cx, int y, int width, int height, int percent);
 
@@ -1236,7 +1261,7 @@ void draw_speed_test_data(void);
 void draw_top_display(void);
 void add_screen_msg(char *txt, int x, int y, int delay, int ssn, int z1, int z2, int z3, int z4);
 void draw_screen_msg(void);
-void new_bmsg(char *nb);
+void new_bmsg(const char *nb);
 void draw_bottom_msg();
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
 

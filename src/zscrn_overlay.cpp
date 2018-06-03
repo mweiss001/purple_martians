@@ -200,7 +200,7 @@ void draw_top_display(void)
          {
             y += 8;
 
-            if (players[p].control_method != 2) players1[p].last_sdak_rx = frame_num; // only do sync for active clients
+            if (players[p].control_method != 2) players1[p].server_last_sdak_rx_frame_num = frame_num; // only do sync for active clients
 
             sprintf(msg, "[%d][%2d][%d][%2d][%d][%4d][%4d][%4d][%5d][%5d][%2d][%4d][%4.1f][%4.1f][%4d][%4d]",
                                               p,
@@ -209,7 +209,7 @@ void draw_top_display(void)
                                               players[p].color,
                                               players[p].control_method,
                                               players1[p].server_sync,
-                                              frame_num - players1[p].last_sdak_rx,
+                                              frame_num - players1[p].server_last_sdak_rx_frame_num,
                                               players1[p].chdf_late,
                                               client_chdf_id[p][0],
                                               client_chdf_id[p][1],
@@ -285,7 +285,7 @@ void draw_top_display(void)
          sprintf(msg, "Please wait for server syncronization");
          rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2-32, color, 2, 0, 1);
 
-         sprintf(msg, "[%d]", players1[p].server_sync);
+         sprintf(msg, "[%d]", players1[p].client_sync);
          rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, color, 4, 0, 1);
       }
 
@@ -298,7 +298,7 @@ void draw_top_display(void)
       al_draw_text(font, palette_color[14], bdx, bdy, 0, msg);
       ts += strlen(msg)*8;
 
-      sprintf(msg, "sync:%d ", players1[p].server_sync);
+      sprintf(msg, "sync:%d ", players1[p].client_sync);
       al_draw_text(font, palette_color[14], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
 
@@ -324,12 +324,11 @@ void draw_top_display(void)
          al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
          al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
 
-         sprintf(msg, "game moves lead from server:%d min:%d err:%d", players1[p].c_sync, players1[p].c_sync_min, players1[p].c_sync_err);
+         sprintf(msg, "game moves lead from server:%d min:%d err:%d", players1[p].client_game_move_sync, players1[p].client_game_move_sync_min, players1[p].client_game_move_sync_err);
          al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
          al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
 
-
-         sprintf(msg, "server sync:%d ", players1[p].server_sync);
+         sprintf(msg, "server sync:%d ", players1[p].client_sync);
          al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
          al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
 
@@ -345,7 +344,7 @@ void draw_top_display(void)
          al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
          al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
 
-         sprintf(msg, "sdat skipped:%d", players1[p].sdat_skipped);
+         sprintf(msg, "sdat skipped:%d", players1[p].client_sdat_packets_skipped);
          al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
          al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
 
@@ -418,7 +417,7 @@ void draw_top_display(void)
             int color = 15;
             if (players[p].active == 0) color = 63;
             if (players[p].active == 1) color = 15;
-            if (players1[p].c_sync_err)  color = 10;
+            if (players1[p].server_game_move_sync_err)  color = 10;
             al_draw_filled_rectangle(x, y, tx+strlen(msg)*8, y+8, palette_color[0]);
             al_draw_text(font, palette_color[color], x, y, 0, msg);
 
@@ -892,7 +891,7 @@ void draw_screen_msg(void)
 }
 
 
-void new_bmsg(char *nb)
+void new_bmsg(const char *nb)
 {
     slide_bmsg();
     sprintf(b_msg[0], "%s", nb);
@@ -1022,20 +1021,20 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
       switch (ev)
       {
          //case  1:/* player bullet fired */ break;
-         case  2: new_bmsg((char*)"You got a key!"); break;
+         case  2: new_bmsg("You got a key!"); break;
          case  3:
             if (z1 == 1) sprintf(msg, "1 enemy left to kill!!");
             else sprintf(msg, "%d enemies left to kill!", z1);
             new_bmsg(msg);
          break;
          //case  4: /* level_done  */ break;
-         case  5: new_bmsg((char*)"Door!"); break;
+         case  5: new_bmsg("Door!"); break;
          case  6: sprintf(msg, "Health + %d", z1 ); new_bmsg(msg); break;
          case  7: sprintf(msg, "Health - %d", z1 ); new_bmsg(msg); break;
          case  8: sprintf(msg, "Bomb Damage %d", z1 ); new_bmsg(msg); break;
-         case  9: new_bmsg((char*)"Wahoo! You got a Free Man!"); break;
-         case 10: new_bmsg((char*)"You hit a Mine!"); break;
-         case 11: new_bmsg((char*)"You got shot!"); break;
+         case  9: new_bmsg("Wahoo! You got a Free Man!"); break;
+         case 10: new_bmsg("You hit a Mine!"); break;
+         case 11: new_bmsg("You got shot!"); break;
          case 12: sprintf(msg, "You got hit by %s!", enemy_name[Ei[z1][0]]); new_bmsg(msg); break;
          case 13: sprintf(msg, "%s killed!...%d enemies left", enemy_name[Ei[z1][0]],  num_enemy-1); new_bmsg(msg); break;
          //case 14: /* cloner cloned something */ break;
@@ -1044,18 +1043,18 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
          //case 17: /* green fired */ break;
          //case 18: /* cannonball  */ break;
          //case 19: /* twirly      */ break;
-         case 21: new_bmsg((char*)"You Died!"); break;
+         case 21: new_bmsg("You Died!"); break;
          //case 22: /* explosion */ break;
-         case 23: new_bmsg((char*)"Enemy killed by bomb!"); break;
+         case 23: new_bmsg("Enemy killed by bomb!"); break;
          case 24: sprintf(msg, "#%d bomb with %d second fuse",item[x][7]/20, item[x][9]/10 );  new_bmsg(msg); break;
-         case 25: new_bmsg((char*)"Rocket!"); break;
-         case 26: new_bmsg((char*)"You already have perfect health!"); break;
-         case 30: new_bmsg((char*)"You got a Switch"); break;
-         case 31: new_bmsg((char*)"Sproingy!"); break;
-         case 32: new_bmsg((char*)"Door!"); break;
+         case 25: new_bmsg("Rocket!"); break;
+         case 26: new_bmsg("You already have perfect health!"); break;
+         case 30: new_bmsg("You got a Switch"); break;
+         case 31: new_bmsg("Sproingy!"); break;
+         case 32: new_bmsg("Door!"); break;
          //case 33: /* Out Door */ break;
-         case 34: new_bmsg((char*)"You got squished!"); break;
-         case 35: new_bmsg((char*)"You got stuck!"); break;
+         case 34: new_bmsg("You got squished!"); break;
+         case 35: new_bmsg("You got stuck!"); break;
       }
    }
    if (screen_messages_on)

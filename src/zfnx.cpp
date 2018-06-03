@@ -84,7 +84,7 @@ void make_palette(void)
 
 
 
-void m_err(char * err_msg)
+void m_err(const char * err_msg)
 {
    fprintf(stderr, "%s", err_msg);
    al_show_native_message_box(display, "Error", "Error:", err_msg, NULL,  ALLEGRO_MESSAGEBOX_ERROR );
@@ -1626,7 +1626,7 @@ void demo_mode(void)
 //     for (int i=0; i< num_demo_filenames; i++)
 //        printf("%d demo_played[%d] - \n", i, demo_played[i]);
 
-      if (load_gm((char *)al_get_fs_entry_name(demo_FS_filenames[lev])))
+      if (load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
       {
          players[0].control_method = 1;
          start_mode = 2; // load level and start, but skip game array erasing

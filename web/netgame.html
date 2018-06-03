@@ -39,6 +39,7 @@
             <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
             <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
             <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+            <div style="text-align: center;"><a href="netgame.html" target="_top">Netgame</a></div>    
             
         </nav>
 
@@ -52,15 +53,13 @@
 
 
 <mh8>Netgame</mh8>
-
-            
-<br><mh7>Overview</mh7>
+<mh7>Overview</mh7>
 <mh3>
-There are two methods used in netgame:
+There are two methods used simultaneously in netgame:
 - game move sync
 - state correction            
 
-Game move sync relies on the game being perfectly deterministic. (The same set of inputs will produce the exact same results)
+Game move sync relies on the game being perfectly deterministic. (The same set of inputs will produce the exact same results).
 All that is needed is to replicate the same set of inputs across all the clients.
     
 For a long time, game move sync was the only approach I used, and it almost worked perfectly.
@@ -72,41 +71,35 @@ I came upon the second method, state correction, while I was adding code to chec
 I was having the server send player state info to the clients and having them check if that agreed with their local state.
 Eventually I expanded this method to send the entire game state periodically, and just overwrite the clients state.
 That fixed any drift or loss of sync that occured with the first method. 
+
+Both methods are used at the same time.
+Game move sync happens fast, it can send data from client to server and back in a few frames.
+State correction takes care of any small drift that might occur, it occurs much less frequently but sends a large amount of data when it does.
 </mh3>    
-    
     
     
 <br><mh7>Game Move Sync</mh7>
 <mh3>
+To ensure that all players (server and clients) have the same game state, all they need is the same set of inputs.
 
-The game_moves array is at the heart of this method.
+The game_moves array is an array containing every player's inputs, indexed by player number and the frame number when a control change occurred.
+The state of the controls is not stored every frame, only when a control change occurs.
+Every player (server and clients) should have an identical copy of the game moves array.
 
-It is an array that contains all of the inputs for the game.
-    
-The only inputs that effect the game state are the players' inputs.    
-    
-The game moves array stores these inputs indexed by the frame that they occured on.
-    
-There is only an entry for when the controls change, not one for every frame.
-    
-Each entry also is marked with the player number, so that all players use the same array.
-
-    
-The server has the master game moves array and syncs that to the clients' local copies of the array.
-    
-The clients' moves are not put directly in their own local game moves array, they are sent to the server and sysnced back to the clients.
-    
+The server has the master array and syncs that to each client independantly.
+When a client's controls change, those changes are sent to the server, put in the master array, then sync'd back to every client.
     
 - client presses a control
 - client sends a packet with that data to the server
 - server puts it in the master game_moves array
 - master game_moves array is synced back to the client
 - the client moves by reading the game move from its locally synced game_move array
+
+<img src="images/netgame3.png" width=531 height=411 alt="diagram">
     
-This requires that the clients run a few frames behind the server.
+This requires that the clients run slightly behind the server. (default is 1 frame or 25ms)
 
-It also means there is a delay between when the client presses a control and when the client responds but it is small enough to be barely noticeable.
-
+This means there is a delay between when the client presses a control and when the client responds but it is small enough to be barely noticeable.
 </mh3>    
     
 <br><mh7>Client sends control change</mh7>
@@ -121,36 +114,35 @@ If the client's controls have changed, the client sends a 'cdat' packet to the s
 <pre><code class="language-cpp">void client_local_control(int p)
 {
    set_comp_move_from_player_key_check(p); 
-   if (players1[p].comp_move != players1[p].old_comp_move)  // players keys have changed
+   if (players1[p].old_comp_move != players1[p].comp_move)  // players controls have changed
    {
       players1[p].old_comp_move = players1[p].comp_move;
-      int fpc = frame_num + control_lead_frames;  // add control_lead_frames to frame_num
-      int cm = players1[p].comp_move;
-
-      Packet((char *)"cdat");
-      PacketAddByte(p);
-      PacketAdd4Bytes(fpc);
-      PacketAddByte(cm);
+      Packet("cdat");
+      PacketPut1ByteInt(p);
+      PacketPut4ByteInt(frame_num + control_lead_frames);
+      PacketPut1ByteInt(players1[p].comp_move);
       ClientSend(packetbuffer, packetsize);
    }
 }</code></pre>
 
 <br><mh7>Server receives control change</mh7>
 <mh3>    
-When the server receives a 'cdat' packet, it adds the game move to its master game moves array, unless,
+When the server receives a 'cdat' packet from a client:
+- the server checks to see if the data is old (contains a frame_num that has already passed on the server)
+- if the data is good, it is added to the server's master game moves array
+- if the data is old, it is discarded and an error is incremented
 
-If the game move is old, (contains a frame_num that has already passed on the server), the move is discarded and and an error is flagged.
+If the data is discarded, this is will not cause any sync issues, it will be as if the client never pressed the control at all.
 
-This will not cause any sync issues, it will be as if the control was never pressed at all.
+The most common reason for cdat's arriving late are the client lagging too far behind server.
 </mh3>    
             
-<pre><code class="language-cpp">if(PacketRead((char *)"cdat"))
+<pre><code class="language-cpp">if(PacketRead("cdat"))
 {
-   int p = PacketGetByte();
-   int pc = Packet4ByteRead();
-   int cm = PacketGetByte();
-
-   // how far ahead is the frame_num for this move, compare to server frame_num
+   int p = PacketGet1ByteInt();
+   int pc = PacketGet4ByteInt();
+   int cm = PacketGet1ByteInt();
+   // how far ahead is the client's frame_num for this move, compared to server's frame_num
    int c_sync = players1[p].c_sync = pc - frame_num;
 
    if (c_sync >= 0) add_game_move(pc, 5, p, cm);  // add to game_move array
@@ -159,19 +151,14 @@ This will not cause any sync issues, it will be as if the control was never pres
             
 <br><mh7>Server sends game move data to clients</mh7>
 <mh3>    
-The method that the server uses to sync its master game moves array back to the clients works like this:
+The server synchronizes its master game moves array to each client independantly.
 
-The global variable int game_move_entry_pos, keeps track of the last entered game_move into the game_moves array.
-    
-The server also tracks the last acknowledged game_move_entry_pos for each player in the player struct.
-    
-Every frame the server checks to see if at has more data than the clients have acknowledged receiving.
-    
-If there is data to send, the server constructs a packet with the needed game moves and sends it to the client
-    
-The server does this independantly for each client. 
-    
-Here is the actual code:</mh3>
+The server knows how many game moves are in its master array with the global int 'game_move_entry_pos'.
+The server also tracks the last acknowledged 'game_move_entry_pos' for each player in the player structure.
+
+Every frame the server checks each client to see if there is un-acknowlegded game moves to send.
+If there is data to send, the server sends a 'sdat' packet with the needed data to that client.
+</mh3>
 <pre><code class="language-cpp">void server_send_sdat(void)
 {
    for (int p=1; p < NUM_PLAYERS; p++)
@@ -184,53 +171,155 @@ Here is the actual code:</mh3>
             int num_entries = end_entry - start_entry;
             if (num_entries > 100) num_entries = 100;
 
-            Packet((char *)"sdat");
-            PacketAddByte(p);
-            PacketAdd4Bytes(frame_num);
-            PacketAdd4Bytes(start_entry);
-            PacketAddByte(num_entries);
-
-            for (int x=start_entry; x < start_entry + num_entries; x++)
+            // to prevent multiple resends of exact same data
+            if ((players1[p].server_last_sdat_sent_start != start_entry) || // different start pos
+               (players1[p].server_last_sdat_sent_num != num_entries))      // different num entries
             {
-               PacketAdd4Bytes(game_moves[x][0]); // frame_num
-               PacketAddByte(game_moves[x][1]); // type
-               PacketAddByte(game_moves[x][2]); // data 1
-               PacketAddByte(game_moves[x][3]); // data 2
-            }
-            ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+               players1[p].server_last_sdat_sent_start = start_entry;
+               players1[p].server_last_sdat_sent_num = num_entries;
+			
+               Packet("sdat");
+               PacketPut1ByteInt(p);
+               PacketPut4ByteInt(frame_num);
+               PacketPut4ByteInt(start_entry);
+               PacketPut1ByteInt(num_entries);
+
+               for (int x=start_entry; x < start_entry + num_entries; x++)
+               {
+                  PacketPut4ByteInt(game_moves[x][0]); // frame_num
+                  PacketPut1ByteInt(game_moves[x][1]); // type
+                  PacketPut1ByteInt(game_moves[x][2]); // data 1
+                  PacketPut1ByteInt(game_moves[x][3]); // data 2
+               }
+               ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+			}   
          }
       }
 }</code></pre>
+<mh3>
+If the server receives an 'sdak' packet (sdat acknowledge), it sets the new acknowledged 'game_move_entry_pos' for that client.
+</mh3>
+<pre><code class="language-cpp">if(PacketRead("sdak"))
+{
+   int p = PacketGet1ByteInt();
+   players1[p].game_move_entry_pos = PacketGet4ByteInt();
+}</code></pre>
+
     
 <br><mh7>Client receives game move data from server</mh7>
 <mh3>    
-When a client receives the game move data from the server it puts it in its own local game moves array and sends acknowledgement of the last entry received.
+When a client receives game move data from the server, it adds it to its own local game moves array and sends an acknowledgement of the last entry received.
 </mh3>    
-<pre><code class="language-cpp">if(PacketRead((char *)"sdat"))
+<pre><code class="language-cpp">if(PacketRead("sdat"))
 {
-   int sp = PacketGetByte();
-   players1[p].last_sdat_fpc = Packet4ByteRead();
-   int start_entry = Packet4ByteRead();
-   int num_entries = PacketGetByte();
+   int start_entry = PacketGet4ByteInt();
+   int num_entries = PacketGet1ByteInt();
    int nep = start_entry + num_entries; // new entry position
    if (nep > game_move_entry_pos) // only enter if they are newer
    {
       for (int x=start_entry; x < nep; x++)
-         read_game_step_from_packet(x, 1);
-      game_move_entry_pos = nep;
-   }
-   Packet((char *)"sdak");
-   PacketAddByte(p);
-   PacketAdd4Bytes(frame_num);
-   PacketAdd4Bytes(nep);
-   PacketAdd4Bytes(players1[p].chdf_late);
-   PacketAdd4Bytes(players1[p].frames_skipped);
+      {
+         game_moves[x][0] = PacketGet4ByteInt();
+         game_moves[x][1] = PacketGet1ByteInt();
+         game_moves[x][2] = PacketGet1ByteInt();
+         game_moves[x][3] = PacketGet1ByteInt();
+         if ((game_moves[x][0] - frame_num) < 0) // game move arrived too late to be applied
+         {
+            // bad error, will cause sync loss    
+         } 
+      }
+   }	  
+   Packet("sdak"); // send acknowledgement of game moves received
+   PacketPut4ByteInt(nep);
    ClientSend(packetbuffer, packetsize);
-
 }</code></pre>
-    
-    
+<mh3>When a game move entry is added, the frame_num of the new move is compared to the client's current frame_num.
+If the newly entered game move is marked with a frame_num that has already occured on the client, an error is raised.
+This is a particularily bad error. It means that a game move has been applied on the server, but arrived too late to be applied on the client.
+This will definitely cause the client to be out of sync.
 </mh3>    
+
+<br><mh7>Timing</mh7>
+<mh3>    
+Timing is critical in netgame. The server is the master timing source, and should run at 40fps.
+
+Clients adjust their speed to maintain a slight delay behind the server.
+The delay is measured in frames and is controlled by the global int 'server_lead_frames'.
+It can be changed in the config file, but should be left at its default of 1 frame (25ms).
+
+The client's timing control is adjusted like this:
+
+- the server sends 'sdat' packets to clients when it has data to send (or periodically for sync if it has no data to send)
+- client receives an 'sdat' packet from the server
+- embedded in the packet is the server's frame_num of when the packet was sent
+- the client compares this to its own frame number and adjusts its fps timer
+</mh3>
+<pre><code class="language-cpp">if(PacketRead("sdat"))
+{
+   int sdat_frame_num = PacketGet4ByteInt();
+   players1[p].server_sync = sdat_frame_num - frame_num;
+   int fps_chase = frame_speed + players1[p].server_sync - server_lead_frames;
+   al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+}</code></pre>
+
+<br><mh7>Control lead frames</mh7>
+<mh3>    
+There is an inherent delay in the client's control scheme.
+
+This is because the clients need to send their control changes through the server.
+
+</mh3>
+<img src="images/netgame2.png" width=653 height=591 alt="diagram">
+
+<mh3>
+To facilitate this, the control changes are sent with their frame_num modified to be in the future.
+Then they can make the the round trip through the server and still get back before it's time to apply them.
+</mh3>
+
+<pre><code class="language-cpp">void client_local_control(int p)
+{
+   set_comp_move_from_player_key_check(p); 
+   if (players1[p].old_comp_move != players1[p].comp_move)  // players controls have changed
+   {
+      players1[p].old_comp_move = players1[p].comp_move;
+      Packet("cdat");
+      PacketPut1ByteInt(p);
+      PacketPut4ByteInt(frame_num + control_lead_frames); // add control_lead_frames to frame_num
+      PacketPut1ByteInt(players1[p].comp_move);
+      ClientSend(packetbuffer, packetsize);
+   }
+}</code></pre>
+
+<mh3>
+The global variable 'control_lead_frames' is set in the config file, but should be left at its default value of 3. 
+
+Any lower than 3 and sometimes the data will not return in time.
+
+At settings higher than 3, the control lag becomes more noticeable.
+
+I have found 3 to be a good compromise. 3 frames is 75ms which is a barely noticeable control lag, and late cdats are very rare.
+
+To make things fair for all players, the server has the same delay applied to its control changes.
+</mh3>
+
+<pre><code class="language-cpp">void server_local_control(int p)
+{
+   set_comp_move_from_player_key_check(p);                  
+   if (players1[p].comp_move != players1[p].old_comp_move)  // players controls have changed
+   {
+      players1[p].old_comp_move = players1[p].comp_move;
+      int fpc = frame_num + control_lead_frames;            // add control_lead_frames to frame_num
+      add_game_move(fpc, 5, p, players1[p].comp_move);
+   }
+}</code></pre>
+
+
+
+
+
+
+
+
 
 <br><mh7>Packets used for game move sync</mh7>
 
@@ -371,25 +460,41 @@ direction: server to client
 </pk1>        
 
 
-            
-    
-        
+<br><mh7>Player numbers</mh7>
+<mh3>
+There are data structures for 8 players, numbered from 0-7.
+
+- single player is always player 0
+- server is always player 0
+- clients can be from 1-7
+
+The global variable 'active_local_player' points to the the local player.
+
+</mh3>
 
 
-The server keeps a record of the last acknowledged entry from each client.
-When the server has data to send to a client it sends from the last 
-acknowlegded entry to the most current in a single data packet.
+<br><mh7>Player's control methods</mh7>
+<mh3>    
+An integer in the player structure:
 
-When the client receives the data it puts it in its own locally game move array
-and send acknowledgement of the last entry received.
+int players[p].control_method;
 
-The client uses the passcounts from the server to adjust its own frame rate
-slightly to maintain the slight delay behind the server.
+0 = local player in single player mode
+1 = file play (run demo game from file)
+2 = in netgame, any non-local player (client players on server, and server and other clients on client) 
+3 = in netgame, local server player on server
+4 = in netgame, local client player on client 
+99 = in netgame, used client in current level (to prevent re-use in same level)
+</mh3>
 
 
-------------------------------------------------------------------------
--- Variables in player structure ---------------------------------------
-------------------------------------------------------------------------
+<br><mh7>Variables in player structure</mh7>
+<mh3>    
+   
+   
+   redo...............
+   
+   
    int who;
    - libnet network id of client
    - used to send packet to a specific clinet
@@ -415,391 +520,331 @@ slightly to maintain the slight delay behind the server.
    int c_sync_err;
    - keep a count of c_sync errors
 
-
-------------------------------------------
- - Type of errors and tracking variables -
-------------------------------------------
-
--------------------------------------------
-- c_sync (server) -
--------------------------------------------
-
-Basically the move data from the client needs to be tagged with a passcount in the future
-so it can be put into the game_moves array and processed.
-
-When the clients move data is received on the server,
-c_sync is how many frames ahead of the servers passcount, the data is. 
-
-If it is data from the past, it cannot be used and and error is raised
+</mh3>
 
 
-How is it calculated? 
----------------------
-In the function: "server_control()" , when a cdat packet is received from a client,
-the enclosed passcount is compared with the server passcount to get c_sync:
-players[p].c_sync = pc - passcount;
+<br><mh7>Type of errors and tracking variables</mh7>
 
 
-What variables does it use?
----------------------------
-players[p].c_sync
-players[p].c_sync_err
-players[p].c_sync_min
 
-What is the relevant code?
---------------------------
-if(PacketRead("cdat"))  
+
+
+
+
+
+
+
+
+
+
+
+<br><mh7>Tracking variables - server_game_moves_sync</mh7>
+
+
+<br><me1>Description</me1>
+<mh3>
+When the server receives a 'cdat' packet with a client's game_move data, it is supposed to be tagged with a future frame_num.
+This is required so that there is time to sync the game_move back to the clients before its frame_num expires.
+
+server_game_moves_sync is how many frames the client's game_move data is ahead of the server's frame num.
+
+If it is greater than zero, this is normal.
+
+If it is exactly zero, the game_moves are arriving on the exact frame they are needed.  This is cutting it very close.
+
+If it is less than zero:
+- the game move is late and will be discarded
+- server_game_moves_sync_err will be incremented
+- the move data is discarded (it will be as if the client never made the move)
+- this should not make the game go out of sync as all players states will still be the same
+
+</mh3>
+
+
+
+<br><me1>Variables</me1>
+<mh3>
+Server: (for each player)
+players1[p].server_game_move_sync = 0;
+players1[p].server_game_move_sync_min = 99;
+players1[p].server_game_move_sync_err = 0;
+
+Client:
+players1[p].serr_c_sync_err
+
+players1[p].server_game_move_sync_err is synced back to the client with the 'serr' packet, where it is saved as players1[p].serr_c_sync_err. 
+That way the client can know that the server dropped one of their 'cdat' packets because it was received too late.
+
+</mh3>
+
+<br><me1>Code</me1>
+<pre><code class="language-cpp">if(PacketRead("cdat"))
 {
-   int pc = Packet3ByteRead();
-   int p = PacketGetByte();
-   int cm = PacketGetByte();
-   players[p].who = who; // set who in player array; later may be redundant; do it join 
+   int p = PacketGet1ByteInt();
+   int fn = PacketGet4ByteInt();
+   int cm = PacketGet1ByteInt();
 
-   // how far ahead is the passcount for this move, compare to server passcount 
-   int c_sync = players[p].c_sync = pc - passcount;
+   // how far ahead is the client's frame_num for this move, compared to server's frame_num
+   int c_sync = players1[p].server_game_move_sync = fn - frame_num;
 
-   // add to game_move array, unless late, then drop and inc error
-   if (c_sync > 1) add_game_move(pc, 5, p, cm); 
-   else players[p].c_sync_err++; 
+   // keep track of the minimum c_sync
+   if (c_sync < players1[p].server_game_move_sync_min) players1[p].server_game_move_sync_min = c_sync;
 
-   // keep track of the minimum c_sync 
-   if (c_sync < players[p].c_sync_min) players[p].c_sync_min = c_sync; 
-
-
-What happens if an error is detected?
--------------------------------------
-If the server gets move data tagged with a passcount older than the server passcount,
-the move data is discarded, an error is flagged, and it is as if the player never made the move.
-THIS SHOULD NOT CAUSE THE GAME TO GO OUT OF SYNC!!
-
-What is a typical value?
-------------------------
-2-4 when running good and CLIENT_LEAD_FRAME = 5;
-
-
--------------------------------------------
-- c_sync (client) -
--------------------------------------------
-
-How is it calculated? 
----------------------
-When game_moves in a sdat packet are read and inserted in game_move array by the function:
-"void read_game_step_from_packet(int x, int clf_check)"
-The passcount of the entered game_move is compared to the client's current passcount
-Note:because of this, c_sync is only caluclated when the server sends game_move to client
-An sdat packet sent only for sync, that has no game_moves, will not update c_sync
-
-
-What variables does it use?
----------------------------
-players[p].c_sync
-players[p].c_sync_err
-players[p].c_sync_min        
-
-What is the relevant code?
---------------------------
-cs = g0 - passcount;                    // calculate c_csync
-players[p].c_sync = cs;                 // set in player struct
-if (cs < 0 ) players[p].c_sync_err++;   // check for error
-if (cs < players[p].c_sync_min)         // check and set min 
-players[p].c_sync_min = cs;        
-
-What happens if an error is detected?
--------------------------------------
-Basically if a client is entering game_move that happened in the past,
-they will have occured on the server, but will not occur on the client as they are too late.
-THIS WILL CAUSE THE GAME TO BE OUT OF SYNC!!
-
-
-what if they are duplicate enetries?....
-
-
-What is a typical value?
-------------------------
-2-4 when running good and CLIENT_LEAD_FRAME = 5;
-
-
-
-
-
-
-
-
-
-
-
--------------------------------------------
-- server_sync (server) -
--------------------------------------------
-When the server gets an "sdak" packet from a client, it contains the client passcount (client_pc)
-
-Server_sync is calculated and set in the player structure like this:
-players[p].server_sync = passcount - client_pc;
-
-Basically the server needs to be ahead of the client, and server_sync is measure of how many frames ahead.
-
-If the server is ahead by a large amount the client adjusts its fps_timer to catch up
-If it goes negative it means that the client is ahead of the server and bad things will happen. 
-
-
-How is it calculated? 
----------------------
-players[p].server_sync = passcount - client_pc;
-
-
-What variables does it use?
----------------------------
-players[p].server_sync
-players[p].sync_good_frames
-
-
-What is the relevant code?
---------------------------
-
-if(PacketRead("sdak"))  
-{
-   int client_pc = Packet3ByteRead();
-   int p = PacketGetByte();
-   int new_entry_pos = Packet2ByteRead();
-
-   // mark as rx'ed by setting new entry pos
-   players[p].game_move_entry_pos = new_entry_pos; 
-
-   // set server_sync in player struct 
-   players[p].server_sync = passcount - client_pc;
-
-   // if (-2 < sync < 4) add to sync_good_frames or reset
-   if ((players[p].server_sync < 4) && (players[p].server_sync > -2))
-      players[p].sync_good_frames++;
-   else  players[p].sync_good_frames = 0;
-
-   // if good sync 4 times in row set player active in future 
-   if ((players[p].sync_good_frames == 4)  && (players[p].active == 0))            
+   if (c_sync >= 0) add_game_move(fn, 5, p, cm); // add to game_move array
+   else                                          // unless late, then drop and inc error
    {
-        add_game_move(passcount + 10, 2, p, players[p].color);
-        add_game_move(passcount + 10, 1, p, 1);
-   }     
+      players1[p].server_game_move_sync_err++;
+      Packet("serr"); // server error
+      PacketPut1ByteInt(p);
+      PacketPut1ByteInt(1); // error type 1
+      PacketPut4ByteInt(frame_num);
+      PacketPut4ByteInt(c_sync);
+      PacketPut4ByteInt(players1[p].server_game_move_sync_err);
+      ServerSendTo(packetbuffer, packetsize, who, p);
+   }
+}</code></pre>
 
-What happens if an error is detected?
--------------------------------------
-If it goes negative, the client has passed the server, and bad things will happen.
+<br><mh7>Tracking variables - client_game_moves_sync</mh7>
+<br><me1>Description</me1>
+<mh3>
+When a client receives an 'sdat' packet with game_moves, they are entered in the client's game_move array.
+If their frame_num is earlier than the client's current frame_num an error is flagged.
 
-What is a typical value?
-------------------------
-1-2 with CLIENT_LEAD_FRAME = 5;
+This means that the client has received a game_move that happened in the past.
+The move will be applied on the server, but will never be applied on the client because it was received too late.
+
+This will definitely cause the client to go out of sync.
+
+</mh3>
+
+<br><me1>Variables</me1>
+<mh3>
+Client:
+players1[p].client_game_move_sync;
+players1[p].client_game_move_sync_min;
+players1[p].client_game_move_sync_err;
+</mh3>
+
+<br><me1>Code</me1>
+
+<pre><code class="language-cpp">cs = g0 - passcount;                                    // client_game_moves_sync
+players[p].client_game_moves_sync = cs;                 // set in player struct
+if (cs < 0 ) players[p].client_game_moves_sync_err++;   // check for error
+if (cs < players[p].client_game_moves_sync_min)
+   players[p].client_game_moves_sync_min = cs;          // check and set min  
+</code></pre>
 
 
+<br><mh7>Tracking variables - server_sync</mh7>
+<br><me1>Description</me1>
+<mh3>
+When the server gets an "sdak" packet from a client, it contains the client frame_num.
 
+The server keeps track of server_sync for each client like this:
+players1[p].server_sync = frame_num - client_fn;     // set server_sync in player struct
+</mh3>
 
+<br><me1>Variables</me1>
+<mh3>
+Server: 
+players1[p].server_sync (for each client) 
+</mh3>
 
-
--------------------------------------------
-- server_sync (client) -
--------------------------------------------
-When the client receives an sdat packet, the passcount sent by the server is compared the client's passcount
-
-
-How is it calculated? 
----------------------
-server_sync = last_sdat_fpc - passcount;
-
-
-What variables does it use?
----------------------------
-server_sync
-
-
-What is the relevant code?
---------------------------
-if(PacketRead("sdat"))
+<br><me1>Code</me1>
+<pre><code class="language-cpp">if(PacketRead("sdak"))
 {
-   last_sdat_fpc = Packet3ByteRead();
-   int start_entry = Packet2ByteRead(); 
-   int num_entries = Packet2ByteRead(); 
+   int p = PacketGet1ByteInt();
+   int client_fn = PacketGet4ByteInt();
+   players1[p].server_sync = frame_num - client_fn;     // set server_sync in player struct
+}</code></pre>
 
-   server_sync = last_sdat_fpc - passcount; // ahead or behind
-   fps_chase = passcount_timer_fps + server_sync;
-   if (fps_chase < 4) fps_chase = 4; // never let this go negative
-   install_int_ex(inc_timer_passcount, BPS_TO_TIMER(fps_chase)); // adjust timer
-   last_fps_adjust_pc = passcount;
+<mh3>
+server_sync is used to control when clients come active, when joining.
+</mh3>
+<pre><code class="language-cpp">if ((players[p].control_method == 2) && (players1[p].server_sync < 4) && (players1[p].server_sync > -2))
+{
+   add_game_move(frame_num + 4, 1, p, players[p].color); // player becomes active in 4 frame! 
+}</code></pre>
 
-
-What happens if an error is detected?
--------------------------------------
-i don't think any error checking is done...
-
-
-What is a typical value?
-------------------------
-1-2 when  CLIENT_LEAD_FRAME = 5;
-
-
-
-
---------------------------------------------------------------
---          How does the chase sync thing work?
---------------------------------------------------------------
-
-When the client joins, on the server side this is set:
-
-players[cn].active = 0;          //server client view only
-players[cn].control_method = 2;  //server client view only
-
-On the server the client will never become active.
-The server processes all clients with control_method 2.
-
-The next part of the joining process is called chasing.
-This is where the server sends packets to the client to catch them up on game moves.
-
-Variables used are:
-
-         if (players[p].game_move_entry_pos < game_move_entry_pos) // client needs more data
+<mh3>
+server_sync is also used to drop clients when their sync goes bad.
+</mh3>
+<pre><code class="language-cpp">void proc_player_drop(void)
+{
+   for (int p=1; p < NUM_PLAYERS; p++)
+      if (players[p].control_method == 2)
+      {
+         if ((players[p].active) && (players1[p].server_sync > 100)) // drop player
          {
-            int start_entry = players[p].game_move_entry_pos;
-            int end_entry = game_move_entry_pos; 
-            int num_entries = end_entry - start_entry;
-            if (num_entries > 100) num_entries = 100;
-
-Actually, the above has nothing to do with chase sync.
-
-The only thing that matters is the variable 'server_sync'
-Calculated on the server for each client, whenever an sdak packet is rx'd
-
-players[p].server_sync = passcount - client_pc;
-
-Once server_sync is low enough to be considered good 4 times in a row:
-
-            if ((players[p].server_sync < 4) && (players[p].server_sync > -2))
-               players[p].sync_good_frames++;
-            else  players[p].sync_good_frames = 0;
-
-
-The server sets an active packet 10 frames in the future:
-
-
-            if ((players[p].sync_good_frames == 4)  && (players[p].active == 0))            
-            {
-#ifdef PACKET_LOGGING_sdak
-               sprintf(msg,"[%4d] ------player:%d has locked and will become active in 10 frames!\n", passcount, p);
-               add_log_entry(msg);
-#endif
-                 add_game_move(passcount + 10, 2, p, players[p].color);
-                 add_game_move(passcount + 10, 1, p, 1);
-            }     
-
-
-When chasing sync the variables to watch are:
-     - server sync
-     - how many game moves left to sync
+            add_game_move(frame_num + 4, 1, p, 71); // make client inactive (reason sync > 100)
+         }
+      }
+}</code></pre>
 
 
 
+<br><mh7>Tracking variables - client_sync</mh7>
+<br><me1>Description</me1>
+<mh3>
+When the client receives an sdat packet, the frame_num sent by the server is compared the client's frame_num.
 
-Chasing on the client
+players1[p].client_sync = sdat_frame_num - frame_num;
 
-client calculates server_sync to find out how many frames behind
+This is used by the client to adjust its fps_timer, to stay 1 frame behind the server.
+</mh3>
 
-if behind then skip drawing or waiting for next frame
+<br><me1>Variables</me1>
+<mh3>
+Client:
+players1[p].client_sync (only for local client player)
+</mh3>
 
-
-how can I acheive this??
-
-
-
-
-
----------------------------------------------------------------------
--- what is client lead frames?
----------------------------------------------------------------------
-When a client's controls change, they are sent to the server in a cdat packet
-The passcount sent has CONTROL_LEAD_FRAMES added to it
-
-The basically mean that the delay between a clients control change
-and the change occurring on the clients game is that many frames
-
-This can be fine tuned, but for now is set to 5
-
-Too low and very bad things will happen!
-
-Too high and the lag will be noticeable.
+<br><me1>Code</me1>
+<pre><code class="language-cpp">if(PacketRead("sdat"))
+{
+   int sdat_frame_num = PacketGet4ByteInt();
+   players1[p].client_sync = sdat_frame_num - frame_num;
+   int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
+   al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+}</code></pre>
 
 
-
-      players[p].old_comp_move = players[p].comp_move;
-      int fpc = passcount + CONTROL_LEAD_FRAMES;  // add  to passcount
-      int cm = players[p].comp_move;
-
-      Packet("cdat");
-      PacketAdd3Bytes(fpc);
-      PacketAddByte(p);
-      PacketAddByte(cm);
-      ClientSend(packetbuffer, packetsize);
-#ifdef PACKET_LOGGING_cdat
-         sprintf(msg,"[%4d][ctx cdat]clc - passcount:%d p:%d cm:%d\n", passcount, fpc, p, cm);
-         add_log_entry(msg);
-#endif
-
+<br><mh7>Variables that control netplay</mh7>
+<mh3>These are all in pm.cfg:
+</mh3>
+<pre><code class="language-cpp">[NETWORK]
+server_IP=192.168.1.3
+TCP=0
+deathmatch_pbullets=1
+deathmatch_pbullets_damage=5
+suicide_pbullets=1
+control_lead_frames=3
+server_lead_frames=1
+chdf_freq=5
+zlib_cmp=7
 
 
-----------------------------------------------
--- Main timer adjusting
-----------------------------------------------
+server_IP=192.168.1.3
+---------------------
+clients need to know the server IP or hostname to connect
+servers dont need to know anything, or have anything set
 
-On client the main timer is adjusted to speed up the game while chasing to sync
+TCP=0
+-----
+TCP or UDP
+TCP = 0; // UDP
+TCP = 1; // TCP
+Both seem to work about the same.
 
-The adjustments happen in 2 places in the client_control function
+deathmatch_pbullets=1
+---------------------
+can player's bullets hurt other players?
 
-- once everytime through the function
-- and one evertime a sdat packet is rx'd
+deathmatch_pbullets_damage=5
+----------------------------
+player's bullet damage amount
 
-They both rest a hold off so it can happen every 20 frames, using 'last_fps_adjust_pc'
+suicide_pbullets=1
+------------------
+can players hurt themselves with their own bullets?
 
-Normally sdat packets are received at least every 10 frames, but when the game is
-chasing and has a high frame rate, this might not be so.
 
-- the first one will only happen at high frame rates when chasing
-- otherwise the second one will work when rx'ing a sdat packet at least every 10 frames
-- and then the holdoff prevents the first one from triggering
 
-After reviewing I found the first one only gets called when the frame rate is very high,
-like when chasing and the timer is set so high that calls to the second one might get missed
+For the variables below, it is not recommended to change them from their defaults.
 
-The second one does adjust all the time, even when sync'd, which is probably a good thing
-is case the timers do not sync perfectly....
 
---------------------------------------------
+control_lead_frames=3
+---------------------
+when client's controls change and cdat is sent to server tag input with a frame this far in the future
+
+server_lead_frames=1
+--------------------
+the client will adjust frame rate to maintain a lag of this many frames behind the server
+
+chdf_freq=5
+-----------
+how often the server sends chdf packets to clients
+
+zlib_cmp=7
+----------
+zlib compression level
+</code></pre>
 
 
 
 
---------------------------------------------
-- players control methods
---------------------------------------------
-players[p].control_method
-
-0 = local player
-1 = file play (run game)
 
 
+<br><mh7>Global variables for state correction</mh7>
+<mh3>
 
-2
--client players on server, and server and other clients on client side 
--remote view for both client and server
--any player that is not the active local player will have control method 2
+The game state takes 104640 bytes.
 
+To hold it in memory, I declare a char array like this:
 
-3 = server player on server
-4 = client player on client 
-
-
-99 = used client in current level (to prevent re-use in same level)
-
-
-server is always player 0
-clients can be from 1-7
+extern char chdf[CHUNK_SIZE];   
+extern char clientl_chdf[CHUNK_SIZE];  // last ack state for diffing
 
 
 
+a client has 2 of these:
+- one to hold the last state received from the server
+- one to build a new state from packet pieces
+
+the server has 16 of these:
+- two for each client:
+ - one to hold the last state acknowledged by the client
+ - one to generate a new state
+
+both server and client also have one to generate difs
+
+
+
+/mh3>
+<pre><code class="language-cpp">#define CHUNK_SIZE 104640
+// server chdf
+extern char client_chdf[8][2][CHUNK_SIZE];
+extern int client_chdf_id[8][2]; // frame_num id
+
+// client chdf
+extern char chdf[CHUNK_SIZE];          // for client chdf building
+extern int chdf_pieces[16];
+extern char clientl_chdf[CHUNK_SIZE];  // last ack state for diffing
+extern int clientl_chdf_id;            // frame_num id
+
+extern char dif[CHUNK_SIZE];
+extern int dif_id[2]; //   (0 = src, 1 = dst)
+
+</code></pre>
+
+
+
+
+
+
+
+
+
+<hr><hr><hr><hr><hr><hr><hr><hr><hr><hr>
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<mh3>
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------
@@ -872,88 +917,7 @@ and I am happy to report, that everything works!
 I have run 30 minute games, with no errors, and using approx 50kB/sec
 
 
-
-
-
-
-these are the variables that control netplay:
-
-
-in cfg file:
-
-server_IP = i990
-deathmatch_pbullets = 1
-suicide_pbullets = 1
-
-
-control_lead_frames = 4
-----------------------------
-- when client's controls change and cdat is sent to server,
-tag input with a frame this far in the future 
-
-server_lead_frames = 1
-----------------------------
-- the client will adjust frame rate to maintain a lag of 
-this many frames behind the server
-
-
-chdf_freq = 40
--------------------
--how often the server sends chdf packets to clients
-
-
-variables that can't be changed without recompile
-
-UDP or TCP
-- what type of packets to use
-define needs to be changed and recompiled
-lots of functions that are named the same..
-
-zlib compression level (7)
-
-amount of frames the client lag the server
-that will trigger server to drop client (100)
-
-amount of frames the server will go without receiving an ack from client
-that will trigger server to drop client (100)
-
-
---------------------------------------------
-what do i show on the client to show how the netgame is going ?
-
-
-
-
-the log files have a lot of data
-
-
-
-i was thinking of making my own log file viewer
-- i would tag every line with a type...
-
-then i would color code types
-show/hide types
-
-it would basically be a text viewer, with colors and the options of removing sections
-
-the sections would mostly follow the logging defines i already have
-
-
-all would begin with:
-
-[xx] 2 digit type
-[passcount]
-
-should it be stand alone, or part of the game?
-
-it will kind of look like help...
-
-
-
-
-
-
-
+</mh3>
 
 
 

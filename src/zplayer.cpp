@@ -620,10 +620,15 @@ void init_player(int p, int t)
       players1[p].health_display = 0;
       players1[p].last_health_adjust = 0;
 
-      players1[p].c_sync = 0;
-      players1[p].c_sync_err = 0;
+      players1[p].client_game_move_sync = 0;
+      players1[p].client_game_move_sync_err = 0;
+
+      players1[p].server_game_move_sync = 0;
+      players1[p].server_game_move_sync_err = 0;
+
 
       players1[p].server_sync = 99;
+      players1[p].client_sync = 99;
       players1[p].who = 99;
 
       players1[p].comp_move = 0;
@@ -694,19 +699,26 @@ void init_player(int p, int t)
       players1[p].comp_move = 0;
       players1[p].old_comp_move = 0;
 
-      players1[p].cdat_packets_tx = 0;
-      players1[p].sdat_total = 0;
-      players1[p].sdat_skipped = 0;
+      players1[p].client_cdat_packets_tx = 0;
+
+      players1[p].client_sdat_packets_rx = 0;
+      players1[p].client_sdat_packets_skipped = 0;
       players1[p].moves_entered = 0;
       players1[p].moves_skipped = 0;
 
-      players1[p].c_sync = 0;
-      players1[p].c_sync_err = 0;
-      players1[p].c_sync_min = 99;
+      players1[p].client_game_move_sync = 0;
+      players1[p].client_game_move_sync_min = 99;
+      players1[p].client_game_move_sync_err = 0;
+
+      players1[p].server_game_move_sync = 0;
+      players1[p].server_game_move_sync_min = 99;
+      players1[p].server_game_move_sync_err = 0;
+
+
       players1[p].serr_c_sync_err = 0;
       players1[p].serr_display_timer = 0;
       players1[p].server_sync = 99;
-      players1[p].sync_good_frames = 0;
+      players1[p].client_sync = 99;
       players1[p].quit_frame = 0;
       players1[p].quit_reason = 0;
 
@@ -741,13 +753,9 @@ void init_player(int p, int t)
       players1[p].rx_max_packets_per_tally = 0;
       players1[p].rx_max_bytes_per_tally = 0;
 
-
       players1[p].num_dif_packets =0 ;
-      players1[p].last_sdak_rx = 0;
-
-      players1[p].last_sdat_fpc = 0;
-      players1[p].last_sdat_lpc = 0;
-
+      players1[p].server_last_sdak_rx_frame_num = 0;
+      players1[p].client_last_sdat_rx_frame_num = 0;
 
       players1[p].chdf_rx = 0;
       players1[p].chdf_late = 0;
@@ -760,14 +768,14 @@ void init_player(int p, int t)
    if (t == 2) // level done
    {
       players1[p].game_move_entry_pos = 0; // server only  ( for client game_move data sync )
-      players1[p].server_last_sdat_sent_frame = 0; // only server uses it, to keep track of when last sdat was sent to client
+      players1[p].server_last_sdat_sent_frame_num = 0; // only server uses it, to keep track of when last sdat was sent to client
    }
 
 
 
    if (t == 3) // netplay join
    {
-      players1[p].last_sdak_rx = frame_num + 200;
+      players1[p].server_last_sdak_rx_frame_num = frame_num + 200;
    }
 
 

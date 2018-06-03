@@ -303,7 +303,7 @@ void draw_steps(int step_ty, int lift, int current_step, int highlight_step)
    int xb = SCREEN_W-3-10;
 
    // faded title bar
-   title((char *)"List of Steps", ty + jh*bts,  15,  12 );
+   title("List of Steps", ty + jh*bts,  15,  12 );
 
    // title button
    mdw_button(xa, ty+(jh+1)*bts, xb, ty+(jh+2)*bts-1, 70, 0, 0, 0, 0, 8, 15, 0, 1,0,0,0);
@@ -390,7 +390,7 @@ int create_lift(void)
       construct_lift(lift, msg, 6, 1, 10, 1);
       construct_lift_step(lift, step, 0, 0, 20, 1);
 
-      if (getxy((char *)"Set initial position", 4, lift, step) == 1)
+      if (getxy("Set initial position", 4, lift, step) == 1)
       {
          // set step 0 and main x y
          lifts[lift].x1 = lift_steps[lift][step].x = get100_x * 20;
@@ -430,7 +430,7 @@ void move_lift_step(int lift, int step)
       int nx = ((lift_steps[lift][step].x + lifts[lift].width  * 10) *db)/20;
       int ny = ((lift_steps[lift][step].y + lifts[lift].height * 10) *db)/20;
       al_set_mouse_xy(display, nx*display_transform_double, ny*display_transform_double);
-      getxy((char *)"Set new location", 4,  lift, step);
+      getxy("Set new location", 4,  lift, step);
    }
 }
 
@@ -514,7 +514,7 @@ int get_new_lift_step(int lift, int step)
             {
                case 1:
                   construct_lift_step(lift, step, 0, 0, 20, 1);              // set move step
-                  if (getxy((char*)"Set lift position", 4, lift, step) == 1)        // set location
+                  if (getxy("Set lift position", 4, lift, step) == 1)        // set location
                   {
                      lift_steps[lift][step].x = get100_x * 20;
                      lift_steps[lift][step].y = get100_y * 20;
@@ -943,8 +943,8 @@ int lift_editor(int lift)
             case 19: create_lift(); break;                                // create new
             case 21: if (++lift > num_lifts-1) lift = num_lifts-1; break; // next
             case 22: if (--lift < 0) lift++; break;                       // previous
-            case 24: help((char *)"Viewer Basics"); break;                        // help viewer
-            case 25: help((char *)"Lift Viewer"); break;                          // help lifts
+            case 24: help("Viewer Basics"); break;                        // help viewer
+            case 25: help("Lift Viewer"); break;                          // help lifts
             case 20:  // delete
                erase_lift(lift);
                if (--lift < 0) lift = 0;    // set to prev lift or zero

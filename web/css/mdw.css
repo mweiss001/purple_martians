@@ -15,6 +15,7 @@
             background: #D7E8D4;
         }
         .col-2 {
+            min-width: 480px;
             display: flex;
             flex-direction: column;
             flex: 5;
@@ -156,6 +157,15 @@
             padding-top: .3em;
             padding-left: .3em;
             
+        }
+
+
+
+        me1 {
+            padding-top: .3em;
+            white-space: pre-wrap; 
+            font-size: 130%;
+            background: #f2d4a4;
         }
 
 
