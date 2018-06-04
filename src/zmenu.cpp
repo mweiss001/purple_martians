@@ -692,9 +692,9 @@ void menu_setup(void)
    strcpy (global_string[3][11], "LOGGING_NETPLAY_game_move");
    strcpy (global_string[3][12], "LOGGING_NETPLAY_sdat");
    strcpy (global_string[3][13], "LOGGING_NETPLAY_sdak");
-   strcpy (global_string[3][14], "LOGGING_NETPLAY_chdf");
-   strcpy (global_string[3][15], "LOGGING_NETPLAY_chdf_all_packets");
-   strcpy (global_string[3][16], "LOGGING_NETPLAY_chdf_when_to_apply");
+   strcpy (global_string[3][14], "LOGGING_NETPLAY_stdf");
+   strcpy (global_string[3][15], "LOGGING_NETPLAY_stdf_all_packets");
+   strcpy (global_string[3][16], "LOGGING_NETPLAY_stdf_when_to_apply");
    strcpy (global_string[3][17], "LOGGING_NETPLAY_show_dif1");
    strcpy (global_string[3][18], "LOGGING_NETPLAY_show_dif2");
    strcpy (global_string[3][19], "Auto Save Game On Level Done");

@@ -904,47 +904,45 @@ al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
    return fmove; // max move allowed
 }
 
-
-
-void state_to_chunk(char * b)
+void game_vars_to_state(char * b)
 {
    int offset = 0;
    int size;
 
    size = sizeof(players);
    memmove(b+offset, players, size);
-//      printf("players \tsize %d \toffset %d \n", size, offset);
+   //printf("players \tsize %d \toffset %d \n", size, offset);
    offset += size;
    size = sizeof(Ei);
    memmove(b+offset, Ei, size);
-//      printf("int Ei[100][32] \tsize %d \toffset %d \n", size, offset);
+   //printf("int Ei[100][32] \tsize %d \toffset %d \n", size, offset);
    offset += size;
    size = sizeof(Efi);
    memmove(b+offset, Efi, size);
-//    printf("al_fixed Efi[100][16] \tsize %d \toffset %d \n", size, offset);
+   //printf("al_fixed Efi[100][16] \tsize %d \toffset %d \n", size, offset);
    offset += size;
    size = sizeof(item);
    memmove(b+offset, item, size);
-//    printf("int item[500][16] \tsize %d \toffset %d \n", size, offset);
+   //printf("int item[500][16] \tsize %d \toffset %d \n", size, offset);
    offset += size;
    size = sizeof(itemf);
    memmove(b+offset, itemf, size);
-//    printf("al_fixed item[500][4] \tsize %d \toffset %d \n", size, offset);
+   //printf("al_fixed item[500][4] \tsize %d \toffset %d \n", size, offset);
    offset += size;
    size = sizeof(lifts);
    memmove(b+offset, lifts, size);
-//      printf("lifts \t\t\tsize %d \toffset %d \n", size, offset);
+   //printf("lifts \t\t\tsize %d \toffset %d \n", size, offset);
    offset += size;
    size = sizeof(l);
    memmove(b+offset, l, size);
-//    printf("l[100][100] \t\tsize %d \toffset %d \n", size, offset);
+   //printf("l[100][100] \t\tsize %d \toffset %d \n", size, offset);
    offset += size;
-//      printf("----------------total chunk size %d \n", offset);
-
+   //printf("----------------total chunk size %d \n", offset);
 }
 
 
-void chnk_to_state(char * b)
+
+void state_to_game_vars(char * b)
 {
    int offset = 0;
    int size;
@@ -977,57 +975,53 @@ void chnk_to_state(char * b)
    memcpy(l, b+offset, size);
 }
 
-
-// test a=20 b=10
-
-// get  c = a - b (c=10)
-
-// apply a-= c (a=10)
-
-
-void get_chunk_dif(char *a, char *b, char *c, int size)
+void get_state_dif(char *a, char *b, char *c, int size)
 {
    for (int i=0; i<size; i++)
       c[i] = a[i] - b[i];
 }
 
-void apply_chunk_dif(char *a, char *c, int size)
+void apply_state_dif(char *a, char *c, int size)
 {
    for (int i=0; i<size; i++)
       a[i] -= c[i];
 }
 
-
 void reset_states(void)
 {
    // reset base state on client
-   memset(clientl_chdf, 0, CHUNK_SIZE);
-   clientl_chdf_id = 0;  // frame_num id
-
+   memset(client_state_base, 0, STATE_SIZE);
+   client_state_base_frame_num = 0;  // frame_num id
 
    // reset dif buffer and frame_num
-   memset(dif, 0, CHUNK_SIZE);
-   dif_id[0] = -1; // -1 will never match a frame_num
-   dif_id[1] = -1;
+   memset(client_state_dif, 0, STATE_SIZE);
+   client_state_dif_src = -1; // -1 will never match a frame_num
+   client_state_dif_dst = -1;
 
-   // reset buffer and frame_nums used to build compressed chdf from packets
-   memset(chdf, 0, CHUNK_SIZE);
+   // reset buffer and frame_nums used to build compressed state from packets
+   memset(client_state_buffer, 0, STATE_SIZE);
    for (int i=0; i<16; i++)
-      chdf_pieces[i] = -1;
+      client_state_buffer_pieces[i] = -1;
 
-   // reset server chdf's
+   // reset server's client states
    for (int i=0; i<8; i++)
    {
-      memset(client_chdf[i][0], 0, CHUNK_SIZE);
-      memset(client_chdf[i][1], 0, CHUNK_SIZE);
-      client_chdf_id[i][0] = 0; // src frame_num id
-      client_chdf_id[i][1] = -3; // dst frame_num id
+      memset(srv_client_state[i][0], 0, STATE_SIZE);
+      memset(srv_client_state[i][1], 0, STATE_SIZE);
+      srv_client_state_frame_num[i][0] = 0;  // src
+      srv_client_state_frame_num[i][1] = -3; // dst
    }
 }
 
 
 
-void show_chunk_dif(char *a, char *b)
+
+
+
+
+
+
+void show_state_dif(char *a, char *b)
 {
    // copy chunks to temp vars
 
@@ -1560,6 +1554,58 @@ void show_chunk_dif(char *a, char *b)
       }
    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra)

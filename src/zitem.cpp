@@ -862,6 +862,7 @@ void proc_item_collision()
                      if (exit_enemys_left <= 0)
                      {
                         level_done = 1;
+                        next_level = play_level + 1;
                         game_event(4, itx, ity, 0, 0, 0, 0);
                      }
                      else game_event(3, itx, ity, exit_enemys_left, 0, 0, 0); // not enough dead yet
@@ -928,8 +929,9 @@ void proc_item_collision()
                   break;
                   case 12: // warp
                   {
-                     play_level = item[x][8];
-                     start_mode = 1;
+                     next_level = item[x][8];
+                     level_done = 1;
+                     game_event(4, itx, ity, 0, 0, 0, 0);
                   }
                   break;
                   case 14: // switch

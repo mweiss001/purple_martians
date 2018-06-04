@@ -2,6 +2,30 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+reset ortho double when leaving log file viewer
+
+
+
+
+
+
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
@@ -24,9 +48,23 @@ In tiles there is some of it and also some in level background.
 
 At the bottom of files add links to other related docs
 
-netplay...
+
+netplay main
+to do
+
 done a lot
 game move sync
+redo packets
+
+
+netplay - state_corr:
+to do
+
+when are they sent
+show dif
+
+
+netplay - join
 
 
 

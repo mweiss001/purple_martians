@@ -472,72 +472,69 @@ void server_exit(void)
 
 }
 
-// send chdf to a specific player
-void server_send_chdf(int p)
+// send stdf to a specific player
+void server_send_stdf(int p)
 {
-   char dif[CHUNK_SIZE];
-   char cmp[CHUNK_SIZE];
+   char dif[STATE_SIZE];
+   char cmp[STATE_SIZE];
 
    // set dif dest to current frame_num
-   client_chdf_id[p][1] = frame_num;
+   srv_client_state_frame_num[p][1] = frame_num;
 
    // get current state
-   state_to_chunk(client_chdf[p][1]);
+   game_vars_to_state(srv_client_state[p][1]);
 
    // make a new dif from base and current
-   get_chunk_dif(client_chdf[p][0], client_chdf[p][1], dif, CHUNK_SIZE);
+   get_state_dif(srv_client_state[p][0], srv_client_state[p][1], dif, STATE_SIZE);
 
    // compress dif to cmp
    uLongf destLen= sizeof(cmp);
    compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)dif, sizeof(dif), zlib_cmp);
-   int cp = destLen;
+   int cmp_size = destLen;
 
-   // break it into smaller chunks here
-   int num_packets = (cp / 1000) + 1;
+   // break compressed dif into smaller pieces
+   int num_packets = (cmp_size / 1000) + 1;
 
-   players1[p].cmp_dif_size = cp;
+   players1[p].cmp_dif_size = cmp_size;
    players1[p].num_dif_packets = num_packets;
 
-   if (L_LOGGING_NETPLAY_chdf)
+   if (L_LOGGING_NETPLAY_stdf)
    {
-      #ifdef LOGGING_NETPLAY_chdf
-      float cr = (float)cp*100 / (float)CHUNK_SIZE; // compression ratio
-      sprintf(msg, "tx chdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f [%d packets needed]\n",
-                            p, client_chdf_id[p][0], client_chdf_id[p][1], cp, cr, num_packets);
+      #ifdef LOGGING_NETPLAY_stdf
+      float cr = (float)cmp_size*100 / (float)STATE_SIZE; // compression ratio
+      sprintf(msg, "tx stdf p:%d [src:%d dst:%d] cmp:%d ratio:%3.2f [%d packets needed]\n",
+                            p, srv_client_state_frame_num[p][0], srv_client_state_frame_num[p][1], cmp_size, cr, num_packets);
       add_log_entry2(27, p, msg);
       //printf("%s", msg);
       #endif
    }
    int start_byte = 0;
-   int end_byte = 0;
-
-   for (int pk=0; pk <num_packets; pk++)
+   for (int packet_num=0; packet_num < num_packets; packet_num++)
    {
-      int ssz = 1000; // default seq size
-      if (start_byte + ssz > cp) ssz = cp - start_byte; // last one is smaller
+      int packet_data_size = 1000;// default size
+      if (start_byte + packet_data_size > cmp_size)
+          packet_data_size = cmp_size - start_byte; // last piece is smaller
 
-      if (end_byte > cp-1) end_byte = cp-1;
 
-      if (L_LOGGING_NETPLAY_chdf_all_packets)
+      if (L_LOGGING_NETPLAY_stdf_all_packets)
       {
-         #ifdef LOGGING_NETPLAY_chdf_all_packets
-         sprintf(msg, "tx chdf p:%d piece [%d of %d] [%d to %d] st:%4d sz:%4d\n",
-                       p, pk+1, num_packets, client_chdf_id[p][0], client_chdf_id[p][1], start_byte, ssz);
+         #ifdef LOGGING_NETPLAY_stdf_all_packets
+         sprintf(msg, "tx stdf p:%d piece [%d of %d] [%d to %d] st:%4d sz:%4d\n",
+                       p, packet_num+1, num_packets, srv_client_state_frame_num[p][0], srv_client_state_frame_num[p][1], start_byte, packet_data_size);
          add_log_entry2(28, p, msg);
          #endif
       }
 //         printf("size:%d   pack_seq:%d  seq_end:%d st:%d  sz:%d\n", cp, pk, num_packets, start_byte, ssz);
 
-      Packet("chdf");
-      PacketPut1ByteInt(p);
-      PacketPut4ByteInt(client_chdf_id[p][0]); // src frame_num
-      PacketPut4ByteInt(client_chdf_id[p][1]); // dst frame_num
-      PacketPut1ByteInt(pk);
+      Packet("stdf");
+      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+      PacketPut1ByteInt(packet_num);
       PacketPut1ByteInt(num_packets);
       PacketPut4ByteInt(start_byte);
-      PacketPut4ByteInt(ssz);
-      memcpy(packetbuffer+packetsize, cmp+start_byte, ssz);
-      packetsize += ssz;
+      PacketPut4ByteInt(packet_data_size);
+      memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
+      packetsize += packet_data_size;
 
       ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
 
@@ -545,14 +542,14 @@ void server_send_chdf(int p)
    }
 }
 
-void server_send_chdf(void)
+void server_send_stdf(void)
 {
-   // figure out when and what players to send chdf to
+   // figure out when and what players to send stdf to
    if (frame_num > 1)
    {
-      if (frame_num % chdf_freq == 0)
+      if (frame_num % stdf_freq == 0)
       {
-         int p = players1[0].n_chdf; // get last player we sent to
+         int p = players1[0].n_stdf; // get last player we sent to
          int not_found = 0;
          do
          {
@@ -560,17 +557,17 @@ void server_send_chdf(void)
             not_found++;
          } while ((players[p].control_method != 2) && (not_found < 8));
          if (not_found == 8) p = 0;   // if no clients found set to 0 so no send will happen
-         players1[0].n_chdf = p;      // set last player we sent to
-         if (p) server_send_chdf(p);  // send
+         players1[0].n_stdf = p;      // set last player we sent to
+         if (p) server_send_stdf(p);  // send
          //printf("[%4d] p:%d\n", frame_num, p);
       }
 
       // send if player has just joined
       for (int p=1; p<NUM_PLAYERS; p++)
-         if ((!players[p].active) && (players[p].control_method == 2) && (!players1[p].join_chdf_sent))
+         if ((!players[p].active) && (players[p].control_method == 2) && (!players1[p].join_stdf_sent))
          {
-            server_send_chdf(p);
-            players1[p].join_chdf_sent = 1;
+            server_send_stdf(p);
+            players1[p].join_stdf_sent = 1;
          }
    }
 }
@@ -593,10 +590,9 @@ void server_send_sdat(void)
             {
                players1[p].server_last_sdat_sent_start = start_entry;
                players1[p].server_last_sdat_sent_num = num_entries;
-
+               players1[p].server_last_sdat_sent_frame_num = frame_num;
 
                Packet("sdat");
-               PacketPut1ByteInt(p);
                PacketPut4ByteInt(frame_num);
                PacketPut4ByteInt(start_entry);
                PacketPut1ByteInt(num_entries);
@@ -619,13 +615,14 @@ void server_send_sdat(void)
                }
             }
          }
-         else if (frame_num > players1[p].server_last_sdat_sent_frame_num + 19) // send even if no data, every 20 frames for sync
+
+         // send even if no data, every 20 frames for sync
+         if (frame_num > players1[p].server_last_sdat_sent_frame_num + 19)
          {
             players1[p].server_last_sdat_sent_frame_num = frame_num;
             int start_entry = players1[p].game_move_entry_pos;
 
             Packet("sdat");
-            PacketPut1ByteInt(p);
             PacketPut4ByteInt(frame_num);
             PacketPut4ByteInt(start_entry);
             PacketPut1ByteInt(0);
@@ -675,78 +672,22 @@ void proc_player_drop(void)
 }
 
 
-void proc_server_check(void)
-{
-   for (int p1=1; p1<NUM_PLAYERS; p1++)
-      for (int p2=1; p2<NUM_PLAYERS; p2++)
-         if (p1 != p2)
-         {
-            int p1w = players1[p1].who;
-            int p2w = players1[p2].who;
-            if ((p1w != 99) && (p2w != 99))
-               if (p1w == p2w) // we have a duplicate
-               {
-                  // do something here
-                  sprintf(msg, "ERROR! duplicate whos for player:[%d] and player:[%d]\n", p1, p2);
-                  printf("%s", msg);
-                  #ifdef LOGGING_NETPLAY
-                  add_log_entry2(10, 0, msg);
-                  #endif
-               }
-         }
-}
-
-
-// check to see if this packet is from who its supposed to be and is valid
-int check_packet_who(int p, int who, int type)
-{
-   if (players[p].control_method != 2)
-   {
-      //check if the player we received data for is an active client
-      //sprintf(msg, "ERROR! rx cdat for player[%d].control__method[%d] != 2\n", p, players[p].control_method);
-      //printf("%s", msg);
-      //#ifdef LOGGING_NETPLAY
-      //add_log_entry2(10, p, msg);
-      //#endif
-      return 0;
-   }
-   if ((players1[p].who != who) && (players1[p].who != 99))
-   {
-      char tmsg[80];
-      if (type == 1) sprintf(tmsg, "cdat");
-      if (type == 2) sprintf(tmsg, "sdak");
-      if (type == 3) sprintf(tmsg, "chak");
-
-      sprintf(msg, "ERROR! rx %s player[%d].who[%d] does not match packet who[%d]\n", tmsg, p, players1[p].who, who);
-      printf("%s", msg);
-      #ifdef LOGGING_NETPLAY
-      add_log_entry2(10, p, msg);
-      #endif
-      return 0;
-   }
-   return 1;
-}
-
-
-
 
 void server_control() // this is the main server loop to process packet send and receive
 {
    static int who;
 
-   if (frame_num == 0) reset_states(); // for chdf
+   if (frame_num == 0) reset_states(); // for stdf
 
    for(int p=0; p<NUM_PLAYERS; p++)
       if (players[p].active) process_bandwidth_counters(p);
 
    proc_player_drop();  // check to see if we need to drop clients
 
-   proc_server_check(); // check for inconsistancies
 
    ServerListen();      // keep looking for new client connections
    server_send_sdat();  // send sdats to sync game_move data to clients
-   server_send_chdf();  // send dif states to ensure clients have same state
-
+   server_send_stdf();  // send dif states to ensure clients have same state
 
    while((packetsize = ServerReceive(packetbuffer, &who)))
    {
@@ -756,96 +697,88 @@ void server_control() // this is the main server loop to process packet send and
          int fn = PacketGet4ByteInt();
          int cm = PacketGet1ByteInt();
 
-         if (check_packet_who(p, who, 1))
+         // how far ahead is the client's frame_num for this move, compared to server's frame_num
+         int c_sync = players1[p].server_game_move_sync = fn - frame_num;
+
+         // keep track of the minimum c_sync
+         if (c_sync < players1[p].server_game_move_sync_min) players1[p].server_game_move_sync_min = c_sync;
+
+         char tmsg1[100];
+         sprintf(tmsg1,"rx cdat p:%d client_pc:[%d] c_sync:[%d]", p, fn, c_sync );
+         char tmsg2[100];
+         sprintf(tmsg2,"\n");
+
+         // this special case here is to fix bug that occurs when server_lead_frames > 0, and quit move doesn't get synced back to the client
+         if (cm == 127) // client quit
          {
-            // how far ahead is the client's frame_num for this move, compared to server's frame_num
-            int c_sync = players1[p].server_game_move_sync = fn - frame_num;
-
-            // keep track of the minimum c_sync
-            if (c_sync < players1[p].server_game_move_sync_min) players1[p].server_game_move_sync_min = c_sync;
-
-            char tmsg1[100];
-            sprintf(tmsg1,"rx cdat p:%d client_pc:[%d] c_sync:[%d]", p, fn, c_sync );
-            char tmsg2[100];
-            sprintf(tmsg2,"\n");
-
-            // this special case here is to fix bug that occurs when server_lead_frames > 0, and quit move doesn't get synced back to the client
-            if (cm == 127) // client quit
+            add_game_move(fn+2, 5, p, cm);  // put in future
+            sprintf(tmsg2,"<-- player:%d quit\n", p);
+         }
+         else
+         {
+            if (c_sync >= 0) add_game_move(fn, 5, p, cm); // add to game_move array
+            else                                          // unless late, then drop and inc error
             {
-               add_game_move(fn+2, 5, p, cm);  // put in future
-               sprintf(tmsg2,"<-- player:%d quit\n", p);
-            }
-            else
-            {
-               if (c_sync >= 0) add_game_move(fn, 5, p, cm); // add to game_move array
-               else                                          // unless late, then drop and inc error
-               {
-                  players1[p].server_game_move_sync_err++;
-                  sprintf(tmsg2, "<--ERROR! (total errors:%d)\n", players1[p].server_game_move_sync_err);
+               players1[p].server_game_move_sync_err++;
+               sprintf(tmsg2, "<--ERROR! (total errors:%d)\n", players1[p].server_game_move_sync_err);
 
-                  Packet("serr"); // server error
-                  PacketPut1ByteInt(p);
-                  PacketPut1ByteInt(1); // error type 1
-                  PacketPut4ByteInt(frame_num);
-                  PacketPut4ByteInt(c_sync);
-                  PacketPut4ByteInt(players1[p].server_game_move_sync_err);
-                  ServerSendTo(packetbuffer, packetsize, who, p);
-               }
+               Packet("serr"); // server error
+               PacketPut1ByteInt(1); // error type 1
+               PacketPut4ByteInt(frame_num);
+               PacketPut4ByteInt(c_sync);
+               PacketPut4ByteInt(players1[p].server_game_move_sync_err);
+               ServerSendTo(packetbuffer, packetsize, who, p);
             }
-            if (L_LOGGING_NETPLAY_cdat)
-            {
-               #ifdef LOGGING_NETPLAY_cdat
-               sprintf(msg, "%s %s", tmsg1, tmsg2);
-               add_log_entry2(35, p, msg);
-               #endif
-            }
+         }
+         if (L_LOGGING_NETPLAY_cdat)
+         {
+            #ifdef LOGGING_NETPLAY_cdat
+            sprintf(msg, "%s %s", tmsg1, tmsg2);
+            add_log_entry2(35, p, msg);
+            #endif
          }
       }
 
-      if(PacketRead("chak"))
+      if(PacketRead("stak"))
       {
          // client acknowledged up to this state
          int p = PacketGet1ByteInt();
          int dif_corr = PacketGet1ByteInt();
          int ack_pc = PacketGet4ByteInt();
 
-         if (check_packet_who(p, who, 3))
 
+         players1[p].dif_corr += dif_corr;
+
+         char tmsg1[80];
+         char tmsg2[80];
+
+         sprintf(tmsg1, "rx stak p:%d ack frame:%d corr:%d total_corr:%d", p, ack_pc, dif_corr, players1[p].dif_corr );
+
+         if (ack_pc == srv_client_state_frame_num[p][1]) // check to make sure we have a copy of acknowledged state
          {
+            // acknowledged state is out new base state
+            memcpy(srv_client_state[p][0], srv_client_state[p][1], STATE_SIZE); // copy 1 to 0
+            srv_client_state_frame_num[p][0] = ack_pc; // new frame_num
+            sprintf(tmsg2, "set new base");
+         }
+         else // we don't have a copy of acknowledged state !!!
+         {
+            sprintf(tmsg2, "failed to set new base! cl:%d ", srv_client_state_frame_num[p][1]);
 
-            players1[p].dif_corr += dif_corr;
+            // reset base to all zero
+            memset(srv_client_state[p][0], 0, STATE_SIZE);
 
-            char tmsg1[80];
-            char tmsg2[80];
+            // set base frame_num to 0
+            srv_client_state_frame_num[p][0] = 0;
 
-            sprintf(tmsg1, "rx chak p:%d ack frame:%d corr:%d total_corr:%d", p, ack_pc, dif_corr, players1[p].dif_corr );
+         }
 
-            if (ack_pc == client_chdf_id[p][1]) // check to make sure we have a copy of acknowledged state
-            {
-               // acknowledged state is out new base state
-               memcpy(client_chdf[p][0], client_chdf[p][1], CHUNK_SIZE); // copy 1 to 0
-               client_chdf_id[p][0] = ack_pc; // new frame_num
-               sprintf(tmsg2, "set new base");
-            }
-            else // we don't have a copy of acknowledged state !!!
-            {
-               sprintf(tmsg2, "failed to set new base! cl:%d ", client_chdf_id[p][1]);
-
-               // reset base to all zero
-               memset(client_chdf[p][0], 0, CHUNK_SIZE);
-
-               // set base frame_num to 0
-               client_chdf_id[p][0] = 0;
-
-            }
-
-            if (L_LOGGING_NETPLAY_chdf)
-            {
-               #ifdef LOGGING_NETPLAY_chdf
-               sprintf(msg, "%s %s\n", tmsg1, tmsg2);
-               add_log_entry2(27, p, msg);
-               #endif
-            }
+         if (L_LOGGING_NETPLAY_stdf)
+         {
+            #ifdef LOGGING_NETPLAY_stdf
+            sprintf(msg, "%s %s\n", tmsg1, tmsg2);
+            add_log_entry2(27, p, msg);
+            #endif
          }
       }
       if(PacketRead("sdak"))
@@ -853,44 +786,39 @@ void server_control() // this is the main server loop to process packet send and
          int p = PacketGet1ByteInt();
          int client_fn = PacketGet4ByteInt();
          int new_entry_pos = PacketGet4ByteInt();
+         players1[p].stdf_late = PacketGet4ByteInt();
+         players1[p].frames_skipped = PacketGet4ByteInt();
 
-         if (check_packet_who(p, who, 2))
+         // mark as rx'ed by setting new entry pos
+         players1[p].game_move_entry_pos = new_entry_pos;
+
+         // set server_sync in player struct
+         players1[p].server_sync = frame_num - client_fn;
+
+         // this is used to see if client is still alive
+         players1[p].server_last_sdak_rx_frame_num = frame_num;
+
+         if (L_LOGGING_NETPLAY_sdak)
          {
+            #ifdef LOGGING_NETPLAY_sdak
+            sprintf(msg,"rx sdak p:%d nep:[%d] server_sync:[%d] frames skipped:%d\n", p, new_entry_pos, players1[p].server_sync, players1[p].frames_skipped);
+            add_log_entry2(39, p, msg);
+            #endif
+         }
 
-            players1[p].chdf_late = PacketGet4ByteInt();
-            players1[p].frames_skipped = PacketGet4ByteInt();
+         if (--players1[p].made_active_holdoff < 0) players1[p].made_active_holdoff = 0;
 
-            // mark as rx'ed by setting new entry pos
-            players1[p].game_move_entry_pos = new_entry_pos;
+         if ((!players1[p].made_active_holdoff) && (players[p].active == 0) && (players[p].control_method == 2) && (players1[p].server_sync < 4) && (players1[p].server_sync > -2))
+         {
+            players1[p].made_active_holdoff = 6;
+            add_game_move(frame_num + 4, 1, p, players[p].color);
 
-            // set server_sync in player struct
-            players1[p].server_sync = frame_num - client_fn;
-
-            // this is used to see if client is still alive
-            players1[p].server_last_sdak_rx_frame_num = frame_num;
-
-            if (L_LOGGING_NETPLAY_sdak)
+            if (L_LOGGING_NETPLAY_JOIN)
             {
-               #ifdef LOGGING_NETPLAY_sdak
-               sprintf(msg,"rx sdak p:%d nep:[%d] server_sync:[%d] frames skipped:%d\n", p, new_entry_pos, players1[p].server_sync, players1[p].frames_skipped);
-               add_log_entry2(39, p, msg);
+               #ifdef LOGGING_NETPLAY_JOIN
+               sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
+               add_log_entry2(11, p, msg);
                #endif
-            }
-
-            if (--players1[p].made_active_holdoff < 0) players1[p].made_active_holdoff = 0;
-
-            if ((!players1[p].made_active_holdoff) && (players[p].active == 0) && (players[p].control_method == 2) && (players1[p].server_sync < 4) && (players1[p].server_sync > -2))
-            {
-               players1[p].made_active_holdoff = 6;
-               add_game_move(frame_num + 4, 1, p, players[p].color);
-
-               if (L_LOGGING_NETPLAY_JOIN)
-               {
-                  #ifdef LOGGING_NETPLAY_JOIN
-                  sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
-                  add_log_entry2(11, p, msg);
-                  #endif
-               }
             }
          }
       }
@@ -933,6 +861,7 @@ void server_control() // this is the main server loop to process packet send and
             PacketPut4ByteInt(0);
             PacketPut1ByteInt(0);
             PacketPut1ByteInt(99); // send SJON with 99 to indicate server full
+            PacketPut1ByteInt(0);
             PacketPut1ByteInt(0);
             PacketPut1ByteInt(0);
             PacketPut1ByteInt(0);

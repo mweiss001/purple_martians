@@ -1,0 +1,430 @@
+<!doctype html>
+<title>Netgame - State</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+            
+            <div style="text-align: center;">Navigation</div><hr>    
+
+            <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+            <div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
+            <div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
+            <div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
+            <div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
+            <div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
+            <div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
+            <div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+
+            <br><div style="text-align: center;">Technical Descriptions</div><hr>    
+            
+            <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+            <div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+            <div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+            <div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+            <div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+            <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+            <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+            <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+            <div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
+            <div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
+            <div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
+
+
+            
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh1>Technical Code Descriptions</mh1><hr>
+            </header>
+
+
+<mh8>Netgame - State Correction</mh8>
+<mh7>Overview</mh7>
+<mh3>
+The state correction method perodically sends the entire game state from the server to the client.
+This fixes any drift or loss of sync that may have occured with the game move sync method. 
+    
+The entire game state is quite large, over 100,000 bytes.             
+To pass this across the network 2 compression methods are used.
+
+The first method is a state and dif scheme, where I only send data that has changed from the last state.
+
+The second method uses the zlib compression library to compress the dif from the first method.
+    
+Using zlib only I was able to get from 5% to 10% compression.  Using both I get 1% - 2%.
+
+I am using 1024 byte packets, so with my header data I am able to send 1000 bytes of data per packet.
+This means I can usually send the entire game state in only 1 or 2 packets.
+            
+</mh3>    
+            
+<mh7>Game state variables</mh7>
+<mh3>
+The game state variables take 104640 bytes.
+</mh3>
+<pre><code class="language-cpp">// 40,000 bytes for the 100 x 100 block level
+extern int l[100][100];
+
+// 1440 bytes for 8 players
+extern struct player players[NUM_PLAYERS];
+
+// 4000 bytes for lifts:
+extern struct lift lifts[NUM_LIFTS];
+extern struct lift_step lift_steps[NUM_LIFTS][40];
+
+// 40,000 bytes for 500 items
+extern int item[500][16];      // item ints
+extern al_fixed itemf[500][4]; // item fixeds
+
+// 19,200 bytes for 100 enemies
+extern int Ei[100][32];        // enemy ints
+extern al_fixed Efi[100][16];  // enemy fixeds
+
+// 104,640 bytes total 
+</code></pre>
+
+<mh3>
+To work with this huge chuck of data as a whole, I move it to char arrays like this:
+</mh3>
+
+<pre><code class="language-cpp">char tmp[104640];
+game_vars_to_state(tmp);
+
+void game_vars_to_state(char * b)
+{
+   int offset = 0;
+   int size = sizeof(players);
+   memmove(b+offset, players, size);
+   offset += size;
+
+   size = sizeof(Ei);
+   memmove(b+offset, Ei, size);
+   offset += size;
+
+   size = sizeof(Efi);
+   memmove(b+offset, Efi, size);
+   offset += size;
+
+   size = sizeof(item);
+   memmove(b+offset, item, size);
+   offset += size;
+
+   size = sizeof(itemf);
+   memmove(b+offset, itemf, size);
+   offset += size;
+
+   size = sizeof(lifts);
+   memmove(b+offset, lifts, size);
+   offset += size;
+
+   size = sizeof(l);
+   memmove(b+offset, l, size);
+   offset += size;
+}</code></pre>
+
+
+<mh3>
+This is how I put it back into the game variables:
+</mh3>
+
+<pre><code class="language-cpp">state_to_game_vars(tmp);
+
+void state_to_game_vars(char * b)
+{
+   int offset = 0;
+   int size = sizeof(players);
+   memcpy(players, b+offset, size);
+   offset += size;
+
+   size = sizeof(Ei);
+   memcpy(Ei, b+offset, size);
+   offset += size;
+
+   size = sizeof(Efi);
+   memcpy(Efi, b+offset, size);
+   offset += size;
+
+   size = sizeof(item);
+   memcpy(item, b+offset, size);
+   offset += size;
+
+   size = sizeof(itemf);
+   memcpy(itemf, b+offset, size);
+   offset += size;
+
+   size = sizeof(lifts);
+   memcpy(lifts, b+offset, size);
+   offset += size;
+
+   size = sizeof(l);
+   memcpy(l, b+offset, size);
+}</code></pre>
+
+
+<mh3>
+I call these large char arrays 'states'. The client uses 3 and the server uses 16 (2 for each player):
+</mh3>
+
+<br><mh7>Global variables for state correction</mh7>
+
+<mh3>
+These are the global data stuctures used for the game state correction algorith:
+</mh3>
+<pre><code class="language-cpp">#define STATE_SIZE 104640
+
+// server's copies of client states
+extern char srv_client_state[8][2][STATE_SIZE];
+extern int srv_client_state_frame_num[8][2];
+
+// local client's states
+extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
+extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
+extern char client_state_base[STATE_SIZE];    // last ack state
+extern int  client_state_base_frame_num;      // last ack state frame_num
+extern char client_state_dif[STATE_SIZE];     // uncompressed dif
+extern int  client_state_dif_src;             // uncompressed dif src frame_num
+extern int  client_state_dif_dst;             // uncompressed dif dst frame_num</code></pre>
+
+
+
+<br><mh7>How a client gets a new state from the server</mh7>
+<mh3>
+A client receives 'stdf' packets from the server.  Each packet contains pieces of a compressed dif state.
+These packets have up to 1000 bytes of data each and are put into 'client_state_buffer' at the appropriate offset.
+
+When all the pieces have been received, 'client_state_buffer' is uncompressed into 'dif'.
+The source and destination frame of 'dif' are updated to mark it as valid.
+</mh3>
+
+<pre><code class="language-cpp">int process_stdf_packet(void)
+{
+   int src = PacketGet4ByteInt();
+   int dst = PacketGet4ByteInt();
+   int seq = PacketGet1ByteInt();
+   int max_seq = PacketGet1ByteInt();
+   int sb = PacketGet4ByteInt();
+   int sz = PacketGet4ByteInt();
+
+   memcpy(client_state_buffer + sb, packetbuffer+22, sz);  // put the piece of data in the buffer
+   client_state_buffer_pieces[seq] = dst; // mark it with destination frame_num
+   
+   int complete = 1; // did we just get the last packet? (yes by default)
+   for (int i=0; i< max_seq; i++)
+      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
+
+   if (complete)
+   {
+      // decompress client_state_buffer to dif
+      uncompress((Bytef*)client_state_dif, sizeof(client_state_dif), (Bytef*)client_state_buffer, sizeof(client_state_buffer));
+
+      // mark dif data with new src and dst
+      client_state_dif_src = src; 
+      client_state_dif_dst = dst;
+   }
+}</code></pre>
+<mh3>
+Every frame the client checks to see if it has a dif that matches both these conditions:
+- destination frame matches current frame
+- source frame matches the client's stored base state
+
+If these conditions are met:
+- the dif is applied to the base state
+- the base state is used to overwrite the game variables
+- the base state's frame number is updated to the current frame
+- an acknowledge packet is sent to the server
+</mh3>
+<pre><code class="language-cpp">void client_apply_diff()
+{
+   if (frame_num == client_state_dif_dst)                                  // current frame_num is dif destination
+      if (client_state_base_frame_num == client_state_dif_src)             // stored base state matches dif source
+      {
+         apply_state_dif(client_state_base, client_state_dif, STATE_SIZE); // apply dif to base state
+         state_to_game_vars(client_state_base);                            // copy modified base state to game_vars
+         client_state_base_frame_num = frame_num;                          // update client base frame_num
+
+         Packet("stak"); // send acknowledge to server with last state sucessfully applied
+         PacketPut1ByteInt(p);
+         PacketPut1ByteInt(dif_corr);
+         PacketPut4ByteInt(frame_num);
+         ClientSend(packetbuffer, packetsize);
+      }
+}</code></pre>
+
+
+
+<br><mh7>How the server sends a new state dif to a client</mh7>
+<mh3>
+The server uses this char array to keep 2 states for each client:</mh3>
+<pre><code class="language-cpp">extern char srv_client_state[8][2][STATE_SIZE];</code></pre>
+
+<mh3>The frame_num associated with each state is stored in:</mh3>
+<pre><code class="language-cpp">extern int srv_client_state_frame_num[8][2];</code></pre>
+
+<mh3>The 1st state (srv_client_state[8][0]) is the base (or last acknowledged) state for a client.
+The server uses it to make new difs based on that state.
+The client also has a copy of its last acknowledged state and uses it to apply the difs it gets from the server.
+
+The 2nd state (srv_client_state[8][1]) is used as the destination state when making a dif.
+
+
+
+Here is how the server makes a dif to send to a client:
+
+- the current server game state is copied to srv_client_state[p][1]
+- the current frame_num is set in srv_client_state_frame_num[p][1]</mh3>
+<pre><code class="language-cpp">// get current state
+game_vars_to_state(srv_client_state[p][1]);
+      
+// set dif dest to current frame_num
+srv_client_state_frame_num[p][1] = frame_num;</code></pre>
+<mh3>
+- a dif is made by subtracting srv_client_state[p][1] from srv_client_state[p][0]
+</mh3>
+
+<pre><code class="language-cpp">// make a new dif from base and current
+get_state_dif(srv_client_state[p][0], srv_client_state[p][1], dif, STATE_SIZE);
+
+void get_state_dif(char *a, char *b, char *c, int size)
+{
+   for (int i=0; i < size; i++)
+      c[i] = a[i] - b[i];
+}</code></pre>
+<mh3>
+- the dif is compressed
+</mh3>
+
+<pre><code class="language-cpp">// compress dif to cmp
+uLongf destLen= sizeof(cmp);
+compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)dif, sizeof(dif), zlib_cmp);
+int cp = destLen;
+</code></pre>
+
+<mh3>
+- compressed dif is broken into 1000 byte pieces and sent with 'stdf' packets to the client
+- each piece has a header with all the information needed to re-assemble, decompress and apply
+</mh3>
+<pre><code class="language-cpp">// break compressed dif into smaller pieces
+int start_byte = 0;
+int num_packets = (cmp_size / 1000) + 1;
+for (int packet_num=0; packet_num < num_packets; packet_num++)
+{
+   int packet_data_size = 1000; // default size
+   if (start_byte + packet_data_size > cmp_size) packet_data_size = cmp_size - start_byte; // last piece is smaller
+
+   Packet("stdf");
+   PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
+   PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+   PacketPut1ByteInt(packet_num);
+   PacketPut1ByteInt(num_packets);
+   PacketPut4ByteInt(start_byte);
+   PacketPut4ByteInt(packet_data_size);
+   memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
+   packetsize += packet_data_size;
+   ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+
+   start_byte+=1000;
+}</code></pre>
+
+<mh3>
+After the 'stdf' packets are sent, the server waits for an acknowledge packet 'stak' from the client.
+
+When an acknowledgement is received, the destination state in srv_client_state[p][1] is copied to srv_client_state[p][0] and becomes the new base.
+
+If no acknowledgement is received, the next time 'stdf' is sent, it will use the same base as the last time.
+
+</mh3>
+
+<pre><code class="language-cpp">if(PacketRead("stak"))
+{
+   int ack_pc = PacketGet4ByteInt();  // client acknowledged up to here
+   if (ack_pc == srv_client_state_frame_num[p][1]) // check to make sure we have a copy of acknowledged state
+   {
+      // acknowledged state is out new base state
+      memcpy(srv_client_state[p][0], srv_client_state[p][1], STATE_SIZE); // copy 1 to 0
+	  srv_client_state_frame_num[p][0] = ack_pc; // new frame_num
+   }
+   else // we don't have a copy of acknowledged state !!!  // set new base failed!
+   {
+      // reset base to zero
+      memset(srv_client_state[p][0], 0, STATE_SIZE);
+
+      // set base frame_num to 0
+      srv_client_state_frame_num[p][0] = 0;
+   }
+}</code></pre>
+
+
+<mh3>
+If for some reason the server does not have a copy of the state acknowledged by the client, it resets the base to zero.
+
+Then the next time an 'stdf' is sent it will be based on state 0 and will be considerable larger than a regular dif.
+
+This can happpen if stdf's are being sent with a short delay.
+Then the client might ack one, but before the server gets the ack, it makes a new one with a newer dest, losing the state the client just ack'd.
+
+</mh3>
+
+
+
+            
+            
+            
+<br><mh7>Packets used for state correction</mh7>
+            
+<pk0>Packet: 'stdf'</pk0>
+<pk1>description: 'state dif'
+direction: server to client
+- 4 bytes (source frame_num)
+- 4 bytes (destination frame_num)
+- 1 byte (packet sequence num)
+- 1 byte (packet sequence total)
+- 4 bytes (data start byte)
+- 4 bytes (data size)
+- up to 1000 bytes of compressed dif data
+            
+</pk1><br>
+
+<pk0>Packet: 'stak'</pk0>
+<pk1>description: 'state dif acknowledge'
+direction: client to server
+- 1 byte (player)
+- 1 byte (diff corr)
+- 4 bytes (client frame_num)
+</pk1><br>
+        
+
+
+
+
+
+
+
+               <footer>
+                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2018, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+            </footer>
+
+        </div>
+    </body>
+
+</html>

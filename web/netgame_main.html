@@ -1,5 +1,5 @@
 <!doctype html>
-<title>Netgame</title>
+<title>Netgame - Main</title>
 
 <html>
 
@@ -39,7 +39,9 @@
             <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
             <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
             <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
-            <div style="text-align: center;"><a href="netgame.html" target="_top">Netgame</a></div>    
+            <div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
+            <div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
+            <div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
             
         </nav>
 
@@ -52,7 +54,7 @@
             </header>
 
 
-<mh8>Netgame</mh8>
+<mh8>Netgame - Main</mh8>
 <mh7>Overview</mh7>
 <mh3>
 There are two methods used simultaneously in netgame:
@@ -223,6 +225,7 @@ When a client receives game move data from the server, it adds it to its own loc
          game_moves[x][1] = PacketGet1ByteInt();
          game_moves[x][2] = PacketGet1ByteInt();
          game_moves[x][3] = PacketGet1ByteInt();
+         game_move_entry_pos++;
          if ((game_moves[x][0] - frame_num) < 0) // game move arrived too late to be applied
          {
             // bad error, will cause sync loss    
@@ -315,151 +318,6 @@ To make things fair for all players, the server has the same delay applied to it
 
 
 
-
-
-
-
-
-
-<br><mh7>Packets used for game move sync</mh7>
-
-<pk0>Packet: 'cdat'</pk0>
-<pk1>description: 'client data'
-direction: client to server
-- 1 byte  (player)
-- 4 bytes (client frame_num of control change)
-- 1 byte  (comp move of control change)
-</pk1><br>
-        
-
-<pk0>Packet: 'sdat'</pk0>
-<pk1>description: 'server data
-sent from server to client
-
-header:
------------------------------
-- 1 byte (player)
-- 4 bytes (server frame_num)
-- 4 bytes (game_moves start entry)
-- 1 byte (number of entries)
-
-and then one or more entries:
------------------------------
-- 4 bytes (game_moves[x][0]); // frame_num
-- 1 byte (game_moves[x][1]);  // type
-- 1 byte (game_moves[x][2]);  // data 1
-- 1 byte (game_moves[x][3]);  // data 2
-</pk1><br>
-
-<pk0>Packet: 'sdak'</pk0>
-<pk1>description: 'sdat acknowledge'
-direction: client to server
-- 1 byte (player)
-- 4 bytes (client frame_num)
-- 4 bytes (game_moves new entry position)
-- 4 bytes (chdf late count)
-- 4 bytes (frames skipped count)
-</pk1><br>
-
-            
-            
-            
-
-<br><mh7>All Packets</mh7>
-
-<pk0>Packet: 'cdat'</pk0>
-<pk1>description: 'client data'
-direction: client to server
-- 1 byte  (player)
-- 4 bytes (client frame_num of control change)
-- 1 byte  (comp move of control change)
-</pk1><br>
-            
-
-<pk0>Packet: 'sdat'</pk0>
-<pk1>description: 'server data
-sent from server to client
-
-header:
------------------------------
-- 1 byte (player)
-- 4 bytes (server frame_num)
-- 4 bytes (game_moves start entry)
-- 1 byte (number of entries)
-
-and then one or more entries:
------------------------------
-- 4 bytes (game_moves[x][0]); // frame_num
-- 1 byte (game_moves[x][1]);  // type
-- 1 byte (game_moves[x][2]);  // data 1
-- 1 byte (game_moves[x][3]);  // data 2
-</pk1><br>
-
-<pk0>Packet: 'sdak'</pk0>
-<pk1>description: 'sdat acknowledge'
-direction: client to server
-- 1 byte (player)
-- 4 bytes (client frame_num)
-- 4 bytes (game_moves new entry position)
-- 4 bytes (chdf late count)
-- 4 bytes (frames skipped count)
-</pk1><br>
-
-            
-<pk0>Packet: 'serr'</pk0>
-<pk1>description: 'server error'
-direction: server to client
-- 1 byte (player)
-- 1 byte (error type)
-- 4 bytes (server frame_num)
-- 4 bytes (server c sync)
-- 4 bytes (server c sync errors)
-</pk1><br>
-
-            
-
-<pk0>Packet: 'chdf'</pk0>
-<pk1>description: 'chunk dif'
-direction: server to client
-- 4 bytes (source frame_num)
-- 4 bytes (destination frame_num)
-- 1 byte (packet sequence num)
-- 1 byte (packet sequence total)
-- 4 bytes (data start byte)
-- 4 bytes (data size)
-</pk1><br>
-
-<pk0>Packet: 'chak'</pk0>
-<pk1>description: 'chunk dif acknowledge'
-direction: client to server
-- 1 byte (player)
-- 1 byte (diff corr)
-- 4 bytes (client frame_num)
-</pk1><br>
-
-
-<pk0>Packet: 'CJON'</pk0>
-<pk1>description: 'client join'
-direction: client to server
-- 1 byte (requested color)
-- 16 bytes (client hostname)
-</pk1><br>
-        
-<pk0>Packet: 'SJON'</pk0>
-<pk1>description: 'server join'
-direction: server to client
-- 2 bytes (play level)
-- 4 bytes (server frame_num)
-- 4 bytes (server game_move entry position)
-- 1 byte (frame speed)
-- 1 byte (player number)
-- 1 byte (player color)
-- 1 byte (deathmatch_pbullets)
-- 1 byte (deathmatch_pbullets_damage)
-- 1 byte (suicide_pbullets)
-</pk1>        
-
-
 <br><mh7>Player numbers</mh7>
 <mh3>
 There are data structures for 8 players, numbered from 0-7.
@@ -488,58 +346,9 @@ int players[p].control_method;
 </mh3>
 
 
-<br><mh7>Variables in player structure</mh7>
-<mh3>    
-   
-   
-   redo...............
-   
-   
-   int who;
-   - libnet network id of client
-   - used to send packet to a specific clinet
-   
-   int game_move_entry_pos;
-   - server only for client game_move data sync
- 
-   int server_last_sdat_sent_frame;
-   - only server uses it, to keep track of when last sdat was sent to client
-   - it is used to thin the amount of sdats sent when chasing sync
-   - currently is only send a packet every 4 passcounts with a holdoff counter
-
-   int server_sync; 
-   - calculated on the server when a sdak packet is rx'd
-   - difference between rx'd sdak packet passcount and server passcount
-
-   int sync_good_frames;
-   - when locking, after a certain number of good_sync_frames, we are locked and player becomes active
-
-   int c_sync;
-   - when server get a cdat packet, its passcount should greater than the servers passcount
-
-   int c_sync_err;
-   - keep a count of c_sync errors
-
-</mh3>
 
 
-<br><mh7>Type of errors and tracking variables</mh7>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<br><mh7>Tracking variables - server_game_moves_sync</mh7>
-
+<br><mh7>Netgame status variables - server_game_moves_sync</mh7>
 
 <br><me1>Description</me1>
 <mh3>
@@ -559,8 +368,6 @@ If it is less than zero:
 - this should not make the game go out of sync as all players states will still be the same
 
 </mh3>
-
-
 
 <br><me1>Variables</me1>
 <mh3>
@@ -604,7 +411,7 @@ That way the client can know that the server dropped one of their 'cdat' packets
    }
 }</code></pre>
 
-<br><mh7>Tracking variables - client_game_moves_sync</mh7>
+<br><mh7>Netgame status variables - client_game_moves_sync</mh7>
 <br><me1>Description</me1>
 <mh3>
 When a client receives an 'sdat' packet with game_moves, they are entered in the client's game_move array.
@@ -635,7 +442,7 @@ if (cs < players[p].client_game_moves_sync_min)
 </code></pre>
 
 
-<br><mh7>Tracking variables - server_sync</mh7>
+<br><mh7>Netgame status variables - server_sync</mh7>
 <br><me1>Description</me1>
 <mh3>
 When the server gets an "sdak" packet from a client, it contains the client frame_num.
@@ -683,7 +490,7 @@ server_sync is also used to drop clients when their sync goes bad.
 
 
 
-<br><mh7>Tracking variables - client_sync</mh7>
+<br><mh7>Netgame status variables - client_sync</mh7>
 <br><me1>Description</me1>
 <mh3>
 When the client receives an sdat packet, the frame_num sent by the server is compared the client's frame_num.
@@ -709,7 +516,7 @@ players1[p].client_sync (only for local client player)
 }</code></pre>
 
 
-<br><mh7>Variables that control netplay</mh7>
+<br><mh7>Netgame config variables</mh7>
 <mh3>These are all in pm.cfg:
 </mh3>
 <pre><code class="language-cpp">[NETWORK]
@@ -720,7 +527,7 @@ deathmatch_pbullets_damage=5
 suicide_pbullets=1
 control_lead_frames=3
 server_lead_frames=1
-chdf_freq=5
+stdf_freq=5
 zlib_cmp=7
 
 
@@ -775,163 +582,132 @@ zlib compression level
 
 
 
-<br><mh7>Global variables for state correction</mh7>
-<mh3>
 
-The game state takes 104640 bytes.
-
-To hold it in memory, I declare a char array like this:
-
-extern char chdf[CHUNK_SIZE];   
-extern char clientl_chdf[CHUNK_SIZE];  // last ack state for diffing
-
-
-
-a client has 2 of these:
-- one to hold the last state received from the server
-- one to build a new state from packet pieces
-
-the server has 16 of these:
-- two for each client:
- - one to hold the last state acknowledged by the client
- - one to generate a new state
-
-both server and client also have one to generate difs
-
-
-
-/mh3>
-<pre><code class="language-cpp">#define CHUNK_SIZE 104640
-// server chdf
-extern char client_chdf[8][2][CHUNK_SIZE];
-extern int client_chdf_id[8][2]; // frame_num id
-
-// client chdf
-extern char chdf[CHUNK_SIZE];          // for client chdf building
-extern int chdf_pieces[16];
-extern char clientl_chdf[CHUNK_SIZE];  // last ack state for diffing
-extern int clientl_chdf_id;            // frame_num id
-
-extern char dif[CHUNK_SIZE];
-extern int dif_id[2]; //   (0 = src, 1 = dst)
-
-</code></pre>
-
-
-
-
-
-
-
-
-
-<hr><hr><hr><hr><hr><hr><hr><hr><hr><hr>
-       
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<mh3>
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------
-2018-Feb-20
-
-Well a lot has changed.  I've gone to the dark side.  Even worse I'm on both sides now.
-
-
-My method of deterministic lockstep was not robust enough.  I kept getting little errors.
-
-So I made a method to send object's positions to the clients, just to check that they
-were not out of sync.  Then I found a few more errors and inconsistancies and fixed them.
-
-But it still was not perfect.
-
-Next I made a copy of all the game items, enemies, players and blocks.
-That was only approximately 105,000 bytes!
-
-zlib to the rescue. I was able to compress to 5000-6000 bytes worst case.
-Then I broke that into packets of 1000 and sent to the clients.
-The clients re-assembled them, decompressed, compared and copied them to the
-clients local state.
-
-
-This method was only to check if things had drifted, but soon I was just copying
-it and not worrying too much about the differences.
-
-I was doing this at a much lesser interval than the original and still used method
-to syncronize game moves.
-
-It even worked kind of, until I added more clients and actually sent data from 
-clients at the same time.  Then there was just too much data.
-
-So I went one step further and did a dif before compressing.
-
-I basically just compared one state to another and generated a third state that
-was just the difference.  That compressed better, I was around 600-1500 bytes.
-
-That would easily fit in 2 packets.
-
-It was a litte more complex though, I need to keep previous states to dif against.
-
-On the client I only needed one extra.  When I succesfully applied a dif to the 
-current state, I saved that state for the next dif.
-
-On the server I needed to keep 2 copies for each client.
-The last state that the client has acknowledged as good, so that I can make
-the next dif based on that.  And the most recent dif that I used so that if the client
-sends an ack for that I will have a copy to use as the new base.
-
-I made some functions to abstract some of the details away:
-
-void reset_states(void);
-void chnk_to_state(char* b);
-void state_to_chunk(char* b);
-void show_chunk_dif(char* a, char* b);
-void get_chunk_dif(char*a, char* b, char* c, int size);
-void apply_chunk_dif(char* a, char* c, int size);
-
-after I found that it was working good, I re-wrote my code around it
-and it seems to be the best system yet.
-
-I made a random key generator to stress test it.  Basically the clients will
-send a random set of control inputs that changes every frame (40 fps).
-
-I tested with 1 server and 7 clients each sending 40 unique keypresses each second
-and I am happy to report, that everything works!
-
-I have run 30 minute games, with no errors, and using approx 50kB/sec
-
-
-</mh3>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<br><mh7>Packets used for game move sync</mh7>
+<br>
+<pk0>Packet: 'cdat'</pk0>
+<pk1>description: 'client data'
+direction: client to server
+- 1 byte  (player)
+- 4 bytes (client frame_num of control change)
+- 1 byte  (comp move of control change)
+</pk1><br>
+
+<pk0>Packet: 'sdat'</pk0>
+<pk1>description: 'server data
+sent from server to client
+
+header:
+-----------------------------
+- 4 bytes (server frame_num)
+- 4 bytes (game_moves start entry)
+- 1 byte (number of entries)
+
+and then one or more entries:
+-----------------------------
+- 4 bytes (game_moves[x][0]); // frame_num
+- 1 byte (game_moves[x][1]);  // type
+- 1 byte (game_moves[x][2]);  // data 1
+- 1 byte (game_moves[x][3]);  // data 2
+</pk1><br>
+
+<pk0>Packet: 'sdak'</pk0>
+<pk1>description: 'sdat acknowledge'
+direction: client to server
+- 1 byte (player)
+- 4 bytes (client frame_num)
+- 4 bytes (game_moves new entry position)
+- 4 bytes (chdf late count)
+- 4 bytes (frames skipped count)
+</pk1><br>
+            
+
+<br><mh7>All Packets</mh7>
+<br>
+<pk0>Packet: 'cdat'</pk0>
+<pk1>description: 'client data'
+direction: client to server
+- 1 byte  (player)
+- 4 bytes (client frame_num of control change)
+- 1 byte  (comp move of control change)
+</pk1><br>
+
+<pk0>Packet: 'sdat'</pk0>
+<pk1>description: 'server data
+sent from server to client
+
+header:
+-----------------------------
+- 4 bytes (server frame_num)
+- 4 bytes (game_moves start entry)
+- 1 byte (number of entries)
+
+and then one or more entries:
+-----------------------------
+- 4 bytes (game_moves[x][0]); // frame_num
+- 1 byte (game_moves[x][1]);  // type
+- 1 byte (game_moves[x][2]);  // data 1
+- 1 byte (game_moves[x][3]);  // data 2
+</pk1><br>
+
+<pk0>Packet: 'sdak'</pk0>
+<pk1>description: 'sdat acknowledge'
+direction: client to server
+- 1 byte (player)
+- 4 bytes (client frame_num)
+- 4 bytes (game_moves new entry position)
+- 4 bytes (chdf late count)
+- 4 bytes (frames skipped count)
+</pk1><br>
+            
+<pk0>Packet: 'serr'</pk0>
+<pk1>description: 'server error'
+direction: server to client
+- 1 byte (error type)
+- 4 bytes (server frame_num)
+- 4 bytes (server c sync)
+- 4 bytes (server c sync errors)
+</pk1><br>
+
+<pk0>Packet: 'stdf'</pk0>
+<pk1>description: 'state dif'
+direction: server to client
+- 4 bytes (source frame_num)
+- 4 bytes (destination frame_num)
+- 1 byte (packet sequence num)
+- 1 byte (packet sequence total)
+- 4 bytes (data start byte)
+- 4 bytes (data size)
+</pk1><br>
+
+<pk0>Packet: 'stak'</pk0>
+<pk1>description: 'state dif acknowledge'
+direction: client to server
+- 1 byte (player)
+- 1 byte (diff corr)
+- 4 bytes (client frame_num)
+</pk1><br>
+
+<pk0>Packet: 'CJON'</pk0>
+<pk1>description: 'client join'
+direction: client to server
+- 1 byte (requested color)
+- 16 bytes (client hostname)
+</pk1><br>
+        
+<pk0>Packet: 'SJON'</pk0>
+<pk1>description: 'server join'
+direction: server to client
+- 2 bytes (play level)
+- 4 bytes (server frame_num)
+- 4 bytes (server game_move entry position)
+- 1 byte (frame speed)
+- 1 byte (player number)
+- 1 byte (player color)
+- 1 byte (deathmatch_pbullets)
+- 1 byte (deathmatch_pbullets_damage)
+- 1 byte (suicide_pbullets)
+</pk1>        
 
 
 

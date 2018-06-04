@@ -72,6 +72,7 @@ extern int frame_num;
 extern int start_mode;
 extern int game_exit;
 extern int level_done;
+extern int next_level;
 
 // some global strings
 extern char level_filename[80];
@@ -342,33 +343,41 @@ extern int ima_client;
 extern char m_serveraddress[256];
 extern int TCP;
 
-#define CHUNK_SIZE 104640
-// server chdf
-extern char client_chdf[8][2][CHUNK_SIZE];
-extern int client_chdf_id[8][2]; // frame_num id
-
-// client chdf
-extern char chdf[CHUNK_SIZE];          // for client chdf building
-extern int chdf_pieces[16];
-extern char clientl_chdf[CHUNK_SIZE];  // last ack state for diffing
-extern int clientl_chdf_id;            // frame_num id
-
-extern char dif[CHUNK_SIZE];
-extern int dif_id[2]; //   (0 = src, 1 = dst)
-
-
-
-
-
-
-extern int chdf_freq;
+extern int stdf_freq;
+extern int zlib_cmp;
 extern int control_lead_frames;
 extern int server_lead_frames;
-extern int zlib_cmp;
 
 extern int deathmatch_pbullets;
 extern int deathmatch_pbullets_damage;
 extern int suicide_pbullets;
+
+
+#define STATE_SIZE 104640
+// server's copies of client states
+extern char srv_client_state[8][2][STATE_SIZE];
+extern int srv_client_state_frame_num[8][2];
+
+// local client's states
+extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
+extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
+extern char client_state_base[STATE_SIZE];    // last ack state
+extern int  client_state_base_frame_num;      // last ack state frame_num
+extern char client_state_dif[STATE_SIZE];     // uncompressed dif
+extern int  client_state_dif_src;             // uncompressed dif src frame_num
+extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ------------------------------------------------
 // ----------------- logging ----------------------
@@ -388,9 +397,9 @@ extern int L_LOGGING_NETPLAY_cdat;
 extern int L_LOGGING_NETPLAY_game_move;
 extern int L_LOGGING_NETPLAY_sdat;
 extern int L_LOGGING_NETPLAY_sdak;
-extern int L_LOGGING_NETPLAY_chdf;
-extern int L_LOGGING_NETPLAY_chdf_all_packets;
-extern int L_LOGGING_NETPLAY_chdf_when_to_apply;
+extern int L_LOGGING_NETPLAY_stdf;
+extern int L_LOGGING_NETPLAY_stdf_all_packets;
+extern int L_LOGGING_NETPLAY_stdf_when_to_apply;
 extern int L_LOGGING_NETPLAY_show_dif1;
 extern int L_LOGGING_NETPLAY_show_dif2;
 
@@ -407,9 +416,9 @@ extern int auto_save_game_on_level_done;
 #define LOGGING_NETPLAY_game_move
 #define LOGGING_NETPLAY_sdat
 #define LOGGING_NETPLAY_sdak
-#define LOGGING_NETPLAY_chdf
-#define LOGGING_NETPLAY_chdf_all_packets
-#define LOGGING_NETPLAY_chdf_when_to_apply
+#define LOGGING_NETPLAY_stdf
+#define LOGGING_NETPLAY_stdf_all_packets
+#define LOGGING_NETPLAY_stdf_when_to_apply
 #define LOGGING_NETPLAY_show_dif1
 #define LOGGING_NETPLAY_show_dif2
 // #define LOGGING_ZFS // zoom full screen
@@ -548,19 +557,19 @@ struct player1
 
 
    int made_active_holdoff;
-   int join_chdf_sent;
+   int join_stdf_sent;
 
    int join_frame;
    int quit_frame;
    int quit_reason;
 
-   int chdf_rx;
-   int chdf_on_time;
-   int chdf_late;
+   int stdf_rx;
+   int stdf_on_time;
+   int stdf_late;
    int dif_corr;
 
-   // server only - next client to send chdf to
-   int n_chdf;
+   // server only - next client to send stdf to
+   int n_stdf;
 
    // used only to display on server screen overlay in client grid
    int num_dif_packets;
@@ -943,9 +952,9 @@ int client_init_join(void);
 void client_exit(void);
 int client_init(void);
 void read_game_step_from_packet(int x, int clf_check);
-int process_chdf_packet(void);
+int process_stdf_packet(void);
 void client_apply_diff();
-void client_block_until_good_chdf_received(void);
+void client_block_until_good_stdf_received(void);
 void process_bandwidth_counters(int p);
 void client_control(void);
 void client_local_control(int p);
@@ -1000,12 +1009,10 @@ void server_flush(void);
 void nc_server(void);
 int server_init(void);
 void server_exit(void);
-void server_send_chdf(int p);
-void server_send_chdf(void);
+void server_send_stdf(int p);
+void server_send_stdf(void);
 void server_send_sdat(void);
 void proc_player_drop(void);
-void proc_server_check(void);
-int check_packet_who(int p, int who, int type);
 void server_control();
 void server_local_control(int p);
 
@@ -1109,12 +1116,13 @@ al_fixed is_up_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 al_fixed is_down_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 al_fixed is_left_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
-void state_to_chunk(char * b);
-void chnk_to_state(char * b);
-void get_chunk_dif(char *a, char *b, char *c, int size);
-void apply_chunk_dif(char *a, char *c, int size);
+
+void game_vars_to_state(char * b);
+void state_to_game_vars(char * b);
+void get_state_dif(char *a, char *b, char *c, int size);
+void apply_state_dif(char *a, char *c, int size);
 void reset_states(void);
-void show_chunk_dif(char *a, char *b);
+void show_state_dif(char *a, char *b);
 int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 void demo_mode(void);
 void temp_test(void);

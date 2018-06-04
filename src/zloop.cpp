@@ -65,7 +65,7 @@ void proc_level_done(void)
    {
       blind_save_game_moves(1);
       save_log_file();
-      play_level++;
+      play_level = next_level;
       start_mode = 3; // level_done
    }
 }

@@ -88,7 +88,10 @@
             padding: 1em;
         }
 
-
+        @font-face {
+            font-family: "Source";
+            src: url("../fonts/SourceCodePro-Regular.ttf");
+        }
         @font-face {
             font-family: "Saucer";
             src: url("../fonts/SaucerBB.ttf");
@@ -172,14 +175,16 @@
 
 
         pk0 {
+            font-family: Source;
             white-space: pre-wrap; 
-            font-size: 140%;
-            background: #cdf5af;
+            font-size: 100%;
+            background: #fdc5c5;
         }
         pk1 {
+            font-family: Source;
             white-space: pre-wrap; 
-            font-size: 120%;
-            background: #f2efc9;
+            font-size: 80%;
+            background: #ffe3e3;
         }
 
         
