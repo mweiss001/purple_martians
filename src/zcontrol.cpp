@@ -100,7 +100,7 @@ int get_scan_code_from_joystick(int joy, int button, int num)
    return base + ret;
 }
 
-int my_readkey(void)
+int my_readkey(void) // used only to set new game control key or joystick bindings
 {
    int quit = 0, ret = 0;
    while (!quit)

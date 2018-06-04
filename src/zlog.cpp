@@ -150,22 +150,22 @@ void log_ending_stats()
    sprintf(msg,"c_sync errors.............[%d]", players1[p].client_game_move_sync_err);
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"chdf received.............[%d]", players1[p].chdf_rx );
+   sprintf(msg,"stdf received.............[%d]", players1[p].stdf_rx );
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"chdf received on time.....[%d]", players1[p].chdf_on_time );
+   sprintf(msg,"stdf received on time.....[%d]", players1[p].stdf_on_time );
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"chdf received late........[%d]", players1[p].chdf_late );
+   sprintf(msg,"stdf received late........[%d]", players1[p].stdf_late );
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-   if (players1[p].chdf_rx > 0)
+   if (players1[p].stdf_rx > 0)
    {
-      sprintf(msg,"percent of late chdf......[%d]", (players1[p].chdf_late*100) / players1[p].chdf_rx);
+      sprintf(msg,"percent of late stdf......[%d]", (players1[p].stdf_late*100) / players1[p].stdf_rx);
       add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
    }
 
-   sprintf(msg,"chdf corrections..........[%d]", players1[p].dif_corr);
+   sprintf(msg,"stdf corrections..........[%d]", players1[p].dif_corr);
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    log_bandwidth_stats(p);
@@ -232,10 +232,10 @@ void log_ending_stats_server()
          sprintf(msg,"cdat late to server.......[%d]", players1[p].client_game_move_sync_err);
          add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-         sprintf(msg,"chdf late.................[%d]", players1[p].chdf_late);
+         sprintf(msg,"stdf late.................[%d]", players1[p].stdf_late);
          add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-         sprintf(msg,"chdf corrections..........[%d]", players1[p].dif_corr);
+         sprintf(msg,"stdf corrections..........[%d]", players1[p].dif_corr);
          add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
          sprintf(msg,"frames skipped............[%d]", players1[p].frames_skipped);
@@ -556,9 +556,9 @@ int log_file_viewer(int type)
    tags[24][0] = 0; tags[24][1] = 15; tags[24][3] = 65; sprintf(ctags[24], "pcks"); // packets      (A) [CS]
 
    tags[25][0] = 0; tags[25][1] = 5;  tags[25][3] = 84; sprintf(ctags[25], "time"); // timer adjust (T) [C]
-   tags[27][0] = 1; tags[27][1] = 13; tags[27][3] = 88; sprintf(ctags[27], "cdf1"); // chdf         (X) [CS]
-   tags[28][0] = 0; tags[28][1] = 1;  tags[28][3] = 80; sprintf(ctags[28], "cdfp"); // chdf piece   (P) [CS]
-   tags[29][0] = 0; tags[29][1] = 7;  tags[29][3] = 87; sprintf(ctags[29], "cdfw"); // chdf when    (W) [C]
+   tags[27][0] = 1; tags[27][1] = 13; tags[27][3] = 88; sprintf(ctags[27], "stdf"); // stdf         (X) [CS]
+   tags[28][0] = 0; tags[28][1] = 1;  tags[28][3] = 80; sprintf(ctags[28], "stdp"); // stdf piece   (P) [CS]
+   tags[29][0] = 0; tags[29][1] = 7;  tags[29][3] = 87; sprintf(ctags[29], "stdw"); // stdf when    (W) [C]
    tags[31][0] = 0; tags[31][1] = 15; tags[31][3] = 68; sprintf(ctags[31], "dif1"); // show diff1   (D) [C]
    tags[32][0] = 0; tags[32][1] = 15; tags[32][3] = 70; sprintf(ctags[32], "dif2"); // show diff2   (F) [C]
    tags[35][0] = 1; tags[35][1] = 3;  tags[35][3] = 67; sprintf(ctags[35], "cdat"); // cdat         (C) [CS]

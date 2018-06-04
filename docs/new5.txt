@@ -3509,7 +3509,7 @@ what now??
 
 is the corruption on the server and just propogated backtop the clients?
 i'm thinking thats the case...
-because if it wasn't i would be getting lots of chdf corrections
+because if it wasn't i would be getting lots of stdf corrections
 and i'm not
 
 what can i do now??
@@ -3546,7 +3546,7 @@ then 5 manaul move from 1022 to 1098
 then nothing until
 5 manual moves from 1272 to 1285
 then nothing until 8000 with fake mode again
-ended with 12 chdf corrections
+ended with 12 stdf corrections
 
 i got nothing....
 why is it so fucky??
@@ -3678,7 +3678,7 @@ right now its tagged with the active local player...
 what is client sync error that keeps showing up on clients?
 when a client gets game moves with passcounts in the past
 that will never be processed
-its bad, but chdf will fix it..
+its bad, but stdf will fix it..
 lets not have that show, except in debug overlay..done
 
 
@@ -5035,6 +5035,632 @@ fix in overlay
 done
 
 still seems to work
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rename state correction stuff
+
+
+stdf is the name of the buffer used by client to build chfd from packetsize
+I could call it client_state_buffer
+
+the array used to track if all the pieces have arrived: chdf_pieces
+rename to client_state_buffer_pieces
+
+client1_chdf is the clients base state
+rename to client_state_base
+
+client1_chdf_id is the frame num of the clients base state
+rename to client_state_base_frame_num
+
+
+old:
+extern char chdf[STATE_SIZE];          // for client chdf building
+extern int chdf_pieces[16];
+extern char clientl_chdf[STATE_SIZE];  // last ack state for diffing
+extern int clientl_chdf_id;            // frame_num id
+
+new:
+extern char client_state_buffer[STATE_SIZE];  // for client chdf building
+extern int  client_state_buffer_pieces[16];   // to mark pieces as received
+extern char client_state_base[STATE_SIZE];    // last ack state for diffing
+extern int  client_state_base_frame_num;      // frame_num id
+
+chdf to client_state_buffer..done
+chdf_pieces to client_state_buffer_pieces..done
+clientl_chdf to client_state_base..done
+clientl_chdf_id to client_state_base_frame_num
+
+
+old:
+extern char dif[STATE_SIZE];
+extern int dif_id[2]; //   (0 = src, 1 = dst)
+
+new:
+extern char client_dif[STATE_SIZE];
+extern int client_dif_src;
+extern int client_dif_dst;
+
+server also uses dif....
+client only uses dif_id
+
+ok do this instead:
+new:
+extern int dif_src;
+extern int dif_dst;
+
+leave dif alone
+
+dif_id[0] to dif_src..done
+dif_id[1] to dif_dst..done
+
+
+
+old:
+// server chdf
+extern char client_chdf[8][2][STATE_SIZE];
+extern int client_chdf_id[8][2]; // frame_num id
+
+new:
+extern char srv_client_state[8][2][STATE_SIZE];
+extern int  srv_client_state_frame_num[8][2];
+
+client_chdf to srv_client_state..done
+client_chdf_id to srv_client_state_frame_num..done
+
+
+final variable list:
+
+#define STATE_SIZE 104640
+// server's copies of client states
+extern char srv_client_state[8][2][STATE_SIZE];
+extern int srv_client_state_frame_num[8][2]; // frame_num id
+
+// local client's states
+extern char client_state_buffer[STATE_SIZE];  // for client chdf building
+extern int  client_state_buffer_pieces[16];   // to mark pieces as received
+extern char client_state_base[STATE_SIZE];    // last ack state for diffing
+extern int  client_state_base_frame_num;      // frame_num id
+
+extern char dif[STATE_SIZE];  // used by client and server
+extern int dif_src;  // client only
+extern int dif_dst;  // client only
+
+
+now I need to come up with a different term for the variables that make up a state
+
+I have funtions called:
+void chnk_to_state(char* b);
+void state_to_chunk(char* b);
+
+but what I used to be call state needs a new name: game_vars
+
+new names:
+void state_to_game_vars(char* b);
+void game_vars_to_state(char* b);
+
+chnk_to_state to state_to_game_vars..done
+state_to_chunk to game_vars_to_state..done
+
+these are good:
+void reset_states(void);
+void game_vars_to_state(char * b);
+void state_to_game_vars(char * b);
+
+
+these should all have chunk changed to state:
+void get_chunk_dif(char *a, char *b, char *c, int size); // server only
+void apply_chunk_dif(char *a, char *c, int size); // client only
+void show_chunk_dif(char *a, char *b); // client only
+done...
+
+
+now the packet names....
+
+chdf and chak
+
+stdf and stak
+
+did a global replace of chdf to stdf -- hundreds... hope it didn't break to much...
+
+now chak to stak..done..only a few
+
+lets see how broken it is....
+I still seem able to play a 2 player game...
+
+well now that everything has been renamed, lets move on with the documenting....
+
+------------------------------
+bug
+-----------------------------
+
+end of level on netgame???
+
+seem to have trouble joining on new level...
+
+client keeps getting difd from 0-20, 0-25 etc
+but its base is 2 so it cant apply them
+
+finally at frame 120, client resets base to 0 and applies dif
+
+but its too late beacuse the server has already dropped the client
+for no sdat_rx for 100 frames
+
+
+
+when does base reset to zero? never mind
+
+
+also client is approx 10 frames behind client
+this is why chdf is never applied
+client does not receive any sdat until 108
+the moves it gets are the server drop moves!!
+
+what controls when server send sync sdat?
+
+
+if I press keys on the server after level done and force sdats to be sent, join works
+if not, it times out
+
+
+why is server not sending sync sdat's???
+
+
+try removing else....that fixed it...
+it was never doing the second block because the first one was true (client need more data)
+but the first one was not sending more data beacuse of the duplicate blocker
+
+void server_send_sdat(void)
+{
+   for (int p=1; p<NUM_PLAYERS; p++)
+      if (players[p].control_method == 2)
+      {
+         if (players1[p].game_move_entry_pos < game_move_entry_pos) // client needs more data
+         {
+            int start_entry = players1[p].game_move_entry_pos;
+            int end_entry = game_move_entry_pos;
+            int num_entries = end_entry - start_entry;
+            if (num_entries > 100) num_entries = 100;
+
+            // to prevent multiple resends of exact same data
+            if ((players1[p].server_last_sdat_sent_start != start_entry) || // different start pos
+               (players1[p].server_last_sdat_sent_num != num_entries))      // different num entries
+            {
+               players1[p].server_last_sdat_sent_start = start_entry;
+               players1[p].server_last_sdat_sent_num = num_entries;
+               players1[p].server_last_sdat_sent_frame_num = frame_num;
+
+               Packet("sdat");
+               PacketPut1ByteInt(p);
+               PacketPut4ByteInt(frame_num);
+               PacketPut4ByteInt(start_entry);
+               PacketPut1ByteInt(num_entries);
+
+               for (int x=start_entry; x<start_entry + num_entries; x++)
+               {
+                  PacketPut4ByteInt(game_moves[x][0]); // frame_num
+                  PacketPut1ByteInt(game_moves[x][1]); // type
+                  PacketPut1ByteInt(game_moves[x][2]); // data 1
+                  PacketPut1ByteInt(game_moves[x][3]); // data 2
+               }
+               ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+
+               if (L_LOGGING_NETPLAY_sdat)
+               {
+                  #ifdef LOGGING_NETPLAY_sdat
+                  sprintf(msg,"tx sdat p:%d [strt:%d num:%d]\n", p, start_entry, num_entries);
+                  add_log_entry2(37, p, msg);
+                  #endif
+               }
+            }
+         }
+
+
+         else if (frame_num > players1[p].server_last_sdat_sent_frame_num + 19) // send even if no data, every 20 frames for sync
+         {
+            players1[p].server_last_sdat_sent_frame_num = frame_num;
+            int start_entry = players1[p].game_move_entry_pos;
+
+            Packet("sdat");
+            PacketPut1ByteInt(p);
+            PacketPut4ByteInt(frame_num);
+            PacketPut4ByteInt(start_entry);
+            PacketPut1ByteInt(0);
+            ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+
+            if (L_LOGGING_NETPLAY_sdat)
+            {
+               #ifdef LOGGING_NETPLAY_sdat
+               sprintf(msg,"tx sdat p:%d [strt:%d num:%d] (sync only)\n", p, start_entry, 0);
+               add_log_entry2(37, p, msg);
+               #endif
+            }
+         }
+      }
+}
+
+
+
+--------------------------------------
+end of bug
+
+
+what if I remove the code that checks if packet are from who they are supposed to be?
+that was never an issue...
+
+
+old:
+
+      if(PacketRead("serr"))
+      {
+         int sp = PacketGet1ByteInt();
+         int serr_type = PacketGet1ByteInt();
+         int serr_frame_num = PacketGet4ByteInt();
+         int serr_c_sync = PacketGet4ByteInt();
+         int serr_c_sync_err = PacketGet4ByteInt();
+
+         if (sp != p)
+         {
+            sprintf(msg, "ERROR! rx serr player:[%d] does not match local player:[%d]\n", sp, p);
+            printf("%s", msg);
+            #ifdef LOGGING_NETPLAY
+            add_log_entry2(10, p, msg);
+            #endif
+         }
+         else
+         {
+            if (serr_type == 1) // error type (1 = cdat late)
+
+            players1[p].serr_c_sync_err = serr_c_sync_err;
+            players1[p].serr_display_timer = 120;
+
+            sprintf(msg,"Error: server dropped cdat s_pc:%d  s_csync:%d  tot_err:%d\n", serr_frame_num, serr_c_sync, serr_c_sync_err);
+            if (L_LOGGING_NETPLAY_cdat)
+            {
+               #ifdef LOGGING_NETPLAY_cdat
+               add_log_entry2(35, p, msg);
+               #endif
+            }
+         }
+      }
+
+
+                  Packet("serr"); // server error
+                  PacketPut1ByteInt(p);
+                  PacketPut1ByteInt(1); // error type 1
+                  PacketPut4ByteInt(frame_num);
+                  PacketPut4ByteInt(c_sync);
+                  PacketPut4ByteInt(players1[p].server_game_move_sync_err);
+                  ServerSendTo(packetbuffer, packetsize, who, p);
+
+
+
+
+new:
+
+      if(PacketRead("serr"))
+      {
+         int serr_type = PacketGet1ByteInt();
+         int serr_frame_num = PacketGet4ByteInt();
+         int serr_c_sync = PacketGet4ByteInt();
+         int serr_c_sync_err = PacketGet4ByteInt();
+
+         if (serr_type == 1) // error type (1 = cdat late)
+
+         players1[p].serr_c_sync_err = serr_c_sync_err;
+         players1[p].serr_display_timer = 120;
+
+         sprintf(msg,"Error: server dropped cdat s_pc:%d  s_csync:%d  tot_err:%d\n", serr_frame_num, serr_c_sync, serr_c_sync_err);
+         if (L_LOGGING_NETPLAY_cdat)
+         {
+            #ifdef LOGGING_NETPLAY_cdat
+            add_log_entry2(35, p, msg);
+            #endif
+         }
+      }
+
+
+
+
+
+                  Packet("serr"); // server error
+                  PacketPut1ByteInt(1); // error type 1
+                  PacketPut4ByteInt(frame_num);
+                  PacketPut4ByteInt(c_sync);
+                  PacketPut4ByteInt(players1[p].server_game_move_sync_err);
+                  ServerSendTo(packetbuffer, packetsize, who, p);
+
+
+
+
+
+
+
+
+
+old:
+
+      if(PacketRead("sdat"))
+      {
+         char tmsg[20];
+         int sp = PacketGet1ByteInt();
+         int sdat_frame_num = PacketGet4ByteInt();
+         int start_entry = PacketGet4ByteInt();
+         int num_entries = PacketGet1ByteInt();
+
+         if (sp != p)
+         {
+            sprintf(msg, "ERROR! rx sdat player:[%d] does not match local player:[%d]\n", sp, p);
+            printf("%s", msg);
+            #ifdef LOGGING_NETPLAY
+            add_log_entry2(10, p, msg);
+            #endif
+         }
+         else
+         {
+            players1[p].client_sdat_packets_rx++; // total sdat packets rx'd
+
+            // this used to be a function , client timer adjust
+            players1[p].client_sync = sdat_frame_num - frame_num;
+            int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
+
+
+
+new:
+      if(PacketRead("sdat"))
+      {
+         char tmsg[20];
+         int sdat_frame_num = PacketGet4ByteInt();
+         int start_entry = PacketGet4ByteInt();
+         int num_entries = PacketGet1ByteInt();
+
+         players1[p].client_sdat_packets_rx++; // total sdat packets rx'd
+
+         // this used to be a function , client timer adjust
+         players1[p].client_sync = sdat_frame_num - frame_num;
+         int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
+
+
+
+
+
+
+
+
+
+
+old:
+
+int process_stdf_packet(void)
+{
+   int retval = 0;
+   int p = PacketGet1ByteInt();
+   int stdf_src_frame_num = PacketGet4ByteInt();
+   int stdf_dst_frame_num = PacketGet4ByteInt();
+   int stdf_seq = PacketGet1ByteInt();
+   int stdf_max_seq = PacketGet1ByteInt();
+   int stdf_sb = PacketGet4ByteInt();
+   int stdf_sz = PacketGet4ByteInt();
+
+   if (p != active_local_player)
+   {
+      sprintf(msg, "ERROR! rx stdf player:[%d] does not match local player:[%d]\n", p, active_local_player);
+      printf("%s", msg);
+      #ifdef LOGGING_NETPLAY
+      add_log_entry2(10, p, msg);
+      #endif
+   }
+   else
+   {
+       memcpy(client_state_buffer + stdf_sb, packetbuffer+23, stdf_sz);  // put the data in the buffer
+
+
+
+
+
+
+
+
+
+
+
+
+new:
+
+
+int process_stdf_packet(void)
+{
+   int retval = 0;
+   int p = active_local_player;
+
+   int stdf_src_frame_num = PacketGet4ByteInt();
+   int stdf_dst_frame_num = PacketGet4ByteInt();
+   int stdf_seq = PacketGet1ByteInt();
+   int stdf_max_seq = PacketGet1ByteInt();
+   int stdf_sb = PacketGet4ByteInt();
+   int stdf_sz = PacketGet4ByteInt();
+
+   memcpy(client_state_buffer + stdf_sb, packetbuffer+22, stdf_sz);  // put the data in the buffer
+
+
+
+
+
+
+
+
+removed these from server:
+
+void proc_server_check(void)
+{
+   for (int p1=1; p1<NUM_PLAYERS; p1++)
+      for (int p2=1; p2<NUM_PLAYERS; p2++)
+         if (p1 != p2)
+         {
+            int p1w = players1[p1].who;
+            int p2w = players1[p2].who;
+            if ((p1w != 99) && (p2w != 99))
+               if (p1w == p2w) // we have a duplicate
+               {
+                  // do something here
+                  sprintf(msg, "ERROR! duplicate whos for player:[%d] and player:[%d]\n", p1, p2);
+                  printf("%s", msg);
+                  #ifdef LOGGING_NETPLAY
+                  add_log_entry2(10, 0, msg);
+                  #endif
+               }
+         }
+}
+
+
+// check to see if this packet is from who its supposed to be and is valid
+int check_packet_who(int p, int who, int type)
+{
+   if (players[p].control_method != 2)
+   {
+      //check if the player we received data for is an active client
+      //sprintf(msg, "ERROR! rx cdat for player[%d].control__method[%d] != 2\n", p, players[p].control_method);
+      //printf("%s", msg);
+      //#ifdef LOGGING_NETPLAY
+      //add_log_entry2(10, p, msg);
+      //#endif
+      return 0;
+   }
+   if ((players1[p].who != who) && (players1[p].who != 99))
+   {
+      char tmsg[80];
+      if (type == 1) sprintf(tmsg, "cdat");
+      if (type == 2) sprintf(tmsg, "sdak");
+      if (type == 3) sprintf(tmsg, "stak");
+
+      sprintf(msg, "ERROR! rx %s player[%d].who[%d] does not match packet who[%d]\n", tmsg, p, players1[p].who, who);
+      printf("%s", msg);
+      #ifdef LOGGING_NETPLAY
+      add_log_entry2(10, p, msg);
+      #endif
+      return 0;
+   }
+   return 1;
+}
+
+
+done.....
+
+does it still work??...yes
+
+
+
+warps on netgame???
+
+warp starts next level immediately
+client does not even join
+but then client times out and quits
+
+is the whole level done thing too complicated?
+
+
+added global int next_level
+
+added
+play_level = next_level;
+in proc_level_done()
+
+added
+next_level = play_level + 1;
+in item exit collision
+
+
+changed warp from:
+play_level = item[x][8];
+start_mode = 1;
+
+to:
+next_level = item[x][8];
+level_done = 1;
+game_event(4, itx, ity, 0, 0, 0, 0);
+
+now warp should be exactly like exit except for the next level
+
+
+
+
+-------------------------------------
+
+dif is not really used by server, it just uses a local variable of the same name...
+
+i propose more renaming:
+
+old:
+
+extern char dif[STATE_SIZE];  // used by client and server
+extern int dif_src;           // client only
+extern int dif_dst;           // client only
+
+
+new:
+extern char client_state_dif[STATE_SIZE];
+extern int client_state_dif_src;
+extern int client_state_dif_dst;
+
+---------------------------------------------------
+
+ok now final looks like:
+
+#define STATE_SIZE 104640
+// server's copies of client states
+extern char srv_client_state[8][2][STATE_SIZE];
+extern int srv_client_state_frame_num[8][2];
+
+// local client's states
+extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
+extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
+extern char client_state_base[STATE_SIZE];    // last ack state
+extern int  client_state_base_frame_num;      // last ack state frame_num
+extern char client_state_dif[STATE_SIZE];     // uncompressed dif
+extern int  client_state_dif_src;             // uncompressed dif src frame_num
+extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
+
+
+
+
+------------------------------------
+
+why do I use:
+7 x memmove
+7 x memset
+27 x memcpy
+
+
+
+
+
+
+
+
+
+
 
 
 

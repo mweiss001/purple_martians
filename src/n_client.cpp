@@ -599,83 +599,76 @@ void read_game_step_from_packet(int x, int clf_check)
    }
 }
 
-int process_chdf_packet(void)
+
+
+int process_stdf_packet(void)
 {
    int retval = 0;
-   int p = PacketGet1ByteInt();
-   int chdf_src_frame_num = PacketGet4ByteInt();
-   int chdf_dst_frame_num = PacketGet4ByteInt();
-   int chdf_seq = PacketGet1ByteInt();
-   int chdf_max_seq = PacketGet1ByteInt();
-   int chdf_sb = PacketGet4ByteInt();
-   int chdf_sz = PacketGet4ByteInt();
+   int p = active_local_player;
 
-   if (p != active_local_player)
+   int src = PacketGet4ByteInt();
+   int dst = PacketGet4ByteInt();
+   int seq = PacketGet1ByteInt();
+   int max_seq = PacketGet1ByteInt();
+   int sb = PacketGet4ByteInt();
+   int sz = PacketGet4ByteInt();
+
+   if (L_LOGGING_NETPLAY_stdf_all_packets)
    {
-      sprintf(msg, "ERROR! rx chdf player:[%d] does not match local player:[%d]\n", p, active_local_player);
-      printf("%s", msg);
-      #ifdef LOGGING_NETPLAY
-      add_log_entry2(10, p, msg);
+      #ifdef LOGGING_NETPLAY_stdf_all_packets
+      sprintf(msg, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", seq+1, max_seq, src, dst, sb, sz);
+      add_log_entry2(28, p, msg);
       #endif
    }
-   else
+
+   memcpy(client_state_buffer + sb, packetbuffer+22, sz);  // put the piece of data in the buffer
+   client_state_buffer_pieces[seq] = dst; // mark it with destination frame_num
+
+
+   int complete = 1; // did we just get the last packet? (yes by default)
+   for (int i=0; i< max_seq; i++)
+      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
+
+   if (complete)
    {
+      char tmsg1[80], tmsg2[80], tmsg3[80];
+      sprintf(tmsg1, "rx stdf complete [%d to %d]", src, dst);
 
-      if (L_LOGGING_NETPLAY_chdf_all_packets)
+      players1[p].stdf_rx++;
+      if (dst < frame_num)
       {
-         #ifdef LOGGING_NETPLAY_chdf_all_packets
-         sprintf(msg, "rx chdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", chdf_seq+1, chdf_max_seq, chdf_src_frame_num, chdf_dst_frame_num, chdf_sb, chdf_sz);
-         add_log_entry2(28, active_local_player, msg);
-         #endif
+         players1[p].stdf_late++;
+         sprintf(tmsg2, "LATE!");
       }
-      memcpy(chdf+chdf_sb, packetbuffer+23, chdf_sz);  // put the data in the buffer
-      chdf_pieces[chdf_seq] = chdf_dst_frame_num;      // mark it with chdf_dst_frame_num
-
-      // did we just get the last packet?
-      int good = 1; // yes by default
-      for (int i=0; i< chdf_max_seq; i++)
-         if (chdf_pieces[i] != chdf_dst_frame_num) good = 0; // no, if any piece not at latest frame_num
-
-      if (good)
+      else
       {
-         char tmsg1[80];
-         char tmsg2[80];
-         char tmsg3[80];
+         players1[p].stdf_on_time++;
+         sprintf(tmsg2, "on time");
+      }
 
-         players1[active_local_player].chdf_rx++;
-         sprintf(tmsg1, "rx chdf complete [%d to %d]", chdf_src_frame_num, chdf_dst_frame_num);
+      // decompress client_state_buffer to dif
+      uLongf destLen = sizeof(client_state_dif);
+      uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
 
-         if (chdf_dst_frame_num < frame_num)
-         {
-            players1[active_local_player].chdf_late++;
-            sprintf(tmsg2, "LATE!");
-         }
-         else
-         {
-            players1[active_local_player].chdf_on_time++;
-            sprintf(tmsg2, "on time");
-        }
-
-         // decompress chdf to dif
-         uLongf destLen= sizeof(dif);
-         uncompress((Bytef*)dif, (uLongf*)&destLen, (Bytef*)chdf, sizeof(chdf));
-
-         if (destLen == CHUNK_SIZE)
-         {
-            sprintf(tmsg3, "good decompress");
-            dif_id[0] = chdf_src_frame_num;
-            dif_id[1] = chdf_dst_frame_num;
-            retval = 1;
-         }
-         else sprintf(tmsg3, "bad decompress");
-
-         if (L_LOGGING_NETPLAY_chdf)
-         {
-            #ifdef LOGGING_NETPLAY_chdf
-            sprintf(msg, "%s %s %s\n", tmsg1, tmsg2, tmsg3);
-            add_log_entry2(27, active_local_player, msg);
-            #endif
-         }
+      if (destLen == STATE_SIZE)
+      {
+         sprintf(tmsg3, "good decompress");
+         client_state_dif_src = src; // mark dif data with new src and dst
+         client_state_dif_dst = dst;
+         retval = 1;
+      }
+      else
+      {
+         sprintf(tmsg3, "bad decompress");
+         client_state_dif_src = -1; // mark dif data as bad
+         client_state_dif_dst = -1;
+      }
+      if (L_LOGGING_NETPLAY_stdf)
+      {
+         #ifdef LOGGING_NETPLAY_stdf
+         sprintf(msg, "%s %s %s\n", tmsg1, tmsg2, tmsg3);
+         add_log_entry2(27, p, msg);
+         #endif
       }
    }
    return retval;
@@ -685,83 +678,68 @@ int process_chdf_packet(void)
 void client_apply_diff()
 {
    int p = active_local_player;
-   if (L_LOGGING_NETPLAY_chdf_when_to_apply)
+   if (L_LOGGING_NETPLAY_stdf_when_to_apply)
    {
-      #ifdef LOGGING_NETPLAY_chdf_when_to_apply
-      sprintf(msg, "base:[%d] - last dif:[%d to %d]\n", clientl_chdf_id,  dif_id[0], dif_id[1] );
+      #ifdef LOGGING_NETPLAY_stdf_when_to_apply
+      sprintf(msg, "base:[%d] - last dif:[%d to %d]\n", client_state_base_frame_num,  client_state_dif_src, client_state_dif_dst );
       add_log_entry2(29, p, msg);
       #endif
    }
    // check to see if frame_nums match and its time to apply dif
-   if (frame_num == dif_id[1]) // current frame_num is dif target
+   if (frame_num == client_state_dif_dst) // current frame_num is dif destination
    {
-
-      if (clientl_chdf_id != dif_id[0])  // stored state is NOT dif source
+      if (client_state_base_frame_num != client_state_dif_src)  // stored base state does NOT match dif source
       {
-         // if server has sent dif from start (0), reset our base to 0
-         if (dif_id[0] == 0)
+         // if server has sent dif from src == 0, reset our base to 0
+         if (client_state_dif_src == 0)
          {
-            if (L_LOGGING_NETPLAY_chdf)
+            memset(client_state_base, 0, STATE_SIZE);
+            client_state_base_frame_num = 0;
+            if (L_LOGGING_NETPLAY_stdf)
             {
-               #ifdef LOGGING_NETPLAY_chdf
+               #ifdef LOGGING_NETPLAY_stdf
                sprintf(msg, "Resetting client base state to zero\n");
                add_log_entry2(27, p, msg);
                #endif
             }
-            memset(clientl_chdf, 0, CHUNK_SIZE);
-            clientl_chdf_id = 0;
          }
          else
          {
-            if (L_LOGGING_NETPLAY_chdf)
+            if (L_LOGGING_NETPLAY_stdf)
             {
-               #ifdef LOGGING_NETPLAY_chdf
-               sprintf(msg, "!! chdf cannot be applied (wrong client base) %d %d\n", clientl_chdf_id, dif_id[0]);
+               #ifdef LOGGING_NETPLAY_stdf
+               sprintf(msg, "!! stdf cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
                add_log_entry2(27, p, msg);
                #endif
             }
          }
       }
 
-
-      if (clientl_chdf_id == dif_id[0])  // stored state is dif source
+      if (client_state_base_frame_num == client_state_dif_src)  // stored base state matches dif source
       {
-
          char tmsg[80];
          int dif_corr = 0;
 
          // apply dif to base state
-         apply_chunk_dif(clientl_chdf, dif, CHUNK_SIZE);
+         apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
 
-
-         if (dif_id[0] != 0) // check dif, except for frame_num 0
+         if (client_state_dif_src != 0) // check dif, unless src == 0
          {
-
-
-            // fix control methods to match server
+            // fix control methods to match server so dif check won't fail
             players[0].control_method = 3;
             players[p].control_method = 2;
 
-
-
             // make copy of current state
-            char tmp[CHUNK_SIZE];
-            state_to_chunk(tmp);
+            char tmp[STATE_SIZE];
+            game_vars_to_state(tmp);
 
             // compare copy to modified base state
-            if (memcmp(tmp, clientl_chdf, CHUNK_SIZE))
+            if (memcmp(tmp, client_state_base, STATE_SIZE))
             {
                dif_corr = 1;
                players1[p].dif_corr++;
-
                sprintf(tmsg, "corrections applied - total corrections:%d", players1[p].dif_corr);
-
-               // show dif
-               show_chunk_dif(tmp, clientl_chdf);
-
-               // copy modified base state to current game state
-               chnk_to_state(clientl_chdf);
-
+               show_state_dif(tmp, client_state_base); // show dif
             }
             else
             {
@@ -769,30 +747,28 @@ void client_apply_diff()
               dif_corr = 0;
             }
          }
-         else // no dif checking,  just blindly copy (used for join)
-         {
-            sprintf(tmsg, "applied (no check)");
+         else sprintf(tmsg, "applied (no check)"); // no dif checking, just blindly apply (used for join)
 
-            // copy modified base state to current game state
-            chnk_to_state(clientl_chdf);
-         }
-         clientl_chdf_id = frame_num; // update client base frame_num
+         // copy modified base state to game_vars
+         state_to_game_vars(client_state_base);
 
+          // update client base frame_num
+          client_state_base_frame_num = frame_num;
 
          // restore control methods
          players[0].control_method = 2;
          players[p].control_method = 4;
 
 
-         if (L_LOGGING_NETPLAY_chdf)
+         if (L_LOGGING_NETPLAY_stdf)
          {
-            #ifdef LOGGING_NETPLAY_chdf
-            sprintf(msg, "dif [%d to %d] %s\n", dif_id[0], dif_id[1], tmsg);
+            #ifdef LOGGING_NETPLAY_stdf
+            sprintf(msg, "dif [%d to %d] %s\n", client_state_dif_src, client_state_dif_dst, tmsg);
             add_log_entry2(27, p, msg);
             #endif
          }
          // send ack to server
-         Packet("chak");
+         Packet("stak");
          PacketPut1ByteInt(p);
          PacketPut1ByteInt(dif_corr);
          PacketPut4ByteInt(frame_num);
@@ -802,7 +778,7 @@ void client_apply_diff()
    }
 }
 
-void client_block_until_good_chdf_received(void)
+void client_block_until_good_stdf_received(void)
 {
    int p = active_local_player;
    sprintf(msg, "Waiting for game state from server");
@@ -823,24 +799,22 @@ void client_block_until_good_chdf_received(void)
       if (key[ALLEGRO_KEY_F11]) fast_exit(65); // in case we get trapped here and need a way out
       if ((packetsize = ClientReceive(packetbuffer)))
       {
-         if(PacketRead("chdf"))
+         if(PacketRead("stdf"))
          {
-             done = process_chdf_packet();
+             done = process_stdf_packet();
          }
       }
    }
 
    // set frame_nums
-   frame_num = dif_id[1];
+   frame_num = client_state_dif_dst;
    al_set_timer_count(fps_timer, frame_num);
 
    players1[p].client_last_sdat_rx_frame_num = frame_num + 200;
 
    client_apply_diff();
 
-   // redraw blocks just in case
-   init_level_background();
-
+   init_level_background(); // redraw blocks just in case
 
    log_timer = clock(); // start timing for chase and lock
    if (L_LOGGING_NETPLAY_JOIN)
@@ -851,7 +825,6 @@ void client_block_until_good_chdf_received(void)
        //printf("%s", msg);
       #endif
    }
-
 
    // check for other active clients and set their control methods to 2
    for (int pp=1; pp<NUM_PLAYERS; pp++)
@@ -865,7 +838,7 @@ void client_block_until_good_chdf_received(void)
    PacketPut1ByteInt(p);
    PacketPut4ByteInt(frame_num);
    PacketPut4ByteInt(players1[p].game_move_entry_pos); // new entry pos
-   PacketPut4ByteInt(players1[p].chdf_late);
+   PacketPut4ByteInt(players1[p].stdf_late);
    PacketPut4ByteInt(players1[p].frames_skipped);
    ClientSend(packetbuffer, packetsize);
 }
@@ -944,6 +917,8 @@ void process_bandwidth_counters(int p)
 }
 
 
+
+
 void client_control(void)
 {
    int p = active_local_player;
@@ -975,128 +950,102 @@ void client_control(void)
    }
 
 
-   if (frame_num == 0) client_block_until_good_chdf_received();
+   if (frame_num == 0) client_block_until_good_stdf_received();
 
    process_bandwidth_counters(p);
 
 
    if (key[ALLEGRO_KEY_F11]) fast_exit(65); // in case we get trapped here and need a way out
 
-
    while ((packetsize = ClientReceive(packetbuffer))) // rx multiple per frame_num
    {
       if (key[ALLEGRO_KEY_F11]) fast_exit(65); // in case we get trapped here and need a way out
 
-      if(PacketRead("chdf")) process_chdf_packet();
+      if(PacketRead("stdf")) process_stdf_packet();
 
       if(PacketRead("serr"))
       {
-         int sp = PacketGet1ByteInt();
          int serr_type = PacketGet1ByteInt();
          int serr_frame_num = PacketGet4ByteInt();
          int serr_c_sync = PacketGet4ByteInt();
          int serr_c_sync_err = PacketGet4ByteInt();
 
-         if (sp != p)
+         if (serr_type == 1) // error type (1 = cdat late)
+
+         players1[p].serr_c_sync_err = serr_c_sync_err;
+         players1[p].serr_display_timer = 120;
+
+         sprintf(msg,"Error: server dropped cdat s_pc:%d  s_csync:%d  tot_err:%d\n", serr_frame_num, serr_c_sync, serr_c_sync_err);
+         if (L_LOGGING_NETPLAY_cdat)
          {
-            sprintf(msg, "ERROR! rx serr player:[%d] does not match local player:[%d]\n", sp, p);
-            printf("%s", msg);
-            #ifdef LOGGING_NETPLAY
-            add_log_entry2(10, p, msg);
+            #ifdef LOGGING_NETPLAY_cdat
+            add_log_entry2(35, p, msg);
             #endif
-         }
-         else
-         {
-            if (serr_type == 1) // error type (1 = cdat late)
-
-            players1[p].serr_c_sync_err = serr_c_sync_err;
-            players1[p].serr_display_timer = 120;
-
-            sprintf(msg,"Error: server dropped cdat s_pc:%d  s_csync:%d  tot_err:%d\n", serr_frame_num, serr_c_sync, serr_c_sync_err);
-            if (L_LOGGING_NETPLAY_cdat)
-            {
-               #ifdef LOGGING_NETPLAY_cdat
-               add_log_entry2(35, p, msg);
-               #endif
-            }
          }
       }
       if(PacketRead("sdat"))
       {
          char tmsg[20];
-         int sp = PacketGet1ByteInt();
          int sdat_frame_num = PacketGet4ByteInt();
          int start_entry = PacketGet4ByteInt();
          int num_entries = PacketGet1ByteInt();
 
-         if (sp != p)
+         players1[p].client_sdat_packets_rx++; // total sdat packets rx'd
+
+         // this used to be a function , client timer adjust
+         players1[p].client_sync = sdat_frame_num - frame_num;
+         int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
+         if (fps_chase < 4) fps_chase = 4; // never let this go negative
+         al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+         if (L_LOGGING_NETPLAY_client_timer_adjust)
          {
-            sprintf(msg, "ERROR! rx sdat player:[%d] does not match local player:[%d]\n", sp, p);
-            printf("%s", msg);
-            #ifdef LOGGING_NETPLAY
-            add_log_entry2(10, p, msg);
+            #ifdef LOGGING_NETPLAY_client_timer_adjust
+            sprintf(msg,"[timer adjust] client_sync:[%d] fps:[%d]\n", players1[p].client_sync, fps_chase);
+            add_log_entry2(25, p, msg);
             #endif
          }
-         else
+
+         if (num_entries == 0) sprintf(tmsg,"sync only");
+
+         int nep = start_entry + num_entries; // new entry position
+         if (nep > game_move_entry_pos) strcpy(tmsg,"new moves");
+         else if (num_entries)
          {
-            players1[p].client_sdat_packets_rx++; // total sdat packets rx'd
+            sprintf(tmsg,"no new moves");
+            players1[p].client_sdat_packets_skipped++ ; // total sdat packets skipped
+            players1[p].moves_skipped += num_entries;  // moves skipped
 
-            // this used to be a function , client timer adjust
-            players1[p].client_sync = sdat_frame_num - frame_num;
-            int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
-            if (fps_chase < 4) fps_chase = 4; // never let this go negative
-            al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
-            if (L_LOGGING_NETPLAY_client_timer_adjust)
-            {
-               #ifdef LOGGING_NETPLAY_client_timer_adjust
-               sprintf(msg,"[timer adjust] client_sync:[%d] fps:[%d] server_lead_frames:%d\n", players1[p].client_sync, fps_chase, server_lead_frames);
-               add_log_entry2(25, p, msg);
-               #endif
-            }
-
-            if (num_entries == 0) sprintf(tmsg,"sync only");
-
-            int nep = start_entry + num_entries; // new entry position
-            if (nep > game_move_entry_pos) strcpy(tmsg,"new moves");
-            else if (num_entries)
-            {
-               sprintf(tmsg,"no new moves");
-               players1[p].client_sdat_packets_skipped++ ; // total sdat packets skipped
-               players1[p].moves_skipped += num_entries;  // moves skipped
-
-            }
-            if (L_LOGGING_NETPLAY_sdat)
-            {
-               #ifdef LOGGING_NETPLAY_sdat
-               sprintf(msg,"rx sdat [server_frame:%d] - strt:%d num:%d - %s\n", sdat_frame_num, start_entry, num_entries, tmsg);
-               add_log_entry2(37, p, msg);
-               #endif
-            }
-
-            if (nep > game_move_entry_pos) // only enter if they are newer
-            {
-               for (int x=start_entry; x<nep; x++)
-                  read_game_step_from_packet(x, 1);
-               game_move_entry_pos = nep;
-            }
-
-            Packet("sdak"); // send acknowledgement of game moves received
-            PacketPut1ByteInt(p);
-            PacketPut4ByteInt(frame_num);
-            PacketPut4ByteInt(nep);
-            PacketPut4ByteInt(players1[p].chdf_late);
-            PacketPut4ByteInt(players1[p].frames_skipped);
-            ClientSend(packetbuffer, packetsize);
-
-            if (L_LOGGING_NETPLAY_sdak)
-            {
-               #ifdef LOGGING_NETPLAY_sdak
-               sprintf(msg,"tx sdak nep:[%d] chdf_late:[%d] frames skipped:%d\n", nep, players1[p].chdf_late, players1[p].frames_skipped);
-               add_log_entry2(39, p, msg);
-               #endif
-            }
+         }
+         if (L_LOGGING_NETPLAY_sdat)
+         {
+            #ifdef LOGGING_NETPLAY_sdat
+            sprintf(msg,"rx sdat [server_frame:%d] - strt:%d num:%d - %s\n", sdat_frame_num, start_entry, num_entries, tmsg);
+            add_log_entry2(37, p, msg);
+            #endif
          }
 
+         if (nep > game_move_entry_pos) // only enter if they are newer
+         {
+            for (int x=start_entry; x<nep; x++)
+               read_game_step_from_packet(x, 1);
+            game_move_entry_pos = nep;
+         }
+
+         Packet("sdak"); // send acknowledgement of game moves received
+         PacketPut1ByteInt(p);
+         PacketPut4ByteInt(frame_num);
+         PacketPut4ByteInt(nep);
+         PacketPut4ByteInt(players1[p].stdf_late);
+         PacketPut4ByteInt(players1[p].frames_skipped);
+         ClientSend(packetbuffer, packetsize);
+
+         if (L_LOGGING_NETPLAY_sdak)
+         {
+            #ifdef LOGGING_NETPLAY_sdak
+            sprintf(msg,"tx sdak nep:[%d] stdf_late:[%d] frames skipped:%d\n", nep, players1[p].stdf_late, players1[p].frames_skipped);
+            add_log_entry2(39, p, msg);
+            #endif
+         }
       } // end of packet read sdat
    } // end of packet rx loop
 

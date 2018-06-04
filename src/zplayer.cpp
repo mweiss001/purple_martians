@@ -722,7 +722,7 @@ void init_player(int p, int t)
       players1[p].quit_frame = 0;
       players1[p].quit_reason = 0;
 
-      players1[p].join_chdf_sent = 0;
+      players1[p].join_stdf_sent = 0;
 
 
       players1[p].frames_skipped = 0;
@@ -757,9 +757,9 @@ void init_player(int p, int t)
       players1[p].server_last_sdak_rx_frame_num = 0;
       players1[p].client_last_sdat_rx_frame_num = 0;
 
-      players1[p].chdf_rx = 0;
-      players1[p].chdf_late = 0;
-      players1[p].chdf_on_time = 0;
+      players1[p].stdf_rx = 0;
+      players1[p].stdf_late = 0;
+      players1[p].stdf_on_time = 0;
       players1[p].dif_corr = 0;
       players1[p].made_active_holdoff = 0;
 

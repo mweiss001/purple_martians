@@ -105,8 +105,8 @@ void save_config(void)
       sprintf(msg, "%d", server_lead_frames);
       al_set_config_value(cfg, "NETWORK", "server_lead_frames", msg);
 
-      sprintf(msg, "%d", chdf_freq);
-      al_set_config_value(cfg, "NETWORK", "chdf_freq", msg);
+      sprintf(msg, "%d", stdf_freq);
+      al_set_config_value(cfg, "NETWORK", "stdf_freq", msg);
 
       sprintf(msg, "%d", zlib_cmp);
       al_set_config_value(cfg, "NETWORK", "zlib_cmp", msg);
@@ -175,26 +175,26 @@ void save_config(void)
       else
          sprintf(global_string[3][13],"[OFF]:LOGGING_NETPLAY_sdak               ");
 
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_chdf);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_chdf", msg);
-      if (L_LOGGING_NETPLAY_chdf)
-         sprintf(global_string[3][14],"[ON ]:LOGGING_NETPLAY_chdf               ");
+      sprintf(msg, "%d", L_LOGGING_NETPLAY_stdf);
+      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf", msg);
+      if (L_LOGGING_NETPLAY_stdf)
+         sprintf(global_string[3][14],"[ON ]:LOGGING_NETPLAY_stdf               ");
       else
-         sprintf(global_string[3][14],"[OFF]:LOGGING_NETPLAY_chdf               ");
+         sprintf(global_string[3][14],"[OFF]:LOGGING_NETPLAY_stdf               ");
 
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_chdf_all_packets);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_chdf_all_packets", msg);
-      if (L_LOGGING_NETPLAY_chdf_all_packets)
-         sprintf(global_string[3][15],"[ON ]:LOGGING_NETPLAY_chdf_all_packets   ");
+      sprintf(msg, "%d", L_LOGGING_NETPLAY_stdf_all_packets);
+      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf_all_packets", msg);
+      if (L_LOGGING_NETPLAY_stdf_all_packets)
+         sprintf(global_string[3][15],"[ON ]:LOGGING_NETPLAY_stdf_all_packets   ");
       else
-         sprintf(global_string[3][15],"[OFF]:LOGGING_NETPLAY_chdf_all_packets   ");
+         sprintf(global_string[3][15],"[OFF]:LOGGING_NETPLAY_stdf_all_packets   ");
 
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_chdf_when_to_apply);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_chdf_when_to_apply", msg);
-      if (L_LOGGING_NETPLAY_chdf_when_to_apply)
-         sprintf(global_string[3][16],"[ON ]:LOGGING_NETPLAY_chdf_when_to_apply ");
+      sprintf(msg, "%d", L_LOGGING_NETPLAY_stdf_when_to_apply);
+      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf_when_to_apply", msg);
+      if (L_LOGGING_NETPLAY_stdf_when_to_apply)
+         sprintf(global_string[3][16],"[ON ]:LOGGING_NETPLAY_stdf_when_to_apply ");
       else
-         sprintf(global_string[3][16],"[OFF]:LOGGING_NETPLAY_chdf_when_to_apply ");
+         sprintf(global_string[3][16],"[OFF]:LOGGING_NETPLAY_stdf_when_to_apply ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_show_dif1);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_show_dif1", msg);
@@ -366,9 +366,9 @@ void get_config_values(void)
    if (!val) server_lead_frames = 1;
    else server_lead_frames = atoi(val);
 
-   val = al_get_config_value(cfg, "NETWORK", "chdf_freq");
-   if (!val) chdf_freq = 5;
-   else chdf_freq = atoi(val);
+   val = al_get_config_value(cfg, "NETWORK", "stdf_freq");
+   if (!val) stdf_freq = 5;
+   else stdf_freq = atoi(val);
 
    val = al_get_config_value(cfg, "NETWORK", "zlib_cmp");
    if (!val) zlib_cmp = 7;
@@ -418,17 +418,17 @@ void get_config_values(void)
    if (!val) L_LOGGING_NETPLAY_sdak = 0;
    else L_LOGGING_NETPLAY_sdak = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_chdf");
-   if (!val) L_LOGGING_NETPLAY_chdf = 0;
-   else L_LOGGING_NETPLAY_chdf = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf");
+   if (!val) L_LOGGING_NETPLAY_stdf = 0;
+   else L_LOGGING_NETPLAY_stdf = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_chdf_all_packets");
-   if (!val) L_LOGGING_NETPLAY_chdf_all_packets = 0;
-   else L_LOGGING_NETPLAY_chdf_all_packets = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf_all_packets");
+   if (!val) L_LOGGING_NETPLAY_stdf_all_packets = 0;
+   else L_LOGGING_NETPLAY_stdf_all_packets = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_chdf_when_to_apply");
-   if (!val) L_LOGGING_NETPLAY_chdf_when_to_apply = 0;
-   else L_LOGGING_NETPLAY_chdf_when_to_apply = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf_when_to_apply");
+   if (!val) L_LOGGING_NETPLAY_stdf_when_to_apply = 0;
+   else L_LOGGING_NETPLAY_stdf_when_to_apply = atoi(val);
 
    val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_show_dif1");
    if (!val) L_LOGGING_NETPLAY_show_dif1 = 0;

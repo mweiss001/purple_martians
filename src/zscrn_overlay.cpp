@@ -210,9 +210,9 @@ void draw_top_display(void)
                                               players[p].control_method,
                                               players1[p].server_sync,
                                               frame_num - players1[p].server_last_sdak_rx_frame_num,
-                                              players1[p].chdf_late,
-                                              client_chdf_id[p][0],
-                                              client_chdf_id[p][1],
+                                              players1[p].stdf_late,
+                                              srv_client_state_frame_num[p][0],
+                                              srv_client_state_frame_num[p][1],
                                               players1[p].num_dif_packets,
                                               players1[p].cmp_dif_size,
                                               (float)players1[p].tx_bytes_per_tally/1000,
@@ -307,11 +307,11 @@ void draw_top_display(void)
          int tx = BORDER_WIDTH;
          int ty = 80;
 
-         if (players1[p].chdf_rx > 0)
+         if (players1[p].stdf_rx > 0)
          {
-            sprintf(msg, "chdf rx'd:%d on_time:%d late:%d [%d]",
-                          players1[p].chdf_rx, players1[p].chdf_on_time,
-                          players1[p].chdf_late, (players1[p].chdf_on_time * 100) / players1[p].chdf_rx);
+            sprintf(msg, "stdf rx'd:%d on_time:%d late:%d [%d]",
+                          players1[p].stdf_rx, players1[p].stdf_on_time,
+                          players1[p].stdf_late, (players1[p].stdf_on_time * 100) / players1[p].stdf_rx);
             al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
             al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
          }

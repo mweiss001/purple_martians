@@ -31,6 +31,8 @@ int frame_num;
 // global game control
 int start_mode = 0;
 int level_done = 0;
+int next_level = 0;
+
 int game_exit = 1;
 
 // some global strings
@@ -257,34 +259,34 @@ int text_title_draw_color = -1;
 // ------------------------------------------------
 // ----------------- netgame ----------------------
 // ------------------------------------------------
-
 int ima_server = 0;
 int ima_client = 0;
 char m_serveraddress[256] = "192.168.1.2";
-
 int TCP = 0;
 
-// server chdf
-char client_chdf[8][2][CHUNK_SIZE];
-int client_chdf_id[8][2]; // frame_num id
-
-// client chdf
-char chdf[CHUNK_SIZE];         // for client chdf building
-int chdf_pieces[16];
-char clientl_chdf[CHUNK_SIZE]; // last ack state for diffing
-int clientl_chdf_id;           // frame_num id of last state
-
-char dif[CHUNK_SIZE];
-int dif_id[2]; //   (0 = src, 1 = dst)
-
+int stdf_freq = 40;
 int zlib_cmp = 7;
-int chdf_freq = 40;
 int control_lead_frames = 3;
 int server_lead_frames = 1;
 
 int deathmatch_pbullets = 0;
 int deathmatch_pbullets_damage = 5;
 int suicide_pbullets = 0;
+
+// server's copies of client states
+char srv_client_state[8][2][STATE_SIZE];
+int srv_client_state_frame_num[8][2];
+
+// local client's states
+char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
+int  client_state_buffer_pieces[16];   // to mark packet pieces as received
+char client_state_base[STATE_SIZE];    // last ack state
+int  client_state_base_frame_num;      // last ack state frame_num
+char client_state_dif[STATE_SIZE];     // uncompressed dif
+int  client_state_dif_src;             // uncompressed dif src frame_num
+int  client_state_dif_dst;             // uncompressed dif dst frame_num
+
+
 
 
 
@@ -307,9 +309,9 @@ int L_LOGGING_NETPLAY_cdat = 0;
 int L_LOGGING_NETPLAY_game_move = 0;
 int L_LOGGING_NETPLAY_sdat = 0;
 int L_LOGGING_NETPLAY_sdak = 0;
-int L_LOGGING_NETPLAY_chdf = 0;
-int L_LOGGING_NETPLAY_chdf_all_packets = 0;
-int L_LOGGING_NETPLAY_chdf_when_to_apply = 0;
+int L_LOGGING_NETPLAY_stdf = 0;
+int L_LOGGING_NETPLAY_stdf_all_packets = 0;
+int L_LOGGING_NETPLAY_stdf_when_to_apply = 0;
 int L_LOGGING_NETPLAY_show_dif1 = 0;
 int L_LOGGING_NETPLAY_show_dif2 = 0;
 
@@ -877,9 +879,9 @@ void game_menu(void)
                      L_LOGGING_NETPLAY_game_move=1;
                      L_LOGGING_NETPLAY_sdat=1;
                      L_LOGGING_NETPLAY_sdak=1;
-                     L_LOGGING_NETPLAY_chdf=1;
-                     L_LOGGING_NETPLAY_chdf_all_packets=1;
-                     L_LOGGING_NETPLAY_chdf_when_to_apply=1;
+                     L_LOGGING_NETPLAY_stdf=1;
+                     L_LOGGING_NETPLAY_stdf_all_packets=1;
+                     L_LOGGING_NETPLAY_stdf_when_to_apply=1;
                      L_LOGGING_NETPLAY_show_dif1=1;
                      L_LOGGING_NETPLAY_show_dif2=1;
                      auto_save_game_on_level_done=1;
@@ -898,9 +900,9 @@ void game_menu(void)
                      L_LOGGING_NETPLAY_game_move=0;
                      L_LOGGING_NETPLAY_sdat=0;
                      L_LOGGING_NETPLAY_sdak=0;
-                     L_LOGGING_NETPLAY_chdf=0;
-                     L_LOGGING_NETPLAY_chdf_all_packets=0;
-                     L_LOGGING_NETPLAY_chdf_when_to_apply=0;
+                     L_LOGGING_NETPLAY_stdf=0;
+                     L_LOGGING_NETPLAY_stdf_all_packets=0;
+                     L_LOGGING_NETPLAY_stdf_when_to_apply=0;
                      L_LOGGING_NETPLAY_show_dif1=0;
                      L_LOGGING_NETPLAY_show_dif2=0;
                      auto_save_game_on_level_done=0;
@@ -956,17 +958,17 @@ void game_menu(void)
                   }
                   if (logging_menu_sel == 14)
                   {
-                     L_LOGGING_NETPLAY_chdf= !L_LOGGING_NETPLAY_chdf;
+                     L_LOGGING_NETPLAY_stdf= !L_LOGGING_NETPLAY_stdf;
                      save_config();
                   }
                   if (logging_menu_sel == 15)
                   {
-                     L_LOGGING_NETPLAY_chdf_all_packets= !L_LOGGING_NETPLAY_chdf_all_packets;
+                     L_LOGGING_NETPLAY_stdf_all_packets= !L_LOGGING_NETPLAY_stdf_all_packets;
                      save_config();
                   }
                   if (logging_menu_sel == 16)
                   {
-                     L_LOGGING_NETPLAY_chdf_when_to_apply= !L_LOGGING_NETPLAY_chdf_when_to_apply;
+                     L_LOGGING_NETPLAY_stdf_when_to_apply= !L_LOGGING_NETPLAY_stdf_when_to_apply;
                      save_config();
                   }
                   if (logging_menu_sel == 17)
