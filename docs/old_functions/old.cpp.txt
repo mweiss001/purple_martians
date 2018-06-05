@@ -1099,6 +1099,124 @@ void speed_test(void)
 
 
 
+// ---------------------------------------------------------------------------------------------------------------
+// ***************************************************************************************************************
+//----------------------------------------------------------------------------------------------------------------
+
+void nc_client(void) // for specialized packet testing only
+{
+   if (ClientInit("192.168.1.170"))  printf("Client init failed\n");
+//   if (ClientCheckResponse())        printf("No server response\n");
+   while (ClientCheckResponse()); // wait until its zero        printf("No server response\n");
+   int quit = 0;
+   while (!quit)
+   {
+      proc_controllers();
+      if (key[ALLEGRO_KEY_ESCAPE]) quit = 1;
+      if ((packetsize = ClientReceive(packetbuffer)) &&  (PacketRead("peep")))
+      {
+         int pc = PacketGet2ByteInt();
+//            printf("client rx peep:[%d]\n", pc);
+         pc++;
+         if (pc < 1000)
+         {
+//               printf("client tx poop:[%d]\n",pc);
+            Packet("poop");
+            PacketPut2ByteInt(pc);
+            ClientSend(packetbuffer, packetsize);
+         }
+         else
+         {
+            int finish_time = clock(); // stop the timer
+            int time = finish_time - log_timer;
+            printf("time:[%d]ms\n", time);
+         }
+      }
+      if (key[ALLEGRO_KEY_1])
+      {
+         while (key[ALLEGRO_KEY_1]) proc_controllers();
+         log_timer = clock(); // start the timer...
+         printf("Sending poop packet to server\n");
+         Packet("poop");
+         PacketPut1ByteInt(0);
+         ClientSend(packetbuffer, packetsize);
+      }
+   }
+}
+
+
+
+
+
+
+
+// ---------------------------------------------------------------------------------------------------------------
+// ***************************************************************************************************************
+//----------------------------------------------------------------------------------------------------------------
+
+void nc_server(void) // for specialized packet testing only
+{
+   static int who;
+   if (ServerInit())  printf ("Error initializing server\n");
+
+   int quit = 0;
+   while (!quit)
+   {
+      if (key[ALLEGRO_KEY_ESCAPE]) quit = 1;
+      ServerListen(); // listen for connections
+      packetsize = ServerReceive(packetbuffer, &who); // get packets
+      if (packetsize > 0)
+      {
+         if(PacketRead("poop"))
+         {
+            int pc = PacketGet2ByteInt();
+//            printf("server rx poop:[%d]\n", pc);
+            pc++;
+//            printf("server tx peep:[%d]\n", pc);
+            Packet("peep");
+            PacketPut2ByteInt(pc);
+            ServerSendTo(packetbuffer, packetsize, who, 0);
+         }
+      }
+      if (key[ALLEGRO_KEY_0] && ClientNum)
+      {
+         while (key[ALLEGRO_KEY_0]);
+         Packet("stoc");
+         PacketPut1ByteInt(0);
+         ServerSendTo(packetbuffer, packetsize, 0, 0);
+      }
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

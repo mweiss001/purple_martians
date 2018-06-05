@@ -349,11 +349,8 @@ int load_gm(const char *sfname )
                }
          // init all
          for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
-
-         // set all but 0 to inactive
-         for (int p=1; p<NUM_PLAYERS; p++) players[p].active = 0;
+         players[0].active = 1;
          return 1;
-
       }
    }
    return 0;

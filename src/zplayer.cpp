@@ -600,7 +600,7 @@ void init_player(int p, int t)
 
    if (t == 1) // full
    {
-      players[p].active = 1;
+      players[p].active = 0;
       players[p].paused = 0;
       players[p].draw_rot = al_itofix(0);
       players[p].draw_scale = al_itofix(1);

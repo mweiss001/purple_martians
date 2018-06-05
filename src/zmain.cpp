@@ -695,9 +695,10 @@ int initial_setup(void)
 
    // init all players
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+   players[0].active = 1;
 
-   // set all but 0 to inactive
-   for (int p=1; p<NUM_PLAYERS; p++) players[p].active = 0;
+
+
    zero_level_data();
    reset_animation_sequence_frame_nums(0);
    //printf("end of initial setup\n");
@@ -761,9 +762,8 @@ void game_menu(void)
             start_mode = 1; // load level and start
             game_exit = 0;
             pm_main();
-            server_exit();
          }
-         else server_exit();
+         server_exit();
          resume_allowed = 0;
       }
       if (top_menu_sel == 6) // join network game
@@ -773,9 +773,8 @@ void game_menu(void)
             start_mode = 1; // load level and start
             game_exit = 0;
             pm_main();
-            client_exit();
          }
-         else client_exit();
+         client_exit();
          resume_allowed = 0;
       }
       #endif
@@ -1296,7 +1295,6 @@ int main(int argument_count, char **argument_array)
          {
             show_splash_screen = 0;
             // no server specified; use the one from the config file
-            printf("started client - looking for server IP:%s\n", m_serveraddress);
             if (client_init())
             {
                start_mode = 1; // load level and start
@@ -1400,9 +1398,7 @@ int main(int argument_count, char **argument_array)
          {
             show_splash_screen = 0;
             sprintf(m_serveraddress, "%s", argument_array[2]);
-            printf("started client - looking for passed server IP:%s\n", m_serveraddress);
             save_config();
-            //set_config_string("NETWORK", "server_IP", m_serveraddress);
             if (client_init())
             {
                start_mode = 1; // load level and start

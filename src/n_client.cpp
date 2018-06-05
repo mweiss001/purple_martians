@@ -10,12 +10,11 @@
 NET_CONN *ServerConn = NULL;
 NET_CHANNEL *ServerChannel;
 
-int ClientInit(const char *serveraddress)
+int ClientInitNetwork(const char *serveraddress)
 {
 	if(NetworkInit())
    {
-      sprintf(msg, "Error: failed to initialize network\n");
-      printf("%s", msg);
+      sprintf(msg, "Error: failed to initialize network");
       m_err(msg);
       if (L_LOGGING_NETPLAY)
       {
@@ -23,16 +22,14 @@ int ClientInit(const char *serveraddress)
          add_log_entry2(10, 0, msg);
          #endif
       }
-      return -1;
+      return 0;
    }
    if (TCP)
    {
-      #ifdef CONNECTION
       ServerConn = net_openconn(NetworkDriver, NULL);
       if(!ServerConn)
       {
-         sprintf(msg, "Error: Unable to to open server connection\n");
-         printf("%s", msg);
+         sprintf(msg, "Error: Client failed to create netconnection (TCP)");
          m_err(msg);
          if (L_LOGGING_NETPLAY)
          {
@@ -40,12 +37,11 @@ int ClientInit(const char *serveraddress)
             add_log_entry2(10, 0, msg);
             #endif
          }
-         return -1;
+         return 0;
       }
       if(net_connect(ServerConn, serveraddress))
       {
-         sprintf(msg, "Error: Can't connect to that address\n");
-         printf("%s", msg);
+         sprintf(msg, "Error: Client failed to set netconnection target: server[%s] (TCP)", serveraddress);
          m_err(msg);
          if (L_LOGGING_NETPLAY)
          {
@@ -54,19 +50,16 @@ int ClientInit(const char *serveraddress)
             #endif
          }
          net_closeconn(ServerConn);
-   		return -1;
+   		return 0;
    	}
-      sprintf(msg, "Network initialized - connection mode (TCP)\n");
-      #endif
+      sprintf(msg, "Client network initialized: server[%s] (TCP)", serveraddress);
    } // end of if TCP
    else // UDP
    {
-      #ifdef CHANNEL
       ServerChannel = net_openchannel(NetworkDriver, "");
       if (ServerChannel == NULL)
       {
-         sprintf(msg, "Error: failed to open netchannel\n");
-         printf("%s", msg);
+         sprintf(msg, "Error: Client failed to create netchannel (UDP)");
          m_err(msg);
          if (L_LOGGING_NETPLAY)
          {
@@ -74,12 +67,12 @@ int ClientInit(const char *serveraddress)
             add_log_entry2(10, 0, msg);
             #endif
          }
-         return -1;
+         return 0;
       }
+
       if (net_assigntarget(ServerChannel, serveraddress))
       {
-         sprintf(msg, "Error: failed to set netchannel target\n");
-         printf("%s", msg);
+         sprintf(msg, "Error: Client failed to set netchannel target: server[%s] (UDP)", serveraddress);
          m_err(msg);
          if (L_LOGGING_NETPLAY)
          {
@@ -87,40 +80,80 @@ int ClientInit(const char *serveraddress)
             add_log_entry2(10, 0, msg);
             #endif
          }
-         return -1;
+         return 0;
       }
-      sprintf(msg, "Network initialized - channel mode (UDP)\n");
-      #endif
+      sprintf(msg, "Client network initialized: server[%s] (UDP)", serveraddress);
    } // end of UDP
 
+   printf("%s\n", msg);
    if (L_LOGGING_NETPLAY)
    {
       #ifdef LOGGING_NETPLAY
       add_log_entry2(10, 0, msg);
-      printf("%s", msg);
       #endif
    }
-	return 0;
+
+
+   // Check for reply from server x times with rest each time
+   // if delay is too short you will miss response
+   int tries = 4;
+   float try_delay = 0.02;
+   int got_reply = 0;
+
+   while (!got_reply)
+   {
+      if (key[ALLEGRO_KEY_ESCAPE]) return 0;
+      if (ClientCheckResponse())
+      {
+         got_reply = 1;
+         sprintf(msg,"Got reply from server");
+         printf("%s\n", msg);
+         if (L_LOGGING_NETPLAY)
+         {
+            #ifdef LOGGING_NETPLAY
+            add_log_entry2(10, active_local_player, msg);
+            #endif
+         }
+      }
+      else
+      {
+         al_rest(try_delay);
+         if (--tries < 0)
+         {
+            sprintf(msg,"Did not get reply from server");
+            printf("%s\n", msg);
+            if (L_LOGGING_NETPLAY)
+            {
+               #ifdef LOGGING_NETPLAY
+               add_log_entry2(10, active_local_player, msg);
+               #endif
+            }
+            return 0;
+         }
+      }
+   }
+
+   return 1;
+
+
 }
+
 
 int ClientCheckResponse(void) // check for a repsonse from the server
 {
    if (TCP)
    {
-      #ifdef CONNECTION
    	int x = net_poll_connect(ServerConn);
-   	if (x == 0) return 1;     // got response
-   	if (x < 0)                // error
+      if (x == 0) return 0; // no response yet
+   	if (x >  0) return 1; // good response
+   	if (x <  0) // error
       {
    		net_closeconn(ServerConn);
    		return -1;
    	}
-   	return 0;                 // no response yet
-      #endif
-   } // end of if TCP
+   }
    else // UDP
    {
-      #ifdef CHANNEL
       char address[32];
       // send data to server
       Packet("1234");
@@ -131,32 +164,20 @@ int ClientCheckResponse(void) // check for a repsonse from the server
       if (packetsize && (strcmp(packetbuffer, "5678") == 0)) // got response
       {
           net_assigntarget(ServerChannel, address);
-          return 0;
+          return 1;
       }
-      else return 1; // no response yet
-      #endif
-   } // end of UDP
+      else return 0; // no response yet
+   }
+   return 0;
 }
-
 
 // Receive data from the server, and store them in the provided array
 // (must have room for 1024 bytes). Returns the size of the stored data.
 int ClientReceive(void *data)
 {
    int len;
-   if (TCP)
-   {
-      #ifdef CONNECTION
-      len = net_receive_rdm(ServerConn, data, 1024);
-      #endif
-   }
-   else // UDP
-   {
-
-      #ifdef CHANNEL
-   	len = net_receive(ServerChannel, data, 1024, NULL);
-      #endif
-   }
+   if (TCP) len = net_receive_rdm(ServerConn, data, 1024);
+   else    	len = net_receive(ServerChannel, data, 1024, NULL);
    #ifdef NETPLAY_bandwidth_tracking
    players1[active_local_player].rx_current_bytes_for_this_frame+= len;
    players1[active_local_player].rx_current_packets_for_this_frame++;
@@ -165,18 +186,9 @@ int ClientReceive(void *data)
 }
 void ClientSend(void *data, int len)
 {
-   if (TCP)
-   {
-      #ifdef CONNECTION
-   	net_send_rdm(ServerConn, data, len);
-      #endif
-   }
-   else // UDP
-   {
-      #ifdef CHANNEL
-   	net_send(ServerChannel, data, len);
-      #endif
-   }
+   if (TCP) net_send_rdm(ServerConn, data, len);
+   else     net_send(ServerChannel, data, len);
+
    #ifdef NETPLAY_bandwidth_tracking
    players1[active_local_player].tx_current_bytes_for_this_frame+= len;
    players1[active_local_player].tx_current_packets_for_this_frame++;
@@ -185,166 +197,68 @@ void ClientSend(void *data, int len)
 
 void client_flush(void)
 {
-   while (ClientReceive(packetbuffer));
+   while ((packetsize = ClientReceive(packetbuffer)));
 }
 
-void ClientExit(void)
+void ClientExitNetwork(void)
 {
    if (TCP)
    {
-      #ifdef CONNECTION
    	if(ServerConn) net_closeconn(ServerConn);
    	ServerConn = NULL;
-      #endif
-   } // end of if TCP
+   }
    else // UDP
    {
-      #ifdef CHANNEL
    	if(ServerChannel) net_closechannel(ServerChannel);
    	ServerChannel = NULL;
+   }
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------
+// ***************************************************************************************************************
+//----------------------------------------------------------------------------------------------------------------
+
+int client_init(void)
+{
+   sprintf(msg, "Client mode started on host:[%s]",local_hostname);
+   printf("%s\n", msg);
+   if (L_LOGGING_NETPLAY)
+   {
+      #ifdef LOGGING_NETPLAY
+      add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       #endif
-   } // end of UDP
-}
-
-
-
-
-
-
-
-
-// ---------------------------------------------------------------------------------------------------------------
-// ***************************************************************************************************************
-//----------------------------------------------------------------------------------------------------------------
-
-void nc_client(void) // for specialized packet testing only
-{
-   if (ClientInit("192.168.1.170"))  printf("Client init failed\n");
-//   if (ClientCheckResponse())        printf("No server response\n");
-   while (ClientCheckResponse()); // wait until its zero        printf("No server response\n");
-   int quit = 0;
-   while (!quit)
-   {
-      if (key[ALLEGRO_KEY_ESCAPE]) quit = 1;
-      packetsize = ClientReceive(packetbuffer);
-      if (packetsize > 0)
-      {
-         if(PacketRead("peep"))
-         {
-            int pc = PacketGet2ByteInt();
-//            printf("client rx peep:[%d]\n", pc);
-            pc++;
-            if (pc < 1000)
-            {
-//               printf("client tx poop:[%d]\n",pc);
-               Packet("poop");
-               PacketPut2ByteInt(pc);
-               ClientSend(packetbuffer, packetsize);
-            }
-            else
-            {
-               int finish_time = clock(); // stop the timer
-               int time = finish_time - log_timer;
-               printf("time:[%d]ms\n", time);
-            }
-         }
-      }
-      if (key[ALLEGRO_KEY_1])
-      {
-         while (key[ALLEGRO_KEY_1]);
-         log_timer = clock(); // start the timer...
-         printf("Sending poop packet to server\n");
-         Packet("poop");
-         PacketPut1ByteInt(0);
-         ClientSend(packetbuffer, packetsize);
-      }
    }
-}
 
-// ---------------------------------------------------------------------------------------------------------------
-// ***************************************************************************************************************
-//----------------------------------------------------------------------------------------------------------------
+   // date and time stamp
+   char tmsg[80];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(tmsg, sizeof(tmsg), "%Y-%m-%d  %H:%M:%S", timenow);
+   sprintf(msg, "Date and time:[%s]",tmsg);
+   printf("%s\n", msg);
 
-
-int client_init_driver(void)
-{
-   //textout_centre_ex(screen, font, "Loading driver...",SCREEN_W/2, SCREEN_H/2, palette_color[13], 0);
-   int init_good = 0;
-   float try_delay = 0.02;
-   int tries = 4; // first time 4 then 2 for next tries
-
-   // read server address from config file, use default if not found
-   //const char *server_IP = get_config_string("NETWORK", "server_IP", "192.168.1.2");
-   //sprintf(m_serveraddress, "%s", server_IP);
-
-   while (!init_good)
+   if (L_LOGGING_NETPLAY)
    {
-      char tmsg[80];
-
-      if (key[ALLEGRO_KEY_ESCAPE]) return 0;
-
-      // initialize driver with server address
-      if (ClientInit(m_serveraddress)) return 0;
-
-      sprintf(msg, "Client initialized\n");
-      sprintf(tmsg, "Connecting to server");
-      printf("%s", msg);
-      printf("%s", tmsg);
-      if (L_LOGGING_NETPLAY)
-      {
-         #ifdef LOGGING_NETPLAY
-         add_log_entry2(10, 0, msg);
-         #endif
-      }
-
-      // Check for reply from server loop x times with rest each time
-      // if delay is too short you will miss response
-//      printf("looking for server:[%s]", m_serveraddress);
-      while (tries-- > 0)
-      {
-         printf(".");
-         if (key[ALLEGRO_KEY_ESCAPE]) return 0;
-         al_rest(try_delay);
-         if (ClientCheckResponse() == 0) // got a response
-         {
-             init_good = 1;
-             tries = 0; // exit loop
-             // save in config file
-             //set_config_string("NETWORK", "server_IP", m_serveraddress);
-         }
-      }
-      if (init_good)
-      {
-         sprintf(msg,"Got reply from server\n");
-         printf("\n%s", msg);
-         if (L_LOGGING_NETPLAY)
-         {
-            #ifdef LOGGING_NETPLAY
-            add_log_entry2(10, active_local_player, msg);
-            #endif
-         }
-         return 1;
-      }
-      else
-      {
-         sprintf(msg,"Did not get reply from server\n");
-         printf("%s", msg);
-         if (L_LOGGING_NETPLAY)
-         {
-            #ifdef LOGGING_NETPLAY
-            add_log_entry2(10, active_local_player, msg);
-            #endif
-         }
-         return 0;
-      }
+      #ifdef LOGGING_NETPLAY
+      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+      #endif
    }
-   return 0;
+
+   // initialize driver with server address
+   if (!ClientInitNetwork(m_serveraddress)) return 0;
+
+   // try to join netgame
+   return client_init_join();
 }
+
+
 
 int client_init_join(void)
 {
-   //textout_centre_ex(screen, font, "Joining..........",SCREEN_W/2, SCREEN_H/2, palette_color[13], 0);
-
    Packet("CJON");
    PacketPut1ByteInt(players[0].color); // request the color of current player 0
    PacketAddString(local_hostname);
@@ -365,44 +279,41 @@ int client_init_join(void)
    {
       al_rest(0.02);
       if (key[ALLEGRO_KEY_ESCAPE]) SJON = 98; // emergency exit
-      packetsize = ClientReceive(packetbuffer);
-      if ((packetsize) && (PacketRead("SJON"))) // sent by server to client wanting to join
+      if ((packetsize = ClientReceive(packetbuffer)) && (PacketRead("SJON")))
       {
          SJON = 1;
          int pl = PacketGet2ByteInt();   // play level
-         int server_SJON_frame_num      =  PacketGet4ByteInt(); //
-         int server_game_move_entry_pos =  PacketGet4ByteInt(); //
+         int server_SJON_frame_num      =  PacketGet4ByteInt();
+         int server_game_move_entry_pos =  PacketGet4ByteInt();
          int z = PacketGet1ByteInt();      // frame rate
          int cp = PacketGet1ByteInt();     // client player number
          int color = PacketGet1ByteInt();  // client player color
-         deathmatch_pbullets = PacketGet1ByteInt();
-         deathmatch_pbullets_damage = PacketGet1ByteInt();
-         suicide_pbullets = PacketGet1ByteInt();
+         int dmp = PacketGet1ByteInt();
+         int dmd = PacketGet1ByteInt();
+         int spb = PacketGet1ByteInt();
 
-
-         if (cp == 99) //server full, join denied
-         {
-            SJON = 99;
-         }
+         if (cp == 99) SJON = 99; // server full, join denied
          else // join allowed
          {
-            play_level = pl;
+            // initialize all players
+            for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
 
-            frame_speed = z;
-            al_set_timer_speed(fps_timer, 1/(float)frame_speed);
-
-
-            players[0].active = 1;          // server is alway player 0 on the client
-            players[0].control_method = 2; // reset from server local to remote view
-
-            // set active local player stuff
             active_local_player = cp;
-            init_player(cp, 1);
-            players[cp].active = 0;          // active is not set here on purpose
-            players[cp].control_method = 4; // client local player
+            players[cp].control_method = 4;
             players[cp].color = color;
             players[cp].bitmap_index = color -1;
             players1[cp].game_move_entry_pos = server_game_move_entry_pos;
+
+            ima_client = 1;
+
+            frame_num = 0;   // just in case its not
+            play_level = pl;
+            frame_speed = z;
+            al_set_timer_speed(fps_timer, 1/(float)frame_speed);
+
+            deathmatch_pbullets = dmp;
+            deathmatch_pbullets_damage = dmd;
+            suicide_pbullets = spb;
 
             if (L_LOGGING_NETPLAY_JOIN)
             {
@@ -430,7 +341,6 @@ int client_init_join(void)
                add_log_entry_centered_text(11, 0, 76, "", "+", "-");
                #endif
             }
-
             return 1;
          } // end of join allowed
       } // end of packet read
@@ -438,8 +348,8 @@ int client_init_join(void)
 
    if (SJON == 98) // cancelled by player with ESC
    {
-      sprintf(msg,"Client waiting for join cancelled by client\n");
-      printf("%s", msg);
+      sprintf(msg,"Client waiting for join cancelled by client");
+      printf("%s\n", msg);
       if (L_LOGGING_NETPLAY_JOIN)
       {
          #ifdef LOGGING_NETPLAY_JOIN
@@ -450,8 +360,8 @@ int client_init_join(void)
    }
    if (SJON == 99) // denied by server full
    {
-      sprintf(msg,"Server replied with 'SERVER FULL'\n");
-      printf("%s", msg);
+      sprintf(msg,"Server replied with 'SERVER FULL'");
+      printf("%s\n", msg);
       if (L_LOGGING_NETPLAY_JOIN)
       {
          #ifdef LOGGING_NETPLAY_JOIN
@@ -465,80 +375,11 @@ int client_init_join(void)
 
 void client_exit(void)
 {
-   ClientExit();
+   ClientExitNetwork();
    ima_client = 0;
-   players[active_local_player].control_method = 0; // local_control
+   players[0].active = 1; // local_control
+   active_local_player = 0;
 }
-
-int client_init(void)
-{
-   frame_num = 0;  // just in case its not
-   sprintf(msg, "Client mode started on host:[%s]",local_hostname);
-   printf("%s\n", msg);
-   if (L_LOGGING_NETPLAY)
-   {
-      #ifdef LOGGING_NETPLAY
-      add_log_entry_centered_text(10, 0, 76, "", "+", "-");
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-      #endif
-   }
-   sprintf(msg, "Looking for server:[%s]", m_serveraddress);
-   printf("%s\n", msg);
-
-   if (L_LOGGING_NETPLAY)
-   {
-      #ifdef LOGGING_NETPLAY
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-      #endif
-   }
-
-   // date and time stamp
-   char tmsg[80];
-   struct tm *timenow;
-   time_t now = time(NULL);
-   timenow = localtime(&now);
-   strftime(tmsg, sizeof(tmsg), "%Y-%m-%d  %H:%M:%S", timenow);
-   sprintf(msg, "Date and time:[%s]",tmsg);
-   printf("%s\n", msg);
-
-   if (L_LOGGING_NETPLAY)
-   {
-      #ifdef LOGGING_NETPLAY
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-      add_log_entry_centered_text(10, 0, 76, "", "+", "-");
-      #endif
-   }
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      init_player(p, 1);
-      players[p].active = 0;
-   }
-   players[0].control_method = 2; // server player to show on client
-   ima_client = 1;
-
-   //  initialize driver
-   int init_good = client_init_driver();
-
-   // initialize join
-   if ((init_good) && (!client_init_join())) init_good = 0;
-
-   if (!init_good) // reset if fails
-   {
-      players[0].active = 1;
-      ima_client = 0;
-      sprintf(msg, "Error: Client initialization failed");
-      printf("%s\n", msg);
-      m_err(msg);
-      if (L_LOGGING_NETPLAY)
-      {
-         #ifdef LOGGING_NETPLAY
-         add_log_entry2(10, 0, msg);
-         #endif
-      }
-   }
-   return init_good;
-}
-
 
 void read_game_step_from_packet(int x, int clf_check)
 {
@@ -548,10 +389,7 @@ void read_game_step_from_packet(int x, int clf_check)
    int g2 = PacketGet1ByteInt();
    int g3 = PacketGet1ByteInt();
 
-   char tmsg1[80];
-   char tmsg2[80];
-   char tmsg3[80];
-   char tmsg4[80];
+   char tmsg1[80], tmsg2[80], tmsg3[80], tmsg4[80];
    sprintf(tmsg1,"rx move:%d [%d][%d][%d][%2d]", x, g0, g1, g2, g3);
    sprintf(tmsg3," ");
    sprintf(tmsg4," ");
@@ -574,20 +412,22 @@ void read_game_step_from_packet(int x, int clf_check)
       game_moves[x][2] = g2;
       game_moves[x][3] = g3;
 
-      int cs;
       if (clf_check)
       {
          int p = active_local_player;
-         cs = g0 - frame_num;                    // calculate c_csync
-         players1[p].client_game_move_sync = cs;                 // set in player struct
-         if (cs < 0 ) players1[p].client_game_move_sync_err++;   // check for error
-         if (cs < players1[p].client_game_move_sync_min)         // check and set min
-            players1[p].client_game_move_sync_min = cs;
-         if (cs == 0) sprintf(tmsg4,"<---[WARNING!]");
-         if (cs < 0)  sprintf(tmsg4,"<---[ERROR!]");
-         sprintf(tmsg3,"- frame lead:[%d]%s", cs, tmsg4);
+         int c_sync = g0 - frame_num;                                // calculate c_csync
+         players1[p].client_game_move_sync = c_sync;                 // set in player struct
+         if (c_sync < 0 )                                            // check for error
+         {
+            players1[p].client_game_move_sync_err++;                 // inc error count
+            sprintf(tmsg4,"<---[ERROR!]");
+         }
+         if (c_sync == 0) sprintf(tmsg4,"<---[WARNING!]");
+         if (c_sync < players1[p].client_game_move_sync_min)         // set c_cync min
+            players1[p].client_game_move_sync_min = c_sync;
 
-      } // end of if clf check
+         sprintf(tmsg3,"- frame lead:[%d]%s", c_sync, tmsg4);
+      }
    }  // end of if not duplicate
 
    if (L_LOGGING_NETPLAY_game_move)
@@ -598,7 +438,6 @@ void read_game_step_from_packet(int x, int clf_check)
       #endif
    }
 }
-
 
 
 int process_stdf_packet(void)
@@ -752,8 +591,8 @@ void client_apply_diff()
          // copy modified base state to game_vars
          state_to_game_vars(client_state_base);
 
-          // update client base frame_num
-          client_state_base_frame_num = frame_num;
+         // update client base frame_num
+         client_state_base_frame_num = frame_num;
 
          // restore control methods
          players[0].control_method = 2;
@@ -778,12 +617,13 @@ void client_apply_diff()
    }
 }
 
+
 void client_block_until_good_stdf_received(void)
 {
    int p = active_local_player;
+
    sprintf(msg, "Waiting for game state from server");
    rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, 10, 2, 0, 1);
-
    if (L_LOGGING_NETPLAY_JOIN)
    {
       #ifdef LOGGING_NETPLAY_JOIN
@@ -792,29 +632,37 @@ void client_block_until_good_stdf_received(void)
    }
 
    reset_states();
-
    int done = 0;
    while (!done)
    {
+      if ((packetsize = ClientReceive(packetbuffer)) && (PacketRead("stdf"))) done = process_stdf_packet();
+      proc_controllers();
       if (key[ALLEGRO_KEY_F11]) fast_exit(65); // in case we get trapped here and need a way out
-      if ((packetsize = ClientReceive(packetbuffer)))
-      {
-         if(PacketRead("stdf"))
-         {
-             done = process_stdf_packet();
-         }
-      }
    }
+   client_apply_diff();
 
-   // set frame_nums
+   // set frame_num and timer frame_num
    frame_num = client_state_dif_dst;
    al_set_timer_count(fps_timer, frame_num);
 
+   // set all active clients control methods to 2
+   for (int pp=1; pp<NUM_PLAYERS; pp++)
+      if (players[pp].active) players[pp].control_method = 2;
+
+   // set local client control method to 4
+   players[p].control_method = 4;
+
+   // set holdoff 200 frames in future so client won't try to drop while syncing
    players1[p].client_last_sdat_rx_frame_num = frame_num + 200;
 
-   client_apply_diff();
-
-   init_level_background(); // redraw blocks just in case
+   // send ack up to this point so server won't try to send us previous game moves
+   Packet("sdak");
+   PacketPut1ByteInt(p);
+   PacketPut4ByteInt(frame_num);
+   PacketPut4ByteInt(players1[p].game_move_entry_pos); // new entry pos
+   PacketPut4ByteInt(players1[p].stdf_late);
+   PacketPut4ByteInt(players1[p].frames_skipped);
+   ClientSend(packetbuffer, packetsize);
 
    log_timer = clock(); // start timing for chase and lock
    if (L_LOGGING_NETPLAY_JOIN)
@@ -825,22 +673,6 @@ void client_block_until_good_stdf_received(void)
        //printf("%s", msg);
       #endif
    }
-
-   // check for other active clients and set their control methods to 2
-   for (int pp=1; pp<NUM_PLAYERS; pp++)
-      if (players[pp].active) players[pp].control_method = 2;
-
-   players[p].control_method = 4; // set my own control method to 4
-
-
-   // send ack up to this point (we don't care about previous game moves anymore)
-   Packet("sdak");
-   PacketPut1ByteInt(p);
-   PacketPut4ByteInt(frame_num);
-   PacketPut4ByteInt(players1[p].game_move_entry_pos); // new entry pos
-   PacketPut4ByteInt(players1[p].stdf_late);
-   PacketPut4ByteInt(players1[p].frames_skipped);
-   ClientSend(packetbuffer, packetsize);
 }
 
 void process_bandwidth_counters(int p)
