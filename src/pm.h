@@ -16,8 +16,6 @@
 #include <zlib.h>
 
 #define NETPLAY
-#define CONNECTION // tcp
-#define CHANNEL    // udp
 
 #define NUM_SPRITES 1024
 #define NUM_ANS 256
@@ -940,14 +938,12 @@ int process_select_window(int draw_only);
 void set_swbl(void);
 
 // n_client.h
-int ClientInit(const char *serveraddress);
+int ClientInitNetwork(const char *serveraddress);
 int ClientCheckResponse(void);
 int ClientReceive(void *data);
 void ClientSend(void *data, int len);
 void client_flush(void);
-void ClientExit(void);
-void nc_client(void);
-int client_init_driver(void);
+void ClientExitNetwork(void);
 int client_init_join(void);
 void client_exit(void);
 int client_init(void);
@@ -986,27 +982,19 @@ int PacketGet3ByteInt(void);
 int PacketGet4ByteInt(void);
 
 
-
-
-
-
-
-
-
 //n_server.h
 #define MAX_CLIENTS 32
 extern NET_CONN *ListenConn;
 extern NET_CONN *ClientConn[MAX_CLIENTS];
 extern int ClientNum;
 
-int ServerInit(void);
-void ServerExit(void);
+int ServerInitNetwork(void);
+void ServerExitNetwork(void);
 int ServerListen(void);
 int ServerReceive(void *data, int *sender);
 void ServerBroadcast(void *data, int len);
 void ServerSendTo(void *data, int len, int who);
 void server_flush(void);
-void nc_server(void);
 int server_init(void);
 void server_exit(void);
 void server_send_stdf(int p);

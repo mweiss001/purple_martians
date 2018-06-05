@@ -5652,6 +5652,137 @@ why do I use:
 7 x memset
 27 x memcpy
 
+---------------
+
+working on join...
+
+i want to move client_block_until_good_stdf_received(void)
+to right after block for SJON rx
+
+removed from main clinet loop:
+if (frame_num == 0) client_block_until_good_stdf_received();
+
+added right after SJON rx:
+client_block_until_good_stdf_received();
+
+done and works, even after level done
+
+but don't I need to call it in client loop for level done rejoin?
+
+I guess not....
+client and server should have just both loaded new level, no need to wait for state.
+
+i'll leave it in for now, so it gets called from both places
+
+
+
+
+
+
+
+
+
+
+
+
+
+i want to clean up the init code for client, its kinda like spaghetti...
+could be a lot clearer....
+
+
+
+now:
+
+client_init
+  - client_init_driver()
+  - client_init_join()
+     - send CJON
+     - block wait for SJON
+     - client_block_until_good_stdf_received()
+        - block for good state
+
+
+
+
+
+what if I flatten it all out
+
+
+client_init
+  - client_init_driver()
+  - send CJON
+  - block wait for SJON
+  - block for good state
+
+
+
+
+
+did a lot of cleaning up the client init stuff
+
+now:
+
+client_init
+  -ClientInit
+  -check for reply
+  - client_init_join()
+
+
+
+
+  moved check for reply to ClientInit
+rename ClientInit to ClientInitNetwork()
+
+
+now:
+
+client_init
+  -ClientInitNetwork()
+  -client_init_join()
+
+
+much better....
+
+rename ServerInit to ServerInitNetwork() also...
+
+renamed server and client exit also
+now called after every call to server init (3 times each in main)
+
+
+client exit takes care of resetting player stuff like:
+
+   ima_client = 0;
+   players[0].active = 1; // local_control
+   active_local_player = 0;
+
+
+no need to do it anywhere else, like if join fails...
+
+
+change init_player(p,1)
+
+to set inactive, not active....
+
+client_init_join() is looking good
+
+void client_block_until_good_stdf_received(void) is looking good.
+
+its been coming along nicely......
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

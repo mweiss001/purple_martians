@@ -21,7 +21,6 @@ int ServerListen() // Check for connecting clients (0 = ok, got new connection, 
 {
   if (TCP)
   {
-     #ifdef CONNECTION
    	NET_CONN *newconn;
    	newconn = net_poll_listen (ListenConn);
    	if(newconn == NULL) return 1;
@@ -42,11 +41,9 @@ int ServerListen() // Check for connecting clients (0 = ok, got new connection, 
          }
       }
    	return 0;
-      #endif
    } // end of if TCP
    else // UDP
    {
-      #ifdef CHANNEL
    	char address[32];
    	packetsize = net_receive(ListenChannel, packetbuffer, 1024, address);
       if ((packetsize) && (PacketRead("1234")))
@@ -92,11 +89,10 @@ int ServerListen() // Check for connecting clients (0 = ok, got new connection, 
          return 0; // got new connection
       }
       return 1;
-      #endif
    } // end of UDP
 }
 
-int ServerInit() // Initialize the server
+int ServerInitNetwork() // Initialize the server
 {
 	if(NetworkInit())
    {
@@ -113,7 +109,6 @@ int ServerInit() // Initialize the server
    }
   if (TCP)
   {
-      #ifdef CONNECTION
    	ListenConn = net_openconn(NetworkDriver, "");
    	if(!ListenConn)
       {
@@ -142,11 +137,9 @@ int ServerInit() // Initialize the server
          return -1;
       }
       sprintf(msg, "Network initialized - connection mode (TCP)");
-      #endif
    } // end of if TCP
    else // UDP
    {
-      #ifdef CHANNEL
       // open the listening channel;
       if (!(ListenChannel = net_openchannel(NetworkDriver, "")))
       {
@@ -177,7 +170,6 @@ int ServerInit() // Initialize the server
    		return -1;
    	}
       sprintf(msg, "Network initialized - channel mode (UDP)");
-      #endif
    } // end of UDP
 
    printf("%s\n", msg);
@@ -196,7 +188,6 @@ int ServerReceive(void *data, int *sender)
 {
    if (TCP)
    {
-      #ifdef CONNECTION
       for(int n=0; n<ClientNum; n++)
       {
    	   if(ClientConn[n])
@@ -222,11 +213,9 @@ int ServerReceive(void *data, int *sender)
    			}
    		}
       }
-      #endif
    } // end of if TCP
    else // UDP
    {
-      #ifdef CHANNEL
       for(int n=0; n<ClientNum; n++)
       {
    		if(ClientChannel[n])
@@ -252,42 +241,31 @@ int ServerReceive(void *data, int *sender)
    			}
    		}
       }
-      #endif
    } // end of UDP
 	return 0;
 }
+
 void ServerBroadcast(void *data, int len)
 {
    for(int n = 0; n < ClientNum; n++)
-   if (TCP)
    {
-      #ifdef CONNECTION
-		if(ClientConn[n]) net_send_rdm(ClientConn[n], data, len);
-      #endif
-   }
-   else // UDP
-   {
-      #ifdef CHANNEL
-		if(ClientChannel[n]) net_send(ClientChannel[n], data, len);
-      #endif
+      if (TCP)
+      {
+         if (ClientConn[n]) net_send_rdm(ClientConn[n], data, len);
+      }
+      else
+      {
+         if (ClientChannel[n]) net_send(ClientChannel[n], data, len);
+      }
    }
 }
 
 // send data to a specific client
 void ServerSendTo(void *data, int len, int who, int player)
 {
-   if (TCP)
-   {
-      #ifdef CONNECTION
-   	net_send_rdm(ClientConn[who], data, len);
-      #endif
-   }
-   else // UDP
-   {
-      #ifdef CHANNEL
-      net_send(ClientChannel[who], data, len);
-      #endif
-   }
+   if (TCP) net_send_rdm(ClientConn[who], data, len);
+   else     net_send(ClientChannel[who], data, len);
+
    #ifdef NETPLAY_bandwidth_tracking
    // add to server's counts
    players1[0].tx_current_bytes_for_this_frame += len;
@@ -303,7 +281,7 @@ void server_flush(void)
    while (ServerReceive(packetbuffer, &who));
 }
 
-void ServerExit() // Shut the server down
+void ServerExitNetwork() // Shut the server down
 {
    sprintf(msg, "Shutting down the server\n");
    printf("%s", msg);
@@ -315,7 +293,6 @@ void ServerExit() // Shut the server down
    }
    if (TCP)
    {
-      #ifdef CONNECTION
       for(int n = 0; n < ClientNum; n++)
          if(ClientConn[n])
          {
@@ -324,11 +301,9 @@ void ServerExit() // Shut the server down
          }
    	if(ListenConn) net_closeconn(ListenConn);
    	ListenConn = NULL;
-      #endif
-   } // end of if TCP
+   }
    else // UDP
    {
-      #ifdef CHANNEL
       for(int n=0; n<ClientNum; n++)
          if (ClientChannel[n])
          {
@@ -337,45 +312,6 @@ void ServerExit() // Shut the server down
          }
    	if (ListenChannel) net_closechannel(ListenChannel);
    	ListenChannel = NULL;
-      #endif
-   } // end of UDP
-}
-
-// ---------------------------------------------------------------------------------------------------------------
-// ***************************************************************************************************************
-//----------------------------------------------------------------------------------------------------------------
-
-void nc_server(void) // for specialized packet testing only
-{
-   static int who;
-   if (ServerInit())  printf ("Error initializing server\n");
-
-   int quit = 0;
-   while (!quit)
-   {
-      if (key[ALLEGRO_KEY_ESCAPE]) quit = 1;
-      ServerListen(); // listen for connections
-      packetsize = ServerReceive(packetbuffer, &who); // get packets
-      if (packetsize > 0)
-      {
-         if(PacketRead("poop"))
-         {
-            int pc = PacketGet2ByteInt();
-//            printf("server rx poop:[%d]\n", pc);
-            pc++;
-//            printf("server tx peep:[%d]\n", pc);
-            Packet("peep");
-            PacketPut2ByteInt(pc);
-            ServerSendTo(packetbuffer, packetsize, who, 0);
-         }
-      }
-      if (key[ALLEGRO_KEY_0] && ClientNum)
-      {
-         while (key[ALLEGRO_KEY_0]);
-         Packet("stoc");
-         PacketPut1ByteInt(0);
-         ServerSendTo(packetbuffer, packetsize, 0, 0);
-      }
    }
 }
 
@@ -418,12 +354,13 @@ int server_init(void)
 
    ima_server = 1;
    init_player(0, 1);
+   players[0].active = 1;
    players[0].control_method = 3; // server_local_control
 
    sprintf(players1[0].hostname, "%s", local_hostname);
 
 
-   if (ServerInit())
+   if (ServerInitNetwork())
    {
       sprintf(msg, "Could find no internet driver for server\n");
       printf("%s", msg);
@@ -455,7 +392,7 @@ int server_init(void)
 
 void server_exit(void)
 {
-   ServerExit(); // Shut the server down
+   ServerExitNetwork(); // Shut the server down
    ima_server = 0;
 
    // reset player data
@@ -887,7 +824,6 @@ void server_control() // this is the main server loop to process packet send and
             init_player(cn, 1);
             players[cn].color = color;
             players[cn].bitmap_index = color - 1;
-            players[cn].active = 0; //server client view only
             players[cn].control_method = 2; //server client view only
             players1[cn].who = who;
             players1[cn].server_last_sdak_rx_frame_num = frame_num + 200;
