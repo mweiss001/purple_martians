@@ -7,6 +7,44 @@
 
 
 // ------------------------------------------------
+// ----------------- netgame ----------------------
+// ------------------------------------------------
+int ima_server = 0;
+int ima_client = 0;
+char m_serveraddress[256] = "192.168.1.2";
+int TCP = 0;
+
+int stdf_freq = 40;
+int zlib_cmp = 7;
+int control_lead_frames = 3;
+int server_lead_frames = 1;
+
+int deathmatch_pbullets = 0;
+int deathmatch_pbullets_damage = 5;
+int suicide_pbullets = 0;
+
+// server's copies of client states
+char srv_client_state[8][2][STATE_SIZE];
+int srv_client_state_frame_num[8][2];
+
+// local client's states
+char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
+int  client_state_buffer_pieces[16];   // to mark packet pieces as received
+char client_state_base[STATE_SIZE];    // last ack state
+int  client_state_base_frame_num;      // last ack state frame_num
+char client_state_dif[STATE_SIZE];     // uncompressed dif
+int  client_state_dif_src;             // uncompressed dif src frame_num
+int  client_state_dif_dst;             // uncompressed dif dst frame_num
+
+
+
+
+
+
+
+
+
+// ------------------------------------------------
 // ----- visual level select ----------------------
 // ------------------------------------------------
 ALLEGRO_BITMAP * grid_bmp = NULL;
@@ -256,35 +294,6 @@ int text_title_bitmaps_create = 1;
 int text_title_draw_color = -1;
 
 
-// ------------------------------------------------
-// ----------------- netgame ----------------------
-// ------------------------------------------------
-int ima_server = 0;
-int ima_client = 0;
-char m_serveraddress[256] = "192.168.1.2";
-int TCP = 0;
-
-int stdf_freq = 40;
-int zlib_cmp = 7;
-int control_lead_frames = 3;
-int server_lead_frames = 1;
-
-int deathmatch_pbullets = 0;
-int deathmatch_pbullets_damage = 5;
-int suicide_pbullets = 0;
-
-// server's copies of client states
-char srv_client_state[8][2][STATE_SIZE];
-int srv_client_state_frame_num[8][2];
-
-// local client's states
-char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
-int  client_state_buffer_pieces[16];   // to mark packet pieces as received
-char client_state_base[STATE_SIZE];    // last ack state
-int  client_state_base_frame_num;      // last ack state frame_num
-char client_state_dif[STATE_SIZE];     // uncompressed dif
-int  client_state_dif_src;             // uncompressed dif src frame_num
-int  client_state_dif_dst;             // uncompressed dif dst frame_num
 
 
 

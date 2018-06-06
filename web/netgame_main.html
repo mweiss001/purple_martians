@@ -42,6 +42,9 @@
             <div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
             <div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
             <div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
+            <div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
+            <div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
+            <div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div>    
             
         </nav>
 
@@ -89,7 +92,7 @@ The state of the controls is not stored every frame, only when a control change 
 Every player (server and clients) should have an identical copy of the game moves array.
 
 The server has the master array and syncs that to each client independantly.
-When a client's controls change, those changes are sent to the server, put in the master array, then sync'd back to every client.
+When a client's controls change, those changes are sent to the server, put in the master array, then synced back to every client.
     
 - client presses a control
 - client sends a packet with that data to the server
@@ -136,7 +139,7 @@ When the server receives a 'cdat' packet from a client:
 
 If the data is discarded, this is will not cause any sync issues, it will be as if the client never pressed the control at all.
 
-The most common reason for cdat's arriving late are the client lagging too far behind server.
+The most common reason for cdat's arriving late is the client lagging too far behind server.
 </mh3>    
             
 <pre><code class="language-cpp">if(PacketRead("cdat"))
@@ -300,7 +303,7 @@ Any lower than 3 and sometimes the data will not return in time.
 
 At settings higher than 3, the control lag becomes more noticeable.
 
-I have found 3 to be a good compromise. 3 frames is 75ms which is a barely noticeable control lag, and late cdats are very rare.
+I have found 3 to be a good compromise. 3 frames is 75ms which is a barely noticeable control lag, and late cdats are rare.
 
 To make things fair for all players, the server has the same delay applied to its control changes.
 </mh3>
@@ -343,6 +346,7 @@ int players[p].control_method;
 3 = in netgame, local server player on server
 4 = in netgame, local client player on client 
 99 = in netgame, used client in current level (to prevent re-use in same level)
+
 </mh3>
 
 
@@ -489,7 +493,6 @@ server_sync is also used to drop clients when their sync goes bad.
 }</code></pre>
 
 
-
 <br><mh7>Netgame status variables - client_sync</mh7>
 <br><me1>Description</me1>
 <mh3>
@@ -514,210 +517,6 @@ players1[p].client_sync (only for local client player)
    int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
    al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
 }</code></pre>
-
-
-<br><mh7>Netgame config variables</mh7>
-<mh3>These are all in pm.cfg:
-</mh3>
-<pre><code class="language-cpp">[NETWORK]
-server_IP=192.168.1.3
-TCP=0
-deathmatch_pbullets=1
-deathmatch_pbullets_damage=5
-suicide_pbullets=1
-control_lead_frames=3
-server_lead_frames=1
-stdf_freq=5
-zlib_cmp=7
-
-
-server_IP=192.168.1.3
----------------------
-clients need to know the server IP or hostname to connect
-servers dont need to know anything, or have anything set
-
-TCP=0
------
-TCP or UDP
-TCP = 0; // UDP
-TCP = 1; // TCP
-Both seem to work about the same.
-
-deathmatch_pbullets=1
----------------------
-can player's bullets hurt other players?
-
-deathmatch_pbullets_damage=5
-----------------------------
-player's bullet damage amount
-
-suicide_pbullets=1
-------------------
-can players hurt themselves with their own bullets?
-
-
-
-For the variables below, it is not recommended to change them from their defaults.
-
-
-control_lead_frames=3
----------------------
-when client's controls change and cdat is sent to server tag input with a frame this far in the future
-
-server_lead_frames=1
---------------------
-the client will adjust frame rate to maintain a lag of this many frames behind the server
-
-chdf_freq=5
------------
-how often the server sends chdf packets to clients
-
-zlib_cmp=7
-----------
-zlib compression level
-</code></pre>
-
-
-
-
-
-
-
-<br><mh7>Packets used for game move sync</mh7>
-<br>
-<pk0>Packet: 'cdat'</pk0>
-<pk1>description: 'client data'
-direction: client to server
-- 1 byte  (player)
-- 4 bytes (client frame_num of control change)
-- 1 byte  (comp move of control change)
-</pk1><br>
-
-<pk0>Packet: 'sdat'</pk0>
-<pk1>description: 'server data
-sent from server to client
-
-header:
------------------------------
-- 4 bytes (server frame_num)
-- 4 bytes (game_moves start entry)
-- 1 byte (number of entries)
-
-and then one or more entries:
------------------------------
-- 4 bytes (game_moves[x][0]); // frame_num
-- 1 byte (game_moves[x][1]);  // type
-- 1 byte (game_moves[x][2]);  // data 1
-- 1 byte (game_moves[x][3]);  // data 2
-</pk1><br>
-
-<pk0>Packet: 'sdak'</pk0>
-<pk1>description: 'sdat acknowledge'
-direction: client to server
-- 1 byte (player)
-- 4 bytes (client frame_num)
-- 4 bytes (game_moves new entry position)
-- 4 bytes (chdf late count)
-- 4 bytes (frames skipped count)
-</pk1><br>
-            
-
-<br><mh7>All Packets</mh7>
-<br>
-<pk0>Packet: 'cdat'</pk0>
-<pk1>description: 'client data'
-direction: client to server
-- 1 byte  (player)
-- 4 bytes (client frame_num of control change)
-- 1 byte  (comp move of control change)
-</pk1><br>
-
-<pk0>Packet: 'sdat'</pk0>
-<pk1>description: 'server data
-sent from server to client
-
-header:
------------------------------
-- 4 bytes (server frame_num)
-- 4 bytes (game_moves start entry)
-- 1 byte (number of entries)
-
-and then one or more entries:
------------------------------
-- 4 bytes (game_moves[x][0]); // frame_num
-- 1 byte (game_moves[x][1]);  // type
-- 1 byte (game_moves[x][2]);  // data 1
-- 1 byte (game_moves[x][3]);  // data 2
-</pk1><br>
-
-<pk0>Packet: 'sdak'</pk0>
-<pk1>description: 'sdat acknowledge'
-direction: client to server
-- 1 byte (player)
-- 4 bytes (client frame_num)
-- 4 bytes (game_moves new entry position)
-- 4 bytes (chdf late count)
-- 4 bytes (frames skipped count)
-</pk1><br>
-            
-<pk0>Packet: 'serr'</pk0>
-<pk1>description: 'server error'
-direction: server to client
-- 1 byte (error type)
-- 4 bytes (server frame_num)
-- 4 bytes (server c sync)
-- 4 bytes (server c sync errors)
-</pk1><br>
-
-<pk0>Packet: 'stdf'</pk0>
-<pk1>description: 'state dif'
-direction: server to client
-- 4 bytes (source frame_num)
-- 4 bytes (destination frame_num)
-- 1 byte (packet sequence num)
-- 1 byte (packet sequence total)
-- 4 bytes (data start byte)
-- 4 bytes (data size)
-</pk1><br>
-
-<pk0>Packet: 'stak'</pk0>
-<pk1>description: 'state dif acknowledge'
-direction: client to server
-- 1 byte (player)
-- 1 byte (diff corr)
-- 4 bytes (client frame_num)
-</pk1><br>
-
-<pk0>Packet: 'CJON'</pk0>
-<pk1>description: 'client join'
-direction: client to server
-- 1 byte (requested color)
-- 16 bytes (client hostname)
-</pk1><br>
-        
-<pk0>Packet: 'SJON'</pk0>
-<pk1>description: 'server join'
-direction: server to client
-- 2 bytes (play level)
-- 4 bytes (server frame_num)
-- 4 bytes (server game_move entry position)
-- 1 byte (frame speed)
-- 1 byte (player number)
-- 1 byte (player color)
-- 1 byte (deathmatch_pbullets)
-- 1 byte (deathmatch_pbullets_damage)
-- 1 byte (suicide_pbullets)
-</pk1>        
-
-
-
-
-
-
-
-
-
-
 
 
 

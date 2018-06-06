@@ -1,0 +1,267 @@
+<!doctype html>
+<title>Netgame - Status</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+            
+            <div style="text-align: center;">Navigation</div><hr>    
+
+            <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+            <div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
+            <div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
+            <div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
+            <div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
+            <div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
+            <div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
+
+            <div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
+            <div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+
+            <br><div style="text-align: center;">Technical Descriptions</div><hr>    
+            
+            <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+            <div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+            <div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+            <div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+            <div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+            <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+            <div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+            <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+            <div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
+            <div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
+            <div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
+            <div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
+            <div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
+            <div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div>    
+
+			
+			
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh1>Technical Code Descriptions</mh1><hr>
+            </header>
+
+
+<mh8>Netgame - Status</mh8>
+<mh7>Overview</mh7>
+<mh3>
+These variables are used to track the status of the netgame.
+</mh3>    
+    
+<br><mh7>server_game_moves_sync</mh7>
+
+<br><me1>Description</me1>
+<mh3>
+When the server receives a 'cdat' packet with a client's game_move data, it is supposed to be tagged with a future frame_num.
+This is required so that there is time to sync the game_move back to the clients before its frame_num expires.
+
+server_game_moves_sync is how many frames the client's game_move data is ahead of the server's frame num.
+
+If it is greater than zero, this is normal.
+
+If it is exactly zero, the game_moves are arriving on the exact frame they are needed.  This is cutting it very close.
+
+If it is less than zero:
+- the game move is late and will be discarded
+- server_game_moves_sync_err will be incremented
+- the move data is discarded (it will be as if the client never made the move)
+- this should not make the game go out of sync as all players states will still be the same
+
+</mh3>
+
+<br><me1>Variables</me1>
+<mh3>
+Server: (for each player)
+players1[p].server_game_move_sync = 0;
+players1[p].server_game_move_sync_min = 99;
+players1[p].server_game_move_sync_err = 0;
+
+Client:
+players1[p].serr_c_sync_err
+
+players1[p].server_game_move_sync_err is synced back to the client with the 'serr' packet, where it is saved as players1[p].serr_c_sync_err. 
+That way the client can know that the server dropped one of their 'cdat' packets because it was received too late.
+
+</mh3>
+
+<br><me1>Code</me1>
+<pre><code class="language-cpp">if(PacketRead("cdat"))
+{
+   int p = PacketGet1ByteInt();
+   int fn = PacketGet4ByteInt();
+   int cm = PacketGet1ByteInt();
+
+   // how far ahead is the client's frame_num for this move, compared to server's frame_num
+   int c_sync = players1[p].server_game_move_sync = fn - frame_num;
+
+   // keep track of the minimum c_sync
+   if (c_sync < players1[p].server_game_move_sync_min) players1[p].server_game_move_sync_min = c_sync;
+
+   if (c_sync >= 0) add_game_move(fn, 5, p, cm); // add to game_move array
+   else                                          // unless late, then drop and inc error
+   {
+      players1[p].server_game_move_sync_err++;
+      Packet("serr"); // server error
+      PacketPut1ByteInt(p);
+      PacketPut1ByteInt(1); // error type 1
+      PacketPut4ByteInt(frame_num);
+      PacketPut4ByteInt(c_sync);
+      PacketPut4ByteInt(players1[p].server_game_move_sync_err);
+      ServerSendTo(packetbuffer, packetsize, who, p);
+   }
+}</code></pre>
+
+
+
+
+
+
+
+
+
+
+<br><mh7>client_game_moves_sync</mh7>
+<br><me1>Description</me1>
+<mh3>
+When a client receives an 'sdat' packet with game_moves, they are entered in the client's game_move array.
+If their frame_num is earlier than the client's current frame_num an error is flagged.
+
+This means that the client has received a game_move that happened in the past.
+The move will be applied on the server, but will never be applied on the client because it was received too late.
+
+This will definitely cause the client to go out of sync.
+
+</mh3>
+
+<br><me1>Variables</me1>
+<mh3>
+Client:
+players1[p].client_game_move_sync;
+players1[p].client_game_move_sync_min;
+players1[p].client_game_move_sync_err;
+</mh3>
+
+<br><me1>Code</me1>
+
+<pre><code class="language-cpp">cs = g0 - passcount;                                    // client_game_moves_sync
+players[p].client_game_moves_sync = cs;                 // set in player struct
+if (cs < 0 ) players[p].client_game_moves_sync_err++;   // check for error
+if (cs < players[p].client_game_moves_sync_min)
+   players[p].client_game_moves_sync_min = cs;          // check and set min  
+</code></pre>
+
+
+
+
+
+
+
+<br><mh7>server_sync</mh7>
+<br><me1>Description</me1>
+<mh3>
+When the server gets an "sdak" packet from a client, it contains the client frame_num.
+
+The server keeps track of server_sync for each client like this:
+players1[p].server_sync = frame_num - client_fn;     // set server_sync in player struct
+</mh3>
+
+<br><me1>Variables</me1>
+<mh3>
+Server: 
+players1[p].server_sync (for each client) 
+</mh3>
+
+<br><me1>Code</me1>
+<pre><code class="language-cpp">if(PacketRead("sdak"))
+{
+   int p = PacketGet1ByteInt();
+   int client_fn = PacketGet4ByteInt();
+   players1[p].server_sync = frame_num - client_fn;     // set server_sync in player struct
+}</code></pre>
+
+<mh3>
+server_sync is used to control when clients come active, when joining.
+</mh3>
+<pre><code class="language-cpp">if ((players[p].control_method == 2) && (players1[p].server_sync < 4) && (players1[p].server_sync > -2))
+{
+   add_game_move(frame_num + 4, 1, p, players[p].color); // player becomes active in 4 frame! 
+}</code></pre>
+
+<mh3>
+server_sync is also used to drop clients when their sync goes bad.
+</mh3>
+<pre><code class="language-cpp">void proc_player_drop(void)
+{
+   for (int p=1; p < NUM_PLAYERS; p++)
+      if (players[p].control_method == 2)
+      {
+         if ((players[p].active) && (players1[p].server_sync > 100)) // drop player
+         {
+            add_game_move(frame_num + 4, 1, p, 71); // make client inactive (reason sync > 100)
+         }
+      }
+}</code></pre>
+
+
+
+
+
+
+
+
+<br><mh7>client_sync</mh7>
+<br><me1>Description</me1>
+<mh3>
+When the client receives an sdat packet, the frame_num sent by the server is compared the client's frame_num.
+
+players1[p].client_sync = sdat_frame_num - frame_num;
+
+This is used by the client to adjust its fps_timer, to stay 1 frame behind the server.
+</mh3>
+
+<br><me1>Variables</me1>
+<mh3>
+Client:
+players1[p].client_sync (only for local client player)
+</mh3>
+
+<br><me1>Code</me1>
+<pre><code class="language-cpp">if(PacketRead("sdat"))
+{
+   int sdat_frame_num = PacketGet4ByteInt();
+   players1[p].client_sync = sdat_frame_num - frame_num;
+   int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
+   al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+}</code></pre>
+
+
+
+
+               <footer>
+                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2018, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+            </footer>
+
+        </div>
+    </body>
+
+</html>

@@ -5904,7 +5904,52 @@ still seems to work...
 
 
 
+main
 
+NET_CONN *ListenConn = NULL;                         // listening connection
+NET_CONN *ClientConn[MAX_CLIENTS] = {NULL, };        // array of connections for each client
+
+NET_CHANNEL *ListenChannel = NULL;                   // listen channel
+NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
+
+int ClientNum = 0;
+
+NET_CONN *ServerConn = NULL;
+NET_CHANNEL *ServerChannel;
+
+
+pm.h
+
+// libnet client
+#define MAX_CLIENTS 32
+extern int ClientNum;
+
+// libnet client TCP
+extern NET_CONN *ListenConn;
+extern NET_CONN *ClientConn[MAX_CLIENTS];
+
+// libnet client UDP
+extern NET_CHANNEL *ListenChannel;
+extern NET_CHANNEL *ClientChannel[MAX_CLIENTS];
+
+// libnet server TCP
+extern NET_CONN *ServerConn;
+// libnet server UDP
+extern NET_CHANNEL *ServerChannel;
+
+fixed this to only be in n_server and n_clinet
+they are never refernced oytside these files...done
+
+
+
+
+all the times when I am trying to break out of a loop with F11 or ESC I need to call proc_controllers()
+
+I can only think of 2 times...
+when client blocks waiting for SJON
+when client blocks waiting for initial state
+
+done....
 
 
 
