@@ -2,22 +2,7 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-
-
-all the times when I am trying to break out of a loop with F11 or ESC I need to cal proc_controllers()
-
-
 reset ortho double when leaving log file viewer
-
-
-
-
-
-
-
-
-
-
 
 
 ---------------------------------------------------------
@@ -31,7 +16,6 @@ reset ortho double when leaving log file viewer
 look into pandoc...
 
 
-
 rename level_array
 how about level drawing
 
@@ -43,29 +27,47 @@ In tiles there is some of it and also some in level background.
 At the bottom of files add links to other related docs
 
 
-netplay main
-to do
-
-done a lot
-game move sync
-redo packets
 
 
-netplay - state_corr:
-to do
+netplay overall TODO:
 
+make
+
+netplay - status
+
+netplay - config..done
+netplay - packets..done
+
+
+
+
+
+
+--------------------
+
+-----------
+
+----------
+</mh3>
+
+
+netplay - libnet
+
+
+
+
+
+
+netplay - main TODO:
+
+
+netplay - state_corr TODO:
 when are they sent
 show dif
 
 
-netplay - join
-
-
-
-
-
-
-
+netplay - join TODO:
+remove and find new home
 
 
 

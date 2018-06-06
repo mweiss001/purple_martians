@@ -42,6 +42,42 @@
 // ------------------------------------------------
 
 
+
+// ------------------------------------------------
+// ----------------- netgame ----------------------
+// ------------------------------------------------
+extern int ima_server;
+extern int ima_client;
+extern char m_serveraddress[256];
+extern int TCP;
+
+extern int stdf_freq;
+extern int zlib_cmp;
+extern int control_lead_frames;
+extern int server_lead_frames;
+
+extern int deathmatch_pbullets;
+extern int deathmatch_pbullets_damage;
+extern int suicide_pbullets;
+
+
+#define STATE_SIZE 104640
+
+// server's copies of client states
+extern char srv_client_state[8][2][STATE_SIZE];
+extern int srv_client_state_frame_num[8][2];
+
+// local client's states
+extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
+extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
+extern char client_state_base[STATE_SIZE];    // last ack state
+extern int  client_state_base_frame_num;      // last ack state frame_num
+extern char client_state_dif[STATE_SIZE];     // uncompressed dif
+extern int  client_state_dif_src;             // uncompressed dif src frame_num
+extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
+
+
+
 // ------------------------------------------------
 // ----- visual level select ----------------------
 // ------------------------------------------------
@@ -333,37 +369,6 @@ extern ALLEGRO_BITMAP *text_title;
 extern int text_title_bitmaps_create;
 extern int text_title_draw_color;
 
-// ------------------------------------------------
-// ----------------- netgame ----------------------
-// ------------------------------------------------
-extern int ima_server;
-extern int ima_client;
-extern char m_serveraddress[256];
-extern int TCP;
-
-extern int stdf_freq;
-extern int zlib_cmp;
-extern int control_lead_frames;
-extern int server_lead_frames;
-
-extern int deathmatch_pbullets;
-extern int deathmatch_pbullets_damage;
-extern int suicide_pbullets;
-
-
-#define STATE_SIZE 104640
-// server's copies of client states
-extern char srv_client_state[8][2][STATE_SIZE];
-extern int srv_client_state_frame_num[8][2];
-
-// local client's states
-extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
-extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
-extern char client_state_base[STATE_SIZE];    // last ack state
-extern int  client_state_base_frame_num;      // last ack state frame_num
-extern char client_state_dif[STATE_SIZE];     // uncompressed dif
-extern int  client_state_dif_src;             // uncompressed dif src frame_num
-extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
 
 
 
@@ -708,7 +713,7 @@ extern int level_display_region_y;
 extern int level_display_region_w;
 extern int level_display_region_h;
 
-extern int display_transform_double; // level editor scale
+extern int display_transform_double;
 
 extern int level_editor_running;
 extern int help_screens_running;
@@ -925,7 +930,6 @@ void ClientExitNetwork(void);
 int  ClientCheckResponse(void);
 int  ClientReceive(void *data);
 void ClientSend(void *data, int len);
-
 void client_flush(void);
 int  client_init_join(void);
 void client_exit(void);
@@ -950,37 +954,26 @@ extern char packetbuffer[1024];
 extern int packetsize;
 void Packet(const char *id);
 int PacketRead(const char *id);
-
 void PacketAddByte(char b);
 char PacketGetByte(void);
-
 void PacketAddString(char*);
 void PacketReadString(char*);
-
 void PacketPut1ByteInt(int b);
 void PacketPut2ByteInt(int b);
 void PacketPut3ByteInt(int b);
 void PacketPut4ByteInt(int b);
-
 int PacketGet1ByteInt(void);
 int PacketGet2ByteInt(void);
 int PacketGet3ByteInt(void);
 int PacketGet4ByteInt(void);
 
-
 //n_server.h
-#define MAX_CLIENTS 32
-extern NET_CONN *ListenConn;
-extern NET_CONN *ClientConn[MAX_CLIENTS];
-extern int ClientNum;
-
 int ServerInitNetwork(void);
 void ServerExitNetwork(void);
 int ServerListen(void);
 int ServerReceive(void *data, int *sender);
 void ServerBroadcast(void *data, int len);
 void ServerSendTo(void *data, int len, int who);
-
 void server_flush(void);
 int  server_init(void);
 void server_exit(void);

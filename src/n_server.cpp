@@ -3,19 +3,81 @@
 #include "pm.h"
 #ifdef NETPLAY
 
+// n_network.h
+extern int NetworkDriver;
 
-NET_CONN *ListenConn = NULL;                  // The listening connection
-NET_CONN *ClientConn[MAX_CLIENTS] = {NULL, }; // A connection for every client
+// n_packet.h
+extern char packetbuffer[1024];
+extern int packetsize;
 
-NET_CHANNEL *ListenChannel = NULL        ; // listen channel
-NET_CHANNEL *ClientChannel[32] = {NULL, }; // array of channels
-
+// these are never referenced outside of this file
+#define MAX_CLIENTS 32
 int ClientNum = 0;
+NET_CONN *ListenConn = NULL;                         // listening connection
+NET_CONN *ClientConn[MAX_CLIENTS] = {NULL, };        // array of connections for each client
+NET_CHANNEL *ListenChannel = NULL;                   // listen channel
+NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
 
+int ServerInitNetwork() // Initialize the server
+{
+	if(NetworkInit())
+   {
+      sprintf(msg, "Error: failed to initialize network\n");
+      printf("%s", msg);
+      m_err(msg);
+      if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+      return -1;
+   }
+  if (TCP)
+  {
+   	ListenConn = net_openconn(NetworkDriver, "");
+   	if(!ListenConn)
+      {
+         sprintf(msg, "Error: failed to open listening connection\n");
+         printf("%s", msg);
+         m_err(msg);
+         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+         return -1;
+      }
+   	if(net_listen(ListenConn))
+      {
+         sprintf(msg, "Error: cannot listen\n");
+         printf("%s", msg);
+         m_err(msg);
+         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+         return -1;
+      }
+      sprintf(msg, "Network initialized - connection mode (TCP)");
+   }
+   else // UDP
+   {
+      // open the listening channel;
+      if (!(ListenChannel = net_openchannel(NetworkDriver, "")))
+      {
+         sprintf(msg, "Error: failed to open listening channel\n");
+         printf("%s", msg);
+         m_err(msg);
+         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+         return -1;
+      }
 
-// ---------------------------------------------------------------------------------------------------------------
-// ***************************************************************************************************************
-//----------------------------------------------------------------------------------------------------------------
+      if (net_assigntarget(ListenChannel, ""))
+      {
+         sprintf(msg, "Error: failed to assign target to listening channel\n");
+         printf("%s", msg);
+         m_err(msg);
+         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+   		net_closechannel(ListenChannel);
+   		return -1;
+   	}
+      sprintf(msg, "Network initialized - channel mode (UDP)");
+   } // end of UDP
+
+   printf("%s\n", msg);
+   if (L_LOGGING_NETPLAY) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+	return 0;
+}
+
 
 int ServerListen() // Check for connecting clients (0 = ok, got new connection, 1 = no new connection yet
 {
@@ -78,65 +140,6 @@ int ServerListen() // Check for connecting clients (0 = ok, got new connection, 
    } // end of UDP
 }
 
-int ServerInitNetwork() // Initialize the server
-{
-	if(NetworkInit())
-   {
-      sprintf(msg, "Error: failed to initialize network\n");
-      printf("%s", msg);
-      m_err(msg);
-      if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
-      return -1;
-   }
-  if (TCP)
-  {
-   	ListenConn = net_openconn(NetworkDriver, "");
-   	if(!ListenConn)
-      {
-         sprintf(msg, "Error: failed to open listening connection\n");
-         printf("%s", msg);
-         m_err(msg);
-         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
-         return -1;
-      }
-   	if(net_listen(ListenConn))
-      {
-         sprintf(msg, "Error: cannot listen\n");
-         printf("%s", msg);
-         m_err(msg);
-         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
-         return -1;
-      }
-      sprintf(msg, "Network initialized - connection mode (TCP)");
-   } // end of if TCP
-   else // UDP
-   {
-      // open the listening channel;
-      if (!(ListenChannel = net_openchannel(NetworkDriver, "")))
-      {
-         sprintf(msg, "Error: failed to open listening channel\n");
-         printf("%s", msg);
-         m_err(msg);
-         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
-         return -1;
-      }
-
-      if (net_assigntarget(ListenChannel, ""))
-      {
-         sprintf(msg, "Error: failed to assign target to listening channel\n");
-         printf("%s", msg);
-         m_err(msg);
-         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
-   		net_closechannel(ListenChannel);
-   		return -1;
-   	}
-      sprintf(msg, "Network initialized - channel mode (UDP)");
-   } // end of UDP
-
-   printf("%s\n", msg);
-   if (L_LOGGING_NETPLAY) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-	return 0;
-}
 
 // Receive data from a client, and store in provided array
 // (must have room for 1024 bytes). Returns the size of the stored data

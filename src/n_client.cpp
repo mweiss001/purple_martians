@@ -1,12 +1,16 @@
 // n_client.cpp
 
 #include "pm.h"
-
 #ifdef NETPLAY
 
-//-----------------------------------------------------------------------------------------------------
-//*****************************************************************************************************
-//-----------------------------------------------------------------------------------------------------
+// n_network.h
+extern int NetworkDriver;
+
+// n_packet.h
+extern char packetbuffer[1024];
+extern int packetsize;
+
+// these are never referenced outside of this file
 NET_CONN *ServerConn = NULL;
 NET_CHANNEL *ServerChannel;
 
@@ -74,7 +78,6 @@ int ClientInitNetwork(const char *serveraddress)
 
    while (!got_reply)
    {
-      if (key[ALLEGRO_KEY_ESCAPE]) return 0;
       if (ClientCheckResponse())
       {
          got_reply = 1;
@@ -213,7 +216,7 @@ int client_init(void)
 int client_init_join(void)
 {
    Packet("CJON");
-   PacketPut1ByteInt(players[0].color); // request the color of current player 0
+   PacketPut1ByteInt(players[0].color); // requested color
    PacketAddString(local_hostname);
    ClientSend(packetbuffer, packetsize);
 
@@ -229,6 +232,7 @@ int client_init_join(void)
    while (!SJON) // run loop until SJON processed
    {
       al_rest(0.02);
+      proc_controllers();
       if (key[ALLEGRO_KEY_ESCAPE]) SJON = 98; // emergency exit
       if ((packetsize = ClientReceive(packetbuffer)) && (PacketRead("SJON")))
       {
@@ -527,7 +531,6 @@ void client_apply_diff()
 void client_block_until_initial_state_received(void)
 {
    int p = active_local_player;
-
    sprintf(msg, "Waiting for game state from server");
    rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, 10, 2, 0, 1);
    if (L_LOGGING_NETPLAY_JOIN) add_log_entry_header(11, p, msg, 1);
@@ -538,7 +541,7 @@ void client_block_until_initial_state_received(void)
    {
       if ((packetsize = ClientReceive(packetbuffer)) && (PacketRead("stdf"))) done = client_process_stdf_packet();
       proc_controllers();
-      if (key[ALLEGRO_KEY_F11]) fast_exit(65); // in case we get trapped here and need a way out
+      if (key[ALLEGRO_KEY_ESCAPE]) fast_exit(65); // in case we get trapped here and need a way out
    }
    client_apply_diff();
 
@@ -546,12 +549,15 @@ void client_block_until_initial_state_received(void)
    frame_num = client_state_dif_dst;
    al_set_timer_count(fps_timer, frame_num);
 
-   // set all active clients control methods to 2
-   for (int pp=1; pp<NUM_PLAYERS; pp++)
-      if (players[pp].active) players[pp].control_method = 2;
 
-   // set local client control method to 4
-   players[p].control_method = 4;
+//this should be done in client_apply_dif()
+//   // set all active clients control methods to 2
+//   for (int pp=1; pp<NUM_PLAYERS; pp++)
+//      if (players[pp].active) players[pp].control_method = 2;
+//
+//   // set local client control method to 4
+//   players[p].control_method = 4;
+
 
    // set holdoff 200 frames in future so client won't try to drop while syncing
    players1[p].client_last_sdat_rx_frame_num = frame_num + 200;
@@ -639,9 +645,6 @@ void process_bandwidth_counters(int p)
    }
    #endif
 }
-
-
-
 
 void client_process_sdat_packet(void)
 {

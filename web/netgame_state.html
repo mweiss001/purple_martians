@@ -62,14 +62,14 @@
 The state correction method perodically sends the entire game state from the server to the client.
 This fixes any drift or loss of sync that may have occured with the game move sync method. 
     
-The entire game state is quite large, over 100,000 bytes.             
-To pass this across the network 2 compression methods are used.
+The entire game state is over 100,000 bytes.
+To pass this large chunk of data across the network, two compression methods are used.
 
-The first method is a state and dif scheme, where I only send data that has changed from the last state.
+The first method is a state and dif scheme, to detect only the data that has changed from the last state.
 
 The second method uses the zlib compression library to compress the dif from the first method.
     
-Using zlib only I was able to get from 5% to 10% compression.  Using both I get 1% - 2%.
+Using zlib only resulted in 5% to 10% compression.  Using both gets 1% - 2%.
 
 I am using 1024 byte packets, so with my header data I am able to send 1000 bytes of data per packet.
 This means I can usually send the entire game state in only 1 or 2 packets.
@@ -210,8 +210,8 @@ extern int  client_state_dif_dst;             // uncompressed dif dst frame_num<
 A client receives 'stdf' packets from the server.  Each packet contains pieces of a compressed dif state.
 These packets have up to 1000 bytes of data each and are put into 'client_state_buffer' at the appropriate offset.
 
-When all the pieces have been received, 'client_state_buffer' is uncompressed into 'dif'.
-The source and destination frame of 'dif' are updated to mark it as valid.
+When all the pieces have been received, 'client_state_buffer' is uncompressed into 'client_state_dif'.
+The source and destination frame of 'client_state_dif' are updated to mark it as valid.
 </mh3>
 
 <pre><code class="language-cpp">int process_stdf_packet(void)
@@ -232,7 +232,7 @@ The source and destination frame of 'dif' are updated to mark it as valid.
 
    if (complete)
    {
-      // decompress client_state_buffer to dif
+      // decompress client_state_buffer to client_state_dif
       uncompress((Bytef*)client_state_dif, sizeof(client_state_dif), (Bytef*)client_state_buffer, sizeof(client_state_buffer));
 
       // mark dif data with new src and dst
@@ -240,6 +240,7 @@ The source and destination frame of 'dif' are updated to mark it as valid.
       client_state_dif_dst = dst;
    }
 }</code></pre>
+<br><mh7>How a client applies the new state</mh7>
 <mh3>
 Every frame the client checks to see if it has a dif that matches both these conditions:
 - destination frame matches current frame
@@ -318,7 +319,7 @@ int cp = destLen;
 </code></pre>
 
 <mh3>
-- compressed dif is broken into 1000 byte pieces and sent with 'stdf' packets to the client
+- the compressed dif is broken into 1000 byte pieces and sent with 'stdf' packets to the client
 - each piece has a header with all the information needed to re-assemble, decompress and apply
 </mh3>
 <pre><code class="language-cpp">// break compressed dif into smaller pieces
