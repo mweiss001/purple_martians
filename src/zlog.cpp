@@ -318,7 +318,7 @@ void add_log_entry_sdat_rx_and_game_move_entered(int type, int player)
 // //  printf(log_msg);
 //}
 
-void add_log_entry2(int type, int player, char *txt)
+void add_log_entry2(int type, int player, const char *txt)
 {
    char tmsg[200];
    sprintf(tmsg, "[%2d][%d][%d]%s", type, player, frame_num, txt);

@@ -371,12 +371,6 @@ extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
 
 
 
-
-
-
-
-
-
 // ------------------------------------------------
 // ----------------- logging ----------------------
 // ------------------------------------------------
@@ -405,20 +399,7 @@ extern int auto_save_game_on_exit;
 extern int auto_save_game_on_level_done;
 
 #define NETPLAY_bandwidth_tracking
-#define LOGGING
-#define LOGGING_NETPLAY
-#define LOGGING_NETPLAY_JOIN
-#define LOGGING_NETPLAY_bandwidth
-#define LOGGING_NETPLAY_client_timer_adjust
-#define LOGGING_NETPLAY_cdat
-#define LOGGING_NETPLAY_game_move
-#define LOGGING_NETPLAY_sdat
-#define LOGGING_NETPLAY_sdak
-#define LOGGING_NETPLAY_stdf
-#define LOGGING_NETPLAY_stdf_all_packets
-#define LOGGING_NETPLAY_stdf_when_to_apply
-#define LOGGING_NETPLAY_show_dif1
-#define LOGGING_NETPLAY_show_dif2
+
 // #define LOGGING_ZFS // zoom full screen
 
 // ------------------------------------------------
@@ -444,7 +425,8 @@ struct player
    al_fixed old_LIFE;
    int LIVES;
 
-   int bitmap_index; // index to player_tile (player_tile[player.color][player.shape])
+   int not_used_bitmap_index; // index to player_tile (player_tile[player.color][player.shape])
+
    int shape; // index to player_tile
    int color; // used to draw frames and stuff in players color
 
@@ -938,22 +920,26 @@ int process_select_window(int draw_only);
 void set_swbl(void);
 
 // n_client.h
-int ClientInitNetwork(const char *serveraddress);
-int ClientCheckResponse(void);
-int ClientReceive(void *data);
-void ClientSend(void *data, int len);
-void client_flush(void);
+int  ClientInitNetwork(const char *serveraddress);
 void ClientExitNetwork(void);
-int client_init_join(void);
+int  ClientCheckResponse(void);
+int  ClientReceive(void *data);
+void ClientSend(void *data, int len);
+
+void client_flush(void);
+int  client_init_join(void);
 void client_exit(void);
-int client_init(void);
-void read_game_step_from_packet(int x, int clf_check);
-int process_stdf_packet(void);
+int  client_init(void);
+void client_read_game_move_from_packet(int x, int clf_check);
+int  client_process_stdf_packet(void);
 void client_apply_diff();
-void client_block_until_good_stdf_received(void);
-void process_bandwidth_counters(int p);
+void client_block_until_initial_state_received(void);
+void client_process_sdat_packet(void);
+void client_process_serr_packet(void);
+void client_proc_player_drop(void);
 void client_control(void);
 void client_local_control(int p);
+void process_bandwidth_counters(int p);
 
 // n_network.h
 extern int NetworkDriver;
@@ -994,13 +980,18 @@ int ServerListen(void);
 int ServerReceive(void *data, int *sender);
 void ServerBroadcast(void *data, int len);
 void ServerSendTo(void *data, int len, int who);
+
 void server_flush(void);
-int server_init(void);
+int  server_init(void);
 void server_exit(void);
 void server_send_stdf(int p);
 void server_send_stdf(void);
 void server_send_sdat(void);
-void proc_player_drop(void);
+void server_proc_player_drop(void);
+void server_proc_cdat_packet(void );
+void server_proc_stak_packet(void );
+void server_proc_sdak_packet(void );
+void server_proc_CJON_packet(int who);
 void server_control();
 void server_local_control(int p);
 
@@ -1149,7 +1140,7 @@ void log_ending_stats(void);
 void log_ending_stats_server(void);
 void save_log_file(void);
 void add_log_entry_sdat_rx_and_game_move_entered(int type, int player);
-void add_log_entry2(int type, int player, char *txt);
+void add_log_entry2(int type, int player, const char *txt);
 void add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill);
 void add_log_entry_centered_text(int type, int player, int width, const char *txt, const char *border, const char *fill);
 void add_log_entry_header(int type, int player, const char *txt, int blank_lines);
@@ -1212,6 +1203,7 @@ void player_move(void);
 void draw_player(int p);
 void draw_players(void);
 void get_players_shape(int p);
+int is_player_color_used(int color);
 void fill_door_tile(void);
 void fill_player_tile(void);
 void init_player(int p, int t);

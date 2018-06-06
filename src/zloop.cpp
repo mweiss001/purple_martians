@@ -113,13 +113,11 @@ void proc_start_mode(void)
       }
       if (L_LOGGING)
       {
-         #ifdef LOGGING
          {
             sprintf(msg,"LEVEL %d STARTED", play_level);
             add_log_entry_header(10, 0, msg, 3);
             log_player_array();
          }
-         #endif
       }
    }
 

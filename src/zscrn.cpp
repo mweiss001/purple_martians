@@ -997,7 +997,7 @@ void frame_and_title(int show_players)
          x_pos -= 11*flsc;                   // spacing based on scale
          x_pos -= x_sp;                      // extra spacing stretch row to edge of screen
          flsc *= .78;                        // reduce scale by 78%
-         al_draw_scaled_rotated_bitmap(player_tile[color - 1][1], 0, 0, x+10, y+10, flsc, flsc, 0, 0);
+         al_draw_scaled_rotated_bitmap(player_tile[color][1], 0, 0, x+10, y+10, flsc, flsc, 0, 0);
          if (++color > 15) color = 1;        // cycle through players colors
       }
 
@@ -1018,7 +1018,7 @@ void frame_and_title(int show_players)
          x_pos += x_sp;                       // extra spacing stretch row to edge of screen
          flsc *= .78;                         // reduce scale by 78%
          x_sp += .5;                          // hack to make things line up on right hand side of screen
-         al_draw_scaled_rotated_bitmap(player_tile[color - 1][1], 0, 0, x+10, y+10, flsc, flsc, 0, ALLEGRO_FLIP_HORIZONTAL);
+         al_draw_scaled_rotated_bitmap(player_tile[color][1], 0, 0, x+10, y+10, flsc, flsc, 0, ALLEGRO_FLIP_HORIZONTAL);
          if (++color > 15) color = 1;        // cycle through players colors
       }
    }

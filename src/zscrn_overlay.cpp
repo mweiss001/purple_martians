@@ -115,7 +115,7 @@ void draw_top_display(void)
 
    // draw free men
    for (int a=0; a<players[p].LIVES; a++)
-      al_draw_scaled_rotated_bitmap(player_tile[players[p].bitmap_index][1], 10, 10, tdx+8+(a*10), tdy+6, .5, .5, 0, 0);
+      al_draw_scaled_rotated_bitmap(player_tile[players[p].color][1], 10, 10, tdx+8+(a*10), tdy+6, .5, .5, 0, 0);
 
    if (show_scale_factor > 0)
    {

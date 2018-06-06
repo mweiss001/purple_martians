@@ -510,11 +510,9 @@ int initial_setup(void)
 
    if (L_LOGGING)
    {
-      #ifdef LOGGING
       add_log_entry_centered_text(20, 0, 76, "", "+", "-");
       add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
       add_log_entry_centered_text(20, 0, 76, "", "+", "-");
-      #endif
    }
    // get allegro version
    uint32_t version = al_get_allegro_version();
@@ -524,19 +522,12 @@ int initial_setup(void)
    int release = version & 255;
    sprintf(msg, "Allegro version: %d.%d.%d.%d", major, minor, revision, release);
    printf("%s\n", msg);
-   if (L_LOGGING)
-   {
-      #ifdef LOGGING
-      add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
-      #endif
-   }
+   if (L_LOGGING) add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
 
    get_hostname();
 //   sprintf(msg, "Local hostname:     [%s]",local_hostname);
 //   printf("%s\n", msg);
-//   #ifdef LOGGING
-//   add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
-//   #endif
+//  if (L_LOGGING) add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
 
    menu_setup();
 
@@ -547,12 +538,7 @@ int initial_setup(void)
 //   for (int i=0; i<title_len; i++)  printf("-");
 //   printf("\n");
 
-   if (L_LOGGING)
-   {
-      #ifdef LOGGING
-      add_log_entry_centered_text(20, 0, 76, "", "+", "-");
-      #endif
-   }
+   if (L_LOGGING) add_log_entry_centered_text(20, 0, 76, "", "+", "-");
 
 
 /*
@@ -566,10 +552,12 @@ int initial_setup(void)
    sprintf(msg, "Date and time:      [%s]",tmsg);
    printf("%s\n", msg);
 
-   #ifdef LOGGING
-   add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
-   add_log_entry_centered_text(20, 0, 76, "", "+", "-");
-   #endif
+   if (L_LOGGING)
+   {
+      add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
+      add_log_entry_centered_text(20, 0, 76, "", "+", "-");
+   }
+
 */
 
 
@@ -1102,7 +1090,6 @@ void game_menu(void)
                {
                   int p = 0;
                   if (++players[p].color > 15) players[p].color = 1;
-                     players[p].bitmap_index = players[p].color - 1;
                   save_config();
                }
 
@@ -1132,7 +1119,6 @@ void game_menu(void)
                {
                   int p = 0;
                   if (--players[p].color < 1) players[p].color = 15;
-                     players[p].bitmap_index = players[p].color - 1;
                   save_config();
                }
                if (options_menu_sel == 6) // frame_speed --

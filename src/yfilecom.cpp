@@ -139,6 +139,7 @@ int load_tiles(void)
       for (int a=0; a<16; a++)
          for (int b=0; b<19; b++)
             player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
+
    }
 
    // get door tiles

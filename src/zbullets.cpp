@@ -141,7 +141,7 @@ void draw_pbullets()
          int p = pbullet[b][1];
          int x = pbullet[b][2];
          int y = pbullet[b][3];
-         al_draw_bitmap(player_tile[players[p].bitmap_index][18], x, y, 0);
+         al_draw_bitmap(player_tile[players[p].color][18], x, y, 0);
       }
 }
 
