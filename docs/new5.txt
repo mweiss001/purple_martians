@@ -5758,7 +5758,6 @@ client exit takes care of resetting player stuff like:
 
 no need to do it anywhere else, like if join fails...
 
-
 change init_player(p,1)
 
 to set inactive, not active....
@@ -5768,6 +5767,144 @@ client_init_join() is looking good
 void client_block_until_good_stdf_received(void) is looking good.
 
 its been coming along nicely......
+
+
+
+redo where server chooses new client color...
+
+   int color = req_color;  // try to use requested color, unless already used by another player
+            int color_used;
+            do
+            {
+               color_used = 0;
+               for (int q=0; q<NUM_PLAYERS; q++)
+                  if ((players[q].active) || (players[q].control_method == 9) || (players[q].control_method == 2))
+                     if (color == players[q].color)
+                     {
+                        if (++color > 15) color = 1;
+                        color_used = 1;
+                      }
+            } while (color_used);
+
+
+make a function called:
+
+int is_player_color_used(int color);
+
+
+int is_player_color_used(int color)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) || (players[p].control_method == 9) || (players[p].control_method == 2))
+         if (color == players[p].color) return 1;
+   return 0;
+}
+
+   // try to use requested color, unless already used by another player
+   while (is_player_color_used(color)) if (++color > 15) color = 1;
+
+hell also fix why color and bitmap index are off by 1
+shifted all my player bitmaps up one in tilemap
+lose bitmap, only use color...
+its in player1 struct whicg I dont want to mess with the size of
+i'll just rename it there to find all refs then change them to use color instead
+done...
+
+now only color, no bitmap index...yay!!!
+
+
+int who is a static int in server loop...
+
+should I make it a global? no
+
+who uses it?
+
+CJON yes
+stak no
+sdak no
+cdat no
+
+
+
+
+rename a bunch of client and server functions...
+
+move packet processing to one function for each packet type..
+
+
+should I remove #ifdefs for logging...yes...
+
+
+one file at a time..
+
+client...done
+
+bandwidth???
+// gets the values in send and rx functions
+#ifdef NETPLAY_bandwidth_tracking
+
+leave bandwidth for now, do all others
+
+
+server...done
+
+now search for
+
+#define LOGGING..done
+#define LOGGING_NETPLAY..done
+#define LOGGING_NETPLAY_JOIN..done
+#define LOGGING_NETPLAY_client_timer_adjust..done
+#define LOGGING_NETPLAY_cdat..done
+#define LOGGING_NETPLAY_game_move..done
+#define LOGGING_NETPLAY_sdat..done
+#define LOGGING_NETPLAY_sdak..done
+#define LOGGING_NETPLAY_stdf..done
+#define LOGGING_NETPLAY_stdf_all_packets..done
+#define LOGGING_NETPLAY_stdf_when_to_apply..done
+#define LOGGING_NETPLAY_show_dif1..done
+#define LOGGING_NETPLAY_show_dif2..done
+#define LOGGING_NETPLAY_bandwidth.. only one in void process_bandwidth_counters(int p)..done
+
+kill all these defines....done
+
+// not this one
+#define NETPLAY_bandwidth_tracking.. 6 in packet tx and rx fnx and  process_bandwidth_counters(int p)
+
+
+
+still seems to work...
+
+
+----------------------
+20180518 code stats:
+----------------------
+35 files
+19826  code only
+ 5574  empty lines
+ 3905  comment lines
+ 3397  code and comment
+32702  total
+
+27128 total - empty
+23233 total - (empty + comment only)
+
+----------------------
+20180605 code stats:
+----------------------
+39 files
+18830  code only
+ 5177  empty lines
+ 3253  comment lines
+ 3333  code and comment
+30393  total
+
+25416 total - empty
+22163 total - (empty + comment only)
+
+
+
+
+
 
 
 

@@ -34,13 +34,10 @@ void proc_player_health(void)
          if (players[p].LIFE < al_itofix(1)) // is LIFE < 1
          {
             players[p].LIFE = al_itofix(0);
-            if (L_LOGGING_NETPLAY)
-            {
-               #ifdef LOGGING_NETPLAY
-               sprintf(msg,"PLAYER:%d DIED!", p);
-               add_log_entry_header(10, 0, msg, 1);
-               #endif
-            }
+
+            sprintf(msg,"PLAYER:%d DIED!", p);
+            if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 1);
+
             game_event(21, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), 0, 0, 0, 0);  // player death
 
             show_player_join_quit_timer = 60;
@@ -520,7 +517,7 @@ void draw_player(int p)
       int flags = ALLEGRO_FLIP_HORIZONTAL;
       if (players[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
 
-      al_draw_scaled_rotated_bitmap(player_tile[players[p].bitmap_index][players[p].shape], 10, 10,  AX+10, AY+10, scale, scale, rot, flags);
+      al_draw_scaled_rotated_bitmap(player_tile[players[p].color][players[p].shape], 10, 10,  AX+10, AY+10, scale, scale, rot, flags);
 
       // death sequence star overlay
       if ((players[p].paused) && (players[p].paused_type == 1))
@@ -591,6 +588,13 @@ void get_players_shape(int p)
 }
 
 
+int is_player_color_used(int color)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) || (players[p].control_method == 9) || (players[p].control_method == 2))
+         if (color == players[p].color) return 1;
+   return 0;
+}
 
 void init_player(int p, int t)
 {
@@ -672,7 +676,7 @@ void init_player(int p, int t)
       if (p==5) players[p].color = 15; // white
       if (p==6) players[p].color = 7;  // orange
       if (p==7) players[p].color = 10; // red
-      players[p].bitmap_index = players[p].color - 1;
+
    }
 
    // common to 2 and 3

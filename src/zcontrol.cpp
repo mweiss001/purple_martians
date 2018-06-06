@@ -698,10 +698,8 @@ void proc_game_move(void)
             case 6:  // 'level done'
                if (L_LOGGING)
                {
-                  #ifdef LOGGING
                   sprintf(msg,"LEVEL %d DONE", play_level);
                   add_log_entry_header(10, 0, msg, 3);
-                  #endif
                }
                if ((ima_client) || (ima_server))
                {
@@ -710,10 +708,8 @@ void proc_game_move(void)
 
                   if (L_LOGGING_NETPLAY)
                   {
-                     #ifdef LOGGING_NETPLAY
                      if (ima_client) log_ending_stats();
                      if (ima_server) log_ending_stats_server();
-                     #endif
                   }
                }
                proc_level_done();
@@ -730,10 +726,8 @@ void proc_game_move(void)
 
                   if ((players[p].active == 0) && (players[p].control_method == 2))
                   {
-                     #ifdef LOGGING_NETPLAY
                      sprintf(msg,"PLAYER:%d never became ACTIVE", p);
                      add_log_entry_header(10, p, msg, 1);
-                     #endif
                      players1[p].join_frame = frame_num;
                      players1[p].quit_reason = 74;
                      players[p].control_method = 9; // prevent re-use of this player number in this level
@@ -756,7 +750,6 @@ void proc_game_move(void)
 
                      if (L_LOGGING_NETPLAY)
                      {
-                        #ifdef LOGGING_NETPLAY
                         sprintf(msg,"PLAYER:%d became INACTIVE", p);
                         add_log_entry_header(10, p, msg, 1);
 
@@ -775,7 +768,6 @@ void proc_game_move(void)
 
                         sprintf(msg,"Reason:%s", tmsg);
                         add_log_entry_header(10, p, msg, 1);
-                        #endif
                      }
 
                      if (players[p].control_method == 0) // local player only
@@ -792,11 +784,9 @@ void proc_game_move(void)
                         resume_allowed = 0;
                         if (L_LOGGING_NETPLAY)
                         {
-                           #ifdef LOGGING_NETPLAY
                            sprintf(msg,"Local Client(%s) quit the game.",local_hostname);
                            add_log_entry_header(10, p, msg, 1);
                            log_ending_stats();
-                           #endif
                         }
                         active_local_player = 0;
                         players[0].control_method = 0; // local control
@@ -809,11 +799,9 @@ void proc_game_move(void)
                         resume_allowed = 0;
                         if (L_LOGGING_NETPLAY)
                         {
-                           #ifdef LOGGING_NETPLAY
                            sprintf(msg,"Local Server(%s) quit the game.",local_hostname);
                            add_log_entry_header(10, p, msg, 1);
                            log_ending_stats_server();
-                           #endif
                         }
                         players[0].control_method = 0; // local control
                      }
@@ -836,11 +824,9 @@ void proc_game_move(void)
                         if (val == 64) players1[p].quit_reason = 92;
                         if (L_LOGGING_NETPLAY)
                         {
-                           #ifdef LOGGING_NETPLAY
                            sprintf(msg,"Remote Server ended the game.");
                            add_log_entry_header(10, p, msg, 1);
                            log_ending_stats();
-                           #endif
                         }
                         game_exit = 1;
                         resume_allowed = 0;
@@ -855,29 +841,23 @@ void proc_game_move(void)
                {
                   players[p].active = 1;
                   players[p].color = val;
-                  players[p].bitmap_index = val - 1;
 
                   players1[p].join_frame = frame_num;
 
                   if (L_LOGGING_NETPLAY)
                   {
-                     #ifdef LOGGING_NETPLAY
                      sprintf(msg,"PLAYER:%d became ACTIVE (color:%d)", p, players[p].color);
                      add_log_entry_header(10, p, msg, 1);
-                     #endif
                   }
 
                   if (p == active_local_player)
                   {
                      if (L_LOGGING_NETPLAY)
                      {
-                        #ifdef LOGGING_NETPLAY
                         int finish_time = clock();
                         int time = finish_time - log_timer;
-                        log_timer = clock();
                         sprintf(msg,"Chase and lock done in %dms",time);
                         add_log_entry_header(10, p, msg, 1);
-                        #endif
                      }
                   }
 

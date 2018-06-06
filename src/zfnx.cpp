@@ -1092,14 +1092,11 @@ void show_state_dif(char *a, char *b)
    {
       if (L_LOGGING_NETPLAY_show_dif1)
       {
-         #ifdef LOGGING_NETPLAY_show_dif1
          sprintf(msg, "player errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
-         #endif
       }
       if (L_LOGGING_NETPLAY_show_dif2)
       {
-         #ifdef LOGGING_NETPLAY_show_dif2
 
          // show where
          for (int i=0; i<sop; i++)
@@ -1202,11 +1199,11 @@ void show_state_dif(char *a, char *b)
             }
 
 
-            if (c1_players[p].bitmap_index  != c2_players[p].bitmap_index)
-            {
-               sprintf(msg, "player[%d].bitmap_index   server:[%d] local:[%d]\n", p, c1_players[p].bitmap_index,  c2_players[p].bitmap_index);
-               add_log_entry2(32, active_local_player, msg);
-            }
+//            if (c1_players[p].not_used_bitmap_index  != c2_players[p].not_used_bitmap_index)
+//            {
+//               sprintf(msg, "player[%d].bitmap_index   server:[%d] local:[%d]\n", p, c1_players[p].bitmap_index,  c2_players[p].bitmap_index);
+//               add_log_entry2(32, active_local_player, msg);
+//            }
 
 
             if (c1_players[p].shape  != c2_players[p].shape)
@@ -1402,21 +1399,17 @@ void show_state_dif(char *a, char *b)
    */
 
          }
-         #endif
       }
    }
    if (memcmp(c1_Ei, c2_Ei, sizeof(Ei)))
    {
       if (L_LOGGING_NETPLAY_show_dif1)
       {
-         #ifdef LOGGING_NETPLAY_show_dif1
          sprintf(msg, "Ei errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
-         #endif
       }
       if (L_LOGGING_NETPLAY_show_dif2)
       {
-         #ifdef LOGGING_NETPLAY_show_dif2
          for (int e=0; e<100; e++)
             for (int f=0; f<32; f++)
                if (c1_Ei[e][f] != c2_Ei[e][f])
@@ -1424,21 +1417,17 @@ void show_state_dif(char *a, char *b)
                   sprintf(msg, "Ei[%2d][%2d][t:%2d] server:%d local:%d\n", e, f, c1_Ei[e][0], c1_Ei[e][f], c2_Ei[e][f]);
                   add_log_entry2(32, active_local_player, msg);
                }
-         #endif
       }
    }
    if (memcmp(c1_Efi, c2_Efi, sizeof(Efi)))
    {
       if (L_LOGGING_NETPLAY_show_dif1)
       {
-         #ifdef LOGGING_NETPLAY_show_dif1
          sprintf(msg, "Efi errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
-         #endif
       }
       if (L_LOGGING_NETPLAY_show_dif2)
       {
-         #ifdef LOGGING_NETPLAY_show_dif2
          for (int e=0; e<100; e++)
             for (int f=0; f<16; f++)
                if (c1_Efi[e][f] != c2_Efi[e][f])
@@ -1446,21 +1435,17 @@ void show_state_dif(char *a, char *b)
                   sprintf(msg, "Efi[%2d][%2d][t:%2d] server:%f local:%f\n", e, f, c1_Ei[e][0], al_fixtof(c1_Efi[e][f]), al_fixtof(c2_Efi[e][f]));
                   add_log_entry2(32, active_local_player, msg);
                }
-         #endif
       }
    }
    if (memcmp(c1_item, c2_item, sizeof(item)))
    {
       if (L_LOGGING_NETPLAY_show_dif1)
       {
-         #ifdef LOGGING_NETPLAY_show_dif1
          sprintf(msg, "item errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
-         #endif
       }
       if (L_LOGGING_NETPLAY_show_dif2)
       {
-         #ifdef LOGGING_NETPLAY_show_dif2
          for (int e=0; e<500; e++)
             for (int f=0; f<16; f++)
                if (c1_item[e][f] != c2_item[e][f])
@@ -1468,21 +1453,17 @@ void show_state_dif(char *a, char *b)
                   sprintf(msg, "item[%d][%d][t:%2d] server:%d local:%d\n", e, f, c1_item[e][0], c1_item[e][f], c2_item[e][f]);
                   add_log_entry2(32, active_local_player, msg);
                }
-         #endif
       }
    }
    if (memcmp(c1_itemf, c2_itemf, sizeof(itemf)))
    {
       if (L_LOGGING_NETPLAY_show_dif1)
       {
-         #ifdef LOGGING_NETPLAY_show_dif1
          sprintf(msg, "itemf errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
-         #endif
       }
       if (L_LOGGING_NETPLAY_show_dif2)
       {
-         #ifdef LOGGING_NETPLAY_show_dif2
          for (int e=0; e<500; e++)
             for (int f=0; f<4; f++)
                if (c1_itemf[e][f] != c2_itemf[e][f])
@@ -1490,21 +1471,17 @@ void show_state_dif(char *a, char *b)
                   sprintf(msg, "itemf[%d][%d][t:%2d] server:%f local:%f\n", e, f, c1_item[e][0], al_fixtof(c1_itemf[e][f]), al_fixtof(c2_itemf[e][f]));
                   add_log_entry2(32, active_local_player, msg);
                }
-         #endif
       }
    }
    if (memcmp(c1_lifts, c2_lifts, sizeof(lifts)))
    {
       if (L_LOGGING_NETPLAY_show_dif1)
       {
-         #ifdef LOGGING_NETPLAY_show_dif1
          sprintf(msg, "lift errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
-         #endif
       }
       if (L_LOGGING_NETPLAY_show_dif2)
       {
-         #ifdef LOGGING_NETPLAY_show_dif2
          for (int e=0; e<40; e++)
          {
             if (c1_lifts[e].fx    != c2_lifts[e].fx )
@@ -1528,21 +1505,17 @@ void show_state_dif(char *a, char *b)
                add_log_entry2(32, active_local_player, msg);
             }
          }
-         #endif
       }
    }
    if (memcmp(c1_l, c2_l, sizeof(l)))
    {
       if (L_LOGGING_NETPLAY_show_dif1)
       {
-         #ifdef LOGGING_NETPLAY_show_dif1
          sprintf(msg, "block errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
-         #endif
       }
       if (L_LOGGING_NETPLAY_show_dif2)
       {
-         #ifdef LOGGING_NETPLAY_show_dif2
          for (int e=0; e<100; e++)
             for (int f=0; f<100; f++)
                if (c1_l[e][f] != c2_l[e][f])
@@ -1550,7 +1523,6 @@ void show_state_dif(char *a, char *b)
                   sprintf(msg, "block[%d][%d] server:%d local:%d\n", e, f, c1_l[e][f], c2_l[e][f] );
                   add_log_entry2(32, active_local_player, msg);
                }
-         #endif
       }
    }
 }

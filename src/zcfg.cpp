@@ -296,7 +296,6 @@ void get_config_values(void)
       if (players[0].color < 1) players[0].color = 1;
       if (players[0].color > 15) players[0].color = 15;
    }
-   players[0].bitmap_index = players[0].color - 1;
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_up_key");
    if (!val) players1[0].up_key = ALLEGRO_KEY_UP;
