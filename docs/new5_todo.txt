@@ -16,6 +16,16 @@ reset ortho double when leaving log file viewer
 look into pandoc...
 
 
+
+make an automated way to make a link list at the top of every file
+like each header <mh7>
+will have an anchor tag and be in a list at the top of the file
+
+make a way to have only one copy of the lhs panel with all the links..
+
+
+
+
 rename level_array
 how about level drawing
 
@@ -27,47 +37,28 @@ In tiles there is some of it and also some in level background.
 At the bottom of files add links to other related docs
 
 
-
-
 netplay overall TODO:
+
 
 make
 
-netplay - status
-
+netplay - libnet
+netplay - status..started
 netplay - config..done
 netplay - packets..done
-
-
-
-
-
-
---------------------
-
------------
-
-----------
-</mh3>
-
-
-netplay - libnet
-
-
-
-
-
 
 netplay - main TODO:
 
 
 netplay - state_corr TODO:
+
 when are they sent
 show dif
+tell about dif from start and regular dif
 
 
 netplay - join TODO:
-remove and find new home
+
 
 
 

@@ -736,6 +736,11 @@ void proc_game_move(void)
 
                   if (players[p].active)
                   {
+                     if (players[p].control_method == 0) // local player only
+                     {
+                        game_exit = 1;
+                        resume_allowed = 1;
+                     }
 
                      if (players[p].control_method == 1) // run game only
                      {
@@ -752,44 +757,29 @@ void proc_game_move(void)
                      {
                         sprintf(msg,"PLAYER:%d became INACTIVE", p);
                         add_log_entry_header(10, p, msg, 1);
-
-                        char tmsg[80];
-
-                        sprintf(tmsg,"unknown");
-
-                        if (players1[p].quit_reason == 64)
-                           sprintf(tmsg,"menu key pressed");
-
-                        if (players1[p].quit_reason == 70)
-                           sprintf(tmsg,"dropped by server (server sync > 100)");
-
-                        if (players1[p].quit_reason == 71)
-                           sprintf(tmsg,"dropped by server (no sdak received for 100 frames)");
-
-                        sprintf(msg,"Reason:%s", tmsg);
+                        sprintf(msg,"Reason: unknown");
+                        if (players1[p].quit_reason == 64) sprintf(msg,"Reason: menu key pressed");
+                        if (players1[p].quit_reason == 70) sprintf(msg,"Reason: dropped by server (server sync > 100)");
+                        if (players1[p].quit_reason == 71) sprintf(msg,"Reason: dropped by server (no sdak received for 100 frames)");
                         add_log_entry_header(10, p, msg, 1);
                      }
 
-                     if (players[p].control_method == 0) // local player only
-                     {
-                        game_exit = 1;
-                        resume_allowed = 1;
-                     }
 
                      if (players[p].control_method == 4) // local client quit
                      {
-                        printf("Local Client(%s) quit the game.\n",local_hostname);
                         if (val == 64) players1[p].quit_reason = 90;
                         game_exit = 1;
                         resume_allowed = 0;
+                        ima_client = 0;
+                        active_local_player = 0;
+                        players[0].control_method = 0; // local control
+
                         if (L_LOGGING_NETPLAY)
                         {
                            sprintf(msg,"Local Client(%s) quit the game.",local_hostname);
                            add_log_entry_header(10, p, msg, 1);
                            log_ending_stats();
                         }
-                        active_local_player = 0;
-                        players[0].control_method = 0; // local control
                      }
 
                      if (players[p].control_method == 3) // local server quit
@@ -797,13 +787,33 @@ void proc_game_move(void)
                         if (val == 64) players1[p].quit_reason = 91;
                         game_exit = 1;
                         resume_allowed = 0;
+                        ima_server = 0;
+                        players[0].control_method = 0; // local control
+
                         if (L_LOGGING_NETPLAY)
                         {
                            sprintf(msg,"Local Server(%s) quit the game.",local_hostname);
                            add_log_entry_header(10, p, msg, 1);
                            log_ending_stats_server();
                         }
+                     }
+
+
+                     if ((ima_client) && (p == 0))  // remote server quit game on local client
+                     {
+                        if (val == 64) players1[p].quit_reason = 92;
+                        game_exit = 1;
+                        resume_allowed = 0;
+                        ima_client = 0;
+                        active_local_player = 0;
                         players[0].control_method = 0; // local control
+
+                        if (L_LOGGING_NETPLAY)
+                        {
+                           sprintf(msg,"Remote Server ended the game.");
+                           add_log_entry_header(10, p, msg, 1);
+                           log_ending_stats();
+                        }
                      }
 
                      if (players[p].control_method == 2) // if display mode only on client or server
@@ -819,21 +829,6 @@ void proc_game_move(void)
                      }
 
 
-                     if ((ima_client) && (p == 0))  // remote server quit game on local client
-                     {
-                        if (val == 64) players1[p].quit_reason = 92;
-                        if (L_LOGGING_NETPLAY)
-                        {
-                           sprintf(msg,"Remote Server ended the game.");
-                           add_log_entry_header(10, p, msg, 1);
-                           log_ending_stats();
-                        }
-                        game_exit = 1;
-                        resume_allowed = 0;
-                        active_local_player = 0;
-                        players[0].control_method = 0; // local control
-
-                     }
                   } // end of if player active
                }  // end of player becomes inactive
 
