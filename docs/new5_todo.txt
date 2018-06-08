@@ -21,7 +21,16 @@ make an automated way to make a link list at the top of every file
 like each header <mh7>
 will have an anchor tag and be in a list at the top of the file
 
-make a way to have only one copy of the lhs panel with all the links..
+I will need to redo all of my mh7's as anchors
+
+
+
+
+
+
+
+
+
 
 
 
