@@ -734,7 +734,7 @@ extern int show_splash_screen;
 extern int splash_screen_done;
 
 extern int mdw_an_seq;   // mdw animation sequence number
-extern float points[10][8];  // for mdw logo
+extern float points[9][8];  // for mdw logo
 extern int mdw_map_logo_x;
 extern int mdw_map_logo_y;
 extern int mdw_map_logo_th;
@@ -1018,8 +1018,7 @@ void get_all_keys(int p);
 void test_keys(void);
 void set_start_level(int s);
 void set_speed(void);
-void set_comp_move_from_controls(int p);
-void clear_keys(int p);
+void clear_controls(int p);
 void set_controls_from_comp_move(int g);
 void set_comp_move_from_player_key_check(int p);
 void player_key_check(int p);

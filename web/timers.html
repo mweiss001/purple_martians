@@ -15,16 +15,16 @@
 <mdw_lhs_nav>
 <div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
-<div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
-<div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
-<div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
-<div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
-<div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
-<div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
-<div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
-<div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
-<div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
-<div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
 
 <br><div style="text-align: center;">Technical Descriptions</div><hr>    
 <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
@@ -51,10 +51,20 @@
 
             <header>
                 <mh11>Purple Martians</mh11><hr>
-                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
             </header>
-
+			
+<mh3><hr></mh3>
 <mh8>Timers</mh8>
+<mh3><hr><mdw_file_toc> <a href="timers.html#Overview" target="_top">Overview</a>
+ <a href="timers.html#Menu Timer (mnu_timer)" target="_top">Menu Timer (mnu_timer)</a>
+ <a href="timers.html#Second Timer (sec_timer)" target="_top">Second Timer (sec_timer)</a>
+ <a href="timers.html#Frames per Second Timer (fps_timer)" target="_top">Frames per Second Timer (fps_timer)</a>
+ <a href="timers.html#Game Speed Regulation" target="_top">Game Speed Regulation</a>
+ <a href="timers.html#Speed adjust during netgame" target="_top">Speed adjust during netgame</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
 <mh7>Overview</mh7>
 <mh3>
 Three timers are used in the game:
@@ -83,7 +93,8 @@ int initial_setup(void)
 </code></pre>
 
 
-<br><mh7>Menu Timer (mnu_timer)</mh7>
+<br><a name="Menu Timer (mnu_timer)"></a>
+<mh7>Menu Timer (mnu_timer)</mh7>
         
 <mh3>        
 The menu runs in a loop that processes both the menu and the logo animation.
@@ -119,7 +130,8 @@ The function 'proc_controller()' is called by the menu in this loop and will blo
 }
 </code></pre>
 
-<br><mh7>Second Timer (sec_timer)</mh7>
+<br><a name="Second Timer (sec_timer)"></a>
+<mh7>Second Timer (sec_timer)</mh7>
 <mh3>
 Used to count the actual frames per second and the number of skipped frames in the last second.
 
@@ -147,7 +159,8 @@ int frames_skipped_last_second;
 ...
 </code></pre>
 
-<br><mh7>Frames per Second Timer (fps_timer)</mh7>
+<br><a name="Frames per Second Timer (fps_timer)"></a>
+<mh7>Frames per Second Timer (fps_timer)</mh7>
 <mh3>
 Used to control the speed of the game.
    
@@ -157,6 +170,11 @@ fps_timer is set as a reciprocal of frame_speed like this:
 
 al_set_timer_speed(fps_timer, 1/(float)frame_speed);
 
+</mh3>
+
+<br><a name="Game Speed Regulation"></a>
+<mh7>Game Speed Regulation</mh7>
+<mh3>
 The game speed is regulated by the function: 'proc_frame_delay()'
 </mh3>
 <pre><code class="language-cpp">void proc_frame_delay(void)
@@ -189,7 +207,8 @@ In speed test mode:
 - waiting for fps_timer is disabled, the game runs as fast or slow as it is able
 </mh3>
 
-<br><mh7>Speed adjust during netgame</mh7>
+<br><a name="Speed adjust during netgame"></a>
+<mh7>Speed adjust during netgame</mh7>
 <mh3>
 During a netgame the server runs at 40 fps and is the master timing source.
 

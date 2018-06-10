@@ -15,16 +15,16 @@
 <mdw_lhs_nav>
 <div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
-<div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
-<div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
-<div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
-<div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
-<div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
-<div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
-<div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
-<div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
-<div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
-<div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
 
 <br><div style="text-align: center;">Technical Descriptions</div><hr>    
 <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
@@ -51,12 +51,28 @@
 
             <header>
                 <mh11>Purple Martians</mh11><hr>
-                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
             </header>
 
-
+<mh3><hr></mh3>
 <mh8>Netgame - Main</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_main.html#Overview" target="_top">Overview</a>
+ <a href="netgame_main.html#Game Move Sync" target="_top">Game Move Sync</a>
+ <a href="netgame_main.html#Client sends control change" target="_top">Client sends control change</a>
+ <a href="netgame_main.html#Server receives control change" target="_top">Server receives control change</a>
+ <a href="netgame_main.html#Server sends game move data to clients" target="_top">Server sends game move data to clients</a>
+ <a href="netgame_main.html#Client receives game move data from server" target="_top">Client receives game move data from server</a>
+ <a href="netgame_main.html#Timing" target="_top">Timing</a>
+ <a href="netgame_main.html#Control lead frames" target="_top">Control lead frames</a>
+ <a href="netgame_main.html#Player numbers" target="_top">Player numbers</a>
+ <a href="netgame_main.html#Player control methods" target="_top">Player control methods</a>
+ <a href="netgame_main.html#Level Done" target="_top">Level Done</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
 <mh7>Overview</mh7>
+
+
 <mh3>
 There are two methods used simultaneously in netgame:
 - game move sync
@@ -80,8 +96,9 @@ Game move sync happens fast, it can send data from client to server and back in 
 State correction takes care of any small drift that might occur, it occurs much less frequently but sends a large amount of data when it does.
 </mh3>    
     
-    
-<br><mh7>Game Move Sync</mh7>
+<br><a name="Game Move Sync"></a>
+<mh7>Game Move Sync</mh7>
+
 <mh3>
 To ensure that all players (server and clients) have the same game state, all they need is the same set of inputs.
 
@@ -105,7 +122,8 @@ This requires that the clients run slightly behind the server. (default is 1 fra
 This means there is a delay between when the client presses a control and when the client responds but it is small enough to be barely noticeable.
 </mh3>    
     
-<br><mh7>Client sends control change</mh7>
+<br><a name="Client sends control change"></a>
+<mh7>Client sends control change</mh7>
     
 <mh3>    
 The part where a client sends a control change to the server is very simple:
@@ -128,7 +146,9 @@ If the client's controls have changed, the client sends a 'cdat' packet to the s
    }
 }</code></pre>
 
-<br><mh7>Server receives control change</mh7>
+<br><a name="Server receives control change"></a>
+<mh7>Server receives control change</mh7>
+
 <mh3>    
 When the server receives a 'cdat' packet from a client:
 - the server checks to see if the data is old (contains a frame_num that has already passed on the server)
@@ -152,7 +172,9 @@ The most common reason for cdat's arriving late is the client lagging too far be
    else players1[p].c_sync_err++;                 // unless late, then drop and inc error
 }</code></pre>
             
-<br><mh7>Server sends game move data to clients</mh7>
+<br><a name="Server sends game move data to clients"></a>
+<mh7>Server sends game move data to clients</mh7>
+
 <mh3>    
 The server synchronizes its master game moves array to each client independantly.
 
@@ -209,7 +231,8 @@ If the server receives an 'sdak' packet (sdat acknowledge), it sets the new ackn
 }</code></pre>
 
     
-<br><mh7>Client receives game move data from server</mh7>
+<br><a name="Client receives game move data from server"></a>
+<mh7>Client receives game move data from server</mh7>
 <mh3>    
 When a client receives game move data from the server, it adds it to its own local game moves array and sends an acknowledgement of the last entry received.
 </mh3>    
@@ -243,7 +266,9 @@ This is a particularily bad error. It means that a game move has been applied on
 This will definitely cause the client to be out of sync.
 </mh3>    
 
-<br><mh7>Timing</mh7>
+<br><a name="Timing"></a>
+<mh7>Timing</mh7>
+
 <mh3>    
 Timing is critical in netgame. The server is the master timing source, and should run at 40fps.
 
@@ -266,7 +291,8 @@ The client's timing control is adjusted like this:
    al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
 }</code></pre>
 
-<br><mh7>Control lead frames</mh7>
+<br><a name="Control lead frames"></a>
+<mh7>Control lead frames</mh7>
 <mh3>    
 There is an inherent delay in the client's control scheme.
 
@@ -318,7 +344,8 @@ To make things fair for all players, the server has the same delay applied to it
 }</code></pre>
 
 
-<br><mh7>Player numbers</mh7>
+<br><a name="Player numbers"></a>
+<mh7>Player numbers</mh7>
 <mh3>
 There are data structures for 8 players, numbered from 0-7.
 
@@ -331,7 +358,8 @@ The global variable 'active_local_player' points to the the local player.
 </mh3>
 
 
-<br><mh7>Player's control methods</mh7>
+<br><a name="Player control methods"></a>
+<mh7>Player control methods</mh7>
 <mh3>    
 An integer in the player structure:
 
@@ -346,7 +374,8 @@ int players[p].control_method;
 
 </mh3>
 
-<br><mh7>Level Done</mh7>
+<br><a name="Level Done"></a>
+<mh7>Level Done</mh7>
 <mh3>    
 When any player touches an exit or warp, the global variable level_done is set.
 </mh3>

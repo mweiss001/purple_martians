@@ -260,19 +260,7 @@ void set_speed(void)
    al_set_timer_speed(fps_timer, 1/(float)frame_speed);
 }
 
-void set_comp_move_from_controls(int p)
-{
-   players1[p].comp_move = 0;
-   if (players[p].left)  players1[p].comp_move += 1;
-   if (players[p].right) players1[p].comp_move += 2;
-   if (players[p].up)    players1[p].comp_move += 4;
-   if (players[p].down)  players1[p].comp_move += 8;
-   if (players[p].jump)  players1[p].comp_move += 16;
-   if (players[p].fire)  players1[p].comp_move += 32;
-   if (players[p].menu)  players1[p].comp_move = 127;
-}
-
-void clear_keys(int p)
+void clear_controls(int p)
 {
    players[p].left = 0;
    players[p].right = 0;
@@ -287,7 +275,7 @@ void set_controls_from_comp_move(int g)
 {
    int p = game_moves[g][2];
    int t = game_moves[g][3];
-   clear_keys(p);
+   clear_controls(p);
    if (t == 127)
    {
       players[p].menu = 1;
@@ -328,28 +316,28 @@ void set_controls_from_comp_move(int g)
 void set_comp_move_from_player_key_check(int p) // but don't set controls !!!
 {
    int cm = 0;
-   if (key[players1[p].left_key]) cm += 1;
+   if (key[players1[p].left_key])  cm += 1;
    if (key[players1[p].right_key]) cm += 2;
-   if (key[players1[p].up_key]) cm += 4;
-   if (key[players1[p].down_key]) cm += 8;
-   if (key[players1[p].jump_key]) cm += 16;
-   if (key[players1[p].fire_key]) cm += 32;
+   if (key[players1[p].up_key])    cm += 4;
+   if (key[players1[p].down_key])  cm += 8;
+   if (key[players1[p].jump_key])  cm += 16;
+   if (key[players1[p].fire_key])  cm += 32;
    // if menu key ignore everything else and set to 127
-   if (key[players1[p].menu_key]) cm = 127;
-   if (key[ALLEGRO_KEY_ESCAPE]) cm = 127;
+   if (key[players1[p].menu_key])  cm = 127;
+   if (key[ALLEGRO_KEY_ESCAPE])    cm = 127;
    players1[p].comp_move = cm;
 }
 
-void player_key_check(int p)
+void player_key_check(int p) // used only in menu
 {
-   if (key[players1[p].up_key]) players[p].up = 1;
-   if (key[players1[p].down_key]) players[p].down = 1;
-   if (key[players1[p].left_key]) players[p].left = 1;
+   if (key[players1[p].up_key])    players[p].up = 1;
+   if (key[players1[p].down_key])  players[p].down = 1;
+   if (key[players1[p].left_key])  players[p].left = 1;
    if (key[players1[p].right_key]) players[p].right = 1;
-   if (key[players1[p].fire_key]) players[p].fire = 1;
-   if (key[players1[p].jump_key]) players[p].jump = 1;
-   if (key[players1[p].menu_key]) players[p].menu = 1;
-   if (key[ALLEGRO_KEY_ESCAPE]) players[p].menu = 1;
+   if (key[players1[p].fire_key])  players[p].fire = 1;
+   if (key[players1[p].jump_key])  players[p].jump = 1;
+   if (key[players1[p].menu_key])  players[p].menu = 1;
+   if (key[ALLEGRO_KEY_ESCAPE])    players[p].menu = 1;
 }
 
 void function_key_check(void)
@@ -959,7 +947,7 @@ void set_controls_from_game_move(int p)
             g = 0; // break out of loop
             found = 1;
          }
-   if (!found) clear_keys(p); // if no match found (no move entry for player in entire game move array)
+   if (!found) clear_controls(p); // if no match found (no move entry for player in entire game move array)
 }
 
 int proc_events(ALLEGRO_EVENT ev, int ret)
@@ -1089,7 +1077,7 @@ int proc_controllers()
       }
       if (game_exit) // if called from menu only do key check for active local player
       {
-          clear_keys(active_local_player);
+          clear_controls(active_local_player);
           player_key_check(active_local_player);
           function_key_check();
       }

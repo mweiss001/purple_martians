@@ -17,23 +17,6 @@ look into pandoc...
 
 
 
-make an automated way to make a link list at the top of every file
-like each header <mh7>
-will have an anchor tag and be in a list at the top of the file
-
-I will need to redo all of my mh7's as anchors
-
-
-
-
-
-
-
-
-
-
-
-
 
 rename level_array
 how about level drawing
@@ -67,6 +50,41 @@ tell about dif from start and regular dif
 
 
 netplay - join TODO:
+
+
+
+
+
+
+
+
+
+find all css tags and remove unused
+
+header_main..removed...
+mh12 removed
+mh2 removed
+mh4 removed
+mh5 removed
+
+mh3 - body text (368)
+mh7 - section title (178)
+mh8 - file title (34)
+
+mh10 - by: Michael David Weiss (2)
+mh11 - Purple Martians title only (68)
+mh12 - Technical Code Description only (32)
+
+me1 - secondary header used in netgame config and netgame status
+
+pk0 - packets
+pk1 - packets
+
+
+
+
+
+
 
 
 

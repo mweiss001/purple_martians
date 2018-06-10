@@ -15,16 +15,16 @@
 <mdw_lhs_nav>
 <div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
-<div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
-<div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
-<div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
-<div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
-<div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
-<div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
-<div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
-<div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
-<div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
-<div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
 
 <br><div style="text-align: center;">Technical Descriptions</div><hr>    
 <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
@@ -50,10 +50,21 @@
 
             <header>
                 <mh11>Purple Martians</mh11><hr>
-                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
             </header>
 
+<mh3><hr></mh3>
 <mh8>Level Array</mh8>
+<mh3><hr><mdw_file_toc> <a href="level_array.html#Overview" target="_top">Overview</a>
+ <a href="level_array.html#Drawing the Level Array" target="_top">Drawing the Level Array</a>
+ <a href="level_array.html#Rebuilding level_background" target="_top">Rebuilding level_background</a>
+ <a href="level_array.html#Drawing Sequence in the Game Loop" target="_top">Drawing Sequence in the Game Loop</a>
+ <a href="level_array.html#Get New Background" target="_top">Get New Background</a>
+ <a href="level_array.html#Get New Screen Buffer" target="_top">Get New Screen Buffer</a>
+ <a href="level_array.html#Scale Factor" target="_top">Scale Factor</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
 <mh7>Overview</mh7>
         
 
@@ -74,7 +85,8 @@ The integer has certain special ranges:
 128+     - solid  
 </code></pre>
             
-<br><mh7>Drawing the Level Array</mh7>
+<br><a name="Drawing the Level Array"></a>
+<mh7>Drawing the Level Array</mh7>
 
 <mh3>
 Two bitmaps are used, each 2000 x 2000 pixels:
@@ -105,7 +117,8 @@ When a level is loaded, all 10,000 tiles are drawn to the level_background.
    draw_lift_lines();
 }</code></pre>
 
-<br><mh7>Rebuilding level_background</mh7>
+<br><a name="Rebuilding level_background"></a>
+<mh7>Rebuilding level_background</mh7>
 <mh3>
 To make things faster, all the bitmaps are created with ALLEGRO_NO_PRESERVE_TEXTURE.
 That means that if the display changes the contents will be lost.
@@ -118,7 +131,8 @@ However level_background is not redrawn each frame and must be redrawn if the di
    init_level_background();
 }</code></pre>
 
-<br><mh7>Drawing Sequence in the Game Loop</mh7>
+<br><a name="Drawing Sequence in the Game Loop"></a>
+<mh7>Drawing Sequence in the Game Loop</mh7>
 <mh3>
 This happens every frame (unless drawing is skipped)
 </mh3>
@@ -150,7 +164,8 @@ This happens every frame (unless drawing is skipped)
 
 </mh3>
 
-<br><mh7>Get New Background</mh7>
+<br><a name="Get New Background"></a>
+<mh7>Get New Background</mh7>
 <pre><code class="language-cpp">void get_new_background(int full)
 {
    al_set_target_bitmap(level_buffer);
@@ -167,7 +182,8 @@ This happens every frame (unless drawing is skipped)
 }</code></pre>
 
 
-<br><mh7>Get New Screen Buffer</mh7>
+<br><a name="Get New Screen Buffer"></a>
+<mh7>Get New Screen Buffer</mh7>
 <pre><code class="language-cpp">void get_new_screen_buffer(void)
 {
    al_set_target_backbuffer(display);
@@ -241,7 +257,8 @@ This happens every frame (unless drawing is skipped)
    al_draw_scaled_bitmap(level_buffer, WX, WY, SW, SH, sbx, sby, sbw, sbh, 0);
 }</code></pre>
 
-<br><mh7>Scale Factor</mh7>
+<br><a name="Scale Factor"></a>
+<mh7>Scale Factor</mh7>
 <mh3>
 Scale factor controls how much the of the level is shown on the screen.
 

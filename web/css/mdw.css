@@ -75,11 +75,6 @@
             white-space:nowrap;
             
         }
-        header_main{
-            background: #d4e6f0;
-            height: 268px; 
-            padding: 1em;
-        }
         footer {
             background: #d4e6f0;
             height: 200px; 
@@ -96,6 +91,9 @@
             font-family: "Saucer";
             src: url("../fonts/SaucerBB.ttf");
         }
+
+
+
         mh10 {
             font-family: Saucer;
             font-size: 300%;
@@ -106,41 +104,19 @@
             font-size: 600%;
             color:#7600ff;
         }
-
         mh12 {
-            font-size: 12;
-        }
-        mh1 {
             font-size: 150%;
         }
-        mh2 {
-            font-size: 130%;
-        }
+
+	
+
+
         mh3 {
             font-size: 120%;
             white-space: pre-wrap; 
         }
 
-        mh4 {
-            font-size: 130%;
-            font-weight: bold;
-            white-space: pre; 
-        }
-        mh5 {
-            font-size: 150%;
-            font-weight: bold;
-        }
 
-        mh6 {
-            font-size: 200%;
-            font-weight: bold;
-            color: #09146c;
-            background: #d4e6f0;
-            padding-bottom: .3em;
-            padding-top: .3em;
-            padding-left: .3em;
-            
-        }
         mh7 {
             font-size: 150%;
             font-weight: bold;
@@ -163,15 +139,12 @@
         }
 
 
-
         me1 {
             padding-top: .3em;
             white-space: pre-wrap; 
             font-size: 130%;
             background: #f2d4a4;
         }
-
-
 
 
         pk0 {

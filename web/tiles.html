@@ -15,16 +15,16 @@
 <mdw_lhs_nav>
 <div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
-<div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
-<div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
-<div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
-<div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
-<div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
-<div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
-<div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
-<div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
-<div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
-<div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
 
 <br><div style="text-align: center;">Technical Descriptions</div><hr>    
 <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
@@ -51,10 +51,21 @@
 
             <header>
                 <mh11>Purple Martians</mh11><hr>
-                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
             </header>
 
+			
+<mh3><hr></mh3>
 <mh8>Tiles</mh8>
+
+<mh3><hr><mdw_file_toc> <a href="tiles.html#Overview" target="_top">Overview</a>
+ <a href="tiles.html#Creating Tile Bitmaps" target="_top">Creating Tile Bitmaps</a>
+ <a href="tiles.html#Loading Tile Bitmaps" target="_top">Loading Tile Bitmaps</a>
+ <a href="tiles.html#Rebuilding Tile Bitmaps" target="_top">Rebuilding Tile Bitmaps</a>
+</mdw_file_toc><hr></mh3>
+
+
+<a name="Overview"></a>
 <mh7>Overview</mh7>
             
 
@@ -116,8 +127,9 @@ ALLEGRO_BITMAP *player_tile[16][32];
 ALLEGRO_BITMAP *door_tile[2][16][8];
 </code></pre>
 
+<br><a name="Creating Tile Bitmaps"></a>
+<mh7>Creating Tile Bitmaps</mh7>
 
-<br><mh7>Creating Tile Bitmaps</mh7>
 <mh3>
 - called only once from 'initial_setup()'</mh3>
 <pre><code class="language-cpp">void create_bmp(void)
@@ -136,7 +148,8 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
    M_dtilemap = al_create_bitmap(160,640);
 }</code></pre>
             
-<br><mh7>Loading Tile Bitmaps</mh7>
+<br><a name="Loading Tile Bitmaps"></a>
+<mh7>Loading Tile Bitmaps</mh7>
             
 <mh3>
 - called only once from 'initial_setup()'
@@ -201,7 +214,9 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
          }
    }
 }</code></pre>
-<br><mh7>Rebuilding Tile Bitmaps</mh7>
+
+<br><a name="Rebuilding Tile Bitmaps"></a>
+<mh7>Rebuilding Tile Bitmaps</mh7>
 
 <mh3>
 The tilemap bitmaps are rebuilt if the display changes and their contents are lost.

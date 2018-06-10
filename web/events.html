@@ -15,16 +15,16 @@
 <mdw_lhs_nav>
 <div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
-<div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
-<div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
-<div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
-<div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
-<div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
-<div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
-<div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
-<div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
-<div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
-<div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
 
 <br><div style="text-align: center;">Technical Descriptions</div><hr>    
 <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
@@ -51,12 +51,18 @@
 
             <header>
                 <mh11>Purple Martians</mh11><hr>
-                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
             </header>
 
-        
-            
+<mh3><hr></mh3>
 <mh8>Events</mh8>
+<mh3><hr><mdw_file_toc> <a href="events.html#Overview" target="_top">Overview</a>
+ <a href="events.html#Processing the event queue" target="_top">Processing the event queue</a>
+ <a href="events.html#Processing events" target="_top">Processing events</a>
+ <a href="events.html#Handling multiple resize events" target="_top">Handling multiple resize events</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
 <mh7>Overview</mh7>
 <mh3>
 Allegro 5 is event based.  When I converted my game from Allegro 4, I had to do a lot of things differently.
@@ -91,12 +97,18 @@ I never call al_wait_for_event().  Once every game loop, I process all events in
     
 When the game is not running and I'm in a menu or the level editor, or whatever, I just call 'proc_controllers()' in whatever loop I'm in.
     
-The speed of the game and menu are controlled by timers. (see detailed description of <a href="timers.html" target="_top">timers</a>)
+The speed of the game and menu are controlled by <a href="timers.html" target="_top">timers</a>.
 </mh3>    
-<br><mh7>Processing the event queue</mh7>
+
+<br>
+<a name="Processing the event queue"></a>
+<mh7>Processing the event queue</mh7>
     
 <mh3>
-Here is how the event queue is processed:</mh3>
+Once every frame I read all the events from the queue and process them.
+
+Most events are passed on to 'proc_events()', except for TIMER and DISPLAY RESIZE which are handled differently.
+</mh3>
 <pre><code class="language-cpp">int proc_controllers()
 {
    int ret = 0;
@@ -135,10 +147,12 @@ Here is how the event queue is processed:</mh3>
    return ret;
 }</code></pre>               
 
-<br><mh7>Processing events</mh7>
+<br>
+<a name="Processing events"></a>
+<mh7>Processing events</mh7>
     
 <mh3>
-And here is how events are processed:</mh3>
+Here is how most events are processed:</mh3>
 
 <pre><code class="language-cpp">int proc_events(ALLEGRO_EVENT ev, int ret)
 {
@@ -226,7 +240,9 @@ And here is how events are processed:</mh3>
    return ret;
 }</code></pre>               
             
-<br><mh7>Handling multiple resize events</mh7>
+<br>
+<a name="Handling multiple resize events"></a>
+<mh7>Handling multiple resize events</mh7>
 <mh3>
 When the display changes, an ALLEGRO_EVENT_DISPLAY_RESIZE event is generated.
 This is usually when the window is resized by the user.
