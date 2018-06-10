@@ -15,16 +15,16 @@
 <mdw_lhs_nav>
 <div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
-<div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
-<div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
-<div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
-<div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
-<div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
-<div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
-<div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
-<div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
-<div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
-<div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
 
 <br><div style="text-align: center;">Technical Descriptions</div><hr>    
 <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
@@ -51,13 +51,23 @@
 
             <header>
                 <mh11>Purple Martians</mh11><hr>
-                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
             </header>
-
+			
+<mh3><hr></mh3>
 <mh8>Display</mh8>
+<mh3><hr><mdw_file_toc> <a href="display.html#Global variables" target="_top">Global variables</a>
+ <a href="display.html#Creating the display" target="_top">Creating the display</a>
+ <a href="display.html#Process screen change" target="_top">Process screen change</a>
+ <a href="display.html#Display transform double" target="_top">Display transform double</a>
+ <a href="display.html#Detecting window move" target="_top">Detecting window move</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Global variables"></a>
 <mh7>Global variables</mh7>
 
-        
+
+
 <mh3>
 I use these global variables for the display:
 </mh3>
@@ -95,7 +105,9 @@ int disp_w_wind;
 int disp_h_wind;
 </code></pre>
             
-<br><mh7>Creating the Display</mh7>
+<br>
+<a name="Creating the display"></a>
+<mh7>Creating the display</mh7>
 
 <pre><code class="language-cpp">int init_screen(void)
 {
@@ -129,7 +141,9 @@ int disp_h_wind;
    return 1;
 }</code></pre>
 
-<br><mh7>Process Screen Change</mh7>
+<br>
+<a name="Process screen change"></a>
+<mh7>Process screen change</mh7>
 <mh3>
 This function is called when:
     
@@ -187,11 +201,13 @@ This function is called when:
   }
 }</code></pre>
 
-            
-
-<br><mh7>Display Transform Double</mh7>
+<br>            
+<a name="Display transform double"></a>
+<mh7>Display transform double</mh7>
 <mh3>
 I also use an orthographic transform to double or triple the screen size.
+
+This was implemented to address large screen sizes and small text on menus and overlays.
 </mh3>
 <pre><code class="language-cpp">void set_display_transform(void)
 {
@@ -202,11 +218,9 @@ I also use an orthographic transform to double or triple the screen size.
    al_identity_transform(&trans);
    al_orthographic_transform(&trans, 0, 0, -1.0, SCREEN_W, SCREEN_H, 1.0);
    al_use_projection_transform(&trans);
-}</code></pre>
-<mh3>
-This was implemented to address large screen sizes and small text on menus and overlays.
-</mh3>
-<pre><code class="language-cpp">void auto_set_display_transform_double(void)
+}
+
+void auto_set_display_transform_double(void)
 {
    display_transform_double = 1;
 
@@ -242,8 +256,9 @@ The mouse_x and mouse_y positions are also scaled like this:
 mouse_y = ev.mouse.y / display_transform_double;
 </code></pre>
 
-
-<br><mh7>Detecting Window Move</mh7>
+<br>
+<a name="Detecting window move"></a>
+<mh7>Detecting window move</mh7>
 <mh3>
 Because no events are triggered when the display window is moved,  I had to detect it myself.
 

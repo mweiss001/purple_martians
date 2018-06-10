@@ -15,16 +15,16 @@
 <mdw_lhs_nav>
 <div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
-<div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
-<div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
-<div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
-<div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
-<div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
-<div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
-<div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
-<div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
-<div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
-<div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
 
 <br><div style="text-align: center;">Technical Descriptions</div><hr>    
 <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
@@ -51,11 +51,21 @@
 
             <header>
                 <mh11>Purple Martians</mh11><hr>
-                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
             </header>
 
-
+<mh3><hr></mh3>
 <mh8>Netgame - Join</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_join.html#Overview" target="_top">Overview</a>
+ <a href="netgame_join.html#Client sends CJON" target="_top">Client sends CJON</a>
+ <a href="netgame_join.html#Server receives CJON and replies with SJON" target="_top">Server receives CJON and replies with SJON</a>
+ <a href="netgame_join.html#Client blocks until it receives SJON" target="_top">Client blocks until it receives SJON</a>
+ <a href="netgame_join.html#Client blocks until it gets initial state from server" target="_top">Client blocks until it gets initial state from server</a>
+ <a href="netgame_join.html#Client chase and lock" target="_top">Client chase and lock</a>
+ <a href="netgame_join.html#Packets used for join" target="_top">Packets used for join</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
 <mh7>Overview</mh7>
 <mh3>
 The client requests to join.
@@ -65,6 +75,7 @@ The client chases until it locks and the server sets it active.
 
 </mh3>
 
+<a name="Client sends CJON"></a>
 <mh7>Client sends CJON</mh7>
 <mh3>
 When a client wants to join, it sends a 'CJON' packet to the server, requesting to join.</mh3>
@@ -74,6 +85,7 @@ PacketAddString(local_hostname);
 ClientSend(packetbuffer, packetsize);
 </code></pre>
 
+<a name="Server receives CJON and replies with SJON"></a>
 <mh7>Server receives CJON and replies with SJON</mh7>
 <mh3>
 The server sets up a client player structure and replies with an 'SJON' packet.</mh3>
@@ -95,6 +107,9 @@ PacketPut1ByteInt(deathmatch_pbullets);
 PacketPut1ByteInt(deathmatch_pbullets_damage);
 PacketPut1ByteInt(suicide_pbullets);
 </code></pre>
+
+
+<a name="Client blocks until it receives SJON"></a>
 <mh7>Client blocks until it receives SJON</mh7>
 <mh3>
 When the client receives SJON, it sets up the local and server player structures:</mh3>
@@ -118,6 +133,7 @@ players[cp].control_method = 4;
 </code></pre>
 
 
+<a name="Client blocks until it gets initial state from server"></a>
 <mh7>Client blocks until it gets initial state from server</mh7>
 <mh3>
 On the client in the function 'client_control()': </mh3>
@@ -155,6 +171,7 @@ void client_block_until_initial_state_received(void)
 }
 </code></pre>
 
+<a name="Client chase and lock"></a>
 <mh7>Client chase and lock</mh7>
 <mh3>
 After the initial state is received, the client does not block anymore.
@@ -185,20 +202,10 @@ This game move is synced back the the client, and when the client executes it, t
 }
 </code></pre>
    
-   
-    
-            
-<pre><code class="language-cpp">
-
-
-
-
-</code></pre>
-       
             
             
-            
-<br><mh7>Packets used for join</mh7>
+<br><a name="Packets used for join"></a>
+<mh7>Packets used for join</mh7>
 <br>            
 
 <pk0>Packet: 'CJON'</pk0>

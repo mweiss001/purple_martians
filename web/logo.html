@@ -15,16 +15,16 @@
 <mdw_lhs_nav>
 <div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
-<div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
-<div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
-<div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
-<div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
-<div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
-<div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
-<div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
-<div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
-<div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
-<div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
 
 <br><div style="text-align: center;">Technical Descriptions</div><hr>    
 <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
@@ -51,26 +51,46 @@
 
             <header>
                 <mh11>Purple Martians</mh11><hr>
-                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
             </header>
 
+<mh3><hr></mh3><mh8>Logo</mh8>
+<mh3><hr><mdw_file_toc> <a href="logo.html#Overview" target="_top">Overview</a>
+ <a href="logo.html#Demo Video" target="_top">Demo Video</a>
+ <a href="logo.html#Splines" target="_top">Splines</a>
+ <a href="logo.html#Spline wrapper funtions" target="_top">Spline wrapper funtions</a>
+ <a href="logo.html#Setup of points on the grid" target="_top">Setup of points on the grid</a>
+ <a href="logo.html#Drawing the small letters" target="_top">Drawing the small letters</a>
+ <a href="logo.html#Function to draw the entire static logo" target="_top">Function to draw the entire static logo</a>
+ <a href="logo.html#Function to draw animated spinning logo" target="_top">Function to draw animated spinning logo</a>
+</mdw_file_toc><hr></mh3>
 
-<mh8>Logo</mh8>
+
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+
+<mh3>
+The animated splash screen logo of my name is made with a few different techniques:
+
+-the large capital letters (M, D, W) are generated with splines.
+
+-the small letters are font based and drawn by a function that scales x and y independantly and mirrors if the scales are negative.
+</mh3>
+
+
+
+<br><a name="Demo Video"></a>
 <mh7>Demo Video</mh7>
 <br>        
-                    <div style="text-align: left;"><video src="images/logo.mp4" poster="images/logo1.png" controls width="800" height="600" preload="auto"></video></div>
+<div style="text-align: left;"><video src="images/logo.mp4" poster="images/logo1.png" controls width="800" height="600" preload="auto"></video></div>
 
-<br><mh7>Overview</mh7>
-<mh3>
-The splash screen logo of my name is made with a few different techniques.
 
-The large capital letters (M, D, W) are generated with splines.
+<br><a name="Splines"></a>
+<mh7>Splines</mh7>
 
-The small letters are font based and drawn by a function that scales x and y independantly and mirrors if the scales are negative.
-</mh3>
-<br><mh7>Splines</mh7>
 <mh3>                        
-In 'Allegro5 drawing primitives add-on' I use the function: 'al_draw_spline()'
+In Allegro5, in the 'drawing primitives add-on', I use the function: 'al_draw_spline()'
 </mh3>
 
 <pre><code class="language-cpp">void al_draw_spline(float points[8], ALLEGRO_COLOR color, float thickness)
@@ -78,11 +98,21 @@ Draws a Bézier spline given 4 control points.
 Parameters:
 points - An array of 4 pairs of coordinates of the 4 control points
 color - Color of the spline
-thickness - Thickness of the spline
-</code></pre>
+thickness - Thickness of the spline</code></pre>
+<mh3>The bezier spline is specified by the four x/y control points in the points array:
+points[0] and points[1] contain the coordinates of the first control point, points[2] and points[3] are the second point, etc.
+
+Control points 0 and 3 are the ends of the spline, and points 1 and 2 are guides.
+
+The curve probably won't pass through points 1 and 2, but they affect the shape of the curve between points 0 and 3
+The easiest way to think of it is that the curve starts at p0, heading in the direction of p1, but curves round so that it arrives at p3 from the direction of p2.
+</mh3>
+
+<br><a name="Spline wrapper funtions"></a>
+<mh7>Spline wrapper funtions</mh7>
 
 <mh3>
-I made a wrapper function for al_draw_spline() to add circles at the ends of the lines:</mh3>
+I made a wrapper function for al_draw_spline() to add circles at the ends of the splines:</mh3>
 <pre><code class="language-cpp">void mspline(float *par, ALLEGRO_COLOR col, int thickness)
 {
    al_draw_spline(par, col, thickness);
@@ -107,34 +137,30 @@ Then I made another wrapper function to add a fading effect:</mh3>
    }
 }</code></pre>
             
-<br><mh7>Setup of points on the grid</mh7>
+<br><a name="Setup of points on the grid"></a>
+<mh7>Setup of points on the grid</mh7>
             
 <mh3>
-The "M" and "W" are each made of 4 splines, and the "D" is one spline.
-The large outer arms of the 'M' and 'W' are just mirrored copies of each other.
-The small inner arms of the 'M' and 'W' are mirrored as well.
-The 'D' has its lower end point and control point mirrored from the top ones.    
+I set up an array with space for 9 splines.</mh3>
+<pre><code class="language-cpp">float points[9][8];</code></pre>
+<mh3>The "M" and "W" are each made of 4 splines.
+The "D" is made from one spline.
 
-Al of the points for these splines are on cartesian grid with the center at 0,0.
+All of the points for these splines are on cartesian grid with the center at 0,0.
 The upper left corner is -200, -200 and the lower right corner is +200, +200.
-This was chosen so that the entire image can be scaled in the x and y axis independently
-by multiplying x or y coordinates by a scaling value.
+This was chosen so that the entire grid can be scaled in the x and y axis independently by multiplying x or y coordinates by a scaling value.
 
-Here is how I set up all the points in code:
-                    </mh3>              
+There are only 3 seed splines.
+- the large outer arms of 'M' and 'W' are mirrored copies of spline 0 (0, 1, 4, 5)
+- the small inner arms of 'M' and 'W' are mirrored copies of spline 2 (2, 3, 6, 7)
+- 'D' is made from spline 8 with the lower points mirrored from the top ones
 
-                    <pre><code class="language-cpp">float points[10][8];
-// 0 1 are the outer parts of M
-// 2 3 are the inner parts of M
-// 4 D
-// 5 (not used)
-// 6 7 outer W
-// 8 9 inner W
+The other splines are derived from these seed splines, using x and y axis mirroring and translation.
 
-// 0 is copied to 1 6 7
-// 2 is copied to 3 8 9
-
-void seed_mdw(void)
+All of the constants in 'seed_mdw()', I got from another function I wrote to set up the splines graphically.
+I adjusted the control points until I liked how they looked, then hard coded them into seed_mdw().
+</mh3>
+<pre><code class="language-cpp">void seed_mdw(void)
 {
    // outer arms start and end pos are all fixed
    points[0][0] = -200;
@@ -147,46 +173,52 @@ void seed_mdw(void)
    points[1][6] = 0;
    points[1][7] = -200;
 
-   points[6][0] = 0;
-   points[6][1] = 0;
-   points[6][6] = 0;
-   points[6][7] = 200;
+   points[4][0] = 0;
+   points[4][1] = 0;
 
-   points[7][0] = 200;
-   points[7][1] = 0;
-   points[7][6] = 200;
-   points[7][7] = 200;
+   points[4][6] = 0;
+   points[4][7] = 200;
 
-   // outer arm 0 control points are relative to outer arm 0 positon
-   points[0][2] = points[0][6] + 85;
-   points[0][3] = points[0][7] + 107;
-   points[0][4] = points[0][6] + 95;
-   points[0][5] = points[0][7] + 31;
+   points[5][0] = 200;
+   points[5][1] = 0;
+   points[5][6] = 200;
+   points[5][7] = 200;
 
-   // inner arm is relative to outer arm
-   points[2][0] = points[0][6] + 30;
-   points[2][1] = points[0][7] + 30;
-   points[2][2] = points[0][6] + 77;
-   points[2][3] = points[0][7] + 32;
-   points[2][4] = points[0][6] + 93;
-   points[2][5] = points[0][7] + 53;
-   points[2][6] = points[0][6] + 109;
-   points[2][7] = points[0][7] + 69;
+   // outer arm (spline 0) control points
+   points[0][2] = -115;
+   points[0][3] = -93;
+   points[0][4] = -105;
+   points[0][5] = -169;
+
+   // inner arm (spline 2) control points
+   points[2][0] = -170;
+   points[2][1] = -170;
+   points[2][2] = -123;
+   points[2][3] = -168;
+   points[2][4] = -107;
+   points[2][5] = -147;
+   points[2][6] = -91;
+   points[2][7] = -131;
 
    // 'D' has only 1 spline, start point and first control point are mirrored in the y axis
-   points[4][0] = -70;
-   points[4][1] = -40;
-   points[4][2] = 132;
-   points[4][3] = -88;
-}
+   points[8][0] = -70;
+   points[8][1] = -40;
+   points[8][2] = 132;
+   points[8][3] = -88;
+}</code></pre>
 
-void fill_mdw(void)
+<mh3>                    
+Then I set up all of the mirrored splines.
+</mh3>                    
+
+<pre><code class="language-cpp">void fill_mdw(void)
 {
-   // get control point 1 from spline 0
+   // --- outer arms ---
+   // mirror spline 0 to 1, 4, 5
+
+   // get control points from spline 0
    float cp1x = points[0][0] - points[0][2];
    float cp1y = points[0][1] - points[0][3];
-
-   // get control point 2 from spline 0
    float cp2x = points[0][0] - points[0][4];
    float cp2y = points[0][1] - points[0][5];
 
@@ -196,17 +228,18 @@ void fill_mdw(void)
    points[1][4] = points[1][0] + cp2x;
    points[1][5] = points[1][1] - cp2y;
 
-   points[6][2] = points[6][0] - cp1x;
-   points[6][3] = points[6][1] + cp1y;
-   points[6][4] = points[6][0] - cp2x;
-   points[6][5] = points[6][1] + cp2y;
+   points[4][2] = points[4][0] - cp1x;
+   points[4][3] = points[4][1] + cp1y;
+   points[4][4] = points[4][0] - cp2x;
+   points[4][5] = points[4][1] + cp2y;
 
-   points[7][2] = points[7][0] + cp1x;
-   points[7][3] = points[7][1] + cp1y;
-   points[7][4] = points[7][0] + cp2x;
-   points[7][5] = points[7][1] + cp2y;
+   points[5][2] = points[5][0] + cp1x;
+   points[5][3] = points[5][1] + cp1y;
+   points[5][4] = points[5][0] + cp2x;
+   points[5][5] = points[5][1] + cp2y;
 
-   // these are the 4 inner arms and their positions are relative to the outer arms
+   // --- inner arms ---
+   // mirror spline 2 to 3, 6, 7
 
    // get inner arm offsets from outer arm
    float ia1x = points[0][0] - points[2][0]; // inner arm x1
@@ -220,7 +253,6 @@ void fill_mdw(void)
    cp2x = points[2][0] - points[2][4]; // inner arm x2
    cp2y = points[2][1] - points[2][5]; // inner arm y2
 
-
    // apply to other inner arms
    points[3][0] = points[1][0] + ia1x;
    points[3][1] = points[1][1] - ia1y;
@@ -232,118 +264,45 @@ void fill_mdw(void)
    points[3][4] = points[3][0] + cp2x;
    points[3][5] = points[3][1] - cp2y;
 
-   points[8][0] = points[6][0] - ia1x;
-   points[8][1] = points[6][1] + ia1y;
-   points[8][6] = points[6][0] - ia2x;
-   points[8][7] = points[6][1] + ia2y;
+   points[6][0] = points[4][0] - ia1x;
+   points[6][1] = points[4][1] + ia1y;
+   points[6][6] = points[4][0] - ia2x;
+   points[6][7] = points[4][1] + ia2y;
 
-   points[8][2] = points[8][0] - cp1x;
-   points[8][3] = points[8][1] + cp1y;
-   points[8][4] = points[8][0] - cp2x;
-   points[8][5] = points[8][1] + cp2y;
+   points[6][2] = points[6][0] - cp1x;
+   points[6][3] = points[6][1] + cp1y;
+   points[6][4] = points[6][0] - cp2x;
+   points[6][5] = points[6][1] + cp2y;
 
-   points[9][0] = points[7][0] + ia1x;
-   points[9][1] = points[7][1] + ia1y;
-   points[9][6] = points[7][0] + ia2x;
-   points[9][7] = points[7][1] + ia2y;
+   points[7][0] = points[5][0] + ia1x;
+   points[7][1] = points[5][1] + ia1y;
+   points[7][6] = points[5][0] + ia2x;
+   points[7][7] = points[5][1] + ia2y;
 
-   points[9][2] = points[9][0] + cp1x;
-   points[9][3] = points[9][1] + cp1y;
-   points[9][4] = points[9][0] + cp2x;
-   points[9][5] = points[9][1] + cp2y;
+   points[7][2] = points[7][0] + cp1x;
+   points[7][3] = points[7][1] + cp1y;
+   points[7][4] = points[7][0] + cp2x;
+   points[7][5] = points[7][1] + cp2y;
 
-   // "D" mirroring
-   points[4][6] =  points[4][0]; // same x
-   points[4][7] = -points[4][1]; // mirror y
-   points[4][4] =  points[4][2]; // same x
-   points[4][5] = -points[4][3]; // mirror y
+   // --- spline 8 - used for 'd'
+   // mirror upper points to lower with same x
+   points[8][6] =  points[8][0]; // same x
+   points[8][7] = -points[8][1]; // mirror y
+   points[8][4] =  points[8][2]; // same x
+   points[8][5] = -points[8][3]; // mirror y
 } </code></pre>
 
-                    <mh3>                    
-All of the constants in seed_mdw(), I got from another function I wrote to set up the curves.
-I would adjust the control points till I like how they looked, then hard code them into seed_mdw().
+<br><a name="Drawing the small letters"></a>
+<mh7>Drawing the small letters</mh7>
 
-Finally here is the function that draws the whole thing:
-                    </mh3>
+<mh3>
+To draw the small letters, I use the function 'idw()' to draw scaled text.
 
-                    <pre><code class="language-cpp">void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
-{
-   int c1 = 10; //color 1 red
-   int c2 = 8;  //color 2 purple
-   int c3 = 10; //color 3 red
+X and Y can be scaled independantly, and if either scale is negative the text is mirrored.
 
-   // determine thickness based on both scales
-   float hy_scale = sqrt( (x_scale * x_scale) + (y_scale * y_scale));
-   float t = 2 + hy_scale * 7;
-
-   float draw_points[10][8];
-
-   // apply scale
-   for (int j=0; j<10; j++)
-      for (int i=0; i<8; i+=2)
-      {
-         draw_points[j][i]   = points[j][i]   * x_scale;
-         draw_points[j][i+1] = points[j][i+1] * y_scale;
-      }
-
-   // apply offset
-   for (int j=0; j<10; j++)
-      for (int i=0; i<8; i+=2)
-      {
-         draw_points[j][i] += x;
-         draw_points[j][i+1] += y;
-      }
-
-   // drawing order
-   int order = 0; // normal with inner arms in front
-   if (x_scale < 0) order = !order;
-   if (y_scale < 0) order = !order;
-
-   if (order)
-   {
-      mfspline(draw_points[4], c3, t);
-      mfspline(draw_points[2], c1, t);
-      mfspline(draw_points[3], c1, t);
-      mfspline(draw_points[8], c1, t);
-      mfspline(draw_points[9], c1, t);
-      mfspline(draw_points[0], c2, t);
-      mfspline(draw_points[1], c2, t);
-      mfspline(draw_points[6], c2, t);
-      mfspline(draw_points[7], c2, t);
-   }
-   else
-   {
-      mfspline(draw_points[0], c2, t);
-      mfspline(draw_points[1], c2, t);
-      mfspline(draw_points[6], c2, t);
-      mfspline(draw_points[7], c2, t);
-      mfspline(draw_points[4], c3, t);
-      mfspline(draw_points[2], c1, t);
-      mfspline(draw_points[3], c1, t);
-      mfspline(draw_points[8], c1, t);
-      mfspline(draw_points[9], c1, t);
-   }
-
-   // show the rest of the name
-   float xs = x_scale * 2;
-   float ys = y_scale * 3;
-   void idw(int txt, int x, int y, float x_scale, float y_scale);
-   idw(1, (int)(x - 54  * x_scale), (int)(y - 130 * y_scale), xs, ys); // ichael
-   idw(2, (int)(x + 90  * x_scale), (int)(y -  15 * y_scale), xs, ys); // avid
-   idw(3, (int)(x + 146 * x_scale), (int)(y + 120 * y_scale), xs, ys); // eiss
-}</code></pre>
-
-
-                    <mh3>
-To draw the small letters, I made a function to draw scaled text.
-X and Y can be scaled independantly, and if either scale is negative the text is mirrored!
-
-I used to create the text bitmaps every time, but in the interests of speed, I re-wrote it so that
-they are pre-generated.
-
-Here is the code that draws the small letters:
-                    </mh3>
-                    <pre><code class="language-cpp">void idw(int txt, int x, int y, float x_scale, float y_scale)
+The text bitmaps are generated only once, as it was too slow to generate them every time.
+</mh3>
+<pre><code class="language-cpp">void idw(int txt, int x, int y, float x_scale, float y_scale)
 {
    int bbx1, bby1, bbw1, bbh1;
    al_get_text_dimensions(f1, "ichael", &bbx1, &bby1, &bbw1, &bbh1);
@@ -394,11 +353,88 @@ Here is the code that draws the small letters:
 }
 </code></pre>
 
-                    <mh3>
-Here is some code that draws a spinning logo.<br>
-Its is non-blocking and needs to be called in a loop, so I can do other things like process my event loop, etc.
-                    </mh3>
-                    <pre><code class="language-cpp">int mdw_an2(void)
+
+
+<br><a name="Function to draw the entire static logo"></a>
+<mh7>Function to draw the entire static logo</mh7>
+<mh3>                    
+Finally here is the function that draws the whole thing:
+</mh3>
+
+<pre><code class="language-cpp">void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
+{
+   int c1 = 10; //color 1 (red)
+   int c2 = 8;  //color 2 (purple)
+
+   // determine thickness based on both scales
+   float hy_scale = sqrt( (x_scale * x_scale) + (y_scale * y_scale));
+   float t = 2 + hy_scale * 7;
+
+   float draw_points[9][8];
+
+   // apply scale
+   for (int j=0; j<9; j++)
+      for (int i=0; i<8; i+=2)
+      {
+         draw_points[j][i]   = points[j][i]   * x_scale;
+         draw_points[j][i+1] = points[j][i+1] * y_scale;
+      }
+
+   // apply offset
+   for (int j=0; j<9; j++)
+      for (int i=0; i<8; i+=2)
+      {
+         draw_points[j][i] += x;
+         draw_points[j][i+1] += y;
+      }
+
+   // drawing order
+   int order = 0; // normal with inner arms in front
+   if (x_scale < 0) order = !order;
+   if (y_scale < 0) order = !order;
+   
+   if (order)
+   {
+      mfspline(draw_points[8], c1, t);
+      mfspline(draw_points[2], c1, t);
+      mfspline(draw_points[3], c1, t);
+      mfspline(draw_points[6], c1, t);
+      mfspline(draw_points[7], c1, t);
+      mfspline(draw_points[0], c2, t);
+      mfspline(draw_points[1], c2, t);
+      mfspline(draw_points[4], c2, t);
+      mfspline(draw_points[5], c2, t);
+   }
+   else
+   {
+      mfspline(draw_points[0], c2, t);
+      mfspline(draw_points[1], c2, t);
+      mfspline(draw_points[4], c2, t);
+      mfspline(draw_points[5], c2, t);
+      mfspline(draw_points[8], c1, t);
+      mfspline(draw_points[2], c1, t);
+      mfspline(draw_points[3], c1, t);
+      mfspline(draw_points[6], c1, t);
+      mfspline(draw_points[7], c1, t);
+   }
+
+   // show the rest of the name
+   float xs = x_scale * 2;
+   float ys = y_scale * 3;
+   void idw(int txt, int x, int y, float x_scale, float y_scale);
+   idw(1, (int)(x - 54  * x_scale), (int)(y - 130 * y_scale), xs, ys); // ichael
+   idw(2, (int)(x + 90  * x_scale), (int)(y -  15 * y_scale), xs, ys); // avid
+   idw(3, (int)(x + 146 * x_scale), (int)(y + 120 * y_scale), xs, ys); // eiss
+}</code></pre>
+
+<br><a name="Function to draw animated spinning logo"></a>
+<mh7>Function to draw animated spinning logo</mh7>
+
+<mh3>
+This function is non-blocking and needs to be called in a loop, so it can do other things like process the event loop, etc.
+</mh3>
+
+<pre><code class="language-cpp">int mdw_an2(void)
 {
    float x_scale = mdw_splash_logo_scale;
    float y_scale = mdw_splash_logo_scale;

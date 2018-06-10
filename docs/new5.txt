@@ -6000,6 +6000,423 @@ foreach $file (@files)
 
 
 
+make an automated way to make a link list at the top of every file
+like each header <mh7>
+will have an anchor tag and be in a list at the top of the file
+
+I will need to redo all of my mh7's as anchors
+
+
+make a script to show all mh7 tags by filename...
+
+
+this is how I do it in index.html:
+<a name="description"></a>
+<br><mh6>Description:</mh6>
+
+then a link to that looks like this:
+<a href="index.html#description" target="_top">Description</a>
+
+this is how it looks in the other files:
+<br><mh7>Overview</mh7>
+
+
+change mh6 to mh7
+the only place mh6 is used is in index...change them all...
+done and removed mh6 from css
+
+now only mh7...
+
+
+
+now I have a list of mh7 tags in each file...
+
+
+i should change each tag to a common format:
+
+<mh7>Overview<a name="Overview"></a></mh7>
+
+test this...
+
+do it like this instead:
+<br><a name="Overview"></a><mh7>Overview</mh7>
+
+Yes...do them all like this...
+
+can I automatically do it???
+
+
+still not sure...
+
+I want the whole thing wrapped in a unique tag
+
+why? I dont plan on modifying it, just making auto TOC from it
+
+can I use spaces in my names??yes
+
+
+manually make them all look like this:
+The name exactly the same as the anchor
+
+<a name="Features"></a>
+<mh7>Features</mh7>
+
+do it in index first...
+works good there.
+
+copy all back to main dir on desktop...
+
+now manually edit all mh7 tags...
+
+do this in main dir...
+
+blank.html - none
+
+-----------------
+display.html..done
+-----------------
+Global variables
+Creating the Display
+Process Screen Change
+Display Transform Double
+Detecting Window Move
+
+-----------------
+events.html..done
+-----------------
+Overview
+Processing the event queue
+Processing events
+Handling multiple resize events
+
+-----------------
+game_moves_array.html..done
+-----------------
+Overview
+The Game Moves Array
+Netgame
+Special Game Moves
+
+-----------------
+index.html..done
+-----------------
+Description
+Demo Video
+Features
+Created by
+Created with
+License
+Supported Systems
+External Links
+Older Versions
+History
+
+-----------------
+input.html..done
+-----------------
+Overview
+Keyboard Input
+PRINTSCREEN hack
+Mouse Input
+Joystick Input
+Bindings vs Controls
+
+-----------------
+level_array.html..done
+-----------------
+Overview
+Drawing the Level Array
+Rebuilding level_background
+Drawing Sequence in the Game Loop
+Get New Background
+Get New Screen Buffer
+Scale Factor
+
+-----------------
+lhs_nav.html
+-----------------
+
+-----------------
+logo.html..done
+-----------------
+Demo Video
+Overview
+Splines
+Setup of points on the grid
+
+-----------------
+netgame_config.html..done
+-----------------
+Overview
+Settings you probably shouldn't change!
+
+-----------------
+netgame_join.html..done
+-----------------
+Overview
+Client sends CJON
+Server receives CJON and replies with SJON
+Client blocks until it receives SJON
+Client blocks until it gets initial state from server
+Client chase and lock
+Packets used for join
+
+-----------------
+netgame_main.html..done
+-----------------
+Overview
+Game Move Sync
+Client sends control change
+Server receives control change
+Server sends game move data to clients
+Client receives game move data from server
+Timing
+Control lead frames
+Player numbers
+Player's control methods
+Level Done
+
+-----------------
+netgame_packets.html..done
+-----------------
+Overview
+
+-----------------
+netgame_state.html..done
+-----------------
+Overview
+Game state variables
+Global variables for state correction
+How a client gets a new state from the server
+How a client applies the new state
+How the server sends a new state dif to a client
+Packets used for state correction
+
+-----------------
+netgame_status.html..done
+-----------------
+Overview
+server_sync
+client_sync
+server_game_moves_sync
+client_game_moves_sync
+
+-----------------
+sound.html..done
+-----------------
+Overview
+Sound Setup
+Mixer Volume Controls
+Theme Music
+Sound Effects
+Sample Delay
+Processing the Hiss Sound
+
+-----------------
+tiles.html..done
+-----------------
+Overview
+Creating Tile Bitmaps
+Loading Tile Bitmaps
+Rebuilding Tile Bitmaps
+
+-----------------
+timers.html..done
+-----------------
+Overview
+Menu Timer (mnu_timer)
+Second Timer (sec_timer)
+Frames per Second Timer (fps_timer)
+Speed adjust during netgame
+
+
+now that all of this is done I can get back to making my toc's
+
+
+
+perl script: make_toc.pl
+
+# makes a toc using <mh7> tags
+# inserts the toc between <mdw_file_toc> tags
+
+# iterate all .html files
+@files = <*.html>;
+foreach $file (@files)
+{
+   print "\nfile:$file\n";
+   print "---------------------------------\n";
+
+   # open the file
+   open(DATA, "<", $file);
+   my $a = do {local $/; <DATA>};
+
+   # find <mh7> tags
+   my @matches;
+   push @matches, $1 while $a =~ /.*(<mh7>.*<\/mh7>)/g;
+
+   # multi line toc we are going to insert
+   my @toc;
+
+   foreach (@matches)
+   {
+      #print $_ . "\n";
+
+	  # strip tags
+	  $_ =~  /<mh7>(.*)<\/mh7>/;
+      $_ = $1;
+      print $_ . "\n";
+
+      # add single line in toc
+      $toci = "<a href=\"$file\#$_\" target=\"_top\">$_</a>\n";
+	  push @toc, $toci;
+   }
+   #print @toc;
+
+   # replace the toc between <mdw_file_toc> tags
+   $a =~ s/<mdw_file_toc>(.*)<\/mdw_file_toc>/<mdw_file_toc> @toc<\/mdw_file_toc>/s;
+
+   # save the changes to file
+   open(DATA, ">", $file);
+   print(DATA $a);
+}
+
+
+tag in source files...
+
+<mh3><hr></mh3>
+<mh8>Tiles</mh8>
+<mh3><hr><mdw_file_toc> </mdw_file_toc><hr></mh3>
+
+
+display.html..done
+events.html..done
+game_moves_array.html..done
+index.html..not done
+input.html..done
+level_array.html..done
+logo.html..done
+netgame_config.html..done
+netgame_join.html..done
+netgame_main.html..done
+netgame_packets.html..done
+netgame_state.html..done
+netgame_status.html..done
+sound.html..done
+tiles.html..done
+timers.html..done
+
+wow, all of this stuff is looking good...
+
+
+
+
+
+
+
+
+I want to simplify this:
+
+The offsets from 6,7 are not necessary
+
+old:
+   // outer arms start and end pos are all fixed
+   points[0][0] = -200;
+   points[0][1] = 0;
+   points[0][6] = -200;
+   points[0][7] = -200;
+
+   points[1][0] = 0;
+   points[1][1] = 0;
+   points[1][6] = 0;
+   points[1][7] = -200;
+
+   points[6][0] = 0;
+   points[6][1] = 0;
+   points[6][6] = 0;
+   points[6][7] = 200;
+
+   points[7][0] = 200;
+   points[7][1] = 0;
+   points[7][6] = 200;
+   points[7][7] = 200;
+
+   // outer arm 0 control points are relative to outer arm 0 positon
+   points[0][2] = points[0][6] + 85;
+   points[0][3] = points[0][7] + 107;
+   points[0][4] = points[0][6] + 95;
+   points[0][5] = points[0][7] + 31;
+
+   // inner arm is relative to outer arm
+   points[2][0] = points[0][6] + 30;
+   points[2][1] = points[0][7] + 30;
+   points[2][2] = points[0][6] + 77;
+   points[2][3] = points[0][7] + 32;
+   points[2][4] = points[0][6] + 93;
+   points[2][5] = points[0][7] + 53;
+   points[2][6] = points[0][6] + 109;
+   points[2][7] = points[0][7] + 69;
+
+
+new:
+   // outer arms start and end pos are all fixed
+   points[0][0] = -200;
+   points[0][1] = 0;
+   points[0][6] = -200;
+   points[0][7] = -200;
+
+   points[1][0] = 0;
+   points[1][1] = 0;
+   points[1][6] = 0;
+   points[1][7] = -200;
+
+   points[6][0] = 0;
+   points[6][1] = 0;
+   points[6][6] = 0;
+   points[6][7] = 200;
+
+   points[7][0] = 200;
+   points[7][1] = 0;
+   points[7][6] = 200;
+   points[7][7] = 200;
+
+   // outer arm 0 control points
+   points[0][2] = -115;
+   points[0][3] = -93;
+   points[0][4] = -105;
+   points[0][5] = -169;
+
+   // inner arm
+   points[2][0] = -170;
+   points[2][1] = -170;
+   points[2][2] = -123;
+   points[2][3] = -68;
+   points[2][4] = -107;
+   points[2][5] = -147;
+   points[2][6] = -91;
+   points[2][7] = -131;
+
+
+
+
+
+
+
+
+
+
+looking in game moves thingy
+do I make a clear distinction between keys and controls??
+I have a function called clear_keys(), that actually clears controls
+renamed clear_keys() to clear_controls()
+void set_comp_move_from_controls(int p)...never used. delete
+
+
+
+
+
+
+
+
 
 
 

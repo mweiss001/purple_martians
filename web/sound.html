@@ -15,16 +15,16 @@
 <mdw_lhs_nav>
 <div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
-<div style="text-align: center;"><a href="index.html#description" target="_top">Description</a></div>    
-<div style="text-align: center;"><a href="index.html#video" target="_top">Demo Video</a></div>    
-<div style="text-align: center;"><a href="index.html#features" target="_top">Features</a></div>    
-<div style="text-align: center;"><a href="index.html#created_by" target="_top">Created by</a></div>    
-<div style="text-align: center;"><a href="index.html#created_with" target="_top">Created with</a></div>    
-<div style="text-align: center;"><a href="index.html#license" target="_top">License</a></div>    
-<div style="text-align: center;"><a href="index.html#systems" target="_top">Supported Systems</a></div>    
-<div style="text-align: center;"><a href="index.html#external links" target="_top">External Links</a></div>    
-<div style="text-align: center;"><a href="index.html#old_versions" target="_top">Older Versions</a></div>    
-<div style="text-align: center;"><a href="index.html#history" target="_top">History</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
 
 <br><div style="text-align: center;">Technical Descriptions</div><hr>    
 <div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
@@ -51,10 +51,21 @@
 
             <header>
                 <mh11>Purple Martians</mh11><hr>
-                <mh1>Technical Code Descriptions</mh1><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
             </header>
 
+<mh3><hr></mh3>
 <mh8>Sound</mh8>
+<mh3><hr><mdw_file_toc> <a href="sound.html#Overview" target="_top">Overview</a>
+ <a href="sound.html#Sound Setup" target="_top">Sound Setup</a>
+ <a href="sound.html#Mixer Volume Controls" target="_top">Mixer Volume Controls</a>
+ <a href="sound.html#Theme Music" target="_top">Theme Music</a>
+ <a href="sound.html#Sound Effects" target="_top">Sound Effects</a>
+ <a href="sound.html#Sample Delay" target="_top">Sample Delay</a>
+ <a href="sound.html#Processing the Hiss Sound" target="_top">Processing the Hiss Sound</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
 <mh7>Overview</mh7>
 
 <mh3>
@@ -72,7 +83,8 @@ This is done so I can control the volume of the soundtrack and sound effects ind
 I then attach samples, sample instances, and streams to these mixers.
 </mh3>    
 
-<br><mh7>Sound Setup</mh7>
+<br><a name="Sound Setup"></a>
+<mh7>Sound Setup</mh7>
 <mh3>
 These are the global variables used:</mh3>    
         
@@ -161,7 +173,8 @@ In intial_setup() I call load_sound():
 }</code></pre>
 
 
-<br><mh7>Mixer Volume Controls</mh7>
+<br><a name="Mixer Volume Controls"></a>
+<mh7>Mixer Volume Controls</mh7>
 <mh3>
 I set the volume of se_mixer and st_mixer with se_scaler and st_scaler. 
 se_scaler and st_scaler are integers that range from 0-9.
@@ -180,7 +193,8 @@ void set_st_scaler(void)
 }</code></pre>
 
 
-<br><mh7>Theme Music</mh7>
+<br><a name="Theme Music"></a>
+<mh7>Theme Music</mh7>
 <mh3>
 The theme music is started like this when a game is started or resumed.
 The only difference is that resume does not rewind before starting.
@@ -206,7 +220,8 @@ Theme music and sound effects are stopped like this when the game is exited:</mh
 }</code></pre>
 
 
-<br><mh7>Sound Effects</mh7>
+<br><a name="Sound Effects"></a>
+<mh7>Sound Effects</mh7>
 
 <mh3>
 When an event in the game requires a sound to be played, here is how I do that:
@@ -261,7 +276,11 @@ When an event in the game requires a sound to be played, here is how I do that:
         break;
       }
 </code></pre>
-<br><mh7>Sample Delay</mh7>
+
+
+<br><a name="Sample Delay"></a>
+<mh7>Sample Delay</mh7>
+
 <mh3>
 I have implemented a simple system to prevent re-triggering a sample while it is still playing.
 
@@ -270,7 +289,8 @@ int sample_delay[20] keeps track of the frame_num when a sample was played.
 Won't allow the same sample to be re-played until a specified number of frames has passed.
 </mh3>
 
-<br><mh7>Processing the Hiss Sound</mh7>
+<br><a name="Processing the Hiss Sound"></a>
+<mh7>Processing the Hiss Sound</mh7>
 <mh3>
 To process the hiss sound (when a bomb fuse is burning or a rocket is lit), I call this function once per frame:
 </mh3>

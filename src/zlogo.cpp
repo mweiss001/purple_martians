@@ -338,10 +338,8 @@ void mfspline(float *par, int col, int thickness)
 
 void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
 {
-   int c1 = 10; //color 1
-   int c2 = 8;  //color 2
-   int c3 = 10; //color 3
-
+   int c1 = 10; //color 1 (red)
+   int c2 = 8;  //color 2 (purple)
 
    float t;
    if (line_thickness == -1) // auto
@@ -357,10 +355,10 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
    }
    else t = line_thickness;
 
-   float draw_points[10][8];
+   float draw_points[9][8];
 
    // apply scale
-   for (int j=0; j<10; j++)
+   for (int j=0; j<9; j++)
       for (int i=0; i<8; i+=2)
       {
          draw_points[j][i]   = points[j][i]   * x_scale;
@@ -368,7 +366,7 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
       }
 
    // apply offset
-   for (int j=0; j<10; j++)
+   for (int j=0; j<9; j++)
       for (int i=0; i<8; i+=2)
       {
          draw_points[j][i]   += x;
@@ -382,27 +380,27 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
 
    if (order)
    {
-      mfspline(draw_points[4], c3, t);
+      mfspline(draw_points[8], c1, t);
       mfspline(draw_points[2], c1, t);
       mfspline(draw_points[3], c1, t);
-      mfspline(draw_points[8], c1, t);
-      mfspline(draw_points[9], c1, t);
+      mfspline(draw_points[6], c1, t);
+      mfspline(draw_points[7], c1, t);
       mfspline(draw_points[0], c2, t);
       mfspline(draw_points[1], c2, t);
-      mfspline(draw_points[6], c2, t);
-      mfspline(draw_points[7], c2, t);
+      mfspline(draw_points[4], c2, t);
+      mfspline(draw_points[5], c2, t);
    }
    else
    {
       mfspline(draw_points[0], c2, t);
       mfspline(draw_points[1], c2, t);
-      mfspline(draw_points[6], c2, t);
-      mfspline(draw_points[7], c2, t);
-      mfspline(draw_points[4], c3, t);
+      mfspline(draw_points[4], c2, t);
+      mfspline(draw_points[5], c2, t);
+      mfspline(draw_points[8], c1, t);
       mfspline(draw_points[2], c1, t);
       mfspline(draw_points[3], c1, t);
-      mfspline(draw_points[8], c1, t);
-      mfspline(draw_points[9], c1, t);
+      mfspline(draw_points[6], c1, t);
+      mfspline(draw_points[7], c1, t);
    }
 
    // show the rest of the name
@@ -416,13 +414,15 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
 
 // 0 1 are the outer parts of M
 // 2 3 are the inner parts of M
-// 4 D
-// 5 rsvd (not used)
-// 6 7 outer W
-// 8 9 inner W
+// 4 5 outer W
+// 6 7 inner W
 
-// 0 is copied to 1 6 7
-// 2 is copied to 3 8 9
+// 8 D
+
+
+
+// 0 is copied to 1 4 5
+// 2 is copied to 3 6 7
 
 // the height and width of M and W are 200
 
@@ -433,7 +433,6 @@ void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness)
 void seed_mdw(void)
 {
    // outer arms start and end pos are all fixed
-
    points[0][0] = -200;
    points[0][1] = 0;
    points[0][6] = -200;
@@ -444,66 +443,48 @@ void seed_mdw(void)
    points[1][6] = 0;
    points[1][7] = -200;
 
-   points[6][0] = 0;
-   points[6][1] = 0;
+   points[4][0] = 0;
+   points[4][1] = 0;
 
-   points[6][6] = 0;
-   points[6][7] = 200;
+   points[4][6] = 0;
+   points[4][7] = 200;
 
-   points[7][0] = 200;
-   points[7][1] = 0;
-   points[7][6] = 200;
-   points[7][7] = 200;
+   points[5][0] = 200;
+   points[5][1] = 0;
+   points[5][6] = 200;
+   points[5][7] = 200;
 
-   // outer arm 0 control points are relative to outer arm 0 positon
-   points[0][2] = points[0][6] + 85;
-   points[0][3] = points[0][7] + 107;
-   points[0][4] = points[0][6] + 95;
-   points[0][5] = points[0][7] + 31;
+   // outer arm (spline 0) control points
+   points[0][2] = -115;
+   points[0][3] = -93;
+   points[0][4] = -105;
+   points[0][5] = -169;
 
-   // inner arm is relative to outer arm
-   points[2][0] = points[0][6] + 30;
-   points[2][1] = points[0][7] + 30;
-   points[2][2] = points[0][6] + 77;
-   points[2][3] = points[0][7] + 32;
-   points[2][4] = points[0][6] + 93;
-   points[2][5] = points[0][7] + 53;
-   points[2][6] = points[0][6] + 109;
-   points[2][7] = points[0][7] + 69;
+   // inner arm (spline 2) control points
+   points[2][0] = -170;
+   points[2][1] = -170;
+   points[2][2] = -123;
+   points[2][3] = -168;
+   points[2][4] = -107;
+   points[2][5] = -147;
+   points[2][6] = -91;
+   points[2][7] = -131;
 
-
-/*
-   points[0][2] = points[0][6] + 72;
-   points[0][3] = points[0][7] + 115;
-   points[0][4] = points[0][6] + 95;
-   points[0][5] = points[0][7] + 31;
-
-   points[2][0] = points[0][6] + 30;
-   points[2][1] = points[0][7] + 30;
-   points[2][2] = points[0][6] + 77;
-   points[2][3] = points[0][7] + 32;
-   points[2][4] = points[0][6] + 93;
-   points[2][5] = points[0][7] + 53;
-   points[2][6] = points[0][6] + 103;
-   points[2][7] = points[0][7] + 88;
-
-*/
    // 'D' has only 1 spline, start point and first control point are mirrored in the y axis
-   points[4][0] = -70;
-   points[4][1] = -40;
-   points[4][2] = 132;
-   points[4][3] = -88;
+   points[8][0] = -70;
+   points[8][1] = -40;
+   points[8][2] = 132;
+   points[8][3] = -88;
 }
-
-
 
 void fill_mdw(void)
 {
-   // get control point 1 from spline 0
+   // --- outer arms ---
+   // mirror spline 0 to 1, 4, 5
+
+   // get control points from spline 0
    float cp1x = points[0][0] - points[0][2];
    float cp1y = points[0][1] - points[0][3];
-
-   // get control point 2 from spline 0
    float cp2x = points[0][0] - points[0][4];
    float cp2y = points[0][1] - points[0][5];
 
@@ -513,17 +494,18 @@ void fill_mdw(void)
    points[1][4] = points[1][0] + cp2x;
    points[1][5] = points[1][1] - cp2y;
 
-   points[6][2] = points[6][0] - cp1x;
-   points[6][3] = points[6][1] + cp1y;
-   points[6][4] = points[6][0] - cp2x;
-   points[6][5] = points[6][1] + cp2y;
+   points[4][2] = points[4][0] - cp1x;
+   points[4][3] = points[4][1] + cp1y;
+   points[4][4] = points[4][0] - cp2x;
+   points[4][5] = points[4][1] + cp2y;
 
-   points[7][2] = points[7][0] + cp1x;
-   points[7][3] = points[7][1] + cp1y;
-   points[7][4] = points[7][0] + cp2x;
-   points[7][5] = points[7][1] + cp2y;
+   points[5][2] = points[5][0] + cp1x;
+   points[5][3] = points[5][1] + cp1y;
+   points[5][4] = points[5][0] + cp2x;
+   points[5][5] = points[5][1] + cp2y;
 
-   // these are the 4 inner arms and their positions are relative to the outer arms (or center?)
+   // --- inner arms ---
+   // mirror spline 2 to 3, 6, 7
 
    // get inner arm offsets from outer arm
    float ia1x = points[0][0] - points[2][0]; // inner arm x1
@@ -537,7 +519,6 @@ void fill_mdw(void)
    cp2x = points[2][0] - points[2][4]; // inner arm x2
    cp2y = points[2][1] - points[2][5]; // inner arm y2
 
-
    // apply to other inner arms
    points[3][0] = points[1][0] + ia1x;
    points[3][1] = points[1][1] - ia1y;
@@ -549,31 +530,32 @@ void fill_mdw(void)
    points[3][4] = points[3][0] + cp2x;
    points[3][5] = points[3][1] - cp2y;
 
-   points[8][0] = points[6][0] - ia1x;
-   points[8][1] = points[6][1] + ia1y;
-   points[8][6] = points[6][0] - ia2x;
-   points[8][7] = points[6][1] + ia2y;
+   points[6][0] = points[4][0] - ia1x;
+   points[6][1] = points[4][1] + ia1y;
+   points[6][6] = points[4][0] - ia2x;
+   points[6][7] = points[4][1] + ia2y;
 
-   points[8][2] = points[8][0] - cp1x;
-   points[8][3] = points[8][1] + cp1y;
-   points[8][4] = points[8][0] - cp2x;
-   points[8][5] = points[8][1] + cp2y;
+   points[6][2] = points[6][0] - cp1x;
+   points[6][3] = points[6][1] + cp1y;
+   points[6][4] = points[6][0] - cp2x;
+   points[6][5] = points[6][1] + cp2y;
 
-   points[9][0] = points[7][0] + ia1x;
-   points[9][1] = points[7][1] + ia1y;
-   points[9][6] = points[7][0] + ia2x;
-   points[9][7] = points[7][1] + ia2y;
+   points[7][0] = points[5][0] + ia1x;
+   points[7][1] = points[5][1] + ia1y;
+   points[7][6] = points[5][0] + ia2x;
+   points[7][7] = points[5][1] + ia2y;
 
-   points[9][2] = points[9][0] + cp1x;
-   points[9][3] = points[9][1] + cp1y;
-   points[9][4] = points[9][0] + cp2x;
-   points[9][5] = points[9][1] + cp2y;
+   points[7][2] = points[7][0] + cp1x;
+   points[7][3] = points[7][1] + cp1y;
+   points[7][4] = points[7][0] + cp2x;
+   points[7][5] = points[7][1] + cp2y;
 
-   // d adjust
-   points[4][6] = points[4][0]; // same x
-   points[4][7] = -points[4][1]; // mirror y
-   points[4][4] = points[4][2]; // same x
-   points[4][5] = -points[4][3]; // mirror y
+   // --- spline 8 - used for 'd'
+   // mirror upper points to lower with same x
+   points[8][6] =  points[8][0]; // same x
+   points[8][7] = -points[8][1]; // mirror y
+   points[8][4] =  points[8][2]; // same x
+   points[8][5] = -points[8][3]; // mirror y
 }
 
 
@@ -888,13 +870,13 @@ void spline_adjust(void)
       {
          while (key[ALLEGRO_KEY_UP]) proc_controllers();
          if (current_spline == 0) current_spline = 2;
-         else if (current_spline == 2) current_spline = 4;
+         else if (current_spline == 2) current_spline = 8;
       }
       if (key[ALLEGRO_KEY_DOWN])
       {
          while (key[ALLEGRO_KEY_DOWN])proc_controllers();
          if (current_spline == 2) current_spline = 0;
-         else if (current_spline == 4) current_spline = 2;
+         else if (current_spline == 8) current_spline = 2;
       }
       while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
       {

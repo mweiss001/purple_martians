@@ -451,7 +451,7 @@ int show_splash_screen = 1;
 int splash_screen_done = 0;
 
 int mdw_an_seq = 0;   // mdw animation sequence number
-float points[10][8];  // for mdw logo
+float points[9][8];   // for mdw logo
 int mdw_map_logo_x = 100;
 int mdw_map_logo_y = 140;
 int mdw_map_logo_th = 1;
