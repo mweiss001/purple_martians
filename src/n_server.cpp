@@ -738,15 +738,7 @@ void server_control() // this is the main server loop to process packet send and
 {
    if (frame_num == 0) reset_states(); // for stdf
 
-   for(int p=0; p<NUM_PLAYERS; p++)
-      if (players[p].active) process_bandwidth_counters(p);
-
-   server_proc_player_drop();  // check to see if we need to drop clients
-
    ServerListen();      // listen for new client connections
-
-   server_send_sdat();  // send sdats to sync game_move data to clients
-   server_send_stdf();  // send dif states to ensure clients have same state
 
    int who;
    while((packetsize = ServerReceive(packetbuffer, &who)))
@@ -755,20 +747,25 @@ void server_control() // this is the main server loop to process packet send and
       if(PacketRead("stak")) server_proc_stak_packet();
       if(PacketRead("sdak")) server_proc_sdak_packet();
       if(PacketRead("CJON")) server_proc_CJON_packet(who);
-
   }
+
+   server_send_sdat();  // send sdats to sync game_move data to clients
+   server_send_stdf();  // send dif states to ensure clients have same state
+
+   server_proc_player_drop();  // check to see if we need to drop clients
+
+   for(int p=0; p<NUM_PLAYERS; p++) if (players[p].active) process_bandwidth_counters(p);
 }
 
 void server_local_control(int p)
 {
+   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
    set_comp_move_from_player_key_check(p);
-   int fpc = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
-   if (players1[p].comp_move != players1[p].old_comp_move)  // players controls have changed
+   if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
    {
       players1[p].old_comp_move = players1[p].comp_move;
-      int cm = players1[p].comp_move;
-      add_game_move(fpc, 5, p, cm);
+      add_game_move(fn, 5, p, players1[p].comp_move);
    }
-   if (level_done) add_game_move(fpc, 6, 0, 0);             // insert level done into game move
+   if (level_done) add_game_move(fn, 6, 0, 0);             // insert level done into game move
 }
 #endif

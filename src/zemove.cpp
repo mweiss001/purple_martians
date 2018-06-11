@@ -240,7 +240,6 @@ void enemy_collision(void)
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
    {
-
       int EXint = al_fixtoi(Efi[e][0]);
       int EYint = al_fixtoi(Efi[e][1]);
       if ((Ei[e][0]) && (Ei[e][0] != 99)) // if enemy active and not deathcount
@@ -261,10 +260,10 @@ void enemy_collision(void)
                // check for collision with player's bullets
                if ((abs(pbullet[c][2] - EXint) < bx) && (abs(pbullet[c][3] - EYint) < by))
                {
-                  int p = pbullet[c][1];
-                  Ei[e][31] = 1;                       // flag that this enemy got shot with bullet
+                  int p = pbullet[c][1];   // player number that shot bullet
+                  Ei[e][31] = 1;           // flag that this enemy got shot with bullet
                   players[p].num_hits++;   // add to number of hits the player has
-                  pbullet[c][0] = 0;                   // bullet dies
+                  pbullet[c][0] = 0;       // bullet dies
                }
             }
 
@@ -281,9 +280,8 @@ void enemy_collision(void)
                al_fixed ey1 = Efi[e][1] - b;
                al_fixed ey2 = Efi[e][1] + b;
 
-               if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2))
+               if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) // player collision
                {
-                  // player got hit
                   Ei[e][22] = p+1;
                }
             }

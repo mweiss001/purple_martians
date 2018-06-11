@@ -544,16 +544,6 @@ void client_block_until_initial_state_received(void)
    frame_num = client_state_dif_dst;
    al_set_timer_count(fps_timer, frame_num);
 
-
-//this should be done in client_apply_dif()
-//   // set all active clients control methods to 2
-//   for (int pp=1; pp<NUM_PLAYERS; pp++)
-//      if (players[pp].active) players[pp].control_method = 2;
-//
-//   // set local client control method to 4
-//   players[p].control_method = 4;
-
-
    // set holdoff 200 frames in future so client won't try to drop while syncing
    players1[p].client_last_sdat_rx_frame_num = frame_num + 200;
 
@@ -649,6 +639,7 @@ void client_process_sdat_packet(void)
    int start_entry = PacketGet4ByteInt();
    int num_entries = PacketGet1ByteInt();
 
+   players1[p].client_last_sdat_rx_frame_num = frame_num;
    players1[p].client_sdat_packets_rx++; // total sdat packets rx'd
 
    // this used to be a function , client timer adjust
@@ -715,20 +706,18 @@ void client_process_serr_packet(void)
 void client_proc_player_drop(void)
 {
    int p = active_local_player;
-   // check to see if game has gone bad and we need to quit
-   if ((frame_num > 0) && (players1[p].client_last_sdat_rx_frame_num > 0))
+   int lsf = players1[p].client_last_sdat_rx_frame_num;
+   if ((frame_num > 0) && (lsf > 0)) // check to see if server connection is lost
    {
-       int ss = frame_num - players1[p].client_last_sdat_rx_frame_num;
-       // printf("pc:%d lspc:%d  ss:%d\n", frame_num, players1[p].client_last_sdat_rx_frame_num, ss);
+       int ss = frame_num - lsf;
        if (ss > 120)
        {
           sprintf(msg, "Player %d LOST SERVER CONNECTION", p);
-
           if (L_LOGGING_NETPLAY)
           {
              add_log_entry_header(10, p, msg, 2);
              char tmsg[100];
-             sprintf(tmsg, "frame_num:[%d] last_sdat_rx:[%d] dif:[%d]", frame_num, players1[p].client_last_sdat_rx_frame_num, ss);
+             sprintf(tmsg, "frame_num:[%d] last_sdat_rx:[%d] dif:[%d]", frame_num, lsf, ss);
              add_log_entry_header(10, p, tmsg, 1);
           }
 
@@ -736,6 +725,7 @@ void client_proc_player_drop(void)
           int color = players[p].color;
           int y_pos = SCREEN_H/2;
           rtextout_centre(NULL, msg, SCREEN_W/2, y_pos, color, stretch, 0, 1);
+          al_flip_display();
           al_rest(1);
           tsw();
           fast_exit(75);
@@ -746,8 +736,7 @@ void client_proc_player_drop(void)
 void client_control(void)
 {
    if (frame_num == 0) client_block_until_initial_state_received();
-
-   while ((packetsize = ClientReceive(packetbuffer))) // rx multiple per frame_num
+   while ((packetsize = ClientReceive(packetbuffer))) // rx multiple per frame
    {
       if(PacketRead("stdf")) client_process_stdf_packet();
       if(PacketRead("serr")) client_process_serr_packet();
@@ -763,7 +752,7 @@ void client_local_control(int p)
    if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
    else set_comp_move_from_player_key_check(p);
 
-   if (players1[p].old_comp_move != players1[p].comp_move)  // players controls have changed
+   if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
    {
       players1[p].old_comp_move = players1[p].comp_move;
       Packet("cdat");

@@ -596,41 +596,8 @@ int is_player_color_used(int color)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void init_player(int p, int t)
 {
-   // 1 = full, 2 = level done
-
    if (t == 1) // new game
    {
       players[p].active = 0;
