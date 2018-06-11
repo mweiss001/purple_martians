@@ -58,11 +58,11 @@
 <mh3><hr></mh3>
 <mh8>Input</mh8>
 <mh3><hr><mdw_file_toc> <a href="input.html#Overview" target="_top">Overview</a>
- <a href="input.html#Keyboard Input" target="_top">Keyboard Input</a>
- <a href="input.html#PRINTSCREEN hack" target="_top">PRINTSCREEN hack</a>
- <a href="input.html#Mouse Input" target="_top">Mouse Input</a>
- <a href="input.html#Joystick Input" target="_top">Joystick Input</a>
- <a href="input.html#Bindings vs Controls" target="_top">Bindings vs Controls</a>
+ <a href="input.html#Keyboard input" target="_top">Keyboard input</a>
+ <a href="input.html#Hack to make PRINTSCREEN work" target="_top">Hack to make PRINTSCREEN work</a>
+ <a href="input.html#Mouse input" target="_top">Mouse input</a>
+ <a href="input.html#Joystick input" target="_top">Joystick input</a>
+ <a href="input.html#Key bindings vs controls" target="_top">Key bindings vs controls</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
@@ -70,11 +70,28 @@
 
 <mh3>
 I really missed the way that Allegro 4 handled input, so I recreated parts of it.
+
+Allegro 4 had global variables that were updated asynchronously:
+</mh3>
+<pre><code class="language-cpp">extern volatile char key[KEY_MAX];
+extern volatile int mouse_x;
+extern volatile int mouse_y;
+extern volatile int mouse_z;
+extern volatile int mouse_b;
+extern JOYSTICK_INFO joy[n];
+</code></pre>
+<mh3>
+I recreated most of these, or similar equivalents, and update them when I get events.
+
+This does not happen asynchronously, I have to process the event queue.
+
+Every frame, 'proc_controllers()' is called, which processes all events in the event queue.
+
 </mh3>
 
 
-<br><a name="Keyboard Input"></a>
-<mh7>Keyboard Input</mh7>
+<br><a name="Keyboard input"></a>
+<mh7>Keyboard input</mh7>
 
 <mh3>
 In Allegro 4, there is an array of keys that is updated asynchronously:</mh3>    
@@ -100,22 +117,21 @@ if (ev.type == ALLEGRO_EVENT_KEY_UP)   key[ev.keyboard.keycode] = false;</code><
 Now in Allegro 5, I can do something similar to what I used to do in Allegro 4:
 </mh3>    
 
-<pre><code class="language-cpp">if (key[ALLEGRO_KEY_I])
+<pre><code class="language-cpp">proc_controllers();
+if (key[ALLEGRO_KEY_I])
 {
    while (key[ALLEGRO_KEY_I]) proc_controllers(); // wait for key to be released
    // do something
 }</code></pre>
 
             
-<br><a name="PRINTSCREEN hack"></a>
-<mh7>PRINTSCREEN hack</mh7>
+<br><a name="Hack to make PRINTSCREEN work"></a>
+<mh7>Hack to make PRINTSCREEN work</mh7>
 
 <mh3>
 There is a known bug with the PRINTSCREEN key in windows.
-
 It does not generate ALLEGRO_EVENT_KEY_DOWN events, only ALLEGRO_EVENT_KEY_UP.
-
-So I made the following work around so I could use PRINTSCREEN for my screenshot function.
+I made the following work around so I could use PRINTSCREEN for my screenshot function.
 
 At the start of my event processing I clear the key like this:
 </mh3>
@@ -130,7 +146,6 @@ Then I add an exception to my key up section like this:
 {
    int k = ev.keyboard.keycode;
    key[k] = true;
-   ret = k;
 }
 if (ev.type == ALLEGRO_EVENT_KEY_UP)
 {
@@ -141,8 +156,8 @@ if (ev.type == ALLEGRO_EVENT_KEY_UP)
 </code></pre>           
 
                         
-<br><a name="Mouse Input"></a>
-<mh7>Mouse Input</mh7>
+<br><a name="Mouse input"></a>
+<mh7>Mouse input</mh7>
 
 <mh3>
 For mouse input, I do something similar to what I do for keyboard.
@@ -194,8 +209,8 @@ if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
    if (ev.mouse.button == 4) mouse_b4 = 0;
 }</code></pre>
 
-<br><a name="Joystick Input"></a>
-<mh7>Joystick Input</mh7>
+<br><a name="Joystick input"></a>
+<mh7>Joystick input</mh7>
 
 <mh3>
 I do something really weird for the joystick.  I've done it for many years.
@@ -354,11 +369,11 @@ int get_scan_code_from_joystick(int joy, int button, int num)
 }</code></pre>
 
 
-<br><a name="Bindings vs Controls"></a>
-<mh7>Bindings vs Controls</mh7>
+<br><a name="Key bindings vs controls"></a>
+<mh7>Key bindings vs controls</mh7>
 
 <mh3>
-There is a clear distinction between the key_bindings and the controls.
+There is a clear distinction between the key bindings and the controls.
 
 In the player struct, for each player we have the key bindings:</mh3>
 <pre><code class="language-cpp">int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;</code></pre>
@@ -368,6 +383,10 @@ And then we have variables to indicate if a particular control is active for tha
 <pre><code class="language-cpp">int up, down, left, right, jump, fire, menu;</code></pre>
 
 <mh3>
+The game used to have a very simple method of checking if a key was pressed and then setting the corresponding control.
+
+That has been superceded by the game moves array control method.
+
 For an in depth description of how controls are set, see: <a href="game_moves_array.html" target="_top">Game Moves Array</a>
 
 </mh3>

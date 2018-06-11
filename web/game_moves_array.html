@@ -61,8 +61,8 @@
  <a href="game_moves_array.html#Array elements" target="_top">Array elements</a>
  <a href="game_moves_array.html#Types of game moves" target="_top">Types of game moves</a>
  <a href="game_moves_array.html#How game_move entries are added in single player mode" target="_top">How game_move entries are added in single player mode</a>
+ <a href="game_moves_array.html#How game move entries are added in netgame" target="_top">How game move entries are added in netgame</a>
  <a href="game_moves_array.html#How controls are set from game move array" target="_top">How controls are set from game move array</a>
- <a href="game_moves_array.html#Netgame" target="_top">Netgame</a>
  <a href="game_moves_array.html#Run demo game mode" target="_top">Run demo game mode</a>
 </mdw_file_toc><hr></mh3>
 
@@ -188,6 +188,9 @@ if (val > 63) // make player inactive and log reason
    if (key[players1[p].down_key])  cm += 8;
    if (key[players1[p].jump_key])  cm += 16;
    if (key[players1[p].fire_key])  cm += 32;
+   // if menu key ignore everything else and set to 127
+   if (key[players1[p].menu_key])  cm = 127;
+   if (key[ALLEGRO_KEY_ESCAPE])    cm = 127;
    players1[p].comp_move = cm;
 }
 
@@ -211,80 +214,9 @@ void add_game_move(int pc, int type, int data1, int data2)
 
 
 
-<br><a name="How controls are set from game move array"></a>
-<mh7>How controls are set from game move array</mh7>
-<mh3>
-This is common to all modes (single player, run demo game, netgame).
 
-Player's controls are set by reading game moves from the array.
-</mh3>
-<pre><code class="language-cpp">void set_controls_from_game_move(int p)
-{
-   // this will search back from entry position until it finds the first 'move' type
-   // entry that matches the player and is not in the future
-
-   int found = 0;
-   for (int g=game_move_entry_pos; g>0; g--)  // look back from entry pos
-      if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
-         if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
-         {
-            set_controls_from_comp_move(g);
-            game_move_current_pos = g; // for savegame running only
-            g = 0; // break out of loop
-            found = 1;
-         }
-   if (!found) clear_controls(p); // if no match found (no move entry for player in entire game move array)
-}
-
-void set_controls_from_comp_move(int g)
-{
-   int p = game_moves[g][2];
-   int t = game_moves[g][3];
-   clear_controls(p);
-   if (t == 127)
-   {
-      players[p].menu = 1;
-      t -= 127;
-   }
-   if (t > 31)
-   {
-      t -= 32;
-      players[p].fire = 1;
-   }
-   if (t > 15)
-   {
-      t -= 16;
-      players[p].jump = 1;
-   }
-   if (t > 7)
-   {
-      t -= 8;
-      players[p].down = 1;
-   }
-   if (t > 3)
-   {
-      t -= 4;
-      players[p].up = 1;
-   }
-   if (t > 1)
-   {
-      t -= 2;
-      players[p].right = 1;
-   }
-   if (t > 0)
-   {
-      t -= 1;
-      players[p].left = 1;
-   }
-}</code></pre>
-
-
-
-
-
-<br>
-<a name="Netgame"></a>
-<mh7>Netgame</mh7>
+<br><a name="How game move entries are added in netgame"></a>
+<mh7>How game move entries are added in netgame</mh7>
 <mh3>
 In netgame, things are done differently.
 
@@ -328,8 +260,44 @@ For more details, see: <a href="netgame_main.html#Game Move Sync" target="_top">
 
 
 
+<br><a name="How controls are set from game move array"></a>
+<mh7>How controls are set from game move array</mh7>
+<mh3>
+This is common to all modes (single player, run demo game, netgame).
 
+Player's controls are set by reading game moves from the array.
+</mh3>
+<pre><code class="language-cpp">void set_controls_from_game_move(int p)
+{
+   // this will search back from entry position until it finds the first 'move' type
+   // entry that matches the player and is not in the future
 
+   int found = 0;
+   for (int g=game_move_entry_pos; g>0; g--)  // look back from entry pos
+      if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
+         if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
+         {
+            set_controls_from_comp_move(g);
+            game_move_current_pos = g; // for savegame running only
+            g = 0; // break out of loop
+            found = 1;
+         }
+   if (!found) clear_controls(p); // if no match found (no move entry for player in entire game move array)
+}
+
+void set_controls_from_comp_move(int g)
+{
+   int p = game_moves[g][2];
+   int t = game_moves[g][3];
+   clear_controls(p);
+   if (t == 127) { t -= 127; players[p].menu = 1;  }
+   if (t > 31)   { t -= 32;  players[p].fire = 1;  }
+   if (t > 15)   { t -= 16;  players[p].jump = 1;  }
+   if (t > 7)    { t -= 8;   players[p].down = 1;  }
+   if (t > 3)    { t -= 4;   players[p].up = 1;    }
+   if (t > 1)    { t -= 2;   players[p].right = 1; }
+   if (t > 0)    { t -= 1;   players[p].left = 1;  }
+}</code></pre>
 
 <br><a name="Run demo game mode"></a>
 <mh7>Run demo game mode</mh7>

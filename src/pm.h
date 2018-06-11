@@ -414,7 +414,7 @@ extern struct player players[NUM_PLAYERS];
 extern struct player1 players1[NUM_PLAYERS];
 extern int active_local_player;
 
-struct player
+struct player // synced between server and client
 {
    int active;  // all routines that process player will skip inactive
    int paused;
@@ -430,13 +430,12 @@ struct player
    al_fixed old_LIFE;
    int LIVES;
 
-   int not_used_bitmap_index; // index to player_tile (player_tile[player.color][player.shape])
+   int not_used_bitmap_index;
 
    int shape; // index to player_tile
    int color; // used to draw frames and stuff in players color
 
-   int  door_draw_rot_num_steps;
-
+   int door_draw_rot_num_steps;
    al_fixed door_draw_rot;
    al_fixed door_draw_rot_inc;
    al_fixed draw_rot;
@@ -455,35 +454,14 @@ struct player
    // flags that indicate a control has been activated or held
    int up, down, left, right, jump, fire, fire_held, menu;
 
-   // bullet stuff
-   int bullet_wait_counter, request_bullet, bullet_wait, bullet_speed, num_bullets;
+   int bullet_wait_counter, request_bullet, bullet_wait, bullet_speed, not_used_num_bullets;
 
-/*
-   int num_bullets_fired;
-   int num_bullets_hit_enemy; // num of times enemy hit with this player's bullet
-   int num_bullets_hit_block; // num of times block hit by  this player's bullet
-   int num_bullets_hit_other_player; // num of time other players hit with this players bullet
-   int num_bullets_hit_themselves; // num of times this players hit themselves with bullets
-
-   int num_enemy_hits;        // the number of times an enemy has hit this player
-   int num_enemy_bullet_hits; // the number of times an emeny bullet has hit this player
-
-   al_fixed LIFE_inc;
-   al_fixed LIFE_dec;
-*/
-
-   int num_hits; // when players bullet hits enemy
-
-//   int health_display_old; //45 moved to player1, does not need to be synced, left this here as a spacer
-// converted to control_method
+   int num_hits;       // when players bullet hits enemy
    int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
-
 };
 
-struct player1
+struct player1 // not synced between server and client
 {
-   // everything here will not be synced between server and client
-
    int health_display;
    int last_health_adjust;
 
@@ -494,26 +472,21 @@ struct player1
 
    int frames_skipped;
 
-
    // position and size of players on screen buffer (used to see if map is covering player)
    int sbx1,sby1,sbx2,sby2;
-
-
 
    int who; // for network id of clients
    char hostname[16];
 
-   // these are netgame and will be different from client to server
-   int old_control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
-
-   int game_move_entry_pos;         // server only for client game_move data sync
+   int game_move_entry_pos;             // server only for client game_move data sync
 
    int server_last_sdat_sent_frame_num; // only server uses it, to keep track of when last sdat was sent to client
-   int server_last_sdat_sent_start;
-   int server_last_sdat_sent_num;
-   int server_last_sdak_rx_frame_num; // used by server to see if client is still alive
 
-   int client_last_sdat_rx_frame_num; // used by client to see if game gone bad
+   int server_last_sdat_sent_start;     // used by server to prevent sending multiple sdats with same start and num
+   int server_last_sdat_sent_num;
+
+   int server_last_sdak_rx_frame_num; // used by server to see if client is still responding
+   int client_last_sdat_rx_frame_num; // used by client to see if server is still responding
 
    int client_sync;
    int server_sync;
@@ -529,8 +502,6 @@ struct player1
    int client_cdat_packets_tx;
    int client_sdat_packets_rx;
    int client_sdat_packets_skipped;
-
-
    int moves_entered;
    int moves_skipped;
    int moves_skipped_tally;
@@ -539,7 +510,6 @@ struct player1
    // server error sync'd back to client
    int serr_c_sync_err;
    int serr_display_timer;
-
 
    int made_active_holdoff;
    int join_stdf_sent;
@@ -1014,6 +984,7 @@ void get_config_values(void);
 int getJoystickNum(ALLEGRO_JOYSTICK* joy);
 int get_scan_code_from_joystick(int joy, int b_a, int num);
 int my_readkey(void);
+void clear_keys(void);
 void get_all_keys(int p);
 void test_keys(void);
 void set_start_level(int s);
@@ -1021,10 +992,11 @@ void set_speed(void);
 void clear_controls(int p);
 void set_controls_from_comp_move(int g);
 void set_comp_move_from_player_key_check(int p);
-void player_key_check(int p);
+void set_controls_from_player_key_check(int p);
 void function_key_check(void);
 void rungame_key_check(int p, int ret);
 void add_game_move(int pc, int type, int data1, int data2);
+void proc_player_state_game_move(int x);
 void proc_game_move(void);
 void serial_key_check(int key);
 void set_controls_from_game_move(int p);

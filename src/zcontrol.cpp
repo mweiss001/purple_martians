@@ -164,8 +164,13 @@ int my_readkey(void) // used only to set new game control key or joystick bindin
          }
       }
    }
-   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear my key array
+   clear_keys();
    return ret;
+}
+
+void clear_keys(void)
+{
+   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear my key array
 }
 
 void get_all_keys(int p) // prompts for all seven keys
@@ -276,41 +281,13 @@ void set_controls_from_comp_move(int g)
    int p = game_moves[g][2];
    int t = game_moves[g][3];
    clear_controls(p);
-   if (t == 127)
-   {
-      players[p].menu = 1;
-      t -= 127;
-   }
-   if (t > 31)
-   {
-      t -= 32;
-      players[p].fire = 1;
-   }
-   if (t > 15)
-   {
-      t -= 16;
-      players[p].jump = 1;
-   }
-   if (t > 7)
-   {
-      t -= 8;
-      players[p].down = 1;
-   }
-   if (t > 3)
-   {
-      t -= 4;
-      players[p].up = 1;
-   }
-   if (t > 1)
-   {
-      t -= 2;
-      players[p].right = 1;
-   }
-   if (t > 0)
-   {
-      t -= 1;
-      players[p].left = 1;
-   }
+   if (t == 127) { t -= 127; players[p].menu = 1;  }
+   if (t > 31)   { t -= 32;  players[p].fire = 1;  }
+   if (t > 15)   { t -= 16;  players[p].jump = 1;  }
+   if (t > 7)    { t -= 8;   players[p].down = 1;  }
+   if (t > 3)    { t -= 4;   players[p].up = 1;    }
+   if (t > 1)    { t -= 2;   players[p].right = 1; }
+   if (t > 0)    { t -= 1;   players[p].left = 1;  }
 }
 
 void set_comp_move_from_player_key_check(int p) // but don't set controls !!!
@@ -328,7 +305,7 @@ void set_comp_move_from_player_key_check(int p) // but don't set controls !!!
    players1[p].comp_move = cm;
 }
 
-void player_key_check(int p) // used only in menu
+void set_controls_from_player_key_check(int p) // used only in menu
 {
    if (key[players1[p].up_key])    players[p].up = 1;
    if (key[players1[p].down_key])  players[p].down = 1;
@@ -601,11 +578,11 @@ void rungame_key_check(int p, int ret)
    }
 }
 
-void add_game_move(int pc, int type, int data1, int data2)
+void add_game_move(int frame, int type, int data1, int data2)
 {
    if (type == 6) // special level done move
    {
-      game_moves[game_move_entry_pos][0] = pc;
+      game_moves[game_move_entry_pos][0] = frame;
       game_moves[game_move_entry_pos][1] = 6; // type 6; level done
       game_moves[game_move_entry_pos][2] = 0;
       game_moves[game_move_entry_pos][3] = 0;
@@ -614,7 +591,7 @@ void add_game_move(int pc, int type, int data1, int data2)
    }
    if ((type == 5) && (data2 == 127))        // special client exit move
    {
-      game_moves[game_move_entry_pos][0] = pc;
+      game_moves[game_move_entry_pos][0] = frame;
       game_moves[game_move_entry_pos][1] = 1;     // type 1; player state
       game_moves[game_move_entry_pos][2] = data1; // player num
       game_moves[game_move_entry_pos][3] = 64;    // inactive
@@ -622,7 +599,7 @@ void add_game_move(int pc, int type, int data1, int data2)
       return; // to exit immediately
    }
 
-   game_moves[game_move_entry_pos][0] = pc;
+   game_moves[game_move_entry_pos][0] = frame;
    game_moves[game_move_entry_pos][1] = type;
    game_moves[game_move_entry_pos][2] = data1;
    game_moves[game_move_entry_pos][3] = data2;
@@ -630,50 +607,188 @@ void add_game_move(int pc, int type, int data1, int data2)
 
 }
 
+void proc_player_state_game_move(int x)
+{
+   int p = game_moves[x][2];   // player number
+   int val = game_moves[x][3]; // color, active, quit reason, this does it all
 
-//// not used
-//int game_move_check(int pc, int type, int data1, int data2)
-//{
-//   int match = 0;
-//   // look from current position back 100
-//   int start_look = game_move_entry_pos-100;
-//   if (start_look < 0) start_look = 0;
-//   for (int x = start_look; x<start_look+100; x++)
-//      if (game_moves[x][0] == pc)
-//
-//         if (game_moves[x][1] == type)
-//            if (game_moves[x][2] == data1)
-//               if (game_moves[x][3] == data2)
-//               {
-//                   match = 1;
-//                   return match; // to exit function immed
-//               }
-//   return match;
-//}
+
+   // if player was already active - just set color
+   if ((players[p].active == 1) && (val > 0) && (val < 16)) players[p].color = val;
+
+
+   // player becomes active
+   if ((players[p].active == 0) && (val > 0) && (val < 16))
+   {
+      //init_player(p, 1);
+      players[p].active = 1;
+      players[p].color = val;
+      players1[p].join_frame = frame_num;
+
+      if (L_LOGGING_NETPLAY)
+      {
+         sprintf(msg,"PLAYER:%d became ACTIVE (color:%d)", p, players[p].color);
+         add_log_entry_header(10, p, msg, 1);
+      }
+
+      if (p == active_local_player)
+      {
+         if (L_LOGGING_NETPLAY)
+         {
+            int finish_time = clock();
+            int time = finish_time - log_timer;
+            sprintf(msg,"Chase and lock done in %dms",time);
+            add_log_entry_header(10, p, msg, 1);
+         }
+      }
+
+      show_player_join_quit_timer = 60;
+      show_player_join_quit_player = p;
+      show_player_join_quit_jq = 1;
+
+      if ((ima_server) || (ima_client))
+         if (p != active_local_player) players[p].control_method = 2;
+
+      // if player 0 is file play all added players will be too
+      if (players[0].control_method == 1) players[p].control_method = 1;
+   }
+
+
+   // player becomes inactive
+   if (val > 63)
+   {
+      players1[p].quit_reason = val;
+      players1[p].quit_frame = frame_num;
+
+
+      // player never became active
+      if ((players[p].active == 0) && (players[p].control_method == 2))
+      {
+         sprintf(msg,"PLAYER:%d never became ACTIVE", p);
+         add_log_entry_header(10, p, msg, 1);
+         players1[p].join_frame = frame_num;
+         players1[p].quit_reason = 74;
+         players[p].control_method = 9; // prevent re-use of this player number in this level
+         players1[p].who = 99;
+      }
+
+      if (players[p].active)
+      {
+         // local player in single player mode became incative
+         if (players[p].control_method == 0)
+         {
+            game_exit = 1;
+            resume_allowed = 1;
+         }
+
+         // player in run demo mode became inactive
+         if (players[p].control_method == 1)
+         {
+            players[p].active = 0;
+            // only quit if no players left active
+            int still_active = 0;
+            for (int p=0; p<NUM_PLAYERS; p++)
+               if (players[p].active) still_active = 1;
+            if (!still_active) game_exit = 1;
+         }
+
+
+         if (L_LOGGING_NETPLAY)
+         {
+            sprintf(msg,"PLAYER:%d became INACTIVE", p);
+            add_log_entry_header(10, p, msg, 1);
+            sprintf(msg,"Reason: unknown");
+            if (players1[p].quit_reason == 64) sprintf(msg,"Reason: menu key pressed");
+            if (players1[p].quit_reason == 70) sprintf(msg,"Reason: dropped by server (server sync > 100)");
+            if (players1[p].quit_reason == 71) sprintf(msg,"Reason: dropped by server (no sdak received for 100 frames)");
+            add_log_entry_header(10, p, msg, 1);
+         }
+
+         // local client player quit
+         if (players[p].control_method == 4)
+         {
+            if (val == 64) players1[p].quit_reason = 90;
+            game_exit = 1;
+            resume_allowed = 0;
+            ima_client = 0;
+            active_local_player = 0;
+            players[0].control_method = 0; // local control
+
+            if (L_LOGGING_NETPLAY)
+            {
+               sprintf(msg,"Local Client(%s) quit the game.",local_hostname);
+               add_log_entry_header(10, p, msg, 1);
+               log_ending_stats();
+            }
+         }
+
+         // local server player quit
+         if (players[p].control_method == 3)
+         {
+            if (val == 64) players1[p].quit_reason = 91;
+            game_exit = 1;
+            resume_allowed = 0;
+            ima_server = 0;
+            players[0].control_method = 0; // local control
+
+            if (L_LOGGING_NETPLAY)
+            {
+               sprintf(msg,"Local Server(%s) quit the game.",local_hostname);
+               add_log_entry_header(10, p, msg, 1);
+               log_ending_stats_server();
+            }
+         }
+
+         // remote server player quit
+         if ((ima_client) && (p == 0))
+         {
+            if (val == 64) players1[p].quit_reason = 92;
+            game_exit = 1;
+            resume_allowed = 0;
+            ima_client = 0;
+            active_local_player = 0;
+            players[0].control_method = 0; // local control
+
+            if (L_LOGGING_NETPLAY)
+            {
+               sprintf(msg,"Remote Server ended the game.");
+               add_log_entry_header(10, p, msg, 1);
+               log_ending_stats();
+            }
+         }
+
+         // remote player quit
+         if (players[p].control_method == 2)
+         {
+            players[p].active = 0;
+            players[p].control_method = 9; // prevent re-use of this player number in this level
+            players1[p].who = 99;
+
+            // only makes sense to show this if not local player
+            show_player_join_quit_timer = 60;
+            show_player_join_quit_player = p;
+            show_player_join_quit_jq = 0;
+         }
+      } // end of if player active
+   }  // end of player becomes inactive
+
+
+
+}
+
 
 
 void proc_game_move(void)
 {
-  /*  this function looks in the game_moves array for an exact frame_num match
-      this only processes system moves, not regular game_moves
-      its likely that an exact frame_num match won't be found and nothing will be done
-      if multiple frame_nums match they all will be processed
-  */
-
-//   for (int x=game_move_entry_pos; x>game_move_entry_pos-20; x--)  // only look back 20 steps at most
-//   the above line is wrong
-//   this needs to go all the way back to the start, or new joining players will be wrong
-//   for (int x=game_move_entry_pos; x>0; x--)  // look back all the way to the start
-
-// now with state and difs, looking back 100 might be all that is needed
-// run game wont work unless look back to start
+   // this function looks in the game_moves array for an exact frame_num match
+   // this only processes system moves, not regular game_moves
+   // its likely that an exact frame_num match won't be found and nothing will be done
+   // if multiple frame_nums match they all will be processed
 
    int ll;
    if (players[0].control_method == 1) ll = 0; // run game needs to look back to the start
    else ll = game_move_entry_pos - 100; // every other mode can just look back 100
    if (ll < 0) ll = 0; // don't look back past zero!
-
-
 
    for (int x=game_move_entry_pos; x>ll; x--)  // look back for frame_num
    {
@@ -681,8 +796,7 @@ void proc_game_move(void)
       {
          switch (game_moves[x][1])
          {
-            case 0:  /* 'game_start' ; a marker to the start of the gamefile */  break;
-
+            case 1: proc_player_state_game_move(x); break;
             case 6:  // 'level done'
                if (L_LOGGING)
                {
@@ -702,164 +816,8 @@ void proc_game_move(void)
                }
                proc_level_done();
             break;
-
-            case 1:  // player state and color
-            {
-               int val = game_moves[x][3]; // color, active, quit reason, this does it all
-               int p = game_moves[x][2];
-               if (val > 63) // player becomes inactive
-               {
-                  players1[p].quit_reason = val;
-                  players1[p].quit_frame = frame_num;
-
-                  if ((players[p].active == 0) && (players[p].control_method == 2))
-                  {
-                     sprintf(msg,"PLAYER:%d never became ACTIVE", p);
-                     add_log_entry_header(10, p, msg, 1);
-                     players1[p].join_frame = frame_num;
-                     players1[p].quit_reason = 74;
-                     players[p].control_method = 9; // prevent re-use of this player number in this level
-                     players1[p].who = 99;
-                  }
-
-                  if (players[p].active)
-                  {
-                     if (players[p].control_method == 0) // local player only
-                     {
-                        game_exit = 1;
-                        resume_allowed = 1;
-                     }
-
-                     if (players[p].control_method == 1) // run game only
-                     {
-                        players[p].active = 0;
-                        // only quit if no players left active
-                        int still_active = 0;
-                        for (int p=0; p<NUM_PLAYERS; p++)
-                           if (players[p].active) still_active = 1;
-                        if (!still_active) game_exit = 1;
-                     }
-
-
-                     if (L_LOGGING_NETPLAY)
-                     {
-                        sprintf(msg,"PLAYER:%d became INACTIVE", p);
-                        add_log_entry_header(10, p, msg, 1);
-                        sprintf(msg,"Reason: unknown");
-                        if (players1[p].quit_reason == 64) sprintf(msg,"Reason: menu key pressed");
-                        if (players1[p].quit_reason == 70) sprintf(msg,"Reason: dropped by server (server sync > 100)");
-                        if (players1[p].quit_reason == 71) sprintf(msg,"Reason: dropped by server (no sdak received for 100 frames)");
-                        add_log_entry_header(10, p, msg, 1);
-                     }
-
-
-                     if (players[p].control_method == 4) // local client quit
-                     {
-                        if (val == 64) players1[p].quit_reason = 90;
-                        game_exit = 1;
-                        resume_allowed = 0;
-                        ima_client = 0;
-                        active_local_player = 0;
-                        players[0].control_method = 0; // local control
-
-                        if (L_LOGGING_NETPLAY)
-                        {
-                           sprintf(msg,"Local Client(%s) quit the game.",local_hostname);
-                           add_log_entry_header(10, p, msg, 1);
-                           log_ending_stats();
-                        }
-                     }
-
-                     if (players[p].control_method == 3) // local server quit
-                     {
-                        if (val == 64) players1[p].quit_reason = 91;
-                        game_exit = 1;
-                        resume_allowed = 0;
-                        ima_server = 0;
-                        players[0].control_method = 0; // local control
-
-                        if (L_LOGGING_NETPLAY)
-                        {
-                           sprintf(msg,"Local Server(%s) quit the game.",local_hostname);
-                           add_log_entry_header(10, p, msg, 1);
-                           log_ending_stats_server();
-                        }
-                     }
-
-
-                     if ((ima_client) && (p == 0))  // remote server quit game on local client
-                     {
-                        if (val == 64) players1[p].quit_reason = 92;
-                        game_exit = 1;
-                        resume_allowed = 0;
-                        ima_client = 0;
-                        active_local_player = 0;
-                        players[0].control_method = 0; // local control
-
-                        if (L_LOGGING_NETPLAY)
-                        {
-                           sprintf(msg,"Remote Server ended the game.");
-                           add_log_entry_header(10, p, msg, 1);
-                           log_ending_stats();
-                        }
-                     }
-
-                     if (players[p].control_method == 2) // if display mode only on client or server
-                     {
-                        players[p].active = 0;
-                        players[p].control_method = 9; // prevent re-use of this player number in this level
-                        players1[p].who = 99;
-
-                        // only makes sense to show this if not local player
-                        show_player_join_quit_timer = 60;
-                        show_player_join_quit_player = p;
-                        show_player_join_quit_jq = 0;
-                     }
-
-
-                  } // end of if player active
-               }  // end of player becomes inactive
-
-               if ((players[p].active == 0) && (val > 0) && (val < 16))
-               {
-                  players[p].active = 1;
-                  players[p].color = val;
-
-                  players1[p].join_frame = frame_num;
-
-                  if (L_LOGGING_NETPLAY)
-                  {
-                     sprintf(msg,"PLAYER:%d became ACTIVE (color:%d)", p, players[p].color);
-                     add_log_entry_header(10, p, msg, 1);
-                  }
-
-                  if (p == active_local_player)
-                  {
-                     if (L_LOGGING_NETPLAY)
-                     {
-                        int finish_time = clock();
-                        int time = finish_time - log_timer;
-                        sprintf(msg,"Chase and lock done in %dms",time);
-                        add_log_entry_header(10, p, msg, 1);
-                     }
-                  }
-
-                  show_player_join_quit_timer = 60;
-                  show_player_join_quit_player = p;
-                  show_player_join_quit_jq = 1;
-
-                  if ((ima_server) || (ima_client))
-                     if (p != active_local_player) players[p].control_method = 2;
-
-                  // if player 0 is file play all added players will be too
-                  if (players[0].control_method == 1) players[p].control_method = 1;
-                  init_player(p, 3);
-               }
-            }
-            break; // end of case 1 player state
-
-         } // end of frame_num match
-      }
+         } // end of switch type
+      } // end of frame_num match
    } // end of look back from entry pos
 }
 
@@ -1078,7 +1036,7 @@ int proc_controllers()
       if (game_exit) // if called from menu only do key check for active local player
       {
           clear_controls(active_local_player);
-          player_key_check(active_local_player);
+          set_controls_from_player_key_check(active_local_player);
           function_key_check();
       }
       else // game is in progress

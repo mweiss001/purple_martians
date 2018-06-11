@@ -694,8 +694,6 @@ int initial_setup(void)
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
    players[0].active = 1;
 
-
-
    zero_level_data();
    reset_animation_sequence_frame_nums(0);
    //printf("end of initial setup\n");
@@ -1001,11 +999,9 @@ void game_menu(void)
             {
                if (load_gm("-"))
                {
-                  players[0].control_method = 1;
                   start_mode = 2; // load level and start, but skip game array erasing
                   game_exit = 0;
                   pm_main();
-                  players[0].control_method = 0;
 
                   // reset player data
                   for (int p=0; p<NUM_PLAYERS; p++)
@@ -1015,6 +1011,7 @@ void game_menu(void)
                   }
                   players[0].active = 1;
                   active_local_player = 0;
+                  get_config_values(); // restore player color from config file
                }
             }
 
@@ -1381,7 +1378,6 @@ int main(int argument_count, char **argument_array)
             if (load_gm(msg))
             {
                printf("running game file:%s\n", argument_array[2]);
-               players[0].control_method = 1;
                start_mode = 2; // load level and start, but skip game array erasing
                game_exit = 0;
                pm_main();

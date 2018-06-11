@@ -252,12 +252,10 @@ int client_init_join(void)
          {
             // initialize all players
             for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
-
             active_local_player = cp;
             players[cp].control_method = 4;
             players[cp].color = color;
             players1[cp].game_move_entry_pos = server_game_move_entry_pos;
-
             ima_client = 1;
 
             frame_num = 0;   // just in case its not
@@ -453,23 +451,20 @@ void client_apply_diff()
    // check to see if frame_nums match and its time to apply dif
    if (frame_num == client_state_dif_dst) // current frame_num is dif destination
    {
-      if (client_state_base_frame_num != client_state_dif_src)  // stored base state does NOT match dif source
+      // if server has sent dif from src == 0, reset our base to 0
+      if (client_state_dif_src == 0)
       {
-         // if server has sent dif from src == 0, reset our base to 0
-         if (client_state_dif_src == 0)
-         {
-            memset(client_state_base, 0, STATE_SIZE);
-            client_state_base_frame_num = 0;
-            if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, "Resetting client base state to zero\n");
-         }
-         else
-         {
-            sprintf(msg, "!! stdf cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
-            if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
-         }
+         memset(client_state_base, 0, STATE_SIZE);
+         client_state_base_frame_num = 0;
+         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, "Resetting client base state to zero\n");
       }
 
-      if (client_state_base_frame_num == client_state_dif_src)  // stored base state matches dif source
+      if (client_state_base_frame_num != client_state_dif_src)  // stored base state does NOT match dif source
+      {
+         sprintf(msg, "!! stdf cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
+         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
+      }
+      else // stored base state matches dif source
       {
          char tmsg[80];
          int dif_corr = 0;

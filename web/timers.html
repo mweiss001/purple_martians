@@ -57,10 +57,10 @@
 <mh3><hr></mh3>
 <mh8>Timers</mh8>
 <mh3><hr><mdw_file_toc> <a href="timers.html#Overview" target="_top">Overview</a>
- <a href="timers.html#Menu Timer (mnu_timer)" target="_top">Menu Timer (mnu_timer)</a>
- <a href="timers.html#Second Timer (sec_timer)" target="_top">Second Timer (sec_timer)</a>
- <a href="timers.html#Frames per Second Timer (fps_timer)" target="_top">Frames per Second Timer (fps_timer)</a>
- <a href="timers.html#Game Speed Regulation" target="_top">Game Speed Regulation</a>
+ <a href="timers.html#Menu timer" target="_top">Menu timer</a>
+ <a href="timers.html#Second timer" target="_top">Second timer</a>
+ <a href="timers.html#Frames per second timer" target="_top">Frames per second timer</a>
+ <a href="timers.html#Game speed regulation" target="_top">Game speed regulation</a>
  <a href="timers.html#Speed adjust during netgame" target="_top">Speed adjust during netgame</a>
 </mdw_file_toc><hr></mh3>
 
@@ -93,16 +93,15 @@ int initial_setup(void)
 </code></pre>
 
 
-<br><a name="Menu Timer (mnu_timer)"></a>
-<mh7>Menu Timer (mnu_timer)</mh7>
+<br><a name="Menu timer"></a>
+<mh7>Menu timer</mh7>
         
 <mh3>        
-The menu runs in a loop that processes both the menu and the logo animation.
+The game menu runs a loop that processes both the menu and the logo animation.
 
-The speed of this loop is controlled by mnu_timer.
+The function 'proc_controller()' is called in this loop and will block until it gets a timer event.
 
-The function 'proc_controller()' is called by the menu in this loop and will block until it gets a timer event.
-    
+'mnu_timer' generates events every 0.01s, which means the menu will run at 100 frames per second.
 </mh3>
 <pre><code class="language-cpp">int proc_controllers()
 {
@@ -130,21 +129,25 @@ The function 'proc_controller()' is called by the menu in this loop and will blo
 }
 </code></pre>
 
-<br><a name="Second Timer (sec_timer)"></a>
-<mh7>Second Timer (sec_timer)</mh7>
+<br><a name="Second timer"></a>
+<mh7>Second timer</mh7>
 <mh3>
 Used to count the actual frames per second and the number of skipped frames in the last second.
 
 The algorithm makes use of the following global variables:
+</mh3>
 
-int frame_num;
+<pre><code class="language-cpp">int frame_num;
 int last_fps_frame_num = 0;
 int actual_fps;
 
 int players1[active_local_player].frames_skipped
 int last_frames_skipped = 0;
 int frames_skipped_last_second;
+</code></pre>
 
+<mh3>
+When 'sec_timer' gets to 1, frames are counted and tallies are reset.
 </mh3>
 <pre><code class="language-cpp">void proc_frame_delay(void)
 {
@@ -159,21 +162,20 @@ int frames_skipped_last_second;
 ...
 </code></pre>
 
-<br><a name="Frames per Second Timer (fps_timer)"></a>
-<mh7>Frames per Second Timer (fps_timer)</mh7>
+<br><a name="Frames per second timer"></a>
+<mh7>Frames per second timer</mh7>
 <mh3>
 Used to control the speed of the game.
    
 The global variable: 'int frame_speed' sets the target frame rate of the game in frames per second.
    
-fps_timer is set as a reciprocal of frame_speed like this:
+fps_timer is set as a reciprocal of frame_speed like this:</mh3>
+<pre><code class="language-cpp">al_set_timer_speed(fps_timer, 1/(float)frame_speed);</code></pre>
 
-al_set_timer_speed(fps_timer, 1/(float)frame_speed);
 
-</mh3>
 
-<br><a name="Game Speed Regulation"></a>
-<mh7>Game Speed Regulation</mh7>
+<br><a name="Game speed regulation"></a>
+<mh7>Game speed regulation</mh7>
 <mh3>
 The game speed is regulated by the function: 'proc_frame_delay()'
 </mh3>
@@ -199,13 +201,41 @@ The game speed is regulated by the function: 'proc_frame_delay()'
 
 <mh3>
 When the game is running normally, proc_frame_delay() will wait until fps_timer catches up to the current frame.
-
-When the game is lagging, proc_frame_delay() will skip drawing for the current frame.
-
-In speed test mode:
-- every frame is forced to be drawn
-- waiting for fps_timer is disabled, the game runs as fast or slow as it is able
 </mh3>
+<pre><code class="language-cpp">while (frame_num > al_get_timer_count(fps_timer));</code></pre>
+
+<mh3>
+When the game is lagging, proc_frame_delay() will skip drawing for the current frame.
+</mh3>
+
+<pre><code class="language-cpp">if (frame_num <=  al_get_timer_count(fps_timer))
+{
+   draw_frame = 0;
+   players1[active_local_player].frames_skipped++;
+}</code></pre>
+
+<mh3>
+In speed test mode:
+
+- every frame is forced to be drawn
+- fps_timer count is set to the current frame
+- waiting for the fps_timer is disabled, the game runs as fast or slow as it is able
+</mh3>
+<pre><code class="language-cpp">if (speed_testing) // draw every frame no matter how fast or slow it is
+{
+   draw_frame = 1;
+   al_set_timer_count(fps_timer, frame_num);
+}</code></pre>
+<mh3>
+Speed test mode is only used for testing and debugging.
+
+- to see how fast certain hardware can run
+- to see how fast certain screen modes and window sizes can perform
+- to test how different drawing methods compare
+
+To enable it when the game is running type 'ston', to disable type 'stoff'.
+</mh3>
+
 
 <br><a name="Speed adjust during netgame"></a>
 <mh7>Speed adjust during netgame</mh7>

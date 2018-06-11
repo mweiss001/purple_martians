@@ -59,9 +59,9 @@
 <mh8>Tiles</mh8>
 
 <mh3><hr><mdw_file_toc> <a href="tiles.html#Overview" target="_top">Overview</a>
- <a href="tiles.html#Creating Tile Bitmaps" target="_top">Creating Tile Bitmaps</a>
- <a href="tiles.html#Loading Tile Bitmaps" target="_top">Loading Tile Bitmaps</a>
- <a href="tiles.html#Rebuilding Tile Bitmaps" target="_top">Rebuilding Tile Bitmaps</a>
+ <a href="tiles.html#Creating bitmaps for tiles" target="_top">Creating bitmaps for tiles</a>
+ <a href="tiles.html#Loading tile bitmaps" target="_top">Loading tile bitmaps</a>
+ <a href="tiles.html#Rebuilding tile bitmaps" target="_top">Rebuilding tile bitmaps</a>
 </mdw_file_toc><hr></mh3>
 
 
@@ -84,21 +84,21 @@ I used to save and load tiles to disk one get_pixel and one put_pixel at a time.
 I'm kind of embarassed to say I continued to do that up until 2017!
 
 I finally converted the whole project to 24 bit color in 2017.
-The main push to convert them came from all the work arounds I had to do in Windows 7.
+The main push to convert came from all the work arounds I had to do in Windows 7.
 8 bit color does not render properly in full screen modes with Allegro 4. (although windowed mode was fine)
 And now in Allegro 5, its just not supported at all.    
 
-Unfortunately, my bitmap and palette editor did not survive the conversion.  Now I have to use an external editor (like gimp).    
+Unfortunately, my bitmap and palette editor did not survive the conversion.  Now I have to use an external editor like gimp.    
 
-I used to store different colored versions of players and doors with the main tiles.
-I have since converted door's and player's tiles to have their tilemap files with all the colored versions.
+I used to store different colorized versions of players and doors with the main tiles.
+I have since converted door and player tiles to have their tilemap files.
 
 The 3 tilemaps are stored in the bitmap/ folder:
 </mh3>
 
 <pre><code class="language-cpp">tiles.bmp        (1024 main tile storage)
-player_tiles.bmp (19 shapes x 16 colors)
-door_tiles.bmp   (8 shapes  x 16 colors x 2 door types)</code></pre>
+player_tiles.bmp (16 colors x 19 shapes)
+door_tiles.bmp   (16 colors x 8 shapes x 2 door types)</code></pre>
 
 <mh3>
 I load these from file only once when the game starts. They are stored here as video bitmaps:
@@ -127,8 +127,8 @@ ALLEGRO_BITMAP *player_tile[16][32];
 ALLEGRO_BITMAP *door_tile[2][16][8];
 </code></pre>
 
-<br><a name="Creating Tile Bitmaps"></a>
-<mh7>Creating Tile Bitmaps</mh7>
+<br><a name="Creating bitmaps for tiles"></a>
+<mh7>Creating bitmaps for tiles</mh7>
 
 <mh3>
 - called only once from 'initial_setup()'</mh3>
@@ -148,8 +148,8 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
    M_dtilemap = al_create_bitmap(160,640);
 }</code></pre>
             
-<br><a name="Loading Tile Bitmaps"></a>
-<mh7>Loading Tile Bitmaps</mh7>
+<br><a name="Loading tile bitmaps"></a>
+<mh7>Loading tile bitmaps</mh7>
             
 <mh3>
 - called only once from 'initial_setup()'
@@ -162,11 +162,7 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
 {
    // get main tiles
    tilemap = al_load_bitmap("bitmaps/tiles.bmp");
-   if (!tilemap)
-   {
-      sprintf(msg, "Can't load tiles from bitmaps/tiles.bmp");
-      m_err(msg);
-   }
+   if (!tilemap) m_err("Can't load tiles from bitmaps/tiles.bmp");
    else
    {
       al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
@@ -179,11 +175,7 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
 			
    // get player tiles
    ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
-   if (!ptilemap)
-   {
-      sprintf(msg, "Can't load tiles from bitmaps/player_tiles.bmp");
-      m_err(msg);
-   }
+   if (!ptilemap) m_err("Can't load tiles from bitmaps/player_tiles.bmp");
    else
    {
       al_convert_mask_to_alpha(ptilemap, al_map_rgb(0, 0, 0)) ;
@@ -196,11 +188,7 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
 
    // get door tiles
    dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
-   if (!dtilemap)
-   {
-      sprintf(msg, "Can't load tiles from bitmaps/door_tiles.bmp");
-      m_err(msg);
-   }
+   if (!dtilemap) m_err("Can't load tiles from bitmaps/door_tiles.bmp");
    else
    {
       al_convert_mask_to_alpha(dtilemap, al_map_rgb(0, 0, 0)) ;
@@ -215,8 +203,8 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
    }
 }</code></pre>
 
-<br><a name="Rebuilding Tile Bitmaps"></a>
-<mh7>Rebuilding Tile Bitmaps</mh7>
+<br><a name="Rebuilding tile bitmaps"></a>
+<mh7>Rebuilding tile bitmaps</mh7>
 
 <mh3>
 The tilemap bitmaps are rebuilt if the display changes and their contents are lost.

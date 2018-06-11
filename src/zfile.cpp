@@ -319,7 +319,7 @@ int load_gm(const char *sfname )
             ch = fgetc(filepntr);
          }
          buff[loop] = 0;
-        suicide_pbullets = atoi(buff);
+         suicide_pbullets = atoi(buff);
 
 
          // then get all the entries
@@ -349,7 +349,7 @@ int load_gm(const char *sfname )
                }
          // init all
          for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
-         players[0].active = 1;
+         players[0].control_method = 1;
          return 1;
       }
    }

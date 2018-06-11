@@ -107,8 +107,7 @@ int load_tiles(void)
    tilemap = al_load_bitmap("bitmaps/tiles.bmp");
    if (!tilemap)
    {
-      sprintf(msg, "Can't load tiles from bitmaps/tiles.bmp");
-      m_err(msg);
+      m_err("Can't load tiles from bitmaps/tiles.bmp");
       load_error = 1;
    }
    else
@@ -126,8 +125,7 @@ int load_tiles(void)
    ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
    if (!ptilemap)
    {
-      sprintf(msg, "Can't load tiles from bitmaps/player_tiles.bmp");
-      m_err(msg);
+      m_err("Can't load tiles from bitmaps/player_tiles.bmp");
       load_error = 1;
    }
    else
@@ -146,8 +144,7 @@ int load_tiles(void)
    dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
    if (!dtilemap)
    {
-      sprintf(msg, "Can't load tiles from bitmaps/door_tiles.bmp");
-      m_err(msg);
+      m_err("Can't load tiles from bitmaps/door_tiles.bmp");
       load_error = 1;
    }
    else
@@ -168,22 +165,20 @@ int load_tiles(void)
    // get animation sequences and shape attributes
    char sprit_filename[20] = "bitmaps/sprit001.pm";
 //   if (exists(sprit_filename) == 0) // does file exist?
-   if (0)
-   {
-      sprintf(msg, "Can't find sprit %s ", sprit_filename);
-      //textout_ex(screen, font, msg, SCREEN_W/2, ((SCREEN_H*3)/4)+10, palette_color[1], 0);
-      //m_err(msg);
-      load_error = 1;
-   }
-
+//   if (0)
+//   {
+//      sprintf(msg, "Can't find sprit %s ", sprit_filename);
+//      //textout_ex(screen, font, msg, SCREEN_W/2, ((SCREEN_H*3)/4)+10, palette_color[1], 0);
+//      //m_err(msg);
+//      load_error = 1;
+//   }
 
    if (!load_error)  // open file
       if ((filepntr=fopen(sprit_filename,"rb")) == 0)
       {
-         printf("Error opening %s ", sprit_filename);
-         //sprintf(msg, "Error opening %s ", sprit_filename);
-         //m_err(msg);
-         //textout_ex(screen, font, msg, SCREEN_W/2, ((SCREEN_H*3)/4)+10, palette_color[1], 0);
+         //printf("Error opening %s ", sprit_filename);
+         sprintf(msg, "Error opening %s ", sprit_filename);
+         m_err(msg);
          load_error = 1;
       }
    if (!load_error)  // file open !

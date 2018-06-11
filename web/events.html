@@ -248,11 +248,10 @@ When the display changes, an ALLEGRO_EVENT_DISPLAY_RESIZE event is generated.
 This is usually when the window is resized by the user.
 It is possible to get a lot of these events as the window is being resized.
 
-Everytime this happens, all of my video bitmaps are destroyed and must be rebuilt.
-I do this by calling proc_screen_change();
-This takes longer than a normal frame, and may cause delays, especially if I do this for every resize event in a long string of them.
+Also when the display changes, all video bitmaps are destroyed and must be rebuilt.  See: <a href="tiles.html#Rebuilding Tile Bitmaps" target="_top">Rebuilding Bitmaps</a>
+This takes longer than a normal frame, and may cause delays, especially if I do it for every resize event in a long string of them.
 
-So I have an algorithm in my event processing code to ignore all resize events except for the last one.
+So I implemented an algorithm in the event queue processing code to ignore all resize events except for the last one.
 
 Here is a description of the algorithm:
 
@@ -286,8 +285,10 @@ This method allows me to ignore all but the last ALLEGRO_EVENT_DISPLAY_RESIZE ev
       else ret = proc_events(ev, ret);
    }
 }</code></pre>           
+<mh3>
+See also:  <a href="display.html#Process screen change" target="_top">proc_screen_change()</a>   <a href="events.html#Processing events" target="_top">proc_events()</a>
 
-
+</mh3>
 
 
 

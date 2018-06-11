@@ -237,6 +237,8 @@ void auto_set_display_transform_double(void)
       if (disp_w_curr > 1279) display_transform_double = 2;
       if (disp_w_curr < 1280) display_transform_double = 1;
    }
+   set_display_transform();
+   set_map_var();
 }</code></pre>
 <mh3>    
 This extern variable controls the doubling:    
