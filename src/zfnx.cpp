@@ -906,73 +906,26 @@ al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
 
 void game_vars_to_state(char * b)
 {
-   int offset = 0;
-   int size;
-
-   size = sizeof(players);
-   memmove(b+offset, players, size);
-   //printf("players \tsize %d \toffset %d \n", size, offset);
-   offset += size;
-   size = sizeof(Ei);
-   memmove(b+offset, Ei, size);
-   //printf("int Ei[100][32] \tsize %d \toffset %d \n", size, offset);
-   offset += size;
-   size = sizeof(Efi);
-   memmove(b+offset, Efi, size);
-   //printf("al_fixed Efi[100][16] \tsize %d \toffset %d \n", size, offset);
-   offset += size;
-   size = sizeof(item);
-   memmove(b+offset, item, size);
-   //printf("int item[500][16] \tsize %d \toffset %d \n", size, offset);
-   offset += size;
-   size = sizeof(itemf);
-   memmove(b+offset, itemf, size);
-   //printf("al_fixed item[500][4] \tsize %d \toffset %d \n", size, offset);
-   offset += size;
-   size = sizeof(lifts);
-   memmove(b+offset, lifts, size);
-   //printf("lifts \t\t\tsize %d \toffset %d \n", size, offset);
-   offset += size;
-   size = sizeof(l);
-   memmove(b+offset, l, size);
-   //printf("l[100][100] \t\tsize %d \toffset %d \n", size, offset);
-   offset += size;
-   //printf("----------------total chunk size %d \n", offset);
+   int size = 0, offset = 0;
+   offset += size; size = sizeof(players); memcpy(b+offset, players, size);
+   offset += size; size = sizeof(Ei);      memcpy(b+offset, Ei,      size);
+   offset += size; size = sizeof(Efi);     memcpy(b+offset, Efi,     size);
+   offset += size; size = sizeof(item);    memcpy(b+offset, item,    size);
+   offset += size; size = sizeof(itemf);   memcpy(b+offset, itemf,   size);
+   offset += size; size = sizeof(lifts);   memcpy(b+offset, lifts,   size);
+   offset += size; size = sizeof(l);       memcpy(b+offset, l,       size);
 }
-
-
 
 void state_to_game_vars(char * b)
 {
-   int offset = 0;
-   int size;
-
-   size = sizeof(players);
-   memcpy(players, b+offset, size);
-   offset += size;
-
-   size = sizeof(Ei);
-   memcpy(Ei, b+offset, size);
-   offset += size;
-
-   size = sizeof(Efi);
-   memcpy(Efi, b+offset, size);
-   offset += size;
-
-   size = sizeof(item);
-   memcpy(item, b+offset, size);
-   offset += size;
-
-   size = sizeof(itemf);
-   memcpy(itemf, b+offset, size);
-   offset += size;
-
-   size = sizeof(lifts);
-   memcpy(lifts, b+offset, size);
-   offset += size;
-
-   size = sizeof(l);
-   memcpy(l, b+offset, size);
+   int size = 0, offset = 0;
+   size = sizeof(players); memcpy(players, b+offset, size); offset += size;
+   size = sizeof(Ei);      memcpy(Ei,      b+offset, size); offset += size;
+   size = sizeof(Efi);     memcpy(Efi,     b+offset, size); offset += size;
+   size = sizeof(item);    memcpy(item,    b+offset, size); offset += size;
+   size = sizeof(itemf);   memcpy(itemf,   b+offset, size); offset += size;
+   size = sizeof(lifts);   memcpy(lifts,   b+offset, size); offset += size;
+   size = sizeof(l);       memcpy(l,       b+offset, size); offset += size;
 }
 
 void get_state_dif(char *a, char *b, char *c, int size)
@@ -1013,14 +966,6 @@ void reset_states(void)
    }
 }
 
-
-
-
-
-
-
-
-
 void show_state_dif(char *a, char *b)
 {
    // copy chunks to temp vars
@@ -1034,7 +979,6 @@ void show_state_dif(char *a, char *b)
    al_fixed c1_Efi[100][16]; // enemy fixeds
    al_fixed c2_Efi[100][16]; // enemy fixeds
 
-
    int c1_item[500][16];  // item ints
    int c2_item[500][16];  // item ints
 
@@ -1047,43 +991,14 @@ void show_state_dif(char *a, char *b)
    int c1_l[100][100];    // level
    int c2_l[100][100];    // level
 
-
-   int offset = 0;
-   int size;
-
-   size = sizeof(players);
-   memcpy(c1_players, a+offset, size);
-   memcpy(c2_players, b+offset, size);
-   offset += size;
-
-   size = sizeof(Ei);
-   memcpy(c1_Ei, a+offset, size);
-   memcpy(c2_Ei, b+offset, size);
-   offset += size;
-
-   size = sizeof(Efi);
-   memcpy(c1_Efi, a+offset, size);
-   memcpy(c2_Efi, b+offset, size);
-   offset += size;
-
-   size = sizeof(item);
-   memcpy(c1_item, a+offset, size);
-   memcpy(c2_item, b+offset, size);
-   offset += size;
-
-   size = sizeof(itemf);
-   memcpy(c1_itemf, a+offset, size);
-   memcpy(c2_itemf, b+offset, size);
-   offset += size;
-
-   size = sizeof(lifts);
-   memcpy(c1_lifts, a+offset, size);
-   memcpy(c2_lifts, b+offset, size);
-   offset += size;
-
-   size = sizeof(l);
-   memcpy(c1_l, a+offset, size);
-   memcpy(c2_l, b+offset, size);
+   int sz = 0, of = 0;
+   sz=sizeof(players); memcpy(c1_players, a+of, sz); memcpy(c2_players, b+of, sz); of+=sz;
+   sz=sizeof(Ei);      memcpy(c1_Ei,      a+of, sz); memcpy(c2_Ei,      b+of, sz); of+=sz;
+   sz=sizeof(Efi);     memcpy(c1_Efi,     a+of, sz); memcpy(c2_Efi,     b+of, sz); of+=sz;
+   sz=sizeof(item);    memcpy(c1_item,    a+of, sz); memcpy(c2_item,    b+of, sz); of+=sz;
+   sz=sizeof(itemf);   memcpy(c1_itemf,   a+of, sz); memcpy(c2_itemf,   b+of, sz); of+=sz;
+   sz=sizeof(lifts);   memcpy(c1_lifts,   a+of, sz); memcpy(c2_lifts,   b+of, sz); of+=sz;
+   sz=sizeof(l);       memcpy(c1_l,       a+of, sz); memcpy(c2_l,       b+of, sz); of+=sz;
 
 
    int sop = sizeof(players);
@@ -1369,11 +1284,11 @@ void show_state_dif(char *a, char *b)
                add_log_entry2(32, active_local_player, msg);
             }
 
-            if (c1_players[p].num_bullets  != c2_players[p].num_bullets)
-            {
-               sprintf(msg, "player[%d].num_bullets   server:[%d] local:[%d]\n", p, c1_players[p].num_bullets,  c2_players[p].num_bullets );
-               add_log_entry2(32, active_local_player, msg);
-            }
+//            if (c1_players[p].not_used_num_bullets  != c2_players[p].not_used_num_bullets)
+//            {
+//               sprintf(msg, "player[%d].num_bullets   server:[%d] local:[%d]\n", p, c1_players[p].not_used_num_bullets,  c2_players[p].not_used_num_bullets );
+//               add_log_entry2(32, active_local_player, msg);
+//            }
 
             if (c1_players[p].num_hits  != c2_players[p].num_hits)
             {
@@ -1646,18 +1561,14 @@ void demo_mode(void)
 
       if (load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
       {
-         players[0].control_method = 1;
          start_mode = 2; // load level and start, but skip game array erasing
          game_exit = 0;
          pm_main();
 
          // reset player data
-         for (int p=0; p<NUM_PLAYERS; p++)
-         {
-             players[p].active = 0;
-             players[p].control_method = 0;
-         }
+         for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
          players[0].active = 1;
+         players[0].control_method = 1;
          active_local_player = 0;
       }
       else demo_mode_on = 0;
@@ -1665,6 +1576,7 @@ void demo_mode(void)
 
    load_level(start_level, 0);
    resume_allowed = 0;
+   get_config_values(); // restore player color from config file
 
 }
 

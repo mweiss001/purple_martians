@@ -303,14 +303,13 @@ int server_init(void)
 
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
    }
-
-   ima_server = 1;
-   init_player(0, 1);
+   // initialize all players
+   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
    players[0].active = 1;
    players[0].control_method = 3; // server_local_control
+   ima_server = 1;
 
    sprintf(players1[0].hostname, "%s", local_hostname);
-
 
    if (ServerInitNetwork())
    {
@@ -341,15 +340,8 @@ void server_exit(void)
    ima_server = 0;
 
    // reset player data
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      players[p].active = 0;
-      players[p].paused = 0;
-      players[p].control_method = 0;
-      init_player(p, 3);
-  }
+   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
    players[0].active = 1;
-   players[0].control_method = 0; // local_control
 }
 
 // send stdf to a specific player

@@ -57,6 +57,7 @@
 <mh3><hr></mh3>
 <mh8>Netgame - Config</mh8>
 <mh3><hr><mdw_file_toc> <a href="netgame_config.html#Overview" target="_top">Overview</a>
+ <a href="netgame_config.html#Settings you can change" target="_top">Settings you can change</a>
  <a href="netgame_config.html#Settings you probably shouldn't change!" target="_top">Settings you probably shouldn't change!</a>
 </mdw_file_toc><hr></mh3>
 
@@ -77,41 +78,45 @@ stdf_freq=5
 zlib_cmp=7
 </code></pre>
 
-<br><br><me1>server_IP</me1>
+<a name="Settings you can change"></a>
+<mh7>Settings you can change</mh7>
+
+<mh5><hr>server_IP</mh5>
 <mh3>This is for the clients only.  They need to know the server hostname or IP address to connect to.
-
-valid entries: 
-server_IP=192.168.1.3
-server_IP=myhostname
-
 This value is completely ignored by the server. A server doesnt need to have anything set for clients.
 </mh3>
+<pre><code class="language-cpp">valid entries: 
+server_IP=192.168.1.3
+server_IP=myhostname</code></pre>
 
-<br><me1>TCP</me1>
+
+
+<mh5><hr>TCP</mh5>
 <mh3>Used to set the packet type.  Must be the same on client and server.
-
-valid entries: 
+Both seem to work about the same.  (Probably because netgame only works in a LAN)
+</mh3>
+<pre><code class="language-cpp">valid entries: 
 TCP=0 // use UDP packet type
 TCP=1 // use TCP packet type
 
 default: 
 TCP=0 // use UDP packet type
+</code></pre>
 
-Both seem to work about the same.  (Probably because netgame only works in a LAN)
-</mh3>
-
-<br><me1>deathmatch_pbullets</me1>
+<mh5><hr>deathmatch_pbullets</mh5>
 <mh3>Used to set Deathmatch Mode. Controls whether player's bullets affect other players.
-
-valid entries: 
+</mh3>
+<pre><code class="language-cpp">valid entries: 
 deathmatch_pbullets=0 // Deathmatch Mode Off
 deathmatch_pbullets=1 // Deathmatch Mode On
 
 default: 
 deathmatch_pbullets=0 // Deathmatch Mode Off
-</mh3>
+</code></pre>
 
-<br><me1>deathmatch_pbullets_damage</me1>
+
+
+<mh5><hr>deathmatch_pbullets_damage</mh5>
 <mh3>Used to set the amount of damage player's bullets do in Deathmatch Mode.
 Has no effect if Deathmatch Mode is off.
 
@@ -121,8 +126,8 @@ The value is the amount of health lost when hit with a bullet.
 Note: If set to zero, bullets will not take any health, but will still cause the player to recoil.
 
 Note: If set to a negative value, bullets will actually give health!
-
-valid entries: 
+</mh3>
+<pre><code class="language-cpp">valid entries: 
 deathmatch_pbullets=100
 deathmatch_pbullets=50
 deathmatch_pbullets=10
@@ -131,21 +136,24 @@ deathmatch_pbullets=-10
 
 default: 
 deathmatch_pbullets=5
-</mh3>
+</code></pre>
 
-<br><me1>suicide_pbullets</me1>
+
+<mh5><hr>suicide_pbullets</mh5>
 <mh3>Controls whether player's bullets affect the same player that shot them.
 
 This can happen if a player shoots a bullet, then immediately takes a door to where the bullet is heading.
 It can also happen if a bullet is shot upwards, then a player jumps on a spring.
-
-valid entries: 
+</mh3>
+<pre><code class="language-cpp">valid entries: 
 suicide_pbullets=0 // suicide bullets off
 suicide_pbullets=1 // suicide bullets on
 
 default: 
 suicide_pbullets=0 // suicide bullets off
-</mh3>
+</code></pre>
+
+
 
 
 <br><a name="Settings you probably shouldn't change!"></a>
@@ -154,34 +162,39 @@ suicide_pbullets=0 // suicide bullets off
 For the variables below, it is not recommended to change them from their default values.
 </mh3>
 
-<br><me1>control_lead_frames</me1>
+
+<mh5><hr>control_lead_frames</mh5>
+
 <mh3>When a client's controls change and cdat is sent to server, control_lead_frames is added to the frame_num.
 Too low and inputs will be dropped, too high and control latency becomes noticeable.
-
-default: 
+</mh3>
+<pre><code class="language-cpp">default: 
 control_lead_frames=3
-</mh3>
+</code></pre>
 
-<br><me1>server_lead_frames</me1>
+
+<mh5><hr>server_lead_frames</mh5>
 <mh3>The clients will adjust their timers to maintain a delay of this many frames behind the server.
-
-default: 
+</mh3>
+<pre><code class="language-cpp">default: 
 server_lead_frames=1
-</mh3>
+</code></pre>
 
-<br><me1>stdf_freq</me1>
+<mh5><hr>stdf_freq</mh5>
 <mh3>How often the server sends state corrections to clients.
-
-default: 
+</mh3>
+<pre><code class="language-cpp">default: 
 chdf_freq=5
-</mh3>
+</code></pre>
 
-<br><me1>zlib_cmp</me1>
+<mh5><hr>zlib_cmp</mh5>
+
 <mh3>The amount of compression zlib applies to state dif data.
-
-default: 
-zlib_cmp=7
 </mh3>
+<pre><code class="language-cpp">default: 
+zlib_cmp=7
+</code></pre>
+<br>
 <br>
 
                <footer>

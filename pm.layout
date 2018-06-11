@@ -2,6 +2,26 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="win_static_release" />
+	<File name="src\e_bitmap.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5193" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\zloop.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2207" topLine="24" />
+		</Cursor>
+	</File>
+	<File name="src\e_editor.cpp" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="37293" topLine="1079" />
+		</Cursor>
+	</File>
+	<File name="src\zmain.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="17261" topLine="650" />
+		</Cursor>
+	</File>
 	<File name="src\e_fnx.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="7222" topLine="205" />
@@ -27,9 +47,9 @@
 			<Cursor1 position="63059" topLine="1426" />
 		</Cursor>
 	</File>
-	<File name="src\zplayer.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\zplayer.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="951" topLine="0" />
+			<Cursor1 position="25012" topLine="627" />
 		</Cursor>
 	</File>
 	<File name="src\e_lev.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -39,7 +59,7 @@
 	</File>
 	<File name="src\zscrn.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="37997" topLine="948" />
+			<Cursor1 position="12323" topLine="105" />
 		</Cursor>
 	</File>
 	<File name="src\e_nev.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -82,9 +102,9 @@
 			<Cursor1 position="9213" topLine="187" />
 		</Cursor>
 	</File>
-	<File name="src\n_client.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\n_client.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="17565" topLine="480" />
+			<Cursor1 position="7603" topLine="193" />
 		</Cursor>
 	</File>
 	<File name="src\n_network.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -97,19 +117,19 @@
 			<Cursor1 position="272" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src\n_server.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\n_server.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="26621" topLine="696" />
+			<Cursor1 position="23228" topLine="645" />
 		</Cursor>
 	</File>
-	<File name="src\pm.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\pm.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="27018" topLine="920" />
+			<Cursor1 position="34311" topLine="1130" />
 		</Cursor>
 	</File>
 	<File name="src\yfilecom.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3218" topLine="86" />
+			<Cursor1 position="4545" topLine="116" />
 		</Cursor>
 	</File>
 	<File name="src\zbullets.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -119,12 +139,12 @@
 	</File>
 	<File name="src\zcfg.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="11802" topLine="255" />
+			<Cursor1 position="11802" topLine="189" />
 		</Cursor>
 	</File>
-	<File name="src\zcontrol.cpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\zcontrol.cpp" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="30919" topLine="639" />
+			<Cursor1 position="24100" topLine="579" />
 		</Cursor>
 	</File>
 	<File name="src\zemove.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -134,22 +154,22 @@
 	</File>
 	<File name="src\zfile.cpp" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="10088" topLine="278" />
+			<Cursor1 position="10078" topLine="278" />
 		</Cursor>
 	</File>
 	<File name="src\zfnx.cpp" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="52494" topLine="1457" />
+			<Cursor1 position="54263" topLine="1505" />
 		</Cursor>
 	</File>
-	<File name="src\zitem.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\zitem.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="39788" topLine="926" />
 		</Cursor>
 	</File>
-	<File name="docs\new5.txt" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="docs\new5.txt" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="136335" topLine="5907" />
+			<Cursor1 position="152485" topLine="6655" />
 		</Cursor>
 	</File>
 	<File name="src\zlifts.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -157,14 +177,14 @@
 			<Cursor1 position="6531" topLine="114" />
 		</Cursor>
 	</File>
-	<File name="docs\new5_todo.txt" open="1" top="1" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="docs\new5_todo.txt" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="826" topLine="0" />
+			<Cursor1 position="1141" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src\zlog.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\zlog.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="11870" topLine="277" />
+			<Cursor1 position="4240" topLine="59" />
 		</Cursor>
 	</File>
 	<File name="icon.rc" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -174,27 +194,7 @@
 	</File>
 	<File name="src\zlogo.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="114" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src\e_bitmap.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="5193" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src\zloop.cpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="970" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src\e_editor.cpp" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="37293" topLine="1079" />
-		</Cursor>
-	</File>
-	<File name="src\zmain.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1262" topLine="0" />
+			<Cursor1 position="14006" topLine="476" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

@@ -56,12 +56,12 @@
 <mh3><hr></mh3>
 <mh8>Level Array</mh8>
 <mh3><hr><mdw_file_toc> <a href="level_array.html#Overview" target="_top">Overview</a>
- <a href="level_array.html#Drawing the Level Array" target="_top">Drawing the Level Array</a>
+ <a href="level_array.html#Drawing the level" target="_top">Drawing the level</a>
  <a href="level_array.html#Rebuilding level_background" target="_top">Rebuilding level_background</a>
- <a href="level_array.html#Drawing Sequence in the Game Loop" target="_top">Drawing Sequence in the Game Loop</a>
- <a href="level_array.html#Get New Background" target="_top">Get New Background</a>
- <a href="level_array.html#Get New Screen Buffer" target="_top">Get New Screen Buffer</a>
- <a href="level_array.html#Scale Factor" target="_top">Scale Factor</a>
+ <a href="level_array.html#Drawing sequence in game loop" target="_top">Drawing sequence in game loop</a>
+ <a href="level_array.html#Get new background" target="_top">Get new background</a>
+ <a href="level_array.html#Get new screen buffer" target="_top">Get new screen buffer</a>
+ <a href="level_array.html#Scale factor" target="_top">Scale factor</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
@@ -85,8 +85,8 @@ The integer has certain special ranges:
 128+     - solid  
 </code></pre>
             
-<br><a name="Drawing the Level Array"></a>
-<mh7>Drawing the Level Array</mh7>
+<br><a name="Drawing the level"></a>
+<mh7>Drawing the level</mh7>
 
 <mh3>
 Two bitmaps are used, each 2000 x 2000 pixels:
@@ -109,18 +109,14 @@ When a level is loaded, all 10,000 tiles are drawn to the level_background.
    al_clear_to_color(al_map_rgb(0,0,0));
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++)
-      {
-         int c = l[x][y];
-         if (c < NUM_SPRITES)
-            al_draw_bitmap(tile[c], x*20, y*20, 0);
-      }
+         al_draw_bitmap(tile[l[x][y]], x*20, y*20, 0);
    draw_lift_lines();
 }</code></pre>
 
 <br><a name="Rebuilding level_background"></a>
 <mh7>Rebuilding level_background</mh7>
 <mh3>
-To make things faster, all the bitmaps are created with ALLEGRO_NO_PRESERVE_TEXTURE.
+To make things faster, all bitmaps are created with ALLEGRO_NO_PRESERVE_TEXTURE.
 That means that if the display changes the contents will be lost.
 This has no effect on the bitmaps that are redrawn every frame like level_buffer.
 However level_background is not redrawn each frame and must be redrawn if the display changes.
@@ -129,10 +125,11 @@ However level_background is not redrawn each frame and must be redrawn if the di
 <pre><code class="language-cpp">void rebuild_bitmaps(void)
 {
    init_level_background();
+   //...
 }</code></pre>
 
-<br><a name="Drawing Sequence in the Game Loop"></a>
-<mh7>Drawing Sequence in the Game Loop</mh7>
+<br><a name="Drawing sequence in game loop"></a>
+<mh7>Drawing sequence in game loop</mh7>
 <mh3>
 This happens every frame (unless drawing is skipped)
 </mh3>
@@ -164,8 +161,8 @@ This happens every frame (unless drawing is skipped)
 
 </mh3>
 
-<br><a name="Get New Background"></a>
-<mh7>Get New Background</mh7>
+<br><a name="Get new background"></a>
+<mh7>Get new background</mh7>
 <pre><code class="language-cpp">void get_new_background(int full)
 {
    al_set_target_bitmap(level_buffer);
@@ -182,8 +179,8 @@ This happens every frame (unless drawing is skipped)
 }</code></pre>
 
 
-<br><a name="Get New Screen Buffer"></a>
-<mh7>Get New Screen Buffer</mh7>
+<br><a name="Get new screen buffer"></a>
+<mh7>Get new screen buffer</mh7>
 <pre><code class="language-cpp">void get_new_screen_buffer(void)
 {
    al_set_target_backbuffer(display);
@@ -257,8 +254,8 @@ This happens every frame (unless drawing is skipped)
    al_draw_scaled_bitmap(level_buffer, WX, WY, SW, SH, sbx, sby, sbw, sbh, 0);
 }</code></pre>
 
-<br><a name="Scale Factor"></a>
-<mh7>Scale Factor</mh7>
+<br><a name="Scale factor"></a>
+<mh7>Scale factor</mh7>
 <mh3>
 Scale factor controls how much the of the level is shown on the screen.
 

@@ -63,6 +63,7 @@
  <a href="netgame_join.html#Client blocks until it gets initial state from server" target="_top">Client blocks until it gets initial state from server</a>
  <a href="netgame_join.html#Client chase and lock" target="_top">Client chase and lock</a>
  <a href="netgame_join.html#Packets used for join" target="_top">Packets used for join</a>
+ <a href="netgame_join.html#Setting up netgame" target="_top">Setting up netgame</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
@@ -175,7 +176,7 @@ void client_block_until_initial_state_received(void)
 <mh7>Client chase and lock</mh7>
 <mh3>
 After the initial state is received, the client does not block anymore.
-The game starts running from the initial state received from the server.
+The client game starts running from the initial state received from the server.
 The client player is not active yet, but still processes packets from the server.
 In particular, sdat packets are used to adjust the client's timer until it catches up and locks with the server.
 </mh3>
@@ -185,7 +186,11 @@ In particular, sdat packets are used to adjust the client's timer until it catch
    players1[p].client_sync = sdat_frame_num - frame_num;
    int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
    al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
-</code></pre>
+
+   Packet("sdak"); // send acknowledgement of sdat
+   PacketPut4ByteInt(frame_num);
+   ClientSend(packetbuffer, packetsize);
+}</code></pre>
 <mh3>
 The server monitors the client's sync on its side when it receives the client's acknowledgements.
 When the client's sync is within limits, the server sets the client active by entering a special game move.
@@ -229,15 +234,11 @@ direction: server to client
 - 1 byte (suicide_pbullets)
 </pk1>        
 
-<br>            
-<br>            
-<br>            
-<br>            
-<br>            
 
+<br><a name="Setting up netgame"></a>
+<mh7>Setting up netgame</mh7>
 
 <mh3>
-
 The netgame is only designed to work in a LAN, not the internet.    
     
 To join a netgame the client needs to know the IP or hostname of the server.
@@ -247,17 +248,21 @@ The server does not need to know anything about the client.
 If both the server and the client can ping each other, netgame should work.
 In some cases a firewall exception may need to be created. (especially for the server)
     
-In windows, open up a command prompt and type:
+In windows, open a command prompt window and type:
 - 'ipconfig' to see your local IP address
 - 'hostname' to see your hostname
-    
+
+In linux, open a terminal and type:
+- 'ifconfig' to see your local IP address
+- 'hostname' to see your hostname
+
 Do this for both the client and the server.
     
 Then try to ping each other by typing:
 - 'ping [IP]' or
 - 'ping [hostname]'     
     
-If that works then all you need to do is make sure the client(s) have the server's IP or hostname set.
+If that works then all you need to do is make sure the client has the server's IP or hostname set.
     
 You can do this three different ways:
 - in the game from 'options menu' -> 'netgame options'
@@ -267,7 +272,6 @@ You can do this three different ways:
 Start the server game running with 'Host Network Game', then start the client(s) with 'Join Network Game'
     
 In a few seconds the client will join.
-
 
 </mh3>
 

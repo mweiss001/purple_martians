@@ -6310,6 +6310,28 @@ wow, all of this stuff is looking good...
 
 
 
+find all css tags and remove unused
+
+header_main..removed...
+mh12 removed
+mh2 removed
+mh4 removed
+mh5 removed
+
+mh3 - body text (368)
+mh7 - section title (178)
+mh8 - file title (34)
+
+mh10 - by: Michael David Weiss (2)
+mh11 - Purple Martians title only (68)
+mh12 - Technical Code Description only (32)
+
+me1 - secondary header used in netgame config and netgame status
+
+pk0 - packets
+pk1 - packets
+
+
 
 
 
@@ -6397,13 +6419,6 @@ new:
 
 
 
-
-
-
-
-
-
-
 looking in game moves thingy
 do I make a clear distinction between keys and controls??
 I have a function called clear_keys(), that actually clears controls
@@ -6413,22 +6428,321 @@ void set_comp_move_from_controls(int p)...never used. delete
 
 
 
+web game move array is looking really good...
+
+
+why do I use:
+7 x memmove
+7 x memset
+27 x memcpy
+replaced memmove with memcpy...
+
+
+0 x memmove
+7 x memset
+32 x memcpy
+
+1 - client reads stdf and put data in buffer
+1 - server builds stdf packet
+
+1 - server updates client's base state
+
+7 - game_vars_to_state(char * b)
+7 - state_to_game_vars(char * b)
+
+14 - show_state_dif(char *a, char *b)
+
+1 - add_log_entry2(int type, int player, const char *txt)
+
+
+
+Can this be made simpler?
+
+   // check to see if frame_nums match and its time to apply dif
+   if (frame_num == client_state_dif_dst) // current frame_num is dif destination
+   {
+      if (client_state_base_frame_num != client_state_dif_src)  // stored base state does NOT match dif source
+      {
+         // if server has sent dif from src == 0, reset our base to 0
+         if (client_state_dif_src == 0)
+         {
+            memset(client_state_base, 0, STATE_SIZE);
+            client_state_base_frame_num = 0;
+            if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, "Resetting client base state to zero\n");
+         }
+         else
+         {
+            sprintf(msg, "!! stdf cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
+            if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
+         }
+      }
+      if (client_state_base_frame_num == client_state_dif_src)  // stored base state matches dif source
+      {
+
+
+how about this?
+
+   // check to see if frame_nums match and its time to apply dif
+   if (frame_num == client_state_dif_dst) // current frame_num is dif destination
+   {
+      // if server has sent dif from src == 0, reset our base to 0
+      if (client_state_dif_src == 0)
+      {
+         memset(client_state_base, 0, STATE_SIZE);
+         client_state_base_frame_num = 0;
+         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, "Resetting client base state to zero\n");
+      }
+      if (client_state_base_frame_num != client_state_dif_src)  // stored base state does NOT match dif source
+      {
+         sprintf(msg, "!! stdf cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
+         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
+      }
+      else // stored base state matches dif source
+      {
+
+
+simplify this:
+
+   if (start_mode < 3) // normal or run game
+   {
+      frame_num = 0;
+      if (!load_level(play_level,0))
+      {
+         game_exit = 1;
+         resume_allowed = 0;
+      }
+   }
+
+
+   if (start_mode == 3) // new level after level done
+   {
+      stamp();
+      frame_num = 0;
+      if (!load_level(play_level,0))
+      {
+         game_exit = 1;
+         resume_allowed = 0;
+      }
+   }
+
+
+done:
+
+   if (start_mode == 3) stamp(); // new level after level done
+
+	frame_num = 0;
+	if (!load_level(play_level,0))
+	{
+		game_exit = 1;
+		resume_allowed = 0;
+	}
+
+
+
+run demo mode does not use stored player color...
+
+probably because color won't get set if player is already active....
+
+fixed...
+now restore saved color after demo play...
+where??
+
+demo play can end where?
+
+level done
+esc pressed..
+
+how about when called from menu...done
+and when called from demo mode...done
 
 
 
 
 
+sort out init_player()
+
+type 1 - all
+type 2 - level done
+type 3 - netgame join
 
 
 
 
+8 calls
+
+initial_setup()
+calls 1 for every player
+
+load_gm()
+calls 1 for every player
+
+proc_start_mode()
+calls 2 for every player
+
+client_init_join() after SJON rx'd
+calls 1 for every player
+
+
+server_exit()
+calls 3 for every player ???? why??
+
+
+server_init()
+calls 1 for player 0
+
+
+server_join
+calls 1 for new player slot before tx SJON
+
+proc_player_state_game_move()
+calls 3 when new demo mode player comes active
 
 
 
 
+there are a lot of things going on here....
+
+make init_player call itself...
+
+
+make some more specific calls
+
+like 23 = clear bandwidth counters..done
 
 
 
+game_move_entry_pos..used only by server....
+don't clear on netplay join??..dont think it matters
+
+
+
+i think I can get rid of 2 and 3 specifics...done
+
+   if (t == 2) // level done
+   {
+      players1[p].game_move_entry_pos = 0; // server only  ( for client game_move data sync )
+      players1[p].server_last_sdat_sent_frame_num = 0; // only server uses it, to keep track of when last sdat was sent to client
+   }
+
+   if (t == 3) // netplay join
+   {
+      players1[p].server_last_sdak_rx_frame_num = frame_num + 200;
+   }
+
+now change the 2 calls to 3 to 2's..done
+
+
+
+
+looks a lot cleaner now...hope it all still works....
+
+
+i should set control_method to 0 in init 1
+
+
+
+demo mode won't quit with any key...
+
+esc just starts new demo...
+
+
+
+make a new list of where I call init_player()
+
+initial_setup()
+---------------
+// init all players
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+
+
+
+when client rx SJON
+-------------------
+// initialize all players
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[cp].control_method = 4;
+ima_client = 1;
+active_local_player = cp;
+players[cp].color = color;
+players1[cp].game_move_entry_pos = server_game_move_entry_pos;
+
+
+
+server init()
+-------------
+// initialize all players
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+players[0].control_method = 3; // server_local_control
+ima_server = 1;
+
+
+server exit()
+-------------
+// reset player data
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+
+
+server finds new player slot after rx CJON
+------------------------------------------
+init_player(cn, 1);
+players[cn].color = color;
+players[cn].control_method = 2; //server client view only
+players1[cn].who = who;
+players1[cn].server_last_sdak_rx_frame_num = frame_num + 200;
+players1[cn].game_move_entry_pos = game_move_entry_pos; // so server wont try to sync any moves less than this
+
+
+
+
+this one was probably an issue so i removed it:
+proc_player_state_game_move(int x)
+----------------------------------
+// player becomes active
+if ((players[p].active == 0) && (val > 0) && (val < 16))
+{
+	init_player(p, 1);
+	players[p].active = 1;
+	players[p].color = val;
+	players1[p].join_frame = frame_num;
+
+
+
+proc_start_mode()
+-----------------
+if (start_mode == 1) // skip this for run demo game
+{
+   // reset player data
+   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 2);
+
+
+
+
+load_gm()
+---------
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].control_method = 1;
+
+
+demo_mode()
+-----------
+after pm_main is done:
+
+// reset player data
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+players[0].control_method = 1;
+active_local_player = 0;
+
+
+
+in netgame client only stays alive for approx 5 sec or 200 frames after lock
+
+can do next level good, but then 5s into next level same...
+
+demo seems to exit good now...
 
 
 

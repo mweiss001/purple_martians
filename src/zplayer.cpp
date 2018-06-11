@@ -381,7 +381,6 @@ void player_move(void)
                players[p].draw_rot += al_ftofix(0);
 
                players[p].paused = 0;
-               players[p].num_bullets = 200;
                players[p].old_LIFE = al_itofix(100);
                players[p].LIFE = al_itofix(100);
                players[p].left_xinc = al_itofix(0);
@@ -596,48 +595,56 @@ int is_player_color_used(int color)
    return 0;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void init_player(int p, int t)
 {
-   // 1 = full, 2 = level done, 3 = netplay join
+   // 1 = full, 2 = level done
 
-   // common stuff first
-
-   if (t == 1) // full
+   if (t == 1) // new game
    {
       players[p].active = 0;
       players[p].paused = 0;
-      players[p].draw_rot = al_itofix(0);
-      players[p].draw_scale = al_itofix(1);
       players[p].control_method = 0;
-      players[p].shape = 0;;
+
       players[p].old_LIFE = al_itofix(100);
       players[p].LIFE = al_itofix(100);
+
       players[p].LIVES = 5;
       players[p].num_hits = 0;
-      players[p].left_right=0;
-      players[p].carry_item = 0;
-      players[p].bullet_wait_counter=0;
-      players[p].request_bullet = 0;
-      players[p].bullet_wait = 5;
-      players[p].bullet_speed = 12;
-      players[p].num_bullets = 0; // not used anymore
-      players1[p].health_display = 0;
-      players1[p].last_health_adjust = 0;
 
-      players1[p].client_game_move_sync = 0;
-      players1[p].client_game_move_sync_err = 0;
-
-      players1[p].server_game_move_sync = 0;
-      players1[p].server_game_move_sync_err = 0;
-
-
-      players1[p].server_sync = 99;
-      players1[p].client_sync = 99;
+      players1[p].hostname[0] = 0;
       players1[p].who = 99;
-
-      players1[p].comp_move = 0;
-      players1[p].old_comp_move = 0;
-
       players1[p].fake_keypress_mode = 0;
 
       players1[p].up_key =    players1[0].up_key;
@@ -648,45 +655,22 @@ void init_player(int p, int t)
       players1[p].fire_key =  players1[0].fire_key;
       players1[p].menu_key =  players1[0].menu_key;
 
-/*
-      players[p].color = 15; // white
-      players[p].color = 14; // yellow
-      players[p].color = 13; // lt blue
-      players[p].color = 12; // dk blue
-      players[p].color = 11; // green
-      players[p].color = 10; // red
-      players[p].color = 9; // lt green
-      players[p].color = 8; // original purple
-      players[p].color = 7; // orange
-      players[p].color = 6; // tan
-      players[p].color = 5; // pink
-      players[p].color = 4; //lt red
-      players[p].color = 3; // med blue
-      players[p].color = 2; // reddish purple
-      players[p].color = 1; // light purple
-      players[p].color = 0; // zombie...don't use
-*/
-
-      // customize players
-      // don't mess with player 0; its loaded from config file
-      if (p==1) players[p].color = 9;  // lt green (forest)
-      if (p==2) players[p].color = 6;  // tan
-      if (p==3) players[p].color = 14; // yellow
-      if (p==4) players[p].color = 11; // green
-      if (p==5) players[p].color = 15; // white
-      if (p==6) players[p].color = 7;  // orange
-      if (p==7) players[p].color = 10; // red
-
+      init_player(p, 17); // clear player common
+      init_player(p, 21); // clear netgame counters, etc
+      init_player(p, 23); // clear bandwidth counters
    }
 
-   // common to 2 and 3
-   if ((t==2) || (t == 3))
+   if (t == 2) // new level
    {
       get_player_start_pos(p); // get starting position from start block
-      players[p].paused = 0;
-      players[p].old_LIFE = al_itofix(100);
-      players[p].LIFE = al_itofix(100);
-      players1[p].last_health_adjust = 0;
+
+      init_player(p, 17); // clear player common
+      init_player(p, 21); // clear netgame counters, etc
+      init_player(p, 23); // clear bandwidth counters
+   }
+
+   if (t == 17) // player common
+   {
       players[p].carry_item = 0;
       players[p].player_ride = 0;
       players[p].left_right = 0;
@@ -696,19 +680,51 @@ void init_player(int p, int t)
       players[p].down = 0;
       players[p].jump = 0;
       players[p].fire = 0;
-      players[p].left_xinc = al_itofix(0);
-      players[p].right_xinc = al_itofix(0);
+
       players[p].xinc = al_itofix(0);
       players[p].yinc = al_itofix(0);
+      players[p].left_xinc = al_itofix(0);
+      players[p].right_xinc = al_itofix(0);
+
+
+      players[p].bullet_wait_counter=0;
+      players[p].request_bullet = 0;
+      players[p].bullet_wait = 5;
+      players[p].bullet_speed = 12;
+
+      players[p].draw_rot = al_itofix(0);
+      players[p].draw_scale = al_itofix(1);
+      players[p].shape = 0;;
+
       players1[p].comp_move = 0;
       players1[p].old_comp_move = 0;
 
-      players1[p].client_cdat_packets_tx = 0;
+      players1[p].health_display = 0;
+      players1[p].last_health_adjust = 0;
 
+      players1[p].frames_skipped = 0;
+   }
+
+   if (t == 21) // netgame counters, etc
+   {
+      players1[p].client_cdat_packets_tx = 0;
       players1[p].client_sdat_packets_rx = 0;
       players1[p].client_sdat_packets_skipped = 0;
       players1[p].moves_entered = 0;
       players1[p].moves_skipped = 0;
+
+      players1[p].moves_skipped_tally = 0;
+      players1[p].moves_skipped_last_tally = 0;
+
+      players1[p].game_move_entry_pos = 0;
+      players1[p].client_sync = 0;
+      players1[p].server_sync = 0;
+      players1[p].serr_c_sync_err = 0;
+      players1[p].serr_display_timer = 0;
+      players1[p].join_frame = 0;
+      players1[p].server_last_sdat_sent_frame_num = 0;
+      players1[p].server_last_sdat_sent_start = 0;
+      players1[p].server_last_sdat_sent_num = 0;
 
       players1[p].client_game_move_sync = 0;
       players1[p].client_game_move_sync_min = 99;
@@ -717,7 +733,6 @@ void init_player(int p, int t)
       players1[p].server_game_move_sync = 0;
       players1[p].server_game_move_sync_min = 99;
       players1[p].server_game_move_sync_err = 0;
-
 
       players1[p].serr_c_sync_err = 0;
       players1[p].serr_display_timer = 0;
@@ -728,35 +743,6 @@ void init_player(int p, int t)
 
       players1[p].join_stdf_sent = 0;
 
-
-      players1[p].frames_skipped = 0;
-
-      players1[p].tx_current_bytes_for_this_frame = 0;
-      players1[p].tx_current_packets_for_this_frame = 0;
-      players1[p].tx_total_bytes = 0;
-      players1[p].tx_total_packets = 0;
-      players1[p].tx_max_bytes_per_frame = 0;
-      players1[p].tx_max_packets_per_frame = 0;
-
-
-      players1[p].tx_packets_per_tally = 0;
-      players1[p].tx_bytes_per_tally = 0;
-      players1[p].tx_max_packets_per_tally = 0;
-      players1[p].tx_max_bytes_per_tally = 0;
-
-
-      players1[p].rx_current_bytes_for_this_frame = 0;
-      players1[p].rx_current_packets_for_this_frame = 0;
-      players1[p].rx_total_bytes = 0;
-      players1[p].rx_total_packets = 0;
-      players1[p].rx_max_bytes_per_frame = 0;
-      players1[p].rx_max_packets_per_frame = 0;
-
-      players1[p].rx_packets_per_tally = 0;
-      players1[p].rx_bytes_per_tally = 0;
-      players1[p].rx_max_packets_per_tally = 0;
-      players1[p].rx_max_bytes_per_tally = 0;
-
       players1[p].num_dif_packets =0 ;
       players1[p].server_last_sdak_rx_frame_num = 0;
       players1[p].client_last_sdat_rx_frame_num = 0;
@@ -765,37 +751,46 @@ void init_player(int p, int t)
       players1[p].stdf_late = 0;
       players1[p].stdf_on_time = 0;
       players1[p].dif_corr = 0;
+
+      players1[p].cmp_dif_size = 0;
+      players1[p].n_stdf = 0;
       players1[p].made_active_holdoff = 0;
-
-
    }
-   if (t == 2) // level done
+
+   if (t == 23) // clear bandwidth counters
    {
-      players1[p].game_move_entry_pos = 0; // server only  ( for client game_move data sync )
-      players1[p].server_last_sdat_sent_frame_num = 0; // only server uses it, to keep track of when last sdat was sent to client
+      // used to add up until frame end
+      players1[p].tx_current_bytes_for_this_frame = 0;
+      players1[p].tx_current_packets_for_this_frame = 0;
+      players1[p].tx_max_bytes_per_frame = 0;
+      players1[p].tx_max_packets_per_frame = 0;
+      players1[p].rx_current_bytes_for_this_frame = 0;
+      players1[p].rx_current_packets_for_this_frame = 0;
+      players1[p].rx_max_bytes_per_frame = 0;
+      players1[p].rx_max_packets_per_frame = 0;
+
+      // used to add up until tally end
+      players1[p].tx_packets_tally = 0;
+      players1[p].tx_bytes_tally = 0;
+      players1[p].tx_max_packets_per_tally = 0;
+      players1[p].tx_max_bytes_per_tally = 0;
+      players1[p].rx_packets_tally = 0;
+      players1[p].rx_bytes_tally = 0;
+      players1[p].rx_max_packets_per_tally = 0;
+      players1[p].rx_max_bytes_per_tally = 0;
+
+      // used for display
+      players1[p].tx_packets_per_tally = 0;
+      players1[p].tx_bytes_per_tally = 0;
+      players1[p].rx_packets_per_tally = 0;
+      players1[p].rx_bytes_per_tally = 0;
+
+      // grand totals
+      players1[p].tx_total_bytes = 0;
+      players1[p].tx_total_packets = 0;
+      players1[p].rx_total_bytes = 0;
+      players1[p].rx_total_packets = 0;
    }
-
-
-
-   if (t == 3) // netplay join
-   {
-      players1[p].server_last_sdak_rx_frame_num = frame_num + 200;
-   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 

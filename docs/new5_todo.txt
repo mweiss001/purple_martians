@@ -15,9 +15,6 @@ reset ortho double when leaving log file viewer
 
 look into pandoc...
 
-
-
-
 rename level_array
 how about level drawing
 
@@ -27,6 +24,7 @@ I don't know if I document re-build bitmaps.
 In tiles there is some of it and also some in level background.
 
 At the bottom of files add links to other related docs
+
 
 
 netplay overall TODO:
@@ -43,10 +41,19 @@ netplay - main TODO:
 
 
 netplay - state_corr TODO:
-
 when are they sent
 show dif
 tell about dif from start and regular dif
+
+
+
+
+start mode
+
+
+
+
+
 
 
 netplay - join TODO:
@@ -55,30 +62,6 @@ netplay - join TODO:
 
 
 
-
-
-
-
-find all css tags and remove unused
-
-header_main..removed...
-mh12 removed
-mh2 removed
-mh4 removed
-mh5 removed
-
-mh3 - body text (368)
-mh7 - section title (178)
-mh8 - file title (34)
-
-mh10 - by: Michael David Weiss (2)
-mh11 - Purple Martians title only (68)
-mh12 - Technical Code Description only (32)
-
-me1 - secondary header used in netgame config and netgame status
-
-pk0 - packets
-pk1 - packets
 
 
 

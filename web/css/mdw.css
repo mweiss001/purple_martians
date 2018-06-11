@@ -78,6 +78,7 @@
         footer {
             background: #d4e6f0;
             height: 200px; 
+            white-space:nowrap;
         }
         header, footer, article, nav {
             padding: 1em;
@@ -116,6 +117,17 @@
             white-space: pre-wrap; 
         }
 
+		
+        mh5 {
+            font-family: Source;
+            color: #017b55;
+            font-size: 130%;
+            font-weight: bold;
+            white-space: pre-wrap; 
+            padding-bottom: .5em;
+        }
+
+		
 
         mh7 {
             font-size: 150%;

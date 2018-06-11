@@ -66,37 +66,27 @@ void proc_level_done(void)
       blind_save_game_moves(1);
       save_log_file();
       play_level = next_level;
-      start_mode = 3; // level_done
+      start_mode = 1;
+      stamp();
    }
 }
 
 
-
-
-
+// start modes:
+// 0 = ignore and run game
+// 1 = load level and run
+// 2 = load level and run (demo from file)
 
 void proc_start_mode(void)
 {
-   if (start_mode < 3) // normal or run game
-   {
-      frame_num = 0;
-      if (!load_level(play_level,0))
-      {
-         game_exit = 1;
-         resume_allowed = 0;
-      }
-   }
-   if (start_mode == 3) // new level after level done
-   {
-      stamp();
-      frame_num = 0;
-      if (!load_level(play_level,0))
-      {
-         game_exit = 1;
-         resume_allowed = 0;
-      }
-   }
-   if (start_mode != 2) // skip this when start_mode == 2 ; run game
+	if (!load_level(play_level,0))
+	{
+		game_exit = 1;
+		resume_allowed = 0;
+	}
+
+
+   if (start_mode == 1) // skip this for run demo game
    {
       // reset game_move array
       for (int x=0; x<1000000; x++)
@@ -107,39 +97,39 @@ void proc_start_mode(void)
       // add initial level info to game_move array (unless client)
       if (!ima_client) // server or local
       {
-         int p = 0; // server and local game always use player 0
          add_game_move(0, 0, play_level, 0);       // [00] game_start
-         add_game_move(0, 1, p, players[p].color); // [01] player_state and color
+         add_game_move(0, 1, 0, players[0].color); // [01] player_state and color
       }
       if (L_LOGGING)
       {
-         {
-            sprintf(msg,"LEVEL %d STARTED", play_level);
-            add_log_entry_header(10, 0, msg, 3);
-            log_player_array();
-         }
+         sprintf(msg,"LEVEL %d STARTED", play_level);
+         add_log_entry_header(10, 0, msg, 3);
+         log_player_array();
       }
+
+      // reset player data
+      for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 2);
+
    }
 
-   // reset player data
-   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 2);
 
-   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear_key array
+   clear_bullets();
+   clear_keys();
+
+   show_player_join_quit_timer = 0;
+   level_done = 0;
+   bottom_msg = 0;
+   start_mode = 0;
+
+   // reset frame_num and fps_timer count
+	frame_num = 0;
+   al_set_timer_count(fps_timer, frame_num);
 
    // reset sound counters
    for (int c=0; c<8; c++) sample_delay[c] = frame_num;
 
-   clear_bullets();
-
-   show_player_join_quit_timer = 0;
-
-   level_done = 0;
-   bottom_msg=0;
-
-   start_mode = 0;
-   stimp();
-   al_set_timer_count(fps_timer, frame_num);
    start_music(0); // rewind and start theme
+   stimp();
 }
 
 void pm_main(void) // the famous game loop!
@@ -147,8 +137,8 @@ void pm_main(void) // the famous game loop!
    if (!start_mode) // resume
    {
       stimp();
-      al_set_timer_count(fps_timer, frame_num); // sync timer_frame_num to actual
-      start_music(1); // resume playing theme
+      al_set_timer_count(fps_timer, frame_num); // set fps_timer count to frame_num
+      start_music(1); // resume theme
    }
    while (!game_exit) // game loop
    {
