@@ -1004,11 +1004,7 @@ void game_menu(void)
                   pm_main();
 
                   // reset player data
-                  for (int p=0; p<NUM_PLAYERS; p++)
-                  {
-                      players[p].active = 0;
-                      players[p].control_method = 0;
-                  }
+                  for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
                   players[0].active = 1;
                   active_local_player = 0;
                   get_config_values(); // restore player color from config file

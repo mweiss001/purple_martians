@@ -1564,20 +1564,18 @@ void demo_mode(void)
          start_mode = 2; // load level and start, but skip game array erasing
          game_exit = 0;
          pm_main();
-
-         // reset player data
-         for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
-         players[0].active = 1;
-         players[0].control_method = 1;
-         active_local_player = 0;
       }
       else demo_mode_on = 0;
    }
 
    load_level(start_level, 0);
    resume_allowed = 0;
-   get_config_values(); // restore player color from config file
 
+   // reset player data
+   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+   players[0].active = 1;
+   active_local_player = 0;
+   get_config_values(); // restore player color from config file
 }
 
 void temp_test(void)

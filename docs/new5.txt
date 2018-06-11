@@ -6718,8 +6718,6 @@ if (start_mode == 1) // skip this for run demo game
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 2);
 
 
-
-
 load_gm()
 ---------
 for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
@@ -6738,11 +6736,31 @@ active_local_player = 0;
 
 
 
+
 in netgame client only stays alive for approx 5 sec or 200 frames after lock
 
 can do next level good, but then 5s into next level same...
 
 demo seems to exit good now...
+
+
+-----------
+
+when client quits...player lost server connection
+
+this was missing:
+void client_process_sdat_packet(void)
+{
+   players1[p].client_last_sdat_rx_frame_num = frame_num;
+
+seems to work good now...
+
+
+there are 3 places after run game where stuff is reset...can i make it one place?
+actually only 2...commandline line immediatley exits
+easier to make them the same...done
+
+
 
 
 
