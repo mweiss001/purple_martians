@@ -255,6 +255,7 @@ void test_keys(void)
 
 void set_start_level(int s)
 {
+   resume_allowed = 0;
    start_level = s;
    save_config();
 }
@@ -552,7 +553,6 @@ void rungame_key_check(int p, int ret)
          {
            demo_mode_on = 0;
            game_exit = 1;
-           resume_allowed = 0;
            get_config_values();
          }
       }
@@ -573,7 +573,6 @@ void rungame_key_check(int p, int ret)
       // except for local player
       players[0].active = 1;
       game_exit = 1;
-      resume_allowed = 1;
       get_config_values();
    }
 }
@@ -620,10 +619,11 @@ void proc_player_state_game_move(int x)
    // player becomes active
    if ((players[p].active == 0) && (val > 0) && (val < 16))
    {
-      //init_player(p, 1);
+      set_player_start_pos(p); // get starting position from start block
       players[p].active = 1;
       players[p].color = val;
       players1[p].join_frame = frame_num;
+
 
       if (L_LOGGING_NETPLAY)
       {
@@ -709,11 +709,6 @@ void proc_player_state_game_move(int x)
          {
             if (val == 64) players1[p].quit_reason = 90;
             game_exit = 1;
-            resume_allowed = 0;
-            ima_client = 0;
-            active_local_player = 0;
-            players[0].control_method = 0; // local control
-
             if (L_LOGGING_NETPLAY)
             {
                sprintf(msg,"Local Client(%s) quit the game.",local_hostname);
@@ -727,10 +722,6 @@ void proc_player_state_game_move(int x)
          {
             if (val == 64) players1[p].quit_reason = 91;
             game_exit = 1;
-            resume_allowed = 0;
-            ima_server = 0;
-            players[0].control_method = 0; // local control
-
             if (L_LOGGING_NETPLAY)
             {
                sprintf(msg,"Local Server(%s) quit the game.",local_hostname);
@@ -744,11 +735,6 @@ void proc_player_state_game_move(int x)
          {
             if (val == 64) players1[p].quit_reason = 92;
             game_exit = 1;
-            resume_allowed = 0;
-            ima_client = 0;
-            active_local_player = 0;
-            players[0].control_method = 0; // local control
-
             if (L_LOGGING_NETPLAY)
             {
                sprintf(msg,"Remote Server ended the game.");
@@ -771,9 +757,6 @@ void proc_player_state_game_move(int x)
          }
       } // end of if player active
    }  // end of player becomes inactive
-
-
-
 }
 
 

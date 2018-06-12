@@ -4,7 +4,7 @@
 
 
 
-void get_player_start_pos(int p)
+void set_player_start_pos(int p)
 {
    for (int c=0; c<500; c++)  // get start and time
    if (item[c][0] == 5)
@@ -387,7 +387,7 @@ void player_move(void)
                players[p].right_xinc = al_itofix(0);
                players[p].xinc = al_itofix(0);
                players[p].yinc = al_itofix(0);
-               get_player_start_pos(p); // get starting position from start block
+               set_player_start_pos(p); // get starting position from start block
                draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
             }
          }
@@ -629,8 +629,6 @@ void init_player(int p, int t)
 
    if (t == 2) // new level
    {
-      get_player_start_pos(p); // get starting position from start block
-
       init_player(p, 17); // clear player common
       init_player(p, 21); // clear netgame counters, etc
       init_player(p, 23); // clear bandwidth counters

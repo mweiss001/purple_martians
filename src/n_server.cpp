@@ -275,7 +275,7 @@ void ServerExitNetwork() // Shut the server down
 
 int server_init(void)
 {
-   frame_num = 0;  // just in case its not
+
    if (L_LOGGING_NETPLAY)
    {
       add_log_entry_centered_text(10, 0, 76, "", "+", "-");
@@ -303,13 +303,6 @@ int server_init(void)
 
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
    }
-   // initialize all players
-   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
-   players[0].active = 1;
-   players[0].control_method = 3; // server_local_control
-   ima_server = 1;
-
-   sprintf(players1[0].hostname, "%s", local_hostname);
 
    if (ServerInitNetwork())
    {
@@ -320,10 +313,6 @@ int server_init(void)
       return 0;
    }
 
-   // still needed or client dies at joining
-   Packet("JUNK");
-   ServerBroadcast(packetbuffer, packetsize);
-
    sprintf(msg, "Server initialized");
    printf("%s\n", msg);
    if (L_LOGGING_NETPLAY)
@@ -331,6 +320,19 @@ int server_init(void)
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       add_log_entry_centered_text(10, 0, 76, "", "+", "-");
    }
+
+
+   // still needed or client dies at joining
+   Packet("JUNK");
+   ServerBroadcast(packetbuffer, packetsize);
+
+
+   frame_num = 0;  // just in case its not
+   players[0].active = 1;
+   players[0].control_method = 3; // server_local_control
+   ima_server = 1;
+   sprintf(players1[0].hostname, "%s", local_hostname);
+
    return 1;
 }
 
@@ -692,7 +694,6 @@ void server_proc_CJON_packet(int who)
       players1[cn].who = who;
       players1[cn].server_last_sdak_rx_frame_num = frame_num + 200;
       players1[cn].game_move_entry_pos = game_move_entry_pos; // so server wont try to sync any moves less than this
-
       sprintf(players1[cn].hostname, "%s", temp_name);
 
       Packet("SJON"); // reply with SJON

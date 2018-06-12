@@ -6761,6 +6761,462 @@ actually only 2...commandline line immediatley exits
 easier to make them the same...done
 
 
+when new players come active in demo mode they don't start at the right position
+
+how about when they come active at all...
+
+when is 'get_player_start_pos()' called? 3 times:
+
+in load level for player 0 only
+
+after death
+
+init player mode 2 (after level done)
+
+--------------------
+
+
+remove from init player mode 2 (after level done)
+
+add to when they come players come active
+
+
+----------------------------------------------------------
+Make a new list of when 'get_player_start_pos()' called
+----------------------------------------------------------
+3 times
+- load level for player 0 only
+- when a player comes active
+- after death
+
+
+
+
+
+
+----------------------------------------------------------
+make a new list of where I call init_player()
+----------------------------------------------------------
+
+initial_setup()
+---------------
+// init all players
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+
+
+
+
+server init()
+-------------
+// initialize all players
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+players[0].control_method = 3; // server_local_control
+ima_server = 1;
+
+server exit()
+-------------
+// reset player data
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+
+client init()
+-------------
+// initialize all players
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+
+client_exit()
+-------------
+// reset player data
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1; // local_control
+active_local_player = 0;
+
+
+
+
+server finds new player slot after rx CJON
+------------------------------------------
+init_player(cn, 1);
+players[cn].color = color;
+players[cn].control_method = 2; //server client view only
+players1[cn].who = who;
+players1[cn].server_last_sdak_rx_frame_num = frame_num + 200;
+players1[cn].game_move_entry_pos = game_move_entry_pos; // so server wont try to sync any moves less than this
+
+
+load_gm()
+---------
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].control_method = 1;
+
+
+after run demo game from menu
+----------------------------
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+active_local_player = 0;
+get_config_values(); // restore player color from config file
+
+
+demo_mode() on exiting
+----------------------
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+active_local_player = 0;
+get_config_values(); // restore player color from config file
+
+
+
+
+not sure about this one:
+
+its run every time start_mode loads a level
+- new game
+- level done
+- NOT run game
+
+
+i agree its not needed for run game, because load_gm took care of that
+
+what does new game set up before start mode?? nothing
+
+i should bring back start_mode 3
+
+
+redo start modes....         start_mode = 1;
+         game_exit = 0;
+
+1 = new game (single player) do init 1
+2 = level done (do init 2)
+
+
+3 = new game (client
+
+9 = file play
+
+done...
+
+now make start mode 1 clear everything
+
+I can't beacuse it is called by single player start as well as server and client
+
+
+
+
+proc_start_mode()
+-----------------
+if (start_mode == 1) // skip this for run demo game
+{
+   // reset player data
+   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 2);
+
+
+
+
+
+
+
+
+------------------------------------------------------------------
+major refactor...
+------------------------------------------------------------------
+
+
+I want to have more of my start up code in pm_main.
+
+
+change its name to game_loop
+
+make it take a variable..start_mode
+
+make it set game_exit = 0 on entry
+
+
+
+make it so that all the times its called for each mode, the code is common
+
+make it so that more of my player setup is doen there.
+
+
+
+
+how many modes can it be started in??
+
+
+1 single player new game
+2 server new game
+3 client new game
+5 level done
+7 resume single player
+9 run demo mode
+
+also make some common exit code
+
+
+
+
+list where called:
+-demo mode
+
+game menu x 6
+-new
+-resume
+-server
+-client
+-after level editor
+-run demo
+
+
+command line x 7
+- client 1 arg
+- server 1 arg
+- client 2 arg
+- server 2 arg
+
+- immed run 1 arg
+- immed run 2 arg
+
+- run demo
+
+
+
+---------------------------------------------------------
+
+game_exit = 0 set in game_loop start
+rename pm_main to game_loop and pass it start_mode
+then in turn pass start mode to proc_start_mode()
+
+I can make start mode totally local to game_loop, but how will I deal with level_done setting it??
+
+for now just set global to passed...
+
+void game_loop(int passed_start_mode)
+{
+   start_mode = passed_start_mode;
+   game_exit = 0;
+
+this is all because of proc_level_done which also sets start_mode
+
+game_loop()
+   proc_controllers()
+      proc_game_move()
+         proc_level_done()
+
+ill fix this later....
+
+next move this to proc_start_mode()
+
+
+   if (start_mode == 2) // server
+   {
+      if (!server_init())
+      {
+         server_exit();
+         game_exit = 0;
+      }
+   }
+
+   if (start_mode == 3) // client
+   {
+      if (!client_init())
+      {
+         client_exit();
+         game_exit = 0;
+      }
+   }
+
+
+make common exit code after
+
+void game_loop(int passed_start_mode)
+{
+   while (!game_exit) // game loop
+   {
+   }
+
+   // common exit stuff...
+   if (ima_server) server_exit();
+   if (ima_client) client_exit();
+}
+
+
+
+-------------------------------------------------------
+now client init is only called once in start mode...
+now client exit is called only 2 times...
+once if client init fails
+once at end of game loop if ima_client
+
+same for server...
+
+
+test...join good.
+
+
+server can't re-start...failed to open listening channel....
+
+
+is something setting ima_server to 0 before game_loop ends??
+
+yes...proc_game_move when player goes inactive..
+remove all stuff from there that messes with client or server player stuff
+do it at end of game_loop()
+
+done...
+
+when client is waiting to join set level display to start pos...
+
+
+moved player init to proc_start_mode common like this:
+
+   if (start_mode == 5) // start new level after level done
+   {
+      for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 2);
+   }
+   else // 1, 2, 3, 9 - full player data reset
+   {
+      for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+   }
+
+
+then removed from:
+client init()
+server_init()
+load_gm()
+
+
+----------
+test
+single player good
+client join good
+
+client needs to set player pos while waiting to join...fixed
+in load_level() set all players pos not just 0
+
+client seems to take longer to join now...
+
+
+
+
+
+----------------------------------------------------------
+make a new list of where I call init_player()
+----------------------------------------------------------
+
+initial_setup()
+---------------
+// init all players
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+
+
+proc_start_mode()
+------------------
+if (start_mode == 5) // start new level after level done
+{
+	for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 2);
+}
+else // 1, 2, 3, 9 - full player data reset
+{
+	for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+	players[0].active = 1;
+}
+
+
+server exit()
+-------------
+// reset player data
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+
+client_exit()
+-------------
+// reset player data
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1; // local_control
+active_local_player = 0;
+
+server finds new player slot after rx CJON
+------------------------------------------
+init_player(cn, 1);
+players[cn].color = color;
+players[cn].control_method = 2; //server client view only
+players1[cn].who = who;
+players1[cn].server_last_sdak_rx_frame_num = frame_num + 200;
+players1[cn].game_move_entry_pos = game_move_entry_pos; // so server wont try to sync any moves less than this
+
+
+after run demo game from menu
+----------------------------
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+active_local_player = 0;
+get_config_values(); // restore player color from config file
+
+
+demo_mode() on exiting
+----------------------
+for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+players[0].active = 1;
+active_local_player = 0;
+get_config_values(); // restore player color from config file
+
+I am pretty confident about this....
+
+----------------------------------------------------------------------------------
+
+start_mode...
+
+start_mode when calling game_loop only need to be processed the first time
+EXCEPT for level done...
+
+why not just make an exception for that...
+
+make level_done have a new value of 2...
+
+in game_loop:
+
+if (level_done == 2) proc_start_mode(5);
+
+before game_loop while
+
+start_mode is no longer global and has a very small scope
+
+
+----------------------------------------------------------------------------------
+resume_allowed
+
+resume_allowed = 0; // set by default in proc_start_mode()
+
+only one place set to 1
+- exit game in single player mode
+
+only 2 places set to 0
+- start level changes
+- level is loaded
+
+
+-----------------------------------------------------------
+
+demo mode wont quit...
+esc just starts new demo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

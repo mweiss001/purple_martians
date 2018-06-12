@@ -67,10 +67,8 @@ int frame_speed = 40;
 int frame_num;
 
 // global game control
-int start_mode = 0;
 int level_done = 0;
 int next_level = 0;
-
 int game_exit = 1;
 
 // some global strings
@@ -719,17 +717,13 @@ void game_menu(void)
       // this must be before 3 because sometimes 3 calls 4 immed
       if ((top_menu_sel == 4) && (resume_allowed)) // resume game
       {
-         start_mode = 0;
          al_set_timer_count(fps_timer, frame_num); // sync timer_frame_num to actual
-         game_exit = 0;
-         pm_main();
+         game_loop(7); // resume
       }
       if (top_menu_sel == 3) // start new game
       {
          play_level = start_level;
-         start_mode = 1; // load level and start
-         game_exit = 0;
-         pm_main();
+         game_loop(1); // single player game
       }
       if (top_menu_sel == 2) // start level
       {
@@ -743,7 +737,6 @@ void game_menu(void)
          }
          else
          {
-            resume_allowed = 0;
             top_menu_sel = 15; // dummy mode to redraw
          }
       }
@@ -752,25 +745,11 @@ void game_menu(void)
       if (top_menu_sel == 5) // host network game
       {
          play_level = start_level;
-         if (server_init())
-         {
-            start_mode = 1; // load level and start
-            game_exit = 0;
-            pm_main();
-         }
-         server_exit();
-         resume_allowed = 0;
+         game_loop(2); // server game
       }
       if (top_menu_sel == 6) // join network game
       {
-         if (client_init())
-         {
-            start_mode = 1; // load level and start
-            game_exit = 0;
-            pm_main();
-         }
-         client_exit();
-         resume_allowed = 0;
+         game_loop(3); // client game
       }
       #endif
 
@@ -779,14 +758,12 @@ void game_menu(void)
       if (top_menu_sel == 8) // level editor
       {
          play_level = edit_menu(start_level);
-         start_mode = 1;
-         game_exit = 0;
 
          // restore menu items
          set_start_level(play_level);
          set_speed();
 
-         pm_main();
+         game_loop(1); // single player game
       }
 
       if (top_menu_sel == 10) help(""); // help
@@ -999,9 +976,7 @@ void game_menu(void)
             {
                if (load_gm("-"))
                {
-                  start_mode = 2; // load level and start, but skip game array erasing
-                  game_exit = 0;
-                  pm_main();
+                  game_loop(9); // demo game
 
                   // reset player data
                   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
@@ -1155,10 +1130,8 @@ void game_menu(void)
             if (start_level > 399) start_level = 399;
             set_start_level(start_level);
             load_level(start_level, 0);
-            resume_allowed = 0;
          }
       }
-
       if ( (top_menu_sel >= 200) && (top_menu_sel < 300) )
       {
          // left
@@ -1172,11 +1145,8 @@ void game_menu(void)
             if (start_level < 1) start_level = 1;
             set_start_level(start_level);
             load_level(start_level, 0);
-            resume_allowed = 0;
          }
-
       }
-
    } while (top_menu_sel != 1); // end of game menu
 }
 
@@ -1279,33 +1249,19 @@ int main(int argument_count, char **argument_array)
          #endif
 
          #ifdef NETPLAY
+         // no server specified; use the one from the config file
          if (strcmp(argument_array[1],"-c") == 0 )
          {
             show_splash_screen = 0;
-            // no server specified; use the one from the config file
-            if (client_init())
-            {
-               start_mode = 1; // load level and start
-               game_exit = 0;
-               pm_main();
-            }
-            client_exit();
+            game_loop(3); // client game
             fast_exit(0);
-
          }
-
+         // no start level specified; use play level from config file
          if (strcmp(argument_array[1],"-s") == 0 )
          {
             show_splash_screen = 0;
-            // no start level specified; use play level from config file
             play_level = start_level;
-            if (server_init())
-            {
-               start_mode = 1; // load level and start
-               game_exit = 0;
-               pm_main();
-            }
-            server_exit();
+            game_loop(2); // server game
             fast_exit(0);
          }
          #endif
@@ -1320,9 +1276,7 @@ int main(int argument_count, char **argument_array)
             play_level = pl;
             set_start_level(pl);
             printf("started game on level:%d\n", play_level);
-            start_mode = 1; // load level and start
-            game_exit = 0;
-            pm_main();
+            game_loop(1); // single player game
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[1]);
 
@@ -1341,9 +1295,7 @@ int main(int argument_count, char **argument_array)
                play_level = pl;
                set_start_level(pl);
                printf("started game on level:%d\n", play_level);
-               start_mode = 1; // load level and start
-               game_exit = 0;
-               pm_main();
+               game_loop(1); // single player game
             }
             else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
          }
@@ -1368,15 +1320,11 @@ int main(int argument_count, char **argument_array)
          if (strcmp(argument_array[1],"-f") == 0 )
          {
             show_splash_screen = 0;
-
             sprintf(msg, "savegame/%s", argument_array[2] );
-
             if (load_gm(msg))
             {
                printf("running game file:%s\n", argument_array[2]);
-               start_mode = 2; // load level and start, but skip game array erasing
-               game_exit = 0;
-               pm_main();
+               game_loop(9); // demo game
                fast_exit(0);
             }
          }
@@ -1386,32 +1334,19 @@ int main(int argument_count, char **argument_array)
             show_splash_screen = 0;
             sprintf(m_serveraddress, "%s", argument_array[2]);
             save_config();
-            if (client_init())
-            {
-               start_mode = 1; // load level and start
-               game_exit = 0;
-               pm_main();
-             }
-             client_exit();
-             fast_exit(0);
+            game_loop(3); // client game
+            fast_exit(0);
          }
          if (strcmp(argument_array[1],"-s") == 0 )
          {
             show_splash_screen = 0;
             play_level = atoi(argument_array[2]);
-            if (server_init())
-            {
-               start_mode = 1; // load level and start
-               game_exit = 0;
-               pm_main();
-            }
-            server_exit();
+            game_loop(2); // server game
             fast_exit(0);
          }
          #endif
 
       } // end of argument_count == 3
-
       game_menu(); // this is where it all happens
    } // end of if initial setup
 
@@ -1420,7 +1355,6 @@ int main(int argument_count, char **argument_array)
    final_wrapup();
    exit(0);
 }
-
 
 
 int copy_files_to_clients(int exe_only)

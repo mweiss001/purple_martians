@@ -66,52 +66,109 @@ void proc_level_done(void)
       blind_save_game_moves(1);
       save_log_file();
       play_level = next_level;
-      start_mode = 1;
+      level_done = 2; // level done
       stamp();
    }
 }
 
 
 // start modes:
-// 0 = ignore and run game
-// 1 = load level and run
-// 2 = load level and run (demo from file)
+// 1 single player new game
+// 2 server new game
+// 3 client new game
+// 5 level done
+// 7 resume single player
+// 9 run demo mode
 
-void proc_start_mode(void)
+
+void proc_start_mode(int start_mode)
 {
-	if (!load_level(play_level,0))
-	{
-		game_exit = 1;
-		resume_allowed = 0;
-	}
-
-
-   if (start_mode == 1) // skip this for run demo game
+   if (start_mode == 7) // resume single player game
    {
-      // reset game_move array
+      al_set_timer_count(fps_timer, frame_num); // set fps_timer count to frame_num
+      start_music(1); // resume theme
+      stimp();
+      return;
+   }
+
+   if (start_mode == 5) // start new level after level done
+   {
+      for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 2);
+   }
+   else // 1, 2, 3, 9 - full player data reset
+   {
+      for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+      players[0].active = 1;
+   }
+
+
+   if (start_mode == 9) players[0].control_method = 1;
+
+
+
+
+
+   if (start_mode == 2) // server
+   {
+      if (!server_init())
+      {
+         server_exit();
+         game_exit = 0;
+         return;
+      }
+   }
+
+   if (start_mode == 3) // client
+   {
+      if (!client_init())
+      {
+         client_exit();
+         game_exit = 0;
+         return;
+      }
+   }
+
+   // clear game moves array, except for demo
+   if (start_mode != 9)
+   {
       for (int x=0; x<1000000; x++)
          for (int y=0; y<4; y++)
             game_moves[x][y] = 0;
       game_move_entry_pos = 0;
-
-      // add initial level info to game_move array (unless client)
-      if (!ima_client) // server or local
-      {
-         add_game_move(0, 0, play_level, 0);       // [00] game_start
-         add_game_move(0, 1, 0, players[0].color); // [01] player_state and color
-      }
-      if (L_LOGGING)
-      {
-         sprintf(msg,"LEVEL %d STARTED", play_level);
-         add_log_entry_header(10, 0, msg, 3);
-         log_player_array();
-      }
-
-      // reset player data
-      for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 2);
-
    }
 
+
+   // add initial level info to game_moves array
+   // only for modes:
+   // 1 single player new game
+   // 2 server new game
+   // 5 with !ima_client
+   // don't do it for client (never enter any game moves on client)
+   // don't do for demo
+   // don't do for resume
+   if ( (start_mode == 1) || (start_mode == 3) || ((start_mode == 5) && (!ima_client)) )
+   {
+      add_game_move(0, 0, play_level, 0);       // [00] game_start
+      add_game_move(0, 1, 0, players[0].color); // [01] player_state and color
+   }
+
+
+
+   // all modes from here on
+
+
+	if (!load_level(play_level, 0))
+	{
+		game_exit = 1;
+      return;
+	}
+
+   if (L_LOGGING)
+   {
+      sprintf(msg,"LEVEL %d STARTED", play_level);
+      add_log_entry_header(10, 0, msg, 3);
+      log_player_array();
+   }
 
    clear_bullets();
    clear_keys();
@@ -119,7 +176,6 @@ void proc_start_mode(void)
    show_player_join_quit_timer = 0;
    level_done = 0;
    bottom_msg = 0;
-   start_mode = 0;
 
    // reset frame_num and fps_timer count
 	frame_num = 0;
@@ -132,18 +188,13 @@ void proc_start_mode(void)
    stimp();
 }
 
-void pm_main(void) // the famous game loop!
+void game_loop(int start_mode)
 {
-   if (!start_mode) // resume
-   {
-      stimp();
-      al_set_timer_count(fps_timer, frame_num); // set fps_timer count to frame_num
-      start_music(1); // resume theme
-   }
+   game_exit = 0;
+   proc_start_mode(start_mode);
    while (!game_exit) // game loop
    {
-      if (start_mode) proc_start_mode();
-
+      if (level_done == 2) proc_start_mode(5);
       proc_scale_factor_change();
       move_lifts(0);
       proc_item_collision();
@@ -185,6 +236,8 @@ void pm_main(void) // the famous game loop!
          al_flip_display();
       }
    }
+   if (ima_server) server_exit();
+   if (ima_client) client_exit();
    stop_sound();
    stamp();
 }
