@@ -1561,15 +1561,12 @@ void demo_mode(void)
 
       if (load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
       {
-         start_mode = 2; // load level and start, but skip game array erasing
-         game_exit = 0;
-         pm_main();
+         game_loop(9); // demo game
       }
       else demo_mode_on = 0;
    }
 
    load_level(start_level, 0);
-   resume_allowed = 0;
 
    // reset player data
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);

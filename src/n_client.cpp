@@ -250,8 +250,6 @@ int client_init_join(void)
          if (cp == 99) SJON = 99; // server full, join denied
          else // join allowed
          {
-            // initialize all players
-            for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
             active_local_player = cp;
             players[cp].control_method = 4;
             players[cp].color = color;
@@ -317,6 +315,8 @@ void client_exit(void)
 {
    ClientExitNetwork();
    ima_client = 0;
+   // reset player data
+   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
    players[0].active = 1; // local_control
    active_local_player = 0;
 }
@@ -546,6 +546,8 @@ void client_block_until_initial_state_received(void)
 
    // set holdoff 200 frames in future so client won't try to drop while syncing
    players1[p].client_last_sdat_rx_frame_num = frame_num + 200;
+
+
 
    // send ack up to this point so server won't try to send us previous game moves
    Packet("sdak");

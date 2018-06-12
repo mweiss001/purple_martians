@@ -245,7 +245,7 @@ int load_level(int level_to_load, int display)
    display = 0; // force display on or off
    int error_logging = 0;
    valid_level_loaded = 0;
-
+   resume_allowed = 0;
    int level_load_error = 0;
    int loop, ch, c, x, y;
    char buff[2000];
@@ -500,7 +500,7 @@ int load_level(int level_to_load, int display)
       if (error_logging) printf("blocks drawn\n");
       reset_animation_sequence_frame_nums(0);
       if (error_logging) printf("ans seq reset\n");
-      get_player_start_pos(0);
+      for (int p=0; p<NUM_PLAYERS; p++) set_player_start_pos(p);
       if (error_logging) printf("got start\n");
       return 1;
    }

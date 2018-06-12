@@ -103,7 +103,6 @@ extern int frame_speed;
 extern int frame_num;
 
 // global game control
-extern int start_mode;
 extern int game_exit;
 extern int level_done;
 extern int next_level;
@@ -1134,8 +1133,8 @@ void spline_adjust(void);
 // zloop.h
 void proc_frame_delay(void);
 void proc_level_done(void);
-void proc_start_mode(void);
-void pm_main(void);
+void proc_start_mode(int start_mode);
+void game_loop(int start_mode);
 
 // zmain.h
 void final_wrapup(void);
@@ -1161,7 +1160,7 @@ void set_key_menu(int menu, int p, int start_row);
 int pmenu(int menu_num);
 
 // zplayer.h
-void get_player_start_pos(int p);
+void set_player_start_pos(int p);
 void proc_player_health(void);
 void player_move(void);
 void draw_player(int p);

@@ -338,17 +338,9 @@ int load_gm(const char *sfname )
                game_moves[x][y] = atoi(buff);
             }
          fclose(filepntr);
-
          // set play level
-         for (int x=0; x<game_move_entry_pos; x++)
-            if (game_moves[x][0] == 0) // frame_num 0
-               if (game_moves[x][1] == 0) // type 0
-               {
-                  play_level = game_moves[x][2];
-                  break;
-               }
-         // init all
-         for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+         play_level = game_moves[0][2];
+
          players[0].control_method = 1;
          return 1;
       }
