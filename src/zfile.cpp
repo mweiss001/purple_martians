@@ -265,17 +265,13 @@ int load_gm(const char *sfname )
    if ((!user_cancelled) && (!bad_filename))
    {
       //printf("processing file %s\n", fname);
-      //erase old gm
-      for (int x=0; x<10000; x++)
-         for (int y=0; y<4; y++)
-            game_moves[x][y] = 0;
-      game_move_entry_pos = 0;
+
+      clear_game_moves();
 
       int loop, ch;
       char buff[2000];
       if ((filepntr=fopen(fname, "r")))
       {
-
          // first get number of entries
          loop = 0;
          ch = fgetc(filepntr);
@@ -338,10 +334,7 @@ int load_gm(const char *sfname )
                game_moves[x][y] = atoi(buff);
             }
          fclose(filepntr);
-         // set play level
-         play_level = game_moves[0][2];
-
-         players[0].control_method = 1;
+         play_level = game_moves[0][2]; // set play level
          return 1;
       }
    }

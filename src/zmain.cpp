@@ -109,7 +109,7 @@ int get100_x, get100_y; // used by edit functions
 // ------------------------------------------------
 // ------------ game moves array ------------------
 // ------------------------------------------------
-int game_moves[1000000][4];
+int game_moves[GAME_MOVES_SIZE][4];
 int game_move_entry_pos = 0;
 int game_move_current_pos = 0; // for savegame running only
 

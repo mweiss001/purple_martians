@@ -327,8 +327,6 @@ int server_init(void)
    ServerBroadcast(packetbuffer, packetsize);
 
 
-   frame_num = 0;  // just in case its not
-   players[0].active = 1;
    players[0].control_method = 3; // server_local_control
    ima_server = 1;
    sprintf(players1[0].hostname, "%s", local_hostname);
@@ -510,7 +508,7 @@ void server_proc_player_drop(void)
          if ((players[p].active) && (players1[p].server_sync > 100))
          {
             //printf("[%4d] server_sync:[%4d] drop p:%d \n", frame_num, players1[p].server_sync, p);
-            add_game_move(frame_num + 4, 1, p, 71); // make client inactive (reason sync > 100)
+            add_game_move(frame_num + 4, 1, p, 70); // make client inactive (reason sync > 100)
 
             sprintf(msg,"Server dropped player:%d (server sync > 100)", p);
             if (L_LOGGING_NETPLAY) add_log_entry_header(10, p, msg, 1);
@@ -540,33 +538,24 @@ void server_proc_cdat_packet(void)
    // keep track of the minimum c_sync
    if (c_sync < players1[p].server_game_move_sync_min) players1[p].server_game_move_sync_min = c_sync;
 
-   char tmsg1[100];
+   char tmsg1[100], tmsg2[100];
    sprintf(tmsg1,"rx cdat p:%d client_pc:[%d] c_sync:[%d]", p, fn, c_sync );
-   char tmsg2[100];
    sprintf(tmsg2,"\n");
 
-   // this special case here is to fix bug that occurs when server_lead_frames > 0, and quit move doesn't get synced back to the client
-   if (cm == 127) // client quit
+   if (c_sync >= 0) add_game_move(fn, 5, p, cm); // add to game_move array
+   else                                          // unless late, then drop and inc error
    {
-      add_game_move(fn+2, 5, p, cm);  // put in future
-      sprintf(tmsg2,"<-- player:%d quit\n", p);
-   }
-   else
-   {
-      if (c_sync >= 0) add_game_move(fn, 5, p, cm); // add to game_move array
-      else                                          // unless late, then drop and inc error
-      {
-         players1[p].server_game_move_sync_err++;
-         sprintf(tmsg2, "<--ERROR! (total errors:%d)\n", players1[p].server_game_move_sync_err);
+      players1[p].server_game_move_sync_err++;
+      sprintf(tmsg2, "<--ERROR! (total errors:%d)\n", players1[p].server_game_move_sync_err);
 
-         Packet("serr"); // server error
-         PacketPut1ByteInt(1); // error type 1
-         PacketPut4ByteInt(frame_num);
-         PacketPut4ByteInt(c_sync);
-         PacketPut4ByteInt(players1[p].server_game_move_sync_err);
-         ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
-      }
+      Packet("serr"); // server error
+      PacketPut1ByteInt(1); // error type 1
+      PacketPut4ByteInt(frame_num);
+      PacketPut4ByteInt(c_sync);
+      PacketPut4ByteInt(players1[p].server_game_move_sync_err);
+      ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
    }
+
    sprintf(msg, "%s %s", tmsg1, tmsg2);
    if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
 }
@@ -614,12 +603,9 @@ void server_proc_sdak_packet(void)
 {
    int p = PacketGet1ByteInt();
    int client_fn = PacketGet4ByteInt();
-   int new_entry_pos = PacketGet4ByteInt();
+   players1[p].game_move_entry_pos = PacketGet4ByteInt(); // mark as rx'ed by setting new entry pos
    players1[p].stdf_late = PacketGet4ByteInt();
    players1[p].frames_skipped = PacketGet4ByteInt();
-
-   // mark as rx'ed by setting new entry pos
-   players1[p].game_move_entry_pos = new_entry_pos;
 
    // set server_sync in player struct
    players1[p].server_sync = frame_num - client_fn;
@@ -627,17 +613,19 @@ void server_proc_sdak_packet(void)
    // this is used to see if client is still alive
    players1[p].server_last_sdak_rx_frame_num = frame_num;
 
-   sprintf(msg,"rx sdak p:%d nep:[%d] server_sync:[%d] frames skipped:%d\n", p, new_entry_pos, players1[p].server_sync, players1[p].frames_skipped);
+   sprintf(msg,"rx sdak p:%d nep:[%d] server_sync:[%d] frames skipped:%d\n", p, players1[p].game_move_entry_pos, players1[p].server_sync, players1[p].frames_skipped);
    if (L_LOGGING_NETPLAY_sdak) add_log_entry2(39, p, msg);
 
-   if (--players1[p].made_active_holdoff < 0) players1[p].made_active_holdoff = 0;
-
-   if ((!players1[p].made_active_holdoff) && (players[p].active == 0) && (players[p].control_method == 2) && (players1[p].server_sync < 4) && (players1[p].server_sync > -2))
+   if ((!players[p].active) && (players[p].control_method == 2)) // inactive client chasing for lock
    {
-      players1[p].made_active_holdoff = 6;
-      add_game_move(frame_num + 4, 1, p, players[p].color);
-      sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
-      if (L_LOGGING_NETPLAY_JOIN) add_log_entry2(11, p, msg);
+      if (players1[p].made_active_holdoff) players1[p].made_active_holdoff--;
+      else if ((players1[p].server_sync < 4) && (players1[p].server_sync > -2))
+      {
+         add_game_move(frame_num + 4, 1, p, players[p].color);
+         players1[p].made_active_holdoff = 6;
+         sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
+         if (L_LOGGING_NETPLAY_JOIN) add_log_entry2(11, p, msg);
+      }
    }
 }
 
@@ -654,12 +642,12 @@ void server_proc_CJON_packet(int who)
       add_log_entry_centered_text(11, 0, 76, "", "+", "-");
       add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
    }
+   // find empty player slot
    int cn = 99;
-   // find first empty player slot
-   for (int q=0; q<NUM_PLAYERS; q++)
-      if ((players[q].active == 0) && (players[q].control_method == 0))
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active == 0) && (players[p].control_method == 0))
       {
-         cn = q;
+         cn = p;
          break;
       }
    if (cn == 99) // no empty player slots found
@@ -738,9 +726,7 @@ void server_proc_CJON_packet(int who)
 void server_control() // this is the main server loop to process packet send and receive
 {
    if (frame_num == 0) reset_states(); // for stdf
-
    ServerListen();      // listen for new client connections
-
    int who;
    while((packetsize = ServerReceive(packetbuffer, &who)))
    {
@@ -748,14 +734,11 @@ void server_control() // this is the main server loop to process packet send and
       if(PacketRead("stak")) server_proc_stak_packet();
       if(PacketRead("sdak")) server_proc_sdak_packet();
       if(PacketRead("CJON")) server_proc_CJON_packet(who);
-  }
-
+   }
    server_send_sdat();  // send sdats to sync game_move data to clients
    server_send_stdf();  // send dif states to ensure clients have same state
-
    server_proc_player_drop();  // check to see if we need to drop clients
-
-   for(int p=0; p<NUM_PLAYERS; p++) if (players[p].active) process_bandwidth_counters(p);
+   for (int p=0; p<NUM_PLAYERS; p++) if (players[p].active) process_bandwidth_counters(p);
 }
 
 void server_local_control(int p)
@@ -767,6 +750,6 @@ void server_local_control(int p)
       players1[p].old_comp_move = players1[p].comp_move;
       add_game_move(fn, 5, p, players1[p].comp_move);
    }
-   if (level_done) add_game_move(fn, 6, 0, 0);             // insert level done into game move
+   if (level_done == 1) add_game_move(fn, 6, 0, 0);        // insert level done into game move
 }
 #endif

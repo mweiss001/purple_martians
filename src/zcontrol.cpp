@@ -588,22 +588,20 @@ void add_game_move(int frame, int type, int data1, int data2)
       game_move_entry_pos++;
       return; // to exit immediately
    }
-   if ((type == 5) && (data2 == 127))        // special client exit move
+   if ((type == 5) && (data2 == 127)) // change menu key to player state inactive special move
    {
-      game_moves[game_move_entry_pos][0] = frame;
+      game_moves[game_move_entry_pos][0] = frame + 2; // add 2 frames so server has time to sync back to client before dropping
       game_moves[game_move_entry_pos][1] = 1;     // type 1; player state
       game_moves[game_move_entry_pos][2] = data1; // player num
       game_moves[game_move_entry_pos][3] = 64;    // inactive
       game_move_entry_pos++;
       return; // to exit immediately
    }
-
    game_moves[game_move_entry_pos][0] = frame;
    game_moves[game_move_entry_pos][1] = type;
    game_moves[game_move_entry_pos][2] = data1;
    game_moves[game_move_entry_pos][3] = data2;
    game_move_entry_pos++;
-
 }
 
 void proc_player_state_game_move(int x)
@@ -654,18 +652,17 @@ void proc_player_state_game_move(int x)
    }
 
 
+
+
    // player becomes inactive
    if (val > 63)
    {
       players1[p].quit_reason = val;
       players1[p].quit_frame = frame_num;
 
-
       // player never became active
       if ((players[p].active == 0) && (players[p].control_method == 2))
       {
-         sprintf(msg,"PLAYER:%d never became ACTIVE", p);
-         add_log_entry_header(10, p, msg, 1);
          players1[p].join_frame = frame_num;
          players1[p].quit_reason = 74;
          players[p].control_method = 9; // prevent re-use of this player number in this level
@@ -692,29 +689,11 @@ void proc_player_state_game_move(int x)
             if (!still_active) game_exit = 1;
          }
 
-
-         if (L_LOGGING_NETPLAY)
-         {
-            sprintf(msg,"PLAYER:%d became INACTIVE", p);
-            add_log_entry_header(10, p, msg, 1);
-            sprintf(msg,"Reason: unknown");
-            if (players1[p].quit_reason == 64) sprintf(msg,"Reason: menu key pressed");
-            if (players1[p].quit_reason == 70) sprintf(msg,"Reason: dropped by server (server sync > 100)");
-            if (players1[p].quit_reason == 71) sprintf(msg,"Reason: dropped by server (no sdak received for 100 frames)");
-            add_log_entry_header(10, p, msg, 1);
-         }
-
          // local client player quit
          if (players[p].control_method == 4)
          {
             if (val == 64) players1[p].quit_reason = 90;
             game_exit = 1;
-            if (L_LOGGING_NETPLAY)
-            {
-               sprintf(msg,"Local Client(%s) quit the game.",local_hostname);
-               add_log_entry_header(10, p, msg, 1);
-               log_ending_stats();
-            }
          }
 
          // local server player quit
@@ -722,12 +701,6 @@ void proc_player_state_game_move(int x)
          {
             if (val == 64) players1[p].quit_reason = 91;
             game_exit = 1;
-            if (L_LOGGING_NETPLAY)
-            {
-               sprintf(msg,"Local Server(%s) quit the game.",local_hostname);
-               add_log_entry_header(10, p, msg, 1);
-               log_ending_stats_server();
-            }
          }
 
          // remote server player quit
@@ -735,12 +708,6 @@ void proc_player_state_game_move(int x)
          {
             if (val == 64) players1[p].quit_reason = 92;
             game_exit = 1;
-            if (L_LOGGING_NETPLAY)
-            {
-               sprintf(msg,"Remote Server ended the game.");
-               add_log_entry_header(10, p, msg, 1);
-               log_ending_stats();
-            }
          }
 
          // remote player quit
@@ -749,13 +716,40 @@ void proc_player_state_game_move(int x)
             players[p].active = 0;
             players[p].control_method = 9; // prevent re-use of this player number in this level
             players1[p].who = 99;
-
-            // only makes sense to show this if not local player
-            show_player_join_quit_timer = 60;
-            show_player_join_quit_player = p;
-            show_player_join_quit_jq = 0;
          }
-      } // end of if player active
+         show_player_join_quit_timer = 60;
+         show_player_join_quit_player = p;
+         show_player_join_quit_jq = 0;
+      }
+
+
+      if (L_LOGGING_NETPLAY)
+      {
+         sprintf(msg,"PLAYER:%d became INACTIVE", p);
+         add_log_entry_header(10, p, msg, 1);
+
+         if (players1[p].quit_reason == 70) log_ending_stats();
+         if (players1[p].quit_reason == 71) log_ending_stats();
+         if (players1[p].quit_reason == 74) log_ending_stats();
+         if (players1[p].quit_reason == 90) log_ending_stats();
+         if (players1[p].quit_reason == 91) log_ending_stats_server();
+         if (players1[p].quit_reason == 92) log_ending_stats();
+
+//
+//         sprintf(msg,"Reason: unknown");
+//         if (players1[p].quit_reason == 64) sprintf(msg,"Reason: menu key pressed");
+//         if (players1[p].quit_reason == 70) sprintf(msg,"Reason: dropped by server (server sync > 100)");
+//         if (players1[p].quit_reason == 71) sprintf(msg,"Reason: dropped by server (no sdak received for 100 frames)");
+//         if (players1[p].quit_reason == 74) sprintf(msg,"Reason: player never became active");
+//         if (players1[p].quit_reason == 90) sprintf(msg,"Reason: local client quit the game");
+//         if (players1[p].quit_reason == 91) sprintf(msg,"Reason: local server quit the game");
+//         if (players1[p].quit_reason == 92) sprintf(msg,"Reason: remote server ended the game");
+//         add_log_entry_header(10, p, msg, 1);
+//
+//         if (players1[p].quit_reason == 90) log_ending_stats();
+//         if (players1[p].quit_reason == 91) log_ending_stats_server();
+//         if (players1[p].quit_reason == 92) log_ending_stats();
+      }
    }  // end of player becomes inactive
 }
 
@@ -1031,7 +1025,7 @@ int proc_controllers()
             {
                if (players[p].control_method == 0) // local single player control
                {
-                  if (level_done) add_game_move(frame_num, 6, 0, 0); // insert level done into game move
+                  if (level_done == 1) add_game_move(frame_num, 6, 0, 0); // insert level done into game move
                   set_comp_move_from_player_key_check(p); // but don't set controls !!!
                   if (players1[p].comp_move != players1[p].old_comp_move)
                   {
