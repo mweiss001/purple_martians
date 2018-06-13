@@ -46,30 +46,7 @@ show dif
 tell about dif from start and regular dif
 
 
-
-
-start mode
-
-
-
-
-
-
-
 netplay - join TODO:
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

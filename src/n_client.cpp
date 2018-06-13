@@ -236,24 +236,24 @@ int client_init_join(void)
       if (key[ALLEGRO_KEY_ESCAPE]) SJON = 98; // emergency exit
       if ((packetsize = ClientReceive(packetbuffer)) && (PacketRead("SJON")))
       {
-         SJON = 1;
          int pl = PacketGet2ByteInt();   // play level
-         int server_SJON_frame_num      =  PacketGet4ByteInt();
-         int server_game_move_entry_pos =  PacketGet4ByteInt();
+         int server_SJON_frame_num  =  PacketGet4ByteInt();
+         int server_game_move_entry_pos = PacketGet4ByteInt();
          int z = PacketGet1ByteInt();      // frame rate
-         int cp = PacketGet1ByteInt();     // client player number
+         int p = PacketGet1ByteInt();      // client player number
          int color = PacketGet1ByteInt();  // client player color
-         int dmp = PacketGet1ByteInt();
-         int dmd = PacketGet1ByteInt();
-         int spb = PacketGet1ByteInt();
+         int dmp = PacketGet1ByteInt();    // deathmatch_pbullets
+         int dmd = PacketGet1ByteInt();    // deathmatch_pbullets_damage
+         int spb = PacketGet1ByteInt();    // suicide_pbullets
 
-         if (cp == 99) SJON = 99; // server full, join denied
+         if (p == 99) SJON = 99; // server full, join denied
          else // join allowed
          {
-            active_local_player = cp;
-            players[cp].control_method = 4;
-            players[cp].color = color;
-            players1[cp].game_move_entry_pos = server_game_move_entry_pos;
+            SJON = 1;
+            active_local_player = p;
+            players[p].control_method = 4;
+            players[p].color = color;
+            players1[p].game_move_entry_pos = server_game_move_entry_pos;
             ima_client = 1;
 
             frame_num = 0;   // just in case its not
@@ -273,7 +273,7 @@ int client_init_join(void)
                add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                sprintf(msg,"Frame Rate:[%d]", z);
                add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-               sprintf(msg,"Player Number:[%d]", cp);
+               sprintf(msg,"Player Number:[%d]", p);
                add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                sprintf(msg,"Player Color:[%d]", color);
                add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
@@ -536,7 +536,7 @@ void client_block_until_initial_state_received(void)
    {
       if ((packetsize = ClientReceive(packetbuffer)) && (PacketRead("stdf"))) done = client_process_stdf_packet();
       proc_controllers();
-      if (key[ALLEGRO_KEY_ESCAPE]) fast_exit(65); // in case we get trapped here and need a way out
+      if (key[ALLEGRO_KEY_ESCAPE]) fast_exit(64); // in case we get trapped here and need a way out
    }
    client_apply_diff();
 
@@ -723,14 +723,16 @@ void client_proc_player_drop(void)
              add_log_entry_header(10, p, tmsg, 1);
           }
 
-          float stretch = ( (float)SCREEN_W / (strlen(msg)*8)) - 1; // (SCREEN_W / text length*8) -1
+          float stretch = ( (float)SCREEN_W / (strlen(msg)*8)) - 1;
           int color = players[p].color;
           int y_pos = SCREEN_H/2;
           rtextout_centre(NULL, msg, SCREEN_W/2, y_pos, color, stretch, 0, 1);
           al_flip_display();
           al_rest(1);
           tsw();
-          fast_exit(75);
+          players1[p].quit_reason = 75;
+          log_ending_stats();
+          game_exit = 1;
        }
    }
 }

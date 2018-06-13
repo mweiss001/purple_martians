@@ -129,13 +129,7 @@ void proc_start_mode(int start_mode)
    }
 
    // clear game moves array, except for demo
-   if (start_mode != 9)
-   {
-      for (int x=0; x<1000000; x++)
-         for (int y=0; y<4; y++)
-            game_moves[x][y] = 0;
-      game_move_entry_pos = 0;
-   }
+   if (start_mode != 9) clear_game_moves();
 
 
    // add initial level info to game_moves array

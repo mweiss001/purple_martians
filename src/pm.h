@@ -144,7 +144,9 @@ extern int get100_x, get100_y;
 // ------------------------------------------------
 // ------------ game moves array ------------------
 // ------------------------------------------------
-extern int game_moves[1000000][4];
+#define GAME_MOVES_SIZE 1000000
+
+extern int game_moves[GAME_MOVES_SIZE][4];
 extern int game_move_entry_pos;
 extern int game_move_current_pos;
 
@@ -1031,6 +1033,7 @@ void blind_save_game_moves(int d);
 int load_gm(const char *sfname);
 
 // zfnx.h
+void clear_game_moves(void);
 void get_hostname(void);
 void make_palette(void);
 void m_err(const char * err_msg);

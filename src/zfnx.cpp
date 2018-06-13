@@ -1,6 +1,18 @@
 // zfnx.cpp
 #include "pm.h"
 
+
+void clear_game_moves(void)
+{
+   for (int x=0; x<GAME_MOVES_SIZE; x++)
+      for (int y=0; y<4; y++)
+         game_moves[x][y] = 0;
+   game_move_entry_pos = 0;
+   game_move_current_pos = 0;
+}
+
+
+
 void get_hostname(void)
 {
    sprintf(msg, "hostname");

@@ -60,8 +60,7 @@ void log_reason_for_client_quit(int p)
    char tmsg[80];
    sprintf(tmsg,"unknown");
    int r = players1[p].quit_reason;
-   if (r == 64) sprintf(tmsg,"player quit game with ESC");
-   if (r == 65) sprintf(tmsg,"player quit with F12");
+   if (r == 64) sprintf(tmsg,"player pressed ESC or menu key");
    if (r == 70) sprintf(tmsg,"server drop (server sync > 100)");
    if (r == 71) sprintf(tmsg,"server drop (no sdak for 100 frames)");
    if (r == 74) sprintf(tmsg,"client never became active");

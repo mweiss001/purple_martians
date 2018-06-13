@@ -23,9 +23,6 @@ void show_player_join_quit(void)
       if (jq == 0) sprintf(msg, "Player %d left the game!", p);
       if (jq == 1) sprintf(msg, "Player %d joined the game!", p);
       if (jq == 3) sprintf(msg, "Player %d DIED!", p);
-      if (jq == 4) sprintf(msg, "Player %d SYNC CHECK FAIL!", p);
-
-      if (jq == 5) sprintf(msg, "Player %d LOST SERVER CONNECTION", p);
 
       float stretch = ( (float)SCREEN_W / (strlen(msg)*8)) - 1; // (SCREEN_W / text length*8) -1
       float ratio = (float)t / 60;
@@ -901,7 +898,7 @@ void new_bmsg(const char *nb)
 
 void draw_bottom_msg()
 {
-   int type = 2;
+   int type = 1;
    if (type == 1) // old style may cause low fps, due to scaled drawing and target bitmap changes
    {
       if (--bottom_msg > 0)
@@ -910,7 +907,7 @@ void draw_bottom_msg()
          int nb = 8;    // NUM_BOTTOM_MSG_LINES
 
          float chs = 1.3; // current h size
-         float hss = .15;  // h size step
+         float hss = .20;  // h size step
 
          float cvs = 1.3; // current v size
          float vss = .15;  // v size step
@@ -918,7 +915,8 @@ void draw_bottom_msg()
          int cc = 15;  // current color
          int ci = 32;  // color inc use  only 16, 32, 48, 64 etc
 
-         float ypos = SCREEN_H - BORDER_WIDTH - (chs*8);
+         //float ypos = SCREEN_H - BORDER_WIDTH - (chs*8);
+         float ypos = SCREEN_H - (chs*8);
          for (a=0; a< nb; a++)
          {
             mtextout_centre(b_msg[a], SCREEN_W/2, (int)ypos, cvs, chs, cc);
