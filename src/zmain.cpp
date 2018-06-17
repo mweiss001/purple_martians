@@ -6,6 +6,7 @@
 // all global variables should be declared here and externed in pm.h
 
 
+
 // ------------------------------------------------
 // ----------------- netgame ----------------------
 // ------------------------------------------------
@@ -27,6 +28,7 @@ int suicide_pbullets = 0;
 char srv_client_state[8][2][STATE_SIZE];
 int srv_client_state_frame_num[8][2];
 
+
 // local client's states
 char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
 int  client_state_buffer_pieces[16];   // to mark packet pieces as received
@@ -35,6 +37,7 @@ int  client_state_base_frame_num;      // last ack state frame_num
 char client_state_dif[STATE_SIZE];     // uncompressed dif
 int  client_state_dif_src;             // uncompressed dif src frame_num
 int  client_state_dif_dst;             // uncompressed dif dst frame_num
+
 
 
 
@@ -74,7 +77,11 @@ int game_exit = 1;
 // some global strings
 char level_filename[80];
 char local_hostname[80];
-char version_string[80];
+
+char pm_version_string[80];
+char al_version_string[80];
+
+
 char global_string[20][25][80];
 char msg[256];
 char color_name[16][20];
@@ -92,6 +99,7 @@ int zz[20][NUM_ANS];
 char sel_filename[500];
 int ty = 46;   // button start
 int bts = 12;  // button spacing
+
 // level editor start block UL corner
 int wx=0;
 int wy=0;
@@ -302,16 +310,16 @@ int text_title_draw_color = -1;
 // ------------------------------------------------
 char log_msg[100000000]; // for logging
 int log_msg_pos = 0;
+
 char log_lines[1000000][100]; // for log file viewer
 int log_lines_int[1000000][3]; // for log file viewer
-int log_timer;
+
+int log_timer; // to measure chase and lock time
 
 
-int L_LOGGING = 0;
 int L_LOGGING_NETPLAY = 0;
 int L_LOGGING_NETPLAY_JOIN = 0;
 int L_LOGGING_NETPLAY_bandwidth = 0;
-int L_LOGGING_NETPLAY_client_timer_adjust = 0;
 int L_LOGGING_NETPLAY_cdat = 0;
 int L_LOGGING_NETPLAY_game_move = 0;
 int L_LOGGING_NETPLAY_sdat = 0;
@@ -502,162 +510,112 @@ void fast_exit(int why)
 }
 
 
-
-int initial_setup(void)
+void set_and_get_versions(void)
 {
-   al_init();
-
    // set version name
-   sprintf(version_string, "Version 7.05");
-   sprintf(msg, "Purple Martians %s", version_string);
-   printf("\n%s\n", msg);
-//   int title_len = strlen(msg);
-//   for (int i=0; i<title_len; i++)  printf("-");
-//   printf("\n");
+   sprintf(pm_version_string, "7.05");
 
-   if (L_LOGGING)
-   {
-      add_log_entry_centered_text(20, 0, 76, "", "+", "-");
-      add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
-      add_log_entry_centered_text(20, 0, 76, "", "+", "-");
-   }
+   sprintf(msg, "Purple Martians Version %s", pm_version_string);
+   printf("\n%s\n", msg);
+
    // get allegro version
    uint32_t version = al_get_allegro_version();
    int major = version >> 24;
    int minor = (version >> 16) & 255;
    int revision = (version >> 8) & 255;
    int release = version & 255;
-   sprintf(msg, "Allegro version: %d.%d.%d.%d", major, minor, revision, release);
-   printf("%s\n", msg);
-   if (L_LOGGING) add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
+
+   sprintf(al_version_string, "Allegro Version: %d.%d.%d.%d", major, minor, revision, release);
+   printf("%s\n", al_version_string);
 
    get_hostname();
-//   sprintf(msg, "Local hostname:     [%s]",local_hostname);
-//   printf("%s\n", msg);
-//  if (L_LOGGING) add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
+}
 
-   menu_setup();
 
+int initial_setup(void)
+{
+   al_init();
+   set_and_get_versions();
    get_config_values();
 
-   if (!init_screen()) return 0;
 
-//   for (int i=0; i<title_len; i++)  printf("-");
-//   printf("\n");
-
-   if (L_LOGGING) add_log_entry_centered_text(20, 0, 76, "", "+", "-");
-
-
-/*
-   // show time and date stamp
-   char tmsg[80];
-   struct tm *timenow;
-   time_t now = time(NULL);
-   timenow = localtime(&now);
-
-   strftime(tmsg, sizeof(tmsg), "%Y-%m-%d  %H:%M:%S", timenow);
-   sprintf(msg, "Date and time:      [%s]",tmsg);
-   printf("%s\n", msg);
-
-   if (L_LOGGING)
-   {
-      add_log_entry_position_text(20, 0, 76, 10, msg, "|", " ");
-      add_log_entry_centered_text(20, 0, 76, "", "+", "-");
-   }
-
-*/
-
-
-   make_palette();
-
-
-   if(!al_init_native_dialog_addon())
-   {
-      m_err("Failed to initialize native dialog addon.\n");
-      return -1;
-   }
-   //else printf("init native_dialog addon\n");
-
-   if(!al_init_image_addon())
-   {
-      m_err("Failed to initialize image addon.\n");
-      return -1;
-   }
-   //else printf("init image addon\n");
-
-   if(!al_init_primitives_addon())
-   {
-      m_err("Failed to initialize primitives addon.\n");
-      return -1;
-   }
-   //else printf("init primitives addon\n");
-
-   if(!al_init_font_addon())
-   {
-      m_err("Failed to initialize font addon.\n");
-      return -1;
-   }
-   //else printf("init font addon\n");
-
-
-   if(!al_init_ttf_addon())
-   {
-      m_err("Failed to initialize ttf addon.\n");
-      return -1;
-   }
-   //else printf("init ttf addon\n");
-
-
-   load_fonts();
-
-
-
-
-   if (!al_install_keyboard())
-   {
-      m_err("Failed to install keyboard.\n");
-      return -1;
-   }
-   //else printf("installed keyboard\n");
-
+// --- event queue ----------------
    event_queue = al_create_event_queue();
    if(!event_queue)
    {
       m_err("Failed to create event queue.\n");
       return -1;
    }
-   //else printf("created event queue\n");
-
-   al_register_event_source(event_queue, al_get_keyboard_event_source());
-   //printf("registered keyboard event source\n");
 
 
+// --- display --------------------
+   if (!init_screen()) return 0;
    al_register_event_source(event_queue, al_get_display_event_source(display));
-   //printf("registered display event source\n");
 
+
+// --- allegro add ons ------------
+   if(!al_init_native_dialog_addon())
+   {
+      m_err("Failed to initialize native dialog addon.\n");
+      return -1;
+   }
+
+   if(!al_init_image_addon())
+   {
+      m_err("Failed to initialize image addon.\n");
+      return -1;
+   }
+   load_tiles();
+   al_set_display_icon(display, tile[401]);
+
+   if(!al_init_primitives_addon())
+   {
+      m_err("Failed to initialize primitives addon.\n");
+      return -1;
+   }
+
+   if(!al_init_font_addon())
+   {
+      m_err("Failed to initialize font addon.\n");
+      return -1;
+   }
+
+   if(!al_init_ttf_addon())
+   {
+      m_err("Failed to initialize ttf addon.\n");
+      return -1;
+   }
+   load_fonts();
+
+
+// --- keyboard -------------------
+   if (!al_install_keyboard())
+   {
+      m_err("Failed to install keyboard.\n");
+      return -1;
+   }
+   //else printf("installed keyboard\n");
+   al_register_event_source(event_queue, al_get_keyboard_event_source());
+
+
+// --- mouse ----------------------
    if (!al_install_mouse())
    {
       m_err("Failed to install mouse.\n");
       return -1;
    }
    //else printf("installed mouse\n");
-   al_hide_mouse_cursor(display);
    al_register_event_source(event_queue, al_get_mouse_event_source());
+   al_hide_mouse_cursor(display);
 
-   load_tiles();
 
-   al_set_display_icon(display, tile[401]);
-
-   seed_mdw();  // for mdw logo
-   fill_mdw();
-
+// --- joystick -------------------
    if (!al_install_joystick())
    {
       m_err("Failed to install joystick.\n");
       return -1;
    }
    //else printf("installed joystick\n");
-
    int nj = al_get_num_joysticks();
    //printf("found %d joystick(s)\n", nj);
    if (nj > 0)
@@ -673,8 +631,8 @@ int initial_setup(void)
       al_register_event_source(event_queue, al_get_joystick_event_source());
    }
 
-   load_sound();
 
+// --- timers ---------------------
    // create timers
    fps_timer = al_create_timer(1/(float)frame_speed);
    sec_timer = al_create_timer(1);
@@ -688,12 +646,17 @@ int initial_setup(void)
    al_start_timer(sec_timer);
    al_start_timer(mnu_timer);
 
+   load_sound();
+
+   seed_mdw();  // for mdw logo
+   fill_mdw();
+
    // init all players
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
    players[0].active = 1;
 
-   zero_level_data();
-   reset_animation_sequence_frame_nums(0);
+   //zero_level_data();
+   //reset_animation_sequence_frame_nums(0);
    //printf("end of initial setup\n");
    return 1;
 }
@@ -717,7 +680,6 @@ void game_menu(void)
       // this must be before 3 because sometimes 3 calls 4 immed
       if ((top_menu_sel == 4) && (resume_allowed)) // resume game
       {
-         al_set_timer_count(fps_timer, frame_num); // sync timer_frame_num to actual
          game_loop(7); // resume
       }
       if (top_menu_sel == 3) // start new game
@@ -841,11 +803,9 @@ void game_menu(void)
                   logging_menu_sel = zmenu(3, logging_menu_sel, 30);
                   if (logging_menu_sel == 3) // all on
                   {
-                     L_LOGGING=1;
                      L_LOGGING_NETPLAY=1;
                      L_LOGGING_NETPLAY_JOIN=1;
                      L_LOGGING_NETPLAY_bandwidth=1;
-                     L_LOGGING_NETPLAY_client_timer_adjust=1;
                      L_LOGGING_NETPLAY_cdat=1;
                      L_LOGGING_NETPLAY_game_move=1;
                      L_LOGGING_NETPLAY_sdat=1;
@@ -862,11 +822,9 @@ void game_menu(void)
 
                   if (logging_menu_sel == 4 ) // all off
                   {
-                     L_LOGGING=0;
                      L_LOGGING_NETPLAY=0;
                      L_LOGGING_NETPLAY_JOIN=0;
                      L_LOGGING_NETPLAY_bandwidth=0;
-                     L_LOGGING_NETPLAY_client_timer_adjust=0;
                      L_LOGGING_NETPLAY_cdat=0;
                      L_LOGGING_NETPLAY_game_move=0;
                      L_LOGGING_NETPLAY_sdat=0;
@@ -883,86 +841,76 @@ void game_menu(void)
 
                   if (logging_menu_sel == 5)
                   {
-                     L_LOGGING= !L_LOGGING;
+                     L_LOGGING_NETPLAY= !L_LOGGING_NETPLAY;
                      save_config();
                   }
                   if (logging_menu_sel == 6)
                   {
-                     L_LOGGING_NETPLAY= !L_LOGGING_NETPLAY;
+                     L_LOGGING_NETPLAY_JOIN= !L_LOGGING_NETPLAY_JOIN;
                      save_config();
                   }
                   if (logging_menu_sel == 7)
                   {
-                     L_LOGGING_NETPLAY_JOIN= !L_LOGGING_NETPLAY_JOIN;
+                     L_LOGGING_NETPLAY_bandwidth= !L_LOGGING_NETPLAY_bandwidth;
                      save_config();
                   }
                   if (logging_menu_sel == 8)
                   {
-                     L_LOGGING_NETPLAY_bandwidth= !L_LOGGING_NETPLAY_bandwidth;
-                     save_config();
-                  }
-                  if (logging_menu_sel == 9)
-                  {
-                     L_LOGGING_NETPLAY_client_timer_adjust= !L_LOGGING_NETPLAY_client_timer_adjust;
-                     save_config();
-                  }
-                  if (logging_menu_sel == 10)
-                  {
                      L_LOGGING_NETPLAY_cdat= !L_LOGGING_NETPLAY_cdat;
                      save_config();
                   }
-                  if (logging_menu_sel == 11)
+                  if (logging_menu_sel == 9)
                   {
                      L_LOGGING_NETPLAY_game_move= !L_LOGGING_NETPLAY_game_move;
                      save_config();
                   }
 
-                  if (logging_menu_sel == 12)
+                  if (logging_menu_sel == 10)
                   {
                     L_LOGGING_NETPLAY_sdat = !L_LOGGING_NETPLAY_sdat;
                      save_config();
                   }
-                  if (logging_menu_sel == 13)
+                  if (logging_menu_sel == 11)
                   {
                      L_LOGGING_NETPLAY_sdak= !L_LOGGING_NETPLAY_sdak;
                      save_config();
                   }
-                  if (logging_menu_sel == 14)
+                  if (logging_menu_sel == 12)
                   {
                      L_LOGGING_NETPLAY_stdf= !L_LOGGING_NETPLAY_stdf;
                      save_config();
                   }
-                  if (logging_menu_sel == 15)
+                  if (logging_menu_sel == 13)
                   {
                      L_LOGGING_NETPLAY_stdf_all_packets= !L_LOGGING_NETPLAY_stdf_all_packets;
                      save_config();
                   }
-                  if (logging_menu_sel == 16)
+                  if (logging_menu_sel == 14)
                   {
                      L_LOGGING_NETPLAY_stdf_when_to_apply= !L_LOGGING_NETPLAY_stdf_when_to_apply;
                      save_config();
                   }
-                  if (logging_menu_sel == 17)
+                  if (logging_menu_sel == 15)
                   {
                      L_LOGGING_NETPLAY_show_dif1= !L_LOGGING_NETPLAY_show_dif1;
                      save_config();
                   }
-                  if (logging_menu_sel == 18)
+                  if (logging_menu_sel == 16)
                   {
                      L_LOGGING_NETPLAY_show_dif2 = !L_LOGGING_NETPLAY_show_dif2;
                      save_config();
                   }
-                  if (logging_menu_sel == 19)
+                  if (logging_menu_sel == 17)
                   {
                      auto_save_game_on_level_done= !auto_save_game_on_level_done;
                      save_config();
                   }
-                  if (logging_menu_sel == 20)
+                  if (logging_menu_sel == 18)
                   {
                      auto_save_game_on_exit= !auto_save_game_on_exit;
                      save_config();
                   }
-                  if (logging_menu_sel == 21)
+                  if (logging_menu_sel == 19)
                   {
                      log_file_viewer(1);
                   }
@@ -983,6 +931,7 @@ void game_menu(void)
                   players[0].active = 1;
                   active_local_player = 0;
                   get_config_values(); // restore player color from config file
+                  erase_log();
                }
             }
 
@@ -1156,7 +1105,6 @@ void game_menu(void)
 
 int main(int argument_count, char **argument_array)
 {
-
 // --------------------------------------------------------------------------------------------
 // these flags get processed before initial setup is called
 // --------------------------------------------------------------------------------------------
@@ -1180,7 +1128,7 @@ int main(int argument_count, char **argument_array)
          ret = copy_files_to_clients(0); // all files
          exit(0);
       }
-      printf("ret:%d\n",ret);
+      sprintf(msg, "ret:%d\n",ret); // to suppress warning only!
    }
 #endif
 
@@ -1366,18 +1314,18 @@ int copy_files_to_clients(int exe_only)
 
 //   sprintf(client[num_clients++], "\\\\E6400\\pm_client1");  //  E6400
 //   sprintf(client[num_clients++], "\\\\E6410\\pm_client2");  // win7 portable dev system
-//   sprintf(client[num_clients++], "\\\\4230j\\pm_client3");  // win7 acer laptop
-//   sprintf(client[num_clients++], "\\\\E6430\\pm_client4");  // win7 studio pc
+   sprintf(client[num_clients++], "\\\\4230j\\pm_client3");  // win7 acer laptop
+   sprintf(client[num_clients++], "\\\\E6430\\pm_client4");  // win7 studio pc
 //   sprintf(client[num_clients++], "\\\\E6420\\pm_client5");  // win7 2560x1600 (my room)
 //   sprintf(client[num_clients++], "\\\\pfv\\pm_client6");    // XP 1600x1200
-//   sprintf(client[num_clients++], "\\\\m-4230-3\\pm_client7"); // ubuntu acer laptop
+   sprintf(client[num_clients++], "\\\\m-4230-3\\pm_client7"); // ubuntu acer laptop
 //   sprintf(client[num_clients++], "\\\\DESKTOP-DBNSJH8\\pm_client8"); // win 10 EID work laptop
 //   sprintf(client[num_clients++], "\\\\e4230f\\pm_client9"); // acer laptop
-   sprintf(client[num_clients++], "\\\\4230a\\pm_client10"); // acer laptop
-//   sprintf(client[num_clients++], "\\\\insp9400\\pm_client11"); // dell insp 9400 (backup machine)
-//   sprintf(client[num_clients++], "\\\\m7667\\pm_client12"); // core2 2G 32bit GeForce 7500 LE
-//   sprintf(client[num_clients++], "\\\\nv59\\pm_client13");  // gateway nv59 i3 4G 1600x1200
-   //sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
+//   sprintf(client[num_clients++], "\\\\4230a\\pm_client10"); // acer laptop
+   sprintf(client[num_clients++], "\\\\insp9400\\pm_client11"); // dell insp 9400 (backup machine)
+   sprintf(client[num_clients++], "\\\\m7667\\pm_client12"); // core2 2G 32bit GeForce 7500 LE
+   sprintf(client[num_clients++], "\\\\nv59\\pm_client13");  // gateway nv59 i3 4G 1600x1200
+   sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
 
 
 //   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden

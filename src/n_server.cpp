@@ -275,9 +275,9 @@ void ServerExitNetwork() // Shut the server down
 
 int server_init(void)
 {
-
    if (L_LOGGING_NETPLAY)
    {
+      log_versions();
       add_log_entry_centered_text(10, 0, 76, "", "+", "-");
 
       sprintf(msg, "Server mode started");
@@ -292,16 +292,6 @@ int server_init(void)
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       printf("%s\n", msg);
 
-      // show time and date stamp
-      char tmsg[80];
-      struct tm *timenow;
-      time_t now = time(NULL);
-      timenow = localtime(&now);
-      strftime(tmsg, sizeof(tmsg), "%Y-%m-%d  %H:%M:%S", timenow);
-      sprintf(msg, "Date and time:      [%s]",tmsg);
-      printf("%s\n", msg);
-
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
    }
 
    if (ServerInitNetwork())
@@ -420,12 +410,18 @@ void server_send_stdf(void)
       {
          int p = players1[0].n_stdf; // get last player we sent to
          int not_found = 0;
-         do
+         int loop_done = 0;
+         while (!loop_done)
          {
             if (++p > 7) p = 1; // only look at 1-7
             not_found++;
-         } while ((players[p].control_method != 2) && (not_found < 8));
-         if (not_found == 8) p = 0;   // if no clients found set to 0 so no send will happen
+            if ((players[p].active) && (players[p].control_method == 2)) loop_done = 1;
+            if (not_found > 8) // no clients found
+            {
+               loop_done = 1;
+               p = 0; // set to 0 so no send will happen
+            }
+         }
          players1[0].n_stdf = p;      // set last player we sent to
          if (p) server_send_stdf(p);  // send
          //printf("[%4d] p:%d\n", frame_num, p);
@@ -475,13 +471,14 @@ void server_send_sdat(void)
                }
                ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
 
-               sprintf(msg,"tx sdat p:%d [strt:%d num:%d]\n", p, start_entry, num_entries);
+               sprintf(msg,"tx sdat p:%d st:%d nm:%d\n", p, start_entry, num_entries);
                if (L_LOGGING_NETPLAY_sdat) add_log_entry2(37, p, msg);
             }
          }
 
-         // send even if no data, every 20 frames for sync
-         if (frame_num > players1[p].server_last_sdat_sent_frame_num + 19)
+         // send even if no data, every x frames for sync
+
+         if (frame_num > players1[p].server_last_sdat_sent_frame_num + players1[p].server_sdat_sync_freq)
          {
             players1[p].server_last_sdat_sent_frame_num = frame_num;
             int start_entry = players1[p].game_move_entry_pos;
@@ -492,7 +489,7 @@ void server_send_sdat(void)
             PacketPut1ByteInt(0);
             ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
 
-            sprintf(msg,"tx sdat p:%d [strt:%d num:%d] (sync only)\n", p, start_entry, 0);
+            sprintf(msg,"tx sdat p:%d st:%d nm:%d (sync only) (sf:%d)\n", p, start_entry, 0, players1[p].server_sdat_sync_freq);
             if (L_LOGGING_NETPLAY_sdat) add_log_entry2(37, p, msg);
          }
       }
@@ -609,6 +606,11 @@ void server_proc_sdak_packet(void)
 
    // set server_sync in player struct
    players1[p].server_sync = frame_num - client_fn;
+
+
+   // set server_sdat_sync_freq
+   if (players1[p].server_sync == server_lead_frames + 1) players1[p].server_sdat_sync_freq = 20;
+   else players1[p].server_sdat_sync_freq = 1;
 
    // this is used to see if client is still alive
    players1[p].server_last_sdak_rx_frame_num = frame_num;

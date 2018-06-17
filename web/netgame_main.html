@@ -100,9 +100,9 @@ State correction takes care of any small drift that might occur, it occurs much 
 <mh7>Game Move Sync</mh7>
 
 <mh3>
-To ensure that all players (server and clients) have the same game state, all they need is the same set of inputs.
+To ensure that all players (server and clients) have the same game state, they need the same set of inputs.
 
-The game_moves array is an array containing every player's inputs, indexed by player number and the frame number when a control change occurred.
+The game_moves array is an array containing all player input, indexed by the frame number when a control change occurred.
 The state of the controls is not stored every frame, only when a control change occurs.
 Every player (server and clients) should have an identical copy of the game moves array.
 

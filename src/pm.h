@@ -110,7 +110,8 @@ extern int next_level;
 // some global strings
 extern char level_filename[80];
 extern char local_hostname[80];
-extern char version_string[80];
+extern char pm_version_string[80];
+extern char al_version_string[80];
 extern char global_string[20][25][80];
 extern char msg[256];
 extern char color_name[16][20];
@@ -386,11 +387,9 @@ extern char log_lines[1000000][100]; // for log file viewer
 extern int log_lines_int[1000000][3]; // for log file viewer
 extern int log_timer;
 
-extern int L_LOGGING;
 extern int L_LOGGING_NETPLAY;
 extern int L_LOGGING_NETPLAY_JOIN;
 extern int L_LOGGING_NETPLAY_bandwidth;
-extern int L_LOGGING_NETPLAY_client_timer_adjust;
 extern int L_LOGGING_NETPLAY_cdat;
 extern int L_LOGGING_NETPLAY_game_move;
 extern int L_LOGGING_NETPLAY_sdat;
@@ -488,6 +487,9 @@ struct player1 // not synced between server and client
 
    int server_last_sdak_rx_frame_num; // used by server to see if client is still responding
    int client_last_sdat_rx_frame_num; // used by client to see if server is still responding
+
+   int server_sdat_sync_freq;
+
 
    int client_sync;
    int server_sync;
@@ -1042,7 +1044,8 @@ int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);
 void erase_last_bmsg(void);
 void slide_bmsg(void);
 void tsw(void);
-void reset_animation_sequence_frame_nums(int pc);
+void set_frame_nums(int fn);
+void reset_animation_sequence_frame_nums(int fn);
 void update_animation(void);
 al_fixed get_rot_from_xyinc(int EN);
 al_fixed get_rot_from_PXY(int EN, int p);
@@ -1101,9 +1104,14 @@ void move_lifts(int ignore_prox);
 // zlog.h
 void log_bandwidth_stats(int p);
 void log_reason_for_client_quit(int p);
+
+void log_time_date_stamp(void);
+void log_versions(void);
+
 void log_player_array(void);
 void log_ending_stats(void);
 void log_ending_stats_server(void);
+void erase_log(void);
 void save_log_file(void);
 void add_log_entry_sdat_rx_and_game_move_entered(int type, int player);
 void add_log_entry2(int type, int player, const char *txt);

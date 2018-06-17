@@ -2,12 +2,19 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-reset ortho double when leaving log file viewer
 
 
----------------------------------------------------------
+
+-------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+put libraries for linux in main dir for release
+
+
+
+
+
 
 ---------------------------------------------------------
 ------------------ web docs -----------------------------
@@ -25,9 +32,10 @@ In tiles there is some of it and also some in level background.
 
 At the bottom of files add links to other related docs
 
-
-
 netplay overall TODO:
+
+
+
 
 
 make
@@ -47,11 +55,6 @@ tell about dif from start and regular dif
 
 
 netplay - join TODO:
-
-
-
-
-
 
 
 
@@ -80,7 +83,7 @@ pass pointers to values we want to edit...
 
 
 ---------------------------------------------------------
------------------------- Help file ---------------------
+------------------------ Help file ------------in the player struct we have: players1[p].quit_reason---------
 ---------------------------------------------------------
 
 add more bombable and semi-solid blocks..done
