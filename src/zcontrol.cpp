@@ -103,11 +103,11 @@ int get_scan_code_from_joystick(int joy, int button, int num)
 int my_readkey(void) // used only to set new game control key or joystick bindings
 {
    int quit = 0, ret = 0;
+   al_draw_text(font, palette_color[10], SCREEN_W/2, SCREEN_H/2, ALLEGRO_ALIGN_CENTRE, "...press new key or joystick control...");
+   al_flip_display();
+
    while (!quit)
    {
-      al_draw_text(font, palette_color[10], SCREEN_W/2, SCREEN_H/2, ALLEGRO_ALIGN_CENTRE, "...press new key or joystick control...");
-      al_flip_display();
-
       while (!al_is_event_queue_empty(event_queue))
       {
          ALLEGRO_EVENT ev;
@@ -176,21 +176,22 @@ void clear_keys(void)
 void get_all_keys(int p) // prompts for all seven keys
 {
    int x = SCREEN_W/2;
+   int y = 115;
    set_key_menu(5, p, 2);
-
 
     // iterate the keys
    for (int key_sel = 2; key_sel < 9; key_sel++)
    {
-      //erase background
-      al_draw_filled_rectangle(x-90, 130, x+90, 200, palette_color[0]) ;
+      //erase and outline background
+      al_draw_filled_rectangle(x-90, 132, x+90, 204, palette_color[0]) ;
+      al_draw_rectangle(x-90, 132, x+90, 204, palette_color[15], 1) ;
 
       // redraw all keys
       for (int sk = 2; sk < 9; sk++)
-         al_draw_text(font, palette_color[15], x, 111+10*sk, ALLEGRO_ALIGN_CENTER, global_string[5][sk]);
+         al_draw_text(font, palette_color[15], x, y+10*sk, ALLEGRO_ALIGN_CENTER, global_string[5][sk]);
 
       // highlighted current key
-      al_draw_text(font, palette_color[10], x, 111+10*key_sel, ALLEGRO_ALIGN_CENTER, global_string[5][key_sel]);
+      al_draw_text(font, palette_color[10], x, y+10*key_sel, ALLEGRO_ALIGN_CENTER, global_string[5][key_sel]);
 
       switch (key_sel)
       {
@@ -700,13 +701,20 @@ void proc_player_state_game_move(int x)
          if (players[p].control_method == 3)
          {
             if (val == 64) players1[p].quit_reason = 91;
+
+            // set quit reason for all active clients on server
+            for (int pp=1; pp<NUM_PLAYERS; pp++)
+               if ((players[pp].active) && (players[pp].control_method == 2))
+                  players1[pp].quit_reason = 92;
+
+
             game_exit = 1;
          }
 
          // remote server player quit
          if ((ima_client) && (p == 0))
          {
-            if (val == 64) players1[p].quit_reason = 92;
+            if (val == 64) players1[active_local_player].quit_reason = 92;
             game_exit = 1;
          }
 
@@ -722,33 +730,17 @@ void proc_player_state_game_move(int x)
          show_player_join_quit_jq = 0;
       }
 
-
-      if (L_LOGGING_NETPLAY)
+      if ((L_LOGGING_NETPLAY) && ((ima_client) || (ima_server)) && (game_exit) )
       {
+         int alp = active_local_player;
          sprintf(msg,"PLAYER:%d became INACTIVE", p);
          add_log_entry_header(10, p, msg, 1);
-
-         if (players1[p].quit_reason == 70) log_ending_stats();
-         if (players1[p].quit_reason == 71) log_ending_stats();
-         if (players1[p].quit_reason == 74) log_ending_stats();
-         if (players1[p].quit_reason == 90) log_ending_stats();
-         if (players1[p].quit_reason == 91) log_ending_stats_server();
-         if (players1[p].quit_reason == 92) log_ending_stats();
-
-//
-//         sprintf(msg,"Reason: unknown");
-//         if (players1[p].quit_reason == 64) sprintf(msg,"Reason: menu key pressed");
-//         if (players1[p].quit_reason == 70) sprintf(msg,"Reason: dropped by server (server sync > 100)");
-//         if (players1[p].quit_reason == 71) sprintf(msg,"Reason: dropped by server (no sdak received for 100 frames)");
-//         if (players1[p].quit_reason == 74) sprintf(msg,"Reason: player never became active");
-//         if (players1[p].quit_reason == 90) sprintf(msg,"Reason: local client quit the game");
-//         if (players1[p].quit_reason == 91) sprintf(msg,"Reason: local server quit the game");
-//         if (players1[p].quit_reason == 92) sprintf(msg,"Reason: remote server ended the game");
-//         add_log_entry_header(10, p, msg, 1);
-//
-//         if (players1[p].quit_reason == 90) log_ending_stats();
-//         if (players1[p].quit_reason == 91) log_ending_stats_server();
-//         if (players1[p].quit_reason == 92) log_ending_stats();
+         if (players1[alp].quit_reason == 70) log_ending_stats();
+         if (players1[alp].quit_reason == 71) log_ending_stats();
+         if (players1[alp].quit_reason == 74) log_ending_stats();
+         if (players1[alp].quit_reason == 90) log_ending_stats();
+         if (players1[alp].quit_reason == 91) log_ending_stats_server();
+         if (players1[alp].quit_reason == 92) log_ending_stats();
       }
    }  // end of player becomes inactive
 }
@@ -775,11 +767,6 @@ void proc_game_move(void)
          {
             case 1: proc_player_state_game_move(x); break;
             case 6:  // 'level done'
-               if (L_LOGGING)
-               {
-                  sprintf(msg,"LEVEL %d DONE", play_level);
-                  add_log_entry_header(10, 0, msg, 3);
-               }
                if ((ima_client) || (ima_server))
                {
                   for (int p=0; p<NUM_PLAYERS; p++)
@@ -787,6 +774,8 @@ void proc_game_move(void)
 
                   if (L_LOGGING_NETPLAY)
                   {
+                     sprintf(msg,"LEVEL %d DONE", play_level);
+                     add_log_entry_header(10, 0, msg, 3);
                      if (ima_client) log_ending_stats();
                      if (ima_server) log_ending_stats_server();
                   }

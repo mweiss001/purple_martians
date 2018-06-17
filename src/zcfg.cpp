@@ -112,117 +112,105 @@ void save_config(void)
       al_set_config_value(cfg, "NETWORK", "zlib_cmp", msg);
 
 
-      sprintf(msg, "%d", L_LOGGING);
-      al_set_config_value(cfg, "LOGGING", "LOGGING", msg);
-      if (L_LOGGING)
-         sprintf(global_string[3][ 5],"[ON ]:LOGGING                            ");
-      else
-         sprintf(global_string[3][ 5],"[OFF]:LOGGING                            ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY", msg);
       if (L_LOGGING_NETPLAY)
-         sprintf(global_string[3][ 6],"[ON ]:LOGGING_NETPLAY                    ");
+         sprintf(global_string[3][ 5],"[ON ]:LOGGING_NETPLAY                    ");
       else
-         sprintf(global_string[3][ 6],"[OFF]:LOGGING_NETPLAY                    ");
+         sprintf(global_string[3][ 5],"[OFF]:LOGGING_NETPLAY                    ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_JOIN);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_JOIN", msg);
       if (L_LOGGING_NETPLAY_JOIN)
-         sprintf(global_string[3][ 7],"[ON ]:LOGGING_NETPLAY_JOIN               ");
+         sprintf(global_string[3][ 6],"[ON ]:LOGGING_NETPLAY_JOIN               ");
       else
-         sprintf(global_string[3][ 7],"[OFF]:LOGGING_NETPLAY_JOIN               ");
+         sprintf(global_string[3][ 6],"[OFF]:LOGGING_NETPLAY_JOIN               ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_bandwidth);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_bandwidth", msg);
       if (L_LOGGING_NETPLAY_bandwidth)
-         sprintf(global_string[3][ 8],"[ON ]:LOGGING_NETPLAY_bandwidth          ");
+         sprintf(global_string[3][ 7],"[ON ]:LOGGING_NETPLAY_bandwidth          ");
       else
-         sprintf(global_string[3][ 8],"[OFF]:LOGGING_NETPLAY_bandwidth          ");
+         sprintf(global_string[3][ 7],"[OFF]:LOGGING_NETPLAY_bandwidth          ");
 
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_client_timer_adjust);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_client_timer_adjust", msg);
-      if (L_LOGGING_NETPLAY_client_timer_adjust)
-         sprintf(global_string[3][ 9],"[ON ]:LOGGING_NETPLAY_client_timer_adjust");
-      else
-         sprintf(global_string[3][ 9],"[OFF]:LOGGING_NETPLAY_client_timer_adjust");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_cdat);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_cdat", msg);
       if (L_LOGGING_NETPLAY_cdat)
-         sprintf(global_string[3][10],"[ON ]:LOGGING_NETPLAY_cdat               ");
+         sprintf(global_string[3][8],"[ON ]:LOGGING_NETPLAY_cdat               ");
       else
-         sprintf(global_string[3][10],"[OFF]:LOGGING_NETPLAY_cdat               ");
+         sprintf(global_string[3][8],"[OFF]:LOGGING_NETPLAY_cdat               ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_game_move);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_game_move", msg);
       if (L_LOGGING_NETPLAY_game_move)
-         sprintf(global_string[3][11],"[ON ]:LOGGING_NETPLAY_game_move          ");
+         sprintf(global_string[3][9],"[ON ]:LOGGING_NETPLAY_game_move          ");
       else
-         sprintf(global_string[3][11],"[OFF]:LOGGING_NETPLAY_game_move          ");
+         sprintf(global_string[3][9],"[OFF]:LOGGING_NETPLAY_game_move          ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_sdat);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_sdat", msg);
       if (L_LOGGING_NETPLAY_sdat)
-         sprintf(global_string[3][12],"[ON ]:LOGGING_NETPLAY_sdat               ");
+         sprintf(global_string[3][10],"[ON ]:LOGGING_NETPLAY_sdat               ");
       else
-         sprintf(global_string[3][12],"[OFF]:LOGGING_NETPLAY_sdat               ");
+         sprintf(global_string[3][10],"[OFF]:LOGGING_NETPLAY_sdat               ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_sdak);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_sdak", msg);
       if (L_LOGGING_NETPLAY_sdak)
-         sprintf(global_string[3][13],"[ON ]:LOGGING_NETPLAY_sdak               ");
+         sprintf(global_string[3][11],"[ON ]:LOGGING_NETPLAY_sdak               ");
       else
-         sprintf(global_string[3][13],"[OFF]:LOGGING_NETPLAY_sdak               ");
+         sprintf(global_string[3][11],"[OFF]:LOGGING_NETPLAY_sdak               ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_stdf);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf", msg);
       if (L_LOGGING_NETPLAY_stdf)
-         sprintf(global_string[3][14],"[ON ]:LOGGING_NETPLAY_stdf               ");
+         sprintf(global_string[3][12],"[ON ]:LOGGING_NETPLAY_stdf               ");
       else
-         sprintf(global_string[3][14],"[OFF]:LOGGING_NETPLAY_stdf               ");
+         sprintf(global_string[3][12],"[OFF]:LOGGING_NETPLAY_stdf               ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_stdf_all_packets);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf_all_packets", msg);
       if (L_LOGGING_NETPLAY_stdf_all_packets)
-         sprintf(global_string[3][15],"[ON ]:LOGGING_NETPLAY_stdf_all_packets   ");
+         sprintf(global_string[3][13],"[ON ]:LOGGING_NETPLAY_stdf_all_packets   ");
       else
-         sprintf(global_string[3][15],"[OFF]:LOGGING_NETPLAY_stdf_all_packets   ");
+         sprintf(global_string[3][13],"[OFF]:LOGGING_NETPLAY_stdf_all_packets   ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_stdf_when_to_apply);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf_when_to_apply", msg);
       if (L_LOGGING_NETPLAY_stdf_when_to_apply)
-         sprintf(global_string[3][16],"[ON ]:LOGGING_NETPLAY_stdf_when_to_apply ");
+         sprintf(global_string[3][14],"[ON ]:LOGGING_NETPLAY_stdf_when_to_apply ");
       else
-         sprintf(global_string[3][16],"[OFF]:LOGGING_NETPLAY_stdf_when_to_apply ");
+         sprintf(global_string[3][14],"[OFF]:LOGGING_NETPLAY_stdf_when_to_apply ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_show_dif1);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_show_dif1", msg);
       if (L_LOGGING_NETPLAY_show_dif1)
-         sprintf(global_string[3][17],"[ON ]:LOGGING_NETPLAY_show_dif1          ");
+         sprintf(global_string[3][15],"[ON ]:LOGGING_NETPLAY_show_dif1          ");
       else
-         sprintf(global_string[3][17],"[OFF]:LOGGING_NETPLAY_show_dif1          ");
+         sprintf(global_string[3][15],"[OFF]:LOGGING_NETPLAY_show_dif1          ");
 
       sprintf(msg, "%d", L_LOGGING_NETPLAY_show_dif2);
       al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_show_dif2", msg);
       if (L_LOGGING_NETPLAY_show_dif2)
-         sprintf(global_string[3][18],"[ON ]:LOGGING_NETPLAY_show_dif2          ");
+         sprintf(global_string[3][16],"[ON ]:LOGGING_NETPLAY_show_dif2          ");
       else
-         sprintf(global_string[3][18],"[OFF]:LOGGING_NETPLAY_show_dif2          ");
+         sprintf(global_string[3][16],"[OFF]:LOGGING_NETPLAY_show_dif2          ");
 
       sprintf(msg, "%d", auto_save_game_on_level_done);
       al_set_config_value(cfg, "LOGGING", "auto_save_game_on_level_done", msg);
       if (auto_save_game_on_level_done)
-         sprintf(global_string[3][19],"[ON ]:Auto Save Game On Level Done       ");
+         sprintf(global_string[3][17],"[ON ]:Auto Save Game On Level Done       ");
       else
-         sprintf(global_string[3][19],"[OFF]:Auto Save Game On Level Done       ");
+         sprintf(global_string[3][17],"[OFF]:Auto Save Game On Level Done       ");
 
       sprintf(msg, "%d", auto_save_game_on_exit);
       al_set_config_value(cfg, "LOGGING", "auto_save_game_on_exit", msg);
       if (auto_save_game_on_exit)
-         sprintf(global_string[3][20],"[ON ]:Auto Save Game On Exit             ");
+         sprintf(global_string[3][18],"[ON ]:Auto Save Game On Exit             ");
       else
-         sprintf(global_string[3][20],"[OFF]:Auto Save Game On Exit             ");
+         sprintf(global_string[3][18],"[OFF]:Auto Save Game On Exit             ");
 
    }
 
@@ -232,6 +220,8 @@ void save_config(void)
 
 void get_config_values(void)
 {
+   menu_setup();
+
    // this only reads the values and validates
    // after that, it immediately calls save_config() to save and update menu text
 
@@ -381,10 +371,6 @@ void get_config_values(void)
    if (!val) auto_save_game_on_exit = 0;
    else auto_save_game_on_exit = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING");
-   if (!val) L_LOGGING = 0;
-   else L_LOGGING = atoi(val);
-
    val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY");
    if (!val) L_LOGGING_NETPLAY = 0;
    else L_LOGGING_NETPLAY = atoi(val);
@@ -396,10 +382,6 @@ void get_config_values(void)
    val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_bandwidth");
    if (!val) L_LOGGING_NETPLAY_bandwidth = 0;
    else L_LOGGING_NETPLAY_bandwidth = atoi(val);
-
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_client_timer_adjust");
-   if (!val) L_LOGGING_NETPLAY_client_timer_adjust = 0;
-   else L_LOGGING_NETPLAY_client_timer_adjust = atoi(val);
 
    val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_cdat");
    if (!val) L_LOGGING_NETPLAY_cdat = 0;

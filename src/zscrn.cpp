@@ -415,6 +415,7 @@ int init_screen(void)
    //printf("init screen\n");
    //show_disp_values();
    create_bmp();
+   make_palette();
    return 1;
 }
 
@@ -935,7 +936,7 @@ void frame_and_title(int show_players)
    draw_title(SCREEN_W/2, 2, 322, 32, color);
 
    // draw the version text centered on the bottom of the border
-   al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "%s", version_string);
+   al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "Version %s", pm_version_string);
 
    if (show_players)
    {

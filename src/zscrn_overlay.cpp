@@ -898,8 +898,10 @@ void new_bmsg(const char *nb)
 
 void draw_bottom_msg()
 {
-   int type = 1;
-   if (type == 1) // old style may cause low fps, due to scaled drawing and target bitmap changes
+   // int type = 1; // old style - may cause low fps, due to scaled drawing and target bitmap changes
+   int type = 2; // new style - faster but not as nice looking
+
+   if (type == 1)
    {
       if (--bottom_msg > 0)
       {
@@ -929,7 +931,7 @@ void draw_bottom_msg()
       }
       else bottom_msg = 0;
    }
-   if (type == 2) // new style - faster but not as nice looking
+   if (type == 2)
    {
       if (--bottom_msg > 0)
       {

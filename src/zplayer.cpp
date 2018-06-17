@@ -596,6 +596,9 @@ int is_player_color_used(int color)
 }
 
 
+
+
+
 void init_player(int p, int t)
 {
    if (t == 1) // new game
@@ -680,6 +683,8 @@ void init_player(int p, int t)
 
       players1[p].moves_skipped_tally = 0;
       players1[p].moves_skipped_last_tally = 0;
+
+      players1[p].server_sdat_sync_freq = 0;
 
       players1[p].game_move_entry_pos = 0;
       players1[p].client_sync = 0;

@@ -98,15 +98,15 @@ void make_palette(void)
 
 void m_err(const char * err_msg)
 {
-   fprintf(stderr, "%s", err_msg);
+   fprintf(stderr, "%s\n", err_msg);
    al_show_native_message_box(display, "Error", "Error:", err_msg, NULL,  ALLEGRO_MESSAGEBOX_ERROR );
 }
 
 void window_title(void)
 {
    sprintf(msg, "Purple Martians");
-//   sprintf(msg, "Purple Martians %s   [%d x %d]", version_string, SCREEN_W, SCREEN_H);
-//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", version_string, SCREEN_W, SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
+//   sprintf(msg, "Purple Martians %s   [%d x %d]", pm_version_string, SCREEN_W, SCREEN_H);
+//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", pm_version_string, SCREEN_W, SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
    al_set_window_title(display, msg);
 }
 
@@ -164,16 +164,23 @@ void tsw(void)
    while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
 }
 
-void reset_animation_sequence_frame_nums(int pc)
+void set_frame_nums(int fn)
+{
+   // reset frame_num and fps_timer count
+	frame_num = fn;
+   al_set_timer_count(fps_timer, frame_num);
+   reset_animation_sequence_frame_nums(frame_num);
+}
+
+void reset_animation_sequence_frame_nums(int fn)
 {
    int c;
    for (c=0; c<NUM_ANS; c++)
    {
-     zz[2][c] = pc;       // reset the frame_nums
+     zz[2][c] = fn;       // reset the frame_nums
      zz[1][c] = 0;        // set the bitmap indexes to 0
      zz[0][c] = zz[5][c]; // put the first shapes in 0
    }
-   frame_num = pc;
 }
 
 void update_animation(void)
@@ -188,7 +195,6 @@ void update_animation(void)
    // 19 = shape 14
    // 15 shapes is tha max
 
-   //frame_num++;
    for (int y=0; y<NUM_ANS; y++)
       if (zz[4][y] != 0)
          if ((frame_num - zz[2][y]) > zz[3][y])
@@ -1585,6 +1591,7 @@ void demo_mode(void)
    players[0].active = 1;
    active_local_player = 0;
    get_config_values(); // restore player color from config file
+   erase_log();
 }
 
 void temp_test(void)

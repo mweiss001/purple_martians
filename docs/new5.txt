@@ -7492,26 +7492,601 @@ fast_exit()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 made a lot of changes...need to test...something do not seem right....
 
 
+-----------------------------------------------------------
+client init code no line endings in log...fixed
+-----------------------------------------------------------
+
+-----------------------------------------------------------
+show dif local and server reversed??
+-----------------------------------------------------------
+void show_state_dif(char *a, char *b)
+
+// make copy of current state
+char tmp[STATE_SIZE];
+game_vars_to_state(tmp);
+
+// compare copy to modified base state
+if (memcmp(tmp, client_state_base, STATE_SIZE))
+{
+   dif_corr = 1;
+   players1[p].dif_corr++;
+   sprintf(tmsg, "corrections applied - total corrections:%d", players1[p].dif_corr);
+   show_state_dif(tmp, client_state_base); // show dif
+
+
+looks like a is local b is server
+
+then c1 = a, c2 = b
+
+
+then here its printed in reverse....
+
+sprintf(msg, "player[%d].active  server:[%d] local:[%d]\n", p, c1_players[p].active, c2_players[p].active );
+
+
+where would it be easiest to change?
+
+show_state_dif(client_state_base, tmp); // show dif
+
+done.....
+-----------------------------------------------------------
+
+
+-----------------------------------------------------------
+when demo runs it leaves log file entries ..done
+added erase_log(void);
+at end of demo mode and run demo
+-----------------------------------------------------------
+
+-----------------------------------------------------------
+log player array uses player num for each player..fixe to only use 0 ...done
+-----------------------------------------------------------
+
+-----------------------------------------------------------
+players colors in log file viewer are bad...
+try to get them from the logs
+also set them in player init...
+too hard, just set them when getting data at start of log file viewer..done
+-----------------------------------------------------------
 
 
 
 
 
+
+
+
+-----------------------------------------------------------
+no logging when player come active???
+what if client comes active because of stdf instead of game move??
+-----------------------------------------------------------
+
+
+250 server got join
+371 server says player locked
+
+492 server says player locked
+496 server says player became active
+
+
+on client
+nothing around 371
+at frame 500 stdf from 495 to 500 sets player active...
+
+
+what does game moves say:
+
+server:
+-------------
+number of entries 1473
+deathmatch_pbullets 1
+deathmatch_pbullets_damage 5
+suicide_pbullets 1
+[ gm][  pc][p][cm]
+[  0][ 375]-------------PLAYER 1 ACTIVE (color:11)--
+[  1][ 496]-------------PLAYER 1 ACTIVE (color:11)--
+[  2][ 503][1][ 1]  [    ][    ][    ][  ][     ][LEFT]
+
+client:
+-------------
+number of entries 1470
+deathmatch_pbullets 1
+deathmatch_pbullets_damage 5
+suicide_pbullets 1
+[ gm][  pc][p][cm]
+[  0][   0]-------------START (level:4)-------------
+[  1][   0]-------------PLAYER 0 ACTIVE (color:10)--
+[  2][ 503][1][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[  3][ 507][1][ 4]  [    ][    ][    ][UP][     ][    ]
+
+
+
+why is client missing those....
+
+why is server missing start...
+
+why does client have stuff that server does not??
+
+
+
+old:
+   // add initial level info to game_moves array
+   // only for modes:
+   // 1 single player new game
+   // 2 server new game
+   // 5 with !ima_client
+   // don't do it for client (never enter any game moves on client)
+   // don't do for demo
+   // don't do for resume
+   if ( (start_mode == 1) || (start_mode == 3) || ((start_mode == 5) && (!ima_client)) )
+   {
+      add_game_move(0, 0, play_level, 0);       // [00] game_start
+      add_game_move(0, 1, 0, players[0].color); // [01] player_state and color
+   }
+
+new:
+   // add initial level info to game_moves array
+   // only for modes:
+   // 1 single player new game
+   // 2 server new game
+   // 5 with !ima_client
+   // don't do it for client (never enter any game moves on client)
+   // don't do for demo
+   // don't do for resume
+   if ( (start_mode == 1) || (start_mode == 2) || ((start_mode == 5) && (!ima_client)) )
+   {
+      add_game_move(0, 0, play_level, 0);       // [00] game_start
+      add_game_move(0, 1, 0, players[0].color); // [01] player_state and color
+   }
+
+
+
+this would explain why client had start info but server did not
+also client had higher game move pos so it wouldn't enter new moves....
+
+try this all again...seems to work a lost better now...
+
+-----------------------------------------------------------
+-----------------------------------------------------------
+
+
+4 player works with ubuntu as one of them....
+
+can I speed up chase and lock?
+
+do I need the <2 > -4 things still?
+
+
+
+
+--------------------------------------------------------------
+when client joins, after getting initial state,
+
+gets 14 more stdf until caught up and can acknowledge??
+
+why cant we acknowledge first one??
+
+
+looks like the first dif received was not applied
+base was zero, but current did not match??
+current = 0
+should force...
+
+does this happen every time? yes...
+
+fixed that on client by setting frame_num after initial stdf rx, but before dif applied...
+
+now:
+
+dif gets applied on client and clients sends sdak on frame 142
+
+server does not rx until frame 163
+by then server has sent many more stdf's and fails to set new base for client
+
+why is client 20 frames behind??
+
+client gets first timer adjust at 162 with first sdat rx and is already 20 frames behind
+server sends it at 142
+
+
+is client timer slow until first adjust?? no
+
+does start mode write over my start frame stuff?? no
+
+
+
+-----------
+new data
+
+client fps = 40
+client gets all 4 pieces of stdf (0-150)
+client applies dif and sets frame_nums to 150
+
+[client frame 150]
+recieves all 4 peices of same stdf again
+receives sdat from 154 and sets timer to 43
+receives 2 4 peices of next stdf (0-155)
+applies dif (0-150) again
+
+
+[client frame 151]
+client timer = 43
+receives sdat from 174 and sets timer to 62
+
+[client frame 153]
+gets complete dif from (0-175)
+
+[client frame 157]
+receives sdat from 178 and sets timer to 60
+
+[client frame 161]
+gets complete dif from (0-180)
+
+[client frame 163]
+receives sdat from 182 and sets timer to 58
+
+
+
+
+------------------
+
+does it do the level load??
+
+client init
+
+load level
+
+game loop start
+
+client blocks for initial state
+
+client chase
+
+
+
+-------------
+new data
+
+[client frame 121]
+client gets all 4 pieces of stdf (0-121)
+client applies dif and sets frame_nums to 121
+
+[client frame 122]
+
+receives sdat from 125 and sets timer to 42
+client gets all 4 pieces of stdf (0-125)
+
+receives sdat from 129 and sets timer to 46
+client gets first 2 pieces of stdf (0-130)
+
+receives sdat from 145 and sets timer to 62
+client gets first 3 pieces of stdf (0-145)
+
+
+
+what if i flush the client rx buffer after good state rx'd? no dif
+try setting stdf freq to 80...no dif
+
+
+still cant figure out why client is 20 frames behind...
+
+
+
+I put some time calls in client code and I dont see any delays....
+do the same for server...
+
+
+
+
+
+server send initial state on server frame 144 clock 6785
+
+client gets it at clock 1350 and sets frame 144 to equal clock 1352
+
+client gets sdat on frame 145 clock 1371 from server frame 166
+
+server's clock was 7335 when it sent sdat 166
+
+
+
+time dif at initial state rx:
+server sent:6785
+client rx: 1350
+------------------
+           5435
+
+
+
+time dif at first sdat packet
+server sent:7335
+client rx: 1371
+------------------
+           5964
+
+
+
+5964-5435 = 529ms / 25ms per frame = 21 frames
+
+
+
+server:
+166-144 = 22 frame * 25ms = 550ms
+6785 + 550 = 7335
+server checks out good
+
+
+client:
+
+
+
+
+
+tried TCP also
+
+started at 10 sync then went down for 10 frames to 8
+then got 9 sdats in one frame and went to 29
+
+
+
+--------------------
+just a thought...what if I did the chase part first?
+then when that was good, just blast a state through
+after rx sjon client starts in mode 2 inactive and uses sdats to chase and lock
+--------------------------------------
+
+
+20180616
+
+all that I am doing here is to discover the 20 frame half second pause between
+getting initial state and getting first sdat..
+
+on the server I show a time stamp at the start of every server_control()
+and make sure they agree...
+
+
+server
+------
+frame 214
+8507 server tx sjon
+8507 server tx sdat
+
+then every 25ms clock is working good
+
+server sends another sdat every frame for sync
+
+frame 236
+9058
+finally rx sdak and stak
+
+
+client
+------
+first clock is 1146 after level start
+1147 waiting for game state
+1150 214 frame_num updated
+1166 215 rx sdat and already 20 frames late
+
+need more clocks on client...
+
+client send cjon
+client rx sjon
+
+
+i think i found my delay.....
+
+771 client tx cjon 771
+803 client rx sjon 803
+1313 after level start
+
+
+705 tx cjon
+746 rx sjon
+768 after clear game moves array
+
+stimp() takes 400 frames......
+
+remove for netgame...
+
+client for sure but also server for level done so just do both...
+
+606 client tx cjon
+624 client rx sjon
+646 after clear game moves array
+721 after load level
+
+--------------------------------------------
+just a thought....
+I would love to do without load level for client joining and just let the initial state do it...
+what is missing??
+lift step data
+bullets (not loaded with level anyway)
+
+i load the level, but when I get initial state I overwrite almost everything
+
+ok if add list steps, what else should I do??, bullets??
+remove unused in player...
+
+how big is lift steps?? 25600
+
+lets just leave it for now...
+
+--------------------------------------------
+
+remove clocks...done
+
+what if I made timer adjust twice as much adjust?
+
+old
+   // client timer adjust
+   players1[p].client_sync = sdat_frame_num - frame_num;
+   int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
+   if (fps_chase < 4) fps_chase = 4; // never let this go negative
+   al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+
+new
+   // client timer adjust
+   players1[p].client_sync = sdat_frame_num - frame_num;
+   int fps_chase = frame_speed + (players1[p].client_sync - server_lead_frames)*2;
+   if (fps_chase < 4) fps_chase = 4; // never let this go negative
+   al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+
+
+
+
+---------------------------------------------------------
+just a thought
+
+proc_controllers()
+
+acts differently when in menu vs game
+
+this is controlled by game_exit
+
+what if I just passed something to proc_controllers()
+run one way if in game, another for menu, another for key only...
+maybe later.....
+
+
+---------------------------------------------------------
+
+
+restore all things...
+- stdf_freq
+- sync_freq
+
+
+what about server send sync...
+
+can i fine tune it for each player?
+
+like if they have high server sync, send more often??
+
+
+2 is normal (1 + server_lead_frames)
+
+add to player struct:
+int server_sdat_sync_freq;
+by default set to 0;
+
+0  every frame
+1  every other frame
+20 every 20 frames
+
+adjust when setting sync, when rx'ing sdaks
+
+done....
+
+
+sometimes client gets ahead of server before rx first sync
+then client can get a pile of sync sdat's and adjust timer for each one
+but only the last one matters...
+
+remove client_flush...
+
+can i combine rx sdat and timer to one log line...done
+
+set stdf_freq to 10
+
+
+what if i hold off sending more stdf's after initial, until locked?
+or until initial has been ack'd and new base set?
+
+
+simplify this complicated mess....
+
+
+         int p = players1[0].n_stdf; // get last player we sent to
+         int not_found = 0;
+         do
+         {
+            if (++p > 7) p = 1; // only look at 1-7
+            not_found++;
+         } while ((players[p].control_method != 2) && (not_found < 8));
+         if (not_found == 8) p = 0;   // if no clients found set to 0 so no send will happen
+         players1[0].n_stdf = p;      // set last player we sent to
+         if (p) server_send_stdf(p);  // send
+
+
+
+         int p = players1[0].n_stdf; // get last player we sent to
+         int not_found = 0;
+         int loop_done = 0;
+         while (!loop_done)
+         {
+            if (++p > 7) p = 1; // only look at 1-7
+            not_found++;
+            if ((players[p].active) && (players[p].control_method == 2)) loop_done = 1;
+            if (not_found > 8) // no clients found
+            {
+               loop_done = 1;
+               p = 0; set to 0 so no send will happen
+            }
+         }
+         players1[0].n_stdf = p;      // set last player we sent to
+         if (p) server_send_stdf(p);  // send
+
+
+
+
+run a test with 3 clients..all good
+
+its important to flush client and server at level done and wait after...
+not sure why...
+
+
+----------------------------------------------------------------
+if client does not get reply from server game starts anyway..fixed
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+when starting log file viewer with pm -lr, if no log files exits badly..fixed
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+don't save any log file unless in netgame mode..done
+remove L_LOGGING and replace with L_LOGGING_NETPLAY...done
+remove L_LOGGING_NETPLAY_timeradjust..done
+move version and allegro version logging to client and server init..done
+----------------------------------------------------------------
+
+
+----------------------------------------------------------------
+make server sdat log look like client sdat..done
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+reset ortho double when leaving log file viewer..done
+can't set ortho in log file viewer..done
+----------------------------------------------------------------
+
+----------------------------------------------------------------
+client has both ending stats....fixed....
+----------------------------------------------------------------
+
+
+ran 8 player game with no problems.....
+
+
+lost y510 on level 5
+reason: server drop (no sdak rx for 100 frames)
+only active for 4 frames
+first and only thing server received was stak on frame 247..really late
+
+
+lost 4230j on level 6
+reason: server drop (no sdak rx for 100 frames)
+
+
+----------------------------------------
+fix get all keys for linux..done
+----------------------------------------
+
+spent 6 hours making the graph for log file viewer look great...
 
 
 

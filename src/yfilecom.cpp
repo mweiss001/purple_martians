@@ -369,13 +369,8 @@ int load_level(int level_to_load, int display)
               strcpy(pmsg[c], buff);
            }
         }
-
-        for (int x=0; x<500; x++) // set all of itemf[500][4] to 0
-           for(int y=0; y<4; y++)
-              itemf[x][y] = al_itofix(0);
-
         for (int x=0; x<500; x++)
-           if (item[x][0]) // only if active clear x y
+           if (item[x][0]) // only if active set x y
            {
               itemf[x][0] = al_itofix(item[x][4]);
               itemf[x][1] = al_itofix(item[x][5]);
@@ -455,7 +450,6 @@ int load_level(int level_to_load, int display)
            }
            if (error_logging) printf("name(%s) w:%d h:%d c:%d num_step[%d]\n", tmsg, tr[1],tr[2],tr[3],tr[4]);
            construct_lift(c, tmsg, tr[1],tr[2],tr[3],tr[4]);
-
 
            for (x=0; x<lifts[c] . num_steps; x++) // step data
            {
