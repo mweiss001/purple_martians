@@ -151,7 +151,6 @@ void draw_top_display(void)
 
    }
 
-   #ifdef NETPLAY
    if (ima_server)
    {
       int bdx = BORDER_WIDTH;
@@ -434,7 +433,6 @@ void draw_top_display(void)
          }
       } // end of debug overlay
    } // end of if (imaclient)
-#endif
 
    if (players[0].control_method == 1) // file play
    {

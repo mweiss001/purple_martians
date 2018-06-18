@@ -15,7 +15,6 @@
 #include <libnet.h>
 #include <zlib.h>
 
-#define NETPLAY
 
 #define NUM_SPRITES 1024
 #define NUM_ANS 256
@@ -24,7 +23,22 @@
 #define NUM_LIFTS 40
 
 
-// #define CLONERLINES
+
+// enemy debug stuff
+//#define SHOW_CLONERLINES
+//#define SHOW_POD_CLONER_TRIGGER_BOX
+//#define SHOW_CANNON_COLLISION_BOX
+//#define SHOW_FLAPPER_TRIGGER_BOX
+//#define SHOW_TRAKBOT_BULLET_TRIGGER_CIRCLE
+
+// item debug stuff
+//#define SHOW_BOMB_DAMAGE_BOX
+
+// screen debug stuff
+#define SHOW_HYSTERESIS_WINDOW
+
+
+
 //#define RELEASE
 
 
@@ -405,7 +419,6 @@ extern int auto_save_game_on_level_done;
 
 #define NETPLAY_bandwidth_tracking
 
-// #define LOGGING_ZFS // zoom full screen
 
 // ------------------------------------------------
 // ---------------- players -----------------------
@@ -961,29 +974,19 @@ void server_proc_CJON_packet(int who);
 void server_control();
 void server_local_control(int p);
 
-// yfilecom.h
-void make_filename(int x);
-int load_level_prompt(void);
-int save_level_prompt(void);
-int save_tiles(void);
-int load_tiles(void);
-void zero_level_data(void);
-int load_level(int level_to_load, int display);
-int save_level(int level_to_save);
-int mw_file_select(const char * title, char * fn, const char * ext, int save);
 
-// zbullets.h
+// z_bullets.h
 void proc_pbullets(void);
 void draw_pbullets(void);
 void proc_ebullets(void);
 void draw_ebullets(void);
 void clear_bullets(void);
 
-// zcfg.cpp
+// z_config.cpp
 void save_config(void);
 void get_config_values(void);
 
-// zcontrol.h
+// z_control.h
 int getJoystickNum(ALLEGRO_JOYSTICK* joy);
 int get_scan_code_from_joystick(int joy, int b_a, int num);
 int my_readkey(void);
@@ -1006,11 +1009,11 @@ void set_controls_from_game_move(int p);
 int proc_events(ALLEGRO_EVENT ev, int ret);
 int proc_controllers(void);
 
-// zemove.h
+// z_enemy.h
 int enemy_data(int x_pos, int y_pos);
 void get_enemy_draw_shape(int e);
 void draw_enemy(void);
-void enemy_collision(void);
+void proc_enemy_collision(void);
 void enemy_flapper(void);
 void enemy_block_walker(void);
 void enemy_cloner(void);
@@ -1022,11 +1025,20 @@ void enemy_bouncer(void);
 void enemy_archwagon(void);
 al_fixed mdw_fixmul(al_fixed a, al_fixed b, float f_round);
 void enemy_deathcount(void);
-void enemy_move(void);
+void proc_enemy_move(void);
 void enemy_killed(int EN);
 void enemy_player_hit_proc(int EN);
 
-// zfile.h
+// z_file.h
+void make_filename(int x);
+int load_level_prompt(void);
+int save_level_prompt(void);
+int save_tiles(void);
+int load_tiles(void);
+void zero_level_data(void);
+int load_level(int level_to_load, int display);
+int save_level(int level_to_save);
+int mw_file_select(const char * title, char * fn, const char * ext, int save);
 char* cmtos(int cm);
 void save_gm_txt(char *sfname);
 void save_gm_gm(char *sfname);
@@ -1034,7 +1046,7 @@ void save_gm(void);
 void blind_save_game_moves(int d);
 int load_gm(const char *sfname);
 
-// zfnx.h
+// z_fnx.h
 void clear_game_moves(void);
 void get_hostname(void);
 void make_palette(void);
@@ -1064,7 +1076,6 @@ al_fixed is_up_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 al_fixed is_down_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 al_fixed is_left_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
-
 void game_vars_to_state(char * b);
 void state_to_game_vars(char * b);
 void get_state_dif(char *a, char *b, char *c, int size);
@@ -1075,7 +1086,7 @@ int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 void demo_mode(void);
 void temp_test(void);
 
-// zitem.h
+// z_item.h
 int item_data(int x_pos, int y_pos);
 void change_linked_door_color_and_shape(int door);
 void remove_block(int x, int y);
@@ -1084,13 +1095,13 @@ void draw_door(int c, int x, int y);
 void draw_items(void);
 void proc_item_move(void);
 int player_drop_item(int p);
-void proc_player_carry(void);
+void proc_player_carry(int p);
 void proc_item_collision();
 void do_bomb_damage(int i);
-void proc_lit_bomb(void);
-void proc_lit_rocket(void);
+void proc_lit_bomb(int);
+void proc_lit_rocket(int);
 
-// zlifts.h
+// z_lifts.h
 int construct_lift(int l, char* lift_name, int width, int height, int color, int num_steps);
 void clear_lift(int l);
 int construct_lift_step(int lift, int step, int x, int y, int val, int type);
@@ -1099,15 +1110,13 @@ void set_lift(int lift, int step);
 void draw_lift_lines(void);
 void draw_lifts(void);
 void set_lift_xyinc(int d, int step);
-void move_lifts(int ignore_prox);
+void proc_lift_move(int ignore_prox);
 
-// zlog.h
+// z_log.h
 void log_bandwidth_stats(int p);
 void log_reason_for_client_quit(int p);
-
 void log_time_date_stamp(void);
 void log_versions(void);
-
 void log_player_array(void);
 void log_ending_stats(void);
 void log_ending_stats_server(void);
@@ -1121,7 +1130,7 @@ void add_log_entry_header(int type, int player, const char *txt, int blank_lines
 int fill_filename_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 int log_file_viewer(int type);
 
-// zlogo.h
+// z_logo.h
 void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt);
 void draw_title(int tx, int ty, int ttw, int tth, int color);
 void draw_demo_mode_overlay(void);
@@ -1141,13 +1150,13 @@ void spline_test(void);
 void redraw_spline(int s);
 void spline_adjust(void);
 
-// zloop.h
+// z_loop.h
 void proc_frame_delay(void);
 void proc_level_done(void);
 void proc_start_mode(int start_mode);
 void game_loop(int start_mode);
 
-// zmain.h
+// z_main.h
 void final_wrapup(void);
 void fast_exit(int why);
 int initial_setup(void);
@@ -1155,13 +1164,13 @@ void game_menu(void);
 int main(int argument_count, char **argument_array);
 int copy_files_to_clients(int exe_only);
 
-// zmap.h
+// z_map.h
 void set_map_position(void);
 void next_map_mode(void);
 void next_map_size(void);
 void draw_map(void);
 
-// zmenu.h
+// z_menu.h
 int load_help(void);
 void chop_first_x_char(char *str, int n);
 void help(const char *topic);
@@ -1170,10 +1179,10 @@ void menu_setup(void);
 void set_key_menu(int menu, int p, int start_row);
 int pmenu(int menu_num);
 
-// zplayer.h
+// z_player.h
 void set_player_start_pos(int p);
 void proc_player_health(void);
-void player_move(void);
+void proc_player_move(void);
 void draw_player(int p);
 void draw_players(void);
 void get_players_shape(int p);
@@ -1182,7 +1191,7 @@ void fill_door_tile(void);
 void fill_player_tile(void);
 void init_player(int p, int t);
 
-// zscrn.h
+// z_screen.h
 void show_bitmap_flags(int flags);
 void show_pixel_format(int df);
 void show_display_flags(int flags);
@@ -1215,7 +1224,7 @@ void mtextout_centre(const char *txt1, int x, int y, float x_scale, float y_scal
 void show_level_done(int keypress);
 void draw_percent_bar(int cx, int y, int width, int height, int percent);
 
-// zsrn_overlay.h
+// z_screen_overlay.h
 void draw_screen_overlay(void);
 void show_player_join_quit(void);
 void draw_fps_display(int show_type);
@@ -1227,7 +1236,7 @@ void new_bmsg(const char *nb);
 void draw_bottom_msg();
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
 
-// zsound.h
+// z_sound.h
 void start_music(int resume);
 void stop_sound(void);
 void proc_sound(void);
@@ -1235,24 +1244,5 @@ void load_sound(void);
 void set_se_scaler(void);
 void set_st_scaler(void);
 void sound_toggle(void);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

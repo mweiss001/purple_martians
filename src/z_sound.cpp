@@ -84,6 +84,8 @@ void set_st_scaler(void)
 
 void start_music(int resume)
 {
+   // reset sound counters
+   for (int c=0; c<8; c++) sample_delay[c] = frame_num;
    if (sound_on)
    {
       if (!resume) al_rewind_audio_stream(pm_theme_stream);

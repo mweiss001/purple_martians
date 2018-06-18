@@ -1,7 +1,6 @@
 // n_packet.cpp
 
 #include "pm.h"
-#ifdef NETPLAY
 
 // global memory buffer for the current network packet
 char packetbuffer[1024];
@@ -136,8 +135,6 @@ int PacketGet4ByteInt(void)
    int b = (byte_uh*16777216) + (byte_sh*65536) + (byte_ho*256) + byte_lo;
    return b;
 }
-
-#endif
 
 
 

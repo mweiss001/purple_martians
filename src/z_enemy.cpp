@@ -58,21 +58,29 @@ void draw_enemy(void)
          al_draw_scaled_rotated_bitmap(tile[Ei[e][1]], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
 
 
-//         if ((Ei[e][0] == 7) || (Ei[e][0] == 9))// show podzilla or cloner trigger box
-//         {
-//            int x1 = Ei[e][11] * 20;
-//            int y1 = Ei[e][12] * 20;
-//            int x2 = Ei[e][13] * 20 + 20;
-//            int y2 = Ei[e][14] * 20 + 20;
-//            al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
-//         }
 
 
 
 
 
-/*
-         // test enemy collision boxes
+
+
+
+
+         #ifdef SHOW_POD_CLONER_TRIGGER_BOX
+         if ((Ei[e][0] == 7) || (Ei[e][0] == 9))// show podzilla or cloner trigger box
+         {
+            int x1 = Ei[e][11] * 20;
+            int y1 = Ei[e][12] * 20;
+            int x2 = Ei[e][13] * 20 + 20;
+            int y2 = Ei[e][14] * 20 + 20;
+            al_draw_rectangle(x1, y1, x2, y2, palette_color[14], 1);
+         }
+         #endif
+
+
+
+         #ifdef SHOW_CANNON_COLLISION_BOX
          if (Ei[e][0] == 6) // canon
          {
             // draw some test rects here
@@ -104,20 +112,19 @@ void draw_enemy(void)
                al_draw_rectangle(x1-il, y1-il, x1+il, y1+il, palette_color[color], 1);
             }
          }
+         #endif
 
+
+
+         #ifdef SHOW_CLONERLINES
          if (Ei[e][0] == 9) // cloner
          {
-            #ifdef CLONERLINES
             // show counter
             int cx = al_fixtoi(Efi[e][0]) + 10;     // middle of cloner
             int cy = al_fixtoi(Efi[e][1]) - 8;      // above cloner
             //int cy = al_fixtoi(Efi[e][1])+24;     // below cloner
             //int cy = al_fixtoi(Efi[e][1])+8;      // middle of cloner
-            //sprintf(msg, "%d" ,Ei[e][7] );
-            textout_centre_ex(level_buffer, font, msg, cx, cy, palette_color[10], 0); // red
-            //al_draw_textf(font, palette_color[10], cx, cy, ALLEGRO_ALIGN_CENTER, "%d" ,Ei[e][7] );
-
-
+            al_draw_textf(font, palette_color[10], cx, cy, ALLEGRO_ALIGN_CENTER, "%d" ,Ei[e][7] );
 
 //            int x1 = al_fixtoi(Efi[e][6]) - 2;    // source x
 //            int y1 = al_fixtoi(Efi[e][7]) - 2;    // source y
@@ -128,8 +135,6 @@ void draw_enemy(void)
 //            int y3 = al_fixtoi(Efi[e][9]) - 2;    // dest y
 //            int x4 = x3 + x_size;
 //            int y4 = y3 + y_size;
-
-
 
             int cw = Ei[e][19]*20;     // width
             int ch = Ei[e][20]*20;     // height
@@ -145,7 +150,7 @@ void draw_enemy(void)
             int y4 = y3 + ch;
 
 
-            al_fixed ratio = fixdiv(al_itofix(Ei[e][7]), al_itofix(Ei[e][6])) * 10;
+            al_fixed ratio = al_fixdiv(al_itofix(Ei[e][7]), al_itofix(Ei[e][6])) * 10;
 
             if ((ratio < al_ftofix(2) ) && (ratio > al_ftofix(.5) ))
             {
@@ -166,10 +171,7 @@ void draw_enemy(void)
                al_draw_line(x2+il, y2+il, x2+li, y2+li, palette_color[color], 1);
                al_draw_line(x1-il, y2+il, x1-li, y2+li, palette_color[color], 1);
                al_draw_line(x2+il, y1-il, x2+li, y1-li, palette_color[color], 1);
-
-
             }
-
             if (ratio < al_itofix(1) )
             {
                int color = 11; // green
@@ -183,11 +185,13 @@ void draw_enemy(void)
                al_draw_line(x3-il, y4+il, x3-li, y4+li, palette_color[color], 1);
                al_draw_line(x4+il, y3-il, x4+li, y3-li, palette_color[color], 1);
             }
-#endif
-          }
+         }
+         #endif
 
-        if (Ei[e][0] == 12) // flapper
-        {
+
+         #ifdef SHOW_FLAPPER_TRIGGER_BOX
+         if (Ei[e][0] == 12) // flapper
+         {
 
             // draw trigger box
             int width =  Ei[e][17];
@@ -199,8 +203,11 @@ void draw_enemy(void)
             int hab =  Ei[e][20];
             al_draw_line(EXint-40+10, EYint+hab, EXint+40+10, EYint+hab, palette_color[10], 1);
 
-        }
+         }
+         #endif
 
+
+         #ifdef SHOW_TRAKBOT_BULLET_TRIGGER_CIRCLE
          // show trakbot bullet prox circle
          if (Ei[e][0] == 8) // trakbot
          {
@@ -228,14 +235,16 @@ void draw_enemy(void)
                al_draw_line(px, py-20, px, py+20, palette_color[13], 1);
             }
             al_draw_circle(EXint+10, EYint+10, prox, palette_color[color], 1);
-        }
-*/
+         }
+         #endif
+
+
 
       } // end of if enemy active
 }
 
 
-void enemy_collision(void)
+void proc_enemy_collision(void)
 {
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
@@ -1993,7 +2002,7 @@ void enemy_deathcount()
    }
 }
 
-void enemy_move()
+void proc_enemy_move()
 {
    for (EN=0; EN<100; EN++)
       if (Ei[EN][0])

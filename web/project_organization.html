@@ -1,5 +1,5 @@
 <!doctype html>
-<title>Netgame - Packets</title>
+<title>Project Organization</title>
 
 <html>
 
@@ -11,7 +11,7 @@
     <body>
 
         <nav class="col-1">
-    
+
 <mdw_lhs_nav>
 <div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
@@ -54,102 +54,121 @@
                 <mh11>Purple Martians</mh11><hr>
                 <mh12>Technical Code Descriptions</mh12><hr>
             </header>
-
 <mh3><hr></mh3>
-<mh8>Netgame - Packets</mh8>
-<mh3><hr><mdw_file_toc> <a href="netgame_packets.html#Overview" target="_top">Overview</a>
+<mh8>Project Organization</mh8>
+<mh3><hr><mdw_file_toc> <a href="project_organization.html#Source files" target="_top">Source files</a>
 </mdw_file_toc><hr></mh3>
 
-<a name="Overview"></a>
-<mh7>Overview</mh7>
+
+
+<a name="Source files"></a>
+<mh7>Source files</mh7>
 <mh3>
-These are all of the packet types used in netgame.
-</mh3>    
-<br>
-<pk0>Packet: 'cdat'</pk0>
-<pk1>description: 'client data'
-direction: client to server
-- 1 byte  (player)
-- 4 bytes (client frame_num of control change)
-- 1 byte  (comp move of control change)
-</pk1><br>
+The source files are all in a common directory and all compile to a single executable.
+They are all *.cpp even though I mostly only use straight C.
 
-<pk0>Packet: 'sdat'</pk0>
-<pk1>description: 'server data
-sent from server to client
+Files that start with 'e_' are for the level editor. (which at one point was a seperate exe)
+</mh3>
+<pre><code class="language-cpp">e_bitmap.cpp
+e_editor.cpp
+e_fnx.cpp
+e_glt.cpp
+e_item.cpp
+e_lev.cpp
+e_nev.cpp
+e_nlv.cpp
+e_pde.cpp
+e_sel.cpp
+e_sliders.cpp
+e_special.cpp
+</code></pre>
 
-header:
------------------------------
-- 4 bytes (server frame_num)
-- 4 bytes (game_moves start entry)
-- 1 byte (number of entries)
+<mh3>
+Files that start with 'z' are for the game.
+</mh3>
+<pre><code class="language-cpp">zbullets.cpp
+zcfg.cpp
+zcontrol.cpp
+zemove.cpp
+zfile.cpp
+zfnx.cpp
+zitem.cpp
+zlifts.cpp
+zlog.cpp
+zlogo.cpp
+zloop.cpp
+zmain.cpp
+zmap.cpp
+zmenu.cpp
+zplayer.cpp
+zscrn.cpp
+zscrn_overlay.cpp
+zsound.cpp
+</code></pre>
 
-and then one or more entries:
------------------------------
-- 4 bytes (game_moves[x][0]); // frame_num
-- 1 byte (game_moves[x][1]);  // type
-- 1 byte (game_moves[x][2]);  // data 1
-- 1 byte (game_moves[x][3]);  // data 2
-</pk1><br>
+<mh3>
+Files that begin with 'y' are for common loading of tiles and levels.
+</mh3>
+<pre><code class="language-cpp">yfilecom.cpp
+</code></pre>
 
-<pk0>Packet: 'sdak'</pk0>
-<pk1>description: 'sdat acknowledge'
-direction: client to server
-- 1 byte (player)
-- 4 bytes (client frame_num)
-- 4 bytes (game_moves new entry position)
-- 4 bytes (chdf late count)
-- 4 bytes (frames skipped count)
-</pk1><br>
-            
-<pk0>Packet: 'serr'</pk0>
-<pk1>description: 'server error'
-direction: server to client
-- 1 byte (error type)
-- 4 bytes (server frame_num)
-- 4 bytes (server c sync)
-- 4 bytes (server c sync errors)
-</pk1><br>
+<mh3>
+Files that begin with 'n_' are for netgame.
+</mh3>
+<pre><code class="language-cpp">n_client.cpp
+n_network.cpp
+n_packet.cpp
+n_server.cpp
+</code></pre>
 
-<pk0>Packet: 'stdf'</pk0>
-<pk1>description: 'state dif'
-direction: server to client
-- 4 bytes (source frame_num)
-- 4 bytes (destination frame_num)
-- 1 byte (packet sequence num)
-- 1 byte (packet sequence total)
-- 4 bytes (data start byte)
-- 4 bytes (data size)
-</pk1><br>
+<mh3>
+The function 'main' is found in the file zmain.cpp.
 
-<pk0>Packet: 'stak'</pk0>
-<pk1>description: 'state dif acknowledge'
-direction: client to server
-- 1 byte (player)
-- 1 byte (diff corr)
-- 4 bytes (client frame_num)
-</pk1><br>
+Also found in zmain.cpp:
+- command line argument parsing and processing
+- initial setup, loading allegro and add-ons
+- the main game menu
+- a huge pile of global variable definitions
 
-<pk0>Packet: 'CJON'</pk0>
-<pk1>description: 'client join'
-direction: client to server
-- 1 byte (requested color)
-- 16 bytes (client hostname)
-</pk1><br>
-        
-<pk0>Packet: 'SJON'</pk0>
-<pk1>description: 'server join'
-direction: server to client
-- 2 bytes (play level)
-- 4 bytes (server frame_num)
-- 4 bytes (server game_move entry position)
-- 1 byte (frame speed)
-- 1 byte (player number)
-- 1 byte (player color)
-- 1 byte (deathmatch_pbullets)
-- 1 byte (deathmatch_pbullets_damage)
-- 1 byte (suicide_pbullets)
-</pk1>        
+I only have one header file: 'pm.h' that is included in every source file.
+It contains extern declarations of all the global variables definied in zmain.cpp.
+It also contains function prototypes for every function in the project.
+
+I know this is not "good programming style" and I have tried to reduce the number of
+globals wherever possible.   However, somtimes I just need to have a variable visible
+in many places, and any other solutions I could think of to avoid this, end up being more
+convoluted and non-intuitive.
+
+In the file 'zcfg.cpp' I load and save variable to the configuration file 'pm.cfg'.
+
+In the file 'zsound.cpp' I set up and process sound effects and theme music.
+
+In the file 'zscrn.cpp' I create the display and bitmaps, as well as rebuild them after screen changes.
+
+In the file 'yfilecom.cpp' are the functions to load the tilesets and levels.
+
+In the file 'zloop.cpp' is the main game loop.
+
+In the file 'zcontrol.cpp' is the event loop processing, and also all input and game controls
+
+
+The in game objects fall into 5 classes and are processed in:
+
+players - zplayer.cpp
+enemies - zemove.cpp
+items - zitem.cpp
+lifts - zlifts.cpp
+bullets - zbullets.cpp
+
+
+
+<mh3>
+
+
+
+
+
+
 
                <footer>
                 <mh11>Purple Martians</mh11><hr>

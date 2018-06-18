@@ -57,7 +57,7 @@ void proc_player_health(void)
    }
 }
 
-void player_move(void)
+void proc_player_move(void)
 {
    al_fixed z = al_itofix(0);
    al_fixed gravity = al_ftofix(.60);
@@ -68,13 +68,11 @@ void player_move(void)
    al_fixed x_de_accel = al_ftofix(.24);
    al_fixed max_x_velocity = al_ftofix(4);
    al_fixed initial_x_velocity = al_ftofix(1.15);
-
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       if (((players[p].active) && (!players[p].paused)) &&
           (!((players[p].carry_item) && (item[players[p].carry_item-1][0] == 98))))  // not riding rocket
       {
-
 
 // ---------------- check to see if player stuck in blocks...then kill him slowly!
 
@@ -354,6 +352,22 @@ void player_move(void)
          if (players[p].PY > al_itofix(1980)) players[p].PY = al_itofix(1980);
       } // end of if active, not paused, not riding rocket
 
+      if ((players[p].carry_item) && (item[players[p].carry_item-1][0] == 98))  // riding rocket
+      {
+         int c = players[p].carry_item-1;
+         int rot_inc = item[c][6];
+         if (players[p].left)  item[c][10]-=rot_inc;
+         if (players[p].right) item[c][10]+=rot_inc;
+         players[p].xinc = players[p].yinc = 0;
+         players[p].left_xinc = players[p].right_xinc = 0;
+         players[p].xinc = players[p].yinc = 0;
+         players[p].PX = itemf[c][0];
+         players[p].PY = itemf[c][1];
+
+         players[p].draw_rot = al_itofix(item[c][10]/10);
+         players[p].draw_scale = al_ftofix(.5);
+      }
+
 
       if (players[p].paused) // player is still on level but is frozen and controls are inactive
       {
@@ -377,9 +391,8 @@ void player_move(void)
 
             else // frozen done !!
             {
-               players[p].draw_scale = al_ftofix(1);
-               players[p].draw_rot += al_ftofix(0);
-
+               players[p].draw_scale = al_itofix(1);
+               players[p].draw_rot = al_itofix(0);
                players[p].paused = 0;
                players[p].old_LIFE = al_itofix(100);
                players[p].LIFE = al_itofix(100);
@@ -444,8 +457,6 @@ void player_move(void)
                   players[p].xinc=al_itofix(0);
                   players[p].yinc=al_itofix(0);
 
-//                  players[p].draw_rot = al_itofix(0);
-//                  players[p].draw_scale = al_itofix(1);
 
                   // snap to dest...
                   if (item[x][8] == 0) // regular dest
@@ -453,7 +464,7 @@ void player_move(void)
                      players[p].PX  = al_itofix(item[x][6] * 20);
                      players[p].PY  = al_itofix(item[x][7] * 20);
                   }
-                  if (item[x][8] == 1) // liked item dest
+                  if (item[x][8] == 1) // linked item dest
                   {
                      int li = item[x][9]; // linked item number
                      players[p].PX  = itemf[li][0];
@@ -495,10 +506,15 @@ void player_move(void)
 
                   }
                   players[p].paused = 0;  // the entire thing is done
+                  players[p].draw_rot = al_itofix(0);
+                  players[p].draw_scale = al_itofix(1);
                }
             }
          } // end of door move
       }  // end of if player paused
+
+      proc_player_carry(p);
+
    } // end if player iterate
 }
 
@@ -577,11 +593,8 @@ void get_players_shape(int p)
       pos = (rx / 4) % 5;  // try 5 for now
    }
 
-   // does paused always mean dead??
-   // can it also mean in door travel
-
+   // paused can mean dead or it can also mean in door travel
    // if paused use static shape
-   //if (players[p].paused) pos = 0;
    if (players[p].paused) players[p].shape = 0;
    else players[p].shape = index + pos;
 }

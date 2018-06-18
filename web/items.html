@@ -1,4 +1,18 @@
+<!doctype html>
+<title>Items</title>
 
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav>
 <div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
 <div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
@@ -29,3 +43,81 @@
 <div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
 <div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
 <div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div>
+</mdw_lhs_nav>
+            
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+<mh3><hr></mh3>
+<mh8>Items</mh8>
+<mh3><hr><mdw_file_toc> </mdw_file_toc><hr></mh3>
+
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+
+<mh3>
+Items are one of the 5 basic types of objects that interact in the game.
+
+These are all types of items:
+- start
+- exit
+- warp
+- door
+- key
+- switch
+- sproingy
+- bonus
+- free man
+- bomb
+- rocket
+- mine
+- pop-up msg
+
+
+They all live in 2 arrays that can hold 500 items.
+
+extern int item[500][16];      // item ints
+extern al_fixed itemf[500][4]; // item fixeds
+
+Each item has 16 ints to hold its data and 4 fixed's to hold position and momentum.
+
+when the game loop is running, these functions bring them to life:
+
+proc_item_collision();
+proc_item_move();
+
+the game loop calls this function to draw items on the level
+draw_items();
+	  
+
+</mh3>
+
+
+
+
+
+
+
+<pre><code class="language-cpp"></code></pre>
+
+
+
+
+               <footer>
+                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2018, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+            </footer>
+
+        </div>
+    </body>
+
+</html>

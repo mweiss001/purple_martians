@@ -1023,10 +1023,8 @@ int proc_controllers()
                   }
                }
                if (players[p].control_method == 1) rungame_key_check(p, ret); // run game from file
-               #ifdef NETPLAY
                if (players[p].control_method == 3) server_local_control(p);
                if (players[p].control_method == 4) client_local_control(p);
-               #endif
                set_controls_from_game_move(p); // common for all players
             }   // end of active player iterate
          proc_game_move();  // run once per frame to process system messages from game_move
