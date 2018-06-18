@@ -81,8 +81,11 @@ The second method uses the zlib compression library to compress the dif from the
     
 Using zlib only resulted in 5% to 10% compression.  Using both gets 1% - 2%.
 
-I am using 1024 byte packets, so with my header data I am able to send 1000 bytes of data per packet.
-This means I can usually send the entire game state in only 1 or 2 packets.
+WIth 1024 byte packets, I can usually send the entire game state in 1 or 2 packets.
+
+When a state dif is made without a previous state to base it on it is larger and needs 4-8 packets.
+This happens for the initial state, or rarely if the base state is lost somehow.
+
 </mh3>    
             
 <br><a name="Game state variables"></a>
@@ -325,7 +328,7 @@ for (int packet_num=0; packet_num < num_packets; packet_num++)
 }</code></pre>
 
 <mh3>
-After the 'stdf' packets are sent, the server waits for an acknowledge packet 'stak' from the client.
+After the 'stdf' packets are sent, the server expects an acknowledge packet 'stak' from the client.
 
 When an acknowledgement is received, the 2nd state is copied to the 1st state and becomes the new base.
 
@@ -351,17 +354,31 @@ If no acknowledgement is received, the next dif will use the same base as the la
    }
 }</code></pre>
 
+<br><a name="Resetting base state"></a>
+<mh7>Resetting base state</mh7>
 
 <mh3>
+Resetting the base to zero means setting all 104,640 bytes to zero, and setting the frame_num to 0;
+
+On the server, a client's base state is used to make new difs to send to that client.
+The client applies difs from the server to its local copy of the same base state, and acknowledges them.
 If the server does not have a copy of the state acknowledged by the client, it resets the client's base to zero.
 
-Then the next time an 'stdf' is sent it will be based on state 0 and will be considerably larger than a regular dif.
+The next dif sent will be based on state 0 and will be considerably larger than a regular dif.
 
-This can happpen if stdf's are being sent with too short of a delay.
-Then the client might ack one, but before the server gets the ack,
-the server has already made a new dif with a newer dest, overwriting the old dest state the client just ack'd.
+If a client receives a dif that has base state zero, it resets its base to zero.
 
-When a client receives a dif that has base state zero, it resets its base to zero.
+
+At the start of a level, the first dif the server sends will be from base zero.
+After that it should be quite rare for the base to be reset.
+
+It can happpen if difs are being sent with too short of a delay. (stdf_freq set too low)
+A client gets a dif, applies it, updates its base, and sends an acknowledge.
+
+Before server gets the acknowledge, the server sends a new dif, overwriting the dest used to make the last one.
+
+Then when the server does get the acknowledge, it no longer has the neeeded copy of the client's new base.
+
 </mh3>
 
 

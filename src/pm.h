@@ -35,7 +35,7 @@
 //#define SHOW_BOMB_DAMAGE_BOX
 
 // screen debug stuff
-#define SHOW_HYSTERESIS_WINDOW
+// #define SHOW_HYSTERESIS_WINDOW
 
 
 
@@ -976,10 +976,14 @@ void server_local_control(int p);
 
 
 // z_bullets.h
+void proc_pbullet_collision(int p);
 void proc_pbullets(void);
 void draw_pbullets(void);
+
+void proc_ebullet_collision(int p);
 void proc_ebullets(void);
 void draw_ebullets(void);
+
 void clear_bullets(void);
 
 // z_config.cpp
@@ -1013,18 +1017,20 @@ int proc_controllers(void);
 int enemy_data(int x_pos, int y_pos);
 void get_enemy_draw_shape(int e);
 void draw_enemy(void);
-void proc_enemy_collision(void);
-void enemy_flapper(void);
-void enemy_block_walker(void);
-void enemy_cloner(void);
+
+void proc_enemy_collision_with_player(int p);
+void proc_enemy_collision_with_pbullet(void);
+void enemy_flapper(int e);
+void enemy_block_walker(int e);
+void enemy_cloner(int e);
 void set_trakbot_mode(int EN, int mode);
-void enemy_trakbot(void);
-void enemy_podzilla(void);
-void enemy_cannon(void);
-void enemy_bouncer(void);
-void enemy_archwagon(void);
+void enemy_trakbot(int e);
+void enemy_podzilla(int e);
+void enemy_cannon(int e);
+void enemy_bouncer(int e);
+void enemy_archwagon(int e);
 al_fixed mdw_fixmul(al_fixed a, al_fixed b, float f_round);
-void enemy_deathcount(void);
+void enemy_deathcount(int e);
 void proc_enemy_move(void);
 void enemy_killed(int EN);
 void enemy_player_hit_proc(int EN);
@@ -1096,7 +1102,7 @@ void draw_items(void);
 void proc_item_move(void);
 int player_drop_item(int p);
 void proc_player_carry(int p);
-void proc_item_collision();
+void proc_item_collision(int p);
 void do_bomb_damage(int i);
 void proc_lit_bomb(int);
 void proc_lit_rocket(int);

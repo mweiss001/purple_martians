@@ -158,8 +158,8 @@ void game_loop(int start_mode)
    {
       if (level_done == 2) proc_start_mode(5);
       proc_scale_factor_change();
+
       proc_lift_move(0);
-      proc_item_collision();
       proc_item_move();
 
       if (ima_server) server_control();
@@ -168,12 +168,11 @@ void game_loop(int start_mode)
       proc_controllers();
       proc_player_move();
       proc_enemy_move();
-      proc_enemy_collision();
+
       proc_ebullets();
       proc_pbullets();
       proc_player_health();
       proc_sound();
-
       proc_frame_delay();
 
       if (draw_frame)

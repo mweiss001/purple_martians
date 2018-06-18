@@ -604,34 +604,378 @@ void proc_player_carry(int p)
       }
 }
 
-void proc_item_collision()
-{
-   al_fixed f16 = al_itofix(16);
 
-   for (int p=0; p<NUM_PLAYERS; p++)
-      players[p].marked_door = -1;  // so player can touch only one door
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void proc_door_collision(int p, int x)
+{
+   int itx = al_fixtoi(itemf[x][0] );
+   int ity = al_fixtoi(itemf[x][1] );
+
+   if ((players[p].marked_door == -1)  // player has no marked door yet
+     && (players[p].carry_item != x+1)) // player is not carrying this door
+   {
+      players[p].marked_door = x;
+
+      // item[x][6]  color
+      // item[x][7]  move type (0 = auto, 1 = force instant, 2 = force move
+      // item[x][8]  type (0 = no dest (exit only), 1 = linked dest
+      // item[x][9]  linked destination item
+      // item[x][10] key held flag
+      // item[x][11] door entry type (0 0-immed, 1 = up 2 = down)
+      // item[x][12] draw lines always, never
+      // item[x][13] base animation shape
+
+
+      if (item[x][8]) // do nothing if exit only
+      {
+         int do_entry = 0;
+         if (item[x][11] == 0) do_entry = 1; // enter immed
+         if (players[p].carry_item-1 != x) // cant trigger entry if carrying this door
+         {
+            if (item[x][11] == 1) // enter with <up>
+            {
+               // to prevent immediate triggering when destination door, wait for release and re-press
+
+               // if key held is old, ignore
+               if (item[x][10] && item[x][10] < frame_num-1) item[x][10] = 0;
+
+               // up pressed and !pressed last frame
+               if ((players[p].up) && (!item[x][10])) do_entry = 1;
+
+               if (players[p].up) item[x][10] = frame_num;
+               else item[x][10] = 0;
+
+            }
+
+            if (item[x][11] == 2) // enter with <down>
+            {
+               // to prevent immediate triggering when destination door, wait for release and re-press
+
+               // if key held is old, ignore
+               if (item[x][10] && item[x][10] < frame_num-1) item[x][10] = 0;
+
+               // down pressed and !pressed last frame
+               if ((players[p].down) && (!item[x][10])) do_entry = 1;
+
+               if (players[p].down) item[x][10] = frame_num;
+               else item[x][10] = 0;
+            }
+         }
+
+         if (do_entry)
+         {
+            int bad_exit = 0;
+            item[x][10] = 0; // clear the key hold for the door you just left
+
+           // check if dest item is same as source item
+            if (item[x][9] == x) bad_exit = 1;
+
+
+            // is player carrying an item ?
+            if (players[p].carry_item)
+            {
+                int ci = players[p].carry_item - 1;
+
+               // check to see if player is carrying this door
+                if (ci == x) player_drop_item(p);
+
+               // check to see if player is carrying an item without the carry through door flag set
+               if (item[ci][3] != -2)  player_drop_item(p);
+
+            }
+
+            // get the destination
+            al_fixed dx = al_itofix(0), dy = al_itofix(0);
+            int li = item[x][9]; // linked item number
+
+            if ((li > -1) && (li < 500))
+            {
+               dx = itemf[li][0];
+               dy = itemf[li][1];
+            }
+            else bad_exit = 1;
+
+
+            if ( (dx < al_itofix(0)) || (dx > al_itofix(1980)) ) bad_exit = 1;
+            if ( (dy < al_itofix(0)) || (dy > al_itofix(1980)) ) bad_exit = 1;
+
+            if (!bad_exit)
+            {
+               game_event(32, itx, ity, 0, 0, 0, 0 ); // In Door
+
+               int instant_move = 0;
+               if (item[x][7] == 0) // 0 = auto
+//                                    if ((item[x][3]) || (item[li][3])) // if source or dest are not stat
+                  if (item[li][3]) // if dest is not stat
+                     instant_move = 1;
+
+               if (item[x][7] == 1) instant_move = 1; // 1 = force instant
+               if (item[x][7] == 2) instant_move = 0; // 2 = force move
+
+               if (instant_move)
+               {
+                  players[p].PX = itemf[li][0];
+                  players[p].PY = itemf[li][1];
+                  item[li][10] = frame_num;
+               }
+               else
+               {
+                  // snap player to the source door
+                  players[p].PX = itemf[x][0];
+                  players[p].PY = itemf[x][1];
+
+                  players[p].right_xinc=al_itofix(0);
+                  players[p].left_xinc=al_itofix(0);
+
+                  // set player's xinc and yinc
+                  al_fixed xlen = players[p].PX - dx;                // get the x distance between player and exit
+                  al_fixed ylen = players[p].PY - dy;                // get the y distance between player and exit
+                  al_fixed hy_dist =  al_fixhypot(xlen, ylen);          // hypotenuse distance
+                  al_fixed speed = al_itofix(15);                       // speed
+                  al_fixed scaler = al_fixdiv(hy_dist, speed);          // get scaler
+                  players[p].door_xinc = al_fixdiv(xlen, scaler);    // calc xinc
+                  players[p].door_yinc = al_fixdiv(ylen, scaler);    // calc yinc
+
+                  // get rotation from players xinc, yinc
+                  players[p].door_draw_rot = al_fixatan2(players[p].door_yinc, players[p].door_xinc) - al_itofix(64);
+
+                  // get the number of steps
+                  al_fixed ns;
+                  if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, players[p].door_xinc);
+                  else  ns = al_fixdiv(ylen, players[p].door_yinc);
+                  int num_steps = al_fixtoi(ns);
+
+                  if ((num_steps > 0) && (num_steps < 2000))
+                  {
+                     players[p].door_draw_rot_num_steps = 12;
+                     int ddrns = players[p].door_draw_rot_num_steps;
+                     players[p].door_num_steps = num_steps;
+                     players[p].paused = 1;
+                     players[p].paused_type = 2;
+                     players[p].paused_mode = 1;
+                     players[p].paused_mode_count = ddrns;
+                     players[p].door_item = x;
+                     players[p].door_draw_rot_inc = al_fixdiv(players[p].door_draw_rot, al_itofix(ddrns));
+                  }
+                  // printf("ns:%d xinc:%3.2f yinc:%3.2f \n", num_steps, al_fixtof(players[p].xinc), al_fixtof(players[p].yinc));
+               } // end of if not instant move
+            }  // end of if not bad exit
+         } // end of do entry
+      } // end of if not exit only
+   } // end of if not first door touched
+}
+
+void proc_bonus_collision(int p, int x)
+{
+   int itx = al_fixtoi(itemf[x][0] );
+   int ity = al_fixtoi(itemf[x][1] );
+
+   if (item[x][7])
+   {
+      al_fixed f100 = al_itofix(100);
+      if (players[p].LIFE < f100)
+      {
+         item[x][0] = 0;
+         players[p].LIFE += al_itofix(item[x][7]);
+         if (players[p].LIFE > f100) players[p].LIFE = f100;
+         game_event(6, itx, ity, item[x][7], 0, 0, 0);
+      }
+      else  game_event(26, itx, ity, 0, 0, 0, 0); // already have 100 health
+   }
+}
+
+void proc_exit_collision(int p, int x)
+{
+   int itx = al_fixtoi(itemf[x][0] );
+   int ity = al_fixtoi(itemf[x][1] );
+
+   int exit_enemys_left = num_enemy - item[x][8];
+   if (exit_enemys_left <= 0)
+   {
+      level_done = 1;
+      next_level = play_level + 1;
+      game_event(4, itx, ity, 0, 0, 0, 0);
+   }
+   else game_event(3, itx, ity, exit_enemys_left, 0, 0, 0); // not enough dead yet
+}
+
+void proc_key_collision(int p, int x)
+{
+   int itx = al_fixtoi(itemf[x][0] );
+   int ity = al_fixtoi(itemf[x][1] );
+   game_event(2, itx, ity, p, item[x][1], 0, 0);   // send player and item shape
+   int x2 = (item[x][6] + item[x][8]) * 10;   // get the center of the block range
+   int y2 = (item[x][7] + item[x][9]) * 10;
+   al_fixed xlen = al_itofix(x2) - itemf[x][0];     // distance between block range and key
+   al_fixed ylen = al_itofix(y2) - itemf[x][1];
+   al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
+   al_fixed speed = al_itofix(12);                  // speed
+   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
+   al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
+   al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
+   itemf[x][2] = xinc;
+   itemf[x][3] = yinc;
+   al_fixed angle = al_fixatan2(ylen, xlen);        // get the angle for item rotation
+   item[x][10] = al_fixtoi(angle) * 10;
+   al_fixed ns;                                  // get the number of steps
+   if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, xinc);
+   else  ns = al_fixdiv(ylen, yinc);
+   int num_steps = al_fixtoi(ns);
+   item[x][11] = num_steps + 10;              // add 10 for final sequence
+}
+
+void proc_freeman_collision(int p, int x)
+{
+   int itx = al_fixtoi(itemf[x][0] );
+   int ity = al_fixtoi(itemf[x][1] );
+   item[x][0] = 0;
+   players[p].LIVES++;
+   game_event(9, itx, ity, 0, 0, 0, 0);
+}
+
+void proc_mine_collision(int p, int x)
+{
+   int itx = al_fixtoi(itemf[x][0] );
+   int ity = al_fixtoi(itemf[x][1] );
+   players[p].LIFE -= al_itofix(item[x][8]) / 10;
+   game_event(10, itx, ity, 0, 0, 0, 0);
+   game_event(7, itx, ity, item[x][8], 0, 0, 0);
+}
+
+void proc_bomb_collision(int p, int x)
+{
+   item[x][0] = 99; // change to lit bomb
+   item[x][6] = 1;  // mode == lit
+   item[x][8] = item[x][9]; // fuse wait count
+   item[x][10] = 100; // default scale = 1.00
+}
+
+void proc_rocket_collision(int p, int x)
+{
+   int itx = al_fixtoi(itemf[x][0] );
+   int ity = al_fixtoi(itemf[x][1] );
+   item[x][0] = 98;   // new type - lit rocket
+   item[x][1] = 1026; // new ans
+   item[x][3] = -1;   // carryable
+   itemf[x][3] = 0;   // stop if falling
+   game_event(25, itx, ity, 0, 0, 0, 0);
+}
+
+void proc_warp_collision(int p, int x)
+{
+   int itx = al_fixtoi(itemf[x][0] );
+   int ity = al_fixtoi(itemf[x][1] );
+   next_level = item[x][8];
+   level_done = 1;
+   game_event(4, itx, ity, 0, 0, 0, 0);
+}
+
+void proc_switch_collision(int p, int x)
+{
+   int itx = al_fixtoi(itemf[x][0] );
+   int ity = al_fixtoi(itemf[x][1] );
+   if (item[x][7] < frame_num) // if not lockout
+   {
+      // if falling and landing on it
+      if ( (players[p].PX  > itemf[x][0] - al_itofix(12)) &&
+           (players[p].PX  < itemf[x][0] + al_itofix(12)) &&
+           (players[p].PY  > itemf[x][1] - al_itofix(16)) &&
+           (players[p].PY  < itemf[x][1] - al_itofix(8)) &&
+           (players[p].yinc > al_itofix(0)) )  // falling
+      {
+         game_event(30, itx, ity, 0, 0, 0, 0);
+         item[x][7] = frame_num + 4; // switch lockout for next 4 frames
+         item[x][6] = !item[x][6];
+         if (item[x][6]) item[x][1] = item[x][8]; // on bmp
+         else            item[x][1] = item[x][9]; // off bmp
+         al_set_target_bitmap(level_background);
+         // toggle blocks
+         for (int c=0; c<100; c++)
+            for (int y=0; y<100; y++)
+            {
+               if (l[c][y] == item[x][11]) // empty switch block
+               {
+                  l[c][y] = item[x][10]; // replace with solid switch block
+                  al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
+                  al_draw_bitmap(tile[l[c][y]], c*20, y*20, 0 );
+               }
+               else if (l[c][y] == item[x][10]) // solid switch block
+               {
+                  l[c][y] = item[x][11]; // replace with empty switch block
+                  al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
+                  al_draw_bitmap(tile[l[c][y]], c*20, y*20, 0 );
+               }
+
+            } // end of toggle blocks
+         draw_lift_lines();
+      }  // end of falling and landing on
+   } // end of if not lockout
+}
+
+void proc_sproingy_collision(int p, int x)
+{
+   int itx = al_fixtoi(itemf[x][0] );
+   int ity = al_fixtoi(itemf[x][1] );
+   if ( (players[p].PX  > itemf[x][0] - al_itofix(10)) &&
+        (players[p].PX  < itemf[x][0] + al_itofix(10)) &&
+        (players[p].PY  > itemf[x][1] - al_itofix(16)) &&
+        (players[p].PY  < itemf[x][1] - al_itofix(8)) &&
+        (players[p].yinc > al_itofix(0)) && // falling
+        (players[p].jump) )   //  jump pressed
+   {
+      game_event(31, itx, ity, 0, 0, 0, 0);
+      players[p].yinc = al_itofix(0) - al_fixdiv(al_itofix(item[x][7]), al_ftofix(7.1));
+   }
+}
+
+
+
+void proc_item_collision(int p)
+{
+   players[p].marked_door = -1; // so player can touch only one door
+
+   al_fixed f16 = al_itofix(16);
 
    for (int x=0; x<500; x++)
       if (item[x][0])
       {
-
-
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if ( (players[p].active) && (!players[p].paused) &&
-                 (players[p].PX  > itemf[x][0] - f16 ) &&
+            if ( (players[p].PX  > itemf[x][0] - f16 ) &&
                  (players[p].PX  < itemf[x][0] + f16 ) &&
                  (players[p].PY  > itemf[x][1] - f16 ) &&
                  (players[p].PY  < itemf[x][1] + f16 ) )
             {
-               int itx = al_fixtoi(itemf[x][0] );
-               int ity = al_fixtoi(itemf[x][1] );
 
+
+
+               // check if player can carry item
                if ( (!players[p].carry_item)  // not carrying
                  && (item[x][3] < 0)          // item is carryable
                  && (players[p].fire) )       // fire pressed
                {
-                  int other_player_carrying = 0;
                   // check to see if another player is already carrying this item
+                  int other_player_carrying = 0;
                   for (int op=0; op<NUM_PLAYERS; op++)
                      if ((players[op].active) && (!players[op].paused))
                         if (players[op].carry_item == x+1)
@@ -644,316 +988,22 @@ void proc_item_collision()
                    if (item[x][0] == 98) players[p].carry_item = x+1;
                }
 
+
                switch (item[x][0]) // item type
                {
-                  case 1: // door
-                  {
-                     if ((players[p].marked_door == -1)  // player has no marked door yet
-                       && (players[p].carry_item != x+1)) // player is not carrying this door
-                     {
-                        players[p].marked_door = x;
-
-
-                        // item[x][6]  color
-                        // item[x][7]  move type (0 = auto, 1 = force instant, 2 = force move
-                        // item[x][8]  type (0 = no dest (exit only), 1 = linked dest
-                        // item[x][9]  linked destination item
-                        // item[x][10] key held flag
-                        // item[x][11] door entry type (0 0-immed, 1 = up 2 = down)
-                        // item[x][12] draw lines always, never
-                        // item[x][13] base animation shape
-
-
-                        if (item[x][8]) // do nothing if exit only
-                        {
-                           int do_entry = 0;
-                           if (item[x][11] == 0) do_entry = 1; // enter immed
-                           if (players[p].carry_item-1 != x) // cant trigger entry if carrying this door
-                           {
-                              if (item[x][11] == 1) // enter with <up>
-                              {
-                                 // to prevent immediate triggering when destination door, wait for release and re-press
-
-                                 // if key held is old, ignore
-                                 if (item[x][10] && item[x][10] < frame_num-1) item[x][10] = 0;
-
-                                 // up pressed and !pressed last frame
-                                 if ((players[p].up) && (!item[x][10])) do_entry = 1;
-
-                                 if (players[p].up) item[x][10] = frame_num;
-                                 else item[x][10] = 0;
-
-                              }
-
-                              if (item[x][11] == 2) // enter with <down>
-                              {
-                                 // to prevent immediate triggering when destination door, wait for release and re-press
-
-                                 // if key held is old, ignore
-                                 if (item[x][10] && item[x][10] < frame_num-1) item[x][10] = 0;
-
-                                 // down pressed and !pressed last frame
-                                 if ((players[p].down) && (!item[x][10])) do_entry = 1;
-
-                                 if (players[p].down) item[x][10] = frame_num;
-                                 else item[x][10] = 0;
-                              }
-                           }
-
-                           if (do_entry)
-                           {
-                              int bad_exit = 0;
-                              item[x][10] = 0; // clear the key hold for the door you just left
-
-                             // check if dest item is same as source item
-                              if (item[x][9] == x) bad_exit = 1;
-
-
-                              // is player carrying an item ?
-                              if (players[p].carry_item)
-                              {
-                                  int ci = players[p].carry_item - 1;
-
-                                 // check to see if player is carrying this door
-                                  if (ci == x) player_drop_item(p);
-
-                                 // check to see if player is carrying an item without the carry through door flag set
-                                 if (item[ci][3] != -2)  player_drop_item(p);
-
-                              }
-
-                              // get the destination
-                              al_fixed dx = al_itofix(0), dy = al_itofix(0);
-                              int li = item[x][9]; // linked item number
-
-                              if ((li > -1) && (li < 500))
-                              {
-                                 dx = itemf[li][0];
-                                 dy = itemf[li][1];
-                              }
-                              else bad_exit = 1;
-
-
-                              if ( (dx < al_itofix(0)) || (dx > al_itofix(1980)) ) bad_exit = 1;
-                              if ( (dy < al_itofix(0)) || (dy > al_itofix(1980)) ) bad_exit = 1;
-
-                              if (!bad_exit)
-                              {
-                                 game_event(32, itx, ity, 0, 0, 0, 0 ); // In Door
-
-                                 int instant_move = 0;
-                                 if (item[x][7] == 0) // 0 = auto
-//                                    if ((item[x][3]) || (item[li][3])) // if source or dest are not stat
-                                    if (item[li][3]) // if dest is not stat
-                                       instant_move = 1;
-
-                                 if (item[x][7] == 1) instant_move = 1; // 1 = force instant
-                                 if (item[x][7] == 2) instant_move = 0; // 2 = force move
-
-                                 if (instant_move)
-                                 {
-                                    players[p].PX = itemf[li][0];
-                                    players[p].PY = itemf[li][1];
-                                    item[li][10] = frame_num;
-                                 }
-                                 else
-                                 {
-                                    // snap player to the source door
-                                    players[p].PX = itemf[x][0];
-                                    players[p].PY = itemf[x][1];
-
-                                    players[p].right_xinc=al_itofix(0);
-                                    players[p].left_xinc=al_itofix(0);
-
-                                    // set player's xinc and yinc
-                                    al_fixed xlen = players[p].PX - dx;                // get the x distance between player and exit
-                                    al_fixed ylen = players[p].PY - dy;                // get the y distance between player and exit
-                                    al_fixed hy_dist =  al_fixhypot(xlen, ylen);          // hypotenuse distance
-                                    al_fixed speed = al_itofix(15);                       // speed
-                                    al_fixed scaler = al_fixdiv(hy_dist, speed);          // get scaler
-                                    players[p].door_xinc = al_fixdiv(xlen, scaler);    // calc xinc
-                                    players[p].door_yinc = al_fixdiv(ylen, scaler);    // calc yinc
-
-                                    // get rotation from players xinc, yinc
-                                    players[p].door_draw_rot = al_fixatan2(players[p].door_yinc, players[p].door_xinc) - al_itofix(64);
-
-                                    // get the number of steps
-                                    al_fixed ns;
-                                    if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, players[p].door_xinc);
-                                    else  ns = al_fixdiv(ylen, players[p].door_yinc);
-                                    int num_steps = al_fixtoi(ns);
-
-                                    if ((num_steps > 0) && (num_steps < 2000))
-                                    {
-                                       players[p].door_draw_rot_num_steps = 12;
-                                       int ddrns = players[p].door_draw_rot_num_steps;
-                                       players[p].door_num_steps = num_steps;
-                                       players[p].paused = 1;
-                                       players[p].paused_type = 2;
-                                       players[p].paused_mode = 1;
-                                       players[p].paused_mode_count = ddrns;
-                                       players[p].door_item = x;
-                                       players[p].door_draw_rot_inc = al_fixdiv(players[p].door_draw_rot, al_itofix(ddrns));
-                                    }
-                                    // printf("ns:%d xinc:%3.2f yinc:%3.2f \n", num_steps, al_fixtof(players[p].xinc), al_fixtof(players[p].yinc));
-                                 } // end of if not instant move
-                              }  // end of if not bad exit
-                           } // end of do entry
-                        } // end of if not exit only
-                     } // end of if not first door touched
-                  }
-                  break;
-                  case 2: // health bonus
-                  {
-                     if (item[x][7])
-                     {
-                        al_fixed f100 = al_itofix(100);
-                        if (players[p].LIFE < f100)
-                        {
-                           item[x][0] = 0;
-                           players[p].LIFE += al_itofix(item[x][7]);
-                           if (players[p].LIFE > f100) players[p].LIFE = f100;
-                           game_event(6, itx, ity, item[x][7], 0, 0, 0);
-                        }
-                        else  game_event(26, itx, ity, 0, 0, 0, 0); // already have 100 health
-                     }
-                  }
-                  break;
-                  case 3: // exit
-                  {
-                     int exit_enemys_left = num_enemy - item[x][8];
-
-                     if (exit_enemys_left <= 0)
-                     {
-                        level_done = 1;
-                        next_level = play_level + 1;
-                        game_event(4, itx, ity, 0, 0, 0, 0);
-                     }
-                     else game_event(3, itx, ity, exit_enemys_left, 0, 0, 0); // not enough dead yet
-                  }
-                  break;
-                  case 4: // key
-                  {
-                     game_event(2, itx, ity, p, item[x][1], 0, 0);   // send player and item shape
-                     int x2 = (item[x][6] + item[x][8]) * 10;   // get the center of the block range
-                     int y2 = (item[x][7] + item[x][9]) * 10;
-                     al_fixed xlen = al_itofix(x2) - itemf[x][0];     // distance between block range and key
-                     al_fixed ylen = al_itofix(y2) - itemf[x][1];
-                     al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-                     al_fixed speed = al_itofix(12);                  // speed
-                     al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
-                     al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
-                     al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
-                     itemf[x][2] = xinc;
-                     itemf[x][3] = yinc;
-                     al_fixed angle = al_fixatan2(ylen, xlen);        // get the angle for item rotation
-                     item[x][10] = al_fixtoi(angle) * 10;
-                     al_fixed ns;                                  // get the number of steps
-                     if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, xinc);
-                     else  ns = al_fixdiv(ylen, yinc);
-                     int num_steps = al_fixtoi(ns);
-                     item[x][11] = num_steps + 10;              // add 10 for final sequence
-                  }
-                  break;
-                  case 6: // free man
-                  {
-                     item[x][0] = 0;
-                     players[p].LIVES++;
-                     game_event(9, itx, ity, 0, 0, 0, 0);
-                  }
-                  break;
-                  case 7: // mine
-                  {
-                     players[p].LIFE -= al_itofix(item[x][8]) / 10;
-                     game_event(10, itx, ity, 0, 0, 0, 0);
-                     game_event(7, itx, ity, item[x][8], 0, 0, 0);
-                  }
-                  break;
-                  case 8: // un-lit bomb
-                  {
-                     item[x][0] = 99; // change to lit bomb
-                     item[x][6] = 1;  // mode == lit
-                     item[x][8] = item[x][9]; // fuse wait count
-                     item[x][10] = 100; // default scale = 1.00
-                  }
-                  break;
-                  case 10: // pop-up message
-                  {
-                     item[x][6] = item[x][7]; // set the message display timer
-                  }
-                  break;
-                  case 11: // rocket
-                  {
-                     game_event(25, itx, ity, 0, 0, 0, 0);
-                     item[x][0] = 98;   // new type - lit rocket
-                     item[x][1] = 1026; // new ans
-                     item[x][3] = -1;   // carryable
-                     itemf[x][3] = 0;   // stop if falling
-                  }
-                  break;
-                  case 12: // warp
-                  {
-                     next_level = item[x][8];
-                     level_done = 1;
-                     game_event(4, itx, ity, 0, 0, 0, 0);
-                  }
-                  break;
-                  case 14: // switch
-                  {
-                     if (item[x][7] < frame_num) // if not lockout
-                     {
-                        // if falling and landing on it
-                        if ( (players[p].PX  > itemf[x][0] - al_itofix(12)) &&
-                             (players[p].PX  < itemf[x][0] + al_itofix(12)) &&
-                             (players[p].PY  > itemf[x][1] - al_itofix(16)) &&
-                             (players[p].PY  < itemf[x][1] - al_itofix(8)) &&
-                             (players[p].yinc > al_itofix(0)) )  // falling
-                        {
-                           game_event(30, itx, ity, 0, 0, 0, 0);
-                           item[x][7] = frame_num + 4; // switch lockout for next 4 frames
-                           item[x][6] = !item[x][6];
-                           if (item[x][6]) item[x][1] = item[x][8]; // on bmp
-                           else            item[x][1] = item[x][9]; // off bmp
-                           al_set_target_bitmap(level_background);
-                           // toggle blocks
-                           for (int c=0; c<100; c++)
-                              for (int y=0; y<100; y++)
-                              {
-                                 if (l[c][y] == item[x][11]) // empty switch block
-                                 {
-                                    l[c][y] = item[x][10]; // replace with solid switch block
-                                    al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
-                                    al_draw_bitmap(tile[l[c][y]], c*20, y*20, 0 );
-                                 }
-                                 else if (l[c][y] == item[x][10]) // solid switch block
-                                 {
-                                    l[c][y] = item[x][11]; // replace with empty switch block
-                                    al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
-                                    al_draw_bitmap(tile[l[c][y]], c*20, y*20, 0 );
-                                 }
-
-                              } // end of toggle blocks
-                           draw_lift_lines();
-                        }  // end of falling and landing on
-                     } // end of if not lockout
-                  }
-                  break;
-
-                  case 15: // sproingy
-                  {
-                     if ( (players[p].PX  > itemf[x][0] - al_itofix(10)) &&
-                          (players[p].PX  < itemf[x][0] + al_itofix(10)) &&
-                          (players[p].PY  > itemf[x][1] - al_itofix(16)) &&
-                          (players[p].PY  < itemf[x][1] - al_itofix(8)) &&
-                          (players[p].yinc > al_itofix(0)) && // falling
-                          (players[p].jump) )   //  jump pressed
-                     {
-                        game_event(31, itx, ity, 0, 0, 0, 0);
-                        players[p].yinc = al_itofix(0) - al_fixdiv(al_itofix(item[x][7]), al_ftofix(7.1));
-                     }
-                  }
-                  break;
-               } // end of switch case
+                  case 1: proc_door_collision(p, x); break;
+                  case 2: proc_bonus_collision(p, x); break;
+                  case 3: proc_exit_collision(p, x); break;
+                  case 4: proc_key_collision(p, x); break;
+                  case 6: proc_freeman_collision(p, x); break;
+                  case 7: proc_mine_collision(p, x); break;
+                  case 8: proc_bomb_collision(p, x); break;
+                  case 10: item[x][6] = item[x][7]; break; // set pop-up message timer
+                  case 11: proc_rocket_collision(p, x); break;
+                  case 12: proc_warp_collision(p, x); break;
+                  case 14: proc_switch_collision(p, x); break;
+                  case 15: proc_sproingy_collision(p, x); break;
+               }
             } // end of player collision with active item
       }
 }

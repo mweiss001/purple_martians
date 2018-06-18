@@ -73,6 +73,11 @@ void proc_player_move(void)
       if (((players[p].active) && (!players[p].paused)) &&
           (!((players[p].carry_item) && (item[players[p].carry_item-1][0] == 98))))  // not riding rocket
       {
+         proc_item_collision(p);
+         proc_ebullet_collision(p);
+         proc_pbullet_collision(p);
+         proc_enemy_collision_with_player(p);
+
 
 // ---------------- check to see if player stuck in blocks...then kill him slowly!
 

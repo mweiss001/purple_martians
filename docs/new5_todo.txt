@@ -3,6 +3,12 @@
 ---------------------------------------------------------
 
 
+fix hysteresis window move when zooming
+
+
+
+
+
 
 
 -------------------------------------------------------
@@ -13,6 +19,12 @@ put libraries for linux in main dir for release
 
 
 make other kind of mines, like spikes, lava, flames...etc
+
+
+
+
+
+
 
 
 
