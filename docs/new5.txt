@@ -8234,6 +8234,55 @@ lets put underscores in all z files..done
 
 
 
+
+---------------------------------------------------------
+what happens if a client gets a dif with the wrong base from the server?
+a log entry is created, but no other handling is done...
+this can't be an issue cause it works, I'm just curious....
+
+when could this happen?
+client updates base, but ack never makes it back to server...
+
+then server will keep sending difs with new dest, but same src that client does not have
+client will never ack, cause they have wrong base
+
+how about if client gets wrong base, it acks with correct base?
+
+this cant be done in apply because it checks every frame and will often have base
+
+do it when the full packet is rx and decompressed...at that point the src better match...
+
+maybe it can be done in apply, but only on the frame where dest = frame
+yes, that should work...
+
+its just re-sending the ack, that for some reason the server does not have
+then the server will detect the mismatch and reset base to 0
+
+
+
+      if (client_state_base_frame_num != client_state_dif_src)  // stored base state does NOT match dif source
+      {
+         sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
+         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
+
+         // send ack to server with correct acknowledged base state
+         Packet("stak");
+         PacketPut1ByteInt(p);
+         PacketPut1ByteInt(0);
+         PacketPut4ByteInt(client_state_base_frame_num);
+         ClientSend(packetbuffer, packetsize);
+      }
+
+
+done.....
+---------------------------------------------------------
+
+
+
+
+
+
+
 next..how f'd are the collision checks
 
 proc_item_collision();
@@ -8241,15 +8290,183 @@ proc_item_collision();
 
 
 proc_enemy_collision();
-100 enemies - 50 bullets
+100 enemies - 50 pbullets
             - 8 players
 
 
 ebullets
-50 bullets - 8 players
+50 ebullets - 8 players
 
 pbullets
-50 bullets - 8 players
+50 pbullets - 8 players
+
+
+
+I could straighten this out by:
+put both bullet checks and item in player
+
+I'm already iterating players...
+
+
+what needs collision checks?
+player - pbullets
+       - ebullets
+       - enemies
+       - items
+
+enemy - pbullets
+
+what if I make the functions like:
+
+proc_player_item_collision(int p)
+
+
+
+made all item collision for specific types into their own functions...
+
+               switch (item[x][0]) // item type
+               {
+                  case 1: proc_door_collision(p, x); break;
+                  case 2: proc_bonus_collision(p, x); break;
+                  case 3: proc_exit_collision(p, x); break;
+                  case 4: proc_key_collision(p, x); break;
+                  case 6: proc_freeman_collision(p, x); break;
+                  case 7: proc_mine_collision(p, x); break;
+                  case 8: proc_bomb_collision(p, x); break;
+                  case 10: item[x][6] = item[x][7]; break; // set pop-up message timer
+                  case 11: proc_rocket_collision(p, x); break;
+                  case 12: proc_warp_collision(p, x); break;
+                  case 14: proc_switch_collision(p, x); break;
+                  case 15: proc_sproingy_collision(p, x); break;
+               }
+            } // end of player collision with active item
+
+
+now I want to call item collison from player_move
+
+where should I do the collision detection?
+
+this means that the order of things in the game loop will change...
+
+old:
+
+      if (level_done == 2) proc_start_mode(5);
+      proc_scale_factor_change();
+      proc_lift_move(0);
+      proc_item_collision();
+      proc_item_move();
+      if (ima_server) server_control();
+      if (ima_client) client_control();
+
+      proc_controllers();
+      proc_player_move();
+      proc_enemy_move();
+      proc_enemy_collision();
+      proc_ebullets();
+      proc_pbullets();
+      proc_player_health();
+      proc_sound();
+      proc_frame_delay();
+
+new:
+      if (level_done == 2) proc_start_mode(5);
+      proc_scale_factor_change();
+      proc_lift_move(0);
+      proc_item_move();
+      if (ima_server) server_control();
+      if (ima_client) client_control();
+
+      proc_controllers();
+
+      proc_player_move();
+      proc_item_collision();
+
+      proc_enemy_move();
+      proc_enemy_collision();
+      proc_ebullets();
+      proc_pbullets();
+      proc_player_health();
+      proc_sound();
+      proc_frame_delay();
+
+
+
+done
+
+now I call
+proc_item_collision(p);
+from player_move
+
+collision detection takes place in proc_item_collision(p);
+
+
+
+that looks good, now what else?
+
+move ebullet collision to player also
+done
+proc_ebullet_collision(p);
+
+now enemy collision with player..
+
+
+ok now I have moved all to player move....
+player - pbullets
+       - ebullets
+       - enemies
+       - items
+
+the only collision I have left is
+enemy to pbullet
+
+got rid of the global EN in z_enemy
+now what about EXint and EYint??
+
+
+also rearrage game loop stuff
+
+stream line the 4 player collisions in player move
+
+move some things out of player_move to simplify...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

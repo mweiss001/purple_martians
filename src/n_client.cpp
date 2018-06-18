@@ -448,6 +448,13 @@ void client_apply_diff()
       {
          sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
          if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
+
+         // send ack to server with correct acknowledged base state
+         Packet("stak");
+         PacketPut1ByteInt(p);
+         PacketPut1ByteInt(0);
+         PacketPut4ByteInt(client_state_base_frame_num);
+         ClientSend(packetbuffer, packetsize);
       }
       else // stored base state matches dif source
       {
@@ -502,7 +509,6 @@ void client_apply_diff()
          PacketPut1ByteInt(dif_corr);
          PacketPut4ByteInt(frame_num);
          ClientSend(packetbuffer, packetsize);
-
       }
    }
    else // dest not match
