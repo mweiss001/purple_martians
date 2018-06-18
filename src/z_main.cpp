@@ -703,7 +703,6 @@ void game_menu(void)
          }
       }
 
-      #ifdef NETPLAY
       if (top_menu_sel == 5) // host network game
       {
          play_level = start_level;
@@ -713,7 +712,6 @@ void game_menu(void)
       {
          game_loop(3); // client game
       }
-      #endif
 
       if (top_menu_sel == 9) demo_mode(); // demo mode
 
@@ -1196,7 +1194,6 @@ int main(int argument_count, char **argument_array)
          }
          #endif
 
-         #ifdef NETPLAY
          // no server specified; use the one from the config file
          if (strcmp(argument_array[1],"-c") == 0 )
          {
@@ -1212,8 +1209,6 @@ int main(int argument_count, char **argument_array)
             game_loop(2); // server game
             fast_exit(0);
          }
-         #endif
-
 
          // keep this last so if no other single flag matches try to run like it an int level...
          // start game on specified level -- eg: 'pm.exe 211'
@@ -1276,7 +1271,6 @@ int main(int argument_count, char **argument_array)
                fast_exit(0);
             }
          }
-         #ifdef NETPLAY
          if (strcmp(argument_array[1],"-c") == 0 )
          {
             show_splash_screen = 0;
@@ -1292,8 +1286,6 @@ int main(int argument_count, char **argument_array)
             game_loop(2); // server game
             fast_exit(0);
          }
-         #endif
-
       } // end of argument_count == 3
       game_menu(); // this is where it all happens
    } // end of if initial setup

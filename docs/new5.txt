@@ -8091,4 +8091,167 @@ spent 6 hours making the graph for log file viewer look great...
 
 
 
+in what nested way are these called??
+
+all from game loop:
+proc_item_collision();
+proc_item_move();
+proc_lit_bomb();
+proc_lit_rocket();
+proc_player_carry();
+draw_items();
+
+
+int player_drop_item(int p);
+3 x
+1 x in player carry when item dropped
+2 x item collision door entry
+
+
+void draw_pop_message(int c);
+1 x in draw_item
+
+void draw_door(int c, int x, int y);
+1 x in draw_item
+
+void do_bomb_damage(int i);
+1 x proc_lit_bomb();
+
+void remove_block(int x, int y);
+3 x
+2 x proc_item_move(); key
+1 x 1 x proc_lit_bomb();
+
+
+--------how can i simplify these 6 calls from game loop?
+proc_item_collision();
+proc_item_move();
+proc_lit_bomb();
+proc_lit_rocket();
+proc_player_carry();
+draw_items();
+
+to compare, enemy has 3
+enemy_move();
+enemy_collision();
+draw_enemy();
+
+
+how are they iterated?
+
+proc_item_collision();
+500 items then 8 players
+
+proc_item_move();
+500 items
+
+proc_lit_bomb();
+500 items
+
+proc_lit_rocket();
+500 items
+
+proc_player_carry();
+8 players
+
+
+I want to call:
+proc_lit_bomb();
+proc_lit_rocket();
+from
+proc_item_move();
+done....now its only 4
+
+proc_item_collision();
+proc_item_move();
+proc_player_carry();
+draw_items();
+
+can I move player carry somewhere??
+
+add code in main player code to reset scale and rot if not in paused 2 or rocket
+what if I just reset it by default and let someething change it if it needs to...
+cant make that work..just reset after door move done and when drop rocket...
+
+also when rocket explodes...
+when rocket explodes it turns into a lit bomb
+when lit bomb explodes force drop, reset scale and rot there... seems to work
+
+
+
+now I want to patch this into main player move
+
+void proc_player_carry(void)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (players[p].carry_item))
+         if (!players[p].paused || (players[p].paused && players[p].paused_type == 2))// player is carrying item
+         {
+            int pc = players[p].carry_item-1; // number of item
+            if (item[pc][0] != 98)            // not lit rocket
+            {
+               // set item position relative to player that's carrying it
+               itemf[pc][1] = players[p].PY - al_itofix(2);
+               if (!players[p].left_right) itemf[pc][0] = players[p].PX - al_itofix(15);
+               if (players[p].left_right) itemf[pc][0] = players[p].PX + al_itofix(15);
+            }
+            if (!players[p].fire) // drop
+            {
+               if (player_drop_item(p) < 6)
+               {
+                  if (item[pc][0] != 98)            // not lit rocket
+                  {
+                     itemf[pc][2] = players[p].xinc;  // inherit the players momentum
+                     itemf[pc][3] = players[p].yinc;
+                     if (players[p].up)    itemf[pc][3] -= al_itofix(6); // throw item upwards
+                     if (players[p].left)  itemf[pc][2] -= al_itofix(2); // throw item left
+                     if (players[p].right) itemf[pc][2] += al_itofix(2); // throw item right
+                  }
+                  else // drop a rocket
+                  {
+                     players[p].draw_rot = al_itofix(0);
+                     players[p].draw_scale = al_itofix(1);
+                  }
+               }
+            }
+         }
+}
+
+void proc_player_carry(int p)
+
+done...
+
+
+rot not fixed after death
+
+
+
+lets rename zemove to zenemy..done
+
+lets move all file stuff to zfile and lose yfilecom..done
+
+lets put underscores in all z files..done
+
+
+
+next..how f'd are the collision checks
+
+proc_item_collision();
+500 items - 8 players
+
+
+proc_enemy_collision();
+100 enemies - 50 bullets
+            - 8 players
+
+
+ebullets
+50 bullets - 8 players
+
+pbullets
+50 bullets - 8 players
+
+
+
+
 

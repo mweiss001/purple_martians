@@ -92,7 +92,6 @@ void remove_block(int x, int y)
 }
 
 
-
 void draw_pop_message(int c)
 {
    al_set_target_bitmap(level_buffer);
@@ -141,25 +140,17 @@ void draw_pop_message(int c)
 void draw_door(int c, int x, int y)
 {
    ALLEGRO_BITMAP *tmp = NULL;
-
    int col = item[c][6];
-   //int text_col = col;
    if (item[c][13] == 448) // old style door shape
    {
-      //text_col = 15;                // all old style door use white lettering
-      //if (col == 15) text_col = 14;  // except for white!
       int shape = item[c][1];       // get shape
       int si = shape-448;           // convert to index to bitmap sequence
-      //al_draw_bitmap(door_tile[1][col][si], 0, 0, 0);
       tmp = door_tile[1][col][si];
-
    }
    else // new style doors
    {
-      //if (col == 0) text_col = 15;    // all use same color as door, except for door color 0
       int an = zz[1][83];             // cheat and use shape index from base door animation sequence
       if (item[c][8] == 0) an = 7-an; // exit only, run the sequence backwards
-      //al_draw_bitmap(door_tile[0][col][an], 0, 0, 0);
       tmp = door_tile[0][col][an];
    }
 
@@ -169,8 +160,6 @@ void draw_door(int c, int x, int y)
       // linked destination item position
       int dx = al_fixtoi(itemf[item[c][9]][0]);
       int dy = al_fixtoi(itemf[item[c][9]][1]);
-
-      // line_color = players[p].color;
       int line_color = item[item[c][9]][6];
 
       if (item[c][12] == 1) // if always draw lines (1)
@@ -188,9 +177,6 @@ void draw_door(int c, int x, int y)
             if (item[c][8] == 0) al_draw_scaled_bitmap(tile[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
             else al_draw_scaled_bitmap(tile[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
 
-
-
-
             if (item[c][11] == 1) // enter with <up>
                al_draw_text(font, palette_color[15],  x+3, y-14, 0, "up");
 
@@ -198,8 +184,6 @@ void draw_door(int c, int x, int y)
                al_draw_text(font, palette_color[15],  x-5, y-14, 0, "down");
             drawn = 1;
          }
-
-
    }
    if (!drawn)
    {
@@ -207,11 +191,7 @@ void draw_door(int c, int x, int y)
 
       if (item[c][8] == 0) al_draw_bitmap(tile[1015], x, y, 0); // OUT
       else al_draw_bitmap(tile[1014], x, y, 0); // IN
-
-
-
    }
-
 }
 
 void draw_items(void)
@@ -261,11 +241,10 @@ void draw_items(void)
             float xinc = xw/8;
             float yinc = yh/8;
 
-            float seq = 9 - item[c][11]; // starts at 0, goes to 8 ;
+            float seq = 9 - item[c][11]; // starts at 0, goes to 8
             int xo = (int)(seq * xinc / 2);
             int yo = (int)(seq * yinc / 2);
             al_draw_rectangle(x1+xo, y1+yo, x2-xo, y2-yo, palette_color[15], 1);
-
          }
 
         if (item[c][0] == 99) // stretch draw for lit bombs only
@@ -321,10 +300,7 @@ void draw_items(void)
          if (!drawn) al_draw_bitmap(tile[shape], x, y, 0);
 
 
-
-
-   /*
-
+         #ifdef SHOW_BOMB_DAMAGE_BOX
          // this is to test if the players or enemies are in the damage window
          if ((item[c][0] == 8) || (item[c][0] == 99))  // bomb
          {
@@ -354,28 +330,22 @@ void draw_items(void)
                      // calculate the damage the player would take
                      al_fixed x_dist = abs(players[p].PX - x);
                      al_fixed y_dist = abs(players[p].PY - y);
-                     al_fixed distance = fixhypot(x_dist, y_dist);
-                     al_fixed damage = fixdiv(b, distance); // damage window size / distance (scale of 1 - 4)
+                     al_fixed distance = al_fixhypot(x_dist, y_dist);
+                     al_fixed damage = al_fixdiv(b, distance); // damage window size / distance (scale of 1 - 4)
                      damage *= 20; // multiple by 20 (scale of 20-80)
                      if (damage > al_itofix(80)) damage = al_itofix(80);
 
                      sprintf(msg, "b:%d d:%d  damage:%d ", al_fixtoi(b), al_fixtoi(distance), al_fixtoi(damage) );
-                     textout_ex(level_buffer, font, msg, al_fixtoi(x1)+10, al_fixtoi(y1), palette_color[color], 0);
-
+                     al_draw_text(font, palette_color[color], al_fixtof(x1)+10, al_fixtof(y1), 0, msg);
                    }
 
             for (int e=0; e<100 ; e++) // enemies in damage window?
                if (Ei[e][0])
                   if ((Efi[e][0] > x1) && (Efi[e][0] < x2) && (Efi[e][1] > y1) && (Efi[e][1] < y2))
                      color = 13;
-
-
-            rect(level_buffer, al_fixtoi(dx1), al_fixtoi(dy1), al_fixtoi(dx2), al_fixtoi(dy2), palette_color[color]);
+            al_draw_rectangle(al_fixtof(dx1), al_fixtof(dy1), al_fixtof(dx2), al_fixtof(dy2), palette_color[color], 2);
          }
-
-   */
-
-
+         #endif
       } // end of active item iterate
 }
 
@@ -386,7 +356,6 @@ void proc_item_move()
    for (c=0; c<500; c++)
       if (item[c][0])
       {
-
          // check for time to live
          int ttl = item[c][14];
          if (ttl)
@@ -401,6 +370,8 @@ void proc_item_move()
             item[c][14]--;
          }
 
+         if (item[c][0] == 99) proc_lit_bomb(c);
+         if (item[c][0] == 98) proc_lit_rocket(c);
 
          if ((item[c][0] == 4) && (item[c][11] > 0)) // moving key
          {
@@ -565,10 +536,7 @@ int player_drop_item(int p)
 {
    int pc = players[p].carry_item-1; // number of item
    int wall_stuck = 0;
-
    players[p].carry_item = 0;
-
-
    if (item[pc][0] != 99) // not lit bomb
    {
       // check to see if the item is embedded in the wall
@@ -601,28 +569,24 @@ int player_drop_item(int p)
    return wall_stuck;
 }
 
-void proc_player_carry(void)
+void proc_player_carry(int p)
 {
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if (   (players[p].active)
-       &&  ((!players[p].paused) || (players[p].paused && players[p].paused_type == 2))
-       &&    (players[p].carry_item)   )  // player is carrying item
+   if ((players[p].active) && (players[p].carry_item))
+      if (!players[p].paused || (players[p].paused && players[p].paused_type == 2))// player is carrying item
       {
-         int wall_stuck = 0;
          int pc = players[p].carry_item-1; // number of item
-         if (item[pc][0] != 98) // not lit rocket
+         if (item[pc][0] != 98)            // not lit rocket
          {
+            // set item position relative to player that's carrying it
             itemf[pc][1] = players[p].PY - al_itofix(2);
             if (!players[p].left_right) itemf[pc][0] = players[p].PX - al_itofix(15);
             if (players[p].left_right) itemf[pc][0] = players[p].PX + al_itofix(15);
          }
          if (!players[p].fire) // drop
          {
-            wall_stuck = player_drop_item(p);
-
-            if (item[pc][0] != 98) // not lit rocket
+            if (player_drop_item(p) < 6)
             {
-               if (wall_stuck < 6)
+               if (item[pc][0] != 98)            // not lit rocket
                {
                   itemf[pc][2] = players[p].xinc;  // inherit the players momentum
                   itemf[pc][3] = players[p].yinc;
@@ -630,34 +594,34 @@ void proc_player_carry(void)
                   if (players[p].left)  itemf[pc][2] -= al_itofix(2); // throw item left
                   if (players[p].right) itemf[pc][2] += al_itofix(2); // throw item right
                }
+               else // drop a rocket
+               {
+                  players[p].draw_rot = al_itofix(0);
+                  players[p].draw_scale = al_itofix(1);
+               }
             }
-         }
-      }
-      else // player is not carrying item
-      {
-         if (!players[p].paused) // only if not in paused mode
-         {
-            players[p].draw_rot = al_itofix(0);  // reset rot and scale
-            players[p].draw_scale = al_itofix(1);
          }
       }
 }
 
 void proc_item_collision()
 {
-   int c, p, x, y;
+   al_fixed f16 = al_itofix(16);
 
-   for (p=0; p<NUM_PLAYERS; p++)
+   for (int p=0; p<NUM_PLAYERS; p++)
       players[p].marked_door = -1;  // so player can touch only one door
 
-   for (x=0; x<500; x++)
+   for (int x=0; x<500; x++)
       if (item[x][0])
-         for (p=0; p<NUM_PLAYERS; p++)
+      {
+
+
+         for (int p=0; p<NUM_PLAYERS; p++)
             if ( (players[p].active) && (!players[p].paused) &&
-                 (players[p].PX  > itemf[x][0] - al_itofix(16) ) &&
-                 (players[p].PX  < itemf[x][0] + al_itofix(16) ) &&
-                 (players[p].PY  > itemf[x][1] - al_itofix(16) ) &&
-                 (players[p].PY  < itemf[x][1] + al_itofix(16) ) )
+                 (players[p].PX  > itemf[x][0] - f16 ) &&
+                 (players[p].PX  < itemf[x][0] + f16 ) &&
+                 (players[p].PY  > itemf[x][1] - f16 ) &&
+                 (players[p].PY  < itemf[x][1] + f16 ) )
             {
                int itx = al_fixtoi(itemf[x][0] );
                int ity = al_fixtoi(itemf[x][1] );
@@ -952,8 +916,8 @@ void proc_item_collision()
                            else            item[x][1] = item[x][9]; // off bmp
                            al_set_target_bitmap(level_background);
                            // toggle blocks
-                           for (c=0; c<100; c++)
-                              for (y=0; y<100; y++)
+                           for (int c=0; c<100; c++)
+                              for (int y=0; y<100; y++)
                               {
                                  if (l[c][y] == item[x][11]) // empty switch block
                                  {
@@ -991,6 +955,7 @@ void proc_item_collision()
                   break;
                } // end of switch case
             } // end of player collision with active item
+      }
 }
 
 void do_bomb_damage(int i)
@@ -1041,145 +1006,112 @@ void do_bomb_damage(int i)
    draw_lift_lines();
 }
 
-void proc_lit_bomb(void)
+void proc_lit_bomb(int c)
 {
-   for (int c=0; c<500; c++)
-      if (item[c][0] == 99) // lit bomb
+   int fuse_seq = 73;
+   int expl_seq = 97;
+   item[c][8]--; // proc timer
+   lit_item = 1;
+   if (item[c][6] == 1) // fuse burning
+   {
+      // i can ignore these floats because all they do is set the shape from animation sequence
+      float r = (float)item[c][8] / (float)item[c][9]; // ratio done
+      int num_seq_shapes = zz[4][fuse_seq]; // number of shapes in seq
+      int si = (int)(r * (float)num_seq_shapes); // ratio * number of shapes
+      int sh = zz[num_seq_shapes+5-si][fuse_seq]; // shape
+      item[c][1] = sh; // set in item
+
+      if (item[c][8] < 1) // fuse done
       {
-         int fuse_seq = 73;
-         int expl_seq = 97;
-         item[c][8]--; // proc timer
-         lit_item = 1;
-         if (item[c][6] == 1) // fuse burning
-         {
-            // i can ignore these floats because all they do is set the shape from animation sequence
-            float r = (float)item[c][8] / (float)item[c][9]; // ratio done
-            int num_seq_shapes = zz[4][fuse_seq]; // number of shapes in seq
-            int si = (int)(r * (float)num_seq_shapes); // ratio * number of shapes
-            int sh = zz[num_seq_shapes+5-si][fuse_seq]; // shape
-            item[c][1] = sh; // set in item
-
-            if (item[c][8] < 1) // fuse done
-            {
-               item[c][6] = 2; // mode 2; explosion
-               item[c][8] = item[c][9] = 20; // explosion timer
+         item[c][6] = 2; // mode 2; explosion
+         item[c][8] = item[c][9] = 20; // explosion timer
 
 
-               // check for other co-located bombs
-               for (int cc=0; cc<500; cc++)
-                  if (item[cc][0] == 99) // lit bomb
-                     if (cc != c) // not this one
-                        if (itemf[cc][0] == itemf[c][0]) // compare x
-                           if (itemf[cc][1] == itemf[c][1]) // compare y
-                              if (item[cc][15] == item[c][15]) // check if created by same cloner
-                                 item[cc][0] = 0; // delete item
+         // check for other co-located bombs
+         for (int cc=0; cc<500; cc++)
+            if (item[cc][0] == 99) // lit bomb
+               if (cc != c) // not this one
+                  if (itemf[cc][0] == itemf[c][0]) // compare x
+                     if (itemf[cc][1] == itemf[c][1]) // compare y
+                        if (item[cc][15] == item[c][15]) // check if created by same cloner
+                           item[cc][0] = 0; // delete item
 
-
-            }
-         }
-         if (item[c][6] == 2) // explosion
-         {
-            // force player to drop item
-            for (int p=0; p<NUM_PLAYERS; p++)
-               if ((players[p].active) && (!players[p].paused) )
-                  if (players[p].carry_item-1 == c) players[p].carry_item = 0;
-
-            // i can ignore these floats because all they do is set the shape from animation sequence
-            float r = (float)item[c][8] / (float)item[c][9]; // ratio done
-            //r = round(r/0.01) * 0.01; //round
-            int num_seq_shapes = zz[4][expl_seq]; // number of shapes in seq
-            int si = (int)(r * (float)num_seq_shapes); // ratio * number of shapes
-            int sh = zz[num_seq_shapes+5-si][expl_seq];
-            item[c][1] = sh;
-
-
-            int b = item[c][7]; // damage
-            // i can ignore these floats because all they do is set the scale the shape is drawn at
-            float max_scale = b/10; // max scale
-            //max_scale = round(max_scale/0.01) * 0.01; // round
-            float scale = 3.5 + (1-r)*max_scale;
-            //scale = round(scale/0.01) * 0.01;   //round
-            float scale100 = scale * 100;
-            //scale100 = round(scale100/10) * 10; //round
-            item[c][10] = (int)scale100;
-
-            //printf("[%d]explosion ratio:%f seq_shape:%d scale:%f 10:%d \n", c, r, si, scale, item[c][10]);
-
-            if (item[c][8] == 12) // explosion sound
-               game_event(22, 0, 0, 0, 0, 0, 0);
-
-            if (item[c][8] == 6) // do damage
-               do_bomb_damage(c);
-
-            if (item[c][8] < 1) // explosion timer done
-               item[c][0] = 0; // erase item
-         }
 
       }
+   }
+   if (item[c][6] == 2) // explosion
+   {
+      // force player to drop item
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((players[p].active) && (!players[p].paused) )
+            if (players[p].carry_item-1 == c)
+            {
+               player_drop_item(p);
+               players[p].draw_rot = al_itofix(0);
+               players[p].draw_scale = al_itofix(1);
+            }
+
+      // i can ignore these floats because all they do is set the shape from animation sequence
+      float r = (float)item[c][8] / (float)item[c][9]; // ratio done
+      //r = round(r/0.01) * 0.01; //round
+      int num_seq_shapes = zz[4][expl_seq]; // number of shapes in seq
+      int si = (int)(r * (float)num_seq_shapes); // ratio * number of shapes
+      int sh = zz[num_seq_shapes+5-si][expl_seq];
+      item[c][1] = sh;
+
+
+      int b = item[c][7]; // damage
+      // i can ignore these floats because all they do is set the scale the shape is drawn at
+      float max_scale = b/10; // max scale
+      //max_scale = round(max_scale/0.01) * 0.01; // round
+      float scale = 3.5 + (1-r)*max_scale;
+      //scale = round(scale/0.01) * 0.01;   //round
+      float scale100 = scale * 100;
+      //scale100 = round(scale100/10) * 10; //round
+      item[c][10] = (int)scale100;
+
+      //printf("[%d]explosion ratio:%f seq_shape:%d scale:%f 10:%d \n", c, r, si, scale, item[c][10]);
+
+      if (item[c][8] == 12) // explosion sound
+         game_event(22, 0, 0, 0, 0, 0, 0);
+
+      if (item[c][8] == 6) // do damage
+         do_bomb_damage(c);
+
+      if (item[c][8] < 1) // explosion timer done
+         item[c][0] = 0; // erase item
+   }
 }
 
-void proc_lit_rocket(void)
+void proc_lit_rocket(int c)
 {
-   for (int c=0; c<500; c++)
-      if (item[c][0] == 98) // lit rocket!
-      {
-         int this_rocket_just_expoded = 0;
-         int x, y, p;
-         int max_speed = item[c][8]*1000;
-         int accel = item[c][9];
-         int rot_inc = item[c][6];
-         lit_item = 1;
+   int max_speed = item[c][8]*1000;
+   int accel = item[c][9];
+   lit_item = 1;
 
-         if (item[c][11] < max_speed) item[c][11]+=accel;   // speed and accel
+   if (item[c][11] < max_speed) item[c][11]+=accel;   // speed and accel
 
-         al_fixed angle = al_itofix((item[c][10]-640) / 10);
-         itemf[c][2] = (al_fixcos(angle) * item[c][11]) / 1000;       // hypotenuse is the speed!
-         itemf[c][3] = (al_fixsin(angle) * item[c][11]) / 1000;
+   al_fixed angle = al_itofix((item[c][10]-640) / 10);
+   itemf[c][2] = (al_fixcos(angle) * item[c][11]) / 1000;       // hypotenuse is the speed!
+   itemf[c][3] = (al_fixsin(angle) * item[c][11]) / 1000;
 
-         x = al_fixtoi(itemf[c][0] += itemf[c][2]); // do the increments
-         y = al_fixtoi(itemf[c][1] += itemf[c][3]);
+   int x = al_fixtoi(itemf[c][0] += itemf[c][2]); // do the increments
+   int y = al_fixtoi(itemf[c][1] += itemf[c][3]);
 
-         // check for wall collisions
-         if ( ((itemf[c][3]<al_itofix(0)) && (is_up_solid(     x, y, 0)     == 1)) ||
-              ((itemf[c][3]>al_itofix(0)) && (is_down_solid(   x, y, 0)     == 1)) ||
-              ((itemf[c][3]>al_itofix(0)) && (is_down_solid(   x, y, 0)     == 2)) ||
-              ((itemf[c][2]<al_ftofix(-1.1)) && (is_left_solid(x, y, 0)     == 1)) ||
-              ((itemf[c][2]>al_ftofix(1.1)) && (is_right_solid(x, y, 0)     == 1)) )
-         {
-            this_rocket_just_expoded = 1;
-            item[c][0] = 99;  // change to lit bomb
-            item[c][2] = 3;  // draw mode
-            item[c][6] = 2; // mode 2; explosion
-            item[c][8] = 20; // explosion timer count
-            item[c][9] = 20; // explosion timer limit
-            item[c][10] = 100; // start_size
-         }
-
-         for (p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (c == (players[p].carry_item-1))) // player is riding this rocket!
-            {
-               if (this_rocket_just_expoded)
-               {
-                  players[p].carry_item = 0;
-                  players[p].fire_held = 0;
-               }
-               else
-               {
-                  if (players[p].left)  item[c][10]-=rot_inc;
-                  if (players[p].right) item[c][10]+=rot_inc;
-                  players[p].xinc = players[p].yinc = 0;
-                  players[p].left_xinc = players[p].right_xinc = 0;
-                  players[p].xinc = players[p].yinc = 0;
-                  players[p].PX = itemf[c][0];
-                  players[p].PY = itemf[c][1];
-
-                  players[p].draw_rot = al_itofix(item[c][10]/10);
-                  players[p].draw_scale = al_ftofix(.5);
-
-
-               }
-            }
-      }
+   // check for wall collisions
+   if ( ((itemf[c][3]<al_itofix(0)) && (is_up_solid(     x, y, 0)     == 1)) ||
+        ((itemf[c][3]>al_itofix(0)) && (is_down_solid(   x, y, 0)     == 1)) ||
+        ((itemf[c][3]>al_itofix(0)) && (is_down_solid(   x, y, 0)     == 2)) ||
+        ((itemf[c][2]<al_ftofix(-1.1)) && (is_left_solid(x, y, 0)     == 1)) ||
+        ((itemf[c][2]>al_ftofix(1.1)) && (is_right_solid(x, y, 0)     == 1)) )
+   {
+      item[c][0] = 99;  // change to lit bomb
+      item[c][2] = 3;  // draw mode
+      item[c][6] = 2; // mode 2; explosion
+      item[c][8] = 20; // explosion timer count
+      item[c][9] = 20; // explosion timer limit
+      item[c][10] = 100; // start_size
+   }
 }
 
 

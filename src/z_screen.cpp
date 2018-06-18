@@ -762,14 +762,14 @@ void get_new_screen_buffer(void)
 //   players1[alp].sby1 = py;
 //   players1[alp].sbx2 = px+sz;
 //   players1[alp].sby2 = py+sz;
-//
-//   // show hysteresis window
-//   float hx1 = SCREEN_W/2 - x_size * scale_factor_current;
-//   float hx2 = SCREEN_W/2 + x_size * scale_factor_current;
-//   float hy1 = SCREEN_H/2 - y_size * scale_factor_current;
-//   float hy2 = SCREEN_H/2 + y_size * scale_factor_current;
-//   al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 2);
 
+   #ifdef SHOW_HYSTERESIS_WINDOW
+   float hx1 = SCREEN_W/2 - x_size * scale_factor_current;
+   float hx2 = SCREEN_W/2 + x_size * scale_factor_current;
+   float hy1 = SCREEN_H/2 - y_size * scale_factor_current;
+   float hy2 = SCREEN_H/2 + y_size * scale_factor_current;
+   al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 2);
+   #endif
 
 }
 

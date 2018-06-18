@@ -1,7 +1,6 @@
 // n_client.cpp
 
 #include "pm.h"
-#ifdef NETPLAY
 
 // n_network.h
 extern int NetworkDriver;
@@ -758,4 +757,3 @@ void client_local_control(int p)
       if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, active_local_player, msg);
    }
 }
-#endif

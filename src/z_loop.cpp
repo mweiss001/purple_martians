@@ -6,6 +6,7 @@
 void proc_frame_delay(void)
 {
    frame_num++;
+   update_animation();
    if (al_get_timer_count(sec_timer) > 0)
    {
       al_set_timer_count(sec_timer, 0); // reset_second_timer
@@ -31,14 +32,11 @@ void proc_frame_delay(void)
    }
 }
 
-
 void proc_level_done(void)
 {
    stop_sound();
    int p = active_local_player;
-
    if (players[p].control_method == 0) show_level_done(1); // wait for keypress in single player mode
-
    if (players[p].control_method == 1)
    {
       show_level_done(0);
@@ -46,8 +44,6 @@ void proc_level_done(void)
       game_exit = 1;// run game file play exits after level done
       return;
    }
-
-
    if ((ima_server) || (ima_client))
    {
       show_level_done(0);
@@ -62,15 +58,12 @@ void proc_level_done(void)
       if (ima_client) client_flush();
       al_rest(1);
    }
-
    blind_save_game_moves(1);
    save_log_file();
    play_level = next_level;
    level_done = 2; // level done
-
    if ((!ima_client) && (!ima_server)) stamp();
 }
-
 
 // start modes:
 // 1 single player new game
@@ -102,8 +95,8 @@ void proc_start_mode(int start_mode)
    // clear game moves array, except for demo
    if (start_mode != 9) clear_game_moves();
 
-   if (start_mode == 9) players[0].control_method = 1;
 
+   if (start_mode == 9) players[0].control_method = 1;
 
    if (start_mode == 2) // server
    {
@@ -125,31 +118,13 @@ void proc_start_mode(int start_mode)
       }
    }
 
-
-   // add initial level info to game_moves array
-   // only for modes:
-   // 1 single player new game
-   // 2 server new game
-   // 5 with !ima_client
-   // don't do it for client (never enter any game moves on client)
-   // don't do for demo
-   // don't do for resume
-////   if ( (start_mode == 1) || (start_mode == 2) || ((start_mode == 5) && (!ima_client)) )
-////   {
-////      add_game_move(0, 0, play_level, 0);       // [00] game_start
-////      add_game_move(0, 1, 0, players[0].color); // [01] player_state and color
-////   }
-
-
-// do for client too... these wont get sync'd by sdat, only by stdf
-
    if ( (start_mode == 1) || (start_mode == 2) || (start_mode == 5))
    {
       add_game_move(0, 0, play_level, 0);       // [00] game_start
       add_game_move(0, 1, 0, players[0].color); // [01] player_state and color
    }
 
-   // all modes from here on
+
 	if (!load_level(play_level, 0))
 	{
 		game_exit = 1;
@@ -170,14 +145,9 @@ void proc_start_mode(int start_mode)
    bottom_msg = 0;
 
    set_frame_nums(0);
-
-   // reset sound counters
-   for (int c=0; c<8; c++) sample_delay[c] = frame_num;
-
    start_music(0); // rewind and start theme
 
    if ((!ima_client) && (!ima_server)) stimp();
-
 }
 
 void game_loop(int start_mode)
@@ -188,23 +158,17 @@ void game_loop(int start_mode)
    {
       if (level_done == 2) proc_start_mode(5);
       proc_scale_factor_change();
-      move_lifts(0);
+      proc_lift_move(0);
       proc_item_collision();
       proc_item_move();
-      proc_lit_bomb();
-      proc_lit_rocket();
 
-      #ifdef NETPLAY
       if (ima_server) server_control();
       if (ima_client) client_control();
-      #endif
 
       proc_controllers();
-      player_move();
-      proc_player_carry();
-      update_animation();
-      enemy_move();
-      enemy_collision();
+      proc_player_move();
+      proc_enemy_move();
+      proc_enemy_collision();
       proc_ebullets();
       proc_pbullets();
       proc_player_health();

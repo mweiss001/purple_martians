@@ -724,14 +724,8 @@ void menu_setup(void)
    strcpy (global_string[7][2], "Start Level (1)");
    strcpy (global_string[7][3], "Start New Game");
    strcpy (global_string[7][4], "Resume Current Game");
-   strcpy (global_string[7][5], "   ---   ");
-   strcpy (global_string[7][6], "   ---   ");
-
-#ifdef NETPLAY
    strcpy (global_string[7][5], "Host Network Game");
    strcpy (global_string[7][6], "Join Network Game");
-#endif
-
    strcpy (global_string[7][7], "Options Menu");
    strcpy (global_string[7][8], "Level Editor");
    strcpy (global_string[7][9], "Demo Mode");

@@ -1,7 +1,6 @@
 // n_server.cpp
 
 #include "pm.h"
-#ifdef NETPLAY
 
 // n_network.h
 extern int NetworkDriver;
@@ -754,4 +753,3 @@ void server_local_control(int p)
    }
    if (level_done == 1) add_game_move(fn, 6, 0, 0);        // insert level done into game move
 }
-#endif

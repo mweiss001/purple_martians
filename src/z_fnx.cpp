@@ -168,18 +168,17 @@ void set_frame_nums(int fn)
 {
    // reset frame_num and fps_timer count
 	frame_num = fn;
-   al_set_timer_count(fps_timer, frame_num);
-   reset_animation_sequence_frame_nums(frame_num);
+   al_set_timer_count(fps_timer, fn);
+   reset_animation_sequence_frame_nums(fn);
 }
 
 void reset_animation_sequence_frame_nums(int fn)
 {
-   int c;
-   for (c=0; c<NUM_ANS; c++)
+   for (int c=0; c<NUM_ANS; c++)
    {
      zz[2][c] = fn;       // reset the frame_nums
-     zz[1][c] = 0;        // set the bitmap indexes to 0
-     zz[0][c] = zz[5][c]; // put the first shapes in 0
+     zz[1][c] = 0;        // set the bitmap index to 0
+     zz[0][c] = zz[5][c]; // put the first shape in 0
    }
 }
 
@@ -189,11 +188,9 @@ void update_animation(void)
    // 1 = current shape index
    // 2 = frame_num of last seq change
    // 3 = seq change delay count
-   // 4 = num of shapes in seq
+   // 4 = num of shapes in seq (15 shapes max)
    // 5 = shape 0
-   // 6 = shape 1
    // 19 = shape 14
-   // 15 shapes is tha max
 
    for (int y=0; y<NUM_ANS; y++)
       if (zz[4][y] != 0)

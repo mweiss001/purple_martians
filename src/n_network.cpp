@@ -1,7 +1,6 @@
 // n_network.cpp
 
 #include "pm.h"
-#ifdef NETPLAY
 
 int NetworkDriver = -1;
 
@@ -44,4 +43,3 @@ int NetworkInit() {
       return -1;
    }
 }
-#endif

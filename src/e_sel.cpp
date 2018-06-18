@@ -441,16 +441,6 @@ void do_fcopy(int qx1, int qy1)
                //copied = -1;
             }
          }
-
-//         #ifdef LOGGING_ZFS
-//         sprintf(msg,"dfc attempt to copy lift:%d - ", b);
-//         add_log_entry(msg);
-//         if (copied >= 1000)  sprintf(msg,"found empty lift:%d\n", copied-1000);
-//         if (copied == 0)  sprintf(msg,"copy aborted - no empty lifts found\n");
-//         if (copied == -1) sprintf(msg,"copy aborted - limits exceeded\n");
-//         add_log_entry(msg);
-//         #endif
-
       } // end of iterate enemies in ft
    } // end of if copy lifts
    if (copy_enemies)
@@ -514,16 +504,6 @@ void do_fcopy(int qx1, int qy1)
                   c = 100; // end loop
                } // end of found empty
             }  // end if iterate real enemy array
-
-//            #ifdef LOGGING_ZFS
-//            sprintf(msg,"dfc attempt to copy enemy:%d - ", b);
-//            add_log_entry(msg);
-//            if (copied >= 1000)  sprintf(msg,"found empty enemy:%d\n", copied-1000);
-//            if (copied == 0)  sprintf(msg,"copy aborted - no empty enemies found\n");
-//            if (copied == -1) sprintf(msg,"copy aborted - limits exceeded\n");
-//            add_log_entry(msg);
-//            #endif
-
          } // end of attempt copy
       } // end of iterate enemies in ft
    } // end of if copy enemies
@@ -616,16 +596,6 @@ void do_fcopy(int qx1, int qy1)
                   c = 500; // end loop
                } // end of found empty
             }  // end if iterate real item array
-
-//            #ifdef LOGGING_ZFS
-//            sprintf(msg,"dfc attempt to copy item:%d - ", b);
-//            add_log_entry(msg);
-//            if (copied >= 1000) sprintf(msg,"found empty item:%d\n", copied-1000);
-//            if (copied == 0)    sprintf(msg,"copy aborted - no empty items found\n");
-//            if (copied == -1)   sprintf(msg,"copy aborted - limits exceeded\n");
-//            add_log_entry(msg);
-//            #endif
-
          } // end of attempt copy
       } // end of iterate items ft
    } // end of if copy items

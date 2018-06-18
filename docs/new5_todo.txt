@@ -12,7 +12,7 @@
 put libraries for linux in main dir for release
 
 
-
+make other kind of mines, like spikes, lava, flames...etc
 
 
 
@@ -31,6 +31,12 @@ I don't know if I document re-build bitmaps.
 In tiles there is some of it and also some in level background.
 
 At the bottom of files add links to other related docs
+
+
+
+
+
+
 
 netplay overall TODO:
 
@@ -83,7 +89,7 @@ pass pointers to values we want to edit...
 
 
 ---------------------------------------------------------
------------------------- Help file ------------in the player struct we have: players1[p].quit_reason---------
+------------------------ Help file ------------
 ---------------------------------------------------------
 
 add more bombable and semi-solid blocks..done
