@@ -350,7 +350,7 @@ void draw_items(void)
 }
 
 
-void proc_item_move()
+void move_items()
 {
    int a, c, x, y;
    for (c=0; c<500; c++)
@@ -952,7 +952,76 @@ void proc_sproingy_collision(int p, int x)
 
 
 
-void proc_item_collision(int p)
+
+
+
+
+
+
+
+void proc_item_collision(int p, int x)
+{
+   // check if player can carry item
+   if ( (!players[p].carry_item)  // not carrying
+     && (item[x][3] < 0)          // item is carryable
+     && (players[p].fire) )       // fire pressed
+   {
+      // check to see if another player is already carrying this item
+      int other_player_carrying = 0;
+      for (int op=0; op<NUM_PLAYERS; op++)
+         if ((players[op].active) && (!players[op].paused))
+            if (players[op].carry_item == x+1)
+               other_player_carrying = 1;
+
+       // allow carry if no other player is carrying
+       if (other_player_carrying == 0) players[p].carry_item = x+1;
+
+       // allow mutiple player carry for rocket
+       if (item[x][0] == 98) players[p].carry_item = x+1;
+   }
+
+   switch (item[x][0]) // item type
+   {
+      case 1: proc_door_collision(p, x); break;
+      case 2: proc_bonus_collision(p, x); break;
+      case 3: proc_exit_collision(p, x); break;
+      case 4: proc_key_collision(p, x); break;
+      case 6: proc_freeman_collision(p, x); break;
+      case 7: proc_mine_collision(p, x); break;
+      case 8: proc_bomb_collision(p, x); break;
+      case 10: item[x][6] = item[x][7]; break; // set pop-up message timer
+      case 11: proc_rocket_collision(p, x); break;
+      case 12: proc_warp_collision(p, x); break;
+      case 14: proc_switch_collision(p, x); break;
+      case 15: proc_sproingy_collision(p, x); break;
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void old_proc_item_collision(int p)
 {
    players[p].marked_door = -1; // so player can touch only one door
 
@@ -1007,6 +1076,16 @@ void proc_item_collision(int p)
             } // end of player collision with active item
       }
 }
+
+
+
+
+
+
+
+
+
+
 
 void do_bomb_damage(int i)
 {

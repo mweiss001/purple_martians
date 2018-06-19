@@ -124,7 +124,6 @@ void proc_start_mode(int start_mode)
       add_game_move(0, 1, 0, players[0].color); // [01] player_state and color
    }
 
-
 	if (!load_level(play_level, 0))
 	{
 		game_exit = 1;
@@ -154,34 +153,33 @@ void game_loop(int start_mode)
 {
    game_exit = 0;
    proc_start_mode(start_mode);
-   while (!game_exit) // game loop
+   while (!game_exit)
    {
       if (level_done == 2) proc_start_mode(5);
+
       proc_scale_factor_change();
 
-      proc_lift_move(0);
-      proc_item_move();
+      proc_sound();
 
       if (ima_server) server_control();
       if (ima_client) client_control();
-
       proc_controllers();
-      proc_player_move();
-      proc_enemy_move();
 
-      proc_ebullets();
-      proc_pbullets();
-      proc_player_health();
-      proc_sound();
+      move_players();
+      move_enemies();
+      move_items();
+      move_lifts(0);
+      move_ebullets();
+      move_pbullets();
+
       proc_frame_delay();
-
       if (draw_frame)
       {
-         // these all draw on level_buffer
          get_new_background(0);
+
          draw_lifts();
          draw_items();
-         draw_enemy();
+         draw_enemies();
          draw_ebullets();
          draw_pbullets();
          draw_players();

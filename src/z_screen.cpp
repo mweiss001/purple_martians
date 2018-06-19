@@ -871,7 +871,7 @@ void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int item
    {
       if (lifts)   draw_lifts();
       if (items)   draw_items();
-      if (enemies) draw_enemy();
+      if (enemies) draw_enemies();
       if (resume_allowed)
       {
          if (players) draw_players();

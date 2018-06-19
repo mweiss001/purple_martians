@@ -14,51 +14,46 @@ void set_player_start_pos(int p)
    }
 }
 
-void proc_player_health(void)
+void proc_player_health(int p)
 {
-   for (int p=0; p<NUM_PLAYERS; p++)
+   if (players[p].old_LIFE != players[p].LIFE)
    {
-      if ((players[p].active) && (!players[p].paused))
+      players1[p].last_health_adjust = al_fixtoi(players[p].LIFE - players[p].old_LIFE);
+      players[p].old_LIFE = players[p].LIFE;
+      players1[p].health_display = 80;
+   }
+   if (players[p].LIFE>al_itofix(100))
+   {
+       players[p].LIFE = al_itofix(100); // enforce max
+       players[p].old_LIFE = al_itofix(100); // to prevent display
+   }
+   if (players[p].LIFE < al_itofix(1)) // is LIFE < 1
+   {
+      players[p].LIFE = al_itofix(0);
+
+      sprintf(msg,"PLAYER:%d DIED!", p);
+      if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 1);
+
+      game_event(21, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), 0, 0, 0, 0);  // player death
+
+      show_player_join_quit_timer = 60;
+      show_player_join_quit_player = p;
+      show_player_join_quit_jq = 3;
+
+      players1[p].health_display = 200;
+      players[p].paused = 100;
+      players[p].paused_type = 1;
+
+      if (--players[p].LIVES < 0) // GAME OVER
       {
-         if (players[p].old_LIFE != players[p].LIFE)
-         {
-            players1[p].last_health_adjust = al_fixtoi(players[p].LIFE - players[p].old_LIFE);
-            players[p].old_LIFE = players[p].LIFE;
-            players1[p].health_display = 80;
-         }
-         if (players[p].LIFE>al_itofix(100))
-         {
-             players[p].LIFE = al_itofix(100); // enforce max
-             players[p].old_LIFE = al_itofix(100); // to prevent display
-         }
-         if (players[p].LIFE < al_itofix(1)) // is LIFE < 1
-         {
-            players[p].LIFE = al_itofix(0);
-
-            sprintf(msg,"PLAYER:%d DIED!", p);
-            if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 1);
-
-            game_event(21, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), 0, 0, 0, 0);  // player death
-
-            show_player_join_quit_timer = 60;
-            show_player_join_quit_player = p;
-            show_player_join_quit_jq = 3;
-
-            players1[p].health_display = 200;
-            players[p].paused = 100;
-            players[p].paused_type = 1;
-
-            if (--players[p].LIVES < 0) // GAME OVER
-            {
-               players[p].LIVES = 5;
-            }
-         }
+         players[p].LIVES = 5;
       }
    }
 }
 
-void proc_player_move(void)
+void proc_player_xy_move(int p)
 {
+
    al_fixed z = al_itofix(0);
    al_fixed gravity = al_ftofix(.60);
    al_fixed slow_gravity = al_ftofix(.2); // used when jump is held
@@ -68,146 +63,121 @@ void proc_player_move(void)
    al_fixed x_de_accel = al_ftofix(.24);
    al_fixed max_x_velocity = al_ftofix(4);
    al_fixed initial_x_velocity = al_ftofix(1.15);
-   for (int p=0; p<NUM_PLAYERS; p++)
+
+   int x = al_fixtoi(players[p].PX);
+   int y = al_fixtoi(players[p].PY);
+
+
+// -----------   x move  ---------------------
+
+   if ((players[p].left) && (!players[p].right)) // left only
    {
-      if (((players[p].active) && (!players[p].paused)) &&
-          (!((players[p].carry_item) && (item[players[p].carry_item-1][0] == 98))))  // not riding rocket
+      players[p].left_right = 0;
+      if (players[p].left_xinc > -initial_x_velocity) players[p].left_xinc = -initial_x_velocity;
+      players[p].left_xinc -= x_accel;     // accel left
+      players[p].right_xinc -= x_de_accel; // de accel right
+   }
+
+   if ((players[p].right) && (!players[p].left) ) // right only
+   {
+      players[p].left_right = 1;
+      if (players[p].right_xinc < initial_x_velocity) players[p].right_xinc = initial_x_velocity;
+      players[p].right_xinc += x_accel;   // accel right
+      players[p].left_xinc += x_de_accel; // de-accel left
+   }
+
+   if ((!players[p].right) && (!players[p].left) ) // neither left nor right pressed
+   {
+      players[p].left_xinc  += x_de_accel; // de-accel left
+      players[p].right_xinc -= x_de_accel; // de accel right
+   }
+
+   if ((players[p].right) && (players[p].left) ) // both left and right pressed
+   {
+      players[p].left_xinc  += x_de_accel; // de-accel left
+      players[p].right_xinc -= x_de_accel; // de accel right
+   }
+
+      // why don't I just do all the bounds checks here, just once.
+   if (players[p].right_xinc < z ) players[p].right_xinc = z;
+   if (players[p].right_xinc > max_x_velocity) players[p].right_xinc = max_x_velocity;
+
+   if (players[p].left_xinc > z ) players[p].left_xinc = z;
+   if (players[p].left_xinc < -max_x_velocity) players[p].left_xinc = -max_x_velocity;
+
+   if (is_right_solid(x, y, 0)) players[p].right_xinc = z;
+   if (is_left_solid(x, y, 0))  players[p].left_xinc = z;
+
+   players[p].xinc = players[p].left_xinc + players[p].right_xinc;  // calc xinc
+   players[p].PX += players[p].xinc;                                // apply xinc
+
+
+   x = al_fixtoi(players[p].PX);
+   y = al_fixtoi(players[p].PY);
+   if (players[p].player_ride) // if player is riding lift
+   {
+      int d = players[p].player_ride - 32; // lift number
+      // moving right
+
+      if ((lifts[d].fxinc > z) && (!is_right_solid(x, y, 1))) players[p].PX  += lifts[d].fxinc;
+
+      // moving left
+      if ((lifts[d].fxinc < z) && (!is_left_solid(x, y, 1))) players[p].PX  += lifts[d].fxinc;
+   }
+
+
+
+
+   if (int a = is_left_solid(x, y, 1))
+   {
+      if ( a > 31 ) // player being pushed right by lift
       {
-         proc_item_collision(p);
-         proc_ebullet_collision(p);
-         proc_pbullet_collision(p);
-         proc_enemy_collision_with_player(p);
-
-
-// ---------------- check to see if player stuck in blocks...then kill him slowly!
-
-         int x = al_fixtoi(players[p].PX);
-         int y = al_fixtoi(players[p].PY);
-         int su =    is_up_solid(x, y, 0);
-         int sd =  is_down_solid(x, y, 0);
-         int sl =  is_left_solid(x, y, 0);
-         int sr = is_right_solid(x, y, 0);
-         if ((su == 1) && (sd) && (sl) && (sr))
+         if (!is_right_solid(x, y, 0))
+         {
+            int l = a-32; // lift that is pushing
+            int width = lifts[l].width *20 + 1;
+            players[p].PX = lifts[l].fx + al_itofix(width); // snap to lift pos + width
+            players[p].right_xinc = lifts[l].fxinc; // set players xinc from lift
+         }
+         else // player is getting squished
          {
             players[p].LIFE -= al_itofix(1);
             game_event(7, x, y, 1, 0, 0, 0);
-            game_event(35, x, y, 0, 0, 0, 0);
+            game_event(34, x, y, 0, 0, 0, 0);
 
          }
-
-
-// ---------------------------   x move  ---------------------
-         if ((players[p].left) && (!players[p].right)) // left only
+      }
+      else  if (players[p].xinc < al_itofix(0)) // moving left and block collision
+      {
+         players[p].left_xinc = z;
+         players[p].PX = al_itofix((((x/20)+1) * 20) - 3);  // align with wall
+      }
+   }
+   x = al_fixtoi(players[p].PX);
+   y = al_fixtoi(players[p].PY);
+   if (int a = is_right_solid(x, y, 1))
+   {
+      if (a > 31)    // player being pushed left by lift
+      {
+         if (!is_left_solid(x, y, 0))
          {
-            players[p].left_right = 0;
-            if (players[p].left_xinc > -initial_x_velocity) players[p].left_xinc = -initial_x_velocity;
-            players[p].left_xinc -= x_accel;     // accel left
-            players[p].right_xinc -= x_de_accel; // de accel right
+            int l = a-32; // lift that is pushing
+            players[p].PX = lifts[l].fx - al_itofix(20);       // snap to lift pos - 20
+            players[p].left_xinc = lifts[a-32].fxinc;       // set players xinc from lift
          }
-
-         if ((players[p].right) && (!players[p].left) ) // right only
+         else // player is getting squished
          {
-            players[p].left_right = 1;
-            if (players[p].right_xinc < initial_x_velocity) players[p].right_xinc = initial_x_velocity;
-            players[p].right_xinc += x_accel;   // accel right
-            players[p].left_xinc += x_de_accel; // de-accel left
+            players[p].LIFE -= al_itofix(1);
+            game_event(7, x, y, 1, 0, 0, 0);
+            game_event(34, x, y, 0, 0, 0, 0);
          }
-
-         if ((!players[p].right) && (!players[p].left) ) // neither left nor right pressed
-         {
-            players[p].left_xinc  += x_de_accel; // de-accel left
-            players[p].right_xinc -= x_de_accel; // de accel right
-         }
-
-         if ((players[p].right) && (players[p].left) ) // both left and right pressed
-         {
-            players[p].left_xinc  += x_de_accel; // de-accel left
-            players[p].right_xinc -= x_de_accel; // de accel right
-         }
-
-            // why don't I just do all the bounds checks here, just once.
-         if (players[p].right_xinc < z ) players[p].right_xinc = z;
-         if (players[p].right_xinc > max_x_velocity) players[p].right_xinc = max_x_velocity;
-
-         if (players[p].left_xinc > z ) players[p].left_xinc = z;
-         if (players[p].left_xinc < -max_x_velocity) players[p].left_xinc = -max_x_velocity;
-
-         if (is_right_solid(x, y, 0)) players[p].right_xinc = z;
-         if (is_left_solid(x, y, 0))  players[p].left_xinc = z;
-
-         players[p].xinc = players[p].left_xinc + players[p].right_xinc;  // calc xinc
-         players[p].PX += players[p].xinc;                                // apply xinc
-
-
-         x = al_fixtoi(players[p].PX);
-         y = al_fixtoi(players[p].PY);
-         if (players[p].player_ride) // if player is riding lift
-         {
-            int d = players[p].player_ride - 32; // lift number
-            // moving right
-
-            if ((lifts[d].fxinc > z) && (!is_right_solid(x, y, 1))) players[p].PX  += lifts[d].fxinc;
-
-            // moving left
-            if ((lifts[d].fxinc < z) && (!is_left_solid(x, y, 1))) players[p].PX  += lifts[d].fxinc;
-         }
-
-
-
-
-         if (int a = is_left_solid(x, y, 1))
-         {
-            if ( a > 31 ) // player being pushed right by lift
-            {
-               if (!is_right_solid(x, y, 0))
-               {
-                  int l = a-32; // lift that is pushing
-                  int width = lifts[l].width *20 + 1;
-                  players[p].PX = lifts[l].fx + al_itofix(width); // snap to lift pos + width
-                  players[p].right_xinc = lifts[l].fxinc; // set players xinc from lift
-               }
-               else // player is getting squished
-               {
-                  players[p].LIFE -= al_itofix(1);
-                  game_event(7, x, y, 1, 0, 0, 0);
-                  game_event(34, x, y, 0, 0, 0, 0);
-
-               }
-            }
-            else  if (players[p].xinc < al_itofix(0)) // moving left and block collision
-            {
-               players[p].left_xinc = z;
-               players[p].PX = al_itofix((((x/20)+1) * 20) - 3);  // align with wall
-            }
-         }
-         x = al_fixtoi(players[p].PX);
-         y = al_fixtoi(players[p].PY);
-         if (int a = is_right_solid(x, y, 1))
-         {
-            if (a > 31)    // player being pushed left by lift
-            {
-               if (!is_left_solid(x, y, 0))
-               {
-                  int l = a-32; // lift that is pushing
-                  players[p].PX = lifts[l].fx - al_itofix(20);       // snap to lift pos - 20
-                  players[p].left_xinc = lifts[a-32].fxinc;       // set players xinc from lift
-               }
-               else // player is getting squished
-               {
-                  players[p].LIFE -= al_itofix(1);
-                  game_event(7, x, y, 1, 0, 0, 0);
-                  game_event(34, x, y, 0, 0, 0, 0);
-               }
-            }
-            else if (players[p].xinc > z) // moving right and block collision
-            {
-               players[p].right_xinc = z;
-               players[p].PX = al_itofix(((x/20) * 20) + 2); // align with wall
-            }
-         }
-
-
-
+      }
+      else if (players[p].xinc > z) // moving right and block collision
+      {
+         players[p].right_xinc = z;
+         players[p].PX = al_itofix(((x/20) * 20) + 2); // align with wall
+      }
+   }
 
 // ---------------   check to see if player riding lift starts or ends --------------------------
          x = al_fixtoi(players[p].PX);
@@ -234,294 +204,450 @@ void proc_player_move(void)
 
 // -----------   y move  ---------------------
 
+   if (players[p].player_ride) // if player is riding lift
+   {
+      players[p].yinc = z;
+      int d = players[p].player_ride - 32; // lift number
+      int x = al_fixtoi(players[p].PX);
+      int y = al_fixtoi(players[p].PY);
 
-         if (players[p].player_ride) // if player is riding lift
-         {
-            players[p].yinc = z;
-            int d = players[p].player_ride - 32; // lift number
-            int x = al_fixtoi(players[p].PX);
-            int y = al_fixtoi(players[p].PY);
-
-            // if moving up and solid block above
-            if ((lifts[d].fyinc < z) && (is_up_solid(x, y, 0) == 1))
-            {
-               players[p].player_ride = 0;     // player knocked off lift due to collision above
-               players[p].LIFE -= al_itofix(1);   // take some damage
-               game_event(7, x, y, 1, 0, 0, 0);
-               game_event(34, x, y, 0, 0, 0, 0);
-
-
-            }
-
-            // check for collision with lift above
-            if (is_up_solid(x, y+1, 1) > 31)
-            {
-               players[p].player_ride = 0;     // player knocked off lift due to collision above
-               players[p].LIFE -= al_itofix(1);   // take some damage
-               game_event(7, x, y, 1, 0, 0, 0);
-               game_event(34, x, y, 0, 0, 0, 0);
-            }
-
-            if (players[p].player_ride)                    // if still riding
-               players[p].PY  = lifts[d].fy - al_itofix(20);  // align with fy
-
-            // moving down
-            if (lifts[d].fyinc > z)
-            {
-               if (is_down_solid(x, y, 0))                          // no lift check
-               {
-                  players[p].player_ride = 0;                       // ride over
-                  players[p].PY = al_itofix(y - (y % 20));             // align with floor
-               }
-               else players[p].PY = lifts[d].fy - al_itofix(20);       // align with fy
-            }
-
-
-            if (players[p].jump)                                    // if jump pressed
-            {
-               players[p].player_ride = 0;                          // ride over
-               x = al_fixtoi(players[p].PX);
-               y = al_fixtoi(players[p].PY);
-               int a = is_up_solid(x, y, 1);
-               if ((a == 0) || (a == 2))                            // only jump if nothing above
-               {
-                  players[p].yinc = initial_jump_velocity;
-                  players[p].PY += players[p].yinc;                 // apply yinc
-                  game_event(15, x, y, 0, 0, 0, 0);
-               }
-            }
-
-         }
-         else // not player ride
-         {
-            if ((players[p].yinc < z) && players[p].jump)           // if rising and jump pressed
-               players[p].yinc += slow_gravity;                     // apply slow gravity
-            else players[p].yinc += gravity;                        // apply regular gravity
-
-            if (players[p].yinc < z)                                // if still rising
-            {
-               players[p].PY += players[p].yinc;                    // apply yinc
-               x = al_fixtoi(players[p].PX);
-               y = al_fixtoi(players[p].PY);
-               int a = is_up_solid(x, y+2, 1);                      // look for collision above
-               if ((a == 1) || (a > 31))                            // solid or lift only
-               {
-                  players[p].PY -= players[p].yinc;                 // take back move
-                  players[p].yinc = z;                              // kill upwards motion
-                  players[p].PY = al_itofix(((y/20) + 1) * 20);        // align with ceiling
-               }
-            }
-            if (players[p].yinc >= z)                               // falling or steady
-            {
-               players[p].yinc += gravity;                          // apply gravity to yinc
-               if (players[p].yinc > terminal_velocity)             // check for terminal velocity
-                  players[p].yinc = terminal_velocity;
-               players[p].PY += players[p].yinc;                    // apply yinc
-
-               x = al_fixtoi(players[p].PX);
-               y = al_fixtoi(players[p].PY);
-               if (is_down_solid(x, y, 0))                          // check for floor below (no lift)
-               {
-                  players[p].yinc = z;                              // kill downwards motion
-                  players[p].PY = al_itofix(y - (y % 20));             // align with floor
-
-                  // check for collision with lift above if lift is moving down
-                  int a = is_up_solid(x, y, 1);
-                  if ((a > 31) && (lifts[a-32].fyinc > z))
-                  {
-                     // take some damage
-                     players[p].LIFE -= al_itofix(1);
-                     game_event(7, x, y, 1, 0, 0, 0);
-                     game_event(34, x, y, 0, 0, 0, 0);
-                  }
-
-                  if (players[p].jump)                              // if jump pressed
-                  {
-                     x = al_fixtoi(players[p].PX);
-                     y = al_fixtoi(players[p].PY);
-                     int a = is_up_solid(x, y, 1);
-                     if ((a == 0) || (a == 2))                      // only jump if nothing above
-                     {
-                        players[p].yinc = initial_jump_velocity;
-                        game_event(15, x, y, 0, 0, 0, 0);
-                     }
-                  }
-               }  // end of if floor below
-            } // end of if falling or steady
-         } // end of not player ride
-
-         // absolute level bounds check
-         if (players[p].PX < al_itofix(0)) players[p].PX = al_itofix(0);
-         if (players[p].PY < al_itofix(0)) players[p].PY = al_itofix(0);
-         if (players[p].PX > al_itofix(1980)) players[p].PX = al_itofix(1980);
-         if (players[p].PY > al_itofix(1980)) players[p].PY = al_itofix(1980);
-      } // end of if active, not paused, not riding rocket
-
-      if ((players[p].carry_item) && (item[players[p].carry_item-1][0] == 98))  // riding rocket
+      // if moving up and solid block above
+      if ((lifts[d].fyinc < z) && (is_up_solid(x, y, 0) == 1))
       {
-         int c = players[p].carry_item-1;
-         int rot_inc = item[c][6];
-         if (players[p].left)  item[c][10]-=rot_inc;
-         if (players[p].right) item[c][10]+=rot_inc;
-         players[p].xinc = players[p].yinc = 0;
-         players[p].left_xinc = players[p].right_xinc = 0;
-         players[p].xinc = players[p].yinc = 0;
-         players[p].PX = itemf[c][0];
-         players[p].PY = itemf[c][1];
+         players[p].player_ride = 0;     // player knocked off lift due to collision above
+         players[p].LIFE -= al_itofix(1);   // take some damage
+         game_event(7, x, y, 1, 0, 0, 0);
+         game_event(34, x, y, 0, 0, 0, 0);
 
-         players[p].draw_rot = al_itofix(item[c][10]/10);
-         players[p].draw_scale = al_ftofix(.5);
+
+      }
+
+      // check for collision with lift above
+      if (is_up_solid(x, y+1, 1) > 31)
+      {
+         players[p].player_ride = 0;     // player knocked off lift due to collision above
+         players[p].LIFE -= al_itofix(1);   // take some damage
+         game_event(7, x, y, 1, 0, 0, 0);
+         game_event(34, x, y, 0, 0, 0, 0);
+      }
+
+      if (players[p].player_ride)                    // if still riding
+         players[p].PY  = lifts[d].fy - al_itofix(20);  // align with fy
+
+      // moving down
+      if (lifts[d].fyinc > z)
+      {
+         if (is_down_solid(x, y, 0))                          // no lift check
+         {
+            players[p].player_ride = 0;                       // ride over
+            players[p].PY = al_itofix(y - (y % 20));             // align with floor
+         }
+         else players[p].PY = lifts[d].fy - al_itofix(20);       // align with fy
       }
 
 
-      if (players[p].paused) // player is still on level but is frozen and controls are inactive
+      if (players[p].jump)                                    // if jump pressed
       {
-         players[p].player_ride = 0;
-         if (players[p].paused_type == 1) // frozen after player dies, until the timer runs out
+         players[p].player_ride = 0;                          // ride over
+         x = al_fixtoi(players[p].PX);
+         y = al_fixtoi(players[p].PY);
+         int a = is_up_solid(x, y, 1);
+         if ((a == 0) || (a == 2))                            // only jump if nothing above
          {
-            players[p].carry_item = 0;
-            players[p].player_ride = 0;
-            if (--players[p].paused > 0)
+            players[p].yinc = initial_jump_velocity;
+            players[p].PY += players[p].yinc;                 // apply yinc
+            game_event(15, x, y, 0, 0, 0, 0);
+         }
+      }
+
+   }
+   else // not player ride
+   {
+      if ((players[p].yinc < z) && players[p].jump)           // if rising and jump pressed
+         players[p].yinc += slow_gravity;                     // apply slow gravity
+      else players[p].yinc += gravity;                        // apply regular gravity
+
+      if (players[p].yinc < z)                                // if still rising
+      {
+         players[p].PY += players[p].yinc;                    // apply yinc
+         x = al_fixtoi(players[p].PX);
+         y = al_fixtoi(players[p].PY);
+         int a = is_up_solid(x, y+2, 1);                      // look for collision above
+         if ((a == 1) || (a > 31))                            // solid or lift only
+         {
+            players[p].PY -= players[p].yinc;                 // take back move
+            players[p].yinc = z;                              // kill upwards motion
+            players[p].PY = al_itofix(((y/20) + 1) * 20);        // align with ceiling
+         }
+      }
+      if (players[p].yinc >= z)                               // falling or steady
+      {
+         players[p].yinc += gravity;                          // apply gravity to yinc
+         if (players[p].yinc > terminal_velocity)             // check for terminal velocity
+            players[p].yinc = terminal_velocity;
+         players[p].PY += players[p].yinc;                    // apply yinc
+
+         x = al_fixtoi(players[p].PX);
+         y = al_fixtoi(players[p].PY);
+         if (is_down_solid(x, y, 0))                          // check for floor below (no lift)
+         {
+            players[p].yinc = z;                              // kill downwards motion
+            players[p].PY = al_itofix(y - (y % 20));             // align with floor
+
+            // check for collision with lift above if lift is moving down
+            int a = is_up_solid(x, y, 1);
+            if ((a > 31) && (lifts[a-32].fyinc > z))
             {
-               al_fixed sa = al_ftofix(.025);
-               players[p].draw_scale -= sa; // shrink player
-               if (players[p].draw_scale < al_itofix(0)) players[p].draw_scale = al_itofix(0);
-
-               al_fixed ra;
-               if (players[p].left_right) ra = al_ftofix(5);
-               else ra = al_ftofix(-5);
-
-               players[p].draw_rot += ra; // rotate player
+               // take some damage
+               players[p].LIFE -= al_itofix(1);
+               game_event(7, x, y, 1, 0, 0, 0);
+               game_event(34, x, y, 0, 0, 0, 0);
             }
 
-            else // frozen done !!
+            if (players[p].jump)                              // if jump pressed
             {
-               players[p].draw_scale = al_itofix(1);
-               players[p].draw_rot = al_itofix(0);
-               players[p].paused = 0;
-               players[p].old_LIFE = al_itofix(100);
-               players[p].LIFE = al_itofix(100);
-               players[p].left_xinc = al_itofix(0);
-               players[p].right_xinc = al_itofix(0);
-               players[p].xinc = al_itofix(0);
-               players[p].yinc = al_itofix(0);
-               set_player_start_pos(p); // get starting position from start block
-               draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
+               x = al_fixtoi(players[p].PX);
+               y = al_fixtoi(players[p].PY);
+               int a = is_up_solid(x, y, 1);
+               if ((a == 0) || (a == 2))                      // only jump if nothing above
+               {
+                  players[p].yinc = initial_jump_velocity;
+                  game_event(15, x, y, 0, 0, 0, 0);
+               }
+            }
+         }  // end of if floor below
+      } // end of if falling or steady
+   } // end of not player ride
+
+}
+
+
+
+
+void proc_player_paused(int p)
+{
+   players[p].player_ride = 0;
+   if (players[p].paused_type == 1) // frozen after player dies, until the timer runs out
+   {
+      players[p].carry_item = 0;
+      players[p].player_ride = 0;
+      if (--players[p].paused > 0)
+      {
+         al_fixed sa = al_ftofix(.025);
+         players[p].draw_scale -= sa; // shrink player
+         if (players[p].draw_scale < al_itofix(0)) players[p].draw_scale = al_itofix(0);
+
+         al_fixed ra;
+         if (players[p].left_right) ra = al_ftofix(5);
+         else ra = al_ftofix(-5);
+
+         players[p].draw_rot += ra; // rotate player
+      }
+
+      else // frozen done !!
+      {
+         players[p].draw_scale = al_itofix(1);
+         players[p].draw_rot = al_itofix(0);
+         players[p].paused = 0;
+         players[p].old_LIFE = al_itofix(100);
+         players[p].LIFE = al_itofix(100);
+         players[p].left_xinc = al_itofix(0);
+         players[p].right_xinc = al_itofix(0);
+         players[p].xinc = al_itofix(0);
+         players[p].yinc = al_itofix(0);
+         set_player_start_pos(p); // get starting position from start block
+         draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
+      }
+   }
+   if (players[p].paused_type == 2)// paused type 2: door move
+   {
+      int x = players[p].door_item;
+      int ddrns = players[p].door_draw_rot_num_steps;
+      al_fixed amount_to_shrink = al_ftofix(.5);
+      al_fixed sa = al_fixdiv(amount_to_shrink, al_itofix(ddrns));  // shrink and grow player inc
+      int as = 7; // door open/close animation speed
+
+      if (players[p].paused_mode == 1) // mode 1: enter door
+      {
+         players[p].paused_mode_count--;
+         if (players[p].paused_mode_count)
+         {
+            players[p].draw_scale -= sa; // shrink player
+            players[p].draw_rot += players[p].door_draw_rot_inc; // rotate player
+
+            // open door
+            float ratio = 1 - (float) players[p].paused_mode_count / ddrns;
+            float shape_shift = ratio * as;
+
+            if (item[x][13] == 448)
+               item[x][1] = 448 + (int)shape_shift;
+//            printf("ratio:%f scaled_ratio%f int_sr:%d shape:%d \n", ratio, shape_shift, int(shape_shift), item[x][1] );
+
+         }
+         else // next mode
+         {
+            if (item[x][13] == 448)
+               item[x][1] = 448; // restore door shape
+            players[p].paused_mode = 2;
+            players[p].paused_mode_count = players[p].door_num_steps;
+            players[p].xinc = players[p].door_xinc;
+            players[p].yinc = players[p].door_yinc;
+            players[p].draw_rot = players[p].door_draw_rot;
+         }
+      }
+
+      if (players[p].paused_mode == 2) // mode 2: player move
+      {
+         players[p].paused_mode_count--;
+         if (players[p].paused_mode_count)
+         {
+            players[p].PX -= players[p].xinc;
+            players[p].PY -= players[p].yinc;
+         }
+         else // mode 2 done
+         {
+            players[p].paused_mode = 3;
+            players[p].paused_mode_count = ddrns;
+
+            players[p].xinc=al_itofix(0);
+            players[p].yinc=al_itofix(0);
+
+
+            // snap to dest...
+            if (item[x][8] == 0) // regular dest
+            {
+               players[p].PX  = al_itofix(item[x][6] * 20);
+               players[p].PY  = al_itofix(item[x][7] * 20);
+            }
+            if (item[x][8] == 1) // linked item dest
+            {
+               int li = item[x][9]; // linked item number
+               players[p].PX  = itemf[li][0];
+               players[p].PY  = itemf[li][1];
+               // set destination key held to prevent immediate retriggering
+               item[li][10] = frame_num;
+            }
+          }
+      } // end of mode 2
+
+      if (players[p].paused_mode == 3) // mode 3: exit
+      {
+         players[p].paused_mode_count--;
+         if (players[p].paused_mode_count)
+         {
+            players[p].draw_scale += sa;                         // un-shrink player
+            players[p].draw_rot -= players[p].door_draw_rot_inc; // un-rotate player
+            // close door (only if linked item exit)
+            if (item[x][8] == 1)    // if linked item exit
+            {
+               float ratio = 1 - (float) players[p].paused_mode_count / ddrns;
+               float shape_shift = ratio * 6 ;
+               int li = item[x][9]; // linked item number
+               if (item[li][13] == 448)
+                  item[li][1] = 454 - (int)shape_shift;
+//                 printf("ratio:%f scaled_ratio%f int_sr:%d shape:%d \n", ratio, shape_shift, int(shape_shift), item[li][1] );
+
             }
          }
-         if (players[p].paused_type == 2)// paused type 2: door move
+         else // next mode (done)
          {
-            int x = players[p].door_item;
-            int ddrns = players[p].door_draw_rot_num_steps;
-            al_fixed amount_to_shrink = al_ftofix(.5);
-            al_fixed sa = al_fixdiv(amount_to_shrink, al_itofix(ddrns));  // shrink and grow player inc
-            int as = 7; // door open/close animation speed
-
-            if (players[p].paused_mode == 1) // mode 1: enter door
+            // if linked item exit
+            if (item[x][8] == 1) // liked item dest
             {
-               players[p].paused_mode_count--;
-               if (players[p].paused_mode_count)
-               {
-                  players[p].draw_scale -= sa; // shrink player
-                  players[p].draw_rot += players[p].door_draw_rot_inc; // rotate player
+               int li = item[x][9]; // linked item number
+               if (item[li][13] == 448)
+                  item[li][1] = 448;   // restore door shape
+               item[li][10] = frame_num;   // key hold off
 
-                  // open door
-                  float ratio = 1 - (float) players[p].paused_mode_count / ddrns;
-                  float shape_shift = ratio * as;
-
-                  if (item[x][13] == 448)
-                     item[x][1] = 448 + (int)shape_shift;
-      //            printf("ratio:%f scaled_ratio%f int_sr:%d shape:%d \n", ratio, shape_shift, int(shape_shift), item[x][1] );
-
-               }
-               else // next mode
-               {
-                  if (item[x][13] == 448)
-                     item[x][1] = 448; // restore door shape
-                  players[p].paused_mode = 2;
-                  players[p].paused_mode_count = players[p].door_num_steps;
-                  players[p].xinc = players[p].door_xinc;
-                  players[p].yinc = players[p].door_yinc;
-                  players[p].draw_rot = players[p].door_draw_rot;
-               }
             }
-
-            if (players[p].paused_mode == 2) // mode 2: player move
-            {
-               players[p].paused_mode_count--;
-               if (players[p].paused_mode_count)
-               {
-                  players[p].PX -= players[p].xinc;
-                  players[p].PY -= players[p].yinc;
-               }
-               else // mode 2 done
-               {
-                  players[p].paused_mode = 3;
-                  players[p].paused_mode_count = ddrns;
-
-                  players[p].xinc=al_itofix(0);
-                  players[p].yinc=al_itofix(0);
+            players[p].paused = 0;  // the entire thing is done
+            players[p].draw_rot = al_itofix(0);
+            players[p].draw_scale = al_itofix(1);
+         }
+      }
+   } // end of door move
+}  // end of if player paused
 
 
-                  // snap to dest...
-                  if (item[x][8] == 0) // regular dest
-                  {
-                     players[p].PX  = al_itofix(item[x][6] * 20);
-                     players[p].PY  = al_itofix(item[x][7] * 20);
-                  }
-                  if (item[x][8] == 1) // linked item dest
-                  {
-                     int li = item[x][9]; // linked item number
-                     players[p].PX  = itemf[li][0];
-                     players[p].PY  = itemf[li][1];
-                     // set destination key held to prevent immediate retriggering
-                     item[li][10] = frame_num;
-                  }
-                }
-            } // end of mode 2
 
-            if (players[p].paused_mode == 3) // mode 3: exit
-            {
-               players[p].paused_mode_count--;
-               if (players[p].paused_mode_count)
-               {
-                  players[p].draw_scale += sa;                         // un-shrink player
-                  players[p].draw_rot -= players[p].door_draw_rot_inc; // un-rotate player
-                  // close door (only if linked item exit)
-                  if (item[x][8] == 1)    // if linked item exit
-                  {
-                     float ratio = 1 - (float) players[p].paused_mode_count / ddrns;
-                     float shape_shift = ratio * 6 ;
-                     int li = item[x][9]; // linked item number
-                     if (item[li][13] == 448)
-                        item[li][1] = 454 - (int)shape_shift;
-    //                 printf("ratio:%f scaled_ratio%f int_sr:%d shape:%d \n", ratio, shape_shift, int(shape_shift), item[li][1] );
 
-                  }
-               }
-               else // next mode (done)
-               {
-                  // if linked item exit
-                  if (item[x][8] == 1) // liked item dest
-                  {
-                     int li = item[x][9]; // linked item number
-                     if (item[li][13] == 448)
-                        item[li][1] = 448;   // restore door shape
-                     item[li][10] = frame_num;   // key hold off
+void proc_player_stuck_in_blocks(int p)
+{
+   int x = al_fixtoi(players[p].PX);
+   int y = al_fixtoi(players[p].PY);
+   int su =    is_up_solid(x, y, 0);
+   int sd =  is_down_solid(x, y, 0);
+   int sl =  is_left_solid(x, y, 0);
+   int sr = is_right_solid(x, y, 0);
+   if ((su == 1) && (sd) && (sl) && (sr))
+   {
+      players[p].LIFE -= al_itofix(1);
+      game_event(7, x, y, 1, 0, 0, 0);
+      game_event(35, x, y, 0, 0, 0, 0);
 
-                  }
-                  players[p].paused = 0;  // the entire thing is done
-                  players[p].draw_rot = al_itofix(0);
-                  players[p].draw_scale = al_itofix(1);
-               }
-            }
-         } // end of door move
-      }  // end of if player paused
-
-      proc_player_carry(p);
-
-   } // end if player iterate
+   }
 }
+
+int proc_player_riding_rocket(int p)
+{
+   if ((players[p].carry_item) && (item[players[p].carry_item-1][0] == 98))  // riding rocket
+   {
+      int c = players[p].carry_item-1;
+      int rot_inc = item[c][6];
+      if (players[p].left)  item[c][10]-=rot_inc;
+      if (players[p].right) item[c][10]+=rot_inc;
+      players[p].xinc = players[p].yinc = 0;
+      players[p].left_xinc = players[p].right_xinc = 0;
+      players[p].xinc = players[p].yinc = 0;
+      players[p].PX = itemf[c][0];
+      players[p].PY = itemf[c][1];
+
+      players[p].draw_rot = al_itofix(item[c][10]/10);
+      players[p].draw_scale = al_ftofix(.5);
+      return 1;
+   }
+   return 0;
+}
+
+void proc_player_bounds_check(int p)
+{
+   // absolute level bounds check
+   if (players[p].PX < al_itofix(0))    players[p].PX = al_itofix(0);
+   if (players[p].PY < al_itofix(0))    players[p].PY = al_itofix(0);
+   if (players[p].PX > al_itofix(1980)) players[p].PX = al_itofix(1980);
+   if (players[p].PY > al_itofix(1980)) players[p].PY = al_itofix(1980);
+}
+
+
+
+
+void proc_player_collisions(int p)
+{
+
+   al_fixed f10 = al_itofix(10);
+   al_fixed f16 = al_itofix(16);
+
+   // player position
+   al_fixed px = players[p].PX;
+   al_fixed py = players[p].PY;
+
+   // pbullets
+   if (deathmatch_pbullets)
+   {
+      for (int b=0; b<50; b++)
+         if (pbullet[b][0])  // if active
+         {
+            al_fixed bx1 = al_itofix(pbullet[b][2]) - f10;
+            al_fixed bx2 = al_itofix(pbullet[b][2]) + f10;
+            al_fixed by1 = al_itofix(pbullet[b][3]) - f10;
+            al_fixed by2 = al_itofix(pbullet[b][3]) + f10;
+            if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2)) proc_pbullet_collision(p, b);
+         }
+   }
+
+   // ebullets
+   for (int b=0; b<50; b++)
+      if (e_bullet_active[b])  // if active
+      {
+         // new collision box is based on bullet speed and has both x and z component
+         al_fixed ax = abs(e_bullet_fxinc[b]);
+         al_fixed ay = abs(e_bullet_fyinc[b]);
+
+         // enforce some minimums
+         if (ax < al_itofix(4)) ax = al_itofix(4);
+         if (ay < al_itofix(4)) ay = al_itofix(4);
+
+         al_fixed bx1 = e_bullet_fx[b] - ax;
+         al_fixed bx2 = e_bullet_fx[b] + ax;
+         al_fixed by1 = e_bullet_fy[b] - ay;
+         al_fixed by2 = e_bullet_fy[b] + ay;
+         if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2)) proc_ebullet_collision(p, b);
+      }
+
+   // enemies
+   for (int e=0; e<100; e++)
+      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
+      {
+         al_fixed b = al_itofix(Ei[e][29]); // collision box size
+         al_fixed ex1 = Efi[e][0] - b;
+         al_fixed ex2 = Efi[e][0] + b;
+         al_fixed ey1 = Efi[e][1] - b;
+         al_fixed ey2 = Efi[e][1] + b;
+         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) Ei[e][22] = p+1;
+      }
+
+   // items
+   players[p].marked_door = -1; // so player can touch only one door
+   for (int x=0; x<500; x++)
+      if (item[x][0])
+      {
+         al_fixed ix1 = itemf[x][0] - f16;
+         al_fixed ix2 = itemf[x][0] + f16;
+         al_fixed iy1 = itemf[x][1] - f16;
+         al_fixed iy2 = itemf[x][1] + f16;
+
+         if ((px > ix1) && (px < ix2) && (py > iy1) && (py < iy2))
+         {
+            proc_item_collision(p, x);
+         }
+      }
+}
+
+
+
+
+
+
+
+
+void move_players(void)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active)
+      {
+         if (players[p].paused)
+         {
+            proc_player_paused(p);
+         }
+         else // not paused
+         {
+            if (proc_player_riding_rocket(p))
+            {
+
+            }
+            else // not riding rocket
+            {
+               proc_player_xy_move(p);
+               proc_player_stuck_in_blocks(p);
+               proc_player_carry(p);
+               proc_pbullet_shoot(p);
+               proc_player_collisions(p);
+               proc_player_health(p);
+               proc_player_bounds_check(p);
+            }
+         }
+      }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void draw_player(int p)
 {
@@ -559,9 +685,6 @@ void draw_player(int p)
          int h = players1[p].last_health_adjust;
          if (h > 0) al_draw_textf(f3, palette_color[11], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
          if (h < 0) al_draw_textf(f3, palette_color[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
-         //if (h > 0) al_draw_textf(font, palette_color[11], AX+10, AY-14, ALLEGRO_ALIGN_CENTER, "%+d", h);
-         //if (h < 0) al_draw_textf(font, palette_color[10], AX+10, AY-14, ALLEGRO_ALIGN_CENTER, "%+d", h);
-
       }
    }
 }
@@ -572,8 +695,7 @@ void draw_players(void)
       draw_player(p);
 
    // do this so that that local player is always drawn on top
-   int p = active_local_player;
-   draw_player(p);
+   draw_player(active_local_player);
 }
 
 void get_players_shape(int p)

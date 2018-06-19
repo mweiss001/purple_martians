@@ -9,6 +9,15 @@ fix hysteresis window move when zooming
 
 
 
+can't exit rocket
+
+reset rot and cale after rocket
+
+
+exit level in single player mode is broken
+
+
+
 
 
 -------------------------------------------------------

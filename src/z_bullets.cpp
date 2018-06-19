@@ -2,114 +2,97 @@
 
 #include "pm.h"
 
-
-
-void proc_pbullet_collision(int p)
+void proc_pbullet_collision(int p, int b)
 {
-   for (int b=0; b<50; b++)
-      if (pbullet[b][0])  // if bullet not active skip to next one
+   int pb = pbullet[b][1]; // the player that fired this bullet
+   if ( (p != pb) || ( (p == pb) && (suicide_pbullets == 1)) )  // shooting yourself allowed
+   {
+      int px = al_fixtoi(players[p].PX);
+      int py = al_fixtoi(players[p].PY);
+
+
+      players[p].LIFE -= al_itofix(deathmatch_pbullets_damage);
+
+      game_event(7, px, py, deathmatch_pbullets_damage, 0, 0, 0);
+
+      al_fixed bxinc = al_ftofix(pbullet[b][4]/3);
+      al_fixed z = al_itofix(0);
+      if (bxinc > z) players[p].right_xinc += bxinc;
+      if (bxinc < z) players[p].left_xinc += bxinc;
+
+      if (players[p].right_xinc > al_itofix(4)) players[p].right_xinc = al_itofix(4);
+      if (players[p].left_xinc < al_itofix(-4)) players[p].left_xinc = al_itofix(-4);
+
+      players[p].yinc += al_ftofix(pbullet[b][5]/2);
+      if (players[p].yinc > al_itofix( 5)) players[p].yinc = al_itofix( 5);
+      if (players[p].yinc < al_itofix(-5)) players[p].yinc = al_itofix(-5);
+
+      if (al_ftofix(pbullet[b][5]) < 0)  // player hit from below by bullet
       {
-         // check for player collisions
-         if (deathmatch_pbullets)
+         players[p].player_ride = 0;
+         players[p].PY += players[p].yinc;
+      }
+
+      pbullet[b][0] = 0;  // bullet dies
+      game_event(11, px, py, 0, 0, 0, 0);
+   }
+}
+
+void proc_pbullet_shoot(int p)
+{
+   int x = al_fixtoi(players[p].PX) ;
+   int y = al_fixtoi(players[p].PY) ;
+   if (players[p].fire)
+   {
+      if (players[p].fire_held == 0) // fire button pressed, but not held
+      {
+         players[p].fire_held = 1;
+         if (players[p].bullet_wait_counter < 1 )
          {
-            int px = al_fixtoi(players[p].PX);
-            int py = al_fixtoi(players[p].PY);
-            int bx = pbullet[b][2];
-            int by = pbullet[b][3];
-            if ((bx > px - 10) && (bx < px + 10) && (by > py - 10) && (by < py + 10))
-            {
-               int pb = pbullet[b][1]; // the player that fired this bullet
-               if ( (p != pb) || ( (p == pb) && (suicide_pbullets == 1)) )  // shooting yourself allowed
+            for (int b=0; b<50; b++)     // search for empty bullet
+               if (!pbullet[b][0])
                {
+                  pbullet[b][0] = 1;
+                  pbullet[b][1] = p;
+                  pbullet[b][2] = x;
+                  pbullet[b][3] = y + 1;
+                  pbullet[b][4] = 0; // xinc
+                  pbullet[b][5] = 0; // yinc
 
-                  players[p].LIFE -= al_itofix(deathmatch_pbullets_damage);
-
-                  game_event(7, px, py, deathmatch_pbullets_damage, 0, 0, 0);
-
-                  al_fixed bxinc = al_ftofix(pbullet[b][4]/3);
-                  al_fixed z = al_itofix(0);
-                  if (bxinc > z) players[p].right_xinc += bxinc;
-                  if (bxinc < z) players[p].left_xinc += bxinc;
-
-                  if (players[p].right_xinc > al_itofix(4)) players[p].right_xinc = al_itofix(4);
-                  if (players[p].left_xinc < al_itofix(-4)) players[p].left_xinc = al_itofix(-4);
-
-                  players[p].yinc += al_ftofix(pbullet[b][5]/2);
-                  if (players[p].yinc > al_itofix( 5)) players[p].yinc = al_itofix( 5);
-                  if (players[p].yinc < al_itofix(-5)) players[p].yinc = al_itofix(-5);
-
-                  if (al_ftofix(pbullet[b][5]) < 0)  // player hit from below by bullet
+                  if (players[p].up)
                   {
-                     players[p].player_ride = 0;
-                     players[p].PY += players[p].yinc;
+                     pbullet[b][5] = -players[p].bullet_speed;
+                     if (players[p].left_right) pbullet[b][2] = x+4;
+                     else pbullet[b][2] = x-3;
                   }
+                  else if (players[p].down)
+                  {
+                     pbullet[b][5] = players[p].bullet_speed;
+                     if (players[p].left_right) pbullet[b][2] = x+4;
+                     else pbullet[b][2] = x-3;
+                  }
+                  else
+                  {
+                     pbullet[b][4] = (players[p].left_right * (players[p].bullet_speed*2) ) - players[p].bullet_speed;
+                  }
+                  players[p].bullet_wait_counter = players[p].bullet_wait;
+                  players[p].fire_held = 1;
 
-                  pbullet[b][0] = 0;  // bullet dies
-                  game_event(11, px, py, 0, 0, 0, 0);
-                  p = NUM_PLAYERS; // break out of loop
+                  // extra data is player number, bullet number
+                  game_event(1, x, y, p, b, 0, 0);
 
+                  break; // to break out of for loop
                }
-            }
          }
       }
+   }
+   else players[p].fire_held = 0;  // fire is not pressed
+   if (players[p].bullet_wait_counter > 0) players[p].bullet_wait_counter--;
 }
 
 
-void proc_pbullets()
+void move_pbullets()
 {
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (!players[p].paused))
-      {
-         int x = al_fixtoi(players[p].PX) ;
-         int y = al_fixtoi(players[p].PY) ;
-         if (players[p].fire)
-         {
-            if (players[p].fire_held == 0) // fire button pressed, but not held
-            {
-               players[p].fire_held = 1;
-               if (players[p].bullet_wait_counter < 1 )
-               {
-                  for (int b=0; b<50; b++)     // search for empty bullet
-                     if (!pbullet[b][0])
-                     {
-                        pbullet[b][0] = 1;
-                        pbullet[b][1] = p;
-                        pbullet[b][2] = x;
-                        pbullet[b][3] = y + 1;
-                        pbullet[b][4] = 0; // xinc
-                        pbullet[b][5] = 0; // yinc
-
-                        if (players[p].up)
-                        {
-                           pbullet[b][5] = -players[p].bullet_speed;
-                           if (players[p].left_right) pbullet[b][2] = x+4;
-                           else pbullet[b][2] = x-3;
-                        }
-                        else if (players[p].down)
-                        {
-                           pbullet[b][5] = players[p].bullet_speed;
-                           if (players[p].left_right) pbullet[b][2] = x+4;
-                           else pbullet[b][2] = x-3;
-                        }
-                        else
-                        {
-                           pbullet[b][4] = (players[p].left_right * (players[p].bullet_speed*2) ) - players[p].bullet_speed;
-                        }
-                        players[p].bullet_wait_counter = players[p].bullet_wait;
-                        players[p].fire_held = 1;
-
-                        // extra data is player number, bullet number
-                        game_event(1, x, y, p, b, 0, 0);
-
-                        break; // to break out of for loop
-                     }
-               }
-            }
-         }
-         else players[p].fire_held = 0;  // fire is not pressed
-         if (players[p].bullet_wait_counter > 0) players[p].bullet_wait_counter--;
-      }
-
    // move and process wall collisions
    for (int b=0; b<50; b++)
       if (pbullet[b][0])
@@ -143,72 +126,48 @@ void draw_pbullets()
       if (pbullet[b][0]) al_draw_bitmap(player_tile[players[pbullet[b][1]].color][18], pbullet[b][2], pbullet[b][3], 0);
 }
 
-void proc_ebullet_collision(int p)
+void proc_ebullet_collision(int p, int b)
 {
-   for (int b=0; b<50; b++)
-      if (e_bullet_active[b])  // if bullet not active skip to next one
-      {
-         al_fixed x = e_bullet_fx[b];
-         al_fixed y = e_bullet_fy[b];
+   int damage = 0;
+   switch (e_bullet_shape[b])
+   {
+      case 488:   damage = 5;  break; // arrow
+      case 489:   damage = 5;  break; // arrow
+      case 1055:  damage = 7;  break; // cannon ball
+      case 1020:  damage = 9;  break; // yellow things
+      case 1054:  damage = 10; break; // green ball
+      case 1062:  damage = 8;  break; // flapper thing
+   }
+   players[p].LIFE -= al_itofix(damage);
 
-         // new collision box is based on bullet speed and has both x and z component
-         al_fixed ax = abs(e_bullet_fxinc[b]);      // enemy_bullet_collision_window x
-         al_fixed ay = abs(e_bullet_fyinc[b]);      // enemy_bullet_collision_window y
-
-         // enforce some minimums
-         if (ax < al_itofix(4)) ax = al_itofix(4);
-         if (ay < al_itofix(4)) ay = al_itofix(4);
-
-         // player position
-         al_fixed px = players[p].PX;
-         al_fixed py = players[p].PY;
-
-         // check for collision with player
-         if ((x > px-ax) && (x < px+ax) && (y > py-ay) && (y < py+ay))
-         {
-            int damage = 0;
-            switch (e_bullet_shape[b])
-            {
-               case 488:   damage = 5;  break; // arrow
-               case 489:   damage = 5;  break; // arrow
-               case 1055:  damage = 7;  break; // cannon ball
-               case 1020:  damage = 9;  break; // yellow things
-               case 1054:  damage = 10; break; // green ball
-               case 1062:  damage = 8;  break; // flapper thing
-            }
-            players[p].LIFE -= al_itofix(damage);
-
-            int ex = al_fixtoi(e_bullet_fx[b]);
-            int ey = al_fixtoi(e_bullet_fy[b]);
-            game_event(7, ex, ey, damage, 0, 0, 0);
-            game_event(11, ex, ey, 0, 0, 0, 0);
+   int ex = al_fixtoi(e_bullet_fx[b]);
+   int ey = al_fixtoi(e_bullet_fy[b]);
+   game_event(7, ex, ey, damage, 0, 0, 0);
+   game_event(11, ex, ey, 0, 0, 0, 0);
 
 
-            // recoil !!
+   // recoil !!
 
-            if (e_bullet_fxinc[b] > al_itofix(0))
-            {
-               players[p].right_xinc += (e_bullet_fxinc[b]/2);
-               if (players[p].right_xinc > al_itofix( 5)) players[p].right_xinc = al_itofix( 5);
-            }
+   if (e_bullet_fxinc[b] > al_itofix(0))
+   {
+      players[p].right_xinc += (e_bullet_fxinc[b]/2);
+      if (players[p].right_xinc > al_itofix( 5)) players[p].right_xinc = al_itofix( 5);
+   }
 
-            if (e_bullet_fxinc[b] < al_itofix(0))
-            {
-               players[p].left_xinc += (e_bullet_fxinc[b]/2);
-               if (players[p].left_xinc < al_itofix( -5)) players[p].left_xinc = al_itofix(-5);
-            }
+   if (e_bullet_fxinc[b] < al_itofix(0))
+   {
+      players[p].left_xinc += (e_bullet_fxinc[b]/2);
+      if (players[p].left_xinc < al_itofix( -5)) players[p].left_xinc = al_itofix(-5);
+   }
 
-            players[p].yinc += (e_bullet_fyinc[b]/2);
-            if (players[p].yinc > al_itofix( 5)) players[p].yinc = al_itofix( 5);
-            if (players[p].yinc < al_itofix(-5)) players[p].yinc = al_itofix(-5);
+   players[p].yinc += (e_bullet_fyinc[b]/2);
+   if (players[p].yinc > al_itofix( 5)) players[p].yinc = al_itofix( 5);
+   if (players[p].yinc < al_itofix(-5)) players[p].yinc = al_itofix(-5);
 
-            e_bullet_active[b] = 0; // bullet dies
-            p = NUM_PLAYERS; // break out of loop
-         }
-      }
+   e_bullet_active[b] = 0; // bullet dies
 }
 
-void proc_ebullets()
+void move_ebullets()
 {
    for (int b = 0; b < 50; b++)
       if (e_bullet_active[b])  // if bullet not active skip to next one

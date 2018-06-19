@@ -961,7 +961,7 @@ int lift_editor(int lift)
                while (!key[ALLEGRO_KEY_ESCAPE])
                {
                   proc_controllers();
-                  for (int t=0; t<8; t++) proc_lift_move(1);               // move lifts for 8 frames
+                  for (int t=0; t<8; t++) move_lifts(1);               // move lifts for 8 frames
                   draw_big(1);                                             // update the map bitmap
                   show_big();                                              // show the map
                   highlight_current_lift(lift);                            // highlight current lift

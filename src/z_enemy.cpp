@@ -2,11 +2,6 @@
 
 #include "pm.h"
 
-// global variables
-int EXint, EYint;
-
-
-
 int enemy_data(int x_pos, int y_pos)
 {
    sort_enemy();
@@ -40,14 +35,14 @@ void get_enemy_draw_shape(int e)
 }
 
 
-void draw_enemy(void)
+void draw_enemies(void)
 {
    al_set_target_bitmap(level_buffer);
    for (int e=0; e<100; e++)
       if (Ei[e][0])  // if enemy active
       {
-         EXint = al_fixtoi(Efi[e][0]);
-         EYint = al_fixtoi(Efi[e][1]);
+         int EXint = al_fixtoi(Efi[e][0]);
+         int EYint = al_fixtoi(Efi[e][1]);
 
          int flags = 0;
          if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
@@ -74,7 +69,7 @@ void draw_enemy(void)
 
 
          #ifdef SHOW_CANNON_COLLISION_BOX
-         if (Ei[e][0] == 6) // canon
+         if (Ei[e][0] == 6) // cannon
          {
             // draw some test rects here
             int cbs = Ei[e][29]; // collision box size
@@ -90,20 +85,20 @@ void draw_enemy(void)
             // check for collision with player
             al_fixed b = al_itofix(Ei[e][29]); // collision box size
             for (int p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (!players[p].paused))
-            {
-               al_fixed px = players[p].PX;
-               al_fixed py = players[p].PY;
+               if ((players[p].active) && (!players[p].paused))
+               {
+                  al_fixed px = players[p].PX;
+                  al_fixed py = players[p].PY;
 
-               al_fixed ex1 = Efi[e][0] - b;
-               al_fixed ex2 = Efi[e][0] + b;
-               al_fixed ey1 = Efi[e][1] - b;
-               al_fixed ey2 = Efi[e][1] + b;
+                  al_fixed ex1 = Efi[e][0] - b;
+                  al_fixed ex2 = Efi[e][0] + b;
+                  al_fixed ey1 = Efi[e][1] - b;
+                  al_fixed ey2 = Efi[e][1] + b;
 
-               // if player in collision box color = red
-               if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) color = 10;
-               al_draw_rectangle(x1-il, y1-il, x1+il, y1+il, palette_color[color], 1);
+                  // if player in collision box color = red
+                  if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) color = 10;
             }
+            al_draw_rectangle(x1-il, y1-il, x1+il, y1+il, palette_color[color], 1);
          }
          #endif
 
@@ -236,63 +231,30 @@ void draw_enemy(void)
       } // end of if enemy active
 }
 
-void proc_enemy_collision_with_player(int p)
+//void proc_enemy_collision_with_player(int p)
+//{
+//   for (int e=0; e<100; e++)
+//   {
+//      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if enemy active and not deathcount
+//      {
+//         al_fixed px = players[p].PX;
+//         al_fixed py = players[p].PY;
+//
+//         al_fixed b = al_itofix(Ei[e][29]); // collision box size
+//         al_fixed ex1 = Efi[e][0] - b;
+//         al_fixed ex2 = Efi[e][0] + b;
+//         al_fixed ey1 = Efi[e][1] - b;
+//         al_fixed ey2 = Efi[e][1] + b;
+//
+//         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) Ei[e][22] = p+1; // player collision
+//      }
+//   }
+//}
+
+void olddumbproc_enemy_collision_with_pbullet(int e)
 {
-   for (int e=0; e<100; e++)
-   {
-      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if enemy active and not deathcount
-      {
-         al_fixed px = players[p].PX;
-         al_fixed py = players[p].PY;
-
-         al_fixed b = al_itofix(Ei[e][29]); // collision box size
-         al_fixed ex1 = Efi[e][0] - b;
-         al_fixed ex2 = Efi[e][0] + b;
-         al_fixed ey1 = Efi[e][1] - b;
-         al_fixed ey2 = Efi[e][1] + b;
-
-         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) Ei[e][22] = p+1; // player collision
-
-      }
-   }
-}
-
-void old_proc_enemy_collision_with_pbullet(void)
-{
-   for (int e=0; e<100; e++)
-   {
-      int EXint = al_fixtoi(Efi[e][0]);
-      int EYint = al_fixtoi(Efi[e][1]);
-      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if enemy active and not deathcount
-      {
-         // check for collision with player's bullets
-          for (int c=0; c<50; c++)
-            if (pbullet[c][0])
-            {
-               // bullet collision box size adjusted with bullet speed
-               int bx = abs(pbullet[c][4]/2) + pm_bullet_collision_box;
-               int by = abs(pbullet[c][5]/2) + pm_bullet_collision_box;
-
-               // bullet collision box size adjusted with enemies collison box size
-               bx += Ei[e][29] - 10;
-               by += Ei[e][29] - 10;
-
-               // check for collision with player's bullets
-               if ((abs(pbullet[c][2] - EXint) < bx) && (abs(pbullet[c][3] - EYint) < by))
-               {
-                  int p = pbullet[c][1];   // player number that shot bullet
-                  Ei[e][31] = 1;           // flag that this enemy got shot with bullet
-                  players[p].num_hits++;   // add to number of hits the player has
-                  pbullet[c][0] = 0;       // bullet dies
-               }
-            }
-      }
-   }
-}
-
-
-void proc_enemy_collision_with_pbullet(int e)
-{
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
    for (int c=0; c<50; c++)
       if (pbullet[c][0])
       {
@@ -315,18 +277,56 @@ void proc_enemy_collision_with_pbullet(int e)
       }
 }
 
-void proc_enemy_move()
+void proc_enemy_collision_with_pbullet(int e)
+{
+   int ex = al_fixtoi(Efi[e][0]);
+   int ey = al_fixtoi(Efi[e][1]);
+
+
+   for (int c=0; c<50; c++)
+      if (pbullet[c][0])
+      {
+         // bullet collision box size adjusted with bullet speed
+         int cx = pm_bullet_collision_box + abs(pbullet[c][4]/2);
+         int cy = pm_bullet_collision_box + abs(pbullet[c][5]/2);
+
+         // bullet collision box size adjusted with enemies collison box size
+         cx += Ei[e][29] - 10;
+         cy += Ei[e][29] - 10;
+
+         int bx1 = pbullet[c][2] - cx;
+         int bx2 = pbullet[c][2] + cx;
+         int by1 = pbullet[c][3] - cy;
+         int by2 = pbullet[c][3] + cy;
+
+         // check for collision with player's bullets
+
+         if ((ex > bx1) && (ex < bx2) && (ey > by1) && (ey < by2))
+         {
+            int p = pbullet[c][1];   // player number that shot bullet
+            Ei[e][31] = 1;           // flag that this enemy got shot with bullet
+            players[p].num_hits++;   // add to number of hits the player has
+            pbullet[c][0] = 0;       // bullet dies
+         }
+      }
+}
+
+
+
+
+
+
+
+
+
+void move_enemies()
 {
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
       if (Ei[e][0])
       {
          num_enemy++; // count enemies
-         EXint = al_fixtoi(Efi[e][0]);
-         EYint = al_fixtoi(Efi[e][1]);
-
          if (Ei[e][0] != 99) proc_enemy_collision_with_pbullet(e);
-
 
          // check for time to live
          int ttl = Ei[e][27];
@@ -371,6 +371,8 @@ void proc_enemy_move()
 
 void enemy_deathcount(int e)
 {
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
    Efi[e][14] += Efi[e][13]; // rot inc
 //   Efi[e][12] = fixmul(Efi[e][11], Efi[e][12]); // scale inc
    Efi[e][12] = mdw_fixmul(Efi[e][11], Efi[e][12], 0.0001); // scale inc
@@ -408,6 +410,8 @@ void enemy_deathcount(int e)
 
 void enemy_player_hit_proc(int e)
 {
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
    if (--Ei[e][23]<0) // hit player retrigger
    {
       if (Ei[e][22]) // player hit!
@@ -539,6 +543,8 @@ void enemy_killed(int e)
    // almost all do this but not enough to do by default
    if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==12 )
    {
+      int EXint = al_fixtoi(Efi[e][0]);
+      int EYint = al_fixtoi(Efi[e][1]);
       game_event(13, EXint, EYint, e, 0, 0, 0); // set type to death loop
       Ei[e][0] = 99;
    }
@@ -643,9 +649,7 @@ void enemy_flapper(int e)
       if (Efi[e][2] > Efi[e][5]) Efi[e][2] = Efi[e][5]; // max speed
       Efi[e][0] += Efi[e][2];                             // apply xinc
 
-      EXint = al_fixtoi(Efi[e][0]);
-      EYint = al_fixtoi(Efi[e][1]);
-      if (is_right_solid(EXint, EYint, 1))
+      if (is_right_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1))
       {
          Efi[e][0] -= Efi[e][2];    // take back last move
          Efi[e][2] = -Efi[e][5]/3;  // set accel to bounce back with 1/3 max accel
@@ -668,9 +672,7 @@ void enemy_flapper(int e)
       if (Efi[e][2] < -Efi[e][5]) Efi[e][2] = -Efi[e][5]; // max speed
       Efi[e][0] += Efi[e][2];                               // apply xinc
 
-      EXint = al_fixtoi(Efi[e][0]);
-      EYint = al_fixtoi(Efi[e][1]);
-      if (is_left_solid(EXint, EYint, 1))
+      if (is_left_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1))
       {
          Efi[e][0] -= Efi[e][2];   // take back last move
          Efi[e][2] = Efi[e][5]/3;  // set accel to bounce back with 1/3 max accel
@@ -691,6 +693,8 @@ void enemy_flapper(int e)
 
 
 
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
 
    al_fixed yinc = al_itofix(0);  // yinc for this pass
 
@@ -967,6 +971,11 @@ void enemy_flapper(int e)
 
 void enemy_block_walker(int e)
 {
+
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
+
+
    enemy_player_hit_proc(e);
    if (Ei[e][31]) // hit
    {
@@ -1138,6 +1147,9 @@ void enemy_block_walker(int e)
 
 void enemy_cloner(int e)
 {
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
+
    al_fixed x1 = al_itofix(Ei[e][15]*20-2);    // source
    al_fixed y1 = al_itofix(Ei[e][16]*20-2);
    al_fixed x3 = al_itofix(Ei[e][17]*20-2);    // destination
@@ -1815,6 +1827,9 @@ void enemy_podzilla(int e)
 //----------------------------------------------------------------------------------------
 void enemy_cannon(int e)
 {
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
+
    enemy_player_hit_proc(e);
    if (Ei[e][31]) // enemy hit
    {
@@ -1931,6 +1946,8 @@ void enemy_cannon(int e)
 
 void enemy_bouncer(int e)
 {
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
    if (Ei[e][31]) // hit
    {
       enemy_killed(e);
@@ -2043,6 +2060,8 @@ void enemy_bouncer(int e)
 //-------------------------------------------------------------------------------------------
 void enemy_archwagon(int e)
 {
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
 
    if (Ei[e][31]) // hit
    {

@@ -872,7 +872,6 @@ void set_bts(int lift);
 void redraw_lift_viewer(int lift, int step);
 int lift_editor(int lift);
 
-
 // e_pde.h
 int load_PDE();
 void save_PDE();
@@ -974,16 +973,14 @@ void server_proc_CJON_packet(int who);
 void server_control();
 void server_local_control(int p);
 
-
 // z_bullets.h
-void proc_pbullet_collision(int p);
-void proc_pbullets(void);
+void proc_pbullet_shoot(int p);
+void proc_pbullet_collision(int p, int b);
+void move_pbullets(void);
 void draw_pbullets(void);
-
-void proc_ebullet_collision(int p);
-void proc_ebullets(void);
+void proc_ebullet_collision(int p, int b);
+void move_ebullets(void);
 void draw_ebullets(void);
-
 void clear_bullets(void);
 
 // z_config.cpp
@@ -1016,9 +1013,9 @@ int proc_controllers(void);
 // z_enemy.h
 int enemy_data(int x_pos, int y_pos);
 void get_enemy_draw_shape(int e);
-void draw_enemy(void);
+void draw_enemies(void);
 
-void proc_enemy_collision_with_player(int p);
+//void proc_enemy_collision_with_player(int p);
 void proc_enemy_collision_with_pbullet(void);
 void enemy_flapper(int e);
 void enemy_block_walker(int e);
@@ -1031,7 +1028,7 @@ void enemy_bouncer(int e);
 void enemy_archwagon(int e);
 al_fixed mdw_fixmul(al_fixed a, al_fixed b, float f_round);
 void enemy_deathcount(int e);
-void proc_enemy_move(void);
+void move_enemies(void);
 void enemy_killed(int EN);
 void enemy_player_hit_proc(int EN);
 
@@ -1099,10 +1096,10 @@ void remove_block(int x, int y);
 void draw_pop_message(int c);
 void draw_door(int c, int x, int y);
 void draw_items(void);
-void proc_item_move(void);
+void move_items(void);
 int player_drop_item(int p);
 void proc_player_carry(int p);
-void proc_item_collision(int p);
+void proc_item_collision(int p, int x);
 void do_bomb_damage(int i);
 void proc_lit_bomb(int);
 void proc_lit_rocket(int);
@@ -1116,7 +1113,7 @@ void set_lift(int lift, int step);
 void draw_lift_lines(void);
 void draw_lifts(void);
 void set_lift_xyinc(int d, int step);
-void proc_lift_move(int ignore_prox);
+void move_lifts(int ignore_prox);
 
 // z_log.h
 void log_bandwidth_stats(int p);
@@ -1187,8 +1184,8 @@ int pmenu(int menu_num);
 
 // z_player.h
 void set_player_start_pos(int p);
-void proc_player_health(void);
-void proc_player_move(void);
+void proc_player_health(int p);
+void move_players(void);
 void draw_player(int p);
 void draw_players(void);
 void get_players_shape(int p);
