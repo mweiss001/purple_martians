@@ -534,7 +534,11 @@ void move_items()
 
 int player_drop_item(int p)
 {
+
    int pc = players[p].carry_item-1; // number of item
+
+   printf("drop item:%d\n", pc);
+
    int wall_stuck = 0;
    players[p].carry_item = 0;
    if (item[pc][0] != 99) // not lit bomb
@@ -594,38 +598,10 @@ void proc_player_carry(int p)
                   if (players[p].left)  itemf[pc][2] -= al_itofix(2); // throw item left
                   if (players[p].right) itemf[pc][2] += al_itofix(2); // throw item right
                }
-               else // drop a rocket
-               {
-                  players[p].draw_rot = al_itofix(0);
-                  players[p].draw_scale = al_itofix(1);
-               }
             }
          }
       }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void proc_door_collision(int p, int x)
@@ -696,7 +672,12 @@ void proc_door_collision(int p, int x)
             // is player carrying an item ?
             if (players[p].carry_item)
             {
+
+
                 int ci = players[p].carry_item - 1;
+
+                printf("do entry, player is carrying item:%d\n", ci);
+
 
                // check to see if player is carrying this door
                 if (ci == x) player_drop_item(p);
@@ -952,13 +933,6 @@ void proc_sproingy_collision(int p, int x)
 
 
 
-
-
-
-
-
-
-
 void proc_item_collision(int p, int x)
 {
    // check if player can carry item
@@ -974,7 +948,13 @@ void proc_item_collision(int p, int x)
                other_player_carrying = 1;
 
        // allow carry if no other player is carrying
-       if (other_player_carrying == 0) players[p].carry_item = x+1;
+       if (other_player_carrying == 0)
+       {
+          players[p].carry_item = x+1;
+          printf("player picked up item:%d\n", x);
+
+       }
+
 
        // allow mutiple player carry for rocket
        if (item[x][0] == 98) players[p].carry_item = x+1;
@@ -1172,13 +1152,7 @@ void proc_lit_bomb(int c)
    {
       // force player to drop item
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ((players[p].active) && (!players[p].paused) )
-            if (players[p].carry_item-1 == c)
-            {
-               player_drop_item(p);
-               players[p].draw_rot = al_itofix(0);
-               players[p].draw_scale = al_itofix(1);
-            }
+         if ((players[p].active) && (players[p].carry_item-1 == c)) player_drop_item(p);
 
       // i can ignore these floats because all they do is set the shape from animation sequence
       float r = (float)item[c][8] / (float)item[c][9]; // ratio done

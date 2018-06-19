@@ -8,15 +8,22 @@ fix hysteresis window move when zooming
 
 
 
+door move type (instant, move) applies to dest door, but if dest door is exit only is greyed out??
+this is actually correct.  it is set in a door, but applies to the dest door
 
-can't exit rocket
 
-reset rot and cale after rocket
+
+
 
 
 exit level in single player mode is broken
 
 
+
+
+
+
+reset vls end level beofre release
 
 
 

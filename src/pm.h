@@ -1184,6 +1184,7 @@ int pmenu(int menu_num);
 
 // z_player.h
 void set_player_start_pos(int p);
+void reset_player_scale_and_rot(int p);
 void proc_player_health(int p);
 void move_players(void);
 void draw_player(int p);
