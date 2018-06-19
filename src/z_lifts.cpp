@@ -209,7 +209,7 @@ void set_lift_xyinc(int d, int step)
    }
 }
 
-void proc_lift_move(int ignore_prox)
+void move_lifts(int ignore_prox)
 {
    for (int d=0; d<num_lifts; d++)
    {

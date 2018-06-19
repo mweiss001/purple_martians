@@ -8399,8 +8399,6 @@ from player_move
 
 collision detection takes place in proc_item_collision(p);
 
-
-
 that looks good, now what else?
 
 move ebullet collision to player also
@@ -8419,43 +8417,196 @@ player - pbullets
 the only collision I have left is
 enemy to pbullet
 
-got rid of the global EN in z_enemy
-now what about EXint and EYint??
 
+got rid of the global EN in z_enemy
+now what about EXint and EYint??..done
 
 also rearrage game loop stuff
 
-stream line the 4 player collisions in player move
+move some things out of player_move to simplify...looks good
 
-move some things out of player_move to simplify...
+need to test....
 
+of all the things I don't do when paused, i maybe should proc player carry?? so i can carry through doors?
 
-
-
-
-
+bounds check to be its own funtion...
 
 
+streamline the 4 player collisions in player move
 
+one function to do all the collision checks, then only call:
+proc_item_collision(p, c);
+when an actual collision has take place
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+items:
+   for (int x=0; x<500; x++)
+      if (item[x][0])
+      {
+            if ( (players[p].PX  > itemf[x][0] - f16 ) &&
+                 (players[p].PX  < itemf[x][0] + f16 ) &&
+                 (players[p].PY  > itemf[x][1] - f16 ) &&
+                 (players[p].PY  < itemf[x][1] + f16 ) )
+            {
 
 
 
+enemies:
+void proc_enemy_collision_with_player(int p)
+{
+   for (int e=0; e<100; e++)
+   {
+      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if enemy active and not deathcount
+      {
+         al_fixed px = players[p].PX;
+         al_fixed py = players[p].PY;
+
+         al_fixed b = al_itofix(Ei[e][29]); // collision box size
+         al_fixed ex1 = Efi[e][0] - b;
+         al_fixed ex2 = Efi[e][0] + b;
+         al_fixed ey1 = Efi[e][1] - b;
+         al_fixed ey2 = Efi[e][1] + b;
+
+         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) Ei[e][22] = p+1; // player collision
+
+      }
+   }
+}
 
 
+void proc_pbullet_collision(int p)
+{
+   for (int b=0; b<50; b++)
+      if (pbullet[b][0])  // if bullet not active skip to next one
+      {
+         // check for player collisions
+         if (deathmatch_pbullets)
+         {
+            int px = al_fixtoi(players[p].PX);
+            int py = al_fixtoi(players[p].PY);
+            int bx = pbullet[b][2];
+            int by = pbullet[b][3];
+            if ((bx > px - 10) && (bx < px + 10) && (by > py - 10) && (by < py + 10))
+            {
+               int pb = pbullet[b][1]; // the player that fired this bullet
+
+
+
+void proc_ebullet_collision(int p)
+{
+   for (int b=0; b<50; b++)
+      if (e_bullet_active[b])  // if bullet not active skip to next one
+      {
+
+         // player position
+         al_fixed px = players[p].PX;
+         al_fixed py = players[p].PY;
+
+         // check for collision with player
+         if ((x > px-ax) && (x < px+ax) && (y > py-ay) && (y < py+ay))
+
+
+
+
+
+
+
+
+
+void proc_player_collisions(int p)
+{
+
+   al_fixed f10 = al_itofix(10);
+   al_fixed f16 = al_itofix(16);
+
+   // player position
+   al_fixed px = players[p].PX;
+   al_fixed py = players[p].PY;
+
+   // pbullets
+   if (deathmatch_pbullets)
+   {
+      for (int b=0; b<50; b++)
+         if (pbullet[b][0])  // if active
+         {
+            al_fixed bx1 = al_itofix(pbullet[b][2]) - f10;
+            al_fixed bx2 = al_itofix(pbullet[b][2]) + f10;
+            al_fixed by1 = al_itofix(pbullet[b][3]) - f10;
+            al_fixed by2 = al_itofix(pbullet[b][3]) + f10;
+            if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2))
+            {
+               int pb = pbullet[b][1]; // the player that fired this bullet
+               // do something
+            }
+         }
+   }
+
+   // ebullets
+   for (int b=0; b<50; b++)
+      if (e_bullet_active[b])  // if active
+      {
+         // new collision box is based on bullet speed and has both x and z component
+         al_fixed ax = abs(e_bullet_fxinc[b]);      // enemy_bullet_collision_window x
+         al_fixed ay = abs(e_bullet_fyinc[b]);      // enemy_bullet_collision_window y
+
+         // enforce some minimums
+         if (ax < al_itofix(4)) ax = al_itofix(4);
+         if (ay < al_itofix(4)) ay = al_itofix(4);
+
+         al_fixed bx1 = e_bullet_fx[b] - ax;
+         al_fixed bx2 = e_bullet_fx[b] + ax;
+         al_fixed by1 = e_bullet_fy[b] - ay;
+         al_fixed by2 = e_bullet_fy[b] + ay;
+
+         if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2))
+         {
+            // do something
+         }
+      }
+
+   // enemies
+   for (int e=0; e<100; e++)
+      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
+      {
+         al_fixed b = al_itofix(Ei[e][29]); // collision box size
+         al_fixed ex1 = Efi[e][0] - b;
+         al_fixed ex2 = Efi[e][0] + b;
+         al_fixed ey1 = Efi[e][1] - b;
+         al_fixed ey2 = Efi[e][1] + b;
+         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2))
+         {
+            Ei[e][22] = p+1; // player collision
+         }
+      }
+
+   // items
+   players[p].marked_door = -1; // so player can touch only one door
+   for (int x=0; x<500; x++)
+      if (item[x][0])
+      {
+         al_fixed ix1 = itemf[x][0] - f16;
+         al_fixed ix2 = itemf[x][0] + f16;
+         al_fixed iy1 = itemf[x][1] - f16;
+         al_fixed iy2 = itemf[x][1] + f16;
+
+         if ((px > ix1) && (px < ix2) && (py > iy1) && (py < iy2))
+         {
+            // do something
+         }
+      }
+}
+
+
+
+
+----------------
+
+
+I've made a lot of changes
+
+
+now I need to do a thorough testing....
+
+20180618
 
 
 
