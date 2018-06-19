@@ -346,8 +346,6 @@ void proc_player_paused(int p)
 
       else // frozen done !!
       {
-         players[p].draw_scale = al_itofix(1);
-         players[p].draw_rot = al_itofix(0);
          players[p].paused = 0;
          players[p].old_LIFE = al_itofix(100);
          players[p].LIFE = al_itofix(100);
@@ -461,14 +459,17 @@ void proc_player_paused(int p)
 
             }
             players[p].paused = 0;  // the entire thing is done
-            players[p].draw_rot = al_itofix(0);
-            players[p].draw_scale = al_itofix(1);
          }
       }
    } // end of door move
 }  // end of if player paused
 
 
+void reset_player_scale_and_rot(int p)
+{
+   players[p].draw_scale = al_itofix(1);
+   players[p].draw_rot = al_itofix(0);
+}
 
 
 void proc_player_stuck_in_blocks(int p)
@@ -523,27 +524,34 @@ void proc_player_bounds_check(int p)
 
 void proc_player_collisions(int p)
 {
-
    al_fixed f10 = al_itofix(10);
    al_fixed f16 = al_itofix(16);
 
-   // player position
-   al_fixed px = players[p].PX;
-   al_fixed py = players[p].PY;
+   // items
+   players[p].marked_door = -1; // so player can touch only one door
+   for (int x=0; x<500; x++)
+      if (item[x][0])
+      {
+         al_fixed ix1 = itemf[x][0] - f16;
+         al_fixed ix2 = itemf[x][0] + f16;
+         al_fixed iy1 = itemf[x][1] - f16;
+         al_fixed iy2 = itemf[x][1] + f16;
+         if ((players[p].PX > ix1) && (players[p].PX < ix2)
+          && (players[p].PY > iy1) && (players[p].PY < iy2)) proc_item_collision(p, x);
+      }
 
-   // pbullets
-   if (deathmatch_pbullets)
-   {
-      for (int b=0; b<50; b++)
-         if (pbullet[b][0])  // if active
-         {
-            al_fixed bx1 = al_itofix(pbullet[b][2]) - f10;
-            al_fixed bx2 = al_itofix(pbullet[b][2]) + f10;
-            al_fixed by1 = al_itofix(pbullet[b][3]) - f10;
-            al_fixed by2 = al_itofix(pbullet[b][3]) + f10;
-            if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2)) proc_pbullet_collision(p, b);
-         }
-   }
+   // enemies
+   for (int e=0; e<100; e++)
+      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
+      {
+         al_fixed b = al_itofix(Ei[e][29]); // collision box size
+         al_fixed ex1 = Efi[e][0] - b;
+         al_fixed ex2 = Efi[e][0] + b;
+         al_fixed ey1 = Efi[e][1] - b;
+         al_fixed ey2 = Efi[e][1] + b;
+         if ((players[p].PX > ex1) && (players[p].PX < ex2)
+          && (players[p].PY > ey1) && (players[p].PY < ey2)) Ei[e][22] = p+1;
+      }
 
    // ebullets
    for (int b=0; b<50; b++)
@@ -561,43 +569,25 @@ void proc_player_collisions(int p)
          al_fixed bx2 = e_bullet_fx[b] + ax;
          al_fixed by1 = e_bullet_fy[b] - ay;
          al_fixed by2 = e_bullet_fy[b] + ay;
-         if ((px > bx1) && (px < bx2) && (py > by1) && (py < by2)) proc_ebullet_collision(p, b);
+         if ((players[p].PX > bx1) && (players[p].PX < bx2)
+          && (players[p].PY > by1) && (players[p].PY < by2)) proc_ebullet_collision(p, b);
       }
 
-   // enemies
-   for (int e=0; e<100; e++)
-      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
-      {
-         al_fixed b = al_itofix(Ei[e][29]); // collision box size
-         al_fixed ex1 = Efi[e][0] - b;
-         al_fixed ex2 = Efi[e][0] + b;
-         al_fixed ey1 = Efi[e][1] - b;
-         al_fixed ey2 = Efi[e][1] + b;
-         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) Ei[e][22] = p+1;
-      }
-
-   // items
-   players[p].marked_door = -1; // so player can touch only one door
-   for (int x=0; x<500; x++)
-      if (item[x][0])
-      {
-         al_fixed ix1 = itemf[x][0] - f16;
-         al_fixed ix2 = itemf[x][0] + f16;
-         al_fixed iy1 = itemf[x][1] - f16;
-         al_fixed iy2 = itemf[x][1] + f16;
-
-         if ((px > ix1) && (px < ix2) && (py > iy1) && (py < iy2))
+   // pbullets
+   if (deathmatch_pbullets)
+   {
+      for (int b=0; b<50; b++)
+         if (pbullet[b][0])  // if active
          {
-            proc_item_collision(p, x);
+            al_fixed bx1 = al_itofix(pbullet[b][2]) - f10;
+            al_fixed bx2 = al_itofix(pbullet[b][2]) + f10;
+            al_fixed by1 = al_itofix(pbullet[b][3]) - f10;
+            al_fixed by2 = al_itofix(pbullet[b][3]) + f10;
+            if ((players[p].PX > bx1) && (players[p].PX < bx2)
+             && (players[p].PY > by1) && (players[p].PY < by2)) proc_pbullet_collision(p, b);
          }
-      }
+   }
 }
-
-
-
-
-
-
 
 
 void move_players(void)
@@ -611,6 +601,8 @@ void move_players(void)
          }
          else // not paused
          {
+            reset_player_scale_and_rot(p);
+
             if (proc_player_riding_rocket(p))
             {
 
@@ -618,13 +610,15 @@ void move_players(void)
             else // not riding rocket
             {
                proc_player_xy_move(p);
-               proc_player_stuck_in_blocks(p);
-               proc_player_carry(p);
                proc_pbullet_shoot(p);
-               proc_player_collisions(p);
-               proc_player_health(p);
-               proc_player_bounds_check(p);
             }
+
+            // common to both riding rocket and not
+            proc_player_carry(p);
+            proc_player_collisions(p);
+            proc_player_health(p);
+            proc_player_bounds_check(p);
+            proc_player_stuck_in_blocks(p);
          }
       }
 }

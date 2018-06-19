@@ -8596,8 +8596,6 @@ void proc_player_collisions(int p)
 }
 
 
-
-
 ----------------
 
 
@@ -8607,6 +8605,145 @@ I've made a lot of changes
 now I need to do a thorough testing....
 
 20180618
+
+ride rocket
+drop rocket
+ride rocket till it explodes rarely doesnt reset player size and rot
+
+where do i reset player size and rot?
+now only one place...by default in move_player
+after not paused, because I dont want to mess with paused
+before rocket beacuse rocket will set it..
+seems simpler and seems to work
+
+ride lifts up and down don't line up good with lift floor
+switched move lifts to before move_player
+
+bombs...
+
+
+ride rocket
+drop rocket
+ride rocket till it explodes
+multiple player ride rocket
+shoot while riding rocket
+get hit with bullet while riding rocket
+
+player item collison when riding rocket
+
+ride rocket through door
+
+
+
+
+doesnt drop rocket
+
+according to door entry, items should be dropped if move type != -2
+and rocket is set to -1
+
+does it pick it up again really quick?
+
+when riding rocket, i don't check for collisions?? no, i still do..
+
+what do I want to happen?
+when player riding rocket and hits door, drop rocket and travel through door
+
+what actually happens?
+nothing
+
+player collision works for other items when riding rocket
+
+when entering door rocket is dropped, but then picked up again right away...
+
+both happen when processing item collision...
+
+first door drops, then rocket pickes up...
+
+how about if you drop an item one frame, you cant pick up until next frame...
+sounds convoluted, is there an easier way??
+
+its an exception for door entry only so things dropped stay dropped
+
+why does re-picking up the rocket cancel door entry??
+i dont know
+
+i think the door does the instant move for the player
+but then the rocket moves it back
+
+the players position for collision only happens before the iteration so when its is updated
+its not used for further collsion checking
+
+fixing this could fix it all and more...
+
+done, now all collisions for player use actually players1.PX and PY so if
+something in the collisions changes them, the next collisions will use the updated values
+
+
+need to remove some test print code....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
