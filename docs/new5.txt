@@ -8683,6 +8683,108 @@ need to remove some test print code....
 
 
 
+working on ride rocket through door
+- only make sense if door if instant move
+- can set to instant if auto and riding rocket
+
+
+
+- will need to make rocket able to have carry through door flag set
+
+
+looks like all rockets are set to -1, but code in slider buttons only does 0 and 1
+
+do rockets need to be set to -1?
+
+when touched they are changed to item 98
+also if 0 or 1 set to -1
+if -2 leave at -2
+
+use glt to make all -1 rockets into 1
+leave all 0
+
+actually wouldn't it make more sense for rockets to be -2, -1, 0  ??
+
+1 makes no sense for a rocket...
+
+do it..
+
+in glt set all 1 to -1...done
+pde done...
+sliders done...
+
+looks like I have the ride rocket through door thing working....
+
+what about carrying items through door?
+
+if not -2 item is left behind
+
+else appears at end after door move
+works good, just looks funny when item is left behind during move then appears at end..
+
+what if in paused mode, if carrying, do special draw for item carried??
+at the very minimum, dont draw...
+how can i set an item to not draw?
+
+unused variables 2 for draw type
+how about 1=drawn 0=not
+
+later, this is so minor, add to wish list
+------------------
+
+
+
+------------------------------------------------
+exit level in single player mode is broken
+
+follow it through...
+
+exit or warp sets level_done = 1;
+move_player -> item collision...
+
+
+single player local control adds game move..
+proc game move sets to 2
+
+they are in the wrong order in game loop.
+
+before the level_done == 2 check is done, move player sets it back to one...
+what's the solution?
+
+make 2 variables? or change order?
+level_done_trig
+level_done_proc
+
+done...now single and netgame level done are working good..
+
+------------------------------------------------
+
+what else to test??
+
+
+----------------------
+
+working on bomb explosion stuff.....
+
+redrew the explosion sprites...
+
+changed to have multiple times when the do bomb damage happens, as the explosion grows and moves
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

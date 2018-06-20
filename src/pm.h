@@ -118,7 +118,9 @@ extern int frame_num;
 
 // global game control
 extern int game_exit;
-extern int level_done;
+extern int level_done_trig;
+extern int level_done_proc;
+
 extern int next_level;
 
 // some global strings
@@ -1184,6 +1186,7 @@ int pmenu(int menu_num);
 
 // z_player.h
 void set_player_start_pos(int p);
+int riding_rocket(int p);
 void reset_player_scale_and_rot(int p);
 void proc_player_health(int p);
 void move_players(void);

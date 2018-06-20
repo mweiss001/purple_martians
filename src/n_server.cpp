@@ -751,5 +751,5 @@ void server_local_control(int p)
       players1[p].old_comp_move = players1[p].comp_move;
       add_game_move(fn, 5, p, players1[p].comp_move);
    }
-   if (level_done == 1) add_game_move(fn, 6, 0, 0);        // insert level done into game move
+   if (level_done_trig) add_game_move(fn, 6, 0, 0);        // insert level done into game move
 }

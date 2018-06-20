@@ -70,7 +70,8 @@ int frame_speed = 40;
 int frame_num;
 
 // global game control
-int level_done = 0;
+int level_done_trig = 0;
+int level_done_proc = 0;
 int next_level = 0;
 int game_exit = 1;
 

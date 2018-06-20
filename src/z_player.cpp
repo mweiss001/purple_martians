@@ -472,6 +472,12 @@ void reset_player_scale_and_rot(int p)
 }
 
 
+int riding_rocket(int p)
+{
+   if ((players[p].carry_item) && (item[players[p].carry_item-1][0] == 98)) return 1;
+   return 0;
+}
+
 void proc_player_stuck_in_blocks(int p)
 {
    int x = al_fixtoi(players[p].PX);
@@ -489,25 +495,20 @@ void proc_player_stuck_in_blocks(int p)
    }
 }
 
-int proc_player_riding_rocket(int p)
+void proc_player_riding_rocket(int p)
 {
-   if ((players[p].carry_item) && (item[players[p].carry_item-1][0] == 98))  // riding rocket
-   {
-      int c = players[p].carry_item-1;
-      int rot_inc = item[c][6];
-      if (players[p].left)  item[c][10]-=rot_inc;
-      if (players[p].right) item[c][10]+=rot_inc;
-      players[p].xinc = players[p].yinc = 0;
-      players[p].left_xinc = players[p].right_xinc = 0;
-      players[p].xinc = players[p].yinc = 0;
-      players[p].PX = itemf[c][0];
-      players[p].PY = itemf[c][1];
+   int c = players[p].carry_item-1;
+   int rot_inc = item[c][6];
+   if (players[p].left)  item[c][10]-=rot_inc;
+   if (players[p].right) item[c][10]+=rot_inc;
+   players[p].xinc = players[p].yinc = 0;
+   players[p].left_xinc = players[p].right_xinc = 0;
+   players[p].xinc = players[p].yinc = 0;
+   players[p].PX = itemf[c][0];
+   players[p].PY = itemf[c][1];
 
-      players[p].draw_rot = al_itofix(item[c][10]/10);
-      players[p].draw_scale = al_ftofix(.5);
-      return 1;
-   }
-   return 0;
+   players[p].draw_rot = al_itofix(item[c][10]/10);
+   players[p].draw_scale = al_ftofix(.5);
 }
 
 void proc_player_bounds_check(int p)
@@ -595,18 +596,12 @@ void move_players(void)
    for (int p=0; p<NUM_PLAYERS; p++)
       if (players[p].active)
       {
-         if (players[p].paused)
-         {
-            proc_player_paused(p);
-         }
+         if (players[p].paused) proc_player_paused(p);
          else // not paused
          {
             reset_player_scale_and_rot(p);
 
-            if (proc_player_riding_rocket(p))
-            {
-
-            }
+            if (riding_rocket(p)) proc_player_riding_rocket(p);
             else // not riding rocket
             {
                proc_player_xy_move(p);
@@ -622,25 +617,6 @@ void move_players(void)
          }
       }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void draw_player(int p)

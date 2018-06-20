@@ -61,7 +61,8 @@ void proc_level_done(void)
    blind_save_game_moves(1);
    save_log_file();
    play_level = next_level;
-   level_done = 2; // level done
+   level_done_trig = 0;
+   level_done_proc = 1;
    if ((!ima_client) && (!ima_server)) stamp();
 }
 
@@ -94,7 +95,6 @@ void proc_start_mode(int start_mode)
 
    // clear game moves array, except for demo
    if (start_mode != 9) clear_game_moves();
-
 
    if (start_mode == 9) players[0].control_method = 1;
 
@@ -130,23 +130,21 @@ void proc_start_mode(int start_mode)
       return;
 	}
 
-   if ( (L_LOGGING_NETPLAY) && ((ima_client) || (ima_server) ) )
-   {
-      sprintf(msg,"LEVEL %d STARTED", play_level);
-      add_log_entry_header(10, 0, msg, 3);
-   }
-
    clear_bullets();
    clear_keys();
-
    show_player_join_quit_timer = 0;
-   level_done = 0;
+   level_done_trig = 0;
+   level_done_proc = 0;
    bottom_msg = 0;
-
    set_frame_nums(0);
    start_music(0); // rewind and start theme
 
-   if ((!ima_client) && (!ima_server)) stimp();
+   if ((ima_client) || (ima_server))
+   {
+      sprintf(msg,"LEVEL %d STARTED", play_level);
+      if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 3);
+   }
+   else stimp();
 }
 
 void game_loop(int start_mode)
@@ -155,7 +153,9 @@ void game_loop(int start_mode)
    proc_start_mode(start_mode);
    while (!game_exit)
    {
-      if (level_done == 2) proc_start_mode(5);
+      //printf("t1 ld:%d\n", level_done);
+
+      if (level_done_proc) proc_start_mode(5);
 
       proc_scale_factor_change();
 

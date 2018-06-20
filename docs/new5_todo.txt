@@ -3,28 +3,7 @@
 ---------------------------------------------------------
 
 
-fix hysteresis window move when zooming
-
-
-
-
-door move type (instant, move) applies to dest door, but if dest door is exit only is greyed out??
-this is actually correct.  it is set in a door, but applies to the dest door
-
-
-
-
-
-
-exit level in single player mode is broken
-
-
-
-
-
-
-reset vls end level beofre release
-
+reset vls end level before release
 
 
 -------------------------------------------------------
@@ -32,16 +11,6 @@ reset vls end level beofre release
 ---------------------------------------------------------
 
 put libraries for linux in main dir for release
-
-
-make other kind of mines, like spikes, lava, flames...etc
-
-
-
-
-
-
-
 
 
 ---------------------------------------------------------
@@ -195,6 +164,15 @@ bottom messages
 make the main game loop called from the event loop
 instead of calling the event loop from game loop
 see if this improves performance
+
+
+when carrying item through door with move type, item is left at start until move is done...
+
+
+fix hysteresis window move when zooming
+
+
+make other kind of mines, like spikes, lava, flames...etc
 
 
 
