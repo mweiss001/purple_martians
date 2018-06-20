@@ -327,11 +327,16 @@ void function_key_check(void)
       {
          KEY_F1_held = 1;
 
+         frame_speed = 4;
 
-         #ifndef RELEASE
-         players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
-         printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
-         #endif
+
+         set_speed();
+
+
+//         #ifndef RELEASE
+//         players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
+//         printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
+//         #endif
 
 
 //         printf("dif test\n");
@@ -1014,7 +1019,7 @@ int proc_controllers()
             {
                if (players[p].control_method == 0) // local single player control
                {
-                  if (level_done == 1) add_game_move(frame_num, 6, 0, 0); // insert level done into game move
+                  if (level_done_trig) add_game_move(frame_num, 6, 0, 0); // insert level done into game move
                   set_comp_move_from_player_key_check(p); // but don't set controls !!!
                   if (players1[p].comp_move != players1[p].old_comp_move)
                   {

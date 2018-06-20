@@ -558,18 +558,24 @@ Ef[y][9] = 0;
 
 
 
-/*
-
-      for (y=0; y<500; y++)
-         if (item[y][0] == 11) // rocket
-         {
-
-             item[y][2] = 2; // rotate draw mode
-
-         }
 
 
-*/
+//      for (int y=0; y<500; y++)
+//         if (item[y][0] == 11) // rocket
+//         {
+//            if (item[y][3] == 0) count0++;
+//            if (item[y][3] == 1) count1++;
+//            if (item[y][3] == -2) count2++;
+//            if (item[y][3] == -1) count3++;
+//
+//            if (item[y][3] == 1) item[y][3] = -1;
+//
+//             //item[y][2] = 2; // rotate draw mode
+//
+//         }
+//
+
+
 
 
 /*

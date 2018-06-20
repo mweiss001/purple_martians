@@ -105,15 +105,13 @@ void update_var(int bn, int type, int num, float f)
 
 void fill_smsg_button(int bn, int obt, int type, int num)
 {
-
    if (bn == 1) sprintf(smsg, "OK");
    if (bn == 3) sprintf(smsg, "Cancel");
-
-
    if (bn == 2)
    {
-      if (item[num][3]) sprintf(smsg, "Fall:On ");
-      else              sprintf(smsg, "Fall:Off");
+      if (item[num][3] ==  0) sprintf(smsg,  "    Stationary    ");
+      if (item[num][3] == -1) sprintf(smsg,  "       Fall       ");
+      if (item[num][3] == -2) sprintf(smsg, "Ride Through Door ");
    }
    if (bn == 4)
    {
@@ -141,14 +139,12 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (Ei[num][7] == 0) sprintf(smsg, "Drop Mode:Off");
       else                 sprintf(smsg, "Drop Mode:On ");
    }
-
    if (bn == 13) sprintf(smsg, "Main Shape");
    if (bn == 14) sprintf(smsg, "Seek Shape");
    if (bn == 15) sprintf(smsg, "Move Extended Position");
    if (bn == 16) sprintf(smsg, "Set Trigger Box");
    if (bn == 17) sprintf(smsg, "Set Source Area");
    if (bn == 18) sprintf(smsg, "Set Destination");
-
    if (bn == 19) sprintf(smsg, "Move");
    if (bn == 20) sprintf(smsg, "Create");
    if (bn == 21) sprintf(smsg, "Delete");
@@ -158,8 +154,8 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    if (bn == 25) sprintf(smsg, "Viewer Help");
    if (bn == 26)
    {
-      if (item[num][3] == 0) sprintf(smsg,  "    Stationary    ");
-      if (item[num][3] == 1) sprintf(smsg,  "      Fall        ");
+      if (item[num][3] ==  0) sprintf(smsg, "    Stationary    ");
+      if (item[num][3] ==  1) sprintf(smsg, "      Fall        ");
       if (item[num][3] == -1) sprintf(smsg, "      Carry       ");
       if (item[num][3] == -2) sprintf(smsg, "Carry Through Door");
    }
@@ -170,7 +166,7 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (Ei[num][8] == 2) sprintf(smsg, "Trigger Type: Immediate   ");
    }
    if (bn == 28) sprintf(smsg, "Run Lifts");
-   if (bn == 29) sprintf(smsg, "Name:%s", lifts[num] . lift_name);
+   if (bn == 29) sprintf(smsg, "Name:%s", lifts[num].lift_name);
    if (bn == 48) // key block erase type
    {
       if (item[num][12]) sprintf(smsg, "Erase Only Matching Blocks");
@@ -186,14 +182,14 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (item[num][11] == 0) sprintf(smsg, "Enter Immediate  ");
       if (item[num][11] == 1) sprintf(smsg, "Enter with <up>  ");
       if (item[num][11] == 2) sprintf(smsg, "Enter with <down>");
-      if (item[num][8] == 0 ) sprintf(smsg, "disabled");
+      if (item[num][8]  == 0) sprintf(smsg, "disabled");
    }
    if (bn == 51) // door show dest line type
    {
       if (item[num][12] == 0) sprintf(smsg, "Exit link: never show  ");
       if (item[num][12] == 1) sprintf(smsg, "Exit link: alway show  ");
       if (item[num][12] == 2) sprintf(smsg, "Exit link: when touched");
-      if (item[num][8] == 0 ) sprintf(smsg, "disabled");
+      if (item[num][8]  == 0) sprintf(smsg, "disabled");
    }
    if (bn == 52) sprintf(smsg, "Change Door Shape");
 
@@ -219,10 +215,6 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    }
    if (bn == 70) sprintf(smsg, "#  Step Type     ");
    if (bn == 74) sprintf(smsg, "%-2d Loop to Start ", num);
-
-
-
-
 }
 
 void fill_smsg_slider(int bn, int type, int num)
@@ -299,7 +291,6 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 71) sprintf(smsg, "%-2d Move Speed:%-3d", num, lift_steps[type][num].val);
    if (bn == 72) sprintf(smsg, "%-2d Wait Time :%-3d", num, lift_steps[type][num].val);
    if (bn == 73) sprintf(smsg, "%-2d Prox Dist :%-3d", num, lift_steps[type][num].val);
-
 
    if (bn == 74) sprintf(smsg, "Created Objects Time To Live:%-2d", Ei[num][9]);
    if (bn == 75) sprintf(smsg, "Max Created Objects At One Time:%-2d", Ei[num][10]);
@@ -396,10 +387,9 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
    {
       while (mouse_b1) proc_controllers(); // wait for release
 
-      if (bn == 1)   return 1;
-      if (bn == 3)   return 1;
-
-      if (bn == 2) item[num][3] = !item[num][3];
+      if (bn == 1) return 1;
+      if (bn == 3) return 1;
+      if (bn == 2) if (++item[num][3] > 0) item[num][3] = -2;
       if (bn == 4)
       {
          if (item[num][8] == 1) // Set Linked Item
@@ -491,28 +481,18 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Ei[num][18] = get100_y;
             Redraw = 1;
          }
-      if (bn == 19)   return 1;
-      if (bn == 20)   return 1;
-      if (bn == 21)   return 1;
-      if (bn == 22)   return 1;
-      if (bn == 23)   return 1;
-      if (bn == 24)   return 1;
-      if (bn == 25)   return 1;
-      if (bn == 26)
-      {
-         item[num][3]++;
-         if (item[num][3] > 1) item[num][3] = -2;
-      }
-      if (bn == 27)
-      {
-         Ei[num][8]++;
-         if (Ei[num][8] > 2) Ei[num][8] = 0;
-      }
-      if (bn == 28)   return 1;
-      if (bn == 29)   return 1;
-
-      if (bn == 48) // key block remove type
-         item[num][12] = !item[num][12];
+      if (bn == 19) return 1;
+      if (bn == 20) return 1;
+      if (bn == 21) return 1;
+      if (bn == 22) return 1;
+      if (bn == 23) return 1;
+      if (bn == 24) return 1;
+      if (bn == 25) return 1;
+      if (bn == 26) if (++item[num][3] > 1) item[num][3] = -2;
+      if (bn == 27) if (++Ei[num][8] > 2) Ei[num][8] = 0;
+      if (bn == 28) return 1;
+      if (bn == 29) return 1;
+      if (bn == 48) item[num][12] = !item[num][12]; // key block remove type
 
       if (bn == 49) // door type
       {
