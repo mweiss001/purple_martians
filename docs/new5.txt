@@ -8771,6 +8771,110 @@ redrew the explosion sprites...
 changed to have multiple times when the do bomb damage happens, as the explosion grows and moves
 
 
+what are you trying to do for bomb?
+
+
+
+make the blast area more dynamic, circular would be awesome!!
+
+draw a better animation sequence with more shapes for explosion and make it more round
+
+
+
+make the block removal work on every frame of explosion so it grows
+
+
+
+
+made a function to show and remove blocks in the blast radius
+for now everything else is commented out
+
+fine tune the size and radius of the blast...ok i like it....
+
+now what??
+
+make the explosion shape match...
+
+
+what if I do scale all by myself and not pass it with 10
+yes, 10 is used by other items for different things...
+
+
+
+----------------------------------------------------------------
+why are num_shapes for animation seq one less than actual??
+----------------------------------------------------------------
+i don't know... i don't want to change it in case it breaks other stuff, ill just work around it
+
+
+
+I am quite happy with the block destruction
+
+now enemies...happy with that...
+
+now players...only do damage once....
+
+
+its coming along very nicely...
+
+
+do bomb damge is gone and have been replaced with:
+
+bomb_blocks(c, 2);
+bomb_enemies(c, 2);
+bomb_players(c, 2);
+
+these are called every frame when in explosion mode.
+blocks and enemies destroy every frame, but players only when item[][8] == 1
+
+
+these are all called in the draw code also:
+            bomb_blocks(c, 1); // mark blocks that will be destroyed
+            bomb_enemies(c, 1); // mark enemies that will be destroyed
+            bomb_players(c, 1);
+
+but with mode 1 that only marks...
+
+cant make it common because...
+- i don't want anything but drawing in the draw stuff
+- i dont want any drawing in the non-drawing stuff
+
+I'm about out of time for today, but the next things to do are:
+
+make the markings flash based on mod passcount....
+
+fix the fuse burning thing...
+i'll probably go to another type of ans, like the original
+and make a stopwatch with drawing primitives....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

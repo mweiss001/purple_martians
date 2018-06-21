@@ -368,8 +368,11 @@ void function_key_check(void)
       if ((key[ALLEGRO_KEY_F2]) && (!KEY_F2_held))
       {
          KEY_F2_held = 1;
+
+         while (key[ALLEGRO_KEY_F2]) proc_controllers();
+
          #ifndef RELEASE
-         speed_testing =!speed_testing; // remove all speed limiting and force draw each frame
+//         speed_testing =!speed_testing; // remove all speed limiting and force draw each frame
          #endif
       }
       if (!key[ALLEGRO_KEY_F2]) KEY_F2_held = 0;

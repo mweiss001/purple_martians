@@ -166,6 +166,157 @@ void draw_door(int c, int x, int y)
    }
 }
 
+void bomb_blocks(int b, int t)
+{
+   // cycle blocks in blast radius of bomb
+
+   int c = item[b][7];                // raw radius
+
+
+   // are we in exposion mode?
+   // item[c][6] == 1 // fuse burning
+   // item[c][6] == 2 // explosion
+
+
+   if (item[b][6] == 2) // explosion
+   {
+      float r = 1 - (float) item[b][8] / (float)item[b][9]; // ratio from 0 to 1
+      float sr = (float) item[b][7] * r; // scaled radius
+      c = (int) sr;
+      //printf("8:%d r:%f \n", item[b][8], r);
+   }
+
+   int xi = al_fixtoi(itemf[b][0]);   // position
+   int yi = al_fixtoi(itemf[b][1]);
+
+
+   if (t == 1) // mark blocks
+   {
+      //temp mark blast circle
+      al_draw_circle(xi+10, yi+10, c, palette_color[10], 1);
+   }
+
+
+   // convert to 0-100 range
+   c /= 20;
+   int cc = c*c;
+   xi += 10; xi /= 20;
+   yi += 10; yi /= 20;
+
+
+//printf("\nc:%d cc:%d xi:%d yi:%d\n", c, cc, xi, yi);
+
+
+
+
+   for (int e = (xi-c); e < (xi+c)+1; e++)        // cycle blast range of blocks
+      for (int f = (yi-c); f < (yi+c)+1; f++)
+      {
+         // check radius from center
+         int xd = abs(xi-e);
+         int yd = abs(yi-f);
+         int br = xd*xd+yd*yd;
+
+//         if (t ==1) al_draw_rectangle(e*20, f*20, e*20+19, f*20+19, palette_color[11], 1);
+
+  //       printf("\ne:%d f:%d xd:%d yd:%d br:%d", e, f, xd, yd, br);
+
+         if (br < cc)
+         {
+            if (t == 1) // mark blocks
+            {
+               if ((l[e][f] > 63) && (l[e][f] < 96))
+               {
+                  al_draw_rectangle(e*20, f*20, e*20+20, f*20+20, palette_color[10+96], 1);
+                  al_draw_line(e*20, f*20, e*20+19, f*20+19, palette_color[10], 1);
+                  al_draw_line(e*20, f*20+19, e*20+19, f*20, palette_color[10], 1);
+               }
+            }
+            if (t == 2) // remove blocks
+            {
+               if ((l[e][f] > 63) && (l[e][f] < 96)) remove_block(e, f);
+            }
+         }
+      }
+}
+
+
+void bomb_enemies(int b, int t)
+{
+   float r = 1; // default ratio
+   if (item[b][6] == 2) r = 1 - (float)item[b][8] / (float)item[b][9]; // explosion happening
+
+   float max_damage = (float) item[b][7];    // max damage range
+   al_fixed sr =  al_ftofix(max_damage * r); // damage range scaled by ratio
+
+   for (int e=0; e<100 ; e++) // enemies in damage window?
+      if (Ei[e][0])
+      {
+         al_fixed dist = al_fixhypot( (Efi[e][0] - itemf[b][0]), (Efi[e][1] - itemf[b][1]) );
+         if (dist < sr)
+         {
+            if (t == 1)
+            {
+               float ex = al_fixtof(Efi[e][0]);
+               float ey = al_fixtof(Efi[e][1]);
+
+               al_draw_rectangle(ex, ey, ex+19, ey+19, palette_color[11], 1);
+               al_draw_line(ex, ey, ex+19, ey+19, palette_color[11], 1);
+               al_draw_line(ex, ey+19, ex+19, ey, palette_color[11], 1);
+            }
+            if (t == 2)
+            {
+               Ei[e][31] = 2; // set bomb hit
+               game_event(23, 0, 0, 0, 0, 0, 0);
+            }
+         }
+      }
+}
+
+
+void bomb_players(int b, int t)
+{
+   float r = 1; // default ratio
+   if (item[b][6] == 2) r = 1 - (float)item[b][8] / (float)item[b][9]; // explosion happening
+
+   float max_damage = (float) item[b][7];    // max damage range
+   al_fixed sr =  al_ftofix(max_damage * r); // damage range scaled by ratio
+
+
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (!players[p].paused) )
+      {
+         al_fixed dist = al_fixhypot( (players[p].PX - itemf[b][0]), (players[p].PY - itemf[b][1]) );
+         if (dist < sr)
+         {
+            if (t == 1)
+            {
+
+               float px = al_fixtof(players[p].PX);
+               float py = al_fixtof(players[p].PY);
+
+               al_draw_rectangle(px, py, px+19, py+19, palette_color[11], 1);
+               al_draw_line(px, py, px+19, py+19, palette_color[11], 1);
+               al_draw_line(px, py+19, px+19, py, palette_color[11], 1);
+
+
+
+            }
+            if ((t == 2) && (item[b][8] == 1)) // only once do damage
+            {
+               al_fixed damage = al_fixdiv(sr, dist); // damage window size / distance (scale of 1 - 4)
+               damage *= 20; // multiple by 20 (scale of 20-80)
+               if (damage > al_itofix(80)) damage = al_itofix(80);
+               players[p].LIFE -= damage;
+               game_event(7, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), al_fixtoi(damage), 0, 0, 0);
+               game_event(8, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), 0, 0, 0, 0);
+            }
+         }
+      }
+
+
+}
 void draw_items(void)
 {
    al_set_target_bitmap(level_buffer);
@@ -221,67 +372,44 @@ void draw_items(void)
 
         if (item[c][0] == 99) // stretch draw for lit bombs only
         {
-            float sc = (float) item[c][10] / 100;
+            int expl_seq = 97;
+            int fuse_seq = 73;
+            float sc = 1;
+            float r = 1 - (float)item[c][8] / (float)item[c][9]; // ratio done
 
+
+            if (item[c][6] == 1) // fuse burning
+            {
+               int num_seq_shapes = zz[4][fuse_seq];       // number of shapes in seq
+               int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
+               shape = zz[5+si][fuse_seq];
+               printf("ratio:%f shape_index:%d\n", r, si);
+            }
+
+            if (item[c][6] == 2) // explosion mode
+            {
+               int num_seq_shapes = zz[4][expl_seq] + 1;   // number of shapes in seq
+               int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
+               shape = zz[5+si][expl_seq];
+
+               // set size of explosion
+               float max_scale = item[c][7] / 10;         // max scale = damage / 10
+               sc = .5 + (r) * max_scale;
+               printf("ratio:%f shape_index:%d scale:%f \n", r, si, sc);
+            }
 
             al_draw_scaled_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
             drawn = 1;
 
-
-            float sco = 10 * sc;
-            int cx = x+10, cy = y+10;
-
-            al_draw_rectangle(cx-sco, cy-sco, cx+sco, cy+sco, palette_color[11], 1);
-
-
-            // draw cross hairs on item pos
-            al_draw_line(cx-80, cy-80, cx+80, cy+80, palette_color[11], 1);
-            al_draw_line(cx-80, cy+80, cx+80, cy-80, palette_color[11], 1);
+            bomb_blocks(c, 1); // mark blocks that will be destroyed
+            bomb_enemies(c, 1); // mark enemies that will be destroyed
+            bomb_players(c, 1);
 
 
 
-
+            // draw sequence numbers
             sprintf(msg, "%d / %d  %f ", item[c][8], item[c][9], (float)item[c][8]/(float)item[c][9]);
             al_draw_text(font, palette_color[15], x, y-20, 0, msg);
-
-
-
-
-            // show blast area
-            int b = item[c][7]; // blast size
-            int d = b + 20;     // b is - inc; d is + inc and needs to be one block (20) bigger
-
-             // snap to blocks to show blocks that will be removed
-            b /= 20; b *= 20;
-            d /= 20; d *= 20;
-            x +=10; x /= 20; x *= 20;
-            y +=10; y /= 20; y *= 20;
-
-//            // alternate between red outer and yellow inner
-//            int bmd = frame_num % 10;
-//            if ((bmd > 0) && (bmd < 5)) al_draw_rectangle(x-b, y-b, x+d, y+d, palette_color[10], 1); // red outer
-//            b -=4; d-=4;
-//            if ((bmd > 4) && (bmd < 10)) al_draw_rectangle(x-b, y-b, x+d, y+d, palette_color[14], 1); // yellow inner
-
-
-            //temp mark blast
-            al_draw_rectangle(x-b, y-b, x+d, y+d, palette_color[10], 1);
-
-
-            // draw cross hairs on item pos
-            al_draw_line(cx-80, cy-80, cx+80, cy+80, palette_color[10], 1);
-            al_draw_line(cx-80, cy+80, cx+80, cy-80, palette_color[10], 1);
-
-
-
-
-
-
-
-
-
-
-
 
          }
 
@@ -967,67 +1095,8 @@ void proc_item_collision(int p, int x)
    }
 }
 
-void do_bomb_damage(int i)
-{
-   float max_damage = (float) item[i][7];        // max damage
-   float r = 1 - (float)item[i][8] / (float)item[i][9]; // explosion ratio done
-
-   al_fixed b =  al_ftofix(max_damage * r);
-
-   al_fixed x = itemf[i][0];
-   al_fixed y = itemf[i][1];
-   al_fixed x1 = x - b + al_itofix(10);
-   al_fixed x2 = x + b + al_itofix(10);
-   al_fixed y1 = y - b + al_itofix(10);
-   al_fixed y2 = y + b + al_itofix(10);
-   for (int e=0; e<100 ; e++) // enemies in damage window?
-      if (Ei[e][0])
-         if ((Efi[e][0] > x1) && (Efi[e][0] < x2) && (Efi[e][1] > y1) && (Efi[e][1] < y2))
-         {
-            Ei[e][31] = 2; // set bomb hit
-            game_event(23, x, y, 0, 0, 0, 0);
-         }
-
-   if (r == 1) // only damage players once at end
-      for (int p=0; p<NUM_PLAYERS; p++) // players in damage window
-         if ((players[p].active) && (!players[p].paused) )
-            if ((players[p].PX > x1) && (players[p].PX < x2) && (players[p].PY > y1) && (players[p].PY < y2))
-            {
-               al_fixed x_dist = abs(players[p].PX - x);
-               al_fixed y_dist = abs(players[p].PY - y);
-               al_fixed distance = al_fixhypot(x_dist, y_dist);
-               al_fixed damage = al_fixdiv(b, distance); // damage window size / distance (scale of 1 - 4)
-               damage *= 20; // multiple by 20 (scale of 20-80)
-               if (damage > al_itofix(80)) damage = al_itofix(80);
-               players[p].LIFE -= damage;
-               game_event(7, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), al_fixtoi(damage), 0, 0, 0);
-               game_event(8, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), 0, 0, 0, 0);
-            }
-
-
-
-   // remove bombable blocks on level
-   int c = al_fixtoi(b);
-
-   int xi = al_fixtoi(x);
-   int yi = al_fixtoi(y);
-   // convert to 0-100 range
-   c /= 20;
-   xi += 10; xi /= 20;
-   yi += 10; yi /= 20;
-   for (int e = (xi-c); e < (xi+c)+1; e++)        // cycle blast range of blocks
-      for (int f = (yi-c); f < (yi+c)+1; f++)
-        if ((e>0) && (e<99) && (f>0) && (f<99))   // if within level boundaries (minus outer block frame)
-            if ((l[e][f] > 63) && (l[e][f] < 96)) // if bombable block
-               remove_block(e, f);
-
-   draw_lift_lines();
-}
-
 void proc_lit_bomb(int c)
 {
-
-
    // timer is item[c][8]
    // it has 2 modes set by item[c][6]
    // item[c][6] == 1 // fuse burning
@@ -1035,39 +1104,26 @@ void proc_lit_bomb(int c)
 
    // in both modes every frame it is decremented by 1
 
-
    // in mode 1 fuse
    // when timer gets to 0
    // mode is set to 2 and timer reset to 20
 
    // in mode 2 explosion
-   // sound is played at 12
-   // damage is done at 6
-   //
+   // sound is played at 16
+   // damage is done every frame
 
-
-
-
-
-
-   int fuse_seq = 73;
-   int expl_seq = 97;
-   item[c][8]--; // proc timer
    lit_item = 1;
+   item[c][8]--; // timer dec
    if (item[c][6] == 1) // fuse burning
    {
-      // i can ignore these floats because all they do is set the shape from animation sequence
-      float r = (float)item[c][8] / (float)item[c][9]; // ratio done
-      int num_seq_shapes = zz[4][fuse_seq]; // number of shapes in seq
-      int si = (int)(r * (float)num_seq_shapes); // ratio * number of shapes
-      int sh = zz[num_seq_shapes+5-si][fuse_seq]; // shape
-      item[c][1] = sh; // set in item
-
       if (item[c][8] < 1) // fuse done
       {
          item[c][6] = 2; // mode 2; explosion
          item[c][8] = item[c][9] = 20; // explosion timer
 
+         // force player to drop item
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((players[p].active) && (players[p].carry_item-1 == c)) player_drop_item(p);
 
          // check for other co-located bombs
          for (int cc=0; cc<500; cc++)
@@ -1083,35 +1139,17 @@ void proc_lit_bomb(int c)
    }
    if (item[c][6] == 2) // explosion
    {
-      // force player to drop item
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if ((players[p].active) && (players[p].carry_item-1 == c)) player_drop_item(p);
-
-
-      float r = (float)item[c][8] / (float)item[c][9]; // explosion ratio done
-
-      // set shape for explosion
-      int num_seq_shapes = zz[4][expl_seq];            // number of shapes in seq
-      int si = (int)(r * (float)num_seq_shapes);       // ratio * number of shapes
-      item[c][1] = zz[num_seq_shapes+5-si][expl_seq];  // set shape
-
-      // set size of explosion
-      float max_scale = item[c][7] / 10;         // max scale = damage / 10
-      float scale = 3.5 + (1-r) * max_scale;
-      item[c][10] = (int) (scale*100);           // set scale * 100 for item
-
-      printf("explosion ratio:%f seq_shape:%d scale:%f \n", r, si, scale);
+      bomb_blocks(c, 2);
+      bomb_enemies(c, 2);
+      bomb_players(c, 2);
 
       if (item[c][8] == 16) game_event(22,0,0,0,0,0,0); // explosion sound
 
-      if (item[c][8] ==  16) do_bomb_damage(c);         // do damage
-      if (item[c][8] ==  11) do_bomb_damage(c);         // do damage
-      if (item[c][8] ==   6) do_bomb_damage(c);         // do damage
-      if (item[c][8] ==   0) do_bomb_damage(c);         // do damage
-
-
-
-      if (item[c][8] <   1) item[c][0] = 0;             // explosion timer done, erase item
+      if (item[c][8] <   1)
+      {
+         item[c][0] = 0; // explosion timer done, erase item
+         draw_lift_lines();
+      }
    }
 }
 

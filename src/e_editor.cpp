@@ -924,7 +924,9 @@ int edit_menu(int el)
    draw_item_type = 1;
    draw_item_num  = 0;
 
-   initialize_zz();
+
+   set_frame_nums(0);
+
    set_wx_from_start_block();
 
    al_set_mouse_xy(display, SCREEN_W/2, SCREEN_H/2);
