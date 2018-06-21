@@ -798,7 +798,6 @@ void draw_bs(int cc);
 int getbox(const char *txt, int obj_type, int sub_type, int num );
 int getxy(const char *txt, int obj_type, int sub_type, int num );
 int get_item(const char *txt, int obj_type, int sub_type, int num );
-void initialize_zz(void);
 
 // glt.h
 void show_block_list(void);
@@ -1102,7 +1101,6 @@ void move_items(void);
 int player_drop_item(int p);
 void proc_player_carry(int p);
 void proc_item_collision(int p, int x);
-void do_bomb_damage(int i);
 void proc_lit_bomb(int);
 void proc_lit_rocket(int);
 

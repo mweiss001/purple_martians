@@ -611,14 +611,4 @@ int get_item(const char *txt, int obj_type, int sub_type, int num )
 }
 
 
-void initialize_zz(void)
-{
-   int c;
-   for (c=0; c<NUM_ANS; c++)
-      zz[2][c]=0;  // reset the frame_num
-   frame_num = 0;
-
-   for (c=0; c<NUM_ANS; c++)
-      zz[0][c]=zz[5][c];  // set shape one
-}
 
