@@ -8848,16 +8848,16 @@ i'll probably go to another type of ans, like the original
 and make a stopwatch with drawing primitives....
 
 
+send ratio to 3 bomb_  functions as float int f
+no, send range as int..done
 
+well I now have all the bomb stuff looking good
 
+make bomb range a circle in level editor..done
 
+sticky bombs??
 
-
-
-
-
-
-
+when a rocket turns into a bomb do I stop it?, i do now!!
 
 
 

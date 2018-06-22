@@ -64,16 +64,16 @@ void remove_block(int x, int y)
 }
 
 
-void draw_pop_message(int c)
+void draw_pop_message(int i)
 {
    al_set_target_bitmap(level_buffer);
    // process the text string into lines and rows and put in temp array
    char dt[40][120];
    int row = 0, col = 0, num_lines = 0;;
    int longest_line_len = 1;
-   for (int a=0; a < (int)strlen(pmsg[c]) + 1; a++)
+   for (int a=0; a < (int)strlen(pmsg[i]) + 1; a++)
    {
-       if (pmsg[c][a] == 126) // line break
+       if (pmsg[i][a] == 126) // line break
       {
          dt[row][col] = 0; // in case len == 0  on first line
          row++;
@@ -82,7 +82,7 @@ void draw_pop_message(int c)
       }
       else  // regular char
       {
-         dt[row][col] = pmsg[c][a];
+         dt[row][col] = pmsg[i][a];
          if (col > longest_line_len) longest_line_len = col;
          col++;
          dt[row][col] = 0;
@@ -92,67 +92,67 @@ void draw_pop_message(int c)
 
    // x positions
    int pxw = (longest_line_len+2)*8;  // width is set from longest text line
-   int px1 = item[c][10]*20;          // item sets left edge with specified corner block
+   int px1 = item[i][10]*20;          // item sets left edge with specified corner block
    int px2 = px1 + pxw + 8;           // right edge depends on text width
    int pxc = px1 + pxw / 2;           // text center position
 
    // y positions
-   int py1 = item[c][11]*20;          // item sets top edge with specified corner block
+   int py1 = item[i][11]*20;          // item sets top edge with specified corner block
    int py2 = py1 + (num_lines+3) * 8; // bottom edge is set from number of lines of text
 
-   int fc = item[c][9];               // frame color
+   int fc = item[i][9];               // frame color
    for (int a=0; a<12; a++)           // frame
       al_draw_filled_rounded_rectangle(px1+a, py1+a, px2-a, py2-a, 4, 4, palette_color[fc+a*16]);
 
-   int tc = item[c][8];               // text color
+   int tc = item[i][8];               // text color
    for (row=0; row<=num_lines; row++) // text
       al_draw_text(font, palette_color[tc], pxc+4, py1+row*8+9, ALLEGRO_ALIGN_CENTRE, dt[row]);
 }
 
-void draw_door(int c, int x, int y)
+void draw_door(int i, int x, int y)
 {
    ALLEGRO_BITMAP *tmp = NULL;
-   int col = item[c][6];
-   if (item[c][13] == 448) // old style door shape
+   int col = item[i][6];
+   if (item[i][13] == 448) // old style door shape
    {
-      int shape = item[c][1];       // get shape
+      int shape = item[i][1];       // get shape
       int si = shape-448;           // convert to index to bitmap sequence
       tmp = door_tile[1][col][si];
    }
    else // new style doors
    {
       int an = zz[1][83];             // cheat and use shape index from base door animation sequence
-      if (item[c][8] == 0) an = 7-an; // exit only, run the sequence backwards
+      if (item[i][8] == 0) an = 7-an; // exit only, run the sequence backwards
       tmp = door_tile[0][col][an];
    }
 
    int drawn = 0;
-   if (item[c][8] == 1)  // linked item destination
+   if (item[i][8] == 1)  // linked item destination
    {
       // linked destination item position
-      int dx = al_fixtoi(itemf[item[c][9]][0]);
-      int dy = al_fixtoi(itemf[item[c][9]][1]);
-      int line_color = item[item[c][9]][6];
+      int dx = al_fixtoi(itemf[item[i][9]][0]);
+      int dy = al_fixtoi(itemf[item[i][9]][1]);
+      int line_color = item[item[i][9]][6];
 
-      if (item[c][12] == 1) // if always draw lines (1)
+      if (item[i][12] == 1) // if always draw lines (1)
          al_draw_line(x+10, y+10, dx+10, dy+10, palette_color[line_color], 1);  // draw a line connecting them
 
       for (int p=0; p<NUM_PLAYERS; p++) // is player touching door
-         if ((players[p].active) && (players[p].marked_door == c))
+         if ((players[p].active) && (players[p].marked_door == i))
          {
-            if (item[c][12] > 0)  // always draw or only draw when touching ( 1 or 2)
+            if (item[i][12] > 0)  // always draw or only draw when touching ( 1 or 2)
                al_draw_line(x+10, y+10, dx+10, dy+10, palette_color[line_color], 1);  // draw a line connecting them
 
             // bigger door when player touching it
             al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, x-5, y-6, 30, 26, 0 );
 
-            if (item[c][8] == 0) al_draw_scaled_bitmap(tile[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
+            if (item[i][8] == 0) al_draw_scaled_bitmap(tile[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
             else al_draw_scaled_bitmap(tile[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
 
-            if (item[c][11] == 1) // enter with <up>
+            if (item[i][11] == 1) // enter with <up>
                al_draw_text(font, palette_color[15],  x+3, y-14, 0, "up");
 
-            if (item[c][11] == 2) // enter with <down>
+            if (item[i][11] == 2) // enter with <down>
                al_draw_text(font, palette_color[15],  x-5, y-14, 0, "down");
             drawn = 1;
          }
@@ -161,109 +161,148 @@ void draw_door(int c, int x, int y)
    {
       al_draw_bitmap(tmp, x, y, 0); // if not drawn yet
 
-      if (item[c][8] == 0) al_draw_bitmap(tile[1015], x, y, 0); // OUT
+      if (item[i][8] == 0) al_draw_bitmap(tile[1015], x, y, 0); // OUT
       else al_draw_bitmap(tile[1014], x, y, 0); // IN
    }
 }
 
-void bomb_blocks(int b, int t)
+
+
+
+int seq_color(int mod, int c1, int c2)
 {
-   // cycle blocks in blast radius of bomb
+   int col = c1; // initial color
+   if ( (frame_num % mod) < mod/2) col = c2; // other color
+   return col;
+}
 
-   int c = item[b][7];                // raw radius
+int seq_color2(void)
+{
+   int ca[40];
+   int ci = 0;
+
+   for (ci = 0; ci<40; ci++) ca[ci] = 0;
+
+   ci = 0;
+   int b = 10;
+   ca[ci] = b+192; ci++;
+   ca[ci] = b+160; ci++;
+   ca[ci] = b+128; ci++;
+   ca[ci] = b+96; ci++;
+   ca[ci] = b+64; ci++;
+   ca[ci] = b+32; ci++;
+   ca[ci] = b; ci++;
+   ca[ci] = b; ci++;
+   ca[ci] = b; ci++;
+   ca[ci] = b; ci++;
+   ca[ci] = b+32; ci++;
+   ca[ci] = b+64; ci++;
+   ca[ci] = b+96; ci++;
+   ca[ci] = b+128; ci++;
+   ca[ci] = b+160; ci++;
+   ca[ci] = b+192; ci++;
 
 
-   // are we in exposion mode?
-   // item[c][6] == 1 // fuse burning
-   // item[c][6] == 2 // explosion
+   ci = 20;
+   b = 14;
+   ca[ci] = b+192; ci++;
+   ca[ci] = b+160; ci++;
+   ca[ci] = b+128; ci++;
+   ca[ci] = b+96; ci++;
+   ca[ci] = b+64; ci++;
+   ca[ci] = b+32; ci++;
+   ca[ci] = b; ci++;
+   ca[ci] = b; ci++;
+   ca[ci] = b; ci++;
+   ca[ci] = b; ci++;
+   ca[ci] = b+32; ci++;
+   ca[ci] = b+64; ci++;
+   ca[ci] = b+96; ci++;
+   ca[ci] = b+128; ci++;
+   ca[ci] = b+160; ci++;
+   ca[ci] = b+192; ci++;
 
 
-   if (item[b][6] == 2) // explosion
+
+
+   int mod = frame_num % 40;
+   return ca[mod];
+}
+
+
+void bomb_block_crosshairs(int e, int f)
+{
+   //int col = seq_color(16, 14, 10);
+   int col = seq_color2();
+   if (col)
    {
-      float r = 1 - (float) item[b][8] / (float)item[b][9]; // ratio from 0 to 1
-      float sr = (float) item[b][7] * r; // scaled radius
-      c = (int) sr;
-      //printf("8:%d r:%f \n", item[b][8], r);
+      al_draw_rectangle(e*20, f*20, e*20+20, f*20+20, palette_color[col], 1);
+      al_draw_line(e*20, f*20, e*20+19, f*20+19, palette_color[col], 1);
+      al_draw_line(e*20, f*20+19, e*20+19, f*20, palette_color[col], 1);
    }
-
-   int xi = al_fixtoi(itemf[b][0]);   // position
-   int yi = al_fixtoi(itemf[b][1]);
+}
 
 
-   if (t == 1) // mark blocks
-   {
-      //temp mark blast circle
-      al_draw_circle(xi+10, yi+10, c, palette_color[10], 1);
-   }
+
+void bomb_blocks(int i, int t, int dr)
+{
+   // center of bomb
+   int x = al_fixtoi(itemf[i][0]) + 10;
+   int y = al_fixtoi(itemf[i][1]) + 10;
 
 
    // convert to 0-100 range
-   c /= 20;
-   int cc = c*c;
-   xi += 10; xi /= 20;
-   yi += 10; yi /= 20;
+   x /= 20;
+   y /= 20;
+   dr /= 20;        // damage range
+   int dr2 = dr*dr; // damage range squared
 
-
-//printf("\nc:%d cc:%d xi:%d yi:%d\n", c, cc, xi, yi);
-
-
-
-
-   for (int e = (xi-c); e < (xi+c)+1; e++)        // cycle blast range of blocks
-      for (int f = (yi-c); f < (yi+c)+1; f++)
+   for (int e = (x-dr); e < (x+dr)+1; e++)        // cycle blast range of blocks
+      for (int f = (y-dr); f < (y+dr)+1; f++)
       {
          // check radius from center
-         int xd = abs(xi-e);
-         int yd = abs(yi-f);
+         int xd = abs(x-e);
+         int yd = abs(y-f);
          int br = xd*xd+yd*yd;
-
-//         if (t ==1) al_draw_rectangle(e*20, f*20, e*20+19, f*20+19, palette_color[11], 1);
-
-  //       printf("\ne:%d f:%d xd:%d yd:%d br:%d", e, f, xd, yd, br);
-
-         if (br < cc)
+         if ((br < dr2) && (l[e][f] > 63) && (l[e][f] < 96))
          {
-            if (t == 1) // mark blocks
-            {
-               if ((l[e][f] > 63) && (l[e][f] < 96))
-               {
-                  al_draw_rectangle(e*20, f*20, e*20+20, f*20+20, palette_color[10+96], 1);
-                  al_draw_line(e*20, f*20, e*20+19, f*20+19, palette_color[10], 1);
-                  al_draw_line(e*20, f*20+19, e*20+19, f*20, palette_color[10], 1);
-               }
-            }
-            if (t == 2) // remove blocks
-            {
-               if ((l[e][f] > 63) && (l[e][f] < 96)) remove_block(e, f);
-            }
+            if (t == 1) bomb_block_crosshairs(e, f);
+            if (t == 2) remove_block(e, f);
          }
       }
 }
 
 
-void bomb_enemies(int b, int t)
+void bomb_crosshairs(float x, float y)
 {
-   float r = 1; // default ratio
-   if (item[b][6] == 2) r = 1 - (float)item[b][8] / (float)item[b][9]; // explosion happening
+   //int col = seq_color(16, 14, 10);
+   int col = seq_color2();
 
-   float max_damage = (float) item[b][7];    // max damage range
-   al_fixed sr =  al_ftofix(max_damage * r); // damage range scaled by ratio
+   // size seq
+   float rad;   // circle radius
+   int ms = 8;  // min size
+   int ns = 16; // seq length
+   int sq = frame_num % ns;
 
+   if (sq < ns/2) rad = ms+sq;
+   else rad = ms+ns-sq;
+
+   if (col) al_draw_circle(x, y, rad, palette_color[col], 1);
+
+   float h = sqrt ((rad * rad) / 2) + 6;
+   al_draw_line(x-h, y-h, x+h, y+h, palette_color[col], 1);
+   al_draw_line(x-h, y+h, x+h, y-h, palette_color[col], 1);
+}
+
+void bomb_enemies(int i, int t, int dr)
+{
    for (int e=0; e<100 ; e++) // enemies in damage window?
       if (Ei[e][0])
       {
-         al_fixed dist = al_fixhypot( (Efi[e][0] - itemf[b][0]), (Efi[e][1] - itemf[b][1]) );
-         if (dist < sr)
+         al_fixed dist = al_fixhypot( (Efi[e][0] - itemf[i][0]), (Efi[e][1] - itemf[i][1]) );
+         if (dist < al_itofix(dr))
          {
-            if (t == 1)
-            {
-               float ex = al_fixtof(Efi[e][0]);
-               float ey = al_fixtof(Efi[e][1]);
-
-               al_draw_rectangle(ex, ey, ex+19, ey+19, palette_color[11], 1);
-               al_draw_line(ex, ey, ex+19, ey+19, palette_color[11], 1);
-               al_draw_line(ex, ey+19, ex+19, ey, palette_color[11], 1);
-            }
+            if (t == 1) bomb_crosshairs(10 + al_fixtof(Efi[e][0]), 10 + al_fixtof(Efi[e][1]));
             if (t == 2)
             {
                Ei[e][31] = 2; // set bomb hit
@@ -273,162 +312,204 @@ void bomb_enemies(int b, int t)
       }
 }
 
-
-void bomb_players(int b, int t)
+void bomb_players(int i, int t, int dr)
 {
-   float r = 1; // default ratio
-   if (item[b][6] == 2) r = 1 - (float)item[b][8] / (float)item[b][9]; // explosion happening
-
-   float max_damage = (float) item[b][7];    // max damage range
-   al_fixed sr =  al_ftofix(max_damage * r); // damage range scaled by ratio
-
-
-
    for (int p=0; p<NUM_PLAYERS; p++)
       if ((players[p].active) && (!players[p].paused) )
       {
-         al_fixed dist = al_fixhypot( (players[p].PX - itemf[b][0]), (players[p].PY - itemf[b][1]) );
-         if (dist < sr)
+         al_fixed dist = al_fixhypot( (players[p].PX - itemf[i][0]), (players[p].PY - itemf[i][1]) );
+         if (dist < al_itofix(dr))
          {
-            if (t == 1)
+            if (t == 1) bomb_crosshairs(10 + al_fixtof(players[p].PX), 10 + al_fixtof(players[p].PY));
+
+            if ((t == 2) && (item[i][8] == 1)) // only do damage once at end of explosion seq
             {
-
-               float px = al_fixtof(players[p].PX);
-               float py = al_fixtof(players[p].PY);
-
-               al_draw_rectangle(px, py, px+19, py+19, palette_color[11], 1);
-               al_draw_line(px, py, px+19, py+19, palette_color[11], 1);
-               al_draw_line(px, py+19, px+19, py, palette_color[11], 1);
-
-
-
-            }
-            if ((t == 2) && (item[b][8] == 1)) // only once do damage
-            {
-               al_fixed damage = al_fixdiv(sr, dist); // damage window size / distance (scale of 1 - 4)
+               al_fixed damage = al_fixdiv(al_itofix(dr), dist); // damage window size / distance (scale of 1 - 4)
                damage *= 20; // multiple by 20 (scale of 20-80)
                if (damage > al_itofix(80)) damage = al_itofix(80);
                players[p].LIFE -= damage;
-               game_event(7, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), al_fixtoi(damage), 0, 0, 0);
-               game_event(8, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), 0, 0, 0, 0);
+               game_event(7, 0, 0, al_fixtoi(damage), 0, 0, 0);
+               game_event(8, 0, 0, 0, 0, 0, 0);
             }
          }
       }
-
-
 }
+
+
+void draw_lit_bomb(int i)
+{
+   int x = al_fixtoi(itemf[i][0]);
+   int y = al_fixtoi(itemf[i][1]);
+   int shape = item[i][1];                       // get shape
+   int fuse_seq = 96;
+   int expl_seq = 97;
+   float sc = 1;
+   float r = 1 - (float)item[i][8] / (float)item[i][9]; // countdown timer ratio (0 - 1)
+
+   if (item[i][6] == 1) // fuse burning
+   {
+      int num_seq_shapes = zz[4][fuse_seq] + 1;   // number of shapes in seq
+      int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
+      shape = zz[5+si][fuse_seq];
+      //printf("ratio:%f shape_index:%d\n", r, si);
+      al_draw_scaled_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
+
+      // show countdown clock
+      float cr = 6; // clock radius
+      float pi = ALLEGRO_PI;
+      float rd = pi*2*r - pi/2; // countdown position in radians
+      al_draw_circle(x+10, y+13, cr, palette_color[10], 1);
+      al_draw_pieslice(x+10, y+13, cr, rd, 0, palette_color[15], 1);
+      al_draw_arc(x+10, y+13, cr, -pi/2, pi*2*r, palette_color[14], 1);
+
+      // show damage range circle
+      int col = seq_color2();
+      if (col) al_draw_circle(x+10, y+10, item[i][7], palette_color[col], 1);
+   }
+
+   if (item[i][6] == 2) // explosion mode
+   {
+      int num_seq_shapes = zz[4][expl_seq] + 1;   // number of shapes in seq
+      int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
+      shape = zz[5+si][expl_seq];
+
+      // set size of explosion
+      float max_scale = item[i][7] / 10;         // max scale = damage / 10
+      sc = .5 + (r) * max_scale;
+      //printf("ratio:%f shape_index:%d scale:%f \n", r, si, sc);
+      al_draw_scaled_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
+   }
+
+   bomb_blocks(i, 1, item[i][7]);  // mark blocks that will be destroyed
+   bomb_enemies(i, 1, item[i][7]); // mark enemies in damage range
+   bomb_players(i, 1, item[i][7]); // mark players in damage range
+
+   // draw sequence numbers
+   //sprintf(msg, "%d / %d  %f ", item[i][8], item[i][9], (float)item[i][8]/(float)item[i][9]);
+   //al_draw_text(font, palette_color[15], x, y-20, 0, msg);
+}
+
+void proc_lit_bomb(int i)
+{
+   lit_item = 1;
+   item[i][8]--; // timer dec
+   if (item[i][6] == 1) // fuse burning
+   {
+      if (item[i][8] < 1) // fuse done
+      {
+         item[i][6] = 2; // mode 2; explosion
+         item[i][8] = item[i][9] = 20; // explosion timer
+
+         // force player to drop item
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((players[p].active) && (players[p].carry_item-1 == i)) player_drop_item(p);
+
+         // check for other co-located bombs
+         for (int ii=0; ii<500; ii++)
+            if (item[ii][0] == 99) // lit bomb
+               if (ii != i) // not this one
+                  if (itemf[ii][0] == itemf[i][0]) // compare x
+                     if (itemf[ii][1] == itemf[i][1]) // compare y
+                        if (item[ii][15] == item[i][15]) // check if created by same cloner
+                           item[ii][0] = 0; // delete item
+      }
+   }
+   if (item[i][6] == 2) // explosion
+   {
+      float r = 1 - (float)item[i][8] / (float)item[i][9]; // ratio
+      int dr = (int) (  (float)item[i][7] * r); // damage range scaled by ratio
+
+      // do damage
+      bomb_blocks(i, 2, dr);
+      bomb_enemies(i, 2, dr);
+      bomb_players(i, 2, dr);
+
+      if (item[i][8] == 16) game_event(22,0,0,0,0,0,0); // explosion sound
+
+      if (item[i][8] < 1)
+      {
+         item[i][0] = 0; // explosion done, erase item
+         draw_lift_lines();
+      }
+   }
+}
+
 void draw_items(void)
 {
    al_set_target_bitmap(level_buffer);
-   for (int c=0; c<500; c++)
-      if (item[c][0])
+   for (int i=0; i<500; i++)
+      if (item[i][0])
       {
-         int x = al_fixtoi(itemf[c][0]);
-         int y = al_fixtoi(itemf[c][1]);
-         int shape = item[c][1];                       // get shape
+         int x = al_fixtoi(itemf[i][0]);
+         int y = al_fixtoi(itemf[i][1]);
+         int shape = item[i][1];                       // get shape
          if (shape > 999) shape = zz[0][shape-1000];   // ans
          int drawn = 0;
 
-         if ((item[c][0] == 10) && (item[c][6] > 0)) // pop up message
+         if ((item[i][0] == 10) && (item[i][6] > 0)) // pop up message
          {
-            item[c][6]--;
-            draw_pop_message(c);
+            item[i][6]--;
+            draw_pop_message(i);
          }
 
-         if (item[c][0] == 1)
+         if (item[i][0] == 1)
          {
-             draw_door(c, x, y);
+             draw_door(i, x, y);
              drawn = 1;
          }
 
+         if (item[i][0] == 99)
+         {
+            draw_lit_bomb(i);
+            drawn = 1;
+         }
+
          // moving key in final sequence
-         if ((item[c][0] == 4) && (item[c][11] > 0) && (item[c][11] < 10))
+         if ((item[i][0] == 4) && (item[i][11] > 0) && (item[i][11] < 10))
          {
             // moving key in final stage gets static shape not ans
-            shape = item[c][1];                           // get shape
+            shape = item[i][1];                           // get shape
             if (shape > 999) shape = zz[5][shape-1000];   // get first shape only
 
             // stretch the key
-            float sc = 1 + 4*((10 - (float)item[c][11]) / 10);
-            float rot = al_fixtof(al_fixmul(al_itofix(item[c][10]/10), al_fixtorad_r));
+            float sc = 1 + 4*((10 - (float)item[i][11]) / 10);
+            float rot = al_fixtof(al_fixmul(al_itofix(item[i][10]/10), al_fixtorad_r));
             al_draw_scaled_rotated_bitmap(tile[shape],10, 10, x+10, y+10, sc, sc, rot, 0);
             drawn = 1;
 
             // draw a collapsing rectangle
-            int x1 = item[c][6] * 20;
-            int y1 = item[c][7] * 20;
-            int x2 = (item[c][8]+1) * 20;
-            int y2 = (item[c][9]+1) * 20;
+            int x1 = item[i][6] * 20;
+            int y1 = item[i][7] * 20;
+            int x2 = (item[i][8]+1) * 20;
+            int y2 = (item[i][9]+1) * 20;
             int xw = x2-x1;
             int yh = y2-y1;
             float xinc = xw/8;
             float yinc = yh/8;
 
-            float seq = 9 - item[c][11]; // starts at 0, goes to 8
+            float seq = 9 - item[i][11]; // starts at 0, goes to 8
             int xo = (int)(seq * xinc / 2);
             int yo = (int)(seq * yinc / 2);
             al_draw_rectangle(x1+xo, y1+yo, x2-xo, y2-yo, palette_color[15], 1);
          }
 
-        if (item[c][0] == 99) // stretch draw for lit bombs only
-        {
-            int expl_seq = 97;
-            int fuse_seq = 73;
-            float sc = 1;
-            float r = 1 - (float)item[c][8] / (float)item[c][9]; // ratio done
-
-
-            if (item[c][6] == 1) // fuse burning
-            {
-               int num_seq_shapes = zz[4][fuse_seq];       // number of shapes in seq
-               int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
-               shape = zz[5+si][fuse_seq];
-               printf("ratio:%f shape_index:%d\n", r, si);
-            }
-
-            if (item[c][6] == 2) // explosion mode
-            {
-               int num_seq_shapes = zz[4][expl_seq] + 1;   // number of shapes in seq
-               int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
-               shape = zz[5+si][expl_seq];
-
-               // set size of explosion
-               float max_scale = item[c][7] / 10;         // max scale = damage / 10
-               sc = .5 + (r) * max_scale;
-               printf("ratio:%f shape_index:%d scale:%f \n", r, si, sc);
-            }
-
-            al_draw_scaled_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
-            drawn = 1;
-
-            bomb_blocks(c, 1); // mark blocks that will be destroyed
-            bomb_enemies(c, 1); // mark enemies that will be destroyed
-            bomb_players(c, 1);
-
-
-
-            // draw sequence numbers
-            sprintf(msg, "%d / %d  %f ", item[c][8], item[c][9], (float)item[c][8]/(float)item[c][9]);
-            al_draw_text(font, palette_color[15], x, y-20, 0, msg);
-
-         }
 
           // these types need rotation
-         if ((item[c][0] == 11) || (item[c][0] == 98) ||  // rockets
-            ((item[c][0] == 4) && (item[c][11] > 0))) // moving key
+         if ((item[i][0] == 11) || (item[i][0] == 98) ||  // rockets
+            ((item[i][0] == 4) && (item[i][11] > 0))) // moving key
          {
-            float rot = al_fixtof(al_fixmul(al_itofix(item[c][10]/10), al_fixtorad_r));
+            float rot = al_fixtof(al_fixmul(al_itofix(item[i][10]/10), al_fixtorad_r));
             al_draw_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, rot, 0);
             drawn = 1;
          }
 
-         if (item[c][0] == 3) // exit
+         if (item[i][0] == 3) // exit
          {
             al_draw_bitmap(tile[399], x, y, 0); // 'exit' text not shown
             if (frame_num % 60 > 30)
                al_draw_text(f3, palette_color[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
 
-            int exit_enemys_left = num_enemy - item[c][8];
+            int exit_enemys_left = num_enemy - item[i][8];
             if (exit_enemys_left > 0) // locked
             {
                al_draw_bitmap(tile[366], x, y, 0); // show lock
@@ -441,187 +522,138 @@ void draw_items(void)
 
          // default draw if nothing else has drawn it up to now
          if (!drawn) al_draw_bitmap(tile[shape], x, y, 0);
-
-
-         #ifdef SHOW_BOMB_DAMAGE_BOX
-         // this is to test if the players or enemies are in the damage window
-         if ((item[c][0] == 8) || (item[c][0] == 99))  // bomb
-         {
-            al_fixed b = al_itofix(item[c][7]); // damage window size
-            al_fixed x = itemf[c][0];
-            al_fixed y = itemf[c][1];
-
-            // these are for the comparison
-            al_fixed x1 = x - b;
-            al_fixed x2 = x + b;
-            al_fixed y1 = y - b;
-            al_fixed y2 = y + b;
-
-            // these are to show the rectangle
-            al_fixed dx1 = x - b + al_itofix(10);
-            al_fixed dx2 = x + b + al_itofix(10);
-            al_fixed dy1 = y - b + al_itofix(10);
-            al_fixed dy2 = y + b + al_itofix(10);
-
-            int color = 11; // green
-            for (int p=0; p<NUM_PLAYERS; p++) // players in damage window
-               if ((players[p].active) && (!players[p].paused) )
-                  if ((players[p].PX > x1) && (players[p].PX < x2) && (players[p].PY > y1) && (players[p].PY < y2))
-                  {
-                     color = 12; // blue
-
-                     // calculate the damage the player would take
-                     al_fixed x_dist = abs(players[p].PX - x);
-                     al_fixed y_dist = abs(players[p].PY - y);
-                     al_fixed distance = al_fixhypot(x_dist, y_dist);
-                     al_fixed damage = al_fixdiv(b, distance); // damage window size / distance (scale of 1 - 4)
-                     damage *= 20; // multiple by 20 (scale of 20-80)
-                     if (damage > al_itofix(80)) damage = al_itofix(80);
-
-                     sprintf(msg, "b:%d d:%d  damage:%d ", al_fixtoi(b), al_fixtoi(distance), al_fixtoi(damage) );
-                     al_draw_text(font, palette_color[color], al_fixtof(x1)+10, al_fixtof(y1), 0, msg);
-                   }
-
-            for (int e=0; e<100 ; e++) // enemies in damage window?
-               if (Ei[e][0])
-                  if ((Efi[e][0] > x1) && (Efi[e][0] < x2) && (Efi[e][1] > y1) && (Efi[e][1] < y2))
-                     color = 13;
-            al_draw_rectangle(al_fixtof(dx1), al_fixtof(dy1), al_fixtof(dx2), al_fixtof(dy2), palette_color[color], 2);
-         }
-         #endif
       } // end of active item iterate
 }
 
 
 void move_items()
 {
-   int a, c, x, y;
-   for (c=0; c<500; c++)
-      if (item[c][0])
+   for (int i=0; i<500; i++)
+      if (item[i][0])
       {
          // check for time to live
-         int ttl = item[c][14];
+         int ttl = item[i][14];
          if (ttl)
          {
             if (ttl < 11)       // start ans seq
             {
-               item[c][0] = 66; // change to different type to prevent use
+               item[i][0] = 66; // change to different type to prevent use
                int sq = 10-ttl;
-               item[c][1] = zz[5+sq][74];
+               item[i][1] = zz[5+sq][74];
             }
-            if (ttl == 1) item[c][0] = 0; // kill instantly
-            item[c][14]--;
+            if (ttl == 1) item[i][0] = 0; // kill instantly
+            item[i][14]--;
          }
 
-         if (item[c][0] == 99) proc_lit_bomb(c);
-         if (item[c][0] == 98) proc_lit_rocket(c);
+         if (item[i][0] == 99) proc_lit_bomb(i);
+         if (item[i][0] == 98) proc_lit_rocket(i);
 
-         if ((item[c][0] == 4) && (item[c][11] > 0)) // moving key
+         if ((item[i][0] == 4) && (item[i][11] > 0)) // moving key
          {
             // do the incs until the last 10 frames, which are for final sequence
-            if (item[c][11] > 10)
+            if (item[i][11] > 10)
             {
-               itemf[c][0] += itemf[c][2];  // xinc
-               itemf[c][1] += itemf[c][3];  // yinc
+               itemf[i][0] += itemf[i][2];  // xinc
+               itemf[i][1] += itemf[i][3];  // yinc
             }
-            item[c][11]--;
-            if (item[c][11] == 0)
+            item[i][11]--;
+            if (item[i][11] == 0)
             {
                // remove the key
-               item[c][0] = 0;
-               if (item[c][12]) // matching keyed blocks only
+               item[i][0] = 0;
+               if (item[i][12]) // matching keyed blocks only
                {
-                  int key = item[c][1] - 1039;
-                  for (x = item[c][6]; x <= item[c][8]; x++)
-                     for (y = item[c][7]; y <= item[c][9]; y++)
+                  int key = item[i][1] - 1039;
+                  for (int x = item[i][6]; x <= item[i][8]; x++)
+                     for (int y = item[i][7]; y <= item[i][9]; y++)
                         if ((l[x][y] == 188 + key) || (l[x][y] == 204 + key) || (l[x][y] == 220 + key))
                            remove_block(x, y);
                }
                else // remove all blocks in range
                {
-                  for (x = item[c][6]; x <= item[c][8]; x++)
-                     for (y = item[c][7]; y <= item[c][9]; y++)
+                  for (int x = item[i][6]; x <= item[i][8]; x++)
+                     for (int y = item[i][7]; y <= item[i][9]; y++)
                         remove_block(x, y);
                }
                draw_lift_lines(); // in case removing the key blocks erases lift lines
              }
          }  // end of moving key
-         else if ((item[c][3]) && (item[c][0] != 98)) // and not stationary and not lit rocket
+         else if ((item[i][3]) && (item[i][0] != 98)) // and not stationary and not lit rocket
          {
             int pc = 0;
             for (int p=0; p<NUM_PLAYERS; p++)
                if (players[p].active)
                   if ((!players[p].paused) || (players[p].paused && players[p].paused_type == 2))
-                     if (c == (players[p].carry_item-1)) pc = 1;
+                     if (i == (players[p].carry_item-1)) pc = 1;
 
 
 
             if (!pc) // not being carried
             {
                // apply incs
-               itemf[c][0] += itemf[c][2];  // xinc
-               itemf[c][1] += itemf[c][3];  // yinc
+               itemf[i][0] += itemf[i][2];  // xinc
+               itemf[i][1] += itemf[i][3];  // yinc
 
                // always slow down xinc (kinda like friction)
-               if (itemf[c][2] > al_itofix(0))
+               if (itemf[i][2] > al_itofix(0))
                {
-                   itemf[c][2] -= al_ftofix(.01); // slow down + x move
-                      if (itemf[c][2] < al_itofix(0)) // set to zero if crosses zero
-                         itemf[c][2] = al_itofix(0);
+                   itemf[i][2] -= al_ftofix(.01); // slow down + x move
+                      if (itemf[i][2] < al_itofix(0)) // set to zero if crosses zero
+                         itemf[i][2] = al_itofix(0);
                }
 
-               if (itemf[c][2] < al_itofix(0))
+               if (itemf[i][2] < al_itofix(0))
                {
-                   itemf[c][2] += al_ftofix(.01); // slow down + x move
-                      if (itemf[c][2] > al_itofix(0)) // set to zero if crosses zero
-                         itemf[c][2] = al_itofix(0);
+                   itemf[i][2] += al_ftofix(.01); // slow down + x move
+                      if (itemf[i][2] > al_itofix(0)) // set to zero if crosses zero
+                         itemf[i][2] = al_itofix(0);
                }
 
-               x = al_fixtoi(itemf[c][0]);
-               y = al_fixtoi(itemf[c][1]);
+               int x = al_fixtoi(itemf[i][0]);
+               int y = al_fixtoi(itemf[i][1]);
 
                // moving right
-               if ((itemf[c][2] > al_itofix(0)) && (is_right_solid(x,y, 1)))
+               if ((itemf[i][2] > al_itofix(0)) && (is_right_solid(x,y, 1)))
                {
-                  itemf[c][0] -= itemf[c][2];  // take back xinc
-                  itemf[c][2] = al_itofix(0);     // stop
+                  itemf[i][0] -= itemf[i][2];  // take back xinc
+                  itemf[i][2] = al_itofix(0);     // stop
                }
 
                // moving left
-               if ((itemf[c][2] < al_itofix(0)) && (is_left_solid(x,y, 1)))
+               if ((itemf[i][2] < al_itofix(0)) && (is_left_solid(x,y, 1)))
                {
-                  itemf[c][0] -= itemf[c][2];  // take back xinc
-                  itemf[c][2] = al_itofix(0);     // stop
+                  itemf[i][0] -= itemf[i][2];  // take back xinc
+                  itemf[i][2] = al_itofix(0);     // stop
                }
 
-               x = al_fixtoi(itemf[c][0]);
-               y = al_fixtoi(itemf[c][1]);
+               x = al_fixtoi(itemf[i][0]);
+               y = al_fixtoi(itemf[i][1]);
 
                // moving up
-               if (itemf[c][3] < al_itofix(0))
+               if (itemf[i][3] < al_itofix(0))
                {
                   if (is_up_solid(x, y, 0) == 1)    // only check for solid blocks
-                     itemf[c][3] = al_itofix(0);        // if collision kill upwards yinc
-                  else itemf[c][3] += al_ftofix(.1);    // else de-accel
+                     itemf[i][3] = al_itofix(0);        // if collision kill upwards yinc
+                  else itemf[i][3] += al_ftofix(.1);    // else de-accel
                }
                else // not moving up
                {
-                  a = is_down_solid(x, y, 1);             // check for block below
+                  int a = is_down_solid(x, y, 1);             // check for block below
                   if (a==0)
                   {
-                     itemf[c][3] += al_ftofix(.1);                             // apply gravity to yinc
-                     if (itemf[c][3] > al_itofix(3)) itemf[c][3] = al_itofix(3);  // max gravity
+                     itemf[i][3] += al_ftofix(.1);                             // apply gravity to yinc
+                     if (itemf[i][3] > al_itofix(3)) itemf[i][3] = al_itofix(3);  // max gravity
                   }
                   if (a) // slow down xinc if block or lift below
                   {
-                     if (itemf[c][2] > al_itofix(0)) itemf[c][2] -= al_ftofix(.12);
-                     if (itemf[c][2] < al_itofix(0)) itemf[c][2] += al_ftofix(.12);
+                     if (itemf[i][2] > al_itofix(0)) itemf[i][2] -= al_ftofix(.12);
+                     if (itemf[i][2] < al_itofix(0)) itemf[i][2] += al_ftofix(.12);
                   }
 
                   if ((a==1) || (a==2)) // align with ground if block below
                   {
-                     itemf[c][1] = al_itofix((y/20)*20); // align with ground
-                     itemf[c][3] = al_itofix(0);  // zero yinc
+                     itemf[i][1] = al_itofix((y/20)*20); // align with ground
+                     itemf[i][3] = al_itofix(0);  // zero yinc
                   }
 
                   if (a > 31) // item riding lift
@@ -645,27 +677,27 @@ void move_items()
                         al_fixed lxi = lifts[a-32].fxinc;
                         al_fixed lyi = lifts[a-32].fyinc;
 
-                        itemf[c][0] += lxi;                             // move x with lift's xinc
-                        itemf[c][1]  = lifts[a-32].fy - al_itofix(20);  // align with lift's y
+                        itemf[i][0] += lxi;                             // move x with lift's xinc
+                        itemf[i][1]  = lifts[a-32].fy - al_itofix(20);  // align with lift's y
 
-                        x = al_fixtoi(itemf[c][0]);
-                        y = al_fixtoi(itemf[c][1]);
+                        x = al_fixtoi(itemf[i][0]);
+                        y = al_fixtoi(itemf[i][1]);
 
                         if (lyi > al_itofix(0)) // down
                            if (is_down_solid(x, y, 0))                      // no lift check
-                              itemf[c][1] = al_itofix(y - (y % 20));        // item not on lift anymore, align with block
+                              itemf[i][1] = al_itofix(y - (y % 20));        // item not on lift anymore, align with block
 
                         if (lyi < al_itofix(0)) // up
                            if (is_up_solid(x, y, 0) == 1)
-                              itemf[c][1] += al_itofix(10);
+                              itemf[i][1] += al_itofix(10);
 
                         if (lxi > al_itofix(0)) // right
                            if (is_right_solid(x, y, 1))
-                              itemf[c][0] -= lxi;
+                              itemf[i][0] -= lxi;
 
                         if (lxi < al_itofix(0)) // left
                            if (is_left_solid(x, y, 1))
-                              itemf[c][0] -= lxi;
+                              itemf[i][0] -= lxi;
                      }
                   }  // end of riding lift
                }  // end of not moving up
@@ -677,16 +709,16 @@ void move_items()
 
 int player_drop_item(int p)
 {
-   int pc = players[p].carry_item-1; // number of item
+   int i = players[p].carry_item-1; // number of item
    // printf("drop item:%d\n", pc);
 
    int wall_stuck = 0;
    players[p].carry_item = 0;
-   if (item[pc][0] != 99) // not lit bomb
+   if (item[i][0] != 99) // not lit bomb
    {
       // check to see if the item is embedded in the wall
-      int x = al_fixtoi(itemf[pc][0] );
-      int y = al_fixtoi(itemf[pc][1] );
+      int x = al_fixtoi(itemf[i][0] );
+      int y = al_fixtoi(itemf[i][1] );
 
       if (players[p].left_right) // right
       {
@@ -696,7 +728,7 @@ int player_drop_item(int p)
             x--;
             wall_stuck++; // just how stuck was it?
          }
-         itemf[pc][0] = al_itofix(x);
+         itemf[i][0] = al_itofix(x);
       }
 
       if (!players[p].left_right) // left
@@ -707,10 +739,10 @@ int player_drop_item(int p)
             x++;
             wall_stuck++; // just how stuck was it?
          }
-         itemf[pc][0] = al_itofix(x);
+         itemf[i][0] = al_itofix(x);
        }
    }
-   else itemf[pc][1] += al_itofix(2); // when putting bomb in wall, this stops it from snapping to block above
+   else itemf[i][1] += al_itofix(2); // when putting bomb in wall, this stops it from snapping to block above
    return wall_stuck;
 }
 
@@ -719,25 +751,25 @@ void proc_player_carry(int p)
    if ((players[p].active) && (players[p].carry_item))
       if (!players[p].paused || (players[p].paused && players[p].paused_type == 2))// player is carrying item
       {
-         int pc = players[p].carry_item-1; // number of item
-         if (item[pc][0] != 98)            // not lit rocket
+         int i = players[p].carry_item-1; // number of item
+         if (item[i][0] != 98)            // not lit rocket
          {
             // set item position relative to player that's carrying it
-            itemf[pc][1] = players[p].PY - al_itofix(2);
-            if (!players[p].left_right) itemf[pc][0] = players[p].PX - al_itofix(15);
-            if (players[p].left_right) itemf[pc][0] = players[p].PX + al_itofix(15);
+            itemf[i][1] = players[p].PY - al_itofix(2);
+            if (!players[p].left_right) itemf[i][0] = players[p].PX - al_itofix(15);
+            if (players[p].left_right) itemf[i][0] = players[p].PX + al_itofix(15);
          }
          if (!players[p].fire) // drop
          {
             if (player_drop_item(p) < 6)
             {
-               if (item[pc][0] != 98)            // not lit rocket
+               if (item[i][0] != 98)            // not lit rocket
                {
-                  itemf[pc][2] = players[p].xinc;  // inherit the players momentum
-                  itemf[pc][3] = players[p].yinc;
-                  if (players[p].up)    itemf[pc][3] -= al_itofix(6); // throw item upwards
-                  if (players[p].left)  itemf[pc][2] -= al_itofix(2); // throw item left
-                  if (players[p].right) itemf[pc][2] += al_itofix(2); // throw item right
+                  itemf[i][2] = players[p].xinc;  // inherit the players momentum
+                  itemf[i][3] = players[p].yinc;
+                  if (players[p].up)    itemf[i][3] -= al_itofix(6); // throw item upwards
+                  if (players[p].left)  itemf[i][2] -= al_itofix(2); // throw item left
+                  if (players[p].right) itemf[i][2] += al_itofix(2); // throw item right
                }
             }
          }
@@ -745,12 +777,12 @@ void proc_player_carry(int p)
 }
 
 
-void proc_door_collision(int p, int x)
+void proc_door_collision(int p, int i)
 {
    if ((players[p].marked_door == -1)  // player has no marked door yet
-     && (players[p].carry_item != x+1)) // player is not carrying this door
+     && (players[p].carry_item != i+1)) // player is not carrying this door
    {
-      players[p].marked_door = x;
+      players[p].marked_door = i;
 
       // item[x][6]  color
       // item[x][7]  move type (0 = auto, 1 = force instant, 2 = force move
@@ -762,49 +794,49 @@ void proc_door_collision(int p, int x)
       // item[x][13] base animation shape
 
 
-      if (item[x][8]) // do nothing if exit only
+      if (item[i][8]) // do nothing if exit only
       {
          int do_entry = 0;
-         if (item[x][11] == 0) do_entry = 1; // enter immed
-         if (players[p].carry_item-1 != x) // cant trigger entry if carrying this door
+         if (item[i][11] == 0) do_entry = 1; // enter immed
+         if (players[p].carry_item-1 != i) // cant trigger entry if carrying this door
          {
-            if (item[x][11] == 1) // enter with <up>
+            if (item[i][11] == 1) // enter with <up>
             {
                // to prevent immediate triggering when destination door, wait for release and re-press
 
                // if key held is old, ignore
-               if (item[x][10] && item[x][10] < frame_num-1) item[x][10] = 0;
+               if (item[i][10] && item[i][10] < frame_num-1) item[i][10] = 0;
 
                // up pressed and !pressed last frame
-               if ((players[p].up) && (!item[x][10])) do_entry = 1;
+               if ((players[p].up) && (!item[i][10])) do_entry = 1;
 
-               if (players[p].up) item[x][10] = frame_num;
-               else item[x][10] = 0;
+               if (players[p].up) item[i][10] = frame_num;
+               else item[i][10] = 0;
 
             }
 
-            if (item[x][11] == 2) // enter with <down>
+            if (item[i][11] == 2) // enter with <down>
             {
                // to prevent immediate triggering when destination door, wait for release and re-press
 
                // if key held is old, ignore
-               if (item[x][10] && item[x][10] < frame_num-1) item[x][10] = 0;
+               if (item[i][10] && item[i][10] < frame_num-1) item[i][10] = 0;
 
                // down pressed and !pressed last frame
-               if ((players[p].down) && (!item[x][10])) do_entry = 1;
+               if ((players[p].down) && (!item[i][10])) do_entry = 1;
 
-               if (players[p].down) item[x][10] = frame_num;
-               else item[x][10] = 0;
+               if (players[p].down) item[i][10] = frame_num;
+               else item[i][10] = 0;
             }
          }
 
          if (do_entry)
          {
             int bad_exit = 0;
-            item[x][10] = 0; // clear the key hold for the door you just left
+            item[i][10] = 0; // clear the key hold for the door you just left
 
            // check if dest item is same as source item
-            if (item[x][9] == x) bad_exit = 1;
+            if (item[i][9] == i) bad_exit = 1;
 
             // is player carrying an item ?
             if (players[p].carry_item)
@@ -813,7 +845,7 @@ void proc_door_collision(int p, int x)
                 //printf("do entry, player is carrying item:%d\n", ci);
 
                // check to see if player is carrying this door
-                if (ci == x) player_drop_item(p);
+                if (ci == i) player_drop_item(p);
 
                // check to see if player is carrying an item without the carry through door flag set
                if (item[ci][3] != -2)  player_drop_item(p);
@@ -821,7 +853,7 @@ void proc_door_collision(int p, int x)
 
             // get the destination
             al_fixed dx = al_itofix(0), dy = al_itofix(0);
-            int li = item[x][9]; // linked item number
+            int li = item[i][9]; // linked item number
 
             if ((li > -1) && (li < 500))
             {
@@ -835,15 +867,15 @@ void proc_door_collision(int p, int x)
 
             if (!bad_exit)
             {
-               game_event(32, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), 0, 0, 0, 0);
+               game_event(32, 0, 0, 0, 0, 0, 0);
 
                int instant_move = 0;
-               if (item[x][7] == 0) // 0 = auto
+               if (item[i][7] == 0) // 0 = auto
                   if (item[li][3]) // if dest is not stat
                      instant_move = 1;
 
-               if (item[x][7] == 1) instant_move = 1; // 1 = force instant
-               if (item[x][7] == 2) instant_move = 0; // 2 = force move
+               if (item[i][7] == 1) instant_move = 1; // 1 = force instant
+               if (item[i][7] == 2) instant_move = 0; // 2 = force move
 
                if (riding_rocket(p)) instant_move = 1;
 
@@ -865,8 +897,8 @@ void proc_door_collision(int p, int x)
                else
                {
                   // snap player to the source door
-                  players[p].PX = itemf[x][0];
-                  players[p].PY = itemf[x][1];
+                  players[p].PX = itemf[i][0];
+                  players[p].PY = itemf[i][1];
 
                   players[p].right_xinc=al_itofix(0);
                   players[p].left_xinc=al_itofix(0);
@@ -898,7 +930,7 @@ void proc_door_collision(int p, int x)
                      players[p].paused_type = 2;
                      players[p].paused_mode = 1;
                      players[p].paused_mode_count = ddrns;
-                     players[p].door_item = x;
+                     players[p].door_item = i;
                      players[p].door_draw_rot_inc = al_fixdiv(players[p].door_draw_rot, al_itofix(ddrns));
                   }
                   // printf("ns:%d xinc:%3.2f yinc:%3.2f \n", num_steps, al_fixtof(players[p].xinc), al_fixtof(players[p].yinc));
@@ -909,278 +941,225 @@ void proc_door_collision(int p, int x)
    } // end of if not first door touched
 }
 
-void proc_bonus_collision(int p, int x)
+void proc_bonus_collision(int p, int i)
 {
-   if (item[x][7])
+   if (item[i][7])
    {
       al_fixed f100 = al_itofix(100);
       if (players[p].LIFE < f100)
       {
-         item[x][0] = 0;
-         players[p].LIFE += al_itofix(item[x][7]);
+         item[i][0] = 0;
+         players[p].LIFE += al_itofix(item[i][7]);
          if (players[p].LIFE > f100) players[p].LIFE = f100;
-         game_event(6, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), item[x][7],0, 0, 0);
+         game_event(6, 0, 0, item[i][7], 0, 0, 0);
       }
-      else game_event(26, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), 0, 0, 0, 0); // already have 100 health
+      else game_event(26, 0, 0, 0, 0, 0, 0); // already have 100 health
    }
 }
 
-void proc_exit_collision(int p, int x)
+void proc_exit_collision(int p, int i)
 {
-   int exit_enemys_left = num_enemy - item[x][8];
+   int exit_enemys_left = num_enemy - item[i][8];
    if (exit_enemys_left <= 0)
    {
       level_done_trig = 1;
       next_level = play_level + 1;
-      game_event(4, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), 0, 0, 0, 0);
+      game_event(4, 0, 0, 0, 0, 0, 0);
    }
-   else game_event(3, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), exit_enemys_left, 0, 0, 0); // not enough dead yet
+   else game_event(3, 0, 0, exit_enemys_left, 0, 0, 0); // not enough dead yet
 }
 
-void proc_key_collision(int p, int x)
+void proc_key_collision(int p, int i)
 {
-   int x2 = (item[x][6] + item[x][8]) * 10;   // get the center of the block range
-   int y2 = (item[x][7] + item[x][9]) * 10;
-   al_fixed xlen = al_itofix(x2) - itemf[x][0];     // distance between block range and key
-   al_fixed ylen = al_itofix(y2) - itemf[x][1];
+   int x2 = (item[i][6] + item[i][8]) * 10;   // get the center of the block range
+   int y2 = (item[i][7] + item[i][9]) * 10;
+   al_fixed xlen = al_itofix(x2) - itemf[i][0];     // distance between block range and key
+   al_fixed ylen = al_itofix(y2) - itemf[i][1];
    al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
    al_fixed speed = al_itofix(12);                  // speed
    al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
    al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
    al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
-   itemf[x][2] = xinc;
-   itemf[x][3] = yinc;
+   itemf[i][2] = xinc;
+   itemf[i][3] = yinc;
    al_fixed angle = al_fixatan2(ylen, xlen);        // get the angle for item rotation
-   item[x][10] = al_fixtoi(angle) * 10;
+   item[i][10] = al_fixtoi(angle) * 10;
    al_fixed ns;                                  // get the number of steps
    if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, xinc);
    else  ns = al_fixdiv(ylen, yinc);
    int num_steps = al_fixtoi(ns);
-   item[x][11] = num_steps + 10;              // add 10 for final sequence
-   game_event(2, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), p, item[x][1], 0, 0); // send player and item shape
+   item[i][11] = num_steps + 10;              // add 10 for final sequence
+   game_event(2, 0, 0, p, item[i][1], 0, 0); // send player and item shape
 }
 
-void proc_freeman_collision(int p, int x)
+void proc_freeman_collision(int p, int i)
 {
-   item[x][0] = 0;
+   item[i][0] = 0;
    players[p].LIVES++;
-   game_event(9, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), 0, 0, 0, 0);
+   game_event(9, 0, 0, 0, 0, 0, 0);
 }
 
-void proc_mine_collision(int p, int x)
+void proc_mine_collision(int p, int i)
 {
-   players[p].LIFE -= al_itofix(item[x][8]) / 10;
-   game_event(10, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), 0, 0, 0, 0);
-   game_event(7, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), item[x][8], 0, 0, 0);
+   players[p].LIFE -= al_itofix(item[i][8]) / 10;
+   game_event(10, 0, 0, 0, 0, 0, 0);
+   game_event(7, 0, 0, item[i][8], 0, 0, 0);
 }
 
-void proc_bomb_collision(int p, int x)
+void proc_bomb_collision(int p, int i)
 {
-   item[x][0] = 99; // change to lit bomb
-   item[x][6] = 1;  // mode == lit
-   item[x][8] = item[x][9]; // fuse wait count
-   item[x][10] = 100; // default scale = 1.00
+   item[i][0] = 99; // change to lit bomb
+   item[i][6] = 1;  // mode == lit
+   item[i][8] = item[i][9]; // fuse wait count
+   item[i][10] = 100; // default scale = 1.00
 }
 
-void proc_rocket_collision(int p, int x)
+void proc_rocket_collision(int p, int i)
 {
-   item[x][0] = 98;   // new type - lit rocket
-   item[x][1] = 1026; // new ans
-   if ((item[x][3] == 0) || (item[x][3] == 1)) item[x][3] = -1;  // if stat or fall set to carryable
-   itemf[x][3] = 0;   // stop if falling
-   game_event(25, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), 0, 0, 0, 0);
+   item[i][0] = 98;   // new type - lit rocket
+   item[i][1] = 1026; // new ans
+   if ((item[i][3] == 0) || (item[i][3] == 1)) item[i][3] = -1;  // if stat or fall set to carryable
+   itemf[i][3] = 0;   // stop if falling
+   game_event(25, 0, 0, 0, 0, 0, 0);
 }
 
-void proc_warp_collision(int p, int x)
+void proc_warp_collision(int p, int i)
 {
-   next_level = item[x][8];
+   next_level = item[i][8];
    level_done_trig = 1;
-   game_event(4, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), 0, 0, 0, 0);
+   game_event(4, 0, 0, 0, 0, 0, 0);
 }
 
-void proc_switch_collision(int p, int x)
+void proc_switch_collision(int p, int i)
 {
-   if (item[x][7] < frame_num) // if not lockout
+   if (item[i][7] < frame_num) // if not lockout
    {
       // if falling and landing on it
-      if ( (players[p].PX  > itemf[x][0] - al_itofix(12)) &&
-           (players[p].PX  < itemf[x][0] + al_itofix(12)) &&
-           (players[p].PY  > itemf[x][1] - al_itofix(16)) &&
-           (players[p].PY  < itemf[x][1] - al_itofix(8)) &&
+      if ( (players[p].PX  > itemf[i][0] - al_itofix(12)) &&
+           (players[p].PX  < itemf[i][0] + al_itofix(12)) &&
+           (players[p].PY  > itemf[i][1] - al_itofix(16)) &&
+           (players[p].PY  < itemf[i][1] - al_itofix(8)) &&
            (players[p].yinc > al_itofix(0)) )  // falling
       {
-         item[x][7] = frame_num + 4; // switch lockout for next 4 frames
-         item[x][6] = !item[x][6];
-         if (item[x][6]) item[x][1] = item[x][8]; // on bmp
-         else            item[x][1] = item[x][9]; // off bmp
+         item[i][7] = frame_num + 4; // switch lockout for next 4 frames
+         item[i][6] = !item[i][6];
+         if (item[i][6]) item[i][1] = item[i][8]; // on bmp
+         else            item[i][1] = item[i][9]; // off bmp
          al_set_target_bitmap(level_background);
          // toggle blocks
          for (int c=0; c<100; c++)
             for (int y=0; y<100; y++)
             {
-               if (l[c][y] == item[x][11]) // empty switch block
+               if (l[c][y] == item[i][11]) // empty switch block
                {
-                  l[c][y] = item[x][10]; // replace with solid switch block
+                  l[c][y] = item[i][10]; // replace with solid switch block
                   al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
                   al_draw_bitmap(tile[l[c][y]], c*20, y*20, 0 );
                }
-               else if (l[c][y] == item[x][10]) // solid switch block
+               else if (l[c][y] == item[i][10]) // solid switch block
                {
-                  l[c][y] = item[x][11]; // replace with empty switch block
+                  l[c][y] = item[i][11]; // replace with empty switch block
                   al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
                   al_draw_bitmap(tile[l[c][y]], c*20, y*20, 0 );
                }
 
             } // end of toggle blocks
          draw_lift_lines();
-         game_event(30, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), 0, 0, 0, 0);
+         game_event(30, 0, 0, 0, 0, 0, 0);
       }  // end of falling and landing on
    } // end of if not lockout
 }
 
-void proc_sproingy_collision(int p, int x)
+void proc_sproingy_collision(int p, int i)
 {
-   if ( (players[p].PX  > itemf[x][0] - al_itofix(10)) &&
-        (players[p].PX  < itemf[x][0] + al_itofix(10)) &&
-        (players[p].PY  > itemf[x][1] - al_itofix(16)) &&
-        (players[p].PY  < itemf[x][1] - al_itofix(8)) &&
+   if ( (players[p].PX  > itemf[i][0] - al_itofix(10)) &&
+        (players[p].PX  < itemf[i][0] + al_itofix(10)) &&
+        (players[p].PY  > itemf[i][1] - al_itofix(16)) &&
+        (players[p].PY  < itemf[i][1] - al_itofix(8)) &&
         (players[p].yinc > al_itofix(0)) && // falling
         (players[p].jump) )   //  jump pressed
    {
-      game_event(31, al_fixtoi(itemf[x][0]), al_fixtoi(itemf[x][1]), 0, 0, 0, 0);
-      players[p].yinc = al_itofix(0) - al_fixdiv(al_itofix(item[x][7]), al_ftofix(7.1));
+      game_event(31, al_fixtoi(itemf[i][0]), al_fixtoi(itemf[i][1]), 0, 0, 0, 0);
+      players[p].yinc = al_itofix(0) - al_fixdiv(al_itofix(item[i][7]), al_ftofix(7.1));
    }
 }
 
 
 
-void proc_item_collision(int p, int x)
+void proc_item_collision(int p, int i)
 {
    // check if player can carry item
    if ( (!players[p].carry_item)  // not carrying
-     && (item[x][3] < 0)          // item is carryable
+     && (item[i][3] < 0)          // item is carryable
      && (players[p].fire) )       // fire pressed
    {
       // check to see if another player is already carrying this item
       int other_player_carrying = 0;
       for (int op=0; op<NUM_PLAYERS; op++)
          if ((players[op].active) && (!players[op].paused))
-            if (players[op].carry_item == x+1)
+            if (players[op].carry_item == i+1)
                other_player_carrying = 1;
 
        // allow carry if no other player is carrying
        if (other_player_carrying == 0)
        {
-          players[p].carry_item = x+1;
+          players[p].carry_item = i+1;
           //printf("player picked up item:%d\n", x);
        }
        // allow mutiple player carry for rocket
-       if (item[x][0] == 98) players[p].carry_item = x+1;
+       if (item[i][0] == 98) players[p].carry_item = i+1;
    }
 
-   switch (item[x][0]) // item type
+   switch (item[i][0]) // item type
    {
-      case 1:  proc_door_collision(p, x);     break;
-      case 2:  proc_bonus_collision(p, x);    break;
-      case 3:  proc_exit_collision(p, x);     break;
-      case 4:  proc_key_collision(p, x);      break;
-      case 6:  proc_freeman_collision(p, x);  break;
-      case 7:  proc_mine_collision(p, x);     break;
-      case 8:  proc_bomb_collision(p, x);     break;
-      case 10: item[x][6] = item[x][7];       break; // set pop-up message timer
-      case 11: proc_rocket_collision(p, x);   break;
-      case 12: proc_warp_collision(p, x);     break;
-      case 14: proc_switch_collision(p, x);   break;
-      case 15: proc_sproingy_collision(p, x); break;
+      case 1:  proc_door_collision(p, i);     break;
+      case 2:  proc_bonus_collision(p, i);    break;
+      case 3:  proc_exit_collision(p, i);     break;
+      case 4:  proc_key_collision(p, i);      break;
+      case 6:  proc_freeman_collision(p, i);  break;
+      case 7:  proc_mine_collision(p, i);     break;
+      case 8:  proc_bomb_collision(p, i);     break;
+      case 10: item[i][6] = item[i][7];       break; // set pop-up message timer
+      case 11: proc_rocket_collision(p, i);   break;
+      case 12: proc_warp_collision(p, i);     break;
+      case 14: proc_switch_collision(p, i);   break;
+      case 15: proc_sproingy_collision(p, i); break;
    }
 }
 
-void proc_lit_bomb(int c)
+void proc_lit_rocket(int i)
 {
-   // timer is item[c][8]
-   // it has 2 modes set by item[c][6]
-   // item[c][6] == 1 // fuse burning
-   // item[c][6] == 2 // explosion
-
-   // in both modes every frame it is decremented by 1
-
-   // in mode 1 fuse
-   // when timer gets to 0
-   // mode is set to 2 and timer reset to 20
-
-   // in mode 2 explosion
-   // sound is played at 16
-   // damage is done every frame
-
-   lit_item = 1;
-   item[c][8]--; // timer dec
-   if (item[c][6] == 1) // fuse burning
-   {
-      if (item[c][8] < 1) // fuse done
-      {
-         item[c][6] = 2; // mode 2; explosion
-         item[c][8] = item[c][9] = 20; // explosion timer
-
-         // force player to drop item
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (players[p].carry_item-1 == c)) player_drop_item(p);
-
-         // check for other co-located bombs
-         for (int cc=0; cc<500; cc++)
-            if (item[cc][0] == 99) // lit bomb
-               if (cc != c) // not this one
-                  if (itemf[cc][0] == itemf[c][0]) // compare x
-                     if (itemf[cc][1] == itemf[c][1]) // compare y
-                        if (item[cc][15] == item[c][15]) // check if created by same cloner
-                           item[cc][0] = 0; // delete item
-
-
-      }
-   }
-   if (item[c][6] == 2) // explosion
-   {
-      bomb_blocks(c, 2);
-      bomb_enemies(c, 2);
-      bomb_players(c, 2);
-
-      if (item[c][8] == 16) game_event(22,0,0,0,0,0,0); // explosion sound
-
-      if (item[c][8] <   1)
-      {
-         item[c][0] = 0; // explosion timer done, erase item
-         draw_lift_lines();
-      }
-   }
-}
-
-void proc_lit_rocket(int c)
-{
-   int max_speed = item[c][8]*1000;
-   int accel = item[c][9];
+   int max_speed = item[i][8]*1000;
+   int accel = item[i][9];
    lit_item = 1;
 
-   if (item[c][11] < max_speed) item[c][11]+=accel;   // speed and accel
+   if (item[i][11] < max_speed) item[i][11]+=accel;   // speed and accel
 
-   al_fixed angle = al_itofix((item[c][10]-640) / 10);
-   itemf[c][2] = (al_fixcos(angle) * item[c][11]) / 1000;       // hypotenuse is the speed!
-   itemf[c][3] = (al_fixsin(angle) * item[c][11]) / 1000;
+   al_fixed angle = al_itofix((item[i][10]-640) / 10);
+   itemf[i][2] = (al_fixcos(angle) * item[i][11]) / 1000;       // hypotenuse is the speed!
+   itemf[i][3] = (al_fixsin(angle) * item[i][11]) / 1000;
 
-   int x = al_fixtoi(itemf[c][0] += itemf[c][2]); // do the increments
-   int y = al_fixtoi(itemf[c][1] += itemf[c][3]);
+   int x = al_fixtoi(itemf[i][0] += itemf[i][2]); // temp apply the increments
+   int y = al_fixtoi(itemf[i][1] += itemf[i][3]);
 
    // check for wall collisions
-   if ( ((itemf[c][3]<al_itofix(0)) && (is_up_solid(     x, y, 0) == 1)) ||
-        ((itemf[c][3]>al_itofix(0)) && (is_down_solid(   x, y, 0) == 1)) ||
-        ((itemf[c][3]>al_itofix(0)) && (is_down_solid(   x, y, 0) == 2)) ||
-        ((itemf[c][2]<al_ftofix(-1.1)) && (is_left_solid(x, y, 0) == 1)) ||
-        ((itemf[c][2]>al_ftofix(1.1)) && (is_right_solid(x, y, 0) == 1)) )
+   if ( ((itemf[i][3]<al_itofix(0)) && (is_up_solid(     x, y, 0) == 1)) ||
+        ((itemf[i][3]>al_itofix(0)) && (is_down_solid(   x, y, 0) == 1)) ||
+        ((itemf[i][3]>al_itofix(0)) && (is_down_solid(   x, y, 0) == 2)) ||
+        ((itemf[i][2]<al_ftofix(-1.1)) && (is_left_solid(x, y, 0) == 1)) ||
+        ((itemf[i][2]>al_ftofix(1.1)) && (is_right_solid(x, y, 0) == 1)) )
    {
-      item[c][0] = 99;   // change to lit bomb
-      item[c][2] = 3;    // draw mode
-      item[c][6] = 2;    // mode 2; explosion
-      item[c][8] = 20;   // explosion timer count
-      item[c][9] = 20;   // explosion timer limit
-      item[c][10] = 100; // start_size
+
+      // stop movement
+      itemf[i][2] = al_itofix(0);
+      itemf[i][3] = al_itofix(0);
+
+      item[i][0] = 99;   // change to lit bomb
+      item[i][2] = 3;    // draw mode
+      item[i][6] = 2;    // mode 2; explosion
+      item[i][8] = 20;   // explosion timer count
+      item[i][9] = 20;   // explosion timer limit
+      item[i][10] = 100; // start_size
    }
 }
 
