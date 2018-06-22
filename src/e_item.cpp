@@ -591,7 +591,10 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             }
             // draw yellow bomb damage
             int bs = (item[num][7] / 20) * db;
-            al_draw_rectangle(x1*db-bs, y1*db-bs, x1*db+db-1+bs, y1*db+db-1+bs, palette_color[color], 1);
+            //al_draw_rectangle(x1*db-bs, y1*db-bs, x1*db+db-1+bs, y1*db+db-1+bs, palette_color[color], 1);
+            al_draw_circle(x1*db+db/2, y1*db+db/2, bs, palette_color[color], 1);
+
+
          }
          break;
          case 10:
