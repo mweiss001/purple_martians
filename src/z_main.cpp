@@ -300,11 +300,9 @@ ALLEGRO_BITMAP *text_title = NULL;
 int text_title_bitmaps_create = 1;
 int text_title_draw_color = -1;
 
-
-
-
-
-
+ALLEGRO_BITMAP *bmsg_bmp[20] = {NULL};
+ALLEGRO_BITMAP *bmsg_bmp2[20] = {NULL};
+int bmsg_index = 0;
 
 // ------------------------------------------------
 // ----------------- logging ----------------------

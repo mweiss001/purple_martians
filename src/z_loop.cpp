@@ -165,12 +165,12 @@ void game_loop(int start_mode)
       if (ima_client) client_control();
       proc_controllers();
 
+      move_ebullets();
+      move_pbullets();
       move_lifts(0);
       move_players();
       move_enemies();
       move_items();
-      move_ebullets();
-      move_pbullets();
 
       proc_frame_delay();
       if (draw_frame)
