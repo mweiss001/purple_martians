@@ -886,18 +886,74 @@ void draw_screen_msg(void)
 }
 
 
-void new_bmsg(const char *nb)
+
+void new_bmsg(const char *nb, int p, int p2)
 {
-    slide_bmsg();
-    sprintf(b_msg[0], "%s", nb);
-    bottom_msg = 120;
-    erase_last_bmsg();
+   bottom_msg = 120;
+   if (strcmp(b_msg[0], nb) != 0) // if last two are not the same
+   {
+      // slide_bmsg
+      for (int c=39; c>0; c--)
+         sprintf(b_msg[c], "%s", b_msg[c-1]);
+
+      sprintf(b_msg[0], "%s", nb);
+
+      bmsg_index++;
+      if (bmsg_index > 19) bmsg_index = 0;
+
+      int col = players[p].color;
+
+
+      al_set_target_bitmap(bmsg_bmp[bmsg_index]);
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+
+      // draw entire string in white
+      al_draw_text(font, palette_color[15], 200, 0, ALLEGRO_ALIGN_CENTER, nb);
+
+      // draw 'Player x' (first 8 char) in player color
+      char tmsg[80];
+      strcpy(tmsg, nb);
+      for (unsigned int x=8; x<strlen(nb); x++) tmsg[x] = 32; // copy spaces
+      al_draw_text(font, palette_color[col], 200, 0, ALLEGRO_ALIGN_CENTER, tmsg);
+
+      // draw 2nd 'Player x' (14-22   8 char) in 2nd player color
+      if (p2>-1)
+      {
+         int c2 = players[p2].color;
+
+         strcpy(tmsg, nb);
+         for (unsigned int x=0; x<14; x++) tmsg[x] = 32; // copy spaces
+         for (unsigned int x=22; x<strlen(nb); x++) tmsg[x] = 32; // copy spaces
+         al_draw_text(font, palette_color[c2], 200, 0, ALLEGRO_ALIGN_CENTER, tmsg);
+
+      }
+
+      al_convert_mask_to_alpha(bmsg_bmp[bmsg_index], al_map_rgb(0, 0, 0)) ;
+      al_set_target_backbuffer(display);
+
+      // convert array to array2 and re-arrange order
+      int tc = 0;
+      // cycle from 1-index to 1-min
+      for (int c=bmsg_index; c>=0; c--)
+      {
+         bmsg_bmp2[tc] = bmsg_bmp[c];
+         tc++;
+      }
+      // cycle from 1-max to 1-index
+      for (int c=19; c>bmsg_index; c--)
+      {
+         bmsg_bmp2[tc] = bmsg_bmp[c];
+         tc++;
+      }
+   }
 }
 
 void draw_bottom_msg()
 {
    // int type = 1; // old style - may cause low fps, due to scaled drawing and target bitmap changes
-   int type = 2; // new style - faster but not as nice looking
+   int type = 2; // new style - faster but not as fancy
+
+   bottom_msg = 100;
 
    if (type == 1)
    {
@@ -933,19 +989,37 @@ void draw_bottom_msg()
    {
       if (--bottom_msg > 0)
       {
-         int a;
-         int nb = 3;    // NUM_BOTTOM_MSG_LINES
+         int nb = 20;  // number of bottom message lines to display (max 20)
+         int sw = 400; // string length in pixels
+         int sh = 8;   // string height in pixels
+         float x = SCREEN_W/2 - 10;
 
-         int cc = 15;  // current color
-         int ci = 32;  // color inc use  only 16, 32, 48, 64 etc
+         float io = 1.0; // initial opacity
+         float fo = 0.0; // final opacity
+         float oss = (io - fo) / (float) nb;  // opacity step
+         float co = io; // current opacity
 
-         float ypos = SCREEN_H - 10;
-         for (a=0; a< nb; a++)
+         float ihs = 1.0; // initial h size
+         float fhs = 0.3; // final h size
+         float hss = (ihs - fhs) / (float) nb;  // h size step
+         float chs = ihs; // current h size
+         float y = SCREEN_H - ihs*8 - 1;
+
+         float ivs = 1.0; // initial v size
+         float fvs = 0.3; // final v size
+         float vss = (ivs - fvs) / (float) nb;  // v size step
+         float cvs = ivs; // current v size
+
+         for (int m=0; m<nb; m++)
          {
-            al_draw_text(font, palette_color[cc], SCREEN_W/2, ypos, ALLEGRO_ALIGN_CENTER, b_msg[a]);
-            cc = cc + ci;
-            if (a == 0) cc = cc + ci*4;
-            ypos -= 8;
+            float dw = cvs * 400;
+            float dh = chs * 8;
+            ALLEGRO_COLOR col = al_map_rgba_f(co, co, co, co);
+            al_draw_tinted_scaled_bitmap(bmsg_bmp2[m], col, 0, 0, sw, sh, x-dw/2, y, dw, dh, 0);
+            co -= oss;
+            cvs -= vss;
+            chs -= hss;
+            y -= dh;
          }
       }
       else bottom_msg = 0;
@@ -960,7 +1034,7 @@ void draw_bottom_msg()
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
    int bottom_msg_on = 1;
-   int screen_messages_on = 1;
+   //int screen_messages_on = 1;
    if (sound_on)
    {
       switch (ev)
@@ -985,27 +1059,27 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
               al_play_sample(snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
            }
         break;
-        case  6: case  9: // health bonus and free man
+        case  70: // bonus and free man
            if (sample_delay[2]+30 < frame_num)
            {
               sample_delay[2] = frame_num;
               al_play_sample(snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
            }
         break;
-        case 11: // player got shot
+        case 40: case 41: case 43:// player got shot
            al_play_sample(snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
         break;
-        case 8: case 10: case 12: case 34: case 35: // player got hit (bomb, mine, enemy collision, squished, stuck)
+        case 44: case 50: case 52: case 54: case 56: // player got hit (bomb, mine, enemy collision, squished, stuck)
            if (sample_delay[7]+14 < frame_num)
            {
               sample_delay[7] = frame_num;
               al_play_sample(snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
            }
         break;
-        case 13: // enemy killed
+        case 60: case 62: // enemy killed
              al_play_sample(snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
         break;
-        case 21: // d'Oh (player died)
+        case 90: // d'Oh (player died)
              al_play_sample(snd[1], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
         break;
         case 22: // explosion
@@ -1018,59 +1092,86 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
    {
       switch (ev)
       {
-         //case  1:/* player bullet fired */ break;
-         case  2: new_bmsg("You got a key!"); break;
-         case  3:
-            if (z1 == 1) sprintf(msg, "1 enemy left to kill!!");
-            else sprintf(msg, "%d enemies left to kill!", z1);
-            new_bmsg(msg);
+         case 2: // key
+         {
+           char tmsg[20];
+           tmsg[0] = 0;
+           int key = item[z2][1] - 1039;
+           if (key == 0) sprintf(tmsg, "red ");
+           if (key == 1) sprintf(tmsg, "green ");
+           if (key == 2) sprintf(tmsg, "blue ");
+           if (key == 3) sprintf(tmsg, "purple ");
+           sprintf(msg, "Player %d got a %skey.", z1, tmsg);
+           new_bmsg(msg, z1, -1);
+         }
          break;
-         //case  4: /* level_done  */ break;
-         case  5: new_bmsg("Door!"); break;
-         case  6: sprintf(msg, "Health + %d", z1 ); new_bmsg(msg); break;
-         case  7: sprintf(msg, "Health - %d", z1 ); new_bmsg(msg); break;
-         case  8: sprintf(msg, "Bomb Damage %d", z1 ); new_bmsg(msg); break;
-         case  9: new_bmsg("Wahoo! You got a Free Man!"); break;
-         case 10: new_bmsg("You hit a Mine!"); break;
-         case 11: new_bmsg("You got shot!"); break;
-         case 12: sprintf(msg, "You got hit by %s!", enemy_name[Ei[z1][0]]); new_bmsg(msg); break;
-         case 13: sprintf(msg, "%s killed!...%d enemies left", enemy_name[Ei[z1][0]],  num_enemy-1); new_bmsg(msg); break;
-         //case 14: /* cloner cloned something */ break;
-         //case 15: /* jump  */ break;
-         //case 16: /* arrow fired */ break;
-         //case 17: /* green fired */ break;
-         //case 18: /* cannonball  */ break;
-         //case 19: /* twirly      */ break;
-         case 21: new_bmsg("You Died!"); break;
-         //case 22: /* explosion */ break;
-         case 23: new_bmsg("Enemy killed by bomb!"); break;
-         case 24: sprintf(msg, "#%d bomb with %d second fuse",item[x][7]/20, item[x][9]/10 );  new_bmsg(msg); break;
-         case 25: new_bmsg("Rocket!"); break;
-         case 26: new_bmsg("You already have perfect health!"); break;
-         case 30: new_bmsg("You got a Switch"); break;
-         case 31: new_bmsg("Sproingy!"); break;
-         case 32: new_bmsg("Door!"); break;
-         //case 33: /* Out Door */ break;
-         case 34: new_bmsg("You got squished!"); break;
-         case 35: new_bmsg("You got stuck!"); break;
+
+
+         case  3: // tried to exit
+            if (z3 == 1) sprintf(msg, "Player %d tried to exit. 1 enemy left.", z1);
+            else sprintf(msg, "Player %d tried to exit. %d enemies left.", z1, z3);
+            new_bmsg(msg, z1, -1);
+         break;
+
+         case  5: sprintf(msg, "Player %d went through a door.", z1); new_bmsg(msg, z1, -1); break;
+
+         case 24: sprintf(msg, "Player %d lit #%d bomb with %d sec fuse.", z1, z2, z3);  new_bmsg(msg, z1, -1); break;
+
+         case 25: sprintf(msg, "Player %d lit a rocket.", z1);  new_bmsg(msg, z1, -1); break;
+
+         case 30: // switch
+         {
+           char tmsg[20];
+           tmsg[0] = 0;
+           int key = item[z2][10] - 172;
+           if (key == 0) sprintf(tmsg, "green ");
+           if (key == 1) sprintf(tmsg, "red ");
+           if (key == 2) sprintf(tmsg, "blue ");
+           if (key == 3) sprintf(tmsg, "purple ");
+           sprintf(msg, "Player %d flipped a %sswitch.", z1, tmsg);
+           new_bmsg(msg, z1, -1);
+         }
+         break;
+
+         case 40: sprintf(msg, "Player %d shot Player %d. Health -%d.", z2, z1, z4); new_bmsg(msg, z2, z1); break;
+         case 41: sprintf(msg, "Player %d shot themself. Duh! Health -%d.", z1, z4); new_bmsg(msg, z1, -1); break;
+
+         case 43: sprintf(msg, "Player %d got shot by %s. Health -%d.", z1, enemy_name[z2], z4); new_bmsg(msg, z1, -1); break;
+
+         case 44: sprintf(msg, "Player %d hit by %s. Health -%d.", z1, enemy_name[Ei[z2][0]], z4); new_bmsg(msg, z1, -1); break;
+
+
+         case 50: sprintf(msg, "Player %d hit a mine. Health -%d.", z1, z4); new_bmsg(msg, z1, -1); break;
+         case 52: sprintf(msg, "Player %d sustained explosion damage %d.", z1, z4); new_bmsg(msg, z1, -1); break;
+         case 54: sprintf(msg, "Player %d got squished.", z1); new_bmsg(msg, z1, -1); break;
+         case 56: sprintf(msg, "Player %d got stuck.", z1); new_bmsg(msg, z1, -1); break;
+
+         case 60: sprintf(msg, "Player %d killed %s with a bullet.", z1, enemy_name[Ei[z2][0]]); new_bmsg(msg, z1, -1); break;
+         case 62: sprintf(msg, "Player %d killed %s with explosion.", z1, enemy_name[Ei[z2][0]]); new_bmsg(msg, z1, -1); break;
+
+         case 70: sprintf(msg, "Player %d got a free man.", z1); new_bmsg(msg, z1, -1); break;
+
+         case 90: sprintf(msg, "Player %d died.", z1); new_bmsg(msg, z1, -1); break;
+
+
       }
    }
-   if (screen_messages_on)
-      switch (ev)
-      {
+//   if (screen_messages_on)
+//      switch (ev)
+//      {
 //         case   1: add_screen_msg("bang!", x, y, 100, 4, z1, z2, z3, z4); break;
 //         case   2: add_screen_msg("key", x, y, 100, 5, z1, z2, z3, z4); break;
-//        case   3: sprintf(msg, "%d enemies left to kill!", z1);
-//                  add_screen_msg(msg, x, y, 100, 0, z1, z2, z3, z4); break;
+//         case   3: sprintf(msg, "%d enemies left to kill!", z1);
+//                   add_screen_msg(msg, x, y, 100, 0, z1, z2, z3, z4); break;
 //         case   3: add_screen_msg("------O------", x, y, 100, 0); break;
 //         case   5: add_screen_msg("--O--", x, y, 100, 0); break;
 //         case   5: add_screen_msg("Door", x, y, 100, 1, z1, z2, z3, z4); break;
-         case   6:  sprintf(msg, "H+%d", z1);
-                    add_screen_msg(msg, x, y, 100, 2, z1, z2, z3, z4); break;
-         case   7:  sprintf(msg, "H-%d", z1);
-                    add_screen_msg(msg, x, y, 100, 3, z1, z2, z3, z4); break;
-//         case  8: add_screen_msg("Bomb Damage!", x, y, 100, 0, z1, z2, z3, z4); break;
-//         case   10: add_screen_msg("Mine", x, y, 100, 0, z1, z2, z3, z4); break;
+//         case   6: sprintf(msg, "H+%d", z1);
+//                   add_screen_msg(msg, x, y, 100, 2, z1, z2, z3, z4); break;
+//         case   7: sprintf(msg, "H-%d", z1);
+//                   add_screen_msg(msg, x, y, 100, 3, z1, z2, z3, z4); break;
+//         case  8:  add_screen_msg("Bomb Damage!", x, y, 100, 0, z1, z2, z3, z4); break;
+//         case  10: add_screen_msg("Mine", x, y, 100, 0, z1, z2, z3, z4); break;
 //         case  13: sprintf(msg, "%s died! (%d left)", enemy_name[Ei[z1][0]],  num_enemy-1);
 //                   add_screen_msg(msg, x, y, 100, 0, z1, z2, z3, z4); break;
 //         case  21: add_screen_msg("You Died!", x, y, 100, 0, z1, z2, z3, z4); break;
@@ -1080,7 +1181,7 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
 //         case  33: add_screen_msg("Out", x, y, 100, 1, z1, z2, z3, z4); break;
 //         case  34: add_screen_msg("Ouch", x, y, 100, 34, z1, z2, z3, z4); break;
 //         case  35: add_screen_msg("Ouch", x, y, 100, 35, z1, z2, z3, z4); break;
-      }
+//      }
 }
 
 

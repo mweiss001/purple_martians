@@ -388,6 +388,9 @@ extern int text_title_bitmaps_create;
 extern int text_title_draw_color;
 
 
+extern ALLEGRO_BITMAP *bmsg_bmp[20];
+extern ALLEGRO_BITMAP *bmsg_bmp2[20];
+extern int bmsg_index;
 
 
 
@@ -479,6 +482,8 @@ struct player1 // not synced between server and client
 {
    int health_display;
    int last_health_adjust;
+   int potential_bomb_damage;
+
 
    int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;
    int comp_move, old_comp_move;
@@ -1057,8 +1062,6 @@ void make_palette(void);
 void m_err(const char * err_msg);
 void window_title(void);
 int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);
-void erase_last_bmsg(void);
-void slide_bmsg(void);
 void tsw(void);
 void set_frame_nums(int fn);
 void reset_animation_sequence_frame_nums(int fn);
@@ -1228,6 +1231,7 @@ void mtextout(char *txt1, int x, int y, float x_scale, float y_scale, int col);
 void mtextout_centre(const char *txt1, int x, int y, float x_scale, float y_scale, int col);
 void show_level_done(int keypress);
 void draw_percent_bar(int cx, int y, int width, int height, int percent);
+void draw_percent_bar_range(int cx, int y, int width, int height, int color, int start, int end);
 
 // z_screen_overlay.h
 void draw_screen_overlay(void);
@@ -1237,8 +1241,10 @@ void draw_speed_test_data(void);
 void draw_top_display(void);
 void add_screen_msg(char *txt, int x, int y, int delay, int ssn, int z1, int z2, int z3, int z4);
 void draw_screen_msg(void);
-void new_bmsg(const char *nb);
+
+void new_bmsg(const char *nb, int p, int p2);
 void draw_bottom_msg();
+
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
 
 // z_sound.h

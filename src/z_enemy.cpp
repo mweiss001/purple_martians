@@ -231,57 +231,10 @@ void draw_enemies(void)
       } // end of if enemy active
 }
 
-//void proc_enemy_collision_with_player(int p)
-//{
-//   for (int e=0; e<100; e++)
-//   {
-//      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if enemy active and not deathcount
-//      {
-//         al_fixed px = players[p].PX;
-//         al_fixed py = players[p].PY;
-//
-//         al_fixed b = al_itofix(Ei[e][29]); // collision box size
-//         al_fixed ex1 = Efi[e][0] - b;
-//         al_fixed ex2 = Efi[e][0] + b;
-//         al_fixed ey1 = Efi[e][1] - b;
-//         al_fixed ey2 = Efi[e][1] + b;
-//
-//         if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) Ei[e][22] = p+1; // player collision
-//      }
-//   }
-//}
-
-void olddumbproc_enemy_collision_with_pbullet(int e)
-{
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
-   for (int c=0; c<50; c++)
-      if (pbullet[c][0])
-      {
-         // bullet collision box size adjusted with bullet speed
-         int bx = abs(pbullet[c][4]/2) + pm_bullet_collision_box;
-         int by = abs(pbullet[c][5]/2) + pm_bullet_collision_box;
-
-         // bullet collision box size adjusted with enemies collison box size
-         bx += Ei[e][29] - 10;
-         by += Ei[e][29] - 10;
-
-         // check for collision with player's bullets
-         if ((abs(pbullet[c][2] - EXint) < bx) && (abs(pbullet[c][3] - EYint) < by))
-         {
-            int p = pbullet[c][1];   // player number that shot bullet
-            Ei[e][31] = 1;           // flag that this enemy got shot with bullet
-            players[p].num_hits++;   // add to number of hits the player has
-            pbullet[c][0] = 0;       // bullet dies
-         }
-      }
-}
-
 void proc_enemy_collision_with_pbullet(int e)
 {
    int ex = al_fixtoi(Efi[e][0]);
    int ey = al_fixtoi(Efi[e][1]);
-
 
    for (int c=0; c<50; c++)
       if (pbullet[c][0])
@@ -305,19 +258,12 @@ void proc_enemy_collision_with_pbullet(int e)
          {
             int p = pbullet[c][1];   // player number that shot bullet
             Ei[e][31] = 1;           // flag that this enemy got shot with bullet
+            Ei[e][26] = p;           // number of player's bullet that hit enemy
             players[p].num_hits++;   // add to number of hits the player has
             pbullet[c][0] = 0;       // bullet dies
          }
       }
 }
-
-
-
-
-
-
-
-
 
 void move_enemies()
 {
@@ -406,12 +352,8 @@ void enemy_deathcount(int e)
    }
 }
 
-
-
 void enemy_player_hit_proc(int e)
 {
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
    if (--Ei[e][23]<0) // hit player retrigger
    {
       if (Ei[e][22]) // player hit!
@@ -419,16 +361,13 @@ void enemy_player_hit_proc(int e)
          int p = Ei[e][22]-1;
          players[p].LIFE -= Efi[e][4];
 
-         game_event(7, EXint, EYint, al_fixtoi(Efi[e][4]), 0, 0, 0);
-         game_event(12, EXint, EYint, e, 0, 0, 0);
+         game_event(44, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
          Ei[e][22] = 0;  // clear hit
          Ei[e][23] = 60; // set retrigger amount
       }
    }
   else Ei[e][22] = 0;
 }
-
-
 
 void enemy_killed(int e)
 {
@@ -543,10 +482,10 @@ void enemy_killed(int e)
    // almost all do this but not enough to do by default
    if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==12 )
    {
-      int EXint = al_fixtoi(Efi[e][0]);
-      int EYint = al_fixtoi(Efi[e][1]);
-      game_event(13, EXint, EYint, e, 0, 0, 0); // set type to death loop
-      Ei[e][0] = 99;
+
+      if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
+      if (ht == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
+      Ei[e][0] = 99; // set type to death loop
    }
 }
 
@@ -983,13 +922,11 @@ void enemy_block_walker(int e)
       int ty = EYint/20;
 
       l[tx][ty] = 168;
+      al_set_target_bitmap(level_background);
+      al_draw_filled_rectangle(tx*20, ty*20, tx*20+20, ty*20+20, palette_color[0]);
+      al_draw_bitmap(tile[168], tx*20, ty*20, 0);
 
-   al_set_target_bitmap(level_background);
-   al_draw_filled_rectangle(tx*20, ty*20, tx*20+20, ty*20+20, palette_color[0]);
-   al_draw_bitmap(tile[168], tx*20, ty*20, 0);
-
-
-      game_event(13, EXint, EYint, e, 0, 0, 0);
+      game_event(60, 0, 0, e, Ei[e][26], 0, 0);
       Ei[e][0] = 0;
       return; // break;  to stop rest of execution
    }
@@ -1147,9 +1084,6 @@ void enemy_block_walker(int e)
 
 void enemy_cloner(int e)
 {
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
-
    al_fixed x1 = al_itofix(Ei[e][15]*20-2);    // source
    al_fixed y1 = al_itofix(Ei[e][16]*20-2);
    al_fixed x3 = al_itofix(Ei[e][17]*20-2);    // destination
@@ -1244,7 +1178,6 @@ void enemy_cloner(int e)
       else cl = 600; // no limit is same as max limit
       if (no < cl) // if number of objects < create limit
       {
-         game_event(14, EXint, EYint, 0, 0, 0, 0);
          for (int b=0; b<100; b++)
             if (Ei[b][0])     // check for enemies in box
                if ((Efi[b][0] > x1) && (Efi[b][0] < x2) && (Efi[b][1] > y1) && (Efi[b][1] < y2) && (no < cl))
@@ -1377,9 +1310,7 @@ void set_trakbot_mode(int e, int mode)
 
 //     Ei[e][22] = player hit
 //     Ei[e][23] = player hit retrigger
-//     Ei[e][24] = bullet bonus
 //     Ei[e][25] = health bonus
-//     Ei[e][26] = bonus type
 //     Ei[e][27] = bonus shape
 //     Ei[e][28] = number of extra hits to kill
 //     Ei[e][30] = death loop count
@@ -2269,7 +2200,7 @@ Ei[][23] = player hit retrigger
 Ei[][24] = bonus shape
 Ei[][25] = health bonus
 
-Ei[][26] = unused
+Ei[][26] = unused (use to tell what player killed enemy..
 
 Ei[][27] = time to live
 Ei[][28] = cloner create id

@@ -131,19 +131,6 @@ int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
 
 
 
-void erase_last_bmsg(void)
-{
-    int c;
-    if (strcmp(b_msg[0],b_msg[1])==0) /* if last two are the same */
-       for (c=0; c<39; c++)
-          sprintf(b_msg[c], "%s", b_msg[c+1]);
-}
-void slide_bmsg(void)
-{
-    int c;
-    for (c=39; c>0; c--)
-       sprintf(b_msg[c], "%s", b_msg[c-1]);
-}
 
 void tsw(void)
 {
@@ -379,16 +366,6 @@ void fire_enemy_bulleta(int EN, int bullet_ans, int p)
          e_bullet_fy[z] = Efi[EN][1];
          e_bullet_fxinc[z] = xinc;
          e_bullet_fyinc[z] = yinc;
-
-         int EXint = al_fixtoi(Efi[EN][0]);
-         int EYint = al_fixtoi(Efi[EN][1]);
-
-         switch (bullet_ans)
-         {
-            case 54: game_event(17, EXint, EYint, 0, 0, 0, 0); break; // green
-            case 55: game_event(18, EXint, EYint, 0, 0, 0, 0); break; // cannonball
-            case 20: game_event(19, EXint, EYint, 0, 0, 0, 0); break; // twirly
-         }
          z=50;
       }
 }
@@ -413,7 +390,6 @@ void fire_enemy_x_bullet(int EN, int p)
             e_bullet_fxinc[z] = -x_bullet_speed;
             e_bullet_shape[z] = 489;
          }
-         game_event(16, al_fixtoi(Efi[EN][0]), al_fixtoi(Efi[EN][1]), 0, 0, 0, 0);
          z=50; // end loop
       }
 }

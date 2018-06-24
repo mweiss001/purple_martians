@@ -3,12 +3,28 @@
 ---------------------------------------------------------
 
 
-reset vls end level before release
+player lags on fast rockets
+
+
 
 
 -------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+
+cloners to have nicer drawing stuff, like a better shape, boxes around areas, etc
+
+
+sticky bombs??
+
+
+
+
+
+
+reset vls end level before release
 
 put libraries for linux in main dir for release
 
@@ -73,7 +89,7 @@ dont even use globals anymore, they just return the val
 getxy()  19 calls
 getbox() 5 calls
 pass pointers to values we want to edit...
-
+fuck it, why bother?
 
 
 ---------------------------------------------------------

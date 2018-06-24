@@ -181,6 +181,17 @@ void create_bmp(void)
 
    // temp bitmap for passing draw shape
    dtemp = al_create_bitmap(20,20);
+
+   // bottom msg bitmaps
+   for (int x=0; x<20; x++)
+   {
+      bmsg_bmp[x] = al_create_bitmap(400, 8);
+      bmsg_bmp2[x] = bmsg_bmp[x];
+   }
+
+
+
+
 }
 
 
@@ -1152,7 +1163,7 @@ void show_level_done(int keypress)
 
 void draw_percent_bar(int cx, int y, int width, int height, int percent)
 {
-   int x = cx - width/2; // centering
+   int x = cx - width/2; // get x from center
    al_draw_filled_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, palette_color[10]); //  all red to start
    if (percent > 0)
    {
@@ -1162,6 +1173,23 @@ void draw_percent_bar(int cx, int y, int width, int height, int percent)
    al_draw_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, palette_color[15], 1); //  white frame
 }
 
+void draw_percent_bar_line(int cx, int y, int width, int height, int rise, int color, int percent )
+{
+   int x = cx - width/2; // get x from center
+   int w2 = (int) (width * ((float)percent/100)); // position
+   al_draw_line(x+0.5f+w2, y+0.5f-rise, x+0.5f+w2, y+0.5f+height+rise, palette_color[color], 1);
+}
+
+
+
+void draw_percent_bar_range(int cx, int y, int width, int height, int color, int start, int end)
+{
+   int x = cx - width/2; // get x from center
+   int w1 = (int) (width * ((float)start/100));
+   int w2 = (int) (width * ((float)end/100));
+   al_draw_filled_rectangle(x+w1+0.5f, y+1.5f, x+w2+0.5f, y+height+0.5f, palette_color[color]);
+   al_draw_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, palette_color[15], 1); //  white frame
+}
 
 
 

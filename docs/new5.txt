@@ -8407,6 +8407,7 @@ proc_ebullet_collision(p);
 
 now enemy collision with player..
 
+         int i = players[p].carry_item-1; // number of item
 
 ok now I have moved all to player move....
 player - pbullets
@@ -8665,7 +8666,8 @@ sounds convoluted, is there an easier way??
 its an exception for door entry only so things dropped stay dropped
 
 why does re-picking up the rocket cancel door entry??
-i dont know
+i dont know         int i = players[p].carry_item-1; // number of item
+
 
 i think the door does the instant move for the player
 but then the rocket moves it back
@@ -8801,6 +8803,46 @@ yes, 10 is used by other items for different things...
 
 
 
+
+
+
+
+
+
+----------------------------------------------------------------
+re-did bottom msg to use al_map_rgb() instead of palette color indexes
+
+thinking about how to do stretched text fast without changing target bitmaps
+
+what if I make an array of bitmaps to hold each text line..
+the only time I need to change target bitmap, will be when I enter a new one.
+I'll do a simple copy of pointers to slide new bitmaps.
+Then when I draw all the bitmaps, I can scale them then.
+
+what is the max length in text of a bmsg?? at least 40 lest do 50
+
+height = 8; width = 400; number = 20;
+
+ALLEGRO_BITMAP bmsg_bmp[20];
+
+this code is bad, it just copies pointers:
+for (int c=19; c>0; c--)
+  bmsg_bmp[c] = bmsg_bmp[c-1];
+
+keep all the bitmaps in the original array and copy to temp array
+
+done...
+
+bottom message has been fixed and looks great
+----------------------------------------------------------------
+
+
+
+
+
+
+
+
 ----------------------------------------------------------------
 why are num_shapes for animation seq one less than actual??
 ----------------------------------------------------------------
@@ -8816,6 +8858,9 @@ now players...only do damage once....
 
 
 its coming along very nicely...
+
+
+
 
 
 do bomb damge is gone and have been replaced with:
@@ -8858,6 +8903,145 @@ make bomb range a circle in level editor..done
 sticky bombs??
 
 when a rocket turns into a bomb do I stop it?, i do now!!
+
+mark player in bomb range with amount of health lost
+
+
+make a new int in player struct about potential bomb damage
+
+show with health display...i'm prety happy about how it looks now
+
+bomb crosshairs draw when black..fixed
+
+
+game_events...
+
+remove all calls to 6 and 7 H- and H+
+add to individula calls..
+
+mines...done
+
+11 you got shot...
+
+
+
+
+----------------------------------------
+
+
+i need to redo collisions...
+
+make an easy way to test.....
+
+player vs player bullets....
+
+shoot a player bullet +80 x with no velocity...
+
+make temp player move to move in x or y
+
+ok thats good...
+
+i'm getting lost in collision stuff
+
+
+very high level stuff..
+everything move then check collisions
+how is it now
+
+move_players() that call player collisions after move for each player
+move enemies that call collision then move for each enemy
+
+do i really need to do the stretch thing for bullet collisions??
+
+
+first problem to solve, player bullets with players use 10's
+then see how the collisons look...seems good...
+
+now see how far away the initial bullet position is
+it is zero'd with player
+
+i do one move before leaving bullet creation, then the initial position is better
+
+but by the time it draws its made a second move
+
+move_player creates bullet
+then collision
+then bullet move
+then bullet draw
+
+so why doesn't just doing one initial move work
+it does, but doesnt look good...
+
+how am i going fix this
+
+move the bullet moves to before player move in loop...
+test...seems good....
+
+suicide pblullets works good now...
+
+bottom messages need to be re-written to use player name or number
+
+use:
+z1 for player number
+z2 for item or enemy number
+z3 ...
+z4 for damage
+
+
+
+void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
+
+case 10:
+game_event(10, 0, 0, p, i, 0, item[i][8]);
+sprintf(msg, "Player %d hit a mine! Health -%d", z1, z4); new_bmsg(msg); break;
+
+case 11:
+game_event(11, 0, 0, p, e_type, 0, damage);
+sprintf(msg, "Player %d got shot by %s! Health -%d", z1, enemy_name[z2], z4); new_bmsg(msg); break;
+
+case 12:
+game_event(12, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
+sprintf(msg, "Player %d hit by %s! Health -%d", z1, enemy_name[Ei[z2][0]], z4)
+
+
+
+use Ei[e][26] to track what player killed the enemy..done
+
+
+is there any way I can mark what player activated a bomb or rocket?
+or better yet what player carried it last...
+
+use 13....
+
+set when lit in bomb or rocket..done
+
+use when killing enemy
+
+i think its good!!
+
+now make it so that the last player that touched it gets the credit
+
+fix sound events...done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -24,7 +24,7 @@ void proc_player_health(int p)
    }
    if (players[p].LIFE>al_itofix(100))
    {
-       players[p].LIFE = al_itofix(100); // enforce max
+       players[p].LIFE = al_itofix(100);     // enforce max
        players[p].old_LIFE = al_itofix(100); // to prevent display
    }
    if (players[p].LIFE < al_itofix(1)) // is LIFE < 1
@@ -34,7 +34,7 @@ void proc_player_health(int p)
       sprintf(msg,"PLAYER:%d DIED!", p);
       if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 1);
 
-      game_event(21, al_fixtoi(players[p].PX), al_fixtoi(players[p].PY), 0, 0, 0, 0);  // player death
+      game_event(90, 0, 0, p, 0, 0, 0);  // player death
 
       show_player_join_quit_timer = 60;
       show_player_join_quit_player = p;
@@ -48,6 +48,23 @@ void proc_player_health(int p)
       {
          players[p].LIVES = 5;
       }
+   }
+}
+
+
+void proc_player_xy_move_test(int p)
+{
+   if (players[p].up) players[p].PY -= al_ftofix(1);
+   if (players[p].down) players[p].PY += al_ftofix(1);
+   if (players[p].left)
+   {
+      players[p].left_right = 0;
+      players[p].PX -= al_ftofix(1);
+   }
+   if (players[p].right)
+   {
+      players[p].left_right = 1;
+      players[p].PX += al_ftofix(1);
    }
 }
 
@@ -142,9 +159,7 @@ void proc_player_xy_move(int p)
          else // player is getting squished
          {
             players[p].LIFE -= al_itofix(1);
-            game_event(7, x, y, 1, 0, 0, 0);
-            game_event(34, x, y, 0, 0, 0, 0);
-
+            game_event(54, x, y, p, 0, 0, 0);
          }
       }
       else  if (players[p].xinc < al_itofix(0)) // moving left and block collision
@@ -168,8 +183,7 @@ void proc_player_xy_move(int p)
          else // player is getting squished
          {
             players[p].LIFE -= al_itofix(1);
-            game_event(7, x, y, 1, 0, 0, 0);
-            game_event(34, x, y, 0, 0, 0, 0);
+            game_event(54, x, y, p, 0, 0, 0);
          }
       }
       else if (players[p].xinc > z) // moving right and block collision
@@ -216,10 +230,7 @@ void proc_player_xy_move(int p)
       {
          players[p].player_ride = 0;     // player knocked off lift due to collision above
          players[p].LIFE -= al_itofix(1);   // take some damage
-         game_event(7, x, y, 1, 0, 0, 0);
-         game_event(34, x, y, 0, 0, 0, 0);
-
-
+         game_event(54, x, y, p, 0, 0, 0);
       }
 
       // check for collision with lift above
@@ -227,8 +238,7 @@ void proc_player_xy_move(int p)
       {
          players[p].player_ride = 0;     // player knocked off lift due to collision above
          players[p].LIFE -= al_itofix(1);   // take some damage
-         game_event(7, x, y, 1, 0, 0, 0);
-         game_event(34, x, y, 0, 0, 0, 0);
+         game_event(54, x, y, p, 0, 0, 0);
       }
 
       if (players[p].player_ride)                    // if still riding
@@ -300,8 +310,7 @@ void proc_player_xy_move(int p)
             {
                // take some damage
                players[p].LIFE -= al_itofix(1);
-               game_event(7, x, y, 1, 0, 0, 0);
-               game_event(34, x, y, 0, 0, 0, 0);
+               game_event(54, x, y, p, 0, 0, 0);
             }
 
             if (players[p].jump)                              // if jump pressed
@@ -489,9 +498,7 @@ void proc_player_stuck_in_blocks(int p)
    if ((su == 1) && (sd) && (sl) && (sr))
    {
       players[p].LIFE -= al_itofix(1);
-      game_event(7, x, y, 1, 0, 0, 0);
-      game_event(35, x, y, 0, 0, 0, 0);
-
+      game_event(56, x, y, p, 0, 0, 0);
    }
 }
 
@@ -520,15 +527,13 @@ void proc_player_bounds_check(int p)
    if (players[p].PY > al_itofix(1980)) players[p].PY = al_itofix(1980);
 }
 
-
-
-
 void proc_player_collisions(int p)
 {
    al_fixed f10 = al_itofix(10);
    al_fixed f16 = al_itofix(16);
 
    // items
+   players1[p].potential_bomb_damage = 0;
    players[p].marked_door = -1; // so player can touch only one door
    for (int x=0; x<500; x++)
       if (item[x][0])
@@ -558,11 +563,11 @@ void proc_player_collisions(int p)
    for (int b=0; b<50; b++)
       if (e_bullet_active[b])  // if active
       {
-         // new collision box is based on bullet speed and has both x and z component
+         // new collision box is based on bullet speed and has both x and y component
          al_fixed ax = abs(e_bullet_fxinc[b]);
          al_fixed ay = abs(e_bullet_fyinc[b]);
 
-         // enforce some minimums
+         // enforce minimums
          if (ax < al_itofix(4)) ax = al_itofix(4);
          if (ay < al_itofix(4)) ay = al_itofix(4);
 
@@ -575,21 +580,31 @@ void proc_player_collisions(int p)
       }
 
    // pbullets
-   if (deathmatch_pbullets)
-   {
-      for (int b=0; b<50; b++)
-         if (pbullet[b][0])  // if active
-         {
-            al_fixed bx1 = al_itofix(pbullet[b][2]) - f10;
-            al_fixed bx2 = al_itofix(pbullet[b][2]) + f10;
-            al_fixed by1 = al_itofix(pbullet[b][3]) - f10;
-            al_fixed by2 = al_itofix(pbullet[b][3]) + f10;
-            if ((players[p].PX > bx1) && (players[p].PX < bx2)
-             && (players[p].PY > by1) && (players[p].PY < by2)) proc_pbullet_collision(p, b);
-         }
-   }
-}
+   for (int b=0; b<50; b++)
+      if (pbullet[b][0])  // if active
+      {
+         al_fixed bx1 = al_itofix(pbullet[b][2]) - f10;
+         al_fixed bx2 = al_itofix(pbullet[b][2]) + f10;
+         al_fixed by1 = al_itofix(pbullet[b][3]) - f10;
+         al_fixed by2 = al_itofix(pbullet[b][3]) + f10;
 
+         if ((players[p].PX > bx1) && (players[p].PX < bx2)
+          && (players[p].PY > by1) && (players[p].PY < by2))
+         {
+            int pb = pbullet[b][1]; // the player that fired this bullet
+            if ((deathmatch_pbullets) && (pb != p))
+            {
+                proc_pbullet_collision(p, b);
+                game_event(40, 0, 0, p, pb, 0, deathmatch_pbullets_damage);
+            }
+            if ((suicide_pbullets) && (pb == p))
+            {
+                proc_pbullet_collision(p, b);
+                game_event(41, 0, 0, p, pb, 0, deathmatch_pbullets_damage);
+            }
+         }
+      }
+}
 
 void move_players(void)
 {
@@ -604,6 +619,7 @@ void move_players(void)
             if (riding_rocket(p)) proc_player_riding_rocket(p);
             else // not riding rocket
             {
+               //proc_player_xy_move_test(p);
                proc_player_xy_move(p);
                proc_pbullet_shoot(p);
             }
@@ -633,7 +649,7 @@ void draw_player(int p)
       int flags = ALLEGRO_FLIP_HORIZONTAL;
       if (players[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
 
-      al_draw_scaled_rotated_bitmap(player_tile[players[p].color][players[p].shape], 10, 10,  AX+10, AY+10, scale, scale, rot, flags);
+      al_draw_scaled_rotated_bitmap(player_tile[players[p].color][players[p].shape], 10, 10, AX+10, AY+10, scale, scale, rot, flags);
 
       // death sequence star overlay
       if ((players[p].paused) && (players[p].paused_type == 1))
@@ -651,10 +667,34 @@ void draw_player(int p)
       if (players1[p].health_display > 0)
       {
          players1[p].health_display--;
-         draw_percent_bar(AX + 10, AY - 6, 16, 3, al_fixtoi(players[p].LIFE));
-         int h = players1[p].last_health_adjust;
+
+         // show current health bar
+         int ch = al_fixtoi(players[p].LIFE); // current health
+         draw_percent_bar(AX + 10, AY - 6, 16, 3, ch);
+
+         // show last health adjustment
+         int h = players1[p].last_health_adjust; // last health adjust
          if (h > 0) al_draw_textf(f3, palette_color[11], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
          if (h < 0) al_draw_textf(f3, palette_color[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
+
+         // show potential bomb damage
+         int dmg = players1[p].potential_bomb_damage; // potential bomb damage
+         if (dmg)
+         {
+            int nh = ch - dmg; // new health
+            if (nh < 0) nh = 0;
+            if (frame_num % 20 < 10)
+            {
+               // draw segment from new health to current health
+               draw_percent_bar_range(AX+10, AY-6, 16, 3, 14, nh, ch);
+
+               // show damage amount
+               al_draw_textf(f3, palette_color[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);
+
+               // draw a tiny bomb picture
+               al_draw_scaled_rotated_bitmap(tile[464], 10, 10,  AX+20, AY-12, .5, .5, 0, 0);
+            }
+         }
       }
    }
 }
@@ -767,7 +807,7 @@ void init_player(int p, int t)
 
       players[p].bullet_wait_counter=0;
       players[p].request_bullet = 0;
-      players[p].bullet_wait = 5;
+      players[p].bullet_wait = 4;
       players[p].bullet_speed = 12;
 
       players[p].draw_rot = al_itofix(0);
@@ -779,6 +819,7 @@ void init_player(int p, int t)
 
       players1[p].health_display = 0;
       players1[p].last_health_adjust = 0;
+      players1[p].potential_bomb_damage = 0;
 
       players1[p].frames_skipped = 0;
    }
