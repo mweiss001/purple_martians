@@ -1210,8 +1210,10 @@ void draw_fps_display(int show_type);
 void draw_speed_test_data(void);
 void draw_top_display(void);
 
+void clear_bmsg(void);
 void new_bmsg(const char *nb, int p, int p2, int ev);
 void draw_bottom_msg();
+
 
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
 

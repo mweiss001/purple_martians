@@ -495,6 +495,18 @@ void draw_top_display(void)
    }
 }
 
+void clear_bmsg(void)
+{
+   for (int c=0; c<40; c++) b_msg[c][0] = 0;
+   for (int c=0; c<20; c++)
+   {
+      al_set_target_bitmap(bmsg_bmp[c]);
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+      al_convert_mask_to_alpha(bmsg_bmp[c], al_map_rgb(0, 0, 0)) ;
+   }
+   bmsg_index = 0;
+   bottom_msg = 0;
+}
 
 
 void new_bmsg(const char *nb, int p, int p2, int ev)

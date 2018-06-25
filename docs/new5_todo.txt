@@ -2,8 +2,20 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+change rocket damage to circle like bomb in editor...
 
-reset bottom messages
+
+
+
+make bomb damage circle math with blocks better..
+
+use sqrt(20) to add in block detection..
+
+
+can trigger bomb while door travel?? yes!!!
+
+
+
 
 
 
