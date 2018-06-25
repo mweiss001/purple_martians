@@ -3,7 +3,7 @@
 ---------------------------------------------------------
 
 
-player lags on fast rockets
+reset bottom messages
 
 
 
@@ -14,10 +14,12 @@ player lags on fast rockets
 
 
 
+
+
+
+
+
 cloners to have nicer drawing stuff, like a better shape, boxes around areas, etc
-
-
-sticky bombs??
 
 
 

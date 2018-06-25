@@ -496,398 +496,8 @@ void draw_top_display(void)
 }
 
 
-void add_screen_msg(char *txt, int x, int y, int delay, int ssn, int z1, int z2, int z3, int z4 )
-{
-   // check to see if identical to any active entry
-   int already_exists = 0;
-    for (int a=0; a<100; a++)
-       if (screen_msgs[a].active)
-          if (screen_msgs[a].original_x == x)
-             if (screen_msgs[a].original_y == y)
-                if (strcmp(screen_msgs[a].text, txt) == 0)
-                   if (ssn != 4 ) already_exists = 1;
 
-   if (!already_exists)
-   {
-      for (int a=0; a<100; a++)
-         if (!screen_msgs[a].active) // find first empty
-         {
-             // default settings
-             screen_msgs[a].delay = 40;
-             screen_msgs[a].active = 1;
-             screen_msgs[a].color = 15;
-             screen_msgs[a].color_inc = 0;
-             screen_msgs[a].color_inc_holdoff = 0;
-             screen_msgs[a].current_holdoff = 0;
-             screen_msgs[a].delay = delay;
-             screen_msgs[a].ssn = ssn;
-             screen_msgs[a].original_x = x;
-             screen_msgs[a].original_y = y;
-             screen_msgs[a].x = x;
-             screen_msgs[a].y = y;
-             screen_msgs[a].xinc = 0;
-             screen_msgs[a].yinc = 0;
-             sprintf(screen_msgs[a].text, "%s", txt);
-             screen_msgs[a].size = 1.0;
-             screen_msgs[a].size_inc = 0.0;
-             screen_msgs[a].rot = 0;
-             screen_msgs[a].rot_inc = 0;
-
-             // specific overrides
-
-             if (ssn == 1) // Door
-             {
-                screen_msgs[a].delay = 1;
-                screen_msgs[a].color = 0;
-                screen_msgs[a].rot = 0;
-                screen_msgs[a].rot_inc = 0;
-                screen_msgs[a].size = 1.0;
-                screen_msgs[a].size_inc = -.000;
-                screen_msgs[a].x = x;
-                screen_msgs[a].y = y-12; // raise above door
-
-                // multistep
-                screen_msgs[a].current_step = 1;
-
-                // initial step set here
-                screen_msgs[a].size = 0;
-                screen_msgs[a].size_inc = 0;
-             }
-
-
-             if (ssn == 2) // Health +
-             {
-                screen_msgs[a].delay = 1;
-                screen_msgs[a].color = 11; // green
-
-                // multistep
-                screen_msgs[a].current_step = 1;
-
-                // initial step set here
-                screen_msgs[a].size = 0;
-                screen_msgs[a].size_inc = 0;
-
-             }
-
-             if (ssn == 3) // Health -
-             {
-                screen_msgs[a].delay = 1;
-                screen_msgs[a].color = 10; // red
-
-                // multistep
-                screen_msgs[a].current_step = 1;
-
-                // initial step set here
-                screen_msgs[a].size = 0;
-                screen_msgs[a].size_inc = 0;
-
-             }
-
-
-             if (ssn == 4) // player shoots, bang!
-             {
-                screen_msgs[a].delay = 8;
-
-                int p = z1; // player num
-                int b = z2; // bullet num
-
-                screen_msgs[a].x = pbullet[b][2];
-                screen_msgs[a].y = pbullet[b][3];
-
-                screen_msgs[a].xinc = pbullet[b][4]/3;
-                screen_msgs[a].yinc = pbullet[b][5]/3;
-
-                // do one inc to see if lines up better
-                screen_msgs[a].x += pbullet[b][4];
-                screen_msgs[a].y += pbullet[b][5];
-
-                screen_msgs[a].color = players[p].color;
-
-                screen_msgs[a].size = .2;
-                screen_msgs[a].size_inc = .1;
-             }
-
-
-             if (ssn == 5) // key
-             {
-                screen_msgs[a].delay = 20;
-                // get key tile
-                if  (z2 == 1039) screen_msgs[a].color = 10; //red
-                if  (z2 == 1040) screen_msgs[a].color = 11; //green
-                if  (z2 == 1041) screen_msgs[a].color = 13; //lt blue
-                if  (z2 == 1042) screen_msgs[a].color = 8;  //purple
-             }
-
-             if (ssn == 6) // boing
-             {
-                screen_msgs[a].delay = 20;
-                screen_msgs[a].color = 14; //yellow
-
-                screen_msgs[a].rot = 0;
-                screen_msgs[a].rot_inc = 0;
-
-                screen_msgs[a].size = .4;
-                screen_msgs[a].size_inc = .015;
-
-                screen_msgs[a].x = x;
-                screen_msgs[a].y = y;
-                screen_msgs[a].yinc = -4;
-
-             }
-
-
-             if (ssn == 7) // switch
-             {
-                screen_msgs[a].delay = 20;
-                screen_msgs[a].color = 15; // white
-
-                screen_msgs[a].rot = 0;
-                screen_msgs[a].rot_inc = 0;
-
-                screen_msgs[a].size = .8;
-                screen_msgs[a].size_inc = .005;
-
-                screen_msgs[a].x = x;
-                screen_msgs[a].y = y;
-                screen_msgs[a].yinc = -1;
-
-             }
-
-             if ((ssn == 34) || (ssn == 35))  // squished or stuck
-             {
-                screen_msgs[a].delay = 8;
-                screen_msgs[a].color = 10; // red
-
-                screen_msgs[a].rot = 0;
-                screen_msgs[a].rot_inc = 0;
-
-                screen_msgs[a].size = .8;
-                screen_msgs[a].size_inc = .035;
-
-                screen_msgs[a].x = x;
-                screen_msgs[a].y = y-10;
-                screen_msgs[a].yinc = -3;
-
-             }
-
-              a =100; // quit loop
-         }
-   }
-}
-
-void draw_screen_msg(void)
-{
-    for (int a=0; a<100; a++)
-       if (screen_msgs[a].active)
-       {
-          int ssn = screen_msgs[a].ssn;
-
-          int x = screen_msgs[a].x;
-          int y = screen_msgs[a].y;
-          int c = screen_msgs[a].color;
-          int rot = screen_msgs[a].rot;
-          float s = screen_msgs[a].size;
-
-          rtextout_centre(level_buffer, screen_msgs[a].text, x + 10, y + 10, c, s, rot, 1 );
-
-           // for all mode that aren't multimode
-           if ((ssn == 0) || (ssn == 0) || (ssn == 4) || (ssn == 5) || (ssn == 6) || (ssn == 7) || (ssn == 34)|| (ssn == 35))
-           {
-             // decrement delay till 0 then set inactive
-             --screen_msgs[a].delay;
-             if (screen_msgs[a].delay == 0) screen_msgs[a].active = 0;
-           }
-
-           if (screen_msgs[a].ssn == 2) // health +
-           {
-             --screen_msgs[a].delay;
-
-              if (screen_msgs[a].current_step == 1) // immediate next
-              {
-                 if (screen_msgs[a].delay == 0) // next out
-                 {
-                    screen_msgs[a].delay = 5;
-                    screen_msgs[a].color = 11;
-                    screen_msgs[a].yinc = -5;
-                    screen_msgs[a].size = .5;
-                    screen_msgs[a].size_inc = .11;
-                    screen_msgs[a].current_step = 2;
-                 }
-              }
-              if (screen_msgs[a].current_step == 2)
-              {
-                 if (screen_msgs[a].delay == 0) // next wait
-                 {
-                    screen_msgs[a].delay = 30;
-                    screen_msgs[a].color = 11;
-
-                    screen_msgs[a].yinc = 0;
-                    screen_msgs[a].size_inc = 0;
-                    screen_msgs[a].current_step = 3;
-                 }
-              }
-
-              if (screen_msgs[a].current_step == 3)
-              {
-                 if (screen_msgs[a].delay == 0) // next in
-                 {
-                    screen_msgs[a].delay = 6;
-                    screen_msgs[a].color = 11;
-                    screen_msgs[a].yinc = 4;
-                    screen_msgs[a].size_inc = -.14;
-                    screen_msgs[a].current_step = 8;
-                 }
-              }
-              if (screen_msgs[a].current_step == 8)
-              {
-                 if (screen_msgs[a].delay == 0)
-                 {
-                    screen_msgs[a].active = 0;  // done
-                 }
-              }
-
-          }
-
-          if (screen_msgs[a].ssn == 3) // health -
-          {
-             --screen_msgs[a].delay;
-
-              if (screen_msgs[a].current_step == 1) // immediate next
-              {
-                 if (screen_msgs[a].delay == 0) // next out
-                 {
-                    screen_msgs[a].delay = 5;
-                    screen_msgs[a].color = 10;
-                    screen_msgs[a].yinc = -8;
-                    screen_msgs[a].size = .5;
-                    screen_msgs[a].size_inc = .11;
-                    screen_msgs[a].rot_inc = 0;
-                    screen_msgs[a].current_step = 2;
-                 }
-              }
-              if (screen_msgs[a].current_step == 2)
-              {
-                 if (screen_msgs[a].delay == 0) // next wait
-                 {
-                    screen_msgs[a].delay = 30;
-                    screen_msgs[a].yinc = 0;
-                    screen_msgs[a].size_inc = 0;
-                    screen_msgs[a].current_step = 3;
-                 }
-              }
-
-              if (screen_msgs[a].current_step == 3)
-              {
-
-
-                 if (screen_msgs[a].delay == 0) // next in
-                 {
-                    screen_msgs[a].delay = 6;
-                    screen_msgs[a].yinc = 4;
-                    screen_msgs[a].size_inc = -.14;
-                    screen_msgs[a].current_step = 8;
-                 }
-              }
-              if (screen_msgs[a].current_step == 8)
-              {
-                 if (screen_msgs[a].delay == 0)
-                 {
-                    screen_msgs[a].active = 0;  // done
-                 }
-              }
-
-          }
-
-           if (screen_msgs[a].ssn == 1) // door (fade in and out)
-           {
-             --screen_msgs[a].delay;
-
-              if (screen_msgs[a].current_step == 1) // immediate next
-              {
-                 if (screen_msgs[a].delay == 0) // fade in
-                 {
-                    screen_msgs[a].delay = 6;
-
-                    screen_msgs[a].color = 12 + (6 * 32);
-
-                    screen_msgs[a].color_inc = - 32;
-
-//                  screen_msgs[a].color_inc_holdoff = screen_msgs[a].delay / 12;
-                    screen_msgs[a].color_inc_holdoff = 1;
-
-                    screen_msgs[a].current_holdoff = screen_msgs[a].color_inc_holdoff;
-
-                    screen_msgs[a].size = 1.0;
-                    screen_msgs[a].size_inc = 0;
-                    screen_msgs[a].current_step = 2;
-                 }
-              }
-              if (screen_msgs[a].current_step == 2)
-              {
-                 if (screen_msgs[a].delay == 0) // next wait
-                 {
-                    screen_msgs[a].delay = 30;
-                    screen_msgs[a].color = 12;
-                    screen_msgs[a].color_inc = 0;
-                    screen_msgs[a].current_step = 3;
-                 }
-              }
-
-              if (screen_msgs[a].current_step == 3)
-              {
-                 if (screen_msgs[a].delay == 0) // fade out
-                 {
-                    screen_msgs[a].delay = 15;
-                    screen_msgs[a].color = 12;
-                    screen_msgs[a].color_inc = 16;
-                    screen_msgs[a].color_inc_holdoff = 1;
-
-                    screen_msgs[a].current_holdoff = screen_msgs[a].color_inc_holdoff;
-
-
-                    screen_msgs[a].current_step = 4;
-                 }
-              }
-
-              if (screen_msgs[a].current_step == 4)
-              {
-                 if (screen_msgs[a].delay == 0)
-                 {
-                    screen_msgs[a].active = 0;  // done
-                 }
-              }
-          }
-
-          // increment the size
-          screen_msgs[a].size = screen_msgs[a].size + screen_msgs[a].size_inc;
-
-          // increment the rot
-          screen_msgs[a].rot = screen_msgs[a].rot + screen_msgs[a].rot_inc;
-
-          // increment x and y
-          screen_msgs[a].x = screen_msgs[a].x + (int) screen_msgs[a].xinc;
-          screen_msgs[a].y = screen_msgs[a].y + (int) screen_msgs[a].yinc;
-
-          // increment color
-          if (screen_msgs[a].color_inc) // do nothing if no color_inc
-          {
-             if (--screen_msgs[a].current_holdoff <= 0)
-             {
-                screen_msgs[a].color += screen_msgs[a].color_inc;
-
-                if (screen_msgs[a].color < 0) screen_msgs[a].color += 256;
-                if (screen_msgs[a].color < 255) screen_msgs[a].color -= 256;
-
-                screen_msgs[a].current_holdoff = screen_msgs[a].color_inc_holdoff;
-             }
-          }
-
-       }
-}
-
-
-
-void new_bmsg(const char *nb, int p, int p2)
+void new_bmsg(const char *nb, int p, int p2, int ev)
 {
    bottom_msg = 120;
    if (strcmp(b_msg[0], nb) != 0) // if last two are not the same
@@ -917,16 +527,24 @@ void new_bmsg(const char *nb, int p, int p2)
       al_draw_text(font, palette_color[col], 200, 0, ALLEGRO_ALIGN_CENTER, tmsg);
 
       // draw 2nd 'Player x' (14-22   8 char) in 2nd player color
-      if (p2>-1)
+      if (ev == 40) // player shot player
       {
          int c2 = players[p2].color;
-
          strcpy(tmsg, nb);
          for (unsigned int x=0; x<14; x++) tmsg[x] = 32; // copy spaces
          for (unsigned int x=22; x<strlen(nb); x++) tmsg[x] = 32; // copy spaces
          al_draw_text(font, palette_color[c2], 200, 0, ALLEGRO_ALIGN_CENTER, tmsg);
-
       }
+
+      if (ev == 52) // player exploded player
+      {
+         int c2 = players[p2].color;
+         strcpy(tmsg, nb);
+         for (unsigned int x=0; x<18; x++) tmsg[x] = 32; // copy spaces
+         for (unsigned int x=26; x<strlen(nb); x++) tmsg[x] = 32; // copy spaces
+         al_draw_text(font, palette_color[c2], 200, 0, ALLEGRO_ALIGN_CENTER, tmsg);
+      }
+
 
       al_convert_mask_to_alpha(bmsg_bmp[bmsg_index], al_map_rgb(0, 0, 0)) ;
       al_set_target_backbuffer(display);
@@ -1033,12 +651,8 @@ void draw_bottom_msg()
 
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
-   int bottom_msg_on = 1;
-   //int screen_messages_on = 1;
    if (sound_on)
    {
-      switch (ev)
-      {
          /*  sample numbers
          0 - player shoots
          1 - d'OH
@@ -1049,153 +663,109 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
          6 - grunt 1 shot
          7 - grunt 2 hit
          8 - enemy killed  */
-        case  1: // player shoots
-           al_play_sample(snd[0], 0.71, 0, .8, ALLEGRO_PLAYMODE_ONCE, NULL);
-        break;
-        case  2: case  4: case  5: // la dee dah (key, exit, door)
-           if (sample_delay[4]+30 < frame_num)
-           {
-              sample_delay[4] = frame_num;
-              al_play_sample(snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-           }
-        break;
-        case  70: // bonus and free man
+      switch (ev)
+      {
+         case  1: // player shoots
+            al_play_sample(snd[0], 0.71, 0, .8, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+         case  2: case  4: case  5: // la dee dah (key, exit, door)
+            if (sample_delay[4]+30 < frame_num)
+            {
+               sample_delay[4] = frame_num;
+               al_play_sample(snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            }
+         break;
+         case  70: // bonus and free man
            if (sample_delay[2]+30 < frame_num)
-           {
-              sample_delay[2] = frame_num;
-              al_play_sample(snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-           }
-        break;
-        case 40: case 41: case 43:// player got shot
-           al_play_sample(snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-        break;
-        case 44: case 50: case 52: case 54: case 56: // player got hit (bomb, mine, enemy collision, squished, stuck)
-           if (sample_delay[7]+14 < frame_num)
-           {
-              sample_delay[7] = frame_num;
-              al_play_sample(snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-           }
-        break;
-        case 60: case 62: // enemy killed
-             al_play_sample(snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
-        break;
-        case 90: // d'Oh (player died)
-             al_play_sample(snd[1], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-        break;
-        case 22: // explosion
-             al_play_sample(snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-        break;
+            {
+               sample_delay[2] = frame_num;
+               al_play_sample(snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            }
+         break;
+         case 40: case 41: case 43:// player got shot
+            al_play_sample(snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+         case 44: case 50: case 52: case 54: case 56: // player got hit (bomb, mine, enemy collision, squished, stuck)
+            if (sample_delay[7]+14 < frame_num)
+            {
+               sample_delay[7] = frame_num;
+               al_play_sample(snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            }
+         break;
+         case 60: case 62: // enemy killed
+            al_play_sample(snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+         case 90: // d'Oh (player died)
+            al_play_sample(snd[1], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+         case 22: // explosion
+            al_play_sample(snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
       }
    }
 
+   int bottom_msg_on = 1;
    if (bottom_msg_on)
    {
       switch (ev)
       {
          case 2: // key
          {
-           char tmsg[20];
-           tmsg[0] = 0;
-           int key = item[z2][1] - 1039;
-           if (key == 0) sprintf(tmsg, "red ");
-           if (key == 1) sprintf(tmsg, "green ");
-           if (key == 2) sprintf(tmsg, "blue ");
-           if (key == 3) sprintf(tmsg, "purple ");
-           sprintf(msg, "Player %d got a %skey.", z1, tmsg);
-           new_bmsg(msg, z1, -1);
+            char tmsg[20] = {0};
+            int k = item[z2][1] - 1039;
+            if (k == 0) sprintf(tmsg, "red ");
+            if (k == 1) sprintf(tmsg, "green ");
+            if (k == 2) sprintf(tmsg, "blue ");
+            if (k == 3) sprintf(tmsg, "purple ");
+            sprintf(msg, "Player %d got a %skey.", z1, tmsg);
+            new_bmsg(msg, z1, z2, ev);
          }
          break;
-
 
          case  3: // tried to exit
             if (z3 == 1) sprintf(msg, "Player %d tried to exit. 1 enemy left.", z1);
             else sprintf(msg, "Player %d tried to exit. %d enemies left.", z1, z3);
-            new_bmsg(msg, z1, -1);
+            new_bmsg(msg, z1, z2, ev);
          break;
 
-         case  5: sprintf(msg, "Player %d went through a door.", z1); new_bmsg(msg, z1, -1); break;
+         case  5: sprintf(msg, "Player %d went through a door.", z1); new_bmsg(msg, z1, z2, ev); break;
+         case 24: sprintf(msg, "Player %d lit #%d bomb with %d sec fuse.", z1, z2, z3);  new_bmsg(msg, z1, z2, ev); break;
 
-         case 24: sprintf(msg, "Player %d lit #%d bomb with %d sec fuse.", z1, z2, z3);  new_bmsg(msg, z1, -1); break;
+         case 25: sprintf(msg, "Player %d armed #%d bomb with remote.", z1, z2);  new_bmsg(msg, z1, z2, ev); break;
 
-         case 25: sprintf(msg, "Player %d lit a rocket.", z1);  new_bmsg(msg, z1, -1); break;
+         case 26: sprintf(msg, "Player %d lit a rocket.", z1);  new_bmsg(msg, z1, z2, ev); break;
 
          case 30: // switch
          {
-           char tmsg[20];
-           tmsg[0] = 0;
-           int key = item[z2][10] - 172;
-           if (key == 0) sprintf(tmsg, "green ");
-           if (key == 1) sprintf(tmsg, "red ");
-           if (key == 2) sprintf(tmsg, "blue ");
-           if (key == 3) sprintf(tmsg, "purple ");
-           sprintf(msg, "Player %d flipped a %sswitch.", z1, tmsg);
-           new_bmsg(msg, z1, -1);
+            char tmsg[20] = {0};
+            int k = item[z2][10] - 172;
+            if (k == 0) sprintf(tmsg, "green ");
+            if (k == 1) sprintf(tmsg, "red ");
+            if (k == 2) sprintf(tmsg, "blue ");
+            if (k == 3) sprintf(tmsg, "purple ");
+            sprintf(msg, "Player %d flipped a %sswitch.", z1, tmsg);
+            new_bmsg(msg, z1, z2, ev);
          }
          break;
 
-         case 40: sprintf(msg, "Player %d shot Player %d. Health -%d.", z2, z1, z4); new_bmsg(msg, z2, z1); break;
-         case 41: sprintf(msg, "Player %d shot themself. Duh! Health -%d.", z1, z4); new_bmsg(msg, z1, -1); break;
+         case 40: sprintf(msg, "Player %d shot Player %d. Health -%d.", z2, z1, z4); new_bmsg(msg, z2, z1, ev); break;
+         case 41: sprintf(msg, "Player %d shot themself. Duh! Health -%d.", z1, z4); new_bmsg(msg, z1, z2, ev); break;
+         case 43: sprintf(msg, "Player %d got shot by %s. Health -%d.", z1, enemy_name[z2], z4); new_bmsg(msg, z1, z2, ev); break;
+         case 44: sprintf(msg, "Player %d hit by %s. Health -%d.", z1, enemy_name[Ei[z2][0]], z4); new_bmsg(msg, z1, z2, ev); break;
 
-         case 43: sprintf(msg, "Player %d got shot by %s. Health -%d.", z1, enemy_name[z2], z4); new_bmsg(msg, z1, -1); break;
+         case 50: sprintf(msg, "Player %d hit a mine. Health -%d.", z1, z4); new_bmsg(msg, z1, z2, ev); break;
+         case 52: sprintf(msg, "Player %d exploded Player %d. Health -%d.", z2, z1, z4); new_bmsg(msg, z2, z1, ev); break;
 
-         case 44: sprintf(msg, "Player %d hit by %s. Health -%d.", z1, enemy_name[Ei[z2][0]], z4); new_bmsg(msg, z1, -1); break;
+         case 53: sprintf(msg, "Player %d exploded themself. Health -%d.", z1, z4); new_bmsg(msg, z1, z2, ev); break;
 
+         case 54: sprintf(msg, "Player %d got squished.", z1); new_bmsg(msg, z1, z2, ev); break;
+         case 56: sprintf(msg, "Player %d got stuck.", z1); new_bmsg(msg, z1, z2, ev); break;
 
-         case 50: sprintf(msg, "Player %d hit a mine. Health -%d.", z1, z4); new_bmsg(msg, z1, -1); break;
-         case 52: sprintf(msg, "Player %d sustained explosion damage %d.", z1, z4); new_bmsg(msg, z1, -1); break;
-         case 54: sprintf(msg, "Player %d got squished.", z1); new_bmsg(msg, z1, -1); break;
-         case 56: sprintf(msg, "Player %d got stuck.", z1); new_bmsg(msg, z1, -1); break;
+         case 60: sprintf(msg, "Player %d killed %s with a bullet.", z1, enemy_name[Ei[z2][0]]); new_bmsg(msg, z1, z2, ev); break;
+         case 62: sprintf(msg, "Player %d killed %s with explosion.", z1, enemy_name[Ei[z2][0]]); new_bmsg(msg, z1, z2, ev); break;
 
-         case 60: sprintf(msg, "Player %d killed %s with a bullet.", z1, enemy_name[Ei[z2][0]]); new_bmsg(msg, z1, -1); break;
-         case 62: sprintf(msg, "Player %d killed %s with explosion.", z1, enemy_name[Ei[z2][0]]); new_bmsg(msg, z1, -1); break;
-
-         case 70: sprintf(msg, "Player %d got a free man.", z1); new_bmsg(msg, z1, -1); break;
-
-         case 90: sprintf(msg, "Player %d died.", z1); new_bmsg(msg, z1, -1); break;
-
-
+         case 70: sprintf(msg, "Player %d got a free man.", z1); new_bmsg(msg, z1, z2, ev); break;
+         case 90: sprintf(msg, "Player %d died.", z1); new_bmsg(msg, z1, z2, ev); break;
       }
    }
-//   if (screen_messages_on)
-//      switch (ev)
-//      {
-//         case   1: add_screen_msg("bang!", x, y, 100, 4, z1, z2, z3, z4); break;
-//         case   2: add_screen_msg("key", x, y, 100, 5, z1, z2, z3, z4); break;
-//         case   3: sprintf(msg, "%d enemies left to kill!", z1);
-//                   add_screen_msg(msg, x, y, 100, 0, z1, z2, z3, z4); break;
-//         case   3: add_screen_msg("------O------", x, y, 100, 0); break;
-//         case   5: add_screen_msg("--O--", x, y, 100, 0); break;
-//         case   5: add_screen_msg("Door", x, y, 100, 1, z1, z2, z3, z4); break;
-//         case   6: sprintf(msg, "H+%d", z1);
-//                   add_screen_msg(msg, x, y, 100, 2, z1, z2, z3, z4); break;
-//         case   7: sprintf(msg, "H-%d", z1);
-//                   add_screen_msg(msg, x, y, 100, 3, z1, z2, z3, z4); break;
-//         case  8:  add_screen_msg("Bomb Damage!", x, y, 100, 0, z1, z2, z3, z4); break;
-//         case  10: add_screen_msg("Mine", x, y, 100, 0, z1, z2, z3, z4); break;
-//         case  13: sprintf(msg, "%s died! (%d left)", enemy_name[Ei[z1][0]],  num_enemy-1);
-//                   add_screen_msg(msg, x, y, 100, 0, z1, z2, z3, z4); break;
-//         case  21: add_screen_msg("You Died!", x, y, 100, 0, z1, z2, z3, z4); break;
-//         case  30: add_screen_msg("switch", x, y, 100, 7, z1, z2, z3, z4); break;
-//         case  31: add_screen_msg("boing!", x, y, 100, 6, z1, z2, z3, z4); break;
-//         case  32: add_screen_msg("In", x, y, 100, 1, z1, z2, z3, z4); break;
-//         case  33: add_screen_msg("Out", x, y, 100, 1, z1, z2, z3, z4); break;
-//         case  34: add_screen_msg("Ouch", x, y, 100, 34, z1, z2, z3, z4); break;
-//         case  35: add_screen_msg("Ouch", x, y, 100, 35, z1, z2, z3, z4); break;
-//      }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

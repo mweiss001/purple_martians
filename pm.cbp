@@ -158,7 +158,8 @@
 			<Option target="win_static_release" />
 		</Unit>
 		<Unit filename="src/e_bitmap.cpp" />
-		<Unit filename="src/e_editor.cpp" />
+		<Unit filename="src/e_editor_main.cpp" />
+		<Unit filename="src/e_editor_zfs.cpp" />
 		<Unit filename="src/e_fnx.cpp" />
 		<Unit filename="src/e_glt.cpp" />
 		<Unit filename="src/e_item.cpp" />
@@ -166,9 +167,8 @@
 		<Unit filename="src/e_nev.cpp" />
 		<Unit filename="src/e_nlv.cpp" />
 		<Unit filename="src/e_pde.cpp" />
-		<Unit filename="src/e_sel.cpp" />
+		<Unit filename="src/e_pde_sel_window.cpp" />
 		<Unit filename="src/e_sliders.cpp" />
-		<Unit filename="src/e_special.cpp" />
 		<Unit filename="src/n_client.cpp" />
 		<Unit filename="src/n_network.cpp" />
 		<Unit filename="src/n_packet.cpp" />

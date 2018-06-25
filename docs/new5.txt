@@ -9004,9 +9004,7 @@ game_event(12, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
 sprintf(msg, "Player %d hit by %s! Health -%d", z1, enemy_name[Ei[z2][0]], z4)
 
 
-
 use Ei[e][26] to track what player killed the enemy..done
-
 
 is there any way I can mark what player activated a bomb or rocket?
 or better yet what player carried it last...
@@ -9022,6 +9020,217 @@ i think its good!!
 now make it so that the last player that touched it gets the credit
 
 fix sound events...done
+
+
+after extensive changing, bottom messages are looking good.
+still to do...
+
+show when player damages another player with bomb
+
+now I show when player takes explosion damage, just need to add from what player
+
+add when player explodes themselves..done
+
+removed screen messages to extra code file...
+
+
+
+
+
+
+
+---------------------------------------------------------
+player lags on fast rockets...fixed
+---------------------------------------------------------
+where is the code that binds them..
+
+its in player move -> void proc_player_riding_rocket(int p)
+
+then item move happens, then draw...
+
+can I bind them in item move??
+
+      // if player riding, bind player to rocket
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ( (players[p].active) && (!players[p].paused) && (riding_rocket(p)) )
+         {
+            players[p].PX = itemf[i][0];
+            players[p].PY = itemf[i][1];
+         }
+
+
+
+
+
+
+
+
+---------------------------------------------------------
+sticky bombs..done
+---------------------------------------------------------
+
+what do I need to do to make this a thing?
+
+
+re-use regular bomb, just modify move code...
+
+for now do it on regular bomb, then later add new move type...
+
+if not being carried, look to see if walls are close, if yes then set xinc, yinc to zero
+
+make a funtion to do that
+
+int is_item_stuck_to wall(int i)
+{
+   int x = al_fixtoi(itemf[i][0]);
+   int y = al_fixtoi(itemf[i][1]);
+
+   if ((is_left_solid(x,y, 0) || (is_right_solid(x,y, 0) ||
+       (is_down_solid(x,y, 0) || (is_up_solid(x,y, 0) )
+
+       return 1;
+
+   return 0;
+}
+
+
+i'm ready to make a certain type of bomb
+
+i plan to overload the already overloaded move_type of item
+
+no just use 11 and make a new pde type
+
+no add slider to existing and custom draw code tile 440..done
+
+need to test how it works with lifts..seem to ignore them quite nicely except for regular ride...
+
+
+---------------------------------------------------------
+remote detonation of bombs
+---------------------------------------------------------
+this will differ from regular bombs in that the timer is replaced by a remote detonator.
+
+whatever player triggers the bomb will always have the trigger.
+
+should save the player num in the item, so a player can have many items triggered
+
+can I reuse existing bomb?
+
+what if I make another mode, mode 3
+
+then when that is done move to mode 2 explosion like normal
+
+can I use 12 for remote/timer?? yes...
+
+make slider..done
+
+when touch first time set mode 3 if 12...done
+
+now add code in proc_lit_bomb()
+
+use 13 to mark player that trigger it
+
+that was easy!!
+
+next make a different bitmap to show the remote detonator.
+
+maybe draw a line to the player
+
+as it is now, another player can steal the trigger by moving the bomb
+
+i want to draw dynamite! 3 red sticks...
+with a timer if appropriate, or a red button
+
+537 - 539
+
+looking good...
+
+change color of remote line to gray..done
+
+make editor set the correct initial shape..done
+
+make bottom msg display correctly..done
+
+test multiplayer..work exactly as i thought
+players can steal bomb from other players by grabbing the bomb
+then the remote belongs to them
+it has no effect trying to grab the remote
+
+test carrying remote through doors...good
+can't drop it if you wanted to
+
+test carrying bombs through doors...
+works fine with remote..
+
+what about a regular bomb?
+
+what happens if it explodes while in door travel??
+item is left behind in door travel until travel is complete
+player is invincible in door travel
+
+
+--------------------------------------------
+
+rename and move stuff in editor...
+
+to start with, move the three things that edit text to z_menu
+
+// e_nlv.h
+void edit_server_name(void);
+int edit_lift_name(int lift, int step_ty, int bts);
+
+// e_nev.h
+void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore, int rot);
+int edit_pmsg_text(int c, int new_msg);
+
+removed global fst[80];
+
+lift name good...
+server name good...
+pmsg good
+
+fix pm.h..done
+
+
+rename e_editor to e_editor_main
+
+make e_editor_zfs
+put all zfs and sel there...
+
+move from main to zfs...done
+
+
+these files are good and don't need anything:
+bitmap
+glt
+pde (pde_editor)
+special (could use a better name) (object_selection_and_status_windows?) (pde_sel_window)
+combine pde...done
+sliders
+lev (could use a better name) visual level thingy
+
+e_nlv change name to e_lift (has only lift stuff)
+
+these are what really need arranging:
+
+nev
+item
+
+fnx
+
+make a new file e_object_viewer
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

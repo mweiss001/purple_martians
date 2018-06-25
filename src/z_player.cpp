@@ -686,7 +686,7 @@ void draw_player(int p)
             if (frame_num % 20 < 10)
             {
                // draw segment from new health to current health
-               draw_percent_bar_range(AX+10, AY-6, 16, 3, 14, nh, ch);
+               draw_percent_bar_range(AX+10, AY-6, 16, 3, 10, nh, ch);
 
                // show damage amount
                al_draw_textf(f3, palette_color[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);

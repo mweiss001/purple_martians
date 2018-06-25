@@ -875,8 +875,442 @@ int pmenu(int menu_num)  // this menu function does not pass through like the ne
 
 
 
+// edit text stuff
 
 
+
+
+void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore, int rot)
+{
+   int len = strlen(f);
+   char dt[40][120];
+   int row=0, col=0, cursor_row=0, cursor_col=0;
+   // get cursor row and column and fill dt
+   for (int a=0; a<len+1; a++)
+   {
+      if (a == cursor_pos)
+      {
+         cursor_row = row;
+         cursor_col = col;
+      }
+      if (f[a] == 126) // line break
+      {
+         row++;
+         col=0;
+         dt[row][col] = (char)NULL; // in case len = 0
+      }
+      else  // regular char
+      {
+         dt[row][col] = f[a];
+         col++;
+         dt[row][col] = (char)NULL;
+      }
+   }
+
+   // make a string from the cursor text char
+   msg[0] = f[cursor_pos];
+   msg[1] = 0;
+
+   int x, y;
+   if (rot == 0)
+   {
+      x = cursor_col*8+xpos_c - strlen(dt[cursor_row])*4;
+      y = ypos+cursor_row*8;
+
+      if (restore) // black background, text color text
+      {
+         al_draw_filled_rectangle(x, y, x+8, y+8, palette_color[0]);
+         al_draw_text(font, palette_color[cursor_color], x, y, 0, msg);
+      }
+
+      else // red background, black text
+      {
+         al_draw_filled_rectangle(x, y, x+8, y+8, palette_color[10]);
+         al_draw_text(font, palette_color[0], x, y, 0, msg);
+      }
+   }
+
+   if (rot == 64)
+   {
+      x = xpos_c+cursor_row*8;
+      y = 8+ cursor_col*8+ypos - strlen(dt[cursor_row])*4;
+      if (restore) // black background, text color text
+      {
+         al_draw_filled_rectangle(x-4, y-4, x+4, y+4, palette_color[0]);
+         rtextout_centre(NULL, msg, x, y, cursor_color, 1, 64, 1);
+      }
+      else // red background, black text
+      {
+         al_draw_filled_rectangle(x-4, y-4, x+4, y+4, palette_color[10]);
+         rtextout_centre(NULL, msg, x, y, 0, 1, 64, 1);
+      }
+   }
+}
+
+
+int edit_pmsg_text(int c, int new_msg)
+{
+   int tc = item[c][8];
+   int char_count;
+   int cursor_pos=0;
+   int old_cp=0;
+   int blink_count = 3;
+   int blink_counter = 0;
+   int a, k=0;
+   char f[1800];
+   int quit = 0;
+
+   // button row x values
+   int xa = 4+SCREEN_W-(SCREEN_W-(db*100));
+   int xb = SCREEN_W-4;
+
+   int smx = txc;  // x center
+   int smy = pop_msg_viewer_pos;
+
+   int bad=0;
+
+   if (new_msg)
+   {
+      smy = 200;
+      f[0] = (char)NULL;
+      f[1] = (char)NULL;
+      char_count = 1;
+   }
+   else
+   {
+      strcpy(f, pmsg[c]);
+      char_count = strlen(f);
+   }
+
+   while (!quit)
+   {
+
+      title("Message Creator", 2, 15, 12);
+
+      al_set_target_backbuffer(display);
+
+      // draw the message
+      display_pop_message(c, f, smx, smy, 1, 0);
+
+      a = -3; //back up from the message to the buttons;;
+      int by = smy-bts/2-2;
+
+      mdw_button(xa, by+a*bts, xb, by+(a+1)*bts-2, 7, 999, 0, 0, 0, 14, 15,  0, 1,0,0,0);  // edit text placeholder
+
+      a++;
+      if (mdw_button(xa, by+a*bts, xb, by+(a+1)*bts-2, 1,   0, 0, 0, 0, 11, 15, 15, 1,0,0,0))  // OK
+      {
+         quit = 1;
+         bad = 0;
+      }
+
+      a++;
+      if (mdw_button(xa, by+a*bts, xb, by+(a+1)*bts-2, 3,   0, 0, 0, 0, 10, 15, 15, 1,0,0,0))  // Cancel
+      {
+         quit = 1;
+         bad = 1;
+      }
+
+      if (blink_counter++ < blink_count)
+         show_cursor(f, cursor_pos, smx, smy, tc, 0, 0);
+      else show_cursor(f, cursor_pos, smx, smy, tc, 1, 0);
+      if (blink_counter> blink_count*2) blink_counter = 0;
+
+      if (cursor_pos != old_cp)
+      {
+         show_cursor(f, old_cp, smx, smy, tc, 1, 0); // erase old blinking cursor if moved
+         old_cp = cursor_pos;
+         blink_counter = 0;
+      }
+
+      k = proc_controllers();
+
+      if (key[ALLEGRO_KEY_RIGHT])
+      {
+         if (++cursor_pos >= char_count) cursor_pos = char_count-1;
+      }
+      if (key[ALLEGRO_KEY_LEFT])
+      {
+         if (--cursor_pos < 0) cursor_pos = 0;
+      }
+      if ((key[ALLEGRO_KEY_DELETE]) && (cursor_pos < char_count))
+      {
+         for (a = cursor_pos; a < char_count; a++)
+           f[a]=f[a+1];
+         char_count--;
+         // set last to NULL
+         f[char_count] = (char)NULL;
+      }
+      if ((key[ALLEGRO_KEY_BACKSPACE]) && (cursor_pos > 0))
+      {
+         cursor_pos--;
+         for (a = cursor_pos; a < char_count; a++)
+           f[a]=f[a+1];
+         char_count--;
+         // set last to NULL
+         f[char_count] = (char)NULL;
+      }
+      if (key[ALLEGRO_KEY_DOWN])
+      {
+         // find next line break
+         while ((++cursor_pos < char_count) && (f[cursor_pos] != 126));
+         cursor_pos++;
+         // make sure we are not past the end
+         if (cursor_pos >= char_count) cursor_pos = char_count-1;
+      }
+      if (key[ALLEGRO_KEY_UP])
+      {
+         // find previous line break
+         while ((--cursor_pos > 0) && (f[cursor_pos] != 126));
+         cursor_pos--;
+         // make sure we are not before the start
+         if (cursor_pos < 0) cursor_pos = 0;
+      }
+      if (key[ALLEGRO_KEY_HOME])
+      {
+         cursor_pos = 0;
+      }
+      if (key[ALLEGRO_KEY_END])
+      {
+         cursor_pos = char_count-1;
+      }
+
+      if (k)
+      {
+         k = Key_pressed_ASCII;
+         if (k==13) k = 126; // replace enter with 126 ~
+
+         if ((k>31) && (k<127)) // if alphanumeric
+         {
+            // move over to make room
+            for (a = char_count; a>=cursor_pos; a--)
+               f[a+1]=f[a];
+
+            // set char
+            f[cursor_pos] = k;
+
+            // inc both
+            cursor_pos++;
+            char_count++;
+
+            // set last to NULL
+            f[char_count] = (char)NULL;
+         }
+      }
+      if (key[ALLEGRO_KEY_ESCAPE])
+      {
+         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
+         quit = 1;
+         bad = 1;
+      }
+
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_rest(0.07);
+   } // end of while (!quit)
+
+   if (bad) return 0;
+   else
+   {
+      free(pmsg[c]);
+      pmsg[c] = (char*) malloc (strlen(f)+1);
+      strcpy(pmsg[c], f);
+      return 1;
+   }
+}
+
+
+void edit_server_name(void)
+{
+   char fst[80];
+   strcpy(fst, m_serveraddress);
+   int char_count = strlen(fst);
+   int cursor_pos=0;
+   int old_cp=0;
+   int blink_count = 3;
+   int blink_counter = 0;
+   while (key[ALLEGRO_KEY_ENTER]) proc_controllers();
+   int quit = 0;
+   while (!quit)
+   {
+      int tx = SCREEN_W/2;
+      int ty = SCREEN_H/2;
+      int w = (char_count+1)*4;
+
+      al_flip_display();
+      // clear text background
+      al_draw_filled_rectangle(tx-w-8, ty-4-2, tx+w+18, ty+4+3, palette_color[0]);
+
+      al_draw_text(font, palette_color[15], tx, ty-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
+      // frame text
+      al_draw_rectangle       (tx-w-1, ty-4-1, tx+w+6, ty+6, palette_color[15], 1);
+
+      rtextout_centre(NULL, fst, tx, ty+1, 15, 1, 0, 1);
+
+      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty-3, 15, 0, 0);
+      else show_cursor(fst, cursor_pos, tx, ty-3, 15, 1, 0);
+      if (blink_counter> blink_count*2) blink_counter = 0;
+
+      if (cursor_pos != old_cp)
+      {
+         show_cursor(fst, old_cp, tx, ty-3, 15, 1, 0); // erase old blinking cursor if moved
+         old_cp = cursor_pos;
+         blink_counter = 0;
+      }
+
+      al_rest(.08);
+      int k = proc_controllers();
+      if (key[ALLEGRO_KEY_RIGHT])
+      {
+         if (++cursor_pos > char_count) cursor_pos = char_count;
+      }
+      if (key[ALLEGRO_KEY_LEFT])
+      {
+         if (--cursor_pos < 0) cursor_pos = 0;
+      }
+      if ((key[ALLEGRO_KEY_DELETE]) && (cursor_pos < char_count))
+      {
+         for (int a = cursor_pos; a < char_count; a++)
+           fst[a]=fst[a+1];
+         --char_count;
+         fst[char_count] = (char)NULL; // set last to NULL
+      }
+      if ((key[ALLEGRO_KEY_BACKSPACE]) && (cursor_pos > 0))
+      {
+         cursor_pos--;
+         for (int a = cursor_pos; a < char_count; a++)
+           fst[a]=fst[a+1];
+         char_count--;
+         fst[char_count] = (char)NULL; // set last to NULL
+      }
+
+      k = Key_pressed_ASCII;
+      if ((k>31) && (k<127)) // insert if alphanumeric or return
+      {
+         // move over to make room
+         for (int a = char_count; a>=cursor_pos; a--)
+            fst[a+1]=fst[a];
+
+         // set char
+         fst[cursor_pos] = k;
+
+         // inc both
+         cursor_pos++;
+         char_count++;
+
+         fst[char_count] = (char)NULL; // set last to NULL
+      }
+      if (key[ALLEGRO_KEY_ENTER])
+      {
+         while (key[ALLEGRO_KEY_ENTER]) proc_controllers();
+         strcpy(m_serveraddress, fst);
+         quit = 1;
+      }
+
+      if (key[ALLEGRO_KEY_ESCAPE])
+      {
+         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
+         quit = 1;
+      }
+   }
+}
+
+
+int edit_lift_name(int lift, int step_ty, int bts, char *fst)
+{
+   int cursor_pos=0;
+   int old_cp=0;
+   int blink_count = 3;
+   int blink_counter = 0;
+   int a, k=0;
+   int char_count = strlen(fst);
+   while (1)
+   {
+      al_flip_display();
+      //al_clear_to_color(al_map_rgb(0,0,0));
+      al_rest(.1);
+
+      int x1 = (SCREEN_H/100)*100+22;
+      int x2 = x1 + (lifts[lift].width * 20) -1;
+      int y1 = step_ty + (lifts[lift].num_steps+3) * bts; // only see in 2 highest screen modes
+      int y2 = y1 + (lifts[lift].height * 20) -1;
+
+      int tx = ((x1+x2)/2);
+      int ty = ((y1+y2)/2);
+      int w = (char_count+1) *4;
+
+      int rot = 0;
+      if ((lifts[lift].width == 1) && (lifts[lift].height > 1)) rot = 64;
+      int color = lifts[lift].color;
+
+      // clear text background
+      if (rot == 64) al_draw_filled_rectangle(tx-4, ty-w, tx+4, ty+w, palette_color[0]);
+      else           al_draw_filled_rectangle(tx-w, ty-4, tx+w, ty+4, palette_color[0]);
+
+      for (a=0; a<10; a++)
+         al_draw_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color + ((9 - a)*16)], 1 );
+      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
+      rtextout_centre(NULL, fst, tx, ty+1, color+160, 1, rot, 1);
+
+      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty-3, 15, 0, rot);
+      else show_cursor(fst, cursor_pos, tx, ty-3, 15, 1, rot);
+      if (blink_counter> blink_count*2) blink_counter = 0;
+
+      if (cursor_pos != old_cp)
+      {
+         show_cursor(fst, old_cp, tx, ty-3, 15, 1, rot); // erase old blinking cursor if moved
+         old_cp = cursor_pos;
+         blink_counter = 0;
+      }
+
+      k = proc_controllers();
+      if (key[ALLEGRO_KEY_RIGHT])
+      {
+         if (++cursor_pos >= char_count) cursor_pos = char_count-1;
+      }
+      if (key[ALLEGRO_KEY_LEFT])
+      {
+         if (--cursor_pos < 0) cursor_pos = 0;
+      }
+      if ((key[ALLEGRO_KEY_DELETE]) && (cursor_pos < char_count))
+      {
+         for (a = cursor_pos; a < char_count; a++)
+           fst[a]=fst[a+1];
+         char_count--;
+         // set last to NULL
+         fst[char_count] = (char)NULL;
+      }
+      if ((key[ALLEGRO_KEY_BACKSPACE]) && (cursor_pos > 0))
+      {
+         cursor_pos--;
+         for (a = cursor_pos; a < char_count; a++)
+           fst[a]=fst[a+1];
+         char_count--;
+         // set last to NULL
+         fst[char_count] = (char)NULL;
+      }
+
+      k = Key_pressed_ASCII;
+      if ((k>31) && (k<127)) // insert if alphanumeric or return
+      {
+         // move over to make room
+         for (a = char_count; a>=cursor_pos; a--)
+            fst[a+1]=fst[a];
+
+         // set char
+         fst[cursor_pos] = k;
+
+         // inc both
+         cursor_pos++;
+         char_count++;
+
+         // set last to NULL
+         fst[char_count] = (char)NULL;
+      }
+      if (key[ALLEGRO_KEY_ENTER]) return 1;
+      if (key[ALLEGRO_KEY_ESCAPE]) return 0;
+   }
+}
 
 
 

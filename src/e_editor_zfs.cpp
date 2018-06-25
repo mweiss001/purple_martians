@@ -1,6 +1,462 @@
-// e_sel.cpp
+// e_editor_zfs.cpp
 
 #include "pm.h"
+
+void pointer_text(int x, int y, int ty)
+{
+   if ((x<99) && (y < 99))
+   {
+      al_draw_text( font, palette_color[15], txc, ty-39, ALLEGRO_ALIGN_CENTER, "Pointer");
+      al_draw_textf(font, palette_color[15], txc, ty-31, ALLEGRO_ALIGN_CENTER, "  x:%d    y:%d ", x, y);
+   }
+   int b, d;
+   int sey = -20;
+   int rx1 = stx *20;    // source x
+   int ry1 = sty *20;    // source y
+   int rx2 = sux *20;    // sizes
+   int ry2 = suy *20;
+   int eib=0;
+   int iib=0;
+   int lib=0;
+   al_fixed frx1 = al_itofix(rx1);    // source x
+   al_fixed fry1 = al_itofix(ry1);    // source y
+   al_fixed frx2 = al_itofix(rx2);    // sizes
+   al_fixed fry2 = al_itofix(ry2);
+
+   // count enemies in box
+   for (b=0; b<100; b++) // check for enemies in box
+      if (Ei[b][0]) // if active
+         if (Efi[b][0] >= frx1)
+            if (Efi[b][0] < frx2)
+               if (Efi[b][1] >= fry1)
+                  if (Efi[b][1] < fry2)
+                     eib++;
+
+   // count items in box
+   for (b=0; b<500; b++) // check for items in box
+      if (item[b][0]) // if active
+         if (item[b][4] >= rx1)
+            if (item[b][4] < rx2)
+               if (item[b][5] >= ry1)
+                  if (item[b][5] < ry2)
+                     iib++;
+
+   // count lifts in box
+   for (d=0; d<num_lifts; d++)
+
+         if (lifts[d].x1 >= rx1)
+            if (lifts[d].x1 < rx2)
+               if (lifts[d].y1 >= ry1)
+                  if (lifts[d].y1 < ry2)
+                     lib++;
+
+   al_draw_rectangle(txc-70, ty+sey, txc+70, ty+sey+10,palette_color[14], 1);
+   al_draw_rectangle(txc-70, ty+sey, txc+70, ty+sey+36,palette_color[14], 1);
+   al_draw_rectangle(txc-70, ty+sey, txc+70, ty+sey+62,palette_color[14], 1);
+
+   al_draw_text( font, palette_color[6], txc, ty+sey+1, ALLEGRO_ALIGN_CENTER, "Selection");
+   al_draw_textf(font, palette_color[6], txc, ty+sey+11, ALLEGRO_ALIGN_CENTER, " x:%2d  y:%2d ", stx, sty);
+   al_draw_textf(font, palette_color[6], txc, ty+sey+19, ALLEGRO_ALIGN_CENTER, " height:%d ", suy-sty);
+   al_draw_textf(font, palette_color[6], txc, ty+sey+27, ALLEGRO_ALIGN_CENTER, " width:%d ", sux-stx);
+
+   al_draw_textf(font, palette_color[7], txc, ty+sey+37, ALLEGRO_ALIGN_CENTER, " %d Enemies ", eib);
+   al_draw_textf(font, palette_color[7], txc, ty+sey+45, ALLEGRO_ALIGN_CENTER, " %d Items ", iib);
+   al_draw_textf(font, palette_color[7], txc, ty+sey+53, ALLEGRO_ALIGN_CENTER, " %d Lifts ", lib);
+}
+
+
+
+void do_brf(int x, int y, int flood_block)
+{
+   int f[100][100];                             // array of blocks to mark
+   for (int a=0; a<100; a++)
+      for (int b=0; b<100; b++) f[a][b] = 0;    // erase array
+
+   int rb = l[x][y]; // block num to replace
+   f[x][y] = 1;      // mark initial block pos in array
+
+
+   //loop start
+   int times = 0;
+   int found = 0;
+   do
+   {
+      times++;
+      found = 0;
+      for (int a=0; a<100; a++)
+         for (int b=0; b<100; b++)
+            if (f[a][b]) // iterate already marked
+            {
+               if ((a >  0) && (l[a-1][b]) == rb) // look left
+               {
+                  if (f[a-1][b] == 0) found++; // found unmarked
+                  f[a-1][b] = 1; // mark it
+               }
+               if ((b >  0) && (l[a][b-1]) == rb) // look up
+               {
+                  if (f[a][b-1] == 0) found++; // found unmarked
+                  f[a][b-1] = 1; // mark it
+               }
+               if ((a < 99) && (l[a+1][b]) == rb) // look right
+               {
+                  if (f[a+1][b] == 0) found++; // found unmarked
+                  f[a+1][b] = 1; // mark it
+               }
+               if ((b < 99) && (l[a][b+1]) == rb) // look down
+               {
+                  if (f[a][b+1] == 0) found++; // found unmarked
+                  f[a][b+1] = 1; // mark it
+               }
+            }
+
+      // show progress (just because I can and it looks cool
+      //printf("times:%d found:%d\n", times, found);
+      for (int a1=0; a1<100; a1++)
+         for (int b1=0; b1<100; b1++)
+            if (f[a1][b1]) l[a1][b1] = flood_block;
+
+      draw_big(1);
+      show_big();
+
+      al_rest(.02);
+      al_flip_display();
+
+   } while (found);
+
+
+//      // or we could just do it instantly at a the end
+//      // do the swap
+//      for (int a=0; a<100; a++)
+//         for (int b=0; b<100; b++)
+//            if (f[a][b]) l[a][b] = flood_block;
+
+
+   draw_big(1);
+
+}
+
+int zoom_full_screen(int wx, int wy, int draw_item)
+{
+   int jh;
+   int ty = 60;
+   int x1, y1, x2, y2;
+   int x, y, exit =0;
+   copy_mode = 0;
+   brf_mode = 0;
+
+//   // return window size
+//   int rw_x1, rw_y1, rw_x2, rw_y2;
+//   int rw_w = (SCREEN_W/20);
+//   int rw_h = (SCREEN_H/20);
+
+// i don't like this, its usually too big
+// and it always reset everytime you come here
+// the old way remembers the last selection
+
+   // initial selection
+   // set initial selection to screen position of editor
+//   stx = wx;
+//   sty = wy;
+//   sux = stx + (SCREEN_W/20);
+//   suy = sty + (SCREEN_H/20);
+
+   while (mouse_b2) proc_controllers();
+   while (!exit)
+   {
+      al_set_target_backbuffer(display);
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+
+      proc_controllers();
+
+      al_rest(mouse_loop_pause);
+
+      draw_big(1);
+      show_big();
+
+      title("Zoom Full Screen",  0, 15, 13);
+      // menu and buttons
+      int bc1 = 10;
+      int bc0 = 9;
+
+      jh=4;
+      if (copy_blocks) { x = bc1; sprintf(msg,"Blocks On "); }
+      else             { x = bc0; sprintf(msg,"Blocks Off"); }
+      al_draw_text(font, palette_color[x], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER, msg);
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[x], 1);
+
+      jh=5;
+      if (copy_enemies){ x = bc1; sprintf(msg,"Enemies On "); }
+      else             { x = bc0; sprintf(msg,"Enemies Off"); }
+      al_draw_text(font, palette_color[x], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER, msg);
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[x], 1);
+
+      jh=6;
+      if (copy_items) { x = bc1; sprintf(msg,"Items On "); }
+      else            { x = bc0; sprintf(msg,"Items Off"); }
+      al_draw_text(font, palette_color[x], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER, msg);
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[x], 1);
+
+      jh=7;
+      if (copy_lifts) { x = bc1; sprintf(msg,"Lifts On "); }
+      else            { x = bc0; sprintf(msg,"Lifts Off"); }
+      al_draw_text(font, palette_color[x], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER, msg);
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[x], 1);
+
+      jh=9;
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[9], 1);
+      al_draw_text(font, palette_color[9], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER, "Move Selection");
+
+      jh=10;
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[9], 1);
+      al_draw_text(font, palette_color[9], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER, "Clear Selection");
+
+      jh=11;
+      if (copy_mode) x = 10; else x = 9;
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[x], 1);
+      al_draw_text(font, palette_color[x], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER, "Paste Selection");
+
+      jh=12;
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[9], 1);
+      al_draw_text(font, palette_color[9], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER,"Save Selection" );
+
+      jh=13;
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[9], 1);
+      al_draw_text(font, palette_color[9], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER, "Paste From Disk");
+
+      jh=15;
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[13], 1);
+      al_draw_text(font, palette_color[13], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER, "Block Fill");
+
+      jh=16;
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[13], 1);
+      al_draw_text(font, palette_color[13], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER,"Block Frame" );
+
+      jh=17;
+      if (brf_mode) x = 10; else x = 13;
+      al_draw_rectangle(txc-70, ty+(jh*12), txc+70, ty+(jh*12)+10, palette_color[x], 1);
+      al_draw_text(font, palette_color[x], txc, ty+(jh*12)+1,  ALLEGRO_ALIGN_CENTER, "Block Floodfill");
+
+      // mark selection on map
+      al_draw_rectangle(stx*db, sty*db, (sux*db)-1, (suy*db)-1, palette_color[14], 1);
+      al_draw_text(font, palette_color[14], stx*db+2, sty*db-11,  0, "selection");
+
+
+#ifndef RELEASE
+      if (key[ALLEGRO_KEY_R])
+      {
+         while (key[ALLEGRO_KEY_R]) proc_controllers();
+         do_rnd();
+         Redraw = 1;
+      }
+#endif
+
+      // mouse on buttons
+      if ((mouse_b1) && (mouse_x > txc-70) && (mouse_x < txc + 70) && (mouse_y > ty) && (mouse_y < ty+(18*12)))
+      {
+         while (mouse_b1) proc_controllers(); // wait for release
+         int mb = (mouse_y - ty) / 12;
+         switch(mb)
+         {
+            case 4:
+               copy_blocks  = !copy_blocks;
+               if (copy_mode) draw_fsel();
+            break;
+            case 5:
+               copy_enemies = !copy_enemies;
+               if (copy_mode) draw_fsel();
+            break;
+            case 6:
+               copy_items = !copy_items;
+               if (copy_mode) draw_fsel();
+            break;
+
+            case 7:
+               copy_lifts = !copy_lifts;
+               if (copy_mode) draw_fsel();
+            break;
+
+            case 9: // move selection button clicked
+               if (copy_mode) copy_mode = 0;
+               else
+               {
+                  copy_mode = 1;
+                  save_selection(0); // just puts in ft_
+                  draw_fsel();
+                  do_clear();
+               }
+            break;
+            case 10: // clear selection button clicked
+               do_clear();
+            break;
+            case 11: // paste selection button clicked
+               if (copy_mode) copy_mode = 0;
+               else
+               {
+                  copy_mode = 1;
+                  save_selection(0); // just puts in ft_
+                  draw_fsel();
+               }
+            break;
+            case 12: // save selection button clicked
+               save_selection(1); // puts in ft_ and saves to disk
+            break;
+            case 13: // paste from disk button clicked
+
+               if (load_selection())
+               {
+                  copy_mode = 1;
+                  draw_fsel();
+               }
+            break;
+            case 15: // Block Fill
+               if (draw_item_type == 1)
+               {
+                  for (int x=stx; x<sux; x++)
+                     for (int y=sty; y<suy; y++)
+                        l[x][y] = draw_item_num;
+               }
+            break;
+            case 16: // Block Outline
+               if (draw_item_type == 1)
+               {
+                  for (x=stx; x<sux; x++)
+                  {
+                     l[x][sty] = draw_item_num;
+                     l[x][suy-1] = draw_item_num;
+                  }
+                  for (y=sty; y<suy; y++)
+                  {
+                     l[stx][y] = draw_item_num;
+                     l[sux-1][y] = draw_item_num;
+                  }
+               }
+            break;
+            case 17: // Block Replace/Floodfill
+               if (draw_item_type == 1) brf_mode = !brf_mode;
+            break;
+         } // end of switch button
+         Redraw = 1;
+      } // end of mouse pressed on menu
+
+
+
+
+      // get the mouse block index on the map
+      x1 = mouse_x/db;
+      y1 = mouse_y/db;
+
+      // show information about selection and pointer
+      pointer_text(x1, y1, ty);
+
+      if ((x1 < 100) && (y1 < 100)) // if mouse pointer on map
+      {
+//         // show return window outline
+//         if ((!copy_mode) && (!brf_mode))
+//         {
+//            // set ul corner from mouse pos
+//            rw_x1 = x1;
+//            rw_y1 = y1;
+//            // if lr pos is off screen, adjust ul pos
+//            if (rw_x1 > 100-rw_w) rw_x1 = 100-rw_w;
+//            if (rw_y1 > 100-rw_h) rw_y1 = 100-rw_h;
+//
+//            // calc lr position
+//            rw_x2 = rw_x1 + rw_w;
+//            rw_y2 = rw_y1 + rw_h;
+//
+//            al_draw_text(font, palette_color[15], rw_x1*db+2, rw_y1*db-10, 0, "exit window");
+//            al_draw_rectangle(rw_x1*db, rw_y1*db, rw_x2*db - 1, rw_y2*db - 1, palette_color[15], 1);
+//         }
+
+         if (copy_mode) // show copy outline window
+         {
+            x2 = x1 + ft_level_header[8];
+            y2 = y1 + ft_level_header[9];
+            if (x2 > 100) x2 = 100;
+            if (y2 > 100) y2 = 100;
+
+            al_set_clipping_rectangle(0, 0, display_transform_double*db*100-1, display_transform_double*db*100-1);
+            al_draw_bitmap(ft_bmp, x1*db, y1*db, 0);
+            al_draw_text(font, palette_color[42], x1*db+2, y1*db-11, 0, "paste selection");
+            //al_draw_textf(font, palette_color[42], x1*db+2, y1*db-19, 0, "%d %d %d %d", x1, y1, x2, y2);
+            al_draw_rectangle(x1*db, y1*db, x2*db-1, y2*db-1, palette_color[10], 1);
+            al_reset_clipping_rectangle();
+
+         }
+
+         if (mouse_b1)
+         {
+            if ((copy_mode) || (brf_mode)) while (mouse_b1) proc_controllers(); // wait for release
+            if (copy_mode) do_fcopy(x1, y1);
+            if (brf_mode) do_brf(x1, y1, draw_item_num);
+            if ((!copy_mode) && (!brf_mode)) // get new selection
+            {
+               // initial selection
+               stx = x1;
+               sty = y1;
+               sux = x1+1;
+               suy = y1+1;
+
+               while (mouse_b1)
+               {
+                  proc_controllers();
+                  sux = (mouse_x/db)+1;
+                  if (sux > 100) sux = 100;
+                  suy = (mouse_y/db)+1;
+                  if (suy > 100) suy = 100;
+
+                  show_big();
+                  // show selection rectangle
+                  al_draw_rectangle(stx*db, sty*db, (sux*db)-1, (suy*db)-1, palette_color[14], 1);
+                  al_draw_text(font, palette_color[14], stx*db+2, sty*db-11,  0, "selection");
+                  al_flip_display();
+                  al_rest(.02);
+               }
+               if (sux < stx) // swap if wrong order
+               {
+                  int temp = sux;
+                  sux = stx;
+                  stx = temp;
+               }
+               if (suy < sty)
+               {
+                  int temp = suy;
+                  suy = sty;
+                  sty = temp;
+               }
+               if (stx - sux == 0) sux++;  // don't allow zero size
+               if (sty - suy == 0) suy++;  // don't allow zero size
+            } // end of get new selection
+         }
+
+      } // end of if mouse pointer on map
+      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
+      {
+         proc_controllers();
+         exit = 1;
+      }
+   } // end of while (!exit)
+   return (y1*100)+x1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void clear_ft(void)
 {

@@ -109,9 +109,9 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    if (bn == 3) sprintf(smsg, "Cancel");
    if (bn == 2)
    {
-      if (item[num][3] ==  0) sprintf(smsg,  "    Stationary    ");
-      if (item[num][3] == -1) sprintf(smsg,  "       Fall       ");
-      if (item[num][3] == -2) sprintf(smsg, "Ride Through Door ");
+      if (item[num][3] ==  0) sprintf(smsg,  "    Stationary   ");
+      if (item[num][3] == -1) sprintf(smsg,  "       Fall      ");
+      if (item[num][3] == -2) sprintf(smsg,  "Ride Through Door");
    }
    if (bn == 4)
    {
@@ -161,9 +161,9 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    }
    if (bn == 27) // cloner trigger type
    {
-      if (Ei[num][8] == 0) sprintf(smsg, "Trigger Type: Timer Runs  ");
-      if (Ei[num][8] == 1) sprintf(smsg, "Trigger Type: Timer Resets");
-      if (Ei[num][8] == 2) sprintf(smsg, "Trigger Type: Immediate   ");
+      if (Ei[num][8] == 0) sprintf(smsg, "Trigger Type:Timer Runs  ");
+      if (Ei[num][8] == 1) sprintf(smsg, "Trigger Type:Timer Resets");
+      if (Ei[num][8] == 2) sprintf(smsg, "Trigger Type:Immediate   ");
    }
    if (bn == 28) sprintf(smsg, "Run Lifts");
    if (bn == 29) sprintf(smsg, "Name:%s", lifts[num].lift_name);
@@ -186,18 +186,18 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    }
    if (bn == 51) // door show dest line type
    {
-      if (item[num][12] == 0) sprintf(smsg, "Exit link: never show  ");
-      if (item[num][12] == 1) sprintf(smsg, "Exit link: alway show  ");
-      if (item[num][12] == 2) sprintf(smsg, "Exit link: when touched");
+      if (item[num][12] == 0) sprintf(smsg, "Exit link:never show  ");
+      if (item[num][12] == 1) sprintf(smsg, "Exit link:alway show  ");
+      if (item[num][12] == 2) sprintf(smsg, "Exit link:when touched");
       if (item[num][8]  == 0) sprintf(smsg, "disabled");
    }
    if (bn == 52) sprintf(smsg, "Change Door Shape");
 
    if (bn == 53) // door move type
    {
-      if (item[num][7] == 0) sprintf(smsg, "Move Type: Automatic    ");
-      if (item[num][7] == 1) sprintf(smsg, "Move Type: Force Instant");
-      if (item[num][7] == 2) sprintf(smsg, "Move Type: Force Move   ");
+      if (item[num][7] == 0) sprintf(smsg, "Move Type:Automatic    ");
+      if (item[num][7] == 1) sprintf(smsg, "Move Type:Force Instant");
+      if (item[num][7] == 2) sprintf(smsg, "Move Type:Force Move   ");
       if (item[num][8] == 0) sprintf(smsg, "disabled");
    }
    if (bn == 55) sprintf(smsg, "Set Message Position");
@@ -215,6 +215,18 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    }
    if (bn == 70) sprintf(smsg, "#  Step Type     ");
    if (bn == 74) sprintf(smsg, "%-2d Loop to Start ", num);
+
+   if (bn == 76)
+   {
+      if (item[num][11] == 0) sprintf(smsg, "Sticky:Off");
+      if (item[num][11] == 1) sprintf(smsg, "Sticky:On ");
+   }
+   if (bn == 77)
+   {
+      if (item[num][12] == 0) sprintf(smsg, "   Fuse Timer   ");
+      if (item[num][12] == 1) sprintf(smsg, "Remote Detonator");
+   }
+
 }
 
 void fill_smsg_slider(int bn, int type, int num)
@@ -552,6 +564,15 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 56) Viewer_lock = !Viewer_lock;
       if (bn == 57) return 1;
 
+      if (bn == 76) item[num][11] = !item[num][11];
+      if (bn == 77)
+      {
+         item[num][12] = !item[num][12];
+
+         if (item[num][12]) item[num][1] = 537;
+         else item[num][1] = 464;
+         Redraw = 1;
+      }
 
    } // end of mouse pressed on button
    return 0;

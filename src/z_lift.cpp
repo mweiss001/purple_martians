@@ -125,7 +125,6 @@ void draw_lifts()
 
       // faded outer shell
       for (a=0; a<10; a++)
-        //al_draw_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color + ((9 - a)*16)], 1 );
         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[color + ((9 - a)*16)], 2 );
 
       // solid core
@@ -135,8 +134,7 @@ void draw_lifts()
       if ((lifts[d].width == 1) && (lifts[d].height > 1)) // rotate lift name for vertical lifts
          rtextout_centre(level_buffer, lifts[d].lift_name, ((x1+x2)/2), ((y1+y2)/2), color+160, 1, 64, 1);
       else
-        al_draw_text(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3,
-                     ALLEGRO_ALIGN_CENTRE, lifts[d].lift_name);
+        al_draw_text(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[d].lift_name);
 
       // show if player is riding this lift
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -152,8 +150,7 @@ void draw_lifts()
       {
          case 5: // timer wait
             if (lifts[d].limit_counter > 0)
-               al_draw_textf(font, palette_color[color+64], (x1 + x2)/2 + 2, lifts[d].y1 - 8,
-                                        ALLEGRO_ALIGN_CENTRE, "%d", lifts[d].limit_counter);
+               al_draw_textf(font, palette_color[color+64], (x1 + x2)/2 + 2, lifts[d].y1 - 8, ALLEGRO_ALIGN_CENTRE, "%d", lifts[d].limit_counter);
          break;
          case 6: // prox wait
          {
