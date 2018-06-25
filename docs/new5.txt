@@ -9222,77 +9222,71 @@ make a new file e_object_viewer
 
 
 
+--------------------------------------------
+not that long ago I could carry items through moveable doors and it would show...
+--------------------------------------------
 
+I must have broke it in my rearrangment of player move..
+added player carry at the end of paused mode door travel
+now it works like it used to, but...
+if drop during travel item goes back to door entry place..why??
+because item was inheriting player's momentum in drop item...fixed
+now what happens with bomb...
 
+when dropping item in solid blocks...
+player drop when checking for stuck, will move it left or right until not stuck
+not for bomb, because wall stuck is not done for bomb...
 
+what about rockets??
+rocket never travel through doors.
+if carry through door is set, rocket will do instant no matter what door is set to..
 
+if not ride through door and fire is pressed, on exit player will snap to riding rocket again...
+force drop on entry for this case...
 
+on door entry, every item with carry through flag is dropped:
+// check to see if player is carrying an item without the carry through door flag set
+if (item[ci][3] != -2)  player_drop_item(p);
 
+so why does rocket act different??
 
+its not getting dropped on door entry
+in the long list of item collisions, door is dropping, but then rocket as later item is picking up..
+in item collision check for inactive player...done and fixed..
 
 
 
+--------------------------------------------------
+Rules for items, rockets, doors, bombs.
+--------------------------------------------------
 
+- when players are in door move they are invincible
 
 
+- players can carry items through doors, if the items's carry_through_door flag is set
 
+- if the flag is not set the item is dropped on door entry
 
 
 
+- the only thing a player can do when in door move is drop an item
 
+- if the item is dropped in solid blocks, it will move left or right until free.
 
 
+- if a bomb is dropped in solid blocks it will stay where it was dropped
 
+- a bomb can expode while in door travel, no player damage, player is paused, invincible
 
 
+- rockets can be ridden through doors if the ride_through_door flag is set
 
+- rockets will never do door move, they are forced to instant
 
 
+- doors can be carried through other doors if the flag is set
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- doors cannot be carried through themselves
 
 
 

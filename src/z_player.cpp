@@ -470,6 +470,7 @@ void proc_player_paused(int p)
             players[p].paused = 0;  // the entire thing is done
          }
       }
+      proc_player_carry(p);
    } // end of door move
 }  // end of if player paused
 
@@ -543,7 +544,8 @@ void proc_player_collisions(int p)
          al_fixed iy1 = itemf[x][1] - f16;
          al_fixed iy2 = itemf[x][1] + f16;
          if ((players[p].PX > ix1) && (players[p].PX < ix2)
-          && (players[p].PY > iy1) && (players[p].PY < iy2)) proc_item_collision(p, x);
+          && (players[p].PY > iy1) && (players[p].PY < iy2)
+          && (!players[p].paused) ) proc_item_collision(p, x);
       }
 
    // enemies
@@ -623,7 +625,6 @@ void move_players(void)
                proc_player_xy_move(p);
                proc_pbullet_shoot(p);
             }
-
             // common to both riding rocket and not
             proc_player_carry(p);
             proc_player_collisions(p);

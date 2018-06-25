@@ -299,8 +299,8 @@ void bomb_block_crosshairs(int e, int f)
 void bomb_blocks(int i, int t, int dr)
 {
    // center of bomb
-   int x = al_fixtoi(itemf[i][0]) + 10;
-   int y = al_fixtoi(itemf[i][1]) + 10;
+   int x = al_fixtoi(itemf[i][0]) + 4;
+   int y = al_fixtoi(itemf[i][1]) + 4;
 
 
    // convert to 0-100 range
@@ -865,7 +865,7 @@ int player_drop_item(int p)
 
       if (!players[p].left_right) // left
       {
-         // is item embedded in a wall to the leftright?
+         // is item embedded in a wall to the left?
          while (is_left_solid(x, y, 1))
          {
             x++;
@@ -894,7 +894,14 @@ void proc_player_carry(int p)
          }
          if (!players[p].fire) // drop
          {
-            if (player_drop_item(p) < 6)
+            int wall_stuck = player_drop_item(p);
+
+            if (players[p].paused && players[p].paused_type == 2) // door travel
+            {
+               itemf[i][2] = al_itofix(0);
+               itemf[i][3] = al_itofix(0);
+            }
+            else if (wall_stuck < 6)
             {
                if (item[i][0] != 98)            // not lit rocket
                {
@@ -1010,8 +1017,7 @@ void proc_door_collision(int p, int i)
                if (item[i][7] == 1) instant_move = 1; // 1 = force instant
                if (item[i][7] == 2) instant_move = 0; // 2 = force move
 
-               if (riding_rocket(p)) instant_move = 1;
-
+               if (riding_rocket(p)) instant_move = 1; // 1 = force instant if riding rocket
 
                if (instant_move)
                {

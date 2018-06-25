@@ -130,12 +130,12 @@ void proc_start_mode(int start_mode)
       return;
 	}
 
+   clear_bmsg();
    clear_bullets();
    clear_keys();
    show_player_join_quit_timer = 0;
    level_done_trig = 0;
    level_done_proc = 0;
-   bottom_msg = 0;
    set_frame_nums(0);
    start_music(0); // rewind and start theme
 
