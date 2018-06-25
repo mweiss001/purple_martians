@@ -612,3 +612,35 @@ int get_item(const char *txt, int obj_type, int sub_type, int num )
 
 
 
+
+
+
+
+void crosshairs(int smx, int smy, int x, int y, int color) // function to draw rectangle and crosshairs
+{
+   //al_draw_filled_rectangle(smx+(x*db), smy+(y*db), smx+(x*db)+db-1, smy+(y*db)+db-1, palette_color[color]);
+   al_draw_filled_rectangle(smx+(x*db)-1, smy+(y*db)-1, smx+(x*db)+db, smy+(y*db)+db, palette_color[color]);
+   al_draw_line(smx+1, smy+(y*db)+db/2, smx+(100*db)-2, smy+(y*db)+db/2, palette_color[color], 1);
+   al_draw_line(smx+(x*db)+db/2, smy+1, smx+(x*db)+db/2, smy+(100*db)-2, palette_color[color], 1);
+}
+
+void crosshairs_nodb(int smx, int smy, int x, int y, int db, int color) // funtion to draw rectangle and crosshairs
+{
+   al_draw_filled_rectangle(smx+(x), smy+(y), smx+(x)+db-1, smy+(y)+db-1, palette_color[color]);
+   al_draw_line(smx, smy+(y)+db/2, smx+(100*db), smy+(y)+db/2, palette_color[color], 1);
+   al_draw_line(smx+(x)+db/2, smy, smx+(x)+db/2, smy+(100*db), palette_color[color], 1);
+}
+
+void title(const char *txt, int y, int tc, int fc)
+{
+   for (int x=0; x<15; x++)
+      al_draw_line(db*100, y+x, SCREEN_W-2, y+x, palette_color[fc+(x*16)], 1);
+   al_draw_text(font, palette_color[tc], txc, y+2, ALLEGRO_ALIGN_CENTER,  txt);
+}
+
+
+
+
+
+
+

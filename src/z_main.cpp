@@ -113,7 +113,7 @@ int Viewer_lock = 0;
 // ----- return values from getxy and getbox ------
 // ------------------------------------------------
 int bx1, bx2, by1, by2;
-int get100_x, get100_y; // used by edit functions
+int get100_x, get100_y;
 
 // ------------------------------------------------
 // ------------ game moves array ------------------
@@ -125,7 +125,6 @@ int game_move_current_pos = 0; // for savegame running only
 // ------------------------------------------------
 // ------------- screen messages ------------------
 // ------------------------------------------------
-struct screen_msg screen_msgs[100];
 char b_msg[40][80];
 int bottom_msg=0;
 

@@ -173,39 +173,6 @@ extern int game_move_current_pos;
 
 extern char b_msg[40][80];
 extern int bottom_msg;
-struct screen_msg
-{
-   int active;
-   int delay;
-   int original_x;
-   int original_y;
-
-   int x;
-   int y;
-   char text[80];
-
-   int color;
-   int color_inc;
-
-   int color_inc_holdoff;
-   int current_holdoff;
-
-   int ssn; //type of msg; used to select processing and initalization
-
-   int current_step; // used by certain ssn's for multi-mode
-
-   float size;
-   float size_inc;
-
-   float xinc;
-   float yinc;
-
-   int rot;  /// (0-255)
-   int rot_inc;
-
-};
-extern struct screen_msg screen_msgs[100];
-
 
 
 
@@ -774,7 +741,7 @@ int animation_proc();
 int select_bitmap_proc();
 int copy_bitmap_proc();
 
-// e_editor.h
+// e_editor_main.h
 void get_item_draw_shape(int i);
 void draw_item_shape(int i, int x, int y);
 void draw_enemy_shape(int e, int x, int y);
@@ -784,11 +751,23 @@ void set_block_range(void);
 void get_new_box(void);
 void update_editor_background(void);
 int process_scrolledge(void);
+void draw_item_info(int x, int y, int color, int type, int num);
+int edit_menu(int el);
+
+
+// e_editor_zfs.h
+void clear_ft(void);
+int load_selection(void);
+void save_selection(int save);
+int enforce_limit(int val, int ll, int ul);
+int check_limit(int val, int ll, int ul);
+void do_fcopy(int qx1, int qy1);
+void do_rnd(void);
+void do_clear(void);
+void draw_fsel(void);
 void pointer_text(int x, int y, int ty);
 void do_brf(int x, int y, int flood_block);
 int zoom_full_screen(int wx, int wy, int draw_item);
-void draw_item_info(int x, int y, int color, int type, int num);
-int edit_menu(int el);
 
 // e_fnx.h
 al_fixed get_sproingy_jump_height(int num);
@@ -803,62 +782,48 @@ void draw_bs(int cc);
 int getbox(const char *txt, int obj_type, int sub_type, int num );
 int getxy(const char *txt, int obj_type, int sub_type, int num );
 int get_item(const char *txt, int obj_type, int sub_type, int num );
+void crosshairs(int mx, int my, int x, int y, int color);
+void crosshairs_nodb(int mx, int my, int x, int y, int db, int color);
+void title(const char *txt, int y, int tc, int fc);
 
 // glt.h
 void show_block_list(void);
 void global_level();
 
 // e_item.h
-void crosshairs(int mx, int my, int x, int y, int color);
-void crosshairs_nodb(int mx, int my, int x, int y, int db, int color);
-void title(const char *txt, int y, int tc, int fc);
-void test_items(void);
-int sort_item(void);
 void show_all_items(void);
-void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int highlight_color);
-int move_obt_with_map(int obt, int type, int num);
-void object_viewer(int obt, int num);
-
-// e_lev.h
-int lev_show_level_data(int x_pos, int y_pos);
-void mark_rect(int sel, int color);
-void show_cur(void);
-void show_msel(void);
-void compare_all(void);
-void lev_draw(int full);
-void level_viewer(void);
-void show_cur_vs(int cur, int x1, int y1, int size, int fc);
-void load_visual_level_select(void);
-int visual_level_select(void);
-
-// e_nev.h
-void erase_item(int num);
+int sort_item(void);
 int get_empty_item(void);
 int get_empty_item(int type);
+void erase_item(int num);
+void test_items(void);
+int create_pmsg(int c);
+void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, int show_line_breaks);
+void show_all_pmsg(void);
+int create_key(int c);
+int create_start_block(int c);
+int create_exit(int c);
+int create_door(int type);
+int create_item(int type);
+
+// e_enemy.h
+void show_all_enemies(void);
+void sort_enemy(void);
 int get_empty_enemy(void);
 int get_empty_enemy(int type);
 int move_trigger_box(int num, int type);
 void recalc_pod(int EN);
 int move_pod_extended(int num);
-void show_all_enemies(void);
-void sort_enemy(void);
 void create_cloner(void);
 int create_pod(void);
-int create_key(int c);
-int create_start_block(int c);
-int create_exit(int c);
-void show_all_pmsg(void);
-void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore, int rot);
-void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, int show_line_breaks);
-int edit_pmsg_text(int c, int new_msg);
-int create_pmsg(int c);
-int create_obj(int obt, int sub_type, int sent_num);
-int create_door(int type);
-int create_item(int type);
 
-// e_nlv.h
-void edit_server_name(void);
-int edit_lift_name(int lift, int step_ty, int bts);
+// e_object_viewer.h
+int create_obj(int obt, int sub_type, int sent_num);
+void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int highlight_color);
+int move_obt_with_map(int obt, int type, int num);
+void object_viewer(int obt, int num);
+
+// e_lift.h
 void show_all_lifts(void);
 void erase_lift(int lift);
 void delete_lift_step(int lift, int step);
@@ -887,17 +852,10 @@ al_fixed edit_fix(int x, int y, al_fixed val);
 void PDE_swap(int s1, int s2);
 void PDE_sort(void);
 void predefined_enemies(void);
-
-// e_sel.h
-void clear_ft(void);
-int load_selection(void);
-void save_selection(int save);
-int enforce_limit(int val, int ll, int ul);
-int check_limit(int val, int ll, int ul);
-void do_fcopy(int qx1, int qy1);
-void do_rnd(void);
-void do_clear(void);
-void draw_fsel(void);
+void check_s_window_pos(int reset_pos);
+int process_status_window(int draw_only);
+int process_select_window(int draw_only);
+void set_swbl(void);
 
 // e_sliders.h
 void update_var(int bn, int type, int num, float f);
@@ -909,11 +867,19 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num, int type, int ob
 float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, int y2, int dm, int col);
 void mdw_slider(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 );
 
-// e_special.h
-void check_s_window_pos(int reset_pos);
-int process_status_window(int draw_only);
-int process_select_window(int draw_only);
-void set_swbl(void);
+// e_visual_level.h
+int lev_show_level_data(int x_pos, int y_pos);
+void mark_rect(int sel, int color);
+void show_cur(void);
+void show_msel(void);
+void compare_all(void);
+void lev_draw(int full);
+void level_viewer(void);
+void show_cur_vs(int cur, int x1, int y1, int size, int fc);
+void load_visual_level_select(void);
+int visual_level_select(void);
+
+
 
 // n_client.h
 int  ClientInitNetwork(const char *serveraddress);
@@ -1107,7 +1073,7 @@ void proc_item_collision(int p, int x);
 void proc_lit_bomb(int);
 void proc_lit_rocket(int);
 
-// z_lifts.h
+// z_lift.h
 int construct_lift(int l, char* lift_name, int width, int height, int color, int num_steps);
 void clear_lift(int l);
 int construct_lift_step(int lift, int step, int x, int y, int val, int type);
@@ -1184,6 +1150,10 @@ int zmenu(int menu_num, int menu_pos, int y);
 void menu_setup(void);
 void set_key_menu(int menu, int p, int start_row);
 int pmenu(int menu_num);
+void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore, int rot);
+int edit_pmsg_text(int c, int new_msg);
+void edit_server_name(void);
+int edit_lift_name(int lift, int step_ty, int bts, char *fst);
 
 // z_player.h
 void set_player_start_pos(int p);
@@ -1239,10 +1209,8 @@ void show_player_join_quit(void);
 void draw_fps_display(int show_type);
 void draw_speed_test_data(void);
 void draw_top_display(void);
-void add_screen_msg(char *txt, int x, int y, int delay, int ssn, int z1, int z2, int z3, int z4);
-void draw_screen_msg(void);
 
-void new_bmsg(const char *nb, int p, int p2);
+void new_bmsg(const char *nb, int p, int p2, int ev);
 void draw_bottom_msg();
 
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
