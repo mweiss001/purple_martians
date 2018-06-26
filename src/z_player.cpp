@@ -6,12 +6,36 @@
 
 void set_player_start_pos(int p)
 {
-   for (int c=0; c<500; c++)  // get start and time
-   if (item[c][0] == 5)
-   {
-      players[p].PX = itemf[c][0];
-      players[p].PY = itemf[c][1];
-   }
+   // count number of starts
+   int ns = 0;
+
+   int s[8] = {0};
+
+   for (int i=0; i<500; i++)
+      if (item[i][0] == 5)
+      {
+         ns++;
+         s[item[i][7]] = i; // save index of this start
+      }
+
+   // start to use for this player
+   int stu = p % ns;
+
+   // item index of start to use
+   int i = s[stu];
+
+   players[p].PX = itemf[i][0];
+   players[p].PY = itemf[i][1];
+
+
+
+
+//   for (int c=0; c<500; c++)  // get start and time
+//      if (item[c][0] == 5)
+//      {
+//         players[p].PX = itemf[c][0];
+//         players[p].PY = itemf[c][1];
+//      }
 }
 
 void proc_player_health(int p)

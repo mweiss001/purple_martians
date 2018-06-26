@@ -440,9 +440,12 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
                color = highlight_color;
                legend_color[2] = highlight_color;
             }
+
             // draw yellow bomb damage
             int bs = (item[num][7] / 20) * db;
-            al_draw_rectangle(x1*db-bs, y1*db-bs, x1*db+db-1+bs, y1*db+db-1+bs, palette_color[color], 1);
+            //al_draw_rectangle(x1*db-bs, y1*db-bs, x1*db+db-1+bs, y1*db+db-1+bs, palette_color[color], 1);
+            al_draw_circle(x1*db+db/2, y1*db+db/2, bs, palette_color[color], 1);
+
          }
          break;
          case 12: sprintf(lmsg[1],"Warp Location"); break;
@@ -1228,6 +1231,7 @@ void object_viewer(int obt, int num)
                break;
                case 5: // start
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
+                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 78, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // start index
                break;
                case 6: // free man
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 2,  num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall

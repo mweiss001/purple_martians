@@ -227,6 +227,8 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (item[num][12] == 1) sprintf(smsg, "Remote Detonator");
    }
 
+   if (bn == 78) sprintf(smsg, "Start Index:%d", item[num][7]);
+
 }
 
 void fill_smsg_slider(int bn, int type, int num)
@@ -573,6 +575,10 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          else item[num][1] = 464;
          Redraw = 1;
       }
+
+      if (bn == 78) if (++item[num][7] > 7) item[num][7] = 0;
+
+
 
    } // end of mouse pressed on button
    return 0;
