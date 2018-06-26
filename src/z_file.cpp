@@ -241,8 +241,8 @@ int load_level(int level_to_load, int display)
 {
    int level_header[20];
 
-   display = 0; // force display on or off
-   int error_logging = 0;
+   display = 1; // force display on or off
+   int error_logging = 1;
    valid_level_loaded = 0;
    resume_allowed = 0;
    int level_load_error = 0;
@@ -499,8 +499,45 @@ int load_level(int level_to_load, int display)
    }
 }
 
+
+
+
+void level_check(void)
+{
+   // count number of starts
+   int ns = 0;
+   int s[8] = {0};
+
+   for (int i=0; i<500; i++)
+      if (item[i][0] == 5)
+      {
+         ns++;
+         s[item[i][7]] = i; // save index of this start
+      }
+
+
+   if (ns == 0) m_err("Level has no start block");
+   if (ns > 8 ) m_err("Level has more than 8 start blocks");
+
+
+}
+
+
+
+
+
+
+
+
 int save_level(int level_to_save)
 {
+
+   level_check();
+
+
+
+
+
    int level_header[20];
    int c, x, y;
 

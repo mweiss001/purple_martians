@@ -299,24 +299,27 @@ void bomb_block_crosshairs(int e, int f)
 void bomb_blocks(int i, int t, int dr)
 {
    // center of bomb
-   int x = al_fixtoi(itemf[i][0]) + 4;
-   int y = al_fixtoi(itemf[i][1]) + 4;
+   float x = al_fixtoi(itemf[i][0]) + 10;
+   float y = al_fixtoi(itemf[i][1]) + 10;
+   float d = (float)dr;
 
+   // convert to 0-100 range to cycle block rect
+   int bx = (int)(x / 20);
+   int by = (int)(y / 20);
+   int bd = (int)(dr / 20);  // damage range
 
-   // convert to 0-100 range
-   x /= 20;
-   y /= 20;
-   dr /= 20;        // damage range
-   int dr2 = dr*dr; // damage range squared
-
-   for (int e = (x-dr); e < (x+dr)+1; e++)        // cycle blast range of blocks
-      for (int f = (y-dr); f < (y+dr)+1; f++)
+   for (int e = (bx-bd); e < (bx+bd)+1; e++)        // cycle blast range of blocks
+      for (int f = (by-bd); f < (by+bd)+1; f++)
       {
+         // get center of block
+         float cx = (float)(e*20+10);
+         float cy = (float)(f*20+10);
+
          // check radius from center
-         int xd = abs(x-e);
-         int yd = abs(y-f);
-         int br = xd*xd+yd*yd;
-         if ((br < dr2) && (l[e][f] > 63) && (l[e][f] < 96))
+         float xd = abs(x-cx);
+         float yd = abs(y-cy);
+         float br = sqrt(xd*xd+yd*yd);
+         if ((br < d) && (l[e][f] > 63) && (l[e][f] < 96))
          {
             if (t == 1) bomb_block_crosshairs(e, f);
             if (t == 2) remove_block(e, f);
@@ -911,6 +914,10 @@ void proc_player_carry(int p)
                   if (players[p].left)  itemf[i][2] -= al_itofix(2); // throw item left
                   if (players[p].right) itemf[i][2] += al_itofix(2); // throw item right
                }
+
+               // prevent sticky bombs from sticking to the ground when throwing upwards
+               if ((item[i][0] == 99) && (item[i][11]) && (players[p].up)) itemf[i][1] -= al_itofix(2);
+
             }
          }
       }
@@ -1402,6 +1409,7 @@ item[][11] counter for key move
 item[][12] matching keyed blocks only
 
 [5] - start
+item[][7] start index
 item[][8] initial time (ignored now)
 
 [6] - free man

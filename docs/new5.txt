@@ -9268,8 +9268,9 @@ Rules for items, rockets, doors, bombs.
 - if the flag is not set the item is dropped on door entry
 
 
-
-- the only thing a player can do when in door move is drop an item
+- the only things a player can do when in door move is
+- drop an item
+- trigger a bomb
 
 - if the item is dropped in solid blocks, it will move left or right until free.
 
@@ -9291,6 +9292,13 @@ Rules for items, rockets, doors, bombs.
 
 
 
+
+
+---------------------------------------------------------
+cant throw sticky bomb upwards when standing on ground, it gets stuck to ground...fixed
+---------------------------------------------------------
+// prevent sticky bombs from sticking to the ground when throwing upwards
+if ((item[i][0] == 99) && (item[i][11]) && (players[p].up)) itemf[i][1] -= al_itofix(2);
 
 
 

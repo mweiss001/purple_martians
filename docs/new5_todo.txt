@@ -2,20 +2,10 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-change rocket damage to circle like bomb in editor...
 
 
-
-
-make bomb damage circle math with blocks better..
-
-use sqrt(20) to add in block detection..
-
-
-can trigger bomb while door travel?? yes!!!
-
-
-
+when i deleted the last start block for testing the level
+now the level is broke and wont load...
 
 
 
@@ -24,14 +14,111 @@ can trigger bomb while door travel?? yes!!!
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-
-
-
-
-
-
-
 cloners to have nicer drawing stuff, like a better shape, boxes around areas, etc
+
+make multiple player starts...
+could be invisible if only one player...
+
+how will i implement this...
+
+
+
+marks starts with number..
+
+0 is primary and all levels must have one
+
+1 and higher are secondary...
+
+if netgame show all
+if single player only show 0
+
+when players start if player is > 0 look for second start
+
+
+how to map...
+
+
+if st = 1 all players get 0
+
+if st = 2
+p0 0
+p1 1
+p2 0
+p3 1
+
+
+if st = 3
+p0 0
+p1 1
+p2 2
+p3 0
+p4 1
+p5 2
+p6 0
+p7 1
+
+
+if st = 4
+p0 0
+p1 1
+p2 2
+p3 3
+p4 0
+p5 1
+p6 2
+p7 3
+
+1st - count number of starts
+2nd - player_num % ns = start
+
+
+test this
+   int p[8] = {0};
+   for (int ns=1; ns<9; ns++)
+   {
+      printf("ns = %d\n", ns);
+      for (int q=0; q<8; q++) p[q] = q % ns;
+      for (int q=0; q<8; q++) printf("p:%d s:%d\n", q, p[q]);
+   }
+works
+
+now make code in editor work...
+item[][7] start index
+
+now make code in game work...
+
+void set_player_start_pos(int p)
+
+it seems to work...
+
+now how to make it safer..
+in editor, enforce that:
+- starts must not have duplicate indexes
+- starts must have consectutive numbers
+
+- at least one start must exist
+- no more than 8 starts exist
+
+in create start, make the new start one plus the old one
+
+when changing start number...
+
+how about on save flag if error and let user fix manually...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

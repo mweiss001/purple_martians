@@ -1569,6 +1569,20 @@ void demo_mode(void)
 
 void temp_test(void)
 {
+   int p[8] = {0};
+   for (int ns=1; ns<9; ns++)
+   {
+      printf("ns = %d\n", ns);
+      for (int q=0; q<8; q++) p[q] = q % ns;
+      for (int q=0; q<8; q++) printf("p:%d s:%d\n", q, p[q]);
+   }
+
+
+
+
+
+
+
    //spline_test();
    //spline_adjust();
 }
