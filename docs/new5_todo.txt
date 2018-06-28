@@ -10,9 +10,101 @@ now the level is broke and wont load...
 
 
 
+remote lasts through death
+
+can trigger remote while death paused
+
+
+
 -------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+flapper uses passount mod for flap...
+can i make them all custom based on flap speed?
+
+right now I have a counter in the enemy ints that goes from 0-22
+and does something for each integer case..
+
+I could convert it to a float and increment it a float ammount each time
+then have all my cases based on percentages of the float...
+
+I would need 2 floats (fixed), the counter and the inc
+I will make the counter constant and the inc variable
+called flap speed...
+user will set 0.5 to 8
+constant will be from 0-100
+
+Efi[][9] flap speed counter
+Efi[][10] flap speed inc
+
+
+working good...
+
+next thing...
+
+with different flap speeds, the flap y inc is added a different amount of times
+
+so the same flap yinc will have different effect with different flap speeds...
+
+should be easy to make this constant
+
+also maybe show in level editor how much flap yinc is...
+
+
+the number of times flap is called is
+
+50/flap inc
+
+
+each time 3 * r * flap yinc..
+
+so max swing = (50/item[i][9]) * 3 * item[i][8]
+
+i want to change 8 to the max + or - amount that flap does...
+mark it in editor, then make it happen in code
+
+
+yflap is now a float from 0 to 4
+i will change it to 0-400 and it could be an int...
+
+Efi[][8] can still have a calculated value based on the rest...
+
+
+target is flap height (Ei[][21])
+
+adjust yflap (Efi[][8]) to make that happen...
+
+equation:
+
+Ei[][21] = (50/Ei[i][9]) * Ei[i][8]
+
+Ei[i][8] = Ei[][21] / (50/Ei[i][9])
+
+
+----------------
+
+its looking good, but the 2 halves are not symetrical...
+they drift...
+seek was evening it out, but with seek disabled, drift is totally visible
+
+to fix this i need to make both halves the same
+
+they both need to start at 0
+right now the second one starts at f-50
+
+how about if i detect when > 50 and set to 50 exacltly
+
+that seems to do it...
+
+
+
+
+make block walker and archwag share common code
+same as bouncer and cannon
+
+
+
 
 cloners to have nicer drawing stuff, like a better shape, boxes around areas, etc
 
@@ -107,6 +199,21 @@ how about on save flag if error and let user fix manually...
 
 
 
+for the most part I want start blocks to not even be noticed and have the old behaviour
+they are only used rarely when multiple starts are desired
+
+
+one idea would be to have 2 creators, one for the main start and one for secondary starts
+secondary starts would have a different shape
+
+when running the main one it will:
+-erase any other index 0
+-make a new index 0
+-ignore any secondary
+
+when running the secondary one
+-find the next position
+-enter there
 
 
 

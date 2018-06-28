@@ -18,16 +18,24 @@ void set_player_start_pos(int p)
          s[item[i][7]] = i; // save index of this start
       }
 
-   // start to use for this player
-   int stu = p % ns;
+   if (ns == 0)
+   {
+      printf("Error: no start found.\n");
+      players[p].PX = al_itofix(20);
+      players[p].PY = al_itofix(20);;
+   }
+   else
+   {
+      // start to use for this player
+      int stu = p % ns;
 
-   // item index of start to use
-   int i = s[stu];
+      // item index of start to use
+      int i = s[stu];
 
-   players[p].PX = itemf[i][0];
-   players[p].PY = itemf[i][1];
+      players[p].PX = itemf[i][0];
+      players[p].PY = itemf[i][1];
 
-
+   }
 
 
 //   for (int c=0; c<500; c++)  // get start and time

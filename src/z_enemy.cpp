@@ -527,47 +527,47 @@ al_fixed mdw_fixmul(al_fixed a, al_fixed b, float f_round)
 
 //--12--flapper-----------------------------------------------------------------------------
 
-//   Ei[e][0] = type 12 "flapper"
-//   Ei[e][1] = draw bitmap
-//   Ei[e][2] = hflip - right(1) or left(0)
-//   Ei[e][3] = base animation sequence
+//   Ei[][0] = type 12 "flapper"
+//   Ei[][1] = draw bitmap
+//   Ei[][2] = hflip - right(1) or left(0)
+//   Ei[][3] = base animation sequence
 
-//   Ei[e][4] = animation sequence counter
-//   Ei[e][5] = animation sequence index
-//   Ei[e][6]
-
-
-//   Ei[e][15] = bullet retrigger time
-//   Ei[e][16] = bullet retrigger counter
-
-//   Ei[e][17] = prox width
-//   Ei[e][18] = prox height
-//   Ei[e][19] = prox depth
-//   Ei[e][20] = height above player
+//   Ei[][4] = animation sequence counter
+//   Ei[][5] = animation sequence index
+//   Ei[][6]
 
 
+//   Ei[][15] = bullet retrigger time
+//   Ei[][16] = bullet retrigger counter
 
-//   Ei[e][30] = collision box
-//   Ei[e][31] = health bonus
+//   Ei[][17] = prox width
+//   Ei[][18] = prox height
+//   Ei[][19] = prox depth
+//   Ei[][20] = height above player
+//   Ei[][21] = flap height
 
+//   Ei[][30] = collision box
+//   Ei[][31] = health bonus
 
+//   Efi[][0]  = x pos
+//   Efi[][1]  = y pos
+//   Efi[][2]  = x inc
+//   Efi[][3]  = y inc
+//   Efi[][4]  = health decrement
+//   Efi[][5]  = max x speed
+//   Efi[][6]  = x accel
+//   Efi[][7]  = bullet speed
+//   Efi[][8]  = flap yinc scaler
+//   Efi[][9] flap speed counter
+//   Efi[][10] flap speed inc
 
-//   Efi[e][0]  = x pos
-//   Efi[e][1]  = y pos
-//   Efi[e][2]  = x inc
-//   Efi[e][3]  = y inc
-//   Efi[e][4]  = health decrement
-//   Efi[e][5]  = max x speed
-//   Efi[e][6]  = x accel
-//   Efi[e][7]  = bullet speed
-//   Efi[e][8]  = flap yinc scaler
-//   Efi[e][9]  =
-//   Efi[e][10] =
-//   Efi[e][11] =
-//   Efi[e][12] = // scale
-//   Efi[e][13] =
-//   Efi[e][14] =
-//   Efi[e][15] =
+//   Efi[][9]  =
+//   Efi[][10] =
+//   Efi[][11] =
+//   Efi[][12] = // scale
+//   Efi[][13] =
+//   Efi[][14] =
+//   Efi[][15] =
 
 void enemy_flapper(int e)
 {
@@ -579,14 +579,19 @@ void enemy_flapper(int e)
    enemy_player_hit_proc(e);
 
 
-   int p = -1; // default if none found in range
+   int p = -1; // default if no player found in trigger box
+
+   // show if empty or has bullet ready
+   if (Ei[e][16] < 0) Ei[e][3] = 61;
+   else Ei[e][3] = 60;
+
+   // ------------ x move ---------------
 
    if (Ei[e][2])  // move right
    {
-      p = find_closest_player_flapper(e, 1);
-      Efi[e][2] += Efi[e][6];                             // accel
+      Efi[e][2] += Efi[e][6];                           // accel
       if (Efi[e][2] > Efi[e][5]) Efi[e][2] = Efi[e][5]; // max speed
-      Efi[e][0] += Efi[e][2];                             // apply xinc
+      Efi[e][0] += Efi[e][2];                           // apply xinc
 
       if (is_right_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1))
       {
@@ -595,8 +600,10 @@ void enemy_flapper(int e)
          Ei[e][2] = 0;               // change direction
       }
       // try to shoot right
+      p = find_closest_player_flapper(e, 1);
       if (--Ei[e][16] < 0)
       {
+
          if (p != -1)
          {
             fire_enemy_bulleta(e, 62, p);
@@ -606,7 +613,6 @@ void enemy_flapper(int e)
    }
    if (!Ei[e][2])  // move left
    {
-      p = find_closest_player_flapper(e, 0);
       Efi[e][2] -= Efi[e][6];                               // accel
       if (Efi[e][2] < -Efi[e][5]) Efi[e][2] = -Efi[e][5]; // max speed
       Efi[e][0] += Efi[e][2];                               // apply xinc
@@ -618,6 +624,7 @@ void enemy_flapper(int e)
          Ei[e][2] = 1;              // change direction
       }
       // try to shoot left
+      p = find_closest_player_flapper(e, 0);
       if (--Ei[e][16] < 0)
       {
          if (p != -1)
@@ -628,272 +635,121 @@ void enemy_flapper(int e)
 
        }
    }
-//   printf("dir:%d  xinc :%3.2f  \n", Ei[e][6], al_fixtof(Efi[e][2]) );
+   //printf("dir:%d  xinc :%3.2f  \n", Ei[e][6], al_fixtof(Efi[e][2]) );
 
 
 
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
+   // ------------ y seek  ---------------
 
    al_fixed yinc = al_itofix(0);  // yinc for this pass
 
+//   // (comment out this line to only seek if player in trigger box)
+//   p = find_closest_player(e); // always seek closest player in y axis
+//
+//   if (p != -1) // only seek in y axis if valid player in prox
+//   {
+//      al_fixed hap = al_itofix(Ei[e][20] - 10); // height_above_player
+//      if (Efi[e][1] < players[p].PY - hap) yinc += Efi[e][3];
+//      if (Efi[e][1] > players[p].PY - hap) yinc -= Efi[e][3];
+//   }
 
-   p = find_closest_player(e); // always seek in y axis (comment out this line to only seek if player in trigger box)
-   if (p != -1) // only seek in y axis if valid player in prox
+
+   // ------------ y flap  ---------------
+
+   /* flap sequence
+
+      Efi[][9]  - counter   goes from 0 to 100
+      Efi[][10] - counter increment (flap speed)
+
+      Ei[][21]  - flap height
+
+      while f goes from 0-100 yo goes from 1 to -1 and back to 1
+       0 = 1
+      25 = 0
+      50 = -1
+      75 = 0
+      99 = 1
+
+      this is split into 2 sections:
+      0-50 (wings down to wings up)
+      yo goes from 1 to -1
+
+      50-100 (wings up to wings down)
+      yo goes from -1 to 1
+
+      Efi[e][8] scales yo
+      determined by the number of steps and flap height
+
+
+
+*/
+
+
+   Efi[e][9] += Efi[e][10]; // do inc
+   if (Efi[e][9] >= al_itofix(100)) Efi[e][9] = al_itofix(0); // roll over
+
+   float st = 12.5 / al_fixtof(Efi[e][10]); // number of steps
+   Efi[e][8] = al_ftofix( (float) Ei[e][21] / st);
+
+//   printf("st:%f 8:%f\n", st, al_fixtof(Efi[e][8]));
+
+   // now we have from 0 - 100 in Efi[e][9] and we will use that for the flap
+
+   // 68 8 down to up
+   // 69 8 up to down
+
+   // 60 012 d-u  345 u-d
+
+   // 50 / 8 = 6.25
+   // 50 / 3 = 16.66
+
+
+   float f = al_fixtof(Efi[e][9]);
+
+   if ((f > 50) && (f < 50 + al_fixtof(Efi[e][10])) )
    {
-      int height_above_player = Ei[e][20];
-      if (EYint < al_fixtoi(players[p].PY)+10 - height_above_player) yinc += Efi[e][3];
-      if (EYint > al_fixtoi(players[p].PY)+10 - height_above_player) yinc -= Efi[e][3];
+      Efi[e][9] = al_itofix(50);
+      f = al_fixtof(Efi[e][9]);
    }
 
 
+   int so;
+   float yo = 0;
 
 
-   Ei[e][4]++; // my ans counter
-   if (Ei[e][4] > 22) Ei[e][4] = 0;
 
-   int a=0, so, yo;
+   if (f < 50) //down to up
+   {
+      float r = f/50;     //  0 to 1
+      yo = -1 + (2 * r);  // -1 to 1
 
-   if (Ei[e][4] == a++) { so = 0; yo = -3; } // wings at bottom
-   if (Ei[e][4] == a++) { so = 0; yo = -4; }
-   if (Ei[e][4] == a++) { so = 0; yo = -3; }
-   if (Ei[e][4] == a++) { so = 0; yo = -3; }
-   if (Ei[e][4] == a++) { so = 0; yo = -2; }
-   if (Ei[e][4] == a++) { so = 0; yo = -1; }
-   if (Ei[e][4] == a++) { so = 0; yo = +0; }
-   if (Ei[e][4] == a++) { so = 0; yo = +1; }
+      so = (int)(f/16.66);
+      Ei[e][1] = zz[5+so][Ei[e][3]];               // set shape from ans and shape offset
+      printf("f:%f so:%d r:%f yo:%f d-u\n", f, so, r, yo);
+   }
+   else        // up to down
+   {
+      float f2 = f-50;
+      float r = f2/50;   // 0 to 1
+      yo = 1 - (2 * r);  // 1 to -1
+      so = (int)(f2/16.66);
+      Ei[e][1] = zz[8+so][Ei[e][3]];               // set shape from ans and shape offset
+      printf("f:%f so:%d r:%f yo:%f d-u\n", f2, so, r, yo);
+   }
 
-   if (Ei[e][4] == a++) { so = 1; yo = +2; } // wings 1/2 bottom coming up
-   if (Ei[e][4] == a++) { so = 1; yo = +2; }
-   if (Ei[e][4] == a++) { so = 1; yo = +2; }
+   al_fixed fyo = al_fixmul(Efi[e][8], al_ftofix(yo)  );  // scale flap yinc
 
-   if (Ei[e][4] == a++) { so = 2; yo = +2; } // wings 1/2 up coming up
-   if (Ei[e][4] == a++) { so = 2; yo = +2; }
-   if (Ei[e][4] == a++) { so = 2; yo = +2; }
-
-   if (Ei[e][4] == a++) { so = 3; yo = +2; } // wings at top
-   if (Ei[e][4] == a++) { so = 3; yo = +2; }
-   if (Ei[e][4] == a++) { so = 3; yo = +2; }
-
-   if (Ei[e][4] == a++) { so = 4; yo = +2; } // wings 1/2 up coming down
-   if (Ei[e][4] == a++) { so = 4; yo = +1; }
-   if (Ei[e][4] == a++) { so = 4; yo = -0; }
-
-   if (Ei[e][4] == a++) { so = 5; yo = -1; } // wings 1/2 down coming down
-   if (Ei[e][4] == a++) { so = 5; yo = -2; }
-   if (Ei[e][4] == a++) { so = 5; yo = -3; }
-
-
-   // show if empty or has bullet ready
-   if (Ei[e][16] < 0) Ei[e][3] = 61;
-   else Ei[e][3] = 60;
-   Ei[e][1] = zz[5+so][Ei[e][3]];               // set shape from ans and shape offset
-
-   al_fixed fyo = Efi[e][8] * yo;                   // scale flap yinc
-
-   yinc += fyo;                                   // add flap yinc to other yinc
-   Efi[e][1] += yinc;                            // apply yinc
-   EYint = al_fixtoi(Efi[e][1]);
+   yinc += fyo; // add flap yinc to seek yinc
+   Efi[e][1] += yinc; // apply yinc
 
    if (yinc < al_itofix(0))
-      if (is_up_solid(EXint, EYint, 1))
+      if (is_up_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1))
          Efi[e][1] -= yinc; // take back move
    if (yinc > al_itofix(0))
-      if (is_down_solid(EXint, EYint, 1))
+      if (is_down_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1))
          Efi[e][1] -= yinc; // take back move
 
 }
-
-
-
-
-/* show whats going on...
-   printf("step:%d  so:%d  yo:%3.2f\n",Ei[e][4], so, al_fixtof(fyo));
-   if (yo < 0) Ei[e][20] += yo;
-   if (yo > 0) Ei[e][21] += yo;
-
-   if (Ei[e][4] == 0)
-   {
-      printf("up_count%d down_count:%d\n",Ei[e][20], Ei[e][21]);
-      Ei[e][20] = 0;
-      Ei[e][21] = 0;
-   }
-*/
-
-
-/*
-
-   // follow in y axis
-   if (EYint < al_fixtoi(players[p].PY) - height_above_player)
-   {
-      Efi[e][1] += Efi[e][3];
-      EYint = al_fixtoi(Efi[e][1]);
-      if (is_down_solid(EXint, EYint, 1)) Efi[e][1] -= Efi[e][3]; // take back move
-   }
-   if (EYint > al_fixtoi(players[p].PY) - height_above_player)
-   {
-      Efi[e][1] -= Efi[e][3];
-      EYint = al_fixtoi(Efi[e][1]);
-      if (is_up_solid(EXint, EYint, 1)) Efi[e][1] += Efi[e][3]; // take back move
-   }
-
-*/
-
-
-
-/*
-
-
- // bounce in x axis
-   if ((Efi[e][2]) > al_itofix(0))  // move right
-   {
-      int prox = Ei[e][17];
-      Ei[e][2] = 1; // h_flip to face right
-      // try to shoot right
-      if (--Ei[e][16] < 0)
-         if (EYint+Ei[e][18] > al_fixtoi(players[p].PY) && (EYint-Ei[e][19]) < al_fixtoi(players[p].PY))
-            if (EXint < al_fixtoi(players[p].PX) && (EXint + prox) > al_fixtoi(players[p].PX) )
-            {
-               fire_enemy_bulleta(e, 62, p);
-               Ei[e][16] = Ei[e][15]; // set new prox wait
-            }
-     Efi[e][0] += Efi[e][2];
-     EXint = al_fixtoi(Efi[e][0]);
-     EYint = al_fixtoi(Efi[e][1]);
-     if (is_right_solid(EXint, EYint, 1))
-     {
-        Efi[e][0] -= Efi[e][2]; // take back last move
-        Efi[e][2] =- Efi[e][2]; // bounce
-        EXint = al_fixtoi(Efi[e][0]);
-     }
-   }
-   else if ((Efi[e][2]) < al_itofix(0))  // move left
-   {
-      int prox = Ei[e][17];
-      Ei[e][2] = 0; // no h_flip
-      // try to shoot left
-      if (--Ei[e][16] < 0)
-         if (EYint+Ei[e][18] > al_fixtoi(players[p].PY) && (EYint-Ei[e][19]) < al_fixtoi(players[p].PY))
-            if (EXint-prox < al_fixtoi(players[p].PX) &&  (EXint) > al_fixtoi(players[p].PX) )
-            {
-               fire_enemy_bulleta(e, 62, p);
-               Ei[e][16] = Ei[e][15]; // set new prox wait
-            }
-      Efi[e][0] += Efi[e][2];
-      EXint = al_fixtoi(Efi[e][0]);
-      EYint = al_fixtoi(Efi[e][1]);
-      if (is_left_solid(EXint, EYint, 1))
-      {
-         Efi[e][0] -= Efi[e][2]; // take back last move
-         Efi[e][2] =- Efi[e][2]; // bounce
-         EXint = al_fixtoi(Efi[e][0]);
-      }
-   }
-
-*/
-
-
-/*
-   int b = Ei[e][3]; // ans
-   int c = zz[4][b];  // num of shapes in seq
-   int x = (EXint/5) % c;
-   Ei[e][1] = zz[x+5][b];
-*/
-
-
-/*
-   Ei[e][4]++; // my ans counter
-   if (Ei[e][4] > 2)
-   {
-      Ei[e][4] = 0;
-      Ei[e][5]++; // current sequence
-      if (Ei[e][5] > 5) E[e][5] = 0;
-   }
-
-   int so = Ei[e][5]; // current sequence
-
-
-   Ei[e][1] = zz[5+so][Ei[e][3]];
-
-
-   int yo;
-   if (so == 0) yo = -15;
-   if (so == 1) yo = 2;
-   if (so == 2) yo = 10;
-   if (so == 3) yo = 15;
-   if (so == 4) yo = -2;
-   if (so == 5) yo = -10;
-
-   al_fixed fyo = al_itofix(yo)/8;
-
-//   printf("so:%d  yo:%3.2f\n",so, al_fixtof(fyo));
-
-*/
-
-// 6 shapes
-// 8 coast
-// 3 for all others 3x5 = 15
-// 23 total
-
-
-// coast      = 8 * +1 = +8
-// wings up   = 6 * +3 = +18
-
-// wing top   = 3 * +1
-
-// wings down = 6 * -5 = -30
-
-
-
-
-
-/*
-   int so, yo;
-   if ((Ei[e][4] >= 0) && (Ei[e][4] < 8)) // coast (0-7)
-   {
-      so = 0;  // wings at bottom
-      yo = +1;
-   }
-
-   if ((Ei[e][4] > 7) && (Ei[e][4] < 11)) // wings coming up (8-10)
-   {
-      so = 1;   // wings 1/2 bottom coming up
-      yo = +2;
-   }
-
-   if ((Ei[e][4] > 10) && (Ei[e][4] < 14)) // wings coming up (11-13)
-   {
-      so = 2; // wings 1/2 top coming up
-      yo = +2;
-   }
-
-   if ((Ei[e][4] > 13) && (Ei[e][4] < 17)) // wings at top (14-16)
-   {
-      so = 3; // wings at top
-      yo = +2;
-   }
-
-   if ((Ei[e][4] > 16) && (Ei[e][4] < 20)) // wings coming down (17-19)
-   {
-      so = 4; // wings 1/2 up coming down
-      yo = -4;
-   }
-
-   if ((Ei[e][4] > 16) && (Ei[e][4] < 20)) // wings coming down (20-22)
-   {
-      so = 5; // wings 1/2 down coming down
-      yo = -4;
-   }
-*/
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2347,17 +2203,23 @@ Efi[][9] jump and jumpcount
 [12]--flapper-----------------------------------------------------------------------------
 Ei[][4]  animation sequence counter
 Ei[][5]  animation sequence index
+
+
 Ei[][15] bullet retrigger time
 Ei[][16] bullet retrigger counter
 Ei[][17] prox width
 Ei[][18] prox height
 Ei[][19] prox depth
 Ei[][20] height above player
+Ei[][21] flap height
+
 Efi[][5] max x speed
 Efi[][6] x accel
 Efi[][7] bullet speed
 Efi[][8] flap yinc scaler
 
+Efi[][9] flap speed counter
+Efi[][10] flap speed inc
 
 
 */

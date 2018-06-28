@@ -1697,6 +1697,226 @@ struct screen_msg screen_msgs[100];
 
 
 
+//
+//   Ei[e][4]++; // my ans counter
+//   if (Ei[e][4] > 22) Ei[e][4] = 0;
+//
+//   int a=0, so, yo;
+//
+//   if (Ei[e][4] == a++) { so = 0; yo = -3; } // wings at bottom
+//   if (Ei[e][4] == a++) { so = 0; yo = -4; }
+//   if (Ei[e][4] == a++) { so = 0; yo = -3; }
+//   if (Ei[e][4] == a++) { so = 0; yo = -3; }
+//   if (Ei[e][4] == a++) { so = 0; yo = -2; }
+//   if (Ei[e][4] == a++) { so = 0; yo = -1; }
+//   if (Ei[e][4] == a++) { so = 0; yo = +0; }
+//   if (Ei[e][4] == a++) { so = 0; yo = +1; }
+//
+//   if (Ei[e][4] == a++) { so = 1; yo = +2; } // wings 1/2 bottom coming up
+//   if (Ei[e][4] == a++) { so = 1; yo = +2; }
+//   if (Ei[e][4] == a++) { so = 1; yo = +2; }
+//
+//   if (Ei[e][4] == a++) { so = 2; yo = +2; } // wings 1/2 up coming up
+//   if (Ei[e][4] == a++) { so = 2; yo = +2; }
+//   if (Ei[e][4] == a++) { so = 2; yo = +2; }
+//
+//   if (Ei[e][4] == a++) { so = 3; yo = +2; } // wings at top
+//   if (Ei[e][4] == a++) { so = 3; yo = +2; }
+//   if (Ei[e][4] == a++) { so = 3; yo = +2; }
+//
+//   if (Ei[e][4] == a++) { so = 4; yo = +2; } // wings 1/2 up coming down
+//   if (Ei[e][4] == a++) { so = 4; yo = +1; }
+//   if (Ei[e][4] == a++) { so = 4; yo = -0; }
+//
+//   if (Ei[e][4] == a++) { so = 5; yo = -1; } // wings 1/2 down coming down
+//   if (Ei[e][4] == a++) { so = 5; yo = -2; }
+//   if (Ei[e][4] == a++) { so = 5; yo = -3; }
+//
+
+
+
+
+
+
+
+/* show whats going on...
+   printf("step:%d  so:%d  yo:%3.2f\n",Ei[e][4], so, al_fixtof(fyo));
+   if (yo < 0) Ei[e][20] += yo;
+   if (yo > 0) Ei[e][21] += yo;
+
+   if (Ei[e][4] == 0)
+   {
+      printf("up_count%d down_count:%d\n",Ei[e][20], Ei[e][21]);
+      Ei[e][20] = 0;
+      Ei[e][21] = 0;
+   }
+*/
+
+
+/*
+
+   // follow in y axis
+   if (EYint < al_fixtoi(players[p].PY) - height_above_player)
+   {
+      Efi[e][1] += Efi[e][3];
+      EYint = al_fixtoi(Efi[e][1]);
+      if (is_down_solid(EXint, EYint, 1)) Efi[e][1] -= Efi[e][3]; // take back move
+   }
+   if (EYint > al_fixtoi(players[p].PY) - height_above_player)
+   {
+      Efi[e][1] -= Efi[e][3];
+      EYint = al_fixtoi(Efi[e][1]);
+      if (is_up_solid(EXint, EYint, 1)) Efi[e][1] += Efi[e][3]; // take back move
+   }
+
+*/
+
+
+
+/*
+
+
+ // bounce in x axis
+   if ((Efi[e][2]) > al_itofix(0))  // move right
+   {
+      int prox = Ei[e][17];
+      Ei[e][2] = 1; // h_flip to face right
+      // try to shoot right
+      if (--Ei[e][16] < 0)
+         if (EYint+Ei[e][18] > al_fixtoi(players[p].PY) && (EYint-Ei[e][19]) < al_fixtoi(players[p].PY))
+            if (EXint < al_fixtoi(players[p].PX) && (EXint + prox) > al_fixtoi(players[p].PX) )
+            {
+               fire_enemy_bulleta(e, 62, p);
+               Ei[e][16] = Ei[e][15]; // set new prox wait
+            }
+     Efi[e][0] += Efi[e][2];
+     EXint = al_fixtoi(Efi[e][0]);
+     EYint = al_fixtoi(Efi[e][1]);
+     if (is_right_solid(EXint, EYint, 1))
+     {
+        Efi[e][0] -= Efi[e][2]; // take back last move
+        Efi[e][2] =- Efi[e][2]; // bounce
+        EXint = al_fixtoi(Efi[e][0]);
+     }
+   }
+   else if ((Efi[e][2]) < al_itofix(0))  // move left
+   {
+      int prox = Ei[e][17];
+      Ei[e][2] = 0; // no h_flip
+      // try to shoot left
+      if (--Ei[e][16] < 0)
+         if (EYint+Ei[e][18] > al_fixtoi(players[p].PY) && (EYint-Ei[e][19]) < al_fixtoi(players[p].PY))
+            if (EXint-prox < al_fixtoi(players[p].PX) &&  (EXint) > al_fixtoi(players[p].PX) )
+            {
+               fire_enemy_bulleta(e, 62, p);
+               Ei[e][16] = Ei[e][15]; // set new prox wait
+            }
+      Efi[e][0] += Efi[e][2];
+      EXint = al_fixtoi(Efi[e][0]);
+      EYint = al_fixtoi(Efi[e][1]);
+      if (is_left_solid(EXint, EYint, 1))
+      {
+         Efi[e][0] -= Efi[e][2]; // take back last move
+         Efi[e][2] =- Efi[e][2]; // bounce
+         EXint = al_fixtoi(Efi[e][0]);
+      }
+   }
+
+*/
+
+
+/*
+   int b = Ei[e][3]; // ans
+   int c = zz[4][b];  // num of shapes in seq
+   int x = (EXint/5) % c;
+   Ei[e][1] = zz[x+5][b];
+*/
+
+
+/*
+   Ei[e][4]++; // my ans counter
+   if (Ei[e][4] > 2)
+   {
+      Ei[e][4] = 0;
+      Ei[e][5]++; // current sequence
+      if (Ei[e][5] > 5) E[e][5] = 0;
+   }
+
+   int so = Ei[e][5]; // current sequence
+
+
+   Ei[e][1] = zz[5+so][Ei[e][3]];
+
+
+   int yo;
+   if (so == 0) yo = -15;
+   if (so == 1) yo = 2;
+   if (so == 2) yo = 10;
+   if (so == 3) yo = 15;
+   if (so == 4) yo = -2;
+   if (so == 5) yo = -10;
+
+   al_fixed fyo = al_itofix(yo)/8;
+
+//   printf("so:%d  yo:%3.2f\n",so, al_fixtof(fyo));
+
+*/
+
+// 6 shapes
+// 8 coast
+// 3 for all others 3x5 = 15
+// 23 total
+
+
+// coast      = 8 * +1 = +8
+// wings up   = 6 * +3 = +18
+
+// wing top   = 3 * +1
+
+// wings down = 6 * -5 = -30
+
+
+
+
+
+/*
+   int so, yo;
+   if ((Ei[e][4] >= 0) && (Ei[e][4] < 8)) // coast (0-7)
+   {
+      so = 0;  // wings at bottom
+      yo = +1;
+   }
+
+   if ((Ei[e][4] > 7) && (Ei[e][4] < 11)) // wings coming up (8-10)
+   {
+      so = 1;   // wings 1/2 bottom coming up
+      yo = +2;
+   }
+
+   if ((Ei[e][4] > 10) && (Ei[e][4] < 14)) // wings coming up (11-13)
+   {
+      so = 2; // wings 1/2 top coming up
+      yo = +2;
+   }
+
+   if ((Ei[e][4] > 13) && (Ei[e][4] < 17)) // wings at top (14-16)
+   {
+      so = 3; // wings at top
+      yo = +2;
+   }
+
+   if ((Ei[e][4] > 16) && (Ei[e][4] < 20)) // wings coming down (17-19)
+   {
+      so = 4; // wings 1/2 up coming down
+      yo = -4;
+   }
+
+   if ((Ei[e][4] > 16) && (Ei[e][4] < 20)) // wings coming down (20-22)
+   {
+      so = 5; // wings 1/2 down coming down
+      yo = -4;
+   }
+*/
 
 
 

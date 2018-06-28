@@ -99,6 +99,8 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 74) Ei[num][9] = (int)f;        // cloner created object time to live
    if (bn == 75) Ei[num][10] = (int)f;       // cloner max created objects active at one time
 
+   if (bn == 79) Efi[num][10] = al_ftofix(f);       // flap speed
+   if (bn == 80) Ei[num][21] = (int)f;              // flap height
 
 }
 
@@ -308,6 +310,11 @@ void fill_smsg_slider(int bn, int type, int num)
 
    if (bn == 74) sprintf(smsg, "Created Objects Time To Live:%-2d", Ei[num][9]);
    if (bn == 75) sprintf(smsg, "Max Created Objects At One Time:%-2d", Ei[num][10]);
+
+
+   if (bn == 79) sprintf(smsg, "Flap Speed:%-1.2f", al_fixtof(Efi[num][10]));
+   if (bn == 80) sprintf(smsg, "Flap Height:%d", Ei[num][21]);
+
 }
 
 
@@ -678,6 +685,9 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
       case 74: sul=4800;  sll=0;  sinc=1;  sdx=Ei[num][9];           break;  // cloner created obj time to live
       case 75: sul=600;   sll=0;  sinc=1;  sdx=Ei[num][10];          break;  // cloner max created obj at one time
+
+      case 79: sul=8;    sll=.5;  sinc=.1; sdx=al_fixtof(Efi[num][10]);  break;  // flap speed
+      case 80: sul=400;  sll=0;   sinc=10; sdx=Ei[num][21];              break;  // flap height
 
    }
 

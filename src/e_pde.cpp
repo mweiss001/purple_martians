@@ -1116,6 +1116,26 @@ void predefined_enemies(void)
          } // end of edit text
 
 
+
+         if (key[ALLEGRO_KEY_RIGHT])
+         {
+            while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();
+            EN +=1;
+            if (EN > 99) EN = 99;
+            redraw =1;
+         }
+
+         if (key[ALLEGRO_KEY_LEFT])
+         {
+            while (key[ALLEGRO_KEY_LEFT]) proc_controllers();
+            EN -=1;
+            if (EN < 0) EN = 0;
+            redraw =1;
+         }
+
+
+
+
          if (key[ALLEGRO_KEY_PGUP])
          {
             while (key[ALLEGRO_KEY_PGUP]) proc_controllers();
