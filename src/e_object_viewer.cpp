@@ -303,6 +303,12 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             // draw red height above player line
             int hab = Ei[num][20]*db/20;
             al_draw_line((x1*db)-db*3, (y1*db)+hab, (x1*db)+db*3, (y1*db)+hab, palette_color[color3], 1);
+
+            // draw flap height
+            int fh = Ei[num][21]*db/20;
+            al_draw_line((x1*db)-db*3, (y1*db)+fh+db/2, (x1*db)+db*3, (y1*db)+fh+db/2, palette_color[12], 1);
+            al_draw_line((x1*db)-db*3, (y1*db)-fh+db/2, (x1*db)+db*3, (y1*db)-fh+db/2, palette_color[12], 1);
+
          }
          break;
       }
@@ -1172,7 +1178,9 @@ void object_viewer(int obt, int num)
                   a++;
 
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 36, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // y speed
-                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 62, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap yinc scale
+                  //mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 62, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap yinc scale
+                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 79, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap speed
+                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 80, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap height
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 63, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // height above player
                   a++;
 

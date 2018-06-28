@@ -725,6 +725,19 @@ int edit_menu(int el)
          while (key[ALLEGRO_KEY_E]) proc_controllers();
          show_all_enemies();
       }
+
+
+      void level_check(void);
+
+
+      if (key[ALLEGRO_KEY_S])
+      {
+         while (key[ALLEGRO_KEY_S]) proc_controllers();
+         level_check();
+      }
+
+
+
       if (key[ALLEGRO_KEY_I])
       {
          while (key[ALLEGRO_KEY_I]) proc_controllers();
