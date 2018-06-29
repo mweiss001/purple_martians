@@ -643,103 +643,16 @@ void enemy_flapper(int e)
 
    al_fixed yinc = al_itofix(0);  // yinc for this pass
 
-//   // (comment out this line to only seek if player in trigger box)
-//   p = find_closest_player(e); // always seek closest player in y axis
-//
-//   if (p != -1) // only seek in y axis if valid player in prox
-//   {
-//      al_fixed hap = al_itofix(Ei[e][20] - 10); // height_above_player
-//      if (Efi[e][1] < players[p].PY - hap) yinc += Efi[e][3];
-//      if (Efi[e][1] > players[p].PY - hap) yinc -= Efi[e][3];
-//   }
+   // (comment out this line to only seek if player in trigger box)
+   p = find_closest_player(e); // always seek closest player in y axis
 
-
-   // ------------ y flap  ---------------
-
-   /* flap sequence
-
-      Efi[][9]  - counter   goes from 0 to 100
-      Efi[][10] - counter increment (flap speed)
-
-      Ei[][21]  - flap height
-
-      while f goes from 0-100 yo goes from 1 to -1 and back to 1
-       0 = 1
-      25 = 0
-      50 = -1
-      75 = 0
-      99 = 1
-
-      this is split into 2 sections:
-      0-50 (wings down to wings up)
-      yo goes from 1 to -1
-
-      50-100 (wings up to wings down)
-      yo goes from -1 to 1
-
-      Efi[e][8] scales yo
-      determined by the number of steps and flap height
-
-
-
-*/
-
-
-   Efi[e][9] += Efi[e][10]; // do inc
-   if (Efi[e][9] >= al_itofix(100)) Efi[e][9] = al_itofix(0); // roll over
-
-   float st = 12.5 / al_fixtof(Efi[e][10]); // number of steps
-   Efi[e][8] = al_ftofix( (float) Ei[e][21] / st);
-
-//   printf("st:%f 8:%f\n", st, al_fixtof(Efi[e][8]));
-
-   // now we have from 0 - 100 in Efi[e][9] and we will use that for the flap
-
-   // 68 8 down to up
-   // 69 8 up to down
-
-   // 60 012 d-u  345 u-d
-
-   // 50 / 8 = 6.25
-   // 50 / 3 = 16.66
-
-
-   float f = al_fixtof(Efi[e][9]);
-
-   if ((f > 50) && (f < 50 + al_fixtof(Efi[e][10])) )
+   if (p != -1) // only seek in y axis if valid player in prox
    {
-      Efi[e][9] = al_itofix(50);
-      f = al_fixtof(Efi[e][9]);
+      al_fixed hap = al_itofix(Ei[e][20] - 10); // height_above_player
+      if (Efi[e][1] < players[p].PY - hap) yinc += Efi[e][3];
+      if (Efi[e][1] > players[p].PY - hap) yinc -= Efi[e][3];
    }
 
-
-   int so;
-   float yo = 0;
-
-
-
-   if (f < 50) //down to up
-   {
-      float r = f/50;     //  0 to 1
-      yo = -1 + (2 * r);  // -1 to 1
-
-      so = (int)(f/16.66);
-      Ei[e][1] = zz[5+so][Ei[e][3]];               // set shape from ans and shape offset
-      printf("f:%f so:%d r:%f yo:%f d-u\n", f, so, r, yo);
-   }
-   else        // up to down
-   {
-      float f2 = f-50;
-      float r = f2/50;   // 0 to 1
-      yo = 1 - (2 * r);  // 1 to -1
-      so = (int)(f2/16.66);
-      Ei[e][1] = zz[8+so][Ei[e][3]];               // set shape from ans and shape offset
-      printf("f:%f so:%d r:%f yo:%f d-u\n", f2, so, r, yo);
-   }
-
-   al_fixed fyo = al_fixmul(Efi[e][8], al_ftofix(yo)  );  // scale flap yinc
-
-   yinc += fyo; // add flap yinc to seek yinc
    Efi[e][1] += yinc; // apply yinc
 
    if (yinc < al_itofix(0))
@@ -749,6 +662,62 @@ void enemy_flapper(int e)
       if (is_down_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1))
          Efi[e][1] -= yinc; // take back move
 
+
+
+   // ------------ y flap  ---------------
+
+   /* flap sequence
+
+      Efi[][9]  - counter   goes from 0 to 100
+      Efi[][10] - counter increment (flap speed)
+      Ei[][21]  - flap height
+
+      while f goes from 0-100 yo goes from 1 to -1 and back to 1
+       0 = 0
+      25 = 1
+      50 = 0
+      75 = -1
+
+      this is split into 2 sections:
+
+      0-50 (center to wings down and back to center)
+      yo goes from 0 to 1 and back to 0
+
+      50-100 (center to wings up and back to center)
+      yo goes from 0 to -1 and back to 0
+
+*/
+
+
+   float f = al_fixtof(Efi[e][9]);
+
+   // shape offset
+   int so = (int)(f/16.66); // 100/6 = 16.66
+   Ei[e][1] = zz[8+so][Ei[e][3]];
+
+   //convert 0-100 to 0-256 to get fixed binary angle
+   al_fixed th = al_ftofix(f * 2.56);
+
+   // get sin ratio and scale with flap height
+   al_fixed yo = al_fixsin(th) * Ei[e][21];
+
+   // find difference from last flap offset
+   al_fixed fd = yo - Efi[e][8];
+   Efi[e][8] = yo; // save this flap offest for next time
+   Efi[e][1] += fd; // apply dif
+
+   printf("\n1-f:%3.2f y:%f yo:%f fd:%f\n", f, al_fixtof(Efi[e][1]) , al_fixtof(yo), al_fixtof(fd));
+
+   if (fd < al_itofix(0))
+      if (is_up_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1)) Efi[e][1] -= fd; // take back move
+
+   if (fd > al_itofix(0))
+      if (is_down_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1)) Efi[e][1] -= fd; // take back move
+
+   printf("2-f:%3.2f y:%f yo:%f fd:%f\n", f, al_fixtof(Efi[e][1]) , al_fixtof(yo), al_fixtof(fd));
+
+   Efi[e][9] += Efi[e][10]; // inc flap counter
+   if (Efi[e][9] >= al_itofix(100)) Efi[e][9] = al_itofix(0); // roll over
 }
 
 
@@ -2216,7 +2185,7 @@ Ei[][21] flap height
 Efi[][5] max x speed
 Efi[][6] x accel
 Efi[][7] bullet speed
-Efi[][8] flap yinc scaler
+Efi[][8] last flap
 
 Efi[][9] flap speed counter
 Efi[][10] flap speed inc
