@@ -98,6 +98,79 @@ how about if i detect when > 50 and set to 50 exacltly
 that seems to do it...
 
 
+360 base
+
+max 453
+min 209
+
+360 - 453 = -93
+360 - 209 = 151
+
+
+is it beacuse I start at 0 which is in the middle of a move
+when I should start at 25 or 75 which is a zero point...
+
+what if I rearrange my two halves:
+
+0 to -1 and back to 0
+
+0 to +1 and back to 0
+
+also try a trig function
+
+
+i am always adding the ammount, but they add up
+i need to remove the last add then add a new one...
+
+
+remove 3
+
+put only flap in 3, then apply
+
+
+
+
+applying the huge amount every time...
+if it collides then the huge ammount is taken back..
+this is not good...
+
+calculate the difference between last and current...
+apply and check for only that...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 make block walker and archwag share common code
