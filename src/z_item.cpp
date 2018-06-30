@@ -616,6 +616,16 @@ void draw_items(void)
             drawn = 1;
          }
 
+         if (item[i][0] == 5) // start
+         {
+            if (number_of_starts > 1)
+            {
+               al_draw_bitmap(tile[shape], x, y, 0);
+               al_draw_textf(f3, palette_color[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", item[i][7]);
+               drawn = 1;
+            }
+         }
+
          if (item[i][0] == 3) // exit
          {
             al_draw_bitmap(tile[399], x, y, 0); // 'exit' text not shown

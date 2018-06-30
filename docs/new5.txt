@@ -9304,22 +9304,302 @@ if ((item[i][0] == 99) && (item[i][11]) && (players[p].up)) itemf[i][1] -= al_it
 
 
 
+---------------------------------------------------------
+flapper uses passount mod for flap...
+can i make them all custom based on flap speed?
+---------------------------------------------------------
+
+right now I have a counter in the enemy ints that goes from 0-22
+and does something for each integer case..
+
+I could convert it to a float and increment it a float ammount each time
+then have all my cases based on percentages of the float...
+
+I would need 2 floats (fixed), the counter and the inc
+I will make the counter constant and the inc variable
+called flap speed...
+user will set 0.5 to 8
+constant will be from 0-100
+
+Efi[][9] flap speed counter
+Efi[][10] flap speed inc
+
+
+working good...
+
+next thing...
+
+with different flap speeds, the flap y inc is added a different amount of times
+
+so the same flap yinc will have different effect with different flap speeds...
+
+should be easy to make this constant
+
+also maybe show in level editor how much flap yinc is...
+
+
+the number of times flap is called is
+
+50/flap inc
+
+
+each time 3 * r * flap yinc..
+
+so max swing = (50/item[i][9]) * 3 * item[i][8]
+
+i want to change 8 to the max + or - amount that flap does...
+mark it in editor, then make it happen in code
+
+
+yflap is now a float from 0 to 4
+i will change it to 0-400 and it could be an int...
+
+Efi[][8] can still have a calculated value based on the rest...
+
+
+target is flap height (Ei[][21])
+
+adjust yflap (Efi[][8]) to make that happen...
+
+equation:
+
+Ei[][21] = (50/Ei[i][9]) * Ei[i][8]
+
+Ei[i][8] = Ei[][21] / (50/Ei[i][9])
+
+
+----------------
+
+its looking good, but the 2 halves are not symetrical...
+they drift...
+seek was evening it out, but with seek disabled, drift is totally visible
+
+to fix this i need to make both halves the same
+
+they both need to start at 0
+right now the second one starts at f-50
+
+how about if i detect when > 50 and set to 50 exacltly
+
+that seems to do it...
+
+
+360 base
+
+max 453
+min 209
+
+360 - 453 = -93
+360 - 209 = 151
+
+
+is it beacuse I start at 0 which is in the middle of a move
+when I should start at 25 or 75 which is a zero point...
+
+what if I rearrange my two halves:
+
+0 to -1 and back to 0
+
+0 to +1 and back to 0
+
+also try a trig function
+
+
+i am always adding the ammount, but they add up
+i need to remove the last add then add a new one...
+
+
+remove 3
+
+put only flap in 3, then apply
 
 
 
 
+applying the huge amount every time...
+if it collides then the huge ammount is taken back..
+this is not good...
+
+calculate the difference between last and current...
+apply and check for only that...
+
+every time f = 0 save y pos in Ei[][14] for drawing only
+
+
+
+can i use trakbot collisons for flapper? yes...
+
+i think flappers are done...
+
+they can still look bad at extreme values, like flap speed < 1 or > 5
+
+
+
+-----------------------------------------------------------
+make multiple player starts...
+-----------------------------------------------------------
+
+could be invisible if only one player...
+
+how will i implement this...
+
+
+marks starts with number..
+
+0 is primary and all levels must have one
+
+1 and higher are secondary...
+
+if netgame show all
+if single player only show 0
+
+when players start if player is > 0 look for second start
+
+
+how to map...
+
+
+if st = 1 all players get 0
+
+if st = 2
+p0 0
+p1 1
+p2 0
+p3 1
+
+
+if st = 3
+p0 0
+p1 1
+p2 2
+p3 0
+p4 1
+p5 2
+p6 0
+p7 1
+
+
+if st = 4
+p0 0
+p1 1
+p2 2
+p3 3
+p4 0
+p5 1
+p6 2
+p7 3
+
+1st - count number of starts
+2nd - player_num % ns = start
+
+
+test this
+   int p[8] = {0};
+   for (int ns=1; ns<9; ns++)
+   {
+      printf("ns = %d\n", ns);
+      for (int q=0; q<8; q++) p[q] = q % ns;
+      for (int q=0; q<8; q++) printf("p:%d s:%d\n", q, p[q]);
+   }
+works
+
+now make code in editor work...
+item[][7] start index
+
+now make code in game work...
+
+void set_player_start_pos(int p)
+
+it seems to work...
+
+now how to make it safer..
+in editor, enforce that:
+- starts must not have duplicate indexes
+- starts must have consectutive numbers
+
+- at least one start must exist
+- no more than 8 starts exist
+
+in create start, make the new start one plus the old one
+
+when changing start number...
+
+how about on save flag if error and let user fix manually...
+
+
+
+for the most part I want start blocks to not even be noticed and have the old behaviour
+they are only used rarely when multiple starts are desired
+
+
+one idea would be to have 2 creators, one for the main start and one for secondary starts
+secondary starts would have a different shape
+
+when running the main one it will:
+-erase any other index 0
+-make a new index 0
+-ignore any secondary
+
+when running the secondary one
+-find the next position
+-enter there
+
+
+
+for now mark them with a number...
+
+when level is loaded, save number of starts as global...
+when drawing starts only mark with number if more than 1...
+
+do this in level check which is called when level is saved...
+or loaded...done...
+
+this will be good enough for now..
+
+- when using the start creator all other starts are erased (no change)
+- to make secondary start copy, paste, and change index
+- start checks are in place on level save and load
+- index numbers are shown when start is drawn only if more than one start
+- in sort_item() (editor only) number of starts is updated
+- secondary starts only affect when other players join
 
 
 
 
+--------------------------------------------------------------
+remote lasts through death, and can trigger remote while death paused..fixed
+--------------------------------------------------------------
+to fix this make player lose any remotes when dead
+bomb will go back to having remote...
+OR....bomb could explode!!!
+where does player die??
+in proc player paused == 1
+
+
+--------------------------------------------------------------
+make block walker and archwag share common code...done
+--------------------------------------------------------------
+--------------------------------------------------------------
+same as bouncer and cannon..done
+--------------------------------------------------------------
 
 
 
 
+--------------------------------------------------------------
+clean up enemy drawing modes...block walker...done
+--------------------------------------------------------------
+all have only 2...
 
+where is Ei[e][4] used?
 
+anywhere in draw code??
+no..
 
+trakbot uses it for fall count...
 
+removed from archwag and walker...
+cleaned up comments related to Ei[][4]...
 
 
 

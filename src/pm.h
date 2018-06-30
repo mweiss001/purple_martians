@@ -28,7 +28,7 @@
 //#define SHOW_CLONERLINES
 //#define SHOW_POD_CLONER_TRIGGER_BOX
 //#define SHOW_CANNON_COLLISION_BOX
-//#define SHOW_FLAPPER_TRIGGER_BOX
+//#define SHOW_FLAPPER_DEBUG
 //#define SHOW_TRAKBOT_BULLET_TRIGGER_CIRCLE
 
 // item debug stuff
@@ -618,6 +618,8 @@ extern int play_level;
 extern int valid_level_loaded;
 extern int level_num;
 extern int resume_allowed;
+extern int number_of_starts;
+
 
 // items
 extern int item[500][16];      // item ints
@@ -998,7 +1000,7 @@ void enemy_podzilla(int e);
 void enemy_cannon(int e);
 void enemy_bouncer(int e);
 void enemy_archwagon(int e);
-al_fixed mdw_fixmul(al_fixed a, al_fixed b, float f_round);
+//al_fixed mdw_fixmul(al_fixed a, al_fixed b, float f_round);
 void enemy_deathcount(int e);
 void move_enemies(void);
 void enemy_killed(int EN);
@@ -1011,6 +1013,7 @@ int save_level_prompt(void);
 int save_tiles(void);
 int load_tiles(void);
 void zero_level_data(void);
+void level_check(void);
 int load_level(int level_to_load, int display);
 int save_level(int level_to_save);
 int mw_file_select(const char * title, char * fn, const char * ext, int save);
