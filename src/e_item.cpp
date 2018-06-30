@@ -146,6 +146,10 @@ int sort_item(void)
       if (item[c][0] == 1)     // door
          item[c][15] = 0;
 
+   // set number of starts...
+   number_of_starts = item_num_of_type[5];
+
+
    return inum;
 }
 

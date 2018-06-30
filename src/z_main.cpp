@@ -377,6 +377,8 @@ int play_level;
 int valid_level_loaded;
 int level_num; // used by level editor and load file to keep track of last level loaded
 int resume_allowed=0;
+int number_of_starts;
+
 
 // items
 int item[500][16];      // item ints

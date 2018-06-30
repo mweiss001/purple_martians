@@ -19,13 +19,19 @@ int get_empty_enemy(void)
 int get_empty_enemy(int type)
 {
    int en = get_empty_enemy();
+//   printf("get enemy:%d\n", en);
+//   show_all_enemies();
+
    if (en == -1) return 500;
    else
    {
       Ei[en][0] = type;
       sort_enemy();
       en = e_first_num[type]+e_num_of_type[type]-1;
-      return en;
+
+//      printf("post sort:%d\n", en);
+//      show_all_enemies();
+       return en;
    }
 }
 
@@ -163,11 +169,15 @@ void sort_enemy(void)
    for (int x=0; x<50; x++)  // get first nums
       if (e_num_of_type[x] > 0)  // are there any of this type?
          for (int y=0; y<100; y++)
-            if (Ei[x][0] == y)
+            if (Ei[y][0] == x)
             {
                e_first_num[x] = y;
                y=100;   // exit loop
             }
+//   // show counts and first nums
+//   for (int x=0; x<50; x++)  // get first nums1
+//      if (e_num_of_type[x] > 0)  // are there any of this type?
+//          printf("%2d %2d %2d\n", x, e_num_of_type[x], e_first_num[x]);
 
 }
 

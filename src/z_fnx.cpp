@@ -572,7 +572,7 @@ They are more accurate than the other ones, they work to the exact pixel.
 This was needed when trakbot clings to walls, ceilings and floors,
 and need to navigate single block openings.
 
-It is possible to exactly adjacent to a solid, and not trigger a solid.
+It is possible to move exactly adjacent to a solid, and not trigger a solid.
 
 These checks have some new parameters:
 'al_fixed fmove' - is the distance of the requested move
@@ -1586,12 +1586,6 @@ void temp_test(void)
    //spline_test();
    //spline_adjust();
 }
-
-
-
-
-
-
 
 
 

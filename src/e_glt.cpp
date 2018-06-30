@@ -176,11 +176,11 @@ void global_level()
 
 
             int xpos = item[c][4];
-            if ((xpos < 20) || (xpos > 1960))
+            if ((xpos < 0) || (xpos > 1980))
                 printf("Level:%d - Item:%d - bad xpos%d\n", le[x], c, xpos);
 
             int ypos = item[c][5];
-            if ((ypos < 20) || (ypos > 1960))
+            if ((ypos < 0) || (ypos > 1980))
                 printf("Level:%d - Item:%d - bad ypos%d\n", le[x], c, ypos);
          }
       }
@@ -611,6 +611,14 @@ Ef[y][9] = 0;
 
             Ei[y][20] = r2;
 */
+
+         //printf("----------l:%3d \n",le[x] );
+
+
+//         for (int y=0; y<100; y++)
+//            if ((Ei[y][0] == 3) && (Ei[y][4] !=2))
+//               printf("l:%3d E:%2d 4:%2d \n",le[x], y, Ei[y][4] );
+
 
 
 

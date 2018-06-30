@@ -236,6 +236,67 @@ void zero_level_data(void)
    num_lifts = 0;
 }
 
+void level_check(void)
+{
+   int error = 0;
+
+   // count number of starts
+   number_of_starts = 0;
+   int s[8] = {0};
+
+   for (int i=0; i<500; i++)
+      if (item[i][0] == 5)
+      {
+         int x = item[i][7]; // start index
+         if (x < 0) m_err("Level has a start index less than 0");
+         if (x > 7) m_err("Level has a start index more than 7");
+         if ((x >=0) && (x<8))
+         {
+            number_of_starts++;
+            s[x]++; // save index of this start
+         }
+      }
+
+   if (number_of_starts == 0)
+   {
+      m_err("Level has no start block");
+      error = 1;
+   }
+
+   if (number_of_starts > 8 )
+   {
+      m_err("Level has more than 8 start blocks");
+      error = 1;
+   }
+   for (int i=0; i<8; i++)
+      if (s[i] > 1)
+      {
+         sprintf(msg, "Level has duplicate start blocks with index %d", i);
+         m_err(msg);
+         error = 1;
+      }
+
+   if (number_of_starts > 1)
+      for (int i=1; i<number_of_starts; i++)
+         if (s[i] == 0)
+         {
+            sprintf(msg, "Level has %d starts but no start with index %d", number_of_starts, i);
+            m_err(msg);
+            error = 1;
+         }
+
+   if (error)
+   {
+      printf("number_of_starts:%d\n", number_of_starts);
+      for (int i=0; i<8; i++)
+         printf("%d %d\n", i, s[i]);
+   }
+}
+
+
+
+
+
 
 int load_level(int level_to_load, int display)
 {
@@ -489,6 +550,9 @@ int load_level(int level_to_load, int display)
    {
       if (error_logging) printf("level loading complete with no errors\n");
       valid_level_loaded = 1;
+
+      level_check();
+
       init_level_background(); // draw blocks and lift lines on level_background
       if (error_logging) printf("blocks drawn\n");
       reset_animation_sequence_frame_nums(0);
@@ -500,67 +564,9 @@ int load_level(int level_to_load, int display)
 }
 
 
-
-
-void level_check(void)
-{
-   // count number of starts
-   int ns = 0;
-   int s[8] = {0};
-
-   for (int i=0; i<500; i++)
-      if (item[i][0] == 5)
-      {
-         int x = item[i][7]; // start index
-         if (x < 0) m_err("Level has a start index less than 0");
-         if (x > 7) m_err("Level has a start index more than 7");
-         if ((x >=0) && (x<8))
-         {
-            ns++;
-            s[x]++; // save index of this start
-         }
-      }
-
-   printf("ns:%d\n", ns);
-
-   for (int i=0; i<8; i++)
-      printf("%d %d\n", i, s[i]);
-
-
-   if (ns == 0) m_err("Level has no start block");
-   if (ns > 8 ) m_err("Level has more than 8 start blocks");
-
-   for (int i=0; i<8; i++)
-      if (s[i] > 1)
-      {
-         sprintf(msg, "Level has duplicate start blocks with index %d", i);
-         m_err(msg);
-      }
-
-   if (ns > 1)
-      for (int i=1; i<ns; i++)
-         if (s[i] == 0)
-         {
-            sprintf(msg, "Level has %d starts but no start with index %d", ns, i);
-            m_err(msg);
-         }
-}
-
-
-
-
-
-
-
-
 int save_level(int level_to_save)
 {
-
    level_check();
-
-
-
-
 
    int level_header[20];
    int c, x, y;

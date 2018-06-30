@@ -37,7 +37,6 @@ void set_player_start_pos(int p)
 
    }
 
-
 //   for (int c=0; c<500; c++)  // get start and time
 //      if (item[c][0] == 5)
 //      {
@@ -371,7 +370,23 @@ void proc_player_paused(int p)
    if (players[p].paused_type == 1) // frozen after player dies, until the timer runs out
    {
       players[p].carry_item = 0;
-      players[p].player_ride = 0;
+
+
+      if (players[p].paused == 100) // do only once per death
+      {
+         // does this player have any bomb remotes?
+         for (int i=0; i<500; i++)
+            if ((item[i][0] == 99) && (item[i][6] == 3)) // lit bomb with remote detonator
+            {
+               // change back to regular bomb
+               item[i][0] = 8;
+
+               // set bomb to explode!
+               //item[i][6] = 2; // mode 2; explosion
+               //item[i][8] = item[i][9] = 20; // explosion timer
+            }
+      }
+
       if (--players[p].paused > 0)
       {
          al_fixed sa = al_ftofix(.025);
