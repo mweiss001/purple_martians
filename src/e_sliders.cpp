@@ -230,7 +230,13 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    }
 
    if (bn == 78) sprintf(smsg, "Start Index:%d", item[num][7]);
-
+   if (bn == 81)
+   {
+      if (Ei[num][4] == 0) sprintf(smsg, "Draw Boxes:off");
+      if (Ei[num][4] == 1) sprintf(smsg, "Draw Boxes:trigger only");
+      if (Ei[num][4] == 2) sprintf(smsg, "Draw Boxes:src/dst only");
+      if (Ei[num][4] == 3) sprintf(smsg, "Draw Boxes:all");
+   }
 }
 
 void fill_smsg_slider(int bn, int type, int num)
@@ -584,8 +590,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       }
 
       if (bn == 78) if (++item[num][7] > 7) item[num][7] = 0;
-
-
+      if (bn == 81) if (++Ei[num][4] > 3) Ei[num][4] = 0;
 
    } // end of mouse pressed on button
    return 0;

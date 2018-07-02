@@ -556,6 +556,7 @@ void stimp(void) // transition from menu to game
       fmy += fmyinc;
       al_rest(delay);
    }
+   set_frame_nums(0);
 }
 
 

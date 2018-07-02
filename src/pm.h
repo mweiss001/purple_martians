@@ -1000,7 +1000,6 @@ void enemy_podzilla(int e);
 void enemy_cannon(int e);
 void enemy_bouncer(int e);
 void enemy_archwagon(int e);
-//al_fixed mdw_fixmul(al_fixed a, al_fixed b, float f_round);
 void enemy_deathcount(int e);
 void move_enemies(void);
 void enemy_killed(int EN);

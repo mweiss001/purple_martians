@@ -2,44 +2,15 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-I've somehow inroduced a bug
-
-cloner creator is all screwy
-
-makes a block walker??
-
-podzilla creator makes a cloner??
-
-those are the only 2 things made with creators...
-
-
-
-
 
 -------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+go through all levels
 
-cloners to have nicer drawing stuff, like a better shape, boxes around areas, etc
-
-what if I draw lines on level background, like lift_lines?
-
-made a new ans 104 for cloner...
-
-
-split between draw code and move code
-I can draw the tiny old status bar in draw
-
-i can set a shape in move...working on getting it looking good...
-
-
-move the drawing code to draw from lift lines..
-
-make it flash when cloning...
-
-
-
+see if cloners need boxes.. up to 20
+fix flappers..up to 20
 
 
 
@@ -66,13 +37,7 @@ At the bottom of files add links to other related docs
 
 
 
-
-
-
-
 netplay overall TODO:
-
-
 
 
 
@@ -155,6 +120,10 @@ The level editor has three major modes:
 ---------------------------------------------------------
 ---------------------- Wish List ------------------------
 ---------------------------------------------------------
+
+what if when a player in in a cloner src that fires, a free man is created?
+
+
 
 end of level stats:
 
