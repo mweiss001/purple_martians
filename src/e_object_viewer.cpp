@@ -219,16 +219,16 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             sprintf(lmsg[4],"Trigger Box");
             Num_legend_lines = 5;
 
-            int color2 = 10;
-            legend_color[2] = 10;
+            int color2 = 11;
+            legend_color[2] = 11;
             if (legend_highlight == 2)
             {
                color2 = highlight_color;
                legend_color[2] = highlight_color;
             }
 
-            int color3 = 11;
-            legend_color[3] = 11;
+            int color3 = 10;
+            legend_color[3] = 10;
             if (legend_highlight == 3)
             {
                color3 = highlight_color;
@@ -579,8 +579,8 @@ int move_obt_with_map(int obt, int type, int num)
             mouse_on_csb_ul = 1;
             mouse_on_extra = 1;
             for (int a=0; a<4; a++)
-               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[10+a*64], 1); // mark entire box
-            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[10], 1);                 // mark ul corner
+               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[11+a*64], 1); // mark entire box
+            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[11], 1);                 // mark ul corner
             mouse_move = 1;
          }
          if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // source box lower right corner
@@ -588,8 +588,8 @@ int move_obt_with_map(int obt, int type, int num)
             mouse_on_csb_lr = 1;
             mouse_on_extra = 1;
             for (int a=0; a<4; a++)
-               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[10+a*64], 1); // mark entire box
-            al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, palette_color[10], 1);                 // mark lr corner
+               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[11+a*64], 1); // mark entire box
+            al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, palette_color[11], 1);                 // mark lr corner
             mouse_adj = 1;
          }
 
@@ -598,8 +598,8 @@ int move_obt_with_map(int obt, int type, int num)
             mouse_on_cdb_ul = 1;
             mouse_on_extra = 1;
             for (int a=0; a<4; a++)
-               al_draw_rectangle(x3*db+a, y3*db+a, x4*db+db-a, y4*db+db-a, palette_color[11+a*64], 1); // mark entire box
-            al_draw_rectangle(x3*db, y3*db, x4*db+db, y4*db+db, palette_color[11], 1);                 // mark ul corner
+               al_draw_rectangle(x3*db+a, y3*db+a, x4*db+db-a, y4*db+db-a, palette_color[10+a*64], 1); // mark entire box
+            al_draw_rectangle(x3*db, y3*db, x4*db+db, y4*db+db, palette_color[10], 1);                 // mark ul corner
             mouse_move = 1;
          }
       }  // end of cloner
@@ -1151,9 +1151,10 @@ void object_viewer(int obt, int num)
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 74, num, type, obt, 0, 14, 15, 15, 1,0,0,0); a++;   // created obj time to live
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 75, num, type, obt, 0, 14, 15, 15, 1,0,0,0); a+=2;  // max created obj
 
-                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 17, num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++;  // get source
-                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 18, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get destination
-                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 16, num, type, obt, 0, 14, 14,  0, 1,0,0,0); a+=2;  // get trigger box
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 17, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get source
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 18, num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++;  // get destination
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 16, num, type, obt, 0, 14, 14,  0, 1,0,0,0); a++;  // get trigger box
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 81, num, type, obt, 0, 15, 15,  0, 1,0,0,0); a+=2; // show boxes
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
@@ -1178,7 +1179,6 @@ void object_viewer(int obt, int num)
                   a++;
 
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 36, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // y speed
-                  //mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 62, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap yinc scale
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 79, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap speed
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 80, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap height
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 63, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // height above player

@@ -9602,25 +9602,137 @@ removed from archwag and walker...
 cleaned up comments related to Ei[][4]...
 
 
+---------------------------------------------------------
+I've somehow inroduced a bug
+cloner creator is all screwy
+makes a block walker??
+podzilla creator makes a cloner??
+those are the only 2 things made with creators...
+fixed bug in int get_empty_enemy(int type)
+done
+---------------------------------------------------------
 
 
 
 
+---------------------------------------------------------
+cloners to have nicer drawing stuff, like a better shape, boxes around areas, etc
+---------------------------------------------------------
+
+what if I draw lines on level background, like lift_lines?
+
+made a new ans 104 for cloner...
+
+
+split between draw code and move code
+I can draw the tiny old status bar in draw
+
+i can set a shape in move...working on getting it looking good...
+
+
+move the drawing code to draw from lift lines..
+
+make it flash when cloning...
+
+it seems to take too long when cloning instantly
+
+32 frames is almost 1 second
+
+changed to 8 and it looks better
+
+there are times when you dont want the trigger box shown...
+like when it is very huge
+
+make a flag to turn it off in cloner...
+all three or just trigger...
+
+or trigger and source dest boxes...
+
+done, used Ei[][4] for both...
+
+now make clone happen on earlier count
+
+cloner is coming along nicely
+
+death ans..done
+
+shape in level editor
+
+make creator set
+231 - 550
+
+do glt to fix all cloners...
+new shape 550 in 1
+new draw type 0 in 2
+done
+
+-------------------------------------------------------------------
+after changing flapper stuff all existing flappers do not work...
+-------------------------------------------------------------------
+
+flap speed and flap height
+
+better defaults are:
+x 2.7
+xa .2
+
+y 2
+fs 3
+fh 30
+hap 60
+
+
+Ei[][20] height above player
+Ei[][21] flap height
+
+Efi[][5] max x speed
+Efi[][6] x accel
+Efi[][10] flap speed inc
+
+
+player lit a rocket bottom message on level wiuth no rockets, only flappers, sproingies..fixed
+
+editor pop menu does not scroll up, goes off bottom of level...fixed
 
 
 
 
+---------------------------------------------------------
+i miss the first few frame becuae of stimp...
+reset frame_nums at end of stimp...fixed
+---------------------------------------------------------
+
+
+---------------------------------------------------------
+sometimes when riding rockets, you let go of one and grab another
+but you snap to the last one and are drawn there, but you control the new one???
+---------------------------------------------------------
+problem was in proc_lit_item
+
+      // if any players are riding this rocket, bind then to rocket's position
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ( (players[p].active) && (!players[p].paused) && (players[p].carry_item) && (players[p].carry_item == i+1 ))
+         {
+            players[p].PX = itemf[i][0];
+            players[p].PY = itemf[i][1];
+         }
+
+//      // if player riding, bind player to rocket
+//      for (int p=0; p<NUM_PLAYERS; p++)
+//         if ( (players[p].active) && (!players[p].paused) && (riding_rocket(p)) )
+//         {
+//            players[p].PX = itemf[i][0];
+//            players[p].PY = itemf[i][1];
+//         }
 
 
 
-
-
-
-
-
-
-
-
+---------------------------------------------------------
+when pressed up against a breakable block you shoot through it...fixed
+---------------------------------------------------------
+only facing right...
+added this line to buillet code..
+if (players[p].left_right) pbullet[b][4]--;
 
 
 

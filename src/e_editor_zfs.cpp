@@ -1062,6 +1062,16 @@ void do_fcopy(int qx1, int qy1)
 
 
 
+float mdw_rnd(float min, float max)
+{
+   int imin = (int) (min * 100.0);
+   int irng = (int) ((max-min) * 100.0);
+   int s = imin + rand() % irng;
+   float res = (float)s / 100.0;
+   return res;
+}
+
+
 
 void do_rnd(void)
 {
@@ -1077,6 +1087,15 @@ void do_rnd(void)
 
    int x, y;
 
+   int sbx = 0, sby = 0; // start block x and y
+   for (int c=0; c<500; c++)
+      if (item[c][0] == 5)
+      {
+         sbx = item[c][4];
+         sby = item[c][5];
+      }
+
+
 
 /*
 
@@ -1087,7 +1106,6 @@ void do_rnd(void)
                if (item[b][5] >= y1)
                   if (item[b][5] < y2)
                   {
-
                         if (1) // initial position random
                         {
                            int empty = 0;
@@ -1122,225 +1140,107 @@ void do_rnd(void)
 
    for (int b=0; b<100; b++) // check for enemies in box
       if (Ei[b][0])     // if active
-         if (Efi[b][0] >= fx1)
-            if (Efi[b][0] < fx2)
-               if (Efi[b][1] >= fy1)
-                  if (Efi[b][1] < fy2)
+         if ((Efi[b][0] >= fx1) && (Efi[b][0] < fx2) && (Efi[b][1] >= fy1) && (Efi[b][1] < fy2))
+         {
+
+            // initial position random
+            if (0)
+            {
+               int empty = 0;
+               int lb = 0;
+               while ((!empty) && (lb < 10000))
+               {
+                  lb++;
+                  x = rand() % 100;
+                  y = rand() % 100;
+
+                  empty = 1;
+                  if (1) // confine to selection window
                   {
-
-/*
-
-                        if (1) // initial position random
-                        {
-                           int empty = 0;
-                           int lb = 0;
-                           while ((!empty) && (lb < 10000))
-                           {
-                              lb++;
-                              x = rand() % 100;
-                              y = rand() % 100;
-
-                              empty = 1;
-                              if (1) // confine to selection window
-                              {
-                                 if ((x < stx) || (x >= sux)) empty = 0;
-                                 if ((y < sty) || (y >= suy)) empty = 0;
-                              }
-
-                              if (!is_block_empty(x, y, 1, 1, 1)) empty = 0;
-
-                           }
-                           if (empty)
-                           {
-                              Efi[b][0] = al_itofix(x)*20;
-                              Efi[b][1] = al_itofix(y)*20;
-                           }
-                           else printf("could not find empty\n");
-
-
-                        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-                     if (Ei[b][0] == 3) // if archwag
-                     {
-                        printf("randomizing archwag:%d\n", b);
-
-                        //  x speed
-                        int s = 50 + rand() % 1000;
-                        Efi[b][2] = al_itofix(s)/100;
-
-                        //  y speed
-                        s = 200 + rand() % 900;
-                        Efi[b][3] = al_itofix(s)/100;
-
-                        //  bullet speed
-                        s = 100 + rand() % 900;
-                        Efi[b][7] = al_itofix(s)/100;
-
-                        Ei[b][15] = 10;  // bullet retrigger value
-                        Ei[b][17] = 500; // bullet prox
-
-                     }
-
-
-                     if (Ei[b][0] == 4) // if bouncer
-                     {
-                        printf("randomizing bouncer:%d\n", b);
-
-                        //  seek speed
-                        int s = 150 + rand() % 700;
-                        Efi[b][5] = al_itofix(s)/100;
-
-                        // initial direction
-                        int x = rand() % 2000;
-                        int y = rand() % 2000;
-                        seek_set_xyinc(b, x, y);
-                     }
-
-*/
-                     if (Ei[b][0] == 6) // if cannon
-                     {
-                        printf("randomizing cannon:%d\n", b);
-
-                        if (1) // initial position random
-                        {
-                           int empty = 0;
-                           while (!empty)
-                           {
-                              x = rand() % 100;
-                              y = rand() % 100;
-                              if (l[x][y] < 32) empty = 1;
-                              if (1) // confine to selection window
-                              {
-                                 if ((x < stx) || (x >= sux)) empty = 0;
-                                 if ((y < sty) || (y >= suy)) empty = 0;
-                              }
-                           }
-                           Efi[b][0] = al_itofix(x)*20;
-                           Efi[b][1] = al_itofix(y)*20;
-                        }
-/*
-                        if (0) // seek speed random
-                        {
-                           int s = 150 + rand() % 700;
-                           Efi[b][5] = al_itofix(s)/100;
-                        }
-
-
-                        if (0) // initial direction random
-                        {
-                           x = rand() % 2000;
-                           y = rand() % 2000;
-                           seek_set_xyinc(b, x, y);
-                        }
-
-                        if (0) // initial direction start block
-                        {
-                           for (int c=0; c<500; c++)
-                              if (item[c][0] == 5)
-                              {
-                                 x = item[c][4];
-                                 y = item[c][5];
-                              }
-                           seek_set_xyinc(b, x, y);
-                        }
-
-                        if (0) // bullet speed random
-                        {
-                           int s = 200 + rand() % 900;
-                           Efi[b][7] = al_itofix(s)/100;
-                        }
-
-
-                        if (0) // bullet retrigger
-                        {
-                           int s = 5000 + rand() % 6000;
-                           Ei[b][15] = s/100;
-                        }
-
-*/
-
-                     }
-
-
-
-
-
-/*
-
-
-
-                     if (Ei[b][0] == 8)
-                     {
-                        printf("randomizing trakbot:%d\n", b);
-
-                        //  x speed
-                        int s = 50 + rand() % 1000;
-                        Efi[b][2] = al_itofix(s)/100;
-
-                        //  y speed
-                        s = 200 + rand() % 900;
-                        Efi[b][3] = al_itofix(s)/100;
-
-                        //  bullet speed
-                        s = 100 + rand() % 900;
-                        Efi[b][7] = al_itofix(s)/100;
-
-                        Ei[b][15] = 80;  // bullet retrigger value
-
-
-
-
-                     }
-
-
-                     if (Ei[b][0] == 12)
-                     {
-                        printf("randomizing flapper:%d\n", b);
-
-                        //  y speed
-                        int s = 200 + rand() % 900;
-                        Efi[b][3] = al_itofix(s)/100;
-
-
-                        //  max x speed
-                        s = 50 + rand() % 1000;
-                        Efi[b][5] = al_itofix(s)/100;
-
-                        //  x accel .1 to 2
-                        s = 10 + rand() % 200;
-                        Efi[b][6] = al_itofix(s)/100;
-
-
-                        //  flap yinc scaler .1 to 3
-                        s = 10 + rand() % 300;
-                        Efi[b][8] = al_itofix(s)/100;
-
-
-
-                        //  bullet speed
-                        s = 100 + rand() % 900;
-                        Efi[b][7] = al_itofix(s)/100;
-
-
-                        Ei[b][15] = 80;  // bullet retrigger value
-
-
-                     }
-*/
-
+                     if ((x < stx) || (x >= sux)) empty = 0;
+                     if ((y < sty) || (y >= suy)) empty = 0;
                   }
+                  if (!is_block_empty(x, y, 1, 1, 1)) empty = 0;
+               }
+               if (empty)
+               {
+                  Efi[b][0] = al_itofix(x)*20;
+                  Efi[b][1] = al_itofix(y)*20;
+               }
+               else printf("could not find empty\n");
+            }
+
+
+//            if (Ei[b][0] == 3) // if archwag
+//            {
+//               printf("randomizing archwag:%d\n", b);
+//               Efi[b][6] = al_ftofix(mdw_rnd(.5, 10)); // x speed
+//               Efi[b][3] = al_ftofix(mdw_rnd(2, 11)); // y speed
+//               Efi[b][7] = al_ftofix(mdw_rnd(1, 10)); // bullet speed
+//               Ei[b][15] = (int) mdw_rnd(20, 120);   // bullet retrigger value
+//               Ei[b][17] = (int) mdw_rnd(100, 800);  // bullet prox
+//               Ei[b][11] = (int) mdw_rnd(0, 10); // jump before hole
+//               Ei[b][12] = (int) mdw_rnd(0, 60); //  jump before wall
+//            }
+//            if (Ei[b][0] == 4) // if bouncer
+//            {
+//               printf("randomizing bouncer:%d\n", b);
+//               Ei[b][8] = (int) mdw_rnd(0, 10); // seek count
+//               Efi[b][5] = al_ftofix(mdw_rnd(2, 8)); // seek speed
+//               // set initial direction
+//               if (0) set_xyinc_rot(b, rand() % 2000, rand() % 2000); // random
+//               if (1) set_xyinc_rot(b, sbx, sby); // point at start block
+//            }
+//            if (Ei[b][0] == 6) // if cannon
+//            {
+//               printf("randomizing cannon:%d\n", b);
+//               Ei[b][9] = (int) mdw_rnd(0, 8); // extra hits to kill
+//               Ei[b][8] = (int) mdw_rnd(0, 10); // seek count
+//               Efi[b][5] = al_ftofix(mdw_rnd(2, 8)); // seek speed
+//               Efi[b][7] = al_ftofix(mdw_rnd(2, 8)); // bullet speed
+//               Ei[b][15] = (int) mdw_rnd(50, 200); // bullet retrigger
+//               // set initial direction
+//               if (0) set_xyinc_rot(b, rand() % 2000, rand() % 2000); // random
+//               if (1) set_xyinc_rot(b, sbx, sby); // point at start block
+//            }
+//
+//            if (Ei[b][0] == 8)
+//            {
+//               printf("randomizing trakbot:%d\n", b);
+//
+//               Ei[b][7] = (int) mdw_rnd(0, 2);  // drop mode(0=no, 1=yes)
+//
+//               Ei[b][5] = (int) mdw_rnd(0, 8); // trakbot direction
+//               set_trakbot_mode(b, Ei[b][5]);
+//
+//               Efi[b][2] = al_ftofix(mdw_rnd(1, 16)); // x speed
+//               Efi[b][3] = al_ftofix(mdw_rnd(1, 16)); // y speed
+//
+//               Efi[b][7] = al_ftofix(mdw_rnd(2, 8)); // bullet speed
+//               Ei[b][15] = (int) mdw_rnd(50, 200);   // bullet retrigger
+//               Ei[b][17] = (int) mdw_rnd(50, 200);   // bullet prox
+//            }
+
+            if (Ei[b][0] == 12)
+            {
+               printf("randomizing flapper:%d\n", b);
+
+//               Efi[b][5] = al_ftofix(mdw_rnd(2, 4));  // max x speed
+//               Efi[b][6] = al_ftofix(mdw_rnd(.1, .5)); // x accel
+
+               Efi[b][3] = al_ftofix(mdw_rnd(1, 3));  // y seek speed
+               Ei[b][20] = (int) mdw_rnd(0, 80);  // height above player
+               Efi[b][10] = al_ftofix(mdw_rnd(1.5, 4)); // flap speed
+               Ei[b][21] = (int) mdw_rnd(10, 40);     // flap height
+
+//               Efi[b][7] = al_ftofix(mdw_rnd(4, 10)); // bullet speed
+//               Ei[b][15] = (int) mdw_rnd(20, 120);    // bullet retrigger value
+//
+//               Ei[b][17] = (int) mdw_rnd(20, 120); // prox width
+//               Ei[b][18] = (int) mdw_rnd(20, 120); // prox height
+//               Ei[b][19] = (int) mdw_rnd(20, 120); // prox depth
+            }
+      }
    sort_enemy();
    sort_item();
 

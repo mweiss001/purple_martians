@@ -620,6 +620,14 @@ Ef[y][9] = 0;
 //               printf("l:%3d E:%2d 4:%2d \n",le[x], y, Ei[y][4] );
 
 
+        for (int y=0; y<100; y++)
+           if (Ei[y][0] == 9)
+           {
+              Ei[y][1] = 550;
+              Ei[y][2] = 0;
+           }
+
+
 
 
 
@@ -745,10 +753,10 @@ Ef[y][9] = 0;
 
 */
 
-   // blocks
-   for (int y=0; y<100; y++)
-      for (int z=0; z<100; z++)
-         blt[l[y][z]]++; // inc block counter
+//   // blocks
+//   for (int y=0; y<100; y++)
+//      for (int z=0; z<100; z++)
+//         blt[l[y][z]]++; // inc block counter
 
 
 /*

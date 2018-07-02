@@ -855,7 +855,7 @@ void move_items()
 int player_drop_item(int p)
 {
    int i = players[p].carry_item-1; // number of item
-   // printf("drop item:%d\n", pc);
+   // printf("drop item:%d\n", i);
 
    int wall_stuck = 0;
    players[p].carry_item = 0;
@@ -1099,16 +1099,12 @@ void proc_door_collision(int p, int i)
 
 void proc_bonus_collision(int p, int i)
 {
-   if (item[i][7])
+   item[i][0] = 0;
+   al_fixed f100 = al_itofix(100);
+   if (players[p].LIFE < f100)
    {
-      al_fixed f100 = al_itofix(100);
-      if (players[p].LIFE < f100)
-      {
-         item[i][0] = 0;
-         players[p].LIFE += al_itofix(item[i][7]);
-         if (players[p].LIFE > f100) players[p].LIFE = f100;
-      }
-      else game_event(26, 0, 0, p, i, 0, 0); // already have 100 health
+      players[p].LIFE += al_itofix(item[i][7]);
+      if (players[p].LIFE > f100) players[p].LIFE = f100;
    }
 }
 
@@ -1269,7 +1265,7 @@ void proc_item_collision(int p, int i)
        if (other_player_carrying == 0)
        {
           players[p].carry_item = i+1;
-          //printf("player picked up item:%d\n", x);
+          //printf("player picked up item:%d\n", i);
        }
        // allow mutiple player carry for rocket
        if (item[i][0] == 98) players[p].carry_item = i+1;
@@ -1326,9 +1322,9 @@ void proc_lit_rocket(int i)
    }
    else
    {
-      // if player riding, bind player to rocket
+      // if any players are riding this rocket, bind then to rocket's position
       for (int p=0; p<NUM_PLAYERS; p++)
-         if ( (players[p].active) && (!players[p].paused) && (riding_rocket(p)) )
+         if ( (players[p].active) && (!players[p].paused) && (players[p].carry_item) && (players[p].carry_item == i+1 ))
          {
             players[p].PX = itemf[i][0];
             players[p].PY = itemf[i][1];

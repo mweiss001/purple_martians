@@ -35,6 +35,26 @@ void get_enemy_draw_shape(int e)
 }
 
 
+void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int frame_color, int line_color)
+{
+   al_set_clipping_rectangle(x1-1, y1-1, x2-x1+1, y2-y1+1);
+
+   // find largest dimension
+   float xd = x2-x1;
+   float yd = y2-y1;
+   float ld = xd;
+   if (yd > ld) ld = yd;
+
+   for (float k=-ld; k<ld; k+=8)
+      al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, palette_color[line_color], 0);
+
+   al_draw_rectangle(x1, y1, x2, y2, palette_color[frame_color], 1);
+
+   al_reset_clipping_rectangle();
+}
+
+
+
 void draw_enemies(void)
 {
    al_set_target_bitmap(level_buffer);
@@ -53,6 +73,7 @@ void draw_enemies(void)
          float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
          float sc = al_fixtof(Efi[e][12]);
          al_draw_scaled_rotated_bitmap(tile[Ei[e][1]], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
+
 
 
          #ifdef SHOW_POD_CLONER_TRIGGER_BOX
@@ -105,191 +126,89 @@ void draw_enemies(void)
          if (Ei[e][0] == 9) // cloner
          {
 
+
+
+
             // trigger box
-            float x1 = (float)Ei[e][11]*20;
-            float y1 = (float)Ei[e][12]*20;
-            float x2 = (float)Ei[e][13]*20+20;
-            float y2 = (float)Ei[e][14]*20+20;
-
-            // set clip
-            al_set_clipping_rectangle(x1-1, y1-1, x2-x1+1, y2-y1+1);
-
-            // find largest dimension
-            float xd = x2-x1;
-            float yd = y2-y1;
-            float ld = xd;
-            if (yd > ld) ld = yd;
-
-            for (float k=-ld; k<ld; k+=8)
-               al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, palette_color[14+192], 0);
-
-            al_draw_rectangle(x1, y1, x2, y2, palette_color[14+128], 1);
-
+            float tx1 = (float)Ei[e][11]*20;
+            float ty1 = (float)Ei[e][12]*20;
+            float tx2 = (float)Ei[e][13]*20+20;
+            float ty2 = (float)Ei[e][14]*20+20;
+            int tc1 = 14 + 128;
+            int tc2 = 14 + 192;
 
             // source
-            x1 = (float)Ei[e][15]*20;
-            y1 = (float)Ei[e][16]*20;
-            x2 = x1 + (float)Ei[e][19]*20;
-            y2 = y1 + (float)Ei[e][20]*20;
-
-            // set clip
-            al_set_clipping_rectangle(x1-1, y1-1, x2-x1+1, y2-y1+1);
-
-            // find largest dimension
-            xd = x2-x1;
-            yd = y2-y1;
-            ld = xd;
-            if (yd > ld) ld = yd;
-
-            for (float k=-ld; k<ld; k+=8)
-               al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, palette_color[11+192], 0);
-
-            al_draw_rectangle(x1, y1, x2, y2, palette_color[11+128], 1);
-
+            float sx1 = (float)Ei[e][15]*20;
+            float sy1 = (float)Ei[e][16]*20;
+            float sx2 = sx1 + (float)Ei[e][19]*20;
+            float sy2 = sy1 + (float)Ei[e][20]*20;
+            int sc1 = 11 + 128;
+            int sc2 = 11 + 192;
 
             // destination
-            x1 = (float)Ei[e][17]*20;
-            y1 = (float)Ei[e][18]*20;
-            x2 = x1 + (float)Ei[e][19]*20;
-            y2 = y1 + (float)Ei[e][20]*20;
-            // set clip
-            al_set_clipping_rectangle(x1-1, y1-1, x2-x1+1, y2-y1+1);
-
-            // find largest dimension
-            xd = x2-x1;
-            yd = y2-y1;
-            ld = xd;
-            if (yd > ld) ld = yd;
-
-            for (float k=-ld; k<ld; k+=8)
-               al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, palette_color[10+192], 0);
-
-            al_draw_rectangle(x1, y1, x2, y2, palette_color[10+128], 1);
-
-            al_reset_clipping_rectangle();
+            float dx1 = (float)Ei[e][17]*20;
+            float dy1 = (float)Ei[e][18]*20;
+            float dx2 = dx1 + (float)Ei[e][19]*20;
+            float dy2 = dy1 + (float)Ei[e][20]*20;
+            int dc1 = 10 + 128;
+            int dc2 = 10 + 192;
 
 
+            int m = Ei[e][5]; // 2 - 9  total seq (8)
 
-            if ((Ei[e][5] > 2) && (Ei[e][5] < 12)) // time for clone green
+            if ((m > 1) && (m < 6)) // first half (2 - 5)
             {
+               int d =  m-2; // 0 to 3
+               int co;
+
+               if (d == 0) co = 64;
+               if (d == 1) co = 0;
+               if (d == 2) co = 0;
+               if (d == 3) co = 64;
 
                // source
-               float x1 = (float)Ei[e][15]*20;
-               float y1 = (float)Ei[e][16]*20;
-               float x2 = x1 + (float)Ei[e][19]*20;
-               float y2 = y1 + (float)Ei[e][20]*20;
-
-               // set clip
-               al_set_clipping_rectangle(x1-1, y1-1, x2-x1+1, y2-y1+1);
-
-               // find largest dimension
-               float xd = x2-x1;
-               float yd = y2-y1;
-               float ld = xd;
-               if (yd > ld) ld = yd;
-
-               for (float k=-ld; k<ld; k+=8)
-                  al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, palette_color[11], 0);
-
-               al_draw_rectangle(x1, y1, x2, y2, palette_color[11], 1);
-
-               al_reset_clipping_rectangle();
-
-
+               sc1 = 11 + co;
+               sc2 = 11 + co+64;
 
             }
 
-
-            if ((Ei[e][5] > 11) && (Ei[e][5] < 22)) // time for clone red
+            if ((m > 5) && (m < 10)) // second half (6 - 9)
             {
+               int d =  m-6; // 0 to 3
+               int co;
 
-               int co = (Ei[e][5] - 12) * 16;
-
-               co = 192-co;
-
+               if (d == 0) co = 64;
+               if (d == 1) co = 0;
+               if (d == 2) co = 0;
+               if (d == 3) co = 64;
 
                // destination
-               float x1 = (float)Ei[e][17]*20;
-               float y1 = (float)Ei[e][18]*20;
-               float x2 = x1 + (float)Ei[e][19]*20;
-               float y2 = y1 + (float)Ei[e][20]*20;
-
-               // set clip
-               al_set_clipping_rectangle(x1-1, y1-1, x2-x1+1, y2-y1+1);
-
-               // find largest dimension
-               float xd = x2-x1;
-               float yd = y2-y1;
-               float ld = xd;
-
-               if (yd > ld) ld = yd;
-
-               for (float k=-ld; k<ld; k+=8)
-                  al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, palette_color[10+co], 0);
-
-               al_draw_rectangle(x1, y1, x2, y2, palette_color[10+co], 1);
-
-               al_reset_clipping_rectangle();
-
-
-
+               dc1 = 10 + co;
+               dc2 = 10 + co+64;
             }
-
-
 
 
             if (Ei[e][5] != 0) // in trigger box
             {
-
                // trigger box
-               float x1 = (float)Ei[e][11]*20;
-               float y1 = (float)Ei[e][12]*20;
-               float x2 = (float)Ei[e][13]*20+20;
-               float y2 = (float)Ei[e][14]*20+20;
+               tc1 = 14+32;
+               tc2 = 14+32+64;
 
-               // set clip
-               al_set_clipping_rectangle(x1-1, y1-1, x2-x1+1, y2-y1+1);
-
-               // find largest dimension
-               float xd = x2-x1;
-               float yd = y2-y1;
-               float ld = xd;
-               if (yd > ld) ld = yd;
-
-               for (float k=-ld; k<ld; k+=8)
-                  al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, palette_color[14], 0);
-
-               al_draw_rectangle(x1, y1, x2, y2, palette_color[14], 1);
-
-               al_reset_clipping_rectangle();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-               al_fixed ratio = al_fixdiv(al_itofix(Ei[e][7]), al_itofix(Ei[e][6])) * 10;
-               int b = 10 - al_fixtoi(ratio);
+               // show vertical red green bar animation sequence
+               int b = (Ei[e][7] * 10) / (Ei[e][6]+1);
                int t = zz[5+b][53];
-
-               al_draw_scaled_rotated_bitmap(tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, 0);
+               al_draw_scaled_rotated_bitmap(tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, ALLEGRO_FLIP_VERTICAL);
             }
 
 
+            if ((Ei[e][4] == 1) || (Ei[e][4] == 3))
+               rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, tc1, tc2); // trigger box
+            if ((Ei[e][4] == 2) || (Ei[e][4] == 3))
+            {
+               rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, sc1, sc2); // source
+               rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, dc1, dc2); // destination
+            }
          }
-
 
 
          #ifdef SHOW_CLONERLINES
@@ -517,7 +436,6 @@ void enemy_deathcount(int e)
    int EYint = al_fixtoi(Efi[e][1]);
    Efi[e][14] += Efi[e][13]; // rot inc
    Efi[e][12] = al_fixmul(Efi[e][11], Efi[e][12]); // scale inc
-   //Efi[e][12] = mdw_fixmul(Efi[e][11], Efi[e][12], 0.0001); // scale inc
 
    Ei[e][1] = zz[0][ Ei[e][3] ]; // draw current ans shape
    // dec and check countdown timer
@@ -633,7 +551,7 @@ void enemy_killed(int e)
          zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
-      case 8:
+      case 8: // trakbot
          na = Ei[e][3] = 44;  // new ans
          dl = Ei[e][30] = 12; // death_loop_wait; set delay
          Ei[e][24] = 931+(ht-1)*32; // shape
@@ -645,8 +563,8 @@ void enemy_killed(int e)
          zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
-      case 9:
-         na = Ei[e][3] = 53;  // new ans
+      case 9: // cloner
+         na = Ei[e][3] = 105;  // new ans
          dl = Ei[e][30] = 40; // death_loop_wait; set delay
          Ei[e][24] = 934+(ht-1)*32; // shape
          Efi[e][11] = al_ftofix(.98); // scale multiplier
@@ -657,10 +575,9 @@ void enemy_killed(int e)
          zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / zz[4][na]; // set ans timer
       break;
-      case 11:
-
+      case 11: // none for block walker
       break;
-      case 12:
+      case 12: // flapper
          na = Ei[e][3] = 63;  // new ans
          dl = Ei[e][30] = 20; // death_loop_wait; set delay
          Ei[e][24] = 933+(ht-1)*32; // shape
@@ -684,41 +601,6 @@ void enemy_killed(int e)
       Ei[e][0] = 99; // set type to death loop
    }
 }
-
-
-
-
-//al_fixed mdw_fixmul(al_fixed a, al_fixed b, float f_round)
-//{
-//   float flc = al_fixtof(a) * al_fixtof(b);   // convert to float and multiply
-//   flc = round(flc/f_round) * f_round; // round
-//   return al_ftofix(flc);
-//
-////   al_fixed res = al_ftofix(flc);
-//
-////   printf("reg fixmul a:%f b:%f c:%f\n", fla, flb, al_fixtof(fixmul(a, b)));
-////   printf("mdw fixmul a:%f b:%f c:%f\n", fla, flb, al_fixtof(res));
-////   printf("mdw fixmul a:%f b:%f c:%f\n", fla, flb, flc);
-//
-////   return res;
-////   return fixmul(a, b);
-//
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 //--12--flapper-----------------------------------------------------------------------------
@@ -883,9 +765,15 @@ void enemy_flapper(int e)
 }
 
 
-
 void walker_archwagon_common(int e)
 {
+//Ei[][5]   jump/fall -160 max jump, 160 max fall
+//Ei[][6]   jump wait (0=none)
+//Ei[][7]   jump when player above
+//Ei[][8]   follow(0) or bounce(1)
+//Ei[][11]  jump before hole
+//Ei[][12]  jump before wall
+
    int EXint = al_fixtoi(Efi[e][0]);
    int EYint = al_fixtoi(Efi[e][1]);
 
@@ -1054,7 +942,21 @@ void enemy_block_walker(int e)
 
 
 
+int is_player_in_trigger_box(int x1, int y1, int x2, int y2)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (!players[p].paused))
+      {
+         int px = al_fixtoi(players[p].PX);
+         int py = al_fixtoi(players[p].PY);
+         if ((px > x1) && (px < x2) && (py > y1) && (py < y2)) return 1;
+      }
+   return 0;
+}
+
+
 //--9--cloner-----------------------------------------------------------------------------
+//      Ei[e][5] = mode
 //      Ei[e][6] = create wait
 //      Ei[e][7] = create wait counter
 //      Ei[e][8] = trigger mode (0 = wait, 1=reset, 2=immed)
@@ -1097,82 +999,54 @@ void enemy_cloner(int e)
    }
    enemy_player_hit_proc(e);
 
+   // set draw shape
+   Ei[e][2] = 0;  // flip mode
+   int b = (Ei[e][7] * 7) / (Ei[e][6]+1);
+   Ei[e][1] = zz[5+b][106];
 
-   if (Ei[e][5] > 1) Ei[e][5]++;
 
 
-   if (Ei[e][5] == 1) // in trig box
+   // modes
+   // 0 = not in trigger box
+   // 1 = in trigger box
+   // > 1 in clone mode
+
+   if (Ei[e][5] > 1) Ei[e][5]++; // move the count along if in clone mode
+
+   if (Ei[e][5] > 10) // clone mode done; reset mode
    {
-
-      al_fixed ratio = al_fixdiv(al_itofix(Ei[e][7]), al_itofix(Ei[e][6])) * 7;
-      int b = al_fixtoi(ratio);
-      Ei[e][2] = 1;
-      //Ei[e][1] = zz[5+b][53];
-      Ei[e][1] = zz[5+b][106];
-
-
-
-
-
-
-      switch (Ei[e][8])
-      {
-         case 0: case 1: case 2:
-            int in_box = 0;
-            for (int p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (!players[p].paused))
-               {
-                  int px = al_fixtoi(players[p].PX);
-                  int py = al_fixtoi(players[p].PY);
-                  if ((px > x4) && (px < x5) && (py > y4) &&  (py < y5)) in_box = 1;
-               }
-             if (in_box)
-             {
-                if (--Ei[e][7] < 0)  Ei[e][5] = 2; // time for create
-             }
-             else Ei[e][5] = 0; // mode 0 - out of box
-          break;
-      }
-
-   }
-
-
-   if (Ei[e][5] == 0) // not in trig box last time
-   {
-      int in_box = 0;
-
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if ((players[p].active) && (!players[p].paused))
-         {
-            int px = al_fixtoi(players[p].PX);
-            int py = al_fixtoi(players[p].PY);
-            if ((px > x4) && (px < x5) && (py > y4) &&  (py < y5)) in_box = 1;
-         }
-      if (in_box)
-      {
-         switch (Ei[e][8]) // trigger mode
-         {
-            case 0: Ei[e][5] = 1; break; // set mode 1 - in box
-
-             // reset when retriggered
-            case 1: Ei[e][7] = Ei[e][6]; // reset counter
-                     Ei[e][5] = 1; break; // set mode 1 - in box
-
-             // immediate when retriggered
-            case 2:  Ei[e][7] = 0; // reset counter
-                      Ei[e][5] = 1; break; // set mode 1 - in box
-         }
-      }
-   }
-
-
-
-
-   if (Ei[e][5] == 22)  // mode 2 - create
-   {
-      Ei[e][5] = 1; // set mode 1 - in trig box
       Ei[e][7] = Ei[e][6]; // reset counter
-      Ei[e][1] = zz[15][53]; // full red
+      if (is_player_in_trigger_box(x4, y4, x5, y5)) Ei[e][5] = 1;
+      else Ei[e][5] = 0;
+   }
+
+   int mode = Ei[e][5];
+
+   if (mode == 1) // in trig box last time
+   {
+      if (is_player_in_trigger_box(x4, y4, x5, y5))
+      {
+         if (--Ei[e][7] == 0)  Ei[e][5] = 2; // time for create
+      }
+      else Ei[e][5] = 0; // mode 0 - not in trigger box
+   }
+
+   if (mode == 0) // not in trig box last time
+   {
+      if (is_player_in_trigger_box(x4, y4, x5, y5))
+      {
+         Ei[e][5] = 1; // set mode 1 - in box
+         if (Ei[e][8] == 1) Ei[e][7] = Ei[e][6]; // reset timer when triggered
+         if (Ei[e][8] == 2)                      // immediate clone when triggered
+         {
+            Ei[e][7] = 0; // set timer to 0 (for display)
+            Ei[e][5] = 2; // set mode to clone
+         }
+      }
+   }
+
+   if (mode == 5)  // create
+   {
       int no=0, cl=Ei[e][10]; // limit on number of created objects
       if (cl)
       {
@@ -1992,24 +1866,98 @@ void enemy_archwagon(int e)
 
 /*
 
-common variables
----------------------
 
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+common variables (ones that can't be used by specific types)
+by function
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+
+-------------------------------------------------------------------------
+-- Variables used in draw
+-------------------------------------------------------------------------
+Ei[][1] // bitmap
+Ei[][2] // draw mode (v and h flips)
+
+Efi[][0]  // x
+Efi[][1]  // y
+Efi[][12] // scale
+Efi[][14] // rot
+
+-------------------------------------------------------------------------
+-- Variables used in proc_enemy_collision_with_pbullet(int e)
+-------------------------------------------------------------------------
+Ei[][26]  // player number that hit enemy with bullet
+Ei[][29]  // enemies collison box size
+Ei[][31]  // flag that this enemy got shot with bullet
+
+Efi[][0] // x
+Efi[][1] // y
+
+-------------------------------------------------------------------------
+-- Variables used in move_enemies() common
+-------------------------------------------------------------------------
+Ei[e][27] // time to live
+Ei[e][29] // collision box
+
+Efi[e][4] // life dec
+
+-------------------------------------------------------------------------
+-- Variables used in enemy_deathcount(int e)
+-------------------------------------------------------------------------
+Ei[][1]  // draw bitmap
+Ei[][3]  // deathcount ans
+Ei[][24] // health bonus shape
+Ei[][25] // health bonus amount
+Ei[][30] // death loop count
+
+Efi[][11]  // scale inc
+Efi[][12]  // scale
+Efi[][13]  // rot inc
+Efi[][14]  // rot
+
+
+-------------------------------------------------------------------------
+-- Variables used in enemy_player_hit_proc(int e)
+-------------------------------------------------------------------------
+Ei[][22] // player hit flag and player num + 1
+Ei[][23] // hit player retrigger
+
+Efi[][4] // life dec
+
+-------------------------------------------------------------------------
+-- Variables used in enemy_killed(int e)
+-------------------------------------------------------------------------
+Ei[][3]  // new ans
+
+Ei[][24] // health bonus shape
+Ei[][25] // health bonus amount
+Ei[][26] // player num that killed enemy
+Ei[][30] // death loop count
+Ei[][31] // hit type (bullet or bomb)
+
+
+Efi[][4]  // life dec
+Efi[][11] // scale multiplier
+Efi[][13] // rot inc
+
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
+common variables (ones that can't be used by specific types)
+total list
+-------------------------------------------------------------------------
+-------------------------------------------------------------------------
 Ei[][0] = enemy type
 Ei[][1] = bitmap
 Ei[][2] = draw mode
-
-
-Ei[][9]  = extra hits to kill
 
 
 Ei[][22] = player hit
 Ei[][23] = player hit retrigger
 Ei[][24] = bonus shape
 Ei[][25] = health bonus
-
-Ei[][26] = unused (use to tell what player killed enemy..
-
+Ei[][26] = used to tell what player killed enemy
 Ei[][27] = time to live
 Ei[][28] = cloner create id
 Ei[][29] = collision box size
@@ -2018,14 +1966,12 @@ Ei[][31] = enemy hit
 
 Efi[][0] =  x
 Efi[][1] =  y
-Efi[][2] =  xinc
-Efi[][3] =  yinc
 Efi[][4] =  LIFE decrement
-Efi[][7] =  bullet speed
 Efi[][11] = scale multiplier
 Efi[][12] = scale;
 Efi[][13] = rot inc
 Efi[][14] = rot
+
 
 
 // enemy types
@@ -2047,42 +1993,23 @@ similar types
 6 - Cannon
 
 
-----------------------------
--- Variables used in draw --
-----------------------------
-Ei[e][1] = bitmap
-Ei[e][2] = draw mode (v and h flips)
-Efi[e][12] = scale;
-Efi[e][14] = rot
-
-The animation sequence can be stored in Ei[e][3]
-but the enemy move code is responsible for setting the actual bitmap in Ei[e][2]
-
-
-----------------------------------------------------
--- Variables used after death to create the bonus --
-----------------------------------------------------
-Ei[e][24]  shape
-Ei[e][25]  health bonus
-Ei[e][30]  death_loop_wait counter
-Ei[e][31]  hit type (1 = bullet, 2 = bomb)
-
-Efi[e][11]  scale multiplier
-Efi[e][13]  rot inc
-
-
 [3] - Archwagon -----------------------------------------------------------------------------
 Ei[][3]   ans (2=wagon with arrow, 3=empty wagon)
-Ei[][5]   jump/fall -160 max jump, 160 max fall
-Ei[][7]   jump when player above
-Ei[][8]   follow(0) or bounce(1)
-Ei[][11]  jump before hole
-Ei[][12]  jump before wall
 Ei[][15]  bullet retrigger value
 Ei[][16]  bullet retrigger count
 Ei[][17]  bullet prox
 
+Efi[][2]  y speed speed
+Efi[][6]  x speed speed
 Efi[][7]  bullet speed
+
+walker_archwagon_common(int e)
+Ei[][5]   jump/fall -160 max jump, 160 max fall
+Ei[][6]   jump wait (0=none)
+Ei[][7]   jump when player above
+Ei[][8]   follow(0) or bounce(1)
+Ei[][11]  jump before hole
+Ei[][12]  jump before wall
 
 
 [4]--bouncer-----------------------------------------------------------------------------
@@ -2127,6 +2054,9 @@ Ei[][20] rot
 Efi[][7] bullet speed
 
 [9]--cloner-----------------------------------------------------------------------------
+
+Ei[][4]  draw boxes (0 = none) (1 = trigger) (2 = source/dest) (3 = both)
+Ei[][5]  mode
 Ei[][6]  create wait
 Ei[][7]  create wait counter
 Ei[][8]  trigger mode (0=wait, 1=reset, 2=immed)
@@ -2144,19 +2074,17 @@ Ei[][19] copy box width
 Ei[][20] copy box height
 
 [11]--block walker-----------------------------------------------------------------------------
-Ei[][6]  jump wait (0=none)
-Ei[][7]  jump when player above
-Ei[][8]  follow(0) or bounce(1)
-Ei[][11] jump before hole
-Ei[][12] jump before wall
-Efi[][8] fall and fallcount
-Efi[][9] jump and jumpcount
+walker_archwagon_common(int e)
+Ei[][5]   jump/fall -160 max jump, 160 max fall
+Ei[][6]   jump wait (0=none)
+Ei[][7]   jump when player above
+Ei[][8]   follow(0) or bounce(1)
+Ei[][11]  jump before hole
+Ei[][12]  jump before wall
+
 
 [12]--flapper-----------------------------------------------------------------------------
-
-
-Ei[][14] base ypo for debug drawing
-
+Ei[][14] base yo for debug drawing
 Ei[][15] bullet retrigger time
 Ei[][16] bullet retrigger counter
 Ei[][17] prox width

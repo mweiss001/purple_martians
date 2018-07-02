@@ -190,10 +190,15 @@ void create_cloner(void)
       rx = get100_x;
       ry = get100_y;
 
-      Ei[en][1] = 231;   // shape
-      Ei[en][2] = 1;     // draw type
+      Ei[en][1] = 550;   // shape
+      Ei[en][2] = 0;     // draw type
 
-      Ei[en][5] = 1;     // mode
+      Ei[en][4] = 3;     // draw all boxes
+
+      Ei[en][5] = 0;     // mode
+
+      Ei[en][8] = 2;     // trigger type
+
 
       Ei[en][6] = 400;  // default delay
       Ei[en][7] = 400;  // default delay

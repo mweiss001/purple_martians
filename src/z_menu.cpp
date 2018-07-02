@@ -717,7 +717,14 @@ void menu_setup(void)
    strcpy (global_string[5][6],"LOAD");
    strcpy (global_string[5][7],"BACK");
 
-   // 6 used for lift pop up menu
+
+   sprintf(global_string[6][0],"Lift:0 Step:0");
+   sprintf(global_string[6][1],"---------------");
+   sprintf(global_string[6][2],"Cancel");
+   sprintf(global_string[6][3],"Move Step 0");
+   sprintf(global_string[6][4],"Delete Step 0");
+   sprintf(global_string[6][5],"Insert Steps");
+   sprintf(global_string[6][6],"end");
 
    strcpy (global_string[7][0], ""); // main menu
    strcpy (global_string[7][1], "");
@@ -803,8 +810,8 @@ int pmenu(int menu_num)  // this menu function does not pass through like the ne
 
    int up = 0;
    int ky = mouse_y-20;
-   if (menu_num == 9) if (ky > SCREEN_H - 160) up=1;
-   if (menu_num == 6) if (ky > SCREEN_H - 60)  up=1;
+   if (menu_num == 2) if (ky > SCREEN_H - 160) up=1; // main editor menu
+   if (menu_num == 6) if (ky > SCREEN_H - 60) up=1;  // lift step menu
 
    if (!up) // reverse version !
    {
