@@ -1923,3 +1923,90 @@ struct screen_msg screen_msgs[100];
 
 
 
+
+
+
+
+
+         #ifdef SHOW_CLONERLINES
+         if (Ei[e][0] == 9) // cloner
+         {
+            // show counter
+            int cx = al_fixtoi(Efi[e][0]) + 10;     // middle of cloner
+            int cy = al_fixtoi(Efi[e][1]) - 8;      // above cloner
+            //int cy = al_fixtoi(Efi[e][1])+24;     // below cloner
+            //int cy = al_fixtoi(Efi[e][1])+8;      // middle of cloner
+            al_draw_textf(font, palette_color[10], cx, cy, ALLEGRO_ALIGN_CENTER, "%d" ,Ei[e][7] );
+
+//            int x1 = al_fixtoi(Efi[e][6]) - 2;    // source x
+//            int y1 = al_fixtoi(Efi[e][7]) - 2;    // source y
+//            int x2 = x1 + x_size;
+//            int y2 = y1 + y_size;
+//
+//            int x3 = al_fixtoi(Efi[e][8]) - 2;    // dest x
+//            int y3 = al_fixtoi(Efi[e][9]) - 2;    // dest y
+//            int x4 = x3 + x_size;
+//            int y4 = y3 + y_size;
+
+            int cw = Ei[e][19]*20;     // width
+            int ch = Ei[e][20]*20;     // height
+
+            int x1 = Ei[e][15]*20;    // source
+            int y1 = Ei[e][16]*20;
+            int x2 = x1 + cw;
+            int y2 = y1 + ch;
+
+            int x3 = Ei[e][17]*20;    // destination
+            int y3 = Ei[e][18]*20;
+            int x4 = x3 + cw;
+            int y4 = y3 + ch;
+
+
+            al_fixed ratio = al_fixdiv(al_itofix(Ei[e][7]), al_itofix(Ei[e][6])) * 10;
+
+            if ((ratio < al_ftofix(2) ) && (ratio > al_ftofix(.5) ))
+            {
+               int color = 10; // red
+
+            // ratio is a float between 0 and 10
+            // to get here ratio must be > 2 and < 4
+            // converts to il and li which are the sizes of the inner and outer boxes
+            // when stated ratio is 3.999 and ends when ratio is 1.999
+            // when started li needs to be ~40-100 and 0 when ends...
+            // when started il needs to be ~40-100 and 20 when ends...
+               al_fixed tr = ratio - al_itofix(2); // starts at 1 and goes to -1
+               int il = al_fixtoi(tr * 32);
+               int li = al_fixtoi(tr * 16) - 20;
+               al_draw_rectangle(x1-il, y1-il, x2+il, y2+il, palette_color[color], 1);
+               al_draw_rectangle(x1-li, y1-li, x2+li, y2+li, palette_color[color], 1);
+               al_draw_line(x1-il, y1-il, x1-li, y1-li, palette_color[color], 1);
+               al_draw_line(x2+il, y2+il, x2+li, y2+li, palette_color[color], 1);
+               al_draw_line(x1-il, y2+il, x1-li, y2+li, palette_color[color], 1);
+               al_draw_line(x2+il, y1-il, x2+li, y1-li, palette_color[color], 1);
+            }
+            if (ratio < al_itofix(1) )
+            {
+               int color = 11; // green
+               al_fixed tr = al_itofix(1) - ratio; // starts at 0 and goes to 1
+               int il = al_fixtoi(tr * 8);
+               int li = al_fixtoi(tr * 4) - 20;
+               al_draw_rectangle(x3-li, y3-li, x4+li, y4+li, palette_color[color], 1);
+               al_draw_rectangle(x3-il, y3-il, x4+il, y4+il, palette_color[color], 1);
+               al_draw_line(x3-il, y3-il, x3-li, y3-li, palette_color[color], 1);
+               al_draw_line(x4+il, y4+il, x4+li, y4+li, palette_color[color], 1);
+               al_draw_line(x3-il, y4+il, x3-li, y4+li, palette_color[color], 1);
+               al_draw_line(x4+il, y3-il, x4+li, y3-li, palette_color[color], 1);
+            }
+         }
+         #endif
+
+
+
+
+
+
+
+
+
+
+

@@ -921,6 +921,7 @@ void proc_player_carry(int p)
                   itemf[i][2] = players[p].xinc;  // inherit the players momentum
                   itemf[i][3] = players[p].yinc;
                   if (players[p].up)    itemf[i][3] -= al_itofix(6); // throw item upwards
+                  if (players[p].down)  itemf[i][3] = al_itofix(3); // throw item downwards
                   if (players[p].left)  itemf[i][2] -= al_itofix(2); // throw item left
                   if (players[p].right) itemf[i][2] += al_itofix(2); // throw item right
                }
@@ -1034,14 +1035,14 @@ void proc_door_collision(int p, int i)
                if (item[i][7] == 1) instant_move = 1; // 1 = force instant
                if (item[i][7] == 2) instant_move = 0; // 2 = force move
 
-               if (riding_rocket(p)) instant_move = 1; // 1 = force instant if riding rocket
+               if (is_player_riding_rocket(p)) instant_move = 1; // 1 = force instant if riding rocket
 
                if (instant_move)
                {
                   players[p].PX = itemf[li][0];
                   players[p].PY = itemf[li][1];
 
-                  if (riding_rocket(p))
+                  if (is_player_riding_rocket(p))
                   {
                      int c = players[p].carry_item-1;
                      itemf[c][0] = players[p].PX;
@@ -1099,10 +1100,10 @@ void proc_door_collision(int p, int i)
 
 void proc_bonus_collision(int p, int i)
 {
-   item[i][0] = 0;
    al_fixed f100 = al_itofix(100);
    if (players[p].LIFE < f100)
    {
+      item[i][0] = 0;
       players[p].LIFE += al_itofix(item[i][7]);
       if (players[p].LIFE > f100) players[p].LIFE = f100;
    }

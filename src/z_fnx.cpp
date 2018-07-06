@@ -36,22 +36,22 @@ void make_palette(void)
 {
    // printf("make palette\n");
 
-   palette_color[0]  = al_map_rgb(     0,   0,    0);   //       black
-   palette_color[1]  = al_map_rgb(191, 108, 232); //    alt      purple 1
-   palette_color[2]  = al_map_rgb(136, 32,  172); //    alt      purple 2
-   palette_color[3]  = al_map_rgb(60,  127, 255); //    alt      blue
-   palette_color[4]  = al_map_rgb(224, 28,  72);  //    alt      red
-   palette_color[5]  = al_map_rgb(255, 0,   232); //    pink
-   palette_color[6]  = al_map_rgb(255, 191, 127); //    taan
-   palette_color[7]  = al_map_rgb(255, 127, 0);   //    orange
-   palette_color[8]  = al_map_rgb(127, 0,   255); //    original purple
-   palette_color[9]  = al_map_rgb(     0,   255,  127); //       alt    green
-   palette_color[10] = al_map_rgb(255, 0,   0);   //    red
-   palette_color[11] = al_map_rgb(     0,   255,  0);   //       green
-   palette_color[12] = al_map_rgb(     0,   0,    255); //       blue
-   palette_color[13] = al_map_rgb(     0,   255,  255); //       lt     blue
-   palette_color[14] = al_map_rgb(255, 255, 0);   //    yellow
-   palette_color[15] = al_map_rgb(255, 255, 255); //    white
+   palette_color[0]  = al_map_rgb(  0,   0,   0); // black
+   palette_color[1]  = al_map_rgb(191, 108, 232); // alt purple 1
+   palette_color[2]  = al_map_rgb(136,  32, 172); // alt purple 2
+   palette_color[3]  = al_map_rgb( 60, 127, 255); // alt blue
+   palette_color[4]  = al_map_rgb(224,  28,  72); // alt red
+   palette_color[5]  = al_map_rgb(255,   0, 232); // pink
+   palette_color[6]  = al_map_rgb(255, 191, 127); // taan
+   palette_color[7]  = al_map_rgb(255, 127,   0); // orange
+   palette_color[8]  = al_map_rgb(127,   0, 255); // original purple
+   palette_color[9]  = al_map_rgb(  0, 255, 127); // alt green
+   palette_color[10] = al_map_rgb(255,   0,   0); // red
+   palette_color[11] = al_map_rgb(  0, 255,   0); // green
+   palette_color[12] = al_map_rgb(  0,   0, 255); // blue
+   palette_color[13] = al_map_rgb(  0, 255, 255); // lt blue
+   palette_color[14] = al_map_rgb(255, 255,   0); // yellow
+   palette_color[15] = al_map_rgb(255, 255, 255); // white
 
    // special case reversed white (0)
    for (int x=1; x<16; x++)

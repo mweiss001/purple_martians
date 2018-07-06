@@ -581,7 +581,7 @@ void new_bmsg(const char *nb, int p, int p2, int ev)
 void draw_bottom_msg()
 {
    // int type = 1; // old style - may cause low fps, due to scaled drawing and target bitmap changes
-   int type = 2; // new style - faster but not as fancy
+   int type = 3; // new style - faster but not as fancy
 
    bottom_msg = 100;
 
