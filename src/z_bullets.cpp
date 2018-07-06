@@ -56,7 +56,11 @@ void proc_pbullet_shoot(int p)
                   else if (players[p].down)  pbullet[b][5] =  bs;
                   else                       pbullet[b][4] = (players[p].left_right*bs*2) - bs;
 
-                  if (players[p].left_right) pbullet[b][4]--;
+
+                  // if this line is not here player cannot shoot breakable blocks
+                  // when directly in front of them..
+                  if ((!players[p].up) && (!players[p].down) && (players[p].left_right))
+                      pbullet[b][2]--;
 
 //                  // temp testing
 //                  pbullet[b][2] = x + (players[p].left_right * (40*2) ) - 40;

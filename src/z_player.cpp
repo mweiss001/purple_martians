@@ -85,17 +85,21 @@ void proc_player_health(int p)
 
 void proc_player_xy_move_test(int p)
 {
-   if (players[p].up) players[p].PY -= al_ftofix(1);
-   if (players[p].down) players[p].PY += al_ftofix(1);
+   al_fixed m = al_ftofix(0.5);
+
+   if (key[ALLEGRO_KEY_LCTRL]) m *= 4;
+
+   if (players[p].up) players[p].PY -= m;
+   if (players[p].down) players[p].PY += m;
    if (players[p].left)
    {
       players[p].left_right = 0;
-      players[p].PX -= al_ftofix(1);
+      players[p].PX -= m;
    }
    if (players[p].right)
    {
       players[p].left_right = 1;
-      players[p].PX += al_ftofix(1);
+      players[p].PX += m;
    }
 }
 
@@ -529,7 +533,7 @@ void reset_player_scale_and_rot(int p)
 }
 
 
-int riding_rocket(int p)
+int is_player_riding_rocket(int p)
 {
    if ((players[p].carry_item) && (item[players[p].carry_item-1][0] == 98)) return 1;
    return 0;
@@ -655,6 +659,312 @@ void proc_player_collisions(int p)
       }
 }
 
+
+int is_player_on_ladder(int p)
+{
+   // detect if player is on ladder block
+   int AX = al_fixtoi(players[p].PX);
+   int AY = al_fixtoi(players[p].PY);
+
+   int bx2, bx1 = AX / 20;
+   int am = AX % 20;
+   if (am < 9) // this block only
+   {
+      bx2 = bx1;
+   }
+   if (am > 10) // next block only
+   {
+      bx1++;
+      bx2 = bx1;
+   }
+   if ((am > 8) && (am < 11)) // both blocks
+   {
+      bx2 = bx1 + 1;
+   }
+
+   int by2, by1 = AY / 20;
+   am = AY % 20;
+   if (am < 9) // this block only
+   {
+      by2 = by1;
+   }
+   if (am > 10) // next block only
+   {
+      by1++;
+      by2 = by1;
+   }
+   if ((am > 8) && (am < 11)) // both blocks
+   {
+      by2 = by1 + 1;
+   }
+
+   for (int x=bx1; x<=bx2; x++)
+      for (int y=by1; y<=by2; y++)
+      {
+         if (l[x][y] == 18) return 1;
+      }
+
+   return 0;
+}
+
+
+
+int is_player_on_rope(int p)
+{
+   // detect if player is on rope block
+   int AX = al_fixtoi(players[p].PX);
+   int AY = al_fixtoi(players[p].PY);
+
+   int bx2, bx1 = AX / 20;
+   int am = AX % 20;
+   if (am < 9) // this block only
+   {
+      bx2 = bx1;
+   }
+   if (am > 10) // next block only
+   {
+      bx1++;
+      bx2 = bx1;
+   }
+   if ((am > 8) && (am < 11)) // both blocks
+   {
+      bx2 = bx1 + 1;
+   }
+
+
+   int by = AY / 20;
+   am = AY % 20;
+
+   al_draw_textf(font, palette_color[15], AX, AY-20, 0, "%d", am );
+   int good_height = 0;
+
+   if (am < 5) // this block only
+   {
+      good_height = 1;
+   }
+   if (am > 15) // next block only
+   {
+      good_height = 1;
+      by++;
+   }
+
+   if (good_height)
+   for (int x=bx1; x<=bx2; x++)
+   {
+      if (l[x][by] == 19) return 1;
+   }
+   return 0;
+}
+
+
+
+
+
+
+
+
+void proc_player_rope_move(int p)
+{
+
+ //  int old_px = al_fixtoi(players[p].PX);
+ //  int old_py = al_fixtoi(players[p].PY);
+
+
+   al_fixed m = al_ftofix(2.3);
+
+   if (players[p].left)
+   {
+      players[p].left_right = 0;
+      players[p].PX -= is_left_solidfm(players[p].PX, players[p].PY, m, 0);
+   }
+   if (players[p].right)
+   {
+      players[p].left_right = 1;
+      players[p].PX += is_right_solidfm(players[p].PX, players[p].PY, m, 0);
+   }
+
+   if (players[p].down) players[p].on_rope = 0;
+
+
+}
+
+
+
+
+
+void proc_player_ladder_move(int p)
+{
+
+   int old_px = al_fixtoi(players[p].PX);
+   int old_py = al_fixtoi(players[p].PY);
+
+
+   al_fixed m = al_ftofix(2.3);
+
+   if (players[p].up)   players[p].PY -=   is_up_solidfm(players[p].PX, players[p].PY, m, 0);
+   if (players[p].down) players[p].PY += is_down_solidfm(players[p].PX, players[p].PY, m, 0);
+   if (players[p].left)
+   {
+      players[p].left_right = 0;
+      players[p].PX -= is_left_solidfm(players[p].PX, players[p].PY, m, 0);
+   }
+   if (players[p].right)
+   {
+      players[p].left_right = 1;
+      players[p].PX += is_right_solidfm(players[p].PX, players[p].PY, m, 0);
+   }
+
+   // only jump if up is not pressed
+   if ((players[p].jump) && (!players[p].up))
+   {
+      players[p].on_ladder = 0;
+      al_fixed initial_jump_velocity = al_ftofix(6.6);
+      players[p].yinc = -initial_jump_velocity;
+   }
+
+
+
+// how much did we move this last frame?
+
+   int px = al_fixtoi(players[p].PX);
+   int py = al_fixtoi(players[p].PY);
+
+   int xd = px - old_px;
+   int yd = py - old_py;
+
+
+   // did we try to move up past top of ladder?
+   if (yd < 0) if (!is_player_on_ladder(p)) players[p].PY +=m;
+
+
+
+
+   // did we pass by any single block openings??
+
+   // if only x move
+   if ((xd != 0) && (yd == 0))
+   {
+      if (xd > 0) // x+
+      {
+         for (int tx = old_px; tx <= px; tx++)
+         {
+            if (players[p].up)
+            {
+               al_fixed tm = is_up_solidfm(al_itofix(tx), players[p].PY, m, 0);
+               if (tm > al_itofix(0))
+               {
+                  //printf("%d px:%d opx:%d tx:%d x+u\n", frame_num, px, old_px, tx );
+                  players[p].PX = al_itofix(tx); // set x to passed by pos
+                  players[p].PY -= m; // move in y
+                  tx = px+1; // break out of loop
+               }
+            }
+            else if (players[p].down)
+            {
+               al_fixed tm = is_down_solidfm(al_itofix(tx), players[p].PY, m, 0);
+               if (tm > al_itofix(0))
+               {
+                  //printf("%d px:%d opx:%d tx:%d x+d\n", frame_num, px, old_px, tx );
+                  players[p].PX = al_itofix(tx); // set x to passed by pos
+                  players[p].PY += m; // move in y
+                  tx = px+1; // break out of loop
+               }
+            }
+         }
+      }
+      if (xd < 0) // x-
+      {
+         for (int tx = px; tx <= old_px; tx++)
+         {
+            if (players[p].up)
+            {
+               al_fixed tm = is_up_solidfm(al_itofix(tx), players[p].PY, m, 0);
+               if (tm > al_itofix(0))
+               {
+                  //printf("%d px:%d opx:%d tx:%d x-u\n", frame_num, px, old_px, tx );
+                  players[p].PX = al_itofix(tx); // set x to passed by pos
+                  players[p].PY -= m; // move in y
+                  tx = old_px+1; // break out of loop
+               }
+            }
+            else if (players[p].down)
+            {
+               al_fixed tm = is_down_solidfm(al_itofix(tx), players[p].PY, m, 0);
+               if (tm > al_itofix(0))
+               {
+                  //printf("%d px:%d opx:%d tx:%d x-d\n", frame_num, px, old_px, tx );
+                  players[p].PX = al_itofix(tx); // set x to passed by pos
+                  players[p].PY += m; // move in y
+                  tx = old_px+1; // break out of loop
+               }
+            }
+         }
+      }
+   }
+
+
+   // if only y move
+   if ((yd != 0) && (xd == 0))
+   {
+      if (yd > 0) // y+
+      {
+         for (int ty = old_py; ty <= py; ty++)
+         {
+            if (players[p].right)
+            {
+               al_fixed tm = is_right_solidfm(players[p].PX, al_itofix(ty), m, 0);
+               if (tm > al_itofix(0))
+               {
+                  //printf("%d py:%d opy:%d ty:%d y+r\n", frame_num, py, old_py, ty );
+                  players[p].PY = al_itofix(ty); // set y to passed by pos
+                  players[p].PX += m; // move in x
+                  ty = py+1; // break out of loop
+               }
+            }
+            else if (players[p].left)
+            {
+               al_fixed tm = is_left_solidfm(players[p].PX, al_itofix(ty),  m, 0);
+               if (tm > al_itofix(0))
+               {
+                  //printf("%d py:%d opy:%d ty:%d y+l\n", frame_num, py, old_py, ty );
+                  players[p].PY = al_itofix(ty); // set y to passed by pos
+                  players[p].PX -= m; // move in x
+                  ty = py+1; // break out of loop
+               }
+            }
+         }
+      }
+      if (yd < 0) // y-
+      {
+         for (int ty = py; ty <= old_py; ty++)
+         {
+            if (players[p].right)
+            {
+               al_fixed tm = is_right_solidfm(players[p].PX, al_itofix(ty), m, 0);
+               if (tm > al_itofix(0))
+               {
+                  //printf("%d py:%d opy:%d ty:%d y-r\n", frame_num, py, old_py, ty );
+                  players[p].PY = al_itofix(ty); // set y to passed by pos
+                  players[p].PX += m; // move in x
+                  ty = old_py+1; // break out of loop
+               }
+            }
+            else if (players[p].left)
+            {
+               al_fixed tm = is_left_solidfm(players[p].PX, al_itofix(ty),  m, 0);
+               if (tm > al_itofix(0))
+               {
+                  //printf("%d py:%d opy:%d ty:%d y-l\n", frame_num, py, old_py, ty );
+                  players[p].PY = al_itofix(ty); // set y to passed by pos
+                  players[p].PX -= m; // move in x
+                  ty = old_py+1; // break out of loop
+               }
+            }
+         }
+      }
+   }
+}
+
 void move_players(void)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -665,8 +975,139 @@ void move_players(void)
          {
             reset_player_scale_and_rot(p);
 
-            if (riding_rocket(p)) proc_player_riding_rocket(p);
-            else // not riding rocket
+            if (players[p].on_rope)
+            {
+               // check to see if player is still on rope
+               players[p].on_rope = is_player_on_rope(p);
+            }
+            else
+            {
+               if (is_player_on_rope(p) && (players[p].up))
+               {
+                  // just got on rope
+                  players[p].on_rope = 1;
+                  players[p].on_ladder = 0;
+
+                  //snap y to rope
+                  int AY = al_fixtoi(players[p].PY);
+                  int by = AY / 20;
+                  int am = AY % 20;
+
+                  if (am < 5) // this block only
+                  {
+
+                     players[p].PY = al_itofix(by * 20);
+
+
+                  }
+                  if (am > 15) // next block only
+                  {
+                     by++;
+
+                     players[p].PY = al_itofix(by * 20);
+
+                  }
+
+
+
+
+
+
+
+
+                  al_fixed f0 = al_itofix(0);
+                  al_fixed f1 = al_itofix(1);
+
+                  // check to see if player is embedded in wall to right
+                  int done = 0;
+                  while (!done)
+                  {
+                     al_fixed m = is_right_solidfm(players[p].PX-f1, players[p].PY, f1, 0);
+                     // printf("R %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
+                     if (m < f1) players[p].PX -= f1;
+                     else done = 1;
+                  }
+
+                  // check to see if player is embedded in wall to left
+                  done = 0;
+                  while (!done)
+                  {
+                     al_fixed m = is_left_solidfm(players[p].PX+f1, players[p].PY, f1, 0);
+                     //printf("L %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
+                     if (m < f1) players[p].PX += f1;
+                     else done = 1;
+                  }
+
+                  players[p].xinc = f0;
+                  players[p].yinc = f0;
+                  players[p].left_xinc = f0;
+                  players[p].right_xinc = f0;
+
+               }
+            }
+
+
+
+            if (players[p].on_ladder)
+            {
+               // check to see if player is still on ladder
+               players[p].on_ladder = is_player_on_ladder(p);
+            }
+            else
+            {
+               if (is_player_on_ladder(p) && (players[p].up))
+               {
+                  // just got on ladder
+                  players[p].on_ladder = 1;
+                  players[p].on_rope = 0;
+
+
+                  al_fixed f0 = al_itofix(0);
+                  al_fixed f1 = al_itofix(1);
+
+                  // check to see if player is embedded in wall to right
+                  int done = 0;
+                  while (!done)
+                  {
+                     al_fixed m = is_right_solidfm(players[p].PX-f1, players[p].PY, f1, 0);
+                     // printf("R %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
+                     if (m < f1) players[p].PX -= f1;
+                     else done = 1;
+                  }
+
+                  // check to see if player is embedded in wall to left
+                  done = 0;
+                  while (!done)
+                  {
+                     al_fixed m = is_left_solidfm(players[p].PX+f1, players[p].PY, f1, 0);
+                     //printf("L %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
+                     if (m < f1) players[p].PX += f1;
+                     else done = 1;
+                  }
+
+                  players[p].xinc = f0;
+                  players[p].yinc = f0;
+                  players[p].left_xinc = f0;
+                  players[p].right_xinc = f0;
+
+               }
+            }
+
+            //printf("%d %d %f\n", frame_num, players[p].on_ladder, al_fixtof(players[p].PY) );
+
+
+            if (players[p].on_rope)
+            {
+               proc_player_rope_move(p);
+               proc_pbullet_shoot(p);
+            }
+            else if (players[p].on_ladder)
+            {
+               proc_player_ladder_move(p);
+               proc_pbullet_shoot(p);
+            }
+            else if (is_player_riding_rocket(p)) proc_player_riding_rocket(p);
+            else // not riding rocket or on ladder
             {
                //proc_player_xy_move_test(p);
                proc_player_xy_move(p);
@@ -698,6 +1139,59 @@ void draw_player(int p)
       if (players[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
 
       al_draw_scaled_rotated_bitmap(player_tile[players[p].color][players[p].shape], 10, 10, AX+10, AY+10, scale, scale, rot, flags);
+
+
+      if (players[p].on_ladder)
+         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+19, 0.5+AY+19, palette_color[11], 1);
+
+      if (players[p].on_rope)
+         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+17, 0.5+AY+19, palette_color[10], 1);
+
+//      // detect block that player is on...
+//
+//      int bx2, bx1 = AX / 20;
+//      int am = AX % 20;
+//      if (am < 9) // this block only
+//      {
+//         bx2 = bx1;
+//      }
+//      if (am > 10) // next block only
+//      {
+//         bx1++;
+//         bx2 = bx1;
+//      }
+//      if ((am > 8) && (am < 11)) // both blocks
+//      {
+//         bx2 = bx1 + 1;
+//      }
+//
+//      int by = AY / 20;
+//      am = AY % 20;
+//
+//      al_draw_textf(font, palette_color[15], AX, AY-20, 0, "%d", am );
+//
+//      int good_height = 0;
+//
+//      if (am < 5) // this block only
+//      {
+//         good_height = 1;
+//      }
+//      if (am > 15) // next block only
+//      {
+//         good_height = 1;
+//         by++;
+//      }
+//
+//      if (good_height)
+//      for (int x=bx1; x<=bx2; x++)
+//      {
+//         al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, palette_color[8], 1);
+//         if (l[x][by] == 19) al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, palette_color[11], 1);
+//      }
+
+
+
+
 
       // death sequence star overlay
       if ((players[p].paused) && (players[p].paused_type == 1))
@@ -839,6 +1333,8 @@ void init_player(int p, int t)
    {
       players[p].carry_item = 0;
       players[p].player_ride = 0;
+      players[p].on_ladder = 0;
+      players[p].on_rope = 0;
       players[p].left_right = 0;
       players[p].left = 0;
       players[p].right = 0;

@@ -9736,6 +9736,87 @@ if (players[p].left_right) pbullet[b][4]--;
 
 
 
+---------------------------------------------------------
+flapper twitches when seek yinc is more than flap yinc??
+---------------------------------------------------------
+
+they fight each other...
+
+should i seperate them??
+
+
+
+right now I use Ei[14] for base for drawing only
+
+
+pick a fixed and use it for base y
+
+base_y will only be affected my seek yinc
+
+Efi[e][11] will have base_y
+
+need to set to same as [1] in level editor for initial...
+or I could set it to a negative value, to signal emove stuff to set it to 1
+for now if zero set to 1
+
+
+i'm getting lost...
+if i cant describe it in words how can i hope to fix it?
+
+y position of flapper...
+stored in Efi[][1]
+
+affected by seek yinc and flap
+
+flap needs to have memory of last flap, so it can convert to yinc
+
+
+i think the two can be added and then checked and applied
+
+but what about when flap goes up and seek goes down??
+funny oscillations, that's what....
+
+
+------------
+tried...
+
+make a variable for base_y set only by seek and that got weird...
+
+---------------
+could I avoid this by choosing only good values for seek_yinc and flap_height??
+
+
+
+what looks bad:
+
+-----------------------
+seek_yinc = 2
+flap_speed = .5
+flap height = 100
+when passing through height above player position,
+there is a quite noticeable stutter as seek flips from -2 to 2
+max flap_yinc = 3.5
+
+----------------------
+seek_yinc = 2
+flap_speed = 1.0
+flap height = 100
+when passing through height above player position,
+stutter is not as noticeable
+beacause flap yinc is bigger in relation to seek_yinc
+max flap_yinc = 7
+
+
+I can avoid this by making sure max_flap is at least 4 times higher than seek
+
+how about if I scale seek based on how far away it it..
+
+more than 100 = full
+< 100
+get a ratio (100 - df)
+
+implemented this and the above problem is fixed....
+
 
 
 

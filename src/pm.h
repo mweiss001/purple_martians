@@ -25,7 +25,6 @@
 
 
 // enemy debug stuff
-//#define SHOW_CLONERLINES
 //#define SHOW_POD_CLONER_TRIGGER_BOX
 //#define SHOW_CANNON_COLLISION_BOX
 //#define SHOW_FLAPPER_DEBUG
@@ -415,7 +414,7 @@ struct player // synced between server and client
    al_fixed old_LIFE;
    int LIVES;
 
-   int not_used_bitmap_index;
+   int on_ladder;
 
    int shape; // index to player_tile
    int color; // used to draw frames and stuff in players color
@@ -439,7 +438,10 @@ struct player // synced between server and client
    // flags that indicate a control has been activated or held
    int up, down, left, right, jump, fire, fire_held, menu;
 
-   int bullet_wait_counter, request_bullet, bullet_wait, bullet_speed, not_used_num_bullets;
+   int bullet_wait_counter, request_bullet, bullet_wait, bullet_speed;
+
+
+   int on_rope;
 
    int num_hits;       // when players bullet hits enemy
    int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
@@ -1159,7 +1161,7 @@ int edit_lift_name(int lift, int step_ty, int bts, char *fst);
 
 // z_player.h
 void set_player_start_pos(int p);
-int riding_rocket(int p);
+int is_player_riding_rocket(int p);
 void reset_player_scale_and_rot(int p);
 void proc_player_health(int p);
 void move_players(void);

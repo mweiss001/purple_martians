@@ -87,8 +87,6 @@ void draw_enemies(void)
          }
          #endif
 
-
-
          #ifdef SHOW_CANNON_COLLISION_BOX
          if (Ei[e][0] == 6) // cannon
          {
@@ -125,74 +123,50 @@ void draw_enemies(void)
 
          if (Ei[e][0] == 9) // cloner
          {
-
-
-
-
             // trigger box
             float tx1 = (float)Ei[e][11]*20;
             float ty1 = (float)Ei[e][12]*20;
             float tx2 = (float)Ei[e][13]*20+20;
             float ty2 = (float)Ei[e][14]*20+20;
-            int tc1 = 14 + 128;
-            int tc2 = 14 + 192;
+            int tc1 = 14 + 128; // trigger box color
 
             // source
             float sx1 = (float)Ei[e][15]*20;
             float sy1 = (float)Ei[e][16]*20;
             float sx2 = sx1 + (float)Ei[e][19]*20;
             float sy2 = sy1 + (float)Ei[e][20]*20;
-            int sc1 = 11 + 128;
-            int sc2 = 11 + 192;
+            int sc1 = 11 + 128; // source box color
 
             // destination
             float dx1 = (float)Ei[e][17]*20;
             float dy1 = (float)Ei[e][18]*20;
             float dx2 = dx1 + (float)Ei[e][19]*20;
             float dy2 = dy1 + (float)Ei[e][20]*20;
-            int dc1 = 10 + 128;
-            int dc2 = 10 + 192;
-
+            int dc1 = 10 + 128; // destination box color
 
             int m = Ei[e][5]; // 2 - 9  total seq (8)
 
-            if ((m > 1) && (m < 6)) // first half (2 - 5)
+            if ((m > 1) && (m < 6)) // first half (2 - 5) // flash source box green
             {
-               int d =  m-2; // 0 to 3
-               int co;
-
+               int co, d = m-2; // 0 to 3
                if (d == 0) co = 64;
                if (d == 1) co = 0;
                if (d == 2) co = 0;
                if (d == 3) co = 64;
-
-               // source
-               sc1 = 11 + co;
-               sc2 = 11 + co+64;
-
+               sc1 = 11 + co; // source box color
             }
-
-            if ((m > 5) && (m < 10)) // second half (6 - 9)
+            if ((m > 5) && (m < 10)) // second half (6 - 9) // flash destination box red
             {
-               int d =  m-6; // 0 to 3
-               int co;
-
+               int co, d =  m-6; // 0 to 3
                if (d == 0) co = 64;
                if (d == 1) co = 0;
                if (d == 2) co = 0;
                if (d == 3) co = 64;
-
-               // destination
-               dc1 = 10 + co;
-               dc2 = 10 + co+64;
+               dc1 = 10 + co; // destination box color
             }
-
-
             if (Ei[e][5] != 0) // in trigger box
             {
-               // trigger box
-               tc1 = 14+32;
-               tc2 = 14+32+64;
+               tc1 = 14 + 32; // trigger box color
 
                // show vertical red green bar animation sequence
                int b = (Ei[e][7] * 10) / (Ei[e][6]+1);
@@ -200,88 +174,17 @@ void draw_enemies(void)
                al_draw_scaled_rotated_bitmap(tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, ALLEGRO_FLIP_VERTICAL);
             }
 
-
-            if ((Ei[e][4] == 1) || (Ei[e][4] == 3))
-               rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, tc1, tc2); // trigger box
-            if ((Ei[e][4] == 2) || (Ei[e][4] == 3))
+            // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
+            int q = Ei[e][4];
+            if ((q == 1) || (q == 3))
+               rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, tc1, tc1+64); // trigger box
+            if ((q == 2) || (q == 3))
             {
-               rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, sc1, sc2); // source
-               rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, dc1, dc2); // destination
+               rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, sc1, sc1+64); // source
+               rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, dc1, dc1+64); // destination
             }
          }
 
-
-         #ifdef SHOW_CLONERLINES
-         if (Ei[e][0] == 9) // cloner
-         {
-            // show counter
-            int cx = al_fixtoi(Efi[e][0]) + 10;     // middle of cloner
-            int cy = al_fixtoi(Efi[e][1]) - 8;      // above cloner
-            //int cy = al_fixtoi(Efi[e][1])+24;     // below cloner
-            //int cy = al_fixtoi(Efi[e][1])+8;      // middle of cloner
-            al_draw_textf(font, palette_color[10], cx, cy, ALLEGRO_ALIGN_CENTER, "%d" ,Ei[e][7] );
-
-//            int x1 = al_fixtoi(Efi[e][6]) - 2;    // source x
-//            int y1 = al_fixtoi(Efi[e][7]) - 2;    // source y
-//            int x2 = x1 + x_size;
-//            int y2 = y1 + y_size;
-//
-//            int x3 = al_fixtoi(Efi[e][8]) - 2;    // dest x
-//            int y3 = al_fixtoi(Efi[e][9]) - 2;    // dest y
-//            int x4 = x3 + x_size;
-//            int y4 = y3 + y_size;
-
-            int cw = Ei[e][19]*20;     // width
-            int ch = Ei[e][20]*20;     // height
-
-            int x1 = Ei[e][15]*20;    // source
-            int y1 = Ei[e][16]*20;
-            int x2 = x1 + cw;
-            int y2 = y1 + ch;
-
-            int x3 = Ei[e][17]*20;    // destination
-            int y3 = Ei[e][18]*20;
-            int x4 = x3 + cw;
-            int y4 = y3 + ch;
-
-
-            al_fixed ratio = al_fixdiv(al_itofix(Ei[e][7]), al_itofix(Ei[e][6])) * 10;
-
-            if ((ratio < al_ftofix(2) ) && (ratio > al_ftofix(.5) ))
-            {
-               int color = 10; // red
-
-            // ratio is a float between 0 and 10
-            // to get here ratio must be > 2 and < 4
-            // converts to il and li which are the sizes of the inner and outer boxes
-            // when stated ratio is 3.999 and ends when ratio is 1.999
-            // when started li needs to be ~40-100 and 0 when ends...
-            // when started il needs to be ~40-100 and 20 when ends...
-               al_fixed tr = ratio - al_itofix(2); // starts at 1 and goes to -1
-               int il = al_fixtoi(tr * 32);
-               int li = al_fixtoi(tr * 16) - 20;
-               al_draw_rectangle(x1-il, y1-il, x2+il, y2+il, palette_color[color], 1);
-               al_draw_rectangle(x1-li, y1-li, x2+li, y2+li, palette_color[color], 1);
-               al_draw_line(x1-il, y1-il, x1-li, y1-li, palette_color[color], 1);
-               al_draw_line(x2+il, y2+il, x2+li, y2+li, palette_color[color], 1);
-               al_draw_line(x1-il, y2+il, x1-li, y2+li, palette_color[color], 1);
-               al_draw_line(x2+il, y1-il, x2+li, y1-li, palette_color[color], 1);
-            }
-            if (ratio < al_itofix(1) )
-            {
-               int color = 11; // green
-               al_fixed tr = al_itofix(1) - ratio; // starts at 0 and goes to 1
-               int il = al_fixtoi(tr * 8);
-               int li = al_fixtoi(tr * 4) - 20;
-               al_draw_rectangle(x3-li, y3-li, x4+li, y4+li, palette_color[color], 1);
-               al_draw_rectangle(x3-il, y3-il, x4+il, y4+il, palette_color[color], 1);
-               al_draw_line(x3-il, y3-il, x3-li, y3-li, palette_color[color], 1);
-               al_draw_line(x4+il, y4+il, x4+li, y4+li, palette_color[color], 1);
-               al_draw_line(x3-il, y4+il, x3-li, y4+li, palette_color[color], 1);
-               al_draw_line(x4+il, y3-il, x4+li, y3-li, palette_color[color], 1);
-            }
-         }
-         #endif
 
 
 
@@ -302,22 +205,17 @@ void draw_enemies(void)
             int hab =  Ei[e][20];
             al_draw_line(EXint-40, base+hab, EXint+40, base+hab, palette_color[12], 1);
 
-            // draw trigger box
-            int width =  Ei[e][17];
-            int height = Ei[e][18];
-            int depth =  Ei[e][19];
-            al_draw_rectangle(EXint-width+10, EYint-height, EXint+width+10, EYint+depth, palette_color[14], 1);
-
-            // draw height above player
-            //int hab =  Ei[e][20];
-            //al_draw_line(EXint-40+10, EYint+hab, EXint+40+10, EYint+hab, palette_color[10], 1);
+//            // draw trigger box
+//            int width =  Ei[e][17];
+//            int height = Ei[e][18];
+//            int depth =  Ei[e][19];
+//            al_draw_rectangle(EXint-width+10, EYint-height, EXint+width+10, EYint+depth, palette_color[14], 1);
 
          }
          #endif
 
 
          #ifdef SHOW_TRAKBOT_BULLET_TRIGGER_CIRCLE
-         // show trakbot bullet prox circle
          if (Ei[e][0] == 8) // trakbot
          {
             int prox = Ei[e][17];
@@ -641,6 +539,9 @@ void enemy_killed(int e)
 
 void enemy_flapper(int e)
 {
+   al_fixed f0 = al_itofix(0);
+   al_fixed f100 = al_itofix(100);
+
    if (Ei[e][31]) // hit
    {
       enemy_killed(e);
@@ -704,16 +605,27 @@ void enemy_flapper(int e)
    }
 
    // ------------ y seek  ---------------
-   al_fixed seek_yinc = al_itofix(0);  // yinc for this pass
+   al_fixed seek_yinc = f0;  // yinc for this pass
 
    // (comment out this line to only seek if player in trigger box)
    p = find_closest_player(e); // always seek closest player in y axis
 
    if (p != -1) // only seek in y axis if valid player in prox
    {
-      al_fixed hap = al_itofix(Ei[e][20]); // height_above_player
-      if (Efi[e][1] < players[p].PY - hap) seek_yinc += Efi[e][3];
-      if (Efi[e][1] > players[p].PY - hap) seek_yinc -= Efi[e][3];
+      al_fixed rat = al_itofix(1); // default scaling ratio for seek_yinc
+      al_fixed h = al_itofix(Ei[e][20]); // height_above_player
+      // difference between actual y and desired y
+      al_fixed df = Efi[e][1] - (players[p].PY - h);
+      if (df < f0)
+      {
+         if (df > -f100) rat = al_fixdiv(-df, f100);
+         seek_yinc += al_fixmul(Efi[e][3], rat);
+      }
+      if (df > f0)
+      {
+         if (df < f100) rat = al_fixdiv(df, f100);
+         seek_yinc -= al_fixmul(Efi[e][3], rat);
+      }
    }
 
    // ------------ y flap  ---------------
@@ -743,21 +655,20 @@ void enemy_flapper(int e)
 
    // inc flap counter and roll over
    Efi[e][9] += Efi[e][10];
-   if (Efi[e][9] >= al_itofix(100)) Efi[e][9] = al_itofix(0);
+   if (Efi[e][9] >= f100) Efi[e][9] = f0;
 
+//   printf("f:%f y:%f sy:%f fy:%f\n", f, al_fixtof(Efi[e][1]), al_fixtof(seek_yinc), al_fixtof(flap_yinc));
 
-   //printf("f:%f y:%f sy:%f fy:%f\n", f, al_fixtof(Efi[e][1]), al_fixtof(seek_yinc), al_fixtof(flap_yinc));
-
-   // combine the 2 y moves
-   al_fixed yinc = seek_yinc + flap_yinc;
+   // combine the 2 yincs
+   al_fixed yinc = flap_yinc + seek_yinc;
 
    // check for floor or ceiling collisions
-   if (yinc < al_itofix(0)) // moving up
+   if (yinc < f0) // moving up
    {
       yinc = is_up_solidfm(Efi[e][0], Efi[e][1], -yinc, 0);
       Efi[e][1] -= yinc; // apply allowed move
    }
-   else if (yinc > al_itofix(0)) // moving down
+   else if (yinc > f0) // moving down
    {
       yinc = is_down_solidfm(Efi[e][0], Efi[e][1], yinc, 0);
       Efi[e][1] += yinc; // apply allowed move
@@ -2097,6 +2008,8 @@ Ei[][21] flap height
 Efi[][5] max x speed
 Efi[][6] x accel
 Efi[][7] bullet speed
+
+
 Efi[][8] flap offset for next loop
 Efi[][9] flap speed counter
 Efi[][10] flap speed inc
