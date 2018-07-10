@@ -392,7 +392,7 @@ int copy_bitmap_proc()
          if (mouse_b1)
          {
             al_set_target_bitmap(tile[pointer]);
-             //blit (tile[bmp_index], tile[pointer], 0, 0, 0, 0, 20, 20);
+            al_clear_to_color(al_map_rgb(0, 0, 0));
             al_draw_bitmap(tile[bmp_index], 0, 0, 0);
             al_set_target_backbuffer(display);
          }

@@ -120,6 +120,11 @@ int load_tiles(void)
             tile[y*32 + x] = al_create_sub_bitmap(tilemap, x*20, y*20, 20, 20);
    }
 
+
+
+   //fill_player_tile();
+
+
    // get player tiles
    ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
    if (!ptilemap)
@@ -134,7 +139,7 @@ int load_tiles(void)
       al_set_target_bitmap(M_ptilemap);
       al_draw_bitmap(ptilemap, 0, 0, 0);
       for (int a=0; a<16; a++)
-         for (int b=0; b<19; b++)
+         for (int b=0; b<24; b++)
             player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
 
    }
