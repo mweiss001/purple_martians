@@ -989,6 +989,8 @@ int proc_controllers(void);
 // z_enemy.h
 int enemy_data(int x_pos, int y_pos);
 void get_enemy_draw_shape(int e);
+
+void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color);
 void draw_enemies(void);
 
 //void proc_enemy_collision_with_player(int p);

@@ -148,7 +148,7 @@ void create_bmp(void)
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
    tilemap = al_create_bitmap(640, 640);
-   ptilemap = al_create_bitmap(380,320);
+   ptilemap = al_create_bitmap(480,320);
    dtilemap = al_create_bitmap(160,640);
 //   printf("tilemap\n");
 //   show_pixel_format(al_get_bitmap_format(tilemap));
@@ -158,7 +158,7 @@ void create_bmp(void)
    // create memory bitmaps as temp storage for restoring tilemaps after screen change
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
    M_tilemap = al_create_bitmap(640,640);
-   M_ptilemap = al_create_bitmap(380,320);
+   M_ptilemap = al_create_bitmap(480,320);
    M_dtilemap = al_create_bitmap(160,640);
 //   printf("M_tilemap\n");
 //   show_pixel_format(al_get_bitmap_format(M_tilemap));

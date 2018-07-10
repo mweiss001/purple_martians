@@ -9822,6 +9822,244 @@ implemented this and the above problem is fixed....
 
 
 
+block #18 = ladder
+
+make a function to detect if player in touching ladder block...done
+
+add variable to player struct on_ladder...
+added to main player struct..took place of old bitmap_index
+
+
+can get off of ladder by moving away from detection area
+except if moving up at top of ladder then I want player to just stop there...
+
+
+player should be able to shoot if on ladder..done
+
+player should be able to jump off ladder..done
+
+player needs wall collision detection while on ladder..done
+player can now navigate single block openings well while on ladder
+
+
+add to move code if player moves up past top of ladder to just stop moving up
+so that player does not fall off ladder...done
+
+
+jump sets on_ladder to 0
+jump only if up is not pressed
+
+
+when players grabs ladder, need to make sure player is not embedded in wall
+or else up and down will not work..
+only when grabbing ladder when moving left or right...done
+
+
+
+player should have different shape seq when on ladder
+
+
+I think ladder is done except for new animation seq for ladder move
+
+
+
+now what about rope?
+block #19 = rope
+
+snap to 0 position when on rope
+can only move left and right
+can't jump
+can't shoot??
+can carry
+only way to leave rope is down or move off ends of rope left or right
+
+
+
+ropes and ladders seem to be working fine, but now I will need
+to spend some time doing nice animation sequences
+
+
+what happens when player is shot?  do they fall off rope or ladder?
+
+what does recoil do to them??
+adds to xinc and yinc, then that takes effect when player leaves rope or ladder
+
+
+how about don't do any recoil when on ladder or rope...
+
+
+
+
+new player shapes.....
+
+1 for jumping
+
+2 for rope
+2 for ladder
+
+what process do I have to go through to add them?
+
+
+brought back from the dead
+void fill_player_tile(void)
+
+call it from load tiles instead of other code...
+
+make sure it works...yes it does
+
+it needs these tiles from main tile set:
+
+368-373 (look up)
+400-405 (regular)
+432-437 (look down)
+755 (bullet)
+
+made some changes to main tile set
+now players down shapes are 432-437
+
+i want to add 5 more shapes for each player color
+
+438 jump
+528-529 rope
+560-561 ladder
+
+increase array...
+
+it was already
+ALLEGRO_BITMAP *player_tile[16][32] = {NULL};
+
+increase ptilemaps
+
+old was 380x320
+new 480 x 320
+
+
+am i really done with ladder and ropes??
+
+
+what about jumping on top of ladder?
+
+
+normally I can jump any time while on ladder
+I will not be on ladder after jump
+but then I can grab it again with up
+
+i disabled jump while up is pressed to prevent faster ladder climb
+
+
+
+fixed this with a few techniques:
+
+- changed order to process jump first and dont do any up if jump pressed
+
+that still speeded up jump held while climbing
+because for one frame when not on ladder yinc moved player 6.6
+then next frame grabbed ladder again and moved at 3...
+
+so i keep the saem yinc but offest y pos by 2.6...
+
+   if (players[p].jump)
+   {
+      players[p].on_ladder = 0;
+      al_fixed initial_jump_velocity = al_ftofix(6.6);
+      if (players[p].up) players[p].PY += al_ftofix(2.6);
+      players[p].yinc = -initial_jump_velocity;
+   }fix all refs to draw item of trakbot...
+old 192
+new 384
+
+   else
+   {
+      if (players[p].up)   players[p].PY -=   is_up_solidfm(players[p].PX, players[p].PY, m, 0);
+   }
+
+
+this looks good and works....
+
+
+---------------------------------------------
+fix all refs to draw item of trakbot...done
+---------------------------------------------
+old 192
+new 384
+
+
+---------------------------------------------
+player should be able to throw items down as well as up...done
+---------------------------------------------
+i did that but terminal velocity of items is only 3 and .1 for gravity
+compare to player with terminal velocity of 7.8 and gravity of .6 or .2 for slow
+
+
+---------------------------------------------
+legend boxes flashing are still not seen sometimes...done
+---------------------------------------------
+use slash marking??
+done for cloner, podzilla and key block range
+
+
+
+
+---------------------------------------------
+bug in item var 3 move type...done:
+---------------------------------------------
+
+   if (bn == 26)
+   {
+      if (item[num][3] ==  0) sprintf(smsg, "    Stationary    ");
+      if (item[num][3] ==  1) sprintf(smsg, "      Fall        ");
+      if (item[num][3] == -1) sprintf(smsg, "      Carry       ");
+      if (item[num][3] == -2) sprintf(smsg, "Carry Through Door");
+   }
+
+
+   if (bn == 2)
+   {
+      if (item[num][3] ==  0) sprintf(smsg,  "    Stationary   ");
+      if (item[num][3] == -1) sprintf(smsg,  "       Fall      ");
+      if (item[num][3] == -2) sprintf(smsg,  "Ride Through Door");
+   }
+
+
+all items use 2 or 26
+
+non carryable (use type 2)
+key
+free man
+
+carryable
+
+
+rocket needs custom button 93
+
+      if (item[num][3] ==  0) sprintf(smsg,  "    Stationary   ");
+      if (item[num][3] ==  1) sprintf(smsg,  "       Fall      ");
+      if (item[num][3] == -2) sprintf(smsg,  "Ride Through Door");
+
+
+
+      if (item[num][3] ==  1) sprintf(smsg, "      Fall        ");
+      if (item[num][3] ==  0) sprintf(smsg, "    Stationary    ");
+      if (item[num][3] == -1) sprintf(smsg, "      Carry       ");
+      if (item[num][3] == -2) sprintf(smsg, "Carry Through Door");
+
+
+
+rocket are created with -1 carry??? is this needed??
+no, set to 1 by default.. when lit if 0 or 1 they get changed to -1 carry
+unless -2 then they stay -2...
+
+need to glt and set all -1 to 1...done
+
+
+
+
+go through all levels
+
+see if cloners need boxes.. up to 100
+fix flappers..up to 100
+
+
 
 
 

@@ -173,7 +173,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             int ty1 = Ei[num][12] * db;
             int tx2 = Ei[num][13] * db + db;
             int ty2 = Ei[num][14] * db + db;
-            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color2], 1);
+            rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, db/3, color2, color2+64);
 
             // get extended position
             for (int j=0; j<Ei[num][7]; j++)
@@ -243,28 +243,27 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
                legend_color[4] = highlight_color;
             }
 
-            int cw = Ei[num][19];     // width
-            int ch = Ei[num][20];     // height
+            int cw = Ei[num][19] * db;     // width
+            int ch = Ei[num][20] * db;     // height
 
-            int cx1 = Ei[num][15];    // source
-            int cy1 = Ei[num][16];
+            int cx1 = Ei[num][15] * db;    // source
+            int cy1 = Ei[num][16] * db;
             int cx2 = cx1 + cw;
             int cy2 = cy1 + ch;
-            al_draw_rectangle(cx1*db, cy1*db, cx2*db, cy2*db, palette_color[color2], 1);
+            rectangle_with_diagonal_lines(cx1, cy1, cx2, cy2, db/3, color2, color2+64);
 
-            int cx3 = Ei[num][17];    // destination
-            int cy3 = Ei[num][18];
+            int cx3 = Ei[num][17] * db;    // destination
+            int cy3 = Ei[num][18] * db;
             int cx4 = cx3 + cw;
             int cy4 = cy3 + ch;
-            al_draw_rectangle(cx3*db, cy3*db, cx4*db, cy4*db, palette_color[color3], 1);
+            rectangle_with_diagonal_lines(cx3, cy3, cx4, cy4, db/3, color3, color3+64);
 
             // draw trigger box
             int tx1 = Ei[num][11] * db;
             int ty1 = Ei[num][12] * db;
             int tx2 = Ei[num][13] * db + db;
             int ty2 = Ei[num][14] * db + db;
-            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color4], 1);
-
+            rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, db/3, color4, color4+64);
          }
          break;
          case 11: sprintf(lmsg[1],"Block Walker Location"); break;
@@ -389,17 +388,17 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
                legend_color[2] = highlight_color;
             }
 
-            int x2 = item[num][6];
-            int y2 = item[num][7];
-            int x3 = item[num][8];
-            int y3 = item[num][9];
+            int x2 = item[num][6] * db;
+            int y2 = item[num][7] * db;
+            int x3 = item[num][8] * db + db - 1;
+            int y3 = item[num][9] * db + db - 1;;
             int x4 = (x2+x3)/2;
             int y4 = (y2+y3)/2;
 
             // draw range
-            al_draw_line(0, y4*db+db/2, 100*db-1, y4*db+db/2, palette_color[color], 1);
-            al_draw_line(x4*db+db/2, 0, x4*db+db/2, 100*db-1, palette_color[color], 1);
-            al_draw_rectangle(x2*db, y2*db, x3*db+db-1, y3*db+db-1, palette_color[color], 1);
+            al_draw_line(0, y4, 100*db-1, y4, palette_color[color], 1);
+            al_draw_line(x4, 0, x4, 100*db-1, palette_color[color], 1);
+            rectangle_with_diagonal_lines(x2, y2, x3, y3, db/3, color, color+64);
          }
          break;
          case 5: sprintf(lmsg[1],"Start Location"); break;
@@ -420,10 +419,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             }
             // draw yellow bomb damage
             int bs = (item[num][7] / 20) * db;
-            //al_draw_rectangle(x1*db-bs, y1*db-bs, x1*db+db-1+bs, y1*db+db-1+bs, palette_color[color], 1);
             al_draw_circle(x1*db+db/2, y1*db+db/2, bs, palette_color[color], 1);
-
-
          }
          break;
          case 10:
@@ -446,12 +442,9 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
                color = highlight_color;
                legend_color[2] = highlight_color;
             }
-
             // draw yellow bomb damage
             int bs = (item[num][7] / 20) * db;
-            //al_draw_rectangle(x1*db-bs, y1*db-bs, x1*db+db-1+bs, y1*db+db-1+bs, palette_color[color], 1);
             al_draw_circle(x1*db+db/2, y1*db+db/2, bs, palette_color[color], 1);
-
          }
          break;
          case 12: sprintf(lmsg[1],"Warp Location"); break;
@@ -1270,7 +1263,7 @@ void object_viewer(int obt, int num)
 
                break;
                case 11: // rocket
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  2, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall
+                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 82, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | ride through door
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  6, num, type, obt, 0, 15, 13,  0, 1,0,0,0); a++; // set initial direction
                   mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  4, num, type, obt, 0, 14, 15, 15, 1,0,0,0); a++; // damage range
                   mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  6, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // acceleration

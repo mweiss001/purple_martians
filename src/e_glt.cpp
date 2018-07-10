@@ -557,23 +557,25 @@ Ef[y][9] = 0;
 
 
 
-
-
-
+//
+//
+//
 //      for (int y=0; y<500; y++)
 //         if (item[y][0] == 11) // rocket
 //         {
-//            if (item[y][3] == 0) count0++;
-//            if (item[y][3] == 1) count1++;
-//            if (item[y][3] == -2) count2++;
-//            if (item[y][3] == -1) count3++;
+//            int t =  item[y][3];
 //
-//            if (item[y][3] == 1) item[y][3] = -1;
+//            printf("Lev:%3d t:%d\n" ,le[x], t);
 //
-//             //item[y][2] = 2; // rotate draw mode
+//            if (t == 0) count0++;
+//            if (t == 1) count1++;
+//            if (t == -2) count2++;
+//            if (t == -1) count3++;
+//
+//            item[y][3] = 1;
 //
 //         }
-//
+
 
 
 
@@ -620,12 +622,12 @@ Ef[y][9] = 0;
 //               printf("l:%3d E:%2d 4:%2d \n",le[x], y, Ei[y][4] );
 
 
-        for (int y=0; y<100; y++)
-           if (Ei[y][0] == 9)
-           {
-              Ei[y][1] = 550;
-              Ei[y][2] = 0;
-           }
+//        for (int y=0; y<100; y++)
+//           if (Ei[y][0] == 9)
+//           {
+//              Ei[y][1] = 550;
+//              Ei[y][2] = 0;
+//           }
 
 
 
@@ -721,9 +723,11 @@ Ef[y][9] = 0;
             }
          }
 
-*/
 
-/*
+      for (int y=0; y<100; y++)
+         if (Ei[y][0] == 8) Ei[y][1] = 384;
+
+
 
     for (int y=0; y<500; y++)
          if (item[y][0] == 14) //switch
@@ -868,18 +872,14 @@ Ef[y][9] = 0;
    } // end of level iterate
    al_flip_display();
 
-
    printf("Total count0:%d \n",count0 );
    printf("Total count1:%d \n",count1 );
    printf("Total count2:%d \n",count2 );
    printf("Total count3:%d \n",count3 );
    printf("min:%d max:%d\n", min, max);
 
-
-
    //show_block_list();
    tsw();
-
 
    start_level = old_start_level;
    load_level(start_level, 0);

@@ -3,9 +3,7 @@
 ---------------------------------------------------------
 
 
-player should be able to throw items down as well as up...
-i did that but terminal velocity of items is only 3 and .1 for gravity
-compare to player with terminal velocity of 7.8 and gravity of .6 or .2 for slow
+even if cloner draw boxes are off, i would still like them shown when a clone happens
 
 
 
@@ -13,67 +11,16 @@ compare to player with terminal velocity of 7.8 and gravity of .6 or .2 for slow
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-block #18 = ladder
-
-make a function to detect if player in touching ladder block...done
-
-add variable to player struct on_ladder...
-added to main player struct..took place of old bitmap_index
-
-
-can get off of ladder by moving away from detection area
-except if moving up at top of ladder then I want player to just stop there...
-
-
-player should be able to shoot if on ladder..done
-
-player should be able to jump off ladder..done
-
-player needs wall collision detection while on ladder..done
-player can now navigate single block openings well while on ladder
-
-
-add to move code if player moves up past top of ladder to just stop moving up
-so that player does not fall off ladder...done
-
-
-jump sets on_ladder to 0
-jump only if up is not pressed
-
-
-when players grabs ladder, need to make sure player is not embedded in wall
-or else up and down will not work..
-only when grabbing ladder when moving left or right...done
 
 
 
-player should have different shape seq when on ladder
-
-
-I think ladder is done except for new animation seq for ladder move
 
 
 
-now what about rope?
-block #19 = rope
-
-snap to 0 position when on rope
-can only move left and right
-can't jump
-can't shoot??
-can carry
-only way to leave rope is down or move off ends of rope left or right
+make a level with a huge cannon, like a boss level....done 330
 
 
-
-ropes and ladders seem to be working fine, but now I will need
-to spend some time doing nice animation sequences
-
-
-what happens when player is shot?  do they fall off rope or ladder?
-
-what does recoil do to them??
-adds to xinc and yinc, then that takes effect when player leaves rope or ladder
+512+
 
 
 
@@ -81,10 +28,7 @@ adds to xinc and yinc, then that takes effect when player leaves rope or ladder
 
 
 
-go through all levels
 
-see if cloners need boxes.. up to 20
-fix flappers..up to 20
 
 
 

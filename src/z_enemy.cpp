@@ -35,7 +35,7 @@ void get_enemy_draw_shape(int e)
 }
 
 
-void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int frame_color, int line_color)
+void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color)
 {
    al_set_clipping_rectangle(x1-1, y1-1, x2-x1+1, y2-y1+1);
 
@@ -45,7 +45,7 @@ void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int f
    float ld = xd;
    if (yd > ld) ld = yd;
 
-   for (float k=-ld; k<ld; k+=8)
+   for (float k=-ld; k<ld; k+=spacing)
       al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, palette_color[line_color], 0);
 
    al_draw_rectangle(x1, y1, x2, y2, palette_color[frame_color], 1);
@@ -177,11 +177,11 @@ void draw_enemies(void)
             // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
             int q = Ei[e][4];
             if ((q == 1) || (q == 3))
-               rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, tc1, tc1+64); // trigger box
+               rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
             if ((q == 2) || (q == 3))
             {
-               rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, sc1, sc1+64); // source
-               rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, dc1, dc1+64); // destination
+               rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // source
+               rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64); // destination
             }
          }
 
@@ -1626,13 +1626,30 @@ void enemy_cannon(int e)
          Ei[e][9]--;        // one less hit
          Ei[e][31] = 0;     // clear hit
 
-         Efi[e][2]  = al_fixmul(Efi[e][2],  al_ftofix(1.2));  // x speed
-         Efi[e][5]  = al_fixmul(Efi[e][5],  al_ftofix(1.2));  // seek speed
-         Efi[e][5]  = al_fixmul(Efi[e][5],  al_ftofix(1.2));  // seek speed
-         Efi[e][7]  = al_fixmul(Efi[e][7],  al_ftofix(1.2));  // bullet speed
-         Efi[e][12] = al_fixmul(Efi[e][12], al_ftofix(1.12)); // scale
+         al_fixed mul = al_ftofix(1.2);
+
+         if (Efi[e][5] > al_itofix(10)) mul = al_ftofix(1.1);
+         if (Efi[e][5] > al_itofix(20)) mul = al_ftofix(1.05);
+
+
+         Efi[e][2]  = al_fixmul(Efi[e][2],  mul);  // x speed
+         Efi[e][3]  = al_fixmul(Efi[e][3],  mul);  // y speed
+         Efi[e][5]  = al_fixmul(Efi[e][5],  mul);  // seek speed
+         Efi[e][7]  = al_fixmul(Efi[e][7],  mul);  // bullet speed
+         Efi[e][12] = al_fixmul(Efi[e][12], al_ftofix(1.1)); // scale
 
          Ei[e][29] += 2; // collison box size
+//
+//printf("%d %f %f %f %f %f \n",Ei[e][9],
+//                            al_fixtof(Efi[e][2]),
+//                            al_fixtof(Efi[e][3]),
+//                            al_fixtof(Efi[e][5]),
+//                            al_fixtof(Efi[e][7]),
+//                            al_fixtof(Efi[e][12]) );
+//
+//
+//
+
       }
    }
 

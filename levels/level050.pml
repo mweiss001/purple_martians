@@ -1,5 +1,5 @@
-0
-0
+32
+655360
 0
 44
 81
@@ -12020,7 +12020,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12052,7 +12052,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12084,7 +12084,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12116,7 +12116,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12148,7 +12148,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12180,7 +12180,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12212,7 +12212,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12244,7 +12244,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12276,7 +12276,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12308,7 +12308,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12340,7 +12340,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12372,7 +12372,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40
@@ -12404,7 +12404,7 @@ Run left across the bombs and get the green key,~then quickly run back and get t
 0
 0
 8
-192
+384
 0
 17
 40

@@ -102,6 +102,11 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 79) Efi[num][10] = al_ftofix(f);       // flap speed
    if (bn == 80) Ei[num][21] = (int)f;              // flap height
 
+
+
+
+
+
 }
 
 
@@ -112,8 +117,7 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    if (bn == 2)
    {
       if (item[num][3] ==  0) sprintf(smsg,  "    Stationary   ");
-      if (item[num][3] == -1) sprintf(smsg,  "       Fall      ");
-      if (item[num][3] == -2) sprintf(smsg,  "Ride Through Door");
+      if (item[num][3] ==  1) sprintf(smsg,  "       Fall      ");
    }
    if (bn == 4)
    {
@@ -156,8 +160,8 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    if (bn == 25) sprintf(smsg, "Viewer Help");
    if (bn == 26)
    {
-      if (item[num][3] ==  0) sprintf(smsg, "    Stationary    ");
       if (item[num][3] ==  1) sprintf(smsg, "      Fall        ");
+      if (item[num][3] ==  0) sprintf(smsg, "    Stationary    ");
       if (item[num][3] == -1) sprintf(smsg, "      Carry       ");
       if (item[num][3] == -2) sprintf(smsg, "Carry Through Door");
    }
@@ -237,6 +241,15 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (Ei[num][4] == 2) sprintf(smsg, "Draw Boxes:src/dst only");
       if (Ei[num][4] == 3) sprintf(smsg, "Draw Boxes:all");
    }
+
+   if (bn == 82) // rocket only
+   {
+      if (item[num][3] ==  1) sprintf(smsg,  "       Fall      ");
+      if (item[num][3] ==  0) sprintf(smsg,  "    Stationary   ");
+      if (item[num][3] == -2) sprintf(smsg,  "Ride Through Door");
+   }
+
+
 }
 
 void fill_smsg_slider(int bn, int type, int num)
@@ -416,7 +429,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
 
       if (bn == 1) return 1;
       if (bn == 3) return 1;
-      if (bn == 2) if (++item[num][3] > 0) item[num][3] = -2;
+      if (bn == 2) if (++item[num][3] > 1) item[num][3] = 0;
       if (bn == 4)
       {
          if (item[num][8] == 1) // Set Linked Item
@@ -591,6 +604,13 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
 
       if (bn == 78) if (++item[num][7] > 7) item[num][7] = 0;
       if (bn == 81) if (++Ei[num][4] > 3) Ei[num][4] = 0;
+
+      if (bn == 82)
+      {
+         item[num][3]++;
+         if (item[num][3] > 1) item[num][3] = -2;
+         if (item[num][3] == -1) item[num][3] = 0;
+      }
 
    } // end of mouse pressed on button
    return 0;

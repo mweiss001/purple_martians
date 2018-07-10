@@ -1178,10 +1178,10 @@ void do_rnd(void)
             //enemy_initial_position_random(b, 1);
 
             int archwag = 0;
-            int bouncer = 0;
+            int bouncer = 1;
             int cannon = 0;
             int trakbot = 0;
-            int flapper = 1;
+            int flapper = 0;
 
             if ((Ei[b][0] == 3) && (archwag))
             {
@@ -1189,13 +1189,13 @@ void do_rnd(void)
 
                //enemy_initial_position_random(b, 1);
 
-               Efi[b][6] = al_ftofix(mdw_rnd(.5, 10)); // x speed
-               Efi[b][3] = al_ftofix(mdw_rnd(2, 11)); // y speed
-               Efi[b][7] = al_ftofix(mdw_rnd(1, 10)); // bullet speed
+               Efi[b][6] = al_ftofix(mdw_rnd(2.5, 7)); // x speed
+               Efi[b][3] = al_ftofix(mdw_rnd(2, 8)); // y speed
+               Efi[b][7] = al_ftofix(mdw_rnd(3, 7)); // bullet speed
                Ei[b][15] = (int) mdw_rnd(20, 120);   // bullet retrigger value
-               Ei[b][17] = (int) mdw_rnd(100, 800);  // bullet prox
+               Ei[b][17] = (int) mdw_rnd(60, 200);  // bullet prox
                Ei[b][11] = (int) mdw_rnd(0, 10); // jump before hole
-               Ei[b][12] = (int) mdw_rnd(0, 60); //  jump before wall
+               Ei[b][12] = (int) mdw_rnd(30, 60); //  jump before wall
 
 
                Ei[b][2] = (int) mdw_rnd(0, 2);  // initial direction
@@ -1204,13 +1204,12 @@ void do_rnd(void)
 
 
 
-
-
             }
             if ((Ei[b][0] == 4) && (bouncer))
             {
                printf("randomizing bouncer:%d\n", b);
-               Ei[b][8] = (int) mdw_rnd(0, 10); // seek count
+               enemy_initial_position_random(b, 1);
+               Ei[b][8] = (int) mdw_rnd(1, 3); // seek count
                Efi[b][5] = al_ftofix(mdw_rnd(2, 8)); // seek speed
                // set initial direction
                if (0) set_xyinc_rot(b, rand() % 2000, rand() % 2000); // random
@@ -1219,14 +1218,14 @@ void do_rnd(void)
             if ((Ei[b][0] == 6) && (cannon))
             {
                printf("randomizing cannon:%d\n", b);
-               Ei[b][9] = (int) mdw_rnd(0, 8); // extra hits to kill
-               Ei[b][8] = (int) mdw_rnd(0, 10); // seek count
-               Efi[b][5] = al_ftofix(mdw_rnd(2, 8)); // seek speed
-               Efi[b][7] = al_ftofix(mdw_rnd(2, 8)); // bullet speed
-               Ei[b][15] = (int) mdw_rnd(50, 200); // bullet retrigger
+               Ei[b][9] = (int) mdw_rnd(0, 2); // extra hits to kill
+               Ei[b][8] = (int) mdw_rnd(1, 4); // seek count
+               Efi[b][5] = al_ftofix(mdw_rnd(2, 4)); // seek speed
+               Efi[b][7] = al_ftofix(mdw_rnd(3, 8)); // bullet speed
+               Ei[b][15] = (int) mdw_rnd(60, 200); // bullet retrigger
                // set initial direction
-               if (0) set_xyinc_rot(b, rand() % 2000, rand() % 2000); // random
-               if (1) set_xyinc_rot(b, sbx, sby); // point at start block
+               if (1) set_xyinc_rot(b, rand() % 2000, rand() % 2000); // random
+               if (0) set_xyinc_rot(b, sbx, sby); // point at start block
             }
 
             if ((Ei[b][0] == 8) && (trakbot))
@@ -1235,15 +1234,15 @@ void do_rnd(void)
 
                Ei[b][7] = (int) mdw_rnd(0, 2);  // drop mode(0=no, 1=yes)
 
-               Ei[b][5] = (int) mdw_rnd(0, 8); // trakbot direction
-               set_trakbot_mode(b, Ei[b][5]);
+//               Ei[b][5] = (int) mdw_rnd(0, 8); // trakbot direction
+//               set_trakbot_mode(b, Ei[b][5]);
 
-               Efi[b][2] = al_ftofix(mdw_rnd(1, 16)); // x speed
-               Efi[b][3] = al_ftofix(mdw_rnd(1, 16)); // y speed
+               Efi[b][2] = al_ftofix(mdw_rnd(2, 8)); // x speed
+               Efi[b][3] = al_ftofix(mdw_rnd(2, 8)); // y speed
 
                Efi[b][7] = al_ftofix(mdw_rnd(2, 8)); // bullet speed
                Ei[b][15] = (int) mdw_rnd(50, 200);   // bullet retrigger
-               Ei[b][17] = (int) mdw_rnd(50, 200);   // bullet prox
+               Ei[b][17] = (int) mdw_rnd(40, 280);   // bullet prox
             }
 
             if ((Ei[b][0] == 12) && (flapper))
@@ -1269,8 +1268,8 @@ void do_rnd(void)
                Efi[b][10] = al_ftofix(mdw_rnd(1.5, 4)); // flap speed
                Ei[b][21] = (int) mdw_rnd(10, 40);     // flap height
 
-//               Efi[b][7] = al_ftofix(mdw_rnd(4, 10)); // bullet speed
-//               Ei[b][15] = (int) mdw_rnd(20, 120);    // bullet retrigger value
+               Efi[b][7] = al_ftofix(mdw_rnd(3, 7)); // bullet speed
+               Ei[b][15] = (int) mdw_rnd(20, 120);    // bullet retrigger value
 //
 //               Ei[b][17] = (int) mdw_rnd(20, 120); // prox width
 //               Ei[b][18] = (int) mdw_rnd(20, 120); // prox height

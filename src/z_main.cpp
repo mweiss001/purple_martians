@@ -560,13 +560,13 @@ int initial_setup(void)
       return -1;
    }
 
-   if(!al_init_image_addon())
-   {
-      m_err("Failed to initialize image addon.\n");
-      return -1;
-   }
-   load_tiles();
-   al_set_display_icon(display, tile[401]);
+
+
+
+
+
+
+
 
    if(!al_init_primitives_addon())
    {
@@ -630,6 +630,16 @@ int initial_setup(void)
       }
       al_register_event_source(event_queue, al_get_joystick_event_source());
    }
+
+
+   if(!al_init_image_addon())
+   {
+      m_err("Failed to initialize image addon.\n");
+      return -1;
+   }
+   load_tiles();
+   al_set_display_icon(display, tile[401]);
+
 
 
 // --- timers ---------------------
