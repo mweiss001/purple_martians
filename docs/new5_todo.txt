@@ -3,7 +3,6 @@
 ---------------------------------------------------------
 
 
-even if cloner draw boxes are off, i would still like them shown when a clone happens
 
 
 
@@ -14,22 +13,19 @@ even if cloner draw boxes are off, i would still like them shown when a clone ha
 
 
 
-
-
-
 make a level with a huge cannon, like a boss level....done 330
 
 
-512+
+even if cloner draw boxes are off, i would still like them shown when a clone happens
 
 
 
+make a level to test if you can chain throwing sproingies
+331
 
-
-
-
-
-
+hell you can do it with a single sproingy
+just let go before the top of the jump while holding down so it doesnt get thrown up by inheriting players yinc
+then fall on it again while holding fire and jump
 
 
 reset vls end level before release
