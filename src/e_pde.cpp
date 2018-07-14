@@ -519,7 +519,7 @@ int process_select_window(int draw_only)
             al_draw_textf(font, palette_color[15], swx1+2, syt+22, 0, "Block %d - %s ", ret, t);
             al_draw_text (font, palette_color[15], swx1+2, syt+30, 0, "---------------------");
 
-            if (mouse_b1)
+            if ((mouse_b1) || (mouse_b2))
             {
                while (mouse_b1) proc_controllers(); // wait for release
                return ret;
