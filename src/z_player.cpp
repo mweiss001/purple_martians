@@ -1516,13 +1516,11 @@ void fill_player_tile(void)
 
          al_set_target_bitmap(player_tile[a][19]); al_draw_bitmap(tile[438], 0, 0, 0);
 
-         al_set_target_bitmap(player_tile[a][20]); al_draw_bitmap(tile[528], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][21]); al_draw_bitmap(tile[529], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][20]); al_draw_bitmap(tile[606], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][21]); al_draw_bitmap(tile[607], 0, 0, 0);
 
-         al_set_target_bitmap(player_tile[a][22]); al_draw_bitmap(tile[560], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][23]); al_draw_bitmap(tile[561], 0, 0, 0);
-
-
+         al_set_target_bitmap(player_tile[a][22]); al_draw_bitmap(tile[638], 0, 0, 0);
+         al_set_target_bitmap(player_tile[a][23]); al_draw_bitmap(tile[639], 0, 0, 0);
 
       }
 

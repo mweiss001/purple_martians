@@ -144,21 +144,50 @@ void set_block_range(void)
                if (a == bx1)   l[a][b] = 177;
                if (a == bx2-1) l[a][b] = 179;
             }
+
+            else if ((draw_item_num >= 512) && (draw_item_num <= 528)) // purple pipe box with solid core
+            {
+               l[a][b] = 528; // solid core by default
+               if (b == by1  ) l[a][b] = 518; // upper horizontal through
+               if (b == by2-1) l[a][b] = 519; // lower horizontal through
+
+
+               if (a == bx1)
+               {
+                  if (b == by1) l[a][b] = 512; // upper-right corner
+                  else if (b == by2-1) l[a][b] = 514; // lower-right corner
+                  else l[a][b] = 516; // right vertical through
+               }
+               if (a == bx2-1)
+               {
+                  if (b == by1) l[a][b] = 513; // upper-left corner
+                  else if (b == by2-1) l[a][b] = 515; // lower-left corner
+                  else l[a][b] = 517; //  left vertical through
+               }
+
+
+
+
+            }
+
+
+
+
             else if ((draw_item_num >= 576) && (draw_item_num <= 592)) // purple pipe box with corners
             {
                if (b == by1  ) l[a][b] = 582; // horizontal through
                if (b == by2-1) l[a][b] = 582; // horizontal through
                if (a == bx1)
                {
-                  if (b == by1) l[a][b] = 576; // up-right corner
-                  else if (b == by2-1) l[a][b] = 578; // left-up corner
-                  else l[a][b] = 580; // vertical through
+                  if (b == by1) l[a][b] = 576; // upper-right corner
+                  else if (b == by2-1) l[a][b] = 578; // lower-right corner
+                  else l[a][b] = 580; // right vertical through
                }
                if (a == bx2-1)
                {
-                  if (b == by1) l[a][b] = 577; // right-down corner
-                  else if (b == by2-1) l[a][b] = 579; // down-left corner
-                  else l[a][b] = 580; //  vertical through
+                  if (b == by1) l[a][b] = 577; // upper-left corner
+                  else if (b == by2-1) l[a][b] = 579; // lower-left corner
+                  else l[a][b] = 580; //  left vertical through
                }
             }
             else if ((draw_item_num >= 576+32) && (draw_item_num <= 592+32)) // wires box with corners
