@@ -67,50 +67,45 @@
 The source files are all in a common directory and all compile to a single executable.
 They are all *.cpp even though I mostly only use straight C.
 
-Files that start with 'e_' are for the level editor. (which at one point was a seperate exe)
+Files that begin with 'e_' are for the level editor. (which at one point was a seperate exe)
 </mh3>
 <pre><code class="language-cpp">e_bitmap.cpp
-e_editor.cpp
+e_editor_main.cpp
+e_editor_zfs.cpp
+e_enemy.cpp
 e_fnx.cpp
 e_glt.cpp
 e_item.cpp
-e_lev.cpp
-e_nev.cpp
-e_nlv.cpp
+e_lift.cpp
+e_object_viewer.cpp
 e_pde.cpp
-e_sel.cpp
 e_sliders.cpp
-e_special.cpp
+e_visual_level.cpp
 </code></pre>
 
 <mh3>
-Files that start with 'z' are for the game.
+Files that begin with 'z_' are for the game.
 </mh3>
-<pre><code class="language-cpp">zbullets.cpp
-zcfg.cpp
-zcontrol.cpp
-zemove.cpp
-zfile.cpp
-zfnx.cpp
-zitem.cpp
-zlifts.cpp
-zlog.cpp
-zlogo.cpp
-zloop.cpp
-zmain.cpp
-zmap.cpp
-zmenu.cpp
-zplayer.cpp
-zscrn.cpp
-zscrn_overlay.cpp
-zsound.cpp
+<pre><code class="language-cpp">z_bullets.cpp
+z_config.cpp
+z_control.cpp
+z_enemy.cpp
+z_file.cpp
+z_fnx.cpp
+z_item.cpp
+z_lift.cpp
+z_log.cpp
+z_logo.cpp
+z_loop.cpp
+z_main.cpp
+z_map.cpp
+z_menu.cpp
+z_player.cpp
+z_screen.cpp
+z_screen_overlay.cpp
+z_sound.cpp
 </code></pre>
 
-<mh3>
-Files that begin with 'y' are for common loading of tiles and levels.
-</mh3>
-<pre><code class="language-cpp">yfilecom.cpp
-</code></pre>
 
 <mh3>
 Files that begin with 'n_' are for netgame.
@@ -122,9 +117,9 @@ n_server.cpp
 </code></pre>
 
 <mh3>
-The function 'main' is found in the file zmain.cpp.
+The function 'main' is found in the file z_main.cpp.
 
-Also found in zmain.cpp:
+Also found in z_main.cpp:
 - command line argument parsing and processing
 - initial setup, loading allegro and add-ons
 - the main game menu
@@ -135,30 +130,30 @@ It contains extern declarations of all the global variables definied in zmain.cp
 It also contains function prototypes for every function in the project.
 
 I know this is not "good programming style" and I have tried to reduce the number of
-globals wherever possible.   However, somtimes I just need to have a variable visible
+globals wherever possible.   However, sometimes I just need to have a variable visible
 in many places, and any other solutions I could think of to avoid this, end up being more
 convoluted and non-intuitive.
 
-In the file 'zcfg.cpp' I load and save variable to the configuration file 'pm.cfg'.
+In the file 'z_config.cpp' I load and save variable to the configuration file 'pm.cfg'.
 
-In the file 'zsound.cpp' I set up and process sound effects and theme music.
+In the file 'z_sound.cpp' I set up and process sound effects and theme music.
 
-In the file 'zscrn.cpp' I create the display and bitmaps, as well as rebuild them after screen changes.
+In the file 'z_screen.cpp' I create the display and bitmaps, as well as rebuild them after screen changes.
 
-In the file 'yfilecom.cpp' are the functions to load the tilesets and levels.
+In the file 'z_file.cpp' are the functions to load the tilesets and levels.
 
-In the file 'zloop.cpp' is the main game loop.
+In the file 'z_loop.cpp' is the main game loop.
 
-In the file 'zcontrol.cpp' is the event loop processing, and also all input and game controls
+In the file 'z_control.cpp' is the event loop processing, and also all input and game controls
 
 
 The in game objects fall into 5 classes and are processed in:
 
-players - zplayer.cpp
-enemies - zemove.cpp
-items - zitem.cpp
-lifts - zlifts.cpp
-bullets - zbullets.cpp
+players - z_player.cpp
+enemies - z_enemy.cpp
+items - z_item.cpp
+lifts - z_lift.cpp
+bullets - z_bullets.cpp
 
 
 
