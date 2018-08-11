@@ -182,7 +182,7 @@ The server synchronizes its master game moves array to each client independantly
 The server knows how many game moves are in its master array with the global int 'game_move_entry_pos'.
 The server also tracks the last acknowledged 'game_move_entry_pos' for each player in the player structure.
 
-Every frame the server checks each client to see if there is un-acknowlegded game moves to send.
+Every frame the server checks to see if there are un-acknowledged game moves to send for each client.
 If there is data to send, the server sends a 'sdat' packet with the needed data to that client.
 </mh3>
 <pre><code class="language-cpp">void server_send_sdat(void)
