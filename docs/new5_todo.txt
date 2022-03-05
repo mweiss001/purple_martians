@@ -10,6 +10,15 @@
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+document how to create new shapes
+
+
+figure out how to do github
+
+
+
+
+
 
 
 
@@ -190,9 +199,12 @@ make other kind of mines, like spikes, lava, flames...etc
 
 
 make player wall collisions pixel perfect like when on ladder???
-make single block naviagtion like ladder move...
-this will make jumping up into sigle block opening very hard...
+make single block navigaion like ladder move...
+this will make jumping up into single block opening very hard...
 this sound like a major re-write..
+
+
+
 
 
 

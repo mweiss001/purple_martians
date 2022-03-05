@@ -1,4 +1,0 @@
-copy libnet.a to C:\mingw32\lib
-copy libnet.h to C:\mingw32\include
-
-link with libnet.a and libwsock32.a

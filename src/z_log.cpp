@@ -1052,7 +1052,7 @@ void log_bandwidth_graph(int num_lines, int end_pc)
 
    int gs_pc = 0; // graph start pc
 
-   int rangef; // frame range of current display, used to set scroll amount
+   int rangef = 0; // frame range of current display, used to set scroll amount
 
    float y_scale = 1;
    float p2g = 1;

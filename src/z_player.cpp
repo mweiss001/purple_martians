@@ -666,7 +666,7 @@ int is_player_on_ladder(int p)
    int AX = al_fixtoi(players[p].PX);
    int AY = al_fixtoi(players[p].PY);
 
-   int bx2, bx1 = AX / 20;
+   int bx2 = 0, bx1 = AX / 20;
    int am = AX % 20;
    if (am < 9) // this block only
    {
@@ -682,7 +682,7 @@ int is_player_on_ladder(int p)
       bx2 = bx1 + 1;
    }
 
-   int by2, by1 = AY / 20;
+   int by2 = 0, by1 = AY / 20;
    am = AY % 20;
    if (am < 9) // this block only
    {
@@ -715,7 +715,7 @@ int is_player_on_rope(int p)
    int AX = al_fixtoi(players[p].PX);
    int AY = al_fixtoi(players[p].PY);
 
-   int bx2, bx1 = AX / 20;
+   int bx2 = 0, bx1 = AX / 20;
    int am = AX % 20;
    if (am < 9) // this block only
    {

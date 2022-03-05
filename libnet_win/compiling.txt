@@ -1,0 +1,37 @@
+20220304
+
+compiling the libnet library for MinGW-W64 version 8.1.0
+
+
+sources come from:
+version 0.10.11 from 20030218
+
+
+
+take the folder libnet and put it in c:\
+
+copy mingw.mak from makfiles to top dir
+rename to port.mak
+edit file and remove -Werror
+
+
+I got "codeblocks-20.03mingw-setup.exe"
+that comes with MinGW-W64 project (version 8.1.0, 32/64 bit, SEH)
+installed at C:\Program Files\CodeBlocks\MinGW
+
+
+
+open a command prompt window and cd to C:/libnet
+
+added C:\Program Files\CodeBlocks\MinGW\bin to PATH like this: 
+SET PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;C:\Program Files\Git\cmd;C:\Program Files\CodeBlocks\MinGW\bin
+SET MINGDIR=C:\Program Files\CodeBlocks\MinGW
+
+then ran mingw32-make.exe from command line in libnet dir
+
+that created libnet.a 375 KB
+
+copied that to C:\Program Files\CodeBlocks\MinGW\lib
+
+the header file libnet.h goes in C:\Program Files\CodeBlocks\MinGW\include
+

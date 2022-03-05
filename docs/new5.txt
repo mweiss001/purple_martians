@@ -10065,6 +10065,78 @@ fix flappers..up to 100
 
 
 
+20220305
+
+I am back after a few years absense....
+
+Figured out the new dev environment, for windows anyway, linux later
+
+
+I will put some useful info in the HOWTO dir...I guess I can out everything except the github password with the project...
+
+
+make level editor use display_transform_double = 2; in 4K done..looks better
+
+
+make demo mode take 30s instead of 10
+don't do demo mode if paused in a level
+done
+
+
+
+why does cloner show both shapes...fixed
+
+smooth cloner animation sequence 7 steps
+did a lot of cleaning up an refactoring cloner trigger stuff and mode stuff,
+removed the mode controlling the red green flashes when cloning
+now mode is only for telling if in trigger box last frame
+
+what happened to:
+sticky bombs?
+remote bombs?
+the new way of showing circular bomb damage?
+
+
+they are not there in the official 7.05 release
+
+but they are in the one from sources....
+
+ladders, ropes?
+
+I would like to add for rockets, a line to show where they will go and what blocks they will destroy..done
+make the rocket line thing more accurate by moving exactly like real rocket does..done
+
+
+lets start making some cool levels...
+start at level 300
+
+
+document the dev setup again, especially libnet
+done and put in project files
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

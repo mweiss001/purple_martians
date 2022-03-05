@@ -148,7 +148,7 @@ void draw_enemies(void)
 
             if ((m > 1) && (m < 6)) // first half (2 - 5) // flash source box green
             {
-               int co, d = m-2; // 0 to 3
+               int co = 0, d = m-2; // 0 to 3
                if (d == 0) co = 64;
                if (d == 1) co = 0;
                if (d == 2) co = 0;
@@ -157,7 +157,7 @@ void draw_enemies(void)
             }
             if ((m > 5) && (m < 10)) // second half (6 - 9) // flash destination box red
             {
-               int co, d =  m-6; // 0 to 3
+               int co = 0, d =  m-6; // 0 to 3
                if (d == 0) co = 64;
                if (d == 1) co = 0;
                if (d == 2) co = 0;
@@ -166,12 +166,12 @@ void draw_enemies(void)
             }
             if (Ei[e][5] != 0) // in trigger box
             {
-               tc1 = 14 + 32; // trigger box color
+               tc1 = 14 + 32; // trigger box color brighter
 
                // show vertical red green bar animation sequence
-               int b = (Ei[e][7] * 10) / (Ei[e][6]+1);
-               int t = zz[5+b][53];
-               al_draw_scaled_rotated_bitmap(tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, ALLEGRO_FLIP_VERTICAL);
+              // int b = (Ei[e][7] * 10) / (Ei[e][6]+1);
+              // int t = zz[5+b][53];
+              // al_draw_scaled_rotated_bitmap(tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, ALLEGRO_FLIP_VERTICAL);
             }
 
             // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
@@ -900,8 +900,7 @@ void enemy_cloner(int e)
    int y5 = Ei[e][14]*20 + 10;
 
 
-   Ei[e][1] = zz[0][105];
-
+   Ei[e][1] = zz[0][105]; // default shape
 
    if (Ei[e][31]) // hit
    {
@@ -910,53 +909,70 @@ void enemy_cloner(int e)
    }
    enemy_player_hit_proc(e);
 
+
    // set draw shape
    Ei[e][2] = 0;  // flip mode
    int b = (Ei[e][7] * 7) / (Ei[e][6]+1);
    Ei[e][1] = zz[5+b][106];
 
+   if (Ei[e][8] == 2) Ei[e][1] = zz[0][105]; // to make something happen for immed
 
 
-   // modes
-   // 0 = not in trigger box
-   // 1 = in trigger box
-   // > 1 in clone mode
 
-   if (Ei[e][5] > 1) Ei[e][5]++; // move the count along if in clone mode
+//   printf("%d %d %d \n", b, Ei[e][7], Ei[e][6]);
 
-   if (Ei[e][5] > 10) // clone mode done; reset mode
+
+
+   int create_now = 0;
+
+
+
+   int player_in_box = is_player_in_trigger_box(x4, y4, x5, y5);
+
+   int player_just_entered_trigger_box = 0;
+
+   if ((!Ei[e][5]) && (player_in_box)) player_just_entered_trigger_box = 1; // not in trig box last time and in box this time
+
+
+   // mode (Ei[e][5]
+   // 0 = not in trigger box last time
+   // 1 = in trigger box last time
+
+   // Ei[][8]  trigger mode (0=wait, 1=reset, 2=immed)//
+
+
+   // wait mode, player in box, run timer
+   if ((Ei[e][8] == 0) && (player_in_box) && (--Ei[e][7] == 0))
    {
       Ei[e][7] = Ei[e][6]; // reset counter
-      if (is_player_in_trigger_box(x4, y4, x5, y5)) Ei[e][5] = 1;
-      else Ei[e][5] = 0;
+      create_now = 1;
    }
 
-   int mode = Ei[e][5];
+   // mode immed
+   if ((Ei[e][8] == 2) && (player_just_entered_trigger_box)) create_now = 1;
 
-   if (mode == 1) // in trig box last time
-   {
-      if (is_player_in_trigger_box(x4, y4, x5, y5))
-      {
-         if (--Ei[e][7] == 0)  Ei[e][5] = 2; // time for create
-      }
-      else Ei[e][5] = 0; // mode 0 - not in trigger box
-   }
 
-   if (mode == 0) // not in trig box last time
+   // mode reset timer
+   if (Ei[e][8] == 1)
    {
-      if (is_player_in_trigger_box(x4, y4, x5, y5))
+      if (player_just_entered_trigger_box) Ei[e][7] = Ei[e][6];
+
+      if (player_in_box)
       {
-         Ei[e][5] = 1; // set mode 1 - in box
-         if (Ei[e][8] == 1) Ei[e][7] = Ei[e][6]; // reset timer when triggered
-         if (Ei[e][8] == 2)                      // immediate clone when triggered
+         if (--Ei[e][7] == 0) // other wise run timer
          {
-            Ei[e][7] = 0; // set timer to 0 (for display)
-            Ei[e][5] = 2; // set mode to clone
+            Ei[e][7] = Ei[e][6]; // reset counter
+            create_now = 1;
          }
       }
    }
 
-   if (mode == 5)  // create
+
+   if (player_in_box) Ei[e][5] = 1; // for next time
+   else Ei[e][5] = 0;
+
+
+   if (create_now)
    {
       int no=0, cl=Ei[e][10]; // limit on number of created objects
       if (cl)
