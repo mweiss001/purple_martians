@@ -468,7 +468,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
 {
    y+=4;
 
-   demo_mode_countdown = 800;
+   demo_mode_countdown = 2400;
 
    int highlight = menu_pos;
    int selection = 999;
@@ -506,10 +506,10 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
          draw_level(); // only draw map on main menu
          if (--demo_mode_countdown < 0)
          {
-            demo_mode_countdown = 800;
+            demo_mode_countdown = 2400;
             return 9;
          }
-         if (resume_allowed) demo_mode_countdown = 800;
+         if (resume_allowed) demo_mode_countdown = 2400;
          sprintf(global_string[7][9], "Demo Mode (%d)", demo_mode_countdown / 80);
       }
 
@@ -539,10 +539,13 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       last_list_item = c-1;
 
 
-      if (proc_controllers()) demo_mode_countdown = 800;
+      if (proc_controllers()) demo_mode_countdown = 2400;
+
+      if (resume_allowed) demo_mode_countdown = 2400;
 
       // shortcut key for level editor
       //if (menu_num == 7) if (key[ALLEGRO_KEY_L]) return 9;
+
 
       if (((key[ALLEGRO_KEY_RIGHT]) || (players[0].right)) && (right_held == 0))
       {
@@ -551,6 +554,8 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       }
       if ( (!(key[ALLEGRO_KEY_RIGHT])) &&  (!(players[0].right)) )  right_held = 0;
 
+
+
       if (((key[ALLEGRO_KEY_LEFT]) || (players[0].left)) && (left_held == 0))
       {
          left_held = 1;
@@ -558,21 +563,25 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       }
       if ( (!(key[ALLEGRO_KEY_LEFT])) &&  (!(players[0].left)) )  left_held = 0;
 
+
+
       if (((key[ALLEGRO_KEY_DOWN]) || (players[0].down))  && (down_held == 0))
       {
          if (++highlight > last_list_item) highlight = last_list_item;
          down_held = 1;
-         demo_mode_countdown = 800;
       }
       if ( (!(key[ALLEGRO_KEY_DOWN])) && (!(players[0].down))) down_held = 0;
+
+
 
       if (((key[ALLEGRO_KEY_UP]) || (players[0].up)) && (up_held == 0))
       {
          if (--highlight < 2) highlight = 2;
          up_held = 1;
-         demo_mode_countdown = 800;
       }
       if ( (!(key[ALLEGRO_KEY_UP])) && (!(players[0].up))) up_held = 0;
+
+
 
       if (key[ALLEGRO_KEY_ENTER]) selection = highlight;
 
@@ -581,14 +590,8 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
          selection = 2; // default position for back
          if (menu_num == 7)  selection = 1; // for top menu only
       }
-
       if (key[ALLEGRO_KEY_PGDN]) highlight = last_list_item;
       if (key[ALLEGRO_KEY_PGUP]) highlight = 2;
-
-
-
-
-
    }
    return selection;
 }

@@ -31,7 +31,7 @@
 //#define SHOW_TRAKBOT_BULLET_TRIGGER_CIRCLE
 
 // item debug stuff
-//#define SHOW_BOMB_DAMAGE_BOX
+// #define SHOW_BOMB_DAMAGE_BOX
 
 // screen debug stuff
 // #define SHOW_HYSTERESIS_WINDOW

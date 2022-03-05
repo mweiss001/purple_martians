@@ -15,7 +15,7 @@
 					<Add option="-Wall" />
 					<Add option="-pg" />
 					<Add option="-g" />
-					<Add directory="C:/mingw32/include" />
+					<Add directory="C:/Program Files/CodeBlocks/MinGW/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -31,13 +31,15 @@
 				<Option object_output="o" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Option parameters="300" />
 				<Compiler>
 					<Add option="-Wall" />
-					<Add option="-DALLEGRO_STATICLINK" />
 					<Add option="-pg" />
 					<Add option="-Og" />
 					<Add option="-g" />
-					<Add directory="C:/mingw32/include" />
+					<Add option="-DALLEGRO_STATICLINK" />
+					<Add directory="C:/Program Files/CodeBlocks/MinGW/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -65,6 +67,16 @@
 					<Add option="-ladvapi32" />
 					<Add option="-lws2_32" />
 					<Add option="-lshlwapi" />
+					<Add option="-ljpeg" />
+					<Add option="-lwebp" />
+					<Add option="-lwebpdecoder" />
+					<Add option="-lFLAC" />
+					<Add option="-ltheoradec" />
+					<Add option="-lvorbisfile" />
+					<Add option="-lvorbis" />
+					<Add option="-lopusfile" />
+					<Add option="-lopus" />
+					<Add option="-logg" />
 					<Add option="-lnet" />
 					<Add option="-lwsock32" />
 				</Linker>
@@ -99,7 +111,7 @@
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-DALLEGRO_STATICLINK" />
-					<Add directory="C:/mingw32/include" />
+					<Add directory="C:/Program Files/CodeBlocks/MinGW/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libstdc++" />
@@ -126,6 +138,16 @@
 					<Add option="-ladvapi32" />
 					<Add option="-lws2_32" />
 					<Add option="-lshlwapi" />
+					<Add option="-ljpeg" />
+					<Add option="-lwebp" />
+					<Add option="-lwebpdecoder" />
+					<Add option="-lFLAC" />
+					<Add option="-ltheoradec" />
+					<Add option="-lvorbisfile" />
+					<Add option="-lvorbis" />
+					<Add option="-lopusfile" />
+					<Add option="-lopus" />
+					<Add option="-logg" />
 					<Add option="-lnet" />
 					<Add option="-lwsock32" />
 				</Linker>
@@ -192,10 +214,6 @@
 		<Unit filename="src/z_screen.cpp" />
 		<Unit filename="src/z_screen_overlay.cpp" />
 		<Unit filename="src/z_sound.cpp" />
-		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

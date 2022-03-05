@@ -173,7 +173,8 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             int ty1 = Ei[num][12] * db;
             int tx2 = Ei[num][13] * db + db;
             int ty2 = Ei[num][14] * db + db;
-            rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, db/3, color2, color2+64);
+            //rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, db/3, color2, color2+64);
+            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color2], 1);
 
             // get extended position
             for (int j=0; j<Ei[num][7]; j++)
@@ -250,20 +251,29 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             int cy1 = Ei[num][16] * db;
             int cx2 = cx1 + cw;
             int cy2 = cy1 + ch;
-            rectangle_with_diagonal_lines(cx1, cy1, cx2, cy2, db/3, color2, color2+64);
+            //rectangle_with_diagonal_lines(cx1, cy1, cx2, cy2, db/3, color2, color2+64);
+            al_draw_rectangle(cx1, cy1, cx2, cy2, palette_color[color2], 1);
+
+
 
             int cx3 = Ei[num][17] * db;    // destination
             int cy3 = Ei[num][18] * db;
             int cx4 = cx3 + cw;
             int cy4 = cy3 + ch;
-            rectangle_with_diagonal_lines(cx3, cy3, cx4, cy4, db/3, color3, color3+64);
+            //rectangle_with_diagonal_lines(cx3, cy3, cx4, cy4, db/3, color3, color3+64);
+            al_draw_rectangle(cx3, cy3, cx4, cy4, palette_color[color3], 1);
+
+
 
             // draw trigger box
             int tx1 = Ei[num][11] * db;
             int ty1 = Ei[num][12] * db;
             int tx2 = Ei[num][13] * db + db;
             int ty2 = Ei[num][14] * db + db;
-            rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, db/3, color4, color4+64);
+            //rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, db/3, color4, color4+64);
+            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color4], 1);
+
+
          }
          break;
          case 11: sprintf(lmsg[1],"Block Walker Location"); break;
@@ -398,7 +408,15 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             // draw range
             al_draw_line(0, y4, 100*db-1, y4, palette_color[color], 1);
             al_draw_line(x4, 0, x4, 100*db-1, palette_color[color], 1);
-            rectangle_with_diagonal_lines(x2, y2, x3, y3, db/3, color, color+64);
+
+            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+            //not sure why this doesn't work
+            //rectangle_with_diagonal_lines(100, 100, 200, 200, 8, 10, 74);
+            //rectangle_with_diagonal_lines(x2+10, y2+10, x3+10, y3+10, db/3, color, color+64);
+
+
+
+
          }
          break;
          case 5: sprintf(lmsg[1],"Start Location"); break;

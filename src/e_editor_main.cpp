@@ -471,12 +471,20 @@ int edit_menu(int el)
 {
    level_editor_running = 1;
    int original_display_transform_double = display_transform_double;
-   if (display_transform_double != 1)
+   int target_display_transform_double = 1;
+
+   if (disp_w_curr > 3800) target_display_transform_double = 2;
+
+   if (display_transform_double != target_display_transform_double)
    {
-      display_transform_double = 1;
+      display_transform_double = target_display_transform_double;
       set_display_transform();
       set_map_var();
    }
+
+
+
+
    al_show_mouse_cursor(display);
    resume_allowed = 0;
    int mpow;

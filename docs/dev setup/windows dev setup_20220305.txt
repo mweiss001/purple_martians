@@ -1,0 +1,183 @@
+
+------------------------------------------------
+- Install git and get project source
+------------------------------------------------
+
+download the latest version of git: "Git-2.35.1.2-64-bit.exe"
+installed to "C:\Program Files\Git"
+
+left checked:
+Windows Explorer Integration
+Git Bash Here
+Git GUI Here
+
+GIT LFS
+associate .git config files with default text editor
+associate .sh files to be run with Bash
+
+default text editor: notepad++
+let git decide (does not affect existing repos)
+
+Use Git from command line and also 3rd party software
+https transport backend openssl not win shit
+checkout as is commit as is
+use MinTTY
+behaviour of git pull: default
+credential helper: git (default) -- chose none
+cache yes
+sym links no
+no experimental
+
+finally it installed....
+
+start git gui
+choose clone repos
+set source to: https://github.com/mweiss001/purple_martians
+target c:/pm
+
+looks like it worked...
+
+
+
+--------------------------------------
+- Code::Blocks and MinGW
+--------------------------------------
+
+got "codeblocks-20.03mingw-setup.exe"
+that comes with MinGW-W64 project (version 8.1.0, 32/64 bit, SEH)
+
+installed with all defaults:
+
+C:\Program Files\CodeBlocks
+C:\Program Files\CodeBlocks\MinGW
+
+
+
+------------------------------
+- allegro
+------------------------------
+
+downloaded binaries:
+allegro-x86_64-w64-mingw32-gcc-10.2.0-posix-seh-static-5.2.7.0.zip
+
+copied bin              to : C:\Program Files\CodeBlocks\MinGW\bin
+copied lib              to : C:\Program Files\CodeBlocks\MinGW\lib
+copied include\allegro5 to : C:\Program Files\CodeBlocks\MinGW\include\allegro5
+
+changed search path in code::block to find headers
+
+downloaded dependencies:
+allegro_deps-x86_64-w64-mingw32-gcc-10.2.0-posix-seh-1.12.0.zip
+
+manually copy all files from C:\devel\Allegro5\deps\lib to C:\Program Files\CodeBlocks\MinGW\lib
+- libzlib.a
+- libdumb.a
+- libfreetype.a
+- libpng16.a
+...etc
+
+
+
+-------------------------------
+- libnet
+-------------------------------
+the older precomplied version does not seem to work
+so I had to recompile it from sources
+
+20220304
+
+compiling the libnet library for MinGW-W64 version 8.1.0
+
+sources come from:
+version 0.10.11 from 20030218
+
+take the folder libnet and put it in c:\
+
+copy mingw.mak from makfiles to top dir
+rename to port.mak
+edit file and remove -Werror
+
+I got "codeblocks-20.03mingw-setup.exe"
+that comes with MinGW-W64 project (version 8.1.0, 32/64 bit, SEH)
+installed at C:\Program Files\CodeBlocks\MinGW
+
+
+open a command prompt window and cd to C:/libnet
+
+added C:\Program Files\CodeBlocks\MinGW\bin to PATH like this: 
+SET PATH=C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\PuTTY\;C:\Program Files\Git\cmd;C:\Program Files\CodeBlocks\MinGW\bin
+SET MINGDIR=C:\Program Files\CodeBlocks\MinGW
+
+then ran mingw32-make.exe from command line in libnet dir
+
+that created libnet.a 375 KB
+
+copied that to C:\Program Files\CodeBlocks\MinGW\lib
+
+the header file libnet.h goes in C:\Program Files\CodeBlocks\MinGW\include
+
+
+-----------------------
+- compiler and linker
+-----------------------
+
+dynamic
+-pg
+-lallegro_monolith.dll
+-lnet
+-lzlib
+-lwsock32
+
+static and win_static_release
+-lallegro_monolith-static
+-ldumb
+-lfreetype
+-lpng16
+-lzlib
+-ldsound
+-lgdiplus
+-luuid
+-lkernel32
+-lwinmm
+-lpsapi
+-lopengl32
+-lglu32
+-luser32
+-lcomdlg32
+-lgdi32
+-lshell32
+-lole32
+-ladvapi32
+-lws2_32
+-lshlwapi
+-ljpeg
+-lwebp
+-lwebpdecoder
+-lFLAC
+-ltheoradec
+-lvorbisfile
+-lvorbis
+-lopusfile
+-lopus
+-logg
+-lnet
+-lwsock32
+
+
+it is very important that these are in this order:
+-ltheoradec
+-lvorbisfile
+-lvorbis
+-lopusfile
+-lopus
+-logg
+
+
+that was all that was needed to get running again
+
+
+
+
+
+
+

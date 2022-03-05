@@ -261,27 +261,6 @@ int seq_color3(void)
    return ca[mod];
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void bomb_block_crosshairs(int e, int f)
 {
    //int col = seq_color(16, 14, 10);
@@ -296,11 +275,13 @@ void bomb_block_crosshairs(int e, int f)
 
 
 
-void bomb_blocks(int i, int t, int dr)
+void bomb_blocks(int i, int t, int dr, al_fixed fx, al_fixed fy)
 {
    // center of bomb
-   float x = al_fixtoi(itemf[i][0]) + 10;
-   float y = al_fixtoi(itemf[i][1]) + 10;
+//   float x = al_fixtoi(itemf[i][0]) + 10;
+//   float y = al_fixtoi(itemf[i][1]) + 10;
+   float x = al_fixtoi(fx) + 10;
+   float y = al_fixtoi(fy) + 10;
    float d = (float)dr;
 
    // convert to 0-100 range to cycle block rect
@@ -355,12 +336,13 @@ void bomb_crosshairs(float x, float y)
    }
 }
 
-void bomb_enemies(int i, int t, int dr)
+void bomb_enemies(int i, int t, int dr, al_fixed x, al_fixed y)
 {
    for (int e=0; e<100 ; e++) // enemies in damage window?
       if (Ei[e][0])
       {
-         al_fixed dist = al_fixhypot( (Efi[e][0] - itemf[i][0]), (Efi[e][1] - itemf[i][1]) );
+//         al_fixed dist = al_fixhypot( (Efi[e][0] - itemf[i][0]), (Efi[e][1] - itemf[i][1]) );
+         al_fixed dist = al_fixhypot( (Efi[e][0] - x), (Efi[e][1] - y));
          if (dist < al_itofix(dr))
          {
             if (t == 1) bomb_crosshairs(10 + al_fixtof(Efi[e][0]), 10 + al_fixtof(Efi[e][1]));
@@ -377,16 +359,16 @@ void bomb_enemies(int i, int t, int dr)
 
 
 
-void bomb_players(int i, int t, int dr)
+void bomb_players(int i, int t, int dr, al_fixed x, al_fixed y)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       if ((players[p].active) && (!players[p].paused))
       {
-         al_fixed dist = al_fixhypot( (players[p].PX - itemf[i][0]), (players[p].PY - itemf[i][1]) );
+         al_fixed dist = al_fixhypot( (players[p].PX - x), (players[p].PY - y) );
          if (dist < al_itofix(dr))
          {
-            // calculate bomb damage based on  blast size and player's distance
+            // calculate bomb damage based on blast size and player's distance
             al_fixed damage = al_fixdiv(al_itofix(dr), dist); // damage window size / distance (scale of 1 - 4)
             damage *= 20; // multiply by 20 (scale of 20-80)
             if (damage > al_itofix(80)) damage = al_itofix(80);
@@ -453,9 +435,10 @@ void proc_lit_bomb(int i)
       int dr = (int) (  (float)item[i][7] * r); // damage range scaled by ratio
 
       // do damage
-      bomb_blocks(i, 2, dr);
-      bomb_enemies(i, 2, dr);
-      bomb_players(i, 2, dr);
+      bomb_blocks( i, 2, dr, itemf[i][0], itemf[i][1]);
+      bomb_enemies(i, 2, dr, itemf[i][0], itemf[i][1]);
+      bomb_players(i, 2, dr, itemf[i][0], itemf[i][1]);
+
 
       if (item[i][8] == 16) game_event(22,0,0,0,0,0,0); // explosion sound
 
@@ -537,12 +520,60 @@ void draw_lit_bomb(int i)
       al_draw_circle(x+10, y+10, (float)item[i][7]*r+8, palette_color[10], 1);
    }
 
-   bomb_blocks(i, 1, item[i][7]);  // mark blocks that will be destroyed
-   bomb_enemies(i, 1, item[i][7]); // mark enemies in damage range
-   bomb_players(i, 1, item[i][7]); // mark players in damage range
+   bomb_blocks( i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark blocks that will be destroyed
+   bomb_enemies(i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark enemies
+   bomb_players(i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark players in damage range
 
    // debug show sequence numbers
    //al_draw_textf(font, palette_color[15], x, y-20, 0, "%d / %d  %f ", item[i][8], item[i][9], (float)item[i][8]/(float)item[i][9]);
+}
+
+
+
+void draw_rocket_lines(int i)
+{
+   al_fixed fxi = itemf[i][0]; // initial position
+   al_fixed fyi = itemf[i][1];
+
+   al_fixed fx = fxi; // path variables
+   al_fixed fy = fyi;
+
+   al_fixed angle = al_itofix((item[i][10]-640) / 10);        // angle
+   al_fixed fxinc = (al_fixcos(angle) * item[i][11]) / 1000;  // x and y increments
+   al_fixed fyinc = (al_fixsin(angle) * item[i][11]) / 1000;
+
+   for (int j=0; j<1000; j++)
+   {
+      int x = al_fixtoi(fx += fxinc); // apply the increments
+      int y = al_fixtoi(fy += fyinc);
+
+      if ((x < 0) || (x > 2000) || (y < 0) || (y > 2000)) j = 1000; // level bounds check
+
+      // check for wall collisions
+      if ( ((fyinc < al_itofix(0))    && (is_up_solid(   x, y, 0) == 1)) ||
+           ((fyinc > al_itofix(0))    && (is_down_solid( x, y, 0) == 1)) ||
+           ((fyinc > al_itofix(0))    && (is_down_solid( x, y, 0) == 2)) ||
+           ((fxinc < al_ftofix(-1.1)) && (is_left_solid( x, y, 0) == 1)) ||
+           ((fxinc > al_ftofix(1.1))  && (is_right_solid(x, y, 0) == 1)) )
+      {
+
+         float fxf =  al_fixtof(fx)+10; // offset floats for display purposes
+         float fyf =  al_fixtof(fy)+10;
+         float fxif = al_fixtof(fxi)+10;
+         float fyif = al_fixtof(fyi)+10;
+
+         int col = seq_color2(); // color sequence
+         if (col) al_draw_circle(fxf, fyf, item[i][7], palette_color[col], 2); // show damage range circle
+         al_draw_filled_circle(fxf, fyf, 5, palette_color[col]); // show center
+         al_draw_line(fxif, fyif, fxf, fyf, palette_color[col], 0); // draw connecting line
+
+         bomb_blocks( i, 1, item[i][7], fx, fy); // mark blocks that will be destroyed
+         bomb_enemies(i, 1, item[i][7], fx, fy); // mark enemies that will be destroyed
+         bomb_players(i, 1, item[i][7], fx, fy); // mark players in damage range
+
+         j = 1000; // to break out of loop
+      }
+   }
 }
 
 void draw_items(void)
@@ -615,6 +646,11 @@ void draw_items(void)
             al_draw_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, rot, 0);
             drawn = 1;
          }
+
+         if (item[i][0] == 98) draw_rocket_lines(i); // for lit rockets
+
+
+
 
          if (item[i][0] == 5) // start
          {
@@ -1268,7 +1304,7 @@ void proc_item_collision(int p, int i)
           players[p].carry_item = i+1;
           //printf("player picked up item:%d\n", i);
        }
-       // allow mutiple player carry for rocket
+       // allow multiple player carry for rocket
        if (item[i][0] == 98) players[p].carry_item = i+1;
    }
 
