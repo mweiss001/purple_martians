@@ -1085,11 +1085,6 @@ void log_bandwidth_graph(int num_lines, int end_pc)
             p2g = (float)graph_w / (float)end_pc;  // frame_num to graph scaler
          }
 
-
-
-
-
-
          // label the x axis and draw gridlines
          // first of all, what is the range of data in frames?
          // we will use this to determine the units (frames, seconds, minutes)

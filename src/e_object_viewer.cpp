@@ -1156,6 +1156,7 @@ void object_viewer(int obt, int num)
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
                break;
                case 9: // cloner
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 83, num, type, obt, 0, 12, 15,  0, 1,0,0,0); a++;  // invincible
                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 27, num, type, obt, 0, 12, 15,  0, 1,0,0,0); a++;  // trigger type
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 34, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // delay timer
 

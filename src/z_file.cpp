@@ -48,6 +48,7 @@ int save_level_prompt()
    sprintf(title,"Save Level %d ",num);
    if (mw_file_select(title, level_filename, ".pml", 1))
    {
+
       len = strlen(level_filename);
       g[0] = level_filename[len-7];
       g[1] = level_filename[len-6];
@@ -645,17 +646,23 @@ int save_level(int level_to_save)
 
 int mw_file_select(const char * title, char * fn, const char * ext, int save)
 {
+   // no matter what I do I cannot start the native file chooser with the file I pass to it selected
+   // i have tried everything I can think of
+   // the filename and path is absolute, but still shows up blank
+
+
    int mode = 0; // default
    if (save) mode = ALLEGRO_FILECHOOSER_SAVE;
 
    char wext[100];
    sprintf(wext, "*%s", ext);
 
+
    //printf("fn:%s\n", fn);
    // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
    ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fn);
    sprintf(fn, "%s", al_get_fs_entry_name(FS_fname));
-   //printf("FS_fn:%s\n", fn);
+   //printf("FS_fn:'%s'  title:'%s' ext:'%s'  mode:%d\n", fn, title, wext, mode);
    ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fn, title, wext, mode);
    if (afc==NULL) printf("failed to create native filechooser dialog\n");
 
@@ -669,7 +676,7 @@ int mw_file_select(const char * title, char * fn, const char * ext, int save)
          //enforce extension
          if (save)
          {
-            //printf("save file name and path is:%s\n", fn);
+            printf("save file name and path is:%s\n", fn);
             ALLEGRO_PATH *tp = al_create_path(fn);
             const char * pfn = al_get_path_filename(tp);
             if (pfn == NULL)
@@ -678,7 +685,7 @@ int mw_file_select(const char * title, char * fn, const char * ext, int save)
                al_destroy_native_file_dialog(afc);
                return 0;
             }
-            //printf("save file name is:%s\n", pfn);
+            printf("save file name is:%s\n", pfn);
 
 
             const char * pfe = al_get_path_extension(tp);
@@ -694,9 +701,9 @@ int mw_file_select(const char * title, char * fn, const char * ext, int save)
                al_set_path_extension(tp, ext);
             }
 
-            //printf("extension is:%s\n", pfe);
+            printf("extension is:%s\n", pfe);
             sprintf(fn, "%s", al_path_cstr(tp, ALLEGRO_NATIVE_PATH_SEP));
-            //printf("final path and filename is:%s\n", fn);
+            // printf("final path and filename is:%s\n", fn);
 
          }
 

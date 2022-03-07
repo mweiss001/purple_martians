@@ -1,0 +1,30 @@
+editing tileset with gimp
+
+download gimp-2.10.30
+
+open tiles.bmp
+
+image->configure grid 20x20 pixels and choose a light color
+view-> show grid
+view-> snap to grid
+view-> snap to canvas edges
+
+
+create new brush called pixel
+radius 0.5
+spikes 2
+hardness 1.0
+aspect 1.0
+angle 0.0
+spacing 1.0
+
++ and - to zoom
+
+copy and paste an existing tile then click the green anchor in layers
+
+O sets the eyedropper tool
+N set pencil
+
+then file->overwrite
+
+

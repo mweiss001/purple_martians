@@ -1101,10 +1101,6 @@ int enemy_initial_position_random(int e, int csw)
    }
 }
 
-
-
-
-
 void do_rnd(void)
 {
    int x1 = stx *20;  // source box
@@ -1178,10 +1174,10 @@ void do_rnd(void)
             //enemy_initial_position_random(b, 1);
 
             int archwag = 0;
-            int bouncer = 1;
+            int bouncer = 0;
             int cannon = 0;
             int trakbot = 0;
-            int flapper = 0;
+            int flapper = 1;
 
             if ((Ei[b][0] == 3) && (archwag))
             {
@@ -1255,6 +1251,7 @@ void do_rnd(void)
 
 
                Ei[b][2] = (int) mdw_rnd(0, 2);  // initial direction
+
                if (Ei[b][2]) Efi[b][2] = Efi[b][6];
                else Efi[b][2] = -Efi[b][6];
 

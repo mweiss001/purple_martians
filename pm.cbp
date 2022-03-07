@@ -6,11 +6,12 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="dynamic">
+			<Target title="win_dynamic">
 				<Option output="pm" prefix_auto="1" extension_auto="1" />
 				<Option object_output="o" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-pg" />
@@ -26,13 +27,12 @@
 					<Add option="-lwsock32" />
 				</Linker>
 			</Target>
-			<Target title="static">
+			<Target title="win_static">
 				<Option output="pm" prefix_auto="1" extension_auto="1" />
 				<Option object_output="o" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
-				<Option parameters="300" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-pg" />
@@ -81,33 +81,12 @@
 					<Add option="-lwsock32" />
 				</Linker>
 			</Target>
-			<Target title="ldm">
-				<Option output="pm" prefix_auto="1" extension_auto="1" />
-				<Option object_output="o" />
-				<Option type="1" />
-				<Option compiler="gcc" />
-				<Option projectCompilerOptionsRelation="1" />
-				<Option projectLinkerOptionsRelation="1" />
-				<Option projectIncludeDirsRelation="1" />
-				<Compiler>
-					<Add option="-Wall" />
-					<Add option="-pg" />
-					<Add option="-g" />
-				</Compiler>
-				<Linker>
-					<Add option="-pg -lgmon" />
-					<Add option="-pg" />
-					<Add option="-lallegro_monolith" />
-					<Add option="-lz" />
-					<Add option="-lnet" />
-					<Add option="-lpthread" />
-				</Linker>
-			</Target>
 			<Target title="win_static_release">
 				<Option output="pm" prefix_auto="1" extension_auto="1" />
 				<Option object_output="o" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-DALLEGRO_STATICLINK" />
@@ -152,11 +131,31 @@
 					<Add option="-lwsock32" />
 				</Linker>
 			</Target>
+			<Target title="ldm">
+				<Option output="pm" prefix_auto="1" extension_auto="1" />
+				<Option object_output="o" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectIncludeDirsRelation="1" />
+				<Compiler>
+					<Add option="-Wall" />
+				</Compiler>
+				<Linker>
+					<Add option="-lallegro_monolith" />
+					<Add option="-lz" />
+					<Add option="-lnet" />
+					<Add option="-lpthread" />
+				</Linker>
+			</Target>
 			<Target title="ldm_release">
 				<Option output="pm" prefix_auto="1" extension_auto="1" />
 				<Option object_output="o" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Option projectCompilerOptionsRelation="1" />
 				<Option projectLinkerOptionsRelation="1" />
 				<Option projectIncludeDirsRelation="1" />
@@ -175,8 +174,8 @@
 		<Unit filename="docs/new5_todo.txt" />
 		<Unit filename="icon.rc">
 			<Option compilerVar="WINDRES" />
-			<Option target="dynamic" />
-			<Option target="static" />
+			<Option target="win_dynamic" />
+			<Option target="win_static" />
 			<Option target="win_static_release" />
 		</Unit>
 		<Unit filename="src/e_bitmap.cpp" />

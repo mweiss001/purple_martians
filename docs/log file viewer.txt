@@ -1,0 +1,54 @@
+Shows logs and bandwidth graph for network games
+
+enable what to log in options->logging options
+
+both server and clients save logs
+
+the log file is not saved until the program exits
+
+
+
+start pm with pm -l  to jump to the log file viewer and choose a file
+start pm with pm -lr to jump to the log file viewer and open the most recent file
+
+
+
+to view bandwidth logs press delete while in log viewer
+
+
+
+HOME and END jump to the start and end of the log
+
+DELETE runs the bandwidth graph
+
+ESC quits
+
+PGDN and PGUP scroll up and down
+normal  100   lines
+SHIFT   1000  lines
+CONTROL 10000 lines
+
+
+L toggles line mode (either moves by lines or frame numbers)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

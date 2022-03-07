@@ -102,11 +102,6 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 79) Efi[num][10] = al_ftofix(f);       // flap speed
    if (bn == 80) Ei[num][21] = (int)f;              // flap height
 
-
-
-
-
-
 }
 
 
@@ -248,6 +243,15 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (item[num][3] ==  0) sprintf(smsg,  "    Stationary   ");
       if (item[num][3] == -2) sprintf(smsg,  "Ride Through Door");
    }
+
+   if (bn == 83) // cloner only
+   {
+      if (Ei[num][30] ==  0) sprintf(smsg,  "      Normal     ");
+      if (Ei[num][30] ==  1) sprintf(smsg,  "    Invincible   ");
+   }
+
+
+
 
 
 }
@@ -611,6 +615,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          if (item[num][3] > 1) item[num][3] = -2;
          if (item[num][3] == -1) item[num][3] = 0;
       }
+      if (bn == 83) Ei[num][30] = !Ei[num][30];
 
    } // end of mouse pressed on button
    return 0;
@@ -684,7 +689,7 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 30: sul=40;   sll=0;  sinc=1;   sdx=Ei[num][9];           break;  // pod wait time
       case 33: sul=5;    sll=.7; sinc=.1;  sdx=al_fixtof(Efi[num][2]);  break;  // flapper x speed
       case 34: sul=1000; sll=20; sinc=1;   sdx=Ei[num][6];           break;  // create delay
-      case 35: sul=20;   sll=0;  sinc=1;   sdx=Ei[num][9];          break;  // cannon hits
+      case 35: sul=40;   sll=0;  sinc=1;   sdx=Ei[num][9];          break;  // cannon hits
       case 36: sul=5;    sll=0;  sinc=.01; sdx=al_fixtof(Efi[num][3]);  break;  // flapper y speed
       case 38: sul=500;  sll=20; sinc=1;   sdx=Ei[num][17];          break;  // width
       case 39: sul=600;  sll=1;  sinc=10;  sdx=Ei[num][18];          break;  // y1

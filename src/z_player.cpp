@@ -34,15 +34,7 @@ void set_player_start_pos(int p)
 
       players[p].PX = itemf[i][0];
       players[p].PY = itemf[i][1];
-
    }
-
-//   for (int c=0; c<500; c++)  // get start and time
-//      if (item[c][0] == 5)
-//      {
-//         players[p].PX = itemf[c][0];
-//         players[p].PY = itemf[c][1];
-//      }
 }
 
 void proc_player_health(int p)
