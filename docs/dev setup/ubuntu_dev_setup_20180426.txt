@@ -721,3 +721,838 @@ profit
 
 
 
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+20220306
+
+I'm going to set up a new dev system on linux and document every step...
+
+
+ubuntu-20.04.4-desktop-amd64.iso
+connected to wifi
+minimal
+download updates while installing
+erase disk and install ubuntu
+
+m
+4230w
+m
+zaiden
+log in automatically
+
+
+
+---------------------------------------------------------------
+basic ubuntu setup
+---------------------------------------------------------------
+
+sudo apt-get update
+sudo apt-get install openssh-server (to work remotely)
+
+from a putty terminal from now on...
+
+
+SiegeLord's ubuntu install directions from Dec 13, 2020
+
+https://github.com/liballeg/allegro_wiki/wiki/Install-Allegro-from-source-on-Ubuntu
+
+
+Install general system dependencies.
+
+sudo apt install git cmake build-essential
+
+Install various dependencies.
+
+sudo apt install libdumb1-dev \
+                 libflac-dev \
+                 libfreetype6-dev \
+                 libgl1-mesa-dev \
+                 libglu1-mesa-dev \
+                 libgtk-3-dev \
+                 libjpeg-dev \
+                 libopenal-dev \
+                 libphysfs-dev \
+                 libpng-dev \
+                 libpulse-dev \
+                 libtheora-dev \
+                 libvorbis-dev \
+                 libwebp-dev \
+                 libxext-dev \
+                 libxxf86vm-dev \
+                 libxrandr-dev \
+                 libxinerama-dev \
+                 libxpm-dev \
+                 libopusfile-dev
+
+Download Allegro's source from git and navigate to its directory.
+
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+
+Naturally, you can replace the repostitory to something else if you want grab the code from, e.g., a GitHub fork.
+
+Configure and build Allegro.
+
+mkdir build
+cd build
+cmake ..
+make -j$(nproc)
+
+If you're reproducing some sort of bug or developing a new feature, it can be helpful to build Allegro in debug mode by issuing cmake .. -DCMAKE_BUILD_TYPE=Debug. The default CMAKE_BUILD_TYPE is RelWithDebInfo.
+
+Test by running an example.
+
+cd examples
+./ex_draw_bitmap
+
+it all works!!!!
+
+not sure what version I got...
+
+
+
+I am not going to use git to get the source files yet...maybe later
+
+---------------------------------------------------------
+Set up samba share on desktop for project files
+---------------------------------------------------------
+
+made a folder on the desktop 'pm_client15' and shared it
+
+right-clicking should show an option to share, if not, open it in nautilus file thingy and try again
+
+
+prompted to install samba, did it with no problems
+checked:
+'allow other to create and delete files in this folder'
+'guest access (for people without an account)'
+clicked 'create share'
+chose 'set permissions automatically'
+
+
+copy sources to this shared folder then run sudo ./op to
+set owner and permissions for all the files to m:m 777
+
+
+---------------------------------------------------------
+Install libnet
+---------------------------------------------------------
+- from my local copy of the sources
+from a terminal go to the folder 'libnet' in the game folder
+'make clean'
+'make lib'
+'sudo make install'
+(puts libnet.h in /usr/include/)
+(puts libnet.a in /usr/lib/x86_64-linux-gnu/)
+
+
+
+
+---------------------------------------------------------
+Code::Blocks
+---------------------------------------------------------
+In Software Manager:
+installed Code::Blocks version 20.03.3
+
+does not show up in applications, or command line...wtf
+
+sudo apt-get install codeblocks
+
+
+
+
+
+---------------------------------------------------------
+Open project in code::blocks and compile
+---------------------------------------------------------
+First time code::blocks is run it complains about default compiler
+just choose gcc and it wont complain after first time
+
+gcc -v gives 9.3.0
+
+
+build fails...cant find -lgmon or l-allegro_monolilth
+
+
+make I have to make allegro following my old instructions
+
+
+sudo apt-get install cmake-curses-gui
+
+in the allegro5 build dir
+
+ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+
+build type: Release
+monolith: on
+all these off:
+color
+d3d
+demo
+docs
+embed
+examples
+flac
+webp
+png
+jpg
+ogg video
+openal
+opensl
+opus
+physfs
+release logging
+tests
+video
+vorbis
+
+press "c", and then "g". You should now be back to a console.
+
+make
+took 131s to compile
+
+sudo make install
+installed /usr/lib/liballegro_monolith.so.5.2.4 (size 1.7M)
+
+
+now just cant find -lgmon removed
+
+
+now can;' find
+
+#include "pm.h"
+
+its in the same dir as the .cpp files
+
+now it works...i did not do anything....
+
+undefined reference to '___chkstk_ms'
+
+look like it could be gcc version stuff
+
+on windows I use MinGW-W64 project (version 8.1.0, 32/64 bit, SEH)
+allegro binaries are compiled with gcc 10.2
+
+in linux I have 9.3 and complied the binaries with that
+as well as my program....
+
+
+also undefined reference to  '__imp__time64'
+
+
+
+Installing Multiple GCC Versions
+
+This section provides instructions about how to install and use multiple versions of GCC on Ubuntu 20.04. The newer versions of the GCC compiler include new functions and optimization improvements.
+
+At the time of writing this article, the default Ubuntu repositories include several GCC versions, from 7.x.x to 10.x.x.
+
+In the following example, we will install the latest three versions of GCC and G++.
+
+Install the desired GCC and G++ versions by typing:
+
+sudo apt install gcc-8 g++-8 gcc-9 g++-9 gcc-10 g++-10
+
+The commands below configures alternative for each version and associate a priority with it. The default version is the one with the highest priority, in our case that is gcc-10.
+
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 80 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8
+
+Later if you want to change the default version use the update-alternatives command:
+
+sudo update-alternatives --config gcc
+
+There are 3 choices for the alternative gcc (providing /usr/bin/gcc).
+
+  Selection    Path            Priority   Status
+------------------------------------------------------------
+* 0            /usr/bin/gcc-10   100       auto mode
+  1            /usr/bin/gcc-10   100       manual mode
+  2            /usr/bin/gcc-8    80        manual mode
+  3            /usr/bin/gcc-9    90        manual mode
+
+Press <enter> to keep the current choice[*], or type selection number:
+
+You will be presented with a list of all installed GCC versions on your Ubuntu system. Enter the number of the version you want to be used as a default and press Enter.
+
+The command will create symbolic links to the specific versions of GCC and G++.
+
+
+
+
+
+
+what I did was 
+
+sudo apt install gcc-10
+sudo apt install g++-10
+
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
+
+m@4230w:~/Desktop/allegro5/build$ sudo update-alternatives --config gcc
+There are 2 choices for the alternative gcc (providing /usr/bin/gcc).
+
+  Selection    Path             Priority   Status
+------------------------------------------------------------
+* 0            /usr/bin/gcc-10   100       auto mode
+  1            /usr/bin/gcc-10   100       manual mode
+  2            /usr/bin/gcc-9    90        manual mode
+
+Press <enter> to keep the current choice[*], or type selection number:
+
+m@4230w:~/Desktop/allegro5/build$ gcc -v
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/10/lto-wrapper
+OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa:hsa
+OFFLOAD_TARGET_DEFAULT=1
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu 10.3.0-1ubuntu1~20.04' --with-bugurl=file:///usr/share/doc/gcc-10/README.Bugs --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-10 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-10-S4I5Pr/gcc-10-10.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-10-S4I5Pr/gcc-10-10.3.0/debian/tmp-gcn/usr,hsa --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-mutex
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 10.3.0 (Ubuntu 10.3.0-1ubuntu1~20.04)
+
+
+now that I have 10.3 the project seems to compile and run now....
+
+exiting locks the entire system....CTRL-ALT-END kills it...
+
+
+
+build settings:
+
+compiler:
+I always use -Wall
+
+linker:
+-lallegro_monolith
+-lz
+-lnet
+-lpthread
+
+
+can I join netgame...
+Error: Client failed to set netchannel target: server[mi3]
+
+
+could be a firewall thing....ufw is disabled
+
+are there others??
+
+---- I never did recompile libnet with 10.2 ----
+
+
+rebooted 4230w
+
+still cant ping mi3, but neither can 4230j ... wtf ...
+
+4230w works as a server and 4230j and mi3 connect just fine....
+
+it looks like 4230w doesn;t like the hostname..it works with IP...
+
+sudo nano /etc/resolv.conf
+
+changed: nameserver 127.0.0.53
+to nameserver 192.168.1.1
+now it works....
+
+holy shit now what??
+
+figure out the freezing on exit shit
+
+test what it needs to work on bare linux system...can I just put libs in main folder?
+
+
+
+
+
+
+
+---------------------------------------------------------
+Make a release
+---------------------------------------------------------
+manually copy the needed libraries to /linux_libs
+
+
+cp /usr/lib/liballegro_monolith.so.5.2.8 ./linux_libs/
+cp /usr/lib/x86_64-linux-gnu/libdumb.so.1.0.0 ./linux_libs
+
+
+run 'lin_make_release'
+
+a folder called 'purple_martians__linux' is created and needed files are copied to it
+then the folder is tar.gz
+
+rename it and copy it.....
+
+
+
+actually the script does all the copying and tar.gz ing
+
+
+
+cant wait to test it on a new install
+
+sudo apt-get update
+
+make folder and share it
+
+
+still having library issues....
+
+this look great....
+
+
+
+https://stackoverflow.com/questions/39978762/linux-executable-cant-find-shared-library-in-same-folder
+
+
+-Wl,-rpath='${ORIGIN}'
+
+
+-Wl,-rpath='${ORIGIN}/linux_libs'
+that did not work....
+
+lets try this:
+-Wl,-rpath='${ORIGIN}'
+
+
+
+-Wl,-rpath='${ORIGIN}/linux_libs/liballegro_monolith.so.5.2'
+-Wl,-rpath='${ORIGIN}/linux_libs/libdumb.so.1'
+
+that does not work either....
+
+
+-Wl,-rpath='${ORIGIN}/linux_libs/liballegro_monolith.so.5.2'
+-Wl,-rpath='${ORIGIN}/linux_libs/libdumb.so.1'
+
+
+LD_LIBRARY_PATH=./linux_libs ./pm
+
+
+
+
+test on 4230w....move the libraries so they can't be found...
+
+/usr/lib/liballegro_monolith.so.5.2.8 
+/usr/lib/x86_64-linux-gnu/libdumb.so.1.0.0
+
+
+patchelf --print-rpath pm
+
+/linux_libs/liballegro_monolith.so.5.2:/linux_libs/libdumb.so.1
+
+patchelf --set-rpath '$ORIGIN/linux_libs/liballegro_monolith.so.5.2:$ORIGIN/linux_libs/libdumb.so.1' pm
+
+
+patchelf --set-rpath '$ORIGIN/linux_libs/liballegro_monolith.so.5.2' pm
+
+
+
+
+
+Help using -rpath to set library search path in executable
+
+I am trying to figure out how to use -rpath to point at a sub-directory below my executable for some shared libraries.
+
+
+I am using:
+
+ubuntu 20.04
+gcc 10.3
+allegro 5.2.8 (compiled from source)
+
+My project compiles and works fine.
+
+It relies on 2 shared libraries that in the name of being portable, have to be distributed with the executable.
+
+liballegro_monolith.so.5.2
+libdumb.so.1
+
+Currently I have them in a subdirectory called 'linux_libs' in the main executable directory
+The way I have been doing it for years is to run a script when I want to run the game.
+The script sets the library path then runs the game.
+
+LD_LIBRARY_PATH=./linux_libs ./pm
+
+I wish I could just simply put the 2 files in the same dir as the executable but that does not work.
+
+
+
+I have been trying to use -rpath to hard code the run-time search path into the executable, with no success at all
+I have read many descriptions and examples online, but have not been able to figure out what I am doing wrong.
+
+the first example I added to the linker options:
+-Wl,-rpath='${ORIGIN}'
+
+did nothing
+
+then I though I might need to add the entire path to the library
+
+-Wl,-rpath='${ORIGIN}/linux_libs/liballegro_monolith.so.5.2'
+-Wl,-rpath='${ORIGIN}/linux_libs/libdumb.so.1'
+
+this did not work either
+
+
+then I got patchelf and ran 
+
+patchelf --print-rpath pm
+
+/linux_libs/liballegro_monolith.so.5.2:/linux_libs/libdumb.so.1
+
+so I tried to set it with:
+
+patchelf --set-rpath '$ORIGIN/linux_libs/liballegro_monolith.so.5.2:$ORIGIN/linux_libs/libdumb.so.1' pm
+patchelf --print-rpath pm
+$ORIGIN/linux_libs/liballegro_monolith.so.5.2:$ORIGIN/linux_libs/libdumb.so.1
+
+still does not work....
+
+./pm: error while loading shared libraries: liballegro_monolith.so.5.2: cannot open shared object file: No such file or directory
+
+
+yet everytime I run the script:
+
+LD_LIBRARY_PATH=./linux_libs ./pm
+
+it works perfectly
+
+
+
+I am lost here.
+
+Can anyone point me in the right direction?
+
+Tell me what I am doing wrong?
+
+Suggest something else that might work?
+
+
+
+try this: 
+
+patchelf --set-rpath './linux_libs/liballegro_monolith.so.5.2:./linux_libs/libdumb.so.1' pm
+
+
+
+
+
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+
+20220306
+2nd time setting up a dev system from scratch
+
+maybe less false starts this time
+
+
+ubuntu-20.04.4-desktop-amd64.iso
+connected via ethernet
+minimal
+don't download updates while installing
+erase disk and install ubuntu
+
+m
+4230y
+m
+zaiden
+log in automatically
+
+
+
+---------------------------------------------------------------
+basic ubuntu setup
+---------------------------------------------------------------
+
+sudo apt-get update
+sudo apt-get install openssh-server (to work remotely)
+
+from a putty terminal from now on...
+
+
+Install general system dependencies:
+sudo apt install git cmake cmake-curses-gui build-essential
+
+Install various dependencies:
+
+sudo apt install libdumb1-dev \
+                 libflac-dev \
+                 libfreetype6-dev \
+                 libgl1-mesa-dev \
+                 libglu1-mesa-dev \
+                 libgtk-3-dev \
+                 libjpeg-dev \
+                 libopenal-dev \
+                 libphysfs-dev \
+                 libpng-dev \
+                 libpulse-dev \
+                 libtheora-dev \
+                 libvorbis-dev \
+                 libwebp-dev \
+                 libxext-dev \
+                 libxxf86vm-dev \
+                 libxrandr-dev \
+                 libxinerama-dev \
+                 libxpm-dev \
+                 libopusfile-dev
+
+
+
+----------------------------------------------------------------------------------
+Get a newer version of gcc (ubuntu 20.4 comes with 9.3, we want at least 10.2)
+----------------------------------------------------------------------------------
+sudo apt install gcc-10
+sudo apt install g++-10
+
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
+
+sudo update-alternatives --config gcc
+There are 2 choices for the alternative gcc (providing /usr/bin/gcc).
+
+  Selection    Path             Priority   Status
+------------------------------------------------------------
+* 0            /usr/bin/gcc-10   100       auto mode
+  1            /usr/bin/gcc-10   100       manual mode
+  2            /usr/bin/gcc-9    90        manual mode
+
+Press <enter> to keep the current choice[*], or type selection number:
+
+
+gcc -v
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/10/lto-wrapper
+OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa:hsa
+OFFLOAD_TARGET_DEFAULT=1
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu 10.3.0-1ubuntu1~20.04' --with-bugurl=file:///usr/share/doc/gcc-10/README.Bugs --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-10 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-10-S4I5Pr/gcc-10-10.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-10-S4I5Pr/gcc-10-10.3.0/debian/tmp-gcn/usr,hsa --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-mutex
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 10.3.0 (Ubuntu 10.3.0-1ubuntu1~20.04)
+
+
+
+Download Allegro's source from git and navigate to its directory.
+
+from a terminal at Desktop:
+
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+
+Naturally, you can replace the repostitory to something else if you want grab the code from, e.g., a GitHub fork.
+
+Configure and build Allegro.
+
+mkdir build
+cd build
+
+
+cmake ..
+ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+
+build type: Release
+monolith: on
+
+all these off:
+color
+d3d
+demo
+docs (all)
+embed
+examples
+flac
+png
+jpg
+webp
+ogg video
+openal
+opensl
+opus
+physfs
+release logging
+tests
+video
+vorbis
+
+press "c", "e" and then "q". You should now be back to a console.
+
+make
+
+takes about 2 min to compile
+
+sudo make install
+installed /usr/lib/liballegro_monolith.so.5.2.8 (size 1.7M)
+
+
+
+
+
+
+
+I am not going to use git to get the source files yet...maybe later
+
+---------------------------------------------------------
+Set up samba share on desktop for project files
+---------------------------------------------------------
+
+made a folder on the desktop 'pm_client17' and shared it
+
+right-clicking should show an option to share, if not, open it in nautilus file thingy and try again
+
+prompted to install samba, did it with no problems
+checked:
+'allow other to create and delete files in this folder'
+'guest access (for people without an account)'
+clicked 'create share'
+chose 'set permissions automatically'
+
+copy sources to this shared folder then run sudo ./op to
+set owner and permissions for all the files to m:m 777
+
+
+
+---------------------------------------------------------
+Install libnet
+---------------------------------------------------------
+- from my local copy of the sources
+from a terminal go to the folder 'libnet' in the game folder
+'make clean'
+'make lib'
+'sudo make install'
+(puts libnet.h in /usr/include/)
+(puts libnet.a in /usr/lib/x86_64-linux-gnu/)
+
+
+
+---------------------------------------------------------
+Code::Blocks
+---------------------------------------------------------
+sudo apt-get install codeblocks
+
+
+---------------------------------------------------------
+Open project in code::blocks and compile
+---------------------------------------------------------
+First time code::blocks is run it complains about default compiler
+just choose gcc and it wont complain after first time
+
+compiler:
+-Wall
+
+linker:
+-lallegro_monolith
+-lz
+-lnet
+-lpthread
+
+compile and run...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

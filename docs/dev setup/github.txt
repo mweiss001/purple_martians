@@ -1,0 +1,79 @@
+download the latest version of git: "Git-2.35.1.2-64-bit.exe"
+installed to "C:\Program Files\Git"
+
+left checked:
+Windows Explorer Integration
+Git Bash Here
+Git GUI Here
+
+GIT LFS
+associate .git config files with default text editor
+associate .sh files to be run with Bash
+
+default text editor: notepad++
+let git decide (does not affect existing repos)
+
+Use Git from command line and also 3rd party software
+https transport backend openssl not win shit
+checkout as is commit as is
+use MinTTY
+behaviour of git pull: default
+credential helper: git (default) -- chose none
+cache yes
+sym links no
+no experimental
+
+finally it installed....
+
+start git gui
+choose clone repos
+set source to: https://github.com/mweiss001/purple_martians
+target c:/pm
+
+looks like it worked...
+
+
+
+to commit:
+
+open git gui
+
+rescan (not sure if needed)
+stage changes
+
+sign off gives me an identity error...
+go to edit->options and set username and email
+mweiss001
+mweiss001@gmail.com
+
+now sign off
+
+commit
+
+push (master is selected)
+
+then finally enter username and password
+
+got an error:
+
+remote: Support for password authentication was removed on August 13, 2021. Please use a personal access token instead.
+remote: Please see https://github.blog/2020-12-15-token-authentication-requirements-for-git-operations/ for more information.
+fatal: Authentication failed for 'https://github.com/mweiss001/purple_martians/'
+Pushing to https://github.com/mweiss001/purple_martians
+
+got a token and tried again
+
+POST git-receive-pack (chunked)
+Pushing to https://github.com/mweiss001/purple_martians
+To https://github.com/mweiss001/purple_martians
+   4454769..9a8ebaa  master -> master
+updating local tracking ref 'refs/remotes/origin/master'
+
+success!
+
+
+
+
+
+
+

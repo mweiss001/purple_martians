@@ -2,6 +2,23 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+when player is riding a rocket they can pass through semi solid left and right
+(not so much a bug as a fetaure!)
+
+why does start block not get filled in in menu choices sometimes, I checked and it does now
+
+
+I think when you pause and resume a single player game
+sometimes it quits to the menu after a while....yes, i can reproduce it
+play level for 5 sec the quit to menu, the resume
+timer has reset to zero, player has left the game message appears right away
+then 5 seconds in the game quits back to menu
+
+
+when player is in key block range being removed weird things happen
+
+
+
 
 
 
@@ -10,36 +27,55 @@
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-document how to create new shapes
 
 
-figure out how to do github
-
-
+document how to view netgame stats in game...
 
 
 
 
 
 
-make a level with a huge cannon, like a boss level....done 330
-
-
-even if cloner draw boxes are off, i would still like them shown when a clone happens
 
 
 
-make a level to test if you can chain throwing sproingies
-331
-
-hell you can do it with a single sproingy
-just let go before the top of the jump while holding down so it doesnt get thrown up by inheriting players yinc
-then fall on it again while holding fire and jump
 
 
-reset vls end level before release
 
-put libraries for linux in main dir for release
+make the version number auto increment based on something like date...
+or how many time it has been compiled...
+
+
+
+
+How about a level where you have to clone switches??
+
+
+
+
+how about a level where you need to send rocket up through a minefield
+or arrow field that player would die in....
+
+level with 100 random flapper...vertical jumping section in middle...332
+
+
+
+Its like I can shoot at right angles and so can the enemies, there is not much to do.
+If they can shoot me, I can shoot them..
+
+
+
+how about a level where you need to have a cannon follow you through a constricting one way
+maze, probably up past semi solid and then kill it with a bomb
+
+
+
+What if I made a cloner that could detect when what it created was destroyed and make a new one?
+
+what if I made on option for cloner to destroy all that it had created when trigger to create more...
+that could be useful for timed things and other stuff
+
+put libraries for linux in main dir for next release
 
 
 ---------------------------------------------------------

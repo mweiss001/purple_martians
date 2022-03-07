@@ -262,7 +262,7 @@ void proc_enemy_collision_with_pbullet(int e)
          int cx = pm_bullet_collision_box + abs(pbullet[c][4]/2);
          int cy = pm_bullet_collision_box + abs(pbullet[c][5]/2);
 
-         // bullet collision box size adjusted with enemies collison box size
+         // bullet collision box size adjusted with enemies collision box size
          cx += Ei[e][29] - 10;
          cy += Ei[e][29] - 10;
 
@@ -388,12 +388,11 @@ void enemy_killed(int e)
 
    // almost all do this but not enough to do by default
    int a = Ei[e][0];
-   if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==12 )
+   if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==12)
    {
       Efi[e][4] = al_itofix(0);  // cant hurt anymore
       Ei[e][25]*=ht; // health bonus
    }
-
    switch (Ei[e][0])
    {
       case 3: // archwagon
@@ -467,7 +466,6 @@ void enemy_killed(int e)
          Ei[e][24] = 934+(ht-1)*32; // shape
          Efi[e][11] = al_ftofix(.98); // scale multiplier
          Efi[e][13] = al_ftofix(306/dl); // rot inc
-
          zz[0][na] = zz[5][na]; // set shape
          zz[1][na] = 0;         // point to zero
          zz[2][na] = frame_num; // set counter
@@ -493,7 +491,6 @@ void enemy_killed(int e)
    // almost all do this but not enough to do by default
    if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==12 )
    {
-
       if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
       if (ht == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
       Ei[e][0] = 99; // set type to death loop
@@ -902,18 +899,30 @@ void enemy_cloner(int e)
 
    Ei[e][1] = zz[0][105]; // default shape
 
-   if (Ei[e][31]) // hit
+
+   if (Ei[e][31] && (Ei[e][30] == 0)) // hit and not invincible
    {
       enemy_killed(e);
       return;
    }
+   else Ei[e][31] = 0;
+
+
    enemy_player_hit_proc(e);
+
+
+
 
 
    // set draw shape
    Ei[e][2] = 0;  // flip mode
-   int b = (Ei[e][7] * 7) / (Ei[e][6]+1);
-   Ei[e][1] = zz[5+b][106];
+
+//   int b = (Ei[e][7] * 7) / (Ei[e][6]+1);
+//   Ei[e][1] = zz[5+b][106];
+
+   int b = (Ei[e][7] * 9) / (Ei[e][6]+1);
+   Ei[e][1] = zz[5+b][107];
+
 
    if (Ei[e][8] == 2) Ei[e][1] = zz[0][105]; // to make something happen for immed
 

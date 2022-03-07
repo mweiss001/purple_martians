@@ -513,7 +513,7 @@ void fast_exit(int why)
 void set_and_get_versions(void)
 {
    // set version name
-   sprintf(pm_version_string, "7.05");
+   sprintf(pm_version_string, "7.10");
 
    sprintf(msg, "Purple Martians Version %s", pm_version_string);
    printf("\n%s\n", msg);
@@ -1316,18 +1316,21 @@ int copy_files_to_clients(int exe_only)
 
 //   sprintf(client[num_clients++], "\\\\E6400\\pm_client1");  //  E6400
 //   sprintf(client[num_clients++], "\\\\E6410\\pm_client2");  // win7 portable dev system
-   sprintf(client[num_clients++], "\\\\4230j\\pm_client3");  // win7 acer laptop
-   sprintf(client[num_clients++], "\\\\E6430\\pm_client4");  // win7 studio pc
+//   sprintf(client[num_clients++], "\\\\4230j\\pm_client3");  // win7 acer laptop
+//   sprintf(client[num_clients++], "\\\\E6430\\pm_client4");  // win7 studio pc
 //   sprintf(client[num_clients++], "\\\\E6420\\pm_client5");  // win7 2560x1600 (my room)
 //   sprintf(client[num_clients++], "\\\\pfv\\pm_client6");    // XP 1600x1200
-   sprintf(client[num_clients++], "\\\\m-4230-3\\pm_client7"); // ubuntu acer laptop
+//   sprintf(client[num_clients++], "\\\\m-4230-3\\pm_client7"); // ubuntu acer laptop
 //   sprintf(client[num_clients++], "\\\\DESKTOP-DBNSJH8\\pm_client8"); // win 10 EID work laptop
 //   sprintf(client[num_clients++], "\\\\e4230f\\pm_client9"); // acer laptop
 //   sprintf(client[num_clients++], "\\\\4230a\\pm_client10"); // acer laptop
-   sprintf(client[num_clients++], "\\\\insp9400\\pm_client11"); // dell insp 9400 (backup machine)
-   sprintf(client[num_clients++], "\\\\m7667\\pm_client12"); // core2 2G 32bit GeForce 7500 LE
-   sprintf(client[num_clients++], "\\\\nv59\\pm_client13");  // gateway nv59 i3 4G 1600x1200
-   sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
+//   sprintf(client[num_clients++], "\\\\insp9400\\pm_client11"); // dell insp 9400 (backup machine)
+//   sprintf(client[num_clients++], "\\\\m7667\\pm_client12"); // core2 2G 32bit GeForce 7500 LE
+//   sprintf(client[num_clients++], "\\\\nv59\\pm_client13");  // gateway nv59 i3 4G 1600x1200
+//   sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
+
+
+   sprintf(client[num_clients++], "\\\\4230w\\pm_client15");  // 54230w ubuntu 20.04
 
 
 //   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden

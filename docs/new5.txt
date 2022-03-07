@@ -10060,9 +10060,15 @@ see if cloners need boxes.. up to 100
 fix flappers..up to 100
 
 
+make a level with a huge cannon, like a boss level....done 330
 
+make a level to test if you can chain throwing sproingies..done 331
+hell you can do it with a single sproingy
+just let go before the top of the jump while holding down so it doesnt get thrown up by inheriting players yinc
+then fall on it again while holding fire and jump
 
-
+reset vls end level before release..not sure what this is...
+visual_level_select...to make the extra levels not shown...
 
 
 20220305
@@ -10114,22 +10120,95 @@ start at level 300
 document the dev setup again, especially libnet
 done and put in project files
 
+figure out how to do github and add to docs in project...done
+password and token saved in truecrypt vault like all my other passwords
+
+document how to edit tileset with gimp and add to docs...done
+
+made 2 new shapes for cloner and made new ans 107 with 9 shapes
+added to code and it looks good
+
+
+
+where is that randomizing thing I used for groups of enemies?
+is it part of glt?? no it is in zoom full screen
+press r and selection will be randomized
+added to docs
+
+
+
+what does start index do?
+
+if multiple starts with multiple start indexes and multiple player start
+
+they get different starts
+
+p: 0 s: 1  m:0
+p: 0 s: 2  m:0
+p: 0 s: 3  m:0
+p: 0 s: 4  m:0
+p: 0 s: 5  m:0
+p: 0 s: 6  m:0
+p: 0 s: 7  m:0
+p: 1 s: 1  m:0
+p: 1 s: 2  m:1
+p: 1 s: 3  m:1
+p: 1 s: 4  m:1
+p: 1 s: 5  m:1
+p: 1 s: 6  m:1
+p: 1 s: 7  m:1
+p: 2 s: 1  m:0
+p: 2 s: 2  m:0
+p: 2 s: 3  m:2
+p: 2 s: 4  m:2
+p: 2 s: 5  m:2
+p: 2 s: 6  m:2
+p: 2 s: 7  m:2
+p: 3 s: 1  m:0
+p: 3 s: 2  m:1
+p: 3 s: 3  m:0
+p: 3 s: 4  m:3
+p: 3 s: 5  m:3
+p: 3 s: 6  m:3
+p: 3 s: 7  m:3
+p: 4 s: 1  m:0
+p: 4 s: 2  m:0
+p: 4 s: 3  m:1
+p: 4 s: 4  m:0
+p: 4 s: 5  m:4
+p: 4 s: 6  m:4
+p: 4 s: 7  m:4
+p: 5 s: 1  m:0
+p: 5 s: 2  m:1
+p: 5 s: 3  m:2
+p: 5 s: 4  m:1
+p: 5 s: 5  m:0
+p: 5 s: 6  m:5
+p: 5 s: 7  m:5
+p: 6 s: 1  m:0
+p: 6 s: 2  m:0
+p: 6 s: 3  m:0
+p: 6 s: 4  m:2
+p: 6 s: 5  m:1
+p: 6 s: 6  m:0
+p: 6 s: 7  m:6
+
+Purple Martians Version 7.05
+Allegro Version: 5.2.7.1
+started game on level:300
 
 
 
 
 
+what if I made an option that cloners could be invincible?
+and then I would not have to protect them with layers of blocks
+looking for an open variable...cloner is really busy
+how about Ei[][30] deathloop count...i mean he should never die right??
 
+ok lets do it
 
-
-
-
-
-
-
-
-
-
+cloners now have the option to be invincible!!
 
 
 
