@@ -18,27 +18,44 @@ then 5 seconds in the game quits back to menu
 when player is in key block range being removed weird things happen
 
 
+in linux version exiting the game freezes the terminal
+CTRL-ALT-END if game has focus or CTRL-C in terminal it spawns
+
+
+
+the linux version has screen problems too
+when going into fullscreen mode, it is the same size as the window before
 
 
 
 
-
--------------------------------------------------------
+------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
 
 
-document how to view netgame stats in game...
+look into github.io
 
 
 
+make the switches able to see through if stacked
+
+
+stationary cannon
+wait, there is more!
+uses prox to fire bullet instead of timer
+
+can be a lot more accurate, if when firing a bullet it takes into account how fast the player is moving
 
 
 
+how about an enemy that jumps over the player and fires down when directly over
+invincible to sideways player bullets
 
+how about optional swappable tilesets for levels
 
-
+how about barriers that are configurable for enemies, players, bullets, objects
 
 
 
