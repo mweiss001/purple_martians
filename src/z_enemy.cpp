@@ -244,8 +244,8 @@ void draw_enemies(void)
             al_draw_circle(EXint+10, EYint+10, prox, palette_color[color], 1);
          }
          #endif
-
-
+         // if enemy is expiring show how many seconds it has left
+         if (Ei[e][27]) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
 
       } // end of if enemy active
 }

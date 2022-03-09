@@ -10143,62 +10143,6 @@ if multiple starts with multiple start indexes and multiple player start
 
 they get different starts
 
-p: 0 s: 1  m:0
-p: 0 s: 2  m:0
-p: 0 s: 3  m:0
-p: 0 s: 4  m:0
-p: 0 s: 5  m:0
-p: 0 s: 6  m:0
-p: 0 s: 7  m:0
-p: 1 s: 1  m:0
-p: 1 s: 2  m:1
-p: 1 s: 3  m:1
-p: 1 s: 4  m:1
-p: 1 s: 5  m:1
-p: 1 s: 6  m:1
-p: 1 s: 7  m:1
-p: 2 s: 1  m:0
-p: 2 s: 2  m:0
-p: 2 s: 3  m:2
-p: 2 s: 4  m:2
-p: 2 s: 5  m:2
-p: 2 s: 6  m:2
-p: 2 s: 7  m:2
-p: 3 s: 1  m:0
-p: 3 s: 2  m:1
-p: 3 s: 3  m:0
-p: 3 s: 4  m:3
-p: 3 s: 5  m:3
-p: 3 s: 6  m:3
-p: 3 s: 7  m:3
-p: 4 s: 1  m:0
-p: 4 s: 2  m:0
-p: 4 s: 3  m:1
-p: 4 s: 4  m:0
-p: 4 s: 5  m:4
-p: 4 s: 6  m:4
-p: 4 s: 7  m:4
-p: 5 s: 1  m:0
-p: 5 s: 2  m:1
-p: 5 s: 3  m:2
-p: 5 s: 4  m:1
-p: 5 s: 5  m:0
-p: 5 s: 6  m:5
-p: 5 s: 7  m:5
-p: 6 s: 1  m:0
-p: 6 s: 2  m:0
-p: 6 s: 3  m:0
-p: 6 s: 4  m:2
-p: 6 s: 5  m:1
-p: 6 s: 6  m:0
-p: 6 s: 7  m:6
-
-Purple Martians Version 7.05
-Allegro Version: 5.2.7.1
-started game on level:300
-
-
-
 
 
 what if I made an option that cloners could be invincible?
@@ -10209,6 +10153,29 @@ how about Ei[][30] deathloop count...i mean he should never die right??
 ok lets do it
 
 cloners now have the option to be invincible!!
+
+
+document how to view netgame stats in game...done
+
+make rocket guideline not blink like explosion...
+if rocket is going slow enough the guide lines do not show...fixed
+
+
+
+
+how about showing when a object is about to expire
+a very small number that shows how many seconds left
+if (item[i][14]) al_draw_textf(f3, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
+
+done...it was one line
+
+now do the same for enemies ..done
+
+if (Ei[e][27]) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+
+
+
+
 
 
 

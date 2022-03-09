@@ -538,9 +538,17 @@ void draw_rocket_lines(int i)
    al_fixed fx = fxi; // path variables
    al_fixed fy = fyi;
 
-   al_fixed angle = al_itofix((item[i][10]-640) / 10);        // angle
-   al_fixed fxinc = (al_fixcos(angle) * item[i][11]) / 1000;  // x and y increments
-   al_fixed fyinc = (al_fixsin(angle) * item[i][11]) / 1000;
+
+   int speed = item[i][11];
+   if (speed < 2000) speed = 2000; // if moving too slow, lines won't be drawn
+
+   // temp show speed
+   //al_draw_textf(font, palette_color[10], al_fixtof(fxi)+30, al_fixtof(fyi)+10, ALLEGRO_ALIGN_CENTER, "%d" ,speed );
+
+
+   al_fixed angle = al_itofix((item[i][10]-640) / 10);  // angle
+   al_fixed fxinc = (al_fixcos(angle) * speed) / 1000;  // x and y increments
+   al_fixed fyinc = (al_fixsin(angle) * speed) / 1000;
 
    for (int j=0; j<1000; j++)
    {
@@ -565,7 +573,7 @@ void draw_rocket_lines(int i)
          int col = seq_color2(); // color sequence
          if (col) al_draw_circle(fxf, fyf, item[i][7], palette_color[col], 2); // show damage range circle
          al_draw_filled_circle(fxf, fyf, 5, palette_color[col]); // show center
-         al_draw_line(fxif, fyif, fxf, fyf, palette_color[col], 0); // draw connecting line
+         al_draw_line(fxif, fyif, fxf, fyf, palette_color[10+80], 0); // draw connecting line
 
          bomb_blocks( i, 1, item[i][7], fx, fy); // mark blocks that will be destroyed
          bomb_enemies(i, 1, item[i][7], fx, fy); // mark enemies that will be destroyed
@@ -681,6 +689,11 @@ void draw_items(void)
 
          // default draw if nothing else has drawn it up to now
          if (!drawn) al_draw_bitmap(tile[shape], x, y, 0);
+
+         // if item is expiring show how many seconds left it has
+         if (item[i][14]) al_draw_textf(f3, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
+
+
       } // end of active item iterate
 }
 

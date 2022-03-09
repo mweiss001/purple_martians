@@ -77,3 +77,68 @@ success!
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+github pages:
+
+https://happycoding.io/tutorials/html/github-pages
+
+
+GitHub is a website that lets you post your code so you can keep it organized and share it with other people. It’s a little bit like social media for coders, and it’s a great way to show off your code and to see what other folks are working on.
+
+GitHub Pages lets you take a GitHub repository and turn it into a webpage. In other words, you can use a GitHub repository to host your HTML, CSS, and JavaScript files. This tutorial walks you through the process of creating a GitHub Pages site!
+
+I’m assuming you’ve already worked through the GitHub profile README tutorial and that you’ve created your first GitHub repository and practiced some HTML with your GitHub profile README. If not, go do that now and then come back!
+Create a Repository
+
+There are two different types of GitHub Pages repositories:
+
+User sites are hosted at https://YOUR_USERNAME.github.io and are used for things like personal homepages, portfolio pages, and other sites associated with you as a user. To create a user site GitHub Pages repository, create a repo named YOUR_USERNAME.github.io.
+
+Project sites are hosted at https://YOUR_USERNAME.github.io/YOUR_REPO_NAME and are used for documentation related to a specific repo, or standalone pages. To create a project site GitHub Pages repository, create a repo with any name, and then either:
+
+    Create a branch in that repo named gh-pages.
+    Go to the Settings tab of your repo and enable GitHub Pages for the main branch (or any branch you want).
+
+
+
+
+I cant seem to get the one for my project to work...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
