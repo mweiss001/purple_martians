@@ -504,11 +504,11 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       if (menu_num == 7)
       {
          draw_level(); // only draw map on main menu
-         if (--demo_mode_countdown < 0)
+      /*   if (--demo_mode_countdown < 0)
          {
             demo_mode_countdown = 2400;
             return 9;
-         }
+         } */
          if (resume_allowed) demo_mode_countdown = 2400;
          sprintf(global_string[7][9], "Demo Mode (%d)", demo_mode_countdown / 80);
       }

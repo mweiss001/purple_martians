@@ -10184,6 +10184,539 @@ if (Ei[e][27]) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_
 
 
 
+the linux version has screen problems too
+when going into fullscreen mode, it is the same size as the window before
+
+
+where is this in code??
+
+-------------------------------------------------------------
+z_control.cpp -- function:function_key_check() -- line 500
+-------------------------------------------------------------
+if (fullscreen) proc_screen_change(  disp_w_wind,    disp_h_wind, disp_x_wind, disp_y_wind, 0);
+else            proc_screen_change(desktop_width, desktop_height,           0,           0, 1);
+
+
+-------------------------------------------------------------
+z_control.cpp -- function:proc_controllers() -- line 980
+-------------------------------------------------------------
+if (!fullscreen) // detect if window was moved
+{
+   int x, y;
+   al_get_window_position(display, &x, &y);
+   if ((x != disp_x_curr) || (y != disp_y_curr))
+   proc_screen_change(disp_w_curr, disp_h_curr, x, y, fullscreen);
+}
+
+
+-------------------------------------------------------------
+z_control.cpp -- function:proc_controllers() -- line 999
+-------------------------------------------------------------
+if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
+{
+   // check to see if we have more resize events piling up
+   ALLEGRO_EVENT ev2;
+   while (al_get_next_event(event_queue, &ev2))
+   {
+      if (ev2.type == ALLEGRO_EVENT_DISPLAY_RESIZE) ev = ev2;
+      else ret = proc_events(ev2, ret);
+   }
+   proc_screen_change(ev.display.width, ev.display.height, disp_x_curr, disp_y_curr, fullscreen);
+}
+
+-------------------------------------------------------------
+z_screen.cpp -- function:proc_screen_change() -- lien 300 999
+-------------------------------------------------------------
+
+void proc_screen_change(int new_sw, int new_sh, int new_sx, int new_sy, int new_fs)
+
+
+
+
+This is on windows and works just fine
+
+changed away from fullscreen
+fullscreen:0 display_transform_double:2
+x:1196 y: 224 w:2308 h:1587 - curr
+x:1196 y: 224 w:2308 h:1587 - wind
+x:1196 y: 224 w:2308 h:1587 - disp
+0:   0 0:   0 w:1154 h: 793 - scrn
+changed to fullscreen
+fullscreen:1 display_transform_double:2
+x:   0 y:   0 w:3840 h:2160 - curr
+x:1196 y: 224 w:2308 h:1587 - wind
+x:   0 y:   0 w:3840 h:2160 - disp
+0:   0 0:   0 w:1920 h:1080 - scrn
+changed away from fullscreen
+fullscreen:0 display_transform_double:2
+x:1196 y: 224 w:2308 h:1587 - curr
+x:1196 y: 224 w:2308 h:1587 - wind
+x:1196 y: 224 w:2308 h:1587 - disp
+0:   0 0:   0 w:1154 h: 793 - scrn
+
+
+This is linux:
+
+Display change
+x:1688 y: 842 w: 693 h: 450 fs:0  old
+x:1689 y: 868 w: 693 h: 450 fs:0  new   <-------[why does it do this change? +1x +26y]
+
+
+
+Display change
+x:1689 y: 868 w: 693 h: 450 fs:0  old
+x:   0 y:   0 w:3840 h:2160 fs:1  new
+changing to fullscreen
+changed to fullscreen
+fullscreen:1 display_transform_double:2
+x:   0 y:   0 w:3840 h:2160 - curr
+x:1689 y: 868 w: 693 h: 450 - wind
+x:   0 y:   0 w:3840 h:2160 - disp
+0:   0 0:   0 w:1920 h:1080 - scrn      <--------- all good to here
+
+Display change
+x:   0 y:   0 w:3840 h:2160 fs:1  old
+x:   0 y:   0 w:3840 h:2160 fs:1  new   <-------[why does it do this change? no change]
+
+Display change
+x:   0 y:   0 w:3840 h:2160 fs:1  old
+x:1689 y: 868 w: 693 h: 450 fs:0  new
+changing away from fullscreen
+x:1689 y: 868 w: 693 h: 450 disp_
+x:1689 y: 868 w: 693 h: 450 disp_
+changed away from fullscreen
+fullscreen:0 display_transform_double:2
+x:1689 y: 868 w:3840 h:2160 - curr         <---------right here wtf changed it
+x:1689 y: 868 w: 693 h: 450 - wind
+x:1690 y: 894 w:3840 h:2160 - disp
+0:   0 0:   0 w:1920 h:1080 - scrn
+
+Display change
+x:1689 y: 868 w:3840 h:2160 fs:0  old  <-------[why does it do this change? +1x +26y]
+x:1690 y: 894 w:3840 h:2160 fs:0  new
+
+
+
+
+win
+
+Display change
+x:1094 y: 184 w:1644 h:1482 fs:0  old
+x:   0 y:   0 w:3840 h:2160 fs:1  new
+changing to fullscreen
+changed to fullscreen
+fullscreen:1 display_transform_double:2
+x:   0 y:   0 w:3840 h:2160 - curr
+x:1094 y: 184 w:1644 h:1482 - wind
+x:   0 y:   0 w:3840 h:2160 - disp
+0:   0 0:   0 w:1920 h:1080 - scrn
+
+Display change
+x:   0 y:   0 w:3840 h:2160 fs:1  old
+x:1094 y: 184 w:1644 h:1482 fs:0  new
+changing away from fullscreen
+x:1094 y: 184 w:1644 h:1482 disp_
+x:1094 y: 184 w:1644 h:1482 disp_
+changed away from fullscreen
+fullscreen:0 display_transform_double:2
+x:1094 y: 184 w:1644 h:1482 - curr
+x:1094 y: 184 w:1644 h:1482 - wind
+x:1094 y: 184 w:1644 h:1482 - disp
+0:   0 0:   0 w: 822 h: 741 - scrn
+
+
+lin
+
+--------detected move or resize
+x:1093 y: 158 w:1644 h:1482 - curr
+x:1094 y: 184 w:1644 h:1482 - disp
+
+Display change
+x:1093 y: 158 w:1644 h:1482 fs:0  old
+x:1094 y: 184 w:1644 h:1482 fs:0  new <-------[why does it do this change? +1x +26y]
+
+Display change
+x:1094 y: 184 w:1644 h:1482 fs:0  old
+x:   0 y:   0 w:3840 h:2160 fs:1  new
+changing to fullscreen
+changed to fullscreen
+fullscreen:1 display_transform_double:2
+x:  37 y:  26 w:3840 h:2160 - curr  <-------[why does it do this change? +37x +26y]
+x:1094 y: 184 w:1644 h:1482 - wind
+x:   0 y:   0 w:3840 h:2160 - disp
+0:   0 0:   0 w:1920 h:1080 - scrn
+--------detected move or resize
+x:  37 y:  26 w:3840 h:2160 - curr
+x:   0 y:   0 w:3840 h:2160 - disp
+
+Display change
+x:  37 y:  26 w:3840 h:2160 fs:1  old
+x:  37 y:  26 w:3840 h:2160 fs:1  new
+
+
+--------detected move or resize <------------x 60
+x:  37 y:  26 w:3840 h:2160 - curr
+x:   0 y:   0 w:3840 h:2160 - disp
+
+Display change
+x:  37 y:  26 w:3840 h:2160 fs:1  old
+x:1094 y: 184 w:1644 h:1482 fs:0  new
+changing away from fullscreen
+x:1094 y: 184 w:1644 h:1482 disp_
+x:1094 y: 184 w:1644 h:1482 disp_
+changed away from fullscreen
+fullscreen:0 display_transform_double:2
+x:1094 y: 184 w:3840 h:2160 - curr
+x:1094 y: 184 w:1644 h:1482 - wind
+x:1095 y: 210 w:3840 h:2160 - disp
+0:   0 0:   0 w:1920 h:1080 - scrn
+--------detected move or resize
+x:1094 y: 184 w:3840 h:2160 - curr
+x:1095 y: 210 w:3840 h:2160 - disp
+
+Display change
+x:1094 y: 184 w:3840 h:2160 fs:0  old
+x:1095 y: 210 w:3840 h:2160 fs:0  new
+^[
+
+
+i dont get it....is lin moving my window???
+
+can I just force it to be what I want??
+keep my own variables for screen x, y, w h??
+
+never overwrite them by reading them...
+just compare them to actual..
+
+what do I have now?
+
+extern int desktop_width;
+extern int desktop_height;
+
+extern int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
+extern int disp_y_curr;
+extern int disp_w_curr;
+extern int disp_h_curr;
+
+extern int disp_x_wind; // windowed
+extern int disp_y_wind;
+extern int disp_w_wind;
+extern int disp_h_wind;
+
+im going to add:
+
+extern int disp_x_full; // fullscreen (set to 0, 0, desktop_width, desktop_height and never change)
+extern int disp_y_full;
+extern int disp_w_full;
+extern int disp_h_full;
+
+
+
+
+what if I change my code so that all the screen change stuff just changes variables
+then once per cycle, if the variables don't match the actual, then process the changes
+
+
+I have a conflict...
+
+I changed
+
+I have a function that checks if the window has moved by comparing actual to what is stored in curr
+if it is different the function assumes that the user moved the window and updates curr
+
+I also have a function that check if the size and position are different from what is in curr and assumes the system fucked it up
+and restores it
+
+these are at odds with each other...
+
+
+what are the things that can change display?
+F12
+resize event
+move detection...
+
+
+
+
+
+I was having strange issues with fullscreen to windowed and then I discovered it matter the order of:
+
+   al_resize_display(display, disp_w_curr, disp_h_curr);
+   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+   al_set_window_position(display, disp_x_curr, disp_y_curr); // make sure to set position last!!!
+
+
+
+now in lin I get this weird ness
+
+
+
+
+
+Purple Martians Version 7.10
+Allegro Version: 5.2.8.0
+Desktop Resolution: 3840x2160
+
+move
+disp - x: 842 y: 210 w:2360 h:1124
+----------------to fullscreen
+
+enforce display difference
+disp - x: 842 y: 210 w:2360 h:1124
+curr - x:   0 y:   0 w:3840 h:2160
+wind - x: 842 y: 210 w:2360 h:1124
+
+process_screen_change end
+disp - x:   0 y:   0 w:3840 h:2160
+curr - x:   0 y:   0 w:3840 h:2160
+wind - x: 842 y: 210 w:2360 h:1124
+--------------to windowed
+
+enforce display difference
+disp - x:   0 y:   0 w:3840 h:2160
+curr - x: 842 y: 210 w:2360 h:1124
+wind - x: 842 y: 210 w:2360 h:1124
+
+process_screen_change end
+disp - x: 842 y: 210 w:2360 h:1124
+curr - x: 842 y: 210 w:2360 h:1124
+wind - x: 842 y: 210 w:2360 h:1124
+
+resize final
+disp - x: 842 y: 210 w:2360 h:1124
+curr - x: 843 y: 236 w:3840 h:2160
+wind - x: 843 y: 236 w:3840 h:2160
+
+move
+disp - x: 842 y: 210 w:2360 h:1124
+----------------to fullscreen
+
+enforce display difference
+disp - x: 842 y: 210 w:2360 h:1124
+curr - x:   0 y:   0 w:3840 h:2160
+wind - x: 842 y: 210 w:3840 h:2160
+
+process_screen_change end
+disp - x:   0 y:   0 w:3840 h:2160
+curr - x:   0 y:   0 w:3840 h:2160
+wind - x: 842 y: 210 w:3840 h:2160
+
+We got a window resize event while in fullscreen...this is unexpected
+--------------to windowed
+
+enforce display difference
+disp - x:   0 y:   0 w:3840 h:2160
+curr - x: 842 y: 210 w:3840 h:2160
+wind - x: 842 y: 210 w:3840 h:2160
+
+process_screen_change end
+disp - x: 843 y: 236 w:3840 h:2160
+curr - x: 842 y: 210 w:3840 h:2160
+wind - x: 842 y: 210 w:3840 h:2160
+
+move
+disp - x: 843 y: 236 w:3840 h:2160
+
+
+
+
+
+
+
+
+
+omfg I think it is almost 100% working.....in linux too
+
+
+
+need to call some shit after resizing, but besise th...!!!at
+same as win....
+
+
+
+
+
+how about the only time I care about window position is when entering full screen mode or exiting the program
+other than that I don't care about constantly monitoring it
+seems to work good
+
+
+resize event in linux seem to alway return x=1 y=26...why????
+
+ignore x and y....not as nice in windows...
+
+maybe the problem is the number of resize events I am getting...show them...
+
+
+maybe the problem I have is that I should not be setting the display x, y, w, h
+
+just read them....
+
+
+the only time I want to set them is coming back from fullscreen to windowed...
+
+that was is...it was all so simple...i spent days trying to figure that out....
+
+
+clean up...
+
+old code from control to stop pile up of events....not needed
+
+
+
+            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) show_event(ev);
+void show_event(ALLEGRO_EVENT e)
+{
+   int x = e.display.x;
+   int y = e.display.y;
+   int w = e.display.width;
+   int h = e.display.height;
+
+   printf("\nEV-raw-resize event---  x:%d y:%d w:%d h:%d\n", x, y, w, h);
+}
+
+
+            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
+            {
+               // check to see if we have more resize events piling up
+               ALLEGRO_EVENT ev2;
+               while (al_get_next_event(event_queue, &ev2))
+               {
+                  if (ev2.type == ALLEGRO_EVENT_DISPLAY_RESIZE) ev = ev2;
+                  else ret = proc_events(ev2, ret);
+               }
+               proc_display_change();
+            }
+            else ret = proc_events(ev, ret);
+
+
+new code
+            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
+
+
+
+
+I can now truly say that is done and cleaned up and works great
+it is a lot simpler code too.....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

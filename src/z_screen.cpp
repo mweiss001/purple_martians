@@ -1,145 +1,40 @@
-// zscrn.cpp
+// z_screen.cpp
 
 #include "pm.h"
 
-void show_bitmap_flags(int flags)
-{
-   printf("bitmap flags:\n");
-   if (flags & ALLEGRO_MEMORY_BITMAP)       printf("ALLEGRO_MEMORY_BITMAP\n");
-   if (flags & ALLEGRO_VIDEO_BITMAP)        printf("ALLEGRO_VIDEO_BITMAP\n");
-   if (flags & ALLEGRO_CONVERT_BITMAP)      printf("ALLEGRO_CONVERT_BITMAP\n");
-   if (flags & ALLEGRO_FORCE_LOCKING)       printf("ALLEGRO_FORCE_LOCKING\n");
-   if (flags & ALLEGRO_NO_PRESERVE_TEXTURE) printf("ALLEGRO_NO_PRESERVE_TEXTURE\n");
-   if (flags & ALLEGRO_ALPHA_TEST)          printf("ALLEGRO_ALPHA_TEST\n");
-   if (flags & ALLEGRO_MIN_LINEAR)          printf("ALLEGRO_MIN_LINEAR\n");
-   if (flags & ALLEGRO_MAG_LINEAR)          printf("ALLEGRO_MAG_LINEAR\n");
-   if (flags & ALLEGRO_MIPMAP)              printf("ALLEGRO_MIPMAP\n");
-}
 
-void show_pixel_format(int df)
-{
-   printf("pixel format:");
-   if (df ==  0) printf("ALLEGRO_PIXEL_FORMAT_ANY\n");
-   if (df ==  1) printf("ALLEGRO_PIXEL_FORMAT_ANY_NO_ALPHA\n");
-   if (df ==  2) printf("ALLEGRO_PIXEL_FORMAT_ANY_WITH_ALPHA\n");
-   if (df ==  3) printf("ALLEGRO_PIXEL_FORMAT_ANY_15_NO_ALPHA\n");
-   if (df ==  4) printf("ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA\n");
-   if (df ==  5) printf("ALLEGRO_PIXEL_FORMAT_ANY_16_WITH_ALPHA\n");
-   if (df ==  6) printf("ALLEGRO_PIXEL_FORMAT_ANY_24_NO_ALPHA\n");
-   if (df ==  7) printf("ALLEGRO_PIXEL_FORMAT_ANY_32_NO_ALPHA\n");
-   if (df ==  8) printf("ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA\n");
-   if (df ==  9) printf("ALLEGRO_PIXEL_FORMAT_ARGB_8888\n");
-   if (df == 10) printf("ALLEGRO_PIXEL_FORMAT_RGBA_8888\n");
-   if (df == 11) printf("ALLEGRO_PIXEL_FORMAT_ARGB_4444\n");
-   if (df == 12) printf("ALLEGRO_PIXEL_FORMAT_RGB_888\n");
-   if (df == 13) printf("ALLEGRO_PIXEL_FORMAT_RGB_565\n");
-   if (df == 14) printf("ALLEGRO_PIXEL_FORMAT_RGB_555\n");
-   if (df == 15) printf("ALLEGRO_PIXEL_FORMAT_RGBA_5551\n");
-   if (df == 16) printf("ALLEGRO_PIXEL_FORMAT_ARGB_1555\n");
-   if (df == 17) printf("ALLEGRO_PIXEL_FORMAT_ABGR_8888\n");
-   if (df == 18) printf("ALLEGRO_PIXEL_FORMAT_XBGR_8888\n");
-   if (df == 19) printf("ALLEGRO_PIXEL_FORMAT_BGR_888\n");
-   if (df == 20) printf("ALLEGRO_PIXEL_FORMAT_BGR_565\n");
-   if (df == 21) printf("ALLEGRO_PIXEL_FORMAT_BGR_555\n");
-   if (df == 22) printf("ALLEGRO_PIXEL_FORMAT_RGBX_8888\n");
-   if (df == 23) printf("ALLEGRO_PIXEL_FORMAT_XRGB_8888\n");
-   if (df == 24) printf("ALLEGRO_PIXEL_FORMAT_ABGR_F32\n");
-   if (df == 25) printf("ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE\n");
-   if (df == 26) printf("ALLEGRO_PIXEL_FORMAT_RGBA_4444\n");
-   if (df == 27) printf("ALLEGRO_PIXEL_FORMAT_SINGLE_CHANNEL_8\n");
-   if (df == 28) printf("ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT1\n");
-   if (df == 29) printf("ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT3\n");
-   if (df == 30) printf("ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5\n");
-}
 
-void show_display_flags(int flags)
+void load_fonts(void)
 {
-   printf("display flags:\n");
-   if (flags & ALLEGRO_WINDOWED)                   printf("ALLEGRO_WINDOWED\n");
-   if (flags & ALLEGRO_FULLSCREEN)                 printf("ALLEGRO_FULLSCREEN\n");
-   if (flags & ALLEGRO_OPENGL)                     printf("ALLEGRO_OPENGL\n");
-   if (flags & ALLEGRO_DIRECT3D_INTERNAL)          printf("ALLEGRO_DIRECT3D_INTERNAL\n");
-   if (flags & ALLEGRO_RESIZABLE)                  printf("ALLEGRO_RESIZABLE\n");
-   if (flags & ALLEGRO_FRAMELESS)                  printf("ALLEGRO_FRAMELESS\n");
-   if (flags & ALLEGRO_GENERATE_EXPOSE_EVENTS)     printf("ALLEGRO_GENERATE_EXPOSE_EVENTS\n");
-   if (flags & ALLEGRO_OPENGL_3_0)                 printf("ALLEGRO_OPENGL_3_0\n");
-   if (flags & ALLEGRO_OPENGL_FORWARD_COMPATIBLE)  printf("ALLEGRO_OPENGL_FORWARD_COMPATIBLE\n");
-   if (flags & ALLEGRO_FULLSCREEN_WINDOW)          printf("ALLEGRO_FULLSCREEN_WINDOW\n");
-   if (flags & ALLEGRO_MINIMIZED)                  printf("ALLEGRO_MINIMIZED\n");
-   if (flags & ALLEGRO_PROGRAMMABLE_PIPELINE)      printf("ALLEGRO_PROGRAMMABLE_PIPELINE\n");
-   if (flags & ALLEGRO_GTK_TOPLEVEL_INTERNAL)      printf("ALLEGRO_GTK_TOPLEVEL_INTERNAL\n");
-   if (flags & ALLEGRO_MAXIMIZED)                  printf("ALLEGRO_MAXIMIZED\n");
-   if (flags & ALLEGRO_OPENGL_ES_PROFILE)          printf("ALLEGRO_OPENGL_ES_PROFILE\n");
-}
-
-void show_display_options(void)
-{
-   printf("display options\n");
-   printf("ALLEGRO_RED_SIZE:%d\n",               al_get_display_option(display, ALLEGRO_RED_SIZE));
-   printf("ALLEGRO_GREEN_SIZE:%d\n",             al_get_display_option(display, ALLEGRO_GREEN_SIZE));
-   printf("ALLEGRO_BLUE_SIZE:%d\n",              al_get_display_option(display, ALLEGRO_BLUE_SIZE));
-   printf("ALLEGRO_ALPHA_SIZE:%d\n",             al_get_display_option(display, ALLEGRO_ALPHA_SIZE));
-   printf("ALLEGRO_RED_SHIFT:%d\n",              al_get_display_option(display, ALLEGRO_RED_SHIFT));
-   printf("ALLEGRO_GREEN_SHIFT:%d\n",            al_get_display_option(display, ALLEGRO_GREEN_SHIFT));
-   printf("ALLEGRO_BLUE_SHIFT:%d\n",             al_get_display_option(display, ALLEGRO_BLUE_SHIFT));
-   printf("ALLEGRO_ALPHA_SHIFT:%d\n",            al_get_display_option(display, ALLEGRO_ALPHA_SHIFT));
-   printf("ALLEGRO_ACC_RED_SIZE:%d\n",           al_get_display_option(display, ALLEGRO_ACC_RED_SIZE));
-   printf("ALLEGRO_ACC_GREEN_SIZE:%d\n",         al_get_display_option(display, ALLEGRO_ACC_GREEN_SIZE));
-   printf("ALLEGRO_ACC_BLUE_SIZE:%d\n",          al_get_display_option(display, ALLEGRO_ACC_BLUE_SIZE));
-   printf("ALLEGRO_ACC_ALPHA_SIZE:%d\n",         al_get_display_option(display, ALLEGRO_ACC_ALPHA_SIZE));
-   printf("ALLEGRO_STEREO:%d\n",                 al_get_display_option(display, ALLEGRO_STEREO));
-   printf("ALLEGRO_AUX_BUFFERS:%d\n",            al_get_display_option(display, ALLEGRO_AUX_BUFFERS));
-   printf("ALLEGRO_COLOR_SIZE:%d\n",             al_get_display_option(display, ALLEGRO_COLOR_SIZE));
-   printf("ALLEGRO_DEPTH_SIZE:%d\n",             al_get_display_option(display, ALLEGRO_DEPTH_SIZE));
-   printf("ALLEGRO_STENCIL_SIZE:%d\n",           al_get_display_option(display, ALLEGRO_STENCIL_SIZE));
-   printf("ALLEGRO_SAMPLE_BUFFERS:%d\n",         al_get_display_option(display, ALLEGRO_SAMPLE_BUFFERS));
-   printf("ALLEGRO_SAMPLES:%d\n",                al_get_display_option(display, ALLEGRO_SAMPLES));
-   printf("ALLEGRO_RENDER_METHOD:%d\n",          al_get_display_option(display, ALLEGRO_RENDER_METHOD));
-   printf("ALLEGRO_FLOAT_COLOR:%d\n",            al_get_display_option(display, ALLEGRO_FLOAT_COLOR));
-   printf("ALLEGRO_FLOAT_DEPTH:%d\n",            al_get_display_option(display, ALLEGRO_FLOAT_DEPTH));
-   printf("ALLEGRO_SINGLE_BUFFER:%d\n",          al_get_display_option(display, ALLEGRO_SINGLE_BUFFER));
-   printf("ALLEGRO_SWAP_METHOD:%d\n",            al_get_display_option(display, ALLEGRO_SWAP_METHOD));
-   printf("ALLEGRO_COMPATIBLE_DISPLAY:%d\n",     al_get_display_option(display, ALLEGRO_COMPATIBLE_DISPLAY));
-   printf("ALLEGRO_UPDATE_DISPLAY_REGION:%d\n",  al_get_display_option(display, ALLEGRO_UPDATE_DISPLAY_REGION));
-   printf("ALLEGRO_VSYNC:%d\n",                  al_get_display_option(display, ALLEGRO_VSYNC));
-   printf("ALLEGRO_MAX_BITMAP_SIZE:%d\n",        al_get_display_option(display, ALLEGRO_MAX_BITMAP_SIZE));
-   printf("ALLEGRO_SUPPORT_NPOT_BITMAP:%d\n",    al_get_display_option(display, ALLEGRO_SUPPORT_NPOT_BITMAP));
-   printf("ALLEGRO_SUPPORT_SEPARATE_ALPHA:%d\n", al_get_display_option(display, ALLEGRO_SUPPORT_SEPARATE_ALPHA));
-   printf("ALLEGRO_AUTO_CONVERT_BITMAPS:%d\n",   al_get_display_option(display, ALLEGRO_AUTO_CONVERT_BITMAPS));
-   printf("ALLEGRO_SUPPORTED_ORIENTATIONS:%d\n", al_get_display_option(display, ALLEGRO_SUPPORTED_ORIENTATIONS));
-   printf("ALLEGRO_OPENGL_MAJOR_VERSION:%d\n",   al_get_display_option(display, ALLEGRO_OPENGL_MAJOR_VERSION));
-   printf("ALLEGRO_OPENGL_MINOR_VERSION:%d\n",   al_get_display_option(display, ALLEGRO_OPENGL_MINOR_VERSION));
-   printf("ALLEGRO_DISPLAY_OPTIONS_COUNT:%d\n",  al_get_display_option(display, ALLEGRO_DISPLAY_OPTIONS_COUNT));
-}
-
-void show_display_orienation(void)
-{
-   int dor = al_get_display_orientation(display);
-   if (dor ==  0) printf("ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN\n");
-   if (dor ==  1) printf("ALLEGRO_DISPLAY_ORIENTATION_0_DEGREES\n");
-   if (dor ==  2) printf("ALLEGRO_DISPLAY_ORIENTATION_90_DEGREES\n");
-   if (dor ==  4) printf("ALLEGRO_DISPLAY_ORIENTATION_180_DEGREES\n");
-   if (dor ==  8) printf("ALLEGRO_DISPLAY_ORIENTATION_270_DEGREES\n");
-   if (dor ==  5) printf("ALLEGRO_DISPLAY_ORIENTATION_PORTRAIT\n");
-   if (dor == 10) printf("ALLEGRO_DISPLAY_ORIENTATION_LANDSCAPE\n");
-   if (dor == 15) printf("ALLEGRO_DISPLAY_ORIENTATION_ALL\n");
-   if (dor == 16) printf("ALLEGRO_DISPLAY_ORIENTATION_FACE_UP\n");
-   if (dor == 32) printf("ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN\n");
-}
-
-void show_fullscreen_modes(void)
-{
-   printf("available fullscreen modes:\n");
-   int nd = al_get_num_display_modes();
-   for (int i=0; i<nd; i++)
+   al_destroy_font(font);
+   font = al_create_builtin_font();
+   if(!font)
    {
-      ALLEGRO_DISPLAY_MODE dm;
-      al_get_display_mode(i, &dm);
-      printf("w:%4d h:%4d -- ", dm.width, dm.height);
-      printf("refresh rate:%d ", dm.refresh_rate);
-      show_pixel_format(dm.format);
+      sprintf(msg, "Failed to create_builtin_font");
+      m_err(msg);
+      printf("%s\n", msg);
+      exit(0);
    }
+   //else printf("created builtin font\n");
+
+   al_destroy_font(f1);
+   f1 = al_load_ttf_font("bitmaps/Achafont.ttf", 240, 0);
+   if(!f1) m_err("Failed to load font from bitmaps/Achafont.ttf");
+   //else printf("loaded font Achafont.ttf\n");
+
+   int sfs = al_get_display_option(display, ALLEGRO_MAX_BITMAP_SIZE) / 20;
+   //printf("Saucer font size:%d\n", sfs);
+   al_destroy_font(f2);
+   f2 = al_load_ttf_font("bitmaps/SaucerBB.ttf", sfs, 0);
+   if(!f2) m_err("Failed to load font from bitmaps/SaucerBB.ttf");
+   //else printf("loaded font SaucerBB.ttf.ttf\n");
+
+   al_destroy_font(f3);
+   f3 = al_load_ttf_font("bitmaps/PixelGosub.otf", 7, ALLEGRO_TTF_MONOCHROME);
+   if(!f3) m_err("Failed to load font from bitmaps/PixelGosub.otf");
+   //else printf("loaded font PixelGosub.otf\n");
 }
+
 
 // done at start only now
 void create_bmp(void)
@@ -188,76 +83,9 @@ void create_bmp(void)
       bmsg_bmp[x] = al_create_bitmap(400, 8);
       bmsg_bmp2[x] = bmsg_bmp[x];
    }
-
-
-
-
 }
 
 
-
-void load_fonts(void)
-{
-   al_destroy_font(font);
-   font = al_create_builtin_font();
-   if(!font)
-   {
-      sprintf(msg, "Failed to create_builtin_font");
-      m_err(msg);
-      printf("%s\n", msg);
-      exit(0);
-   }
-   //else printf("created builtin font\n");
-
-   al_destroy_font(f1);
-   f1 = al_load_ttf_font("bitmaps/Achafont.ttf", 240, 0);
-   if(!f1) m_err("Failed to load font from bitmaps/Achafont.ttf");
-   //else printf("loaded font Achafont.ttf\n");
-
-   int sfs = al_get_display_option(display, ALLEGRO_MAX_BITMAP_SIZE) / 20;
-   //printf("Saucer font size:%d\n", sfs);
-   al_destroy_font(f2);
-   f2 = al_load_ttf_font("bitmaps/SaucerBB.ttf", sfs, 0);
-   if(!f2) m_err("Failed to load font from bitmaps/SaucerBB.ttf");
-   //else printf("loaded font SaucerBB.ttf.ttf\n");
-
-   al_destroy_font(f3);
-   f3 = al_load_ttf_font("bitmaps/PixelGosub.otf", 7, ALLEGRO_TTF_MONOCHROME);
-   if(!f3) m_err("Failed to load font from bitmaps/PixelGosub.otf");
-   //else printf("loaded font PixelGosub.otf\n");
-}
-
-void auto_set_display_transform_double(void)
-{
-   display_transform_double = 1;
-
-   if (disp_w_curr > 1023) display_transform_double = 2;
-   if (disp_h_curr > 1023) display_transform_double = 2;
-
-   if (disp_w_curr < 1024) display_transform_double = 1;
-   if (disp_h_curr < 700) display_transform_double = 1;
-
-   if (level_editor_running) display_transform_double = 1;
-
-   if (help_screens_running)
-   {
-      if (disp_w_curr > 1279) display_transform_double = 2;
-      if (disp_w_curr < 1280) display_transform_double = 1;
-   }
-   set_display_transform();
-   set_map_var();
-}
-
-void set_display_transform(void)
-{
-   al_set_target_backbuffer(display);
-   SCREEN_W = disp_w_curr/display_transform_double;
-   SCREEN_H = disp_h_curr/display_transform_double;
-   ALLEGRO_TRANSFORM trans;
-   al_identity_transform(&trans);
-   al_orthographic_transform(&trans, 0, 0, -1.0, SCREEN_W, SCREEN_H, 1.0);
-   al_use_projection_transform(&trans);
-}
 
 
 void rebuild_bitmaps(void)
@@ -291,143 +119,6 @@ void rebuild_bitmaps(void)
 
    load_visual_level_select_done = 0;
    if (visual_level_select_running) load_visual_level_select();
-}
-
-void show_disp_values(void)
-{
-   printf("fullscreen:%d display_transform_double:%d\n", fullscreen, display_transform_double);
-   printf("x:%4d y:%4d w:%4d h:%4d - curr\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
-   printf("x:%4d y:%4d w:%4d h:%4d - wind\n", disp_x_wind, disp_y_wind, disp_w_wind, disp_h_wind);
-   int x, y;
-   al_get_window_position(display, &x, &y);
-   int w = al_get_display_width(display);
-   int h = al_get_display_height(display);
-   printf("x:%4d y:%4d w:%4d h:%4d - disp\n", x, y, w, h);
-   printf("0:%4d 0:%4d w:%4d h:%4d - scrn\n", 0, 0, SCREEN_W, SCREEN_H);
-}
-
-void proc_screen_change(int new_sw, int new_sh, int new_sx, int new_sy, int new_fs)
-{
-//   printf("\nDisplay change\n");
-//   printf("x:%4d y:%4d w:%4d h:%4d fs:%d  old\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr, fullscreen);
-//   printf("x:%4d y:%4d w:%4d h:%4d fs:%d  new\n", new_sx, new_sy, new_sw, new_sh, new_fs);
-
-   if ((!fullscreen) && (new_fs)) //  changing to fullscreen
-   {
-      fullscreen = 1;
-      al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 1);
-      al_get_window_position(display, &disp_x_curr, &disp_y_curr);
-      disp_w_curr = al_get_display_width(display);
-      disp_h_curr = al_get_display_height(display);
-      auto_set_display_transform_double();
-      rebuild_bitmaps();
-      save_config();
-      Redraw = 1;
-      //printf("changed to fullscreen\n");
-      //show_disp_values();
-   }
-   else if ((fullscreen) && (!new_fs)) //  changing away from fullscreen
-   {
-      fullscreen = 0;
-      al_resize_display(display, disp_w_wind, disp_h_wind);
-      al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 0);
-      al_set_window_position(display, disp_x_wind, disp_y_wind);
-
-      al_get_window_position(display, &disp_x_curr, &disp_y_curr);
-      disp_w_curr = al_get_display_width(display);
-      disp_h_curr = al_get_display_height(display);
-      auto_set_display_transform_double();
-      rebuild_bitmaps();
-      save_config();
-      Redraw = 1;
-      //window_title();
-      //printf("changed away from fullscreen\n");
-      //show_disp_values();
-   }
-
-   else if (!fullscreen)
-   {
-      if ((new_sw != disp_w_curr) || (new_sh != disp_h_curr)) // window has been resized
-      {
-         al_acknowledge_resize(display);
-         disp_w_curr = disp_w_wind = al_get_display_width(display);
-         disp_h_curr = disp_h_wind = al_get_display_height(display);
-         auto_set_display_transform_double();
-         rebuild_bitmaps();
-         save_config();
-         Redraw = 1;
-         //window_title();
-         //printf("window resized\n");
-         //show_disp_values();
-     }
-     if ((new_sx != disp_x_curr) || (new_sy != disp_y_curr)) // window has been moved
-     {
-        disp_x_curr = disp_x_wind = new_sx;;
-        disp_y_curr = disp_y_wind = new_sy;;
-        save_config();
-        //printf("window moved\n");
-        //show_disp_values();
-     }
-  }
-}
-
-
-
-
-int init_screen(void)
-{
-   //show_fullscreen_modes();
-
-   //al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_REQUIRE);
-   al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
-//   al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
-
-   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
-   if (fullscreen) flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
-
-//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL ;
-//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL;
-
-//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
-//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
-
-
-   al_set_new_display_flags(flags);
-   display = al_create_display(disp_w_wind, disp_h_wind);//
-   if(!display)
-   {
-      sprintf(msg, "Error creating display\n");
-      m_err(msg);
-      exit(0);
-   }
-   //else printf("created display\n");
-
-   if (!fullscreen)
-   {
-      disp_x_curr = disp_x_wind;
-      disp_y_curr = disp_y_wind;
-      al_set_window_position(display, disp_x_curr, disp_y_curr);
-   }
-
-   disp_w_curr = al_get_display_width(display);
-   disp_h_curr = al_get_display_height(display);
-   al_get_window_position(display, &disp_x_curr, &disp_y_curr);
-   //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
-
-   auto_set_display_transform_double();
-   window_title();
-
-   //show_display_flags(al_get_display_flags(display));
-   //show_display_options();
-//   show_pixel_format(al_get_display_format(display));
-//   show_display_orienation();
-//   printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
-
-   //printf("init screen\n");
-   //show_disp_values();
-   create_bmp();
-   make_palette();
-   return 1;
 }
 
 void get_new_background(int full)

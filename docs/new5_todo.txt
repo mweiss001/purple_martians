@@ -2,8 +2,9 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+
 when player is riding a rocket they can pass through semi solid left and right
-(not so much a bug as a fetaure!)
+(not so much a bug as a feature!)
 
 why does start block not get filled in in menu choices sometimes, I checked and it does now
 
@@ -21,23 +22,69 @@ when player is in key block range being removed weird things happen
 in linux version exiting the game freezes the terminal
 CTRL-ALT-END if game has focus or CTRL-C in terminal it spawns
 
+look like I am not shutting down things individually...
+I am just calling al_uninstall_system();
+
+put some logging code around it, then try adding all individual ones...
 
 
-the linux version has screen problems too
-when going into fullscreen mode, it is the same size as the window before
+al_destroy_display(*display);
+
+in what order are they created?
+
+first
+
+al_init();
+
+al_create_event_queue();
 
 
+display = al_create_display(disp_w_wind, disp_h_wind);//
 
+al_register_event_source(event_queue, al_get_display_event_source(display));
+
+al_init_native_dialog_addon())
+
+
+al_init_primitives_addon())
+al_init_font_addon())
+al_init_ttf_addon())
+al_install_keyboard())
+al_register_event_source(event_queue, al_get_keyboard_event_source());
+al_install_mouse())
+al_register_event_source(event_queue, al_get_mouse_event_source());
+al_install_joystick())
+al_register_event_source(event_queue, al_get_joystick_event_source());
+al_init_image_addon())
+   fps_timer = al_create_timer(1/(float)frame_speed);
+   sec_timer = al_create_timer(1);
+   mnu_timer = al_create_timer(.01);
+
+   // register timer event source
+   al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
+
+   // start timers
+   al_start_timer(fps_timer);
+   al_start_timer(sec_timer);
+   al_start_timer(mnu_timer);
+
+   load_sound();
 
 ------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+When I do dev on ubuntu...
+first things I need to do is make sure I have the latest version of the sources
+
+I am not using git to do this yet, i just copy the most upto date version from mi3's C:/pm
+
+look into github.io for webpages
 
 
-look into github.io
+make a level that relies on being able to carry a door through a door
 
-
+make a level that requires traveling on a lift while jumping on and off of switches
 
 make the switches able to see through if stacked
 
@@ -57,24 +104,16 @@ how about optional swappable tilesets for levels
 
 how about barriers that are configurable for enemies, players, bullets, objects
 
-
-
 make the version number auto increment based on something like date...
 or how many time it has been compiled...
 
-
-
-
 How about a level where you have to clone switches??
-
-
 
 
 how about a level where you need to send rocket up through a minefield
 or arrow field that player would die in....
 
 level with 100 random flapper...vertical jumping section in middle...332
-
 
 
 Its like I can shoot at right angles and so can the enemies, there is not much to do.

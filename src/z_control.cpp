@@ -508,8 +508,8 @@ void function_key_check(void)
       }
       else
       {
-         if (fullscreen) proc_screen_change(SCREEN_W, SCREEN_H, 0, 0, 0);
-         else            proc_screen_change(SCREEN_W, SCREEN_H, 0, 0, 1);
+         if (fullscreen) proc_display_change_fromfs();
+         else            proc_display_change_tofs();
       }
    }
    if (!key[ALLEGRO_KEY_F12]) KEY_F12_held = 0;
@@ -968,7 +968,6 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
    return ret;
 }
 
-
 int proc_controllers()
 {
    int ret = 0;
@@ -976,14 +975,6 @@ int proc_controllers()
 
    key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
    Key_pressed_ASCII = 0;
-
-   if (!fullscreen) // detect if window was moved
-   {
-      int x, y;
-      al_get_window_position(display, &x, &y);
-      if ((x != disp_x_curr) || (y != disp_y_curr))
-      proc_screen_change(disp_w_curr, disp_h_curr, x, y, fullscreen);
-   }
 
    while (menu_timer_block)
    {
@@ -993,17 +984,7 @@ int proc_controllers()
          if (al_get_next_event(event_queue, &ev))
          {
             if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_block = 0;
-            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
-            {
-               // check to see if we have more resize events piling up
-               ALLEGRO_EVENT ev2;
-               while (al_get_next_event(event_queue, &ev2))
-               {
-                  if (ev2.type == ALLEGRO_EVENT_DISPLAY_RESIZE) ev = ev2;
-                  else ret = proc_events(ev2, ret);
-               }
-               proc_screen_change(ev.display.width, ev.display.height, disp_x_curr, disp_y_curr, fullscreen);
-            }
+            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
             else ret = proc_events(ev, ret);
          }
       }
@@ -1041,63 +1022,4 @@ int proc_controllers()
    //printf("ret:%d\n", ret);
    return ret;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

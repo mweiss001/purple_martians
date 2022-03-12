@@ -128,7 +128,7 @@ extern char local_hostname[80];
 extern char pm_version_string[80];
 extern char al_version_string[80];
 extern char global_string[20][25][80];
-extern char msg[256];
+extern char msg[1024];
 extern char color_name[16][20];
 
 // for log file viewer code to find most recent log file
@@ -655,15 +655,25 @@ extern al_fixed e_bullet_fyinc[50];
 extern int pm_bullet_collision_box;
 
 
-extern int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
+extern int desktop_width;
+extern int desktop_height;
+
+extern int disp_x_curr; // current (either wind in windowed mode or full in fullscreen mode)
 extern int disp_y_curr;
 extern int disp_w_curr;
 extern int disp_h_curr;
 
-extern int disp_x_wind; // use when restoring from fullscreen
+extern int disp_x_wind; // windowed
 extern int disp_y_wind;
 extern int disp_w_wind;
 extern int disp_h_wind;
+
+extern int disp_x_full; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+extern int disp_y_full;
+extern int disp_w_full;
+extern int disp_h_full;
+
+
 
 extern int SCREEN_W;
 extern int SCREEN_H;
@@ -1175,21 +1185,34 @@ void fill_door_tile(void);
 void fill_player_tile(void);
 void init_player(int p, int t);
 
-// z_screen.h
+
+// z_display.h
+
+
+
+
+
 void show_bitmap_flags(int flags);
 void show_pixel_format(int df);
 void show_display_flags(int flags);
 void show_display_options(void);
 void show_display_orienation(void);
 void show_fullscreen_modes(void);
-void create_bmp(void);
-void load_fonts(void);
 void auto_set_display_transform_double(void);
 void set_display_transform(void);
-void rebuild_bitmaps(void);
+
+
+
 void show_disp_values(void);
-void proc_screen_change(int new_sw, int new_sh, int new_sx, int new_sy, int new_fs);
-int init_screen(void);
+void proc_display_change_tofs(void);
+void proc_display_change_fromfs(void);
+void proc_display_change(void);
+int init_display(void);
+
+// z_screen.h
+void create_bmp(void);
+void rebuild_bitmaps(void);
+void load_fonts(void);
 void get_new_background(int full);
 void stimp(void);
 void stamp(void);
