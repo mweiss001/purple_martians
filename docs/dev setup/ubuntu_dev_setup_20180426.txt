@@ -1505,10 +1505,16 @@ compile and run...
 
 
 
-----------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
 
 20220307 testing
 
+---------------------------------
+---------------------------------
+---------------------------------
+---------------------------------
 
 MX-21_x64 
 cannot find libOpenGL.so.0
@@ -1526,11 +1532,32 @@ cannot pass command line args when starting with script ./pml
 
 
 
-
-
-
-
 manjaro is not the right size???
+
+
+
+
+
+
+
+
+mr5u20 new u20 install
+cannot run vanilla 7.05..
+
+
+
+mr5u20 can't find libopusfile.so.0
+got it and put it in lib folder....
+runs great, does 10,000 fps no problem
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1699,7 +1726,9 @@ press "c", "e" and then "q". You should now be back to a console.
 
 make
 
-takes about 2 min to compile (40s on zi3u20)
+takes about 2 min to compile (40s on zi3u20) (20 sec on mr5u20)
+
+
 
 sudo make install
 installed /usr/lib/liballegro_monolith.so.5.2.8 (size 1.7M)
@@ -1822,6 +1851,170 @@ compile and run...
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+MX1
+
+already has gcc 10.2
+
+
+
+
+sudo apt install git cmake cmake-curses-gui build-essential \
+                 libdumb1-dev \
+                 libflac-dev \
+                 libfreetype6-dev \
+                 libgl1-mesa-dev \
+                 libglu1-mesa-dev \
+                 libgtk-3-dev \
+                 libjpeg-dev \
+                 libopenal-dev \
+                 libphysfs-dev \
+                 libpng-dev \
+                 libpulse-dev \
+                 libtheora-dev \
+                 libvorbis-dev \
+                 libwebp-dev \
+                 libxext-dev \
+                 libxxf86vm-dev \
+                 libxrandr-dev \
+                 libxinerama-dev \
+                 libxpm-dev \
+                 libopusfile-dev \
+                 codeblocks
+
+
+Download Allegro's source from git and navigate to its directory.
+
+from a terminal at Desktop:
+
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+
+Naturally, you can replace the repostitory to something else if you want grab the code from, e.g., a GitHub fork.
+
+Configure and build Allegro.
+
+mkdir build
+cd build
+
+
+cmake ..
+ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+
+build type: Release
+monolith: on
+
+all these off:
+color
+d3d
+demo
+docs (all)
+embed
+examples
+flac
+png
+jpg
+webp
+ogg video
+openal
+opensl
+opus
+physfs
+release logging
+tests
+video
+vorbis
+
+press "c", "e" and then "q". You should now be back to a console.
+
+make
+
+takes about 2 min to compile (40s on zi3u20) (20 sec on mr5u20)
+
+
+
+sudo make install
+installed /usr/lib/liballegro_monolith.so.5.2.8 (size 1.7M)
+
+
+
+
+
+
+
+I am not going to use git to get the source files yet...maybe later
+
+---------------------------------------------------------
+Set up samba share on desktop for project files
+---------------------------------------------------------
+
+made a folder on the desktop 'pm_client17' and shared it
+
+right-clicking should show an option to share, if not, open it in nautilus file thingy and try again
+
+prompted to install samba, did it with no problems
+checked:
+'allow other to create and delete files in this folder'
+'guest access (for people without an account)'
+clicked 'create share'
+chose 'set permissions automatically'
+
+copy sources to this shared folder then run sudo ./op to
+set owner and permissions for all the files to m:m 777
+
+
+
+---------------------------------------------------------
+Install libnet
+---------------------------------------------------------
+- from my local copy of the sources
+from a terminal go to the folder 'libnet' in the game folder
+'make clean'
+'make lib'
+'sudo make install'
+(puts libnet.h in /usr/include/)
+(puts libnet.a in /usr/lib/x86_64-linux-gnu/)
+
+
+
+---------------------------------------------------------
+Code::Blocks
+---------------------------------------------------------
+sudo apt-get install codeblocks
+
+
+---------------------------------------------------------
+Open project in code::blocks and compile
+---------------------------------------------------------
+First time code::blocks is run it complains about default compiler
+just choose gcc and it wont complain after first time
+
+compiler:
+-Wall
+
+linker:
+-lallegro_monolith
+-lz
+-lnet
+-lpthread
+
+compile and run...
 
 
 

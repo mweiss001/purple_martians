@@ -127,6 +127,68 @@ Project sites are hosted at https://YOUR_USERNAME.github.io/YOUR_REPO_NAME and a
 
 I cant seem to get the one for my project to work...
 
+I have branches called gh-pages...
+
+
+
+
+
+
+I got the one for my personal page to work....
+
+created a new repo called mweiss001.github.io
+
+
+cloned that to c:/web
+
+copied all the files there and commited back
+on github the branch was main and on my computer it was master so I had to merge
+finally the webpages work!!!!
+
+
+
+made a release on github as well...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

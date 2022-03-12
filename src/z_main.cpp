@@ -84,7 +84,7 @@ char al_version_string[80];
 
 
 char global_string[20][25][80];
-char msg[256];
+char msg[1024];
 char color_name[16][20];
 
 // for log file viewer code to find most recent log file
@@ -412,15 +412,36 @@ al_fixed e_bullet_fxinc[50];
 al_fixed e_bullet_fyinc[50];
 int pm_bullet_collision_box = 8;
 
+
+
+
+
+
+
+
+// ------------------------------------------------
+// ---------------- display -----------------------
+// ------------------------------------------------
+
+
+int desktop_width;
+int desktop_height;
+
+
 int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
 int disp_y_curr;
 int disp_w_curr;
 int disp_h_curr;
 
-int disp_x_wind; // use when restoring from fullscreen
+int disp_x_wind; // windowed
 int disp_y_wind;
 int disp_w_wind;
 int disp_h_wind;
+
+int disp_x_full; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+int disp_y_full;
+int disp_w_full;
+int disp_h_full;
 
 int SCREEN_W;
 int SCREEN_H;
@@ -492,7 +513,67 @@ int new_size = 0;
 
 void final_wrapup(void)
 {
+   printf("\nBefore al_uninstall_audio()\n");
+   al_uninstall_audio();
+
+
+   printf("\nBefore al_shutdown_font_addon()\n");
+   al_shutdown_font_addon();
+
+//   printf("\nBefore al_shutdown_ttf_addon()\n");
+//   al_shutdown_ttf_addon();
+// this causes the program to exit abnormally in windows
+// same if called before or after al_shutdown_font_addon();
+
+
+
+
+
+
+
+
+
+
+
+//   printf("\nBefore \n");
+
+
+
+
+
+
+   printf("\nBefore al_uninstall_keyboard()\n");
+   al_uninstall_keyboard();
+
+   printf("\nBefore al_uninstall_mouse()\n");
+   al_uninstall_mouse();
+
+   printf("\nBefore al_uninstall_joystick()\n");
+   al_uninstall_joystick();
+
+
+
+   printf("\nBefore al_shutdown_image_addon()\n");
+   al_shutdown_image_addon();
+
+   printf("\nBefore al_shutdown_native_dialog_addon()\n");
+   al_shutdown_native_dialog_addon();
+
+
+   printf("\nBefore al_shutdown_primitives_addon()\n");
+   al_shutdown_primitives_addon();
+
+
+   printf("\nBefore al_destroy_display()\n");
+   al_destroy_display(display);
+
+
+   printf("\nBefore al_uninstall_system()\n");
    al_uninstall_system();
+
+
+   printf("\nAfter al_uninstall_system()\n");
+
 }
 
 void fast_exit(int why)
@@ -532,11 +613,31 @@ void set_and_get_versions(void)
 }
 
 
+void get_desktop_resolution()
+{
+   ALLEGRO_MONITOR_INFO aminfo;
+   al_get_monitor_info(0 , &aminfo);
+   desktop_width  = aminfo.x2 - aminfo.x1;
+   desktop_height = aminfo.y2 - aminfo.y1;
+   printf("Desktop Resolution: %dx%d\n", desktop_width, desktop_height);
+
+   disp_x_full = 0; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+   disp_y_full = 0;
+   disp_w_full = desktop_width;
+   disp_h_full = desktop_height;
+}
+
+
+
 int initial_setup(void)
 {
    al_init();
    set_and_get_versions();
    get_config_values();
+   get_desktop_resolution();
+
+
+
 
 
 // --- event queue ----------------
@@ -549,7 +650,7 @@ int initial_setup(void)
 
 
 // --- display --------------------
-   if (!init_screen()) return 0;
+   if (!init_display()) return 0;
    al_register_event_source(event_queue, al_get_display_event_source(display));
 
 

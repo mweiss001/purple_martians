@@ -208,6 +208,7 @@
 		<Unit filename="src/z_bullets.cpp" />
 		<Unit filename="src/z_config.cpp" />
 		<Unit filename="src/z_control.cpp" />
+		<Unit filename="src/z_display.cpp" />
 		<Unit filename="src/z_enemy.cpp" />
 		<Unit filename="src/z_file.cpp" />
 		<Unit filename="src/z_fnx.cpp" />
