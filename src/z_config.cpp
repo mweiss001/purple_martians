@@ -421,6 +421,5 @@ void get_config_values(void)
 
    al_destroy_config(cfg);
    save_config();
-
 }
 

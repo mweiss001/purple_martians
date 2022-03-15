@@ -1209,6 +1209,10 @@ void proc_display_change_fromfs(void);
 void proc_display_change(void);
 int init_display(void);
 
+void save_display_window_position(void);
+
+
+
 // z_screen.h
 void create_bmp(void);
 void rebuild_bitmaps(void);

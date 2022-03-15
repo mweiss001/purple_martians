@@ -242,8 +242,7 @@ int client_init_join(void)
             players[p].control_method = 4;
             players[p].color = color;
             players1[p].game_move_entry_pos = server_game_move_entry_pos;
-            sprintf(players1[p].hostname, "%s", local_hostname);
-
+            strncpy(players1[p].hostname, local_hostname, 16);
             ima_client = 1;
 
             play_level = pl;
@@ -318,7 +317,7 @@ void client_read_game_move_from_packet(int x, int clf_check)
    int g2 = PacketGet1ByteInt();
    int g3 = PacketGet1ByteInt();
 
-   char tmsg1[80], tmsg2[80], tmsg3[80], tmsg4[80];
+   char tmsg1[80], tmsg2[80], tmsg3[180], tmsg4[80];
    sprintf(tmsg1,"rx move:%d [%d][%d][%d][%2d]", x, g0, g1, g2, g3);
    sprintf(tmsg3," ");
    sprintf(tmsg4," ");

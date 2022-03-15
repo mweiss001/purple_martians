@@ -1,0 +1,60 @@
+How does my program (pm) work on different linux distros??
+
+missing libOpenGL.so.0
+can be fixed with:
+sudo apt install libgl1-mesa-dev
+
+
+
+-------------------------------
+ubuntu-20.04.4-desktop-amd64
+-------------------------------
+20220314
+tested on live version
+missing libOpenGL.so.0
+
+20220314
+tested on minimal install
+works out of the box!!!
+
+
+
+-------------------------------
+MX-21_x64
+-------------------------------
+20220314
+tested on live version
+missing libOpenGL.so.0
+
+same on installed version
+
+
+-------------------------------
+linuxmint-20.3-xfce-64bit
+-------------------------------
+20220314
+tested on live version
+missing libOpenGL.so.0
+
+20220314
+tested on installed system (no mm codecs)
+missing libOpenGL.so.0
+
+
+
+----------------------------------------
+Fedora-Workstation-Live-x86_64-35-1.2
+----------------------------------------
+20220314
+tested on live version
+works out of the box!!!
+
+
+--------------------------------------------
+manjaro-xfce-21.2.4-minimal-220301-linux510
+--------------------------------------------
+20220314
+tested on live version
+works out of the box!!!
+
+

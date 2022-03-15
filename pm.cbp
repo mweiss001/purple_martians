@@ -148,6 +148,7 @@
 					<Add option="-lz" />
 					<Add option="-lnet" />
 					<Add option="-lpthread" />
+					<Add option="-Wl,-rpath=&apos;./linux_libs&apos;" />
 				</Linker>
 			</Target>
 			<Target title="ldm_release">

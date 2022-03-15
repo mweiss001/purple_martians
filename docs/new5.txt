@@ -10594,58 +10594,186 @@ new code
             if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
 
 
-
-
+20220311
 I can now truly say that is done and cleaned up and works great
 it is a lot simpler code too.....
 
+checked in
 
 
 
 
 
+now I want to figure out what is causing the freeze on exit.....
 
 
 
+in linux version exiting the game freezes the terminal
+CTRL-ALT-END if game has focus or CTRL-C in terminal it spawns
 
+look like I am not shutting down things individually...
+I am just calling al_uninstall_system();
 
+put some logging code around it, then try adding all individual ones...
 
 
+al_destroy_display(*display);
 
+in what order are they created?
 
+first
 
+al_init();
 
+al_create_event_queue();
 
 
+display = al_create_display(disp_w_wind, disp_h_wind);//
 
+al_register_event_source(event_queue, al_get_display_event_source(display));
 
+al_init_native_dialog_addon())
 
 
+al_init_primitives_addon())
+al_init_font_addon())
+al_init_ttf_addon())
+al_install_keyboard())
+al_register_event_source(event_queue, al_get_keyboard_event_source());
+al_install_mouse())
+al_register_event_source(event_queue, al_get_mouse_event_source());
+al_install_joystick())
+al_register_event_source(event_queue, al_get_joystick_event_source());
+al_init_image_addon())
+   fps_timer = al_create_timer(1/(float)frame_speed);
+   sec_timer = al_create_timer(1);
+   mnu_timer = al_create_timer(.01);
 
+   // register timer event source
+   al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
 
+   // start timers
+   al_start_timer(fps_timer);
+   al_start_timer(sec_timer);
+   al_start_timer(mnu_timer);
 
+   load_sound();
 
+how can I get a debugger working?
 
+installed gdb
 
+re-compiled  allegro with debug
+compiled with debug info
+linked with -g
 
+ran gdb ./pm
 
+then run
 
+when it crashed CTRL-C then:
 
 
 
+^[[A^[[A
+^C
+Thread 1 "pm" received signal SIGINT, Interrupt.
+0x00007ffff7e042a1 in pthread_cond_destroy@@GLIBC_2.3.2 ()
+   from /lib/x86_64-linux-gnu/libpthread.so.0
+(gdb) bt
+#0  0x00007ffff7e042a1 in pthread_cond_destroy@@GLIBC_2.3.2 ()
+    at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff7ebb43f in al_destroy_event_queue () at /lib/liballegro_monolith.so.5.2
+#2  0x00007ffff7eba5dc in _al_run_destructors () at /lib/liballegro_monolith.so.5.2
+#3  0x00007ffff7ec1a40 in al_uninstall_system () at /lib/liballegro_monolith.so.5.2
+#4  0x00005555555c500e in final_wrapup() () at /home/m/Desktop/pm_client22/src/z_main.cpp:572
+#5  0x00005555555c6876 in main(int, char**) (argument_count=1, argument_array=0x7fffffffe1b8)
+    at /home/m/Desktop/pm_client22/src/z_main.cpp:1409
+(gdb) where
+#0  0x00007ffff7e042a1 in pthread_cond_destroy@@GLIBC_2.3.2 ()
+    at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff7ebb43f in al_destroy_event_queue () at /lib/liballegro_monolith.so.5.2
+#2  0x00007ffff7eba5dc in _al_run_destructors () at /lib/liballegro_monolith.so.5.2
+#3  0x00007ffff7ec1a40 in al_uninstall_system () at /lib/liballegro_monolith.so.5.2
+#4  0x00005555555c500e in final_wrapup() () at /home/m/Desktop/pm_client22/src/z_main.cpp:572
+#5  0x00005555555c6876 in main(int, char**) (argument_count=1, argument_array=0x7fffffffe1b8)
+    at /home/m/Desktop/pm_client22/src/z_main.cpp:1409
 
 
 
 
 
+in events.c
 
+void al_destroy_event_queue(ALLEGRO_EVENT_QUEUE *queue)
+{
+   printf("deq 1\n");
+   ASSERT(queue);
+   printf("deq 2\n");
+   _al_unregister_destructor(_al_dtor_list, queue->dtor_item);
+   /* Unregister any event sources registered with this queue.  */
+   while (_al_vector_is_nonempty(&queue->sources)) {
+      ALLEGRO_EVENT_SOURCE **slot = _al_vector_ref_back(&queue->sources);
+      al_unregister_event_source(queue, *slot);
+   }
+   printf("deq 3\n");
+   ASSERT(_al_vector_is_empty(&queue->sources));
+   _al_vector_free(&queue->sources);
+   printf("deq 4\n");
+   ASSERT(queue->events_head == queue->events_tail);
+   _al_vector_free(&queue->events);
+   printf("deq 5\n");
+   _al_cond_destroy(&queue->cond);
+   printf("deq 6\n");
+   _al_mutex_destroy(&queue->mutex);
+   printf("deq 7\n");
+   al_free(queue);
+   printf("deq 8\n");
+}
 
 
+Purple Martians Version 7.10
+Allegro Version: 5.2.8.0
+Desktop Resolution: 3840x2160
+al_uninstall_audio()
+al_destroy_font()
+al_shutdown_ttf_addon()
+al_shutdown_font_addon()
+al_shutdown_image_addon()
+al_shutdown_native_dialog_addon()
+al_shutdown_primitives_addon()
+al_unregister_event_source(event_queue, al_get_keyboard_event_source())
+al_uninstall_keyboard()
+al_unregister_event_source(event_queue, al_get_mouse_event_source())
+al_uninstall_mouse()
+al_unregister_event_source(event_queue, al_get_joystick_event_source())
+al_uninstall_joystick()
+al_unregister_event_source(event_queue, al_get_timer_event_source(mnu_timer));
+al_unregister_event_source(event_queue, al_get_display_event_source(display))
+al_destroy_display()
+al_destroy_event_queue(event_queue)
+deq 1
+deq 2
+deq 3
+deq 4
+deq 5
+deq 6
+deq 7
+deq 8
 
+Before al_uninstall_system()
+deq 1
+deq 2
+deq 3
+deq 4
+deq 5
 
 
+now find:
 
+_al_cond_destroy(&queue->cond);
 
+I got lost here...
 
 
 
@@ -10654,13 +10782,26 @@ it is a lot simpler code too.....
 
 
 
+------------------------------------------
+new bug
+------------------------------------------
+when player is in key block range being removed weird things happen
+it only happens when the key is in the middle of the block range
+and the distance from key to center of block range = 0
 
+But it always gets fixes when player leaves block range??
 
+i think what matters is that the player is still touching the key, not in block range...test this
+i think it is...also blocks don't get destroyed
+the problem was that even though the key was moving, the player was still triggering a collision with it
+fixed
 
 
 
+show OS type on startup
 
 
+save window x, y when exiting (only saves when resized or switching fullscreen)...done
 
 
 
@@ -10686,6 +10827,416 @@ it is a lot simpler code too.....
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I think I have all the debugging enabled:
+
+Allegro:
+-DCMAKE_BUILD_TYPE = {Debug | Release | RelWithDebInfo}
+I used Debug
+
+remade the library...
+make
+sudo make install
+
+In the game:
+compiler options: -Wall -g
+link with -lallegro_monolith_debug
+
+I ran gdb again and bt and where did not show anything new
+
+I ran 'info threads' and 'thread apply all bt'
+
+I got a lot more output, but nothing I can make sense of:
+
+
+$ gdb ./pm
+GNU gdb (Debian 10.1-1.7) 10.1.90.20210103-git
+Copyright (C) 2021 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./pm...
+(gdb) run
+Starting program: /home/m/Desktop/pm_client22/pm
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[New Thread 0x7ffff4ca7700 (LWP 728683)]
+
+Purple Martians Version 7.10
+Allegro Version: 5.2.8.0
+[Detaching after vfork from child process 728684]
+System ID: Xglx
+Desktop Resolution: 3840x2160
+[New Thread 0x7fffebe03700 (LWP 728688)]
+[New Thread 0x7fffe3fff700 (LWP 728689)]
+[New Thread 0x7fffeb602700 (LWP 728690)]
+[New Thread 0x7fffeae01700 (LWP 728691)]
+[New Thread 0x7fffe9d42700 (LWP 728692)]
+[New Thread 0x7fffe9541700 (LWP 728693)]
+[New Thread 0x7fffe8b96700 (LWP 728694)]
+[New Thread 0x7fffe37fe700 (LWP 728695)]
+[New Thread 0x7fffe2f67700 (LWP 728696)]
+[New Thread 0x7fffe2766700 (LWP 728697)]
+[New Thread 0x7fffe1f65700 (LWP 728698)]
+[New Thread 0x7fffe1764700 (LWP 728699)]
+deq 1
+deq 2
+deq 3
+deq 4
+deq 5
+^C
+Thread 1 "pm" received signal SIGINT, Interrupt.
+0x00007ffff7d752a1 in pthread_cond_destroy@@GLIBC_2.3.2 ()
+   from /lib/x86_64-linux-gnu/libpthread.so.0
+(gdb) bt
+#0  0x00007ffff7d752a1 in pthread_cond_destroy@@GLIBC_2.3.2 ()
+    at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff7e2a503 in _al_cond_destroy (cond=0x7fffa4000be0)
+    at /home/m/Desktop/allegro5/include/allegro5/platform/aintuthr.h:76
+#2  0x00007ffff7e22093 in al_destroy_event_queue (queue=0x7fffa4000b60)
+    at /home/m/Desktop/allegro5/src/events.c:152
+#3  0x00007ffff7e21791 in _al_run_destructors (dtors=0x5555632f48e0)
+    at /home/m/Desktop/allegro5/src/dtor.c:120
+#4  0x00007ffff7e32ec5 in al_uninstall_system () at /home/m/Desktop/allegro5/src/system.c:323
+#5  0x00005555555c4f5a in final_wrapup() () at /home/m/Desktop/pm_client22/src/z_main.cpp:573
+#6  0x00005555555c6888 in main(int, char**) (argument_count=1, argument_array=0x7fffffffe1b8)
+    at /home/m/Desktop/pm_client22/src/z_main.cpp:1421
+(gdb) where
+#0  0x00007ffff7d752a1 in pthread_cond_destroy@@GLIBC_2.3.2 ()
+    at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff7e2a503 in _al_cond_destroy (cond=0x7fffa4000be0)
+    at /home/m/Desktop/allegro5/include/allegro5/platform/aintuthr.h:76
+#2  0x00007ffff7e22093 in al_destroy_event_queue (queue=0x7fffa4000b60)
+    at /home/m/Desktop/allegro5/src/events.c:152
+#3  0x00007ffff7e21791 in _al_run_destructors (dtors=0x5555632f48e0)
+    at /home/m/Desktop/allegro5/src/dtor.c:120
+#4  0x00007ffff7e32ec5 in al_uninstall_system () at /home/m/Desktop/allegro5/src/system.c:323
+#5  0x00005555555c4f5a in final_wrapup() () at /home/m/Desktop/pm_client22/src/z_main.cpp:573
+#6  0x00005555555c6888 in main(int, char**) (argument_count=1, argument_array=0x7fffffffe1b8)
+    at /home/m/Desktop/pm_client22/src/z_main.cpp:1421
+(gdb) info threads
+  Id   Target Id                                        Frame
+* 1    Thread 0x7ffff4ca8cc0 (LWP 728679) "pm"          0x00007ffff7d752a1 in pthread_cond_destroy@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  2    Thread 0x7ffff4ca7700 (LWP 728683) "pm"          0x00007ffff7b528b3 in select ()
+   from /lib/x86_64-linux-gnu/libc.so.6
+  3    Thread 0x7fffebe03700 (LWP 728688) "pm:disk$0"   0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  4    Thread 0x7fffe3fff700 (LWP 728689) "pm:disk$1"   0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  5    Thread 0x7fffeb602700 (LWP 728690) "pm:disk$2"   0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  6    Thread 0x7fffeae01700 (LWP 728691) "pm:disk$3"   0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  7    Thread 0x7fffe9d42700 (LWP 728692) "gmain"       0x00007ffff7b503ff in poll ()
+   from /lib/x86_64-linux-gnu/libc.so.6
+  8    Thread 0x7fffe9541700 (LWP 728693) "gdbus"       0x00007ffff7b503ff in poll ()
+   from /lib/x86_64-linux-gnu/libc.so.6
+  9    Thread 0x7fffe8b96700 (LWP 728694) "pm"          0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  10   Thread 0x7fffe37fe700 (LWP 728695) "pm"          0x00007ffff7b528b3 in select ()
+   from /lib/x86_64-linux-gnu/libc.so.6
+  11   Thread 0x7fffe2f67700 (LWP 728696) "pm"          0x00007ffff7b22c61 in clock_nanosleep ()
+   from /lib/x86_64-linux-gnu/libc.so.6
+  12   Thread 0x7fffe2766700 (LWP 728697) "threaded-ml" 0x00007ffff7b503ff in poll ()
+   from /lib/x86_64-linux-gnu/libc.so.6
+  13   Thread 0x7fffe1f65700 (LWP 728698) "pm"          0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  14   Thread 0x7fffe1764700 (LWP 728699) "pm"          0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+(gdb) info threads
+  Id   Target Id                                        Frame
+* 1    Thread 0x7ffff4ca8cc0 (LWP 728679) "pm"          0x00007ffff7d752a1 in pthread_cond_destroy@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  2    Thread 0x7ffff4ca7700 (LWP 728683) "pm"          0x00007ffff7b528b3 in select () from /lib/x86_64-linux-gnu/libc.so.6
+  3    Thread 0x7fffebe03700 (LWP 728688) "pm:disk$0"   0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  4    Thread 0x7fffe3fff700 (LWP 728689) "pm:disk$1"   0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  5    Thread 0x7fffeb602700 (LWP 728690) "pm:disk$2"   0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  6    Thread 0x7fffeae01700 (LWP 728691) "pm:disk$3"   0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  7    Thread 0x7fffe9d42700 (LWP 728692) "gmain"       0x00007ffff7b503ff in poll () from /lib/x86_64-linux-gnu/libc.so.6
+  8    Thread 0x7fffe9541700 (LWP 728693) "gdbus"       0x00007ffff7b503ff in poll () from /lib/x86_64-linux-gnu/libc.so.6
+  9    Thread 0x7fffe8b96700 (LWP 728694) "pm"          0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  10   Thread 0x7fffe37fe700 (LWP 728695) "pm"          0x00007ffff7b528b3 in select () from /lib/x86_64-linux-gnu/libc.so.6
+  11   Thread 0x7fffe2f67700 (LWP 728696) "pm"          0x00007ffff7b22c61 in clock_nanosleep () from /lib/x86_64-linux-gnu/libc.so.6
+  12   Thread 0x7fffe2766700 (LWP 728697) "threaded-ml" 0x00007ffff7b503ff in poll () from /lib/x86_64-linux-gnu/libc.so.6
+  13   Thread 0x7fffe1f65700 (LWP 728698) "pm"          0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+  14   Thread 0x7fffe1764700 (LWP 728699) "pm"          0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () from /lib/x86_64-linux-gnu/libpthread.so.0
+(gdb) thread apply all bt
+
+Thread 14 (Thread 0x7fffe1764700 (LWP 728699) "pm"):
+#0  0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff7e2a52d in _al_cond_wait (cond=0x7fffa4000be0, mutex=0x7fffa4000bb0) at /home/m/Desktop/allegro5/include/allegro5/platform/aintuthr.h:81
+#2  0x00007ffff7e22c4f in al_wait_for_event (queue=0x7fffa4000b60, ret_event=0x7fffe1763820) at /home/m/Desktop/allegro5/src/events.c:435
+#3  0x00007ffff7f396b0 in _al_kcm_feed_stream (self=0x555563568700, vstream=0x5555639d0900) at /home/m/Desktop/allegro5/addons/audio/kcm_stream.c:697
+#4  0x00007ffff7e339ac in thread_func_trampoline (inner=0x555563568700, _outer=0x555563568700) at /home/m/Desktop/allegro5/src/threads.c:80
+#5  0x00007ffff7ed404c in thread_proc_trampoline (data=0x555563568700) at /home/m/Desktop/allegro5/src/unix/uxthread.c:44
+#6  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#7  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 13 (Thread 0x7fffe1f65700 (LWP 728698) "pm"):
+#0  0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff744eda8 in pa_threaded_mainloop_wait () at /lib/x86_64-linux-gnu/libpulse.so.0
+#2  0x00007ffff7470a78 in pa_simple_write () at /lib/x86_64-linux-gnu/libpulse-simple.so.0
+#3  0x00007ffff7f3d5c9 in pulseaudio_update (self=0x55556387d1d0, data=0x55556388dfd0) at /home/m/Desktop/allegro5/addons/audio/pulseaudio.c:212
+#4  0x00007ffff7e339ac in thread_func_trampoline (inner=0x55556387d1d0, _outer=0x55556387d1d0) at /home/m/Desktop/allegro5/src/threads.c:80
+#5  0x00007ffff7ed404c in thread_proc_trampoline (data=0x55556387d1d0) at /home/m/Desktop/allegro5/src/unix/uxthread.c:44
+#6  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#7  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 12 (Thread 0x7fffe2766700 (LWP 728697) "threaded-ml"):
+#0  0x00007ffff7b503ff in poll () at /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007ffff744e632 in  () at /lib/x86_64-linux-gnu/libpulse.so.0
+#2  0x00007ffff7440079 in pa_mainloop_poll () at /lib/x86_64-linux-gnu/libpulse.so.0
+#3  0x00007ffff74406ff in pa_mainloop_iterate () at /lib/x86_64-linux-gnu/libpulse.so.0
+#4  0x00007ffff74407b0 in pa_mainloop_run () at /lib/x86_64-linux-gnu/libpulse.so.0
+#5  0x00007ffff744e709 in  () at /lib/x86_64-linux-gnu/libpulse.so.0
+#6  0x00007ffff625be08 in  () at /usr/lib/x86_64-linux-gnu/pulseaudio/libpulsecommon-14.2.so
+#7  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#8  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 11 (Thread 0x7fffe2f67700 (LWP 728696) "pm"):
+#0  0x00007ffff7b22c61 in clock_nanosleep () at /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007ffff7b28443 in nanosleep () at /lib/x86_64-linux-gnu/libc.so.6
+#2  0x00007ffff7ed3e79 in _al_unix_rest (seconds=0.0096502640000000039) at /home/m/Desktop/allegro5/src/unix/utime.c:68
+#3  0x00007ffff7e33803 in al_rest (seconds=0.0096502640000000039) at /home/m/Desktop/allegro5/src/system.c:520
+#4  0x00007ffff7e34c37 in timer_thread_proc (self=0x5555635fbea0, unused=0x0) at /home/m/Desktop/allegro5/src/timernu.c:94
+#5  0x00007ffff7ed404c in thread_proc_trampoline (data=0x5555635fbea0) at /home/m/Desktop/allegro5/src/unix/uxthread.c:44
+#6  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#7  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 10 (Thread 0x7fffe37fe700 (LWP 728695) "pm"):
+#0  0x00007ffff7b528b3 in select () at /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007ffff7ed2d8f in fd_watch_thread_func (self=0x7ffff7fa9d80 <fd_watch_thread>, unused=0x0) at /home/m/Desktop/allegro5/src/unix/ufdwatch.c:89
+#2  0x00007ffff7ed404c in thread_proc_trampoline (data=0x7ffff7fa9d80 <fd_watch_thread>) at /home/m/Desktop/allegro5/src/unix/uxthread.c:44
+#3  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 9 (Thread 0x7fffe8b96700 (LWP 728694) "pm"):
+#0  0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff7e2a52d in _al_cond_wait (cond=0x5555635fdeb0, mutex=0x555563590400) at /home/m/Desktop/allegro5/include/allegro5/platform/aintuthr.h:81
+#2  0x00007ffff7e3492e in al_wait_cond (cond=0x5555635fdeb0, mutex=0x555563590400) at /home/m/Desktop/allegro5/src/threads.c:380
+#3  0x00007ffff7ee8c8d in hotplug_proc (thread=0x5555635709e0, data=0x0) at /home/m/Desktop/allegro5/src/linux/ljoynu.c:658
+#4  0x00007ffff7e339ac in thread_func_trampoline (inner=0x5555635709e0, _outer=0x5555635709e0) at /home/m/Desktop/allegro5/src/threads.c:80
+#5  0x00007ffff7ed404c in thread_proc_trampoline (data=0x5555635709e0) at /home/m/Desktop/allegro5/src/unix/uxthread.c:44
+#6  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#7  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 8 (Thread 0x7fffe9541700 (LWP 728693) "gdbus"):
+#0  0x00007ffff7b503ff in poll () at /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007ffff65ee0ae in  () at /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#2  0x00007ffff65ee40b in g_main_loop_run () at /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#3  0x00007ffff5cdfa36 in  () at /lib/x86_64-linux-gnu/libgio-2.0.so.0
+#4  0x00007ffff66170bd in  () at /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#5  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 7 (Thread 0x7fffe9d42700 (LWP 728692) "gmain"):
+#0  0x00007ffff7b503ff in poll () at /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007ffff65ee0ae in  () at /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#2  0x00007ffff65ee1cf in g_main_context_iteration () at /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#3  0x00007ffff65ee221 in  () at /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#4  0x00007ffff66170bd in  () at /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#5  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#6  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 6 (Thread 0x7fffeae01700 (LWP 728691) "pm:disk$3"):
+#0  0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff2e175db in  () at /usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+--Type <RET> for more, q to quit, c to continue without paging--c
+#2  0x00007ffff2e170a7 in  () at /usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+#3  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 5 (Thread 0x7fffeb602700 (LWP 728690) "pm:disk$2"):
+#0  0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff2e175db in  () at /usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+#2  0x00007ffff2e170a7 in  () at /usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+#3  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 4 (Thread 0x7fffe3fff700 (LWP 728689) "pm:disk$1"):
+#0  0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff2e175db in  () at /usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+#2  0x00007ffff2e170a7 in  () at /usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+#3  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 3 (Thread 0x7fffebe03700 (LWP 728688) "pm:disk$0"):
+#0  0x00007ffff7d757b2 in pthread_cond_wait@@GLIBC_2.3.2 () at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff2e175db in  () at /usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+#2  0x00007ffff2e170a7 in  () at /usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+#3  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 2 (Thread 0x7ffff4ca7700 (LWP 728683) "pm"):
+#0  0x00007ffff7b528b3 in select () at /lib/x86_64-linux-gnu/libc.so.6
+#1  0x00007ffff7ed9b9a in _al_xwin_background_thread (self=0x5555632e13f8, arg=0x5555632e1390) at /home/m/Desktop/allegro5/src/x/xevents.c:243
+#2  0x00007ffff7ed404c in thread_proc_trampoline (data=0x5555632e13f8) at /home/m/Desktop/allegro5/src/unix/uxthread.c:44
+#3  0x00007ffff7d6eea7 in start_thread () at /lib/x86_64-linux-gnu/libpthread.so.0
+#4  0x00007ffff7b5adef in clone () at /lib/x86_64-linux-gnu/libc.so.6
+
+Thread 1 (Thread 0x7ffff4ca8cc0 (LWP 728679) "pm"):
+#0  0x00007ffff7d752a1 in pthread_cond_destroy@@GLIBC_2.3.2 () at /lib/x86_64-linux-gnu/libpthread.so.0
+#1  0x00007ffff7e2a503 in _al_cond_destroy (cond=0x7fffa4000be0) at /home/m/Desktop/allegro5/include/allegro5/platform/aintuthr.h:76
+#2  0x00007ffff7e22093 in al_destroy_event_queue (queue=0x7fffa4000b60) at /home/m/Desktop/allegro5/src/events.c:152
+#3  0x00007ffff7e21791 in _al_run_destructors (dtors=0x5555632f48e0) at /home/m/Desktop/allegro5/src/dtor.c:120
+#4  0x00007ffff7e32ec5 in al_uninstall_system () at /home/m/Desktop/allegro5/src/system.c:323
+#5  0x00005555555c4f5a in final_wrapup() () at /home/m/Desktop/pm_client22/src/z_main.cpp:573
+#6  0x00005555555c6888 in main(int, char**) (argument_count=1, argument_array=0x7fffffffe1b8) at /home/m/Desktop/pm_client22/src/z_main.cpp:1421
+
+
+
+
+
+what about files: there are 4 things: pm:disk$0 to 3
+do I leave any file pointers open?
+config uses allegro built in functions to access...they all look good
+
+log?
+        filepntr = fopen(filename,"w");
+         fprintf(filepntr, "%s", log_msg);
+         fclose(filepntr);
+         printf("%s saved \n", filename);
+
+others, help, pde, sprit...all look good
+
+
+
+there is also pulseaudio and kcm_stream...what the hell are those???
+
+
+
+I rebuilt allegro from git source and redid the make file
+only chose Debug and Want Monolith
+
+same crap...
+
+
+what about a simpler program...like display test....
+
+
+exits fine....
+
+do I keep adding things and see if I can make it die?
+or should I work with pm and remove things??
+
+removed sound and it works!!
+
+why do I not have sound stuff in my cleanup...i do..there is nothing for acodec addon..
+
+most likely I am not destroying the xm stream....
+
+         pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
+         if (pm_theme_stream == NULL) m_err("Error loading snd/pm.xm\n");
+
+         al_set_audio_stream_playmode(pm_theme_stream, ALLEGRO_PLAYMODE_LOOP);
+         al_set_audio_stream_playing(pm_theme_stream, 0);
+         al_attach_audio_stream_to_mixer(pm_theme_stream, st_mixer);
+
+         void al_destroy_audio_stream(ALLEGRO_AUDIO_STREAM *stream)
+
+that was the solution...one simple line added to final wrapup
+done 20220311
+
+
+
+---------------------------------------
+bug
+------------------------------------------
+
+When you pause and resume a single player game
+sometimes it quits to the menu after a while....yes, i can reproduce it
+play level for 5 sec the quit to menu, the resume
+timer has reset to zero, player has left the game message appears right away
+then 5 seconds in the game quits back to menu
+
+where?
+
+
+zcontrol at the end...
+
+     for (int p=0; p<NUM_PLAYERS; p++)
+            if (players[p].active) // cycle all active players
+            {
+               if (players[p].control_method == 0) // local single player control
+               {
+                  if (level_done_trig) add_game_move(frame_num, 6, 0, 0); // insert level done into game move
+                  set_comp_move_from_player_key_check(p); // but don't set controls !!!
+                  if (players1[p].comp_move != players1[p].old_comp_move)
+                  {
+                     players1[p].old_comp_move = players1[p].comp_move;
+                     add_game_move(frame_num, 5, p, players1[p].comp_move);
+                  }
+               }
+               if (players[p].control_method == 1) rungame_key_check(p, ret); // run game from file
+               if (players[p].control_method == 3) server_local_control(p);
+               if (players[p].control_method == 4) client_local_control(p);
+               set_controls_from_game_move(p); // common for all players
+            }   // end of active player iterate
+         proc_game_move();  // run once per frame to process system messages from game_move
+
+
+
+
+in saved game...
+
+passcount is reset and player inactive is entered
+
+figured it out...done
+
+the code is rather complex....
+
+---------------------------------------
+fixed the code so it compiles without any dumb string errors
+---------------------------------------
+
+
+
+
+
+
+
+I am going to figure out the linux shared libraries.....
+
+
+
+make script to copy the libs somewhere out of /usr/lib so I can test...
+
+what libs?
 
 
 

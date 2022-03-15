@@ -1,0 +1,2 @@
+cp ./linux_libs/liballegro_monolith.so.5.2  /usr/lib/
+cp ./linux_libs/libOpenGL.so.0 /lib/x86_64-linux-gnu/

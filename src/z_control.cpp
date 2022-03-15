@@ -597,15 +597,31 @@ void add_game_move(int frame, int type, int data1, int data2)
       game_move_entry_pos++;
       return; // to exit immediately
    }
-   if ((type == 5) && (data2 == 127)) // change menu key to player state inactive special move
+
+
+
+
+   if ((type == 5) && (data2 == 127))  // menu key
    {
-      game_moves[game_move_entry_pos][0] = frame + 2; // add 2 frames so server has time to sync back to client before dropping
-      game_moves[game_move_entry_pos][1] = 1;     // type 1; player state
-      game_moves[game_move_entry_pos][2] = data1; // player num
-      game_moves[game_move_entry_pos][3] = 64;    // inactive
-      game_move_entry_pos++;
-      return; // to exit immediately
+      if ((active_local_player == 0) && (players[0].control_method == 0)) // single player mode
+      {
+         // eat this keypress and pretend it never happened
+         game_exit = 1;
+         resume_allowed = 1;
+         return; // to exit immediately
+      }
+      else // everything except single player (client, server, rungame)
+      {
+         // change menu key to player state inactive special move
+         game_moves[game_move_entry_pos][0] = frame + 2; // add 2 frames so server has time to sync back to client before dropping
+         game_moves[game_move_entry_pos][1] = 1;     // type 1; player state
+         game_moves[game_move_entry_pos][2] = data1; // player num
+         game_moves[game_move_entry_pos][3] = 64;    // inactive
+         game_move_entry_pos++;
+         return; // to exit immediately
+      }
    }
+
    game_moves[game_move_entry_pos][0] = frame;
    game_moves[game_move_entry_pos][1] = type;
    game_moves[game_move_entry_pos][2] = data1;

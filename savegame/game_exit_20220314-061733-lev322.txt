@@ -1,0 +1,7 @@
+number of entries 2
+deathmatch_pbullets 1
+deathmatch_pbullets_damage 5
+suicide_pbullets 1
+[ gm][  pc][p][cm]
+[  0][   0]-------------START (level:322)------------- 
+[  1][   0]-------------PLAYER 0 ACTIVE (color:9)-- 

@@ -39,7 +39,7 @@ int load_help(void)
          strcpy (help_string[line], buff);
          line++;
       }
-     fclose(filepntr);
+      fclose(filepntr);
    }
    // printf("%d\n",line);
    return line;
@@ -53,8 +53,6 @@ void chop_first_x_char(char *str, int n)
       tmp[x-n] = str[x]; // chop first n
    strcpy(str, tmp);
 }
-
-
 
 
 void help(const char *topic)

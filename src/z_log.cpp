@@ -292,15 +292,20 @@ void save_log_file(void)
    {
       al_make_directory("logs"); // create if not already created
       FILE *filepntr;
-      char f1[256];
+
       char filename[256];
       struct tm *timenow;
       time_t now = time(NULL);
       timenow = localtime(&now);
+      strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
 
-      //strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S.txt", timenow);
-      strftime(f1, sizeof(f1), "logs/%Y%m%d-%H%M%S", timenow);
-      sprintf(filename, "%s-[%d][%s].txt", f1, play_level, local_hostname );
+      char lh[16];
+      strncpy(lh, local_hostname, 16); // to remove compiler error in case local_hostname is too long
+
+      char ph[80];
+      sprintf(ph, "-[%d][%s].txt", play_level, lh );
+
+      strcat(filename, ph);
 
       if (strlen(log_msg) > 0)
       {
