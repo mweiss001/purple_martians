@@ -300,9 +300,29 @@ void proc_display_change(void)
    // show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
 }
 
+
+void save_display_window_position(void)
+{
+   // this is automatically done when display is resized or switched to fullscreen
+   // but not when the window is just moved
+   // so I call this when exiting
+
+   if (!fullscreen)
+   {
+      int x, y;
+      al_get_window_position(display, &x, &y);
+      disp_x_wind = x;
+      disp_y_wind = y;
+      disp_w_wind = al_get_display_width(display);
+      disp_h_wind = al_get_display_height(display);
+
+      save_config();
+   }
+}
+
 void proc_display_change_tofs(void)
 {
-   printf("\n-----------to fullscreen------------\n");
+   //printf("\n-----------to fullscreen------------\n");
    fullscreen = 1;
 
    // save window position and size before entering fullscreen
@@ -324,7 +344,7 @@ void proc_display_change_tofs(void)
 
 void proc_display_change_fromfs(void)
 {
-   printf("\n-----------to windowed--------------\n");
+   //printf("\n-----------to windowed--------------\n");
    fullscreen = 0;
    al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
 

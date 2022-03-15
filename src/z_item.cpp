@@ -1172,25 +1172,30 @@ void proc_exit_collision(int p, int i)
 
 void proc_key_collision(int p, int i)
 {
-   int x2 = (item[i][6] + item[i][8]) * 10;   // get the center of the block range
-   int y2 = (item[i][7] + item[i][9]) * 10;
-   al_fixed xlen = al_itofix(x2) - itemf[i][0];     // distance between block range and key
-   al_fixed ylen = al_itofix(y2) - itemf[i][1];
-   al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-   al_fixed speed = al_itofix(12);                  // speed
-   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
-   al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
-   al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
-   itemf[i][2] = xinc;
-   itemf[i][3] = yinc;
-   al_fixed angle = al_fixatan2(ylen, xlen);        // get the angle for item rotation
-   item[i][10] = al_fixtoi(angle) * 10;
-   al_fixed ns;                                  // get the number of steps
-   if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, xinc);
-   else  ns = al_fixdiv(ylen, yinc);
-   int num_steps = al_fixtoi(ns);
-   item[i][11] = num_steps + 10;              // add 10 for final sequence
-   game_event(2, 0, 0, p, i, 0, 0);
+   if (item[i][11] == 0) // only collide if not already moving
+   {
+
+      int x2 = (item[i][6] + item[i][8]) * 10;         // get the center of the block range
+      int y2 = (item[i][7] + item[i][9]) * 10;
+      al_fixed xlen = al_itofix(x2) - itemf[i][0];     // distance between block range and key
+      al_fixed ylen = al_itofix(y2) - itemf[i][1];
+
+      al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
+      al_fixed speed = al_itofix(12);                  // speed
+      al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
+      al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
+      al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
+      itemf[i][2] = xinc;
+      itemf[i][3] = yinc;
+      al_fixed angle = al_fixatan2(ylen, xlen);        // get the angle for item rotation
+      item[i][10] = al_fixtoi(angle) * 10;
+      al_fixed ns;                                     // get the number of steps
+      if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, xinc);
+      else  ns = al_fixdiv(ylen, yinc);
+      int num_steps = al_fixtoi(ns);
+      item[i][11] = num_steps + 10;                    // add 10 for final sequence
+      game_event(2, 0, 0, p, i, 0, 0);
+   }
 }
 
 void proc_freeman_collision(int p, int i)

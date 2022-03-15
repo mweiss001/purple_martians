@@ -513,67 +513,70 @@ int new_size = 0;
 
 void final_wrapup(void)
 {
-   printf("\nBefore al_uninstall_audio()\n");
+   save_display_window_position();
+
+   al_destroy_audio_stream(pm_theme_stream);
+/*
+   printf("al_uninstall_audio()\n");
    al_uninstall_audio();
 
+   printf("al_destroy_font()\n");
+   al_destroy_font(font);
+   al_destroy_font(f1);
+   al_destroy_font(f2);
+   al_destroy_font(f3);
 
-   printf("\nBefore al_shutdown_font_addon()\n");
+   printf("al_shutdown_ttf_addon()\n");
+   al_shutdown_ttf_addon();
+
+   printf("al_shutdown_font_addon()\n");
    al_shutdown_font_addon();
 
-//   printf("\nBefore al_shutdown_ttf_addon()\n");
-//   al_shutdown_ttf_addon();
-// this causes the program to exit abnormally in windows
-// same if called before or after al_shutdown_font_addon();
-
-
-
-
-
-
-
-
-
-
-
-//   printf("\nBefore \n");
-
-
-
-
-
-
-   printf("\nBefore al_uninstall_keyboard()\n");
-   al_uninstall_keyboard();
-
-   printf("\nBefore al_uninstall_mouse()\n");
-   al_uninstall_mouse();
-
-   printf("\nBefore al_uninstall_joystick()\n");
-   al_uninstall_joystick();
-
-
-
-   printf("\nBefore al_shutdown_image_addon()\n");
+   printf("al_shutdown_image_addon()\n");
    al_shutdown_image_addon();
 
-   printf("\nBefore al_shutdown_native_dialog_addon()\n");
+   printf("al_shutdown_native_dialog_addon()\n");
    al_shutdown_native_dialog_addon();
 
-
-   printf("\nBefore al_shutdown_primitives_addon()\n");
+   printf("al_shutdown_primitives_addon()\n");
    al_shutdown_primitives_addon();
 
+   printf("al_unregister_event_source(event_queue, al_get_keyboard_event_source())\n");
+   al_unregister_event_source(event_queue, al_get_keyboard_event_source());
 
-   printf("\nBefore al_destroy_display()\n");
+   printf("al_uninstall_keyboard()\n");
+   al_uninstall_keyboard();
+
+   printf("al_unregister_event_source(event_queue, al_get_mouse_event_source())\n");
+   al_unregister_event_source(event_queue, al_get_mouse_event_source());
+
+   printf("al_uninstall_mouse()\n");
+   al_uninstall_mouse();
+
+   printf("al_unregister_event_source(event_queue, al_get_joystick_event_source())\n");
+   al_unregister_event_source(event_queue, al_get_joystick_event_source());
+
+   printf("al_uninstall_joystick()\n");
+   al_uninstall_joystick();
+
+   printf("al_unregister_event_source(event_queue, al_get_timer_event_source(mnu_timer));\n");
+   al_unregister_event_source(event_queue, al_get_timer_event_source(mnu_timer));
+
+   printf("al_unregister_event_source(event_queue, al_get_display_event_source(display))\n");
+   al_unregister_event_source(event_queue, al_get_display_event_source(display));
+
+   printf("al_destroy_display()\n");
    al_destroy_display(display);
 
+   printf("al_destroy_event_queue(event_queue)\n");
+   al_destroy_event_queue(event_queue);
 
-   printf("\nBefore al_uninstall_system()\n");
+  // printf("\nBefore al_uninstall_system()\n");
    al_uninstall_system();
+  // printf("\nAfter al_uninstall_system()\n");
 
-
-   printf("\nAfter al_uninstall_system()\n");
-
+  */
+   al_uninstall_system();
 }
 
 void fast_exit(int why)
@@ -589,6 +592,22 @@ void fast_exit(int why)
    final_wrapup();
    exit(0);
 }
+
+
+void show_system_id()
+{
+   int j = al_get_system_id();
+   if (j == ALLEGRO_SYSTEM_ID_UNKNOWN)     printf("System ID: Unknown system\n");
+   if (j == ALLEGRO_SYSTEM_ID_XGLX)        printf("System ID: Xglx\n");
+   if (j == ALLEGRO_SYSTEM_ID_WINDOWS)     printf("System ID: Windows\n");
+   if (j == ALLEGRO_SYSTEM_ID_MACOSX)      printf("System ID: macOS\n");
+   if (j == ALLEGRO_SYSTEM_ID_ANDROID)     printf("System ID: Android\n");
+   if (j == ALLEGRO_SYSTEM_ID_IPHONE)      printf("System ID: iOS\n");
+   if (j == ALLEGRO_SYSTEM_ID_GP2XWIZ)     printf("System ID: GP2XWIZ\n");
+   if (j == ALLEGRO_SYSTEM_ID_RASPBERRYPI) printf("System ID: Raspberry Pi\n");
+   if (j == ALLEGRO_SYSTEM_ID_SDL)         printf("System ID: SDL\n");
+}
+
 
 
 void set_and_get_versions(void)
@@ -628,15 +647,16 @@ void get_desktop_resolution()
 }
 
 
-
 int initial_setup(void)
 {
+
+   al_set_config_value(al_get_system_config(), "trace", "level", "debug");
+
    al_init();
    set_and_get_versions();
    get_config_values();
+   show_system_id();
    get_desktop_resolution();
-
-
 
 
 
@@ -788,7 +808,6 @@ void game_menu(void)
       //printf("post load level\n");
       top_menu_sel = zmenu(7, top_menu_sel, 10);
 
-      // this must be before 3 because sometimes 3 calls 4 immed
       if ((top_menu_sel == 4) && (resume_allowed)) // resume game
       {
          game_loop(7); // resume
@@ -797,6 +816,7 @@ void game_menu(void)
       {
          play_level = start_level;
          game_loop(1); // single player game
+         if (resume_allowed) top_menu_sel = 4;
       }
       if (top_menu_sel == 2) // start level
       {
@@ -1207,9 +1227,6 @@ void game_menu(void)
       }
    } while (top_menu_sel != 1); // end of game menu
 }
-
-
-
 
 
 int main(int argument_count, char **argument_array)

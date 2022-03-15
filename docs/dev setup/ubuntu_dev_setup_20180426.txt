@@ -267,7 +267,7 @@ Here, we have provided the gcc as the master and g++ as slave. Multiple slaves c
 
 Pass the second version of these tools to be recorded:
 1
-$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9 
+$ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9
 Now you can switch between these versions by using:
 1
 $ sudo update-alternatives --config gcc
@@ -356,7 +356,7 @@ monolith on
 
 took 90s to compile
 
-now liballegro_monolith.so.5.2 is 1.7M instead of: 7.2M 
+now liballegro_monolith.so.5.2 is 1.7M instead of: 7.2M
 
 I only need this file and libdumb.so.1
 
@@ -988,7 +988,7 @@ The command will create symbolic links to the specific versions of GCC and G++.
 
 
 
-what I did was 
+what I did was
 
 sudo apt install gcc-10
 sudo apt install g++-10
@@ -1111,136 +1111,22 @@ this look great....
 
 
 
-https://stackoverflow.com/questions/39978762/linux-executable-cant-find-shared-library-in-same-folder
 
 
--Wl,-rpath='${ORIGIN}'
 
 
--Wl,-rpath='${ORIGIN}/linux_libs'
-that did not work....
 
-lets try this:
--Wl,-rpath='${ORIGIN}'
 
 
 
--Wl,-rpath='${ORIGIN}/linux_libs/liballegro_monolith.so.5.2'
--Wl,-rpath='${ORIGIN}/linux_libs/libdumb.so.1'
 
-that does not work either....
 
 
--Wl,-rpath='${ORIGIN}/linux_libs/liballegro_monolith.so.5.2'
--Wl,-rpath='${ORIGIN}/linux_libs/libdumb.so.1'
 
 
-LD_LIBRARY_PATH=./linux_libs ./pm
 
 
 
-
-test on 4230w....move the libraries so they can't be found...
-
-/usr/lib/liballegro_monolith.so.5.2.8 
-/usr/lib/x86_64-linux-gnu/libdumb.so.1.0.0
-
-
-patchelf --print-rpath pm
-
-/linux_libs/liballegro_monolith.so.5.2:/linux_libs/libdumb.so.1
-
-patchelf --set-rpath '$ORIGIN/linux_libs/liballegro_monolith.so.5.2:$ORIGIN/linux_libs/libdumb.so.1' pm
-
-
-patchelf --set-rpath '$ORIGIN/linux_libs/liballegro_monolith.so.5.2' pm
-
-
-
-
-
-Help using -rpath to set library search path in executable
-
-I am trying to figure out how to use -rpath to point at a sub-directory below my executable for some shared libraries.
-
-
-I am using:
-
-ubuntu 20.04
-gcc 10.3
-allegro 5.2.8 (compiled from source)
-
-My project compiles and works fine.
-
-It relies on 2 shared libraries that in the name of being portable, have to be distributed with the executable.
-
-liballegro_monolith.so.5.2
-libdumb.so.1
-
-Currently I have them in a subdirectory called 'linux_libs' in the main executable directory
-The way I have been doing it for years is to run a script when I want to run the game.
-The script sets the library path then runs the game.
-
-LD_LIBRARY_PATH=./linux_libs ./pm
-
-I wish I could just simply put the 2 files in the same dir as the executable but that does not work.
-
-
-
-I have been trying to use -rpath to hard code the run-time search path into the executable, with no success at all
-I have read many descriptions and examples online, but have not been able to figure out what I am doing wrong.
-
-the first example I added to the linker options:
--Wl,-rpath='${ORIGIN}'
-
-did nothing
-
-then I though I might need to add the entire path to the library
-
--Wl,-rpath='${ORIGIN}/linux_libs/liballegro_monolith.so.5.2'
--Wl,-rpath='${ORIGIN}/linux_libs/libdumb.so.1'
-
-this did not work either
-
-
-then I got patchelf and ran 
-
-patchelf --print-rpath pm
-
-/linux_libs/liballegro_monolith.so.5.2:/linux_libs/libdumb.so.1
-
-so I tried to set it with:
-
-patchelf --set-rpath '$ORIGIN/linux_libs/liballegro_monolith.so.5.2:$ORIGIN/linux_libs/libdumb.so.1' pm
-patchelf --print-rpath pm
-$ORIGIN/linux_libs/liballegro_monolith.so.5.2:$ORIGIN/linux_libs/libdumb.so.1
-
-still does not work....
-
-./pm: error while loading shared libraries: liballegro_monolith.so.5.2: cannot open shared object file: No such file or directory
-
-
-yet everytime I run the script:
-
-LD_LIBRARY_PATH=./linux_libs ./pm
-
-it works perfectly
-
-
-
-I am lost here.
-
-Can anyone point me in the right direction?
-
-Tell me what I am doing wrong?
-
-Suggest something else that might work?
-
-
-
-try this: 
-
-patchelf --set-rpath './linux_libs/liballegro_monolith.so.5.2:./linux_libs/libdumb.so.1' pm
 
 
 
@@ -1516,7 +1402,7 @@ compile and run...
 ---------------------------------
 ---------------------------------
 
-MX-21_x64 
+MX-21_x64
 cannot find libOpenGL.so.0
 
 
@@ -2034,6 +1920,940 @@ compile and run...
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://stackoverflow.com/questions/39978762/linux-executable-cant-find-shared-library-in-same-folder
+
+
+-Wl,-rpath='${ORIGIN}'
+
+
+-Wl,-rpath='${ORIGIN}/linux_libs'
+that did not work....
+
+lets try this:
+-Wl,-rpath='${ORIGIN}'
+
+
+
+-Wl,-rpath='${ORIGIN}/linux_libs/liballegro_monolith.so.5.2'
+-Wl,-rpath='${ORIGIN}/linux_libs/libdumb.so.1'
+
+that does not work either....
+
+
+-Wl,-rpath='${ORIGIN}/linux_libs/liballegro_monolith.so.5.2'
+-Wl,-rpath='${ORIGIN}/linux_libs/libdumb.so.1'
+
+
+LD_LIBRARY_PATH=./linux_libs ./pm
+
+
+
+
+test on 4230w....move the libraries so they can't be found...
+
+/usr/lib/liballegro_monolith.so.5.2.8
+/usr/lib/x86_64-linux-gnu/libdumb.so.1.0.0
+
+
+patchelf --print-rpath pm
+
+/linux_libs/liballegro_monolith.so.5.2:/linux_libs/libdumb.so.1
+
+patchelf --set-rpath '$ORIGIN/linux_libs/liballegro_monolith.so.5.2:$ORIGIN/linux_libs/libdumb.so.1' pm
+
+
+patchelf --set-rpath '$ORIGIN/linux_libs/liballegro_monolith.so.5.2' pm
+
+
+
+
+
+Help using -rpath to set library search path in executable
+
+I am trying to figure out how to use -rpath to point at a sub-directory below my executable for some shared libraries.
+
+
+I am using:
+
+ubuntu 20.04
+gcc 10.3
+allegro 5.2.8 (compiled from source)
+
+My project compiles and works fine.
+
+It relies on 2 shared libraries that in the name of being portable, have to be distributed with the executable.
+
+liballegro_monolith.so.5.2
+libdumb.so.1
+
+Currently I have them in a subdirectory called 'linux_libs' in the main executable directory
+The way I have been doing it for years is to run a script when I want to run the game.
+The script sets the library path then runs the game.
+
+LD_LIBRARY_PATH=./linux_libs ./pm
+
+I wish I could just simply put the 2 files in the same dir as the executable but that does not work.
+
+
+
+I have been trying to use -rpath to hard code the run-time search path into the executable, with no success at all
+I have read many descriptions and examples online, but have not been able to figure out what I am doing wrong.
+
+the first example I added to the linker options:
+-Wl,-rpath='${ORIGIN}'
+
+did nothing
+
+then I though I might need to add the entire path to the library
+
+-Wl,-rpath='${ORIGIN}/linux_libs/liballegro_monolith.so.5.2'
+-Wl,-rpath='${ORIGIN}/linux_libs/libdumb.so.1'
+
+this did not work either
+
+
+then I got patchelf and ran
+
+patchelf --print-rpath pm
+
+/linux_libs/liballegro_monolith.so.5.2:/linux_libs/libdumb.so.1
+
+so I tried to set it with:
+
+patchelf --set-rpath '$ORIGIN/linux_libs/liballegro_monolith.so.5.2:$ORIGIN/linux_libs/libdumb.so.1' pm
+patchelf --print-rpath pm
+$ORIGIN/linux_libs/liballegro_monolith.so.5.2:$ORIGIN/linux_libs/libdumb.so.1
+
+still does not work....
+
+./pm: error while loading shared libraries: liballegro_monolith.so.5.2: cannot open shared object file: No such file or directory
+
+
+yet everytime I run the script:
+
+LD_LIBRARY_PATH=./linux_libs ./pm
+
+it works perfectly
+
+
+
+I am lost here.
+
+Can anyone point me in the right direction?
+
+Tell me what I am doing wrong?
+
+Suggest something else that might work?
+
+
+
+try this:
+
+patchelf --set-rpath './linux_libs/liballegro_monolith.so.5.2:./linux_libs/libdumb.so.1' pm
+
+
+
+
+
+
+
+
+--------------------------------------------
+20220313 linux libs
+-------------------------------------------
+
+what does allegro install for libs?
+/usr/lib/liballegro_monolith.so.5.2.8
+/usr/lib/liballegro_monolith.so.5.2
+/usr/lib/liballegro_monolith.so
+
+only 5.2.8 is real, the others are links
+
+copy libs from default locations to linux_libs in the pm folder:
+(run this in the pm folder)
+
+cp /usr/lib/liballegro_monolith* ./linux_libs
+cp /usr/lib/x86_64-linux-gnu/libdumb* ./linux_libs
+
+this copied everything...
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so.5.2
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so.5.2.8
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so.5.2
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so.5.2.8
+-rw-r--r-- 1 m m 295K Mar 13 13:23 libdumb.a
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so.1
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so.1.0.0
+
+move libs from default locations so I can test:
+mkdir /home/m/temp_linux_libs
+sudo mv /usr/lib/liballegro_monolith* /home/m/temp_linux_libs
+sudo mv /usr/lib/x86_64-linux-gnu/libdumb* /home/m/temp_linux_libs
+
+to restore them:
+sudo cp /home/m/temp_linux_libs/liballegro_monolith* /usr/lib
+sudo cp /home/m/temp_linux_libs/libdumb* /usr/lib/x86_64-linux-gnu/
+
+
+
+
+
+patchelf --print-rpath pm
+
+
+patchelf --set-rpath '$ORIGIN/linux_libs/liballegro_monolith.so.5.2:$ORIGIN/linux_libs/libdumb.so.1' pm
+
+
+patchelf --set-rpath '$ORIGIN/linux_libs/liballegro_monolith.so.5.2' pm
+
+patchelf --set-rpath '/home/m/Desktop/pm_client22/linux_libs' pm
+
+patchelf --set-rpath '' pm
+
+
+ok watch this nonsense
+
+
+$ ./pm
+./pm: error while loading shared libraries: liballegro_monolith.so.5.2: cannot open shared object file: No such file or directory
+
+$ patchelf --print-rpath pm
+
+$ patchelf --set-rpath '/home/m/Desktop/pm_client22/linux_libs' pm
+$ patchelf --print-rpath pm
+/home/m/Desktop/pm_client22/linux_libs
+
+$ ./pm
+./pm: error while loading shared libraries: libdumb.so.1: cannot open shared object file: No such file or directory
+
+$ cd linux_libs/
+$ ll
+total 23M
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so.5.2
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so.5.2.8
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so.5.2
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so.5.2.8
+-rw-r--r-- 1 m m 295K Mar 13 13:23 libdumb.a
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so.1
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so.1.0.0
+
+$ cd ..
+
+$ ./pml
+
+Purple Martians Version 7.10
+Allegro Version: 5.2.8.0
+System ID: Xglx
+Desktop Resolution: 0x0
+Error creating display
+
+Unable to init server: Could not connect: Connection refused
+
+$ cat pml
+LD_LIBRARY_PATH=./linux_libs ./pm
+
+I can set it and have it find the allegro but not dumb...is dumb called by allegro and that's why it cant find it?
+
+
+I want to experiment and see how to do a relative path for rpath....
+
+patchelf --set-rpath './linux_libs' pm
+
+this seems to work but it still cant find dumb
+
+
+test on other linux systems from scratch and see what libs are missing....
+
+
+ubuntu-20.04
+minimal setup
+zi3u20a
+detects liballegro in linux_libs dir but not libdumb... same
+
+
+
+
+
+
+
+
+UPDATE
+
+
+I figured out the how to use rpath...but it only works for liballegro, not libdumb
+
+This does not make any sense to me, can someone help explain it to me?
+
+
+Background:
+I am using ubuntu 20.04, allegro 5.2.8, gcc 10.3
+my executable is 'pm'
+It requires many things...there is a huge list when I type ldd ./pm
+It works perfectly on the ubuntu developement system that has all the libraries installed.
+But I am trying to make a simple setup for other linux systems that do not have the libraries installed.
+
+I am usually missing 2 libraries:
+liballegro_monolith.so.5.2
+libdumb.so.1
+
+So what I have done is put them both in a dir called 'linux_libs' just under the main executable dir
+I use a simple one line script to run my game: LD_LIBRARY_PATH=./linux_libs ./pm
+This has always worked.
+
+Recently I was trying to hard code the library path into the executable like this:
+
+patchelf --set-rpath './linux_libs' pm
+
+This works for liballegro_monolith.so.5.2 but not for libdumb.so.1
+It still complains that it cannot find it
+
+This makes no sense to me, it is right there, in the same dir as the liballegro..
+Why can it find one and not the other?
+
+I know it is valid because when I run the script that sets LD_LIBRARY_PATH it finds it and works
+
+Can anyone help explain what is going wrong for me?
+
+
+If I had to guess....
+liballeg is needed by my program so it can be found because -rpath is hard coded into my program
+libdumb is needed by allegro and cant be found because liballegro.so doesn't know about the rpath in my program
+
+Then why does LD_LIBRARY_PATH work for both?
+
+This is not a huge problem, I can easily get around it by running the script to set LD_LIBARY_PATH
+Or I could get the user to copy the contents of 'linux_libs' to usr/lib
+
+But it is bothering me why it doesn't work...I want to know why!!
+
+
+patchelf --set-rpath '' pm
+patchelf --print-rpath pm
+
+ldd ./pm
+        linux-vdso.so.1 (0x00007ffc8fd11000)
+        liballegro_monolith.so.5.2 => not found
+        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007fa504f92000)
+        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fa504f70000)
+        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fa504e2c000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fa504c67000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007fa512d34000)
+
+patchelf --set-rpath './linux_libs' pm
+ldd ./pm
+        linux-vdso.so.1 (0x00007ffcdffc8000)
+        liballegro_monolith.so.5.2 => ./linux_libs/liballegro_monolith.so.5.2 (0x00007f5c9df51000)
+        libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f5c9df1b000)
+        libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f5c9def9000)
+        libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f5c9ddb5000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f5c9dbf0000)
+        libX11.so.6 => /lib/x86_64-linux-gnu/libX11.so.6 (0x00007f5c9daad000)
+        libXcursor.so.1 => /lib/x86_64-linux-gnu/libXcursor.so.1 (0x00007f5c9da9e000)
+        libXpm.so.4 => /lib/x86_64-linux-gnu/libXpm.so.4 (0x00007f5c9d88c000)
+        libXi.so.6 => /lib/x86_64-linux-gnu/libXi.so.6 (0x00007f5c9d87a000)
+        libXinerama.so.1 => /lib/x86_64-linux-gnu/libXinerama.so.1 (0x00007f5c9d875000)
+        libXrandr.so.2 => /lib/x86_64-linux-gnu/libXrandr.so.2 (0x00007f5c9d66a000)
+        libOpenGL.so.0 => /lib/x86_64-linux-gnu/libOpenGL.so.0 (0x00007f5c9d63e000)
+        libGLX.so.0 => /lib/x86_64-linux-gnu/libGLX.so.0 (0x00007f5c9d608000)
+        libpulse-simple.so.0 => /lib/x86_64-linux-gnu/libpulse-simple.so.0 (0x00007f5c9d601000)
+        libpulse.so.0 => /lib/x86_64-linux-gnu/libpulse.so.0 (0x00007f5c9d5ad000)
+        libdumb.so.1 => not found
+        libfreetype.so.6 => /lib/x86_64-linux-gnu/libfreetype.so.6 (0x00007f5c9d4ea000)
+        libgtk-3.so.0 => /lib/x86_64-linux-gnu/libgtk-3.so.0 (0x00007f5c9cd38000)
+        libgdk-3.so.0 => /lib/x86_64-linux-gnu/libgdk-3.so.0 (0x00007f5c9cc31000)
+        libgobject-2.0.so.0 => /lib/x86_64-linux-gnu/libgobject-2.0.so.0 (0x00007f5c9cbd7000)
+        libglib-2.0.so.0 => /lib/x86_64-linux-gnu/libglib-2.0.so.0 (0x00007f5c9caa8000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f5cabe51000)
+        libxcb.so.1 => /lib/x86_64-linux-gnu/libxcb.so.1 (0x00007f5c9ca7d000)
+        libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f5c9ca77000)
+        libXrender.so.1 => /lib/x86_64-linux-gnu/libXrender.so.1 (0x00007f5c9c86b000)
+        libXfixes.so.3 => /lib/x86_64-linux-gnu/libXfixes.so.3 (0x00007f5c9c863000)
+        libXext.so.6 => /lib/x86_64-linux-gnu/libXext.so.6 (0x00007f5c9c84e000)
+        libGLdispatch.so.0 => /lib/x86_64-linux-gnu/libGLdispatch.so.0 (0x00007f5c9c796000)
+        libpulsecommon-14.2.so => /usr/lib/x86_64-linux-gnu/pulseaudio/libpulsecommon-14.2.so (0x00007f5c9c712000)
+        libdbus-1.so.3 => /lib/x86_64-linux-gnu/libdbus-1.so.3 (0x00007f5c9c6bb000)
+        libpng16.so.16 => /lib/x86_64-linux-gnu/libpng16.so.16 (0x00007f5c9c681000)
+        libbrotlidec.so.1 => /lib/x86_64-linux-gnu/libbrotlidec.so.1 (0x00007f5c9c673000)
+        libgmodule-2.0.so.0 => /lib/x86_64-linux-gnu/libgmodule-2.0.so.0 (0x00007f5c9c66d000)
+        libpangocairo-1.0.so.0 => /lib/x86_64-linux-gnu/libpangocairo-1.0.so.0 (0x00007f5c9c65c000)
+        libcairo-gobject.so.2 => /lib/x86_64-linux-gnu/libcairo-gobject.so.2 (0x00007f5c9c650000)
+        libcairo.so.2 => /lib/x86_64-linux-gnu/libcairo.so.2 (0x00007f5c9c529000)
+        libgdk_pixbuf-2.0.so.0 => /lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so.0 (0x00007f5c9c503000)
+        libatk-1.0.so.0 => /lib/x86_64-linux-gnu/libatk-1.0.so.0 (0x00007f5c9c4d9000)
+        libatk-bridge-2.0.so.0 => /lib/x86_64-linux-gnu/libatk-bridge-2.0.so.0 (0x00007f5c9c4a2000)
+        libepoxy.so.0 => /lib/x86_64-linux-gnu/libepoxy.so.0 (0x00007f5c9c373000)
+        libfribidi.so.0 => /lib/x86_64-linux-gnu/libfribidi.so.0 (0x00007f5c9c357000)
+        libgio-2.0.so.0 => /lib/x86_64-linux-gnu/libgio-2.0.so.0 (0x00007f5c9c177000)
+        libpangoft2-1.0.so.0 => /lib/x86_64-linux-gnu/libpangoft2-1.0.so.0 (0x00007f5c9c15e000)
+        libpango-1.0.so.0 => /lib/x86_64-linux-gnu/libpango-1.0.so.0 (0x00007f5c9c10c000)
+        libharfbuzz.so.0 => /lib/x86_64-linux-gnu/libharfbuzz.so.0 (0x00007f5c9c024000)
+        libfontconfig.so.1 => /lib/x86_64-linux-gnu/libfontconfig.so.1 (0x00007f5c9bfde000)
+        libXcomposite.so.1 => /lib/x86_64-linux-gnu/libXcomposite.so.1 (0x00007f5c9bfd7000)
+        libXdamage.so.1 => /lib/x86_64-linux-gnu/libXdamage.so.1 (0x00007f5c9bfd2000)
+        libxkbcommon.so.0 => /lib/x86_64-linux-gnu/libxkbcommon.so.0 (0x00007f5c9bf8f000)
+        libwayland-cursor.so.0 => /lib/x86_64-linux-gnu/libwayland-cursor.so.0 (0x00007f5c9bf86000)
+        libwayland-egl.so.1 => /lib/x86_64-linux-gnu/libwayland-egl.so.1 (0x00007f5c9bf81000)
+        libwayland-client.so.0 => /lib/x86_64-linux-gnu/libwayland-client.so.0 (0x00007f5c9bf70000)
+        librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f5c9bf65000)
+        libffi.so.7 => /lib/x86_64-linux-gnu/libffi.so.7 (0x00007f5c9bf57000)
+        libpcre.so.3 => /lib/x86_64-linux-gnu/libpcre.so.3 (0x00007f5c9bee4000)
+        libXau.so.6 => /lib/x86_64-linux-gnu/libXau.so.6 (0x00007f5c9bedf000)
+        libXdmcp.so.6 => /lib/x86_64-linux-gnu/libXdmcp.so.6 (0x00007f5c9bcd9000)
+        libsystemd.so.0 => /lib/x86_64-linux-gnu/libsystemd.so.0 (0x00007f5c9bc24000)
+        libwrap.so.0 => /lib/x86_64-linux-gnu/libwrap.so.0 (0x00007f5c9bc16000)
+        libsndfile.so.1 => /lib/x86_64-linux-gnu/libsndfile.so.1 (0x00007f5c9bb93000)
+        libasyncns.so.0 => /lib/x86_64-linux-gnu/libasyncns.so.0 (0x00007f5c9bb8b000)
+        libbrotlicommon.so.1 => /lib/x86_64-linux-gnu/libbrotlicommon.so.1 (0x00007f5c9bb68000)
+        libpixman-1.so.0 => /lib/x86_64-linux-gnu/libpixman-1.so.0 (0x00007f5c9babd000)
+        libxcb-shm.so.0 => /lib/x86_64-linux-gnu/libxcb-shm.so.0 (0x00007f5c9bab6000)
+        libxcb-render.so.0 => /lib/x86_64-linux-gnu/libxcb-render.so.0 (0x00007f5c9baa7000)
+        libatspi.so.0 => /lib/x86_64-linux-gnu/libatspi.so.0 (0x00007f5c9ba70000)
+        libmount.so.1 => /lib/x86_64-linux-gnu/libmount.so.1 (0x00007f5c9ba13000)
+        libselinux.so.1 => /lib/x86_64-linux-gnu/libselinux.so.1 (0x00007f5c9b9e7000)
+        libresolv.so.2 => /lib/x86_64-linux-gnu/libresolv.so.2 (0x00007f5c9b9cb000)
+        libthai.so.0 => /lib/x86_64-linux-gnu/libthai.so.0 (0x00007f5c9b9c0000)
+        libgraphite2.so.3 => /lib/x86_64-linux-gnu/libgraphite2.so.3 (0x00007f5c9b994000)
+        libexpat.so.1 => /lib/x86_64-linux-gnu/libexpat.so.1 (0x00007f5c9b965000)
+        libuuid.so.1 => /lib/x86_64-linux-gnu/libuuid.so.1 (0x00007f5c9b95c000)
+        libbsd.so.0 => /lib/x86_64-linux-gnu/libbsd.so.0 (0x00007f5c9b943000)
+        liblzma.so.5 => /lib/x86_64-linux-gnu/liblzma.so.5 (0x00007f5c9b91b000)
+        libzstd.so.1 => /lib/x86_64-linux-gnu/libzstd.so.1 (0x00007f5c9b840000)
+        liblz4.so.1 => /lib/x86_64-linux-gnu/liblz4.so.1 (0x00007f5c9b81d000)
+        libgcrypt.so.20 => /lib/x86_64-linux-gnu/libgcrypt.so.20 (0x00007f5c9b6fd000)
+        libnsl.so.2 => /lib/x86_64-linux-gnu/libnsl.so.2 (0x00007f5c9b6e2000)
+        libFLAC.so.8 => /lib/x86_64-linux-gnu/libFLAC.so.8 (0x00007f5c9b6a1000)
+        libvorbis.so.0 => /lib/x86_64-linux-gnu/libvorbis.so.0 (0x00007f5c9b674000)
+        libvorbisenc.so.2 => /lib/x86_64-linux-gnu/libvorbisenc.so.2 (0x00007f5c9b5c9000)
+        libopus.so.0 => /lib/x86_64-linux-gnu/libopus.so.0 (0x00007f5c9b56e000)
+        libogg.so.0 => /lib/x86_64-linux-gnu/libogg.so.0 (0x00007f5c9b561000)
+        libblkid.so.1 => /lib/x86_64-linux-gnu/libblkid.so.1 (0x00007f5c9b50e000)
+        libpcre2-8.so.0 => /lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x00007f5c9b476000)
+        libdatrie.so.1 => /lib/x86_64-linux-gnu/libdatrie.so.1 (0x00007f5c9b46c000)
+        libmd.so.0 => /lib/x86_64-linux-gnu/libmd.so.0 (0x00007f5c9b45f000)
+        libgpg-error.so.0 => /lib/x86_64-linux-gnu/libgpg-error.so.0 (0x00007f5c9b439000)
+        libtirpc.so.3 => /lib/x86_64-linux-gnu/libtirpc.so.3 (0x00007f5c9b408000)
+        libgssapi_krb5.so.2 => /lib/x86_64-linux-gnu/libgssapi_krb5.so.2 (0x00007f5c9b3b5000)
+        libkrb5.so.3 => /lib/x86_64-linux-gnu/libkrb5.so.3 (0x00007f5c9b2db000)
+        libk5crypto.so.3 => /lib/x86_64-linux-gnu/libk5crypto.so.3 (0x00007f5c9b2ab000)
+        libcom_err.so.2 => /lib/x86_64-linux-gnu/libcom_err.so.2 (0x00007f5c9b2a5000)
+        libkrb5support.so.0 => /lib/x86_64-linux-gnu/libkrb5support.so.0 (0x00007f5c9b294000)
+        libkeyutils.so.1 => /lib/x86_64-linux-gnu/libkeyutils.so.1 (0x00007f5c9b28d000)
+
+cd ./linux_libs/
+ll
+total 23M
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so.5.2
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so.5.2.8
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so.5.2
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so.5.2.8
+-rw-r--r-- 1 m m 295K Mar 13 13:23 libdumb.a
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so.1
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so.1.0.0
+
+
+
+----------
+
+default is: 
+prefer_static_deps:off
+shared:on
+
+
+
+
+
+
+remade allegro with:
+prefer_static_deps:on
+shared:off
+
+that made liballegro_monolith-static.a
+
+changed linker to -lallegro_monolith-static.a
+
+errors when trying to link
+
+
+
+
+remade allegro with:
+prefer_static_deps:off
+shared:off
+
+same as last time
+
+
+
+
+remade allegro with:
+prefer_static_deps:on
+shared:on
+
+made a new liballegro_monolith
+installed it
+
+try to link and missing dumb stuff...
+how to add that....put the libdum stuff back
+
+still does not work....
+
+
+
+
+
+copy libs from default locations to linux_libs in the pm folder:
+(run this in the pm folder)
+
+cp /usr/lib/liballegro_monolith* ./linux_libs
+cp /usr/lib/x86_64-linux-gnu/libdumb* ./linux_libs
+
+this copied everything...
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so.5.2
+-rw-r--r-- 1 m m 5.4M Mar 13 13:23 liballegro_monolith-debug.so.5.2.8
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so.5.2
+-rw-r--r-- 1 m m 1.8M Mar 13 13:23 liballegro_monolith.so.5.2.8
+-rw-r--r-- 1 m m 295K Mar 13 13:23 libdumb.a
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so.1
+-rw-r--r-- 1 m m 214K Mar 13 13:23 libdumb.so.1.0.0
+
+move libs from default locations so I can test:
+mkdir /home/m/temp_linux_libs
+sudo mv /usr/lib/liballegro_monolith* /home/m/temp_linux_libs
+sudo mv /usr/lib/x86_64-linux-gnu/libdumb* /home/m/temp_linux_libs
+
+to restore them:
+sudo cp /home/m/temp_linux_libs/liballegro_monolith* /usr/lib
+sudo cp /home/m/temp_linux_libs/libdumb* /usr/lib/x86_64-linux-gnu/
+
+
+patchelf --print-rpath pm
+patchelf --set-rpath './linux_libs' pm
+
+
+
+try making allegro without dumb...remove modaudio...
+
+
+
+
+
+
+
+
+
+
+In version 5.2.6 change log:
+
+Acodec addon:
+
+    Add MP3 support via the MiniMP3 library.
+
+When I try to compile allegro from source, minimp3 is not found.
+
+I followed SiegeLord's instructions here:
+
+https://github.com/liballeg/allegro_wiki/wiki/Install-Allegro-from-source-on-Ubuntu
+
+
+and installed this list of dependencies:
+
+    sudo apt install git cmake build-essential
+
+    Install various dependencies.
+
+    sudo apt install libdumb1-dev \
+                     libflac-dev \
+                     libfreetype6-dev \
+                     libgl1-mesa-dev \
+                     libglu1-mesa-dev \
+                     libgtk-3-dev \
+                     libjpeg-dev \
+                     libopenal-dev \
+                     libphysfs-dev \
+                     libpng-dev \
+                     libpulse-dev \
+                     libtheora-dev \
+                     libvorbis-dev \
+                     libwebp-dev \
+                     libxext-dev \
+                     libxxf86vm-dev \
+                     libxrandr-dev \
+                     libxinerama-dev \
+                     libxpm-dev \
+                     libopusfile-dev
+
+
+But I don't think minimp3 is there.
+
+when I run ccmake and select WANT_MP3
+
+ Could NOT find MiniMP3 (missing: MINIMP3_INCLUDE_DIRS)
+ WARNING: minimp3 was not found
+
+
+i just found static runtime option in ccmke ??????
+
+
+
+
+
+
+the easiest option I could find was to ditch the .xm format for the soundtrack
+I tried mp3 but that required a codec as well
+So I am going with wav
+
+pm.xm    562K
+pm.mp3  3827K 
+pm.wav 27449K
+
+30M...who gives a shit? It makes the program so much simpler....
+
+now with the liballegro pointed at with rpath it is so much easier...
+
+
+
+
+what are my linux allegro library things now?
+
+
+$ cd allegro5/build/
+m@mr5mx1:~/Desktop/allegro5/build
+$ ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+
+ ALLEGRO_PROJECT_NAME             ALLEGRO
+ ALLEGRO_PROJECT_SUFFIX
+ ALLEGRO_SDL                      OFF
+ CMAKE_BUILD_TYPE                 Release
+ DOC_GIT_REF
+ FRAMEWORK_INSTALL_PREFIX         /Library/Frameworks
+ FREETYPE_BZIP2                   OFF
+ FREETYPE_HARFBUZZ                OFF
+ FREETYPE_PNG                     OFF
+ FREETYPE_ZLIB                    OFF
+ GL_BUILD_TYPE                    auto
+ LIB_SUFFIX
+ NO_FPU                           OFF
+ PREFER_STATIC_DEPS               OFF
+ SHARED                           ON
+ STRICT_WARN                      OFF
+ WANT_ACODEC_DYNAMIC_LOAD         OFF
+ WANT_ALLOW_SSE                   ON
+ WANT_ALSA                        ON
+ WANT_AQUEUE                      ON
+ WANT_AUDIO                       ON
+ WANT_COLOR                       ON
+ WANT_CURL_EXAMPLE                OFF
+ WANT_D3D                         OFF
+ WANT_D3D9EX                      OFF
+ WANT_DEMO                        OFF
+ WANT_DLL_TLS                     OFF
+ WANT_DOCS                        OFF
+ WANT_DOCS_HTML                   OFF
+ WANT_DOCS_INFO                   OFF
+ WANT_DOCS_MAN                    OFF
+ WANT_DOCS_PDF                    OFF
+ WANT_DOCS_PDF_PAPER              OFF
+ WANT_DSOUND                      ON
+ WANT_EMBED                       OFF
+ WANT_EXAMPLES                    OFF
+ WANT_FLAC                        OFF
+ WANT_FONT                        ON
+ WANT_FRAMEWORKS                  OFF
+ WANT_GLES3                       OFF
+ WANT_IMAGE                       ON
+ WANT_IMAGE_FREEIMAGE             ON
+ WANT_IMAGE_JPG                   OFF
+ WANT_IMAGE_PNG                   OFF
+ WANT_IMAGE_WEBP                  OFF
+ WANT_LUAJIT                      OFF
+ WANT_MEMFILE                     ON
+ WANT_MODAUDIO                    OFF
+ WANT_MONOLITH                    ON
+ WANT_MP3                         OFF
+ WANT_MUDFLAP                     OFF
+ WANT_NATIVE_DIALOG               ON
+ WANT_NATIVE_IMAGE_LOADER         ON
+ WANT_OGG_VIDEO                   OFF
+ WANT_OPENAL                      OFF
+ WANT_OPENGL                      ON
+ WANT_OPENSL                      OFF
+ WANT_OPUS                        OFF
+ WANT_OSS                         OFF
+ WANT_PHYSFS                      OFF
+ WANT_POPUP_EXAMPLES              ON
+ WANT_PRIMITIVES                  ON
+ WANT_PULSEAUDIO                  ON
+ WANT_PYTHON_WRAPPER              OFF
+ WANT_RELEASE_LOGGING             ON
+ WANT_SHADERS_D3D                 ON
+ WANT_SHADERS_GL                  ON
+ WANT_STATIC_RUNTIME              OFF
+ WANT_TESTS                       OFF
+ WANT_TREMOR                      OFF
+ WANT_TTF                         ON
+ WANT_VIDEO                       OFF
+ WANT_VORBIS                      OFF
+ WANT_WAIT_EVENT_SLEEP            OFF
+ WANT_X11                         ON
+ WANT_X11_XF86VIDMODE             ON
+ WANT_X11_XINERAMA                ON
+ WANT_X11_XRANDR                  ON
+ WANT_X11_XSCREENSAVER            ON
+ X11_xcb_icccm_INCLUDE_PATH       X11_xcb_icccm_INCLUDE_PATH-NOTFOUND
+ X11_xcb_icccm_LIB                X11_xcb_icccm_LIB-NOTFOUND
+ XCURSOR_LIB                      /usr/lib/x86_64-linux-gnu/libXcursor.so
+ XINERAMA_LIB                     /usr/lib/x86_64-linux-gnu/libXinerama.so
+ XPM_LIB                          /usr/lib/x86_64-linux-gnu/libXpm.so
+ XRANDR_LIB                       /usr/lib/x86_64-linux-gnu/libXrandr.so
+
+
+what else can I remove????
+
+ WANT_ALSA                        ON
+ WANT_AQUEUE                      ON
+ WANT_POPUP_EXAMPLES              ON
+ WANT_IMAGE_FREEIMAGE             ON
+ WANT_SHADERS_D3D                 ON
+ WANT_RELEASE_LOGGING             ON
+ WANT_MEMFILE                     ON
+
+
+
+now I have:
+
+
+
+                                                   Page 1 of 1
+ ALLEGRO_PROJECT_NAME             ALLEGRO
+ ALLEGRO_PROJECT_SUFFIX
+ ALLEGRO_SDL                      OFF
+ CMAKE_BUILD_TYPE                 Release
+ DOC_GIT_REF
+ FRAMEWORK_INSTALL_PREFIX         /Library/Frameworks
+ FREETYPE_BZIP2                   OFF
+ FREETYPE_HARFBUZZ                OFF
+ FREETYPE_PNG                     OFF
+ FREETYPE_ZLIB                    OFF
+ GL_BUILD_TYPE                    auto
+ LIB_SUFFIX
+ NO_FPU                           OFF
+ PREFER_STATIC_DEPS               OFF
+ SHARED                           ON
+ STRICT_WARN                      OFF
+ WANT_ACODEC_DYNAMIC_LOAD         OFF
+ WANT_ALLOW_SSE                   ON
+ WANT_ALSA                        OFF
+ WANT_AQUEUE                      OFF
+ WANT_AUDIO                       ON
+ WANT_COLOR                       ON
+ WANT_CURL_EXAMPLE                OFF
+ WANT_D3D                         OFF
+ WANT_D3D9EX                      OFF
+ WANT_DEMO                        OFF
+ WANT_DLL_TLS                     OFF
+ WANT_DOCS                        OFF
+ WANT_DOCS_HTML                   OFF
+ WANT_DOCS_INFO                   OFF
+ WANT_DOCS_MAN                    OFF
+ WANT_DOCS_PDF                    OFF
+ WANT_DOCS_PDF_PAPER              OFF
+ WANT_DSOUND                      ON
+ WANT_EMBED                       OFF
+ WANT_EXAMPLES                    OFF
+ WANT_FLAC                        OFF
+ WANT_FONT                        ON
+ WANT_FRAMEWORKS                  OFF
+ WANT_GLES3                       OFF
+ WANT_IMAGE                       ON
+ WANT_IMAGE_FREEIMAGE             OFF
+ WANT_IMAGE_JPG                   OFF
+ WANT_IMAGE_PNG                   OFF
+ WANT_IMAGE_WEBP                  OFF
+ WANT_LUAJIT                      OFF
+ WANT_MEMFILE                     OFF
+ WANT_MODAUDIO                    OFF
+ WANT_MONOLITH                    ON
+ WANT_MP3                         OFF
+ WANT_MUDFLAP                     OFF
+ WANT_NATIVE_DIALOG               ON
+ WANT_NATIVE_IMAGE_LOADER         OFF
+ WANT_OGG_VIDEO                   OFF
+ WANT_OPENAL                      OFF
+ WANT_OPENGL                      ON
+ WANT_OPENSL                      OFF
+ WANT_OPUS                        OFF
+ WANT_OSS                         OFF
+ WANT_PHYSFS                      OFF
+ WANT_POPUP_EXAMPLES              OFF
+ WANT_PRIMITIVES                  ON
+ WANT_PULSEAUDIO                  ON
+ WANT_PYTHON_WRAPPER              OFF
+ WANT_RELEASE_LOGGING             OFF
+ WANT_SHADERS_D3D                 OFF
+ WANT_SHADERS_GL                  ON
+ WANT_STATIC_RUNTIME              OFF
+ WANT_TESTS                       OFF
+ WANT_TREMOR                      OFF
+ WANT_TTF                         ON
+ WANT_VIDEO                       OFF
+ WANT_VORBIS                      OFF
+ WANT_WAIT_EVENT_SLEEP            OFF
+ WANT_X11                         ON
+ WANT_X11_XF86VIDMODE             ON
+ WANT_X11_XINERAMA                ON
+ WANT_X11_XRANDR                  ON
+ WANT_X11_XSCREENSAVER            ON
+ X11_xcb_icccm_INCLUDE_PATH       X11_xcb_icccm_INCLUDE_PATH-NOTFOUND
+ X11_xcb_icccm_LIB                X11_xcb_icccm_LIB-NOTFOUND
+ XCURSOR_LIB                      /usr/lib/x86_64-linux-gnu/libXcursor.so
+ XINERAMA_LIB                     /usr/lib/x86_64-linux-gnu/libXinerama.so
+ XPM_LIB                          /usr/lib/x86_64-linux-gnu/libXpm.so
+ XRANDR_LIB                       /usr/lib/x86_64-linux-gnu/libXrandr.so
+
+
+ Allowing GCC/Clang to use SSE instructions
+ Performing Test ALLEGRO_HAVE_PROCFS_ARGCV
+ Performing Test ALLEGRO_HAVE_PROCFS_ARGCV - Failed
+ Performing Test ALLEGRO_HAVE_SV_PROCFS_H
+ Performing Test ALLEGRO_HAVE_SV_PROCFS_H - Failed
+ ===========================
+ Configuration summary
+ ===========================
+ - OpenGL: Desktop
+ - Primitives addon: yes
+ - Image addon: yes
+  - FreeImage: NO
+  - libpng: NO
+  - libjpeg: NO
+  - libwebp: NO
+ - Font addon: yes
+ - Audio addon: yes
+  - OSS: NO
+  - PulseAudio: yes
+  - ALSA: NO
+  - OpenAL: NO
+  - OpenSL: NO
+ - Acodec addon: yes
+  - FLAC: NO
+  - DUMB: NO
+  - Ogg/Vorbis: NO
+  - Opus: NO
+  - MP3: NO
+ - TTF addon: yes
+ - Color addon: yes
+ - Memfile addon: NO
+ - PhysFS addon: NO
+ - Native Dialog addon: yes
+ - Video addon: NO
+ ===========================
+ Configuring done
+
+
+make
+
+sudo make install
+
+
+compile and link project with: -Wl,-rpath='./linux_libs'
+
+
+
+
+copy new lib
+
+cp /usr/lib/liballegro_monolith.so.5.2 ./linux_libs
+
+
+
+
+-----------------------
+UPDATE-----------------
+20220314
+-----------------------
+
+I figured it out!
+
+Well kind of...
+
+I found something that will work for me.
+
+Setting -rpath works fine.
+
+I can do it via the linker like this: -Wl,-rpath='./linux_libs'
+
+Or I can do after building the executable like this: patchelf --set-rpath './linux_libs' pm
+
+
+In both cases it finds my local copy of liballegro_monolith.so.5.2 in the linux_libs dir
+
+
+I never did get it to find libdumb....
+
+What I did was:
+
+I realized that I only needed that because of the game theme music.
+It was written and gifted to me by Russel Hoy who I have lost contact with years ago.
+The format is .xm.
+So what I thought I would do is convert it to mp3.
+But then it turned out I need yet another audio codec.
+So I converted it to .wav.
+No codecs needed.
+I was then able to remove that from the allegro library and have fewer dependencies.
+
+It just makes things simpler all around, having less libraries to include.
+
+The file is considerable bigger, but so what? It is so much simpler to use.
+
+pm.xm    562K
+pm.mp3  3827K 
+pm.wav 27449K
+
+Now I can distribute my game for linux systems with out the hassle of having to run a script to set LD_LIBRARY_PATH.
+
+It may not seem like much, but I am a lot happier with it this way.
+
+I am done trying to figure out why the other way did not work.
+
+I just wanted to update this post in case anyone else is struggling with the same issue, maybe something here might help.
+
+
+
+
+most distro's are missing:
+I need to get it too...
+
+
+libOpenGL.so.0 => /lib/x86_64-linux-gnu/libOpenGL.so.0
+
+new script 'install_linux_libs'
+
+mv ./linux_libs/liballegro_monolith.so.5.2  /usr/lib/
+mv ./linux_libs/libOpenGL.so.0 /lib/x86_64-linux-gnu/
 
 
 

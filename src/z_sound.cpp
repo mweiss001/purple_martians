@@ -57,8 +57,11 @@ void load_sound() // for normal loading of sound driver and samples
          al_set_sample_instance_playmode(sid_hiss, ALLEGRO_PLAYMODE_LOOP);
          al_attach_sample_instance_to_mixer(sid_hiss, se_mixer);
 
-         pm_theme_stream = al_load_audio_stream("snd/pm.xm", 8, 1024);
-         if (pm_theme_stream == NULL) m_err("Error loading snd/pm.xm\n");
+//         pm_theme_stream = al_load_audio_stream("snd/pm.mp3", 8, 1024);
+//         if (pm_theme_stream == NULL) m_err("Error loading snd/pm.xm\n");
+
+         pm_theme_stream = al_load_audio_stream("snd/pm.wav", 8, 1024);
+         if (pm_theme_stream == NULL) m_err("Error loading snd/pm.wav\n");
 
          al_set_audio_stream_playmode(pm_theme_stream, ALLEGRO_PLAYMODE_LOOP);
          al_set_audio_stream_playing(pm_theme_stream, 0);

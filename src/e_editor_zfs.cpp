@@ -1175,9 +1175,9 @@ void do_rnd(void)
 
             int archwag = 0;
             int bouncer = 0;
-            int cannon = 0;
+            int cannon = 1;
             int trakbot = 0;
-            int flapper = 1;
+            int flapper = 0;
 
             if ((Ei[b][0] == 3) && (archwag))
             {
@@ -1214,9 +1214,9 @@ void do_rnd(void)
             if ((Ei[b][0] == 6) && (cannon))
             {
                printf("randomizing cannon:%d\n", b);
-               Ei[b][9] = (int) mdw_rnd(0, 2); // extra hits to kill
+               Ei[b][9] = (int) mdw_rnd(0, 4); // extra hits to kill
                Ei[b][8] = (int) mdw_rnd(1, 4); // seek count
-               Efi[b][5] = al_ftofix(mdw_rnd(2, 4)); // seek speed
+               Efi[b][5] = al_ftofix(mdw_rnd(2, 5)); // seek speed
                Efi[b][7] = al_ftofix(mdw_rnd(3, 8)); // bullet speed
                Ei[b][15] = (int) mdw_rnd(60, 200); // bullet retrigger
                // set initial direction

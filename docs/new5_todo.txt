@@ -2,73 +2,15 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+when player is riding a rocket they can pass through semi solid left and right....not so much a bug as a feature......!
 
-when player is riding a rocket they can pass through semi solid left and right
-(not so much a bug as a feature!)
-
-why does start block not get filled in in menu choices sometimes, I checked and it does now
+rarely...start block does not get filled in on edit menu choices...can't reproduce
 
 
-I think when you pause and resume a single player game
-sometimes it quits to the menu after a while....yes, i can reproduce it
-play level for 5 sec the quit to menu, the resume
-timer has reset to zero, player has left the game message appears right away
-then 5 seconds in the game quits back to menu
 
+something screwy when exiting game in fullscreen mode on linux
+when you come back, you come back with fuillscreen, but windowed size???
 
-when player is in key block range being removed weird things happen
-
-
-in linux version exiting the game freezes the terminal
-CTRL-ALT-END if game has focus or CTRL-C in terminal it spawns
-
-look like I am not shutting down things individually...
-I am just calling al_uninstall_system();
-
-put some logging code around it, then try adding all individual ones...
-
-
-al_destroy_display(*display);
-
-in what order are they created?
-
-first
-
-al_init();
-
-al_create_event_queue();
-
-
-display = al_create_display(disp_w_wind, disp_h_wind);//
-
-al_register_event_source(event_queue, al_get_display_event_source(display));
-
-al_init_native_dialog_addon())
-
-
-al_init_primitives_addon())
-al_init_font_addon())
-al_init_ttf_addon())
-al_install_keyboard())
-al_register_event_source(event_queue, al_get_keyboard_event_source());
-al_install_mouse())
-al_register_event_source(event_queue, al_get_mouse_event_source());
-al_install_joystick())
-al_register_event_source(event_queue, al_get_joystick_event_source());
-al_init_image_addon())
-   fps_timer = al_create_timer(1/(float)frame_speed);
-   sec_timer = al_create_timer(1);
-   mnu_timer = al_create_timer(.01);
-
-   // register timer event source
-   al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
-
-   // start timers
-   al_start_timer(fps_timer);
-   al_start_timer(sec_timer);
-   al_start_timer(mnu_timer);
-
-   load_sound();
 
 ------------------------------------------------------
 ------------------------ To Do --------------------------
@@ -81,12 +23,72 @@ I am not using git to do this yet, i just copy the most upto date version from m
 
 look into github.io for webpages
 
+how about optional swappable tilesets for levels
+
+how about barriers that are configurable for enemies, players, bullets, objects
+
+make the version number auto increment based on something like date...
+or how many time it has been compiled...
+
+
+
+
+put libraries for linux in main dir for next release
+
+
+
+
+------------------------------------------------------
+------------------------ Level ideas -----------------
+------------------------------------------------------
+
+
+level where you have to throw mines at the other player..
+
+
+
+
+
+level where you fall all the time...the bottom of the screen is just doors that teleport you to the top
+then some semi-solid vertical screens that cannons shoot at you through
+and a rare rocket that you can ride through them....
+
+
+
+
+
+How about a level where you have to clone switches??
+
+
+how about a level where you need to send rocket up through a minefield
+or arrow field that player would die in....
+
+level with 100 random flapper...vertical jumping section in middle...332
+
+how about a level where you need to have a cannon follow you through a constricting one way
+maze, probably up past semi solid and then kill it with a bomb
+
 
 make a level that relies on being able to carry a door through a door
 
 make a level that requires traveling on a lift while jumping on and off of switches
 
-make the switches able to see through if stacked
+
+------------------------------------------------------
+------------------------ ememy ideas -----------------
+------------------------------------------------------
+
+how about an enemy that jumps over the player and fires down when directly over
+invincible to sideways player bullets
+
+What if I made a cloner that could detect when what it created was destroyed and make a new ones?
+
+what if I made on option for cloner to destroy all that it had created when trigger to create more...
+that could be useful for timed things and other stuff
+
+what if when a player is in a cloner src that fires, a free man is created?
+
+
 
 
 stationary cannon
@@ -97,41 +99,13 @@ can be a lot more accurate, if when firing a bullet it takes into account how fa
 
 
 
-how about an enemy that jumps over the player and fires down when directly over
-invincible to sideways player bullets
+------------------------------------------------------
+------------------------ item ideas ------------------
+------------------------------------------------------
 
-how about optional swappable tilesets for levels
-
-how about barriers that are configurable for enemies, players, bullets, objects
-
-make the version number auto increment based on something like date...
-or how many time it has been compiled...
-
-How about a level where you have to clone switches??
+make the switches able to see through if stacked
 
 
-how about a level where you need to send rocket up through a minefield
-or arrow field that player would die in....
-
-level with 100 random flapper...vertical jumping section in middle...332
-
-
-Its like I can shoot at right angles and so can the enemies, there is not much to do.
-If they can shoot me, I can shoot them..
-
-
-
-how about a level where you need to have a cannon follow you through a constricting one way
-maze, probably up past semi solid and then kill it with a bomb
-
-
-
-What if I made a cloner that could detect when what it created was destroyed and make a new one?
-
-what if I made on option for cloner to destroy all that it had created when trigger to create more...
-that could be useful for timed things and other stuff
-
-put libraries for linux in main dir for next release
 
 
 ---------------------------------------------------------
@@ -235,7 +209,6 @@ The level editor has three major modes:
 ---------------------- Wish List ------------------------
 ---------------------------------------------------------
 
-what if when a player in in a cloner src that fires, a free man is created?
 
 
 
@@ -294,9 +267,6 @@ make player wall collisions pixel perfect like when on ladder???
 make single block navigaion like ladder move...
 this will make jumping up into single block opening very hard...
 this sound like a major re-write..
-
-
-
 
 
 

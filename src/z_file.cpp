@@ -929,21 +929,22 @@ void blind_save_game_moves(int d)
 {
    int do_save = 0;
    if ((d == 1) && (auto_save_game_on_level_done)) do_save = 1;
-   if ((d == 2) && (auto_save_game_on_exit)) do_save = 1;
-   if ((d == 3) && (auto_save_game_on_exit)) do_save = 1;
+   if ((d == 2) && (auto_save_game_on_exit))       do_save = 1;
+   if ((d == 3) && (auto_save_game_on_exit))       do_save = 1;
    if (do_save)
    {
-      char filename1[80];
-      char filename2[80];
+      char lev[80];
+      sprintf(lev, "-lev%d", play_level);
+      char filename[80];
       struct tm *timenow;
       time_t now = time(NULL);
       timenow = localtime(&now);
-      if (d == 1) strftime(filename1, sizeof(filename1), "level_done_%Y%m%d-%H%M%S", timenow);
-      if (d == 2) strftime(filename1, sizeof(filename1), "game_exit_%Y%m%d-%H%M%S", timenow);
-      if (d == 3) strftime(filename1, sizeof(filename1), "bad_exit_%Y%m%d-%H%M%S", timenow);
-      sprintf(filename2, "%s-lev%d", filename1, play_level);
-      save_gm_gm(filename2); // first save as a playable *.gm
-      save_gm_txt(filename2); // then as a human readable text file
+      if (d == 1) strftime(filename, sizeof(filename), "level_done_%Y%m%d-%H%M%S", timenow);
+      if (d == 2) strftime(filename, sizeof(filename), "game_exit_%Y%m%d-%H%M%S",  timenow);
+      if (d == 3) strftime(filename, sizeof(filename), "bad_exit_%Y%m%d-%H%M%S",   timenow);
+      strcat(filename, lev);
+      save_gm_gm(filename);  // first save as a playable *.gm
+      save_gm_txt(filename); // then as a human readable text file
    }
 }
 

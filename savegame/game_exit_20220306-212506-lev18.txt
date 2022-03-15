@@ -1,9 +1,0 @@
-number of entries 4
-deathmatch_pbullets 1
-deathmatch_pbullets_damage 5
-suicide_pbullets 1
-[ gm][  pc][p][cm]
-[  0][   0]-------------START (level:18)------------- 
-[  1][   0]-------------PLAYER 0 ACTIVE (color:9)-- 
-[  2][ 841]-------------PLAYER 0 INACTIVE----------- 
-[  3][ 844][0][ 0]  [    ][    ][    ][  ][     ][    ]

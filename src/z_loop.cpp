@@ -93,8 +93,8 @@ void proc_start_mode(int start_mode)
       players[0].active = 1;
    }
 
-   // clear game moves array, except for demo
-   if (start_mode != 9) clear_game_moves();
+   // clear game moves array, except demo
+   if  (start_mode != 9) clear_game_moves();
 
    if (start_mode == 9) players[0].control_method = 1;
 
@@ -129,14 +129,13 @@ void proc_start_mode(int start_mode)
 		game_exit = 1;
       return;
 	}
-
+   set_frame_nums(0);
    clear_bmsg();
    clear_bullets();
    clear_keys();
    show_player_join_quit_timer = 0;
    level_done_trig = 0;
    level_done_proc = 0;
-   set_frame_nums(0);
    start_music(0); // rewind and start theme
 
    if ((ima_client) || (ima_server))

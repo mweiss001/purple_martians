@@ -310,16 +310,13 @@ int server_init(void)
       add_log_entry_centered_text(10, 0, 76, "", "+", "-");
    }
 
-
    // still needed or client dies at joining
    Packet("JUNK");
    ServerBroadcast(packetbuffer, packetsize);
 
-
    players[0].control_method = 3; // server_local_control
    ima_server = 1;
-   sprintf(players1[0].hostname, "%s", local_hostname);
-
+   strncpy(players1[0].hostname, local_hostname, 16);
    return 1;
 }
 
