@@ -18,6 +18,21 @@ tested on minimal install
 works out of the box!!!
 
 
+----------------------------------------
+Fedora-Workstation-Live-x86_64-35-1.2
+----------------------------------------
+20220314
+tested on live version
+works out of the box!!!
+
+
+--------------------------------------------
+manjaro-xfce-21.2.4-minimal-220301-linux510
+--------------------------------------------
+20220314
+tested on live version
+works out of the box!!!
+
 
 -------------------------------
 MX-21_x64
@@ -39,22 +54,4 @@ missing libOpenGL.so.0
 20220314
 tested on installed system (no mm codecs)
 missing libOpenGL.so.0
-
-
-
-----------------------------------------
-Fedora-Workstation-Live-x86_64-35-1.2
-----------------------------------------
-20220314
-tested on live version
-works out of the box!!!
-
-
---------------------------------------------
-manjaro-xfce-21.2.4-minimal-220301-linux510
---------------------------------------------
-20220314
-tested on live version
-works out of the box!!!
-
 

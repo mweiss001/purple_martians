@@ -2,17 +2,28 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-when player is riding a rocket they can pass through semi solid left and right....not so much a bug as a feature......!
-
 rarely...start block does not get filled in on edit menu choices...can't reproduce
 
+why is logo so goddam slow in linux? ...opengl?
+when I set mnu_timer faster the first screens go by really fast, but all the spline ones are very slow...
+even in a small screen resolution
+maybe later I could profile and see what takes up all the time...
+
+level 62 jumping from top of ladder warps through solid block to the left???
+
+test on level 329
+immediately above ladder have a semi solid block
+jump off the ladder while holding up
 
 
-something screwy when exiting game in fullscreen mode on linux
-when you come back, you come back with fuillscreen, but windowed size???
 
 
-------------------------------------------------------
+
+
+
+
+
+---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
@@ -32,27 +43,16 @@ or how many time it has been compiled...
 
 
 
-
-put libraries for linux in main dir for next release
-
-
-
-
 ------------------------------------------------------
 ------------------------ Level ideas -----------------
 ------------------------------------------------------
 
+make a level that requires traveling on a lift while jumping on and off of switches
+
+
+
 
 level where you have to throw mines at the other player..
-
-
-
-
-
-level where you fall all the time...the bottom of the screen is just doors that teleport you to the top
-then some semi-solid vertical screens that cannons shoot at you through
-and a rare rocket that you can ride through them....
-
 
 
 
@@ -65,13 +65,12 @@ or arrow field that player would die in....
 
 level with 100 random flapper...vertical jumping section in middle...332
 
-how about a level where you need to have a cannon follow you through a constricting one way
+how about a level where you have a cannon following you through a constricting one way
 maze, probably up past semi solid and then kill it with a bomb
 
 
 make a level that relies on being able to carry a door through a door
 
-make a level that requires traveling on a lift while jumping on and off of switches
 
 
 ------------------------------------------------------
@@ -104,7 +103,6 @@ can be a lot more accurate, if when firing a bullet it takes into account how fa
 ------------------------------------------------------
 
 make the switches able to see through if stacked
-
 
 
 

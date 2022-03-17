@@ -190,8 +190,22 @@ void move_ebullets()
          }
       }
 }
+
+
 void draw_ebullets()
 {
+
+/*
+   // temp testing
+   al_draw_circle(tx1+10, ty1+10, 10, palette_color[ttc1], 2 );
+   al_draw_textf(font, palette_color[ttc1], tx1, ty1-10, 0, "%.3f",ttfloat1);
+
+
+   al_draw_circle(tx2+10, ty2+10, 10, palette_color[ttc2], 2 );
+   al_draw_textf(font, palette_color[ttc2], tx2, ty2+30, 0, "%.3f",ttfloat2);
+*/
+
+
    for (int b = 0; b < 50; b++)
       if (e_bullet_active[b])
       {

@@ -7,6 +7,24 @@
 
 
 
+
+
+
+
+
+// temp testing variable
+int tx1=0;
+int ty1=0;
+int ttc1=0;
+float ttfloat1=0;
+
+int tx2=0;
+int ty2=0;
+int ttc2=0;
+float ttfloat2=0;
+
+
+
 // ------------------------------------------------
 // ----------------- netgame ----------------------
 // ------------------------------------------------
@@ -650,7 +668,7 @@ void get_desktop_resolution()
 int initial_setup(void)
 {
 
-   al_set_config_value(al_get_system_config(), "trace", "level", "debug");
+   //al_set_config_value(al_get_system_config(), "trace", "level", "debug");
 
    al_init();
    set_and_get_versions();
@@ -767,7 +785,8 @@ int initial_setup(void)
    // create timers
    fps_timer = al_create_timer(1/(float)frame_speed);
    sec_timer = al_create_timer(1);
-   mnu_timer = al_create_timer(.01);
+   //mnu_timer = al_create_timer(.01);
+   mnu_timer = al_create_timer(.008);
 
    // register timer event source
    al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
@@ -1264,6 +1283,11 @@ int main(int argument_count, char **argument_array)
 // --------------------------------------------------------------------------------------------
 // these flags get processed after allegro is initialized
 // --------------------------------------------------------------------------------------------
+
+
+   //spline_test();
+   //spline_adjust();
+
 
       if (argument_count == 2) // example 'pmwin arg1'
       {

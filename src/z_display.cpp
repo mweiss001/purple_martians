@@ -19,63 +19,6 @@ if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
 */
 
 
-int init_display(void)
-{
-   //show_fullscreen_modes();
-
-   //al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_REQUIRE);
-   al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
-//   al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
-
-
-   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
-   if (fullscreen) flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
-
-//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL ;
-//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL;
-
-//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
-//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
-
-
-   al_set_new_display_flags(flags);
-   display = al_create_display(disp_w_wind, disp_h_wind);//
-   if(!display)
-   {
-      sprintf(msg, "Error creating display\n");
-      m_err(msg);
-      exit(0);
-   }
-   //else printf("created display\n");
-
-   if (!fullscreen)
-   {
-      disp_x_curr = disp_x_wind;
-      disp_y_curr = disp_y_wind;
-      al_set_window_position(display, disp_x_curr, disp_y_curr);
-   }
-
-   disp_w_curr = al_get_display_width(display);
-   disp_h_curr = al_get_display_height(display);
-   al_get_window_position(display, &disp_x_curr, &disp_y_curr);
-   //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
-
-   auto_set_display_transform_double();
-   window_title();
-
-   //show_display_flags(al_get_display_flags(display));
-   //show_display_options();
-   //show_pixel_format(al_get_display_format(display));
-   //show_display_orienation();
-   //printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
-
-   //printf("init screen\n");
-   create_bmp();
-   make_palette();
-   return 1;
-}
-
-
 void show_bitmap_flags(int flags)
 {
    printf("bitmap flags:\n");
@@ -271,6 +214,78 @@ void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head
 
 
 
+int init_display(void)
+{
+   //show_fullscreen_modes();
+
+   //al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_REQUIRE);
+   al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
+//   al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
+
+
+
+   int flags = 0;
+
+   if (fullscreen)
+   {
+      flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
+      al_set_new_display_flags(flags);
+      display = al_create_display(disp_w_wind, disp_h_wind);
+   }
+   else // windowed
+   {
+      flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
+      al_set_new_display_flags(flags);
+      display = al_create_display(disp_w_wind, disp_h_wind);
+   }
+
+//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL ;
+//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL;
+
+//   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
+//   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
+
+//   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+
+
+
+
+
+   if(!display)
+   {
+      sprintf(msg, "Error creating display\n");
+      m_err(msg);
+      exit(0);
+   }
+   if (!fullscreen) al_set_window_position(display, disp_x_wind, disp_y_wind);
+   if (fullscreen)  al_resize_display(display, disp_w_full, disp_h_full);
+   al_acknowledge_resize(display);
+
+
+   disp_w_curr = al_get_display_width(display);
+   disp_h_curr = al_get_display_height(display);
+   al_get_window_position(display, &disp_x_curr, &disp_y_curr);
+   //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
+
+   auto_set_display_transform_double();
+   window_title();
+
+   //show_display_flags(al_get_display_flags(display));
+   //show_display_options();
+   //show_pixel_format(al_get_display_format(display));
+   //show_display_orienation();
+   //printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
+
+   //printf("init screen\n");
+   create_bmp();
+   make_palette();
+   return 1;
+}
+
+
+
+
+
 void proc_display_change(void)
 {
    al_acknowledge_resize(display);          // important that this is here, later and it does not work as intended
@@ -347,6 +362,8 @@ void proc_display_change_fromfs(void)
    //printf("\n-----------to windowed--------------\n");
    fullscreen = 0;
    al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+
+   al_acknowledge_resize(display);
 
    // here is one of the few places I will set xywh from my local variables
    al_resize_display(display, disp_w_wind, disp_h_wind);

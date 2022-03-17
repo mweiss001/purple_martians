@@ -10777,9 +10777,13 @@ I got lost here...
 
 
 
+level where you fall all the time...the bottom of the screen is just doors that teleport you to the top
+then some semi-solid vertical screens that cannons shoot at you through
+and a rare rocket that you can ride through them....done
 
 
 
+when player is riding a rocket they can pass through semi solid left and right....not so much a bug as a feature......!
 
 
 ------------------------------------------
@@ -11224,37 +11228,359 @@ the code is rather complex....
 fixed the code so it compiles without any dumb string errors
 ---------------------------------------
 
+-----------------------------
+bug --  warning in linux about
+-------------------------------
+||=== Build: ldm in pm (compiler: GNU GCC Compiler) ===|
+/home/m/Desktop/pm_client22/src/z_screen_overlay.cpp||In function ‘void new_bmsg(const char*, int, int, int)’:|
+/home/m/Desktop/pm_client22/src/z_screen_overlay.cpp|519|warning: ‘sprintf’ argument 3 overlaps destination object ‘b_msg’ [-Wrestrict]|
+/home/m/Desktop/pm_client22/src/pm.h|173|note: destination object referenced by ‘restrict’-qualified argument 1 was declared here|
+||=== Build finished: 0 error(s), 1 warning(s) (0 minute(s), 0 second(s)) ===|
+
+
+      // slide_bmsg
+      for (int c=39; c>0; c--)
+         sprintf(b_msg[c], "%s", b_msg[c-1]);
+
+
+first of all, why don't I see bmsg? 2 different types probaly took out to make faster
+this is the fix...
+      // slide_bmsg
+      for (int c=39; c>0; c--)
+         strcpy(b_msg[c], b_msg[c-1]);
+
+done
+
+
+
+
+-------------------
+bug something screwy when exiting game in fullscreen mode on linux
+when you come back, you come back with fullscreen, but windowed size???
+-------------------------------
+
+cleaned up init_display
+forced w and h for fullscreen
+did ack_resize after
+seems to be fixed now...
+
+
+I have a bit of a tricky math problem and I was wondering if anyone could provide insight.
+
+Its about trigonometry and systems of equations.
+
+This is all in 2D.
+
+It is trivial to have an enemy shoot a bullet at the player. Simple trig.
+
+But I want to have an enemy shoot a bullet, not at where the player is, but where they will be.
+(assuming the player does not change velocity or direction)
+
+
+My inputs are:
+the player's position: px, py
+the player's movement: pxinc, pyinc
+
+the origin of the bullet: bx, by
+the speed of the bullet: bspeed
+
+What I want for an output is the angle of the bullet to ensure a collision
+(or bxinc, byinc which I could calculate from angle)
+
+Every method I can think of involves brute force, iterating through angles until I find a solution
+
+There must be an more elegant solution.
+
+I am trying to think of it as where two lines intersect...
+But each line has a different velocity, so the line length are related to time...and speed?
+
+Can any of you smart people help point me in the right direction?
+
+
+
+You need to find out at what time(t) will they collide.
+
+Basic position function: S(t) = S(0) + v(t) * t + 1/2 * a(t) * t^2
+
+S(0) = starting position
+v(t) = velocity at time t (constant in your case)
+a(t) = acceleration at time t (zero if velocity is constant)
+t = time
+
+S(t) = S(0) + v(t)t
+
+Can be broken into x,y components:
+Sx(t) = Sx(0) + v(t)t
+Sy(t) = Sy(0) + v(t)t
+
+What are the player's and bullet's positions?
+
+Player:
+Px(t) = px + pxinc * t
+Py(t) = py + pyinc * t
+
+Bullet:
+Bx(t) = bx + bxinc * t
+By(t) = by + byinc * t
+
+this creates a triangle
+613141
+
+You can either use x or y
+
+Px(t) = Bx(t) or Py(t) = By(t)
+
+px + pxinc*t = bx + bxinc*t
+px - bx = pxinc*t + bxinc*t
+px - bx = t(pxinc - bxinc)
+t = (px - bx)/(pxinc - bxinc)
+
+You can use original formula to then solve for x and y of final position:
+x(t) = px + pxinc*t = bx + bxinc*t
+y(t) = py + pyinc*t = by + byinc*t
+
+float findPosition(float &x, float &y,
+                  float px, float py, float pxinc, float pyinc,
+                  float bx, float by, float bxinc, float byinc)
+{
+    float t = (px - bx)/(pxinc - bxinc);
+
+
+    x = px + pxinc * t;
+    y = py + pyinc * t;
+
+    return t;
+}
+
+It's a mess. Hopefully I didn't miss anything.
+
+Thank you for that. I am working on implementing it.
+Time was the key. At what time will they collide?
+
+UPDATE
+
+Unfortunately I was unable to make your method work.
+
+All I have for b is initial position and speed.
+I do not have bxinc or byinc or the angle.
+That is what I am trying to find.
+
+The way I figured out how to do it was:
+
+iterate on frame (time period) in a loop
+
+for each frame find
+- where we guess the player will be
+- the distance from that position to the bullet origin
+- find out how far the bullet could travel in the same amount of time
+
+When those distances are equal (or close) that is where the will collide.
+From the frame number that occurred at, I get the players position
+That is where I shoot the bullet.
+#SelectExpand
+  1void fire_enemy_bulletb(int EN, int bullet_ans, int p)
+  2{
+  3   al_fixed bx = Efi[EN][0];
+  4   al_fixed by = Efi[EN][1];
+  5   al_fixed bspeed = Efi[EN][7];
+  6
+  7   al_fixed px = players[p].PX;
+  8   al_fixed py = players[p].PY;
+  9   al_fixed pxi = players[p].xinc;
+ 10   al_fixed pyi = players[p].yinc;
+ 11
+ 12   for (int i=1; i<100; i++)
+ 13   {
+ 14      px+=pxi;
+ 15      py+=pyi;
+ 16
+ 17      // calc distance from player's new pos to bullet origin
+ 18      al_fixed xlen = px - bx;  // get the x distance between enemy and player
+ 19      al_fixed ylen = py - by;  // get the y distance between enemy and player
+ 20      al_fixed hy_dist = al_fixhypot(xlen, ylen);   // hypotenuse distance
+ 21
+ 22      // get distance that bullet would travel in same amount of time
+ 23      al_fixed bd = bspeed * i;
+ 24
+ 25      // if they are close enough pull the trigger
+ 26      al_fixed bdif = hy_dist-bd;
+ 27
+ 28      al_fixed ltol = al_ftofix(-5);
+ 29      al_fixed utol = al_ftofix(5);
+ 30
+ 31      if ((bdif < utol) && (bdif > ltol))
+ 32      {
+ 33         i = 100; // break out of loop
+ 34
+ 35         al_fixed speed = Efi[EN][7];                     // speed
+ 36         al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
+ 37
+ 38         al_fixed xinc = al_fixdiv(xlen, scaler);        // calc xinc
+ 39         al_fixed yinc = al_fixdiv(ylen, scaler);        // calc yinc
+ 40
+ 41         for (int z=0; z<50; z++)  // find empty e_bullet
+ 42            if (!e_bullet_active[z])
+ 43            {
+ 44               e_bullet_active[z] = 1;
+ 45               e_bullet_shape[z] = 1000 + bullet_ans;
+ 46               e_bullet_fx[z] = Efi[EN][0];
+ 47               e_bullet_fy[z] = Efi[EN][1];
+ 48               e_bullet_fxinc[z] = xinc;
+ 49               e_bullet_fyinc[z] = yinc;
+ 50               z=50;
+ 51            }
+ 52      }
+ 53   }
+ 54}
+
+This actually works, but I am sure there is a much better way of doing it.
+
+
+
+The closet I can come up with a formula is:
+
+when these two things are equal:
+
+bullet_distance = player_distance_from_bullet_origin
+
+bullet_distance = (bullet_speed * t)
+
+
+player_distance_from_bullet_origin_x = (px + (pxinx * t) - bx)
+player_distance_from_bullet_origin_y = (py + (pyinx * t) - by)
+
+then I need to do the hypot to get actual distance
 
 
 
 
 
 
-I am going to figure out the linux shared libraries.....
-
-
-
-make script to copy the libs somewhere out of /usr/lib so I can test...
-
-what libs?
 
 
 
 
 
 
+what if I use my method but seek better?
+
+like start with 10 frames at a time until I pass the limit
+then reverse direction 1 frame to pass again
+then reverse again and do .1
 
 
 
 
+changed player move so that when player is riding a rocket, player's xinc and yinc are the same as the rocket
+they used to be set to zero.
+I needed to do that so that the bullets can seek in on the player using xinc, yinc
+
+what enemies use that function? fire_enemy_bulleta()
+flapper
+trakbot
+podzilla
+canon
+
+wow!
+
+
+
+put this into equation editor
+https://www.hostmath.com/
+
+bulletvelocity * t = \sqrt{(px + (pxinc*t) - bx)^2 + (py + (pyinc*t)-by)^2 }
 
 
 
 
+UPDATE
+
+This is the equation I have come up with:
+
+https://www.allegro.cc/files/attachment/613142
+
+Now the fun part!
+
+Solve for t.
+
+My skills are not up to the task...
+
+20220317
+I am happy with my method for now...
+I want to bench mark in a level with 100 cannons and see if it slows down...
+not at all...
+what is I patch this in for all enemies that use it...done
 
 
 
 
+I had a method where I just increased time until I found a close enough solution.
+That took a lot of iterations.
+And if I wanted it more accurate, I would have to step time even slower, which meant even more iterations
+
+I found a method where I search for t in large steps.
+Then when I overshoot it, I reverse direction and decrease the step size...
+I keep doing this until I get close enough.
+This greatly reduces the ammount of values of t I need to test.
+
+<code>
+al_fixed get_distance(al_fixed px, al_fixed py, al_fixed pxinc, al_fixed pyinc,
+                       al_fixed bx, al_fixed by, al_fixed b_speed, al_fixed t)
+{
+   al_fixed px1 = px + al_fixmul(pxinc, t);                   // get the p position at time t
+   al_fixed py1 = py + al_fixmul(pyinc, t);
+   al_fixed p_distance_to_b = al_fixhypot(px1-bx, py1-by);    // distance from p to b
+   al_fixed b_distance = al_fixmul(b_speed, t);               // how far will b travel in time t
+   return (p_distance_to_b - b_distance);                     // difference between distances
+}
+
+void fire_enemy_bulleta(int EN, int bullet_ans, int p)
+{
+   al_fixed bx = Efi[EN][0];
+   al_fixed by = Efi[EN][1];
+   al_fixed bspeed = Efi[EN][7];
+
+   al_fixed px = players[p].PX;
+   al_fixed py = players[p].PY;
+   al_fixed pxi = players[p].xinc;
+   al_fixed pyi = players[p].yinc;
+
+   al_fixed f0 = al_itofix(0);    // the number zero in fixed format
+   al_fixed t = f0;               // start time
+   al_fixed tinc = al_itofix(20); // initial time step
+   al_fixed bdif = f0;
+
+   int tries = 0;
+   int done = 0;
+   while (!done)
+   {
+      t+=tinc;
+      bdif = get_distance(px, py, pxi, pyi, bx, by, bspeed, t);
+      if (( bdif < al_itofix(1)) && (bdif > al_itofix(-1))) done = 1; // is the difference with the threshold?
+
+      if (((tinc > f0) && (bdif < f0)) ||       // overshot while t increasing
+          ((tinc < f0) && (bdif > f0)))         // overshot while t decreasing
+         tinc = al_fixdiv(tinc, al_itofix(-2)); // half the increment and reverse direction
+
+      if (tries++ > 100) done = 1; // break out in case something goes wrong
+   }
+   al_fixed px1 = px + al_fixmul(pxi, t); // get player target position based on t
+   al_fixed py1 = py + al_fixmul(pyi, t);
+   fire_enemy_bulletz(EN, bullet_ans, px1, py1);
+}
+<\code>
+
+However I consider this entire approach an inlegant brute force method.
+
+I can't help but think there is a better way of doing this.
+
+My whole approach can be condensed to:
+
+Find the time when the player's future position has an equal distance to the bullet origin as the time the bullet will travel in the same amount of time.
+
+Then it is trivial to get the player's future x and y position from the time.
+
+I came up with an equation to describe that, but I don't know if it is possible to isolate t on one side (solve for t)
 
 
 

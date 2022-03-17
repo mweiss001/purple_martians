@@ -56,6 +56,21 @@
 
 
 
+// temp testing variable
+extern int tx1;
+extern int ty1;
+extern int ttc1;
+extern float ttfloat1;
+
+
+extern int tx2;
+extern int ty2;
+extern int ttc2;
+extern float ttfloat2;
+
+
+
+
 // ------------------------------------------------
 // ----------------- netgame ----------------------
 // ------------------------------------------------
@@ -1056,6 +1071,7 @@ int find_closest_player_flapper(int EN, int dir);
 int find_closest_player_quad(int EN, int quad, int prox);
 int find_closest_player(int EN);
 void fire_enemy_bulleta(int EN, int bullet_ans, int p);
+void fire_enemy_bulletb(int EN, int bullet_ans, int p);
 void fire_enemy_x_bullet(int EN, int p);
 int is_right_solid(int solid_x, int solid_y, int lift_check);
 int is_left_solid(int solid_x, int solid_y, int lift_check);

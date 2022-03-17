@@ -1,0 +1,43 @@
+
+pm needs:
+liballegro_monolith.so.5.2 
+
+
+some distro's are also missing:
+libOpenGL.so.0 => /lib/x86_64-linux-gnu/libOpenGL.so.0
+
+I used to also need libdumb, until I switched from pm.xm to pm.wav for the theme music
+
+
+
+I set -rpath in the executable to point at ./linux_libs
+This only works for liballegro_monolith.so.5.2 
+If other libraries are missing it won't find them there
+
+In my script 'lin_make_release' I copy these libraries to ./linux_libs like this
+
+cp /usr/lib/liballegro_monolith.so.5.2 ./linux_libs/
+cp /lib/x86_64-linux-gnu/libOpenGL.so.0 ./linux_libs/
+
+
+When the program is extracted and used on a different system one of these things happens:
+
+1:
+libOpenGL.so.0 is already installed on the system
+./pm works
+
+
+2:
+libOpenGL.so.0 is not already installed on the system
+./pml works
+
+
+I made an install script 'install_linux_libs' that copies the libaries to /usr/lib where they should be found
+
+
+new script 'install_linux_libs'
+
+cp ./linux_libs/liballegro_monolith.so.5.2  /usr/lib/ -v
+cp ./linux_libs/libOpenGL.so.0 /lib/x86_64-linux-gnu/ -v
+
+

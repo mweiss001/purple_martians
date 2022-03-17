@@ -512,12 +512,11 @@ void clear_bmsg(void)
 void new_bmsg(const char *nb, int p, int p2, int ev)
 {
    bottom_msg = 120;
-   if (strcmp(b_msg[0], nb) != 0) // if last two are not the same
+//   if (strcmp(b_msg[0], nb) != 0) // if last two are not the same
    {
       // slide_bmsg
       for (int c=39; c>0; c--)
-         sprintf(b_msg[c], "%s", b_msg[c-1]);
-
+         strcpy(b_msg[c], b_msg[c-1]);
       sprintf(b_msg[0], "%s", nb);
 
       bmsg_index++;
@@ -580,8 +579,8 @@ void new_bmsg(const char *nb, int p, int p2, int ev)
 
 void draw_bottom_msg()
 {
-   // int type = 1; // old style - may cause low fps, due to scaled drawing and target bitmap changes
-   int type = 3; // new style - faster but not as fancy
+   //int type = 1; // old style - may cause low fps, due to scaled drawing and target bitmap changes
+   int type = 2; // new style - faster but not as fancy (idk...looks better to me!!!)
 
    bottom_msg = 100;
 
