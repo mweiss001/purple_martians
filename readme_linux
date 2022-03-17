@@ -1,18 +1,20 @@
 The executable is called 'pm'
 
 It requires liballegro_monolith.so.5.2
-It is included in /linux_libs/
+Some distro's are also missing: libOpenGL.so.0
+They are both included in /linux_libs/
 
-It should be found automatically because -rpath is set in the binary executable pm
-
-If for some reason it cannot be found....
+If the libraries are not found automatically...
 
 Option 1:
 Use the script 'pml' to run the game:
 The contents of pml are:  "LD_LIBRARY_PATH=./linux_libs ./pm"
 
 Option 2:
-Copy the contents of /linux_libs to /usr/lib
+Copy the contents of /linux_libs to /usr/lib by running the script 'lin_install_libs' like this:
+sudo ./lin_install_libs
 Then you can run 'pm' without needing the script
+
+
 
 

@@ -552,11 +552,17 @@ void proc_player_riding_rocket(int p)
    int rot_inc = item[c][6];
    if (players[p].left)  item[c][10]-=rot_inc;
    if (players[p].right) item[c][10]+=rot_inc;
-   players[p].xinc = players[p].yinc = 0;
+
    players[p].left_xinc = players[p].right_xinc = 0;
-   players[p].xinc = players[p].yinc = 0;
+
    players[p].PX = itemf[c][0];
    players[p].PY = itemf[c][1];
+
+   // players[p].xinc = players[p].yinc = 0;
+   // would it hurt here to set players xinx, yinc the same as the item?
+   // i want to be able to use xinx, yinc for bullet targetting
+   players[p].xinc = itemf[c][2];
+   players[p].yinc = itemf[c][3];
 
    players[p].draw_rot = al_itofix(item[c][10]/10);
    players[p].draw_scale = al_ftofix(.5);
@@ -806,6 +812,7 @@ void proc_player_ladder_move(int p)
       al_fixed initial_jump_velocity = al_ftofix(6.6);
       if (players[p].up) players[p].PY += al_ftofix(2.6);
       players[p].yinc = -initial_jump_velocity;
+      return;
    }
    else
    {
@@ -1027,7 +1034,7 @@ void proc_player_ladder(int p)
          while (!done)
          {
             al_fixed m = is_right_solidfm(players[p].PX-f1, players[p].PY, f1, 0);
-            // printf("R %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
+            printf("R %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
             if (m < f1) players[p].PX -= f1;
             else done = 1;
          }
@@ -1037,7 +1044,7 @@ void proc_player_ladder(int p)
          while (!done)
          {
             al_fixed m = is_left_solidfm(players[p].PX+f1, players[p].PY, f1, 0);
-            //printf("L %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
+            printf("L %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
             if (m < f1) players[p].PX += f1;
             else done = 1;
          }

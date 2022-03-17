@@ -1,0 +1,302 @@
+20220307
+
+even more streamlined
+
+ubuntu-20.04.4-desktop-amd64.iso
+connected via ethernet
+minimal
+don't download updates while installing
+erase disk and install ubuntu
+
+m
+mi3u20
+m
+zaiden
+log in automatically
+
+---------------------------------------------------------------
+basic ubuntu setup
+---------------------------------------------------------------
+
+sudo apt-get update
+sudo apt-get install openssh-server (to work remotely)
+
+from a putty terminal from now on...
+
+lets just put everything on one line...
+
+sudo apt install git cmake cmake-curses-gui build-essential \
+                 libdumb1-dev \
+                 libflac-dev \
+                 libfreetype6-dev \
+                 libgl1-mesa-dev \
+                 libglu1-mesa-dev \
+                 libgtk-3-dev \
+                 libjpeg-dev \
+                 libopenal-dev \
+                 libphysfs-dev \
+                 libpng-dev \
+                 libpulse-dev \
+                 libtheora-dev \
+                 libvorbis-dev \
+                 libwebp-dev \
+                 libxext-dev \
+                 libxxf86vm-dev \
+                 libxrandr-dev \
+                 libxinerama-dev \
+                 libxpm-dev \
+                 libopusfile-dev \
+                 gcc-10 \
+                 g++-10 \
+                 codeblocks
+
+
+---------------------------------------------------------------
+setup multiple versions of gcc
+---------------------------------------------------------------
+
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
+
+sudo update-alternatives --config gcc
+There are 2 choices for the alternative gcc (providing /usr/bin/gcc).
+
+  Selection    Path             Priority   Status
+------------------------------------------------------------
+* 0            /usr/bin/gcc-10   100       auto mode
+  1            /usr/bin/gcc-10   100       manual mode
+  2            /usr/bin/gcc-9    90        manual mode
+
+Press <enter> to keep the current choice[*], or type selection number:
+
+gcc -v
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/10/lto-wrapper
+OFFLOAD_TARGET_NAMES=nvptx-none:amdgcn-amdhsa:hsa
+OFFLOAD_TARGET_DEFAULT=1
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu 10.3.0-1ubuntu1~20.04' --with-bugurl=file:///usr/share/doc/gcc-10/README.Bugs --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,m2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-10 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-bootstrap --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --enable-libphobos-checking=release --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-10-S4I5Pr/gcc-10-10.3.0/debian/tmp-nvptx/usr,amdgcn-amdhsa=/build/gcc-10-S4I5Pr/gcc-10-10.3.0/debian/tmp-gcn/usr,hsa --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu --with-build-config=bootstrap-lto-lean --enable-link-mutex
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 10.3.0 (Ubuntu 10.3.0-1ubuntu1~20.04)
+
+
+---------------------------------------------------------------
+Download Allegro's source from git and navigate to its directory.
+---------------------------------------------------------------
+
+from a terminal in dir Desktop:
+
+git clone https://github.com/liballeg/allegro5.git
+cd allegro5
+
+Configure and build Allegro.
+
+mkdir build
+cd build
+
+cmake ..
+ccmake -DCMAKE_INSTALL_PREFIX=/usr ..
+
+ ALLEGRO_PROJECT_NAME             ALLEGRO
+ ALLEGRO_PROJECT_SUFFIX
+ ALLEGRO_SDL                      OFF
+ CMAKE_BUILD_TYPE                 Release
+ DOC_GIT_REF
+ FRAMEWORK_INSTALL_PREFIX         /Library/Frameworks
+ FREETYPE_BZIP2                   OFF
+ FREETYPE_HARFBUZZ                OFF
+ FREETYPE_PNG                     OFF
+ FREETYPE_ZLIB                    OFF
+ GL_BUILD_TYPE                    auto
+ LIB_SUFFIX
+ NO_FPU                           OFF
+ PREFER_STATIC_DEPS               OFF
+ SHARED                           ON
+ STRICT_WARN                      OFF
+ WANT_ACODEC_DYNAMIC_LOAD         OFF
+ WANT_ALLOW_SSE                   ON
+ WANT_ALSA                        OFF
+ WANT_AQUEUE                      OFF
+ WANT_AUDIO                       ON
+ WANT_COLOR                       ON
+ WANT_CURL_EXAMPLE                OFF
+ WANT_D3D                         OFF
+ WANT_D3D9EX                      OFF
+ WANT_DEMO                        OFF
+ WANT_DLL_TLS                     OFF
+ WANT_DOCS                        OFF
+ WANT_DOCS_HTML                   OFF
+ WANT_DOCS_INFO                   OFF
+ WANT_DOCS_MAN                    OFF
+ WANT_DOCS_PDF                    OFF
+ WANT_DOCS_PDF_PAPER              OFF
+ WANT_DSOUND                      ON
+ WANT_EMBED                       OFF
+ WANT_EXAMPLES                    OFF
+ WANT_FLAC                        OFF
+ WANT_FONT                        ON
+ WANT_FRAMEWORKS                  OFF
+ WANT_GLES3                       OFF
+ WANT_IMAGE                       ON
+ WANT_IMAGE_FREEIMAGE             OFF
+ WANT_IMAGE_JPG                   OFF
+ WANT_IMAGE_PNG                   OFF
+ WANT_IMAGE_WEBP                  OFF
+ WANT_LUAJIT                      OFF
+ WANT_MEMFILE                     OFF
+ WANT_MODAUDIO                    OFF
+ WANT_MONOLITH                    ON
+ WANT_MP3                         OFF
+ WANT_MUDFLAP                     OFF
+ WANT_NATIVE_DIALOG               ON
+ WANT_NATIVE_IMAGE_LOADER         OFF
+ WANT_OGG_VIDEO                   OFF
+ WANT_OPENAL                      OFF
+ WANT_OPENGL                      ON
+ WANT_OPENSL                      OFF
+ WANT_OPUS                        OFF
+ WANT_OSS                         OFF
+ WANT_PHYSFS                      OFF
+ WANT_POPUP_EXAMPLES              OFF
+ WANT_PRIMITIVES                  ON
+ WANT_PULSEAUDIO                  ON
+ WANT_PYTHON_WRAPPER              OFF
+ WANT_RELEASE_LOGGING             OFF
+ WANT_SHADERS_D3D                 OFF
+ WANT_SHADERS_GL                  ON
+ WANT_STATIC_RUNTIME              OFF
+ WANT_TESTS                       OFF
+ WANT_TREMOR                      OFF
+ WANT_TTF                         ON
+ WANT_VIDEO                       OFF
+ WANT_VORBIS                      OFF
+ WANT_WAIT_EVENT_SLEEP            OFF
+ WANT_X11                         ON
+ WANT_X11_XF86VIDMODE             ON
+ WANT_X11_XINERAMA                ON
+ WANT_X11_XRANDR                  ON
+ WANT_X11_XSCREENSAVER            ON
+ X11_xcb_icccm_INCLUDE_PATH       X11_xcb_icccm_INCLUDE_PATH-NOTFOUND
+ X11_xcb_icccm_LIB                X11_xcb_icccm_LIB-NOTFOUND
+ XCURSOR_LIB                      /usr/lib/x86_64-linux-gnu/libXcursor.so
+ XINERAMA_LIB                     /usr/lib/x86_64-linux-gnu/libXinerama.so
+ XPM_LIB                          /usr/lib/x86_64-linux-gnu/libXpm.so
+ XRANDR_LIB                       /usr/lib/x86_64-linux-gnu/libXrandr.so
+
+
+ Allowing GCC/Clang to use SSE instructions
+ Performing Test ALLEGRO_HAVE_PROCFS_ARGCV
+ Performing Test ALLEGRO_HAVE_PROCFS_ARGCV - Failed
+ Performing Test ALLEGRO_HAVE_SV_PROCFS_H
+ Performing Test ALLEGRO_HAVE_SV_PROCFS_H - Failed
+ ===========================
+ Configuration summary
+ ===========================
+ - OpenGL: Desktop
+ - Primitives addon: yes
+ - Image addon: yes
+  - FreeImage: NO
+  - libpng: NO
+  - libjpeg: NO
+  - libwebp: NO
+ - Font addon: yes
+ - Audio addon: yes
+  - OSS: NO
+  - PulseAudio: yes
+  - ALSA: NO
+  - OpenAL: NO
+  - OpenSL: NO
+ - Acodec addon: yes
+  - FLAC: NO
+  - DUMB: NO
+  - Ogg/Vorbis: NO
+  - Opus: NO
+  - MP3: NO
+ - TTF addon: yes
+ - Color addon: yes
+ - Memfile addon: NO
+ - PhysFS addon: NO
+ - Native Dialog addon: yes
+ - Video addon: NO
+ ===========================
+ Configuring done
+
+
+
+press "c", "e" and then "q". You should now be back to a console.
+
+make
+
+takes about 2 min to compile (40s on zi3u20) (20 sec on mr5u20)
+
+
+sudo make install
+
+
+
+
+
+I am not going to use git to get the source files yet...maybe later
+
+---------------------------------------------------------
+Set up samba share on desktop for project files
+---------------------------------------------------------
+
+made a folder on the desktop 'pm_client17' and shared it
+
+right-clicking should show an option to share, if not, open it in nautilus file thingy and try again
+
+prompted to install samba, did it with no problems
+checked:
+'allow other to create and delete files in this folder'
+'guest access (for people without an account)'
+clicked 'create share'
+chose 'set permissions automatically'
+
+copy sources to this shared folder
+
+run sudo ./op to set owner and permissions for all the files to m:m 777
+
+
+
+---------------------------------------------------------
+Install libnet
+---------------------------------------------------------
+- from my local copy of the sources
+from a terminal go to the folder 'libnet' in the game folder
+'make clean'
+'make lib'
+'sudo make install'
+(puts libnet.h in /usr/include/)
+(puts libnet.a in /usr/lib/x86_64-linux-gnu/)
+
+
+
+---------------------------------------------------------
+Code::Blocks
+---------------------------------------------------------
+sudo apt-get install codeblocks
+
+
+---------------------------------------------------------
+Open project in code::blocks and compile
+---------------------------------------------------------
+First time code::blocks is run it complains about default compiler
+just choose gcc and it wont complain after first time
+
+compiler:
+-Wall
+
+linker:
+-lallegro_monolith
+-lz
+-lnet
+-lpthread
+-Wl,-rpath='./linux_libs'
+
+
+
+compile and run...
+
