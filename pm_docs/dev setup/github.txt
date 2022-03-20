@@ -84,23 +84,6 @@ success!
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 github pages:
 
 https://happycoding.io/tutorials/html/github-pages
@@ -130,10 +113,6 @@ I cant seem to get the one for my project to work...
 I have branches called gh-pages...
 
 
-
-
-
-
 I got the one for my personal page to work....
 
 created a new repo called mweiss001.github.io
@@ -145,9 +124,67 @@ copied all the files there and commited back
 on github the branch was main and on my computer it was master so I had to merge
 finally the webpages work!!!!
 
-
-
 made a release on github as well...
+
+
+
+
+I am trying to get the project one to work:
+
+https://mweiss001.github.io/purple_martians/
+
+
+just serves a default page
+
+
+looks like it want to use either the root folder or docs...
+
+fine...I'll move everything to pm_docs and try my web stuff in docs...
+
+do this locally then commit....
+
+I think it is working now....
+
+remove the old one.....or just make a link to the new one....
+
+
+clone to desktop
+https://github.com/mweiss001/mweiss001.github.io
+delete all and make index redirect to other page
+commit...
+
+
+
+-------------------------------------
+I think it is working now.
+-----------------------------------
+
+
+
+The old one was https://mweiss001.github.io
+and should redirect to the new one
+
+The new one is: https://mweiss001.github.io/purple_martians/
+and it works fine
+
+
+I should just be able to make changes and commit my project, and the web pages will change too.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
