@@ -77,9 +77,9 @@ void proc_start_mode(int start_mode)
 {
    if (start_mode == 7) // resume single player game
    {
-      set_frame_nums(frame_num); // set fps_timer count to frame_num
       start_music(1); // resume theme
       stimp();
+      set_frame_nums(frame_num); // set fps_timer count to frame_num
       return;
    }
 
@@ -129,6 +129,14 @@ void proc_start_mode(int start_mode)
 		game_exit = 1;
       return;
 	}
+
+   if ((ima_client) || (ima_server))
+   {
+      sprintf(msg,"LEVEL %d STARTED", play_level);
+      if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 3);
+   }
+   else stimp();
+
    set_frame_nums(0);
    clear_bmsg();
    clear_bullets();
@@ -138,12 +146,6 @@ void proc_start_mode(int start_mode)
    level_done_proc = 0;
    start_music(0); // rewind and start theme
 
-   if ((ima_client) || (ima_server))
-   {
-      sprintf(msg,"LEVEL %d STARTED", play_level);
-      if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 3);
-   }
-   else stimp();
 }
 
 void game_loop(int start_mode)
