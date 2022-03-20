@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 # makes a toc using <mh7> tags 
 # inserts the toc between <mdw_file_toc> tags
 

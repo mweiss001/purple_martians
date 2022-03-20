@@ -10527,13 +10527,7 @@ disp - x: 843 y: 236 w:3840 h:2160
 
 omfg I think it is almost 100% working.....in linux too
 
-
-
-need to call some shit after resizing, but besise th...!!!at
 same as win....
-
-
-
 
 
 how about the only time I care about window position is when entering full screen mode or exiting the program
@@ -10546,7 +10540,6 @@ resize event in linux seem to alway return x=1 y=26...why????
 ignore x and y....not as nice in windows...
 
 maybe the problem is the number of resize events I am getting...show them...
-
 
 maybe the problem I have is that I should not be setting the display x, y, w, h
 
@@ -10564,7 +10557,7 @@ old code from control to stop pile up of events....not needed
 
 
 
-            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) show_event(ev);
+if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) show_event(ev);
 void show_event(ALLEGRO_EVENT e)
 {
    int x = e.display.x;
@@ -10600,13 +10593,7 @@ it is a lot simpler code too.....
 
 checked in
 
-
-
-
-
 now I want to figure out what is causing the freeze on exit.....
-
-
 
 in linux version exiting the game freezes the terminal
 CTRL-ALT-END if game has focus or CTRL-C in terminal it spawns
@@ -10776,12 +10763,9 @@ _al_cond_destroy(&queue->cond);
 I got lost here...
 
 
-
 level where you fall all the time...the bottom of the screen is just doors that teleport you to the top
 then some semi-solid vertical screens that cannons shoot at you through
 and a rare rocket that you can ride through them....done
-
-
 
 when player is riding a rocket they can pass through semi solid left and right....not so much a bug as a feature......!
 
@@ -10800,68 +10784,9 @@ i think it is...also blocks don't get destroyed
 the problem was that even though the key was moving, the player was still triggering a collision with it
 fixed
 
-
-
 show OS type on startup
 
-
 save window x, y when exiting (only saves when resized or switching fullscreen)...done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -11125,7 +11050,6 @@ Thread 1 (Thread 0x7ffff4ca8cc0 (LWP 728679) "pm"):
 
 
 
-
 what about files: there are 4 things: pm:disk$0 to 3
 do I leave any file pointers open?
 config uses allegro built in functions to access...they all look good
@@ -11141,7 +11065,6 @@ others, help, pde, sprit...all look good
 
 
 there is also pulseaudio and kcm_stream...what the hell are those???
-
 
 
 I rebuilt allegro from git source and redid the make file
@@ -11216,6 +11139,9 @@ zcontrol at the end...
 
 
 
+
+
+
 in saved game...
 
 passcount is reset and player inactive is entered
@@ -11223,6 +11149,7 @@ passcount is reset and player inactive is entered
 figured it out...done
 
 the code is rather complex....
+
 
 ---------------------------------------
 fixed the code so it compiles without any dumb string errors
@@ -11250,8 +11177,6 @@ this is the fix...
          strcpy(b_msg[c], b_msg[c-1]);
 
 done
-
-
 
 
 -------------------
@@ -11490,6 +11415,14 @@ https://www.hostmath.com/
 
 bulletvelocity * t = \sqrt{(px + (pxinc*t) - bx)^2 + (py + (pyinc*t)-by)^2 }
 
+bspeed * t = \sqrt{(px + (pxinc*t) - bx)^2 + (py + (pyinc*t)-by)^2 }
+
+px + (pxinc*t)
+py + (pyinc*t)
+
+\sqrt{(px + (pxinc*t) - bx)^2 + (py + (pyinc*t)-by)^2 }
+
+
 
 
 
@@ -11590,6 +11523,599 @@ I came up with an equation to describe that, but I don't know if it is possible 
 
 
 
+
+
+bug  -- does level actually run while stimp is happening??
+did I just change this recently?
+
+when I run the screen overlay frame skip always happens during stimp
+
+change the order of these things:
+
+old
+   set_frame_nums(0);
+   clear_bmsg();
+   clear_bullets();
+   clear_keys();
+   show_player_join_quit_timer = 0;
+   level_done_trig = 0;
+   level_done_proc = 0;
+   start_music(0); // rewind and start theme
+
+   if ((ima_client) || (ima_server))
+   {
+      sprintf(msg,"LEVEL %d STARTED", play_level);
+      if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 3);
+   }
+   else stimp();
+
+new
+   if ((ima_client) || (ima_server))
+   {
+      sprintf(msg,"LEVEL %d STARTED", play_level);
+      if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 3);
+   }
+   else stimp();
+
+   set_frame_nums(0);
+   clear_bmsg();
+   clear_bullets();
+   clear_keys();
+   show_player_join_quit_timer = 0;
+   level_done_trig = 0;
+   level_done_proc = 0;
+   start_music(0); // rewind and start theme
+
+also this:
+
+old
+   if (start_mode == 7) // resume single player game
+   {
+      start_music(1); // resume theme
+      set_frame_nums(frame_num); // set fps_timer count to frame_num
+      stimp();
+      return;
+   }
+
+new
+   if (start_mode == 7) // resume single player game
+   {
+      start_music(1); // resume theme
+      stimp();
+      set_frame_nums(frame_num); // set fps_timer count to frame_num
+      return;
+   }
+
+that seems to work better
+
+
+
+
+
+
+
+
+
+
+
+
+Michael, assuming your theory and your math is correct, I solved for t. You'll still have to apply the quadratic equation to solve it though.
+
+ t^2(pvx^2 + pvy^2 - bv^2)
++t^1(2pxpvx + 2pypvy - 2bxpvx - 2bypvy)
++t^0(px^2 + bx^2 + py^2 + by^2 - 2bxpx - 2bypy)
+
+Just apply the quadratic equation now, and you have your values for t.
+
+I'm going to work on finding angle from t. My approach would be to set a time (like say a few seconds) and then find the angle necessary to hit that time.
+
+
+Edgar's method works great
+
+   float bx = Efi[EN][0];
+   float by = Efi[EN][1];
+   float bv = Efi[EN][7];
+
+   float px  = players[p].PX;
+   float py  = players[p].PY;
+   float pvx = players[p].xinc;
+   float pvy = players[p].yinc;
+
+   float A = (pvx*pvx) + (pvy*pvy) - (bv*bv);
+   float B = 2*(px*pvx) + 2*(py*pvy) -2*(bx*pvx) -2*(by*pvy);
+   float C = (px*px) + (bx*bx) + (py*py) + (by*by) - 2*(bx*px) -2*(by*py);
+   float t = ( -B - sqrt((B*B) - 4*(A*C)) ) / (2 * A);
+
+   al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
+   al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
+   fire_enemy_bulletz(EN, bullet_ans, px1, py1);
+
+I don't know how he came up with that equation though
+
+his explanation starts with that
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I came up with a quadratic but not quite the same as ER's. It cuts down on the maths chores if you set the origin to be where the bullet starts, and have the player relative to that, ie. work with x = px - bx and y = py - by instead of (px,py) and (bx,by).
+
+The position of the player at time t is (x + pxinc *t, y + pyinc * t) and the bullet is (bxinc*t, byinc*t). Equate the x-coords and y-coords separately, that's three unknowns, bxinc, byinc and t, with two equations - now add third equation bxinc^2 + byinc^2 = bspeed^2.
+
+bxinc*t = x + pxinc*t (1)
+byinc*t = y + pyinc*t (2)
+bxinc^2 + byinc^2 = bspeed^2 (3)
+
+I found it easiest to rewrite (3) as
+bxinc^2 * t^2 + byinc^2 * t^2 = bspeed^2 * t^2 (4)
+
+Square (1) and (2), substitute them in the LHS of (4)
+(x + pxinc*t)^2 + (y + pyinc*t)^2 = bspeed^2 * t^2
+
+Now you can expand the brackets and it's a quadratic in t. There are 2 solutions usually and you have to take the bigger (I don't know why or what the other one means!)
+
+When you have t then work out dx = x + pxinc*t and dy = y + pyinc*t (displacement to where the ship will be)
+then bxinc = dx/sqrt(dx*dx+dy*dy)*bspeed and byinc = dy/sqrt(dx*dx+dy*dy)*bspeed
+
+
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+#include <math.h>
+#include <random>
+
+#define W 800
+#define H 600
+
+static const float bullet_speed = 5.0f;
+
+struct thing {
+  float x;
+  float y;
+  float dx;
+  float dy;
+  float radius;
+  ALLEGRO_COLOR color;
+  float speed;
+  bool active;
+  thing(ALLEGRO_COLOR c, float r, float s)
+      : color(c), radius(r), speed(s), active(true) {}
+  void move() {
+    if (active) {
+      x += dx;
+      y += dy;
+      while (x < 0.0f)
+        x += float(W);
+      while (x >= float(W))
+        x -= float(W);
+      while (y < 0.0f)
+        y += float(H);
+      while (y >= float(H))
+        y -= float(H);
+    }
+  }
+  void draw() {
+    if (active)
+      al_draw_circle(x, y, radius, color, 1.0f);
+  }
+  void setup() {
+    static std::minstd_rand engine;
+    double theta;
+    x = std::uniform_real_distribution<float>(0.0f, float(W))(engine);
+    y = std::uniform_real_distribution<float>(0.0f, float(H))(engine);
+    theta = std::uniform_real_distribution<>(-1.0, 1.0)(engine);
+    switch (std::uniform_int_distribution<>(0, 3)(engine)) {
+    case 0: // top
+      theta += M_PI / 2.0;
+      y = 20.0f;
+      break;
+    case 1: // right
+      theta += M_PI;
+      x = float(W - 20);
+      break;
+    case 2: // bottom
+      theta -= M_PI / 2.0;
+      y = float(H - 20);
+      break;
+    case 3:  // left
+    default: // can't happen
+      x = 20.0f;
+      break;
+    }
+    dx = float(cos(theta)) * speed;
+    dy = float(sin(theta)) * speed;
+    active = true;
+  }
+};
+
+thing fire(const thing &from, const thing &to) {
+  float x = to.x - from.x;
+  float y = to.y - from.y;
+  float r2 = x * x + y * y;
+
+  thing bullet(al_map_rgb(128, 128, 128), 2.0f, 5.0f);
+  float A = to.dx * to.dx + to.dy * to.dy - bullet_speed * bullet_speed;
+  float B = x * to.dx + y * to.dy;
+  float rt = B * B - A * r2;
+  if (rt >= 0.0f) {
+    float t1 = (sqrt(rt) - B) / A;
+    float t2 = (-sqrt(rt) - B) / A;
+    float t = std::max(t1, t2);
+    float vx = x + to.dx * t;
+    float vy = y + to.dy * t;
+    float v = sqrt(vx * vx + vy * vy) / bullet_speed;
+    bullet.dx = vx / v;
+    bullet.dy = vy / v;
+    bullet.x = from.x;
+    bullet.y = from.y;
+  } else {
+    // Bullet can't reach the target
+    bullet.active = false;
+  }
+  return bullet;
+}
+bool collide(const thing &a, const thing &b) {
+  float r2 = (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+  return r2 < a.radius + b.radius;
+}
+
+int main(int, char *[]) {
+  al_init();
+  al_init_primitives_addon();
+  ALLEGRO_DISPLAY *display = al_create_display(W, H);
+  ALLEGRO_TIMER *timer = al_create_timer(1.0 / 30.0);
+  ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
+  al_register_event_source(queue, al_get_display_event_source(display));
+  al_register_event_source(queue, al_get_timer_event_source(timer));
+  bool running = true;
+  bool advance = true;
+  thing ship(al_map_rgb(255, 128, 128), 10.0f, 1.0f);
+  thing ufo(al_map_rgb(128, 255, 128), 10.0f, 2.0f);
+  thing bullet(al_map_rgb(128, 128, 128), 2.0f, 5.0f);
+  ship.setup();
+  ufo.setup();
+  bullet.active = false;
+  al_start_timer(timer);
+  while (running) {
+    ALLEGRO_EVENT event;
+    al_wait_for_event(queue, nullptr);
+    while (al_get_next_event(queue, &event)) {
+      if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+        running = false;
+      } else if (event.type == ALLEGRO_EVENT_TIMER) {
+        advance = true;
+      }
+      if (advance) {
+        al_clear_to_color(al_map_rgb(0, 0, 0));
+        ufo.draw();
+        bullet.draw();
+        ship.draw();
+        al_flip_display();
+        ufo.move();
+        bullet.move();
+        ship.move();
+        if (!bullet.active) {
+          bullet = fire(ufo, ship);
+        } else {
+          if (collide(bullet, ship)) {
+            ship.active = bullet.active = false;
+          }
+        }
+        if (!ship.active)
+          ship.setup();
+      }
+    }
+  }
+  return 0;
+}
+
+
+
+
+I came up with a quadratic but not quite the same as ER's.
+It cuts down on the maths chores if you set the origin to be where the bullet starts,
+and have the player relative to that, ie. work with x = px - bx and y = py - by instead of (px,py) and (bx,by).
+
+The position of the player at time t is (x + pxinc *t, y + pyinc * t) and the bullet is (bxinc*t, byinc*t).
+Equate the x-coords and y-coords separately, that's three unknowns, bxinc, byinc and t, with two equations
+now add third equation bxinc^2 + byinc^2 = bspeed^2.
+
+
+
+bxinc*t = x + pxinc*t (1)
+byinc*t = y + pyinc*t (2)
+bxinc^2 + byinc^2 = bspeed^2 (3)
+
+I found it easiest to rewrite (3) as
+bxinc^2 * t^2 + byinc^2 * t^2 = bspeed^2 * t^2 (4)
+
+Square (1) and (2), substitute them in the LHS of (4)
+(x + pxinc*t)^2 + (y + pyinc*t)^2 = bspeed^2 * t^2
+
+what???
+
+square LHS of 1...(bxinc*t)^2 is that the same same bxinc^2*t^2...yes
+
+try it out
+3^2 * 4^2 = 9 * 16 = 144
+(3*4)^2 = 12^2 = 144
+yes....i'm good with that...so now I am at
+
+
+(x + pxinc*t)^2 + (y + pyinc*t)^2 = bspeed^2 * t^2
+
+
+And I need to expand that...
+
+
+This method works too...
+
+
+Clean up how it was derived:
+
+From Peter Hull
+
+I came up with a quadratic but not quite the same as ER's.
+It cuts down on the maths chores if you set the origin to be where the bullet starts,
+and have the player relative to that, ie. work with x = px - bx and y = py - by instead of (px,py) and (bx,by).
+
+The position of the player at time t is (x + pxinc *t, y + pyinc * t) and the bullet is (bxinc*t, byinc*t).
+Equate the x-coords and y-coords separately, that's three unknowns, bxinc, byinc and t, with two equations
+now add third equation bxinc^2 + byinc^2 = bspeed^2.
+
+bxinc*t = x + pxinc*t (1)
+byinc*t = y + pyinc*t (2)
+bxinc^2 + byinc^2 = bspeed^2 (3)
+
+I found it easiest to rewrite (3) as
+bxinc^2 * t^2 + byinc^2 * t^2 = bspeed^2 * t^2 (4)
+
+Square (1) and (2), substitute them in the LHS of (4)
+(x + pxinc*t)^2 + (y + pyinc*t)^2 = bspeed^2 * t^2
+
+Now you can expand the brackets and it's a quadratic in t.
+
+(x + pxinc*t)^2 = x^2 +2pxinctx + pxinct^2
+(y + pyinc*t)^2 = y^2 +2pyincty + pyinct^2
+
+x^2 +2pxinctx + pxinct^2 + y^2 +2pyincty + pyinct^2 = bspeed^2 * t^2
+
+x^2 +2pxinctx + pxinct^2 + y^2 +2pyincty + pyinct^2 - (bspeed^2 * t^2) = 0
+
+t^2 (pxinc^2 + pyinc^2 - bspeed^2)
+t^1 (2pxincx + 2pyincy)
+t^0 (x^2 + y^2)
+
+A = pxinc^2 + pyinc^2 - bspeed^2
+B = 2pxincx + 2pyincy
+C = x^2 + y^2
+
+re-written with the variable names I am familiar with:
+
+A = pvx^2 + pvy^2 - bv^2
+B = 2xpvx + 2ypvy
+C = x^2 + y^2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The better solution
+
+After asking for help on the allegro.cc forums I was shown a much better method.
+
+Edgar Reynaldo showed me a quadratic equation to solve for t.
+
+Michael, assuming your theory and your math is correct, I solved for t. You'll still have to apply the quadratic equation to solve it though.
+
+ t^2(pvx^2 + pvy^2 - bv^2)
++t^1(2pxpvx + 2pypvy - 2bxpvx - 2bypvy)
++t^0(px^2 + bx^2 + py^2 + by^2 - 2bxpx - 2bypy)
+
+Just apply the quadratic equation now, and you have your values for t.
+
+
+
+Peter Hull showed me a similar method with slightly simpler math.
+
+I came up with a quadratic but not quite the same as ER's.
+It cuts down on the maths chores if you set the origin to be where the bullet starts,
+and have the player relative to that, ie. work with x = px - bx and y = py - by instead of (px,py) and (bx,by).
+
+The position of the player at time t is (x + pxinc *t, y + pyinc * t) and the bullet is (bxinc*t, byinc*t).
+Equate the x-coords and y-coords separately, that's three unknowns, bxinc, byinc and t, with two equations
+now add third equation bxinc^2 + byinc^2 = bspeed^2.
+
+bxinc*t = x + pxinc*t (1)
+byinc*t = y + pyinc*t (2)
+bxinc^2 + byinc^2 = bspeed^2 (3)
+
+I found it easiest to rewrite (3) as
+bxinc^2 * t^2 + byinc^2 * t^2 = bspeed^2 * t^2 (4)
+
+Square (1) and (2), substitute them in the LHS of (4)
+(x + pxinc*t)^2 + (y + pyinc*t)^2 = bspeed^2 * t^2
+
+Now you can expand the brackets and it's a quadratic in t.
+
+
+
+
+(x + pxinc*t)^2 = x^2 +2pxinctx + pxinct^2
+(y + pyinc*t)^2 = y^2 +2pyincty + pyinct^2
+
+x^2 +2pxinctx + pxinct^2 + y^2 +2pyincty + pyinct^2 = bspeed^2 * t^2
+
+x^2 +2pxinctx + pxinct^2 + y^2 +2pyincty + pyinct^2 - (bspeed^2 * t^2) = 0
+
+t^2 (pxinc^2 + pyinc^2 - bspeed^2)
+t^1 (2pxincx + 2pyincy)
+t^0 (x^2 + y^2)
+
+A = pxinc^2 + pyinc^2 - bspeed^2
+B = 2pxincx + 2pyincy
+C = x^2 + y^2
+
+re-written with the variable names I am familiar with:
+
+A = pvx^2 + pvy^2 - bv^2
+B = 2xpvx + 2ypvy
+C = x^2 + y^2
+
+I tried to covert this to fixed but A B and C are huge:
+
+A:-85899345920.000000
+B:1909319532544.000000
+C:97443614031872.000000
+
+they totally overflow fixed...so I guess I am stuck with float for now
+
+I am removing all the old code and pasting it here:
+
+
+
+al_fixed get_distance(al_fixed px, al_fixed py, al_fixed pxinc, al_fixed pyinc,
+                       al_fixed bx, al_fixed by, al_fixed b_speed, al_fixed t)
+{
+   al_fixed px1 = px + al_fixmul(pxinc, t);                   // get the p position at time t
+   al_fixed py1 = py + al_fixmul(pyinc, t);
+   al_fixed p_distance_to_b = al_fixhypot(px1-bx, py1-by);    // distance from p to b
+   al_fixed b_distance = al_fixmul(b_speed, t);               // how far will b travel in time t
+   return (p_distance_to_b - b_distance);                     // difference between distances
+}
+
+void fire_enemy_bulletaa(int EN, int bullet_ans, int p)
+{
+   al_fixed bx = Efi[EN][0];
+   al_fixed by = Efi[EN][1];
+   al_fixed bspeed = Efi[EN][7];
+
+   al_fixed px = players[p].PX;
+   al_fixed py = players[p].PY;
+   al_fixed pxi = players[p].xinc;
+   al_fixed pyi = players[p].yinc;
+
+   al_fixed initial_distance = al_fixhypot((px-bx), (py-by));    // initial distance
+   printf("\ninitial distance:%f\n", al_fixtof(initial_distance));
+
+   al_fixed t = al_fixdiv(initial_distance, bspeed);         // start time
+
+
+   al_fixed f0 = al_itofix(0);    // the number zero in fixed format
+   //al_fixed t = f0;               // start time
+   al_fixed tinc = al_itofix(20); // initial time step
+   al_fixed bdif = f0;
+
+
+   int tries = 0;
+   int done = 0;
+   while (!done)
+   {
+
+      bdif = get_distance(px, py, pxi, pyi, bx, by, bspeed, t);
+      printf("frame:%f bdif:%f\n", al_fixtof(t), al_fixtof(bdif));
+
+      if (( bdif < al_itofix(1)) && (bdif > al_itofix(-1))) done = 1; // is the difference with the threshold?
+
+      // if (( bdif < al_ftofix(.0001)) && (bdif > al_ftofix(-.0001))) done = 1; // is the difference with the threshold?
+
+      if (((tinc > f0) && (bdif < f0)) ||       // overshot while t increasing
+          ((tinc < f0) && (bdif > f0)))         // overshot while t decreasing
+         tinc = al_fixdiv(tinc, al_itofix(-2)); // half the increment and reverse direction
+
+      if (tries++ > 50) done = 1; // break out in case something goes wrong
+      t+=tinc;
+   }
+   al_fixed px1 = px + al_fixmul(pxi, t); // get player target position based on t
+   al_fixed py1 = py + al_fixmul(pyi, t);
+   fire_enemy_bulletz(EN, bullet_ans, px1, py1);
+
+   printf("number of tries:%d\n", tries);
+
+// show where the target position is
+   tx1 = al_fixtoi(px1);
+   ty1 = al_fixtoi(py1);
+   ttc1 = 15;
+   //ttfloat1 = al_fixtof(bdif);
+   ttfloat1 = (float) tries;
+
+
+}
+
+
+/*
+void fire_enemy_bulletabf(int EN, int bullet_ans, int p) // the original method of stepping time
+{
+   al_fixed bx = Efi[EN][0];
+   al_fixed by = Efi[EN][1];
+   al_fixed bspeed = Efi[EN][7];
+
+   al_fixed px = players[p].PX;
+   al_fixed py = players[p].PY;
+   al_fixed pxi = players[p].xinc;
+   al_fixed pyi = players[p].yinc;
+
+   al_fixed t = al_itofix(0);     // start time
+   al_fixed tinc = al_itofix(1);  // time step
+   al_fixed bdif = al_itofix(0);
+
+   for (t=al_itofix(0); t < al_itofix(1000); t+=tinc)
+   {
+      bdif = get_distance(px, py, pxi, pyi, bx, by, bspeed, t);
+      printf("frame:%f bdif:%f\n", al_fixtof(t), al_fixtof(bdif));
+
+      if (( bdif < al_itofix(5)) && (bdif > al_itofix(-5))) // is the difference with the threshold?
+      {
+         al_fixed px1 = px + al_fixmul(pxi, t); // get player target position based on t
+         al_fixed py1 = py + al_fixmul(pyi, t);
+
+         fire_enemy_bulletz(EN, bullet_ans, px1, py1);
+
+         t = al_itofix(1000); // break out of loop
+      }
+   }
+}
+
+
+void old_fire_enemy_bulleta(int EN, int bullet_ans, int p)
+{
+   al_fixed xlen = players[p].PX - Efi[EN][0];   // get the x distance between enemy and player
+   al_fixed ylen = players[p].PY - Efi[EN][1];   // get the y distance between enemy and player
+   al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
+   al_fixed speed = Efi[EN][7];                  // speed
+   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
+   al_fixed xinc = al_fixdiv(xlen, scaler);        // calc xinc
+   al_fixed yinc = al_fixdiv(ylen, scaler);        // calc yinc
+
+   for (int z=0; z<50; z++)  // find empty e_bullet
+      if (!e_bullet_active[z])
+      {
+         e_bullet_active[z] = 1;
+         e_bullet_shape[z] = 1000 + bullet_ans;
+         e_bullet_fx[z] = Efi[EN][0];
+         e_bullet_fy[z] = Efi[EN][1];
+         e_bullet_fxinc[z] = xinc;
+         e_bullet_fyinc[z] = yinc;
+         z=50;
+      }
+}
 
 
 

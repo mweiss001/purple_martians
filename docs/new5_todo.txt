@@ -9,11 +9,26 @@ when I set mnu_timer faster the first screens go by really fast, but all the spl
 even in a small screen resolution
 maybe later I could profile and see what takes up all the time...
 
+
+
+
 level 62 jumping from top of ladder warps through solid block to the left???
 
 test on level 329
 immediately above ladder have a semi solid block
 jump off the ladder while holding up
+
+When player is climbing ladder they are blocked by semi-solid above
+If they then jump everything works fine.
+But if they hold [UP] and jump they try to grab ladder again and trigger
+code that happens only when player is first grabbing ladder
+
+
+I think its because ladder up moves don't recognize semi-solid because they use the new is_solid_fm type.
+There is code about when a player get on a ladder initially that checks to see if the player is embedded in a wall.
+This is getting triggered by the semi solid and pushing the player left until they are free.
+
+I gave up on this for now...
 
 
 
@@ -26,6 +41,15 @@ jump off the ladder while holding up
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+
+demo mode annoys me when it starts in the middle of things I am doing
+I could make it start on a timer, but only if nothing happens after the program is first run
+after that do not automatically start it again
+
+
+
 
 When I do dev on ubuntu...
 first things I need to do is make sure I have the latest version of the sources
@@ -109,6 +133,56 @@ make the switches able to see through if stacked
 ---------------------------------------------------------
 ------------------ web docs -----------------------------
 ---------------------------------------------------------
+
+2022
+
+
+update display page, it is woefully out of date now...
+
+update the history to 2022 in the web page and docs wthe game
+
+add github to the line with the project pages
+maybe downplay itch.io
+
+redo the info on the allegro.cc page
+especially about the sources....
+
+
+
+
+
+
+made a new page for bullets...done
+
+
+updated the copyright at the bottom of the pages
+made a perl script to do that automatically
+update_footer...done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2018 stuff below
+
 
 look into pandoc...
 

@@ -1,0 +1,571 @@
+<!doctype html>
+<title>Bullets</title>
+
+<html>
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    <body>
+
+        
+        
+        <nav class="col-1">
+            
+<mdw_lhs_nav>
+<div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div>
+</mdw_lhs_nav>
+            
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+			
+<mh3><hr></mh3>
+<mh8>Bullets</mh8>
+
+
+<mh3><hr><mdw_file_toc> <a href="bullets.html#Original Method" target="_top">Original Method</a>
+ <a href="bullets.html#New Method" target="_top">New Method</a>
+ <a href="bullets.html#Inputs and Outputs" target="_top">Inputs and Outputs</a>
+ <a href="bullets.html#High Level Method" target="_top">High Level Method</a>
+ <a href="bullets.html#My Brute Force Method" target="_top">My Brute Force Method</a>
+ <a href="bullets.html#Conclusion" target="_top">Conclusion</a>
+ <a href="bullets.html#The Better Solution" target="_top">The Better Solution</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Original Method"></a>
+<mh7>Original Method</mh7>
+<mh3>
+When an enemy shoots a bullet at the player, the bullet was aimed exactly at the player.
+
+</mh3>
+
+<pre><code class="language-cpp">void old_fire_enemy_bulleta(int EN, int bullet_ans, int p)
+{
+   al_fixed xlen = players[p].PX - Efi[EN][0];   // get the x distance between enemy and player
+   al_fixed ylen = players[p].PY - Efi[EN][1];   // get the y distance between enemy and player
+   al_fixed hy_dist =  al_fixhypot(xlen, ylen);  // hypotenuse distance
+   al_fixed speed = Efi[EN][7];                  // speed
+   al_fixed scaler = al_fixdiv(hy_dist, speed);  // get scaler
+   al_fixed xinc = al_fixdiv(xlen, scaler);      // calc xinc
+   al_fixed yinc = al_fixdiv(ylen, scaler);      // calc yinc
+
+   for (int z=0; z<50; z++)  // find empty e_bullet
+      if (!e_bullet_active[z])
+      {
+         e_bullet_active[z] = 1;
+         e_bullet_shape[z] = 1000 + bullet_ans;
+         e_bullet_fx[z] = Efi[EN][0];
+         e_bullet_fy[z] = Efi[EN][1];
+         e_bullet_fxinc[z] = xinc;
+         e_bullet_fyinc[z] = yinc;
+         z=50;
+      }
+}
+</code></pre>
+
+
+<mh3>
+This worked as intended, but if the player moved before the bullet got there, obviously it would miss.
+
+All the player need to do was keep moving and the bullets would miss. They would hit where the player used to be.
+
+</mh3>
+
+
+<br><a name="New Method"></a>
+<mh7>New Method</mh7>
+        
+<mh3>        
+The new method involves the enemy shooting a bullet at where the player will be, not where they currently are.
+
+Assuming the player's motion remains constant, calculate where to shoot the bullet so it will collide with where the player will be.
+
+This turned out to be a rather difficult thing to do, mathematically.
+
+</mh3>
+
+<br><a name="Inputs and Outputs"></a>
+<mh7>Inputs and Outputs</mh7>
+<mh3>
+The inputs are:
+
+bx, by, bspeed (the origin of the bullet and the bullet speed)
+px, py (the players initial position)
+pxinc, pyinc (the player's motion for each frame (time (t))
+
+
+The outputs needed are:
+
+what is required to set the direction of the bullet is:
+bxinc, byinc
+
+
+But I can easily calculate those if I can calculate any one of the following:
+- the time that the collision will take place
+- the coordinates of where the collision will take place
+
+</mh3>
+
+<br><a name="High Level Method"></a>
+<mh7>High Level Method</mh7>
+<mh3>Find the time when the distance the bullet travels equals the distance from the bullet origin to where the player will be.
+
+<img src="images/diag1.png" width=753 height=437 alt="equation">
+
+
+One one side of the equation:
+
+The distance the bullet can travel is simply the bullet speed multiplied by time.
+<img src="images/eq1.png" width=159 height=48 alt="equation">
+
+
+
+
+The other side of the equation is more complicated:
+
+The player's position at time t can be expressed as:
+<img src="images/eq2.png" width=407 height=45 alt="equation">
+
+The distance from that position to the bullet origin looks like this:
+<img src="images/eq3.png" width=632 height=85 alt="equation">
+
+
+
+
+
+The entire equation looks like this:
+<img src="images/eq4.png" width=775 height=79 alt="equation">
+
+
+
+My math skills are not up to the task of solving this equation for t. I don't even know if it is possible.
+
+
+So I resort to a brute force method of trying different values of t until both side of the equation are equal.
+(Or in reality, simply close enough)
+
+
+</mh3>
+
+
+<br><a name="My Brute Force Method"></a>
+<mh7>My Brute Force Method</mh7>
+<mh3>
+I made a function that calculates the difference between both sides of the equation:
+</mh3>
+
+<pre><code class="language-cpp">al_fixed get_distance(al_fixed px, al_fixed py, al_fixed pxinc, al_fixed pyinc,
+                       al_fixed bx, al_fixed by, al_fixed b_speed, al_fixed t)
+{
+   al_fixed px1 = px + al_fixmul(pxinc, t);                   // get the p position at time t
+   al_fixed py1 = py + al_fixmul(pyinc, t);
+   al_fixed p_distance_to_b = al_fixhypot(px1-bx, py1-by);    // distance from p to b
+   al_fixed b_distance = al_fixmul(b_speed, t);               // how far will b travel in time t
+   return (p_distance_to_b - b_distance);                     // difference between distances
+}</code></pre>
+
+<mh3>
+I call this function with different values of t until the difference is close enough to zero.
+
+Originally I just called it in a loop:
+</mh3>
+
+<pre><code class="language-cpp">void fire_enemy_bulleta(int EN, int bullet_ans, int p)
+{
+   al_fixed bx = Efi[EN][0];
+   al_fixed by = Efi[EN][1];
+   al_fixed bspeed = Efi[EN][7];
+
+   al_fixed px = players[p].PX;
+   al_fixed py = players[p].PY;
+   al_fixed pxi = players[p].xinc;
+   al_fixed pyi = players[p].yinc;
+
+   al_fixed t = al_itofix(0);     // start time
+   al_fixed tinc = al_itofix(1);  // time step
+   al_fixed bdif = al_itofix(0);
+
+   for (t=al_itofix(0); t < al_itofix(1000); t+=tinc)
+   {
+      bdif = get_distance(px, py, pxi, pyi, bx, by, bspeed, t);
+      printf("frame:%f bdif:%f\n", al_fixtof(t), al_fixtof(bdif));
+
+      if (( bdif < al_itofix(5)) && (bdif > al_itofix(-5))) // is the difference with the threshold?
+      {
+         al_fixed px1 = px + al_fixmul(pxi, t); // get player target position based on t
+         al_fixed py1 = py + al_fixmul(pyi, t);
+
+         fire_enemy_bulletz(EN, bullet_ans, px1, py1);
+
+         t = al_itofix(1000); // break out of loop
+      }
+   }
+}</code></pre>
+
+
+
+<mh3>
+This worked! As proof of concept I was validated.
+
+But this method had issues.
+
+It took a lot of calls to the function 'get_distance'....hundreds.
+</mh3>
+
+<pre><code class="language-cpp">frame:0.000000 bdif:921.972107
+frame:1.000000 bdif:917.192017
+frame:2.000000 bdif:912.412109
+frame:3.000000 bdif:907.632324
+frame:4.000000 bdif:902.852783
+frame:5.000000 bdif:898.073425
+frame:6.000000 bdif:893.294312
+frame:7.000000 bdif:888.515320
+frame:8.000000 bdif:883.736511
+
+...
+
+frame:188.000000 bdif:25.994385
+frame:189.000000 bdif:21.239990
+frame:190.000000 bdif:16.485840
+frame:191.000000 bdif:11.731689
+frame:192.000000 bdif:6.977661
+frame:193.000000 bdif:2.223755</code></pre>
+
+<mh3>
+If I stepped time faster, I might pass over the time a collision was possible.
+If I stepped time slower, I would have even more calls to 'get_distance'
+
+So I came up with smarter method of searching for t:
+
+I initially search in large steps (like 20 values of t at a time)
+When I overshoot, I reverse direction and make my search size smaller.
+
+With this method I was able to greatly reduce the amount of calls to 'get_distance'
+
+</mh3>
+
+<pre><code class="language-cpp">void fire_enemy_bulleta(int EN, int bullet_ans, int p)
+{
+   al_fixed bx = Efi[EN][0];
+   al_fixed by = Efi[EN][1];
+   al_fixed bspeed = Efi[EN][7];
+
+   al_fixed px = players[p].PX;
+   al_fixed py = players[p].PY;
+   al_fixed pxi = players[p].xinc;
+   al_fixed pyi = players[p].yinc;
+
+   al_fixed f0 = al_itofix(0);    // the number zero in fixed format
+   al_fixed t = f0;               // start time
+   al_fixed tinc = al_itofix(20); // initial time step
+   al_fixed bdif = f0;
+
+   int tries = 0;
+   int done = 0;
+   while (!done)
+   {
+      t+=tinc;
+      bdif = get_distance(px, py, pxi, pyi, bx, by, bspeed, t);
+      printf("frame:%f bdif:%f\n", al_fixtof(t), al_fixtof(bdif));
+
+      if (( bdif < al_itofix(1)) && (bdif > al_itofix(-1))) done = 1; // is the difference with the threshold?
+
+      if (((tinc > f0) && (bdif < f0)) ||       // overshot while t increasing
+          ((tinc < f0) && (bdif > f0)))         // overshot while t decreasing
+         tinc = al_fixdiv(tinc, al_itofix(-2)); // half the increment and reverse direction
+
+      if (tries++ > 50) done = 1; // break out in case something goes wrong
+   }
+   al_fixed px1 = px + al_fixmul(pxi, t); // get player target position based on t
+   al_fixed py1 = py + al_fixmul(pyi, t);
+   fire_enemy_bulletz(EN, bullet_ans, px1, py1);
+
+   printf("number of tries:%d\n", tries);
+}</code></pre>
+
+
+<mh3>
+I can typically get less than 20 and sometimes less than 10
+
+</mh3>
+
+<pre><code class="language-cpp">frame:20.000000 bdif:294.182556
+frame:40.000000 bdif:192.172394
+frame:60.000000 bdif:90.722504
+frame:80.000000 bdif:-10.233490
+frame:70.000000 bdif:40.186554
+frame:75.000000 bdif:14.962494
+frame:80.000000 bdif:-10.233490
+frame:77.500000 bdif:2.361053
+frame:78.750000 bdif:-3.937042
+frame:78.125000 bdif:-0.788208
+number of tries:10
+frame:20.000000 bdif:180.095459
+frame:40.000000 bdif:72.519196
+frame:60.000000 bdif:-16.373444
+frame:50.000000 bdif:25.996521
+frame:55.000000 bdif:4.329865
+frame:60.000000 bdif:-16.373444
+frame:57.500000 bdif:-6.137451
+frame:55.000000 bdif:4.329865
+frame:56.250000 bdif:-0.933289
+number of tries:9
+frame:20.000000 bdif:327.143921
+frame:40.000000 bdif:269.302124
+frame:60.000000 bdif:215.881592
+frame:80.000000 bdif:165.515686
+frame:100.000000 bdif:117.315491
+frame:120.000000 bdif:70.691101
+frame:140.000000 bdif:25.241821
+frame:160.000000 bdif:-19.311768
+frame:150.000000 bdif:2.867004
+frame:155.000000 bdif:-8.245361
+frame:152.500000 bdif:-2.695068
+frame:150.000000 bdif:2.867004
+frame:151.250000 bdif:0.084473
+number of tries:13</code></pre>
+
+<mh3>
+
+I can adjust how accurate of an answer I want by adjusting the threshold
+
+
+</mh3>
+
+<pre><code class="language-cpp">if (( bdif < al_ftofix(.0001)) && (bdif > al_ftofix(-.0001))) done = 1; // is the difference with the threshold?}</code></pre>
+
+
+
+<mh3>
+
+The more accurate I want, the more times 'get_distance' is called:
+
+
+</mh3>
+
+
+<pre><code class="language-cpp">frame:20.000000 bdif:182.598206
+frame:40.000000 bdif:82.949890
+frame:60.000000 bdif:0.315948
+frame:80.000000 bdif:-69.928589
+frame:70.000000 bdif:-36.081940
+frame:60.000000 bdif:0.315948
+frame:65.000000 bdif:-18.233490
+frame:62.500000 bdif:-9.050598
+frame:60.000000 bdif:0.315948
+frame:61.250000 bdif:-4.390808
+frame:60.625000 bdif:-2.043365
+frame:60.000000 bdif:0.315948
+frame:60.312500 bdif:-0.865204
+frame:60.156250 bdif:-0.274994
+frame:60.000000 bdif:0.315948
+frame:60.078125 bdif:0.020386
+frame:60.156250 bdif:-0.274994
+frame:60.117188 bdif:-0.127319
+frame:60.078125 bdif:0.020386
+frame:60.097656 bdif:-0.053467
+frame:60.087891 bdif:-0.016541
+frame:60.078125 bdif:0.020386
+frame:60.083008 bdif:0.001923
+frame:60.087891 bdif:-0.016541
+frame:60.085449 bdif:-0.007324
+frame:60.083008 bdif:0.001923
+frame:60.084229 bdif:-0.002686
+frame:60.083618 bdif:-0.000397
+frame:60.083008 bdif:0.001923
+frame:60.083313 bdif:0.000763
+frame:60.083618 bdif:-0.000397
+frame:60.083466 bdif:0.000183
+frame:60.083542 bdif:-0.000092
+number of tries:33</code></pre>
+
+
+<mh3>
+
+So I can compromise between accuracy and speed.
+
+
+</mh3>
+
+
+
+<br><a name="Conclusion"></a>
+<mh7>Conclusion</mh7>
+<mh3>
+I consider this method a hack. An inelegant, brute force method.
+
+I welcome any feedback on other approaches to this.
+
+Maybe someone better at math knows of a way to solve this equation for t.
+
+<img src="images/eq4.png" width=775 height=79 alt="equation">
+
+Maybe there is an entirely different high level approach that did not even occur to me.
+
+</mh3>
+
+
+
+<br><a name="The Better Solution"></a>
+<mh7>The Better Solution</mh7>
+<mh3>
+After asking for help on the allegro.cc forums I was shown a much better method.
+
+Edgar Reynaldo showed me a quadratic equation to solve for t:
+</mh3>
+
+<pk1>
+Michael, assuming your theory and your math is correct, I solved for t. You'll still have to apply the quadratic equation to solve it though.
+
+ t^2(pvx^2 + pvy^2 - bv^2)
++t^1(2pxpvx + 2pypvy - 2bxpvx - 2bypvy)
++t^0(px^2 + bx^2 + py^2 + by^2 - 2bxpx - 2bypy)
+
+Just apply the quadratic equation now, and you have your values for t.
+
+</pk1>
+
+<mh3>
+
+Peter Hull showed me a similar method with slightly simpler math:
+</mh3>
+<pk1>
+I came up with a quadratic but not quite the same as ER's.
+It cuts down on the maths chores if you set the origin to be where the bullet starts,
+and have the player relative to that, ie. work with x = px - bx and y = py - by instead of (px,py) and (bx,by).
+
+The position of the player at time t is (x + pxinc *t, y + pyinc * t) and the bullet is (bxinc*t, byinc*t).
+Equate the x-coords and y-coords separately, that's three unknowns, bxinc, byinc and t, with two equations
+now add third equation bxinc^2 + byinc^2 = bspeed^2.
+
+bxinc*t = x + pxinc*t (1)
+byinc*t = y + pyinc*t (2)
+bxinc^2 + byinc^2 = bspeed^2 (3)
+
+I found it easiest to rewrite (3) as
+bxinc^2 * t^2 + byinc^2 * t^2 = bspeed^2 * t^2 (4)
+
+Square (1) and (2), substitute them in the LHS of (4)
+(x + pxinc*t)^2 + (y + pyinc*t)^2 = bspeed^2 * t^2
+
+Now you can expand the brackets and it's a quadratic in t.
+
+</pk1>
+
+<mh3>I did the math and came up with:
+
+A = pvx^2 + pvy^2 - bv^2
+B = 2xpvx + 2ypvy
+C = x^2 + y^2
+
+It is slightly simpler.
+
+This is how I patched it into my code:
+</mh3>
+<pre><code class="language-cpp">void fire_enemy_bulleta(int EN, int bullet_ans, int p)
+{
+   float bx = Efi[EN][0];
+   float by = Efi[EN][1];
+   float bv = Efi[EN][7];
+
+   float px  = players[p].PX;
+   float py  = players[p].PY;
+   float pvx = players[p].xinc;
+   float pvy = players[p].yinc;
+
+   // Edgar's method
+   //float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);
+   //float B = 2*(px*pvx) + 2*(py*pvy) -2*(bx*pvx) -2*(by*pvy);
+   //float C = pow(px,2) + pow(bx,2) + pow(py,2) + pow(by,2) - 2*(bx*px) -2*(by*py);
+
+   // Peter's method
+   float x = px-bx;
+   float y = py-by;
+   float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);
+   float B = 2*(x*pvx) + 2*(y*pvy);
+   float C = pow(x,2) + pow(y,2);
+
+   float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
+   al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
+   al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
+   fire_enemy_bulletz(EN, bullet_ans, px1, py1);
+}</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2022, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+                
+                
+                
+                
+                
+        </div>
+    </body>
+
+</html>

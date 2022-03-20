@@ -346,30 +346,6 @@ int find_closest_player(int EN)
       }
    return closest_player;
 }
-
-void old_fire_enemy_bulleta(int EN, int bullet_ans, int p)
-{
-   al_fixed xlen = players[p].PX - Efi[EN][0];   // get the x distance between enemy and player
-   al_fixed ylen = players[p].PY - Efi[EN][1];   // get the y distance between enemy and player
-   al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-   al_fixed speed = Efi[EN][7];                  // speed
-   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
-   al_fixed xinc = al_fixdiv(xlen, scaler);        // calc xinc
-   al_fixed yinc = al_fixdiv(ylen, scaler);        // calc yinc
-
-   for (int z=0; z<50; z++)  // find empty e_bullet
-      if (!e_bullet_active[z])
-      {
-         e_bullet_active[z] = 1;
-         e_bullet_shape[z] = 1000 + bullet_ans;
-         e_bullet_fx[z] = Efi[EN][0];
-         e_bullet_fy[z] = Efi[EN][1];
-         e_bullet_fxinc[z] = xinc;
-         e_bullet_fyinc[z] = yinc;
-         z=50;
-      }
-}
-
 void fire_enemy_bulletz(int EN, int bullet_ans, al_fixed px, al_fixed py)
 {
    al_fixed xlen = px - Efi[EN][0];   // get the x distance between enemy and player
@@ -392,65 +368,34 @@ void fire_enemy_bulletz(int EN, int bullet_ans, al_fixed px, al_fixed py)
          z=50;
       }
 }
-
-al_fixed get_distance(al_fixed px, al_fixed py, al_fixed pxinc, al_fixed pyinc,
-                       al_fixed bx, al_fixed by, al_fixed b_speed, al_fixed t)
-{
-   al_fixed px1 = px + al_fixmul(pxinc, t);                   // get the p position at time t
-   al_fixed py1 = py + al_fixmul(pyinc, t);
-   al_fixed p_distance_to_b = al_fixhypot(px1-bx, py1-by);    // distance from p to b
-   al_fixed b_distance = al_fixmul(b_speed, t);               // how far will b travel in time t
-   return (p_distance_to_b - b_distance);                     // difference between distances
-}
-
 void fire_enemy_bulleta(int EN, int bullet_ans, int p)
 {
-   al_fixed bx = Efi[EN][0];
-   al_fixed by = Efi[EN][1];
-   al_fixed bspeed = Efi[EN][7];
+   float bx = Efi[EN][0];
+   float by = Efi[EN][1];
+   float bv = Efi[EN][7];
 
-   al_fixed px = players[p].PX;
-   al_fixed py = players[p].PY;
-   al_fixed pxi = players[p].xinc;
-   al_fixed pyi = players[p].yinc;
+   float px  = players[p].PX;
+   float py  = players[p].PY;
+   float pvx = players[p].xinc;
+   float pvy = players[p].yinc;
 
-   al_fixed f0 = al_itofix(0);    // the number zero in fixed format
-   al_fixed t = f0;               // start time
-   al_fixed tinc = al_itofix(20); // initial time step
-   al_fixed bdif = f0;
+   // Edgar's method
+   //float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);
+   //float B = 2*(px*pvx) + 2*(py*pvy) -2*(bx*pvx) -2*(by*pvy);
+   //float C = pow(px,2) + pow(bx,2) + pow(py,2) + pow(by,2) - 2*(bx*px) -2*(by*py);
 
-   int tries = 0;
-   int done = 0;
-   while (!done)
-   {
-      t+=tinc;
-      bdif = get_distance(px, py, pxi, pyi, bx, by, bspeed, t);
-     // printf("frame:%f bdif:%f\n", al_fixtof(t), al_fixtof(bdif));
+   // Peter's method
+   float x = px-bx;
+   float y = py-by;
+   float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);
+   float B = 2*(x*pvx) + 2*(y*pvy);
+   float C = pow(x,2) + pow(y,2);
 
-      if (( bdif < al_itofix(1)) && (bdif > al_itofix(-1))) done = 1; // is the difference with the threshold?
-
-      //if (( bdif < al_ftofix(.0001)) && (bdif > al_ftofix(-.0001))) done = 1; // is the difference with the threshold?
-
-      if (((tinc > f0) && (bdif < f0)) ||       // overshot while t increasing
-          ((tinc < f0) && (bdif > f0)))         // overshot while t decreasing
-         tinc = al_fixdiv(tinc, al_itofix(-2)); // half the increment and reverse direction
-
-      if (tries++ > 100) done = 1; // break out in case something goes wrong
-   }
-   al_fixed px1 = px + al_fixmul(pxi, t); // get player target position based on t
-   al_fixed py1 = py + al_fixmul(pyi, t);
+   float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
+   al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
+   al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
    fire_enemy_bulletz(EN, bullet_ans, px1, py1);
-
-/* show where the target position is
-   tx1 = al_fixtoi(px1);
-   ty1 = al_fixtoi(py1);
-   ttc1 = 15;
-   //ttfloat1 = al_fixtof(bdif);
-   ttfloat1 = (float) tries;
-*/
-
 }
-
 
 void fire_enemy_x_bullet(int EN, int p)
 {

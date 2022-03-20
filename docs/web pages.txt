@@ -1,0 +1,109 @@
+How to work with web pages:
+
+
+
+
+
+
+
+
+
+I have some perl scripts tp help me rebuild the indexes
+I don't remember how to use them...
+
+
+
+20220319
+I just added a new page
+bullets
+and I want to add it to the indexes
+
+
+On github:
+
+created a new repo called mweiss001.github.io
+
+cloned that to c:/web
+
+copied all the files there and commited back
+on github the branch was main and on my computer it was master so I had to merge
+finally the webpages work!!!!
+
+
+I made some changes in the local copy at c:/web
+Committed them back to github
+
+Then I had to go to my github page and create a pull request...then merge
+
+I think has to do with branches called master and main...??
+
+
+
+Install perl
+
+strawberry-perl-5.32.1.1-64bit.msi
+
+looks like it worked
+
+copy web folder to safe place to try playing with it....
+
+cd to tempweb folder
+
+perl mh7.pl
+
+
+mh7.pl
+shows all mh7 tags and in what files
+
+make_toc.pl
+iterates all .html files
+makes a TOC at the top of each based on mh7 tags in that file...
+
+update_lhs_nav.pl
+
+copies the contents of the file lhs_nav.html and inserts in in every .html file
+edit the file first...
+
+
+
+OK, now I have 2 copies of web on my dev machine
+
+one is in the c:\pm\web folder
+
+the other is c:\web
+
+I want to reconcile them so I only have one
+
+can I do a git folder inside another one??
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
