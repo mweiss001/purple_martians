@@ -79,6 +79,13 @@ can I do a git folder inside another one??
 
 
 
+I renamed the default branch for https://github.com/mweiss001/mweiss001.github.io to master
+now my commits go a lot smoother...no pull requests and the like...
+
+
+I still really want to have these web pages served from the main project
+why did that not work??
+
 
 
 
