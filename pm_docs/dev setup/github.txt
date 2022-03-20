@@ -167,14 +167,21 @@ and should redirect to the new one
 The new one is: https://mweiss001.github.io/purple_martians/
 and it works fine
 
-
 I should just be able to make changes and commit my project, and the web pages will change too.
 
+yes! everything works fine!!
+
+This is my project documentation webpage link:
+https://mweiss001.github.io/purple_martians/
 
 
+This is my project page on github:
+https://github.com/mweiss001/purple_martians
 
 
+I should make a link from the webpage to the project page
 
+I should update allegro.cc page
 
 
 

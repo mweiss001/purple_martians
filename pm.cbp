@@ -171,24 +171,14 @@
 				</Linker>
 			</Target>
 		</Build>
-		<Unit filename="docs/new5.txt">
-			<Option target="win_static" />
-			<Option target="win_static_release" />
-			<Option target="ldm" />
-			<Option target="ldm_release" />
-		</Unit>
-		<Unit filename="docs/new5_todo.txt">
-			<Option target="win_static" />
-			<Option target="win_static_release" />
-			<Option target="ldm" />
-			<Option target="ldm_release" />
-		</Unit>
 		<Unit filename="icon.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="win_dynamic" />
 			<Option target="win_static" />
 			<Option target="win_static_release" />
 		</Unit>
+		<Unit filename="pm_docs/new5.txt" />
+		<Unit filename="pm_docs/new5_todo.txt" />
 		<Unit filename="src/e_bitmap.cpp" />
 		<Unit filename="src/e_editor_main.cpp" />
 		<Unit filename="src/e_editor_zfs.cpp" />

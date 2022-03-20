@@ -12119,6 +12119,30 @@ void old_fire_enemy_bulleta(int EN, int bullet_ans, int p)
 
 
 
+------------------------------------------------------
+figure out how to do a windows release
+
+run the batch file...
+
+that seemed to work
+
+published a new release 7.1.1-win on github
+
+
+make my doc pages point at main page
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
