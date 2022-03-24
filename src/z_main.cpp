@@ -143,8 +143,14 @@ int game_move_current_pos = 0; // for savegame running only
 // ------------------------------------------------
 // ------------- screen messages ------------------
 // ------------------------------------------------
-char b_msg[40][80];
-int bottom_msg=0;
+int bottom_msg_on = 1;
+int bottom_msg = 0;
+int bmsg_index = 0;
+ALLEGRO_BITMAP *bmsg_bmp[20] = {NULL};
+ALLEGRO_BITMAP *bmsg_bmp2[20] = {NULL};
+int game_event_retrigger_holdoff[10];
+ALLEGRO_BITMAP *bmsg_temp;
+
 
 // ------------------------------------------------
 // -----------status and selection window----------
@@ -317,9 +323,6 @@ ALLEGRO_BITMAP *text_title = NULL;
 int text_title_bitmaps_create = 1;
 int text_title_draw_color = -1;
 
-ALLEGRO_BITMAP *bmsg_bmp[20] = {NULL};
-ALLEGRO_BITMAP *bmsg_bmp2[20] = {NULL};
-int bmsg_index = 0;
 
 // ------------------------------------------------
 // ----------------- logging ----------------------
@@ -414,6 +417,7 @@ int e_num_of_type[50];
 int e_first_num[50];
 char enemy_name[20][40];
 int num_enemy;
+int enemy_tile[20];
 
 // PDE
 int PDEi[100][32];
@@ -1280,6 +1284,7 @@ int main(int argument_count, char **argument_array)
    if (initial_setup())
    {
 
+
 // --------------------------------------------------------------------------------------------
 // these flags get processed after allegro is initialized
 // --------------------------------------------------------------------------------------------
@@ -1288,6 +1293,7 @@ int main(int argument_count, char **argument_array)
    //spline_test();
    //spline_adjust();
 
+   //scaled_tile_test();
 
       if (argument_count == 2) // example 'pmwin arg1'
       {
@@ -1472,7 +1478,7 @@ int copy_files_to_clients(int exe_only)
 //   sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
 
 
-   sprintf(client[num_clients++], "\\\\4230w\\pm_client15");  // 54230w ubuntu 20.04
+   sprintf(client[num_clients++], "\\\\4230j\\pm_client3");  // 4230j win 7
 
 
 //   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden

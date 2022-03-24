@@ -1,4 +1,4 @@
-// zsrn_overlay.cpp
+// z_screen_overlay.cpp
 
 #include "pm.h"
 
@@ -495,9 +495,35 @@ void draw_top_display(void)
    }
 }
 
+
+
+
+void dtextout(const char *txt1, int x, int y, int col)
+{
+   int sw = strlen(txt1) * 8;      // string length in pixels
+   int sh = 8;                     // string height in pixels
+
+   ALLEGRO_BITMAP *temps = NULL;
+   temps = al_create_bitmap(sw,sh);
+   al_set_target_bitmap(temps);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_draw_text(font, palette_color[col], 0, 0, 0, txt1 );
+
+   al_set_target_bitmap(bmsg_temp);
+   al_draw_scaled_bitmap(temps, 0, 0, sw, sh, x, y, sw*2, sh*2, 0);
+   al_destroy_bitmap(temps);
+}
+
+
+
+
+
+
+
+
 void clear_bmsg(void)
 {
-   for (int c=0; c<40; c++) b_msg[c][0] = 0;
    for (int c=0; c<20; c++)
    {
       al_set_target_bitmap(bmsg_bmp[c]);
@@ -506,162 +532,328 @@ void clear_bmsg(void)
    }
    bmsg_index = 0;
    bottom_msg = 0;
+
+  for (int i=0; i<10; i++)
+     game_event_retrigger_holdoff[i] = 0;
+}
+
+int bmsg_show_text(const char *txt, int col, int bmsg_length)
+{
+   dtextout(txt, bmsg_length, 2, col);
+   return (strlen(txt)*16);
 }
 
 
-void new_bmsg(const char *nb, int p, int p2, int ev)
+int bmsg_draw_player(int p, int bmsg_length)
 {
-   bottom_msg = 120;
-//   if (strcmp(b_msg[0], nb) != 0) // if last two are not the same
+   int len = 0;
+   if (0) // 'Player x'
    {
-      // slide_bmsg
-      for (int c=39; c>0; c--)
-         strcpy(b_msg[c], b_msg[c-1]);
-      sprintf(b_msg[0], "%s", nb);
+      sprintf(msg, "Player %d", p);
+      len += bmsg_show_text(msg, players[p].color, bmsg_length);
+   }
+
+   if (1) // player tile
+   {
+      al_draw_bitmap(player_tile[players[p].color][1], bmsg_length + len, 0, 0); // draw shape
+      len += 20;
+   }
+
+   if (0) // 'Player x' and tile
+   {
+      sprintf(msg, "Player %d ", p);
+      len += bmsg_show_text(msg, players[p].color, bmsg_length + len);
+      al_draw_bitmap(player_tile[players[p].color][1], bmsg_length + len, 0, 0); // draw shape
+      len += 20;
+   }
+   return len;
+}
+
+
+int bmsg_draw_tile(int tn, int bmsg_length)
+{
+   al_draw_bitmap(tile[tn], bmsg_length, 0, 0);
+   return 20;
+}
+
+
+int bmsg_draw_enemy(int e_type, int bmsg_length)
+{
+   if (0) // enemy name
+   {
+      al_draw_textf(font, palette_color[15], bmsg_length*8, 0, 0, "%s", enemy_name[e_type]);
+      return (strlen(enemy_name[e_type])*16);
+   }
+
+   if (1) // enemy tile
+   {
+      bmsg_draw_tile(enemy_tile[e_type], bmsg_length);
+      return 20;
+   }
+}
+
+
+int bmsg_show_health(int h, int bmsg_length)
+{
+   int col = 9;
+   if (h < 0) col = 10;
+   sprintf(msg, " Health %+d", h);
+   bmsg_length += bmsg_show_text(msg, col, bmsg_length);
+   return (strlen(msg)*16);
+}
+
+
+void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
+{
+   if (ev == 3) // exit
+   {
+      if (game_event_retrigger_holdoff[1] < frame_num)  game_event_retrigger_holdoff[1] = frame_num + 60;
+      else ev = 0;
+   }
+
+   if (ev == 50) // mine
+   {
+      if (game_event_retrigger_holdoff[2] < frame_num)  game_event_retrigger_holdoff[2] = frame_num + 20;
+      else ev = 0;
+   }
+
+   if ((ev != 0) && (ev != 1) && (ev != 15) && (ev != 22) && (ev != 31) ) // events that don't have bmsg handler
+   {
+      int bmsg_length = 0; // keep a running total
+      int custom_drawn = 0;
 
       bmsg_index++;
       if (bmsg_index > 19) bmsg_index = 0;
 
-      int col = players[p].color;
-
-
-      al_set_target_bitmap(bmsg_bmp[bmsg_index]);
+      bmsg_temp = al_create_bitmap(800, 20); // create a temp bitmap
+      al_set_target_bitmap(bmsg_temp);
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      // draw entire string in white
-      al_draw_text(font, palette_color[15], 200, 0, ALLEGRO_ALIGN_CENTER, nb);
+      bmsg_length += bmsg_draw_player(z1, bmsg_length); // all start with player
 
-      // draw 'Player x' (first 8 char) in player color
-      char tmsg[80];
-      strcpy(tmsg, nb);
-      for (unsigned int x=8; x<strlen(nb); x++) tmsg[x] = 32; // copy spaces
-      al_draw_text(font, palette_color[col], 200, 0, ALLEGRO_ALIGN_CENTER, tmsg);
-
-      // draw 2nd 'Player x' (14-22   8 char) in 2nd player color
-      if (ev == 40) // player shot player
+      if (ev == 5) // player went through a door
       {
-         int c2 = players[p2].color;
-         strcpy(tmsg, nb);
-         for (unsigned int x=0; x<14; x++) tmsg[x] = 32; // copy spaces
-         for (unsigned int x=22; x<strlen(nb); x++) tmsg[x] = 32; // copy spaces
-         al_draw_text(font, palette_color[c2], 200, 0, ALLEGRO_ALIGN_CENTER, tmsg);
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" went through a door", 15, bmsg_length);
       }
 
-      if (ev == 52) // player exploded player
+      if (ev == 24) // player lit bomb
       {
-         int c2 = players[p2].color;
-         strcpy(tmsg, nb);
-         for (unsigned int x=0; x<18; x++) tmsg[x] = 32; // copy spaces
-         for (unsigned int x=26; x<strlen(nb); x++) tmsg[x] = 32; // copy spaces
-         al_draw_text(font, palette_color[c2], 200, 0, ALLEGRO_ALIGN_CENTER, tmsg);
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" lit a bomb ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_tile(465, bmsg_length);
+         sprintf(msg, " with %d sec fuse",  z3);
+         bmsg_length += bmsg_show_text(msg, 15, bmsg_length);
+      }
+
+      if (ev == 25) // player armed a bomb with a remote detonator
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" armed a bomb ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_tile(538, bmsg_length);
+         bmsg_length += bmsg_show_text(" with remote detonator ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_tile(539, bmsg_length);
+      }
+
+      if (ev == 26) // player lit rocket
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" lit a rocket ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_tile(249, bmsg_length);
       }
 
 
-      al_convert_mask_to_alpha(bmsg_bmp[bmsg_index], al_map_rgb(0, 0, 0)) ;
-      al_set_target_backbuffer(display);
-
-      // convert array to array2 and re-arrange order
-      int tc = 0;
-      // cycle from 1-index to 1-min
-      for (int c=bmsg_index; c>=0; c--)
+      if (ev == 3) // player tried to exit
       {
-         bmsg_bmp2[tc] = bmsg_bmp[c];
-         tc++;
+         custom_drawn = 1;
+         if (z3 == 1) sprintf(msg, " tried to exit with 1 enemy left");
+         else sprintf(msg, " tried to exit with %d enemies left",  z3);
+         bmsg_length += bmsg_show_text(msg, 15, bmsg_length);
       }
-      // cycle from 1-max to 1-index
-      for (int c=19; c>bmsg_index; c--)
+
+      if (ev == 2) // key
       {
-         bmsg_bmp2[tc] = bmsg_bmp[c];
-         tc++;
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" got a ", 15, bmsg_length);
+
+         int c1 =0;  // color
+         int tn = 0; // tile_numer
+         int k = item[z2][1] - 1039;
+         char tmsg[20] = {0};
+         if (k == 0) { sprintf(tmsg, "red");    c1 = 10; tn = 272; } // red
+         if (k == 1) { sprintf(tmsg, "green");  c1 = 11; tn = 279; } // green
+         if (k == 2) { sprintf(tmsg, "blue");   c1 = 13; tn = 288; } // blue
+         if (k == 3) { sprintf(tmsg, "purple"); c1 = 8;  tn = 295; } // purple
+
+         bmsg_length += bmsg_show_text(tmsg, c1, bmsg_length);
+         bmsg_length += bmsg_show_text(" key ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_tile(tn, bmsg_length);
+    }
+
+      if (ev == 30) // switch
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" flipped a ", 15, bmsg_length);
+
+         int c1 =0;  // color
+         int tn = 0; // tile_numer
+         int k = item[z2][10] - 172;
+         char tmsg[20] = {0};
+
+         if (k == 0) { sprintf(tmsg, "green");  c1 = 9;  tn = 745; } // green
+         if (k == 1) { sprintf(tmsg, "red");    c1 = 10; tn = 777; } // red
+         if (k == 2) { sprintf(tmsg, "blue");   c1 = 12; tn = 809; } // blue
+         if (k == 3) { sprintf(tmsg, "purple"); c1 = 8;  tn = 841; } // purple
+
+         bmsg_length += bmsg_show_text(tmsg, c1, bmsg_length);
+         bmsg_length += bmsg_show_text(" switch ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_tile(tn, bmsg_length);
       }
-   }
-}
 
-void draw_bottom_msg()
-{
-   //int type = 1; // old style - may cause low fps, due to scaled drawing and target bitmap changes
-   int type = 2; // new style - faster but not as fancy (idk...looks better to me!!!)
-
-   bottom_msg = 100;
-
-   if (type == 1)
-   {
-      if (--bottom_msg > 0)
+      if (ev == 40) // player got shot by another player
       {
-         int a;
-         int nb = 8;    // NUM_BOTTOM_MSG_LINES
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" got shot by ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_player(z2, bmsg_length);
+         bmsg_length += bmsg_show_health(-z4, bmsg_length);
+      }
 
-         float chs = 1.3; // current h size
-         float hss = .20;  // h size step
+      if (ev == 41) // player shot themself
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" shot themself!", 15, bmsg_length);
+         bmsg_length += bmsg_show_health(-z4, bmsg_length);
+      }
+      if (ev == 43) // player got shot by enemy
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" got shot by ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_enemy(z2, bmsg_length);
+         bmsg_length += bmsg_show_health(-z4, bmsg_length);
+      }
+      if (ev == 44) // player got shot by bullet
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" got hit by ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_enemy(Ei[z2][0], bmsg_length);
+         bmsg_length += bmsg_show_health(-z4, bmsg_length);
+      }
+      if (ev == 50) // player hit a mine
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" hit a mine ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_tile(456, bmsg_length);
+         bmsg_length += bmsg_show_health(-z4, bmsg_length);
+      }
+      if (ev == 52) // player exploded another player
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" exploded ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_player(z2, bmsg_length);
+         bmsg_length += bmsg_show_health(-z4, bmsg_length);
+      }
+      if (ev == 53) // player exploded themself
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" exploded themself ", 15, bmsg_length);
+         bmsg_length += bmsg_show_health(-z4, bmsg_length);
+      }
+      if (ev == 54) // player got squished
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" got squished ", 15, bmsg_length);
+         bmsg_length += bmsg_show_health(-z4, bmsg_length);
+      }
+      if (ev == 56) // player got stuck
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" got stuck ", 15, bmsg_length);
+         bmsg_length += bmsg_show_health(-z4, bmsg_length);
+      }
+      if (ev == 60) // player killed enemy with a bullet
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" killed ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_enemy(Ei[z2][0], bmsg_length);
+         bmsg_length += bmsg_show_text(" with a bullet.", 15, bmsg_length);
+      }
+      if (ev == 62) // player killed enemy with explosion
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" killed ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_enemy(Ei[z2][0], bmsg_length);
+         bmsg_length += bmsg_show_text(" with explosion!", 15, bmsg_length);
+      }
+      if (ev == 70) // player got a free man
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" got a free man! ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_tile(265, bmsg_length);
+      }
+      if (ev == 72) // player got a health bonus
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" picked up a Health Bonus! ", 15, bmsg_length);
+         int bt = z3;
+         if (z3 == 1023) bt = 304;
+         if (z3 == 1027) bt = 240;
+         bmsg_length += bmsg_draw_tile(bt, bmsg_length);
+         bmsg_length += bmsg_show_health(z4, bmsg_length);
+      }
+      if (ev == 80) // player joined
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" joined!", 15, bmsg_length);
+      }
+      if (ev == 81) // player quit
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" quit!", 15, bmsg_length);
+      }
+      if (ev == 90) // player died
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" died!", 15, bmsg_length);
+      }
 
-         float cvs = 1.3; // current v size
-         float vss = .15;  // v size step
 
-         int cc = 15;  // current color
-         int ci = 32;  // color inc use  only 16, 32, 48, 64 etc
+      if (custom_drawn) // caught by one of the handlers here
+      {
+         al_set_target_bitmap(bmsg_bmp[bmsg_index]);
+         al_clear_to_color(al_map_rgb(0, 0, 0));
+         al_draw_bitmap(bmsg_temp, (400 - (bmsg_length/2)), 0, 0);
 
-         //float ypos = SCREEN_H - BORDER_WIDTH - (chs*8);
-         float ypos = SCREEN_H - (chs*8);
-         for (a=0; a< nb; a++)
+         al_convert_mask_to_alpha(bmsg_bmp[bmsg_index], al_map_rgb(0, 0, 0)) ;
+         al_set_target_backbuffer(display);
+
+         // convert array to array2 to re-arrange order...this does not actually copy anything except pointers!
+         int tc = 0;
+         // cycle from 1-index to 1-min
+         for (int c=bmsg_index; c>=0; c--)
          {
-            mtextout_centre(b_msg[a], SCREEN_W/2, (int)ypos, cvs, chs, cc);
-            chs = chs - hss;
-            cvs = cvs - vss;
-            cc = cc + ci;
-            float xh = (chs*8);
-            ypos -= xh;
+            bmsg_bmp2[tc] = bmsg_bmp[c];
+            tc++;
+         }
+         // cycle from 1-max to 1-index
+         for (int c=19; c>bmsg_index; c--)
+         {
+            bmsg_bmp2[tc] = bmsg_bmp[c];
+            tc++;
          }
       }
-      else bottom_msg = 0;
-   }
-   if (type == 2)
-   {
-      if (--bottom_msg > 0)
+      else
       {
-         int nb = 20;  // number of bottom message lines to display (max 20)
-         int sw = 400; // string length in pixels
-         int sh = 8;   // string height in pixels
-         float x = SCREEN_W/2 - 10;
-
-         float io = 1.0; // initial opacity
-         float fo = 0.0; // final opacity
-         float oss = (io - fo) / (float) nb;  // opacity step
-         float co = io; // current opacity
-
-         float ihs = 1.0; // initial h size
-         float fhs = 0.3; // final h size
-         float hss = (ihs - fhs) / (float) nb;  // h size step
-         float chs = ihs; // current h size
-         float y = SCREEN_H - ihs*8 - 1;
-
-         float ivs = 1.0; // initial v size
-         float fvs = 0.3; // final v size
-         float vss = (ivs - fvs) / (float) nb;  // v size step
-         float cvs = ivs; // current v size
-
-         for (int m=0; m<nb; m++)
-         {
-            float dw = cvs * 400;
-            float dh = chs * 8;
-            ALLEGRO_COLOR col = al_map_rgba_f(co, co, co, co);
-            al_draw_tinted_scaled_bitmap(bmsg_bmp2[m], col, 0, 0, sw, sh, x-dw/2, y, dw, dh, 0);
-            co -= oss;
-            cvs -= vss;
-            chs -= hss;
-            y -= dh;
-         }
+         printf(" no bmsg handler for event:%d\n",ev);
+        // 1-shoot  15-jump  22-explosion  31-sproingy
       }
-      else bottom_msg = 0;
+      al_destroy_bitmap(bmsg_temp); // destroy the temp bitmap
    }
 }
-
-
-
-
 
 
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
+   if (bottom_msg_on) new_bmsg(ev, x, y, z1, z2, z3, z4); // pass everything to new_bmgs and do it there
    if (sound_on)
    {
          /*  sample numbers
@@ -714,69 +906,62 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
          break;
       }
    }
+}
 
-   int bottom_msg_on = 1;
+
+
+
+
+
+
+
+
+
+
+void draw_bottom_msg()
+{
    if (bottom_msg_on)
    {
-      switch (ev)
+      bottom_msg = 100; // always draw
+      if (bottom_msg > 0)
       {
-         case 2: // key
+         //bottom_msg--;
+         int nb = 20;  // number of bottom message lines to display (max 20)
+         int sw = 800; // string length in pixels
+         int sh = 20;  // string height in pixels
+         float x = SCREEN_W/2 - 10;
+
+         float io = 1.0; // initial opacity
+         float fo = 0.1; // final opacity
+         float oss = (io - fo) / (float) nb;  // opacity step
+         float co = io; // current opacity
+
+         float ivs = 0.5; // initial v size
+         float fvs = 0.1; // final v size
+         float vss = (ivs - fvs) / (float) nb;  // v size step
+         float cvs = ivs; // current v size
+         float y = SCREEN_H - ivs*20 - 1;
+
+         float ihs = 0.5; // initial h size
+         float fhs = 0.1; // final h size
+         float hss = (ihs - fhs) / (float) nb;  // v size step
+         float chs = ihs; // current v size
+
+         for (int m=0; m<nb; m++)
          {
-            char tmsg[20] = {0};
-            int k = item[z2][1] - 1039;
-            if (k == 0) sprintf(tmsg, "red ");
-            if (k == 1) sprintf(tmsg, "green ");
-            if (k == 2) sprintf(tmsg, "blue ");
-            if (k == 3) sprintf(tmsg, "purple ");
-            sprintf(msg, "Player %d got a %skey.", z1, tmsg);
-            new_bmsg(msg, z1, z2, ev);
+            float dw = chs * 800;
+            float dh = cvs * 20;
+            ALLEGRO_COLOR col = al_map_rgba_f(co, co, co, co);
+            al_draw_tinted_scaled_bitmap(bmsg_bmp2[m], col, 0, 0, sw, sh, x-dw/2, y, dw, dh, 0);
+            co -= oss;
+            cvs -= vss;
+            chs -= hss;
+            y -= dh;
          }
-         break;
-
-         case  3: // tried to exit
-            if (z3 == 1) sprintf(msg, "Player %d tried to exit. 1 enemy left.", z1);
-            else sprintf(msg, "Player %d tried to exit. %d enemies left.", z1, z3);
-            new_bmsg(msg, z1, z2, ev);
-         break;
-
-         case  5: sprintf(msg, "Player %d went through a door.", z1); new_bmsg(msg, z1, z2, ev); break;
-         case 24: sprintf(msg, "Player %d lit #%d bomb with %d sec fuse.", z1, z2, z3);  new_bmsg(msg, z1, z2, ev); break;
-
-         case 25: sprintf(msg, "Player %d armed #%d bomb with remote.", z1, z2);  new_bmsg(msg, z1, z2, ev); break;
-
-         case 26: sprintf(msg, "Player %d lit a rocket.", z1);  new_bmsg(msg, z1, z2, ev); break;
-
-         case 30: // switch
-         {
-            char tmsg[20] = {0};
-            int k = item[z2][10] - 172;
-            if (k == 0) sprintf(tmsg, "green ");
-            if (k == 1) sprintf(tmsg, "red ");
-            if (k == 2) sprintf(tmsg, "blue ");
-            if (k == 3) sprintf(tmsg, "purple ");
-            sprintf(msg, "Player %d flipped a %sswitch.", z1, tmsg);
-            new_bmsg(msg, z1, z2, ev);
-         }
-         break;
-
-         case 40: sprintf(msg, "Player %d shot Player %d. Health -%d.", z2, z1, z4); new_bmsg(msg, z2, z1, ev); break;
-         case 41: sprintf(msg, "Player %d shot themself. Duh! Health -%d.", z1, z4); new_bmsg(msg, z1, z2, ev); break;
-         case 43: sprintf(msg, "Player %d got shot by %s. Health -%d.", z1, enemy_name[z2], z4); new_bmsg(msg, z1, z2, ev); break;
-         case 44: sprintf(msg, "Player %d hit by %s. Health -%d.", z1, enemy_name[Ei[z2][0]], z4); new_bmsg(msg, z1, z2, ev); break;
-
-         case 50: sprintf(msg, "Player %d hit a mine. Health -%d.", z1, z4); new_bmsg(msg, z1, z2, ev); break;
-         case 52: sprintf(msg, "Player %d exploded Player %d. Health -%d.", z2, z1, z4); new_bmsg(msg, z2, z1, ev); break;
-
-         case 53: sprintf(msg, "Player %d exploded themself. Health -%d.", z1, z4); new_bmsg(msg, z1, z2, ev); break;
-
-         case 54: sprintf(msg, "Player %d got squished.", z1); new_bmsg(msg, z1, z2, ev); break;
-         case 56: sprintf(msg, "Player %d got stuck.", z1); new_bmsg(msg, z1, z2, ev); break;
-
-         case 60: sprintf(msg, "Player %d killed %s with a bullet.", z1, enemy_name[Ei[z2][0]]); new_bmsg(msg, z1, z2, ev); break;
-         case 62: sprintf(msg, "Player %d killed %s with explosion.", z1, enemy_name[Ei[z2][0]]); new_bmsg(msg, z1, z2, ev); break;
-
-         case 70: sprintf(msg, "Player %d got a free man.", z1); new_bmsg(msg, z1, z2, ev); break;
-         case 90: sprintf(msg, "Player %d died.", z1); new_bmsg(msg, z1, z2, ev); break;
       }
    }
 }
+
+
+
+

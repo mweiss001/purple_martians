@@ -676,7 +676,7 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 17: sul=100;  sll=0;  sinc=1;   sdx=Ei[num][12];          break;  // jump before wall
       case 18: sul=40;   sll=0;  sinc=1;   sdx=Ei[num][11];          break;  // Jump before hole
       case 19: sul=20;   sll=.8; sinc=.1;  sdx=al_fixtof(Efi[num][7]);  break;  // bullet speed
-      case 20: sul=600;  sll=20; sinc=1;   sdx=Ei[num][17];          break;  // bullet prox
+      case 20: sul=2000; sll=20; sinc=1;   sdx=Ei[num][17];          break;  // bullet prox
       case 21: sul=200;  sll=1;  sinc=1;   sdx=Ei[num][15];          break;  // retrigger time
       case 22: sul=12;   sll=0;  sinc=.01; sdx=al_fixtof(Efi[num][5]);  break;  // cannon speed
       case 23: sul=100;  sll=0;  sinc=1;   sdx=Ei[num][8];           break;  // seek count

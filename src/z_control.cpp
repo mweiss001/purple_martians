@@ -423,7 +423,7 @@ void function_key_check(void)
             if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) frame_speed -=100;
             else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) frame_speed -=20;
             else frame_speed -= 1;
-            if (frame_speed < 10) frame_speed = 10;
+            if (frame_speed < 5) frame_speed = 5;
             set_speed();
          }
          if (!key[ALLEGRO_KEY_F7]) KEY_F7_held = 0;
@@ -669,6 +669,9 @@ void proc_player_state_game_move(int x)
       show_player_join_quit_player = p;
       show_player_join_quit_jq = 1;
 
+      game_event(80, 0, 0, p, 0, 0, 0);
+
+
       if ((ima_server) || (ima_client))
          if (p != active_local_player) players[p].control_method = 2;
 
@@ -752,6 +755,8 @@ void proc_player_state_game_move(int x)
          show_player_join_quit_timer = 60;
          show_player_join_quit_player = p;
          show_player_join_quit_jq = 0;
+         game_event(81, 0, 0, p, 0, 0, 0);
+
       }
 
       if ((L_LOGGING_NETPLAY) && ((ima_client) || (ima_server)) && (game_exit) )
@@ -831,6 +836,24 @@ void serial_key_check(int key)
          printf("test matched!!!\n");
 
    }
+
+
+   sprintf(tst, "bmsgon");
+   tl = strlen(tst);
+   if (skc_index > tl-1)
+   {
+      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+          bottom_msg_on = 1;
+   }
+
+   sprintf(tst, "bmsgoff");
+   tl = strlen(tst);
+   if (skc_index > tl-1)
+   {
+      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+          bottom_msg_on = 0;
+   }
+
 
    sprintf(tst, "ston");
    tl = strlen(tst);

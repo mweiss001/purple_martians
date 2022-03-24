@@ -63,7 +63,6 @@ void remove_block(int x, int y)
    al_draw_bitmap(tile[0], x*20, y*20, 0);
 }
 
-
 void draw_pop_message(int i)
 {
    al_set_target_bitmap(level_buffer);
@@ -166,9 +165,6 @@ void draw_door(int i, int x, int y)
    }
 }
 
-
-
-
 int seq_color(int mod, int c1, int c2)
 {
    int col = c1; // initial color
@@ -229,8 +225,6 @@ int seq_color2(void)
    return ca[mod];
 }
 
-
-
 int seq_color3(void)
 {
    int ca[20];
@@ -273,8 +267,6 @@ void bomb_block_crosshairs(int e, int f)
    }
 }
 
-
-
 void bomb_blocks(int i, int t, int dr, al_fixed fx, al_fixed fy)
 {
    // center of bomb
@@ -307,7 +299,6 @@ void bomb_blocks(int i, int t, int dr, al_fixed fx, al_fixed fy)
          }
       }
 }
-
 
 void bomb_crosshairs(float x, float y)
 {
@@ -355,10 +346,6 @@ void bomb_enemies(int i, int t, int dr, al_fixed x, al_fixed y)
       }
 }
 
-
-
-
-
 void bomb_players(int i, int t, int dr, al_fixed x, al_fixed y)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -392,7 +379,6 @@ void bomb_players(int i, int t, int dr, al_fixed x, al_fixed y)
       }
    }
 }
-
 
 void proc_lit_bomb(int i)
 {
@@ -449,6 +435,7 @@ void proc_lit_bomb(int i)
       }
    }
 }
+
 void draw_lit_bomb(int i)
 {
    int x = al_fixtoi(itemf[i][0]);
@@ -527,8 +514,6 @@ void draw_lit_bomb(int i)
    // debug show sequence numbers
    //al_draw_textf(font, palette_color[15], x, y-20, 0, "%d / %d  %f ", item[i][8], item[i][9], (float)item[i][8]/(float)item[i][9]);
 }
-
-
 
 void draw_rocket_lines(int i)
 {
@@ -697,8 +682,6 @@ void draw_items(void)
       } // end of active item iterate
 }
 
-
-
 int is_item_stuck_to_wall(int i)
 {
    int x = al_fixtoi(itemf[i][0]);
@@ -706,8 +689,6 @@ int is_item_stuck_to_wall(int i)
    if ( (is_left_solid(x,y, 0)) || (is_right_solid(x,y, 0)) || (is_down_solid(x,y, 0)) || (is_up_solid(x,y, 0)) ) return 1;
    return 0;
 }
-
-
 
 void move_items()
 {
@@ -900,7 +881,6 @@ void move_items()
       } // end of iterate all active items
 }
 
-
 int player_drop_item(int p)
 {
    int i = players[p].carry_item-1; // number of item
@@ -982,7 +962,6 @@ void proc_player_carry(int p)
          }
       }
 }
-
 
 void proc_door_collision(int p, int i)
 {
@@ -1155,6 +1134,8 @@ void proc_bonus_collision(int p, int i)
       item[i][0] = 0;
       players[p].LIFE += al_itofix(item[i][7]);
       if (players[p].LIFE > f100) players[p].LIFE = f100;
+
+      game_event(72, 0, 0, p, i, item[i][1], item[i][7]);
    }
 }
 
@@ -1228,7 +1209,6 @@ void proc_bomb_collision(int p, int i)
    }
 }
 
-
 void proc_rocket_collision(int p, int i)
 {
    item[i][0] = 98;   // new type - lit rocket
@@ -1299,8 +1279,6 @@ void proc_sproingy_collision(int p, int i)
       players[p].yinc = al_itofix(0) - al_fixdiv(al_itofix(item[i][7]), al_ftofix(7.1));
    }
 }
-
-
 
 void proc_item_collision(int p, int i)
 {

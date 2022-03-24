@@ -298,9 +298,6 @@ int create_key(int c)
    else return 1;
 }
 
-
-
-
 int create_start_block(int c)
 {
    if (getxy("Put Start Location", 2, 5, c) == 1)
@@ -339,10 +336,6 @@ int create_exit(int c)
    }
    else return 0;
 }
-
-
-
-
 
 void show_all_pmsg(void)
 {
@@ -400,8 +393,6 @@ void show_all_pmsg(void)
    al_flip_display();
    tsw(); // wait for keypress
 }
-
-
 
 void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, int show_line_breaks)
 {
@@ -489,8 +480,6 @@ void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, i
    }
 }
 
-
-
 int create_pmsg(int c)
 {
    item[c][0] = 10 ;  // type 10 - msg
@@ -531,12 +520,6 @@ int create_pmsg(int c)
    if (bad) return 0;
    else return 1;
 }
-
-
-
-
-
-
 
 int create_door(int type)
 {
@@ -707,9 +690,6 @@ int create_door(int type)
    }
    return sort_item();
 }
-
-
-
 
 int create_item(int type)
 {

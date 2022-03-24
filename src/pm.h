@@ -184,10 +184,13 @@ extern int game_move_current_pos;
 // ------------------------------------------------
 // ------------- screen messages ------------------
 // ------------------------------------------------
-
-extern char b_msg[40][80];
+extern int bottom_msg_on;
 extern int bottom_msg;
-
+extern int bmsg_index;
+extern ALLEGRO_BITMAP *bmsg_bmp[20];
+extern ALLEGRO_BITMAP *bmsg_bmp2[20];
+extern ALLEGRO_BITMAP *bmsg_temp;
+extern int game_event_retrigger_holdoff[10];
 
 
 
@@ -369,9 +372,6 @@ extern int text_title_bitmaps_create;
 extern int text_title_draw_color;
 
 
-extern ALLEGRO_BITMAP *bmsg_bmp[20];
-extern ALLEGRO_BITMAP *bmsg_bmp2[20];
-extern int bmsg_index;
 
 
 
@@ -653,6 +653,8 @@ extern int e_num_of_type[50];
 extern int e_first_num[50];
 extern char enemy_name[20][40];
 extern int num_enemy;
+
+extern int enemy_tile[20];
 
 // PDE
 extern int PDEi[100][32];
@@ -1153,6 +1155,9 @@ void mdw_an(void);
 void spline_test(void);
 void redraw_spline(int s);
 void spline_adjust(void);
+
+void scaled_tile_test(void);
+
 
 // z_loop.h
 void proc_frame_delay(void);

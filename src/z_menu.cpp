@@ -629,6 +629,15 @@ void menu_setup(void)
    strcpy (enemy_name[11], "Block Walker");
    strcpy (enemy_name[12], "Flapper");
 
+   enemy_tile[3]  = 496;
+   enemy_tile[4]  = 508;
+   enemy_tile[6]  = 415;
+   enemy_tile[7]  = 374;
+   enemy_tile[8]  = 384;
+   enemy_tile[9]  = 550;
+   enemy_tile[11] = 866;
+   enemy_tile[12] = 159;
+
    strcpy (color_name[0], "Zombie");
    strcpy (color_name[1], "Violet");
    strcpy (color_name[2], "Mauve");

@@ -948,9 +948,6 @@ int move_obt_with_map(int obt, int type, int num)
    return num;
 }
 
-
-
-
 void object_viewer(int obt, int num)
 {
    int ret = 0;
@@ -1277,8 +1274,23 @@ void object_viewer(int obt, int num)
 
                   a+=2; // leave space for OK and Cancel buttons
 
+
+
+                  // show all messages
+                  for (int ii=0; ii<500; ii++)
+                     if (item[ii][0] == 10) display_pop_message(ii, pmsg[ii], 3000, 3000, 0, 0); // show the message
+
+
                   pop_msg_viewer_pos = ty+a*bts+bts/2+2;
                   display_pop_message(num, pmsg[num], txc, pop_msg_viewer_pos, 0, 0); // show the message
+
+
+
+
+
+
+
+
 
                break;
                case 11: // rocket

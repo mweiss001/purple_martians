@@ -80,7 +80,7 @@ void create_bmp(void)
    // bottom msg bitmaps
    for (int x=0; x<20; x++)
    {
-      bmsg_bmp[x] = al_create_bitmap(400, 8);
+      bmsg_bmp[x] = al_create_bitmap(800, 20);
       bmsg_bmp2[x] = bmsg_bmp[x];
    }
 }
