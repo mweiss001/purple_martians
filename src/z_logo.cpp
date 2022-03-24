@@ -824,6 +824,12 @@ void redraw_spline(int s)
    }
 }
 
+
+
+
+
+
+
 void spline_adjust(void)
 {
    int current_spline = 0;
@@ -885,3 +891,685 @@ void spline_adjust(void)
       }
    }
 }
+
+/*
+
+int sct[64][5];
+
+ALLEGRO_BITMAP *bmsg_icon;
+
+
+void draw_tile_double(int ct, int x, int y, int db)
+{
+   int tn = sct[ct][0];
+   int sx = sct[ct][1];
+   int sy = sct[ct][2];
+   int sw = sct[ct][3];
+   int sh = sct[ct][4];
+
+   al_draw_scaled_bitmap(tile[tn], 0, 0, 20, 20, x, y, db*20, db*20, 0); // draw shape
+
+   al_draw_textf(font, palette_color[15], x+10*db, y-10, ALLEGRO_ALIGN_CENTRE, "Source Tile %d", tn);
+
+
+   al_draw_textf(font, palette_color[15], x+10, y+20*db+10, 0, "sx:%d", sx);
+   al_draw_textf(font, palette_color[15], x+10, y+20*db+18, 0, "sy:%d", sy);
+   al_draw_textf(font, palette_color[15], x+10, y+20*db+26, 0, "sw:%d", sw);
+   al_draw_textf(font, palette_color[15], x+10, y+20*db+34, 0, "sh:%d", sh);
+
+
+
+
+   //show all gridlines
+   for (int i=0; i<21; i++)
+   {
+      al_draw_line(x, y+i*db, x+20*db, y+i*db, palette_color[15], 0);
+      al_draw_line(x+i*db, y, x+i*db, y+20*db, palette_color[15], 0);
+   }
+   // show source box
+   al_draw_rectangle(x+sx*db, y+sy*db, x+(sx+sw)*db, y+(sy+sh)*db, palette_color[14], 1 );
+
+   // show ul and lr control points
+   al_draw_circle(x+sx*db, y+sy*db, 4, palette_color[14], 0 );
+   al_draw_circle(x+(sx+sw)*db, y+(sy+sh)*db, 4, palette_color[14], 0 );
+
+
+
+}
+
+
+
+void draw_st_double(ALLEGRO_BITMAP *st, int x, int y, int db)
+{
+   int stw = al_get_bitmap_width(st);
+   int sth = al_get_bitmap_height(st);
+
+   al_draw_scaled_bitmap(st, 0, 0, stw, sth, x, y, stw*db, sth*db, 0); // draw shape
+
+   al_draw_textf(font, palette_color[15], x + (db*stw)/2, y-10, ALLEGRO_ALIGN_CENTRE, "%d x %d", stw, sth);
+
+
+   //show all gridlines
+   for (int i=0; i<stw+1; i++)
+   {
+      al_draw_line(x, y+i*db, x+stw*db, y+i*db, palette_color[15], 0);
+      al_draw_line(x+i*db, y, x+i*db, y+stw*db, palette_color[15], 0);
+   }
+}
+
+
+
+void show_new_tiles(int x, int y, int db)
+{
+   al_set_target_bitmap(bmsg_icon);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   for (int i=0; i<64; i++)
+   {
+      int tn = sct[i][0];
+      int sx = sct[i][1];
+      int sy = sct[i][2];
+      int sw = sct[i][3];
+      int sh = sct[i][4];
+      al_set_target_bitmap(bmsg_icon);
+      al_draw_scaled_bitmap(tile[tn], sx, sy, sw, sh, i*8, 0, 8, 8, 0); // draw shape
+
+      al_set_target_backbuffer(display);
+      al_draw_scaled_bitmap(tile[tn], sx, sy, sw, sh, x+i*8, y-10, 8, 8, 0); // draw shape
+
+
+   }
+   al_set_target_backbuffer(display);
+   al_draw_scaled_bitmap(bmsg_icon, 0, 0, 512, 8, x, y, 512*db, 8*db, 0); // draw shape
+
+}
+
+
+
+
+
+
+void check_sct_bounds(int ct)
+{
+
+   if (sct[ct][1] < 0) sct[ct][1] = 0;
+   if (sct[ct][2] < 0) sct[ct][2] = 0;
+   if (sct[ct][1] > 20) sct[ct][1] = 20;
+   if (sct[ct][2] > 20) sct[ct][2] = 20;
+
+   // prevent adjusting tl from pushing lr over 20
+   if (sct[ct][1] + sct[ct][3] > 20) sct[ct][3] = 20 - sct[ct][1];
+   if (sct[ct][2] + sct[ct][4] > 20) sct[ct][4] = 20 - sct[ct][2];
+}
+
+
+
+
+
+void scaled_tile_test(void)
+{
+   // show what tiles look like when they are scaled
+
+   for (int i=0; i<64; i++)
+      for (int j=0; j<5; j++) sct[i][j] = 0;
+
+   for (int i=0; i<64; i++ )
+   {
+      sct[i][3] = 20;
+      sct[i][4] = 20;
+   }
+
+
+   sct[0][0] = 496; // archwagon
+   sct[0][1] = 0;   // source x
+   sct[0][2] = 2;   // source y
+   sct[0][3] = 20;  // source w
+   sct[0][4] = 17;  // source h
+
+   sct[1][0] = 508; // bouncer
+   sct[1][1] = 1;   // source x
+   sct[1][2] = 0;   // source y
+   sct[1][3] = 18;  // source w
+   sct[1][4] = 20;  // source h
+
+   sct[2][0] = 415; // cannon
+   sct[2][1] = 3;   // source x
+   sct[2][2] = 1;   // source y
+   sct[2][3] = 14;  // source w
+   sct[2][4] = 17;  // source h
+
+   sct[3][0] = 374; // podzilla
+   sct[3][1] = 2;   // source x
+   sct[3][2] = 1;   // source y
+   sct[3][3] = 16;  // source w
+   sct[3][4] = 18;  // source h
+
+   sct[4][0] = 384; // trakbot
+   sct[4][1] = 0;   // source x
+   sct[4][2] = 0;   // source y
+   sct[4][3] = 18;  // source w
+   sct[4][4] = 20;  // source h
+
+   sct[5][0] = 550; // cloner
+   sct[5][1] = 0;   // source x
+   sct[5][2] = 0;   // source y
+   sct[5][3] = 20;  // source w
+   sct[5][4] = 20;  // source h
+
+   sct[6][0] = 866; // block walker
+   sct[6][1] = 0;   // source x
+   sct[6][2] = 0;   // source y
+   sct[6][3] = 20;  // source w
+   sct[6][4] = 20;  // source h
+
+   sct[7][0] = 159; // flapper
+   sct[7][1] = 1;   // source x
+   sct[7][2] = 0;   // source y
+   sct[7][3] = 17;  // source w
+   sct[7][4] = 14;  // source h
+
+
+
+   sct[9][0] = 249; // rocket
+   sct[9][1] = 0;   // source x
+   sct[9][2] = 0;   // source y
+   sct[9][3] = 20;  // source w
+   sct[9][4] = 20;  // source h
+
+   sct[10][0] = 465; // bomb
+   sct[10][1] = 0;   // source x
+   sct[10][2] = 0;   // source y
+   sct[10][3] = 20;  // source w
+   sct[10][4] = 20;  // source h
+
+   sct[11][0] = 537; // bomb with detonator
+   sct[11][1] = 0;   // source x
+   sct[11][2] = 0;   // source y
+   sct[11][3] = 20;  // source w
+   sct[11][4] = 20;  // source h
+
+   sct[12][0] = 538; // bomb with no detonator
+   sct[12][1] = 0;   // source x
+   sct[12][2] = 0;   // source y
+   sct[12][3] = 20;  // source w
+   sct[12][4] = 20;  // source h
+
+   sct[13][0] = 539; // detonator
+   sct[13][1] = 2;   // source x
+   sct[13][2] = 0;   // source y
+   sct[13][3] = 16;  // source w
+   sct[13][4] = 16;  // source h
+
+
+
+   sct[14][0] = 400; // player 0
+   sct[14][1] = 0;   // source x
+   sct[14][2] = 0;   // source y
+   sct[14][3] = 20;  // source w
+   sct[14][4] = 20;  // source h
+
+   sct[15][0] = 401; // player 1
+   sct[15][1] = 0;   // source x
+   sct[15][2] = 0;   // source y
+   sct[15][3] = 20;  // source w
+   sct[15][4] = 20;  // source h
+
+
+   sct[16][0] = 928; // banana
+   sct[16][1] = 3;   // source x
+   sct[16][2] = 0;   // source y
+   sct[16][3] = 17;  // source w
+   sct[16][4] = 20;  // source h
+
+   sct[17][0] = 929; // apple
+   sct[17][1] = 0;   // source x
+   sct[17][2] = 0;   // source y
+   sct[17][3] = 20;  // source w
+   sct[17][4] = 20;  // source h
+
+   sct[18][0] = 930; // white flower
+   sct[18][1] = 0;   // source x
+   sct[18][2] = 0;   // source y
+   sct[18][3] = 20;  // source w
+   sct[18][4] = 20;  // source h
+
+   sct[19][0] = 931; // purple flower
+   sct[19][1] = 0;   // source x
+   sct[19][2] = 0;   // source y
+   sct[19][3] = 20;  // source w
+   sct[19][4] = 20;  // source h
+
+   sct[20][0] = 932; // blue cherries
+   sct[20][1] = 0;   // source x
+   sct[20][2] = 0;   // source y
+   sct[20][3] = 20;  // source w
+   sct[20][4] = 20;  // source h
+
+   sct[21][0] = 933; // carrot
+   sct[21][1] = 0;   // source x
+   sct[21][2] = 0;   // source y
+   sct[21][3] = 20;  // source w
+   sct[21][4] = 20;  // source h
+
+   sct[22][0] = 934; // red flower
+   sct[22][1] = 0;   // source x
+   sct[22][2] = 0;   // source y
+   sct[22][3] = 20;  // source w
+   sct[22][4] = 20;  // source h
+
+   sct[23][0] = 304; // 10 potion
+   sct[23][1] = 1;   // source x
+   sct[23][2] = 0;   // source y
+   sct[23][3] = 19;  // source w
+   sct[23][4] = 20;  // source h
+
+   sct[24][0] = 240; // 50 potion
+   sct[24][1] = 1;   // source x
+   sct[24][2] = 0;   // source y
+   sct[24][3] = 19;  // source w
+   sct[24][4] = 20;  // source h
+
+   sct[25][0] = 265; // free man
+   sct[25][1] = 0;   // source x
+   sct[25][2] = 0;   // source y
+   sct[25][3] = 19;  // source w
+   sct[25][4] = 20;  // source h
+
+
+   sct[26][0] = 398; // exit
+   sct[26][1] = 1;   // source x
+   sct[26][2] = 0;   // source y
+   sct[26][3] = 20;  // source w
+   sct[26][4] = 19;  // source h
+
+
+   sct[27][0] = 367; // locked exit
+   sct[27][1] = 1;   // source x
+   sct[27][2] = 0;   // source y
+   sct[27][3] = 19;  // source w
+   sct[27][4] = 20;  // source h
+
+
+   sct[28][0] = 456; // mine
+   sct[28][1] = 2;   // source x
+   sct[28][2] = 2;   // source y
+   sct[28][3] = 16;  // source w
+   sct[28][4] = 16;  // source h
+
+
+
+   sct[32][0] = 960; // yellow diamond
+   sct[32][1] = 0;   // source x
+   sct[32][2] = 4;   // source y
+   sct[32][3] = 20;  // source w
+   sct[32][4] = 16;  // source h
+
+   sct[33][0] = 961; // red diamond
+   sct[33][1] = 0;   // source x
+   sct[33][2] = 4;   // source y
+   sct[33][3] = 20;  // source w
+   sct[33][4] = 16;  // source h
+
+   sct[34][0] = 962; // white diamond
+   sct[34][1] = 0;   // source x
+   sct[34][2] = 4;   // source y
+   sct[34][3] = 20;  // source w
+   sct[34][4] = 16;  // source h
+
+   sct[35][0] = 963; // purple diamond
+   sct[35][1] = 0;   // source x
+   sct[35][2] = 4;   // source y
+   sct[35][3] = 20;  // source w
+   sct[35][4] = 16;  // source h
+
+   sct[36][0] = 964; // blue diamond
+   sct[36][1] = 0;   // source x
+   sct[36][2] = 4;   // source y
+   sct[36][3] = 20;  // source w
+   sct[36][4] = 16;  // source h
+
+   sct[37][0] = 965; // orange diamond
+   sct[37][1] = 0;   // source x
+   sct[37][2] = 4;   // source y
+   sct[37][3] = 20;  // source w
+   sct[37][4] = 16;  // source h
+
+   sct[38][0] = 966; // green diamond
+   sct[38][1] = 0;   // source x
+   sct[38][2] = 4;   // source y
+   sct[38][3] = 20;  // source w
+   sct[38][4] = 16;  // source h
+
+
+
+   sct[48][0] = 272; // red key
+   sct[48][1] = 1;   // source x
+   sct[48][2] = 5;   // source y
+   sct[48][3] = 19;  // source w
+   sct[48][4] = 10;  // source h
+
+   sct[49][0] = 279; // green key
+   sct[49][1] = 1;   // source x
+   sct[49][2] = 5;   // source y
+   sct[49][3] = 19;  // source w
+   sct[49][4] = 10;  // source h
+
+   sct[50][0] = 288; // blue key
+   sct[50][1] = 1;   // source x
+   sct[50][2] = 5;   // source y
+   sct[50][3] = 19;  // source w
+   sct[50][4] = 10;  // source h
+
+   sct[51][0] = 295; // purple key
+   sct[51][1] = 1;   // source x
+   sct[51][2] = 5;   // source y
+   sct[51][3] = 19;  // source w
+   sct[51][4] = 10;  // source h
+
+
+   sct[52][0] = 745; // green switch
+   sct[52][1] = 2;   // source x
+   sct[52][2] = 2;   // source y
+   sct[52][3] = 17;  // source w
+   sct[52][4] = 18;  // source h
+
+   sct[53][0] = 777; // red switch
+   sct[53][1] = 2;   // source x
+   sct[53][2] = 2;   // source y
+   sct[53][3] = 17;  // source w
+   sct[53][4] = 18;  // source h
+
+   sct[54][0] = 809; // blue switch
+   sct[54][1] = 2;   // source x
+   sct[54][2] = 2;   // source y
+   sct[54][3] = 17;  // source w
+   sct[54][4] = 18;  // source h
+
+   sct[55][0] = 841; // purple switch
+   sct[55][1] = 2;   // source x
+   sct[55][2] = 2;   // source y
+   sct[55][3] = 17;  // source w
+   sct[55][4] = 18;  // source h
+
+
+
+
+
+   int ct = 0; //current tile index
+
+   int tn = sct[ct][0];
+   int sx = sct[ct][1];
+   int sy = sct[ct][2];
+   int sw = sct[ct][3];
+   int sh = sct[ct][4];
+
+
+   bmsg_icon = al_create_bitmap(512, 8);
+
+
+
+   ALLEGRO_BITMAP *t88;
+   t88 = al_create_bitmap(8, 8);
+
+   ALLEGRO_BITMAP *t1010;
+   t1010 = al_create_bitmap(10, 10);
+
+   al_set_target_backbuffer(display);
+   int quit = 0;
+   while (!quit)
+   {
+      al_hide_mouse_cursor(display);
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_show_mouse_cursor(display);
+      al_rest(0.02);
+      proc_controllers();
+
+
+
+      sx = sct[ct][1];
+      sy = sct[ct][2];
+      sw = sct[ct][3];
+      sh = sct[ct][4];
+
+
+      // position of the big source tile and double
+      int bstx = 10;
+      int bsty = 20;
+      int bstd = 16;
+
+      int bstx2 = bstx + (bstd*20);
+      int bsty2 = bsty + (bstd*20);
+
+
+      // draw the big source tile
+      draw_tile_double(ct, bstx, bsty, bstd);
+
+
+      int mx = mouse_x;
+      int my = mouse_y;
+
+
+      if ((mx > bstx-1) && (mx < bstx2+bstd) && (my > bsty-1) && (my < bstx2+bstd)) // mouse on bst ?
+      {
+         al_draw_rectangle(bstx-1, bsty-1, bstx2+1, bsty2+1, palette_color[10], 1 ); // highlight the big source tile
+         mx += bstd/2;
+         my += bstd/2;
+         int mbx = (mx - bstx) / bstd;
+         int mby = (my - bsty) / bstd;
+         //al_draw_circle(bstx + (mbx * bstd), bsty + (mby * bstd), 4, palette_color[12], 0); // show where the mouse is
+         if ((mbx == sct[ct][1]) && (mby == sct[ct][2])) // mouse on ul point ?
+         {
+            al_draw_circle(bstx + (mbx * bstd), bsty + (mby * bstd), 6, palette_color[10], 2); // highlight ul to show it can be moved
+            while (mouse_b1)
+            {
+               al_hide_mouse_cursor(display);
+               draw_tile_double(ct, bstx, bsty, bstd); // draw the big source tile
+               // al_draw_textf(font, palette_color[15], bstx + 10, bsty2+80, 0, "%d -  %d", mbx, mby);
+               al_flip_display();
+               al_clear_to_color(al_map_rgb(0,0,0));
+               al_show_mouse_cursor(display);
+               proc_controllers();
+               al_rest(0.02);
+               mx = mouse_x + bstd/2;
+               my = mouse_y + bstd/2;
+               mbx = (mx - bstx) / bstd;
+               mby = (my - bsty) / bstd;
+               sct[ct][1] = mbx;
+               sct[ct][2] = mby;
+               check_sct_bounds(ct);
+            }
+         }
+         if ((mbx == sx+sw) && (mby == sy+sh)) // mouse on ul point?
+         {
+            al_draw_circle(bstx + (mbx * bstd), bsty + (mby * bstd), 6, palette_color[10], 2); // highlight lr to show it can be moved
+            while (mouse_b1)
+            {
+               al_hide_mouse_cursor(display);
+               draw_tile_double(ct, bstx, bsty, bstd); // draw the big source tile
+               //al_draw_textf(font, palette_color[15], bstx + 10, bsty2+80, 0, "%d -  %d", mbx, mby);
+               al_flip_display();
+               al_clear_to_color(al_map_rgb(0,0,0));
+               al_show_mouse_cursor(display);
+               proc_controllers();
+               al_rest(0.02);
+               mx = mouse_x + bstd/2;
+               my = mouse_y + bstd/2;
+               mbx = (mx - bstx) / bstd;
+               mby = (my - bsty) / bstd;
+               sct[ct][3] = mbx - sct[ct][1];
+               sct[ct][4] = mby - sct[ct][2];
+               check_sct_bounds(ct);
+            }
+         }
+      }
+
+      int tsx = 10;
+      int tsy = 400;
+      int tsx2 = tsx + 320;
+      int tsy2 = tsy + 80;
+
+
+      // draw tile select 16 x 4
+      for (int i=0; i<16; i++)
+      {
+         al_draw_bitmap(tile[sct[i   ][0]], tsx+i*20, tsy,    0);
+         al_draw_bitmap(tile[sct[i+16][0]], tsx+i*20, tsy+20, 0);
+         al_draw_bitmap(tile[sct[i+32][0]], tsx+i*20, tsy+40, 0);
+         al_draw_bitmap(tile[sct[i+48][0]], tsx+i*20, tsy+60, 0);
+      }
+      al_draw_rectangle(tsx-1, tsy-1, tsx2+1, tsy2+1, palette_color[15], 1 ); // outline tile select
+
+      al_draw_text(font, palette_color[15], tsx + 160, tsy-10, ALLEGRO_ALIGN_CENTRE, "Tile Select");
+
+
+      if ((mx > tsx-1) && (mx < tsx2+1) && (my > tsy-1) && (my < tsy2+1)) // mouse on tile select
+      {
+         al_draw_rectangle(tsx-2, tsy-2, tsx2+2, tsy2+2, palette_color[10], 1 ); // highlight tile select
+
+         int mbx = (mx - tsx) / 20; // what tile is mouse pointing at?
+         int mby = (my - tsy) / 20;
+
+         al_draw_rectangle(tsx+mbx*20, tsy+mby*20, tsx+mbx*20+20, tsy+mby*20+20, palette_color[10], 1 ); // highlight tile select
+
+         while (mouse_b1)
+         {
+            proc_controllers();
+            ct = mby*16 + mbx;
+         }
+
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      tn = sct[ct][0];
+      sx = sct[ct][1];
+      sy = sct[ct][2];
+      sw = sct[ct][3];
+      sh = sct[ct][4];
+
+      // scale to 8x8
+      al_set_target_bitmap(t88);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_draw_scaled_bitmap(tile[tn], sx, sy, sw, sh, 0, 0, 8, 8, 0);
+
+      // scale to 10x10
+      al_set_target_bitmap(t1010);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_draw_scaled_bitmap(tile[tn], sx, sy, sw, sh, 0, 0, 10, 10, 0);
+
+
+
+
+      al_set_target_backbuffer(display);
+
+      draw_st_double(t1010, 400, 40, 10);
+      draw_st_double(t88,   400, 200, 10);
+
+      show_new_tiles(10, 600, 1);
+
+      show_new_tiles(10, 640, 2);
+
+
+
+
+
+
+
+
+
+
+
+      if (key[ALLEGRO_KEY_M])
+      {
+         while (key[ALLEGRO_KEY_M]) proc_controllers();
+
+      }
+
+
+      if (key[ALLEGRO_KEY_W])
+      {
+         while (key[ALLEGRO_KEY_W]) proc_controllers();
+
+         if (++ct > 15) ct =0;
+      }
+
+
+      if (key[ALLEGRO_KEY_UP])
+      {
+         while (key[ALLEGRO_KEY_UP]) proc_controllers();
+         if (mode == 0) sct[ct][2]-=1;
+         if (mode == 1) sct[ct][4]-=1;
+      }
+
+
+
+      if (key[ALLEGRO_KEY_DOWN])
+      {
+         while (key[ALLEGRO_KEY_DOWN])proc_controllers();
+         if (mode == 0) sct[ct][2]+=1;
+         if (mode == 1) sct[ct][4]+=1;
+      }
+
+      if (key[ALLEGRO_KEY_RIGHT])
+      {
+         while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();
+         if (mode == 0) sct[ct][1]+=1;
+         if (mode == 1) sct[ct][3]+=1;
+      }
+      if (key[ALLEGRO_KEY_LEFT])
+      {
+         while (key[ALLEGRO_KEY_LEFT]) proc_controllers();
+         if (mode == 0) sct[ct][1]-=1;
+         if (mode == 1) sct[ct][3]-=1;
+
+      }
+
+
+
+      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
+      {
+         proc_controllers();
+         quit = 1;
+      }
+
+      check_sct_bounds(ct);
+
+   }
+   al_destroy_bitmap(t88);
+   al_destroy_bitmap(t1010);
+   al_destroy_bitmap(bmsg_icon);
+}
+
+
+*/

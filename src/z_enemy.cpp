@@ -1,5 +1,4 @@
-// zemove.cpp
-
+// z_enemy.cpp
 #include "pm.h"
 
 int enemy_data(int x_pos, int y_pos)
@@ -34,7 +33,6 @@ void get_enemy_draw_shape(int e)
 //      al_draw_textf(font, palette_color[10], 10, 6, ALLEGRO_ALIGN_CENTER, "%d" ,Ei[e][5] );
 }
 
-
 void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color)
 {
    al_set_clipping_rectangle(x1-1, y1-1, x2-x1+1, y2-y1+1);
@@ -52,8 +50,6 @@ void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int s
 
    al_reset_clipping_rectangle();
 }
-
-
 
 void draw_enemies(void)
 {
@@ -380,6 +376,10 @@ void enemy_player_hit_proc(int e)
    }
   else Ei[e][22] = 0;
 }
+
+
+
+
 
 void enemy_killed(int e)
 {

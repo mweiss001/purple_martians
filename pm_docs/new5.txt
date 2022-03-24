@@ -12136,6 +12136,181 @@ make my doc pages point at main page
 
 
 
+BUG--------------------------------------------------------------------
+
+level 62 jumping from top of ladder warps through solid block to the left???
+
+test on level 329
+immediately above ladder have a semi solid block
+jump off the ladder while holding up
+
+When player is climbing ladder they are blocked by semi-solid above
+If they then jump everything works fine.
+But if they hold [UP] and jump they try to grab ladder again and trigger
+code that happens only when player is first grabbing ladder
+
+
+I think its because ladder up moves don't recognize semi-solid because they use the new is_solid_fm type.
+There is code about when a player get on a ladder initially that checks to see if the player is embedded in a wall.
+This is getting triggered by the semi solid and pushing the player left until they are free.
+
+show ladders that could be grabbed
+
+on ladder, up pressed, jump pressed
+
+
+
+trace what happens the instant jump is pressed while on ladder
+
+move player() calls
+proc_player_ladder() which calls
+proc_player_ladder_move()
+
+where this happens:
+
+
+   if (players[p].jump)
+   {
+      players[p].on_ladder = 0;
+      al_fixed initial_jump_velocity = al_ftofix(6.6);
+      if (players[p].up) players[p].PY += al_ftofix(2.6);
+      players[p].yinc = -initial_jump_velocity;
+      return;
+   }
+
+
+what the hell is this line?
+
+if (players[p].up) players[p].PY += al_ftofix(2.6);
+
+if up then move the player down??
+
+this is how I fixed it:
+   if (players[p].jump)
+   {
+      players[p].on_ladder = 0;
+      players[p].yinc = al_ftofix(-6.6); // initial_jump_velocity;
+      players[p].PY += players[p].yinc;  // make the first move here
+      return;
+   }
+
+fixed the bug...as long as it doesn't cause any unforseen complictaions it is fixed
+
+
+increase archwagon bullet prox upper limit from 600 to 2000...done...
+
+
+
+-----------------------------------------------
+Bug
+----------------------------------------------------
+small letters to show how much health you lost on player, -20 shows as -2
+only for mines...how do they work again?
+
+void proc_mine_collision(int p, int i)
+{
+   players[p].LIFE -= al_itofix(item[i][8]) / 10;
+   game_event(50, 0, 0, p, i, 0, item[i][8]);
+}
+
+with enemies they have a hold off before they can damage the player again
+
+         int p = Ei[e][22]-1;
+         players[p].LIFE -= Efi[e][4];
+
+         game_event(44, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
+         Ei[e][22] = 0;  // clear hit
+         Ei[e][23] = 60; // set retrigger amount
+
+
+should I change mines to be like enemies? with a hold off?
+
+leave it...not really a bug
+
+
+
+show all pop-messages at once to assist with aligning in level editor....done
+
+
+
+
+
+when duplicate bmsgs occur, edit the last one and add x2 x3 etc to it....
+
+not that simple
+
+// make new structure to hold all of the data
+I could keep it forever like a log file
+
+only show the last 20 or so as bmsg
+and consolidate like types
+
+which ones repeat??
+
+mines
+exit when not allowed
+
+
+
+right now all the variable that are used are:
+
+char b_msg[40][80];
+int bottom_msg=0;
+
+
+I propose a simple solution of an array of structs
+
+
+
+extern struct bmsg bmsgs[100];
+
+struct bmsg
+{
+   char txt[80];
+   int ev
+   int frame
+   int p1
+   int p2
+};
+
+
+there are bitmaps that go with each one too???
+
+ALLEGRO_BITMAP *bmsg_bmp[20] = {NULL};
+ALLEGRO_BITMAP *bmsg_bmp2[20] = {NULL};
+int bmsg_index = 0;
+
+what is index used for??
+so that I don't have to redraw all the text bitmaps
+I just use a circular index
+
+this looks way to hard...I just want to cut down on a lot of duplicates
+
+if I stored just ev and player....
+
+
+I should make a function that build the bmsg bitmap
+instead of going back and replacing text with coloured text, do it the first time.
+
+what would the function look like?
+
+it would go somewhere between event and where event calls add_bmgs
+
+why don't I just make event pass everything to add_bmg and do it there?
+
+done...
+
+next... draw uncentered while building colored line then center it after...
+
+make a temp bitmap for that...
+400x8
+
+now I need to keep track of how wide the bitmap is so I can center it
+
+
+keep the text in bmsg for now, if for no other reason than to compare for doubles
+
+do all the real drawing in second part...
 
 
 
@@ -12143,6 +12318,188 @@ make my doc pages point at main page
 
 
 
+
+
+player collison with enemy
+Ei[e][22] = p+1;
+
+player collison with bullet:
+only has e_type
+
+   int e_type = 0;
+   switch (e_bullet_shape[b])
+   {
+      case 488:   e_type = 3;  damage = 5;  break; // arrow
+      case 489:   e_type = 3;  damage = 5;  break; // arrow
+      case 1055:  e_type = 6;  damage = 7;  break; // cannon ball
+      case 1020:  e_type = 8;  damage = 9;  break; // yellow things
+      case 1054:  e_type = 7;  damage = 10; break; // green ball
+      case 1062:  e_type = 12; damage = 8;  break; // flapper thing
+   }
+
+   game_event(43, 0, 0, p, e_type, 0, damage);
+
+so in bmsg I will ne tp convert e number to etype for enemy collisions..
+
+
+
+I'm getting a lot of these done, but I want to get rid of the whole text thing..
+
+
+the only thing I have it for now is to see if I have duplicates
+
+I want to make an array of 100 events
+
+game_event_array[100][8]
+
+0 - frame
+1 - ev
+2 - x
+3 - y
+4 - z1
+5 - z2
+6 - z3
+7 - z4
+
+whenever I get an event:
+
+only for certain types that retrigger a lot
+- like mines
+- like exits
+
+I check to see if there are any others exactly the same in the last 40 frames (1 second)
+if there are, I toss it and modifiy the last
+
+or i could only do it for a problematic few that keep retriggering
+
+game_event_retrigger_holdoff[10][1]
+
+when I get an exit event stick the retrigger time in this array
+
+I have removed all traced of the old text bmsg...except for the char arrays
+
+
+now all that is left is to devise the retrigger block method to prevent duplicates
+
+game_event_retrigger_holdoff[10][1]
+
+   if (ev == 3) // exit
+   {
+      if (game_event_retrigger_holdoff[1] < frame_num)  game_event_retrigger_holdoff[1] = frame_num + 60;
+      else ev = 0;
+   }
+
+   if (ev == 50) // mine
+   {
+      if (game_event_retrigger_holdoff[2] < frame_num)  game_event_retrigger_holdoff[2] = frame_num + 20;
+      else ev = 0;
+   }
+
+done...
+
+this all looks good... I need to test all the messages
+
+tested all but squished and stuck
+
+
+make some nice looking icons that work in 8x8...maybe
+
+
+maybe I could document this fully and try to encapsulate the vaiarble and function so they are not global
+- at many place in the code game_event() is called
+- then after that it is all handled by a few function
+
+
+add some more messages, like:
+
+player joins and quits...done
+
+heath bonus pickups
+
+
+
+
+
+make an array of bitmaps loaded from disk called
+
+bmsg_icon[64]
+
+that has 64 8x8 tiles used for drawing on bmsgs
+
+figure out which ones I need
+
+make a custom function to scale and save them
+
+then edit by hand to make them look nice
+
+once exported and touched up, never overwite them!!
+
+
+step 1, collect all the shapes I will possible need
+
+
+leave out player...looks good enough when just normal 20->8 with shape 1
+
+all enemies(8)
+free man
+all bonus fruit, flower and diamond
+
+exit and exit with lock
+
+mine
+
+rocket
+bomb
+bomb with det
+bomb with no det
+det
+
+4 switch
+4 key
+
+done...
+
+
+now get good starting values
+
+
+
+wait....this whole thing is fucky...
+
+when I draw scaled 20 to 8 to display it looks perfect
+
+when I draw 20 to8 to a bitmap then to screen, it looks really bad
+
+?????? !!!!! ??????
+
+what if i do the whole bmg line 20 pixels high, then shrink it only when final drawing it???
+
+
+What will I do about text?? double it to 16 high and leave a 2 pixel buffer above and below...
+
+
+
+increased size of:
+
+bmsg_bmp[x] = al_create_bitmap(800, 20); from 400, 8
+
+
+made it work with bmg lines that are 20 pixels high and look great
+
+what a lot of wasted time with shrinking 20x20 tiles to 8x8 tiles
+they look really bad when another bitmap is the destination, but great when the display is...why?
+
+It looks really fucking good now...and its a lot simpler
+
+still to do...
+show mine..
+show free man
+show health bonus
+done
+
+now with much nicer (and simpler) bmsg
+
+that was a couple of days spent working on bmsg...
 
 
 
