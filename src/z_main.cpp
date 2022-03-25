@@ -1269,7 +1269,7 @@ int main(int argument_count, char **argument_array)
       }
       if (strcmp(argument_array[1],"-t") == 0 )
       {
-          ret = copy_files_to_clients(1); // pm.exe only
+          ret = copy_files_to_clients(1); // pm.exe and levels only
           exit(0);
       }
       if (strcmp(argument_array[1],"-u") == 0 )
@@ -1493,9 +1493,19 @@ int copy_files_to_clients(int exe_only)
          sprintf(sys_cmd, "copy pm.exe %s\\pm.exe /Y", client[c]);
          printf("%s\n",sys_cmd);
          ret = system(sys_cmd);
+
+         sprintf(sys_cmd, "copy levels\\*.pml %s\\levels ", client[c]);
+         printf("%s\n",sys_cmd);
+         ret = system(sys_cmd);
+
+
+/*
          sprintf(sys_cmd, "copy pm.cfg %s\\pm.cfg /Y", client[c]);
          printf("%s\n",sys_cmd);
          ret = system(sys_cmd);
+
+         */
+
       }
    }
    else if (exe_only == 2)

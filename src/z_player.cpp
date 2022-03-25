@@ -964,7 +964,8 @@ void proc_player_rope(int p)
    }
    else
    {
-      if (is_player_within_rope_reach(p) && (players[p].up))
+//      if (is_player_within_rope_reach(p) && (players[p].up))
+      if (is_player_within_rope_reach(p))
       {
          // just got on rope
          players[p].on_rope = 1;
