@@ -7,7 +7,7 @@ void draw_screen_overlay(void)
    // these all draw on screen buffer
    if (speed_testing) draw_speed_test_data();
    draw_top_display();
-   draw_bottom_msg();
+   draw_bmsg();
    show_player_join_quit();
 }
 
@@ -496,6 +496,72 @@ void draw_top_display(void)
 }
 
 
+void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
+{
+   if (bottom_msg_on) new_bmsg(ev, x, y, z1, z2, z3, z4); // pass everything to new_bmgs and do it there
+   if (sound_on)
+   {
+         /*  sample numbers
+         0 - player shoots
+         1 - d'OH
+         2 - bonus
+         3 - hiss
+         4 - la dee dah  door, key, exit
+         5 - explosion
+         6 - grunt 1 shot
+         7 - grunt 2 hit
+         8 - enemy killed  */
+      switch (ev)
+      {
+         // al_play_sample(ALLEGRO_SAMPLE *spl, float gain, float pan, float speed, ALLEGRO_PLAYMODE loop, ALLEGRO_SAMPLE_ID *ret_id)
+         case  1: // player shoots
+            //al_play_sample(snd[0], 0.71, 0, .8, ALLEGRO_PLAYMODE_ONCE, NULL);
+            al_play_sample(snd[0], 0.81, 0, .7, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+         case  2: case  4: case  5: // la dee dah (key, exit, door)
+            if (sample_delay[4]+30 < frame_num)
+            {
+               sample_delay[4] = frame_num;
+               al_play_sample(snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            }
+         break;
+         case  70: // bonus and free man
+           if (sample_delay[2]+30 < frame_num)
+            {
+               sample_delay[2] = frame_num;
+               al_play_sample(snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            }
+         break;
+         case 40: case 41: case 43:// player got shot
+            al_play_sample(snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+         case 44: case 50: case 52: case 54: case 56: // player got hit (bomb, mine, enemy collision, squished, stuck)
+            if (sample_delay[7]+14 < frame_num)
+            {
+               sample_delay[7] = frame_num;
+               al_play_sample(snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+            }
+         break;
+         case 60: case 62: // enemy killed
+            al_play_sample(snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+         case 90: // d'Oh (player died)
+            al_play_sample(snd[1], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+         case 22: // explosion
+            al_play_sample(snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+
+         case 31: // sproingy
+            al_play_sample(snd[9], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+
+
+
+
+      }
+   }
+}
 
 
 void dtextout(const char *txt1, int x, int y, int col)
@@ -543,6 +609,11 @@ int bmsg_show_text(const char *txt, int col, int bmsg_length)
    return (strlen(txt)*16);
 }
 
+int bmsg_draw_tile(int tn, int bmsg_length)
+{
+   al_draw_bitmap(tile[tn], bmsg_length, 0, 0);
+   return 20;
+}
 
 int bmsg_draw_player(int p, int bmsg_length)
 {
@@ -569,14 +640,6 @@ int bmsg_draw_player(int p, int bmsg_length)
    return len;
 }
 
-
-int bmsg_draw_tile(int tn, int bmsg_length)
-{
-   al_draw_bitmap(tile[tn], bmsg_length, 0, 0);
-   return 20;
-}
-
-
 int bmsg_draw_enemy(int e_type, int bmsg_length)
 {
    if (0) // enemy name
@@ -592,7 +655,6 @@ int bmsg_draw_enemy(int e_type, int bmsg_length)
    }
 }
 
-
 int bmsg_show_health(int h, int bmsg_length)
 {
    int col = 9;
@@ -602,41 +664,37 @@ int bmsg_show_health(int h, int bmsg_length)
    return (strlen(msg)*16);
 }
 
-
 void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
+   // event retrigger holdoff for these events that can repeat every frame
    if (ev == 3) // exit
    {
-      if (game_event_retrigger_holdoff[1] < frame_num)  game_event_retrigger_holdoff[1] = frame_num + 60;
+      if (game_event_retrigger_holdoff[1] < frame_num) game_event_retrigger_holdoff[1] = frame_num + 60;
       else ev = 0;
    }
 
    if (ev == 50) // mine
    {
-      if (game_event_retrigger_holdoff[2] < frame_num)  game_event_retrigger_holdoff[2] = frame_num + 20;
+      if (game_event_retrigger_holdoff[2] < frame_num) game_event_retrigger_holdoff[2] = frame_num + 20;
       else ev = 0;
    }
 
-   if ((ev != 0) && (ev != 1) && (ev != 15) && (ev != 22) && (ev != 31) ) // events that don't have bmsg handler
+   if ((ev != 0) && (ev != 1) && (ev != 4) && (ev != 15) && (ev != 22) && (ev != 31) ) // events that don't have bmsg handler
    {
       int bmsg_length = 0; // keep a running total
       int custom_drawn = 0;
 
-      bmsg_index++;
-      if (bmsg_index > 19) bmsg_index = 0;
-
-      bmsg_temp = al_create_bitmap(800, 20); // create a temp bitmap
+      bmsg_temp = al_create_bitmap(800, 20); // create a temp bitmap to build a single line
       al_set_target_bitmap(bmsg_temp);
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      bmsg_length += bmsg_draw_player(z1, bmsg_length); // all start with player
+      bmsg_length += bmsg_draw_player(z1, bmsg_length); // all bmsg start with player
 
       if (ev == 5) // player went through a door
       {
          custom_drawn = 1;
          bmsg_length += bmsg_show_text(" went through a door", 15, bmsg_length);
       }
-
       if (ev == 24) // player lit bomb
       {
          custom_drawn = 1;
@@ -645,7 +703,6 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          sprintf(msg, " with %d sec fuse",  z3);
          bmsg_length += bmsg_show_text(msg, 15, bmsg_length);
       }
-
       if (ev == 25) // player armed a bomb with a remote detonator
       {
          custom_drawn = 1;
@@ -654,15 +711,12 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += bmsg_show_text(" with remote detonator ", 15, bmsg_length);
          bmsg_length += bmsg_draw_tile(539, bmsg_length);
       }
-
       if (ev == 26) // player lit rocket
       {
          custom_drawn = 1;
          bmsg_length += bmsg_show_text(" lit a rocket ", 15, bmsg_length);
          bmsg_length += bmsg_draw_tile(249, bmsg_length);
       }
-
-
       if (ev == 3) // player tried to exit
       {
          custom_drawn = 1;
@@ -670,7 +724,6 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          else sprintf(msg, " tried to exit with %d enemies left",  z3);
          bmsg_length += bmsg_show_text(msg, 15, bmsg_length);
       }
-
       if (ev == 2) // key
       {
          custom_drawn = 1;
@@ -680,6 +733,7 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          int tn = 0; // tile_numer
          int k = item[z2][1] - 1039;
          char tmsg[20] = {0};
+
          if (k == 0) { sprintf(tmsg, "red");    c1 = 10; tn = 272; } // red
          if (k == 1) { sprintf(tmsg, "green");  c1 = 11; tn = 279; } // green
          if (k == 2) { sprintf(tmsg, "blue");   c1 = 13; tn = 288; } // blue
@@ -688,8 +742,7 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += bmsg_show_text(tmsg, c1, bmsg_length);
          bmsg_length += bmsg_show_text(" key ", 15, bmsg_length);
          bmsg_length += bmsg_draw_tile(tn, bmsg_length);
-    }
-
+      }
       if (ev == 30) // switch
       {
          custom_drawn = 1;
@@ -709,7 +762,6 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += bmsg_show_text(" switch ", 15, bmsg_length);
          bmsg_length += bmsg_draw_tile(tn, bmsg_length);
       }
-
       if (ev == 40) // player got shot by another player
       {
          custom_drawn = 1;
@@ -717,7 +769,6 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += bmsg_draw_player(z2, bmsg_length);
          bmsg_length += bmsg_show_health(-z4, bmsg_length);
       }
-
       if (ev == 41) // player shot themself
       {
          custom_drawn = 1;
@@ -819,7 +870,11 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
 
       if (custom_drawn) // caught by one of the handlers here
       {
+         bottom_msg = 100; // start the timer
+         if (++bmsg_index > 19) bmsg_index = 0;
+
          al_set_target_bitmap(bmsg_bmp[bmsg_index]);
+
          al_clear_to_color(al_map_rgb(0, 0, 0));
          al_draw_bitmap(bmsg_temp, (400 - (bmsg_length/2)), 0, 0);
 
@@ -844,88 +899,20 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
       else
       {
          printf(" no bmsg handler for event:%d\n",ev);
-        // 1-shoot  15-jump  22-explosion  31-sproingy
+        // 1-shoot 4-exit 15-jump 22-explosion 31-sproingy
       }
       al_destroy_bitmap(bmsg_temp); // destroy the temp bitmap
    }
 }
 
-
-void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
-{
-   if (bottom_msg_on) new_bmsg(ev, x, y, z1, z2, z3, z4); // pass everything to new_bmgs and do it there
-   if (sound_on)
-   {
-         /*  sample numbers
-         0 - player shoots
-         1 - d'OH
-         2 - bonus
-         3 - hiss
-         4 - la dee dah  door, key, exit
-         5 - explosion
-         6 - grunt 1 shot
-         7 - grunt 2 hit
-         8 - enemy killed  */
-      switch (ev)
-      {
-         case  1: // player shoots
-            al_play_sample(snd[0], 0.71, 0, .8, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
-         case  2: case  4: case  5: // la dee dah (key, exit, door)
-            if (sample_delay[4]+30 < frame_num)
-            {
-               sample_delay[4] = frame_num;
-               al_play_sample(snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-            }
-         break;
-         case  70: // bonus and free man
-           if (sample_delay[2]+30 < frame_num)
-            {
-               sample_delay[2] = frame_num;
-               al_play_sample(snd[2], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-            }
-         break;
-         case 40: case 41: case 43:// player got shot
-            al_play_sample(snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
-         case 44: case 50: case 52: case 54: case 56: // player got hit (bomb, mine, enemy collision, squished, stuck)
-            if (sample_delay[7]+14 < frame_num)
-            {
-               sample_delay[7] = frame_num;
-               al_play_sample(snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-            }
-         break;
-         case 60: case 62: // enemy killed
-            al_play_sample(snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
-         case 90: // d'Oh (player died)
-            al_play_sample(snd[1], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
-         case 22: // explosion
-            al_play_sample(snd[5], .78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
-         break;
-      }
-   }
-}
-
-
-
-
-
-
-
-
-
-
-
-void draw_bottom_msg()
+void draw_bmsg()
 {
    if (bottom_msg_on)
    {
-      bottom_msg = 100; // always draw
+      //bottom_msg = 100; // always draw
       if (bottom_msg > 0)
       {
-         //bottom_msg--;
+         bottom_msg--;
          int nb = 20;  // number of bottom message lines to display (max 20)
          int sw = 800; // string length in pixels
          int sh = 20;  // string height in pixels

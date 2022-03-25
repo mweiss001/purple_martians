@@ -20,133 +20,9 @@ I want it immediate to help the player time exploding moving things
 ---------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-passcount event player
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+should you grab ropes by default?
+only drop if you press down?
+it seems really hard to stay on them....
 
 
 
@@ -183,13 +59,7 @@ or how many time it has been compiled...
 
 make a level that requires traveling on a lift while jumping on and off of switches
 
-
-
-
 level where you have to throw mines at the other player..
-
-
-
 
 How about a level where you have to clone switches??
 
@@ -249,7 +119,7 @@ make the switches able to see through if stacked
 
 update display page, it is woefully out of date now...
 
-update the history to 2022 in the web page and docs wthe game
+update the history to 2022 in the web page and docs the game
 
 add github to the line with the project pages
 maybe downplay itch.io
@@ -258,36 +128,11 @@ redo the info on the allegro.cc page
 especially about the sources....
 
 
-
-
-
-
 made a new page for bullets...done
-
 
 updated the copyright at the bottom of the pages
 made a perl script to do that automatically
 update_footer...done
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -446,7 +291,7 @@ make other kind of mines, like spikes, lava, flames...etc
 
 
 make player wall collisions pixel perfect like when on ladder???
-make single block navigaion like ladder move...
+make single block navigation like ladder move...
 this will make jumping up into single block opening very hard...
 this sound like a major re-write..
 

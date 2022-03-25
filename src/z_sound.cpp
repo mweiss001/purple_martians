@@ -48,7 +48,7 @@ void load_sound() // for normal loading of sound driver and samples
          al_set_default_mixer(se_mixer);
          al_reserve_samples(20);
          char fn[20] = "snd/snd00.wav";
-         for (int x=0; x<9; x++)
+         for (int x=0; x<10; x++)
          {
             fn[8] = 48 + x;
             snd[x] = al_load_sample(fn);

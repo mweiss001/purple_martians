@@ -1264,12 +1264,17 @@ void draw_fps_display(int show_type);
 void draw_speed_test_data(void);
 void draw_top_display(void);
 
-void clear_bmsg(void);
-void new_bmsg(const char *nb, int p, int p2, int ev);
-void draw_bottom_msg();
-
-
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
+//void dtextout(const char *txt1, int x, int y, int col);
+void clear_bmsg(void);
+//int bmsg_show_text(const char *txt, int col, int bmsg_length);
+//int bmsg_draw_tile(int tn, int bmsg_length);
+//int bmsg_draw_player(int p, int bmsg_length);
+//int bmsg_draw_enemy(int e_type, int bmsg_length);
+//int bmsg_show_health(int h, int bmsg_length);
+void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4);
+void draw_bmsg();
+
 
 // z_sound.h
 void start_music(int resume);

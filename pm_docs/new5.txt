@@ -12489,7 +12489,7 @@ made it work with bmg lines that are 20 pixels high and look great
 what a lot of wasted time with shrinking 20x20 tiles to 8x8 tiles
 they look really bad when another bitmap is the destination, but great when the display is...why?
 
-It looks really fucking good now...and its a lot simpler
+It looks really good now...and its a lot simpler
 
 still to do...
 show mine..
@@ -12500,6 +12500,45 @@ done
 now with much nicer (and simpler) bmsg
 
 that was a couple of days spent working on bmsg...
+
+
+
+why don't I practice cleaning up the sources a bit by making
+game_event its own source file and header
+only source files that call functions from it will need to include it
+create z_gameevent.cpp and game_
+
+gave up and reverted... there is a huge tangled mess of intertwined dependencies...
+I would still like to do this...but its a huge task......
+
+I wish I could start small, like with something like sound
+
+
+
+get a spring sound from zapsplat
+
+https://www.zapsplat.com/
+make a free account...
+mweiss001
+mweiss001@gmail.com zaiden
+
+upgraded to gold for 4GBP recurring monthly but i'll just cancel
+now I don't have to give credits...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
