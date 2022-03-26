@@ -2,7 +2,7 @@
 This project is licensed under the zlib license.
 
 -----------------------------------------------------------------------------
-Copyright (c) <1997-2018> <Michael David Weiss>
+Copyright (c) <1997-2022> <Michael David Weiss>
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages
@@ -27,6 +27,6 @@ If you play the game or clone the repository, I humbly request that you do the f
 
 - Send me an email (mweiss001@gmail.com)
 
-- Attach a new level for the game that you have created
+- Create a new level for the game and attach it to the email you sent me.
 
 - Promise not to laugh at the nasty hacks and kludges in my code!

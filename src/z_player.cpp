@@ -753,7 +753,6 @@ int is_player_within_rope_reach(int p)
 
 void proc_player_rope_move(int p)
 {
-
     // reset all regular incs
    al_fixed f0 = al_itofix(0);
    players[p].xinc = f0;
@@ -774,9 +773,12 @@ void proc_player_rope_move(int p)
       players[p].PX += is_right_solidfm(players[p].PX, players[p].PY, m, 0);
    }
 
-   if (players[p].down) players[p].on_rope = 0;
+   if (players[p].down)
+   {
+      players[p].on_rope = 0;
+      players[p].PY += al_itofix(4);
 
-
+   }
 }
 
 
@@ -957,17 +959,14 @@ void proc_player_ladder_move(int p)
 
 void proc_player_rope(int p)
 {
-   if (players[p].on_rope)
-   {
-      // check to see if player is still on rope
-      players[p].on_rope = is_player_within_rope_reach(p);
-   }
+   if (players[p].on_rope)                                      // if player is currently on rope
+      players[p].on_rope = is_player_within_rope_reach(p);      // check to see if player is still on rope
    else
    {
-//      if (is_player_within_rope_reach(p) && (players[p].up))
-      if (is_player_within_rope_reach(p))
+      if ( (is_player_within_rope_reach(p)) &&                   // not already on rope and within rope reach
+         ((players[p].yinc > al_itofix(0)) || (players[p].up)) ) // player is falling or up is pressed
       {
-         // just got on rope
+         // plater just got on rope
          players[p].on_rope = 1;
          players[p].on_ladder = 0;
 
