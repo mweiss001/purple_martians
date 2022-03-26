@@ -54,10 +54,12 @@ void pointer_text(int x, int y, int ty)
    al_draw_rectangle(txc-70, ty+sey, txc+70, ty+sey+36,palette_color[14], 1);
    al_draw_rectangle(txc-70, ty+sey, txc+70, ty+sey+62,palette_color[14], 1);
 
-   al_draw_text( font, palette_color[6], txc, ty+sey+1, ALLEGRO_ALIGN_CENTER, "Selection");
+   al_draw_text( font, palette_color[6], txc, ty+sey+1,  ALLEGRO_ALIGN_CENTER, "Selection");
    al_draw_textf(font, palette_color[6], txc, ty+sey+11, ALLEGRO_ALIGN_CENTER, " x:%2d  y:%2d ", stx, sty);
-   al_draw_textf(font, palette_color[6], txc, ty+sey+19, ALLEGRO_ALIGN_CENTER, " height:%d ", suy-sty);
-   al_draw_textf(font, palette_color[6], txc, ty+sey+27, ALLEGRO_ALIGN_CENTER, " width:%d ", sux-stx);
+   al_draw_textf(font, palette_color[6], txc, ty+sey+19, ALLEGRO_ALIGN_CENTER, " width:%d ",  sux-stx);
+   al_draw_textf(font, palette_color[6], txc, ty+sey+27, ALLEGRO_ALIGN_CENTER, " height:%d ", suy-sty);
+
+
 
    al_draw_textf(font, palette_color[7], txc, ty+sey+37, ALLEGRO_ALIGN_CENTER, " %d Enemies ", eib);
    al_draw_textf(font, palette_color[7], txc, ty+sey+45, ALLEGRO_ALIGN_CENTER, " %d Items ", iib);

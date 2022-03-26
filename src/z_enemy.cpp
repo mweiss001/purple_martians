@@ -51,6 +51,10 @@ void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int s
    al_reset_clipping_rectangle();
 }
 
+
+
+
+
 void draw_enemies(void)
 {
    al_set_target_bitmap(level_buffer);
@@ -117,6 +121,8 @@ void draw_enemies(void)
          }
          #endif
 
+         if (Ei[e][0] == 10) draw_enemy_field(e);
+
          if (Ei[e][0] == 9) // cloner
          {
             // trigger box
@@ -180,9 +186,6 @@ void draw_enemies(void)
                rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64); // destination
             }
          }
-
-
-
 
 
          #ifdef SHOW_FLAPPER_DEBUG
@@ -317,6 +320,7 @@ void move_enemies()
             case 7:   enemy_podzilla(e);  break;
             case 8:   enemy_trakbot(e);  break;
             case 9:   enemy_cloner(e);  break;
+            case 10:  enemy_field(e);  break;
             case 11:  enemy_block_walker(e);  break;
             case 12:  enemy_flapper(e);  break;
             case 99:  enemy_deathcount(e); break;
@@ -471,6 +475,22 @@ void enemy_killed(int e)
          zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / zz[4][na]; // set ans timer
       break;
+
+
+      case 10: // field
+         na = Ei[e][3] = 105;  // new ans
+         dl = Ei[e][30] = 40; // death_loop_wait; set delay
+         Ei[e][24] = 934+(ht-1)*32; // shape
+         Efi[e][11] = al_ftofix(.98); // scale multiplier
+         Efi[e][13] = al_ftofix(306/dl); // rot inc
+         zz[0][na] = zz[5][na]; // set shape
+         zz[1][na] = 0;         // point to zero
+         zz[2][na] = frame_num; // set counter
+         zz[3][na] = dl / zz[4][na]; // set ans timer
+      break;
+
+
+
       case 11: // none for block walker
       break;
       case 12: // flapper
@@ -489,7 +509,7 @@ void enemy_killed(int e)
    } // end of switch
 
    // almost all do this but not enough to do by default
-   if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==12 )
+   if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==10 || a==12 )
    {
       if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
       if (ht == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
@@ -805,6 +825,198 @@ void walker_archwagon_common(int e)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void draw_enemy_field(int e)
+{
+   float tx1 = (float)Ei[e][11]; // trigger
+   float ty1 = (float)Ei[e][12];
+   float tx2 = tx1 + (float)Ei[e][13];
+   float ty2 = ty1 + (float)Ei[e][14];
+   int tc1 = 14 + 128; // trigger box color
+   rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
+
+   if (Ei[e][8]) // currently in damage mode
+   {
+      float sx1 = (float)Ei[e][15]; // field
+      float sy1 = (float)Ei[e][16];
+      float sx2 = sx1 + (float)Ei[e][17];
+      float sy2 = sy1 + (float)Ei[e][18];
+      int sc1 = 11 + 128; // field box color
+      rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // field
+   }
+}
+
+void proc_field_collision(int p, int e, int b)
+{
+   if (b == 0) // trigger field
+   {
+      Ei[e][7] = Ei[e][6]; // reset timer
+   }
+   if (b == 1) // damage field
+   {
+      if (Ei[e][8]) // currently in damage mode
+      {
+         players[p].LIFE -= Efi[e][4];
+         game_event(50, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
+      }
+   }
+}
+
+void enemy_field(int e)
+{
+   if (Ei[e][31]) // hit
+   {
+      enemy_killed(e);
+      return;
+   }
+   enemy_player_hit_proc(e);
+   if (--Ei[e][7] < 0) Ei[e][7] = 0; // always run timer
+   int damage = 0;
+   if (Ei[e][5] == 0) damage = 1;                       // damage always
+   if ((Ei[e][5] == 1) && (Ei[e][7] > 0)) damage = 1;   // damage when timer is running (no damage until triggered)
+   if ((Ei[e][5] == 2) && (Ei[e][7] == 0)) damage = 1;  // damage unless timer running  (damage when triggered)
+   Ei[e][8] = damage;  // field is currently in damage mode
+}
+
+
+
+
 //--11--block walker-----------------------------------------------------------------------------
 //      Ei[e][6] = jump wait (0=none)
 //      Ei[e][7] = jump when player above
@@ -890,8 +1102,7 @@ void enemy_cloner(int e)
    al_fixed x2 = x1 + w;
    al_fixed y2 = y1 + h;
 
-   // trigger box
-   int x4 = Ei[e][11]*20 - 10;
+   int x4 = Ei[e][11]*20 - 10; // trigger box
    int y4 = Ei[e][12]*20 - 10;
    int x5 = Ei[e][13]*20 + 10;
    int y5 = Ei[e][14]*20 + 10;
@@ -2025,6 +2236,43 @@ Ei[][17] dest box x
 Ei[][18] dest box y
 Ei[][19] copy box width
 Ei[][20] copy box height
+
+
+
+
+
+
+[10]--field-----------------------------------------------------------------------------
+
+Ei[][4]  draw boxes (0 = none) (1 = trigger) (2 = source/dest) (3 = both)
+Ei[][5]  mode
+
+Ei[][11] trigger box x1
+Ei[][12] trigger box y1
+Ei[][13] trigger box x2
+Ei[][14] trigger box y2
+
+Ei[][15] field box x
+Ei[][16] field box y
+Ei[][17] field box w
+Ei[][18] field box h
+
+
+Efi[][4] // life dec
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 [11]--block walker-----------------------------------------------------------------------------
 walker_archwagon_common(int e)

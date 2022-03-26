@@ -657,8 +657,9 @@ int bmsg_draw_enemy(int e_type, int bmsg_length)
 
 int bmsg_show_health(int h, int bmsg_length)
 {
-   int col = 9;
-   if (h < 0) col = 10;
+   int col = 9; // green
+   if (h < 0) col = 10; // red
+   if (h == 0) col = 13; // blue
    sprintf(msg, " Health %+d", h);
    bmsg_length += bmsg_show_text(msg, col, bmsg_length);
    return (strlen(msg)*16);
