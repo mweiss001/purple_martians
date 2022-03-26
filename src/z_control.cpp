@@ -323,13 +323,12 @@ void function_key_check(void)
 {
    if (!game_exit)
    {
+ /*
       if ((key[ALLEGRO_KEY_F1]) && (!KEY_F1_held))
       {
          KEY_F1_held = 1;
 
          frame_speed = 4;
-
-
          set_speed();
 
 
@@ -389,7 +388,7 @@ void function_key_check(void)
          //next_map_mode();
       }
       if (!key[ALLEGRO_KEY_F4]) KEY_F4_held = 0;
-
+*/
       if ((key[ALLEGRO_KEY_F5]) && (!KEY_F5_held))
       {
          KEY_F5_held = 10;
