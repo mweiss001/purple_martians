@@ -17,6 +17,7 @@ int item_data(int x, int y)
    if (item_num_of_type[8])  { al_draw_textf(font, palette_color[14], x, y, 0, "%d Bombs",      item_num_of_type[8]);  y+=8; }
    if (item_num_of_type[11]) { al_draw_textf(font, palette_color[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
    if (item_num_of_type[7])  { al_draw_textf(font, palette_color[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
+   if (item_num_of_type[20]) { al_draw_textf(font, palette_color[14], x, y, 0, "%d Minefields", item_num_of_type[20]); y+=8; }
 
    for (int c=1; c<16; c++)
       if ((c != 5) && (c !=3) && (c!= 12) && (c!= 1) && (c!= 4) && (c!= 14) && (c!= 15) && (c!= 8) && (c!= 11) && (c!= 7))
@@ -61,6 +62,15 @@ void remove_block(int x, int y)
    al_set_target_bitmap(level_background);
    al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
    al_draw_bitmap(tile[0], x*20, y*20, 0);
+}
+
+void draw_minefield(int i)
+{
+   float x1 = item[i][6];
+   float y1 = item[i][7];
+   float x2 = x1 + item[i][8];
+   float y2 = y1 + item[i][9];
+   rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, 10, 10);
 }
 
 void draw_pop_message(int i)
@@ -592,6 +602,12 @@ void draw_items(void)
              draw_door(i, x, y);
              drawn = 1;
          }
+
+         if (item[i][0] == 20)
+         {
+             draw_minefield(i);
+         }
+
 
          if (item[i][0] == 99)
          {
@@ -1280,6 +1296,16 @@ void proc_sproingy_collision(int p, int i)
    }
 }
 
+void proc_minefield_collision(int p, int i)
+{
+   al_fixed d = al_itofix(item[i][11]) / 100;
+   int id = al_fixtoi(d);
+
+   players[p].LIFE -= d;
+   game_event(50, 0, 0, p, i, 0, id);
+}
+
+
 void proc_item_collision(int p, int i)
 {
    // check if player can carry item
@@ -1375,18 +1401,18 @@ list of items
 
 
 
-[1] - door
-[2] - bonus
-[3] - exit
-[4] - key
-[5] - start
-[6] - free man
-[7] - mine
-[8] - bomb
+[1]  - door
+[2]  - bonus
+[3]  - exit
+[4]  - key
+[5]  - start
+[6]  - free man
+[7]  - mine
+[8]  - bomb
 [10] - pop-up msg
 [11] - rocket
-[12]  - warp
-[14]  - switch
+[12] - warp
+[14] - switch
 [15] - sproingy
 [98] - lit rocket
 [99] - lit bomb
@@ -1394,6 +1420,42 @@ list of items
 
 
 
+
+
+[20] minefield
+
+
+
+[20] minefield
+
+item[][0] = active and type
+item[][1] = bitmap or ans
+item[][2] = draw type (not used)
+item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door -3=sticky)
+item[][4] = x pos (int) (2000)
+item[][5] = y pos (int) (2000)
+
+
+item[][6] = minefield x (int) (2000)
+item[][7] = minefield y (int) (2000)
+item[][8] = minefield w (int) (2000)
+item[][9] = minefield h (int) (2000)
+
+
+item [][10] == mode
+
+mode
+
+
+
+
+
+
+
+
+
+item[][14] = time to live
+item[][15] = tag with cloner item id
 
 
 

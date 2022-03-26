@@ -618,14 +618,16 @@ void menu_setup(void)
    strcpy (item_name[12],"Warp");
    strcpy (item_name[14],"Switch");
    strcpy (item_name[15],"Sproingy");
+   strcpy (item_name[20],"Minefield");
 
-   strcpy (enemy_name[0], "empty");
-   strcpy (enemy_name[3], "ArchWagon");
-   strcpy (enemy_name[4], "Bouncer");
-   strcpy (enemy_name[6], "Cannon");
-   strcpy (enemy_name[7], "PodZilla ");
-   strcpy (enemy_name[8], "TrakBot");
-   strcpy (enemy_name[9], "Cloner");
+   strcpy (enemy_name[0],  "empty");
+   strcpy (enemy_name[3],  "ArchWagon");
+   strcpy (enemy_name[4],  "Bouncer");
+   strcpy (enemy_name[6],  "Cannon");
+   strcpy (enemy_name[7],  "PodZilla ");
+   strcpy (enemy_name[8],  "TrakBot");
+   strcpy (enemy_name[9],  "Cloner");
+   strcpy (enemy_name[10], "Field");
    strcpy (enemy_name[11], "Block Walker");
    strcpy (enemy_name[12], "Flapper");
 
@@ -638,16 +640,16 @@ void menu_setup(void)
    enemy_tile[11] = 866;
    enemy_tile[12] = 159;
 
-   strcpy (color_name[0], "Zombie");
-   strcpy (color_name[1], "Violet");
-   strcpy (color_name[2], "Mauve");
-   strcpy (color_name[3], "Bluey");
-   strcpy (color_name[4], "Reddy");
-   strcpy (color_name[5], "Pink");
-   strcpy (color_name[6], "Taan");
-   strcpy (color_name[7], "Orange");
-   strcpy (color_name[8], "Purple");
-   strcpy (color_name[9], "Forest");
+   strcpy (color_name[0],  "Zombie");
+   strcpy (color_name[1],  "Violet");
+   strcpy (color_name[2],  "Mauve");
+   strcpy (color_name[3],  "Bluey");
+   strcpy (color_name[4],  "Reddy");
+   strcpy (color_name[5],  "Pink");
+   strcpy (color_name[6],  "Taan");
+   strcpy (color_name[7],  "Orange");
+   strcpy (color_name[8],  "Purple");
+   strcpy (color_name[9],  "Forest");
    strcpy (color_name[10], "Red");
    strcpy (color_name[11], "Green");
    strcpy (color_name[12], "Blue");

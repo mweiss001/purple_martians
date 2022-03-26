@@ -109,10 +109,10 @@ int sort_item(void)
       }
    }
 
-   // get data about first 20 item types
+   // get data about first 30 item types
    // and make sub lists of item types using these variables
    inum = 0;    // zero the counters
-   for (c=0; c<20; c++)
+   for (c=0; c<30; c++)
    {
       item_num_of_type[c] = 0;
       item_first_num[c] = 0;
@@ -123,7 +123,7 @@ int sort_item(void)
       item_num_of_type[item[c][0]]++; // inc number of this type
       if (item[c][0]) inum++;
    }
-   for (c=0; c<20; c++)             // get first nums
+   for (c=0; c<30; c++)             // get first nums
       if (item_num_of_type[c] > 0)  // are there any of this type?
          for (d=0; d<500; d++)
             if (item[d][0] == c)
@@ -204,6 +204,9 @@ void test_items(void)
          if (item[c][0] == 12) good = 1;
          if (item[c][0] == 14) good = 1;
          if (item[c][0] == 15) good = 1;
+
+         if (item[c][0] == 20) good = 1;
+
          if (!good)  printf("Item:%d - bad type:%d\n", c, item[c][0]);
          // if (!good)  item[c][0] = 0; //erase bad type
          if (good)

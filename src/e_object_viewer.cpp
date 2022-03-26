@@ -528,6 +528,14 @@ int move_obt_with_map(int obt, int type, int num)
    int mouse_on_csb_lr = 0;
    int mouse_on_cdb_ul = 0;
 
+   int mouse_on_ftb_ul = 0;
+   int mouse_on_ftb_lr = 0;
+
+   int mouse_on_fdb_ul = 0;
+   int mouse_on_fdb_lr = 0;
+
+
+
    // item
    int mouse_on_item = 0;
    int mouse_on_kbr_ul = 0;
@@ -544,6 +552,59 @@ int move_obt_with_map(int obt, int type, int num)
       al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
 
       // search for extra's for currently selected obt
+
+
+      if ((obt == 3) && (type == 10)) // field boxes
+      {
+         // field trigger box coordinates
+         int x1 = Ei[num][11]/20;
+         int y1 = Ei[num][12]/20;
+         int x2 = x1 + Ei[num][13]/20 -1;
+         int y2 = y1 + Ei[num][14]/20 -1;
+         if ((!mouse_on_extra) && (mx == x1) && (my == y1)) // upper left corner
+         {
+            mouse_on_ftb_ul = 1;
+            mouse_on_extra = 1;
+            for (int a=0; a<4; a++)
+               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
+            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[14], 1);                 // mark ul corner
+            mouse_move = 1;
+         }
+         if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // lower right corner
+         {
+            mouse_on_ftb_lr = 1;
+            mouse_on_extra = 1;
+            for (int a=0; a<4; a++)
+               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
+            al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, palette_color[14], 1);                 // mark lr corner
+            mouse_adj = 1;
+         }
+
+         // field damage box coordinates
+         x1 = Ei[num][15]/20;
+         y1 = Ei[num][16]/20;
+         x2 = x1 + Ei[num][17]/20 -1;
+         y2 = y1 + Ei[num][18]/20 -1;
+         if ((!mouse_on_extra) && (mx == x1) && (my == y1)) // upper left corner
+         {
+            mouse_on_fdb_ul = 1;
+            mouse_on_extra = 1;
+            for (int a=0; a<4; a++)
+               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
+            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[14], 1);                 // mark ul corner
+            mouse_move = 1;
+         }
+         if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // lower right corner
+         {
+            mouse_on_fdb_lr = 1;
+            mouse_on_extra = 1;
+            for (int a=0; a<4; a++)
+               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
+            al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, palette_color[14], 1);                 // mark lr corner
+            mouse_adj = 1;
+         }
+      }
+
       if ((obt == 3) && ((type == 7) || (type == 9))) // podzilla or cloner trigger box
       {
          // trigger box coordinates
@@ -810,25 +871,49 @@ int move_obt_with_map(int obt, int type, int num)
                // get the width and height
                int w = Ei[num][13] - Ei[num][11];
                int h = Ei[num][14] - Ei[num][12];
-
                // set new position
                Ei[num][11] = mx;
                Ei[num][12] = my;
                Ei[num][13] = mx + w;
                Ei[num][14] = my + h;
-
-          } // end of mouse tb_ul
-
-            if (mouse_on_tb_lr) // resize trigger box from lr
+            }
+            if (mouse_on_ftb_ul) // move field trigger box from ul
+            {
+               Ei[num][11] = mx*20;
+               Ei[num][12] = my*20;
+            }
+            if (mouse_on_fdb_ul) // move field damage box from ul
+            {
+               Ei[num][15] = mx*20;
+               Ei[num][16] = my*20;
+            }
+            if (mouse_on_tb_lr)  // resize trigger box from lr
             {
                // prevent lr corner from being less than ul corner
                if (mx < Ei[num][11]) mx = Ei[num][11];
                if (my < Ei[num][12]) my = Ei[num][12];
-
                // set new postion
                Ei[num][13] = mx;
                Ei[num][14] = my;
-            } // end of mouse tb_lr
+            }
+
+            if (mouse_on_ftb_lr) // resize field trigger box from lr
+            {
+               // prevent lr corner from being less than ul corner
+               if (mx < (Ei[num][11]/20)) mx = (Ei[num][11]/20)+1;
+               if (my < (Ei[num][12]/20)) my = (Ei[num][12]/20)+1;
+               Ei[num][13] = mx*20 - Ei[num][11];
+               Ei[num][14] = my*20 - Ei[num][12];
+            }
+
+            if (mouse_on_fdb_lr) // resize field damage box from lr
+            {
+               // prevent lr corner from being less than ul corner
+               if (mx < (Ei[num][15]/20)) mx = (Ei[num][15]/20)+1;
+               if (my < (Ei[num][16]/20)) my = (Ei[num][16]/20)+1;
+               Ei[num][17] = mx*20 - Ei[num][15];
+               Ei[num][18] = my*20 - Ei[num][16];
+            }
 
 
             if (mouse_on_csb_ul) // move cloner source box from ul
@@ -1168,6 +1253,21 @@ void object_viewer(int obt, int num)
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
                break;
+
+               case 10: // field
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // mode
+                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 82, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2; // field timer
+
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 85, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get field
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 86, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get trigger
+
+                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
+                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
+
+
+               break;
+
+
                case 11: // block walker
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 12, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x - speed
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 13, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // y - speed
@@ -1274,23 +1374,13 @@ void object_viewer(int obt, int num)
 
                   a+=2; // leave space for OK and Cancel buttons
 
-
-
-                  // show all messages
+                  // show all messages (makes it so much easier to adjust them)
                   for (int ii=0; ii<500; ii++)
                      if (item[ii][0] == 10) display_pop_message(ii, pmsg[ii], 3000, 3000, 0, 0); // show the message
 
-
+                  // draw the current one last to ensure it is on top
                   pop_msg_viewer_pos = ty+a*bts+bts/2+2;
                   display_pop_message(num, pmsg[num], txc, pop_msg_viewer_pos, 0, 0); // show the message
-
-
-
-
-
-
-
-
 
                break;
                case 11: // rocket
@@ -1312,6 +1402,17 @@ void object_viewer(int obt, int num)
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 13, 0,  1,0,0,0); a++; // stat | fall | carry
                   mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 28, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // warp level
                break;
+
+
+               case 20: // minefield
+                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 84,  num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++; // set new range
+
+                  mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 81, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // damage
+
+               break;
+
+
+
             } // end of switch type
          } // end of if obt = item
 

@@ -102,6 +102,14 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 79) Efi[num][10] = al_ftofix(f);       // flap speed
    if (bn == 80) Ei[num][21] = (int)f;              // flap height
 
+
+   if (bn == 81) item[num][11] = (int)f;              // minefield damage
+
+
+   if (bn == 82) Ei[num][6] = (int)f;                 // field damage
+
+
+
 }
 
 
@@ -250,6 +258,19 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (Ei[num][30] ==  1) sprintf(smsg,  "    Invincible   ");
    }
 
+   if (bn == 84) sprintf(smsg, "Get New Minefield Rectangle");
+   if (bn == 85) sprintf(smsg, "Get New Field Rectangle");
+   if (bn == 86) sprintf(smsg, "Get New Field Trigger Box");
+
+
+
+   if (bn == 87) // field mode
+   {
+      if (Ei[num][5] == 0) sprintf(smsg, "Damage Always");
+      if (Ei[num][5] == 1) sprintf(smsg, "No Damage Until Triggered");
+      if (Ei[num][5] == 2) sprintf(smsg, "Damage Until Triggered");
+   }
+
 
 
 
@@ -337,6 +358,10 @@ void fill_smsg_slider(int bn, int type, int num)
 
    if (bn == 79) sprintf(smsg, "Flap Speed:%-1.2f", al_fixtof(Efi[num][10]));
    if (bn == 80) sprintf(smsg, "Flap Height:%d", Ei[num][21]);
+
+   if (bn == 81) sprintf(smsg, "Damage:%d", item[num][11]);
+
+   if (bn == 82) sprintf(smsg, "Field Timer:%d", Ei[num][6]);
 
 }
 
@@ -509,6 +534,12 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       }
       if (bn == 15) move_pod_extended(num);
       if (bn == 16) move_trigger_box(num, 9);
+
+
+
+
+
+
       if (bn == 17)
          if (getbox("Cloner Source Area", 3, 9, num))
          {
@@ -617,6 +648,57 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       }
       if (bn == 83) Ei[num][30] = !Ei[num][30];
 
+
+
+      if (bn == 84)
+         if (getbox( "Minefield Range", 2, 4, num) == 1)
+         {
+            if (--bx2 < bx1) bx2++;
+            if (--by2 < by1) by2++;
+            item[num][6] = bx1*20;
+            item[num][7] = by1*20;
+            item[num][8] = (1+bx2 - bx1)*20;
+            item[num][9] = (1+by2 - by1)*20;
+            Redraw = 1;
+         }
+
+
+
+
+      if (bn == 85)
+         if (getbox("Get New Field ", 3, 10, num))
+         {
+            Ei[num][15] = bx1*20;
+            Ei[num][16] = by1*20;
+            Ei[num][17] = (bx2-bx1)*20;
+            Ei[num][18] = (by2-by1)*20;
+            Redraw = 1;
+         }
+
+      if (bn == 86)
+         if (getbox("Get New Field Trigger Box", 3, 10, num))
+         {
+            Ei[num][11] = bx1*20;
+            Ei[num][12] = by1*20;
+            Ei[num][13] = (bx2-bx1)*20;
+            Ei[num][14] = (by2-by1)*20;
+            Redraw = 1;
+         }
+
+      if (bn == 87)
+      {
+         Ei[num][5]++;
+         if (Ei[num][5] > 2) Ei[num][5] = 0;
+      }
+
+
+
+
+
+
+
+
+
    } // end of mouse pressed on button
    return 0;
 }
@@ -719,6 +801,9 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 79: sul=8;    sll=.5;  sinc=.1; sdx=al_fixtof(Efi[num][10]);  break;  // flap speed
       case 80: sul=400;  sll=0;   sinc=10; sdx=Ei[num][21];              break;  // flap height
 
+      case 81: sul=1000;  sll=0;   sinc=1; sdx=item[num][11];           break;  // minefield damage
+
+      case 82: sul=1000;  sll=10;  sinc=1; sdx=Ei[num][6];           break;  // field timer
    }
 
    // draw the slider

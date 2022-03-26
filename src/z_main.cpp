@@ -404,9 +404,9 @@ int number_of_starts;
 // items
 int item[500][16];      // item ints
 al_fixed itemf[500][4]; // item fixeds
-int item_num_of_type[20];
-int item_first_num[20];
-char item_name[20][40];
+int item_num_of_type[30];
+int item_first_num[30];
+char item_name[30][40];
 char *pmsg[500] = { NULL };
 
 
