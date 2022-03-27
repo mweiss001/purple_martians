@@ -278,7 +278,11 @@ void proc_enemy_collision_with_pbullet(int e)
             Ei[e][31] = 1;           // flag that this enemy got shot with bullet
             Ei[e][26] = p;           // number of player's bullet that hit enemy
             players[p].num_hits++;   // add to number of hits the player has
-            pbullet[c][0] = 0;       // bullet dies
+
+            if ((Ei[e][0] == 10) && (Ei[e][5] == 4)) // don't kill bullet used to toggle field
+            {
+            }
+            else pbullet[c][0] = 0;       // bullet dies
          }
       }
 }
@@ -357,8 +361,8 @@ void enemy_deathcount(int e)
 
             itemf[c][0] = al_itofix(item[c][4]);
             itemf[c][1] = al_itofix(item[c][5]);
-            itemf[c][2]= al_itofix(0);
-            itemf[c][3]= al_itofix(0);
+            itemf[c][2] = al_itofix(0);
+            itemf[c][3] = al_itofix(0);
             break; // end loop
          }
    }
@@ -964,54 +968,290 @@ void walker_archwagon_common(int e)
 
 void draw_enemy_field(int e)
 {
-   float tx1 = (float)Ei[e][11]; // trigger
-   float ty1 = (float)Ei[e][12];
-   float tx2 = tx1 + (float)Ei[e][13];
-   float ty2 = ty1 + (float)Ei[e][14];
-   int tc1 = 14 + 128; // trigger box color
-   rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
+   int show_trigger = 1;
+   if (Ei[e][5] == 0) show_trigger = 0;
+   if (Ei[e][5] == 3) show_trigger = 0;
+   if (Ei[e][5] == 4) show_trigger = 0;
 
-   if (Ei[e][8]) // currently in damage mode
+
+   if (show_trigger)
    {
-      float sx1 = (float)Ei[e][15]; // field
-      float sy1 = (float)Ei[e][16];
-      float sx2 = sx1 + (float)Ei[e][17];
-      float sy2 = sy1 + (float)Ei[e][18];
-      int sc1 = 11 + 128; // field box color
+      float tx1 = (float)Ei[e][11]; // trigger
+      float ty1 = (float)Ei[e][12];
+      float tx2 = tx1 + (float)Ei[e][13];
+      float ty2 = ty1 + (float)Ei[e][14];
+      int tc1 = 14 + 64; // trigger box color
+      rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
+   }
+
+   float sx1 = (float)Ei[e][15]; // field
+   float sy1 = (float)Ei[e][16];
+   float sx2 = sx1 + (float)Ei[e][17];
+   float sy2 = sy1 + (float)Ei[e][18];
+
+   if ((Ei[e][8]) || (level_editor_running)) // currently in damage mode
+   {
+      int sc1 = 10 + 64; // field box color
       rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // field
    }
+
+   else // draw dimmer
+   {
+      int sc1 = 15 + 128 + 64; // field box color
+      rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+16); // field
+   }
+
+   if (Ei[e][7] > 0) // timer is running
+      al_draw_textf(f3, palette_color[15], al_fixtoi(Efi[e][0])+10, al_fixtoi(Efi[e][1])-10, ALLEGRO_ALIGN_CENTER, "%d", (Ei[e][7] / 40)+1);
 }
 
-void proc_field_collision(int p, int e, int b)
+
+
+void detect_field_collisions(void)
 {
-   if (b == 0) // trigger field
-   {
-      Ei[e][7] = Ei[e][6]; // reset timer
-   }
-   if (b == 1) // damage field
-   {
-      if (Ei[e][8]) // currently in damage mode
+   for (int e=0; e<100; e++)
+      if (Ei[e][0] == 10)
       {
+         int cdp = ((Ei[e][8]) && (Ei[e][3] & 0b00000001)); // damage active and player flag
+         int cde = ((Ei[e][8]) && (Ei[e][3] & 0b00000010)); // damage active and enemy flag
+         int cdi = ((Ei[e][8]) && (Ei[e][3] & 0b00000100)); // damage active and item flag
+
+         int ct = 1;        // check trigger
+         int mode = Ei[e][5];
+         if (mode == 0) ct = 0;
+         if (mode == 3) ct = 0;
+         if (mode == 4) ct = 0;
+
+         // trigger field
+         al_fixed tfx1 = al_itofix(Ei[e][11]);
+         al_fixed tfy1 = al_itofix(Ei[e][12]);
+         al_fixed tfx2 = tfx1 + al_itofix(Ei[e][13]);
+         al_fixed tfy2 = tfy1 + al_itofix(Ei[e][14]);
+
+         // damage field
+         al_fixed dfx1 = al_itofix(Ei[e][15]);
+         al_fixed dfy1 = al_itofix(Ei[e][16]);
+         al_fixed dfx2 = dfx1 + al_itofix(Ei[e][17]);
+         al_fixed dfy2 = dfy1 + al_itofix(Ei[e][18]);
+
+         for (int p=0; p<NUM_PLAYERS; p++) // check players
+            if ((players[p].active) && (!players[p].paused))
+            {
+               al_fixed x = players[p].PX;
+               al_fixed y = players[p].PY;
+               if ((ct) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_field_collision(0, p, e, 0);
+               if ((cdp) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(0, p, e, 1);
+            }
+         for (int e2=0; e2<100; e2++) // check enemies
+            if (Ei[e2][0])
+            {
+               al_fixed x = Efi[e2][0];
+               al_fixed y = Efi[e2][1];
+               if ((ct) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_field_collision(1, e2, e, 0);
+               if ((cde) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(1, e2, e, 1);
+            }
+         for (int i=0; i<500; i++) // check items
+            if (item[i][0])
+            {
+               al_fixed x = itemf[i][0];
+               al_fixed y = itemf[i][1];
+               if ((ct) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_field_collision(2, i, e, 0);
+               if ((cdi) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(2, i, e, 1);
+            }
+      }
+}
+
+void proc_field_collision(int type, int x, int e, int b)
+{
+   if (type == 0) // player
+   {
+      int p = x;
+      if (b == 0) // trigger field
+      {
+         Ei[e][7] = Ei[e][6]; // reset timer
+      }
+      if (b == 1) // damage field
+      {
+
+
+
          players[p].LIFE -= Efi[e][4];
          game_event(50, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
       }
    }
+
+
+
+   if (type == 1) // enemy
+   {
+      int e2 = x;
+      if (b == 0) // trigger field
+      {
+      //   Ei[e][7] = Ei[e][6]; // reset timer
+      }
+      if (b == 1) // damage field
+      {
+
+
+         Ei[e2][31] = 1;           // flag that this enemy got shot with bullet
+         //Ei[e][26] = p;           // number of player's bullet that hit enemy
+      }
+   }
+
+   if (type == 2) // item
+   {
+      int i = x;
+      if (b == 0) // trigger field
+      {
+      //   Ei[e][7] = Ei[e][6]; // reset timer
+      }
+      if (b == 1) // damage field
+      {
+
+         item[i][14] = 80;
+
+      }
+
+   }
 }
+
+
+
+/*
+[10]--field-----------------------------------------------------------------------------
+
+Ei[][0] = 10;
+Ei[][1] = 476; // bitmap
+Ei[][2] = 0;   // draw mode (v and h flips)
+
+Ei[][3]        // ans (deathcount) .. could also use
+Ei[][4] hit type (invulerable, normal, hit toggles, hit adds to count
+
+Ei[][5]  mode
+Ei[][6]  timer value
+Ei[][7]  timer count
+Ei[][8]  damage mode on currently
+
+Ei[][9]
+Ei[][10]
+
+
+Ei[][11] trigger box x
+Ei[][12] trigger box y
+Ei[][13] trigger box w
+Ei[][14] trigger box h
+
+Ei[][15] field box x
+Ei[][16] field box y
+Ei[][17] field box w
+Ei[][18] field box h
+
+Ei[][19]
+Ei[][20]
+Ei[][21]
+
+
+
+Ei[][22] = player hit
+Ei[][23] = player hit retrigger
+Ei[][24] = health bonus shape
+Ei[][25] = health bonus amount
+Ei[][26] = used to tell what player killed enemy
+Ei[][27] = time to live
+Ei[][28] = cloner create id
+Ei[][29] = collision box size
+Ei[][30] = death loop count
+Ei[][31] = flag that this enemy got shot with bullet
+
+
+Efi[][0]  // x
+Efi[][1]  // y
+Efi[][2]  // xinc
+Efi[][3]  // yinc
+Efi[][4]  // field damage also regular damage
+
+I have a bunch of free ones in here....
+I could put timer and count
+or field box
+
+
+Efi[][11]  // scale inc
+Efi[][12]  // scale
+Efi[][13]  // rot inc
+Efi[][14]  // rot
+
+*/
+
+
 
 void enemy_field(int e)
 {
+   int mode = Ei[e][5];
+
+
    if (Ei[e][31]) // hit
    {
-      enemy_killed(e);
-      return;
+      int inv = Ei[e][3] & 0b00001000;
+
+
+      if (!inv) // not invulnerable
+      {
+         enemy_killed(e);
+         return; // don't do anything else past here
+      }
+
+
+      if (Ei[e][4] == 2) // toggle field
+      {
+         Ei[e][31] = 0; // clear hit
+         if (Ei[e][7] == 0) // do holdoff using 7
+         {
+            Ei[e][8] = !Ei[e][8];
+            Ei[e][7] = 4; // holdoff
+         }
+      }
    }
    enemy_player_hit_proc(e);
+
+
+
    if (--Ei[e][7] < 0) Ei[e][7] = 0; // always run timer
-   int damage = 0;
-   if (Ei[e][5] == 0) damage = 1;                       // damage always
-   if ((Ei[e][5] == 1) && (Ei[e][7] > 0)) damage = 1;   // damage when timer is running (no damage until triggered)
-   if ((Ei[e][5] == 2) && (Ei[e][7] == 0)) damage = 1;  // damage unless timer running  (damage when triggered)
-   Ei[e][8] = damage;  // field is currently in damage mode
+
+
+   if ((mode == 1) || (mode == 2))
+   {
+      int damage = 0;
+      if (mode == 0) damage = 1;                       // damage always
+      if ((mode == 1) && (Ei[e][7] > 0)) damage = 1;   // damage when timer is running (no damage until triggered)
+      if ((mode == 2) && (Ei[e][7] == 0)) damage = 1;  // damage unless timer running  (damage when triggered)
+      Ei[e][8] = damage;  // field is currently in damage mode
+   }
+
+   if (mode == 3) // blindly follow lift 0
+   {
+      Ei[e][8] = 1; // always damage;  // field is currently in damage mode
+
+      int d = 0; // lift 0
+
+      int x1 = lifts[d].x1;
+      //int x2 = lifts[d].x2;
+      int y1 = lifts[d].y1;
+      //int y2 = lifts[d].y2;
+
+      Ei[e][15] = x1;
+      Ei[e][16] = y1;
+   }
+
+
+   /* ON / OFF tiles
+   Ei[e][2] = 1;
+   if (Ei[e][8] == 0) Ei[e][1] = 359;
+   if (Ei[e][8] == 1) Ei[e][1] = 358;
+*/
+
+
+
+
 }
 
 
@@ -2116,17 +2356,17 @@ Ei[][0] = enemy type
 Ei[][1] = bitmap
 Ei[][2] = draw mode
 
-
 Ei[][22] = player hit
 Ei[][23] = player hit retrigger
-Ei[][24] = bonus shape
-Ei[][25] = health bonus
+Ei[][24] = helath bonus shape
+Ei[][25] = health bonus amount
 Ei[][26] = used to tell what player killed enemy
 Ei[][27] = time to live
 Ei[][28] = cloner create id
 Ei[][29] = collision box size
 Ei[][30] = death loop count
-Ei[][31] = enemy hit
+Ei[][31] = flag that this enemy got shot with bullet
+
 
 Efi[][0] =  x
 Efi[][1] =  y
@@ -2236,40 +2476,6 @@ Ei[][17] dest box x
 Ei[][18] dest box y
 Ei[][19] copy box width
 Ei[][20] copy box height
-
-
-
-
-
-
-[10]--field-----------------------------------------------------------------------------
-
-Ei[][4]  draw boxes (0 = none) (1 = trigger) (2 = source/dest) (3 = both)
-Ei[][5]  mode
-
-Ei[][11] trigger box x1
-Ei[][12] trigger box y1
-Ei[][13] trigger box x2
-Ei[][14] trigger box y2
-
-Ei[][15] field box x
-Ei[][16] field box y
-Ei[][17] field box w
-Ei[][18] field box h
-
-
-Efi[][4] // life dec
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -163,8 +163,8 @@ void proc_ebullet_collision(int p, int b)
 
 void move_ebullets()
 {
-   for (int b = 0; b < 50; b++)
-      if (e_bullet_active[b])  // if bullet not active skip to next one
+   for (int b=0; b<50; b++)
+      if (e_bullet_active[b])
       {
          e_bullet_fx[b] += e_bullet_fxinc[b]; // inc x
          e_bullet_fy[b] += e_bullet_fyinc[b]; // inc y

@@ -577,8 +577,12 @@ void proc_player_bounds_check(int p)
    if (players[p].PY > al_itofix(1980)) players[p].PY = al_itofix(1980);
 }
 
+
 void proc_player_collisions(int p)
 {
+
+
+
    al_fixed f10 = al_itofix(10);
    al_fixed f16 = al_itofix(16);
 
@@ -621,28 +625,6 @@ void proc_player_collisions(int p)
          al_fixed ey2 = Efi[e][1] + b;
          if ((players[p].PX > ex1) && (players[p].PX < ex2)
           && (players[p].PY > ey1) && (players[p].PY < ey2)) Ei[e][22] = p+1;
-      }
-      if (Ei[e][0] == 10) // check for field collision
-      {
-         // trigger field
-         al_fixed ix1 = al_itofix(Ei[e][11]);
-         al_fixed iy1 = al_itofix(Ei[e][12]);
-         al_fixed ix2 = ix1 + al_itofix(Ei[e][13]);
-         al_fixed iy2 = iy1 + al_itofix(Ei[e][14]);
-
-         if ((players[p].PX > ix1) && (players[p].PX < ix2)
-          && (players[p].PY > iy1) && (players[p].PY < iy2)
-          && (!players[p].paused) ) proc_field_collision(p, e, 0);
-
-         // damage field
-         ix1 = al_itofix(Ei[e][15]);
-         iy1 = al_itofix(Ei[e][16]);
-         ix2 = ix1 + al_itofix(Ei[e][17]);
-         iy2 = iy1 + al_itofix(Ei[e][18]);
-
-         if ((players[p].PX > ix1) && (players[p].PX < ix2)
-          && (players[p].PY > iy1) && (players[p].PY < iy2)
-          && (!players[p].paused) ) proc_field_collision(p, e, 1);
       }
    }
 

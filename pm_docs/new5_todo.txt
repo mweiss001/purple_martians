@@ -33,10 +33,9 @@ I could make the item 'mine' have a larger rectangular area
 
 I could make other items like that too...like one that kills enemies...
 
-I have wanted to do these reactagular area for years, I just never thought to make them part of an item...
+I have wanted to do these rectangular areas for years, I just never thought to make them part of an item...
 
 omg...I was think of making them stationary, but what if I made their position slave to another object, like a lift??!!
-
 
 
 start by making a new item..
@@ -672,6 +671,349 @@ cant see the field in obj viewer
 also what color should they be??
 trigger yellow
 field red
+
+OK that looks good...now make field always show in level editor
+what is that global? level_editor_running
+
+
+looking good...now figure out how to tell when timer is running...done
+show small number counting down second above the enemy..
+
+test if I can use this at the bottom of a pit that kills you instantly...
+not unless I set the damage higher...set to 100
+
+move rect to be red...done
+hide trigger if not used...done
+
+
+I want to try slaving it to a lift...just the damage field..always on for now
+mode = 3; works as proof on concept...
+
+can we make the field kill enemies??
+
+where will I do the collision detection?
+
+right now I think all my collisions are with player...
+I only really care if things collide with players....
+
+I propose to make a new collision detection based on what collides with fields
+
+Then I can do players, enemies, items...
+
+
+made void proc_field_collisions(void);
+and added it to loop....
+
+
+seems to be working good...
+
+items...done...
+
+
+wow!!!
+
+now I need to be able to set this in the field somehow....
+
+
+
+
+
+
+
+
+
+lets just list a bunch of possible types here:
+
+
+always on, invisible invulnerable enemy
+always on, enemy can be killed
+
+
+type 3 - always on, following lift
+
+type 4 - shooting enemy toggles field
+
+have a bunch of toggles for enemy shape
+- hidden, invulnerable
+- shown, killable
+- shown, shooting toggles
+
+
+lets implement hit type
+Ei[e][4]
+
+0 normal (can kill)
+1 invulnerable
+2 toggle also need mode == 4
+
+its better to do this with modes...
+
+pick which modes are invincible...choose a variable also used for death ans...will never be used for this
+
+
+
+mode 4 toggle
+don't show trigger or allow timer to run
+maybe I could make my own bullet handler so it doesn't eat the bullet???
+
+5 trigger be time based only...on time off time...
+
+6 timed like 1 but triggered with shot
+7 timed like 2 but triggered with shot
+
+8 timed like 2 but triggered with enemy collision
+8 timed like 2 but triggered with enemy collision
+
+immdiate when in zone
+
+
+
+I've got to use some more variables
+dig into the fixed...
+
+on  count
+off count
+
+runs with timer only
+
+
+
+lets start with what triggers it:
+---------------------------------
+player in trigger zone
+enemy in trigger zone
+player shoots enemy
+player touches enemy
+strictly timer based on and off
+
+then what happens next:
+-----------------------
+zone on with timer
+zone off with timer
+
+toggle
+
+immediate on or off
+
+
+then what does it affect:
+-------------------------
+players
+enemies
+items
+
+optionally
+------------------
+move with lift
+
+
+how many modes do I have that work?
+
+-------------------
+5-0 - normal
+4-0 - normal
+always on
+not invulnerable
+--------------------
+5-1 - off until triggered, then timer runs
+4-0 (0 normal, 1 invul, 3 add time)
+
+not invulnerable
+--------------------
+2 - on until triggered, then timer runs
+not invulnerable
+--------------------
+3 - alway on, follows lift
+not invulnerable
+--------------------
+
+
+lets get some nicer drawing for the stuff
+
+
+spike pit...
+flames...
+acid...
+
+
+20220327 new day
+did a lot yesterday
+kind of ran out of steam after 12 hours
+today I am going to bring it on home...complete a lot of this.
+
+I want to start by implementing what objects are affected by the field
+
+use a single int and also use it for invul
+
+
+bit 1 player
+bit 2 enemy
+bit 3 item
+bit 4 invuln
+
+
+typedef union
+{
+ uint8_t     all_flags;      /* Allows us to refer to the flags 'en masse' */
+ struct
+ {
+  uint8_t foo : 1,        /* Explanation of foo */
+          bar : 1,        /* Explanation of bar */
+          spare5 : 1,     /* Unused */
+          spare4 : 1,     /* Unused */
+          spare3 : 1,     /* Unused */
+          spare2 : 1,     /* Unused */
+          spare1 : 1,     /* Unused */
+          spare0 : 1;     /* Unused */
+ };
+} EX_FLAGS;
+
+static EX_FLAGS    Flags;  /* Allocation for the Flags */
+
+Flags.all_flags = 0U; /* Clear all flags */
+
+...
+
+Flags.bar = 1U; /* Set the bar flag */
+
+-----------------------------------------------------------
+
+if(x & 0x01){} // tests if bit 0 is set using bitwise AND
+x ^= 0x02;     // toggles bit 1 (0 based) using bitwise XOR
+x |= 0x10;     // sets bit 4 (0 based) using bitwise OR
+
+-----------------------------------------------------------
+
+
+/* Each of these preprocessor directives defines a single bit,
+   corresponding to one button on the controller.
+   Button order matches that of the Nintendo Entertainment System. */
+#define KEY_RIGHT  0b00000001
+#define KEY_LEFT   0b00000010
+#define KEY_DOWN   0b00000100
+#define KEY_UP     0b00001000
+#define KEY_START  0b00010000
+#define KEY_SELECT 0b00100000
+#define KEY_B      0b01000000
+#define KEY_A      0b10000000
+
+int gameControllerStatus = 0;
+
+/* Sets the gameControllerStatus using OR */
+void KeyPressed( int key ) { gameControllerStatus |= key; }
+
+/* Clears the gameControllerStatus  using AND and ~ (binary NOT)*/
+void KeyReleased( int key ) { gameControllerStatus &= ~key; }
+
+/* Tests whether a bit is set using AND */
+int IsPressed( int key ) { return gameControllerStatus & key; }
+
+---------------------------------------------------------------------------
+
+lets call Ei[e][3] flags
+
+make 4 button to set player, enemy, items, invul
+
+if (bn == 89) // field affects player flag
+{
+   if (Ei[num][3] & 0b00000001) sprintf(smsg, "Affects Players");
+   else sprintf(smsg, "Does Not Affect Players");
+}
+if (bn == 90) // field affects enemy flag
+{
+   if (Ei[num][3] & 0b00000010) sprintf(smsg, "Affects Enemies");
+   else sprintf(smsg, "Does Not Affect Enemies");
+}
+if (bn == 91) // field affects item flag
+{
+   if (Ei[num][3] & 0b00000100) sprintf(smsg, "Affects Items");
+   else sprintf(smsg, "Does Not Affect Items");
+}
+if (bn == 92) // field enemy invulnerable flag
+{
+   if (Ei[num][3] & 0b00001000) sprintf(smsg, "Invulnerable");
+   else sprintf(smsg, "Not Invulnerable");
+}
+
+if (bn == 89) Ei[num][3] ^= 0b00000001; // bitwise OR
+if (bn == 90) Ei[num][3] ^= 0b00000010; // bitwise OR
+if (bn == 91) Ei[num][3] ^= 0b00000100; // bitwise OR
+if (bn == 92) Ei[num][3] ^= 0b00001000; // bitwise OR
+
+int cdp = ((Ei[e][8]) && (Ei[e][3] & 0b00000001)); // damage active and player flag
+int cde = ((Ei[e][8]) && (Ei[e][3] & 0b00000010)); // damage active and enemy flag
+int cdi = ((Ei[e][8]) && (Ei[e][3] & 0b00000100)); // damage active and item flag
+
+
+lets add to this trigger:
+
+trigger field player
+trigger field enemy
+trigger shoot enemy
+trigger timer
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

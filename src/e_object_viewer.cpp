@@ -276,6 +276,49 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
 
          }
          break;
+         case 10: // field
+         {
+            sprintf(lmsg[1],"Field Location");
+            sprintf(lmsg[2],"Field Area");
+            sprintf(lmsg[3],"Trigger Box");
+            Num_legend_lines = 4;
+
+            int color2 = 10;
+            legend_color[2] = 10;
+            if (legend_highlight == 2)
+            {
+               color2 = highlight_color;
+               legend_color[2] = highlight_color;
+            }
+
+            int color3 = 14;
+            legend_color[3] = 14;
+            if (legend_highlight == 3)
+            {
+               color3 = highlight_color;
+               legend_color[3] = highlight_color;
+            }
+
+            int cw = Ei[num][17]*db/20;     // width
+            int ch = Ei[num][18]*db/20;     // height
+            int cx1 = Ei[num][15]*db/20;    // source
+            int cy1 = Ei[num][16]*db/20;
+            int cx2 = cx1 + cw;
+            int cy2 = cy1 + ch;
+            //rectangle_with_diagonal_lines(cx1, cy1, cx2, cy2, db/3, color2, color2+64);
+            al_draw_rectangle(cx1, cy1, cx2, cy2, palette_color[color2], 1);
+
+            // draw trigger box
+            int tw = Ei[num][13]*db/20;     // width
+            int th = Ei[num][14]*db/20;     // height
+            int tx1 = Ei[num][11]*db/20;
+            int ty1 = Ei[num][12]*db/20;
+            int tx2 = tx1 + tw;
+            int ty2 = ty1 + th;
+            //rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, db/3, color4, color4+64);
+            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color3], 1);
+         }
+         break;
          case 11: sprintf(lmsg[1],"Block Walker Location"); break;
          case 12: // flapper
          {
@@ -590,8 +633,8 @@ int move_obt_with_map(int obt, int type, int num)
             mouse_on_fdb_ul = 1;
             mouse_on_extra = 1;
             for (int a=0; a<4; a++)
-               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
-            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[14], 1);                 // mark ul corner
+               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[10+a*64], 1); // mark entire box
+            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[10], 1);                 // mark ul corner
             mouse_move = 1;
          }
          if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // lower right corner
@@ -599,8 +642,8 @@ int move_obt_with_map(int obt, int type, int num)
             mouse_on_fdb_lr = 1;
             mouse_on_extra = 1;
             for (int a=0; a<4; a++)
-               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
-            al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, palette_color[14], 1);                 // mark lr corner
+               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[10+a*64], 1); // mark entire box
+            al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, palette_color[10], 1);                 // mark lr corner
             mouse_adj = 1;
          }
       }
@@ -1256,14 +1299,26 @@ void object_viewer(int obt, int num)
 
                case 10: // field
                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // mode
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 88, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // hit mode
+
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 82, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2; // field timer
 
                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 85, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get field
                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 86, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get trigger
 
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
-                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
 
+                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 83, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // field damage
+
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 89, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get trigger
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 90, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get trigger
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 91, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get trigger
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 92, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get trigger
+
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 93, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get trigger
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 94, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get trigger
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 95, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get trigger
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 96, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get trigger
 
                break;
 
