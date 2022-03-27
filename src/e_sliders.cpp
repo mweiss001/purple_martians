@@ -106,9 +106,8 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 81) item[num][11] = (int)f;              // minefield damage
 
 
-   if (bn == 82) Ei[num][6] = (int)f;                 // field damage
-
-
+   if (bn == 82) Ei[num][6] = (int)f;                 // field timer
+   if (bn == 83) Efi[num][4] = al_ftofix(f);                 // field damage
 
 }
 
@@ -269,10 +268,66 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (Ei[num][5] == 0) sprintf(smsg, "Damage Always");
       if (Ei[num][5] == 1) sprintf(smsg, "No Damage Until Triggered");
       if (Ei[num][5] == 2) sprintf(smsg, "Damage Until Triggered");
+      if (Ei[num][5] == 3) sprintf(smsg, "lift");
+      if (Ei[num][5] == 4) sprintf(smsg, "Toggle");
+   }
+
+   if (bn == 88) // field hit mode
+   {
+      if (Ei[num][4] == 0) sprintf(smsg, "Normal");
+      if (Ei[num][4] == 1) sprintf(smsg, "Invulnerable");
+      if (Ei[num][4] == 2) sprintf(smsg, "Toggle");
    }
 
 
+   if (bn == 89) // field affects player flag
+   {
+      if (Ei[num][3] & 0b00000001) sprintf(smsg, "Affects Players");
+      else sprintf(smsg, "Does Not Affect Players");
+   }
 
+   if (bn == 90) // field affects enemy flag
+   {
+      if (Ei[num][3] & 0b00000010) sprintf(smsg, "Affects Enemies");
+      else sprintf(smsg, "Does Not Affect Enemies");
+   }
+
+   if (bn == 91) // field affects item flag
+   {
+      if (Ei[num][3] & 0b00000100) sprintf(smsg, "Affects Items");
+      else sprintf(smsg, "Does Not Affect Items");
+   }
+
+   if (bn == 92) // field enemy invulnerable flag
+   {
+      if (Ei[num][3] & 0b00001000) sprintf(smsg, "Invulnerable");
+      else sprintf(smsg, "Not Invulnerable");
+   }
+
+
+   if (bn == 93) // Trigger Field Player flag
+   {
+      if (Ei[num][3] & 0b00010000) sprintf(smsg, "Trigger Field Players:ON");
+      else sprintf(smsg, "Trigger Field Players:OFF");
+   }
+
+   if (bn == 94) // Trigger Field Enemy flag
+   {
+      if (Ei[num][3] & 0b00100000) sprintf(smsg, "Trigger Field Enemies:ON");
+      else sprintf(smsg, "Trigger Field Enemies:OFF");
+   }
+
+   if (bn == 95) // Trigger Shoot Enemy flag
+   {
+      if (Ei[num][3] & 0b01000000) sprintf(smsg, "Trigger Shoot Enemy:ON");
+      else sprintf(smsg, "Trigger Shoot Enemy:OFF");
+   }
+
+   if (bn == 96) // Trigger Timer flag
+   {
+      if (Ei[num][3] & 0b10000000) sprintf(smsg, "Trigger Timer:ON");
+      else sprintf(smsg, "Trigger Timer:OFF");
+   }
 
 
 }
@@ -362,6 +417,8 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 81) sprintf(smsg, "Damage:%d", item[num][11]);
 
    if (bn == 82) sprintf(smsg, "Field Timer:%d", Ei[num][6]);
+
+   if (bn == 83) sprintf(smsg, "Field Damage:%f", al_fixtof(Efi[num][4]));
 
 }
 
@@ -688,8 +745,39 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 87)
       {
          Ei[num][5]++;
-         if (Ei[num][5] > 2) Ei[num][5] = 0;
+         if (Ei[num][5] > 4) Ei[num][5] = 0;
       }
+
+      if (bn == 88)
+      {
+         Ei[num][4]++;
+         if (Ei[num][4] > 2) Ei[num][4] = 0;
+      }
+
+      if (bn == 89) Ei[num][3] ^= 0b00000001; // bitwise OR
+      if (bn == 90) Ei[num][3] ^= 0b00000010; // bitwise OR
+      if (bn == 91) Ei[num][3] ^= 0b00000100; // bitwise OR
+      if (bn == 92) Ei[num][3] ^= 0b00001000; // bitwise OR
+      if (bn == 93) Ei[num][3] ^= 0b00010000; // bitwise OR
+      if (bn == 94) Ei[num][3] ^= 0b00100000; // bitwise OR
+      if (bn == 95) Ei[num][3] ^= 0b01000000; // bitwise OR
+      if (bn == 96) Ei[num][3] ^= 0b10000000; // bitwise OR
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -803,7 +891,8 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
       case 81: sul=1000;  sll=0;   sinc=1; sdx=item[num][11];           break;  // minefield damage
 
-      case 82: sul=1000;  sll=10;  sinc=1; sdx=Ei[num][6];           break;  // field timer
+      case 82: sul=1000;  sll=10;  sinc=1;  sdx=Ei[num][6];           break;  // field timer
+      case 83: sul=100;   sll=0.1; sinc=.1; sdx=al_fixtof(Efi[num][4]);           break;  // field damage
    }
 
    // draw the slider

@@ -1037,8 +1037,12 @@ void enemy_killed(int EN);
 void enemy_player_hit_proc(int EN);
 
 void enemy_field(int e);
-void proc_field_collision(int p, int x, int b);
+void proc_field_collision(int t, int p, int x, int b);
 void draw_enemy_field(int e);
+
+void detect_field_collisions(void);
+
+
 
 // z_file.h
 void make_filename(int x);
