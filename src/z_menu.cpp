@@ -618,7 +618,6 @@ void menu_setup(void)
    strcpy (item_name[12],"Warp");
    strcpy (item_name[14],"Switch");
    strcpy (item_name[15],"Sproingy");
-   strcpy (item_name[20],"Minefield");
 
    strcpy (enemy_name[0],  "empty");
    strcpy (enemy_name[3],  "ArchWagon");
@@ -638,6 +637,7 @@ void menu_setup(void)
    enemy_tile[8]  = 384;
    enemy_tile[9]  = 550;
    enemy_tile[11] = 866;
+   enemy_tile[10] = 476;
    enemy_tile[12] = 159;
 
    strcpy (color_name[0],  "Zombie");

@@ -1352,8 +1352,30 @@ void object_viewer(int obt, int num)
                   }
 
 
+                  if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_PBUL)
+                  {
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 103, num, type, obt, 0, 10, 15,  0, 1,0,0,0); a++;
+                  }
+                  else
+                  {
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 103, num, type, obt, 0, 10+d, 15+d,  0, 1,0,0,0); a++;
+                  }
+
+                  if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_EBUL)
+                  {
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 104, num, type, obt, 0, 10, 15,  0, 1,0,0,0); a++;
+                  }
+                  else
+                  {
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 104, num, type, obt, 0, 10+d, 15+d,  0, 1,0,0,0); a++;
+                  }
+
+
+
+
 
                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 102, num, type, obt, 0, 10, 15,  0, 1,0,0,0); a++;  // damage field draw type
+
 
 
 
@@ -1396,6 +1418,7 @@ void object_viewer(int obt, int num)
                      }
 
                      mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 82, num, type, obt, 0, 14, 15, 15, 1,0,0,0); a++; // timer
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 105, num, type, obt, 0, 10, 15,  0, 1,0,0,0); a++;  // trigger field draw type
 
 
 
@@ -1407,6 +1430,11 @@ void object_viewer(int obt, int num)
                      mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 82, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // timer
                      mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 86, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // timer2
                   }
+
+
+
+
+
 
 
 
@@ -1570,16 +1598,6 @@ void object_viewer(int obt, int num)
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 13, 0,  1,0,0,0); a++; // stat | fall | carry
                   mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 28, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // warp level
                break;
-
-
-               case 20: // minefield
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 84,  num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++; // set new range
-
-                  mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 81, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // damage
-
-               break;
-
-
 
             } // end of switch type
          } // end of if obt = item

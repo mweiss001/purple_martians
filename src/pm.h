@@ -37,7 +37,8 @@
 #define PM_ENEMY_FIELD_BULLET_EATEN   0b0000001000000000
 #define PM_ENEMY_FIELD_LIFT_SETS_FLD  0b0000010000000000
 #define PM_ENEMY_FIELD_LIFT_SETS_TRG  0b0000100000000000
-
+#define PM_ENEMY_FIELD_AFFECTS_PBUL   0b0001000000000000
+#define PM_ENEMY_FIELD_AFFECTS_EBUL   0b0010000000000000
 
 
 // enemy debug stuff
@@ -851,6 +852,7 @@ int create_key(int c);
 int create_start_block(int c);
 int create_exit(int c);
 int create_door(int type);
+void create_field(void);
 int create_item(int type);
 
 // e_enemy.h
@@ -1057,7 +1059,7 @@ void proc_field_collision(int t, int p, int x, int b);
 void draw_enemy_field(int e);
 
 void detect_field_collisions(void);
-void set_field_location_from_lift(int e, int dt);
+void set_field_location_from_lift(int e, int dt, int a20);
 
 
 // z_file.h
@@ -1130,9 +1132,6 @@ void proc_player_carry(int p);
 void proc_item_collision(int p, int x);
 void proc_lit_bomb(int);
 void proc_lit_rocket(int);
-
-void proc_minefield_collision(int p, int i);
-
 
 // z_lift.h
 int construct_lift(int l, char* lift_name, int width, int height, int color, int num_steps);

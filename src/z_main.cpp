@@ -1252,8 +1252,15 @@ void game_menu(void)
 }
 
 
+
+
+
+
+
+
 int main(int argument_count, char **argument_array)
 {
+
 // --------------------------------------------------------------------------------------------
 // these flags get processed before initial setup is called
 // --------------------------------------------------------------------------------------------

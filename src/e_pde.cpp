@@ -468,7 +468,7 @@ int process_select_window(int draw_only)
                         case 10: create_door(1); break; // type 209 - 1 way al_fixed exit door
                         case 11: create_door(2); break; // type 210 - 1 way linked exit door
                         case 12: create_door(3); break; // type 211 - 2 way door set
-
+                        case 13: create_field(); break; // type 212 - field
 
                      }
                      draw_big(1);
