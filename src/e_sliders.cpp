@@ -107,10 +107,24 @@ void update_var(int bn, int type, int num, float f)
 
 
    if (bn == 82) Ei[num][6] = (int)f;                 // field timer
-   if (bn == 83) Efi[num][4] = al_ftofix(f);                 // field damage
+   if (bn == 83) Efi[num][4] = al_ftofix(f);          // field damage
+
+   if (bn == 84)
+   {
+      Ei[num][21] = (int)f;              // lift field is slaved to
+      set_field_location_from_lift(num, 0);
+   }
+   if (bn == 85)
+   {
+      Ei[num][20] = (int)f;              // lift trigger is slaved to
+      set_field_location_from_lift(num, 1);
+   }
+
+
+   if (bn == 86) Ei[num][8] = (int)f;                 // field timer2
+
 
 }
-
 
 void fill_smsg_button(int bn, int obt, int type, int num)
 {
@@ -258,75 +272,105 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    }
 
    if (bn == 84) sprintf(smsg, "Get New Minefield Rectangle");
-   if (bn == 85) sprintf(smsg, "Get New Field Rectangle");
-   if (bn == 86) sprintf(smsg, "Get New Field Trigger Box");
+
+
+
+   if (bn == 85) sprintf(smsg, "Get New Damage Field");
+   if (bn == 86) sprintf(smsg, "Get New Trigger Field");
 
 
 
    if (bn == 87) // field mode
    {
-      if (Ei[num][5] == 0) sprintf(smsg, "Damage Always");
-      if (Ei[num][5] == 1) sprintf(smsg, "No Damage Until Triggered");
-      if (Ei[num][5] == 2) sprintf(smsg, "Damage Until Triggered");
-      if (Ei[num][5] == 3) sprintf(smsg, "lift");
-      if (Ei[num][5] == 4) sprintf(smsg, "Toggle");
-   }
-
-   if (bn == 88) // field hit mode
-   {
-      if (Ei[num][4] == 0) sprintf(smsg, "Normal");
-      if (Ei[num][4] == 1) sprintf(smsg, "Invulnerable");
-      if (Ei[num][4] == 2) sprintf(smsg, "Toggle");
+      if (Ei[num][5] == 0) sprintf(smsg, "Mode:Damage Field Always ON");
+      if (Ei[num][5] == 1) sprintf(smsg, "Mode:Damage Field Bullet Toggle");
+      if (Ei[num][5] == 2) sprintf(smsg, "Mode:Damage Field ON Until Triggered");
+      if (Ei[num][5] == 3) sprintf(smsg, "Mode:Damage Field ON When Triggered");
+      if (Ei[num][5] == 4) sprintf(smsg, "Mode:Damage Field Timed ON And OFF");
    }
 
 
-   if (bn == 89) // field affects player flag
+
+   if (bn == 89)
    {
-      if (Ei[num][3] & 0b00000001) sprintf(smsg, "Affects Players");
-      else sprintf(smsg, "Does Not Affect Players");
+      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_PLAYER) sprintf(smsg, "Damage Field Affects Players:ON");
+      else sprintf(smsg, "Damage Field Affects Players:OFF");
    }
 
-   if (bn == 90) // field affects enemy flag
+   if (bn == 90)
    {
-      if (Ei[num][3] & 0b00000010) sprintf(smsg, "Affects Enemies");
-      else sprintf(smsg, "Does Not Affect Enemies");
+      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_ENEMY) sprintf(smsg, "Damage Field Affects Enemies:ON");
+      else sprintf(smsg, "Damage Field Affects Enemies:OFF");
    }
 
-   if (bn == 91) // field affects item flag
+   if (bn == 91)
    {
-      if (Ei[num][3] & 0b00000100) sprintf(smsg, "Affects Items");
-      else sprintf(smsg, "Does Not Affect Items");
+      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_ITEM) sprintf(smsg, "Damage Field Affects Items:ON");
+      else sprintf(smsg, "Damage Field Affects Items:OFF");
    }
 
-   if (bn == 92) // field enemy invulnerable flag
+   if (bn == 92)
    {
-      if (Ei[num][3] & 0b00001000) sprintf(smsg, "Invulnerable");
+      if (Ei[num][3] & PM_ENEMY_FIELD_INVULNERABLE) sprintf(smsg, "Invulnerable");
       else sprintf(smsg, "Not Invulnerable");
    }
 
 
-   if (bn == 93) // Trigger Field Player flag
+   if (bn == 93)
    {
-      if (Ei[num][3] & 0b00010000) sprintf(smsg, "Trigger Field Players:ON");
+      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_PLAYER) sprintf(smsg, "Trigger Field Players:ON");
       else sprintf(smsg, "Trigger Field Players:OFF");
    }
 
-   if (bn == 94) // Trigger Field Enemy flag
+   if (bn == 94)
    {
-      if (Ei[num][3] & 0b00100000) sprintf(smsg, "Trigger Field Enemies:ON");
+      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_ENEMY) sprintf(smsg, "Trigger Field Enemies:ON");
       else sprintf(smsg, "Trigger Field Enemies:OFF");
    }
 
-   if (bn == 95) // Trigger Shoot Enemy flag
+   if (bn == 95)
    {
-      if (Ei[num][3] & 0b01000000) sprintf(smsg, "Trigger Shoot Enemy:ON");
-      else sprintf(smsg, "Trigger Shoot Enemy:OFF");
+      if (Ei[num][3] & PM_ENEMY_FIELD_BULLET_TOGGLE) sprintf(smsg, "Trigger Bullet Toggle:ON");
+      else sprintf(smsg, "Trigger Bullet Toggle:OFF");
    }
 
-   if (bn == 96) // Trigger Timer flag
+   if (bn == 96)
    {
-      if (Ei[num][3] & 0b10000000) sprintf(smsg, "Trigger Timer:ON");
+      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_TIMER) sprintf(smsg, "Trigger Timer:ON");
       else sprintf(smsg, "Trigger Timer:OFF");
+   }
+   if (bn == 97)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_BULLET_EATEN) sprintf(smsg, "Trigger Bullet Eaten:ON");
+      else sprintf(smsg, "Trigger Bullet Eaten:OFF");
+   }
+
+   if (bn == 98) sprintf(smsg, "Main Tile"); //change tile
+
+
+   if (bn == 99)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) sprintf(smsg, "Damage Field Initially ON");
+      else sprintf(smsg, "Damage Field Initially OFF");
+   }
+
+
+   if (bn == 100)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_SETS_FLD) sprintf(smsg, "Damage Field Follows Lift:ON");
+      else sprintf(smsg, "Damage Field Follows Lift:OFF");
+   }
+
+   if (bn == 101)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) sprintf(smsg, "Trigger Field Follows Lift:ON");
+      else sprintf(smsg, "Trigger Field Follows Lift:OFF");
+   }
+
+   if (bn == 102)
+   {
+      if (Ei[num][19] == 0) sprintf(smsg, "Damage Field Draw Type:Red Rectangle (default)");
+      if (Ei[num][19] == 1) sprintf(smsg, "Damage Field Draw Type:Spiky Floor");
    }
 
 
@@ -416,9 +460,17 @@ void fill_smsg_slider(int bn, int type, int num)
 
    if (bn == 81) sprintf(smsg, "Damage:%d", item[num][11]);
 
-   if (bn == 82) sprintf(smsg, "Field Timer:%d", Ei[num][6]);
 
-   if (bn == 83) sprintf(smsg, "Field Damage:%f", al_fixtof(Efi[num][4]));
+
+   if (bn == 82) sprintf(smsg, "Damage Field Timer:%d", Ei[num][6]);
+
+   if (bn == 83) sprintf(smsg, "Damage Field Amount of Damage:%f", al_fixtof(Efi[num][4]));
+
+   if (bn == 84) sprintf(smsg, "Damage Field Follows Lift:%d", Ei[num][21]);
+   if (bn == 85) sprintf(smsg, "Trigger Field Follows Lift:%d", Ei[num][20]);
+
+   if (bn == 86) sprintf(smsg, "Damage Field Timer Flip Point:%d", Ei[num][8]);
+
 
 }
 
@@ -720,8 +772,6 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          }
 
 
-
-
       if (bn == 85)
          if (getbox("Get New Field ", 3, 10, num))
          {
@@ -746,46 +796,69 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       {
          Ei[num][5]++;
          if (Ei[num][5] > 4) Ei[num][5] = 0;
+
+
+         if (Ei[num][5] == 0) // mode 0 - always on
+         {
+            Ei[num][3] &= ~PM_ENEMY_FIELD_BULLET_TOGGLE; // clear flag
+            Ei[num][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE; // set flag
+         }
+
+         if (Ei[num][5] == 1) // mode 1 - toggle
+         {
+            Ei[num][3] |= PM_ENEMY_FIELD_BULLET_TOGGLE; // set flag
+            Ei[num][3] |= PM_ENEMY_FIELD_INVULNERABLE;  // set flag
+         }
+
+         if (Ei[num][5] == 2) // mode 2 - no damage until triggered
+         {
+            Ei[num][3] &= ~PM_ENEMY_FIELD_BULLET_TOGGLE;  // clear flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE; // clear flag
+
+         }
+
+         if (Ei[num][5] == 3) // mode 3 - no damage when triggered
+         {
+            Ei[num][3] &= ~PM_ENEMY_FIELD_BULLET_TOGGLE;  // clear flag
+            Ei[num][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE; // set flag
+         }
+
+         if (Ei[num][5] == 4) // mode 4 - Timed on and off
+         {
+
+         }
       }
 
-      if (bn == 88)
+      if (bn == 89)  Ei[num][3] ^= PM_ENEMY_FIELD_AFFECTS_PLAYER;
+      if (bn == 90)  Ei[num][3] ^= PM_ENEMY_FIELD_AFFECTS_ENEMY;
+      if (bn == 91)  Ei[num][3] ^= PM_ENEMY_FIELD_AFFECTS_ITEM;
+      if (bn == 92)  Ei[num][3] ^= PM_ENEMY_FIELD_INVULNERABLE;
+      if (bn == 93)  Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_PLAYER;
+      if (bn == 94)  Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_ENEMY;
+      if (bn == 95)  Ei[num][3] ^= PM_ENEMY_FIELD_BULLET_TOGGLE;
+      if (bn == 96)  Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_TIMER;
+      if (bn == 97)  Ei[num][3] ^= PM_ENEMY_FIELD_BULLET_EATEN;
+      if (bn == 99)  Ei[num][3] ^= PM_ENEMY_FIELD_CURRENT_DAMAGE;
+      if (bn == 100) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_SETS_FLD;
+      if (bn == 101) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_SETS_TRG;
+
+
+      if (bn == 98) // change tile
       {
-         Ei[num][4]++;
-         if (Ei[num][4] > 2) Ei[num][4] = 0;
+         int ct = Ei[num][1]; // current tile
+
+         if (ct == 358) ct = 0;
+         else if (ct == 476) ct = 358;
+         else if (ct == 0)   ct = 476;
+
+         Ei[num][1] = ct;
       }
 
-      if (bn == 89) Ei[num][3] ^= 0b00000001; // bitwise OR
-      if (bn == 90) Ei[num][3] ^= 0b00000010; // bitwise OR
-      if (bn == 91) Ei[num][3] ^= 0b00000100; // bitwise OR
-      if (bn == 92) Ei[num][3] ^= 0b00001000; // bitwise OR
-      if (bn == 93) Ei[num][3] ^= 0b00010000; // bitwise OR
-      if (bn == 94) Ei[num][3] ^= 0b00100000; // bitwise OR
-      if (bn == 95) Ei[num][3] ^= 0b01000000; // bitwise OR
-      if (bn == 96) Ei[num][3] ^= 0b10000000; // bitwise OR
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      if (bn == 102)
+      {
+         Ei[num][19]++;
+         if (Ei[num][19] > 1) Ei[num][19] = 0;
+      }
 
    } // end of mouse pressed on button
    return 0;
@@ -828,71 +901,75 @@ void mdw_slider(int x1, int y1, int x2, int y2,
    float sdx, sul, sll, sinc, dsx;
    switch (bn)
    {
-      case 1:  sul=100;  sll=2;  sinc=1;   sdx=item[num][7];         break;  // health bonus
-      case 2:  sul=200;  sll=2;  sinc=1;   sdx=item[num][8];         break;  // bullet bonus
-      case 3:  sul=400;  sll=5;  sinc=1;   sdx=item[num][9];         break;  // timer bonus
-      case 4:  sul=800;  sll=20; sinc=1;   sdx=item[num][7];         break;  // blast size
-      case 5:  sul=2000; sll=1;  sinc=1;   sdx=item[num][9];         break;  // fuse length
-      case 6:  sul=200;  sll=1;  sinc=1;   sdx=item[num][9];         break;  // accel
-      case 7:  sul=20;   sll=1;  sinc=1;   sdx=item[num][8];         break;  // max speed
-      case 8:  sul=50;   sll=1;  sinc=1;   sdx=item[num][6];         break;  // steerability
-      case 9:  sul=7;    sll=1;  sinc=1;   sdx=item[num][6];         break;  // jump length
-      case 10: sul=200;  sll=40; sinc=1;   sdx=item[num][7];         break;  // sproinginess
-      case 11: sul=20;   sll=1;  sinc=1;   sdx=item[num][8];         break;  // mine damage
-      case 12: sul=9;    sll=.7; sinc=.01; sdx=al_fixtof(Efi[num][6]);  break;  // archwagon x speed
-      case 13: sul=9;    sll=.7; sinc=.01; sdx=al_fixtof(Efi[num][3]);  break;  // y speed
-      case 15: sul=500;  sll=0;  sinc=1;   sdx=Ei[num][6];           break;  // jump wait count
-      case 16: sul=600;  sll=0;  sinc=1;   sdx=Ei[num][7];           break;  // jump under width
-      case 17: sul=100;  sll=0;  sinc=1;   sdx=Ei[num][12];          break;  // jump before wall
-      case 18: sul=40;   sll=0;  sinc=1;   sdx=Ei[num][11];          break;  // Jump before hole
-      case 19: sul=20;   sll=.8; sinc=.1;  sdx=al_fixtof(Efi[num][7]);  break;  // bullet speed
-      case 20: sul=2000; sll=20; sinc=1;   sdx=Ei[num][17];          break;  // bullet prox
-      case 21: sul=200;  sll=1;  sinc=1;   sdx=Ei[num][15];          break;  // retrigger time
-      case 22: sul=12;   sll=0;  sinc=.01; sdx=al_fixtof(Efi[num][5]);  break;  // cannon speed
-      case 23: sul=100;  sll=0;  sinc=1;   sdx=Ei[num][8];           break;  // seek count
-      case 24: sul=20;   sll=0;  sinc=1;   sdx=Ei[num][29];          break;  // collision box
-      case 25: sul=10;   sll=0;  sinc=.1;  sdx=al_fixtof(Efi[num][4]);  break;  // health dec
-      case 26: sul=40;   sll=4;  sinc=1;   sdx=bts;                  break;  // button height
-      case 27: sul=800;  sll=10; sinc=1;   sdx=item[num][8];         break;  // initial time
-      case 28: sul=100;  sll=1;  sinc=1;   sdx=item[num][8];         break;  // warp level
-      case 29: sul=30;   sll=.5; sinc=.5;  sdx=al_fixtof(Efi[num][9]);  break;  // pod speed
-      case 30: sul=40;   sll=0;  sinc=1;   sdx=Ei[num][9];           break;  // pod wait time
-      case 33: sul=5;    sll=.7; sinc=.1;  sdx=al_fixtof(Efi[num][2]);  break;  // flapper x speed
-      case 34: sul=1000; sll=20; sinc=1;   sdx=Ei[num][6];           break;  // create delay
-      case 35: sul=40;   sll=0;  sinc=1;   sdx=Ei[num][9];          break;  // cannon hits
-      case 36: sul=5;    sll=0;  sinc=.01; sdx=al_fixtof(Efi[num][3]);  break;  // flapper y speed
-      case 38: sul=500;  sll=20; sinc=1;   sdx=Ei[num][17];          break;  // width
-      case 39: sul=600;  sll=1;  sinc=10;  sdx=Ei[num][18];          break;  // y1
-      case 40: sul=600;  sll=1;  sinc=10;  sdx=Ei[num][19];          break;  // y2
-      case 41: sul=50;   sll=0;  sinc=1;   sdx=Ei[num][24];          break;  // dead enemy bullet bonus
-      case 42: sul=50;   sll=0;  sinc=1;   sdx=Ei[num][25];          break;  // dead enemy health bonus
-      case 43: sul=99;   sll=1;  sinc=1;   sdx=lifts[num].width;     break;  // lift width
-      case 44: sul=99;   sll=1;  sinc=1;   sdx=lifts[num].height;    break;  // lift heigth
-      case 45: sul=10;   sll=.5; sinc=.01; sdx=al_fixtof(Efi[num][2]);  break;  // trakbot x speed
-      case 46: sul=10;   sll=.5; sinc=.01; sdx=al_fixtof(Efi[num][3]);  break;  // trakbot y speed
-      case 47: sul=100;  sll=0;  sinc=1;   sdx=item[num][8];         break;  // exit with x enemies left
-      case 54: sul=200;  sll=1;  sinc=1;   sdx=item[num][7];         break;  // Message delay time
+      case 1:  sul=100;  sll=2;     sinc=1;   sdx=item[num][7];                break;  // health bonus
+      case 2:  sul=200;  sll=2;     sinc=1;   sdx=item[num][8];                break;  // bullet bonus
+      case 3:  sul=400;  sll=5;     sinc=1;   sdx=item[num][9];                break;  // timer bonus
+      case 4:  sul=800;  sll=20;    sinc=1;   sdx=item[num][7];                break;  // blast size
+      case 5:  sul=2000; sll=1;     sinc=1;   sdx=item[num][9];                break;  // fuse length
+      case 6:  sul=200;  sll=1;     sinc=1;   sdx=item[num][9];                break;  // accel
+      case 7:  sul=20;   sll=1;     sinc=1;   sdx=item[num][8];                break;  // max speed
+      case 8:  sul=50;   sll=1;     sinc=1;   sdx=item[num][6];                break;  // steerability
+      case 9:  sul=7;    sll=1;     sinc=1;   sdx=item[num][6];                break;  // jump length
+      case 10: sul=200;  sll=40;    sinc=1;   sdx=item[num][7];                break;  // sproinginess
+      case 11: sul=20;   sll=1;     sinc=1;   sdx=item[num][8];                break;  // mine damage
+      case 12: sul=9;    sll=.7;    sinc=.01; sdx=al_fixtof(Efi[num][6]);      break;  // archwagon x speed
+      case 13: sul=9;    sll=.7;    sinc=.01; sdx=al_fixtof(Efi[num][3]);      break;  // y speed
+      case 15: sul=500;  sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // jump wait count
+      case 16: sul=600;  sll=0;     sinc=1;   sdx=Ei[num][7];                  break;  // jump under width
+      case 17: sul=100;  sll=0;     sinc=1;   sdx=Ei[num][12];                 break;  // jump before wall
+      case 18: sul=40;   sll=0;     sinc=1;   sdx=Ei[num][11];                 break;  // Jump before hole
+      case 19: sul=20;   sll=.8;    sinc=.1;  sdx=al_fixtof(Efi[num][7]);      break;  // bullet speed
+      case 20: sul=2000; sll=20;    sinc=1;   sdx=Ei[num][17];                 break;  // bullet prox
+      case 21: sul=200;  sll=1;     sinc=1;   sdx=Ei[num][15];                 break;  // retrigger time
+      case 22: sul=12;   sll=0;     sinc=.01; sdx=al_fixtof(Efi[num][5]);      break;  // cannon speed
+      case 23: sul=100;  sll=0;     sinc=1;   sdx=Ei[num][8];                  break;  // seek count
+      case 24: sul=20;   sll=0;     sinc=1;   sdx=Ei[num][29];                 break;  // collision box
+      case 25: sul=10;   sll=0;     sinc=.1;  sdx=al_fixtof(Efi[num][4]);      break;  // health dec
+      case 26: sul=40;   sll=4;     sinc=1;   sdx=bts;                         break;  // button height
+      case 27: sul=800;  sll=10;    sinc=1;   sdx=item[num][8];                break;  // initial time
+      case 28: sul=100;  sll=1;     sinc=1;   sdx=item[num][8];                break;  // warp level
+      case 29: sul=30;   sll=.5;    sinc=.5;  sdx=al_fixtof(Efi[num][9]);      break;  // pod speed
+      case 30: sul=40;   sll=0;     sinc=1;   sdx=Ei[num][9];                  break;  // pod wait time
+      case 33: sul=5;    sll=.7;    sinc=.1;  sdx=al_fixtof(Efi[num][2]);      break;  // flapper x speed
+      case 34: sul=1000; sll=20;    sinc=1;   sdx=Ei[num][6];                  break;  // create delay
+      case 35: sul=40;   sll=0;     sinc=1;   sdx=Ei[num][9];                  break;  // cannon hits
+      case 36: sul=5;    sll=0;     sinc=.01; sdx=al_fixtof(Efi[num][3]);      break;  // flapper y speed
+      case 38: sul=500;  sll=20;    sinc=1;   sdx=Ei[num][17];                 break;  // width
+      case 39: sul=600;  sll=1;     sinc=10;  sdx=Ei[num][18];                 break;  // y1
+      case 40: sul=600;  sll=1;     sinc=10;  sdx=Ei[num][19];                 break;  // y2
+      case 41: sul=50;   sll=0;     sinc=1;   sdx=Ei[num][24];                 break;  // dead enemy bullet bonus
+      case 42: sul=50;   sll=0;     sinc=1;   sdx=Ei[num][25];                 break;  // dead enemy health bonus
+      case 43: sul=99;   sll=1;     sinc=1;   sdx=lifts[num].width;            break;  // lift width
+      case 44: sul=99;   sll=1;     sinc=1;   sdx=lifts[num].height;           break;  // lift heigth
+      case 45: sul=10;   sll=.5;    sinc=.01; sdx=al_fixtof(Efi[num][2]);      break;  // trakbot x speed
+      case 46: sul=10;   sll=.5;    sinc=.01; sdx=al_fixtof(Efi[num][3]);      break;  // trakbot y speed
+      case 47: sul=100;  sll=0;     sinc=1;   sdx=item[num][8];                break;  // exit with x enemies left
+      case 54: sul=200;  sll=1;     sinc=1;   sdx=item[num][7];                break;  // Message delay time
 
-      case 60: sul=8;   sll=.5;  sinc=.1;  sdx=al_fixtof(Efi[num][5]);  break;  // flapper max x speed
-      case 61: sul=2;   sll=.01; sinc=.01; sdx=al_fixtof(Efi[num][6]);  break;  // flapper x accel
-      case 62: sul=4;   sll=0;   sinc=.1;  sdx=al_fixtof(Efi[num][8]);  break;  // flapper yinc flap scale
+      case 60: sul=8;    sll=.5;    sinc=.1;  sdx=al_fixtof(Efi[num][5]);      break;  // flapper max x speed
+      case 61: sul=2;    sll=.01;   sinc=.01; sdx=al_fixtof(Efi[num][6]);      break;  // flapper x accel
+      case 62: sul=4;    sll=0;     sinc=.1;  sdx=al_fixtof(Efi[num][8]);      break;  // flapper yinc flap scale
 
-      case 63: sul=1000; sll=-1000; sinc=10;  sdx=Ei[num][20];       break;  // height above player
+      case 63: sul=1000; sll=-1000; sinc=10;  sdx=Ei[num][20];                 break;  // height above player
 
-      case 71: sul=29;    sll=4;  sinc=1;  sdx=lift_steps[type][num].val;   break;  // lift move speed
-      case 72: sul=2000; sll=10;  sinc=10; sdx=lift_steps[type][num].val;   break;  // lift wait time
-      case 73: sul=200;  sll=20;  sinc=10; sdx=lift_steps[type][num].val;   break;  // lift prox dist
+      case 71: sul=29;   sll=4;     sinc=1;   sdx=lift_steps[type][num].val;   break;  // lift move speed
+      case 72: sul=2000; sll=10;    sinc=10;  sdx=lift_steps[type][num].val;   break;  // lift wait time
+      case 73: sul=200;  sll=20;    sinc=10;  sdx=lift_steps[type][num].val;   break;  // lift prox dist
 
-      case 74: sul=4800;  sll=0;  sinc=1;  sdx=Ei[num][9];           break;  // cloner created obj time to live
-      case 75: sul=600;   sll=0;  sinc=1;  sdx=Ei[num][10];          break;  // cloner max created obj at one time
+      case 74: sul=4800; sll=0;     sinc=1;   sdx=Ei[num][9];                  break;  // cloner created obj time to live
+      case 75: sul=600;  sll=0;     sinc=1;   sdx=Ei[num][10];                 break;  // cloner max created obj at one time
 
-      case 79: sul=8;    sll=.5;  sinc=.1; sdx=al_fixtof(Efi[num][10]);  break;  // flap speed
-      case 80: sul=400;  sll=0;   sinc=10; sdx=Ei[num][21];              break;  // flap height
+      case 79: sul=8;    sll=.5;    sinc=.1;  sdx=al_fixtof(Efi[num][10]);     break;  // flap speed
+      case 80: sul=400;  sll=0;     sinc=10;  sdx=Ei[num][21];                 break;  // flap height
 
-      case 81: sul=1000;  sll=0;   sinc=1; sdx=item[num][11];           break;  // minefield damage
+      case 81: sul=1000; sll=0;     sinc=1;   sdx=item[num][11];               break;  // minefield damage
 
-      case 82: sul=1000;  sll=10;  sinc=1;  sdx=Ei[num][6];           break;  // field timer
-      case 83: sul=100;   sll=0.1; sinc=.1; sdx=al_fixtof(Efi[num][4]);           break;  // field damage
+      case 82: sul=1000; sll=10;    sinc=1;   sdx=Ei[num][6];                  break;  // field timer
+      case 83: sul=100;  sll=.01;   sinc=.01; sdx=al_fixtof(Efi[num][4]);      break;  // field damage
+
+      case 84: sul=39;   sll=0;     sinc=1;   sdx=Ei[num][21];                 break;  // damage lift number
+      case 85: sul=39;   sll=0;     sinc=1;   sdx=Ei[num][20];                 break;  // trigger lift number
+      case 86: sul=1000; sll=10;    sinc=1;   sdx=Ei[num][8];                  break;  // field timer 2
    }
 
    // draw the slider
