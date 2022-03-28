@@ -258,7 +258,10 @@ void create_field(void)
       Ei[en][1] = 476;   // shape
       Ei[en][2] = 1;     // draw type
 
-      Ei[en][3] = 257;   // flags
+      Ei[en][3] = 0;   // clear all flags
+
+      Ei[en][3] |= PM_ENEMY_FIELD_AFFECTS_PLAYER; // set flag
+      Ei[en][3] |= PM_ENEMY_FIELD_TRIGGER_PLAYER; // set flag
 
       Ei[en][5] = 0;     // mode
 

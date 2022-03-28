@@ -12533,27 +12533,24 @@ should you grab ropes by default?
 only drop if you press down?
 it seems really hard to stay on them....
 
-changed ropes to grab automatically, you don';t need to press up
+changed ropes to grab automatically, you don't need to press up
 
 anytime you are within reach of a rope you will automatically grab it
 
 this caused issues about not being able to press down to fall off a rope
 you would just grab it again immediately
 
-added code to where pressing down made you fall off rope to add 4 to PX so he could actually fall
+added code to where pressing down made you fall off rope to add 4 to PY so he would actually fall
 
 maybe I should make it only if you are falling that you automatically grab rope
 and any other time you need to press up...done
 I like how this works!!!
 
-
 change order of w and h in zfs...done
-
 
 co-located doors bug
 I tried to make a linked chain of doors, one exit landing right on another entrance,
 but I could never enter the second door...fixed
-
 
 old:
 
