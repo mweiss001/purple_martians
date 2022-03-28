@@ -1219,7 +1219,7 @@ make this naming consistant
 at the top should be the stuff related to the enemy
 inv and shape
 
-then the stuff realted to the Damage Field
+then the stuff related to the Damage Field
 
 get new...etc
 
@@ -1235,19 +1235,53 @@ I want to make a test level to show this off....
 
 bugs
 
-when creating, a creator might be nice
+when creating, a creator might be nice..done
 or take me to the edit page right away
 of just make the lr trigger not exactly the ul damage!!..this is done...
+
+remove old simpe PDE for field...
+remove old item field thing...done
 
 when invisible, its kinda hard to find in level editor...fixed
 
 death sequence needs something more than just copying cloner
 
-
 make some better shapes for damage fields...
 
 how will I show different draw types
-use an int?
+use an int? patched it in..
+
+Its use as an item killer is nice too... I can make a screen that items can't go through
+
+to kill items nicely, have the killing screen ignore things in the death phase...done
+redraw attached to lift when stuff moves in level editor....done
+make boxes snap to 20 grid..not a problem unless attached to lift...done
+
+
+I want to make field able to kill enemy and player bullets also....done!!!
+when checking collisions, I realized I can also have bullets affect trigger!!!
+
+make damage field able to be invisible...done
+
+also add display options for trigger field use Ei[][10]... done for now only default and none
+
+
+20220328 6:20 AM
+wow this is coming along so great......time for a push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

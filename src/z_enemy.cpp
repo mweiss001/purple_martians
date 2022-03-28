@@ -920,18 +920,18 @@ void walker_archwagon_common(int e)
 
 
 
+int round20(int val)
+{
+   int m = val%20;
+   if (m<10) return (val - m);
+   else return val + (20-m);
+}
 
 
 
 
 
-
-
-
-
-
-
-void set_field_location_from_lift(int e, int dt)
+void set_field_location_from_lift(int e, int dt, int a20)
 {
    int e_offset = 0; // so I can use this for trigger and damage
    int l_offset = 0;
@@ -962,6 +962,12 @@ void set_field_location_from_lift(int e, int dt)
          Ei[e][15+e_offset] = lifts[d].x1;
          Ei[e][16+e_offset] = lifts[d].x2;
       }
+
+      if (a20) // align to 20 grid
+      {
+         Ei[e][15+e_offset] = round20(Ei[e][15+e_offset]);
+         Ei[e][16+e_offset] = round20(Ei[e][16+e_offset]);
+      }
    }
 }
 
@@ -972,22 +978,36 @@ void draw_enemy_field(int e)
    if ((mode == 0) || (mode == 1) || (mode == 4)) show_trigger = 0;
    if (show_trigger)
    {
-      float tx1 = (float)Ei[e][11]; // trigger
-      float ty1 = (float)Ei[e][12];
-      float tx2 = tx1 + (float)Ei[e][13];
-      float ty2 = ty1 + (float)Ei[e][14];
+      int tx1 = Ei[e][11]; // trigger
+      int ty1 = Ei[e][12];
+      int tx2 = tx1 + Ei[e][13];
+      int ty2 = ty1 + Ei[e][14];
       int tc1 = 14 + 64; // trigger box color
-      rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
+
+      int draw_type = Ei[e][10];
+
+      if (draw_type == 0) rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
+
+      if (draw_type == 1); // draw nothing
+
+
    }
 
 
 
-   float sx1 = (float)Ei[e][15]; // field
-   float sy1 = (float)Ei[e][16];
-   float sx2 = sx1 + (float)Ei[e][17];
-   float sy2 = sy1 + (float)Ei[e][18];
+   int sx1 = Ei[e][15]; // field
+   int sy1 = Ei[e][16];
+   int sx2 = sx1 + Ei[e][17];
+   int sy2 = sy1 + Ei[e][18];
 
    int draw_type = Ei[e][19];
+
+   if (level_editor_running) // snap to lift
+   {
+      if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_FLD) set_field_location_from_lift(e, 0, 1);
+      if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) set_field_location_from_lift(e, 1, 1);
+   }
+
 
 
    if ((Ei[e][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) || (level_editor_running)) // currently in damage mode or level editor
@@ -996,9 +1016,13 @@ void draw_enemy_field(int e)
       if (draw_type == 0)
       {
          int sc1 = 10 + 64; // field box color
-         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 4, sc1, sc1+64); // field
+         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // field
       }
       if (draw_type == 1) for (int hx = sx1; hx<sx2; hx+=20) al_draw_bitmap(tile[807], hx, sy2-20, 0); // draw extended spikes only on bottom row
+
+      if (draw_type == 2); // draw nothing
+
+
    }
    else // draw dimmer
    {
@@ -1044,9 +1068,11 @@ void detect_field_collisions(void)
    for (int e=0; e<100; e++)
       if (Ei[e][0] == 10)
       {
-         int cdp = ((Ei[e][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) && (Ei[e][3] & PM_ENEMY_FIELD_AFFECTS_PLAYER)); // damage active and player flag
-         int cde = ((Ei[e][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) && (Ei[e][3] & PM_ENEMY_FIELD_AFFECTS_ENEMY));  // damage active and enemy flag
-         int cdi = ((Ei[e][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) && (Ei[e][3] & PM_ENEMY_FIELD_AFFECTS_ITEM));   // damage active and item flag
+         int cdp =  ((Ei[e][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) && (Ei[e][3] & PM_ENEMY_FIELD_AFFECTS_PLAYER)); // damage active and player flag
+         int cde =  ((Ei[e][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) && (Ei[e][3] & PM_ENEMY_FIELD_AFFECTS_ENEMY));  // damage active and enemy flag
+         int cdi =  ((Ei[e][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) && (Ei[e][3] & PM_ENEMY_FIELD_AFFECTS_ITEM));   // damage active and item flag
+         int cdpb = ((Ei[e][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) && (Ei[e][3] & PM_ENEMY_FIELD_AFFECTS_PBUL));   // damage active and player bullet flag
+         int cdeb = ((Ei[e][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) && (Ei[e][3] & PM_ENEMY_FIELD_AFFECTS_EBUL));   // damage active and enemy bullet flag
 
          int ct = 1;        // check trigger
          int mode = Ei[e][5];
@@ -1090,6 +1116,32 @@ void detect_field_collisions(void)
                if ((ct) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_field_collision(2, i, e, 0);
                if ((cdi) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(2, i, e, 1);
             }
+
+         for (int b=0; b<50; b++) // check player bullets
+            if (pbullet[b][0])
+            {
+               al_fixed x = al_itofix(pbullet[b][2]);
+               al_fixed y = al_itofix(pbullet[b][3]);
+               if ((cdpb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(3, b, e, 1);
+            }
+
+
+         for (int b=0; b<50; b++) // check enemy bullets
+            if (e_bullet_active[b])
+            {
+               al_fixed x = e_bullet_fx[b];
+               al_fixed y = e_bullet_fy[b];
+               if ((cdeb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(4, b, e, 1);
+
+            }
+
+
+
+
+
+
+
+
       }
 }
 
@@ -1109,9 +1161,6 @@ void proc_field_collision(int type, int x, int e, int b)
          game_event(50, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
       }
    }
-
-
-
    if (type == 1) // enemy
    {
       int e2 = x;
@@ -1125,7 +1174,6 @@ void proc_field_collision(int type, int x, int e, int b)
          //Ei[e][26] = p;           // number of player's bullet that hit enemy
       }
    }
-
    if (type == 2) // item
    {
       int i = x;
@@ -1135,13 +1183,38 @@ void proc_field_collision(int type, int x, int e, int b)
       }
       if (b == 1) // damage field
       {
-         item[i][0] = 0;
-         //item[i][14] = 80;
-
+         if (item[i][0] != 66)
+         {
+            //item[i][0] = 66;
+            item[i][14] = 10;
+         }
+      }
+   }
+   if (type == 3) // player bullet
+   {
+      int i = x;
+      if (b == 0) // trigger field
+      {
+      //   Ei[e][7] = Ei[e][6]; // reset timer
+      }
+      if (b == 1) // damage field
+      {
+          pbullet[i][0] = 0; // kill the bullet
+      }
+   }
+   if (type == 4) // enemy bullet
+   {
+      int i = x;
+      if (b == 0) // trigger field
+      {
+      //   Ei[e][7] = Ei[e][6]; // reset timer
+      }
+      if (b == 1) // damage field
+      {
+         e_bullet_active[i] = 0; // kill the bullet
       }
    }
 }
-
 
 
 /*
@@ -1149,7 +1222,7 @@ void proc_field_collision(int type, int x, int e, int b)
 
 Ei[][0] = 10;
 Ei[][1] = 476; // bitmap
-Ei[][2] = 0;   // draw mode (v and h flips)
+Ei[][2] = 1;   // draw mode (v and h flips)
 
 Ei[][3] = flags - (also used for deathcount ans)
 
@@ -1165,9 +1238,11 @@ Ei[][3] = flags - (also used for deathcount ans)
 #define PM_ENEMY_FIELD_BULLET_EATEN   0b0000001000000000
 #define PM_ENEMY_FIELD_LIFT_SETS_FLD  0b0000010000000000
 #define PM_ENEMY_FIELD_LIFT_SETS_TRG  0b0000100000000000
+#define PM_ENEMY_FIELD_AFFECTS_PBUL   0b0001000000000000
+#define PM_ENEMY_FIELD_AFFECTS_EBUL   0b0010000000000000
 
 
-Ei[][4]
+Ei[][4] - unused
 
 Ei[][5]  mode
 Ei[][6]  timer1 value
@@ -1175,9 +1250,7 @@ Ei[][7]  timer1 count
 Ei[][8]  timer2 value
 Ei[][9]  timer2 count
 
-
-Ei[][10]
-
+Ei[][10] trigger draw type
 
 Ei[][11] trigger field x
 Ei[][12] trigger field y
@@ -1191,8 +1264,8 @@ Ei[][18] damage field h
 
 Ei[][19] damage draw type
 
-Ei[][20] // trig lift
-Ei[][21] // field lift
+Ei[][20] trigger field lift
+Ei[][21] damage field lift
 
 Ei[][22] = player hit
 Ei[][23] = player hit retrigger
@@ -1205,17 +1278,11 @@ Ei[][29] = collision box size
 Ei[][30] = death loop count
 Ei[][31] = flag that this enemy got shot with bullet
 
-
 Efi[][0]  // x
 Efi[][1]  // y
 Efi[][2]  // xinc
 Efi[][3]  // yinc
-Efi[][4]  // field damage also regular damage
-
-I have a bunch of free ones in here....
-I could put timer and count
-or field box
-
+Efi[][4]  // field damage also regular damage (regular damage has been permanently disabled)
 
 Efi[][11]  // scale inc
 Efi[][12]  // scale
@@ -1288,8 +1355,8 @@ void enemy_field(int e)
 
 
 
-   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_FLD) set_field_location_from_lift(e, 0);
-   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) set_field_location_from_lift(e, 1);
+   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_FLD) set_field_location_from_lift(e, 0, 0);
+   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) set_field_location_from_lift(e, 1, 0);
 
 }
 

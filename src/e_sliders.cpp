@@ -102,27 +102,21 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 79) Efi[num][10] = al_ftofix(f);       // flap speed
    if (bn == 80) Ei[num][21] = (int)f;              // flap height
 
-
-   if (bn == 81) item[num][11] = (int)f;              // minefield damage
-
-
    if (bn == 82) Ei[num][6] = (int)f;                 // field timer
    if (bn == 83) Efi[num][4] = al_ftofix(f);          // field damage
 
    if (bn == 84)
    {
-      Ei[num][21] = (int)f;              // lift field is slaved to
-      set_field_location_from_lift(num, 0);
+      Ei[num][21] = (int)f;                           // lift damage field is slaved to
+      set_field_location_from_lift(num, 0, 1);
    }
    if (bn == 85)
    {
-      Ei[num][20] = (int)f;              // lift trigger is slaved to
-      set_field_location_from_lift(num, 1);
+      Ei[num][20] = (int)f;                           // lift trigger field  is slaved to
+      set_field_location_from_lift(num, 1, 1);
    }
 
-
-   if (bn == 86) Ei[num][8] = (int)f;                 // field timer2
-
+   if (bn == 86) Ei[num][8] = (int)f;                 // field timer swap val
 
 }
 
@@ -271,9 +265,6 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (Ei[num][30] ==  1) sprintf(smsg,  "    Invincible   ");
    }
 
-   if (bn == 84) sprintf(smsg, "Get New Minefield Rectangle");
-
-
 
    if (bn == 85) sprintf(smsg, "Get New Damage Field");
    if (bn == 86) sprintf(smsg, "Get New Trigger Field");
@@ -371,7 +362,32 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    {
       if (Ei[num][19] == 0) sprintf(smsg, "Damage Field Draw Type:Red Rectangle (default)");
       if (Ei[num][19] == 1) sprintf(smsg, "Damage Field Draw Type:Spiky Floor");
+      if (Ei[num][19] == 2) sprintf(smsg, "Damage Field Draw Type:none");
    }
+
+   if (bn == 103)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_PBUL) sprintf(smsg, "Damage Field Affects Player's Bullets:ON");
+      else sprintf(smsg, "Damage Field Affects Player's Bullets:OFF");
+   }
+
+   if (bn == 104)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_EBUL) sprintf(smsg, "Damage Field Affects Enemy's Bullets:ON");
+      else sprintf(smsg, "Damage Field Affects Enemy's Bullets:OFF");
+   }
+
+
+   if (bn == 105)
+   {
+      if (Ei[num][10] == 0) sprintf(smsg, "Trigger Field Draw Type:Yellow Rectangle (default)");
+      if (Ei[num][10] == 1) sprintf(smsg, "Trigger Field Draw Type:none");
+   }
+
+
+
+
+
 
 
 }
@@ -457,10 +473,6 @@ void fill_smsg_slider(int bn, int type, int num)
 
    if (bn == 79) sprintf(smsg, "Flap Speed:%-1.2f", al_fixtof(Efi[num][10]));
    if (bn == 80) sprintf(smsg, "Flap Height:%d", Ei[num][21]);
-
-   if (bn == 81) sprintf(smsg, "Damage:%d", item[num][11]);
-
-
 
    if (bn == 82) sprintf(smsg, "Damage Field Timer:%d", Ei[num][6]);
 
@@ -749,6 +761,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 78) if (++item[num][7] > 7) item[num][7] = 0;
       if (bn == 81) if (++Ei[num][4] > 3) Ei[num][4] = 0;
 
+
       if (bn == 82)
       {
          item[num][3]++;
@@ -756,21 +769,6 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          if (item[num][3] == -1) item[num][3] = 0;
       }
       if (bn == 83) Ei[num][30] = !Ei[num][30];
-
-
-
-      if (bn == 84)
-         if (getbox( "Minefield Range", 2, 4, num) == 1)
-         {
-            if (--bx2 < bx1) bx2++;
-            if (--by2 < by1) by2++;
-            item[num][6] = bx1*20;
-            item[num][7] = by1*20;
-            item[num][8] = (1+bx2 - bx1)*20;
-            item[num][9] = (1+by2 - by1)*20;
-            Redraw = 1;
-         }
-
 
       if (bn == 85)
          if (getbox("Get New Field ", 3, 10, num))
@@ -841,7 +839,8 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 99)  Ei[num][3] ^= PM_ENEMY_FIELD_CURRENT_DAMAGE;
       if (bn == 100) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_SETS_FLD;
       if (bn == 101) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_SETS_TRG;
-
+      if (bn == 103) Ei[num][3] ^= PM_ENEMY_FIELD_AFFECTS_PBUL;
+      if (bn == 104) Ei[num][3] ^= PM_ENEMY_FIELD_AFFECTS_EBUL;
 
       if (bn == 98) // change tile
       {
@@ -854,11 +853,26 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          Ei[num][1] = ct;
       }
 
-      if (bn == 102)
+      if (bn == 102) // Damage Field Draw Type
       {
          Ei[num][19]++;
-         if (Ei[num][19] > 1) Ei[num][19] = 0;
+         if (Ei[num][19] > 2) Ei[num][19] = 0;
       }
+
+      if (bn == 105) // Trigger Field Draw Type
+      {
+         Ei[num][10]++;
+         if (Ei[num][10] > 1) Ei[num][10] = 0;
+      }
+
+
+
+
+
+
+
+
+
 
    } // end of mouse pressed on button
    return 0;
@@ -962,14 +976,12 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 79: sul=8;    sll=.5;    sinc=.1;  sdx=al_fixtof(Efi[num][10]);     break;  // flap speed
       case 80: sul=400;  sll=0;     sinc=10;  sdx=Ei[num][21];                 break;  // flap height
 
-      case 81: sul=1000; sll=0;     sinc=1;   sdx=item[num][11];               break;  // minefield damage
-
       case 82: sul=1000; sll=10;    sinc=1;   sdx=Ei[num][6];                  break;  // field timer
       case 83: sul=100;  sll=.01;   sinc=.01; sdx=al_fixtof(Efi[num][4]);      break;  // field damage
 
       case 84: sul=39;   sll=0;     sinc=1;   sdx=Ei[num][21];                 break;  // damage lift number
       case 85: sul=39;   sll=0;     sinc=1;   sdx=Ei[num][20];                 break;  // trigger lift number
-      case 86: sul=1000; sll=10;    sinc=1;   sdx=Ei[num][8];                  break;  // field timer 2
+      case 86: sul=1000; sll=10;    sinc=1;   sdx=Ei[num][8];                  break;  // field timer switch val
    }
 
    // draw the slider

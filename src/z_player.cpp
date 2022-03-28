@@ -598,17 +598,6 @@ void proc_player_collisions(int p)
           && (players[p].PY > iy1) && (players[p].PY < iy2)
           && (!players[p].paused) ) proc_item_collision(p, x);
       }
-      if (item[x][0] == 20) // check for minefield collision
-      {
-         al_fixed ix1 = al_itofix(item[x][6]);
-         al_fixed iy1 = al_itofix(item[x][7]);
-         al_fixed ix2 = ix1 + al_itofix(item[x][8]);
-         al_fixed iy2 = iy1 + al_itofix(item[x][9]);
-
-         if ((players[p].PX > ix1) && (players[p].PX < ix2)
-          && (players[p].PY > iy1) && (players[p].PY < iy2)
-          && (!players[p].paused) ) proc_minefield_collision(p, x);
-      }
    }
    // enemies
    for (int e=0; e<100; e++)

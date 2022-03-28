@@ -1886,8 +1886,8 @@
 10
 0
 0
-999
-0
+212
+476
 0
 0
 0
@@ -2590,8 +2590,8 @@
 0
 0
 0
-120
-889
+999
+0
 0
 0
 0
@@ -3038,8 +3038,8 @@
 10
 0
 0
-10
-476
+9999
+0
 1
 257
 0
@@ -4978,17 +4978,17 @@ Step 4 - Draw trigger area.
 
 
 
+----------------
+11 Field Creator
+----------------
  
- 
- 
- 
- 
- 
- 
- 
- 
- 
+Step 1 - Set Field Location
 
+Step 2 - Set Damage Field
+ 
+Step 2 - Set Trigger Field
+
+<end>
 
 
 

@@ -17,7 +17,6 @@ int item_data(int x, int y)
    if (item_num_of_type[8])  { al_draw_textf(font, palette_color[14], x, y, 0, "%d Bombs",      item_num_of_type[8]);  y+=8; }
    if (item_num_of_type[11]) { al_draw_textf(font, palette_color[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
    if (item_num_of_type[7])  { al_draw_textf(font, palette_color[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
-   if (item_num_of_type[20]) { al_draw_textf(font, palette_color[14], x, y, 0, "%d Minefields", item_num_of_type[20]); y+=8; }
 
    for (int c=1; c<16; c++)
       if ((c != 5) && (c !=3) && (c!= 12) && (c!= 1) && (c!= 4) && (c!= 14) && (c!= 15) && (c!= 8) && (c!= 11) && (c!= 7))
@@ -692,7 +691,7 @@ void draw_items(void)
          if (!drawn) al_draw_bitmap(tile[shape], x, y, 0);
 
          // if item is expiring show how many seconds left it has
-         if (item[i][14]) al_draw_textf(f3, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
+         if (item[i][14]>10) al_draw_textf(f3, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
 
 
       } // end of active item iterate
@@ -1295,16 +1294,6 @@ void proc_sproingy_collision(int p, int i)
       players[p].yinc = al_itofix(0) - al_fixdiv(al_itofix(item[i][7]), al_ftofix(7.1));
    }
 }
-
-void proc_minefield_collision(int p, int i)
-{
-   al_fixed d = al_itofix(item[i][11]) / 100;
-   int id = al_fixtoi(d);
-
-   players[p].LIFE -= d;
-   game_event(50, 0, 0, p, i, 0, id);
-}
-
 
 void proc_item_collision(int p, int i)
 {
