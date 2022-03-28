@@ -13,6 +13,11 @@ int get_empty_enemy(void)
          break;
       }
    if (en == -1) al_show_native_message_box(display, "Error", "Error creating enemy", "Enemy list full!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+   else
+   {   // zero the enemy before use
+      for (int i=0; i<32; i++) Ei[en][i] = 0;
+      for (int i=0; i<16; i++) Efi[en][i] = al_itofix(0);
+   }
    return en;
 }
 
@@ -190,6 +195,7 @@ void create_cloner(void)
       rx = get100_x;
       ry = get100_y;
 
+
       Ei[en][1] = 550;   // shape
       Ei[en][2] = 0;     // draw type
 
@@ -268,9 +274,6 @@ void create_field(void)
       Ei[en][6] = 100;   // timer
       Ei[en][8] = 40;    // timer flip val
 
-      Ei[en][6] = 400;  // default delay
-      Ei[en][7] = 400;  // default delay
-
       Ei[en][29] = 12;  // default collision box
 
       Efi[en][12] = al_itofix(1);  // scale
@@ -278,6 +281,8 @@ void create_field(void)
 
       Efi[en][0] = al_itofix(get100_x * 20); // position
       Efi[en][1] = al_itofix(get100_y * 20);
+
+      Efi[en][4] = al_itofix(2); // damage
 
       draw_big(1);
       show_big();
@@ -308,28 +313,6 @@ void create_field(void)
    set_wx(rx+4, ry);
    sort_enemy();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 int create_pod(void)

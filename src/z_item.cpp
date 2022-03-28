@@ -339,7 +339,7 @@ void bomb_crosshairs(float x, float y)
 void bomb_enemies(int i, int t, int dr, al_fixed x, al_fixed y)
 {
    for (int e=0; e<100 ; e++) // enemies in damage window?
-      if (Ei[e][0])
+      if ((Ei[e][0]) && (Ei[e][0] != 10))
       {
 //         al_fixed dist = al_fixhypot( (Efi[e][0] - itemf[i][0]), (Efi[e][1] - itemf[i][1]) );
          al_fixed dist = al_fixhypot( (Efi[e][0] - x), (Efi[e][1] - y));

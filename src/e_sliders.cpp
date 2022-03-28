@@ -273,27 +273,27 @@ void fill_smsg_button(int bn, int obt, int type, int num)
 
    if (bn == 87) // field mode
    {
-      if (Ei[num][5] == 0) sprintf(smsg, "Mode:Damage Field Always ON");
-      if (Ei[num][5] == 1) sprintf(smsg, "Mode:Damage Field Bullet Toggle");
-      if (Ei[num][5] == 2) sprintf(smsg, "Mode:Damage Field ON Until Triggered");
-      if (Ei[num][5] == 3) sprintf(smsg, "Mode:Damage Field ON When Triggered");
-      if (Ei[num][5] == 4) sprintf(smsg, "Mode:Damage Field Timed ON And OFF");
+      if (Ei[num][5] == 0) sprintf(smsg, "MODE:Damage Field Always ON");
+      if (Ei[num][5] == 1) sprintf(smsg, "MODE:Damage Field Bullet Toggle");
+      if (Ei[num][5] == 2) sprintf(smsg, "MODE:Damage Field ON Until Triggered");
+      if (Ei[num][5] == 3) sprintf(smsg, "MODE:Damage Field OFF Until Triggered");
+      if (Ei[num][5] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF");
    }
 
    if (bn == 98) sprintf(smsg, "Main Tile"); //change tile
 
 
-   if (bn == 102)
+   if (bn == 102) // Damage Field
    {
-      if (Ei[num][19] == 0) sprintf(smsg, "Damage Field Draw Type:Red Rectangle (default)");
-      if (Ei[num][19] == 1) sprintf(smsg, "Damage Field Draw Type:Spiky Floor");
-      if (Ei[num][19] == 2) sprintf(smsg, "Damage Field Draw Type:none");
+      if (Ei[num][19] == 0) sprintf(smsg, "Draw Type:Red Rectangle (default)");
+      if (Ei[num][19] == 1) sprintf(smsg, "Draw Type:Spikey Floor");
+      if (Ei[num][19] == 2) sprintf(smsg, "Draw Type:none");
    }
 
-   if (bn == 105)
+   if (bn == 105) // Trigger Field
    {
-      if (Ei[num][10] == 0) sprintf(smsg, "Trigger Field Draw Type:Yellow Rectangle (default)");
-      if (Ei[num][10] == 1) sprintf(smsg, "Trigger Field Draw Type:none");
+      if (Ei[num][10] == 0) sprintf(smsg, "Draw Type:Yellow Rectangle (default)");
+      if (Ei[num][10] == 1) sprintf(smsg, "Draw Type:none");
    }
 
 
@@ -301,28 +301,28 @@ void fill_smsg_button(int bn, int obt, int type, int num)
 
    if (bn == 120)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_PLAYER) sprintf(smsg, "Damage Field Affects Players:ON          ");
-      else                                            sprintf(smsg, "Damage Field Affects Players:OFF         ");
+      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_PLAYER) sprintf(smsg, "Affects Players:ON          ");
+      else                                            sprintf(smsg, "Affects Players:OFF         ");
    }
    if (bn == 121)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_ENEMY)  sprintf(smsg, "Damage Field Affects Enemies:ON          ");
-      else                                            sprintf(smsg, "Damage Field Affects Enemies:OFF         ");
+      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_ENEMY)  sprintf(smsg, "Affects Enemies:ON          ");
+      else                                            sprintf(smsg, "Affects Enemies:OFF         ");
    }
    if (bn == 122)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_ITEM)   sprintf(smsg, "Damage Field Affects Items:ON            ");
-      else                                            sprintf(smsg, "Damage Field Affects Items:OFF           ");
+      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_ITEM)   sprintf(smsg, "Affects Items:ON            ");
+      else                                            sprintf(smsg, "Affects Items:OFF           ");
    }
    if (bn == 123)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_PBUL)   sprintf(smsg, "Damage Field Affects Player's Bullets:ON ");
-      else                                            sprintf(smsg, "Damage Field Affects Player's Bullets:OFF");
+      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_PBUL)   sprintf(smsg, "Affects Player's Bullets:ON ");
+      else                                            sprintf(smsg, "Affects Player's Bullets:OFF");
    }
    if (bn == 124)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_EBUL)   sprintf(smsg, "Damage Field Affects Enemy's Bullets:ON  ");
-      else                                            sprintf(smsg, "Damage Field Affects Enemy's Bullets:OFF ");
+      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_EBUL)   sprintf(smsg, "Affects Enemy's Bullets:ON  ");
+      else                                            sprintf(smsg, "Affects Enemy's Bullets:OFF ");
    }
 
 
@@ -374,13 +374,13 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    }
    if (bn == 134)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_SETS_FLD) sprintf(smsg, "Damage Field Follows Lift:ON");
-      else sprintf(smsg, "Damage Field Follows Lift:OFF");
+      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_SETS_FLD) sprintf(smsg, "Follows Lift:ON");
+      else sprintf(smsg, "Follows Lift:OFF");
    }
    if (bn == 135)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) sprintf(smsg, "Trigger Field Follows Lift:ON");
-      else sprintf(smsg, "Trigger Field Follows Lift:OFF");
+      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) sprintf(smsg, "Follows Lift:ON");
+      else sprintf(smsg, "Follows Lift:OFF");
    }
 }
 
@@ -468,7 +468,7 @@ void fill_smsg_slider(int bn, int type, int num)
 
    if (bn == 82) sprintf(smsg, "Damage Field Timer:%d", Ei[num][6]);
 
-   if (bn == 83) sprintf(smsg, "Damage Field Amount of Damage:%f", al_fixtof(Efi[num][4]));
+   if (bn == 83) sprintf(smsg, "Damage Field Amount of Damage:%3.2f", al_fixtof(Efi[num][4]));
 
    if (bn == 84) sprintf(smsg, "Damage Field Follows Lift:%d", Ei[num][21]);
    if (bn == 85) sprintf(smsg, "Trigger Field Follows Lift:%d", Ei[num][20]);

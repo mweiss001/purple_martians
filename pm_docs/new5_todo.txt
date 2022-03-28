@@ -28,6 +28,53 @@ you could dismount with JUMP? ... that sounds cool
 
 
 
+how can I force the screen thing in level editor
+
+add some variables to the config file
+
+display_transform_double
+
+force values or let it be auto
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 I could make the item 'mine' have a larger rectangular area
 
 I could make other items like that too...like one that kills enemies...
@@ -1288,6 +1335,317 @@ moved dec counter to last thing in enemy proc...now 1 works
 patch in trigger sources...
 did a bunch of re-arranging flags and slider button toggles
 
+now make the new trigger source functionality work....done
+
+why does a new filed have damage of 0?...done
+
+fix display of damage to only 2 decimals...done
+
+why is bullet getting eaten in mode 1?
+
+
+in void proc_enemy_collision_with_pbullet(int e)
+old:
+if ((Ei[e][0] == 10) && (Ei[e][3] & PM_ENEMY_FIELD_BULLET_TOGGLE) && (!(Ei[e][3] & PM_ENEMY_FIELD_BULLET_EATEN))) // don't kill bullet used to toggle field
+new
+if ((Ei[e][0] == 10) && (!(Ei[e][3] & PM_ENEMY_FIELD_BULLET_EATEN))) // don't kill bullet used to toggle field
+
+
+
+Change the wording of MODE.
+ON until triggereg
+OFF until triggered
+
+Make Mode capitalized
+
+
+I want to make a toggle mode based on field...
+but how will i make it work?...I'll need a hold off
+when something first enters
+
+detect if nothing is in trigger box
+then if next frame something is in then trigger
+
+then wait until it is empty again before allowing another trigger
+I'll need something to keep track of how it was the last frame
+
+I could use a flag...
+
+each frame:
+if not set from last frame...
+and set this frame...toggle trigger fires
+
+use 2 flags...
+
+start of frame clear current
+when checking collisions if any trigger, set current trigger
+after checking collisions if not last the yes this then fire toggle
+set last to current for next time...
+
+I have been doing the triggers wrongs
+collisions with damage need to afect specific things
+but collisions with triggers?
+who cares where they came from?
+all that matters is that a trigger happened
+
+new flags
+
+#define PM_ENEMY_FIELD_TRIGGER_CURR  0b1000000000000000
+#define PM_ENEMY_FIELD_TRIGGER_LAST  0b1000000000000000
+
+at the start of the enemy proc loop CURR is cleared
+if any trigger collisions, CURR is set
+
+at the end of the collision checks...
+
+if CURR is set: proc things that happen when something is in trigger box
+if CURR is set and PREV is clear: process things that only happen when initiallt triggered
+
+set PREV to CURR
+
+
+what if I remove all toggle by shooting actual enemy...might make things easier....
+once I get the trigger toggle stuff working I'll look at it...
+
+I'm ready to do it
+
+there is custom code in
+
+void proc_enemy_collision_with_pbullet(int e)
+
+for when a bullet hits the field enemy...
+i am going to try to take it out completely
+I still want the enemy to be invincible...but I can just set collision box to zero....
+wait....
+
+just leave code there so pbullets completely ignore field enemy
+then I should just make it always invincible...
+use the enemy tile stuff just for counter and progress bar....
+I can get collision box for something else too maybe....
+
+old:
+
+   if ((ex > bx1) && (ex < bx2) && (ey > by1) && (ey < by2)))
+   {
+      int p = pbullet[c][1];   // player number that shot bullet
+      Ei[e][31] = 1;           // flag that this enemy got shot with bullet
+      Ei[e][26] = p;           // number of player's bullet that hit enemy
+      players[p].num_hits++;   // add to number of hits the player has
+
+//            if ((Ei[e][0] == 10) && (Ei[e][3] & PM_ENEMY_FIELD_BULLET_TOGGLE) && (!(Ei[e][3] & PM_ENEMY_FIELD_BULLET_EATEN))) // don't kill bullet used to toggle field
+
+      if ((Ei[e][0] == 10) && (!(Ei[e][3] & PM_ENEMY_FIELD_BULLET_EATEN))) // don't kill bullet used to toggle field
+      {
+      }
+      else pbullet[c][0] = 0;       // bullet dies
+
+   }
+
+new:
+   if ((ex > bx1) && (ex < bx2) && (ey > by1) && (ey < by2) && (Ei[e][0] != 10))
+   {
+      int p = pbullet[c][1];   // player number that shot bullet
+      Ei[e][31] = 1;           // flag that this enemy got shot with bullet
+      Ei[e][26] = p;           // number of player's bullet that hit enemy
+      players[p].num_hits++;   // add to number of hits the player has
+      pbullet[c][0] = 0;       // bullet dies
+   }
+
+
+I can go back one higher to the function that call this:
+
+old:
+void move_enemies()
+{
+   num_enemy = 0; // count enemies
+   for (int e=0; e<100; e++)
+      if (Ei[e][0])
+      {
+         num_enemy++; // count enemies
+         if (Ei[e][0] < 50) proc_enemy_collision_with_pbullet(e);
+
+         // check for time to live
+         int ttl = Ei[e][27];
+
+new:
+void move_enemies()
+{
+   num_enemy = 0; // count enemies
+   for (int e=0; e<100; e++)
+      if (Ei[e][0])
+      {
+         num_enemy++; // count enemies
+         if ((Ei[e][0] < 50) && (Ei[e][0] != 10)) proc_enemy_collision_with_pbullet(e);
+
+
+
+now it does not even detect bullet, but I kept the invincible code because of bombs
+if I removed that, nothing could ever kill it
+
+this whole thing that every enemy has....
+
+   if (Ei[e][31]) // hit
+   {
+      if (!(Ei[e][3] & PM_ENEMY_FIELD_INVULNERABLE)) // invulnerable flag not set
+      {
+         enemy_killed(e);
+         return; // don't do anything else past here
+      }
+   }
+   enemy_player_hit_proc(e);
+
+void enemy_player_hit_proc(int e)
+{
+   if (--Ei[e][23]<0) // hit player retrigger
+   {
+      if (Ei[e][22]) // player hit!
+      {
+         int p = Ei[e][22]-1;
+         players[p].LIFE -= Efi[e][4];
+
+         game_event(44, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
+         Ei[e][22] = 0;  // clear hit
+         Ei[e][23] = 60; // set retrigger amount
+      }
+   }
+  else Ei[e][22] = 0;
+}
+
+I'm going to remove all this...
+
+then I will get back 22 and 23
+
+edit this to ignore fields
+
+void bomb_enemies(int i, int t, int dr, al_fixed x, al_fixed y)
+{
+   for (int e=0; e<100 ; e++) // enemies in damage window?
+      if ((Ei[e][0]) && (Ei[e][0] != 10))
+      {
+//         al_fixed dist = al_fixhypot( (Efi[e][0] - itemf[i][0]), (Efi[e][1] - itemf[i][1]) );
+         al_fixed dist = al_fixhypot( (Efi[e][0] - x), (Efi[e][1] - y));
+         if (dist < al_itofix(dr))
+         {
+            if (t == 1) bomb_crosshairs(10 + al_fixtof(Efi[e][0]), 10 + al_fixtof(Efi[e][1]));
+            if (t == 2)
+            {
+               Ei[e][31] = 2; // set bomb hit
+               Ei[e][26] = item[i][13];  // player that did bomb
+            }
+         }
+      }
+}
+
+
+now I have reclaimed a lot more ints....
+
+bottom line:
+field is now invincible, nothing, not bombs or bullets can kill it
+it should not interact with player at all...
+
+that makes things a lot simpler and I have freed up all these variables
+
+Ei[][22] =                 player hit
+Ei[][23] =                 player hit retrigger
+Ei[][24] =                 health bonus shape
+Ei[][25] =                 health bonus amount
+Ei[][26] =                 used to tell what player killed enemy
+Ei[][27] = time to live
+Ei[][28] =                 cloner create id
+Ei[][29] =                 collision box size
+Ei[][30] =                 death loop count
+Ei[][31] =                 flag that this enemy got shot with bullet
+
+
+now I need to make the toggle mode in obj viewer show all the trigger stuff
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1853,6 +2211,10 @@ make player wall collisions pixel perfect like when on ladder???
 make single block navigation like ladder move...
 this will make jumping up into single block opening very hard...
 this sound like a major re-write..
+
+
+
+
 
 
 

@@ -290,11 +290,7 @@ void proc_enemy_collision_with_pbullet(int e)
             Ei[e][31] = 1;           // flag that this enemy got shot with bullet
             Ei[e][26] = p;           // number of player's bullet that hit enemy
             players[p].num_hits++;   // add to number of hits the player has
-
-            if ((Ei[e][0] == 10) && (Ei[e][3] & PM_ENEMY_FIELD_BULLET_TOGGLE) && (!(Ei[e][3] & PM_ENEMY_FIELD_BULLET_EATEN))) // don't kill bullet used to toggle field
-            {
-            }
-            else pbullet[c][0] = 0;       // bullet dies
+            pbullet[c][0] = 0;       // bullet dies
          }
       }
 }
@@ -306,7 +302,7 @@ void move_enemies()
       if (Ei[e][0])
       {
          num_enemy++; // count enemies
-         if (Ei[e][0] < 50) proc_enemy_collision_with_pbullet(e);
+         if ((Ei[e][0] < 50) && (Ei[e][0] != 10)) proc_enemy_collision_with_pbullet(e);
 
          // check for time to live
          int ttl = Ei[e][27];
@@ -975,7 +971,7 @@ void draw_enemy_field(int e)
 {
    int mode = Ei[e][5];
    int show_trigger = 1;
-   if ((mode == 0) || (mode == 1) || (mode == 4)) show_trigger = 0;
+   if ((mode == 0) || (mode == 4)) show_trigger = 0;
    if (show_trigger)
    {
       int tx1 = Ei[e][11]; // trigger
@@ -1074,11 +1070,19 @@ void detect_field_collisions(void)
          int cdpb = ((Ei[e][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) && (Ei[e][3] & PM_ENEMY_FIELD_AFFECTS_PBUL));   // damage active and player bullet flag
          int cdeb = ((Ei[e][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) && (Ei[e][3] & PM_ENEMY_FIELD_AFFECTS_EBUL));   // damage active and enemy bullet flag
 
+
+
          int ct = 1;        // check trigger
          int mode = Ei[e][5];
          if (mode == 0) ct = 0;
-         if (mode == 1) ct = 0;
+         //if (mode == 1) ct = 0;
          if (mode == 4) ct = 0;
+
+         int ctp =  ((ct) && (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_PLAYER));
+         int cte =  ((ct) && (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_ENEMY));
+         int cti =  ((ct) && (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_ITEM));
+         int ctpb = ((ct) && (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_PBUL));
+         int cteb = ((ct) && (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_EBUL));
 
          // trigger field
          al_fixed tfx1 = al_itofix(Ei[e][11]-10);
@@ -1097,24 +1101,24 @@ void detect_field_collisions(void)
             {
                al_fixed x = players[p].PX;
                al_fixed y = players[p].PY;
-               if ((ct) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_field_collision(0, p, e, 0);
-               if ((cdp) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(0, p, e, 1);
+               if ((ctp) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;  // set current trigger
+               if ((cdp) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(0, p, e);
             }
          for (int e2=0; e2<100; e2++) // check enemies
             if (Ei[e2][0])
             {
                al_fixed x = Efi[e2][0];
                al_fixed y = Efi[e2][1];
-               if ((ct) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_field_collision(1, e2, e, 0);
-               if ((cde) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(1, e2, e, 1);
+               if ((cte) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;  // set current trigger
+               if ((cde) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(1, e2, e);
             }
          for (int i=0; i<500; i++) // check items
             if (item[i][0])
             {
                al_fixed x = itemf[i][0];
                al_fixed y = itemf[i][1];
-               if ((ct) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_field_collision(2, i, e, 0);
-               if ((cdi) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(2, i, e, 1);
+               if ((cti) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;  // set current trigger
+               if ((cdi) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(2, i, e);
             }
 
          for (int b=0; b<50; b++) // check player bullets
@@ -1122,7 +1126,8 @@ void detect_field_collisions(void)
             {
                al_fixed x = al_itofix(pbullet[b][2]);
                al_fixed y = al_itofix(pbullet[b][3]);
-               if ((cdpb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(3, b, e, 1);
+               if ((ctpb) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;  // set current trigger
+               if ((cdpb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(3, b, e);
             }
 
 
@@ -1131,88 +1136,39 @@ void detect_field_collisions(void)
             {
                al_fixed x = e_bullet_fx[b];
                al_fixed y = e_bullet_fy[b];
-               if ((cdeb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(4, b, e, 1);
-
+               if ((cteb) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;  // set current trigger
+               if ((cdeb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(4, b, e);
             }
-
-
-
-
-
-
-
-
       }
 }
 
-
-void proc_field_collision(int type, int x, int e, int b)
+void proc_field_collision(int type, int x, int e)
 {
    if (type == 0) // player
    {
-      int p = x;
-      if (b == 0) // trigger field
-      {
-         Ei[e][7] = Ei[e][6]; // reset timer
-      }
-      if (b == 1) // damage field
-      {
-         players[p].LIFE -= Efi[e][4];
-         game_event(50, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
-      }
+      players[x].LIFE -= Efi[e][4];
+      game_event(50, 0, 0, x, e, 0, al_fixtoi(Efi[e][4]));
    }
    if (type == 1) // enemy
    {
-      int e2 = x;
-      if (b == 0) // trigger field
-      {
-      //   Ei[e][7] = Ei[e][6]; // reset timer
-      }
-      if (b == 1) // damage field
-      {
-         Ei[e2][31] = 1;           // flag that this enemy got shot with bullet
-         //Ei[e][26] = p;           // number of player's bullet that hit enemy
-      }
+         Ei[x][31] = 1;           // flag that this enemy got shot with bullet
+         //Ei[x][26] = p;           // number of player's bullet that hit enemy
    }
    if (type == 2) // item
    {
-      int i = x;
-      if (b == 0) // trigger field
+      if (item[x][0] != 66)
       {
-      //   Ei[e][7] = Ei[e][6]; // reset timer
-      }
-      if (b == 1) // damage field
-      {
-         if (item[i][0] != 66)
-         {
-            //item[i][0] = 66;
-            item[i][14] = 10;
-         }
+         //item[i][0] = 66;
+         item[x][14] = 10;
       }
    }
    if (type == 3) // player bullet
    {
-      int i = x;
-      if (b == 0) // trigger field
-      {
-      //   Ei[e][7] = Ei[e][6]; // reset timer
-      }
-      if (b == 1) // damage field
-      {
-          pbullet[i][0] = 0; // kill the bullet
-      }
+       pbullet[x][0] = 0; // kill the bullet
    }
    if (type == 4) // enemy bullet
    {
-      int i = x;
-      if (b == 0) // trigger field
-      {
-      //   Ei[e][7] = Ei[e][6]; // reset timer
-      }
-      if (b == 1) // damage field
-      {
-         e_bullet_active[i] = 0; // kill the bullet
-      }
+      e_bullet_active[x] = 0; // kill the bullet
    }
 }
 
@@ -1289,16 +1245,19 @@ Ei[][19] damage draw type
 Ei[][20] trigger field lift
 Ei[][21] damage field lift
 
-Ei[][22] = player hit
-Ei[][23] = player hit retrigger
-Ei[][24] = health bonus shape
-Ei[][25] = health bonus amount
-Ei[][26] = used to tell what player killed enemy
+
+Ei[][22] =                 player hit
+Ei[][23] =                 player hit retrigger
+Ei[][24] =                 health bonus shape
+Ei[][25] =                 health bonus amount
+Ei[][26] =                 used to tell what player killed enemy
 Ei[][27] = time to live
-Ei[][28] = cloner create id
-Ei[][29] = collision box size
-Ei[][30] = death loop count
-Ei[][31] = flag that this enemy got shot with bullet
+Ei[][28] =                 cloner create id
+Ei[][29] =                 collision box size
+Ei[][30] =                 death loop count
+Ei[][31] =                 flag that this enemy got shot with bullet
+
+
 
 Efi[][0]  // x
 Efi[][1]  // y
@@ -1317,26 +1276,18 @@ Efi[][14]  // rot
 
 void enemy_field(int e)
 {
-   int mode = Ei[e][5];
-   if (Ei[e][31]) // hit
-   {
-      if (!(Ei[e][3] & PM_ENEMY_FIELD_INVULNERABLE)) // invulnerable flag not set
-      {
-         enemy_killed(e);
-         return; // don't do anything else past here
-      }
+   Ei[e][3] &= ~PM_ENEMY_FIELD_TRIGGER_CURR;  // clear current trigger
 
-      if (Ei[e][3] & PM_ENEMY_FIELD_BULLET_TOGGLE) // if toggle field by shooting enemy flag is set
-      {
-         Ei[e][31] = 0; // clear hit
-         if (Ei[e][7] == 0) // if not in holdoff
-         {
-            Ei[e][3] ^= PM_ENEMY_FIELD_CURRENT_DAMAGE; // toggle current damage flag
-            Ei[e][7] = 4; // set holdoff
-         }
-      }
-   }
-   enemy_player_hit_proc(e);
+   detect_field_collisions();
+
+   int trig_toggle = 0;
+   if ((Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) && (!(Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_PREV))) trig_toggle = 1;
+
+   if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) Ei[e][3] |=  PM_ENEMY_FIELD_TRIGGER_PREV; // set previous trigger
+   else                                        Ei[e][3] &= ~PM_ENEMY_FIELD_TRIGGER_PREV; // clear previous trigger
+
+
+   int mode = Ei[e][5];
 
 
    int tl = Ei[e][1]; // tile
@@ -1346,21 +1297,26 @@ void enemy_field(int e)
       else Ei[e][1] = 359;
    }
 
-
-
    if (mode == 0) Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE; // in mode 0, always set damage flag
 
-   if (mode == 1) {} // toggle mode, do nothing, this mode is needed because the other ones force damage on and off
+   if (mode == 1) // toggle mode, do nothing, this mode is needed because the other ones force damage on and off
+   {
+      if (trig_toggle) Ei[e][3] ^= PM_ENEMY_FIELD_CURRENT_DAMAGE; // toggle current damage flag
+   }
 
 
    if (mode == 2) // damage unless timer running  (no damage when triggered)
    {
+      if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) Ei[e][7] = Ei[e][6];
+
       if (Ei[e][7] == 0) Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE;   // set damage on
       else Ei[e][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE;                // set damage off
    }
 
    if (mode == 3) // damage when timer is running (no damage until triggered)
    {
+      if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) Ei[e][7] = Ei[e][6];
+
       if (Ei[e][7] > 0)  Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE;   // set damage on
       else Ei[e][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE;                // set damage off
    }

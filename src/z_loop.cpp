@@ -172,10 +172,6 @@ void game_loop(int start_mode)
       move_players();
       move_enemies();
       move_items();
-
-      detect_field_collisions();
-
-
       proc_frame_delay();
       if (draw_frame)
       {

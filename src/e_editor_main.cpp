@@ -471,10 +471,18 @@ int edit_menu(int el)
 {
    level_editor_running = 1;
    int original_display_transform_double = display_transform_double;
-   int target_display_transform_double = 1;
+
+
+//   int target_display_transform_double = 1; // this is the orig
+   int target_display_transform_double = original_display_transform_double; // this is the hacked line
+
+
+
+
+
+
 
    if (disp_w_curr > 3800) target_display_transform_double = 2;
-
    if (display_transform_double != target_display_transform_double)
    {
       display_transform_double = target_display_transform_double;
