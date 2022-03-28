@@ -1270,6 +1270,23 @@ also add display options for trigger field use Ei[][10]... done for now only def
 wow this is coming along so great......time for a push
 
 
+lets try some other things that can trigger...
+
+enemy
+item
+enemy bullet
+player bullet
+
+right now trigger only makes sense in mode 2 and 3
+and then timers run...
+
+can it be instant by setting timer to 0?
+0 and 1 never work, 2 works...why??
+
+moved dec counter to last thing in enemy proc...now 1 works
+
+patch in trigger sources...
+did a bunch of re-arranging flags and slider button toggles
 
 
 
