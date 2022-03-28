@@ -160,6 +160,9 @@ void show_fullscreen_modes(void)
 
 void auto_set_display_transform_double(void)
 {
+   display_transform_double = 2;
+
+/*
    display_transform_double = 1;
 
    if (disp_w_curr > 1023) display_transform_double = 2;
@@ -175,6 +178,7 @@ void auto_set_display_transform_double(void)
       if (disp_w_curr > 1279) display_transform_double = 2;
       if (disp_w_curr < 1280) display_transform_double = 1;
    }
+   */
    set_display_transform();
    set_map_var();
 }

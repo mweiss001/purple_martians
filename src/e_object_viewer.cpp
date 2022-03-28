@@ -1307,7 +1307,9 @@ void object_viewer(int obt, int num)
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24,  num, type, obt, 0, 11, 15, 15, 1,0,0,0); a+=2; // collision box
 
 
-                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 85, num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++;  // get new damage field
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 85, num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++;   // get new Damage Field
+                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 102, num, type, obt, 0, 10, 15,  0, 1,0,0,0); a++;  // Damage Field draw type
+
 
                   if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_SETS_FLD) // Damage Field follows lift:ON
                   {
@@ -1371,8 +1373,6 @@ void object_viewer(int obt, int num)
                   }
 
 
-                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 102, num, type, obt, 0, 10, 15,  0, 1,0,0,0); a++;  // damage field draw type
-
 
                   a++;
 
@@ -1380,23 +1380,24 @@ void object_viewer(int obt, int num)
 
                   if (Ei[num][5] == 0) // Mode 0 always on
                   {
-                      mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87, num, type, obt, 0, 8, 15,  0, 1,0,0,0); a+=2;  // mode
-
-
-
+                      mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87, num, type, obt, 0, 8, 15,  0, 1,0,0,0); a+=2;  // MODE (0)
                   }
 
                   if (Ei[num][5] == 1) // Mode 1 Toggle
                   {
-                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87,  num, type, obt, 0,  8, 15,  0, 1,0,0,0); a+=2; // mode
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87,  num, type, obt, 0,  8, 15,  0, 1,0,0,0); a+=2; // MODE (1)
                      mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 133, num, type, obt, 0, 11, 15,  0, 1,0,0,0); a++;  // Damage Field initially on
                      mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 132, num, type, obt, 0, 11, 15,  0, 1,0,0,0); a++;  // Toggle bullet eaten flag
                   }
 
+
                   if ((Ei[num][5] == 2) || (Ei[num][5] == 3)) // Mode 2 and 3
                   {
-                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87, num, type, obt, 0,  8, 15,  0, 1,0,0,0); a+=2;  // mode
-                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 86, num, type, obt, 0, 14, 14,  0, 1,0,0,0); a++;   // get new trigger field
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87,  num, type, obt, 0,  8, 15,  0, 1,0,0,0); a+=2;  // MODE (2 and 3)
+
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 86,  num, type, obt, 0, 14, 14,  0, 1,0,0,0); a++;   // get new Trigger Field
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 105, num, type, obt, 0, 14, 15,  0, 1,0,0,0); a++;   // Trigger Field draw type
+
                      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) // Trigger Field follows lift:ON
                      {
                         mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 135, num, type, obt, 0, 14, 15,  0, 1,0,0,0); a++;  // Trigger Field follows lift:ON
@@ -1409,7 +1410,6 @@ void object_viewer(int obt, int num)
                      }
 
                      mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 82,  num, type, obt, 0, 14, 15, 15, 1,0,0,0); a++;  // timer
-                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 105, num, type, obt, 0, 14, 15,  0, 1,0,0,0); a++;  // trigger field draw type
 
 
                      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_PLAYER)
