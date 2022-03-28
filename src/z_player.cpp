@@ -580,9 +580,6 @@ void proc_player_bounds_check(int p)
 
 void proc_player_collisions(int p)
 {
-
-
-
    al_fixed f10 = al_itofix(10);
    al_fixed f16 = al_itofix(16);
 
@@ -616,7 +613,8 @@ void proc_player_collisions(int p)
    // enemies
    for (int e=0; e<100; e++)
    {
-      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
+//      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
+      if ((Ei[e][0]) && (Ei[e][0] != 99) && (Ei[e][0] != 10)) // if active and not deathcount or field
       {
          al_fixed b = al_itofix(Ei[e][29]); // collision box size
          al_fixed ex1 = Efi[e][0] - b;
@@ -627,17 +625,6 @@ void proc_player_collisions(int p)
           && (players[p].PY > ey1) && (players[p].PY < ey2)) Ei[e][22] = p+1;
       }
    }
-
-
-
-
-
-
-
-
-
-
-
    // ebullets
    for (int b=0; b<50; b++)
       if (e_bullet_active[b])  // if active

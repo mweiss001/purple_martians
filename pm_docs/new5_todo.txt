@@ -14,7 +14,6 @@ does remote trigger have a delay before the explosion?
 I want it immediate to help the player time exploding moving things
 
 
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
@@ -689,12 +688,12 @@ hide trigger if not used...done
 I want to try slaving it to a lift...just the damage field..always on for now
 mode = 3; works as proof on concept...
 
-can we make the field kill enemies??
-
-where will I do the collision detection?
+can we make the field kill enemies
 
 right now I think all my collisions are with player...
-I only really care if things collide with players....
+I only really care if things collide with players....??
+
+where will I do the collision detection?
 
 I propose to make a new collision detection based on what collides with fields
 
@@ -951,6 +950,322 @@ trigger field player
 trigger field enemy
 trigger shoot enemy
 trigger timer
+
+remove Ei[][4]...done
+
+if toggle is set, inv should be too, unless you want one toggle then enemy dies...
+
+
+if toggle is set and in mode 1 or 2 they will override....
+
+how about mode 0 is default and if you dont want any changes just implement with flags
+
+mode 3 is now toggle
+when setting that mode, automatically set the toggle flag and unset the inv flag
+
+make a button to set initially on or off..
+
+
+
+can i use another flag bit for damage on?  this will be the ninth bit...try it...I think I can...it seems to work...
+
+now I got rid of Ei[][8] for damage currently on and replaced it with another flag...
+
+should I set up some nice defines for these??
+
+#define PM_ENEMY_FIELD_AFFECTS_PLAYER 0b000000001
+#define PM_ENEMY_FIELD_AFFECTS_ENEMY  0b000000010
+#define PM_ENEMY_FIELD_AFFECTS_ITEM   0b000000100
+#define PM_ENEMY_FIELD_INVULNERABLE   0b000001000
+#define PM_ENEMY_FIELD_TRIGGER_PLAYER 0b000010000
+#define PM_ENEMY_FIELD_TRIGGER_ENEMY  0b000100000
+#define PM_ENEMY_FIELD_BULLET_TOGGLE  0b001000000
+#define PM_ENEMY_FIELD_TRIGGER_TIMER  0b010000000
+#define PM_ENEMY_FIELD_CURRENT_DAMAGE 0b100000000
+
+
+done....
+
+
+
+when setting mode 3 (toggle), automatically set the toggle flag and unset the inv flag
+in sliders...done
+
+player should never take damage from cloner, but I can't set the collison box to zero because it's used by bullets
+
+in void proc_player_collisions(int p)
+
+changed this line
+for (int e=0; e<100; e++)
+{
+// if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
+   if ((Ei[e][0]) && (Ei[e][0] != 99) && (Ei[e][0] != 10) // if active and not deathcount or field
+done...
+make collison box a little more forgiving maybe 12 or 14 instead of 10... change PDE to 12...can still edit manually...done
+
+
+bullet is back to getting eaten....fix and maybe make it a flag....
+
+in proc_enemy_collision_with_pbullet(int e)
+
+if ((Ei[e][0] == 10) && (Ei[e][5] == 4)) // don't kill bullet used to toggle field
+{
+}
+else pbullet[c][0] = 0;       // bullet dies
+
+if ((Ei[e][0] == 10) && (Ei[e][3] & PM_ENEMY_FIELD_BULLET_TOGGLE)) // don't kill bullet used to toggle field
+if ((Ei[e][0] == 10) && (Ei[e][3] & PM_ENEMY_FIELD_BULLET_TOGGLE) && (!(Ei[e][3] & PM_ENEMY_FIELD_BULLET_EATEN))) // don't kill bullet used to toggle field
+
+done and works...
+
+test the collision areas of fields, they are a little off...changed the offset in collison detection...done
+
+old:
+
+ // trigger field
+ al_fixed tfx1 = al_itofix(Ei[e][11]);
+ al_fixed tfy1 = al_itofix(Ei[e][12]);
+ al_fixed tfx2 = tfx1 + al_itofix(Ei[e][13]);
+ al_fixed tfy2 = tfy1 + al_itofix(Ei[e][14]);
+
+ // damage field
+ al_fixed dfx1 = al_itofix(Ei[e][15]);
+ al_fixed dfy1 = al_itofix(Ei[e][16]);
+ al_fixed dfx2 = dfx1 + al_itofix(Ei[e][17]);
+ al_fixed dfy2 = dfy1 + al_itofix(Ei[e][18]);
+
+
+new:
+
+ // trigger field
+ al_fixed tfx1 = al_itofix(Ei[e][11]-10);
+ al_fixed tfy1 = al_itofix(Ei[e][12]-10);
+ al_fixed tfx2 = tfx1 + al_itofix(Ei[e][13]);
+ al_fixed tfy2 = tfy1 + al_itofix(Ei[e][14]);
+
+ // damage field
+ al_fixed dfx1 = al_itofix(Ei[e][15]-10);
+ al_fixed dfy1 = al_itofix(Ei[e][16]-10);
+ al_fixed dfx2 = dfx1 + al_itofix(Ei[e][17]);
+ al_fixed dfy2 = dfy1 + al_itofix(Ei[e][18]);
+
+
+
+when setting mode = 0
+clear bullet toggle flag...done
+
+don't reset inv flag
+
+now what?
+
+make new shapes including hidden...
+
+make a shape that has a hole for the timer count!!
+
+
+made default from PDE have damage on and mode 0 and draw mode 1
+
+I won't enforce it, but it makes sense to have hidden and inv both set
+
+if hidden, I should still show it in level editor...
+
+if on off switches make then change...done
+
+make button for initial setting on/off in toggle mode...done
+
+make a slider for choosing lift number...and a place to store it...
+Ei[][21]
+
+it follows lift just great...I can even center it nicely
+maybe make a flag for centering later
+
+
+now it is always on...I want to change this...
+
+turned it off....
+
+bullet toggle works good...
+
+in level editor, show the field centered on the lift....
+how about actually set it when lift is changed with slider....
+
+I should make a function to do this...done
+
+
+now can we do the timers while in lift mode?
+
+no.. timers only work when mode == 1 or 2
+
+maybe I could make lifts separate from mode...
+I would need to use an int for the lift number
+
+I could also potentially move the trigger box with another lift...whooa!!
+
+can timer and toggle co-exist right now??
+
+no, because the timer forces it on or off
+
+
+I think if I remove lift from mode then I can have modes realted to trigger only...like
+
+
+then I can have a separate int for the lift stuff
+I could jam 4 things in there
+
+1 bit field follow lift
+7 bits lift number
+
+1 bit trigger follow lift
+7 bits lift number
+
+or I can add a few more flags to 3 and use 2 ints for lifts
+
+
+I will also need two more variables for the second timer
+
+Ei[][5]  mode
+Ei[][6]  timer1 value
+Ei[][7]  timer1 count
+Ei[][8]  timer2 value
+Ei[][9]  timer2 count
+
+let's re-arrange the modes
+
+0 on
+1 toggle (does nothing)
+2 on till trigger
+3 on when trigger
+4 double timer trigger
+
+no lift...move in to flag and lift numbers in:
+Ei[][19]
+Ei[][20]
+
+what am I using 21 for?? lift number! perfect!
+
+OK lets do this...
+start with lift flags
+
+#define PM_ENEMY_FIELD_LIFT_SETS_FLD  0b0000010000000000
+#define PM_ENEMY_FIELD_LIFT_SETS_TRG  0b0000100000000000
+
+Ei[][20] // trig lift
+Ei[][21] // field lift
+
+sliders...done
+
+patched that all in nicely...
+
+now rearrange modes
+
+0 on
+1 toggle (does nothing)
+2 on till trigger
+3 on when trigger
+4 double timer trigger
+
+screw it, im leaving toggle out, it does nothing...
+
+0 on
+1 on till trigger
+2 on when trigger
+3 double timer trigger
+
+NO! I need a mode that is not a timer, so timers wont fuck over toggle
+
+0 on
+1 toggle (does nothing)
+2 on till trigger
+3 on when trigger
+4 double timer trigger
+
+
+good so far....now implement double timer...
+
+make slider to adjust
+
+Ei[][8]  timer2 value
+
+
+
+why do I have 2 timers?
+
+would it not be simpler to run one from value to zero then reset...and have a midpoint where the damage flips??
+lets just call timer 2 the flip point
+
+that works great.
+
+hide timer numbers in modes 0 and 1
+
+in mode 3 do a modified count down for each stage...done
+
+
+
+
+
+I would say that most of the basic funtionality has been implemented...
+now for some polish and testing...
+
+
+
+naming
+
+enemy is called Field
+is has a
+Damage Field
+Trigger Field
+make this naming consistant
+
+at the top should be the stuff related to the enemy
+inv and shape
+
+then the stuff realted to the Damage Field
+
+get new...etc
+
+the viewer page looks good...
+
+it all looks good...
+not implemented:
+anything except player triggering
+unused flag trigger timer
+
+
+I want to make a test level to show this off....
+
+bugs
+
+when creating, a creator might be nice
+or take me to the edit page right away
+of just make the lr trigger not exactly the ul damage!!..this is done...
+
+when invisible, its kinda hard to find in level editor...fixed
+
+death sequence needs something more than just copying cloner
+
+
+make some better shapes for damage fields...
+
+how will I show different draw types
+use an int?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

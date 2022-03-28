@@ -984,7 +984,6 @@ void proc_door_collision(int p, int i)
    if ((players[p].marked_door == -1)  // player has no marked door yet
      && (players[p].carry_item != i+1)) // player is not carrying this door
    {
-      players[p].marked_door = i;
 
       // item[x][6]  color
       // item[x][7]  move type (0 = auto, 1 = force instant, 2 = force move
@@ -998,6 +997,7 @@ void proc_door_collision(int p, int i)
 
       if (item[i][8]) // do nothing if exit only
       {
+         players[p].marked_door = i;
          int do_entry = 0;
          if (item[i][11] == 0) do_entry = 1; // enter immed
          if (players[p].carry_item-1 != i) // cant trigger entry if carrying this door
