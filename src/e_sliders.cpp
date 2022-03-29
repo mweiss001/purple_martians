@@ -315,27 +315,27 @@ void fill_smsg_button(int bn, int obt, int type, int num)
 
    if (bn == 120)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_PLAYER) sprintf(smsg, "Affects Players:ON          ");
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_PLAYER) sprintf(smsg, "Affects Players:ON          ");
       else                                            sprintf(smsg, "Affects Players:OFF         ");
    }
    if (bn == 121)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_ENEMY)  sprintf(smsg, "Affects Enemies:ON          ");
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_ENEMY)  sprintf(smsg, "Affects Enemies:ON          ");
       else                                            sprintf(smsg, "Affects Enemies:OFF         ");
    }
    if (bn == 122)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_ITEM)   sprintf(smsg, "Affects Items:ON            ");
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_ITEM)   sprintf(smsg, "Affects Items:ON            ");
       else                                            sprintf(smsg, "Affects Items:OFF           ");
    }
    if (bn == 123)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_PBUL)   sprintf(smsg, "Affects Player's Bullets:ON ");
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_PBUL)   sprintf(smsg, "Affects Player's Bullets:ON ");
       else                                            sprintf(smsg, "Affects Player's Bullets:OFF");
    }
    if (bn == 124)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_AFFECTS_EBUL)   sprintf(smsg, "Affects Enemy's Bullets:ON  ");
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_EBUL)   sprintf(smsg, "Affects Enemy's Bullets:ON  ");
       else                                            sprintf(smsg, "Affects Enemy's Bullets:OFF ");
    }
 
@@ -365,39 +365,54 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_EBUL)   sprintf(smsg, "Triggered by Enemy's Bullets:ON  ");
       else                                            sprintf(smsg, "Triggered by Enemy's Bullets:OFF ");
    }
-   if (bn == 130)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_INVULNERABLE) sprintf(smsg, "Invulnerable");
-      else sprintf(smsg, "Not Invulnerable");
-   }
 
-   if (bn == 131)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_BULLET_TOGGLE)  sprintf(smsg, "Trigger Bullet Toggle:ON");
-      else sprintf(smsg, "Trigger Bullet Toggle:OFF");
-   }
-   if (bn == 132)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_BULLET_EATEN) sprintf(smsg, "Trigger Bullet Eaten:ON");
-      else sprintf(smsg, "Trigger Bullet Eaten:OFF");
-   }
    if (bn == 133)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_CURRENT_DAMAGE) sprintf(smsg, "Damage Field Initially ON");
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_CURR) sprintf(smsg, "Damage Field Initially ON");
       else sprintf(smsg, "Damage Field Initially OFF");
    }
    if (bn == 134)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_SETS_FLD) sprintf(smsg, "Follows Lift:ON");
+      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_ON) sprintf(smsg, "Follows Lift:ON");
       else sprintf(smsg, "Follows Lift:OFF");
    }
    if (bn == 135)
    {
-      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) sprintf(smsg, "Follows Lift:ON");
+      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_ON) sprintf(smsg, "Follows Lift:ON");
       else sprintf(smsg, "Follows Lift:OFF");
    }
 
+   if (bn == 136)
+   {
+      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XC;
+      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XF;
+      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XL;
 
+      if (C) sprintf(smsg, "Lift X Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
+      }
+   }
+
+   if (bn == 137)
+   {
+      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YC;
+      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YF;
+      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YL;
+
+      if (C) sprintf(smsg, "Lift Y Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
+      }
+   }
 
 
 
@@ -816,35 +831,36 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          if (Ei[num][5] > 4) Ei[num][5] = 0;
 
 
+
+
          if (Ei[num][5] == 0) // mode 0 - always on
          {
-            Ei[num][3] &= ~PM_ENEMY_FIELD_BULLET_TOGGLE; // clear flag
-            Ei[num][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE; // set flag
+            Ei[num][3] |= PM_ENEMY_FIELD_DAMAGE_CURR; // set flag
          }
 
          if (Ei[num][5] == 1) // mode 1 - toggle
          {
-            Ei[num][3] |= PM_ENEMY_FIELD_BULLET_TOGGLE; // set flag
-            Ei[num][3] |= PM_ENEMY_FIELD_INVULNERABLE;  // set flag
          }
 
          if (Ei[num][5] == 2) // mode 2 - no damage until triggered
          {
-            Ei[num][3] &= ~PM_ENEMY_FIELD_BULLET_TOGGLE;  // clear flag
-            Ei[num][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE; // clear flag
-
+            Ei[num][3] &= ~PM_ENEMY_FIELD_DAMAGE_CURR; // clear flag
          }
 
          if (Ei[num][5] == 3) // mode 3 - no damage when triggered
          {
-            Ei[num][3] &= ~PM_ENEMY_FIELD_BULLET_TOGGLE;  // clear flag
-            Ei[num][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE; // set flag
+            Ei[num][3] |= PM_ENEMY_FIELD_DAMAGE_CURR; // set flag
          }
 
          if (Ei[num][5] == 4) // mode 4 - Timed on and off
          {
 
          }
+
+
+
+
+
       }
       if (bn == 98) // draw mode
       {
@@ -864,22 +880,97 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          if (Ei[num][10] > 1) Ei[num][10] = 0;
       }
 
-      if (bn == 120) Ei[num][3] ^= PM_ENEMY_FIELD_AFFECTS_PLAYER;
-      if (bn == 121) Ei[num][3] ^= PM_ENEMY_FIELD_AFFECTS_ENEMY;
-      if (bn == 122) Ei[num][3] ^= PM_ENEMY_FIELD_AFFECTS_ITEM;
-      if (bn == 123) Ei[num][3] ^= PM_ENEMY_FIELD_AFFECTS_PBUL;
-      if (bn == 124) Ei[num][3] ^= PM_ENEMY_FIELD_AFFECTS_EBUL;
+      if (bn == 120) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_PLAYER;
+      if (bn == 121) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_ENEMY;
+      if (bn == 122) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_ITEM;
+      if (bn == 123) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_PBUL;
+      if (bn == 124) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_EBUL;
       if (bn == 125) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_PLAYER;
       if (bn == 126) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_ENEMY;
       if (bn == 127) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_ITEM;
       if (bn == 128) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_PBUL;
       if (bn == 129) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_EBUL;
-      if (bn == 130) Ei[num][3] ^= PM_ENEMY_FIELD_INVULNERABLE;
-      if (bn == 131) Ei[num][3] ^= PM_ENEMY_FIELD_BULLET_TOGGLE;
-      if (bn == 132) Ei[num][3] ^= PM_ENEMY_FIELD_BULLET_EATEN;
-      if (bn == 133) Ei[num][3] ^= PM_ENEMY_FIELD_CURRENT_DAMAGE;
-      if (bn == 134) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_SETS_FLD;
-      if (bn == 135) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_SETS_TRG;
+
+      if (bn == 133) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_CURR;
+      if (bn == 134) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_DMG_ON;
+      if (bn == 135) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_TRG_ON;
+
+
+      if (bn == 136)
+      {
+         int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XC;
+         int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XF;
+         int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XL;
+
+
+         if (C)    // 1 X X
+         {  // set to 0 0 0
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_XC; // clear C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_XF; // clear F flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_XL; // clear L flag
+         }
+         else if ((!F) && (!L)) // 0 0 0
+         {               // set to 0 0 1
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_XC; // clear C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_XF; // clear F flag
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_DMG_XL; // set   L flag
+         }
+         else if ((!F) && (L)) // 0 0 1
+         {              // set to 0 1 0
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_DMG_XF; // set   F flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_XL; // clear L flag
+         }
+         else if ((F) && (!L)) // 0 1 0
+         {              // set to 0 1 1
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_DMG_XF; // set   F flag
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_DMG_XL; // set   L flag
+         }
+         else if ((F) && (L))  // 0 1 1
+         {              // set to 1 0 0
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_DMG_XC; // set   C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_XL; // clear L flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_XF; // clear F flag
+         }
+      }
+      if (bn == 137)
+      {
+         int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YC;
+         int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YF;
+         int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YL;
+
+
+         if (C)    // 1 X X
+         {  // set to 0 0 0
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_YC; // clear C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_YF; // clear F flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_YL; // clear L flag
+         }
+         else if ((!F) && (!L)) // 0 0 0
+         {               // set to 0 0 1
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_YC; // clear C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_YF; // clear F flag
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_DMG_YL; // set   L flag
+         }
+         else if ((!F) && (L)) // 0 0 1
+         {              // set to 0 1 0
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_DMG_YF; // set   F flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_YL; // clear L flag
+         }
+         else if ((F) && (!L)) // 0 1 0
+         {              // set to 0 1 1
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_DMG_YF; // set   F flag
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_DMG_YL; // set   L flag
+         }
+         else if ((F) && (L))  // 0 1 1
+         {              // set to 1 0 0
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_DMG_YC; // set   C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_YL; // clear L flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_YF; // clear F flag
+         }
+      }
+
+
+
 
    } // end of mouse pressed on button
    return 0;
