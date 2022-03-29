@@ -727,6 +727,18 @@ int edit_menu(int el)
                      Ei[c][14] = Ei[draw_item_num][14] + y_offset;
                   }
                }
+
+               if (Ei[draw_item_num][0] == 10) // field
+               {
+                  // (al_show_native_message_box(display, "Move?", "Move field's damage and trigger fields too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+                  {
+                     Ei[c][11] = Ei[draw_item_num][11] + x_offset*20;
+                     Ei[c][12] = Ei[draw_item_num][12] + y_offset*20;
+                     Ei[c][15] = Ei[draw_item_num][15] + x_offset*20;
+                     Ei[c][16] = Ei[draw_item_num][16] + y_offset*20;
+                  }
+               }
+
                sort_enemy();
                draw_big(1);
             }

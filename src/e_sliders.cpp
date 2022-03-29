@@ -285,7 +285,16 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (Ei[num][5] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF");
    }
 
-   if (bn == 98) sprintf(smsg, "Main Tile"); //change tile
+   if (bn == 98)
+   {
+      if (Ei[num][2] == 0) sprintf(smsg, "Draw Mode:Hidden           ");
+      if (Ei[num][2] == 1) sprintf(smsg, "Draw Mode:Small Number     ");
+      if (Ei[num][2] == 2) sprintf(smsg, "Draw Mode:Large Number     ");
+      if (Ei[num][2] == 3) sprintf(smsg, "Draw Mode:Small Percent Bar");
+      if (Ei[num][2] == 4) sprintf(smsg, "Draw Mode:Large Percent Bar");
+   }
+
+
 
 
    if (bn == 102) // Damage Field
@@ -387,6 +396,13 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) sprintf(smsg, "Follows Lift:ON");
       else sprintf(smsg, "Follows Lift:OFF");
    }
+
+
+
+
+
+
+
 }
 
 void fill_smsg_slider(int bn, int type, int num)
@@ -830,15 +846,10 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
 
          }
       }
-      if (bn == 98) // change tile
+      if (bn == 98) // draw mode
       {
-         int ct = Ei[num][1]; // current tile
-
-         if (ct == 358) ct = 0;
-         else if (ct == 476) ct = 358;
-         else if (ct == 0)   ct = 476;
-
-         Ei[num][1] = ct;
+         Ei[num][2]++;
+         if (Ei[num][2] > 4) Ei[num][2] = 0;
       }
 
       if (bn == 102) // Damage Field Draw Type
