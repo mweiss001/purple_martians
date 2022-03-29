@@ -965,6 +965,8 @@ void set_field_location_from_lift(int e, int dt, int a20)
 void draw_enemy_field(int e)
 {
    int mode = Ei[e][5];
+   int draw_mode = Ei[e][2];
+
    int FLAGS = Ei[e][3];
    int col = 15;
 
@@ -974,68 +976,64 @@ void draw_enemy_field(int e)
 
    if (level_editor_running) al_draw_bitmap(tile[476], ex, ey, 0);
 
-
-
-//   if (((mode == 2) || (mode == 3)) && (Ei[e][7] > 0)) // timer is running
    if ((mode == 2) || (mode == 3))
-
    {
-      //int tts = (Ei[e][7] / 8 ) + 1; // time to show
+      if (((draw_mode == 1) || (draw_mode == 2)) && (Ei[e][7] > 0)) // small or big number and timer is running
+      {
+         // time to show
+         int tts = (Ei[e][7]); // raw (40ths of a second)
+         //int tts = (Ei[e][7] / 40); // seconds
+         //int tts = (Ei[e][7] / 4); // tenths of a second
+         //int tts = (Ei[e][7] / 8); // fifths of a second
 
-      //int tts = (Ei[e][7] / 40); // seconds
+         if (mode == 2) col = 11;
+         if (mode == 3) col = 10;
+         if (draw_mode == 1) al_draw_textf(f3,   palette_color[col], ex+10, ey+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (draw_mode == 2) al_draw_textf(font, palette_color[col], ex+10, ey+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
 
-      //int tts = (Ei[e][7] / 4); // tenths of a second
+      }
+      if ((draw_mode == 3) || (draw_mode == 4)) // percent bar
+      {
+         int percent = 0;
+         if (mode == 2) percent =       ((Ei[e][7]) * 100) / Ei[e][6];
+         if (mode == 3) percent = 100 - ((Ei[e][7]) * 100) / Ei[e][6];
 
-      int tts = (Ei[e][7] / 8); // fifths of a second
+         if (draw_mode == 3) draw_percent_bar(ex+9, ey +5, 32, 8,  percent);
+         if (draw_mode == 4) draw_percent_bar(ex+9, ey +1, 64, 16, percent);
 
-      //int tts = (Ei[e][7]); // raw
-
-      if (mode == 2) col = 11;
-      if (mode == 3) col = 10;
-
-      al_draw_textf(f3, palette_color[col], ex+10, ey-10, ALLEGRO_ALIGN_CENTER, "%d", tts);
-
-      al_draw_textf(font, palette_color[col], ex+10, ey+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-
-
-      int percent = ((Ei[e][7]+1) * 100) / Ei[e][6];
-
-      int percent2 = 100 - ((Ei[e][7]) * 100) / Ei[e][6];
-
-
-
-      if (mode == 2) draw_percent_bar(ex+10, ey-17, 32, 8, percent);
-      if (mode == 3) draw_percent_bar(ex+10, ey-17, 32, 8, percent2);
+      }
    }
-
-
-
    if (mode == 4)
    {
       int tt = Ei[e][6]; // total time
       int ct = Ei[e][7]; // current time
       int st = Ei[e][8]; // switch time
 
+      int percent = 0;
+      int tts = 0;
+      int col = 0;
+
       if (ct >= st) // upper range, damage off
       {
          int gt = tt-st; // total time in the upper
          int dt = ct-st; // current time relative to that
-         int percent = 100 - (dt * 100) / gt;
-         int tts = (dt / 4) + 1;
-
-         al_draw_textf(f3, palette_color[11], ex+10, ey-10, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         draw_percent_bar(ex+10, ey-17, 32, 8, percent);
+         percent = 100 - (dt * 100) / gt;
+         tts = (dt / 4) + 1;
+         col = 11;
       }
       else // lower range, damage on
       {
          int gt = st; // total time in lower
          int dt = ct; // current time relative to that
-         int tts = (dt / 4) + 1;
-         int percent = (dt * 100) / gt;
-
-         al_draw_textf(f3, palette_color[10], ex+10, ey-10, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         draw_percent_bar(ex+10, ey-17, 32, 8, percent);
+         tts = (dt / 4) + 1;
+         percent = (dt * 100) / gt;
+         col = 10;
       }
+
+      if (draw_mode == 1) al_draw_textf(f3,   palette_color[col], ex+10, ey+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
+      if (draw_mode == 2) al_draw_textf(font, palette_color[col], ex+10, ey+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+      if (draw_mode == 3) draw_percent_bar(ex+9, ey +5, 32, 8,  percent);
+      if (draw_mode == 4) draw_percent_bar(ex+9, ey +1, 64, 16, percent);
    }
 
 

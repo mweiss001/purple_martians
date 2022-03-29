@@ -1691,6 +1691,76 @@ can't get hit players, bullets or bombs
 no regular display, all custom
 no time to live
 
+use Ei[][2] for enemy draw mode
+how I will draw stuff
+
+0 = draw nothing
+1 = small text counter
+2 = large text counter
+3 = small progress bar
+4 = large progress bar
+done...
+
+in creator
+make field initially on
+remove collision box
+done....
+
+
+should I make them show all the time, or only when timer is running?
+numbers...only when running
+percent bars..always
+
+make it so that when I copy and paste, the boxes are offset also, like cloner boxes....
+done with regular copy and zfs copy.....
+
+then test all type 3....all looks good!!!!
+
+
+now apply all that to the timed mode...done...
+
+wow that was easy.....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

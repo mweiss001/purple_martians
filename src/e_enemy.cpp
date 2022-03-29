@@ -254,35 +254,21 @@ void create_cloner(void)
 
 void create_field(void)
 {
-   int rx=0, ry=0;
    int en = get_empty_enemy(10); // type 10 field
    if (getxy( "Set Field Location", 3, 10, en) == 1)
    {
-      rx = get100_x;
-      ry = get100_y;
+      Efi[en][0] = al_itofix(get100_x * 20); // position
+      Efi[en][1] = al_itofix(get100_y * 20);
+      Efi[en][4] = al_itofix(2); // damage
 
-      Ei[en][1] = 476;   // shape
-      Ei[en][2] = 1;     // draw type
-
-      Ei[en][3] = 0;   // clear all flags
-
-      Ei[en][3] |= PM_ENEMY_FIELD_AFFECTS_PLAYER; // set flag
-      Ei[en][3] |= PM_ENEMY_FIELD_TRIGGER_PLAYER; // set flag
-
+      Ei[en][2] = 1;     // draw type (small text)
       Ei[en][5] = 0;     // mode
-
       Ei[en][6] = 100;   // timer
       Ei[en][8] = 40;    // timer flip val
 
-      Ei[en][29] = 12;  // default collision box
-
-      Efi[en][12] = al_itofix(1);  // scale
-      Efi[en][14] = al_itofix(0);  // rotation
-
-      Efi[en][0] = al_itofix(get100_x * 20); // position
-      Efi[en][1] = al_itofix(get100_y * 20);
-
-      Efi[en][4] = al_itofix(2); // damage
+      Ei[en][3] |= PM_ENEMY_FIELD_AFFECTS_PLAYER; // set flag
+      Ei[en][3] |= PM_ENEMY_FIELD_TRIGGER_PLAYER; // set flag
+      Ei[en][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE; // set flag
 
       draw_big(1);
       show_big();
@@ -294,6 +280,7 @@ void create_field(void)
          Ei[en][17] = (bx2-bx1)*20;
          Ei[en][18] = (by2-by1)*20;
          draw_big(1);
+         show_big();
 
          if (getbox("Set Trigger Field Location", 3, 10, en ))
          {
@@ -306,11 +293,9 @@ void create_field(void)
          } // end of set trigger field
          else Ei[en][0] = 0;
       }  // end of set damage field
-   else Ei[en][0] = 0;
+      else Ei[en][0] = 0;
    }  // end of set field location
    else Ei[en][0] = 0;
-
-   set_wx(rx+4, ry);
    sort_enemy();
 }
 

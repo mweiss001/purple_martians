@@ -733,9 +733,15 @@ void save_selection(int save)
                ft_Ei[c][17]-= x1/20;
                ft_Ei[c][18]-= y1/20;
             }
+
+            if (ft_Ei[c][0] == 10 ) // field
+            {
+               ft_Ei[c][11]-= x1;
+               ft_Ei[c][12]-= y1;
+               ft_Ei[c][15]-= x1;
+               ft_Ei[c][16]-= y1;
+            }
          }
-
-
    if (copy_lifts)
       for (b=0; b<num_lifts; b++) // source, if in selection
          if ((lifts[b].x1 >= x1) && (lifts[b].x1 < x2) && (lifts[b].y1 >= y1) && (lifts[b].y1 < y2))
@@ -934,14 +940,14 @@ void do_fcopy(int qx1, int qy1)
                      Efi[c][1] = al_itofix(enforce_limit(al_fixtoi(Efi[c][1]), 0, 1980));
                   }
 
-                  if (Ei[c][0] == 7 ) // podzilla trigger box
+                  if (Ei[c][0] == 7) // podzilla trigger box
                   {
                      Ei[c][11]+= x3/20;
                      Ei[c][12]+= y3/20;
                      Ei[c][13]+= x3/20;
                      Ei[c][14]+= y3/20;
                   }
-                  if (Ei[c][0] == 9 ) // cloner
+                  if (Ei[c][0] == 9) // cloner
                   {
                      Ei[c][11]+= x3/20;
                      Ei[c][12]+= y3/20;
@@ -953,6 +959,15 @@ void do_fcopy(int qx1, int qy1)
                      Ei[c][17]+= x3/20;
                      Ei[c][18]+= y3/20;
                   }
+
+                  if (Ei[c][0] == 10) // field
+                  {
+                     Ei[c][11]+= x3;
+                     Ei[c][12]+= y3;
+                     Ei[c][15]+= x3;
+                     Ei[c][16]+= y3;
+                  }
+
                   if (lim)
                   {
                      //copied = -1;
