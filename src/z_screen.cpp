@@ -861,7 +861,7 @@ void draw_percent_bar(int cx, int y, int width, int height, int percent)
       int w2 = (int) (width * ((float)percent/100)); // how much green
       al_draw_filled_rectangle(x+0.5f, y+0.5f, x + w2+0.5f, y + height+0.5f, palette_color[11]); //  green
    }
-   al_draw_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, palette_color[15], 1); //  white frame
+   al_draw_rectangle(x-0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, palette_color[15], 1); //  white frame
 }
 
 void draw_percent_bar_line(int cx, int y, int width, int height, int rise, int color, int percent )

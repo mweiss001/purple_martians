@@ -602,7 +602,6 @@ void proc_player_collisions(int p)
    // enemies
    for (int e=0; e<100; e++)
    {
-//      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
       if ((Ei[e][0]) && (Ei[e][0] != 99) && (Ei[e][0] != 10)) // if active and not deathcount or field
       {
          al_fixed b = al_itofix(Ei[e][29]); // collision box size

@@ -1560,6 +1560,172 @@ Ei[][31] =                 flag that this enemy got shot with bullet
 now I need to make the toggle mode in obj viewer show all the trigger stuff
 
 
+For timed on and off, make custom button that say time on and time off.
+
+also make initial time [7] adjustable for synchronization...
+
+which is which???
+total time...6
+on time 8
+initial time 7
+
+
+
+I think I am abandoning drawing with tile stuff, maybe just a place holder
+
+I want to implement a draw mode for the main shape
+
+like show the number and progress bar in different ways
+
+my main function is very small now
+
+
+
+void enemy_field(int e)
+{
+   int mode = Ei[e][5];
+   int trig_toggle = 0;
+
+   Ei[e][3] &= ~PM_ENEMY_FIELD_TRIGGER_CURR;  // clear current trigger flag
+   detect_field_collisions();
+   if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) // is current trigger flag set?
+   {
+      if (!(Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_PREV)) trig_toggle = 1; // if triggered this frame and not triggered last frame, set trigger toggle
+      Ei[e][3] |=  PM_ENEMY_FIELD_TRIGGER_PREV; // set previous trigger for next frame
+   }
+   else Ei[e][3] &= ~PM_ENEMY_FIELD_TRIGGER_PREV; // clear previous trigger for next frame
+
+   if (mode == 0) Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE; // in mode 0, always set damage flag
+
+   if ((mode == 1) && (trig_toggle)) Ei[e][3] ^= PM_ENEMY_FIELD_CURRENT_DAMAGE; // toggle current damage flag
+
+   if (mode == 2) // damage unless timer running  (no damage when triggered)
+   {
+      if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) Ei[e][7] = Ei[e][6];
+
+      if (Ei[e][7] == 0) Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE;   // set damage on
+      else Ei[e][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE;                // set damage off
+   }
+
+   if (mode == 3) // damage when timer is running (no damage until triggered)
+   {
+      if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) Ei[e][7] = Ei[e][6];
+
+      if (Ei[e][7] > 0)  Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE;   // set damage on
+      else Ei[e][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE;                // set damage off
+   }
+
+   if (mode == 4) // timed on and off
+   {
+      // timer will run outside this function always, but in this mode, when it gets to zero, we will reset it
+      if (Ei[e][7] == 0) Ei[e][7] = Ei[e][6];
+      if (Ei[e][7] < Ei[e][8]) Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE;   // set damage on
+      else                     Ei[e][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE;  // set damage off
+   }
+
+   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_FLD) set_field_location_from_lift(e, 0, 0);
+   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) set_field_location_from_lift(e, 1, 0);
+
+   if (--Ei[e][7] < 0) Ei[e][7] = 0; // always run timer
+
+}
+
+
+
+what is still left to do?
+
+get some draw modes for the main enemy
+
+probably never show the shape when game is running
+
+what do I want to do with the main bitmap Ei[][1]?
+
+leave it blank and use another var for draw mode??
+or customize the drawing routines so that field always draws itself...yes do that...
+
+void draw_enemies(void)
+{
+   al_set_target_bitmap(level_buffer);
+   for (int e=0; e<100; e++)
+      if (Ei[e][0])  // if enemy active
+      {
+         if (Ei[e][0] == 10) draw_enemy_field(e); // field - do not draw anything here for field, let draw_enemy_field() do it all
+         else
+         {
+             int EXint = al_fixtoi(Efi[e][0]);
+             int EYint = al_fixtoi(Efi[e][1]);
+             int flags = 0;
+             if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+             if (Ei[e][2] == 1) flags = 0;
+             if (Ei[e][2] == 2) flags = ALLEGRO_FLIP_VERTICAL;
+             if (Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+             int tn = Ei[e][1];
+
+             float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
+             float sc = al_fixtof(Efi[e][12]);
+             al_draw_scaled_rotated_bitmap(tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
+
+             // if enemy is expiring show how many seconds it has left
+             if (Ei[e][27]) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+         }
+
+
+
+do this is my draw code..
+
+if (level_editor_running) al_draw_bitmap(tile[476], ex, ey, 0);
+
+
+OK all that is done...
+
+now I have freed up
+
+Ei[][1]
+Ei[][2]
+Ei[][27]
+
+I have so many free variables now at the expense of..
+invulnerable
+can't hit player
+can't get hit players, bullets or bombs
+no regular display, all custom
+no time to live
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

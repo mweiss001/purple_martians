@@ -116,7 +116,12 @@ void update_var(int bn, int type, int num, float f)
       set_field_location_from_lift(num, 1, 1);
    }
 
-   if (bn == 86) Ei[num][8] = (int)f;                 // field timer swap val
+   if (bn == 86) Ei[num][6] = (int)f;                 // field timer swap val
+   if (bn == 87) Ei[num][7] = (int)f;                 // field timer swap val
+   if (bn == 88) Ei[num][8] = (int)f;                 // field timer swap val
+
+   if (bn == 89) Ei[num][6] = (int)f;                 // damage field on time
+   if (bn == 90) Ei[num][6] = (int)f;                 // damage field off time
 
 }
 
@@ -473,7 +478,14 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 84) sprintf(smsg, "Damage Field Follows Lift:%d", Ei[num][21]);
    if (bn == 85) sprintf(smsg, "Trigger Field Follows Lift:%d", Ei[num][20]);
 
-   if (bn == 86) sprintf(smsg, "Damage Field Timer Flip Point:%d", Ei[num][8]);
+   if (bn == 86) sprintf(smsg, "Total Time:%d",   Ei[num][6]);
+   if (bn == 87) sprintf(smsg, "Initial Time:%d", Ei[num][7]);
+   if (bn == 88) sprintf(smsg, "Damage Time:%d",  Ei[num][8]);
+
+
+   if (bn == 89) sprintf(smsg, "Damage Field ON Time:%d",  Ei[num][6]);
+   if (bn == 90) sprintf(smsg, "Damage Field OFF Time:%d",  Ei[num][6]);
+
 
 
 }
@@ -965,7 +977,14 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
       case 84: sul=39;   sll=0;     sinc=1;   sdx=Ei[num][21];                 break;  // damage lift number
       case 85: sul=39;   sll=0;     sinc=1;   sdx=Ei[num][20];                 break;  // trigger lift number
-      case 86: sul=1000; sll=10;    sinc=1;   sdx=Ei[num][8];                  break;  // field timer switch val
+      case 86: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // field timer total time
+      case 87: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][7];                  break;  // field timer initial time
+      case 88: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][8];                  break;  // field timer damage time
+
+      case 89: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // damage field on time
+      case 90: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // damage field off time
+
+
    }
 
    // draw the slider
