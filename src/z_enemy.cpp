@@ -924,6 +924,135 @@ int round20(int val)
 
 void set_field_location_from_lift(int e, int dt, int a20)
 {
+   if (dt==0) // Damage Field
+   {
+      int d = Ei[e][21]; // lift number
+      if (d < num_lifts) // only proceed if lift number is valid
+      {
+
+         // x axis
+
+         int lx1 = lifts[d].x1;
+         int lx2 = lifts[d].x2;
+         int C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XC;
+         int F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XF;
+         int L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XL;
+
+         if (C)
+         {
+            int lxc = lx1 + (lx2-lx1)/2; // get center of lift
+            Ei[e][15] = lxc - Ei[e][17]/2;
+         }
+         else
+         {
+            if ((!F) && (!L)) Ei[e][15] = lx1;             // fx1 = lx1
+            if ((!F) && ( L)) Ei[e][15] = lx2;             // fx1 = lx2
+            if (( F) && (!L)) Ei[e][15] = lx1 - Ei[e][17]; // fx2 = lx1
+            if (( F) && ( L)) Ei[e][15] = lx2 - Ei[e][17]; // fx2 = lx2
+         }
+
+
+         // y axis
+
+         int ly1 = lifts[d].y1;
+         int ly2 = lifts[d].y2;
+         C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_YC;
+         F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_YF;
+         L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_YL;
+
+         if (C)
+         {
+            int lyc = ly1 + (ly2-ly1)/2; // get center of lift
+            Ei[e][16] = lyc - Ei[e][18]/2;
+         }
+         else
+         {
+            if ((!F) && (!L)) Ei[e][16] = ly1;             // fy1 = ly1
+            if ((!F) && ( L)) Ei[e][16] = ly2;             // fy1 = ly2
+            if (( F) && (!L)) Ei[e][16] = ly1 - Ei[e][18]; // fy2 = ly1
+            if (( F) && ( L)) Ei[e][16] = ly2 - Ei[e][18]; // fy2 = ly2
+         }
+
+         if (a20) // align to 20 grid
+         {
+            Ei[e][15] = round20(Ei[e][15]);
+            Ei[e][16] = round20(Ei[e][16]);
+         }
+
+
+      }
+   }
+
+   else // Trigger
+   {
+      int d = Ei[e][20]; // lift number
+      if (d < num_lifts) // only proceed if lift number is valid
+      {
+
+         // x axis
+
+         int lx1 = lifts[d].x1;
+         int lx2 = lifts[d].x2;
+         int C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_XC;
+         int F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_XF;
+         int L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_XL;
+
+         if (C)
+         {
+            int lxc = lx1 + (lx2-lx1)/2; // get center of lift
+            Ei[e][11] = lxc - Ei[e][13]/2;
+         }
+         else
+         {
+            if ((!F) && (!L)) Ei[e][11] = lx1;             // fx1 = lx1
+            if ((!F) && ( L)) Ei[e][11] = lx2;             // fx1 = lx2
+            if (( F) && (!L)) Ei[e][11] = lx1 - Ei[e][13]; // fx2 = lx1
+            if (( F) && ( L)) Ei[e][11] = lx2 - Ei[e][13]; // fx2 = lx2
+         }
+
+
+         // y axis
+
+         int ly1 = lifts[d].y1;
+         int ly2 = lifts[d].y2;
+         C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_YC;
+         F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_YF;
+         L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_YL;
+
+         if (C)
+         {
+            int lyc = ly1 + (ly2-ly1)/2; // get center of lift
+            Ei[e][12] = lyc - Ei[e][14]/2;
+         }
+         else
+         {
+            if ((!F) && (!L)) Ei[e][12] = ly1;             // fy1 = ly1
+            if ((!F) && ( L)) Ei[e][12] = ly2;             // fy1 = ly2
+            if (( F) && (!L)) Ei[e][12] = ly1 - Ei[e][14]; // fy2 = ly1
+            if (( F) && ( L)) Ei[e][12] = ly2 - Ei[e][14]; // fy2 = ly2
+         }
+
+         if (a20) // align to 20 grid
+         {
+            Ei[e][11] = round20(Ei[e][11]);
+            Ei[e][12] = round20(Ei[e][12]);
+         }
+
+
+      }
+
+
+
+
+
+   }
+
+   /*
+
+
+
+
+
    int e_offset = 0; // so I can use this for trigger and damage
    int l_offset = 0;
    if (dt)
@@ -934,25 +1063,56 @@ void set_field_location_from_lift(int e, int dt, int a20)
    int d = Ei[e][21+l_offset]; // lift number
    if (d < num_lifts)          // only do this if lift is valid
    {
-      int center = 1;
-      if (center)
+
+      int C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XC;
+      int F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XF;
+      int L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XL;
+
+      if (C)
       {
          // get center of lift
          int lx1 = lifts[d].x1;
          int lx2 = lifts[d].x2;
-         int ly1 = lifts[d].y1;
-         int ly2 = lifts[d].y2;
          int lxc = lx1 + (lx2-lx1)/2;
-         int lyc = ly1 + (ly2-ly1)/2;
 
          Ei[e][15+e_offset] = lxc - Ei[e][17+e_offset]/2;
+      }
+      else
+      {
+         if ((!F) && (!L)) Ei[e][15+e_offset] = lifts[d].x1; // fx1 = lx1
+         if ((!F) && ( L)) Ei[e][15+e_offset] = lifts[d].x2; // fx1 = lx2
+         if (( F) && (!L)) Ei[e][15+e_offset] = lifts[d].x1 - Ei[e][17+e_offset]; // fx2 = lx1
+         if (( F) && ( L)) Ei[e][15+e_offset] = lifts[d].x2 - Ei[e][17+e_offset]; // fx2 = lx2
+      }
+
+
+
+
+
+      int ycenter = 1;
+      if (ycenter)
+      {
+         // get center of lift
+         int ly1 = lifts[d].y1;
+         int ly2 = lifts[d].y2;
+         int lyc = ly1 + (ly2-ly1)/2;
+
          Ei[e][16+e_offset] = lyc - Ei[e][18+e_offset]/2;
       }
       else
       {
-         Ei[e][15+e_offset] = lifts[d].x1;
          Ei[e][16+e_offset] = lifts[d].x2;
       }
+
+
+
+
+
+
+
+
+
+
 
       if (a20) // align to 20 grid
       {
@@ -960,6 +1120,10 @@ void set_field_location_from_lift(int e, int dt, int a20)
          Ei[e][16+e_offset] = round20(Ei[e][16+e_offset]);
       }
    }
+
+   */
+
+
 }
 
 void draw_enemy_field(int e)
@@ -1070,7 +1234,7 @@ void draw_enemy_field(int e)
 
    int draw_type = Ei[e][19];
 
-   if (FLAGS & PM_ENEMY_FIELD_CURRENT_DAMAGE) // currently in damage mode
+   if (FLAGS & PM_ENEMY_FIELD_DAMAGE_CURR) // currently in damage mode
    {
       if (draw_type == 0)
       {
@@ -1096,8 +1260,8 @@ void draw_enemy_field(int e)
 
    if (level_editor_running) // snap to lift here because main function wont be called
    {
-      if (FLAGS & PM_ENEMY_FIELD_LIFT_SETS_FLD) set_field_location_from_lift(e, 0, 1);
-      if (FLAGS & PM_ENEMY_FIELD_LIFT_SETS_TRG) set_field_location_from_lift(e, 1, 1);
+      if (FLAGS & PM_ENEMY_FIELD_LIFT_DMG_ON) set_field_location_from_lift(e, 0, 1);
+      if (FLAGS & PM_ENEMY_FIELD_LIFT_TRG_ON) set_field_location_from_lift(e, 1, 1);
    }
 }
 
@@ -1108,13 +1272,13 @@ void detect_field_collisions(void)
       {
          int mode = Ei[e][5];
          int FLAGS = Ei[e][3];
-         int cd = FLAGS & PM_ENEMY_FIELD_CURRENT_DAMAGE;
+         int cd = FLAGS & PM_ENEMY_FIELD_DAMAGE_CURR;
 
-         int cdp =  ((cd) && (FLAGS & PM_ENEMY_FIELD_AFFECTS_PLAYER)); // damage active and player flag
-         int cde =  ((cd) && (FLAGS & PM_ENEMY_FIELD_AFFECTS_ENEMY));  // damage active and enemy flag
-         int cdi =  ((cd) && (FLAGS & PM_ENEMY_FIELD_AFFECTS_ITEM));   // damage active and item flag
-         int cdpb = ((cd) && (FLAGS & PM_ENEMY_FIELD_AFFECTS_PBUL));   // damage active and player bullet flag
-         int cdeb = ((cd) && (FLAGS & PM_ENEMY_FIELD_AFFECTS_EBUL));   // damage active and enemy bullet flag
+         int cdp =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_PLAYER)); // damage active and player flag
+         int cde =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_ENEMY));  // damage active and enemy flag
+         int cdi =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_ITEM));   // damage active and item flag
+         int cdpb = ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_PBUL));   // damage active and player bullet flag
+         int cdeb = ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_EBUL));   // damage active and enemy bullet flag
 
 
          int ct = 1; // check trigger by default
@@ -1312,16 +1476,16 @@ void enemy_field(int e)
    }
    else Ei[e][3] &= ~PM_ENEMY_FIELD_TRIGGER_PREV; // clear previous trigger for next frame
 
-   if (mode == 0) Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE; // in mode 0, always set damage flag
+   if (mode == 0) Ei[e][3] |= PM_ENEMY_FIELD_DAMAGE_CURR; // in mode 0, always set damage flag
 
-   if ((mode == 1) && (trig_toggle)) Ei[e][3] ^= PM_ENEMY_FIELD_CURRENT_DAMAGE; // toggle current damage flag
+   if ((mode == 1) && (trig_toggle)) Ei[e][3] ^= PM_ENEMY_FIELD_DAMAGE_CURR; // toggle current damage flag
 
    if (mode == 2) // damage unless timer running  (no damage when triggered)
    {
       if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) Ei[e][7] = Ei[e][6];
 
-      if (Ei[e][7] == 0) Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE;   // set damage on
-      else Ei[e][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE;                // set damage off
+      if (Ei[e][7] == 0) Ei[e][3] |= PM_ENEMY_FIELD_DAMAGE_CURR;   // set damage on
+      else Ei[e][3] &= ~PM_ENEMY_FIELD_DAMAGE_CURR;                // set damage off
    }
 
    if (mode == 3) // damage when timer is running (no damage until triggered)
@@ -1329,8 +1493,8 @@ void enemy_field(int e)
       if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) Ei[e][7] = Ei[e][6];
 
 
-      if (Ei[e][7] > 0)  Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE;   // set damage on
-      else Ei[e][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE;                // set damage off
+      if (Ei[e][7] > 0)  Ei[e][3] |= PM_ENEMY_FIELD_DAMAGE_CURR;   // set damage on
+      else Ei[e][3] &= ~PM_ENEMY_FIELD_DAMAGE_CURR;                // set damage off
    }
 
    if (mode == 4) // timed on and off
@@ -1338,12 +1502,12 @@ void enemy_field(int e)
       // timer will run outside this function always, but in this mode, when it gets to zero, we will reset it
       if (Ei[e][7] == 0) Ei[e][7] = Ei[e][6];
 
-      if (Ei[e][7] < Ei[e][8]) Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE;   // set damage on
-      else                     Ei[e][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE;  // set damage off
+      if (Ei[e][7] < Ei[e][8]) Ei[e][3] |=  PM_ENEMY_FIELD_DAMAGE_CURR;  // set damage on
+      else                     Ei[e][3] &= ~PM_ENEMY_FIELD_DAMAGE_CURR;  // set damage off
    }
 
-   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_FLD) set_field_location_from_lift(e, 0, 0);
-   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) set_field_location_from_lift(e, 1, 0);
+   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_ON) set_field_location_from_lift(e, 0, 0);
+   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_ON) set_field_location_from_lift(e, 1, 0);
 
    if (--Ei[e][7] < 0) Ei[e][7] = 0; // always run timer
 

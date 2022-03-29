@@ -1716,10 +1716,72 @@ done with regular copy and zfs copy.....
 
 then test all type 3....all looks good!!!!
 
-
 now apply all that to the timed mode...done...
 
 wow that was easy.....
+
+
+
+What do I have left?
+
+I think all the functionality is there, maybe just some nice drawing code stuff for fields...
+
+Oh yeah and also how the field attach to lifts
+
+right now they just center
+
+in the x axis:
+center , right or left
+
+in the y axis
+center, right of left
+
+6 flags....9 combinations
+
+no...do it this way
+XC
+XF
+XL
+
+
+maybe more...
+if c=1 ignore the rest
+if c=0 four possibilities
+fx1 = lx1
+fx1 = lx2
+fx2 = lx1
+fx2 = lx2
+
+XC XF XL
+0  0  0 Field X1 = Lift X1
+0  0  1 Field X1 = Lift X2
+0  1  0 Field X2 = Lift X1
+0  1  1 Field X2 = Lift X2
+1  x  x Centered
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

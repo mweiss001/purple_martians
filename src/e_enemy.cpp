@@ -266,9 +266,9 @@ void create_field(void)
       Ei[en][6] = 100;   // timer
       Ei[en][8] = 40;    // timer flip val
 
-      Ei[en][3] |= PM_ENEMY_FIELD_AFFECTS_PLAYER; // set flag
+      Ei[en][3] |= PM_ENEMY_FIELD_DAMAGE_PLAYER;  // set flag
       Ei[en][3] |= PM_ENEMY_FIELD_TRIGGER_PLAYER; // set flag
-      Ei[en][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE; // set flag
+      Ei[en][3] |= PM_ENEMY_FIELD_DAMAGE_CURR;    // set flag
 
       draw_big(1);
       show_big();
