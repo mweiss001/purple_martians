@@ -7,6 +7,10 @@ void proc_frame_delay(void)
 {
    frame_num++;
    update_animation();
+
+
+
+
    if (al_get_timer_count(sec_timer) > 0)
    {
       al_set_timer_count(sec_timer, 0); // reset_second_timer

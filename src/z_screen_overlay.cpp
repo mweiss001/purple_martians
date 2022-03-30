@@ -535,14 +535,14 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
          case 40: case 41: case 43:// player got shot
             al_play_sample(snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
          break;
-         case 44: case 50: case 52: case 54: case 56: // player got hit (bomb, mine, enemy collision, squished, stuck)
+         case 44: case 50: case 52: case 54: case 56: case 57: // player got hit (bomb, mine, enemy collision, squished, stuck)
             if (sample_delay[7]+14 < frame_num)
             {
                sample_delay[7] = frame_num;
                al_play_sample(snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
             }
          break;
-         case 60: case 62: // enemy killed
+         case 60: case 62: case 64: // enemy killed
             al_play_sample(snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
          break;
          case 90: // d'Oh (player died)
@@ -555,10 +555,6 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
          case 31: // sproingy
             al_play_sample(snd[9], 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
          break;
-
-
-
-
       }
    }
 }
@@ -667,6 +663,8 @@ int bmsg_show_health(int h, int bmsg_length)
 
 void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
+
+
    // event retrigger holdoff for these events that can repeat every frame
    if (ev == 3) // exit
    {
@@ -680,6 +678,29 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
       else ev = 0;
    }
 
+
+   if (ev == 57) // damage field raw
+   {
+      int p = z1;
+      int e = z2;
+      float damage = al_fixtof(Efi[z2][4]);
+      players1[p].field_damage_enemy_number = e;
+
+      if (players1[p].field_damage_holdoff < frame_num) // triggered and not in holdoff
+      {
+         players1[p].field_damage_holdoff = frame_num + 20; // set holdoff
+         players1[p].field_damage_tally = damage; // init tally with current damage
+         ev = 0; // don't let this event do anything
+      }
+
+      if (players1[p].field_damage_holdoff > frame_num) // triggered and in holdoff
+      {
+         players1[p].field_damage_tally += damage; // inc tally with current damage
+         ev = 0; // don't let this event do anything
+      }
+   }
+
+
    if ((ev != 0) && (ev != 1) && (ev != 4) && (ev != 15) && (ev != 22) && (ev != 31) ) // events that don't have bmsg handler
    {
       int bmsg_length = 0; // keep a running total
@@ -689,7 +710,9 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
       al_set_target_bitmap(bmsg_temp);
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      bmsg_length += bmsg_draw_player(z1, bmsg_length); // all bmsg start with player
+      if (ev != 64) bmsg_length += bmsg_draw_player(z1, bmsg_length); // all bmsg start with player
+      // except for 64
+
 
       if (ev == 5) // player went through a door
       {
@@ -822,6 +845,19 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += bmsg_show_text(" got stuck ", 15, bmsg_length);
          bmsg_length += bmsg_show_health(-z4, bmsg_length);
       }
+
+      if (ev == 58) // player took damage from a field
+      {
+         custom_drawn = 1;
+         int damage = (int) players1[z1].field_damage_tally;
+         int e = players1[z1].field_damage_enemy_number;
+         int type = Ei[e][19];
+
+         if (type == 1) bmsg_length += bmsg_show_text(" was hurt by spikey floor ", 15, bmsg_length);
+         else           bmsg_length += bmsg_show_text(" was hurt by a damage field ", 15, bmsg_length);
+         bmsg_length += bmsg_show_health(-damage, bmsg_length);
+      }
+
       if (ev == 60) // player killed enemy with a bullet
       {
          custom_drawn = 1;
@@ -835,6 +871,12 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += bmsg_show_text(" killed ", 15, bmsg_length);
          bmsg_length += bmsg_draw_enemy(Ei[z2][0], bmsg_length);
          bmsg_length += bmsg_show_text(" with explosion!", 15, bmsg_length);
+      }
+      if (ev == 64) // enemy killed with field
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_draw_enemy(Ei[z2][0], bmsg_length);
+         bmsg_length += bmsg_show_text(" killed with damage field!", 15, bmsg_length);
       }
       if (ev == 70) // player got a free man
       {

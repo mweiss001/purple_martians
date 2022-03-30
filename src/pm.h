@@ -222,6 +222,7 @@ extern ALLEGRO_BITMAP *bmsg_bmp[20];
 extern ALLEGRO_BITMAP *bmsg_bmp2[20];
 extern ALLEGRO_BITMAP *bmsg_temp;
 extern int game_event_retrigger_holdoff[10];
+extern float game_event_retrigger_holdoff_tally[10];
 
 
 
@@ -499,6 +500,10 @@ struct player1 // not synced between server and client
    int last_health_adjust;
    int potential_bomb_damage;
 
+
+   float field_damage_tally;
+   int field_damage_holdoff;
+   int field_damage_enemy_number;
 
    int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;
    int comp_move, old_comp_move;
@@ -866,7 +871,7 @@ int create_key(int c);
 int create_start_block(int c);
 int create_exit(int c);
 int create_door(int type);
-void create_field(void);
+int create_field(void);
 int create_item(int type);
 
 // e_enemy.h
@@ -877,7 +882,7 @@ int get_empty_enemy(int type);
 int move_trigger_box(int num, int type);
 void recalc_pod(int EN);
 int move_pod_extended(int num);
-void create_cloner(void);
+int create_cloner(void);
 int create_pod(void);
 
 // e_object_viewer.h

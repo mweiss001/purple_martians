@@ -414,6 +414,38 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       }
    }
 
+   if (bn == 138)
+   {
+      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XC;
+      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XF;
+      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XL;
+
+      if (C) sprintf(smsg, "Lift X Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
+      }
+   }
+
+   if (bn == 139)
+   {
+      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YC;
+      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YF;
+      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YL;
+
+      if (C) sprintf(smsg, "Lift Y Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
+      }
+   }
+
 
 
 
@@ -504,7 +536,7 @@ void fill_smsg_slider(int bn, int type, int num)
 
    if (bn == 82) sprintf(smsg, "Damage Field Timer:%d", Ei[num][6]);
 
-   if (bn == 83) sprintf(smsg, "Damage Field Amount of Damage:%3.2f", al_fixtof(Efi[num][4]));
+   if (bn == 83) sprintf(smsg, "Player Damage:%3.2f          ", al_fixtof(Efi[num][4]));
 
    if (bn == 84) sprintf(smsg, "Damage Field Follows Lift:%d", Ei[num][21]);
    if (bn == 85) sprintf(smsg, "Trigger Field Follows Lift:%d", Ei[num][20]);
@@ -896,7 +928,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 135) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_TRG_ON;
 
 
-      if (bn == 136)
+      if (bn == 136) // Damage Field X Lift Alignment
       {
          int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XC;
          int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XF;
@@ -932,12 +964,11 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_XF; // clear F flag
          }
       }
-      if (bn == 137)
+      if (bn == 137) // Damage Field Y Lift Alignment
       {
          int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YC;
          int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YF;
          int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YL;
-
 
          if (C)    // 1 X X
          {  // set to 0 0 0
@@ -968,6 +999,102 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_YF; // clear F flag
          }
       }
+
+
+
+
+
+      if (bn == 138) // Trigger Field X Lift Alignment
+      {
+         int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XC;
+         int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XF;
+         int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XL;
+
+
+         if (C)    // 1 X X
+         {  // set to 0 0 0
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_XC; // clear C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_XF; // clear F flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_XL; // clear L flag
+         }
+         else if ((!F) && (!L)) // 0 0 0
+         {               // set to 0 0 1
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_XC; // clear C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_XF; // clear F flag
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_TRG_XL; // set   L flag
+         }
+         else if ((!F) && (L)) // 0 0 1
+         {              // set to 0 1 0
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_TRG_XF; // set   F flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_XL; // clear L flag
+         }
+         else if ((F) && (!L)) // 0 1 0
+         {              // set to 0 1 1
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_TRG_XF; // set   F flag
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_TRG_XL; // set   L flag
+         }
+         else if ((F) && (L))  // 0 1 1
+         {              // set to 1 0 0
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_TRG_XC; // set   C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_XL; // clear L flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_XF; // clear F flag
+         }
+      }
+      if (bn == 139) // Trigger Field Y Lift Alignment
+      {
+         int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YC;
+         int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YF;
+         int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YL;
+
+         if (C)    // 1 X X
+         {  // set to 0 0 0
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_YC; // clear C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_YF; // clear F flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_YL; // clear L flag
+         }
+         else if ((!F) && (!L)) // 0 0 0
+         {               // set to 0 0 1
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_YC; // clear C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_YF; // clear F flag
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_TRG_YL; // set   L flag
+         }
+         else if ((!F) && (L)) // 0 0 1
+         {              // set to 0 1 0
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_TRG_YF; // set   F flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_YL; // clear L flag
+         }
+         else if ((F) && (!L)) // 0 1 0
+         {              // set to 0 1 1
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_TRG_YF; // set   F flag
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_TRG_YL; // set   L flag
+         }
+         else if ((F) && (L))  // 0 1 1
+         {              // set to 1 0 0
+            Ei[num][3] |=  PM_ENEMY_FIELD_LIFT_TRG_YC; // set   C flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_YL; // clear L flag
+            Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_YF; // clear F flag
+         }
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

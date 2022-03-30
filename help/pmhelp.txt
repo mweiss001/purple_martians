@@ -2305,6 +2305,24 @@ LOGGING_NETPLAY_show_dif2 = 0
 <l15>    when player is in the Collision Box.
 
 
+<section>Field Viewer
+
+
+
+<l04>    Description:
+
+<l15> Fields are rectangular areas that can cause damage.
+
+This section is under construction...more later
+
+
+
+
+
+
+
+
+
 <section>Lift Viewer
 
 

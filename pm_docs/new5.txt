@@ -12631,3 +12631,2091 @@ void draw_percent_bar(int cx, int y, int width, int height, int percent)
 
 
 
+
+I could make the item 'mine' have a larger rectangular area
+
+I could make other items like that too...like one that kills enemies...
+
+I have wanted to do these rectangular areas for years, I just never thought to make them part of an item...
+
+omg...I was think of making them stationary, but what if I made their position slave to another object, like a lift??!!
+
+
+start by making a new item..
+
+
+added one in PDE..
+
+type 20, temp holder bitmap 889
+
+added one to level...
+
+added its name in menu setup:  strcpy (item_name[20],"Minefield");
+
+incresed size of:
+int item_num_of_type[20];
+int item_first_num[20];
+char item_name[20][40];
+
+to
+
+int item_num_of_type[30];
+int item_first_num[30];
+char item_name[30][40];
+
+
+set all to 200 for testing...
+
+item[][6] = minefield x (int) (2000)
+item[][7] = minefield y (int) (2000)
+item[][8] = minefield w (int) (2000)
+item[][9] = minefield h (int) (2000)
+
+
+make it show...
+
+void draw_minefield(int i)
+{
+   float x1 = item[i][6];
+   float y1 = item[i][7];
+   float x2 = x1 + item[i][8];
+   float y2 = y1 + item[i][9];
+   rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, 10, 10);
+}
+
+
+check collision...
+
+void proc_player_collisions(int p)
+{
+   al_fixed f10 = al_itofix(10);
+   al_fixed f16 = al_itofix(16);
+
+   // items
+   players1[p].potential_bomb_damage = 0;
+   players[p].marked_door = -1; // so player can touch only one door
+   for (int x=0; x<500; x++)
+   {
+      if (item[x][0])
+      {
+         al_fixed ix1 = itemf[x][0] - f16;
+         al_fixed ix2 = itemf[x][0] + f16;
+         al_fixed iy1 = itemf[x][1] - f16;
+         al_fixed iy2 = itemf[x][1] + f16;
+         if ((players[p].PX > ix1) && (players[p].PX < ix2)
+          && (players[p].PY > iy1) && (players[p].PY < iy2)
+          && (!players[p].paused) ) proc_item_collision(p, x);
+      }
+      if (item[x][0] == 20) // check for minefield collision
+      {
+         al_fixed ix1 = al_itofix(item[x][6]);
+         al_fixed iy1 = al_itofix(item[x][7]);
+         al_fixed ix2 = ix1 + al_itofix(item[x][8]);
+         al_fixed iy2 = iy1 + al_itofix(item[x][9]);
+         if ((players[p].PX > ix1) && (players[p].PX < ix2)
+          && (players[p].PY > iy1) && (players[p].PY < iy2)
+          && (!players[p].paused) ) proc_minefield_collision(p, x);
+      }
+   }
+
+
+void proc_minefield_collision(int p, int i)
+{
+   players[p].LIFE -= al_itofix(1);
+}
+
+it works!!!!
+
+
+make an editor so you can adjust x, y, w, y
+
+new button in sliders:
+
+if (bn == 84) sprintf(smsg, "Get New Minefield Rectangle");
+
+if (bn == 84)
+   if (getbox( "Minefield Range", 2, 4, num) == 1)
+   {
+      if (--bx2 < bx1) bx2++;
+      if (--by2 < by1) by2++;
+      item[num][6] = bx1*20;
+      item[num][7] = by1*20;
+      item[num][8] = (bx2 - bx1)*20;
+      item[num][9] = (by2 - by1)*20;
+      Redraw = 1;
+   }
+
+in object viewer:
+
+case 20: // minefield
+   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 84,  num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++; // set new range
+break;
+
+
+it works!!!
+
+now what?
+
+it would be nice to adjust with map...
+but I can easily make it work without that....
+
+- can I kill the item? // probably won't do this... no other item supports getting killed
+
+- hide the main icon
+
+- make it cycle on and off?
+
+- make it turn on when touched, turn off when touched?
+
+- link it's position to a lift?
+
+
+lets pick an int for mode...
+item [][10] == mode
+mode == 0 // always on
+
+lets pick an int for damage
+item [][11] == health dec (/100)
+
+what variables does that leave me?
+12 and 13 only
+
+
+mode 1:
+become active when touched
+timer value = 13;
+timer counter = 12;
+
+
+mode 2:
+become inactive when touched
+timer value = 13;
+timer counter = 12;
+
+
+implement 11 health dec...
+
+if (bn == 81) item[num][11] = (int)f;              // minefield damage
+
+if (bn == 81) sprintf(smsg, "Damage:%d", item[num][11]);
+
+case 81: sul=1000;  sll=0;   sinc=10; sdx=item[num][11];           break;  // minefield damage
+
+
+case 20: // minefield
+   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 84,  num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++; // set new range
+   mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 81, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // damage
+break;
+
+void proc_minefield_collision(int p, int i)
+{
+   al_fixed d = al_itofix(item[i][11]) / 100;
+   int id = al_fixtoi(d);
+
+   players[p].LIFE -= d;
+   game_event(50, 0, 0, p, i, 0, id);
+}
+
+done and works great!!
+
+getting new rectangle make it one block smaller at lr corner..done
+
+heath event of zero shows green...made it blue, but still need to address this
+
+inc should be 1 not 10...done
+
+implement mode 1 and 2.....
+
+
+I would love to have 2 rectangles, one for the trigger and one for the damage...
+however I do not have enough integers
+
+unless I do something tricky
+
+is item[][2] really not used by anything??
+
+if I ignore these I could get 2 more here:
+item[][14] = time to live
+item[][15] = tag with cloner item id
+
+basically if I want 2 boxes i will need 8 variables....
+
+what if I used an enemy to make this whole thing work?
+they have a lot more variables to work with...
+plus, I could kill them if I wanted!!
+
+
+
+snap decision...lets do that....
+
+I can still keep the item version...maybe use it for simpler ones...
+
+
+
+[10]--field-----------------------------------------------------------------------------
+
+Ei[][0] = 10;
+Ei[][1] = 476; // bitmap
+Ei[][2] = 0;   // draw mode (v and h flips)
+
+//Ei[][4]  draw boxes (0 = none) (1 = trigger) (2 = source/dest) (3 = both)
+Ei[][5]  mode
+
+Ei[][11] trigger box x1
+Ei[][12] trigger box y1
+Ei[][13] trigger box x2
+Ei[][14] trigger box y2
+
+Ei[][15] = 200; field box x
+Ei[][16] = 200;  field box y
+Ei[][17] = 200;  field box w
+Ei[][18] = 200;  field box h
+
+Efi[][4] = 2.3;  // life dec
+Efi[][12] = 1.0; // scale
+Efi[][14] = 0.0; // rot
+
+made an enemy like this in PDE...done and added to level...
+
+add enemy to lists...done
+strcpy (enemy_name[10], "Field");
+
+
+add code to draw...very similar to cloner...done
+
+if (Ei[e][0] == 10) // field
+{
+   // trigger box
+   float tx1 = (float)Ei[e][11]*20;
+   float ty1 = (float)Ei[e][12]*20;
+   float tx2 = (float)Ei[e][13]*20+20;
+   float ty2 = (float)Ei[e][14]*20+20;
+   int tc1 = 14 + 128; // trigger box color
+
+   // field
+   float sx1 = (float)Ei[e][15];
+   float sy1 = (float)Ei[e][16];
+   float sx2 = sx1 + (float)Ei[e][17];
+   float sy2 = sy1 + (float)Ei[e][18];
+   int sc1 = 11 + 128; // field box color
+
+   rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
+   rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // field
+}
+
+add code to take damage....done...
+   for (int e=0; e<100; e++)
+   {
+      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
+      {
+         al_fixed b = al_itofix(Ei[e][29]); // collision box size
+         al_fixed ex1 = Efi[e][0] - b;
+         al_fixed ex2 = Efi[e][0] + b;
+         al_fixed ey1 = Efi[e][1] - b;
+         al_fixed ey2 = Efi[e][1] + b;
+         if ((players[p].PX > ex1) && (players[p].PX < ex2)
+          && (players[p].PY > ey1) && (players[p].PY < ey2)) Ei[e][22] = p+1;
+      }
+
+
+      if (Ei[e][0] == 10) // check for field collision
+      {
+         al_fixed ix1 = al_itofix(Ei[e][15]);
+         al_fixed iy1 = al_itofix(Ei[e][16]);
+
+         al_fixed ix2 = ix1 + al_itofix(Ei[e][17]);
+         al_fixed iy2 = iy1 + al_itofix(Ei[e][18]);
+
+         if ((players[p].PX > ix1) && (players[p].PX < ix2)
+          && (players[p].PY > iy1) && (players[p].PY < iy2)
+          && (!players[p].paused) ) proc_field_collision(p, e);
+      }
+   }
+
+void proc_field_collision(int p, int x)
+{
+   players[p].LIFE -= Efi[x][4];
+   game_event(50, 0, 0, p, x, 0, al_fixtoi(Efi[x][4]));
+}
+
+
+add code to adjust boxes...hopefully its close to cloner...
+
+if (bn == 85) sprintf(smsg, "Get New Field Rectangle");
+if (bn == 86) sprintf(smsg, "Get New Field Trigger Box");
+
+if (bn == 85)
+   if (getbox("Get New Field ", 3, 10, num))
+   {
+      Ei[num][15] = bx1*20;
+      Ei[num][16] = by1*20;
+      Ei[num][17] = (bx2-bx1)*20;
+      Ei[num][18] = (by2-by1)*20;
+      Redraw = 1;
+   }
+
+if (bn == 86)
+   if (getbox("Get New Field Trigger Box", 3, 10, num))
+   {
+      Ei[num][11] = bx1*20;
+      Ei[num][12] = by1*20;
+      Ei[num][13] = (bx2-bx1)*20;
+      Ei[num][14] = (by2-by1)*20;
+      Redraw = 1;
+   }
+
+
+perfect...now I can edit both boxes...now for map move...
+
+
+
+
+
+if ((obt == 3) && (type == 10)) // field boxes
+{
+   // field trigger box coordinates
+   int x1 = Ei[num][11]/20;
+   int y1 = Ei[num][12]/20;
+   int x2 = x1 + Ei[num][13]/20 -1;
+   int y2 = y1 + Ei[num][14]/20 -1;
+   if ((!mouse_on_extra) && (mx == x1) && (my == y1)) // upper left corner
+   {
+      mouse_on_ftb_ul = 1;
+      mouse_on_extra = 1;
+      for (int a=0; a<4; a++)
+         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
+      al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[14], 1);                 // mark ul corner
+      mouse_move = 1;
+   }
+   if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // lower right corner
+   {
+      mouse_on_ftb_lr = 1;
+      mouse_on_extra = 1;
+      for (int a=0; a<4; a++)
+         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
+      al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, palette_color[14], 1);                 // mark lr corner
+      mouse_adj = 1;
+   }
+
+   // field damage box coordinates
+   x1 = Ei[num][15]/20;
+   y1 = Ei[num][16]/20;
+   x2 = x1 + Ei[num][17]/20 -1;
+   y2 = y1 + Ei[num][18]/20 -1;
+   if ((!mouse_on_extra) && (mx == x1) && (my == y1)) // upper left corner
+   {
+      mouse_on_fdb_ul = 1;
+      mouse_on_extra = 1;
+      for (int a=0; a<4; a++)
+         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
+      al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[14], 1);                 // mark ul corner
+      mouse_move = 1;
+   }
+   if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // lower right corner
+   {
+      mouse_on_fdb_lr = 1;
+      mouse_on_extra = 1;
+      for (int a=0; a<4; a++)
+         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
+      al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, palette_color[14], 1);                 // mark lr corner
+      mouse_adj = 1;
+   }
+}
+
+
+if (mouse_on_tb_ul) // move trigger box from ul
+{
+   // get the width and height
+   int w = Ei[num][13] - Ei[num][11];
+   int h = Ei[num][14] - Ei[num][12];
+   // set new position
+   Ei[num][11] = mx;
+   Ei[num][12] = my;
+   Ei[num][13] = mx + w;
+   Ei[num][14] = my + h;
+}
+if (mouse_on_ftb_ul) // move field trigger box from ul
+{
+   Ei[num][11] = mx*20;
+   Ei[num][12] = my*20;
+}
+if (mouse_on_fdb_ul) // move field damage box from ul
+{
+   Ei[num][15] = mx*20;
+   Ei[num][16] = my*20;
+}
+if (mouse_on_tb_lr)  // resize trigger box from lr
+{
+   // prevent lr corner from being less than ul corner
+   if (mx < Ei[num][11]) mx = Ei[num][11];
+   if (my < Ei[num][12]) my = Ei[num][12];
+   // set new postion
+   Ei[num][13] = mx;
+   Ei[num][14] = my;
+}
+
+if (mouse_on_ftb_lr) // resize field trigger box from lr
+{
+   // prevent lr corner from being less than ul corner
+   if (mx < (Ei[num][11]/20)) mx = (Ei[num][11]/20)+1;
+   if (my < (Ei[num][12]/20)) my = (Ei[num][12]/20)+1;
+   Ei[num][13] = mx*20 - Ei[num][11];
+   Ei[num][14] = my*20 - Ei[num][12];
+}
+
+if (mouse_on_fdb_lr) // resize field damage box from lr
+{
+   // prevent lr corner from being less than ul corner
+   if (mx < (Ei[num][15]/20)) mx = (Ei[num][15]/20)+1;
+   if (my < (Ei[num][16]/20)) my = (Ei[num][16]/20)+1;
+   Ei[num][17] = mx*20 - Ei[num][15];
+   Ei[num][18] = my*20 - Ei[num][16];
+}
+
+
+map works......
+
+now detect trigger collision also....done
+
+if (Ei[e][0] == 10) // check for field collision
+{
+   // trigger field
+   al_fixed ix1 = al_itofix(Ei[e][11]);
+   al_fixed iy1 = al_itofix(Ei[e][12]);
+   al_fixed ix2 = ix1 + al_itofix(Ei[e][13]);
+   al_fixed iy2 = iy1 + al_itofix(Ei[e][14]);
+
+   if ((players[p].PX > ix1) && (players[p].PX < ix2)
+    && (players[p].PY > iy1) && (players[p].PY < iy2)
+    && (!players[p].paused) ) proc_field_collision(p, e, 0);
+
+   // damage field
+   ix1 = al_itofix(Ei[e][15]);
+   iy1 = al_itofix(Ei[e][16]);
+   ix2 = ix1 + al_itofix(Ei[e][17]);
+   iy2 = iy1 + al_itofix(Ei[e][18]);
+
+   if ((players[p].PX > ix1) && (players[p].PX < ix2)
+    && (players[p].PY > iy1) && (players[p].PY < iy2)
+    && (!players[p].paused) ) proc_field_collision(p, e, 1);
+}
+
+
+void proc_field_collision(int p, int x, int b)
+{
+   if (b == 0) // trigger field
+   {
+
+   }
+   if (b == 1) // damage field
+   {
+      players[p].LIFE -= Efi[x][4];
+      game_event(50, 0, 0, p, x, 0, al_fixtoi(Efi[x][4]));
+   }
+}
+
+
+now add slider to adjust the amount of damage....done...reused the same one as all other enemies
+...does it also work for the main enemy?...no...collision box..set to 10 and still no..
+
+I don't have and specific code to handle this type of enemy....
+
+
+added this line to move_enemies()
+case 10:  enemy_field(e);  break;
+
+
+void enemy_field(int e)
+{
+   if (Ei[e][31]) // hit
+   {
+      enemy_killed(e);
+      return;
+   }
+   enemy_player_hit_proc(e);
+}
+
+
+now I can take damage from enemy and kill it, but it doesn't die nicely
+
+added to enemy_killed()
+
+
+case 10: // field
+   na = Ei[e][3] = 105;  // new ans
+   dl = Ei[e][30] = 40; // death_loop_wait; set delay
+   Ei[e][24] = 934+(ht-1)*32; // shape
+   Efi[e][11] = al_ftofix(.98); // scale multiplier
+   Efi[e][13] = al_ftofix(306/dl); // rot inc
+   zz[0][na] = zz[5][na]; // set shape
+   zz[1][na] = 0;         // point to zero
+   zz[2][na] = frame_num; // set counter
+   zz[3][na] = dl / zz[4][na]; // set ans timer
+break;
+
+change this at end of enemy killed to include type 10
+// almost all do this but not enough to do by default
+if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==12 )
+{
+   if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
+   if (ht == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
+   Ei[e][0] = 99; // set type to death loop
+}
+
+
+OK now that works, but later, I'll need to make it look nice
+for now if I don't want to be able to shoot it, set collision box to 0
+...can still kill with bomb...
+
+
+
+
+
+now lets implement some modes....
+
+0 = static, damage always
+
+1 = no damage until triggered, then timer runs
+
+2 = damage until triggered, then none while timer runs
+
+what are my variables for mode, timer and timer count?
+
+Ei[][5] = mode;
+Ei[][6] = timer_value;
+Ei[][7] = timer_count;
+
+Ei[][8] = damage; // currently in damage mode
+
+
+
+
+set up buttons for these...
+
+if (bn == 87) // field mode
+{
+   if (Ei[num][5] == 0) sprintf(smsg, "Damage Always");
+   if (Ei[num][5] == 1) sprintf(smsg, "No Damage Until Triggered");
+   if (Ei[num][5] == 2) sprintf(smsg, "Damage Until Triggered");
+}
+
+if (bn == 87)
+{
+   Ei[num][5]++;
+   if (Ei[num][5] > 2) Ei[num][5] = 0;
+}
+
+if (bn == 82) Ei[num][6] = (int)f;        // field timer
+if (bn == 82) sprintf(smsg, "Field Timer:%d", Ei[num][6]);
+case 82: sul=1000;  sll=10;  sinc=1; sdx=Ei[num][6];           break;  // field timer
+
+now lets actually write some code to process this
+
+
+void draw_enemy_field(int e)
+{
+   float tx1 = (float)Ei[e][11]; // trigger
+   float ty1 = (float)Ei[e][12];
+   float tx2 = tx1 + (float)Ei[e][13];
+   float ty2 = ty1 + (float)Ei[e][14];
+   int tc1 = 14 + 128; // trigger box color
+   rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
+
+   if (Ei[e][8]) // currently in damage mode
+   {
+      float sx1 = (float)Ei[e][15]; // field
+      float sy1 = (float)Ei[e][16];
+      float sx2 = sx1 + (float)Ei[e][17];
+      float sy2 = sy1 + (float)Ei[e][18];
+      int sc1 = 11 + 128; // field box color
+      rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // field
+   }
+}
+
+void proc_field_collision(int p, int e, int b)
+{
+   if (b == 0) // trigger field
+   {
+      Ei[e][7] = Ei[e][6]; // reset timer
+   }
+   if (b == 1) // damage field
+   {
+      if (Ei[e][8]) // currently in damage mode
+      {
+         players[p].LIFE -= Efi[e][4];
+         game_event(50, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
+      }
+   }
+}
+
+void enemy_field(int e)
+{
+   if (Ei[e][31]) // hit
+   {
+      enemy_killed(e);
+      return;
+   }
+   enemy_player_hit_proc(e);
+   if (--Ei[e][7] < 0) Ei[e][7] = 0; // always run timer
+   int damage = 0;
+   if (Ei[e][5] == 0) damage = 1;                       // damage always
+   if ((Ei[e][5] == 1) && (Ei[e][7] > 0)) damage = 1;   // damage when timer is running (no damage until triggered)
+   if ((Ei[e][5] == 2) && (Ei[e][7] == 0)) damage = 1;  // damage unless timer running  (damage when triggered)
+   Ei[e][8] = damage;  // field is currently in damage mode
+}
+
+
+this is all working good...
+
+now some minor bug fixes...
+
+cant see the field in obj viewer
+
+also what color should they be??
+trigger yellow
+field red
+
+OK that looks good...now make field always show in level editor
+what is that global? level_editor_running
+
+
+looking good...now figure out how to tell when timer is running...done
+show small number counting down second above the enemy..
+
+test if I can use this at the bottom of a pit that kills you instantly...
+not unless I set the damage higher...set to 100
+
+move rect to be red...done
+hide trigger if not used...done
+
+
+I want to try slaving it to a lift...just the damage field..always on for now
+mode = 3; works as proof on concept...
+
+can we make the field kill enemies
+
+right now I think all my collisions are with player...
+I only really care if things collide with players....??
+
+where will I do the collision detection?
+
+I propose to make a new collision detection based on what collides with fields
+
+Then I can do players, enemies, items...
+
+
+made void proc_field_collisions(void);
+and added it to loop....
+
+
+seems to be working good...
+
+items...done...
+
+
+wow!!!
+
+now I need to be able to set this in the field somehow....
+
+
+
+
+
+
+
+
+
+lets just list a bunch of possible types here:
+
+
+always on, invisible invulnerable enemy
+always on, enemy can be killed
+
+
+type 3 - always on, following lift
+
+type 4 - shooting enemy toggles field
+
+have a bunch of toggles for enemy shape
+- hidden, invulnerable
+- shown, killable
+- shown, shooting toggles
+
+
+lets implement hit type
+Ei[e][4]
+
+0 normal (can kill)
+1 invulnerable
+2 toggle also need mode == 4
+
+its better to do this with modes...
+
+pick which modes are invincible...choose a variable also used for death ans...will never be used for this
+
+
+
+mode 4 toggle
+don't show trigger or allow timer to run
+maybe I could make my own bullet handler so it doesn't eat the bullet???
+
+5 trigger be time based only...on time off time...
+
+6 timed like 1 but triggered with shot
+7 timed like 2 but triggered with shot
+
+8 timed like 2 but triggered with enemy collision
+8 timed like 2 but triggered with enemy collision
+
+immdiate when in zone
+
+
+
+I've got to use some more variables
+dig into the fixed...
+
+on  count
+off count
+
+runs with timer only
+
+
+
+lets start with what triggers it:
+---------------------------------
+player in trigger zone
+enemy in trigger zone
+player shoots enemy
+player touches enemy
+strictly timer based on and off
+
+then what happens next:
+-----------------------
+zone on with timer
+zone off with timer
+
+toggle
+
+immediate on or off
+
+
+then what does it affect:
+-------------------------
+players
+enemies
+items
+
+optionally
+------------------
+move with lift
+
+
+how many modes do I have that work?
+
+-------------------
+5-0 - normal
+4-0 - normal
+always on
+not invulnerable
+--------------------
+5-1 - off until triggered, then timer runs
+4-0 (0 normal, 1 invul, 3 add time)
+
+not invulnerable
+--------------------
+2 - on until triggered, then timer runs
+not invulnerable
+--------------------
+3 - alway on, follows lift
+not invulnerable
+--------------------
+
+
+lets get some nicer drawing for the stuff
+
+
+spike pit...
+flames...
+acid...
+
+
+20220327 new day
+did a lot yesterday
+kind of ran out of steam after 12 hours
+today I am going to bring it on home...complete a lot of this.
+
+I want to start by implementing what objects are affected by the field
+
+use a single int and also use it for invul
+
+
+bit 1 player
+bit 2 enemy
+bit 3 item
+bit 4 invuln
+
+
+typedef union
+{
+ uint8_t     all_flags;      /* Allows us to refer to the flags 'en masse' */
+ struct
+ {
+  uint8_t foo : 1,        /* Explanation of foo */
+          bar : 1,        /* Explanation of bar */
+          spare5 : 1,     /* Unused */
+          spare4 : 1,     /* Unused */
+          spare3 : 1,     /* Unused */
+          spare2 : 1,     /* Unused */
+          spare1 : 1,     /* Unused */
+          spare0 : 1;     /* Unused */
+ };
+} EX_FLAGS;
+
+static EX_FLAGS    Flags;  /* Allocation for the Flags */
+
+Flags.all_flags = 0U; /* Clear all flags */
+
+...
+
+Flags.bar = 1U; /* Set the bar flag */
+
+-----------------------------------------------------------
+
+if(x & 0x01){} // tests if bit 0 is set using bitwise AND
+x ^= 0x02;     // toggles bit 1 (0 based) using bitwise XOR
+x |= 0x10;     // sets bit 4 (0 based) using bitwise OR
+
+-----------------------------------------------------------
+
+
+/* Each of these preprocessor directives defines a single bit,
+   corresponding to one button on the controller.
+   Button order matches that of the Nintendo Entertainment System. */
+#define KEY_RIGHT  0b00000001
+#define KEY_LEFT   0b00000010
+#define KEY_DOWN   0b00000100
+#define KEY_UP     0b00001000
+#define KEY_START  0b00010000
+#define KEY_SELECT 0b00100000
+#define KEY_B      0b01000000
+#define KEY_A      0b10000000
+
+int gameControllerStatus = 0;
+
+/* Sets the gameControllerStatus using OR */
+void KeyPressed( int key ) { gameControllerStatus |= key; }
+
+/* Clears the gameControllerStatus  using AND and ~ (binary NOT)*/
+void KeyReleased( int key ) { gameControllerStatus &= ~key; }
+
+/* Tests whether a bit is set using AND */
+int IsPressed( int key ) { return gameControllerStatus & key; }
+
+---------------------------------------------------------------------------
+
+lets call Ei[e][3] flags
+
+make 4 button to set player, enemy, items, invul
+
+if (bn == 89) // field affects player flag
+{
+   if (Ei[num][3] & 0b00000001) sprintf(smsg, "Affects Players");
+   else sprintf(smsg, "Does Not Affect Players");
+}
+if (bn == 90) // field affects enemy flag
+{
+   if (Ei[num][3] & 0b00000010) sprintf(smsg, "Affects Enemies");
+   else sprintf(smsg, "Does Not Affect Enemies");
+}
+if (bn == 91) // field affects item flag
+{
+   if (Ei[num][3] & 0b00000100) sprintf(smsg, "Affects Items");
+   else sprintf(smsg, "Does Not Affect Items");
+}
+if (bn == 92) // field enemy invulnerable flag
+{
+   if (Ei[num][3] & 0b00001000) sprintf(smsg, "Invulnerable");
+   else sprintf(smsg, "Not Invulnerable");
+}
+
+if (bn == 89) Ei[num][3] ^= 0b00000001; // bitwise OR
+if (bn == 90) Ei[num][3] ^= 0b00000010; // bitwise OR
+if (bn == 91) Ei[num][3] ^= 0b00000100; // bitwise OR
+if (bn == 92) Ei[num][3] ^= 0b00001000; // bitwise OR
+
+int cdp = ((Ei[e][8]) && (Ei[e][3] & 0b00000001)); // damage active and player flag
+int cde = ((Ei[e][8]) && (Ei[e][3] & 0b00000010)); // damage active and enemy flag
+int cdi = ((Ei[e][8]) && (Ei[e][3] & 0b00000100)); // damage active and item flag
+
+
+lets add to this trigger:
+
+trigger field player
+trigger field enemy
+trigger shoot enemy
+trigger timer
+
+remove Ei[][4]...done
+
+if toggle is set, inv should be too, unless you want one toggle then enemy dies...
+
+
+if toggle is set and in mode 1 or 2 they will override....
+
+how about mode 0 is default and if you dont want any changes just implement with flags
+
+mode 3 is now toggle
+when setting that mode, automatically set the toggle flag and unset the inv flag
+
+make a button to set initially on or off..
+
+
+
+can i use another flag bit for damage on?  this will be the ninth bit...try it...I think I can...it seems to work...
+
+now I got rid of Ei[][8] for damage currently on and replaced it with another flag...
+
+should I set up some nice defines for these??
+
+#define PM_ENEMY_FIELD_AFFECTS_PLAYER 0b000000001
+#define PM_ENEMY_FIELD_AFFECTS_ENEMY  0b000000010
+#define PM_ENEMY_FIELD_AFFECTS_ITEM   0b000000100
+#define PM_ENEMY_FIELD_INVULNERABLE   0b000001000
+#define PM_ENEMY_FIELD_TRIGGER_PLAYER 0b000010000
+#define PM_ENEMY_FIELD_TRIGGER_ENEMY  0b000100000
+#define PM_ENEMY_FIELD_BULLET_TOGGLE  0b001000000
+#define PM_ENEMY_FIELD_TRIGGER_TIMER  0b010000000
+#define PM_ENEMY_FIELD_CURRENT_DAMAGE 0b100000000
+
+
+done....
+
+
+
+when setting mode 3 (toggle), automatically set the toggle flag and unset the inv flag
+in sliders...done
+
+player should never take damage from cloner, but I can't set the collison box to zero because it's used by bullets
+
+in void proc_player_collisions(int p)
+
+changed this line
+for (int e=0; e<100; e++)
+{
+// if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
+   if ((Ei[e][0]) && (Ei[e][0] != 99) && (Ei[e][0] != 10) // if active and not deathcount or field
+done...
+make collison box a little more forgiving maybe 12 or 14 instead of 10... change PDE to 12...can still edit manually...done
+
+
+bullet is back to getting eaten....fix and maybe make it a flag....
+
+in proc_enemy_collision_with_pbullet(int e)
+
+if ((Ei[e][0] == 10) && (Ei[e][5] == 4)) // don't kill bullet used to toggle field
+{
+}
+else pbullet[c][0] = 0;       // bullet dies
+
+if ((Ei[e][0] == 10) && (Ei[e][3] & PM_ENEMY_FIELD_BULLET_TOGGLE)) // don't kill bullet used to toggle field
+if ((Ei[e][0] == 10) && (Ei[e][3] & PM_ENEMY_FIELD_BULLET_TOGGLE) && (!(Ei[e][3] & PM_ENEMY_FIELD_BULLET_EATEN))) // don't kill bullet used to toggle field
+
+done and works...
+
+test the collision areas of fields, they are a little off...changed the offset in collison detection...done
+
+old:
+
+ // trigger field
+ al_fixed tfx1 = al_itofix(Ei[e][11]);
+ al_fixed tfy1 = al_itofix(Ei[e][12]);
+ al_fixed tfx2 = tfx1 + al_itofix(Ei[e][13]);
+ al_fixed tfy2 = tfy1 + al_itofix(Ei[e][14]);
+
+ // damage field
+ al_fixed dfx1 = al_itofix(Ei[e][15]);
+ al_fixed dfy1 = al_itofix(Ei[e][16]);
+ al_fixed dfx2 = dfx1 + al_itofix(Ei[e][17]);
+ al_fixed dfy2 = dfy1 + al_itofix(Ei[e][18]);
+
+
+new:
+
+ // trigger field
+ al_fixed tfx1 = al_itofix(Ei[e][11]-10);
+ al_fixed tfy1 = al_itofix(Ei[e][12]-10);
+ al_fixed tfx2 = tfx1 + al_itofix(Ei[e][13]);
+ al_fixed tfy2 = tfy1 + al_itofix(Ei[e][14]);
+
+ // damage field
+ al_fixed dfx1 = al_itofix(Ei[e][15]-10);
+ al_fixed dfy1 = al_itofix(Ei[e][16]-10);
+ al_fixed dfx2 = dfx1 + al_itofix(Ei[e][17]);
+ al_fixed dfy2 = dfy1 + al_itofix(Ei[e][18]);
+
+
+
+when setting mode = 0
+clear bullet toggle flag...done
+
+don't reset inv flag
+
+now what?
+
+make new shapes including hidden...
+
+make a shape that has a hole for the timer count!!
+
+
+made default from PDE have damage on and mode 0 and draw mode 1
+
+I won't enforce it, but it makes sense to have hidden and inv both set
+
+if hidden, I should still show it in level editor...
+
+if on off switches make then change...done
+
+make button for initial setting on/off in toggle mode...done
+
+make a slider for choosing lift number...and a place to store it...
+Ei[][21]
+
+it follows lift just great...I can even center it nicely
+maybe make a flag for centering later
+
+
+now it is always on...I want to change this...
+
+turned it off....
+
+bullet toggle works good...
+
+in level editor, show the field centered on the lift....
+how about actually set it when lift is changed with slider....
+
+I should make a function to do this...done
+
+
+now can we do the timers while in lift mode?
+
+no.. timers only work when mode == 1 or 2
+
+maybe I could make lifts separate from mode...
+I would need to use an int for the lift number
+
+I could also potentially move the trigger box with another lift...whooa!!
+
+can timer and toggle co-exist right now??
+
+no, because the timer forces it on or off
+
+
+I think if I remove lift from mode then I can have modes realted to trigger only...like
+
+
+then I can have a separate int for the lift stuff
+I could jam 4 things in there
+
+1 bit field follow lift
+7 bits lift number
+
+1 bit trigger follow lift
+7 bits lift number
+
+or I can add a few more flags to 3 and use 2 ints for lifts
+
+
+I will also need two more variables for the second timer
+
+Ei[][5]  mode
+Ei[][6]  timer1 value
+Ei[][7]  timer1 count
+Ei[][8]  timer2 value
+Ei[][9]  timer2 count
+
+let's re-arrange the modes
+
+0 on
+1 toggle (does nothing)
+2 on till trigger
+3 on when trigger
+4 double timer trigger
+
+no lift...move in to flag and lift numbers in:
+Ei[][19]
+Ei[][20]
+
+what am I using 21 for?? lift number! perfect!
+
+OK lets do this...
+start with lift flags
+
+#define PM_ENEMY_FIELD_LIFT_SETS_FLD  0b0000010000000000
+#define PM_ENEMY_FIELD_LIFT_SETS_TRG  0b0000100000000000
+
+Ei[][20] // trig lift
+Ei[][21] // field lift
+
+sliders...done
+
+patched that all in nicely...
+
+now rearrange modes
+
+0 on
+1 toggle (does nothing)
+2 on till trigger
+3 on when trigger
+4 double timer trigger
+
+screw it, im leaving toggle out, it does nothing...
+
+0 on
+1 on till trigger
+2 on when trigger
+3 double timer trigger
+
+NO! I need a mode that is not a timer, so timers wont fuck over toggle
+
+0 on
+1 toggle (does nothing)
+2 on till trigger
+3 on when trigger
+4 double timer trigger
+
+
+good so far....now implement double timer...
+
+make slider to adjust
+
+Ei[][8]  timer2 value
+
+
+
+why do I have 2 timers?
+
+would it not be simpler to run one from value to zero then reset...and have a midpoint where the damage flips??
+lets just call timer 2 the flip point
+
+that works great.
+
+hide timer numbers in modes 0 and 1
+
+in mode 3 do a modified count down for each stage...done
+
+
+
+
+
+I would say that most of the basic funtionality has been implemented...
+now for some polish and testing...
+
+
+
+naming
+
+enemy is called Field
+is has a
+Damage Field
+Trigger Field
+make this naming consistant
+
+at the top should be the stuff related to the enemy
+inv and shape
+
+then the stuff related to the Damage Field
+
+get new...etc
+
+the viewer page looks good...
+
+it all looks good...
+not implemented:
+anything except player triggering
+unused flag trigger timer
+
+
+I want to make a test level to show this off....
+
+bugs
+
+when creating, a creator might be nice..done
+or take me to the edit page right away
+of just make the lr trigger not exactly the ul damage!!..this is done...
+
+remove old simpe PDE for field...
+remove old item field thing...done
+
+when invisible, its kinda hard to find in level editor...fixed
+
+death sequence needs something more than just copying cloner
+
+make some better shapes for damage fields...
+
+how will I show different draw types
+use an int? patched it in..
+
+Its use as an item killer is nice too... I can make a screen that items can't go through
+
+to kill items nicely, have the killing screen ignore things in the death phase...done
+redraw attached to lift when stuff moves in level editor....done
+make boxes snap to 20 grid..not a problem unless attached to lift...done
+
+
+I want to make field able to kill enemy and player bullets also....done!!!
+when checking collisions, I realized I can also have bullets affect trigger!!!
+
+make damage field able to be invisible...done
+
+also add display options for trigger field use Ei[][10]... done for now only default and none
+
+
+20220328 6:20 AM
+wow this is coming along so great......time for a push
+
+
+lets try some other things that can trigger...
+
+enemy
+item
+enemy bullet
+player bullet
+
+right now trigger only makes sense in mode 2 and 3
+and then timers run...
+
+can it be instant by setting timer to 0?
+0 and 1 never work, 2 works...why??
+
+moved dec counter to last thing in enemy proc...now 1 works
+
+patch in trigger sources...
+did a bunch of re-arranging flags and slider button toggles
+
+now make the new trigger source functionality work....done
+
+why does a new filed have damage of 0?...done
+
+fix display of damage to only 2 decimals...done
+
+why is bullet getting eaten in mode 1?
+
+
+in void proc_enemy_collision_with_pbullet(int e)
+old:
+if ((Ei[e][0] == 10) && (Ei[e][3] & PM_ENEMY_FIELD_BULLET_TOGGLE) && (!(Ei[e][3] & PM_ENEMY_FIELD_BULLET_EATEN))) // don't kill bullet used to toggle field
+new
+if ((Ei[e][0] == 10) && (!(Ei[e][3] & PM_ENEMY_FIELD_BULLET_EATEN))) // don't kill bullet used to toggle field
+
+
+
+Change the wording of MODE.
+ON until triggereg
+OFF until triggered
+
+Make Mode capitalized
+
+
+I want to make a toggle mode based on field...
+but how will i make it work?...I'll need a hold off
+when something first enters
+
+detect if nothing is in trigger box
+then if next frame something is in then trigger
+
+then wait until it is empty again before allowing another trigger
+I'll need something to keep track of how it was the last frame
+
+I could use a flag...
+
+each frame:
+if not set from last frame...
+and set this frame...toggle trigger fires
+
+use 2 flags...
+
+start of frame clear current
+when checking collisions if any trigger, set current trigger
+after checking collisions if not last the yes this then fire toggle
+set last to current for next time...
+
+I have been doing the triggers wrongs
+collisions with damage need to afect specific things
+but collisions with triggers?
+who cares where they came from?
+all that matters is that a trigger happened
+
+new flags
+
+#define PM_ENEMY_FIELD_TRIGGER_CURR  0b1000000000000000
+#define PM_ENEMY_FIELD_TRIGGER_LAST  0b1000000000000000
+
+at the start of the enemy proc loop CURR is cleared
+if any trigger collisions, CURR is set
+
+at the end of the collision checks...
+
+if CURR is set: proc things that happen when something is in trigger box
+if CURR is set and PREV is clear: process things that only happen when initiallt triggered
+
+set PREV to CURR
+
+
+what if I remove all toggle by shooting actual enemy...might make things easier....
+once I get the trigger toggle stuff working I'll look at it...
+
+I'm ready to do it
+
+there is custom code in
+
+void proc_enemy_collision_with_pbullet(int e)
+
+for when a bullet hits the field enemy...
+i am going to try to take it out completely
+I still want the enemy to be invincible...but I can just set collision box to zero....
+wait....
+
+just leave code there so pbullets completely ignore field enemy
+then I should just make it always invincible...
+use the enemy tile stuff just for counter and progress bar....
+I can get collision box for something else too maybe....
+
+old:
+
+   if ((ex > bx1) && (ex < bx2) && (ey > by1) && (ey < by2)))
+   {
+      int p = pbullet[c][1];   // player number that shot bullet
+      Ei[e][31] = 1;           // flag that this enemy got shot with bullet
+      Ei[e][26] = p;           // number of player's bullet that hit enemy
+      players[p].num_hits++;   // add to number of hits the player has
+
+//            if ((Ei[e][0] == 10) && (Ei[e][3] & PM_ENEMY_FIELD_BULLET_TOGGLE) && (!(Ei[e][3] & PM_ENEMY_FIELD_BULLET_EATEN))) // don't kill bullet used to toggle field
+
+      if ((Ei[e][0] == 10) && (!(Ei[e][3] & PM_ENEMY_FIELD_BULLET_EATEN))) // don't kill bullet used to toggle field
+      {
+      }
+      else pbullet[c][0] = 0;       // bullet dies
+
+   }
+
+new:
+   if ((ex > bx1) && (ex < bx2) && (ey > by1) && (ey < by2) && (Ei[e][0] != 10))
+   {
+      int p = pbullet[c][1];   // player number that shot bullet
+      Ei[e][31] = 1;           // flag that this enemy got shot with bullet
+      Ei[e][26] = p;           // number of player's bullet that hit enemy
+      players[p].num_hits++;   // add to number of hits the player has
+      pbullet[c][0] = 0;       // bullet dies
+   }
+
+
+I can go back one higher to the function that call this:
+
+old:
+void move_enemies()
+{
+   num_enemy = 0; // count enemies
+   for (int e=0; e<100; e++)
+      if (Ei[e][0])
+      {
+         num_enemy++; // count enemies
+         if (Ei[e][0] < 50) proc_enemy_collision_with_pbullet(e);
+
+         // check for time to live
+         int ttl = Ei[e][27];
+
+new:
+void move_enemies()
+{
+   num_enemy = 0; // count enemies
+   for (int e=0; e<100; e++)
+      if (Ei[e][0])
+      {
+         num_enemy++; // count enemies
+         if ((Ei[e][0] < 50) && (Ei[e][0] != 10)) proc_enemy_collision_with_pbullet(e);
+
+
+
+now it does not even detect bullet, but I kept the invincible code because of bombs
+if I removed that, nothing could ever kill it
+
+this whole thing that every enemy has....
+
+   if (Ei[e][31]) // hit
+   {
+      if (!(Ei[e][3] & PM_ENEMY_FIELD_INVULNERABLE)) // invulnerable flag not set
+      {
+         enemy_killed(e);
+         return; // don't do anything else past here
+      }
+   }
+   enemy_player_hit_proc(e);
+
+void enemy_player_hit_proc(int e)
+{
+   if (--Ei[e][23]<0) // hit player retrigger
+   {
+      if (Ei[e][22]) // player hit!
+      {
+         int p = Ei[e][22]-1;
+         players[p].LIFE -= Efi[e][4];
+
+         game_event(44, 0, 0, p, e, 0, al_fixtoi(Efi[e][4]));
+         Ei[e][22] = 0;  // clear hit
+         Ei[e][23] = 60; // set retrigger amount
+      }
+   }
+  else Ei[e][22] = 0;
+}
+
+I'm going to remove all this...
+
+then I will get back 22 and 23
+
+edit this to ignore fields
+
+void bomb_enemies(int i, int t, int dr, al_fixed x, al_fixed y)
+{
+   for (int e=0; e<100 ; e++) // enemies in damage window?
+      if ((Ei[e][0]) && (Ei[e][0] != 10))
+      {
+//         al_fixed dist = al_fixhypot( (Efi[e][0] - itemf[i][0]), (Efi[e][1] - itemf[i][1]) );
+         al_fixed dist = al_fixhypot( (Efi[e][0] - x), (Efi[e][1] - y));
+         if (dist < al_itofix(dr))
+         {
+            if (t == 1) bomb_crosshairs(10 + al_fixtof(Efi[e][0]), 10 + al_fixtof(Efi[e][1]));
+            if (t == 2)
+            {
+               Ei[e][31] = 2; // set bomb hit
+               Ei[e][26] = item[i][13];  // player that did bomb
+            }
+         }
+      }
+}
+
+
+now I have reclaimed a lot more ints....
+
+bottom line:
+field is now invincible, nothing, not bombs or bullets can kill it
+it should not interact with player at all...
+
+that makes things a lot simpler and I have freed up all these variables
+
+Ei[][22] =                 player hit
+Ei[][23] =                 player hit retrigger
+Ei[][24] =                 health bonus shape
+Ei[][25] =                 health bonus amount
+Ei[][26] =                 used to tell what player killed enemy
+Ei[][27] = time to live
+Ei[][28] =                 cloner create id
+Ei[][29] =                 collision box size
+Ei[][30] =                 death loop count
+Ei[][31] =                 flag that this enemy got shot with bullet
+
+
+now I need to make the toggle mode in obj viewer show all the trigger stuff
+
+
+For timed on and off, make custom button that say time on and time off.
+
+also make initial time [7] adjustable for synchronization...
+
+which is which???
+total time...6
+on time 8
+initial time 7
+
+
+
+I think I am abandoning drawing with tile stuff, maybe just a place holder
+
+I want to implement a draw mode for the main shape
+
+like show the number and progress bar in different ways
+
+my main function is very small now
+
+
+
+void enemy_field(int e)
+{
+   int mode = Ei[e][5];
+   int trig_toggle = 0;
+
+   Ei[e][3] &= ~PM_ENEMY_FIELD_TRIGGER_CURR;  // clear current trigger flag
+   detect_field_collisions();
+   if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) // is current trigger flag set?
+   {
+      if (!(Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_PREV)) trig_toggle = 1; // if triggered this frame and not triggered last frame, set trigger toggle
+      Ei[e][3] |=  PM_ENEMY_FIELD_TRIGGER_PREV; // set previous trigger for next frame
+   }
+   else Ei[e][3] &= ~PM_ENEMY_FIELD_TRIGGER_PREV; // clear previous trigger for next frame
+
+   if (mode == 0) Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE; // in mode 0, always set damage flag
+
+   if ((mode == 1) && (trig_toggle)) Ei[e][3] ^= PM_ENEMY_FIELD_CURRENT_DAMAGE; // toggle current damage flag
+
+   if (mode == 2) // damage unless timer running  (no damage when triggered)
+   {
+      if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) Ei[e][7] = Ei[e][6];
+
+      if (Ei[e][7] == 0) Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE;   // set damage on
+      else Ei[e][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE;                // set damage off
+   }
+
+   if (mode == 3) // damage when timer is running (no damage until triggered)
+   {
+      if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) Ei[e][7] = Ei[e][6];
+
+      if (Ei[e][7] > 0)  Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE;   // set damage on
+      else Ei[e][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE;                // set damage off
+   }
+
+   if (mode == 4) // timed on and off
+   {
+      // timer will run outside this function always, but in this mode, when it gets to zero, we will reset it
+      if (Ei[e][7] == 0) Ei[e][7] = Ei[e][6];
+      if (Ei[e][7] < Ei[e][8]) Ei[e][3] |= PM_ENEMY_FIELD_CURRENT_DAMAGE;   // set damage on
+      else                     Ei[e][3] &= ~PM_ENEMY_FIELD_CURRENT_DAMAGE;  // set damage off
+   }
+
+   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_FLD) set_field_location_from_lift(e, 0, 0);
+   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_SETS_TRG) set_field_location_from_lift(e, 1, 0);
+
+   if (--Ei[e][7] < 0) Ei[e][7] = 0; // always run timer
+
+}
+
+
+
+what is still left to do?
+
+get some draw modes for the main enemy
+
+probably never show the shape when game is running
+
+what do I want to do with the main bitmap Ei[][1]?
+
+leave it blank and use another var for draw mode??
+or customize the drawing routines so that field always draws itself...yes do that...
+
+void draw_enemies(void)
+{
+   al_set_target_bitmap(level_buffer);
+   for (int e=0; e<100; e++)
+      if (Ei[e][0])  // if enemy active
+      {
+         if (Ei[e][0] == 10) draw_enemy_field(e); // field - do not draw anything here for field, let draw_enemy_field() do it all
+         else
+         {
+             int EXint = al_fixtoi(Efi[e][0]);
+             int EYint = al_fixtoi(Efi[e][1]);
+             int flags = 0;
+             if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+             if (Ei[e][2] == 1) flags = 0;
+             if (Ei[e][2] == 2) flags = ALLEGRO_FLIP_VERTICAL;
+             if (Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+             int tn = Ei[e][1];
+
+             float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
+             float sc = al_fixtof(Efi[e][12]);
+             al_draw_scaled_rotated_bitmap(tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
+
+             // if enemy is expiring show how many seconds it has left
+             if (Ei[e][27]) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+         }
+
+
+
+do this is my draw code..
+
+if (level_editor_running) al_draw_bitmap(tile[476], ex, ey, 0);
+
+
+OK all that is done...
+
+now I have freed up
+
+Ei[][1]
+Ei[][2]
+Ei[][27]
+
+I have so many free variables now at the expense of..
+invulnerable
+can't hit player
+can't get hit players, bullets or bombs
+no regular display, all custom
+no time to live
+
+use Ei[][2] for enemy draw mode
+how I will draw stuff
+
+0 = draw nothing
+1 = small text counter
+2 = large text counter
+3 = small progress bar
+4 = large progress bar
+done...
+
+in creator
+make field initially on
+remove collision box
+done....
+
+
+should I make them show all the time, or only when timer is running?
+numbers...only when running
+percent bars..always
+
+make it so that when I copy and paste, the boxes are offset also, like cloner boxes....
+done with regular copy and zfs copy.....
+
+then test all type 3....all looks good!!!!
+
+now apply all that to the timed mode...done...
+
+wow that was easy.....
+
+
+
+What do I have left?
+
+I think all the functionality is there, maybe just some nice drawing code stuff for fields...
+
+Oh yeah and also how the field attach to lifts
+
+right now they just center
+
+in the x axis:
+center , right or left
+
+in the y axis
+center, right of left
+
+6 flags....9 combinations
+
+no...do it this way
+XC
+XF
+XL
+
+if c=1 ignore the rest
+if c=0 four possibilities
+fx1 = lx1
+fx1 = lx2
+fx2 = lx1
+fx2 = lx2
+
+XC XF XL
+0  0  0 Field X1 = Lift X1
+0  0  1 Field X1 = Lift X2
+0  1  0 Field X2 = Lift X1
+0  1  1 Field X2 = Lift X2
+1  x  x Centered
+
+so now there are 5 setting for x and 5 for y for a total of 25 combinations
+I like that a lot better than 9
+
+I have all the stuff done for allignment of fields to lifts
+
+removed the flags for invuln, toggle and eat bullet
+
+link the creator back in for the viewer button...done
+
+after creating field, open the viewer...
+
+unless create is called from the viewer already....
+
+how can I tell if the viewer is running? ... another global...
+or I can hook it from what called it...
+
+
+
+
+PDE special calls create_obj
+in PDE I am hooking in the viewer after...
+
+obj viewer create button calls create_obj
+
+those are the only 2 places...
+
+why am I hooking in in PDE?
+that is too far up the chain
+
+hook in in craete OBJ that is common, or even better in the actual creators...
+
+this works, but what happens in recursion as the viewer calls another viewer after creating...
+when escaping out you go bakc through the nested viewer...I can live with it...
+
+what about cancelling in the middle of creating? works great
+
+what about pmsg?...patched in obj viewer at the end of create..done...
+
+what about game_events caused by enemies getting killed by fields...
+right now it says player killed with bullet...
+
+
+in enemy killed this is called:
+game_event(62, 0, 0, Ei[e][26], e, 0, 0);
+where is 26 set?
+and this
+int ht = Ei[e][31]; // hit type
+
+make a custom event...
+
+still needs to be called from enemy_killed()
+
+   if (type == 1) // enemy
+   {
+         Ei[x][31] = 1;           // flag that this enemy got shot with bullet
+         Ei[x][26] = p;           // number of player's bullet that hit enemy
+   }
+
+lets try
+         Ei[x][31] = 3;           // flag that this enemy got killed by a field
+         Ei[x][26] = x;           // number of field
+
+
+int ht = Ei[e][31]; // hit type
+int hb; // health bonus
+if (ht == 1) hb = 1; // bullet
+if (ht == 2) hb = 2; // explosion
+if (ht == 1) hb = 1; // field
+
+// almost all do this but not enough to do by default
+int a = Ei[e][0];
+if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==12)
+{
+   Efi[e][4] = al_itofix(0);  // cant hurt anymore
+   Ei[e][25]*=hb; // health bonus
+
+}
+switch (Ei[e][0])
+{
+   case 3: // archwagon
+      na = Ei[e][3] = 34;  // new ans
+      dl = Ei[e][30] = 20; // death_loop_wait; set delay
+      Ei[e][24] = 929+(hb-1)*32; // shape
+      Efi[e][11] = al_ftofix(1.08); // scale multiplier
+
+if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
+if (ht == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
+if (ht == 3) game_event(64, 0, 0, Ei[e][26], e, 0, 0);
+
+done... enemy killed by field!
+
+what does player damage from field look like??
+player hit a mine
+
+void proc_field_collision(int type, int x, int e)
+{
+   if (type == 0) // player
+   {
+      players[x].LIFE -= Efi[e][4];
+      game_event(50, 0, 0, x, e, 0, al_fixtoi(Efi[e][4]));
+   }
+
+make new game_event
+game_event(58, 0, 0, x, e, 0, al_fixtoi(Efi[e][4]));
+customize the message by the draw type of the field
+default = "was hurt by a damage field"
+others "was hurt by a spiked floor"
+I can get that info from the field number in the event...
+
+done...
+
+this is one of those that keep retriggering
+
+in the retrigger code.. everytime one is skipped, tally the damage...
+
+
+
+where can I check it?
+
+something that happens every frame...
+proc_frame_delay()
+
+I need to do this for every player, don't I??
+
+what if I keep track of that in the player struct?
+
+damage tally, holdoff till display event...
+
+or I could do a damage holdoff in the player...so that he doesn't take damage every frame...
+enemies have a player damage holdoff built into them...
+yes...once an enemy hurts any player, they cannot hurt any player for 60 frames...
+this is kind naive, but it works good enough...
+
+
+add something to struct player1, not synced....
+
+
+float field_damage_tally;
+int field_damage_holdoff;
+int field_damage_enemy_number;
+
+
+
+
+done
+in events
+
+   if (ev == 57) // damage field raw
+   {
+      int p = z1;
+      int e = z2;
+      float damage = al_fixtof(Efi[z2][4]
+
+      if (player1[p].field_damage_holdoff < frame_num) // triggered and not in holdoff
+      {
+         player1[p].field_damage_holdoff = frame_num + 20; // set holdoff
+         player1[p].field_damage_tally = damage; // init tally with current damage
+         ev = 0; // don't let this event do anything
+      }
+
+      if (player1[p].field_damage_holdoff > frame_num) // triggered and in holdoff
+      {
+         player1[p].field_damage_tally += damage; // inc tally with current damage
+         ev = 0; // don't let this event do anything
+      }
+   }
+
+in void proc_player_health(int p)
+
+
+
+
+
+These are the pieces that make this work:
+
+
+added to struct player1 (not synced)
+
+float field_damage_tally;
+int field_damage_holdoff;
+int field_damage_enemy_number;
+
+the event that draws:
+
+if (ev == 58) // player took damage from a field
+{
+   custom_drawn = 1;
+   int damage = (int) players1[z1].field_damage_tally;
+   int e = players1[z1].field_damage_enemy_number;
+   int type = Ei[e][19];
+
+   if (type == 1) bmsg_length += bmsg_show_text(" was hurt by spikey floor ", 15, bmsg_length);
+   else           bmsg_length += bmsg_show_text(" was hurt by a damage field ", 15, bmsg_length);
+   bmsg_length += bmsg_show_health(-damage, bmsg_length);
+}
+
+the event that tallies:
+
+if (ev == 57) // damage field raw
+{
+   int p = z1;
+   int e = z2;
+   float damage = al_fixtof(Efi[z2][4]);
+   players1[p].field_damage_enemy_number = e;
+
+   if (players1[p].field_damage_holdoff < frame_num) // triggered and not in holdoff
+   {
+      players1[p].field_damage_holdoff = frame_num + 20; // set holdoff
+      players1[p].field_damage_tally = damage; // init tally with current damage
+      ev = 0; // don't let this event do anything
+   }
+
+   if (players1[p].field_damage_holdoff > frame_num) // triggered and in holdoff
+   {
+      players1[p].field_damage_tally += damage; // inc tally with current damage
+      ev = 0; // don't let this event do anything
+   }
+}
+
+where event 58 is triggered:
+
+void proc_player_health(int p)
+{
+   if (players1[p].field_damage_holdoff == frame_num) game_event(58, 0, 0, p, 0, 0, 0);
+
+where event 57 is triggered:
+
+void proc_field_collision(int type, int x, int e)
+{
+   if (type == 0) // player
+   {
+      players[x].LIFE -= Efi[e][4];
+      game_event(57, 0, 0, x, e, 0, 0);
+   }
+
+It seems to be working...
+make the sound effect happen on 57 so there is not delay...done...
+
+
+
+huge idea here........
+
+what if I seperate triggers and actions?
+
+
+right now triggers and actions are a one to one relationship
+
+what if it could be many to one, or one to many, or many to many?
+
+the possibilites would increase exponentially.
+
+
+how about for each field enemy....
+
+add the ability to set the trigger to another field enemy
+
+then it could look it up with flags
+
+I will need to add a flag for toggle...
+right now toggle is only calculated internally
+
+I will need to make sure these damn links do not get broken when resorting
+
+is that the only change I need? to make the trigger source able to be set to another field?
+what if I want multiple triggers for one source?
+
+
+what if I set input for each field and output for each trigger
+
+then I can do:
+many to one (input for each damage field) and
+one to many (output for each trigger)...NO this will not work...just one to many
+
+
+
+
+
+I would need some kind of event mapper from sources to actions
+
+I think this is the way to go...it will be complicated but worth it
+
+let try to plan this out:
+
+create a link
+
+create a event
+
+named?
+
+thingy till I get something better
+
+when triggered set 'action 1'
+
+action[1000]
+
+if triggered set action[x] = 1;
+
+then have a function to do the mapping
+
+like
+
+if (action[1]) action[23] = 1;
+
+field enemies can have:
+trigger action that they will set when triggered and damage action when they receive a trigger
+
+
+the table of rules would look like
+
+index action1 action2 proc
+0       1      250    set
+1       2      200    clear
+2       4      100    toggle
+
+the action list would be just one int, set or clear
+
+fields could output three actions:
+one for on/off
+one for toggle (off to on)
+one for toggle (on to off)
+
+I would have to manually set these in the field trigger and the field damage
+then I would need to create the links in the link table...
+
+this sounds complicated...
+
+all these events can be blank for now unless needed....
+
+I am thinking of case when one field's timer ends and it triggers another field's timer to start....
+
+like I said...complicated
+
+triggers for trigger fields:
+
+object in field
+object just entered field
+object just left field
+
+number of objects in field > num
+number of objects in field < num
+number of objects in field == num
+
+all these but only when they first occured
+number of objects in field > num
+number of objects in field < num
+number of objects in field == num
+
+triggers for damage fields
+depends on type
+
+inputs
+none for always on and timed on and off
+toggle would only get the ones when they first occured
+timer modes would get the perstant ones
+
+outputs
+none for always on
+for the other ones send a trigger when they change
+and also have the ability to constantly send when on or off
+
+I can also make a new thing that sets blocks on or off, based on triggers
+
+after seeing all this, do you still want to proceed?
+
+I think so...
+
+Maybe I can make triggers items...but why, because I have lots of them...
+
+I could make keys respond of actions, or send them..
+I can make switches do the same..
+Also I can make switches have an area of effect, like keys...
+
+I also want to make blocks that stop bullet, or not, players, items, etc...
+
+I think this action or event thing will be the heart of some great new things...
+
+I need to plan it carefully...
+
+each action will simply be an indexed entry in the action table.
+
+int pm_event[1000][4];
+
+pm_event[1000][0] - action ID
+pm_event[1000][1] - clear, set, toggle off, toggle on (0, 1, 2, 3)
+pm_event[1000][2] - type of initiator
+pm_event[1000][3] - ID of initiator
+
+
+the mapping table will look like this:
+
+int pm_event_map[1000][3];
+
+pm_event_map[1000][0] - source pm_event
+pm_event_map[1000][1] - target pm_event
+pm_event_map[1000][2] - action (0 = copy) others could be set->clear, clear->set ...
+
+this looks like a good start...I'm scared of all this work...
+
+when I implement this, don't kill the existing stuff...in case I give up and go back....
+
+
+
+
+
+

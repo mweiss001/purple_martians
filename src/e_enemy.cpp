@@ -186,159 +186,165 @@ void sort_enemy(void)
 
 }
 
-void create_cloner(void)
+int create_cloner(void)
 {
-   int rx=0, ry=0;
-   int en = get_empty_enemy(9); // type 9 cloner
-   if (getxy( "Set Cloner Location", 3, 9, en) == 1)
+   int aborted_create = 0;
+   int e = get_empty_enemy(9); // type 9 cloner
+   if (getxy( "Set Cloner Location", 3, 9, e) == 1)
    {
-      rx = get100_x;
-      ry = get100_y;
+      Efi[e][0] = al_itofix(get100_x * 20); // position
+      Efi[e][1] = al_itofix(get100_y * 20);
+      Efi[e][12] = al_itofix(1);  // scale
+      Efi[e][14] = al_itofix(0);  // rotation
 
 
-      Ei[en][1] = 550;   // shape
-      Ei[en][2] = 0;     // draw type
+      Ei[e][1] = 550;   // shape
+      Ei[e][2] = 0;     // draw type
 
-      Ei[en][4] = 3;     // draw all boxes
+      Ei[e][4] = 3;     // draw all boxes
+      Ei[e][5] = 0;     // mode
+      Ei[e][8] = 2;     // trigger type
 
-      Ei[en][5] = 0;     // mode
+      Ei[e][6] = 400;  // default delay
+      Ei[e][7] = 400;  // default delay
 
-      Ei[en][8] = 2;     // trigger type
-
-
-      Ei[en][6] = 400;  // default delay
-      Ei[en][7] = 400;  // default delay
-
-      Ei[en][25] = 25;  // health bonus
-      Ei[en][29] = 10;  // default collision box
-
-      Efi[en][12] = al_itofix(1);  // scale
-      Efi[en][14] = al_itofix(0);  // rotation
-
-      Efi[en][0] = al_itofix(get100_x * 20); // position
-      Efi[en][1] = al_itofix(get100_y * 20);
+      Ei[e][25] = 25;  // health bonus
+      Ei[e][29] = 10;  // default collision box
 
       draw_big(1);
       show_big();
 
-      if (getbox("Cloner Source Area", 3, 9, en ))
+      if (getbox("Cloner Source Area", 3, 9, e ))
       {
-         Ei[en][15] = bx1;
-         Ei[en][16] = by1;
-         Ei[en][19] = bx2-bx1;
-         Ei[en][20] = by2-by1;
+         Ei[e][15] = bx1;
+         Ei[e][16] = by1;
+         Ei[e][19] = bx2-bx1;
+         Ei[e][20] = by2-by1;
 
          draw_big(1);
 
-         if (getxy("Set Cloner Destination Area", 98, 9, en ) == 1)
+         if (getxy("Set Cloner Destination Area", 98, 9, e ) == 1)
          {
-            Ei[en][17] = get100_x;
-            Ei[en][18] = get100_y;
-            if (move_trigger_box(en, 9)) sort_enemy();
-            else Ei[en][0] = 0;
+            Ei[e][17] = get100_x;
+            Ei[e][18] = get100_y;
+
+            if (!move_trigger_box(e, 9)) aborted_create = 1;
+
             draw_big(1);
             show_big();
          }
-         else Ei[en][0] = 0;
+         else aborted_create = 1;
       }  // end of get source area
-   else Ei[en][0] = 0;
+      else aborted_create = 1;
    }  // end of set cloner location
-   else Ei[en][0] = 0;
-   set_wx(rx+4, ry);
-   sort_enemy();
+   else aborted_create = 1;
 
+   if (aborted_create)
+   {
+      Ei[e][0] = 0;
+      sort_enemy();
+      return -1;
+   }
+   else return e;
 }
 
 
 
-
-void create_field(void)
+int create_field(void)
 {
-   int en = get_empty_enemy(10); // type 10 field
-   if (getxy( "Set Field Location", 3, 10, en) == 1)
+   int aborted_create = 0;
+   int e = get_empty_enemy(10); // type 10 field
+   if (getxy( "Set Field Location", 3, 10, e) == 1)
    {
-      Efi[en][0] = al_itofix(get100_x * 20); // position
-      Efi[en][1] = al_itofix(get100_y * 20);
-      Efi[en][4] = al_itofix(2); // damage
+      Efi[e][0] = al_itofix(get100_x * 20); // position
+      Efi[e][1] = al_itofix(get100_y * 20);
+      Efi[e][4] = al_itofix(2); // damage
 
-      Ei[en][2] = 1;     // draw type (small text)
-      Ei[en][5] = 0;     // mode
-      Ei[en][6] = 100;   // timer
-      Ei[en][8] = 40;    // timer flip val
+      Ei[e][2] = 1;     // draw type (small text)
+      Ei[e][5] = 0;     // mode
+      Ei[e][6] = 100;   // timer
+      Ei[e][8] = 40;    // timer flip val
 
-      Ei[en][3] |= PM_ENEMY_FIELD_DAMAGE_PLAYER;  // set flag
-      Ei[en][3] |= PM_ENEMY_FIELD_TRIGGER_PLAYER; // set flag
-      Ei[en][3] |= PM_ENEMY_FIELD_DAMAGE_CURR;    // set flag
+      Ei[e][3] |= PM_ENEMY_FIELD_DAMAGE_PLAYER;  // set flag
+      Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_PLAYER; // set flag
+      Ei[e][3] |= PM_ENEMY_FIELD_DAMAGE_CURR;    // set flag
 
       draw_big(1);
       show_big();
 
-      if (getbox("Set Damage Field Location", 3, 10, en ))
+      if (getbox("Set Damage Field Location", 3, 10, e ))
       {
-         Ei[en][15] = bx1*20;
-         Ei[en][16] = by1*20;
-         Ei[en][17] = (bx2-bx1)*20;
-         Ei[en][18] = (by2-by1)*20;
+         Ei[e][15] = bx1*20;
+         Ei[e][16] = by1*20;
+         Ei[e][17] = (bx2-bx1)*20;
+         Ei[e][18] = (by2-by1)*20;
          draw_big(1);
          show_big();
 
-         if (getbox("Set Trigger Field Location", 3, 10, en ))
+         if (getbox("Set Trigger Field Location", 3, 10, e ))
          {
-            Ei[en][11] = bx1*20;
-            Ei[en][12] = by1*20;
-            Ei[en][13] = (bx2-bx1)*20;
-            Ei[en][14] = (by2-by1)*20;
+            Ei[e][11] = bx1*20;
+            Ei[e][12] = by1*20;
+            Ei[e][13] = (bx2-bx1)*20;
+            Ei[e][14] = (by2-by1)*20;
             draw_big(1);
             show_big();
          } // end of set trigger field
-         else Ei[en][0] = 0;
+         else aborted_create = 1;
       }  // end of set damage field
-      else Ei[en][0] = 0;
+      else aborted_create = 1;;
    }  // end of set field location
-   else Ei[en][0] = 0;
-   sort_enemy();
+   else aborted_create = 1;
+   //sort_enemy(); this is done before we start...
+
+   if (aborted_create)
+   {
+      Ei[e][0] = 0;
+      sort_enemy();
+      return -1;
+   }
+   else return e;
 }
+
 
 
 int create_pod(void)
 {
-   int create_failed = 0;
-   int en = get_empty_enemy(7); // type
-   if (getxy("Set Podzilla Location", 3, 7, en) == 1)
+   int aborted_create = 0;
+   int e = get_empty_enemy(7); // type 7 - pod
+   if (getxy("Set Podzilla Location", 3, 7, e) == 1)
    {
-      int rx = get100_x;      // used to set return window
-      int ry = get100_y;
+      Efi[e][0] = al_itofix(get100_x * 20); // position
+      Efi[e][1] = al_itofix(get100_y * 20);
 
-      Efi[en][0] = al_itofix(rx * 20);  // set new x,y
-      Efi[en][1] = al_itofix(ry * 20);
+      Efi[e][7] = al_itofix(6);     // bullet speed
+      Efi[e][9] = al_itofix(10);    // default speed
+      Efi[e][12] = al_itofix(1);    // default scale
 
-      Efi[en][7] = al_itofix(6);     // bullet speed
-      Efi[en][9] = al_itofix(10);    // default speed
-      Efi[en][12] = al_itofix(1);    // default scale
+      Ei[e][1] = 374;   // shape
+      Ei[e][2] = 0;     // draw type
 
-      Ei[en][1] = 374;   // shape
-      Ei[en][2] = 0;     // draw type
+      Ei[e][7] = 20;    // default seq delay
+      Ei[e][9] = 20;    // default delay
 
-      Ei[en][7] = 20;    // default seq delay
-      Ei[en][9] = 20;    // default delay
-
-      Ei[en][25] = 12;     // health bonus
-      Ei[en][29] = 10;  // default collision box
+      Ei[e][25] = 12;     // health bonus
+      Ei[e][29] = 10;  // default collision box
 
       draw_big(1);
       show_big();
 
-      if (!move_pod_extended(en)) create_failed = 1;
+      if (!move_pod_extended(e)) aborted_create = 1;
 
-      if (!create_failed)
-         if (!move_trigger_box(en, 7)) create_failed = 1;
-
-      if (create_failed) Ei[en][0] = 0;
-
-      sort_enemy();
-      set_wx(rx+4, ry);
+      if (!move_trigger_box(e, 7)) aborted_create = 1;
    }
-   return Ei[en][0]; // type if succesful, 0 if not
+
+   if (aborted_create)
+   {
+      Ei[e][0] = 0;
+      sort_enemy();
+      return -1;
+   }
+   else return e;
 }
 
 

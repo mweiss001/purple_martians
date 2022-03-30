@@ -521,7 +521,14 @@ int create_pmsg(int c)
       else bad = 1;
    }
    if (bad) return 0;
-   else return 1;
+   else
+   {
+      object_viewer(2, c);
+
+   }
+
+
+    return 1;
 }
 
 int create_door(int type)
