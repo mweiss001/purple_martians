@@ -148,7 +148,9 @@ int bottom_msg = 0;
 int bmsg_index = 0;
 ALLEGRO_BITMAP *bmsg_bmp[20] = {NULL};
 ALLEGRO_BITMAP *bmsg_bmp2[20] = {NULL};
-int game_event_retrigger_holdoff[10];
+int   game_event_retrigger_holdoff[10];
+float game_event_retrigger_holdoff_tally[10];
+
 ALLEGRO_BITMAP *bmsg_temp;
 
 

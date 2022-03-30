@@ -388,28 +388,28 @@ void enemy_player_hit_proc(int e)
   else Ei[e][22] = 0;
 }
 
-
-
-
-
 void enemy_killed(int e)
 {
    int na, dl;
    int ht = Ei[e][31]; // hit type
+   int hb; // health bonus
+   if (ht == 1) hb = 1; // bullet
+   if (ht == 2) hb = 2; // explosion
+   if (ht == 1) hb = 1; // field
 
    // almost all do this but not enough to do by default
    int a = Ei[e][0];
    if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==12)
    {
       Efi[e][4] = al_itofix(0);  // cant hurt anymore
-      Ei[e][25]*=ht; // health bonus
+      Ei[e][25]*=hb; // health bonus
    }
    switch (Ei[e][0])
    {
       case 3: // archwagon
          na = Ei[e][3] = 34;  // new ans
          dl = Ei[e][30] = 20; // death_loop_wait; set delay
-         Ei[e][24] = 929+(ht-1)*32; // shape
+         Ei[e][24] = 929+(hb-1)*32; // shape
          Efi[e][11] = al_ftofix(1.08); // scale multiplier
          Efi[e][13] = al_itofix(0);// 255/dl/2; rot inc
 
@@ -421,7 +421,7 @@ void enemy_killed(int e)
       case 4:
          na = Ei[e][3]; //new ans
          dl = Ei[e][30] = 20; // death_loop_wait;  set delay
-         Ei[e][24] = 928+(ht-1)*32; // shape
+         Ei[e][24] = 928+(hb-1)*32; // shape
          Efi[e][11] = al_ftofix(1.03); // scale multiplier
          Efi[e][13] = al_itofix(2); // 255/dl/2;  rot inc
 
@@ -437,7 +437,7 @@ void enemy_killed(int e)
       case 6:
          na = Ei[e][3] = 37;  // new ans
          dl = Ei[e][30] = 20; // death_loop_wait; set delay
-         Ei[e][24] = 930+(ht-1)*32; // shape
+         Ei[e][24] = 930+(hb-1)*32; // shape
          Efi[e][11] = al_ftofix(1.08); // scale multiplier
          Efi[e][13] = al_itofix(1); // 255/dl/2;  rot inc
 
@@ -449,7 +449,7 @@ void enemy_killed(int e)
       case 7:
          na = Ei[e][3] = 45;  // new ans
          dl = Ei[e][30] = 40; // death_loop_wait; set delay
-         Ei[e][24] = 932+(ht-1)*32; // shape
+         Ei[e][24] = 932+(hb-1)*32; // shape
          Efi[e][12] = al_ftofix(2.8); // initial scale
          Efi[e][11] = al_ftofix(.94); // scale multiplier
          Efi[e][13] = al_itofix(0);  // 255/dl/2;  rot inc
@@ -462,7 +462,7 @@ void enemy_killed(int e)
       case 8: // trakbot
          na = Ei[e][3] = 44;  // new ans
          dl = Ei[e][30] = 12; // death_loop_wait; set delay
-         Ei[e][24] = 931+(ht-1)*32; // shape
+         Ei[e][24] = 931+(hb-1)*32; // shape
          Efi[e][11] = al_ftofix(1.00); // scale multiplier
          Efi[e][13] = al_ftofix(255/dl*3/4); // rot inc
 
@@ -474,7 +474,7 @@ void enemy_killed(int e)
       case 9: // cloner
          na = Ei[e][3] = 105;  // new ans
          dl = Ei[e][30] = 40; // death_loop_wait; set delay
-         Ei[e][24] = 934+(ht-1)*32; // shape
+         Ei[e][24] = 934+(hb-1)*32; // shape
          Efi[e][11] = al_ftofix(.98); // scale multiplier
          Efi[e][13] = al_ftofix(306/dl); // rot inc
          zz[0][na] = zz[5][na]; // set shape
@@ -487,7 +487,7 @@ void enemy_killed(int e)
       case 10: // field
          na = Ei[e][3] = 105;  // new ans
          dl = Ei[e][30] = 40; // death_loop_wait; set delay
-         Ei[e][24] = 934+(ht-1)*32; // shape
+         Ei[e][24] = 934+(hb-1)*32; // shape
          Efi[e][11] = al_ftofix(.98); // scale multiplier
          Efi[e][13] = al_ftofix(306/dl); // rot inc
          zz[0][na] = zz[5][na]; // set shape
@@ -495,9 +495,6 @@ void enemy_killed(int e)
          zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / zz[4][na]; // set ans timer
       break;
-
-
-
       case 11: // none for block walker
       break;
       case 12: // flapper
@@ -520,6 +517,7 @@ void enemy_killed(int e)
    {
       if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
       if (ht == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
+      if (ht == 3) game_event(64, 0, 0, Ei[e][26], e, 0, 0);
       Ei[e][0] = 99; // set type to death loop
    }
 }
@@ -929,15 +927,12 @@ void set_field_location_from_lift(int e, int dt, int a20)
       int d = Ei[e][21]; // lift number
       if (d < num_lifts) // only proceed if lift number is valid
       {
-
          // x axis
-
          int lx1 = lifts[d].x1;
          int lx2 = lifts[d].x2;
          int C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XC;
          int F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XF;
          int L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XL;
-
          if (C)
          {
             int lxc = lx1 + (lx2-lx1)/2; // get center of lift
@@ -950,16 +945,12 @@ void set_field_location_from_lift(int e, int dt, int a20)
             if (( F) && (!L)) Ei[e][15] = lx1 - Ei[e][17]; // fx2 = lx1
             if (( F) && ( L)) Ei[e][15] = lx2 - Ei[e][17]; // fx2 = lx2
          }
-
-
          // y axis
-
          int ly1 = lifts[d].y1;
          int ly2 = lifts[d].y2;
          C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_YC;
          F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_YF;
          L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_YL;
-
          if (C)
          {
             int lyc = ly1 + (ly2-ly1)/2; // get center of lift
@@ -972,31 +963,24 @@ void set_field_location_from_lift(int e, int dt, int a20)
             if (( F) && (!L)) Ei[e][16] = ly1 - Ei[e][18]; // fy2 = ly1
             if (( F) && ( L)) Ei[e][16] = ly2 - Ei[e][18]; // fy2 = ly2
          }
-
          if (a20) // align to 20 grid
          {
             Ei[e][15] = round20(Ei[e][15]);
             Ei[e][16] = round20(Ei[e][16]);
          }
-
-
       }
    }
-
-   else // Trigger
+   else // Trigger Field
    {
       int d = Ei[e][20]; // lift number
       if (d < num_lifts) // only proceed if lift number is valid
       {
-
          // x axis
-
          int lx1 = lifts[d].x1;
          int lx2 = lifts[d].x2;
          int C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_XC;
          int F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_XF;
          int L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_XL;
-
          if (C)
          {
             int lxc = lx1 + (lx2-lx1)/2; // get center of lift
@@ -1009,10 +993,7 @@ void set_field_location_from_lift(int e, int dt, int a20)
             if (( F) && (!L)) Ei[e][11] = lx1 - Ei[e][13]; // fx2 = lx1
             if (( F) && ( L)) Ei[e][11] = lx2 - Ei[e][13]; // fx2 = lx2
          }
-
-
          // y axis
-
          int ly1 = lifts[d].y1;
          int ly2 = lifts[d].y2;
          C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_YC;
@@ -1031,99 +1012,13 @@ void set_field_location_from_lift(int e, int dt, int a20)
             if (( F) && (!L)) Ei[e][12] = ly1 - Ei[e][14]; // fy2 = ly1
             if (( F) && ( L)) Ei[e][12] = ly2 - Ei[e][14]; // fy2 = ly2
          }
-
          if (a20) // align to 20 grid
          {
             Ei[e][11] = round20(Ei[e][11]);
             Ei[e][12] = round20(Ei[e][12]);
          }
-
-
-      }
-
-
-
-
-
-   }
-
-   /*
-
-
-
-
-
-   int e_offset = 0; // so I can use this for trigger and damage
-   int l_offset = 0;
-   if (dt)
-   {
-      e_offset = -4;
-      l_offset = -1;
-   }
-   int d = Ei[e][21+l_offset]; // lift number
-   if (d < num_lifts)          // only do this if lift is valid
-   {
-
-      int C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XC;
-      int F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XF;
-      int L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XL;
-
-      if (C)
-      {
-         // get center of lift
-         int lx1 = lifts[d].x1;
-         int lx2 = lifts[d].x2;
-         int lxc = lx1 + (lx2-lx1)/2;
-
-         Ei[e][15+e_offset] = lxc - Ei[e][17+e_offset]/2;
-      }
-      else
-      {
-         if ((!F) && (!L)) Ei[e][15+e_offset] = lifts[d].x1; // fx1 = lx1
-         if ((!F) && ( L)) Ei[e][15+e_offset] = lifts[d].x2; // fx1 = lx2
-         if (( F) && (!L)) Ei[e][15+e_offset] = lifts[d].x1 - Ei[e][17+e_offset]; // fx2 = lx1
-         if (( F) && ( L)) Ei[e][15+e_offset] = lifts[d].x2 - Ei[e][17+e_offset]; // fx2 = lx2
-      }
-
-
-
-
-
-      int ycenter = 1;
-      if (ycenter)
-      {
-         // get center of lift
-         int ly1 = lifts[d].y1;
-         int ly2 = lifts[d].y2;
-         int lyc = ly1 + (ly2-ly1)/2;
-
-         Ei[e][16+e_offset] = lyc - Ei[e][18+e_offset]/2;
-      }
-      else
-      {
-         Ei[e][16+e_offset] = lifts[d].x2;
-      }
-
-
-
-
-
-
-
-
-
-
-
-      if (a20) // align to 20 grid
-      {
-         Ei[e][15+e_offset] = round20(Ei[e][15+e_offset]);
-         Ei[e][16+e_offset] = round20(Ei[e][16+e_offset]);
       }
    }
-
-   */
-
-
 }
 
 void draw_enemy_field(int e)
@@ -1353,12 +1248,12 @@ void proc_field_collision(int type, int x, int e)
    if (type == 0) // player
    {
       players[x].LIFE -= Efi[e][4];
-      game_event(50, 0, 0, x, e, 0, al_fixtoi(Efi[e][4]));
+      game_event(57, 0, 0, x, e, 0, 0);
    }
    if (type == 1) // enemy
    {
-         Ei[x][31] = 1;           // flag that this enemy got shot with bullet
-         //Ei[x][26] = p;           // number of player's bullet that hit enemy
+         Ei[x][31] = 3;           // flag that this enemy got shot with bullet
+         Ei[x][26] = x;           // number of player's bullet that hit enemy
    }
    if (type == 2) // item
    {

@@ -23,18 +23,35 @@ int create_obj(int obt, int sub_type, int sent_num)
    }
    if (obt == 3)
    {
-      if (sub_type == 9)
-      {
-         create_cloner();
-         num = e_first_num[sub_type]+e_num_of_type[sub_type]-1;
-      }
       if (sub_type == 7)
       {
-         create_pod();
-         num = e_first_num[sub_type]+e_num_of_type[sub_type]-1;
+         int e = create_pod();
+         if ((e>=0) && (e<99) && (Ei[e][0] == 7))
+         {
+            object_viewer(3, e);
+            num = e;
+         }
+      }
+      if (sub_type == 9)
+      {
+         int e = create_cloner();
+         if ((e>=0) && (e<99) && (Ei[e][0] == 9))
+         {
+            object_viewer(3, e);
+            num = e;
+         }
+      }
+      if (sub_type == 10)
+      {
+         int e = create_field();
+         if ((e>=0) && (e<99) && (Ei[e][0] == 10))
+         {
+            object_viewer(3, e);
+            num = e;
+         }
       }
    }
-   return num;  // to return number of created obj
+   return num;  // return number of created obj or sent_num if bad create
 }
 
 void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int highlight_color)
@@ -1312,10 +1329,10 @@ void object_viewer(int obt, int num)
 
                   if (FLAGS & PM_ENEMY_FIELD_LIFT_DMG_ON)
                   {
-                         mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 134, num, type, obt, 0,  10,   15,  0, 1,0,0,0); a++;  // Damage Field follows lift:ON
-                         mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 84,  num, type, obt, 0,  10,   15, 15, 1,0,0,0); a++;  // Lift Number
-                         mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 136, num, type, obt, 0,  10,   15,  0, 1,0,0,0); a++;  // X Alignment
-                         mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 137, num, type, obt, 0,  10,   15,  0, 1,0,0,0); a++;  // Y Alignment
+                         mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 134, num, type, obt, 0,  13,   15,  0, 1,0,0,0); a++;  // Damage Field follows lift:ON
+                         mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 84,  num, type, obt, 0,  13,   15, 15, 1,0,0,0); a++;  // Lift Number
+                         mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 136, num, type, obt, 0,  13,   15,  0, 1,0,0,0); a++;  // X Alignment
+                         mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 137, num, type, obt, 0,  13,   15,  0, 1,0,0,0); a++;  // Y Alignment
 
 
 
@@ -1374,8 +1391,13 @@ void object_viewer(int obt, int num)
 
                      if (FLAGS & PM_ENEMY_FIELD_LIFT_TRG_ON) // Trigger Field follows lift:ON
                      {
-                            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 135, num, type, obt, 0, 14, 15,  0, 1,0,0,0); a++;  // Trigger Field follows lift:ON
-                            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 85,  num, type, obt, 0, 14, 15, 15, 1,0,0,0); a++;  // Lift Number
+                            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 135, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // Trigger Field follows lift:ON
+                            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 85,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // Lift Number
+                            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 138, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // X Alignment
+                            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 139, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // Y Alignment
+
+
+
                      }
                      else { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 135, num, type, obt, 0, 15, 15,  0, 1,0,0,0); a++; } // Trigger Field follows lift:OFF
 
@@ -1604,6 +1626,7 @@ void object_viewer(int obt, int num)
                if (type == 7)  help("Podzilla Viewer");
                if (type == 8)  help("Trakbot Viewer");
                if (type == 9)  help("Cloner Viewer");
+               if (type == 10) help("Field Viewer");
                if (type == 11) help("Block Walker Viewer");
                if (type == 12) help("Flapper Viewer");
             }
