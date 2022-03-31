@@ -55,6 +55,26 @@
 
 
 
+
+#define PM_ITEM_TRIGGER_PLAYER   0b0000000000000001
+#define PM_ITEM_TRIGGER_ENEMY    0b0000000000000010
+#define PM_ITEM_TRIGGER_ITEM     0b0000000000000100
+#define PM_ITEM_TRIGGER_PBUL     0b0000000000001000
+#define PM_ITEM_TRIGGER_EBUL     0b0000000000010000
+#define PM_ITEM_TRIGGER_CURR     0b0000000000100000
+#define PM_ITEM_TRIGGER_PREV     0b0000000001000000
+#define PM_ITEM_TRIGGER_TGON     0b0000000010000000
+#define PM_ITEM_TRIGGER_TGOF     0b0000000100000000
+#define PM_ITEM_TRIGGER_LIFT_ON  0b0000001000000000
+#define PM_ITEM_TRIGGER_LIFT_XC  0b0000010000000000
+#define PM_ITEM_TRIGGER_LIFT_XF  0b0000100000000000
+#define PM_ITEM_TRIGGER_LIFT_XL  0b0001000000000000
+#define PM_ITEM_TRIGGER_LIFT_YC  0b0010000000000000
+#define PM_ITEM_TRIGGER_LIFT_YF  0b0100000000000000
+#define PM_ITEM_TRIGGER_LIFT_YL  0b1000000000000000
+
+
+
 // enemy debug stuff
 //#define SHOW_POD_CLONER_TRIGGER_BOX
 // #define SHOW_CANNON_COLLISION_BOX
@@ -1100,6 +1120,7 @@ void blind_save_game_moves(int d);
 int load_gm(const char *sfname);
 
 // z_fnx.h
+int round20(int val);
 void clear_game_moves(void);
 void get_hostname(void);
 void make_palette(void);
@@ -1151,6 +1172,13 @@ void proc_player_carry(int p);
 void proc_item_collision(int p, int x);
 void proc_lit_bomb(int);
 void proc_lit_rocket(int);
+
+void process_trigger(int);
+void draw_trigger(int);
+void set_item_trigger_location_from_lift(int, int);
+void detect_trigger_collisions(int i);
+
+
 
 // z_lift.h
 int construct_lift(int l, char* lift_name, int width, int height, int color, int num_steps);

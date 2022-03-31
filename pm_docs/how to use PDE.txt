@@ -38,3 +38,9 @@ case 11: create_door(2); break; // type 210 - 1 way linked exit door
 case 12: create_door(3); break; // type 211 - 2 way door set
 case 13: create_field(); break; // type 212 - field
 
+case 14: create_trigger(); break; // type 213 - trigger
+
+
+
+
+

@@ -907,19 +907,6 @@ void walker_archwagon_common(int e)
 
 
 
-
-
-int round20(int val)
-{
-   int m = val%20;
-   if (m<10) return (val - m);
-   else return val + (20-m);
-}
-
-
-
-
-
 void set_field_location_from_lift(int e, int dt, int a20)
 {
    if (dt==0) // Damage Field
@@ -1160,86 +1147,79 @@ void draw_enemy_field(int e)
    }
 }
 
-void detect_field_collisions(void)
+void detect_field_collisions(int e)
 {
-   for (int e=0; e<100; e++)
-      if (Ei[e][0] == 10)
+   int mode = Ei[e][5];
+   int FLAGS = Ei[e][3];
+   int cd = FLAGS & PM_ENEMY_FIELD_DAMAGE_CURR;
+
+   int cdp =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_PLAYER)); // damage active and player flag
+   int cde =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_ENEMY));  // damage active and enemy flag
+   int cdi =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_ITEM));   // damage active and item flag
+   int cdpb = ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_PBUL));   // damage active and player bullet flag
+   int cdeb = ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_EBUL));   // damage active and enemy bullet flag
+
+
+   int ct = 1; // check trigger by default
+   if ((mode == 0) || (mode == 4)) ct = 0;
+
+   int ctp =  ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_PLAYER));
+   int cte =  ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_ENEMY));
+   int cti =  ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_ITEM));
+   int ctpb = ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_PBUL));
+   int cteb = ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_EBUL));
+
+   // trigger field
+   al_fixed tfx1 = al_itofix(Ei[e][11]-10);
+   al_fixed tfy1 = al_itofix(Ei[e][12]-10);
+   al_fixed tfx2 = tfx1 + al_itofix(Ei[e][13]);
+   al_fixed tfy2 = tfy1 + al_itofix(Ei[e][14]);
+
+   // damage field
+   al_fixed dfx1 = al_itofix(Ei[e][15]-10);
+   al_fixed dfy1 = al_itofix(Ei[e][16]-10);
+   al_fixed dfx2 = dfx1 + al_itofix(Ei[e][17]);
+   al_fixed dfy2 = dfy1 + al_itofix(Ei[e][18]);
+
+   for (int p=0; p<NUM_PLAYERS; p++) // check players
+      if ((players[p].active) && (!players[p].paused))
       {
-         int mode = Ei[e][5];
-         int FLAGS = Ei[e][3];
-         int cd = FLAGS & PM_ENEMY_FIELD_DAMAGE_CURR;
-
-         int cdp =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_PLAYER)); // damage active and player flag
-         int cde =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_ENEMY));  // damage active and enemy flag
-         int cdi =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_ITEM));   // damage active and item flag
-         int cdpb = ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_PBUL));   // damage active and player bullet flag
-         int cdeb = ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_EBUL));   // damage active and enemy bullet flag
-
-
-         int ct = 1; // check trigger by default
-         if ((mode == 0) || (mode == 4)) ct = 0;
-
-         int ctp =  ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_PLAYER));
-         int cte =  ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_ENEMY));
-         int cti =  ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_ITEM));
-         int ctpb = ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_PBUL));
-         int cteb = ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_EBUL));
-
-         // trigger field
-         al_fixed tfx1 = al_itofix(Ei[e][11]-10);
-         al_fixed tfy1 = al_itofix(Ei[e][12]-10);
-         al_fixed tfx2 = tfx1 + al_itofix(Ei[e][13]);
-         al_fixed tfy2 = tfy1 + al_itofix(Ei[e][14]);
-
-         // damage field
-         al_fixed dfx1 = al_itofix(Ei[e][15]-10);
-         al_fixed dfy1 = al_itofix(Ei[e][16]-10);
-         al_fixed dfx2 = dfx1 + al_itofix(Ei[e][17]);
-         al_fixed dfy2 = dfy1 + al_itofix(Ei[e][18]);
-
-         for (int p=0; p<NUM_PLAYERS; p++) // check players
-            if ((players[p].active) && (!players[p].paused))
-            {
-               al_fixed x = players[p].PX;
-               al_fixed y = players[p].PY;
-               if ((ctp) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
-               if ((cdp) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(0, p, e);
-            }
-         for (int e2=0; e2<100; e2++) // check enemies
-            if (Ei[e2][0])
-            {
-               al_fixed x = Efi[e2][0];
-               al_fixed y = Efi[e2][1];
-               if ((cte) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
-               if ((cde) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(1, e2, e);
-            }
-         for (int i=0; i<500; i++) // check items
-            if (item[i][0])
-            {
-               al_fixed x = itemf[i][0];
-               al_fixed y = itemf[i][1];
-               if ((cti) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
-               if ((cdi) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(2, i, e);
-            }
-
-         for (int b=0; b<50; b++) // check player bullets
-            if (pbullet[b][0])
-            {
-               al_fixed x = al_itofix(pbullet[b][2]);
-               al_fixed y = al_itofix(pbullet[b][3]);
-               if ((ctpb) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
-               if ((cdpb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(3, b, e);
-            }
-
-
-         for (int b=0; b<50; b++) // check enemy bullets
-            if (e_bullet_active[b])
-            {
-               al_fixed x = e_bullet_fx[b];
-               al_fixed y = e_bullet_fy[b];
-               if ((cteb) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
-               if ((cdeb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(4, b, e);
-            }
+         al_fixed x = players[p].PX;
+         al_fixed y = players[p].PY;
+         if ((ctp) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
+         if ((cdp) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(0, p, e);
+      }
+   for (int e2=0; e2<100; e2++) // check enemies
+      if (Ei[e2][0])
+      {
+         al_fixed x = Efi[e2][0];
+         al_fixed y = Efi[e2][1];
+         if ((cte) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
+         if ((cde) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(1, e2, e);
+      }
+   for (int i=0; i<500; i++) // check items
+      if (item[i][0])
+      {
+         al_fixed x = itemf[i][0];
+         al_fixed y = itemf[i][1];
+         if ((cti) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
+         if ((cdi) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(2, i, e);
+      }
+   for (int b=0; b<50; b++) // check player bullets
+      if (pbullet[b][0])
+      {
+         al_fixed x = al_itofix(pbullet[b][2]);
+         al_fixed y = al_itofix(pbullet[b][3]);
+         if ((ctpb) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
+         if ((cdpb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(3, b, e);
+      }
+   for (int b=0; b<50; b++) // check enemy bullets
+      if (e_bullet_active[b])
+      {
+         al_fixed x = e_bullet_fx[b];
+         al_fixed y = e_bullet_fy[b];
+         if ((cteb) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
+         if ((cdeb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(4, b, e);
       }
 }
 
@@ -1363,7 +1343,7 @@ void enemy_field(int e)
    int trig_toggle = 0;
 
    Ei[e][3] &= ~PM_ENEMY_FIELD_TRIGGER_CURR;  // clear current trigger flag
-   detect_field_collisions();
+   detect_field_collisions(e);
    if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) // is current trigger flag set?
    {
       if (!(Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_PREV)) trig_toggle = 1; // if triggered this frame and not triggered last frame, set trigger toggle
