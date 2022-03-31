@@ -470,6 +470,7 @@ int process_select_window(int draw_only)
                         case 12: create_door(3); break; // type 211 - 2 way door set
                         case 13: create_obj(3, 10, 0); break; // type 212 - field
                         case 14: create_obj(2, 9, 0); break;  // type 213 - trigger
+                        case 15: create_obj(2, 16, 0); break;  // type 214 - block manip
 
                      }
                      draw_big(1);

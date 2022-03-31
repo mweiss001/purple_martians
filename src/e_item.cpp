@@ -306,32 +306,31 @@ int create_key(int c)
    else return 1;
 }
 
-int create_trigger(int c)
+int create_trigger(int i)
 {
    int bad = 0;
 
    // set the item location
-   if (getxy("Set Trigger Location", 2, 9, c) == 1)
+   if (getxy("Set Trigger Location", 2, 9, i) == 1)
    {
-      item[c][0] = 9; // type 9 - trigger
-      item[c][1] = 0; // animation seq
-      item[c][2] = 0; // draw mode
-      item[c][3] = 0; // fall
-      item[c][4] = get100_x*20;
-      item[c][5] = get100_y*20;
+      item[i][0] = 9; // type 9 - trigger
+      item[i][2] = 1; // draw type
+      item[i][3] = PM_ITEM_TRIGGER_PLAYER;
+      item[i][4] = get100_x*20;
+      item[i][5] = get100_y*20;
    }
    else bad = 1;
    // then set the block range
    if (!bad)
    {
-      if (getbox("Draw Trigger Rectangle", 2, 9, c))
+      if (getbox("Draw Trigger Rectangle", 2, 9, i))
       {
          if (bx2 < bx1) bx2 = bx1;
          if (by2 < by1) by2 = by1;
-         item[c][6] = bx1*20;
-         item[c][7] = by1*20;
-         item[c][8] = (bx2-bx1)*20;
-         item[c][9] = (by2-by1)*20;
+         item[i][6] = bx1*20;
+         item[i][7] = by1*20;
+         item[i][8] = (bx2-bx1)*20;
+         item[i][9] = (by2-by1)*20;
       }
       else bad = 1;
    }
@@ -340,6 +339,37 @@ int create_trigger(int c)
 }
 
 
+int create_block_manip(int i)
+{
+   int bad = 0;
+
+   // set the item location
+   if (getxy("Set Block Manip Location", 2, 16, i) == 1)
+   {
+      item[i][0] = 16; // type 16 - block manip
+      item[i][2] = 1; // draw type
+//      item[i][3] = PM_ITEM_TRIGGER_PLAYER;
+      item[i][4] = get100_x*20;
+      item[i][5] = get100_y*20;
+   }
+   else bad = 1;
+   // then set the block range
+   if (!bad)
+   {
+      if (getbox("Draw Block Manip Rectangle", 2, 16, i))
+      {
+         if (bx2 < bx1) bx2 = bx1;
+         if (by2 < by1) by2 = by1;
+         item[i][6] = bx1*20;
+         item[i][7] = by1*20;
+         item[i][8] = (bx2-bx1)*20;
+         item[i][9] = (by2-by1)*20;
+      }
+      else bad = 1;
+   }
+   if (bad) return 0;
+   else return 1;
+}
 
 
 
@@ -781,25 +811,26 @@ int create_door(int type)
 int create_item(int type)
 {
    // check for no creator
-   if ((type != 1) && (type != 3) && (type != 4) && (type != 5) && (type != 9) && (type != 10)) return 9999;
+   if ((type != 1) && (type != 3) && (type != 4) && (type != 5) && (type != 9) && (type != 10) && (type != 16)) return 9999;
 
-   int c = get_empty_item(type); // get a place to put it
-   if (c > 499) return c; // no items
+   int i = get_empty_item(type); // get a place to put it
+   if (i > 499) return i; // no items
    switch (type)
    {
-      case 3:  if (!create_exit(c))        erase_item(c); break;
-      case 4:  if (!create_key(c))         erase_item(c); break;
-      case 5:  if (!create_start_block(c)) erase_item(c); break;
-      case 9:  if (!create_trigger(c))     erase_item(c); break;
-      case 10: if (!create_pmsg(c))        erase_item(c); break;
+      case 3:  if (!create_exit(i))        erase_item(i); break;
+      case 4:  if (!create_key(i))         erase_item(i); break;
+      case 5:  if (!create_start_block(i)) erase_item(i); break;
+      case 9:  if (!create_trigger(i))     erase_item(i); break;
+      case 10: if (!create_pmsg(i))        erase_item(i); break;
+      case 16: if (!create_block_manip(i)) erase_item(i); break;
    }
 
    sort_item();
-   c = item_first_num[type]+item_num_of_type[type]-1;
+   i = item_first_num[type]+item_num_of_type[type]-1;
    draw_big(1);
    show_big();
-   set_wx(item[c][4]/20+4, item[c][5]/20);
-   return c;
+   set_wx(item[i][4]/20+4, item[i][5]/20);
+   return i;
 }
 
 

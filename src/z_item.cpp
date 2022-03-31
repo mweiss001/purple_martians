@@ -600,6 +600,13 @@ void draw_items(void)
              drawn = 1;
          }
 
+         if (item[i][0] == 16)
+         {
+             draw_block_manip(i);
+             drawn = 1;
+         }
+
+
 
          if (item[i][0] == 99)
          {
@@ -703,7 +710,8 @@ void move_items()
    for (int i=0; i<500; i++)
       if (item[i][0])
       {
-         if (item[i][0] == 9) process_trigger(i);
+         if      (item[i][0] == 9) process_trigger(i);
+         else if (item[i][0] == 16) process_block_manip(i);
          else
          {
 
@@ -1404,11 +1412,6 @@ item[][9]  = trigger field x (2000)
 
 item[][10] = trigger field lift number
 
-
-
-
-
-
 #define PM_ITEM_TRIGGER_PLAYER   0b0000000000000001
 #define PM_ITEM_TRIGGER_ENEMY    0b0000000000000010
 #define PM_ITEM_TRIGGER_ITEM     0b0000000000000100
@@ -1461,13 +1464,10 @@ void process_trigger(int i)
    if (item[i][3] & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", frame_num);
    if (item[i][3] & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", frame_num);
 
-   printf("\n");
+
+   if (item[i][3] & PM_ITEM_TRIGGER_CURR) pm_event[34] = 1;
 
 }
-
-
-
-
 
 
 void set_item_trigger_location_from_lift(int i, int a20)
@@ -1579,26 +1579,210 @@ void detect_trigger_collisions(int i)
 
 void draw_trigger(int i)
 {
-   int FLAGS = item[i][3];
-   // field enemy position
-   int x = item[i][4];
-   int y = item[i][5];
-   if (level_editor_running) al_draw_bitmap(tile[990], x, y, 0);
-
-   float x1 = item[i][6];
-   float y1 = item[i][7];
-   float x2 = x1 + item[i][8];
-   float y2 = y1 + item[i][9];
-   rectangle_with_diagonal_lines(x1, y1, x2, y2, 4, 14, 14);
-
-
-
-
-   if (level_editor_running) // snap to lift here because main function wont be called
+   if (level_editor_running)
    {
-      if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1);
+      al_draw_bitmap(tile[991], item[i][4], item[i][5], 0); // draw item shape in level editor, invisible when game running
+      if (item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
+   }
+
+   int draw_type = item[i][2];
+   if (draw_type)
+   {
+      float x1 = item[i][6];
+      float y1 = item[i][7];
+      float x2 = x1 + item[i][8];
+      float y2 = y1 + item[i][9];
+      if (draw_type == 1) rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, 14, 14+96);
    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+item[][0] = 16 - Block Manip
+item[][1] = pm_event_trigger
+item[][2] = draw type
+item[][3] = mode
+
+item[][4] = x pos (2000)
+item[][5] = y pos (2000)
+
+item[][6]  = trigger field x (2000)
+item[][7]  = trigger field y (2000)
+item[][8]  = trigger field w (2000)
+item[][9]  = trigger field x (2000)
+
+
+item[][10] block 1
+item[][11] block 2
+
+*/
+
+
+void clear_pm_events(void)
+{
+   for (int x=0; x<100; x++) pm_event[x] = 0;
+
+}
+
+
+
+
+void process_block_manip(int i)
+{
+   int mode = item[i][3];
+
+   int et = item[i][1]; // pm_event trigger we are looking for
+   if (pm_event[et])
+   {
+      int x1 = item[i][6]/20;
+      int y1 = item[i][7]/20;
+      int x2 = x1 + item[i][8]/20;
+      int y2 = y1 + item[i][9]/20;
+
+      for (int x=x1; x<x2; x++)
+         for (int y=y1; y<y2; y++)
+            remove_block(x, y);
+
+
+      pm_event[et] = 0; // clear the trigger when we are done with it
+   }
+
+
+
+
+
+
+
+   if (mode == 1)
+   {
+
+
+
+
+
+   }
+
+
+
+
+
+/*
+   int FLAGS = item[i][3];
+   if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 0);
+
+   item[i][3] &= ~PM_ITEM_TRIGGER_TGON;  // clear Toggle ON  trigger flag
+   item[i][3] &= ~PM_ITEM_TRIGGER_TGOF;  // clear Toggle OFF trigger flag
+   item[i][3] &= ~PM_ITEM_TRIGGER_CURR;  // clear current    trigger flag
+
+   detect_trigger_collisions(i);
+
+   if ( (item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
+   && (!(item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag not set?
+         item[i][3] |= PM_ITEM_TRIGGER_TGON;    // set trigger ON toggle
+
+
+   if (!(item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag not set?
+   && ( (item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag set?
+         item[i][3] |= PM_ITEM_TRIGGER_TGOF;    // set trigger OFF toggle
+
+
+   if   (item[i][3] &   PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
+         item[i][3] |=  PM_ITEM_TRIGGER_PREV;    // set previous trigger flag
+
+   if (!(item[i][3] &   PM_ITEM_TRIGGER_CURR))   // is current trigger flag not set?
+         item[i][3] &= ~PM_ITEM_TRIGGER_PREV;    // clear previous trigger flag
+
+
+   if (item[i][3] & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", frame_num);
+   if (item[i][3] & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", frame_num);
+   if (item[i][3] & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", frame_num);
+   if (item[i][3] & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", frame_num);
+*/
+
+
+}
+
+
+
+void draw_block_manip(int i)
+{
+   if (level_editor_running)
+   {
+      al_draw_bitmap(tile[989], item[i][4], item[i][5], 0); // draw item shape in level editor, invisible when game running
+   }
+
+   int draw_type = item[i][2];
+   if (draw_type)
+   {
+      float x1 = item[i][6];
+      float y1 = item[i][7];
+      float x2 = x1 + item[i][8];
+      float y2 = y1 + item[i][9];
+      if (draw_type == 1) rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, 12, 12+96);
+   }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

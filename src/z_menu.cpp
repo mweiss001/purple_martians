@@ -618,6 +618,9 @@ void menu_setup(void)
    strcpy (item_name[12],"Warp");
    strcpy (item_name[14],"Switch");
    strcpy (item_name[15],"Sproingy");
+   strcpy (item_name[16],"Block Manip");
+
+
 
    strcpy (enemy_name[0],  "empty");
    strcpy (enemy_name[3],  "ArchWagon");
