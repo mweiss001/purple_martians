@@ -14715,6 +14715,419 @@ this looks like a good start...I'm scared of all this work...
 when I implement this, don't kill the existing stuff...in case I give up and go back....
 
 
+I want to start by cretaing an item called trigger
+
+that looks a lot like the trigger part of field
+
+what variables do I need?
+
+
+
+// common
+
+item[][0] = 9 active and type
+item[][1] = bitmap or ans
+item[][2] = draw type (not used)
+item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door -3=sticky)
+item[][4] = x pos (int) (2000)
+item[][5] = y pos (int) (2000)
+
+item[][6]  = trigger field x (2000)
+item[][7]  = trigger field y (2000)
+item[][8]  = trigger field w (2000)
+item[][9]  = trigger field x (2000)
+
+item[][10] = trigger field lift
+item[][11] = trigger draw type
+
+
+what do I still need places for?
+mode
+action_id
+action_id type static|toggle
+
+I can probably get rid of 1, 2, 3
+use 3 for flags
+
+item[][14] = time to live
+item[][15] = tag with cloner item id
+
+
+#define PM_ITEM_TRIGGER_PLAYER   0b0000000000000001
+#define PM_ITEM_TRIGGER_ENEMY    0b0000000000000010
+#define PM_ITEM_TRIGGER_ITEM     0b0000000000000100
+#define PM_ITEM_TRIGGER_PBUL     0b0000000000001000
+#define PM_ITEM_TRIGGER_EBUL     0b0000000000010000
+#define PM_ITEM_TRIGGER_CURR     0b0000000000100000
+#define PM_ITEM_TRIGGER_PREV     0b0000000001000000
+#define PM_ITEM_TRIGGER_TGON     0b0000000010000000
+#define PM_ITEM_TRIGGER_TGOF     0b0000000100000000
+#define PM_ITEM_TRIGGER_LIFT_ON  0b0000001000000000
+#define PM_ITEM_TRIGGER_LIFT_XC  0b0000010000000000
+#define PM_ITEM_TRIGGER_LIFT_XF  0b0000100000000000
+#define PM_ITEM_TRIGGER_LIFT_XL  0b0001000000000000
+#define PM_ITEM_TRIGGER_LIFT_YC  0b0010000000000000
+#define PM_ITEM_TRIGGER_LIFT_YF  0b0100000000000000
+#define PM_ITEM_TRIGGER_LIFT_YL  0b1000000000000000
+
+
+what number am I going to use 9
+
+
+start making it so that the draw, move, collison code, etc all ignores type 9...
+
+
+where do I patch it in?
+
+what gets called every frame for items...move item
+
+
+move_items()
+if (item[i][0] == 9) process_trigger(i);
+else
+
+draw_items()
+if (item[i][0] == 9)
+{
+    draw_trigger(i);
+    drawn = 1;
+}
+
+void proc_player_collisions(int p)
+{
+   al_fixed f10 = al_itofix(10);
+   al_fixed f16 = al_itofix(16);
+
+   // items
+   players1[p].potential_bomb_damage = 0;
+   players[p].marked_door = -1; // so player can touch only one door
+   for (int x=0; x<500; x++)
+   {
+      if ((item[x][0]) && (item[x][0] != 9))
+
+
+hopefully that should do....
+
+now make one of these....
+
+should I make a creator...yes
+
+
+I can create, I can run viewer...
+display show the rectangle...
+
+next...
+
+fix the create making rectangle too small in lr...done
+allow me to change the rectange with a button...done
+and on the map...done
+with legend and all that shit...done
+
+what am I going to use for flags item[][3]
+
+now attach to lift...done
+
+implement the filters and do the collision detection
+
+
+
+
+need to implement collison checks
+
+
+the field enemy iterated all enemies in the collison detection...WTF!!!
+
+void move_enemies()
+{
+   num_enemy = 0; // count enemies
+   for (int e=0; e<100; e++)
+      if (Ei[e][0])
+      {
+         num_enemy++; // count enemies
+
+         if (Ei[e][0] != 10) // skip all this for field
+         {
+             if (Ei[e][0] < 50) proc_enemy_collision_with_pbullet(e);
+
+             // check for time to live
+             int ttl = Ei[e][27];
+             if (ttl)
+             {
+                if (ttl < 11)
+                {
+                   Ei[e][0] = 66;             // change to different type to prevent use
+                   Efi[e][4] = al_itofix(0);  // cant hurt anymore
+                   Ei[e][29] = 0;             // no collision box
+                   int sq = 10-ttl;
+                   Ei[e][1] = zz[5+sq][74];
+                }
+                if (ttl == 1) Ei[e][0] = 0; // kill instantly
+                Ei[e][27]--;
+             }
+
+             // check for out of bounds
+             if ((Efi[e][0] < al_itofix(0)) || (Efi[e][0] > al_itofix(1999))) Ei[e][0]=0;
+             if ((Efi[e][1] < al_itofix(0)) || (Efi[e][1] > al_itofix(1999))) Ei[e][0]=0;
+         }
+         switch (Ei[e][0])
+         {
+            case 3:   enemy_archwagon(e);  break;
+            case 4:   enemy_bouncer(e);  break;
+            case 6:   enemy_cannon(e);  break;
+            case 7:   enemy_podzilla(e);  break;
+            case 8:   enemy_trakbot(e);  break;
+            case 9:   enemy_cloner(e);  break;
+            case 10:  enemy_field(e);  break;
+            case 11:  enemy_block_walker(e);  break;
+            case 12:  enemy_flapper(e);  break;
+
+
+so enemy_field(e) is called once for each time 10 is found......
+
+void enemy_field(int e)
+{
+   int mode = Ei[e][5];
+   int trig_toggle = 0;
+
+   Ei[e][3] &= ~PM_ENEMY_FIELD_TRIGGER_CURR;  // clear current trigger flag
+   detect_field_collisions();
+   if (Ei[e][3] & PM_ENEMY_FIELD_TRIG
+
+which calls detect_field_collisions();
+
+void detect_field_collisions(void)
+{
+   for (int e=0; e<100; e++)
+      if (Ei[e][0] == 10)
+      {
+         int mode = Ei[e][5];
+         int FLAGS = Ei[e][3];
+
+which iterates all enemies................there...that is the WTF moment......
+fix this later....
+
+
+
+
+
+
+
+
+
+void process_trigger(int i)
+{
+   int FLAGS = item[i][3];
+   if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 0);
+
+   item[i][3] &= ~PM_ITEM_TRIGGER_TGON;  // clear Toggle ON  trigger flag
+   item[i][3] &= ~PM_ITEM_TRIGGER_TGOF;  // clear Toggle OFF trigger flag
+   item[i][3] &= ~PM_ITEM_TRIGGER_CURR;  // clear current    trigger flag
+
+   detect_trigger_collisions(i);
+
+   if ( (item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
+   && (!(item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag not set?
+         item[i][3] |= PM_ITEM_TRIGGER_TGON;    // set trigger ON toggle
+
+
+   if (!(item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag not set?
+   && ( (item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag set?
+         item[i][3] |= PM_ITEM_TRIGGER_TGOF;    // set trigger OFF toggle
+
+
+   if   (item[i][3] &   PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
+         item[i][3] |=  PM_ITEM_TRIGGER_PREV;    // set previous trigger flag
+
+   if (!(item[i][3] &   PM_ITEM_TRIGGER_CURR))   // is current trigger flag not set?
+         item[i][3] &= ~PM_ITEM_TRIGGER_PREV;    // clear previous trigger flag
+
+
+   if (item[i][3] & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", frame_num);
+   if (item[i][3] & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", frame_num);
+   if (item[i][3] & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", frame_num);
+   if (item[i][3] & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", frame_num);
+
+   printf("\n");
+
+}
+
+this works exactly like I thought it would....
+
+
+
+
+now I am thinking of 4 sliders:
+
+ACTION send ON
+ACTION send OFF
+ACTION send TOGGLE ON
+ACTION send TOGGLE OFF
+
+each of which can be set to a number from 0-100 (or more)
+if 0 they are disabled
+
+right now I have all this done up to the point that I have 4 print statements where I would emit actions number some how
+
+what next?
+
+draw items still need to be implemented....
+
+
+make something that accepts these?
+
+make something that is triggered by these?
+
+
+my action array can be nothing more than a singel row of ints
+
+
+int act[100]
+
+if I put 34 in like..
+
+act[34] = 1;
+
+then if anything is listening it will react...
+after something reacts to it, that something should clear it...
+
+
+
+then I can have one to many code there
+if 34 then set 45, 46, 47 also
+
+many to one can be achieved by setting multiple source to the same action #
+
+
+
+the rule table is a double int...or triple
+
+0   1
+34  45
+
+34 46
+
+34 47
+
+34 sets 45
+45 clears 67
+
+
+what if I made special items that did this?
+
+source actions up to 4
+34 45 33
+
+main s1
+an int before to say what affect
+
+1 32 (must have 32)
+0 44 (must not have 34)
+2 or
+
+
+
+target actions up to 4
+
+34 67 88
+
+
+
+this seems rather complicated
+
+for now I would like to make a simple one
+
+or modify one...
+
+
+make a switch that take an action input
+
+(am I calling it action? what about pm_event?)
+
+
+20220330 8:30 PM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

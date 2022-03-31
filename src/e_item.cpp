@@ -229,6 +229,11 @@ void erase_item(int num)
    for (int x=0; x<16; x++) item[num][x] = 0;
 }
 
+
+
+
+
+
 int create_key(int c)
 {
    int key_color = 0, exit=0, bad=0;
@@ -300,6 +305,78 @@ int create_key(int c)
    if (bad) return 0;
    else return 1;
 }
+
+int create_trigger(int c)
+{
+   int bad = 0;
+
+   // set the item location
+   if (getxy("Set Trigger Location", 2, 9, c) == 1)
+   {
+      item[c][0] = 9; // type 9 - trigger
+      item[c][1] = 0; // animation seq
+      item[c][2] = 0; // draw mode
+      item[c][3] = 0; // fall
+      item[c][4] = get100_x*20;
+      item[c][5] = get100_y*20;
+   }
+   else bad = 1;
+   // then set the block range
+   if (!bad)
+   {
+      if (getbox("Draw Trigger Rectangle", 2, 9, c))
+      {
+         if (bx2 < bx1) bx2 = bx1;
+         if (by2 < by1) by2 = by1;
+         item[c][6] = bx1*20;
+         item[c][7] = by1*20;
+         item[c][8] = (bx2-bx1)*20;
+         item[c][9] = (by2-by1)*20;
+      }
+      else bad = 1;
+   }
+   if (bad) return 0;
+   else return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 int create_start_block(int c)
 {
@@ -704,7 +781,7 @@ int create_door(int type)
 int create_item(int type)
 {
    // check for no creator
-   if ((type != 1) && (type != 3) && (type != 4) && (type != 5) && (type != 10)) return 9999;
+   if ((type != 1) && (type != 3) && (type != 4) && (type != 5) && (type != 9) && (type != 10)) return 9999;
 
    int c = get_empty_item(type); // get a place to put it
    if (c > 499) return c; // no items
@@ -713,6 +790,7 @@ int create_item(int type)
       case 3:  if (!create_exit(c))        erase_item(c); break;
       case 4:  if (!create_key(c))         erase_item(c); break;
       case 5:  if (!create_start_block(c)) erase_item(c); break;
+      case 9:  if (!create_trigger(c))     erase_item(c); break;
       case 10: if (!create_pmsg(c))        erase_item(c); break;
    }
 

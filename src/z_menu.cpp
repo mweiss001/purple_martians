@@ -612,7 +612,7 @@ void menu_setup(void)
    strcpy (item_name[6],"Free Man");
    strcpy (item_name[7],"Mine");
    strcpy (item_name[8],"Bomb");
-   strcpy (item_name[9], "undefined");
+   strcpy (item_name[9], "Trigger");
    strcpy (item_name[10],"Message");
    strcpy (item_name[11],"Rocket");
    strcpy (item_name[12],"Warp");

@@ -500,6 +500,32 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             al_draw_circle(x1*db+db/2, y1*db+db/2, bs, palette_color[color], 1);
          }
          break;
+         case 9: // trigger
+         {
+            int color = 14;
+            legend_color[2] = 10;
+            Num_legend_lines = 3;
+            sprintf(lmsg[1],"Trigger Item Location");
+            sprintf(lmsg[2],"Trigger Field");
+            if (legend_highlight == 2)
+            {
+               color = highlight_color;
+               legend_color[2] = highlight_color;
+            }
+            int x2 = item[num][6]/20 * db;
+            int y2 = item[num][7]/20 * db;
+            int x3 = x2 + item[num][8]/20 * db - 1;
+            int y3 = y2 + item[num][9]/20 * db - 1;;
+            int x4 = (x2+x3)/2;
+            int y4 = (y2+y3)/2;
+
+            // draw range
+            al_draw_line(0, y4, 100*db-1, y4, palette_color[color], 1);
+            al_draw_line(x4, 0, x4, 100*db-1, palette_color[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+
+         }
+         break;
          case 10:
          {
             sprintf(lmsg[1],"Message Location");
@@ -602,6 +628,11 @@ int move_obt_with_map(int obt, int type, int num)
    int mouse_on_kbr_lr = 0;
    int mouse_on_sp = 0;
    int mouse_on_msg_ul = 0;
+
+
+   int mouse_on_trg_ul = 0;
+   int mouse_on_trg_lr = 0;
+
 
    // this is the awesome section that lets you move stuff on the map just by clicking and dragging
    if ((mouse_x < db*100)  && (mouse_x < db*100) ) // is mouse on map
@@ -774,6 +805,37 @@ int move_obt_with_map(int obt, int type, int num)
             mouse_adj = 1;
          }
       }
+
+
+      if ((obt == 2) && (type == 9)) // trigger
+      {
+         int x1 = item[num][6]/20;
+         int y1 = item[num][7]/20;
+         int x2 = x1 + item[num][8]/20 - 1;
+         int y2 = y1 + item[num][9]/20 - 1;
+         if ((!mouse_on_extra) && (mx == x1) && (my == y1)) // trigger block range upper left corner
+         {
+            mouse_on_extra = 1;
+            mouse_on_trg_ul = 1;
+            for (int a=0; a<4; a++)
+               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[10+a*64], 1); // mark entire box
+            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[10],1);                 // mark ul corner
+            mouse_move = 1;
+         }
+         if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // trigger block range lower right corner
+         {
+            mouse_on_extra = 1;
+            mouse_on_trg_lr = 1;
+            for (int a=0; a<4; a++)
+               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[10+a*64],1); // mark entire box
+            al_draw_rectangle(x2*db, y2*db, x2*db+db-1, y2*db+db-1, palette_color[10], 1);             // mark lr corner
+            mouse_adj = 1;
+         }
+      }
+
+
+
+
       if ((obt == 2) && (type == 15)) // sproingy
       {
          int x0 = item[num][4];
@@ -966,7 +1028,7 @@ int move_obt_with_map(int obt, int type, int num)
                Ei[num][14] = my*20 - Ei[num][12];
             }
 
-            if (mouse_on_fdb_lr) // resize field damage box from lr
+            if (mouse_on_ftb_lr) // resize field damage box from lr
             {
                // prevent lr corner from being less than ul corner
                if (mx < (Ei[num][15]/20)) mx = (Ei[num][15]/20)+1;
@@ -1054,6 +1116,53 @@ int move_obt_with_map(int obt, int type, int num)
                item[num][8] = mx;
                item[num][9] = my;
             }
+
+
+
+            if (mouse_on_trg_ul) // move trigger block range from ul
+            {
+               // set new position
+               item[num][6] = mx*20;
+               item[num][7] = my*20;
+            }
+            if (mouse_on_trg_lr) // adjust trigger block range from lr
+            {
+               // don't allow lr to be less than ul
+//               if (mx < item[num][6]) mx = item[num][6];
+  //             if (my < item[num][7]) my = item[num][7];
+
+               // set new position
+               item[num][8] = mx*20 - item[num][6];
+               item[num][9] = my*20 - item[num][7];
+            }
+
+
+/*
+            if (mouse_on_ftb_lr) // resize field damage box from lr
+            {
+               // prevent lr corner from being less than ul corner
+               if (mx < (Ei[num][15]/20)) mx = (Ei[num][15]/20)+1;
+               if (my < (Ei[num][16]/20)) my = (Ei[num][16]/20)+1;
+               Ei[num][17] = mx*20 - Ei[num][15];
+               Ei[num][18] = my*20 - Ei[num][16];
+            }
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             if (mouse_on_item)
             {
@@ -1518,6 +1627,47 @@ void object_viewer(int obt, int num)
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 77, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // fuse timer / remote detonator
                   mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  4, num, type, obt, 0, 14, 15, 15, 1,0,0,0); a++; // damage range
                   mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  5, num, type, obt, 0, 10, 15, 15, 1,0,0,0); a++; // fuse length
+               break;
+               case 9: // trigger
+               {
+                  int FLAGS = item[num][3];
+
+                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 200,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // Get New Trigger Field
+
+
+                  if (FLAGS & PM_ITEM_TRIGGER_PLAYER) { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 202, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
+                  else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 202, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
+                  if (FLAGS & PM_ITEM_TRIGGER_ENEMY)  { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 203, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
+                  else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 203, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
+                  if (FLAGS & PM_ITEM_TRIGGER_ITEM)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 204, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
+                  else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 204, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
+                  if (FLAGS & PM_ITEM_TRIGGER_PBUL)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 205, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
+                  else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 205, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
+                  if (FLAGS & PM_ITEM_TRIGGER_EBUL)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 206, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
+                  else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 206, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
+
+
+                  a++;
+
+                  if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) // Trigger Field follows lift:ON
+                  {
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 210, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // Trigger Field follows lift:ON
+                     mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 91,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // Lift Number
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 211, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // X Alignment
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 212, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // Y Alignment
+                  }
+                  else { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 210, num, type, obt, 0, 15, 15,  0, 1,0,0,0); a++; } // Trigger Field follows lift:OFF
+
+
+
+
+
+
+
+
+
+
+               }
                break;
                case 10: // message
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry

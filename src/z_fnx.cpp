@@ -2,6 +2,16 @@
 #include "pm.h"
 
 
+
+int round20(int val) // pass it an int and it will round it to the nearest 20
+{
+   int m = val%20;
+   if (m<10) return (val - m);
+   else return val + (20-m);
+}
+
+
+
 void clear_game_moves(void)
 {
    for (int x=0; x<GAME_MOVES_SIZE; x++)

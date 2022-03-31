@@ -123,6 +123,16 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 89) Ei[num][6] = (int)f;                 // damage field on time
    if (bn == 90) Ei[num][6] = (int)f;                 // damage field off time
 
+
+   if (bn == 91)
+   {
+      item[num][10] = (int)f;                           // item trigger lift number
+      set_item_trigger_location_from_lift(num, 1);
+   }
+
+
+
+
 }
 
 void fill_smsg_button(int bn, int obt, int type, int num)
@@ -446,6 +456,88 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       }
    }
 
+   if (bn == 200) sprintf(smsg, "Get New Trigger Field"); // item
+
+
+
+
+   if (bn == 202)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_PLAYER) sprintf(smsg, "Triggered by Players:ON          ");
+      else                                       sprintf(smsg, "Triggered by Players:OFF         ");
+   }
+   if (bn == 203)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_ENEMY)  sprintf(smsg, "Triggered by Enemies:ON          ");
+      else                                       sprintf(smsg, "Triggered by Enemies:OFF         ");
+   }
+   if (bn == 204)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_ITEM)   sprintf(smsg, "Triggered by Items:ON            ");
+      else                                       sprintf(smsg, "Triggered by Items:OFF           ");
+   }
+   if (bn == 205)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_PBUL)   sprintf(smsg, "Triggered by Player's Bullets:ON ");
+      else                                       sprintf(smsg, "Triggered by Player's Bullets:OFF");
+   }
+   if (bn == 206)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_EBUL)   sprintf(smsg, "Triggered by Enemy's Bullets:ON  ");
+      else                                       sprintf(smsg, "Triggered by Enemy's Bullets:OFF ");
+   }
+
+
+
+
+
+
+
+   if (bn == 210)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_LIFT_ON) sprintf(smsg, "Follows Lift:ON");
+      else sprintf(smsg, "Follows Lift:OFF");
+   }
+
+   if (bn == 211)
+   {
+      int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
+      int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
+      int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
+
+      if (C) sprintf(smsg, "Lift X Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
+      }
+   }
+
+   if (bn == 212)
+   {
+      int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_YC;
+      int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_YF;
+      int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_YL;
+
+      if (C) sprintf(smsg, "Lift Y Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
+      }
+   }
+
+
+
+
+
+
+
+
 
 
 
@@ -549,7 +641,7 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 89) sprintf(smsg, "Damage Field ON Time:%d",  Ei[num][6]);
    if (bn == 90) sprintf(smsg, "Damage Field OFF Time:%d",  Ei[num][6]);
 
-
+   if (bn == 91) sprintf(smsg, "Trigger Field Follows Lift:%d", item[num][10]);
 
 }
 
@@ -924,7 +1016,10 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 129) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_EBUL;
 
       if (bn == 133) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_CURR;
+
       if (bn == 134) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_DMG_ON;
+
+
       if (bn == 135) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_TRG_ON;
 
 
@@ -1079,6 +1174,132 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
 
 
 
+      if (bn == 200)
+         if (getbox("Draw New Trigger Filed Rectangle", 2, 9, num))
+         {
+
+            if (bx2 < bx1) bx2 = bx1;
+            if (by2 < by1) by2 = by1;
+            item[num][6] = bx1*20;
+            item[num][7] = by1*20;
+            item[num][8] = (bx2-bx1)*20;
+            item[num][9] = (by2-by1)*20;
+            Redraw = 1;
+         }
+
+      if (bn == 202) item[num][3] ^= PM_ITEM_TRIGGER_PLAYER;
+      if (bn == 203) item[num][3] ^= PM_ITEM_TRIGGER_ENEMY;
+      if (bn == 204) item[num][3] ^= PM_ITEM_TRIGGER_ITEM;
+      if (bn == 205) item[num][3] ^= PM_ITEM_TRIGGER_PBUL;
+      if (bn == 206) item[num][3] ^= PM_ITEM_TRIGGER_EBUL;
+
+
+      if (bn == 210) item[num][3] ^= PM_ITEM_TRIGGER_LIFT_ON;
+      if (bn == 211) // Trigger Field X Lift Alignment
+      {
+         int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
+         int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
+         int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
+
+
+         if (C)    // 1 X X
+         {  // set to 0 0 0
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+         }
+         else if ((!F) && (!L)) // 0 0 0
+         {               // set to 0 0 1
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
+         }
+         else if ((!F) && (L)) // 0 0 1
+         {              // set to 0 1 0
+            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+         }
+         else if ((F) && (!L)) // 0 1 0
+         {              // set to 0 1 1
+            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XF; // set   F flag
+            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XL; // set   L flag
+         }
+         else if ((F) && (L))  // 0 1 1
+         {              // set to 1 0 0
+            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_XC; // set   C flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XL; // clear L flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
+         }
+      }
+      if (bn == 212) // Trigger Field Y Lift Alignment
+      {
+         int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_YC;
+         int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_YF;
+         int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_YL;
+
+         if (C)    // 1 X X
+         {  // set to 0 0 0
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YC; // clear C flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
+         }
+         else if ((!F) && (!L)) // 0 0 0
+         {               // set to 0 0 1
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YC; // clear C flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
+            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YL; // set   L flag
+         }
+         else if ((!F) && (L)) // 0 0 1
+         {              // set to 0 1 0
+            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YF; // set   F flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
+         }
+         else if ((F) && (!L)) // 0 1 0
+         {              // set to 0 1 1
+            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YF; // set   F flag
+            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YL; // set   L flag
+         }
+         else if ((F) && (L))  // 0 1 1
+         {              // set to 1 0 0
+            item[num][3] |=  PM_ITEM_TRIGGER_LIFT_YC; // set   C flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YL; // clear L flag
+            item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
+         }
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1213,6 +1434,7 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 89: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // damage field on time
       case 90: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // damage field off time
 
+      case 91: sul=39;   sll=0;     sinc=1;   sdx=item[num][10];               break;  // item trigger lift number
 
    }
 
