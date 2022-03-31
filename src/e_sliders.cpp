@@ -110,7 +110,37 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 91) sprintf(smsg, "Trigger Field Follows Lift:%d", item[num][10]);
 
 
-   if (bn == 92) sprintf(smsg, "pm_event trigger:%d", item[num][1]); // block manip
+   if (bn == 92)
+   {
+      if (item[num][1]) sprintf(smsg, "Event Trigger:%2d ", item[num][1]); // block manip trigger input
+      else              sprintf(smsg, "Event Trigger:OFF");
+   }
+
+   if (bn == 93)
+   {
+      if (item[num][11]) sprintf(smsg, "Set Event Always While On   :%2d ", item[num][11]); // trigger output
+      else               sprintf(smsg, "Set Event Always While On   :OFF");
+   }
+   if (bn == 94)
+   {
+      if (item[num][12]) sprintf(smsg, "Set Event Always While Off  :%2d ", item[num][12]); // trigger output
+      else               sprintf(smsg, "Set Event Always While Off  :OFF");
+   }
+
+   if (bn == 95)
+   {
+      if (item[num][13]) sprintf(smsg, "Set Event When Switching On :%2d ", item[num][13]); // trigger output
+      else               sprintf(smsg, "Set Event When Switching On :OFF");
+   }
+
+   if (bn == 96)
+   {
+      if (item[num][14]) sprintf(smsg, "Set Event When Switching Off:%2d ", item[num][14]); // trigger output
+      else               sprintf(smsg, "Set Event When Switching Off:OFF");
+   }
+
+
+
 
 
 }
@@ -242,6 +272,12 @@ void update_var(int bn, int type, int num, float f)
 
    if (bn == 92) item[num][1] = (int)f; // block manip pm_event
 
+   if (bn == 93) item[num][11] = (int)f; // // trigger output CURR ON
+   if (bn == 94) item[num][12] = (int)f; // // trigger output CURR OFF
+   if (bn == 95) item[num][13] = (int)f; // // trigger output TGON
+   if (bn == 96) item[num][14] = (int)f; // // trigger output TGOF
+
+
 
 }
 
@@ -338,7 +374,13 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
       case 92: sul=99;   sll=0;     sinc=1;   sdx=item[num][1];                break;  // block manip pm_event trigger
 
+      case 93: sul=99;   sll=0;     sinc=1;   sdx=item[num][11];                break;  // trigger output CURR ON
+      case 94: sul=99;   sll=0;     sinc=1;   sdx=item[num][12];                break;  // trigger output CURR OFF
+      case 95: sul=99;   sll=0;     sinc=1;   sdx=item[num][13];                break;  // trigger output TGON
+      case 96: sul=99;   sll=0;     sinc=1;   sdx=item[num][14];                break;  // trigger output TGOF
+
    }
+
 
    // draw the slider
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
@@ -809,8 +851,8 @@ void fill_smsg_button(int bn, int obt, int type, int num)
 
    if (bn == 201) // Item Trigger Draw Type
    {
-      if (item[num][2] == 0) sprintf(smsg, "Draw Type:none");
-      if (item[num][2] == 1) sprintf(smsg, "Draw Type:Yellow Rectangle (default)");
+      if (item[num][3] & PM_ITEM_TRIGGER_DRAW_ON) sprintf(smsg, "Draw Trigger:ON          ");
+      else                                        sprintf(smsg, "Draw Trigger:OFF         ");
    }
 
 
@@ -897,8 +939,25 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (item[num][3] == 3) sprintf(smsg, "MODE:Toggle Block 2 To Block 1");
    }
 
+   if (bn == 304) // Block Manip Draw
+   {
+      if (item[num][2])  sprintf(smsg, "Draw Block :ON     ");
+      else               sprintf(smsg, "Draw Block :OFF    ");
+   }
 
 
+
+
+   if (bn == 310) // block 1 select...
+   {
+      int tn = item[num][10]; //block 1
+      sprintf(smsg, "Block 1: %d", tn);
+   }
+   if (bn == 311) // block 2 select...
+   {
+      int tn = item[num][11]; //block 1
+      sprintf(smsg, "Block 2: %d", tn);
+   }
 
 
 }
@@ -926,6 +985,29 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
       al_draw_rotated_bitmap(tile[zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
+
+   if (bn == 310)
+   {
+      int tn = item[num][10];
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
+      al_draw_bitmap(tile[tn], x, y, 0);
+   }
+
+   if (bn == 311)
+   {
+      int tn = item[num][11];
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
+      al_draw_bitmap(tile[tn], x, y, 0);
+   }
+
+
+
 
    // is mouse pressed on this button?
    if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
@@ -1382,14 +1464,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Redraw = 1;
          }
 
-
-      if (bn == 201) // item trigger draw mode
-      {
-         item[num][2]++;
-         if (item[num][2] > 1) item[num][2] = 0;
-      }
-
-
+      if (bn == 201) item[num][3] ^= PM_ITEM_TRIGGER_DRAW_ON;
       if (bn == 202) item[num][3] ^= PM_ITEM_TRIGGER_PLAYER;
       if (bn == 203) item[num][3] ^= PM_ITEM_TRIGGER_ENEMY;
       if (bn == 204) item[num][3] ^= PM_ITEM_TRIGGER_ITEM;
@@ -1496,8 +1571,21 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       }
 
 
+      if (bn == 304) // block manip draw mode
+      {
+         item[num][2] = !item[num][2];
+      }
 
 
+
+//   if (bn == 302) item[num][3] ^= PM_ITEM_TRIGGER_DRAW_ON;
+
+
+
+
+
+   if (bn == 310) item[num][10] = select_bitmap();
+   if (bn == 311) item[num][11] = select_bitmap();
 
    } // end of mouse pressed on button
    return 0;
@@ -1526,6 +1614,12 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
    if (bn == 3) sprintf(smsg, "Select Frame Color");
    if (bn == 4) sprintf(smsg, "Select Lift Color");
    if (bn == 5) sprintf(smsg, "Select Door Color");
+
+   if (bn == 6) sprintf(smsg, "Select Trigger Color");
+
+   if (bn == 7) sprintf(smsg, "Select Block Manip Color");
+
+
    al_draw_text(font, palette_color[0], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
     // draw outline
@@ -1546,6 +1640,9 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
                item[num][6] = color;     // door color
                change_linked_door_color_and_shape(num);
             }
+            if (bn == 6) item[num][2] = color;     // trigger color
+            if (bn == 7) item[num][12] = color;     // block manip color
+
             Redraw = 1;
          }
 }

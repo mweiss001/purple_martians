@@ -1400,7 +1400,7 @@ void proc_lit_rocket(int i)
 
 item[][0] = 9  - Trigger
 item[][1] =
-item[][2] = draw_type
+item[][2] = draw_type (color)
 item[][3] = flags
 item[][4] = x pos (2000)
 item[][5] = y pos (2000)
@@ -1411,6 +1411,12 @@ item[][8]  = trigger field w (2000)
 item[][9]  = trigger field x (2000)
 
 item[][10] = trigger field lift number
+
+item[][11] = CURR ON  pm_event
+item[][12] = CURR OFF pm_event
+item[][13] = TGON pm_event #
+item[][14] = TGOF pm_event #
+
 
 #define PM_ITEM_TRIGGER_PLAYER   0b0000000000000001
 #define PM_ITEM_TRIGGER_ENEMY    0b0000000000000010
@@ -1458,17 +1464,16 @@ void process_trigger(int i)
    if (!(item[i][3] &   PM_ITEM_TRIGGER_CURR))   // is current trigger flag not set?
          item[i][3] &= ~PM_ITEM_TRIGGER_PREV;    // clear previous trigger flag
 
-
-   if (item[i][3] & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", frame_num);
-   if (item[i][3] & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", frame_num);
-   if (item[i][3] & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", frame_num);
-   if (item[i][3] & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", frame_num);
-
-
-   if (item[i][3] & PM_ITEM_TRIGGER_CURR) pm_event[34] = 1;
-
+   FLAGS = item[i][3]; // update FLAGS
+/*   if (FLAGS & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", frame_num);
+   if (FLAGS & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", frame_num);
+   if (FLAGS & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", frame_num);
+   if (FLAGS & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", frame_num); */
+   if   (FLAGS & PM_ITEM_TRIGGER_CURR)  pm_event[item[i][11]] = 1;
+   if (!(FLAGS & PM_ITEM_TRIGGER_CURR)) pm_event[item[i][12]] = 1;
+   if   (FLAGS & PM_ITEM_TRIGGER_TGON)  pm_event[item[i][13]] = 1;
+   if   (FLAGS & PM_ITEM_TRIGGER_TGOF)  pm_event[item[i][14]] = 1;
 }
-
 
 void set_item_trigger_location_from_lift(int i, int a20)
 {
@@ -1585,49 +1590,16 @@ void draw_trigger(int i)
       if (item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
    }
 
-   int draw_type = item[i][2];
-   if (draw_type)
+   if (item[i][3] & PM_ITEM_TRIGGER_DRAW_ON)
    {
+      int col = item[i][2];
       float x1 = item[i][6];
       float y1 = item[i][7];
       float x2 = x1 + item[i][8];
       float y2 = y1 + item[i][9];
-      if (draw_type == 1) rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, 14, 14+96);
+      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96);
    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1636,7 +1608,7 @@ void draw_trigger(int i)
 
 item[][0] = 16 - Block Manip
 item[][1] = pm_event_trigger
-item[][2] = draw type
+item[][2] = draw on
 item[][3] = mode
 
 item[][4] = x pos (2000)
@@ -1651,6 +1623,12 @@ item[][9]  = trigger field x (2000)
 item[][10] block 1
 item[][11] block 2
 
+
+item[][12] = draw color
+
+
+
+
 */
 
 
@@ -1660,16 +1638,20 @@ void clear_pm_events(void)
 
 }
 
-
+/*
+      if (item[num][3] == 0) sprintf(smsg, "MODE:OFF");
+      if (item[num][3] == 1) sprintf(smsg, "MODE:Set All To Block 1");
+      if (item[num][3] == 2) sprintf(smsg, "MODE:Set All Block 2 To Block 1");
+      if (item[num][3] == 3) sprintf(smsg, "MODE:Toggle Block 2 To Block 1");
+*/
 
 
 void process_block_manip(int i)
 {
-   int mode = item[i][3];
-
    int et = item[i][1]; // pm_event trigger we are looking for
    if (pm_event[et])
    {
+      al_set_target_bitmap(level_background);
       int x1 = item[i][6]/20;
       int y1 = item[i][7]/20;
       int x2 = x1 + item[i][8]/20;
@@ -1677,65 +1659,47 @@ void process_block_manip(int i)
 
       for (int x=x1; x<x2; x++)
          for (int y=y1; y<y2; y++)
-            remove_block(x, y);
+         {
+            int mode = item[i][3];
+            int block1 = item[i][10];
+            int block2 = item[i][11];
 
+            if (mode == 1) // set all blocks to block 1
+            {
+               l[x][y] = block1; // replace block
+               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+               al_draw_bitmap(tile[block1], x*20, y*20, 0 );
+            }
 
+            if (mode == 2) // set all block2 to block 1
+            {
+               if (l[x][y] == block2)
+               {
+                  l[x][y] = block1; // replace block
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(tile[block1], x*20, y*20, 0 );
+               }
+            }
+
+            if (mode == 3) // toggle block1 and block 2
+            {
+               if (l[x][y] == block1)
+               {
+                  l[x][y] = block2;
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(tile[block2], x*20, y*20, 0 );
+               }
+               else if (l[x][y] == block2)
+               {
+                  l[x][y] = block1;
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(tile[block1], x*20, y*20, 0 );
+               }
+            }
+         }
+      draw_lift_lines();
       pm_event[et] = 0; // clear the trigger when we are done with it
    }
-
-
-
-
-
-
-
-   if (mode == 1)
-   {
-
-
-
-
-
-   }
-
-
-
-
-
-/*
-   int FLAGS = item[i][3];
-   if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 0);
-
-   item[i][3] &= ~PM_ITEM_TRIGGER_TGON;  // clear Toggle ON  trigger flag
-   item[i][3] &= ~PM_ITEM_TRIGGER_TGOF;  // clear Toggle OFF trigger flag
-   item[i][3] &= ~PM_ITEM_TRIGGER_CURR;  // clear current    trigger flag
-
-   detect_trigger_collisions(i);
-
-   if ( (item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
-   && (!(item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag not set?
-         item[i][3] |= PM_ITEM_TRIGGER_TGON;    // set trigger ON toggle
-
-
-   if (!(item[i][3] &  PM_ITEM_TRIGGER_CURR)    // is current trigger flag not set?
-   && ( (item[i][3] &  PM_ITEM_TRIGGER_PREV)))  // and previous trigger flag set?
-         item[i][3] |= PM_ITEM_TRIGGER_TGOF;    // set trigger OFF toggle
-
-
-   if   (item[i][3] &   PM_ITEM_TRIGGER_CURR)    // is current trigger flag set?
-         item[i][3] |=  PM_ITEM_TRIGGER_PREV;    // set previous trigger flag
-
-   if (!(item[i][3] &   PM_ITEM_TRIGGER_CURR))   // is current trigger flag not set?
-         item[i][3] &= ~PM_ITEM_TRIGGER_PREV;    // clear previous trigger flag
-
-
-   if (item[i][3] & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", frame_num);
-   if (item[i][3] & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", frame_num);
-   if (item[i][3] & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", frame_num);
-   if (item[i][3] & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", frame_num);
-*/
-
-
 }
 
 
@@ -1747,16 +1711,15 @@ void draw_block_manip(int i)
       al_draw_bitmap(tile[989], item[i][4], item[i][5], 0); // draw item shape in level editor, invisible when game running
    }
 
-   int draw_type = item[i][2];
-   if (draw_type)
+   if (item[i][2]) // draw mode on
    {
+      int col = item[i][12];
       float x1 = item[i][6];
       float y1 = item[i][7];
       float x2 = x1 + item[i][8];
       float y2 = y1 + item[i][9];
-      if (draw_type == 1) rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, 12, 12+96);
+      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96);
    }
-
 }
 
 

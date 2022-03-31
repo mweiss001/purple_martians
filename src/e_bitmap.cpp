@@ -2,6 +2,79 @@
 
 #include "pm.h"
 
+
+
+
+
+
+
+
+int select_bitmap(void)
+{
+   int quit = 0;
+   while (!quit)
+   {
+      proc_controllers();
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_draw_text(font, palette_color[9], 0, 642, 0, "Select a Bitmap with b1");
+      al_draw_text(font, palette_color[9], 0, 650, 0, "b2 or ESC to exit      ");
+
+      // draw 32x32 bitmaps
+      for (int y = 0; y < 32; y++)
+         for (int x = 0; x < 32; x++)
+            al_draw_bitmap(tile[x+(y*32)],x*20, y*20, 0);
+      al_draw_rectangle(0.5, 0.5, 640.5, 640.5, palette_color[13], 1);
+
+      if ((mouse_y < 640) && (mouse_x < 640))
+      {
+         int pointer = (mouse_x/20) + (mouse_y/20) * 32 ;
+         al_draw_textf(font, palette_color[13], 522, 648, 0, "pointer %-2d", pointer );
+         al_draw_bitmap(tile[pointer], 620, 642, 0);
+
+         al_draw_rectangle(518, 640.5, 640.5, 662.5, palette_color[13], 1);
+
+         if (mouse_b1)
+         {
+            while (mouse_b1) proc_controllers();
+            return pointer;
+         }
+      }
+      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
+      {
+         proc_controllers();
+         quit = 1;
+      }
+   }
+   return -1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int bmp_index = 0;
 int select_bitmap_ans(int zzindx)
 {
@@ -59,6 +132,12 @@ int select_bitmap_ans(int zzindx)
    }
    return -1;
 }
+
+
+
+
+
+
 
 int animation_proc()
 {
