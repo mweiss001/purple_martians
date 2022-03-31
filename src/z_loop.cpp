@@ -145,6 +145,8 @@ void proc_start_mode(int start_mode)
    clear_bmsg();
    clear_bullets();
    clear_keys();
+   clear_pm_events();
+
    show_player_join_quit_timer = 0;
    level_done_trig = 0;
    level_done_proc = 0;

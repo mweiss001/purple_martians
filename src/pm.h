@@ -107,6 +107,13 @@
 
 
 
+extern int pm_event[100];
+
+void clear_pm_events(void);
+
+
+
+
 // temp testing variable
 extern int tx1;
 extern int ty1;
@@ -1177,6 +1184,11 @@ void process_trigger(int);
 void draw_trigger(int);
 void set_item_trigger_location_from_lift(int, int);
 void detect_trigger_collisions(int i);
+
+
+void process_block_manip(int i);
+void draw_block_manip(int i);
+
 
 
 

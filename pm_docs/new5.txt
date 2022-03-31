@@ -15048,6 +15048,160 @@ make a switch that take an action input
 
 
 
+20220331 4:00AM
+
+made a new shape for item trigger in level editor
+made draw type work
+changed creator defaults
+re-arranged button and slider fuctions in sliders.cpp
+
+I could make the draw type able to choose color for the grid
+
+how many vars do I have left...lots...maybe later...
+
+next is to create something that will accept a trigger
+
+kind of like key and switch rolled into one...
+
+'block manipulation' but come up with a better name....
+
+strcpy (item_name[16],"Block Manip");
+
+do all the same stuff as the other item to not draw it...etc...
+
+
+
+
+where do I patch it in?
+
+what gets called every frame for items...move item
+
+
+
+
+
+
+move_items()
+void move_items()
+{
+   for (int i=0; i<500; i++)
+      if (item[i][0])
+      {
+         if      (item[i][0] == 9) process_trigger(i);
+         else if (item[i][0] == 16) process_block_manip(i);
+         else
+         {
+
+draw_items()
+if (item[i][0] == 16)
+{
+    draw_block_manip(i);
+    drawn = 1;
+}
+
+void proc_player_collisions(int p)
+{
+   al_fixed f10 = al_itofix(10);
+   al_fixed f16 = al_itofix(16);
+
+   // items
+   players1[p].potential_bomb_damage = 0;
+   players[p].marked_door = -1; // so player can touch only one door
+   for (int x=0; x<500; x++)
+   {
+      if ((item[x][0]) && (item[x][0] != 9) && (item[x][0] != 16))
+
+
+
+make a creator...done
+make shape..done
+
+viewer...done
+map...done
+buttons...
+
+
+now how am I going to set this up?
+
+
+
+item[][1] = pm_event_trigger
+
+item[][2] = draw mode
+
+item[][3] = mode
+
+
+
+
+item[][10] block 1
+item[][11] block 2
+
+0 none
+1 set all blocks to block1 (one time only)
+2 change all block2 to block1 (one time only)
+3 toggle block1 and block2
+
+
+im at the point I need to create pm_event...
+
+
+extern int pm_event[100];
+
+where to clear it? in start level stuff...
+
+I hooke in an event and it works!!! I am so excited!
+
+
+got to go...
+
+20220331 6:25 AM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
