@@ -605,6 +605,45 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             al_draw_line(x4, 0, x4, 100*db-1, palette_color[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
 
+
+
+
+
+
+            // show links
+            int cl = item[num][1];
+
+            // find other links
+            for (int i=0; i<500; i++)
+               if (item[i][0] == 9)
+                  if ((item[i][11] == cl) || (item[i][12] == cl) || (item[i][13] == cl) || (item[i][14] == cl))
+                  {
+
+                     int x5 = x1*db + db/2;
+                     int y5 = y1*db + db/2;
+
+                     int x6 = item[i][4]/20 * db + db/2;
+                     int y6 = item[i][5]/20 * db + db/2;
+
+                     al_draw_line(x5, y5, x6, y6, palette_color[10], 1);
+
+
+
+
+                  }
+
+
+
+
+
+
+
+
+
+
+
+
+
          }
          break;
 
@@ -1692,7 +1731,20 @@ void object_viewer(int obt, int num)
 
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 200,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // Get New Trigger Field
 
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 201,  num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2; // Draw Type
+
+                  if (FLAGS & PM_ITEM_TRIGGER_DRAW_ON)
+                  {
+                     int col = item[num][2];
+                     mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 201,  num, type, obt, 0, col, 15, 15, 1,0,0,0); a++; // Draw on/off
+                     mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  6,   num, type, obt, 0,  0,   0,  0, 0,0,0,0); a++; // color select
+
+                  }
+                  else
+                  {
+                     mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 201,  num, type, obt, 0, 15+96, 15+96, 15, 1,0,0,0); a++; // Draw on/off
+                  }
+                  a++;
+
 
 
                   if (FLAGS & PM_ITEM_TRIGGER_PLAYER) { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 202, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
@@ -1718,26 +1770,47 @@ void object_viewer(int obt, int num)
                   }
                   else { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 210, num, type, obt, 0, 15, 15,  0, 1,0,0,0); a++; } // Trigger Field follows lift:OFF
 
+                  a++;
 
+
+                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 93,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // trigger output CURR ON
+                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 94,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // trigger output CURR OFF
+                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 95,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // trigger output TGON
+                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 96,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // trigger output TGOF
 
 
                }
                break;
 
 
-
                case 16: // block manip
 
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 300,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // Get New Block Range
 
-                  mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 92,   num, type, obt, 0, 11, 15, 15, 1,0,0,0); a+=2; // pm_event trigger
+
+
+                  if (item[num][2])
+                  {
+                     int col = item[num][12];
+                     mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 304,  num, type, obt, 0, col, 15, 15, 1,0,0,0); a++; // Draw on/off
+                     mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  7,   num, type, obt, 0,  0,   0,  0, 0,0,0,0); a++; // color select
+
+                  }
+                  else
+                  {
+                     mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 304,  num, type, obt, 0, 15+96, 15+96, 15, 1,0,0,0); a++; // Draw on/off
+                  }
+                  a++;
 
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 301,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // mode
 
+                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 310,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a++;  // block 1
+                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 311,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // block 2
+
+                  mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 92,   num, type, obt, 0, 13, 15, 15, 1,0,0,0); a+=2; // pm_event trigger
+
 
                break;
-
-
 
 
                case 10: // message

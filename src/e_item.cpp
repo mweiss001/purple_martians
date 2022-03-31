@@ -313,9 +313,10 @@ int create_trigger(int i)
    // set the item location
    if (getxy("Set Trigger Location", 2, 9, i) == 1)
    {
-      item[i][0] = 9; // type 9 - trigger
-      item[i][2] = 1; // draw type
-      item[i][3] = PM_ITEM_TRIGGER_PLAYER;
+      item[i][0] = 9;  // type 9 - trigger
+      item[i][2] = 14; // draw color
+      item[i][3] |= PM_ITEM_TRIGGER_PLAYER;
+      item[i][3] |= PM_ITEM_TRIGGER_DRAW_ON;
       item[i][4] = get100_x*20;
       item[i][5] = get100_y*20;
    }

@@ -15157,6 +15157,139 @@ got to go...
 
 20220331 6:25 AM
 
+at work...
+20220331 8:20 AM
+
+add sliders to trigger...done
+
+
+this pm_event thing was very easy to implement, but the method I use is very naive..
+problems:
+
+one to many won't work because the receiver erases the pm_event
+same with many to one??
+
+what if I erase all events every loop, and not erase when received?
+that could work...
+
+then many input could read one output
+
+
+I also have an issue of the ordering of things...right now input and output happen in any order...
+depends on when each particular object is called..
+
+If I erase at the start of every frame...an object could be listening for one that only occurs after it...
+I don't have that problem with the other method...
+
+I'm going to stick with this simple methods for now....
+a solution could be special events the do the one to many or the many to one
+
+clean up trigger obt viewer....done....
+
+Set Events Always While On:
+Set Events Always While Off:
+Set Events When Switching On:
+Set Events When Switching Off:
+
+clean up Event Trigger in block manip...done...
+
+make a nice block selection button...kind of like color select...
+when you click it, you are prompted to select a block...done....
+
+made the modes work...nice!!!
+
+make block manip able to be hidden.....
+
+make trigger and block manip draw modes able to be colored....
+
+do trigger first then copy...
+need a var for color...or use draw_mode...0 == hidden
+
+color are implemented, but need to clean up in viewer...done
+
+
+wow this shit looks good!!
+
+what could I do to make it easier?
+
+in viewer, show thing that have matching events....
+
+in trigger, show block manip
+
+in block manip, show triggers
+
+
+where are they located?
+
+sources:
+
+trigger:
+item[][11]
+item[][12]
+item[][13]
+item[][14]
+
+destinations:
+
+block manip:
+item[1]
+
+what I did was...in bm show link to triggers
+
+make copying and pasting linked thing easier
+
+add the stuff to move the boxes in zfs copying
+also in there if you find linked item when copying make a new link...this will be complicated..but not impossible...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+now I really want to add another item called damage...just like the enemy...how many variables will I need?
+
+I might just barely be able to squeeze it in....
+
+item[][0]  = 17 - Block Damage
+item[][1]  = event trigger
+item[][2]  = damage draw type
+item[][3]  = flags
+item[][4]  = x pos (2000)
+item[][5]  = y pos (2000)
+item[][6]  = field x (2000)
+item[][7]  = field y (2000)
+item[][8]  = field w (2000)
+item[][9]  = field x (2000)
+item[][10] = lift number
+item[][11] = mode
+item[][12] = t1 val
+item[][13] = count
+item[][14] = t2 val
+item[][15] = damage
+
+
+
+
+20220331 1:49
+
+shut it down for a bit and do a push
+
+
+
+
+
+
+
+
+
 
 
 
