@@ -140,6 +140,16 @@ void fill_smsg_slider(int bn, int type, int num)
    }
 
 
+   if (bn == 97) sprintf(smsg, "Damage Field Follows Lift:%d", item[num][10]);
+
+
+   if (bn == 98) sprintf(smsg, "Player Damage:%d          ", item[num][15]); // item damage player damage amount
+
+
+   if (bn == 100) sprintf(smsg, "Total Time:%d",   item[num][12]);
+   if (bn == 101) sprintf(smsg, "Initial Time:%d", item[num][13]);
+   if (bn == 102) sprintf(smsg, "Damage Time:%d",  item[num][14]);
+
 
 
 
@@ -278,6 +288,19 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 96) item[num][14] = (int)f; // // trigger output TGOF
 
 
+   if (bn == 97)
+   {
+      item[num][10] = (int)f;                     // lift that damage field is slaved to
+      //set_item_damage_location_from_lift(num, 1);
+   }
+
+
+   if (bn == 98) item[num][15] = (int)f; // item damage player amount
+
+
+   if (bn == 100) item[num][12] = (int)f; // item damage total time
+   if (bn == 101) item[num][13] = (int)f; // item damage initial time
+   if (bn == 102) item[num][14] = (int)f; // item damage damage time
 
 }
 
@@ -378,6 +401,14 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 94: sul=99;   sll=0;     sinc=1;   sdx=item[num][12];                break;  // trigger output CURR OFF
       case 95: sul=99;   sll=0;     sinc=1;   sdx=item[num][13];                break;  // trigger output TGON
       case 96: sul=99;   sll=0;     sinc=1;   sdx=item[num][14];                break;  // trigger output TGOF
+
+      case 97: sul=39;   sll=0;     sinc=1;   sdx=item[num][10];               break;  // damage lift number
+
+      case 98: sul=99;   sll=0;     sinc=1;   sdx=item[num][15];               break;  // item damage player ammount
+
+      case 100: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage total time
+      case 101: sul=1000; sll=0;    sinc=1;   sdx=item[num][13];               break;  // item damage total time
+      case 102: sul=1000; sll=0;    sinc=1;   sdx=item[num][14];               break;  // item damage total time
 
    }
 
@@ -503,6 +534,54 @@ float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, i
    if (dm == 2) al_draw_rectangle(sx1-1, y1, sx2+1, y2, palette_color[15], 1);
    return f;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -715,27 +794,27 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    if (bn == 120)
    {
       if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_PLAYER) sprintf(smsg, "Affects Players:ON          ");
-      else                                            sprintf(smsg, "Affects Players:OFF         ");
+      else                                           sprintf(smsg, "Affects Players:OFF         ");
    }
    if (bn == 121)
    {
       if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_ENEMY)  sprintf(smsg, "Affects Enemies:ON          ");
-      else                                            sprintf(smsg, "Affects Enemies:OFF         ");
+      else                                           sprintf(smsg, "Affects Enemies:OFF         ");
    }
    if (bn == 122)
    {
       if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_ITEM)   sprintf(smsg, "Affects Items:ON            ");
-      else                                            sprintf(smsg, "Affects Items:OFF           ");
+      else                                           sprintf(smsg, "Affects Items:OFF           ");
    }
    if (bn == 123)
    {
       if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_PBUL)   sprintf(smsg, "Affects Player's Bullets:ON ");
-      else                                            sprintf(smsg, "Affects Player's Bullets:OFF");
+      else                                           sprintf(smsg, "Affects Player's Bullets:OFF");
    }
    if (bn == 124)
    {
       if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_EBUL)   sprintf(smsg, "Affects Enemy's Bullets:ON  ");
-      else                                            sprintf(smsg, "Affects Enemy's Bullets:OFF ");
+      else                                           sprintf(smsg, "Affects Enemy's Bullets:OFF ");
    }
 
 
@@ -958,6 +1037,128 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       int tn = item[num][11]; //block 1
       sprintf(smsg, "Block 2: %d", tn);
    }
+
+
+   if (bn == 401) // timer draw mode
+   {
+                                                 sprintf(smsg, "Timer Display: OFF          ");
+      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SN) sprintf(smsg, "Timer Display: Small Number ");
+      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BN) sprintf(smsg, "Timer Display: Large Number ");
+      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SP) sprintf(smsg, "Timer Display: Small Percent");
+      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BP) sprintf(smsg, "Timer Display: Large Percent");
+   }
+
+
+   if (bn == 402) // damage mode
+   {
+      if (item[num][11] == 0) sprintf(smsg, "MODE:Damage Field Always ON");
+      if (item[num][11] == 1) sprintf(smsg, "MODE:Damage Field Bullet Toggle");
+      if (item[num][11] == 2) sprintf(smsg, "MODE:Damage Field ON Until Triggered");
+      if (item[num][11] == 3) sprintf(smsg, "MODE:Damage Field OFF Until Triggered");
+      if (item[num][11] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF");
+   }
+
+
+
+
+   if (bn == 404) // Block Damage draw mode
+   {
+      if (item[num][2] == 0) sprintf(smsg, "Draw Type:none");
+      if (item[num][2] == 1) sprintf(smsg, "Draw Type:Red Rectangle (default)");
+      if (item[num][2] == 2) sprintf(smsg, "Draw Type:Spikey Floor");
+   }
+
+   if (bn == 410)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_LIFT_ON) sprintf(smsg, "Follows Lift:ON");
+      else sprintf(smsg, "Follows Lift:OFF");
+   }
+
+   if (bn == 411)
+   {
+      int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_XC;
+      int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_XF;
+      int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_XL;
+
+      if (C) sprintf(smsg, "Lift X Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
+      }
+   }
+
+   if (bn == 412)
+   {
+      int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_YC;
+      int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_YF;
+      int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_YL;
+
+      if (C) sprintf(smsg, "Lift Y Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
+      }
+   }
+
+
+
+
+
+   if (bn == 420)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_PLAYER) sprintf(smsg, "Affects Players:ON          ");
+      else                                      sprintf(smsg, "Affects Players:OFF         ");
+   }
+   if (bn == 421)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_ENEMY)  sprintf(smsg, "Affects Enemies:ON          ");
+      else                                      sprintf(smsg, "Affects Enemies:OFF         ");
+   }
+   if (bn == 422)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_ITEM)   sprintf(smsg, "Affects Items:ON            ");
+      else                                      sprintf(smsg, "Affects Items:OFF           ");
+   }
+   if (bn == 423)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_PBUL)   sprintf(smsg, "Affects Player's Bullets:ON ");
+      else                                      sprintf(smsg, "Affects Player's Bullets:OFF");
+   }
+   if (bn == 424)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_EBUL)   sprintf(smsg, "Affects Enemy's Bullets:ON  ");
+      else                                      sprintf(smsg, "Affects Enemy's Bullets:OFF ");
+   }
+
+
+   if (bn == 433)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_CURR) sprintf(smsg, "Damage Field Initially ON");
+      else sprintf(smsg, "Damage Field Initially OFF");
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
@@ -1564,28 +1765,138 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          }
 
 
-      if (bn == 301) // block manip mode
+      if (bn == 301) if (++item[num][3] > 3) item[num][3] = 0; // block manip mode
+
+      if (bn == 304) item[num][2] = !item[num][2]; // block manip draw mode
+
+      if (bn == 310) item[num][10] = select_bitmap();
+      if (bn == 311) item[num][11] = select_bitmap();
+
+
+
+
+      if (bn == 402) if (++item[num][11] > 4) item[num][11] = 0; // damage mode
+      if (bn == 404) if (++item[num][2] > 2) item[num][2] = 0; // draw mode
+
+      if (bn == 401) // timer draw mode
       {
-         item[num][3]++;
-         if (item[num][3] > 3) item[num][3] = 0;
+         if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SN)
+         {
+            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SN; // clear
+            item[num][3] |=  PM_ITEM_DAMAGE_TIMR_BN; // set
+         }
+         else if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BN)
+         {
+            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BN; // clear
+            item[num][3] |=  PM_ITEM_DAMAGE_TIMR_SP; // set
+         }
+         else if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SP)
+         {
+            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SP; // clear
+            item[num][3] |=  PM_ITEM_DAMAGE_TIMR_BP; // set
+         }
+         else if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BP)
+         {
+            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SN; // clear all
+            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BN; // clear all
+            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_SP; // clear all
+            item[num][3] &= ~PM_ITEM_DAMAGE_TIMR_BP; // clear all
+         }
+         else if ( (!(item[num][3] & PM_ITEM_DAMAGE_TIMR_SN))
+                && (!(item[num][3] & PM_ITEM_DAMAGE_TIMR_BN))
+                && (!(item[num][3] & PM_ITEM_DAMAGE_TIMR_SP))
+                && (!(item[num][3] & PM_ITEM_DAMAGE_TIMR_BP)) ) // all clear
+         {
+            item[num][3] |=  PM_ITEM_DAMAGE_TIMR_SN; // set
+         }
       }
 
 
-      if (bn == 304) // block manip draw mode
+      if (bn == 410) item[num][3] ^= PM_ITEM_DAMAGE_LIFT_ON;
+      if (bn == 411) // DAMAGE Field X Lift Alignment
       {
-         item[num][2] = !item[num][2];
+         int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_XC;
+         int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_XF;
+         int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_XL;
+
+
+         if (C)    // 1 X X
+         {  // set to 0 0 0
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XC; // clear C flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
+         }
+         else if ((!F) && (!L)) // 0 0 0
+         {               // set to 0 0 1
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XC; // clear C flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
+            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XL; // set   L flag
+         }
+         else if ((!F) && (L)) // 0 0 1
+         {              // set to 0 1 0
+            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XF; // set   F flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
+         }
+         else if ((F) && (!L)) // 0 1 0
+         {              // set to 0 1 1
+            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XF; // set   F flag
+            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XL; // set   L flag
+         }
+         else if ((F) && (L))  // 0 1 1
+         {              // set to 1 0 0
+            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_XC; // set   C flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XL; // clear L flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
+         }
+      }
+      if (bn == 412) // DAMAGE Field Y Lift Alignment
+      {
+         int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_YC;
+         int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_YF;
+         int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_YL;
+
+         if (C)    // 1 X X
+         {  // set to 0 0 0
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YC; // clear C flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
+         }
+         else if ((!F) && (!L)) // 0 0 0
+         {               // set to 0 0 1
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YC; // clear C flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
+            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YL; // set   L flag
+         }
+         else if ((!F) && (L)) // 0 0 1
+         {              // set to 0 1 0
+            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YF; // set   F flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
+         }
+         else if ((F) && (!L)) // 0 1 0
+         {              // set to 0 1 1
+            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YF; // set   F flag
+            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YL; // set   L flag
+         }
+         else if ((F) && (L))  // 0 1 1
+         {              // set to 1 0 0
+            item[num][3] |=  PM_ITEM_DAMAGE_LIFT_YC; // set   C flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YL; // clear L flag
+            item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
+         }
       }
 
+      if (bn == 420) item[num][3] ^= PM_ITEM_DAMAGE_PLAYER;
+      if (bn == 421) item[num][3] ^= PM_ITEM_DAMAGE_ENEMY;
+      if (bn == 422) item[num][3] ^= PM_ITEM_DAMAGE_ITEM;
+      if (bn == 423) item[num][3] ^= PM_ITEM_DAMAGE_PBUL;
+      if (bn == 424) item[num][3] ^= PM_ITEM_DAMAGE_EBUL;
+      if (bn == 433) item[num][3] ^= PM_ITEM_DAMAGE_CURR;
 
 
-//   if (bn == 302) item[num][3] ^= PM_ITEM_TRIGGER_DRAW_ON;
 
 
 
 
-
-   if (bn == 310) item[num][10] = select_bitmap();
-   if (bn == 311) item[num][11] = select_bitmap();
 
    } // end of mouse pressed on button
    return 0;

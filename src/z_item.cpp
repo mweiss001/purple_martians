@@ -606,6 +606,11 @@ void draw_items(void)
              drawn = 1;
          }
 
+         if (item[i][0] == 17)
+         {
+             draw_block_damage(i);
+             drawn = 1;
+         }
 
 
          if (item[i][0] == 99)
@@ -691,7 +696,8 @@ void draw_items(void)
          if (!drawn) al_draw_bitmap(tile[shape], x, y, 0);
 
          // if item is expiring show how many seconds left it has
-         if (item[i][14]>10) al_draw_textf(f3, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
+         if ((item[i][14]>10) && (item[i][0] != 9) && (item[i][0] != 16) && (item[i][0] != 17))
+            al_draw_textf(f3, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
 
 
       } // end of active item iterate
@@ -712,6 +718,7 @@ void move_items()
       {
          if      (item[i][0] == 9) process_trigger(i);
          else if (item[i][0] == 16) process_block_manip(i);
+         else if (item[i][0] == 17) process_block_damage(i);
          else
          {
 
@@ -1638,14 +1645,6 @@ void clear_pm_events(void)
 
 }
 
-/*
-      if (item[num][3] == 0) sprintf(smsg, "MODE:OFF");
-      if (item[num][3] == 1) sprintf(smsg, "MODE:Set All To Block 1");
-      if (item[num][3] == 2) sprintf(smsg, "MODE:Set All Block 2 To Block 1");
-      if (item[num][3] == 3) sprintf(smsg, "MODE:Toggle Block 2 To Block 1");
-*/
-
-
 void process_block_manip(int i)
 {
    int et = item[i][1]; // pm_event trigger we are looking for
@@ -1710,7 +1709,6 @@ void draw_block_manip(int i)
    {
       al_draw_bitmap(tile[989], item[i][4], item[i][5], 0); // draw item shape in level editor, invisible when game running
    }
-
    if (item[i][2]) // draw mode on
    {
       int col = item[i][12];
@@ -1726,6 +1724,277 @@ void draw_block_manip(int i)
 
 
 
+/*
+
+item[][0]  = 17 - Block Damage
+item[][1]  = event trigger number
+item[][2]  = damage draw type
+item[][3]  = flags
+#define PM_ITEM_DAMAGE_PLAYER   0b00000000000000001
+#define PM_ITEM_DAMAGE_ENEMY    0b00000000000000010
+#define PM_ITEM_DAMAGE_ITEM     0b00000000000000100
+#define PM_ITEM_DAMAGE_PBUL     0b00000000000001000
+#define PM_ITEM_DAMAGE_EBUL     0b00000000000010000
+#define PM_ITEM_DAMAGE_CURR     0b00000000000100000
+#define PM_ITEM_DAMAGE_LIFT_ON  0b00000000001000000
+#define PM_ITEM_DAMAGE_LIFT_XC  0b00000000010000000
+#define PM_ITEM_DAMAGE_LIFT_XF  0b00000000100000000
+#define PM_ITEM_DAMAGE_LIFT_XL  0b00000001000000000
+#define PM_ITEM_DAMAGE_LIFT_YC  0b00000010000000000
+#define PM_ITEM_DAMAGE_LIFT_YF  0b00000100000000000
+#define PM_ITEM_DAMAGE_LIFT_YL  0b00001000000000000
+
+item[][4]  = x pos   (2000)
+item[][5]  = y pos   (2000)
+item[][6]  = field x (2000)
+item[][7]  = field y (2000)
+item[][8]  = field w (2000)
+item[][9]  = field h (2000)
+item[][10] = lift number
+item[][11] = mode
+item[][12] = t1 val
+item[][13] = count
+item[][14] = t2 val
+item[][15] = damage
+
+*/
+
+
+
+void set_item_damage_location_from_lift(int i, int a20)
+{
+   int d = item[i][10]; // lift number
+   if (d < num_lifts) // only proceed if lift number is valid
+   {
+      // x axis
+      int lx1 = lifts[d].x1;
+      int lx2 = lifts[d].x2;
+      int C = item[i][3] & PM_ITEM_DAMAGE_LIFT_XC;
+      int F = item[i][3] & PM_ITEM_DAMAGE_LIFT_XF;
+      int L = item[i][3] & PM_ITEM_DAMAGE_LIFT_XL;
+      if (C)
+      {
+         int lxc = lx1 + (lx2-lx1)/2; // get center of lift
+         item[i][6] = lxc - item[i][8]/2;
+      }
+      else
+      {
+         if ((!F) && (!L)) item[i][6] = lx1;              // fx1 = lx1
+         if ((!F) && ( L)) item[i][6] = lx2;              // fx1 = lx2
+         if (( F) && (!L)) item[i][6] = lx1 - item[i][8]; // fx2 = lx1
+         if (( F) && ( L)) item[i][6] = lx2 - item[i][8]; // fx2 = lx2
+      }
+      // y axis
+      int ly1 = lifts[d].y1;
+      int ly2 = lifts[d].y2;
+      C = item[i][3] & PM_ITEM_DAMAGE_LIFT_YC;
+      F = item[i][3] & PM_ITEM_DAMAGE_LIFT_YF;
+      L = item[i][3] & PM_ITEM_DAMAGE_LIFT_YL;
+
+      if (C)
+      {
+         int lyc = ly1 + (ly2-ly1)/2; // get center of lift
+         item[i][7] = lyc - item[i][9]/2;
+      }
+      else
+      {
+         if ((!F) && (!L)) item[i][7] = ly1;              // fy1 = ly1
+         if ((!F) && ( L)) item[i][7] = ly2;              // fy1 = ly2
+         if (( F) && (!L)) item[i][7] = ly1 - item[i][9]; // fy2 = ly1
+         if (( F) && ( L)) item[i][7] = ly2 - item[i][9]; // fy2 = ly2
+      }
+      if (a20) // align to 20 grid
+      {
+         item[i][6] = round20(item[i][6]);
+         item[i][7] = round20(item[i][7]);
+      }
+   }
+}
+
+
+
+
+
+void proc_item_damage_collisions(int i)
+{
+   int FLAGS = item[i][3];
+   int cd = FLAGS & PM_ITEM_DAMAGE_CURR;                 // damage active
+   int cdp =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_PLAYER)); // damage active and player flag
+   int cde =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_ENEMY));  // damage active and enemy flag
+   int cdi =  ((cd) && (FLAGS & PM_ITEM_DAMAGE_ITEM));   // damage active and item flag
+   int cdpb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_PBUL));   // damage active and player bullet flag
+   int cdeb = ((cd) && (FLAGS & PM_ITEM_DAMAGE_EBUL));   // damage active and enemy bullet flag
+
+   // damage field
+   al_fixed tfx1 = al_itofix(item[i][6]-10);
+   al_fixed tfy1 = al_itofix(item[i][7]-10);
+   al_fixed tfx2 = tfx1 + al_itofix(item[i][8]);
+   al_fixed tfy2 = tfy1 + al_itofix(item[i][9]);
+
+   if (cdp)
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((players[p].active) && (!players[p].paused))
+         {
+            al_fixed x = players[p].PX;
+            al_fixed y = players[p].PY;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
+            {
+               players[p].LIFE -= al_fixdiv(al_itofix(item[i][15]), al_itofix(100));
+               //game_event(57, 0, 0, p, i, 0, 0);
+            }
+         }
+   if (cde)
+      for (int e2=0; e2<100; e2++)
+         if (Ei[e2][0])
+         {
+            al_fixed x = Efi[e2][0];
+            al_fixed y = Efi[e2][1];
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
+            {
+               Ei[e2][31] = 3;           // flag that this enemy got shot with bullet
+               //Ei[e2][26] = x;           // number of player's bullet that hit enemy
+            }
+         }
+   if (cdi)
+      for (int i=0; i<500; i++)
+         if (item[i][0])
+         {
+            al_fixed x = itemf[i][0];
+            al_fixed y = itemf[i][1];
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
+            {
+               if (item[i][0] != 66)
+               {
+                  //item[i][0] = 66;
+                  item[i][14] = 10;
+               }
+            }
+         }
+   if (cdpb) // check player bullets
+      for (int b=0; b<50; b++)
+         if (pbullet[b][0])
+         {
+            al_fixed x = al_itofix(pbullet[b][2]);
+            al_fixed y = al_itofix(pbullet[b][3]);
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) pbullet[b][0] = 0; // kill the bullet
+         }
+   if (cdeb) // check enemy bullets
+      for (int b=0; b<50; b++)
+         if (e_bullet_active[b])
+         {
+            al_fixed x = e_bullet_fx[b];
+            al_fixed y = e_bullet_fy[b];
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) e_bullet_active[b] = 0; // kill the bullet
+         }
+}
+
+
+
+void draw_block_damage(int i)
+{
+   int draw_mode = item[i][2];
+   int mode = item[i][11];
+   int FLAGS = item[i][3];
+
+   float x0 = item[i][4];
+   float y0 = item[i][5];
+   float x1 = item[i][6];
+   float y1 = item[i][7];
+   float x2 = x1 + item[i][8];
+   float y2 = y1 + item[i][9];
+
+   if (level_editor_running)
+   {
+      al_draw_bitmap(tile[988], x0, y0, 0); // draw item shape in level editor, invisible when game running
+      if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 1); // set this here only when level editor is running
+   }
+
+   // damage field drawing
+   if (draw_mode == 1) // basic
+   {
+      int col = 11;
+      if (FLAGS & PM_ITEM_DAMAGE_CURR) col = 10;
+      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96);
+   }
+
+   if (draw_mode == 2) // spikey floor
+   {
+      int tn = 808;
+      if (FLAGS & PM_ITEM_DAMAGE_CURR) tn = 807;
+      for (int hx = x1; hx<x2; hx+=20)
+         al_draw_bitmap(tile[tn], hx, y2-20, 0); // draw extended spikes only on bottom row
+   }
+
+
+   // timer drawing
+
+   int timer_draw_mode1 = item[i][3] & PM_ITEM_DAMAGE_TIMR_SN;
+   int timer_draw_mode2 = item[i][3] & PM_ITEM_DAMAGE_TIMR_BN;
+   int timer_draw_mode3 = item[i][3] & PM_ITEM_DAMAGE_TIMR_SP;
+   int timer_draw_mode4 = item[i][3] & PM_ITEM_DAMAGE_TIMR_BP;
+
+
+   int col = 15;
+
+   if ((mode == 2) || (mode == 3))
+   {
+      if (((timer_draw_mode1) || (timer_draw_mode2)) && (item[i][13] > 0)) // small or big number and timer is running
+      {
+         // time to show
+         int tts = (item[i][13]); // raw (40ths of a second)
+         //int tts = (item[i][13] / 40); // seconds
+         //int tts = (item[i][13] / 4); // tenths of a second
+         //int tts = (item[i][13] / 8); // fifths of a second
+
+         if (mode == 2) col = 11;
+         if (mode == 3) col = 10;
+         if (timer_draw_mode1) al_draw_textf(f3,   palette_color[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+
+      }
+      if ((timer_draw_mode3) || (timer_draw_mode4)) // percent bar
+      {
+         int percent = 0;
+         if (mode == 2) percent =       ((item[i][13]) * 100) / item[i][12];
+         if (mode == 3) percent = 100 - ((item[i][13]) * 100) / item[i][12];
+
+         if (timer_draw_mode3) draw_percent_bar(x0+9, y0 +5, 32, 8,  percent);
+         if (timer_draw_mode4) draw_percent_bar(x0+9, y0 +1, 64, 16, percent);
+
+      }
+   }
+   if (mode == 4)
+   {
+      int tt = item[i][12]; // total time
+      int ct = item[i][13]; // current time
+      int st = item[i][14]; // switch time
+
+      int percent = 0;
+      int tts = 0;
+      int col = 0;
+
+      if (ct >= st) // upper range, damage off
+      {
+         int gt = tt-st; // total time in the upper
+         int dt = ct-st; // current time relative to that
+         percent = 100 - (dt * 100) / gt;
+         tts = (dt / 4) + 1;
+         col = 11;
+      }
+      else // lower range, damage on
+      {
+         int gt = st; // total time in lower
+         int dt = ct; // current time relative to that
+         tts = (dt / 4) + 1;
+         percent = (dt * 100) / gt;
+         col = 10;
+      }
+
+      if (timer_draw_mode1) al_draw_textf(f3,   palette_color[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
+      if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+      if (timer_draw_mode3) draw_percent_bar(x0+9, y0+5, 32, 8,  percent);
+      if (timer_draw_mode4) draw_percent_bar(x0+9, y0+1, 64, 16, percent);
+   }
 
 
 
@@ -1734,6 +2003,89 @@ void draw_block_manip(int i)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+void process_block_damage(int i)
+{
+   int et = item[i][1];      // number of pm_event trigger we are looking for
+   int FLAGS = item[i][3];
+   int mode = item[i][11];
+
+
+   if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 0); // follow lift location
+
+   proc_item_damage_collisions(i);
+
+   if (mode == 0) item[i][3] |= PM_ITEM_DAMAGE_CURR; // in mode 0, always set damage flag
+
+   if (mode == 1)
+   {
+      if (pm_event[et])
+      {
+          item[i][3] ^= PM_ITEM_DAMAGE_CURR; // toggle current damage flag
+          pm_event[et] = 0;
+      }
+   }
+   if (mode == 2) // damage unless timer running  (no damage when triggered)
+   {
+      if (pm_event[et])
+      {
+          item[i][13] = item[i][12]; // reset timer
+          pm_event[et] = 0;
+      }
+      if (item[i][13] == 0) item[i][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
+      else                  item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // set damage off
+   }
+   if (mode == 3) // damage when timer is running (no damage until triggered)
+   {
+      if (pm_event[et])
+      {
+          item[i][13] = item[i][12]; // reset timer
+          pm_event[et] = 0;
+      }
+      if (item[i][13] > 0) item[i][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
+      else                 item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // set damage off
+   }
+   if (mode == 4) // timed on and off
+   {
+      // timer will run outside this function always, but in this mode, when it gets to zero, we will reset it
+      if (item[i][13] == 0) item[i][13] = item[i][12];  // reset timer
+      if (item[i][13] < item[i][14]) item[i][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
+      else                           item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // set damage off
+   }
+   if (--item[i][13] < 0) item[i][13] = 0; // always run timer
+}
 
 
 
@@ -1877,10 +2229,10 @@ item[][9] timer bonus  (ignored now)
 item[][8] exit with x enemies left
 
 [4] - key
-item[][6]  block range x (100)
-item[][7]  block range y (100)
-item[][8]  block range width (100)
-item[][9]  block range height (100)
+item[][6]  block range x1 (100)
+item[][7]  block range y1 (100)
+item[][8]  block range x2 (100)
+item[][9]  block range y2 (100)
 item[][10] rotation for key move
 item[][11] counter for key move
 item[][12] matching keyed blocks only
