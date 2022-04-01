@@ -1807,6 +1807,9 @@ void object_viewer(int obt, int num)
                {
                   int FLAGS = item[num][3];
 
+                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 400,  num, type, obt, 0, 10, 10, 10, 1,0,0,0); a+=2; // Get New Damage Field
+
+
 
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 404,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // damage draw mode
 

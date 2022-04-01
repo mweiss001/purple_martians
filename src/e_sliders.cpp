@@ -930,8 +930,8 @@ void fill_smsg_button(int bn, int obt, int type, int num)
 
    if (bn == 201) // Item Trigger Draw Type
    {
-      if (item[num][3] & PM_ITEM_TRIGGER_DRAW_ON) sprintf(smsg, "Draw Trigger:ON          ");
-      else                                        sprintf(smsg, "Draw Trigger:OFF         ");
+      if (item[num][3] & PM_ITEM_TRIGGER_DRAW_ON) sprintf(smsg,"Draw Trigger Field:ON            ");
+      else                                        sprintf(smsg,"Draw Trigger Field:OFF           ");
    }
 
 
@@ -1006,7 +1006,7 @@ void fill_smsg_button(int bn, int obt, int type, int num)
 
 
 
-   if (bn == 300) sprintf(smsg, "Get New Block Manip Range"); // item
+   if (bn == 300) sprintf(smsg, "Get New Block Manip Field"); // item
 
 
 
@@ -1020,8 +1020,8 @@ void fill_smsg_button(int bn, int obt, int type, int num)
 
    if (bn == 304) // Block Manip Draw
    {
-      if (item[num][2])  sprintf(smsg, "Draw Block :ON     ");
-      else               sprintf(smsg, "Draw Block :OFF    ");
+      if (item[num][2])  sprintf(smsg, "Draw Block Manip Field:ON     ");
+      else               sprintf(smsg, "Draw Block Manip Field:OFF    ");
    }
 
 
@@ -1037,6 +1037,10 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       int tn = item[num][11]; //block 1
       sprintf(smsg, "Block 2: %d", tn);
    }
+
+
+   if (bn == 400) sprintf(smsg, "Get New Block Damage Field"); // item
+
 
 
    if (bn == 401) // timer draw mode
@@ -1063,9 +1067,9 @@ void fill_smsg_button(int bn, int obt, int type, int num)
 
    if (bn == 404) // Block Damage draw mode
    {
-      if (item[num][2] == 0) sprintf(smsg, "Draw Type:none");
-      if (item[num][2] == 1) sprintf(smsg, "Draw Type:Red Rectangle (default)");
-      if (item[num][2] == 2) sprintf(smsg, "Draw Type:Spikey Floor");
+      if (item[num][2] == 0) sprintf(smsg, "Block Damage Field Draw Type:none                   ");
+      if (item[num][2] == 1) sprintf(smsg, "Block Damage Field Draw Type:Red Rectangle (default)");
+      if (item[num][2] == 2) sprintf(smsg, "Block Damage Field Draw Type:Spikey Floor           ");
    }
 
    if (bn == 410)
@@ -1143,28 +1147,14 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       else sprintf(smsg, "Damage Field Initially OFF");
    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 
-
+//------------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -1773,6 +1763,18 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 311) item[num][11] = select_bitmap();
 
 
+      if (bn == 400)
+         if (getbox("Draw New Block Damage Rectangle", 2, 17, num))
+         {
+            if (bx2 < bx1) bx2 = bx1;
+            if (by2 < by1) by2 = by1;
+            item[num][6] = bx1*20;
+            item[num][7] = by1*20;
+            item[num][8] = (bx2-bx1)*20;
+            item[num][9] = (by2-by1)*20;
+            Redraw = 1;
+         }
+
 
 
       if (bn == 402) if (++item[num][11] > 4) item[num][11] = 0; // damage mode
@@ -1914,22 +1916,18 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
    al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
 
    // draw colors (1-15)
-   float a = x2-x1;      // range
-   float b = a/15;       // color swatch width
-   if (b<2) b = 2; // min width
+   float a = x2-x1; // range
+   float b = a/15;  // color swatch width
+   if (b<2) b = 2;  // min width
    for (int c=0; c<15; c++)
       al_draw_filled_rectangle((int)(x1+c*b), y1, (int)(b+x1+c*b), y2, palette_color[(int)c+1]);
 
-   // draw text
    if (bn == 2) sprintf(smsg, "Select Text Color");
    if (bn == 3) sprintf(smsg, "Select Frame Color");
    if (bn == 4) sprintf(smsg, "Select Lift Color");
    if (bn == 5) sprintf(smsg, "Select Door Color");
-
-   if (bn == 6) sprintf(smsg, "Select Trigger Color");
-
-   if (bn == 7) sprintf(smsg, "Select Block Manip Color");
-
+   if (bn == 6) sprintf(smsg, "Select Trigger Field Color");
+   if (bn == 7) sprintf(smsg, "Select Block Manip Field Color");
 
    al_draw_text(font, palette_color[0], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
