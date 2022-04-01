@@ -15419,6 +15419,33 @@ make the viewer menu look good.....
 
 20220401 6:20 AM  push....
 
+10:30 AM
+
+back...
+
+add get new box button...
+
+
+fix the bitmap shown for draw item and in viewers.........
+
+
+
+
+
+Draw Trigger Field:ON
+Draw Trigger Field:OFF
+Trigger Field Color
+
+Draw Block Manip Field:ON
+Draw Block Manip Field:OFF
+Block Manip Field Color
+
+
+Damage Field Draw Type:
+
+
+Draw Block Damage Field:OFF
+Block Damage Field Color
 
 
 

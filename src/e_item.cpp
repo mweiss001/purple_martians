@@ -348,9 +348,10 @@ int create_block_manip(int i)
    if (getxy("Set Block Manip Location", 2, 16, i) == 1)
    {
       item[i][0] = 16; // type 16 - block manip
-      item[i][2] = 1; // draw type
+      item[i][2] = 1; // draw mode on
       item[i][4] = get100_x*20;
       item[i][5] = get100_y*20;
+      item[i][12] = 12; // default color
    }
    else bad = 1;
    // then set the block range
