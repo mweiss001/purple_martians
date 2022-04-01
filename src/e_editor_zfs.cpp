@@ -691,6 +691,14 @@ void save_selection(int save)
                ft_item[c][8] = item[b][8] - stx;
                ft_item[c][9] = item[b][9] - sty;
             }
+
+
+            if ((item[b][0] == 9) || (item[b][0] == 16) || (item[b][0] == 17)) // trigger, manip, damage
+            {   // set new destination
+               ft_item[c][6] = item[b][6] - stx*20;
+               ft_item[c][7] = item[b][7] - sty*20;
+            }
+
             if (item[b][0] == 10) // message
             {
                ft_item[c][10] = item[b][10] - stx;
@@ -1012,6 +1020,14 @@ void do_fcopy(int qx1, int qy1)
                   {
                      item[c][4] = enforce_limit(item[c][4], 0, 1980);
                      item[c][5] = enforce_limit(item[c][5], 0, 1980);
+                  }
+
+
+                  if ((item[c][0] == 9) || (item[c][0] == 16) || (item[c][0] == 17)) // trigger, manip, damage
+                  {
+                     item[c][6] += qx1*20;
+                     item[c][7] += qy1*20;
+                     // really should do some bounds checks here
                   }
 
                   if (item[c][0] == 4) // // set new key block range

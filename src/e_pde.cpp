@@ -471,7 +471,7 @@ int process_select_window(int draw_only)
                         case 13: create_obj(3, 10, 0); break; // type 212 - field
                         case 14: create_obj(2, 9, 0); break;  // type 213 - trigger
                         case 15: create_obj(2, 16, 0); break;  // type 214 - block manip
-
+                        case 16: create_obj(2, 17, 0); break;  // type 215 - block damage
                      }
                      draw_big(1);
                      return 1001;

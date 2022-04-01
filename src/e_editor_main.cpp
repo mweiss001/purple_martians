@@ -656,30 +656,42 @@ int edit_menu(int el)
             }
             break;
             case 2:  // item
+            {
                c = get_empty_item(); // get a place to put it
+               int din = draw_item_num;
+               int di = item[din][0];
                if (c == -1)  break;
                // copy
                for (b=0; b<16; b++) // copy from draw item
-                  item[c][b] = item[draw_item_num][b];
+                  item[c][b] = item[din][b];
                item[c][4]= x100*20; // get x
                item[c][5]= y100*20; // get y
 
-               if (item[draw_item_num][0] == 4) // key )
+               if (di == 4) // key
                   if (al_show_native_message_box(display, "Move?", "Move the key's block range also?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                   {
-                     item[c][6] = item[draw_item_num][6] + x100 - item[draw_item_num][4]/20; // move x
-                     item[c][7] = item[draw_item_num][7] + y100 - item[draw_item_num][5]/20;
-                     item[c][8] = item[draw_item_num][8] + x100 - item[draw_item_num][4]/20;
-                     item[c][9] = item[draw_item_num][9] + y100 - item[draw_item_num][5]/20;
+                     item[c][6] = item[din][6] + x100 - item[din][4]/20; // move x
+                     item[c][7] = item[din][7] + y100 - item[din][5]/20;
+                     item[c][8] = item[din][8] + x100 - item[din][4]/20;
+                     item[c][9] = item[din][9] + y100 - item[din][5]/20;
                   }
-               if (item[draw_item_num][0] == 10) // msg)
+
+               if ((di == 9) || (di == 16) || (di == 17)) // trigger, manip, damage
+               {
+                  item[c][6] = item[din][6] + (x100*20) - item[din][4]; // move field relative to item move
+                  item[c][7] = item[din][7] + (y100*20) - item[din][5];
+               }
+
+
+               if (item[din][0] == 10) // msg)
                {
                   free (pmsg[c]);
-                  pmsg[c] = (char*) malloc (strlen(pmsg[draw_item_num])+1);
-                  strcpy(pmsg[c], pmsg[draw_item_num]);
+                  pmsg[c] = (char*) malloc (strlen(pmsg[din])+1);
+                  strcpy(pmsg[c], pmsg[din]);
                }
                sort_item();
                draw_big(1);
+            }
             break;
             case 3:    // enemy
             {

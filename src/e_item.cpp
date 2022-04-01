@@ -349,7 +349,6 @@ int create_block_manip(int i)
    {
       item[i][0] = 16; // type 16 - block manip
       item[i][2] = 1; // draw type
-//      item[i][3] = PM_ITEM_TRIGGER_PLAYER;
       item[i][4] = get100_x*20;
       item[i][5] = get100_y*20;
    }
@@ -372,7 +371,39 @@ int create_block_manip(int i)
    else return 1;
 }
 
+int create_block_damage(int i)
+{
+   int bad = 0;
 
+   // set the item location
+   if (getxy("Set Block Damage Location", 2, 17, i) == 1)
+   {
+      item[i][0] = 17; // type 16 - block damage
+      item[i][2] = 1;  // draw type
+
+      item[i][3] |= PM_ITEM_DAMAGE_CURR;
+
+      item[i][4] = get100_x*20;
+      item[i][5] = get100_y*20;
+   }
+   else bad = 1;
+   // then set the block range
+   if (!bad)
+   {
+      if (getbox("Draw Block Damage Rectangle", 2, 17, i))
+      {
+         if (bx2 < bx1) bx2 = bx1;
+         if (by2 < by1) by2 = by1;
+         item[i][6] = bx1*20;
+         item[i][7] = by1*20;
+         item[i][8] = (bx2-bx1)*20;
+         item[i][9] = (by2-by1)*20;
+      }
+      else bad = 1;
+   }
+   if (bad) return 0;
+   else return 1;
+}
 
 
 
@@ -812,18 +843,19 @@ int create_door(int type)
 int create_item(int type)
 {
    // check for no creator
-   if ((type != 1) && (type != 3) && (type != 4) && (type != 5) && (type != 9) && (type != 10) && (type != 16)) return 9999;
+   if ((type != 1) && (type != 3) && (type != 4) && (type != 5) && (type != 9) && (type != 10) && (type != 16) && (type != 17)) return 9999;
 
    int i = get_empty_item(type); // get a place to put it
    if (i > 499) return i; // no items
    switch (type)
    {
-      case 3:  if (!create_exit(i))        erase_item(i); break;
-      case 4:  if (!create_key(i))         erase_item(i); break;
-      case 5:  if (!create_start_block(i)) erase_item(i); break;
-      case 9:  if (!create_trigger(i))     erase_item(i); break;
-      case 10: if (!create_pmsg(i))        erase_item(i); break;
-      case 16: if (!create_block_manip(i)) erase_item(i); break;
+      case 3:  if (!create_exit(i))         erase_item(i); break;
+      case 4:  if (!create_key(i))          erase_item(i); break;
+      case 5:  if (!create_start_block(i))  erase_item(i); break;
+      case 9:  if (!create_trigger(i))      erase_item(i); break;
+      case 10: if (!create_pmsg(i))         erase_item(i); break;
+      case 16: if (!create_block_manip(i))  erase_item(i); break;
+      case 17: if (!create_block_damage(i)) erase_item(i); break;
    }
 
    sort_item();

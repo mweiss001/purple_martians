@@ -619,6 +619,7 @@ void menu_setup(void)
    strcpy (item_name[14],"Switch");
    strcpy (item_name[15],"Sproingy");
    strcpy (item_name[16],"Block Manip");
+   strcpy (item_name[17],"Block Damage");
 
 
 

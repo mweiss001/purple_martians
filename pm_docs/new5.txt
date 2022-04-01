@@ -13118,7 +13118,7 @@ void proc_field_collision(int p, int x, int b)
 now add slider to adjust the amount of damage....done...reused the same one as all other enemies
 ...does it also work for the main enemy?...no...collision box..set to 10 and still no..
 
-I don't have and specific code to handle this type of enemy....
+I don't have any specific code to handle this type of enemy....
 
 
 added this line to move_enemies()
@@ -15242,18 +15242,6 @@ add the stuff to move the boxes in zfs copying
 also in there if you find linked item when copying make a new link...this will be complicated..but not impossible...
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 now I really want to add another item called damage...just like the enemy...how many variables will I need?
 
 I might just barely be able to squeeze it in....
@@ -15281,6 +15269,170 @@ item[][15] = damage
 20220331 1:49
 
 shut it down for a bit and do a push
+
+
+
+
+
+
+
+20220331 5:00PM
+
+make it so that when I move trigger and bm the box moves too...where is that????
+
+
+in zfs
+void save_selection(int save)
+
+            if (item[b][0] == 4) // key
+            {   // set new destination
+               ft_item[c][6] = item[b][6] - stx;
+               ft_item[c][7] = item[b][7] - sty;
+               ft_item[c][8] = item[b][8] - stx;
+               ft_item[c][9] = item[b][9] - sty;
+            }
+
+
+            if (item[b][0] == 9) // trigger
+            {   // set new destination
+               ft_item[c][6] = item[b][6] - stx*20;
+               ft_item[c][7] = item[b][7] - sty*20;
+            }
+
+
+
+in
+
+void do_fcopy(int qx1, int qy1)
+{
+
+                  if (item[c][0] == 9) // // move trigger rect
+                  {
+                     // apply offsets
+                     item[c][6] += qx1*20;
+                     item[c][7] += qy1*20;
+
+                     //item[c][8] += qx1;
+                     //item[c][9] += qy1;
+/*
+                     if (erase_out_of_bounds_secondary)
+                     {
+                        if (check_limit(item[c][6], 0, 99)) lim = 1;
+                        if (check_limit(item[c][7], 0, 99)) lim = 1;
+                        if (check_limit(item[c][8], 0, 99)) lim = 1;
+                        if (check_limit(item[c][9], 0, 99)) lim = 1;
+                     }
+                     else // adjust if out of bounds
+                     {
+                        item[c][6] = enforce_limit(item[c][6], 0, 99);
+                        item[c][7] = enforce_limit(item[c][7], 0, 99);
+                        item[c][8] = enforce_limit(item[c][8], 0, 99);
+                        item[c][9] = enforce_limit(item[c][9], 0, 99);
+                     }
+*/
+
+                  }
+i really should do some boundary checks...
+
+now for the regular move from draw item...
+
+
+
+               if (item[draw_item_num][0] == 9) // trigger
+                  //if (al_show_native_message_box(display, "Move?", "Move the range also?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+                  {
+                     item[c][6] = item[draw_item_num][6] + (x100*20) - item[draw_item_num][4]; // move x
+                     item[c][7] = item[draw_item_num][7] + (y100*20) - item[draw_item_num][5];
+                  }
+
+               if (item[draw_item_num][0] == 16) // block manip
+                  //if (al_show_native_message_box(display, "Move?", "Move the range also?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+                  {
+                     item[c][6] = item[draw_item_num][6] + (x100*20) - item[draw_item_num][4]; // move x
+                     item[c][7] = item[draw_item_num][7] + (y100*20) - item[draw_item_num][5];
+                  }
+
+
+
+
+this is all good now...
+copying trigger and bm now move range relative to main item...
+
+
+now can I do something magic about the links?
+
+should I start making the damage item?
+
+lots of it would be just copied from field enemy
+
+
+make a creator...done
+patch draw...done
+patch move...done
+player collision...done
+
+title obj...done
+map move...done
+
+zfs copy...done
+draw item copy...done
+
+drawing mode...done
+lift mode...done
+
+next is mode and timers...
+
+event slider...done
+
+implement the flags for damage...slider done
+do collisions.....done
+
+current damage button...done
+
+for player damage add a flag to make it instant death.....
+
+sliders for timers...done
+ttl is showing for bd...made code to ignore items 9, 16, 17...done
+
+finish modes...done
+
+do drawing timer counts....done...
+I have no variables left...make 2 flags for 4 combos..what about off?
+the less complicated way would be to use 4 flags, one for each...
+
+#define PM_ITEM_DAMAGE_TIMR_SN  0b00010000000000000
+#define PM_ITEM_DAMAGE_TIMR_BN  0b00100000000000000
+#define PM_ITEM_DAMAGE_TIMR_SP  0b01000000000000000
+#define PM_ITEM_DAMAGE_TIMR_BP  0b10000000000000000
+
+made button and implemented....done
+
+
+seem slike all this is working...
+
+still to do...
+
+add player instant death option...flag and button...
+
+make the viewer menu look good.....
+
+
+20220401 6:20 AM  push....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

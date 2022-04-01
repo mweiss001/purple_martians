@@ -590,7 +590,7 @@ void proc_player_collisions(int p)
    players[p].marked_door = -1; // so player can touch only one door
    for (int x=0; x<500; x++)
    {
-      if ((item[x][0]) && (item[x][0] != 9) && (item[x][0] != 16))
+      if ((item[x][0]) && (item[x][0] != 9) && (item[x][0] != 16) && (item[x][0] != 17))
       {
          al_fixed ix1 = itemf[x][0] - f16;
          al_fixed ix2 = itemf[x][0] + f16;

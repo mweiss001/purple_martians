@@ -1982,8 +1982,8 @@
 0
 0
 0
-999
-0
+215
+988
 0
 0
 0
@@ -5040,7 +5040,7 @@ Step 2 - Set Trigger Field
 
  
  
- 
+ Block Damage
  
  
  
