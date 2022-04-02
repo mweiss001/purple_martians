@@ -91,7 +91,7 @@
 #define PM_ITEM_DAMAGE_TIMR_BN  0b00100000000000000
 #define PM_ITEM_DAMAGE_TIMR_SP  0b01000000000000000
 #define PM_ITEM_DAMAGE_TIMR_BP  0b10000000000000000
-
+#define PM_ITEM_DAMAGE_INSTGIB  0b10000000000000000
 
 
 
@@ -128,7 +128,7 @@
 
 
 
-extern int pm_event[100];
+extern int pm_event[1000];
 
 void clear_pm_events(void);
 
@@ -1150,6 +1150,14 @@ int load_gm(const char *sfname);
 
 // z_fnx.h
 int round20(int val);
+
+int get_unused_pm_event(void);
+
+int get_trigger_item(const char *txt, int obj_type, int sub_type, int num );
+void find_and_show_event_links(int i); // assume for now that this just gets called with item type 16 and 17
+
+
+
 void clear_game_moves(void);
 void get_hostname(void);
 void make_palette(void);

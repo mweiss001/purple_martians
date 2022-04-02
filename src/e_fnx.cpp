@@ -524,6 +524,178 @@ int getxy(const char *txt, int obj_type, int sub_type, int num )
 }
 
 
+
+
+
+
+void find_and_show_event_links(int i) // assume for now that this just gets called with item type 16 and 17
+{
+   int ev = item[i][1];
+   int x1 = item[i][4]/20*db + db/2;
+   int y1 = item[i][5]/20*db + db/2;
+
+   if (ev > 0) // don't do anything for link if zero
+   {
+
+      for (int i2=0; i2<500; i2++)
+      {
+         if ((item[i2][0] == 9) && ((item[i2][11] == ev) || (item[i2][12] == ev) || (item[i2][13] == ev) || (item[i2][14] == ev)))
+         {
+            // found a match with a trigger
+            int x2 = item[i2][4]/20 * db + db/2;
+            int y2 = item[i2][5]/20 * db + db/2;
+            al_draw_line(x1, y1, x2, y2, palette_color[10], 2);
+         }
+         if ( ((item[i2][0] == 16) || (item[i2][0] == 17)) && (item[i2][1] == ev) )
+         {
+            // found a match with manip or damage
+            int x2 = item[i2][4]/20 * db + db/2;
+            int y2 = item[i2][5]/20 * db + db/2;
+            al_draw_line(x1, y1, x2, y2, palette_color[14], 3);
+
+         }
+      }
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+int get_trigger_item(const char *txt, int obj_type, int sub_type, int num )
+{
+   int itx, ity, dx, dy;
+   int mouse_on_item = 0;
+   int quit = 0;
+   int ret_item = -1;
+
+   while (mouse_b1) proc_controllers();      // wait for release
+
+   int x2 = item[num][4]/20; // get the original item position
+   int y2 = item[num][5]/20;
+
+   while(!quit)
+   {
+      // show text line
+      al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
+      al_draw_text(font, palette_color[14], txc, 120, ALLEGRO_ALIGN_CENTER, "Cancel");
+      al_draw_text(font, palette_color[9],  txc, 128, ALLEGRO_ALIGN_CENTER, "with right mouse button");
+
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+      title_obj(obj_type, sub_type, num, 0, 15);
+
+      proc_controllers();
+
+      dx = mouse_x/db;
+      dy = mouse_y/db;
+
+      draw_bs(14);      // show bullseye map
+
+      mouse_on_item = 0;
+
+      if ((dx<100) && (dy<100))      // if mouse on map
+         for (int x=0; x<500; x++)
+            if (item[x][0] == 9)    // trigger only
+            {
+               itx = item[x][4]/20;
+               ity = item[x][5]/20;
+               if ((dx == itx) && (dy == ity))
+               {
+                  mouse_on_item = 1;
+                  ret_item = x;
+               }
+            }
+
+      itx = item[ret_item][4]/20;
+      ity = item[ret_item][5]/20;
+
+      crosshairs(0, 0, x2, y2, 13); // draw the original position
+      if (mouse_on_item)
+      {
+         crosshairs(0, 0, itx, ity, 14); // draw the selected item position
+         int o = db/2;
+         al_draw_line(x2*db+o, y2*db+o, itx*db+o, ity*db+o, palette_color[14], 1);
+         al_draw_textf(font, palette_color[15], txc, 180, ALLEGRO_ALIGN_CENTER, " Item:%d ", ret_item);
+      }
+      else
+      {
+         find_and_show_event_links(num); // assume for now that this just gets called with item type 16 and 17
+      }
+
+      while (mouse_b1)
+      {
+         proc_controllers();
+         quit = 1;
+      }
+      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
+      {
+         proc_controllers();
+         quit =1;
+         ret_item = -1;
+      }
+   } // end of while(!quit);
+   if (!mouse_on_item) ret_item = -1;
+   return ret_item;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int get_item(const char *txt, int obj_type, int sub_type, int num )
 {
    int itx, ity, dx, dy;
@@ -609,6 +781,55 @@ int get_item(const char *txt, int obj_type, int sub_type, int num )
    if (!mouse_on_item) ret_item = -1;
    return ret_item;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

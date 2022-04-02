@@ -603,15 +603,15 @@ void menu_setup(void)
    strcpy (lift_step_type_name[4], "Loop");
 
 
-   strcpy (item_name[0],"item_empty");
-   strcpy (item_name[1],"Door");
-   strcpy (item_name[2],"Bonus");
-   strcpy (item_name[3],"Exit");
-   strcpy (item_name[4],"Key");
-   strcpy (item_name[5],"Start");
-   strcpy (item_name[6],"Free Man");
-   strcpy (item_name[7],"Mine");
-   strcpy (item_name[8],"Bomb");
+   strcpy (item_name[0], "item_empty");
+   strcpy (item_name[1], "Door");
+   strcpy (item_name[2], "Bonus");
+   strcpy (item_name[3], "Exit");
+   strcpy (item_name[4], "Key");
+   strcpy (item_name[5], "Start");
+   strcpy (item_name[6], "Free Man");
+   strcpy (item_name[7], "Mine");
+   strcpy (item_name[8], "Bomb");
    strcpy (item_name[9], "Trigger");
    strcpy (item_name[10],"Message");
    strcpy (item_name[11],"Rocket");

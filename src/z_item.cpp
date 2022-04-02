@@ -1641,7 +1641,7 @@ item[][12] = draw color
 
 void clear_pm_events(void)
 {
-   for (int x=0; x<100; x++) pm_event[x] = 0;
+   for (int x=0; x<1000; x++) pm_event[x] = 0;
 
 }
 
@@ -1839,8 +1839,16 @@ void proc_item_damage_collisions(int i)
             al_fixed y = players[p].PY;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
-               players[p].LIFE -= al_fixdiv(al_itofix(item[i][15]), al_itofix(100));
-               //game_event(57, 0, 0, p, i, 0, 0);
+               if (FLAGS & PM_ITEM_DAMAGE_INSTGIB)
+               {
+                  players[p].LIFE = al_itofix(0);
+                  //game_event(57, 0, 0, p, i, 0, 0);
+               }
+               else
+               {
+                  players[p].LIFE -= al_fixdiv(al_itofix(item[i][15]), al_itofix(100));
+                  game_event(59, 0, 0, p, i, 0, 0);
+               }
             }
          }
    if (cde)
@@ -1888,8 +1896,6 @@ void proc_item_damage_collisions(int i)
          }
 }
 
-
-
 void draw_block_damage(int i)
 {
    int draw_mode = item[i][2];
@@ -1927,7 +1933,6 @@ void draw_block_damage(int i)
 
 
    // timer drawing
-
    int timer_draw_mode1 = item[i][3] & PM_ITEM_DAMAGE_TIMR_SN;
    int timer_draw_mode2 = item[i][3] & PM_ITEM_DAMAGE_TIMR_BN;
    int timer_draw_mode3 = item[i][3] & PM_ITEM_DAMAGE_TIMR_SP;
@@ -1955,11 +1960,13 @@ void draw_block_damage(int i)
       if ((timer_draw_mode3) || (timer_draw_mode4)) // percent bar
       {
          int percent = 0;
-         if (mode == 2) percent =       ((item[i][13]) * 100) / item[i][12];
-         if (mode == 3) percent = 100 - ((item[i][13]) * 100) / item[i][12];
-
-         if (timer_draw_mode3) draw_percent_bar(x0+9, y0 +5, 32, 8,  percent);
-         if (timer_draw_mode4) draw_percent_bar(x0+9, y0 +1, 64, 16, percent);
+         if (item[i][12] > 0) // prevent divide by zero
+         {
+            if (mode == 2) percent =       ((item[i][13]) * 100) / item[i][12];
+            if (mode == 3) percent = 100 - ((item[i][13]) * 100) / item[i][12];
+         }
+         if (timer_draw_mode3) draw_percent_bar(x0+9, y0+5, 32, 8,  percent);
+         if (timer_draw_mode4) draw_percent_bar(x0+9, y0+1, 64, 16, percent);
 
       }
    }
@@ -1971,69 +1978,42 @@ void draw_block_damage(int i)
 
       int percent = 0;
       int tts = 0;
-      int col = 0;
+      //int col = 0;
 
       if (ct >= st) // upper range, damage off
       {
-         int gt = tt-st; // total time in the upper
+         int ut = tt-st; // total time in the upper
          int dt = ct-st; // current time relative to that
-         percent = 100 - (dt * 100) / gt;
-         tts = (dt / 4) + 1;
-         col = 11;
+         if (ut > 0)     // prevent divide by zero
+         {
+            //percent = 100 - (dt * 100) / ut;
+            percent = (dt * 100) / ut;
+            tts = (dt / 4) + 1;
+            col = 11;
+         }
       }
       else // lower range, damage on
       {
-         int gt = st; // total time in lower
+         int lt = st; // total time in lower
          int dt = ct; // current time relative to that
-         tts = (dt / 4) + 1;
-         percent = (dt * 100) / gt;
-         col = 10;
+         if (lt > 0)  // prevent divide by zero
+         {
+            tts = (dt / 4) + 1;
+            //percent = (dt * 100) / lt;
+            percent = 100 - (dt * 100) / lt;
+            col = 10;
+         }
       }
+
 
       if (timer_draw_mode1) al_draw_textf(f3,   palette_color[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
       if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
       if (timer_draw_mode3) draw_percent_bar(x0+9, y0+5, 32, 8,  percent);
       if (timer_draw_mode4) draw_percent_bar(x0+9, y0+1, 64, 16, percent);
    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
+
+
 
 
 void process_block_damage(int i)

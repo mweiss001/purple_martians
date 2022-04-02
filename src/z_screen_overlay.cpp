@@ -535,7 +535,7 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
          case 40: case 41: case 43:// player got shot
             al_play_sample(snd[6], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
          break;
-         case 44: case 50: case 52: case 54: case 56: case 57: // player got hit (bomb, mine, enemy collision, squished, stuck)
+         case 44: case 50: case 52: case 54: case 56: case 57: case 59: // player got hit (bomb, mine, enemy collision, squished, stuck)
             if (sample_delay[7]+14 < frame_num)
             {
                sample_delay[7] = frame_num;
@@ -679,12 +679,15 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
    }
 
 
-   if (ev == 57) // damage field raw
+   if ((ev == 57) || (ev == 59)) // raw damage that needs to be tallied
    {
       int p = z1;
-      int e = z2;
-      float damage = al_fixtof(Efi[z2][4]);
-      players1[p].field_damage_enemy_number = e;
+
+      float damage = 0;
+      if (ev == 57) damage = al_fixtof(Efi[z2][4]);     // damage from enemy 10 - field
+      if (ev == 59) damage = (float)item[z2][15] / 100; // damage from item 17 - damage
+
+      //players1[p].field_damage_enemy_number = z2;
 
       if (players1[p].field_damage_holdoff < frame_num) // triggered and not in holdoff
       {

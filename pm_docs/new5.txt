@@ -15443,9 +15443,395 @@ Block Manip Field Color
 
 Damage Field Draw Type:
 
-
 Draw Block Damage Field:OFF
 Block Damage Field Color
+
+timer display could have a divide by zero error
+also set some times in creator
+
+...need to prevent this...
+
+
+I would like to set key to use the same block standard as trig, manip, damage
+0-1999
+x, y, w, h
+then so much of the code can be re-used
+also cloner and podzilla??
+
+OK the viewer menus look pretty good now....
+
+make sure you can't divide by zero when doing calcs before calling percent...done
+
+fix the bitmap shown for draw item and in viewers...done
+
+
+add player instant death option...flag and button...done
+
+hook into game_event...done
+
+
+figure out values for player damage....
+now 0-99 / 100
+
+(good at low range, needs more damege at high range)
+at lowest (1) lose 1 health every 2 sec
+at highest (99) lose 100 in 3 sec
+
+try 0-1000 / 100
+at 1000 running through a single block as fast as you can takes 50 health
+
+lets go with 2000
+when jumping up through a single block...20?
+when jumping up on the fastest sproingy, you can easily go right through it witout getting hit...
+that's just because you are moving so fast...nothing to do, just accept it...
+
+make text line up on
+player instant death 403
+player damage 98
+line up with all the affect lines...421-424
+.............done....
+
+
+what about the link lines when link is zero?
+only on block manip is it shown...
+fix it and make it work for block damage also...
+what about trigger??
+
+make a helper function...
+pass it current item and have it show links...done
+
+
+what if a make a button...create link...if I press it then I am prompted to choose an item to link to...
+
+when I do it will search and make choose a unique event id to use...
+as I am moving around the map to choose, it will show stuff about the items I am trying to link to...
+
+
+make a function to find an unused pm_event.
+
+search all items
+
+how many?
+
+100? changed to 1000
+
+int get_unused_pm_event(void)
+{
+   int ev = 1; // don't ever use event 0
+   int done = 0;
+   while (!done)
+   {
+      int used = 0;
+      for (int i=0; i<500; i++)
+      {
+         if (item[i][0] == 9)
+         {
+            if (item[i][11] == ev) used = 1;
+            if (item[i][12] == ev) used = 1;
+            if (item[i][13] == ev) used = 1;
+            if (item[i][14] == ev) used = 1;
+         }
+         if ((item[i][0] == 16) && (item[i][1] == ev)) used = 1;
+         if ((item[i][0] == 17) && (item[i][1] == ev)) used = 1;
+      }
+      if (!used) return ev;
+      else if (++ev > 999) done = 1;
+   }
+   return 0; // only if no unused can be found
+}
+
+
+in zfs copy...only for items 16 and 17
+
+if 16 or 17...
+
+if exactly one linked item...and its a trigger...
+make both items have a new unique link
+
+give up...will not work...
+
+
+
+how about the button on manip
+
+right under link...
+choose linked item....
+
+there is some great code I can copy in door that does something very similar...
+
+      if (bn == 4)
+      {
+         if (item[num][8] == 1) // Set Linked Item
+         {
+             int i = get_item("Select Another Door To Link To", 2, 1, num );
+             if (i > -1) item[num][9] = i;
+             Redraw = 1;
+         }
+      }
+
+
+
+      if (bn == 320)
+      {
+         {
+             int i = get_trigger_item("Select A Trigger To Link To", 2, 9, num );
+             if (i > -1) item[num][1] = i;
+             Redraw = 1;
+         }
+      }
+
+I got it to work....
+
+
+int get_trigger_item(const char *txt, int obj_type, int sub_type, int num )
+{
+   int itx, ity, dx, dy;
+   int mouse_on_item = 0;
+   int quit = 0;
+   int ret_item = -1;
+
+   while (mouse_b1) proc_controllers();      // wait for release
+
+   int x2 = item[num][4]/20; // get the original item position
+   int y2 = item[num][5]/20;
+
+
+
+
+   while(!quit)
+   {
+      // show text line
+      al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
+      al_draw_text(font, palette_color[14], txc, 120, ALLEGRO_ALIGN_CENTER, "Cancel");
+      al_draw_text(font, palette_color[9],  txc, 128, ALLEGRO_ALIGN_CENTER, "with right mouse button");
+
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+      title_obj(obj_type, sub_type, num, 0, 15);
+
+      proc_controllers();
+
+      dx = mouse_x/db;
+      dy = mouse_y/db;
+
+      draw_bs(14);      // show bullseye map
+
+      mouse_on_item = 0;
+
+      if ((dx<100) && (dy<100))      // if mouse on map
+         for (int x=0; x<500; x++)
+            if (item[x][0] == 9)    // trigger only
+            {
+               itx = item[x][4]/20;
+               ity = item[x][5]/20;
+               if ((dx == itx) && (dy == ity))
+               {
+                  mouse_on_item = 1;
+                  ret_item = x;
+               }
+            }
+
+      itx = item[ret_item][4]/20;
+      ity = item[ret_item][5]/20;
+
+      crosshairs(0, 0, x2, y2, 13); // draw the original position
+      if (mouse_on_item)
+      {
+         crosshairs(0, 0, itx, ity, 14); // draw the selected item position
+         int o = db/2;
+         al_draw_line(x2*db+o, y2*db+o, itx*db+o, ity*db+o, palette_color[14], 1);
+         al_draw_textf(font, palette_color[15], txc, 180, ALLEGRO_ALIGN_CENTER, " Item:%d ", ret_item);
+      }
+      else
+      {
+         find_and_show_event_links(num); // assume for now that this just gets called with item type 16 and 17
+      }
+
+
+
+
+
+
+      while (mouse_b1)
+      {
+         proc_controllers();
+         quit = 1;
+      }
+      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
+      {
+         proc_controllers();
+         quit =1;
+         ret_item = -1;
+      }
+   } // end of while(!quit);
+   if (!mouse_on_item) ret_item = -1;
+   return ret_item;
+}
+
+
+
+if (bn == 320)
+{
+   int i = get_trigger_item("Select A Trigger To Link To", 2, 16, num );
+   if (i > -1)
+   {
+      int ev = get_unused_pm_event();
+      item[num][1] = ev;
+
+      // which trigger should I link to? for now just pick 11, but later detect if I need to use toggle
+      item[i][11] = ev;
+   }
+   Redraw = 1;
+}
+
+
+now I want to be able to pick the right trigger....
+
+
+in bm if mode 3 then toggle
+
+if item[][0] == 16) && item[][3] == 3 //toggle
+
+
+      if (bn == 320)
+      {
+         int i = get_trigger_item("Select A Trigger To Link To", 2, 16, num );
+         if (i > -1)
+         {
+            int ev = get_unused_pm_event();
+            item[num][1] = ev;
+
+            if (item[num][3] == 3) // mode 3 - toggle blocks
+            {
+               item[i][11] = 0;
+               item[i][12] = 0;
+               item[i][13] = ev;  // needs a toggle trigger
+               item[i][14] = 0;
+            }
+            else
+            {
+               item[i][11] = ev;  // regular trigger
+               item[i][12] = 0;
+               item[i][13] = 0;
+               item[i][14] = 0;
+            }
+         }
+         Redraw = 1;
+      }
+
+even better....
+now do the same for bd
+if item[][0] == 17) && item[][11] == 1 //toggle
+done...
+
+
+its working good.....
+
+im tired and need to go to bed...
+
+20220401 9:21PM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
