@@ -1023,6 +1023,34 @@ void do_fcopy(int qx1, int qy1)
                   }
 
 
+                  if (item[c][0] == 16) // manip
+                  {
+                     int ev = item[c][1]; // event
+                     if (ev) // do nothing if zero
+                     {
+
+                     // see if we can find a trigger item with the same event
+                     // need to know how many item..??
+                     // need to know what item number and what link(11, 12, 13, 14)
+
+                     // this will not work...abandon all hope!!!!
+                     // how can I search ft??
+
+
+                     }
+
+
+
+
+
+
+                  }
+
+
+
+
+
+
                   if ((item[c][0] == 9) || (item[c][0] == 16) || (item[c][0] == 17)) // trigger, manip, damage
                   {
                      item[c][6] += qx1*20;

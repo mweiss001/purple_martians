@@ -386,6 +386,12 @@ int create_block_damage(int i)
 
       item[i][4] = get100_x*20;
       item[i][5] = get100_y*20;
+
+
+      item[i][12] = 100;
+      item[i][13] = 0;
+      item[i][14] = 100;
+
    }
    else bad = 1;
    // then set the block range

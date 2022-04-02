@@ -30,6 +30,14 @@ void get_item_draw_shape(int i)
       drawn = 1;
    }
 
+
+   if (item[i][0] == 9)  shape = 991;
+   if (item[i][0] == 16) shape = 989;
+   if (item[i][0] == 17) shape = 988;
+
+
+
+
    // these types need rotation
    if (item[i][0] == 11) // rocket
    {
@@ -72,7 +80,7 @@ void show_draw_item_cursor(void)
    if (y100>99) y100 = 99;
    int x = (x100-wx)*20;
    int y = (y100-wy)*20;
-   // determine is shapes are the same
+   // determine if shapes are the same
    int same = 0;
    if ((draw_item_type == 1) && (point_item_type == 1)) // both blocks
       if (draw_item_num == point_item_num) same = 1;    // same block
@@ -88,7 +96,6 @@ void show_draw_item_cursor(void)
    if (draw_item_type == 5) //PDE
    {
       int pn = PDEi[draw_item_num][0];
-      //int pde_type;
       int pde_sub_type;
 
       if ( pn < 99) // enemy

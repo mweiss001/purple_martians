@@ -6,7 +6,7 @@
 // all global variables should be declared here and externed in pm.h
 
 
-int pm_event[100];
+int pm_event[1000];
 
 
 

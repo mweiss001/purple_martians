@@ -143,13 +143,15 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 97) sprintf(smsg, "Damage Field Follows Lift:%d", item[num][10]);
 
 
-   if (bn == 98) sprintf(smsg, "Player Damage:%d          ", item[num][15]); // item damage player damage amount
+   if (bn == 98) sprintf(smsg, "Player Damage:%-4d        ", item[num][15]); // item damage player damage amount
 
 
    if (bn == 100) sprintf(smsg, "Total Time:%d",   item[num][12]);
    if (bn == 101) sprintf(smsg, "Initial Time:%d", item[num][13]);
    if (bn == 102) sprintf(smsg, "Damage Time:%d",  item[num][14]);
 
+   if (bn == 103) sprintf(smsg, "Damage Field ON Time:%d",   item[num][12]);
+   if (bn == 104) sprintf(smsg, "Damage Field OFF Time:%d",  item[num][12]);
 
 
 
@@ -302,6 +304,10 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 101) item[num][13] = (int)f; // item damage initial time
    if (bn == 102) item[num][14] = (int)f; // item damage damage time
 
+   if (bn == 103) item[num][12] = (int)f; // Damage Field ON Time
+   if (bn == 104) item[num][12] = (int)f; // Damage Field OFF Time
+
+
 }
 
 
@@ -404,12 +410,15 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
       case 97: sul=39;   sll=0;     sinc=1;   sdx=item[num][10];               break;  // damage lift number
 
-      case 98: sul=99;   sll=0;     sinc=1;   sdx=item[num][15];               break;  // item damage player ammount
+      case 98: sul=2000; sll=0;     sinc=1;   sdx=item[num][15];               break;  // item damage player amount
 
       case 100: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage total time
       case 101: sul=1000; sll=0;    sinc=1;   sdx=item[num][13];               break;  // item damage total time
       case 102: sul=1000; sll=0;    sinc=1;   sdx=item[num][14];               break;  // item damage total time
 
+
+      case 103: sul=1000; sll=0;    sinc=1;   sdx=item[num][13];               break;  // item damage field on time
+      case 104: sul=1000; sll=0;    sinc=1;   sdx=item[num][13];               break;  // item damage field off total time
    }
 
 
@@ -759,11 +768,11 @@ void fill_smsg_button(int bn, int obt, int type, int num)
 
    if (bn == 87) // field mode
    {
-      if (Ei[num][5] == 0) sprintf(smsg, "MODE:Damage Field Always ON");
-      if (Ei[num][5] == 1) sprintf(smsg, "MODE:Damage Field Bullet Toggle");
-      if (Ei[num][5] == 2) sprintf(smsg, "MODE:Damage Field ON Until Triggered");
+      if (Ei[num][5] == 0) sprintf(smsg, "MODE:Damage Field Always ON          ");
+      if (Ei[num][5] == 1) sprintf(smsg, "MODE:Damage Field Toggle             ");
+      if (Ei[num][5] == 2) sprintf(smsg, "MODE:Damage Field ON Until Triggered ");
       if (Ei[num][5] == 3) sprintf(smsg, "MODE:Damage Field OFF Until Triggered");
-      if (Ei[num][5] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF");
+      if (Ei[num][5] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF   ");
    }
 
    if (bn == 98)
@@ -1039,6 +1048,9 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    }
 
 
+   if (bn == 320) sprintf(smsg, "Set Event Trigger (%d)", item[num][1]);
+
+
    if (bn == 400) sprintf(smsg, "Get New Block Damage Field"); // item
 
 
@@ -1056,14 +1068,17 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    if (bn == 402) // damage mode
    {
       if (item[num][11] == 0) sprintf(smsg, "MODE:Damage Field Always ON");
-      if (item[num][11] == 1) sprintf(smsg, "MODE:Damage Field Bullet Toggle");
+      if (item[num][11] == 1) sprintf(smsg, "MODE:Damage Field Toggle");
       if (item[num][11] == 2) sprintf(smsg, "MODE:Damage Field ON Until Triggered");
       if (item[num][11] == 3) sprintf(smsg, "MODE:Damage Field OFF Until Triggered");
       if (item[num][11] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF");
    }
 
-
-
+   if (bn == 403) // Instant death for player
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_INSTGIB) sprintf(smsg, "Player Instant Death:ON   ");
+      else                                       sprintf(smsg, "Player Instant Death:OFF  ");
+   }
 
    if (bn == 404) // Block Damage draw mode
    {
@@ -1762,6 +1777,55 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 310) item[num][10] = select_bitmap();
       if (bn == 311) item[num][11] = select_bitmap();
 
+      if (bn == 320)
+      {
+
+         int i = get_trigger_item("Select A Trigger To Link To", 2, item[num][0], num );
+         if (i > -1)
+         {
+            int ev = get_unused_pm_event();
+            item[num][1] = ev;
+
+            if (item[num][0] == 16) // block manip
+            {
+               if (item[num][3] == 3) // mode 3 - toggle blocks
+               {
+                  item[i][11] = 0;
+                  item[i][12] = 0;
+                  item[i][13] = ev;  // needs a toggle trigger
+                  item[i][14] = 0;
+               }
+               else
+               {
+                  item[i][11] = ev;  // regular trigger
+                  item[i][12] = 0;
+                  item[i][13] = 0;
+                  item[i][14] = 0;
+               }
+            }
+
+            if (item[num][0] == 17) // block damage
+            {
+               if (item[num][11] == 1) // mode 1 - toggle damage
+               {
+                  item[i][11] = 0;
+                  item[i][12] = 0;
+                  item[i][13] = ev;  // needs a toggle trigger
+                  item[i][14] = 0;
+               }
+               else
+               {
+                  item[i][11] = ev;  // regular trigger
+                  item[i][12] = 0;
+                  item[i][13] = 0;
+                  item[i][14] = 0;
+               }
+            }
+
+
+         }
+         Redraw = 1;
+      }
 
       if (bn == 400)
          if (getbox("Draw New Block Damage Rectangle", 2, 17, num))
@@ -1779,6 +1843,10 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
 
       if (bn == 402) if (++item[num][11] > 4) item[num][11] = 0; // damage mode
       if (bn == 404) if (++item[num][2] > 2) item[num][2] = 0; // draw mode
+
+
+      if (bn == 403) item[num][3] ^= PM_ITEM_DAMAGE_INSTGIB;  // Instant death for player
+
 
       if (bn == 401) // timer draw mode
       {

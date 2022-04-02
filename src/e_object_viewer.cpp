@@ -54,6 +54,12 @@ int create_obj(int obt, int sub_type, int sent_num)
    return num;  // return number of created obj or sent_num if bad create
 }
 
+
+
+
+
+
+
 void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int highlight_color)
 {
    char lmsg[5][80];
@@ -136,7 +142,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
       al_draw_rectangle(txc-94, 20, txc+94, 43, palette_color[15], 1);
       draw_enemy_shape(num, txc-92, 22);
       sprintf(msg,"%s %d of %d", (const char *)enemy_name[sub_type],1+num - e_first_num[sub_type],e_num_of_type[sub_type]);
-      al_draw_text(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, msg);
+      al_draw_text(font, palette_color[13], txc-69, 29, 0, msg);
       al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
       switch (sub_type)
       {
@@ -391,7 +397,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          al_draw_rectangle(txc-94, 20, txc+94, 43, palette_color[15], 1);
          draw_item_shape( num, txc-92, 22);
          sprintf(msg,"%s %d of %d", item_name[sub_type], 1+num - item_first_num[sub_type],item_num_of_type[sub_type]);
-         al_draw_text(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, msg);
+         al_draw_text(font, palette_color[13], txc-69, 29, 0, msg);
       }
       al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
       switch (sub_type)
@@ -606,26 +612,10 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
 
 
+            find_and_show_event_links(num);
 
-
-            // find and show linked triggers with same event number
-            int cl = item[num][1];
-            for (int i=0; i<500; i++)
-               if (item[i][0] == 9)
-                  if ((item[i][11] == cl) || (item[i][12] == cl) || (item[i][13] == cl) || (item[i][14] == cl))
-                  {
-
-                     int x5 = x1*db + db/2;
-                     int y5 = y1*db + db/2;
-
-                     int x6 = item[i][4]/20 * db + db/2;
-                     int y6 = item[i][5]/20 * db + db/2;
-
-                     al_draw_line(x5, y5, x6, y6, palette_color[10], 1);
-                  }
          }
          break;
-
          case 17: // block damage
          {
             int color = 10;
@@ -650,46 +640,9 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             al_draw_line(x4, 0, x4, 100*db-1, palette_color[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
 
-
-
-            // find and show linked triggers with same event number
-            int cl = item[num][1];
-            if (cl) // don;t do if this link is zero
-               for (int i=0; i<500; i++)
-                  if (item[i][0] == 9)
-                     if ((item[i][11] == cl) || (item[i][12] == cl) || (item[i][13] == cl) || (item[i][14] == cl))
-                     {
-
-                        int x5 = x1*db + db/2;
-                        int y5 = y1*db + db/2;
-
-                        int x6 = item[i][4]/20 * db + db/2;
-                        int y6 = item[i][5]/20 * db + db/2;
-
-                        al_draw_line(x5, y5, x6, y6, palette_color[10], 1);
-                     }
-
-
+            find_and_show_event_links(num);
          }
          break;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
       } // end of switch case
       al_reset_clipping_rectangle();
@@ -901,7 +854,7 @@ int move_obt_with_map(int obt, int type, int num)
             mouse_on_kbr_ul = 1;
             for (int a=0; a<4; a++)
                al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[10+a*64], 1); // mark entire box
-            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[10],1);                 // mark ul corner
+            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[10],1);                  // mark ul corner
             mouse_move = 1;
          }
          if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // key block range lower right corner
@@ -910,7 +863,7 @@ int move_obt_with_map(int obt, int type, int num)
             mouse_on_kbr_lr = 1;
             for (int a=0; a<4; a++)
                al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[10+a*64],1); // mark entire box
-            al_draw_rectangle(x2*db, y2*db, x2*db+db-1, y2*db+db-1, palette_color[10], 1);             // mark lr corner
+            al_draw_rectangle(x2*db, y2*db, x2*db+db-1, y2*db+db-1, palette_color[10], 1);            // mark lr corner
             mouse_adj = 1;
          }
       }
@@ -931,7 +884,7 @@ int move_obt_with_map(int obt, int type, int num)
             mouse_on_trg_ul = 1;
             for (int a=0; a<4; a++)
                al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[col+a*64], 1); // mark entire box
-            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[col],1);                 // mark ul corner
+            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[col],1);                  // mark ul corner
             mouse_move = 1;
          }
          if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // trigger block range lower right corner
@@ -939,7 +892,7 @@ int move_obt_with_map(int obt, int type, int num)
             mouse_on_extra = 1;
             mouse_on_trg_lr = 1;
             for (int a=0; a<4; a++)
-               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[col+a*64],1); // mark entire box
+               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[col+a*64],1);  // mark entire box
             al_draw_rectangle(x2*db, y2*db, x2*db+db-1, y2*db+db-1, palette_color[col], 1);             // mark lr corner
             mouse_adj = 1;
          }
@@ -1799,6 +1752,9 @@ void object_viewer(int obt, int num)
 
                   mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 92,   num, type, obt, 0, 13, 15, 15, 1,0,0,0); a+=2; // pm_event trigger
 
+                  a++;
+
+                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 320,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a+=2; // set trigger
 
                break;
 
@@ -1806,25 +1762,40 @@ void object_viewer(int obt, int num)
                case 17: // block damage
                {
                   int FLAGS = item[num][3];
+                  int MODE = item[num][11];
 
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 400,  num, type, obt, 0, 10, 10, 10, 1,0,0,0); a+=2; // Get New Damage Field
 
+                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 404,  num, type, obt, 0, 8, 15, 15, 1,0,0,0); a+=2; // damage draw mode
 
 
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 404,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // damage draw mode
-
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 401,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // timer draw mode
-
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 402,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; //  mode
+                  if (MODE == 0) { mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 402,  num, type, obt, 0, 10, 15, 14, 1,0,0,0); a++; } //  MODE 0
 
 
-
-                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 100, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // total timer
-                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 101, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // damage time
-                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 102, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // initial time
+                  if (MODE == 1)
+                  {
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 402, num, type, obt, 0, 8, 15,  0, 1,0,0,0); a++;  // MODE 1
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 433, num, type, obt, 0, 8, 15,  0, 1,0,0,0); a++;  // Set Damage Field Initially ON or OFF
+                  }
 
 
 
+                  if ((MODE == 2) || (MODE == 3) || (MODE == 4)) // Mode 2, 3 and 4
+                  {
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 402,  num, type, obt, 0,  11, 15,  0, 1,0,0,0); a++;  // MODE
+
+                     if (MODE == 2) { mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 104,  num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;} // Damage Field Off Time
+                     if (MODE == 3) { mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 103,  num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;} // Damage Field On Time
+                     if (MODE == 4) // Timed on and off
+                     {
+                        mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 100, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;  // total timer
+                        mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 102, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;  // damage time
+                        mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 101, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;  // initial time
+                     }
+                     mdw_button(   xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 401, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // timer draw mode
+                  }
+
+                  a++;
 
                   if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) // DAMAGE Field follows lift:ON
                   {
@@ -1835,17 +1806,21 @@ void object_viewer(int obt, int num)
                   }
                   else { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 410, num, type, obt, 0, 15, 15,  0, 1,0,0,0); a++; } // DAMAGE Field follows lift:OFF
 
-
-
                   a++;
-                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 433, num, type, obt, 0, 11, 15,  0, 1,0,0,0); a++;  // Set Damage Field Initially ON or OFF
-                  a++;
-
 
                   if (FLAGS & PM_ITEM_DAMAGE_PLAYER)
                   {
-                         mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 420, num, type, obt, 0, 10,    15,  0, 1,0,0,0); a++;   // Item Damage Affects Player ON
-                         mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 98,  num, type, obt, 0, 10,    15,  0, 1,0,0,0); a++;   // Player damage
+                     mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 420, num, type, obt, 0, 10,    15,  0, 1,0,0,0); a++;   // Item Damage Affects Player ON
+
+                     if (item[num][3] & PM_ITEM_DAMAGE_INSTGIB)
+                     {
+                        mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 403, num, type, obt, 0, 10,    15,  0, 1,0,0,0); a++; // Instant death for player:ON
+                     }
+                     else
+                     {
+                        mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 403, num, type, obt, 0, 10+d,  15+d,0, 1,0,0,0); a++;   // Instant death for player:OFF
+                        mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 98,  num, type, obt, 0, 10,    15,  0, 1,0,0,0); a++;   // Player damage
+                     }
                   }
                   else { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 420, num, type, obt, 0, 10+d, 15+d, 0, 1,0,0,0); a++; } // Item Damage Affects Player OFF
 
@@ -1858,56 +1833,30 @@ void object_viewer(int obt, int num)
                   if (FLAGS & PM_ITEM_DAMAGE_EBUL)  { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 424, num, type, obt, 0, 10,     15,  0,1,0,0,0); a++; }
                   else                              { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 424, num, type, obt, 0, 10+d, 15+d,  0,1,0,0,0); a++; }
 
-
                   a++;
 
 
-
-                  mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 92,   num, type, obt, 0, 13, 15, 15, 1,0,0,0); a+=2; // pm_event trigger
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 300,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // Get New Block Range
-
-
-/*
-                  if (item[num][2])
+                  if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2, and 3
                   {
-                     int col = item[num][12];
-                     mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 304,  num, type, obt, 0, col, 15, 15, 1,0,0,0); a++; // Draw on/off
-                     mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  7,   num, type, obt, 0,  0,   0,  0, 0,0,0,0); a++; // color select
+                     mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 92,   num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++; // pm_event trigger
+
+
+                     a++;
+
+                     mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 320,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a+=2; // set trigger
+
 
                   }
-                  else
-                  {
-                     mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 304,  num, type, obt, 0, 15+96, 15+96, 15, 1,0,0,0); a++; // Draw on/off
-                  }
-                  a++;
 
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 301,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // mode
 
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 310,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a++;  // block 1
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 311,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // block 2
 
-                  mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 92,   num, type, obt, 0, 13, 15, 15, 1,0,0,0); a+=2; // pm_event trigger
-*/
+
+
+
+
+
                }
                break;
-
-
-
                case 10: // message
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 55, num, type, obt, 0, 14, 15, 14, 1,0,0,0); a++; // set msg position
