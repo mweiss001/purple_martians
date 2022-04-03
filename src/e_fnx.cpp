@@ -528,6 +528,119 @@ int getxy(const char *txt, int obj_type, int sub_type, int num )
 
 
 
+
+
+
+
+int add_item_link_translation(int sel_item_num, int sel_item_var, int sel_item_ev, int clt[][4], int clt_last)
+{
+   if (sel_item_ev)
+   {
+      // check if this event already has a translation and get it if it does
+      int ev2 = check_clt_for_event(sel_item_ev, clt, clt_last);
+
+      if (ev2) // existing translation found
+      {
+         clt[clt_last][0] = sel_item_num;   // item # in selection
+         clt[clt_last][1] = sel_item_var;   // item var #
+         clt[clt_last][2] = sel_item_ev;    // original link
+         clt[clt_last][3] = ev2; // new link
+
+         printf("et %d %d %d %d\n", clt[clt_last][0], clt[clt_last][1], clt[clt_last][2], clt[clt_last][3]);
+
+      }
+      else // no existing translation found
+      {
+         ev2 = get_unused_pm_event_extended(clt, clt_last);
+         clt[clt_last][0] = sel_item_num;   // item # in selection
+         clt[clt_last][1] = sel_item_var;   // item var #
+         clt[clt_last][2] = sel_item_ev;    // original link
+         clt[clt_last][3] = ev2; // new link
+         printf("ne %d %d %d %d\n", clt[clt_last][0], clt[clt_last][1], clt[clt_last][2], clt[clt_last][3]);
+      }
+   }
+   else return 0; // nothing added
+   return 1; // added
+}
+
+
+
+void clear_pm_events(void)
+{
+   for (int x=0; x<1000; x++) pm_event[x] = 0;
+}
+
+
+
+
+// check the clt list for an existing pm_event
+// return the translation used or 0 if none found
+int check_clt_for_event(int ev, int clt[][4], int clt_last)
+{
+   for (int i=0; i<clt_last; i++)
+   {
+      if (clt[i][2] == ev) return clt[i][3];
+   }
+   return 0;
+}
+
+
+int is_pm_event_used(int ev)
+{
+   for (int i=0; i<500; i++)
+   {
+      if (item[i][0] == 9)
+      {
+         if (item[i][11] == ev) return 1;
+         if (item[i][12] == ev) return 1;
+         if (item[i][13] == ev) return 1;
+         if (item[i][14] == ev) return 1;
+      }
+      if ((item[i][0] == 16) && (item[i][1] == ev)) return 1;
+      if ((item[i][0] == 17) && (item[i][1] == ev)) return 1;
+   }
+   return 0;
+}
+
+int get_unused_pm_event_extended(int clt[][4], int clt_last)
+{
+   int ev = 1; // starting event to test (don't ever use event 0)
+   int done = 0;
+
+   while (!done)
+   {
+      int used = 0;
+
+      if (is_pm_event_used(ev)) used = 1; // first check if used in main item item array
+
+      for (int i=0; i<clt_last; i++) if (clt[i][3] == ev) used = 1; // then check the translation table also
+
+      if (used == 0) return ev; // found one!
+      else if (++ev > 999) done = 1;
+   }
+   return 0; // only if no unused can be found
+}
+
+
+
+
+
+
+
+int get_unused_pm_event(void)
+{
+   int ev = 1; // don't ever use event 0
+   int done = 0;
+   while (!done)
+   {
+      if (!is_pm_event_used(ev)) return ev;
+      else if (++ev > 999) done = 1;
+   }
+   return 0; // only if no unused can be found
+}
+
+
+
 void find_and_show_event_links(int i) // assume for now that this just gets called with item type 16 and 17
 {
    int ev = item[i][1];

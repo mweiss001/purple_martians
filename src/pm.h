@@ -74,24 +74,26 @@
 #define PM_ITEM_TRIGGER_LIFT_YL  0b01000000000000000
 #define PM_ITEM_TRIGGER_DRAW_ON  0b10000000000000000
 
-#define PM_ITEM_DAMAGE_PLAYER   0b00000000000000001
-#define PM_ITEM_DAMAGE_ENEMY    0b00000000000000010
-#define PM_ITEM_DAMAGE_ITEM     0b00000000000000100
-#define PM_ITEM_DAMAGE_PBUL     0b00000000000001000
-#define PM_ITEM_DAMAGE_EBUL     0b00000000000010000
-#define PM_ITEM_DAMAGE_CURR     0b00000000000100000
-#define PM_ITEM_DAMAGE_LIFT_ON  0b00000000001000000
-#define PM_ITEM_DAMAGE_LIFT_XC  0b00000000010000000
-#define PM_ITEM_DAMAGE_LIFT_XF  0b00000000100000000
-#define PM_ITEM_DAMAGE_LIFT_XL  0b00000001000000000
-#define PM_ITEM_DAMAGE_LIFT_YC  0b00000010000000000
-#define PM_ITEM_DAMAGE_LIFT_YF  0b00000100000000000
-#define PM_ITEM_DAMAGE_LIFT_YL  0b00001000000000000
-#define PM_ITEM_DAMAGE_TIMR_SN  0b00010000000000000
-#define PM_ITEM_DAMAGE_TIMR_BN  0b00100000000000000
-#define PM_ITEM_DAMAGE_TIMR_SP  0b01000000000000000
-#define PM_ITEM_DAMAGE_TIMR_BP  0b10000000000000000
-#define PM_ITEM_DAMAGE_INSTGIB  0b10000000000000000
+#define PM_ITEM_DAMAGE_PLAYER   0b000000000000000001
+#define PM_ITEM_DAMAGE_ENEMY    0b000000000000000010
+#define PM_ITEM_DAMAGE_ITEM     0b000000000000000100
+#define PM_ITEM_DAMAGE_PBUL     0b000000000000001000
+#define PM_ITEM_DAMAGE_EBUL     0b000000000000010000
+#define PM_ITEM_DAMAGE_CURR     0b000000000000100000
+#define PM_ITEM_DAMAGE_LIFT_ON  0b000000000001000000
+#define PM_ITEM_DAMAGE_LIFT_XC  0b000000000010000000
+#define PM_ITEM_DAMAGE_LIFT_XF  0b000000000100000000
+#define PM_ITEM_DAMAGE_LIFT_XL  0b000000001000000000
+#define PM_ITEM_DAMAGE_LIFT_YC  0b000000010000000000
+#define PM_ITEM_DAMAGE_LIFT_YF  0b000000100000000000
+#define PM_ITEM_DAMAGE_LIFT_YL  0b000001000000000000
+#define PM_ITEM_DAMAGE_TIMR_SN  0b000010000000000000
+#define PM_ITEM_DAMAGE_TIMR_BN  0b000100000000000000
+#define PM_ITEM_DAMAGE_TIMR_SP  0b001000000000000000
+#define PM_ITEM_DAMAGE_TIMR_BP  0b010000000000000000
+#define PM_ITEM_DAMAGE_INSTGIB  0b100000000000000000
+
+
 
 
 
@@ -129,8 +131,9 @@
 
 
 extern int pm_event[1000];
+//extern int copy_link_tranform[500][4];
 
-void clear_pm_events(void);
+
 
 
 
@@ -851,7 +854,7 @@ extern int new_size;
 // ---------------------------------------------------------------------
 
 //e_bitmap.h
-int select_bitmap(void);
+int select_bitmap(int);
 int select_bitmap_ans(int zzindx);
 int animation_proc();
 int select_bitmap_proc();
@@ -897,6 +900,29 @@ void draw_cloner_boxes(int num);
 void draw_bs(int cc);
 int getbox(const char *txt, int obj_type, int sub_type, int num );
 int getxy(const char *txt, int obj_type, int sub_type, int num );
+
+
+
+void clear_pm_events(void);
+
+int check_clt_for_event(int ev, int clt[][4], int clt_last);
+int get_unused_pm_event_extended(int clt[][4], int clt_last);
+
+int add_item_link_translation(int sel_item_num, int sel_item_var, int sel_item_ev, int clt[][4], int clt_last);
+
+
+
+int is_pm_event_used(int ev);
+int get_unused_pm_event(void);
+int get_trigger_item(const char *txt, int obj_type, int sub_type, int num );
+void find_and_show_event_links(int i);
+
+
+
+
+
+
+
 int get_item(const char *txt, int obj_type, int sub_type, int num );
 void crosshairs(int mx, int my, int x, int y, int color);
 void crosshairs_nodb(int mx, int my, int x, int y, int db, int color);
@@ -1151,10 +1177,6 @@ int load_gm(const char *sfname);
 // z_fnx.h
 int round20(int val);
 
-int get_unused_pm_event(void);
-
-int get_trigger_item(const char *txt, int obj_type, int sub_type, int num );
-void find_and_show_event_links(int i); // assume for now that this just gets called with item type 16 and 17
 
 
 

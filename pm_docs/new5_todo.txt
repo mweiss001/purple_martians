@@ -60,6 +60,129 @@ just jump immediatley???
 
 
 
+new items that emit triggers
+
+something you jump on just like a switch
+only emits toggle on and toggle off depending on shape...
+
+something you shoot and it emits a trigger
+
+you can carry these around just like items...
+
+trigger field that has a count of enemies or items or players
+
+matching set of items that need to be brought together
+
+
+
+what if I made coins to collect in the level?
+it is super fun in mario!
+then I could have end of level stuff like how many coins you got, how many enemies you killed, etc...
+
+they would be items and at the start of the level how many there are would be counted
+then each player would have a tally of how many they got...
+
+
+
+
+l[100][100] uses ints that are 4 bytes
+most of these are unused
+
+I have 1024 tiles or sprites and I use 32 bits to store an int that needs only 10
+
+I want to make a way of encoding so much more into these ints....
+
+when I want to draw them I'll only care about the 10 bits that describe the tile...
+
+I can have so many more flags...like
+
+solid,
+semi solid
+empty
+bombable
+breakable
+
+these flags do not need to be exclusive like they are now...
+
+there is so much more that can be done
+
+like solid for player
+solid for enemy
+solid for bullet....etc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

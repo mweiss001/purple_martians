@@ -992,6 +992,27 @@ void do_fcopy(int qx1, int qy1)
 
    if (copy_items)
    {
+
+      // this section is to make any copied pm_event links have new unique pm_events and still linked properly
+      int clt[500][4] = { 0 };
+      int clt_last = 0; // index
+
+      for (b=0; b<500; b++)       // iterate items in selection
+      {
+         if ((ft_item[b][0] == 16) || (ft_item[b][0] == 17)) // manip or block
+         {
+            clt_last += add_item_link_translation(b, 1, ft_item[b][1], clt, clt_last);
+         }
+
+         if (ft_item[b][0] == 9) // trigger
+         {
+            clt_last += add_item_link_translation(b, 11, ft_item[b][11], clt, clt_last);
+            clt_last += add_item_link_translation(b, 12, ft_item[b][12], clt, clt_last);
+            clt_last += add_item_link_translation(b, 13, ft_item[b][13], clt, clt_last);
+            clt_last += add_item_link_translation(b, 14, ft_item[b][14], clt, clt_last);
+         }
+      }
+
       for (b=0; b<500; b++)       // iterate items in selection
       {
          if (ft_item[b][0])       // if active attempt copy
@@ -1023,35 +1044,24 @@ void do_fcopy(int qx1, int qy1)
                   }
 
 
-                  if (item[c][0] == 16) // manip
-                  {
-                     int ev = item[c][1]; // event
-                     if (ev) // do nothing if zero
+
+
+
+
+                  // does this copy item have an entry in the clt table?
+                  for (int i=0; i<clt_last; i++)
+                     if (clt[i][0] == b) // found index of source item table
                      {
+                        int var_index = clt[i][1]; // var #
+                        int ev2 = clt[i][3];       // new ev
 
-                     // see if we can find a trigger item with the same event
-                     // need to know how many item..??
-                     // need to know what item number and what link(11, 12, 13, 14)
-
-                     // this will not work...abandon all hope!!!!
-                     // how can I search ft??
-
-
+                        item[c][var_index] = ev2;
                      }
 
 
 
 
-
-
-                  }
-
-
-
-
-
-
-                  if ((item[c][0] == 9) || (item[c][0] == 16) || (item[c][0] == 17)) // trigger, manip, damage
+                  if ((item[c][0] == 9) || (item[c][0] == 16) || (item[c][0] == 17)) // move field for trigger, manip, damage
                   {
                      item[c][6] += qx1*20;
                      item[c][7] += qy1*20;

@@ -9,7 +9,7 @@
 
 
 
-int select_bitmap(void)
+int select_bitmap(int tn)
 {
    int quit = 0;
    while (!quit)
@@ -46,22 +46,8 @@ int select_bitmap(void)
          quit = 1;
       }
    }
-   return -1;
+   return tn; // original if bad exit
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

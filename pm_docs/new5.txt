@@ -15732,6 +15732,301 @@ im tired and need to go to bed...
 
 20220401 9:21PM
 
+make some things to show off the new stuff...
+
+
+the floor that keeps growing as you get to the end
+
+a spikey floor that is damaging if you don't keep jumping
+
+
+a room that you can't exit until all enemies in the room are killed
+
+
+I really want to have the copy paste thing make new links...
+
+before the paste happens...
+
+iterate everything that is going to be pasted....
+
+if there any items that have links, put them in a list...
+
+like...
+
+int copy_link_tranform[500][4]
+
+0 - source item number
+1 - source item var
+2 - source item ev
+3 - new ev number
+
+
+
+the after filling the list...
+iterate the list
+- find ev number
+- does it exist in destination item array?
+- if yes find new empty and set in dest
+- iterate the rest of the list and see if any more are found with same source ev
+- set then also
+
+then when copying use the new number...
+
+I need a place to put pm_event related funtions...
+I like e_fnx....
+
+lets do that...
+then make a new funtion that determines in an event is used...
+
+all the fucntions are now in e_fnx....
+
+made these....
+
+int is_pm_event_used(int ev)
+{
+   for (int i=0; i<500; i++)
+   {
+      if (item[i][0] == 9)
+      {
+         if (item[i][11] == ev) return 1;
+         if (item[i][12] == ev) return 1;
+         if (item[i][13] == ev) return 1;
+         if (item[i][14] == ev) return 1;
+      }
+      if ((item[i][0] == 16) && (item[i][1] == ev)) return 1;
+      if ((item[i][0] == 17) && (item[i][1] == ev)) return 1;
+   }
+   return 0;
+}
+
+int get_unused_pm_event(void)
+{
+   int ev = 1; // don't ever use event 0
+   int done = 0;
+   while (!done)
+   {
+      if (!is_pm_event_used(ev)) return ev;
+      else if (++ev > 999) done = 1;
+   }
+   return 0; // only if no unused can be found
+}
+
+
+
+made int copy_link_tranform[500][4] global...
+I have a few function that I want to manip it...
+
+wait a tick...do I need to make it global? can I just pass the array ref to the calling function?
+lets try it....
+
+here is how to do it:
+
+pass it like this clt
+in function that gets it use clt[][4]
+
+this is what I have so far...
+
+
+// this section is to make any copied pm_event links have new unique pm_events and still linked properly
+int clt[500][4] = { 0 };
+int clt_last = 0; // index
+
+for (b=0; b<500; b++)       // iterate items in selection
+{
+   if ((ft_item[b][0] == 16) || (ft_item[b][0] == 17)) // manip or block
+   {
+      clt_last += add_item_link_translation(b, 1, ft_item[b][1], clt, clt_last);
+   }
+
+   if (item[b][0] == 9) // trigger
+   {
+      clt_last += add_item_link_translation(b, 11, ft_item[b][11], clt, clt_last);
+      clt_last += add_item_link_translation(b, 12, ft_item[b][12], clt, clt_last);
+      clt_last += add_item_link_translation(b, 13, ft_item[b][13], clt, clt_last);
+      clt_last += add_item_link_translation(b, 14, ft_item[b][14], clt, clt_last);
+   }
+}
+
+int add_item_link_translation(int sel_item_num, int sel_item_var, int sel_item_ev, int clt[][4], int clt_last)
+{
+   if (sel_item_ev)
+   {
+      // check if this event already has a translation and get it if it does
+      int ev2 = check_clt_for_event(sel_item_ev, clt, clt_last);
+
+      if (ev2) // existing translation found
+      {
+         clt[clt_last][0] = sel_item_num;   // item # in selection
+         clt[clt_last][1] = sel_item_var;   // item var #
+         clt[clt_last][2] = sel_item_ev;    // original link
+         clt[clt_last][3] = ev2; // new link
+
+         printf("et %d %d %d %d\n", clt[clt_last][0], clt[clt_last][1], clt[clt_last][2], clt[clt_last][3]);
+
+      }
+      else // no existing translation found
+      {
+         ev2 = get_unused_pm_event_extended(clt, clt_last);
+         clt[clt_last][0] = sel_item_num;   // item # in selection
+         clt[clt_last][1] = sel_item_var;   // item var #
+         clt[clt_last][2] = sel_item_ev;    // original link
+         clt[clt_last][3] = ev2; // new link
+         printf("ne %d %d %d %d\n", clt[clt_last][0], clt[clt_last][1], clt[clt_last][2], clt[clt_last][3]);
+      }
+   }
+   else return 0; // nothing added
+   return 1; // added
+}
+
+
+
+// does this copy item have an entry in the clt table?
+for (int i=0; i<clt_last; i++)
+   if (clt[i][0] == b) // found index of source item table
+   {
+      int var_index = clt[i][1]; // var #
+      int ev2 = clt[1][3];       // new ev
+
+      item[c][var_index] = ev2;
+   }
+
+
+I am missing an important step.....
+
+the link translation table is being correctly built....
+
+but when I go to appy it, all i have is the link to to sel_item...I need the link to the dest item...
+need to add it to array... then set it when copying from sel to dest...
+belay that...when I am doing it already, I have both source and dest...should work fine...(now that I fixed a bug!)
+yup, it seems to work fine...
+
+for the first set...
+
+then the triggers don't seem to copy nice after that...they stick with the copy items...
+
+it works fine when copying everything...found the bug!!!
+
+back to making some really cool demo levels....
+
+a spikey floor that is damaging if you don't keep jumping
+
+bug, can set timer for bd but slider does not update....
+104 and 103...fixed
+
+bug instant death(403) affects timer draw mode(401)
+same flag define!!
+
+
+
+I made a really cool level...
+
+Level 58
+
+- floor that grows when you get to the end... or shoot bullet across it
+- room that locks you in when you enter
+- room that you need to kill all enemies before the wall will open
+- spikey floor that retracts on a timer when you trigger it
+- room that you are locked in until you lead an enemy into an area
+
+This is really cool looking... This level is done...
+Next, I will make more cool stuff, like....
+
+Block toggle puzzle
+
+
+bug if you escape out of block select it dies badly.....fixed
+
+rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96);
+draws 1 pixel up and to the left......fixed by adjusting the clipping rectangle
+
+I want to check collisions, especially bullets...
+there is one spot.....
+when facing right and shooting up x=26 does not hit either block
+when facing left  and shooting up x=93 does not hit either block
+when shooting left and right y=49 does not hit either block
+I think 1 pixel is close enough
+
+i want to make bombs bigger than 800...lets try 1200...nice....
+
+what else can I do to show off the new stuff?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

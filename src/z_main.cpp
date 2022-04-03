@@ -9,9 +9,6 @@
 int pm_event[1000];
 
 
-
-
-
 // temp testing variable
 int tx1=0;
 int ty1=0;
