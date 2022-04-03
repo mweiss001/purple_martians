@@ -1094,7 +1094,20 @@ void draw_player(int p)
       al_draw_scaled_rotated_bitmap(player_tile[players[p].color][players[p].shape], 10, 10, AX+10, AY+10, scale, scale, rot, flags);
 
 
+
+
+
+
+
+
+
+
+
       /*
+
+
+      al_draw_textf(font, palette_color[15], AX+10, AY-30, ALLEGRO_ALIGN_CENTER, "X:%d Y:%d", AX, AY);
+
 
       if (players[p].on_ladder)
          al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+19, 0.5+AY+19, palette_color[11], 1);
@@ -1139,7 +1152,11 @@ void draw_player(int p)
       }
 
       if (good_height)
-      for (int x=bx1; x<=bx2; x++)
+         if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+           if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+    for (int x=bx1; x<=bx2; x++)
       {
          al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, palette_color[8], 1);
          if (l[x][by] == 19) al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, palette_color[11], 1);

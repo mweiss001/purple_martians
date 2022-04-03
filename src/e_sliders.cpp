@@ -329,7 +329,7 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 1:  sul=100;  sll=2;     sinc=1;   sdx=item[num][7];                break;  // health bonus
       case 2:  sul=200;  sll=2;     sinc=1;   sdx=item[num][8];                break;  // bullet bonus
       case 3:  sul=400;  sll=5;     sinc=1;   sdx=item[num][9];                break;  // timer bonus
-      case 4:  sul=800;  sll=20;    sinc=1;   sdx=item[num][7];                break;  // blast size
+      case 4:  sul=1200; sll=20;    sinc=1;   sdx=item[num][7];                break;  // blast size
       case 5:  sul=2000; sll=1;     sinc=1;   sdx=item[num][9];                break;  // fuse length
       case 6:  sul=200;  sll=1;     sinc=1;   sdx=item[num][9];                break;  // accel
       case 7:  sul=20;   sll=1;     sinc=1;   sdx=item[num][8];                break;  // max speed
@@ -417,8 +417,8 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 102: sul=1000; sll=0;    sinc=1;   sdx=item[num][14];               break;  // item damage total time
 
 
-      case 103: sul=1000; sll=0;    sinc=1;   sdx=item[num][13];               break;  // item damage field on time
-      case 104: sul=1000; sll=0;    sinc=1;   sdx=item[num][13];               break;  // item damage field off total time
+      case 103: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage field on time
+      case 104: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage field off total time
    }
 
 
@@ -1774,8 +1774,8 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
 
       if (bn == 304) item[num][2] = !item[num][2]; // block manip draw mode
 
-      if (bn == 310) item[num][10] = select_bitmap();
-      if (bn == 311) item[num][11] = select_bitmap();
+      if (bn == 310) item[num][10] = select_bitmap(item[num][10]);
+      if (bn == 311) item[num][11] = select_bitmap(item[num][11]);
 
       if (bn == 320)
       {

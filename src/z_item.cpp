@@ -1639,11 +1639,6 @@ item[][12] = draw color
 */
 
 
-void clear_pm_events(void)
-{
-   for (int x=0; x<1000; x++) pm_event[x] = 0;
-
-}
 
 void process_block_manip(int i)
 {

@@ -10,35 +10,6 @@ int round20(int val) // pass it an int and it will round it to the nearest 20
    else return val + (20-m);
 }
 
-
-int get_unused_pm_event(void)
-{
-   int ev = 1; // don't ever use event 0
-   int done = 0;
-   while (!done)
-   {
-      int used = 0;
-      for (int i=0; i<500; i++)
-      {
-         if (item[i][0] == 9)
-         {
-            if (item[i][11] == ev) used = 1;
-            if (item[i][12] == ev) used = 1;
-            if (item[i][13] == ev) used = 1;
-            if (item[i][14] == ev) used = 1;
-         }
-         if ((item[i][0] == 16) && (item[i][1] == ev)) used = 1;
-         if ((item[i][0] == 17) && (item[i][1] == ev)) used = 1;
-      }
-      if (!used) return ev;
-      else if (++ev > 999) done = 1;
-   }
-   return 0; // only if no unused can be found
-}
-
-
-
-
 void clear_game_moves(void)
 {
    for (int x=0; x<GAME_MOVES_SIZE; x++)
