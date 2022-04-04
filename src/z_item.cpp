@@ -25,7 +25,6 @@ int item_data(int x, int y)
                          sprintf(msg, "%d type %d???  ", item_num_of_type[c], c); // default unknown
             if (c ==  0) sprintf(msg, "%d type 0      ", item_num_of_type[c]);
             if (c ==  2) sprintf(msg, "%d Bonus       ", item_num_of_type[c]);
-            if (c ==  6) sprintf(msg, "%d Free Men    ", item_num_of_type[c]);
             if (c == 10) sprintf(msg, "%d Messages    ", item_num_of_type[c]);
             al_draw_text(font, palette_color[3], x, y, 0, msg);
             y+=8;
@@ -570,59 +569,64 @@ void draw_rocket_lines(int i)
    }
 }
 
+
+
+
+
 void draw_items(void)
 {
    al_set_target_bitmap(level_buffer);
    for (int i=0; i<500; i++)
       if (item[i][0])
       {
+         int type = item[i][0];
          int x = al_fixtoi(itemf[i][0]);
          int y = al_fixtoi(itemf[i][1]);
          int shape = item[i][1];                       // get shape
          if (shape > 999) shape = zz[0][shape-1000];   // ans
          int drawn = 0;
 
-         if ((item[i][0] == 10) && (item[i][6] > 0)) // pop up message
+         if ((type == 10) && (item[i][6] > 0)) // pop up message
          {
             item[i][6]--;
             draw_pop_message(i);
          }
 
-         if (item[i][0] == 1)
+         if (type == 1)
          {
              draw_door(i, x, y);
              drawn = 1;
          }
 
-         if (item[i][0] == 9)
+         if (type == 9)
          {
              draw_trigger(i);
              drawn = 1;
          }
 
-         if (item[i][0] == 16)
+         if (type == 16)
          {
              draw_block_manip(i);
              drawn = 1;
          }
 
-         if (item[i][0] == 17)
+         if (type == 17)
          {
              draw_block_damage(i);
              drawn = 1;
          }
 
 
-         if (item[i][0] == 99)
+         if (type == 99)
          {
             draw_lit_bomb(i);
             if (item[i][11]) al_draw_bitmap(tile[440], x, y, 0);  // bomb sticky spikes
             drawn = 1;
          }
-         if ((item[i][0] == 8) && (item[i][11])) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
+         if ((type == 8) && (item[i][11])) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
 
          // moving key in final sequence
-         if ((item[i][0] == 4) && (item[i][11] > 0) && (item[i][11] < 10))
+         if ((type == 4) && (item[i][11] > 0) && (item[i][11] < 10))
          {
             // moving key in final stage gets static shape not ans
             shape = item[i][1];                           // get shape
@@ -652,20 +656,20 @@ void draw_items(void)
 
 
           // these types need rotation
-         if ((item[i][0] == 11) || (item[i][0] == 98) ||  // rockets
-            ((item[i][0] == 4) && (item[i][11] > 0))) // moving key
+         if ((type == 11) || (type == 98) ||  // rockets
+            ((type == 4) && (item[i][11] > 0))) // moving key
          {
             float rot = al_fixtof(al_fixmul(al_itofix(item[i][10]/10), al_fixtorad_r));
             al_draw_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, rot, 0);
             drawn = 1;
          }
 
-         if (item[i][0] == 98) draw_rocket_lines(i); // for lit rockets
+         if (type == 98) draw_rocket_lines(i); // for lit rockets
 
 
 
 
-         if (item[i][0] == 5) // start
+         if (type == 5) // start
          {
             if (number_of_starts > 1)
             {
@@ -675,7 +679,7 @@ void draw_items(void)
             }
          }
 
-         if (item[i][0] == 3) // exit
+         if (type == 3) // exit
          {
             al_draw_bitmap(tile[399], x, y, 0); // 'exit' text not shown
             if (frame_num % 60 > 30)
@@ -692,16 +696,38 @@ void draw_items(void)
             drawn = 1;
          }
 
+
+
+
+         if ((type == 2) && (item[i][6] == 3)) // purple coin custom draw
+         {
+            if (!level_editor_running)
+            {
+               spin_shape(shape, x, y, 0, 0, 19, 19, 0.8, 0.5, 40);
+               drawn = 1;
+            }
+         }
+
          // default draw if nothing else has drawn it up to now
          if (!drawn) al_draw_bitmap(tile[shape], x, y, 0);
 
          // if item is expiring show how many seconds left it has
-         if ((item[i][14]>10) && (item[i][0] != 9) && (item[i][0] != 16) && (item[i][0] != 17))
+         if ((item[i][14]>10) && (type != 9) && (type != 16) && (type != 17))
             al_draw_textf(f3, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
 
 
       } // end of active item iterate
 }
+
+
+
+
+
+
+
+
+
+
 
 int is_item_stuck_to_wall(int i)
 {
@@ -738,9 +764,6 @@ void move_items()
 
             if (item[i][0] == 99) proc_lit_bomb(i);
             if (item[i][0] == 98) proc_lit_rocket(i);
-
-
-
             if ((item[i][0] == 4) && (item[i][11] > 0)) // moving key
             {
                // do the incs until the last 10 frames, which are for final sequence
@@ -757,23 +780,28 @@ void move_items()
                   if (item[i][12]) // matching keyed blocks only
                   {
                      int key = item[i][1] - 1039;
-                     for (int x = item[i][6]; x <= item[i][8]; x++)
-                        for (int y = item[i][7]; y <= item[i][9]; y++)
+                     int x1 = item[i][6] / 20;
+                     int y1 = item[i][7] / 20;
+                     int x2 = (item[i][6] + item[i][8]) / 20;
+                     int y2 = (item[i][7] + item[i][9]) / 20;
+                     for (int x = x1; x < x2; x++)
+                        for (int y = y1; y < y2; y++)
                            if ((l[x][y] == 188 + key) || (l[x][y] == 204 + key) || (l[x][y] == 220 + key))
                               remove_block(x, y);
                   }
                   else // remove all blocks in range
                   {
-                     for (int x = item[i][6]; x <= item[i][8]; x++)
-                        for (int y = item[i][7]; y <= item[i][9]; y++)
+                     int x1 = item[i][6] / 20;
+                     int y1 = item[i][7] / 20;
+                     int x2 = (item[i][6] + item[i][8]) / 20;
+                     int y2 = (item[i][7] + item[i][9]) / 20;
+                     for (int x = x1; x < x2; x++)
+                        for (int y = y1; y < y2; y++)
                            remove_block(x, y);
                   }
                   draw_lift_lines(); // in case removing the key blocks erases lift lines
                 }
             }  // end of moving key
-
-
-
             else if ((item[i][3]) && (item[i][0] != 98)) // and not stationary and not lit rocket
             {
                int pc = 0;
@@ -781,8 +809,6 @@ void move_items()
                   if (players[p].active)
                      if ((!players[p].paused) || (players[p].paused && players[p].paused_type == 2))
                         if (i == (players[p].carry_item-1)) pc = 1;
-
-
 
                if (!pc) // not being carried
                {
@@ -1159,18 +1185,126 @@ void proc_door_collision(int p, int i)
    } // end of if not first door touched
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void proc_bonus_collision(int p, int i)
 {
-   al_fixed f100 = al_itofix(100);
-   if (players[p].LIFE < f100)
+   int bonus_type = item[i][6];
+
+   if (bonus_type == 1) // health bonus
+   {
+      al_fixed f100 = al_itofix(100);
+
+
+      if (players[p].LIFE < f100)
+      {
+         item[i][0] = 0;
+         players[p].LIFE += al_itofix(item[i][7]);
+         if (players[p].LIFE > f100) players[p].LIFE = f100;
+
+         game_event(72, 0, 0, p, i, item[i][1], item[i][7]);
+      }
+   }
+
+   if (bonus_type == 2) // free man
    {
       item[i][0] = 0;
-      players[p].LIFE += al_itofix(item[i][7]);
-      if (players[p].LIFE > f100) players[p].LIFE = f100;
-
-      game_event(72, 0, 0, p, i, item[i][1], item[i][7]);
+      players[p].LIVES++;
+      game_event(70, 0, 0, p, i, 0, 0);
    }
+
+
+
+   if (bonus_type == 3) // purple coin!!!
+   {
+      item[i][0] = 0;
+      // game_event(70, 0, 0, p, i, 0, 0);
+
+   }
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void proc_exit_collision(int p, int i)
 {
@@ -1189,8 +1323,13 @@ void proc_key_collision(int p, int i)
    if (item[i][11] == 0) // only collide if not already moving
    {
 
-      int x2 = (item[i][6] + item[i][8]) * 10;         // get the center of the block range
-      int y2 = (item[i][7] + item[i][9]) * 10;
+//      int x2 = (item[i][6] + item[i][8]) * 10;         // get the center of the block range
+//      int y2 = (item[i][7] + item[i][9]) * 10;
+      int x2 = (item[i][6] + item[i][8] / 2);         // get the center of the block range
+      int y2 = (item[i][7] + item[i][9] / 2);
+
+
+
       al_fixed xlen = al_itofix(x2) - itemf[i][0];     // distance between block range and key
       al_fixed ylen = al_itofix(y2) - itemf[i][1];
 
@@ -1210,13 +1349,6 @@ void proc_key_collision(int p, int i)
       item[i][11] = num_steps + 10;                    // add 10 for final sequence
       game_event(2, 0, 0, p, i, 0, 0);
    }
-}
-
-void proc_freeman_collision(int p, int i)
-{
-   item[i][0] = 0;
-   players[p].LIVES++;
-   game_event(70, 0, 0, p, i, 0, 0);
 }
 
 void proc_mine_collision(int p, int i)
@@ -1343,7 +1475,6 @@ void proc_item_collision(int p, int i)
       case 2:  proc_bonus_collision(p, i);    break;
       case 3:  proc_exit_collision(p, i);     break;
       case 4:  proc_key_collision(p, i);      break;
-      case 6:  proc_freeman_collision(p, i);  break;
       case 7:  proc_mine_collision(p, i);     break;
       case 8:  proc_bomb_collision(p, i);     break;
       case 10: item[i][6] = item[i][7];       break; // set pop-up message timer
@@ -2120,54 +2251,7 @@ list of items
 [98] - lit rocket
 [99] - lit bomb
 
-
-
-
-
-
-[20] minefield
-
-
-
-[20] minefield
-
-item[][0] = active and type
-item[][1] = bitmap or ans
-item[][2] = draw type (not used)
-item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door -3=sticky)
-item[][4] = x pos (int) (2000)
-item[][5] = y pos (int) (2000)
-
-
-item[][6] = minefield x (int) (2000)
-item[][7] = minefield y (int) (2000)
-item[][8] = minefield w (int) (2000)
-item[][9] = minefield h (int) (2000)
-
-
-item [][10] == mode
-
-mode
-
-
-
-
-
-
-
-
-
-item[][14] = time to live
-item[][15] = tag with cloner item id
-
-
-
-
-
-
-
 // common
-
 item[][0] = active and type
 item[][1] = bitmap or ans
 item[][2] = draw type (not used)
@@ -2177,13 +2261,9 @@ item[][5] = y pos (int) (2000)
 
 item[][14] = time to live
 item[][15] = tag with cloner item id
-
-
-
 
 
 // type specific
-
 [1] - door
 item[][6]  color
 item[][7]  move type (0=auto, 1=force instant, 2=force move)
@@ -2196,6 +2276,12 @@ item[][13] base animation shape
 
 
 [2] - bonus
+
+item[][6] bonus type
+1 - Health
+2 - Free Man
+3 - Purple Coin
+
 item[][7] health bonus
 item[][8] bullet bonus (ignored now)
 item[][9] timer bonus  (ignored now)
@@ -2215,8 +2301,6 @@ item[][12] matching keyed blocks only
 [5] - start
 item[][7] start index
 item[][8] initial time (ignored now)
-
-[6] - free man
 
 [7] - mine
 item[][8] mine damage

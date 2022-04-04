@@ -10,6 +10,92 @@ int round20(int val) // pass it an int and it will round it to the nearest 20
    else return val + (20-m);
 }
 
+
+
+
+
+
+
+void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle)
+{
+   int cti = cycle; // how many frame a full spin takes
+
+   float ct = (int)cti; //cycle time
+   float ct1 = ct/4;    // 20
+   float ct2 = ct/2;    // 40
+   float ct3 = ct1*3;   // 60
+   float ct4 = ct;      // 80
+
+   int tm = frame_num % cti; // get a number from 0 to cti than increments every frame
+
+   float tmr = (int) tm;
+
+   float xs = 0;
+   int flags = 0;
+
+
+   // 80-60 = narrow to wide xs = 0 to 20 regular draw
+   // 60-40 = wide to narrow xs = 20 to 0 regular draw
+
+   // 40    = narrowest      xs = 0       flip draw from regular to reverse
+
+   // 40-20 = narrow to wide xs = 0 to 20 reverse draw
+   // 20-0  = wide to narrow xs = 20 to 0 reverse draw
+
+   // 0     = narrowest      xs = 0       flip draw from reverse to regular
+
+
+   if (tmr > ct2)
+   {
+      if (tmr>ct3) xs = ct4-tmr;  // 80-60 ---> 0-20
+      else         xs = tmr-ct2;  // 60-40 ---> 20-0
+   }
+   else
+   {
+      if (tmr>ct1) xs = ct2-tmr;    // 40-20 ---> 0-20
+      else xs = tmr;                // 20-0  ---> 20-0
+      flags |= ALLEGRO_FLIP_HORIZONTAL;
+   }
+
+   // scale xs (if ct == 80 scale = 1)
+   // or more accurately full width of tile (20) * 4
+   float xscale = (tsw*4)/ct;
+   xs *= xscale;
+
+   float ys=tsh; // y scale is the same as the source height of the tile
+
+
+   // optionally scale the entire thing
+   xs *= scale;
+   ys *= scale;
+
+   // get draw offsets based on scale of final tile
+   int xo = 10 - (xs/2); // x offset
+   int yo = 10 - (ys/2); // x offset
+
+   ALLEGRO_COLOR c2 = al_map_rgba_f(dim, dim, dim, 1.0); // show dimmer on back side
+
+   if (flags == 0) al_draw_scaled_bitmap(       tile[tn],     tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
+   else            al_draw_tinted_scaled_bitmap(tile[tn], c2, tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void clear_game_moves(void)
 {
    for (int x=0; x<GAME_MOVES_SIZE; x++)

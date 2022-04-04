@@ -1177,8 +1177,7 @@ int load_gm(const char *sfname);
 // z_fnx.h
 int round20(int val);
 
-
-
+void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
 
 void clear_game_moves(void);
 void get_hostname(void);

@@ -76,6 +76,7 @@ void global_level()
    al_flip_display();
    al_clear_to_color(al_map_rgb(0,0,0));
 
+   printf("\nRunning Global Level Test\n");
 
 
    // iterate array of found levels
@@ -90,100 +91,155 @@ void global_level()
       al_draw_textf(font, palette_color[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       load_level(le[x], 0);
 
-  //------------------------------------------------------------------------------------------------------------------
-  //--------------check for bad enemy data ---------------------------------------------------------------------------
-  //------------------------------------------------------------------------------------------------------------------
-         for (int y=0; y<100; y++)
-         {
-             int good = 0;
-             int type = Ei[y][0];
-             if (type == 0) good = 1; // this is a legal value
-             if (type == 3) good = 1;
-             if (type == 4) good = 1;
-             if (type == 6) good = 1;
-             if (type == 7) good = 1;
-             if (type == 8) good = 1;
-             if (type == 9) good = 1;
-             if (type == 11) good = 1;
-             if (type == 12) good = 1;
-
-             if (!good)
-             {
-                Ei[y][0] = 0; // erase
-                printf("lev%d -- enemy:%d - bad type%d\n", le[x], y, type);
-             }
-
-
-             else if (type) // only check the rest if type valid
-             {
-                 int shape = Ei[y][1];
-                 // min is flapper with 155
-                 // max is block walker 864
-                 if ((shape < 147) || (shape > 1020))
-                    printf("lev%d -- enemy:%d - bad shape%d\n", le[x], y, shape);
-
-                  al_fixed scale = Efi[y][12];
-                  if ((scale < al_ftofix(.2)) || (scale > al_ftofix(10)))
-                      printf("lev%d -- enemy:%d - bad scale%f\n", le[x], y, al_fixtof(scale));
-
-                  al_fixed rot = Efi[y][14];
-                  if ((rot < al_itofix(-256)) || (rot > al_itofix(256)))
-                      printf("lev%d -- enemy:%d - bad rot%f\n", le[x], y, al_fixtof(rot));
-
-                  al_fixed xpos = Efi[y][0];
-                  if ((xpos < al_itofix(20)) || (xpos > al_itofix(1960)))
-                      printf("lev%d -- enemy:%d - bad xpos%f\n", le[x], y, al_fixtof(xpos));
-
-                  al_fixed ypos = Efi[y][1];
-                  if ((ypos < al_itofix(20)) || (ypos > al_itofix(1960)))
-                      printf("lev%d -- enemy:%d - bad ypos%f\n", le[x], y, al_fixtof(ypos));
-
-             }
-          }
-
-
-
-
-  //------------------------------------------------------------------------------------------------------------------
-  //--------------check for bad itemdata ---------------------------------------------------------------------------
-  //------------------------------------------------------------------------------------------------------------------
-
-   for (int c=0; c<500; c++)
-      if (item[c][0])
+      //------------------------------------------------------------------------------------------------------------------
+      //--------------check for bad enemy data ---------------------------------------------------------------------------
+      //------------------------------------------------------------------------------------------------------------------
+      for (int y=0; y<100; y++)
       {
-         // first check for valid type
          int good = 0;
-         if (item[c][0] == 1) good = 1;
-         if (item[c][0] == 2) good = 1;
-         if (item[c][0] == 3) good = 1;
-         if (item[c][0] == 4) good = 1;
-         if (item[c][0] == 5) good = 1;
-         if (item[c][0] == 6) good = 1;
-         if (item[c][0] == 7) good = 1;
-         if (item[c][0] == 8) good = 1;
-         if (item[c][0] == 10) good = 1;
-         if (item[c][0] == 11) good = 1;
-         if (item[c][0] == 12) good = 1;
-         if (item[c][0] == 14) good = 1;
-         if (item[c][0] == 15) good = 1;
+         int type = Ei[y][0];
+         if (type == 0)  good = 1; // this is a legal value
+         if (type == 3)  good = 1;
+         if (type == 4)  good = 1;
+         if (type == 6)  good = 1;
+         if (type == 7)  good = 1;
+         if (type == 8)  good = 1;
+         if (type == 9)  good = 1;
+         if (type == 10) good = 1;
+         if (type == 11) good = 1;
+         if (type == 12) good = 1;
 
-         if (!good)  printf("Level:%d - Item:%d - bad type:%d\n", le[x], c, item[c][0]);
-
-         if (good)
+         if (!good)
          {
-            if ((item[c][1] < 169) || (item[c][1] > 1084))
-               printf("Level:%d - Item:%d - bad shape:%d\n", le[x], c, item[c][1]);
+            Ei[y][0] = 0; // erase
+            printf("Level:%3d - Enemy:%d - bad type%d   <----- will be erased!!!!!\n", le[x], y, type);
+         }
+            else if (type) // only check the rest if type valid
+         {
+            int shape = Ei[y][1];
+            // min is flapper with 155
+            // max is block walker 864
 
+            if (type != 10) // don't check for 10, has custon draw
+            {
 
-            int xpos = item[c][4];
-            if ((xpos < 0) || (xpos > 1980))
-                printf("Level:%d - Item:%d - bad xpos%d\n", le[x], c, xpos);
+               if ((shape < 147) || (shape > 1020))
+                  printf("Level:%3d - Enemy:%2d - type%2d - bad shape%d\n", le[x], y, type, shape);
 
-            int ypos = item[c][5];
-            if ((ypos < 0) || (ypos > 1980))
-                printf("Level:%d - Item:%d - bad ypos%d\n", le[x], c, ypos);
+               al_fixed scale = Efi[y][12];
+               if ((scale < al_ftofix(.2)) || (scale > al_ftofix(10)))
+                  printf("Level:%3d - Enemy:%2d - type%2d - bad scale%f\n", le[x], y, type, al_fixtof(scale));
+
+               al_fixed rot = Efi[y][14];
+               if ((rot < al_itofix(-256)) || (rot > al_itofix(256)))
+                  printf("Level:%3d - Enemy:%2d - type%2d - bad rot%f\n", le[x], y, type, al_fixtof(rot));
+            }
+
+            al_fixed xpos = Efi[y][0];
+            if ((xpos < al_itofix(20)) || (xpos > al_itofix(1960)))
+               printf("Level:%3d - Enemy:%2d - type%2d - bad xpos%f\n", le[x], y, type, al_fixtof(xpos));
+
+            al_fixed ypos = Efi[y][1];
+            if ((ypos < al_itofix(20)) || (ypos > al_itofix(1960)))
+               printf("Level:%3d - Enemy:%2d - type%2d - bad ypos%f\n", le[x], y, type, al_fixtof(ypos));
+
          }
       }
+
+
+
+
+      //------------------------------------------------------------------------------------------------------------------
+      //--------------check for bad item data ---------------------------------------------------------------------------
+      //------------------------------------------------------------------------------------------------------------------
+      for (int c=0; c<500; c++)
+      {
+         int type = item[c][0];
+         int good = 0;
+
+         if (type)
+         {
+            if (type == 1)  good = 1;
+            if (type == 2)  good = 1;
+            if (type == 3)  good = 1;
+            if (type == 4)  good = 1;
+            if (type == 5)  good = 1;
+            if (type == 6)  good = 1;
+            if (type == 7)  good = 1;
+            if (type == 8)  good = 1;
+            if (type == 9)  good = 1;
+            if (type == 10) good = 1;
+            if (type == 11) good = 1;
+            if (type == 12) good = 1;
+            if (type == 14) good = 1;
+            if (type == 15) good = 1;
+            if (type == 16) good = 1;
+            if (type == 17) good = 1;
+
+            if (!good)
+            {
+               printf("Level:%3d - Item: %2d - bad type:%d   <----- will be erased!!!!!\n", le[x], c, type);
+               item[c][0] = 0;
+            }
+
+
+
+
+            if (good)
+            {
+               if ((type != 9) && (type != 16) && (type != 17)) // don't check shape for these items...custom draw
+               {
+                  if ((item[c][1] < 169) || (item[c][1] > 1084))
+                     printf("Level:%3d - Item: %2d - type:%2d - bad shape:%d\n", le[x], c, type, item[c][1]);
+               }
+
+
+
+               if ((type == 9) || (type == 16) || (type == 17)) // check field range values
+               {
+                  int x1 = item[c][6];
+                  int y1 = item[c][7];
+                  int x2 = item[c][6] + item[c][8];
+                  int y2 = item[c][7] + item[c][9];
+
+                  if ((x1 < 0) || (x1 > 1980)) printf("Level:%3d - Item: %2d - type:%2d - bad field x1 pos %d\n", le[x], c, type, x1);
+                  if ((x2 < 0) || (x2 > 1980)) printf("Level:%3d - Item: %2d - type:%2d - bad field x2 pos %d\n", le[x], c, type, x2);
+                  if ((y1 < 0) || (y1 > 1980)) printf("Level:%3d - Item: %2d - type:%2d - bad field y1 pos %d\n", le[x], c, type, x1);
+                  if ((y2 < 0) || (y2 > 1980)) printf("Level:%3d - Item: %2d - type:%2d - bad field y2 pos %d\n", le[x], c, type, x2);
+
+
+
+               }
+
+
+
+
+
+
+
+
+               int xpos = item[c][4];
+               if ((xpos < 0) || (xpos > 1980))
+                   printf("Level:%3d - Item: %2d - type:%2d - bad xpos%d\n", le[x], c, type, xpos);
+
+               int ypos = item[c][5];
+               if ((ypos < 0) || (ypos > 1980))
+                   printf("Level:%3d - Item: %2d - type:%2d - bad ypos%d\n", le[x], c, type, ypos);
+            }
+         }
+      }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -291,11 +347,102 @@ Ef[y][9] = 0;
 
 /*
 
+      for (int y=0; y<500; y++)
+         if (item[y][0] == 2) // free man
+         {
+            //item[y][6] = 1;
+
+            count0++;
+            if (item[y][6] == 2) count1++;
+
+//            item[y][0] = 2;
+  //          item[y][6] = 2;
+
+*/
+
+
+
+
+/*            if (item[y][7] == 10) count1++;
+            if (item[y][7] == 50) count2++;
+
+            if ((item[y][7] != 10) && (item[y][7] != 50))
+            {
+
+               printf("Level:%3d - Item: %2d - type:%2d - bonus health:%d\n", le[x], y, 2, item[y][7]);
+
+*/
+
+
+
+
+
+
+
+/*
+             if (item[y][7] != 0) count0++;
+
+
+
+             if (item[y][0] == 11) count1++;
+             if ((item[y][0] == 11) && (item[y][10] = 0)) count2++;
+
+             if ((item[y][10] != 0) && (item[y][0] != 11))  count3++;
+
+*/
+
+//            item[y][10] = item[y][4]/20;
+ //           item[y][11] = item[y][5]/20;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       for (int y=0; y<500; y++)
-//         if (item[y][0] == 4) // keys only
+         if (item[y][0] == 4) // keys only
          {
-             if (item[y][10] != 0) count0++;
+             count0++;
+
+
+             int x1 = item[y][6]*20;
+
+             int y1 = item[y][7]*20;
+
+             int x2 = (item[y][8] - item[y][6]+1) * 20;
+             int y2 = (item[y][9] - item[y][7]+1) * 20;
+
+
+
+             item[y][6] = x1;
+             item[y][7] = y1;
+             item[y][8] = x2;
+             item[y][9] = y2;
+
+         }
+
+
+
+
+
+
+
+
+
+             /*
 
              if (item[y][0] == 11) count1++;
              if ((item[y][0] == 11) && (item[y][10] = 0)) count2++;
@@ -306,10 +453,15 @@ Ef[y][9] = 0;
 
 //            item[y][10] = item[y][4]/20;
  //           item[y][11] = item[y][5]/20;
-         }
 
 
-*/
+ */
+
+
+
+
+
+
 
 
 /*
@@ -863,7 +1015,7 @@ Ef[y][9] = 0;
 
   */
 
-      if (0)
+      if (1)
       {
          save_level(le[x]);
          al_set_target_backbuffer(display);

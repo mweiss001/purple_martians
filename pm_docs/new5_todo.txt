@@ -175,9 +175,14 @@ solid for bullet....etc
 
 
 
+how about making health bonus only take the ammount of health needed to get to 100
+if any is left, just subtract and don't erase the item
 
 
 
+make a field that manipulates the players controls, like gravity, etc...
+
+make an obvious item that reacts when getting shot... toggle on and off..
 
 
 
@@ -190,6 +195,14 @@ solid for bullet....etc
 ------------------------------------------------------
 ------------------------ Level ideas -----------------
 ------------------------------------------------------
+
+make a level where the field gives you health...
+then cannons shoot you from below and push you up...
+can enemies control how powerful their bullets are?...no bullets have fixed damage...for now
+
+
+
+make a level with block 0 and 1 that look the same but set block manip to change block 1...
 
 make a level that requires traveling on a lift while jumping on and off of switches
 

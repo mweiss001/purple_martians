@@ -15150,7 +15150,7 @@ extern int pm_event[100];
 
 where to clear it? in start level stuff...
 
-I hooke in an event and it works!!! I am so excited!
+I hooked in an event and it works!!! I am so excited!
 
 
 got to go...
@@ -15407,8 +15407,7 @@ the less complicated way would be to use 4 flags, one for each...
 
 made button and implemented....done
 
-
-seem slike all this is working...
+seems like all this is working...
 
 still to do...
 
@@ -15762,7 +15761,7 @@ int copy_link_tranform[500][4]
 
 
 
-the after filling the list...
+then after filling the list...
 iterate the list
 - find ev number
 - does it exist in destination item array?
@@ -15959,293 +15958,421 @@ what else can I do to show off the new stuff?
 
 
 
+can I do my own effect of a coing spinning...like logo...?
 
 
+extend bonus item to include the new coins...
 
 
+I could make key just emit event...then it would not draw nice...maybe I could...
 
 
+pm_event logic...
 
 
+make an item that does nothing but acts as a switch point for pm_events
 
+have a group of AND inputs, OR INPUTS
 
+and one on more outputs
 
+how will it handle toggles?
+will it erase pm_events every frame?
+yes, if it uses or looks at them
 
+right now I can't have a trigger affect muliple things because when it is used, it is deleted
+right now I can have multiple trigger affecting the same thing, but...
+one might overide the other
+- toggle bad
+- reset damage timer, ok
 
 
+make a trigger item...count...
+number of enemies > num
+number of enemies < num
+same for items and players
 
 
 
 
 
+extend bonus to also include free man and coins....
+maybe I can do my own rotate, like with logo...later
 
 
+[2] - bonus
 
+item[][6] bonus type
+1 = health
+2 = free man
+3 = purple coin
 
+item[][7] health bonus
+item[][8] bullet bonus (ignored now)
+item[][9] timer bonus  (ignored now)
 
+now I need to run glt and set all bonus type 2 to have 6 = 1...
+I have 330 bonus types and all have 7 set and nothing for 8 and 9...
 
+set all to have type = 1...
 
+fix in PDE...done
 
 
+fix when flowers and diamonds are created....
+at the very end of enemy death...done
 
+now add free man...
 
+all that matters is
 
+item[][6] bonus type = 2
 
+old:
+item[][0] = 6
+item[][1] = 1038
+item[][2] = 1
+item[][3] = 1
 
+new:
+item[][0] = 2
+item[][1] = 1038
+item[][2] = 1
+item[][3] = 1
+item[][6] = 2
 
+done in PDE...
 
+now do in glt...done, there are no item 6 any more...
 
+where in code should I kill it...
+item text in menu...
 
+in e_items  remove 6 from testing good...
 
+in z_items  removed:
 
+//  if (c ==  6) sprintf(msg, "%d Free Men    ", item_num_of_type[c]);
 
+void proc_freeman_collision(int p, int i)
+{
+   item[i][0] = 0;
+   players[p].LIVES++;
+   game_event(70, 0, 0, p, i, 0, 0);
+}
 
+case 6:  proc_freeman_collision(p, i);  break;
 
+make purple coin...
 
+new:
+item[][0] = 2
+item[][1] = 192
+item[][2] = 0
+item[][3] = 1
+item[][6] = 3
 
+OK it is done...I can easily add one to level and there is code to touch it...later patch in something usefull....
 
+now I want to make key have the same type of field as 9, 16, 17....
 
+this is a huge task....
 
+6:42 AM
 
+find the one place where the key removes blocks...done
 
+void move_items()
+{
+   for (int i=0; i<500; i++)
+      if (item[i][0])
+      {
 
+               if (item[i][11] == 0)
+               {
+                  // remove the key
+                  item[i][0] = 0;
+                  if (item[i][12]) // matching keyed blocks only
+                  {
+                     int key = item[i][1] - 1039;
+                     for (int x = item[i][6]; x <= item[i][8]; x++)
+                        for (int y = item[i][7]; y <= item[i][9]; y++)
+                           if ((l[x][y] == 188 + key) || (l[x][y] == 204 + key) || (l[x][y] == 220 + key))
+                              remove_block(x, y);
+                  }
+                  else // remove all blocks in range
+                  {
+                     for (int x = item[i][6]; x <= item[i][8]; x++)
+                        for (int y = item[i][7]; y <= item[i][9]; y++)
+                           remove_block(x, y);
+                  }
+
+
+
+
+
+key creator.....
+
+         item[c][6] = bx1*20;
+         item[c][7] = by1*20;
+         item[c][8] = (bx2-bx1)*20;
+         item[c][9] = (by2-by1)*20;
+
+/*       item[c][6] = bx1;
+         item[c][7] = by1;
+         item[c][8] = bx2;
+         item[c][9] = by2; */
+
+
+
+create and test...does not work...
+i think move key puts it off screen then it dies....
+
+void proc_key_collision(int p, int i)
+{
+   if (item[i][11] == 0) // only collide if not already moving
+   {
+
+//      int x2 = (item[i][6] + item[i][8]) * 10;         // get the center of the block range
+//      int y2 = (item[i][7] + item[i][9]) * 10;
+      int x2 = (item[i][6] + item[i][8] / 2);         // get the center of the block range
+      int y2 = (item[i][7] + item[i][9] / 2);
+
+now it works!!!!
+
+show in obj viewer nicely.....
 
+            int x2 = item[num][6]/20 * db;
+            int y2 = item[num][7]/20 * db;
+            int x3 = x2 + (item[num][8]/20 + 1) * db;
+            int y3 = y2 + (item[num][9]/20 + 1) * db;;
+            int x4 = (x2+x3)/2;
+            int y4 = (y2+y3)/2;
 
 
+/*            int x2 = item[num][6] * db;
+            int y2 = item[num][7] * db;
+            int x3 = item[num][8] * db + db - 1;
+            int y3 = item[num][9] * db + db - 1;;
+            int x4 = (x2+x3)/2;
+            int y4 = (y2+y3)/2; */
 
 
 
+now map move thinks its one smaller than it is....
+leave map move and fix the others....
+just fix it
+when creating save one bigger...done...now the only thing is to fix the block killer...done....
 
 
+I think this all works now...
 
 
+// remove the key
+item[i][0] = 0;
+if (item[i][12]) // matching keyed blocks only
+{
+   int key = item[i][1] - 1039;
+   int x1 = item[i][6] / 20;
+   int y1 = item[i][7] / 20;
+   int x2 = (item[i][6] + item[i][8]) / 20;
+   int y2 = (item[i][7] + item[i][9]) / 20;
+   for (int x = x1; x < x2; x++)
+      for (int y = y1; y < y2; y++)
+         if ((l[x][y] == 188 + key) || (l[x][y] == 204 + key) || (l[x][y] == 220 + key))
+            remove_block(x, y);
+/*                     for (int x = item[i][6]; x <= item[i][8]; x++)
+      for (int y = item[i][7]; y <= item[i][9]; y++)
+         if ((l[x][y] == 188 + key) || (l[x][y] == 204 + key) || (l[x][y] == 220 + key))
+            remove_block(x, y); */
+}
+else // remove all blocks in range
+{
+   int x1 = item[i][6] / 20;
+   int y1 = item[i][7] / 20;
+   int x2 = (item[i][6] + item[i][8]) / 20;
+   int y2 = (item[i][7] + item[i][9]) / 20;
+   for (int x = x1; x < x2; x++)
+      for (int y = y1; y < y2; y++)
+         remove_block(x, y);
+/*                     for (int x = item[i][6]; x <= item[i][8]; x++)
+      for (int y = item[i][7]; y <= item[i][9]; y++)
+         remove_block(x, y); */
+}
 
+// creator
+item[c][6] = bx1*20;
+item[c][7] = by1*20;
+item[c][8] = (bx2-bx1+1)*20;
+item[c][9] = (by2-by1+1)*20;
+/* item[c][6] = bx1;
+item[c][7] = by1;
+item[c][8] = bx2;
+item[c][9] = by2; */
 
+// title obj (same as 9, 17, 17)
+int x2 = item[num][6]/20 * db;
+int y2 = item[num][7]/20 * db;
+int x3 = x2 + item[num][8]/20 * db - 1;
+int y3 = y2 + item[num][9]/20 * db - 1;;
+int x4 = (x2+x3)/2;
+int y4 = (y2+y3)/2;
 
 
+/*            int x2 = item[num][6] * db;
+int y2 = item[num][7] * db;
+int x3 = item[num][8] * db + db - 1;
+int y3 = item[num][9] * db + db - 1;;
+int x4 = (x2+x3)/2;
+int y4 = (y2+y3)/2; */
 
+map move is now the same as 9, 16, 17
 
 
+am I ready to change all keys in glt????
+test on level 62 only...
 
+make a backup of the level folder...
 
+do I have any new style keys?  kill them...done...
 
+lets do glt on everything.....did 430 keys...test....seems to work
 
+7:52 that only took 1:10...
 
 
+I want a trigger draw type that obviously looks like you can shoot it
 
+see if I can amke shapes for bonus look like they are rotating....
+I'm thinking of using scale and flip...
 
+do it for purple coins...
 
 
+I have it done....
 
+can I make it a nice function?
 
+what do I need:
 
+tile number
+x and y ul corner
+0 0 20 20 inputs
 
+over all scale of output
+how dim the back side is
+how fast to turn
 
 
 
+void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle)
+{
+   int cti = cycle; // how many frame a full spin takes
 
+   float ct = (int)cti; //cycle time
+   float ct1 = ct/4;    // 20
+   float ct2 = ct/2;    // 40
+   float ct3 = ct1*3;   // 60
+   float ct4 = ct;      // 80
 
+   int tm = frame_num % cti; // get a number from 0 to cti than increments every frame
 
+   float tmr = (int) tm;
 
+   float xs = 0;
+   int flags = 0;
 
 
+   // 80-60 = narrow to wide xs = 0 to 20 regular draw
+   // 60-40 = wide to narrow xs = 20 to 0 regular draw
 
+   // 40    = narrowest      xs = 0       flip draw from regular to reverse
 
+   // 40-20 = narrow to wide xs = 0 to 20 reverse draw
+   // 20-0  = wide to narrow xs = 20 to 0 reverse draw
 
+   // 0     = narrowest      xs = 0       flip draw from reverse to regular
 
 
+   if (tmr > ct2)
+   {
+      if (tmr>ct3) xs = ct4-tmr;  // 80-60 ---> 0-20
+      else         xs = tmr-ct2;  // 60-40 ---> 20-0
+   }
+   else
+   {
+      if (tmr>ct1) xs = ct2-tmr;    // 40-20 ---> 0-20
+      else xs = tmr;                // 20-0  ---> 20-0
+      flags |= ALLEGRO_FLIP_HORIZONTAL;
+   }
 
+   // scale xs (if ct == 80 scale = 1)
+   // or more accurately full width of tile (20) * 4
+   float xscale = (tsw*4)/ct;
+   xs *= xscale;
 
+   float ys=tsh; // y scale is the same as the source height of the tile
 
 
+   // optionally scale the entire thing
+   xs *= scale;
+   ys *= scale;
 
+   // get draw offsets based on scale of final tile
+   int xo = 10 - (xs/2); // x offset
+   int yo = 10 - (ys/2); // x offset
 
+   ALLEGRO_COLOR c2 = al_map_rgba_f(dim, dim, dim, 1.0); // show dimmer on back side
 
+   if (flags == 0) al_draw_scaled_bitmap(       tile[tn],     tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
+   else            al_draw_tinted_scaled_bitmap(tile[tn], c2, tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
 
+}
 
 
 
 
 
+in view object for does blast radius only show discreet (20) values?
+this is how its drawn in title obj:
+int bs = (item[num][7] / 20) * db;
+what if i did this?
+int bs = (item[num][7] * db) / 20;
+that seems to have fixed it...
 
 
 
+just for shits and giggles, how are pods trigger, cloners trigger source and set stored....
 
+all are 0-99
+only source and dest use w and h
 
+pod
+Ei[][11] = trigger box x1
+Ei[][12] = trigger box x1
+Ei[][13] = trigger box x2
+Ei[][14] = trigger box y2
 
+cloner
+Ei[][11] trigger box x1
+Ei[][12] trigger box y1
+Ei[][13] trigger box x2
+Ei[][14] trigger box y2
 
+Ei[][15] copy box x
+Ei[][16] copy box y
+Ei[][17] dest box x
+Ei[][18] dest box y
+Ei[][19] copy box width
+Ei[][20] copy box height
 
+why doesn't cannon have a prox for bullet firing?
 
+make circles have adjustments in map move...
+only when that object is active...
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+try it for bomb...done for bomb and rocket.....
 
 
 
