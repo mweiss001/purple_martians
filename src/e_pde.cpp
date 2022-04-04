@@ -227,7 +227,7 @@ int process_select_window(int draw_only)
       al_draw_text(font, palette_color[9], swx2-41, syb+2, 0, "+");
 
       for (c=0; c<16*swnbl_cur; c++)
-         al_draw_bitmap(tile[swbl[c][0]], swx1+(c-((c/16)*16) )*20+1, swy1+select_window_block_y+1+14+(c/16*20), 0 );
+         al_draw_bitmap(btile[swbl[c][0]], swx1+(c-((c/16)*16) )*20+1, swy1+select_window_block_y+1+14+(c/16*20), 0 );
 
 
    }

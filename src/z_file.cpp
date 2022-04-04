@@ -123,6 +123,25 @@ int load_tiles(void)
 
 
 
+   // get block tiles
+   btilemap = al_load_bitmap("bitmaps/block_tiles.bmp");
+   if (!btilemap)
+   {
+      m_err("Can't load tiles from bitmaps/block_tiles.bmp");
+      load_error = 1;
+   }
+   else
+   {
+      //printf("load good\n");
+      al_convert_mask_to_alpha(btilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(M_btilemap);
+      al_draw_bitmap(btilemap, 0, 0, 0);
+      for (int y=0; y<32; y++)
+         for (int x=0; x<32; x++)
+            btile[y*32 + x] = al_create_sub_bitmap(btilemap, x*20, y*20, 20, 20);
+   }
+
+
    //fill_player_tile();
 
 

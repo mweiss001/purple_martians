@@ -31,7 +31,7 @@ void get_item_draw_shape(int i)
    }
 
 
-   if (item[i][0] == 9)  shape = 991;
+   if (item[i][0] == 9)  shape = 991; // these don't normally show on the level when the game is running
    if (item[i][0] == 16) shape = 989;
    if (item[i][0] == 17) shape = 988;
 
@@ -120,7 +120,7 @@ void show_draw_item_cursor(void)
    if (same) al_draw_bitmap(tile[255], x, y, 0);
    else switch (draw_item_type)
    {
-      case 1: al_draw_bitmap(tile[draw_item_num], x, y, 0); break;
+      case 1: al_draw_bitmap(btile[draw_item_num], x, y, 0); break;
       case 2: draw_item_shape(draw_item_num, x, y); break;
       case 3: draw_enemy_shape(draw_item_num, x, y); break;
       case 5: draw_PDE_shape(draw_item_num, x, y);  break;
@@ -425,7 +425,7 @@ void draw_item_info(int x, int y, int color, int type, int num)
    switch (type)
    {
       case 1:
-         al_draw_bitmap(tile[num], x, y, 0);
+         al_draw_bitmap(btile[num], x, y, 0);
          al_draw_textf(font, palette_color[color], x+22, y+2, 0, "Block #%d",num);
          sprintf(msg, "Solid");  // default
          if (num < 32) sprintf(msg, "Empty");

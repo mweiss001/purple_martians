@@ -42,7 +42,8 @@ void create_bmp(void)
    // create tilemap bitmaps
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-   tilemap = al_create_bitmap(640, 640);
+   tilemap  = al_create_bitmap(640, 640);
+   btilemap = al_create_bitmap(640, 640);
    ptilemap = al_create_bitmap(480,320);
    dtilemap = al_create_bitmap(160,640);
 //   printf("tilemap\n");
@@ -52,7 +53,8 @@ void create_bmp(void)
 
    // create memory bitmaps as temp storage for restoring tilemaps after screen change
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   M_tilemap = al_create_bitmap(640,640);
+   M_tilemap  = al_create_bitmap(640,640);
+   M_btilemap = al_create_bitmap(640,640);
    M_ptilemap = al_create_bitmap(480,320);
    M_dtilemap = al_create_bitmap(160,640);
 //   printf("M_tilemap\n");
@@ -95,6 +97,10 @@ void rebuild_bitmaps(void)
    // rebuild main tiles
    al_set_target_bitmap(tilemap);
    al_draw_bitmap(M_tilemap, 0, 0, 0);
+
+   // rebuild block tiles
+   al_set_target_bitmap(btilemap);
+   al_draw_bitmap(M_btilemap, 0, 0, 0);
 
    // rebuild player tiles
    al_set_target_bitmap(ptilemap);
@@ -561,7 +567,7 @@ void init_level_background(void) // fill level_background with blocks and lift l
       {
          int c = l[x][y];
          if (c < NUM_SPRITES)
-            al_draw_bitmap(tile[c], x*20, y*20, 0);
+            al_draw_bitmap(btile[c], x*20, y*20, 0);
       }
    draw_lift_lines();
 }
