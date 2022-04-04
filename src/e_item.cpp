@@ -196,7 +196,6 @@ void test_items(void)
          if (item[c][0] == 3) good = 1;
          if (item[c][0] == 4) good = 1;
          if (item[c][0] == 5) good = 1;
-         if (item[c][0] == 6) good = 1;
          if (item[c][0] == 7) good = 1;
          if (item[c][0] == 8) good = 1;
          if (item[c][0] == 10) good = 1;
@@ -295,10 +294,10 @@ int create_key(int c)
          by2 -= 1;
          if (bx2 < bx1) bx2 = bx1;
          if (by2 < by1) by2 = by1;
-         item[c][6] = bx1;
-         item[c][7] = by1;
-         item[c][8] = bx2;
-         item[c][9] = by2;
+         item[c][6] = bx1*20;
+         item[c][7] = by1*20;
+         item[c][8] = (bx2-bx1+1)*20;
+         item[c][9] = (by2-by1+1)*20;
       }
       else bad = 1;
    }

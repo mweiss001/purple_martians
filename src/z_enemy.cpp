@@ -353,6 +353,7 @@ void enemy_deathcount(int e)
             item[c][3] = -1; // carryable
             item[c][4] = EXint;
             item[c][5] = EYint;
+            item[c][6] = 1; // bonus type 1 - health
             item[c][7] = Ei[e][25];  //  life
             item[c][8] = 0;
 

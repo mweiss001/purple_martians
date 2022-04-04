@@ -14,9 +14,9 @@
 0
 2293120
 0
-2292768
+880
 0
-14
+1140
 0
 0
 0
@@ -10106,10 +10106,10 @@ Bounce off the~spring before~it hits the~ground.
 1
 1040
 1140
-44
-57
-44
-60
+880
+1140
+20
+80
 0
 0
 0
@@ -10138,7 +10138,7 @@ Bounce off the~spring before~it hits the~ground.
 1
 940
 1140
-0
+1
 50
 0
 0
@@ -10154,7 +10154,7 @@ Bounce off the~spring before~it hits the~ground.
 1
 480
 1280
-0
+1
 50
 0
 0

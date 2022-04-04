@@ -609,7 +609,7 @@ void menu_setup(void)
    strcpy (item_name[3], "Exit");
    strcpy (item_name[4], "Key");
    strcpy (item_name[5], "Start");
-   strcpy (item_name[6], "Free Man");
+   strcpy (item_name[6], "undef");
    strcpy (item_name[7], "Mine");
    strcpy (item_name[8], "Bomb");
    strcpy (item_name[9], "Trigger");

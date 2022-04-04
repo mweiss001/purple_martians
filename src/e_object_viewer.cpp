@@ -463,30 +463,20 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
                color = highlight_color;
                legend_color[2] = highlight_color;
             }
-
-            int x2 = item[num][6] * db;
-            int y2 = item[num][7] * db;
-            int x3 = item[num][8] * db + db - 1;
-            int y3 = item[num][9] * db + db - 1;;
+            int x2 = item[num][6]/20 * db;
+            int y2 = item[num][7]/20 * db;
+            int x3 = x2 + item[num][8]/20 * db - 1;
+            int y3 = y2 + item[num][9]/20 * db - 1;;
             int x4 = (x2+x3)/2;
             int y4 = (y2+y3)/2;
 
             // draw range
             al_draw_line(0, y4, 100*db-1, y4, palette_color[color], 1);
             al_draw_line(x4, 0, x4, 100*db-1, palette_color[color], 1);
-
             al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
-            //not sure why this doesn't work
-            //rectangle_with_diagonal_lines(100, 100, 200, 200, 8, 10, 74);
-            //rectangle_with_diagonal_lines(x2+10, y2+10, x3+10, y3+10, db/3, color, color+64);
-
-
-
-
          }
          break;
          case 5: sprintf(lmsg[1],"Start Location"); break;
-         case 6: sprintf(lmsg[1],"Free Man Location"); break;
          case 7: sprintf(lmsg[1],"Mine Location"); break;
          case 8:
          {
@@ -502,7 +492,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
                legend_color[2] = highlight_color;
             }
             // draw yellow bomb damage
-            int bs = (item[num][7] / 20) * db;
+            int bs = (item[num][7] * db) / 20;
             al_draw_circle(x1*db+db/2, y1*db+db/2, bs, palette_color[color], 1);
          }
          break;
@@ -553,7 +543,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
                legend_color[2] = highlight_color;
             }
             // draw yellow bomb damage
-            int bs = (item[num][7] / 20) * db;
+            int bs = (item[num][7] * db) / 20;
             al_draw_circle(x1*db+db/2, y1*db+db/2, bs, palette_color[color], 1);
          }
          break;
@@ -687,14 +677,19 @@ int move_obt_with_map(int obt, int type, int num)
 
    // item
    int mouse_on_item = 0;
-   int mouse_on_kbr_ul = 0;
-   int mouse_on_kbr_lr = 0;
    int mouse_on_sp = 0;
+
+   int mouse_on_bmb = 0;
+
+
    int mouse_on_msg_ul = 0;
 
+   int mouse_on_kbr_ul = 0;
+   int mouse_on_kbr_lr = 0;
 
-   int mouse_on_trg_ul = 0;
-   int mouse_on_trg_lr = 0;
+
+//   int mouse_on_trg_ul = 0;
+//   int mouse_on_trg_lr = 0;
 
    // this is the awesome section that lets you move stuff on the map just by clicking and dragging
    if ((mouse_x < db*100)  && (mouse_x < db*100) ) // is mouse on map
@@ -840,38 +835,10 @@ int move_obt_with_map(int obt, int type, int num)
             mouse_move = 1;
          }
       }
-
-
-      if ((obt == 2) && (type == 4)) // key
+      if ((obt == 2) && ((type == 4) || (type == 9) || (type == 16) || (type == 17))) // key, trigger, manip, damage
       {
-         int x1 = item[num][6];
-         int y1 = item[num][7];
-         int x2 = item[num][8];
-         int y2 = item[num][9];
-         if ((!mouse_on_extra) && (mx == x1) && (my == y1)) // key block range upper left corner
-         {
-            mouse_on_extra = 1;
-            mouse_on_kbr_ul = 1;
-            for (int a=0; a<4; a++)
-               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[10+a*64], 1); // mark entire box
-            al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[10],1);                  // mark ul corner
-            mouse_move = 1;
-         }
-         if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // key block range lower right corner
-         {
-            mouse_on_extra = 1;
-            mouse_on_kbr_lr = 1;
-            for (int a=0; a<4; a++)
-               al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[10+a*64],1); // mark entire box
-            al_draw_rectangle(x2*db, y2*db, x2*db+db-1, y2*db+db-1, palette_color[10], 1);            // mark lr corner
-            mouse_adj = 1;
-         }
-      }
-
-
-      if ((obt == 2) && ((type == 9) || (type == 16) || (type == 17))) // trigger, manip, damage
-      {
-         int col = 14;
+         int col = 10; // key
+         if (type ==  9) col = 14;
          if (type == 16) col = 12;
          if (type == 17) col = 10;
          int x1 = item[num][6]/20;
@@ -881,7 +848,7 @@ int move_obt_with_map(int obt, int type, int num)
          if ((!mouse_on_extra) && (mx == x1) && (my == y1)) // trigger block range upper left corner
          {
             mouse_on_extra = 1;
-            mouse_on_trg_ul = 1;
+            mouse_on_kbr_ul = 1;
             for (int a=0; a<4; a++)
                al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[col+a*64], 1); // mark entire box
             al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[col],1);                  // mark ul corner
@@ -890,7 +857,7 @@ int move_obt_with_map(int obt, int type, int num)
          if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // trigger block range lower right corner
          {
             mouse_on_extra = 1;
-            mouse_on_trg_lr = 1;
+            mouse_on_kbr_lr = 1;
             for (int a=0; a<4; a++)
                al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[col+a*64],1);  // mark entire box
             al_draw_rectangle(x2*db, y2*db, x2*db+db-1, y2*db+db-1, palette_color[col], 1);             // mark lr corner
@@ -899,7 +866,24 @@ int move_obt_with_map(int obt, int type, int num)
       }
 
 
-
+      if ((obt == 2) && ((type == 8) || (type == 11))) // bomb or rocket
+      {
+         float x0 = (float) (item[num][4]+10)*db/20; // get center of item location in format (0-99)*db
+         float y0 = (float) (item[num][5]+10)*db/20;
+         float fmx = (float)(mouse_x); // mouse is naturally in format (0-99)*db
+         float fmy = (float)(mouse_y);
+         float dist = sqrt(pow((x0-fmx), 2) + pow((y0-fmy), 2)); // distance from mouse to item
+         float bomb_dr = (float)(item[num][7]*db/20); // bomb damage radius
+         float dif = dist-bomb_dr; // difference
+         if ((!mouse_on_extra) && ((dif < 1 ) && (dif > -1)))  // mouse is on blast radius circle
+         {
+            mouse_on_bmb = 1;
+            mouse_on_extra = 1;
+            int bs = (item[num][7] * db) / 20;
+            al_draw_circle(x0, y0, bs, palette_color[10], 1);
+         }
+      }
+      al_reset_clipping_rectangle();
 
       if ((obt == 2) && (type == 15)) // sproingy
       {
@@ -1152,6 +1136,26 @@ int move_obt_with_map(int obt, int type, int num)
                 }
                 al_show_mouse_cursor(display);
             }
+            if (mouse_on_bmb) // adjust bomb blast radius
+            {
+               al_hide_mouse_cursor(display);
+               while (mouse_b1) // trap here to hide mouse cursor
+               {
+                  proc_controllers();
+                  float x0 = (float) (item[num][4]+10)*db/20; // get center of item location in format (0-99)*db
+                  float y0 = (float) (item[num][5]+10)*db/20;
+                  float fmx = (float)(mouse_x); // mouse is naturally in format (0-99)*db
+                  float fmy = (float)(mouse_y);
+                  float dist = sqrt(pow((x0-fmx), 2) + pow((y0-fmy), 2)); // distance from mouse to item
+                  item[num][7] = (int)(dist/db)*20; // convert to 0-2000 format
+
+                  al_flip_display();
+                  al_clear_to_color(al_map_rgb(0,0,0));
+                  draw_big(1);
+                  title_obj(obt, type, num, 0, 15);
+               }
+               al_show_mouse_cursor(display);
+            }
 
             if (mouse_on_msg_ul) // move msg
             {
@@ -1159,38 +1163,15 @@ int move_obt_with_map(int obt, int type, int num)
                item[num][10] = mx;
                item[num][11] = my;
             }
-            if (mouse_on_kbr_ul) // move key block range from ul
-            {
-               // get the width and height
-               int w = item[num][8] - item[num][6];
-               int h = item[num][9] - item[num][7];
 
-               // set new position
-               item[num][6] = mx;
-               item[num][7] = my;
-               item[num][8] = mx + w;
-               item[num][9] = my + h;
-            }
-            if (mouse_on_kbr_lr) // adjust key block range from lr
-            {
-               // don't allow lr to be less than ul
-               if (mx < item[num][6]) mx = item[num][6];
-               if (my < item[num][7]) my = item[num][7];
-
-               // set new position
-               item[num][8] = mx;
-               item[num][9] = my;
-            }
-
-
-            // trigger, manip and damage
-            if (mouse_on_trg_ul) // move block range from ul
+            // ranges for key, trigger, manip and damage
+            if (mouse_on_kbr_ul) // move block range from ul
             {
                // set new position
                item[num][6] = mx*20;
                item[num][7] = my*20;
             }
-            if (mouse_on_trg_lr) // adjust block range from lr
+            if (mouse_on_kbr_lr) // adjust block range from lr
             {
                // don't allow lr to be less than ul
                if (mx < item[num][6]/20) mx = item[num][6]/20;
@@ -1200,9 +1181,6 @@ int move_obt_with_map(int obt, int type, int num)
                item[num][8] = mx*20 - item[num][6];
                item[num][9] = my*20 - item[num][7];
             }
-
-
-
 
             if (mouse_on_item)
             {
