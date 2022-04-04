@@ -16911,6 +16911,25 @@ sa[][1] flags
 
 
 
+the main function is:
+
+int animation_proc(void)
+it calls:
+select_bitmap_ans()
+select_bitmap_proc()
+copy_bitmap_proc()
+save_tiles()
+
+
+I want to make a new edit bitmap attributes....
+maybe with a new sa[][] variable....
+
+I also need a copy function...not only for in the same file, but from file to file....
+
+
+
+
+
 
 
 
