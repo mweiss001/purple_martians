@@ -2,13 +2,7 @@
 
 #include "pm.h"
 
-
-
-
-
-
-
-
+// used by sliders only
 int select_bitmap(int tn)
 {
    int quit = 0;
@@ -48,12 +42,6 @@ int select_bitmap(int tn)
    }
    return tn; // original if bad exit
 }
-
-
-
-
-
-
 
 
 
