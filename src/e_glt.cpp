@@ -7,13 +7,17 @@ int blt[NUM_SPRITES];
 void show_block_list(void)
 {
    int y = 0;
+   int count_unique = 0;
+
    al_draw_filled_rectangle(200, 0, SCREEN_W-1, SCREEN_H-1, palette_color[0]);
    for (int z=0; z<NUM_SPRITES; z++)
       if (blt[z])
       {
+         count_unique++;
          al_draw_bitmap(tile[z], 180, y, 0);
          //al_draw_textf(font, palette_color[11], 200, 10+y, 0, "sa%d   block# %d   count %d ",sa[z][0],  z, blt[z] );
          al_draw_textf(font, palette_color[11], 200, y, 0, "block:%d count:%d ", z, blt[z] );
+         printf("block:%d count:%d\n", z, blt[z] );
          y+=20;
          if (y > SCREEN_H-20)
          {
@@ -23,9 +27,45 @@ void show_block_list(void)
             y = 0;
          }
       }
+
+   printf("\nunique blocks:%d\n", count_unique);
+
    al_flip_display();
    tsw();
+
 }
+
+
+
+
+void remove_unused_tiles(void)
+{
+   for (int z=0; z<NUM_SPRITES; z++)
+   {
+      if (blt[z] == 0) // block is not used
+      {
+         al_set_target_bitmap(btile[z]);
+         al_clear_to_color(al_map_rgb(0,0,0));
+      }
+   }
+
+   ALLEGRO_BITMAP* temp = al_create_bitmap(640, 640);
+   al_set_target_bitmap(temp);
+   for (int y = 0; y < 32; y++)
+      for (int x = 0; x < 32; x++)
+         al_draw_bitmap(btile[y*32 + x], (x*20), (y*20), 0);
+
+   al_save_bitmap("bitmaps/tempb_tiles.bmp", temp);
+   al_destroy_bitmap(temp);
+
+}
+
+
+
+
+
+
+
 
 void global_level()
 {
@@ -406,7 +446,7 @@ Ef[y][9] = 0;
 
 
 
-
+/*
 
 
 
@@ -435,7 +475,7 @@ Ef[y][9] = 0;
          }
 
 
-
+*/
 
 
 
@@ -909,10 +949,12 @@ Ef[y][9] = 0;
 
 */
 
+
+
 //   // blocks
-//   for (int y=0; y<100; y++)
-//      for (int z=0; z<100; z++)
-//         blt[l[y][z]]++; // inc block counter
+   for (int y=0; y<100; y++)
+      for (int z=0; z<100; z++)
+         blt[l[y][z]]++; // inc block counter
 
 
 /*
@@ -1015,7 +1057,7 @@ Ef[y][9] = 0;
 
   */
 
-      if (1)
+      if (0)
       {
          save_level(le[x]);
          al_set_target_backbuffer(display);
@@ -1030,8 +1072,11 @@ Ef[y][9] = 0;
    printf("Total count3:%d \n",count3 );
    printf("min:%d max:%d\n", min, max);
 
-   //show_block_list();
+//   show_block_list();
    tsw();
+
+ //  remove_unused_tiles();
+
 
    start_level = old_start_level;
    load_level(start_level, 0);

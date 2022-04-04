@@ -285,14 +285,17 @@ ALLEGRO_JOYSTICK *joy1 = NULL;
 // ------------------------------------------------
 
 ALLEGRO_BITMAP *tilemap = NULL;
+ALLEGRO_BITMAP *btilemap = NULL;
 ALLEGRO_BITMAP *ptilemap = NULL;
 ALLEGRO_BITMAP *dtilemap = NULL;
 ALLEGRO_BITMAP *M_tilemap = NULL;
+ALLEGRO_BITMAP *M_btilemap = NULL;
 ALLEGRO_BITMAP *M_ptilemap = NULL;
 ALLEGRO_BITMAP *M_dtilemap = NULL;
 
 
 ALLEGRO_BITMAP *tile[NUM_SPRITES] = {NULL};
+ALLEGRO_BITMAP *btile[NUM_SPRITES] = {NULL};
 
 int sa[NUM_SPRITES][2]; // shape attributes
 

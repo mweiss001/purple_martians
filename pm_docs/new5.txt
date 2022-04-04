@@ -16379,6 +16379,545 @@ try it for bomb...done for bomb and rocket.....
 
 
 
+I have this idea for the tiles. Or more for the level array l[100][100].
+
+I want to store more info in the ints that make up the array.
+
+
+Right now I use special indexes to tell what kind of block it is.
+I make no distinction between level drawing blocks and ones uses to draw items and enemies.
+
+0-31  empty blocks
+32-63 semi solid
+
+>63 are full solid
+
+64-95  bombable
+96-127 breakable
+
+I also have rope and ladder shapes that are empty, but have special properties...
+
+What I want to do is use some of the higher bits for flags that implement these properties
+
+the way I check if a block is solid right now is simply is:
+if (tile>63)
+
+the way I propose to do it is:
+if (tile & PM_TILE_SOLID)
+
+to get the actual tile index, I would just strip off the higher bits
+
+right now I use 1024 tiles or 2^10 10 bits, that leaves 22
+
+right now in level editor, I only show a subset of these blocks in the selection window
+
+when loading I use swbl or somthing like that to determine which ones are in that group
+
+I could do something similar to tag all the tiles when loading level editor
+
+then fropm that point, once a blcock was placed in the level, it would have those flags..
+
+they could be manipulated after being placed, like if I wanted to make a normally solid
+block act as if it was empty to make a secret
+
+then in the drawing code...
+
+lets make some flags:
+
+
+PM_TILE_SOLID_PLAY
+PM_TILE_SOLID_ENMY
+PM_TILE_SOLID_ITEM
+PM_TILE_SOLID_EBUL
+PM_TILE_SOLID_PBUL
+
+PM_TILE_SEMISOLID_PLAY
+PM_TILE_SEMISOLID_ENMY
+PM_TILE_SEMISOLID_ITEM
+
+PM_TILE_SOLID_EBUL
+PM_TILE_SOLID_PBUL
+
+PM_TILE_BOMBABLE
+
+PM_TILE_BREAKABLE_PBUL
+PM_TILE_BREAKABLE_EBUL
+
+PM_TILE_LADDER_MOVE
+PM_TILE_ROPE_MOVE
+
+PM_TILE_SECRET (when touched by player it shows empty)
+
+PM_TILE_SHOW_IN_SELECTION_WINDOW
+
+
+Wow, I've used 16 already
+
+I'm sure I'll think of others...
+
+make a function to apply these to the entire tileset
+
+view attributes in bitmap thingy....
+
+Should I go even further and put block tiles in their own bmp file?
+
+It would require a huge re-write....
+block_tiles...
+I can leave the main one (tiles)
+
+and migrate all blocks to the new one...I can even keep the same positions to make migration easier...
+
+step 1 - make a copy and rename it block_tiles...done
+
+step 2 - load it and store it just like tiles..
+
+step 3 - change all block tile drawing to use the new one...
+
+added to main
+
+ALLEGRO_BITMAP *tilemap = NULL;
+ALLEGRO_BITMAP *btilemap = NULL;  <-------
+ALLEGRO_BITMAP *ptilemap = NULL;
+ALLEGRO_BITMAP *dtilemap = NULL;
+ALLEGRO_BITMAP *M_tilemap = NULL;
+ALLEGRO_BITMAP *M_btilemap = NULL; <-------
+ALLEGRO_BITMAP *M_ptilemap = NULL;
+ALLEGRO_BITMAP *M_dtilemap = NULL;
+
+ALLEGRO_BITMAP *tile[NUM_SPRITES] = {NULL};
+ALLEGRO_BITMAP *btile[NUM_SPRITES] = {NULL}; <-------
+
+
+called from setup in main..
+
+
+
+
+
+void create_bmp(void)
+{
+   // create tilemap bitmaps
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
+   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+   tilemap = al_create_bitmap(640, 640);
+   btilemap = al_create_bitmap(640, 640);   <------------------
+   ptilemap = al_create_bitmap(480,320);
+   dtilemap = al_create_bitmap(160,640);
+//   printf("tilemap\n");
+//   show_pixel_format(al_get_bitmap_format(tilemap));
+//   show_bitmap_flags(al_get_bitmap_flags(tilemap));
+
+
+   // create memory bitmaps as temp storage for restoring tilemaps after screen change
+   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
+   M_tilemap = al_create_bitmap(640,640);
+   M_btilemap = al_create_bitmap(640,640);  <------------------
+   M_ptilemap = al_create_bitmap(480,320);
+   M_dtilemap = al_create_bitmap(160,640);
+//   printf("M_tilemap\n");
+//   show_pixel_format(al_get_bitmap_format(M_tilemap));
+//   show_bitmap_flags(al_get_bitmap_flags(M_tilemap));
+
+
+
+int load_tiles(void)
+{
+   int load_error = 0;
+
+   // get main tiles
+   tilemap = al_load_bitmap("bitmaps/tiles.bmp");
+   if (!tilemap)
+   {
+      m_err("Can't load tiles from bitmaps/tiles.bmp");
+      load_error = 1;
+   }
+   else
+   {
+      //printf("load good\n");
+      al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(M_tilemap);
+      al_draw_bitmap(tilemap, 0, 0, 0);
+      for (int y=0; y<32; y++)
+         for (int x=0; x<32; x++)
+            tile[y*32 + x] = al_create_sub_bitmap(tilemap, x*20, y*20, 20, 20);
+   }
+
+
+void rebuild_bitmaps(void)
+{
+   //printf("rebuild bitmaps\n");
+
+   // rebuild main tiles
+   al_set_target_bitmap(tilemap);
+   al_draw_bitmap(M_tilemap, 0, 0, 0);
+
+   // rebuild block tiles
+   al_set_target_bitmap(btilemap);
+   al_draw_bitmap(M_btilemap, 0, 0, 0);
+
+   // rebuild player tiles
+   al_set_target_bitmap(ptilemap);
+   al_draw_bitmap(M_ptilemap, 0, 0, 0);
+
+
+use them to draw levelbackground.....
+
+void init_level_background(void) // fill level_background with blocks and lift lines
+{
+   //printf("init_level_background\n");
+   al_set_target_bitmap(level_background);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++)
+      {
+         int c = l[x][y];
+         if (c < NUM_SPRITES)
+            al_draw_bitmap(btile[c], x*20, y*20, 0);  <---------------
+      }
+   draw_lift_lines();
+}
+
+
+make a backup copy of tiles.bmp
+draw all over blocks in original...
+looks like they are working.....
+
+
+use glt to find out what blocks are being used in what levels....
+
+
+block:0 count:748538
+block:7 count:459
+block:8 count:493
+block:9 count:145
+block:10 count:234
+block:11 count:47
+block:12 count:38
+block:13 count:4
+block:14 count:133
+block:15 count:37
+block:16 count:112
+block:17 count:4
+block:18 count:883
+block:19 count:706
+block:32 count:3280
+block:33 count:274
+block:34 count:461
+block:35 count:312
+block:36 count:22
+block:37 count:122
+block:38 count:21
+block:39 count:2
+block:64 count:7265
+block:65 count:71
+block:66 count:141
+block:96 count:10292
+block:97 count:20
+block:98 count:20
+block:99 count:213
+block:100 count:231
+block:128 count:5808
+block:129 count:5547
+block:130 count:633
+block:132 count:126
+block:133 count:819
+block:134 count:3695
+block:135 count:1911
+block:136 count:250
+block:137 count:863
+block:138 count:5568
+block:139 count:3843
+block:140 count:8389
+block:141 count:7421
+block:142 count:4715
+block:143 count:2918
+block:160 count:56
+block:161 count:15
+block:162 count:69
+block:163 count:15
+block:164 count:764
+block:166 count:3309
+block:172 count:249
+block:173 count:486
+block:174 count:411
+block:175 count:361
+block:177 count:946
+block:178 count:5300
+block:179 count:762
+block:188 count:102
+block:189 count:59
+block:190 count:44
+block:191 count:17
+block:204 count:126
+block:205 count:48
+block:206 count:29
+block:207 count:50
+block:220 count:768
+block:221 count:698
+block:222 count:328
+block:223 count:1134
+block:576 count:680
+block:577 count:683
+block:578 count:717
+block:579 count:719
+block:580 count:12954
+block:581 count:8
+block:582 count:16830
+block:584 count:243
+block:585 count:116
+block:586 count:240
+block:587 count:146
+block:588 count:250
+block:589 count:124
+block:590 count:260
+block:591 count:221
+block:592 count:92
+block:608 count:136
+block:609 count:108
+block:610 count:110
+block:611 count:138
+block:612 count:2113
+block:614 count:2294
+block:616 count:44
+block:617 count:40
+block:618 count:41
+block:619 count:51
+block:620 count:79
+block:621 count:37
+block:622 count:80
+block:623 count:57
+block:624 count:49
+block:625 count:77
+block:640 count:40
+block:641 count:54
+block:642 count:41
+block:643 count:41
+block:644 count:258
+block:645 count:257
+block:646 count:543
+block:647 count:490
+block:656 count:2587
+block:672 count:176
+block:673 count:182
+block:674 count:182
+block:675 count:186
+block:676 count:371
+block:677 count:354
+block:678 count:345
+block:679 count:359
+block:704 count:145
+block:705 count:137
+block:706 count:144
+block:707 count:139
+
+123 unique blocks
+
+If I move some around in my new tile thingy, I will need to do glt for the translation...
+
+
+what is next?
+
+make level_editor selection thing use the new btiles...
+
+selection window draws itself....
+
+int process_select_window(int draw_only)
+
+
+   // blocks top bar frame and text
+   if (select_window_block_on)
+   {
+      al_draw_filled_rectangle(swx1, syb, swx2, syb+12, palette_color[9+192]);
+      al_draw_rectangle(       swx1, syb, swx2, syb+12, palette_color[9], 1);
+      al_draw_text(font, palette_color[9], swx1+2,  syb+2, 0, "Block Selection ");
+      al_draw_text(font, palette_color[9], swx2-9,  syb+2, 0, "X");
+      al_draw_text(font, palette_color[9], swx2-25, syb+2, 0, "-");
+      al_draw_text(font, palette_color[9], swx2-41, syb+2, 0, "+");
+
+      for (c=0; c<16*swnbl_cur; c++)
+         al_draw_bitmap(btile[swbl[c][0]], swx1+(c-((c/16)*16) )*20+1, swy1+select_window_block_y+1+14+(c/16*20), 0 );   <-----------------
+   }
+
+
+now draw item and point item....
+
+
+
+void show_draw_item_cursor(void)
+{
+   else switch (draw_item_type)
+   {
+      case 1: al_draw_bitmap(btile[draw_item_num], x, y, 0); break;  <-------------
+      case 2: draw_item_shape(draw_item_num, x, y); break;
+
+
+
+void draw_item_info(int x, int y, int color, int type, int num)
+{
+   int a, b;
+   switch (type)
+   {
+      case 1:
+         al_draw_bitmap(btile[num], x, y, 0);   <----------------
+         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "Block #%d",num);
+
+
+
+OK I think everything now points at the new btiles.....
+
+
+now what???
+
+make a way of moving the tiles around and editing flags...
+
+this will be saved just like the old swbl thing, but only for the new stuff...
+
+First thing I should do is remove all the none block things from btiles...
+
+I could do this automatically with a combo of glt and save bitmap....
+
+
+
+int save_tiles(void)
+{
+   ALLEGRO_BITMAP* temp = al_create_bitmap(640, 640);
+   al_set_target_bitmap(temp);
+   for (int y = 0; y < 32; y++)
+      for (int x = 0; x < 32; x++)
+         al_draw_bitmap(tile[y*32 + x], (x*20), (y*20), 0);
+
+   al_save_bitmap("bitmaps/tiles.bmp", temp);
+   al_destroy_bitmap(temp);
+
+   char sprit_filename[20] = "bitmaps/sprit001.pm";
+
+   for (int c=0; c<NUM_ANS; c++)    // set all to initial
+      if (zz[4][c] != 0)
+      {
+         zz[0][c]=zz[5][c];
+         zz[1][c]=0;
+         zz[2][c]=0;
+      }
+   filepntr = fopen( sprit_filename,"wb");
+   for (int c=0; c<NUM_ANS; c++) // put animation sequences
+      for (int y=0; y<20; y++)
+      {
+         int ho = (zz[y][c] / 256);
+         int lo = zz[y][c] - (ho*256);
+         fputc(ho, filepntr);
+         fputc(lo, filepntr);
+      }
+   for (int c=0; c<NUM_SPRITES; c++)  // shape attributes sa[512][2]
+      for (int y=0; y<2; y++)
+         fputc(sa[c][y], filepntr);
+
+   fclose(filepntr);
+   return 0;
+}
+
+
+use just this.....
+
+
+   ALLEGRO_BITMAP* temp = al_create_bitmap(640, 640);
+   al_set_target_bitmap(temp);
+   for (int y = 0; y < 32; y++)
+      for (int x = 0; x < 32; x++)
+         al_draw_bitmap(btile[y*32 + x], (x*20), (y*20), 0);
+
+   al_save_bitmap("bitmaps/tempb_tiles.bmp", temp);
+   al_destroy_bitmap(temp);
+
+
+
+void remove_unused_tiles(void)
+{
+   for (int z=0; z<NUM_SPRITES; z++)
+   {
+      if (blt[z] == 0) // block is not used
+      {
+         al_set_target_bitmap(btile[z]);
+         al_clear_to_color(al_map_rgb(0,0,0));
+      }
+   }
+
+   ALLEGRO_BITMAP* temp = al_create_bitmap(640, 640);
+   al_set_target_bitmap(temp);
+   for (int y = 0; y < 32; y++)
+      for (int x = 0; x < 32; x++)
+         al_draw_bitmap(btile[y*32 + x], (x*20), (y*20), 0);
+
+   al_save_bitmap("bitmaps/tempb_tiles.bmp", temp);
+   al_destroy_bitmap(temp);
+
+}
+
+
+holy shit that worked!  block_tiles.bmp is so much cleaner now.....
+
+now make the code to edit and set flags.... I will still use swbl I think....
+
+sa[NUM_SPRITES][2]
+sa[0] = locked
+sa[1] = type
+0 = empty
+1 = block
+2 = special
+
+right now selection window only uses the ones marked B to fill swbl array
+
+void set_swbl(void)
+{
+   int swbn = 0;
+   // erase array
+   for (int c=0; c<NUM_SPRITES; c++)
+   {
+      swbl[c][0] = 0;
+      swbl[c][1] = 0;
+   }
+   for (int c=0; c<NUM_SPRITES; c++)
+      if ((sa[c][0] == 1) && (sa[c][1] == 1)) // if block and locked
+            swbl[swbn++][0] = c;   // put shape # in list and inc counter
+   for (int c=0; c<NUM_SPRITES; c++)
+      if ((sa[c][0] == 1) && (sa[c][1] == 0)) // if block and unlocked
+            swbl[swbn++][0] = c;   // put shape # in list and inc counter
+
+   swnbl = (swbn / 16) + 1;
+   if (swnbl_cur == 0) swnbl_cur = swnbl; // initial only
+}
+
+
+I plan to use sa to store flags for each btile....
+
+sa[][0] show in selection window (or maybe later to force order)
+sa[][1] flags
+
+
+#define PM_BTILE_SOLID_PLAY      0b00000000000000010000000000000000
+#define PM_BTILE_SOLID_ENMY      0b00000000000000100000000000000000
+#define PM_BTILE_SOLID_ITEM      0b00000000000001000000000000000000
+#define PM_BTILE_SOLID_EBUL      0b00000000000010000000000000000000
+#define PM_BTILE_SOLID_PBUL      0b00000000000100000000000000000000
+#define PM_BTILE_SEMISOLID_PLAY  0b00000000001000000000000000000000
+#define PM_BTILE_SEMISOLID_ENMY  0b00000000010000000000000000000000
+#define PM_BTILE_SEMISOLID_ITEM  0b00000000100000000000000000000000
+#define PM_BTILE_BOMBABLE        0b00000001000000000000000000000000
+#define PM_BTILE_BREAKABLE_PBUL  0b00000010000000000000000000000000
+#define PM_BTILE_BREAKABLE_EBUL  0b00000100000000000000000000000000
+#define PM_BTILE_LADDER_MOVE     0b00001000000000000000000000000000
+#define PM_BTILE_ROPE_MOVE       0b00010000000000000000000000000000
+#define PM_BTILE_SECRET          0b00100000000000000000000000000000
+#define PM_BTILE_SHOW_SELECT_WIN 0b01000000000000000000000000000000
+
+
+
+
+
+
+
+
+
+
 
 
 
