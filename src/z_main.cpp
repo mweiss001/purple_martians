@@ -10,6 +10,11 @@ int pm_event[1000];
 
 
 // temp testing variable
+
+int pct_x = 0;
+int pct_y = 0;
+
+
 int tx1=0;
 int ty1=0;
 int ttc1=0;
@@ -19,6 +24,11 @@ int tx2=0;
 int ty2=0;
 int ttc2=0;
 float ttfloat2=0;
+
+
+
+
+
 
 
 
@@ -258,6 +268,14 @@ int KEY_F10_held = 0;
 int KEY_F11_held = 0;
 int KEY_F12_held = 0;
 int KEY_PRTSCR_held = 0;
+
+
+int KEY_UP_held = 0;
+int KEY_DOWN_held = 0;
+int KEY_LEFT_held = 0;
+int KEY_RIGHT_held = 0;
+
+
 
 
 // ------------------------------------------------

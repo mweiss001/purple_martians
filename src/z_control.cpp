@@ -481,6 +481,41 @@ void function_key_check(void)
       }
       if (!key[ALLEGRO_KEY_F11]) KEY_F11_held = 0;
 
+
+
+
+   if ((key[ALLEGRO_KEY_UP]) && (!KEY_UP_held))
+   {
+      KEY_UP_held = 1;
+      pct_y--;
+   }
+   if (!key[ALLEGRO_KEY_UP]) KEY_UP_held = 0;
+
+   if ((key[ALLEGRO_KEY_DOWN]) && (!KEY_DOWN_held))
+   {
+      KEY_DOWN_held = 1;
+      pct_y++;
+   }
+   if (!key[ALLEGRO_KEY_DOWN]) KEY_DOWN_held = 0;
+
+   if ((key[ALLEGRO_KEY_LEFT]) && (!KEY_LEFT_held))
+   {
+      KEY_LEFT_held = 1;
+      pct_x--;
+   }
+   if (!key[ALLEGRO_KEY_LEFT]) KEY_LEFT_held = 0;
+
+   if ((key[ALLEGRO_KEY_RIGHT]) && (!KEY_RIGHT_held))
+   {
+      KEY_RIGHT_held = 1;
+      pct_x++;
+   }
+   if (!key[ALLEGRO_KEY_RIGHT]) KEY_RIGHT_held = 0;
+
+
+
+
+
    if ((key[ALLEGRO_KEY_F12]) && (!KEY_F12_held))
    {
       KEY_F12_held = 1;

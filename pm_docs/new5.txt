@@ -17057,6 +17057,70 @@ all these things could be just colums on the one list of flags...
 
 
 
+extend proc_controllers....
+
+make 2 global ints that can be adjusted with arrows in proc control_lead_frames
+
+int pct_x = 0;
+int pct_y = 0;
+
+that took minutes to do an will be so goddamn useful in aligning stuff and seeing how it looks...
+
+
+I have the multiple secletion and mouse selection all lined up and looking good
+
+
+rethink modes...
+
+- When in multiple select any changes to the multiple selection affect all selected...
+this is how it is already
+
+- When only one tile is selected, make a mode that I can copy the flags to any other tile by just clicking b2...
+
+"Copy flags from selected tile to other tiles"
+b1 - set selected tile
+b2 - copy flags from selected tile to clicked tile
+
+"Change flags of all selected tiles"
+b1 - drag and click to select rectangular area
+click on the flag toggles to change
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
