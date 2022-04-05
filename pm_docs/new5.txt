@@ -16921,15 +16921,113 @@ copy_bitmap_proc()
 save_tiles()
 
 
+
+
+
 I want to make a new edit bitmap attributes....
 maybe with a new sa[][] variable....
+but the existing one is nicely saved to disk...
 
 I also need a copy function...not only for in the same file, but from file to file....
 
+Also make a function to test spinning tiles and set all the parameters for that...
+
+for now change it so that sa[][1] controls whether or not to show in select window....
+later I'll extend it to use an int to control position in that window
+
+its coming along...
+
+
+this function that I just did works great for setting sa[][1]
+
+now I want to make a new function to set sa[][0] with flags...
+
+have a list of all the flags...
+
+
+when i save an int to file im only using putc so I only save 8 bits....
+
+im going to try fwrite and fread...it looks like I might come out of the stone age!!!
+
+
+int arr[3] = {101, 203, 303};
+
+fwrite(arr, sizeof(arr), 1, fp);
 
 
 
 
+
+
+change the save method...
+
+old:
+
+
+   char sprit_filename[20] = "bitmaps/sprit001.pm";
+   FILE *filepntr = fopen( sprit_filename,"wb");
+   for (int c=0; c<NUM_ANS; c++) // put animation sequences
+      for (int y=0; y<20; y++)
+      {
+         int ho = (zz[y][c] / 256);
+         int lo = zz[y][c] - (ho*256);
+         fputc(ho, filepntr);
+         fputc(lo, filepntr);
+      }
+
+
+   for (int c=0; c<NUM_SPRITES; c++)  // shape attributes sa[512][2]
+      for (int y=0; y<2; y++)
+         fputc(sa[c][y], filepntr);
+
+   fclose(filepntr);
+
+
+new write:
+   FILE *fp = fopen("bitmaps/sprit001.pm", "wb");
+   fwrite(zz, sizeof(zz), 1, fp);
+   fwrite(sa, sizeof(sa), 1, fp);
+   fclose(fp);
+
+new read:
+   FILE *fp = fopen("bitmaps/sprit001.pm", "rb");
+   fread(zz, sizeof(zz), 1, fp);
+   fread(sa, sizeof(sa), 1, fp);
+   fclose(fp);
+
+that is so much simpler....
+
+
+If I'm planning on doing the same for l[100][100]
+I'll need to to the same...
+that will come later...
+
+now sa[][1] is not used for showing in the select window...I have a flag for that....
+
+Now I need to work on a better way of setting groups of tile flags
+
+
+
+multiple selection could be one thing...
+
+
+
+I could have a special list of settings that I apply to what I click on.
+each flag could be force on, force off, or ignore
+I will call it setting tool....
+
+
+modes:
+
+0 - change 1 tiles flags at a time
+selection can be only one
+
+1 -
+
+
+I am so close, but I am so tired....
+
+9:52pm 20220404
 
 
 

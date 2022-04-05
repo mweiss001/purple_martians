@@ -205,7 +205,7 @@ int process_select_window(int draw_only)
 
 
 
-      // draw special blocka
+      // draw special block
       for (c=0; c<16*select_window_num_special_lines; c++)
       {
          if (c < 100) a = PDEi[c][1]; // bmp or ans
@@ -566,12 +566,25 @@ void set_swbl(void)
       swbl[c][0] = 0;
       swbl[c][1] = 0;
    }
+/*
    for (int c=0; c<NUM_SPRITES; c++)
       if ((sa[c][0] == 1) && (sa[c][1] == 1)) // if block and locked
             swbl[swbn++][0] = c;   // put shape # in list and inc counter
    for (int c=0; c<NUM_SPRITES; c++)
       if ((sa[c][0] == 1) && (sa[c][1] == 0)) // if block and unlocked
             swbl[swbn++][0] = c;   // put shape # in list and inc counter
+*/
+
+/*
+
+   for (int c=0; c<NUM_SPRITES; c++)
+      if (sa[c][1] == 1) swbl[swbn++][0] = c;   // put shape # in list and inc counter
+*/
+
+
+   for (int c=0; c<NUM_SPRITES; c++)
+      if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN) swbl[swbn++][0] = c;   // put shape # in list and inc counter
+
 
    swnbl = (swbn / 16) + 1;
    if (swnbl_cur == 0) swnbl_cur = swnbl; // initial only

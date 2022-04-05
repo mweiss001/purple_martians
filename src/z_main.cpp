@@ -1304,6 +1304,11 @@ int main(int argument_count, char **argument_array)
 
    //scaled_tile_test();
 
+
+   //tile_editor();
+   edit_tile_attributes();
+
+
       if (argument_count == 2) // example 'pmwin arg1'
       {
 

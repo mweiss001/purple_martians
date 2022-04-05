@@ -72,29 +72,12 @@ int save_tiles(void)
    al_save_bitmap("bitmaps/tiles.bmp", temp);
    al_destroy_bitmap(temp);
 
-   char sprit_filename[20] = "bitmaps/sprit001.pm";
 
-   for (int c=0; c<NUM_ANS; c++)    // set all to initial
-      if (zz[4][c] != 0)
-      {
-         zz[0][c]=zz[5][c];
-         zz[1][c]=0;
-         zz[2][c]=0;
-      }
-   filepntr = fopen( sprit_filename,"wb");
-   for (int c=0; c<NUM_ANS; c++) // put animation sequences
-      for (int y=0; y<20; y++)
-      {
-         int ho = (zz[y][c] / 256);
-         int lo = zz[y][c] - (ho*256);
-         fputc(ho, filepntr);
-         fputc(lo, filepntr);
-      }
-   for (int c=0; c<NUM_SPRITES; c++)  // shape attributes sa[512][2]
-      for (int y=0; y<2; y++)
-         fputc(sa[c][y], filepntr);
+   FILE *fp = fopen("bitmaps/sprit001.pm", "wb");
+   fwrite(zz, sizeof(zz), 1, fp);
+   fwrite(sa, sizeof(sa), 1, fp);
+   fclose(fp);
 
-   fclose(filepntr);
    return 0;
 }
 
@@ -185,42 +168,12 @@ int load_tiles(void)
          }
    }
 
-
    // get animation sequences and shape attributes
-   char sprit_filename[20] = "bitmaps/sprit001.pm";
-//   if (exists(sprit_filename) == 0) // does file exist?
-//   if (0)
-//   {
-//      sprintf(msg, "Can't find sprit %s ", sprit_filename);
-//      //textout_ex(screen, font, msg, SCREEN_W/2, ((SCREEN_H*3)/4)+10, palette_color[1], 0);
-//      //m_err(msg);
-//      load_error = 1;
-//   }
+   FILE *fp = fopen("bitmaps/sprit001.pm", "rb");
+   fread(zz, sizeof(zz), 1, fp);
+   fread(sa, sizeof(sa), 1, fp);
+   fclose(fp);
 
-   if (!load_error)  // open file
-      if ((filepntr=fopen(sprit_filename,"rb")) == 0)
-      {
-         //printf("Error opening %s ", sprit_filename);
-         sprintf(msg, "Error opening %s ", sprit_filename);
-         m_err(msg);
-         load_error = 1;
-      }
-   if (!load_error)  // file open !
-   {
-      // get animation seq
-      for (int c=0; c<NUM_ANS; c++)
-         for (int y=0; y<20; y++)
-         {
-            int ho = fgetc(filepntr);
-            int lo = fgetc(filepntr);
-            zz[y][c] = ho*256 + lo;
-         }
-      // get shape attributes
-      for (int c=0; c<NUM_SPRITES; c++)
-         for (int y=0; y<2; y++)
-            sa[c][y] = fgetc(filepntr);
-   } // end of if not sprit load error
-   fclose(filepntr);
    if (load_error) return 0;
    else return 1;
 }
