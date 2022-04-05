@@ -17030,6 +17030,34 @@ I am so close, but I am so tired....
 9:52pm 20220404
 
 
+5:00 am 0405
+
+do I really need single and multiple modes?
+multiple mode works good with only one block selected...
+
+
+
+
+
+now I want a function that marks blocks based on selected flags
+
+each flag can be set, clear or don't care
+
+each block will be marked if they match the criteria
+
+then I want a section that I can use to set blocks
+each flag can be marked set, clear or ignore...then I can apply this to selected blocks...
+
+
+I also want to show the flags for the moused over tile...
+
+all these things could be just colums on the one list of flags...
+
+
+
+
+
+
 
 
 

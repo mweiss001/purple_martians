@@ -633,6 +633,28 @@ void draw_flag_text(int x, int y, int ys, int col)
 
 void draw_flag_rects(int tn, int x, int y, int w, int h, int ys, int con, int cof, int highlight)
 {
+    // make an array of flags to store the tally
+   int fa[15][2] = {0};
+/*
+
+   if (sa[tn][0] & PM_BTILE_SOLID_PLAYER)     fa[0][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_SOLID_ENEMY)      fa[1][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_SOLID_ITEM)       fa[2][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_SOLID_PBUL)       fa[3][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_SOLID_EBUL)       fa[4][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_SEMISOLID_PLAYER) fa[5][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_SEMISOLID_ENEMY)  fa[6][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_SEMISOLID_ITEM)   fa[7][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_BOMBABLE)         fa[8][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_BREAKABLE_PBUL)   fa[9][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_BREAKABLE_EBUL)   fa[10][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_LADDER_MOVE)      fa[11][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_ROPE_MOVE)        fa[12][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_SECRET)           fa[13][1] += 1; // tally set
+   if (sa[tn][0] & PM_BTILE_SHOW_SELECT_WIN)  fa[14][1] += 1; // tally set
+
+*/
+
    if (sa[tn][0] & PM_BTILE_SOLID_PLAYER)      al_draw_filled_rectangle(x, y+(ys* 0), x+w, y+h+(ys* 0), palette_color[con]);
    else                                        al_draw_filled_rectangle(x, y+(ys* 0), x+w, y+h+(ys* 0), palette_color[cof]);
    if (sa[tn][0] & PM_BTILE_SOLID_ENEMY)       al_draw_filled_rectangle(x, y+(ys* 1), x+w, y+h+(ys* 1), palette_color[con]);
@@ -729,9 +751,7 @@ void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, 
     // make an array of flags to store the tally
    int fa[15][2] = {0};
 
-
-
-   //cycle the selection
+   // cycle the selection
    for (int cx = bx1; cx < bx2; cx++)
       for (int cy = by1; cy < by2; cy++)
       {
@@ -785,95 +805,54 @@ void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, 
 
    for (int i=0; i<15; i++)
    {
-      int col = 15;
-      if (fa[i][0] == 0) col = 10; // no clears tallied
-
-      if (fa[i][1] == 0) col = 11; // no sets tallied
-
-      if ((fa[i][0]) && (fa[i][1])) col = 14; // both
-
-
-      al_draw_filled_rectangle(x, y+(ys* i), x+w, y+h+(ys* i), palette_color[col]);
-
+                                    al_draw_rectangle       (x, y + (ys*i), x+w, y+h+(ys*i), palette_color[15], 1); // empty box by default
+      if (fa[i][0] == 0)            al_draw_filled_rectangle(x, y + (ys*i), x+w, y+h+(ys*i), palette_color[15]); // no clears tallied, filled
+      if ((fa[i][0]) && (fa[i][1])) al_draw_filled_triangle (x, y+h+(ys*i), x+w, y+h+(ys*i), x, y+(ys* i), palette_color[15]); // mixed
    }
 
-
-/*
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   if (sa[tn][0] & PM_BTILE_SOLID_PLAYER)      al_draw_filled_rectangle(x, y+(ys* 0), x+w, y+h+(ys* 0), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys* 0), x+w, y+h+(ys* 0), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_SOLID_ENEMY)       al_draw_filled_rectangle(x, y+(ys* 1), x+w, y+h+(ys* 1), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys* 1), x+w, y+h+(ys* 1), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_SOLID_ITEM)        al_draw_filled_rectangle(x, y+(ys* 2), x+w, y+h+(ys* 2), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys* 2), x+w, y+h+(ys* 2), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_SOLID_PBUL)        al_draw_filled_rectangle(x, y+(ys* 3), x+w, y+h+(ys* 3), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys* 3), x+w, y+h+(ys* 3), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_SOLID_EBUL)        al_draw_filled_rectangle(x, y+(ys* 4), x+w, y+h+(ys* 4), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys* 4), x+w, y+h+(ys* 4), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_SEMISOLID_PLAYER)  al_draw_filled_rectangle(x, y+(ys* 5), x+w, y+h+(ys* 5), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys* 5), x+w, y+h+(ys* 5), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_SEMISOLID_ENEMY)   al_draw_filled_rectangle(x, y+(ys* 6), x+w, y+h+(ys* 6), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys* 6), x+w, y+h+(ys* 6), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_SEMISOLID_ITEM)    al_draw_filled_rectangle(x, y+(ys* 7), x+w, y+h+(ys* 7), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys* 7), x+w, y+h+(ys* 7), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_BOMBABLE)          al_draw_filled_rectangle(x, y+(ys* 8), x+w, y+h+(ys* 8), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys* 8), x+w, y+h+(ys* 8), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_BREAKABLE_PBUL)    al_draw_filled_rectangle(x, y+(ys* 9), x+w, y+h+(ys* 9), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys* 9), x+w, y+h+(ys* 9), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_BREAKABLE_EBUL)    al_draw_filled_rectangle(x, y+(ys*10), x+w, y+h+(ys*10), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys*10), x+w, y+h+(ys*10), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_LADDER_MOVE)       al_draw_filled_rectangle(x, y+(ys*11), x+w, y+h+(ys*11), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys*11), x+w, y+h+(ys*11), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_ROPE_MOVE)         al_draw_filled_rectangle(x, y+(ys*12), x+w, y+h+(ys*12), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys*12), x+w, y+h+(ys*12), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_SECRET)            al_draw_filled_rectangle(x, y+(ys*13), x+w, y+h+(ys*13), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys*13), x+w, y+h+(ys*13), palette_color[cof]);
-   if (sa[tn][0] & PM_BTILE_SHOW_SELECT_WIN)   al_draw_filled_rectangle(x, y+(ys*14), x+w, y+h+(ys*14), palette_color[con]);
-   else                                        al_draw_filled_rectangle(x, y+(ys*14), x+w, y+h+(ys*14), palette_color[cof]);
 
    if (highlight > -1)
    {
-      al_draw_rectangle(x-1, y+(ys*highlight), x+w+1, y+h+(ys*highlight), palette_color[15], 1);
+      al_draw_rectangle(x-1, y+(ys*highlight)-1, x+w+1, y+h+(ys*highlight)+1, palette_color[15], 1);
+
+
+
       if (mouse_b1)
       {
-         while (mouse_b1) proc_controllers(); // wait for release
-         if (highlight ==  0) sa[tn][0] ^= PM_BTILE_SOLID_PLAYER;
-         if (highlight ==  1) sa[tn][0] ^= PM_BTILE_SOLID_ENEMY;
-         if (highlight ==  2) sa[tn][0] ^= PM_BTILE_SOLID_ITEM;
-         if (highlight ==  3) sa[tn][0] ^= PM_BTILE_SOLID_PBUL;
-         if (highlight ==  4) sa[tn][0] ^= PM_BTILE_SOLID_EBUL;
-         if (highlight ==  5) sa[tn][0] ^= PM_BTILE_SEMISOLID_PLAYER;
-         if (highlight ==  6) sa[tn][0] ^= PM_BTILE_SEMISOLID_ENEMY;
-         if (highlight ==  7) sa[tn][0] ^= PM_BTILE_SEMISOLID_ITEM;
-         if (highlight ==  8) sa[tn][0] ^= PM_BTILE_BOMBABLE;
-         if (highlight ==  9) sa[tn][0] ^= PM_BTILE_BREAKABLE_PBUL;
-         if (highlight == 10) sa[tn][0] ^= PM_BTILE_BREAKABLE_EBUL;
-         if (highlight == 11) sa[tn][0] ^= PM_BTILE_LADDER_MOVE;
-         if (highlight == 12) sa[tn][0] ^= PM_BTILE_ROPE_MOVE;
-         if (highlight == 13) sa[tn][0] ^= PM_BTILE_SECRET;
-         if (highlight == 14) sa[tn][0] ^= PM_BTILE_SHOW_SELECT_WIN;
+         while (mouse_b1) proc_controllers();
+
+         int action = 0;
+
+         if (fa[highlight][0] == 0) action = 0; // all set, so action is to clear
+         if (fa[highlight][1] == 0) action = 1; // all clear, so action is to set
+
+         int set_flag = 0;
+         if (highlight ==  0) set_flag = PM_BTILE_SOLID_PLAYER;
+         if (highlight ==  1) set_flag = PM_BTILE_SOLID_ENEMY;
+         if (highlight ==  2) set_flag = PM_BTILE_SOLID_ITEM;
+         if (highlight ==  3) set_flag = PM_BTILE_SOLID_PBUL;
+         if (highlight ==  4) set_flag = PM_BTILE_SOLID_EBUL;
+         if (highlight ==  5) set_flag = PM_BTILE_SEMISOLID_PLAYER;
+         if (highlight ==  6) set_flag = PM_BTILE_SEMISOLID_ENEMY;
+         if (highlight ==  7) set_flag = PM_BTILE_SEMISOLID_ITEM;
+         if (highlight ==  8) set_flag = PM_BTILE_BOMBABLE;
+         if (highlight ==  9) set_flag = PM_BTILE_BREAKABLE_PBUL;
+         if (highlight == 10) set_flag = PM_BTILE_BREAKABLE_EBUL;
+         if (highlight == 11) set_flag = PM_BTILE_LADDER_MOVE;
+         if (highlight == 12) set_flag = PM_BTILE_ROPE_MOVE;
+         if (highlight == 13) set_flag = PM_BTILE_SECRET;
+         if (highlight == 14) set_flag = PM_BTILE_SHOW_SELECT_WIN;
+
+
+         for (int cx = bx1; cx < bx2; cx++) // cycle the selection
+            for (int cy = by1; cy < by2; cy++)
+            {
+               int tn = cx + (cy*32);
+               if (action == 0) sa[tn][0] &= ~set_flag;
+               if (action == 1) sa[tn][0] |= set_flag;
+            }
       }
    }
-
-
-   */
-
 }
 
 
@@ -938,7 +917,7 @@ void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, 
 void edit_tile_attributes(void)
 {
    int x, y;
-   int mode = 0;
+   int mode = 1;
    int quit = 0;
    int gridlines = 0;
    int button_x1 = 400;
@@ -949,12 +928,12 @@ void edit_tile_attributes(void)
 
 
    int current_selection = 0;
-
+   int pointer = 0;
 
    int bx1 = 0;
    int by1 = 0;
-   int bx2 = 0;
-   int by2 = 0;
+   int bx2 = 1;
+   int by2 = 1;
 
 
 
@@ -969,7 +948,10 @@ void edit_tile_attributes(void)
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
 
-      if (mode == 0) redraw_grid(0, 0, current_selection);
+      if (mode == 0)
+      {
+          redraw_grid(0, 0, current_selection);
+      }
       if (mode == 1)
       {
          redraw_grid(0, 0, -1);
@@ -983,43 +965,52 @@ void edit_tile_attributes(void)
       }
 
 
+
+
+
+
+
       // flags section
-      int fx = 680;
-      int fy = 400;
-      int ys = 10; // y spacing
-      draw_flag_text(fx, fy, ys, 15);
+      int ftx = 780;
+      int fty = 400;
+      int ys = 20; // y spacing
+
+      draw_flag_text(ftx+4, fty, ys, 15);
 
 
-      if (mode == 0) draw_flag_rects(current_selection, fx-10, fy, 8, 8, ys, 10, 11, -1);
-      if (mode == 1) draw_flag_rects_multiple(bx1, by1, bx2, by2, fx-10, fy, 8, 8, ys, 10, 11, -1);
+      int frw = 16;         // flag rectangle width
+      int frh = 16;         // flag rectangle height
+      int frx = ftx-frw-2;  // flag rectangle x
+
+      int fry = fty - (frh/2)+4;  // flag rectangle y
+
+
+      if (mode == 0) draw_flag_rects(current_selection,           frx, fry, frw, frh, ys, 10, 11, -1);
+      if (mode == 1) draw_flag_rects_multiple(bx1, by1, bx2, by2, frx, fry, frw, frh, ys, 10, 11, -1);
 
 
 
-
-
-
-
-
-
-
-      // mouse on current flag rectangle
-      if ((mouse_x > fx-11) && (mouse_x < fx-11+8) && (mouse_y > fy) && (mouse_y < fy+(15*10) ))
+      // mouse on current flag rectangle -- this is to show what flag is selected
+      if ((mouse_x > frx) && (mouse_x < frx+frw) && (mouse_y > fry) && (mouse_y < fry+(15*ys) ))
       {
-         int indx = (mouse_y-fy)/ys;
-
-         if (mode == 0) draw_flag_rects(current_selection, fx-10, fy, 8, 8, ys, 10, 11, indx); // this is to show selection outline
-
-
-
-
-
-
-
-
+         int indx = (mouse_y-fry)/ys;
+         if (mode == 0) draw_flag_rects(current_selection,           frx, fry, frw, frh, ys, 10, 11, indx);
+         if (mode == 1) draw_flag_rects_multiple(bx1, by1, bx2, by2, frx, fry, frw, frh, ys, 10, 11, indx);
       }
 
-      int csx = 670;
-      int csy = 380;
+      int csx = 780-frw-1;
+      int csy = fty-ys-1;
+
+      if (mode == 1)
+      {
+         al_draw_rectangle(csx-4, csy-7, csx+195, csy+15, palette_color[10], 1);
+         al_draw_rectangle(csx-4, csy-7, csx+frw+2, csy+(15+1)*ys, palette_color[10], 1); // frame for buttons
+         int num_tiles = (bx2-bx1) * (by2-by1);
+         al_draw_textf(font, palette_color[4],    csx+frw,     csy, 0, " %d Tile(s) Selected", num_tiles);
+      }
+
+
+
 
       if (mode == 0)
       {
@@ -1028,6 +1019,8 @@ void edit_tile_attributes(void)
          al_draw_textf(font, palette_color[4],    csx+24, csy,   0, "Current Selection %-2d  ", current_selection );
       }
 
+/*
+
       if (mode == 1)
       {
          al_draw_rectangle(csx-4, csy-7, csx+195, csy+15, palette_color[10], 1);
@@ -1035,12 +1028,15 @@ void edit_tile_attributes(void)
          al_draw_textf(font, palette_color[4],    csx,     csy, 0, " %d Tiles Selected", num_tiles);
       }
 
-
+*/
 
       // mouse is on main 32x32 tile grid
       if ((mouse_y < 640) && (mouse_x < 640))
       {
-         int pointer = (mouse_x/20) + (mouse_y/20) * 32 ;
+         int mx = mouse_x/20;
+         int my = mouse_y/20;
+
+         pointer = mx + (my*32);
 
          csx = 20;
          csy = 650;
@@ -1048,6 +1044,8 @@ void edit_tile_attributes(void)
          al_draw_bitmap(btile[pointer],         csx,    csy-6, 0);
          al_draw_textf(font, palette_color[15], csx+24, csy,   0, "Mouse Pointer %d", pointer);
 
+         // show on grid
+         al_draw_rectangle(mx*20, my*20, mx*20+19, my*20+19, palette_color[15], 1);
 
 
          if (mouse_b1)
@@ -1069,8 +1067,8 @@ void edit_tile_attributes(void)
                   redraw_grid(0, 0, -1);
                   al_draw_rectangle((bx1)*20, (by1)*20, (bx2)*20, (by2)*20, palette_color[15], 1);
 
-                  bx2 = bx1 + ((mouse_x - old_mouse_x)/20);
-                  by2 = by1 + ((mouse_y - old_mouse_y)/20);
+                  bx2 = bx1 + ((mouse_x - old_mouse_x+20)/20);
+                  by2 = by1 + ((mouse_y - old_mouse_y+20)/20);
 
                   if (bx1>32) bx1 = 32; // limits
                   if (bx2>32) bx2 = 32;
@@ -1081,6 +1079,15 @@ void edit_tile_attributes(void)
                // ensure top-right, bottom left format
                if (bx1 > bx2) { int temp = bx2; bx2 = bx1; bx1 = temp; }
                if (by1 > by2) { int temp = by2; by2 = by1; by1 = temp; }
+
+               if (bx2 == bx1) bx2++; // don't let size be zero
+               if (by2 == by1) by2++;
+
+               if (bx1>32) bx1 = 32; // limits
+               if (bx2>32) bx2 = 32;
+               if (by1>32) by1 = 32;
+               if (by2>32) by2 = 32;
+
 
             }
          } // end of mouse_b1 pressed
