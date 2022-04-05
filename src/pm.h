@@ -162,6 +162,10 @@ extern int pm_event[1000];
 
 
 // temp testing variable
+extern int pct_x;
+extern int pct_y;
+
+
 extern int tx1;
 extern int ty1;
 extern int ttc1;
@@ -422,6 +426,13 @@ extern int KEY_F10_held;
 extern int KEY_F11_held;
 extern int KEY_F12_held;
 extern int KEY_PRTSCR_held;
+
+extern int KEY_UP_held;
+extern int KEY_DOWN_held;
+extern int KEY_LEFT_held;
+extern int KEY_RIGHT_held;
+
+
 
 // ------------------------------------------------
 // ----------------- setup ------------------------
