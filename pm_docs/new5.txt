@@ -17086,6 +17086,18 @@ b1 - drag and click to select rectangular area
 click on the flag toggles to change
 
 
+................this part is done...done good enough....
+
+
+now I want to be able to move tiles around
+from position to position within one file and from file to file....
+
+master will be just like 32x32 then have a separate file that can only be copied from....
+
+
+
+
+
 
 
 

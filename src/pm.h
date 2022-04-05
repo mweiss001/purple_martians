@@ -901,6 +901,8 @@ int select_bitmap_proc();
 int copy_bitmap_proc();
 void tile_editor(void);
 void edit_tile_attributes(void);
+void copy_tiles(void);
+
 
 
 // e_editor_main.h

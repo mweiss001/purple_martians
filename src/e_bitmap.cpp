@@ -853,7 +853,7 @@ void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, 
 void edit_tile_attributes(void)
 {
    int x, y;
-   int mode = 1;
+   int mode = 0;
    int quit = 0;
    int gridlines = 0;
    int button_x1 = 400;
@@ -896,8 +896,8 @@ void edit_tile_attributes(void)
 
       if (gridlines)
       {
-         for (x=0; x<=32; x++) al_draw_line(x*20, 0, x*20, 640, palette_color[15], 1);
-         for (y=0; y<=32; y++) al_draw_line(0, y*20, 640, y*20, palette_color[15], 1);
+         for (x=0; x<=32; x++) al_draw_line(x*20, 0, x*20, 640, palette_color[15+128], 0);
+         for (y=0; y<=32; y++) al_draw_line(0, y*20, 640, y*20, palette_color[15+128], 0);
       }
 
       // flags section
@@ -907,18 +907,30 @@ void edit_tile_attributes(void)
 
       draw_flag_text(ftx+4, fty, ys, 15);
 
-      int frw = 16+pct_x;         // flag rectangle width
-      int frh = 16+pct_y;         // flag rectangle height
+      int frw = 12;         // flag rectangle width
+      int frh = 12;         // flag rectangle height
       int frx = ftx-frw-2;        // flag rectangle x
       int fry = fty - (frh/2)+4;  // flag rectangle y
 
 
-
+      // position of 'currently selected' window (relative to flags)
       int csx = ftx-frw-1;
       int csy = fty-ys-1;
 
+      int tx = 20; // title x
+      int ty = 650;
+
+
+
       if (mode == 0) // show flags for one tile
       {
+
+         al_draw_text(font, palette_color[15], tx, ty,     0, "Change or Copy Single");
+         al_draw_text(font, palette_color[15], tx, ty+8,   0, "b1 - Select tile");
+         al_draw_text(font, palette_color[15], tx, ty+16,  0, "b2 - Copy flags");
+
+
+
          draw_flag_rects(current_selection,           frx, fry, frw, frh, ys, 10, 11, -1);
 
          al_draw_rectangle(                       csx-1,  csy-7, csx+195, csy+15, palette_color[10], 1);
@@ -928,6 +940,14 @@ void edit_tile_attributes(void)
 
       if (mode == 1) // show the tallied flags multiple
       {
+
+         al_draw_text(font, palette_color[15], tx, ty,     0, "Change Multiple");
+         al_draw_text(font, palette_color[15], tx, ty+8,   0, "Draw selection rectangle");
+         al_draw_text(font, palette_color[15], tx, ty+16,  0, "Change flags for all selected");
+
+
+
+
          draw_flag_rects_multiple(bx1, by1, bx2, by2, frx, fry, frw, frh, ys, 10, 11, -1);
 
          al_draw_rectangle(csx-4, csy-7, csx+195, csy+15, palette_color[10], 1);
@@ -951,8 +971,8 @@ void edit_tile_attributes(void)
          int my = mouse_y/20;
          pointer = mx + (my*32); // tile the mouse is currently pointing at
 
-         // show pointer on grid as white rectangle
-         al_draw_rectangle(mx*20, my*20, mx*20+19, my*20+19, palette_color[13], 1);
+         // show pointer on grid as lt blue rectangle
+         al_draw_rectangle(mx*20+1, my*20+1, mx*20+19, my*20+19, palette_color[13], 1);
 
          csx -= 24;
          csy -= 25;
@@ -968,7 +988,7 @@ void edit_tile_attributes(void)
 
          if (mouse_b2)
          {
-            while (mouse_b1) proc_controllers();
+            while (mouse_b2) proc_controllers();
             if (mode == 0) sa[pointer][0] = sa[current_selection][0];
 
 
@@ -1021,8 +1041,8 @@ void edit_tile_attributes(void)
 
       jh=1;
       al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      if (mode == 0) sprintf(msg,"Change One Selected Tile");
-      if (mode == 1) sprintf(msg,"Change Muliple Selected Tiles");
+      if (mode == 0) sprintf(msg,"Change or Copy Single");
+      if (mode == 1) sprintf(msg,"Change Multiple");
       al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
 
       jh=2;
@@ -1079,6 +1099,116 @@ void edit_tile_attributes(void)
 
 
 
+
+
+
+void copy_tiles()
+{
+   int quit = 0;
+
+   al_set_target_backbuffer(display);
+   al_show_mouse_cursor(display);
+
+   // get second bmp from file
+
+   // size unknown...
+
+  // ALLEGRO_BITMAP *b2 = al_load_bitmap("bitmaps/player_tiles.bmp");
+   ALLEGRO_BITMAP *b2 = al_load_bitmap("bitmaps/door_tiles.bmp");
+   ALLEGRO_BITMAP *qtmp = al_create_bitmap(20, 20);
+
+
+// how do I find the size???
+
+   int b2_w = al_get_bitmap_width(b2);
+   int b2_h = al_get_bitmap_height(b2);
+
+   int b2_tw = b2_w/20; // tile width
+   int b2_th = b2_h/20; // tile height
+
+
+
+   while (!quit)
+   {
+
+      proc_controllers();
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+
+      al_draw_text(font, palette_color[9], 0, 694, 0, "b1 to put   ");
+      al_draw_text(font, palette_color[9], 0, 702, 0, "b2 to get   ");
+      al_draw_text(font, palette_color[9], 0, 710, 0, "esc to quit ");
+
+
+      al_draw_bitmap(b2, 700, 0, 0);
+
+      if ((mouse_x > 700) && (mouse_x < 700 + b2_w) && (mouse_y < b2_h))
+      {
+         int mx = (mouse_x-700)/20;
+         int my = mouse_y/20;
+
+         int pointer = mx + my*b2_tw;
+
+         al_draw_rectangle(700+mx*20, my*20, 700+mx*20+20, my*20+20, palette_color[15], 0 );
+
+         al_draw_textf(font, palette_color[4], 700, b2_h+20, 0, "pointer %-2d  ", pointer );
+
+         if (mouse_b2)
+         {
+            while (mouse_b2) proc_controllers();
+
+            al_set_target_bitmap(qtmp);
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+
+            al_draw_bitmap_region(b2, mx*20, my*20, 20, 20, 0, 0, 0);
+
+            al_set_target_backbuffer(display);
+
+
+         }
+
+
+      }
+
+
+      // draw 32x32 bitmaps
+      for (int y = 0; y < 32; y++)
+         for (int x = 0; x < 32; x++)
+            al_draw_bitmap(btile[x+(y*32)], x*20, y*20, 0);
+
+
+      if ((mouse_y < 640) && (mouse_x < 640))
+      {
+         int pointer = (mouse_x/20) + (mouse_y/20) * 32 ;
+         al_draw_textf(font, palette_color[4], 0, 680, 0, "pointer %-2d  ", pointer );
+         al_draw_bitmap(btile[pointer], 95, 671, 0);
+
+         if (mouse_b2) bmp_index = pointer;
+         if (mouse_b1)
+         {
+            al_set_target_bitmap(btile[pointer]);
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+
+//            al_draw_bitmap(btile[bmp_index], 0, 0, 0);
+
+            al_draw_bitmap(qtmp, 0, 0, 0);
+
+
+            al_set_target_backbuffer(display);
+         }
+      }
+
+      while (key[ALLEGRO_KEY_ESCAPE])
+      {
+         proc_controllers();
+         quit = 1;
+      }
+   }
+
+   al_destroy_bitmap(b2);
+   al_destroy_bitmap(qtmp);
+
+}
 
 
 
