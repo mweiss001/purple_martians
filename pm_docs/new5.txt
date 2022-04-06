@@ -17096,6 +17096,60 @@ master will be just like 32x32 then have a separate file that can only be copied
 
 
 
+it works!
+
+lest see if I can get one from a long time ago...
+
+
+pm0_1 has no level editor..took a screenshot of the game, pasted into gimp and cropped to block boundary
+exported as bmp.
+in pm it came in at 2x size, but when I scaled it down it seemed to work
+
+pm0_2 has level editor, there are 512 bitmaps 16 in a row and only 8 rows show on the screen at once...
+4 screens would get them all...do it...
+
+
+pm1 is very similar to pm0
+
+pm2 has 512 bitmaps in 32x16
+
+pm3 does not allow looking at bitmaps in level editor...only has block editor...
+
+pm4 does the same...
+
+I know how I can force it...I could edit pmhelp to show arbitrary shape, or I could do the same with a level....
+
+anyways, I have some cool old tiles...
+
+what else to do?
+
+show where pasting
+basically just show where pointer is in 32x32
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
