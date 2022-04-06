@@ -949,14 +949,14 @@ Ef[y][9] = 0;
 
 */
 
-
+/*
 
 //   // blocks
    for (int y=0; y<100; y++)
       for (int z=0; z<100; z++)
          blt[l[y][z]]++; // inc block counter
 
-
+*/
 /*
 
       // blocks
@@ -1057,7 +1057,7 @@ Ef[y][9] = 0;
 
   */
 
-      if (0)
+      if (1)
       {
          save_level(le[x]);
          al_set_target_backbuffer(display);

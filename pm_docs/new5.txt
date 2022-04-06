@@ -17126,6 +17126,73 @@ what else to do?
 show where pasting
 basically just show where pointer is in 32x32
 
+this function to copy and move tiles is done and works great...
+
+now what??
+
+I should fix the save and load stuff..
+mostly for level, but do it all while I'm at it...
+
+I'll need to make backups of the levels...
+and use glt to convert
+
+first modify save...
+then run glt
+then modify load...
+
+
+at the start of .pml is
+
+level_header[20]
+level_header[3] items
+level_header[4] enemies
+level_header[5] lifts
+
+read and write mode is r and w
+
+now all the levels are 122k
+89 levels = 10.7M
+old was 3.7M
+
+
+modified the read also and it works...until I try to do something with pmsg....
+
+how the hell does that work?
+
+I think pmsg is just pointers....
+
+look into it, this needs to be fixed...
+
+old load:
+pmsg[c] = (char*) malloc (strlen(buff)+1);
+strcpy(pmsg[c], buff);
+
+
+old save:
+if (item[c][0] == 10) // pmsg
+{
+   y = 0;
+   while (pmsg[c][y] != 0)
+   {
+      if (pmsg[c][y] == 13) fprintf(filepntr,"%c", 126);
+      else fprintf(filepntr,"%c", pmsg[c][y]);
+      y++ ;
+   }
+   fprintf(filepntr,"\n");
+}
+
+
+the reason for malloc was to save memory...
+what if I just malloc'd a fixed amount in pmsg only if the corresponding item = 10
+or I could extend pmsg to have a second variable for the length...
+
+or I could simply write 500 lengths in the pml file while saving...yes...do this...
+
+
+I need to save pl then save the string one at a time  if not len=0
+
+I think I got it!!!!
+
 
 
 
