@@ -482,6 +482,37 @@ Ef[y][9] = 0;
 
 
 
+
+
+      for (int y=0; y<500; y++)
+         if (item[y][0] == 10) // msg only
+         {
+//            printf("lev%d: - %s\n", le[x], pmsg[y]);
+
+
+
+
+
+
+
+
+
+
+         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
              /*
 
              if (item[y][0] == 11) count1++;

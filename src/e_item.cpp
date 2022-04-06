@@ -512,9 +512,28 @@ void show_all_pmsg(void)
 //            for (int j=0; j<len; j++)
 //               al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "[%d][%c]", j, pmsg[i][j]);
 
+
+            al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "Item:%2d len:%3d lines:%2d max length:%2d", i, len, lines, mll);
+
+
             for (int j=0; j<len; j++)
             {
-               al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "[%d][%d]", j, pmsg[i][j]);
+               int col = 15;
+
+               if ((pmsg[i][j] < 32) || (pmsg[i][j] > 126)) col = 10; // bad char
+
+
+               if (pmsg[i][j] == 126)
+               {
+                  col = 14;
+                  lines++;
+                  if (tlc > mll) mll = tlc;
+                  tlc = 0;
+               }
+               else tlc++;
+
+
+               al_draw_textf(font, palette_color[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsg[i][j], pmsg[i][j] );
 
                if (pmsg[i][j] == 126)
                {
@@ -524,9 +543,8 @@ void show_all_pmsg(void)
                }
                else tlc++;
             }
-            if (tlc > mll) mll = tlc;
-            al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "[%2d] len:%3d lines:%2d max length:%2d", i, len, lines, mll);
             text_pos +=8;
+            if (tlc > mll) mll = tlc;
 
          }
       }

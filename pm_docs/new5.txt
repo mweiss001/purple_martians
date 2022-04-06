@@ -17194,6 +17194,193 @@ I need to save pl then save the string one at a time  if not len=0
 I think I got it!!!!
 
 
+lets go back and do it right...
+
+this is the way....
+
+
+save:
+
+   // how many pmsg?
+   int num_pmsg = 0;
+   for (int i=0; i<500; i++)
+      if (pmsg[i] != NULL) num_pmsg++;
+
+   // make an array to store data about them
+   int pl[num_pmsg][2] = {0};
+
+   // fill the array
+   int pl_indx = 0;
+   for (int i=0; i<500; i++)
+   {
+      if (pmsg[i] != NULL)
+      {
+         pl[pl_indx][0] = i;               // pmsg index
+         pl[pl_indx][1] = strlen(pmsg[i]); // length of pmsg
+         pl_indx++;
+      }
+   }
+
+   // write the num of pmsg
+   fwrite(&num_pmsg, sizeof(int), 1, fp);
+
+   // write the array
+   fwrite(pl, sizeof(pl), 1, fp);
+
+   // write the text of the pmsg's
+   for (int c=0; c<num_pmsg; c++)
+   {
+      int pi = pl[c][0]; // pmsg index
+      int ps = pl[c][1]; // pmsg length
+      fwrite(pmsg[pi], ps, 1, fp);
+   }
+
+load:
+
+   // read the number of pmsg's
+   int num_pmsg = 0;
+   fread(&num_pmsg, sizeof(num_pmsg), 1, fp);
+
+   // make the array to store data about them
+   int pl[num_pmsg][2] = {0};
+
+   // read the array
+   fread(pl, sizeof(pl), 1, fp);
+
+   // read the strings
+   for (int c=0; c<num_pmsg; c++)
+   {
+      int pi = pl[c][0]; // pmsg index
+      int ps = pl[c][1]; // pmsg length
+      pmsg[pi] = (char*) malloc (ps); // allocate
+      fread(pmsg[pi], ps, 1, fp);     // read
+   }
+
+
+
+
+is there someplace I should be freeing all these??
+
+in zero_level_data()
+
+old
+   for (int c=0; c<500; c++)  // items
+   {
+      if (item[c][0] == 10)
+      {
+         free (pmsg[c]);
+         pmsg[c] = NULL;
+      }
+
+
+new:
+   for (int c=0; c<500; c++)  // items
+   {
+      if (pmsg[c])
+      {
+         free (pmsg[c]);
+         pmsg[c] = NULL;
+      }
+
+
+seems to work...
+
+now some of the text is not coming out how I would like...
+
+I used to do something different in linux to eat char 13 or soething like that...
+
+
+
+old_save replaces 13 with 126 '~'
+
+   if (item[c][0] == 10) // pmsg
+   {
+      y = 0;
+      while (pmsg[c][y] != 0)
+      {
+         if (pmsg[c][y] == 13) fprintf(filepntr,"%c", 126);
+         else fprintf(filepntr,"%c", pmsg[c][y]);
+         y++ ;
+      }
+      fprintf(filepntr,"\n");
+
+
+old_load ignores 13
+
+   if (item[c][0] == 10) // get pmsg
+   {
+     loop = 0;
+     ch = fgetc(filepntr);
+     while((ch != '\n') && (ch != EOF))
+     {
+        if (ch != 13) // ignore and don't add if 13 ( needed for linux)
+        {
+           buff[loop] = ch;
+           loop++;
+        }
+        ch = fgetc(filepntr);
+     }
+     buff[loop] = 0;
+     pmsg[c] = (char*) malloc (strlen(buff)+1);
+     strcpy(pmsg[c], buff);
+
+
+
+what the hell? what am I going to do?
+
+use glt to see how many I have....
+
+
+it was a stupid off by one error
+
+when I got the size of the string, I needed to add 1 to include the NULL terminator...
+
+I only has to change one line....
+
+old: pl[pl_indx][1] = strlen(pmsg[i]); // length of pmsg
+
+new: pl[pl_indx][1] = strlen(pmsg[i]) + 1; // length of pmsg (don't forget about the NULL at the end)
+
+mucho goodlier.....
+
+
+I also want to implement a version for the pml file format.....
+when loading level, check for version
+
+keep old versions around so you can load older stuff...
+
+don't even try to load unless you have a handler for that version...
+
+I'm going to call the version I have now 1.0 (once I implement versioning)
+
+The version previous to this will be 0.9
+
+I should go back and see what older levels I have.....
+
+make a search and load function.....
+
+make something to detect...
+
+wed 12:03...push....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
