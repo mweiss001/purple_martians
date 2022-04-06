@@ -186,13 +186,23 @@ void zero_level_data(void)
            l[c][x] = 0;
 
 
+
    for (int c=0; c<500; c++)  // items
    {
+
+      if (pmsg[c])
+      {
+         free (pmsg[c]);
+         pmsg[c] = NULL;
+      }
+/*
       if (item[c][0] == 10)
       {
          free (pmsg[c]);
          pmsg[c] = NULL;
       }
+*/
+
       for (int x=0; x<16; x++) item[c][x] = 0;
       for (int x=0; x<4; x++) itemf[c][x] = al_itofix(0);
    }
@@ -270,58 +280,9 @@ void level_check(void)
          printf("%d %d\n", i, s[i]);
    }
 }
+/*
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-int old_load_level(int level_to_load, int display)
+int oldload_level(int level_to_load, int display) //old
 {
    int level_header[20];
 
@@ -448,6 +409,9 @@ int old_load_level(int level_to_load, int display)
                     buff[loop] = ch;
                     loop++;
                  }
+                 else printf("lev:%d pmsg:%d found char 13 and ate it\n", level_to_load, c);
+
+
                  ch = fgetc(filepntr);
               }
               buff[loop] = 0;
@@ -590,18 +554,15 @@ int old_load_level(int level_to_load, int display)
 }
 
 
+*/
 
-
-
-
-
-int load_level(int level_to_load, int display)
+int load_level(int level_to_load, int display) // new
 {
    FILE *fp;
    int level_header[20];
 
    display = 0; // force display on or off
-   int error_logging = 1;
+   int error_logging = 0;
    valid_level_loaded = 0;
    resume_allowed = 0;
    int level_load_error = 0;
@@ -635,8 +596,6 @@ int load_level(int level_to_load, int display)
          level_load_error = 1;
       }
    }
-
-
   if (!level_load_error)  // file open !
   {
       fread(level_header, sizeof(level_header), 1, fp);
@@ -647,44 +606,26 @@ int load_level(int level_to_load, int display)
       fread(lifts,        sizeof(lifts),        1, fp);
       fread(lift_steps,   sizeof(lift_steps),   1, fp);
 
-      int pl[500];
-      fread(pl,            sizeof(pl),         1, fp);
+      // read the number of pmsg's
+      int num_pmsg = 0;
+      fread(&num_pmsg, sizeof(num_pmsg), 1, fp);
 
-      for(int i=0; i<500; i++)
+      // make the array to store data about them
+      int pl[num_pmsg][2] = {0};
+
+      // read the array
+      fread(pl, sizeof(pl), 1, fp);
+
+      // read the strings
+      for (int c=0; c<num_pmsg; c++)
       {
-         if (pl[i])
-         {
-            printf("size of pmsg[%d]:%d\n", i, pl[i]);
-            pmsg[i] = (char*) malloc (pl[i]+1);
-
-            fread(pmsg[i],       pl[i],         1, fp);
-
-
-
-
-
-
-         }
+         int pi = pl[c][0]; // pmsg index
+         int ps = pl[c][1]; // pmsg length
+         pmsg[pi] = (char*) malloc (ps); // allocate
+         fread(pmsg[pi], ps, 1, fp);     // read
       }
-
-
-//      fread(pmsg,         sizeof(pmsg),         1, fp);
-
-      printf("size of pmsg:%d\n",sizeof(pmsg));
       fclose(fp);
    } // end of file open
-
-
-
-
-
-
-
-
-
-
-
-
 
    if (level_load_error)
    {
@@ -745,35 +686,39 @@ int save_level(int level_to_save)
    fwrite(lift_steps,   sizeof(lift_steps),   1, fp);
 
 
+   // how many pmsg?
+   int num_pmsg = 0;
+   for (int i=0; i<500; i++)
+      if (pmsg[i] != NULL) num_pmsg++;
 
-   int pl[500];
+   // make an array to store data about them
+   int pl[num_pmsg][2] = {0};
+
+   // fill the array
+   int pl_indx = 0;
    for (int i=0; i<500; i++)
    {
       if (pmsg[i] != NULL)
       {
-         pl[i] = strlen(pmsg[i]);
+         pl[pl_indx][0] = i;                   // pmsg index
+         pl[pl_indx][1] = strlen(pmsg[i]) + 1; // length of pmsg (don't forget about the NULL at the end)
+         pl_indx++;
       }
-      else pl[i] = 0;
    }
-   fwrite(pl,            sizeof(pl),         1, fp);
 
-   for (int i=0; i<500; i++)
-      if (pl[i] > 0)
-      {
-         // write as string, not as pointer
+   // write the number of pmsg's
+   fwrite(&num_pmsg, sizeof(int), 1, fp);
 
+   // write the array
+   fwrite(pl, sizeof(pl), 1, fp);
 
-         printf("writing sz:%d  %s\n", pl[i], pmsg[i]);
-
-         fwrite(pmsg[i], pl[i],         1, fp);
-
-
-
-      }
-
-   //printf("size of pmsg:%d\n",sizeof(pmsg));
-//   fwrite(pmsg,         sizeof(pmsg),         1, fp);
-
+   // write the text of the pmsg's
+   for (int c=0; c<num_pmsg; c++)
+   {
+      int pi = pl[c][0]; // pmsg index
+      int ps = pl[c][1]; // pmsg length
+      fwrite(pmsg[pi], ps, 1, fp);
+   }
 
    fclose(fp);
    return 0;
@@ -781,41 +726,7 @@ int save_level(int level_to_save)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*
 int old_save_level(int level_to_save)
 {
    level_check();
@@ -888,7 +799,7 @@ int old_save_level(int level_to_save)
 }
 
 
-
+*/
 
 int mw_file_select(const char * title, char * fn, const char * ext, int save)
 {
