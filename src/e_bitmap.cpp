@@ -560,11 +560,19 @@ void tile_editor(void)
 
 
 
+void save_btiles(void)
+{
+   // printf("save block_tiles\n");
+   ALLEGRO_BITMAP* temp = al_create_bitmap(640, 640);
+   al_set_target_bitmap(temp);
+   for (int y = 0; y < 32; y++)
+      for (int x = 0; x < 32; x++)
+         al_draw_bitmap(btile[y*32 + x], (x*20), (y*20), 0);
 
-
-
-
-
+   if (!al_save_bitmap("bitmaps/block_tiles.bmp", temp))
+   printf("error saving block_tiles\n");
+   al_destroy_bitmap(temp);
+}
 
 
 void save_sprit(void)
@@ -1112,7 +1120,7 @@ void copy_tiles()
    ALLEGRO_BITMAP *qtmp = al_create_bitmap(20, 20);
 
    char b2_fn[100];
-   sprintf(b2_fn, "bitmaps/tiles.bmp");
+   sprintf(b2_fn, "bitmaps\\tiles.bmp");
 
 
    ALLEGRO_BITMAP *b2 = al_load_bitmap(b2_fn);
@@ -1187,12 +1195,7 @@ void copy_tiles()
          if (mouse_b1)
          {
             while (mouse_b1) proc_controllers();
-
-
-// do something here
-
-
-
+            save_btiles();
          }
       }
 
@@ -1203,8 +1206,15 @@ void copy_tiles()
 
       al_draw_bitmap(b2, b2_x, b2_y, 0);
 
+
+
       // title
-      al_draw_textf(font, palette_color[15], b2_x+(b2_w/2),  b2_y-10, ALLEGRO_ALIGN_CENTER, "%s", b2_fn);
+      char *tfn;                      // show only filename by removing path
+      char *tfn2;
+      tfn = strrchr(b2_fn, '\\');     // get pointer to last occurance of '\'
+      if (!tfn) tfn2 = b2_fn;         // fall back to full path is that fails
+      else tfn2 = tfn + 1;            // chop first char '\'
+      al_draw_textf(font, palette_color[15], b2_x+(b2_w/2),  b2_y-10, ALLEGRO_ALIGN_CENTER, "%s", tfn2);
 
 
       // draw and proccess load button

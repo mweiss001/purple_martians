@@ -276,7 +276,52 @@ void level_check(void)
 
 
 
-int load_level(int level_to_load, int display)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int old_load_level(int level_to_load, int display)
 {
    int level_header[20];
 
@@ -344,6 +389,8 @@ int load_level(int level_to_load, int display)
      if (error_logging) printf("%d enemies\n", level_header[4]);
      if (error_logging) printf("%d lifts \n", level_header[5]);
      if (error_logging) printf("reading blocks\n");
+
+
      for (c=0; c<100; c++)  // l[100][100]
         for (y=0; y<100; y++)
         {
@@ -364,6 +411,7 @@ int load_level(int level_to_load, int display)
               level_load_error = 1;
            }
         }
+
      if (!level_load_error)
      {
         if (error_logging) printf("reading items\n");
@@ -542,7 +590,233 @@ int load_level(int level_to_load, int display)
 }
 
 
+
+
+
+
+
+int load_level(int level_to_load, int display)
+{
+   FILE *fp;
+   int level_header[20];
+
+   display = 0; // force display on or off
+   int error_logging = 1;
+   valid_level_loaded = 0;
+   resume_allowed = 0;
+   int level_load_error = 0;
+
+   //printf("load level\n");
+
+   zero_level_data();
+
+   while (level_to_load > 1000) level_to_load -= 1000;
+
+   make_filename(level_to_load);   // update filename
+   level_num = level_to_load;
+   level_load_error = 0;
+
+   if (!al_filename_exists(level_filename))
+   {
+      sprintf(msg, "Can't Find Level %s ", level_filename);
+      //m_err(msg);
+      level_load_error = 1;
+   }
+
+   if (!level_load_error) // file exists
+   {
+      if (error_logging) printf("file exists\n");
+
+      fp = fopen(level_filename,"rb");
+      if (!fp)
+      {
+         sprintf(msg, "Error opening %s ", level_filename);
+         m_err(msg);
+         level_load_error = 1;
+      }
+   }
+
+
+  if (!level_load_error)  // file open !
+  {
+      fread(level_header, sizeof(level_header), 1, fp);
+      fread(l,            sizeof(l),            1, fp);
+      fread(item,         sizeof(item),         1, fp);
+      fread(Efi,          sizeof(Efi),          1, fp);
+      fread(Ei,           sizeof(Ei),           1, fp);
+      fread(lifts,        sizeof(lifts),        1, fp);
+      fread(lift_steps,   sizeof(lift_steps),   1, fp);
+
+      int pl[500];
+      fread(pl,            sizeof(pl),         1, fp);
+
+      for(int i=0; i<500; i++)
+      {
+         if (pl[i])
+         {
+            printf("size of pmsg[%d]:%d\n", i, pl[i]);
+            pmsg[i] = (char*) malloc (pl[i]+1);
+
+            fread(pmsg[i],       pl[i],         1, fp);
+
+
+
+
+
+
+         }
+      }
+
+
+//      fread(pmsg,         sizeof(pmsg),         1, fp);
+
+      printf("size of pmsg:%d\n",sizeof(pmsg));
+      fclose(fp);
+   } // end of file open
+
+
+
+
+
+
+
+
+
+
+
+
+
+   if (level_load_error)
+   {
+      if (error_logging) printf("level loading error occurred\n");
+      num_lifts = 0;
+      return 0;
+   }
+   else
+   {
+      if (error_logging) printf("level loading complete with no errors\n");
+      valid_level_loaded = 1;
+
+     for (int x=0; x<500; x++)
+     if (item[x][0]) // only if active set x y
+     {
+        itemf[x][0] = al_itofix(item[x][4]);
+        itemf[x][1] = al_itofix(item[x][5]);
+     }
+
+      level_check();
+
+      init_level_background(); // draw blocks and lift lines on level_background
+      if (error_logging) printf("blocks drawn\n");
+      reset_animation_sequence_frame_nums(0);
+      if (error_logging) printf("ans seq reset\n");
+      for (int p=0; p<NUM_PLAYERS; p++) set_player_start_pos(p);
+      if (error_logging) printf("got start\n");
+      return 1;
+   }
+}
+
+
+
+
 int save_level(int level_to_save)
+{
+   level_check();
+
+
+   int level_header[20];
+   level_header[3] = sort_item(); // num_of_items
+   sort_enemy();
+   level_header[4] = num_enemy;  // num_of_enemies
+   level_header[5] = num_lifts;  // num of lifts
+
+
+   while (level_to_save > 1000) level_to_save -= 1000;
+   make_filename(level_to_save);   // update filename
+
+   FILE *fp = fopen(level_filename,"wb");
+
+   fwrite(level_header, sizeof(level_header), 1, fp);
+   fwrite(l,            sizeof(l),            1, fp);
+   fwrite(item,         sizeof(item),         1, fp);
+   fwrite(Efi,          sizeof(Efi),          1, fp);
+   fwrite(Ei,           sizeof(Ei),           1, fp);
+   fwrite(lifts,        sizeof(lifts),        1, fp);
+   fwrite(lift_steps,   sizeof(lift_steps),   1, fp);
+
+
+
+   int pl[500];
+   for (int i=0; i<500; i++)
+   {
+      if (pmsg[i] != NULL)
+      {
+         pl[i] = strlen(pmsg[i]);
+      }
+      else pl[i] = 0;
+   }
+   fwrite(pl,            sizeof(pl),         1, fp);
+
+   for (int i=0; i<500; i++)
+      if (pl[i] > 0)
+      {
+         // write as string, not as pointer
+
+
+         printf("writing sz:%d  %s\n", pl[i], pmsg[i]);
+
+         fwrite(pmsg[i], pl[i],         1, fp);
+
+
+
+      }
+
+   //printf("size of pmsg:%d\n",sizeof(pmsg));
+//   fwrite(pmsg,         sizeof(pmsg),         1, fp);
+
+
+   fclose(fp);
+   return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int old_save_level(int level_to_save)
 {
    level_check();
 
