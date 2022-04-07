@@ -59,7 +59,7 @@ void remove_block(int x, int y)
    l[x][y] = 0;
    al_set_target_bitmap(level_background);
    al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-   al_draw_bitmap(tile[0], x*20, y*20, 0);
+   al_draw_bitmap(btile[0], x*20, y*20, 0);
 }
 
 
@@ -1415,13 +1415,13 @@ void proc_switch_collision(int p, int i)
                {
                   l[c][y] = item[i][10]; // replace with solid switch block
                   al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
-                  al_draw_bitmap(tile[l[c][y]], c*20, y*20, 0 );
+                  al_draw_bitmap(btile[l[c][y]], c*20, y*20, 0 );
                }
                else if (l[c][y] == item[i][10]) // solid switch block
                {
                   l[c][y] = item[i][11]; // replace with empty switch block
                   al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
-                  al_draw_bitmap(tile[l[c][y]], c*20, y*20, 0 );
+                  al_draw_bitmap(btile[l[c][y]], c*20, y*20, 0 );
                }
 
             } // end of toggle blocks
@@ -1793,7 +1793,7 @@ void process_block_manip(int i)
             {
                l[x][y] = block1; // replace block
                al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-               al_draw_bitmap(tile[block1], x*20, y*20, 0 );
+               al_draw_bitmap(btile[block1], x*20, y*20, 0 );
             }
 
             if (mode == 2) // set all block2 to block 1
@@ -1802,7 +1802,7 @@ void process_block_manip(int i)
                {
                   l[x][y] = block1; // replace block
                   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                  al_draw_bitmap(tile[block1], x*20, y*20, 0 );
+                  al_draw_bitmap(btile[block1], x*20, y*20, 0 );
                }
             }
 
@@ -1812,13 +1812,13 @@ void process_block_manip(int i)
                {
                   l[x][y] = block2;
                   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                  al_draw_bitmap(tile[block2], x*20, y*20, 0 );
+                  al_draw_bitmap(btile[block2], x*20, y*20, 0 );
                }
                else if (l[x][y] == block2)
                {
                   l[x][y] = block1;
                   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                  al_draw_bitmap(tile[block1], x*20, y*20, 0 );
+                  al_draw_bitmap(btile[block1], x*20, y*20, 0 );
                }
             }
          }

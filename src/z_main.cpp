@@ -1328,7 +1328,7 @@ int main(int argument_count, char **argument_array)
 
 //   edit_tile_attributes();
 
-   copy_tiles();
+  // copy_tiles();
 
 
       if (argument_count == 2) // example 'pmwin arg1'

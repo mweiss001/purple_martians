@@ -17361,15 +17361,14 @@ make a search and load function.....
 
 make something to detect...
 
-wed 12:03...push....
+20220406 12:03PM...push....
 
 
-wed 7:20 PM
+20220406 7:20 PM
 
 file stuff is totally done....
 
 removed old....
-
 
 
 I should test this stuff in linux...
@@ -17382,45 +17381,17 @@ linux version has problems with filename seperators in copy bitmap...
 the load button works, but the title did not find the separator to remove path...not a big deal
 fixed with allegro specific path stuff
 
-
 the save button really messed up the tiles...all the tiles that were empty...the rest still look good...
 did not clear to color...duh...try it now...works great
 
 linux version randomly crashes...
 
 
+20220407 5:00AM
+did some more work on copy bitmap, looks better, added button to load edit_tile_attributes()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+make switch and key use proper btiles instead of tiles...
+did all in item file, block manip, keys, switch, bombs
 
 
 
