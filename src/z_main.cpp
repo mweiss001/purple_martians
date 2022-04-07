@@ -416,7 +416,7 @@ int l[100][100];
 int start_level;
 int play_level;
 int valid_level_loaded;
-int level_num; // used by level editor and load file to keep track of last level loaded
+int last_level_loaded; // used by level editor and load file to keep track of last level loaded
 int resume_allowed=0;
 int number_of_starts;
 
@@ -1328,7 +1328,7 @@ int main(int argument_count, char **argument_array)
 
 //   edit_tile_attributes();
 
- //  copy_tiles();
+   copy_tiles();
 
 
       if (argument_count == 2) // example 'pmwin arg1'

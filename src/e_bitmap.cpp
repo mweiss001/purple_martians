@@ -565,6 +565,8 @@ void save_btiles(void)
    // printf("save block_tiles\n");
    ALLEGRO_BITMAP* temp = al_create_bitmap(640, 640);
    al_set_target_bitmap(temp);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
    for (int y = 0; y < 32; y++)
       for (int x = 0; x < 32; x++)
          al_draw_bitmap(btile[y*32 + x], (x*20), (y*20), 0);
@@ -1119,8 +1121,22 @@ void copy_tiles()
 
    ALLEGRO_BITMAP *qtmp = al_create_bitmap(20, 20);
 
+   char b2_fn2[100];
+
+   sprintf(b2_fn2, "bitmaps\\tiles.bmp");
+
+
+      //printf("fn:%s\n", fn);
+   // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
+   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(b2_fn2);
+
    char b2_fn[100];
-   sprintf(b2_fn, "bitmaps\\tiles.bmp");
+
+   sprintf(b2_fn, "%s", al_get_fs_entry_name(FS_fname));
+
+
+
+//   sprintf(b2_fn, "bitmaps/tiles.bmp");
 
 
    ALLEGRO_BITMAP *b2 = al_load_bitmap(b2_fn);
@@ -1207,7 +1223,7 @@ void copy_tiles()
       al_draw_bitmap(b2, b2_x, b2_y, 0);
 
 
-
+/*
       // title
       char *tfn;                      // show only filename by removing path
       char *tfn2;
@@ -1215,6 +1231,18 @@ void copy_tiles()
       if (!tfn) tfn2 = b2_fn;         // fall back to full path is that fails
       else tfn2 = tfn + 1;            // chop first char '\'
       al_draw_textf(font, palette_color[15], b2_x+(b2_w/2),  b2_y-10, ALLEGRO_ALIGN_CENTER, "%s", tfn2);
+*/
+
+      ALLEGRO_PATH *ap = al_create_path(b2_fn);
+      al_draw_textf(font, palette_color[15], b2_x+(b2_w/2),  b2_y-10, ALLEGRO_ALIGN_CENTER, "%s", al_get_path_filename(ap));
+      al_destroy_path(ap);
+
+
+
+
+
+
+
 
 
       // draw and proccess load button

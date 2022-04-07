@@ -940,7 +940,7 @@ int edit_menu(int el)
                al_flip_display();
                save_level_prompt();
             }
-            load_level(level_num, 0); // blind load
+            load_level(last_level_loaded, 0); // blind load
             break;
 
             case 11: // load level
@@ -1012,7 +1012,7 @@ int edit_menu(int el)
       if (key[ALLEGRO_KEY_ESCAPE])  // trap here 1st
       {
          while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
-         if (al_show_native_message_box(display, "Save?", "Save before exit?", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1) save_level(level_num);
+         if (al_show_native_message_box(display, "Save?", "Save before exit?", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1) save_level(last_level_loaded);
          em_quit = 1;
       }
    } while (!em_quit);
@@ -1024,7 +1024,7 @@ int edit_menu(int el)
       set_map_var();
    }
    al_hide_mouse_cursor(display);
-   return level_num;
+   return last_level_loaded;
 }   // end of editor menu
 
 
