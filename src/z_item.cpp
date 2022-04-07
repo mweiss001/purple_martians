@@ -292,7 +292,8 @@ void bomb_blocks(int i, int t, int dr, al_fixed fx, al_fixed fy)
          float xd = abs(x-cx);
          float yd = abs(y-cy);
          float br = sqrt(xd*xd+yd*yd);
-         if ((br < d) && (l[e][f] > 63) && (l[e][f] < 96))
+
+         if ((br < d) && (l[e][f] & PM_BTILE_BOMBABLE))
          {
             if (t == 1) bomb_block_crosshairs(e, f);
             if (t == 2) remove_block(e, f);
@@ -543,11 +544,11 @@ void draw_rocket_lines(int i)
       if ((x < 0) || (x > 2000) || (y < 0) || (y > 2000)) j = 1000; // level bounds check
 
       // check for wall collisions
-      if ( ((fyinc < al_itofix(0))    && (is_up_solid(   x, y, 0) == 1)) ||
-           ((fyinc > al_itofix(0))    && (is_down_solid( x, y, 0) == 1)) ||
-           ((fyinc > al_itofix(0))    && (is_down_solid( x, y, 0) == 2)) ||
-           ((fxinc < al_ftofix(-1.1)) && (is_left_solid( x, y, 0) == 1)) ||
-           ((fxinc > al_ftofix(1.1))  && (is_right_solid(x, y, 0) == 1)) )
+      if ( ((fyinc < al_itofix(0))    && (is_up_solid(   x, y, 0, 3) == 1)) ||
+           ((fyinc > al_itofix(0))    && (is_down_solid( x, y, 0, 3) == 1)) ||
+           ((fyinc > al_itofix(0))    && (is_down_solid( x, y, 0, 3) == 2)) ||
+           ((fxinc < al_ftofix(-1.1)) && (is_left_solid( x, y, 0, 3) == 1)) ||
+           ((fxinc > al_ftofix(1.1))  && (is_right_solid(x, y, 0, 3) == 1)) )
       {
 
          float fxf =  al_fixtof(fx)+10; // offset floats for display purposes
@@ -733,7 +734,7 @@ int is_item_stuck_to_wall(int i)
 {
    int x = al_fixtoi(itemf[i][0]);
    int y = al_fixtoi(itemf[i][1]);
-   if ( (is_left_solid(x,y, 0)) || (is_right_solid(x,y, 0)) || (is_down_solid(x,y, 0)) || (is_up_solid(x,y, 0)) ) return 1;
+   if ( (is_left_solid(x,y, 0, 3)) || (is_right_solid(x,y, 0, 3)) || (is_down_solid(x,y, 0, 3)) || (is_up_solid(x,y, 0, 3)) ) return 1;
    return 0;
 }
 
@@ -845,14 +846,14 @@ void move_items()
                      int y = al_fixtoi(itemf[i][1]);
 
                      // moving right
-                     if ((itemf[i][2] > al_itofix(0)) && (is_right_solid(x,y, 1)))
+                     if ((itemf[i][2] > al_itofix(0)) && (is_right_solid(x,y, 1, 3)))
                      {
                         if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
                         itemf[i][2] = al_itofix(0);     // stop
                      }
 
                      // moving left
-                     if ((itemf[i][2] < al_itofix(0)) && (is_left_solid(x,y, 1)))
+                     if ((itemf[i][2] < al_itofix(0)) && (is_left_solid(x,y, 1, 3)))
                      {
                         if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
                         itemf[i][2] = al_itofix(0);     // stop
@@ -864,13 +865,13 @@ void move_items()
                      // moving up
                      if (itemf[i][3] < al_itofix(0))
                      {
-                        if (is_up_solid(x, y, 0) == 1)    // only check for solid blocks
+                        if (is_up_solid(x, y, 0, 3) == 1)    // only check for solid blocks
                            itemf[i][3] = al_itofix(0);        // if collision kill upwards yinc
                         else itemf[i][3] += al_ftofix(.1);    // else de-accel
                      }
                      else // not moving up
                      {
-                        int a = is_down_solid(x, y, 1);             // check for block below
+                        int a = is_down_solid(x, y, 1, 3);             // check for block below
                         if (a==0)
                         {
                            itemf[i][3] += al_ftofix(.1);                             // apply gravity to yinc
@@ -899,7 +900,7 @@ void move_items()
                            }
                            if (lifts[a-32].fyinc >= al_itofix(0)) // lift is moving down or steady
                            {
-                              if (is_down_solid(x, y, 0)) capture = 0; // to prevent lift attempting to take item down through solid block
+                              if (is_down_solid(x, y, 0, 3)) capture = 0; // to prevent lift attempting to take item down through solid block
                               else capture = 1;
                               int offset = al_fixtoi(lifts[a-32].fy) - y;   // to prevent lift from picking up early when item going down
                               if (offset > 21) capture = 0;
@@ -916,19 +917,19 @@ void move_items()
                               y = al_fixtoi(itemf[i][1]);
 
                               if (lyi > al_itofix(0)) // down
-                                 if (is_down_solid(x, y, 0))                      // no lift check
+                                 if (is_down_solid(x, y, 0, 3))                      // no lift check
                                     itemf[i][1] = al_itofix(y - (y % 20));        // item not on lift anymore, align with block
 
                               if (lyi < al_itofix(0)) // up
-                                 if (is_up_solid(x, y, 0) == 1)
+                                 if (is_up_solid(x, y, 0, 3) == 1)
                                     itemf[i][1] += al_itofix(10);
 
                               if (lxi > al_itofix(0)) // right
-                                 if (is_right_solid(x, y, 1))
+                                 if (is_right_solid(x, y, 1, 3))
                                     itemf[i][0] -= lxi;
 
                               if (lxi < al_itofix(0)) // left
-                                 if (is_left_solid(x, y, 1))
+                                 if (is_left_solid(x, y, 1, 3))
                                     itemf[i][0] -= lxi;
                            }
                         } // end of riding lift
@@ -956,7 +957,7 @@ int player_drop_item(int p)
       if (players[p].left_right) // right
       {
          // is item embedded in a wall to the right?
-         while (is_right_solid(x, y, 1))
+         while (is_right_solid(x, y, 1, 1))
          {
             x--;
             wall_stuck++; // just how stuck was it?
@@ -967,7 +968,7 @@ int player_drop_item(int p)
       if (!players[p].left_right) // left
       {
          // is item embedded in a wall to the left?
-         while (is_left_solid(x, y, 1))
+         while (is_left_solid(x, y, 1, 1))
          {
             x++;
             wall_stuck++; // just how stuck was it?
@@ -1447,10 +1448,21 @@ void proc_sproingy_collision(int p, int i)
 
 void proc_item_collision(int p, int i)
 {
+   // make it so any item other than bonus has higher priority
+   // if carrying bonus, it will be dropped and new item will be carried
+   int already_carrying = 0;
+   if (players[p].carry_item) // already carrying item
+   {
+      already_carrying = 1;
+      if ((item[players[p].carry_item][0] == 10) && (item[i][0] != 10)) // carried item is bonus and new item is not bonus
+         already_carrying = 0;
+   }
+
    // check if player can carry item
-   if ( (!players[p].carry_item)  // not carrying
-     && (item[i][3] < 0)          // item is carryable
-     && (players[p].fire) )       // fire pressed
+   if ( (!already_carrying)  // not carrying
+     && (item[i][3] < 0)     // item is carryable
+     && (players[p].fire) )  // fire pressed
+
    {
       // check to see if another player is already carrying this item
       int other_player_carrying = 0;
@@ -1501,11 +1513,11 @@ void proc_lit_rocket(int i)
    int y = al_fixtoi(itemf[i][1] += itemf[i][3]);
 
    // check for wall collisions
-   if ( ((itemf[i][3]<al_itofix(0)) && (is_up_solid(     x, y, 0) == 1)) ||
-        ((itemf[i][3]>al_itofix(0)) && (is_down_solid(   x, y, 0) == 1)) ||
-        ((itemf[i][3]>al_itofix(0)) && (is_down_solid(   x, y, 0) == 2)) ||
-        ((itemf[i][2]<al_ftofix(-1.1)) && (is_left_solid(x, y, 0) == 1)) ||
-        ((itemf[i][2]>al_ftofix(1.1)) && (is_right_solid(x, y, 0) == 1)) )
+   if ( ((itemf[i][3]<al_itofix(0)) && (is_up_solid(     x, y, 0, 3) == 1)) ||
+        ((itemf[i][3]>al_itofix(0)) && (is_down_solid(   x, y, 0, 3) == 1)) ||
+        ((itemf[i][3]>al_itofix(0)) && (is_down_solid(   x, y, 0, 3) == 2)) ||
+        ((itemf[i][2]<al_ftofix(-1.1)) && (is_left_solid(x, y, 0, 3) == 1)) ||
+        ((itemf[i][2]>al_ftofix(1.1)) && (is_right_solid(x, y, 0, 3) == 1)) )
    {
 
       // stop movement

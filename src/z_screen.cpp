@@ -565,7 +565,7 @@ void init_level_background(void) // fill level_background with blocks and lift l
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++)
       {
-         int c = l[x][y];
+         int c = l[x][y] & 1023;
          if (c < NUM_SPRITES)
             al_draw_bitmap(btile[c], x*20, y*20, 0);
       }

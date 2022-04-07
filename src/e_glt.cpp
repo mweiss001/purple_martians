@@ -482,26 +482,16 @@ Ef[y][9] = 0;
 
 
 
-
+/*
 
       for (int y=0; y<500; y++)
          if (item[y][0] == 10) // msg only
          {
-//            printf("lev%d: - %s\n", le[x], pmsg[y]);
-
-
-
-
-
-
-
-
-
-
+            printf("lev%d: - %s\n", le[x], pmsg[y]);
          }
 
 
-
+*/
 
 
 
@@ -976,26 +966,119 @@ Ef[y][9] = 0;
                printf("Lev:%3d\n",le[x]);
             }
          }
-
-
 */
+
 
 /*
 
-//   // blocks
-   for (int y=0; y<100; y++)
-      for (int z=0; z<100; z++)
-         blt[l[y][z]]++; // inc block counter
+0-31   empty
+32-63  semisold
+64-95  bombable
+96-127 breakable
 
-*/
-/*
+>127 solid
+
+18 ladder
+19 rope
+
+
+next most common are solid and will get:
+#define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
+#define PM_BTILE_SOLID_ENEMY       0b00000000000000100000000000000000
+#define PM_BTILE_SOLID_ITEM        0b00000000000001000000000000000000
+#define PM_BTILE_SOLID_PBUL        0b00000000000010000000000000000000
+#define PM_BTILE_SOLID_EBUL        0b00000000000100000000000000000000
+
+then semisolid...add to solid
+#define PM_BTILE_SEMISOLID_PLAYER  0b00000000001000000000000000000000
+#define PM_BTILE_SEMISOLID_ENEMY   0b00000000010000000000000000000000
+#define PM_BTILE_SEMISOLID_ITEM    0b00000000100000000000000000000000
+#define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
+#define PM_BTILE_SOLID_ENEMY       0b00000000000000100000000000000000
+#define PM_BTILE_SOLID_ITEM        0b00000000000001000000000000000000
+#define PM_BTILE_SOLID_PBUL        0b00000000000010000000000000000000
+#define PM_BTILE_SOLID_EBUL        0b00000000000100000000000000000000
+
+#define PM_BTILE_BOMBABLE          0b00000001000000000000000000000000
+#define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
+#define PM_BTILE_SOLID_ENEMY       0b00000000000000100000000000000000
+#define PM_BTILE_SOLID_ITEM        0b00000000000001000000000000000000
+#define PM_BTILE_SOLID_PBUL        0b00000000000010000000000000000000
+#define PM_BTILE_SOLID_EBUL        0b00000000000100000000000000000000
+
+#define PM_BTILE_BREAKABLE_PBUL    0b00000010000000000000000000000000
+#define PM_BTILE_BREAKABLE_EBUL    0b00000100000000000000000000000000
+#define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
+#define PM_BTILE_SOLID_ENEMY       0b00000000000000100000000000000000
+#define PM_BTILE_SOLID_ITEM        0b00000000000001000000000000000000
+#define PM_BTILE_SOLID_PBUL        0b00000000000010000000000000000000
+#define PM_BTILE_SOLID_EBUL        0b00000000000100000000000000000000
+
+
+#define PM_BTILE_LADDER_MOVE       0b00001000000000000000000000000000
+
+#define PM_BTILE_ROPE_MOVE         0b00010000000000000000000000000000
+
+  */
 
       // blocks
-      for (y=0; y<100; y++)
-         for (z=0; z<100; z++)
+      for (int y=0; y<100; y++)
+         for (int z=0; z<100; z++)
          {
             blt[l[y][z]]++; // inc block counter
 
+            if ((l[y][z] > 31) && (l[y][z] < 64)) // semi solid
+            {
+               l[y][z] |= PM_BTILE_SOLID_PLAYER;
+               l[y][z] |= PM_BTILE_SOLID_ENEMY;
+               l[y][z] |= PM_BTILE_SOLID_ITEM;
+               l[y][z] |= PM_BTILE_SOLID_PBUL;
+               l[y][z] |= PM_BTILE_SOLID_EBUL;
+               l[y][z] |= PM_BTILE_SEMISOLID_PLAYER;
+               l[y][z] |= PM_BTILE_SEMISOLID_ENEMY;
+               l[y][z] |= PM_BTILE_SEMISOLID_ITEM;
+            }
+
+            if ((l[y][z] > 63) && (l[y][z] < 96)) // bombable
+            {
+               l[y][z] |= PM_BTILE_SOLID_PLAYER;
+               l[y][z] |= PM_BTILE_SOLID_ENEMY;
+               l[y][z] |= PM_BTILE_SOLID_ITEM;
+               l[y][z] |= PM_BTILE_SOLID_PBUL;
+               l[y][z] |= PM_BTILE_SOLID_EBUL;
+               l[y][z] |= PM_BTILE_BOMBABLE;
+            }
+
+            if ((l[y][z] > 95) && (l[y][z] < 128)) // breakable
+            {
+               l[y][z] |= PM_BTILE_SOLID_PLAYER;
+               l[y][z] |= PM_BTILE_SOLID_ENEMY;
+               l[y][z] |= PM_BTILE_SOLID_ITEM;
+               l[y][z] |= PM_BTILE_SOLID_PBUL;
+               l[y][z] |= PM_BTILE_SOLID_EBUL;
+               l[y][z] |= PM_BTILE_BREAKABLE_PBUL;
+               l[y][z] |= PM_BTILE_BREAKABLE_EBUL;
+            }
+
+
+
+            if ((l[y][z] > 63) && (l[y][z] < 1024)) // solid block
+            {
+               l[y][z] |= PM_BTILE_SOLID_PLAYER;
+               l[y][z] |= PM_BTILE_SOLID_ENEMY;
+               l[y][z] |= PM_BTILE_SOLID_ITEM;
+               l[y][z] |= PM_BTILE_SOLID_PBUL;
+               l[y][z] |= PM_BTILE_SOLID_EBUL;
+            }
+
+
+
+
+
+
+         }
+
+            /*
 
             if (l[y][z] == 169) l[y][z] = 0;
 
@@ -1086,6 +1169,8 @@ Ef[y][9] = 0;
         if (l[y][z] == 42) l[y][z] = 646;
         if (l[y][z] == 106) l[y][z] = 647;
 
+
+
   */
 
       if (1)
@@ -1103,7 +1188,7 @@ Ef[y][9] = 0;
    printf("Total count3:%d \n",count3 );
    printf("min:%d max:%d\n", min, max);
 
-//   show_block_list();
+   show_block_list();
    tsw();
 
  //  remove_unused_tiles();

@@ -107,10 +107,12 @@ void move_pbullets()
          int x = ( (pbullet[b][2] + 10) / 20);
          int y = ( (pbullet[b][3] + 10) / 20);
          int d = l[x][y];
-         if ((d > 63) && (d < NUM_SPRITES)) // if hit solid or breakable
+         if (d & PM_BTILE_SOLID_PBUL)  // bullet hit solid or breakable wall
          {
             pbullet[b][0] = 0;  // bullet dies
-            if ((d > 95) && (d < 128)) // breakable wall
+
+            if (d & PM_BTILE_BREAKABLE_PBUL)  // breakable wall
+   //         if ((d > 95) && (d < 128)) // breakable wall
             {
                remove_block(x, y);
                draw_lift_lines();
@@ -180,10 +182,12 @@ void move_ebullets()
          int xi = (ex+10)/20;
          int yi = (ey+10)/20;
          int d = l[xi][yi];
-         if ((d > 63) && (d<NUM_SPRITES))  // bullet hit solid or breakable wall
+
+         if (d & PM_BTILE_SOLID_EBUL)  // bullet hit solid or breakable wall
          {
             e_bullet_active[b] = 0;        // bullet dies
-            if ((d > 95) && (d < 128))     // remove breakable wall
+            if (d & PM_BTILE_BREAKABLE_EBUL)  // breakable wall
+//            if ((d > 95) && (d < 128))
             {
                remove_block(xi, yi);
                draw_lift_lines();
