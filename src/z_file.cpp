@@ -287,7 +287,7 @@ int load_level(int level_to_load, int display)
    if (!fp)
    {
       sprintf(msg, "Error opening %s ", level_filename);
-      m_err(msg);
+      //m_err(msg);
       level_load_error = 1;
    }
 
@@ -325,7 +325,7 @@ int load_level(int level_to_load, int display)
    if (level_load_error)
    {
       sprintf(msg, "Level loading error occurred for: %s ", level_filename);
-      m_err(msg);
+      //m_err(msg);
       num_lifts = 0;
       return 0;
    }

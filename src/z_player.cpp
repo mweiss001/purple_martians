@@ -151,8 +151,8 @@ void proc_player_xy_move(int p)
    if (players[p].left_xinc > z ) players[p].left_xinc = z;
    if (players[p].left_xinc < -max_x_velocity) players[p].left_xinc = -max_x_velocity;
 
-   if (is_right_solid(x, y, 0)) players[p].right_xinc = z;
-   if (is_left_solid(x, y, 0))  players[p].left_xinc = z;
+   if (is_right_solid(x, y, 0, 1)) players[p].right_xinc = z;
+   if (is_left_solid(x, y, 0, 1))  players[p].left_xinc = z;
 
    players[p].xinc = players[p].left_xinc + players[p].right_xinc;  // calc xinc
    players[p].PX += players[p].xinc;                                // apply xinc
@@ -165,20 +165,20 @@ void proc_player_xy_move(int p)
       int d = players[p].player_ride - 32; // lift number
       // moving right
 
-      if ((lifts[d].fxinc > z) && (!is_right_solid(x, y, 1))) players[p].PX  += lifts[d].fxinc;
+      if ((lifts[d].fxinc > z) && (!is_right_solid(x, y, 1, 1))) players[p].PX  += lifts[d].fxinc;
 
       // moving left
-      if ((lifts[d].fxinc < z) && (!is_left_solid(x, y, 1))) players[p].PX  += lifts[d].fxinc;
+      if ((lifts[d].fxinc < z) && (!is_left_solid(x, y, 1, 1))) players[p].PX  += lifts[d].fxinc;
    }
 
 
 
 
-   if (int a = is_left_solid(x, y, 1))
+   if (int a = is_left_solid(x, y, 1, 1))
    {
       if ( a > 31 ) // player being pushed right by lift
       {
-         if (!is_right_solid(x, y, 0))
+         if (!is_right_solid(x, y, 0, 1))
          {
             int l = a-32; // lift that is pushing
             int width = lifts[l].width *20 + 1;
@@ -199,11 +199,11 @@ void proc_player_xy_move(int p)
    }
    x = al_fixtoi(players[p].PX);
    y = al_fixtoi(players[p].PY);
-   if (int a = is_right_solid(x, y, 1))
+   if (int a = is_right_solid(x, y, 1, 1))
    {
       if (a > 31)    // player being pushed left by lift
       {
-         if (!is_left_solid(x, y, 0))
+         if (!is_left_solid(x, y, 0, 1))
          {
             int l = a-32; // lift that is pushing
             players[p].PX = lifts[l].fx - al_itofix(20);       // snap to lift pos - 20
@@ -225,12 +225,12 @@ void proc_player_xy_move(int p)
 // ---------------   check to see if player riding lift starts or ends --------------------------
          x = al_fixtoi(players[p].PX);
          y = al_fixtoi(players[p].PY);
-         int a = is_down_solid(x, y, 1);                                // check for lift below player
+         int a = is_down_solid(x, y, 1, 1);                                // check for lift below player
          if (a > 31)
          {
             if (lifts[a-32].fyinc > z)                                  // is lift going down
             {
-               if (is_down_solid(x, y, 0)) players[p].player_ride = 0;  // check for block below ignoring lifts
+               if (is_down_solid(x, y, 0, 1)) players[p].player_ride = 0;  // check for block below ignoring lifts
                else players[p].player_ride = a;
             }
             if (lifts[a-32].fyinc <= z)                                 // is lift going up or steady
@@ -255,7 +255,7 @@ void proc_player_xy_move(int p)
       int y = al_fixtoi(players[p].PY);
 
       // if moving up and solid block above
-      if ((lifts[d].fyinc < z) && (is_up_solid(x, y, 0) == 1))
+      if ((lifts[d].fyinc < z) && (is_up_solid(x, y, 0, 1) == 1))
       {
          players[p].player_ride = 0;     // player knocked off lift due to collision above
          players[p].LIFE -= al_itofix(1);   // take some damage
@@ -263,9 +263,9 @@ void proc_player_xy_move(int p)
       }
 
       // check for collision with lift above
-      if (is_up_solid(x, y+1, 1) > 31)
+      if (is_up_solid(x, y+1, 1, 1) > 31)
       {
-         players[p].player_ride = 0;     // player knocked off lift due to collision above
+         players[p].player_ride = 0;        // player knocked off lift due to collision above
          players[p].LIFE -= al_itofix(1);   // take some damage
          game_event(54, x, y, p, 0, 0, 0);
       }
@@ -276,7 +276,7 @@ void proc_player_xy_move(int p)
       // moving down
       if (lifts[d].fyinc > z)
       {
-         if (is_down_solid(x, y, 0))                          // no lift check
+         if (is_down_solid(x, y, 0, 1))                          // no lift check
          {
             players[p].player_ride = 0;                       // ride over
             players[p].PY = al_itofix(y - (y % 20));             // align with floor
@@ -290,7 +290,7 @@ void proc_player_xy_move(int p)
          players[p].player_ride = 0;                          // ride over
          x = al_fixtoi(players[p].PX);
          y = al_fixtoi(players[p].PY);
-         int a = is_up_solid(x, y, 1);
+         int a = is_up_solid(x, y, 1, 1);
          if ((a == 0) || (a == 2))                            // only jump if nothing above
          {
             players[p].yinc = initial_jump_velocity;
@@ -311,7 +311,7 @@ void proc_player_xy_move(int p)
          players[p].PY += players[p].yinc;                    // apply yinc
          x = al_fixtoi(players[p].PX);
          y = al_fixtoi(players[p].PY);
-         int a = is_up_solid(x, y+2, 1);                      // look for collision above
+         int a = is_up_solid(x, y+2, 1, 1);                      // look for collision above
          if ((a == 1) || (a > 31))                            // solid or lift only
          {
             players[p].PY -= players[p].yinc;                 // take back move
@@ -328,13 +328,13 @@ void proc_player_xy_move(int p)
 
          x = al_fixtoi(players[p].PX);
          y = al_fixtoi(players[p].PY);
-         if (is_down_solid(x, y, 0))                          // check for floor below (no lift)
+         if (is_down_solid(x, y, 0, 1))                          // check for floor below (no lift)
          {
             players[p].yinc = z;                              // kill downwards motion
             players[p].PY = al_itofix(y - (y % 20));             // align with floor
 
             // check for collision with lift above if lift is moving down
-            int a = is_up_solid(x, y, 1);
+            int a = is_up_solid(x, y, 1, 1);
             if ((a > 31) && (lifts[a-32].fyinc > z))
             {
                // take some damage
@@ -346,7 +346,7 @@ void proc_player_xy_move(int p)
             {
                x = al_fixtoi(players[p].PX);
                y = al_fixtoi(players[p].PY);
-               int a = is_up_solid(x, y, 1);
+               int a = is_up_solid(x, y, 1, 1);
                if ((a == 0) || (a == 2))                      // only jump if nothing above
                {
                   players[p].yinc = initial_jump_velocity;
@@ -537,10 +537,10 @@ void proc_player_stuck_in_blocks(int p)
 {
    int x = al_fixtoi(players[p].PX);
    int y = al_fixtoi(players[p].PY);
-   int su =    is_up_solid(x, y, 0);
-   int sd =  is_down_solid(x, y, 0);
-   int sl =  is_left_solid(x, y, 0);
-   int sr = is_right_solid(x, y, 0);
+   int su =    is_up_solid(x, y, 0, 1);
+   int sd =  is_down_solid(x, y, 0, 1);
+   int sl =  is_left_solid(x, y, 0, 1);
+   int sr = is_right_solid(x, y, 0, 1);
    if ((su == 1) && (sd) && (sl) && (sr))
    {
       players[p].LIFE -= al_itofix(1);

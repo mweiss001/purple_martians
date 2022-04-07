@@ -582,7 +582,7 @@ void enemy_flapper(int e)
       if (Efi[e][2] > Efi[e][5]) Efi[e][2] = Efi[e][5]; // max speed
       Efi[e][0] += Efi[e][2];                           // apply xinc
 
-      if (is_right_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1))
+      if (is_right_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1, 2))
       {
          Efi[e][0] -= Efi[e][2];    // take back last move
          Efi[e][2] = -Efi[e][5]/3;  // set accel to bounce back with 1/3 max accel
@@ -605,7 +605,7 @@ void enemy_flapper(int e)
       if (Efi[e][2] < -Efi[e][5]) Efi[e][2] = -Efi[e][5]; // max speed
       Efi[e][0] += Efi[e][2];                             // apply xinc
 
-      if (is_left_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1))
+      if (is_left_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1, 2))
       {
          Efi[e][0] -= Efi[e][2];   // take back last move
          Efi[e][2] = Efi[e][5]/3;  // set accel to bounce back with 1/3 max accel
@@ -716,7 +716,7 @@ void walker_archwagon_common(int e)
 
    int on_solid = 0;
    int on_lift = 0;
-   int ret = is_down_solid(EXint, EYint, 1);
+   int ret = is_down_solid(EXint, EYint, 1, 2);
    if ((ret == 1) || (ret == 2)) on_solid = 1;
 
    if (ret >= 32) //on lift
@@ -733,11 +733,11 @@ void walker_archwagon_common(int e)
       if ((on_solid) || (on_lift))
       {
          if (Ei[e][12]) // jump before wall
-           if (is_right_solid(EXint+Ei[e][12], EYint, 1)) Ei[e][5] = -160;
+           if (is_right_solid(EXint+Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
          if (Ei[e][11]) // jump before hole
-            if (!is_right_solid(EXint+Ei[e][11]-18, EYint+20, 1)) Ei[e][5] = -160;
+            if (!is_right_solid(EXint+Ei[e][11]-18, EYint+20, 1, 2)) Ei[e][5] = -160;
       }
-      if (is_right_solid(EXint, EYint, 1))
+      if (is_right_solid(EXint, EYint, 1, 2))
       {
          Efi[e][0] -= Efi[e][2]; // take back last move
          if (Ei[e][8]) Efi[e][2] =- Efi[e][6]; // if bounce mode set negative xinc for left
@@ -753,11 +753,11 @@ void walker_archwagon_common(int e)
       if ((on_solid) || (on_lift))
       {
          if (Ei[e][12]) // jump before wall
-            if (is_left_solid(EXint-Ei[e][12], EYint, 1)) Ei[e][5] = -160;
+            if (is_left_solid(EXint-Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
          if (Ei[e][11]) // jump before hole
-            if (!is_left_solid(EXint-Ei[e][11]+18, EYint+20, 1)) Ei[e][5] = -160;
+            if (!is_left_solid(EXint-Ei[e][11]+18, EYint+20, 1, 2)) Ei[e][5] = -160;
       }
-      if (is_left_solid(EXint, EYint, 1))
+      if (is_left_solid(EXint, EYint, 1, 2))
       {
          Efi[e][0] -= Efi[e][2]; // take back last move
          if (Ei[e][8]) Efi[e][2] = Efi[e][6]; // if bounce mode set positive xinc for right
@@ -784,7 +784,7 @@ void walker_archwagon_common(int e)
       Efi[e][1] += ym1;
 
       EYint = al_fixtoi(Efi[e][1]);
-      if (is_down_solid(EXint, EYint, 1))
+      if (is_down_solid(EXint, EYint, 1, 2))
       {
          on_solid = 1;
          Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
@@ -804,7 +804,7 @@ void walker_archwagon_common(int e)
       Efi[e][1] += ym1;
 
       EYint = al_fixtoi(Efi[e][1]);
-      if ((is_up_solid(EXint, EYint, 1) == 1) || (is_up_solid(EXint, EYint, 1) > 31) )
+      if ((is_up_solid(EXint, EYint, 1, 2) == 1) || (is_up_solid(EXint, EYint, 1, 2) > 31) )
          Ei[e][5] = 0;  // stop rising
    }
 
@@ -2166,7 +2166,7 @@ void bouncer_cannon_common(int e)
    if ((Efi[e][2]) > f0)  // move right
    {
      Efi[e][0] += Efi[e][2];
-     if (is_right_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1)) // bounce
+     if (is_right_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1, 2)) // bounce
      {
         Ei[e][7]++; // inc bounce count
         Efi[e][2] =- Efi[e][2]; // reverse xinc
@@ -2176,7 +2176,7 @@ void bouncer_cannon_common(int e)
    if ((Efi[e][2]) < f0)  // move left
    {
       Efi[e][0] += Efi[e][2];
-      if (is_left_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1)) // bounce
+      if (is_left_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1, 2)) // bounce
       {
          Ei[e][7]++;
          Efi[e][2] =- Efi[e][2]; // reverse xinc
@@ -2186,7 +2186,7 @@ void bouncer_cannon_common(int e)
    if (Efi[e][3] > f0) // move down
    {
       Efi[e][1] += Efi[e][3];
-      if (is_down_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1))
+      if (is_down_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 1, 2))
       {
          Ei[e][7]++;
          Efi[e][3] =- Efi[e][3]; // reverse yinc
@@ -2196,7 +2196,7 @@ void bouncer_cannon_common(int e)
    if (Efi[e][3] < f0)  // move up
    {
       Efi[e][1] += Efi[e][3];
-      if (is_up_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 0) == 1)
+      if (is_up_solid(al_fixtoi(Efi[e][0]), al_fixtoi(Efi[e][1]), 0, 2) == 1)
       {
          Ei[e][7]++;
          Efi[e][3] =- Efi[e][3]; // reverse yinc

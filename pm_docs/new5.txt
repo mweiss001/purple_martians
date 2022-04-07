@@ -17394,4 +17394,264 @@ make switch and key use proper btiles instead of tiles...
 did all in item file, block manip, keys, switch, bombs
 
 
+10:00AM at work...
+
+when choosing what item to pick up when there are multiple, choose bonus last...
+this might be hard...
+when choosing pick up an item, if player is already carrying, nothing is done...
+I could make this work by:
+if player is carrying bonus, and comes in contact with something that is not a bonus
+automatically drop the bonus and carry the other item...
+
+
+old:
+// check if player can carry item
+if ( (!players[p].carry_item)  // not carrying
+  && (item[i][3] < 0)          // item is carryable
+  && (players[p].fire) )       // fire pressed
+
+new:
+
+int already_carrying = 0;
+if (players[p].carry_item) // already carrying item
+{
+   already_carrying = 1;
+   if ((item[players[p].carry_item][0] == 10) && (item[i][0] != 10)) // carried item is bonus and new item is not bonus
+      already_carrying = 0;
+}
+
+// check if player can carry item
+if ( (!already_carrying)  // not carrying
+  && (item[i][3] < 0)     // item is carryable
+  && (players[p].fire) )  // fire pressed
+
+
+what is the next step in l[100][100] stuff???
+
+I'm at the point of doing something huge....
+
+like changing all the values in level blocks...
+
+in glt...
+
+have a list of blocks that we will change
+
+most are empty and have no change
+
+0-31   empty
+32-63  semisold
+64-95  bombable
+96-127 breakable
+
+>127 solid
+
+18 ladder
+19 rope
+
+
+next most common are solid and will get:
+#define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
+#define PM_BTILE_SOLID_ENEMY       0b00000000000000100000000000000000
+#define PM_BTILE_SOLID_ITEM        0b00000000000001000000000000000000
+#define PM_BTILE_SOLID_PBUL        0b00000000000010000000000000000000
+#define PM_BTILE_SOLID_EBUL        0b00000000000100000000000000000000
+
+then semisolid...add to solid
+#define PM_BTILE_SEMISOLID_PLAYER  0b00000000001000000000000000000000
+#define PM_BTILE_SEMISOLID_ENEMY   0b00000000010000000000000000000000
+#define PM_BTILE_SEMISOLID_ITEM    0b00000000100000000000000000000000
+#define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
+#define PM_BTILE_SOLID_ENEMY       0b00000000000000100000000000000000
+#define PM_BTILE_SOLID_ITEM        0b00000000000001000000000000000000
+#define PM_BTILE_SOLID_PBUL        0b00000000000010000000000000000000
+#define PM_BTILE_SOLID_EBUL        0b00000000000100000000000000000000
+
+#define PM_BTILE_BOMBABLE          0b00000001000000000000000000000000
+#define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
+#define PM_BTILE_SOLID_ENEMY       0b00000000000000100000000000000000
+#define PM_BTILE_SOLID_ITEM        0b00000000000001000000000000000000
+#define PM_BTILE_SOLID_PBUL        0b00000000000010000000000000000000
+#define PM_BTILE_SOLID_EBUL        0b00000000000100000000000000000000
+
+#define PM_BTILE_BREAKABLE_PBUL    0b00000010000000000000000000000000
+#define PM_BTILE_BREAKABLE_EBUL    0b00000100000000000000000000000000
+#define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
+#define PM_BTILE_SOLID_ENEMY       0b00000000000000100000000000000000
+#define PM_BTILE_SOLID_ITEM        0b00000000000001000000000000000000
+#define PM_BTILE_SOLID_PBUL        0b00000000000010000000000000000000
+#define PM_BTILE_SOLID_EBUL        0b00000000000100000000000000000000
+
+
+#define PM_BTILE_LADDER_MOVE       0b00001000000000000000000000000000
+
+#define PM_BTILE_ROPE_MOVE         0b00010000000000000000000000000000
+
+
+
+for now just do solid blocks
+empty will have no change
+
+backup level folder...
+
+make changes:
+
+      // blocks
+      for (y=0; y<100; y++)
+         for (z=0; z<100; z++)
+         {
+            blt[l[y][z]]++; // inc block counter
+
+            if (l[y][z] > 127) // solid block
+            {
+               l[y][z] |= PM_BTILE_SOLID_PLAYER;
+               l[y][z] |= PM_BTILE_SOLID_ENEMY;
+               l[y][z] |= PM_BTILE_SOLID_ITEM;
+               l[y][z] |= PM_BTILE_SOLID_PBUL;
+               l[y][z] |= PM_BTILE_SOLID_EBUL;
+            }
+
+         }
+
+
+start trying to make this work in game....
+
+the biggest thing will be masking the higher bits so I can draw....
+
+then the collison detection...
+
+
+tiles are 0-1023 or 2^9
+
+l[][] & 0b00000000000000000000000111111111 // keep the lower 9 bits
+
+l[][] & 1023 // keep the lower 9 bits
+
+
+
+void init_level_background(void) // fill level_background with blocks and lift lines
+{
+   //printf("init_level_background\n");
+   al_set_target_bitmap(level_background);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   for (int x=0; x<100; x++)
+      for (int y=0; y<100; y++)
+      {
+         int c = l[x][y] & 1023; <----------------works!!!!
+         if (c < NUM_SPRITES)
+            al_draw_bitmap(btile[c], x*20, y*20, 0);
+      }
+   draw_lift_lines();
+}
+
+
+
+now I am modifying the 4 directional checks.....
+as prrof on concept it works, but its about to get a lot more complicated.....
+
+everytime it is called, it now needs to ask who wants to know if I'm solid?
+
+add another int to the parameters...
+int type;
+1 = player
+2 = enemy
+3 = item
+4 - pbul
+5 - ebul
+
+
+then fix all the places that it is called....done...
+
+bullets do their own collisons
+ebullets done....later will need to be breakable here
+
+if (d & PM_BTILE_SOLID_EBUL)  // bullet hit solid or breakable wall
+{
+   e_bullet_active[b] = 0;        // bullet dies
+   if ((d > 95) && (d < 128))     // remove breakable wall
+   {
+      remove_block(xi, yi);
+      draw_lift_lines();
+   }
+}
+
+
+lets do breakable now...
+add this to glt....
+
+breakable and bombable done...
+
+now what about semisolid
+just add the 3 semisolid flags
+
+there is only 2 places where I care if is_up_solid returns 2 and it would be the same if it returned zero....i think
+
+made semi solid work, but just for player now...needs way more testing...
+
+revert level and push...work calls....
+
+2:00PM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
