@@ -17364,79 +17364,29 @@ make something to detect...
 wed 12:03...push....
 
 
+wed 7:20 PM
 
+file stuff is totally done....
 
+removed old....
 
 
 
+I should test this stuff in linux...
+how do I boot from grub command line
+kingston uefi boot to mx1 on mr5
 
+lifts and pmsg seem to look good
 
+linux version has problems with filename seperators in copy bitmap...
+the load button works, but the title did not find the separator to remove path...not a big deal
+fixed with allegro specific path stuff
 
 
+the save button really messed up the tiles...all the tiles that were empty...the rest still look good...
+did not clear to color...duh...try it now...works great
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+linux version randomly crashes...
 
 
 

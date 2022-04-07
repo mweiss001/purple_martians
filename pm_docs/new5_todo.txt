@@ -189,7 +189,7 @@ make an obvious item that reacts when getting shot... toggle on and off..
 
 
 
-
+to colorize tiles....use shades of white....when replacing, if r=g=b then it should be replaced with color
 
 
 ------------------------------------------------------

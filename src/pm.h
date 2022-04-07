@@ -760,7 +760,7 @@ extern int l[100][100];
 extern int start_level;
 extern int play_level;
 extern int valid_level_loaded;
-extern int level_num;
+extern int last_level_loaded;
 extern int resume_allowed;
 extern int number_of_starts;
 

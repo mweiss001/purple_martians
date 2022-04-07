@@ -65,8 +65,8 @@ int process_status_window(int draw_only)
    // frame title bar
    al_draw_rectangle(swx1, swy1, swx2, swy1+11, palette_color[9], 1);
 
-   al_draw_textf(font, palette_color[9],  swx1+2,   swy1+2, 0, "Status Window    level:%d ",level_num);
-   al_draw_textf(font, palette_color[15], swx1+186, swy1+2, 0, "%d ",level_num);
+   al_draw_textf(font, palette_color[9],  swx1+2,   swy1+2, 0, "Status Window    level:%d ",last_level_loaded);
+   al_draw_textf(font, palette_color[15], swx1+186, swy1+2, 0, "%d ",last_level_loaded);
 
 
    int x100 = mouse_x/20 + wx;
