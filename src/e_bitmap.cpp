@@ -640,25 +640,28 @@ void draw_flag_text(int x, int y, int ys, int col)
 
 
 
-// this is for only one tile (tn)
-void draw_flag_rects(int tn, int x, int y, int w, int h, int ys, int con, int cof, int highlight)
+
+// this is the common one, called by all
+// if mouse is on a button return button number
+int draw_flag_rects(int tn, int x, int y, int w, int h, int ys)
 {
    int fa[15] = {0}; // make an array to store the flags
-   if (sa[tn][0] & PM_BTILE_SOLID_PLAYER)     fa[0]  += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_SOLID_ENEMY)      fa[1]  += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_SOLID_ITEM)       fa[2]  += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_SOLID_PBUL)       fa[3]  += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_SOLID_EBUL)       fa[4]  += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_SEMISOLID_PLAYER) fa[5]  += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_SEMISOLID_ENEMY)  fa[6]  += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_SEMISOLID_ITEM)   fa[7]  += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_BOMBABLE)         fa[8]  += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_BREAKABLE_PBUL)   fa[9]  += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_BREAKABLE_EBUL)   fa[10] += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_LADDER_MOVE)      fa[11] += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_ROPE_MOVE)        fa[12] += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_SECRET)           fa[13] += 1; // tally set
-   if (sa[tn][0] & PM_BTILE_SHOW_SELECT_WIN)  fa[14] += 1; // tally set
+
+   if (tn & PM_BTILE_SOLID_PLAYER)     fa[0]  += 1; // tally set
+   if (tn & PM_BTILE_SOLID_ENEMY)      fa[1]  += 1; // tally set
+   if (tn & PM_BTILE_SOLID_ITEM)       fa[2]  += 1; // tally set
+   if (tn & PM_BTILE_SOLID_PBUL)       fa[3]  += 1; // tally set
+   if (tn & PM_BTILE_SOLID_EBUL)       fa[4]  += 1; // tally set
+   if (tn & PM_BTILE_SEMISOLID_PLAYER) fa[5]  += 1; // tally set
+   if (tn & PM_BTILE_SEMISOLID_ENEMY)  fa[6]  += 1; // tally set
+   if (tn & PM_BTILE_SEMISOLID_ITEM)   fa[7]  += 1; // tally set
+   if (tn & PM_BTILE_BOMBABLE)         fa[8]  += 1; // tally set
+   if (tn & PM_BTILE_BREAKABLE_PBUL)   fa[9]  += 1; // tally set
+   if (tn & PM_BTILE_BREAKABLE_EBUL)   fa[10] += 1; // tally set
+   if (tn & PM_BTILE_LADDER_MOVE)      fa[11] += 1; // tally set
+   if (tn & PM_BTILE_ROPE_MOVE)        fa[12] += 1; // tally set
+   if (tn & PM_BTILE_SECRET)           fa[13] += 1; // tally set
+   if (tn & PM_BTILE_SHOW_SELECT_WIN)  fa[14] += 1; // tally set
 
    for (int i=0; i<15; i++)
    {
@@ -666,6 +669,15 @@ void draw_flag_rects(int tn, int x, int y, int w, int h, int ys, int con, int co
       if (fa[i] == 1) al_draw_filled_rectangle(x, y + (ys*i), x+w, y+h+(ys*i), palette_color[15]);    // filled
    }
 
+   if ((mouse_x > x) && (mouse_x < x+w) && (mouse_y > y) && (mouse_y < y+h+(ys*14))) return (mouse_y-y)/ys;
+   return -1;
+}
+
+
+// this is for edit attributes only and only only affects sa[][]
+void draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys)
+{
+   int highlight = draw_flag_rects(sa[tn][0], x, y, w, h, ys);
    if (highlight > -1)
    {
       al_draw_rectangle(x-1, y+(ys*highlight), x+w+1, y+h+(ys*highlight), palette_color[15], 1);
@@ -690,6 +702,77 @@ void draw_flag_rects(int tn, int x, int y, int w, int h, int ys, int con, int co
       }
    }
 }
+
+
+
+
+// this is only for draw_item
+void draw_and_proc_flag_rects_draw_item(int x, int y, int w, int h, int ys, int edit)
+{
+   if (edit)
+   {
+      int highlight = draw_flag_rects(draw_item_num, x, y, w, h, ys);
+      if (highlight > -1)
+      {
+         al_draw_rectangle(x-1, y+(ys*highlight)-1, x+w+1, y+h+(ys*highlight)+1, palette_color[15], 0);
+         if (mouse_b1)
+         {
+            while (mouse_b1) proc_controllers(); // wait for release
+            if (highlight ==  0) draw_item_num ^= PM_BTILE_SOLID_PLAYER;
+            if (highlight ==  1) draw_item_num ^= PM_BTILE_SOLID_ENEMY;
+            if (highlight ==  2) draw_item_num ^= PM_BTILE_SOLID_ITEM;
+            if (highlight ==  3) draw_item_num ^= PM_BTILE_SOLID_PBUL;
+            if (highlight ==  4) draw_item_num ^= PM_BTILE_SOLID_EBUL;
+            if (highlight ==  5) draw_item_num ^= PM_BTILE_SEMISOLID_PLAYER;
+            if (highlight ==  6) draw_item_num ^= PM_BTILE_SEMISOLID_ENEMY;
+            if (highlight ==  7) draw_item_num ^= PM_BTILE_SEMISOLID_ITEM;
+            if (highlight ==  8) draw_item_num ^= PM_BTILE_BOMBABLE;
+            if (highlight ==  9) draw_item_num ^= PM_BTILE_BREAKABLE_PBUL;
+            if (highlight == 10) draw_item_num ^= PM_BTILE_BREAKABLE_EBUL;
+            if (highlight == 11) draw_item_num ^= PM_BTILE_LADDER_MOVE;
+            if (highlight == 12) draw_item_num ^= PM_BTILE_ROPE_MOVE;
+            if (highlight == 13) draw_item_num ^= PM_BTILE_SECRET;
+            if (highlight == 14) draw_item_num ^= PM_BTILE_SHOW_SELECT_WIN;
+         }
+      }
+   }
+   else
+   {
+      draw_flag_rects(point_item_num, x, y, w, h, ys);
+   }
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, int w, int h, int ys, int con, int cof, int highlight)
@@ -941,7 +1024,9 @@ void edit_tile_attributes(void)
 
 
 
-         draw_flag_rects(current_selection,           frx, fry, frw, frh, ys, 10, 11, -1);
+
+
+         draw_and_proc_flag_rects_for_sa(current_selection, frx, fry, frw, frh, ys);
 
          al_draw_rectangle(                       csx-1,  csy-7, csx+195, csy+15, palette_color[10], 1);
          al_draw_bitmap(btile[current_selection], csx,    csy-6, 0);
@@ -971,7 +1056,7 @@ void edit_tile_attributes(void)
       if ((mouse_x > frx) && (mouse_x < frx+frw) && (mouse_y > fry) && (mouse_y < fry+(15*ys) ))
       {
          int indx = (mouse_y-fry)/ys;
-         if (mode == 0) draw_flag_rects(current_selection,           frx, fry, frw, frh, ys, 10, 11, indx);
+         if (mode == 0) draw_and_proc_flag_rects_for_sa(current_selection, frx, fry, frw, frh, ys);
          if (mode == 1) draw_flag_rects_multiple(bx1, by1, bx2, by2, frx, fry, frw, frh, ys, 10, 11, indx);
       }
 
@@ -994,7 +1079,7 @@ void edit_tile_attributes(void)
 
 
          // show the the flags of the pointer
-         draw_flag_rects(pointer, frx-24, fry, frw, frh, ys, 10, 11, -1);
+         draw_and_proc_flag_rects_for_sa(pointer, frx-24, fry, frw, frh, ys);
 
          if (mouse_b2)
          {

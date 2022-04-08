@@ -64,6 +64,7 @@ void draw_enemy_shape(int e, int x, int y)
    al_draw_bitmap(dtemp, x, y, 0);
 }
 
+
 void draw_PDE_shape(int pde, int x, int y)
 {
    int a = PDEi[pde][1]; // bmp or ans
@@ -120,7 +121,7 @@ void show_draw_item_cursor(void)
    if (same) al_draw_bitmap(tile[255], x, y, 0);
    else switch (draw_item_type)
    {
-      case 1: al_draw_bitmap(btile[draw_item_num], x, y, 0); break;
+      case 1: al_draw_bitmap(btile[draw_item_num & 1023], x, y, 0); break;
       case 2: draw_item_shape(draw_item_num, x, y); break;
       case 3: draw_enemy_shape(draw_item_num, x, y); break;
       case 5: draw_PDE_shape(draw_item_num, x, y);  break;
@@ -425,14 +426,15 @@ void draw_item_info(int x, int y, int color, int type, int num)
    switch (type)
    {
       case 1:
-         al_draw_bitmap(btile[num], x, y, 0);
-         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "Block #%d",num);
-         sprintf(msg, "Solid");  // default
-         if (num < 32) sprintf(msg, "Empty");
-         if ((num > 31) && (num < 64)) sprintf(msg, "Semi-Solid ");
-         if ((num > 63) && (num < 96)) sprintf(msg, "Bombable");
-         if ((num > 95) && (num < 128)) sprintf(msg, "Breakable");
-         al_draw_text(font, palette_color[color], x+22, y+12, 0, msg);
+         al_draw_bitmap(btile[num&1023], x, y, 0);
+         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "Block #%d",num&1023);
+
+//         sprintf(msg, "Solid");  // default
+//         if (num < 32) sprintf(msg, "Empty");
+//         if ((num > 31) && (num < 64)) sprintf(msg, "Semi-Solid ");
+//         if ((num > 63) && (num < 96)) sprintf(msg, "Bombable");
+//         if ((num > 95) && (num < 128)) sprintf(msg, "Breakable");
+//         al_draw_text(font, palette_color[color], x+22, y+12, 0, msg);
 
       break;
       case 2:
@@ -479,15 +481,9 @@ int edit_menu(int el)
    level_editor_running = 1;
    int original_display_transform_double = display_transform_double;
 
-
 //   int target_display_transform_double = 1; // this is the orig
+
    int target_display_transform_double = original_display_transform_double; // this is the hacked line
-
-
-
-
-
-
 
    if (disp_w_curr > 3800) target_display_transform_double = 2;
    if (display_transform_double != target_display_transform_double)
@@ -561,6 +557,45 @@ int edit_menu(int el)
       if ((mouse_x > select_window_x) && (mouse_x < select_window_x + select_window_w))
          if ((mouse_y > select_window_y) && (mouse_y < select_window_y + select_window_h))
             if (select_window_active) mpow = 1;
+
+
+      // flags
+
+      int ftx = status_window_x+11;
+      int fty = status_window_y+47;
+      int ys = 10; // y spacing
+
+      int frw = 6;         // flag rectangle width
+      int frh = 6;         // flag rectangle height
+      int frx = ftx-frw-2;        // flag rectangle x
+      int fry = fty - (frh/2)+4;  // flag rectangle y
+
+      int frx2 = frx+frw;
+      int fry2 = fty+frh+(ys*14);
+
+      frx  -=2;
+      frx2 +=2;
+
+      fry  -=2;
+      fry2 +=4;
+
+
+
+      if ((draw_item_type == 1) && (status_window_active))
+         if ((mouse_x > frx) && (mouse_x < frx2))
+            if ((mouse_y > fry) && (fry2))
+            {
+               mpow = 1;
+               al_draw_rectangle(frx, fry, frx2, fry2, palette_color[14], 1);
+
+            }
+
+
+
+
+
+
+
 
       if (!mpow)  // find point item
       {

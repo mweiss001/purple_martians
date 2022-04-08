@@ -1331,6 +1331,15 @@ int main(int argument_count, char **argument_array)
   // copy_tiles();
 
 
+//            play_level = start_level;
+//            set_start_level(play_level);
+//            printf("running level editor for level:%d\n", play_level);
+//            play_level = edit_menu(play_level);
+//            set_start_level(play_level);
+//            fast_exit(0);
+
+
+
       if (argument_count == 2) // example 'pmwin arg1'
       {
 

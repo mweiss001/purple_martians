@@ -705,6 +705,25 @@ backup copies of the old method-------------------------------------------------
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// helper function for is_right_solid, is_left_solid, is_down_solid
 int is_solid(int b, int c, int type)
 {
    if (b == -1) // do c only
@@ -726,48 +745,38 @@ int is_solid(int b, int c, int type)
    return 0;
 }
 
-
+// custom type for is_up_solid, to take into account semisolid exceptions
 int is_solidu(int b, int c, int type)
 {
    if (b == -1) // do c only
    {
       if ((type == 1) && (c & PM_BTILE_SOLID_PLAYER) && (!(c & PM_BTILE_SEMISOLID_PLAYER))) return 1;
-
-
-      if ((type == 2) && (c & PM_BTILE_SOLID_ENEMY))  return 1;
-      if ((type == 3) && (c & PM_BTILE_SOLID_ITEM))   return 1;
-      if ((type == 4) && (c & PM_BTILE_SOLID_PBUL))   return 1;
-      if ((type == 5) && (c & PM_BTILE_SOLID_EBUL))   return 1;
+      if ((type == 2) && (c & PM_BTILE_SOLID_ENEMY)  && (!(c & PM_BTILE_SEMISOLID_ENEMY)))  return 1;
+      if ((type == 3) && (c & PM_BTILE_SOLID_ITEM)   && (!(c & PM_BTILE_SEMISOLID_ITEM)))   return 1;
+      if ((type == 4) && (c & PM_BTILE_SOLID_PBUL)) return 1;
+      if ((type == 5) && (c & PM_BTILE_SOLID_EBUL)) return 1;
    }
    else
    {
       if ( (type == 1) &&
            ( ((b & PM_BTILE_SOLID_PLAYER) && (!(b & PM_BTILE_SEMISOLID_PLAYER))) ||
              ((c & PM_BTILE_SOLID_PLAYER) && (!(c & PM_BTILE_SEMISOLID_PLAYER))) )
-
-             ) return 1;
-
-      if ((type == 2) && ((b & PM_BTILE_SOLID_ENEMY)  || (c & PM_BTILE_SOLID_ENEMY)))   return 1;
-      if ((type == 3) && ((b & PM_BTILE_SOLID_ITEM)   || (c & PM_BTILE_SOLID_ITEM)))    return 1;
+         ) return 1;
+     if ( (type == 2) &&
+           ( ((b & PM_BTILE_SOLID_ENEMY)  && (!(b & PM_BTILE_SEMISOLID_ENEMY))) ||
+             ((c & PM_BTILE_SOLID_ENEMY)  && (!(c & PM_BTILE_SEMISOLID_ENEMY))) )
+         ) return 1;
+      if ( (type == 3) &&
+           ( ((b & PM_BTILE_SOLID_ITEM)   && (!(b & PM_BTILE_SEMISOLID_ITEM))) ||
+             ((c & PM_BTILE_SOLID_ITEM)   && (!(c & PM_BTILE_SEMISOLID_ITEM))) )
+         ) return 1;
       if ((type == 4) && ((b & PM_BTILE_SOLID_PBUL)   || (c & PM_BTILE_SOLID_PBUL)))    return 1;
       if ((type == 5) && ((b & PM_BTILE_SOLID_EBUL)   || (c & PM_BTILE_SOLID_EBUL)))    return 1;
    }
    return 0;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-// returns 1 for solid block, 2 for semi-solid, or 32+lift_num for lift
+// returns 1 for solid block, 32+lift_num for lift
 int is_right_solid(int solid_x, int solid_y, int lift_check, int type)
 {
    int xx = solid_x / 20 + 1;
@@ -799,7 +808,7 @@ int is_right_solid(int solid_x, int solid_y, int lift_check, int type)
 
 
 
-// returns 1 for solid block, 2 for semi-solid, or 32+lift_num for lift
+// returns 1 for solid block, 32+lift_num for lift
 int is_left_solid(int solid_x, int solid_y, int lift_check, int type)
 {
    int xx = solid_x / 20;
@@ -826,8 +835,7 @@ int is_left_solid(int solid_x, int solid_y, int lift_check, int type)
    return 0;
 }
 
-// old returns 1 for solid block, 2 for semi-solid, or 32+lift_num for lift
-// new returns 1 for solid block, or 32+lift_num for lift
+// returns 1 for solid block, 32+lift_num for lift
 int is_down_solid(int solid_x, int solid_y, int lift_check, int type)
 {
    int yy = solid_y / 20 + 1;
@@ -856,7 +864,7 @@ int is_down_solid(int solid_x, int solid_y, int lift_check, int type)
 
 
 
-// returns 1 for solid block, 2 for semi-solid, or 32+lift_num for lift
+// returns 1 for solid block, 32+lift_num for lift
 int is_up_solid(int solid_x, int solid_y, int lift_check, int type)
 {
    int yy = (solid_y - 2) / 20;
@@ -872,8 +880,6 @@ int is_up_solid(int solid_x, int solid_y, int lift_check, int type)
                   if (solid_y > lifts[d].y2 - 10)
                     return d+32;
 
-
-
    if (a > 16)  // next block only
       if (is_solidu( -1, l[xx][yy], type)) return 1;
 
@@ -885,15 +891,6 @@ int is_up_solid(int solid_x, int solid_y, int lift_check, int type)
 
    return 0;
 }
-
-
-
-
-
-
-
-
-
 
 
 
