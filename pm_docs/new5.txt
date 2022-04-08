@@ -17671,9 +17671,112 @@ its working but could stand to be cleaned up....
 push
 
 
+8:00 AM
+
+I can't believe how good this is working....
+
+still to do....
+make select window items apply sa when drawing them
+how about when swbl is filled...
+
+for (int c=0; c<NUM_SPRITES; c++)
+   if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
+      swbl[swbn++][0] |= sa[c][0];   // put shape # in list and inc counter
+
+
+al_draw_bitmap(btile[swbl[c][0] & 1023], swx1+(c-((c/16)*16) )*20+1, swy1+select_window_block_y+1+14+(c/16*20), 0 );
+
+
+current:
+d = process_select_window(0);
+if (d < 999) // block
+{
+   draw_item_num = d;
+   draw_item_type = 1;
+}
+if (d >= 3000) // pd
+{
+   draw_item_num = d-3000;
+   draw_item_type = 5;
+}
+
+999 or 1001 do nothing...
+how do I fix this?
+now
+
+0-huge == block
+< -1000 == pde copy type (add 2000 to get actual pde #)
+-1 all other returns (doesnt do anything)
+
+I can get stuff from select window and it seem to work good.
+
+
+make it so that the select window flag is not shown...
+(not that critical, will have no effect on level)
+
+make the block range draw special shapes things work....
 
 
 
+show just tile number in pde block descrption...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mv type solid checks....
 
 
 
