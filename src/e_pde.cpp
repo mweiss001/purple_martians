@@ -79,12 +79,6 @@ int process_status_window(int draw_only)
       draw_and_proc_flag_rects_draw_item(frx, fry, frw, frh, ys, 1);
    }
 
-
-
-
-
-
-
    // view item area
    al_draw_rectangle(swx1 + 160, swy1 + 12, swx2, swy2, palette_color[9], 1);
    al_draw_text(font, palette_color[15], swx1 + 184, swy1 + 14,  0, "View Item ");
@@ -269,6 +263,23 @@ int process_select_window(int draw_only)
       }
    }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    // blocks top bar frame and text
    if (select_window_block_on)
    {
@@ -280,18 +291,26 @@ int process_select_window(int draw_only)
       al_draw_text(font, palette_color[9], swx2-41, syb+2, 0, "+");
 
       for (c=0; c<16*swnbl_cur; c++)
-         al_draw_bitmap(btile[swbl[c][0]], swx1+(c-((c/16)*16) )*20+1, swy1+select_window_block_y+1+14+(c/16*20), 0 );
-
-
+         al_draw_bitmap(btile[swbl[c][0] & 1023], swx1+(c-((c/16)*16) )*20+1, swy1+select_window_block_y+1+14+(c/16*20), 0 );
    }
 
    // frame the whole thing
-//   al_draw_rectangle(swx1, swy1, swx2, swy2, palette_color[9], 1);
+   al_draw_rectangle(swx1, swy1, swx2, swy2, palette_color[9], 1);
 
-   // faded frame
-   int th = 1;
+
+ /*
+
+ th 256/th   a
+ 1   256     0
+ 2   128     0, 1
+ 3   64      0, 1, 2
+ 4   32      0, 1, 2, 3
+   // faded frame (does not work very well)
+   int th = 1+pct_y;
    for (int a=0; a<th; a++)
       al_draw_rectangle(swx1-a, swy1-a, swx2+a, swy2+a, palette_color[9+a*(256/th)], 1);
+*/
+
 
    if (draw_only == 0)
    {
@@ -314,7 +333,7 @@ int process_select_window(int draw_only)
                {
                   while (mouse_b1) proc_controllers();  // wait for release
                   select_window_active = 0;
-                  return 1001;
+                  return -1;
                }
             }
             // '?' button
@@ -325,7 +344,7 @@ int process_select_window(int draw_only)
                {
                   while (mouse_b1) proc_controllers();  // wait for release
                   help("Selection Window");
-                  return 1001;
+                  return -1;
                }
             }
 
@@ -337,7 +356,7 @@ int process_select_window(int draw_only)
                {
                   while (mouse_b1) proc_controllers();  // wait for release
                   select_window_special_on = !select_window_special_on;
-                  return 1001;
+                  return -1;
                }
             }
 
@@ -349,7 +368,7 @@ int process_select_window(int draw_only)
                {
                   while (mouse_b1) proc_controllers();  // wait for release
                   select_window_block_on = !select_window_block_on;
-                  return 1001;
+                  return -1;
                }
             }
 
@@ -370,7 +389,7 @@ int process_select_window(int draw_only)
                   select_window_y = mouse_y-ty;
                }
                check_s_window_pos(0);
-               return 1001;
+               return -1;
             }
          } // end of if mouse on title bar
 
@@ -388,7 +407,7 @@ int process_select_window(int draw_only)
                   {
                      while (mouse_b1) proc_controllers();  // wait for release
                      select_window_special_on = 0;
-                     return 1001;
+                     return -1;
                   }
                }
                if ((mouse_x > swx2-25) && (mouse_x < swx2-17))  // Special button
@@ -402,7 +421,7 @@ int process_select_window(int draw_only)
                            select_window_num_special_lines++;
                            select_window_special_on = 0;
                         }
-                        return 1001;
+                        return -1;
                      }
                }
                if ((mouse_x > swx2-41) && (mouse_x < swx2-33))  // Special button
@@ -413,7 +432,7 @@ int process_select_window(int draw_only)
                      while (mouse_b1) proc_controllers();  // wait for release
                      if (++select_window_num_special_lines > 4 )
                            select_window_num_special_lines = 4;
-                     return 1001;
+                     return -1;
                   }
                }
             }
@@ -433,7 +452,7 @@ int process_select_window(int draw_only)
                      {
                         while (mouse_b1) proc_controllers();  // wait for release
                         select_window_block_on = 0;
-                        return 1001;
+                        return -1;
                      }
                }
                if ((mouse_x > swx2-25) && (mouse_x < swx2-17))  // - button
@@ -448,7 +467,7 @@ int process_select_window(int draw_only)
                         swnbl_cur++;
                         select_window_block_on = 0;
                      }
-                     return 1001;
+                     return -1;
                   }
                }
                if ((mouse_x > swx2-41) && (mouse_x < swx2-33))  // + button
@@ -458,7 +477,7 @@ int process_select_window(int draw_only)
                   {
                      while (mouse_b1) proc_controllers();  // wait for release
                      if (++swnbl_cur > swnbl) swnbl_cur = swnbl;
-                     return 1001;
+                     return -1;
                   }
                }
             }
@@ -503,8 +522,8 @@ int process_select_window(int draw_only)
 
                if (mouse_b1)
                {
-                  while (mouse_b1) proc_controllers(); // wait for release
-                  if (PDEi[ret][0] < 200) return 3000+ret; // PUT ITEM OR ENEMY
+                  while (mouse_b1) proc_controllers();     // wait for release
+                  if (PDEi[ret][0] < 200) return ret-2000; // item or enemy copy type pde
 
                   if (PDEi[ret][0] > 199) // Creator
                   {
@@ -527,7 +546,7 @@ int process_select_window(int draw_only)
                         case 16: create_obj(2, 17, 0); break;  // type 215 - block damage
                      }
                      draw_big(1);
-                     return 1001;
+                     return -1;
                   } // end of if creator
 
                } // end of if (mouse_b & 1)
@@ -538,7 +557,7 @@ int process_select_window(int draw_only)
             if (stext_draw_flag)
             {
                stext_draw_flag = 0;
-               return 1001;
+               return -1;
             }
          }
 
@@ -550,6 +569,9 @@ int process_select_window(int draw_only)
             int tl = 3; // text lines
             ret = swbl[ret][0];
 
+            int dret = ret & 1023; // display ret
+
+
             // erase
             al_draw_filled_rectangle(swx1, syt, swx2, 12+syt+3+(8*tl), palette_color[0]);
 
@@ -560,18 +582,18 @@ int process_select_window(int draw_only)
             al_draw_rectangle(swx1, syt, swx2, syt+12, palette_color[9], 1);
             al_draw_text(font, palette_color[9], swx1+2, syt+2,  0, "Description");
 
-            // draw text for this pde
+            // draw text for this block
             char t[80];
             btext_draw_flag=1;
 
-            if ((ret > 127 ) && (ret < NUM_SPRITES )) sprintf(t,"solid");
-            if ((ret > 95 ) && (ret < 128 ))          sprintf(t,"breakable");
-            if ((ret > 63 ) && (ret < 96 ))           sprintf(t,"bombable");
-            if ((ret > 31  ) && (ret < 64 ))          sprintf(t,"semi-solid ");
-            if (ret < 32 )                            sprintf(t,"empty");
+            if ((dret > 127 ) && (dret < NUM_SPRITES )) sprintf(t,"solid");
+            if ((dret > 95 ) && (dret < 128 ))          sprintf(t,"breakable");
+            if ((dret > 63 ) && (dret < 96 ))           sprintf(t,"bombable");
+            if ((dret > 31  ) && (dret < 64 ))          sprintf(t,"semi-solid ");
+            if (dret < 32 )                            sprintf(t,"empty");
 
             al_draw_text (font, palette_color[15], swx1+2, syt+14, 0, "---------------------");
-            al_draw_textf(font, palette_color[15], swx1+2, syt+22, 0, "Block %d - %s ", ret, t);
+            al_draw_textf(font, palette_color[15], swx1+2, syt+22, 0, "Block %d - %s ", dret, t);
             al_draw_text (font, palette_color[15], swx1+2, syt+30, 0, "---------------------");
 
             if ((mouse_b1) || (mouse_b2))
@@ -585,7 +607,7 @@ int process_select_window(int draw_only)
             if (btext_draw_flag)
             {
                btext_draw_flag = 0;
-               return 1001;
+               return -1;
             }
          }
       } // end of if mouse on whole window
@@ -597,18 +619,77 @@ int process_select_window(int draw_only)
          if (stext_draw_flag)
          {
             stext_draw_flag = 0;
-            return 1001;
+            return -1;
          }
          if (btext_draw_flag)
          {
             btext_draw_flag = 0;
-            return 1001;
+            return -1;
          }
       }
    }
 
-return 999;
+   return -1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Assumes little endian
+void printBits(size_t const size, void const * const ptr)
+{
+    unsigned char *b = (unsigned char*) ptr;
+    unsigned char byte;
+    int i, j;
+
+    for (i = size-1; i >= 0; i--) {
+        for (j = 7; j >= 0; j--) {
+            byte = (b[i] >> j) & 1;
+            printf("%u", byte);
+        }
+    }
+    puts("");
+}
+/*
+Test:
+
+int main(int argv, char* argc[])
+{
+    int i = 23;
+    uint ui = UINT_MAX;
+    float f = 23.45f;
+    printBits(sizeof(i), &i);
+    printBits(sizeof(ui), &ui);
+    printBits(sizeof(f), &f);
+    return 0;
+}
+
+
+
+*/
+
+
+
+
+
+
 
 void set_swbl(void)
 {
@@ -634,9 +715,61 @@ void set_swbl(void)
       if (sa[c][1] == 1) swbl[swbn++][0] = c;   // put shape # in list and inc counter
 */
 
-
+/*
    for (int c=0; c<NUM_SPRITES; c++)
-      if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN) swbl[swbn++][0] = c;   // put shape # in list and inc counter
+      if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
+         swbl[swbn++][0] = c;   // put shape # in list and inc counter
+*/
+/*
+   for (int c=0; c<NUM_SPRITES; c++)
+      if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
+      {
+         printf("\n1-c:%d sa[%d][0]:%d  swbl[%d][0]:%d \n", c, c, sa[c][0], swbn, swbl[swbn][0] );
+         swbl[swbn][0] = c;          // put shape # in list and inc counter
+
+         printf("2-c:%d sa[%d][0]:%d  swbl[%d][0]:%d \n", c, c, sa[c][0], swbn, swbl[swbn][0] );
+         swbl[swbn][0] |= sa[c][0];   // apply flags
+
+         printf("3-c:%d sa[%d][0]:%d  swbl[%d][0]:%d \n", c, c, sa[c][0], swbn, swbl[swbn][0] );
+
+         int i = sa[c][0];
+
+         printBits(sizeof(i), &i);
+
+
+         swbn++;
+      }
+*/
+
+
+      for (int c=0; c<NUM_SPRITES; c++)
+      if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
+      {
+         swbl[swbn][0] = c;          // add to list
+         swbl[swbn][0] |= sa[c][0];  // apply flags
+         swbn++;
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
    swnbl = (swbn / 16) + 1;

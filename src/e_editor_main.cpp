@@ -130,207 +130,282 @@ void show_draw_item_cursor(void)
 
 void set_block_range(void)
 {
-   int a, b;
-   for (a = bx1; a < bx2; a++)       // cycle the range
-      for (b = by1; b < by2; b++)
+
+   int fsd[20][20] = {0};
+
+   // purple pipe with open center
+   fsd[0][0] = 576; // trigger blocks start
+   fsd[0][1] = 592; // trigger block end
+   fsd[0][9] = -1;  // default shape
+   fsd[0][10] = 576; // upper left corner
+   fsd[0][11] = 577; // upper right corner
+   fsd[0][12] = 578; // lower left corner
+   fsd[0][13] = 579; // lower right corner
+   fsd[0][14] = 580; // left vertical through
+   fsd[0][15] = 581; // right vertical through
+   fsd[0][16] = 582; // upper horizontal through
+   fsd[0][17] = 583; // lower horizontal through
+
+   // purple pipe with solid center
+   fsd[1][0] = 512; // trigger blocks start
+   fsd[1][1] = 528; // trigger block end
+   fsd[1][9] = 528;  // default shape
+   fsd[1][10] = 512; // upper left corner
+   fsd[1][11] = 513; // upper right corner
+   fsd[1][12] = 514; // lower left corner
+   fsd[1][13] = 515; // lower right corner
+   fsd[1][14] = 516; // left vertical through
+   fsd[1][15] = 517; // right vertical through
+   fsd[1][16] = 518; // upper horizontal through
+   fsd[1][17] = 519; // lower horizontal through
+
+   // wires
+   fsd[2][0] = 605; // trigger blocks start
+   fsd[2][1] = 624; // trigger block end
+   fsd[2][9] = -1;  // default shape
+   fsd[2][10] = 608; // upper left corner
+   fsd[2][11] = 609; // upper right corner
+   fsd[2][12] = 610; // lower left corner
+   fsd[2][13] = 611; // lower right corner
+   fsd[2][14] = 612; // left vertical through
+   fsd[2][15] = 612; // right vertical through
+   fsd[2][16] = 614; // upper horizontal through
+   fsd[2][17] = 614; // lower horizontal through
+
+   // brick with corners
+   fsd[3][0] = 640; // trigger blocks start
+   fsd[3][1] = 656; // trigger block end
+   fsd[3][9] = 656; // default shape
+   fsd[3][10] = 640; // upper left corner
+   fsd[3][11] = 641; // upper right corner
+   fsd[3][12] = 642; // lower left corner
+   fsd[3][13] = 643; // lower right corner
+   fsd[3][14] = 644; // left vertical through
+   fsd[3][15] = 645; // right vertical through
+   fsd[3][16] = 646; // upper horizontal through
+   fsd[3][17] = 647; // lower horizontal through
+
+   // rainbows
+   fsd[4][0] = 672; // trigger blocks start
+   fsd[4][1] = 679; // trigger block end
+   fsd[4][9] = -1;  // default shape
+   fsd[4][10] = 672; // upper left corner
+   fsd[4][11] = 673; // upper right corner
+   fsd[4][12] = 674; // lower left corner
+   fsd[4][13] = 675; // lower right corner
+   fsd[4][14] = 676; // left vertical through
+   fsd[4][15] = 677; // right vertical through
+   fsd[4][16] = 678; // upper horizontal through
+   fsd[4][17] = 679; // lower horizontal through
+
+   // rainbows 2
+   fsd[5][0] = 704; // trigger blocks start
+   fsd[5][1] = 711; // trigger block end
+   fsd[5][9] = -1;  // default shape
+   fsd[5][10] = 704; // upper left corner
+   fsd[5][11] = 705; // upper right corner
+   fsd[5][12] = 706; // lower left corner
+   fsd[5][13] = 707; // lower right corner
+   fsd[5][14] = 708; // left vertical through
+   fsd[5][15] = 709; // right vertical through
+   fsd[5][16] = 710; // upper horizontal through
+   fsd[5][17] = 711; // lower horizontal through
+
+   for (int i=0; i<20; i++)
+      for (int j=0; j<20; j++)
       {
-         if ( (bx2-bx1==1) && (by2-by1==1) ) //single
-            l[a][b] = draw_item_num;
+         fsd[i][j] |= PM_BTILE_SOLID_PLAYER;
+         fsd[i][j] |= PM_BTILE_SOLID_ENEMY;
+         fsd[i][j] |= PM_BTILE_SOLID_ITEM;
+         fsd[i][j] |= PM_BTILE_SOLID_PBUL;
+         fsd[i][j] |= PM_BTILE_SOLID_EBUL;
+      }
 
-         if ( (bx2-bx1>1) && (by2-by1>1) ) // box shape with corners
-         {
-            if ((draw_item_num >= 161) && (draw_item_num <= 163))  // lined platform shape draw special
+
+   int fsx[20][5] = {0};
+
+   // purple pipes
+   fsx[0][0] = 576; // trigger blocks start
+   fsx[0][1] = 592; // trigger block end
+   fsx[0][2] = 582; // middle
+   fsx[0][3] = 590; // left end
+   fsx[0][4] = 588; // right end
+
+   // wires
+   fsx[1][0] = 608; // trigger blocks start
+   fsx[1][1] = 625; // trigger block end
+   fsx[1][2] = 614; // middle
+   fsx[1][3] = 622; // left end
+   fsx[1][4] = 620; // right end
+
+   // lined platform
+   fsx[2][0] = 161; // trigger blocks start
+   fsx[2][1] = 163; // trigger block end
+   fsx[2][2] = 162; // middle
+   fsx[2][3] = 161; // left end
+   fsx[2][4] = 163; // right end
+
+   // brown bricks
+   fsx[3][0] = 177; // trigger blocks start
+   fsx[3][1] = 179; // trigger block end
+   fsx[3][2] = 178; // middle
+   fsx[3][3] = 177; // left end
+   fsx[3][4] = 179; // right end
+
+   // semi-solid screen
+   fsx[4][0] = 33; // trigger blocks start
+   fsx[4][1] = 39; // trigger block end
+   fsx[4][2] = 37; // middle
+   fsx[4][3] = 36; // left end
+   fsx[4][4] = 38; // right end
+
+   for (int i=0; i<20; i++)
+      for (int j=0; j<5; j++)
+      {
+         fsx[i][j] |= PM_BTILE_SOLID_PLAYER;
+         fsx[i][j] |= PM_BTILE_SOLID_ENEMY;
+         fsx[i][j] |= PM_BTILE_SOLID_ITEM;
+         fsx[i][j] |= PM_BTILE_SOLID_PBUL;
+         fsx[i][j] |= PM_BTILE_SOLID_EBUL;
+      }
+
+   for (int j=0; j<5; j++)
+   {
+      fsx[4][j] |= PM_BTILE_SEMISOLID_PLAYER;
+      fsx[4][j] |= PM_BTILE_SEMISOLID_ENEMY;
+      fsx[4][j] |= PM_BTILE_SEMISOLID_ITEM;
+      fsx[4][j] &= ~PM_BTILE_SOLID_PBUL;
+      fsx[4][j] &= ~PM_BTILE_SOLID_EBUL;
+   }
+
+
+   int fsy[20][5] = {0};
+
+   // purple pipes
+   fsy[0][0] = 576; // trigger blocks start
+   fsy[0][1] = 592; // trigger block end
+   fsy[0][2] = 580; // middle
+   fsy[0][3] = 591; // upper end
+   fsy[0][4] = 589; // lower end
+
+   // wires
+   fsy[1][0] = 608; // trigger blocks start
+   fsy[1][1] = 625; // trigger block end
+   fsy[1][2] = 612; // middle
+   fsy[1][3] = 623; // upper end
+   fsy[1][4] = 621; // lower end
+
+   // semi-solid screen
+   fsy[4][0] = 33; // trigger blocks start
+   fsy[4][1] = 39; // trigger block end
+   fsy[4][2] = 34; // middle
+   fsy[4][3] = 33; // upper end
+   fsy[4][4] = 35; // lower end
+
+
+   for (int i=0; i<20; i++)
+      for (int j=0; j<5; j++)
+      {
+         fsy[i][j] |= PM_BTILE_SOLID_PLAYER;
+         fsy[i][j] |= PM_BTILE_SOLID_ENEMY;
+         fsy[i][j] |= PM_BTILE_SOLID_ITEM;
+         fsy[i][j] |= PM_BTILE_SOLID_PBUL;
+         fsy[i][j] |= PM_BTILE_SOLID_EBUL;
+      }
+
+   for (int j=0; j<5; j++)
+   {
+      fsy[4][j] |= PM_BTILE_SEMISOLID_PLAYER;
+      fsy[4][j] |= PM_BTILE_SEMISOLID_ENEMY;
+      fsy[4][j] |= PM_BTILE_SEMISOLID_ITEM;
+
+      fsy[4][j] &= ~PM_BTILE_SOLID_PBUL;
+      fsy[4][j] &= ~PM_BTILE_SOLID_EBUL;
+   }
+
+
+
+
+
+
+
+   if ((bx2-bx1==1) && (by2-by1==1)) l[bx1][by1] = draw_item_num; // single block 1 x 1
+
+   if ((bx2-bx1==1) && (by2-by1>1)) // vertical line 1 x >1
+   {
+      int a = bx1;
+      for (int b=by1; b<by2; b++) // cycle the range
+      {
+         l[a][b] = draw_item_num; // set draw item as default
+         for (int x=0; x<20; x++)
+            if (fsy[x])
             {
-               l[a][b] = 162; // default
-               if (a == bx1)   l[a][b] = 161;
-               if (a == bx2-1) l[a][b] = 163;
-            }
-
-            else if ((draw_item_num >= 177) && (draw_item_num <= 179))  // brown brick shape draw special
-            {
-               l[a][b] = 178; // default
-               if (a == bx1)   l[a][b] = 177;
-               if (a == bx2-1) l[a][b] = 179;
-            }
-
-            else if ((draw_item_num >= 512) && (draw_item_num <= 528)) // purple pipe box with solid core
-            {
-               l[a][b] = 528; // solid core by default
-               if (b == by1  ) l[a][b] = 518; // upper horizontal through
-               if (b == by2-1) l[a][b] = 519; // lower horizontal through
-
-
-               if (a == bx1)
+               if (((draw_item_num&1023) >= (fsy[x][0]&1023)) && ((draw_item_num&1023) <= (fsy[x][1]&1023)))
                {
-                  if (b == by1) l[a][b] = 512; // upper-right corner
-                  else if (b == by2-1) l[a][b] = 514; // lower-right corner
-                  else l[a][b] = 516; // right vertical through
+                  l[a][b] = fsy[x][2]; // default
+                  if (b == by1)   l[a][b] = fsy[x][3]; // left end cap
+                  if (b == by2-1) l[a][b] = fsy[x][4]; // right end cap
                }
-               if (a == bx2-1)
+            }
+      }
+   }
+
+   if ((bx2-bx1>1) && (by2-by1==1)) // horizontal line >1 x 1
+   {
+      int b = by1;
+      for (int a=bx1; a<bx2; a++) // cycle the range
+      {
+         l[a][b] = draw_item_num; // set draw item as default
+         for (int x=0; x<20; x++)
+            if (fsx[x])
+            {
+               if (((draw_item_num&1023) >= (fsx[x][0]&1023)) && ((draw_item_num&1023) <= (fsx[x][1]&1023)))
                {
-                  if (b == by1) l[a][b] = 513; // upper-left corner
-                  else if (b == by2-1) l[a][b] = 515; // lower-left corner
-                  else l[a][b] = 517; //  left vertical through
+                  l[a][b] = fsx[x][2]; // default
+                  if (a == bx1)   l[a][b] = fsx[x][3]; // left end cap
+                  if (a == bx2-1) l[a][b] = fsx[x][4]; // right end cap
                }
-
-
-
-
             }
+      }
+   }
 
-
-
-
-            else if ((draw_item_num >= 576) && (draw_item_num <= 592)) // purple pipe box with corners
-            {
-               if (b == by1  ) l[a][b] = 582; // horizontal through
-               if (b == by2-1) l[a][b] = 582; // horizontal through
-               if (a == bx1)
+   if ((bx2-bx1>1) && (by2-by1>1)) // box shape with corners >1 x >1
+   {
+      int special_handler = 0;
+      for (int a=bx1; a<bx2; a++)       // cycle the range
+         for (int b=by1; b<by2; b++)
+            for (int x=0; x<20; x++)
+               if (fsd[x])
                {
-                  if (b == by1) l[a][b] = 576; // upper-right corner
-                  else if (b == by2-1) l[a][b] = 578; // lower-right corner
-                  else l[a][b] = 580; // right vertical through
-               }
-               if (a == bx2-1)
-               {
-                  if (b == by1) l[a][b] = 577; // upper-left corner
-                  else if (b == by2-1) l[a][b] = 579; // lower-left corner
-                  else l[a][b] = 580; //  left vertical through
-               }
-            }
-            else if ((draw_item_num >= 576+32) && (draw_item_num <= 592+32)) // wires box with corners
-            {
-               if (b == by1  ) l[a][b] = 582+32; // horizontal through
-               if (b == by2-1) l[a][b] = 582+32; // horizontal through
-               if (a == bx1)
-               {
-                  if (b == by1) l[a][b] = 576+32; // up-right corner
-                  else if (b == by2-1) l[a][b] = 578+32; // left-up corner
-                  else l[a][b] = 580+32; // vertical through
-               }
-               if (a == bx2-1)
-               {
-                  if (b == by1) l[a][b] = 577+32; // right-down corner
-                  else if (b == by2-1) l[a][b] = 579+32; // down-left corner
-                  else l[a][b] = 580+32; //  vertical through
-               }
-            }
-            else if ((draw_item_num >= 576+64) && (draw_item_num <= 592+64)) // bricks with corners
-            {
-               l[a][b] = 592+64; // center
-               if (b == by1  ) l[a][b] = 582+64; // horizontal through
-               if (b == by2-1) l[a][b] = 583+64; // horizontal through
-               if (a == bx1)
-               {
-                  if (b == by1) l[a][b] = 576+64; // up-right corner
-                  else if (b == by2-1) l[a][b] = 578+64; // left-up corner
-                  else l[a][b] = 580+64; // vertical through
-               }
-               if (a == bx2-1)
-               {
-                  if (b == by1) l[a][b] = 577+64; // right-down corner
-                  else if (b == by2-1) l[a][b] = 579+64; // down-left corner
-                  else l[a][b] = 581+64; //  vertical through
-               }
-            }
-            else if ((draw_item_num >= 576+96) && (draw_item_num <= 592+128)) // rainbows
-            {
-               if (b == by1  ) l[a][b] = 582+96; // horizontal through
-               if (b == by2-1) l[a][b] = 583+96; // horizontal through
-               if (a == bx1)
-               {
-                  if (b == by1) l[a][b] = 576+96; // up-right corner
-                  else if (b == by2-1) l[a][b] = 578+96; // left-up corner
-                  else l[a][b] = 580+96; // vertical through
-               }
-               if (a == bx2-1)
-               {
-                  if (b == by1) l[a][b] = 577+96; // right-down corner
-                  else if (b == by2-1) l[a][b] = 579+96; // down-left corner
-                  else l[a][b] = 581+96; //  vertical through
-               }
-            }
-            else l[a][b] = draw_item_num;
-         }
-         if ( (bx2-bx1>1) && (by2-by1==1) ) // horizontal line with end caps
-         {
-            l[a][b] = draw_item_num;
-            if ( (draw_item_num >= 33) && (draw_item_num <= 35) ) // semi solid screen draw special
-            {
-               l[a][b] = 34; // default
-               if (b == by1)   l[a][b] = 33;
-               if (b == by2-1) l[a][b] = 35;
-            }
+                  if (((draw_item_num&1023) >= (fsd[x][0]&1023)) && ((draw_item_num&1023) <= (fsd[x][1]&1023)))
+                  {
+                     special_handler = 1;
 
-            else if ( (draw_item_num >= 36) && (draw_item_num <= 38) ) // semi solid screen draw special
-            {
-               l[a][b] = 37; // default
-               if (a == bx1)   l[a][b] = 36;
-               if (a == bx2-1) l[a][b] = 38;
-            }
+                     if (fsd[x][9] != -1) l[a][b] = fsd[x][9]; // default block
 
-            if ((draw_item_num >= 161)
-              && (draw_item_num <= 163))  // lined platform shape draw special
-            {
-               l[a][b] = 162; // default
-               if (a == bx1)   l[a][b] = 161;
-               if (a == bx2-1) l[a][b] = 163;
-            }
-            if ((draw_item_num >= 177) && (draw_item_num <= 179))  // brown brick shape draw special
-            {
-               l[a][b] = 178; // default
-               if (a == bx1)   l[a][b] = 177;
-               if (a == bx2-1) l[a][b] = 179;
-            }
-            if ((draw_item_num == 582)
-                  || (draw_item_num == 583)
-                  || (draw_item_num == 590)
-                  || (draw_item_num == 588)) // purple pipes
-            {
-               l[a][b] = 582; // horizontal through
-               if (a == bx1) l[a][b] = 590; // left end cap
-               if (a == bx2-1) l[a][b] = 588; // right end cap
-            }
-            if ((draw_item_num == 582+32)
-                  || (draw_item_num == 583+32)
-                  || (draw_item_num == 590+32)
-                  || (draw_item_num == 588+32)) // wires
-            {
-               l[a][b] = 582+32; // horizontal through
-               if (a == bx1) l[a][b] = 590+32; // left end cap
-               if (a == bx2-1) l[a][b] = 588+32; // right end cap
-            }
-         }
-         if ( (bx2-bx1==1) && (by2-by1>1) ) // vertical line with end caps
-         {
-            l[a][b] = draw_item_num;
-            if ( (draw_item_num >= 33) && (draw_item_num <= 35) ) // semi solid screen draw special
-            {
-               l[a][b] = 34; // default
-               if (b == by1)   l[a][b] = 33;
-               if (b == by2-1) l[a][b] = 35;
-            }
-            if ((draw_item_num == 580)
-                  || (draw_item_num == 581)
-                  || (draw_item_num == 589)
-                  || (draw_item_num == 590)) // purple pipes
-            {
-               l[a][b] = 580; // vertical through
-               if (b == by1) l[a][b] = 591; // up end cap
-               if (b == by2-1) l[a][b] = 589; // down end cap
-            }
-            if ((draw_item_num == 580+32)
-                  || (draw_item_num == 581+32)
-                  || (draw_item_num == 589+32)
-                  || (draw_item_num == 590+32)) // wires
-            {
-               l[a][b] = 580+32; // vertical through
-               if (b == by1) l[a][b] = 591+32; // up end cap
-               if (b == by2-1) l[a][b] = 589+32; // down end cap
-            }
-         }
-      } // end of cycle block range
+                     if (b == by1  ) l[a][b] = fsd[x][16];         // upper horizontal through
+                     if (b == by2-1) l[a][b] = fsd[x][17];         // lower horizontal through
+
+
+                     if (a == bx1)
+                     {
+                        if (b == by1) l[a][b] = fsd[x][10];        // upper-right corner
+                        else if (b == by2-1) l[a][b] = fsd[x][12]; // lower-right corner
+                        else l[a][b] = fsd[x][14];                 // right vertical through
+                     }
+                     if (a == bx2-1)
+                     {
+                        if (b == by1) l[a][b] = fsd[x][11];        // upper-left corner
+                        else if (b == by2-1) l[a][b] = fsd[x][13]; // lower-left corner
+                        else l[a][b] = fsd[x][15];                 // left vertical through
+                     }
+                  }
+                  if (!special_handler) l[a][b] = draw_item_num;
+
+             } // end of cycle block range
+   } // end of box shape with corners
 }
+
 
 void get_new_box(void) // keep the mouse !!
 {
@@ -559,38 +634,33 @@ int edit_menu(int el)
             if (select_window_active) mpow = 1;
 
 
-      // flags
-
-      int ftx = status_window_x+11;
-      int fty = status_window_y+47;
-      int ys = 10; // y spacing
-
-      int frw = 6;         // flag rectangle width
-      int frh = 6;         // flag rectangle height
-      int frx = ftx-frw-2;        // flag rectangle x
-      int fry = fty - (frh/2)+4;  // flag rectangle y
-
-      int frx2 = frx+frw;
-      int fry2 = fty+frh+(ys*14);
-
-      frx  -=2;
-      frx2 +=2;
-
-      fry  -=2;
-      fry2 +=4;
-
-
-
+      // detect if mouse is on draw item flags
       if ((draw_item_type == 1) && (status_window_active))
+      {
+         int ftx = status_window_x+11;
+         int fty = status_window_y+47;
+         int ys = 10; // y spacing
+
+         int frw = 6;         // flag rectangle width
+         int frh = 6;         // flag rectangle height
+         int frx = ftx-frw-2;        // flag rectangle x
+         int fry = fty - (frh/2)+4;  // flag rectangle y
+
+         int frx2 = frx+frw;
+         int fry2 = fty+frh+(ys*14);
+
+         frx  -=2;
+         frx2 +=2;
+         fry  -=2;
+         fry2 +=4;
+
          if ((mouse_x > frx) && (mouse_x < frx2))
             if ((mouse_y > fry) && (fry2))
             {
                mpow = 1;
                al_draw_rectangle(frx, fry, frx2, fry2, palette_color[14], 1);
-
             }
-
-
+      }
 
 
 
@@ -1000,7 +1070,9 @@ int edit_menu(int el)
             case 17: predefined_enemies(); break;
             case 18: global_level(); break;
             case 19: level_viewer(); break;
-            case 20: animation_proc(); break;
+//            case 20: animation_proc(); break;
+//          case 20: edit_tile_attributes(); break;
+            case 20: copy_tiles(); break;
 
          } // end of switch case
          al_set_mouse_xy(display, temp_mouse_x, temp_mouse_y);
@@ -1015,14 +1087,15 @@ int edit_menu(int el)
       if (select_window_active)
       {
          d = process_select_window(0);
-         if (d < 999) // block
+         if (d >= 0) // block
          {
             draw_item_num = d;
             draw_item_type = 1;
          }
-         if (d >= 3000) // pd
+         if (d < -1000) // pde copy type
          {
-            draw_item_num = d-3000;
+            //printf("pde %d  %d\n", d, d+2000);
+            draw_item_num = d+2000;
             draw_item_type = 5;
          }
       }
