@@ -24,10 +24,21 @@ void check_s_window_pos(int reset_pos)
 
    if (reset_pos)
    {
-      status_window_x = SCREEN_W-(sww+10);
+//      status_window_x = SCREEN_W-(sww+10);
+//      status_window_y = 10;
+//
+//      select_window_x = SCREEN_W-(sww+10);
+//      select_window_y = status_window_y + status_window_h + 10;
+
+
+      status_window_x = 10;
       status_window_y = 10;
+
       select_window_x = SCREEN_W-(sww+10);
-      select_window_y = status_window_y + status_window_h + 10;
+      select_window_y = 10;
+
+
+
    }
 }
 
@@ -51,12 +62,54 @@ int process_status_window(int draw_only)
    al_draw_text(font, palette_color[14], swx1 + 143, swy1 + 14,  0, "b1");
    draw_item_info(swx1+2,   swy1+21, 9, draw_item_type, draw_item_num);
 
+
+   if (draw_item_type == 1)
+   {
+      // flags section
+      int ftx = swx1+11;
+      int fty = swy1+47;
+      int ys = 10; // y spacing
+      draw_flag_text(ftx+4, fty, ys, 15);
+
+      int frw = 6;         // flag rectangle width
+      int frh = 6;         // flag rectangle height
+      int frx = ftx-frw-2;        // flag rectangle x
+      int fry = fty - (frh/2)+4;  // flag rectangle y
+
+      draw_and_proc_flag_rects_draw_item(frx, fry, frw, frh, ys, 1);
+   }
+
+
+
+
+
+
+
    // view item area
    al_draw_rectangle(swx1 + 160, swy1 + 12, swx2, swy2, palette_color[9], 1);
    al_draw_text(font, palette_color[15], swx1 + 184, swy1 + 14,  0, "View Item ");
    al_draw_text(font, palette_color[14], swx1 + 261, swy1 + 14,  0, "mouse");
    al_draw_text(font, palette_color[14], swx1 + 303, swy1 + 14,  0, "b2");
    draw_item_info(swx1+162, swy1+21, 9, point_item_type, point_item_num);
+
+
+   if (point_item_type == 1)
+   {
+      // flags section
+      int ftx = swx1+160+11;
+      int fty = swy1+47;
+      int ys = 10; // y spacing
+      draw_flag_text(ftx+4, fty, ys, 15);
+
+      int frw = 6;         // flag rectangle width
+      int frh = 6;         // flag rectangle height
+      int frx = ftx-frw-2;        // flag rectangle x
+      int fry = fty - (frh/2)+4;  // flag rectangle y
+
+      draw_and_proc_flag_rects_draw_item(frx, fry, frw, frh, ys, 0);
+   }
+
+
 
 
    // title bar background color

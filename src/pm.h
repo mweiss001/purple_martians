@@ -905,6 +905,19 @@ void copy_tiles(void);
 
 
 
+void draw_flag_text(int x, int y, int ys, int col);
+
+// this is the common one, called by all
+// if mouse is on button, return button number
+int draw_flag_rects(int tn, int x, int y, int w, int h, int ys);
+
+// this is for copy bitmap and only only affects sa[][]
+void draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys);
+
+// this is only for draw_item
+void draw_and_proc_flag_rects_draw_item(int x, int y, int w, int h, int ys, int edit);
+
+
 // e_editor_main.h
 void get_item_draw_shape(int i);
 void draw_item_shape(int i, int x, int y);

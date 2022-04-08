@@ -17589,7 +17589,147 @@ made semi solid work, but just for player now...needs way more testing...
 
 revert level and push...work calls....
 
-2:00PM
+2:00PM push
+
+5:00PM
+
+in glt I did ladders too, now everything is done there
+
+
+make ladders and rope work...done
+
+finish semisolid
+
+the way semisolid works....
+there is a custom handler for is_up_solid....
+as one on the conditions it checks that semisolid is not set for the blocks it is checking
+
+there is no return value of 2 if semi-solid...
+
+
+semisolid looks good, but...
+
+bullets do not go through
+
+i should change the glt from:
+
+if ((l[y][z] > 31) && (l[y][z] < 64)) // semi solid
+{
+   l[y][z] |= PM_BTILE_SOLID_PLAYER;
+   l[y][z] |= PM_BTILE_SOLID_ENEMY;
+   l[y][z] |= PM_BTILE_SOLID_ITEM;
+   l[y][z] |= PM_BTILE_SOLID_PBUL;
+   l[y][z] |= PM_BTILE_SOLID_EBUL;
+   l[y][z] |= PM_BTILE_SEMISOLID_PLAYER;
+   l[y][z] |= PM_BTILE_SEMISOLID_ENEMY;
+   l[y][z] |= PM_BTILE_SEMISOLID_ITEM;
+}
+
+to:
+
+if ((l[y][z] > 31) && (l[y][z] < 64)) // semi solid
+{
+   l[y][z] |= PM_BTILE_SOLID_PLAYER;
+   l[y][z] |= PM_BTILE_SOLID_ENEMY;
+   l[y][z] |= PM_BTILE_SOLID_ITEM;
+   l[y][z] |= PM_BTILE_SEMISOLID_PLAYER;
+   l[y][z] |= PM_BTILE_SEMISOLID_ENEMY;
+   l[y][z] |= PM_BTILE_SEMISOLID_ITEM;
+}
+
+
+
+that seems to work....
+
+
+now the big one...change mv's...
+or I could make level editor not crash...
+
+it was very easy...whenever I went to draw tile[num] i did tile{num&1023}
+
+now I want to see the flags in a small window...
+
+I just show them under the draw item and it works good...
+
+workflow....
+
+- copy block to draw item
+- edit flags
+- draw with it
+...
+profit?
+
+shut it down at 10:00 PM could not keep my eyes open
+
+20220408 5:00AM
+
+What I need to do is do this right...
+this flags menu thing needs to be its own official window
+
+its working but could stand to be cleaned up....
+
+push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

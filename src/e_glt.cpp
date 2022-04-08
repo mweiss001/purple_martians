@@ -1027,13 +1027,14 @@ then semisolid...add to solid
          {
             blt[l[y][z]]++; // inc block counter
 
+            if (l[y][z] == 18) l[y][z] |= PM_BTILE_LADDER_MOVE;
+            if (l[y][z] == 19) l[y][z] |= PM_BTILE_ROPE_MOVE;
+
             if ((l[y][z] > 31) && (l[y][z] < 64)) // semi solid
             {
                l[y][z] |= PM_BTILE_SOLID_PLAYER;
                l[y][z] |= PM_BTILE_SOLID_ENEMY;
                l[y][z] |= PM_BTILE_SOLID_ITEM;
-               l[y][z] |= PM_BTILE_SOLID_PBUL;
-               l[y][z] |= PM_BTILE_SOLID_EBUL;
                l[y][z] |= PM_BTILE_SEMISOLID_PLAYER;
                l[y][z] |= PM_BTILE_SEMISOLID_ENEMY;
                l[y][z] |= PM_BTILE_SEMISOLID_ITEM;

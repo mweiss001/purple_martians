@@ -176,7 +176,7 @@ void proc_player_xy_move(int p)
 
    if (int a = is_left_solid(x, y, 1, 1))
    {
-      if ( a > 31 ) // player being pushed right by lift
+      if (a > 31) // player being pushed right by lift
       {
          if (!is_right_solid(x, y, 0, 1))
          {
@@ -290,15 +290,13 @@ void proc_player_xy_move(int p)
          players[p].player_ride = 0;                          // ride over
          x = al_fixtoi(players[p].PX);
          y = al_fixtoi(players[p].PY);
-         int a = is_up_solid(x, y, 1, 1);
-         if ((a == 0) || (a == 2))                            // only jump if nothing above
+         if (!is_up_solid(x, y, 1, 1))                        // only jump if nothing above
          {
             players[p].yinc = initial_jump_velocity;
             players[p].PY += players[p].yinc;                 // apply yinc
             game_event(15, x, y, 0, 0, 0, 0);
          }
       }
-
    }
    else // not player ride
    {
@@ -311,8 +309,7 @@ void proc_player_xy_move(int p)
          players[p].PY += players[p].yinc;                    // apply yinc
          x = al_fixtoi(players[p].PX);
          y = al_fixtoi(players[p].PY);
-         int a = is_up_solid(x, y+2, 1, 1);                      // look for collision above
-         if ((a == 1) || (a > 31))                            // solid or lift only
+         if (is_up_solid(x, y+2, 1, 1))                       // look for collision above
          {
             players[p].PY -= players[p].yinc;                 // take back move
             players[p].yinc = z;                              // kill upwards motion
@@ -541,7 +538,7 @@ void proc_player_stuck_in_blocks(int p)
    int sd =  is_down_solid(x, y, 0, 1);
    int sl =  is_left_solid(x, y, 0, 1);
    int sr = is_right_solid(x, y, 0, 1);
-   if ((su == 1) && (sd) && (sl) && (sr))
+   if ((su) && (sd) && (sl) && (sr))
    {
       players[p].LIFE -= al_itofix(1);
       game_event(56, x, y, p, 0, 0, 0);
@@ -703,7 +700,7 @@ int is_player_within_ladder_reach(int p)
    for (int x=bx1; x<=bx2; x++)
       for (int y=by1; y<=by2; y++)
       {
-         if (l[x][y] == 18) return 1;
+         if (l[x][y] & PM_BTILE_LADDER_MOVE) return 1;
       }
    return 0;
 }
@@ -750,7 +747,7 @@ int is_player_within_rope_reach(int p)
    if (good_height)
    for (int x=bx1; x<=bx2; x++)
    {
-      if (l[x][by] == 19) return 1;
+      if (l[x][by] & PM_BTILE_ROPE_MOVE) return 1;
    }
    return 0;
 }
