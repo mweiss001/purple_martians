@@ -1410,7 +1410,7 @@ void enemy_block_walker(int e)
       int tx = EXint/20;
       int ty = EYint/20;
 
-      l[tx][ty] = 168;
+      l[tx][ty] = 168 | PM_BTILE_ALL_SOLID;
       al_set_target_bitmap(level_background);
       al_draw_filled_rectangle(tx*20, ty*20, tx*20+20, ty*20+20, palette_color[0]);
       al_draw_bitmap(tile[168], tx*20, ty*20, 0);

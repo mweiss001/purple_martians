@@ -17683,9 +17683,7 @@ for (int c=0; c<NUM_SPRITES; c++)
    if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
       swbl[swbn++][0] |= sa[c][0];   // put shape # in list and inc counter
 
-
 al_draw_bitmap(btile[swbl[c][0] & 1023], swx1+(c-((c/16)*16) )*20+1, swy1+select_window_block_y+1+14+(c/16*20), 0 );
-
 
 current:
 d = process_select_window(0);
@@ -17710,15 +17708,133 @@ now
 
 I can get stuff from select window and it seem to work good.
 
-
 make it so that the select window flag is not shown...
 (not that critical, will have no effect on level)
 
-make the block range draw special shapes things work....
+make the block range draw special shapes things work....done
+
+show just tile number in pde block descrption...done
+
+
+20220408 6:00PM
+
+most of the integration of the new tiles are done...
+
+i need to make mv things work...done...that was easy
+
+bug... drawing tile zero in block draws not empty...fixed.....
+
+
+keys don't work?? they do with erase all....fixed...
+
+lets test and see what is broken...
+
+keys shapes on key creator...
+
+switches....looks like the 2 tiles that swap are hard coded into the switch item...
+color   shape   10   11
+purple  841     175  10
+blue    809     174   9
+green   745     172   7
+red     777     713   8
+
+kept that the same...just made some minor changes to the switch code...done...
+
+
+h block walker...need to make solid...done...
 
 
 
-show just tile number in pde block descrption...
+now for block manip
+
+set all to block
+
+if empty no prob
+if not then I need to set the appropriate flags...I could use the defaults from sa....
+yes...do that...done
+that is great.....
+
+to compare to do this:
+if ((l[x][y]&1023) == block1)
+
+to set block using default flags, do this:              {
+l[x][y] = block2 | sa[block1][0];
+
+when selecting block for bm uses btiles not tiles....maybe even use swbl...only get tiles that are supposed to be blocks....
+made a really nice bitmap chooser than uses swbl
+
+
+I sometimes have trouble tracking down errant flags...
+I want a way to detect this.
+like maybe an overlay
+choose a flag and see if it it set by marking any tile with that flag
+
+or...
+
+how about this...
+
+check every entry in l[][] that does not match the default flags for the specific shape....
+
+mark that tile....
+
+toggle with a key in editor...
+
+global value show_non_default_blocks = 0;
+
+
+this works great...type sndb and serial key will turn it on....
+them red x's show up on non default blocks....
+
+
+its getting really late...like 11:49
+
+all I can think of to do is make a simple flag viewer when mouse over pde blocks
+
+
+block puzzle is broken, look again at what happens in block manip toggle...
+
+push....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

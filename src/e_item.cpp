@@ -246,7 +246,7 @@ int create_key(int c)
    al_draw_text(font, palette_color[15], SCREEN_W/2, 188, ALLEGRO_ALIGN_CENTER, "b2 or <esc> to quit");
 
    for (int x=0; x<4; x++)
-      al_draw_bitmap(tile[220+x], SCREEN_W/2, (x*20)+60, 0);
+      al_draw_bitmap(btile[220+x], SCREEN_W/2, (x*20)+60, 0);
 
    al_flip_display();
 

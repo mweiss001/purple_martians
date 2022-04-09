@@ -785,10 +785,16 @@ void move_items()
                      int y1 = item[i][7] / 20;
                      int x2 = (item[i][6] + item[i][8]) / 20;
                      int y2 = (item[i][7] + item[i][9]) / 20;
+
+
+
                      for (int x = x1; x < x2; x++)
                         for (int y = y1; y < y2; y++)
-                           if ((l[x][y] == 188 + key) || (l[x][y] == 204 + key) || (l[x][y] == 220 + key))
+                           if (((l[x][y]&1023) == 188 + key) || ((l[x][y]&1023) == 204 + key) || ((l[x][y]&1023) == 220 + key))
                               remove_block(x, y);
+
+
+
                   }
                   else // remove all blocks in range
                   {
@@ -1408,21 +1414,22 @@ void proc_switch_collision(int p, int i)
          if (item[i][6]) item[i][1] = item[i][8]; // on bmp
          else            item[i][1] = item[i][9]; // off bmp
          al_set_target_bitmap(level_background);
+
          // toggle blocks
          for (int c=0; c<100; c++)
             for (int y=0; y<100; y++)
             {
-               if (l[c][y] == item[i][11]) // empty switch block
+               if ((l[c][y]&1023) == item[i][11]) // empty switch block
                {
-                  l[c][y] = item[i][10]; // replace with solid switch block
+                  l[c][y] = item[i][10] | PM_BTILE_ALL_SOLID; // replace with solid switch block
                   al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
-                  al_draw_bitmap(btile[l[c][y]], c*20, y*20, 0 );
+                  al_draw_bitmap(btile[l[c][y]&1023], c*20, y*20, 0 );
                }
-               else if (l[c][y] == item[i][10]) // solid switch block
+               else if ((l[c][y]&1023) == item[i][10]) // solid switch block
                {
                   l[c][y] = item[i][11]; // replace with empty switch block
                   al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
-                  al_draw_bitmap(btile[l[c][y]], c*20, y*20, 0 );
+                  al_draw_bitmap(btile[l[c][y]&1023], c*20, y*20, 0 );
                }
 
             } // end of toggle blocks
@@ -1803,16 +1810,16 @@ void process_block_manip(int i)
 
             if (mode == 1) // set all blocks to block 1
             {
-               l[x][y] = block1; // replace block
+               l[x][y] = block1 | sa[block1][0]; // replace block (use default flags)
                al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
                al_draw_bitmap(btile[block1], x*20, y*20, 0 );
             }
 
             if (mode == 2) // set all block2 to block 1
             {
-               if (l[x][y] == block2)
+               if ((l[x][y]&1023) == block2)
                {
-                  l[x][y] = block1; // replace block
+                  l[x][y] = block1 | sa[block1][0]; // replace block
                   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
                   al_draw_bitmap(btile[block1], x*20, y*20, 0 );
                }
@@ -1820,15 +1827,15 @@ void process_block_manip(int i)
 
             if (mode == 3) // toggle block1 and block 2
             {
-               if (l[x][y] == block1)
+               if ((l[x][y]&1023) == block1)
                {
-                  l[x][y] = block2;
+                  l[x][y] = block2 | sa[block1][0];
                   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
                   al_draw_bitmap(btile[block2], x*20, y*20, 0 );
                }
-               else if (l[x][y] == block2)
+               else if ((l[x][y]&1023) == block2)
                {
-                  l[x][y] = block1;
+                  l[x][y] = block1 | sa[block1][0];
                   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
                   al_draw_bitmap(btile[block1], x*20, y*20, 0 );
                }

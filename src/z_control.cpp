@@ -935,6 +935,18 @@ void serial_key_check(int key)
       {
          if (memcmp((skc + skc_index-tl), tst, tl) == 0) spline_test();
       }
+
+
+      sprintf(tst, "sndb");
+      tl = strlen(tst);
+      if (skc_index > tl-1)
+      {
+         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+         {
+             show_non_default_blocks =! show_non_default_blocks;
+             Redraw = 1;
+         }
+      }
    }
 }
 

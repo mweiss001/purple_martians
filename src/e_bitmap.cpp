@@ -2,7 +2,7 @@
 
 #include "pm.h"
 
-// used by sliders only
+// used by sliders only for item block manip
 int select_bitmap(int tn)
 {
    int quit = 0;
@@ -11,27 +11,47 @@ int select_bitmap(int tn)
       proc_controllers();
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
-      al_draw_text(font, palette_color[9], 0, 642, 0, "Select a Bitmap with b1");
-      al_draw_text(font, palette_color[9], 0, 650, 0, "b2 or ESC to exit      ");
 
-      // draw 32x32 bitmaps
-      for (int y = 0; y < 32; y++)
-         for (int x = 0; x < 32; x++)
-            al_draw_bitmap(tile[x+(y*32)],x*20, y*20, 0);
-      al_draw_rectangle(0.5, 0.5, 640.5, 640.5, palette_color[13], 1);
+      int x1=200;
+      int x2=x1+322;
+      int y1=300;
 
-      if ((mouse_y < 640) && (mouse_x < 640))
+      int x=0;
+      int y=0;
+
+      for (int i=0; i<swbn; i++)
       {
-         int pointer = (mouse_x/20) + (mouse_y/20) * 32 ;
-         al_draw_textf(font, palette_color[13], 522, 648, 0, "pointer %-2d", pointer );
-         al_draw_bitmap(tile[pointer], 620, 642, 0);
+         al_draw_bitmap(btile[swbl[i][0] & 1023], x1+x+1, y1+y+1, 0);
+         x+=20;
+         if (x>=320)
+         {
+            x=0;
+            y+=20;
+         }
+      }
+      int y2=y1+y+22;
 
-         al_draw_rectangle(518, 640.5, 640.5, 662.5, palette_color[13], 1);
+      // frame the whole thing
+      al_draw_rectangle(x1, y1, x2, y2, palette_color[13], 1);
+
+      al_draw_text(font, palette_color[15], x1, y2+28, 0, "select a block with b1");
+      al_draw_text(font, palette_color[15], x1, y2+40, 0, "  b2 or ESC to exit   ");
+
+      if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+      {
+         int pointer = ((mouse_x-x1)/20) + ((mouse_y-y1)/20) * 16 ;
+         int tn = swbl[pointer][0] & 1023;
+
+         int ptx = x1;
+         int pty = y2;
+         al_draw_rectangle(ptx, pty, ptx+160, pty+22, palette_color[13], 1);
+         al_draw_bitmap(btile[tn], ptx+1, pty+1, 0);
+         al_draw_textf(font, palette_color[13], ptx+30, pty+7, 0, "tile number:%d", tn );
 
          if (mouse_b1)
          {
             while (mouse_b1) proc_controllers();
-            return pointer;
+            return tn;
          }
       }
       while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
@@ -42,9 +62,6 @@ int select_bitmap(int tn)
    }
    return tn; // original if bad exit
 }
-
-
-
 
 
 

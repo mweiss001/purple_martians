@@ -998,6 +998,283 @@ al_fixed is_up_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
       if (a == 0)    // this block only
       {
          c = l[cc][yy];
+         ret = is_solid(-1, c, 2);
+      }
+      else // dual compare with ||
+      {
+         b = l[xx][yy];
+         c = l[cc][yy];
+         ret = is_solid(b, c, 2);
+      }
+      if (dir == 0) // solid mode - look up for next solid
+      {
+         if (ret) // as soon as solid is found, return
+         {
+             int fp = iy - move;             // next solid pos
+             al_fixed dist = fy - al_itofix(fp);   // distance from initial pos
+             if (dist > fmove) dist = fmove; // limit to requested if over
+             return dist;
+         }
+         else move++;
+      }
+      else // empty mode - look left or right for next empty
+      {
+         if (ret == 0) // as soon as an empty is found, return
+         {
+            if (dir == 1) // look right
+            {
+                int fp = ix + move;             // next empty pos
+                al_fixed dist = al_itofix(fp) - fx;   // distance from initial pos
+                if (dist > fmove) dist = fmove; // limit to requested if over
+                return dist;
+             }
+            if (dir == -1) // look left
+            {
+                int fp = ix - move;             // next empty pos
+                al_fixed dist = fx - al_itofix(fp);   // distance from initial pos
+                if (dist > fmove) dist = fmove; // limit to requested if over
+                return dist;
+             }
+         }
+         else move++;
+      }
+   }
+   // finished the loop with finding either case;
+   return fmove; // max move allowed
+}
+
+
+al_fixed is_down_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
+{
+   int ix = al_fixtoi(fx);
+   int iy = al_fixtoi(fy);
+   int im = al_fixtoi(fmove);
+   int move = 0;
+   for (int t=0; t<=im; t++)
+   {
+      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
+      if (dir == 0) yy = (iy + t) / 20 + 1;
+      else
+      {
+         yy = iy / 20 + 1;
+         j = dir * t;
+      }
+      cc = (ix+j) / 20;
+      xx = (ix+j) / 20 + 1;
+      a = (ix+j) % 20;
+      if (a == 0)    // this block only
+      {
+         c = l[cc][yy];
+         ret = is_solid(-1, c, 2);
+      }
+      else // dual compare with ||
+      {
+         b = l[xx][yy];
+         c = l[cc][yy];
+         ret = is_solid(b, c, 2);
+      }
+      if (dir == 0) // solid mode - looks down for next solid
+      {
+         if (ret) // as soon as solid is found, return
+         {
+             int fp = iy + move;             // next solid pos
+             al_fixed dist = al_itofix(fp) - fy;   // distance from initial pos
+             if (dist > fmove) dist = fmove; // limit to requested if over
+             return dist;
+         }
+         else move++;
+      }
+      else // empty mode - look left or right for next empty
+      {
+         if (ret == 0) // as soon as an empty is found, return
+         {
+            if (dir == 1) // look right
+            {
+                int fp = ix + move;             // next empty pos
+                al_fixed dist = al_itofix(fp) - fx;   // distance from initial pos
+                if (dist > fmove) dist = fmove; // limit to requested if over
+                return dist;
+             }
+            if (dir == -1) // look left
+            {
+                int fp = ix - move;             // next empty pos
+                al_fixed dist = fx - al_itofix(fp);   // distance from initial pos
+                if (dist > fmove) dist = fmove; // limit to requested if over
+                return dist;
+             }
+         }
+         else move++;
+      }
+   }
+   // finished the loop with finding either case;
+   return fmove; // max move allowed
+}
+
+al_fixed is_left_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
+{
+   int ix = al_fixtoi(fx);
+   int iy = al_fixtoi(fy);
+   int im = al_fixtoi(fmove);
+   int move = 0;
+   for (int t=0; t<=im; t++)
+   {
+      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
+      if (dir == 0) xx = (ix-t-1) / 20;
+      else
+      {
+         xx = (ix-1) / 20;
+         j = dir * t;
+      }
+      yy = (iy+j) / 20;
+      cc = (iy+j) / 20 + 1;
+      a = (iy+j) % 20;
+      if (a == 0)    // this block only
+      {
+         c = l[xx][yy];
+         ret = is_solid(-1, c, 2);
+      }
+      else // dual compare with ||
+      {
+         b = l[xx][yy];
+         c = l[xx][cc];
+         ret = is_solid(b, c, 2);
+      }
+
+      if (dir == 0) // solid mode - looks left for next solid
+      {
+         if (ret) // as soon as solid is found, return
+         {
+             int fp = ix - move;             // next solid pos
+             al_fixed dist = fx - al_itofix(fp);   // distance from initial pos
+             if (dist > fmove) dist = fmove; // limit to requested if over
+             return dist;
+         }
+         else move++;
+      }
+      else // empty mode - look up or down for next empty
+      {
+         if (ret == 0) // as soon as an empty is found, return
+         {
+            if (dir == 1) // look down
+            {
+                int fp = iy + move;             // next empty pos
+                al_fixed dist = al_itofix(fp) - fy;   // distance from initial pos
+                if (dist > fmove) dist = fmove; // limit to requested if over
+                return dist;
+             }
+            if (dir == -1) // look up
+            {
+                int fp = iy - move;             // next empty pos
+                al_fixed dist = fy - al_itofix(fp);   // distance from initial pos
+                if (dist > fmove) dist = fmove; // limit to requested if over
+                return dist;
+             }
+         }
+         else move++;
+      }
+   }
+   // finished the loop with finding either case;
+   return fmove; // max move allowed
+}
+
+
+al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
+{
+   int ix = al_fixtoi(fx);
+   int iy = al_fixtoi(fy);
+   int im = al_fixtoi(fmove);
+   int move = 0;
+   for (int t=0; t<=im; t++)
+   {
+      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
+      if (dir == 0) xx = (ix + t) / 20 + 1;
+      else
+      {
+         xx = (ix) / 20 + 1;
+         j = dir * t;
+      }
+      yy = (iy+j) / 20;
+      cc = (iy+j) / 20 + 1;
+
+      a = (iy+j) % 20;
+
+      if (a == 0)    // this block only
+      {
+         c = l[xx][yy];
+         ret = is_solid(-1, c, 2);
+      }
+      else // dual compare with ||
+      {
+         b = l[xx][yy];
+         c = l[xx][cc];
+         ret = is_solid(b, c, 2);
+      }
+      if (dir == 0) // solid mode - looks right for next solid
+      {
+         if (ret) // as soon as solid is found, return
+         {
+             int fp = ix + move;             // next solid pos
+             al_fixed dist = al_itofix(fp) - fx;   // distance from initial pos
+             if (dist > fmove) dist = fmove; // limit to requested if over
+             return dist;
+         }
+         else move++;
+      }
+      else // empty mode - look up or down for next empty
+      {
+         if (ret == 0) // as soon as an empty is found, return
+         {
+            if (dir == 1) // look down
+            {
+                int fp = iy + move;             // next empty pos
+                al_fixed dist = al_itofix(fp) - fy;   // distance from initial pos
+                if (dist > fmove) dist = fmove; // limit to requested if over
+                return dist;
+             }
+            if (dir == -1) // look up
+            {
+                int fp = iy - move;             // next empty pos
+                al_fixed dist = fy - al_itofix(fp);   // distance from initial pos
+                if (dist > fmove) dist = fmove; // limit to requested if over
+                return dist;
+             }
+         }
+         else move++;
+      }
+   }
+   // finished the loop with finding either case;
+   return fmove; // max move allowed
+}
+
+
+
+
+
+/*
+
+
+al_fixed is_up_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
+{
+   int ix = al_fixtoi(fx);
+   int iy = al_fixtoi(fy);
+   int im = al_fixtoi(fmove);
+   int move = 0;
+   for (int t=0; t<=im; t++)
+   {
+      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
+      if (dir == 0) yy = (iy-t-1) / 20;
+      else
+      {
+         yy = (iy-1) / 20;
+         j = dir * t;
+      }
+      cc = (ix+j) / 20;
+      xx = (ix+j) / 20 + 1;
+      a = (ix+j) % 20;
+
+      if (a == 0)    // this block only
+      {
+         c = l[cc][yy];
          if      ((c > 63) && (c < NUM_SPRITES)) ret = 1;
          else if ((c > 31) && (c < NUM_SPRITES)) ret = 2;
       }
@@ -1253,6 +1530,9 @@ al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
    // finished the loop with finding either case;
    return fmove; // max move allowed
 }
+
+*/
+
 
 void game_vars_to_state(char * b)
 {

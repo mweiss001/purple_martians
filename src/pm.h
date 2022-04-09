@@ -23,11 +23,10 @@
 #define NUM_LIFTS 40
 
 
-
-
-
-
+#define PM_BTILE_MOST_FLAGS        0b00111111111111110000000000000000
 #define PM_BTILE_ALL_FLAGS         0b01111111111111110000000000000000
+#define PM_BTILE_ALL_SOLID         0b00000000000111110000000000000000
+#define PM_BTILE_ALL_SEMI          0b00000000111001110000000000000000
 #define PM_BTILE_SOLID_PLAYER      0b00000000000000010000000000000000
 #define PM_BTILE_SOLID_ENEMY       0b00000000000000100000000000000000
 #define PM_BTILE_SOLID_ITEM        0b00000000000001000000000000000000
@@ -328,9 +327,11 @@ extern int select_window_w;
 extern int select_window_h;
 extern int select_window_text_y;
 extern int select_window_block_on;
+extern int swbn;
 extern int swnbl;
 extern int swnbl_cur;
 extern int swbl[NUM_SPRITES][2];
+extern int show_non_default_blocks;
 
 extern int select_window_block_y;
 extern int btext_draw_flag;

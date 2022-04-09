@@ -648,7 +648,7 @@ int process_select_window(int draw_only)
 
 
 
-
+/*
 
 
 
@@ -667,7 +667,7 @@ void printBits(size_t const size, void const * const ptr)
     }
     puts("");
 }
-/*
+
 Test:
 
 int main(int argv, char* argc[])
@@ -693,85 +693,22 @@ int main(int argv, char* argc[])
 
 void set_swbl(void)
 {
-   int swbn = 0;
+   swbn = 0;
+
    // erase array
    for (int c=0; c<NUM_SPRITES; c++)
    {
       swbl[c][0] = 0;
       swbl[c][1] = 0;
    }
-/*
-   for (int c=0; c<NUM_SPRITES; c++)
-      if ((sa[c][0] == 1) && (sa[c][1] == 1)) // if block and locked
-            swbl[swbn++][0] = c;   // put shape # in list and inc counter
-   for (int c=0; c<NUM_SPRITES; c++)
-      if ((sa[c][0] == 1) && (sa[c][1] == 0)) // if block and unlocked
-            swbl[swbn++][0] = c;   // put shape # in list and inc counter
-*/
-
-/*
 
    for (int c=0; c<NUM_SPRITES; c++)
-      if (sa[c][1] == 1) swbl[swbn++][0] = c;   // put shape # in list and inc counter
-*/
-
-/*
-   for (int c=0; c<NUM_SPRITES; c++)
-      if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
-         swbl[swbn++][0] = c;   // put shape # in list and inc counter
-*/
-/*
-   for (int c=0; c<NUM_SPRITES; c++)
-      if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
-      {
-         printf("\n1-c:%d sa[%d][0]:%d  swbl[%d][0]:%d \n", c, c, sa[c][0], swbn, swbl[swbn][0] );
-         swbl[swbn][0] = c;          // put shape # in list and inc counter
-
-         printf("2-c:%d sa[%d][0]:%d  swbl[%d][0]:%d \n", c, c, sa[c][0], swbn, swbl[swbn][0] );
-         swbl[swbn][0] |= sa[c][0];   // apply flags
-
-         printf("3-c:%d sa[%d][0]:%d  swbl[%d][0]:%d \n", c, c, sa[c][0], swbn, swbl[swbn][0] );
-
-         int i = sa[c][0];
-
-         printBits(sizeof(i), &i);
-
-
-         swbn++;
-      }
-*/
-
-
-      for (int c=0; c<NUM_SPRITES; c++)
-      if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
-      {
-         swbl[swbn][0] = c;          // add to list
-         swbl[swbn][0] |= sa[c][0];  // apply flags
-         swbn++;
-      }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
+   {
+      swbl[swbn][0] = c;          // add to list
+      swbl[swbn][0] |= sa[c][0];  // apply flags
+      swbn++;
+   }
    swnbl = (swbn / 16) + 1;
    if (swnbl_cur == 0) swnbl_cur = swnbl; // initial only
 }
