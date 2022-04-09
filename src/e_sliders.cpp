@@ -1199,7 +1199,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
-      al_draw_bitmap(tile[tn], x, y, 0);
+      al_draw_bitmap(btile[tn], x, y, 0);
    }
 
    if (bn == 311)
@@ -1209,7 +1209,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
-      al_draw_bitmap(tile[tn], x, y, 0);
+      al_draw_bitmap(btile[tn], x, y, 0);
    }
 
 

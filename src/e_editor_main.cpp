@@ -128,6 +128,24 @@ void show_draw_item_cursor(void)
    }
 }
 
+
+
+
+/*
+void set_block_range(void)
+{
+      for (int a=bx1; a<bx2; a++)       // cycle the range
+         for (int b=by1; b<by2; b++)
+            l[a][b] = draw_item_num;
+}
+
+*/
+
+
+
+
+
+
 void set_block_range(void)
 {
 
@@ -213,13 +231,7 @@ void set_block_range(void)
 
    for (int i=0; i<20; i++)
       for (int j=0; j<20; j++)
-      {
-         fsd[i][j] |= PM_BTILE_SOLID_PLAYER;
-         fsd[i][j] |= PM_BTILE_SOLID_ENEMY;
-         fsd[i][j] |= PM_BTILE_SOLID_ITEM;
-         fsd[i][j] |= PM_BTILE_SOLID_PBUL;
-         fsd[i][j] |= PM_BTILE_SOLID_EBUL;
-      }
+         fsd[i][j] |= PM_BTILE_ALL_SOLID;
 
 
    int fsx[20][5] = {0};
@@ -262,22 +274,9 @@ void set_block_range(void)
    for (int i=0; i<20; i++)
       for (int j=0; j<5; j++)
       {
-         fsx[i][j] |= PM_BTILE_SOLID_PLAYER;
-         fsx[i][j] |= PM_BTILE_SOLID_ENEMY;
-         fsx[i][j] |= PM_BTILE_SOLID_ITEM;
-         fsx[i][j] |= PM_BTILE_SOLID_PBUL;
-         fsx[i][j] |= PM_BTILE_SOLID_EBUL;
+         if (i == 4) fsx[i][j] |= PM_BTILE_ALL_SEMI;
+         else        fsx[i][j] |= PM_BTILE_ALL_SOLID;
       }
-
-   for (int j=0; j<5; j++)
-   {
-      fsx[4][j] |= PM_BTILE_SEMISOLID_PLAYER;
-      fsx[4][j] |= PM_BTILE_SEMISOLID_ENEMY;
-      fsx[4][j] |= PM_BTILE_SEMISOLID_ITEM;
-      fsx[4][j] &= ~PM_BTILE_SOLID_PBUL;
-      fsx[4][j] &= ~PM_BTILE_SOLID_EBUL;
-   }
-
 
    int fsy[20][5] = {0};
 
@@ -306,28 +305,9 @@ void set_block_range(void)
    for (int i=0; i<20; i++)
       for (int j=0; j<5; j++)
       {
-         fsy[i][j] |= PM_BTILE_SOLID_PLAYER;
-         fsy[i][j] |= PM_BTILE_SOLID_ENEMY;
-         fsy[i][j] |= PM_BTILE_SOLID_ITEM;
-         fsy[i][j] |= PM_BTILE_SOLID_PBUL;
-         fsy[i][j] |= PM_BTILE_SOLID_EBUL;
+         if (i == 4) fsy[i][j] |= PM_BTILE_ALL_SEMI;
+         else        fsy[i][j] |= PM_BTILE_ALL_SOLID;
       }
-
-   for (int j=0; j<5; j++)
-   {
-      fsy[4][j] |= PM_BTILE_SEMISOLID_PLAYER;
-      fsy[4][j] |= PM_BTILE_SEMISOLID_ENEMY;
-      fsy[4][j] |= PM_BTILE_SEMISOLID_ITEM;
-
-      fsy[4][j] &= ~PM_BTILE_SOLID_PBUL;
-      fsy[4][j] &= ~PM_BTILE_SOLID_EBUL;
-   }
-
-
-
-
-
-
 
    if ((bx2-bx1==1) && (by2-by1==1)) l[bx1][by1] = draw_item_num; // single block 1 x 1
 
@@ -338,7 +318,7 @@ void set_block_range(void)
       {
          l[a][b] = draw_item_num; // set draw item as default
          for (int x=0; x<20; x++)
-            if (fsy[x])
+            if (fsy[x][0]&1023)
             {
                if (((draw_item_num&1023) >= (fsy[x][0]&1023)) && ((draw_item_num&1023) <= (fsy[x][1]&1023)))
                {
@@ -349,7 +329,6 @@ void set_block_range(void)
             }
       }
    }
-
    if ((bx2-bx1>1) && (by2-by1==1)) // horizontal line >1 x 1
    {
       int b = by1;
@@ -357,7 +336,8 @@ void set_block_range(void)
       {
          l[a][b] = draw_item_num; // set draw item as default
          for (int x=0; x<20; x++)
-            if (fsx[x])
+         {
+            if (fsx[x][0]&1023)
             {
                if (((draw_item_num&1023) >= (fsx[x][0]&1023)) && ((draw_item_num&1023) <= (fsx[x][1]&1023)))
                {
@@ -366,16 +346,16 @@ void set_block_range(void)
                   if (a == bx2-1) l[a][b] = fsx[x][4]; // right end cap
                }
             }
+         }
       }
    }
-
    if ((bx2-bx1>1) && (by2-by1>1)) // box shape with corners >1 x >1
    {
       int special_handler = 0;
       for (int a=bx1; a<bx2; a++)       // cycle the range
          for (int b=by1; b<by2; b++)
             for (int x=0; x<20; x++)
-               if (fsd[x])
+               if (fsd[x][0]&1023)
                {
                   if (((draw_item_num&1023) >= (fsd[x][0]&1023)) && ((draw_item_num&1023) <= (fsd[x][1]&1023)))
                   {
@@ -403,7 +383,7 @@ void set_block_range(void)
                   if (!special_handler) l[a][b] = draw_item_num;
 
              } // end of cycle block range
-   } // end of box shape with corners
+   } // end of box shape with corners*/
 }
 
 
@@ -610,6 +590,11 @@ int edit_menu(int el)
    for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0;
 
    int draw_item_blink = 0;
+
+
+
+
+
 
    do
    {

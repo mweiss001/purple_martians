@@ -183,9 +183,13 @@ int select_window_w = 322;
 int select_window_h;
 int select_window_text_y;
 int select_window_block_on = 1;
+int swbn = 0;
 int swnbl;
 int swnbl_cur = 0;
 int swbl[NUM_SPRITES][2];
+int show_non_default_blocks = 0;
+
+
 
 int select_window_block_y;
 int btext_draw_flag;
@@ -1329,6 +1333,7 @@ int main(int argument_count, char **argument_array)
 //   edit_tile_attributes();
 
   // copy_tiles();
+
 
 
 //            play_level = start_level;
