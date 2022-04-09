@@ -63,20 +63,20 @@ int process_status_window(int draw_only)
    draw_item_info(swx1+2,   swy1+21, 9, draw_item_type, draw_item_num);
 
 
-   if (draw_item_type == 1)
+   if ((show_flag_details) && (draw_item_type == 1))
    {
       // flags section
       int ftx = swx1+11;
       int fty = swy1+47;
       int ys = 10; // y spacing
-      draw_flag_text(ftx+4, fty, ys, 15);
+      draw_flag_text(ftx+4, fty, ys, 15, 0);
 
       int frw = 6;         // flag rectangle width
       int frh = 6;         // flag rectangle height
       int frx = ftx-frw-2;        // flag rectangle x
       int fry = fty - (frh/2)+4;  // flag rectangle y
 
-      draw_and_proc_flag_rects_draw_item(frx, fry, frw, frh, ys, 1);
+      draw_and_proc_flag_rects_draw_item(frx, fry, frw, frh, ys);
    }
 
    // view item area
@@ -87,24 +87,21 @@ int process_status_window(int draw_only)
    draw_item_info(swx1+162, swy1+21, 9, point_item_type, point_item_num);
 
 
-   if (point_item_type == 1)
+   if ((show_flag_details) && (point_item_type == 1))
    {
       // flags section
       int ftx = swx1+160+11;
       int fty = swy1+47;
       int ys = 10; // y spacing
-      draw_flag_text(ftx+4, fty, ys, 15);
+      draw_flag_text(ftx+4, fty, ys, 15, 0);
 
       int frw = 6;         // flag rectangle width
       int frh = 6;         // flag rectangle height
       int frx = ftx-frw-2;        // flag rectangle x
       int fry = fty - (frh/2)+4;  // flag rectangle y
 
-      draw_and_proc_flag_rects_draw_item(frx, fry, frw, frh, ys, 0);
+      draw_flag_rects(point_item_num, frx, fry, frw, frh, ys, 14);
    }
-
-
-
 
    // title bar background color
    al_draw_filled_rectangle(swx1, swy1, swx2, swy1 + 11, palette_color[9+192]);
@@ -132,9 +129,6 @@ int process_status_window(int draw_only)
    int th = 1;
    for (int a=0; a<th; a++)
       al_draw_rectangle(swx1-a, swy1-a, swx2+a, swy2+a, palette_color[9+a*(256/th)], 1);
-
-
-
 
    if (draw_only == 0)
    {
@@ -216,7 +210,6 @@ int process_select_window(int draw_only)
    select_window_text_y = c;
    select_window_h = select_window_text_y;
 
-
    int sys = swy1 + select_window_special_y;
    int syb = swy1 + select_window_block_y;
    int syt = swy1 + select_window_text_y;
@@ -236,21 +229,15 @@ int process_select_window(int draw_only)
    al_draw_text(font, palette_color[9], sxw-145, swy1+2, 0, "Blocks  Special  X");
    al_draw_text(font, palette_color[9], sxw-21,  swy1+2, 0, "?");
 
-
-
    // special top bar frame and text
    if (select_window_special_on)
    {
-      al_draw_filled_rectangle(swx1, sys,  swx2,    sys+12, palette_color[9+192]);
-      al_draw_rectangle       (swx1, sys,  swx2,    sys+12, palette_color[9], 1);
+      al_draw_filled_rectangle(            swx1,    sys, swx2, sys+12, palette_color[9+192]);
+      al_draw_rectangle       (            swx1,    sys, swx2, sys+12, palette_color[9], 1);
       al_draw_text(font, palette_color[9], swx1+2,  sys+2, 0, "Special Items");
       al_draw_text(font, palette_color[9], swx2-9,  sys+2, 0, "X");
       al_draw_text(font, palette_color[9], swx2-25, sys+2, 0, "-");
       al_draw_text(font, palette_color[9], swx2-41, sys+2, 0, "+");
-
-
-
-
 
       // draw special block
       for (c=0; c<16*select_window_num_special_lines; c++)
@@ -262,23 +249,6 @@ int process_select_window(int draw_only)
          al_draw_bitmap(tile[b], swx1+(c-((c/16)*16) )*20+1, swy1+14+select_window_special_y+1+(c/16*20), 0 );
       }
    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
    // blocks top bar frame and text
    if (select_window_block_on)
@@ -296,21 +266,6 @@ int process_select_window(int draw_only)
 
    // frame the whole thing
    al_draw_rectangle(swx1, swy1, swx2, swy2, palette_color[9], 1);
-
-
- /*
-
- th 256/th   a
- 1   256     0
- 2   128     0, 1
- 3   64      0, 1, 2
- 4   32      0, 1, 2, 3
-   // faded frame (does not work very well)
-   int th = 1+pct_y;
-   for (int a=0; a<th; a++)
-      al_draw_rectangle(swx1-a, swy1-a, swx2+a, swy2+a, palette_color[9+a*(256/th)], 1);
-*/
-
 
    if (draw_only == 0)
    {
@@ -504,9 +459,6 @@ int process_select_window(int draw_only)
                      if (PDEt[ret][x][z] == 13) PDEt[ret][x][z] = 32;
                   }
 
-
-
-
                // erase and frame
                al_draw_filled_rectangle(swx1, syt, swx2, 12+syt+3+(8*tl), palette_color[0]);
                al_draw_rectangle(swx1, syt, swx2, 12+syt+3+(8*tl), palette_color[9], 1);
@@ -567,34 +519,42 @@ int process_select_window(int draw_only)
             int vy = (mouse_y-syb-14)/20; // row
             int ret = vy*16+vx;
             int tl = 3; // text lines
+            int syt2 = syt+15+(8*tl);
+            if (show_flag_details) syt2 += 140;
+
             ret = swbl[ret][0];
 
-            int dret = ret & 1023; // display ret
-
-
             // erase
-            al_draw_filled_rectangle(swx1, syt, swx2, 12+syt+3+(8*tl), palette_color[0]);
+            al_draw_filled_rectangle(swx1, syt, swx2, syt2, palette_color[0]);
 
             // frame
-            al_draw_rectangle(swx1, syt, swx2, 12+syt+3+(8*tl), palette_color[9], 1);
+            al_draw_rectangle(swx1, syt, swx2, syt2, palette_color[9], 1);
 
             // title and frame
             al_draw_rectangle(swx1, syt, swx2, syt+12, palette_color[9], 1);
             al_draw_text(font, palette_color[9], swx1+2, syt+2,  0, "Description");
 
             // draw text for this block
-            char t[80];
             btext_draw_flag=1;
-
-            if ((dret > 127 ) && (dret < NUM_SPRITES )) sprintf(t,"solid");
-            if ((dret > 95 ) && (dret < 128 ))          sprintf(t,"breakable");
-            if ((dret > 63 ) && (dret < 96 ))           sprintf(t,"bombable");
-            if ((dret > 31  ) && (dret < 64 ))          sprintf(t,"semi-solid ");
-            if (dret < 32 )                            sprintf(t,"empty");
-
+            get_text_description_of_block_based_on_flags(ret);
             al_draw_text (font, palette_color[15], swx1+2, syt+14, 0, "---------------------");
-            al_draw_textf(font, palette_color[15], swx1+2, syt+22, 0, "Block %d - %s ", dret, t);
+            al_draw_textf(font, palette_color[15], swx1+2, syt+22, 0, "Block %d - %s ", ret&1023, msg);
             al_draw_text (font, palette_color[15], swx1+2, syt+30, 0, "---------------------");
+
+            if (show_flag_details)
+            {
+               // flags section
+               int ftx = swx1+11;
+               int fty = syt+38;
+               int ys = 10; // y spacing
+               draw_flag_text(ftx+4, fty, ys, 15, 0);
+
+               int frw = 6;         // flag rectangle width
+               int frh = 6;         // flag rectangle height
+               int frx = ftx-frw-2;        // flag rectangle x
+               int fry = fty - (frh/2)+4;  // flag rectangle y
+               draw_flag_rects(ret, frx, fry, frw, frh, ys, 14);
+            }
 
             if ((mouse_b1) || (mouse_b2))
             {

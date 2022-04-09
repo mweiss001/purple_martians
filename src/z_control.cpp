@@ -947,6 +947,21 @@ void serial_key_check(int key)
              Redraw = 1;
          }
       }
+
+
+      sprintf(tst, "sbf");
+      tl = strlen(tst);
+      if (skc_index > tl-1)
+      {
+         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
+         {
+             show_flag_details =! show_flag_details;
+             Redraw = 1;
+         }
+
+      }
+
+
    }
 }
 

@@ -1829,7 +1829,7 @@ void process_block_manip(int i)
             {
                if ((l[x][y]&1023) == block1)
                {
-                  l[x][y] = block2 | sa[block1][0];
+                  l[x][y] = block2 | sa[block2][0];
                   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
                   al_draw_bitmap(btile[block2], x*20, y*20, 0 );
                }

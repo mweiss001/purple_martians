@@ -332,6 +332,9 @@ extern int swnbl;
 extern int swnbl_cur;
 extern int swbl[NUM_SPRITES][2];
 extern int show_non_default_blocks;
+extern int show_flag_details;
+
+
 
 extern int select_window_block_y;
 extern int btext_draw_flag;
@@ -905,17 +908,17 @@ void copy_tiles(void);
 
 
 
-void draw_flag_text(int x, int y, int ys, int col);
+void draw_flag_text(int x, int y, int ys, int col, int last_flag_draw);
 
 // this is the common one, called by all
 // if mouse is on button, return button number
-int draw_flag_rects(int tn, int x, int y, int w, int h, int ys);
+int draw_flag_rects(int tn, int x, int y, int w, int h, int ys, int last_flag_draw);
 
 // this is for copy bitmap and only only affects sa[][]
 void draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys);
 
 // this is only for draw_item
-void draw_and_proc_flag_rects_draw_item(int x, int y, int w, int h, int ys, int edit);
+void draw_and_proc_flag_rects_draw_item(int x, int y, int w, int h, int ys);
 
 
 // e_editor_main.h
@@ -928,6 +931,8 @@ void set_block_range(void);
 void get_new_box(void);
 void update_editor_background(void);
 int process_scrolledge(void);
+
+char* get_text_description_of_block_based_on_flags(int flags);
 void draw_item_info(int x, int y, int color, int type, int num);
 int edit_menu(int el);
 

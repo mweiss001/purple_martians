@@ -475,6 +475,23 @@ int process_scrolledge(void)
    return 0;
 }
 
+
+char* get_text_description_of_block_based_on_flags(int flags)
+{
+   sprintf(msg, "Empty");  // default
+
+   if (flags & PM_BTILE_SOLID_PLAYER)     sprintf(msg, "Solid");
+   if (flags & PM_BTILE_SEMISOLID_PLAYER) sprintf(msg, "Semi-Solid");
+   if (flags & PM_BTILE_BREAKABLE_PBUL)   sprintf(msg, "Breakable");
+   if (flags & PM_BTILE_BOMBABLE)         sprintf(msg, "Bombable");
+   if (flags & PM_BTILE_LADDER_MOVE)      sprintf(msg, "Ladder");
+   if (flags & PM_BTILE_ROPE_MOVE)        sprintf(msg, "Rope");
+   return msg;
+}
+
+
+
+
 void draw_item_info(int x, int y, int color, int type, int num)
 {
    int a, b;
@@ -483,14 +500,7 @@ void draw_item_info(int x, int y, int color, int type, int num)
       case 1:
          al_draw_bitmap(btile[num&1023], x, y, 0);
          al_draw_textf(font, palette_color[color], x+22, y+2, 0, "Block #%d",num&1023);
-
-//         sprintf(msg, "Solid");  // default
-//         if (num < 32) sprintf(msg, "Empty");
-//         if ((num > 31) && (num < 64)) sprintf(msg, "Semi-Solid ");
-//         if ((num > 63) && (num < 96)) sprintf(msg, "Bombable");
-//         if ((num > 95) && (num < 128)) sprintf(msg, "Breakable");
-//         al_draw_text(font, palette_color[color], x+22, y+12, 0, msg);
-
+         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%s", get_text_description_of_block_based_on_flags(num) );
       break;
       case 2:
          draw_item_shape(num, x, y);
@@ -1055,9 +1065,9 @@ int edit_menu(int el)
             case 17: predefined_enemies(); break;
             case 18: global_level(); break;
             case 19: level_viewer(); break;
-//            case 20: animation_proc(); break;
-//          case 20: edit_tile_attributes(); break;
-            case 20: copy_tiles(); break;
+            case 20: animation_proc(); break;
+            case 21: copy_tiles(); break;
+            case 22: edit_tile_attributes(); break;
 
          } // end of switch case
          al_set_mouse_xy(display, temp_mouse_x, temp_mouse_y);
