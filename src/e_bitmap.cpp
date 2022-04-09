@@ -637,15 +637,7 @@ void redraw_grid(int x, int y, int current_selection) // draw 32x32 bitmaps
       }
 }
 
-
-
-
-
-
-
-
-
-void draw_flag_text(int x, int y, int ys, int col)
+void draw_flag_text(int x, int y, int ys, int col, int last_flag_show)
 {
    al_draw_text(font, palette_color[col], x, y, 0, "SOLID_PLAYER");     y+=ys;
    al_draw_text(font, palette_color[col], x, y, 0, "SOLID_ENEMY");      y+=ys;
@@ -661,7 +653,7 @@ void draw_flag_text(int x, int y, int ys, int col)
    al_draw_text(font, palette_color[col], x, y, 0, "LADDER_MOVE");      y+=ys;
    al_draw_text(font, palette_color[col], x, y, 0, "ROPE_MOVE");        y+=ys;
    al_draw_text(font, palette_color[col], x, y, 0, "SECRET");           y+=ys;
-   al_draw_text(font, palette_color[col], x, y, 0, "SELECT_WIN_SHOW");  y+=ys;
+   if (last_flag_show) al_draw_text(font, palette_color[col], x, y, 0, "SELECT_WIN_SHOW");
 }
 
 
@@ -669,7 +661,7 @@ void draw_flag_text(int x, int y, int ys, int col)
 
 // this is the common one, called by all
 // if mouse is on a button return button number
-int draw_flag_rects(int tn, int x, int y, int w, int h, int ys)
+int draw_flag_rects(int tn, int x, int y, int w, int h, int ys, int last_flag_show)
 {
    int fa[15] = {0}; // make an array to store the flags
 
@@ -689,7 +681,7 @@ int draw_flag_rects(int tn, int x, int y, int w, int h, int ys)
    if (tn & PM_BTILE_SECRET)           fa[13] += 1; // tally set
    if (tn & PM_BTILE_SHOW_SELECT_WIN)  fa[14] += 1; // tally set
 
-   for (int i=0; i<15; i++)
+   for (int i=0; i<last_flag_show; i++)
    {
       if (fa[i] == 0) al_draw_rectangle       (x, y + (ys*i), x+w, y+h+(ys*i), palette_color[15], 1); // empty
       if (fa[i] == 1) al_draw_filled_rectangle(x, y + (ys*i), x+w, y+h+(ys*i), palette_color[15]);    // filled
@@ -703,7 +695,7 @@ int draw_flag_rects(int tn, int x, int y, int w, int h, int ys)
 // this is for edit attributes only and only only affects sa[][]
 void draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys)
 {
-   int highlight = draw_flag_rects(sa[tn][0], x, y, w, h, ys);
+   int highlight = draw_flag_rects(sa[tn][0], x, y, w, h, ys, 15);
    if (highlight > -1)
    {
       al_draw_rectangle(x-1, y+(ys*highlight), x+w+1, y+h+(ys*highlight), palette_color[15], 1);
@@ -733,42 +725,32 @@ void draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys)
 
 
 // this is only for draw_item
-void draw_and_proc_flag_rects_draw_item(int x, int y, int w, int h, int ys, int edit)
+void draw_and_proc_flag_rects_draw_item(int x, int y, int w, int h, int ys)
 {
-   if (edit)
+   int highlight = draw_flag_rects(draw_item_num, x, y, w, h, ys, 14);
+   if (highlight > -1)
    {
-      int highlight = draw_flag_rects(draw_item_num, x, y, w, h, ys);
-      if (highlight > -1)
+      al_draw_rectangle(x-1, y+(ys*highlight)-1, x+w+1, y+h+(ys*highlight)+1, palette_color[15], 0);
+      if (mouse_b1)
       {
-         al_draw_rectangle(x-1, y+(ys*highlight)-1, x+w+1, y+h+(ys*highlight)+1, palette_color[15], 0);
-         if (mouse_b1)
-         {
-            while (mouse_b1) proc_controllers(); // wait for release
-            if (highlight ==  0) draw_item_num ^= PM_BTILE_SOLID_PLAYER;
-            if (highlight ==  1) draw_item_num ^= PM_BTILE_SOLID_ENEMY;
-            if (highlight ==  2) draw_item_num ^= PM_BTILE_SOLID_ITEM;
-            if (highlight ==  3) draw_item_num ^= PM_BTILE_SOLID_PBUL;
-            if (highlight ==  4) draw_item_num ^= PM_BTILE_SOLID_EBUL;
-            if (highlight ==  5) draw_item_num ^= PM_BTILE_SEMISOLID_PLAYER;
-            if (highlight ==  6) draw_item_num ^= PM_BTILE_SEMISOLID_ENEMY;
-            if (highlight ==  7) draw_item_num ^= PM_BTILE_SEMISOLID_ITEM;
-            if (highlight ==  8) draw_item_num ^= PM_BTILE_BOMBABLE;
-            if (highlight ==  9) draw_item_num ^= PM_BTILE_BREAKABLE_PBUL;
-            if (highlight == 10) draw_item_num ^= PM_BTILE_BREAKABLE_EBUL;
-            if (highlight == 11) draw_item_num ^= PM_BTILE_LADDER_MOVE;
-            if (highlight == 12) draw_item_num ^= PM_BTILE_ROPE_MOVE;
-            if (highlight == 13) draw_item_num ^= PM_BTILE_SECRET;
-            if (highlight == 14) draw_item_num ^= PM_BTILE_SHOW_SELECT_WIN;
-         }
+         while (mouse_b1) proc_controllers(); // wait for release
+         if (highlight ==  0) draw_item_num ^= PM_BTILE_SOLID_PLAYER;
+         if (highlight ==  1) draw_item_num ^= PM_BTILE_SOLID_ENEMY;
+         if (highlight ==  2) draw_item_num ^= PM_BTILE_SOLID_ITEM;
+         if (highlight ==  3) draw_item_num ^= PM_BTILE_SOLID_PBUL;
+         if (highlight ==  4) draw_item_num ^= PM_BTILE_SOLID_EBUL;
+         if (highlight ==  5) draw_item_num ^= PM_BTILE_SEMISOLID_PLAYER;
+         if (highlight ==  6) draw_item_num ^= PM_BTILE_SEMISOLID_ENEMY;
+         if (highlight ==  7) draw_item_num ^= PM_BTILE_SEMISOLID_ITEM;
+         if (highlight ==  8) draw_item_num ^= PM_BTILE_BOMBABLE;
+         if (highlight ==  9) draw_item_num ^= PM_BTILE_BREAKABLE_PBUL;
+         if (highlight == 10) draw_item_num ^= PM_BTILE_BREAKABLE_EBUL;
+         if (highlight == 11) draw_item_num ^= PM_BTILE_LADDER_MOVE;
+         if (highlight == 12) draw_item_num ^= PM_BTILE_ROPE_MOVE;
+         if (highlight == 13) draw_item_num ^= PM_BTILE_SECRET;
+         if (highlight == 14) draw_item_num ^= PM_BTILE_SHOW_SELECT_WIN;
       }
    }
-   else
-   {
-      draw_flag_rects(point_item_num, x, y, w, h, ys);
-   }
-
-
-
 }
 
 
@@ -975,12 +957,6 @@ void edit_tile_attributes(void)
    int mode = 0;
    int quit = 0;
    int gridlines = 0;
-   int button_x1 = 400;
-   int button_x2 = 639;
-   int button_xc = 520;
-   int button_y = 650;
-   int jh;
-
 
    int current_selection = 0;
    int pointer = 0;
@@ -989,10 +965,6 @@ void edit_tile_attributes(void)
    int by1 = 0;
    int bx2 = 1;
    int by2 = 1;
-
-
-
-
 
    al_set_target_backbuffer(display);
    al_show_mouse_cursor(display);
@@ -1024,7 +996,7 @@ void edit_tile_attributes(void)
       int fty = 340;
       int ys = 20; // y spacing
 
-      draw_flag_text(ftx+4, fty, ys, 15);
+      draw_flag_text(ftx+4, fty, ys, 15, 1);
 
       int frw = 12;         // flag rectangle width
       int frh = 12;         // flag rectangle height
@@ -1036,24 +1008,16 @@ void edit_tile_attributes(void)
       int csx = ftx-frw-1;
       int csy = fty-ys-1;
 
-      int tx = 20; // title x
-      int ty = 650;
-
-
+      int tx = 40;
+      int ty = 670;
 
       if (mode == 0) // show flags for one tile
       {
-
-         al_draw_text(font, palette_color[15], tx, ty,     0, "Change or Copy Single");
-         al_draw_text(font, palette_color[15], tx, ty+8,   0, "b1 - Select tile");
-         al_draw_text(font, palette_color[15], tx, ty+16,  0, "b2 - Copy flags");
-
-
-
-
+         al_draw_rounded_rectangle(            tx, ty, tx+508, ty+26, 2, 2, palette_color[13], 1);
+         al_draw_text(font, palette_color[15], tx+2, ty+2,  0, "left  mouse button (b1) - select a tile");
+         al_draw_text(font, palette_color[15], tx+2, ty+16, 0, "right mouse button (b2) - paste selected tile flags to new tile");
 
          draw_and_proc_flag_rects_for_sa(current_selection, frx, fry, frw, frh, ys);
-
          al_draw_rectangle(                       csx-1,  csy-7, csx+195, csy+15, palette_color[10], 1);
          al_draw_bitmap(btile[current_selection], csx,    csy-6, 0);
          al_draw_textf(font, palette_color[4],    csx+24, csy,   0, "Current Selection %-2d  ", current_selection );
@@ -1061,22 +1025,16 @@ void edit_tile_attributes(void)
 
       if (mode == 1) // show the tallied flags multiple
       {
-
-         al_draw_text(font, palette_color[15], tx, ty,     0, "Change Multiple");
-         al_draw_text(font, palette_color[15], tx, ty+8,   0, "Draw selection rectangle");
-         al_draw_text(font, palette_color[15], tx, ty+16,  0, "Change flags for all selected");
-
-
-
+         al_draw_rounded_rectangle(            tx, ty, tx+302, ty+26, 2, 2, palette_color[13], 1);
+         al_draw_text(font, palette_color[15], tx+2, ty+2,  0, "- draw selection rectangle");
+         al_draw_text(font, palette_color[15], tx+2, ty+16, 0, "- toggle flags for all selected tiles");
 
          draw_flag_rects_multiple(bx1, by1, bx2, by2, frx, fry, frw, frh, ys, 10, 11, -1);
-
          al_draw_rectangle(csx-4, csy-7, csx+195, csy+15, palette_color[10], 1);
          al_draw_rectangle(csx-4, csy+15, csx+frw+2, csy+15+(15*ys), palette_color[10], 1); // frame for buttons
          int num_tiles = (bx2-bx1) * (by2-by1);
          al_draw_textf(font, palette_color[4],    csx+frw,     csy, 0, " %d Tile(s) Selected", num_tiles);
       }
-
 
       // mouse on flag rectangles -- this is to show highlight what flag is selected
       if ((mouse_x > frx) && (mouse_x < frx+frw) && (mouse_y > fry) && (mouse_y < fry+(15*ys) ))
@@ -1158,46 +1116,78 @@ void edit_tile_attributes(void)
          } // end of mouse_b1 pressed
       } // end of mouse on 32x32 tile grid
 
-      jh=1;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
+
+      // draw and process save button
+      int sb_x = 375;
+      int sb_w = 70;
+      int sb_c = sb_x+(sb_w/2);
+      int sb_y = 644;
+      int sb_y2 = sb_y + 22;
+      int sb_col = 10;
+
+      al_draw_rounded_rectangle(sb_x, sb_y, sb_x+sb_w, sb_y2, 2, 2, palette_color[sb_col], 1);
+      al_draw_textf(font, palette_color[sb_col], sb_c, sb_y+2,  ALLEGRO_ALIGN_CENTER, "Save");
+      al_draw_textf(font, palette_color[sb_col], sb_c, sb_y+12, ALLEGRO_ALIGN_CENTER, "Changes");
+
+      if ((mouse_x > sb_x) && (mouse_x < (sb_x+sb_w)) && (mouse_y > sb_y) && (mouse_y < sb_y2))
+      {
+         al_draw_rounded_rectangle(sb_x, sb_y, sb_x+sb_w, sb_y2, 2, 2, palette_color[sb_col], 2);
+         if (mouse_b1)
+         {
+            while (mouse_b1) proc_controllers();
+            save_sprit();
+          }
+      }
+
+      // draw and process the mode button
+      int mb_x = 40;
+      int mb_x2 = mb_x + 180;
+      int mb_xc = mb_x + (mb_x2-mb_x)/2;
+      int mb_y = 644;
+      int mb_y2 = mb_y + 22;
+      int mb_col = 13;
+
+      al_draw_rounded_rectangle(mb_x, mb_y, mb_x2, mb_y2, 2, 2, palette_color[mb_col], 1);
+
+      al_draw_textf(font, palette_color[mb_col], mb_xc, mb_y+3,  ALLEGRO_ALIGN_CENTER, "Current Mode");
       if (mode == 0) sprintf(msg,"Change or Copy Single");
       if (mode == 1) sprintf(msg,"Change Multiple");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
+      al_draw_textf(font, palette_color[mb_col], mb_xc, mb_y+12, ALLEGRO_ALIGN_CENTER, msg);
 
-      jh=2;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg," ");
-
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-
-      jh=3;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      if (gridlines) sprintf(msg,"Gridlines:ON ");
-      else sprintf(msg,"Gridlines:OFF");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      jh=4;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Save");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      if (mouse_b1)
+      if ((mouse_x > mb_x) && (mouse_x < (mb_x2)) && (mouse_y > mb_y) && (mouse_y < mb_y2))
       {
-         while (mouse_b1) proc_controllers(); // wait for release
-         if ((mouse_x > button_x1) && (mouse_x < button_x2) && (mouse_y > button_y) && (mouse_y < button_y+(6*12) ))
+         al_draw_rounded_rectangle(mb_x, mb_y, mb_x2, mb_y2, 2, 2, palette_color[mb_col], 2);
+         if (mouse_b1)
          {
-            int mb = (mouse_y - button_y) / 12;
-            switch(mb)
-            {
-               case 1: if (++mode>1) mode = 0; break;
-               case 2: break;
-               case 3: gridlines = !gridlines;     break;
-               case 4: save_sprit();               break;
-            }
+            while (mouse_b1) proc_controllers(); // wait for release
+            if (++mode>1) mode = 0;
          }
       }
-//      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
+
+      // draw and process gridlines button
+      int gb_x = 518;
+      int gb_w = 120;
+      int gb_c = gb_x + (gb_w/2);
+      int gb_y = 644;
+      int gb_y2 = gb_y + 12;
+      int gb_col = 15;
+
+      al_draw_rounded_rectangle(gb_x, gb_y, gb_x+gb_w, gb_y2, 2, 2, palette_color[gb_col], 1);
+      if (gridlines) al_draw_textf(font, palette_color[gb_col], gb_c, gb_y+2, ALLEGRO_ALIGN_CENTER, "Gridlines:ON ");
+      else           al_draw_textf(font, palette_color[gb_col], gb_c, gb_y+2, ALLEGRO_ALIGN_CENTER, "Gridlines:OFF");
+
+      if ((mouse_x > gb_x) && (mouse_x < (gb_x+gb_w)) && (mouse_y > gb_y) && (mouse_y < gb_y+20))
+      {
+         al_draw_rounded_rectangle(gb_x, gb_y, gb_x+gb_w, gb_y2, 2, 2, palette_color[gb_col], 2);
+         if (mouse_b1)
+         {
+            while (mouse_b1) proc_controllers();
+            gridlines = !gridlines;
+          }
+      }
+
+
+
       while (key[ALLEGRO_KEY_ESCAPE])
       {
          proc_controllers();
@@ -1390,24 +1380,10 @@ void copy_tiles()
          al_draw_rectangle(b2_x+mx*20, b2_y+my*20, b2_x+mx*20+20, b2_y+my*20+20, palette_color[15], 0);
 
 
-         /*
-
-         // show text attached to bottom of grid
-         al_draw_rectangle(b2_x, b2_y+b2_h, b2_x+100, b2_y+b2_h+13, palette_color[15], 0);
-//         al_draw_rounded_rectangle(b2_x, b2_y+b2_h, b2_x+100, b2_y+b2_h+13, 2, 2, palette_color[15], 0);
-         al_draw_textf(font, palette_color[15], b2_x+4,   b2_y+b2_h+3, 0, "pointer:%d", pointer);
-         al_draw_textf(font, palette_color[15], b2_x+120, b2_y+b2_h+3, 0, "mouse b2 to copy");
-         //al_draw_textf(font, palette_color[15], b2_x+4,   b2_y+b2_h+23, 0, "mouse b2 to copy");
-
-         */
-
-
          al_set_target_bitmap(qtmp2);
          al_clear_to_color(al_map_rgb(0, 0, 0));
          al_draw_bitmap_region(b2, mx*20, my*20, 20, 20, 0, 0, 0);
          al_set_target_backbuffer(display);
-
-
 
          // draw b2_pointer button
          int b1p_x = b2_x+1;
@@ -1418,18 +1394,6 @@ void copy_tiles()
          al_draw_bitmap(qtmp2, b1p_x+2, b1p_y+1, 0);
          al_draw_textf(font, palette_color[15], b1p_x+26, b1p_y+3,  0, "pointer:%d", pointer);
          al_draw_textf(font, palette_color[15], b1p_x+26, b1p_y+12, 0, "mouse b2 to copy");
-
-
-
-
-
-
-
-
-
-
-
-
 
          if (mouse_b2)
          {

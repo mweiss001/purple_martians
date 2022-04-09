@@ -188,6 +188,7 @@ int swnbl;
 int swnbl_cur = 0;
 int swbl[NUM_SPRITES][2];
 int show_non_default_blocks = 0;
+int show_flag_details = 1;
 
 
 

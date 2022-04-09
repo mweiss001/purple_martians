@@ -17791,203 +17791,51 @@ its getting really late...like 11:49
 all I can think of to do is make a simple flag viewer when mouse over pde blocks
 
 
-block puzzle is broken, look again at what happens in block manip toggle...
 
 push....
 
+20220409 7:00AM
 
+make the flag rectangles toggle off, most of the time regular block draw will be fine...done
 
+make a simple and detailed description for view and draw item and pde blocks...done
 
+hide the show select win flag..it is not needed...done
 
+make the tile attribute thingy look better...done
+buttons like copy bitmap...done...
 
+block puzzle is broken, look again at what happens in block manip toggle...done
 
+wow... I think it's all done....
 
+I could remove old blocks from tiles.bmp...
 
 
 
+rename the copy_tiles thing in the menu...
 
+Block and Default Flag Editor
 
 
 
 
 
 
+Commit message:
 
+Tiles used for blocks now have their own file: block_tiles.bmp
+There are 1024 tiles in a 32x32 grid, just like the regular tiles.bmp
+They are loaded into btiles[1024] just like the other tiles use tiles[1024].
+All tiles used to draw blocks now use btiles[] instead of tiles[]
 
+Completely redid the block attribute method.
+The old method used the tile number as an indicator of the block properties.
+The new method uses bit flags stored in the same int as the tile number
 
+Made some nice graphical tools to manipulate tiles and .bmp file and flags.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-mv type solid checks....
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Added a new page to the html documentation 'block_flags.html'
 
 
 

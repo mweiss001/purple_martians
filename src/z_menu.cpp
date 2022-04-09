@@ -687,7 +687,13 @@ void menu_setup(void)
    strcpy (global_string[2][18],"Global Level Thingy!!");
    strcpy (global_string[2][19],"Level Viewer!");
    strcpy (global_string[2][20],"Bitmap and Animation Editor");
-   strcpy (global_string[2][21],"end");
+
+
+   strcpy (global_string[2][21],"Block Tile Editor");
+
+   strcpy (global_string[2][22],"Default Flag Editor");
+
+   strcpy (global_string[2][23],"end");
 #endif
 
 
