@@ -1007,7 +1007,7 @@ int edit_pmsg_text(int c, int new_msg)
    }
    else
    {
-      strcpy(f, pmsg[c]);
+      strcpy(f, pmsgtext[c]);
       char_count = strlen(f);
    }
 
@@ -1141,9 +1141,7 @@ int edit_pmsg_text(int c, int new_msg)
    if (bad) return 0;
    else
    {
-      free(pmsg[c]);
-      pmsg[c] = (char*) malloc (strlen(f)+1);
-      strcpy(pmsg[c], f);
+      strcpy(pmsgtext[c], f);
       return 1;
    }
 }

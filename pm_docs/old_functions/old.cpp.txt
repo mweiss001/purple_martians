@@ -2361,4 +2361,103 @@ int old_save_level(int level_to_save)
 
 
 
+/*
+      fread(level_header, sizeof(level_header), 1, fp);
+      fread(l,            sizeof(l),            1, fp);
+      fread(item,         sizeof(item),         1, fp);
+      fread(Efi,          sizeof(Efi),          1, fp);
+      fread(Ei,           sizeof(Ei),           1, fp);
+      fread(lifts,        sizeof(lifts),        1, fp);
+      fread(lift_steps,   sizeof(lift_steps),   1, fp);
+      fread(pmsgtext,     sizeof(pmsgtext),     1, fp);
+
+  */
+
+
+      // decompress client_state_buffer to dif
+
+//      uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
+
+
+/*
+      char pml[PML_SIZE];
+      fread(pml,   sizeof(pml),      1, fp);
+      pml_to_var(pml);
+
+*/
+
+
+
+
+
+/*
+
+      printf("level_header:%6d\n",  sizeof(level_header) );
+      printf("l           :%6d\n",  sizeof(l)            );
+      printf("item        :%6d\n",  sizeof(item)         );
+      printf("Efi         :%6d\n",  sizeof(Efi)          );
+      printf("Ei          :%6d\n",  sizeof(Ei)           );
+      printf("lifts       :%6d\n",  sizeof(lifts)        );
+      printf("lift_steps  :%6d\n",  sizeof(lift_steps)   );
+      printf("pmsgtext    :%6d\n",  sizeof(pmsgtext)     );
+
+
+      int sz = 0;
+      sz+= sizeof(level_header);
+      sz+= sizeof(l)            ;
+      sz+= sizeof(item)         ;
+      sz+= sizeof(Efi)          ;
+      sz+= sizeof(Ei)           ;
+      sz+= sizeof(lifts)        ;
+      sz+= sizeof(lift_steps)   ;
+      sz+= sizeof(pmsgtext)     ;
+      printf("       total:%6d\n",  sz );
+
+*/
+
+
+
+
+
+
+
+
+   // put variables in pml
+   char pml[PML_SIZE];
+   var_to_pml(pml);
+
+   // compress pml to cmp
+   char cmp[PML_SIZE];
+   uLongf destLen= sizeof(cmp);
+   compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)pml, sizeof(pml), 5);
+   int cmp_size = destLen;
+
+   // write cmp to file
+   FILE *fp = fopen(level_filename,"wb");
+   fwrite(cmp, cmp_size, 1, fp);
+   fclose(fp);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

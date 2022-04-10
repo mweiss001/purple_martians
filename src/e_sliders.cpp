@@ -2009,8 +2009,8 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
          {
             while (mouse_b1) proc_controllers();
             int color = (int)(1+(mouse_x-x1)/b);
-            if (bn == 2) item[num][8] = color;     // pmsg text color
-            if (bn == 3) item[num][9] = color;     // pmsg frame color
+            if (bn == 2) item[num][8] = color;     // pop msg text color
+            if (bn == 3) item[num][9] = color;     // pop msg frame color
             if (bn == 4) lifts[num].color = color; // lift color
             if (bn == 5)
             {

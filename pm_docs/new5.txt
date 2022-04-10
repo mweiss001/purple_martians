@@ -17838,6 +17838,535 @@ Made some nice graphical tools to manipulate tiles and .bmp file and flags.
 Added a new page to the html documentation 'block_flags.html'
 
 
+12:02 pushed...
+
+This is a huge chapter completed...
+
+I want to make some test levels to show off...
+
+sndb shows in game....fixed
+
+sometimes I have a weird crashing error when save and exit from level editor
+
+why does pmsg view show extra stuff?
+'P' in level editor runs void show_all_pmsg(void)
+
+this actually shows pmsg, not item 10
+
+maybe they are not all NULL like they should be...
+
+   for (int i=0; i<500; i++)
+   {
+      if (pmsg[i] != NULL)
+      {
+         int len = strlen(pmsg[i]);
+
+
+lets force it...
+trace it through its life
+
+declaration:
+char *pmsg[500] = { NULL };
+extern char *pmsg[500];
+
+in file
+
+void zero_level_data(void)
+{
+   for (int c=0; c<500; c++)  // items
+   {
+      if (pmsg[c])
+      {
+         free (pmsg[c]);
+         pmsg[c] = NULL;
+      }
+      for (int x=0; x<16; x++) item[c][x] = 0;
+      for (int x=0; x<4; x++) itemf[c][x] = al_itofix(0);
+   }
+   sort_item();
+
+
+I want to view after loading a file pmsg and item10.
+
+its only this level that I am currently working on that has the problem
+
+more pmsg's are being created than should be
+
+Maybe it's been like this since I changed the file stuff...
+
+how can I fix it?
+
+band aid - find the extra's and kill them
+what I should really do is find out why and where the problem is...
+
+
+// load
+int pc = 0;
+int i10 = 0;
+for (int i=0; i<500; i++)
+{
+   if (item[i][0] == 10) i10++;
+   if (pmsg[i]) pc++;
+}
+if (i10 != pc) printf("lev:%d npm:%d  pc:%d  i10:%d\n", level_to_load, npm, pc, i10);
+
+
+// save
+// how many pmsg?
+int num_pmsg = 0;
+for (int i=0; i<500; i++)
+   if (pmsg[i] != NULL)
+   {
+      if (item[i][0] == 10) num_pmsg++; // is there a corresponding item 10?
+      else // found a pmsg with no item linked to it...wtf
+      {
+         printf("while saving level:%d -- found rogue pmsg[%d] with no corresponding item\n", level_to_save, i);
+         pmsg[i] = NULL;          // set the pointer to NULL, don't worry about freeing
+      }
+   }
+
+
+
+lev:56 npm:10  pc:10  i10:4
+lev:56 npm:10  pc:10  i10:4
+while saving level:56 -- found rogue pmsg[0] with no corresponding item
+while saving level:56 -- found rogue pmsg[1] with no corresponding item
+while saving level:56 -- found rogue pmsg[6] with no corresponding item
+while saving level:56 -- found rogue pmsg[7] with no corresponding item
+while saving level:56 -- found rogue pmsg[8] with no corresponding item
+while saving level:56 -- found rogue pmsg[9] with no corresponding item
+
+problem is fixed with a bandaid.....
+
+I want to save status and select window positions...only move if off screen
+also sbf and sndb
+
+what are they?
+
+
+this is called a lot...
+
+
+
+with 1
+in set map_var
+start of edit_menu
+twice when stat and sel winodw become active from menu
+
+with 0
+when moving windows
+lets make all but map var 0
+
+
+
+
+
+
+
+void check_s_window_pos(int reset_pos)
+{
+   int swx1 = status_window_x;
+   int swy1 = status_window_y;
+   int swh = status_window_h;
+   int sww = status_window_w;
+   int swx2 = swx1 + sww;
+   int swy2 = swy1 + swh;
+   if ((swx2 > SCREEN_W) || (swx1 < 0)) reset_pos = 1;
+   if ((swy2 > SCREEN_H) || (swy1 < 0)) reset_pos = 1;
+
+   swx1 = select_window_x;
+   swy1 = select_window_y;
+   swh = select_window_h;
+   sww = select_window_w;
+   swx2 = swx1 + sww;
+   swy2 = swy1 + swh;
+   if ((swx2 > SCREEN_W) || (swx1 < 0)) reset_pos = 1;
+   if ((swy2 > SCREEN_H) || (swy1 < 0)) reset_pos = 1;
+
+   if (reset_pos)
+   {
+//      status_window_x = SCREEN_W-(sww+10);
+//      status_window_y = 10;
+//
+//      select_window_x = SCREEN_W-(sww+10);
+//      select_window_y = status_window_y + status_window_h + 10;
+
+
+      status_window_x = 10;
+      status_window_y = 10;
+
+      select_window_x = SCREEN_W-(sww+10);
+      select_window_y = 10;
+
+   }
+}
+added status_window_x and y to config.
+made it so that it will never force...
+
+done...
+
+when drawing a block range, use the flags from the draw item block for all....done....
+
+
+
+
+tested on MX linux, sometimes sigaborts double free detected..traced back to zero level data....
+
+
+
+I fucking hate alloacting and freeing memory!!
+how much fucking time have I wasted chasing down this shit!!
+
+
+How can I do it differently?
+
+what is the longest pmsg I have?
+
+
+use glt....max is 299 from level 1...
+
+
+
+what are my options?
+
+worst case, 500 pmsg, 500 char each
+
+250,000 bytes...nothing!!!!
+wait.. that is 250,000 per level
+
+100 levels...25M of text
+
+pm.wav takes 30,000,000
+tiles takes 1,200,000
+l[100][100] takes 40,000
+
+levels are around 120,000 this would increase their size by 200%
+unless I just stored what is used...
+Am it just trading one problem for another?
+
+OK fuck it
+what if I zip the files
+
+just do it......
+
+while doing it coexist with existing...
+
+new var
+
+char pmsgtext[500][500];
+
+
+
+
+I've gone through file
+
+make a copy of levels 90 files 10.5 M
+
+change save routine....
+
+run glt...
+
+      for (int y=0; y<500; y++)
+         if (pmsg[y]) strcpy(pmsgtext[y], pmsg[y] ) ;
+
+change load routine....done
+
+change draw routine in z_items...I can see them!!
+
+new size 90 levels 31.8M
+
+changed edit stuff in zmenu, successsdfully changed text, save and it worked.
+
+file, item, menu is done...
+
+
+editor is done...
+
+editor_zfs does so funky shit saving and loaded selection...
+there is a ft_pmsg....
+lets just skip zfs for now....
+
+
+there is not a single trace of pmsg in the fucking codebas anymore!!!! yay
+
+still need to look into zfs ft_pmsg
+
+maybe straighten up the save and load selection stuff....
+
+look like I just need to shadow pmsgtext with ft_pmsgtext....
+
+search for ft_pmsg, removed all traces
+
+there is some weird code when saving ft...
+
+
+//               while (ft_pmsg[c][y] != (char)NULL)
+//               {
+//                  if (ft_pmsg[c][y] == 13) fprintf(filepntr,"%c",126);
+//                  else fprintf(filepntr,"%c",ft_pmsg[c][y]);
+//                  y++ ;
+//               }
+//               fprintf(filepntr,"\n");
+
+i'm going to leave it as long as I am not fwriting in bimary mode
+
+sel only puts what is used
+I can still probably make it work
+save the items from 0 to last item
+save pmsg from 0 to last item....
+it's far to complex for such a minor thing
+
+
+now how about that zlib level things?
+
+this looks so simple...
+
+fread(level_header, sizeof(level_header), 1, fp);
+fread(l,            sizeof(l),            1, fp);
+fread(item,         sizeof(item),         1, fp);
+fread(Efi,          sizeof(Efi),          1, fp);
+fread(Ei,           sizeof(Ei),           1, fp);
+fread(lifts,        sizeof(lifts),        1, fp);
+fread(lift_steps,   sizeof(lift_steps),   1, fp);
+fread(pmsgtext,     sizeof(pmsgtext),     1, fp);
+
+
+void game_vars_to_state(char * b)
+{
+   int size = 0, offset = 0;
+   offset += size; size = sizeof(players); memcpy(b+offset, players, size);
+   offset += size; size = sizeof(Ei);      memcpy(b+offset, Ei,      size);
+   offset += size; size = sizeof(Efi);     memcpy(b+offset, Efi,     size);
+   offset += size; size = sizeof(item);    memcpy(b+offset, item,    size);
+   offset += size; size = sizeof(itemf);   memcpy(b+offset, itemf,   size);
+   offset += size; size = sizeof(lifts);   memcpy(b+offset, lifts,   size);
+   offset += size; size = sizeof(l);       memcpy(b+offset, l,       size);
+}
+
+void state_to_game_vars(char * b)
+{
+   int size = 0, offset = 0;
+   size = sizeof(players); memcpy(players, b+offset, size); offset += size;
+   size = sizeof(Ei);      memcpy(Ei,      b+offset, size); offset += size;
+   size = sizeof(Efi);     memcpy(Efi,     b+offset, size); offset += size;
+   size = sizeof(item);    memcpy(item,    b+offset, size); offset += size;
+   size = sizeof(itemf);   memcpy(itemf,   b+offset, size); offset += size;
+   size = sizeof(lifts);   memcpy(lifts,   b+offset, size); offset += size;
+   size = sizeof(l);       memcpy(l,       b+offset, size); offset += size;
+}
+
+
+
+I need to find the actual sizes....
+
+level_header:    80
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts       :  4000
+lift_steps  : 25600
+pmsgtext    :250000
+-------------------
+       total:370880
+
+
+now I need to make at least to varaibles to store these.
+
+one for the live and one for the extracted...but as soon as I am done with them I can free them...
+
+// server's copies of client states
+extern char srv_client_state[8][2][STATE_SIZE];
+extern int srv_client_state_frame_num[8][2];
+
+
+#define PML_SIZE 370880
+char pml[PML_SIZE];
+char pmz[PML_SIZE];
+
+void pml_to_var(char * b)
+{
+   int size = 0, offset = 0;
+   size = sizeof(level_header); memcpy(level_header, b+offset, size); offset += size;
+   size = sizeof(l);            memcpy(l,            b+offset, size); offset += size;
+   size = sizeof(item);         memcpy(item,         b+offset, size); offset += size;
+   size = sizeof(Ei);           memcpy(Ei,           b+offset, size); offset += size;
+   size = sizeof(Efi);          memcpy(Efi,          b+offset, size); offset += size;
+   size = sizeof(lifts);        memcpy(lifts,        b+offset, size); offset += size;
+   size = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, size); offset += size;
+   size = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, size); offset += size;
+}
+
+void var_to_pml(char * b)
+{
+   int size = 0, offset = 0;
+   offset += size; size = sizeof(level_header); memcpy(b+offset, level_header, size);
+   offset += size; size = sizeof(l);            memcpy(b+offset, l,            size);
+   offset += size; size = sizeof(item);         memcpy(b+offset, item,         size);
+   offset += size; size = sizeof(Ei);           memcpy(b+offset, Ei,           size);
+   offset += size; size = sizeof(Efi);          memcpy(b+offset, Efi,          size);
+   offset += size; size = sizeof(lifts);        memcpy(b+offset, lifts,        size);
+   offset += size; size = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   size);
+   offset += size; size = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     size);
+}
+
+ready to test write...back up levels
+
+
+// decompress client_state_buffer to client_state_dif
+uncompress((Bytef*)client_state_dif, sizeof(client_state_dif), (Bytef*)client_state_buffer, sizeof(client_state_buffer));
+
+
+char dif[STATE_SIZE];
+char cmp[STATE_SIZE];
+
+// compress dif to cmp
+uLongf destLen= sizeof(cmp);
+compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)dif, sizeof(dif), zlib_cmp);
+int cp = destLen;
+
+
+now 90 files take up 246K, that is less than 1%...omg....can I load?
+
+load:
+// read the compressed data
+char cmp[PML_SIZE];
+fread(cmp, sizeof(cmp), 1, fp);
+fclose(fp);
+
+// decompress cmp to pml
+char pml[PML_SIZE];
+uLongf destLen = sizeof(pml);
+uncompress((Bytef*)pml, (uLongf*)&destLen, (Bytef*)cmp, sizeof(cmp));
+
+pml_to_var(pml);
+
+save:
+// put variables in pml
+char pml[PML_SIZE];
+var_to_pml(pml);
+
+// compress pml to cmp
+char cmp[PML_SIZE];
+uLongf destLen= sizeof(cmp);
+compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)pml, sizeof(pml), 5);
+int cmp_size = destLen;
+
+// write cmp to file
+FILE *fp = fopen(level_filename,"wb");
+fwrite(cmp, cmp_size, 1, fp);
+fclose(fp);
+
+total of all 90 levels
+size compression level
+ 233K 9
+ 238K 8
+ 249K 7
+ 251K 6
+ 268K 5
+ 289K 4
+ 400K 3
+ 418K 2
+ 576K 1
+3180K 0
+
+ 251K -1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

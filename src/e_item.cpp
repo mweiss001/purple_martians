@@ -73,25 +73,19 @@ int sort_item(void)
             swap = 0;
             if ((item[c][0] == 10) && (item[c+1][0] == 10)) // both messages
             {
-               strcpy(msg, pmsg[c]);
-               free(pmsg[c]);
-               pmsg[c] = (char*) malloc (strlen(pmsg[c+1])+1);
-               strcpy(pmsg[c], pmsg[c+1]);
-               free(pmsg[c+1]);
-               pmsg[c+1] = (char*) malloc (strlen(msg)+1);
-               strcpy(pmsg[c+1], msg);
+               strcpy(msg, pmsgtext[c]);
+               strcpy(pmsgtext[c], pmsgtext[c+1]);
+               strcpy(pmsgtext[c+1], msg);
             }
             if ((item[c][0] == 10) && (item[c+1][0] != 10)) // first only
             {
-               pmsg[c+1] = (char*) malloc (strlen(pmsg[c])+1);
-               strcpy(pmsg[c+1], pmsg[c]);
-               free(pmsg[c]);
+               strcpy(pmsgtext[c+1], pmsgtext[c]);
+               pmsgtext[c][0] = 0;
             }
             if ((item[c][0] != 10) && (item[c+1][0] == 10)) // second only
             {
-               pmsg[c] = (char*) malloc (strlen(pmsg[c+1])+1);
-               strcpy(pmsg[c], pmsg[c+1]);
-               free(pmsg[c+1]);
+               strcpy(pmsgtext[c], pmsgtext[c+1]);
+               pmsgtext[c+1][0] = 0;
             }
             for (d=0; d<16; d++)
             {
@@ -148,8 +142,6 @@ int sort_item(void)
 
    // set number of starts...
    number_of_starts = item_num_of_type[5];
-
-
    return inum;
 }
 
@@ -172,14 +164,13 @@ int get_empty_item(int type) // finds, sets type, sorts, refinds
    if (mt == -1) return 500;
    else
    {
-         erase_item(mt);
-         item[mt][0] = type; // set type
-         item[mt][9] = 9999; // mark to find after sort !!
-         if (item[mt][0] == 10) pmsg[mt] = (char*) malloc(2); // to prevent empty message crashes
-         sort_item();
-         mt = 0;
-         while ((mt < 500) && (item[mt][9] != 9999)) mt++;
-         item[mt][9] = 0; // remove mark
+      erase_item(mt);
+      item[mt][0] = type; // set type
+      item[mt][9] = 9999; // mark to find after sort !!
+      sort_item();
+      mt = 0;
+      while ((mt < 500) && (item[mt][9] != 9999)) mt++;
+      item[mt][9] = 0; // remove mark
    }
    return mt;
 }
@@ -224,14 +215,9 @@ void test_items(void)
 
 void erase_item(int num)
 {
-   if (item[num][0] == 10) free (pmsg[num]);
+   if (item[num][0] == 10) pmsgtext[num][0] = 0;
    for (int x=0; x<16; x++) item[num][x] = 0;
 }
-
-
-
-
-
 
 int create_key(int c)
 {
@@ -491,62 +477,55 @@ void show_all_pmsg(void)
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
-   al_draw_text(font, palette_color[15], 20, text_pos, 0, "List of pmsg:");
+   al_draw_text(font, palette_color[15], 20, text_pos, 0, "List of pop messages:");
    text_pos +=8;
 
    for (int i=0; i<500; i++)
    {
-      if (pmsg[i] != NULL)
+      int len = strlen(pmsgtext[i]);
+      if (len > 0)
       {
-         int len = strlen(pmsg[i]);
-         if (len > 0)
-         {
-            // count lines and max line length
-            int lines = 1;
-            int mll = 0; // max line length
-            int tlc = 0; // temp line counter
+         // count lines and max line length
+         int lines = 1;
+         int mll = 0; // max line length
+         int tlc = 0; // temp line counter
 
 //            for (int j=0; j<len; j++)
-//               al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "[%d][%d]", j, pmsg[i][j]);
+//               al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "[%d][%d]", j, pmsgtext[i][j]);
 //
 //            for (int j=0; j<len; j++)
-//               al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "[%d][%c]", j, pmsg[i][j]);
+//               al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "[%d][%c]", j, pmsgtext[i][j]);
+
+         al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "Item:%2d len:%3d lines:%2d max length:%2d", i, len, lines, mll);
+         for (int j=0; j<len; j++)
+         {
+            int col = 15;
+
+            if ((pmsgtext[i][j] < 32) || (pmsgtext[i][j] > 126)) col = 10; // bad char
 
 
-            al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "Item:%2d len:%3d lines:%2d max length:%2d", i, len, lines, mll);
-
-
-            for (int j=0; j<len; j++)
+            if (pmsgtext[i][j] == 126)
             {
-               int col = 15;
-
-               if ((pmsg[i][j] < 32) || (pmsg[i][j] > 126)) col = 10; // bad char
-
-
-               if (pmsg[i][j] == 126)
-               {
-                  col = 14;
-                  lines++;
-                  if (tlc > mll) mll = tlc;
-                  tlc = 0;
-               }
-               else tlc++;
-
-
-               al_draw_textf(font, palette_color[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsg[i][j], pmsg[i][j] );
-
-               if (pmsg[i][j] == 126)
-               {
-                  lines++;
-                  if (tlc > mll) mll = tlc;
-                  tlc = 0;
-               }
-               else tlc++;
+               col = 14;
+               lines++;
+               if (tlc > mll) mll = tlc;
+               tlc = 0;
             }
-            text_pos +=8;
-            if (tlc > mll) mll = tlc;
+            else tlc++;
 
+
+            al_draw_textf(font, palette_color[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsgtext[i][j], pmsgtext[i][j] );
+
+            if (pmsgtext[i][j] == 126)
+            {
+               lines++;
+               if (tlc > mll) mll = tlc;
+               tlc = 0;
+            }
+            else tlc++;
          }
+         text_pos +=8;
+         if (tlc > mll) mll = tlc;
       }
       if (text_pos > SCREEN_H - 10)
       {
@@ -559,6 +538,7 @@ void show_all_pmsg(void)
    al_flip_display();
    tsw(); // wait for keypress
 }
+
 
 void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, int show_line_breaks)
 {
@@ -659,6 +639,10 @@ int create_pmsg(int c)
    item[c][9] = 12;   // default frame color (blue)
 
    int bad=0;
+
+
+
+
 
    // get text of message
    if (!edit_pmsg_text(c, 1)) bad = 1;
@@ -869,7 +853,11 @@ int create_item(int type)
    // check for no creator
    if ((type != 1) && (type != 3) && (type != 4) && (type != 5) && (type != 9) && (type != 10) && (type != 16) && (type != 17)) return 9999;
 
+
+
    int i = get_empty_item(type); // get a place to put it
+
+
    if (i > 499) return i; // no items
    switch (type)
    {

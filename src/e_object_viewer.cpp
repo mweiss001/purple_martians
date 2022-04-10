@@ -1203,7 +1203,7 @@ int move_obt_with_map(int obt, int type, int num)
             title_obj(obt, type, num, 0, 15);
 
             // show the message after the screen is redrawn
-            if (mouse_on_msg_ul) display_pop_message(num, pmsg[num], txc, pop_msg_viewer_pos, 0, 0);
+            if (mouse_on_msg_ul) display_pop_message(num, pmsgtext[num], txc, pop_msg_viewer_pos, 0, 0);
 
 
          } // end of if mouse changed
@@ -1847,11 +1847,11 @@ void object_viewer(int obt, int num)
 
                   // show all messages (makes it so much easier to adjust them)
                   for (int ii=0; ii<500; ii++)
-                     if (item[ii][0] == 10) display_pop_message(ii, pmsg[ii], 3000, 3000, 0, 0); // show the message
+                     if (item[ii][0] == 10) display_pop_message(ii, pmsgtext[ii], 3000, 3000, 0, 0); // show the message
 
                   // draw the current one last to ensure it is on top
                   pop_msg_viewer_pos = ty+a*bts+bts/2+2;
-                  display_pop_message(num, pmsg[num], txc, pop_msg_viewer_pos, 0, 0); // show the message
+                  display_pop_message(num, pmsgtext[num], txc, pop_msg_viewer_pos, 0, 0); // show the message
 
                break;
                case 11: // rocket

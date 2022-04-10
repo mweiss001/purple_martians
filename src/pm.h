@@ -176,6 +176,10 @@ extern int ttc2;
 extern float ttfloat2;
 
 
+#define PML_SIZE 370880
+
+extern int level_header[20];
+
 
 
 // ------------------------------------------------
@@ -370,7 +374,7 @@ extern int brf_mode;
 extern int ft_level_header[20];
 extern int ft_l[100][100];
 extern int ft_item[500][16];
-extern char *ft_pmsg[500];
+extern char ft_pmsgtext[500][500];
 
 extern int ft_Ei[100][32];
 extern al_fixed ft_Efi[100][16];
@@ -767,14 +771,13 @@ extern int last_level_loaded;
 extern int resume_allowed;
 extern int number_of_starts;
 
-
 // items
 extern int item[500][16];      // item ints
 extern al_fixed itemf[500][4]; // item fixeds
 extern int item_num_of_type[30];
 extern int item_first_num[30];
 extern char item_name[30][40];
-extern char *pmsg[500];
+extern char pmsgtext[500][500];
 
 // enemies
 extern int Ei[100][32];        // enemy ints

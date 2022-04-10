@@ -504,7 +504,7 @@ void set_map_var(void)
    txc = SCREEN_W - (SCREEN_W - db*100) / 2;
 
    // check that status and select windows are not off screen
-   check_s_window_pos(1);
+   check_s_window_pos(0);
 
    // create a bitmap to use as a mouse pointer
    mp = al_create_bitmap(db*25,db*25);
@@ -565,29 +565,16 @@ void init_level_background(void) // fill level_background with blocks and lift l
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++)
       {
-         int c = l[x][y];
-
-         if (show_non_default_blocks)
+         int c = l[x][y] & 1023;
+         al_draw_bitmap(btile[c], x*20, y*20, 0);
+         if ((level_editor_running) && (show_non_default_blocks))
          {
-            int c = l[x][y] & 1023;
-
-            al_draw_bitmap(btile[c], x*20, y*20, 0);
-
-
-
-            // how to compare here....
-
             if ((sa[c][0] & PM_BTILE_MOST_FLAGS) != (l[x][y] & PM_BTILE_MOST_FLAGS))
             {
                al_draw_line(x*20, y*20, x*20+20, y*20+20, palette_color[10], 1);
                al_draw_line(x*20+20, y*20, x*20, y*20+20, palette_color[10], 1);
             }
          }
-         else
-         {
-            al_draw_bitmap(btile[c&1023], x*20, y*20, 0);
-         }
-
       }
    draw_lift_lines();
 }

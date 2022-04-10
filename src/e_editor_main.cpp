@@ -148,6 +148,7 @@ void set_block_range(void)
 
 void set_block_range(void)
 {
+   int draw_item_flags = draw_item_num & PM_BTILE_MOST_FLAGS;
 
    int fsd[20][20] = {0};
 
@@ -231,7 +232,7 @@ void set_block_range(void)
 
    for (int i=0; i<20; i++)
       for (int j=0; j<20; j++)
-         fsd[i][j] |= PM_BTILE_ALL_SOLID;
+         fsd[i][j] |= draw_item_flags;
 
 
    int fsx[20][5] = {0};
@@ -273,10 +274,8 @@ void set_block_range(void)
 
    for (int i=0; i<20; i++)
       for (int j=0; j<5; j++)
-      {
-         if (i == 4) fsx[i][j] |= PM_BTILE_ALL_SEMI;
-         else        fsx[i][j] |= PM_BTILE_ALL_SOLID;
-      }
+         fsx[i][j] |= draw_item_flags;
+
 
    int fsy[20][5] = {0};
 
@@ -301,13 +300,10 @@ void set_block_range(void)
    fsy[4][3] = 33; // upper end
    fsy[4][4] = 35; // lower end
 
-
    for (int i=0; i<20; i++)
       for (int j=0; j<5; j++)
-      {
-         if (i == 4) fsy[i][j] |= PM_BTILE_ALL_SEMI;
-         else        fsy[i][j] |= PM_BTILE_ALL_SOLID;
-      }
+         fsy[i][j] |= draw_item_flags;
+
 
    if ((bx2-bx1==1) && (by2-by1==1)) l[bx1][by1] = draw_item_num; // single block 1 x 1
 
@@ -574,7 +570,7 @@ int edit_menu(int el)
    if (lesw > 1999) lesw = 1999;
    if (lesh > 1999) lesh = 1999;
 
-   check_s_window_pos(1);
+   check_s_window_pos(0);
    load_PDE();
 
    if (!el) load_level_prompt(); // load prompt
@@ -788,14 +784,8 @@ int edit_menu(int el)
                   item[c][6] = item[din][6] + (x100*20) - item[din][4]; // move field relative to item move
                   item[c][7] = item[din][7] + (y100*20) - item[din][5];
                }
+               if (item[din][0] == 10) strcpy(pmsgtext[c], pmsgtext[din]); // msg
 
-
-               if (item[din][0] == 10) // msg)
-               {
-                  free (pmsg[c]);
-                  pmsg[c] = (char*) malloc (strlen(pmsg[din])+1);
-                  strcpy(pmsg[c], pmsg[din]);
-               }
                sort_item();
                draw_big(1);
             }
@@ -1024,11 +1014,11 @@ int edit_menu(int el)
             break;
             case 7:
                status_window_active = 1;
-               check_s_window_pos(1);
+               check_s_window_pos(0);
             break;
             case 8:
                select_window_active = 1;
-               check_s_window_pos(1);
+               check_s_window_pos(0);
             break;
 
             case 10: // new level

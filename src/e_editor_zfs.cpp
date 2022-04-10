@@ -469,7 +469,7 @@ void clear_ft(void)
       for (int y=0; y<100; y++) ft_l[x][y] = 0;
    for (int c=0; c<500; c++) // items
    {
-      free (ft_pmsg[c]);
+      ft_pmsgtext[c][0] = 0;
       for (int x=0; x<16; x++) ft_item[c][x] = 0;
    }
    for (int c=0; c<100; c++) // enemies
@@ -552,7 +552,7 @@ int load_selection(void)
             buff[loop] = (char)NULL;
             ft_item[c][x] = atoi(buff);
          }
-         if (ft_item[c][0] == 10) // get pmsg
+         if (ft_item[c][0] == 10) // get pop msg
          {
             loop = 0;
             ch = fgetc(filepntr);
@@ -564,8 +564,7 @@ int load_selection(void)
                ch = fgetc(filepntr);
             }
             buff[loop] = (char)NULL;
-            ft_pmsg[c] = (char*) malloc (strlen(buff)+1);
-            strcpy(ft_pmsg[c], buff);
+            strcpy(ft_pmsgtext[c], buff);
          }
       }
       for (c=0; c < ft_level_header[4]; c++)  // enemy ints and fixeds
@@ -703,9 +702,7 @@ void save_selection(int save)
             {
                ft_item[c][10] = item[b][10] - stx;
                ft_item[c][11] = item[b][11] - sty;
-               free (ft_pmsg[c]);
-               ft_pmsg[c] = (char*) malloc (strlen(pmsg[b])+1);
-               strcpy(ft_pmsg[c], pmsg[b]);
+               strcpy(ft_pmsgtext[c], pmsgtext[b]);
             }
          }
 
@@ -794,13 +791,14 @@ void save_selection(int save)
 
    if (save)
    {
+
       al_make_directory("sel"); // create if not already created
-      FILE *filepntr;
       sprintf(sel_filename, "sel\\");
       if (mw_file_select("Save Selection", sel_filename, ".sel", 1))
       {
          //printf("fn:%s\n", sel_filename);
-         filepntr = fopen(sel_filename,"w");
+
+         FILE * filepntr = fopen(sel_filename,"w");
          for (x=0; x<20; x++)
             fprintf(filepntr,"%d\n",ft_level_header[x]);
          for (c=0; c<(sux-stx); c++)  // selection of blocks
@@ -812,16 +810,25 @@ void save_selection(int save)
             for (x=0; x<16; x++)
                fprintf(filepntr,"%d\n",ft_item[c][x]);
 
-            if (ft_item[c][0] == 10) // pmsg
+            if (ft_item[c][0] == 10) // pop msg
             {
                y = 0;
-               while (ft_pmsg[c][y] != (char)NULL)
+               while (ft_pmsgtext[c][y] != (char)NULL)
                {
-                  if (ft_pmsg[c][y] == 13) fprintf(filepntr,"%c",126);
-                  else fprintf(filepntr,"%c",ft_pmsg[c][y]);
+                  if (ft_pmsgtext[c][y] == 13) fprintf(filepntr,"%c", 126);
+                  else fprintf(filepntr,"%c",ft_pmsgtext[c][y]);
                   y++ ;
                }
                fprintf(filepntr,"\n");
+
+//               while (ft_pmsg[c][y] != (char)NULL)
+//               {
+//                  if (ft_pmsg[c][y] == 13) fprintf(filepntr,"%c",126);
+//                  else fprintf(filepntr,"%c",ft_pmsg[c][y]);
+//                  y++ ;
+//               }
+//               fprintf(filepntr,"\n");
+
             }
          }
          for (c=0; c < ft_level_header[4]; c++) // enemy int and float
@@ -836,6 +843,8 @@ void save_selection(int save)
             for (x=0; x<ft_lift[c][3]; x++)
                for (y=0; y<4; y++) fprintf(filepntr,"%d\n",ft_ls[c][x][y]);
          }
+
+
          fclose(filepntr);
       }
    }
@@ -1108,11 +1117,7 @@ void do_fcopy(int qx1, int qy1)
                         item[c][10] = enforce_limit(item[c][10], 0, 99);
                         item[c][11] = enforce_limit(item[c][11], 0, 99);
                      }
-
-
-                     free (pmsg[c]);
-                     pmsg[c] = (char*) malloc (strlen(ft_pmsg[b])+1);
-                     strcpy(pmsg[c], ft_pmsg[b]);
+                     strcpy(pmsgtext[c], ft_pmsgtext[b]);
                   }
                   // limits exceeded; erase
                   if (lim)

@@ -18,8 +18,8 @@ int item_data(int x, int y)
    if (item_num_of_type[11]) { al_draw_textf(font, palette_color[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
    if (item_num_of_type[7])  { al_draw_textf(font, palette_color[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
 
-   for (int c=1; c<16; c++)
-      if ((c != 5) && (c !=3) && (c!= 12) && (c!= 1) && (c!= 4) && (c!= 14) && (c!= 15) && (c!= 8) && (c!= 11) && (c!= 7))
+   for (int c=1; c<20; c++)
+      if ((c!= 1) && (c !=3) && (c!= 4) && (c != 5) && (c!= 7) && (c!= 8) && (c!= 9) && (c!= 11) && (c!= 12) && (c!= 14) && (c!= 15) && (c!= 16) && (c!= 17) )
          if (item_num_of_type[c]) // not zero
          {
                          sprintf(msg, "%d type %d???  ", item_num_of_type[c], c); // default unknown
@@ -70,9 +70,10 @@ void draw_pop_message(int i)
    char dt[40][120];
    int row = 0, col = 0, num_lines = 0;;
    int longest_line_len = 1;
-   for (int a=0; a < (int)strlen(pmsg[i]) + 1; a++)
+
+   for (int a=0; a < (int)strlen(pmsgtext[i]) + 1; a++)
    {
-       if (pmsg[i][a] == 126) // line break
+      if (pmsgtext[i][a] == 126) // line break
       {
          dt[row][col] = 0; // in case len == 0  on first line
          row++;
@@ -81,12 +82,13 @@ void draw_pop_message(int i)
       }
       else  // regular char
       {
-         dt[row][col] = pmsg[i][a];
+         dt[row][col] = pmsgtext[i][a];
          if (col > longest_line_len) longest_line_len = col;
          col++;
          dt[row][col] = 0;
       }
    }
+
    num_lines = row;
 
    // x positions
