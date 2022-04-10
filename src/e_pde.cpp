@@ -2,43 +2,59 @@
 
 #include "pm.h"
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void check_s_window_pos(int reset_pos)
 {
-   int swx1 = status_window_x;
-   int swy1 = status_window_y;
-   int swh = status_window_h;
-   int sww = status_window_w;
-   int swx2 = swx1 + sww;
-   int swy2 = swy1 + swh;
-   if ((swx2 > SCREEN_W) || (swx1 < 0)) reset_pos = 1;
-   if ((swy2 > SCREEN_H) || (swy1 < 0)) reset_pos = 1;
+   int reset_status = 0;
+   int reset_select = 0;
 
-   swx1 = select_window_x;
-   swy1 = select_window_y;
-   swh = select_window_h;
-   sww = select_window_w;
-   swx2 = swx1 + sww;
-   swy2 = swy1 + swh;
-   if ((swx2 > SCREEN_W) || (swx1 < 0)) reset_pos = 1;
-   if ((swy2 > SCREEN_H) || (swy1 < 0)) reset_pos = 1;
+   int status_window_x2 = status_window_x + status_window_w;
+   int status_window_y2 = status_window_y + status_window_h;
+   if ((status_window_x < 0) || (status_window_x2 > SCREEN_W)) reset_status = 1;
+   if ((status_window_y < 0) || (status_window_y2 > SCREEN_H)) reset_status = 1;
 
-   if (reset_pos)
+   if (reset_status)
    {
-//      status_window_x = SCREEN_W-(sww+10);
-//      status_window_y = 10;
-//
-//      select_window_x = SCREEN_W-(sww+10);
-//      select_window_y = status_window_y + status_window_h + 10;
-
-
       status_window_x = 10;
       status_window_y = 10;
+   }
 
-      select_window_x = SCREEN_W-(sww+10);
+   int select_window_x2 = select_window_x + select_window_w;
+   int select_window_y2 = select_window_y + select_window_h;
+   if ((select_window_x < 0) || (select_window_x2 > SCREEN_W)) reset_select = 1;
+   if ((select_window_y < 0) || (select_window_y2 > SCREEN_H)) reset_select = 1;
+
+   if (reset_select)
+   {
+      select_window_x = SCREEN_W - (select_window_w + 10);
       select_window_y = 10;
-
-
-
    }
 }
 
@@ -173,6 +189,7 @@ int process_status_window(int draw_only)
                status_window_y = mouse_y-ty;
             }
             check_s_window_pos(0);
+            save_config();
             return 1001;
          }
       }
@@ -344,7 +361,9 @@ int process_select_window(int draw_only)
                   select_window_y = mouse_y-ty;
                }
                check_s_window_pos(0);
+               save_config();
                return -1;
+
             }
          } // end of if mouse on title bar
 

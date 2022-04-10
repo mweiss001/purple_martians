@@ -6,6 +6,9 @@
 // all global variables should be declared here and externed in pm.h
 
 
+
+
+
 int pm_event[1000];
 
 
@@ -64,9 +67,7 @@ int  client_state_dif_src;             // uncompressed dif src frame_num
 int  client_state_dif_dst;             // uncompressed dif dst frame_num
 
 
-
-
-
+int level_header[20] = {0};
 
 
 
@@ -218,7 +219,9 @@ int brf_mode =0;
 int ft_level_header[20];
 int ft_l[100][100];
 int ft_item[500][16];
-char* ft_pmsg[500];
+char ft_pmsgtext[500][500] = {0};
+
+
 int ft_Ei[100][32];
 al_fixed ft_Efi[100][16];
 
@@ -432,7 +435,8 @@ al_fixed itemf[500][4]; // item fixeds
 int item_num_of_type[30];
 int item_first_num[30];
 char item_name[30][40];
-char *pmsg[500] = { NULL };
+char pmsgtext[500][500] = {0};
+
 
 
 // enemies
@@ -1320,6 +1324,14 @@ int main(int argument_count, char **argument_array)
 // --------------------------------------------------------------------------------------------
 // these flags get processed after allegro is initialized
 // --------------------------------------------------------------------------------------------
+
+
+
+//   char tst[20];
+//   printf("sizeof %d\n", sizeof(tst));
+
+
+
 
 
    //spline_test();

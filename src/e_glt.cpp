@@ -482,26 +482,23 @@ Ef[y][9] = 0;
 
 
 
+
+
+
 /*
 
-      for (int y=0; y<500; y++)
          if (item[y][0] == 10) // msg only
          {
-            printf("lev%d: - %s\n", le[x], pmsg[y]);
+
+            count0++;
+
+
          }
 
 
+
+
 */
-
-
-
-
-
-
-
-
-
-
 
              /*
 
@@ -1021,6 +1018,9 @@ then semisolid...add to solid
 
   */
 
+  /*
+
+
       // blocks
       for (int y=0; y<100; y++)
          for (int z=0; z<100; z++)
@@ -1078,6 +1078,27 @@ then semisolid...add to solid
 
 
          }
+
+
+         */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             /*
 
@@ -1171,8 +1192,9 @@ then semisolid...add to solid
         if (l[y][z] == 106) l[y][z] = 647;
 
 
+*/
 
-  */
+
 
       if (1)
       {

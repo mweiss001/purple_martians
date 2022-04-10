@@ -12,6 +12,10 @@ maybe later I could profile and see what takes up all the time...
 does remote trigger have a delay before the explosion?
 I want it immediate to help the player time exploding moving things
 
+
+if a pmsg gets cloned program will crash...
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------

@@ -1565,6 +1565,8 @@ void enemy_cloner(int e)
 
    if (create_now)
    {
+      printf("create now\n");
+
       int no=0, cl=Ei[e][10]; // limit on number of created objects
       if (cl)
       {

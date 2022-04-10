@@ -187,11 +187,7 @@ void zero_level_data(void)
 
    for (int c=0; c<500; c++)  // items
    {
-      if (pmsg[c])
-      {
-         free (pmsg[c]);
-         pmsg[c] = NULL;
-      }
+      for (int x=0; x<500; x++) pmsgtext[c][x] = 0;
       for (int x=0; x<16; x++) item[c][x] = 0;
       for (int x=0; x<4; x++) itemf[c][x] = al_itofix(0);
    }
@@ -271,9 +267,41 @@ void level_check(void)
 }
 
 
+
+
+
+
+void pml_to_var(char * b)
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
+   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
+   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
+   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
+   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
+}
+
+void var_to_pml(char * b)
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts);        memcpy(b+offset, lifts,        sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
+
+
 int load_level(int level_to_load, int display)
 {
-   int level_header[20];
+   for (int i=0; i<20; i++) level_header[i] = 0;
+
    int level_load_error = 0;
 
    last_level_loaded = level_to_load;
@@ -290,36 +318,19 @@ int load_level(int level_to_load, int display)
       //m_err(msg);
       level_load_error = 1;
    }
-
    if (!level_load_error)  // file open !
    {
-      fread(level_header, sizeof(level_header), 1, fp);
-      fread(l,            sizeof(l),            1, fp);
-      fread(item,         sizeof(item),         1, fp);
-      fread(Efi,          sizeof(Efi),          1, fp);
-      fread(Ei,           sizeof(Ei),           1, fp);
-      fread(lifts,        sizeof(lifts),        1, fp);
-      fread(lift_steps,   sizeof(lift_steps),   1, fp);
-
-      // read the number of pmsg's
-      int num_pmsg = 0;
-      fread(&num_pmsg, sizeof(num_pmsg), 1, fp);
-
-      // make the array to store data about them
-      int pl[num_pmsg][2] = {0};
-
-      // read the array
-      fread(pl, sizeof(pl), 1, fp);
-
-      // read the strings
-      for (int c=0; c<num_pmsg; c++)
-      {
-         int pi = pl[c][0]; // pmsg index
-         int ps = pl[c][1]; // pmsg length
-         pmsg[pi] = (char*) malloc (ps); // allocate
-         fread(pmsg[pi], ps, 1, fp);     // read
-      }
+      // read the compressed data
+      char cmp[PML_SIZE];
+      fread(cmp, sizeof(cmp), 1, fp);
       fclose(fp);
+
+      // decompress cmp to pml
+      char pml[PML_SIZE];
+      uLongf destLen = sizeof(pml);
+      uncompress((Bytef*)pml, (uLongf*)&destLen, (Bytef*)cmp, sizeof(cmp));
+
+      pml_to_var(pml);
    } // end of file open
 
    if (level_load_error)
@@ -348,14 +359,12 @@ int load_level(int level_to_load, int display)
    }
 }
 
-
-
-
 int save_level(int level_to_save)
 {
    level_check();
 
-   int level_header[20] = {0};
+   for (int i=0; i<20; i++) level_header[i] = 0;
+
    level_header[0] = 5; // .pml level version
    level_header[3] = sort_item(); // num_of_items
    sort_enemy();
@@ -364,50 +373,19 @@ int save_level(int level_to_save)
 
    make_filename(level_to_save);   // update filename
 
+   // put variables in pml
+   char pml[PML_SIZE];
+   var_to_pml(pml);
+
+   // compress pml to cmp
+   char cmp[PML_SIZE];
+   uLongf destLen= sizeof(cmp);
+   compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)pml, sizeof(pml), -1);
+   int cmp_size = destLen;
+
+   // write cmp to file
    FILE *fp = fopen(level_filename,"wb");
-
-   fwrite(level_header, sizeof(level_header), 1, fp);
-   fwrite(l,            sizeof(l),            1, fp);
-   fwrite(item,         sizeof(item),         1, fp);
-   fwrite(Efi,          sizeof(Efi),          1, fp);
-   fwrite(Ei,           sizeof(Ei),           1, fp);
-   fwrite(lifts,        sizeof(lifts),        1, fp);
-   fwrite(lift_steps,   sizeof(lift_steps),   1, fp);
-
-   // how many pmsg?
-   int num_pmsg = 0;
-   for (int i=0; i<500; i++)
-      if (pmsg[i] != NULL) num_pmsg++;
-
-   // make an array to store data about them
-   int pl[num_pmsg][2] = {0};
-
-   // fill the array
-   int pl_indx = 0;
-   for (int i=0; i<500; i++)
-   {
-      if (pmsg[i] != NULL)
-      {
-         pl[pl_indx][0] = i;                   // pmsg index
-         pl[pl_indx][1] = strlen(pmsg[i]) + 1; // length of pmsg (don't forget about the NULL at the end)
-         pl_indx++;
-      }
-   }
-
-   // write the number of pmsg's
-   fwrite(&num_pmsg, sizeof(int), 1, fp);
-
-   // write the array
-   fwrite(pl, sizeof(pl), 1, fp);
-
-   // write the text of the pmsg's
-   for (int c=0; c<num_pmsg; c++)
-   {
-      int pi = pl[c][0]; // pmsg index
-      int ps = pl[c][1]; // pmsg length
-      fwrite(pmsg[pi], ps, 1, fp);
-   }
-
+   fwrite(cmp, cmp_size, 1, fp);
    fclose(fp);
    return 0;
 }
@@ -418,7 +396,6 @@ int mw_file_select(const char * title, char * fn, const char * ext, int save)
    // no matter what I do I cannot start the native file chooser with the file I pass to it selected
    // i have tried everything I can think of
    // the filename and path is absolute, but still shows up blank
-
 
    int mode = 0; // default
    if (save) mode = ALLEGRO_FILECHOOSER_SAVE;

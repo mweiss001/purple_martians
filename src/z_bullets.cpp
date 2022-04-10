@@ -104,15 +104,13 @@ void move_pbullets()
          if ((pbullet[b][2] < 5) || (pbullet[b][2] > 1995) || (pbullet[b][3]<5) || (pbullet[b][3] > 1995) ) pbullet[b][0] = 0;
 
          // level block collision
-         int x = ( (pbullet[b][2] + 10) / 20);
-         int y = ( (pbullet[b][3] + 10) / 20);
+         int x = ((pbullet[b][2]+10) / 20);
+         int y = ((pbullet[b][3]+10) / 20);
          int d = l[x][y];
-         if (d & PM_BTILE_SOLID_PBUL)  // bullet hit solid or breakable wall
+         if ((d & PM_BTILE_SOLID_PBUL) || (d & PM_BTILE_BREAKABLE_PBUL)) // bullet hit solid or breakable wall
          {
-            pbullet[b][0] = 0;  // bullet dies
-
-            if (d & PM_BTILE_BREAKABLE_PBUL)  // breakable wall
-   //         if ((d > 95) && (d < 128)) // breakable wall
+            pbullet[b][0] = 0;  // bullet is done
+            if (d & PM_BTILE_BREAKABLE_PBUL)
             {
                remove_block(x, y);
                draw_lift_lines();
