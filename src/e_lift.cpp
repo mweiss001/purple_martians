@@ -60,27 +60,27 @@ void show_all_lifts(void)
 
 void erase_lift(int lift)
 {
-   for (int a=lift; a<num_lifts; a++) // slide down to close hole in array
+   for (int l=lift; l<num_lifts; l++) // slide down to close hole in array
    {
-      lifts[a] = lifts[a+1];
-      for (int b=0; b<40; b++)
-         lift_steps[a][b] = lift_steps[a+1][b];
+      lifts[l] = lifts[l+1];
+      for (int s=0; s<40; s++)
+         lift_steps[l][s] = lift_steps[l+1][s];
    }
    clear_lift(num_lifts);                                  // clear last lift
-   for (int a=0; a<40; a++) clear_lift_step(num_lifts, a); // clear last lift's steps
+   for (int s=0; s<40; s++) clear_lift_step(num_lifts, s); // clear last lift's steps
    num_lifts--;                                            // one less lift
 }
 
-void delete_lift_step(int lift, int step)
+void delete_lift_step(int l, int step)
 {
-   for (int x=step; x<lifts[lift].num_steps-1; x++)   // slide all down
+   for (int x=step; x<lifts[l].num_steps-1; x++)   // slide all down
    {
-      lift_steps[lift][x].x    = lift_steps[lift][x+1].x ;
-      lift_steps[lift][x].y    = lift_steps[lift][x+1].y ;
-      lift_steps[lift][x].val  = lift_steps[lift][x+1].val ;
-      lift_steps[lift][x].type = lift_steps[lift][x+1].type ;
+      lift_steps[l][x].x    = lift_steps[l][x+1].x ;
+      lift_steps[l][x].y    = lift_steps[l][x+1].y ;
+      lift_steps[l][x].val  = lift_steps[l][x+1].val ;
+      lift_steps[l][x].type = lift_steps[l][x+1].type ;
    }
-   lifts[lift].num_steps--;
+   lifts[l].num_steps--;
 }
 
 void lift_setup(void)
@@ -127,13 +127,13 @@ void draw_steps(int step_ty, int lift, int current_step, int highlight_step)
       }
 }
 
-void highlight_current_lift(int lift)
+void highlight_current_lift(int l)
 {
-   int color = lifts[lift].color;
-   int x3 = lifts[lift].width * 20;
-   int y3 = lifts[lift].height * 20;
-   int x1 = lifts[lift].x1 + 4;
-   int y1 = lifts[lift].y1 + 4;
+   int color = lifts[l].color;
+   int x3 = lifts[l].width * 20;
+   int y3 = lifts[l].height * 20;
+   int x1 = lifts[l].x1 + 4;
+   int y1 = lifts[l].y1 + 4;
    int x2 = x1 + x3-4;
    int y2 = y1 + y3-4;
 
@@ -150,9 +150,9 @@ void highlight_current_lift(int lift)
       al_draw_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, palette_color[color+ (9-a)*16], 1 );
    al_draw_filled_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, palette_color[color] );
 
-   if ((lifts[lift].width == 1) && (lifts[lift].height > 1)) // rotate lift name for vertical lifts
-      rtextout_centre(NULL, lifts[lift].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 64, 1);
-   else rtextout_centre(NULL, lifts[lift].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 0, 1);
+   if ((lifts[l].width == 1) && (lifts[l].height > 1)) // rotate lift name for vertical lifts
+      rtextout_centre(NULL, lifts[l].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 64, 1);
+   else rtextout_centre(NULL, lifts[l].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 0, 1);
 
    al_reset_clipping_rectangle();
 

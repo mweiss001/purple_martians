@@ -18275,6 +18275,877 @@ size compression level
 
 
 
+20220410 8:00 AM
+
+fixed a bug where items would not trigger...
+
+I want to make block manip work with blocks that have flags
+
+so I'm thinking of grabbing them from the actual level rather than the PDE thing
+that way they have have all the benefits of flags...
+like being able to just turn off a flag
+
+Or I could go all out and make a flag manip item...
+or i could extend bm to iunclude flags...
+the easiest seems to be to choose the blocks from the level...
+
+how will I do that?
+
+
+            if (mode == 1) // set all blocks to block 1
+            {
+               l[x][y] = block1;
+               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+               al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
+            }
+
+            if (mode == 2) // set all block2 to block 1
+            {
+               if (l[x][y] == block2)
+               {
+                  l[x][y] = block1;
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
+               }
+            }
+
+            if (mode == 3) // toggle block1 and block 2
+            {
+               if (l[x][y] == block1)
+               {
+                  l[x][y] = block2;
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(btile[block2&1023], x*20, y*20, 0 );
+               }
+               else if (l[x][y] == block2)
+               {
+                  l[x][y] = block1;
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
+               }
+            }
+
+
+/* old way...uses only tile number, not tile and flags
+
+
+            if (mode == 1) // set all blocks to block 1
+            {
+               l[x][y] = block1 | sa[block1][0]; // replace block (use default flags)
+               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+               al_draw_bitmap(btile[block1], x*20, y*20, 0 );
+            }
+
+            if (mode == 2) // set all block2 to block 1
+            {
+               if ((l[x][y]&1023) == block2)
+               {
+                  l[x][y] = block1 | sa[block1][0]; // replace block
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(btile[block1], x*20, y*20, 0 );
+               }
+            }
+
+            if (mode == 3) // toggle block1 and block 2
+            {
+               if ((l[x][y]&1023) == block1)
+               {
+                  l[x][y] = block2 | sa[block2][0];
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(btile[block2], x*20, y*20, 0 );
+               }
+               else if ((l[x][y]&1023) == block2)
+               {
+                  l[x][y] = block1 | sa[block1][0];
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(btile[block1], x*20, y*20, 0 );
+               }
+            }
+
+
+
+*/
+
+OK that works....
+
+now make the block selector a little nicer...done
+
+now see what we have broken in all the block manips out there....
+
+can I make the block number show better in slider?
+
+
+
+52 good
+56 good
+58 good
+59 good
+70 good
+71 good
+314 has a lot, let try to set them with glt
+315 has a lot too..
+
+10 and 11
+
+get tile appply default flags...
+done....
+
+how many tiles in all my levels have the PM_BTILE_SHOW_SELECT_WIN set?
+
+I should check...looks like only level 59...
+
+then remove
+then make it so PDE does not keep it...
+
+
+when void set_swbl(void) adds it to swbl, flag is not removed
+
+when int process_select_window returns it, flag is not removed
+
+lets nip in in the bud...
+
+when its added to swbl...done
+
+use glt to remove flag....done
+
+
+moved set_swbl from being called every frame to start of edit menu..
+also should do it when it might change like in set tile attributes...done
+
+blank spaces in select window special items have funny tile..
+need to make tile 0 in tiles, actually blank...
+
+
+does the old animation editor stuff actually save and mess stuff up??
+
+
+
+save_tiles()
+saves the tiles.bmp
+and
+FILE *fp = fopen("bitmaps/sprit001.pm", "wb");
+fwrite(zz, sizeof(zz), 1, fp);
+fwrite(sa, sizeof(sa), 1, fp);
+fclose(fp);
+
+I have commented out both places that call this...
+
+I should really diable a lot of this stuff...for safety...
+
+I need to keep animation editor...
+
+and copy bitmap could be nice for editing tiles.bmp
+
+- make animation editor do only that and only save zz
+but zz and sa are saved together...
+
+make a save and load sprit functions...done
+
+call load_sprit from load_tiles...done
+remove saving sprits from saving tiles...done
+
+there are still only two things that call save_tiles and they are both commented out...
+
+the only thing that calls save_sprit is my new void edit_tile_attributes(void)
+
+after i clean up animation it can call it too...
+
+remove all traces of old attributes editor...
+it was called int select_bitmap_proc() and has been moved to old_fnx...
+
+animation_sequence_editor() is the new name...
+it will call save sprit
+
+            case 20: animation_sequence_editor(); break;
+            case 21: copy_tiles(); break;
+            case 22: copy_btiles(); break;
+            case 23: edit_btile_attributes(); break;
+
+
+
+this is all done...
+next I need to make a save button for copy_tiles()...
+this is the only things that calls save_tiles()...
+done and works great...erased blocks from tiles.bmp..
+
+you know...it would have been better to make a tile copier than works from any file to any file....
+then I wouldn't have had to do this twice.....
+
+save and load PDE....done....
+
+int load_PDE()
+{
+   FILE *fp =fopen("bitmaps/pde.pm","rb");
+   if (fp)
+   {
+      fread(PDEfx, sizeof(PDEfx), 1, fp);
+      fread(PDEi,  sizeof(PDEi),  1, fp);
+      fread(PDEt,  sizeof(PDEt),  1, fp);
+      fclose(fp);
+      return 1;
+   }
+   m_err("Error loading pde.pm");
+   return 0;
+}
+
+void save_PDE()
+{
+   FILE *fp =fopen("bitmaps/pde.pm","wb");
+   if (fp)
+   {
+      fwrite(PDEfx, sizeof(PDEfx), 1, fp);
+      fwrite(PDEi,  sizeof(PDEi),  1, fp);
+      fwrite(PDEt,  sizeof(PDEt),  1, fp);
+      fclose(fp);
+   }
+   else m_err("Error saving pde.pm");
+}
+
+block number showing better in sliders for manip, now its just a huge number...done just &1023
+manip creator to stay on viewer after create..done for manip dmg and trigger
+
+make copy tiles work from any bitmap file to any other...done...that was easy
+it is called copy tiles...
+fix menu...done...
+add gridlines...done
+remove the other 2....done
+add option to scale 2nd one...done
+
+now the bitmap stuff is much more streamlined:
+
+case 20: animation_sequence_editor(); break;
+case 21: copy_tiles(); break;
+case 22: edit_btile_attributes(); break;
+
+save_tiles() is called by nothing...
+save_btiles() is called by nothing...
+move them both to old fnx
+
+save_sprit() is called by:
+edit_btile_attributes()
+animation_sequence_editor()
+
+
+
+
+make perl script to automatically iterate all cpp files and generate a list of function prototypes
+
+also for all global variables make a list of what files and functions use them
+
+
+
+
+
+
+improve lifts with more modes
+
+
+
+what variables do I have?
+
+its a struct...no room for expansion
+
+al_fixed fx;
+al_fixed fy;
+al_fixed fxinc;
+al_fixed fyinc;
+int x1;
+int y1;
+int x2;
+int y2;
+int width;
+int height;
+int color;
+int current_step;
+int num_steps;
+int limit_counter;
+int limit_type;
+char lift_name[40];
+x2, y2
+hell, even x1, y1
+could be repurposed
+
+I don't want to change the size because of netgame...but is that really such big deal?
+lets see if I can just ignore the 4 ints, x1, y1, x2, y2...
+what does lift move use??
+
+this looks too hard
+
+If I wanted to add something what would it look like?
+
+int flags
+int mode
+int count
+int val1
+
+so 4 more ints?
+
+what is the damage?
+
+
+40 lifts x 4 ints x 4 bytes = 640 bytes
+
+I would need to increase...
+
+#define STATE_SIZE 104640 to #define STATE_SIZE 105280
+
+this would not change at all....
+
+void game_vars_to_state(char * b)
+{
+   int size = 0, offset = 0;
+   offset += size; size = sizeof(players); memcpy(b+offset, players, size);
+   offset += size; size = sizeof(Ei);      memcpy(b+offset, Ei,      size);
+   offset += size; size = sizeof(Efi);     memcpy(b+offset, Efi,     size);
+   offset += size; size = sizeof(item);    memcpy(b+offset, item,    size);
+   offset += size; size = sizeof(itemf);   memcpy(b+offset, itemf,   size);
+   offset += size; size = sizeof(lifts);   memcpy(b+offset, lifts,   size);
+   offset += size; size = sizeof(l);       memcpy(b+offset, l,       size);
+}
+
+void state_to_game_vars(char * b)
+{
+   int size = 0, offset = 0;
+   size = sizeof(players); memcpy(players, b+offset, size); offset += size;
+   size = sizeof(Ei);      memcpy(Ei,      b+offset, size); offset += size;
+   size = sizeof(Efi);     memcpy(Efi,     b+offset, size); offset += size;
+   size = sizeof(item);    memcpy(item,    b+offset, size); offset += size;
+   size = sizeof(itemf);   memcpy(itemf,   b+offset, size); offset += size;
+   size = sizeof(lifts);   memcpy(lifts,   b+offset, size); offset += size;
+   size = sizeof(l);       memcpy(l,       b+offset, size); offset += size;
+}
+
+
+i would need to iterate all the levels and save in the new type...
+how the hell will I do that???
+
+
+shadow the lift struct with something 16 bytes bigger
+
+read into old, copy to new, save as new...
+
+
+
+extern struct lift lifts[NUM_LIFTS];
+extern struct lift_step lift_steps[NUM_LIFTS][40];
+extern int num_lifts;
+extern char lift_step_type_name[10][10];
+struct lift
+{
+   al_fixed fx;
+   al_fixed fy;
+   al_fixed fxinc;
+   al_fixed fyinc;
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+   int width;
+   int height;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+struct lift_step
+{
+   int type;
+   int val;
+   int x;
+   int y;
+};
+
+extern struct lift2 lifts2[NUM_LIFTS];
+struct lift2
+{
+   al_fixed fx;
+   al_fixed fy;
+   al_fixed fxinc;
+   al_fixed fyinc;
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+
+   int flags;
+   int mode;
+   int user1;
+   int user2;
+
+   int width;
+   int height;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+
+
+
+
+// copy lifts to temp structure to resize
+
+for (int l=0; l<num_lifts; l++)
+{
+   lifts2[l].fx =            lifts[l].fx;
+   lifts2[l].fy =            lifts[l].fy;
+   lifts2[l].x1 =            lifts[l].x1;
+   lifts2[l].y1 =            lifts[l].y1;
+   lifts2[l].x2 =            lifts[l].x2;
+   lifts2[l].y2 =            lifts[l].y2;
+   lifts2[l].width =         lifts[l].width;
+   lifts2[l].height =        lifts[l].height;
+   lifts2[l].color =         lifts[l].color;
+   lifts2[l].current_step =  lifts[l].current_step;
+   lifts2[l].num_steps =     lifts[l].num_steps;
+   lifts2[l].limit_counter = lifts[l].limit_counter;
+   lifts2[l].limit_type =    lifts[l].limit_type;
+   lifts2[l].flags = 0;
+   lifts2[l].mode = 0;
+   lifts2[l].val1 = 0;
+   lifts2[l].val2 = 0;
+   strcpy(lifts2[l].lift_name, lifts[l].lift_name);
+}
+
+
+
+void pml_to_var(char * b)
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
+   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
+   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
+   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
+   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
+}
+
+void var_to_pml(char * b)
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts2);       memcpy(b+offset, lifts2,       sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
+
+
+I need to resize...
+
+
+#define PML_SIZE 370880
+#define PML_SIZE2 371520
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------
+step 0 -
+
+level_header:    80
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts       :  4000
+lift_steps  : 25600
+pmsgtext    :250000
+       total:370880
+
+
+level_header:    80
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts2      :  4640
+lift_steps  : 25600
+pmsgtext    :250000
+       total:371520
+
+
+#define PML_SIZE 370880
+#define PML_SIZE2 371520
+
+------------------------------------------------------------------------------------------------------------------
+step 1 - backup levels
+------------------------------------------------------------------------------------------------------------------
+step 2 - original load  new save
+------------------------------------------------------------------------------------------------------------------
+
+void pml_to_var(char * b) // load
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
+   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
+   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
+   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
+   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
+}
+
+void var_to_pml(char * b) // save
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts2);       memcpy(b+offset, lifts2,       sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
+
+
+char cmp[PML_SIZE];
+char pml[PML_SIZE];
+
+
+struct lift
+{
+   al_fixed fx;
+   al_fixed fy;
+   al_fixed fxinc;
+   al_fixed fyinc;
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+   int width;
+   int height;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+
+loads fine...
+------------------------------------------------------------------------------------------------------------------
+step 3
+modify save and run glt
+
+
+void var_to_pml(char * b) // save
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts2);       memcpy(b+offset, lifts2,       sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
+
+
+int save_level(int level_to_save)
+{
+   level_check();
+
+   for (int i=0; i<20; i++) level_header[i] = 0;
+
+   level_header[0] = 5; // .pml level version
+   level_header[3] = sort_item(); // num_of_items
+   sort_enemy();
+   level_header[4] = num_enemy;  // num_of_enemies
+   level_header[5] = num_lifts;  // num of lifts
+
+   make_filename(level_to_save);   // update filename
+
+   // put variables in pml
+   char pml[PML_SIZE2];
+   var_to_pml(pml);
+
+   // compress pml to cmp
+   char cmp[PML_SIZE2];
+   uLongf destLen= sizeof(cmp);
+   compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)pml, sizeof(pml), -1);
+   int cmp_size = destLen;
+
+   // write cmp to file
+   FILE *fp = fopen(level_filename,"wb");
+   fwrite(cmp, cmp_size, 1, fp);
+   fclose(fp);
+   return 0;
+}
+
+
+      // copy lifts to temp structure to resize
+      for (int l=0; l<num_lifts; l++)
+      {
+         lifts2[l].fx =            lifts[l].fx;
+         lifts2[l].fy =            lifts[l].fy;
+         lifts2[l].x1 =            lifts[l].x1;
+         lifts2[l].y1 =            lifts[l].y1;
+         lifts2[l].x2 =            lifts[l].x2;
+         lifts2[l].y2 =            lifts[l].y2;
+         lifts2[l].width =         lifts[l].width;
+         lifts2[l].height =        lifts[l].height;
+         lifts2[l].flags = 0;
+         lifts2[l].mode = 0;
+         lifts2[l].val1 = 0;
+         lifts2[l].val2 = 0;
+         lifts2[l].color =         lifts[l].color;
+         lifts2[l].current_step =  lifts[l].current_step;
+         lifts2[l].num_steps =     lifts[l].num_steps;
+         lifts2[l].limit_counter = lifts[l].limit_counter;
+         lifts2[l].limit_type =    lifts[l].limit_type;
+         strcpy(lifts2[l].lift_name, lifts[l].lift_name);
+      }
+
+
+
+------------------------------------------------------------------------------------------------------------------
+step 4
+
+
+modify load
+
+keep this the same
+
+void pml_to_var(char * b) // load
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
+   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
+   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
+   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
+   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
+}
+
+
+PML_SIZE2 in 2 places
+int load_level(int level_to_load, int display)
+{
+      // read the compressed data
+      char cmp[PML_SIZE2];
+      fread(cmp, sizeof(cmp), 1, fp);
+
+
+modify lift to add 4 ints
+struct lift
+{
+   al_fixed fx;
+   al_fixed fy;
+   al_fixed fxinc;
+   al_fixed fyinc;
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+   int width;
+   int height;
+   int flags;
+   int mode;
+   int val1;
+   int val2;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+
+
+success!!!!!!!!
+------------------------------------------------------------------------------------------------------------------
+
+clean up the code...
+
+increase the state size and test netplay.....
+#define STATE_SIZE 104640 to #define STATE_SIZE 105280
+netplay works fine....
+
+made a function to display this:
+
+Purple Martians Version 7.10
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+
+Variables used to save levels in pml format
+
+level_header:    80
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts       :  4640
+lift_steps  : 25600
+pmsgtext    :250000
+------------:------
+total       :371520
+
+Variables used for netgame state exchange
+
+players  :  1440
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    : 32000
+lifts    :  4640
+l        : 40000
+---------:------
+total    :105280
+
+now that I have 4 more variables in the lift struct, what am I going to do with them?
+
+mode
+
+0 = normal
+the last lift step moves to the first at the speed defined in the first step....
+
+
+1 = one shot
+moves to the last step and stays there, forever
+
+2 = instant restart
+after the last step, instantly warps to the first step
+
+3 = prox reset
+if the player is away from the lift (prox) for a certain time, the lift will reset
+
+4 = lift only moves when player is on it
+
+
+I want to have some more step types defined also...
+step type grow or shrink the lift size...
+
+step type, wait for trigger!!!
+
+   int type;
+   int val;
+   int x;
+   int y;
+
+           case 1: // move
+               set_lift_xyinc(d, step);
+            break;
+            case 2: // wait time
+               lifts[d].limit_type = 5; // wait time
+               lifts[d].limit_counter = lift_steps[d][step].val; // limit
+               lifts[d].fxinc= 0; // no xinc
+               lifts[d].fyinc= 0; // no yinc
+            break;
+            case 3: // wait prox
+               lifts[d].limit_type = 6; // wait prox
+               lifts[d].limit_counter = lift_steps[d][step].val; // limit
+               lifts[d].fxinc= 0; // no xinc
+               lifts[d].fyinc= 0; // no yinc
+            break;
+            case 4: // move to step 0
+               step = lifts[d].current_step = 0; // set step 0
+               set_lift_xyinc(d, step);
+
+
+type 5 - resize
+val - time to complete
+x - new width
+y - new height
+
+type 6 - wait for trigger
+val - trigger event number
+
+
+type 7 - move to pos only if player is on lift
+val - speed
+x
+y
+
+type 8 - reset if player off for more than time
+val - speed
+x
+y
+
+
+
+
+
+
+COMMIT
+
+load and save PDE now use binary mode
+made a new universal copy tile routine than work from any file to any file
+made a new tile select routine for block manip to choose from level block to include flags
+cleaned up old bitmap and tile routine
+increased lift struct size by 16 bytes for new features
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

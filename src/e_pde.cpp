@@ -208,10 +208,9 @@ int process_select_window(int draw_only)
    int swx2 = swx1 + sww;
    int swy2 = swy1 + swh;
 
-   int c, a, b=0;
+   int c = 13;            // first y line of sub-windows;
    select_window_h = 200; // for now
-   c = 13;  // first y line of sub-windows
-   set_swbl();  // set swbl
+
    // set special start y
    if (select_window_special_on)
    {
@@ -259,14 +258,11 @@ int process_select_window(int draw_only)
       // draw special block
       for (c=0; c<16*select_window_num_special_lines; c++)
       {
-         if (c < 100) a = PDEi[c][1]; // bmp or ans
-         else a = 0;
-         if (a < NUM_SPRITES) b = a; // bmp
-         if (a > 999) b = zz[5][a-1000]; // ans
-         al_draw_bitmap(tile[b], swx1+(c-((c/16)*16) )*20+1, swy1+14+select_window_special_y+1+(c/16*20), 0 );
+         int tn = PDEi[c][1]; // default is the tile in PDEi[c][1]
+         if (tn > 999) tn = zz[5][tn-1000]; // ans
+         al_draw_bitmap(tile[tn], swx1+(c-((c/16)*16) )*20+1, swy1+14+select_window_special_y+1+(c/16*20), 0 );
       }
    }
-
    // blocks top bar frame and text
    if (select_window_block_on)
    {
@@ -666,154 +662,49 @@ int main(int argv, char* argc[])
 
 
 
-
-
-
-
 void set_swbl(void)
 {
    swbn = 0;
-
-   // erase array
    for (int c=0; c<NUM_SPRITES; c++)
    {
-      swbl[c][0] = 0;
-      swbl[c][1] = 0;
-   }
-
-   for (int c=0; c<NUM_SPRITES; c++)
-   if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
-   {
-      swbl[swbn][0] = c;          // add to list
-      swbl[swbn][0] |= sa[c][0];  // apply flags
-      swbn++;
+      swbl[c][0] = swbl[c][1] = 0;                    // erase
+      if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
+      {
+         swbl[swbn][0] = c | sa[c][0];                // add to list with default flags
+         swbl[swbn][0] &= ~PM_BTILE_SHOW_SELECT_WIN;  // clear flag
+         swbn++;
+      }
    }
    swnbl = (swbn / 16) + 1;
    if (swnbl_cur == 0) swnbl_cur = swnbl; // initial only
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 int load_PDE()
 {
-   FILE *filepntr;
-   int PDE_load_error;
-   int loop, ch, c, x;
-   char buff[80];
-   PDE_load_error = 0;
-   if (!al_filename_exists("bitmaps/pde.pm"))
+   FILE *fp =fopen("bitmaps/pde.pm","rb");
+   if (fp)
    {
-      sprintf(msg, "Can't find pde.pm");
-      PDE_load_error = 2;
+      fread(PDEfx, sizeof(PDEfx), 1, fp);
+      fread(PDEi,  sizeof(PDEi),  1, fp);
+      fread(PDEt,  sizeof(PDEt),  1, fp);
+      fclose(fp);
+      return 1;
    }
-   if (!PDE_load_error) // file exists
-      if ((filepntr=fopen("bitmaps/pde.pm","r")) == NULL)
-      {
-         sprintf(msg, "Error opening pde.pm");
-         m_err(msg);
-         PDE_load_error = 3;
-      }
-   if (!PDE_load_error) // file exists and is open!
-   {
-      for (c=0; c<100; c++) // read PDE enemy al_fixed
-         for (x=0; x<16; x++)
-         {
-            loop = 0;
-            ch = fgetc(filepntr);
-            while((ch != '\n') && (ch != EOF))
-            {
-               buff[loop] = ch;
-               loop++;
-               ch = fgetc(filepntr);
-            }
-            buff[loop] = (char)NULL;
-            PDEfx[c][x] = atoi(buff);  // al_fixed
-
-            if (ch == EOF)
-            {
-               sprintf(msg, "Error reading al_fixed in PDE");
-               m_err(msg);
-               PDE_load_error = 4;
-            }
-         }
-      for (c=0; c < 100; c++)  // enemy ints
-         for (x=0; x<32; x++)
-         {
-            loop = 0;
-            ch = fgetc(filepntr);
-            while((ch != '\n') && (ch != EOF))
-            {
-               buff[loop] = ch;
-               loop++;
-               ch = fgetc(filepntr);
-            }
-            buff[loop] = (char)NULL;
-            PDEi[c][x] = atoi(buff);
-            if (ch == EOF)
-            {
-               sprintf(msg,  "Error reading ints in PDE" );
-               m_err(msg);
-               PDE_load_error = 5;
-            }
-         }
-      for (c=0; c < 100; c++)  // enemy text
-         for (x=0; x<20; x++)
-         {
-            loop = 0;
-            ch = fgetc(filepntr);
-            while((ch != '\n') && (ch != EOF))
-            {
-               PDEt[c][x][loop] = ch;
-               loop++;
-               ch = fgetc(filepntr);
-            }
-            PDEt[c][x][loop] = (char)NULL;
-            if (ch == EOF)
-            {
-               sprintf(msg,"Error reading text at %d %d %d in PDE", loop, c, x);
-               m_err(msg);
-               PDE_load_error = 6;
-            }
-         }
-      fclose(filepntr);
-   }
-   if (PDE_load_error)
-   {
-      sprintf(msg,"PDI load error %d", PDE_load_error);
-      m_err(msg);
-      return 0;
-   }
-   return 1;
+   m_err("Error loading pde.pm");
+   return 0;
 }
 
 void save_PDE()
 {
-   FILE *filepntr;
-   int c, x;
-   filepntr = fopen("bitmaps/pde.pm","w");
-   for (c=0; c < 100; c++)  // enemy al_fixed
-      for (x=0; x<16; x++)
-         fprintf(filepntr,"%d\n",PDEfx[c][x]);
-
-   for (c=0; c < 100; c++) // enemy int
-      for (x=0; x<32; x++)
-         fprintf(filepntr,"%d\n",PDEi[c][x]);
-
-   for (c=0; c < 100; c++) // enemy text
-      for (x=0; x<20; x++)
-         fprintf(filepntr,"%s\n",PDEt[c][x]);
-   fclose(filepntr);
+   FILE *fp =fopen("bitmaps/pde.pm","wb");
+   if (fp)
+   {
+      fwrite(PDEfx, sizeof(PDEfx), 1, fp);
+      fwrite(PDEi,  sizeof(PDEi),  1, fp);
+      fwrite(PDEt,  sizeof(PDEt),  1, fp);
+      fclose(fp);
+   }
+   else m_err("Error saving pde.pm");
 }
 
 

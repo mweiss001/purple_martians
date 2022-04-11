@@ -22,6 +22,12 @@ the first int determines what type of PDE entry it is
 
 1-99     enemy type number
 101-199  item type number (+100)
+>199
+
+looks like I am using 999 and 9999 to mark blank or empty 
+why not zero? are they used for sorting?? yes!!!!
+this is a crude way of making them line up where I want.. leave it for now
+
 
 special PDE with their own custom creators are all in the 200's
 
@@ -42,6 +48,29 @@ case 14: create_trigger(); break; // type 213 - trigger
 case 15: create_block_manip(); break; // type 214 - block manip
 
 
+
+drawing PDE in int process_select_window()
+
+this was unneccesarily complicated
+  // draw special block
+  for (c=0; c<16*select_window_num_special_lines; c++)
+  {
+	 if (c < 100) 
+	 a = PDEi[c][1]; // bmp or ans
+	 else a = 0;
+	 if (a < NUM_SPRITES) b = a; // bmp
+	 if (a > 999) b = zz[5][a-1000]; // ans
+	 al_draw_bitmap(tile[b], swx1+(c-((c/16)*16) )*20+1, swy1+14+select_window_special_y+1+(c/16*20), 0 );
+  }
+
+changed to: 
+  // draw special block
+  for (c=0; c<16*select_window_num_special_lines; c++)
+  {
+	 int tn = PDEi[c][1]; // default is the tile in PDEi[c][1]
+	 if (tn > 999) tn = zz[5][tn-1000]; // ans
+	 al_draw_bitmap(tile[tn], swx1+(c-((c/16)*16) )*20+1, swy1+14+select_window_special_y+1+(c/16*20), 0 );
+  }
 
 
 

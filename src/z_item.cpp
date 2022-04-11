@@ -1712,11 +1712,11 @@ void detect_trigger_collisions(int i)
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_ITEM)
-      for (int i=0; i<500; i++)
-         if (item[i][0])
+      for (int c=0; c<500; c++)
+         if (item[c][0])
          {
-            al_fixed x = itemf[i][0];
-            al_fixed y = itemf[i][1];
+            al_fixed x = itemf[c][0];
+            al_fixed y = itemf[c][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
    if (FLAGS & PM_ITEM_TRIGGER_PBUL) // check player bullets
@@ -1812,6 +1812,43 @@ void process_block_manip(int i)
 
             if (mode == 1) // set all blocks to block 1
             {
+               l[x][y] = block1;
+               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+               al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
+            }
+
+            if (mode == 2) // set all block2 to block 1
+            {
+               if (l[x][y] == block2)
+               {
+                  l[x][y] = block1;
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
+               }
+            }
+
+            if (mode == 3) // toggle block1 and block 2
+            {
+               if (l[x][y] == block1)
+               {
+                  l[x][y] = block2;
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(btile[block2&1023], x*20, y*20, 0 );
+               }
+               else if (l[x][y] == block2)
+               {
+                  l[x][y] = block1;
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
+               }
+            }
+
+
+/* old way...uses only tile number, not tile and flags
+
+
+            if (mode == 1) // set all blocks to block 1
+            {
                l[x][y] = block1 | sa[block1][0]; // replace block (use default flags)
                al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
                al_draw_bitmap(btile[block1], x*20, y*20, 0 );
@@ -1842,6 +1879,36 @@ void process_block_manip(int i)
                   al_draw_bitmap(btile[block1], x*20, y*20, 0 );
                }
             }
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
          }
       draw_lift_lines();
       pm_event[et] = 0; // clear the trigger when we are done with it

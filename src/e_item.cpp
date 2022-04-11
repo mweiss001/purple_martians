@@ -321,7 +321,8 @@ int create_trigger(int i)
       else bad = 1;
    }
    if (bad) return 0;
-   else return 1;
+   else object_viewer(2, i);
+   return 1;
 }
 
 
@@ -354,7 +355,8 @@ int create_block_manip(int i)
       else bad = 1;
    }
    if (bad) return 0;
-   else return 1;
+   else object_viewer(2, i);
+   return 1;
 }
 
 int create_block_damage(int i)
@@ -394,7 +396,8 @@ int create_block_damage(int i)
       else bad = 1;
    }
    if (bad) return 0;
-   else return 1;
+   else object_viewer(2, i);
+   return 1;
 }
 
 
@@ -673,9 +676,7 @@ int create_pmsg(int c)
       object_viewer(2, c);
 
    }
-
-
-    return 1;
+   return 1;
 }
 
 int create_door(int type)

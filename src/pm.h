@@ -176,7 +176,8 @@ extern int ttc2;
 extern float ttfloat2;
 
 
-#define PML_SIZE 370880
+//old#define PML_SIZE 370880
+#define PML_SIZE 371520
 
 extern int level_header[20];
 
@@ -200,7 +201,8 @@ extern int deathmatch_pbullets_damage;
 extern int suicide_pbullets;
 
 
-#define STATE_SIZE 104640
+
+#define STATE_SIZE 105280
 
 // server's copies of client states
 extern char srv_client_state[8][2][STATE_SIZE];
@@ -727,6 +729,10 @@ struct lift
    int y2;
    int width;
    int height;
+   int flags;
+   int mode;
+   int val1;
+   int val2;
    int color;
    int current_step;
    int num_steps;
@@ -902,13 +908,9 @@ extern int new_size;
 //e_bitmap.h
 int select_bitmap(int);
 int select_bitmap_ans(int zzindx);
-int animation_proc();
-int select_bitmap_proc();
-int copy_bitmap_proc();
-void tile_editor(void);
-void edit_tile_attributes(void);
+void animation_sequence_editor(void);
 void copy_tiles(void);
-
+void edit_btile_attributes(void);
 
 
 void draw_flag_text(int x, int y, int ys, int col, int last_flag_draw);
@@ -1223,10 +1225,11 @@ void set_field_location_from_lift(int e, int dt, int a20);
 
 
 // z_file.h
+void save_sprit(void);
+void load_sprit(void);
 void make_filename(int x);
 int load_level_prompt(void);
 int save_level_prompt(void);
-int save_tiles(void);
 int load_tiles(void);
 void zero_level_data(void);
 void level_check(void);
@@ -1242,9 +1245,7 @@ int load_gm(const char *sfname);
 
 // z_fnx.h
 int round20(int val);
-
 void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
-
 void clear_game_moves(void);
 void get_hostname(void);
 void make_palette(void);
@@ -1273,6 +1274,9 @@ al_fixed is_up_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 al_fixed is_down_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 al_fixed is_left_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
+void show_var_sizes(void);
+void pml_to_var(char * b);
+void var_to_pml(char * b);
 void game_vars_to_state(char * b);
 void state_to_game_vars(char * b);
 void get_state_dif(char *a, char *b, char *c, int size);
