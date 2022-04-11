@@ -9,7 +9,6 @@ void pointer_text(int x, int y, int ty)
       al_draw_text( font, palette_color[15], txc, ty-39, ALLEGRO_ALIGN_CENTER, "Pointer");
       al_draw_textf(font, palette_color[15], txc, ty-31, ALLEGRO_ALIGN_CENTER, "  x:%d    y:%d ", x, y);
    }
-   int b, d;
    int sey = -20;
    int rx1 = stx *20;    // source x
    int ry1 = sty *20;    // source y
@@ -18,14 +17,14 @@ void pointer_text(int x, int y, int ty)
    int eib=0;
    int iib=0;
    int lib=0;
-   al_fixed frx1 = al_itofix(rx1);    // source x
-   al_fixed fry1 = al_itofix(ry1);    // source y
-   al_fixed frx2 = al_itofix(rx2);    // sizes
+   al_fixed frx1 = al_itofix(rx1); // source position and size
+   al_fixed fry1 = al_itofix(ry1);
+   al_fixed frx2 = al_itofix(rx2);
    al_fixed fry2 = al_itofix(ry2);
 
    // count enemies in box
-   for (b=0; b<100; b++) // check for enemies in box
-      if (Ei[b][0]) // if active
+   for (int b=0; b<100; b++)
+      if (Ei[b][0])
          if (Efi[b][0] >= frx1)
             if (Efi[b][0] < frx2)
                if (Efi[b][1] >= fry1)
@@ -33,8 +32,8 @@ void pointer_text(int x, int y, int ty)
                      eib++;
 
    // count items in box
-   for (b=0; b<500; b++) // check for items in box
-      if (item[b][0]) // if active
+   for (int b=0; b<500; b++)
+      if (item[b][0])
          if (item[b][4] >= rx1)
             if (item[b][4] < rx2)
                if (item[b][5] >= ry1)
@@ -42,13 +41,12 @@ void pointer_text(int x, int y, int ty)
                      iib++;
 
    // count lifts in box
-   for (d=0; d<num_lifts; d++)
-
-         if (lifts[d].x1 >= rx1)
-            if (lifts[d].x1 < rx2)
-               if (lifts[d].y1 >= ry1)
-                  if (lifts[d].y1 < ry2)
-                     lib++;
+   for (int d=0; d<num_lifts; d++)
+      if (lifts[d].x1 >= rx1)
+         if (lifts[d].x1 < rx2)
+            if (lifts[d].y1 >= ry1)
+               if (lifts[d].y1 < ry2)
+                  lib++;
 
    al_draw_rectangle(txc-70, ty+sey, txc+70, ty+sey+10,palette_color[14], 1);
    al_draw_rectangle(txc-70, ty+sey, txc+70, ty+sey+36,palette_color[14], 1);
@@ -58,8 +56,6 @@ void pointer_text(int x, int y, int ty)
    al_draw_textf(font, palette_color[6], txc, ty+sey+11, ALLEGRO_ALIGN_CENTER, " x:%2d  y:%2d ", stx, sty);
    al_draw_textf(font, palette_color[6], txc, ty+sey+19, ALLEGRO_ALIGN_CENTER, " width:%d ",  sux-stx);
    al_draw_textf(font, palette_color[6], txc, ty+sey+27, ALLEGRO_ALIGN_CENTER, " height:%d ", suy-sty);
-
-
 
    al_draw_textf(font, palette_color[7], txc, ty+sey+37, ALLEGRO_ALIGN_CENTER, " %d Enemies ", eib);
    al_draw_textf(font, palette_color[7], txc, ty+sey+45, ALLEGRO_ALIGN_CENTER, " %d Items ", iib);
@@ -820,15 +816,6 @@ void save_selection(int save)
                   y++ ;
                }
                fprintf(filepntr,"\n");
-
-//               while (ft_pmsg[c][y] != (char)NULL)
-//               {
-//                  if (ft_pmsg[c][y] == 13) fprintf(filepntr,"%c",126);
-//                  else fprintf(filepntr,"%c",ft_pmsg[c][y]);
-//                  y++ ;
-//               }
-//               fprintf(filepntr,"\n");
-
             }
          }
          for (c=0; c < ft_level_header[4]; c++) // enemy int and float
@@ -843,8 +830,6 @@ void save_selection(int save)
             for (x=0; x<ft_lift[c][3]; x++)
                for (y=0; y<4; y++) fprintf(filepntr,"%d\n",ft_ls[c][x][y]);
          }
-
-
          fclose(filepntr);
       }
    }

@@ -1326,28 +1326,26 @@ int main(int argument_count, char **argument_array)
 // --------------------------------------------------------------------------------------------
 
 
+//      show_var_sizes();
+
+
+
+
+
 
 //   char tst[20];
 //   printf("sizeof %d\n", sizeof(tst));
-
-
-
-
 
    //spline_test();
    //spline_adjust();
 
    //scaled_tile_test();
 
-
    //tile_editor();
-
 
 //   edit_tile_attributes();
 
   // copy_tiles();
-
-
 
 //            play_level = start_level;
 //            set_start_level(play_level);

@@ -128,24 +128,6 @@ void show_draw_item_cursor(void)
    }
 }
 
-
-
-
-/*
-void set_block_range(void)
-{
-      for (int a=bx1; a<bx2; a++)       // cycle the range
-         for (int b=by1; b<by2; b++)
-            l[a][b] = draw_item_num;
-}
-
-*/
-
-
-
-
-
-
 void set_block_range(void)
 {
    int draw_item_flags = draw_item_num & PM_BTILE_MOST_FLAGS;
@@ -485,9 +467,6 @@ char* get_text_description_of_block_based_on_flags(int flags)
    return msg;
 }
 
-
-
-
 void draw_item_info(int x, int y, int color, int type, int num)
 {
    int a, b;
@@ -522,7 +501,6 @@ void draw_item_info(int x, int y, int color, int type, int num)
             rtextout_centre(NULL, lifts[num].lift_name, x+(width*10), y, color+160, 1, 64, 1 );
          else
             al_draw_text(font, palette_color[col+160], x+(width*10), y+6, ALLEGRO_ALIGN_CENTER, lifts[num].lift_name);
-
       }
       break;
       case 5:
@@ -554,9 +532,6 @@ int edit_menu(int el)
       set_map_var();
    }
 
-
-
-
    al_show_mouse_cursor(display);
    resume_allowed = 0;
    int mpow;
@@ -580,6 +555,8 @@ int edit_menu(int el)
 
    sort_enemy();
    sort_item();
+
+   set_swbl();
 
    draw_item_type = 1;
    draw_item_num  = 0;
@@ -1055,9 +1032,9 @@ int edit_menu(int el)
             case 17: predefined_enemies(); break;
             case 18: global_level(); break;
             case 19: level_viewer(); break;
-            case 20: animation_proc(); break;
+            case 20: animation_sequence_editor(); break;
             case 21: copy_tiles(); break;
-            case 22: edit_tile_attributes(); break;
+            case 22: edit_btile_attributes(); break;
 
          } // end of switch case
          al_set_mouse_xy(display, temp_mouse_x, temp_mouse_y);

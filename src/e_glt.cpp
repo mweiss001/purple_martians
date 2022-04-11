@@ -621,78 +621,6 @@ Ef[y][9] = 0;
 
 
 /*
-      printf("-----------------------------------\n");
-      printf("-----LEVEL %3d ---- %2d lifts-----\n", le[x], num_lifts);
-      printf("-----------------------------------\n");
-
-      for (int l=0; l<num_lifts; l++)
-      {
-         count0++;
-
-
-         printf("lift:%-2d name:(%s) w:%-2d h:%-2d col:%-2d number of steps:%-2d    \n",
-                      l, lifts[l]->lift_name, lifts[l]->width, lifts[l]->height, lifts[l]->color, lifts[l]->num_steps);
-         printf("-----------------------------------------------------------\n");
-
-         for (int s=0; s<lifts[l].num_steps; s++)
-         {
-            count1++;
-
-            int type = lift_steps[l][s].type;
-
-            if ((type < 1) || (type > 4))
-            {
-                count2++;
-                printf("Lev:%3d lift:%-2d step%d type:%d\n",le[x], l, s, type);
-
-             }
-
-            int zx = lift_steps[l][s].x;
-            if ((zx < 0) || (zx > 1999))
-            {
-                count2++;
-                printf("Lev:%3d lift:%-2d step%d x:%d\n",le[x], l, s, zx);
-             }
-
-            int zy = lift_steps[l][s].y;
-            if ((zy < 0) || (zy > 1999))
-            {
-                count2++;
-                printf("Lev:%3d lift:%-2d step%d y:%d\n",le[x], l, s, zy);
-             }
-
-
-            int zv = lift_steps[l][s].val;
-            if ((zv < 0) || (zv > 1999))
-            {
-                count2++;
-                printf("Lev:%3d lift:%-2d step%d val:%d\n",le[x], l, s, zv);
-             }
-
-
-            printf("step:%-2d ",s);
-            printf("x:%-4d y:%-4d ", lift_steps[l][s].x, lift_steps[l][s].y);
-            printf("val:%-4d type:%d ",  lift_steps[l][s].val, lift_steps[l][s].type );
-
-//            printf("(%s)\n", lift_step_type_name[lift_steps[l][s].type] );
-
-            printf("\n");
-
-
-
-
-            printf("step:%-2d x:%-4d y:%-4d val:%-4d type:%d(%s)\n",
-                         s, lift_steps[l][s].x,
-                         lift_steps[l][s].y, lift_steps[l][s].val, lift_steps[l][s].type,
-                         lift_step_type_name[lift_steps[l][s].type] );
-
-
-         }
-//         printf("------------------------------------------------------------\n");
-      }
-
-
-
 
 
       // items
@@ -1196,7 +1124,219 @@ then semisolid...add to solid
 
 
 
-      if (1)
+/*
+
+
+      for (int y=0; y<500; y++)
+         if (item[y][0] == 16) // block manip
+         {
+
+            printf("Lev:%3d\n" ,le[x]);
+
+            if (le[x] == 314)
+            {
+               int tn = item[y][10] & 1023; // get tile only
+               tn |= sa[tn][0]; // apply default flags
+               tn &= ~PM_BTILE_SHOW_SELECT_WIN; // remove select win flags
+               item[y][10] = tn;
+
+               tn = item[y][11] & 1023; // get tile only
+               tn |= sa[tn][0]; // apply default flags
+               tn &= ~PM_BTILE_SHOW_SELECT_WIN; // remove select win flags
+               item[y][11] = tn;
+
+            }
+         }
+
+*/
+
+/*
+      // blocks
+      for (int y=0; y<100; y++)
+         for (int z=0; z<100; z++)
+         {
+          //  blt[l[y][z]]++; // inc block counter
+
+            if (l[y][z] & PM_BTILE_SHOW_SELECT_WIN)
+            {
+
+               l[y][z] &= ~PM_BTILE_SHOW_SELECT_WIN;
+
+               printf("Lev:%3d  block:%d\n" ,le[x], l[y][z] & 1023);
+               count0++;
+            }
+         }
+
+*/
+
+
+
+
+
+
+
+
+/*
+
+
+
+int construct_lift(int l, char* lift_name, int width, int height, int color, int num_steps)
+{
+   strcpy(lifts[l].lift_name, lift_name);
+   lifts[l].width = width;
+   lifts[l].height = height;
+   lifts[l].color = color;
+   lifts[l].num_steps = num_steps;
+   lifts[l].x1 = 0;
+   lifts[l].y1 = 0;
+   lifts[l].x2 = 0;
+   lifts[l].y2 = 0;
+   lifts[l].current_step = 0;
+   lifts[l].limit_type = 0;
+   lifts[l].limit_counter = 0;
+   return 1;
+}
+
+
+
+*/
+
+
+
+
+
+
+
+
+/*
+
+      printf("-----------------------------------\n");
+      printf("-----LEVEL %3d ---- %2d lifts-----\n", le[x], num_lifts);
+      printf("-----------------------------------\n");
+
+      for (int l=0; l<num_lifts; l++)
+      {
+         count0++;
+
+
+         printf("lift:%-2d name:(%s) w:%-2d h:%-2d col:%-2d number of steps:%-2d    \n",
+                      l, lifts[l].lift_name, lifts[l].width, lifts[l].height, lifts[l].color, lifts[l].num_steps);
+         printf("-----------------------------------------------------------\n");
+
+         for (int s=0; s<lifts[l].num_steps; s++)
+         {
+            count1++;
+
+            int type = lift_steps[l][s].type;
+
+            if ((type < 1) || (type > 4))
+            {
+                count2++;
+                printf("Lev:%3d lift:%-2d step%d type:%d\n",le[x], l, s, type);
+
+             }
+
+            int zx = lift_steps[l][s].x;
+            if ((zx < 0) || (zx > 1999))
+            {
+                count2++;
+                printf("Lev:%3d lift:%-2d step%d x:%d\n",le[x], l, s, zx);
+             }
+
+            int zy = lift_steps[l][s].y;
+            if ((zy < 0) || (zy > 1999))
+            {
+                count2++;
+                printf("Lev:%3d lift:%-2d step%d y:%d\n",le[x], l, s, zy);
+             }
+
+
+            int zv = lift_steps[l][s].val;
+            if ((zv < 0) || (zv > 1999))
+            {
+                count2++;
+                printf("Lev:%3d lift:%-2d step%d val:%d\n",le[x], l, s, zv);
+             }
+
+
+            printf("step:%-2d ",s);
+            printf("x:%-4d y:%-4d ", lift_steps[l][s].x, lift_steps[l][s].y);
+            printf("val:%-4d type:%d ",  lift_steps[l][s].val, lift_steps[l][s].type );
+
+//            printf("(%s)\n", lift_step_type_name[lift_steps[l][s].type] );
+
+            printf("\n");
+
+
+
+
+            printf("step:%-2d x:%-4d y:%-4d val:%-4d type:%d(%s)\n",
+                         s, lift_steps[l][s].x,
+                         lift_steps[l][s].y, lift_steps[l][s].val, lift_steps[l][s].type,
+                         lift_step_type_name[lift_steps[l][s].type] );
+
+
+         }
+//         printf("------------------------------------------------------------\n");
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+
+
+
+
+/*
+
+
+
+      // copy lifts to temp structure to resize
+      for (int l=0; l<num_lifts; l++)
+      {
+         lifts2[l].fx =            lifts[l].fx;
+         lifts2[l].fy =            lifts[l].fy;
+         lifts2[l].x1 =            lifts[l].x1;
+         lifts2[l].y1 =            lifts[l].y1;
+         lifts2[l].x2 =            lifts[l].x2;
+         lifts2[l].y2 =            lifts[l].y2;
+         lifts2[l].width =         lifts[l].width;
+         lifts2[l].height =        lifts[l].height;
+         lifts2[l].flags = 0;
+         lifts2[l].mode = 0;
+         lifts2[l].val1 = 0;
+         lifts2[l].val2 = 0;
+         lifts2[l].color =         lifts[l].color;
+         lifts2[l].current_step =  lifts[l].current_step;
+         lifts2[l].num_steps =     lifts[l].num_steps;
+         lifts2[l].limit_counter = lifts[l].limit_counter;
+         lifts2[l].limit_type =    lifts[l].limit_type;
+         strcpy(lifts2[l].lift_name, lifts[l].lift_name);
+      }
+
+
+*/
+
+      if (0)
       {
          save_level(le[x]);
          al_set_target_backbuffer(display);

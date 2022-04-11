@@ -1246,316 +1246,104 @@ al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
    return fmove; // max move allowed
 }
 
-
-
-
-
-/*
-
-
-al_fixed is_up_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
+void show_var_sizes(void)
 {
-   int ix = al_fixtoi(fx);
-   int iy = al_fixtoi(fy);
-   int im = al_fixtoi(fmove);
-   int move = 0;
-   for (int t=0; t<=im; t++)
-   {
-      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
-      if (dir == 0) yy = (iy-t-1) / 20;
-      else
-      {
-         yy = (iy-1) / 20;
-         j = dir * t;
-      }
-      cc = (ix+j) / 20;
-      xx = (ix+j) / 20 + 1;
-      a = (ix+j) % 20;
+   printf("\nVariables used to save levels in pml format\n\n");
 
-      if (a == 0)    // this block only
-      {
-         c = l[cc][yy];
-         if      ((c > 63) && (c < NUM_SPRITES)) ret = 1;
-         else if ((c > 31) && (c < NUM_SPRITES)) ret = 2;
-      }
-      else // dual compare with ||
-      {
-         b = l[xx][yy];
-         c = l[cc][yy];
-         if ( ((b > 63) && (b < NUM_SPRITES)) || ((c > 63) && (c < NUM_SPRITES)) ) ret = 1;
-         else if ( ((b > 31) && (b < NUM_SPRITES)) || ((c > 31) && (c < NUM_SPRITES)) ) ret = 2;
-      }
-      if (dir == 0) // solid mode - look up for next solid
-      {
-         if (ret) // as soon as solid is found, return
-         {
-             int fp = iy - move;             // next solid pos
-             al_fixed dist = fy - al_itofix(fp);   // distance from initial pos
-             if (dist > fmove) dist = fmove; // limit to requested if over
-             return dist;
-         }
-         else move++;
-      }
-      else // empty mode - look left or right for next empty
-      {
-         if (ret == 0) // as soon as an empty is found, return
-         {
-            if (dir == 1) // look right
-            {
-                int fp = ix + move;             // next empty pos
-                al_fixed dist = al_itofix(fp) - fx;   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-            if (dir == -1) // look left
-            {
-                int fp = ix - move;             // next empty pos
-                al_fixed dist = fx - al_itofix(fp);   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-         }
-         else move++;
-      }
-   }
-   // finished the loop with finding either case;
-   return fmove; // max move allowed
-}
+   printf("level_header:%6d\n",  (int)sizeof(level_header) );
+   printf("l           :%6d\n",  (int)sizeof(l)            );
+   printf("item        :%6d\n",  (int)sizeof(item)         );
+   printf("Efi         :%6d\n",  (int)sizeof(Efi)          );
+   printf("Ei          :%6d\n",  (int)sizeof(Ei)           );
+   printf("lifts       :%6d\n",  (int)sizeof(lifts)        );
+   printf("lift_steps  :%6d\n",  (int)sizeof(lift_steps)   );
+   printf("pmsgtext    :%6d\n",  (int)sizeof(pmsgtext)     );
 
-al_fixed is_down_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
-{
-   int ix = al_fixtoi(fx);
-   int iy = al_fixtoi(fy);
-   int im = al_fixtoi(fmove);
-   int move = 0;
-   for (int t=0; t<=im; t++)
-   {
-      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
-      if (dir == 0) yy = (iy + t) / 20 + 1;
-      else
-      {
-         yy = iy / 20 + 1;
-         j = dir * t;
-      }
-      cc = (ix+j) / 20;
-      xx = (ix+j) / 20 + 1;
-      a = (ix+j) % 20;
-      if (a == 0)    // this block only
-      {
-         c = l[cc][yy];
-         if      ((c > 63) && (c < NUM_SPRITES)) ret = 1;
-         else if ((c > 31) && (c < NUM_SPRITES)) ret = 2;
-      }
-      else // dual compare with ||
-      {
-         b = l[xx][yy];
-         c = l[cc][yy];
-         if ( ((b > 63) && (b < NUM_SPRITES)) || ((c > 63) && (c < NUM_SPRITES)) ) ret = 1;
-         else if ( ((b > 31) && (b < NUM_SPRITES)) || ((c > 31) && (c < NUM_SPRITES)) ) ret = 2;
-      }
-      if (dir == 0) // solid mode - looks down for next solid
-      {
-         if (ret) // as soon as solid is found, return
-         {
-             int fp = iy + move;             // next solid pos
-             al_fixed dist = al_itofix(fp) - fy;   // distance from initial pos
-             if (dist > fmove) dist = fmove; // limit to requested if over
-             return dist;
-         }
-         else move++;
-      }
-      else // empty mode - look left or right for next empty
-      {
-         if (ret == 0) // as soon as an empty is found, return
-         {
-            if (dir == 1) // look right
-            {
-                int fp = ix + move;             // next empty pos
-                al_fixed dist = al_itofix(fp) - fx;   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-            if (dir == -1) // look left
-            {
-                int fp = ix - move;             // next empty pos
-                al_fixed dist = fx - al_itofix(fp);   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-         }
-         else move++;
-      }
-   }
-   // finished the loop with finding either case;
-   return fmove; // max move allowed
+   int sz = 0;
+   sz+= sizeof(level_header);
+   sz+= sizeof(l)            ;
+   sz+= sizeof(item)         ;
+   sz+= sizeof(Efi)          ;
+   sz+= sizeof(Ei)           ;
+   sz+= sizeof(lifts)        ;
+   sz+= sizeof(lift_steps)   ;
+   sz+= sizeof(pmsgtext)     ;
+   printf("------------:------\n");
+   printf("total       :%6d\n",  sz );
+
+
+   printf("\nVariables used for netgame state exchange\n\n");
+
+   printf("players  :%6d\n", (int)sizeof(players)      );
+   printf("Ei       :%6d\n", (int)sizeof(Ei)           );
+   printf("Efi      :%6d\n", (int)sizeof(Efi)          );
+   printf("item     :%6d\n", (int)sizeof(item)         );
+   printf("itemf    :%6d\n", (int)sizeof(item)         );
+   printf("lifts    :%6d\n", (int)sizeof(lifts)        );
+   printf("l        :%6d\n", (int)sizeof(l)            );
+
+   sz = 0;
+   sz+= sizeof(players)      ;
+   sz+= sizeof(Ei)           ;
+   sz+= sizeof(Efi)          ;
+   sz+= sizeof(item)         ;
+   sz+= sizeof(itemf)        ;
+   sz+= sizeof(lifts)        ;
+   sz+= sizeof(l)            ;
+   printf("---------:------\n");
+   printf("total    :%6d\n",  sz );
 }
 
 
-al_fixed is_left_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
-{
-   int ix = al_fixtoi(fx);
-   int iy = al_fixtoi(fy);
-   int im = al_fixtoi(fmove);
-   int move = 0;
-   for (int t=0; t<=im; t++)
-   {
-      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
-      if (dir == 0) xx = (ix-t-1) / 20;
-      else
-      {
-         xx = (ix-1) / 20;
-         j = dir * t;
-      }
-      yy = (iy+j) / 20;
-      cc = (iy+j) / 20 + 1;
-      a = (iy+j) % 20;
-      if (a == 0)    // this block only
-      {
-         c = l[xx][yy];
-         if      ((c > 63) && (c < NUM_SPRITES)) ret = 1;
-         else if ((c > 31) && (c < NUM_SPRITES)) ret = 2;
-      }
-      else // dual compare with ||
-      {
-         b = l[xx][yy];
-         c = l[xx][cc];
-         if ( ((b > 63) && (b < NUM_SPRITES)) || ((c > 63) && (c < NUM_SPRITES)) ) ret = 1;
-         else if ( ((b > 31) && (b < NUM_SPRITES)) || ((c > 31) && (c < NUM_SPRITES)) ) ret = 2;
-      }
 
-      if (dir == 0) // solid mode - looks left for next solid
-      {
-         if (ret) // as soon as solid is found, return
-         {
-             int fp = ix - move;             // next solid pos
-             al_fixed dist = fx - al_itofix(fp);   // distance from initial pos
-             if (dist > fmove) dist = fmove; // limit to requested if over
-             return dist;
-         }
-         else move++;
-      }
-      else // empty mode - look up or down for next empty
-      {
-         if (ret == 0) // as soon as an empty is found, return
-         {
-            if (dir == 1) // look down
-            {
-                int fp = iy + move;             // next empty pos
-                al_fixed dist = al_itofix(fp) - fy;   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-            if (dir == -1) // look up
-            {
-                int fp = iy - move;             // next empty pos
-                al_fixed dist = fy - al_itofix(fp);   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-         }
-         else move++;
-      }
-   }
-   // finished the loop with finding either case;
-   return fmove; // max move allowed
+void pml_to_var(char * b) // for load level
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
+   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
+   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
+   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
+   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
 }
 
-
-al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
+void var_to_pml(char * b) // for save level
 {
-   int ix = al_fixtoi(fx);
-   int iy = al_fixtoi(fy);
-   int im = al_fixtoi(fmove);
-   int move = 0;
-   for (int t=0; t<=im; t++)
-   {
-      int j = 0, a, b=0, c=0, ret = 0, xx, yy, cc;
-      if (dir == 0) xx = (ix + t) / 20 + 1;
-      else
-      {
-         xx = (ix) / 20 + 1;
-         j = dir * t;
-      }
-      yy = (iy+j) / 20;
-      cc = (iy+j) / 20 + 1;
-
-      a = (iy+j) % 20;
-
-      if (a == 0)    // this block only
-      {
-         c = l[xx][yy];
-         if      ((c > 63) && (c < NUM_SPRITES)) ret = 1;
-         else if ((c > 31) && (c < NUM_SPRITES)) ret = 2;
-      }
-      else // dual compare with ||
-      {
-         b = l[xx][yy];
-         c = l[xx][cc];
-         if ( ((b > 63) && (b < NUM_SPRITES)) || ((c > 63) && (c < NUM_SPRITES)) ) ret = 1;
-         else if ( ((b > 31) && (b < NUM_SPRITES)) || ((c > 31) && (c < NUM_SPRITES)) ) ret = 2;
-      }
-      if (dir == 0) // solid mode - looks right for next solid
-      {
-         if (ret) // as soon as solid is found, return
-         {
-             int fp = ix + move;             // next solid pos
-             al_fixed dist = al_itofix(fp) - fx;   // distance from initial pos
-             if (dist > fmove) dist = fmove; // limit to requested if over
-             return dist;
-         }
-         else move++;
-      }
-      else // empty mode - look up or down for next empty
-      {
-         if (ret == 0) // as soon as an empty is found, return
-         {
-            if (dir == 1) // look down
-            {
-                int fp = iy + move;             // next empty pos
-                al_fixed dist = al_itofix(fp) - fy;   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-            if (dir == -1) // look up
-            {
-                int fp = iy - move;             // next empty pos
-                al_fixed dist = fy - al_itofix(fp);   // distance from initial pos
-                if (dist > fmove) dist = fmove; // limit to requested if over
-                return dist;
-             }
-         }
-         else move++;
-      }
-   }
-   // finished the loop with finding either case;
-   return fmove; // max move allowed
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts);        memcpy(b+offset, lifts,        sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
 }
-
-*/
-
 
 void game_vars_to_state(char * b)
 {
-   int size = 0, offset = 0;
-   offset += size; size = sizeof(players); memcpy(b+offset, players, size);
-   offset += size; size = sizeof(Ei);      memcpy(b+offset, Ei,      size);
-   offset += size; size = sizeof(Efi);     memcpy(b+offset, Efi,     size);
-   offset += size; size = sizeof(item);    memcpy(b+offset, item,    size);
-   offset += size; size = sizeof(itemf);   memcpy(b+offset, itemf,   size);
-   offset += size; size = sizeof(lifts);   memcpy(b+offset, lifts,   size);
-   offset += size; size = sizeof(l);       memcpy(b+offset, l,       size);
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(players); memcpy(b+offset, players, sz);
+   offset += sz; sz = sizeof(Ei);      memcpy(b+offset, Ei,      sz);
+   offset += sz; sz = sizeof(Efi);     memcpy(b+offset, Efi,     sz);
+   offset += sz; sz = sizeof(item);    memcpy(b+offset, item,    sz);
+   offset += sz; sz = sizeof(itemf);   memcpy(b+offset, itemf,   sz);
+   offset += sz; sz = sizeof(lifts);   memcpy(b+offset, lifts,   sz);
+   offset += sz; sz = sizeof(l);       memcpy(b+offset, l,       sz);
 }
 
 void state_to_game_vars(char * b)
 {
-   int size = 0, offset = 0;
-   size = sizeof(players); memcpy(players, b+offset, size); offset += size;
-   size = sizeof(Ei);      memcpy(Ei,      b+offset, size); offset += size;
-   size = sizeof(Efi);     memcpy(Efi,     b+offset, size); offset += size;
-   size = sizeof(item);    memcpy(item,    b+offset, size); offset += size;
-   size = sizeof(itemf);   memcpy(itemf,   b+offset, size); offset += size;
-   size = sizeof(lifts);   memcpy(lifts,   b+offset, size); offset += size;
-   size = sizeof(l);       memcpy(l,       b+offset, size); offset += size;
+   int sz = 0, offset = 0;
+   sz = sizeof(players); memcpy(players, b+offset, sz); offset += sz;
+   sz = sizeof(Ei);      memcpy(Ei,      b+offset, sz); offset += sz;
+   sz = sizeof(Efi);     memcpy(Efi,     b+offset, sz); offset += sz;
+   sz = sizeof(item);    memcpy(item,    b+offset, sz); offset += sz;
+   sz = sizeof(itemf);   memcpy(itemf,   b+offset, sz); offset += sz;
+   sz = sizeof(lifts);   memcpy(lifts,   b+offset, sz); offset += sz;
+   sz = sizeof(l);       memcpy(l,       b+offset, sz); offset += sz;
 }
 
 void get_state_dif(char *a, char *b, char *c, int size)

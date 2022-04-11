@@ -1,71 +1,89 @@
 // e_bitmap.cpp
-
 #include "pm.h"
 
 // used by sliders only for item block manip
+// gets block with flags from level
 int select_bitmap(int tn)
 {
+   Redraw = 1;
    int quit = 0;
    while (!quit)
    {
-      proc_controllers();
+
+      int x100 = mouse_x/20 + wx;
+      int y100 = mouse_y/20 + wy;
+      if (x100>99) x100 = 99;
+      if (y100>99) y100 = 99;
+
+      point_item_type = 1;
+      point_item_num = l[x100][y100];
+
+      // draw rectangle around selected block
+      int mx = mouse_x/20;
+      int my = mouse_y/20;
+      al_draw_rectangle(mx*20, my*20, mx*20+20, my*20+20, palette_color[15], 1);
+
+
+      int swx1 = 200;
+      int swy1 = 200;
+
+      int swx2 = swx1 + 144;
+      int swy2 = swy1 + 32;  // above flags
+
+      // erase background and frame
+/*      int swy3 = swy2 + 145; // below flags
+      al_draw_filled_rectangle(             swx1-2,  swy1-2,  swx2+2, swy3, palette_color[0]);
+      al_draw_rectangle(                    swx1-2,  swy1-2,  swx2+2, swy3, palette_color[13], 1); */
+
+      // view item area
+      al_draw_rectangle(                    swx1,    swy1,    swx2, swy2, palette_color[9], 1);
+      al_draw_text(font, palette_color[15], swx1+24, swy1+2, 0, "Choose Block");
+      draw_item_info(                       swx1+2,  swy1+9, 9, point_item_type, point_item_num);
+
+      // flags section
+      int ftx = swx1+11;
+      int fty = swy1+35;
+      int ys = 10; // y spacing
+      draw_flag_text(ftx+4, fty, ys, 15, 0);
+
+      int frw = 6;            // flag rectangle width
+      int frh = 6;            // flag rectangle height
+      int frx = ftx-frw-2;        // flag rectangle x
+      int fry = fty - (frh/2)+4;  // flag rectangle y
+      draw_flag_rects(point_item_num, frx, fry, frw, frh, ys, 14);
+
+      if (mouse_b1)
+      {
+         while (mouse_b1) proc_controllers(); // wait for release
+         return point_item_num;
+      }
+
+      al_rest(mouse_loop_pause);
+
+      al_set_target_backbuffer(display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
 
-      int x1=200;
-      int x2=x1+322;
-      int y1=300;
+      proc_controllers();
+      process_scrolledge();
+      update_editor_background();
 
-      int x=0;
-      int y=0;
-
-      for (int i=0; i<swbn; i++)
+      if (Redraw)
       {
-         al_draw_bitmap(btile[swbl[i][0] & 1023], x1+x+1, y1+y+1, 0);
-         x+=20;
-         if (x>=320)
-         {
-            x=0;
-            y+=20;
-         }
+         Redraw = 0;
+         draw_big(1);
       }
-      int y2=y1+y+22;
 
-      // frame the whole thing
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[13], 1);
-
-      al_draw_text(font, palette_color[15], x1, y2+28, 0, "select a block with b1");
-      al_draw_text(font, palette_color[15], x1, y2+40, 0, "  b2 or ESC to exit   ");
-
-      if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+      if (key[ALLEGRO_KEY_ESCAPE])  // trap here 1st
       {
-         int pointer = ((mouse_x-x1)/20) + ((mouse_y-y1)/20) * 16 ;
-         int tn = swbl[pointer][0] & 1023;
-
-         int ptx = x1;
-         int pty = y2;
-         al_draw_rectangle(ptx, pty, ptx+160, pty+22, palette_color[13], 1);
-         al_draw_bitmap(btile[tn], ptx+1, pty+1, 0);
-         al_draw_textf(font, palette_color[13], ptx+30, pty+7, 0, "tile number:%d", tn );
-
-         if (mouse_b1)
-         {
-            while (mouse_b1) proc_controllers();
-            return tn;
-         }
-      }
-      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
-      {
-         proc_controllers();
+         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
          quit = 1;
       }
    }
-   return tn; // original if bad exit
+   return tn;
 }
 
-
-
-
+// this is used by animation_sequence_editor() only to choose new bitmaps for sequences
 int bmp_index = 0;
 int select_bitmap_ans(int zzindx)
 {
@@ -124,13 +142,7 @@ int select_bitmap_ans(int zzindx)
    return -1;
 }
 
-
-
-
-
-
-
-int animation_proc()
+void animation_sequence_editor(void)
 {
    int zzindx = 3;
    int pointer = zzindx;
@@ -179,16 +191,6 @@ int animation_proc()
       al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
 
       jh=3;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Edit Bitmap Attributes");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      jh=4;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Copy Bitmaps");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      jh=5;
       al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
       sprintf(msg,"Save Changes");
       al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
@@ -267,9 +269,7 @@ int animation_proc()
                      }
                   }
                break;
-               case 3: select_bitmap_proc(); break;
-               case 4: copy_bitmap_proc(); break;
-               case 5: save_tiles(); break;
+               case 3: save_sprit(); break;
             }
          }
       }
@@ -285,341 +285,8 @@ int animation_proc()
       }
 
    }
-   return 0;
 }
 
-
-
-int select_bitmap_proc()
-{
-   int x, y;
-   int quit = 0;
-   int view_attrib = 0;
-   int button_x1 = 400;
-   int button_x2 = 639;
-   int button_xc = 520;
-   int button_y = 650;
-   int jh;
-   int b2mode = 0;
-
-   al_set_target_backbuffer(display);
-   al_show_mouse_cursor(display);
-
-   while (!quit)
-   {
-      proc_controllers();
-      al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
-      al_draw_text(font, palette_color[9], 0, 700, 0, "Select a Bitmap with b1");
-
-      // draw 32x32 bitmaps
-      for (x = 0; x < 32; x++)
-         for (y = 0; y < 32; y++)
-         {
-            al_draw_bitmap(tile[x+(y*32)],x*20, y*20, 0);
-            int color = 240; // normal color = white
-            if (view_attrib)
-            {
-               if (sa[x+(y*32)][1]) color = 10; // locked color = red
-               if (sa[x+(y*32)][0] == 0) sprintf(msg, "E");
-               if (sa[x+(y*32)][0] == 1) sprintf(msg, "B");
-               if (sa[x+(y*32)][0] == 2) sprintf(msg, "S");
-               al_draw_text(font, palette_color[color], (x*20)+4, (y*20)+4, 0, msg);
-            }
-         }
-
-      if ((mouse_y < 640) && (mouse_x < 640))
-      {
-         int pointer = (mouse_x/20) + (mouse_y/20) * 32 ;
-         al_draw_textf(font, palette_color[4], 0, 680, 0, "pointer %-2d  ", pointer );
-         al_draw_bitmap(tile[pointer], 95, 671, 0);
-
-         if (mouse_b1)
-         {
-            if (view_attrib)
-            {
-               int bx1 = mouse_x/20;
-               int by1 = mouse_y/20;
-               int bx2 = mouse_x/20;
-               int by2 = mouse_y/20;
-               int old_mouse_x = mouse_x;
-               int old_mouse_y = mouse_y;
-               int cx;
-               int cy;
-               while (mouse_b1) // trap while b1 is held
-               {
-                  bx2 = bx1 + ((mouse_x - old_mouse_x)/20);
-                  by2 = by1 + ((mouse_y - old_mouse_y)/20);
-                  al_draw_rectangle((bx1)*20, (by1)*20, (bx2)*20, (by2)*20, palette_color[15], 1);
-                  al_flip_display();
-                  proc_controllers();
-               }
-
-               // limits
-               if (bx1>32) bx1 = 32;
-               if (bx2>32) bx2 = 32;
-               if (by1>32) by1 = 32;
-               if (by2>32) by2 = 32;
-               // ensure top-right, bottom left format
-               if (bx1 > bx2)
-               {
-                  int temp = bx2;
-                  bx2 = bx1;
-                  bx1= temp;
-               }
-               if (by1 > by2)
-               {
-                  int temp = by2;
-                  by2 = by1;
-                  by1= temp;
-               }
-               // cycle the selection
-               for (cx = bx1; cx < bx2; cx++)
-                  for (cy = by1; cy < by2; cy++)
-                  {
-                     if (b2mode< 3) sa[cx+(cy*32)][0] = b2mode;
-                     if ((b2mode> 2) && (b2mode < 5)) sa[cx+(cy*32)][1] = b2mode-3;
-                  }
-            }
-            if (!view_attrib)  // old b1 behaviour
-            {
-               bmp_index = (mouse_x/20) + (mouse_y/20) * 32;
-               quit = 1;
-            }
-         }
-      }
-
-      jh=1;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      if (view_attrib) sprintf(msg,"View Attributes:ON ");
-      else sprintf(msg,"View Attributes:OFF");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      jh=2;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      if (b2mode == 0) sprintf(msg,"  Empty  ");
-      if (b2mode == 1) sprintf(msg,"  Block  ");
-      if (b2mode == 2) sprintf(msg," Special ");
-      if (b2mode == 3) sprintf(msg," Unlock ");
-      if (b2mode == 4) sprintf(msg,"  Lock  ");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      if (mouse_b1)
-      {
-         while (mouse_b1) proc_controllers(); // wait for release
-         if ((mouse_x > button_x1) && (mouse_x < button_x2) && (mouse_y > button_y) && (mouse_y < button_y+(4*12) ))
-         {
-            int mb = (mouse_y - button_y) / 12;
-            switch(mb)
-            {
-               case 1: view_attrib = !view_attrib; break;
-               case 2: if (++b2mode>4) b2mode = 0; break;
-               break;
-            }
-         }
-      }
-      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
-      {
-         proc_controllers();
-         quit = 1;
-      }
-   }
-   return 0;
-}
-
-
-int copy_bitmap_proc()
-{
-   int quit = 0;
-
-   al_set_target_backbuffer(display);
-   al_show_mouse_cursor(display);
-
-   while (!quit)
-   {
-
-      proc_controllers();
-      al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
-
-      al_draw_text(font, palette_color[9], 0, 694, 0, "b1 to put   ");
-      al_draw_text(font, palette_color[9], 0, 702, 0, "b2 to get   ");
-      al_draw_text(font, palette_color[9], 0, 710, 0, "esc to quit ");
-
-      // draw 32x32 bitmaps
-      for (int y = 0; y < 32; y++)
-         for (int x = 0; x < 32; x++)
-            al_draw_bitmap(tile[x+(y*32)], x*20, y*20, 0);
-
-
-      if ((mouse_y < 640) && (mouse_x < 640))
-      {
-         int pointer = (mouse_x/20) + (mouse_y/20) * 32 ;
-         al_draw_textf(font, palette_color[4], 0, 680, 0, "pointer %-2d  ", pointer );
-         al_draw_bitmap(tile[pointer], 95, 671, 0);
-
-         if (mouse_b2) bmp_index = pointer;
-         if (mouse_b1)
-         {
-            al_set_target_bitmap(tile[pointer]);
-            al_clear_to_color(al_map_rgb(0, 0, 0));
-            al_draw_bitmap(tile[bmp_index], 0, 0, 0);
-            al_set_target_backbuffer(display);
-         }
-      }
-
-      while (key[ALLEGRO_KEY_ESCAPE])
-      {
-         proc_controllers();
-         quit = 1;
-      }
-   }
-   return 0;
-}
-
-
-
-void tile_editor(void)
-{
-   int quit = 0;
-
-   int button_x1 = 40;
-   int button_x2 = 260;
-   int button_xc = button_x1 + (button_x2-button_x1)/2;
-   int button_y = 240;
-   int jh;
-
-
-   al_set_target_backbuffer(display);
-   al_show_mouse_cursor(display);
-
-   while (!quit)
-   {
-      proc_controllers();
-      al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
-
-      sprintf(msg, "Tile Editor");
-      int l = 2+strlen(msg)*4;
-      al_draw_text(font, palette_color[9], SCREEN_W/2, 20, ALLEGRO_ALIGN_CENTER, msg);
-      al_draw_rectangle(SCREEN_W/2-l, 19, SCREEN_W/2+l, 29, palette_color[9], 1);
-
-
-      jh=1;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Get New Shapes");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      jh=2;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Animation Delay   ");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      jh=3;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Edit Bitmap Attributes");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      jh=4;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Copy Bitmaps");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      jh=5;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Save Changes");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-
-
-      if (key[ALLEGRO_KEY_DELETE])
-      {
-      }
-
-      if (mouse_b1)
-      {
-
-         while (mouse_b1) proc_controllers(); // wait for release
-
-         if ((mouse_x > button_x1) && (mouse_x < button_x2) && (mouse_y > button_y) && (mouse_y < button_y+(6*12) ))
-         {
-            int mb = (mouse_y - button_y) / 12;
-            switch(mb)
-            {
-               case 1:
-               break;
-               case 3: select_bitmap_proc(); break;
-               case 4: copy_bitmap_proc(); break;
-               //case 5: save_tiles(); break;
-            }
-         }
-      }
-
-      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
-      {
-         proc_controllers();
-         quit = 1;
-      }
-   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void save_btiles(void)
-{
-   // printf("save block_tiles\n");
-   ALLEGRO_BITMAP* temp = al_create_bitmap(640, 640);
-   al_set_target_bitmap(temp);
-   al_clear_to_color(al_map_rgb(0,0,0));
-
-   for (int y = 0; y < 32; y++)
-      for (int x = 0; x < 32; x++)
-         al_draw_bitmap(btile[y*32 + x], (x*20), (y*20), 0);
-
-   if (!al_save_bitmap("bitmaps/block_tiles.bmp", temp))
-   printf("error saving block_tiles\n");
-   al_destroy_bitmap(temp);
-}
-
-
-void save_sprit(void)
-{
-   for (int c=0; c<NUM_ANS; c++)    // set all to initial
-      if (zz[4][c])
-      {
-         zz[0][c]=zz[5][c];
-         zz[1][c]=0;
-         zz[2][c]=0;
-      }
-
-
-   // ensure sa[][0] does not have any bits set other than the ones we want
-   for (int c=0; c<NUM_SPRITES; c++)
-   {
-      sa[c][0] &= PM_BTILE_ALL_FLAGS;
-      sa[c][1] = 0; // not used
-   }
-
-
-   printf("saving\n");
-
-   FILE *fp = fopen("bitmaps/sprit001.pm", "wb");
-   fwrite(zz, sizeof(zz), 1, fp);
-   fwrite(sa, sizeof(sa), 1, fp);
-   fclose(fp);
-}
 
 
 void redraw_grid(int x, int y, int current_selection) // draw 32x32 bitmaps
@@ -633,7 +300,6 @@ void redraw_grid(int x, int y, int current_selection) // draw 32x32 bitmaps
 
          al_draw_bitmap(btile[tn], zx, zy, 0);
          if (tn == current_selection) al_draw_rectangle(zx, zy, zx+19, zy+19, palette_color[10], 2);
-
       }
 }
 
@@ -655,8 +321,6 @@ void draw_flag_text(int x, int y, int ys, int col, int last_flag_show)
    al_draw_text(font, palette_color[col], x, y, 0, "SECRET");           y+=ys;
    if (last_flag_show) al_draw_text(font, palette_color[col], x, y, 0, "SELECT_WIN_SHOW");
 }
-
-
 
 
 // this is the common one, called by all
@@ -752,35 +416,6 @@ void draw_and_proc_flag_rects_draw_item(int x, int y, int w, int h, int ys)
       }
    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, int w, int h, int ys, int con, int cof, int highlight)
@@ -893,65 +528,7 @@ void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, 
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void edit_tile_attributes(void)
+void edit_btile_attributes(void)
 {
    int x, y;
    int mode = 0;
@@ -1185,15 +762,26 @@ void edit_tile_attributes(void)
             gridlines = !gridlines;
           }
       }
-
-
-
       while (key[ALLEGRO_KEY_ESCAPE])
       {
          proc_controllers();
          quit = 1;
       }
    }
+   set_swbl();
+}
+
+
+
+
+void draw_gridlines_and_frame(int x1, int y1, int x2, int y2, int fd, int fc, int fw, int gd, int gc, int gw)
+{
+   if (gd) // gridline draw
+   {
+      for (int x=x1; x<=x2; x+=20) al_draw_line(x, y1, x, y2, palette_color[gc], gw);
+      for (int y=y1; y<=y2; y+=20) al_draw_line(x1, y, x2, y, palette_color[gc], gw);
+   }
+   if (fd) al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], fw);
 }
 
 
@@ -1201,79 +789,154 @@ void edit_tile_attributes(void)
 
 
 
+int draw_and_process_button(int x, int y, const char * text, int c1, int c2)
+{
+   // draw and process load button
+   int lbx = x;
+   int lby = y;
+// int lbw = 36;
+   int lbw = 4 + strlen(text) * 8;
+   int lbh = 12;
+   int lbx2 = lbx + lbw;
+   int lby2 = lby + lbh;
 
+   al_draw_textf(font, palette_color[c1], lbx+2,  lby+2, 0, text);
+   al_draw_rectangle(lbx, lby, lbx2, lby2, palette_color[c1], 0);
 
+   if ((mouse_x > lbx) && (mouse_x < lbx2) && (mouse_y > lby) && (mouse_y < lby2))
+   {
+      al_draw_textf(font, palette_color[c2], lbx+2,  lby+2, 0, text);
+      al_draw_rectangle(lbx, lby, lbx2, lby2, palette_color[c2], 0);
+      if (mouse_b1)
+      {
+         while (mouse_b1) proc_controllers();
+         return 1;
+      }
+   }
+   return 0;
+}
 
-
-
-
-
-
-
-
-void copy_tiles()
+// this one has abitrary first and second bmp file
+void copy_tiles(void)
 {
    int quit = 0;
-   int reload = 0;
+   int gridlines = 1;
    al_set_target_backbuffer(display);
    al_show_mouse_cursor(display);
-
    ALLEGRO_BITMAP *qtmp = al_create_bitmap(20, 20);
-
    ALLEGRO_BITMAP *qtmp2 = al_create_bitmap(20, 20);
 
+   // main bitmap ------------------
+   char b1_fn[100];
+   char b1_fn2[100];
+   sprintf(b1_fn2, "bitmaps\\block_tiles.bmp");
+
+   // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
+   ALLEGRO_FS_ENTRY *FS_fname1 = al_create_fs_entry(b1_fn2);
+   sprintf(b1_fn, "%s", al_get_fs_entry_name(FS_fname1));
+
+   ALLEGRO_BITMAP *b1 = al_load_bitmap(b1_fn);
+   if (!b1)
+   {
+      sprintf(msg, "Error loading tiles from:%s", b1_fn);
+      m_err(msg);
+   }
+
+   int b1_x = 10;
+   int b1_y = 20;
+   int b1_w = al_get_bitmap_width(b1);
+   int b1_h = al_get_bitmap_height(b1);
+   int b1_x2 = b1_x + b1_w;
+   int b1_y2 = b1_y + b1_h;
+   int b1_tw = b1_w/20; // tile grid width
+   int reload_b1 = 0;
+
+   // second bitmap ------------------
    char b2_fn[100];
    char b2_fn2[100];
    sprintf(b2_fn2, "bitmaps\\tiles.bmp");
 
    // convert to 'ALLEGRO_FS_ENTRY' to get platform specific fully qualified path
-   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(b2_fn2);
-   sprintf(b2_fn, "%s", al_get_fs_entry_name(FS_fname));
+   ALLEGRO_FS_ENTRY *FS_fname2 = al_create_fs_entry(b2_fn2);
+   sprintf(b2_fn, "%s", al_get_fs_entry_name(FS_fname2));
 
-   // regular load
    ALLEGRO_BITMAP *b2 = al_load_bitmap(b2_fn);
-
-
-/*   // scale to half size
-   ALLEGRO_BITMAP *db2 = al_load_bitmap(b2_fn);
-   int db2_w = al_get_bitmap_width(db2);
-   int db2_h = al_get_bitmap_height(db2);
-   ALLEGRO_BITMAP *b2 = al_create_bitmap(db2_w/2, db2_h/2);
-   al_set_target_bitmap(b2);
-   al_clear_to_color(al_map_rgb(0, 0, 0));
-   al_draw_scaled_bitmap(db2, 0, 0, db2_w, db2_h, 0, 0, db2_w/2, db2_h/2, 0);
-   al_set_target_backbuffer(display);
-   al_destroy_bitmap(db2); */
-
-
    if (!b2)
    {
       sprintf(msg, "Error loading tiles from:%s", b2_fn);
       m_err(msg);
    }
-
+   int b2_x = 700;
+   int b2_y = 20;
    int b2_w = al_get_bitmap_width(b2);
    int b2_h = al_get_bitmap_height(b2);
    int b2_tw = b2_w/20; // tile grid width
+   int b2_x2 = b2_x + b2_w;
+   int b2_y2 = b2_y + b2_h;
+   int reload_b2 = 0;
 
    while (!quit)
    {
-      if (reload)
+      if (reload_b1)
+      {
+         al_destroy_bitmap(b1);
+         sprintf(b1_fn, "bitmaps\\");
+         if (mw_file_select("Load Bitmap File", b1_fn, ".bmp", 0)) b1 = al_load_bitmap(b1_fn);
+         if (!b2) m_err("Load Error");
+         else
+         {
+            b1_w = al_get_bitmap_width(b1);
+            b1_h = al_get_bitmap_height(b1);
+            b1_x2 = b1_x + b1_w;
+            b1_y2 = b1_y + b1_h;
+            b1_tw = b1_w/20; // tile grid width
+         }
+         reload_b1 = 0;
+      }
+
+      if (reload_b2 == 1)
       {
          al_destroy_bitmap(b2);
          sprintf(b2_fn, "bitmaps\\");
          if (mw_file_select("Load Bitmap File", b2_fn, ".bmp", 0)) b2 = al_load_bitmap(b2_fn);
-         if (!b2)
+         if (!b2) m_err("Load Error");
+         else
          {
-            sprintf(msg, "Error loading tiles from:%s", b2_fn);
-            m_err(msg);
+            b2_w = al_get_bitmap_width(b2);
+            b2_h = al_get_bitmap_height(b2);
+            b2_x2 = b2_x + b2_w;
+            b2_y2 = b2_y + b2_h;
+            b2_tw = b2_w/20; // tile grid width
          }
-         b2_w = al_get_bitmap_width(b2);
-         b2_h = al_get_bitmap_height(b2);
-         b2_tw = b2_w/20; // tile grid width
-         reload = 0;
+         reload_b2 = 0;
       }
 
+      if (reload_b2 == 2) // load and scale to 1/2
+      {
+         ALLEGRO_BITMAP *db2 = NULL;
+         sprintf(b2_fn, "bitmaps\\");
+         if (mw_file_select("Load Bitmap File", b2_fn, ".bmp", 0)) db2 = al_load_bitmap(b2_fn);
+         if (!db2) m_err("Load Error");
+         else
+         {
+            int db2_w = al_get_bitmap_width(db2);
+            int db2_h = al_get_bitmap_height(db2);
+            al_destroy_bitmap(b2);
+            b2 = al_create_bitmap(db2_w/2, db2_h/2);
+            al_set_target_bitmap(b2);
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+            al_draw_scaled_bitmap(db2, 0, 0, db2_w, db2_h, 0, 0, db2_w/2, db2_h/2, 0);
+            al_set_target_backbuffer(display);
+            al_destroy_bitmap(db2);
+
+            b2_w = al_get_bitmap_width(b2);
+            b2_h = al_get_bitmap_height(b2);
+            b2_tw = b2_w/20; // tile grid width
+            b2_x2 = b2_x + b2_w;
+            b2_y2 = b2_y + b2_h;
+         }
+         reload_b2 = 0;
+      }
 
 
       proc_controllers();
@@ -1281,64 +944,20 @@ void copy_tiles()
       al_clear_to_color(al_map_rgb(0,0,0));
 
       // show the draw item
-      int dix = 460;
-      int diy = 644;
+      int dix = b1_x + 1;
+      int diy = b1_y + b1_h + 28;
       al_draw_rounded_rectangle(dix, diy, dix+170, diy+22, 2, 2, palette_color[13], 1);
       al_draw_bitmap(qtmp, dix+2, diy+1, 0);
       al_draw_textf(font, palette_color[13], dix+26, diy+3,  0, "Current Draw Item");
-//      al_draw_textf(font, palette_color[13], dix+26, diy+12, 0, "mouse b1 to paste"); // only show this line if mouse on main grid
+
+      // draw and process gridlines button
+      if      ((gridlines == 1) && (draw_and_process_button(b1_x+200, b1_y+b1_h + 2, "Gridlines:ON", 15, 14))) gridlines = 0;
+      else if ((gridlines == 0) && (draw_and_process_button(b1_x+200, b1_y+b1_h + 2, "Gridlines:OFF", 15, 14))) gridlines = 1;
 
 
 
-      // draw and process save button
-      int sb_x = 375;
-      int sb_w = 70;
-      int sb_c = sb_x+(sb_w/2);
-      int sb_y = 644;
-
-      al_draw_rounded_rectangle(sb_x, sb_y, sb_x+sb_w, sb_y+22, 2, 2, palette_color[10], 1);
-      al_draw_textf(font, palette_color[10], sb_c,  sb_y+2,    ALLEGRO_ALIGN_CENTER, "Save");
-      al_draw_textf(font, palette_color[10], sb_c,  sb_y+12, ALLEGRO_ALIGN_CENTER, "Changes");
-
-
-      if ((mouse_x > sb_x) && (mouse_x < (sb_x+sb_w)) && (mouse_y > sb_y) && (mouse_y < sb_y+20))
-      {
-
-         al_draw_rounded_rectangle(sb_x, sb_y, sb_x+sb_w, sb_y+22, 2, 2, palette_color[10], 2);
-         if (mouse_b1)
-         {
-            while (mouse_b1) proc_controllers();
-            save_btiles();
-         }
-      }
-
-      // draw and process edit attributes button
-      int et_x = 260;
-      int et_w = 100;
-      int et_c = et_x+(et_w/2);
-      int et_y = 644;
-
-      al_draw_rounded_rectangle(et_x, et_y, et_x+et_w, et_y+22, 2, 2, palette_color[12], 1);
-      al_draw_textf(font, palette_color[12], et_c,  et_y+2,  ALLEGRO_ALIGN_CENTER, "Edit Tile");
-      al_draw_textf(font, palette_color[12], et_c,  et_y+12, ALLEGRO_ALIGN_CENTER, "Attributes");
-
-
-      if ((mouse_x > et_x) && (mouse_x < (et_x+et_w)) && (mouse_y > et_y) && (mouse_y < et_y+20))
-      {
-
-         al_draw_rounded_rectangle(et_x, et_y, et_x+et_w, et_y+22, 2, 2, palette_color[12], 2);
-         if (mouse_b1)
-         {
-            while (mouse_b1) proc_controllers();
-            edit_tile_attributes();
-         }
-      }
-
-
-
+      // second bitmap -----------------------------------------------------------------------------------------------
       // draw the second bitmap to copy from only
-      int b2_x = 700;
-      int b2_y = 20;
       al_draw_bitmap(b2, b2_x, b2_y, 0);
 
       // title with filename only, no path
@@ -1346,39 +965,25 @@ void copy_tiles()
       al_draw_textf(font, palette_color[15], b2_x+(b2_w/2),  b2_y-10, ALLEGRO_ALIGN_CENTER, "%s", al_get_path_filename(ap));
       al_destroy_path(ap);
 
-      // draw and proccess load button
-      al_draw_textf(font, palette_color[15], b2_x+2,  b2_y-10, 0, "Load");
-      al_draw_rectangle(b2_x, b2_y-12, b2_x+36, b2_y, palette_color[15], 0);
-
-      if ((mouse_x > b2_x) && (mouse_x < (b2_x+36)) && (mouse_y > (b2_y-12)) && (mouse_y < b2_y))
-      {
-         al_draw_textf(font, palette_color[14], b2_x+2,  b2_y-10, 0, "Load");
-         al_draw_rectangle(b2_x, b2_y-12, b2_x+36, b2_y, palette_color[14], 0);
-         if (mouse_b1)
-         {
-            while (mouse_b1) proc_controllers();
-            reload = 1;
-         }
-      }
-
-
+      if (draw_and_process_button(b2_x,    b2_y-12, "Load",     15, 14)) reload_b2 = 1;
+      if (draw_and_process_button(b2_x+40, b2_y-12, "Load 1/2", 15, 14)) reload_b2 = 2;
 
       // draw a dim rectangle around the entire grid
-      al_draw_rectangle(b2_x, b2_y+1, b2_x+b2_w, b2_y+b2_h, palette_color[15+128], 0);
+      draw_gridlines_and_frame(b2_x, b2_y, b2_x2, b2_y2, 1, 15+64, 1, gridlines, 15+128, 0 );
+
 
       // is mouse on grid
       if ((mouse_x > b2_x) && (mouse_x < (b2_x + b2_w)) && (mouse_y > b2_y) && (mouse_y < (b2_y+b2_h)))
       {
+         // draw a rectangle around the entire grid
+         draw_gridlines_and_frame(b2_x, b2_y, b2_x2, b2_y2, 1, 15, 1, gridlines, 15+64, 0 );
+
          int mx = (mouse_x-b2_x)/20;
          int my = (mouse_y-b2_y)/20;
          int pointer = mx + my*b2_tw;
 
-         // draw a rectangle around the entire grid
-         al_draw_rectangle(b2_x, b2_y+1, b2_x+b2_w, b2_y+b2_h, palette_color[15], 0);
-
          // show what tile the mouse is pointing at
          al_draw_rectangle(b2_x+mx*20, b2_y+my*20, b2_x+mx*20+20, b2_y+my*20+20, palette_color[15], 0);
-
 
          al_set_target_bitmap(qtmp2);
          al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -1386,14 +991,14 @@ void copy_tiles()
          al_set_target_backbuffer(display);
 
          // draw b2_pointer button
-         int b1p_x = b2_x+1;
-         int b1p_w = 160;
-         int b1p_y = b2_y+b2_h;
+         int b2p_x1= b2_x+1;
+         int b2p_w1= 160;
+         int b2p_y1= b2_y+b2_h;
 
-         al_draw_rounded_rectangle(b1p_x, b1p_y, b1p_x+b1p_w, b1p_y+22, 2, 2, palette_color[15], 1);
-         al_draw_bitmap(qtmp2, b1p_x+2, b1p_y+1, 0);
-         al_draw_textf(font, palette_color[15], b1p_x+26, b1p_y+3,  0, "pointer:%d", pointer);
-         al_draw_textf(font, palette_color[15], b1p_x+26, b1p_y+12, 0, "mouse b2 to copy");
+         al_draw_rounded_rectangle(b2p_x1, b2p_y1, b2p_x1+b2p_w1, b2p_y1+22, 2, 2, palette_color[15], 1);
+         al_draw_bitmap(qtmp2, b2p_x1+2, b2p_y1+1, 0);
+         al_draw_textf(font, palette_color[15], b2p_x1+26, b2p_y1+3,  0, "pointer:%d", pointer);
+         al_draw_textf(font, palette_color[15], b2p_x1+26, b2p_y1+12, 0, "mouse b2 to copy");
 
          if (mouse_b2)
          {
@@ -1405,62 +1010,76 @@ void copy_tiles()
          }
       }
 
-      // draw a rectangle around the entire grid
-      al_draw_rectangle(1, 1, 640, 640, palette_color[15+96], 0 );
+      // main bitmap -----------------------------------------------------------------------------------------------
+      // draw the main bitmap
+      al_draw_bitmap(b1, b1_x, b1_y, 0);
 
+      // title with filename only, no path
+      ALLEGRO_PATH *ap1 = al_create_path(b1_fn);
+      al_draw_textf(font, palette_color[15], b1_x+(b1_w/2),  b1_y-10, ALLEGRO_ALIGN_CENTER, "%s", al_get_path_filename(ap1));
+      al_destroy_path(ap1);
 
+      if (draw_and_process_button(b1_x,     b1_y-12, "Load", 15, 14)) reload_b1 = 1;
+      if (draw_and_process_button(b1_x2-36, b1_y-12, "Save", 15, 10)) al_save_bitmap(b1_fn, b1);
 
-      // draw main 32x32 bitmap grid
-      for (int y = 0; y < 32; y++)
-         for (int x = 0; x < 32; x++)
-            al_draw_bitmap(btile[x+(y*32)], x*20, y*20, 0);
+      draw_gridlines_and_frame(b1_x, b1_y, b1_x2, b1_y2, 1, 15+64, 1, gridlines, 15+128, 0 );
 
-      if ((mouse_y < 640) && (mouse_x < 640))
+      // is mouse on grid
+      if ((mouse_x > b1_x) && (mouse_x < (b1_x + b1_w)) && (mouse_y > b1_y) && (mouse_y < (b1_y+b1_h)))
       {
-         int mx = mouse_x/20;
-         int my = mouse_y/20;
-         int pointer = mx + my*32;
+         draw_gridlines_and_frame(b1_x, b1_y, b1_x2, b1_y2, 1, 15, 1, gridlines, 15+64, 0 );
+
+         int mx = (mouse_x-b1_x)/20;
+         int my = (mouse_y-b1_y)/20;
+         int pointer = mx + my*b1_tw;
+
+
+         int mx1 = b1_x+mx*20;
+         int my1 = b1_y+my*20;
+         int mx2 = mx1 + 20;
+         int my2 = my1 + 20;
 
          // show what tile the mouse is pointing at
-         al_draw_rectangle(mx*20, my*20, mx*20+20, my*20+20, palette_color[15], 0 );
+         al_draw_rectangle(mx1, my1, mx2, my2, palette_color[15], 0);
 
-         // draw a rectangle around the entire grid
-         al_draw_rectangle(1, 1, 640, 640, palette_color[15], 0 );
+         al_set_target_bitmap(qtmp2);
+         al_clear_to_color(al_map_rgb(0, 0, 0));
+         al_draw_bitmap_region(b1, mx*20, my*20, 20, 20, 0, 0, 0);
+         al_set_target_backbuffer(display);
 
          // draw b1_pointer button
-         int b1p_x = 1;
-         int b1p_w = 160;
-         int b1p_y = 644;
+         int b1p_x1= b1_x+1;
+         int b1p_w1= 160;
+         int b1p_y1= b1_y+b1_h;
 
-         al_draw_rounded_rectangle(b1p_x, b1p_y, b1p_x+b1p_w, b1p_y+22, 2, 2, palette_color[15], 1);
-         al_draw_bitmap(btile[pointer], b1p_x+2, b1p_y+1, 0);
-         al_draw_textf(font, palette_color[15], b1p_x+26, b1p_y+3,  0, "pointer:%d", pointer);
-         al_draw_textf(font, palette_color[15], b1p_x+26, b1p_y+12, 0, "mouse b2 to copy");
+         al_draw_rounded_rectangle(b1p_x1, b1p_y1, b1p_x1+b1p_w1, b1p_y1+22, 2, 2, palette_color[15], 1);
+         al_draw_bitmap(qtmp2, b1p_x1+2, b1p_y1+1, 0);
+         al_draw_textf(font, palette_color[15], b1p_x1+26, b1p_y1+3,  0, "pointer:%d", pointer);
+         al_draw_textf(font, palette_color[15], b1p_x1+26, b1p_y1+12, 0, "mouse b2 to copy");
 
-
-         // this line is from the current draw item box, only show if mouse on first grid
-         al_draw_textf(font, palette_color[13], dix+26, diy+12, 0, "mouse b1 to paste"); // only show this if on first grid
-
-
-
+         if (mouse_b1)
+         {
+            while (mouse_b1) proc_controllers();
+            mx1 = mx*20;
+            my1 = my*20;
+            mx2 = mx1+20;
+            my2 = my1+20;
+            al_set_target_bitmap(b1);                                       // point at bitamp 1
+            al_draw_filled_rectangle(mx1, my1, mx2, my2, palette_color[0]); // erase
+            al_draw_bitmap(qtmp, mx1, my1, 0);                              // draw new tile
+            al_set_target_backbuffer(display);
+         }
 
          if (mouse_b2)
          {
             while (mouse_b2) proc_controllers();
             al_set_target_bitmap(qtmp);
             al_clear_to_color(al_map_rgb(0, 0, 0));
-            al_draw_bitmap(btile[pointer], 0, 0, 0);
+            al_draw_bitmap_region(b1, mx*20, my*20, 20, 20, 0, 0, 0);
             al_set_target_backbuffer(display);
          }
 
-         if (mouse_b1)
-         {
-            while (mouse_b1) proc_controllers();
-            al_set_target_bitmap(btile[pointer]);
-            al_clear_to_color(al_map_rgb(0, 0, 0));
-            al_draw_bitmap(qtmp, 0, 0, 0);
-            al_set_target_backbuffer(display);
-         }
+         al_draw_textf(font, palette_color[13], dix+26, diy+12, 0, "mouse b1 to paste"); // only show this line if mouse on main grid
       }
       while (key[ALLEGRO_KEY_ESCAPE])
       {
@@ -1468,24 +1087,11 @@ void copy_tiles()
          quit = 1;
       }
    }
+   al_destroy_bitmap(b1);
    al_destroy_bitmap(b2);
    al_destroy_bitmap(qtmp);
    al_destroy_bitmap(qtmp2);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

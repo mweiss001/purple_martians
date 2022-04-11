@@ -61,25 +61,41 @@ int save_level_prompt()
    else return 0; // user pressed cancel
 }
 
-int save_tiles(void)
+
+
+void save_sprit(void)
 {
-   ALLEGRO_BITMAP* temp = al_create_bitmap(640, 640);
-   al_set_target_bitmap(temp);
-   for (int y = 0; y < 32; y++)
-      for (int x = 0; x < 32; x++)
-         al_draw_bitmap(tile[y*32 + x], (x*20), (y*20), 0);
+   //printf("saving sprit001.pm\n");
 
-   al_save_bitmap("bitmaps/tiles.bmp", temp);
-   al_destroy_bitmap(temp);
+   for (int c=0; c<NUM_ANS; c++) // set all animation initial
+      if (zz[4][c])
+      {
+         zz[0][c]=zz[5][c];
+         zz[1][c]=0;
+         zz[2][c]=0;
+      }
 
+   // ensure sa[][0] does not have any bits set other than the ones we want
+   for (int c=0; c<NUM_SPRITES; c++)
+   {
+      sa[c][0] &= PM_BTILE_ALL_FLAGS;
+      sa[c][1] = 0; // not used
+   }
 
    FILE *fp = fopen("bitmaps/sprit001.pm", "wb");
    fwrite(zz, sizeof(zz), 1, fp);
    fwrite(sa, sizeof(sa), 1, fp);
    fclose(fp);
-
-   return 0;
 }
+
+void load_sprit(void)
+{
+   FILE *fp = fopen("bitmaps/sprit001.pm", "rb");
+   fread(zz, sizeof(zz), 1, fp);
+   fread(sa, sizeof(sa), 1, fp);
+   fclose(fp);
+}
+
 
 
 int load_tiles(void)
@@ -168,11 +184,7 @@ int load_tiles(void)
          }
    }
 
-   // get animation sequences and shape attributes
-   FILE *fp = fopen("bitmaps/sprit001.pm", "rb");
-   fread(zz, sizeof(zz), 1, fp);
-   fread(sa, sizeof(sa), 1, fp);
-   fclose(fp);
+   load_sprit(); // get animation sequences and shape attributes
 
    if (load_error) return 0;
    else return 1;
@@ -267,35 +279,6 @@ void level_check(void)
 }
 
 
-
-
-
-
-void pml_to_var(char * b)
-{
-   int sz = 0, offset = 0;
-   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
-   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
-   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
-   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
-   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
-   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
-   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
-   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
-}
-
-void var_to_pml(char * b)
-{
-   int sz = 0, offset = 0;
-   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
-   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
-   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
-   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
-   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
-   offset += sz; sz = sizeof(lifts);        memcpy(b+offset, lifts,        sz);
-   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
-   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
-}
 
 
 int load_level(int level_to_load, int display)
