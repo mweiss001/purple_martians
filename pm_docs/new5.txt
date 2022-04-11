@@ -19023,17 +19023,22 @@ mode
 0 = normal
 the last lift step moves to the first at the speed defined in the first step....
 
-
-1 = one shot
-moves to the last step and stays there, forever
-
-2 = instant restart
+1 = instant restart
 after the last step, instantly warps to the first step
 
-3 = prox reset
+2 = prox reset
 if the player is away from the lift (prox) for a certain time, the lift will reset
 
-4 = lift only moves when player is on it
+
+
+
+
+
+1 = one shot
+moves to the last step and stays there, forever (this could be done with a prox=0 step)
+
+
+4 = lift only moves when player is on it... this is probably better as a step...
 
 
 I want to have some more step types defined also...
@@ -19088,15 +19093,58 @@ y
 
 
 
-
-
-COMMIT
+20220411 5:00 AM commit
 
 load and save PDE now use binary mode
 made a new universal copy tile routine than work from any file to any file
 made a new tile select routine for block manip to choose from level block to include flags
 cleaned up old bitmap and tile routine
 increased lift struct size by 16 bytes for new features
+
+
+OK lets get into lifts....
+
+This could take some doing, but everything should be nicer when done
+
+I've been thinking about increasing the size of lift steps also
+
+It would be nice to have 2-4 more ints there
+
+All I would need to increase is the level save size, just like I just did for main lift...color
+
+40 lifts x 40 steps x 4 ints x 4 bytes = 25600 bytes per level
+
+the good thing is that they are not synced with netgame, they are static...
+
+
+
+in lift editor fixed lift help button
+
+added a button lift mode...
+
+modes are
+0 continuous loop
+1 instant loop
+
+that was very easy to implement...
+
+
+next...
+
+
+prox reset...works but lifts prox rect blinks in step 0.....
+
+
+commit and get ready for work...
+
+7:15 AM
+
+
+
+
+
+
+
 
 
 

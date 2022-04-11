@@ -588,24 +588,24 @@ int lift_editor(int lift)
       int lc = 6; // lock_color;
       if (Viewer_lock) lc = 7;
 
-      if (mdw_button(xa,    ty+a*bts, x27-1, ty+(a+1)*bts-2, 23, lift, 0, 0, 0,  9, 15, 0, 1,0,0,0)) mb = 22;  // prev
-          mdw_button(x27,   ty+a*bts, x57-1, ty+(a+1)*bts-2, 56, lift, 0, 0, 0, lc, 15, 0, 1,0,0,0);           // lock
-      if (mdw_button(x57,   ty+a*bts, xb,    ty+(a+1)*bts-2, 22, lift, 0, 0, 0,  9, 15, 0, 1,0,0,0)) mb = 21;  // next
+      if (mdw_button(xa,    ty+a*bts, x27-1, ty+(a+1)*bts-2, 23,  lift, 0, 0, 0,  9, 15, 0, 1,0,0,0)) mb = 22;  // prev
+          mdw_button(x27,   ty+a*bts, x57-1, ty+(a+1)*bts-2, 56,  lift, 0, 0, 0, lc, 15, 0, 1,0,0,0);           // lock
+      if (mdw_button(x57,   ty+a*bts, xb,    ty+(a+1)*bts-2, 22,  lift, 0, 0, 0,  9, 15, 0, 1,0,0,0)) mb = 21;  // next
       a++;
-      if (mdw_button(xa,    ty+a*bts, x13-1, ty+(a+1)*bts-2, 28, lift, 0, 0, 0, 13, 15, 0, 1,0,0,0)) mb = 18;  // move
-      if (mdw_button(x13,   ty+a*bts, x23-1, ty+(a+1)*bts-2, 20, lift, 0, 0, 0, 14, 15, 0, 1,0,0,0)) mb = 19;  // create
-      if (mdw_button(x23,   ty+a*bts, xb,    ty+(a+1)*bts-2, 21, lift, 0, 0, 0, 10, 15, 0, 1,0,0,0)) mb = 20;  // delete
+      if (mdw_button(xa,    ty+a*bts, x13-1, ty+(a+1)*bts-2, 28,  lift, 0, 0, 0, 13, 15, 0, 1,0,0,0)) mb = 18;  // move
+      if (mdw_button(x13,   ty+a*bts, x23-1, ty+(a+1)*bts-2, 20,  lift, 0, 0, 0, 14, 15, 0, 1,0,0,0)) mb = 19;  // create
+      if (mdw_button(x23,   ty+a*bts, xb,    ty+(a+1)*bts-2, 21,  lift, 0, 0, 0, 10, 15, 0, 1,0,0,0)) mb = 20;  // delete
       a++;
-      if (mdw_button(xa,    ty+a*bts, x12-1, ty+(a+1)*bts-2, 25, lift, 0, 0, 0, 1,  15, 0, 1,0,0,0)) mb = 24;  // viewer help
-      if (mdw_button(x12,   ty+a*bts, xb,    ty+(a+1)*bts-2, 57, lift, 0, 0, 0, 1,  15, 0, 1,0,0,0)) mb = 25;  // lift help
+      if (mdw_button(xa,    ty+a*bts, x12-1, ty+(a+1)*bts-2, 25,  lift, 0, 0, 0, 1,  15, 0, 1,0,0,0)) mb = 24;  // viewer help
+      if (mdw_button(x12,   ty+a*bts, xb,    ty+(a+1)*bts-2, 57,  lift, 0, 4, 0, 1,  15, 0, 1,0,0,0)) mb = 25;  // lift help
       a++;
-          mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 43, lift, 0, 0, 0, 12, 15, 15, 1,0,0,0);          // lift width
-      a++;
-          mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 44, lift, 0, 0, 0, 12, 15, 15, 1,0,0,0);          // lift height
-      a++;
-          mdw_colsel(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2,  4, lift, 0, 0, 0, 15, 13, 14, 0,0,0,0);          // lift color
-      a++;
-      if (mdw_button(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 29, lift, 0, 0, 0,  4, 15,  0, 1,0,0,0)) mb = 26; // lift name
+          mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 43,  lift, 0, 0, 0, 12, 15, 15, 1,0,0,0); a++;     // lift width
+          mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 44,  lift, 0, 0, 0, 12, 15, 15, 1,0,0,0); a++;     // lift height
+
+          mdw_button(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 500, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift mode
+
+          mdw_colsel(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2,  4,  lift, 0, 0, 0, 15, 13, 14, 0,0,0,0); a++;     // lift color
+      if (mdw_button(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 29,  lift, 0, 0, 0,  4, 15,  0, 1,0,0,0)) mb = 26; // lift name
       a++;
 
       draw_steps(step_ty, lift, current_step, step_pointer);

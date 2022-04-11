@@ -167,6 +167,14 @@ void draw_lifts()
 }
 
 
+
+
+
+
+
+
+
+
 void set_lift_xyinc(int d, int step)
 {
    //  used when switching to a new move step;
@@ -206,94 +214,209 @@ void set_lift_xyinc(int d, int step)
    }
 }
 
+
+int lift_check_prox(int l, int pd)
+{
+   int bx1 = lifts[l].x1 - pd - 10;
+   int by1 = lifts[l].y1 - pd - 10;
+   int bx2 = lifts[l].x2 + pd - 10;
+   int by2 = lifts[l].y2 + pd - 10;
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active)
+         if ((players[p].PX > al_itofix(bx1)) && (players[p].PX < al_itofix(bx2)))
+            if ((players[p].PY > al_itofix(by1)) && (players[p].PY < al_itofix(by2))) return 1;
+   return 0;
+
+/*
+
+   al_fixed pd = al_itofix(prox-10);
+
+   al_fixed bx1 = lifts[l].fx - pd;
+   al_fixed by1 = lifts[l].fy - pd;
+   al_fixed bx2 = bx1 + al_itofix(lifts[l].width);
+   al_fixed by2 = by1 + al_itofix(lifts[l].height);
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active)
+         if ((players[p].PX > bx1) && (players[p].PX < bx2) && (players[p].PY > by1) && (players[p].PY < by2)) return 1;
+            */
+
+
+
+}
+
+void lift_reset_to_step0(int l)
+{
+   int step = lifts[l].current_step = 0; // set step 0
+   lifts[l].x1 = lift_steps[l][step].x;
+   lifts[l].y1 = lift_steps[l][step].y;
+   lifts[l].x2 = lifts[l].x1 + lifts[l].width*20;
+   lifts[l].y2 = lifts[l].y1 + lifts[l].height*20;
+   lifts[l].fx = al_itofix(lifts[l].x1);
+   lifts[l].fy = al_itofix(lifts[l].y1);
+
+   lifts[l].current_step = step;   // initial step
+   lifts[l].limit_type = 5;     // type wait for time
+   lifts[l].limit_counter = 0;  // 0 = no wait! immediate next mode
+
+}
+
+
+int is_player_riding_lift(int l)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (!players[p].paused))
+         if ((players[p].player_ride) && (l == players[p].player_ride - 32)) // if player riding lift
+            return 1;
+   return 0;
+}
+
+
+
+
+
 void move_lifts(int ignore_prox)
 {
-   for (int d=0; d<num_lifts; d++)
+   for (int l=0; l<num_lifts; l++)
    {
-      lifts[d].fx += lifts[d].fxinc;        // xinc
-      lifts[d].fy += lifts[d].fyinc;        // yinc
-      lifts[d].x1 = al_fixtoi(lifts[d].fx);    // put as int in x1
-      lifts[d].y1 = al_fixtoi(lifts[d].fy);    // put as int in y1
-      lifts[d].x2 = lifts[d].x1 + (lifts[d].width *20)-1;  // width
-      lifts[d].y2 = lifts[d].y1 + (lifts[d].height*20)-1;  // height
+      lifts[l].fx += lifts[l].fxinc;        // xinc
+      lifts[l].fy += lifts[l].fyinc;        // yinc
+      lifts[l].x1 = al_fixtoi(lifts[l].fx);    // put as int in x1
+      lifts[l].y1 = al_fixtoi(lifts[l].fy);    // put as int in y1
+      lifts[l].x2 = lifts[l].x1 + (lifts[l].width *20)-1;  // width
+      lifts[l].y2 = lifts[l].y1 + (lifts[l].height*20)-1;  // height
 
       // limits
       int next_step = 0;
-      switch (lifts[d].limit_type) // limit type
+      switch (lifts[l].limit_type) // limit type
       {
          case 5: // timer wait
-            if (--lifts[d].limit_counter < 0) next_step = 1;
+            if (--lifts[l].limit_counter < 0) next_step = 1;
 
          break;
          case 7: // step count
-            if (--lifts[d].limit_counter < 0)
+            if (--lifts[l].limit_counter < 0)
             {
                next_step = 1;
                //make sure lift is exactly where it should be at the end of the move...
 
 
-               int step = lifts[d].current_step;
-               lifts[d].x1 = lift_steps[d][step].x;
-               lifts[d].y1 = lift_steps[d][step].y;
-               lifts[d].x2 = lifts[d].x1 + lifts[d].width*20;
-               lifts[d].y2 = lifts[d].y1 + lifts[d].height*20;
-               lifts[d].fx = al_itofix(lifts[d].x1);
-               lifts[d].fy = al_itofix(lifts[d].y1);
+               int step = lifts[l].current_step;
+               lifts[l].x1 = lift_steps[l][step].x;
+               lifts[l].y1 = lift_steps[l][step].y;
+               lifts[l].x2 = lifts[l].x1 + lifts[l].width*20;
+               lifts[l].y2 = lifts[l].y1 + lifts[l].height*20;
+               lifts[l].fx = al_itofix(lifts[l].x1);
+               lifts[l].fy = al_itofix(lifts[l].y1);
 
             }
 
          break;
          case 6: // prox wait
             if (ignore_prox) next_step = 1;
-            else
+            else if (lift_check_prox(l, lifts[l].limit_counter)) next_step = 1;
+         break;
+      }
+
+      if (lifts[l].mode == 2) // prox reset
+      {
+
+
+         if (is_player_riding_lift(l))
+
+//         if (lift_check_prox(l, 40))
+         {
+            lifts[l].val1 = 80;
+         }
+         else
+         {
+            if (--lifts[l].val1 < 0)
             {
 
-               int pd = lifts[d].limit_counter; // prox dist
-               int bx1 = lifts[d].x1 - pd - 10;
-               int by1 = lifts[d].y1 - pd - 10;
-               int bx2 = lifts[d].x2 + pd - 10;
-               int by2 = lifts[d].y2 + pd - 10;
+               lift_reset_to_step0(l);
 
-               for (int p=0; p<NUM_PLAYERS; p++)
-                  if (players[p].active)
-                     if ((players[p].PX > al_itofix(bx1)) && (players[p].PX < al_itofix(bx2)))
-                        if ((players[p].PY > al_itofix(by1)) && (players[p].PY < al_itofix(by2))) next_step = 1;
             }
-         break;
+         }
+
+
 
       }
       if (next_step)
       {
-         if (++lifts[d].current_step > lifts[d].num_steps - 1)    // increment step
-               lifts[d].current_step = lifts[d].num_steps -1;     // bounds check (for lifts with no loop to zero)
+         if (++lifts[l].current_step > lifts[l].num_steps - 1)    // increment step
+               lifts[l].current_step = lifts[l].num_steps -1;     // bounds check (for lifts with no loop to zero)
 
-         int step = lifts[d].current_step;
+         int step = lifts[l].current_step;
          next_step = 0;
-         switch (lift_steps[d][step].type)
+         switch (lift_steps[l][step].type)
          {
             case 1: // move
-               set_lift_xyinc(d, step);
+               set_lift_xyinc(l, step);
             break;
             case 2: // wait time
-               lifts[d].limit_type = 5; // wait time
-               lifts[d].limit_counter = lift_steps[d][step].val; // limit
-               lifts[d].fxinc= 0; // no xinc
-               lifts[d].fyinc= 0; // no yinc
+               lifts[l].limit_type = 5; // wait time
+               lifts[l].limit_counter = lift_steps[l][step].val; // limit
+               lifts[l].fxinc= 0; // no xinc
+               lifts[l].fyinc= 0; // no yinc
             break;
             case 3: // wait prox
-               lifts[d].limit_type = 6; // wait prox
-               lifts[d].limit_counter = lift_steps[d][step].val; // limit
-               lifts[d].fxinc= 0; // no xinc
-               lifts[d].fyinc= 0; // no yinc
+               lifts[l].limit_type = 6; // wait prox
+               lifts[l].limit_counter = lift_steps[l][step].val; // limit
+               lifts[l].fxinc= 0; // no xinc
+               lifts[l].fyinc= 0; // no yinc
             break;
             case 4: // move to step 0
-               step = lifts[d].current_step = 0; // set step 0
-               set_lift_xyinc(d, step);
+
+               if (lifts[l].mode == 0)
+               {
+                  step = lifts[l].current_step = 0; // set step 0
+                  set_lift_xyinc(l, step);
+               }
+
+               if (lifts[l].mode == 1) // immediately warp to step 0
+               {
+                  lift_reset_to_step0(l);
+               }
+
             break;
          }
       } // end of next step
    } // end of lift iterate
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

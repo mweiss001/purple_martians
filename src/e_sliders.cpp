@@ -1162,6 +1162,36 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       else sprintf(smsg, "Damage Field Initially OFF");
    }
 
+
+
+
+   if (bn == 500) // lift mode
+   {
+      sprintf(smsg, "undefined mode (%d)", lifts[num].mode);
+      if (lifts[num].mode == 0) sprintf(smsg, "Mode 0 - Move to Step 0");
+      if (lifts[num].mode == 1) sprintf(smsg, "Mode 1 - Warp to Step 0");
+      if (lifts[num].mode == 2) sprintf(smsg, "Mode 2 - Prox Reset");
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -1963,6 +1993,10 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 433) item[num][3] ^= PM_ITEM_DAMAGE_CURR;
 
 
+      if (bn == 500) // lift mode
+      {
+         if (++lifts[num].mode > 2) lifts[num].mode = 0;
+      }
 
 
 
