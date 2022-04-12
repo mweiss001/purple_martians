@@ -926,6 +926,14 @@ void draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys)
 void draw_and_proc_flag_rects_draw_item(int x, int y, int w, int h, int ys);
 
 
+
+int draw_and_process_button(int x, int y, const char * text, int c1, int c2, int center);
+
+
+
+
+
+
 // e_editor_main.h
 void get_item_draw_shape(int i);
 void draw_item_shape(int i, int x, int y);
@@ -1045,7 +1053,7 @@ void highlight_current_lift(int lift);
 void draw_lift_mp(int lift);
 int create_lift(void);
 void move_lift_step(int lift, int step);
-void redraw_get_new_lift_step_menu(int sty, int step, int highlight);
+int redraw_get_new_lift_step_menu(int sty, int step, int highlight);
 int get_new_lift_step(int lift, int step);
 int insert_lift_step(int lift, int step);
 void insert_steps_until_quit(int lift, int step);

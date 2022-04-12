@@ -789,16 +789,23 @@ void draw_gridlines_and_frame(int x1, int y1, int x2, int y2, int fd, int fc, in
 
 
 
-int draw_and_process_button(int x, int y, const char * text, int c1, int c2)
+int draw_and_process_button(int x, int y, const char * text, int c1, int c2, int center)
 {
-   // draw and process load button
+   // draw and process button
    int lbx = x;
    int lby = y;
-// int lbw = 36;
    int lbw = 4 + strlen(text) * 8;
    int lbh = 12;
    int lbx2 = lbx + lbw;
    int lby2 = lby + lbh;
+
+   if (center)
+   {
+      lbx =  lbx - (strlen(text) * 4) - 2;
+      lbx2 = lbx + (strlen(text) * 8) + 4;
+   }
+
+
 
    al_draw_textf(font, palette_color[c1], lbx+2,  lby+2, 0, text);
    al_draw_rectangle(lbx, lby, lbx2, lby2, palette_color[c1], 0);
@@ -951,8 +958,8 @@ void copy_tiles(void)
       al_draw_textf(font, palette_color[13], dix+26, diy+3,  0, "Current Draw Item");
 
       // draw and process gridlines button
-      if      ((gridlines == 1) && (draw_and_process_button(b1_x+200, b1_y+b1_h + 2, "Gridlines:ON", 15, 14))) gridlines = 0;
-      else if ((gridlines == 0) && (draw_and_process_button(b1_x+200, b1_y+b1_h + 2, "Gridlines:OFF", 15, 14))) gridlines = 1;
+      if      ((gridlines == 1) && (draw_and_process_button(b1_x+200, b1_y+b1_h + 2, "Gridlines:ON", 15, 14, 0))) gridlines = 0;
+      else if ((gridlines == 0) && (draw_and_process_button(b1_x+200, b1_y+b1_h + 2, "Gridlines:OFF", 15, 14, 0))) gridlines = 1;
 
 
 
@@ -965,8 +972,8 @@ void copy_tiles(void)
       al_draw_textf(font, palette_color[15], b2_x+(b2_w/2),  b2_y-10, ALLEGRO_ALIGN_CENTER, "%s", al_get_path_filename(ap));
       al_destroy_path(ap);
 
-      if (draw_and_process_button(b2_x,    b2_y-12, "Load",     15, 14)) reload_b2 = 1;
-      if (draw_and_process_button(b2_x+40, b2_y-12, "Load 1/2", 15, 14)) reload_b2 = 2;
+      if (draw_and_process_button(b2_x,    b2_y-12, "Load",     15, 14, 0)) reload_b2 = 1;
+      if (draw_and_process_button(b2_x+40, b2_y-12, "Load 1/2", 15, 14, 0)) reload_b2 = 2;
 
       // draw a dim rectangle around the entire grid
       draw_gridlines_and_frame(b2_x, b2_y, b2_x2, b2_y2, 1, 15+64, 1, gridlines, 15+128, 0 );
@@ -1019,8 +1026,8 @@ void copy_tiles(void)
       al_draw_textf(font, palette_color[15], b1_x+(b1_w/2),  b1_y-10, ALLEGRO_ALIGN_CENTER, "%s", al_get_path_filename(ap1));
       al_destroy_path(ap1);
 
-      if (draw_and_process_button(b1_x,     b1_y-12, "Load", 15, 14)) reload_b1 = 1;
-      if (draw_and_process_button(b1_x2-36, b1_y-12, "Save", 15, 10)) al_save_bitmap(b1_fn, b1);
+      if (draw_and_process_button(b1_x,     b1_y-12, "Load", 15, 14, 0)) reload_b1 = 1;
+      if (draw_and_process_button(b1_x2-36, b1_y-12, "Save", 15, 10, 0)) al_save_bitmap(b1_fn, b1);
 
       draw_gridlines_and_frame(b1_x, b1_y, b1_x2, b1_y2, 1, 15+64, 1, gridlines, 15+128, 0 );
 

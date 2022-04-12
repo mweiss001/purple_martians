@@ -243,51 +243,8 @@ void move_lift_step(int lift, int step)
 }
 
 
-void redraw_get_new_lift_step_menu(int sty, int step, int highlight)
-{
-   int fc = 14; // frame color
-   int tc = 15; // text color
-   int bc = 6;  // button color
-   int hc = 10; // highlight frame color
 
-   // erase to background color
-   al_draw_filled_rectangle(txc-98, sty-8, txc+96, sty+(7*12)-22, palette_color[fc+192]);
 
-   al_draw_rectangle(txc-98, sty-8, txc+96, sty+3, palette_color[fc], 1); // frame
-   al_draw_textf(font, palette_color[fc], txc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
-
-   al_draw_rectangle(txc-98, sty-8, txc+96, sty+(7*12)-22, palette_color[fc], 1); // frame
-   al_draw_text(font, palette_color[tc], txc, sty+5, ALLEGRO_ALIGN_CENTER, "Select Step Type");
-
-   int jh = 1;
-   al_draw_filled_rectangle(txc-21, sty+(jh*12)+2, txc+18, sty+(jh*12)+13, palette_color[bc+128]);
-   al_draw_text(font, palette_color[tc], txc, sty+(jh*12)+4, ALLEGRO_ALIGN_CENTER, "Move");
-   al_draw_rectangle(txc-21, sty+(jh*12)+2, txc+18, sty+(jh*12)+13, palette_color[bc], 1);
-   if (highlight == 1)
-   al_draw_rectangle(txc-21, sty+(jh*12)+2, txc+18, sty+(jh*12)+13, palette_color[hc], 1);
-
-   jh = 2;
-   al_draw_filled_rectangle(txc-57, sty+(jh*12)+2, txc+54, sty+(jh*12)+13, palette_color[bc+128]);
-   al_draw_text(font, palette_color[tc], txc, sty+(jh*12)+4, ALLEGRO_ALIGN_CENTER, "Wait For Time");
-   al_draw_rectangle       (txc-57, sty+(jh*12)+2, txc+54, sty+(jh*12)+13, palette_color[bc], 1);
-   if (highlight == 2)
-   al_draw_rectangle       (txc-57, sty+(jh*12)+2, txc+54, sty+(jh*12)+13, palette_color[hc], 1);
-
-   jh = 3;
-   al_draw_filled_rectangle(txc-57, sty+(jh*12)+2, txc+54, sty+(jh*12)+13, palette_color[bc+128]);
-   al_draw_text(font, palette_color[tc], txc, sty+(jh*12)+4, ALLEGRO_ALIGN_CENTER,"Wait For Prox" );
-   al_draw_rectangle(txc-57, sty+(jh*12)+2, txc+54, sty+(jh*12)+13, palette_color[bc], 1);
-   if (highlight == 3)
-   al_draw_rectangle(txc-57, sty+(jh*12)+2, txc+54, sty+(jh*12)+13, palette_color[hc], 1);
-
-   jh = 4;
-   al_draw_filled_rectangle(txc-21, sty+(jh*12)+2, txc+18, sty+(jh*12)+13, palette_color[bc+128]);
-   al_draw_text(font, palette_color[tc], txc, sty+(jh*12)+4, ALLEGRO_ALIGN_CENTER, "Done");
-   al_draw_rectangle(txc-21, sty+(jh*12)+2, txc+18, sty+(jh*12)+13, palette_color[bc], 1);
-   if (highlight == 4)
-   al_draw_rectangle(txc-21, sty+(jh*12)+2, txc+18, sty+(jh*12)+13, palette_color[hc], 1);
-
-}
 
 
 int get_new_lift_step(int lift, int step)
@@ -305,37 +262,42 @@ int get_new_lift_step(int lift, int step)
    int quit = 0;
    while (!quit)
    {
-      int selection = 0;
       al_rest(0.02);
       al_flip_display();
       proc_controllers();
       if ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE])) quit = 99;
-      if ((mouse_x > txc-95) && (mouse_x < txc+95))
+
+      int fc = 14; // frame color
+      int tc = 15; // text color
+      // erase to background color
+      al_draw_filled_rectangle(txc-98, sty-8, txc+96, sty+(7*12)-22, palette_color[fc+192]);
+
+      al_draw_rectangle(txc-98, sty-8, txc+96, sty+3, palette_color[fc], 1); // frame
+      al_draw_textf(font, palette_color[fc], txc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
+
+      al_draw_rectangle(txc-98, sty-8, txc+96, sty+(7*12)-22, palette_color[fc], 1); // frame
+      al_draw_text(font, palette_color[tc], txc, sty+5, ALLEGRO_ALIGN_CENTER, "Select Step Type");
+
+      int jh = 1;
+      if (draw_and_process_button(txc, sty+(jh*12)+2, "Move", 15, 15+64, 1))
       {
-         selection = ((mouse_y-sty-3)/12-1)+1;     // get selection based on mouse y
-         if ((selection < 0 ) || (selection > 4)) selection = 0; // selection valid
-         if (mouse_b1)
+         quit = construct_lift_step(lift, step, 0, 0, 20, 1);       // set move step
+         if (getxy("Set lift position", 4, lift, step) == 1)        // set location
          {
-            while(mouse_b1) proc_controllers(); // wait for release
-            quit = 1;
-            switch (selection)
-            {
-               case 1:
-                  construct_lift_step(lift, step, 0, 0, 20, 1);              // set move step
-                  if (getxy("Set lift position", 4, lift, step) == 1)        // set location
-                  {
-                     lift_steps[lift][step].x = get100_x * 20;
-                     lift_steps[lift][step].y = get100_y * 20;
-                  }
-                  else quit = 99;
-               break;
-               case 2: construct_lift_step(lift, step, 0, 0, 100, 2); break; // set wait step
-               case 3: construct_lift_step(lift, step, 0, 0, 80,  3); break; // set prox step
-               case 4: quit=99; break; // cancel
-            }
-         }  // end of if mouse_b 1
-      }  // end of mouse on menu
-      redraw_get_new_lift_step_menu(sty, step, selection);
+            lift_steps[lift][step].x = get100_x * 20;
+            lift_steps[lift][step].y = get100_y * 20;
+         }
+         else quit = 99;
+      }
+
+      jh++;
+      if (draw_and_process_button(txc, sty+(jh*12)+2, "Wait For Time", 15, 15+64, 1)) quit = construct_lift_step(lift, step, 0, 0, 100, 2);
+      jh++;
+      if (draw_and_process_button(txc, sty+(jh*12)+2, "Wait For Prox", 15, 15+64, 1)) quit = construct_lift_step(lift, step, 0, 0, 80, 3);
+      jh++;
+      if (draw_and_process_button(txc, sty+(jh*12)+2, "Done", 15, 15+64, 1)) quit = 99;
+
+
    } // end of while (!quit)
    return quit;
 }
