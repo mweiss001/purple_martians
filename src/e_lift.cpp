@@ -97,6 +97,21 @@ void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int r
       case 2: mdw_slider(xa, ty, xb, ty2, 72, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break;
       case 3: mdw_slider(xa, ty, xb, ty2, 73, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break;
       case 4: mdw_button(xa, ty, xb, ty2, 74, step, lift, 0, 0, rc, 15, 0,  1,0,0,0); break;
+
+      case 6: // resize
+      {
+         int thrd = (xb-xa) / 3;
+         int x1 = xa;
+         int x2 = xa + thrd;
+         int x3 = xa + (2 * thrd);
+         int x4 = xb;
+
+         mdw_slider(x1, ty, x2, ty2, 105, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
+         mdw_slider(x2, ty, x3, ty2, 106, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
+         mdw_slider(x3, ty, x4, ty2, 107, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
+      }
+      break;
+
    }
 }
 
@@ -256,8 +271,17 @@ int get_new_lift_step(int lift, int step)
    int sty = 53 + (step + 9) * bts;
    if (sty > SCREEN_H-60) sty = SCREEN_H-60;
 
-   // position the mouse
-   al_set_mouse_xy(display, txc * display_transform_double, (sty+24) * display_transform_double);
+   int num_of_step_types = 5;
+   int sth = (num_of_step_types * 12) + 17;
+   int sty2 = sty + sth;
+
+   int fc = 14; // frame color
+   int tc = 15; // text color
+
+   al_draw_filled_rectangle(txc-98, sty-8, txc+96, sty2, palette_color[fc+192]); // erase to background color
+   al_draw_rectangle       (txc-98, sty-8, txc+96, sty2, palette_color[fc], 1); // frame
+
+   al_set_mouse_xy(display, txc * display_transform_double, (sty+24) * display_transform_double); // position the mouse
 
    int quit = 0;
    while (!quit)
@@ -267,19 +291,18 @@ int get_new_lift_step(int lift, int step)
       proc_controllers();
       if ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE])) quit = 99;
 
-      int fc = 14; // frame color
-      int tc = 15; // text color
-      // erase to background color
-      al_draw_filled_rectangle(txc-98, sty-8, txc+96, sty+(7*12)-22, palette_color[fc+192]);
-
-      al_draw_rectangle(txc-98, sty-8, txc+96, sty+3, palette_color[fc], 1); // frame
       al_draw_textf(font, palette_color[fc], txc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
 
-      al_draw_rectangle(txc-98, sty-8, txc+96, sty+(7*12)-22, palette_color[fc], 1); // frame
       al_draw_text(font, palette_color[tc], txc, sty+5, ALLEGRO_ALIGN_CENTER, "Select Step Type");
+      al_draw_rectangle(txc-98, sty+3, txc+96, sty+14, palette_color[fc], 1); // frame
+
+
+      int c1 = 15+96; // regular button color
+      int c2 = 15; // highlighted button color
+      int stys = sty+3;
 
       int jh = 1;
-      if (draw_and_process_button(txc, sty+(jh*12)+2, "Move", 15, 15+64, 1))
+      if (draw_and_process_button(txc, stys+(jh*12), "Move", c1, c2, 1))
       {
          quit = construct_lift_step(lift, step, 0, 0, 20, 1);       // set move step
          if (getxy("Set lift position", 4, lift, step) == 1)        // set location
@@ -291,12 +314,13 @@ int get_new_lift_step(int lift, int step)
       }
 
       jh++;
-      if (draw_and_process_button(txc, sty+(jh*12)+2, "Wait For Time", 15, 15+64, 1)) quit = construct_lift_step(lift, step, 0, 0, 100, 2);
+      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Time", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 100, 2);
       jh++;
-      if (draw_and_process_button(txc, sty+(jh*12)+2, "Wait For Prox", 15, 15+64, 1)) quit = construct_lift_step(lift, step, 0, 0, 80, 3);
+      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Prox", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 80, 3);
       jh++;
-      if (draw_and_process_button(txc, sty+(jh*12)+2, "Done", 15, 15+64, 1)) quit = 99;
-
+      if (draw_and_process_button(txc, stys+(jh*12), "Resize", c1, c2, 1))        quit = construct_lift_step(lift, step, 0, 0, 80, 6);
+      jh++;
+      if (draw_and_process_button(txc, stys+(jh*12), "Done", c1, c2, 1)) quit = 99;
 
    } // end of while (!quit)
    return quit;

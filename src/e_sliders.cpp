@@ -155,6 +155,11 @@ void fill_smsg_slider(int bn, int type, int num)
 
 
 
+   if (bn == 105) sprintf(smsg, "Time:%d",   lift_steps[type][num].val); // lift step resize time
+   if (bn == 106) sprintf(smsg, "Width:%d",  lift_steps[type][num].x);   // lift step new width
+   if (bn == 107) sprintf(smsg, "Height:%d", lift_steps[type][num].y);   // lift step new height
+
+
 }
 
 void update_var(int bn, int type, int num, float f)
@@ -308,6 +313,9 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 104) item[num][12] = (int)f; // Damage Field OFF Time
 
 
+   if (bn == 105) lift_steps[type][num].val = (int)f; // lift step resize speed
+   if (bn == 106) lift_steps[type][num].x   = (int)f; // lift step new width
+   if (bn == 107) lift_steps[type][num].y   = (int)f; // lift step new height
 }
 
 
@@ -419,6 +427,15 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
       case 103: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage field on time
       case 104: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage field off total time
+
+      case 105: sul=1000; sll=0;    sinc=1;   sdx=lift_steps[type][num].val;   break;  // lift step resize speed
+      case 106: sul=1000; sll=0;    sinc=1;   sdx=lift_steps[type][num].x;     break;  // lift step new width
+      case 107: sul=1000; sll=0;    sinc=1;   sdx=lift_steps[type][num].y;     break;  // lift step new height
+
+
+
+
+
    }
 
 
