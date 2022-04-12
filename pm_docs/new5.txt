@@ -19110,7 +19110,7 @@ I've been thinking about increasing the size of lift steps also
 
 It would be nice to have 2-4 more ints there
 
-All I would need to increase is the level save size, just like I just did for main lift...color
+All I would need to increase is the level save size, just like I just did for main lift...
 
 40 lifts x 40 steps x 4 ints x 4 bytes = 25600 bytes per level
 
@@ -19138,6 +19138,95 @@ prox reset...works but lifts prox rect blinks in step 0.....
 commit and get ready for work...
 
 7:15 AM
+
+
+
+
+
+
+8:50 PM
+
+I thinks I know why it blinks...
+it keeps resetting to step zero every frame...
+
+how can I make it not?
+
+
+set the time out to 80 when resetting?
+
+detect when already in step 0 and stay there?
+
+this type of lift really only makes sense if the first step is a prox anyway...
+
+
+
+I had some new ideas today...
+
+use raising damage feild attached to lift like a mario rising lava stage
+
+
+make walls that chase you down a corridor
+
+make player run a gauntlet of raising and lowering platforms
+
+
+
+make the lifts possible to be invisible and have no effect on players, enemies, items, bullets, etc, just like fields
+
+
+then I could have a moving damage damage field, or trigger!!!
+
+
+20220412 5:00AM
+
+
+I'm going to hold off on adding more ints to lift steps for now..
+I'm not sure what I would do with them.
+
+I can do a lot with that..
+
+implement new step...change size
+
+
+type 5 - warp to step 0
+val - time to complete
+x - new width
+y - new height
+
+type 6 - resize
+val - time to complete
+x - new width
+y - new height
+
+type 7 - wait for trigger
+val - trigger event number
+
+
+type 8 - move to pos only if player is on lift
+val - speed
+x
+y
+
+
+what do I have already
+
+
+step type 1 - move
+val = speed scaled by 10
+x new position
+y
+
+
+
+----------------------
+
+redoing the insert step stuff with new buttons...
+
+it all sems to work but no new step are actually added....
+
+
+
+
 
 
 
