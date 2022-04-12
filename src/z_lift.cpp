@@ -168,6 +168,31 @@ void draw_lifts()
 
 
 
+void set_lift_whinc(int l, int step)
+{
+   //  used when running a resize step
+   //  sets winc, hinc and num of frames for limit mode 8 (resize)
+
+
+   int time = lift_steps[l][step].val;
+   lifts[l].limit_counter = time;
+   lifts[l].limit_type = 8;
+
+   // while this runs, fx and fy are used for width and height
+   lifts[l].fx = lifts[l].width;
+   lifts[l].fy = lifts[l].height;
+
+   // get the difference between the new and old sizes
+   al_fixed wdif = lift_steps[l][step].x - lifts[l].width;
+   al_fixed hdif = lift_steps[l][step].y - lifts[l].height;
+
+   lifts[l].fxinc = wdif / time; // inc = dif / time
+   lifts[l].fyinc = hdif / time; // inc = dif / time
+
+}
+
+
+
 
 
 
@@ -292,27 +317,46 @@ void move_lifts(int ignore_prox)
             if (ignore_prox) next_step = 1;
             else if (lift_check_prox(l, lifts[l].limit_counter)) next_step = 1;
          break;
+
+
+         case 8: // step count for resize
+            lifts[l].fx += lifts[l].fxinc;           // width inc
+            lifts[l].fy += lifts[l].fyinc;           // height inc
+
+            lifts[l].width  = al_fixtoi(lifts[l].fx); // put as int in width
+            lifts[l].height = al_fixtoi(lifts[l].fy); // put as int in height
+
+            lifts[l].x2 = lifts[l].x1 + (lifts[l].width *20)-1;  // get new x2 from width
+            lifts[l].y2 = lifts[l].y1 + (lifts[l].height*20)-1;  // get new y2 from height
+
+            if (--lifts[l].limit_counter < 0)
+            {
+               next_step = 1;
+
+               int step = lifts[l].current_step;
+               // make sure lift is exactly the right size at the end of the move...
+               lifts[l].width = lift_steps[l][step].x;
+               lifts[l].width = lift_steps[l][step].y;
+
+               // change fx and fx back to lift position
+               lifts[l].fx = al_itofix(lifts[l].x1);
+               lifts[l].fy = al_itofix(lifts[l].y1);
+
+            }
+         break;
+
       }
 
       // modes----------------------------------------------------------------------
       if (lifts[l].mode == 2) // prox reset
       {
-
-
-         if (is_player_riding_lift(l))
-
-//         if (lift_check_prox(l, 40))
-         {
-            lifts[l].val1 = 80;
-         }
+         if (is_player_riding_lift(l)) lifts[l].val1 = 80;
          else
          {
             if (--lifts[l].val1 < 0)
             {
-
                lifts[l].val1 = 80;
                lift_reset_to_step0(l);
-
             }
          }
       }
@@ -328,6 +372,10 @@ void move_lifts(int ignore_prox)
          next_step = 0;
          switch (lift_steps[l][step].type)
          {
+            case 6:
+               set_lift_whinc(l, step);
+            break;
+
             case 1: // move
                set_lift_xyinc(l, step);
             break;

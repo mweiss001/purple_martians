@@ -600,7 +600,9 @@ void menu_setup(void)
    strcpy (lift_step_type_name[1], "Move");
    strcpy (lift_step_type_name[2], "Wait");
    strcpy (lift_step_type_name[3], "Prox");
-   strcpy (lift_step_type_name[4], "Loop");
+   strcpy (lift_step_type_name[4], "Loop0");
+   strcpy (lift_step_type_name[6], "Warp0");
+   strcpy (lift_step_type_name[6], "Resize");
 
 
    strcpy (item_name[0], "item_empty");

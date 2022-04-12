@@ -19225,6 +19225,9 @@ redoing the insert step stuff with new buttons...
 it all sems to work but no new step are actually added....
 
 
+make 3 new sliders for step 6
+
+
 
 
 
