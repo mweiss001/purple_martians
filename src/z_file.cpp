@@ -334,6 +334,9 @@ int load_level(int level_to_load, int display)
             itemf[x][1] = al_itofix(item[x][5]);
          }
 
+      lift_setup();
+
+
       level_check();
       init_level_background(); // draw blocks and lift lines on level_background
       reset_animation_sequence_frame_nums(0);
@@ -352,6 +355,7 @@ int save_level(int level_to_save)
    level_header[3] = sort_item(); // num_of_items
    sort_enemy();
    level_header[4] = num_enemy;  // num_of_enemies
+   lift_setup();
    level_header[5] = num_lifts;  // num of lifts
 
    make_filename(level_to_save);   // update filename

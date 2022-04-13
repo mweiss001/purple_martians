@@ -1021,6 +1021,7 @@ void game_menu(void)
                      save_config();
                   }
 
+
                   if (logging_menu_sel == 5)
                   {
                      L_LOGGING_NETPLAY= !L_LOGGING_NETPLAY;

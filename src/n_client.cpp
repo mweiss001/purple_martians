@@ -231,7 +231,7 @@ int client_init_join(void)
          int p = PacketGet1ByteInt();      // client player number
          int color = PacketGet1ByteInt();  // client player color
          int dmp = PacketGet1ByteInt();    // deathmatch_pbullets
-         int dmd = PacketGet1ByteInt();    // deathmatch_pbullets_damage
+         int dmd = PacketGet2ByteInt();    // deathmatch_pbullets_damage
          int spb = PacketGet1ByteInt();    // suicide_pbullets
 
          if (p == 99) SJON = 99; // server full, join denied
@@ -250,7 +250,7 @@ int client_init_join(void)
             al_set_timer_speed(fps_timer, 1/(float)frame_speed);
 
             deathmatch_pbullets = dmp;
-            deathmatch_pbullets_damage = dmd;
+            deathmatch_pbullets_damage = dmd-1000;
             suicide_pbullets = spb;
 
             if (L_LOGGING_NETPLAY_JOIN)

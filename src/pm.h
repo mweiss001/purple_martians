@@ -182,6 +182,7 @@ extern float ttfloat2;
 #define PML_SIZE 384960
 
 
+
 extern int level_header[20];
 
 
@@ -1064,7 +1065,6 @@ void lift_setup(void);
 void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int rc);
 void draw_steps(int step_ty, int lift, int current_step, int highlight_step);
 void highlight_current_lift(int lift);
-void draw_lift_mp(int lift);
 int create_lift(void);
 void move_lift_step(int lift, int step);
 int redraw_get_new_lift_step_menu(int sty, int step, int highlight);
@@ -1347,7 +1347,7 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 void clear_lift(int l);
 int construct_lift_step(int lift, int step, int x, int y, int val, int type);
 void clear_lift_step(int lift, int step);
-void set_lift(int lift, int step);
+void set_lift_to_step(int lift, int step);
 void draw_lift_lines(void);
 void draw_lifts(void);
 void set_lift_xyinc(int d, int step);

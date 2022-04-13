@@ -1372,6 +1372,21 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 */
 
+/*
+
+      // put width and height in all move steps
+      for (int l=0; l<num_lifts; l++)
+      {
+         for (int s=0; s<40; s++)
+            if (lift_steps[l][s].type == 1) // move type
+            {
+               lift_steps[l][s].w = lifts[l].width;
+               lift_steps[l][s].h = lifts[l].height;
+            }
+         lifts[l].width = 0;
+         lifts[l].height = 0;
+      }
+*/
 
       if (0)
       {

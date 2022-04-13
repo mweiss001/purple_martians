@@ -52,7 +52,7 @@ void clear_lift_step(int lift, int step)
    lift_steps[lift][step].type = 0;
 }
 
-void set_lift(int lift, int step)
+void set_lift_to_step(int lift, int step)
 {
    // searches back from passed step until a move step is found or step 0 is reached
    // sets coordinates in lift from that step
@@ -61,51 +61,86 @@ void set_lift(int lift, int step)
 
    while ((lift_steps[lift][step].type != 1) && (step > 0) ) step--;
 
-   lifts[lift].x1 = lift_steps[lift][step].x;
-   lifts[lift].y1 = lift_steps[lift][step].y;
-   lifts[lift].x2 = lifts[lift].x1 + lifts[lift].width;
-   lifts[lift].y2 = lifts[lift].y1 + lifts[lift].height;
-   lifts[lift].fx = al_itofix(lifts[lift].x1);
-   lifts[lift].fy = al_itofix(lifts[lift].y1);
-   lifts[lift].fxinc = al_itofix(0);
-   lifts[lift].fyinc = al_itofix(0);
-
    int c = step-1;
    if (c < 0) c = 0;
    lifts[lift].current_step = c;   // initial step
    lifts[lift].limit_type = 5;     // type wait for time
    lifts[lift].limit_counter = 0;  // 0 = no wait! immediate next mode
+
+   // get pos and size from step
+   lifts[lift].x1     = lift_steps[lift][c].x;
+   lifts[lift].y1     = lift_steps[lift][c].y;
+   lifts[lift].width  = lift_steps[lift][c].w;
+   lifts[lift].height = lift_steps[lift][c].h;
+   lifts[lift].x2     = lifts[lift].x1 + lifts[lift].width;
+   lifts[lift].y2     = lifts[lift].y1 + lifts[lift].height;
+
+   // set fixed positions too
+   lifts[lift].fx = al_itofix(lifts[lift].x1);
+   lifts[lift].fy = al_itofix(lifts[lift].y1);
+   lifts[lift].fw = al_itofix(lifts[lift].width);
+   lifts[lift].fh = al_itofix(lifts[lift].height);
+
+   // set incs to 0
+   lifts[lift].fxinc = al_itofix(0);
+   lifts[lift].fyinc = al_itofix(0);
+   lifts[lift].fwinc = al_itofix(0);
+   lifts[lift].fhinc = al_itofix(0);
 }
 
 void draw_lift_lines()
 {
+
    for (int x=0; x<num_lifts; x++)  // cycle lifts
    {
       int col = lifts[x].color+128;
       int sx = lift_steps[x][0].x + lifts[x].width / 2;
       int sy = lift_steps[x][0].y + lifts[x].height / 2;
-      int px = sx;
+      int px = sx; // previous
       int py = sy;
-      int nx = 0;
+      int nx = 0;  // next
       int ny = 0;
       al_set_target_bitmap(level_background);
       if (lifts[x].num_steps > 1) // only draw lines if more than one step
       {
          for (int y=0; y<lifts[x].num_steps; y++)  // cycle step
+         {
             if (lift_steps[x][y].type == 1) // look for move step
             {
-               nx = lift_steps[x][y].x + lifts[x].width / 2;
-               ny = lift_steps[x][y].y + lifts[x].height / 2;
+               lifts[x].x1 = lift_steps[x][y].x; // actually do the move
+               lifts[x].y1 = lift_steps[x][y].y;
+
+               nx = lifts[x].x1 + lifts[x].width / 2; // find center
+               ny = lifts[x].y1 + lifts[x].height / 2;
+
                al_draw_line( px, py, nx, ny, palette_color[col], 1);
                for (int c=3; c>=0; c--)
                   al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
                px = nx;
                py = ny;
             }
-         al_draw_line(sx, sy, nx, ny, palette_color[col], 1);
+            if (lift_steps[x][y].type == 6) // look for resize step
+            {
+               lifts[x].width  = lift_steps[x][y].w; // actually change width
+               lifts[x].height = lift_steps[x][y].h;
+
+               nx = lifts[x].x1 + lifts[x].width / 2; // find center
+               ny = lifts[x].y1 + lifts[x].height / 2;
+
+               al_draw_line( px, py, nx, ny, palette_color[col], 1);
+               for (int c=3; c>=0; c--)
+                  al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
+               px = nx;
+               py = ny;
+               al_draw_line(sx, sy, nx, ny, palette_color[col], 1);
+            }
+         }
+         al_draw_line(sx, sy, nx, ny, palette_color[col], 1); // draw line from last to first
       }
    }
 }
+
+
 
 
 
@@ -115,6 +150,8 @@ void draw_lifts()
    al_set_target_bitmap(level_buffer);
    for (int d=0; d<num_lifts; d++)
    {
+
+
       int x1 = lifts[d].x1;
       int x2 = lifts[d].x2;
       int y1 = lifts[d].y1;
@@ -224,21 +261,6 @@ int lift_check_prox(int l, int pd)
    return 0;
 }
 
-void lift_reset_to_step0(int l)
-{
-   int step = lifts[l].current_step = 0; // set step 0
-   lifts[l].x1 = lift_steps[l][step].x;
-   lifts[l].y1 = lift_steps[l][step].y;
-   lifts[l].x2 = lifts[l].x1 + lifts[l].width;
-   lifts[l].y2 = lifts[l].y1 + lifts[l].height;
-   lifts[l].fx = al_itofix(lifts[l].x1);
-   lifts[l].fy = al_itofix(lifts[l].y1);
-
-   lifts[l].current_step = step;  // initial step
-   lifts[l].limit_type = 5;       // type wait for time
-   lifts[l].limit_counter = 0;    // 0 = no wait! immediate next mode
-}
-
 
 int is_player_riding_lift(int l)
 {
@@ -313,6 +335,10 @@ void move_lifts(int ignore_prox)
                lifts[l].y2 = lifts[l].y1 + lifts[l].height;
                lifts[l].fx = al_itofix(lifts[l].x1);
                lifts[l].fy = al_itofix(lifts[l].y1);
+
+               // zero incs when done
+               lifts[l].fxinc = al_itofix(0);
+               lifts[l].fyinc = al_itofix(0);
             }
          break;
          case 6: // prox wait
@@ -335,13 +361,14 @@ void move_lifts(int ignore_prox)
             {
                next_step = 1;
 
-               int step = lifts[l].current_step;
                // make sure lift is exactly the right size at the end of the move...
+               int step = lifts[l].current_step;
                lifts[l].width  = lift_steps[l][step].w;
                lifts[l].height = lift_steps[l][step].h;
 
-               init_level_background();
-
+               // zero incs when done
+               lifts[l].fwinc = al_itofix(0);
+               lifts[l].fhinc = al_itofix(0);
             }
          break;
 
@@ -356,7 +383,7 @@ void move_lifts(int ignore_prox)
             if (--lifts[l].val1 < 0)
             {
                lifts[l].val1 = 80;
-               lift_reset_to_step0(l);
+               set_lift_to_step(l, 0);
             }
          }
       }
@@ -401,7 +428,7 @@ void move_lifts(int ignore_prox)
 
                if (lifts[l].mode == 1) // immediately warp to step 0
                {
-                  lift_reset_to_step0(l);
+                  set_lift_to_step(l, 0);
                }
 
             break;

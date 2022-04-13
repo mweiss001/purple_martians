@@ -900,7 +900,7 @@ void do_fcopy(int qx1, int qy1)
                }
                construct_lift_step(c, y, vx, vy, ft_ls[b][y][2], ft_ls[b][y][3]);
             }
-             set_lift(c, 0);
+            set_lift_to_step(c, 0);
             if (lim)
             {
                erase_lift(c);

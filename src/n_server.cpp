@@ -665,7 +665,7 @@ void server_proc_CJON_packet(int who)
       PacketPut1ByteInt(99); // send SJON with player 99 to indicate server full
       PacketPut1ByteInt(0);
       PacketPut1ByteInt(0);
-      PacketPut1ByteInt(0);
+      PacketPut2ByteInt(0);
       PacketPut1ByteInt(0);
       ServerSendTo(packetbuffer, packetsize, who, 0);
    }
@@ -690,7 +690,7 @@ void server_proc_CJON_packet(int who)
       PacketPut1ByteInt(cn);
       PacketPut1ByteInt(color);
       PacketPut1ByteInt(deathmatch_pbullets);
-      PacketPut1ByteInt(deathmatch_pbullets_damage);
+      PacketPut2ByteInt(deathmatch_pbullets_damage+1000);
       PacketPut1ByteInt(suicide_pbullets);
       ServerSendTo(packetbuffer, packetsize, who, cn);
 
