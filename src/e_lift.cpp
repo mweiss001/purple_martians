@@ -145,8 +145,8 @@ void draw_steps(int step_ty, int lift, int current_step, int highlight_step)
 void highlight_current_lift(int l)
 {
    int color = lifts[l].color;
-   int x3 = lifts[l].width * 20;
-   int y3 = lifts[l].height * 20;
+   int x3 = lifts[l].width;
+   int y3 = lifts[l].height;
    int x1 = lifts[l].x1 + 4;
    int y1 = lifts[l].y1 + 4;
    int x2 = x1 + x3-4;
@@ -165,9 +165,12 @@ void highlight_current_lift(int l)
       al_draw_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, palette_color[color+ (9-a)*16], 1 );
    al_draw_filled_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, palette_color[color] );
 
-   if ((lifts[l].width == 1) && (lifts[l].height > 1)) // rotate lift name for vertical lifts
-      rtextout_centre(NULL, lifts[l].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 64, 1);
-   else rtextout_centre(NULL, lifts[l].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 0, 1);
+//   if ((lifts[l].width == 1) && (lifts[l].height > 1)) // rotate lift name for vertical lifts
+//      rtextout_centre(NULL, lifts[l].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 64, 1);
+//   else
+
+
+      rtextout_centre(NULL, lifts[l].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 0, 1);
 
    al_reset_clipping_rectangle();
 
@@ -181,21 +184,25 @@ void draw_lift_mp(int lift) // draws the current lift on mp
    int szy   = lifts[d].height;
 
    ALLEGRO_BITMAP *mp_big = NULL;
-   mp_big = al_create_bitmap(szx*20, szy*20);
+   mp_big = al_create_bitmap(szx, szy);
    al_set_target_bitmap(mp_big);
    al_clear_to_color(al_map_rgb(0,0,0));
 
+
+/*
    for (a=0; a<10; a++)
-      al_draw_rectangle(a, a, (lifts[d].width*20)-1-a, (lifts[d].height*20)-1-a, palette_color[color+((9-a)*16)], 1 );
-   al_draw_filled_rectangle(a, a, (lifts[d].width*20)-1-a, (lifts[d].height*20)-1-a, palette_color[color]);
+      al_draw_rectangle    (a, a, (lifts[d].width)-1-a, (lifts[d].height)-1-a, palette_color[color+((9-a)*16)], 1 );
+   al_draw_filled_rectangle(a, a, (lifts[d].width)-1-a, (lifts[d].height)-1-a, palette_color[color]);
 
    if ((lifts[d].width == 1) && (lifts[d].height > 1)) // rotate lift name for vertical lifts
       rtextout_centre(mp_big, lifts[d].lift_name, (lifts[d].width*10)-2, (lifts[d].height*10)-2, color+160, 1, 64, 1);
-   else al_draw_text(font, palette_color[color+160], (lifts[d].width*10)-2, (lifts[d].height*10)-2, 0, lifts[d].lift_name);
+   else al_draw_text(font, palette_color[color+160], (lifts[d].width/2)-2, (lifts[d].height/2)-2, 0, lifts[d].lift_name);
+*/
+
 
    al_set_target_bitmap(mp);
    al_clear_to_color(al_map_rgb(0,0,0));
-   al_draw_scaled_bitmap(mp_big, 0, 0, szx*20, szy*20, 0, 0, szx*db, szy*db, 0);
+   al_draw_scaled_bitmap(mp_big, 0, 0, szx, szy, 0, 0, szx*db, szy*db, 0);
    al_destroy_bitmap(mp_big);
 }
 
@@ -210,7 +217,7 @@ int create_lift(void)
       int lift = num_lifts-1;
 
       sprintf(msg, "new lift %d", lift);
-      construct_lift(lift, msg, 6, 1, 10, 1);
+      construct_lift(lift, msg, 120, 20, 10, 1);
       construct_lift_step(lift, step, 0, 0, 20, 1);
 
       if (getxy("Set initial position", 4, lift, step) == 1)
@@ -220,8 +227,8 @@ int create_lift(void)
          lifts[lift].y1 = lift_steps[lift][step].y = get100_y * 20;
 
          // set size
-         lifts[lift].x2 = lifts[lift].x1 + (lifts[lift].width*20)-1;
-         lifts[lift].y2 = lifts[lift].y1 + (lifts[lift].height*20)-1;
+         lifts[lift].x2 = lifts[lift].x1 + (lifts[lift].width)-1;
+         lifts[lift].y2 = lifts[lift].y1 + (lifts[lift].height)-1;
 
          step++;
          construct_lift_step(lift, step, 0, 0, 20, 4); // type 4 - loop to step zero
@@ -250,8 +257,8 @@ void move_lift_step(int lift, int step)
 {
    if (lift_steps[lift][step].type == 1) // only if type = move
    {
-      int nx = ((lift_steps[lift][step].x + lifts[lift].width  * 10) *db)/20;
-      int ny = ((lift_steps[lift][step].y + lifts[lift].height * 10) *db)/20;
+      int nx = ((lift_steps[lift][step].x + lifts[lift].width  / 2) *db)/20;
+      int ny = ((lift_steps[lift][step].y + lifts[lift].height / 2) *db)/20;
       al_set_mouse_xy(display, nx*display_transform_double, ny*display_transform_double);
       getxy("Set new location", 4,  lift, step);
    }
@@ -529,16 +536,17 @@ int lift_editor(int lift)
       {
          int a;
          int x1 = (SCREEN_H/100)*100+22;
-         int x2 = x1 + (lifts[lift].width * 20) -1;
+         int x2 = x1 + (lifts[lift].width) -1;
          int y1 = step_ty + (lifts[lift].num_steps+3) * bts; // only see in 2 highest screen modes
-         int y2 = y1 + (lifts[lift].height * 20) -1;
+         int y2 = y1 + (lifts[lift].height) -1;
          int color = lifts[lift].color;
          for (a=0; a<10; a++)
             al_draw_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color + ((9 - a)*16)], 1 );
          al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
 
          int rot = 0;
-         if ((lifts[lift].width == 1) && (lifts[lift].height > 1)) rot = 64;
+        // if ((lifts[lift].width == 1) && (lifts[lift].height > 1)) rot = 64;
+
          rtextout_centre(NULL, lifts[lift].lift_name, ((x1+x2)/2), ((y1+y2)/2)+1, color+160, 1, rot, 1);
       }
       while (key[ALLEGRO_KEY_ESCAPE])
@@ -605,10 +613,10 @@ int lift_editor(int lift)
             for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
                if (lift_steps[x][y].type == 1) // look for move step
                {
-                  int nx = ((lift_steps[x][y].x + lifts[x].width  * 10) *db)/20;
-                  int ny = ((lift_steps[x][y].y + lifts[x].height * 10) *db)/20;
-                  int w = lifts[x].width  * 10 * db / 20 + 1;
-                  int h = lifts[x].height * 10 * db / 20 + 1;
+                  int nx = ((lift_steps[x][y].x + lifts[x].width/2) *db)/20;
+                  int ny = ((lift_steps[x][y].y + lifts[x].height/2) *db)/20;
+                  int w = lifts[x].width  /2 * db / 20 + 1;
+                  int h = lifts[x].height /2 * db / 20 + 1;
                   // is mouse on this step ?
                   if ((mouse_x > nx - w)  && (mouse_x < nx + w) && (mouse_y > ny - h)  && (mouse_y < ny + h))
                   {

@@ -493,14 +493,14 @@ void draw_item_info(int x, int y, int color, int type, int num)
       {
          int col = lifts[num].color;
          int width = lifts[num].width;
-         if (width > 7) width = 7;
+         if (width > 140) width = 140;
          for (a=0; a<10; a++)
-            al_draw_rectangle(x+a, y+a, x+(width*20)-1-a, y+19-a, palette_color[col+((9-a)*16)], 1 );
+            al_draw_rectangle(x+a, y+a, x+(width)-1-a, y+19-a, palette_color[col+((9-a)*16)], 1 );
 
-         if ((lifts[num].width == 1) && (lifts[num].height > 1)) // rotate lift name for vertical lifts
-            rtextout_centre(NULL, lifts[num].lift_name, x+(width*10), y, color+160, 1, 64, 1 );
-         else
-            al_draw_text(font, palette_color[col+160], x+(width*10), y+6, ALLEGRO_ALIGN_CENTER, lifts[num].lift_name);
+//         if ((lifts[num].width == 1) && (lifts[num].height > 1)) // rotate lift name for vertical lifts
+  //          rtextout_centre(NULL, lifts[num].lift_name, x+(width*10), y, color+160, 1, 64, 1 );
+    //     else
+            al_draw_text(font, palette_color[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, lifts[num].lift_name);
       }
       break;
       case 5:

@@ -411,6 +411,7 @@ int active_local_player = 0;
 // ------------------------------------------------
 // ---------------- lifts -----------------------
 // ------------------------------------------------
+
 struct lift lifts[NUM_LIFTS];
 struct lift_step lift_steps[NUM_LIFTS][40];
 int num_lifts;
@@ -1326,7 +1327,7 @@ int main(int argument_count, char **argument_array)
 // --------------------------------------------------------------------------------------------
 
 
-//      show_var_sizes();
+   //   show_var_sizes();
 
 
 
