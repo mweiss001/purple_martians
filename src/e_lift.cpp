@@ -3,6 +3,40 @@
 #include "pm.h"
 
 
+
+
+
+int lift_find_previous_move_step(int lift, int step) // searches back from passed step until a move step is found
+{
+   if (step == 0) step = 19; // if started at step 0, start searching back from end to get last move step
+   while (step)
+   {
+      step--;
+      if (lift_steps[lift][step].type == 1) return step;
+   }
+   return -1; // bad !!!
+}
+
+al_fixed lift_get_distance_to_previous_move_step(int lift, int step)
+{
+   al_fixed m1 = al_itofix(-1);
+   if (lift_steps[lift][step].type == 1)
+   {
+      int ls = lift_find_previous_move_step(lift, step);
+      if (ls == -1) return m1;
+      else
+      {
+         al_fixed x1 = al_itofix(lift_steps[lift][step].x);
+         al_fixed y1 = al_itofix(lift_steps[lift][step].y);
+         al_fixed x2 = al_itofix(lift_steps[lift][ls].x);
+         al_fixed y2 = al_itofix(lift_steps[lift][ls].y);
+         return al_fixhypot(x2-x1, y2-y1); // hypotenuse distance
+      }
+   }
+   return m1; // error! not a move step
+}
+
+
 void show_all_lifts(void)
 {
    int text_pos = 0;
@@ -12,18 +46,15 @@ void show_all_lifts(void)
    text_pos++;
    for (int l=0; l<num_lifts; l++) // iterate lifts
    {
-      int w    = lifts[l].width;
-      int h    = lifts[l].height;
-      int col  = lifts[l].color;
-      sprintf(msg,"lift:%-2d w:%-2d h:%-2d col:%-2d ns:%-2d  name:%s  ", l, w, h, col, lifts[l].num_steps, lifts[l].lift_name);
-      al_draw_text(font, palette_color[10], 10, text_pos*8, 0, msg);
-      text_pos++;
-
       int x1 = lifts[l].x1;
       int y1 = lifts[l].y1;
       int x2 = lifts[l].x2;
       int y2 = lifts[l].y2;
-      sprintf(msg,"x1:%d y1:%d x2:%d y2:%d", x1, y1, x2, y2);
+      int w  = lifts[l].width;
+      int h  = lifts[l].height;
+
+      int col  = lifts[l].color;
+      sprintf(msg,"lift:%-2d  1:%-4d y:%-4d w:%-4d h:%-4d x2:%-4d y2:%-4d col:%-2d ns:%-2d  name:%s  ", l, x1, y1, w, h, x2, y2, col, lifts[l].num_steps, lifts[l].lift_name);
       al_draw_text(font, palette_color[10], 10, text_pos*8, 0, msg);
       text_pos++;
 
@@ -52,7 +83,13 @@ void show_all_lifts(void)
          }
 
 //         sprintf(msg," step:%-2d x:%-4d y:%-4d val:%-4d type:%d (%s)", s, x, y, val, type, typemsg );
-         sprintf(msg," step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s)", s, x, y, w, h, val, type, typemsg );
+
+         int ls = lift_find_previous_move_step(l, s);
+
+         al_fixed lsd = lift_get_distance_to_previous_move_step(l, s);
+
+
+         sprintf(msg," step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s), ls:%d lsd:%d", s, x, y, w, h, val, type, typemsg, ls, al_fixtoi(lsd));
          al_draw_text(font, palette_color[color], 10, text_pos*8, 0, msg);
          text_pos++;
       }
@@ -73,6 +110,12 @@ void erase_lift(int lift)
    for (int s=0; s<40; s++) clear_lift_step(num_lifts, s); // clear last lift's steps
    num_lifts--;                                            // one less lift
 }
+
+
+
+
+
+
 
 void delete_lift_step(int l, int step)
 {
@@ -110,29 +153,11 @@ void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int r
          mdw_slider(x2, ty, x3, ty2, 106, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
          mdw_slider(x3, ty, x4, ty2, 107, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
 
-
-
-
       }
       break;
       case 2: mdw_slider(xa, ty, xb, ty2, 72, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break;
       case 3: mdw_slider(xa, ty, xb, ty2, 73, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break;
       case 4: mdw_button(xa, ty, xb, ty2, 74, step, lift, 0, 0, rc, 15, 0,  1,0,0,0); break;
-
-      case 6: // resize
-      {
-         int thrd = (xb-xa) / 3;
-         int x1 = xa;
-         int x2 = xa + thrd;
-         int x3 = xa + (2 * thrd);
-         int x4 = xb;
-
-         mdw_slider(x1, ty, x2, ty2, 105, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
-         mdw_slider(x2, ty, x3, ty2, 106, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
-         mdw_slider(x3, ty, x4, ty2, 107, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
-      }
-      break;
-
    }
 }
 
@@ -207,7 +232,7 @@ int create_lift(void)
 
       sprintf(msg, "new lift %d", lift);
       construct_lift(lift, msg, 120, 20, 10, 1);
-      construct_lift_step(lift, step, 0, 0, 20, 1);
+      construct_lift_step(lift, step, 0, 0, 120, 20, 80, 1);
 
       if (getxy("Set initial position", 4, lift, step) == 1)
       {
@@ -220,7 +245,7 @@ int create_lift(void)
          lifts[lift].y2 = lifts[lift].y1 + (lifts[lift].height)-1;
 
          step++;
-         construct_lift_step(lift, step, 0, 0, 20, 4); // type 4 - loop to step zero
+         construct_lift_step(lift, step, 0, 0, 0, 0, 0, 4); // type 4 - loop to step zero
          lifts[lift].num_steps++; // add one to steps
 
          set_lift_to_step(lift, 0); // set step 0 for lift
@@ -260,7 +285,7 @@ int get_new_lift_step(int lift, int step)
    int sty = 53 + (step + 9) * bts;
    if (sty > SCREEN_H-60) sty = SCREEN_H-60;
 
-   int num_of_step_types = 5;
+   int num_of_step_types = 4;
    int sth = (num_of_step_types * 12) + 17;
    int sty2 = sty + sth;
 
@@ -293,8 +318,17 @@ int get_new_lift_step(int lift, int step)
       int jh = 1;
       if (draw_and_process_button(txc, stys+(jh*12), "Move", c1, c2, 1))
       {
-         quit = construct_lift_step(lift, step, 0, 0, 20, 1);       // set move step
-         if (getxy("Set lift position", 4, lift, step) == 1)        // set location
+         // use w and h from previous move step
+         int pms = lift_find_previous_move_step(lift, step); // searches back from passed step until a move step is found
+         int pw = 120;
+         int ph = 20;
+         if (pms != -1)
+         {
+            pw = lift_steps[lift][pms].w;
+            ph = lift_steps[lift][pms].h;
+         }
+         quit = construct_lift_step(lift, step, 0, 0, pw, ph, 20, 1);
+         if (getxy("Set lift position", 4, lift, step) == 1)
          {
             lift_steps[lift][step].x = get100_x * 20;
             lift_steps[lift][step].y = get100_y * 20;
@@ -303,11 +337,9 @@ int get_new_lift_step(int lift, int step)
       }
 
       jh++;
-      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Time", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 100, 2);
+      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Time", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 0, 0, 100, 2);
       jh++;
-      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Prox", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 80, 3);
-      jh++;
-      if (draw_and_process_button(txc, stys+(jh*12), "Resize", c1, c2, 1))        quit = construct_lift_step(lift, step, 0, 0, 80, 6);
+      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Prox", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 0, 0, 80, 3);
       jh++;
       if (draw_and_process_button(txc, stys+(jh*12), "Done", c1, c2, 1)) quit = 99;
 
@@ -487,7 +519,7 @@ void set_bts(int lift)
 
 void redraw_lift_viewer(int lift, int step)
 {
-   set_lift_to_step(lift, step);               // set current step in current lift
+   set_lift_to_step(lift, step);       // set current step in current lift
    draw_big(1);                        // update the map bitmap
    title_obj(4, lift, 0, 0, 15);       // show title and map on screen
    highlight_current_lift(lift);       // crosshairs and rect on current lift

@@ -19811,6 +19811,87 @@ extend type 1
 make the button a 4 way split...time(speed) get pos, w, h,
 
 
+remove step type 6 resize...type 1 extended to do that also....
+
+
+looks like its working good...
+
+I need to do somthing about val...
+
+for resize it makes sense, it is the total time
+I will leave it like this
+
+How can I set it like I used to with speed?
+
+pick a speed value and it will calculate the time...
+
+in the slider stuff, have another button called speed.
+fill it with ditance/time
+if you change it, the time button will change also...
+
+
+how to calculate distance from this move step to the last move step
+I have step and I know that it's a move step so I have x and y
+search back from that step to find next move step.
+if I go back from step 0 choose the move step
+
+I have a function to do that now!!!!
+
+2 buttons:
+
+time
+display: the actual val
+range 1-1000
+sets speed like this:
+calc distance / time
+
+
+
+speed
+display =
+calc distance / time
+
+set from 1-50
+sets time like this:
+calc distance / speed
+
+what if distance == 0?
+speed will not be valid and will show 0...
+time will still be valid...
+
+for now I have just allowed the time button, but displayed the calculated speed
+
+lift does not show up anymore in lift viewer, only on step 0
+fixed....draw lift lines was resetting he lifts...
+
+I want to make player move detection with lifts use the mv functions so that lifts can move faster and still detect collisions...
+
+when creating lift make a sensible default size and copy it to each new step....done...
+
+
+I have messed up all my lift speeds here...
+
+I want to go back to the old way...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

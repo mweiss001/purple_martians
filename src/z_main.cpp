@@ -861,6 +861,15 @@ void game_menu(void)
       //printf("post load level\n");
       top_menu_sel = zmenu(7, top_menu_sel, 10);
 
+
+
+      while (key[ALLEGRO_KEY_L])
+      {
+         proc_controllers();
+         top_menu_sel = 8;
+      }
+
+
       if ((top_menu_sel == 4) && (resume_allowed)) // resume game
       {
          game_loop(7); // resume

@@ -327,16 +327,13 @@ int load_level(int level_to_load, int display)
    {
       valid_level_loaded = 1;
       num_lifts = level_header[5];
+      lift_setup();
       for (int x=0; x<500; x++)
          if (item[x][0]) // only if active set x y
          {
             itemf[x][0] = al_itofix(item[x][4]);
             itemf[x][1] = al_itofix(item[x][5]);
          }
-
-      lift_setup();
-
-
       level_check();
       init_level_background(); // draw blocks and lift lines on level_background
       reset_animation_sequence_frame_nums(0);

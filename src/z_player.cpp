@@ -225,7 +225,15 @@ void proc_player_xy_move(int p)
 // ---------------   check to see if player riding lift starts or ends --------------------------
          x = al_fixtoi(players[p].PX);
          y = al_fixtoi(players[p].PY);
+
+
+
+
          int a = is_down_solid(x, y, 1, 1);                                // check for lift below player
+
+
+
+
          if (a > 31)
          {
             if (lifts[a-32].fyinc > z)                                  // is lift going down

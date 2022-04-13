@@ -938,7 +938,7 @@ These checks have some new parameters:
 we want to know if we can move that far
 the functions returns 'al_fixed allowed_move' - how far before the condition is met.
 
-it is assumed that what ever calls the functions will add fmove to position (fx or fy) on return
+it is assumed that whatever calls the functions will add fmove to position (fx or fy) on return
 by comparing requested move to allowed move you can tell if a collision occured:
 
 mv = is_down_solidfm(Efi[EN][0], Efi[EN][1], Efi[EN][2], 1);
