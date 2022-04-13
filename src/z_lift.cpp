@@ -63,8 +63,8 @@ void set_lift(int lift, int step)
 
    lifts[lift].x1 = lift_steps[lift][step].x;
    lifts[lift].y1 = lift_steps[lift][step].y;
-   lifts[lift].x2 = lifts[lift].x1 + lifts[lift].width*20;
-   lifts[lift].y2 = lifts[lift].y1 + lifts[lift].height*20;
+   lifts[lift].x2 = lifts[lift].x1 + lifts[lift].width;
+   lifts[lift].y2 = lifts[lift].y1 + lifts[lift].height;
    lifts[lift].fx = al_itofix(lifts[lift].x1);
    lifts[lift].fy = al_itofix(lifts[lift].y1);
    lifts[lift].fxinc = al_itofix(0);
@@ -82,8 +82,8 @@ void draw_lift_lines()
    for (int x=0; x<num_lifts; x++)  // cycle lifts
    {
       int col = lifts[x].color+128;
-      int sx = lift_steps[x][0].x + lifts[x].width * 10;
-      int sy = lift_steps[x][0].y + lifts[x].height * 10;
+      int sx = lift_steps[x][0].x + lifts[x].width / 2;
+      int sy = lift_steps[x][0].y + lifts[x].height / 2;
       int px = sx;
       int py = sy;
       int nx = 0;
@@ -94,8 +94,8 @@ void draw_lift_lines()
          for (int y=0; y<lifts[x].num_steps; y++)  // cycle step
             if (lift_steps[x][y].type == 1) // look for move step
             {
-               nx = lift_steps[x][y].x + lifts[x].width * 10;
-               ny = lift_steps[x][y].y + lifts[x].height * 10;
+               nx = lift_steps[x][y].x + lifts[x].width / 2;
+               ny = lift_steps[x][y].y + lifts[x].height / 2;
                al_draw_line( px, py, nx, ny, palette_color[col], 1);
                for (int c=3; c>=0; c--)
                   al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
@@ -131,10 +131,14 @@ void draw_lifts()
       al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
 
 
-      if ((lifts[d].width == 1) && (lifts[d].height > 1)) // rotate lift name for vertical lifts
-         rtextout_centre(level_buffer, lifts[d].lift_name, ((x1+x2)/2), ((y1+y2)/2), color+160, 1, 64, 1);
-      else
-        al_draw_text(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[d].lift_name);
+//      if ((lifts[d].width == 1) && (lifts[d].height > 1)) // rotate lift name for vertical lifts
+//         rtextout_centre(level_buffer, lifts[d].lift_name, ((x1+x2)/2), ((y1+y2)/2), color+160, 1, 64, 1);
+//      else
+
+
+
+
+      al_draw_text(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[d].lift_name);
 
       // show if player is riding this lift
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -165,35 +169,6 @@ void draw_lifts()
       }
    }  // end of iterate lifts
 }
-
-
-
-void set_lift_whinc(int l, int step)
-{
-   //  used when running a resize step
-   //  sets winc, hinc and num of frames for limit mode 8 (resize)
-
-
-   int time = lift_steps[l][step].val;
-   lifts[l].limit_counter = time;
-   lifts[l].limit_type = 8;
-
-   // while this runs, fx and fy are used for width and height
-   lifts[l].fx = lifts[l].width;
-   lifts[l].fy = lifts[l].height;
-
-   // get the difference between the new and old sizes
-   al_fixed wdif = lift_steps[l][step].x - lifts[l].width;
-   al_fixed hdif = lift_steps[l][step].y - lifts[l].height;
-
-   lifts[l].fxinc = wdif / time; // inc = dif / time
-   lifts[l].fyinc = hdif / time; // inc = dif / time
-
-}
-
-
-
-
 
 
 
@@ -254,8 +229,8 @@ void lift_reset_to_step0(int l)
    int step = lifts[l].current_step = 0; // set step 0
    lifts[l].x1 = lift_steps[l][step].x;
    lifts[l].y1 = lift_steps[l][step].y;
-   lifts[l].x2 = lifts[l].x1 + lifts[l].width*20;
-   lifts[l].y2 = lifts[l].y1 + lifts[l].height*20;
+   lifts[l].x2 = lifts[l].x1 + lifts[l].width;
+   lifts[l].y2 = lifts[l].y1 + lifts[l].height;
    lifts[l].fx = al_itofix(lifts[l].x1);
    lifts[l].fy = al_itofix(lifts[l].y1);
 
@@ -274,6 +249,33 @@ int is_player_riding_lift(int l)
 }
 
 
+void set_lift_whinc(int l, int step)
+{
+   //  used when running a resize step
+   //  sets winc, hinc and num of frames for limit mode 8 (resize)
+
+   // set fw, fh to current
+
+   lifts[l].fw = al_itofix(lifts[l].width);
+   lifts[l].fh = al_itofix(lifts[l].height);
+
+
+   int time = lift_steps[l][step].val;
+   lifts[l].limit_counter = time;
+   lifts[l].limit_type = 8;
+
+   // get the difference between the new and old sizes
+   al_fixed wdif = al_itofix(lift_steps[l][step].w - lifts[l].width);
+   al_fixed hdif = al_itofix(lift_steps[l][step].h - lifts[l].height);
+
+   lifts[l].fwinc = wdif / time; // inc = dif / time
+   lifts[l].fhinc = hdif / time; // inc = dif / time
+
+   printf("time:%d wdif:%f hdif:%f fwinc:%f fhinc:%f \n", time, al_fixtof(wdif), al_fixtof(hdif), al_fixtof(lifts[l].fwinc), al_fixtof(lifts[l].fhinc));
+
+
+
+}
 
 
 
@@ -296,8 +298,8 @@ void move_lifts(int ignore_prox)
             lifts[l].fy += lifts[l].fyinc;           // yinc
             lifts[l].x1 = al_fixtoi(lifts[l].fx);    // put as int in x1
             lifts[l].y1 = al_fixtoi(lifts[l].fy);    // put as int in y1
-            lifts[l].x2 = lifts[l].x1 + (lifts[l].width *20)-1;  // width
-            lifts[l].y2 = lifts[l].y1 + (lifts[l].height*20)-1;  // height
+            lifts[l].x2 = lifts[l].x1 + (lifts[l].width)-1;  // width
+            lifts[l].y2 = lifts[l].y1 + (lifts[l].height)-1;  // height
 
             if (--lifts[l].limit_counter < 0)
             {
@@ -307,8 +309,8 @@ void move_lifts(int ignore_prox)
                int step = lifts[l].current_step;
                lifts[l].x1 = lift_steps[l][step].x;
                lifts[l].y1 = lift_steps[l][step].y;
-               lifts[l].x2 = lifts[l].x1 + lifts[l].width*20;
-               lifts[l].y2 = lifts[l].y1 + lifts[l].height*20;
+               lifts[l].x2 = lifts[l].x1 + lifts[l].width;
+               lifts[l].y2 = lifts[l].y1 + lifts[l].height;
                lifts[l].fx = al_itofix(lifts[l].x1);
                lifts[l].fy = al_itofix(lifts[l].y1);
             }
@@ -320,14 +322,14 @@ void move_lifts(int ignore_prox)
 
 
          case 8: // step count for resize
-            lifts[l].fx += lifts[l].fxinc;           // width inc
-            lifts[l].fy += lifts[l].fyinc;           // height inc
+            lifts[l].fw += lifts[l].fwinc;           // width inc
+            lifts[l].fh += lifts[l].fhinc;           // height inc
 
-            lifts[l].width  = al_fixtoi(lifts[l].fx); // put as int in width
-            lifts[l].height = al_fixtoi(lifts[l].fy); // put as int in height
+            lifts[l].width  = al_fixtoi(lifts[l].fw); // put as int in width
+            lifts[l].height = al_fixtoi(lifts[l].fh); // put as int in height
 
-            lifts[l].x2 = lifts[l].x1 + (lifts[l].width *20)-1;  // get new x2 from width
-            lifts[l].y2 = lifts[l].y1 + (lifts[l].height*20)-1;  // get new y2 from height
+            lifts[l].x2 = lifts[l].x1 + (lifts[l].width)-1;  // get new x2 from width
+            lifts[l].y2 = lifts[l].y1 + (lifts[l].height)-1;  // get new y2 from height
 
             if (--lifts[l].limit_counter < 0)
             {
@@ -335,12 +337,10 @@ void move_lifts(int ignore_prox)
 
                int step = lifts[l].current_step;
                // make sure lift is exactly the right size at the end of the move...
-               lifts[l].width = lift_steps[l][step].x;
-               lifts[l].width = lift_steps[l][step].y;
+               lifts[l].width  = lift_steps[l][step].w;
+               lifts[l].height = lift_steps[l][step].h;
 
-               // change fx and fx back to lift position
-               lifts[l].fx = al_itofix(lifts[l].x1);
-               lifts[l].fy = al_itofix(lifts[l].y1);
+               init_level_background();
 
             }
          break;

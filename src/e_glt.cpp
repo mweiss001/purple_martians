@@ -1305,8 +1305,13 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 
 
-
 /*
+
+
+
+
+
+
 
 
 
@@ -1315,10 +1320,19 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
       {
          lifts2[l].fx =            lifts[l].fx;
          lifts2[l].fy =            lifts[l].fy;
+         lifts2[l].fxinc =         lifts[l].fxinc;
+         lifts2[l].fyinc =         lifts[l].fyinc;
+
+         lifts2[l].fw =            al_itofix(lifts[l].width);
+         lifts2[l].fh =            al_itofix(lifts[l].height);
+         lifts2[l].fwinc =         al_itofix(0);
+         lifts2[l].fhinc =         al_itofix(0);
+
          lifts2[l].x1 =            lifts[l].x1;
          lifts2[l].y1 =            lifts[l].y1;
          lifts2[l].x2 =            lifts[l].x2;
          lifts2[l].y2 =            lifts[l].y2;
+
          lifts2[l].width =         lifts[l].width;
          lifts2[l].height =        lifts[l].height;
          lifts2[l].flags = 0;
@@ -1331,10 +1345,33 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
          lifts2[l].limit_counter = lifts[l].limit_counter;
          lifts2[l].limit_type =    lifts[l].limit_type;
          strcpy(lifts2[l].lift_name, lifts[l].lift_name);
+
+         for (int s=0; s<40; s++)
+         {
+            lift_steps2[l][s].type = lift_steps[l][s].type;
+            lift_steps2[l][s].x    = lift_steps[l][s].x;
+            lift_steps2[l][s].y    = lift_steps[l][s].y;
+            lift_steps2[l][s].w    = 0;
+            lift_steps2[l][s].h    = 0;
+            lift_steps2[l][s].val  = lift_steps[l][s].val;
+
+         }
       }
 
 
 */
+
+/*
+
+      // make height and width 0-1999 from 0-99
+      for (int l=0; l<num_lifts; l++)
+      {
+         lifts[l].width *= 20;
+         lifts[l].height *= 20;
+      }
+
+*/
+
 
       if (0)
       {

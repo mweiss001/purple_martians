@@ -156,8 +156,8 @@ void fill_smsg_slider(int bn, int type, int num)
 
 
    if (bn == 105) sprintf(smsg, "Time:%d",   lift_steps[type][num].val); // lift step resize time
-   if (bn == 106) sprintf(smsg, "Width:%d",  lift_steps[type][num].x);   // lift step new width
-   if (bn == 107) sprintf(smsg, "Height:%d", lift_steps[type][num].y);   // lift step new height
+   if (bn == 106) sprintf(smsg, "Width:%d",  lift_steps[type][num].w);   // lift step new width
+   if (bn == 107) sprintf(smsg, "Height:%d", lift_steps[type][num].h);   // lift step new height
 
 
 }
@@ -314,8 +314,8 @@ void update_var(int bn, int type, int num, float f)
 
 
    if (bn == 105) lift_steps[type][num].val = (int)f; // lift step resize speed
-   if (bn == 106) lift_steps[type][num].x   = (int)f; // lift step new width
-   if (bn == 107) lift_steps[type][num].y   = (int)f; // lift step new height
+   if (bn == 106) lift_steps[type][num].w   = (int)f; // lift step new width
+   if (bn == 107) lift_steps[type][num].h   = (int)f; // lift step new height
 }
 
 
@@ -372,8 +372,8 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 40: sul=600;  sll=1;     sinc=10;  sdx=Ei[num][19];                 break;  // y2
       case 41: sul=50;   sll=0;     sinc=1;   sdx=Ei[num][24];                 break;  // dead enemy bullet bonus
       case 42: sul=50;   sll=0;     sinc=1;   sdx=Ei[num][25];                 break;  // dead enemy health bonus
-      case 43: sul=99;   sll=1;     sinc=1;   sdx=lifts[num].width;            break;  // lift width
-      case 44: sul=99;   sll=1;     sinc=1;   sdx=lifts[num].height;           break;  // lift heigth
+      case 43: sul=1999; sll=4;     sinc=1;   sdx=lifts[num].width;            break;  // lift width
+      case 44: sul=1999; sll=4;     sinc=1;   sdx=lifts[num].height;           break;  // lift heigth
       case 45: sul=10;   sll=.5;    sinc=.01; sdx=al_fixtof(Efi[num][2]);      break;  // trakbot x speed
       case 46: sul=10;   sll=.5;    sinc=.01; sdx=al_fixtof(Efi[num][3]);      break;  // trakbot y speed
       case 47: sul=100;  sll=0;     sinc=1;   sdx=item[num][8];                break;  // exit with x enemies left
@@ -429,8 +429,8 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 104: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage field off total time
 
       case 105: sul=1000; sll=0;    sinc=1;   sdx=lift_steps[type][num].val;   break;  // lift step resize speed
-      case 106: sul=1000; sll=0;    sinc=1;   sdx=lift_steps[type][num].x;     break;  // lift step new width
-      case 107: sul=1000; sll=0;    sinc=1;   sdx=lift_steps[type][num].y;     break;  // lift step new height
+      case 106: sul=500;  sll=20;   sinc=1;   sdx=lift_steps[type][num].w;     break;  // lift step new width
+      case 107: sul=500;  sll=20;   sinc=1;   sdx=lift_steps[type][num].h;     break;  // lift step new height
 
 
 

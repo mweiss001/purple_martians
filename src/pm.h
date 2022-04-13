@@ -177,7 +177,10 @@ extern float ttfloat2;
 
 
 //old#define PML_SIZE 370880
-#define PML_SIZE 371520
+
+//#define PML_SIZE  371520
+#define PML_SIZE 384960
+
 
 extern int level_header[20];
 
@@ -202,7 +205,10 @@ extern int suicide_pbullets;
 
 
 
-#define STATE_SIZE 105280
+//#define STATE_SIZE  105280
+#define STATE_SIZE 105920
+
+
 
 // server's copies of client states
 extern char srv_client_state[8][2][STATE_SIZE];
@@ -713,16 +719,22 @@ struct player1 // not synced between server and client
 // ------------------------------------------------
 // ---------------- lifts -----------------------
 // ------------------------------------------------
-extern struct lift lifts[NUM_LIFTS];
-extern struct lift_step lift_steps[NUM_LIFTS][40];
 extern int num_lifts;
 extern char lift_step_type_name[10][10];
+extern struct lift lifts[NUM_LIFTS];
+extern struct lift_step lift_steps[NUM_LIFTS][40];
 struct lift
 {
    al_fixed fx;
    al_fixed fy;
    al_fixed fxinc;
    al_fixed fyinc;
+
+   al_fixed fw;
+   al_fixed fh;
+   al_fixed fwinc;
+   al_fixed fhinc;
+
    int x1;
    int y1;
    int x2;
@@ -743,9 +755,11 @@ struct lift
 struct lift_step
 {
    int type;
-   int val;
    int x;
    int y;
+   int w;
+   int h;
+   int val;
 };
 
 // ------------------------------------------------

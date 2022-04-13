@@ -1256,16 +1256,16 @@ int edit_lift_name(int lift, int step_ty, int bts, char *fst)
       al_rest(.1);
 
       int x1 = (SCREEN_H/100)*100+22;
-      int x2 = x1 + (lifts[lift].width * 20) -1;
+      int x2 = x1 + (lifts[lift].width) -1;
       int y1 = step_ty + (lifts[lift].num_steps+3) * bts; // only see in 2 highest screen modes
-      int y2 = y1 + (lifts[lift].height * 20) -1;
+      int y2 = y1 + (lifts[lift].height) -1;
 
       int tx = ((x1+x2)/2);
       int ty = ((y1+y2)/2);
       int w = (char_count+1) *4;
 
       int rot = 0;
-      if ((lifts[lift].width == 1) && (lifts[lift].height > 1)) rot = 64;
+//      if ((lifts[lift].width == 1) && (lifts[lift].height > 1)) rot = 64;
       int color = lifts[lift].color;
 
       // clear text background

@@ -181,7 +181,7 @@ void proc_player_xy_move(int p)
          if (!is_right_solid(x, y, 0, 1))
          {
             int l = a-32; // lift that is pushing
-            int width = lifts[l].width *20 + 1;
+            int width = lifts[l].width + 1;
             players[p].PX = lifts[l].fx + al_itofix(width); // snap to lift pos + width
             players[p].right_xinc = lifts[l].fxinc; // set players xinc from lift
          }

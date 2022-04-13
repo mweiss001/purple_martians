@@ -128,9 +128,9 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
    if (obj_type == 4)  // lifts
    {
       // draw small lift
-      draw_lift_mp(sub_type);
-      al_set_target_backbuffer(display);
-      al_draw_bitmap(mp, txc - 86, 24, 0);
+   //   draw_lift_mp(sub_type);
+   //   al_set_target_backbuffer(display);
+  //    al_draw_bitmap(mp, txc - 86, 24, 0);
 
       int lift = sub_type;
       al_draw_rectangle(txc-90, 20, txc+90, 43, palette_color[15], 1);
@@ -955,10 +955,10 @@ int move_obt_with_map(int obt, int type, int num)
                for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
                   if (lift_steps[x][y].type == 1) // look for move step
                   {
-                     int nx = ((lift_steps[x][y].x + lifts[x].width  * 10) *db)/20;
-                     int ny = ((lift_steps[x][y].y + lifts[x].height * 10) *db)/20;
-                     int w = lifts[x].width  * 10 * db / 20 + 1;
-                     int h = lifts[x].height * 10 * db / 20 + 1;
+                     int nx = ((lift_steps[x][y].x + lifts[x].width  /2) *db)/20;
+                     int ny = ((lift_steps[x][y].y + lifts[x].height /2) *db)/20;
+                     int w = lifts[x].width  /2 * db / 20 + 1;
+                     int h = lifts[x].height /2 * db / 20 + 1;
                      // is mouse on this step ?
                      if ((mouse_x > nx - w)  && (mouse_x < nx + w) && (mouse_y > ny - h)  && (mouse_y < ny + h))
                      {
