@@ -898,7 +898,7 @@ void do_fcopy(int qx1, int qy1)
                      vy = enforce_limit(vy, 0, 1980);
                   }
                }
-               construct_lift_step(c, y, vx, vy, ft_ls[b][y][2], ft_ls[b][y][3]);
+               construct_lift_step(c, y, vx, vy, 0, 0, ft_ls[b][y][2], ft_ls[b][y][3]);  /// fix me <<<<----------00,
             }
             set_lift_to_step(c, 0);
             if (lim)

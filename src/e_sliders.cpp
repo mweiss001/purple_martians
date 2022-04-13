@@ -155,7 +155,35 @@ void fill_smsg_slider(int bn, int type, int num)
 
 
 
-   if (bn == 105) sprintf(smsg, "Time:%d",   lift_steps[type][num].val); // lift step resize time
+   if (bn == 105)
+   {
+      int time = lift_steps[type][num].val;
+      al_fixed dst = lift_get_distance_to_previous_move_step(type, num);
+      al_fixed speed = dst/time;
+
+//      sprintf(smsg, "Time:%d Speed:%f Dist:%f", time, al_fixtof(speed), al_fixtof(dst)); // lift step resize time
+
+//      sprintf(smsg, "Time:%d Speed:%2.1f D:%3.1f", time, al_fixtof(speed), al_fixtof(dst)); // lift step resize time
+
+      sprintf(smsg, "Time:%d Speed:%2.1f", time, al_fixtof(speed)); // lift step resize time
+
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   if (bn == 105) sprintf(smsg, "Time:%d",   lift_steps[type][num].val); // lift step resize time
+
    if (bn == 106) sprintf(smsg, "Width:%d",  lift_steps[type][num].w);   // lift step new width
    if (bn == 107) sprintf(smsg, "Height:%d", lift_steps[type][num].h);   // lift step new height
 
@@ -385,7 +413,6 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
       case 63: sul=1000; sll=-1000; sinc=10;  sdx=Ei[num][20];                 break;  // height above player
 
-      case 71: sul=29;   sll=4;     sinc=1;   sdx=lift_steps[type][num].val;   break;  // lift move speed
       case 72: sul=2000; sll=10;    sinc=10;  sdx=lift_steps[type][num].val;   break;  // lift wait time
       case 73: sul=200;  sll=20;    sinc=10;  sdx=lift_steps[type][num].val;   break;  // lift prox dist
 
@@ -428,7 +455,15 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 103: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage field on time
       case 104: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage field off total time
 
-      case 105: sul=1000; sll=0;    sinc=1;   sdx=lift_steps[type][num].val;   break;  // lift step resize speed
+
+
+      case 71: sul=29;    sll=4;    sinc=1;   sdx=lift_steps[type][num].val;   break;  // lift step move speed
+
+
+      case 105: sul=1000; sll=1;    sinc=1;   sdx=lift_steps[type][num].val;   break;  // lift step resize speed
+
+
+
       case 106: sul=500;  sll=20;   sinc=1;   sdx=lift_steps[type][num].w;     break;  // lift step new width
       case 107: sul=500;  sll=20;   sinc=1;   sdx=lift_steps[type][num].h;     break;  // lift step new height
 

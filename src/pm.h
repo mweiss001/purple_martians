@@ -1058,6 +1058,10 @@ int move_obt_with_map(int obt, int type, int num);
 void object_viewer(int obt, int num);
 
 // e_lift.h
+
+int lift_find_previous_move_step(int lift, int step);
+al_fixed lift_get_distance_to_previous_move_step(int lift, int step);
+
 void show_all_lifts(void);
 void erase_lift(int lift);
 void delete_lift_step(int lift, int step);
@@ -1345,7 +1349,7 @@ void draw_block_damage(int i);
 // z_lift.h
 int construct_lift(int l, char* lift_name, int width, int height, int color, int num_steps);
 void clear_lift(int l);
-int construct_lift_step(int lift, int step, int x, int y, int val, int type);
+int construct_lift_step(int lift, int step, int x, int y, int w, int h, int val, int type);
 void clear_lift_step(int lift, int step);
 void set_lift_to_step(int lift, int step);
 void draw_lift_lines(void);
