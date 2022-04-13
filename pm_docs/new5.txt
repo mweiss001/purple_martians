@@ -19774,6 +19774,56 @@ that's it for today...
 
 10:05 PM push
 
+20220413 4:30 AM
+
+lets figure out the deathmatch bullets thing...
+
+it looks very straight forward...
+void proc_pbullet_collision(int p, int b)
+{
+   players[p].LIFE -= al_itofix(deathmatch_pbullets_damage);
+
+looks like I can't send a negative number with my packet routines...offset by 1000...fixed...
+
+
+riding lift when width exanding pushed player to the right...width contracting is fine....
+reset incs when move is done...fixed...
+
+
+moving lift lines to draw each time works but does not look good....
+what would be better is if the original one was smart enough to take into account the size changes....
+
+
+
+nothing keeps track of initial lift size once it changes....
+I should make step 0 keep that info....
+
+should I just make move and resize the same type?
+I can always set one or the other to do nothing....
+
+
+I think I need to, because step 0 needs both...
+
+w and h will no longer be set in lift, they will be set in step0
+
+
+extend type 1
+make the button a 4 way split...time(speed) get pos, w, h,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -127,15 +127,9 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
    // show the obj num and num of subtype
    if (obj_type == 4)  // lifts
    {
-      // draw small lift
-   //   draw_lift_mp(sub_type);
-   //   al_set_target_backbuffer(display);
-  //    al_draw_bitmap(mp, txc - 86, 24, 0);
-
       int lift = sub_type;
       al_draw_rectangle(txc-90, 20, txc+90, 43, palette_color[15], 1);
       al_draw_textf(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",lift+1, num_lifts);
-
    }
    if (obj_type == 3)  // enemies
    {

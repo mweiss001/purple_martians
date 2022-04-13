@@ -31,6 +31,8 @@ void show_all_lifts(void)
       {
          int x    = lift_steps[l][s].x;
          int y    = lift_steps[l][s].y;
+         int w    = lift_steps[l][s].w;
+         int h    = lift_steps[l][s].h;
          int val  = lift_steps[l][s].val;
          int type = lift_steps[l][s].type;
          int color = 9;
@@ -49,7 +51,8 @@ void show_all_lifts(void)
             color = 14;
          }
 
-         sprintf(msg," step:%-2d x:%-4d y:%-4d val:%-4d type:%d (%s)", s, x, y, val, type, typemsg );
+//         sprintf(msg," step:%-2d x:%-4d y:%-4d val:%-4d type:%d (%s)", s, x, y, val, type, typemsg );
+         sprintf(msg," step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s)", s, x, y, w, h, val, type, typemsg );
          al_draw_text(font, palette_color[color], 10, text_pos*8, 0, msg);
          text_pos++;
       }
@@ -86,14 +89,32 @@ void delete_lift_step(int l, int step)
 void lift_setup(void)
 {
    // set all lifts to step 0
-   for (int d=0; d<num_lifts; d++) set_lift(d, 0);
+   for (int d=0; d<num_lifts; d++) set_lift_to_step(d, 0);
 }
 
 void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int rc)
 {
    switch (lift_steps[lift][step].type)
    {
-      case 1: mdw_slider(xa, ty, xb, ty2, 71, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break;
+      case 1:
+      {
+//         mdw_slider(xa, ty, xb, ty2, 71, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); // speed old
+
+         int thrd = (xb-xa) / 3;
+         int x1 = xa;
+         int x2 = xa + thrd;
+         int x3 = xa + (2 * thrd);
+         int x4 = xb;
+
+         mdw_slider(x1, ty, x2, ty2, 105, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
+         mdw_slider(x2, ty, x3, ty2, 106, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
+         mdw_slider(x3, ty, x4, ty2, 107, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
+
+
+
+
+      }
+      break;
       case 2: mdw_slider(xa, ty, xb, ty2, 72, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break;
       case 3: mdw_slider(xa, ty, xb, ty2, 73, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break;
       case 4: mdw_button(xa, ty, xb, ty2, 74, step, lift, 0, 0, rc, 15, 0,  1,0,0,0); break;
@@ -176,38 +197,6 @@ void highlight_current_lift(int l)
 
 }
 
-void draw_lift_mp(int lift) // draws the current lift on mp
-{
-   int a, d = lift;
-   int color = lifts[d].color;
-   int szx   = lifts[d].width;
-   int szy   = lifts[d].height;
-
-   ALLEGRO_BITMAP *mp_big = NULL;
-   mp_big = al_create_bitmap(szx, szy);
-   al_set_target_bitmap(mp_big);
-   al_clear_to_color(al_map_rgb(0,0,0));
-
-
-/*
-   for (a=0; a<10; a++)
-      al_draw_rectangle    (a, a, (lifts[d].width)-1-a, (lifts[d].height)-1-a, palette_color[color+((9-a)*16)], 1 );
-   al_draw_filled_rectangle(a, a, (lifts[d].width)-1-a, (lifts[d].height)-1-a, palette_color[color]);
-
-   if ((lifts[d].width == 1) && (lifts[d].height > 1)) // rotate lift name for vertical lifts
-      rtextout_centre(mp_big, lifts[d].lift_name, (lifts[d].width*10)-2, (lifts[d].height*10)-2, color+160, 1, 64, 1);
-   else al_draw_text(font, palette_color[color+160], (lifts[d].width/2)-2, (lifts[d].height/2)-2, 0, lifts[d].lift_name);
-*/
-
-
-   al_set_target_bitmap(mp);
-   al_clear_to_color(al_map_rgb(0,0,0));
-   al_draw_scaled_bitmap(mp_big, 0, 0, szx, szy, 0, 0, szx*db, szy*db, 0);
-   al_destroy_bitmap(mp_big);
-}
-
-
-
 int create_lift(void)
 {
    int step = 0;
@@ -234,7 +223,7 @@ int create_lift(void)
          construct_lift_step(lift, step, 0, 0, 20, 4); // type 4 - loop to step zero
          lifts[lift].num_steps++; // add one to steps
 
-         set_lift(lift, 0); // set step 0 for lift
+         set_lift_to_step(lift, 0); // set step 0 for lift
          insert_steps_until_quit(lift, step);
          return 1;
       }
@@ -251,8 +240,6 @@ int create_lift(void)
    }
 }
 
-
-
 void move_lift_step(int lift, int step)
 {
    if (lift_steps[lift][step].type == 1) // only if type = move
@@ -263,11 +250,6 @@ void move_lift_step(int lift, int step)
       getxy("Set new location", 4,  lift, step);
    }
 }
-
-
-
-
-
 
 int get_new_lift_step(int lift, int step)
 {
@@ -505,7 +487,7 @@ void set_bts(int lift)
 
 void redraw_lift_viewer(int lift, int step)
 {
-   set_lift(lift, step);               // set current step in current lift
+   set_lift_to_step(lift, step);               // set current step in current lift
    draw_big(1);                        // update the map bitmap
    title_obj(4, lift, 0, 0, 15);       // show title and map on screen
    highlight_current_lift(lift);       // crosshairs and rect on current lift
@@ -667,7 +649,7 @@ int lift_editor(int lift)
                            lift_steps[x][y].x = jnx;
                            lift_steps[x][y].y = jny;
 
-                           set_lift(lift, current_step);   // set current step in current lift
+                           set_lift_to_step(lift, current_step);   // set current step in current lift
 
                            al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
                            draw_big(1);

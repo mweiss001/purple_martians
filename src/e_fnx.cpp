@@ -433,7 +433,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num )
                lift_steps[lift][step].y = dy*20;         proc_controllers();
 
                //  redraw
-               set_lift(lift, step);   // set current step in current lift
+               set_lift_to_step(lift, step);   // set current step in current lift
                draw_big(1);
                show_big();
                draw_bs(14);            // show bullseye map
@@ -517,7 +517,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num )
       {
          lift_steps[lift][step].x = original_dx * 20;
          lift_steps[lift][step].y = original_dy * 20;
-         set_lift(lift, step);   // set current step in current lift
+         set_lift_to_step(lift, step);   // set current step in current lift
       }
    }
    return retval;
