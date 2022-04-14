@@ -269,7 +269,6 @@ void level_check(void)
             m_err(msg);
             error = 1;
          }
-
    if (error)
    {
       printf("number_of_starts:%d\n", number_of_starts);

@@ -868,19 +868,11 @@ int edit_menu(int el)
          while (key[ALLEGRO_KEY_E]) proc_controllers();
          show_all_enemies();
       }
-
-
-      void level_check(void);
-
-
       if (key[ALLEGRO_KEY_S])
       {
          while (key[ALLEGRO_KEY_S]) proc_controllers();
          level_check();
       }
-
-
-
       if (key[ALLEGRO_KEY_I])
       {
          while (key[ALLEGRO_KEY_I]) proc_controllers();
@@ -922,7 +914,8 @@ int edit_menu(int el)
 
          temp_mouse_x = mouse_x*display_transform_double;
          temp_mouse_y = mouse_y*display_transform_double;
-         pop_menu_selection = pmenu(2);
+
+         pop_menu_selection = pmenu(2, 0);
          al_set_mouse_xy(display, temp_mouse_x, temp_mouse_y);
          proc_controllers();
 

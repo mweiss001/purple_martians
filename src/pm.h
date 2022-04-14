@@ -389,8 +389,8 @@ extern int ft_Ei[100][32];
 extern al_fixed ft_Efi[100][16];
 
 extern char ft_ln[NUM_LIFTS][80];
-extern int ft_lift[NUM_LIFTS][4];
-extern int ft_ls[NUM_LIFTS][40][4];
+extern int ft_lift[NUM_LIFTS][6];
+extern int ft_ls[NUM_LIFTS][40][6];
 
 
 // ------------------------------------------------
@@ -1425,7 +1425,7 @@ void help(const char *topic);
 int zmenu(int menu_num, int menu_pos, int y);
 void menu_setup(void);
 void set_key_menu(int menu, int p, int start_row);
-int pmenu(int menu_num);
+int pmenu(int menu_num, int bg_color);
 void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore, int rot);
 int edit_pmsg_text(int c, int new_msg);
 void edit_server_name(void);

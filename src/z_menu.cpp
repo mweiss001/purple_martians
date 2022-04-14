@@ -816,9 +816,11 @@ void set_key_menu(int menu, int p, int start_row)
 
 }
 
-int pmenu(int menu_num)  // this menu function does not pass through like the next one
-{                        // it waits for a selection and then exits
-                         // its is entered with mouse_b 2 pressed and exits when released
+// this menu function does not pass through like the next one
+// it waits for a selection and then exits
+// its is entered with mouse_b2 pressed and exits when released
+int pmenu(int menu_num, int bg_color)
+{
    int highlight = 2;
    int selection = 999;
    int last_list_item;
@@ -837,19 +839,43 @@ int pmenu(int menu_num)  // this menu function does not pass through like the ne
    {
       do   // until selection is made
       {
-         c = 0;
          al_rest(0.02);
+         int max_strlen = 0;
+         int w = 0;
+         if (bg_color != 0)
+         {
+            c = 0;
+            // run through the menu to get height and width
+            while (strcmp(global_string[menu_num][c],"end") != 0)
+            {
+               int sl = strlen(global_string[menu_num][c]);
+               if (sl > max_strlen) max_strlen = sl;
+               c++;
+            }
+            w = max_strlen*4 + 2;
+            al_draw_rectangle(kx-w, ky-2, kx+w, ky+c*8+1, palette_color[bg_color], 1); //frame entire menu
+            al_draw_filled_rectangle(kx-w, ky-2, kx+w, ky+c*8+1, palette_color[bg_color+128+64]); // blank background
+         }
+         c = 0;
          while (strcmp(global_string[menu_num][c],"end") != 0)
          {
             b = 9 + 96;
             if (c == 0) b = 9;
             if (c == highlight) b=9;
-            int w = strlen(global_string[menu_num][c])*4;
-            al_draw_filled_rectangle(kx-w, ky+(c*8), kx+w, ky+(c*8)+8, palette_color[0]);
+
+            int sl = strlen(global_string[menu_num][c]);
+            if (sl > max_strlen) max_strlen = sl;
+            w = sl*4;
+
+            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky+(c*8), kx+w, ky+(c*8)+8, palette_color[0]);
             al_draw_text(font, palette_color[b], kx, ky+(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
             c++;
          }
          last_list_item = c-1;
+
+
+
+
          al_flip_display();
          proc_controllers();
 
