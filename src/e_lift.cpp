@@ -122,18 +122,14 @@ void erase_lift(int lift)
    num_lifts--;                                            // one less lift
 }
 
-
-
-
-
-
-
 void delete_lift_step(int l, int step)
 {
    for (int x=step; x<lifts[l].num_steps-1; x++)   // slide all down
    {
       lift_steps[l][x].x    = lift_steps[l][x+1].x ;
       lift_steps[l][x].y    = lift_steps[l][x+1].y ;
+      lift_steps[l][x].w    = lift_steps[l][x+1].w ;
+      lift_steps[l][x].h    = lift_steps[l][x+1].h ;
       lift_steps[l][x].val  = lift_steps[l][x+1].val ;
       lift_steps[l][x].type = lift_steps[l][x+1].type ;
    }
@@ -150,7 +146,13 @@ void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int r
 {
    switch (lift_steps[lift][step].type)
    {
-      case 1:
+      case 1: mdw_slider(xa, ty, xb, ty2, 105, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break; // speed for move and resize
+      case 2: mdw_slider(xa, ty, xb, ty2, 72,  step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break; // wait time
+      case 3: mdw_slider(xa, ty, xb, ty2, 73,  step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break; // wait prox
+      case 4: mdw_button(xa, ty, xb, ty2, 74,  step, lift, 0, 0, rc, 15, 0,  1,0,0,0); break; // end step
+
+
+/*
       {
 //         mdw_slider(xa, ty, xb, ty2, 71, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); // speed old
 
@@ -160,15 +162,17 @@ void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int r
          int x3 = xa + (2 * thrd);
          int x4 = xb;
 
-         mdw_slider(x1, ty, x2, ty2, 105, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
-         mdw_slider(x2, ty, x3, ty2, 106, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
-         mdw_slider(x3, ty, x4, ty2, 107, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
+        mdw_slider(x1, ty, x2, ty2, 105, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
+        mdw_slider(x2, ty, x3, ty2, 106, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
+        mdw_slider(x3, ty, x4, ty2, 107, step, lift, 0, 0, rc, 15, 15, 1,0,0,0);
+
+
+
 
       }
       break;
-      case 2: mdw_slider(xa, ty, xb, ty2, 72, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break;
-      case 3: mdw_slider(xa, ty, xb, ty2, 73, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break;
-      case 4: mdw_button(xa, ty, xb, ty2, 74, step, lift, 0, 0, rc, 15, 0,  1,0,0,0); break;
+*/
+
    }
 }
 
@@ -371,6 +375,8 @@ int insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'ste
       {
          lift_steps[lift][x+1].x    = lift_steps[lift][x].x;
          lift_steps[lift][x+1].y    = lift_steps[lift][x].y;
+         lift_steps[lift][x+1].w    = lift_steps[lift][x].w;
+         lift_steps[lift][x+1].h    = lift_steps[lift][x].h;
          lift_steps[lift][x+1].val  = lift_steps[lift][x].val;
          lift_steps[lift][x+1].type = lift_steps[lift][x].type;
       }
@@ -478,12 +484,12 @@ void step_popup_menu(int lift, int step)
 
 
 void set_bts(int lift)
-{                                      // get button y size
-   int ns = lifts[lift].num_steps + 9; // number of steps for this lift
-   int sp = SCREEN_H - 46;             // how much vertical screen space
-   bts = sp/ns;                        // adjust button size so they all will fit
-   if (bts > 16) bts = 16;             // max button size
-   if (bts < 8) bts = 8;               // min button size
+{                                       // get button y size
+   int ns = lifts[lift].num_steps + 10; // number of steps for this lift
+   int sp = SCREEN_H - 46;              // how much vertical screen space
+   bts = sp/ns;                         // adjust button size so they all will fit
+   if (bts > 16) bts = 16;              // max button size
+   if (bts < 8) bts = 8;                // min button size
 }
 
 void redraw_lift_viewer(int lift, int step)
@@ -511,7 +517,7 @@ int lift_editor(int lift)
       int xa = SCREEN_W-(SCREEN_W-(db*100))+1;
       int xb = SCREEN_W-3;
       set_bts(lift);
-      int step_ty = 46 + 7 * bts;
+      int step_ty = 46 + 8 * bts;
       redraw_lift_viewer(lift, current_step);
 
       // draw current lift on menu
@@ -555,6 +561,11 @@ int lift_editor(int lift)
          proc_controllers();
       }
 
+
+
+
+
+
       int a = 0;  // keep track of button y spacing
       int x12 = xa + 1 * (xb-xa) / 2; // 1/2          // split into half
       int x13 = xa + 1 * (xb-xa) / 3; // 1/3          // split into thirds
@@ -564,6 +575,9 @@ int lift_editor(int lift)
 
       int lc = 6; // lock_color;
       if (Viewer_lock) lc = 7;
+
+      // mdw_slider(xb-30,     ty+a*bts, xb,    ty+a*bts+5, 26,  0, 0, 0, 0, 12, 15, 15, 1,0,0,0); a++;     // bts
+
 
       if (mdw_button(xa,    ty+a*bts, x27-1, ty+(a+1)*bts-2, 23,  lift, 0, 0, 0,  9, 15, 0, 1,0,0,0)) mb = 22;  // prev
           mdw_button(x27,   ty+a*bts, x57-1, ty+(a+1)*bts-2, 56,  lift, 0, 0, 0, lc, 15, 0, 1,0,0,0);           // lock
@@ -576,10 +590,11 @@ int lift_editor(int lift)
       if (mdw_button(xa,    ty+a*bts, x12-1, ty+(a+1)*bts-2, 25,  lift, 0, 0, 0, 1,  15, 0, 1,0,0,0)) mb = 24;  // viewer help
       if (mdw_button(x12,   ty+a*bts, xb,    ty+(a+1)*bts-2, 57,  lift, 0, 4, 0, 1,  15, 0, 1,0,0,0)) mb = 25;  // lift help
       a++;
-        //  mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 43,  lift, 0, 0, 0, 12, 15, 15, 1,0,0,0); a++;     // lift width
-        //  mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 44,  lift, 0, 0, 0, 12, 15, 15, 1,0,0,0); a++;     // lift height
 
-          mdw_button(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 500, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift mode
+      mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 106,  current_step, lift, 0, 0, 12, 15, 15, 1,0,0,0); a++;     // lift step width
+      mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 107,  current_step, lift, 0, 0, 12, 15, 15, 1,0,0,0); a++;     // lift step height
+
+      mdw_button(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 500, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift mode
 
           mdw_colsel(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2,  4,  lift, 0, 0, 0, 15, 13, 14, 0,0,0,0); a++;     // lift color
       if (mdw_button(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 29,  lift, 0, 0, 0,  4, 15,  0, 1,0,0,0)) mb = 26; // lift name
