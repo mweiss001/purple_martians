@@ -129,6 +129,46 @@ void draw_lift_lines()
    }
 }
 
+
+
+
+
+
+// this is it....the one base function that draws a lift
+void draw_lift(int l, int x1, int y1, int x2, int y2)
+{
+   int color = lifts[l].color;
+   int a;
+
+   // faded outer shell
+   for (a=0; a<10; a++)
+     al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[color + ((9 - a)*16)], 2 );
+
+   // solid core
+   al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
+
+   // name
+//      al_draw_text(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[l].lift_name);
+    al_draw_textf(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "step:%d val:%2d", lifts[l].current_step, lifts[l].val1);
+
+//      if ((lifts[l].width == 1) && (lifts[l].height > 1)) // rotate lift name for vertical lifts
+//         rtextout_centre(level_buffer, lifts[l].lift_name, ((x1+x2)/2), ((y1+y2)/2), color+160, 1, 64, 1);
+//      else
+
+
+//         int rot = 0;
+        // if ((lifts[lift].width == 1) && (lifts[lift].height > 1)) rot = 64;
+
+  //       rtextout_centre(NULL, lifts[lift].lift_name, ((x1+x2)/2), ((y1+y2)/2)+1, color+160, 1, rot, 1);
+
+
+
+
+
+
+}
+
+
 void draw_lifts()
 {
    al_set_target_bitmap(level_buffer);
@@ -140,18 +180,7 @@ void draw_lifts()
       int y2 = lifts[l].y2;
       int color = lifts[l].color;
 
-      int a;
-
-      // faded outer shell
-      for (a=0; a<10; a++)
-        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[color + ((9 - a)*16)], 2 );
-
-      // solid core
-      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
-
-      // name
-//      al_draw_text(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[l].lift_name);
-       al_draw_textf(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "step:%d val:%2d", lifts[l].current_step, lifts[l].val1);
+      draw_lift(l, x1, y1, x2, y2);
 
       // show if player is riding this lift
       int p = is_player_riding_lift(l);
@@ -162,12 +191,6 @@ void draw_lifts()
          if (pc == color) pc = 127;
          al_draw_rounded_rectangle(x1, y1, x2, y2, 4, 4, palette_color[pc], 2);
       }
-
-
-//      if ((lifts[l].width == 1) && (lifts[l].height > 1)) // rotate lift name for vertical lifts
-//         rtextout_centre(level_buffer, lifts[l].lift_name, ((x1+x2)/2), ((y1+y2)/2), color+160, 1, 64, 1);
-//      else
-
 
       if ((lifts[l].mode == 1) && (!is_player_riding_lift(l)) && (lifts[l].current_step > 1))
       {

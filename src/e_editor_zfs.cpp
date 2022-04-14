@@ -1082,7 +1082,7 @@ void do_fcopy(int qx1, int qy1)
                   if (item[c][0] == 5) // start
                   {
 
-
+                      // do something here to prevent exact multiples
 
                   }
 
@@ -1413,9 +1413,9 @@ void draw_fsel(void)
 {
    int ft_w = ft_level_header[8]*db;
    int ft_h = ft_level_header[9]*db;
-   int t_w = ft_level_header[8]*20;
-   int t_h = ft_level_header[9]*20;
-   int a,d,x,y;
+   int t_w  = ft_level_header[8]*20;
+   int t_h  = ft_level_header[9]*20;
+
 
    ALLEGRO_BITMAP *temp = NULL;
    temp = al_create_bitmap(t_w, t_h);
@@ -1423,13 +1423,12 @@ void draw_fsel(void)
    al_clear_to_color(al_map_rgb(0,0,0));
 
    if (copy_blocks)
-      for (x=0; x<ft_level_header[8]; x++)
-         for (y=0; y<ft_level_header[9]; y++)
+      for (int x=0; x<ft_level_header[8]; x++)
+         for (int y=0; y<ft_level_header[9]; y++)
             al_draw_bitmap(btile[ft_l[x][y] & 1023], x*20, y*20, 0);
 
-
    if (copy_enemies)
-      for (x=0; x<100; x++)
+      for (int x=0; x<100; x++)
          if (ft_Ei[x][0])
          {
             int a, b;
@@ -1441,8 +1440,9 @@ void draw_fsel(void)
             if (a > 999) b = zz[5][a-1000]; // ans
             al_draw_bitmap(tile[b], ex, ey, 0);
          }
+
    if (copy_items)
-      for (x=0; x<500; x++)
+      for (int x=0; x<500; x++)
          if (ft_item[x][0])
          {
             int b;
@@ -1452,21 +1452,17 @@ void draw_fsel(void)
             if (b > 1000) b = zz[0][b-1000]; // ans
             al_draw_bitmap(tile[b], ex, ey, 0);
          }
+
    if (copy_lifts)
-      for (d=0; d<ft_level_header[5]; d++)
+      for (int d=0; d<ft_level_header[5]; d++)
       {
-         int color = ft_lift[d][2];
          int x1 = ft_ls[d][0][0];
          int y1 = ft_ls[d][0][1];
          int x2 = x1 + ft_ls[d][0][2]-1;
          int y2 = y1 + ft_ls[d][0][3]-1;
-         int tx = ((x1+x2)/2) ;
-         int ty = ((y1+y2)/2) -2;
-         for (a=0; a<10; a++)
-           al_draw_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color+((9-a)*16)], 1 );
-         al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color]);
-         al_draw_text(font, palette_color[color+160], tx, ty, ALLEGRO_ALIGN_CENTER, ft_ln[d]);
+         draw_lift(d, x1, y1, x2, y2);
       }
+
    al_destroy_bitmap(ft_bmp);
    ft_bmp = al_create_bitmap(ft_w, ft_h);
    al_set_target_bitmap(ft_bmp);

@@ -20215,9 +20215,177 @@ bug, inserting steps erases w and h..fixed
  actually I chose to just show them disabled..
 
 
- bug...make sure that current step in lift viewer is valid...mouse sometimes sets it to a negative value...
+ bug...make sure that current step in lift viewer is valid...mouse sometimes sets it to a negative value...done
 
- make current step more obvious... like color it red or something....
+bug cant set last two steps to be current step...
+no matter how many steps in lift
+highlight works fine...
+
+there was a dumb redraw lift_viewer that was drawing the button off by one....
+
+then there was the button for end step probably eats the mouse click....yes
+finally this bug is closed....
+
+
+
+make current step more obvious... like color it red or something....
+
+step colors right now:
+
+regular   = 3 med blue
+highlight = 13 light blue
+current   = 14 dark blue
+
+where are they set?
+
+void draw_steps(int step_ty, int lift, int current_step, int highlight_step)
+{
+   int color = 3;
+   if (step == current_step) color = 13;
+   if (step == highlight_step) color = 12;
+
+changed it to 15 for regular, 10 for current and a yellow outline for highlight....i like it
+
+now I need to change the text of the move step to be like the others....
+
+then the buttons width and height that only apply to current step
+I was thinking of making that more obvious
+like put it next to the steps
+have something similar for other types of steps
+
+
+what about the buttons having columns?
+first one is the step #
+second step type
+those can be rather narrow, then the rest of the space can be adjusters, etc
+
+---------------------------------------------------------------------
+make one and one only draw_lift
+---------------------------------------------------------------------
+
+// this is it....the one base function that draws a lift
+void draw_lift(int l, int x1, int y1, int x2, int y2)
+{
+   int color = lifts[l].color;
+   int a;
+
+   // faded outer shell
+   for (a=0; a<10; a++)
+     al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[color + ((9 - a)*16)], 2 );
+
+   // solid core
+   al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
+
+   // name
+    al_draw_textf(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "step:%d val:%2d", lifts[l].current_step, lifts[l].val1);
+}
+
+
+
+removed this from void highlight_current_lift(int l)
+
+   // draw lift
+   int a;
+   for (a=0; a<10; a++)
+      al_draw_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, palette_color[color+ (9-a)*16], 1 );
+   al_draw_filled_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, palette_color[color] );
+
+//   if ((lifts[l].width == 1) && (lifts[l].height > 1)) // rotate lift name for vertical lifts
+//      rtextout_centre(NULL, lifts[l].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 64, 1);
+//   else
+
+      rtextout_centre(NULL, lifts[l].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 0, 1);
+
+
+
+places I have used it:
+-------------------------
+draw_lifts()
+int lift_editor(int lift)
+void draw_fsel(void)
+
+
+places I have checked:
+-----------------------
+e_lifts
+z_lifts
+
+places I have left...
+the text editor ?? in menu
+
+void draw_item_info(int x, int y, int color, int type, int num)
+{
+   int a, b;
+   switch (type)
+   {
+      case 1:
+         al_draw_bitmap(btile[num&1023], x, y, 0);
+         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "Block #%d",num&1023);
+         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%s", get_text_description_of_block_based_on_flags(num) );
+      break;
+      case 2:
+         draw_item_shape(num, x, y);
+         a = item[num][0]; // type
+         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", item_name[a]);
+         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - item_first_num[a],item_num_of_type[a]);
+      break;
+      case 3:
+         draw_enemy_shape(num, x, y);
+         a = Ei[num][0]; // type
+         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", enemy_name[a]);
+         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - e_first_num[a],e_num_of_type[a]);
+      break;
+      case 4:
+      {
+         int col = lifts[num].color;
+         int width = lifts[num].width;
+         if (width > 140) width = 140;
+         for (a=0; a<10; a++)
+            al_draw_rectangle(x+a, y+a, x+(width)-1-a, y+19-a, palette_color[col+((9-a)*16)], 1 );
+
+//         if ((lifts[num].width == 1) && (lifts[num].height > 1)) // rotate lift name for vertical lifts
+  //          rtextout_centre(NULL, lifts[num].lift_name, x+(width*10), y, color+160, 1, 64, 1 );
+    //     else
+            al_draw_text(font, palette_color[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, lifts[num].lift_name);
+      }
+      break;
+      case 5:
+         a = PDEi[num][1]; // bmp or ans
+         if (a < NUM_SPRITES) b = a; // bmp
+         if (a > 999) b = zz[5][a-1000]; // ans
+         al_draw_bitmap(tile[b], x, y, 0);
+         a = Ei[num][0]; // type
+         al_draw_text(font, palette_color[color], x+22, y+2, 0, "Special Item");
+         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%s", PDEt[num][1]);
+      break;
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
