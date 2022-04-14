@@ -132,15 +132,14 @@ void draw_lift_lines()
 void draw_lifts()
 {
    al_set_target_bitmap(level_buffer);
-   for (int d=0; d<num_lifts; d++)
+   for (int l=0; l<num_lifts; l++)
    {
+      int x1 = lifts[l].x1;
+      int x2 = lifts[l].x2;
+      int y1 = lifts[l].y1;
+      int y2 = lifts[l].y2;
+      int color = lifts[l].color;
 
-      int x1 = lifts[d].x1;
-      int x2 = lifts[d].x2;
-      int y1 = lifts[d].y1;
-      int y2 = lifts[d].y2;
-
-      int color = lifts[d].color;
       int a;
 
       // faded outer shell
@@ -151,10 +150,11 @@ void draw_lifts()
       al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
 
       // name
-      al_draw_text(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[d].lift_name);
+//      al_draw_text(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[l].lift_name);
+       al_draw_textf(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "step:%d val:%2d", lifts[l].current_step, lifts[l].val1);
 
       // show if player is riding this lift
-      int p = is_player_riding_lift(d);
+      int p = is_player_riding_lift(l);
       if (p)
       {
          p -=1; // player number
@@ -164,45 +164,26 @@ void draw_lifts()
       }
 
 
-
-
-
-
-
-
-
-//      if ((lifts[d].width == 1) && (lifts[d].height > 1)) // rotate lift name for vertical lifts
-//         rtextout_centre(level_buffer, lifts[d].lift_name, ((x1+x2)/2), ((y1+y2)/2), color+160, 1, 64, 1);
+//      if ((lifts[l].width == 1) && (lifts[l].height > 1)) // rotate lift name for vertical lifts
+//         rtextout_centre(level_buffer, lifts[l].lift_name, ((x1+x2)/2), ((y1+y2)/2), color+160, 1, 64, 1);
 //      else
 
 
-
-//         if (timer_draw_mode4) draw_percent_bar(x0+9, y0+1, 64, 16, percent);
-
-
-
-
-
-
-      if ((lifts[d].mode == 1) && (!is_player_riding_lift(d)))
+      if ((lifts[l].mode == 1) && (!is_player_riding_lift(l)) && (lifts[l].current_step > 1))
       {
-         int percent = (100 * lifts[d].val1) / 80;
-         draw_percent_bar(x1, y1, 64, 16, percent);
+         int percent = (100 * lifts[l].val1) / 80;
+         draw_percent_bar((x1+x2)/2, (y1+y2)/2 -44, 40, 8, percent);
       }
 
-
-
-
-
-      switch (lifts[d].limit_type) // limit type
+      switch (lifts[l].limit_type) // limit type
       {
          case 2: // timer wait
-            if (lifts[d].limit_counter > 0)
-               al_draw_textf(font, palette_color[color+64], (x1 + x2)/2 + 2, lifts[d].y1 - 8, ALLEGRO_ALIGN_CENTRE, "%d", lifts[d].limit_counter);
+            if (lifts[l].limit_counter > 0)
+               al_draw_textf(font, palette_color[color+64], (x1 + x2)/2 + 2, lifts[l].y1 - 8, ALLEGRO_ALIGN_CENTRE, "%d", lifts[l].limit_counter);
          break;
          case 3: // prox wait
          {
-            int pd = lifts[d].limit_counter; // prox dist
+            int pd = lifts[l].limit_counter; // prox dist
             int bx1 = x1 - pd;
             int by1 = y1 - pd;
             int bx2 = x2 + pd;
@@ -281,9 +262,15 @@ void move_lifts(int ignore_prox)
 
       int frozen = 0;
 
+//      if ((lifts[d].mode == 1) && (!is_player_riding_lift(d)) && (lifts[d].current_step > 0))
+
+      int mode = lifts[l].mode;
+      int cs = lifts[l].current_step;
+      int cst = lift_steps[l][cs].type;
+
 
       // modes----------------------------------------------------------------------
-      if (lifts[l].mode == 1) // prox run and reset
+      if ((mode == 1) && (cs > 0) && (cst == 1)) // prox run and reset mode, not step 0, current step type = move
       {
          if (is_player_riding_lift(l))
          {

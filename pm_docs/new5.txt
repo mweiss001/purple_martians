@@ -20194,6 +20194,39 @@ make visually, like shrink the lift or show progress bar
 
 make counter not run when already reset, like in step 0...
 
+should I start this type of lift with a prox?
+make the mode 1 stuff only apply for type 1 steps....
+did all that...
+
+now to make them look nice, in mode 1 the first step should be a wait prox.
+it is not required, but without it the lift will constantly reset to step 0 when the timer runs out.
+also with this method, the rest timer will not run for other prox or wait steps
+prox steps can't be used alone
+but if you insert a wait then a prox in the middle....
+player rides lift to the wait spot, then jumps off and runs away before the wait timer expires
+when the wait timer expires, the prox step will sit there and wait and not reset....
+
+
+bug, inserting steps erases w and h..fixed
+
+
+--- make the original width and height sliders affect the current step, then they can be removed from the actual step button
+ what is the current button is not a move step...hide them...
+ actually I chose to just show them disabled..
+
+
+ bug...make sure that current step in lift viewer is valid...mouse sometimes sets it to a negative value...
+
+ make current step more obvious... like color it red or something....
+
+
+
+
+
+
+
+
+
 
 
 
