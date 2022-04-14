@@ -476,7 +476,7 @@ void clear_ft(void)
    for (int l=0; l<NUM_LIFTS; l++)  // lifts
    {
      ft_ln[l][0] = 0; // erase lift name
-     for (int x=0; x<4; x++) // lift var
+     for (int x=0; x<6; x++) // lift var
         ft_lift[l][x] = 0;
      for (int s=0; s<40; s++) // step
         for (int x=0; x<4; x++) // step var
@@ -606,8 +606,8 @@ int load_selection(void)
          buff[loop] = (char)NULL;
          strcpy(ft_ln[c], buff);
 
-         // get lift data   four ints
-         for (y=0; y<4; y++)
+         // get lift data six ints
+         for (y=0; y<6; y++)
          {
             loop = 0;
             ch = fgetc(filepntr);
@@ -621,7 +621,7 @@ int load_selection(void)
             ft_lift[c][y] = atoi(buff);
          }
          for (x=0; x<ft_lift[c][3]; x++) // get step data
-            for (y=0; y<4; y++)
+            for (y=0; y<6; y++)
             {
                loop = 0;
                ch = fgetc(filepntr);
@@ -751,26 +751,29 @@ void save_selection(int save)
 
             strcpy(ft_ln[c], lifts[b].lift_name);
 
-            ft_lift[c][0] = lifts[b].width;
-            ft_lift[c][1] = lifts[b].height;
+            ft_lift[c][0] = lifts[b].mode;
+            ft_lift[c][1] = lifts[b].flags;
             ft_lift[c][2] = lifts[b].color;
             ft_lift[c][3] = lifts[b].num_steps;
+            ft_lift[c][4] = lifts[b].val1;
+            ft_lift[c][5] = lifts[b].val2;
+
 
             for (y = 0; y < lifts[b].num_steps; y++) // copy steps
             {
-               int vx = 0;
-               int vy = 0;
-
+               int vx = lift_steps[b][y].x;
+               int vy = lift_steps[b][y].y;
                if (lift_steps[b][y].type == 1) // shift move steps
                {
-                  vx = lift_steps[b][y].x - x1;
-                  vy = lift_steps[b][y].y - y1;
+                  vx -= x1;
+                  vy -= y1;
                }
-
                ft_ls[c][y][0] = vx;
                ft_ls[c][y][1] = vy;
-               ft_ls[c][y][2] = lift_steps[b][y].val;
-               ft_ls[c][y][3] = lift_steps[b][y].type;
+               ft_ls[c][y][2] = lift_steps[b][y].w;
+               ft_ls[c][y][3] = lift_steps[b][y].h;
+               ft_ls[c][y][4] = lift_steps[b][y].val;
+               ft_ls[c][y][5] = lift_steps[b][y].type;
             }
          }
 
@@ -826,9 +829,9 @@ void save_selection(int save)
          for (c=0; c < ft_level_header[5]; c++) // lifts
          {
             fprintf(filepntr,"%s\n",ft_ln[c]);
-            for (x=0; x<4; x++) fprintf(filepntr,"%d\n",ft_lift[c][x]);
+            for (x=0; x<6; x++) fprintf(filepntr,"%d\n",ft_lift[c][x]);
             for (x=0; x<ft_lift[c][3]; x++)
-               for (y=0; y<4; y++) fprintf(filepntr,"%d\n",ft_ls[c][x][y]);
+               for (y=0; y<6; y++) fprintf(filepntr,"%d\n",ft_ls[c][x][y]);
          }
          fclose(filepntr);
       }
@@ -875,17 +878,30 @@ void do_fcopy(int qx1, int qy1)
          //int copied = 0;
          if (num_lifts < NUM_LIFTS)
          {
-            int vx = 0, vy = 0, lim = 0;
+            int lim = 0;
             c = num_lifts++; // dest lift
             //copied = 1000+c;
-            construct_lift(c, ft_ln[b], ft_lift[b][0], ft_lift[b][1], ft_lift[b][2], ft_lift[b][3]);
+            construct_lift(c, ft_ln[b], 0, 0, ft_lift[b][2], ft_lift[b][3]);
+            lifts[c].mode  = ft_lift[b][0];
+            lifts[c].flags = ft_lift[b][1];
+            lifts[c].val1  = ft_lift[b][4];
+            lifts[c].val2  = ft_lift[b][5];
+
+
             for (y=0; y<ft_lift[b][3]; y++) // copy steps
             {
-               if (ft_ls[b][y][3] == 1) // shift  move steps
+               int vx   = ft_ls[b][y][0];
+               int vy   = ft_ls[b][y][1];
+               int vw   = ft_ls[b][y][2];
+               int vh   = ft_ls[b][y][3];
+               int val  = ft_ls[b][y][4];
+               int type = ft_ls[b][y][5];
+
+               if (type == 1) // shift  move steps
                {
                   // apply offsets
-                  vx = ft_ls[b][y][0] + x3;
-                  vy = ft_ls[b][y][1] + y3;
+                  vx += x3;
+                  vy += y3;
 
                   if (erase_out_of_bounds_main)
                   {
@@ -898,7 +914,7 @@ void do_fcopy(int qx1, int qy1)
                      vy = enforce_limit(vy, 0, 1980);
                   }
                }
-               construct_lift_step(c, y, vx, vy, 0, 0, ft_ls[b][y][2], ft_ls[b][y][3]);  /// fix me <<<<----------00,
+               construct_lift_step(c, y, vx, vy, vw, vh, val, type);
             }
             set_lift_to_step(c, 0);
             if (lim)
@@ -1061,6 +1077,16 @@ void do_fcopy(int qx1, int qy1)
                      item[c][7] += qy1*20;
                      // really should do some bounds checks here
                   }
+
+
+                  if (item[c][0] == 5) // start
+                  {
+
+
+
+                  }
+
+
 
                   if (item[c][0] == 4) // // set new key block range
                   {
@@ -1399,8 +1425,8 @@ void draw_fsel(void)
    if (copy_blocks)
       for (x=0; x<ft_level_header[8]; x++)
          for (y=0; y<ft_level_header[9]; y++)
-            if ((ft_l[x][y] < NUM_SPRITES) && (ft_l[x][y] > 0))
-               al_draw_bitmap(tile[ft_l[x][y]], x*20, y*20, 0);
+            al_draw_bitmap(btile[ft_l[x][y] & 1023], x*20, y*20, 0);
+
 
    if (copy_enemies)
       for (x=0; x<100; x++)
@@ -1432,8 +1458,8 @@ void draw_fsel(void)
          int color = ft_lift[d][2];
          int x1 = ft_ls[d][0][0];
          int y1 = ft_ls[d][0][1];
-         int x2 = ft_ls[d][0][0] + (ft_lift[d][0] * 20)-1;
-         int y2 = ft_ls[d][0][1] + (ft_lift[d][1] * 20)-1;
+         int x2 = x1 + ft_ls[d][0][2]-1;
+         int y2 = y1 + ft_ls[d][0][3]-1;
          int tx = ((x1+x2)/2) ;
          int ty = ((y1+y2)/2) -2;
          for (a=0; a<10; a++)

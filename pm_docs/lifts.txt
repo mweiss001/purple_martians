@@ -1,0 +1,125 @@
+// ------------------------------------------------
+// ---------------- lifts -----------------------
+// ------------------------------------------------
+extern int num_lifts;
+extern char lift_step_type_name[10][10];
+extern struct lift lifts[NUM_LIFTS];
+extern struct lift_step lift_steps[NUM_LIFTS][40];
+struct lift
+{
+   al_fixed fx;
+   al_fixed fy;
+   al_fixed fxinc;
+   al_fixed fyinc;
+
+   al_fixed fw;
+   al_fixed fh;
+   al_fixed fwinc;
+   al_fixed fhinc;
+
+   int x1;
+   int y1;
+   int x2;
+   int y2;
+   int width;
+   int height;
+   int flags;
+   int mode;
+   int val1;
+   int val2;
+   int color;
+   int current_step;
+   int num_steps;
+   int limit_counter;
+   int limit_type;
+   char lift_name[40];
+};
+struct lift_step
+{
+   int type;
+   int x;
+   int y;
+   int w;
+   int h;
+   int val;
+};
+
+
+
+lifts       :  5280 bytes
+lift_steps  : 38400 bytes
+
+num_lifts is used to keep track of how many lifts there are
+
+for (int l=0; l<num_lifts; l++) // iterate lifts
+      
+for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
+
+
+------------------------------------------------------------------------
+lift_steps[lift][step].type
+------------------------------------------------------------------------
+type 1 - move
+x
+y
+w
+h
+val - speed of move or time to resize
+------------------------------------------------------------------------
+type 2 - wait time
+x,y,w,h - not used
+val - wait time
+------------------------------------------------------------------------
+type 3 - wait prox
+x,y,w,h - not used
+val - prox distance
+------------------------------------------------------------------------
+type 4 - end 
+x,y,w,h - not used
+val
+0 move to step 0
+1 warp to step 0
+2 stay here forever
+------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+The first step (lift_steps[lift][0]) is always type 1 - move.
+The values of x, y, w, h are the initial lift values.
+val is only used moving TO this step
+------------------------------------------------------------------------
+The last step is always type 4 - end
+val determines what happens from there
+------------------------------------------------------------------------
+In between the first and last step can be any arrangement of other steps
+------------------------------------------------------------------------
+
+
+lifts[lift].limit_type = 2; // wait time
+lifts[lift].limit_counter;  // counts down to 0
+
+lifts[lift].limit_type = 3; // wait prox
+lifts[lift].limit_counter;  // proximity distance
+
+lifts[lift].limit_type = 4; // move and resize timer
+lifts[lift].limit_counter;  // counts down to 0
+
+
+
+
+lifts[lift].mode = 0; // default...normal
+lifts[lift].mode = 1; // prox run and reset
+
+
+
+
+
+
+
+
+
+
+
+
+
+

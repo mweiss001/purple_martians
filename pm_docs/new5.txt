@@ -19875,6 +19875,338 @@ I want to go back to the old way...
 
 
 
+void set_lift_xyinc(int d, int step)
+{
+   //  used when switching to a new move step;
+   //  sets xinc, yinc and num of frames for mode 7 (move)
+
+   lifts[d].limit_type = 7;   // move step countdown limit type 7
+
+   // get the integer x and y distances between current pos and next step
+   int xln = lifts[d].x1 - lift_steps[d][step].x;
+   int yln = lifts[d].y1 - lift_steps[d][step].y;
+   if ((xln == 0) && (yln == 0)) // no move needed
+   {
+      lifts[d].limit_counter = 1;
+      lifts[d].fxinc = al_itofix(0);
+      lifts[d].fyinc = al_itofix(0);
+   }
+   else
+   {
+      al_fixed xlen = al_itofix(xln);   // get the x distance
+      al_fixed ylen = al_itofix(yln);   // get the y distance
+
+      al_fixed hy_dist = al_fixhypot(xlen, ylen);     // hypotenuse distance
+      al_fixed speed = al_itofix(lift_steps[d][step].val) / 10;  // speed is stored scaled by 10
+
+      al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
+      al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
+      al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
+
+      if (abs(xlen) > abs(ylen))  // xlen is longer so use this to set limit counter
+         lifts[d].limit_counter = al_fixtoi( abs( al_fixdiv(xlen, xinc))); // steps = distance / increment
+
+      if (abs(xlen) <= abs(ylen)) // ylen is longer or they are equal
+         lifts[d].limit_counter = al_fixtoi( abs( al_fixdiv(ylen, yinc))); // steps = distance / increment
+
+      lifts[d].fxinc = -xinc;
+      lifts[d].fyinc = -yinc;
+   }
+}
+
+this test proved I was doing an unecessary calcultion to get time, when in reality what I called scaler was time
+I am going to keep the original method but simplify the code...
+
+void set_lift_xyinc(int d, int step)
+{
+   //  used when switching to a new move step;
+   //  sets xinc, yinc and num of frames for mode 7 (move)
+
+   lifts[d].limit_type = 7;   // move step countdown limit type 7
+
+   // get the integer x and y distances between current pos and next step
+   int xln = lifts[d].x1 - lift_steps[d][step].x;
+   int yln = lifts[d].y1 - lift_steps[d][step].y;
+   if ((xln == 0) && (yln == 0)) // no move needed
+   {
+      lifts[d].limit_counter = 1;
+      lifts[d].fxinc = al_itofix(0);
+      lifts[d].fyinc = al_itofix(0);
+   }
+   else
+   {
+      al_fixed xlen = al_itofix(xln);   // get the x distance
+      al_fixed ylen = al_itofix(yln);   // get the y distance
+
+      al_fixed hy_dist = al_fixhypot(xlen, ylen);     // hypotenuse distance
+      al_fixed speed = al_itofix(lift_steps[d][step].val) / 10;  // speed is stored scaled by 10
+
+      al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
+      al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
+      al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
+
+      if (abs(xlen) > abs(ylen))  // xlen is longer so use this to set limit counter
+         lifts[d].limit_counter = al_fixtoi( abs( al_fixdiv(xlen, xinc))); // steps = distance / increment
+
+      if (abs(xlen) <= abs(ylen)) // ylen is longer or they are equal
+         lifts[d].limit_counter = al_fixtoi( abs( al_fixdiv(ylen, yinc))); // steps = distance / increment
+
+
+      int lc = lifts[d].limit_counter;
+      int sc = al_fixtoi(scaler);
+
+
+      if (lc == sc) printf("sc:%4d lc:%4d\n", sc, lc);
+      else          printf("sc:%4d lc:%4d  <----------\n", sc, lc);
+
+      lifts[d].fxinc = -xinc;
+      lifts[d].fyinc = -yinc;
+   }
+}
+
+
+
+this is the final version:
+
+void set_lift_xyinc(int d, int step)
+{
+   //  used when switching to a new move step;
+   //  sets xinc, yinc and num of frames for mode 7 (move)
+
+
+   al_fixed xlen = al_itofix(lift_steps[d][step].x - lifts[d].x1);   // x dif
+   al_fixed ylen = al_itofix(lift_steps[d][step].y - lifts[d].y1);   // y dif
+
+   al_fixed hy_dist = al_fixhypot(xlen, ylen);                       // hypotenuse is distance
+   al_fixed speed = al_itofix(lift_steps[d][step].val) / 10;         // speed is stored scaled by 10
+   al_fixed move_time = al_fixdiv(hy_dist, speed);                   // get time (time = distance / speed)
+
+   lifts[d].fxinc = al_fixdiv(xlen, move_time);                      // set xinc
+   lifts[d].fyinc = al_fixdiv(ylen, move_time);                      // set yinc
+
+   al_fixed wd = al_itofix(lift_steps[d][step].w - lifts[d].width);  // width dif
+   al_fixed hd = al_itofix(lift_steps[d][step].h - lifts[d].height); // height dif
+   lifts[d].fwinc = al_fixdiv(wd, move_time);                        // set winc
+   lifts[d].fhinc = al_fixdiv(hd, move_time);                        // set hinc
+
+   lifts[d].limit_counter = al_fixtoi(move_time);
+   lifts[d].limit_type = 7;
+}
+
+this was the old one that just used val as a straight timer
+void set_lift_xyinc(int d, int step)
+{
+   al_fixed move_time = al_itofix(lift_steps[d][step].val*20);      // get move time
+
+   al_fixed xlen = al_itofix(lift_steps[d][step].x - lifts[d].x1);  // x dif
+   al_fixed ylen = al_itofix(lift_steps[d][step].y - lifts[d].y1);  // y dif
+   lifts[d].fxinc = al_fixdiv(xlen, move_time);                     // set xinc
+   lifts[d].fyinc = al_fixdiv(ylen, move_time);                     // set yinc
+
+   al_fixed wd = al_itofix(lift_steps[d][step].w - lifts[d].width);  // width dif
+   al_fixed hd = al_itofix(lift_steps[d][step].h - lifts[d].height); // height dif
+   lifts[d].fwinc = al_fixdiv(wd, move_time);                        // set winc
+   lifts[d].fhinc = al_fixdiv(hd, move_time);                        // set hinc
+
+   lifts[d].limit_counter = al_fixtoi(move_time);
+   lifts[d].limit_type = 7;
+}
+
+
+
+
+
+there...now that is reverted
+
+do I need to worry about zero moves, will there be a div by zero error?
+
+
+
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\pm>pm
+
+Purple Martians Version 7.10
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+xlen:-100.00 ylen:-640.00 hy:647.77 mt:66.10 fxinc:-1.51 fyinc:-9.68
+xlen:-20.00 ylen:-120.00 hy:121.66 mt:60.83 fxinc:-0.33 fyinc:-1.97
+xlen:0.00 ylen:0.00 hy:0.00 mt:0.00 fxinc:32768.00 fyinc:32768.00
+xlen:20.00 ylen:120.00 hy:121.66 mt:15.21 fxinc:1.32 fyinc:7.89
+xlen:-80.00 ylen:400.00 hy:407.92 mt:370.84 fxinc:-0.22 fyinc:1.08
+xlen:-20.00 ylen:-120.00 hy:121.66 mt:60.83 fxinc:-0.33 fyinc:-1.97
+xlen:0.00 ylen:0.00 hy:0.00 mt:0.00 fxinc:32768.00 fyinc:32768.00
+xlen:20.00 ylen:120.00 hy:121.66 mt:15.21 fxinc:1.32 fyinc:7.89
+xlen:-20.00 ylen:-120.00 hy:121.66 mt:60.83 fxinc:-0.33 fyinc:-1.97
+xlen:0.00 ylen:0.00 hy:0.00 mt:0.00 fxinc:32768.00 fyinc:32768.00
+xlen:20.00 ylen:120.00 hy:121.66 mt:15.21 fxinc:1.32 fyinc:7.89
+xlen:-20.00 ylen:-120.00 hy:121.66 mt:60.83 fxinc:-0.33 fyinc:-1.97
+xlen:0.00 ylen:0.00 hy:0.00 mt:0.00 fxinc:32768.00 fyinc:32768.00
+xlen:20.00 ylen:120.00 hy:121.66 mt:15.21 fxinc:1.32 fyinc:7.89
+xlen:-20.00 ylen:-120.00 hy:121.66 mt:60.83 fxinc:-0.33 fyinc:-1.97
+
+C:\pm>
+divide by zero did not seem to cause issues, but I made a check to avoid it anyway.
+
+while doing that I stubled across a method to use val as straight time, if there is not x y move
+then there can be a staionary resize that does not happen immediately...
+
+if there is no xy move and no resize, the step will do nothing while the timer runs...
+
+void set_lift_xyinc(int d, int step)
+{
+   //  used when switching to a new move step;
+   //  sets xinc, yinc and num of frames for mode 7 (move)
+
+   int val = lift_steps[d][step].val;
+
+   al_fixed move_time = al_itofix(0);
+
+   al_fixed xlen = al_itofix(lift_steps[d][step].x - lifts[d].x1);   // x dif
+   al_fixed ylen = al_itofix(lift_steps[d][step].y - lifts[d].y1);   // y dif
+   al_fixed hy_dist = al_fixhypot(xlen, ylen);                       // hypotenuse is distance
+
+   if (hy_dist < al_itofix(1))        // no move
+   {
+      move_time = al_itofix(val);     // use val as straight timer
+      lifts[d].fxinc = al_itofix(0);  // no xinc
+      lifts[d].fyinc = al_itofix(0);  // no yinc
+   }
+   else // get time based on speed and distance
+   {
+      al_fixed speed = al_itofix(val) / 10;         // stored speed scaled by 10
+      move_time = al_fixdiv(hy_dist, speed);        // get time (time = distance / speed)
+      lifts[d].fxinc = al_fixdiv(xlen, move_time);  // set xinc
+      lifts[d].fyinc = al_fixdiv(ylen, move_time);  // set yinc
+   }
+
+//   printf("xlen:%4d ylen:%4d hy:%4d mt:%4d fxinc:%4d fyinc:%4d\n",
+  //         al_fixtoi(xlen), al_fixtoi(ylen), al_fixtoi(hy_dist), al_fixtoi(move_time), al_fixtoi(lifts[d].fxinc), al_fixtoi(lifts[d].fyinc));
+
+   printf("xlen:%3.2f ylen:%3.2f hy:%3.2f mt:%3.2f fxinc:%3.2f fyinc:%3.2f\n",
+           al_fixtof(xlen), al_fixtof(ylen), al_fixtof(hy_dist), al_fixtof(move_time), al_fixtof(lifts[d].fxinc), al_fixtof(lifts[d].fyinc));
+
+   al_fixed wd = al_itofix(lift_steps[d][step].w - lifts[d].width);  // width dif
+   al_fixed hd = al_itofix(lift_steps[d][step].h - lifts[d].height); // height dif
+   lifts[d].fwinc = al_fixdiv(wd, move_time);                        // set winc
+   lifts[d].fhinc = al_fixdiv(hd, move_time);                        // set hinc
+
+   lifts[d].limit_counter = al_fixtoi(move_time);
+   lifts[d].limit_type = 7;
+}
+
+Now I need to change the slider button back...done...
+
+On the pop up menu for a step, add set wh to previous step..done.
+
+
+I don't think I need a separate resize type step, I can do it all with type 1
+
+I want to add a special end type step...instant jump to step 0 or move to step 0
+It can be the same step, none of the variables are used..
+make
+val = 0 loop (old normal deafault)
+val = 1 warp
+val = 2 fade out??
+
+then I don't really need to do that with mode....
+
+
+I want to make a mode that if not in step 0 it will reset after player leaves.....
+
+I want to make a move step that does not advance if player is not riding
+It can also be used in conjuntion with the mode that resets after time...
+
+then I can do things like falling platforms
+
+extend step type 4...call it end
+
+make type do 1 of 3 things...
+
+0 move to step 0
+1 warp to step 0
+2 stay here forever
+
+done....
+
+
+
+bug, fix stuff in zfs for coying lift...since last variable increase....
+
+from pm.h
+extern int ft_lift[NUM_LIFTS][4];
+extern int ft_ls[NUM_LIFTS][40][4];
+
+increase steps to 6
+extern int ft_lift[NUM_LIFTS][4];
+extern int ft_ls[NUM_LIFTS][40][6];
+
+
+what about lifts?
+
+this is all I currently store:
+ft_lift[c][0] = lifts[b].width;
+ft_lift[c][1] = lifts[b].height;
+ft_lift[c][2] = lifts[b].color;
+ft_lift[c][3] = lifts[b].num_steps;
+
+new list:
+ft_lift[c][0] = lifts[b].mode
+ft_lift[c][1] = lifts[b].flags;
+ft_lift[c][2] = lifts[b].color;
+ft_lift[c][3] = lifts[b].num_steps;
+ft_lift[c][4] = lifts[b].val1;
+ft_lift[c][5] = lifts[b].val2;
+
+that should be all done....
+
+test??...good.
+
+bug: blocks don't show in zfs paste selection...done
+bug: lifts show weird in xfs paste selection...done
+
+bug: zfs copying start makes multiples with same start index...same as everywhere else...
+how many times is level check called
+once in load and once in save...all good here
+
+
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+it blows my mind how many different time in code I draw lift...
+I should have only one!!
+how many times do I mess with rtext...it should be a flag
+--------------------------------------------------------------------------------------
+
+
+
+I already have mode 2 for reset when player leaves...but no settings
+and I need to remove or diasble mode 1 beacuse steps now do it....
+
+mode 2 is gone
+now mode 1 is called prox run and reset
+
+hard coded time of 80...
+make a way to set it....
+show it....
+make visually, like shrink the lift or show progress bar
+
+make counter not run when already reset, like in step 0...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

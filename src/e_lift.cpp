@@ -4,6 +4,17 @@
 
 
 
+void lift_step_set_size_from_previous_move_step(int lift, int step)
+{
+   int pms = lift_find_previous_move_step(lift, step); // searches back from passed step until a move step is found
+   if (pms != -1)
+   {
+      lift_steps[lift][step].w = lift_steps[lift][pms].w;
+      lift_steps[lift][step].h = lift_steps[lift][pms].h;
+   }
+}
+
+
 
 
 int lift_find_previous_move_step(int lift, int step) // searches back from passed step until a move step is found
@@ -232,7 +243,7 @@ int create_lift(void)
 
       sprintf(msg, "new lift %d", lift);
       construct_lift(lift, msg, 120, 20, 10, 1);
-      construct_lift_step(lift, step, 0, 0, 120, 20, 80, 1);
+      construct_lift_step(lift, step, 0, 0, 80, 20, 20, 1);
 
       if (getxy("Set initial position", 4, lift, step) == 1)
       {
@@ -318,16 +329,8 @@ int get_new_lift_step(int lift, int step)
       int jh = 1;
       if (draw_and_process_button(txc, stys+(jh*12), "Move", c1, c2, 1))
       {
-         // use w and h from previous move step
-         int pms = lift_find_previous_move_step(lift, step); // searches back from passed step until a move step is found
-         int pw = 120;
-         int ph = 20;
-         if (pms != -1)
-         {
-            pw = lift_steps[lift][pms].w;
-            ph = lift_steps[lift][pms].h;
-         }
-         quit = construct_lift_step(lift, step, 0, 0, pw, ph, 20, 1);
+         quit = construct_lift_step(lift, step, 0, 0, 80, 20, 20, 1);
+         lift_step_set_size_from_previous_move_step(lift, step);
          if (getxy("Set lift position", 4, lift, step) == 1)
          {
             lift_steps[lift][step].x = get100_x * 20;
@@ -416,86 +419,54 @@ void step_popup_menu(int lift, int step)
    al_set_mouse_xy(display, smx * display_transform_double, smy * display_transform_double);
    proc_controllers(); // to deal with mouse warp
 
+   // full menu
    sprintf(global_string[6][0],"Lift:%d Step:%d", lift+1, step);
    sprintf(global_string[6][1],"---------------");
    sprintf(global_string[6][2],"Cancel");
    sprintf(global_string[6][3],"Move Step %d", step);
    sprintf(global_string[6][4],"Delete Step %d", step);
    sprintf(global_string[6][5],"Insert Steps");
-   sprintf(global_string[6][6],"end");
+   sprintf(global_string[6][6],"Size=Prev Step");
+   sprintf(global_string[6][7],"end");
+
 
    // special case for first step (don't allow delete or insert, only move )
    if (step == 0)
    {
-      // set menu text
       sprintf(global_string[6][3],"Move Step %d", step);
       sprintf(global_string[6][4],"end");
-
-      // blank and frame for menu
-      al_draw_filled_rectangle(smx-70, smy-24, smx+70, smy+14, palette_color[0]);
-             al_draw_rectangle(smx-70, smy-24, smx+70, smy+14, palette_color[13], 1);
-
-      // call the menu
-      if (pmenu(6) == 3) move_lift_step(lift, step);
+      if (pmenu(6, 13) == 3) move_lift_step(lift, step);
    }
-
    // special case for last step (don't allow move or delete, only insert)
    else if (step == lifts[lift].num_steps-1)
    {
-      // set menu text
       strcpy (global_string[6][3],"Insert Steps");
       sprintf(global_string[6][4],"end");
-
-      // blank and frame for menu
-      al_draw_filled_rectangle(smx-70, smy-24, smx+70, smy+14, palette_color[0]);
-             al_draw_rectangle(smx-70, smy-24, smx+70, smy+14, palette_color[13], 1);
-
-      // call the menu
-      if (pmenu(6) == 3) insert_steps_until_quit(lift, step);
+      if (pmenu(6, 13) == 3) insert_steps_until_quit(lift, step);
    }
-
-   // regular step (not first or last)
-   else
+   else // regular step (not first or last)
    {
       if (lift_steps[lift][step].type == 1) // only allow move for step type 1
       {
-         // set menu text
          sprintf(global_string[6][3],"Move Step %d", step);
          sprintf(global_string[6][4],"Delete Step %d", step);
          sprintf(global_string[6][5],"Insert Steps");
-         sprintf(global_string[6][6],"end");
-
-         // blank and frame for menu
-         al_draw_filled_rectangle(smx-70, smy-24, smx+70, smy+30, palette_color[0]);
-                al_draw_rectangle(smx-70, smy-24, smx+70, smy+30, palette_color[13], 1);
-
-         // call the menu
-         int msel = pmenu(6);
-
-         // do the action
-         switch (msel)
+         sprintf(global_string[6][6],"Size=Prev Step");
+         sprintf(global_string[6][7],"end");
+         switch (pmenu(6, 13))
          {
             case 3: move_lift_step(lift, step); break;
             case 4: delete_lift_step(lift, step); break;
             case 5: insert_steps_until_quit(lift, step); break;
+            case 6: lift_step_set_size_from_previous_move_step(lift, step); break;
          }
       }
       else
       {
-         // set menu text
          sprintf(global_string[6][3],"Delete Step %d", step);
          sprintf(global_string[6][4],"Insert Steps");
          sprintf(global_string[6][5],"end");
-
-         // blank and frame for menu
-         al_draw_filled_rectangle(smx-70, smy-24, smx+70, smy+14, palette_color[0]);
-                al_draw_rectangle(smx-70, smy-24, smx+70, smy+22, palette_color[13], 1);
-
-         // call the menu
-         int msel = pmenu(6);
-
-         // do the action
-         switch (msel)
+         switch (pmenu(6, 13))
          {
             case 3: delete_lift_step(lift, step); break;
             case 4: insert_steps_until_quit(lift, step); break;
@@ -503,8 +474,6 @@ void step_popup_menu(int lift, int step)
       }
    }
 }
-
-
 
 
 
@@ -607,8 +576,8 @@ int lift_editor(int lift)
       if (mdw_button(xa,    ty+a*bts, x12-1, ty+(a+1)*bts-2, 25,  lift, 0, 0, 0, 1,  15, 0, 1,0,0,0)) mb = 24;  // viewer help
       if (mdw_button(x12,   ty+a*bts, xb,    ty+(a+1)*bts-2, 57,  lift, 0, 4, 0, 1,  15, 0, 1,0,0,0)) mb = 25;  // lift help
       a++;
-          mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 43,  lift, 0, 0, 0, 12, 15, 15, 1,0,0,0); a++;     // lift width
-          mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 44,  lift, 0, 0, 0, 12, 15, 15, 1,0,0,0); a++;     // lift height
+        //  mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 43,  lift, 0, 0, 0, 12, 15, 15, 1,0,0,0); a++;     // lift width
+        //  mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 44,  lift, 0, 0, 0, 12, 15, 15, 1,0,0,0); a++;     // lift height
 
           mdw_button(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 500, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift mode
 

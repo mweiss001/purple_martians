@@ -153,7 +153,7 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 103) sprintf(smsg, "Damage Field ON Time:%d",   item[num][12]);
    if (bn == 104) sprintf(smsg, "Damage Field OFF Time:%d",  item[num][12]);
 
-
+/*
 
    if (bn == 105)
    {
@@ -167,11 +167,16 @@ void fill_smsg_slider(int bn, int type, int num)
 
       sprintf(smsg, "Time:%d Speed:%2.1f", time, al_fixtof(speed)); // lift step resize time
 
+        sprintf(smsg, "Time:%d Speed:%2.1f", time, al_fixtof(speed)); // lift step resize time
+
+
+
    }
 
 
 
 
+*/
 
 
 
@@ -181,8 +186,7 @@ void fill_smsg_slider(int bn, int type, int num)
 
 
 
-
-//   if (bn == 105) sprintf(smsg, "Time:%d",   lift_steps[type][num].val); // lift step resize time
+   if (bn == 105) sprintf(smsg, "Speed:%d",  lift_steps[type][num].val); // lift step resize time
 
    if (bn == 106) sprintf(smsg, "Width:%d",  lift_steps[type][num].w);   // lift step new width
    if (bn == 107) sprintf(smsg, "Height:%d", lift_steps[type][num].h);   // lift step new height
@@ -777,7 +781,15 @@ void fill_smsg_button(int bn, int obt, int type, int num)
        if (obt == 4) sprintf(smsg,"Lift Help");
    }
    if (bn == 70) sprintf(smsg, "#  Step Type     ");
-   if (bn == 74) sprintf(smsg, "%-2d Loop to Start ", num);
+
+//   if (bn == 74) sprintf(smsg, "%-2d Loop to Start ", num);
+   if (bn == 74)
+   {
+      if (lift_steps[type][num].val == 0) sprintf(smsg, "%-2d Loop to Start ", num);
+      if (lift_steps[type][num].val == 1) sprintf(smsg, "%-2d Warp to Start ", num);
+      if (lift_steps[type][num].val == 2) sprintf(smsg, "%-2d Freeze Here ", num);
+   }
+
 
    if (bn == 76)
    {
@@ -1220,9 +1232,8 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    if (bn == 500) // lift mode
    {
       sprintf(smsg, "undefined mode (%d)", lifts[num].mode);
-      if (lifts[num].mode == 0) sprintf(smsg, "Mode 0 - Move to Step 0");
-      if (lifts[num].mode == 1) sprintf(smsg, "Mode 1 - Warp to Step 0");
-      if (lifts[num].mode == 2) sprintf(smsg, "Mode 2 - Prox Reset");
+      if (lifts[num].mode == 0) sprintf(smsg, "Mode 0 - Normal");
+      if (lifts[num].mode == 1) sprintf(smsg, "Mode 1 - Prox Run and Reset");
    }
 
 
@@ -1482,6 +1493,8 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          else item[num][1] = 464;
          Redraw = 1;
       }
+
+      if (bn == 74) if (++lift_steps[type][num].val > 2) lift_steps[type][num].val = 0;
 
       if (bn == 78) if (++item[num][7] > 7) item[num][7] = 0;
       if (bn == 81) if (++Ei[num][4] > 3) Ei[num][4] = 0;
@@ -2047,7 +2060,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
 
       if (bn == 500) // lift mode
       {
-         if (++lifts[num].mode > 2) lifts[num].mode = 0;
+         if (++lifts[num].mode > 1) lifts[num].mode = 0;
       }
 
 

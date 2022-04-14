@@ -226,8 +226,9 @@ int ft_Ei[100][32];
 al_fixed ft_Efi[100][16];
 
 char ft_ln[NUM_LIFTS][80];
-int ft_lift[NUM_LIFTS][4];
-int ft_ls[NUM_LIFTS][40][4];
+int ft_lift[NUM_LIFTS][6];
+int ft_ls[NUM_LIFTS][40][6];
+
 
 
 // ------------------------------------------------
