@@ -491,6 +491,7 @@ void draw_item_info(int x, int y, int color, int type, int num)
       break;
       case 4:
       {
+
          int col = lifts[num].color;
          int width = lifts[num].width;
          if (width > 140) width = 140;

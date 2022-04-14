@@ -1353,6 +1353,7 @@ int construct_lift_step(int lift, int step, int x, int y, int w, int h, int val,
 void clear_lift_step(int lift, int step);
 void set_lift_to_step(int lift, int step);
 void draw_lift_lines(void);
+void draw_lift(int l, int x1, int y1, int x2, int y2);
 void draw_lifts(void);
 void set_lift_xyinc(int d, int step);
 void move_lifts(int ignore_prox);

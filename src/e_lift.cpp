@@ -179,33 +179,31 @@ void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int r
 void draw_steps(int step_ty, int lift, int current_step, int highlight_step)
 {
    int ty  = step_ty;
-   int jh = 0;
-
-//   int xa = txc-98;
-//   int xb = txc+96;
-   int xa = SCREEN_W-(SCREEN_W-(db*100))+1+10;
-   int xb = SCREEN_W-3-10;
+   int xa = SCREEN_W-(SCREEN_W-(db*100))+11;
+   int xb = SCREEN_W-13;
 
    // faded title bar
-   title("List of Steps", ty + jh*bts,  15,  12 );
+   title("List of Steps", ty, 15, 12);
 
    // title button
-   mdw_button(xa, ty+(jh+1)*bts, xb, ty+(jh+2)*bts-1, 70, 0, 0, 0, 0, 8, 15, 0, 1,0,0,0);
+   mdw_button(xa, ty+bts, xb, ty+(2*bts)-1, 70, 0, 0, 0, 0, 8, 15, 0, 1,0,0,0);
 
    // draw steps
    for (int step=0; step<lifts[lift].num_steps; step++)
       if (lift_steps[lift][step].type) // step is valid
       {
-         int color = 3;
-         if (step == current_step) color = 13;
-         if (step == highlight_step) color = 12;
-         draw_step_button(xa, xb, ty+(jh+2+step)*bts, ty+(jh+3+step)*bts-1, lift, step, color);
+         int color = 15;
+         if (step == current_step) color = 10;
+         draw_step_button(xa, xb, ty+(step+2)*bts, ty+(step+3)*bts-1, lift, step, color);
       }
+
+   // show outline around highlighted step
+   int hs = highlight_step;
+   if (hs > -1) al_draw_rectangle(xa-1, ty+(hs+2)*bts-1, xb+1, ty+(hs+3)*bts, palette_color[14], 3);
 }
 
-void highlight_current_lift(int l)
+void highlight_current_lift(int l) // mark current lift with crosshairs and rect on map
 {
-   int color = lifts[l].color;
    int x3 = lifts[l].width;
    int y3 = lifts[l].height;
    int x1 = lifts[l].x1 + 4;
@@ -214,27 +212,10 @@ void highlight_current_lift(int l)
    int y2 = y1 + y3-4;
 
    al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-
-   // mark current lift with crosshairs and rect
    al_draw_line(((x1+x2)/2)*db/20, 1, ((x1+x2)/2)*db/20, db*100-2, palette_color[10], 1);
-   al_draw_line(1, ((y1+y2)/2)*db/20, db*100-2, ((y1+y2)/2)*db/20,  palette_color[10], 1);
+   al_draw_line(1, ((y1+y2)/2)*db/20, db*100-2, ((y1+y2)/2)*db/20, palette_color[10], 1);
    al_draw_rectangle((x1*db/20)-1, (y1*db/20)-1, (x2*db/20)+1, (y2*db/20)+1, palette_color[15], 1);
-
-   // draw lift
-   int a;
-   for (a=0; a<10; a++)
-      al_draw_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, palette_color[color+ (9-a)*16], 1 );
-   al_draw_filled_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, palette_color[color] );
-
-//   if ((lifts[l].width == 1) && (lifts[l].height > 1)) // rotate lift name for vertical lifts
-//      rtextout_centre(NULL, lifts[l].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 64, 1);
-//   else
-
-
-      rtextout_centre(NULL, lifts[l].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 0, 1);
-
    al_reset_clipping_rectangle();
-
 }
 
 int create_lift(void)
@@ -492,6 +473,8 @@ void set_bts(int lift)
    if (bts < 8) bts = 8;                // min button size
 }
 
+
+
 void redraw_lift_viewer(int lift, int step)
 {
    set_lift_to_step(lift, step);       // set current step in current lift
@@ -499,73 +482,60 @@ void redraw_lift_viewer(int lift, int step)
    title_obj(4, lift, 0, 0, 15);       // show title and map on screen
    highlight_current_lift(lift);       // crosshairs and rect on current lift
    set_bts(lift);
-   int step_ty = 46 + 7 * bts;
+   int step_ty = 46 + 8 * bts;
    draw_steps(step_ty, lift, step, step); // show lift steps
 }
+
+
+
 
 
 
 int lift_editor(int lift)
 {
    int current_step = 0;
-   int step_pointer=0;
+   int step_pointer = 0;
    int ret = 0;
    int quit = 0;
+
+   // button x position
+   int xa = SCREEN_W-(SCREEN_W-(db*100))+1;
+   int xb = SCREEN_W-3;
+
    while (!quit)
    {
-      // button x position
-      int xa = SCREEN_W-(SCREEN_W-(db*100))+1;
-      int xb = SCREEN_W-3;
+      proc_controllers();
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+
+      set_lift_to_step(lift, current_step); // set current step in current lift
+      draw_big(1);                          // update the map bitmap
+      title_obj(4, lift, 0, 0, 15);         // show title and map on screen
+      highlight_current_lift(lift);         // crosshairs and rect on current lift
       set_bts(lift);
       int step_ty = 46 + 8 * bts;
-      redraw_lift_viewer(lift, current_step);
 
-      // draw current lift on menu
+      // draw current lift under step list buttons
       if (bts == 16) // only if max button size
       {
-         int a;
-         int x1 = (SCREEN_H/100)*100+22;
-         int x2 = x1 + (lifts[lift].width) -1;
+         int x1 = xa+10;
          int y1 = step_ty + (lifts[lift].num_steps+3) * bts; // only see in 2 highest screen modes
-         int y2 = y1 + (lifts[lift].height) -1;
-         int color = lifts[lift].color;
-         for (a=0; a<10; a++)
-            al_draw_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color + ((9 - a)*16)], 1 );
-         al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
+         int s = current_step;
 
-         int rot = 0;
-        // if ((lifts[lift].width == 1) && (lifts[lift].height > 1)) rot = 64;
+         // if step is not a move step, find prev that is
+         if (lift_steps[lift][s].type != 1) s = lift_find_previous_move_step(lift, s);
 
-         rtextout_centre(NULL, lifts[lift].lift_name, ((x1+x2)/2), ((y1+y2)/2)+1, color+160, 1, rot, 1);
+         // get w h from step
+         int w  = lift_steps[lift][s].w;
+         int h  = lift_steps[lift][s].h;
+
+         // get x2 and y2 based on x1 y1 and w h
+         int x2 = x1 + w;
+         int y2 = y1 + h;
+         draw_lift(lift, x1, y1, x2, y2);
       }
-      while (key[ALLEGRO_KEY_ESCAPE])
-      {
-         quit = 1;
-         proc_controllers();
-      }
+
       int mb = 0; // return value from buttons
-
-      while (key[ALLEGRO_KEY_DELETE])
-      {
-         mb = 20;
-         proc_controllers();
-      }
-      while (key[ALLEGRO_KEY_RIGHT])
-      {
-         mb = 21;
-         proc_controllers();
-      }
-      while (key[ALLEGRO_KEY_LEFT])
-      {
-         mb = 22;
-         proc_controllers();
-      }
-
-
-
-
-
-
       int a = 0;  // keep track of button y spacing
       int x12 = xa + 1 * (xb-xa) / 2; // 1/2          // split into half
       int x13 = xa + 1 * (xb-xa) / 3; // 1/3          // split into thirds
@@ -600,9 +570,88 @@ int lift_editor(int lift)
       if (mdw_button(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 29,  lift, 0, 0, 0,  4, 15,  0, 1,0,0,0)) mb = 26; // lift name
       a++;
 
-      draw_steps(step_ty, lift, current_step, step_pointer);
+
+      while (key[ALLEGRO_KEY_DELETE]) {proc_controllers(); mb=20;}
+      while (key[ALLEGRO_KEY_RIGHT])  {proc_controllers(); mb=21;}
+      while (key[ALLEGRO_KEY_LEFT])   {proc_controllers(); mb=22;}
+      while (key[ALLEGRO_KEY_ESCAPE]) {proc_controllers(); quit = 1;}
+
+
+
+
+      // list of step buttons
+      // --------------------------------------------------------------------------------
+      step_pointer = -1;
+      if ((mouse_x > xa + 10) && (mouse_x < xb - 10))         // mouse on step buttons
+      {
+         int step = (mouse_y - step_ty) / bts -2;             // calculate step
+         if ((step >= 0) && (step < lifts[lift].num_steps))   // is step valid
+         {
+            step_pointer = step;
+            if (mouse_b1) current_step = step;
+            if (mouse_b2) step_popup_menu(lift, step);        // button pop up menu
+         }
+      }
+      draw_steps(step_ty, lift, current_step, step_pointer);  // draw has to go after, because it can eat the mouse clicks
+
+
+
+
+
+
+      int dty = SCREEN_H-100;
+      al_draw_textf(font, palette_color[15], xa, dty, 0, "c_step:%d h_step:%d n_step:%d", current_step, step_pointer, lifts[lift].num_steps);
+
+
+
+
+      // button clicked return values
+      // ------------------------------------------------------------------------------
+      if (mb)
+      {
+         while (mouse_b1) proc_controllers(); // wait for release
+         switch (mb)
+         {
+            case 19: create_lift(); break;                                // create new
+            case 21: if (++lift > num_lifts-1) lift = num_lifts-1; break; // next
+            case 22: if (--lift < 0) lift++; break;                       // previous
+            case 24: help("Viewer Basics"); break;                        // help viewer
+            case 25: help("Lift Viewer"); break;                          // help lifts
+            case 20:                                                      // delete
+               erase_lift(lift);
+               if (--lift < 0) lift = 0;    // set to prev lift or zero
+               if (num_lifts < 1) quit = 1; // if erased last lift; exit lift viewer
+            break;
+            case 26: // new name
+            {
+               char fst[80];
+               strcpy(fst, lifts[lift].lift_name);
+               if (edit_lift_name(lift, step_ty, bts, fst)) strcpy(lifts[lift].lift_name, fst);
+            }
+            break;
+            case 18: // run lifts
+            {
+               while (!key[ALLEGRO_KEY_ESCAPE])
+               {
+                  proc_controllers();
+                  for (int t=0; t<8; t++) move_lifts(1);               // move lifts for 8 frames
+                  draw_big(1);                                             // update the map bitmap
+                  show_big();                                              // show the map
+                  highlight_current_lift(lift);                            // highlight current lift
+                  draw_steps(step_ty, lift, lifts[lift].current_step, -1); // show lift steps
+                  al_flip_display();
+               }
+               while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers(); // wait for release
+               lift_setup(); // reset all lifts to step 0
+            }
+            break;
+         } // end if switch (mb)
+      } // end of if (mb)
+
+
 
       // this is the awesome section that lets you move steps on the map just by clicking and dragging
+      // ----------------------------------------------------------------------------------------------------
       if ((mouse_x < db*100)  && (mouse_x < db*100) )        // is mouse x on map ?
       {
          int mouse_on_lift = 0;
@@ -712,74 +761,6 @@ int lift_editor(int lift)
             }
          }
       } // end of mouse on map
-      // mouse x on step buttons
-      if ((mouse_x > xa + 10) && (mouse_x < xb -10) && (quit != 1) )
-      {
-         // calculate step
-         int step = (mouse_y - step_ty) / bts -2;
-         if (mouse_b1)
-         {
-            current_step = step;
-         }
-
-         // is step valid
-         if ((step >= 0) && (step < lifts[lift].num_steps))
-         {
-            step_pointer = step;
-            if (mouse_b2) // button pop up menu
-            {
-              step_popup_menu(lift, step);
-            }
-         } // end of valid step
-         else step_pointer = -1;// step not valid
-      }
-      else step_pointer = -1;// // not on buttons at all
-
-      if (mb)
-      {
-         while (mouse_b1) proc_controllers(); // wait for release
-         switch (mb)
-         {
-            case 19: create_lift(); break;                                // create new
-            case 21: if (++lift > num_lifts-1) lift = num_lifts-1; break; // next
-            case 22: if (--lift < 0) lift++; break;                       // previous
-            case 24: help("Viewer Basics"); break;                        // help viewer
-            case 25: help("Lift Viewer"); break;                          // help lifts
-            case 20:  // delete
-               erase_lift(lift);
-               if (--lift < 0) lift = 0;    // set to prev lift or zero
-               if (num_lifts < 1) quit = 1; // if erased last lift; exit lift viewer
-            break;
-            case 26:  // new name
-            {
-               char fst[80];
-               strcpy(fst, lifts[lift].lift_name);
-               if (edit_lift_name(lift, step_ty, bts, fst)) strcpy(lifts[lift].lift_name, fst);
-            }
-            break;
-            case 18:  // run lifts
-            {
-               while (!key[ALLEGRO_KEY_ESCAPE])
-               {
-                  proc_controllers();
-                  for (int t=0; t<8; t++) move_lifts(1);               // move lifts for 8 frames
-                  draw_big(1);                                             // update the map bitmap
-                  show_big();                                              // show the map
-                  highlight_current_lift(lift);                            // highlight current lift
-                  draw_steps(step_ty, lift, lifts[lift].current_step, -1); // show lift steps
-                  al_flip_display();
-               }
-               while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers(); // wait for release
-               lift_setup(); // reset all lifts to step 0
-            }
-            break;
-         } // end if switch (mb)
-      } // end of if (mb)
-
-      proc_controllers();
-      al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
-
    } // end of while !quit
    lift_setup();
    draw_big(1);
