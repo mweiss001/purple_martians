@@ -23,6 +23,13 @@
 #define NUM_LIFTS 40
 
 
+#define PM_LIFT_NO_DRAW          0b00000001
+#define PM_LIFT_SOLID_PLAYERS    0b00000010
+#define PM_LIFT_SOLID_ENEMY      0b00000100
+#define PM_LIFT_SOLID_ITEM       0b00001000
+
+
+
 #define PM_BTILE_MOST_FLAGS        0b00111111111111110000000000000000
 #define PM_BTILE_ALL_FLAGS         0b01111111111111110000000000000000
 #define PM_BTILE_ALL_SOLID         0b00000000000111110000000000000000
@@ -1067,7 +1074,7 @@ void erase_lift(int lift);
 void delete_lift_step(int lift, int step);
 void lift_setup(void);
 void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int rc);
-void draw_steps(int step_ty, int lift, int current_step, int highlight_step);
+int draw_steps(int step_ty, int lift, int current_step, int highlight_step);
 void highlight_current_lift(int lift);
 int create_lift(void);
 void move_lift_step(int lift, int step);
@@ -1078,7 +1085,7 @@ void insert_steps_until_quit(int lift, int step);
 void step_popup_menu(int lift, int step);
 void set_bts(int lift);
 void redraw_lift_viewer(int lift, int step);
-int lift_editor(int lift);
+int lift_viewer(int lift);
 
 // e_pde.h
 int load_PDE();

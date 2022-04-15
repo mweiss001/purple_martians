@@ -600,9 +600,8 @@ void menu_setup(void)
    strcpy (lift_step_type_name[1], "Move");
    strcpy (lift_step_type_name[2], "Wait");
    strcpy (lift_step_type_name[3], "Prox");
-   strcpy (lift_step_type_name[4], "Loop0");
-   strcpy (lift_step_type_name[6], "Warp0");
-   strcpy (lift_step_type_name[6], "Resize");
+   strcpy (lift_step_type_name[4], "End");
+   strcpy (lift_step_type_name[5], "Trig");
 
 
    strcpy (item_name[0], "item_empty");
@@ -1267,7 +1266,7 @@ void edit_server_name(void)
 }
 
 
-int edit_lift_name(int lift, int step_ty, int bts, char *fst)
+int edit_lift_name(int lift, int y1, int x1, char *fst)
 {
    int cursor_pos=0;
    int old_cp=0;
@@ -1278,38 +1277,29 @@ int edit_lift_name(int lift, int step_ty, int bts, char *fst)
    while (1)
    {
       al_flip_display();
-      //al_clear_to_color(al_map_rgb(0,0,0));
-      al_rest(.1);
+      al_rest(0.05);
 
-      int x1 = (SCREEN_H/100)*100+22;
       int x2 = x1 + (lifts[lift].width) -1;
-      int y1 = step_ty + (lifts[lift].num_steps+3) * bts; // only see in 2 highest screen modes
       int y2 = y1 + (lifts[lift].height) -1;
-
       int tx = ((x1+x2)/2);
-      int ty = ((y1+y2)/2);
-      int w = (char_count+1) *4;
+      int ty = ((y1+y2)/2) - 3;
 
-      int rot = 0;
-//      if ((lifts[lift].width == 1) && (lifts[lift].height > 1)) rot = 64;
       int color = lifts[lift].color;
 
-      // clear text background
-      if (rot == 64) al_draw_filled_rectangle(tx-4, ty-w, tx+4, ty+w, palette_color[0]);
-      else           al_draw_filled_rectangle(tx-w, ty-4, tx+w, ty+4, palette_color[0]);
-
+      // draw updated lift
       for (a=0; a<10; a++)
-         al_draw_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color + ((9 - a)*16)], 1 );
+        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[color + ((9 - a)*16)], 2 );
       al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
-      rtextout_centre(NULL, fst, tx, ty+1, color+160, 1, rot, 1);
+      al_draw_text(font, palette_color[color+160], tx, ty, ALLEGRO_ALIGN_CENTRE, fst);
 
-      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty-3, 15, 0, rot);
-      else show_cursor(fst, cursor_pos, tx, ty-3, 15, 1, rot);
+
+      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty, 15, 0, 0);
+      else show_cursor(fst, cursor_pos, tx, ty, 15, 1, 0);
       if (blink_counter> blink_count*2) blink_counter = 0;
 
       if (cursor_pos != old_cp)
       {
-         show_cursor(fst, old_cp, tx, ty-3, 15, 1, rot); // erase old blinking cursor if moved
+         show_cursor(fst, old_cp, tx, ty, 15, 1, 0); // erase old blinking cursor if moved
          old_cp = cursor_pos;
          blink_counter = 0;
       }
@@ -1358,8 +1348,16 @@ int edit_lift_name(int lift, int step_ty, int bts, char *fst)
          // set last to NULL
          fst[char_count] = (char)NULL;
       }
-      if (key[ALLEGRO_KEY_ENTER]) return 1;
-      if (key[ALLEGRO_KEY_ESCAPE]) return 0;
+      if (key[ALLEGRO_KEY_ENTER])
+      {
+         while (key[ALLEGRO_KEY_ENTER]) proc_controllers();
+         return 1;
+      }
+      if (key[ALLEGRO_KEY_ESCAPE])
+      {
+         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
+         return 0;
+      }
    }
 }
 

@@ -1241,7 +1241,7 @@ void object_viewer(int obt, int num)
 
       if (obt == 4) // lift
       {
-         ret = lift_editor(num); // run lift viewer and stay there until quit or object changes
+         ret = lift_viewer(num); // run lift viewer and stay there until quit or object changes
          if ((ret >= 2000) && (ret < 2500)) // obj changed to item
          {
             num = ret-2000;
