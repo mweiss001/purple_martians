@@ -191,6 +191,11 @@ int swbl[NUM_SPRITES][2];
 int show_non_default_blocks = 0;
 int show_flag_details = 1;
 
+int autoload_bookmark = 0;
+int bookmark_level = 0;
+int bookmark_obj = 0;
+int bookmark_num = 0;
+
 
 
 int select_window_block_y;

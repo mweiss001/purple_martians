@@ -1231,6 +1231,49 @@ void object_viewer(int obt, int num)
    int a;
    while (!quit)
    {
+
+      if (key[ALLEGRO_KEY_B])
+      {
+         while (key[ALLEGRO_KEY_B]) proc_controllers();
+         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         {
+            printf("save bookmark\n");
+            bookmark_level = last_level_loaded;
+            bookmark_obj = obt;
+            bookmark_num = num;
+            save_config();
+         }
+         else
+         {
+            printf("load bookmark\n");
+            if (bookmark_level == last_level_loaded)
+            {
+                if ((bookmark_obj == 2) && (item[bookmark_num]))
+                {
+                   obt = 2;
+                   num = bookmark_num;
+                }
+                if ((bookmark_obj == 3) && (Ei[bookmark_num]))
+                {
+                   obt = 3;
+                   num = bookmark_num;
+                }
+                if ((bookmark_obj == 4) && (bookmark_num < num_lifts))
+                {
+                   obt = 4;
+                   num = bookmark_num;
+                }
+            }
+         }
+      }
+
+
+
+
+
+
+
+
       // button x position
       int xa = SCREEN_W-(SCREEN_W-(db*100))+1;
       int xb = SCREEN_W-3;

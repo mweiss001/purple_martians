@@ -16,6 +16,14 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
    lifts[l].current_step = 0;
    lifts[l].limit_type = 0;
    lifts[l].limit_counter = 0;
+
+   lifts[l].flags = 0;
+   lifts[l].flags |= PM_LIFT_SOLID_PLAYER;
+   lifts[l].flags |= PM_LIFT_SOLID_ENEMY;
+   lifts[l].flags |= PM_LIFT_SOLID_ITEM;
+
+
+
    return 1;
 }
 
@@ -98,33 +106,36 @@ int is_player_riding_lift(int l)
 
 void draw_lift_lines()
 {
-   for (int x=0; x<num_lifts; x++)  // cycle lifts
+   for (int l=0; l<num_lifts; l++)  // cycle lifts
    {
-      int col = lifts[x].color+128;
-      int sx = lift_steps[x][0].x + lift_steps[x][0].w / 2;  // start pos
-      int sy = lift_steps[x][0].y + lift_steps[x][0].h / 2;
-      int px = sx; // previous
-      int py = sy;
-      int nx = 0;  // next
-      int ny = 0;
-      al_set_target_bitmap(level_background);
-      if (lifts[x].num_steps > 1) // only draw lines if more than one step
+      if (!(lifts[l].flags & PM_LIFT_NO_DRAW))
       {
-         for (int y=0; y<lifts[x].num_steps; y++) // cycle steps
+         int col = lifts[l].color+128;
+         int sx = lift_steps[l][0].x + lift_steps[l][0].w / 2;  // start pos
+         int sy = lift_steps[l][0].y + lift_steps[l][0].h / 2;
+         int px = sx; // previous
+         int py = sy;
+         int nx = 0;  // next
+         int ny = 0;
+         al_set_target_bitmap(level_background);
+         if (lifts[l].num_steps > 1) // only draw lines if more than one step
          {
-            if (lift_steps[x][y].type == 1) // filter for move steps
+            for (int s=0; s<lifts[l].num_steps; s++) // cycle steps
             {
-               nx = lift_steps[x][y].x + lift_steps[x][y].w / 2;
-               ny = lift_steps[x][y].y + lift_steps[x][y].h / 2;
+               if (lift_steps[l][s].type == 1) // filter for move steps
+               {
+                  nx = lift_steps[l][s].x + lift_steps[l][s].w / 2;
+                  ny = lift_steps[l][s].y + lift_steps[l][s].h / 2;
 
-               al_draw_line( px, py, nx, ny, palette_color[col], 1);
-               for (int c=3; c>=0; c--)
-                  al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
-               px = nx;
-               py = ny;
+                  al_draw_line( px, py, nx, ny, palette_color[col], 1);
+                  for (int c=3; c>=0; c--)
+                     al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
+                  px = nx;
+                  py = ny;
+               }
             }
+            al_draw_line(sx, sy, nx, ny, palette_color[col], 1); // draw line from last to first
          }
-         al_draw_line(sx, sy, nx, ny, palette_color[col], 1); // draw line from last to first
       }
    }
 }
@@ -150,54 +161,57 @@ void draw_lifts()
    al_set_target_bitmap(level_buffer);
    for (int l=0; l<num_lifts; l++)
    {
-      int x1 = lifts[l].x1;
-      int x2 = lifts[l].x2;
-      int y1 = lifts[l].y1;
-      int y2 = lifts[l].y2;
-      int color = lifts[l].color;
-
-      draw_lift(l, x1, y1, x2, y2);
-
-      // show if player is riding this lift
-      int p = is_player_riding_lift(l);
-      if (p)
+      if (!(lifts[l].flags & PM_LIFT_NO_DRAW))
       {
-         p -=1; // player number
-         int pc = players[p].color;
-         if (pc == color) pc = 127;
-         al_draw_rounded_rectangle(x1, y1, x2, y2, 4, 4, palette_color[pc], 2);
-      }
+         int x1 = lifts[l].x1;
+         int x2 = lifts[l].x2;
+         int y1 = lifts[l].y1;
+         int y2 = lifts[l].y2;
+         int color = lifts[l].color;
 
-      if ((lifts[l].mode == 1) && (!is_player_riding_lift(l)))
-      {
-         // check if stuck on step 0 and haven't moved yet
-         if (!((lifts[l].current_step == 0) && (lifts[l].x1 == lift_steps[l][0].x) && (lifts[l].y1 == lift_steps[l][0].y)))
+         draw_lift(l, x1, y1, x2, y2);
+
+         // show if player is riding this lift
+         int p = is_player_riding_lift(l);
+         if (p)
          {
-            int percent = (100 * lifts[l].val1) / lifts[l].val2;
-
-            int lw = lifts[l].width-10;
-            int lh = lifts[l].height-10;
-
-            draw_percent_bar((x1+x2)/2, y1+4, lw, lh, percent);
+            p -=1; // player number
+            int pc = players[p].color;
+            if (pc == color) pc = 127;
+            al_draw_rounded_rectangle(x1, y1, x2, y2, 4, 4, palette_color[pc], 2);
          }
-      }
 
-      switch (lifts[l].limit_type) // limit type
-      {
-         case 2: // timer wait
-            if (lifts[l].limit_counter > 0)
-               al_draw_textf(font, palette_color[color+64], (x1 + x2)/2 + 2, lifts[l].y1 - 8, ALLEGRO_ALIGN_CENTRE, "%d", lifts[l].limit_counter);
-         break;
-         case 3: // prox wait
+         if ((lifts[l].mode == 1) && (!is_player_riding_lift(l)))
          {
-            int pd = lifts[l].limit_counter; // prox dist
-            int bx1 = x1 - pd;
-            int by1 = y1 - pd;
-            int bx2 = x2 + pd;
-            int by2 = y2 + pd;
-            al_draw_rectangle(bx1+10, by1+10, bx2-10, by2-10, palette_color[color+128], 1);
+            // check if stuck on step 0 and haven't moved yet
+            if (!((lifts[l].current_step == 0) && (lifts[l].x1 == lift_steps[l][0].x) && (lifts[l].y1 == lift_steps[l][0].y)))
+            {
+               int percent = (100 * lifts[l].val1) / lifts[l].val2;
+
+               int lw = lifts[l].width-10;
+               int lh = lifts[l].height-10;
+
+               draw_percent_bar((x1+x2)/2, y1+4, lw, lh, percent);
+            }
          }
-         break;
+
+         switch (lifts[l].limit_type) // limit type
+         {
+            case 2: // timer wait
+               if (lifts[l].limit_counter > 0)
+                  al_draw_textf(font, palette_color[color+64], (x1 + x2)/2 + 2, lifts[l].y1 - 8, ALLEGRO_ALIGN_CENTRE, "%d", lifts[l].limit_counter);
+            break;
+            case 3: // prox wait
+            {
+               int pd = lifts[l].limit_counter; // prox dist
+               int bx1 = x1 - pd;
+               int by1 = y1 - pd;
+               int bx2 = x2 + pd;
+               int by2 = y2 + pd;
+               al_draw_rectangle(bx1+10, by1+10, bx2-10, by2-10, palette_color[color+128], 1);
+            }
+            break;
+         }
       }
    }  // end of iterate lifts
 }
@@ -392,33 +406,10 @@ void move_lifts(int ignore_prox)
          }
       } // end of next step
 
-
-
-
-
-   // clear events
-   for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
-      if (lift_steps[l][s].type == 5)       // trigger mode
+   // clear events referenced by this lift
+   for (int s=0; s<lifts[l].num_steps; s++)  // iterate steps
+      if (lift_steps[l][s].type == 5)        // trigger mode
          pm_event[lift_steps[l][s].val] = 0; // clear trigger event
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
    } // end of lift iterate
 }

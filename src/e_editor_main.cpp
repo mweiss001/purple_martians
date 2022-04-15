@@ -575,8 +575,16 @@ int edit_menu(int el)
 
    int draw_item_blink = 0;
 
-
-
+   if (autoload_bookmark)
+   {
+      printf("load bookmark\n");
+      if (bookmark_level == last_level_loaded)
+      {
+         if ((bookmark_obj == 2) && (item[bookmark_num]))       object_viewer(2, bookmark_num);
+         if ((bookmark_obj == 3) && (Ei[bookmark_num]))         object_viewer(3, bookmark_num);
+         if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) object_viewer(4, bookmark_num);
+      }
+   }
 
 
 
@@ -858,6 +866,24 @@ int edit_menu(int el)
             break;
          } // end of switch case
       } // end of put draw item
+
+
+
+
+      if (key[ALLEGRO_KEY_B])
+      {
+         while (key[ALLEGRO_KEY_B]) proc_controllers();
+         printf("load bookmark\n");
+         if (bookmark_level == last_level_loaded)
+         {
+            if ((bookmark_obj == 2) && (item[bookmark_num]))       object_viewer(2, bookmark_num);
+            if ((bookmark_obj == 3) && (Ei[bookmark_num]))         object_viewer(3, bookmark_num);
+            if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) object_viewer(4, bookmark_num);
+         }
+      }
+
+
+
 
       if (key[ALLEGRO_KEY_L])
       {
