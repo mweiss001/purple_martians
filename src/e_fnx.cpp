@@ -684,15 +684,36 @@ void find_and_show_event_links(int i) // assume for now that this just gets call
 
 int get_trigger_item(const char *txt, int obj_type, int sub_type, int num )
 {
-   int itx, ity, dx, dy;
+   int dx, dy, itx, ity;
+   int x2 = 0;
+   int y2 = 0;
    int mouse_on_item = 0;
    int quit = 0;
    int ret_item = -1;
 
    while (mouse_b1) proc_controllers();      // wait for release
 
-   int x2 = item[num][4]/20; // get the original item position
-   int y2 = item[num][5]/20;
+   if (obj_type == 2)
+   {
+      x2 = item[num][4]/20; // get the original item position
+      y2 = item[num][5]/20;
+   }
+
+   if (obj_type == 4)
+   {
+      int lift = sub_type;
+      int step = num;
+
+      step = lift_find_previous_move_step(lift, step); // searches back from passed step until a move step is found
+
+      //printf("obt4 l:%d s:%d \n", sub_type, num);
+
+
+      x2 = lift_steps[lift][step].x / 20; // get the original item position
+      y2 = lift_steps[lift][step].y / 20; // get the original item position
+   }
+
+
 
    while(!quit)
    {

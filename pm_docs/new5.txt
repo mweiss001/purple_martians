@@ -19233,83 +19233,7 @@ I think that this is too much for the limited variable that I have...
 If I want to manipulate width and height at the same time as x and y I will need 4 more fixed in the main and 2 more for each step...
 
 
-I could do my own kind of fixed by multipying a shifting a regular int...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+I could do my own kind of fixed by multipying a shifting a regular int...no
 
 
 ------------------------------------------------------------------------------------------------------------------
@@ -20051,7 +19975,7 @@ C:\pm>
 divide by zero did not seem to cause issues, but I made a check to avoid it anyway.
 
 while doing that I stubled across a method to use val as straight time, if there is not x y move
-then there can be a staionary resize that does not happen immediately...
+then there can be a stationary resize that does not happen immediately...
 
 if there is no xy move and no resize, the step will do nothing while the timer runs...
 
@@ -20359,6 +20283,338 @@ void draw_item_info(int x, int y, int color, int type, int num)
          al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%s", PDEt[num][1]);
       break;
    }
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------
+
+20220415 3:48AM
+
+
+I have a block of uninterrupted time.
+I am going to try to finish polishing up lift viewer
+Then I am going to implement more of my lift improvements...
+
+To start with...
+
+finish list of steps with header...
+
+why does the highlight and mouse_pointer and chosen current step not line up since I added header row?
+
+when I draw steps, i use -1 for the header row
+
+I pass ysb to draw_steps
+
+I draw the frame at y1 = ysb
+
+the buttons start at ya (ysb+fs) // frame size = 14
+
+I draw the row header at ya + (a*bts) a = 0;
+
+i draw step button 0 at  ya + (a*bts) a = 1;
+
+
+so back in lift viewer I calculate the mouse highlight step with:
+
+if ((mouse_x > xa + 10) && (mouse_x < xb - 10))         // mouse on step buttons
+{
+   int step0_y_offset = ysb + 14 + bts;
+   int step = (mouse_y step0_y_offset) / bts;           // calculate step that mouse is on
+   if ((step >= 0) && (step < lifts[lift].num_steps))   // is step valid
+
+
+
+this works...i have a few tweaks...
+
+step -1 draws....
+
+because -1 marks a not valid highlight selection....fixed to -99
+
+lower the bottom of the inside of frame by 2 pix...done
+make the highlight not spill outside the button so much...done
+
+that looks great..
+
+now finish the row header...done
+looks great
+
+fix names of sliders to remove step# done...
+
+move all lift related buttons and slider numbers to 500-599
+
+buttons:500-549
+
+   if (bn == 500) // lift mode
+   if (bn == 501)
+   if (bn == 502)
+   if (bn == 503) sprintf(smsg, "Parameters");    // show row header
+
+504   29 lift name
+
+505   74 end step...
+
+
+
+sliders:550-599
+
+550   if (bn == 72) sprintf(smsg, "Timer:%-3d",lift_steps[type][num].val);
+551   if (bn == 73) sprintf(smsg, "Distance:%-3d",lift_steps[type][num].val);
+552   if (bn == 105) sprintf(smsg, "Speed:%d", lift_steps[type][num].val); // lift step resize time
+553   if (bn == 106) sprintf(smsg, "Width:%d", lift_steps[type][num].w); // lift step resize time
+554   if (bn == 107) sprintf(smsg, "Height:%d", lift_steps[type][num].h); // lift step resize time
+done
+
+fix name edit location and draw mode...done
+
+now can I finally move on to making new stuff?
+
+6:00AM
+
+I just looked back in the notes for other things I wanted to add.
+
+
+- option to make the lift invisible (probably use a flag)
+- option to make the lift affect things differently
+- player, enemies, items
+- maybe even direction to (like an option to make the lift only raise the player, not push sideways or down)
+
+
+
+- better indication of when it will disappear...did a nicer progress bar...good for now
+
+- set the time the player can be away before reset in mode 1
+val1 runs the counter
+val2 sets the counter
+make a slider...all done
+
+
+bug --- when in mode 1, when moving to original step 0, step is actually 0 and the reset away timer does not activate
+right now it looks for step>0...how about step != 1
+
+does this break the shit where step 1 should be prox?
+now step 1 while moving does not reset...
+
+I should just ignore that and let the timer reset..that works...
+I just need a way to hide the reset indicator when sittin at step 0 not moved..done
+
+
+
+- new step wait on external trigger
+type 5 - wait trig
+x,y,w,h - not used
+val - trigger event
+
+lifts[lift].limit_type = 5; // wait trigger
+lifts[lift].limit_counter;  // event number
+
+case 5: // trigger wait
+   if (pm_event[lifts[l].limit_counter]) next_step = 1;
+   pm_event[lifts[l].limit_counter] = 0; // clear the trigger
+break;
+
+case 5: // wait trig
+   lifts[l].limit_type = 5; // wait trig
+   lifts[l].limit_counter = lift_steps[l][step].val;
+break;
+
+
+
+      jh++;
+      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Time", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 0, 0, 100, 2);
+      jh++;
+      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Prox", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 0, 0, 80, 3);
+      jh++;
+      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Trig", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 0, 0,  0, 5);
+      jh++;
+      if (draw_and_process_button(txc, stys+(jh*12), "Done", c1, c2, 1)) quit = 99;
+
+
+   if (bn == 502)
+   {
+      if (num == -1) sprintf(smsg, "Type");  // show row header
+      if (num == 1)  sprintf(smsg, "Move and Resize");
+      if (num == 2)  sprintf(smsg, "Wait for Timer");
+      if (num == 3)  sprintf(smsg, "Wait for Player");
+      if (num == 4)  sprintf(smsg, "End Step");
+      if (num == 5)  sprintf(smsg, "Wait for Trigger");
+   }
+
+
+added slider 556 for event trigger
+
+added to list of steps and step details
+
+holy shit it works!!! that was so easy to do..
+
+rather than manually setting event, how do I do it in other cases?...
+
+
+   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 320,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a+=2; // set trigger
+      if (bn == 320)
+      {
+
+         int i = get_trigger_item("Select A Trigger To Link To", 2, item[num][0], num );
+         if (i > -1)
+         {
+            int ev = get_unused_pm_event();
+            item[num][1] = ev;
+
+            if (item[num][0] == 16) // block manip
+            {
+               if (item[num][3] == 3) // mode 3 - toggle blocks
+               {
+                  item[i][11] = 0;
+                  item[i][12] = 0;
+                  item[i][13] = ev;  // needs a toggle trigger
+                  item[i][14] = 0;
+               }
+               else
+               {
+                  item[i][11] = ev;  // regular trigger
+                  item[i][12] = 0;
+                  item[i][13] = 0;
+                  item[i][14] = 0;
+               }
+            }
+
+            if (item[num][0] == 17) // block damage
+            {
+               if (item[num][11] == 1) // mode 1 - toggle damage
+               {
+                  item[i][11] = 0;
+                  item[i][12] = 0;
+                  item[i][13] = ev;  // needs a toggle trigger
+                  item[i][14] = 0;
+               }
+               else
+               {
+                  item[i][11] = ev;  // regular trigger
+                  item[i][12] = 0;
+                  item[i][13] = 0;
+                  item[i][14] = 0;
+               }
+            }
+
+
+         }
+         Redraw = 1;
+      }
+
+
+make my own button
+
+
+
+when I call button i pass bn, lift, step
+
+button calls them num and type then passes them to:
+fill_smsg_button(bn, obt, type, num);
+
+
+then I call
+int i = get_trigger_item("Select A Trigger To Link To", 4, type, num );
+
+int get_trigger_item(const char *txt, int obj_type, int sub_type, int num )
+
+so num = step and st=lift
+
+this is so confusing!!!
+
+num should always be the index to the obj(item, enemy, lift)...
+the second number can be whatever else...
+num should alway come right after the button num...
+
+
+the whole trigger lift thing works great...
+by default, if event trigger is zero it is skipped??
+I think all trigger item set 0 every frame.....
+
+it looks like it is one pixel bigger when waiting for trigger??
+fixed....
+
+so all the trigger stuff working great....
+
+- option to make the lift invisible (probably use a flag)
+- option to make the lift affect things differently
+- player, enemies, items
+- maybe even direction to (like an option to make the lift only raise the player, not push sideways or down)
+
+implement some flags...
+
+#define PM_LIFT_NO_DRAW          0b00000001
+#define PM_LIFT_SOLID_PLAYERS    0b00000010
+#define PM_LIFT_SOLID_ENEMY      0b00000100
+#define PM_LIFT_SOLID_ITEM       0b00001000
+
+
+make items that follow lift also able to take the exact size of the lift
+
+
+
+
+make a level about running down a hall way and getting smashed by lifts from above
+
+
+bug with triggers....
+
+if the lift is not in the right step to detect the trigger, it will wait until it is...
+I want to erase unused triggers from other steps
+
+
+at the end of move lift,
+cycle step and clear mentioned events...done
+
+make pop up menu for new steps, one step bigger...done
+
+
+this is so awesome!....make new levels
+
+
+20220415 10:00 AM push
+
+
+Redid much of the lifts code, increased size of lifts and lift steps
+Implemented many new features for lifts, like resizing, triggers, reset when player not riding
+Many improvemnts to the lift viewer in level editor
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

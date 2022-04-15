@@ -81,6 +81,18 @@ val
 1 warp to step 0
 2 stay here forever
 ------------------------------------------------------------------------
+type 5 - wait trig
+x,y,w,h - not used
+val - trigger event
+------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 
 
 ------------------------------------------------------------------------
@@ -94,7 +106,6 @@ val determines what happens from there
 In between the first and last step can be any arrangement of other steps
 ------------------------------------------------------------------------
 
-
 lifts[lift].limit_type = 2; // wait time
 lifts[lift].limit_counter;  // counts down to 0
 
@@ -104,16 +115,17 @@ lifts[lift].limit_counter;  // proximity distance
 lifts[lift].limit_type = 4; // move and resize timer
 lifts[lift].limit_counter;  // counts down to 0
 
+lifts[lift].limit_type = 5; // wait trigger
+lifts[lift].limit_counter;  // event number
 
-
-
+------------------------------------------------------------------------
+lift modes
+------------------------------------------------------------------------
 lifts[lift].mode = 0; // default...normal
+
 lifts[lift].mode = 1; // prox run and reset
-
-
-
-
-
+lifts[lift].val1 = countdown timer
+lifts[lift].val2 = reset value
 
 
 

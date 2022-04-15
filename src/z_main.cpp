@@ -1367,6 +1367,11 @@ int main(int argument_count, char **argument_array)
 //            fast_exit(0);
 
 
+//   al_show_mouse_cursor(display);
+//   load_level(start_level, 0);
+//   lift_viewer(4);
+
+
 
       if (argument_count == 2) // example 'pmwin arg1'
       {
