@@ -1237,6 +1237,32 @@ void fill_smsg_button(int bn, int obt, int type, int num)
       if (lift_steps[type][num].val == 2) sprintf(smsg, "Freeze Here  ");
    }
 
+
+
+
+
+   if (bn == 510)
+   {
+      if (lifts[num].flags & PM_LIFT_NO_DRAW)   sprintf(smsg, "Draw Lift");
+      else                                      sprintf(smsg, "Hide Lift");
+   }
+   if (bn == 511)
+   {
+      if (lifts[num].flags & PM_LIFT_SOLID_PLAYER) sprintf(smsg, "Solid for Player:ON ");
+      else                                         sprintf(smsg, "Solid for Player:OFF");
+   }
+   if (bn == 512)
+   {
+      if (lifts[num].flags & PM_LIFT_SOLID_ENEMY)  sprintf(smsg, "Solid for Enemy:ON  ");
+      else                                         sprintf(smsg, "Solid for Enemy:OFF ");
+   }
+   if (bn == 513)
+   {
+      if (lifts[num].flags & PM_LIFT_SOLID_ITEM)   sprintf(smsg, "Solid for Item:ON   ");
+      else                                         sprintf(smsg, "Solid for Item:OFF  ");
+   }
+
+
    if (bn == 520) sprintf(smsg, "Set Event Trigger (%d)", lift_steps[type][num].val);
 
 
@@ -2048,6 +2074,15 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
       if (bn == 500) if (++lifts[num].mode > 1) lifts[num].mode = 0; // lift mode
       if (bn == 504) return 1; // edit lift name
       if (bn == 505) if (++lift_steps[type][num].val > 2) lift_steps[type][num].val = 0; // lift step end step mode
+
+
+      if (bn == 510) lifts[num].flags ^= PM_LIFT_NO_DRAW;
+      if (bn == 511) lifts[num].flags ^= PM_LIFT_SOLID_PLAYER;
+      if (bn == 512) lifts[num].flags ^= PM_LIFT_SOLID_ENEMY;
+      if (bn == 513) lifts[num].flags ^= PM_LIFT_SOLID_ITEM;
+
+
+
 
 
       if (bn == 520)

@@ -639,6 +639,14 @@ int lift_viewer(int lift)
           }
 
 
+          mdw_button(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2, 510, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift draw on/off
+          mdw_button(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2, 511, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift solid player on/off
+          mdw_button(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2, 512, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift solid enemy on/off
+          mdw_button(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2, 513, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift solid item on/off
+
+
+
+
 
           mdw_colsel(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2,  4,  lift, 0, 0, 0, 15, 13, 14, 0,0,0,0); a++;     // lift color
       if (mdw_button(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2, 504, lift, 0, 0, 0,  4, 15,  0, 1,0,0,0)) mb = 26; // lift name
@@ -858,6 +866,49 @@ int lift_viewer(int lift)
             }
          }
       } // end of mouse on map
+
+
+      if (key[ALLEGRO_KEY_B])
+      {
+         while (key[ALLEGRO_KEY_B]) proc_controllers();
+         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         {
+            printf("save bookmark\n");
+            bookmark_level = last_level_loaded;
+            bookmark_obj = 4;
+            bookmark_num = lift;
+            save_config();
+         }
+         else
+         {
+            printf("load bookmark\n");
+            if (bookmark_level == last_level_loaded)
+            {
+               if ((bookmark_obj == 2) && (item[bookmark_num]))
+               {
+                  ret = 2000 + bookmark_num;
+                  quit = 1;
+               }
+               if ((bookmark_obj == 3) && (Ei[bookmark_num]))
+               {
+                  ret = 1000 + bookmark_num;
+                  quit = 1;
+               }
+               if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) lift = bookmark_num;
+            }
+         }
+      }
+
+
+
+
+
+
+
+
+
+
+
    } // end of while !quit
    lift_setup();
    draw_big(1);

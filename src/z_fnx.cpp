@@ -785,14 +785,15 @@ int is_right_solid(int solid_x, int solid_y, int lift_check, int type)
    int a = solid_y % 20;
 
    if (lift_check)
-      for (int d = 0; d<num_lifts; d++)
-
+      for (int d=0; d<num_lifts; d++)
+         if ( ((type == 1) && (lifts[d].flags & PM_LIFT_SOLID_PLAYER)) ||
+              ((type == 2) && (lifts[d].flags & PM_LIFT_SOLID_ENEMY )) ||
+              ((type == 3) && (lifts[d].flags & PM_LIFT_SOLID_ITEM  )) )
          if (solid_y > lifts[d].y1 - 18)
             if (solid_y < lifts[d].y2 - 2)
                if (solid_x < lifts[d].x1 - 8)
                   if (solid_x > lifts[d].x1 - 18)
                      return 32+d;
-
    if (a > 16)  // next block only
       if (is_solid( -1, l[xx][cc], type)) return 1;
 
@@ -805,9 +806,6 @@ int is_right_solid(int solid_x, int solid_y, int lift_check, int type)
    return 0;
 }
 
-
-
-
 // returns 1 for solid block, 32+lift_num for lift
 int is_left_solid(int solid_x, int solid_y, int lift_check, int type)
 {
@@ -817,6 +815,9 @@ int is_left_solid(int solid_x, int solid_y, int lift_check, int type)
    int a = solid_y % 20;
    if (lift_check)
       for (int d = 0; d<num_lifts; d++)
+         if ( ((type == 1) && (lifts[d].flags & PM_LIFT_SOLID_PLAYER)) ||
+              ((type == 2) && (lifts[d].flags & PM_LIFT_SOLID_ENEMY )) ||
+              ((type == 3) && (lifts[d].flags & PM_LIFT_SOLID_ITEM  )) )
          if (solid_y > lifts[d].y1 - 18)
             if (solid_y < lifts[d].y2 - 2)
                if (solid_x < lifts[d].x2 + 2)
@@ -843,7 +844,10 @@ int is_down_solid(int solid_x, int solid_y, int lift_check, int type)
    int xx = solid_x / 20 + 1;
    int a = solid_x % 20;
    if (lift_check)
-      for (int d = 0; d<num_lifts; d++)
+      for (int d=0; d<num_lifts; d++)
+         if ( ((type == 1) && (lifts[d].flags & PM_LIFT_SOLID_PLAYER)) ||
+              ((type == 2) && (lifts[d].flags & PM_LIFT_SOLID_ENEMY )) ||
+              ((type == 3) && (lifts[d].flags & PM_LIFT_SOLID_ITEM  )) )
             if (solid_x > lifts[d].x1-18)
                if (solid_x < lifts[d].x2-2)
                   if (solid_y > lifts[d].y1 - 25)
@@ -861,9 +865,6 @@ int is_down_solid(int solid_x, int solid_y, int lift_check, int type)
    return 0;
 }
 
-
-
-
 // returns 1 for solid block, 32+lift_num for lift
 int is_up_solid(int solid_x, int solid_y, int lift_check, int type)
 {
@@ -874,6 +875,9 @@ int is_up_solid(int solid_x, int solid_y, int lift_check, int type)
 
    if (lift_check)
       for (int d = 0; d<num_lifts; d++)
+         if ( ((type == 1) && (lifts[d].flags & PM_LIFT_SOLID_PLAYER)) ||
+              ((type == 2) && (lifts[d].flags & PM_LIFT_SOLID_ENEMY )) ||
+              ((type == 3) && (lifts[d].flags & PM_LIFT_SOLID_ITEM  )) )
          if (solid_x > lifts[d].x1 - 18)
             if (solid_x < lifts[d].x2 - 2)
                if (solid_y < lifts[d].y2 + 2)

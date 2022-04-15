@@ -20582,7 +20582,279 @@ this is so awesome!....make new levels
 
 Redid much of the lifts code, increased size of lifts and lift steps
 Implemented many new features for lifts, like resizing, triggers, reset when player not riding
-Many improvemnts to the lift viewer in level editor
+Many improvements to the lift viewer in level editor
+
+make lift steps that can turn on and off the solid effects, change color, etc
+
+change color step!!
+
+
+
+make it so that level editor remembers where you were...
+like level, viewer and obj type
+save it in config file
+how about like a bookmark in level editor?
+B to load and SHIFT B to set...
+
+int bookmark_level = 0;
+int bookmark_obj = 0;
+int bookmark_num = 0;
+
+extern int bookmark_level;
+extern int bookmark_obj;
+extern int bookmark_num;
+
+added to save and load config
+
+
+
+
+where am I going to put this?
+
+
+in obt_viewer and lift viewer for the save...
+
+load in edit menu..
+
+
+
+   if (level_editor_running)
+   {
+      if (key[ALLEGRO_KEY_B])
+      {
+         while (key[ALLEGRO_KEY_B]) proc_controllers();
+
+
+         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         {
+            printf("save bookmark\n");
+
+            bookmark_level = last_level_loaded;
+            bookmark_level = last_level_loaded;
+
+
+
+            save_config();
+         }
+         else
+         {
+            printf("load bookmark\n");
+
+         }
+      }
+   }
+
+
+start with lift...
+added to lift viewer and it works...
+
+
+      if (key[ALLEGRO_KEY_B])
+      {
+         while (key[ALLEGRO_KEY_B]) proc_controllers();
+         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         {
+            printf("save bookmark\n");
+
+            bookmark_level = last_level_loaded;
+            bookmark_obj = 4;
+            bookmark_num = lift;
+            save_config();
+         }
+         else
+         {
+            printf("load bookmark\n");
+            if ((bookmark_level == last_level_loaded) && (bookmark_obj == 4) && (bookmark_num != lift))
+            {
+               if (bookmark_num < num_lifts) lift = bookmark_num;
+            }
+
+         }
+      }
+
+now edit menu:
+if (key[ALLEGRO_KEY_B])
+{
+   while (key[ALLEGRO_KEY_B]) proc_controllers();
+   printf("load bookmark\n");
+   if (bookmark_level == last_level_loaded)
+   {
+      if ((bookmark_obj == 2) && (item[bookmark_num]))       object_viewer(2, bookmark_num);
+      if ((bookmark_obj == 3) && (Ei[bookmark_num]))         object_viewer(3, bookmark_num);
+      if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) object_viewer(4, bookmark_num);
+   }
+}
+works...
+
+now obj viewer
+if (key[ALLEGRO_KEY_B])
+{
+   while (key[ALLEGRO_KEY_B]) proc_controllers();
+   if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+   {
+      printf("save bookmark\n");
+      bookmark_level = last_level_loaded;
+      bookmark_obj = obt;
+      bookmark_num = num;
+      save_config();
+   }
+   else
+   {
+      printf("load bookmark\n");
+      if (bookmark_level == last_level_loaded)
+      {
+          if ((bookmark_obj == 2) && (item[bookmark_num]))
+          {
+             obt = 2;
+             num = bookmark_num;
+          }
+          if ((bookmark_obj == 3) && (Ei[bookmark_num]))
+          {
+             obt = 3;
+             num = bookmark_num;
+          }
+          if ((bookmark_obj == 4) && (bookmark_num < num_lifts))
+          {
+             obt = 4;
+             num = bookmark_num;
+          }
+      }
+   }
+}
+works
+
+the only thing that doesn't work yet is lift_viewer to 2 or 3
+if (key[ALLEGRO_KEY_B])
+{
+   while (key[ALLEGRO_KEY_B]) proc_controllers();
+   if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+   {
+      printf("save bookmark\n");
+
+      bookmark_level = last_level_loaded;
+      bookmark_obj = 4;
+      bookmark_num = lift;
+      save_config();
+   }
+   else
+   {
+      printf("load bookmark\n");
+      if (bookmark_level == last_level_loaded)
+      {
+         if ((bookmark_obj == 2) && (item[bookmark_num]))
+         {
+            ret = 2000 + bookmark_num;
+            quit = 1;
+         }
+         if ((bookmark_obj == 3) && (Ei[bookmark_num]))
+         {
+            ret = 1000 + bookmark_num;
+            quit = 1;
+         }
+         if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) lift = bookmark_num;
+      }
+   }
+}
+now it does...
+
+to use:
+
+Save Bookmark of current viewer object
+when in any viewer, item, enemy, lift
+SHIFT B to save
+
+Load bookmark
+
+from any viewer or edit menu
+B to load...
+
+
+now to set up auto load....
+
+
+change color step!!
+
+flags
+1 line in draw:
+if (!(lifts[l].flags & PM_LIFT_NO_DRAW))
+
+make a button to toggle it...
+
+while we are at it make buttons to toggle all flags...
+
+hide works good...hide lift lines too....done
+maybe later make it its own toggle
+
+
+now see if I can patch in solids
+
+old:
+   if (lift_check)
+      for (int d=0; d<num_lifts; d++)
+         if (solid_x > lifts[d].x1-18)
+            if (solid_x < lifts[d].x2-2)
+               if (solid_y > lifts[d].y1 - 25)
+                  if (solid_y < lifts[d].y1 - 10)
+                      return d+32;
+
+
+new:
+   if (lift_check)
+      for (int d=0; d<num_lifts; d++)
+         if ( ((type == 1) && (lifts[d].flags & PM_LIFT_SOLID_PLAYER)) ||
+              ((type == 2) && (lifts[d].flags & PM_LIFT_SOLID_ENEMY )) ||
+              ((type == 3) && (lifts[d].flags & PM_LIFT_SOLID_ITEM  )) )
+            if (solid_x > lifts[d].x1-18)
+               if (solid_x < lifts[d].x2-2)
+                  if (solid_y > lifts[d].y1 - 25)
+                     if (solid_y < lifts[d].y1 - 10)
+                         return d+32;
+
+
+that was easy...
+
+now can I set these flags for each step??
+or I can have base flags, and steps can change them
+I would need a special step to do this...
+if steps change the flags in lift, there will be no way to go back to the original
+unless I do what I do for x, y, w, h in step 0...
+
+can I also encode flags in move steps? what about color? I only need 4 bits for color...
+
+
+
+I just broke all existing lifts...
+by default flags are all zero and none are solid
+
+what if I swap it around so zero is solid and 1 is passthrough?
+
+Or I could just glt it and change all existing....done
+
+now make it so that newly created one have those flags...done....
+
+push
+
+20220415 4:44 PM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

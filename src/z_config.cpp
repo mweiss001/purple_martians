@@ -232,8 +232,17 @@ void save_config(void)
       al_set_config_value(cfg, "LEVEL_EDITOR", "show_flag_details", msg);
 
 
+      sprintf(msg, "%d", autoload_bookmark);
+      al_set_config_value(cfg, "LEVEL_EDITOR", "autoload_bookmark", msg);
 
+      sprintf(msg, "%d", bookmark_level);
+      al_set_config_value(cfg, "LEVEL_EDITOR", "bookmark_level", msg);
 
+      sprintf(msg, "%d", bookmark_obj);
+      al_set_config_value(cfg, "LEVEL_EDITOR", "bookmark_obj", msg);
+
+      sprintf(msg, "%d", bookmark_num);
+      al_set_config_value(cfg, "LEVEL_EDITOR", "bookmark_num", msg);
 
 
    }
@@ -466,6 +475,23 @@ void get_config_values(void)
    val = al_get_config_value(cfg, "LEVEL_EDITOR", "show_flag_details");
    if (!val) show_flag_details = 0;
    else show_flag_details = atoi(val);
+
+   val = al_get_config_value(cfg, "LEVEL_EDITOR", "autoload_bookmark");
+   if (!val) autoload_bookmark = 0;
+   else autoload_bookmark = atoi(val);
+
+   val = al_get_config_value(cfg, "LEVEL_EDITOR", "bookmark_level");
+   if (!val) bookmark_level = 0;
+   else bookmark_level = atoi(val);
+
+   val = al_get_config_value(cfg, "LEVEL_EDITOR", "bookmark_obj");
+   if (!val) bookmark_obj = 0;
+   else bookmark_obj = atoi(val);
+
+   val = al_get_config_value(cfg, "LEVEL_EDITOR", "bookmark_num");
+   if (!val) bookmark_num = 0;
+   else bookmark_num = atoi(val);
+
 
 
    al_destroy_config(cfg);

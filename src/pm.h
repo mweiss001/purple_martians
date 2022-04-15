@@ -24,7 +24,7 @@
 
 
 #define PM_LIFT_NO_DRAW          0b00000001
-#define PM_LIFT_SOLID_PLAYERS    0b00000010
+#define PM_LIFT_SOLID_PLAYER     0b00000010
 #define PM_LIFT_SOLID_ENEMY      0b00000100
 #define PM_LIFT_SOLID_ITEM       0b00001000
 
@@ -353,6 +353,11 @@ extern int swnbl_cur;
 extern int swbl[NUM_SPRITES][2];
 extern int show_non_default_blocks;
 extern int show_flag_details;
+
+extern int autoload_bookmark;
+extern int bookmark_level;
+extern int bookmark_obj;
+extern int bookmark_num;
 
 
 

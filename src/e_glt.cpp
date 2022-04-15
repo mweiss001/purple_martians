@@ -1360,17 +1360,17 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 
 */
-
 /*
-
-      // make height and width 0-1999 from 0-99
+      // set flags for all lifts
       for (int l=0; l<num_lifts; l++)
       {
-         lifts[l].width *= 20;
-         lifts[l].height *= 20;
+         lifts[l].flags |= PM_LIFT_SOLID_PLAYER;
+         lifts[l].flags |= PM_LIFT_SOLID_ENEMY;
+         lifts[l].flags |= PM_LIFT_SOLID_ITEM;
       }
 
 */
+
 
 /*
 
@@ -1385,9 +1385,9 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
             }
          lifts[l].width = 0;
          lifts[l].height = 0;
-      }
-*/
+     }
 
+*/
       if (0)
       {
          save_level(le[x]);
