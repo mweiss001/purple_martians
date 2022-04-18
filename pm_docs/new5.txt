@@ -20836,6 +20836,133 @@ push
 
 20220415 4:44 PM
 
+damage range potential improvements
+make the player damage the amount and the retrigger time..
+time 1 would be every frame, etc...
+
+I really think I should encode the flags in every move step
+I could easily put 4 bits of color and flags in step type...
+
+
+how many bit should I reserve for step type?
+5-6 for 32-64
+
+color needs 4 bits for 16 colors
+
+i currently use 4 bits for flags..
+
+I have lots left over...
+
+lowest 5 for step type
+next 4 for color_name
+then remaining for flags
+
+
+
+
+when I do these with a move step, do they take effect at the end of the step
+or the start....I think the end...
+when I insert a step in between 2 others what step I copy?
+
+right click on step and choose copy from previous, copy from next.
+
+then alter what I want...
+
+make some funtions to extract what I need from step and put it in lift vars
+
+
+lift_step[l][s].type & 31 -- step type
+
+flags should be obvious like all other flags
+
+color should be the highest 4 bits...
+shift 28 to get it...
+
+how do I start implementing this?
+
+lets just do color...
+
+add color button to step type 1
+
+
+to start with add & 31 to all type checks...done for all of e_lifts and z_lifts
+
+next I should use glt to put color in all step type 1 ....
+
+how?
+
+take color and shift it 28 bits...
+combine with type...
+
+
+
+int temp = color << 28
+
+
+
+lift_step[l][s].type |= (color << 28)
+
+color = lift_step[l][s].type >> 28;
+
+
+this works:
+if ((lift_steps[lift][step].type & 31) == 1)
+
+this does not:
+if (lift_steps[lift][step].type & 31 == 1)
+
+
+this is how you set color:
+first you have to clear those 4 bits
+lift_steps[num][type].type &= 0b00001111111111111111111111111111; // clear old color
+
+then shift the 4 bits into place
+int cf = color << 28;
+
+lift_steps[num][type].type |= cf; // lift color
+
+
+this is how you have to extract color:
+col = (lift_steps[l][0].type >> 28) & 15;
+you cannot just do the shift because sign bits are inserted instead of zero's
+
+
+then I can put some flags in there too...
+
+first of all make the buttons to toggle flags
+
+the rest of the lift stuff should work, no matter how the extra flags are set...
+
+I should make the flags from the step, line up with the main lift flags...
+to make it easier to copy across...
+
+hell I could make flags and color do that... then all I would have to do is copy the flags
+
+across when a new move step happens...
+i could make the flags also do stuff when in wait type steps...why does it have to only be move steps?
+
+re-arranged flags
+
+#define PM_LIFT_COLOR_BITS       0b11110000000000000000000000000000
+#define PM_LIFT_NO_DRAW          0b00001000000000000000000000000000
+#define PM_LIFT_SOLID_PLAYER     0b00000100000000000000000000000000
+#define PM_LIFT_SOLID_ENEMY      0b00000010000000000000000000000000
+#define PM_LIFT_SOLID_ITEM       0b00000001000000000000000000000000
+
+re-do glt and put color and default flags in ALL steps, not just move steps...
+
+restore levels...
+iterate all valid lifts and steps
+mask off everthing except lowest 5 bits
+
+add color...
+add default solid flags
+
+
+
+
+
+
 
 
 

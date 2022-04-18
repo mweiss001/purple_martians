@@ -45,14 +45,13 @@ struct lift_step
 };
 
 
-
 lifts       :  5280 bytes
 lift_steps  : 38400 bytes
 
 num_lifts is used to keep track of how many lifts there are
 
 for (int l=0; l<num_lifts; l++) // iterate lifts
-      
+
 for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
 
 
@@ -85,13 +84,6 @@ type 5 - wait trig
 x,y,w,h - not used
 val - trigger event
 ------------------------------------------------------------------------
-
-
-
-
-
-
-
 
 
 

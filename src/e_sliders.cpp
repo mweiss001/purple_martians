@@ -2128,7 +2128,7 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
    if (bn == 5) sprintf(smsg, "Select Door Color");
    if (bn == 6) sprintf(smsg, "Select Trigger Field Color");
    if (bn == 7) sprintf(smsg, "Select Block Manip Field Color");
-
+   if (bn == 8) sprintf(smsg, "Select Lift Step Color");
    al_draw_text(font, palette_color[0], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
     // draw outline
@@ -2144,6 +2144,15 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
             if (bn == 2) item[num][8] = color;     // pop msg text color
             if (bn == 3) item[num][9] = color;     // pop msg frame color
             if (bn == 4) lifts[num].color = color; // lift color
+            if (bn == 8)
+            {
+              // printf("n:%d t:%d c:%d\n",num, type, color);
+               int cf = color << 28; // shift 4 bits of color into place
+               lift_steps[num][type].type &= 0b00001111111111111111111111111111; // clear old color
+               lift_steps[num][type].type |= cf; // merge color with type
+
+            }
+
             if (bn == 5)
             {
                item[num][6] = color;     // door color
