@@ -49,6 +49,30 @@ void clear_lift(int l)
 int construct_lift_step(int l, int s, int type, int x, int y, int w, int h, int val)
 {
    clear_lift_step(l, s);
+//   printf("type:%d\n", type);
+
+   if ((type > 0) && (type < 16)) // get flags and color from previous steps
+   {
+      int ps = 0;
+      if (type == 1) // find previous move step
+      {
+          ps = lift_find_previous_move_step(l, s);
+          type = lift_steps[l][ps].type;
+          val  = 20;
+          w    = lift_steps[l][ps].w;
+          h    = lift_steps[l][ps].h;
+      }
+      else // find any previous step
+      {
+         if (s == 0) ps = lifts[l].num_steps - 1; // if step 0 get last step
+         else ps = s - 1;
+
+         // get flags and color by masking off lower 5 bits of type
+         int cf = lift_steps[l][ps].type & 0b11111111111111111111111111100000;
+         type |= cf; // merge with type
+      }
+   }
+
    lift_steps[l][s].type = type;
    lift_steps[l][s].x    = x;
    lift_steps[l][s].y    = y;
@@ -156,6 +180,9 @@ void draw_lift_lines()
 void draw_lift(int l, int x1, int y1, int x2, int y2)
 {
    int col = (lifts[l].flags >> 28) & 15;
+
+   if ((lifts[l].flags & PM_LIFT_NO_DRAW) && (level_editor_running)) col = 0;
+
    int a;
    for (a=0; a<10; a++)
      al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[col + ((9 - a)*16)], 2 ); // faded outer shell

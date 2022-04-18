@@ -73,7 +73,7 @@ type 3 - wait prox
 x,y,w,h - not used
 val - prox distance
 ------------------------------------------------------------------------
-type 4 - end 
+type 4 - end
 x,y,w,h - not used
 val
 0 move to step 0
@@ -118,6 +118,48 @@ lifts[lift].mode = 0; // default...normal
 lifts[lift].mode = 1; // prox run and reset
 lifts[lift].val1 = countdown timer
 lifts[lift].val2 = reset value
+
+
+
+
+other info embedded in lift_steps[l][s].type
+
+#define PM_LIFT_COLOR_BITS       0b11110000000000000000000000000000
+#define PM_LIFT_NO_DRAW          0b00001000000000000000000000000000
+#define PM_LIFT_SOLID_PLAYER     0b00000100000000000000000000000000
+#define PM_LIFT_SOLID_ENEMY      0b00000010000000000000000000000000
+#define PM_LIFT_SOLID_ITEM       0b00000001000000000000000000000000
+
+
+
+how to change color embedded in lift_steps[][].type
+int cf = color << 28; // shift 4 bits of color into place
+lift_steps[num][type].type &= 0b00001111111111111111111111111111; // clear old color
+lift_steps[num][type].type |= cf; // merge color with type
+
+
+how to get color:
+int col = (lifts[l].flags >> 28) & 15;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

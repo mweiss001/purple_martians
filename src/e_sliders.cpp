@@ -1225,13 +1225,38 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    if (bn == 502)
    {
       if (num == -1) sprintf(smsg, "Type");  // show row header
-      if (num == 1)  sprintf(smsg, "Move and Resize");
-      if (num == 2)  sprintf(smsg, "Wait for Timer");
-      if (num == 3)  sprintf(smsg, "Wait for Player");
-      if (num == 4)  sprintf(smsg, "End Step");
-      if (num == 5)  sprintf(smsg, "Wait for Trigger");
+      if (num == 1)  sprintf(smsg, "Move");
+      if (num == 2)  sprintf(smsg, "Wait");
+      if (num == 3)  sprintf(smsg, "Wait");
+      if (num == 4)  sprintf(smsg, "End ");
+      if (num == 5)  sprintf(smsg, "Wait");
    }
-   if (bn == 503) sprintf(smsg, "Parameters");    // show row header
+
+   if (bn == 503)
+   {
+      int l = type;
+      int s = obt;
+      int x = lift_steps[l][s].x;
+      int y = lift_steps[l][s].y;
+      int w = lift_steps[l][s].w;
+      int h = lift_steps[l][s].h;
+      int v = lift_steps[l][s].val;
+
+
+      if (num == -1) sprintf(smsg, "Details");  // show row header
+      if (num == 1)  sprintf(smsg, "x:%4d y:%4d w:%4d h:%4d [speed:%d]", x, y, w, h, v);
+      if (num == 2)  sprintf(smsg, "for Timer:%d", v);
+      if (num == 3)  sprintf(smsg, "for Player prox:%d", v);
+      if (num == 4)
+      {
+         if (v == 0) sprintf(smsg, "End Step - Loop to Start");
+         if (v == 1) sprintf(smsg, "End Step - Warp to Start");
+         if (v == 2) sprintf(smsg, "End Step - Freeze Here");
+      }
+      if (num == 5)  sprintf(smsg, "for Trigger Event:%d", v);
+   }
+
+
    if (bn == 504) sprintf(smsg, "Name:%s", lifts[num].lift_name); // edit lift name
 
    if (bn == 505) // lift step end step mode
@@ -1243,12 +1268,17 @@ void fill_smsg_button(int bn, int obt, int type, int num)
 
 
 
+   if (bn == 506)
+   {
+      if (num == -1) sprintf(smsg, "C");       // show row header
+      else           sprintf(smsg, "%d", num); // show num
+   }
 
 
    if (bn == 510)
    {
-      if (lift_steps[num][type].type & PM_LIFT_NO_DRAW)   sprintf(smsg, "Draw Lift");
-      else                                                sprintf(smsg, "Hide Lift");
+      if (lift_steps[num][type].type & PM_LIFT_NO_DRAW)   sprintf(smsg, "Hide Lift");
+      else                                                sprintf(smsg, "Draw Lift");
    }
    if (bn == 511)
    {
@@ -1289,7 +1319,10 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
 {
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
    fill_smsg_button(bn, obt, type, num);                              // get button text
-   al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
+   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
+   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
 
    if (bn == 13)
    {

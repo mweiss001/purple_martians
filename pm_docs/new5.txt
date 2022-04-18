@@ -20970,7 +20970,6 @@ have not erased from main lift..
 
 now make copy from steps happen...
 
-
 lifts[lift].flags = lift_steps[lift][step].type; // get all the flags from the step type
 
 done in:
@@ -21079,8 +21078,84 @@ if new step is a move step, get xywh fwom previous move step
 always get flags from prev step even if not move step
 
 push
-
 20220418 7:41 AM
+
+
+how about if contruct lift step is passed a type < 16, then assume you want the rest copied from a previuos step...
+no end step??
+default speed = 80??
+
+
+
+make list of step buttons, not the place to edit, just show
+
+make type much shorter
+
+1 move
+235 wait
+4 end
+
+
+I want to make button capable of left justified text...
+
+q4 for slider4 makes the fading in or out...
+
+
+if going to use q5 for button centering.
+0 default..centered
+1 left justified..done..
+
+
+
+I think I have this stuff pretty much done...
+I should do some tests and see if everything works...
+
+How to see hidden lifts in level editor...use color 0
+
+color for step 0 does not show...instead color of loop to zero shows...
+
+lift steps are kind of non-intuitive...
+
+the place where I show them is where they will end up.. the place they come from is alway the lift before
+
+when you are in a current move step, you are always behind where it shows in level editor...
+maybe in level editor I should also show the prevous step with an an arrow on the line....
+
+
+If I set step 0 to be the same as end step, lift lines and color do what I expect...
+step 0 does not matter...only step end...
+test by setting step 0.....does not line up...
+
+lift lines are set by only looking for move steps, they should look at all...no..just no...
+
+keep end step the same color as first and alll will be good.
+
+
+now I want to try making my smash lifts shows warning color change...
+
+looks good...
+
+push for lunch...12:00
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
