@@ -1372,23 +1372,24 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 */
 
 
-/*
-
-      // put width and height in all move steps
+      // put color and flags in all steps
       for (int l=0; l<num_lifts; l++)
       {
-         for (int s=0; s<40; s++)
-            if (lift_steps[l][s].type == 1) // move type
-            {
-               lift_steps[l][s].w = lifts[l].width;
-               lift_steps[l][s].h = lifts[l].height;
-            }
-         lifts[l].width = 0;
-         lifts[l].height = 0;
+         int color = lifts[l].color;
+         int cf = color << 28;
+         for (int s=0; s<lifts[l].num_steps; s++)
+         {
+            lift_steps[l][s].type |= cf;
+
+            lift_steps[l][s].type |= PM_LIFT_SOLID_PLAYER;
+            lift_steps[l][s].type |= PM_LIFT_SOLID_ENEMY;
+            lift_steps[l][s].type |= PM_LIFT_SOLID_ITEM;
+         }
+         lifts[l].color = 0;
      }
 
-*/
-      if (0)
+
+      if (1)
       {
          save_level(le[x]);
          al_set_target_backbuffer(display);

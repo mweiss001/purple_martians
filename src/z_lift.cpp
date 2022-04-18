@@ -68,19 +68,22 @@ void set_lift_to_step(int lift, int step)
    // if passed step is a move step, set that
    // if not, then set to previous move step
 
-   if (lift_steps[lift][step].type != 1) step = lift_find_previous_move_step(lift, step);
+   if ((lift_steps[lift][step].type & 31) != 1) step = lift_find_previous_move_step(lift, step);
 
    lifts[lift].current_step = step; // initial step
    lifts[lift].limit_type = 2;      // type wait for time
    lifts[lift].limit_counter = 0;   // 0 = no wait, immediate next mode
 
-   // get pos and size from step
+   // get pos and size from step and color
    lifts[lift].x1     = lift_steps[lift][step].x;
    lifts[lift].y1     = lift_steps[lift][step].y;
    lifts[lift].width  = lift_steps[lift][step].w;
    lifts[lift].height = lift_steps[lift][step].h;
    lifts[lift].x2     = lifts[lift].x1 + lifts[lift].width;
    lifts[lift].y2     = lifts[lift].y1 + lifts[lift].height;
+
+   lifts[lift].color  = (lift_steps[lift][step].type >> 28) & 15;
+
 
    // set fixed positions too
    lifts[lift].fx = al_itofix(lifts[lift].x1);
@@ -110,7 +113,7 @@ void draw_lift_lines()
    {
       if (!(lifts[l].flags & PM_LIFT_NO_DRAW))
       {
-         int col = lifts[l].color+128;
+         int col = 15;
          int sx = lift_steps[l][0].x + lift_steps[l][0].w / 2;  // start pos
          int sy = lift_steps[l][0].y + lift_steps[l][0].h / 2;
          int px = sx; // previous
@@ -122,11 +125,11 @@ void draw_lift_lines()
          {
             for (int s=0; s<lifts[l].num_steps; s++) // cycle steps
             {
-               if (lift_steps[l][s].type == 1) // filter for move steps
+               if ((lift_steps[l][s].type & 31) == 1) // filter for move steps
                {
                   nx = lift_steps[l][s].x + lift_steps[l][s].w / 2;
                   ny = lift_steps[l][s].y + lift_steps[l][s].h / 2;
-
+                  col = (lift_steps[l][s].type >> 28) & 15;
                   al_draw_line( px, py, nx, ny, palette_color[col], 1);
                   for (int c=3; c>=0; c--)
                      al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
@@ -134,6 +137,7 @@ void draw_lift_lines()
                   py = ny;
                }
             }
+            col = (lift_steps[l][0].type >> 28) & 15;
             al_draw_line(sx, sy, nx, ny, palette_color[col], 1); // draw line from last to first
          }
       }
@@ -152,6 +156,8 @@ void draw_lift(int l, int x1, int y1, int x2, int y2)
    al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[col] );                            // solid core
    al_draw_text(font, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[l].lift_name); // name
 
+  // printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
+
    //al_draw_textf(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", lifts[l].current_step, lifts[l].val1);    // debug name
 }
 
@@ -163,12 +169,11 @@ void draw_lifts()
    {
       if (!(lifts[l].flags & PM_LIFT_NO_DRAW))
       {
+         int color = lifts[l].color;
          int x1 = lifts[l].x1;
          int x2 = lifts[l].x2;
          int y1 = lifts[l].y1;
          int y2 = lifts[l].y2;
-         int color = lifts[l].color;
-
          draw_lift(l, x1, y1, x2, y2);
 
          // show if player is riding this lift
@@ -186,11 +191,9 @@ void draw_lifts()
             // check if stuck on step 0 and haven't moved yet
             if (!((lifts[l].current_step == 0) && (lifts[l].x1 == lift_steps[l][0].x) && (lifts[l].y1 == lift_steps[l][0].y)))
             {
-               int percent = (100 * lifts[l].val1) / lifts[l].val2;
-
                int lw = lifts[l].width-10;
                int lh = lifts[l].height-10;
-
+               int percent = (100 * lifts[l].val1) / lifts[l].val2;
                draw_percent_bar((x1+x2)/2, y1+4, lw, lh, percent);
             }
          }
@@ -220,9 +223,12 @@ void draw_lifts()
 void set_lift_xyinc(int d, int step)
 {
    //  used when switching to a new move step;
-   //  sets xinc, yinc and num of frames for mode 7 (move)
+   //  sets xinc, yinc and num of frames for move
 
    int val = lift_steps[d][step].val;
+
+   lifts[d].color = (lift_steps[d][step].type >> 28) & 15;
+
 
    al_fixed move_time = al_itofix(0);
 
@@ -281,7 +287,7 @@ void move_lifts(int ignore_prox)
    {
       int mode = lifts[l].mode;
       int cs = lifts[l].current_step;
-      int cst = lift_steps[l][cs].type;
+      int cst = lift_steps[l][cs].type & 31;
       int next_step = 0;
       int frozen = 0;
 
@@ -371,7 +377,7 @@ void move_lifts(int ignore_prox)
 
          int step = lifts[l].current_step;
          next_step = 0;
-         switch (lift_steps[l][step].type)
+         switch (lift_steps[l][step].type & 31)
          {
             case 1: // move
                set_lift_xyinc(l, step);
@@ -408,7 +414,7 @@ void move_lifts(int ignore_prox)
 
    // clear events referenced by this lift
    for (int s=0; s<lifts[l].num_steps; s++)  // iterate steps
-      if (lift_steps[l][s].type == 5)        // trigger mode
+      if ((lift_steps[l][s].type & 31) == 5)        // trigger mode
          pm_event[lift_steps[l][s].val] = 0; // clear trigger event
 
    } // end of lift iterate

@@ -14,24 +14,22 @@ void lift_step_set_size_from_previous_move_step(int lift, int step)
    }
 }
 
-
-
-
 int lift_find_previous_move_step(int lift, int step) // searches back from passed step until a move step is found
 {
    if (step == 0) step = 19; // if started at step 0, start searching back from end to get last move step
    while (step)
    {
       step--;
-      if (lift_steps[lift][step].type == 1) return step;
+      if ((lift_steps[lift][step].type & 31) == 1) return step;
    }
+   printf("could not find move step!!\n");
    return -1; // bad !!!
 }
 
 al_fixed lift_get_distance_to_previous_move_step(int lift, int step)
 {
    al_fixed m1 = al_itofix(-1);
-   if (lift_steps[lift][step].type == 1)
+   if ((lift_steps[lift][step].type & 31) == 1)
    {
       int ls = lift_find_previous_move_step(lift, step);
       if (ls == -1) return m1;
@@ -80,7 +78,15 @@ void show_all_lifts(void)
          int w    = lift_steps[l][s].w;
          int h    = lift_steps[l][s].h;
          int val  = lift_steps[l][s].val;
-         int type = lift_steps[l][s].type;
+         int type = lift_steps[l][s].type & 31;
+         int step_color = -1;
+         if (type == 1)
+         {
+             step_color = lift_steps[l][s].type >> 28;
+             step_color &=15 ;
+         }
+
+
          int color = 9;
          char typemsg[10];
          if ((type >0) && (type < 5))
@@ -104,7 +110,8 @@ void show_all_lifts(void)
          al_fixed lsd = lift_get_distance_to_previous_move_step(l, s);
 
 
-         sprintf(msg," step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s), ls:%d lsd:%d", s, x, y, w, h, val, type, typemsg, ls, al_fixtoi(lsd));
+//         sprintf(msg," step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s), ls:%d lsd:%d step_color:%d", s, x, y, w, h, val, type, typemsg, ls, al_fixtoi(lsd), step_color);
+         sprintf(msg," step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) step_color:%d", s, x, y, w, h, val, type, typemsg, step_color);
          al_draw_text(font, palette_color[color], 10, text_pos*8, 0, msg);
          text_pos++;
       }
@@ -209,7 +216,7 @@ int create_lift(void)
 
 void move_lift_step(int lift, int step)
 {
-   if (lift_steps[lift][step].type == 1) // only if type = move
+   if ((lift_steps[lift][step].type & 31) == 1) // only if type = move
    {
       int nx = ((lift_steps[lift][step].x + lifts[lift].width  / 2) *db)/20;
       int ny = ((lift_steps[lift][step].y + lifts[lift].height / 2) *db)/20;
@@ -381,7 +388,7 @@ void step_popup_menu(int lift, int step)
    }
    else // regular step (not first or last)
    {
-      if (lift_steps[lift][step].type == 1) // only allow move for step type 1
+      if ((lift_steps[lift][step].type & 31) == 1) // only allow move for step type 1
       {
          sprintf(global_string[6][3],"Move Step %d", step);
          sprintf(global_string[6][4],"Delete Step %d", step);
@@ -446,12 +453,18 @@ int draw_current_step_buttons(int y, int l, int s)
    int c1 = 9;
 
    sprintf(msg, "Current Step [%d] - undefined", s);
-   switch (lift_steps[l][s].type)
+   switch (lift_steps[l][s].type & 31)
    {
       case 1: // move and resize
          mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 550, s, l, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step resize speed
          mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 551, s, l, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step width
          mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 552, s, l, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step height
+
+         mdw_colsel(xa, ya+a*bts, xb, ya+(a+1)*bts-2,  8,  l, s, 0, 0, 15, 13, 14, 0,0,0,0); a++; // lift step color
+
+
+
+
          sprintf(msg, "Current Step [%d] - Move and Resize", s);
       break;
       case 2: // wait time
@@ -489,7 +502,7 @@ void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int r
    int x2 = xa + 24;  // first column (step number) is fixed size
    int x3 = xa + 160; // second colum (step type)   is fixed size
 
-   int type = lift_steps[lift][step].type;
+   int type = lift_steps[lift][step].type & 31;
 
    if (step == -1) // show row headers
    {
@@ -536,7 +549,7 @@ int draw_steps(int y, int lift, int current_step, int highlight_step)
 
    // draw steps
    for (int step=0; step<lifts[lift].num_steps; step++)
-      if (lift_steps[lift][step].type) // step is valid
+      if (lift_steps[lift][step].type & 31) // step is valid
       {
          int color = 13;
          if (step == current_step) color = 10;
@@ -691,7 +704,7 @@ int lift_viewer(int lift)
          int s = current_step;
 
          // if step is not a move step, find prev that is
-         if (lift_steps[lift][s].type != 1) s = lift_find_previous_move_step(lift, s);
+         if ((lift_steps[lift][s].type & 31) != 1) s = lift_find_previous_move_step(lift, s);
 
          // get w h from step
          int w  = lift_steps[lift][s].w;
@@ -763,7 +776,7 @@ int lift_viewer(int lift)
          int mouse_on_moveable_step = 0;
          for (int x=0; x<num_lifts; x++)  // cycle lifts
             for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
-               if (lift_steps[x][y].type == 1) // look for move step
+               if ((lift_steps[x][y].type & 31) == 1) // filter for move step
                {
                   int nx = ((lift_steps[x][y].x + lifts[x].width/2) *db)/20;
                   int ny = ((lift_steps[x][y].y + lifts[x].height/2) *db)/20;
