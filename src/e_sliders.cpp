@@ -431,20 +431,14 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 101: sul=1000; sll=0;    sinc=1;   sdx=item[num][13];               break;  // item damage total time
       case 102: sul=1000; sll=0;    sinc=1;   sdx=item[num][14];               break;  // item damage total time
 
-
       case 103: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage field on time
       case 104: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage field off total time
 
-
-
-      case 71: sul=29;    sll=4;    sinc=1;   sdx=lift_steps[type][num].val;   break;  // lift step move speed
-
-
       // lifts --------------------------------------
       case 550: sul=1000; sll=1;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step resize speed
-      case 551: sul=500;  sll=20;   sinc=1;   sdx=lift_steps[num][type].w;     break;  // lift step width
-      case 552: sul=500;  sll=20;   sinc=1;   sdx=lift_steps[num][type].h;     break;  // lift step height
-      case 553: sul=2000; sll=10;   sinc=10;  sdx=lift_steps[num][type].val;   break;  // lift step wait time
+      case 551: sul=1600; sll=20;   sinc=1;   sdx=lift_steps[num][type].w;     break;  // lift step width
+      case 552: sul=1600; sll=20;   sinc=1;   sdx=lift_steps[num][type].h;     break;  // lift step height
+      case 553: sul=2000; sll=1;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step wait time
       case 554: sul=200;  sll=20;   sinc=10;  sdx=lift_steps[num][type].val;   break;  // lift step wait player prox distance
       case 555: sul=2000; sll=1;    sinc=1;   sdx=lifts[num].val2;             break;  // lift mode 1 player ride timer
       case 556: sul=99;   sll=0;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step wait trigger
@@ -452,12 +446,14 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
    }
 
-   int display_only = 0;
 
+
+// I don't think display only is used anymore.....
+   /*
+   int display_only = 0;
    if ((bn == 106) || (bn == 107))
    {
       if (lift_steps[type][num].type != 1) display_only = 1;
-
    }
 
    if (display_only)
@@ -468,6 +464,9 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
    }
    else
+
+   */
+
    {
       // draw the slider
       draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);

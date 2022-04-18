@@ -21138,6 +21138,30 @@ looks good...
 push for lunch...12:00
 
 
+I would like to be able to hide the timer counter...
+three options: hide, number, progress bar
+
+the same with the lift mode reset....
+
+
+
+bug--cant's detect lifts from object viewer map mode
+
+bug when in trigger viewer, can''t dtect anything else on map
+
+bug-copy and paste lifts in zfs...
+
+
+bug lifts has color 0 when editting text...
+
+
+
+make a level with a long wide rising floor.
+
+
+
+
+
 
 
 
