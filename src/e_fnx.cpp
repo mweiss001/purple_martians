@@ -2,6 +2,62 @@
 
 #include "pm.h"
 
+
+
+
+
+
+
+
+void printBits(size_t const size, void const * const ptr)
+{
+   char st[256] = {0};
+   int sc = 0;
+
+
+   unsigned char *b = (unsigned char*) ptr;
+   unsigned char byte;
+   int i, j;
+
+   for (i = size-1; i >= 0; i--)
+   {
+      for (j = 7; j >= 0; j--)
+      {
+         byte = (b[i] >> j) & 1;
+//         printf("%u", byte);
+         st[sc] = byte+48;
+         sc++;
+
+
+
+      }
+      st[sc] = 32;
+      sc++;
+
+   }
+//   puts("");
+   st[sc] = 0;
+   sprintf(msg, "%s", st);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 al_fixed get_sproingy_jump_height(int num)
 {
    al_fixed t1 = al_fixdiv(al_itofix(item[num][7]), al_ftofix(7.1));

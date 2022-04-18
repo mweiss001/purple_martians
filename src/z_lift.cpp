@@ -2,13 +2,10 @@
 
 #include "pm.h"
 
-int construct_lift(int l, char* lift_name, int width, int height, int color, int num_steps)
+int construct_lift(int l, char* lift_name)
 {
+   clear_lift(l);
    strcpy(lifts[l].lift_name, lift_name);
-   lifts[l].width = width;
-   lifts[l].height = height;
-   lifts[l].color = color;
-   lifts[l].num_steps = num_steps;
    lifts[l].x1 = 0;
    lifts[l].y1 = 0;
    lifts[l].x2 = 0;
@@ -16,86 +13,95 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
    lifts[l].current_step = 0;
    lifts[l].limit_type = 0;
    lifts[l].limit_counter = 0;
-
    lifts[l].flags = 0;
-   lifts[l].flags |= PM_LIFT_SOLID_PLAYER;
-   lifts[l].flags |= PM_LIFT_SOLID_ENEMY;
-   lifts[l].flags |= PM_LIFT_SOLID_ITEM;
-
-
-
    return 1;
 }
 
 void clear_lift(int l)
 {
-   lifts[l].width = 0;
-   lifts[l].height = 0;
-   lifts[l].color = 0;
-   lifts[l].num_steps = 0;
+   al_fixed f0 = al_itofix(0);
+   lifts[l].fx = f0;
+   lifts[l].fy = f0;
+   lifts[l].fxinc = f0;
+   lifts[l].fyinc = f0;
+   lifts[l].fw = f0;
+   lifts[l].fh = f0;
+   lifts[l].fwinc = f0;
+   lifts[l].fhinc = f0;
    lifts[l].x1 = 0;
    lifts[l].y1 = 0;
    lifts[l].x2 = 0;
    lifts[l].y2 = 0;
+   lifts[l].width = 0;
+   lifts[l].height = 0;
+   lifts[l].flags = 0;
+   lifts[l].mode = 0;
+   lifts[l].val1 = 0;
+   lifts[l].val2 = 0;
+   lifts[l].color = 0;
    lifts[l].current_step = 0;
+   lifts[l].num_steps = 0;
    lifts[l].limit_type = 0;
    lifts[l].limit_counter = 0;
    strcpy(lifts[l].lift_name, "");
 }
 
-int construct_lift_step(int lift, int step, int x, int y, int w, int h, int val, int type)
+int construct_lift_step(int l, int s, int type, int x, int y, int w, int h, int val)
 {
-   lift_steps[lift][step].x    = x;
-   lift_steps[lift][step].y    = y;
-   lift_steps[lift][step].w    = w;
-   lift_steps[lift][step].h    = h;
-   lift_steps[lift][step].val  = val;
-   lift_steps[lift][step].type = type;
+   clear_lift_step(l, s);
+   lift_steps[l][s].type = type;
+   lift_steps[l][s].x    = x;
+   lift_steps[l][s].y    = y;
+   lift_steps[l][s].w    = w;
+   lift_steps[l][s].h    = h;
+   lift_steps[l][s].val  = val;
    return 1;
 }
 
-void clear_lift_step(int lift, int step)
+void clear_lift_step(int l, int s)
 {
-   lift_steps[lift][step].x    = 0;
-   lift_steps[lift][step].y    = 0;
-   lift_steps[lift][step].val  = 0;
-   lift_steps[lift][step].type = 0;
+   lift_steps[l][s].type = 0;
+   lift_steps[l][s].x    = 0;
+   lift_steps[l][s].y    = 0;
+   lift_steps[l][s].w    = 0;
+   lift_steps[l][s].h    = 0;
+   lift_steps[l][s].val  = 0;
 }
 
-void set_lift_to_step(int lift, int step)
+void set_lift_to_step(int l, int s)
 {
    // new behaviour
    // if passed step is a move step, set that
    // if not, then set to previous move step
 
-   if ((lift_steps[lift][step].type & 31) != 1) step = lift_find_previous_move_step(lift, step);
+   if ((lift_steps[l][s].type & 31) != 1) s = lift_find_previous_move_step(l, s);
 
-   lifts[lift].current_step = step; // initial step
-   lifts[lift].limit_type = 2;      // type wait for time
-   lifts[lift].limit_counter = 0;   // 0 = no wait, immediate next mode
+   lifts[l].current_step = s; // initial step
+   lifts[l].limit_type = 2;      // type wait for time
+   lifts[l].limit_counter = 0;   // 0 = no wait, immediate next mode
 
-   // get pos and size from step and color
-   lifts[lift].x1     = lift_steps[lift][step].x;
-   lifts[lift].y1     = lift_steps[lift][step].y;
-   lifts[lift].width  = lift_steps[lift][step].w;
-   lifts[lift].height = lift_steps[lift][step].h;
-   lifts[lift].x2     = lifts[lift].x1 + lifts[lift].width;
-   lifts[lift].y2     = lifts[lift].y1 + lifts[lift].height;
+   // get pos and size from step
+   lifts[l].x1     = lift_steps[l][s].x;
+   lifts[l].y1     = lift_steps[l][s].y;
+   lifts[l].width  = lift_steps[l][s].w;
+   lifts[l].height = lift_steps[l][s].h;
+   lifts[l].x2     = lifts[l].x1 + lifts[l].width;
+   lifts[l].y2     = lifts[l].y1 + lifts[l].height;
+   lifts[l].flags = lift_steps[l][s].type; // get all the flags from the step type
 
-   lifts[lift].color  = (lift_steps[lift][step].type >> 28) & 15;
-
+ //  lifts[l].color  = (lift_steps[l][s].type >> 28) & 15; // not needed
 
    // set fixed positions too
-   lifts[lift].fx = al_itofix(lifts[lift].x1);
-   lifts[lift].fy = al_itofix(lifts[lift].y1);
-   lifts[lift].fw = al_itofix(lifts[lift].width);
-   lifts[lift].fh = al_itofix(lifts[lift].height);
+   lifts[l].fx = al_itofix(lifts[l].x1);
+   lifts[l].fy = al_itofix(lifts[l].y1);
+   lifts[l].fw = al_itofix(lifts[l].width);
+   lifts[l].fh = al_itofix(lifts[l].height);
 
    // set incs to 0
-   lifts[lift].fxinc = al_itofix(0);
-   lifts[lift].fyinc = al_itofix(0);
-   lifts[lift].fwinc = al_itofix(0);
-   lifts[lift].fhinc = al_itofix(0);
+   lifts[l].fxinc = al_itofix(0);
+   lifts[l].fyinc = al_itofix(0);
+   lifts[l].fwinc = al_itofix(0);
+   lifts[l].fhinc = al_itofix(0);
 }
 
 
@@ -149,7 +155,7 @@ void draw_lift_lines()
 // this is it....the one base function that draws a lift
 void draw_lift(int l, int x1, int y1, int x2, int y2)
 {
-   int col = lifts[l].color;
+   int col = (lifts[l].flags >> 28) & 15;
    int a;
    for (a=0; a<10; a++)
      al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[col + ((9 - a)*16)], 2 ); // faded outer shell
@@ -169,7 +175,7 @@ void draw_lifts()
    {
       if (!(lifts[l].flags & PM_LIFT_NO_DRAW))
       {
-         int color = lifts[l].color;
+         int color = (lifts[l].flags >> 28) & 15;
          int x1 = lifts[l].x1;
          int x2 = lifts[l].x2;
          int y1 = lifts[l].y1;
@@ -226,9 +232,6 @@ void set_lift_xyinc(int d, int step)
    //  sets xinc, yinc and num of frames for move
 
    int val = lift_steps[d][step].val;
-
-   lifts[d].color = (lift_steps[d][step].type >> 28) & 15;
-
 
    al_fixed move_time = al_itofix(0);
 
@@ -372,11 +375,10 @@ void move_lifts(int ignore_prox)
       // changing steps ----------------------------------------------------------------------
       if (next_step)
       {
-         if (++lifts[l].current_step > lifts[l].num_steps - 1)    // increment step
-               lifts[l].current_step = lifts[l].num_steps -1;     // bounds check (for lifts with no loop to zero)
-
-         int step = lifts[l].current_step;
          next_step = 0;
+         if (++lifts[l].current_step > lifts[l].num_steps - 1) lifts[l].current_step = lifts[l].num_steps -1; // increment step with bounds check
+         int step = lifts[l].current_step;
+         lifts[l].flags = lift_steps[l][step].type; // get flags from the step type
          switch (lift_steps[l][step].type & 31)
          {
             case 1: // move

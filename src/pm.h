@@ -998,6 +998,9 @@ void do_brf(int x, int y, int flood_block);
 int zoom_full_screen(int wx, int wy, int draw_item);
 
 // e_fnx.h
+
+void printBits(size_t const size, void const * const ptr);
+
 al_fixed get_sproingy_jump_height(int num);
 void set_xyinc_rot(int EN, int x2, int y2);
 void set_rocket_rot(int num, int x2, int y2);
@@ -1365,9 +1368,9 @@ void draw_block_damage(int i);
 
 
 // z_lift.h
-int construct_lift(int l, char* lift_name, int width, int height, int color, int num_steps);
+int construct_lift(int l, char* lift_name);
 void clear_lift(int l);
-int construct_lift_step(int lift, int step, int x, int y, int w, int h, int val, int type);
+int construct_lift_step(int lift, int step, int type, int x, int y, int w, int h, int val);
 void clear_lift_step(int lift, int step);
 void set_lift_to_step(int lift, int step);
 void draw_lift_lines(void);

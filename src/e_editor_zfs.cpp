@@ -881,7 +881,7 @@ void do_fcopy(int qx1, int qy1)
             int lim = 0;
             c = num_lifts++; // dest lift
             //copied = 1000+c;
-            construct_lift(c, ft_ln[b], 0, 0, ft_lift[b][2], ft_lift[b][3]);
+            construct_lift(c, ft_ln[b]);
             lifts[c].mode  = ft_lift[b][0];
             lifts[c].flags = ft_lift[b][1];
             lifts[c].val1  = ft_lift[b][4];
@@ -914,7 +914,7 @@ void do_fcopy(int qx1, int qy1)
                      vy = enforce_limit(vy, 0, 1980);
                   }
                }
-               construct_lift_step(c, y, vx, vy, vw, vh, val, type);
+               construct_lift_step(c, y, type, vx, vy, vw, vh, val);
             }
             set_lift_to_step(c, 0);
             if (lim)

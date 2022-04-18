@@ -1371,6 +1371,7 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 */
 
+/*
 
       // put color and flags in all steps
       for (int l=0; l<num_lifts; l++)
@@ -1385,11 +1386,18 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
             lift_steps[l][s].type |= PM_LIFT_SOLID_ENEMY;
             lift_steps[l][s].type |= PM_LIFT_SOLID_ITEM;
          }
-         lifts[l].color = 0;
+        // lifts[l].color = 0;
      }
 
 
-      if (1)
+      // remove color from lift...we will rely on steps only
+      for (int l=0; l<num_lifts; l++)
+      {
+         lifts[l].color = 0;
+      }
+*/
+
+      if (0)
       {
          save_level(le[x]);
          al_set_target_backbuffer(display);
