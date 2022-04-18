@@ -141,7 +141,7 @@ void draw_lift_lines()
 {
    for (int l=0; l<num_lifts; l++)  // cycle lifts
    {
-      if (!(lifts[l].flags & PM_LIFT_NO_DRAW))
+      if ((!(lifts[l].flags & PM_LIFT_NO_DRAW)) || (level_editor_running))
       {
          int col = 15;
          int sx = lift_steps[l][0].x + lift_steps[l][0].w / 2;  // start pos
@@ -200,7 +200,7 @@ void draw_lifts()
    al_set_target_bitmap(level_buffer);
    for (int l=0; l<num_lifts; l++)
    {
-      if (!(lifts[l].flags & PM_LIFT_NO_DRAW))
+      if ((!(lifts[l].flags & PM_LIFT_NO_DRAW)) || (level_editor_running))
       {
          int color = (lifts[l].flags >> 28) & 15;
          int x1 = lifts[l].x1;
