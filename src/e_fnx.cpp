@@ -486,7 +486,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num )
             case 4: // show lift
             {
                lift_steps[lift][step].x = dx*20;
-               lift_steps[lift][step].y = dy*20;         proc_controllers();
+               lift_steps[lift][step].y = dy*20;
 
                //  redraw
                set_lift_to_step(lift, step);   // set current step in current lift
