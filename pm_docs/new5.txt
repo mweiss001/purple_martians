@@ -20960,6 +20960,138 @@ add default solid flags
 
 
 
+20220418 5:00 AM
+all my colors are gone
+
+went to a prev version of levels...
+
+got the color back....
+have not erased from main lift..
+
+now make copy from steps happen...
+
+
+lifts[lift].flags = lift_steps[lift][step].type; // get all the flags from the step type
+
+done in:
+void set_lift_to_step(int lift, int step)
+and in move lifts when setting a new step
+
+
+now make color come from this place:
+flags upper 4 bits
+I think it mostly does..its read from the step in draw lift lines...
+
+
+in draw_lift and draw_lifts:
+
+old:   int col = lifts[l].color;
+new:   int col = (lifts[l].flags >> 28) & 15;
+
+in set xyinc, removed  done when changing any step...
+
+
+
+ok we are moving along here...
+- all steps have color and flags embedded in type....
+- they are copied to main lift flags for every step...
+- lifts[].color is not used anymore...color is embedded in flags
+
+now I need add color and solid flags to move step buttons...
+
+
+added 510-513...
+
+
+fixed the goddam button and slider bullshit calling order for all lift stuff...
+call it in this order... lift, step....
+
+button bn, num, type, obt
+slider bn num, type, obt
+
+all must be called in e_lifts.cpp
+
+
+colsel 8 uses l, s
+
+
+slider...done
+550
+551
+552
+553
+554
+556
+
+button...done
+505
+510
+511
+512
+513
+520
+
+use sl...fix...
+
+500
+504
+use l only...good
+
+
+new lift defaults
+color and solids
+
+
+
+all steps need flags buttons...done
+
+need a way to show current step color....
+
+
+make list of step buttons, not the place to edit, just show
+
+x, y, w, h if applicable
+
+color
+
+flags??
+
+
+
+
+bug player can't drop item on lift...it falls through....
+
+
+
+
+
+make two versions of construct_lift_step
+
+
+
+sets all parameters:
+int construct_lift_step(int l, int s, int type, int x, int y, int w, int h, int val)
+
+
+copies from previous step:
+int construct_lift_step(int lift, int step, int type);
+if new step is a move step, get xywh fwom previous move step
+always get flags from prev step even if not move step
+
+push
+
+20220418 7:41 AM
+
+
+
+
+
+
+
+
+
+
+
 
 
 

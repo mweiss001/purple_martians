@@ -1345,7 +1345,20 @@ int main(int argument_count, char **argument_array)
 
    //   show_var_sizes();
 
+/*
 
+   int test = 0;
+   printBits(4, &test);
+
+   printf("b4:[%s]\n",msg);
+
+   test |= PM_LIFT_NO_DRAW;
+
+
+   printBits(4, &test);
+
+   printf("af:'%s'\n",msg);
+*/
 
 
 

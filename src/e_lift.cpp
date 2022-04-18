@@ -3,7 +3,6 @@
 #include "pm.h"
 
 
-
 void lift_step_set_size_from_previous_move_step(int lift, int step)
 {
    int pms = lift_find_previous_move_step(lift, step); // searches back from passed step until a move step is found
@@ -45,7 +44,6 @@ al_fixed lift_get_distance_to_previous_move_step(int lift, int step)
    return m1; // error! not a move step
 }
 
-
 void show_all_lifts(void)
 {
    int text_pos = 0;
@@ -61,13 +59,13 @@ void show_all_lifts(void)
       int y2 = lifts[l].y2;
       int w  = lifts[l].width;
       int h  = lifts[l].height;
+      int mode = lifts[l].mode;
 
       int v1 = lifts[l].val1;
       int v2 = lifts[l].val2;
 
-
       int col  = lifts[l].color;
-      sprintf(msg,"lift:%-2d  1:%-4d y:%-4d w:%-4d h:%-4d x2:%-4d y2:%-4d v1:%d v2:%d col:%-2d ns:%-2d  name:%s  ", l, x1, y1, w, h, x2, y2, v1, v2, col, lifts[l].num_steps, lifts[l].lift_name);
+      sprintf(msg,"lift:%-2d  1:%-4d y:%-4d w:%-4d h:%-4d x2:%-4d y2:%-4d mode:%d v1:%d v2:%d col:%-2d ns:%-2d  name:%s  ", l, x1, y1, w, h, x2, y2, mode, v1, v2, col, lifts[l].num_steps, lifts[l].lift_name);
       al_draw_text(font, palette_color[10], 10, text_pos*8, 0, msg);
       text_pos++;
 
@@ -79,13 +77,7 @@ void show_all_lifts(void)
          int h    = lift_steps[l][s].h;
          int val  = lift_steps[l][s].val;
          int type = lift_steps[l][s].type & 31;
-         int step_color = -1;
-         if (type == 1)
-         {
-             step_color = lift_steps[l][s].type >> 28;
-             step_color &=15 ;
-         }
-
+         int step_color = (lift_steps[l][s].type >> 28) & 15;
 
          int color = 9;
          char typemsg[10];
@@ -105,15 +97,21 @@ void show_all_lifts(void)
 
 //         sprintf(msg," step:%-2d x:%-4d y:%-4d val:%-4d type:%d (%s)", s, x, y, val, type, typemsg );
 
-         int ls = lift_find_previous_move_step(l, s);
+     //    int ls = lift_find_previous_move_step(l, s);
 
-         al_fixed lsd = lift_get_distance_to_previous_move_step(l, s);
+     //    al_fixed lsd = lift_get_distance_to_previous_move_step(l, s);
 
 
 //         sprintf(msg," step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s), ls:%d lsd:%d step_color:%d", s, x, y, w, h, val, type, typemsg, ls, al_fixtoi(lsd), step_color);
-         sprintf(msg," step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) step_color:%d", s, x, y, w, h, val, type, typemsg, step_color);
-         al_draw_text(font, palette_color[color], 10, text_pos*8, 0, msg);
+    //     sprintf(msg," step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) step_color:%d", s, x, y, w, h, val, type, typemsg, step_color);
+
+         printBits(4, &lift_steps[l][s].type);
+
+         al_draw_textf(font, palette_color[color], 10, text_pos*8, 0, " step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) col:%2d b:%s", s, x, y, w, h, val, type, typemsg, step_color, msg);
          text_pos++;
+
+
+
       }
    }
    al_flip_display();
@@ -180,8 +178,11 @@ int create_lift(void)
       int lift = num_lifts-1;
 
       sprintf(msg, "new lift %d", lift);
-      construct_lift(lift, msg, 120, 20, 10, 1);
-      construct_lift_step(lift, step, 0, 0, 80, 20, 20, 1);
+      construct_lift(lift, msg);
+
+
+      construct_lift_step(lift, step, 1, 0, 80, 20, 20, 0);
+
 
       if (getxy("Set initial position", 4, lift, step) == 1)
       {
@@ -194,7 +195,7 @@ int create_lift(void)
          lifts[lift].y2 = lifts[lift].y1 + (lifts[lift].height)-1;
 
          step++;
-         construct_lift_step(lift, step, 0, 0, 0, 0, 0, 4); // type 4 - loop to step zero
+         construct_lift_step(lift, step, 4, 0, 0, 0, 0, 0); // type 4 - loop to step zero
          lifts[lift].num_steps++; // add one to steps
 
          set_lift_to_step(lift, 0); // set step 0 for lift
@@ -267,7 +268,7 @@ int get_new_lift_step(int lift, int step)
       int jh = 1;
       if (draw_and_process_button(txc, stys+(jh*12), "Move", c1, c2, 1))
       {
-         quit = construct_lift_step(lift, step, 0, 0, 80, 20, 20, 1);
+         quit = construct_lift_step(lift, step, 0, 1, 80, 20, 20, 0);
          lift_step_set_size_from_previous_move_step(lift, step);
          if (getxy("Set lift position", 4, lift, step) == 1)
          {
@@ -278,11 +279,11 @@ int get_new_lift_step(int lift, int step)
       }
 
       jh++;
-      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Time", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 0, 0, 100, 2);
+      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Time", c1, c2, 1)) quit = construct_lift_step(lift, step, 2, 0, 0, 0, 100, 0);
       jh++;
-      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Prox", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 0, 0, 80, 3);
+      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Prox", c1, c2, 1)) quit = construct_lift_step(lift, step, 3, 0, 0, 0, 80, 0);
       jh++;
-      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Trig", c1, c2, 1)) quit = construct_lift_step(lift, step, 0, 0, 0, 0,  0, 5);
+      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Trig", c1, c2, 1)) quit = construct_lift_step(lift, step, 5, 0, 0, 0,  0, 0);
       jh++;
       if (draw_and_process_button(txc, stys+(jh*12), "Done", c1, c2, 1)) quit = 99;
 
@@ -456,35 +457,41 @@ int draw_current_step_buttons(int y, int l, int s)
    switch (lift_steps[l][s].type & 31)
    {
       case 1: // move and resize
-         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 550, s, l, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step resize speed
-         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 551, s, l, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step width
-         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 552, s, l, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step height
-
-         mdw_colsel(xa, ya+a*bts, xb, ya+(a+1)*bts-2,  8,  l, s, 0, 0, 15, 13, 14, 0,0,0,0); a++; // lift step color
-
-
-
-
+         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 550, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step resize speed
+         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 551, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step width
+         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 552, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step height
          sprintf(msg, "Current Step [%d] - Move and Resize", s);
       break;
       case 2: // wait time
-         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 553, s, l, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step wait time
+         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 553, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step wait time
          sprintf(msg, "Current Step [%d] - Wait For Timer", s);
       break;
       case 3: // wait prox
-          mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 554, s, l, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step wait player prox distance
+          mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 554, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step wait player prox distance
           sprintf(msg, "Current Step [%d] - Wait For Player Proximity", s);
       break;
       case 4: // end step
-         mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 505, s, l, 0, 0, c1, 15, 0,  1,0,0,0); a++; // lift step end step mode
+         mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 505, l, s, 0, 0, c1, 15, 0,  1,0,0,0); a++; // lift step end step mode
          sprintf(msg, "Current Step [%d] - Ending Step", s);
       break;
       case 5: // wait trigger
-         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 556, s, l, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step wait trigger slider
-         mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 520, s, l, 4, 0, c1, 15, 0,  1,0,0,0); a++; // lift step wait trigger get event
+         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 556, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step wait trigger slider
+         mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 520, l, s, 4, 0, c1, 15, 0,  1,0,0,0); a++; // lift step wait trigger get event
          sprintf(msg, "Current Step [%d] - Wait For Trigger", s);
       break;
+
+
+
+
    }
+
+         mdw_colsel(xa, ya+a*bts, xb, ya+(a+1)*bts-2,  8,  l, s, 0, 0, 15, 13, 14, 0,0,0,0); a++; // lift step color
+         mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 510, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step draw on/off
+         mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 511, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step solid player on/off
+         mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 512, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step solid enemy on/off
+         mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 513, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step solid item on/off
+
+
 
    int y1 = y;
    int y2 = y1+a*bts+fs*2-2;
@@ -496,15 +503,15 @@ int draw_current_step_buttons(int y, int l, int s)
 }
 
 
-void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int rc)
+void draw_step_button(int xa, int xb, int ty, int ty2, int l, int s, int rc)
 {
    int x1 = xa;
    int x2 = xa + 24;  // first column (step number) is fixed size
    int x3 = xa + 160; // second colum (step type)   is fixed size
 
-   int type = lift_steps[lift][step].type & 31;
+   int type = lift_steps[l][s].type & 31;
 
-   if (step == -1) // show row headers
+   if (s == -1) // show row headers
    {
       mdw_button(x1, ty, x2, ty2, 501, -1, 0, 0, 0, rc, 15, 0,  1,0,0,0); // num
       mdw_button(x2, ty, x3, ty2, 502, -1, 0, 0, 0, rc, 15, 0,  1,0,0,0); // type
@@ -512,17 +519,17 @@ void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int r
    }
    else
    {
-      mdw_button(x1, ty, x2, ty2, 501, step, 0, 0, 0, rc, 15, 0,  1,0,0,0); // num
+      mdw_button(x1, ty, x2, ty2, 501, s,    0, 0, 0, rc, 15, 0,  1,0,0,0); // num
       mdw_button(x2, ty, x3, ty2, 502, type, 0, 0, 0, rc, 15, 0,  1,0,0,0); // type
    }
 
    switch (type)
    {
-      case 1: mdw_slider(x3, ty, xb, ty2, 550, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break; // speed for move and resize
-      case 2: mdw_slider(x3, ty, xb, ty2, 553, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break; // wait time
-      case 3: mdw_slider(x3, ty, xb, ty2, 554, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break; // wait prox
-      case 4: mdw_button(x3, ty, xb, ty2, 505, step, lift, 0, 0, rc, 15, 0,  1,0,0,0); break; // end step
-      case 5: mdw_slider(x3, ty, xb, ty2, 556, step, lift, 0, 0, rc, 15, 15, 1,0,0,0); break; // wait trigger
+      case 1: mdw_slider(x3, ty, xb, ty2, 550, l, s, 0, 0, rc, 15, 15, 1,0,0,0); break; // speed for move and resize
+      case 2: mdw_slider(x3, ty, xb, ty2, 553, l, s, 0, 0, rc, 15, 15, 1,0,0,0); break; // wait time
+      case 3: mdw_slider(x3, ty, xb, ty2, 554, l, s, 0, 0, rc, 15, 15, 1,0,0,0); break; // wait prox
+      case 4: mdw_button(x3, ty, xb, ty2, 505, l, s, 0, 0, rc, 15, 0,  1,0,0,0); break; // end step
+      case 5: mdw_slider(x3, ty, xb, ty2, 556, l, s, 0, 0, rc, 15, 15, 1,0,0,0); break; // wait trigger
    }
 }
 
@@ -651,17 +658,6 @@ int lift_viewer(int lift)
              mdw_slider(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2, 555, lift, 0, 0, 0, 13, 15, 15, 1,0,0,0); a++; // lift mode 1 player ride timer
           }
 
-
-          mdw_button(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2, 510, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift draw on/off
-          mdw_button(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2, 511, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift solid player on/off
-          mdw_button(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2, 512, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift solid enemy on/off
-          mdw_button(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2, 513, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift solid item on/off
-
-
-
-
-
-          mdw_colsel(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2,  4,  lift, 0, 0, 0, 15, 13, 14, 0,0,0,0); a++;     // lift color
       if (mdw_button(xa,    ymb+a*bts, xb,    ymb+(a+1)*bts-2, 504, lift, 0, 0, 0,  4, 15,  0, 1,0,0,0)) mb = 26; // lift name
       a+=2;
 

@@ -156,13 +156,13 @@ void fill_smsg_slider(int bn, int type, int num)
 
 
    // lifts ----------------------------
-   if (bn == 550) sprintf(smsg, "Speed:%d", lift_steps[type][num].val);     // lift step move and resize time
-   if (bn == 551) sprintf(smsg, "Width:%d", lift_steps[type][num].w);       // lift step width
-   if (bn == 552) sprintf(smsg, "Height:%d", lift_steps[type][num].h);      // lift step height
-   if (bn == 553) sprintf(smsg, "Timer:%-3d",lift_steps[type][num].val);    // lift step wait timer
-   if (bn == 554) sprintf(smsg, "Distance:%-3d",lift_steps[type][num].val); // lift step wait player prox distance
-   if (bn == 555) sprintf(smsg, "Reset Timer:%-3d",lifts[num].val2);        // lift mode 1 player ride timer
-   if (bn == 556) sprintf(smsg, "Trigger:%-2d",lift_steps[type][num].val);  // lift step wait trigger
+   if (bn == 550) sprintf(smsg, "Speed:%d",         lift_steps[num][type].val);  // lift step move and resize time
+   if (bn == 551) sprintf(smsg, "Width:%d",         lift_steps[num][type].w);    // lift step width
+   if (bn == 552) sprintf(smsg, "Height:%d",        lift_steps[num][type].h);    // lift step height
+   if (bn == 553) sprintf(smsg, "Timer:%-3d",       lift_steps[num][type].val);  // lift step wait timer
+   if (bn == 554) sprintf(smsg, "Distance:%-3d",    lift_steps[num][type].val);  // lift step wait player prox distance
+   if (bn == 555) sprintf(smsg, "Reset Timer:%-3d", lifts[num].val2);            // lift mode 1 player ride timer
+   if (bn == 556) sprintf(smsg, "Trigger:%-2d",     lift_steps[num][type].val);  // lift step wait trigger
 
 }
 
@@ -314,14 +314,17 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 104) item[num][12] = (int)f; // Damage Field OFF Time
 
 
+
+
+
    // lifts ---------------------------------
-   if (bn == 550) lift_steps[type][num].val = (int)f; // lift step resize speed
-   if (bn == 551) lift_steps[type][num].w   = (int)f; // lift step width
-   if (bn == 552) lift_steps[type][num].h   = (int)f; // lift step height
-   if (bn == 553) lift_steps[type][num].val = (int)f; // lift step wait timer
-   if (bn == 554) lift_steps[type][num].val = (int)f; // lift step wait player prox distance
-   if (bn == 555) lifts[num].val2          = (int)f; // lift mode 1 player ride timer
-   if (bn == 556) lift_steps[type][num].val = (int)f; // lift step wait trigger
+   if (bn == 550) lift_steps[num][type].val = (int)f; // lift step resize speed
+   if (bn == 551) lift_steps[num][type].w   = (int)f; // lift step width
+   if (bn == 552) lift_steps[num][type].h   = (int)f; // lift step height
+   if (bn == 553) lift_steps[num][type].val = (int)f; // lift step wait timer
+   if (bn == 554) lift_steps[num][type].val = (int)f; // lift step wait player prox distance
+   if (bn == 555) lifts[num].val2           = (int)f; // lift mode 1 player ride timer
+   if (bn == 556) lift_steps[num][type].val = (int)f; // lift step wait trigger
 
 }
 
@@ -438,13 +441,13 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
 
       // lifts --------------------------------------
-      case 550: sul=1000; sll=1;    sinc=1;   sdx=lift_steps[type][num].val;   break;  // lift step resize speed
-      case 551: sul=500;  sll=20;   sinc=1;   sdx=lift_steps[type][num].w;     break;  // lift step width
-      case 552: sul=500;  sll=20;   sinc=1;   sdx=lift_steps[type][num].h;     break;  // lift step height
-      case 553: sul=2000; sll=10;   sinc=10;  sdx=lift_steps[type][num].val;   break;  // lift step wait time
-      case 554: sul=200;  sll=20;   sinc=10;  sdx=lift_steps[type][num].val;   break;  // lift step wait player prox distance
+      case 550: sul=1000; sll=1;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step resize speed
+      case 551: sul=500;  sll=20;   sinc=1;   sdx=lift_steps[num][type].w;     break;  // lift step width
+      case 552: sul=500;  sll=20;   sinc=1;   sdx=lift_steps[num][type].h;     break;  // lift step height
+      case 553: sul=2000; sll=10;   sinc=10;  sdx=lift_steps[num][type].val;   break;  // lift step wait time
+      case 554: sul=200;  sll=20;   sinc=10;  sdx=lift_steps[num][type].val;   break;  // lift step wait player prox distance
       case 555: sul=2000; sll=1;    sinc=1;   sdx=lifts[num].val2;             break;  // lift mode 1 player ride timer
-      case 556: sul=99;   sll=0;    sinc=1;   sdx=lift_steps[type][num].val;   break;  // lift step wait trigger
+      case 556: sul=99;   sll=0;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step wait trigger
 
 
    }
@@ -1230,11 +1233,12 @@ void fill_smsg_button(int bn, int obt, int type, int num)
    }
    if (bn == 503) sprintf(smsg, "Parameters");    // show row header
    if (bn == 504) sprintf(smsg, "Name:%s", lifts[num].lift_name); // edit lift name
+
    if (bn == 505) // lift step end step mode
    {
-      if (lift_steps[type][num].val == 0) sprintf(smsg, "Loop to Start");
-      if (lift_steps[type][num].val == 1) sprintf(smsg, "Warp to Start");
-      if (lift_steps[type][num].val == 2) sprintf(smsg, "Freeze Here  ");
+      if (lift_steps[num][type].val == 0) sprintf(smsg, "Loop to Start");
+      if (lift_steps[num][type].val == 1) sprintf(smsg, "Warp to Start");
+      if (lift_steps[num][type].val == 2) sprintf(smsg, "Freeze Here  ");
    }
 
 
@@ -1243,27 +1247,27 @@ void fill_smsg_button(int bn, int obt, int type, int num)
 
    if (bn == 510)
    {
-      if (lifts[num].flags & PM_LIFT_NO_DRAW)   sprintf(smsg, "Draw Lift");
-      else                                      sprintf(smsg, "Hide Lift");
+      if (lift_steps[num][type].type & PM_LIFT_NO_DRAW)   sprintf(smsg, "Draw Lift");
+      else                                                sprintf(smsg, "Hide Lift");
    }
    if (bn == 511)
    {
-      if (lifts[num].flags & PM_LIFT_SOLID_PLAYER) sprintf(smsg, "Solid for Player:ON ");
-      else                                         sprintf(smsg, "Solid for Player:OFF");
+      if (lift_steps[num][type].type & PM_LIFT_SOLID_PLAYER) sprintf(smsg, "Solid for Player:ON ");
+      else                                                   sprintf(smsg, "Solid for Player:OFF");
    }
    if (bn == 512)
    {
-      if (lifts[num].flags & PM_LIFT_SOLID_ENEMY)  sprintf(smsg, "Solid for Enemy:ON  ");
-      else                                         sprintf(smsg, "Solid for Enemy:OFF ");
+      if (lift_steps[num][type].type & PM_LIFT_SOLID_ENEMY)  sprintf(smsg, "Solid for Enemy:ON  ");
+      else                                                   sprintf(smsg, "Solid for Enemy:OFF ");
    }
    if (bn == 513)
    {
-      if (lifts[num].flags & PM_LIFT_SOLID_ITEM)   sprintf(smsg, "Solid for Item:ON   ");
-      else                                         sprintf(smsg, "Solid for Item:OFF  ");
+      if (lift_steps[num][type].type & PM_LIFT_SOLID_ITEM)   sprintf(smsg, "Solid for Item:ON   ");
+      else                                                   sprintf(smsg, "Solid for Item:OFF  ");
    }
 
 
-   if (bn == 520) sprintf(smsg, "Set Event Trigger (%d)", lift_steps[type][num].val);
+   if (bn == 520) sprintf(smsg, "Set Event Trigger (%d)", lift_steps[num][type].val);
 
 
 
@@ -2073,16 +2077,16 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
 
       if (bn == 500) if (++lifts[num].mode > 1) lifts[num].mode = 0; // lift mode
       if (bn == 504) return 1; // edit lift name
-      if (bn == 505) if (++lift_steps[type][num].val > 2) lift_steps[type][num].val = 0; // lift step end step mode
-
-
-      if (bn == 510) lifts[num].flags ^= PM_LIFT_NO_DRAW;
-      if (bn == 511) lifts[num].flags ^= PM_LIFT_SOLID_PLAYER;
-      if (bn == 512) lifts[num].flags ^= PM_LIFT_SOLID_ENEMY;
-      if (bn == 513) lifts[num].flags ^= PM_LIFT_SOLID_ITEM;
 
 
 
+      if (bn == 505) if (++lift_steps[num][type].val > 2) lift_steps[num][type].val = 0; // lift step end step mode
+
+
+      if (bn == 510) lift_steps[num][type].type ^= PM_LIFT_NO_DRAW;
+      if (bn == 511) lift_steps[num][type].type ^= PM_LIFT_SOLID_PLAYER;
+      if (bn == 512) lift_steps[num][type].type ^= PM_LIFT_SOLID_ENEMY;
+      if (bn == 513) lift_steps[num][type].type ^= PM_LIFT_SOLID_ITEM;
 
 
       if (bn == 520)
@@ -2091,7 +2095,7 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          if (i > -1)
          {
             int ev = get_unused_pm_event();
-            lift_steps[type][num].val = ev;
+            lift_steps[num][type].val = ev;
             // toggle trigger
             item[i][11] = 0;
             item[i][12] = 0;

@@ -596,11 +596,11 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
 
 void menu_setup(void)
 {
-   strcpy (lift_step_type_name[0], "illegal!");
+   strcpy (lift_step_type_name[0], "BAD!");
    strcpy (lift_step_type_name[1], "Move");
    strcpy (lift_step_type_name[2], "Wait");
    strcpy (lift_step_type_name[3], "Prox");
-   strcpy (lift_step_type_name[4], "End");
+   strcpy (lift_step_type_name[4], "End ");
    strcpy (lift_step_type_name[5], "Trig");
 
 
