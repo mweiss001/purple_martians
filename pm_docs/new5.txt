@@ -21145,18 +21145,49 @@ the same with the lift mode reset....
 
 
 
-bug--cant's detect lifts from object viewer map mode
-
-bug when in trigger viewer, can''t dtect anything else on map
-
-bug-copy and paste lifts in zfs...
 
 
-bug lifts has color 0 when editting text...
 
+bug - cant's detect lifts from object viewer map mode...fixed
+
+bug - copy and paste lifts in zfs...done
+pastes lift but no steps...fixed
+
+bug - lifts has color 0 when editing text...fixed
+
+
+add lift resize to map move options....
 
 
 make a level with a long wide rising floor.
+
+
+
+
+
+
+
+I want to make my button stuff simpler?, easier?
+integrate fill smsg into button routine
+check for mouse press at start
+do one pass through...if or switch case  for each button number..
+set the text there
+process click there
+at the end draw the common text...
+i can do them one by one...removing the fill smsg entry...
+done...now it is just one big monlithic function with a section for each button number
+there you set how it displays and what happens when it is pressed.
+in one place, instead of two...this should make it easier instead of scrolling up and down for pages
+to work with buttons...
+
+
+push
+
+20220419 7:20 AM
+
+
+
+
 
 
 

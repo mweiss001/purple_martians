@@ -234,11 +234,7 @@ void update_var(int bn, int type, int num, float f)
        show_big();
    }
 
-
-
-
    if (bn == 42) Ei[num][25] = (int)f;        // dead enemy health bonus
-
    if (bn == 43) lifts[num].width = (int) f;  // lift width
    if (bn == 44) lifts[num].height = (int) f; // lift height
    if (bn == 45) Efi[num][2] = al_ftofix(f);     // trakbot x speed
@@ -317,6 +313,7 @@ void update_var(int bn, int type, int num, float f)
 
 
 
+
    // lifts ---------------------------------
    if (bn == 550) lift_steps[num][type].val = (int)f; // lift step resize speed
    if (bn == 551) lift_steps[num][type].w   = (int)f; // lift step width
@@ -335,12 +332,12 @@ void update_var(int bn, int type, int num, float f)
 // q2 = text color    (use white 99% of time)
 // q3 = slider color  (use white 99% of time)
 // q4 = slider color  (draw frame mode) now i always use 1
+// q5 = text justify  (0-center 1-left...buttons only)
 
 void mdw_slider(int x1, int y1, int x2, int y2,
                     int bn, int num, int type, int obt,
                     int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
-   //ALLEGRO_BITMAP *tmp = NULL;
    float sdx, sul, sll, sinc, dsx;
    switch (bn)
    {
@@ -447,102 +444,80 @@ void mdw_slider(int x1, int y1, int x2, int y2,
    }
 
 
+   // draw the slider
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+   dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
+   fill_smsg_slider(bn, type, num);
+   al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
-// I don't think display only is used anymore.....
-   /*
-   int display_only = 0;
-   if ((bn == 106) || (bn == 107))
+   // is mouse on adjustment bar?
+   if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
-      if (lift_steps[type][num].type != 1) display_only = 1;
-   }
-
-   if (display_only)
-   {
-      // draw the slider
-      draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-      fill_smsg_slider(bn, type, num);
-      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-   }
-   else
-
-   */
-
-   {
-      // draw the slider
-      draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-      dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
-      fill_smsg_slider(bn, type, num);
+      //Redraw = 2; // flag that we are in charge of drawing the mouse
+      draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
-      // is mouse on adjustment bar?
-      if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
+      if (mouse_b3) // only when initially clicked
       {
-         //Redraw = 2; // flag that we are in charge of drawing the mouse
-         draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-         al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-
-         if (mouse_b3) // only when initially clicked
+         float f = sdx; //initial value
+         Redraw = 1;  // flag to not draw screen buffer until refreshed because it will have old position
+         while (mouse_b3)
          {
-            float f = sdx; //initial value
-            Redraw = 1;  // flag to not draw screen buffer until refreshed because it will have old position
-            while (mouse_b3)
+            if (mouse_dz)
             {
-               if (mouse_dz)
-               {
-                  int dif = mouse_dz;
-                  mouse_dz = 0;
+               int dif = mouse_dz;
+               mouse_dz = 0;
 
-                  f += dif * sinc;                  // only allow increments of sinc
-                  if (f < sll) f = sll;             // limit check
-                  if (f > sul) f = sul;
-                  f = round(f/sinc) * sinc;         // round to sinc
-                  update_var(bn, type, num, f);
-               }
-               draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-               fill_smsg_slider(bn, type, num);
-               al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-               draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
-               al_flip_display();
-               proc_controllers();
-
-            } // end of mouse b4 held
-         } // end of mouse b4 pressed
-
-
-         if (mouse_b1) // only when initially clicked
-         {
-            //Redraw = 1;  // flag to not draw screen buffer until refreshed because it will have old position
-            while (mouse_b1)
-            {
-               float my = mouse_y;
-               float mx = mouse_x;
-               float a, b, c, d, e, f ;
-
-               // enforce limits
-               if (my<y1) my = y1;
-               if (mx<x1) mx = x1;
-               if (my>y2) my = y2;
-               if (mx>x2) mx = x2;
-
-               // get slider position
-               a = mx-x1;                  // relative postion of slider bar in range
-               b = x2-x1;                  // range
-               c = a / b;                  // ratio = position / range
-               d = sul-sll;                // range from buttons
-               e = c * d;                  // ratio * range
-               f = e + sll;                // add to ll
-               f = round(f/sinc) * sinc;   // round to sinc
+               f += dif * sinc;                  // only allow increments of sinc
+               if (f < sll) f = sll;             // limit check
+               if (f > sul) f = sul;
+               f = round(f/sinc) * sinc;         // round to sinc
                update_var(bn, type, num, f);
+            }
+            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+            fill_smsg_slider(bn, type, num);
+            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
+            al_flip_display();
+            proc_controllers();
 
-               draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-               fill_smsg_slider(bn, type, num);
-               al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-               draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
-               al_flip_display();
-               proc_controllers();
-            }  // end of mouse b1 held
-         }  // end of mouse b1 pressed
-      }
+         } // end of mouse b4 held
+      } // end of mouse b4 pressed
+
+
+      if (mouse_b1) // only when initially clicked
+      {
+         //Redraw = 1;  // flag to not draw screen buffer until refreshed because it will have old position
+         while (mouse_b1)
+         {
+            float my = mouse_y;
+            float mx = mouse_x;
+            float a, b, c, d, e, f ;
+
+            // enforce limits
+            if (my<y1) my = y1;
+            if (mx<x1) mx = x1;
+            if (my>y2) my = y2;
+            if (mx>x2) mx = x2;
+
+            // get slider position
+            a = mx-x1;                  // relative postion of slider bar in range
+            b = x2-x1;                  // range
+            c = a / b;                  // ratio = position / range
+            d = sul-sll;                // range from buttons
+            e = c * d;                  // ratio * range
+            f = e + sll;                // add to ll
+            f = round(f/sinc) * sinc;   // round to sinc
+            update_var(bn, type, num, f);
+
+            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+            fill_smsg_slider(bn, type, num);
+            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
+            al_flip_display();
+            proc_controllers();
+         }  // end of mouse b1 held
+      }  // end of mouse b1 pressed
    }
 }
 
@@ -554,18 +529,19 @@ void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, i
    for (int c=0; c<d/2+1; c++)
    {
       int a;
-      if (!q4) // frame fades from solid outer to black inner
-      {
-         a = 224 - (c*32); // color increment
-         if (a<0) a = 0;
-      }
-      else // frame fades from black outer to solid inner
+      if (q4) // frame fades from black outer to solid inner
       {
          a = (c*32); // color increment
          // if (aa > 224) break; uncomment this line to let the background color q0 show through in the middle
          if (a>224) a = 224;
       }
-      al_draw_rectangle(x1+c, y1+c, x2-c, y2-c, palette_color[q1+a], 1);
+      else // frame fades from solid outer to black inner
+      {
+         a = 224 - (c*32); // color increment
+         if (a<0) a = 0;
+      }
+//      al_draw_rectangle(x1+c, y1+c, x2-c, y2-c, palette_color[q1+a], 1);
+      al_draw_rounded_rectangle(x1+c, y1+c, x2-c, y2-c, 1, 1, palette_color[q1+a], 1);
    }
 }
 
@@ -661,711 +637,41 @@ float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, i
 // --------------------------buttons---------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-
-void fill_smsg_button(int bn, int obt, int type, int num)
+int mdw_button(int x1, int y1, int x2, int y2,
+                int bn, int num, int type, int obt,
+                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
-   if (bn == 1) sprintf(smsg, "OK");
-   if (bn == 3) sprintf(smsg, "Cancel");
+
+   // is mouse pressed on this button?
+   int press = 0;
+   if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   {
+      while (mouse_b1) proc_controllers(); // wait for release
+      press = 1;
+   }
+
+
+   if (bn == 1)
+   {
+      sprintf(smsg, "OK");
+      if (press) return 1;
+   }
    if (bn == 2)
    {
       if (item[num][3] ==  0) sprintf(smsg,  "    Stationary   ");
       if (item[num][3] ==  1) sprintf(smsg,  "       Fall      ");
+      if (press) if (++item[num][3] > 1) item[num][3] = 0;
+   }
+   if (bn == 3)
+   {
+      sprintf(smsg, "Cancel");
+      if (press) return 1;
    }
    if (bn == 4)
    {
       if (item[num][8] == 0) sprintf(smsg, "disabled");
       if (item[num][8] == 1) sprintf(smsg, "Set Desination Item (%d)", item[num][9]);
-   }
-
-   if (bn == 5) sprintf(smsg, "Get New Block Range");
-   if (bn == 6) sprintf(smsg, "Set Initial Direction"); // rocket direction
-   if (bn == 7) sprintf(smsg, "Edit Message");
-   if (bn == 8) // archwag direction
-   {
-      if (Ei[num][2]) sprintf(smsg, "Initial Direction:Right");
-      else            sprintf(smsg, "Initial Direction:Left ");
-   }
-   if (bn == 9) // archwag and walker
-   {
-      if (Ei[num][8]) sprintf(smsg, "Bounce Mode");
-      else            sprintf(smsg, "Follow Mode");
-   }
-   if (bn == 10) sprintf(smsg, "Set Initial Direction"); // bouncer direction
-   if (bn == 11) sprintf(smsg, "Set Initial Direction");// trakbot direction
-   if (bn == 12) // trakbot drop mode
-   {
-      if (Ei[num][7] == 0) sprintf(smsg, "Drop Mode:Off");
-      else                 sprintf(smsg, "Drop Mode:On ");
-   }
-   if (bn == 13) sprintf(smsg, "Main Shape");
-   if (bn == 14) sprintf(smsg, "Seek Shape");
-   if (bn == 15) sprintf(smsg, "Move Extended Position");
-   if (bn == 16) sprintf(smsg, "Set Trigger Box");
-   if (bn == 17) sprintf(smsg, "Set Source Area");
-   if (bn == 18) sprintf(smsg, "Set Destination");
-   if (bn == 19) sprintf(smsg, "Move");
-   if (bn == 20) sprintf(smsg, "Create");
-   if (bn == 21) sprintf(smsg, "Delete");
-   if (bn == 22) sprintf(smsg, "Next");
-   if (bn == 23) sprintf(smsg, "Prev");
-   if (bn == 24) sprintf(smsg, "Copy to Draw Item");
-   if (bn == 25) sprintf(smsg, "Viewer Help");
-   if (bn == 26)
-   {
-      if (item[num][3] ==  1) sprintf(smsg, "      Fall        ");
-      if (item[num][3] ==  0) sprintf(smsg, "    Stationary    ");
-      if (item[num][3] == -1) sprintf(smsg, "      Carry       ");
-      if (item[num][3] == -2) sprintf(smsg, "Carry Through Door");
-   }
-   if (bn == 27) // cloner trigger type
-   {
-      if (Ei[num][8] == 0) sprintf(smsg, "Trigger Type:Timer Runs  ");
-      if (Ei[num][8] == 1) sprintf(smsg, "Trigger Type:Timer Resets");
-      if (Ei[num][8] == 2) sprintf(smsg, "Trigger Type:Immediate   ");
-   }
-   if (bn == 28) sprintf(smsg, "Run Lifts");
-   if (bn == 48) // key block erase type
-   {
-      if (item[num][12]) sprintf(smsg, "Erase Only Matching Blocks");
-      else               sprintf(smsg, "Erase All Blocks In Range ");
-   }
-   if (bn == 49) // door type
-   {
-      if (item[num][8] == 0) sprintf(smsg, "Door Type:Exit Only");
-      if (item[num][8] == 1) sprintf(smsg, "Door Type:Normal   ");
-   }
-   if (bn == 50) // door entry type
-   {
-      if (item[num][11] == 0) sprintf(smsg, "Enter Immediate  ");
-      if (item[num][11] == 1) sprintf(smsg, "Enter with <up>  ");
-      if (item[num][11] == 2) sprintf(smsg, "Enter with <down>");
-      if (item[num][8]  == 0) sprintf(smsg, "disabled");
-   }
-   if (bn == 51) // door show dest line type
-   {
-      if (item[num][12] == 0) sprintf(smsg, "Exit link:never show  ");
-      if (item[num][12] == 1) sprintf(smsg, "Exit link:alway show  ");
-      if (item[num][12] == 2) sprintf(smsg, "Exit link:when touched");
-      if (item[num][8]  == 0) sprintf(smsg, "disabled");
-   }
-   if (bn == 52) sprintf(smsg, "Change Door Shape");
-
-   if (bn == 53) // door move type
-   {
-      if (item[num][7] == 0) sprintf(smsg, "Move Type:Automatic    ");
-      if (item[num][7] == 1) sprintf(smsg, "Move Type:Force Instant");
-      if (item[num][7] == 2) sprintf(smsg, "Move Type:Force Move   ");
-      if (item[num][8] == 0) sprintf(smsg, "disabled");
-   }
-   if (bn == 55) sprintf(smsg, "Set Message Position");
-
-   if (bn == 56)
-   {
-      if (Viewer_lock) sprintf(smsg,  "Locked");
-      else             sprintf(smsg, "Unlocked");
-   }
-   if (bn == 57)
-   {
-       if (obt == 2) sprintf(smsg,"%s Help", item_name[type]);
-       if (obt == 3) sprintf(smsg,"%s Help", (const char *)enemy_name[type]);
-       if (obt == 4) sprintf(smsg,"Lift Help");
-   }
-
-
-   if (bn == 76)
-   {
-      if (item[num][11] == 0) sprintf(smsg, "Sticky:Off");
-      if (item[num][11] == 1) sprintf(smsg, "Sticky:On ");
-   }
-   if (bn == 77)
-   {
-      if (item[num][12] == 0) sprintf(smsg, "   Fuse Timer   ");
-      if (item[num][12] == 1) sprintf(smsg, "Remote Detonator");
-   }
-
-   if (bn == 78) sprintf(smsg, "Start Index:%d", item[num][7]);
-   if (bn == 81)
-   {
-      if (Ei[num][4] == 0) sprintf(smsg, "Draw Boxes:off");
-      if (Ei[num][4] == 1) sprintf(smsg, "Draw Boxes:trigger only");
-      if (Ei[num][4] == 2) sprintf(smsg, "Draw Boxes:src/dst only");
-      if (Ei[num][4] == 3) sprintf(smsg, "Draw Boxes:all");
-   }
-
-   if (bn == 82) // rocket only
-   {
-      if (item[num][3] ==  1) sprintf(smsg,  "       Fall      ");
-      if (item[num][3] ==  0) sprintf(smsg,  "    Stationary   ");
-      if (item[num][3] == -2) sprintf(smsg,  "Ride Through Door");
-   }
-
-   if (bn == 83) // cloner only
-   {
-      if (Ei[num][30] ==  0) sprintf(smsg,  "      Normal     ");
-      if (Ei[num][30] ==  1) sprintf(smsg,  "    Invincible   ");
-   }
-
-
-   if (bn == 85) sprintf(smsg, "Get New Damage Field");
-   if (bn == 86) sprintf(smsg, "Get New Trigger Field");
-
-
-
-   if (bn == 87) // field mode
-   {
-      if (Ei[num][5] == 0) sprintf(smsg, "MODE:Damage Field Always ON          ");
-      if (Ei[num][5] == 1) sprintf(smsg, "MODE:Damage Field Toggle             ");
-      if (Ei[num][5] == 2) sprintf(smsg, "MODE:Damage Field ON Until Triggered ");
-      if (Ei[num][5] == 3) sprintf(smsg, "MODE:Damage Field OFF Until Triggered");
-      if (Ei[num][5] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF   ");
-   }
-
-   if (bn == 98)
-   {
-      if (Ei[num][2] == 0) sprintf(smsg, "Draw Mode:Hidden           ");
-      if (Ei[num][2] == 1) sprintf(smsg, "Draw Mode:Small Number     ");
-      if (Ei[num][2] == 2) sprintf(smsg, "Draw Mode:Large Number     ");
-      if (Ei[num][2] == 3) sprintf(smsg, "Draw Mode:Small Percent Bar");
-      if (Ei[num][2] == 4) sprintf(smsg, "Draw Mode:Large Percent Bar");
-   }
-
-
-
-
-   if (bn == 102) // Damage Field
-   {
-      if (Ei[num][19] == 0) sprintf(smsg, "Draw Type:Red Rectangle (default)");
-      if (Ei[num][19] == 1) sprintf(smsg, "Draw Type:Spikey Floor");
-      if (Ei[num][19] == 2) sprintf(smsg, "Draw Type:none");
-   }
-
-   if (bn == 105) // Trigger Field
-   {
-      if (Ei[num][10] == 0) sprintf(smsg, "Draw Type:Yellow Rectangle (default)");
-      if (Ei[num][10] == 1) sprintf(smsg, "Draw Type:none");
-   }
-
-   if (bn == 120)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_PLAYER) sprintf(smsg, "Affects Players:ON          ");
-      else                                           sprintf(smsg, "Affects Players:OFF         ");
-   }
-   if (bn == 121)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_ENEMY)  sprintf(smsg, "Affects Enemies:ON          ");
-      else                                           sprintf(smsg, "Affects Enemies:OFF         ");
-   }
-   if (bn == 122)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_ITEM)   sprintf(smsg, "Affects Items:ON            ");
-      else                                           sprintf(smsg, "Affects Items:OFF           ");
-   }
-   if (bn == 123)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_PBUL)   sprintf(smsg, "Affects Player's Bullets:ON ");
-      else                                           sprintf(smsg, "Affects Player's Bullets:OFF");
-   }
-   if (bn == 124)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_EBUL)   sprintf(smsg, "Affects Enemy's Bullets:ON  ");
-      else                                           sprintf(smsg, "Affects Enemy's Bullets:OFF ");
-   }
-
-
-   if (bn == 125)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_PLAYER) sprintf(smsg, "Triggered by Players:ON          ");
-      else                                            sprintf(smsg, "Triggered by Players:OFF         ");
-   }
-   if (bn == 126)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_ENEMY)  sprintf(smsg, "Triggered by Enemies:ON          ");
-      else                                            sprintf(smsg, "Triggered by Enemies:OFF         ");
-   }
-   if (bn == 127)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_ITEM)   sprintf(smsg, "Triggered by Items:ON            ");
-      else                                            sprintf(smsg, "Triggered by Items:OFF           ");
-   }
-   if (bn == 128)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_PBUL)   sprintf(smsg, "Triggered by Player's Bullets:ON ");
-      else                                            sprintf(smsg, "Triggered by Player's Bullets:OFF");
-   }
-   if (bn == 129)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_EBUL)   sprintf(smsg, "Triggered by Enemy's Bullets:ON  ");
-      else                                            sprintf(smsg, "Triggered by Enemy's Bullets:OFF ");
-   }
-
-   if (bn == 133)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_CURR) sprintf(smsg, "Damage Field Initially ON");
-      else sprintf(smsg, "Damage Field Initially OFF");
-   }
-   if (bn == 134)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_ON) sprintf(smsg, "Follows Lift:ON");
-      else sprintf(smsg, "Follows Lift:OFF");
-   }
-   if (bn == 135)
-   {
-      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_ON) sprintf(smsg, "Follows Lift:ON");
-      else sprintf(smsg, "Follows Lift:OFF");
-   }
-
-   if (bn == 136)
-   {
-      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XC;
-      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XF;
-      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XL;
-
-      if (C) sprintf(smsg, "Lift X Align:Center");
-      else
-      {
-         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
-      }
-   }
-
-   if (bn == 137)
-   {
-      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YC;
-      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YF;
-      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YL;
-
-      if (C) sprintf(smsg, "Lift Y Align:Center");
-      else
-      {
-         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
-      }
-   }
-
-   if (bn == 138)
-   {
-      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XC;
-      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XF;
-      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XL;
-
-      if (C) sprintf(smsg, "Lift X Align:Center");
-      else
-      {
-         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
-      }
-   }
-
-   if (bn == 139)
-   {
-      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YC;
-      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YF;
-      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YL;
-
-      if (C) sprintf(smsg, "Lift Y Align:Center");
-      else
-      {
-         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
-      }
-   }
-
-   if (bn == 200) sprintf(smsg, "Get New Trigger Field"); // item
-
-
-
-   if (bn == 201) // Item Trigger Draw Type
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_DRAW_ON) sprintf(smsg,"Draw Trigger Field:ON            ");
-      else                                        sprintf(smsg,"Draw Trigger Field:OFF           ");
-   }
-
-
-
-
-
-   if (bn == 202)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_PLAYER) sprintf(smsg, "Triggered by Players:ON          ");
-      else                                       sprintf(smsg, "Triggered by Players:OFF         ");
-   }
-   if (bn == 203)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_ENEMY)  sprintf(smsg, "Triggered by Enemies:ON          ");
-      else                                       sprintf(smsg, "Triggered by Enemies:OFF         ");
-   }
-   if (bn == 204)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_ITEM)   sprintf(smsg, "Triggered by Items:ON            ");
-      else                                       sprintf(smsg, "Triggered by Items:OFF           ");
-   }
-   if (bn == 205)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_PBUL)   sprintf(smsg, "Triggered by Player's Bullets:ON ");
-      else                                       sprintf(smsg, "Triggered by Player's Bullets:OFF");
-   }
-   if (bn == 206)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_EBUL)   sprintf(smsg, "Triggered by Enemy's Bullets:ON  ");
-      else                                       sprintf(smsg, "Triggered by Enemy's Bullets:OFF ");
-   }
-
-
-
-   if (bn == 210)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_LIFT_ON) sprintf(smsg, "Follows Lift:ON");
-      else sprintf(smsg, "Follows Lift:OFF");
-   }
-
-   if (bn == 211)
-   {
-      int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
-      int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
-      int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
-
-      if (C) sprintf(smsg, "Lift X Align:Center");
-      else
-      {
-         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
-      }
-   }
-
-   if (bn == 212)
-   {
-      int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_YC;
-      int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_YF;
-      int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_YL;
-
-      if (C) sprintf(smsg, "Lift Y Align:Center");
-      else
-      {
-         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
-      }
-   }
-
-
-
-   if (bn == 300) sprintf(smsg, "Get New Block Manip Field"); // item
-
-
-
-   if (bn == 301) // block manip mode
-   {
-      if (item[num][3] == 0) sprintf(smsg, "MODE:OFF");
-      if (item[num][3] == 1) sprintf(smsg, "MODE:Set All To Block 1");
-      if (item[num][3] == 2) sprintf(smsg, "MODE:Set All Block 2 To Block 1");
-      if (item[num][3] == 3) sprintf(smsg, "MODE:Toggle Block 2 To Block 1");
-   }
-
-   if (bn == 304) // Block Manip Draw
-   {
-      if (item[num][2])  sprintf(smsg, "Draw Block Manip Field:ON     ");
-      else               sprintf(smsg, "Draw Block Manip Field:OFF    ");
-   }
-
-
-
-
-   if (bn == 310) // block 1 select...
-   {
-      int tn = item[num][10]&1023; //block 1
-      sprintf(smsg, "Block 1: %d", tn);
-   }
-   if (bn == 311) // block 2 select...
-   {
-      int tn = item[num][11]&1023; //block 1
-      sprintf(smsg, "Block 2: %d", tn);
-   }
-
-
-   if (bn == 320) sprintf(smsg, "Set Event Trigger (%d)", item[num][1]);
-
-
-   if (bn == 400) sprintf(smsg, "Get New Block Damage Field"); // item
-
-
-
-   if (bn == 401) // timer draw mode
-   {
-                                                 sprintf(smsg, "Timer Display: OFF          ");
-      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SN) sprintf(smsg, "Timer Display: Small Number ");
-      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BN) sprintf(smsg, "Timer Display: Large Number ");
-      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SP) sprintf(smsg, "Timer Display: Small Percent");
-      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BP) sprintf(smsg, "Timer Display: Large Percent");
-   }
-
-
-   if (bn == 402) // damage mode
-   {
-      if (item[num][11] == 0) sprintf(smsg, "MODE:Damage Field Always ON");
-      if (item[num][11] == 1) sprintf(smsg, "MODE:Damage Field Toggle");
-      if (item[num][11] == 2) sprintf(smsg, "MODE:Damage Field ON Until Triggered");
-      if (item[num][11] == 3) sprintf(smsg, "MODE:Damage Field OFF Until Triggered");
-      if (item[num][11] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF");
-   }
-
-   if (bn == 403) // Instant death for player
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_INSTGIB) sprintf(smsg, "Player Instant Death:ON   ");
-      else                                       sprintf(smsg, "Player Instant Death:OFF  ");
-   }
-
-   if (bn == 404) // Block Damage draw mode
-   {
-      if (item[num][2] == 0) sprintf(smsg, "Block Damage Field Draw Type:none                   ");
-      if (item[num][2] == 1) sprintf(smsg, "Block Damage Field Draw Type:Red Rectangle (default)");
-      if (item[num][2] == 2) sprintf(smsg, "Block Damage Field Draw Type:Spikey Floor           ");
-   }
-
-   if (bn == 410)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_LIFT_ON) sprintf(smsg, "Follows Lift:ON");
-      else sprintf(smsg, "Follows Lift:OFF");
-   }
-
-   if (bn == 411)
-   {
-      int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_XC;
-      int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_XF;
-      int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_XL;
-
-      if (C) sprintf(smsg, "Lift X Align:Center");
-      else
-      {
-         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
-      }
-   }
-
-   if (bn == 412)
-   {
-      int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_YC;
-      int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_YF;
-      int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_YL;
-
-      if (C) sprintf(smsg, "Lift Y Align:Center");
-      else
-      {
-         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
-         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
-         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
-         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
-      }
-   }
-
-
-
-
-
-   if (bn == 420)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_PLAYER) sprintf(smsg, "Affects Players:ON          ");
-      else                                      sprintf(smsg, "Affects Players:OFF         ");
-   }
-   if (bn == 421)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_ENEMY)  sprintf(smsg, "Affects Enemies:ON          ");
-      else                                      sprintf(smsg, "Affects Enemies:OFF         ");
-   }
-   if (bn == 422)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_ITEM)   sprintf(smsg, "Affects Items:ON            ");
-      else                                      sprintf(smsg, "Affects Items:OFF           ");
-   }
-   if (bn == 423)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_PBUL)   sprintf(smsg, "Affects Player's Bullets:ON ");
-      else                                      sprintf(smsg, "Affects Player's Bullets:OFF");
-   }
-   if (bn == 424)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_EBUL)   sprintf(smsg, "Affects Enemy's Bullets:ON  ");
-      else                                      sprintf(smsg, "Affects Enemy's Bullets:OFF ");
-   }
-
-
-   if (bn == 433)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_CURR) sprintf(smsg, "Damage Field Initially ON");
-      else sprintf(smsg, "Damage Field Initially OFF");
-   }
-
-
-
-
-   if (bn == 500) // lift mode
-   {
-      sprintf(smsg, "undefined mode (%d)", lifts[num].mode);
-      if (lifts[num].mode == 0) sprintf(smsg, "Mode 0 - Normal");
-      if (lifts[num].mode == 1) sprintf(smsg, "Mode 1 - Prox Run and Reset");
-   }
-   if (bn == 501)
-   {
-      if (num == -1) sprintf(smsg, "#");       // show row header
-      else           sprintf(smsg, "%d", num); // show step num
-   }
-   if (bn == 502)
-   {
-      if (num == -1) sprintf(smsg, "Type");  // show row header
-      if (num == 1)  sprintf(smsg, "Move");
-      if (num == 2)  sprintf(smsg, "Wait");
-      if (num == 3)  sprintf(smsg, "Wait");
-      if (num == 4)  sprintf(smsg, "End ");
-      if (num == 5)  sprintf(smsg, "Wait");
-   }
-
-   if (bn == 503)
-   {
-      int l = type;
-      int s = obt;
-      int x = lift_steps[l][s].x;
-      int y = lift_steps[l][s].y;
-      int w = lift_steps[l][s].w;
-      int h = lift_steps[l][s].h;
-      int v = lift_steps[l][s].val;
-
-
-      if (num == -1) sprintf(smsg, "Details");  // show row header
-      if (num == 1)  sprintf(smsg, "x:%4d y:%4d w:%4d h:%4d [speed:%d]", x, y, w, h, v);
-      if (num == 2)  sprintf(smsg, "for Timer:%d", v);
-      if (num == 3)  sprintf(smsg, "for Player prox:%d", v);
-      if (num == 4)
-      {
-         if (v == 0) sprintf(smsg, "End Step - Loop to Start");
-         if (v == 1) sprintf(smsg, "End Step - Warp to Start");
-         if (v == 2) sprintf(smsg, "End Step - Freeze Here");
-      }
-      if (num == 5)  sprintf(smsg, "for Trigger Event:%d", v);
-   }
-
-
-   if (bn == 504) sprintf(smsg, "Name:%s", lifts[num].lift_name); // edit lift name
-
-   if (bn == 505) // lift step end step mode
-   {
-      if (lift_steps[num][type].val == 0) sprintf(smsg, "Loop to Start");
-      if (lift_steps[num][type].val == 1) sprintf(smsg, "Warp to Start");
-      if (lift_steps[num][type].val == 2) sprintf(smsg, "Freeze Here  ");
-   }
-
-
-
-   if (bn == 506)
-   {
-      if (num == -1) sprintf(smsg, "C");       // show row header
-      else           sprintf(smsg, "%d", num); // show num
-   }
-
-
-   if (bn == 510)
-   {
-      if (lift_steps[num][type].type & PM_LIFT_NO_DRAW)   sprintf(smsg, "Hide Lift");
-      else                                                sprintf(smsg, "Draw Lift");
-   }
-   if (bn == 511)
-   {
-      if (lift_steps[num][type].type & PM_LIFT_SOLID_PLAYER) sprintf(smsg, "Solid for Player:ON ");
-      else                                                   sprintf(smsg, "Solid for Player:OFF");
-   }
-   if (bn == 512)
-   {
-      if (lift_steps[num][type].type & PM_LIFT_SOLID_ENEMY)  sprintf(smsg, "Solid for Enemy:ON  ");
-      else                                                   sprintf(smsg, "Solid for Enemy:OFF ");
-   }
-   if (bn == 513)
-   {
-      if (lift_steps[num][type].type & PM_LIFT_SOLID_ITEM)   sprintf(smsg, "Solid for Item:ON   ");
-      else                                                   sprintf(smsg, "Solid for Item:OFF  ");
-   }
-
-
-   if (bn == 520) sprintf(smsg, "Set Event Trigger (%d)", lift_steps[num][type].val);
-
-
-
-
-}
-
-
-//------------------------------------------------------------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
-                int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
-{
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   fill_smsg_button(bn, obt, type, num);                              // get button text
-
-   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
-   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-
-
-   if (bn == 13)
-   {
-      float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-      al_draw_rotated_bitmap(tile[zz[0][Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
-   }
-   if (bn == 14)
-   {
-      float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-      al_draw_rotated_bitmap(tile[zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
-   }
-
-   if (bn == 310)
-   {
-      int tn = item[num][10];
-      int x = (x2+x1)/2+60;
-      int y = (y2+y1)/2-10;
-
-      al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
-      al_draw_bitmap(btile[tn&1023], x, y, 0);
-   }
-
-   if (bn == 311)
-   {
-      int tn = item[num][11];
-      int x = (x2+x1)/2+60;
-      int y = (y2+y1)/2-10;
-
-      al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
-      al_draw_bitmap(btile[tn&1023], x, y, 0);
-   }
-
-
-
-
-   // is mouse pressed on this button?
-   if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
-   {
-      while (mouse_b1) proc_controllers(); // wait for release
-
-      if (bn == 1) return 1;
-      if (bn == 3) return 1;
-      if (bn == 2) if (++item[num][3] > 1) item[num][3] = 0;
-      if (bn == 4)
+      if (press)
       {
          if (item[num][8] == 1) // Set Linked Item
          {
@@ -1374,7 +680,12 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
              Redraw = 1;
          }
       }
-      if (bn == 5)
+   }
+   if (bn == 5)
+   {
+      sprintf(smsg, "Get New Block Range");
+      if (press)
+      {
          if (getbox( "Block Range", 2, 4, num) == 1)
          {
             if (--bx2 < bx1) bx2++;
@@ -1385,36 +696,81 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             item[num][9] = by2;
             Redraw = 1;
          }
-      if (bn == 6)
+      }
+   }
+   if (bn == 6)
+   {
+      sprintf(smsg, "Set Initial Direction"); // rocket direction
+      if (press)
+      {
          if (getxy("Set New Direction", 97, 11, num) == 1)
          {
             set_rocket_rot(num, get100_x*20, get100_y*20);
             Redraw = 1;
          }
-      if ((bn == 7) && (num != 999)) edit_pmsg_text(num, 0);
-
-      if (bn == 8) // initial direction
+      }
+   }
+   if (bn == 7)
+   {
+      sprintf(smsg, "Edit Message");
+      if (press)
+      {
+         if (num != 999) edit_pmsg_text(num, 0);
+      }
+   }
+   if (bn == 8) // archwag direction
+   {
+      if (Ei[num][2]) sprintf(smsg, "Initial Direction:Right");
+      else            sprintf(smsg, "Initial Direction:Left ");
+      if (press)
       {
          Ei[num][2] = !Ei[num][2];
          if (Ei[num][2]) Efi[num][2] = Efi[num][6];
          else Efi[num][2] = -Efi[num][6];
          Redraw = 1;
       }
-      if (bn == 9) Ei[num][8] = !Ei[num][8];
-      if (bn == 10) // set new direction
+   }
+   if (bn == 9) // archwag and walker
+   {
+      if (Ei[num][8]) sprintf(smsg, "Bounce Mode");
+      else            sprintf(smsg, "Follow Mode");
+      if (press) Ei[num][8] = !Ei[num][8];
+   }
+   if (bn == 10)
+   {
+      sprintf(smsg, "Set Initial Direction"); // bouncer direction
+      if (press)
+      {
          if (getxy("Set New Direction", 96, 4, num) == 1)
          {
             set_xyinc_rot(num, get100_x*20, get100_y*20);
             Redraw = 1;
          }
-      if (bn == 11) // trakbot direction
+      }
+   }
+   if (bn == 11)
+   {
+      sprintf(smsg, "Set Initial Direction");// trakbot direction
+      if (press)
       {
          if (++Ei[num][5] > 7) Ei[num][5] = 0;
          set_trakbot_mode(num, Ei[num][5]);
          Redraw = 1;
       }
-      if (bn == 12) Ei[num][7] = !Ei[num][7]; // trakbot drop mode
-      if (bn == 13) // main ans
+   }
+   if (bn == 12) // trakbot drop mode
+   {
+      if (Ei[num][7] == 0) sprintf(smsg, "Drop Mode:Off");
+      else                 sprintf(smsg, "Drop Mode:On ");
+      if (press)
+      {
+         if (bn == 12) Ei[num][7] = !Ei[num][7]; // trakbot drop mode
+      }
+   }
+   if (bn == 13)
+   {
+      sprintf(smsg, "Main Shape");
+      if (press)
       {
          int main_ans = Ei[num][5];
          if (main_ans == 31) main_ans = 14;
@@ -1427,7 +783,11 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          Ei[num][3] = main_ans;
          Ei[num][1] = zz[5][main_ans];
       }
-      if (bn == 14) // seek ans
+   }
+   if (bn == 14)
+   {
+      sprintf(smsg, "Seek Shape");
+      if (press)
       {
          int seek_ans = Ei[num][6];
          if (seek_ans == 31) seek_ans = 14;
@@ -1438,15 +798,22 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          }
          Ei[num][6] = seek_ans;
       }
-      if (bn == 15) move_pod_extended(num);
-      if (bn == 16) move_trigger_box(num, 9);
-
-
-
-
-
-
-      if (bn == 17)
+   }
+   if (bn == 15)
+   {
+      sprintf(smsg, "Move Extended Position");
+      if (press) move_pod_extended(num);
+   }
+   if (bn == 16)
+   {
+      sprintf(smsg, "Set Trigger Box");
+      if (press) move_trigger_box(num, 9);
+   }
+   if (bn == 17)
+   {
+      sprintf(smsg, "Set Source Area");
+      if (press)
+      {
          if (getbox("Cloner Source Area", 3, 9, num))
          {
             Ei[num][15] = bx1;
@@ -1455,26 +822,94 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Ei[num][20] = by2-by1;
             Redraw = 1;
          }
-      if (bn == 18)
+      }
+   }
+   if (bn == 18)
+   {
+      sprintf(smsg, "Set Destination");
+      if (press)
+      {
          if (getxy("Set Cloner Destination", 98, 9, num) == 1)
          {
             Ei[num][17] = get100_x;
             Ei[num][18] = get100_y;
             Redraw = 1;
          }
-      if (bn == 19) return 1;
-      if (bn == 20) return 1;
-      if (bn == 21) return 1;
-      if (bn == 22) return 1;
-      if (bn == 23) return 1;
-      if (bn == 24) return 1;
-      if (bn == 25) return 1;
-      if (bn == 26) if (++item[num][3] > 1) item[num][3] = -2;
-      if (bn == 27) if (++Ei[num][8] > 2) Ei[num][8] = 0;
-      if (bn == 28) return 1;
-      if (bn == 48) item[num][12] = !item[num][12]; // key block remove type
+      }
+   }
+   if (bn == 19)
+   {
+      sprintf(smsg, "Move");
+      if (press) return 1;
+   }
 
-      if (bn == 49) // door type
+   if (bn == 20)
+   {
+      sprintf(smsg, "Create");
+      if (press) return 1;
+   }
+   if (bn == 21)
+   {
+      sprintf(smsg, "Delete");
+      if (press) return 1;
+   }
+   if (bn == 22)
+   {
+      sprintf(smsg, "Next");
+      if (press) return 1;
+   }
+   if (bn == 23)
+   {
+      sprintf(smsg, "Prev");
+      if (press) return 1;
+   }
+   if (bn == 24)
+   {
+      sprintf(smsg, "Copy to Draw Item");
+      if (press) return 1;
+   }
+   if (bn == 25)
+   {
+      sprintf(smsg, "Viewer Help");
+      if (press) return 1;
+   }
+   if (bn == 26)
+   {
+      if (item[num][3] ==  1) sprintf(smsg, "      Fall        ");
+      if (item[num][3] ==  0) sprintf(smsg, "    Stationary    ");
+      if (item[num][3] == -1) sprintf(smsg, "      Carry       ");
+      if (item[num][3] == -2) sprintf(smsg, "Carry Through Door");
+      if (press)
+      {
+         if (++item[num][3] > 1) item[num][3] = -2;
+      }
+   }
+   if (bn == 27) // cloner trigger type
+   {
+      if (Ei[num][8] == 0) sprintf(smsg, "Trigger Type:Timer Runs  ");
+      if (Ei[num][8] == 1) sprintf(smsg, "Trigger Type:Timer Resets");
+      if (Ei[num][8] == 2) sprintf(smsg, "Trigger Type:Immediate   ");
+      if (press)
+      {
+         if (++Ei[num][8] > 2) Ei[num][8] = 0;
+      }
+   }
+   if (bn == 28)
+   {
+      sprintf(smsg, "Run Lifts");
+      if (press) return 1;
+   }
+   if (bn == 48) // key block erase type
+   {
+      if (item[num][12]) sprintf(smsg, "Erase Only Matching Blocks");
+      else               sprintf(smsg, "Erase All Blocks In Range ");
+      if (press) item[num][12] = !item[num][12]; // key block remove type
+   }
+   if (bn == 49) // door type
+   {
+      if (item[num][8] == 0) sprintf(smsg, "Door Type:Exit Only");
+      if (item[num][8] == 1) sprintf(smsg, "Door Type:Normal   ");
+      if (press)
       {
          item[num][8] = !item[num][8];
          // check for bad link
@@ -1486,20 +921,37 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
           }
          Redraw = 1;
       }
-      if (bn == 50) // door entry type
+   }
+   if (bn == 50) // door entry type
+   {
+      if (item[num][11] == 0) sprintf(smsg, "Enter Immediate  ");
+      if (item[num][11] == 1) sprintf(smsg, "Enter with <up>  ");
+      if (item[num][11] == 2) sprintf(smsg, "Enter with <down>");
+      if (item[num][8]  == 0) sprintf(smsg, "disabled");
+      if (press)
       {
          item[num][11]++;
          if (item[num][11] > 2) item[num][11] = 0;
          Redraw = 1;
       }
-      if (bn == 51) // door exit link draw type
+   }
+   if (bn == 51) // door show dest line type
+   {
+      if (item[num][12] == 0) sprintf(smsg, "Exit link:never show  ");
+      if (item[num][12] == 1) sprintf(smsg, "Exit link:alway show  ");
+      if (item[num][12] == 2) sprintf(smsg, "Exit link:when touched");
+      if (item[num][8]  == 0) sprintf(smsg, "disabled");
+      if (press)
       {
          item[num][12]++;
          if (item[num][12] > 2) item[num][12] = 0;
          Redraw = 1;
       }
-
-      if (bn == 52) // door shape
+   }
+   if (bn == 52)
+   {
+      sprintf(smsg, "Change Door Shape");
+      if (press)
       {
          int shape = item[num][13];
          if (shape == 448) shape = 1083;
@@ -1513,12 +965,23 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          change_linked_door_color_and_shape(num);
          Redraw = 1;
       }
-      if (bn == 53)
+   }
+   if (bn == 53) // door move type
+   {
+      if (item[num][7] == 0) sprintf(smsg, "Move Type:Automatic    ");
+      if (item[num][7] == 1) sprintf(smsg, "Move Type:Force Instant");
+      if (item[num][7] == 2) sprintf(smsg, "Move Type:Force Move   ");
+      if (item[num][8] == 0) sprintf(smsg, "disabled");
+      if (press)
       {
          item[num][7]++;
          if (item[num][7] > 2) item[num][7] = 0;
       }
-      if (bn == 55)
+   }
+   if (bn == 55)
+   {
+      sprintf(smsg, "Set Message Position");
+      if (press)
       {
          if (getxy("Set Message Position", 2, 1010, num) == 1)
          {
@@ -1528,35 +991,87 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
          }
          //set_mouse_sprite(NULL);
          Redraw = 1;
-       }
-      if (bn == 56) Viewer_lock = !Viewer_lock;
-      if (bn == 57) return 1;
-
-      if (bn == 76) item[num][11] = !item[num][11];
-      if (bn == 77)
+      }
+   }
+   if (bn == 56)
+   {
+      if (Viewer_lock) sprintf(smsg,  "Locked");
+      else             sprintf(smsg, "Unlocked");
+      if (press) Viewer_lock = !Viewer_lock;
+   }
+   if (bn == 57)
+   {
+       if (obt == 2) sprintf(smsg,"%s Help", item_name[type]);
+       if (obt == 3) sprintf(smsg,"%s Help", (const char *)enemy_name[type]);
+       if (obt == 4) sprintf(smsg,"Lift Help");
+       if (press) return 1;
+   }
+   if (bn == 76)
+   {
+      if (item[num][11] == 0) sprintf(smsg, "Sticky:Off");
+      if (item[num][11] == 1) sprintf(smsg, "Sticky:On ");
+      if (press) item[num][11] = !item[num][11];
+   }
+   if (bn == 77)
+   {
+      if (item[num][12] == 0) sprintf(smsg, "   Fuse Timer   ");
+      if (item[num][12] == 1) sprintf(smsg, "Remote Detonator");
+      if (press)
       {
          item[num][12] = !item[num][12];
-
          if (item[num][12]) item[num][1] = 537;
          else item[num][1] = 464;
          Redraw = 1;
       }
-
-
-      if (bn == 78) if (++item[num][7] > 7) item[num][7] = 0;
-      if (bn == 81) if (++Ei[num][4] > 3) Ei[num][4] = 0;
-
-
-      if (bn == 82) // rocket fall|stationary|carry through door
+   }
+   if (bn == 78)
+   {
+      printf(smsg, "Start Index:%d", item[num][7]);
+      if (press)
+      {
+         if (++item[num][7] > 7) item[num][7] = 0;
+      }
+   }
+   if (bn == 81)
+   {
+      if (Ei[num][4] == 0) sprintf(smsg, "Draw Boxes:off");
+      if (Ei[num][4] == 1) sprintf(smsg, "Draw Boxes:trigger only");
+      if (Ei[num][4] == 2) sprintf(smsg, "Draw Boxes:src/dst only");
+      if (Ei[num][4] == 3) sprintf(smsg, "Draw Boxes:all");
+      if (press)
+      {
+         if (++Ei[num][4] > 3) Ei[num][4] = 0;
+      }
+   }
+   if (bn == 82) // rocket only
+   {
+      if (item[num][3] ==  1) sprintf(smsg,  "       Fall      ");
+      if (item[num][3] ==  0) sprintf(smsg,  "    Stationary   ");
+      if (item[num][3] == -2) sprintf(smsg,  "Ride Through Door");
+      if (press)
       {
          item[num][3]++;
          if (item[num][3] > 1) item[num][3] = -2;
          if (item[num][3] == -1) item[num][3] = 0;
       }
+   }
+   if (bn == 83) // cloner only
+   {
+      if (Ei[num][30] ==  0) sprintf(smsg,  "      Normal     ");
+      if (Ei[num][30] ==  1) sprintf(smsg,  "    Invincible   ");
+      if (press)
+      {
+         Ei[num][30] = !Ei[num][30]; // cloner invinciblility
+      }
+   }
 
-      if (bn == 83) Ei[num][30] = !Ei[num][30]; // cloner invinciblility
 
-      if (bn == 85)
+
+   if (bn == 85)
+   {
+      printf(smsg, "Get New Damage Field");
+      if (press)
+      {
          if (getbox("Get New Field ", 3, 10, num))
          {
             Ei[num][15] = bx1*20;
@@ -1565,8 +1080,13 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Ei[num][18] = (by2-by1)*20;
             Redraw = 1;
          }
-
-      if (bn == 86)
+      }
+   }
+   if (bn == 86)
+   {
+      sprintf(smsg, "Get New Trigger Field");
+      if (press)
+      {
          if (getbox("Get New Field Trigger Box", 3, 10, num))
          {
             Ei[num][11] = bx1*20;
@@ -1575,82 +1095,175 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Ei[num][14] = (by2-by1)*20;
             Redraw = 1;
          }
-
-      if (bn == 87) // enemy field mode
+      }
+   }
+   if (bn == 87) // field mode
+   {
+      if (Ei[num][5] == 0) sprintf(smsg, "MODE:Damage Field Always ON          ");
+      if (Ei[num][5] == 1) sprintf(smsg, "MODE:Damage Field Toggle             ");
+      if (Ei[num][5] == 2) sprintf(smsg, "MODE:Damage Field ON Until Triggered ");
+      if (Ei[num][5] == 3) sprintf(smsg, "MODE:Damage Field OFF Until Triggered");
+      if (Ei[num][5] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF   ");
+      if (press)
       {
          Ei[num][5]++;
          if (Ei[num][5] > 4) Ei[num][5] = 0;
-
-
-
 
          if (Ei[num][5] == 0) // mode 0 - always on
          {
             Ei[num][3] |= PM_ENEMY_FIELD_DAMAGE_CURR; // set flag
          }
-
          if (Ei[num][5] == 1) // mode 1 - toggle
          {
          }
-
          if (Ei[num][5] == 2) // mode 2 - no damage until triggered
          {
             Ei[num][3] &= ~PM_ENEMY_FIELD_DAMAGE_CURR; // clear flag
          }
-
          if (Ei[num][5] == 3) // mode 3 - no damage when triggered
          {
             Ei[num][3] |= PM_ENEMY_FIELD_DAMAGE_CURR; // set flag
          }
-
          if (Ei[num][5] == 4) // mode 4 - Timed on and off
          {
 
          }
-
-
-
-
-
       }
-      if (bn == 98) // draw mode
+   }
+   if (bn == 98)
+   {
+      if (Ei[num][2] == 0) sprintf(smsg, "Draw Mode:Hidden           ");
+      if (Ei[num][2] == 1) sprintf(smsg, "Draw Mode:Small Number     ");
+      if (Ei[num][2] == 2) sprintf(smsg, "Draw Mode:Large Number     ");
+      if (Ei[num][2] == 3) sprintf(smsg, "Draw Mode:Small Percent Bar");
+      if (Ei[num][2] == 4) sprintf(smsg, "Draw Mode:Large Percent Bar");
+      if (press) if (++Ei[num][2] > 4) Ei[num][2] = 0;
+   }
+   if (bn == 102) // Damage Field
+   {
+      if (Ei[num][19] == 0) sprintf(smsg, "Draw Type:Red Rectangle (default)");
+      if (Ei[num][19] == 1) sprintf(smsg, "Draw Type:Spikey Floor");
+      if (Ei[num][19] == 2) sprintf(smsg, "Draw Type:none");
+      if (press) if (++Ei[num][19] > 2) Ei[num][19] = 0;
+   }
+
+   if (bn == 105) // Trigger Field
+   {
+      if (Ei[num][10] == 0) sprintf(smsg, "Draw Type:Yellow Rectangle (default)");
+      if (Ei[num][10] == 1) sprintf(smsg, "Draw Type:none");
+      if (press) if (++Ei[num][10] > 1) Ei[num][10] = 0;
+   }
+
+
+
+
+
+
+
+
+
+   if (bn == 120)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_PLAYER) sprintf(smsg, "Affects Players:ON          ");
+      else                                           sprintf(smsg, "Affects Players:OFF         ");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_PLAYER;
+   }
+   if (bn == 121)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_ENEMY)  sprintf(smsg, "Affects Enemies:ON          ");
+      else                                           sprintf(smsg, "Affects Enemies:OFF         ");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_ENEMY;
+   }
+   if (bn == 122)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_ITEM)   sprintf(smsg, "Affects Items:ON            ");
+      else                                           sprintf(smsg, "Affects Items:OFF           ");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_ITEM;
+   }
+   if (bn == 123)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_PBUL)   sprintf(smsg, "Affects Player's Bullets:ON ");
+      else                                           sprintf(smsg, "Affects Player's Bullets:OFF");
+   }
+   if (bn == 124)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_EBUL)   sprintf(smsg, "Affects Enemy's Bullets:ON  ");
+      else                                           sprintf(smsg, "Affects Enemy's Bullets:OFF ");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_EBUL;
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_PBUL;
+   }
+   if (bn == 125)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_PLAYER) sprintf(smsg, "Triggered by Players:ON          ");
+      else                                            sprintf(smsg, "Triggered by Players:OFF         ");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_PLAYER;
+   }
+   if (bn == 126)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_ENEMY)  sprintf(smsg, "Triggered by Enemies:ON          ");
+      else                                            sprintf(smsg, "Triggered by Enemies:OFF         ");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_ENEMY;
+   }
+   if (bn == 127)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_ITEM)   sprintf(smsg, "Triggered by Items:ON            ");
+      else                                            sprintf(smsg, "Triggered by Items:OFF           ");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_ITEM;
+   }
+   if (bn == 128)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_PBUL)   sprintf(smsg, "Triggered by Player's Bullets:ON ");
+      else                                            sprintf(smsg, "Triggered by Player's Bullets:OFF");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_PBUL;
+   }
+   if (bn == 129)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_TRIGGER_EBUL)   sprintf(smsg, "Triggered by Enemy's Bullets:ON  ");
+      else                                            sprintf(smsg, "Triggered by Enemy's Bullets:OFF ");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_EBUL;
+   }
+   if (bn == 133)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_CURR) sprintf(smsg, "Damage Field Initially ON");
+      else sprintf(smsg, "Damage Field Initially OFF");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_CURR;
+   }
+   if (bn == 134)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_ON) sprintf(smsg, "Follows Lift:ON");
+      else sprintf(smsg, "Follows Lift:OFF");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_DMG_ON;
+   }
+   if (bn == 135)
+   {
+      if (Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_ON) sprintf(smsg, "Follows Lift:ON");
+      else sprintf(smsg, "Follows Lift:OFF");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_TRG_ON;
+   }
+
+
+
+
+
+
+
+
+
+
+   if (bn == 136) // Damage Field X Lift Alignment
+   {
+      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XC;
+      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XF;
+      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XL;
+      if (C) sprintf(smsg, "Lift X Align:Center");
+      else
       {
-         Ei[num][2]++;
-         if (Ei[num][2] > 4) Ei[num][2] = 0;
+         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
       }
-
-      if (bn == 102) // Damage Field Draw Type
-      {
-         Ei[num][19]++;
-         if (Ei[num][19] > 2) Ei[num][19] = 0;
-      }
-
-      if (bn == 105) // Trigger Field Draw Type
-      {
-         Ei[num][10]++;
-         if (Ei[num][10] > 1) Ei[num][10] = 0;
-      }
-
-      if (bn == 120) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_PLAYER;
-      if (bn == 121) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_ENEMY;
-      if (bn == 122) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_ITEM;
-      if (bn == 123) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_PBUL;
-      if (bn == 124) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_EBUL;
-      if (bn == 125) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_PLAYER;
-      if (bn == 126) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_ENEMY;
-      if (bn == 127) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_ITEM;
-      if (bn == 128) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_PBUL;
-      if (bn == 129) Ei[num][3] ^= PM_ENEMY_FIELD_TRIGGER_EBUL;
-
-      if (bn == 133) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_CURR;
-
-      if (bn == 134) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_DMG_ON;
-
-
-      if (bn == 135) Ei[num][3] ^= PM_ENEMY_FIELD_LIFT_TRG_ON;
-
-
-      if (bn == 136) // Damage Field X Lift Alignment
+      if (press)
       {
          int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XC;
          int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_XF;
@@ -1686,7 +1299,22 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_XF; // clear F flag
          }
       }
-      if (bn == 137) // Damage Field Y Lift Alignment
+   }
+   if (bn == 137) // Damage Field Y Lift Alignment
+   {
+      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YC;
+      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YF;
+      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YL;
+
+      if (C) sprintf(smsg, "Lift Y Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
+      }
+      if (press)
       {
          int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YC;
          int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_DMG_YF;
@@ -1721,18 +1349,27 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_DMG_YF; // clear F flag
          }
       }
+   }
 
+   if (bn == 138) // Trigger Field X Lift Alignment
+   {
+      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XC;
+      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XF;
+      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XL;
 
-
-
-
-      if (bn == 138) // Trigger Field X Lift Alignment
+      if (C) sprintf(smsg, "Lift X Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
+      }
+      if (press)
       {
          int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XC;
          int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XF;
          int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_XL;
-
-
          if (C)    // 1 X X
          {  // set to 0 0 0
             Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_XC; // clear C flag
@@ -1762,7 +1399,22 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_XF; // clear F flag
          }
       }
-      if (bn == 139) // Trigger Field Y Lift Alignment
+   }
+   if (bn == 139) // Trigger Field Y Lift Alignment
+   {
+      int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YC;
+      int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YF;
+      int L = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YL;
+
+      if (C) sprintf(smsg, "Lift Y Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
+      }
+      if (press)
       {
          int C = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YC;
          int F = Ei[num][3] & PM_ENEMY_FIELD_LIFT_TRG_YF;
@@ -1797,10 +1449,12 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             Ei[num][3] &= ~PM_ENEMY_FIELD_LIFT_TRG_YF; // clear F flag
          }
       }
-
-
-      if (bn == 200)
-         if (getbox("Draw New Trigger Field Rectangle", 2, 9, num))
+   }
+   if (bn == 200)
+   {
+      sprintf(smsg, "Get New Trigger Field"); // item
+      if (press)
+          if (getbox("Draw New Trigger Field Rectangle", 2, 9, num))
          {
 
             if (bx2 < bx1) bx2 = bx1;
@@ -1811,23 +1465,67 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             item[num][9] = (by2-by1)*20;
             Redraw = 1;
          }
-
-      if (bn == 201) item[num][3] ^= PM_ITEM_TRIGGER_DRAW_ON;
-      if (bn == 202) item[num][3] ^= PM_ITEM_TRIGGER_PLAYER;
-      if (bn == 203) item[num][3] ^= PM_ITEM_TRIGGER_ENEMY;
-      if (bn == 204) item[num][3] ^= PM_ITEM_TRIGGER_ITEM;
-      if (bn == 205) item[num][3] ^= PM_ITEM_TRIGGER_PBUL;
-      if (bn == 206) item[num][3] ^= PM_ITEM_TRIGGER_EBUL;
-
-
-      if (bn == 210) item[num][3] ^= PM_ITEM_TRIGGER_LIFT_ON;
-      if (bn == 211) // Trigger Field X Lift Alignment
+   }
+   if (bn == 201) // Item Trigger Draw Type
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_DRAW_ON) sprintf(smsg,"Draw Trigger Field:ON            ");
+      else                                        sprintf(smsg,"Draw Trigger Field:OFF           ");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_DRAW_ON;
+   }
+   if (bn == 202)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_PLAYER) sprintf(smsg, "Triggered by Players:ON          ");
+      else                                       sprintf(smsg, "Triggered by Players:OFF         ");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_PLAYER;
+   }
+   if (bn == 203)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_ENEMY)  sprintf(smsg, "Triggered by Enemies:ON          ");
+      else                                       sprintf(smsg, "Triggered by Enemies:OFF         ");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_ENEMY;
+   }
+   if (bn == 204)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_ITEM)   sprintf(smsg, "Triggered by Items:ON            ");
+      else                                       sprintf(smsg, "Triggered by Items:OFF           ");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_ITEM;
+   }
+   if (bn == 205)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_PBUL)   sprintf(smsg, "Triggered by Player's Bullets:ON ");
+      else                                       sprintf(smsg, "Triggered by Player's Bullets:OFF");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_PBUL;
+   }
+   if (bn == 206)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_EBUL)   sprintf(smsg, "Triggered by Enemy's Bullets:ON  ");
+      else                                       sprintf(smsg, "Triggered by Enemy's Bullets:OFF ");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_EBUL;
+   }
+   if (bn == 210)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_LIFT_ON) sprintf(smsg, "Follows Lift:ON");
+      else sprintf(smsg, "Follows Lift:OFF");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_LIFT_ON;
+   }
+   if (bn == 211) // Trigger Field X Lift Alignment
+   {
+      int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
+      int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
+      int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
+      if (C) sprintf(smsg, "Lift X Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
+      }
+      if (press)
       {
          int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
          int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_XF;
          int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_XL;
-
-
          if (C)    // 1 X X
          {  // set to 0 0 0
             item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XC; // clear C flag
@@ -1857,7 +1555,21 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_XF; // clear F flag
          }
       }
-      if (bn == 212) // Trigger Field Y Lift Alignment
+   }
+   if (bn == 212) // Trigger Field Y Lift Alignment
+   {
+      int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_YC;
+      int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_YF;
+      int L = item[num][3] & PM_ITEM_TRIGGER_LIFT_YL;
+      if (C) sprintf(smsg, "Lift Y Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
+      }
+      if (press)
       {
          int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_YC;
          int F = item[num][3] & PM_ITEM_TRIGGER_LIFT_YF;
@@ -1892,14 +1604,11 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             item[num][3] &= ~PM_ITEM_TRIGGER_LIFT_YF; // clear F flag
          }
       }
-
-
-
-
-
-
-
-      if (bn == 300)
+   }
+   if (bn == 300)
+   {
+      sprintf(smsg, "Get New Block Manip Field"); // item
+      if (press)
          if (getbox("Draw New Block Manip Rectangle", 2, 16, num))
          {
             if (bx2 < bx1) bx2 = bx1;
@@ -1910,18 +1619,38 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             item[num][9] = (by2-by1)*20;
             Redraw = 1;
          }
-
-
-      if (bn == 301) if (++item[num][3] > 3) item[num][3] = 0; // block manip mode
-
-      if (bn == 304) item[num][2] = !item[num][2]; // block manip draw mode
-
-      if (bn == 310) item[num][10] = select_bitmap(item[num][10]);
-      if (bn == 311) item[num][11] = select_bitmap(item[num][11]);
-
-      if (bn == 320)
+   }
+   if (bn == 301) // block manip mode
+   {
+      if (item[num][3] == 0) sprintf(smsg, "MODE:OFF");
+      if (item[num][3] == 1) sprintf(smsg, "MODE:Set All To Block 1");
+      if (item[num][3] == 2) sprintf(smsg, "MODE:Set All Block 2 To Block 1");
+      if (item[num][3] == 3) sprintf(smsg, "MODE:Toggle Block 2 To Block 1");
+      if (press) if (++item[num][3] > 3) item[num][3] = 0; // block manip mode
+   }
+   if (bn == 304) // Block Manip Draw
+   {
+      if (item[num][2])  sprintf(smsg, "Draw Block Manip Field:ON     ");
+      else               sprintf(smsg, "Draw Block Manip Field:OFF    ");
+      if (press) item[num][2] = !item[num][2]; // block manip draw mode
+   }
+   if (bn == 310) // block 1 select...
+   {
+      int tn = item[num][10]&1023; //block 1
+      sprintf(smsg, "Block 1: %d", tn);
+      if (press) item[num][10] = select_bitmap(item[num][10]);
+   }
+   if (bn == 311) // block 2 select...
+   {
+      int tn = item[num][11]&1023; //block 1
+      sprintf(smsg, "Block 2: %d", tn);
+      if (press) item[num][11] = select_bitmap(item[num][11]);
+   }
+   if (bn == 320)
+   {
+      sprintf(smsg, "Set Event Trigger (%d)", item[num][1]);
+      if (press)
       {
-
          int i = get_trigger_item("Select A Trigger To Link To", 2, item[num][0], num );
          if (i > -1)
          {
@@ -1945,7 +1674,6 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
                   item[i][14] = 0;
                }
             }
-
             if (item[num][0] == 17) // block damage
             {
                if (item[num][11] == 1) // mode 1 - toggle damage
@@ -1963,13 +1691,14 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
                   item[i][14] = 0;
                }
             }
-
-
          }
          Redraw = 1;
       }
-
-      if (bn == 400)
+   }
+   if (bn == 400)
+   {
+      sprintf(smsg, "Get New Block Damage Field"); // item
+      if (press)
          if (getbox("Draw New Block Damage Rectangle", 2, 17, num))
          {
             if (bx2 < bx1) bx2 = bx1;
@@ -1980,17 +1709,15 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             item[num][9] = (by2-by1)*20;
             Redraw = 1;
          }
-
-
-
-      if (bn == 402) if (++item[num][11] > 4) item[num][11] = 0; // damage mode
-      if (bn == 404) if (++item[num][2] > 2) item[num][2] = 0; // draw mode
-
-
-      if (bn == 403) item[num][3] ^= PM_ITEM_DAMAGE_INSTGIB;  // Instant death for player
-
-
-      if (bn == 401) // timer draw mode
+   }
+   if (bn == 401) // timer draw mode
+   {
+                                                 sprintf(smsg, "Timer Display: OFF          ");
+      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SN) sprintf(smsg, "Timer Display: Small Number ");
+      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BN) sprintf(smsg, "Timer Display: Large Number ");
+      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SP) sprintf(smsg, "Timer Display: Small Percent");
+      if (item[num][3] & PM_ITEM_DAMAGE_TIMR_BP) sprintf(smsg, "Timer Display: Large Percent");
+      if (press)
       {
          if (item[num][3] & PM_ITEM_DAMAGE_TIMR_SN)
          {
@@ -2022,10 +1749,50 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             item[num][3] |=  PM_ITEM_DAMAGE_TIMR_SN; // set
          }
       }
+   }
+   if (bn == 402) // damage mode
+   {
+      if (item[num][11] == 0) sprintf(smsg, "MODE:Damage Field Always ON");
+      if (item[num][11] == 1) sprintf(smsg, "MODE:Damage Field Toggle");
+      if (item[num][11] == 2) sprintf(smsg, "MODE:Damage Field ON Until Triggered");
+      if (item[num][11] == 3) sprintf(smsg, "MODE:Damage Field OFF Until Triggered");
+      if (item[num][11] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF");
+      if (press) if (++item[num][11] > 4) item[num][11] = 0;
+   }
+   if (bn == 403) // Instant death for player
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_INSTGIB) sprintf(smsg, "Player Instant Death:ON   ");
+      else                                       sprintf(smsg, "Player Instant Death:OFF  ");
+      if (press) item[num][3] ^= PM_ITEM_DAMAGE_INSTGIB;  // Instant death for player
+   }
+   if (bn == 404) // Block Damage draw mode
+   {
+      if (item[num][2] == 0) sprintf(smsg, "Block Damage Field Draw Type:none                   ");
+      if (item[num][2] == 1) sprintf(smsg, "Block Damage Field Draw Type:Red Rectangle (default)");
+      if (item[num][2] == 2) sprintf(smsg, "Block Damage Field Draw Type:Spikey Floor           ");
+      if (press) if (++item[num][2] > 2) item[num][2] = 0; // draw mode
+   }
+   if (bn == 410)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_LIFT_ON) sprintf(smsg, "Follows Lift:ON");
+      else sprintf(smsg, "Follows Lift:OFF");
+      if (press) item[num][3] ^= PM_ITEM_DAMAGE_LIFT_ON;
+   }
+   if (bn == 411) // DAMAGE Field X Lift Alignment
+   {
+      int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_XC;
+      int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_XF;
+      int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_XL;
 
-
-      if (bn == 410) item[num][3] ^= PM_ITEM_DAMAGE_LIFT_ON;
-      if (bn == 411) // DAMAGE Field X Lift Alignment
+      if (C) sprintf(smsg, "Lift X Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift X Align: Field x1 = Lift x2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift X Align: Field x2 = Lift x2");
+      }
+      if (press)
       {
          int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_XC;
          int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_XF;
@@ -2061,7 +1828,22 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_XF; // clear F flag
          }
       }
-      if (bn == 412) // DAMAGE Field Y Lift Alignment
+   }
+   if (bn == 412) // DAMAGE Field Y Lift Alignment
+   {
+      int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_YC;
+      int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_YF;
+      int L = item[num][3] & PM_ITEM_DAMAGE_LIFT_YL;
+
+      if (C) sprintf(smsg, "Lift Y Align:Center");
+      else
+      {
+         if ((!F) && (!L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y1");
+         if ((!F) &&  (L)) sprintf(smsg, "Lift Y Align: Field y1 = Lift y2");
+         if ((F)  && (!L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y1");
+         if ((F)  &&  (L)) sprintf(smsg, "Lift Y Align: Field y2 = Lift y2");
+      }
+      if (press)
       {
          int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_YC;
          int F = item[num][3] & PM_ITEM_DAMAGE_LIFT_YF;
@@ -2096,32 +1878,131 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             item[num][3] &= ~PM_ITEM_DAMAGE_LIFT_YF; // clear F flag
          }
       }
+   }
+   if (bn == 420)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_PLAYER) sprintf(smsg, "Affects Players:ON          ");
+      else                                      sprintf(smsg, "Affects Players:OFF         ");
+      if (press) item[num][3] ^= PM_ITEM_DAMAGE_PLAYER;
+   }
+   if (bn == 421)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_ENEMY)  sprintf(smsg, "Affects Enemies:ON          ");
+      else                                      sprintf(smsg, "Affects Enemies:OFF         ");
+      if (press) item[num][3] ^= PM_ITEM_DAMAGE_ENEMY;
+   }
+   if (bn == 422)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_ITEM)   sprintf(smsg, "Affects Items:ON            ");
+      else                                      sprintf(smsg, "Affects Items:OFF           ");
+      if (press) item[num][3] ^= PM_ITEM_DAMAGE_ITEM;
+   }
+   if (bn == 423)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_PBUL)   sprintf(smsg, "Affects Player's Bullets:ON ");
+      else                                      sprintf(smsg, "Affects Player's Bullets:OFF");
+      if (press) item[num][3] ^= PM_ITEM_DAMAGE_PBUL;
+   }
+   if (bn == 424)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_EBUL)   sprintf(smsg, "Affects Enemy's Bullets:ON  ");
+      else                                      sprintf(smsg, "Affects Enemy's Bullets:OFF ");
+      if (press) item[num][3] ^= PM_ITEM_DAMAGE_EBUL;
+   }
+   if (bn == 433)
+   {
+      if (item[num][3] & PM_ITEM_DAMAGE_CURR) sprintf(smsg, "Damage Field Initially ON");
+      else sprintf(smsg, "Damage Field Initially OFF");
+      if (press) item[num][3] ^= PM_ITEM_DAMAGE_CURR;
+   }
+   if (bn == 500) // lift mode
+   {
+      sprintf(smsg, "undefined mode (%d)", lifts[num].mode);
+      if (lifts[num].mode == 0) sprintf(smsg, "Mode 0 - Normal");
+      if (lifts[num].mode == 1) sprintf(smsg, "Mode 1 - Prox Run and Reset");
+      if (press) if (++lifts[num].mode > 1) lifts[num].mode = 0; // lift mode
+   }
+   if (bn == 501)
+   {
+      if (num == -1) sprintf(smsg, "#");       // show row header
+      else           sprintf(smsg, "%d", num); // show step num
+   }
+   if (bn == 502)
+   {
+      if (num == -1) sprintf(smsg, "Type");  // show row header
+      if (num == 1)  sprintf(smsg, "Move");
+      if (num == 2)  sprintf(smsg, "Wait");
+      if (num == 3)  sprintf(smsg, "Wait");
+      if (num == 4)  sprintf(smsg, "End ");
+      if (num == 5)  sprintf(smsg, "Wait");
+   }
+   if (bn == 503)
+   {
+      int l = type;
+      int s = obt;
+      int x = lift_steps[l][s].x;
+      int y = lift_steps[l][s].y;
+      int w = lift_steps[l][s].w;
+      int h = lift_steps[l][s].h;
+      int v = lift_steps[l][s].val;
 
-      if (bn == 420) item[num][3] ^= PM_ITEM_DAMAGE_PLAYER;
-      if (bn == 421) item[num][3] ^= PM_ITEM_DAMAGE_ENEMY;
-      if (bn == 422) item[num][3] ^= PM_ITEM_DAMAGE_ITEM;
-      if (bn == 423) item[num][3] ^= PM_ITEM_DAMAGE_PBUL;
-      if (bn == 424) item[num][3] ^= PM_ITEM_DAMAGE_EBUL;
-      if (bn == 433) item[num][3] ^= PM_ITEM_DAMAGE_CURR;
-
-
-
-
-      if (bn == 500) if (++lifts[num].mode > 1) lifts[num].mode = 0; // lift mode
-      if (bn == 504) return 1; // edit lift name
-
-
-
-      if (bn == 505) if (++lift_steps[num][type].val > 2) lift_steps[num][type].val = 0; // lift step end step mode
-
-
-      if (bn == 510) lift_steps[num][type].type ^= PM_LIFT_NO_DRAW;
-      if (bn == 511) lift_steps[num][type].type ^= PM_LIFT_SOLID_PLAYER;
-      if (bn == 512) lift_steps[num][type].type ^= PM_LIFT_SOLID_ENEMY;
-      if (bn == 513) lift_steps[num][type].type ^= PM_LIFT_SOLID_ITEM;
-
-
-      if (bn == 520)
+      if (num == -1) sprintf(smsg, "Details");  // show row header
+      if (num == 1)  sprintf(smsg, "x:%4d y:%4d w:%4d h:%4d [speed:%d]", x, y, w, h, v);
+      if (num == 2)  sprintf(smsg, "for Timer:%d", v);
+      if (num == 3)  sprintf(smsg, "for Player prox:%d", v);
+      if (num == 4)
+      {
+         if (v == 0) sprintf(smsg, "End Step - Loop to Start");
+         if (v == 1) sprintf(smsg, "End Step - Warp to Start");
+         if (v == 2) sprintf(smsg, "End Step - Freeze Here");
+      }
+      if (num == 5)  sprintf(smsg, "for Trigger Event:%d", v);
+   }
+   if (bn == 504)
+   {
+      sprintf(smsg, "Name:%s", lifts[num].lift_name); // edit lift name
+      if (press) return 1;
+   }
+   if (bn == 505) // lift step end step mode
+   {
+      if (lift_steps[num][type].val == 0) sprintf(smsg, "Loop to Start");
+      if (lift_steps[num][type].val == 1) sprintf(smsg, "Warp to Start");
+      if (lift_steps[num][type].val == 2) sprintf(smsg, "Freeze Here  ");
+      if (press) if (++lift_steps[num][type].val > 2) lift_steps[num][type].val = 0; // lift step end step mode
+   }
+   if (bn == 506)
+   {
+      if (num == -1) sprintf(smsg, "C");       // show row header
+      else           sprintf(smsg, "%d", num); // show num
+   }
+   if (bn == 510)
+   {
+      if (lift_steps[num][type].type & PM_LIFT_NO_DRAW)   sprintf(smsg, "Hide Lift");
+      else                                                sprintf(smsg, "Draw Lift");
+      if (press) lift_steps[num][type].type ^= PM_LIFT_NO_DRAW;
+   }
+   if (bn == 511)
+   {
+      if (lift_steps[num][type].type & PM_LIFT_SOLID_PLAYER) sprintf(smsg, "Solid for Player:ON ");
+      else                                                   sprintf(smsg, "Solid for Player:OFF");
+      if (press) lift_steps[num][type].type ^= PM_LIFT_SOLID_PLAYER;
+   }
+   if (bn == 512)
+   {
+      if (lift_steps[num][type].type & PM_LIFT_SOLID_ENEMY)  sprintf(smsg, "Solid for Enemy:ON  ");
+      else                                                   sprintf(smsg, "Solid for Enemy:OFF ");
+      if (press) lift_steps[num][type].type ^= PM_LIFT_SOLID_ENEMY;
+   }
+   if (bn == 513)
+   {
+      if (lift_steps[num][type].type & PM_LIFT_SOLID_ITEM)   sprintf(smsg, "Solid for Item:ON   ");
+      else                                                   sprintf(smsg, "Solid for Item:OFF  ");
+      if (press) lift_steps[num][type].type ^= PM_LIFT_SOLID_ITEM;
+   }
+   if (bn == 520)
+   {
+      sprintf(smsg, "Set Event Trigger (%d)", lift_steps[num][type].val);
+      if (press)
       {
          int i = get_trigger_item("Select A Trigger To Link To", 4, type, num );
          if (i > -1)
@@ -2135,11 +2016,50 @@ int mdw_button(int x1, int y1, int x2, int y2, int bn, int num,
             item[i][14] = 0;
          }
       }
+   }
 
-   } // end of mouse pressed on button
+
+
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+
+   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
+   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
+
+
+   // special cases that need bitmaps draw on them
+   if (bn == 13)
+   {
+      float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+      al_draw_rotated_bitmap(tile[zz[0][Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+   }
+   if (bn == 14)
+   {
+      float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+      al_draw_rotated_bitmap(tile[zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+   }
+
+   if (bn == 310)
+   {
+      int tn = item[num][10];
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
+      al_draw_bitmap(btile[tn&1023], x, y, 0);
+   }
+
+   if (bn == 311)
+   {
+      int tn = item[num][11];
+      int x = (x2+x1)/2+60;
+      int y = (y2+y1)/2-10;
+
+      al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
+      al_draw_bitmap(btile[tn&1023], x, y, 0);
+   }
    return 0;
 }
-
 
 
 
@@ -2170,93 +2090,32 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
     // draw outline
    al_draw_rectangle(x1, y1, x2, y2, palette_color[15], 1);
 
-   // is mouse on button ?
-   if ((mouse_x > x1) && (mouse_x < x2))
-      if ((mouse_y > y1) && (mouse_y < y2))
-         if (mouse_b1)
-         {
-            while (mouse_b1) proc_controllers();
-            int color = (int)(1+(mouse_x-x1)/b);
-            if (bn == 2) item[num][8] = color;     // pop msg text color
-            if (bn == 3) item[num][9] = color;     // pop msg frame color
-            if (bn == 4) lifts[num].color = color; // lift color
-            if (bn == 8)
-            {
-              // printf("n:%d t:%d c:%d\n",num, type, color);
-               int cf = color << 28; // shift 4 bits of color into place
-               lift_steps[num][type].type &= 0b00001111111111111111111111111111; // clear old color
-               lift_steps[num][type].type |= cf; // merge color with type
+   // is mouse pressed on button?
+   if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (mouse_b1))
+   {
+      while (mouse_b1) proc_controllers();
+      int color = (int)(1+(mouse_x-x1)/b);
+      if (bn == 2) item[num][8] = color;     // pop msg text color
+      if (bn == 3) item[num][9] = color;     // pop msg frame color
+      if (bn == 4) lifts[num].color = color; // lift color
+      if (bn == 5)
+      {
+         item[num][6] = color;     // door color
+         change_linked_door_color_and_shape(num);
+      }
+      if (bn == 6) item[num][2] = color;     // trigger color
+      if (bn == 7) item[num][12] = color;    // block manip color
+      if (bn == 8)
+      {
+        // printf("n:%d t:%d c:%d\n",num, type, color);
+         int cf = color << 28; // shift 4 bits of color into place
+         lift_steps[num][type].type &= 0b00001111111111111111111111111111; // clear old color
+         lift_steps[num][type].type |= cf; // merge color with type
 
-            }
-
-            if (bn == 5)
-            {
-               item[num][6] = color;     // door color
-               change_linked_door_color_and_shape(num);
-            }
-            if (bn == 6) item[num][2] = color;     // trigger color
-            if (bn == 7) item[num][12] = color;     // block manip color
-
-            Redraw = 1;
-         }
+      }
+      Redraw = 1;
+   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

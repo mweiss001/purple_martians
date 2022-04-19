@@ -763,7 +763,7 @@ void save_selection(int save)
             {
                int vx = lift_steps[b][y].x;
                int vy = lift_steps[b][y].y;
-               if (lift_steps[b][y].type == 1) // shift move steps
+               if ((lift_steps[b][y].type & 31) == 1) // shift move steps
                {
                   vx -= x1;
                   vy -= y1;
@@ -882,10 +882,11 @@ void do_fcopy(int qx1, int qy1)
             c = num_lifts++; // dest lift
             //copied = 1000+c;
             construct_lift(c, ft_ln[b]);
-            lifts[c].mode  = ft_lift[b][0];
-            lifts[c].flags = ft_lift[b][1];
-            lifts[c].val1  = ft_lift[b][4];
-            lifts[c].val2  = ft_lift[b][5];
+            lifts[c].mode      = ft_lift[b][0];
+            lifts[c].flags     = ft_lift[b][1];
+            lifts[c].num_steps = ft_lift[b][3];
+            lifts[c].val1      = ft_lift[b][4];
+            lifts[c].val2      = ft_lift[b][5];
 
 
             for (y=0; y<ft_lift[b][3]; y++) // copy steps
@@ -897,7 +898,7 @@ void do_fcopy(int qx1, int qy1)
                int val  = ft_ls[b][y][4];
                int type = ft_ls[b][y][5];
 
-               if (type == 1) // shift  move steps
+               if ((type & 31) == 1) // shift  move steps
                {
                   // apply offsets
                   vx += x3;
@@ -914,6 +915,8 @@ void do_fcopy(int qx1, int qy1)
                      vy = enforce_limit(vy, 0, 1980);
                   }
                }
+
+               printf("contructing step:%d\n", y);
                construct_lift_step(c, y, type, vx, vy, vw, vh, val);
             }
             set_lift_to_step(c, 0);

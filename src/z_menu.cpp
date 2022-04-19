@@ -1284,7 +1284,10 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
       int tx = ((x1+x2)/2);
       int ty = ((y1+y2)/2) - 3;
 
-      int color = lifts[lift].color;
+      //int color = lifts[lift].color;
+
+      int color = (lift_steps[lift][0].type >> 28) & 15;
+
 
       // draw updated lift
       for (a=0; a<10; a++)
