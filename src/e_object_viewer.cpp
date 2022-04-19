@@ -947,7 +947,7 @@ int move_obt_with_map(int obt, int type, int num)
             // is mouse on any lift?
             for (int x=0; x<num_lifts; x++)  // cycle lifts
                for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
-                  if (lift_steps[x][y].type == 1) // look for move step
+                  if ((lift_steps[x][y].type & 31) == 1) // look for move step
                   {
                      int nx = ((lift_steps[x][y].x + lifts[x].width  /2) *db)/20;
                      int ny = ((lift_steps[x][y].y + lifts[x].height /2) *db)/20;

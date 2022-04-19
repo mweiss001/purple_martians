@@ -23,7 +23,8 @@ void show_all_items(void)
       for (int j=0; j<16; j++)
       {
          char msg2[80];
-         sprintf(msg2,"%d[%d] ", j, item[i][j]);
+         //sprintf(msg2,"%d[%d] ", j, item[i][j]);
+         sprintf(msg2,"[%d] ", item[i][j]);
          if (j == 0) sprintf(msg2,"[%-2d] ", item[i][j]);
          if (j == 1) sprintf(msg2,"[%-4d] ", item[i][j]);
          if (j == 3) sprintf(msg2,"[%-2d] ", item[i][j]);
