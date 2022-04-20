@@ -159,16 +159,25 @@ void draw_lift_lines()
                {
                   nx = lift_steps[l][s].x + lift_steps[l][s].w / 2;
                   ny = lift_steps[l][s].y + lift_steps[l][s].h / 2;
-                  col = (lift_steps[l][s].type >> 28) & 15;
-                  al_draw_line( px, py, nx, ny, palette_color[col], 1);
-                  for (int c=3; c>=0; c--)
-                     al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
+
+
+                  if (!(lift_steps[l][s].type & PM_LIFT_HIDE_LINES))
+                  {
+                     col = (lift_steps[l][s].type >> 28) & 15;
+                     al_draw_line( px, py, nx, ny, palette_color[col], 1);
+                     for (int c=3; c>=0; c--)
+                        al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
+                  }
+
                   px = nx;
                   py = ny;
                }
             }
-            col = (lift_steps[l][0].type >> 28) & 15;
-            al_draw_line(sx, sy, nx, ny, palette_color[col], 1); // draw line from last to first
+            if (!(lift_steps[l][0].type & PM_LIFT_HIDE_LINES))
+            {
+               col = (lift_steps[l][0].type >> 28) & 15;
+               al_draw_line(sx, sy, nx, ny, palette_color[col], 1); // draw line from last to first
+            }
          }
       }
    }
@@ -210,14 +219,14 @@ void draw_lifts()
          draw_lift(l, x1, y1, x2, y2);
 
          // show if player is riding this lift
-         int p = is_player_riding_lift(l);
-         if (p)
-         {
-            p -=1; // player number
-            int pc = players[p].color;
-            if (pc == color) pc = 127;
-            al_draw_rounded_rectangle(x1, y1, x2, y2, 4, 4, palette_color[pc], 2);
-         }
+//         int p = is_player_riding_lift(l);
+//         if (p)
+//         {
+//            p -=1; // player number
+//            int pc = players[p].color;
+//            if (pc == color) pc = 127;
+//            al_draw_rounded_rectangle(x1, y1, x2, y2, 4, 4, palette_color[pc], 2);
+//         }
 
          if ((lifts[l].mode == 1) && (!is_player_riding_lift(l)))
          {

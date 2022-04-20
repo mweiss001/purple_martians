@@ -346,6 +346,46 @@ void insert_steps_until_quit(int lift, int step)
    while (insert_lift_step(lift, step)) step++;
 }
 
+
+void set_all_steps(int l, int s, int what)
+{
+   if (what == 1) // size
+   {
+      int w = lift_steps[l][s].w;
+      int h = lift_steps[l][s].h;
+
+      for (int si=0; si<lifts[l].num_steps; si++) // iterate steps
+      {
+         if ((lift_steps[l][si].type & 31) == 1)
+         {
+            lift_steps[l][si].w = w;
+            lift_steps[l][si].h = h;
+         }
+      }
+   }
+   if (what == 2) // color
+   {
+      int col = lift_steps[l][s].type & PM_LIFT_COLOR_BITS; // mask off all except color
+      for (int si=0; si<lifts[l].num_steps; si++)           // iterate steps
+      {
+         lift_steps[l][si].type &= ~PM_LIFT_COLOR_BITS;     // clear color bits
+         lift_steps[l][si].type |= col;                     // merge
+      }
+   }
+   if (what == 3) // flags
+   {
+      int flags = lift_steps[l][s].type & PM_LIFT_FLAG_BITS; // mask off all except flags
+      for (int si=0; si<lifts[l].num_steps; si++)            // iterate steps
+      {
+         lift_steps[l][si].type &= ~PM_LIFT_FLAG_BITS;       // clear flag bits
+         lift_steps[l][si].type |= flags;                    // merge
+      }
+   }
+}
+
+
+
+
 void step_popup_menu(int lift, int step)
 {
    int smx, smy;
@@ -377,6 +417,12 @@ void step_popup_menu(int lift, int step)
    sprintf(global_string[6][4],"Delete Step %d", step);
    sprintf(global_string[6][5],"Insert Steps");
    sprintf(global_string[6][6],"Size=Prev Step");
+
+
+
+
+
+
    sprintf(global_string[6][7],"end");
 
 
@@ -384,8 +430,17 @@ void step_popup_menu(int lift, int step)
    if (step == 0)
    {
       sprintf(global_string[6][3],"Move Step %d", step);
-      sprintf(global_string[6][4],"end");
-      if (pmenu(6, 13) == 3) move_lift_step(lift, step);
+      sprintf(global_string[6][4],"Apply Size to All");
+      sprintf(global_string[6][5],"Apply Color to All");
+      sprintf(global_string[6][6],"Apply Flags to All");
+      sprintf(global_string[6][7],"end");
+         switch (pmenu(6, 13))
+         {
+            case 3: move_lift_step(lift, step); break;
+            case 4: set_all_steps(lift, step, 1); break;
+            case 5: set_all_steps(lift, step, 2); break;
+            case 6: set_all_steps(lift, step, 3); break;
+         }
    }
    // special case for last step (don't allow move or delete, only insert)
    else if (step == lifts[lift].num_steps-1)
@@ -401,14 +456,25 @@ void step_popup_menu(int lift, int step)
          sprintf(global_string[6][3],"Move Step %d", step);
          sprintf(global_string[6][4],"Delete Step %d", step);
          sprintf(global_string[6][5],"Insert Steps");
-         sprintf(global_string[6][6],"Size=Prev Step");
-         sprintf(global_string[6][7],"end");
+         sprintf(global_string[6][6],"Get Size From Prev");
+
+         sprintf(global_string[6][7],"Apply Size to All");
+         sprintf(global_string[6][8],"Apply Color to All");
+         sprintf(global_string[6][9],"Apply Flags to All");
+
+
+
+
+         sprintf(global_string[6][10],"end");
          switch (pmenu(6, 13))
          {
             case 3: move_lift_step(lift, step); break;
             case 4: delete_lift_step(lift, step); break;
             case 5: insert_steps_until_quit(lift, step); break;
             case 6: lift_step_set_size_from_previous_move_step(lift, step); break;
+            case 7: set_all_steps(lift, step, 1); break;
+            case 8: set_all_steps(lift, step, 2); break;
+            case 9: set_all_steps(lift, step, 3); break;
          }
       }
       else
@@ -463,6 +529,7 @@ int draw_current_step_buttons(int y, int l, int s)
    // default buttons
    mdw_colsel(xa, ya+a*bts, xb, ya+(a+1)*bts-2,  8,  l, s, 0, 0, 15, 13, 14, 0,0,0,0); a++; // lift step color
    mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 510, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step draw on/off
+   mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 514, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step lines draw on/off
    mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 511, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step solid player on/off
    mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 512, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step solid enemy on/off
    mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 513, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step solid item on/off
@@ -589,8 +656,6 @@ int lift_viewer(int lift)
    int ret = 0;
    int quit = 0;
 
-
-
    while (!quit)
    {
       proc_controllers();
@@ -657,6 +722,22 @@ int lift_viewer(int lift)
       while (key[ALLEGRO_KEY_RIGHT])  {proc_controllers(); mb=21;}
       while (key[ALLEGRO_KEY_LEFT])   {proc_controllers(); mb=22;}
       while (key[ALLEGRO_KEY_ESCAPE]) {proc_controllers(); quit = 1;}
+
+
+      if (key[ALLEGRO_KEY_UP])
+      {
+          while (key[ALLEGRO_KEY_UP]) proc_controllers();
+          if (--current_step < 0) current_step = 0;
+      }
+
+      if (key[ALLEGRO_KEY_DOWN])
+      {
+          while (key[ALLEGRO_KEY_DOWN]) proc_controllers();
+          if (++current_step > (lifts[lift].num_steps-1)) current_step = (lifts[lift].num_steps-1);
+      }
+
+
+
 
 
       // list of step buttons
@@ -758,10 +839,16 @@ int lift_viewer(int lift)
 
       // this is the awesome section that lets you move steps on the map just by clicking and dragging
       // ----------------------------------------------------------------------------------------------------
+
+      int mouse_move = 0;
+      int mouse_adj = 0;
+
+
       if ((mouse_x < db*100)  && (mouse_x < db*100) )        // is mouse x on map ?
       {
          int mouse_on_lift = 0;
          int mouse_on_moveable_step = 0;
+
          for (int x=0; x<num_lifts; x++)  // cycle lifts
             for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
                if ((lift_steps[x][y].type & 31) == 1) // filter for move step
@@ -796,12 +883,49 @@ int lift_viewer(int lift)
                      }
                      if (mouse_on_moveable_step)
                      {
-                        if (mouse_b2)
+                        if (mouse_b2) step_popup_menu(x, y);
+                        // is mouse on lower right adjustable corner
+                        if ((mouse_x > nx + w-db/2)  && (mouse_x < nx + w) && (mouse_y > ny + h-db/2)  && (mouse_y < ny + h)) mouse_adj = 1;
+                        else mouse_move = 1;
+                     }
+
+
+                     if ((mouse_b1) && (mouse_adj))
+                     {
+                        while (mouse_b1)
                         {
-                           step_popup_menu(x, y);
-                        }
+                           al_rest(0.01);
+                           proc_controllers();
+                           nx = (mouse_x/db)*20;
+                           ny = (mouse_y/db)*20;
+
+
+                           int lx = lift_steps[x][y].x;
+                           int ly = lift_steps[x][y].y;
+
+                           // don't allow lr to be less than ul
+                           if (nx < lx+20) nx = lx+20;
+                           if (ny < ly+20) ny = ly+20;
+
+
+                           lift_steps[x][y].w = nx - lx;
+                           lift_steps[x][y].h = ny - ly;
+
+                           set_lift_to_step(lift, current_step);   // set current step in current lift
+
+                           al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
+                           draw_big(1);
+                           show_big();
+                           highlight_current_lift(lift);   // crosshairs and rect on current lift
+                           al_flip_display();
+
+
+                        } // end of while mouse b1 pressed
+                     } // end of if mouse b1 pressed on mouse_adj
+                     if ((mouse_b1) && (mouse_move))
+                     {
                         // first time only to snap to middle of lift step we're moving
-                        if (mouse_b1) al_set_mouse_xy(display, (nx+w/2) * display_transform_double, (ny+h/2) * display_transform_double);
+                        al_set_mouse_xy(display, (nx+w/2) * display_transform_double, (ny+h/2) * display_transform_double);
                         while (mouse_b1)
                         {
                            al_rest(0.01);
@@ -827,13 +951,12 @@ int lift_viewer(int lift)
                            show_big();
                            highlight_current_lift(lift);   // crosshairs and rect on current lift
                            al_flip_display();
-
-
                         } // end of while mouse b1 pressed
-                        al_reset_clipping_rectangle();
-                     } // end of mouse on moveable step
+                     } // end of if mouse b1 pressed on mouse_move
+                     al_reset_clipping_rectangle();
                   } // end of mouse on this step
                }  // end of cycle move steps
+
 
 
 
@@ -868,6 +991,10 @@ int lift_viewer(int lift)
          }
       } // end of mouse on map
 
+      if (mouse_move) al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE);
+      else if (mouse_adj) al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE);
+      else al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+
 
       if (key[ALLEGRO_KEY_B])
       {
@@ -901,16 +1028,9 @@ int lift_viewer(int lift)
       }
 
 
-
-
-
-
-
-
-
-
-
    } // end of while !quit
+   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+   al_reset_clipping_rectangle();
    lift_setup();
    draw_big(1);
    return ret;
