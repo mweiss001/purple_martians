@@ -218,7 +218,8 @@ extern int suicide_pbullets;
 
 
 //#define STATE_SIZE  105280
-#define STATE_SIZE 105920
+//#define STATE_SIZE 105920
+#define STATE_SIZE 105952
 
 
 
@@ -575,6 +576,9 @@ struct player // synced between server and client
    int paused_type; // 1 = death, 2 = door move
    int paused_mode;
    int paused_mode_count;
+
+   int spawn_point_index;
+
 
    al_fixed PX, PY;       // players position
    al_fixed xinc, yinc;   // players momentum
