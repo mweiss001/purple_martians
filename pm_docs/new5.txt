@@ -21314,6 +21314,50 @@ item[][8] - team spawn
 
 
 
+20220420 9:20
+
+before:
+
+Variables used for netgame state exchange
+
+players  :  1440
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    : 32000
+lifts    :  5280
+l        : 40000
+---------:------
+total    :105920
+
+added 'int spawn_point_index;' to 'player' struct
+
+Variables used for netgame state exchange
+
+players  :  1472
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    : 32000
+lifts    :  5280
+l        : 40000
+---------:------
+total    :105952
+
+32 bits larger
+
+//#define STATE_SIZE 105920
+#define STATE_SIZE 105952
+
+
+
+void set_player_start_pos(int p)
+
+called from load_level for all 8 players
+called when player becomes active...
+called after death
+
+
 
 
 
