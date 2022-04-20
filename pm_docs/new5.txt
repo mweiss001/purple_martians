@@ -21185,7 +21185,131 @@ push
 
 20220419 7:20 AM
 
+make an option to hide lift lines. per step or for entire lift
+per lift...just another flag...done
 
+
+
+make some buttons to apply to all lift steps...
+like right click on a step and get:
+-apply size to all steps
+-apply flags to all steps
+-apply color to all steps...etc
+all these are done from step 0....
+
+in lift viewer make up and down arrow move current step....done
+
+make a step or mode that is frozen or not based on a trigger....
+
+
+
+working on map move to resize lift step..got too tired
+8:43 PM
+
+5:46 AM got the map resize thing to work just like I wanted...
+
+
+what if I force end step to have same color as step 0?
+same draw and line mode too, why would I ever want them to differ?
+no time is ever spent in last mode, unless it freezes there...
+in that case I might want something different...
+leave it the way it is for now...
+
+
+I want some sort of checkpoint system...
+
+I juts made a long complicated level and I did not consider that if the player died he could not continue from start..
+
+
+I could make multiple starts, each with a number...
+
+I could make it so the last touched start is the one that you respawn at...per player or for all players?
+maybe both
+
+----------------------------
+normal:
+only one start
+----------------------------
+
+--------------------------------
+all players common:
+have a flag, current spawn point
+if set to 1 then all players use this..
+
+when any player touches it, that becomes the new current spawn point
+there can only be one active at any time
+----------------------------------
+
+------------------------------------
+each player has their own current spawn point
+saved in player struct
+
+each start will need an index
+-------------------------------------------
+
+whatever plan i use I want it to take all uses into account
+the most complicated would be multi player where each player has their own spawn point..
+I don't know how I would do teams...so for now I would just split them based on odd/even player number
+
+
+----------------------------------------
+team spawn:
+item[][5] - team spawn
+0 = off
+1 = for odd players
+2 = for even players
+-----------------------------------------
+
+
+----------------------------------------
+common spawn:
+item[][6] - common spawn
+0 = off
+1 = on
+
+if on, then of all spawn points only one can be currently active
+item[][8] - current active spawn point
+
+if off, then each player keeps track of index of their own current spawn point
+
+
+
+
+
+-----------------------
+
+would it not be easier for player to keep track of that in all cases?
+how hard is is to add a variable to player struct that is synced?
+
+call it spawn_point_index
+
+most of the time it will be zero, and link to spawn index 0..
+
+when starting a level, if there is only one start, players have that set..
+
+if there are multiple starts, and the starts are marked as team, then players will get corresponding starts...
+
+as the level is played, if a player touches a start, their spawn point index will change
+
+if the spawn point is marked team, then player much match team for it to be updated
+
+otherwise all players can touch any spawn...
+
+to make this work...
+
+add spawn_point_index to player struct...
+and make sure that does not break anything....
+
+then starts need to be modified:
+
+7 = index
+----------------------------------------
+team spawn:
+item[][8] - team spawn
+0 = off
+1 = for odd players
+2 = for even players
+-----------------------------------------
 
 
 

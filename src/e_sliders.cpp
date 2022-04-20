@@ -1999,6 +1999,18 @@ int mdw_button(int x1, int y1, int x2, int y2,
       else                                                   sprintf(smsg, "Solid for Item:OFF  ");
       if (press) lift_steps[num][type].type ^= PM_LIFT_SOLID_ITEM;
    }
+
+
+   if (bn == 514)
+   {
+      if (lift_steps[num][type].type & PM_LIFT_HIDE_LINES)   sprintf(smsg, "Hide Lift Lines");
+      else                                                   sprintf(smsg, "Draw Lift Lines");
+      if (press) lift_steps[num][type].type ^= PM_LIFT_HIDE_LINES;
+   }
+
+
+
+
    if (bn == 520)
    {
       sprintf(smsg, "Set Event Trigger (%d)", lift_steps[num][type].val);
