@@ -1355,6 +1355,8 @@ void draw_trigger(int);
 void set_item_trigger_location_from_lift(int, int);
 void detect_trigger_collisions(int i);
 
+void proc_start_collision(int p, int i);
+
 
 void process_block_manip(int i);
 void draw_block_manip(int i);
@@ -1456,7 +1458,7 @@ void edit_server_name(void);
 int edit_lift_name(int lift, int step_ty, int bts, char *fst);
 
 // z_player.h
-void set_player_start_pos(int p);
+void set_player_start_pos(int p, int cont);
 int is_player_riding_rocket(int p);
 void reset_player_scale_and_rot(int p);
 void proc_player_health(int p);

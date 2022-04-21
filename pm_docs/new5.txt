@@ -21357,6 +21357,74 @@ called from load_level for all 8 players
 called when player becomes active...
 called after death
 
+single player no teams...
+p0 gets index 0 set in player struct at level load..
+
+
+modify set_player_start_pos(int p)
+
+set_player_start_pos(int p, int cont)
+
+if (cont == 0) set to initials
+like load level and player comes active
+
+cont == 1; // is for respawning
+
+
+
+void set_player_start_pos(int p, int cont)
+{
+   if (cont == 0) // players initial entry
+   {
+      players[p].spawn_point_index = 0;
+   }
+
+
+   if (cont == 1) // players re spawn
+   {
+      for (int i=0; i<500; i++)
+         if ((item[i][0] == 5) && (item[i][7] == players[p].spawn_point_index))
+         {
+            players[p].PX = itemf[i][0];
+            players[p].PY = itemf[i][1];
+
+         }
+   }
+
+
+now make some code for collision with start...
+
+
+void proc_start_collision(int p, int i)
+{
+   players[p].spawn_point_index = item[i][7];
+}
+
+
+this works great!
+
+I want to see a change in the start that is active
+this could be a good opportunity to make some new tiles
+
+how about when ever player collision with lift, mark it and unmark all others...
+11 still
+21 scroll
+void proc_start_collision(int p, int i)
+{
+   players[p].spawn_point_index = item[i][7]; // set new spawn point
+
+   // mark this one as active and all others as not
+   for (int ii=0; ii<500; ii++)
+      if (item[ii][0] == 5)
+      {
+         if (item[ii][7] == item[i][7]) item[ii][1] = 1021;
+         else item[ii][1] = 1011;
+      }
+}
+
+all this works great for single player, but not so good more multi..
+
+any player can trigger new starts..
 
 
 
@@ -21365,9 +21433,14 @@ called after death
 
 
 
+I want to add the ability to trigger with events. so the player does not have to actually touch the start..
 
 
 
+
+I want to be able to draw a lift with blocks....
+
+Make archwagon able to turn around before hole, not jump...
 
 
 
