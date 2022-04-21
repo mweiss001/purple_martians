@@ -676,7 +676,7 @@ void proc_player_state_game_move(int x)
    // player becomes active
    if ((players[p].active == 0) && (val > 0) && (val < 16))
    {
-      set_player_start_pos(p); // get starting position from start block
+      set_player_start_pos(p, 0); // get starting position
       players[p].active = 1;
       players[p].color = val;
       players1[p].join_frame = frame_num;

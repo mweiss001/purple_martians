@@ -1,11 +1,39 @@
-// zplayer.cpp
+// z_player.cpp
 
 #include "pm.h"
 
 
 
-void set_player_start_pos(int p)
+void set_player_start_pos(int p, int cont)
 {
+   if (cont == 0) // players initial entry
+   {
+      players[p].spawn_point_index = 0;
+   }
+
+
+   if (cont == 1) // players re spawn
+   {
+   }
+
+   for (int i=0; i<500; i++)
+      if ((item[i][0] == 5) && (item[i][7] == players[p].spawn_point_index))
+      {
+         players[p].PX = itemf[i][0];
+         players[p].PY = itemf[i][1];
+
+      }
+
+
+
+
+
+
+
+
+
+/*
+
    // count number of starts
    int ns = 0;
 
@@ -24,6 +52,12 @@ void set_player_start_pos(int p)
       players[p].PX = al_itofix(20);
       players[p].PY = al_itofix(20);;
    }
+   else if (ns == 1)
+   {
+
+
+
+   }
    else
    {
       // start to use for this player
@@ -35,6 +69,10 @@ void set_player_start_pos(int p)
       players[p].PX = itemf[i][0];
       players[p].PY = itemf[i][1];
    }
+
+   */
+
+
 }
 
 void proc_player_health(int p)
@@ -412,7 +450,7 @@ void proc_player_paused(int p)
          players[p].right_xinc = al_itofix(0);
          players[p].xinc = al_itofix(0);
          players[p].yinc = al_itofix(0);
-         set_player_start_pos(p); // get starting position from start block
+         set_player_start_pos(p, 1); // get starting position from start block
          draw_level2(NULL, 0, 0, 0, 1, 1, 1, 1, 1); // redraw entire level in case only region has been drawn
       }
    }

@@ -1212,6 +1212,33 @@ void proc_door_collision(int p, int i)
 
 
 
+void proc_start_collision(int p, int i)
+{
+   players[p].spawn_point_index = item[i][7]; // set new spawn point
+
+   // mark this one as active and all others as not
+   for (int ii=0; ii<500; ii++)
+      if (item[ii][0] == 5)
+      {
+         if (item[ii][7] == item[i][7]) item[ii][1] = 1021;
+         else item[ii][1] = 1011;
+      }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1496,6 +1523,7 @@ void proc_item_collision(int p, int i)
       case 2:  proc_bonus_collision(p, i);    break;
       case 3:  proc_exit_collision(p, i);     break;
       case 4:  proc_key_collision(p, i);      break;
+      case 5:  proc_start_collision(p, i);    break;
       case 7:  proc_mine_collision(p, i);     break;
       case 8:  proc_bomb_collision(p, i);     break;
       case 10: item[i][6] = item[i][7];       break; // set pop-up message timer
