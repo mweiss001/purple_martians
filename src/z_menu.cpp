@@ -193,7 +193,10 @@ void help(const char *topic)
             if (strncmp(msg, "<title>", 7) == 0) // show title
             {
                 al_set_clipping_rectangle((dx+12)*display_transform_double, (12*display_transform_double), (639-12*2)*display_transform_double, (SCREEN_H-12*2)*display_transform_double);
-                draw_title(dx+sxc+10, sy-108, 360, 64, 8);
+//                draw_title(dx+sxc+10, sy-108, 360, 64, 8);
+                draw_title(dx+sxc+10, sy, 360, 64, 8);
+
+
                 msg[0]= 0;
                 al_reset_clipping_rectangle();
            }
@@ -252,8 +255,10 @@ void help(const char *topic)
                al_set_clipping_rectangle((dx+12)*display_transform_double, (12*display_transform_double), (639-12*2)*display_transform_double, (SCREEN_H-12*2)*display_transform_double);
                float sc = .25;
                int xo = (int)(200 * sc)+16;
-               mdw_an3(dx+320 + sxc-xo, sy+xo+16-140, sc, 2);
-               mdw_an3(dx+320 - sxc+xo, sy+xo+16-140, sc, 2);
+//               mdw_an3(dx+320 + sxc-xo, sy+xo+16-140, sc, 2);
+//               mdw_an3(dx+320 - sxc+xo, sy+xo+16-140, sc, 2);
+               mdw_an3(dx+320 + sxc-xo, sy+40, sc, 2);
+               mdw_an3(dx+320 - sxc+xo, sy+40, sc, 2);
                msg[0]= 0;
                al_reset_clipping_rectangle();
             }
@@ -267,7 +272,24 @@ void help(const char *topic)
                 al_draw_bitmap(tile[ans], dx+sxc, sy, 0 );
                 msg[0]= 0;
             }
-            if (strncmp(msg, "<a", 2) == 0) // <axx> show animation sequence (left just)
+
+
+            if (strncmp(msg, "<ab", 3) == 0) // <axx> show animation sequence (left just) // for block tiles instead of tiles
+            {
+                processed_tag_this_time_through = 1;
+                buff2[0] = msg[3];
+                buff2[1] = msg[4];
+                buff2[2] = 0;
+
+                //printf("s:'%s' i:%d\n", buff2, atoi(buff2));
+
+                int ans = zz[0][atoi(buff2)];
+                al_draw_bitmap(btile[ans], dx+sx, sy, 0 );
+
+                chop_first_x_char(msg, 6);
+                xindent +=24;
+            }
+            else if (strncmp(msg, "<a", 2) == 0) // <axx> show animation sequence (left just)
             {
                 processed_tag_this_time_through = 1;
                 buff2[0] = msg[2];
@@ -279,6 +301,8 @@ void help(const char *topic)
                 chop_first_x_char(msg, 5);
                 xindent +=24;
             }
+
+
             if (strncmp(msg, "<hb", 3) == 0) // <hb> show centered health bar
             {
                 buff2[0] = msg[3];
@@ -313,7 +337,22 @@ void help(const char *topic)
                 chop_first_x_char(msg, 5);
                 xindent +=24;
             }
-            if (strncmp(msg, "<s", 2) == 0) // <sxxx> show shape left just)
+            if (strncmp(msg, "<sb", 3) == 0) // <sxxx> show shape left just) // for block tiles instead of tiles
+            {
+               processed_tag_this_time_through = 1;
+               buff2[0] = msg[3];
+               buff2[1] = msg[4];
+               buff2[2] = msg[5];
+               buff2[3] = 0;
+
+               // printf("s:'%s' i:%d\n", buff2, atoi(buff2));
+
+               int ans = atoi(buff2);
+               al_draw_bitmap(btile[ans], dx+sx, sy, 0 );
+               chop_first_x_char(msg, 7);
+               xindent +=24;
+            }
+            else if (strncmp(msg, "<s", 2) == 0)   // <sxxx> show shape left just)
             {
                processed_tag_this_time_through = 1;
                buff2[0] = msg[2];
@@ -335,7 +374,7 @@ void help(const char *topic)
                   buff2[2] = msg[5+z*3];
                   buff2[3] = 0;
                   int ans = atoi(buff2);
-                  al_draw_bitmap(tile[ans], dx+sx+(z*20), sy, 0 );
+                  al_draw_bitmap(btile[ans], dx+sx+(z*20), sy, 0 );
                }
                msg[0]= 0;
             }

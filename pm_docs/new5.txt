@@ -21450,6 +21450,87 @@ Make archwagon able to turn around before hole, not jump...
 
 
 
+starts and modes...
+
+
+team mode vs single player
+
+with single player, all players have the same start
+
+
+maybe a bunch of modes...
+
+0 = normal default regular...exactly one start and everyone uses it the same way
+- 1 start
+
+1 = team
+- 2 starts (0 and 1)
+- even/odd player number split
+
+2 = checkpoint common
+- 2 or more starts
+- all players use current start
+- any player can set any checkpoint
+
+3 = checkpoint individual
+- 2 or more starts
+- each player can set their own checkpoint
+- all players start at checkpoint zero
+
+
+this will all be set in start block with index zero..
+
+what variable do I have to play with:
+
+6-13
+
+item[][6] - mode
+item[][7] - index
+
+made a button...
+
+this all works exactly like I thought it would...
+
+how can I show this for individual?  don't for now...
+
+
+
+New write up for starts...
+
+Mode:Default
+- there is only one start with start index 0
+- all players uses this start
+
+Team Start
+- 2 start blocks with index's 0 and 1
+- even numbered players use start 0
+- odd numbered players use start 1
+
+Checkpoint Common
+- 2 or more starts with indexes 0,1,2 etc...
+- all players initially start at start 0
+- when any start is touched by any player...
+- that start becomes the new spawn point for all players
+
+
+Checkpoint Common
+- 2 or more starts with indexes 0,1,2 etc...
+- all players initially start at start 0
+- when a start is touched by a player...
+- that start becomes the new spawn point for only that player
+
+
+
+in help...I need to distinguish between tiles and btiles...
+
+        if (strncmp(msg, "<s", 2) == 0) // <sxxx> show shape left just)
+        if (strncmp(msg, "<ms", 2) == 0) // <msxxxxxxx....> show 20 shapes (left just)
+
+        if (strncmp(msg, "<ac", 3) == 0) // <acxxx> show animation sequence (centered)
+        if (strncmp(msg, "<a", 2) == 0) // <axx> show animation sequence (left just)
+
+
+
 
 
 

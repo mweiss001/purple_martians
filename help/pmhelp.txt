@@ -2,9 +2,8 @@
 
 
 
-
-
-
+<title>
+<mdw1>
 
 
 
@@ -16,8 +15,8 @@
 
 
 <l15>                  Move up and down with <l09>[UP]<l15> and <l09>[DOWN].
-<title>
-<mdw1>
+
+
 <l15>              Move by sections with <l09>[PAGE UP]<l15> and <l09>[PAGE DOWN].
 
 
@@ -372,7 +371,7 @@
 
 
 <l13>             Switch
-<s841><s745><s777><s809> Swap solid and empty blocks.   <a88>  <a89>
+<s841><s745><s777><s809> Swap solid and empty blocks.   <a88>  <ab89>
 
 
 
@@ -380,7 +379,7 @@
 <a48> Opens matching locked blocks of the same color.
 
    Locked Block 1      Locked Block 2      Locked Block 3
-<a49>                 <a50>                 <a51>
+<ab49>                 <ab50>                 <ab51>
 
 
 <section>Bombs
@@ -659,7 +658,7 @@ Bombs and rockets will destroy these blocks.
 <c15>___________________________________________________________________
 
 
-<l06>     In windowed mode resize and move the windows like any other window.
+<l06>     In windowed mode resize and move the window like any other window.
 
 <c15>___________________________________________________________________
 
@@ -1378,9 +1377,9 @@ LOGGING_NETPLAY_show_dif2 = 0
 
 <l04>    Description:
 
-<l15> This marks where the player enters the level.
+<l15> Where players initially enter the level or respawn after dying.
 
-<l15> A level should only have one.
+<l15> A level must have exactly one start with start index 0
 
 <b15>
 
@@ -1389,6 +1388,55 @@ LOGGING_NETPLAY_show_dif2 = 0
 <l09> [Stationary:Fall:Carry]
 
 <l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<l09> Start Index:[0-9]
+
+<l15>  - Every level must have one start with index 0
+
+<l15>  - The start with index 0 also sets the start mode for the level
+
+
+<l09> Start Mode:[Default:Team Start:Checkpoint Common:Checkpoint Individual]
+
+<l15> Mode:Default
+
+<l15> - there is only one start with start index 0
+
+<l15> - all players use this start
+
+
+<l15> Team Start
+
+<l15> - 2 start blocks with index's 0 and 1
+
+<l15> - even numbered players use start 0
+
+<l15> - odd numbered players use start 1
+
+
+<l15> Checkpoint Common
+
+<l15> - 2 or more starts with indexes 0,1,2 etc...
+
+<l15> - all players initially start at start 0
+
+<l15> - when any start is touched by any player...
+
+<l15> - that start becomes the new spawn point for all players
+
+
+<l15> Checkpoint Individual
+
+<l15> - 2 or more starts with indexes 0,1,2 etc...
+
+<l15> - all players initially start at start 0
+
+<l15> - when a start is touched by a player...
+
+<l15> - that start becomes the new spawn point for only that player
+
+
 
 
 <section>Exit Viewer
@@ -1524,13 +1572,13 @@ LOGGING_NETPLAY_show_dif2 = 0
 <l15>  - In "Exit Only" mode most other buttons are disabled.
 
 
-<l09> Entry Type: [[up] to enter | [down] to enter | Enter Immediately]
+<l09> Entry Type: [[UP] to enter | [DOWN] to enter | Enter Immediately]
 
 <l15>  - Sets the conditions required to enter the door.
 
-<l15>  - "[up] to enter" requires [up] to be pressed.
+<l15>  - "[UP] to enter" requires [UP] to be pressed.
 
-<l15>  - "[down] to enter" requires [down] to be pressed.
+<l15>  - "[DOWN] to enter" requires [DOWN] to be pressed.
 
 <l15>  - "Enter Immediately" enters as soon as the player touches the door.
 
@@ -1805,12 +1853,12 @@ LOGGING_NETPLAY_show_dif2 = 0
 <b15>
 
 <l14>             Solid Blocks
-<s172><s173><s174><s175>
+<sb172><sb173><sb174><sb175>
 
 <b15>
 
 <l14>             Hollow Blocks
-<s007><s008><s009><s010>
+<sb007><sb008><sb009><sb010>
 
 <b15>
 
@@ -2305,24 +2353,6 @@ LOGGING_NETPLAY_show_dif2 = 0
 <l15>    when player is in the Collision Box.
 
 
-<section>Field Viewer
-
-
-
-<l04>    Description:
-
-<l15> Fields are rectangular areas that can cause damage.
-
-This section is under construction...more later
-
-
-
-
-
-
-
-
-
 <section>Lift Viewer
 
 
@@ -2644,45 +2674,46 @@ Numerous small bug fixes and improvements.
 
 
 
+<c09>Copyright (c) (1997-2022) Michael David Weiss
+<c15>mweiss001@gmail.com
 
+<c15>___________________________________________
 
+<c09>Music by Russel Hoy - Copyright 2000
 
-<c09>Copyright (c) (1997-2018) (Michael David Weiss)
+<c15>___________________________________________
 
 
 <c15>Last Update: May 18, 2018 to version 7.05
 
 <c15>__________________________________________
+
+
 <title>
 <mdw1>
 <c09>released under the zlib license (see license.txt)
 
-<c15>(source code available upon request)
+<c15>_______________________________________________________________
 
-<c09>Here is a is list of tasks you must perform to get the source code:
+<c15>(source code available from the github project page)
 
-<c15>Send me an email (mweiss001@gmail.com) requesting the sources
+<c15>https://github.com/mweiss001/purple_martians
 
-<c15>Attach a new level for the game that you have created (optional)
+<c15>_______________________________________________________________
 
-<c15>Promise not to laugh at the nasty hacks and kludges in my code!
+<c15>The documentation pages are here:
+
+<c15>https://mweiss001.github.io/purple_martians/
+
+<c15>_______________________________________________________________
+
+<c09>If you download the sources or craete any new level please send me an email:
 
 <c15>_______________________________________________________________
 
 
-<c09>Contact the author:
-<c15>mweiss001@gmail.com
-
-<c09>Purple Martians on allegro.cc
-<c15>https://www.allegro.cc/depot/PurpleMartians/
-
-<c09>Purple Martians on itch.io
-<c15>https://mweiss001.itch.io/purple-martians
 
 
-<c09>Music by Russel Hoy - Copyright 2000
-
-<c15>___________________________________________
 
 
 <c07>Created with:

@@ -140,7 +140,7 @@ lift_steps[num][type].type |= cf; // merge color with type
 
 how to get color:
 int col = (lifts[l].flags >> 28) & 15;
-
+int col = (lift_steps[l][s].type >> 28) & 15;
 
 
 
