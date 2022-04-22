@@ -1667,7 +1667,8 @@ void object_viewer(int obt, int num)
                break;
                case 5: // start
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 78, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // start index
+                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 78, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // start mode
+                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 79, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // start index
                break;
                case 6: // free man
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 2,  num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall

@@ -1214,6 +1214,58 @@ void proc_door_collision(int p, int i)
 
 void proc_start_collision(int p, int i)
 {
+   int ns = 0; // count number of starts
+   int s[8] = {0};
+   for (int i=0; i<500; i++)
+      if (item[i][0] == 5)
+      {
+         ns++;
+         s[item[i][7]] = i; // save index of this start
+      }
+/*
+   if (ns == 0)
+   {
+      printf("Error: no start found.\n");
+      players[p].PX = al_itofix(20);
+      players[p].PY = al_itofix(20);;
+   }
+
+   if (ns == 1)
+   {
+      players[p].spawn_point_index = 0;
+      int ps = s[players[p].spawn_point_index];
+      players[p].PX = itemf[ps][0];
+      players[p].PY = itemf[ps][1];
+   }
+*/
+
+
+   if (ns > 1)
+   {
+      int mode = item[s[0]][6];
+
+      if (mode == 2) // check point common
+      {
+         for (p=0; p<8; p++)
+            players[p].spawn_point_index = item[i][7]; // set new spawn point for all players
+
+         // mark this one as active and all others as not
+         for (int ii=0; ii<500; ii++)
+            if (item[ii][0] == 5)
+            {
+               if (item[ii][7] == item[i][7]) item[ii][1] = 1021;
+               else item[ii][1] = 1011;
+            }
+      }
+
+      if (mode == 3) // check point individual
+      {
+         players[p].spawn_point_index = item[i][7]; // set new spawn point for this player
+      }
+
+   }
+
+   /*
    players[p].spawn_point_index = item[i][7]; // set new spawn point
 
    // mark this one as active and all others as not
@@ -1223,6 +1275,10 @@ void proc_start_collision(int p, int i)
          if (item[ii][7] == item[i][7]) item[ii][1] = 1021;
          else item[ii][1] = 1011;
       }
+
+*/
+
+
 }
 
 

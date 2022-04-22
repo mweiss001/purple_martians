@@ -648,6 +648,12 @@ float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, i
 // --------------------------buttons---------------------------------------------------
 // ------------------------------------------------------------------------------------
 
+// q0 = background color; (not used)
+// q1 = frame color
+// q2 = text color    (use white 99% of time)
+// q5 = text justify  (0-center 1-left...buttons only)
+
+
 int mdw_button(int x1, int y1, int x2, int y2,
                 int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
@@ -1037,12 +1043,24 @@ int mdw_button(int x1, int y1, int x2, int y2,
    }
    if (bn == 78)
    {
+      if (item[num][6] == 0) sprintf(smsg, "Start Mode:Default");
+      if (item[num][6] == 1) sprintf(smsg, "Start Mode:Team Start");
+      if (item[num][6] == 2) sprintf(smsg, "Start Mode:Checkpoint Common");
+      if (item[num][6] == 3) sprintf(smsg, "Start Mode:Checkpoint Individual");
+      if (press)
+      {
+         if (++item[num][6] > 3) item[num][6] = 0;
+      }
+   }
+   if (bn == 79)
+   {
       sprintf(smsg, "Start Index:%d", item[num][7]);
       if (press)
       {
          if (++item[num][7] > 7) item[num][7] = 0;
       }
    }
+
    if (bn == 81)
    {
       if (Ei[num][4] == 0) sprintf(smsg, "Draw Boxes:off");
