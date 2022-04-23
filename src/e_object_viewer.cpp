@@ -1663,16 +1663,22 @@ void object_viewer(int obt, int num)
                case 4: // key
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 2,  num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 5,  num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++; // set new block range
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 48, num, type, obt, 0,  4, 15,  0, 1,0,0,0); a++; // range type
+
+
+                  mdw_toggle(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, item[num][12], "Erase All Blocks In Range ", "Erase Only Matching Blocks", 15, 15, 4, 4); a++; // range type
+//                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 48, num, type, obt, 0,  4, 15,  0, 1,0,0,0); a++; // range type
+
+
+
                break;
                case 5: // start
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 78, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // start mode
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 79, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // start index
                break;
-               case 6: // free man
-                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 2,  num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall
-               break;
+//               case 6: // free man
+//                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 2,  num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall
+//               break;
                case 7: // mine
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
                   mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 11, num, type, obt, 0, 10, 15, 15, 1,0,0,0); a++; // mine damage
@@ -1691,33 +1697,21 @@ void object_viewer(int obt, int num)
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 200,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // Get New Trigger Field
 
 
+
+
+                  // draw trigger field on/off with optional color select if on
+                  mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF           ","Draw Trigger Field:ON            ", 15+96, 15, 15+96, item[num][2]); a++; // Draw on/off
                   if (FLAGS & PM_ITEM_TRIGGER_DRAW_ON)
                   {
-                     int col = item[num][2];
-                     mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 201,  num, type, obt, 0, col, 15, 15, 1,0,0,0); a++; // Draw on/off
                      mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  6,   num, type, obt, 0,  0,   0,  0, 0,0,0,0); a++; // color select
-
-                  }
-                  else
-                  {
-                     mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 201,  num, type, obt, 0, 15+96, 15+96, 15, 1,0,0,0); a++; // Draw on/off
                   }
                   a++;
 
-
-
-                  if (FLAGS & PM_ITEM_TRIGGER_PLAYER) { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 202, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
-                  else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 202, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
-                  if (FLAGS & PM_ITEM_TRIGGER_ENEMY)  { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 203, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
-                  else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 203, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
-                  if (FLAGS & PM_ITEM_TRIGGER_ITEM)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 204, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
-                  else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 204, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
-                  if (FLAGS & PM_ITEM_TRIGGER_PBUL)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 205, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
-                  else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 205, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
-                  if (FLAGS & PM_ITEM_TRIGGER_EBUL)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 206, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
-                  else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 206, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
-
-
+                  mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF         ","Triggered by Players:ON          ", 15+d, 15, 14+d, 14); a++;
+                  mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF         ","Triggered by Enemies:ON          ", 15+d, 15, 14+d, 14); a++;
+                  mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF           ","Triggered by Items:ON            ", 15+d, 15, 14+d, 14); a++;
+                  mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_PBUL,   "Triggered by Player's Bullets:OFF","Triggered by Player's Bullets:ON ", 15+d, 15, 14+d, 14); a++;
+                  mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_EBUL,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+d, 15, 14+d, 14); a++;
                   a++;
 
                   if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) // Trigger Field follows lift:ON

@@ -661,6 +661,11 @@ int mdw_button(int x1, int y1, int x2, int y2,
 
    // is mouse pressed on this button?
    int press = 0;
+   int retval = 0;
+
+
+
+
    if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
       while (mouse_b1) proc_controllers(); // wait for release
@@ -1495,42 +1500,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
             Redraw = 1;
          }
    }
-   if (bn == 201) // Item Trigger Draw Type
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_DRAW_ON) sprintf(smsg,"Draw Trigger Field:ON            ");
-      else                                        sprintf(smsg,"Draw Trigger Field:OFF           ");
-      if (press) item[num][3] ^= PM_ITEM_TRIGGER_DRAW_ON;
-   }
-   if (bn == 202)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_PLAYER) sprintf(smsg, "Triggered by Players:ON          ");
-      else                                       sprintf(smsg, "Triggered by Players:OFF         ");
-      if (press) item[num][3] ^= PM_ITEM_TRIGGER_PLAYER;
-   }
-   if (bn == 203)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_ENEMY)  sprintf(smsg, "Triggered by Enemies:ON          ");
-      else                                       sprintf(smsg, "Triggered by Enemies:OFF         ");
-      if (press) item[num][3] ^= PM_ITEM_TRIGGER_ENEMY;
-   }
-   if (bn == 204)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_ITEM)   sprintf(smsg, "Triggered by Items:ON            ");
-      else                                       sprintf(smsg, "Triggered by Items:OFF           ");
-      if (press) item[num][3] ^= PM_ITEM_TRIGGER_ITEM;
-   }
-   if (bn == 205)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_PBUL)   sprintf(smsg, "Triggered by Player's Bullets:ON ");
-      else                                       sprintf(smsg, "Triggered by Player's Bullets:OFF");
-      if (press) item[num][3] ^= PM_ITEM_TRIGGER_PBUL;
-   }
-   if (bn == 206)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_EBUL)   sprintf(smsg, "Triggered by Enemy's Bullets:ON  ");
-      else                                       sprintf(smsg, "Triggered by Enemy's Bullets:OFF ");
-      if (press) item[num][3] ^= PM_ITEM_TRIGGER_EBUL;
-   }
    if (bn == 210)
    {
       if (item[num][3] & PM_ITEM_TRIGGER_LIFT_ON) sprintf(smsg, "Follows Lift:ON");
@@ -1959,6 +1928,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
    if (bn == 502)
    {
       if (num == -1) sprintf(smsg, "Type");  // show row header
+      if (num == 0)  sprintf(smsg, "----");
       if (num == 1)  sprintf(smsg, "Move");
       if (num == 2)  sprintf(smsg, "Wait");
       if (num == 3)  sprintf(smsg, "Wait");
@@ -1976,6 +1946,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       int v = lift_steps[l][s].val;
 
       if (num == -1) sprintf(smsg, "Details");  // show row header
+      if (num == 0)  sprintf(smsg, "blank");
       if (num == 1)  sprintf(smsg, "x:%4d y:%4d w:%4d h:%4d [speed:%d]", x, y, w, h, v);
       if (num == 2)  sprintf(smsg, "for Timer:%d", v);
       if (num == 3)  sprintf(smsg, "for Player prox:%d", v);
@@ -2061,6 +2032,95 @@ int mdw_button(int x1, int y1, int x2, int y2,
 
 
 
+   if (bn == 600)
+   {
+      if (num) sprintf(smsg, "Blocks:ON ");
+      else     sprintf(smsg, "Blocks:OFF");
+      if (press) return 1;
+   }
+
+   if (bn == 601)
+   {
+      if (num) sprintf(smsg, "Enemies:ON ");
+      else     sprintf(smsg, "Enemies:OFF");
+      if (press) return 1;
+   }
+   if (bn == 602)
+   {
+      if (num) sprintf(smsg, "Items:ON ");
+      else     sprintf(smsg, "Items:OFF");
+      if (press) return 1;
+   }
+   if (bn == 603)
+   {
+      if (num) sprintf(smsg, "Lifts:ON ");
+      else     sprintf(smsg, "Lifts:OFF");
+      if (press) return 1;
+   }
+
+   if (bn == 604)
+   {
+      if (num) sprintf(smsg, "Flags:ON ");
+      else     sprintf(smsg, "Flags:OFF");
+      if (press) return 1;
+   }
+
+
+
+
+   if (bn == 620)
+   {
+      sprintf(smsg, "Move Selection");
+      if (press) return 1;
+   }
+
+   if (bn == 621)
+   {
+      sprintf(smsg, "Clear Selection");
+      if (press) return 1;
+   }
+   if (bn == 622)
+   {
+      sprintf(smsg, "Paste Selection");
+      if (press) return 1;
+   }
+
+   if (bn == 623)
+   {
+      sprintf(smsg, "Save To Disk");
+      if (press) return 1;
+   }
+   if (bn == 624)
+   {
+      sprintf(smsg, "Load From Disk");
+      if (press) return 1;
+   }
+
+
+
+
+
+
+   if (bn == 610)
+   {
+      sprintf(smsg, "Block Fill");
+      if (press) return 1;
+   }
+   if (bn == 611)
+   {
+      sprintf(smsg, "Block Frame");
+      if (press) return 1;
+   }
+   if (bn == 612)
+   {
+      sprintf(smsg, "Block Floodfill");
+      if (press) return 1;
+   }
+
+
+
+
+
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
 
    if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
@@ -2099,7 +2159,15 @@ int mdw_button(int x1, int y1, int x2, int y2,
       al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
       al_draw_bitmap(btile[tn&1023], x, y, 0);
    }
-   return 0;
+
+
+
+
+
+
+
+
+   return retval;
 }
 
 
@@ -2157,6 +2225,120 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
       Redraw = 1;
    }
 }
+
+
+
+
+
+
+
+
+int mdw_toggle(int x1, int y1, int x2, int y2,
+                int bn, int num, int type, int obt,
+                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                  int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
+
+
+{
+   // is mouse pressed on this button?
+   int press = 0;
+   int retval = 0;
+   if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   {
+      while (mouse_b1) proc_controllers(); // wait for release
+      press = 1;
+   }
+   if (bn == 1000)
+   {
+      if (press) var = ! var;
+
+      if (var)
+      {
+          q1 = frame_col1;
+          q2 = text_col1;
+          sprintf(smsg, "%s", t1);
+
+      }
+      else
+      {
+         q1 = frame_col0;
+         q2 = text_col0;
+         sprintf(smsg, "%s", t0);
+      }
+   }
+
+
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+
+   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
+   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
+   return retval;
+
+}
+
+
+
+int mdw_togglf(int x1, int y1, int x2, int y2,
+                int bn, int num, int type, int obt,
+                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                  int &var, int flag, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
+
+
+{
+   // is mouse pressed on this button?
+   int press = 0;
+   int retval = 0;
+   if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   {
+      while (mouse_b1) proc_controllers(); // wait for release
+      press = 1;
+   }
+   if (bn == 1000)
+   {
+      if (press) var ^= flag;
+
+      if (var & flag)
+      {
+          q1 = frame_col1;
+          q2 = text_col1;
+          sprintf(smsg, "%s", t1);
+
+      }
+      else
+      {
+         q1 = frame_col0;
+         q2 = text_col0;
+         sprintf(smsg, "%s", t0);
+      }
+   }
+
+
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+
+   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
+   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
+   return retval;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

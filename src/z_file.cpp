@@ -223,13 +223,13 @@ void zero_level_data(void)
 
 void level_check(void)
 {
+/*
    int error = 0;
 
    // count number of starts
    number_of_starts = 0;
    int s[8] = {0};
 
-   /*
 
    for (int i=0; i<500; i++)
       if (item[i][0] == 5)

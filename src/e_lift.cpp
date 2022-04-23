@@ -325,6 +325,8 @@ int insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'ste
          lift_steps[lift][x+1].type = lift_steps[lift][x].type;
       }
 
+      clear_lift_step(lift, step);
+
       // do this after creating a new lift step so stuff lines up...
       set_bts(lift);
       int step_ty = 46 + 7 * bts;
@@ -617,13 +619,12 @@ int draw_steps(int y, int lift, int current_step, int highlight_step)
 
    // draw steps
    for (int step=0; step<lifts[lift].num_steps; step++)
-      if (lift_steps[lift][step].type & 31) // step is valid
-      {
-         int color = 13;
-         if (step == current_step) color = 10;
-         draw_step_button(xa, xb, ya+(a)*bts, ya+(a+1)*bts-1, lift, step, color);
-         a++;
-      }
+   {
+      int color = 13;
+      if (step == current_step) color = 10;
+      draw_step_button(xa, xb, ya+(a)*bts, ya+(a+1)*bts-1, lift, step, color);
+      a++;
+   }
 
    // show outline around highlighted step
    int hs = highlight_step+1;
