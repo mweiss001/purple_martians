@@ -218,6 +218,7 @@ int copy_blocks=1;
 int copy_enemies=1;
 int copy_items=1;
 int copy_lifts=1;
+int copy_flags=1;
 int copy_mode = 0;
 int brf_mode =0;
 
@@ -454,6 +455,7 @@ int e_first_num[50];
 char enemy_name[20][40];
 int num_enemy;
 int enemy_tile[20];
+int item_tile[20];
 
 // PDE
 int PDEi[100][32];
@@ -1360,7 +1362,8 @@ int main(int argument_count, char **argument_array)
    printf("af:'%s'\n",msg);
 */
 
-
+   load_level(start_level, 0);
+   group_edit();
 
 
 //   char tst[20];

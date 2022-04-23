@@ -21530,188 +21530,470 @@ in help...I need to distinguish between tiles and btiles...
         if (strncmp(msg, "<a", 2) == 0) // <axx> show animation sequence (left just)
 
 
+help has been fixed...made a few new tags...
 
+            if (strncmp(msg, "<ab", 3) == 0) // <axx> show animation sequence (left just) // for block tiles instead of tiles
+            else if (strncmp(msg, "<a", 2) == 0) // <axx> show animation sequence (left just)
 
+            if (strncmp(msg, "<sb", 3) == 0) // <sxxx> show shape left just) // for block tiles instead of tiles
+            else if (strncmp(msg, "<s", 2) == 0)   // <sxxx> show shape left just)
 
+also in help, fixed the weird allignent issue on the first and last sections that use title and spinning mdw
+also in help, completely updated the last section (credits)
 
 
+now what?
+the start improvements are completely done....
 
 
+what about lifts?
+- different drawing methods (blocks) other primitives...
+- is that all?
 
+bug---when adding steps in a loop it shows 2 ends...fixed.....
 
 
 
+would it be so hard for zoom full screen to be able to paste only flags?
 
+im thinking like a single block type of thing
+why think small...
 
+add a filter, block flags..
 
+when on it acts just like blocks
 
 
+when b abd bf are both on: same as b on now
 
+when b abd bf are both off: same as b off now
 
+when only blocks are on or only flags are on..same as now...
 
+difference is in paste:
 
+if only B then use default flags and ignore existing flags
 
+if only F then ignore shape and just apply flags..
 
 
+so the only difference would be in the pasting of blocks only...
 
 
 
 
+OK do I want to redo 12 buttons in zfs?
 
 
+yes I do...
 
+how hard would it be to send a pointer to an int for buttons?
+I would have to redo so many things....
+every mention of button would need to be redone.
+why?
+so that I could get the button to manipulate the variable directly...
+very useful for toggles....
+in all the cases where it is not used send a pointer to a dummy variable...
 
+or...
 
+copy_blocks = button(intin intinint copy_blocks)
 
+BUG - even when flags are off rectangle still show under draw item check boxes...
 
+now that I redid the menu on zfs lets implement the button flags...
 
+looks like it is working for me...
 
+only works in block fill...
+must have block filter off and flag filter on
+gets flags from draw item, ignores tile, applies to all in range...
 
 
+      if (draw_item_type == 1) // don't even show these 3 buttons unless...
+      {
+         if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 610, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // block fill
+         {
+            for (int x=stx; x<sux; x++)
+               for (int y=sty; y<suy; y++)
+               {
+                  if ((copy_flags) && (copy_blocks))  l[x][y] = draw_item_num;
+                  if ((copy_flags) && (!copy_blocks))
+                  {
+                     int flags = draw_item_num & PM_BTILE_MOST_FLAGS; // get only flags from draw item
+                     l[x][y] &= ~PM_BTILE_MOST_FLAGS;                 // clear flags in destination
+                     l[x][y] |= flags;                                // merge
+                  }
+               }
+         }
 
 
 
 
 
 
+this might be a huge project, but I want to make the randomize stuff work...
 
+if I don't patch it into zfs, it will be something very similar
 
+- make a selction on the map
+- from that selection
+- narrow it down to a certain type of enemy
 
+I want to be able to do a discontinous selection...
+I might need to have a list that I can fill by just rectangle selecting or clicking on individual enemies..
 
+then in that list I can do things...
 
+workflow:
+- from obj selection choose cannon
+- fill the list by rect selecting or clicking to toggle
+- remove and reorder
+when list is good
+- randomize, increment on selected variables..
 
 
+cannon will have x, y origin, speed, bullet speed, bullet retrigger, seek count, extra hits to kill
 
+actions
 
+min, max randomize
+min max increment/decrement
 
+special for x and y pos
+set a box.
+randomize in box
+evenly space in x axis
+evenly space in y axis
 
 
+what does my list look like?
 
+enemy and item can share?
 
+obj_list[100][2]
 
+obj_lift[][0] = type (0 empty, 1 enemy, 2 item)
+obj_lift[][1] = number of item or enemy
 
 
 
 
 
+I want to start building this:
 
 
+I like building things like this!
 
+group_edit
 
+make selection buttons
+all toggles
+one for each enemy and item
 
 
 
+I really want to make button toggles so I can do it in one line
+send a pointer to the int and text true and text false
 
 
+make a new type of button that does just that...
 
 
+int mdw_button( int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
+void mdw_slider(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
+void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 
 
 
+int mdw_toggle( int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var, int & flags, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_color0, int frame_color1)
 
 
 
+int mdw_toggle(int x1, int y1, int x2, int y2,
+                int bn, int num, int type, int obt,
+                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                  int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_color0, int frame_color1);
 
 
+int mdw_togglf(int x1, int y1, int x2, int y2,
+                int bn, int num, int type, int obt,
+                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                  int &var, int flags, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_color0, int frame_color1);
 
 
 
+// here it is...one line
+mdw_toggle(x1, yfb+a*bts, x2, yfb+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, copy_blocks, "OFF", "ON", 15, 15, 15+64, 9); // block filter
 
 
+try it out with int from an array
+key...
+mdw_toggle(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, item[num][12], "Erase All Blocks In Range ", "Erase Only Matching Blocks", 15, 15, 4, 4); a++; // range type
+works...
 
+it makes the call more complicated...
+from:
+mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 48, num, type, obt, 0,  4, 15,  0, 1,0,0,0); a++; // range type
+to:
+mdw_toggle(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, item[num][12], "Erase All Blocks In Range ", "Erase Only Matching Blocks", 15, 15, 4, 4); a++; // range type
 
+but....
+-I don't need custom button code for each type
+-I can change colors of text and frame without custom code
 
 
 
+try out togglef for trigger draw...
 
+old:
 
+if (FLAGS & PM_ITEM_TRIGGER_DRAW_ON)
+{
+   int col = item[num][2];
+   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 201,  num, type, obt, 0, col, 15, 15, 1,0,0,0); a++; // Draw on/off
+   mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  6,   num, type, obt, 0,  0,   0,  0, 0,0,0,0); a++; // color select
+}
+else
+{
+   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 201,  num, type, obt, 0, 15+96, 15+96, 15, 1,0,0,0); a++; // Draw on/off
+}
+a++;
 
+new:
+mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0,item[num][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF           ","Draw Trigger Field:ON            ", 15+96, 15, 15+96, item[num][2]); a++; // Draw on/off
+if (FLAGS & PM_ITEM_TRIGGER_DRAW_ON)
+{
+   mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  6,   num, type, obt, 0,  0,   0,  0, 0,0,0,0); a++; // color select
+}
+a++;
 
+OK...it works....
 
+this could simplify some stuff...
 
+old:
+if (FLAGS & PM_ITEM_TRIGGER_PLAYER) { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 202, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
+else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 202, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
+if (FLAGS & PM_ITEM_TRIGGER_ENEMY)  { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 203, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
+else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 203, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
+if (FLAGS & PM_ITEM_TRIGGER_ITEM)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 204, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
+else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 204, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
+if (FLAGS & PM_ITEM_TRIGGER_PBUL)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 205, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
+else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 205, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
+if (FLAGS & PM_ITEM_TRIGGER_EBUL)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 206, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
+else                                { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 206, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
 
 
+new:
+mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF         ","Triggered by Players:ON          ", 15+d, 15, 14+d, 14); a++;
+mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF         ","Triggered by Enemies:ON          ", 15+d, 15, 14+d, 14); a++;
+mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF           ","Triggered by Items:ON            ", 15+d, 15, 14+d, 14); a++;
+mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_PBUL,   "Triggered by Player's Bullets:OFF","Triggered by Player's Bullets:ON ", 15+d, 15, 14+d, 14); a++;
+mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_EBUL,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+d, 15, 14+d, 14); a++;
 
+also removed:
 
+   if (bn == 201) // Item Trigger Draw Type
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_DRAW_ON) sprintf(smsg,"Draw Trigger Field:ON            ");
+      else                                        sprintf(smsg,"Draw Trigger Field:OFF           ");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_DRAW_ON;
+   }
+   if (bn == 202)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_PLAYER) sprintf(smsg, "Triggered by Players:ON          ");
+      else                                       sprintf(smsg, "Triggered by Players:OFF         ");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_PLAYER;
+   }
+   if (bn == 203)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_ENEMY)  sprintf(smsg, "Triggered by Enemies:ON          ");
+      else                                       sprintf(smsg, "Triggered by Enemies:OFF         ");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_ENEMY;
+   }
+   if (bn == 204)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_ITEM)   sprintf(smsg, "Triggered by Items:ON            ");
+      else                                       sprintf(smsg, "Triggered by Items:OFF           ");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_ITEM;
+   }
+   if (bn == 205)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_PBUL)   sprintf(smsg, "Triggered by Player's Bullets:ON ");
+      else                                       sprintf(smsg, "Triggered by Player's Bullets:OFF");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_PBUL;
+   }
+   if (bn == 206)
+   {
+      if (item[num][3] & PM_ITEM_TRIGGER_EBUL)   sprintf(smsg, "Triggered by Enemy's Bullets:ON  ");
+      else                                       sprintf(smsg, "Triggered by Enemy's Bullets:OFF ");
+      if (press) item[num][3] ^= PM_ITEM_TRIGGER_EBUL;
+   }
 
 
+yes...this is nice...
+lets move on....
 
+I want to be able to select any combination of enemy and items type...
+where will I store that?
 
+int obf_filter[2][20] = {0};
 
+obf_filter[1][num] = item types
+obf_filter[2][num] = enemy types
 
 
+1 door
+2 bonus
+3 exit
+4 key
+5 start
 
+mdw_toggle(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][1], "Door:ON ", "Door:OFF", 15+64, 15, 15, 4); a++;
 
 
 
+I have all the selection filters done...
 
+now make it so that obj in the filter are marked on screen...done
+now only filtered obj can be added to the list...done
 
 
 
+now lets work on the list....
 
+when adding, don't allow duplicates....done
 
+show the list better...did bitmaps...more later
 
+if mouse on map item that is in list, flash that item in the list
+and vice versa
 
 
+how am I going to mark things on the map?
+- things that can get added to list (lt blue)
+- things already added to list (red)
+- mouse pointer (white)
 
+if (++highlight_counter > 16) highlight_counter = 1;
+if ((highlight_counter > 0)  && (highlight_counter < 5)) title_obj(obt, type, num, legend_line, 10);
+if ((highlight_counter > 4)  && (highlight_counter < 9)) title_obj(obt, type, num, legend_line, 14);
+if ((highlight_counter > 8)  && (highlight_counter < 13)) title_obj(obt, type, num, legend_line, 15);
+if ((highlight_counter > 12) && (highlight_counter < 17)) title_obj(obt, type, num, legend_line, 11);
 
+now back to making the list look better....
 
+detect if mouse is on the list and what list item
 
+should I do that at the same time as draw??
 
+frame list after drawn, because then you know ho long it will be...done
 
+move list off the map...done
+add legend line...done
+when mouse is on list item, mark as highlighted...done
 
+problem with highlight showing when we have co-located objects on map...fixed....
 
+now what?
 
+I need a way to remove things from the list...done
+draw rect around highlighted item in list...done
+remove with SHIFT mouse_b1...works
+and maybe re-order...done with mouse drag move
 
+and when a filter is de-selected, remove that object type from list...done...
 
+bug..can't add enemies to list...fixed...
 
 
+OK... now I can add to list, delete, filter, rearrange....
 
+what is next?
 
+now based on what is in the list, show some options, if applicable to things in the list....
+nice! I just came up with that on the spur of the moment...
 
+everything can do randomize x y pos, but for some it makes little sense...
 
 
+here is a list of all objects
 
+[2][1] Door
+[2][2] Bonus
+[2][3] Exit
+[2][4] Key
+[2][5] Start
+[2][7] Mine
+[2][8] Bomb
+[2][9] Trigger
+[2][10]Message
+[2][11]Rocket
+[2][12]Warp
+[2][14]Switch
+[2][15]Sproingy
+[2][16]Block Manip
+[2][17]Block Damage
+[3][3] Archwagon
+[3][4] Bouncer
+[3][6] Cannon
+[3][7] Podzilla
+[3][8] Trakbot
+[3][9] Cloner
+[3][10]Field
+[3][11]Block Walker
+[3][12]Flapper
 
 
+list of obj that can have x y randomized
+its most of them!!!
 
+[2][1] Door
+[2][2] Bonus
+[2][3] Exit
+[2][4] Key
+[2][5] Start
+[2][7] Mine
+[2][8] Bomb
+[2][10]Message
+[2][11]Rocket
+[2][12]Warp
+[2][14]Switch
+[2][15]Sproingy
 
+[3][3] Archwagon
+[3][4] Bouncer
+[3][6] Cannon
+[3][7] Podzilla
+[3][8] Trakbot
+[3][9] Cloner
+[3][10]Field
+[3][11]Block Walker
+[3][12]Flapper
 
 
 
+bouncer and cannon:
+Ei[b][8] = (int) mdw_rnd(1, 4); // seek count
+Efi[b][5] = al_ftofix(mdw_rnd(2, 5)); // seek speed
+initial direction (random for point at start block)
 
+cannon:
+Ei[b][9] = (int) mdw_rnd(0, 4); // extra hits to kill
+Ei[b][8] = (int) mdw_rnd(1, 4); // seek count
+Efi[b][5] = al_ftofix(mdw_rnd(2, 5)); // seek speed
+Efi[b][7] = al_ftofix(mdw_rnd(3, 8)); // bullet speed
+Ei[b][15] = (int) mdw_rnd(60, 200); // bullet retrigger
+initial direction (random for point at start block)
 
 
+lets try implementing just seek speed for now.
+just to get the frame work going
 
+have separate function for all of them?
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+int ge_seek_speed(int e)
 
 
 

@@ -257,8 +257,8 @@ void help(const char *topic)
                int xo = (int)(200 * sc)+16;
 //               mdw_an3(dx+320 + sxc-xo, sy+xo+16-140, sc, 2);
 //               mdw_an3(dx+320 - sxc+xo, sy+xo+16-140, sc, 2);
-               mdw_an3(dx+320 + sxc-xo, sy+40, sc, 2);
-               mdw_an3(dx+320 - sxc+xo, sy+40, sc, 2);
+               mdw_an3(dx+320 + sxc-xo, sy+50, sc, 2);
+               mdw_an3(dx+320 - sxc+xo, sy+50, sc, 2);
                msg[0]= 0;
                al_reset_clipping_rectangle();
             }
@@ -344,9 +344,6 @@ void help(const char *topic)
                buff2[1] = msg[4];
                buff2[2] = msg[5];
                buff2[3] = 0;
-
-               // printf("s:'%s' i:%d\n", buff2, atoi(buff2));
-
                int ans = atoi(buff2);
                al_draw_bitmap(btile[ans], dx+sx, sy, 0 );
                chop_first_x_char(msg, 7);
@@ -643,23 +640,46 @@ void menu_setup(void)
    strcpy (lift_step_type_name[5], "Trig");
 
 
-   strcpy (item_name[0], "item_empty");
-   strcpy (item_name[1], "Door");
-   strcpy (item_name[2], "Bonus");
-   strcpy (item_name[3], "Exit");
-   strcpy (item_name[4], "Key");
-   strcpy (item_name[5], "Start");
-   strcpy (item_name[6], "undef");
-   strcpy (item_name[7], "Mine");
-   strcpy (item_name[8], "Bomb");
-   strcpy (item_name[9], "Trigger");
-   strcpy (item_name[10],"Message");
-   strcpy (item_name[11],"Rocket");
-   strcpy (item_name[12],"Warp");
-   strcpy (item_name[14],"Switch");
-   strcpy (item_name[15],"Sproingy");
-   strcpy (item_name[16],"Block Manip");
-   strcpy (item_name[17],"Block Damage");
+   strcpy(item_name[0],  "item_empty");
+   strcpy(item_name[1],  "Door");
+   strcpy(item_name[2],  "Bonus");
+   strcpy(item_name[3],  "Exit");
+   strcpy(item_name[4],  "Key");
+   strcpy(item_name[5],  "Start");
+   strcpy(item_name[6],  "undef");
+   strcpy(item_name[7],  "Mine");
+   strcpy(item_name[8],  "Bomb");
+   strcpy(item_name[9],  "Trigger");
+   strcpy(item_name[10], "Message");
+   strcpy(item_name[11], "Rocket");
+   strcpy(item_name[12], "Warp");
+   strcpy(item_name[13], "undef");
+   strcpy(item_name[14], "Switch");
+   strcpy(item_name[15], "Sproingy");
+   strcpy(item_name[16], "Block Manip");
+   strcpy(item_name[17], "Block Damage");
+
+
+   item_tile[0]  = 0;
+   item_tile[1]  = 448;
+   item_tile[2]  = 304;
+   item_tile[3]  = 398;
+   item_tile[4]  = 272;
+   item_tile[5]  = 383;
+   item_tile[6]  = 0;
+   item_tile[7]  = 456;
+   item_tile[8]  = 538;
+   item_tile[9]  = 991;
+   item_tile[10] = 256;
+   item_tile[11] = 249;
+   item_tile[12] = 825;
+   item_tile[13] = 0;
+   item_tile[14] = 745;
+   item_tile[15] = 237;
+   item_tile[16] = 989;
+   item_tile[17] = 988;
+   item_tile[18] = 0;
+   item_tile[19] = 0;
 
 
 
@@ -683,6 +703,14 @@ void menu_setup(void)
    enemy_tile[11] = 866;
    enemy_tile[10] = 476;
    enemy_tile[12] = 159;
+
+
+
+
+
+
+
+
 
    strcpy (color_name[0],  "Zombie");
    strcpy (color_name[1],  "Violet");

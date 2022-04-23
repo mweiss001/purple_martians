@@ -2670,93 +2670,103 @@ Numerous small bug fixes and improvements.
 
 
 
-
-
-
-
-<c09>Copyright (c) (1997-2022) Michael David Weiss
-<c15>mweiss001@gmail.com
-
-<c15>___________________________________________
-
-<c09>Music by Russel Hoy - Copyright 2000
-
-<c15>___________________________________________
-
-
-<c15>Last Update: May 18, 2018 to version 7.05
-
-<c15>__________________________________________
-
-
 <title>
 <mdw1>
-<c09>released under the zlib license (see license.txt)
 
-<c15>_______________________________________________________________
 
-<c15>(source code available from the github project page)
+
+
+<c08>________________________________________
+
+<c15>Copyright 1997-2022 Michael David Weiss
+<c08>________________________________________
+
+<c15>Music by Russel Hoy - Copyright 2000
+<c08>________________________________________
+
+<c15>Last Update: May 1, 2022 to version 7.20
+<c08>________________________________________
+
+
+
+<c08>_________________________________________________________
+
+<c15>Released under the zlib license (see license.txt)
+<c08>_________________________________________________________
+
+<c15>Official Master Repository:
 
 <c15>https://github.com/mweiss001/purple_martians
+<c08>_________________________________________________________
 
-<c15>_______________________________________________________________
-
-<c15>The documentation pages are here:
+<c15>Documentation pages:
 
 <c15>https://mweiss001.github.io/purple_martians/
-
-<c15>_______________________________________________________________
-
-<c09>If you download the sources or craete any new level please send me an email:
-
-<c15>_______________________________________________________________
+<c08>_________________________________________________________
 
 
 
+<c08>Created with:
+<c08>_______________________________________________________________________
 
-
-
-<c07>Created with:
-
-
-<c11>Allegro 5.2.4
+<c11>Allegro 5.2.7
 <c15>Allegro is an amazing cross-platform game programming library.
 <c15>It abstracts many low level functions for graphics, sound, input, etc.
+<c08>_______________________________________________________________________
 
-
-<c11>MinGW-w64 7.2.0
+<c11>MinGW-w64 8.1.0
 <c15>The MinGW-w64 project is a complete runtime environment for gcc to
 <c15>support binaries native to Windows 64-bit and 32-bit operating systems.
+<c08>_______________________________________________________________________
 
-
-<c11>Code Blocks 17.12
-<c15>The open source, cross-Platform IDE
-
+<c11>Code Blocks 20.03
+<c15>The open source, cross-platform IDE
+<c08>_______________________________________________________________________
 
 <c11>libnet-0.10.11
 <c15>A generic interface to a variety of network drivers.
+<c08>_______________________________________________________________________
 
-
-<c11>zlib-1.2.8
+<c11>zlib-1.2.11
 <c15> A Massively Spiffy Yet Delicately Unobtrusive Compression Library
 <c15>(Also Free, Not To Mention, Unencumbered by Patents)
-
+<c08>_______________________________________________________________________
 
 <c11>SaucerBB.ttf
 <c15> copyright 2012 & 2016 Nate Piekos for Blambot Fonts
 <c15> license: free for non-profit use
 <c15> Font used for main logo and titles
 
-
 <c11>Achafont.ttf
 <c15> "A Charming Font" by Gem Fonts
 <c15> license: free
 <c15> Font used for small letters on author's name
 
-
 <c11>PixelGosub.ttf
 <c15> by Pixel Sagas (Neale Davidson)
 <c15> license: free for non-commercial use
 <c15> Font used for very small letters on sprites
+<c08>______________________________________________
+
+
+
+<c08>Contact Information:
+<c08>________________________
+
+<c15> mweiss001@gmail.com
+<c08>________________________
+
+<c15> If you download and try the game...
+
+<c15> If you look at the sources...
+
+<c15> If have any comments or questions...
+
+<c15> If you create any new levels!...
+
+<c15> Email me.  Don't be shy, I like to get emails!
+<c08>___________________________________________________
+
+
 
 <end of file>

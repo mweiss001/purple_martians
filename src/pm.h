@@ -392,6 +392,7 @@ extern int copy_blocks;
 extern int copy_enemies;
 extern int copy_items;
 extern int copy_lifts;
+extern int copy_flags;
 extern int copy_mode;
 extern int brf_mode;
 
@@ -828,6 +829,7 @@ extern int e_first_num[50];
 extern char enemy_name[20][40];
 extern int num_enemy;
 
+extern int item_tile[20];
 extern int enemy_tile[20];
 
 // PDE
@@ -999,6 +1001,10 @@ void pointer_text(int x, int y, int ty);
 void do_brf(int x, int y, int flood_block);
 int zoom_full_screen(int wx, int wy, int draw_item);
 
+void group_edit(void);
+
+
+
 // e_fnx.h
 
 void printBits(size_t const size, void const * const ptr);
@@ -1126,6 +1132,22 @@ void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, i
 int mdw_button(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 );
 float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, int y2, int dm, int col);
 void mdw_slider(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 );
+
+
+int mdw_toggle(int x1, int y1, int x2, int y2,
+                int bn, int num, int type, int obt,
+                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                  int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_color0, int frame_color1);
+
+
+int mdw_togglf(int x1, int y1, int x2, int y2,
+                int bn, int num, int type, int obt,
+                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                  int &var, int flags, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_color0, int frame_color1);
+
+
+
+
 
 // e_visual_level.h
 int lev_show_level_data(int x_pos, int y_pos);
