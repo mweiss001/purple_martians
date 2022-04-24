@@ -1435,7 +1435,16 @@ void object_viewer(int obt, int num)
                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 10, num, type, obt, 0, 12, 15,  0, 1,0,0,0); a++;  // initial direction
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 23, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // seek count
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 35, num, type, obt, 0,  8, 15, 15, 1,0,0,0); a+=2;  // extra hits to kill
-                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
+
+
+
+//                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
+
+                  mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
+
+
+
+
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger time
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
@@ -1654,7 +1663,7 @@ void object_viewer(int obt, int num)
                break;
                case 2: // bonus
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
-                  mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1,  num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // health bonus
+                  mdw_slider2_int(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 0,0,0,0,  0, 12, 15, 15, 1,0,0,0, item[num][7], 100, 2, 1, "Health Bonus:"); a++; // health bonus
                break;
                case 3: // exit
                   mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry

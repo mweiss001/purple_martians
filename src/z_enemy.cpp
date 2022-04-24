@@ -725,9 +725,9 @@ void walker_archwagon_common(int e)
       Efi[e][1] += lifts[ret-32].fyinc ;  // move with lift
    }
 
-   if ((Efi[e][2]) > al_itofix(0))  // move right
+   if (Ei[e][2] == 1)  // move right
    {
-      Ei[e][2] = 1; // no h_flip
+      Efi[e][2] = Efi[e][6];
       Efi[e][0] += Efi[e][2];
       EXint= al_fixtoi(Efi[e][0]);
       if ((on_solid) || (on_lift))
@@ -739,15 +739,14 @@ void walker_archwagon_common(int e)
       }
       if (is_right_solid(EXint, EYint, 1, 2))
       {
+         Ei[e][2] = 0; // change direction;
          Efi[e][0] -= Efi[e][2]; // take back last move
-         if (Ei[e][8]) Efi[e][2] =- Efi[e][6]; // if bounce mode set negative xinc for left
          EXint= al_fixtoi(Efi[e][0]);
       }
    }
-
-   if ((Efi[e][2]) < al_itofix(0))  // move left
+   if (Ei[e][2] == 0)  // move left
    {
-      Ei[e][2] = 0; // h_flip to face left
+      Efi[e][2] = -Efi[e][6];
       Efi[e][0] += Efi[e][2];
       EXint= al_fixtoi(Efi[e][0]);
       if ((on_solid) || (on_lift))
@@ -760,7 +759,7 @@ void walker_archwagon_common(int e)
       if (is_left_solid(EXint, EYint, 1, 2))
       {
          Efi[e][0] -= Efi[e][2]; // take back last move
-         if (Ei[e][8]) Efi[e][2] = Efi[e][6]; // if bounce mode set positive xinc for right
+         Ei[e][2] = 1; // change direction;
          EXint= al_fixtoi(Efi[e][0]);
       }
    }
