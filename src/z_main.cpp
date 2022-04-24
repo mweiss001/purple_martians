@@ -1362,8 +1362,34 @@ int main(int argument_count, char **argument_array)
    printf("af:'%s'\n",msg);
 */
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    load_level(start_level, 0);
    group_edit();
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //   char tst[20];

@@ -21993,7 +21993,283 @@ just to get the frame work going
 
 have separate function for all of them?
 
+
+
 int ge_seek_speed(int e)
+{
+
+
+
+}
+
+
+
+min max random
+min max inc/dec
+set to value
+
+
+
+make a function to search list and find out what modify functions apply.
+
+if selection has only enemy type 6
+
+
+
+
+I am making some custom blocks of code to edit groups, but
+
+they get called every frame and I want them to have some persistant data storage..
+
+
+
+struct ge_datum
+{
+   char name[40];
+
+   int type;   // 2=item, 3=Ei, 4=Efi
+   int varnum; // index of the variable
+
+   int adj_mode;
+   float adj_min;
+   float adj_max;
+
+   float min_allowed;
+   float max_allowed;
+}
+
+struct ge_datum ge_data[20];
+
+
+
+
+make a new slider that you can pass a pointer to the var as well as limits and var type..
+and format display string
+
+I need to amke versions for int and fixed beacuse I can't pass pointers to unknown variable type
+
+void mdw_slider2_int(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                 int &var, float sul, float sll, float sinc, char *txt)
+
+
+lets test this out...
+
+health bonus...
+
+   if (bn == 1) sprintf(smsg, "Health Bonus:%d", item[num][7]);
+
+   if (bn == 1) item[num][7] = (int)f;      // health bonus
+
+      case 1:  sul=100;  sll=2;     sinc=1;   sdx=item[num][7];                break;  // health bonus
+
+
+mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1,  num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // health bonus
+
+mdw_slider2_int(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 0,0,0,0,  0, 12, 15, 15, 1,0,0,0, item[num][7], 100, 2, 1, "Health Bonus:"); a++; // health bonus
+
+works....
+
+
+
+lets try the fixed version...
+
+if (bn == 19) sprintf(smsg, "Bullet Speed:%-1.1f", al_fixtof(Efi[num][7]));
+if (bn == 19) Efi[num][7] = al_ftofix(f);  // bullet speed
+case 19: sul=20;   sll=.8;    sinc=.1;  sdx=al_fixtof(Efi[num][7]);      break;  // bullet speed
+
+
+mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
+mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
+
+works...
+
+now a float version....done...
+
+now back to ge_data...
+
+extend buttont to be able to be pressed too....done
+
+
+
+I have the randomize working...
+
+I want to show variables in the list...
+if when checking the list for ge that apply also use that to show that var in list...
+
+this is all coming along nicely...
+
+I want to make the selection thing add everything to list....done
+
+now I want to add seek speed...done
+and in doing so, make the ways of doing it more generic
+
+
+now I need to make the list wider to account for all the extra columns...
+
+And I can start on making the ge's look nicer..much nicer...
+
+add another ge then fix list
+
+bullet speed
+bullet retrigger
+
+done...
+
+now move the list...or
+move the filter buttons to be right justified with screen edge...
+
+the list is looking good now...
+
+can bullet speed and retrigger be applied to other enemies?
+Archwagon yes for both
+podzilla yes for speed only
+trakbot yes for both
+flapper yes for both
+
+fucking beautiful...
+
+what next to add...
+
+bullet prox
+Ei[][17]
+for both archwag and trakbot
+
+               Ei[b][2] = (int) mdw_rnd(0, 2);  // initial direction
+
+
+archwag:
+initial direction...done
+8 ge's already...
+
+
+
+bouncer:
+initial direction
+could have random shapes...
+
+cannon:
+initial direction
+
+
+
+
+
+
+trakbot:
+initial direction...done
+
+flapper:
+initial direction
+same as archwag...done
+
+
+
+
+why does flapper have 3 variables for bullet prox?
+should be redone like trakbot to be a circle
+it should calculate the angle and if it's too steep don't fire..
+don't get bogged down on it now....put it to do later...
+
+width   = Ei[EN][17]
+height  = Ei[EN][18]
+depth   = Ei[EN][19]
+
+now some fun stuff...
+
+initial directions...should be all done...
+
+
+
+now the big one...common to all...randomize start pos....
+for this one I think I will use the selection rectangle to set bounds
+
+how do I use that without affecting anything else...
+
+always show sel...
+have a button..add objects in sel window to list
+
+when getting new sel window how to tell between click and click drag...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
