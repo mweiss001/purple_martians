@@ -22191,78 +22191,129 @@ have a button..add objects in sel window to list
 when getting new sel window how to tell between click and click drag...
 
 
+mode button?
+0 click select
+1 selection window
 
 
 
 
+I have a much better solution
 
+selection on or off:
+when off click one obj at a time
 
+when on show selection and draw new with mouse
 
+then the button add selection does that..
 
+now I can do the initial position for all...done...
 
+I am 90% done, the remaining 10% will take the other 90% of the time...
 
 
+What do I need to do?
 
+Is there anything from items that you might want to adjust?
+mine damage
+health bonus
+bomb and rocket damage
+rocket accell, max speed, steerability
+sproingy jump height
+what about block walker in common with archwagon?
+what about flapper bullet prox?
+bouncer seek shapes?
 
 
+there is only one way to remove things from list shift click
 
+make a way so that list, ge and filters can coexist...
 
+collapseable filters??
 
+each filter besides the valid flag should have a hide/show flag
+when clicking on the title it will hide/show
+done
 
+now make filters smaller...done
 
+hide columns in list if collapsed...done
 
+put ge under list...done....
 
 
+now this shit is looking real good...
 
+what about podzilla speed?
+if (bn == 29) sprintf(smsg, "Speed:%-2.1f", al_fixtof(Efi[num][9]));
+   if (bn == 29)                           // pod speed
+   {
+      Efi[num][9] = al_ftofix(f);
+      recalc_pod(num);
+   }
 
 
+void recalc_pod(int EN)
+{
+   al_fixed xlen = Efi[EN][5] - Efi[EN][0];      // get the x distance
+   al_fixed ylen = Efi[EN][6] - Efi[EN][1];      // get the y distance
+   al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
+   al_fixed speed = Efi[EN][9];                  // speed
+   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
+   al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
+   al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
+   Efi[EN][2] = xinc;
+   Efi[EN][3] = yinc;
+   Efi[EN][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
 
+   // set number of steps
+   al_fixed ns;
+   if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, xinc);
+   else  ns = al_fixdiv(ylen, yinc);
+   int num_steps = al_fixtoi(ns);
+   if ((num_steps > 0) && (num_steps < 2000))
+      Ei[EN][7] = num_steps;
 
 
+}
+case 29: sul=30;   sll=.5;    sinc=.5;  sdx=al_fixtof(Efi[num][9]);      break;  // pod speed
+case 30: sul=40;   sll=0;     sinc=1;   sdx=Ei[num][9];                  break;  // pod wait time
 
+needed a special case for pod 4 9
+added this three times in do it section...
+if ((gvt == 4) && (gvn == 9)) recalc_pod(num);
 
 
+I want to make a pod with a spline..
 
+tried some levels with a lots more objects...thinking of increasing obj list to 600....700 done...
 
+pause time should not be a part of archwag...fixed
 
+20220424 8:30 PM push...
 
+20220425 5:00AM
 
+added menu item for group edit
+made a new source file e_group_edit.cpp
+has approx 1000 lines of code....
 
+fix title of object list to not exceed frame...done
 
+rearrange filters so enemys are on top
 
+rearrange ge so x and y speeds are on top...done
 
+next should be initial directions
 
+looking good...all in good order...
 
 
 
+commit message:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Created 'Group Edit' for editing group of objects
+can randomize or step sets of variables
 
 
 

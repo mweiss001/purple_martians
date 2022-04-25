@@ -1010,15 +1010,18 @@ int edit_menu(int el)
             }
             break;
             case 7:
+               group_edit();
+            break;
+            case 8:
                status_window_active = 1;
                check_s_window_pos(0);
             break;
-            case 8:
+            case 9:
                select_window_active = 1;
                check_s_window_pos(0);
             break;
 
-            case 10: // new level
+            case 11: // new level
             if (al_show_native_message_box(display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
             {
                zero_level_data();
@@ -1030,31 +1033,31 @@ int edit_menu(int el)
             load_level(last_level_loaded, 0); // blind load
             break;
 
-            case 11: // load level
+            case 12: // load level
                load_level_prompt();
                set_wx_from_start_block();
                sort_enemy();
                sort_item();
                draw_big(1);
             break;
-            case 12: // save level
+            case 13: // save level
                save_level_prompt();
             break;
-            case 13: // save and exit
+            case 14: // save and exit
                if (save_level_prompt()) em_quit=1;
             break;
-            case 14: // help
+            case 15: // help
                help("Level Editor Basics");
             break;
-            case 15: // exit
+            case 16: // exit
                em_quit=1;
             break;
-            case 17: predefined_enemies(); break;
-            case 18: global_level(); break;
-            case 19: level_viewer(); break;
-            case 20: animation_sequence_editor(); break;
-            case 21: copy_tiles(); break;
-            case 22: edit_btile_attributes(); break;
+            case 18: predefined_enemies(); break;
+            case 19: global_level(); break;
+            case 20: level_viewer(); break;
+            case 21: animation_sequence_editor(); break;
+            case 22: copy_tiles(); break;
+            case 23: edit_btile_attributes(); break;
 
          } // end of switch case
          al_set_mouse_xy(display, temp_mouse_x, temp_mouse_y);

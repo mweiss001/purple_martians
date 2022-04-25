@@ -185,6 +185,7 @@
 		<Unit filename="src/e_enemy.cpp" />
 		<Unit filename="src/e_fnx.cpp" />
 		<Unit filename="src/e_glt.cpp" />
+		<Unit filename="src/e_group_edit.cpp" />
 		<Unit filename="src/e_item.cpp" />
 		<Unit filename="src/e_lift.cpp" />
 		<Unit filename="src/e_object_viewer.cpp" />
