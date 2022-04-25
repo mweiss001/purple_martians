@@ -738,26 +738,27 @@ void menu_setup(void)
    strcpy (global_string[2][4], "Delete ---");
    strcpy (global_string[2][5], "------------------------");
    strcpy (global_string[2][6], "Zoom Full Screen");
-   strcpy (global_string[2][7], "Show Status Window");
-   strcpy (global_string[2][8], "Show Selection Window");
-   strcpy (global_string[2][9], "------");
-   strcpy (global_string[2][10],"New Level");
-   strcpy (global_string[2][11],"Load Level");
-   strcpy (global_string[2][12],"Save Level");
-   strcpy (global_string[2][13],"Save and Quit");
-   strcpy (global_string[2][14],"Help Screens");
-   strcpy (global_string[2][15],"Quit Level Editor");
-   strcpy (global_string[2][16],"end");
+   strcpy (global_string[2][7], "Group Edit");
+   strcpy (global_string[2][8], "Show Status Window");
+   strcpy (global_string[2][9], "Show Selection Window");
+   strcpy (global_string[2][10], "------");
+   strcpy (global_string[2][11],"New Level");
+   strcpy (global_string[2][12],"Load Level");
+   strcpy (global_string[2][13],"Save Level");
+   strcpy (global_string[2][14],"Save and Quit");
+   strcpy (global_string[2][15],"Help Screens");
+   strcpy (global_string[2][16],"Quit Level Editor");
+   strcpy (global_string[2][17],"end");
 
 #ifndef RELEASE
-   strcpy (global_string[2][16],"----");
-   strcpy (global_string[2][17],"Predefined Enemy Editor");
-   strcpy (global_string[2][18],"Global Level Thingy!!");
-   strcpy (global_string[2][19],"Level Viewer!");
-   strcpy (global_string[2][20],"Animation Sequence Editor");
-   strcpy (global_string[2][21],"Copy Tiles");
-   strcpy (global_string[2][22],"Default Flag Editor");
-   strcpy (global_string[2][23],"end");
+   strcpy (global_string[2][17],"----");
+   strcpy (global_string[2][18],"Predefined Enemy Editor");
+   strcpy (global_string[2][19],"Global Level Thingy!!");
+   strcpy (global_string[2][20],"Level Viewer!");
+   strcpy (global_string[2][21],"Animation Sequence Editor");
+   strcpy (global_string[2][22],"Copy Tiles");
+   strcpy (global_string[2][23],"Default Flag Editor");
+   strcpy (global_string[2][24],"end");
 #endif
 
 

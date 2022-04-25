@@ -994,21 +994,17 @@ void save_selection(int save);
 int enforce_limit(int val, int ll, int ul);
 int check_limit(int val, int ll, int ul);
 void do_fcopy(int qx1, int qy1);
-void do_rnd(void);
 void do_clear(void);
 void draw_fsel(void);
 void pointer_text(int x, int y, int ty);
 void do_brf(int x, int y, int flood_block);
 int zoom_full_screen(int wx, int wy, int draw_item);
 
+// e_group_edit.cpp
 void group_edit(void);
 
-
-
 // e_fnx.h
-
 void printBits(size_t const size, void const * const ptr);
-
 al_fixed get_sproingy_jump_height(int num);
 void set_xyinc_rot(int EN, int x2, int y2);
 void set_rocket_rot(int num, int x2, int y2);
@@ -1020,35 +1016,20 @@ void draw_cloner_boxes(int num);
 void draw_bs(int cc);
 int getbox(const char *txt, int obj_type, int sub_type, int num );
 int getxy(const char *txt, int obj_type, int sub_type, int num );
-
-
-
 void clear_pm_events(void);
-
 int check_clt_for_event(int ev, int clt[][4], int clt_last);
 int get_unused_pm_event_extended(int clt[][4], int clt_last);
-
 int add_item_link_translation(int sel_item_num, int sel_item_var, int sel_item_ev, int clt[][4], int clt_last);
-
-
-
 int is_pm_event_used(int ev);
 int get_unused_pm_event(void);
 int get_trigger_item(const char *txt, int obj_type, int sub_type, int num );
 void find_and_show_event_links(int i);
-
-
-
-
-
-
-
 int get_item(const char *txt, int obj_type, int sub_type, int num );
 void crosshairs(int mx, int my, int x, int y, int color);
 void crosshairs_nodb(int mx, int my, int x, int y, int db, int color);
 void title(const char *txt, int y, int tc, int fc);
 
-// glt.h
+// e_glt.h
 void show_block_list(void);
 void global_level();
 
@@ -1079,6 +1060,9 @@ void recalc_pod(int EN);
 int move_pod_extended(int num);
 int create_cloner(void);
 int create_pod(void);
+
+
+
 
 // e_object_viewer.h
 int create_obj(int obt, int sub_type, int sent_num);
