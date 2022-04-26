@@ -1025,6 +1025,8 @@ int get_unused_pm_event(void);
 int get_trigger_item(const char *txt, int obj_type, int sub_type, int num );
 void find_and_show_event_links(int i);
 int get_item(const char *txt, int obj_type, int sub_type, int num );
+
+void crosshairs_full(int cx, int cy, int color);
 void crosshairs(int mx, int my, int x, int y, int color);
 void crosshairs_nodb(int mx, int my, int x, int y, int db, int color);
 void title(const char *txt, int y, int tc, int fc);
@@ -1070,8 +1072,15 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
 int move_obt_with_map(int obt, int type, int num);
 void object_viewer(int obt, int num);
 
-// e_lift.h
 
+
+// e_object_viewer_window.h
+void object_viewerw(int x, int y, int obt, int num, int view_only);
+
+
+
+
+// e_lift.h
 int lift_find_previous_move_step(int lift, int step);
 al_fixed lift_get_distance_to_previous_move_step(int lift, int step);
 

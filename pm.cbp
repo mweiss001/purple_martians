@@ -33,6 +33,7 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
+				<Option parameters="-e" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-pg" />
@@ -189,6 +190,7 @@
 		<Unit filename="src/e_item.cpp" />
 		<Unit filename="src/e_lift.cpp" />
 		<Unit filename="src/e_object_viewer.cpp" />
+		<Unit filename="src/e_object_viewer_windows.cpp" />
 		<Unit filename="src/e_pde.cpp" />
 		<Unit filename="src/e_sliders.cpp" />
 		<Unit filename="src/e_visual_level.cpp" />

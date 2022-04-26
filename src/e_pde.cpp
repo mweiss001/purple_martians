@@ -103,6 +103,15 @@ int process_status_window(int draw_only)
    draw_item_info(swx1+162, swy1+21, 9, point_item_type, point_item_num);
 
 
+
+   if (point_item_type > 1) object_viewerw(swx1+162, swy1+52, point_item_type, point_item_num, 1);
+
+   // display read only version of viewer windowsif ((point_item_type == 2) && (item[point_item_num][0] == 5))
+
+
+
+
+
    if ((show_flag_details) && (point_item_type == 1))
    {
       // flags section

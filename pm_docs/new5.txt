@@ -22220,9 +22220,9 @@ health bonus
 bomb and rocket damage
 rocket accell, max speed, steerability
 sproingy jump height
-what about block walker in common with archwagon?
+
 what about flapper bullet prox?
-bouncer seek shapes?
+bouncer shapes?
 
 
 there is only one way to remove things from list shift click
@@ -22314,6 +22314,86 @@ commit message:
 
 Created 'Group Edit' for editing group of objects
 can randomize or step sets of variables
+
+
+what about block walker in common with archwagon?...done...
+
+
+what if I decouple the whole viewer thing from full screen?
+have the map part not be the entire screen up in the corner
+what if the side panel of viewer buttons was a moveable window in its own right
+sitting on top of the normal level display
+and the normal level display was zoomable, just like in the game...
+wow...mind blown...
+
+
+can I do it for group edit to start?
+
+
+mouse pointer item in regular editor show the view window for that item...
+
+I would have to redo the entire object viewer to show the right panel in a window
+
+make a new file..
+e_object_viewer_windows.cpp
+
+copy everything from object viewer and make it pop up windows...
+
+
+
+make an object for this window
+
+it needs to know
+
+x1, y1, x2, x2
+
+how to draw...
+
+I can also patch it in where real obj viewer is called...done
+
+
+
+now how to make it draw map things on the full size map...
+
+how does editor do it?
+
+
+I can draw the obj location highlight and archwagon prox for now...
+
+working on key block range...
+
+
+wx, wy are (0-99)
+
+key block ranges are
+6 7 x y (0-2000)
+8 9 w h (0-2000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

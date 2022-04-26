@@ -1375,11 +1375,11 @@ int main(int argument_count, char **argument_array)
 
 
 
-
+/*
    load_level(start_level, 0);
    group_edit();
 
-
+*/
 
 
 
