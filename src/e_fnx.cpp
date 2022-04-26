@@ -1025,7 +1025,12 @@ int get_item(const char *txt, int obj_type, int sub_type, int num )
 
 
 
-
+void crosshairs_full(int x, int y, int color) // function to draw rectangle and crosshairs
+{
+   al_draw_rectangle(x-10, y-10, x+10, y+10, palette_color[color], 1);
+   al_draw_line(0, y, SCREEN_W-1, y, palette_color[color], 1);
+   al_draw_line(x, 0, x, SCREEN_H-1, palette_color[color], 1);
+}
 
 void crosshairs(int smx, int smy, int x, int y, int color) // function to draw rectangle and crosshairs
 {
@@ -1035,7 +1040,7 @@ void crosshairs(int smx, int smy, int x, int y, int color) // function to draw r
    al_draw_line(smx+(x*db)+db/2, smy+1, smx+(x*db)+db/2, smy+(100*db)-2, palette_color[color], 1);
 }
 
-void crosshairs_nodb(int smx, int smy, int x, int y, int db, int color) // funtion to draw rectangle and crosshairs
+void crosshairs_nodb(int smx, int smy, int x, int y, int db, int color) // function to draw rectangle and crosshairs
 {
    al_draw_filled_rectangle(smx+(x), smy+(y), smx+(x)+db-1, smy+(y)+db-1, palette_color[color]);
    al_draw_line(smx, smy+(y)+db/2, smx+(100*db), smy+(y)+db/2, palette_color[color], 1);

@@ -250,16 +250,17 @@ void set_valid_ge_controls(void)
          if (typ == 3) // enemy
          {
             int etyp = Ei[num][0];
-            if (etyp != 3)                                  ge_data[0].valid = 0; // x speed (archwagon)
-            if (etyp != 8)                                  ge_data[1].valid = 0; // x speed (trakbot)
 
-            if ((etyp != 3) && (etyp != 12))                ge_data[4].valid = 0; // initial direction (archwagon and flapper)
-            if ((etyp != 3) && (etyp != 8) && (etyp != 12)) ge_data[5].valid = 0; // y speed (archwagon, trakbot, flapper)
-            if (etyp != 8)                                  ge_data[6].valid = 0; // initial direction (trakbot)
+            if ((etyp != 3) && (etyp != 11))                 ge_data[0].valid = 0; // x speed (archwagon, block walker)
+            if (etyp != 8)                                   ge_data[1].valid = 0; // x speed (trakbot)
 
-            if (etyp != 3)                                  ge_data[8].valid = 0; // jump before hole (archwagon)
-            if (etyp != 3)                                  ge_data[9].valid = 0; // jump before wall (archwagon)
-            if (etyp != 8)                                  ge_data[11].valid = 0; // drop mode (trakbot)
+            if ((etyp != 3) && (etyp != 11) && (etyp != 12)) ge_data[4].valid = 0; // initial direction (archwagon, block walker and flapper)
+            if ((etyp != 3) && (etyp != 8) && (etyp != 12))  ge_data[5].valid = 0; // y speed (archwagon, trakbot, flapper)
+            if (etyp != 8)                                   ge_data[6].valid = 0; // initial direction (trakbot)
+
+            if ((etyp != 3)  && (etyp != 11))                ge_data[8].valid = 0; // jump before hole (archwagon)
+            if ((etyp != 3)  && (etyp != 11))                ge_data[9].valid = 0; // jump before wall (archwagon)
+            if (etyp != 8)                                   ge_data[11].valid = 0; // drop mode (trakbot)
 
 
             if ((etyp != 4) && (etyp != 6))                                               ge_data[21].valid = 0; // seek count (bouncer and cannon)

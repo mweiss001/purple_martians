@@ -956,7 +956,10 @@ int edit_menu(int el)
                }
             break;
             case 3:  // view
-               if (point_item_type > 1) object_viewer(point_item_type, point_item_num);
+        //       if (point_item_type > 1) object_viewer(point_item_type, point_item_num);
+               if (point_item_type > 1) object_viewerw(0, 0, point_item_type, point_item_num, 0);
+
+
             break;
             case 4:  // delete
                x = wx + (mouse_x / 20);

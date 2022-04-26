@@ -12,11 +12,11 @@ int bw = 3; // slider adjustment bar width
 
 void fill_smsg_slider(int bn, int type, int num)
 {
-   if (bn == 4) sprintf(smsg, "Damage Range:%d", item[num][7]);
-   if (bn == 5) sprintf(smsg, "Fuse Length:%d",  item[num][9]);
-   if (bn == 6) sprintf(smsg, "Acceleration:%d", item[num][9]);
-   if (bn == 7) sprintf(smsg, "Maximum Speed:%d",item[num][8]);
-   if (bn == 8) sprintf(smsg, "Steerability:%d", item[num][6]);
+   if (bn == 4)  sprintf(smsg, "Damage Range:%d", item[num][7]);
+   if (bn == 5)  sprintf(smsg, "Fuse Length:%d",  item[num][9]);
+   if (bn == 6)  sprintf(smsg, "Acceleration:%d", item[num][9]);
+   if (bn == 7)  sprintf(smsg, "Maximum Speed:%d",item[num][8]);
+   if (bn == 8)  sprintf(smsg, "Steerability:%d", item[num][6]);
    if (bn == 10) sprintf(smsg, "Sproinginess:%d", item[num][7]);
    if (bn == 11) sprintf(smsg, "Mine Damage:%d", item[num][8]);
    if (bn == 12) sprintf(smsg, "X-Speed:%-1.2f", al_fixtof(Efi[num][6]));
