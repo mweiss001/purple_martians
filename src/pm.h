@@ -1068,6 +1068,7 @@ int create_pod(void);
 
 // e_object_viewer.h
 int create_obj(int obt, int sub_type, int sent_num);
+int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num);
 void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int highlight_color);
 int move_obt_with_map(int obt, int type, int num);
 void object_viewer(int obt, int num);
@@ -1075,7 +1076,7 @@ void object_viewer(int obt, int num);
 
 
 // e_object_viewer_window.h
-void object_viewerw(int x, int y, int obt, int num, int view_only);
+void object_viewerw(int x, int y, int obt, int num);
 
 
 
