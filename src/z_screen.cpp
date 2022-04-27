@@ -372,7 +372,7 @@ void stamp(void) // transition from game to menu
 }
 
 
-void get_new_screen_buffer(void)
+void get_new_screen_buffer(int type, int x, int y)
 {
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
@@ -416,9 +416,26 @@ void get_new_screen_buffer(void)
    if (SW > 2000) SW = 2000;
    if (SH > 2000) SH = 2000;
 
+
+   int PX = 0;
+   int PY = 0;
+
+
    // find where to grab the source screen from based on the players position
-   int PX = al_fixtoi(players[alp].PX) + 10;
-   int PY = al_fixtoi(players[alp].PY) + 10;
+   if (type == 0)
+   {
+      PX = al_fixtoi(players[alp].PX) + 10;
+      PY = al_fixtoi(players[alp].PY) + 10;
+   }
+   if (type == 1)
+   {
+      PX = x;
+      PY = y;
+   }
+
+
+
+
 
    // this method always has the player in the middle of the screen
    //int WX = PX - SW/2 -10; // set window from PX, PY

@@ -22448,6 +22448,197 @@ animated shapes are smeared....
 its like there is an animated shape and a static shape overlaid...
 
 
+20220427
+lets go through it one step at a time....
+load level calls init_level_background()
+draws blocks and lift lines on level background...
+
+edit menu calls draw_big
+
+void draw_big(int draw_lifts)
+{
+   init_level_background(); // fill level_background with blocks and lift lines
+   draw_level2(level_background, 0, 0, 2000, 1, 1, 1, 1, 0);
+   draw_level2(lefsm, 0, 0, db*100, 1, 1, 1, draw_lifts, 0);
+   al_set_target_backbuffer(display);
+}
+
+
+
+what bitmap do these even draw on?...level_buffer
+
+
+void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)
+{
+   if (blocks) get_new_background(1);
+   if (valid_level_loaded)
+   {
+      if (lifts)   draw_lifts();
+      if (items)   draw_items();
+      if (enemies) draw_enemies();
+      if (resume_allowed)
+      {
+         if (players) draw_players();
+         draw_ebullets();
+         draw_pbullets();
+      }
+   }
+   if (b == NULL) al_set_target_backbuffer(display);
+   else al_set_target_bitmap(b);
+   al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mx, my, ms, ms, 0);
+}
+
+
+void get_new_background(int full)
+{
+   al_set_target_bitmap(level_buffer);
+   if (full) al_draw_bitmap(level_background, 0, 0, 0);
+   else
+   {
+      // this only grabs the visible region, in the interests of speed
+      int x = level_display_region_x - 20; if (x < 0) x = 0;
+      int y = level_display_region_y - 20; if (y < 0) y = 0;
+      int w = level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
+      int h = level_display_region_h + 40; if (y+h > 2000) h = 2000-y;
+      al_draw_bitmap_region(level_background, x, y, w, h, x, y, 0);
+   }
+}
+
+void draw_items(void)
+{
+   al_set_target_bitmap(level_buffer);
+
+
+I don't know why....
+
+I found a way around it...
+I don't actually need to call proc_frame_delay()
+it works just fine without it, doesnt run too fast...
+also don't need draw_screen_overlay();
+
+      al_flip_display();
+      proc_scale_factor_change();
+      proc_controllers();
+//      proc_frame_delay();
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
+      draw_object_overlays(obt, num, legend_line, highlight_counter);
+      get_new_screen_buffer();
+//      draw_screen_overlay();
+      // draw button title, frame and legend lines
+      title_objw(ov_x1, ov_y1, ov_x2, ov_y2, obt, num, 0, 15);
+
+leave it like this for now...move on...
+
+next make the background scrollable just like main editor
+
+
+int ovw_process_scrolledge(void)
+{
+   int scrolledge=10;
+   int old_wx = wx;
+   int old_wy = wy;
+   if (mouse_x < scrolledge) wx--;           // scroll left
+   if (mouse_x > SCREEN_W-scrolledge) wx++;  // scroll right
+   if (mouse_y < scrolledge) wy--;           // scroll up
+   if (mouse_y > SCREEN_H-scrolledge) wy++;  // scroll down
+
+   int rx = 100 - (SCREEN_W/20);
+   int ry = 100 - (SCREEN_H/20);
+
+   if (wx > rx) wx = rx;
+   if (wy > ry) wy = ry;
+   if (wx < 0) wx = 0;
+   if (wy < 0) wy = 0;
+
+   if ((old_wx != wx) || (old_wy != wy))
+   {
+      al_rest(.02);
+   }
+   return 0;
+}
+
+
+get_new_screen_buffer uses PX and PY to set WX and WY...im going to need to do something different...
+maybe mouse....no
+
+went with position of the object in the viewer...seems to work for now...
+no mouse scroll at all...only zoom in and out and change object....
+
+seem to work good...
+
+now I really want to be able to move the button window by dragging the title bar...
+
+then I want to make the button window automatically resize its height based on how many buttons it has...
+and still have the legend at the bottom...
+
+then maybe resize the width too, based on how wide the buttons are...
+
+I should go through all the buttons and do them with them new slider and button functions
+and at the same time make them return the width of the text?? would that even work??
+its too late by then to adjust the width....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
