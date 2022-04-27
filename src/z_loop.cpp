@@ -187,7 +187,7 @@ void game_loop(int start_mode)
          draw_pbullets();
          draw_players();
 
-         get_new_screen_buffer();
+         get_new_screen_buffer(0, 0, 0);
          draw_screen_overlay();
          al_flip_display();
       }

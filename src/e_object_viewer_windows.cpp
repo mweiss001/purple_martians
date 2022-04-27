@@ -3,18 +3,58 @@
 #include "pm.h"
 
 
+
+
+
+
+void ovw_process_scrolledge(void)
+{
+   int scrolledge=10;
+
+   int old_wx = wx;
+   int old_wy = wy;
+   if (mouse_x < scrolledge) wx--;           // scroll left
+   if (mouse_x > SCREEN_W-scrolledge) wx++;  // scroll right
+   if (mouse_y < scrolledge) wy--;           // scroll up
+   if (mouse_y > SCREEN_H-scrolledge) wy++;  // scroll down
+
+   int rx = 100 - (SCREEN_W/20);
+   int ry = 100 - (SCREEN_H/20);
+
+   if (wx > rx) wx = rx;
+   if (wy > ry) wy = ry;
+   if (wx < 0) wx = 0;
+   if (wy < 0) wy = 0;
+
+   if ((old_wx != wx) || (old_wy != wy))
+   {
+      al_rest(.02);
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 // this draws on the level buffer
 void draw_object_overlays(int obj_type, int num, int legend_highlight, int highlight_color)
 {
    al_set_target_bitmap(level_buffer);
    int obj_x=0, obj_y=0, sub_type=0;;
-   if (obj_type == 2)  // item x, y (0-99)
+   if (obj_type == 2)
    {
       sub_type = item[num][0];
       obj_x = item[num][4]+10;
       obj_y = item[num][5]+10;
    }
-   if (obj_type == 3) // enemy x, y (0-99)
+   if (obj_type == 3)
    {
       sub_type = Ei[num][0];
       obj_x = al_fixtoi(Efi[num][0])+10;
@@ -314,19 +354,24 @@ void draw_object_overlays(int obj_type, int num, int legend_highlight, int highl
 
 void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int num, int legend_highlight, int highlight_color)
 {
+
+
    int sub_type=0;
    if (obj_type == 2) sub_type = item[num][0];
    if (obj_type == 3) sub_type = Ei[num][0];
 
-
    int ov_xc = (ov_x1 + ov_x2) / 2;
 
+   // legend line text
    char lmsg[5][80];
+   for (int x=0; x<5; x++) sprintf(lmsg[x],"%s","");
+
+   // legend line colors
    int legend_color[5];
 
+   // default number of legend lines
+   num_legend_lines = 2;
 
-
-   // default legend line colors
    legend_color[0] = 7;   // legend color
    legend_color[1] = 13;  // location color
    legend_color[2] = 14;  // yellow
@@ -335,16 +380,6 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
 
 
    if (legend_highlight == 1) legend_color[1] = highlight_color;
-
-
-   // default number of legend lines
-   Num_legend_lines = 2;
-
-   // clear legend text
-   for (int x=0; x<5; x++) sprintf(lmsg[x],"%s","");
-
-
-
 
    if (!legend_highlight)
    {
@@ -359,24 +394,23 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
       for (int x=0; x<15; x++)
          al_draw_line(ov_x1, ov_y1+x, ov_x2, ov_y1+x, palette_color[13+(x*16)], 1);
       al_draw_text(font, palette_color[15], ov_xc, ov_y1+2, ALLEGRO_ALIGN_CENTER,  msg);
-
-
    }
-
 
    if (obj_type == 3)  // enemies
    {
-      int yt = ov_y1+14;
-      al_draw_rectangle(ov_xc-94, yt, ov_xc+94, yt+22, palette_color[15], 1);
-      draw_enemy_shape(num, ov_xc-92, yt+1);
-      sprintf(msg,"%s %d of %d", (const char *)enemy_name[sub_type],1+num - e_first_num[sub_type],e_num_of_type[sub_type]);
-      al_draw_text(font, palette_color[13], ov_xc-69, yt+8, 0, msg);
-
+      if (!legend_highlight)
+      {
+         int yt = ov_y1+14;
+         al_draw_rectangle(ov_xc-94, yt, ov_xc+94, yt+22, palette_color[15], 1);
+         draw_enemy_shape(num, ov_xc-92, yt+1);
+         sprintf(msg,"%s %d of %d", (const char *)enemy_name[sub_type],1+num - e_first_num[sub_type],e_num_of_type[sub_type]);
+         al_draw_text(font, palette_color[13], ov_xc-69, yt+8, 0, msg);
+      }
       switch (sub_type)
       {
          case 3: // archwagon
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"ArchWagon Location");
             sprintf(lmsg[2],"Bullet Proximity");
             legend_color[2] = 14;
@@ -390,7 +424,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
             sprintf(lmsg[1],"Podzilla Location");
             sprintf(lmsg[2],"Trigger Box");
             sprintf(lmsg[3],"Extended Postion");
-            Num_legend_lines = 4;
+            num_legend_lines = 4;
 
             legend_color[2] = 14;
             if (legend_highlight == 2) legend_color[2] = highlight_color;
@@ -401,7 +435,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
          break;
          case 8: // trakbot
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"TrakBot Location");
             sprintf(lmsg[2],"Bullet Proximity");
             legend_color[2] = 14;
@@ -414,7 +448,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
             sprintf(lmsg[2],"Source Area");
             sprintf(lmsg[3],"Destination Area");
             sprintf(lmsg[4],"Trigger Box");
-            Num_legend_lines = 5;
+            num_legend_lines = 5;
 
             legend_color[2] = 11;
             if (legend_highlight == 2) legend_color[2] = highlight_color;
@@ -431,7 +465,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
             sprintf(lmsg[1],"Field Location");
             sprintf(lmsg[2],"Field Area");
             sprintf(lmsg[3],"Trigger Box");
-            Num_legend_lines = 4;
+            num_legend_lines = 4;
 
             legend_color[2] = 10;
             if (legend_highlight == 2) legend_color[2] = highlight_color;
@@ -446,7 +480,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
             sprintf(lmsg[1],"Flapper Location");
             sprintf(lmsg[2],"Bullet Trigger Box");
             sprintf(lmsg[3],"Height Above Player");
-            Num_legend_lines = 4;
+            num_legend_lines = 4;
 
             legend_color[2] = 14;
             if (legend_highlight == 2) legend_color[2] = highlight_color;
@@ -456,8 +490,6 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
          }
          break;
       }
-      al_reset_clipping_rectangle();
-
    }
    if (obj_type == 2)  // items
    {
@@ -473,7 +505,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
       {
          case 1: // door
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             legend_color[2] = 10;
             if (legend_highlight == 2) legend_color[2] = highlight_color;
 
@@ -503,7 +535,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
          case 3: sprintf(lmsg[1],"Exit Location"); break;
          case 4: // key
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Key Location");
             sprintf(lmsg[2],"Block Range");
 
@@ -515,7 +547,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
          case 7: sprintf(lmsg[1],"Mine Location"); break;
          case 8:
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Bomb Location");
             sprintf(lmsg[2],"Damage Range");
             legend_color[2] = 14;
@@ -524,7 +556,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
          break;
          case 9: // trigger
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Trigger Item Location");
             sprintf(lmsg[2],"Trigger Field");
             legend_color[2] = 10;
@@ -535,12 +567,12 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
          {
             sprintf(lmsg[1],"Message Location");
             sprintf(lmsg[2],"Display Position");
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
          }
          break;
          case 11:
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Rocket Location");
             sprintf(lmsg[2],"Damage Range");
             legend_color[2] = 14;
@@ -551,14 +583,14 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
          case 14: sprintf(lmsg[1],"Switch Location"); break;
          case 15: sprintf(lmsg[1],"Sproingy Location");
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             legend_color[2] = 14;
             if (legend_highlight == 2) legend_color[2] = highlight_color;
          }
          break;
          case 16: // block manip
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Block Manip Item Location");
             sprintf(lmsg[2],"Manip Field");
             legend_color[2] = 12;
@@ -567,7 +599,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
          break;
          case 17: // block damage
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Item Location");
             sprintf(lmsg[2],"Damage Area");
             legend_color[2] = 10;
@@ -576,17 +608,16 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
          break;
 
       } // end of switch case
-      al_reset_clipping_rectangle();
 
    }  // end of items
-   for (int x=1; x<Num_legend_lines; x++)// draw text lines
-      al_draw_text(font, palette_color[legend_color[x]], ov_xc, ov_y2-26+(3-Num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
+   for (int x=1; x<num_legend_lines; x++)// draw text lines
+      al_draw_text(font, palette_color[legend_color[x]], ov_xc, ov_y2-26+(3-num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 
    if (!legend_highlight)
    {
-      al_draw_text(font, palette_color[legend_color[0]], ov_xc, ov_y2-36+ (4-Num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
-      al_draw_rectangle(ov_xc-100, ov_y2-38+ (4-Num_legend_lines)*8, ov_xc+100, ov_y2-1, palette_color[13], 1); // big frame
-      al_draw_rectangle(ov_xc-100, ov_y2-38+ (4-Num_legend_lines)*8, ov_xc+100, ov_y2-28+ (4-Num_legend_lines)*8, palette_color[13], 1); // top frame
+      al_draw_text(font, palette_color[legend_color[0]], ov_xc, ov_y2-36+ (4-num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
+      al_draw_rectangle(ov_xc-100, ov_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_y2-1, palette_color[13], 1); // big frame
+      al_draw_rectangle(ov_xc-100, ov_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_y2-28+ (4-num_legend_lines)*8, palette_color[13], 1); // top frame
    }
 }
 
@@ -602,7 +633,7 @@ void object_viewerw(int xx, int yy, int obt, int num)
    if (xx) ov_x1 = xx;
    int ov_x2 = ov_x1 + 240;
 
-   int ov_y1 = 40;
+   int ov_y1 = 140;
    if (yy) ov_y1 = yy;
    int ov_y2 = ov_y1 + 600;
 
@@ -619,76 +650,43 @@ void object_viewerw(int xx, int yy, int obt, int num)
 
    int quit = 0;
 
-   al_set_target_backbuffer(display);
-
-
-   int mb;   // button selection
    int highlight_counter=0;
    int a;
    while (!quit)
    {
-
-
       int ty = ov_y1+38;
 
-      int type=0;
-      if (obt == 2) type = item[num][0];
-      if (obt == 3) type = Ei[num][0];
-
+      int type=0, obj_x=0, obj_y=0;
+      if (obt == 2)
+      {
+         type = item[num][0];
+         obj_x = item[num][4]+10;
+         obj_y = item[num][5]+10;
+      }
+      if (obt == 3)
+      {
+         type = Ei[num][0];
+         obj_x = al_fixtoi(Efi[num][0])+10;
+         obj_y = al_fixtoi(Efi[num][1])+10;
+      }
 
       al_flip_display();
-
-
       proc_scale_factor_change();
       proc_controllers();
-
-      proc_frame_delay();
-
       get_new_background(0);
       draw_lifts();
       draw_items();
       draw_enemies();
-
       draw_object_overlays(obt, num, legend_line, highlight_counter);
+      get_new_screen_buffer(1, obj_x, obj_y);
 
-      get_new_screen_buffer();
-
-      draw_screen_overlay();
-
+      // draw button title, frame and legend lines
       title_objw(ov_x1, ov_y1, ov_x2, ov_y2, obt, num, 0, 15);
 
-
-
-
-      legend_line = -1;
-      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
-      {
-         proc_controllers();
-         quit = 1;  // wait for release
-      }
-
-
-
-      mb = 0;
-      while (key[ALLEGRO_KEY_RIGHT])
-      {
-         mb = 21;
-         proc_controllers();
-      }
-      while (key[ALLEGRO_KEY_LEFT])
-      {
-         mb = 22;
-         proc_controllers();
-      }
-      while (key[ALLEGRO_KEY_DELETE])
-      {
-         mb = 20;
-         proc_controllers();
-      }
-
       // is mouse on legend ?
-      int y1_legend = ov_y2 - 34 + (5-Num_legend_lines)*8; // legend pos
-      int y2_legend = y1_legend + (Num_legend_lines-1)*8;
+      legend_line = 0;
+      int y1_legend = ov_y2 - 34 + (5-num_legend_lines)*8; // legend pos
+      int y2_legend = y1_legend + (num_legend_lines-1)*8;
       if ((mouse_x > xa) && (mouse_x < xb) && (mouse_y > y1_legend) && (mouse_y < y2_legend))
       {
          legend_line = ((mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
@@ -700,7 +698,9 @@ void object_viewerw(int xx, int yy, int obt, int num)
       }
       else highlight_counter = 0; // mouse not on legend
 
-      a=0;
+
+
+
 
       // split into half
       int x12 = xa + 1 * (xb-xa) / 2; // 1/2
@@ -726,28 +726,20 @@ void object_viewerw(int xx, int yy, int obt, int num)
       //mdw_slider(xb-40,  ty-33,    xb,    ty-27,          26, num, type, obt, 0, 15, 0,  10, 0,0,0,0); // button height
       //mdw_slider(xa,  ty-35,    xb,    ty-27,          26, num, type, obt, 0, 15, 0,  10, 0,0,0,0); // button height
 
-      int lc; // lock_color;
+      int lc = 6; // lock_color;
       if (Viewer_lock) lc = 7;
-      else lc = 6;
 
 
-
-
-
-
-
-
-
+      a=0;
+      int mb = 0;   // button selection
       if (mdw_button(xa,  ty+a*bts, x27-1, ty+(a+1)*bts-2, 23, num, type, obt, 0,  9, 15, 0, 1,0,0,0)) mb = 22; // prev
           mdw_button(x27, ty+a*bts, x57-1, ty+(a+1)*bts-2, 56, num, type, obt, 0, lc, 15, 0, 1,0,0,0);          // lock
       if (mdw_button(x57, ty+a*bts, xb,    ty+(a+1)*bts-2, 22, num, type, obt, 0,  9, 15, 0, 1,0,0,0)) mb = 21; // next
       a++;
-
       if (mdw_button(xa,  ty+a*bts, x13-1, ty+(a+1)*bts-2, 19, num, type, obt, 0, 13, 15, 0, 1,0,0,0)) mb = 18; // move
       if (mdw_button(x13, ty+a*bts, x23-1, ty+(a+1)*bts-2, 20, num, type, obt, 0, 14, 15, 0, 1,0,0,0)) mb = 19; // create
       if (mdw_button(x23, ty+a*bts, xb,    ty+(a+1)*bts-2, 21, num, type, obt, 0, 10, 15, 0, 1,0,0,0)) mb = 20; // delete
       a++;
-
       if (mdw_button(xa,  ty+a*bts, x12-1, ty+(a+1)*bts-2, 25, num, type, obt, 0, 1,  15, 0, 1,0,0,0)) mb = 24; // viewer help
       if (mdw_button(x12, ty+a*bts, xb,    ty+(a+1)*bts-2, 57, num, type, obt, 0, 1,  15, 0, 1,0,0,0)) mb = 25; // specific object help
       a+=2;
@@ -757,8 +749,27 @@ void object_viewerw(int xx, int yy, int obt, int num)
 
 
 
+      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
+      {
+         proc_controllers();
+         quit = 1;  // wait for release
+      }
+      while (key[ALLEGRO_KEY_RIGHT])
+      {
+         mb = 21;
+         proc_controllers();
+      }
+      while (key[ALLEGRO_KEY_LEFT])
+      {
+         mb = 22;
+         proc_controllers();
+      }
+      while (key[ALLEGRO_KEY_DELETE])
+      {
+         mb = 20;
+         proc_controllers();
+      }
 
-      // change to control this with exit codes
       switch(mb)
       {
          case 18: // move

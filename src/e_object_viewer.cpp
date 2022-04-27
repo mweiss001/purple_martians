@@ -107,16 +107,7 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
             mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 10, num, type, obt, 0, 12, 15,  0, 1,0,0,0); a++;  // initial direction
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 23, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // seek count
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 35, num, type, obt, 0,  8, 15, 15, 1,0,0,0); a+=2;  // extra hits to kill
-
-
-
-//                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
-
             mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
-
-
-
-
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger time
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
@@ -619,7 +610,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
    legend_color[4] = 0;   // unused
 
    // default number of legend lines
-   Num_legend_lines = 2;
+   num_legend_lines = 2;
 
    // clear legend text
    for (x=0; x<5; x++) sprintf(lmsg[x],"%s","");
@@ -675,7 +666,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
       {
          case 3: // archwagon
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"ArchWagon Location");
             sprintf(lmsg[2],"Bullet Proximity");
             int color = 14;
@@ -697,7 +688,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             sprintf(lmsg[1],"Podzilla Location");
             sprintf(lmsg[2],"Trigger Box");
             sprintf(lmsg[3],"Extended Postion");
-            Num_legend_lines = 4;
+            num_legend_lines = 4;
 
             int color2 = 14;
             legend_color[2] = 14;
@@ -746,7 +737,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          break;
          case 8: // trakbot
          {
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"TrakBot Location");
             sprintf(lmsg[2],"Bullet Proximity");
             int color = 14;
@@ -768,7 +759,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             sprintf(lmsg[2],"Source Area");
             sprintf(lmsg[3],"Destination Area");
             sprintf(lmsg[4],"Trigger Box");
-            Num_legend_lines = 5;
+            num_legend_lines = 5;
 
             int color2 = 11;
             legend_color[2] = 11;
@@ -831,7 +822,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             sprintf(lmsg[1],"Field Location");
             sprintf(lmsg[2],"Field Area");
             sprintf(lmsg[3],"Trigger Box");
-            Num_legend_lines = 4;
+            num_legend_lines = 4;
 
             int color2 = 10;
             legend_color[2] = 10;
@@ -875,7 +866,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
             sprintf(lmsg[1],"Flapper Location");
             sprintf(lmsg[2],"Bullet Trigger Box");
             sprintf(lmsg[3],"Height Above Player");
-            Num_legend_lines = 4;
+            num_legend_lines = 4;
             legend_color[2] = 14;
             legend_color[3] = 10;
 
@@ -933,7 +924,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          {
             int color = 10;
             legend_color[2] = 10;
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
 
             if (legend_highlight == 2)
             {
@@ -981,7 +972,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          {
             int color = 10;
             legend_color[2] = 10;
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Key Location");
             sprintf(lmsg[2],"Block Range");
 
@@ -1009,7 +1000,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          {
             int color = 14;
             legend_color[2] = 14;
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Bomb Location");
             sprintf(lmsg[2],"Damage Range");
 
@@ -1027,7 +1018,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          {
             int color = 14;
             legend_color[2] = 10;
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Trigger Item Location");
             sprintf(lmsg[2],"Trigger Field");
             if (legend_highlight == 2)
@@ -1053,14 +1044,14 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          {
             sprintf(lmsg[1],"Message Location");
             sprintf(lmsg[2],"Display Position");
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
          }
          break;
          case 11:
          {
             int color = 14;
             legend_color[2] = 14;
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Rocket Location");
             sprintf(lmsg[2],"Damage Range");
 
@@ -1080,7 +1071,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          {
             int color = 14;
             legend_color[2] = 14;
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
 
             if (legend_highlight == 2)
             {
@@ -1108,7 +1099,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          {
             int color = 12;
             legend_color[2] = 12;
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Block Manip Item Location");
             sprintf(lmsg[2],"Manip Field");
             if (legend_highlight == 2)
@@ -1137,7 +1128,7 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
          {
             int color = 10;
             legend_color[2] = 10;
-            Num_legend_lines = 3;
+            num_legend_lines = 3;
             sprintf(lmsg[1],"Item Location");
             sprintf(lmsg[2],"Damage Area");
             if (legend_highlight == 2)
@@ -1167,14 +1158,14 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
    }  // end of items
    if (obj_type != 4)  // no legend for lifts
    {
-      for (x=1; x<Num_legend_lines; x++)// draw text lines
-         al_draw_text(font, palette_color[legend_color[x]], txc, db*100-26+(3-Num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
+      for (x=1; x<num_legend_lines; x++)// draw text lines
+         al_draw_text(font, palette_color[legend_color[x]], txc, db*100-26+(3-num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 
       if (!legend_highlight)
       {
-         al_draw_text(font, palette_color[legend_color[0]], txc, db*100-36+ (4-Num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
-         al_draw_rectangle(txc-100, db*100-38+ (4-Num_legend_lines)*8, txc+100, db*100-1, palette_color[13], 1); // big frame
-         al_draw_rectangle(txc-100, db*100-38+ (4-Num_legend_lines)*8, txc+100, db*100-28+ (4-Num_legend_lines)*8, palette_color[13], 1); // top frame
+         al_draw_text(font, palette_color[legend_color[0]], txc, db*100-36+ (4-num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
+         al_draw_rectangle(txc-100, db*100-38+ (4-num_legend_lines)*8, txc+100, db*100-1, palette_color[13], 1); // big frame
+         al_draw_rectangle(txc-100, db*100-38+ (4-num_legend_lines)*8, txc+100, db*100-28+ (4-num_legend_lines)*8, palette_color[13], 1); // top frame
       }
    }
 }
@@ -1855,8 +1846,8 @@ void object_viewer(int obt, int num)
          }
 
          // is mouse on legend ?
-         int y1_legend = db*100- 34 + (5-Num_legend_lines)*8; // legend pos
-         int y2_legend = y1_legend + (Num_legend_lines-1)*8;
+         int y1_legend = db*100- 34 + (5-num_legend_lines)*8; // legend pos
+         int y2_legend = y1_legend + (num_legend_lines-1)*8;
          if ((mouse_x > xa) && (mouse_x < xb) && (mouse_y > y1_legend) && (mouse_y < y2_legend))
          {
             int legend_line = ((mouse_y - y1_legend) / 8) + 1; // which legend line are we on?

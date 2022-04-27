@@ -132,7 +132,7 @@ int wx=0;
 int wy=0;
 int pop_msg_viewer_pos;
 int Redraw = 1;
-int Num_legend_lines = 2;
+int num_legend_lines = 2;
 int Viewer_lock = 0;
 
 // ------------------------------------------------

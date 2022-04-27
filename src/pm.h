@@ -295,7 +295,7 @@ extern int wx; // level editor start block UL corner
 extern int wy;
 extern int pop_msg_viewer_pos;
 extern int Redraw;
-extern int Num_legend_lines;
+extern int num_legend_lines;
 extern int Viewer_lock;
 
 // ------------------------------------------------
@@ -1534,7 +1534,7 @@ void load_fonts(void);
 void get_new_background(int full);
 void stimp(void);
 void stamp(void);
-void get_new_screen_buffer(void);
+void get_new_screen_buffer(int type, int x, int y);
 void set_map_var(void);
 void set_scale_factor(int instant);
 void init_level_background(void);
