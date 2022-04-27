@@ -22370,6 +22370,111 @@ key block ranges are
 8 9 w h (0-2000)
 
 
+move buttons for each object to its own function...done...
+int obj_buttons(int x1, int x2, int ty, int a, int bts, int obj_type, int type, int obj_num)
+
+
+
+what are my longest buttons and sliders?
+
+go through them one at a time
+
+archwagon:
+
+Initial Driection:Right    23
+Bullet Retrigger Time:100  25
+
+
+
+I am making the map draw stuff work for full screen resoltuion, but I think I am on the wrong track...
+I need to draw it on the level buffer so that it can be resized to any arbitary size....
+
+
+do this for ovw for now but later for regular editor also
+
+
+in the loop draw the background...very similar to how it is done in the game...
+
+
+
+
+
+
+      proc_scale_factor_change();
+
+      proc_controllers();
+
+      get_new_background(0);
+
+      draw_lifts();
+      draw_items();
+      draw_enemies();
+
+      get_new_screen_buffer();
+
+      al_flip_display();
+
+
+before get new screen buffer is where I need to draw on the level buffer...
+
+after get screen new screen buffer is where I need to draw the button control thing...
+
+this is done and works but kind of sloppy.
+
+
+I can resize level with F5 and F6
+
+when in viewer all the highlights work..
+
+
+the speed seems to fast...
+
+
+
+
+
+
+
+
+
+
+i have a few things messed up..
+
+legend line 1 does not blink in legend although frame around item does... for no reason...fixed
+buttons don't show for anything....fixed...flip display too soon
+
+animated shapes are smeared....
+
+its like there is an animated shape and a static shape overlaid...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

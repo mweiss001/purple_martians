@@ -104,9 +104,8 @@ int process_status_window(int draw_only)
 
 
 
-   if (point_item_type > 1) object_viewerw(swx1+162, swy1+52, point_item_type, point_item_num, 1);
 
-   // display read only version of viewer windowsif ((point_item_type == 2) && (item[point_item_num][0] == 5))
+   if (point_item_type > 1) obj_buttons(swx1+162, swx2+60, swy1+46, 0, 16, point_item_type, point_item_num);
 
 
 

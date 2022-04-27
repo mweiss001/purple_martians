@@ -321,7 +321,7 @@ void set_controls_from_player_key_check(int p) // used only in menu
 
 void function_key_check(void)
 {
-   if (!game_exit)
+   if ((!game_exit) || (level_editor_running))
    {
  /*
       if ((key[ALLEGRO_KEY_F1]) && (!KEY_F1_held))
