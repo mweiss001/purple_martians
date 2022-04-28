@@ -22615,21 +22615,34 @@ extern int ov_window_y;
 extern int ov_window_w;
 extern int ov_window_h;
 
-
 made it moveable!
 
 
 now make it the right height
-
-
 need to call draw buttons first and have that set ov_window_h...done
-
 need to make title not erase buttons...done
-
 need to make title add number of legend lines to ov_window_h ...
+got to where legend is moveable, but mouse on it shows up in a different place...fixed..
+
+now it is moveable and resizes height nicely....
+
+what about width?
+
+make up and down arrow change types...whoah!
+this is done, but I want it to also switch from item to enemy and vice versa
+later I will be able to do this with map...
+
+increased width to 300 and all buttons seem to fit well now...
+still would be nice to do dynamic width somehow...
+
+so what is the next big thing to do to this??
+map move......
 
 
-got to where legend is moveable, but mouse on it shows up in a different place???
+
+
+
+
 
 
 

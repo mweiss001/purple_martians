@@ -171,7 +171,7 @@ ALLEGRO_BITMAP *bmsg_temp;
 int ov_window_active = 1;
 int ov_window_x = 60;
 int ov_window_y = 140;
-int ov_window_w = 240;
+int ov_window_w = 300;
 int ov_window_h = 600;
 
 

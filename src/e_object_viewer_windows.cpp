@@ -562,23 +562,21 @@ void title_objw(int obj_type, int num, int legend_highlight, int highlight_color
 
    }  // end of items
 
-
-
-   ov_window_h += num_legend_lines*8 + 8;
-
-   int ov_y2 = ov_window_y + ov_window_h;
-
-   for (int x=1; x<num_legend_lines; x++)// draw text lines
-      al_draw_text(font, palette_color[legend_color[x]], ov_xc, ov_y2-26+(3-num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
-
    if (!legend_highlight)
    {
+      ov_window_h += num_legend_lines*8 + 8;
+      int ov_y2 = ov_window_y + ov_window_h;
       al_draw_text(font, palette_color[legend_color[0]], ov_xc, ov_y2-36+ (4-num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
       al_draw_rectangle(ov_xc-100, ov_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_y2-1, palette_color[13], 1); // big frame
       al_draw_rectangle(ov_xc-100, ov_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_y2-28+ (4-num_legend_lines)*8, palette_color[13], 1); // top frame
       al_draw_rectangle(ov_window_x, ov_window_y, ov_x2, ov_y2, palette_color[13], 1);  // outline entire window
 
    }
+
+   int ov_y2 = ov_window_y + ov_window_h;
+   for (int x=1; x<num_legend_lines; x++)// draw text lines
+      al_draw_text(font, palette_color[legend_color[x]], ov_xc, ov_y2-26+(3-num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
+
 }
 
 
@@ -777,6 +775,11 @@ void object_viewerw(int obt, int num)
          proc_controllers();
          quit = 1;  // wait for release
       }
+      while (key[ALLEGRO_KEY_DELETE])
+      {
+         mb = 20;
+         proc_controllers();
+      }
       while (key[ALLEGRO_KEY_RIGHT])
       {
          mb = 21;
@@ -787,11 +790,19 @@ void object_viewerw(int obt, int num)
          mb = 22;
          proc_controllers();
       }
-      while (key[ALLEGRO_KEY_DELETE])
+      while (key[ALLEGRO_KEY_UP])
       {
-         mb = 20;
+         mb = 26;
          proc_controllers();
       }
+      while (key[ALLEGRO_KEY_DOWN])
+      {
+         mb = 27;
+         proc_controllers();
+      }
+
+
+
 
       switch(mb)
       {
@@ -876,6 +887,72 @@ void object_viewerw(int obt, int num)
             if (type == 15) help("Sproingy Viewer");
          }
          break;
+         case 26: // up prev obj type
+         {
+            if (obt == 2)
+            {
+               do
+               {
+                  type--;
+                  if (type < 1) type = 20;
+
+               } while (item_num_of_type[type] == 0);
+               num = item_first_num[type];
+
+            }
+
+            if (obt == 3)
+            {
+               while (e_num_of_type[--type] == 0)
+                  if (type < 3) type = 20;
+               num = e_first_num[type];
+
+            }
+
+         }
+         break;
+         case 27: // down - next obj type
+         {
+            if (obt == 2)
+            {
+               do
+               {
+                  type++;
+                  if (type > 20) type = 1;
+
+               } while (item_num_of_type[type] == 0);
+               num = item_first_num[type];
+
+            }
+
+
+
+
+
+
+            if (obt == 3)
+            {
+               while (e_num_of_type[++type] == 0)
+                  if (type > 20) type = 1;
+               num = e_first_num[type];
+
+            }
+
+         }
+         break;
+
+
+
+
+
+
+
+
+
+
+
+
+
       } // end of switch (mb)
    } // end of while (!quit)
 }
