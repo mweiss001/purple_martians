@@ -2,52 +2,10 @@
 
 #include "pm.h"
 
-
-
-
-
-
-void ovw_process_scrolledge(void)
-{
-   int scrolledge=10;
-
-   int old_wx = wx;
-   int old_wy = wy;
-   if (mouse_x < scrolledge) wx--;           // scroll left
-   if (mouse_x > SCREEN_W-scrolledge) wx++;  // scroll right
-   if (mouse_y < scrolledge) wy--;           // scroll up
-   if (mouse_y > SCREEN_H-scrolledge) wy++;  // scroll down
-
-   int rx = 100 - (SCREEN_W/20);
-   int ry = 100 - (SCREEN_H/20);
-
-   if (wx > rx) wx = rx;
-   if (wy > ry) wy = ry;
-   if (wx < 0) wx = 0;
-   if (wy < 0) wy = 0;
-
-   if ((old_wx != wx) || (old_wy != wy))
-   {
-      al_rest(.02);
-   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-// this draws on the level buffer
 void draw_object_overlays(int obj_type, int num, int legend_highlight, int highlight_color)
 {
    al_set_target_bitmap(level_buffer);
-   int obj_x=0, obj_y=0, sub_type=0;;
+   int obj_x=0, obj_y=0, sub_type=0;
    if (obj_type == 2)
    {
       sub_type = item[num][0];
@@ -72,50 +30,43 @@ void draw_object_overlays(int obj_type, int num, int legend_highlight, int highl
       {
          case 3: // archwagon
          {
+            // yellow bullet prox
             int color = 14;
             if (legend_highlight == 2) color = highlight_color;
-            // draw yellow bullet prox
             int bs = Ei[num][17];
             al_draw_rectangle(obj_x-bs, obj_y-bs, obj_x+bs, obj_y+bs, palette_color[color], 1);
          }
          break;
          case 7: // podzilla
          {
-            int color2 = 14;
-            if (legend_highlight == 2) color2 = highlight_color;
-
-            int color3 = 10;
-            if (legend_highlight == 3) color3 = highlight_color;
-
-            // draw trigger box
+            // trigger box
+            int color = 14;
+            if (legend_highlight == 2) color = highlight_color;
             int tx1 = Ei[num][11]*20;
             int ty1 = Ei[num][12]*20;
             int tx2 = Ei[num][13]*20 + 20;
             int ty2 = Ei[num][14]*20 + 20;
-            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color2], 1);
+            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color], 1);
 
-
-            // get extended position
+            // extended position
+            int color1 = 10;
+            if (legend_highlight == 2) color1 = highlight_color;
             al_fixed ex = Efi[num][0];
             al_fixed ey = Efi[num][1];
-
             for (int j=0; j<Ei[num][7]; j++)
             {
                ex += Efi[num][2];
                ey += Efi[num][3];
             }
-
-            int cx = al_fixtoi(ex)*20; // convert to int
-            int cy = al_fixtoi(ey)*20;
-            crosshairs_full(cx, cy, color3);
-
+            crosshairs_full(al_fixtoi(ex), al_fixtoi(ey), color1);
          }
          break;
          case 8: // trakbot
          {
+            // draw yellow bullet prox circle
             int color = 14;
             if (legend_highlight == 2) color = highlight_color;
-            al_draw_circle(obj_x, obj_y, Ei[num][17], palette_color[color], 1); // draw yellow bullet prox circle
+            al_draw_circle(obj_x, obj_y, Ei[num][17], palette_color[color], 1);
          }
          break;
          case 9: // cloner
@@ -352,15 +303,14 @@ void draw_object_overlays(int obj_type, int num, int legend_highlight, int highl
 
 
 
-void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int num, int legend_highlight, int highlight_color)
+void title_objw(int obj_type, int num, int legend_highlight, int highlight_color)
 {
-
-
    int sub_type=0;
    if (obj_type == 2) sub_type = item[num][0];
    if (obj_type == 3) sub_type = Ei[num][0];
 
-   int ov_xc = (ov_x1 + ov_x2) / 2;
+   int ov_x2 = ov_window_x + ov_window_w;
+   int ov_xc = ov_window_x + ov_window_w/2;
 
    // legend line text
    char lmsg[5][80];
@@ -383,8 +333,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
 
    if (!legend_highlight)
    {
-      al_draw_filled_rectangle(ov_x1, ov_y1, ov_x2, ov_y2, palette_color[0]);      // erase side panel
-      al_draw_rectangle(       ov_x1, ov_y1, ov_x2, ov_y2, palette_color[13], 1);  // outline side panel
+  //    al_draw_filled_rectangle(ov_x1, ov_y1, ov_x2, ov_y2, palette_color[0]);      // erase side panel
 
       // title bar
       msg[0] = 0;
@@ -392,15 +341,17 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
       if (obj_type == 3) sprintf(msg, "Enemy Viewer [%d]", num);
       if (obj_type == 4) sprintf(msg, "Lift Viewer");
       for (int x=0; x<15; x++)
-         al_draw_line(ov_x1, ov_y1+x, ov_x2, ov_y1+x, palette_color[13+(x*16)], 1);
-      al_draw_text(font, palette_color[15], ov_xc, ov_y1+2, ALLEGRO_ALIGN_CENTER,  msg);
+         al_draw_line(ov_window_x, ov_window_y+x, ov_x2, ov_window_y+x, palette_color[13+(x*16)], 1);
+      al_draw_text(font, palette_color[15], ov_xc, ov_window_y+2, ALLEGRO_ALIGN_CENTER,  msg);
    }
+
+
 
    if (obj_type == 3)  // enemies
    {
       if (!legend_highlight)
       {
-         int yt = ov_y1+14;
+         int yt = ov_window_y+14;
          al_draw_rectangle(ov_xc-94, yt, ov_xc+94, yt+22, palette_color[15], 1);
          draw_enemy_shape(num, ov_xc-92, yt+1);
          sprintf(msg,"%s %d of %d", (const char *)enemy_name[sub_type],1+num - e_first_num[sub_type],e_num_of_type[sub_type]);
@@ -495,7 +446,7 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
    {
       if (!legend_highlight)
       {
-         int yt = ov_y1+14;
+         int yt = ov_window_y+14;
          al_draw_rectangle(ov_xc-94, yt, ov_xc+94, yt+22, palette_color[15], 1);
          draw_item_shape(num, ov_xc-94, yt+1);
          sprintf(msg,"%s %d of %d", item_name[sub_type], 1+num - item_first_num[sub_type],item_num_of_type[sub_type]);
@@ -610,6 +561,13 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
       } // end of switch case
 
    }  // end of items
+
+
+
+   ov_window_h += num_legend_lines*8 + 8;
+
+   int ov_y2 = ov_window_y + ov_window_h;
+
    for (int x=1; x<num_legend_lines; x++)// draw text lines
       al_draw_text(font, palette_color[legend_color[x]], ov_xc, ov_y2-26+(3-num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 
@@ -618,6 +576,8 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
       al_draw_text(font, palette_color[legend_color[0]], ov_xc, ov_y2-36+ (4-num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
       al_draw_rectangle(ov_xc-100, ov_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_y2-1, palette_color[13], 1); // big frame
       al_draw_rectangle(ov_xc-100, ov_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_y2-28+ (4-num_legend_lines)*8, palette_color[13], 1); // top frame
+      al_draw_rectangle(ov_window_x, ov_window_y, ov_x2, ov_y2, palette_color[13], 1);  // outline entire window
+
    }
 }
 
@@ -626,35 +586,94 @@ void title_objw(int ov_x1, int ov_y1, int ov_x2, int ov_y2, int obj_type, int nu
 
 
 
-void object_viewerw(int xx, int yy, int obt, int num)
+
+int obv_draw_buttons(int num, int type, int obt)
 {
-
-   int ov_x1 = SCREEN_W - 300;
-   if (xx) ov_x1 = xx;
-   int ov_x2 = ov_x1 + 240;
-
-   int ov_y1 = 140;
-   if (yy) ov_y1 = yy;
-   int ov_y2 = ov_y1 + 600;
-
-
    // button x position
-   int xa = ov_x1+1;
-   int xb = ov_x2-1;
+   int xa = ov_window_x+1;
+   int xb = ov_window_x+ov_window_w-1;
+   int ty = ov_window_y+38;
 
 
-   bts = 18; // button y size
+   // split into half
+   int x12 = xa + 1 * (xb-xa) / 2; // 1/2
 
+   // split into thirds
+   int x13 = xa + 1 * (xb-xa) / 3; // 1/3
+   int x23 = xa + 2 * (xb-xa) / 3; // 2/3
+
+   // split into fifths
+   //int x15 = xa + 1 * (xb-xa) / 5; // 1/5
+   //int x25 = xa + 2 * (xb-xa) / 5; // 2/5
+   //int x35 = xa + 3 * (xb-xa) / 5; // 3/5
+   //int x45 = xa + 4 * (xb-xa) / 5; // 4/5
+
+   // split into sevenths
+   //int x17 = xa + 1 * (xb-xa) / 7; // 1/7
+   int x27 = xa + 2 * (xb-xa) / 7; // 2/7
+   //int x37 = xa + 3 * (xb-xa) / 7; // 3/7
+   //int x47 = xa + 4 * (xb-xa) / 7; // 4/7
+   int x57 = xa + 5 * (xb-xa) / 7; // 5/7
+   //int x67 = xa + 6 * (xb-xa) / 7; // 6/7
+
+   //mdw_slider(xb-40,  ty-33,    xb,    ty-27,          26, num, type, obt, 0, 15, 0,  10, 0,0,0,0); // button height
+   //mdw_slider(xa,  ty-35,    xb,    ty-27,          26, num, type, obt, 0, 15, 0,  10, 0,0,0,0); // button height
+
+   int lc = 6; // lock_color;
+   if (Viewer_lock) lc = 7;
+
+   int a=0;
+   int mb = 0;   // button selection
+   if (mdw_button(xa,  ty+a*bts, x27-1, ty+(a+1)*bts-2, 23, num, type, obt, 0,  9, 15, 0, 1,0,0,0)) mb = 22; // prev
+       mdw_button(x27, ty+a*bts, x57-1, ty+(a+1)*bts-2, 56, num, type, obt, 0, lc, 15, 0, 1,0,0,0);          // lock
+   if (mdw_button(x57, ty+a*bts, xb,    ty+(a+1)*bts-2, 22, num, type, obt, 0,  9, 15, 0, 1,0,0,0)) mb = 21; // next
+   a++;
+   if (mdw_button(xa,  ty+a*bts, x13-1, ty+(a+1)*bts-2, 19, num, type, obt, 0, 13, 15, 0, 1,0,0,0)) mb = 18; // move
+   if (mdw_button(x13, ty+a*bts, x23-1, ty+(a+1)*bts-2, 20, num, type, obt, 0, 14, 15, 0, 1,0,0,0)) mb = 19; // create
+   if (mdw_button(x23, ty+a*bts, xb,    ty+(a+1)*bts-2, 21, num, type, obt, 0, 10, 15, 0, 1,0,0,0)) mb = 20; // delete
+   a++;
+   if (mdw_button(xa,  ty+a*bts, x12-1, ty+(a+1)*bts-2, 25, num, type, obt, 0, 1,  15, 0, 1,0,0,0)) mb = 24; // viewer help
+   if (mdw_button(x12, ty+a*bts, xb,    ty+(a+1)*bts-2, 57, num, type, obt, 0, 1,  15, 0, 1,0,0,0)) mb = 25; // specific object help
+   a+=2;
+
+   a = obj_buttons(xa, xb, ty, a, bts, obt, num);
+
+   ov_window_h = 38+a*bts;
+
+
+   return mb;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void object_viewerw(int obt, int num)
+{
+   init_level_background();
+
+   bts = 16; // button y size
    int legend_line = -1;
+
+   int highlight_counter=0;
+
 
 
    int quit = 0;
-
-   int highlight_counter=0;
-   int a;
    while (!quit)
    {
-      int ty = ov_y1+38;
+      int ov_window_x2 = ov_window_x + ov_window_w;
+      int ov_window_y2 = ov_window_y + ov_window_h;
+      //int ty = ov_window_y+38;
 
       int type=0, obj_x=0, obj_y=0;
       if (obt == 2)
@@ -673,6 +692,7 @@ void object_viewerw(int xx, int yy, int obt, int num)
       al_flip_display();
       proc_scale_factor_change();
       proc_controllers();
+      proc_frame_delay();
       get_new_background(0);
       draw_lifts();
       draw_items();
@@ -680,73 +700,76 @@ void object_viewerw(int xx, int yy, int obt, int num)
       draw_object_overlays(obt, num, legend_line, highlight_counter);
       get_new_screen_buffer(1, obj_x, obj_y);
 
+      draw_fps_display(8);
+
+
+      int mb = obv_draw_buttons(num, type, obt);
+
+
+
       // draw button title, frame and legend lines
-      title_objw(ov_x1, ov_y1, ov_x2, ov_y2, obt, num, 0, 15);
+      title_objw(obt, num, 0, 15);
+
+      // is mouse on title bar
+      if ((mouse_x > ov_window_x) && (mouse_x < ov_window_x2) && (mouse_y > ov_window_y) && (mouse_y < ov_window_y+14))
+      {
+         // draw rectangle around title bar to show it can be dragged
+         // al_draw_rectangle(ov_window_x, ov_window_y, ov_window_x2, ov_window_y+14, palette_color[14], 1);
+
+         // color text in title bar to show it can be moved
+//         msg[0] = 0;
+//         if (obt == 2) sprintf(msg, "Item Viewer [%d]", num);
+//         if (obt == 3) sprintf(msg, "Enemy Viewer [%d]", num);
+//         int ov_xc = (ov_window_x + ov_window_x2) / 2;
+//         al_draw_text(font, palette_color[10], ov_xc, ov_window_y+2, ALLEGRO_ALIGN_CENTER,  msg);
+
+
+
+         if (mouse_b1)
+         {
+            int mxo = mouse_x - ov_window_x; // get offset from mouse position to window x, y
+            int myo = mouse_y - ov_window_y;
+
+            while (mouse_b1)
+            {
+               ov_window_x = mouse_x - mxo;
+               ov_window_y = mouse_y - myo;
+               ov_window_x2 = ov_window_x + ov_window_w;
+               ov_window_y2 = ov_window_y + ov_window_h;
+
+               al_flip_display();
+               proc_scale_factor_change();
+
+               proc_controllers();
+               proc_frame_delay();
+               get_new_background(0);
+               draw_lifts();
+               draw_items();
+               draw_enemies();
+               draw_object_overlays(obt, num, legend_line, highlight_counter);
+               get_new_screen_buffer(1, obj_x, obj_y);
+
+               title_objw(obt, num, 0, 15);
+               obv_draw_buttons(num, type, obt);
+            } // mouse b1 held
+         } // mouse b1 pressed
+      } // mouse on title bar
+
 
       // is mouse on legend ?
       legend_line = 0;
-      int y1_legend = ov_y2 - 34 + (5-num_legend_lines)*8; // legend pos
+      int y1_legend = ov_window_y2 - 34 + (5-num_legend_lines)*8; // legend pos
       int y2_legend = y1_legend + (num_legend_lines-1)*8;
-      if ((mouse_x > xa) && (mouse_x < xb) && (mouse_y > y1_legend) && (mouse_y < y2_legend))
+      if ((mouse_x > ov_window_x) && (mouse_x < ov_window_x2) && (mouse_y > y1_legend) && (mouse_y < y2_legend))
       {
          legend_line = ((mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
          if (++highlight_counter > 16) highlight_counter = 1;
-         if ((highlight_counter > 0)  && (highlight_counter < 5))  title_objw(ov_x1, ov_y1, ov_x2, ov_y2, obt, num, legend_line, 10);
-         if ((highlight_counter > 4)  && (highlight_counter < 9))  title_objw(ov_x1, ov_y1, ov_x2, ov_y2, obt, num, legend_line, 14);
-         if ((highlight_counter > 8)  && (highlight_counter < 13)) title_objw(ov_x1, ov_y1, ov_x2, ov_y2, obt, num, legend_line, 15);
-         if ((highlight_counter > 12) && (highlight_counter < 17)) title_objw(ov_x1, ov_y1, ov_x2, ov_y2, obt, num, legend_line, 11);
+         if ((highlight_counter > 0)  && (highlight_counter < 5))  title_objw(obt, num, legend_line, 10);
+         if ((highlight_counter > 4)  && (highlight_counter < 9))  title_objw(obt, num, legend_line, 14);
+         if ((highlight_counter > 8)  && (highlight_counter < 13)) title_objw(obt, num, legend_line, 15);
+         if ((highlight_counter > 12) && (highlight_counter < 17)) title_objw(obt, num, legend_line, 11);
       }
       else highlight_counter = 0; // mouse not on legend
-
-
-
-
-
-      // split into half
-      int x12 = xa + 1 * (xb-xa) / 2; // 1/2
-
-      // split into thirds
-      int x13 = xa + 1 * (xb-xa) / 3; // 1/3
-      int x23 = xa + 2 * (xb-xa) / 3; // 2/3
-
-      // split into fifths
-      //int x15 = xa + 1 * (xb-xa) / 5; // 1/5
-      //int x25 = xa + 2 * (xb-xa) / 5; // 2/5
-      //int x35 = xa + 3 * (xb-xa) / 5; // 3/5
-      //int x45 = xa + 4 * (xb-xa) / 5; // 4/5
-
-      // split into sevenths
-      //int x17 = xa + 1 * (xb-xa) / 7; // 1/7
-      int x27 = xa + 2 * (xb-xa) / 7; // 2/7
-      //int x37 = xa + 3 * (xb-xa) / 7; // 3/7
-      //int x47 = xa + 4 * (xb-xa) / 7; // 4/7
-      int x57 = xa + 5 * (xb-xa) / 7; // 5/7
-      //int x67 = xa + 6 * (xb-xa) / 7; // 6/7
-
-      //mdw_slider(xb-40,  ty-33,    xb,    ty-27,          26, num, type, obt, 0, 15, 0,  10, 0,0,0,0); // button height
-      //mdw_slider(xa,  ty-35,    xb,    ty-27,          26, num, type, obt, 0, 15, 0,  10, 0,0,0,0); // button height
-
-      int lc = 6; // lock_color;
-      if (Viewer_lock) lc = 7;
-
-
-      a=0;
-      int mb = 0;   // button selection
-      if (mdw_button(xa,  ty+a*bts, x27-1, ty+(a+1)*bts-2, 23, num, type, obt, 0,  9, 15, 0, 1,0,0,0)) mb = 22; // prev
-          mdw_button(x27, ty+a*bts, x57-1, ty+(a+1)*bts-2, 56, num, type, obt, 0, lc, 15, 0, 1,0,0,0);          // lock
-      if (mdw_button(x57, ty+a*bts, xb,    ty+(a+1)*bts-2, 22, num, type, obt, 0,  9, 15, 0, 1,0,0,0)) mb = 21; // next
-      a++;
-      if (mdw_button(xa,  ty+a*bts, x13-1, ty+(a+1)*bts-2, 19, num, type, obt, 0, 13, 15, 0, 1,0,0,0)) mb = 18; // move
-      if (mdw_button(x13, ty+a*bts, x23-1, ty+(a+1)*bts-2, 20, num, type, obt, 0, 14, 15, 0, 1,0,0,0)) mb = 19; // create
-      if (mdw_button(x23, ty+a*bts, xb,    ty+(a+1)*bts-2, 21, num, type, obt, 0, 10, 15, 0, 1,0,0,0)) mb = 20; // delete
-      a++;
-      if (mdw_button(xa,  ty+a*bts, x12-1, ty+(a+1)*bts-2, 25, num, type, obt, 0, 1,  15, 0, 1,0,0,0)) mb = 24; // viewer help
-      if (mdw_button(x12, ty+a*bts, xb,    ty+(a+1)*bts-2, 57, num, type, obt, 0, 1,  15, 0, 1,0,0,0)) mb = 25; // specific object help
-      a+=2;
-
-      a = obj_buttons(xa, xb, ty, a, bts, obt, num);
-
-
 
 
       while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))

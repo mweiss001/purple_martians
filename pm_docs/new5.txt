@@ -22582,6 +22582,59 @@ its too late by then to adjust the width....
 
 
 
+back at home...
+F5 and F6 go all the way to the end...anyway to slow down??
+added back frame delay
+fixed the problem with the smearing...
+needed to run init_level_background when starting ovw...
+too much stuff was drawn on level_backbround already...
+
+move button window
+
+how do I do it for selection window?
+
+   int swx1 = status_window_x;
+   int swy1 = status_window_y;
+   int swh = status_window_h;
+   int sww = status_window_w;
+   int swx2 = swx1 + sww;
+   int swy2 = swy1 + swh;
+
+
+// object viewer window
+int ov_window_active = 1;
+int ov_window_x = SCREEN_W - 300;
+int ov_window_y = 140;
+int ov_window_w = 240;
+int ov_window_h = 600;
+
+// object viewer window
+extern int ov_window_active;
+extern int ov_window_x;
+extern int ov_window_y;
+extern int ov_window_w;
+extern int ov_window_h;
+
+
+made it moveable!
+
+
+now make it the right height
+
+
+need to call draw buttons first and have that set ov_window_h...done
+
+need to make title not erase buttons...done
+
+need to make title add number of legend lines to ov_window_h ...
+
+
+got to where legend is moveable, but mouse on it shows up in a different place???
+
+
+
+
+
 
 
 
