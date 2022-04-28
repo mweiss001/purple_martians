@@ -165,6 +165,19 @@ ALLEGRO_BITMAP *bmsg_temp;
 // ------------------------------------------------
 // -----------status and selection window----------
 // ------------------------------------------------
+
+
+// object viewer window
+int ov_window_active = 1;
+int ov_window_x = 60;
+int ov_window_y = 140;
+int ov_window_w = 240;
+int ov_window_h = 600;
+
+
+
+
+
 // status window
 int status_window_active = 1;
 int status_window_x = 9999;

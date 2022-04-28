@@ -332,6 +332,18 @@ extern float game_event_retrigger_holdoff_tally[10];
 // ------------------------------------------------
 // -----------status and selection window----------
 // ------------------------------------------------
+
+// object viewer window
+extern int ov_window_active;
+extern int ov_window_x;
+extern int ov_window_y;
+extern int ov_window_w;
+extern int ov_window_h;
+
+
+
+
+
 // status window
 extern int status_window_active;
 extern int status_window_x;
@@ -1076,7 +1088,7 @@ void object_viewer(int obt, int num);
 
 
 // e_object_viewer_window.h
-void object_viewerw(int x, int y, int obt, int num);
+void object_viewerw(int obt, int num);
 
 
 

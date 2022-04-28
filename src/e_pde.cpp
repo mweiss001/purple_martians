@@ -2,34 +2,6 @@
 
 #include "pm.h"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void check_s_window_pos(int reset_pos)
 {
    int reset_status = 0;
