@@ -687,7 +687,7 @@ void menu_setup(void)
    strcpy (enemy_name[3],  "ArchWagon");
    strcpy (enemy_name[4],  "Bouncer");
    strcpy (enemy_name[6],  "Cannon");
-   strcpy (enemy_name[7],  "PodZilla ");
+   strcpy (enemy_name[7],  "PodZilla");
    strcpy (enemy_name[8],  "TrakBot");
    strcpy (enemy_name[9],  "Cloner");
    strcpy (enemy_name[10], "Field");
