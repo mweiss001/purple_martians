@@ -22639,16 +22639,91 @@ so what is the next big thing to do to this??
 map move......
 
 
+erase the background of buttons
+this is harder than I thought...I don't know how big they are until I draw them
+
+I could store w and h for each obt and type...
+
+I could draw on a extra long cleared bitmap then chop blank section...
+
+I went with storing w and h for each object..
+now I can have custom width...but I have to manually edit it..
+I still have automatic height, but I know what it is before I draw the buttons
+so that I can erase before...
+
+this seems to be working....
 
 
 
 
+redoing sliders and buttons...
+
+archwag...
+
+   if (bn == 12) sprintf(smsg, "X-Speed:%-1.2f", al_fixtof(Efi[num][6]));
+   if (bn == 13) sprintf(smsg, "Y-Speed:%-1.2f", al_fixtof(Efi[num][3]));
+
+
+   if (bn == 12)                            // x - speed
+   {
+      Efi[num][6] = al_ftofix(f);
+      if (Efi[num][2] > al_itofix(0)) Efi[num][2] = Efi[num][6];
+      if (Efi[num][2] < al_itofix(0)) Efi[num][2] = -Efi[num][6];
+
+   }
+   if (bn == 13) Efi[num][3] = al_ftofix(f);  // y - speed
+
+      case 12: sul=9;    sll=.7;    sinc=.01; sdx=al_fixtof(Efi[num][6]);      break;  // archwagon x speed
+      case 13: sul=9;    sll=.7;    sinc=.01; sdx=al_fixtof(Efi[num][3]);      break;  // y speed
+
+does anything else use 12 and 13...
+block walker...
+do I need to set 2 also when changing 6??  look at archwag code...no I can ignore it...just set 6...
+
+
+            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 8,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a++;  // initial direction
+            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 9,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a+=2; // bounce mode
+
+   if (bn == 8) // archwag direction
+   {
+      if (Ei[num][2]) sprintf(smsg, "Initial Direction:Right");
+      else            sprintf(smsg, "Initial Direction:Left ");
+      if (press)
+      {
+         Ei[num][2] = !Ei[num][2];
+         Redraw = 1;
+      }
+   }
+   if (bn == 9) // archwag and walker
+   {
+      if (Ei[num][8]) sprintf(smsg, "Bounce Mode");
+      else            sprintf(smsg, "Follow Mode");
+      if (press) Ei[num][8] = !Ei[num][8];
+   }
 
 
 
 
+mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
+also pod and trakbot and cannon
 
 
+if (bn == 19) sprintf(smsg, "Bullet Speed:%-1.1f", al_fixtof(Efi[num][7]));
+
+
+   if (bn == 20) sprintf(smsg, "Bullet Proximity:%d", Ei[num][17]);
+
+      case 20: sul=2000; sll=20;    sinc=1;   sdx=Ei[num][17];                 break;  // bullet prox
+   if (bn == 20) Ei[num][17] = (int)f;     // bullet prox
+arch and trak
+
+
+
+
+   if (bn == 21) sprintf(smsg, "Bullet Retrigger Time:%d", Ei[num][15]);
+   if (bn == 21) Ei[num][15] = (int)f;     // retrigger time
+      case 21: sul=200;  sll=1;     sinc=1;   sdx=Ei[num][15];                 break;  // retrigger time
+arch, cannon, trakbot, flapper
 
 
 

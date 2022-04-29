@@ -502,6 +502,7 @@ void function_key_check(void)
    {
       KEY_LEFT_held = 1;
       pct_x--;
+      ov_window_w--;
    }
    if (!key[ALLEGRO_KEY_LEFT]) KEY_LEFT_held = 0;
 
@@ -509,6 +510,7 @@ void function_key_check(void)
    {
       KEY_RIGHT_held = 1;
       pct_x++;
+      ov_window_w++;
    }
    if (!key[ALLEGRO_KEY_RIGHT]) KEY_RIGHT_held = 0;
 

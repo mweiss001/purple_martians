@@ -566,6 +566,10 @@ void title_objw(int obj_type, int num, int legend_highlight, int highlight_color
    {
       ov_window_h += num_legend_lines*8 + 8;
       int ov_y2 = ov_window_y + ov_window_h;
+
+      printf("w:%d h:%d\n", ov_window_w, ov_window_h);
+
+
       al_draw_text(font, palette_color[legend_color[0]], ov_xc, ov_y2-36+ (4-num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
       al_draw_rectangle(ov_xc-100, ov_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_y2-1, palette_color[13], 1); // big frame
       al_draw_rectangle(ov_xc-100, ov_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_y2-28+ (4-num_legend_lines)*8, palette_color[13], 1); // top frame
@@ -585,8 +589,76 @@ void title_objw(int obj_type, int num, int legend_highlight, int highlight_color
 
 
 
+int ob_get_size(int obt, int type, int*w, int*h)
+{
+   int ret = 0;
+
+   if ((obt == 2) && (type == 1)) { *w = 210; *h = 262; ret = 1;} // door
+   if ((obt == 2) && (type == 2)) { *w = 200; *h = 158; ret = 1;} // bonus
+   if ((obt == 2) && (type == 3)) { *w = 220; *h = 158; ret = 1;} // exit
+   if ((obt == 2) && (type == 4)) { *w = 220; *h = 182; ret = 1;} // key
+   if ((obt == 2) && (type == 5)) { *w = 200; *h = 174; ret = 1;} // start
+   if ((obt == 2) && (type == 7)) { *w = 200; *h = 158; ret = 1;} // mine
+   if ((obt == 2) && (type == 8)) { *w = 200; *h = 214; ret = 1;} // bomb
+   if ((obt == 2) && (type == 9)) { *w = 280; *h = 406; ret = 1;} // trigger
+
+   if ((obt == 2) && (type == 10)) { *w = 220; *h = 262; ret = 1;} // message
+   if ((obt == 2) && (type == 11)) { *w = 220; *h = 230; ret = 1;} // rocket
+   if ((obt == 2) && (type == 12)) { *w = 220; *h = 214; ret = 1;} // warp
+   if ((obt == 2) && (type == 14)) { *w = 200; *h = 142; ret = 1;} // switch
+
+   if ((obt == 2) && (type == 15)) { *w = 240; *h = 166; ret = 1;} // sproingy
+   if ((obt == 2) && (type == 16)) { *w = 280; *h = 358; ret = 1;} // bm
+   if ((obt == 2) && (type == 17)) { *w = 290; *h = 358; ret = 1;} // bd
+
+
+   if ((obt == 3) && (type == 3)) { *w = 240; *h = 422; ret = 1;} // archwagon
+   if ((obt == 3) && (type == 4)) { *w = 220; *h = 302; ret = 1;} // bouncer
+   if ((obt == 3) && (type == 6)) { *w = 220; *h = 318; ret = 1;} // cannon
+   if ((obt == 3) && (type == 7)) { *w = 230; *h = 302; ret = 1;} // podzilla
+   if ((obt == 3) && (type == 8)) { *w = 220; *h = 342; ret = 1;} // trakbot
+   if ((obt == 3) && (type == 9)) { *w = 280; *h = 390; ret = 1;} // cloner
+
+   if ((obt == 3) && (type == 10)) { *w = 310; *h = 350; ret = 1;} // field
+   if ((obt == 3) && (type == 11)) { *w = 280; *h = 334; ret = 1;} // block walker
+   if ((obt == 3) && (type == 12)) { *w = 220; *h = 446; ret = 1;} // flapper
+
+   return ret;
+}
+
+
+
+
+
+
 int obv_draw_buttons(int num, int type, int obt)
 {
+
+// erase background
+      int w = 0;
+      int h = 0;
+
+      if (ob_get_size(obt, type, &w, &h))
+      {
+         ov_window_w = w;
+
+         int x2 = ov_window_x + w;
+         int y2 = ov_window_y + h;
+
+
+         al_draw_filled_rectangle(ov_window_x, ov_window_y, x2, y2, palette_color[0]);
+
+
+         printf("%d %d %d %d\n", ov_window_x, ov_window_y, x2, y2);
+
+
+
+      }
+      else ov_window_w = 300;
+
+
+
+
    // button x position
    int xa = ov_window_x+1;
    int xb = ov_window_x+ov_window_w-1;
@@ -639,14 +711,12 @@ int obv_draw_buttons(int num, int type, int obt)
    ov_window_h = 38+a*bts;
 
 
+
+
+
    return mb;
 
 }
-
-
-
-
-
 
 
 
@@ -669,6 +739,7 @@ void object_viewerw(int obt, int num)
    int quit = 0;
    while (!quit)
    {
+
       int ov_window_x2 = ov_window_x + ov_window_w;
       int ov_window_y2 = ov_window_y + ov_window_h;
       //int ty = ov_window_y+38;
@@ -687,6 +758,7 @@ void object_viewerw(int obt, int num)
          obj_y = al_fixtoi(Efi[num][1])+10;
       }
 
+
       al_flip_display();
       proc_scale_factor_change();
       proc_controllers();
@@ -698,12 +770,8 @@ void object_viewerw(int obt, int num)
       draw_object_overlays(obt, num, legend_line, highlight_counter);
       get_new_screen_buffer(1, obj_x, obj_y);
 
-      draw_fps_display(8);
-
 
       int mb = obv_draw_buttons(num, type, obt);
-
-
 
       // draw button title, frame and legend lines
       title_objw(obt, num, 0, 15);
@@ -747,8 +815,9 @@ void object_viewerw(int obt, int num)
                draw_object_overlays(obt, num, legend_line, highlight_counter);
                get_new_screen_buffer(1, obj_x, obj_y);
 
-               title_objw(obt, num, 0, 15);
                obv_draw_buttons(num, type, obt);
+               title_objw(obt, num, 0, 15);
+
             } // mouse b1 held
          } // mouse b1 pressed
       } // mouse on title bar
@@ -924,11 +993,6 @@ void object_viewerw(int obt, int num)
                num = item_first_num[type];
 
             }
-
-
-
-
-
 
             if (obt == 3)
             {

@@ -19,8 +19,13 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 8)  sprintf(smsg, "Steerability:%d", item[num][6]);
    if (bn == 10) sprintf(smsg, "Sproinginess:%d", item[num][7]);
    if (bn == 11) sprintf(smsg, "Mine Damage:%d", item[num][8]);
-   if (bn == 12) sprintf(smsg, "X-Speed:%-1.2f", al_fixtof(Efi[num][6]));
-   if (bn == 13) sprintf(smsg, "Y-Speed:%-1.2f", al_fixtof(Efi[num][3]));
+
+
+//   if (bn == 12) sprintf(smsg, "X-Speed:%-1.2f", al_fixtof(Efi[num][6]));
+//   if (bn == 13) sprintf(smsg, "Y-Speed:%-1.2f", al_fixtof(Efi[num][3]));
+
+
+
    if (bn == 15)
    {
      if (Ei[num][6]) sprintf(smsg, "Jump Wait Count:%d",  Ei[num][6]);
@@ -41,9 +46,10 @@ void fill_smsg_slider(int bn, int type, int num)
       if (Ei[num][11]) sprintf(smsg, "Jump Before Hole:%d",  Ei[num][11]);
       else             sprintf(smsg, "Jump Before Hole:Off");
    }
-   if (bn == 19) sprintf(smsg, "Bullet Speed:%-1.1f", al_fixtof(Efi[num][7]));
-   if (bn == 20) sprintf(smsg, "Bullet Proximity:%d", Ei[num][17]);
-   if (bn == 21) sprintf(smsg, "Bullet Retrigger Time:%d", Ei[num][15]);
+
+//   if (bn == 19) sprintf(smsg, "Bullet Speed:%-1.1f", al_fixtof(Efi[num][7]));
+//   if (bn == 20) sprintf(smsg, "Bullet Proximity:%d", Ei[num][17]);
+//   if (bn == 21) sprintf(smsg, "Bullet Retrigger Time:%d", Ei[num][15]);
    if (bn == 22) sprintf(smsg, "Speed:%-1.2f", al_fixtof(Efi[num][5]));
    if (bn == 23) sprintf(smsg, "Seek Count:%d", Ei[num][8]);
    if (bn == 24) sprintf(smsg, "Collision Box:%d", Ei[num][29]);
@@ -179,21 +185,21 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 9) item[num][6] = (int)f;      // jump length
    if (bn == 10) item[num][7] = (int)f;     // sproingieness
    if (bn == 11) item[num][8] = (int)f;     // mine damage
-   if (bn == 12)                            // x - speed
-   {
-      Efi[num][6] = al_ftofix(f);
-      if (Efi[num][2] > al_itofix(0)) Efi[num][2] = Efi[num][6];
-      if (Efi[num][2] < al_itofix(0)) Efi[num][2] = -Efi[num][6];
-
-   }
-   if (bn == 13) Efi[num][3] = al_ftofix(f);  // y - speed
+//   if (bn == 12)                            // x - speed
+//   {
+//      Efi[num][6] = al_ftofix(f);
+//      if (Efi[num][2] > al_itofix(0)) Efi[num][2] = Efi[num][6];
+//      if (Efi[num][2] < al_itofix(0)) Efi[num][2] = -Efi[num][6];
+//
+//   }
+//   if (bn == 13) Efi[num][3] = al_ftofix(f);  // y - speed
    if (bn == 15) Ei[num][6] =  (int)f;     // jump wait count
    if (bn == 16) Ei[num][7] =  (int)f;     // jump under width
    if (bn == 17) Ei[num][12] = (int)f;     // jump before wall
    if (bn == 18) Ei[num][11] = (int)f;     // jump before hole
-   if (bn == 19) Efi[num][7] = al_ftofix(f);  // bullet speed
-   if (bn == 20) Ei[num][17] = (int)f;     // bullet prox
-   if (bn == 21) Ei[num][15] = (int)f;     // retrigger time
+//   if (bn == 19) Efi[num][7] = al_ftofix(f);  // bullet speed
+//   if (bn == 20) Ei[num][17] = (int)f;     // bullet prox
+//   if (bn == 21) Ei[num][15] = (int)f;     // retrigger time
    if (bn == 22)                           // scale bouncer speed
    {
       al_fixed old_speed = Efi[num][5];
@@ -357,15 +363,19 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 9:  sul=7;    sll=1;     sinc=1;   sdx=item[num][6];                break;  // jump length
       case 10: sul=200;  sll=40;    sinc=1;   sdx=item[num][7];                break;  // sproinginess
       case 11: sul=20;   sll=1;     sinc=1;   sdx=item[num][8];                break;  // mine damage
-      case 12: sul=9;    sll=.7;    sinc=.01; sdx=al_fixtof(Efi[num][6]);      break;  // archwagon x speed
-      case 13: sul=9;    sll=.7;    sinc=.01; sdx=al_fixtof(Efi[num][3]);      break;  // y speed
+
+//      case 12: sul=9;    sll=.7;    sinc=.01; sdx=al_fixtof(Efi[num][6]);      break;  // archwagon x speed
+//      case 13: sul=9;    sll=.7;    sinc=.01; sdx=al_fixtof(Efi[num][3]);      break;  // y speed
+
       case 15: sul=500;  sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // jump wait count
       case 16: sul=600;  sll=0;     sinc=1;   sdx=Ei[num][7];                  break;  // jump under width
       case 17: sul=100;  sll=0;     sinc=1;   sdx=Ei[num][12];                 break;  // jump before wall
       case 18: sul=40;   sll=0;     sinc=1;   sdx=Ei[num][11];                 break;  // Jump before hole
-      case 19: sul=20;   sll=.8;    sinc=.1;  sdx=al_fixtof(Efi[num][7]);      break;  // bullet speed
-      case 20: sul=2000; sll=20;    sinc=1;   sdx=Ei[num][17];                 break;  // bullet prox
-      case 21: sul=200;  sll=1;     sinc=1;   sdx=Ei[num][15];                 break;  // retrigger time
+
+//      case 19: sul=20;   sll=.8;    sinc=.1;  sdx=al_fixtof(Efi[num][7]);      break;  // bullet speed
+//      case 20: sul=2000; sll=20;    sinc=1;   sdx=Ei[num][17];                 break;  // bullet prox
+//      case 21: sul=200;  sll=1;     sinc=1;   sdx=Ei[num][15];                 break;  // retrigger time
+
       case 22: sul=12;   sll=0;     sinc=.01; sdx=al_fixtof(Efi[num][5]);      break;  // cannon speed
       case 23: sul=100;  sll=0;     sinc=1;   sdx=Ei[num][8];                  break;  // seek count
       case 24: sul=20;   sll=0;     sinc=1;   sdx=Ei[num][29];                 break;  // collision box
@@ -1075,6 +1085,8 @@ int mdw_button(int x1, int y1, int x2, int y2,
          Redraw = 1;
       }
    }
+
+/*
    if (bn == 9) // archwag and walker
    {
       if (Ei[num][8]) sprintf(smsg, "Bounce Mode");
@@ -1093,6 +1105,9 @@ int mdw_button(int x1, int y1, int x2, int y2,
          }
       }
    }
+*/
+
+
    if (bn == 11)
    {
       sprintf(smsg, "Set Initial Direction");// trakbot direction

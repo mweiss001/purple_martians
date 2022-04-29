@@ -77,17 +77,29 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
       switch (type) // enemy subtypes
       {
          case 3:     // archwag
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 12, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x - speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 13, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // y - speed
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 8,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a++;  // initial direction
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 9,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a+=2; // bounce mode
+            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  12, 15, 15, 1,0,0,0, Efi[num][6], 9, 0.7, 0.01, "X-Speed:"); a++;  // x speed
+            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  12, 15, 15, 1,0,0,0, Efi[num][3], 9, 0.7, 0.01, "Y-Speed:"); a+=2; // y speed
+            mdw_toggle(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, Ei[num][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15); a++;
+            mdw_toggle(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, Ei[num][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15); a+=2;
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 12, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x - speed
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 13, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // y - speed
+//            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 8,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a++;  // initial direction
+//            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 9,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a+=2; // bounce mode
+
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 15, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump wait count
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 16, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump under width
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 17, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump before wall
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 18, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a+=2;  // jump before hole
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 20, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet proximity
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger time
+
+
+            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
+            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][17], 2000, 20, 1, "Bullet Proximity:"); a++;  // bullet prox
+            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][15], 200, 1, 1, "Bullet Retrigger Time:"); a++;  // bullet retrigger
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 20, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet proximity
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger time
+
+
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
@@ -108,7 +120,8 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 23, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // seek count
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 35, num, type, obt, 0,  8, 15, 15, 1,0,0,0); a+=2;  // extra hits to kill
             mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger time
+            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][15], 200, 1, 1, "Bullet Retrigger Time:"); a++;  // bullet retrigger
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger time
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
@@ -116,7 +129,11 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
          case 7: // podzilla
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 29, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // speed
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 30, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // pause
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
+
+
+            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
+
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
             mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 15, num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++;  // move extended position
             mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 16, num, type, obt, 0, 14, 14,  0, 1,0,0,0); a+=2;  // set trigger box
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
@@ -128,9 +145,15 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 46, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // y - speed
             mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 11, num, type, obt, 0, 11, 15,  0, 1,0,0,0); a++;  // initial direction
             mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 12, num, type, obt, 0, 11, 15,  0, 1,0,0,0); a+=2;  // drop mode
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 20, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet proximity
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger time
+
+
+            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
+            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][17], 2000, 20, 1, "Bullet Proximity:"); a++;  // bullet prox
+            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][15], 200, 1, 1, "Bullet Retrigger Time:"); a++;  // bullet retrigger
+
+//           mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
+//           mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 20, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet proximity
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger time
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
@@ -147,6 +170,52 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
             mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 18, num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++;  // get destination
             mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 16, num, type, obt, 0, 14, 14,  0, 1,0,0,0); a++;  // get trigger box
             mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 81, num, type, obt, 0, 15, 15,  0, 1,0,0,0); a+=2; // show boxes
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
+         break;
+         case 11: // block walker
+            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  12, 15, 15, 1,0,0,0, Efi[num][6], 9, 0.7, 0.01, "X-Speed:"); a++;  // x speed
+            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  12, 15, 15, 1,0,0,0, Efi[num][3], 9, 0.7, 0.01, "Y-Speed:"); a+=2; // y speed
+            mdw_toggle(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, Ei[num][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15); a++;
+            mdw_toggle(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, Ei[num][8], "Follow Mode", "Bounce Mode", 13, 13, 15, 15); a++;
+
+
+
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 12, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x - speed
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 13, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // y - speed
+//            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 8,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a++;  // initial direction
+//            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 9,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a+=2;  // bounce mode
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 15, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump wait count
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 16, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump under width
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 17, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump before wall
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 18, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a+=2;  // jump before hole
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
+         break;
+         case 12: // flapper
+
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 60, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x speed
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 61, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x accel
+            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 8,  num, type, obt, 0, 12, 15,  0, 1,0,0,0); a++;  // initial direction
+            a++;
+
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 36, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // y speed
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 79, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap speed
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 80, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap height
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 63, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // height above player
+            a++;
+
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 38, num, type, obt, 0, 14, 15, 14, 1,0,0,0); a++;  // trigger width
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 39, num, type, obt, 0, 14, 15, 14, 1,0,0,0); a++;  // trigger height
+            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 40, num, type, obt, 0, 14, 15, 14, 1,0,0,0); a+=2;  // trigger depth
+
+            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
+            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][15], 200, 1, 1, "Bullet Retrigger Time:"); a++;  // bullet retrigger
+
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
+//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger
+
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
             mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
@@ -259,44 +328,6 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
             }
          }
          break;
-         case 11: // block walker
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 12, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x - speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 13, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // y - speed
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 8,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a++;  // initial direction
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 9,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a+=2;  // bounce mode
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 15, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump wait count
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 16, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump under width
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 17, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump before wall
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 18, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a+=2;  // jump before hole
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
-         break;
-         case 12: // flapper
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 60, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 61, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x accel
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 8,  num, type, obt, 0, 12, 15,  0, 1,0,0,0); a++;  // initial direction
-            a++;
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 36, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // y speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 79, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 80, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap height
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 63, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // height above player
-            a++;
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 38, num, type, obt, 0, 14, 15, 14, 1,0,0,0); a++;  // trigger width
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 39, num, type, obt, 0, 14, 15, 14, 1,0,0,0); a++;  // trigger height
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 40, num, type, obt, 0, 14, 15, 14, 1,0,0,0); a+=2;  // trigger depth
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
-
-
-         break;
       }
    }
    if (obt == 2) // items
@@ -320,7 +351,7 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
             mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 53, num, type, obt, 0, abc, atc,  0, 1,0,0,0); a++; // move type
             mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 51, num, type, obt, 0, abc, atc,  0, 1,0,0,0); a++; // exit link show
             mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 52, num, type, obt, 0,  13,  15,  0, 1,0,0,0); a++; // get new shape
-            mdw_colsel(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 5,  num, type, obt, 0,   0,   0,  0, 0,0,0,0);      // change color
+            mdw_colsel(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 5,  num, type, obt, 0,   0,   0,  0, 0,0,0,0); a++; // change color
          }
          break;
          case 2: // bonus
