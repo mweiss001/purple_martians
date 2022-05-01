@@ -394,12 +394,16 @@ void get_new_screen_buffer(int type, int x, int y)
    // how big is the entire level after scale factor is applied?
    int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
 
+
+
+
+
    // is the entire level smaller than the screen buffer width?
    if (sls < sbw)
    {
       int a = sbw - sls; // how much smaller?
       sbw = sls;         // new screen_buffer blit width = sls
-      sbx += a/2;        // new screen_buffer blit xpos
+      if (!level_editor_running) sbx += a/2;        // new screen_buffer blit xpos
    }
 
    // is the entire level smaller than the screen buffer height?
@@ -407,8 +411,9 @@ void get_new_screen_buffer(int type, int x, int y)
    {
       int a = sbh - sls; // how much smaller?
       sbh = sls;         // new screen_buffer blit height = sls
-      sby += a/2;        // new screen_buffer blit ypos
+      if (!level_editor_running) sby += a/2;        // new screen_buffer blit ypos
    }
+
 
    // find the size of the source screen from actual screen size and scaler
    int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
@@ -433,22 +438,26 @@ void get_new_screen_buffer(int type, int x, int y)
       PY = y;
    }
 
+   if (type != 3)
+   {
+
+
+      // this method always has the player in the middle of the screen
+      //int WX = PX - SW/2 -10; // set window from PX, PY
+      //int WY = PY - SH/2 -10;
+
+      // set the scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
+      int x_size = SW / 8; // larger number is smaller window
+      int y_size = SH / 12;
+
+      if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size; // hit right edge
+      if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size; // hit left edge
+      if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size; // hit bottom edge
+      if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size; // hit top edge
 
 
 
-
-   // this method always has the player in the middle of the screen
-   //int WX = PX - SW/2 -10; // set window from PX, PY
-   //int WY = PY - SH/2 -10;
-
-   // set the scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
-   int x_size = SW / 8; // larger number is smaller window
-   int y_size = SH / 12;
-
-   if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size; // hit right edge
-   if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size; // hit left edge
-   if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size; // hit bottom edge
-   if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size; // hit top edge
+   }
 
    // correct for edges
    if (WX < 0) WX = 0;

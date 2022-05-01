@@ -1015,6 +1015,13 @@ int zoom_full_screen(int wx, int wy, int draw_item);
 // e_group_edit.cpp
 void group_edit(void);
 
+
+void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy);
+
+
+
+
+
 // e_fnx.h
 void printBits(size_t const size, void const * const ptr);
 al_fixed get_sproingy_jump_height(int num);
@@ -1027,6 +1034,12 @@ void draw_big(int draw_lifts);
 void draw_cloner_boxes(int num);
 void draw_bs(int cc);
 int getbox(const char *txt, int obj_type, int sub_type, int num );
+
+
+int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2);
+
+
+
 int getxy(const char *txt, int obj_type, int sub_type, int num );
 void clear_pm_events(void);
 int check_clt_for_event(int ev, int clt[][4], int clt_last);
@@ -1038,7 +1051,7 @@ int get_trigger_item(const char *txt, int obj_type, int sub_type, int num );
 void find_and_show_event_links(int i);
 int get_item(const char *txt, int obj_type, int sub_type, int num );
 
-void crosshairs_full(int cx, int cy, int color);
+void crosshairs_full(int cx, int cy, int color, int line_width);
 void crosshairs(int mx, int my, int x, int y, int color);
 void crosshairs_nodb(int mx, int my, int x, int y, int db, int color);
 void title(const char *txt, int y, int tc, int fc);
@@ -1071,11 +1084,10 @@ int get_empty_enemy(void);
 int get_empty_enemy(int type);
 int move_trigger_box(int num, int type);
 void recalc_pod(int EN);
+void get_pod_extended_position(int e, int *x, int *y);
 int move_pod_extended(int num);
 int create_cloner(void);
 int create_pod(void);
-
-
 
 
 // e_object_viewer.h
@@ -1146,6 +1158,9 @@ void mdw_slider2_fix(int x1, int y1, int x2, int y2, int bn, int num, int type, 
 
 void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  float &var, float sul, float sll, float sinc, const char *txt);
+
+void mdw_slider0_int(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                 int &var, float sul, float sll, float sinc, const char *txt, const char *txt2);
 
 
 

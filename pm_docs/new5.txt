@@ -22729,6 +22729,777 @@ arch, cannon, trakbot, flapper
 
 
 
+      case 24: sul=20;   sll=0;     sinc=1;   sdx=Ei[num][29];                 break;  // collision box
+      case 25: sul=10;   sll=0;     sinc=.1;  sdx=al_fixtof(Efi[num][4]);      break;  // health dec
+      case 42: sul=50;   sll=0;     sinc=1;   sdx=Ei[num][25];                 break;  // dead enemy health bonus
+
+
+
+
+      case 22: sul=12;   sll=0;     sinc=.01; sdx=al_fixtof(Efi[num][5]);      break;  // cannon speed
+      case 23: sul=100;  sll=0;     sinc=1;   sdx=Ei[num][8];                  break;  // seek count
+
+
+
+//   if (bn == 35) sprintf(smsg, "Extra Hits to Kill:%d", Ei[num][9]);
+   if (bn == 35) Ei[num][9] = (int)f;         // cannon extra hits to kill
+      case 35: sul=40;   sll=0;     sinc=1;   sdx=Ei[num][9];                  break;  // cannon hits
+
+
+bouncer and cannon speed and initial direction need custom shit..
+direction and speed are saved with xinc, yinc....
+
+revert 22....done
+
+
+
+   if (bn == 12) // trakbot drop mode
+   {
+      if (Ei[num][7] == 0) sprintf(smsg, "Drop Mode:Off");
+      else                 sprintf(smsg, "Drop Mode:On ");
+      if (press)
+      {
+         if (bn == 12) Ei[num][7] = !Ei[num][7]; // trakbot drop mode
+      }
+   }
+
+
+
+   if (bn == 45) sprintf(smsg, "X-speed:%-1.2f",al_fixtof(Efi[num][2]));
+   if (bn == 46) sprintf(smsg, "Y-Speed:%-1.2f",al_fixtof(Efi[num][3]));
+
+
+   if (bn == 36) sprintf(smsg, "Y Speed:%-1.2f", al_fixtof(Efi[num][3]));
+   if (bn == 36) Efi[num][3] = al_ftofix(f);     // flapper x speed
+      case 36: sul=5;    sll=0;     sinc=.01; sdx=al_fixtof(Efi[num][3]);      break;  // flapper y speed
+
+
+
+
+   if (bn == 79) sprintf(smsg, "Flap Speed:%-1.2f", al_fixtof(Efi[num][10]));
+   if (bn == 80) sprintf(smsg, "Flap Height:%d", Ei[num][21]);
+
+   if (bn == 79) Efi[num][10] = al_ftofix(f);       // flap speed
+   if (bn == 80) Ei[num][21] = (int)f;              // flap height
+
+      case 79: sul=8;    sll=.5;    sinc=.1;  sdx=al_fixtof(Efi[num][10]);     break;  // flap speed
+      case 80: sul=400;  sll=0;     sinc=10;  sdx=Ei[num][21];                 break;  // flap height
+
+
+      case 63: sul=1000; sll=-1000; sinc=10;  sdx=Ei[num][20];                 break;  // height above player
+   if (bn == 63) sprintf(smsg, "Height Above Player:%d",Ei[num][20]);
+   if (bn == 63) Ei[num][20] =(int)f;       // flapper height above player
+
+
+
+   if (bn == 38) Ei[num][17] = (int)f;        // flapper trigger box width
+   if (bn == 39) Ei[num][18] = (int)f;        // flapper trigger box height
+   if (bn == 40) Ei[num][19] = (int)f;        // flapper trigger box depth
+   if ((bn == 38) ||(bn == 39) ||(bn == 40) ||(bn == 63))  // update flapper trigger box while adjusting
+   {
+       draw_big(1);
+       show_big();
+   }
+
+   if (bn == 38) sprintf(smsg, "Trigger Box Width:%d", Ei[num][17]);
+   if (bn == 39) sprintf(smsg, "Trigger Box Height:%d", Ei[num][18]);
+   if (bn == 40) sprintf(smsg, "Trigger Box Depth:%d", Ei[num][19]);
+
+      case 38: sul=500;  sll=20;    sinc=1;   sdx=Ei[num][17];                 break;  // width
+      case 39: sul=600;  sll=1;     sinc=10;  sdx=Ei[num][18];                 break;  // y1
+      case 40: sul=600;  sll=1;     sinc=10;  sdx=Ei[num][19];                 break;  // y2
+
+
+
+      case 60: sul=8;    sll=.5;    sinc=.1;  sdx=al_fixtof(Efi[num][5]);      break;  // flapper max x speed
+      case 61: sul=2;    sll=.01;   sinc=.01; sdx=al_fixtof(Efi[num][6]);      break;  // flapper x accel
+      case 62: sul=4;    sll=0;     sinc=.1;  sdx=al_fixtof(Efi[num][8]);      break;  // flapper yinc flap scale
+
+   if (bn == 60) sprintf(smsg, "X Speed:%-3.2f",al_fixtof(Efi[num][5]));
+   if (bn == 61) sprintf(smsg, "X Accel:%-3.2f",al_fixtof(Efi[num][6]));
+   if (bn == 62) sprintf(smsg, "Y Flap :%-3.2f",al_fixtof(Efi[num][8]));
+
+   if (bn == 60) sprintf(smsg, "X Speed:%-3.2f",al_fixtof(Efi[num][5]));
+   if (bn == 61) sprintf(smsg, "X Accel:%-3.2f",al_fixtof(Efi[num][6]));
+   if (bn == 62) sprintf(smsg, "Y Flap :%-3.2f",al_fixtof(Efi[num][8]));
+
+
+
+
+
+
+   if (bn == 83) // cloner only
+   {
+      if (Ei[num][30] ==  0) sprintf(smsg,  "      Normal     ");
+      if (Ei[num][30] ==  1) sprintf(smsg,  "    Invincible   ");
+      if (press)
+      {
+         Ei[num][30] = !Ei[num][30]; // cloner invinciblility
+      }
+   }
+
+
+
+   if (bn == 34) sprintf(smsg, "Delay Timer:%d", Ei[num][6]);
+
+   if (bn == 34)                           // cloner create delay
+   {
+      Ei[num][6] = (int)f;
+      Ei[num][7] = (int)f;
+   }
+
+      case 34: sul=1000; sll=20;    sinc=1;   sdx=Ei[num][6];                  break;  // create delay
+
+
+
+         if (bn == 74) sprintf(smsg, "Created Objects Time To Live:%-2d", Ei[num][9]);
+   if (bn == 75) sprintf(smsg, "Max Created Objects At One Time:%-2d", Ei[num][10]);
+
+
+
+         if (bn == 74) Ei[num][9] = (int)f;        // cloner created object time to live
+   if (bn == 75) Ei[num][10] = (int)f;       // cloner max created objects active at one time
+
+
+      case 74: sul=4800; sll=0;     sinc=1;   sdx=Ei[num][9];                  break;  // cloner created obj time to live
+      case 75: sul=600;  sll=0;     sinc=1;   sdx=Ei[num][10];                 break;  // cloner max created obj at one time
+
+
+
+
+made all enemy button widths 220 by changing 'viewer help' 'archwagon help' to 'help' 'archwagon help'...
+
+
+now what is wrong with the map stuff...fixed crosshairs and podzilla legend
+
+
+
+
+bonus needs fixing...
+now it can be health, free man or purple coin
+
+
+
+   if (bonus_type == 1) // health bonus
+   {
+      al_fixed f100 = al_itofix(100);
+
+
+      if (players[p].LIFE < f100)
+      {
+         item[i][0] = 0;
+         players[p].LIFE += al_itofix(item[i][7]);
+         if (players[p].LIFE > f100) players[p].LIFE = f100;
+
+         game_event(72, 0, 0, p, i, item[i][1], item[i][7]);
+      }
+   }
+
+   if (bonus_type == 2) // free man
+   {
+      item[i][0] = 0;
+      players[p].LIVES++;
+      game_event(70, 0, 0, p, i, 0, 0);
+   }
+
+
+
+   if (bonus_type == 3) // purple coin!!!
+   {
+      item[i][0] = 0;
+      // game_event(70, 0, 0, p, i, 0, 0);
+
+   }
+
+
+bonus is fixed....
+
+
+fix door destination....done
+
+
+
+
+   if (bn == 47) sprintf(smsg, "Exit with %d enemies left",item[num][8]);
+   if (bn == 47) item[num][8] = (int)f;       // exit with x enemies left
+      case 47: sul=100;  sll=0;     sinc=1;   sdx=item[num][8];                break;  // exit with x enemies left
+
+
+working on lining up the message stuff...its a lot better but maybe not 100%...nah...its good...
+
+
+High level shit here...where am I going with this?
+
+If I make map move stuff work, then I have basically replaced all the viewer stuff (item and enemy anyways) with my new zoomable stuff....
+
+then should I go further?
+- integrate the main editor
+- integrate the zoom full screen stuff
+- integrate group edit
+- integrate lift viewer?
+
+
+could all of these things just be windows that float on top of the zoomable level background?
+like status, selection, and now object viewer
+
+
+added scroll to viewer
+centers display on current obj when first started or when changing obj
+
+I want podzilla to show tile at extended pos and connecting line...done
+
+
+detect what object mouse pointer is on
+this is the start of map move...
+
+
+this is harder than it should be:
+
+
+         float bs = scale_factor_current * 20; // block size
+
+         float xpos = (float) (WX+mouse_x-BORDER_WIDTH);
+
+         float fgx = xpos/bs;
+         int gx = (int) fgx;
+
+         float fgy = (WY+mouse_y-BORDER_WIDTH)/bs;
+         int gy = (int) fgy;
+
+         printf("mx:%d WX:%d wx+mx:%d wx+mx-bw:%d sfc:%2.1f bs:%2.1f fgx:%2.1f gx:%d\n", mouse_x, WX, WX+mouse_x, WX+mouse_x-BORDER_WIDTH, scale_factor_current, bs, fgx, gx);
+//         printf("gx:%d gy:%d\n", gx, gy);
+
+         // now reverse calc to draw on screen
+         float sgx = gx*bs - WX+BORDER_WIDTH;
+         float sgy = gy*bs - WY+BORDER_WIDTH;
+         al_draw_rectangle(sgx, sgy, sgx+bs, sgy+bs, palette_color[14], 1);
+
+
+this does not work:
+
+when scale_factor_current = 1 it works no matter what WX and WY are
+when WX and WY = 0 it works no matter what sfc is...
+when either of those is different it does not line up
+
+
+WX is a pointer to the unscaled source.....scale WX and try again...
+
+
+WX is in 0-2000 format and is a pointer the the left edge of the source position in level buffer
+
+what is shown on the screen has been scaled, but the left edge has the same x as the level buffer source
+
+
+this works....
+
+
+            // the mouse position past the border width is how far we are into the scaled map
+            float mx1 = mouse_x-BORDER_WIDTH;
+
+            // divide that by bs to get how many blocks we are into the map
+            float mx2 = mx1 / bs;
+
+            // get block position of WX
+            float mx3 = WX / 20;
+
+            // add WX
+            float mx4 = mx3 + mx2;
+
+            int gx = (int) mx4;
+
+
+            // the mouse position past the border width is how far we are into the scaled map
+            float my1 = mouse_y-BORDER_WIDTH;
+
+            // divide that by bs to get how many blocks we are into the map
+            float my2 = my1 / bs;
+
+            // get block position of WX
+            float my3 = WY / 20;
+
+            // add WY
+            float my4 = my3 + my2;
+
+            int gy = (int) my4;
+
+
+
+
+
+/*
+
+            float my1 = (mouse_y-BORDER_WIDTH) * scale_factor_current;
+            float my2 = (WY + my1) / 20;
+            int gy = (int) my2;
+*/
+//            printf("mx1:%2.1f mx2:%2.1f mx3:%2.1f mx4:%2.1f gx:%d\n", mx1, mx2, mx3, mx4, gx);
+
+
+//         printf("mx:%d WX:%d wx+mx:%d wx+mx-bw:%d sfc:%2.1f gx:%d\n", mouse_x, WX, WX+mouse_x, WX+mouse_x-BORDER_WIDTH, scale_factor_current, gx);
+         printf("gx:%d gy:%d\n", gx, gy);
+
+         // now reverse calc to draw on screen
+//         float sgx = gx*bs - WX+BORDER_WIDTH;
+//         float sgy = gy*bs - WY+BORDER_WIDTH;
+
+         float sgx = BORDER_WIDTH + (gx-WX/20) * bs;
+         float sgy = BORDER_WIDTH + (gy-WY/20) * bs;
+         al_draw_rectangle(sgx, sgy, sgx+bs, sgy+bs, palette_color[14], 1);
+
+
+
+but it only works when WX and WY are multiples of 20.....
+
+I gave up all this bullshit and just draw directly on the level buffer like this:
+
+      if (block_highlight_show) crosshairs_full(block_highlight_x, block_highlight_y, block_highlight_color, 1);
+
+/*
+
+
+
+         printf("WX:%d mx1:%2.1f mx2:%2.1f mx3:%2.1f mx4:%2.1f gx:%d\n", WX, mx1, mx2, mx3, mx4, gx);
+//         printf("mx:%d WX:%d wx+mx:%d wx+mx-bw:%d sfc:%2.1f gx:%d\n", mouse_x, WX, WX+mouse_x, WX+mouse_x-BORDER_WIDTH, scale_factor_current, gx);
+//         printf("mx:%d WX:%d sfc:%2.1f gx:%d\n", mouse_x, WX, scale_factor_current, gx);
+//         printf("gx:%d gy:%d\n", gx, gy);
+
+         // now reverse calc to draw on screen
+
+         // block position of WX
+         float bwx = (float)WX/20;
+
+         // subtract from obj pos
+         float gwx = (float)gx - bwx;
+
+         // muliply obj block pos by bs
+         float gwx2 = gwx * bs;
+
+         float sgx = BORDER_WIDTH + gwx2;
+
+         printf("WX:%d bwx:%2.1f gwx:%2.3f gwx2:%2.3f sgx:%2.3f scf:%2.1f bs:%2.1f\n", WX, bwx, gwx, gwx2, sgx, scale_factor_current, bs);
+
+
+
+
+
+
+//         float sgx = BORDER_WIDTH + ( (float)gx -(float)WX / 20) * bs;
+
+         float sgy = BORDER_WIDTH + ( (float)gy -(float)WY / 20) * bs;
+
+         int sgx1 = (int)sgx;
+         int sgy1 = (int)sgy;
+         int sgx2 = (int)(sgx + bs + 1);
+         int sgy2 = (int)(sgy + bs + 1);
+
+         al_draw_rectangle(sgx1, sgy1, sgx2, sgy2, palette_color[14], 1);
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+now move on...
+
+
+
+when I scroll away...
+clicking to move window resets the map pos...fixed...
+
+
+
+
+what am I going to do with this block the mouse is on??
+detect and set viewer to that object...
+
+         // detect if we are on an object...
+         for (int b=0; b<100; b++) // add enemies in selection
+            if ((Ei[b][0]) && (al_fixtoi(Efi[b][0])/20 == gx) && (al_fixtoi(Efi[b][1])/20 == gy))
+            {
+               obt = 3;
+               num = b;
+               new_obj = 2;
+            }
+
+         for (int b=0; b<500; b++) // add items in selection
+            if ((item[b][0]) && (item[b][4]/20 == gx) && (item[b][5]/20 == gy))
+            {
+               obt = 2;
+               num = b;
+               new_obj = 2;
+            }
+
+
+that was easy...
+
+now do mouse move....
+
+
+
+
+make a function that gets block x and y
+from mouse, scf and WX
+
+
+
+void ob_get_block_position_on_map(int*x, int*y)
+{
+   // scaled block size
+   float bs = scale_factor_current * 20;
+   // the mouse position past the border width is how far we are into the scaled map
+   float mx1 = mouse_x-BORDER_WIDTH;
+   float my1 = mouse_y-BORDER_WIDTH;
+   // divide that by bs to get how many blocks we are into the map
+   float mx2 = mx1 / bs;
+   float my2 = my1 / bs;
+   // get block position of WX
+   float mx3 = (float)WX / 20;
+   float my3 = (float)WY / 20;
+   // add WX
+   float mx4 = mx3 + mx2;
+   float my4 = my3 + my2;
+   *x = (int) mx4;
+   *y = (int) my4;
+}
+
+
+int gx=0, gy=0;
+ob_get_block_position_on_map(&gx, &gy);
+
+
+
+// mouse move
+if (mouse_on_obj)
+{
+   //printf("mouse on obj\n");
+   if (mouse_b1)
+   {
+      //printf("mouse pressed on obj\n");
+      while (mouse_b1)
+      {
+         if (obt == 2)
+         {
+            ob_get_block_position_on_map(&gx, &gy);
+            item[num][4] = gx*20;
+            item[num][5] = gy*20;
+            itemf[num][0] = al_itofix(gx*20);
+            itemf[num][1] = al_itofix(gy*20);
+         }
+
+         if (obt == 3)
+         {
+            ob_get_block_position_on_map(&gx, &gy);
+            Efi[num][0] = al_itofix(gx*20);
+            Efi[num][1] = al_itofix(gy*20);
+         }
+         al_flip_display();
+         proc_scale_factor_change();
+
+         proc_controllers();
+         proc_frame_delay();
+         get_new_background(0);
+         draw_lifts();
+         draw_items();
+         draw_enemies();
+         draw_object_overlays(obt, num, legend_line, highlight_counter);
+         get_new_screen_buffer(3, obj_x, obj_y);
+      }
+   }
+}
+
+mouse move was easy....
+
+
+things do not work nice if zoomed in so far that map is not in upper right corner....
+how can I prevent this from happening...fixed...
+
+
+   // is the entire level smaller than the screen buffer width?
+   if (sls < sbw)
+   {
+      int a = sbw - sls; // how much smaller?
+      sbw = sls;         // new screen_buffer blit width = sls
+      if (!level_editor_running) sbx += a/2;        // new screen_buffer blit xpos
+   }
+
+   // is the entire level smaller than the screen buffer height?
+   if (sls < sbh)
+   {
+      int a = sbh - sls; // how much smaller?
+      sbh = sls;         // new screen_buffer blit height = sls
+      if (!level_editor_running) sby += a/2;        // new screen_buffer blit ypos
+   }
+
+
+
+
+bug red line on exit only door...fixed....
+
+
+now lets do pozilla extended position....
+click and drag motherfucker!
+
+make a function to get pod extended position and see how many places we can us it...
+
+done and done
+
+bug archwagon empty arrow ans seem to be blank....i think I got it back..must have erased ans#3 by accident....
+
+
+next I want to do rectangular boxes....
+
+start with podzilla and cloner trigger...done...
+
+make the mouse pointer better...
+only show higlighted square if object detected...otherwise just show regulat pointer....
+tie this in with the mouse pointer...
+
+then see if you can do the mouse pointer more accurate than block resolution
+
+gx and gy are fine, but I want something better also....
+hx and hy....done
+
+
+old:
+if ((al_fixtoi(Efi[b][0])/20 == gx) && (al_fixtoi(Efi[b][1])/20 == gy)) // if x and y position match, set this to current object
+
+new:
+int ex = al_fixtoi(Efi[b][0]);
+int ey = al_fixtoi(Efi[b][1]);
+if ((hx>ex+6) && (hx<ex+14) && (hy>ey+6) && (hy<ey+14))
+
+much nicer...
+
+just redid all detection like this and I like it a lot...
+
+next to add would be the 4 item box moves....
+
+            // ranges for key, trigger, manip and damage
+            if (mouse_on_kbr_ul) // move block range from ul
+            {
+               // set new position
+               item[num][6] = mx*20;
+               item[num][7] = my*20;
+            }
+            if (mouse_on_kbr_lr) // adjust block range from lr
+            {
+               // don't allow lr to be less than ul
+               if (mx < item[num][6]/20) mx = item[num][6]/20;
+               if (my < item[num][7]/20) my = item[num][7]/20;
+
+               // set new position
+               item[num][8] = mx*20 - item[num][6];
+               item[num][9] = my*20 - item[num][7];
+            }
+
+
+that was so easy.....
+
+
+what next?
+
+
+cloner src and dest...done...
+
+messages done....
+
+rocket and bomb damage ranges done...
+
+sproingy done...
+
+
+there is no trakbot bullet prox?
+make one...done
+
+did not do the part where moving main item also moves other stuff
+cloner, pod, trigger bm bd, key, etc....
+
+
+if (mouse_on_enemy)
+{
+   // get offset of move
+   int x_off = al_fixtoi( al_itofix(mx * 20) - Efi[num][0] ) / 20;
+   int y_off = al_fixtoi( al_itofix(my * 20) - Efi[num][1] ) / 20;
+
+   // set new position
+   Efi[num][0] = al_itofix(mx * 20);
+   Efi[num][1] = al_itofix(my * 20);
+
+   // move podzilla's trigger box too
+   if (Ei[num][0] == 7)
+   {
+      Ei[num][11] += x_off;
+      Ei[num][12] += y_off;
+      Ei[num][13] += x_off;
+      Ei[num][14] += y_off;
+   }
+
+   // move cloner's stuff too
+   if (Ei[num][0] == 9)
+   {
+      Ei[num][11] += x_off; // trigger box
+      Ei[num][12] += y_off;
+      Ei[num][13] += x_off;
+      Ei[num][14] += y_off;
+      Ei[num][15] += x_off; // source
+      Ei[num][16] += y_off;
+      Ei[num][17] += x_off; // dest
+      Ei[num][18] += y_off;
+   }
+} // end of mouse on enemy
+
+did this also, but made it so that only by holding shift are those moved also.
+should do it also for key msg, trigger bm bd...done...
+
+
+now.....
+
+can I merge some other things with this....
+
+how about group edit?
+
+
+I would need to make the windows for that float....or not...they could just be stuck where they are for now....
+
+all I need to change is the map background....
+
+
+make a new source file
+
+e_group_edit_windows.cpp
+
+copy everything there...then start modifying....
+
+
+first of all I want to get rid of old obj viewer....
+
+if it got lift stuff it just passed it on....
+make that work again....
+
+
+what about title obj...make a stripped down version....
+this broke, or made look bad....the creators....fix later...I need to get lift viewer working though
+
+
+patched lift viewer back in...
+
+now you can right click on a lift from main editor and ovw will pass it to lift viewer
+then if you mouse on an item or enemy in the lift viewer map it will switch to ovw for that obj....
+not back yet though...now it is....
+
+
+what if I made a function like get box, but that used the scaled map background....
+I want to get rid of anything that uses the 100x100 map and title stuff...
+
+
+
+
+for keys...
+get rid of color select..
+make 4 PDE..
+make color changeable in viewer
+make a new getbox and use it...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
