@@ -337,6 +337,261 @@ int getbox(const char *txt, int obj_type, int sub_type, int num )
 
 
 
+
+
+int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2)
+{
+   init_level_background();
+
+   int gx=0, gy=0, hx=0, hy=0;
+
+   int quit = 0;
+   int ret = 0;
+   while (!quit)
+   {
+      al_flip_display();
+      proc_scale_factor_change();
+      proc_controllers();
+      proc_frame_delay();
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
+      get_new_screen_buffer(3, 0, 0);
+
+      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+
+      int a = 100;
+
+      al_draw_textf(font, palette_color[15],100, a+=8, 0, "gx:%d   gy:%d", gx, gy);
+      al_draw_textf(font, palette_color[15],100, a+=8, 0, "hx:%d   hy:%d", hx, hy);
+      al_draw_text(font, palette_color[9],  a+=8, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
+      al_draw_text(font, palette_color[10], a+=8, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(font, palette_color[9],  a+=8, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
+      al_draw_text(font, palette_color[9],  a+=8, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
+      al_draw_text(font, palette_color[9],  a+=8, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
+      al_draw_text(font, palette_color[14], a+=8, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC> or");
+      al_draw_text(font, palette_color[9],  a+=8, 138, ALLEGRO_ALIGN_CENTER, "the right mouse button");
+
+
+      while (mouse_b1)
+      {
+         al_flip_display();
+         proc_scale_factor_change();
+         proc_controllers();
+         proc_frame_delay();
+         get_new_background(0);
+         draw_lifts();
+         draw_items();
+         draw_enemies();
+         get_new_screen_buffer(3, 0, 0);
+
+         ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+
+
+         quit = 1;
+
+      }
+   }
+   return ret;
+}
+
+
+
+
+
+
+/*
+
+
+
+
+
+
+
+      void get_new_box(void) // keep the mouse !!
+{
+   int z; // for swap
+   bx2 = bx1; // set all three to intial
+   by2 = by1;
+   int x1 = bx1;
+   int y1 = by1;
+   int x2 = bx2;
+   int y2 = by2;
+
+   while (mouse_b1)
+   {
+      al_flip_display();
+      proc_controllers();
+      show_draw_item_cursor();
+      process_scrolledge();
+      update_editor_background();
+
+      bx2 = (mouse_x)/20+wx; // set both with mouse pointer
+      by2 = (mouse_y)/20+wy;
+
+      x2 = bx2;  // set with mouse
+      y2 = by2;
+
+      x1 = bx1; // get inital in case it was swapped
+      y1 = by1;
+
+      // swap x1 and x2 if neccesary
+      if (x1 > x2) { z = x1; x1 = x2; x2 = z;}
+      if (y1 > y2) { z = y1; y1 = y2; y2 = z;}
+
+      if (x1>99) x1 = 99;
+      if (y1>99) y1 = 99;
+      if (x2>99) x2 = 99;
+      if (y2>99) y2 = 99;
+
+      // show the selection rectangle
+      al_draw_rectangle((x1-wx)*20, (y1-wy)*20, (x2-wx)*20+19, (y2-wy)*20+19, palette_color[127], 1);
+      al_draw_textf(font, palette_color[15], 100, 20, 0, " x1:%d y2:%d ", x1, y1);
+      al_draw_textf(font, palette_color[15], 100, 28, 0, " x2:%d y2:%d ", x2, y2);
+
+   }
+   // swap bx1 and bx2 if neccesary
+   if (bx1 > bx2) { z = bx1; bx1 = bx2; bx2 = z; }
+   if (by1 > by2) { z = by1; by1 = by2; by2 = z;}
+
+   // always set second to one more
+   bx2++;
+   by2++;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // show selection rectangle
+            bx2 = (mouse_x/db)+1;
+            by2 = (mouse_y/db)+1;
+            al_set_clipping_rectangle(0, 0, display_transform_double*db*100-1, display_transform_double*db*100-1);
+            al_draw_rectangle((bx1)*db, (by1)*db, (bx2)*db, (by2)*db, palette_color[15], 1);
+            al_reset_clipping_rectangle();
+
+            al_flip_display();
+            al_clear_to_color(al_map_rgb(0,0,0));
+         }
+
+         // limits
+         if (bx1<0) bx1 = 0;
+         if (bx2<0) bx2 = 0;
+         if (by1<0) by1 = 0;
+         if (by2<0) by2 = 0;
+
+         if (bx1>99) bx1 = 99;
+         if (bx2>99) bx2 = 99;
+         if (by1>99) by1 = 99;
+         if (by2>99) by2 = 99;
+
+         // ensure top-right, bottom left format
+         if (bx1 > bx2)
+         {
+            int btemp = bx2;
+            bx2 = bx1;
+            bx1= btemp;
+         }
+         if (by1 > by2)
+         {
+            int btemp = by2;
+            by2 = by1;
+            by1= btemp;
+         }
+      }
+      if  (mouse_b2)
+      {
+         while (mouse_b2) proc_controllers(); // wait for release
+         return 0;
+      }
+      if (key[ALLEGRO_KEY_ESCAPE])
+      {
+         return 0;
+      }
+   } // end of while not quit
+   return ret;
+}
+
+
+
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int getxy(const char *txt, int obj_type, int sub_type, int num )
 {
    int dx=0, dy=0;
@@ -1025,11 +1280,13 @@ int get_item(const char *txt, int obj_type, int sub_type, int num )
 
 
 
-void crosshairs_full(int x, int y, int color) // function to draw rectangle and crosshairs
+void crosshairs_full(int x, int y, int color, int line_width) // draws a square and crosshairs around a full 20x20 block on level buffer
 {
-   al_draw_rectangle(x-10, y-10, x+10, y+10, palette_color[color], 1);
-   al_draw_line(0, y, SCREEN_W-1, y, palette_color[color], 1);
-   al_draw_line(x, 0, x, SCREEN_H-1, palette_color[color], 1);
+   al_draw_rectangle(x-10, y-10, x+11, y+11, palette_color[color], line_width);
+   al_draw_line(0,    y, x-10, y, palette_color[color], line_width);
+   al_draw_line(x+11, y, 1999, y, palette_color[color], line_width);
+   al_draw_line(x,    0, x, y-10, palette_color[color], line_width);
+   al_draw_line(x, y+11, x, 1999, palette_color[color], line_width);
 }
 
 void crosshairs(int smx, int smy, int x, int y, int color) // function to draw rectangle and crosshairs

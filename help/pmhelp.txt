@@ -1463,13 +1463,13 @@ LOGGING_NETPLAY_show_dif2 = 0
 <l15>  - Does the item fall, or is it stationary, or carryable?
 
 
-<l09> Exit with x enemies left
+<l09> Enemy Count Lock
 
 <l15>  - The exit is locked until the enemy count is below this value
 
 <l15>  - If set to 100, the exit will never be locked
 
-<l15>  - If set to 0, the exit will not be unlocked until every enemy is dead
+<l15>  - If set to 0, the exit will be locked until every enemy is dead
 
 
 <section>Message Viewer

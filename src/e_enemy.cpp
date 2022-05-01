@@ -91,6 +91,22 @@ int move_pod_extended(int num)
  return 0;
 }
 
+
+void get_pod_extended_position(int e, int *x, int *y)
+{
+   al_fixed ex = Efi[e][0];
+   al_fixed ey = Efi[e][1];
+   for (int j=0; j<Ei[e][7]; j++)
+   {
+      ex += Efi[e][2];
+      ey += Efi[e][3];
+   }
+   *x = al_fixtoi(ex);
+   *y = al_fixtoi(ey);
+}
+
+
+
 void show_all_enemies(void)
 {
    int text_pos = 0;

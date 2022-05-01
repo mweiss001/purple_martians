@@ -322,7 +322,7 @@ int create_trigger(int i)
       else bad = 1;
    }
    if (bad) return 0;
-   else object_viewer(2, i);
+   else object_viewerw(2, i);
    return 1;
 }
 
@@ -356,7 +356,7 @@ int create_block_manip(int i)
       else bad = 1;
    }
    if (bad) return 0;
-   else object_viewer(2, i);
+   else object_viewerw(2, i);
    return 1;
 }
 
@@ -397,7 +397,7 @@ int create_block_damage(int i)
       else bad = 1;
    }
    if (bad) return 0;
-   else object_viewer(2, i);
+   else object_viewerw(2, i);
    return 1;
 }
 
@@ -607,6 +607,8 @@ void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, i
      al_set_target_backbuffer(display);
      al_draw_bitmap(tmp, px, py, 0);
 
+     /*
+
       // redraw map to erase old
       if (redraw_map) show_big();
 
@@ -625,8 +627,11 @@ void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, i
       al_clear_to_color(al_map_rgb(0,0,0));
 
       al_draw_scaled_bitmap(tmp, 0, 0, pxw, pyh, 0, 0, pxw*db/20, pyh*db/20, 0);
+*/
       al_destroy_bitmap(tmp);
       al_set_target_backbuffer(display);
+
+
    }
 }
 
@@ -674,7 +679,7 @@ int create_pmsg(int c)
    if (bad) return 0;
    else
    {
-      object_viewer(2, c);
+      object_viewerw(2, c);
 
    }
    return 1;

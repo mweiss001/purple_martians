@@ -3,619 +3,113 @@
 #include "pm.h"
 
 
-int create_obj(int obt, int sub_type, int sent_num)
-{
-   int num = sent_num; // default
-   int ret;
-
-   if (obt == 2) // items
-   {
-      ret = create_item(sub_type);
-      if (ret > 500)
-      {
-         num = sent_num;
-         al_show_native_message_box(display,
-               "Error", "No creator exists for the current item type",
-               "Copy from an existing item of that type, or get one from the selection window",
-                NULL, ALLEGRO_MESSAGEBOX_ERROR);
-      }
-      else num = ret;
-   }
-   if (obt == 3)
-   {
-      if (sub_type == 7)
-      {
-         int e = create_pod();
-         if ((e>=0) && (e<99) && (Ei[e][0] == 7))
-         {
-            object_viewer(3, e);
-            num = e;
-         }
-      }
-      if (sub_type == 9)
-      {
-         int e = create_cloner();
-         if ((e>=0) && (e<99) && (Ei[e][0] == 9))
-         {
-            object_viewer(3, e);
-            num = e;
-         }
-      }
-      if (sub_type == 10)
-      {
-         int e = create_field();
-         if ((e>=0) && (e<99) && (Ei[e][0] == 10))
-         {
-            object_viewer(3, e);
-            num = e;
-         }
-      }
-   }
-   return num;  // return number of created obj or sent_num if bad create
-}
-
-
-
-
-
-
-
-int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
-{
-   int type=0;
-   if (obt == 2) type = item[num][0];
-   if (obt == 3) type = Ei[num][0];
-
-
-
- //  printf("xa:%d xb:%d ty:%d, a:%d bts:%d obt:%d type:%d num:%d\n",xa, xb, ty, a, bts, obt, type, num);
-
-
-   int d = 96; // dim
-   if (obt == 3)    // enemies
-   {
-      switch (type) // enemy subtypes
-      {
-         case 3:     // archwag
-            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  12, 15, 15, 1,0,0,0, Efi[num][6], 9, 0.7, 0.01, "X-Speed:"); a++;  // x speed
-            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  12, 15, 15, 1,0,0,0, Efi[num][3], 9, 0.7, 0.01, "Y-Speed:"); a+=2; // y speed
-            mdw_toggle(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, Ei[num][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15); a++;
-            mdw_toggle(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, Ei[num][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15); a+=2;
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 12, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x - speed
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 13, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // y - speed
-//            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 8,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a++;  // initial direction
-//            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 9,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a+=2; // bounce mode
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 15, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump wait count
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 16, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump under width
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 17, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump before wall
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 18, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a+=2;  // jump before hole
-
-
-            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
-            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][17], 2000, 20, 1, "Bullet Proximity:"); a++;  // bullet prox
-            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][15], 200, 1, 1, "Bullet Retrigger Time:"); a++;  // bullet retrigger
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 20, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet proximity
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger time
-
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
-         break;
-         case 4: // bouncer
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 22, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // speed
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 10, num, type, obt, 0, 12, 15,  0, 1,0,0,0); a++;  // initial direction
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 23, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2; // seek count
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 13, num, type, obt, 0,  8,  9,  0, 1,0,0,0); a+=2; // main shape
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 14, num, type, obt, 0,  8,  9,  0, 1,0,0,0); a+=2; // seek shape
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
-         break;
-         case 6: // cannon
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 22, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // speed
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 10, num, type, obt, 0, 12, 15,  0, 1,0,0,0); a++;  // initial direction
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 23, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // seek count
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 35, num, type, obt, 0,  8, 15, 15, 1,0,0,0); a+=2;  // extra hits to kill
-            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
-            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][15], 200, 1, 1, "Bullet Retrigger Time:"); a++;  // bullet retrigger
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger time
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
-         break;
-         case 7: // podzilla
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 29, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 30, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // pause
-
-
-            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
-
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 15, num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++;  // move extended position
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 16, num, type, obt, 0, 14, 14,  0, 1,0,0,0); a+=2;  // set trigger box
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
-         break;
-         case 8: // trakbot
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 45, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x - speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 46, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // y - speed
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 11, num, type, obt, 0, 11, 15,  0, 1,0,0,0); a++;  // initial direction
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 12, num, type, obt, 0, 11, 15,  0, 1,0,0,0); a+=2;  // drop mode
-
-
-            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
-            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][17], 2000, 20, 1, "Bullet Proximity:"); a++;  // bullet prox
-            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][15], 200, 1, 1, "Bullet Retrigger Time:"); a++;  // bullet retrigger
-
-//           mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
-//           mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 20, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet proximity
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger time
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
-         break;
-         case 9: // cloner
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 83, num, type, obt, 0, 12, 15,  0, 1,0,0,0); a++;  // invincible
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 27, num, type, obt, 0, 12, 15,  0, 1,0,0,0); a++;  // trigger type
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 34, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // delay timer
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 74, num, type, obt, 0, 14, 15, 15, 1,0,0,0); a++;   // created obj time to live
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 75, num, type, obt, 0, 14, 15, 15, 1,0,0,0); a+=2;  // max created obj
-
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 17, num, type, obt, 0, 11, 11,  0, 1,0,0,0); a++;  // get source
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 18, num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++;  // get destination
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 16, num, type, obt, 0, 14, 14,  0, 1,0,0,0); a++;  // get trigger box
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 81, num, type, obt, 0, 15, 15,  0, 1,0,0,0); a+=2; // show boxes
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
-         break;
-         case 11: // block walker
-            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  12, 15, 15, 1,0,0,0, Efi[num][6], 9, 0.7, 0.01, "X-Speed:"); a++;  // x speed
-            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  12, 15, 15, 1,0,0,0, Efi[num][3], 9, 0.7, 0.01, "Y-Speed:"); a+=2; // y speed
-            mdw_toggle(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, Ei[num][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15); a++;
-            mdw_toggle(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, Ei[num][8], "Follow Mode", "Bounce Mode", 13, 13, 15, 15); a++;
-
-
-
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 12, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x - speed
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 13, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a+=2;  // y - speed
-//            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 8,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a++;  // initial direction
-//            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 9,  num, type, obt, 0, 15, 13,  0, 1,0,0,0); a+=2;  // bounce mode
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 15, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump wait count
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 16, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump under width
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 17, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a++;  // jump before wall
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 18, num, type, obt, 0,  7, 15, 15, 1,0,0,0); a+=2;  // jump before hole
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
-         break;
-         case 12: // flapper
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 60, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 61, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // x accel
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 8,  num, type, obt, 0, 12, 15,  0, 1,0,0,0); a++;  // initial direction
-            a++;
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 36, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // y speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 79, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap speed
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 80, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // flap height
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 63, num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // height above player
-            a++;
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 38, num, type, obt, 0, 14, 15, 14, 1,0,0,0); a++;  // trigger width
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 39, num, type, obt, 0, 14, 15, 14, 1,0,0,0); a++;  // trigger height
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 40, num, type, obt, 0, 14, 15, 14, 1,0,0,0); a+=2;  // trigger depth
-
-            mdw_slider2_fix(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); a++;  // bullet speed
-            mdw_slider2_int(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 0,0,0,0,0,  9, 15, 15, 1,0,0,0, Ei[num][15], 200, 1, 1, "Bullet Retrigger Time:"); a++;  // bullet retrigger
-
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 19, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a++;  // bullet speed
-//            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 21, num, type, obt, 0,  9, 15, 15, 1,0,0,0); a+=2;  // bullet retrigger
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 24, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // collision box
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 25, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health decrement
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 42, num, type, obt, 0,  4, 15, 15, 1,0,0,0); a++;  // health bonus
-         break;
-
-         case 10: // field
-         {
-            int FLAGS = Ei[num][3];
-            int MODE = Ei[num][5];
-
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 98,  num, type, obt, 0, 15, 15,  0, 1,0,0,0); a+=2; // Change Tile
-
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 85,  num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++;  // Get New Damage Field
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 102, num, type, obt, 0, 10, 15,  0, 1,0,0,0); a++;  // Damage Field draw type
-
-
-            if (FLAGS & PM_ENEMY_FIELD_LIFT_DMG_ON)
-            {
-                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 134, num, type, obt, 0,  13,   15,  0, 1,0,0,0); a++;  // Damage Field follows lift:ON
-                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 84,  num, type, obt, 0,  13,   15, 15, 1,0,0,0); a++;  // Lift Number
-                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 136, num, type, obt, 0,  13,   15,  0, 1,0,0,0); a++;  // X Alignment
-                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 137, num, type, obt, 0,  13,   15,  0, 1,0,0,0); a++;  // Y Alignment
-
-
-
-            }
-            else { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 134, num, type, obt, 0, 10+d, 15+d, 0, 1,0,0,0); a++; } // Damage Field follows lift:OFF
-
-            if (FLAGS & PM_ENEMY_FIELD_DAMAGE_PLAYER)
-            {
-                   mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 120, num, type, obt, 0, 10,    15,  0, 1,0,0,0); a++;   // Damage Field Affects Player ON
-                   mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 83,  num, type, obt, 0, 10,    15,  0, 1,0,0,0); a++;   // Player damage
-            }
-            else { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 120, num, type, obt, 0, 10+d, 15+d, 0, 1,0,0,0); a++; } // Damage Field Affects Player OFF
-
-
-            if (FLAGS & PM_ENEMY_FIELD_DAMAGE_ENEMY) { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 121, num, type, obt, 0, 10,     15,  0,1,0,0,0); a++; }
-            else                                      { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 121, num, type, obt, 0, 10+d, 15+d,  0,1,0,0,0); a++; }
-            if (FLAGS & PM_ENEMY_FIELD_DAMAGE_ITEM)  { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 122, num, type, obt, 0, 10,     15,  0,1,0,0,0); a++; }
-            else                                      { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 122, num, type, obt, 0, 10+d, 15+d,  0,1,0,0,0); a++; }
-            if (FLAGS & PM_ENEMY_FIELD_DAMAGE_PBUL)  { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 123, num, type, obt, 0, 10,     15,  0,1,0,0,0); a++; }
-            else                                      { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 123, num, type, obt, 0, 10+d, 15+d,  0,1,0,0,0); a++; }
-            if (FLAGS & PM_ENEMY_FIELD_DAMAGE_EBUL)  { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 124, num, type, obt, 0, 10,     15,  0,1,0,0,0); a++; }
-            else                                      { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 124, num, type, obt, 0, 10+d, 15+d,  0,1,0,0,0); a++; }
-
-
-            a++; // leave a blank line
-
-
-            if (MODE == 0) { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87, num, type, obt, 0, 8, 15,  0, 1,0,0,0); a++; } // MODE (0) // always on
-
-
-            if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2 and 3
-            {
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87,  num, type, obt, 0,  8, 15,  0, 1,0,0,0); a++;  // MODE
-
-
-               if (MODE == 1) // toggle
-               {
-                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 133, num, type, obt, 0, 11, 15,  0, 1,0,0,0); a++;  // Set Damage Field Initially ON or OFF
-               }
-
-               if (MODE == 2) // Damage Field Off Time
-               {
-                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 90,  num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;
-               }
-
-               if (MODE == 3) // Damage Field On Time
-               {
-                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 89,  num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;
-               }
-
-               a++; // leave a blank line
-
-
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 86,  num, type, obt, 0, 14, 14,  0, 1,0,0,0); a++;   // Get New Trigger Field
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 105, num, type, obt, 0, 14, 15,  0, 1,0,0,0); a++;   // Trigger Field draw type
-
-               if (FLAGS & PM_ENEMY_FIELD_LIFT_TRG_ON) // Trigger Field follows lift:ON
-               {
-                      mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 135, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // Trigger Field follows lift:ON
-                      mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 85,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // Lift Number
-                      mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 138, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // X Alignment
-                      mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 139, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // Y Alignment
-
-
-
-               }
-               else { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 135, num, type, obt, 0, 15, 15,  0, 1,0,0,0); a++; } // Trigger Field follows lift:OFF
-
-               if (FLAGS & PM_ENEMY_FIELD_TRIGGER_PLAYER) { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 125, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
-               else                                       { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 125, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
-               if (FLAGS & PM_ENEMY_FIELD_TRIGGER_ENEMY)  { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 126, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
-               else                                       { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 126, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
-               if (FLAGS & PM_ENEMY_FIELD_TRIGGER_ITEM)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 127, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
-               else                                       { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 127, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
-               if (FLAGS & PM_ENEMY_FIELD_TRIGGER_PBUL)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 128, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
-               else                                       { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 128, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
-               if (FLAGS & PM_ENEMY_FIELD_TRIGGER_EBUL)   { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 129, num, type, obt, 0, 14,     15,  0, 1,0,0,0); a++; }
-               else                                       { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 129, num, type, obt, 0, 14+d, 15+d,  0, 1,0,0,0); a++; }
-
-            }
-
-            if (MODE == 4) // Timed on and off
-            {
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87, num, type, obt, 0,  8, 15,  0, 1,0,0,0); a+=2; // mode
-               mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 86, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // total timer
-               mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 88, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // damage time
-               mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 87, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++;  // initial time
-            }
-         }
-         break;
-      }
-   }
-   if (obt == 2) // items
-   {
-      switch (type) // item subtypes
-      {
-         case 1: // door
-          {
-            int abc = 11; // regular button frame color
-            int atc = 15; // regular button text color
-
-            if (item[num][8] == 0) // if exit only change color of inactive buttons
-            {
-                abc = 15;
-                atc = 127;
-            }
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 26, num, type, obt, 0,  15,  13, 14, 1,0,0,0); a++; // stat | fall | carry
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 49, num, type, obt, 0, 12 ,  15,  0, 1,0,0,0); a++; // door type
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 4,  num, type, obt, 0, abc, atc,  0, 1,0,0,0); a++; // set linked item
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 50, num, type, obt, 0, abc, atc,  0, 1,0,0,0); a++; // enter mode (up | down)
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 53, num, type, obt, 0, abc, atc,  0, 1,0,0,0); a++; // move type
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 51, num, type, obt, 0, abc, atc,  0, 1,0,0,0); a++; // exit link show
-            mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 52, num, type, obt, 0,  13,  15,  0, 1,0,0,0); a++; // get new shape
-            mdw_colsel(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 5,  num, type, obt, 0,   0,   0,  0, 0,0,0,0); a++; // change color
-         }
-         break;
-         case 2: // bonus
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
-            mdw_slider2_int(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 0,0,0,0,  0, 12, 15, 15, 1,0,0,0, item[num][7], 100, 2, 1, "Health Bonus:"); a++; // health bonus
-         break;
-         case 3: // exit
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 47, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // exit with x enemies left
-         break;
-         case 4: // key
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 2,  num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 5,  num, type, obt, 0, 10, 10,  0, 1,0,0,0); a++; // set new block range
-
-
-            mdw_toggle(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, item[num][12], "Erase All Blocks In Range ", "Erase Only Matching Blocks", 15, 15, 4, 4); a++; // range type
-//                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 48, num, type, obt, 0,  4, 15,  0, 1,0,0,0); a++; // range type
-
-
-
-         break;
-         case 5: // start
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 78, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // start mode
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 79, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // start index
-         break;
-//               case 6: // free man
-//                  mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 2,  num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall
-//               break;
-         case 7: // mine
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 11, num, type, obt, 0, 10, 15, 15, 1,0,0,0); a++; // mine damage
-         break;
-         case 8: // bomb
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 76, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // sticky
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 77, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // fuse timer / remote detonator
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  4, num, type, obt, 0, 14, 15, 15, 1,0,0,0); a++; // damage range
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  5, num, type, obt, 0, 10, 15, 15, 1,0,0,0); a++; // fuse length
-         break;
-         case 9: // trigger
-         {
-            int FLAGS = item[num][3];
-
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 200,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // Get New Trigger Field
-
-
-
-
-            // draw trigger field on/off with optional color select if on
-            mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF           ","Draw Trigger Field:ON            ", 15+96, 15, 15+96, item[num][2]); a++; // Draw on/off
-            if (FLAGS & PM_ITEM_TRIGGER_DRAW_ON)
-            {
-               mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  6,   num, type, obt, 0,  0,   0,  0, 0,0,0,0); a++; // color select
-            }
-            a++;
-
-            mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_PLAYER, "Triggered by Players:OFF         ","Triggered by Players:ON          ", 15+d, 15, 14+d, 14); a++;
-            mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF         ","Triggered by Enemies:ON          ", 15+d, 15, 14+d, 14); a++;
-            mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF           ","Triggered by Items:ON            ", 15+d, 15, 14+d, 14); a++;
-            mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_PBUL,   "Triggered by Player's Bullets:OFF","Triggered by Player's Bullets:ON ", 15+d, 15, 14+d, 14); a++;
-            mdw_togglf(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 1000,0,0,0, 0,0,0,0,1,0,0,0, item[num][3], PM_ITEM_TRIGGER_EBUL,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+d, 15, 14+d, 14); a++;
-            a++;
-
-            if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) // Trigger Field follows lift:ON
-            {
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 210, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // Trigger Field follows lift:ON
-               mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 91,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // Lift Number
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 211, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // X Alignment
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 212, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // Y Alignment
-            }
-            else { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 210, num, type, obt, 0, 15, 15,  0, 1,0,0,0); a++; } // Trigger Field follows lift:OFF
-
-            a++;
-
-
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 93,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // trigger output CURR ON
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 94,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // trigger output CURR OFF
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 95,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // trigger output TGON
-            mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 96,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // trigger output TGOF
-
-
-         }
-         break;
-
-
-         case 16: // block manip
-
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 300,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // Get New Block Range
-
-
-
-            if (item[num][2])
-            {
-               int col = item[num][12];
-               mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 304,  num, type, obt, 0, col, 15, 15, 1,0,0,0); a++; // Draw on/off
-               mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  7,   num, type, obt, 0,  0,   0,  0, 0,0,0,0); a++; // color select
-
-            }
-            else
-            {
-               mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 304,  num, type, obt, 0, 15+96, 15+96, 15, 1,0,0,0); a++; // Draw on/off
-            }
-            a++;
-
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 301,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // mode
-
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 310,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a++;  // block 1
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 311,  num, type, obt, 0, 14, 14, 14, 1,0,0,0); a+=2; // block 2
-
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 92,   num, type, obt, 0, 13, 15, 15, 1,0,0,0); a+=2; // pm_event trigger
-
-            a++;
-
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 320,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a+=2; // set trigger
-
-         break;
-
-
-         case 17: // block damage
-         {
-            int FLAGS = item[num][3];
-            int MODE = item[num][11];
-
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 400,  num, type, obt, 0, 10, 10, 10, 1,0,0,0); a+=2; // Get New Damage Field
-
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 404,  num, type, obt, 0, 8, 15, 15, 1,0,0,0); a+=2; // damage draw mode
-
-
-            if (MODE == 0) { mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 402,  num, type, obt, 0, 10, 15, 14, 1,0,0,0); a++; } //  MODE 0
-
-
-            if (MODE == 1)
-            {
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 402, num, type, obt, 0, 8, 15,  0, 1,0,0,0); a++;  // MODE 1
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 433, num, type, obt, 0, 8, 15,  0, 1,0,0,0); a++;  // Set Damage Field Initially ON or OFF
-            }
-
-
-
-            if ((MODE == 2) || (MODE == 3) || (MODE == 4)) // Mode 2, 3 and 4
-            {
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 402,  num, type, obt, 0,  11, 15,  0, 1,0,0,0); a++;  // MODE
-
-               if (MODE == 2) { mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 104,  num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;} // Damage Field Off Time
-               if (MODE == 3) { mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 103,  num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;} // Damage Field On Time
-               if (MODE == 4) // Timed on and off
-               {
-                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 100, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;  // total timer
-                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 102, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;  // damage time
-                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 101, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++;  // initial time
-               }
-               mdw_button(   xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 401, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // timer draw mode
-            }
-
-            a++;
-
-            if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) // DAMAGE Field follows lift:ON
-            {
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 410, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // DAMAGE Field follows lift:ON
-               mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 97,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++;  // Lift Number
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 411, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // X Alignment
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 412, num, type, obt, 0, 13, 15,  0, 1,0,0,0); a++;  // Y Alignment
-            }
-            else { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 410, num, type, obt, 0, 15, 15,  0, 1,0,0,0); a++; } // DAMAGE Field follows lift:OFF
-
-            a++;
-
-            if (FLAGS & PM_ITEM_DAMAGE_PLAYER)
-            {
-               mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 420, num, type, obt, 0, 10,    15,  0, 1,0,0,0); a++;   // Item Damage Affects Player ON
-
-               if (item[num][3] & PM_ITEM_DAMAGE_INSTGIB)
-               {
-                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 403, num, type, obt, 0, 10,    15,  0, 1,0,0,0); a++; // Instant death for player:ON
-               }
-               else
-               {
-                  mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 403, num, type, obt, 0, 10+d,  15+d,0, 1,0,0,0); a++;   // Instant death for player:OFF
-                  mdw_slider(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 98,  num, type, obt, 0, 10,    15,  0, 1,0,0,0); a++;   // Player damage
-               }
-            }
-            else { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 420, num, type, obt, 0, 10+d, 15+d, 0, 1,0,0,0); a++; } // Item Damage Affects Player OFF
-
-            if (FLAGS & PM_ITEM_DAMAGE_ENEMY) { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 421, num, type, obt, 0, 10,     15,  0,1,0,0,0); a++; }
-            else                              { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 421, num, type, obt, 0, 10+d, 15+d,  0,1,0,0,0); a++; }
-            if (FLAGS & PM_ITEM_DAMAGE_ITEM)  { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 422, num, type, obt, 0, 10,     15,  0,1,0,0,0); a++; }
-            else                              { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 422, num, type, obt, 0, 10+d, 15+d,  0,1,0,0,0); a++; }
-            if (FLAGS & PM_ITEM_DAMAGE_PBUL)  { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 423, num, type, obt, 0, 10,     15,  0,1,0,0,0); a++; }
-            else                              { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 423, num, type, obt, 0, 10+d, 15+d,  0,1,0,0,0); a++; }
-            if (FLAGS & PM_ITEM_DAMAGE_EBUL)  { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 424, num, type, obt, 0, 10,     15,  0,1,0,0,0); a++; }
-            else                              { mdw_button(xa, ty+(a*bts), xb, ty+(a+1)*bts-2, 424, num, type, obt, 0, 10+d, 15+d,  0,1,0,0,0); a++; }
-
-            a++;
-
-
-            if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2, and 3
-            {
-               mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 92,   num, type, obt, 0, 13, 15, 15, 1,0,0,0); a++; // pm_event trigger
-
-
-               a++;
-
-               mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 320,  num, type, obt, 0, 13, 15, 15, 1,0,0,0); a+=2; // set trigger
-
-
-            }
-
-
-
-
-
-
-
-
-         }
-         break;
-         case 10: // message
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 55, num, type, obt, 0, 14, 15, 14, 1,0,0,0); a++; // set msg position
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 54, num, type, obt, 0, 11, 15, 15, 1,0,0,0); a++; // display time
-            mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  2, num, type, obt, 0,  0,  0,  0, 0,0,0,0); a++; // frame color select
-            mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  3, num, type, obt, 0,  0,  0,  0, 0,0,0,0); a++; // text color select
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  7, num, type, obt, 0, 15, 13, 14, 1,0,0,0); a++; // edit text
-
-            a+=2; // leave space for OK and Cancel buttons
-
-            // show all messages (makes it so much easier to adjust them)
-            for (int ii=0; ii<500; ii++)
-               if (item[ii][0] == 10) display_pop_message(ii, pmsgtext[ii], 3000, 3000, 0, 0); // show the message
-
-            // draw the current one last to ensure it is on top
-            pop_msg_viewer_pos = ty+a*bts+bts/2+2;
-            display_pop_message(num, pmsgtext[num], txc, pop_msg_viewer_pos, 0, 0); // show the message
-
-         break;
-         case 11: // rocket
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 82, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | ride through door
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  6, num, type, obt, 0, 15, 13,  0, 1,0,0,0); a++; // set initial direction
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  4, num, type, obt, 0, 14, 15, 15, 1,0,0,0); a++; // damage range
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  6, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // acceleration
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  7, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // max speed
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  8, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // steerability
-         break;
-         case 14: // switch
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
-         break;
-         case 15: // sproingy
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,0); a++; // stat | fall | carry
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 10, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // jump height
-         break;
-         case 12: // warp
-            mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 26, num, type, obt, 0, 15, 13, 0,  1,0,0,0); a++; // stat | fall | carry
-            mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 28, num, type, obt, 0, 12, 15, 15, 1,0,0,0); a++; // warp level
-         break;
-
-      } // end of switch type
-   } // end of if obt = item
-   return a;
-}
-
-
-
 void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int highlight_color)
+{
+
+   int x, x1=0, y1=0;
+
+   if (obj_type == 2)  // item x, y
+   {
+      x1 = item[num][4]/20;
+      y1 = item[num][5]/20;
+   }
+   if (obj_type == 3) // enemy x, y
+   {
+      x1 = al_fixtoi(Efi[num][0]/20);
+      y1 = al_fixtoi(Efi[num][1]/20);
+   }
+
+
+
+   if (obj_type == 4)
+   {
+      al_draw_rectangle(0, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);         // outline screen
+      al_draw_rectangle(0, 0, 100*db-1, 100*db-1, palette_color[13], 1);              // outline map
+      al_draw_rectangle(100*db-1, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);  // outline side panel
+   }
+   else
+   {
+      al_draw_rectangle(0, 0, 100*db-1, 100*db-1, palette_color[13], 1);       // outline map
+      al_draw_rectangle(0, 0, SCREEN_W-1, 100*db-1, palette_color[13], 1);    // outline screen (with blank section on bottom)
+   }
+
+
+   show_big();
+
+
+   if (obj_type != 4) // not lift
+   {
+      crosshairs(0, 0, x1, y1, 13);
+   }
+
+
+
+
+
+   msg[0] = 0;
+   if (obj_type == 2) sprintf(msg, "Item Viewer [%d]", num);
+   if (obj_type == 3) sprintf(msg, "Enemy Viewer [%d]", num);
+   if (obj_type == 4) sprintf(msg, "Lift Viewer");
+   title(msg,  0, 15, 13);
+
+   if (obj_type == 2)  // items
+   {
+      al_draw_rectangle(txc-94, 20, txc+94, 43, palette_color[15], 1);
+      draw_item_shape( num, txc-92, 22);
+      sprintf(msg,"%s %d of %d", item_name[sub_type], 1+num - item_first_num[sub_type],item_num_of_type[sub_type]);
+      al_draw_text(font, palette_color[13], txc-69, 29, 0, msg);
+      switch (sub_type)
+      {
+         case 4: // key
+         {
+            int color = 10;
+            int x2 = item[num][6]/20 * db;
+            int y2 = item[num][7]/20 * db;
+            int x3 = x2 + item[num][8]/20 * db - 1;
+            int y3 = y2 + item[num][9]/20 * db - 1;;
+            int x4 = (x2+x3)/2;
+            int y4 = (y2+y3)/2;
+
+            // draw range
+            al_draw_line(0, y4, 100*db-1, y4, palette_color[color], 1);
+            al_draw_line(x4, 0, x4, 100*db-1, palette_color[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+         }
+         break;
+
+
+      }
+
+
+
+
+
+
+
+
+
+   }
+   if (obj_type == 3)  // enemies
+   {
+      al_draw_rectangle(txc-94, 20, txc+94, 43, palette_color[15], 1);
+      draw_enemy_shape(num, txc-92, 22);
+      sprintf(msg,"%s %d of %d", (const char *)enemy_name[sub_type],1+num - e_first_num[sub_type],e_num_of_type[sub_type]);
+      al_draw_text(font, palette_color[13], txc-69, 29, 0, msg);
+   }
+   if (obj_type == 4)  // lifts
+   {
+      int lift = sub_type;
+      al_draw_rectangle(txc-90, 20, txc+90, 43, palette_color[15], 1);
+      al_draw_textf(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",lift+1, num_lifts);
+   }
+}
+
+
+
+
+/*
+
+void old_title_obj(int obj_type, int sub_type, int num, int legend_highlight, int highlight_color)
 {
    char lmsg[5][80];
    int legend_color[5];
@@ -1201,6 +695,8 @@ void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int hi
    }
 }
 
+
+
 int move_obt_with_map(int obt, int type, int num)
 {
    int old_mx, old_my;
@@ -1218,27 +714,16 @@ int move_obt_with_map(int obt, int type, int num)
 
    int mouse_on_ftb_ul = 0;
    int mouse_on_ftb_lr = 0;
-
    int mouse_on_fdb_ul = 0;
    int mouse_on_fdb_lr = 0;
-
-
 
    // item
    int mouse_on_item = 0;
    int mouse_on_sp = 0;
-
    int mouse_on_bmb = 0;
-
-
    int mouse_on_msg_ul = 0;
-
    int mouse_on_kbr_ul = 0;
    int mouse_on_kbr_lr = 0;
-
-
-//   int mouse_on_trg_ul = 0;
-//   int mouse_on_trg_lr = 0;
 
    // this is the awesome section that lets you move stuff on the map just by clicking and dragging
    if ((mouse_x < db*100)  && (mouse_x < db*100) ) // is mouse on map
@@ -1247,6 +732,7 @@ int move_obt_with_map(int obt, int type, int num)
       int my = mouse_y / db;
 
       al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
+
 
       // search for extra's for currently selected obt
 
@@ -1769,6 +1255,45 @@ int move_obt_with_map(int obt, int type, int num)
    return num;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void object_viewer(int obt, int num)
 {
    int ret = 0;
@@ -2053,3 +1578,4 @@ void object_viewer(int obt, int num)
       }
    } // end of while (!quit)
 }
+*/

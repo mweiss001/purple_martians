@@ -483,7 +483,7 @@ int process_select_window(int draw_only)
                         case 5:  create_obj(3, 7, 0); break; // type 204 - pod
                         case 7:  create_obj(2, 10,0); break; // type 206 - msg
                         case 8:  create_obj(3, 9, 0); break; // type 207 - cloner
-                        case 9: if (create_lift()) object_viewer(4, num_lifts-1); break; // type 208 - lift
+                        case 9: if (create_lift()) object_viewerw(4, num_lifts-1); break; // type 208 - lift
                         case 10: create_door(1); break; // type 209 - 1 way al_fixed exit door
                         case 11: create_door(2); break; // type 210 - 1 way linked exit door
                         case 12: create_door(3); break; // type 211 - 2 way door set

@@ -12,6 +12,10 @@ int bw = 3; // slider adjustment bar width
 
 void fill_smsg_slider(int bn, int type, int num)
 {
+
+   if (bn == 22) sprintf(smsg, "Speed:%-1.2f", al_fixtof(Efi[num][5])); // bouncer and cannon speed
+   if (bn == 29) sprintf(smsg, "Speed:%-2.1f", al_fixtof(Efi[num][9])); // pod speed
+
    if (bn == 4)  sprintf(smsg, "Damage Range:%d", item[num][7]);
    if (bn == 5)  sprintf(smsg, "Fuse Length:%d",  item[num][9]);
    if (bn == 6)  sprintf(smsg, "Acceleration:%d", item[num][9]);
@@ -20,105 +24,30 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 10) sprintf(smsg, "Sproinginess:%d", item[num][7]);
    if (bn == 11) sprintf(smsg, "Mine Damage:%d", item[num][8]);
 
-
-//   if (bn == 12) sprintf(smsg, "X-Speed:%-1.2f", al_fixtof(Efi[num][6]));
-//   if (bn == 13) sprintf(smsg, "Y-Speed:%-1.2f", al_fixtof(Efi[num][3]));
-
-
-
-   if (bn == 15)
-   {
-     if (Ei[num][6]) sprintf(smsg, "Jump Wait Count:%d",  Ei[num][6]);
-     else            sprintf(smsg, "Jump Wait Count:Off");
-   }
-   if (bn == 16)
-   {
-      if (Ei[num][7]) sprintf(smsg, "Jump Under Width:%d",  Ei[num][7]);
-      else            sprintf(smsg, "Jump Under Width:Off");
-   }
-   if (bn == 17)
-   {
-      if (Ei[num][12]) sprintf(smsg, "Jump Before Wall:%d",  Ei[num][12]);
-      else             sprintf(smsg, "Jump Before Wall:Off");
-   }
-   if (bn == 18)
-   {
-      if (Ei[num][11]) sprintf(smsg, "Jump Before Hole:%d",  Ei[num][11]);
-      else             sprintf(smsg, "Jump Before Hole:Off");
-   }
-
-//   if (bn == 19) sprintf(smsg, "Bullet Speed:%-1.1f", al_fixtof(Efi[num][7]));
-//   if (bn == 20) sprintf(smsg, "Bullet Proximity:%d", Ei[num][17]);
-//   if (bn == 21) sprintf(smsg, "Bullet Retrigger Time:%d", Ei[num][15]);
-   if (bn == 22) sprintf(smsg, "Speed:%-1.2f", al_fixtof(Efi[num][5]));
-   if (bn == 23) sprintf(smsg, "Seek Count:%d", Ei[num][8]);
-   if (bn == 24) sprintf(smsg, "Collision Box:%d", Ei[num][29]);
-   if (bn == 25) sprintf(smsg, "Health Decrement:%-1.1f", al_fixtof(Efi[num][4]));
-
-
 //   if (bn == 26) sprintf(smsg, "%s", "" ); // button height
    if (bn == 26) sprintf(smsg, "%d", bts ); // button height
 
    if (bn == 27) sprintf(smsg, "Initial Time:%d", item[num][8]);
    if (bn == 28) sprintf(smsg, "Warp Level:%d", item[num][8]);
-   if (bn == 29) sprintf(smsg, "Speed:%-2.1f", al_fixtof(Efi[num][9]));
    if (bn == 30) sprintf(smsg, "Pause:%d", Ei[num][9]);
    if (bn == 33) sprintf(smsg, "X-Speed:%-1.2f", al_fixtof(Efi[num][2]));
-   if (bn == 34) sprintf(smsg, "Delay Timer:%d", Ei[num][6]);
-   if (bn == 35) sprintf(smsg, "Extra Hits to Kill:%d", Ei[num][9]);
-   if (bn == 36) sprintf(smsg, "Y Speed:%-1.2f", al_fixtof(Efi[num][3]));
-   if (bn == 38) sprintf(smsg, "Trigger Box Width:%d", Ei[num][17]);
-   if (bn == 39) sprintf(smsg, "Trigger Box Height:%d", Ei[num][18]);
-   if (bn == 40) sprintf(smsg, "Trigger Box Depth:%d", Ei[num][19]);
-   if (bn == 41) sprintf(smsg, "Bullet Bonus:%d", Ei[num][24]);
-   if (bn == 42) sprintf(smsg, "Health Bonus:%d", Ei[num][25]);
 
 
    if (bn == 43) sprintf(smsg, "Lift Step Width:%d",lifts[num].width);
    if (bn == 44) sprintf(smsg, "Lift Step Height:%d",lifts[num].height);
-
-
-   if (bn == 45) sprintf(smsg, "X-speed:%-1.2f",al_fixtof(Efi[num][2]));
-   if (bn == 46) sprintf(smsg, "Y-Speed:%-1.2f",al_fixtof(Efi[num][3]));
-   if (bn == 47) sprintf(smsg, "Exit with %d enemies left",item[num][8]);
    if (bn == 54) sprintf(smsg, "Message display time:%d",item[num][7]);
 
-
-   if (bn == 60) sprintf(smsg, "X Speed:%-3.2f",al_fixtof(Efi[num][5]));
-   if (bn == 61) sprintf(smsg, "X Accel:%-3.2f",al_fixtof(Efi[num][6]));
-   if (bn == 62) sprintf(smsg, "Y Flap :%-3.2f",al_fixtof(Efi[num][8]));
-
-   if (bn == 63) sprintf(smsg, "Height Above Player:%d",Ei[num][20]);
-
-
-   if (bn == 74) sprintf(smsg, "Created Objects Time To Live:%-2d", Ei[num][9]);
-   if (bn == 75) sprintf(smsg, "Max Created Objects At One Time:%-2d", Ei[num][10]);
-
-
    if (bn == 78) sprintf(smsg, "Start Index:%d",item[num][7]);
-
-
-
-   if (bn == 79) sprintf(smsg, "Flap Speed:%-1.2f", al_fixtof(Efi[num][10]));
-   if (bn == 80) sprintf(smsg, "Flap Height:%d", Ei[num][21]);
-
    if (bn == 82) sprintf(smsg, "Damage Field Timer:%d", Ei[num][6]);
-
    if (bn == 83) sprintf(smsg, "Player Damage:%3.2f          ", al_fixtof(Efi[num][4]));
-
    if (bn == 84) sprintf(smsg, "Damage Field Follows Lift:%d", Ei[num][21]);
    if (bn == 85) sprintf(smsg, "Trigger Field Follows Lift:%d", Ei[num][20]);
-
    if (bn == 86) sprintf(smsg, "Total Time:%d",   Ei[num][6]);
    if (bn == 87) sprintf(smsg, "Initial Time:%d", Ei[num][7]);
    if (bn == 88) sprintf(smsg, "Damage Time:%d",  Ei[num][8]);
-
-
    if (bn == 89) sprintf(smsg, "Damage Field ON Time:%d",  Ei[num][6]);
    if (bn == 90) sprintf(smsg, "Damage Field OFF Time:%d",  Ei[num][6]);
-
    if (bn == 91) sprintf(smsg, "Trigger Field Follows Lift:%d", item[num][10]);
-
 
    if (bn == 92)
    {
@@ -177,6 +106,27 @@ void fill_smsg_slider(int bn, int type, int num)
 
 void update_var(int bn, int type, int num, float f)
 {
+   if (bn == 22)                           // scale bouncer and cannon speed
+   {
+      al_fixed old_speed = Efi[num][5];
+      Efi[num][5] = al_ftofix(f);
+      al_fixed fratio = al_fixdiv(Efi[num][5], old_speed);
+      Efi[num][2] = al_fixmul(Efi[num][2], fratio);
+      Efi[num][3] = al_fixmul(Efi[num][3], fratio);
+
+      if (f == 0)
+      {
+         Efi[num][2] = al_itofix(0);
+         Efi[num][3] = al_itofix(0);
+      }
+   }
+
+   if (bn == 29)                           // pod speed
+   {
+      Efi[num][9] = al_ftofix(f);
+      recalc_pod(num);
+   }
+
    if (bn == 4) item[num][7] = (int)f;      // blast size
    if (bn == 5) item[num][9] = (int)f;      // fuse length
    if (bn == 6) item[num][9] = (int)f;      // accel
@@ -185,88 +135,20 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 9) item[num][6] = (int)f;      // jump length
    if (bn == 10) item[num][7] = (int)f;     // sproingieness
    if (bn == 11) item[num][8] = (int)f;     // mine damage
-//   if (bn == 12)                            // x - speed
-//   {
-//      Efi[num][6] = al_ftofix(f);
-//      if (Efi[num][2] > al_itofix(0)) Efi[num][2] = Efi[num][6];
-//      if (Efi[num][2] < al_itofix(0)) Efi[num][2] = -Efi[num][6];
-//
-//   }
-//   if (bn == 13) Efi[num][3] = al_ftofix(f);  // y - speed
-   if (bn == 15) Ei[num][6] =  (int)f;     // jump wait count
-   if (bn == 16) Ei[num][7] =  (int)f;     // jump under width
-   if (bn == 17) Ei[num][12] = (int)f;     // jump before wall
-   if (bn == 18) Ei[num][11] = (int)f;     // jump before hole
-//   if (bn == 19) Efi[num][7] = al_ftofix(f);  // bullet speed
-//   if (bn == 20) Ei[num][17] = (int)f;     // bullet prox
-//   if (bn == 21) Ei[num][15] = (int)f;     // retrigger time
-   if (bn == 22)                           // scale bouncer speed
-   {
-      al_fixed old_speed = Efi[num][5];
-      Efi[num][5] = al_ftofix(f);
-      al_fixed ratio = al_fixdiv(Efi[num][5], old_speed);
-      Efi[num][2] = al_fixmul(Efi[num][2], ratio);
-      Efi[num][3] = al_fixmul(Efi[num][3], ratio);
 
-      if (f == 0)
-      {
-         Efi[num][2] = al_itofix(0);
-         Efi[num][3] = al_itofix(0);
-      }
-   }
-   if (bn == 23) Ei[num][8] = (int)f;      // seek count
-   if (bn == 24) Ei[num][29] = (int)f;     // collision box
-   if (bn == 25) Efi[num][4] = al_ftofix(f);  // health decrement
    if (bn == 26) bts = (int)f;             // button height
    if (bn == 28) item[num][8] = (int)f;    // warp level
-   if (bn == 29)                           // pod speed
-   {
-      Efi[num][9] = al_ftofix(f);
-      recalc_pod(num);
-   }
    if (bn == 30) Ei[num][9] = (int)f;      // pod wait time
    if (bn == 33) Efi[num][2] = al_ftofix(f);  // flapper x speed
-   if (bn == 34)                           // cloner create delay
-   {
-      Ei[num][6] = (int)f;
-      Ei[num][7] = (int)f;
-   }
-   if (bn == 35) Ei[num][9] = (int)f;         // cannon extra hits to kill
-   if (bn == 36) Efi[num][3] = al_ftofix(f);     // flapper x speed
-   if (bn == 38) Ei[num][17] = (int)f;        // flapper trigger box width
-   if (bn == 39) Ei[num][18] = (int)f;        // flapper trigger box height
-   if (bn == 40) Ei[num][19] = (int)f;        // flapper trigger box depth
-   if ((bn == 38) ||(bn == 39) ||(bn == 40) ||(bn == 63))  // update flapper trigger box while adjusting
-   {
-       draw_big(1);
-       show_big();
-   }
-
-   if (bn == 42) Ei[num][25] = (int)f;        // dead enemy health bonus
    if (bn == 43) lifts[num].width = (int) f;  // lift width
    if (bn == 44) lifts[num].height = (int) f; // lift height
-   if (bn == 45) Efi[num][2] = al_ftofix(f);     // trakbot x speed
-   if (bn == 46) Efi[num][3] = al_ftofix(f);     // trakbot y speed
-   if (bn == 47) item[num][8] = (int)f;       // exit with x enemies left
    if (bn == 54) item[num][7] = (int)f;       // pop message delay
 
-   if (bn == 60) Efi[num][5] = al_ftofix(f);       // flapper max x speed
-   if (bn == 61) Efi[num][6] = al_ftofix(f);       // flapper x accel
-   if (bn == 62) Efi[num][8] = al_ftofix(f);       // flapper yinc flap scaler
-
-   if (bn == 63) Ei[num][20] =(int)f;       // flapper height above player
 
 
-
-   if (bn == 74) Ei[num][9] = (int)f;        // cloner created object time to live
-   if (bn == 75) Ei[num][10] = (int)f;       // cloner max created objects active at one time
 
    if (bn == 78) item[num][7] = (int)f;       // start index
 
-
-
-   if (bn == 79) Efi[num][10] = al_ftofix(f);       // flap speed
-   if (bn == 80) Ei[num][21] = (int)f;              // flap height
 
    if (bn == 82) Ei[num][6] = (int)f;                 // field timer
    if (bn == 83) Efi[num][4] = al_ftofix(f);          // field damage
@@ -322,10 +204,6 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 104) item[num][12] = (int)f; // Damage Field OFF Time
 
 
-
-
-
-
    // lifts ---------------------------------
    if (bn == 550) lift_steps[num][type].val = (int)f; // lift step resize speed
    if (bn == 551) lift_steps[num][type].w   = (int)f; // lift step width
@@ -353,6 +231,9 @@ void mdw_slider(int x1, int y1, int x2, int y2,
    float sdx, sul, sll, sinc, dsx;
    switch (bn)
    {
+      case 22: sul=12;   sll=0;     sinc=.01; sdx=al_fixtof(Efi[num][5]);      break;  // cannon speed
+      case 29: sul=30;   sll=.5;    sinc=.5;  sdx=al_fixtof(Efi[num][9]);      break;  // pod speed
+
       case 2:  sul=200;  sll=2;     sinc=1;   sdx=item[num][8];                break;  // bullet bonus
       case 3:  sul=400;  sll=5;     sinc=1;   sdx=item[num][9];                break;  // timer bonus
       case 4:  sul=1200; sll=20;    sinc=1;   sdx=item[num][7];                break;  // blast size
@@ -364,58 +245,25 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 10: sul=200;  sll=40;    sinc=1;   sdx=item[num][7];                break;  // sproinginess
       case 11: sul=20;   sll=1;     sinc=1;   sdx=item[num][8];                break;  // mine damage
 
-//      case 12: sul=9;    sll=.7;    sinc=.01; sdx=al_fixtof(Efi[num][6]);      break;  // archwagon x speed
-//      case 13: sul=9;    sll=.7;    sinc=.01; sdx=al_fixtof(Efi[num][3]);      break;  // y speed
-
-      case 15: sul=500;  sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // jump wait count
-      case 16: sul=600;  sll=0;     sinc=1;   sdx=Ei[num][7];                  break;  // jump under width
-      case 17: sul=100;  sll=0;     sinc=1;   sdx=Ei[num][12];                 break;  // jump before wall
-      case 18: sul=40;   sll=0;     sinc=1;   sdx=Ei[num][11];                 break;  // Jump before hole
-
-//      case 19: sul=20;   sll=.8;    sinc=.1;  sdx=al_fixtof(Efi[num][7]);      break;  // bullet speed
-//      case 20: sul=2000; sll=20;    sinc=1;   sdx=Ei[num][17];                 break;  // bullet prox
-//      case 21: sul=200;  sll=1;     sinc=1;   sdx=Ei[num][15];                 break;  // retrigger time
-
-      case 22: sul=12;   sll=0;     sinc=.01; sdx=al_fixtof(Efi[num][5]);      break;  // cannon speed
-      case 23: sul=100;  sll=0;     sinc=1;   sdx=Ei[num][8];                  break;  // seek count
-      case 24: sul=20;   sll=0;     sinc=1;   sdx=Ei[num][29];                 break;  // collision box
-      case 25: sul=10;   sll=0;     sinc=.1;  sdx=al_fixtof(Efi[num][4]);      break;  // health dec
       case 26: sul=40;   sll=4;     sinc=1;   sdx=bts;                         break;  // button height
       case 27: sul=800;  sll=10;    sinc=1;   sdx=item[num][8];                break;  // initial time
       case 28: sul=100;  sll=1;     sinc=1;   sdx=item[num][8];                break;  // warp level
-      case 29: sul=30;   sll=.5;    sinc=.5;  sdx=al_fixtof(Efi[num][9]);      break;  // pod speed
       case 30: sul=40;   sll=0;     sinc=1;   sdx=Ei[num][9];                  break;  // pod wait time
       case 33: sul=5;    sll=.7;    sinc=.1;  sdx=al_fixtof(Efi[num][2]);      break;  // flapper x speed
-      case 34: sul=1000; sll=20;    sinc=1;   sdx=Ei[num][6];                  break;  // create delay
-      case 35: sul=40;   sll=0;     sinc=1;   sdx=Ei[num][9];                  break;  // cannon hits
-      case 36: sul=5;    sll=0;     sinc=.01; sdx=al_fixtof(Efi[num][3]);      break;  // flapper y speed
-      case 38: sul=500;  sll=20;    sinc=1;   sdx=Ei[num][17];                 break;  // width
-      case 39: sul=600;  sll=1;     sinc=10;  sdx=Ei[num][18];                 break;  // y1
-      case 40: sul=600;  sll=1;     sinc=10;  sdx=Ei[num][19];                 break;  // y2
-      case 41: sul=50;   sll=0;     sinc=1;   sdx=Ei[num][24];                 break;  // dead enemy bullet bonus
-      case 42: sul=50;   sll=0;     sinc=1;   sdx=Ei[num][25];                 break;  // dead enemy health bonus
+
+
       case 43: sul=1999; sll=4;     sinc=1;   sdx=lifts[num].width;            break;  // lift width
       case 44: sul=1999; sll=4;     sinc=1;   sdx=lifts[num].height;           break;  // lift heigth
-      case 45: sul=10;   sll=.5;    sinc=.01; sdx=al_fixtof(Efi[num][2]);      break;  // trakbot x speed
-      case 46: sul=10;   sll=.5;    sinc=.01; sdx=al_fixtof(Efi[num][3]);      break;  // trakbot y speed
-      case 47: sul=100;  sll=0;     sinc=1;   sdx=item[num][8];                break;  // exit with x enemies left
       case 54: sul=200;  sll=1;     sinc=1;   sdx=item[num][7];                break;  // Message delay time
 
-      case 60: sul=8;    sll=.5;    sinc=.1;  sdx=al_fixtof(Efi[num][5]);      break;  // flapper max x speed
-      case 61: sul=2;    sll=.01;   sinc=.01; sdx=al_fixtof(Efi[num][6]);      break;  // flapper x accel
-      case 62: sul=4;    sll=0;     sinc=.1;  sdx=al_fixtof(Efi[num][8]);      break;  // flapper yinc flap scale
-
-      case 63: sul=1000; sll=-1000; sinc=10;  sdx=Ei[num][20];                 break;  // height above player
 
 
-      case 74: sul=4800; sll=0;     sinc=1;   sdx=Ei[num][9];                  break;  // cloner created obj time to live
-      case 75: sul=600;  sll=0;     sinc=1;   sdx=Ei[num][10];                 break;  // cloner max created obj at one time
+
+
 
       case 78: sul=20;   sll=0;     sinc=1;   sdx=item[num][7];                break;  // Start index
 
 
-      case 79: sul=8;    sll=.5;    sinc=.1;  sdx=al_fixtof(Efi[num][10]);     break;  // flap speed
-      case 80: sul=400;  sll=0;     sinc=10;  sdx=Ei[num][21];                 break;  // flap height
 
       case 82: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // field timer
       case 83: sul=100;  sll=.01;   sinc=.01; sdx=al_fixtof(Efi[num][4]);      break;  // field damage
@@ -584,6 +432,119 @@ float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, i
    if (dm == 2) al_draw_rectangle(sx1-1, y1, sx2+1, y2, palette_color[15], 1);
    return f;
 }
+
+
+
+
+
+
+
+
+
+
+void mdw_slider0_int(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                 int &var, float sul, float sll, float sinc, const char *txt, const char *txt2)
+{
+   float sdx = (float) var;
+   float dsx;
+
+   // draw the slider
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+   dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
+
+
+   if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
+   else          sprintf(smsg, "%s%d", txt, var);
+
+
+
+   al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
+   // is mouse on adjustment bar?
+   if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
+   {
+      //Redraw = 2; // flag that we are in charge of drawing the mouse
+      draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
+      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
+      if (mouse_b3) // only when initially clicked
+      {
+         float f = sdx; //initial value
+         Redraw = 1;  // flag to not draw screen buffer until refreshed because it will have old position
+         while (mouse_b3)
+         {
+            if (mouse_dz)
+            {
+               int dif = mouse_dz;
+               mouse_dz = 0;
+
+               f += dif * sinc;                  // only allow increments of sinc
+               if (f < sll) f = sll;             // limit check
+               if (f > sul) f = sul;
+               f = round(f/sinc) * sinc;         // round to sinc
+               var = (int)f; // update var
+            }
+            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+            if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
+            else          sprintf(smsg, "%s%d", txt, var);
+            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
+            al_flip_display();
+            proc_controllers();
+
+         } // end of mouse b4 held
+      } // end of mouse b4 pressed
+      if (mouse_b1) // only when initially clicked
+      {
+         while (mouse_b1)
+         {
+            float my = mouse_y;
+            float mx = mouse_x;
+            float a, b, c, d, e, f ;
+
+            // enforce limits
+            if (my<y1) my = y1;
+            if (mx<x1) mx = x1;
+            if (my>y2) my = y2;
+            if (mx>x2) mx = x2;
+
+            // get slider position
+            a = mx-x1;                  // relative postion of slider bar in range
+            b = x2-x1;                  // range
+            c = a / b;                  // ratio = position / range
+            d = sul-sll;                // range from buttons
+            e = c * d;                  // ratio * range
+            f = e + sll;                // add to ll
+            f = round(f/sinc) * sinc;   // round to sinc
+            var = (int)f; // update var
+
+
+            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+            if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
+            else          sprintf(smsg, "%s%d", txt, var);
+            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
+            al_flip_display();
+            proc_controllers();
+         }  // end of mouse b1 held
+      }  // end of mouse b1 pressed
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1043,6 +1004,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Get New Block Range");
       if (press)
       {
+/*
          if (getbox( "Block Range", 2, 4, num) == 1)
          {
             if (--bx2 < bx1) bx2++;
@@ -1053,6 +1015,30 @@ int mdw_button(int x1, int y1, int x2, int y2,
             item[num][9] = by2;
             Redraw = 1;
          }
+
+*/
+         int x1=0, y1=0, x2=0, y2=0;
+         if (get_block_range( "Block Range", &x1, &y1, &x2, &y2))
+         {
+            item[num][6] = x1;
+            item[num][7] = y1;
+            item[num][8] = x2;
+            item[num][9] = y2;
+            Redraw = 1;
+         }
+
+
+
+
+
+
+
+
+
+
+
+
+
       }
    }
    if (bn == 6)
@@ -1075,24 +1061,8 @@ int mdw_button(int x1, int y1, int x2, int y2,
          if (num != 999) edit_pmsg_text(num, 0);
       }
    }
-   if (bn == 8) // archwag direction
-   {
-      if (Ei[num][2]) sprintf(smsg, "Initial Direction:Right");
-      else            sprintf(smsg, "Initial Direction:Left ");
-      if (press)
-      {
-         Ei[num][2] = !Ei[num][2];
-         Redraw = 1;
-      }
-   }
 
-/*
-   if (bn == 9) // archwag and walker
-   {
-      if (Ei[num][8]) sprintf(smsg, "Bounce Mode");
-      else            sprintf(smsg, "Follow Mode");
-      if (press) Ei[num][8] = !Ei[num][8];
-   }
+
    if (bn == 10)
    {
       sprintf(smsg, "Set Initial Direction"); // bouncer direction
@@ -1105,7 +1075,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
          }
       }
    }
-*/
+
 
 
    if (bn == 11)
@@ -1118,15 +1088,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
          Redraw = 1;
       }
    }
-   if (bn == 12) // trakbot drop mode
-   {
-      if (Ei[num][7] == 0) sprintf(smsg, "Drop Mode:Off");
-      else                 sprintf(smsg, "Drop Mode:On ");
-      if (press)
-      {
-         if (bn == 12) Ei[num][7] = !Ei[num][7]; // trakbot drop mode
-      }
-   }
+
    if (bn == 13)
    {
       sprintf(smsg, "Main Shape");
@@ -1230,7 +1192,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
    }
    if (bn == 25)
    {
-      sprintf(smsg, "Viewer Help");
+      sprintf(smsg, "Help");
       if (press) return 1;
    }
    if (bn == 26)
@@ -1387,9 +1349,9 @@ int mdw_button(int x1, int y1, int x2, int y2,
    if (bn == 78)
    {
       if (item[num][6] == 0) sprintf(smsg, "Start Mode:Default");
-      if (item[num][6] == 1) sprintf(smsg, "Start Mode:Team Start");
-      if (item[num][6] == 2) sprintf(smsg, "Start Mode:Checkpoint Common");
-      if (item[num][6] == 3) sprintf(smsg, "Start Mode:Checkpoint Individual");
+      if (item[num][6] == 1) sprintf(smsg, "Team Start");
+      if (item[num][6] == 2) sprintf(smsg, "Checkpoint Common");
+      if (item[num][6] == 3) sprintf(smsg, "Checkpoint Individual");
       if (press)
       {
          if (++item[num][6] > 3) item[num][6] = 0;
@@ -1427,21 +1389,11 @@ int mdw_button(int x1, int y1, int x2, int y2,
          if (item[num][3] == -1) item[num][3] = 0;
       }
    }
-   if (bn == 83) // cloner only
-   {
-      if (Ei[num][30] ==  0) sprintf(smsg,  "      Normal     ");
-      if (Ei[num][30] ==  1) sprintf(smsg,  "    Invincible   ");
-      if (press)
-      {
-         Ei[num][30] = !Ei[num][30]; // cloner invinciblility
-      }
-   }
-
 
 
    if (bn == 85)
    {
-      printf(smsg, "Get New Damage Field");
+      sprintf(smsg, "Get New Damage Field");
       if (press)
       {
          if (getbox("Get New Field ", 3, 10, num))
@@ -2603,26 +2555,17 @@ int mdw_toggle(int x1, int y1, int x2, int y2,
          sprintf(smsg, "%s", t0);
       }
    }
-
-
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-
    if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
    else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-
    return retval;
-
 }
-
-
 
 
 int mdw_togglf(int x1, int y1, int x2, int y2,
                 int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                   int &var, int flag, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
-
-
 {
    // is mouse pressed on this button?
    int press = 0;
@@ -2641,7 +2584,6 @@ int mdw_togglf(int x1, int y1, int x2, int y2,
           q1 = frame_col1;
           q2 = text_col1;
           sprintf(smsg, "%s", t1);
-
       }
       else
       {
@@ -2650,15 +2592,10 @@ int mdw_togglf(int x1, int y1, int x2, int y2,
          sprintf(smsg, "%s", t0);
       }
    }
-
-
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-
    if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
    else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-
    return retval;
-
 }
 
 
@@ -2702,6 +2639,17 @@ void mdw_buttonp(int x1, int y1, int x2, int y2, int bn, int num, int type, int 
       if (var == 2) sprintf(smsg, "Action:Set all to Min");
       if (press) if (++var > 2) var = 0;
    }
+
+
+   if (bn == 101)
+   {
+      sprintf(smsg, "undef:%d", var);
+      if (var == 1) sprintf(smsg, "Type: Health Bonus");
+      if (var == 2) sprintf(smsg, "Type: Free Man");
+      if (var == 3) sprintf(smsg, "Type: Purple Coin");
+      if (press) if (++var > 3) var = 1;
+   }
+
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
 
    if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);

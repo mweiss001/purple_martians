@@ -575,6 +575,8 @@ int edit_menu(int el)
 
    int draw_item_blink = 0;
 
+
+   /*
    if (autoload_bookmark)
    {
       printf("load bookmark\n");
@@ -585,7 +587,7 @@ int edit_menu(int el)
          if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) object_viewer(4, bookmark_num);
       }
    }
-
+*/
 
 
    do
@@ -868,7 +870,7 @@ int edit_menu(int el)
       } // end of put draw item
 
 
-
+/*
 
       if (key[ALLEGRO_KEY_B])
       {
@@ -883,7 +885,7 @@ int edit_menu(int el)
       }
 
 
-
+*/
 
       if (key[ALLEGRO_KEY_L])
       {
