@@ -128,7 +128,7 @@ void show_draw_item_cursor(void)
    }
 }
 
-void set_block_range(void)
+void set_block_range(int bx1, int by1, int bx2, int by2)
 {
    int draw_item_flags = draw_item_num & PM_BTILE_MOST_FLAGS;
 
@@ -365,15 +365,15 @@ void set_block_range(void)
 }
 
 
-void get_new_box(void) // keep the mouse !!
+void get_new_box(int* bx1, int*by1, int*bx2, int*by2) // keep the mouse !!
 {
    int z; // for swap
-   bx2 = bx1; // set all three to intial
-   by2 = by1;
-   int x1 = bx1;
-   int y1 = by1;
-   int x2 = bx2;
-   int y2 = by2;
+   *bx2 = *bx1; // set all three to intial
+   *by2 = *by1;
+   int x1 = *bx1;
+   int y1 = *by1;
+   int x2 = *bx2;
+   int y2 = *by2;
 
    while (mouse_b1)
    {
@@ -383,14 +383,14 @@ void get_new_box(void) // keep the mouse !!
       process_scrolledge();
       update_editor_background();
 
-      bx2 = (mouse_x)/20+wx; // set both with mouse pointer
-      by2 = (mouse_y)/20+wy;
+      *bx2 = (mouse_x)/20+wx; // set both with mouse pointer
+      *by2 = (mouse_y)/20+wy;
 
-      x2 = bx2;  // set with mouse
-      y2 = by2;
+      x2 = *bx2;  // set with mouse
+      y2 = *by2;
 
-      x1 = bx1; // get inital in case it was swapped
-      y1 = by1;
+      x1 = *bx1; // get inital in case it was swapped
+      y1 = *by1;
 
       // swap x1 and x2 if neccesary
       if (x1 > x2) { z = x1; x1 = x2; x2 = z;}
@@ -408,12 +408,12 @@ void get_new_box(void) // keep the mouse !!
 
    }
    // swap bx1 and bx2 if neccesary
-   if (bx1 > bx2) { z = bx1; bx1 = bx2; bx2 = z; }
-   if (by1 > by2) { z = by1; by1 = by2; by2 = z;}
+   if (*bx1 > *bx2) { z = *bx1; *bx1 = *bx2; *bx2 = z; }
+   if (*by1 > *by2) { z = *by1; *by1 = *by2; *by2 = z;}
 
    // always set second to one more
-   bx2++;
-   by2++;
+   *bx2 = *bx2 +1;
+   *by2 = *by2 +1;
 }
 
 void update_editor_background(void)
@@ -540,6 +540,9 @@ int edit_menu(int el)
    int x100, y100, x2000, y2000;
    int a, b, c, d, e, x, y;
 
+   int bx1, bx2, by1, by2;
+
+
    // clamp screen size to 2000, 2000 if bigger
    int lesw = (SCREEN_W/20)*20-1;
    int lesh = (SCREEN_H/20)*20-1;
@@ -614,7 +617,7 @@ int edit_menu(int el)
 
 
       // detect if mouse is on draw item flags
-      if ((draw_item_type == 1) && (status_window_active))
+      if ((draw_item_type == 1) && (status_window_active) && (show_flag_details))
       {
          int ftx = status_window_x+11;
          int fty = status_window_y+47;
@@ -741,8 +744,8 @@ int edit_menu(int el)
             {
                bx1 = x100;
                by1 = y100;
-               get_new_box(); // this keeps the mouse
-               set_block_range();
+               get_new_box(&bx1, &by1, &bx2, &by2);
+               set_block_range(bx1, by1, bx2, by2);
                draw_big(1);
             }
             break;

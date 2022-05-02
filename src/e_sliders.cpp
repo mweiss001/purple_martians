@@ -993,7 +993,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       {
          if (item[num][8] == 1) // Set Linked Item
          {
-             int i = get_item("Select Another Door To Link To", 2, 1, num );
+             int i = get_item(2, 1, num );
              if (i > -1) item[num][9] = i;
              Redraw = 1;
          }
@@ -1004,41 +1004,8 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Get New Block Range");
       if (press)
       {
-/*
-         if (getbox( "Block Range", 2, 4, num) == 1)
-         {
-            if (--bx2 < bx1) bx2++;
-            if (--by2 < by1) by2++;
-            item[num][6] = bx1;
-            item[num][7] = by1;
-            item[num][8] = bx2;
-            item[num][9] = by2;
-            Redraw = 1;
-         }
-
-*/
-         int x1=0, y1=0, x2=0, y2=0;
-         if (get_block_range( "Block Range", &x1, &y1, &x2, &y2))
-         {
-            item[num][6] = x1;
-            item[num][7] = y1;
-            item[num][8] = x2;
-            item[num][9] = y2;
-            Redraw = 1;
-         }
-
-
-
-
-
-
-
-
-
-
-
-
-
+         get_block_range("Block Range", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1);
+         Redraw = 1;
       }
    }
    if (bn == 6)
@@ -1046,11 +1013,8 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Set Initial Direction"); // rocket direction
       if (press)
       {
-         if (getxy("Set New Direction", 97, 11, num) == 1)
-         {
-            set_rocket_rot(num, get100_x*20, get100_y*20);
-            Redraw = 1;
-         }
+         getxy("Initial Direction", 97, 11, num);
+         Redraw = 1;
       }
    }
    if (bn == 7)
@@ -1068,11 +1032,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Set Initial Direction"); // bouncer direction
       if (press)
       {
-         if (getxy("Set New Direction", 96, 4, num) == 1)
-         {
-            set_xyinc_rot(num, get100_x*20, get100_y*20);
-            Redraw = 1;
-         }
+         if (getxy("Initial Direction", 96, 4, num) == 1) Redraw = 1;
       }
    }
 
@@ -1136,14 +1096,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Set Source Area");
       if (press)
       {
-         if (getbox("Cloner Source Area", 3, 9, num))
-         {
-            Ei[num][15] = bx1;
-            Ei[num][16] = by1;
-            Ei[num][19] = bx2-bx1;
-            Ei[num][20] = by2-by1;
-            Redraw = 1;
-         }
+         if (get_block_range("Cloner Source Area", &Ei[num][15], &Ei[num][16], &Ei[num][19], &Ei[num][20], 3)) Redraw = 1;
       }
    }
    if (bn == 18)
@@ -1151,12 +1104,8 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Set Destination");
       if (press)
       {
-         if (getxy("Set Cloner Destination", 98, 9, num) == 1)
-         {
-            Ei[num][17] = get100_x;
-            Ei[num][18] = get100_y;
-            Redraw = 1;
-         }
+         getxy("Cloner Destination", 98, 9, num);
+         Redraw = 1;
       }
    }
    if (bn == 19)
@@ -1305,13 +1254,8 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Set Message Position");
       if (press)
       {
-         if (getxy("Set Message Position", 2, 1010, num) == 1)
-         {
-            item[num][10] = get100_x;
-            item[num][11] = get100_y;
-            draw_big(1);
-         }
-         //set_mouse_sprite(NULL);
+         getxy("Message Position", 95, 10, num);
+         draw_big(1);
          Redraw = 1;
       }
    }
@@ -1396,14 +1340,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Get New Damage Field");
       if (press)
       {
-         if (getbox("Get New Field ", 3, 10, num))
-         {
-            Ei[num][15] = bx1*20;
-            Ei[num][16] = by1*20;
-            Ei[num][17] = (bx2-bx1)*20;
-            Ei[num][18] = (by2-by1)*20;
-            Redraw = 1;
-         }
+         if (get_block_range("Get New Field", &Ei[num][15], &Ei[num][16], &Ei[num][17], &Ei[num][18], 1)) Redraw = 1;
       }
    }
    if (bn == 86)
@@ -1411,14 +1348,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Get New Trigger Field");
       if (press)
       {
-         if (getbox("Get New Field Trigger Box", 3, 10, num))
-         {
-            Ei[num][11] = bx1*20;
-            Ei[num][12] = by1*20;
-            Ei[num][13] = (bx2-bx1)*20;
-            Ei[num][14] = (by2-by1)*20;
-            Redraw = 1;
-         }
+         if (get_block_range("Trigger Field Location", &Ei[num][11], &Ei[num][12], &Ei[num][13], &Ei[num][14], 1)) Redraw = 1;
       }
    }
    if (bn == 87) // field mode
@@ -1778,17 +1708,9 @@ int mdw_button(int x1, int y1, int x2, int y2,
    {
       sprintf(smsg, "Get New Trigger Field"); // item
       if (press)
-          if (getbox("Draw New Trigger Field Rectangle", 2, 9, num))
-         {
-
-            if (bx2 < bx1) bx2 = bx1;
-            if (by2 < by1) by2 = by1;
-            item[num][6] = bx1*20;
-            item[num][7] = by1*20;
-            item[num][8] = (bx2-bx1)*20;
-            item[num][9] = (by2-by1)*20;
-            Redraw = 1;
-         }
+      {
+         if (!get_block_range("Trigger Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1)) Redraw = 1;
+      }
    }
    if (bn == 210)
    {
@@ -1897,16 +1819,9 @@ int mdw_button(int x1, int y1, int x2, int y2,
    {
       sprintf(smsg, "Get New Block Manip Field"); // item
       if (press)
-         if (getbox("Draw New Block Manip Rectangle", 2, 16, num))
-         {
-            if (bx2 < bx1) bx2 = bx1;
-            if (by2 < by1) by2 = by1;
-            item[num][6] = bx1*20;
-            item[num][7] = by1*20;
-            item[num][8] = (bx2-bx1)*20;
-            item[num][9] = (by2-by1)*20;
-            Redraw = 1;
-         }
+      {
+         if (!get_block_range("Block Manip Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1)) Redraw = 1;
+      }
    }
    if (bn == 301) // block manip mode
    {
@@ -1939,7 +1854,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Set Event Trigger (%d)", item[num][1]);
       if (press)
       {
-         int i = get_trigger_item("Select A Trigger To Link To", 2, item[num][0], num );
+         int i = get_trigger_item(2, item[num][0], num );
          if (i > -1)
          {
             int ev = get_unused_pm_event();
@@ -1987,16 +1902,9 @@ int mdw_button(int x1, int y1, int x2, int y2,
    {
       sprintf(smsg, "Get New Block Damage Field"); // item
       if (press)
-         if (getbox("Draw New Block Damage Rectangle", 2, 17, num))
-         {
-            if (bx2 < bx1) bx2 = bx1;
-            if (by2 < by1) by2 = by1;
-            item[num][6] = bx1*20;
-            item[num][7] = by1*20;
-            item[num][8] = (bx2-bx1)*20;
-            item[num][9] = (by2-by1)*20;
-            Redraw = 1;
-         }
+      {
+         if (!get_block_range("Block Damage Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1)) Redraw = 1;
+      }
    }
    if (bn == 401) // timer draw mode
    {
@@ -2306,7 +2214,8 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Set Event Trigger (%d)", lift_steps[num][type].val);
       if (press)
       {
-         int i = get_trigger_item("Select A Trigger To Link To", 4, type, num );
+         //printf("520 type:%d num:%d \n", type, num);
+         int i = get_trigger_item(4, type, num );
          if (i > -1)
          {
             int ev = get_unused_pm_event();

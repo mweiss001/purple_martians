@@ -3,13 +3,6 @@
 #include "pm.h"
 
 
-
-
-
-
-
-
-
 int create_obj(int obt, int sub_type, int sent_num)
 {
    int num = sent_num; // default
@@ -60,9 +53,6 @@ int create_obj(int obt, int sub_type, int sent_num)
    }
    return num;  // return number of created obj or sent_num if bad create
 }
-
-
-
 
 
 
@@ -599,21 +589,6 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void ovw_draw_overlays(int obj_type, int num, int legend_highlight, int highlight_color)
 {
    al_set_target_bitmap(level_buffer);
@@ -828,13 +803,16 @@ void ovw_draw_overlays(int obj_type, int num, int legend_highlight, int highligh
             int x4 = (x2+x3)/2;
             int y4 = (y2+y3)/2;
 
+            if (x2 == 0) x2 = 1; // to keep it visible
+            if (y2 == 0) y2 = 1;
+
             // draw range
             al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
             al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
          }
          break;
-         case 8:
+         case 8: // bomb
          {
             int color = 14;
             if (legend_highlight == 2) color = highlight_color;
@@ -857,9 +835,11 @@ void ovw_draw_overlays(int obj_type, int num, int legend_highlight, int highligh
             al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
             al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+
+            find_and_show_event_links(1, num, 0);
          }
          break;
-         case 11:
+         case 11: // rocket
          {
             int color = 14;
             if (legend_highlight == 2) color = highlight_color;
@@ -890,7 +870,7 @@ void ovw_draw_overlays(int obj_type, int num, int legend_highlight, int highligh
             al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
 
-//            find_and_show_event_links(num);
+            find_and_show_event_links(2, num, 0);
 
          }
          break;
@@ -910,7 +890,7 @@ void ovw_draw_overlays(int obj_type, int num, int legend_highlight, int highligh
             al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
 
-  //          find_and_show_event_links(num);
+            find_and_show_event_links(2, num, 0);
          }
          break;
 
@@ -1402,7 +1382,10 @@ void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy)
    *x = (int) mx4;
    *y = (int) my4;
 
-
+   if (*x < 0)  *x = 0;
+   if (*y < 0)  *y = 0;
+   if (*x > 99) *x = 99;
+   if (*y > 99) *y = 99;
 
    // hx, hy in 0-1999 scale
    // the mouse position past the border width is how far we are into the scaled map
@@ -1423,6 +1406,11 @@ void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy)
 
    *hx = (int) mx4;
    *hy = (int) my4;
+
+   if (*hx < 0)    *hx = 0;
+   if (*hy < 0)    *hy = 0;
+   if (*hx > 1999) *hx = 1999;
+   if (*hy > 1999) *hy = 1999;
 }
 
 
@@ -1493,18 +1481,6 @@ void object_viewerw(int obt, int num)
       }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
       if (new_obj)
       {
          if (obt == 2)
@@ -1544,8 +1520,8 @@ void object_viewerw(int obt, int num)
       ovw_draw_overlays(obt, num, legend_line, highlight_counter);
       get_new_screen_buffer(3, obj_x, obj_y);
 
-      al_draw_textf(font, palette_color[15],100, 100, 0, "gx:%d   gy:%d", gx, gy);
-      al_draw_textf(font, palette_color[15],100, 110, 0, "hx:%d   hy:%d", hx, hy);
+      //al_draw_textf(font, palette_color[15],100, 100, 0, "gx:%d   gy:%d", gx, gy);
+      //al_draw_textf(font, palette_color[15],100, 110, 0, "hx:%d   hy:%d", hx, hy);
 
       int mb = ovw_draw_buttons(num, type, obt);
 
@@ -1848,7 +1824,7 @@ void object_viewerw(int obt, int num)
             {
                if (mouse_on_obj)
                {
-                  printf("mouse pressed on obj\n");
+                  //printf("mouse pressed on obj\n");
                   if (obt == 2) // move item
                   {
                      // get offset of move
@@ -2105,26 +2081,15 @@ void object_viewerw(int obt, int num)
       }
 
 
-
-
       switch(mb)
       {
          case 18: // move
-            if (getxy("Set New Location",obt, type, num) == 1)
-            {
-               if (obt==3) // enemy
-               {
-                  Efi[num][0] = al_itofix(get100_x*20);
-                  Efi[num][1] = al_itofix(get100_y*20);
-               }
-               if (obt==2) // item
-               {
-                  item[num][4] = get100_x*20;
-                  item[num][5] = get100_y*20;
-                  itemf[num][0] = al_itofix(item[num][4]);
-                  itemf[num][1] = al_itofix(item[num][5]);
-               }
-            }
+         {
+            sprintf(msg, "Object");
+            if (obt==2) sprintf(msg,"%s", item_name[type]);
+            if (obt==3) sprintf(msg,"%s", enemy_name[type]);
+            getxy(msg,obt, type, num);
+         }
          break;
          case 19:
             num = create_obj(obt, type, num);

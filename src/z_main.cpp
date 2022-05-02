@@ -135,11 +135,6 @@ int Redraw = 1;
 int num_legend_lines = 2;
 int Viewer_lock = 0;
 
-// ------------------------------------------------
-// ----- return values from getxy and getbox ------
-// ------------------------------------------------
-int bx1, bx2, by1, by2;
-int get100_x, get100_y;
 
 // ------------------------------------------------
 // ------------ game moves array ------------------
@@ -318,6 +313,8 @@ ALLEGRO_TIMER * sec_timer;  // used to count the actual frames per second
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 ALLEGRO_DISPLAY *display = NULL;
 ALLEGRO_COLOR palette_color[256];
+int flash_color = 0;
+int flash_counter = 0;
 ALLEGRO_FONT *font = NULL;
 ALLEGRO_FONT *f1 = NULL;
 ALLEGRO_FONT *f2 = NULL;

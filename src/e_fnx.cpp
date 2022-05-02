@@ -135,34 +135,6 @@ void draw_big(int draw_lifts)
    al_set_target_backbuffer(display);
 }
 
-void draw_cloner_boxes(int num)
-{
-   int cw = Ei[num][19];     // width
-   int ch = Ei[num][20];     // height
-
-   int cx1 = Ei[num][15];    // source
-   int cy1 = Ei[num][16];
-   int cx2 = cx1 + cw;
-   int cy2 = cy1 + ch;
-
-   int cx3 = Ei[num][17];    // destination
-   int cy3 = Ei[num][18];
-   int cx4 = cx3 + cw;
-   int cy4 = cy3 + ch;
-
-   int tx1 = Ei[num][11] * db; // trigger box
-   int ty1 = Ei[num][12] * db;
-   int tx2 = Ei[num][13] * db + db;
-   int ty2 = Ei[num][14] * db + db;
-
-   al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-   al_draw_rectangle(cx1*db, cy1*db, cx2*db, cy2*db, palette_color[10], 1); // src
-   al_draw_rectangle(cx3*db, cy3*db, cx4*db, cy4*db, palette_color[11], 1); // dest
-   al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[14], 1);             // trig
-   al_reset_clipping_rectangle();
-}
-
-
 void draw_bs(int cc)
 {
    ALLEGRO_BITMAP *jtemp = NULL;
@@ -227,124 +199,16 @@ void draw_bs(int cc)
    }
 }
 
-int getbox(const char *txt, int obj_type, int sub_type, int num )
-{
-   int bs_on = 1;
-   int quit = 0;
-   while (mouse_b1) proc_controllers();    // wait for release
-   while (!quit)
-   {
-      proc_controllers();
-      int dx = mouse_x/db;
-      int dy = mouse_y/db;
-
-      title_obj(obj_type, sub_type, num, 0, 15);
-
-      // show text line
-      al_draw_text(font, palette_color[9],  txc, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
-      al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
-      al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
-      al_draw_text(font, palette_color[9],  txc, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
-      al_draw_text(font, palette_color[9],  txc, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
-      al_draw_text(font, palette_color[14], txc, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC> or");
-      al_draw_text(font, palette_color[9],  txc, 138, ALLEGRO_ALIGN_CENTER, "the right mouse button");
-
-      if (bs_on) draw_bs(15);
-
-      if ((obj_type == 3) && (sub_type == 9)) // cloner
-         draw_cloner_boxes(num);
-
-      // show block cursor
-      if ((dx<100) && (dy < 100)) al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[127-32], 1); // show which block is selected
-
-      al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
-
-      if (mouse_b1)
-      {
-         quit = 1;
-         bx1 = mouse_x/db;
-         by1 = mouse_y/db;
-         while (mouse_b1) // trap while b1 is held
-         {
-            proc_controllers();
-            title_obj(obj_type, sub_type, num, 0, 15);
-
-            // show text line
-            al_draw_text(font, palette_color[9],  txc, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
-            al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
-            al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
-            al_draw_text(font, palette_color[9],  txc, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
-            al_draw_text(font, palette_color[9],  txc, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
-            al_draw_text(font, palette_color[14], txc, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC> or");
-            al_draw_text(font, palette_color[9],  txc, 138, ALLEGRO_ALIGN_CENTER, "the right mouse button");
-
-            if (bs_on) draw_bs(15);
-
-            if ((obj_type == 3) && (sub_type == 9)) // cloner
-              draw_cloner_boxes(num);
-
-
-            // show selection rectangle
-            bx2 = (mouse_x/db)+1;
-            by2 = (mouse_y/db)+1;
-            al_set_clipping_rectangle(0, 0, display_transform_double*db*100-1, display_transform_double*db*100-1);
-            al_draw_rectangle((bx1)*db, (by1)*db, (bx2)*db, (by2)*db, palette_color[15], 1);
-            al_reset_clipping_rectangle();
-
-            al_flip_display();
-            al_clear_to_color(al_map_rgb(0,0,0));
-         }
-
-         // limits
-         if (bx1<0) bx1 = 0;
-         if (bx2<0) bx2 = 0;
-         if (by1<0) by1 = 0;
-         if (by2<0) by2 = 0;
-
-         if (bx1>99) bx1 = 99;
-         if (bx2>99) bx2 = 99;
-         if (by1>99) by1 = 99;
-         if (by2>99) by2 = 99;
-
-         // ensure top-right, bottom left format
-         if (bx1 > bx2)
-         {
-            int btemp = bx2;
-            bx2 = bx1;
-            bx1= btemp;
-         }
-         if (by1 > by2)
-         {
-            int btemp = by2;
-            by2 = by1;
-            by1= btemp;
-         }
-      }
-      if  (mouse_b2)
-      {
-         while (mouse_b2) proc_controllers(); // wait for release
-         return 0;
-      }
-      if (key[ALLEGRO_KEY_ESCAPE])
-      {
-         return 0;
-      }
-   } // end of while not quit
-   return 1;
-}
 
 
 
 
 
-
-int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2)
+int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type)
 {
    init_level_background();
-
    int gx=0, gy=0, hx=0, hy=0;
-
+   int tx = SCREEN_W/2;
    int quit = 0;
    int ret = 0;
    while (!quit)
@@ -357,184 +221,187 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2)
       draw_lifts();
       draw_items();
       draw_enemies();
+      crosshairs_full(gx*20+10, gy*20+10, 15, 1);
       get_new_screen_buffer(3, 0, 0);
-
       ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
-
-      int a = 100;
-
-      al_draw_textf(font, palette_color[15],100, a+=8, 0, "gx:%d   gy:%d", gx, gy);
-      al_draw_textf(font, palette_color[15],100, a+=8, 0, "hx:%d   hy:%d", hx, hy);
-      al_draw_text(font, palette_color[9],  a+=8, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
-      al_draw_text(font, palette_color[10], a+=8, 80,  ALLEGRO_ALIGN_CENTER, txt);
-      al_draw_text(font, palette_color[9],  a+=8, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
-      al_draw_text(font, palette_color[9],  a+=8, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
-      al_draw_text(font, palette_color[9],  a+=8, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
-      al_draw_text(font, palette_color[14], a+=8, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC> or");
-      al_draw_text(font, palette_color[9],  a+=8, 138, ALLEGRO_ALIGN_CENTER, "the right mouse button");
+      ovw_process_scrolledge();
 
 
-      while (mouse_b1)
+      al_draw_filled_rectangle(tx-90, 70, tx+90, 170, palette_color[0]);
+      al_draw_rectangle(       tx-90, 70, tx+90, 170, palette_color[15], 1);
+
+      al_draw_text(font, palette_color[9],   tx, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
+      al_draw_text(font, palette_color[10],  tx, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(font, palette_color[9],   tx, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
+      al_draw_text(font, palette_color[9],   tx, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
+      al_draw_text(font, palette_color[9],   tx, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
+      al_draw_text(font, palette_color[14],  tx, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
+      al_draw_text(font, palette_color[14],  tx, 138, ALLEGRO_ALIGN_CENTER, "or right mouse button");
+
+      al_draw_textf(font, palette_color[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", gx, gy);
+
+      if (mouse_b1)
       {
-         al_flip_display();
-         proc_scale_factor_change();
-         proc_controllers();
-         proc_frame_delay();
-         get_new_background(0);
-         draw_lifts();
-         draw_items();
-         draw_enemies();
-         get_new_screen_buffer(3, 0, 0);
-
-         ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
-
-
-         quit = 1;
-
-      }
-   }
-   return ret;
-}
-
-
-
-
-
-
-/*
-
-
-
-
-
-
-
-      void get_new_box(void) // keep the mouse !!
-{
-   int z; // for swap
-   bx2 = bx1; // set all three to intial
-   by2 = by1;
-   int x1 = bx1;
-   int y1 = by1;
-   int x2 = bx2;
-   int y2 = by2;
-
-   while (mouse_b1)
-   {
-      al_flip_display();
-      proc_controllers();
-      show_draw_item_cursor();
-      process_scrolledge();
-      update_editor_background();
-
-      bx2 = (mouse_x)/20+wx; // set both with mouse pointer
-      by2 = (mouse_y)/20+wy;
-
-      x2 = bx2;  // set with mouse
-      y2 = by2;
-
-      x1 = bx1; // get inital in case it was swapped
-      y1 = by1;
-
-      // swap x1 and x2 if neccesary
-      if (x1 > x2) { z = x1; x1 = x2; x2 = z;}
-      if (y1 > y2) { z = y1; y1 = y2; y2 = z;}
-
-      if (x1>99) x1 = 99;
-      if (y1>99) y1 = 99;
-      if (x2>99) x2 = 99;
-      if (y2>99) y2 = 99;
-
-      // show the selection rectangle
-      al_draw_rectangle((x1-wx)*20, (y1-wy)*20, (x2-wx)*20+19, (y2-wy)*20+19, palette_color[127], 1);
-      al_draw_textf(font, palette_color[15], 100, 20, 0, " x1:%d y2:%d ", x1, y1);
-      al_draw_textf(font, palette_color[15], 100, 28, 0, " x2:%d y2:%d ", x2, y2);
-
-   }
-   // swap bx1 and bx2 if neccesary
-   if (bx1 > bx2) { z = bx1; bx1 = bx2; bx2 = z; }
-   if (by1 > by2) { z = by1; by1 = by2; by2 = z;}
-
-   // always set second to one more
-   bx2++;
-   by2++;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // show selection rectangle
-            bx2 = (mouse_x/db)+1;
-            by2 = (mouse_y/db)+1;
-            al_set_clipping_rectangle(0, 0, display_transform_double*db*100-1, display_transform_double*db*100-1);
-            al_draw_rectangle((bx1)*db, (by1)*db, (bx2)*db, (by2)*db, palette_color[15], 1);
-            al_reset_clipping_rectangle();
-
+         if (type == 1) // key block range 0-1999 xywh
+         {
+            *x1 = gx*20;
+            *y1 = gy*20;
+         }
+         if (type == 2) // pod cloner trigger box 0-99 x1, y1, x2, y2
+         {
+            *x1 = gx;
+            *y1 = gy;
+         }
+         if (type == 3) // cloner src 0-99 x y w h
+         {
+            *x1 = gx;
+            *y1 = gy;
+         }
+         while (mouse_b1)
+         {
             al_flip_display();
-            al_clear_to_color(al_map_rgb(0,0,0));
+            proc_scale_factor_change();
+            proc_controllers();
+            proc_frame_delay();
+            get_new_background(0);
+            draw_lifts();
+            draw_items();
+            draw_enemies();
+
+            // show the selection rectangle
+            if (type == 1) al_draw_rectangle(*x1,    *y1,     *x1+*x2,      *y1+*y2,     palette_color[15], 1);
+            if (type == 2) al_draw_rectangle(*x1*20, *y1*20, (*x2+1)*20,   (*y2+1)*20,   palette_color[15], 1);
+            if (type == 3) al_draw_rectangle(*x1*20, *y1*20, (*x2+*x1)*20, (*y2+*y1)*20, palette_color[15], 1);
+
+            get_new_screen_buffer(3, 0, 0);
+            ovw_process_scrolledge();
+            ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+
+            if (type == 1)
+            {
+               *x2 = gx*20-*x1;
+               *y2 = gy*20-*y1;
+            }
+
+            if (type == 2)
+            {
+               *x2 = gx;
+               *y2 = gy;
+            }
+            if (type == 3)
+            {
+               *x2 = gx-*x1;
+               *y2 = gy-*y1;
+            }
+
+            al_draw_filled_rectangle(tx-90, 70, tx+90, 170, palette_color[0]);
+            al_draw_rectangle(       tx-90, 70, tx+90, 170, palette_color[15], 1);
+
+            al_draw_text(font, palette_color[9],   tx, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
+            al_draw_text(font, palette_color[10],  tx, 80,  ALLEGRO_ALIGN_CENTER, txt);
+            al_draw_text(font, palette_color[9],   tx, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
+            al_draw_text(font, palette_color[9],   tx, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
+            al_draw_text(font, palette_color[9],   tx, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
+            al_draw_text(font, palette_color[14],  tx, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
+            al_draw_text(font, palette_color[14],  tx, 138, ALLEGRO_ALIGN_CENTER, "or right mouse button");
+
+            if (type == 1)
+            {
+               al_draw_textf(font, palette_color[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", *x1/20, *y1/20);
+               al_draw_textf(font, palette_color[15], tx, 158, ALLEGRO_ALIGN_CENTER, "w:%2d h:%2d", *x2/20, *y2/20);
+            }
+            if (type == 2)
+            {
+               al_draw_textf(font, palette_color[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x1:%2d y1:%2d", *x1, *y1);
+               al_draw_textf(font, palette_color[15], tx, 158, ALLEGRO_ALIGN_CENTER, "x2:%2d y2:%2d", *x2, *y2);
+            }
+            if (type == 3)
+            {
+               al_draw_textf(font, palette_color[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", *x1, *y1);
+               al_draw_textf(font, palette_color[15], tx, 158, ALLEGRO_ALIGN_CENTER, "w:%2d h:%2d", *x2, *y2);
+            }
+
          }
-
-         // limits
-         if (bx1<0) bx1 = 0;
-         if (bx2<0) bx2 = 0;
-         if (by1<0) by1 = 0;
-         if (by2<0) by2 = 0;
-
-         if (bx1>99) bx1 = 99;
-         if (bx2>99) bx2 = 99;
-         if (by1>99) by1 = 99;
-         if (by2>99) by2 = 99;
-
-         // ensure top-right, bottom left format
-         if (bx1 > bx2)
+         quit = 1;
+         ret = 1;
+         //printf("before limit check - x1:%d y1:%d x2:%d y2:%d\n", *x1, *y1, *x2, *y2);
+         if (type == 1) // 2000 w h
          {
-            int btemp = bx2;
-            bx2 = bx1;
-            bx1= btemp;
+            // don't allow 0 width or height
+            if (*x2 == 0) *x2 = 20;
+            if (*y2 == 0) *y2 = 20;
+
+            // UR corner must be at least one block from limit
+            if (*x1 > 1980) *x1 = 1980;
+            if (*y1 > 1980) *y1 = 1980;
+
+            // correct if lr corner is off level
+            if ((*x1 + *x2) > 2000) *x2 = 2000 - *x1;
+            if ((*y1 + *y2) > 2000) *y2 = 2000 - *y1;
+
+            // swap if negative width or height
+            if (*x2 < 0)
+            {
+               *x1 = *x1 + *x2;
+               *x2 = -*x2;
+            }
+            if (*y2 < 0)
+            {
+               *y1 = *y1 + *y2;
+               *y2 = -*y2;
+            }
          }
-         if (by1 > by2)
+         if (type == 2) // 100 x2 y2
          {
-            int btemp = by2;
-            by2 = by1;
-            by1= btemp;
+            int z; // swap x1 and x2 if neccesary
+            if (*x1 > *x2) { z = *x1; *x1 = *x2; *x2 = z;}
+            if (*y1 > *y2) { z = *y1; *y1 = *y2; *y2 = z;}
+
+            if (*x1 > 99) *x1 = 99;
+            if (*y1 > 99) *y1 = 99;
+            if (*x2 > 99) *x2 = 99;
+            if (*y2 > 99) *y2 = 99;
          }
+         if (type == 3) // 100 w h
+         {
+            // don't allow 0 width or height
+            if (*x2 == 0) *x2 = 1;
+            if (*y2 == 0) *y2 = 1;
+
+            // UR corner must be at least one block from limit
+            if (*x1 > 98) *x1 = 98;
+            if (*y1 > 98) *y1 = 98;
+
+            // correct if lr corner is off level
+            if ((*x1 + *x2) > 99) *x2 = 100 - *x1;
+            if ((*y1 + *y2) > 99) *y2 = 100 - *y1;
+
+            // swap if negative width or height
+            if (*x2 < 0)
+            {
+               *x1 = *x1 + *x2;
+               *x2 = -*x2;
+            }
+            if (*y2 < 0)
+            {
+               *y1 = *y1 + *y2;
+               *y2 = -*y2;
+            }
+         }
+         //printf("after limit check - x1:%d y1:%d x2:%d y2:%d\n", *x1, *y1, *x2, *y2);
       }
-      if  (mouse_b2)
+      if (mouse_b2)
       {
          while (mouse_b2) proc_controllers(); // wait for release
-         return 0;
+         quit = 1;
+         ret = 0;
       }
       if (key[ALLEGRO_KEY_ESCAPE])
       {
-         return 0;
+         quit = 1;
+         ret = 0;
       }
-   } // end of while not quit
+   }
    return ret;
 }
 
@@ -543,7 +410,6 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2)
 
 
 
-*/
 
 
 
@@ -592,9 +458,18 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2)
 
 
 
-int getxy(const char *txt, int obj_type, int sub_type, int num )
+
+
+
+
+
+
+
+int getxy(const char *txt, int obj_type, int sub_type, int num)
 {
-   int dx=0, dy=0;
+   init_level_background();
+   int gx=0, gy=0, hx=0, hy=0;
+   int tx = SCREEN_W/2;
 
    // in case these are needed for lifts
    int lift = sub_type;
@@ -604,172 +479,181 @@ int getxy(const char *txt, int obj_type, int sub_type, int num )
    int quit=0;
 
    while (mouse_b1) proc_controllers(); // wait for release
-   al_flip_display();
-   al_clear_to_color(al_map_rgb(0,0,0));
 
 
-// get original positions in case we are cancelled
+   // get original values in case we are cancelled and need to restore them
    int original_dx=0, original_dy=0;
-   if (obj_type == 2)
+   al_fixed original_rot  = al_itofix(0); // for direction
+   al_fixed original_xinc = al_itofix(0);
+   al_fixed original_yinc = al_itofix(0);
+
+
+   if (obj_type == 2) // items
    {
       original_dx = item[num][4];
       original_dy = item[num][5];
    }
-   if (obj_type == 3)
+   if (obj_type == 3) // enemies
    {
-      original_dx = al_fixtoi(Efi[num][0]) / 20;
-      original_dy = al_fixtoi(Efi[num][1]) / 20;
+      original_dx = al_fixtoi(Efi[num][0]);
+      original_dy = al_fixtoi(Efi[num][1]);
    }
-
    if (obj_type == 99) // pod extended
    {
-      original_dx = al_fixtoi(Efi[num][5]) / 20;
-      original_dy = al_fixtoi(Efi[num][6]) / 20;
+      original_dx = al_fixtoi(Efi[num][5]);
+      original_dy = al_fixtoi(Efi[num][6]);
    }
-
    if (obj_type == 98) // cloner destination
    {
       original_dx = Ei[num][17];
       original_dy = Ei[num][18];
    }
-
-   if (obj_type == 4)
+   if (obj_type == 97) // rocket initial direction
    {
-
-      original_dx = lift_steps[lift][step].x / 20;
-      original_dy = lift_steps[lift][step].y / 20;
+      original_rot = item[num][10];
+   }
+   if (obj_type == 96) // cannon or bouncer initial direction
+   {
+      original_rot  = Efi[num][14];
+      original_xinc = Efi[num][2];
+      original_yinc = Efi[num][3];
+   }
+   if (obj_type == 95) // message display location
+   {
+      original_dx = item[num][10];
+      original_dy = item[num][11];
+   }
+   if (obj_type == 4) // lift
+   {
+      original_dx = lift_steps[lift][step].x;
+      original_dy = lift_steps[lift][step].y;
    }
 
    while(!quit)
    {
-      dx = mouse_x/db;
-      dy = mouse_y/db;
-
-      if ((dx < 100) && (dy < 100)) // if mouse on map
-      {
-         switch (obj_type) // show draw_item
-         {
-            case 2: // show item
-               if (sub_type == 1010) // message display only
-               {
-                  show_big();
-                  al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-                  al_draw_bitmap(mp, dx*db, dy*db, 0);
-                  al_reset_clipping_rectangle();
-               }
-               else // all other items
-               {
-                  item[num][4] = dx*20;
-                  item[num][5] = dy*20;
-                  itemf[num][0] = al_itofix(dx*20);
-                  itemf[num][1] = al_itofix(dy*20);
-                  draw_big(1);
-                  show_big();
-                  draw_bs(14);            // show bullseye map
-                  al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-                  al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[127-32], 1); // draw box to show cursor
-                  al_reset_clipping_rectangle();
-               }
-            break;
-            case 3: // show enem
-               Efi[num][0] = al_itofix(dx * 20);
-               Efi[num][1] = al_itofix(dy * 20);
-               draw_big(1);
-               show_big();
-               draw_bs(14);            // show bullseye map
-               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-               al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[127-32], 1); // draw box to show cursor
-               al_reset_clipping_rectangle();
-            break;
-            case 99: // move pod extended
-            {
-               Efi[num][5] = al_itofix(dx * 20);
-               Efi[num][6] = al_itofix(dy * 20);
-               draw_big(1);
-               show_big();
-               draw_bs(14);
-               int ex = al_fixtoi(Efi[num][0])*db/20;
-               int ey = al_fixtoi(Efi[num][1])*db/20;
-               int px = al_fixtoi(Efi[num][5])*db/20;
-               int py = al_fixtoi(Efi[num][6])*db/20;
-               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-               al_draw_rectangle(ex, ey, ex+db-1, ey+db-1, palette_color[13], 1);           // draw box to show pod location
-               al_draw_filled_rectangle(px, py, px+db-1, py+db-1, palette_color[10]);       // draw box to show pod extended
-               al_draw_line(ex+db/2, ey+db/2, px+db/2, py+db/2, palette_color[10], 1); // connect with line
-               al_reset_clipping_rectangle();
-            }
-            break;
-            case 98: // cloner destination
-            {
-               Ei[num][17] = dx;
-               Ei[num][18] = dy;
-               draw_big(1);
-               show_big();
-               draw_bs(14);
-               draw_cloner_boxes(num);
-            }
-            break;
-            case 97: // set new rocket direction
-            {
-               draw_big(1);
-               show_big();
-               draw_bs(14);
-               int ix = item[num][4]*db/20;
-               int iy = item[num][5]*db/20;
-               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-               al_draw_rectangle(ix, iy, ix+db-1, iy+db-1, palette_color[13], 1);                     // show rocket location
-               al_draw_filled_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[10]);   // show cursor
-               al_draw_line(ix+db/2, iy+db/2, dx*db+db/2, dy*db+db/2, palette_color[10], 1);     // connect with line
-               al_reset_clipping_rectangle();
-            }
-            break;
-            case 96: // set cannon or bouncer direction
-            {
-               draw_big(1);
-               show_big();
-               draw_bs(14);
-               int ex = al_fixtoi(Efi[num][0])*db/20;
-               int ey = al_fixtoi(Efi[num][1])*db/20;
-               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-               al_draw_rectangle(ex, ey, ex+db-1, ey+db-1, palette_color[13], 1);                   // draw box to show enemy location
-               al_draw_filled_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[10]); // draw box to show cursor
-               al_draw_line(ex+db/2, ey+db/2, dx*db+db/2, dy*db+db/2, palette_color[10], 1);   // connect with line
-               al_reset_clipping_rectangle();
-
-            }
-            break;
-            case 4: // show lift
-            {
-               lift_steps[lift][step].x = dx*20;
-               lift_steps[lift][step].y = dy*20;
-
-               //  redraw
-               set_lift_to_step(lift, step);   // set current step in current lift
-               draw_big(1);
-               show_big();
-               draw_bs(14);            // show bullseye map
-
-               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-               highlight_current_lift(lift);   // crosshairs and rect on current lift
-               al_reset_clipping_rectangle();
-            }
-            break;
-         }
-      } // end of if mouse on map
-
-      al_set_target_backbuffer(display);
-
-      // show text line
-      al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
-      al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
-      al_draw_text(font, palette_color[14], txc, 120, ALLEGRO_ALIGN_CENTER, "Cancel");
-      al_draw_text(font, palette_color[9],  txc, 128, ALLEGRO_ALIGN_CENTER, "with right mouse button");
 
       al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
+      proc_scale_factor_change();
       proc_controllers();
+      proc_frame_delay();
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
 
-      title_obj(obj_type, sub_type, num, 0, 15);
+      crosshairs_full(gx*20+10, gy*20+10, 15, 1);
+
+      if (obj_type == 99) // move pod extended
+      {
+         int ex = al_fixtoi(Efi[num][0])+10;
+         int ey = al_fixtoi(Efi[num][1])+10;
+         int px = al_fixtoi(Efi[num][5])+10;
+         int py = al_fixtoi(Efi[num][6])+10;
+         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
+         al_draw_line(ex, ey, px, py, palette_color[10], 1); // connect with line
+      }
+      if (obj_type == 98) // move cloner destination
+      {
+         float dx1 = (float)Ei[num][17]*20;
+         float dy1 = (float)Ei[num][18]*20;
+         float dx2 = dx1 + (float)Ei[num][19]*20;
+         float dy2 = dy1 + (float)Ei[num][20]*20;
+         int dc1 = 10 + 128; // destination box color
+         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64); // destination
+      }
+      if (obj_type == 97) // set new rocket direction
+      {
+         int ix = item[num][4]+10;
+         int iy = item[num][5]+10;
+         int dx = gx*20+10;
+         int dy = gy*20+10;
+         float rot = al_fixtof(al_fixmul(al_itofix(item[num][10]/10), al_fixtorad_r));
+         al_draw_rotated_bitmap(tile[item[num][1]], 10, 10, dx, dy, rot, 0);
+         al_draw_line(ix, iy, dx, dy, palette_color[10], 1);     // connect with line
+      }
+      if (obj_type == 96) // set cannon or bouncer direction
+      {
+         int ex = al_fixtoi(Efi[num][0])+10;
+         int ey = al_fixtoi(Efi[num][1])+10;
+         int dx = gx*20+10;
+         int dy = gy*20+10;
+         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, dx, dy, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile
+         al_draw_line(ex, ey, dx, dy, palette_color[10], 1);   // connect with line
+      }
+
+      if (obj_type == 95) // set message location
+      {
+         // show all messages
+         for (int i=0; i<500; i++)
+            if (item[i][0] == 10) draw_pop_message(i);
+      }
+
+      get_new_screen_buffer(3, 0, 0);
+      ovw_process_scrolledge();
+      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+
+      al_draw_filled_rectangle(tx-100, 70, tx+100, 128, palette_color[0]);
+      al_draw_rectangle(       tx-100, 70, tx+100, 128, palette_color[15], 1);
+
+      al_draw_text(font,  palette_color[9],   tx, 72,  ALLEGRO_ALIGN_CENTER, "Set new Location for:");
+      al_draw_text(font,  palette_color[10],  tx, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(font,  palette_color[9],   tx, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
+      al_draw_text(font,  palette_color[14],  tx, 110, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
+      al_draw_text(font,  palette_color[14],  tx, 118, ALLEGRO_ALIGN_CENTER, "or right mouse button");
+
+
+      switch (obj_type)
+      {
+         case 2: // items
+            item[num][4] = gx*20;
+            item[num][5] = gy*20;
+            itemf[num][0] = al_itofix(gx*20);
+            itemf[num][1] = al_itofix(gy*20);
+         break;
+         case 3: // show enem
+            Efi[num][0] = al_itofix(gx*20);
+            Efi[num][1] = al_itofix(gy*20);
+         break;
+         case 4: // show lift
+         {
+            lift_steps[lift][step].x = gx*20;
+            lift_steps[lift][step].y = gy*20;
+            set_lift_to_step(lift, step);   // set current step in current lift
+            init_level_background();        // to redraw lift lines
+         }
+         break;
+         case 99: // move pod extended
+         {
+            Efi[num][5] = al_itofix(gx*20);
+            Efi[num][6] = al_itofix(gy*20);
+            recalc_pod(num);
+         }
+         break;
+         case 98: // cloner destination
+         {
+            Ei[num][17] = gx;
+            Ei[num][18] = gy;
+         }
+         break;
+         case 97: // set new rocket direction
+         {
+            set_rocket_rot(num, gx*20, gy*20);
+         }
+         break;
+         case 96: // set cannon or bouncer direction
+         {
+            set_xyinc_rot(num, gx*20, gy*20);
+         }
+         break;
+         case 95: // message position
+         {
+            item[num][10] = gx;
+            item[num][11] = gy;
+         }
+      }
+
 
       while (mouse_b1)
       {
@@ -792,10 +676,8 @@ int getxy(const char *txt, int obj_type, int sub_type, int num )
    } // end of while(!quit);
 
 
-   if (dx > 99) dx = 99;
-   if (dy > 99) dy = 99;
-   get100_x = dx;
-   get100_y = dy;
+   if (gx > 99) gx = 99;
+   if (gy > 99) gy = 99;
 
    if (retval != 1) // restore old positions if cancelled
    {
@@ -808,31 +690,45 @@ int getxy(const char *txt, int obj_type, int sub_type, int num )
       }
       if (obj_type == 3)
       {
-          Efi[num][0] = al_itofix(original_dx * 20);
-          Efi[num][1] = al_itofix(original_dy * 20);
+          Efi[num][0] = al_itofix(original_dx);
+          Efi[num][1] = al_itofix(original_dy);
       }
-
       if (obj_type == 99)
       {
-          Efi[num][5] = al_itofix(original_dx * 20);
-          Efi[num][6] = al_itofix(original_dy * 20);
+          Efi[num][5] = al_itofix(original_dx);
+          Efi[num][6] = al_itofix(original_dy);
       }
-
       if (obj_type == 98)
       {
           Efi[num][5] = original_dx;
           Efi[num][6] = original_dy;
       }
+      if (obj_type == 97) // restore rocket direction
+      {
+         item[num][10] = original_rot;
+      }
+      if (obj_type == 96) // cannon or bouncer initial direction
+      {
+         Efi[num][14] = original_rot;
+         Efi[num][2]  = original_xinc;
+         Efi[num][3]  = original_yinc;
+      }
 
+      if (obj_type == 95) // message display position
+      {
+          item[num][10] = original_dx;
+          item[num][11] = original_dy;
+      }
       if (obj_type == 4)
       {
-         lift_steps[lift][step].x = original_dx * 20;
-         lift_steps[lift][step].y = original_dy * 20;
-         set_lift_to_step(lift, step);   // set current step in current lift
+         lift_steps[lift][step].x = original_dx;
+         lift_steps[lift][step].y = original_dy;
       }
    }
    return retval;
 }
+
+
 
 
 
@@ -934,10 +830,6 @@ int get_unused_pm_event_extended(int clt[][4], int clt_last)
 
 
 
-
-
-
-
 int get_unused_pm_event(void)
 {
    int ev = 1; // don't ever use event 0
@@ -951,32 +843,98 @@ int get_unused_pm_event(void)
 }
 
 
-
-void find_and_show_event_links(int i) // assume for now that this just gets called with item type 16 and 17
+void find_and_show_event_links(int type, int i, int num2)
 {
-   int ev = item[i][1];
-   int x1 = item[i][4]/20*db + db/2;
-   int y1 = item[i][5]/20*db + db/2;
-
-   if (ev > 0) // don't do anything for link if zero
+   if (type == 1) // trigger
    {
-
-      for (int i2=0; i2<500; i2++)
+      int x1 = item[i][4]+10;
+      int y1 = item[i][5]+10;
+      for (int en=11; en<15; en++) // iterate all 4 trigger events
       {
-         if ((item[i2][0] == 9) && ((item[i2][11] == ev) || (item[i2][12] == ev) || (item[i2][13] == ev) || (item[i2][14] == ev)))
+         int ev = item[i][en];
+         if (ev > 0) // don't do anything for link if zero
          {
-            // found a match with a trigger
-            int x2 = item[i2][4]/20 * db + db/2;
-            int y2 = item[i2][5]/20 * db + db/2;
-            al_draw_line(x1, y1, x2, y2, palette_color[10], 2);
-         }
-         if ( ((item[i2][0] == 16) || (item[i2][0] == 17)) && (item[i2][1] == ev) )
-         {
-            // found a match with manip or damage
-            int x2 = item[i2][4]/20 * db + db/2;
-            int y2 = item[i2][5]/20 * db + db/2;
-            al_draw_line(x1, y1, x2, y2, palette_color[14], 3);
+            for (int i2=0; i2<500; i2++)
+               if ( ((item[i2][0] == 16) || (item[i2][0] == 17)) && (item[i2][1] == ev))
+               {
+                  // found a match with manip or damage
+                  int x2 = item[i2][4]+10;
+                  int y2 = item[i2][5]+10;
+                  al_draw_line(x1, y1, x2, y2, palette_color[10], 2);
+               }
+            for (int l=0; l<num_lifts; l++) // iterate lifts
+               for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
+                  if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val == ev))
+                  {
+                     //printf("found a match with a lift:%d step:%d ", l, s);
+                     int pms = lift_find_previous_move_step(l, s);
+                     int x2 = lift_steps[l][pms].x + lift_steps[l][pms].w / 2;
+                     int y2 = lift_steps[l][pms].y + lift_steps[l][pms].h / 2;
 
+                     //printf("pms:%d x:%d y:%d\n", pms, x2, y2);
+
+                     al_draw_line(x1, y1, x2, y2, palette_color[10], 2);
+                  }
+         }
+      }
+   }
+
+   if (type == 2)  // block manip or block damage
+   {
+      int x1 = item[i][4]+10;
+      int y1 = item[i][5]+10;
+      int ev = item[i][1];
+      if (ev > 0) // don't do anything for link if zero
+      {
+         for (int i2=0; i2<500; i2++)
+         {
+            // this finds matching triggers for bm and bd
+            if ((item[i2][0] == 9) && ((item[i2][11] == ev) || (item[i2][12] == ev) || (item[i2][13] == ev) || (item[i2][14] == ev)))
+            {
+               // found a match with a trigger
+               int x2 = item[i2][4]+10;
+               int y2 = item[i2][5]+10;
+               al_draw_line(x1, y1, x2, y2, palette_color[10], 2);
+            }
+         }
+      }
+   }
+
+
+   if (type == 3)  // lift
+   {
+      int lift = i;
+      int step = num2;
+      int stype = lift_steps[lift][step].type & 31;
+
+      // get position from previous move step
+      int pms = lift_find_previous_move_step(lift, step);
+      int x1 = lift_steps[lift][pms].x + lift_steps[lift][pms].w / 2;
+      int y1 = lift_steps[lift][pms].y + lift_steps[lift][pms].h / 2;
+
+//      printf("current lift:%d step:%d stype:%d  ", i, step, stype );
+//      printf("pms:%d x:%d y:%d\n", pms, x1, y1);
+
+      if (stype == 5) // only if this step is "wait for trig"
+      {
+         int ev = lift_steps[lift][step].val; // get event
+         if (ev > 0) // don't do anything for link if zero
+         {
+            for (int i2=0; i2<500; i2++)
+            {
+               if ((item[i2][0] == 9) && ((item[i2][11] == ev) || (item[i2][12] == ev) || (item[i2][13] == ev) || (item[i2][14] == ev)))
+               {
+                  // found a match with a trigger
+                  int x2 = item[i2][4]+10;
+                  int y2 = item[i2][5]+10;
+
+//                  printf("found event:%d match with trigger:%d x:%d y:%d\n", ev, i2, x2, y2);
+//                  printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
+
+                  al_draw_line(x1, y1, x2, y2, palette_color[10], 2);
+               }
+
+            }
          }
       }
    }
@@ -984,97 +942,89 @@ void find_and_show_event_links(int i) // assume for now that this just gets call
 
 
 
-
-
-
-
-
-
-
-
-
-int get_trigger_item(const char *txt, int obj_type, int sub_type, int num )
+int get_trigger_item(int obj_type, int sub_type, int num )
 {
-   int dx, dy, itx, ity;
-   int x2 = 0;
-   int y2 = 0;
-   int mouse_on_item = 0;
-   int quit = 0;
-   int ret_item = -1;
+   init_level_background();
+   int gx=0, gy=0, hx=0, hy=0;
+   int tx = SCREEN_W/2;
 
-   while (mouse_b1) proc_controllers();      // wait for release
+   // in case these are needed for lifts
+   int lift = num;
+   int step = sub_type;
+
+   int ret_item=0;
+   int quit=0;
+   int mouse_on_item = 0;
+
+   int x2=0, y2=0, itx=0, ity=0;
 
    if (obj_type == 2)
    {
-      x2 = item[num][4]/20; // get the original item position
-      y2 = item[num][5]/20;
+      x2 = item[num][4]+10; // get the object position
+      y2 = item[num][5]+10;
    }
-
    if (obj_type == 4)
    {
-      int lift = sub_type;
-      int step = num;
-
-      step = lift_find_previous_move_step(lift, step); // searches back from passed step until a move step is found
-
-      //printf("obt4 l:%d s:%d \n", sub_type, num);
-
-
-      x2 = lift_steps[lift][step].x / 20; // get the original item position
-      y2 = lift_steps[lift][step].y / 20; // get the original item position
+      int pms = lift_find_previous_move_step(lift, step);
+      x2 = lift_steps[lift][pms].x + lift_steps[lift][pms].w / 2;
+      y2 = lift_steps[lift][pms].y + lift_steps[lift][pms].h / 2;
    }
 
 
+   while (mouse_b1) proc_controllers(); // wait for release
 
    while(!quit)
    {
-      // show text line
-      al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
-      al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
-      al_draw_text(font, palette_color[14], txc, 120, ALLEGRO_ALIGN_CENTER, "Cancel");
-      al_draw_text(font, palette_color[9],  txc, 128, ALLEGRO_ALIGN_CENTER, "with right mouse button");
-
       al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
-      title_obj(obj_type, sub_type, num, 0, 15);
-
+      proc_scale_factor_change();
       proc_controllers();
+      proc_frame_delay();
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
 
-      dx = mouse_x/db;
-      dy = mouse_y/db;
+      crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 
-      draw_bs(14);      // show bullseye map
-
-      mouse_on_item = 0;
-
-      if ((dx<100) && (dy<100))      // if mouse on map
-         for (int x=0; x<500; x++)
-            if (item[x][0] == 9)    // trigger only
-            {
-               itx = item[x][4]/20;
-               ity = item[x][5]/20;
-               if ((dx == itx) && (dy == ity))
-               {
-                  mouse_on_item = 1;
-                  ret_item = x;
-               }
-            }
-
-      itx = item[ret_item][4]/20;
-      ity = item[ret_item][5]/20;
-
-      crosshairs(0, 0, x2, y2, 13); // draw the original position
-      if (mouse_on_item)
-      {
-         crosshairs(0, 0, itx, ity, 14); // draw the selected item position
-         int o = db/2;
-         al_draw_line(x2*db+o, y2*db+o, itx*db+o, ity*db+o, palette_color[14], 1);
-         al_draw_textf(font, palette_color[15], txc, 180, ALLEGRO_ALIGN_CENTER, " Item:%d ", ret_item);
-      }
+      if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, palette_color[10], 2);
       else
       {
-         find_and_show_event_links(num); // assume for now that this just gets called with item type 16 and 17
+         if (obj_type == 2) find_and_show_event_links(2, num, 0);
+         if (obj_type == 4) find_and_show_event_links(3, lift, step);
       }
+
+
+
+      get_new_screen_buffer(3, 0, 0);
+      ovw_process_scrolledge();
+      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+
+      al_draw_filled_rectangle(tx-110, 78, tx+110, 146, palette_color[0]);
+      al_draw_rectangle(       tx-110, 78, tx+110, 146, palette_color[15], 1);
+
+      al_draw_text(font,  palette_color[9],  tx, 80,  ALLEGRO_ALIGN_CENTER, "Select a Trigger Object");
+      al_draw_text(font,  palette_color[9],  tx, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
+      al_draw_text(font,  palette_color[14], tx, 110, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
+      al_draw_text(font,  palette_color[14], tx, 118, ALLEGRO_ALIGN_CENTER, "or right mouse button");
+
+      if (mouse_on_item) al_draw_textf(font, palette_color[15], tx, 136, ALLEGRO_ALIGN_CENTER, "Trigger Object:%d", ret_item);
+      else               al_draw_textf(font, palette_color[15], tx, 136, ALLEGRO_ALIGN_CENTER, "No Trigger Object Selected");
+
+      mouse_on_item = 0;
+      for (int x=0; x<500; x++)
+         if (item[x][0] == 9)    // trigger only
+         {
+            itx = item[x][4]/20;
+            ity = item[x][5]/20;
+            if ((gx == itx) && (gy == ity))
+            {
+               mouse_on_item = 1;
+               ret_item = x;
+            }
+         }
+
+      itx = item[ret_item][4];
+      ity = item[ret_item][5];
 
       while (mouse_b1)
       {
@@ -1084,8 +1034,8 @@ int get_trigger_item(const char *txt, int obj_type, int sub_type, int num )
       while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
       {
          proc_controllers();
-         quit =1;
-         ret_item = -1;
+         quit = 1;
+         ret_item = - 1;
       }
    } // end of while(!quit);
    if (!mouse_on_item) ret_item = -1;
@@ -1125,90 +1075,69 @@ int get_trigger_item(const char *txt, int obj_type, int sub_type, int num )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-int get_item(const char *txt, int obj_type, int sub_type, int num )
+int get_item(int obj_type, int sub_type, int num )
 {
-   int itx, ity, dx, dy;
+   init_level_background();
+   int gx=0, gy=0, hx=0, hy=0;
+   int tx = SCREEN_W/2;
+
+   int ret_item=0;
+   int quit=0;
    int mouse_on_item = 0;
-   int quit = 0;
-   int ret_item = -1;
 
-   while (mouse_b1) proc_controllers();      // wait for release
+   int itx=0, ity=0;
 
-   int x2 = item[num][4]/20; // get the door entry position
-   int y2 = item[num][5]/20;
+   int x2 = item[num][4]+10; // get the originating door's location
+   int y2 = item[num][5]+10;
 
-   int li = item[num][9];    // get original linked item position
-   int x3 = item[li][4]/20;
-   int y3 = item[li][5]/20;
+   while (mouse_b1) proc_controllers(); // wait for release
 
    while(!quit)
    {
-      // show text line
-      al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
-      al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
-      al_draw_text(font, palette_color[14], txc, 120, ALLEGRO_ALIGN_CENTER, "Cancel");
-      al_draw_text(font, palette_color[9],  txc, 128, ALLEGRO_ALIGN_CENTER, "with right mouse button");
-
       al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
-      title_obj(obj_type, sub_type, num, 0, 15);
-
+      proc_scale_factor_change();
       proc_controllers();
+      proc_frame_delay();
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
 
-      dx = mouse_x/db;
-      dy = mouse_y/db;
+      crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 
-      draw_bs(14);      // show bullseye map
+      if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, palette_color[10], 2);
+
+      get_new_screen_buffer(3, 0, 0);
+      ovw_process_scrolledge();
+      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+
+      al_draw_filled_rectangle(tx-110, 78, tx+110, 146, palette_color[0]);
+      al_draw_rectangle(       tx-110, 78, tx+110, 146, palette_color[15], 1);
+
+      al_draw_text(font,  palette_color[9],  tx, 80,  ALLEGRO_ALIGN_CENTER, "Select a Door Object");
+      al_draw_text(font,  palette_color[9],  tx, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
+      al_draw_text(font,  palette_color[14], tx, 110, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
+      al_draw_text(font,  palette_color[14], tx, 118, ALLEGRO_ALIGN_CENTER, "or right mouse button");
+
+      if (mouse_on_item) al_draw_textf(font, palette_color[15], tx, 136, ALLEGRO_ALIGN_CENTER, "Door Object:%d", ret_item);
+      else               al_draw_textf(font, palette_color[15], tx, 136, ALLEGRO_ALIGN_CENTER, "No Door Object Selected");
+
 
       mouse_on_item = 0;
-
-      if ((dx<100) && (dy<100))      // if mouse on map
-         for (int x=0; x<500; x++)   // see if we are pointing at a door item
-            if (item[x][0] == 1)
+      for (int x=0; x<500; x++)
+         if (item[x][0] == 1)    // door only
+         {
+            itx = item[x][4]/20;
+            ity = item[x][5]/20;
+            if ((gx == itx) && (gy == ity))
             {
-               itx = item[x][4]/20;
-               ity = item[x][5]/20;
-               if ((dx == itx) && (dy == ity))
-               {
-                  mouse_on_item = 1;
-                  ret_item = x;
-               }
+               mouse_on_item = 1;
+               ret_item = x;
             }
+         }
 
-      itx = item[ret_item][4]/20;
-      ity = item[ret_item][5]/20;
-
-      crosshairs(0, 0, x2, y2, 13); // draw the door entry position
-      if (mouse_on_item)
-      {
-         crosshairs(0, 0, itx, ity, 14); // draw the selected item position
-         int o = db/2;
-         al_draw_line(x2*db+o, y2*db+o, itx*db+o, ity*db+o, palette_color[14], 1);
-         al_draw_textf(font, palette_color[15], txc, 180, ALLEGRO_ALIGN_CENTER, " Item:%d ", ret_item);
-
-      }
-      else
-      {
-         crosshairs(0, 0, x3, y3, 10);  // show orignal linked item
-         int o = db/2;
-         al_draw_line(x2*db+o, y2*db+o, x3*db+o, y3*db+o, palette_color[10], 1);
-      }
+      itx = item[ret_item][4];
+      ity = item[ret_item][5];
 
       while (mouse_b1)
       {
@@ -1218,40 +1147,13 @@ int get_item(const char *txt, int obj_type, int sub_type, int num )
       while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
       {
          proc_controllers();
-         quit =1;
-         ret_item = -1;
+         quit = 1;
+         ret_item = - 1;
       }
-
    } // end of while(!quit);
    if (!mouse_on_item) ret_item = -1;
    return ret_item;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

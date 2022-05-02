@@ -23409,6 +23409,585 @@ make color changeable in viewer
 make a new getbox and use it...
 
 
+int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2)
+
+find all the places I can swap for
+
+int getbox(const char *txt, int obj_type, int sub_type, int num )
+
+16 occurances!!
+
+key block range done
+type 1 0-1999 x y w h
+
+move trigger box for 7 and 9...done
+type 2 0-99 x1 y1 x2 y2
+
+cloner source area creator...done
+type 3 0-99 x y w h
+
+
+field damage creator
+field trigger creator
+type 1 0-1999 x y w h
+
+key creator
+type 1
+
+creators all type 1
+trigger
+bd
+bm
+
+
+button 5 key
+
+button 17 cloner src
+
+button 85 get new field
+button 86 get new field trigger
+
+200 trigger
+
+now retired!!!
+//int getbox(const char *txt, int obj_type, int sub_type, int num );
+
+int getbox(const char *txt, int obj_type, int sub_type, int num )
+{
+   int bs_on = 1;
+   int quit = 0;
+   while (mouse_b1) proc_controllers();    // wait for release
+   while (!quit)
+   {
+      proc_controllers();
+      int dx = mouse_x/db;
+      int dy = mouse_y/db;
+
+      title_obj(obj_type, sub_type, num, 0, 15);
+
+      // show text line
+      al_draw_text(font, palette_color[9],  txc, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
+      al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
+      al_draw_text(font, palette_color[9],  txc, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
+      al_draw_text(font, palette_color[9],  txc, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
+      al_draw_text(font, palette_color[14], txc, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC> or");
+      al_draw_text(font, palette_color[9],  txc, 138, ALLEGRO_ALIGN_CENTER, "the right mouse button");
+
+      if (bs_on) draw_bs(15);
+
+      if ((obj_type == 3) && (sub_type == 9)) // cloner
+         draw_cloner_boxes(num);
+
+      // show block cursor
+      if ((dx<100) && (dy < 100)) al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[127-32], 1); // show which block is selected
+
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+
+      if (mouse_b1)
+      {
+         quit = 1;
+         bx1 = mouse_x/db;
+         by1 = mouse_y/db;
+         while (mouse_b1) // trap while b1 is held
+         {
+            proc_controllers();
+            title_obj(obj_type, sub_type, num, 0, 15);
+
+            // show text line
+            al_draw_text(font, palette_color[9],  txc, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
+            al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
+            al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
+            al_draw_text(font, palette_color[9],  txc, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
+            al_draw_text(font, palette_color[9],  txc, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
+            al_draw_text(font, palette_color[14], txc, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC> or");
+            al_draw_text(font, palette_color[9],  txc, 138, ALLEGRO_ALIGN_CENTER, "the right mouse button");
+
+            if (bs_on) draw_bs(15);
+
+            if ((obj_type == 3) && (sub_type == 9)) // cloner
+              draw_cloner_boxes(num);
+
+
+            // show selection rectangle
+            bx2 = (mouse_x/db)+1;
+            by2 = (mouse_y/db)+1;
+            al_set_clipping_rectangle(0, 0, display_transform_double*db*100-1, display_transform_double*db*100-1);
+            al_draw_rectangle((bx1)*db, (by1)*db, (bx2)*db, (by2)*db, palette_color[15], 1);
+            al_reset_clipping_rectangle();
+
+            al_flip_display();
+            al_clear_to_color(al_map_rgb(0,0,0));
+         }
+
+         // limits
+         if (bx1<0) bx1 = 0;
+         if (bx2<0) bx2 = 0;
+         if (by1<0) by1 = 0;
+         if (by2<0) by2 = 0;
+
+         if (bx1>99) bx1 = 99;
+         if (bx2>99) bx2 = 99;
+         if (by1>99) by1 = 99;
+         if (by2>99) by2 = 99;
+
+         // ensure top-right, bottom left format
+         if (bx1 > bx2)
+         {
+            int btemp = bx2;
+            bx2 = bx1;
+            bx1= btemp;
+         }
+         if (by1 > by2)
+         {
+            int btemp = by2;
+            by2 = by1;
+            by1= btemp;
+         }
+      }
+      if  (mouse_b2)
+      {
+         while (mouse_b2) proc_controllers(); // wait for release
+         return 0;
+      }
+      if (key[ALLEGRO_KEY_ESCAPE])
+      {
+         return 0;
+      }
+   } // end of while not quit
+   return 1;
+}
+
+
+getbox is dead...I wish I could get rid of the globals that it uses....bx1...etc
+
+how about getxy? there are only 27 calls to that!!
+
+could be done...keep all the cool shit
+make it on the zoomable map also and no title obj
+
+podzilla could have random extended position
+
+get block range needs checks to prevent upside down...done
+
+
+
+getxy...
+
+the part at the start where variable are saved will be easier once I pass pointers
+
+I think I might just redo the existing one instead of making a new one...
+
+almost done...
+
+when called ignore get100_y...done
+
+get100x and y are completely gone....
+
+
+
+
+
+
+int old_getxy(const char *txt, int obj_type, int sub_type, int num )
+{
+   int dx=0, dy=0;
+
+   // in case these are needed for lifts
+   int lift = sub_type;
+   int step = num;
+
+   int retval=0;
+   int quit=0;
+
+   while (mouse_b1) proc_controllers(); // wait for release
+   al_flip_display();
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+
+// get original positions in case we are cancelled
+   int original_dx=0, original_dy=0;
+   if (obj_type == 2)
+   {
+      original_dx = item[num][4];
+      original_dy = item[num][5];
+   }
+   if (obj_type == 3)
+   {
+      original_dx = al_fixtoi(Efi[num][0]) / 20;
+      original_dy = al_fixtoi(Efi[num][1]) / 20;
+   }
+
+   if (obj_type == 99) // pod extended
+   {
+      original_dx = al_fixtoi(Efi[num][5]) / 20;
+      original_dy = al_fixtoi(Efi[num][6]) / 20;
+   }
+
+   if (obj_type == 98) // cloner destination
+   {
+      original_dx = Ei[num][17];
+      original_dy = Ei[num][18];
+   }
+
+   if (obj_type == 4)
+   {
+
+      original_dx = lift_steps[lift][step].x / 20;
+      original_dy = lift_steps[lift][step].y / 20;
+   }
+
+   while(!quit)
+   {
+      dx = mouse_x/db;
+      dy = mouse_y/db;
+
+      if ((dx < 100) && (dy < 100)) // if mouse on map
+      {
+         switch (obj_type) // show draw_item
+         {
+            case 2: // show item
+               if (sub_type == 1010) // message display only
+               {
+                  show_big();
+                  al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
+                  al_draw_bitmap(mp, dx*db, dy*db, 0);
+                  al_reset_clipping_rectangle();
+               }
+               else // all other items
+               {
+                  item[num][4] = dx*20;
+                  item[num][5] = dy*20;
+                  itemf[num][0] = al_itofix(dx*20);
+                  itemf[num][1] = al_itofix(dy*20);
+                  draw_big(1);
+                  show_big();
+                  draw_bs(14);            // show bullseye map
+                  al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
+                  al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[127-32], 1); // draw box to show cursor
+                  al_reset_clipping_rectangle();
+               }
+            break;
+            case 3: // show enem
+               Efi[num][0] = al_itofix(dx * 20);
+               Efi[num][1] = al_itofix(dy * 20);
+               draw_big(1);
+               show_big();
+               draw_bs(14);            // show bullseye map
+               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
+               al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[127-32], 1); // draw box to show cursor
+               al_reset_clipping_rectangle();
+            break;
+            case 99: // move pod extended
+            {
+               Efi[num][5] = al_itofix(dx * 20);
+               Efi[num][6] = al_itofix(dy * 20);
+               draw_big(1);
+               show_big();
+               draw_bs(14);
+               int ex = al_fixtoi(Efi[num][0])*db/20;
+               int ey = al_fixtoi(Efi[num][1])*db/20;
+               int px = al_fixtoi(Efi[num][5])*db/20;
+               int py = al_fixtoi(Efi[num][6])*db/20;
+               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
+               al_draw_rectangle(ex, ey, ex+db-1, ey+db-1, palette_color[13], 1);           // draw box to show pod location
+               al_draw_filled_rectangle(px, py, px+db-1, py+db-1, palette_color[10]);       // draw box to show pod extended
+               al_draw_line(ex+db/2, ey+db/2, px+db/2, py+db/2, palette_color[10], 1); // connect with line
+               al_reset_clipping_rectangle();
+            }
+            break;
+            case 98: // cloner destination
+            {
+               Ei[num][17] = dx;
+               Ei[num][18] = dy;
+               draw_big(1);
+               show_big();
+               draw_bs(14);
+              // draw_cloner_boxes(num);
+            }
+            break;
+            case 97: // set new rocket direction
+            {
+               draw_big(1);
+               show_big();
+               draw_bs(14);
+               int ix = item[num][4]*db/20;
+               int iy = item[num][5]*db/20;
+               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
+               al_draw_rectangle(ix, iy, ix+db-1, iy+db-1, palette_color[13], 1);                     // show rocket location
+               al_draw_filled_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[10]);   // show cursor
+               al_draw_line(ix+db/2, iy+db/2, dx*db+db/2, dy*db+db/2, palette_color[10], 1);     // connect with line
+               al_reset_clipping_rectangle();
+            }
+            break;
+            case 96: // set cannon or bouncer direction
+            {
+               draw_big(1);
+               show_big();
+               draw_bs(14);
+               int ex = al_fixtoi(Efi[num][0])*db/20;
+               int ey = al_fixtoi(Efi[num][1])*db/20;
+               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
+               al_draw_rectangle(ex, ey, ex+db-1, ey+db-1, palette_color[13], 1);                   // draw box to show enemy location
+               al_draw_filled_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[10]); // draw box to show cursor
+               al_draw_line(ex+db/2, ey+db/2, dx*db+db/2, dy*db+db/2, palette_color[10], 1);   // connect with line
+               al_reset_clipping_rectangle();
+
+            }
+            break;
+            case 4: // show lift
+            {
+               lift_steps[lift][step].x = dx*20;
+               lift_steps[lift][step].y = dy*20;
+
+               //  redraw
+               set_lift_to_step(lift, step);   // set current step in current lift
+               draw_big(1);
+               show_big();
+               draw_bs(14);            // show bullseye map
+
+               al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
+               highlight_current_lift(lift);   // crosshairs and rect on current lift
+               al_reset_clipping_rectangle();
+            }
+            break;
+         }
+      } // end of if mouse on map
+
+      al_set_target_backbuffer(display);
+
+      // show text line
+      al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
+      al_draw_text(font, palette_color[14], txc, 120, ALLEGRO_ALIGN_CENTER, "Cancel");
+      al_draw_text(font, palette_color[9],  txc, 128, ALLEGRO_ALIGN_CENTER, "with right mouse button");
+
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+      proc_controllers();
+
+      title_obj(obj_type, sub_type, num, 0, 15);
+
+      while (mouse_b1)
+      {
+         proc_controllers();
+         quit = 1;
+         retval = 1;  // b1 xy
+      }
+      while (mouse_b2)
+      {
+         proc_controllers();
+         quit = 1;
+         retval = 2;  // b2 xy
+      }
+      while (key[ALLEGRO_KEY_ESCAPE])
+      {
+         proc_controllers();
+         quit = 1;
+         retval = 0;  // ignore xy
+      }
+   } // end of while(!quit);
+
+
+   if (dx > 99) dx = 99;
+   if (dy > 99) dy = 99;
+
+   if (retval != 1) // restore old positions if cancelled
+   {
+      if (obj_type == 2)
+      {
+         item[num][4] = original_dx;
+         item[num][5] = original_dy;
+         itemf[num][0] = al_itofix(original_dx);
+         itemf[num][1] = al_itofix(original_dy);
+      }
+      if (obj_type == 3)
+      {
+          Efi[num][0] = al_itofix(original_dx * 20);
+          Efi[num][1] = al_itofix(original_dy * 20);
+      }
+
+      if (obj_type == 99)
+      {
+          Efi[num][5] = al_itofix(original_dx * 20);
+          Efi[num][6] = al_itofix(original_dy * 20);
+      }
+
+      if (obj_type == 98)
+      {
+          Efi[num][5] = original_dx;
+          Efi[num][6] = original_dy;
+      }
+
+      if (obj_type == 4)
+      {
+         lift_steps[lift][step].x = original_dx * 20;
+         lift_steps[lift][step].y = original_dy * 20;
+         set_lift_to_step(lift, step);   // set current step in current lift
+      }
+   }
+   return retval;
+}
+
+old getxy is gone....
+
+should slso get rid of bx1...
+
+
+
+now can I get rid of title....lifts needs it I think...
+14 occurances...
+
+get_trigger_item()
+called by sliders for bm and bd
+
+redo it like the others....
+
+fix this too....done
+find_and_show_event_links(num);
+
+this looks great...check if it works for lifts....
+
+did a bunch of stuff to make it work for lifts...
+show event links works great...
+does not work for plain lift viewer because that still uses 100 map for now...
+
+
+
+
+so back to what I was doing....
+
+get trigger item is done....now uses new scaleable map and does not use title object_viewer
+
+now get_item()
+
+used only by doors to get linked door...done...
+
+
+now what is left for title_obj()...?
+draw and redraw lift_viewer...
+a bunch of comment out stuff from the old object_viewer()...
+
+hack it up so that only lift can use it...
+
+
+this is all that is left....
+
+void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int highlight_color)
+{
+   al_draw_rectangle(0, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);         // outline screen
+   al_draw_rectangle(0, 0, 100*db-1, 100*db-1, palette_color[13], 1);              // outline map
+   al_draw_rectangle(100*db-1, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);  // outline side panel
+
+   show_big();
+   title("Lift Viewer",  0, 15, 13);
+
+   int lift = sub_type;
+   al_draw_rectangle(txc-90, 20, txc+90, 43, palette_color[15], 1);
+   al_draw_textf(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",lift+1, num_lifts);
+}
+
+moved to e_lifts.cpp and renamed:
+
+void title_lift(int lift)
+{
+   al_draw_rectangle(0, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);         // outline screen
+   al_draw_rectangle(0, 0, 100*db-1, 100*db-1, palette_color[13], 1);              // outline map
+   al_draw_rectangle(100*db-1, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);  // outline side panel
+   show_big();
+   title("Lift Viewer",  0, 15, 13);
+   al_draw_rectangle(txc-90, 20, txc+90, 43, palette_color[15], 1);
+   al_draw_textf(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",lift+1, num_lifts);
+}
+
+now all of object_viewer() is commented out....removed from project...yay!!
+
+bx1 stuff...that global has been removed!!! yay!!
+
+
+now what...
+
+
+
+group edit was very easy.....
+
+flash of item on level buffer does not work??
+mouse on item in map make list flash, but not the other way...fixed by redordering
+
+do not show crosshairs when show selection...done
+
+do not show crosshairs when on windows...
+
+made flash color global...
+
+make the windows moveable....
+how many windows do I have?
+
+filters
+list
+ge_actions
+buttons
+
+move them all at once for now...
+with the title bar...
+
+make a way to get sizes of all the windows...
+
+title bar is easy, it is 300 wide and 15 high
+
+redo filter so that sizes are right...done
+same with object list...done
+what I mean is that the x and y are the actual sizes and not offset by frame..
+
+
+now make it so that I can drag the whole thing....done
+
+
+
+group edit to do:
+
+make it easy to clear the list.
+
+make it easier to add..like..set filters then selection could add automatically...
+
+make it so that I can line up a group of enemies...
+set the y values to all the same..
+set the x in a increment thing...
+right now that is not possible...
+
+removed e_group_edit.cpp from sources....
+
+
+
+next big thing....
+lift viewer to match object viewer...
+would that not be so awesome if they were one and the same
+lift viewer if 400 LOC and the map move part is 200 of that....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
