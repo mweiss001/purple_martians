@@ -259,15 +259,13 @@ int create_key(int c)
    // then set the key location
    if (!bad)
    {
-      if (getxy("Set Key Location", 2, 4, c) == 1)
+      if (getxy("Key", 2, 4, c) == 1)
       {
          item[c][0] = 4;     // type 4 - key
          item[c][1] = 1039 + key_color; // animation seq
          item[c][2] = 1; // draw mode
          item[c][3] = 1; // fall
-         item[c][4] = get100_x*20;
-         item[c][5] = get100_y*20;
-         l[get100_x][get100_y] = 0; // make sure empty block in that pos
+         l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
       }
       else bad = 1;
    }
@@ -275,18 +273,7 @@ int create_key(int c)
    // then set the block range
    if (!bad)
    {
-      if (getbox("Block Range", 2, 4, c))
-      {
-         bx2 -= 1;
-         by2 -= 1;
-         if (bx2 < bx1) bx2 = bx1;
-         if (by2 < by1) by2 = by1;
-         item[c][6] = bx1*20;
-         item[c][7] = by1*20;
-         item[c][8] = (bx2-bx1+1)*20;
-         item[c][9] = (by2-by1+1)*20;
-      }
-      else bad = 1;
+      if (!get_block_range("Block Range", &item[c][6], &item[c][7], &item[c][8], &item[c][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else return 1;
@@ -295,31 +282,19 @@ int create_key(int c)
 int create_trigger(int i)
 {
    int bad = 0;
-
    // set the item location
-   if (getxy("Set Trigger Location", 2, 9, i) == 1)
+   if (getxy("Trigger", 2, 9, i) == 1)
    {
       item[i][0] = 9;  // type 9 - trigger
       item[i][2] = 14; // draw color
       item[i][3] |= PM_ITEM_TRIGGER_PLAYER;
       item[i][3] |= PM_ITEM_TRIGGER_DRAW_ON;
-      item[i][4] = get100_x*20;
-      item[i][5] = get100_y*20;
    }
    else bad = 1;
    // then set the block range
    if (!bad)
    {
-      if (getbox("Draw Trigger Rectangle", 2, 9, i))
-      {
-         if (bx2 < bx1) bx2 = bx1;
-         if (by2 < by1) by2 = by1;
-         item[i][6] = bx1*20;
-         item[i][7] = by1*20;
-         item[i][8] = (bx2-bx1)*20;
-         item[i][9] = (by2-by1)*20;
-      }
-      else bad = 1;
+      if (!get_block_range("Trigger Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else object_viewerw(2, i);
@@ -332,28 +307,17 @@ int create_block_manip(int i)
    int bad = 0;
 
    // set the item location
-   if (getxy("Set Block Manip Location", 2, 16, i) == 1)
+   if (getxy("Block Manip Object", 2, 16, i) == 1)
    {
       item[i][0] = 16; // type 16 - block manip
       item[i][2] = 1; // draw mode on
-      item[i][4] = get100_x*20;
-      item[i][5] = get100_y*20;
       item[i][12] = 12; // default color
    }
    else bad = 1;
    // then set the block range
    if (!bad)
    {
-      if (getbox("Draw Block Manip Rectangle", 2, 16, i))
-      {
-         if (bx2 < bx1) bx2 = bx1;
-         if (by2 < by1) by2 = by1;
-         item[i][6] = bx1*20;
-         item[i][7] = by1*20;
-         item[i][8] = (bx2-bx1)*20;
-         item[i][9] = (by2-by1)*20;
-      }
-      else bad = 1;
+      if (!get_block_range("Block Manip Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else object_viewerw(2, i);
@@ -365,36 +329,20 @@ int create_block_damage(int i)
    int bad = 0;
 
    // set the item location
-   if (getxy("Set Block Damage Location", 2, 17, i) == 1)
+   if (getxy("Block Damage Object", 2, 17, i) == 1)
    {
       item[i][0] = 17; // type 16 - block damage
       item[i][2] = 1;  // draw type
-
       item[i][3] |= PM_ITEM_DAMAGE_CURR;
-
-      item[i][4] = get100_x*20;
-      item[i][5] = get100_y*20;
-
-
       item[i][12] = 100;
       item[i][13] = 0;
       item[i][14] = 100;
-
    }
    else bad = 1;
    // then set the block range
    if (!bad)
    {
-      if (getbox("Draw Block Damage Rectangle", 2, 17, i))
-      {
-         if (bx2 < bx1) bx2 = bx1;
-         if (by2 < by1) by2 = by1;
-         item[i][6] = bx1*20;
-         item[i][7] = by1*20;
-         item[i][8] = (bx2-bx1)*20;
-         item[i][9] = (by2-by1)*20;
-      }
-      else bad = 1;
+      if (!get_block_range("Block Damage Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
    else object_viewerw(2, i);
@@ -402,57 +350,19 @@ int create_block_damage(int i)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int create_start_block(int c)
 {
-   if (getxy("Put Start Location", 2, 5, c) == 1)
+   item[c][0] = 5 ;           // type 5 - start
+   item[c][1] = 1021;         // default animation seq
+   item[c][2] = 1;            // draw mode
+   item[c][3] = 0;            // stationary
+   if (getxy("Start", 2, 5, c) == 1)
    {
-      // erase all other starts
+      // erase all starts except for this newly created one
       for (int x=0; x<500; x++)
-         if (item[x][0] == 5)
-            for (int y=0; y<16; y++)
-               item[x][y] = 0;
+         if ((item[x][0] == 5) && (x != c)) erase_item(x);
 
-      item[c][0] = 5 ;           // type 5 - start
-      item[c][1] = 1021;         // default animation seq
-      item[c][2] = 1;            // draw mode
-      item[c][3] = 0;            // stationary
-      item[c][4] = get100_x*20;  // x pos
-      item[c][5] = get100_y*20;  // y pos
-      l[get100_x][get100_y] = 0; // make sure empty block in that pos
+      l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
       return 1;
    }
    else return 0;
@@ -460,16 +370,14 @@ int create_start_block(int c)
 
 int create_exit(int c)
 {
-   if (getxy("Put Exit Location", 2, 3, c) == 1) // xorg, yorg
+   item[c][0] = 3 ;           // type 3 - exit
+   item[c][1] = 1022;         // default animation seq
+   item[c][2] = 1;            // draw mode
+   item[c][3] = 0;            // stationary
+   item[c][8] = 100;          // num enemies left alive to activate this exit
+   if (getxy("Exit", 2, 3, c) == 1) // xorg, yorg
    {
-      item[c][0] = 3 ;           // type 3 - exit
-      item[c][1] = 1022;         // default animation seq
-      item[c][2] = 1;            // draw mode
-      item[c][3] = 0;            // stationary
-      item[c][4] = get100_x*20;  // x pos
-      item[c][5] = get100_y*20;  // x pos
-      item[c][8] = 100;          // num enemies left alive to activate this exit
-      l[get100_x][get100_y] = 0; // make sure empty block in that pos
+      l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
       return 1;
    }
    else return 0;
@@ -649,39 +557,22 @@ int create_pmsg(int c)
 
    int bad=0;
 
-
-
-
-
    // get text of message
    if (!edit_pmsg_text(c, 1)) bad = 1;
-
    if (!bad)
    {
-      if (getxy("Set Location", 2, 10, c) == 1)
+      if (getxy("Message Object", 2, 10, c) == 1)
       {
-         item[c][4] = get100_x*20;
-         item[c][5] = get100_y*20;
-         l[get100_x][get100_y] = 0; // zero block
+         l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
       }
       else bad = 1;
    }
-
    if (!bad)
    {
-      if (getxy("Set Display Position", 2, 1010, c) == 1)
-      {
-         item[c][10] = get100_x;
-         item[c][11] = get100_y;
-      }
-      else bad = 1;
+      if (!getxy("Message Display", 95, 10, c)) bad = 1;
    }
    if (bad) return 0;
-   else
-   {
-      object_viewerw(2, c);
-
-   }
+   else object_viewerw(2, c);
    return 1;
 }
 
@@ -706,20 +597,14 @@ int create_door(int type)
 
          if (found_empty_items)
          {
-            if (getxy("Put door location", 2, 1, c) == 1)
+            if (getxy("Door", 2, 1, c) == 1)
             {
-               item[c][4] = get100_x*20;
-               item[c][5] = get100_y*20;
-
-               l[item[c][4]/20][item[c][5]/20] = 0;   // zero block
+               l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
 
                item[c][0] = 1;    // type 1
                item[c][13] = 1083;    // base draw shape or ans
                item[c][6] = 13;      // default color = lt blue
                item[c][1] = 1083;     // current shape
-
-//               item[c][1] = 1083; // ans
-
 
                item[c][2] = 1;    // draw mode normal
                item[c][3] = 0;    // stationary
@@ -732,21 +617,17 @@ int create_door(int type)
                show_big();
 
 
-               if (getxy("Put door destination", 2, 1, d) == 1)
+               if (getxy("Destination Door", 2, 1, d) == 1)
                {
                   item[c][9] = d;    // linked exit
 
-                  item[d][4] = get100_x*20;
-                  item[d][5] = get100_y*20;
-
-                  l[item[d][4]/20][item[d][5]/20] = 0;   // zero block
+                  l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
 
                   item[d][0] = 1;    // type 1
 
-               item[d][13] = 1083;    // base draw shape or ans
-               item[d][1] = 1083;     // current shape
-               item[d][6] = 6;      // default color = tan
-
+                  item[d][13] = 1083;    // base draw shape or ans
+                  item[d][1] = 1083;     // current shape
+                  item[d][6] = 6;      // default color = tan
 
                   item[d][2] = 1;    // draw mode normal
                   item[d][3] = 0;    // stationary
@@ -787,12 +668,9 @@ int create_door(int type)
 
          if (found_empty_items)
          {
-            if (getxy("Put first door", 2, 1, c) == 1)
+            if (getxy("1st Door", 2, 1, c) == 1)
             {
-               item[c][4] = get100_x*20;
-               item[c][5] = get100_y*20;
-
-               l[item[c][4]/20][item[c][5]/20] = 0;   // zero block
+               l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
 
                item[c][0] = 1;    // type 1
 
@@ -810,15 +688,10 @@ int create_door(int type)
                draw_big(1);
                show_big();
 
-
-               if (getxy("Put second door", 2, 1, d) == 1)
+               if (getxy("2nd Door", 2, 1, d) == 1)
                {
                   item[c][9] = d;    // linked exit
-
-                  item[d][4] = get100_x*20;
-                  item[d][5] = get100_y*20;
-
-                  l[item[d][4]/20][item[d][5]/20] = 0;   // zero block
+                  l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
 
                   item[d][0] = 1;    // type 1
                   item[d][2] = 1;    // draw mode normal
@@ -833,18 +706,17 @@ int create_door(int type)
                   item[d][1] = 1083;     // current shape
                   item[d][6] = 13;      // default color = lt blue
 
-
                   draw_big(1);
                   show_big();
                } // end of get destination without cancel
                else // cancelled while choosing destination
                {
-                  item[c][0] = 0;
+                  erase_item(c);
                }
              } // end of get location without cancel
              else  // cancelled while choosing location
              {
-                item[c][0] = 0;
+                erase_item(c);
              }
           } // end of found empty items
 

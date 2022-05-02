@@ -298,11 +298,7 @@ extern int Redraw;
 extern int num_legend_lines;
 extern int Viewer_lock;
 
-// ------------------------------------------------
-// ----- return values from getxy and getbox ------
-// ------------------------------------------------
-extern int bx1, bx2, by1, by2;
-extern int get100_x, get100_y;
+
 
 // ------------------------------------------------
 // ------------ game moves array ------------------
@@ -339,7 +335,6 @@ extern int ov_window_x;
 extern int ov_window_y;
 extern int ov_window_w;
 extern int ov_window_h;
-
 
 
 
@@ -489,6 +484,8 @@ extern ALLEGRO_TIMER * mnu_timer;
 extern ALLEGRO_EVENT_QUEUE *event_queue;
 extern ALLEGRO_DISPLAY *display;
 extern ALLEGRO_COLOR palette_color[256];
+extern int flash_color;
+extern int flash_counter;
 extern ALLEGRO_FONT *font;
 extern ALLEGRO_FONT *f1;
 extern ALLEGRO_FONT *f2;
@@ -989,8 +986,8 @@ void draw_item_shape(int i, int x, int y);
 void draw_enemy_shape(int e, int x, int y);
 void draw_PDE_shape(int pde, int x, int y);
 void show_draw_item_cursor(void);
-void set_block_range(void);
-void get_new_box(void);
+void set_block_range(int bx1, int by1, int bx2, int by2);
+void get_new_box(int* bx1, int*by1, int*bx2, int*by2);
 void update_editor_background(void);
 int process_scrolledge(void);
 
@@ -1014,11 +1011,8 @@ int zoom_full_screen(int wx, int wy, int draw_item);
 
 // e_group_edit.cpp
 void group_edit(void);
-
-
+void ovw_process_scrolledge(void);
 void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy);
-
-
 
 
 
@@ -1031,25 +1025,21 @@ void set_wx(int x, int y);
 void set_wx_from_start_block(void);
 void show_big(void);
 void draw_big(int draw_lifts);
-void draw_cloner_boxes(int num);
 void draw_bs(int cc);
-int getbox(const char *txt, int obj_type, int sub_type, int num );
 
-
-int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2);
-
-
-
+int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type);
 int getxy(const char *txt, int obj_type, int sub_type, int num );
+
+
 void clear_pm_events(void);
 int check_clt_for_event(int ev, int clt[][4], int clt_last);
 int get_unused_pm_event_extended(int clt[][4], int clt_last);
 int add_item_link_translation(int sel_item_num, int sel_item_var, int sel_item_ev, int clt[][4], int clt_last);
 int is_pm_event_used(int ev);
 int get_unused_pm_event(void);
-int get_trigger_item(const char *txt, int obj_type, int sub_type, int num );
-void find_and_show_event_links(int i);
-int get_item(const char *txt, int obj_type, int sub_type, int num );
+int get_trigger_item(int obj_type, int sub_type, int num);
+void find_and_show_event_links(int type, int i, int num2);
+int get_item(int obj_type, int sub_type, int num );
 
 void crosshairs_full(int cx, int cy, int color, int line_width);
 void crosshairs(int mx, int my, int x, int y, int color);
@@ -1091,21 +1081,31 @@ int create_pod(void);
 
 
 // e_object_viewer.h
-int create_obj(int obt, int sub_type, int sent_num);
-int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num);
-void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int highlight_color);
-int move_obt_with_map(int obt, int type, int num);
-void object_viewer(int obt, int num);
+//int move_obt_with_map(int obt, int type, int num);
 
 
 
 // e_object_viewer_window.h
 void object_viewerw(int obt, int num);
+int create_obj(int obt, int sub_type, int sent_num);
+int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num);
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 // e_lift.h
+void title_lift(int lift);
+
 int lift_find_previous_move_step(int lift, int step);
 al_fixed lift_get_distance_to_previous_move_step(int lift, int step);
 
@@ -1390,6 +1390,8 @@ void show_state_dif(char *a, char *b);
 int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 void demo_mode(void);
 void temp_test(void);
+void process_flash_color(void);
+
 
 // z_item.h
 int item_data(int x_pos, int y_pos);

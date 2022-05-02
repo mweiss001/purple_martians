@@ -3,6 +3,18 @@
 #include "pm.h"
 
 
+void title_lift(int lift)
+{
+   al_draw_rectangle(0, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);         // outline screen
+   al_draw_rectangle(0, 0, 100*db-1, 100*db-1, palette_color[13], 1);              // outline map
+   al_draw_rectangle(100*db-1, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);  // outline side panel
+   show_big();
+   title("Lift Viewer",  0, 15, 13);
+   al_draw_rectangle(txc-90, 20, txc+90, 43, palette_color[15], 1);
+   al_draw_textf(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",lift+1, num_lifts);
+}
+
+
 void lift_step_set_size_from_previous_move_step(int lift, int step)
 {
    int pms = lift_find_previous_move_step(lift, step); // searches back from passed step until a move step is found
@@ -195,10 +207,8 @@ int create_lift(void)
       construct_lift_step(lift, step, initial_type, 0, 0, initial_width, initial_height, initial_val);
       lifts[lift].num_steps++; // add one to steps
 
-      if (getxy("Set initial position", 4, lift, step) == 1)
+      if (getxy("Lift Initial Position", 4, lift, step) == 1)
       {
-         lift_steps[lift][step].x = get100_x * 20;
-         lift_steps[lift][step].y = get100_y * 20;
          step++;
 
          initial_type = (4 | cf);  // make type 4 step type with same flags as initial
@@ -229,7 +239,7 @@ void move_lift_step(int lift, int step)
       int nx = ((lift_steps[lift][step].x + lifts[lift].width  / 2) *db)/20;
       int ny = ((lift_steps[lift][step].y + lifts[lift].height / 2) *db)/20;
       al_set_mouse_xy(display, nx*display_transform_double, ny*display_transform_double);
-      getxy("Set new location", 4,  lift, step);
+      getxy("Step Position", 4,  lift, step);
    }
 }
 
@@ -277,12 +287,7 @@ int get_new_lift_step(int lift, int step)
       {
          quit = construct_lift_step(lift, step, 1, 0, 0, 0, 0, 20);
          lift_step_set_size_from_previous_move_step(lift, step);
-         if (getxy("Set lift position", 4, lift, step) == 1)
-         {
-            lift_steps[lift][step].x = get100_x * 20;
-            lift_steps[lift][step].y = get100_y * 20;
-         }
-         else quit = 99;
+         if (getxy("Step Position", 4, lift, step) != 1) quit = 99;
       }
 
       jh++;
@@ -510,7 +515,7 @@ void redraw_lift_viewer(int lift, int step)
 {
    set_lift_to_step(lift, step);       // set current step in current lift
    draw_big(1);                        // update the map bitmap
-   title_obj(4, lift, 0, 0, 15);       // show title and map on screen
+   title_lift(lift);                   // show title and map on screen
    highlight_current_lift(lift);       // crosshairs and rect on current lift
    set_bts(lift);
    int step_ty = 46 + 8 * bts;
@@ -650,6 +655,47 @@ int draw_steps(int y, int lift, int current_step, int highlight_step)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int lift_viewer(int lift)
 {
    int current_step = 0;
@@ -665,7 +711,7 @@ int lift_viewer(int lift)
 
       set_lift_to_step(lift, current_step); // set current step in current lift
       draw_big(1);                          // update the map bitmap
-      title_obj(4, lift, 0, 0, 15);         // show title and map on screen
+      title_lift(lift);                     // show title and map on screen
       highlight_current_lift(lift);         // crosshairs and rect on current lift
 
 

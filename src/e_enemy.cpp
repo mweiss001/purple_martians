@@ -42,14 +42,7 @@ int get_empty_enemy(int type)
 
 int move_trigger_box(int num, int type)
 {
-   if (getbox("Trigger Box", 3, type, num) == 1)
-      {
-          Ei[num][11] = bx1;
-          Ei[num][12] = by1;
-          Ei[num][13] = bx2-1;
-          Ei[num][14] = by2-1;
-          return 1;
-      }
+   if (get_block_range("Trigger Box", &Ei[num][11], &Ei[num][12], &Ei[num][13], &Ei[num][14], 2)) return 1;
    else return 0;
 }
 
@@ -79,11 +72,8 @@ void recalc_pod(int EN)
 
 int move_pod_extended(int num)
 {
-   if (getxy("Set Extended Position", 99, 7, num) == 1)
+   if (getxy("Pod Extended Position", 99, 7, num) == 1)
    {
-      Efi[num][5] = al_itofix(get100_x * 20);  // set dest x,y
-      Efi[num][6] = al_itofix(get100_y * 20);
-      recalc_pod(num);
       Redraw = 1;
       return 1;
    }
@@ -206,13 +196,10 @@ int create_cloner(void)
 {
    int aborted_create = 0;
    int e = get_empty_enemy(9); // type 9 cloner
-   if (getxy( "Set Cloner Location", 3, 9, e) == 1)
+   if (getxy("Cloner Location", 3, 9, e) == 1)
    {
-      Efi[e][0] = al_itofix(get100_x * 20); // position
-      Efi[e][1] = al_itofix(get100_y * 20);
       Efi[e][12] = al_itofix(1);  // scale
       Efi[e][14] = al_itofix(0);  // rotation
-
 
       Ei[e][1] = 550;   // shape
       Ei[e][2] = 0;     // draw type
@@ -230,22 +217,13 @@ int create_cloner(void)
       draw_big(1);
       show_big();
 
-      if (getbox("Cloner Source Area", 3, 9, e ))
+      if (get_block_range("Cloner Source Area", &Ei[e][15], &Ei[e][16], &Ei[e][19], &Ei[e][20], 3))
       {
-         Ei[e][15] = bx1;
-         Ei[e][16] = by1;
-         Ei[e][19] = bx2-bx1;
-         Ei[e][20] = by2-by1;
-
          draw_big(1);
 
-         if (getxy("Set Cloner Destination Area", 98, 9, e ) == 1)
+         if (getxy("Cloner Destination Area", 98, 9, e ) == 1)
          {
-            Ei[e][17] = get100_x;
-            Ei[e][18] = get100_y;
-
             if (!move_trigger_box(e, 9)) aborted_create = 1;
-
             draw_big(1);
             show_big();
          }
@@ -270,10 +248,8 @@ int create_field(void)
 {
    int aborted_create = 0;
    int e = get_empty_enemy(10); // type 10 field
-   if (getxy( "Set Field Location", 3, 10, e) == 1)
+   if (getxy("Field Object", 3, 10, e) == 1)
    {
-      Efi[e][0] = al_itofix(get100_x * 20); // position
-      Efi[e][1] = al_itofix(get100_y * 20);
       Efi[e][4] = al_itofix(2); // damage
 
       Ei[e][2] = 1;     // draw type (small text)
@@ -287,22 +263,12 @@ int create_field(void)
 
       draw_big(1);
       show_big();
-
-      if (getbox("Set Damage Field Location", 3, 10, e ))
+      if (get_block_range("Damage Field Location", &Ei[e][15], &Ei[e][16], &Ei[e][17], &Ei[e][18], 1))
       {
-         Ei[e][15] = bx1*20;
-         Ei[e][16] = by1*20;
-         Ei[e][17] = (bx2-bx1)*20;
-         Ei[e][18] = (by2-by1)*20;
          draw_big(1);
          show_big();
-
-         if (getbox("Set Trigger Field Location", 3, 10, e ))
+         if (get_block_range("Trigger Field Location", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 1))
          {
-            Ei[e][11] = bx1*20;
-            Ei[e][12] = by1*20;
-            Ei[e][13] = (bx2-bx1)*20;
-            Ei[e][14] = (by2-by1)*20;
             draw_big(1);
             show_big();
          } // end of set trigger field
@@ -328,11 +294,8 @@ int create_pod(void)
 {
    int aborted_create = 0;
    int e = get_empty_enemy(7); // type 7 - pod
-   if (getxy("Set Podzilla Location", 3, 7, e) == 1)
+   if (getxy("Podzilla", 3, 7, e) == 1)
    {
-      Efi[e][0] = al_itofix(get100_x * 20); // position
-      Efi[e][1] = al_itofix(get100_y * 20);
-
       Efi[e][7] = al_itofix(6);     // bullet speed
       Efi[e][9] = al_itofix(10);    // default speed
       Efi[e][12] = al_itofix(1);    // default scale
