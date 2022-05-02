@@ -164,8 +164,10 @@ ALLEGRO_BITMAP *bmsg_temp;
 
 // object viewer window
 int ov_window_active = 1;
-int ov_window_x = 60;
-int ov_window_y = 140;
+int ov_window_x1 = 60;
+int ov_window_y1 = 140;
+int ov_window_x2 = 300;
+int ov_window_y2 = 740;
 int ov_window_w = 240;
 int ov_window_h = 600;
 
