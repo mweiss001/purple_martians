@@ -1084,10 +1084,8 @@ int edit_pmsg_text(int c, int new_msg)
 //   int xa = 4+SCREEN_W-(SCREEN_W-(db*100));
 //   int xb = SCREEN_W-4;
 
-   int xa = ov_window_x;
-   int xb = xa + ov_window_w;
-
-
+   int xa = ov_window_x1;
+   int xb = ov_window_x2;
 
    int smx = (xa+xb)/2;  // x center
    int smy = pop_msg_viewer_pos;

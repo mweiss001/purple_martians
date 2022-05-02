@@ -23968,6 +23968,90 @@ lift viewer if 400 LOC and the map move part is 200 of that....
 
 
 
+// ----------------------------------------------------------------------
+// ------------there are multiple ways to pass pointers....
+// ----------------------------------------------------------------------
+
+
+this is one way:
+-------------------------------------------
+int gx=0, gy=0, hx=0, hy=0;
+ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+
+void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy)
+{
+   *x = (int) mx4;
+   *y = (int) my4;
+
+
+this is another way:
+-----------------------------------------
+int mdw_toggle(int x1, int y1, int x2, int y2,
+                int bn, int num, int type, int obt,
+                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+                  int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
+
+mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][5],  "Start",  "Start",  tc1, tc2, fc1, fc2); a++;
+
+
+
+and this is an int, passed as an int to a different function, then that function in its parameters casts it to a pointer and send it to another function
+------------------------------------------------------------------------------------------------------------------------------
+void group_edit(void)
+{
+   int show_sel_frame = 1;
+   ge_draw_on_screen_buffer(ge_window_x, ge_window_y, show_sel_frame);
+
+int ge_draw_on_screen_buffer(int xa, int ya, int &show_sel_frame)
+{
+   mdw_toggle(bpx1+2, bpy1, bpx1+110, bpy2, 1000, 0,0,0,   0,0,0,0,1,0,0,0, show_sel_frame,  "Selection:OFF", "Selection:ON ", 15, 15, 15+64, 14);
+
+
+
+20220502 6:20 AM
+
+cleaned up object_viewerw() main function....
+moved out map move and a few others...
+
+now it is only 270 lines....
+150 for button retvals and keys
+
+it getting lean....
+
+I am thinking of merging the lift viewer code into it....
+
+it will be awesome....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
