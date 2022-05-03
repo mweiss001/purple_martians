@@ -1111,6 +1111,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
    if (bn == 19)
    {
       sprintf(smsg, "Move");
+      if (obt == 4) sprintf(smsg, "Run Lifts");
       if (press) return 1;
    }
 

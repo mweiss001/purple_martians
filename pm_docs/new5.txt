@@ -24022,6 +24022,33 @@ I am thinking of merging the lift viewer code into it....
 
 it will be awesome....
 
+20220502 7:22 PM
+
+got lift map move to work in obv...!!!
+
+
+
+pasted in the buttons, step list and current step details...
+
+now I need to:
+
+run lifts button replaces move...done
+make all the upper buttons work...done
+
+
+make sure everything stil works
+clicking step in list does not set that step to current...fixed
+
+make sure popup menus work and are in the right place...
+
+
+run lifts gets stick on event trigger steps...
+make it so that mouse in trigger box triggers
+same for player in prox setp...
+
+
+dynamic height with background erasing...
+do not let lift step buttons draw past right edge....
 
 
 
