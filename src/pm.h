@@ -1108,12 +1108,17 @@ void title_lift(int lift);
 int lift_find_previous_move_step(int lift, int step);
 al_fixed lift_get_distance_to_previous_move_step(int lift, int step);
 
+
+int draw_current_step_buttons(int xa, int xb, int y, int l, int s);
+
+
+
 void show_all_lifts(void);
 void erase_lift(int lift);
 void delete_lift_step(int lift, int step);
 void lift_setup(void);
 void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int rc);
-int draw_steps(int step_ty, int lift, int current_step, int highlight_step);
+int draw_steps(int xa, int xb, int step_ty, int lift, int current_step, int highlight_step);
 void highlight_current_lift(int lift);
 int create_lift(void);
 void move_lift_step(int lift, int step);

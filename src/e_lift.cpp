@@ -335,7 +335,10 @@ int insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'ste
       // do this after creating a new lift step so stuff lines up...
       set_bts(lift);
       int step_ty = 46 + 7 * bts;
-      draw_steps(step_ty, lift, step, step);     // show lift steps
+
+      int x1 = SCREEN_W-(SCREEN_W-(db*100))+1;
+      int x2 = SCREEN_W-1;
+      draw_steps(x1, x2, step_ty, lift, step, step);     // show lift steps
 
       if (get_new_lift_step(lift, step) == 99) // cancelled
       {
@@ -519,15 +522,16 @@ void redraw_lift_viewer(int lift, int step)
    highlight_current_lift(lift);       // crosshairs and rect on current lift
    set_bts(lift);
    int step_ty = 46 + 8 * bts;
-   draw_steps(step_ty, lift, step, step); // show lift steps
+
+   int x1 = SCREEN_W-(SCREEN_W-(db*100))+1;
+   int x2 = SCREEN_W-1;
+   draw_steps(x1, x2, step_ty, lift, step, step); // show lift steps
 }
 
-int draw_current_step_buttons(int y, int l, int s)
+int draw_current_step_buttons(int x1, int x2, int y, int l, int s)
 {
    int fs = 14; // frame_size
    int a = 0;
-   int x1 = SCREEN_W-(SCREEN_W-(db*100))+1;
-   int x2 = SCREEN_W-1;
    int xa = x1+fs;
    int xb = x2-fs;
    int ya = y+fs;
@@ -608,12 +612,10 @@ void draw_step_button(int xa, int xb, int ty, int ty2, int l, int s, int rc)
    }
 }
 
-int draw_steps(int y, int lift, int current_step, int highlight_step)
+int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_step)
 {
    int fs = 14; // frame_size
    int a = 0;
-   int x1 = SCREEN_W-(SCREEN_W-(db*100))+1;
-   int x2 = SCREEN_W-1;
    int xa = x1+fs;
    int xb = x2-fs;
    int ya = y+fs;
@@ -657,45 +659,6 @@ int draw_steps(int y, int lift, int current_step, int highlight_step)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int lift_viewer(int lift)
 {
    int current_step = 0;
@@ -718,6 +681,17 @@ int lift_viewer(int lift)
       // button x positions
       int xa = SCREEN_W-(SCREEN_W-(db*100))+1;
       int xb = SCREEN_W-3;
+
+
+
+
+
+
+
+
+
+
+
 
       // y positions
       // ty is a global...that's where the buttons start
@@ -787,6 +761,9 @@ int lift_viewer(int lift)
 
 
 
+
+
+
       // list of step buttons
       // --------------------------------------------------------------------------------
       ysb = ty + (a*bts); // y pos of step buttons
@@ -802,14 +779,18 @@ int lift_viewer(int lift)
             if (mouse_b2) step_popup_menu(lift, step);        // button pop up menu
          }
       }
-      ycs = ysb + draw_steps(ysb, lift, current_step, step_pointer);  // draw has to go after, because it can eat the mouse clicks
+      ycs = ysb + draw_steps(xa, xb, ysb, lift, current_step, step_pointer);  // draw has to go after, because it can eat the mouse clicks
       ycs +=bts;
 
 
 
       // draw current step button and get y postion for next item (lift)
-      yld = ycs + draw_current_step_buttons(ycs, lift, current_step);
+      yld = ycs + draw_current_step_buttons(xa, xb, ycs, lift, current_step);
       yld += bts;
+
+
+
+
 
 
       // draw current lift under step list buttons
@@ -872,7 +853,7 @@ int lift_viewer(int lift)
                   draw_big(1);                                             // update the map bitmap
                   show_big();                                              // show the map
                   highlight_current_lift(lift);                            // highlight current lift
-                  draw_steps(ysb, lift, lifts[lift].current_step, -1); // show lift steps
+                  draw_steps(xa, xb, ysb, lift, lifts[lift].current_step, -1); // show lift steps
                   al_flip_display();
                }
                while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers(); // wait for release
