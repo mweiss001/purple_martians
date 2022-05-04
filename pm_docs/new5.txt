@@ -24041,14 +24041,57 @@ clicking step in list does not set that step to current...fixed
 
 make sure popup menus work and are in the right place...
 
+do not let lift step buttons draw past right edge....done
 
 run lifts gets stick on event trigger steps...
 make it so that mouse in trigger box triggers
 same for player in prox setp...
 
-
 dynamic height with background erasing...
-do not let lift step buttons draw past right edge....
+finally hacked together something that works for dynamic size and erase
+
+int ovw_draw_buttons(int num, int type, int obt)
+draws the default buttons
+then calls  obj_buttons()??
+why not combine??
+why keep separate?
+
+
+now I want to narrow the whole thing....done...down to 300 wide and looking good
+Current Step (0) Details
+First line has the long text description
+second line
+in list, change the details for move to:
+and Resize Speed:50
+
+object_viewer_window.cpp has 2300 lines
+e_lifts.cpp has 600 lines
+
+
+ovw dissappears when mouse_move is on....fixed...
+legend lines have transparent background.....not erasing enough...fixed...
+
+lift color does not update when changing step color, need to redraw something...fixed
+
+
+
+
+test add lift steps and shit like that for updating screen...
+pop-up menu for insert step....fixed that, I think..just made its position mouse_x and mouse_y
+
+now, when it shows the list of steps for insert menu, fix that position....
+
+
+20220504 6:31 AM
+got to go ...push
+
+
+
+
+
+
+
+
 
 
 

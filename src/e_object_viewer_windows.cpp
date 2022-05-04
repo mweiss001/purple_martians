@@ -56,6 +56,126 @@ int create_obj(int obt, int sub_type, int sent_num)
 }
 
 
+int ovw_get_size(int obt, int type, int*w, int*h)
+{
+   int ret = 0;
+
+   if ((obt == 2) && (type == 1 )) { *w = 210; *h = 262; ret = 1;} // door
+   if ((obt == 2) && (type == 2 )) { *w = 200; *h = 190; ret = 1;} // bonus
+   if ((obt == 2) && (type == 3 )) { *w = 200; *h = 158; ret = 1;} // exit
+   if ((obt == 2) && (type == 4 )) { *w = 200; *h = 182; ret = 1;} // key
+   if ((obt == 2) && (type == 5 )) { *w = 200; *h = 174; ret = 1;} // start
+   if ((obt == 2) && (type == 7 )) { *w = 200; *h = 158; ret = 1;} // mine
+   if ((obt == 2) && (type == 8 )) { *w = 200; *h = 214; ret = 1;} // bomb
+   if ((obt == 2) && (type == 9 )) { *w = 280; *h = 406; ret = 1;} // trigger
+   if ((obt == 2) && (type == 10)) { *w = 220; *h = 390; ret = 1;} // message
+   if ((obt == 2) && (type == 11)) { *w = 220; *h = 230; ret = 1;} // rocket
+   if ((obt == 2) && (type == 12)) { *w = 220; *h = 214; ret = 1;} // warp
+   if ((obt == 2) && (type == 14)) { *w = 200; *h = 142; ret = 1;} // switch
+   if ((obt == 2) && (type == 15)) { *w = 240; *h = 166; ret = 1;} // sproingy
+   if ((obt == 2) && (type == 16)) { *w = 280; *h = 358; ret = 1;} // bm
+   if ((obt == 2) && (type == 17)) { *w = 290; *h = 358; ret = 1;} // bd
+
+
+   if ((obt == 3) && (type == 3 )) { *w = 220; *h = 422; ret = 1;} // archwagon
+   if ((obt == 3) && (type == 4 )) { *w = 220; *h = 302; ret = 1;} // bouncer
+   if ((obt == 3) && (type == 6 )) { *w = 220; *h = 318; ret = 1;} // cannon
+   if ((obt == 3) && (type == 7 )) { *w = 220; *h = 302; ret = 1;} // podzilla
+   if ((obt == 3) && (type == 8 )) { *w = 220; *h = 342; ret = 1;} // trakbot
+   if ((obt == 3) && (type == 9 )) { *w = 220; *h = 390; ret = 1;} // cloner
+   if ((obt == 3) && (type == 11)) { *w = 220; *h = 350; ret = 1;} // block walker
+   if ((obt == 3) && (type == 12)) { *w = 220; *h = 446; ret = 1;} // flapper
+
+   if ((obt == 3) && (type == 10)) { *w = 310; *h = 350; ret = 1;} // field
+
+   if (obt == 4)                   { *w = 300; *h = ov_window_lift_buttons_h; ret = 1;} // lift
+
+   return ret;
+}
+
+
+
+int ovw_draw_buttons(int num, int type, int obt)
+{
+   // erase background
+   if (ovw_get_size(obt, type, &ov_window_w, &ov_window_h))
+   {
+      ov_window_x2 = ov_window_x1 + ov_window_w;
+      ov_window_y2 = ov_window_y1 + ov_window_h;
+      al_draw_filled_rectangle(ov_window_x1, ov_window_y1, ov_window_x2, ov_window_y2, palette_color[0]);
+      //printf("x1:%d y1:%d x2:%d y2:%d w:%d h:%d\n", ov_window_x1, ov_window_y1, ov_window_x2, ov_window_y2, ov_window_w, ov_window_h);
+   }
+   else ov_window_w = 300;
+
+   // button x position
+   int xa = ov_window_x1+1;
+   int xb = ov_window_x2-1;
+   int ty = ov_window_y1+38;
+
+
+   // split into half
+//   int x12 = xa + 1 * (xb-xa) / 2; // 1/2
+
+   // split into thirds
+   int x13 = xa + 1 * (xb-xa) / 3; // 1/3
+   int x23 = xa + 2 * (xb-xa) / 3; // 2/3
+
+   // split into quarters
+   int x14 = xa + 1 * (xb-xa) / 4; // 1/4
+   //int x25 = xa + 2 * (xb-xa) / 5; // 2/5
+   //int x35 = xa + 3 * (xb-xa) / 5; // 3/5
+   //int x45 = xa + 4 * (xb-xa) / 5; // 4/5
+
+   // split into fifths
+//   int x15 = xa + 1 * (xb-xa) / 5; // 1/5
+   //int x25 = xa + 2 * (xb-xa) / 5; // 2/5
+   //int x35 = xa + 3 * (xb-xa) / 5; // 3/5
+   //int x45 = xa + 4 * (xb-xa) / 5; // 4/5
+
+   // split into sevenths
+   //int x17 = xa + 1 * (xb-xa) / 7; // 1/7
+   int x27 = xa + 2 * (xb-xa) / 7; // 2/7
+   //int x37 = xa + 3 * (xb-xa) / 7; // 3/7
+   //int x47 = xa + 4 * (xb-xa) / 7; // 4/7
+   int x57 = xa + 5 * (xb-xa) / 7; // 5/7
+   //int x67 = xa + 6 * (xb-xa) / 7; // 6/7
+
+   //mdw_slider(xb-40,  ty-33,    xb,    ty-27,          26, num, type, obt, 0, 15, 0,  10, 0,0,0,0); // button height
+   //mdw_slider(xa,  ty-35,    xb,    ty-27,          26, num, type, obt, 0, 15, 0,  10, 0,0,0,0); // button height
+
+   int lc = 6; // lock_color;
+   if (Viewer_lock) lc = 7;
+
+   int a=0;
+   int mb = 0;   // button selection
+   if (mdw_button(xa,  ty+a*bts, x27-1, ty+(a+1)*bts-2, 23, num, type, obt, 0,  9, 15, 0, 1,0,0,0)) mb = 22; // prev
+       mdw_button(x27, ty+a*bts, x57-1, ty+(a+1)*bts-2, 56, num, type, obt, 0, lc, 15, 0, 1,0,0,0);          // lock
+   if (mdw_button(x57, ty+a*bts, xb,    ty+(a+1)*bts-2, 22, num, type, obt, 0,  9, 15, 0, 1,0,0,0)) mb = 21; // next
+   a++;
+   if (mdw_button(xa,  ty+a*bts, x13-1, ty+(a+1)*bts-2, 19, num, type, obt, 0, 13, 15, 0, 1,0,0,0)) mb = 18; // move
+   if (mdw_button(x13, ty+a*bts, x23-1, ty+(a+1)*bts-2, 20, num, type, obt, 0, 14, 15, 0, 1,0,0,0)) mb = 19; // create
+   if (mdw_button(x23, ty+a*bts, xb,    ty+(a+1)*bts-2, 21, num, type, obt, 0, 10, 15, 0, 1,0,0,0)) mb = 20; // delete
+   a++;
+   if (mdw_button(xa,  ty+a*bts, x14-1, ty+(a+1)*bts-2, 25, num, type, obt, 0, 1,  15, 0, 1,0,0,0)) mb = 24; // viewer help
+   if (mdw_button(x14, ty+a*bts, xb,    ty+(a+1)*bts-2, 57, num, type, obt, 0, 1,  15, 0, 1,0,0,0)) mb = 25; // specific object help
+   a+=2;
+
+   a = obj_buttons(xa, xb, ty, a, bts, obt, num);
+
+   if ((obt ==2) || (obt == 3))
+   {
+      ov_window_h = 38+a*bts;
+   }
+
+   ov_window_y2 = ov_window_y1 + ov_window_h;
+
+  // printf("y2:%d h:%d\n", ov_window_y2, ov_window_h);
+
+   return mb;
+
+}
+
+
 
 
 int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
@@ -73,38 +193,44 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
       {
          mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 555, lift, 0, 0, 0, 13, 15, 15, 1,0,0,0); a++; // lift mode 1 player ride timer
       }
-
       if (mdw_button(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 504, lift, 0, 0, 0,  4, 15,  0, 1,0,0,0)) mb = 26; // lift name
       a+=2;
 
+
       // list of step buttons
       // --------------------------------------------------------------------------------
+
       int ysb = ty + (a*bts); // y pos of step buttons
+
+
+      // process mouse on step buttons
       int step_pointer = -99;
-      if ((mouse_x > xa + 10) && (mouse_x < xb - 10))         // mouse on step buttons
+      if ((mouse_x > xa + 10) && (mouse_x < xb - 10)) // is mouse on step buttons?
       {
          int step0_y_offset = ysb + 14 + bts;
-         int mouse_step = (mouse_y - step0_y_offset) / bts;           // calculate step that mouse is on
-         if ((mouse_step >= 0) && (mouse_step < lifts[lift].num_steps))   // is step valid
+         int mouse_step = (mouse_y - step0_y_offset) / bts;               // calculate step that mouse is on
+         if ((mouse_step >= 0) && (mouse_step < lifts[lift].num_steps))   // is this a valid step?
          {
-            step_pointer = mouse_step;
+            step_pointer = mouse_step;  // set step pointer to this step
             if (mouse_b1)
             {
-               step = mouse_step;
-               lifts[lift].current_step = step;
+               step = mouse_step; // set current step to this step
+               lifts[lift].current_step = step; // set current step in lift
             }
 
-            if (mouse_b2) step_popup_menu(lift, step);        // button pop up menu
+            if (mouse_b2) step_popup_menu(lift, step); // step pop-up menu for this step
          }
       }
-      int ycs = ysb + draw_steps(xa, xb, ysb, lift, step, step_pointer);  // draw has to go after, because it can eat the mouse clicks
+
+      // draw the list of steps  - this has to go after, because it can eat the mouse clicks needed for previous section
+      int ycs = ysb + draw_steps(xa, xb, ysb, lift, step, step_pointer);
       ycs +=bts;
 
 
-      // draw current step button and get y postion for next item (lift)
+      // draw buttons for the current step button and get y postion for next item (lift)
       int yld = ycs + draw_current_step_buttons(xa, xb, ycs, lift, step);
+      ov_window_lift_buttons_h = yld - ov_window_y1-9; // global variable for height of ovw when variable due to lift
       yld += bts;
-
 
       // draw current lift under step list buttons
       if (bts == 16) // only if max button size
@@ -132,6 +258,9 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
          strcpy(fst, lifts[lift].lift_name);
          if (edit_lift_name(lift, yld, xa+10, fst)) strcpy(lifts[lift].lift_name, fst);
       }
+
+
+
 
    }
 
@@ -620,17 +749,12 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
             mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  2, num, type, obt, 0,  0,  0,  0, 0,0,0,0); a++; // frame color select
             mdw_colsel(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  3, num, type, obt, 0,  0,  0,  0, 0,0,0,0); a++; // text color select
             mdw_button(xa, ty+a*bts, xb, ty+(a+1)*bts-2,  7, num, type, obt, 0, 15, 13, 14, 1,0,0,0); a++; // edit text
-
             a+=2; // leave space for OK and Cancel buttons
 
             // draw the current one last to ensure it is on top
             pop_msg_viewer_pos = ty+a*bts+bts/2+2;
             display_pop_message(num, pmsgtext[num], (xa+xb)/2, pop_msg_viewer_pos, 0, 0); // show the message
-
-
             a+=8;
-
-
 
          break;
          case 11: // rocket
@@ -981,10 +1105,7 @@ void ovw_draw_overlays(int obj_type, int num, int legend_highlight)
 
       } // end of switch case
    }
-
 }
-
-
 
 void ovw_title(int obj_type, int num, int legend_highlight)
 {
@@ -993,7 +1114,6 @@ void ovw_title(int obj_type, int num, int legend_highlight)
    if (obj_type == 3) sub_type = Ei[num][0];
    int ov_xc = ov_window_x1 + ov_window_w/2;
    int yt = ov_window_y1+14;
-
 
    // legend line text
    char lmsg[5][80];
@@ -1010,7 +1130,6 @@ void ovw_title(int obj_type, int num, int legend_highlight)
    legend_color[2] = 14;  // yellow
    legend_color[3] = 10;  // red
    legend_color[4] = 0;   // unused
-
 
    if (legend_highlight == 1) legend_color[1] = flash_color;
 
@@ -1029,11 +1148,8 @@ void ovw_title(int obj_type, int num, int legend_highlight)
    if (obj_type == 4)  // lifts
    {
       num_legend_lines = 0;
-
       al_draw_rectangle(ov_xc-94, yt, ov_xc+94, yt+22, palette_color[15], 1);
       al_draw_textf(font, palette_color[13], ov_xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, num_lifts);
-
-
    }
    if (obj_type == 3)  // enemies
    {
@@ -1254,6 +1370,9 @@ void ovw_title(int obj_type, int num, int legend_highlight)
       ov_window_y2 = ov_window_y1 + ov_window_h;
 
 //      printf("w:%d h:%d\n", ov_window_w, ov_window_h);
+//      al_draw_rectangle(ov_window_x1+20, ov_window_y1, ov_window_x2-20, ov_window_y2, palette_color[10], 1);  // outline entire window
+
+
 
       if (num_legend_lines > 0)
       {
@@ -1262,129 +1381,13 @@ void ovw_title(int obj_type, int num, int legend_highlight)
          al_draw_rectangle(ov_xc-100, ov_window_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_window_y2-28+ (4-num_legend_lines)*8, palette_color[13], 1); // top frame
       }
       al_draw_rectangle(ov_window_x1, ov_window_y1, ov_window_x2, ov_window_y2, palette_color[13], 1);  // outline entire window
+
    }
 
    for (int x=1; x<num_legend_lines; x++)// draw text lines
       al_draw_text(font, palette_color[legend_color[x]], ov_xc, ov_window_y2-26+(3-num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 
 }
-
-
-int ovw_get_size(int obt, int type, int*w, int*h)
-{
-   int ret = 0;
-
-   if ((obt == 2) && (type == 1 )) { *w = 210; *h = 262; ret = 1;} // door
-   if ((obt == 2) && (type == 2 )) { *w = 200; *h = 190; ret = 1;} // bonus
-   if ((obt == 2) && (type == 3 )) { *w = 200; *h = 158; ret = 1;} // exit
-   if ((obt == 2) && (type == 4 )) { *w = 200; *h = 182; ret = 1;} // key
-   if ((obt == 2) && (type == 5 )) { *w = 200; *h = 174; ret = 1;} // start
-   if ((obt == 2) && (type == 7 )) { *w = 200; *h = 158; ret = 1;} // mine
-   if ((obt == 2) && (type == 8 )) { *w = 200; *h = 214; ret = 1;} // bomb
-   if ((obt == 2) && (type == 9 )) { *w = 280; *h = 406; ret = 1;} // trigger
-   if ((obt == 2) && (type == 10)) { *w = 220; *h = 390; ret = 1;} // message
-   if ((obt == 2) && (type == 11)) { *w = 220; *h = 230; ret = 1;} // rocket
-   if ((obt == 2) && (type == 12)) { *w = 220; *h = 214; ret = 1;} // warp
-   if ((obt == 2) && (type == 14)) { *w = 200; *h = 142; ret = 1;} // switch
-   if ((obt == 2) && (type == 15)) { *w = 240; *h = 166; ret = 1;} // sproingy
-   if ((obt == 2) && (type == 16)) { *w = 280; *h = 358; ret = 1;} // bm
-   if ((obt == 2) && (type == 17)) { *w = 290; *h = 358; ret = 1;} // bd
-
-
-   if ((obt == 3) && (type == 3 )) { *w = 220; *h = 422; ret = 1;} // archwagon
-   if ((obt == 3) && (type == 4 )) { *w = 220; *h = 302; ret = 1;} // bouncer
-   if ((obt == 3) && (type == 6 )) { *w = 220; *h = 318; ret = 1;} // cannon
-   if ((obt == 3) && (type == 7 )) { *w = 220; *h = 302; ret = 1;} // podzilla
-   if ((obt == 3) && (type == 8 )) { *w = 220; *h = 342; ret = 1;} // trakbot
-   if ((obt == 3) && (type == 9 )) { *w = 220; *h = 390; ret = 1;} // cloner
-   if ((obt == 3) && (type == 11)) { *w = 220; *h = 350; ret = 1;} // block walker
-   if ((obt == 3) && (type == 12)) { *w = 220; *h = 446; ret = 1;} // flapper
-
-   if ((obt == 3) && (type == 10)) { *w = 310; *h = 350; ret = 1;} // field
-
-
-   if (obt == 4)                   { *w = 400; *h = 250; ret = 1;} // lift
-
-
-   return ret;
-}
-
-
-
-int ovw_draw_buttons(int num, int type, int obt)
-{
-   // erase background
-   if (ovw_get_size(obt, type, &ov_window_w, &ov_window_h))
-   {
-      ov_window_x2 = ov_window_x1 + ov_window_w;
-      ov_window_y2 = ov_window_y1 + ov_window_h;
-      al_draw_filled_rectangle(ov_window_x1, ov_window_y1, ov_window_x2, ov_window_y2, palette_color[0]);
-      //printf("x1:%d y1:%d x2:%d y2:%d w:%d h:%d\n", ov_window_x1, ov_window_y1, ov_window_x2, ov_window_y2, ov_window_w, ov_window_h);
-   }
-   else ov_window_w = 300;
-
-   // button x position
-   int xa = ov_window_x1+1;
-   int xb = ov_window_x2-1;
-   int ty = ov_window_y1+38;
-
-
-   // split into half
-//   int x12 = xa + 1 * (xb-xa) / 2; // 1/2
-
-   // split into thirds
-   int x13 = xa + 1 * (xb-xa) / 3; // 1/3
-   int x23 = xa + 2 * (xb-xa) / 3; // 2/3
-
-   // split into quarters
-   int x14 = xa + 1 * (xb-xa) / 4; // 1/4
-   //int x25 = xa + 2 * (xb-xa) / 5; // 2/5
-   //int x35 = xa + 3 * (xb-xa) / 5; // 3/5
-   //int x45 = xa + 4 * (xb-xa) / 5; // 4/5
-
-   // split into fifths
-//   int x15 = xa + 1 * (xb-xa) / 5; // 1/5
-   //int x25 = xa + 2 * (xb-xa) / 5; // 2/5
-   //int x35 = xa + 3 * (xb-xa) / 5; // 3/5
-   //int x45 = xa + 4 * (xb-xa) / 5; // 4/5
-
-   // split into sevenths
-   //int x17 = xa + 1 * (xb-xa) / 7; // 1/7
-   int x27 = xa + 2 * (xb-xa) / 7; // 2/7
-   //int x37 = xa + 3 * (xb-xa) / 7; // 3/7
-   //int x47 = xa + 4 * (xb-xa) / 7; // 4/7
-   int x57 = xa + 5 * (xb-xa) / 7; // 5/7
-   //int x67 = xa + 6 * (xb-xa) / 7; // 6/7
-
-   //mdw_slider(xb-40,  ty-33,    xb,    ty-27,          26, num, type, obt, 0, 15, 0,  10, 0,0,0,0); // button height
-   //mdw_slider(xa,  ty-35,    xb,    ty-27,          26, num, type, obt, 0, 15, 0,  10, 0,0,0,0); // button height
-
-   int lc = 6; // lock_color;
-   if (Viewer_lock) lc = 7;
-
-   int a=0;
-   int mb = 0;   // button selection
-   if (mdw_button(xa,  ty+a*bts, x27-1, ty+(a+1)*bts-2, 23, num, type, obt, 0,  9, 15, 0, 1,0,0,0)) mb = 22; // prev
-       mdw_button(x27, ty+a*bts, x57-1, ty+(a+1)*bts-2, 56, num, type, obt, 0, lc, 15, 0, 1,0,0,0);          // lock
-   if (mdw_button(x57, ty+a*bts, xb,    ty+(a+1)*bts-2, 22, num, type, obt, 0,  9, 15, 0, 1,0,0,0)) mb = 21; // next
-   a++;
-   if (mdw_button(xa,  ty+a*bts, x13-1, ty+(a+1)*bts-2, 19, num, type, obt, 0, 13, 15, 0, 1,0,0,0)) mb = 18; // move
-   if (mdw_button(x13, ty+a*bts, x23-1, ty+(a+1)*bts-2, 20, num, type, obt, 0, 14, 15, 0, 1,0,0,0)) mb = 19; // create
-   if (mdw_button(x23, ty+a*bts, xb,    ty+(a+1)*bts-2, 21, num, type, obt, 0, 10, 15, 0, 1,0,0,0)) mb = 20; // delete
-   a++;
-   if (mdw_button(xa,  ty+a*bts, x14-1, ty+(a+1)*bts-2, 25, num, type, obt, 0, 1,  15, 0, 1,0,0,0)) mb = 24; // viewer help
-   if (mdw_button(x14, ty+a*bts, xb,    ty+(a+1)*bts-2, 57, num, type, obt, 0, 1,  15, 0, 1,0,0,0)) mb = 25; // specific object help
-   a+=2;
-
-   a = obj_buttons(xa, xb, ty, a, bts, obt, num);
-
-   ov_window_h = 38+a*bts;
-   ov_window_y2 = ov_window_y1 + ov_window_h;
-
-   return mb;
-
-}
-
 
 
 void ovw_process_scrolledge(void)
@@ -1417,7 +1420,6 @@ void ovw_process_scrolledge(void)
    level_display_region_h = SH;
 
 }
-
 
 
 void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy)
@@ -1472,29 +1474,11 @@ void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy)
    if (*hy > 1999) *hy = 1999;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ------------------------------------------
 // ----------- map move ---------------------
 // ------------------------------------------
-int ovw_map_move(int &obt, int &num)
+void ovw_map_move(int &obt, int &num)
 {
-   int ret = 0;
    int gx=0, gy=0, hx=0, hy=0;
    ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
 
@@ -1523,7 +1507,6 @@ int ovw_map_move(int &obt, int &num)
       obj_y = lift_steps[lift][step].y;
    }
 
-
    int mouse_on_obj = 0;
    int mouse_on_podx = 0;
    int mouse_on_podx_num = 0;
@@ -1545,12 +1528,9 @@ int ovw_map_move(int &obt, int &num)
    int mouse_move = 0;
    int mouse_adj = 0;
 
-
-
    int mst = 6;      // mouse select threshold
    int msn = 10-mst; // mouse select negative threshold
    int msp = 10+mst; // mouse select positive threshold
-
 
    // -----------------------------------------------------------
    // --  detect if mouse pointer is on enemy
@@ -1563,7 +1543,6 @@ int ovw_map_move(int &obt, int &num)
          if ((hx>ex+msn) && (hx<ex+msp) && (hy>ey+msn) && (hy<ey+msp)) // set this enemy to current object
          {
             obt = 3;
-            ret = 3;
             num = b;
             mouse_move = 1;
             mouse_on_obj = 1;
@@ -1650,7 +1629,6 @@ int ovw_map_move(int &obt, int &num)
          if ((hx>ix+msn) && (hx<ix+msp) && (hy>iy+msn) && (hy<iy+msp)) // set this item to current object
          {
             obt = 2;
-            ret = 2;
             num = b;
             mouse_move = 1;
             mouse_on_obj = 1;
@@ -1711,6 +1689,7 @@ int ovw_map_move(int &obt, int &num)
             }
          }
       }
+
    // -----------------------------------------------------------
    // --  detect if mouse pointer is on lift
    // -----------------------------------------------------------
@@ -1990,20 +1969,17 @@ int ovw_map_move(int &obt, int &num)
 
       } // end of while mouse pressed
    } // end of if mouse pressed
-   return ret;
 }
 
-
-// ------------------------------------------------------------------------
-// ----  move window by dragginging by title bar
-// ------------------------------------------------------------------------
+// -------------------------------------------
+// ----  move window by dragging by title bar
+// -------------------------------------------
 void ovw_proc_move_window(int obt, int num, int type)
 {
    if ((mouse_x > ov_window_x1) && (mouse_x < ov_window_x2) && (mouse_y > ov_window_y1) && (mouse_y < ov_window_y1+14)) // is mouse on title bar
    {
       // draw rectangle around title bar to show it can be dragged
       // al_draw_rectangle(ov_window_x, ov_window_y, ov_window_x2, ov_window_y+14, palette_color[14], 1);
-
       // color text in title bar to show it can be moved
       //msg[0] = 0;
       //if (obt == 2) sprintf(msg, "Item Viewer [%d]", num);
@@ -2020,115 +1996,52 @@ void ovw_proc_move_window(int obt, int num, int type)
             ov_window_y1 = mouse_y - myo;
             ov_window_x2 = ov_window_x1 + ov_window_w;
             ov_window_y2 = ov_window_y1 + ov_window_h;
-
             al_flip_display();
             proc_scale_factor_change();
-
             proc_controllers();
             proc_frame_delay();
-
-
-
-
             get_new_background(0);
             draw_lifts();
             draw_items();
             draw_enemies();
             ovw_draw_overlays(obt, num, 0);
             get_new_screen_buffer(3, 0, 0);
-
             ovw_draw_buttons(num, type, obt);
             ovw_title(obt, num, 0);
-
-         } // mouse b1 held
-      } // mouse b1 pressed
-   } // mouse on title bar
+         }
+      }
+   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void object_viewerw(int obt, int num)
 {
    init_level_background();
    bts = 16; // button y size
    int legend_line = -1;
-
-//   int block_highlight_show = 0;
-//   int block_highlight_x = 0;
-//   int block_highlight_y = 0;
-//   int block_highlight_color = 15+64;
-
    int quit = 0;
-   int new_obj = 1;
-   int type=0, obj_x=0, obj_y=0;
-
-   int ret;
+   int type=0, obj_x=0, obj_y=0, lift=0, step=0;
 
    while (!quit)
    {
-
-
-
-/*
-      if (obt == 4) // lift
+      if (obt == 2)
       {
-         ret = lift_viewer(num); // run lift viewer and stay there until quit or object changes
-         if ((ret >= 2000) && (ret < 2500)) // obj changed to item
-         {
-            num = ret-2000;
-            obt = 2;
-         }
-         if ((ret >= 1000) && (ret < 1100)) // obj changed to enemy
-         {
-            num = ret-1000;
-            obt = 3;
-         }
-         if (ret == 0) quit = 1;
+         type = item[num][0];
+         obj_x = item[num][4]+10;
+         obj_y = item[num][5]+10;
       }
-*/
-
-      if (new_obj)
+      if (obt == 3)
       {
-         new_obj = 0;
-         if (obt == 2)
-         {
-            type = item[num][0];
-            obj_x = item[num][4]+10;
-            obj_y = item[num][5]+10;
-         }
-         if (obt == 3)
-         {
-            type = Ei[num][0];
-            obj_x = al_fixtoi(Efi[num][0])+10;
-            obj_y = al_fixtoi(Efi[num][1])+10;
-         }
-         if (obt == 4)
-         {
-//            num = lift
-//            obj_x = al_fixtoi(Efi[num][0])+10;
-//            obj_y = al_fixtoi(Efi[num][1])+10;
-         }
-         get_new_screen_buffer(1, obj_x, obj_y);
+         type = Ei[num][0];
+         obj_x = al_fixtoi(Efi[num][0])+10;
+         obj_y = al_fixtoi(Efi[num][1])+10;
       }
-
+      if (obt == 4)
+      {
+         lift = num;
+         step = lifts[num].current_step;
+         set_lift_to_step(lift, step);   // set current step in current lift
+         lifts[num].current_step = step;
+      }
 
       al_flip_display();
       proc_scale_factor_change();
@@ -2141,8 +2054,6 @@ void object_viewerw(int obt, int num)
 
       ovw_draw_overlays(obt, num, legend_line);
 
-      // if (block_highlight_show) crosshairs_full(block_highlight_x, block_highlight_y, block_highlight_color, 1);
-
       // if current object is message, show all messages
       if ((obt == 2) && (type == 10))
       {
@@ -2151,14 +2062,10 @@ void object_viewerw(int obt, int num)
       }
 
 
-      get_new_screen_buffer(3, obj_x, obj_y);
-
       // ------------------------------------------------------------------------
       // ----  past this, we are drawing on the screen buffer
       // ------------------------------------------------------------------------
-
-      //al_draw_textf(font, palette_color[15],100, 100, 0, "gx:%d   gy:%d", gx, gy);
-      //al_draw_textf(font, palette_color[15],100, 110, 0, "hx:%d   hy:%d", hx, hy);
+      get_new_screen_buffer(3, obj_x, obj_y);
 
 
       // ------------------------------------------------------------------------
@@ -2186,21 +2093,13 @@ void object_viewerw(int obt, int num)
       // if mouse is on button window
       if ((mouse_x > ov_window_x1) && (mouse_x < ov_window_x2) && (mouse_y > ov_window_y1) && (mouse_y < ov_window_y2))
       {
-         //block_highlight_show = 0;
          // al_draw_rectangle(ov_window_x, ov_window_y, ov_window_x2, ov_window_y2, palette_color[14], 1);
       }
       else
       {
          ovw_process_scrolledge();
-         new_obj = ovw_map_move(obt, num);
+         ovw_map_move(obt, num);
       }
-
-
-
-
-
-
-
 
       while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
       {
@@ -2251,7 +2150,7 @@ void object_viewerw(int obt, int num)
             {
                while (!key[ALLEGRO_KEY_ESCAPE])
                {
-                  for (int t=0; t<2; t++) move_lifts(1);               // move lifts for 8 frames
+                  for (int t=0; t<2; t++) move_lifts(1);  // move lifts for 2 frames
                   al_flip_display();
                   proc_scale_factor_change();
                   proc_controllers();
@@ -2262,8 +2161,8 @@ void object_viewerw(int obt, int num)
                   draw_enemies();
                   ovw_draw_overlays(obt, num, legend_line);
                   get_new_screen_buffer(3, obj_x, obj_y);
-                  int mb = ovw_draw_buttons(num, type, obt);
-                  ovw_title(obt, num, 0); // draw button title, frame and legend lines
+                  ovw_draw_buttons(num, type, obt);
+                  ovw_title(obt, num, 0);
                }
                while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers(); // wait for release
                lift_setup(); // reset all lifts to step 0
@@ -2291,75 +2190,61 @@ void object_viewerw(int obt, int num)
             if (obt == 4)
             {
                erase_lift(num);
-               if (--num < 0) num = 0;    // set to prev lift or zero
+               if (--num < 0) num = 0;      // set to prev lift or zero
                if (num_lifts < 1) quit = 1; // if erased last lift; exit lift viewer
             }
-
          break;
          case 21: // next
             if ((obt==2) && (++num >= item_first_num[type] + item_num_of_type[type])) num--;
             if ((obt==3) && (++num >= e_first_num[type] + e_num_of_type[type])) num--;
             if ((obt==4) && (++num > num_lifts-1)) num--;
-            new_obj = 1;
-
          break;
          case 22: // previous
             if ((obt==3) && (--num < e_first_num[type])) num++;
             if ((obt==2) && (--num < item_first_num[type])) num++;
             if ((obt==4) && (--num < 0)) num++;
-            new_obj = 1;
-         break;
-         case 23: // copy to draw item
-            if ((obt==2) || (obt==3))
-            {
-               draw_item_num = num;
-               draw_item_type = obt;
-            }
-
          break;
          case 24:  // viewer help
             help("Viewer Basics");
          break;
          case 25:  // object help
-         if (obt==3)
-         {
-            if (type == 3)  help("Archwagon Viewer");
-            if (type == 4)  help("Bouncer Viewer");
-            if (type == 6)  help("Cannon Viewer");
-            if (type == 7)  help("Podzilla Viewer");
-            if (type == 8)  help("Trakbot Viewer");
-            if (type == 9)  help("Cloner Viewer");
-            if (type == 10) help("Field Viewer");
-            if (type == 11) help("Block Walker Viewer");
-            if (type == 12) help("Flapper Viewer");
-         }
-         if (obt==2)
-         {
-            if (type == 1)  help("Door Viewer");
-            if (type == 2)  help("Health Bonus Viewer");
-            if (type == 3)  help("Exit Viewer");
-            if (type == 4)  help("Key Viewer");
-            if (type == 5)  help("Start Viewer");
-            if (type == 6)  help("Free Man Viewer");
-            if (type == 7)  help("Mine Viewer");
-            if (type == 8)  help("Bomb Viewer");
-            if (type == 10) help("Message Viewer");
-            if (type == 11) help("Rocket Viewer");
-            if (type == 12) help("Warp Viewer");
-            if (type == 14) help("Switch Viewer");
-            if (type == 15) help("Sproingy Viewer");
-         }
-         if (obt==4)
-         {
-            help("Lift Viewer");
-         }
-
+            if (obt==3)
+            {
+               if (type == 3)  help("Archwagon Viewer");
+               if (type == 4)  help("Bouncer Viewer");
+               if (type == 6)  help("Cannon Viewer");
+               if (type == 7)  help("Podzilla Viewer");
+               if (type == 8)  help("Trakbot Viewer");
+               if (type == 9)  help("Cloner Viewer");
+               if (type == 10) help("Field Viewer");
+               if (type == 11) help("Block Walker Viewer");
+               if (type == 12) help("Flapper Viewer");
+            }
+            if (obt==2)
+            {
+               if (type == 1)  help("Door Viewer");
+               if (type == 2)  help("Health Bonus Viewer");
+               if (type == 3)  help("Exit Viewer");
+               if (type == 4)  help("Key Viewer");
+               if (type == 5)  help("Start Viewer");
+               if (type == 6)  help("Free Man Viewer");
+               if (type == 7)  help("Mine Viewer");
+               if (type == 8)  help("Bomb Viewer");
+               if (type == 10) help("Message Viewer");
+               if (type == 11) help("Rocket Viewer");
+               if (type == 12) help("Warp Viewer");
+               if (type == 14) help("Switch Viewer");
+               if (type == 15) help("Sproingy Viewer");
+            }
+            if (obt==4)
+            {
+               help("Lift Viewer");
+            }
          break;
          case 26: // up
          {
             if (obt == 2)  // prev item type
             {
-               new_obj = 1;
                do
                {
                   type--;
@@ -2367,21 +2252,15 @@ void object_viewerw(int obt, int num)
                } while (item_num_of_type[type] == 0);
                num = item_first_num[type];
             }
-
             if (obt == 3) // prev enemy type
             {
-               new_obj = 1;
                while (e_num_of_type[--type] == 0)
                   if (type < 3) type = 20;
                num = e_first_num[type];
             }
             if (obt == 4) // prev lift step
             {
-               int lift = num;
-               int step = lifts[num].current_step;
                if (--step < 0) step = 0;
-               set_lift_to_step(lift, step);   // set current step in current lift
-               lifts[num].current_step = step;
             }
          }
          break;
@@ -2389,7 +2268,6 @@ void object_viewerw(int obt, int num)
          {
             if (obt == 2) // next obj type
             {
-               new_obj = 1;
                do
                {
                   type++;
@@ -2397,21 +2275,15 @@ void object_viewerw(int obt, int num)
                } while (item_num_of_type[type] == 0);
                num = item_first_num[type];
             }
-
             if (obt == 3) // next obj type
             {
-               new_obj = 1;
                while (e_num_of_type[++type] == 0)
                   if (type > 20) type = 1;
                num = e_first_num[type];
             }
             if (obt == 4) // next lift step
             {
-               int lift = num;
-               int step = lifts[num].current_step;
                if (++step > (lifts[lift].num_steps-1)) step = (lifts[lift].num_steps-1);
-               set_lift_to_step(lift, step);   // set current step in current lift
-               lifts[num].current_step = step;
             }
          }
          break;

@@ -2138,24 +2138,25 @@ int mdw_button(int x1, int y1, int x2, int y2,
    {
       int l = type;
       int s = obt;
-      int x = lift_steps[l][s].x;
-      int y = lift_steps[l][s].y;
-      int w = lift_steps[l][s].w;
-      int h = lift_steps[l][s].h;
+//      int x = lift_steps[l][s].x;
+//      int y = lift_steps[l][s].y;
+//      int w = lift_steps[l][s].w;
+//      int h = lift_steps[l][s].h;
       int v = lift_steps[l][s].val;
 
       if (num == -1) sprintf(smsg, "Details");  // show row header
       if (num == 0)  sprintf(smsg, "blank");
-      if (num == 1)  sprintf(smsg, "x:%4d y:%4d w:%4d h:%4d [speed:%d]", x, y, w, h, v);
+      if (num == 1)  sprintf(smsg, "and Resize [speed:%d]", v);
+//      if (num == 1)  sprintf(smsg, "x:%4d y:%4d w:%4d h:%4d [speed:%d]", x, y, w, h, v);
       if (num == 2)  sprintf(smsg, "for Timer:%d", v);
       if (num == 3)  sprintf(smsg, "for Player prox:%d", v);
+      if (num == 5)  sprintf(smsg, "for Trigger Event:%d", v);
       if (num == 4)
       {
-         if (v == 0) sprintf(smsg, "End Step - Loop to Start");
-         if (v == 1) sprintf(smsg, "End Step - Warp to Start");
-         if (v == 2) sprintf(smsg, "End Step - Freeze Here");
+         if (v == 0) sprintf(smsg, "Step - Loop to Start");
+         if (v == 1) sprintf(smsg, "Step - Warp to Start");
+         if (v == 2) sprintf(smsg, "Step - Freeze Here");
       }
-      if (num == 5)  sprintf(smsg, "for Trigger Event:%d", v);
    }
    if (bn == 504)
    {

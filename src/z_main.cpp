@@ -172,6 +172,7 @@ int ov_window_w = 240;
 int ov_window_h = 600;
 
 
+int ov_window_lift_buttons_h = 0;
 
 
 
