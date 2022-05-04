@@ -24086,6 +24086,19 @@ now, when it shows the list of steps for insert menu, fix that position....
 got to go ...push
 
 
+I need to make something like a redraw object viewer function...
+so I can call it when I am in the middle of adding lifts steps
+
+also can call it when I am moving window, or map moving things...
+
+
+
+
+
+
+
+
+
 
 
 

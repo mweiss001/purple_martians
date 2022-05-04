@@ -235,7 +235,10 @@ int get_new_lift_step(int lift, int step)
    // if we return 99 the step will be erased
 
    // position the menu on top of the step we are inserting before
-   int sty = 53 + (step + 9) * bts;
+//   int sty = 53 + (step + 9) * bts;
+
+   int sty = ov_window_y1 + 53 + (step + 10) * bts;
+
    if (sty > SCREEN_H-60) sty = SCREEN_H-60;
 
    int num_of_step_types = 5;
@@ -245,10 +248,14 @@ int get_new_lift_step(int lift, int step)
    int fc = 14; // frame color
    int tc = 15; // text color
 
-   al_draw_filled_rectangle(txc-98, sty-8, txc+96, sty2, palette_color[fc+192]); // erase to background color
-   al_draw_rectangle       (txc-98, sty-8, txc+96, sty2, palette_color[fc], 1); // frame
 
-   al_set_mouse_xy(display, txc * display_transform_double, (sty+24) * display_transform_double); // position the mouse
+   int xc = (ov_window_x1 + ov_window_x2)/2;
+
+
+   al_draw_filled_rectangle(xc-98, sty-8, xc+96, sty2, palette_color[fc+192]); // erase to background color
+   al_draw_rectangle       (xc-98, sty-8, xc+96, sty2, palette_color[fc], 1); // frame
+
+   al_set_mouse_xy(display, xc * display_transform_double, (sty+24) * display_transform_double); // position the mouse
 
    int quit = 0;
    while (!quit)
@@ -258,10 +265,10 @@ int get_new_lift_step(int lift, int step)
       proc_controllers();
       if ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE])) quit = 99;
 
-      al_draw_textf(font, palette_color[fc], txc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
+      al_draw_textf(font, palette_color[fc], xc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
 
-      al_draw_text(font, palette_color[tc], txc, sty+5, ALLEGRO_ALIGN_CENTER, "Select Step Type");
-      al_draw_rectangle(txc-98, sty+3, txc+96, sty+14, palette_color[fc], 1); // frame
+      al_draw_text(font, palette_color[tc], xc, sty+5, ALLEGRO_ALIGN_CENTER, "Select Step Type");
+      al_draw_rectangle(xc-98, sty+3, xc+96, sty+14, palette_color[fc], 1); // frame
 
 
       int c1 = 15+96; // regular button color
@@ -269,7 +276,7 @@ int get_new_lift_step(int lift, int step)
       int stys = sty+3;
 
       int jh = 1;
-      if (draw_and_process_button(txc, stys+(jh*12), "Move", c1, c2, 1))
+      if (draw_and_process_button(xc, stys+(jh*12), "Move", c1, c2, 1))
       {
          quit = construct_lift_step(lift, step, 1, 0, 0, 0, 0, 20);
          lift_step_set_size_from_previous_move_step(lift, step);
@@ -277,13 +284,13 @@ int get_new_lift_step(int lift, int step)
       }
 
       jh++;
-      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Time", c1, c2, 1)) quit = construct_lift_step(lift, step, 2, 0, 0, 0, 0, 100);
+      if (draw_and_process_button(xc, stys+(jh*12), "Wait For Time", c1, c2, 1)) quit = construct_lift_step(lift, step, 2, 0, 0, 0, 0, 100);
       jh++;
-      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Prox", c1, c2, 1)) quit = construct_lift_step(lift, step, 3, 0, 0, 0, 0, 80);
+      if (draw_and_process_button(xc, stys+(jh*12), "Wait For Prox", c1, c2, 1)) quit = construct_lift_step(lift, step, 3, 0, 0, 0, 0, 80);
       jh++;
-      if (draw_and_process_button(txc, stys+(jh*12), "Wait For Trig", c1, c2, 1)) quit = construct_lift_step(lift, step, 5, 0, 0, 0,  0, 0);
+      if (draw_and_process_button(xc, stys+(jh*12), "Wait For Trig", c1, c2, 1)) quit = construct_lift_step(lift, step, 5, 0, 0, 0,  0, 0);
       jh++;
-      if (draw_and_process_button(txc, stys+(jh*12), "Done", c1, c2, 1)) quit = 99;
+      if (draw_and_process_button(xc, stys+(jh*12), "Done", c1, c2, 1)) quit = 99;
 
    } // end of while (!quit)
    return quit;
@@ -334,6 +341,45 @@ int insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'ste
       }
       else ret = 1;
 //      redraw_lift_viewer(lift, step);
+
+
+      al_flip_display();
+      proc_scale_factor_change();
+      proc_controllers();
+      proc_frame_delay();
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
+
+      ovw_draw_overlays(4, lift, 0);
+
+
+      get_new_screen_buffer(3, 0, 0);
+
+      ovw_draw_buttons(lift, 0, 4);
+      ovw_title(4, lift, 0); // draw button title, frame and legend lines
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    }
    return ret;
 }
