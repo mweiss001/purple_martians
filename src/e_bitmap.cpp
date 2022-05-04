@@ -5,7 +5,7 @@
 // gets block with flags from level
 int select_bitmap(int tn)
 {
-   Redraw = 1;
+   int redraw = 1;
    int quit = 0;
    while (!quit)
    {
@@ -68,9 +68,9 @@ int select_bitmap(int tn)
       process_scrolledge();
       update_editor_background();
 
-      if (Redraw)
+      if (redraw)
       {
-         Redraw = 0;
+         redraw = 0;
          draw_big(1);
       }
 

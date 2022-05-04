@@ -337,6 +337,7 @@ extern int ov_window_x2;
 extern int ov_window_y2;
 extern int ov_window_w;
 extern int ov_window_h;
+extern int ov_window_lift_buttons_h;
 
 // status window
 extern int status_window_active;
