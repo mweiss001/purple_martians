@@ -1090,10 +1090,9 @@ void object_viewerw(int obt, int num);
 int create_obj(int obt, int sub_type, int sent_num);
 int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num);
 
-
-
-
-
+void ovw_draw_overlays(int obj_type, int num, int legend_highlight);
+int ovw_draw_buttons(int num, int type, int obt);
+void ovw_title(int obj_type, int num, int legend_highlight);
 
 
 
