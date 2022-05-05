@@ -187,7 +187,7 @@ int create_lift(void)
       cf |= PM_LIFT_SOLID_ITEM;
       initial_type |= cf; ;     // merge with type
 
-      sprintf(msg, "new lift %d", lift);
+      sprintf(msg, "lift %d", lift);
 
       construct_lift(lift, msg);
       construct_lift_step(lift, step, initial_type, 0, 0, initial_width, initial_height, initial_val);
@@ -196,12 +196,13 @@ int create_lift(void)
       if (getxy("Lift Initial Position", 4, lift, step) == 1)
       {
          step++;
-
          initial_type = (4 | cf);  // make type 4 step type with same flags as initial
          construct_lift_step(lift, step, initial_type, 0, 0, 0, 0, 0); // type 4 - loop to step zero
          lifts[lift].num_steps++; // add one to steps
 
          set_lift_to_step(lift, 0); // set step 0 for lift
+         ovw_redraw_background(4, 0, lift, 0, 1);
+         ovw_redraw_background(4, 0, lift, 0, 1); // do this twice to get proper window height
          insert_steps_until_quit(lift, step);
          return 1;
       }
@@ -237,7 +238,7 @@ int get_new_lift_step(int lift, int step)
    // position the menu on top of the step we are inserting before
 //   int sty = 53 + (step + 9) * bts;
 
-   int sty = ov_window_y1 + 53 + (step + 10) * bts;
+   int sty = ov_window_y1 + 44 + (step + 10) * bts;
 
    if (sty > SCREEN_H-60) sty = SCREEN_H-60;
 
@@ -248,9 +249,7 @@ int get_new_lift_step(int lift, int step)
    int fc = 14; // frame color
    int tc = 15; // text color
 
-
    int xc = (ov_window_x1 + ov_window_x2)/2;
-
 
    al_draw_filled_rectangle(xc-98, sty-8, xc+96, sty2, palette_color[fc+192]); // erase to background color
    al_draw_rectangle       (xc-98, sty-8, xc+96, sty2, palette_color[fc], 1); // frame
@@ -306,8 +305,7 @@ int insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'ste
    {
       lifts[lift].num_steps--;
       ret = 0;
-      al_show_native_message_box(display, "Error", "Error creating lift step",
-         "40 steps is the maximum", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+      al_show_native_message_box(display, "Error", "Error creating lift step", "40 steps is the maximum", NULL, ALLEGRO_MESSAGEBOX_ERROR);
    }
    else
    {
@@ -321,64 +319,17 @@ int insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'ste
          lift_steps[lift][x+1].val  = lift_steps[lift][x].val;
          lift_steps[lift][x+1].type = lift_steps[lift][x].type;
       }
-
       clear_lift_step(lift, step);
-
-      // do this after creating a new lift step so stuff lines up...
-      //set_bts(lift);
-
-
-      int step_ty = ov_window_y1+ 46 + 7 * bts;
-
-      int x1 = SCREEN_W-(SCREEN_W-(db*100))+1;
-      int x2 = SCREEN_W-1;
-      draw_steps(ov_window_x1, ov_window_x2, step_ty, lift, step, step);     // show lift steps
-
+      int step_ty = ov_window_y1+ 38 + 7 * bts;
+      draw_steps(ov_window_x1+1, ov_window_x2-1, step_ty, lift, step, step);     // show lift steps
       if (get_new_lift_step(lift, step) == 99) // cancelled
       {
          delete_lift_step(lift, step);
          ret = 0;
       }
       else ret = 1;
-//      redraw_lift_viewer(lift, step);
-
-
-      al_flip_display();
-      proc_scale_factor_change();
-      proc_controllers();
-      proc_frame_delay();
-      get_new_background(0);
-      draw_lifts();
-      draw_items();
-      draw_enemies();
-
-      ovw_draw_overlays(4, lift, 0);
-
-
-      get_new_screen_buffer(3, 0, 0);
-
-      ovw_draw_buttons(lift, 0, 4);
-      ovw_title(4, lift, 0); // draw button title, frame and legend lines
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      ovw_redraw_background(4, 0, lift, 0, 1);
+      ovw_redraw_background(4, 0, lift, 0, 1); // do this twice to get proper window height
 
    }
    return ret;
@@ -425,8 +376,6 @@ void set_all_steps(int l, int s, int what)
       }
    }
 }
-
-
 
 
 void step_popup_menu(int lift, int step)

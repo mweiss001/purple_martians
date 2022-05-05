@@ -1094,7 +1094,7 @@ void ovw_draw_overlays(int obj_type, int num, int legend_highlight);
 int ovw_draw_buttons(int num, int type, int obt);
 void ovw_title(int obj_type, int num, int legend_highlight);
 
-
+int ovw_redraw_background(int obt, int type, int num, int legend_line, int show_window);
 
 
 
