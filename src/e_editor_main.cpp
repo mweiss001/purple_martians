@@ -578,7 +578,7 @@ int edit_menu(int el)
 
    do
    {
-      set_display_transform(0);
+      set_display_transform();
 
       x100 = mouse_x/20 + wx;
       y100 = mouse_y/20 + wy;

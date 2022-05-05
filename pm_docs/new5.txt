@@ -24386,6 +24386,33 @@ only when changing with F12 use a forced val...
 this is getting complicated....
 
 
+lets me try to simplify:
+
+you can set the variable "saved_display_transform_double" in the config file or CTRL-SHIFT-F12
+
+(1, 2, 3) - forces the specific value for display_transform_double
+0 lets it be set automatically
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

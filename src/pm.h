@@ -1547,7 +1547,7 @@ void show_display_options(void);
 void show_display_orienation(void);
 void show_fullscreen_modes(void);
 void auto_set_display_transform_double(void);
-void set_display_transform(int);
+void set_display_transform();
 
 
 

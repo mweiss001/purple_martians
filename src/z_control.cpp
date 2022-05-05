@@ -525,11 +525,12 @@ void function_key_check(void)
            ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) )
       {
          float old_display_transform_double = display_transform_double;
-         if (++display_transform_double>3) display_transform_double = 1;
 
-         set_display_transform(display_transform_double);
+         if (++saved_display_transform_double>3) saved_display_transform_double = 0;
+         save_config();
+
+         set_display_transform();
          set_map_var();
-
 
          float new_display_transform_double = display_transform_double;
          float sfa = new_display_transform_double/old_display_transform_double;
