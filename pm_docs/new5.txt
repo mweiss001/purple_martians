@@ -24026,8 +24026,6 @@ it will be awesome....
 
 got lift map move to work in obv...!!!
 
-
-
 pasted in the buttons, step list and current step details...
 
 now I need to:
@@ -24074,12 +24072,8 @@ legend lines have transparent background.....not erasing enough...fixed...
 lift color does not update when changing step color, need to redraw something...fixed
 
 
-
-
 test add lift steps and shit like that for updating screen...
 pop-up menu for insert step....fixed that, I think..just made its position mouse_x and mouse_y
-
-now, when it shows the list of steps for insert menu, fix that position....
 
 
 20220504 6:31 AM
@@ -24255,6 +24249,141 @@ block and block flags
 these would apply to viewer to filter what could be selected, or shown.
 
 
+20220505
+
+
+
+re enable bookmarks...done
+can be in object viewer with obt and num
+save in object viewer
+load and auto load in edit_menu
+all works good...
+
+
+save positions of windows in cfg file just like status and sel...
+group edit, and ovwindow...
+
+
+
+zoom full screen....
+make the side panel into a moveable window
+call it something else...rectangular copy paste
+
+
+
+do something about display_transform_double
+make it automatic or manual and in cfg file...
+
+
+
+void auto_set_display_transform_double(void)
+{
+   display_transform_double = 2;
+
+/*
+   display_transform_double = 1;
+
+   if (disp_w_curr > 1023) display_transform_double = 2;
+   if (disp_h_curr > 1023) display_transform_double = 2;
+
+   if (disp_w_curr < 1024) display_transform_double = 1;
+   if (disp_h_curr < 700)  display_transform_double = 1;
+
+   if (level_editor_running) display_transform_double = 1;
+
+   if (help_screens_running)
+   {
+      if (disp_w_curr > 1279) display_transform_double = 2;
+      if (disp_w_curr < 1280) display_transform_double = 1;
+   }
+   */
+   set_display_transform();
+   set_map_var();
+}
+
+
+where is it called?
+init_display(void)
+proc_display_change(void)
+help start and exit
+why on help??
+comment those out...
+
+
+
+this is at the start of edit_menu:
+
+   int original_display_transform_double = display_transform_double;
+
+//   int target_display_transform_double = 1; // this is the orig
+
+   int target_display_transform_double = original_display_transform_double; // this is the hacked line
+
+   if (disp_w_curr > 3800) target_display_transform_double = 2;
+   if (display_transform_double != target_display_transform_double)
+   {
+      display_transform_double = target_display_transform_double;
+      set_display_transform();
+      set_map_var();
+   }
+
+
+this is at the end...
+
+   if (original_display_transform_double != display_transform_double)
+   {
+      display_transform_double = original_display_transform_double;
+      set_display_transform();
+      set_map_var();
+   }
+
+comment those out too...done
+
+
+
+now I want to save just a single variable in cfg file for this...
+
+if -1 then autoset, otherwise it is display_transform_double
+
+
+
+
+remove all calls to:
+auto_set_display_transform_double()
+
+and replace them with calls to:
+set_display_transform()
+
+
+then call:
+auto_set_display_transform_double()
+
+only from from:
+set_display_transform()
+
+
+pass a value to set_display_transform()
+
+if 1-3 then set that
+if -1 then auto...
+
+need a global variable for value saved in config file
+
+
+saved_display_transform_double
+
+
+when called most of the time, use saved_dtd to set dtd...
+that could be a forced value or -1 for auto
+
+
+when called with a forced value, set saved_dtd to that value
+
+
+most calls will be 0...
+only when changing with F12 use a forced val...
+
+this is getting complicated....
 
 
 

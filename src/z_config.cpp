@@ -36,6 +36,11 @@ void save_config(void)
       if (show_splash_screen) sprintf(global_string[8][11], "Splash Screen:ON ");
       else sprintf(global_string[8][11], "Splash Screen:OFF");
 
+
+      sprintf(msg, "%d", saved_display_transform_double);
+      al_set_config_value(cfg, "SCREEN", "saved_display_transform_double", msg);
+
+
       sprintf(msg, "%d",players[0].color );
       al_set_config_value(cfg, "GAME", "color", msg);
 
@@ -245,6 +250,9 @@ void save_config(void)
       al_set_config_value(cfg, "LEVEL_EDITOR", "bookmark_num", msg);
 
 
+
+
+
    }
 
    al_save_config_file("pm.cfg", cfg);
@@ -301,6 +309,9 @@ void get_config_values(void)
    else show_splash_screen = atoi(val);
    if (!show_splash_screen) splash_screen_done = 1;
 
+   val = al_get_config_value(cfg, "SCREEN", "saved_display_transform_double");
+   if (!val) saved_display_transform_double = -1;
+   else saved_display_transform_double = atoi(val);
 
    val = al_get_config_value(cfg, "GAME", "start_level");
    if (!val) start_level = 1;

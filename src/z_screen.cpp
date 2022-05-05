@@ -112,7 +112,7 @@ void rebuild_bitmaps(void)
 
    init_level_background();
 
-   set_display_transform();
+   set_display_transform(0);
 
    load_fonts();
 

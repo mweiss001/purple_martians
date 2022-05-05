@@ -890,6 +890,7 @@ extern int level_display_region_w;
 extern int level_display_region_h;
 
 extern int display_transform_double;
+extern int saved_display_transform_double;
 
 extern int level_editor_running;
 extern int help_screens_running;
@@ -1546,7 +1547,7 @@ void show_display_options(void);
 void show_display_orienation(void);
 void show_fullscreen_modes(void);
 void auto_set_display_transform_double(void);
-void set_display_transform(void);
+void set_display_transform(int);
 
 
 

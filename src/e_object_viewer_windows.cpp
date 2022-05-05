@@ -2039,6 +2039,61 @@ void object_viewerw(int obt, int num)
          ovw_map_move(obt, num);
       }
 
+
+
+
+
+
+      if (key[ALLEGRO_KEY_B])
+      {
+         while (key[ALLEGRO_KEY_B]) proc_controllers();
+         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         {
+            printf("save bookmark\n");
+            bookmark_level = last_level_loaded;
+            bookmark_obj = obt;
+            bookmark_num = num;
+            save_config();
+         }
+         else
+         {
+            printf("load bookmark\n");
+            if (bookmark_level == last_level_loaded)
+            {
+               if ((bookmark_obj == 2) && (item[bookmark_num]))
+               {
+                  obt = bookmark_obj;
+                  num = bookmark_num;
+               }
+               if ((bookmark_obj == 3) && (Ei[bookmark_num]))
+               {
+                  obt = bookmark_obj;
+                  num = bookmark_num;
+               }
+               if ((bookmark_obj == 4) && (bookmark_num < num_lifts))
+               {
+                  obt = bookmark_obj;
+                  num = bookmark_num;
+               }
+            }
+         }
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
       {
          proc_controllers();

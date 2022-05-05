@@ -529,6 +529,8 @@ int level_display_region_w;
 int level_display_region_h;
 
 int display_transform_double = 1;
+int saved_display_transform_double = -1;
+
 
 int level_editor_running = 0;
 int help_screens_running = 0;

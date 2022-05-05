@@ -526,6 +526,11 @@ void function_key_check(void)
       {
          float old_display_transform_double = display_transform_double;
          if (++display_transform_double>3) display_transform_double = 1;
+
+         set_display_transform(display_transform_double);
+         set_map_var();
+
+
          float new_display_transform_double = display_transform_double;
          float sfa = new_display_transform_double/old_display_transform_double;
 
@@ -537,8 +542,6 @@ void function_key_check(void)
 
          scale_factor_current = scale_factor;
 
-         set_display_transform();
-         set_map_var();
 
          window_title();
       }

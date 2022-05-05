@@ -160,7 +160,15 @@ void show_fullscreen_modes(void)
 
 void auto_set_display_transform_double(void)
 {
-   display_transform_double = 2;
+
+   if (saved_display_transform_double) display_transform_double = saved_display_transform_double;
+
+
+
+
+
+
+//   display_transform_double = 2;
 
 /*
    display_transform_double = 1;
@@ -179,12 +187,21 @@ void auto_set_display_transform_double(void)
       if (disp_w_curr < 1280) display_transform_double = 1;
    }
    */
-   set_display_transform();
-   set_map_var();
+
 }
 
-void set_display_transform(void)
+void set_display_transform(int dtd)
 {
+   if (!dtd) auto_set_display_transform_double();
+
+   else
+   {
+      display_transform_double = dtd;
+      saved_display_transform_double = dtd;
+      save_config();
+   }
+
+
    al_set_target_backbuffer(display);
    SCREEN_W = disp_w_curr/display_transform_double;
    SCREEN_H = disp_h_curr/display_transform_double;
@@ -192,6 +209,7 @@ void set_display_transform(void)
    al_identity_transform(&trans);
    al_orthographic_transform(&trans, 0, 0, -1.0, SCREEN_W, SCREEN_H, 1.0);
    al_use_projection_transform(&trans);
+   set_map_var();
 }
 
 void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head)
@@ -271,7 +289,7 @@ int init_display(void)
    al_get_window_position(display, &disp_x_curr, &disp_y_curr);
    //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
 
-   auto_set_display_transform_double();
+   set_display_transform(0);
    window_title();
 
    //show_display_flags(al_get_display_flags(display));
@@ -312,7 +330,7 @@ void proc_display_change(void)
       disp_w_curr = disp_w_wind = w;
       disp_h_curr = disp_h_wind = h;
    }
-   auto_set_display_transform_double();
+   set_display_transform(0);
    rebuild_bitmaps();
    save_config();
    Redraw = 1;
@@ -374,183 +392,4 @@ void proc_display_change_fromfs(void)
    al_set_window_position(display, disp_x_wind, disp_y_wind);
    proc_display_change();
 }
-
-
-
-
-
-/*
-
-
-
-
-int do_actual_display_values_match_curr()
-{
-   // detect if actual window position or size is different from what it should be
-   int w = al_get_display_width(display);
-   int h = al_get_display_height(display);
-   int x, y;
-   al_get_window_position(display, &x, &y);
-   if ((x != disp_x_curr) || (y != disp_y_curr) || (w != disp_w_curr) || (h != disp_h_curr) ) return 0;
-   return 1;
-//   if (al_get_display_flags(display) & ALLEGRO_FULLSCREEN_WINDOW)
-
-}
-
-
-
-void enforce_display_xywh(void) // not used
-{
-   if (!do_actual_display_values_match_curr())
-   {
-      show_disp_values(0, 1, 1, 1, 0, "enforce display difference");
-      proc_screen_change();
-   }
-}
-
-
-void proc_screen_change(void)
-{
-   int w = al_get_display_width(display);
-   int h = al_get_display_height(display);
-   int x, y;
-   al_get_window_position(display, &x, &y);
-
-   if (fullscreen)
-   {
-      disp_x_curr = disp_x_full = x;
-      disp_y_curr = disp_y_full = y;
-      disp_w_curr = disp_w_full = w;
-      disp_h_curr = disp_h_full = h;
-   }
-   else
-   {
-      disp_x_curr = disp_x_wind = x;
-      disp_y_curr = disp_y_wind = y;
-      disp_w_curr = disp_w_wind = w;
-      disp_h_curr = disp_h_wind = h;
-   }
-   al_acknowledge_resize(display);
-
-   */
-
-
-/*
-
-   int q = 0;
-   while (!do_actual_display_values_match_curr())
-   {
-    //  printf("\n-----proc_screen_change() try %d", q++);
-
-      al_resize_display(display, disp_w_curr, disp_h_curr);
-     // show_disp_values(0, 1, 1, 1, 0, "process_screen_change 1 - res");
-
-      al_set_window_position(display, disp_x_curr, disp_y_curr); // make sure to set position last ???
-     // show_disp_values(0, 1, 1, 1, 0, "process_screen_change 2 - pos");
-
-      al_acknowledge_resize(display);
-     // show_disp_values(0, 1, 1, 1, 0, "process_screen_change 3 - ack");
-   }
-   auto_set_display_transform_double();
-   rebuild_bitmaps();
-   save_config();
-   Redraw = 1;
-
-   //show_disp_values(0, 1, 1, 1, 0, "process_screen_change end");
-
-   sprintf(msg, "\n----process_screen_change end after %d tries", q);
-   show_disp_values(0, 1, 1, 1, 0, msg);
-*/
-
-
-/*
-
-   int q = 0;
-   while (!do_actual_display_values_match_curr())
-   {
-
-
-
-
-
-      printf("\n-----proc_screen_change() try %d", q++);
-
-      al_resize_display(display, disp_w_curr, disp_h_curr);
-      show_disp_values(0, 1, 1, 1, 0, "process_screen_change 1 - res");
-
-      al_set_window_position(display, disp_x_curr, disp_y_curr); // make sure to set position last ???
-      show_disp_values(0, 1, 1, 1, 0, "process_screen_change 2 - pos");
-
-      al_acknowledge_resize(display);
-      show_disp_values(0, 1, 1, 1, 0, "process_screen_change 3 - ack");
-   }
-
-*/
-
-/*
-   auto_set_display_transform_double();
-   rebuild_bitmaps();
-   save_config();
-   Redraw = 1;
-   show_disp_values(0, 1, 1, 1, 0, "process_screen_change end");
-
-
-
-
-}
-
-
-void old_proc_window_resize_event(int x, int y, int w, int h)
-{
-   // show_disp_values(0, 1, 1, 1, 0, \n----resize event initial  );
-
-*/
-
-/*
-   if (fullscreen)
-   {
-      printf("\nGot a window resize event while in fullscreen...this is unexpected\n");
-      disp_x_curr = disp_x_full = x;
-      disp_y_curr = disp_y_full = y;
-      disp_w_curr = disp_w_full = w;
-      disp_h_curr = disp_h_full = h;
-   }
-   else
-   {
-      disp_x_curr = disp_x_wind = x-10; // this takes into account the window frame size in windows
-      disp_y_curr = disp_y_wind = y-32;
-      //disp_x_curr = disp_x_wind = x;
-      //disp_y_curr = disp_y_wind = y;
-      disp_w_curr = disp_w_wind = w;
-      disp_h_curr = disp_h_wind = h;
-   }
-   //show_disp_values(0, 1, 1, 1, 0, "\n----resize event final");
-
-   sprintf(msg, "\n----resize event  x:%d y:%d w:%d h:%d", x, y, w, h);
-   show_disp_values(0, 1, 1, 1, 0, msg);
-
-   proc_screen_change();
-}
-
-
-void detect_window_move(void) // not used
-{
-   int x, y;
-   al_get_window_position(display, &x, &y);
-   if ((x != disp_x_curr) || (y != disp_y_curr))
-   {
-      if (fullscreen) printf("\nWe got a window move detection while in fullscreen...this is unexpected\n");
-      disp_x_curr = disp_x_wind = x;
-      disp_y_curr = disp_y_wind = y;
-
-      show_disp_values(0, 1, 1, 1, 0, "\n----window move detected");
-
-      //enforce_display_xywh();
-   }
-}
-
-*/
-
-
-
 

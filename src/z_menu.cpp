@@ -58,10 +58,7 @@ void chop_first_x_char(char *str, int n)
 void help(const char *topic)
 {
 //   if (SCREEN_H < 480) return;       // wont work with SCREEN_H < 480
-
    help_screens_running = 1;
-   auto_set_display_transform_double();
-
    int num_of_lines = load_help();
    char section_names[60][80];
    int section_first_lines[60];
@@ -494,7 +491,6 @@ void help(const char *topic)
    al_destroy_bitmap(selection_window);
    al_destroy_bitmap(hlift);
    help_screens_running = 0;
-   auto_set_display_transform_double();
 }
 
 

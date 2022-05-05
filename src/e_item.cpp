@@ -511,35 +511,12 @@ void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, i
       for (row=0; row<=num_lines; row++)
          al_draw_text(font, palette_color[tc], pxw/2+1, 10+row*8, ALLEGRO_ALIGN_CENTER, dt[row]);
 
-     // draw on screen
-     al_set_target_backbuffer(display);
-     al_draw_bitmap(tmp, px, py, 0);
+      // draw on screen
+      al_set_target_backbuffer(display);
+      al_draw_bitmap(tmp, px, py, 0);
 
-     /*
-
-      // redraw map to erase old
-      if (redraw_map) show_big();
-
-      // get the position on the map to copy it to
-      int mmx = item[c][10] * db;
-      int mmy = item[c][11] * db;
-
-      al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-      al_draw_scaled_bitmap(tmp, 0, 0, pxw, pyh, mmx, mmy, pxw*db/20, pyh*db/20, 0);
-      al_reset_clipping_rectangle();
-
-      // also put it in here in case we need it for the mouse pointer
-      al_destroy_bitmap(mp);
-      mp = al_create_bitmap(pxw*db/20, pyh*db/20);
-      al_set_target_bitmap(mp);
-      al_clear_to_color(al_map_rgb(0,0,0));
-
-      al_draw_scaled_bitmap(tmp, 0, 0, pxw, pyh, 0, 0, pxw*db/20, pyh*db/20, 0);
-*/
       al_destroy_bitmap(tmp);
       al_set_target_backbuffer(display);
-
-
    }
 }
 
