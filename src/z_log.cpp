@@ -702,9 +702,8 @@ int log_file_viewer(int type)
       }
 
 
-   int original_display_transform_double = display_transform_double;
-   display_transform_double = 1;
-   set_display_transform();
+   //int original_display_transform_double = display_transform_double;
+   //set_display_transform(0);
 
 
    while (!quit)
@@ -934,8 +933,7 @@ int log_file_viewer(int type)
       }
    } // end of log file viewer
 
-   display_transform_double = original_display_transform_double;
-   set_display_transform();
+//   set_display_transform(original_display_transform_double);
    return 0;
 }
 

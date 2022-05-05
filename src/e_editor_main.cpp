@@ -30,13 +30,9 @@ void get_item_draw_shape(int i)
       drawn = 1;
    }
 
-
    if (item[i][0] == 9)  shape = 991; // these don't normally show on the level when the game is running
    if (item[i][0] == 16) shape = 989;
    if (item[i][0] == 17) shape = 988;
-
-
-
 
    // these types need rotation
    if (item[i][0] == 11) // rocket
@@ -519,19 +515,6 @@ void draw_item_info(int x, int y, int color, int type, int num)
 int edit_menu(int el)
 {
    level_editor_running = 1;
-   int original_display_transform_double = display_transform_double;
-
-//   int target_display_transform_double = 1; // this is the orig
-
-   int target_display_transform_double = original_display_transform_double; // this is the hacked line
-
-   if (disp_w_curr > 3800) target_display_transform_double = 2;
-   if (display_transform_double != target_display_transform_double)
-   {
-      display_transform_double = target_display_transform_double;
-      set_display_transform();
-      set_map_var();
-   }
 
    al_show_mouse_cursor(display);
    resume_allowed = 0;
@@ -579,23 +562,23 @@ int edit_menu(int el)
    int draw_item_blink = 0;
 
 
-   /*
+
    if (autoload_bookmark)
    {
       printf("load bookmark\n");
       if (bookmark_level == last_level_loaded)
       {
-         if ((bookmark_obj == 2) && (item[bookmark_num]))       object_viewer(2, bookmark_num);
-         if ((bookmark_obj == 3) && (Ei[bookmark_num]))         object_viewer(3, bookmark_num);
-         if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) object_viewer(4, bookmark_num);
+         if ((bookmark_obj == 2) && (item[bookmark_num]))       object_viewerw(2, bookmark_num);
+         if ((bookmark_obj == 3) && (Ei[bookmark_num]))         object_viewerw(3, bookmark_num);
+         if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) object_viewerw(4, bookmark_num);
       }
    }
-*/
+
 
 
    do
    {
-      set_display_transform();
+      set_display_transform(0);
 
       x100 = mouse_x/20 + wx;
       y100 = mouse_y/20 + wy;
@@ -873,7 +856,6 @@ int edit_menu(int el)
       } // end of put draw item
 
 
-/*
 
       if (key[ALLEGRO_KEY_B])
       {
@@ -881,14 +863,12 @@ int edit_menu(int el)
          printf("load bookmark\n");
          if (bookmark_level == last_level_loaded)
          {
-            if ((bookmark_obj == 2) && (item[bookmark_num]))       object_viewer(2, bookmark_num);
-            if ((bookmark_obj == 3) && (Ei[bookmark_num]))         object_viewer(3, bookmark_num);
-            if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) object_viewer(4, bookmark_num);
+            if ((bookmark_obj == 2) && (item[bookmark_num]))       object_viewerw(2, bookmark_num);
+            if ((bookmark_obj == 3) && (Ei[bookmark_num]))         object_viewerw(3, bookmark_num);
+            if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) object_viewerw(4, bookmark_num);
          }
       }
 
-
-*/
 
       if (key[ALLEGRO_KEY_L])
       {
@@ -1118,72 +1098,8 @@ int edit_menu(int el)
       }
    } while (!em_quit);
    level_editor_running = 0;
-   if (original_display_transform_double != display_transform_double)
-   {
-      display_transform_double = original_display_transform_double;
-      set_display_transform();
-      set_map_var();
-   }
+
    al_hide_mouse_cursor(display);
    return last_level_loaded;
 }   // end of editor menu
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
