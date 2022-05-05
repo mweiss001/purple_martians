@@ -94,7 +94,6 @@ int ovw_get_size(int obt, int type, int*w, int*h)
 }
 
 
-
 int ovw_draw_buttons(int num, int type, int obt)
 {
    // erase background
@@ -176,8 +175,6 @@ int ovw_draw_buttons(int num, int type, int obt)
 }
 
 
-
-
 int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
 {
    int mb = 0;
@@ -187,23 +184,17 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
       int lift = num;
       int step = lifts[num].current_step;
 
-
-      mdw_button(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 500, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift mode
-      if (lifts[lift].mode == 1)
-      {
-         mdw_slider(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 555, lift, 0, 0, 0, 13, 15, 15, 1,0,0,0); a++; // lift mode 1 player ride timer
-      }
-      if (mdw_button(xa,    ty+a*bts, xb,    ty+(a+1)*bts-2, 504, lift, 0, 0, 0,  4, 15,  0, 1,0,0,0)) mb = 26; // lift name
+      // mode, mode 1 timer and name
+      mdw_button(                             xa, ty+a*bts, xb, ty+(a+1)*bts-2, 500, lift, 0, 0, 0, 13, 15,  0, 1,0,0,0); a++;     // lift mode
+      if (lifts[lift].mode == 1) { mdw_slider(xa, ty+a*bts, xb, ty+(a+1)*bts-2, 555, lift, 0, 0, 0, 13, 15, 15, 1,0,0,0); a++; }   // lift mode 1 player ride timer
+      if (mdw_button(                         xa, ty+a*bts, xb, ty+(a+1)*bts-2, 504, lift, 0, 0, 0,  4, 15,  0, 1,0,0,0)) mb = 26; // lift name
       a+=2;
-
 
       // list of step buttons
       // --------------------------------------------------------------------------------
-
       int ysb = ty + (a*bts); // y pos of step buttons
 
-
-      // process mouse on step buttons
+      // process mouse on list of step buttons
       int step_pointer = -99;
       if ((mouse_x > xa + 10) && (mouse_x < xb - 10)) // is mouse on step buttons?
       {
@@ -217,15 +208,13 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
                step = mouse_step; // set current step to this step
                lifts[lift].current_step = step; // set current step in lift
             }
-
-            if (mouse_b2) step_popup_menu(lift, step); // step pop-up menu for this step
+            if (mouse_b2) step_popup_menu(lift, step_pointer); // step pop-up menu for this step
          }
       }
 
       // draw the list of steps  - this has to go after, because it can eat the mouse clicks needed for previous section
       int ycs = ysb + draw_steps(xa, xb, ysb, lift, step, step_pointer);
       ycs +=bts;
-
 
       // draw buttons for the current step button and get y postion for next item (lift)
       int yld = ycs + draw_current_step_buttons(xa, xb, ycs, lift, step);
@@ -1359,21 +1348,13 @@ void ovw_title(int obj_type, int num, int legend_highlight)
             if (legend_highlight == 2) legend_color[2] = flash_color;
          }
          break;
-
       } // end of switch case
-
    }  // end of items
 
    if (!legend_highlight)
    {
       ov_window_h += num_legend_lines*8 + 8;
       ov_window_y2 = ov_window_y1 + ov_window_h;
-
-//      printf("w:%d h:%d\n", ov_window_w, ov_window_h);
-//      al_draw_rectangle(ov_window_x1+20, ov_window_y1, ov_window_x2-20, ov_window_y2, palette_color[10], 1);  // outline entire window
-
-
-
       if (num_legend_lines > 0)
       {
          al_draw_text(font, palette_color[legend_color[0]], ov_xc, ov_window_y2-36+ (4-num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
@@ -1482,29 +1463,13 @@ void ovw_map_move(int &obt, int &num)
    int gx=0, gy=0, hx=0, hy=0;
    ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
 
-   int type=0, obj_x=0, obj_y=0;
-
-   int lift=0, step=0;
-
-   if (obt == 2)
-   {
-      type = item[num][0];
-      obj_x = item[num][4]+10;
-      obj_y = item[num][5]+10;
-   }
-   if (obt == 3)
-   {
-      type = Ei[num][0];
-      obj_x = al_fixtoi(Efi[num][0])+10;
-      obj_y = al_fixtoi(Efi[num][1])+10;
-   }
-
+   int type=0, lift=0, step=0;
+   if (obt == 2) type = item[num][0];
+   if (obt == 3) type = Ei[num][0];
    if (obt == 4)
    {
       lift = num;
       step = lifts[lift].current_step;
-      obj_x = lift_steps[lift][step].x;
-      obj_y = lift_steps[lift][step].y;
    }
 
    int mouse_on_obj = 0;
@@ -1943,30 +1908,8 @@ void ovw_map_move(int &obt, int &num)
             Ei[num][17] = gx; // set new postion
             Ei[num][18] = gy;
          }
-
          ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
-         al_flip_display();
-         proc_scale_factor_change();
-         proc_controllers();
-         proc_frame_delay();
-
-         if (obt == 4) init_level_background(); // to draw new lift lines
-
-         get_new_background(0);
-         draw_lifts();
-         draw_items();
-
-         // if current object is messages, show all messages
-         if ((obt == 2) && (type == 10))
-         {
-            for (int i=0; i<500; i++)
-               if (item[i][0] == 10) draw_pop_message(i);
-         }
-
-         draw_enemies();
-         ovw_draw_overlays(obt, num, 0);
-         get_new_screen_buffer(3, obj_x, obj_y);
-
+         ovw_redraw_background(obt, type, num, 0, 0);
       } // end of while mouse pressed
    } // end of if mouse pressed
 }
@@ -1996,22 +1939,44 @@ void ovw_proc_move_window(int obt, int num, int type)
             ov_window_y1 = mouse_y - myo;
             ov_window_x2 = ov_window_x1 + ov_window_w;
             ov_window_y2 = ov_window_y1 + ov_window_h;
-            al_flip_display();
-            proc_scale_factor_change();
-            proc_controllers();
-            proc_frame_delay();
-            get_new_background(0);
-            draw_lifts();
-            draw_items();
-            draw_enemies();
-            ovw_draw_overlays(obt, num, 0);
-            get_new_screen_buffer(3, 0, 0);
-            ovw_draw_buttons(num, type, obt);
-            ovw_title(obt, num, 0);
+            ovw_redraw_background(obt, type, num, 0, 1);
          }
       }
    }
 }
+
+int ovw_redraw_background(int obt, int type, int num, int legend_line, int show_window)
+{
+   al_flip_display();
+   proc_scale_factor_change();
+   proc_controllers();
+   proc_frame_delay();
+   if (obt == 4) init_level_background(); // to draw new lift lines
+   get_new_background(0);
+   draw_lifts();
+   draw_items();
+   draw_enemies();
+
+   ovw_draw_overlays(obt, num, legend_line);
+
+   // if current object is message, show all messages
+   if ((obt == 2) && (type == 10))
+   {
+      for (int i=0; i<500; i++)
+         if (item[i][0] == 10) draw_pop_message(i);
+   }
+
+   get_new_screen_buffer(3, 0, 0);
+
+   int mb = 0;
+   if (show_window)
+   {
+      mb = ovw_draw_buttons(num, type, obt);
+      ovw_title(obt, num, 0); // draw button title, frame and legend lines
+   }
+   return mb;
+}
+
 
 void object_viewerw(int obt, int num)
 {
@@ -2043,37 +2008,10 @@ void object_viewerw(int obt, int num)
          lifts[num].current_step = step;
       }
 
-      al_flip_display();
-      proc_scale_factor_change();
-      proc_controllers();
-      proc_frame_delay();
-      get_new_background(0);
-      draw_lifts();
-      draw_items();
-      draw_enemies();
-
-      ovw_draw_overlays(obt, num, legend_line);
-
-      // if current object is message, show all messages
-      if ((obt == 2) && (type == 10))
-      {
-         for (int i=0; i<500; i++)
-            if (item[i][0] == 10) draw_pop_message(i);
-      }
-
-
       // ------------------------------------------------------------------------
-      // ----  past this, we are drawing on the screen buffer
+      // ----  redraw the level background and the object viewer window ---------
       // ------------------------------------------------------------------------
-      get_new_screen_buffer(3, obj_x, obj_y);
-
-
-      // ------------------------------------------------------------------------
-      // ----  draw the button window
-      // ------------------------------------------------------------------------
-      int mb = ovw_draw_buttons(num, type, obt);
-      ovw_title(obt, num, 0); // draw button title, frame and legend lines
-
+      int mb = ovw_redraw_background(obt, type, num, legend_line, 1);
 
       // ------------------------------------------------------------------------
       // ----  if mouse on legend lines, show highlights

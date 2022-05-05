@@ -24094,109 +24094,165 @@ also can call it when I am moving window, or map moving things...
 
 
 
+this is from line 1947 at the end of map_move...
 
+         al_flip_display();
+         proc_scale_factor_change();
+         proc_controllers();
+         proc_frame_delay();
 
+         if (obt == 4) init_level_background(); // to draw new lift lines
 
+         get_new_background(0);
+         draw_lifts();
+         draw_items();
 
+         // if current object is messages, show all messages
+         if ((obt == 2) && (type == 10))
+         {
+            for (int i=0; i<500; i++)
+               if (item[i][0] == 10) draw_pop_message(i);
+         }
 
+         draw_enemies();
+         ovw_draw_overlays(obt, num, 0);
+         get_new_screen_buffer(3, obj_x, obj_y);
 
 
+this is from window move
+            al_flip_display();
+            proc_scale_factor_change();
+            proc_controllers();
+            proc_frame_delay();
 
+            get_new_background(0);
 
+            draw_lifts();
+            draw_items();
+            draw_enemies();
+            ovw_draw_overlays(obt, num, 0);
+            get_new_screen_buffer(3, 0, 0);
 
+            ovw_draw_buttons(num, type, obt);
+            ovw_title(obt, num, 0);
 
 
 
 
+this is from the main object viewer
 
+      al_flip_display();
+      proc_scale_factor_change();
+      proc_controllers();
+      proc_frame_delay();
 
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
 
+      ovw_draw_overlays(obt, num, legend_line);
 
+      // if current object is message, show all messages
+      if ((obt == 2) && (type == 10))
+      {
+         for (int i=0; i<500; i++)
+            if (item[i][0] == 10) draw_pop_message(i);
+      }
 
+      get_new_screen_buffer(3, obj_x, obj_y);
 
+      int mb = ovw_draw_buttons(num, type, obt);
+      ovw_title(obt, num, 0); // draw button title, frame and legend lines
 
 
 
+this is from insert lift_step
 
+      al_flip_display();
+      proc_scale_factor_change();
+      proc_controllers();
+      proc_frame_delay();
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
+      ovw_draw_overlays(4, lift, 0);
+      get_new_screen_buffer(3, 0, 0);
 
+      ovw_draw_buttons(lift, 0, 4);
+      ovw_title(4, lift, 0); // draw button title, frame and legend lines
 
 
 
+what am I going to call it
 
+int ovw_redraw_background(int obt, int type, int num, int legend_line, int show_window)
+{
+   al_flip_display();
+   proc_scale_factor_change();
+   proc_controllers();
+   proc_frame_delay();
+   if (obt == 4) init_level_background(); // to draw new lift lines
+   get_new_background(0);
+   draw_lifts();
+   draw_items();
+   draw_enemies();
 
+   ovw_draw_overlays(obt, num, legend_line);
 
+   // if current object is message, show all messages
+   if ((obt == 2) && (type == 10))
+   {
+      for (int i=0; i<500; i++)
+         if (item[i][0] == 10) draw_pop_message(i);
+   }
 
+   get_new_screen_buffer(3, 0, 0);
 
+   int mb = 0;
+   if (show_window)
+   {
+      mb = ovw_draw_buttons(num, type, obt);
+      ovw_title(obt, num, 0); // draw button title, frame and legend lines
+   }
+   return mb;
+}
 
+replaced in all 4 places...
 
 
+now look at lift creator...fixed...
 
 
+when inserting lifts steps
 
+-blue title list of steps ypos is too low...fixed
+-frame y2 is not correct until done...done..run redraw twice to get proper height
 
 
 
+I think I have the lift viewer stuff all done.. seems to work very nicely...
 
 
+what should I do next??
 
+zoom full screen?
 
+main editor?
 
 
+even before that I could re do the status window...
 
+I want to show something like the button list, but probably custom, smaller and read only...
 
+at the top of the screen I want to have a collapsable filter window with lots of options...
 
+each indivdual item and enemy
+lifts
+block and block flags
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+these would apply to viewer to filter what could be selected, or shown.
 
 
 
