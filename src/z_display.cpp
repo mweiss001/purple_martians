@@ -160,17 +160,6 @@ void show_fullscreen_modes(void)
 
 void auto_set_display_transform_double(void)
 {
-
-   if (saved_display_transform_double) display_transform_double = saved_display_transform_double;
-
-
-
-
-
-
-//   display_transform_double = 2;
-
-/*
    display_transform_double = 1;
 
    if (disp_w_curr > 1023) display_transform_double = 2;
@@ -186,21 +175,12 @@ void auto_set_display_transform_double(void)
       if (disp_w_curr > 1279) display_transform_double = 2;
       if (disp_w_curr < 1280) display_transform_double = 1;
    }
-   */
-
 }
 
-void set_display_transform(int dtd)
+void set_display_transform()
 {
-   if (!dtd) auto_set_display_transform_double();
-
-   else
-   {
-      display_transform_double = dtd;
-      saved_display_transform_double = dtd;
-      save_config();
-   }
-
+   if (!saved_display_transform_double) auto_set_display_transform_double();
+   else display_transform_double = saved_display_transform_double;
 
    al_set_target_backbuffer(display);
    SCREEN_W = disp_w_curr/display_transform_double;
@@ -289,7 +269,7 @@ int init_display(void)
    al_get_window_position(display, &disp_x_curr, &disp_y_curr);
    //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
 
-   set_display_transform(0);
+   set_display_transform();
    window_title();
 
    //show_display_flags(al_get_display_flags(display));
@@ -330,11 +310,11 @@ void proc_display_change(void)
       disp_w_curr = disp_w_wind = w;
       disp_h_curr = disp_h_wind = h;
    }
-   set_display_transform(0);
+   set_display_transform();
    rebuild_bitmaps();
    save_config();
    Redraw = 1;
-   // show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
+   //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
 }
 
 
