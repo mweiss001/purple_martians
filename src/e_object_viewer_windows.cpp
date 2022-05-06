@@ -55,7 +55,6 @@ int create_obj(int obt, int sub_type, int sent_num)
    return num;  // return number of created obj or sent_num if bad create
 }
 
-
 int ovw_get_size(int obt, int type, int*w, int*h)
 {
    int ret = 0;
@@ -93,8 +92,751 @@ int ovw_get_size(int obt, int type, int*w, int*h)
    return ret;
 }
 
+void ovw_process_scrolledge(void)
+{
+   int bw = BORDER_WIDTH;
+   int scrolledge = 10;
+   int scroll_amount = 20;
 
-int ovw_draw_buttons(int num, int type, int obt)
+   if (mouse_x < scrolledge) WX-=scroll_amount;           // scroll left
+   if (mouse_x > SCREEN_W-scrolledge) WX+=scroll_amount;  // scroll right
+   if (mouse_y < scrolledge) WY-=scroll_amount;           // scroll up
+   if (mouse_y > SCREEN_H-scrolledge) WY+=scroll_amount;  // scroll down
+
+      // find the size of the source screen from actual screen size and scaler
+   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
+   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
+   if (SW > 2000) SW = 2000;
+   if (SH > 2000) SH = 2000;
+
+   // correct for edges
+   if (WX < 0) WX = 0;
+   if (WY < 0) WY = 0;
+   if (WX > (2000 - SW)) WX = 2000 - SW;
+   if (WY > (2000 - SH)) WY = 2000 - SH;
+
+   // used by get_new_background to only get what is needed
+   level_display_region_x = WX;
+   level_display_region_y = WY;
+   level_display_region_w = SW;
+   level_display_region_h = SH;
+
+}
+
+void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy)
+{
+   // x, y in 0-99 scale
+   // the mouse position past the border width is how far we are into the scaled map
+   float mx1 = mouse_x-BORDER_WIDTH;
+   float my1 = mouse_y-BORDER_WIDTH;
+
+   // divide that by bs to get how many blocks we are into the map
+   float mx2 = mx1 / (scale_factor_current * 20);
+   float my2 = my1 / (scale_factor_current * 20);
+   // get block position of WX
+   float mx3 = (float)WX / 20;
+   float my3 = (float)WY / 20;
+
+   // add
+   float mx4 = mx3 + mx2;
+   float my4 = my3 + my2;
+
+   *x = (int) mx4;
+   *y = (int) my4;
+
+   if (*x < 0)  *x = 0;
+   if (*y < 0)  *y = 0;
+   if (*x > 99) *x = 99;
+   if (*y > 99) *y = 99;
+
+   // hx, hy in 0-1999 scale
+   // the mouse position past the border width is how far we are into the scaled map
+   mx1 = mouse_x-BORDER_WIDTH;
+   my1 = mouse_y-BORDER_WIDTH;
+
+   // scale
+   mx2 = mx1 / scale_factor_current;
+   my2 = my1 / scale_factor_current;
+
+   // get position of WX
+   mx3 = (float)WX;
+   my3 = (float)WY;
+
+   // add
+   mx4 = mx3 + mx2;
+   my4 = my3 + my2;
+
+   *hx = (int) mx4;
+   *hy = (int) my4;
+
+   if (*hx < 0)    *hx = 0;
+   if (*hy < 0)    *hy = 0;
+   if (*hx > 1999) *hx = 1999;
+   if (*hy > 1999) *hy = 1999;
+}
+
+void ovw_proc_move_window(int obt, int num, int type)
+{
+   if ((mouse_x > ov_window_x1) && (mouse_x < ov_window_x2) && (mouse_y > ov_window_y1) && (mouse_y < ov_window_y1+14)) // is mouse on title bar
+   {
+      // draw rectangle around title bar to show it can be dragged
+      // al_draw_rectangle(ov_window_x, ov_window_y, ov_window_x2, ov_window_y+14, palette_color[14], 1);
+      // color text in title bar to show it can be moved
+      //msg[0] = 0;
+      //if (obt == 2) sprintf(msg, "Item Viewer [%d]", num);
+      //if (obt == 3) sprintf(msg, "Enemy Viewer [%d]", num);
+      //int ov_xc = (ov_window_x + ov_window_x2) / 2;
+      //al_draw_text(font, palette_color[10], ov_xc, ov_window_y+2, ALLEGRO_ALIGN_CENTER,  msg);
+      if (mouse_b1)
+      {
+         int mxo = mouse_x - ov_window_x1; // get offset from mouse position to window x, y
+         int myo = mouse_y - ov_window_y1;
+         while (mouse_b1)
+         {
+            ov_window_x1 = mouse_x - mxo;
+            ov_window_y1 = mouse_y - myo;
+            ov_window_x2 = ov_window_x1 + ov_window_w;
+            ov_window_y2 = ov_window_y1 + ov_window_h;
+            ovw_redraw_background(obt, num, type, 0, 1);
+         }
+      }
+   }
+}
+
+int ovw_redraw_background(int obt, int num, int type, int legend_line, int show_window)
+{
+   al_flip_display();
+   proc_scale_factor_change();
+   proc_controllers();
+   proc_frame_delay();
+   if (obt == 4) init_level_background(); // to draw new lift lines
+   get_new_background(0);
+   draw_lifts();
+   draw_items();
+   draw_enemies();
+
+   ovw_draw_overlays(obt, num, legend_line);
+
+   // if current object is message, show all messages
+   if ((obt == 2) && (type == 10))
+   {
+      for (int i=0; i<500; i++)
+         if (item[i][0] == 10) draw_pop_message(i);
+   }
+
+   get_new_screen_buffer(3, 0, 0);
+
+   int mb = 0;
+   if (show_window)
+   {
+      mb = ovw_draw_buttons(obt, num, type);
+      ovw_title(obt, num, 0); // draw button title, frame and legend lines
+   }
+   return mb;
+}
+
+void ovw_title(int obt, int num, int legend_highlight)
+{
+   int sub_type=0;
+   if (obt == 2) sub_type = item[num][0];
+   if (obt == 3) sub_type = Ei[num][0];
+   int ov_xc = ov_window_x1 + ov_window_w/2;
+   int yt = ov_window_y1+14;
+
+   // legend line text
+   char lmsg[5][80];
+   for (int x=0; x<5; x++) sprintf(lmsg[x],"%s","");
+
+   // legend line colors
+   int legend_color[5];
+
+   // default number of legend lines
+   num_legend_lines = 2;
+
+   legend_color[0] = 7;   // legend color
+   legend_color[1] = 13;  // location color
+   legend_color[2] = 14;  // yellow
+   legend_color[3] = 10;  // red
+   legend_color[4] = 0;   // unused
+
+   if (legend_highlight == 1) legend_color[1] = flash_color;
+
+   if (!legend_highlight)
+   {
+      // title bar
+      msg[0] = 0;
+      if (obt == 2) sprintf(msg, "Item Viewer [%d]", num);
+      if (obt == 3) sprintf(msg, "Enemy Viewer [%d]", num);
+      if (obt == 4) sprintf(msg, "Lift Viewer [%d]", num);
+      for (int x=0; x<15; x++)
+         al_draw_line(ov_window_x1, ov_window_y1+x, ov_window_x2, ov_window_y1+x, palette_color[13+(x*16)], 1);
+      al_draw_text(font, palette_color[15], ov_xc, ov_window_y1+2, ALLEGRO_ALIGN_CENTER,  msg);
+   }
+
+   if (obt == 4)  // lifts
+   {
+      num_legend_lines = 0;
+      al_draw_rectangle(ov_xc-94, yt, ov_xc+94, yt+22, palette_color[15], 1);
+      al_draw_textf(font, palette_color[13], ov_xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, num_lifts);
+   }
+   if (obt == 3)  // enemies
+   {
+      if (!legend_highlight)
+      {
+         al_draw_rectangle(ov_xc-94, yt, ov_xc+94, yt+22, palette_color[15], 1);
+         draw_enemy_shape(num, ov_xc-92, yt+1);
+         sprintf(msg,"%s %d of %d", (const char *)enemy_name[sub_type],1+num - e_first_num[sub_type],e_num_of_type[sub_type]);
+         al_draw_text(font, palette_color[13], ov_xc-69, yt+8, 0, msg);
+      }
+      switch (sub_type)
+      {
+         case 3: // archwagon
+         {
+            num_legend_lines = 3;
+            sprintf(lmsg[1],"ArchWagon Location");
+            sprintf(lmsg[2],"Bullet Proximity");
+            legend_color[2] = 14;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+         }
+         break;
+         case 4: sprintf(lmsg[1],"Bouncer Location"); break;
+         case 6: sprintf(lmsg[1],"Cannon Location"); break;
+         case 7: // podzilla
+         {
+            sprintf(lmsg[1],"Podzilla Location");
+            sprintf(lmsg[2],"Extended Postion");
+            sprintf(lmsg[3],"Trigger Box");
+            num_legend_lines = 4;
+
+            legend_color[2] = 10;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+
+            legend_color[3] = 14;
+            if (legend_highlight == 3) legend_color[3] = flash_color;
+         }
+         break;
+         case 8: // trakbot
+         {
+            num_legend_lines = 3;
+            sprintf(lmsg[1],"TrakBot Location");
+            sprintf(lmsg[2],"Bullet Proximity");
+            legend_color[2] = 14;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+         }
+         break;
+         case 9: // cloner
+         {
+            sprintf(lmsg[1],"Cloner Location");
+            sprintf(lmsg[2],"Source Area");
+            sprintf(lmsg[3],"Destination Area");
+            sprintf(lmsg[4],"Trigger Box");
+            num_legend_lines = 5;
+
+            legend_color[2] = 11;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+
+            legend_color[3] = 10;
+            if (legend_highlight == 3) legend_color[3] = flash_color;
+
+            legend_color[4] = 14;
+            if (legend_highlight == 4) legend_color[4] = flash_color;
+         }
+         break;
+         case 10: // field
+         {
+            sprintf(lmsg[1],"Field Location");
+            sprintf(lmsg[2],"Field Area");
+            sprintf(lmsg[3],"Trigger Box");
+            num_legend_lines = 4;
+
+            legend_color[2] = 10;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+
+            legend_color[3] = 14;
+            if (legend_highlight == 3) legend_color[3] = flash_color;
+         }
+         break;
+         case 11: sprintf(lmsg[1],"Block Walker Location"); break;
+         case 12: // flapper
+         {
+            sprintf(lmsg[1],"Flapper Location");
+            sprintf(lmsg[2],"Bullet Trigger Box");
+            sprintf(lmsg[3],"Height Above Player");
+            num_legend_lines = 4;
+
+            legend_color[2] = 14;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+
+            legend_color[3] = 10;
+            if (legend_highlight == 3) legend_color[3] = flash_color;
+         }
+         break;
+      }
+   }
+   if (obt == 2)  // items
+   {
+      if (!legend_highlight)
+      {
+         al_draw_rectangle(ov_xc-94, yt, ov_xc+94, yt+22, palette_color[15], 1);
+         draw_item_shape(num, ov_xc-94, yt+1);
+         sprintf(msg,"%s %d of %d", item_name[sub_type], 1+num - item_first_num[sub_type],item_num_of_type[sub_type]);
+         al_draw_text(font, palette_color[13], ov_xc-69, yt+8, 0, msg);
+      }
+      switch (sub_type)
+      {
+         case 1: // door
+         {
+            num_legend_lines = 3;
+            legend_color[2] = 10;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+
+            if (item[num][8] == 0)  // exit only, no destination
+            {
+               // find src door(s)
+               int num_src = 0;
+               for (int i=0; i<500; i++)
+                  if ((item[i][0] == 1) && (item[i][9] == num))
+                  {
+                     num_src++;
+                  }
+               sprintf(lmsg[1],"Exit Door Location");
+               if (num_src == 0) sprintf(lmsg[2],"No Source Door");
+               if (num_src == 1) sprintf(lmsg[2],"Source Door Position");
+               if (num_src >  1) sprintf(lmsg[2],"Source Door Positions");
+            }
+
+            if (item[num][8] == 1)  // draw destination
+            {
+               sprintf(lmsg[1],"Door Location");
+               sprintf(lmsg[2],"Destination");
+            }
+         }
+         break;
+         case 2: sprintf(lmsg[1],"Bonus Location"); break;
+         case 3: sprintf(lmsg[1],"Exit Location"); break;
+         case 4: // key
+         {
+            num_legend_lines = 3;
+            sprintf(lmsg[1],"Key Location");
+            sprintf(lmsg[2],"Block Range");
+
+            legend_color[2] = 10;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+         }
+         break;
+         case 5: sprintf(lmsg[1],"Start Location"); break;
+         case 7: sprintf(lmsg[1],"Mine Location"); break;
+         case 8:
+         {
+            num_legend_lines = 3;
+            sprintf(lmsg[1],"Bomb Location");
+            sprintf(lmsg[2],"Damage Range");
+            legend_color[2] = 14;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+         }
+         break;
+         case 9: // trigger
+         {
+            num_legend_lines = 3;
+            sprintf(lmsg[1],"Trigger Item Location");
+            sprintf(lmsg[2],"Trigger Field");
+            legend_color[2] = 10;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+         }
+         break;
+         case 10:
+         {
+            sprintf(lmsg[1],"Message Location");
+            sprintf(lmsg[2],"Display Position");
+            num_legend_lines = 3;
+         }
+         break;
+         case 11:
+         {
+            num_legend_lines = 3;
+            sprintf(lmsg[1],"Rocket Location");
+            sprintf(lmsg[2],"Damage Range");
+            legend_color[2] = 14;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+         }
+         break;
+         case 12: sprintf(lmsg[1],"Warp Location"); break;
+         case 14: sprintf(lmsg[1],"Switch Location"); break;
+         case 15: sprintf(lmsg[1],"Sproingy Location");
+         {
+            num_legend_lines = 3;
+            legend_color[2] = 14;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+         }
+         break;
+         case 16: // block manip
+         {
+            num_legend_lines = 3;
+            sprintf(lmsg[1],"Block Manip Item Location");
+            sprintf(lmsg[2],"Manip Field");
+            legend_color[2] = 12;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+         }
+         break;
+         case 17: // block damage
+         {
+            num_legend_lines = 3;
+            sprintf(lmsg[1],"Item Location");
+            sprintf(lmsg[2],"Damage Area");
+            legend_color[2] = 10;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+         }
+         break;
+      } // end of switch case
+   }  // end of items
+
+   if (!legend_highlight)
+   {
+      ov_window_h += num_legend_lines*8 + 8;
+      ov_window_y2 = ov_window_y1 + ov_window_h;
+      if (num_legend_lines > 0)
+      {
+         al_draw_text(font, palette_color[legend_color[0]], ov_xc, ov_window_y2-36+ (4-num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
+         al_draw_rectangle(ov_xc-100, ov_window_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_window_y2-1, palette_color[13], 1); // big frame
+         al_draw_rectangle(ov_xc-100, ov_window_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_window_y2-28+ (4-num_legend_lines)*8, palette_color[13], 1); // top frame
+      }
+      al_draw_rectangle(ov_window_x1, ov_window_y1, ov_window_x2, ov_window_y2, palette_color[13], 1);  // outline entire window
+
+   }
+
+   for (int x=1; x<num_legend_lines; x++)// draw text lines
+      al_draw_text(font, palette_color[legend_color[x]], ov_xc, ov_window_y2-26+(3-num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
+
+}
+
+void ovw_draw_overlays(int obt, int num, int legend_highlight)
+{
+   al_set_target_bitmap(level_buffer);
+
+   if (obt == 4)  // lifts
+   {
+      int lift = num;
+      int step = lifts[lift].current_step;
+      int color = (lift_steps[lift][step].type >> 28) & 15;
+
+      int x1 = lift_steps[lift][step].x-1;
+      int y1 = lift_steps[lift][step].y-1;
+      int x2 = x1 + lift_steps[lift][step].w+2;
+      int y2 = y1 + lift_steps[lift][step].h+2;
+      int xc = (x1 + x2) / 2;
+      int yc = (y1 + y2) / 2;
+
+      al_draw_rectangle(x1, y1, x2, y2, palette_color[color], 1);
+
+      al_draw_line(xc, 0, xc, y1, palette_color[color], 1);
+      al_draw_line(xc, y2, xc, 2000, palette_color[color], 1);
+      al_draw_line(0, yc, x1, yc, palette_color[color], 1);
+      al_draw_line(x2, yc, 2000, yc, palette_color[color], 1);
+   }
+   if (obt == 3)  // enemies
+   {
+      int sub_type = Ei[num][0];
+      int obj_x = al_fixtoi(Efi[num][0])+10;
+      int obj_y = al_fixtoi(Efi[num][1])+10;
+
+      int color = 13;
+      if (legend_highlight == 1) color = flash_color;
+      crosshairs_full(obj_x, obj_y, color, 1);
+
+      switch (sub_type)
+      {
+         case 3: // archwagon
+         {
+            // yellow bullet prox
+            int color = 14;
+            if (legend_highlight == 2) color = flash_color;
+            int bs = Ei[num][17];
+            al_draw_rectangle(obj_x-bs, obj_y-bs, obj_x+bs, obj_y+bs, palette_color[color], 1);
+         }
+         break;
+         case 7: // podzilla
+         {
+            // extended position
+            int color1 = 10;
+            if (legend_highlight == 2) color1 = flash_color;
+
+
+            int px=0, py=0;
+            get_pod_extended_position(num, &px, &py);
+            crosshairs_full(px+10, py+10, color1, 1);
+
+            // draw tile at extended pos
+            float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+            al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
+
+            // draw connecting line
+            al_draw_line(obj_x, obj_y, px+10, py+10, palette_color[10], 1);
+
+
+            // trigger box
+            int color = 14;
+            if (legend_highlight == 3) color = flash_color;
+            int tx1 = Ei[num][11]*20;
+            int ty1 = Ei[num][12]*20;
+            int tx2 = Ei[num][13]*20 + 20;
+            int ty2 = Ei[num][14]*20 + 20;
+            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color], 1);
+         }
+         break;
+         case 8: // trakbot
+         {
+            // draw yellow bullet prox circle
+            int color = 14;
+            if (legend_highlight == 2) color = flash_color;
+            al_draw_circle(obj_x, obj_y, Ei[num][17], palette_color[color], 1);
+         }
+         break;
+         case 9: // cloner
+         {
+            int color2 = 11;
+            if (legend_highlight == 2) color2 = flash_color;
+
+            int color3 = 10;
+            if (legend_highlight == 3) color3 = flash_color;
+
+            int color4 = 14;
+            if (legend_highlight == 4) color4 = flash_color;
+
+            int cw = Ei[num][19]*20;     // width
+            int ch = Ei[num][20]*20;     // height
+
+            int cx1 = Ei[num][15]*20;    // source
+            int cy1 = Ei[num][16]*20;
+            int cx2 = cx1 + cw;
+            int cy2 = cy1 + ch;
+
+            //rectangle_with_diagonal_lines(cx1, cy1, cx2, cy2, db/3, color2, color2+64);
+            al_draw_rectangle(cx1, cy1, cx2, cy2, palette_color[color2], 1);
+
+            int cx3 = Ei[num][17]*20;    // destination
+            int cy3 = Ei[num][18]*20;
+            int cx4 = cx3 + cw;
+            int cy4 = cy3 + ch;
+            //rectangle_with_diagonal_lines(cx3, cy3, cx4, cy4, db/3, color3, color3+64);
+            al_draw_rectangle(cx3, cy3, cx4, cy4, palette_color[color3], 1);
+
+            // draw trigger box
+            int tx1 = Ei[num][11]*20;
+            int ty1 = Ei[num][12]*20;
+            int tx2 = Ei[num][13]*20 + 20;
+            int ty2 = Ei[num][14]*20 + 20;
+            //rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, db/3, color4, color4+64);
+            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color4], 1);
+
+         }
+         break;
+         case 10: // field
+         {
+
+            int color2 = 10;
+            if (legend_highlight == 2) color2 = flash_color;
+
+            int color3 = 14;
+            if (legend_highlight == 3) color3 = flash_color;
+
+            int cw = Ei[num][17];     // width
+            int ch = Ei[num][18];     // height
+            int cx1 = Ei[num][15];    // source
+            int cy1 = Ei[num][16];
+            int cx2 = cx1 + cw;
+            int cy2 = cy1 + ch;
+            //rectangle_with_diagonal_lines(cx1, cy1, cx2, cy2, db/3, color2, color2+64);
+            al_draw_rectangle(cx1, cy1, cx2, cy2, palette_color[color2], 1);
+
+            // draw trigger box
+            int tw = Ei[num][13];     // width
+            int th = Ei[num][14];     // height
+            int tx1 = Ei[num][11];
+            int ty1 = Ei[num][12];
+            int tx2 = tx1 + tw;
+            int ty2 = ty1 + th;
+            //rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, db/3, color4, color4+64);
+            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color3], 1);
+         }
+         break;
+         case 12: // flapper
+         {
+            int color2 = 14;
+            if (legend_highlight == 2) color2 = flash_color;
+
+            int color3 = 10;
+            if (legend_highlight == 3) color3 = flash_color;
+
+            // draw yellow bullet prox
+            int bw  = Ei[num][17];
+            int by1 = Ei[num][18];
+            int by2 = Ei[num][19];
+            al_draw_rectangle(obj_x-bw, obj_y-by1, obj_x+bw, obj_y+by2, palette_color[color2], 1);
+
+            // draw red height above player line
+            int hab = Ei[num][20];
+            al_draw_line(obj_x-40, obj_y+hab, obj_x+40, obj_y+hab, palette_color[color3], 3);
+
+            // draw flap height
+            int fh = Ei[num][21];
+            al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, palette_color[12], 1);
+            al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, palette_color[12], 1);
+
+         }
+         break;
+      }
+      al_reset_clipping_rectangle();
+
+   }
+   if (obt == 2)  // items
+   {
+      int sub_type = item[num][0];
+      int obj_x = item[num][4]+10;
+      int obj_y = item[num][5]+10;
+      int color = 13;
+      if (legend_highlight == 1) color = flash_color;
+      crosshairs_full(obj_x, obj_y, color, 1);
+      switch (sub_type)
+      {
+         case 1: // door
+         {
+            int color = 10;
+            if (legend_highlight == 2) color = flash_color;
+            if (item[num][8] == 0)  // exit only, no destination
+            {
+               // find src door(s)
+               int num_src = 0;
+               for (int i=0; i<500; i++)
+                  if ((item[i][0] == 1) && (item[i][9] == num))
+                  {
+                     num_src++;
+                     int x2 = item[i][4]+10;
+                     int y2 = item[i][5]+10;
+                     crosshairs_full(x2, y2, color, 1);
+                     al_draw_line(obj_x, obj_y, x2, y2, palette_color[color], 1);
+                  }
+            }
+
+            if (item[num][8] == 1)  // draw destination
+            {
+               // dest item
+               int di = item[num][9];
+               int x2 = item[di][4]+10;
+               int y2 = item[di][5]+10;
+               crosshairs_full(x2, y2, color, 1);
+               al_draw_line(obj_x, obj_y, x2, y2, palette_color[color], 1);
+            }
+         }
+         break;
+         case 4: // key
+         {
+            int color = 10;
+            if (legend_highlight == 2) color = flash_color;
+            int x2 = item[num][6];
+            int y2 = item[num][7];
+            int x3 = x2 + item[num][8] - 1;
+            int y3 = y2 + item[num][9] - 1;;
+            int x4 = (x2+x3)/2;
+            int y4 = (y2+y3)/2;
+
+            if (x2 == 0) x2 = 1; // to keep it visible
+            if (y2 == 0) y2 = 1;
+
+            // draw range
+            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
+            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+         }
+         break;
+         case 8: // bomb
+         {
+            int color = 14;
+            if (legend_highlight == 2) color = flash_color;
+            al_draw_circle(obj_x, obj_y, item[num][7], palette_color[color], 1); // draw yellow bomb damage
+         }
+         break;
+         case 9: // trigger
+         {
+            int color = 14;
+            if (legend_highlight == 2) color = flash_color;
+
+            int x2 = item[num][6];
+            int y2 = item[num][7];
+            int x3 = x2 + item[num][8] - 1;
+            int y3 = y2 + item[num][9] - 1;;
+            int x4 = (x2+x3)/2;
+            int y4 = (y2+y3)/2;
+
+            // draw range
+            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
+            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+
+            find_and_show_event_links(1, num, 0);
+         }
+         break;
+         case 11: // rocket
+         {
+            int color = 14;
+            if (legend_highlight == 2) color = flash_color;
+            al_draw_circle(obj_x, obj_y, item[num][7], palette_color[color], 1); // draw yellow bomb damage
+         }
+         break;
+         case 15: // sproingy
+         {
+            int color = 14;
+            if (legend_highlight == 2) color = flash_color;
+            int y = al_fixtoi(get_sproingy_jump_height(num));
+            crosshairs_full(obj_x, obj_y-y, color, 1);
+         }
+         break;
+         case 16: // block manip
+         {
+            int color = 12;
+            if (legend_highlight == 2) color = flash_color;
+            int x2 = item[num][6];
+            int y2 = item[num][7];
+            int x3 = x2 + item[num][8]-1;
+            int y3 = y2 + item[num][9]-1;;
+            int x4 = (x2+x3)/2;
+            int y4 = (y2+y3)/2;
+
+            // draw range
+            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
+            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+
+            find_and_show_event_links(2, num, 0);
+
+         }
+         break;
+         case 17: // block damage
+         {
+            int color = 10;
+            if (legend_highlight == 2) color = flash_color;
+            int x2 = item[num][6];
+            int y2 = item[num][7];
+            int x3 = x2 + item[num][8]-1;
+            int y3 = y2 + item[num][9]-1;;
+            int x4 = (x2+x3)/2;
+            int y4 = (y2+y3)/2;
+
+            // draw range
+            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
+            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+
+            find_and_show_event_links(2, num, 0);
+         }
+         break;
+
+      } // end of switch case
+   }
+}
+
+
+
+int ovw_draw_buttons(int obt, int num, int type)
 {
    // erase background
    if (ovw_get_size(obt, type, &ov_window_w, &ov_window_h))
@@ -159,7 +901,7 @@ int ovw_draw_buttons(int num, int type, int obt)
    if (mdw_button(x14, ty+a*bts, xb,    ty+(a+1)*bts-2, 57, num, type, obt, 0, 1,  15, 0, 1,0,0,0)) mb = 25; // specific object help
    a+=2;
 
-   a = obj_buttons(xa, xb, ty, a, bts, obt, num);
+   a = obj_buttons(obt, num, xa, xb, ty, a, bts);
 
    if ((obt ==2) || (obt == 3))
    {
@@ -174,8 +916,7 @@ int ovw_draw_buttons(int num, int type, int obt)
 
 }
 
-
-int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
+int obj_buttons(int obt, int num, int xa, int xb, int ty, int a, int bts)
 {
    int mb = 0;
 
@@ -247,10 +988,6 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
          strcpy(fst, lifts[lift].lift_name);
          if (edit_lift_name(lift, yld, xa+10, fst)) strcpy(lifts[lift].lift_name, fst);
       }
-
-
-
-
    }
 
 
@@ -771,693 +1508,6 @@ int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num)
    return a;
 }
 
-void ovw_draw_overlays(int obj_type, int num, int legend_highlight)
-{
-   al_set_target_bitmap(level_buffer);
-
-   if (obj_type == 4)  // lifts
-   {
-      int lift = num;
-      int step = lifts[lift].current_step;
-      int color = (lift_steps[lift][step].type >> 28) & 15;
-
-      int x1 = lift_steps[lift][step].x-1;
-      int y1 = lift_steps[lift][step].y-1;
-      int x2 = x1 + lift_steps[lift][step].w+2;
-      int y2 = y1 + lift_steps[lift][step].h+2;
-      int xc = (x1 + x2) / 2;
-      int yc = (y1 + y2) / 2;
-
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[color], 1);
-
-      al_draw_line(xc, 0, xc, y1, palette_color[color], 1);
-      al_draw_line(xc, y2, xc, 2000, palette_color[color], 1);
-      al_draw_line(0, yc, x1, yc, palette_color[color], 1);
-      al_draw_line(x2, yc, 2000, yc, palette_color[color], 1);
-   }
-   if (obj_type == 3)  // enemies
-   {
-      int sub_type = Ei[num][0];
-      int obj_x = al_fixtoi(Efi[num][0])+10;
-      int obj_y = al_fixtoi(Efi[num][1])+10;
-
-      int color = 13;
-      if (legend_highlight == 1) color = flash_color;
-      crosshairs_full(obj_x, obj_y, color, 1);
-
-      switch (sub_type)
-      {
-         case 3: // archwagon
-         {
-            // yellow bullet prox
-            int color = 14;
-            if (legend_highlight == 2) color = flash_color;
-            int bs = Ei[num][17];
-            al_draw_rectangle(obj_x-bs, obj_y-bs, obj_x+bs, obj_y+bs, palette_color[color], 1);
-         }
-         break;
-         case 7: // podzilla
-         {
-            // extended position
-            int color1 = 10;
-            if (legend_highlight == 2) color1 = flash_color;
-
-
-            int px=0, py=0;
-            get_pod_extended_position(num, &px, &py);
-            crosshairs_full(px+10, py+10, color1, 1);
-
-            // draw tile at extended pos
-            float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-            al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
-
-            // draw connecting line
-            al_draw_line(obj_x, obj_y, px+10, py+10, palette_color[10], 1);
-
-
-            // trigger box
-            int color = 14;
-            if (legend_highlight == 3) color = flash_color;
-            int tx1 = Ei[num][11]*20;
-            int ty1 = Ei[num][12]*20;
-            int tx2 = Ei[num][13]*20 + 20;
-            int ty2 = Ei[num][14]*20 + 20;
-            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color], 1);
-         }
-         break;
-         case 8: // trakbot
-         {
-            // draw yellow bullet prox circle
-            int color = 14;
-            if (legend_highlight == 2) color = flash_color;
-            al_draw_circle(obj_x, obj_y, Ei[num][17], palette_color[color], 1);
-         }
-         break;
-         case 9: // cloner
-         {
-            int color2 = 11;
-            if (legend_highlight == 2) color2 = flash_color;
-
-            int color3 = 10;
-            if (legend_highlight == 3) color3 = flash_color;
-
-            int color4 = 14;
-            if (legend_highlight == 4) color4 = flash_color;
-
-            int cw = Ei[num][19]*20;     // width
-            int ch = Ei[num][20]*20;     // height
-
-            int cx1 = Ei[num][15]*20;    // source
-            int cy1 = Ei[num][16]*20;
-            int cx2 = cx1 + cw;
-            int cy2 = cy1 + ch;
-
-            //rectangle_with_diagonal_lines(cx1, cy1, cx2, cy2, db/3, color2, color2+64);
-            al_draw_rectangle(cx1, cy1, cx2, cy2, palette_color[color2], 1);
-
-            int cx3 = Ei[num][17]*20;    // destination
-            int cy3 = Ei[num][18]*20;
-            int cx4 = cx3 + cw;
-            int cy4 = cy3 + ch;
-            //rectangle_with_diagonal_lines(cx3, cy3, cx4, cy4, db/3, color3, color3+64);
-            al_draw_rectangle(cx3, cy3, cx4, cy4, palette_color[color3], 1);
-
-            // draw trigger box
-            int tx1 = Ei[num][11]*20;
-            int ty1 = Ei[num][12]*20;
-            int tx2 = Ei[num][13]*20 + 20;
-            int ty2 = Ei[num][14]*20 + 20;
-            //rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, db/3, color4, color4+64);
-            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color4], 1);
-
-         }
-         break;
-         case 10: // field
-         {
-
-            int color2 = 10;
-            if (legend_highlight == 2) color2 = flash_color;
-
-            int color3 = 14;
-            if (legend_highlight == 3) color3 = flash_color;
-
-            int cw = Ei[num][17];     // width
-            int ch = Ei[num][18];     // height
-            int cx1 = Ei[num][15];    // source
-            int cy1 = Ei[num][16];
-            int cx2 = cx1 + cw;
-            int cy2 = cy1 + ch;
-            //rectangle_with_diagonal_lines(cx1, cy1, cx2, cy2, db/3, color2, color2+64);
-            al_draw_rectangle(cx1, cy1, cx2, cy2, palette_color[color2], 1);
-
-            // draw trigger box
-            int tw = Ei[num][13];     // width
-            int th = Ei[num][14];     // height
-            int tx1 = Ei[num][11];
-            int ty1 = Ei[num][12];
-            int tx2 = tx1 + tw;
-            int ty2 = ty1 + th;
-            //rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, db/3, color4, color4+64);
-            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color3], 1);
-         }
-         break;
-         case 12: // flapper
-         {
-            int color2 = 14;
-            if (legend_highlight == 2) color2 = flash_color;
-
-            int color3 = 10;
-            if (legend_highlight == 3) color3 = flash_color;
-
-            // draw yellow bullet prox
-            int bw  = Ei[num][17];
-            int by1 = Ei[num][18];
-            int by2 = Ei[num][19];
-            al_draw_rectangle(obj_x-bw, obj_y-by1, obj_x+bw, obj_y+by2, palette_color[color2], 1);
-
-            // draw red height above player line
-            int hab = Ei[num][20];
-            al_draw_line(obj_x-40, obj_y+hab, obj_x+40, obj_y+hab, palette_color[color3], 3);
-
-            // draw flap height
-            int fh = Ei[num][21];
-            al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, palette_color[12], 1);
-            al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, palette_color[12], 1);
-
-         }
-         break;
-      }
-      al_reset_clipping_rectangle();
-
-   }
-   if (obj_type == 2)  // items
-   {
-      int sub_type = item[num][0];
-      int obj_x = item[num][4]+10;
-      int obj_y = item[num][5]+10;
-      int color = 13;
-      if (legend_highlight == 1) color = flash_color;
-      crosshairs_full(obj_x, obj_y, color, 1);
-      switch (sub_type)
-      {
-         case 1: // door
-         {
-            int color = 10;
-            if (legend_highlight == 2) color = flash_color;
-            if (item[num][8] == 0)  // exit only, no destination
-            {
-               // find src door(s)
-               int num_src = 0;
-               for (int i=0; i<500; i++)
-                  if ((item[i][0] == 1) && (item[i][9] == num))
-                  {
-                     num_src++;
-                     int x2 = item[i][4]+10;
-                     int y2 = item[i][5]+10;
-                     crosshairs_full(x2, y2, color, 1);
-                     al_draw_line(obj_x, obj_y, x2, y2, palette_color[color], 1);
-                  }
-            }
-
-            if (item[num][8] == 1)  // draw destination
-            {
-               // dest item
-               int di = item[num][9];
-               int x2 = item[di][4]+10;
-               int y2 = item[di][5]+10;
-               crosshairs_full(x2, y2, color, 1);
-               al_draw_line(obj_x, obj_y, x2, y2, palette_color[color], 1);
-            }
-         }
-         break;
-         case 4: // key
-         {
-            int color = 10;
-            if (legend_highlight == 2) color = flash_color;
-            int x2 = item[num][6];
-            int y2 = item[num][7];
-            int x3 = x2 + item[num][8] - 1;
-            int y3 = y2 + item[num][9] - 1;;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
-
-            if (x2 == 0) x2 = 1; // to keep it visible
-            if (y2 == 0) y2 = 1;
-
-            // draw range
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
-         }
-         break;
-         case 8: // bomb
-         {
-            int color = 14;
-            if (legend_highlight == 2) color = flash_color;
-            al_draw_circle(obj_x, obj_y, item[num][7], palette_color[color], 1); // draw yellow bomb damage
-         }
-         break;
-         case 9: // trigger
-         {
-            int color = 14;
-            if (legend_highlight == 2) color = flash_color;
-
-            int x2 = item[num][6];
-            int y2 = item[num][7];
-            int x3 = x2 + item[num][8] - 1;
-            int y3 = y2 + item[num][9] - 1;;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
-
-            // draw range
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
-
-            find_and_show_event_links(1, num, 0);
-         }
-         break;
-         case 11: // rocket
-         {
-            int color = 14;
-            if (legend_highlight == 2) color = flash_color;
-            al_draw_circle(obj_x, obj_y, item[num][7], palette_color[color], 1); // draw yellow bomb damage
-         }
-         break;
-         case 15: // sproingy
-         {
-            int color = 14;
-            if (legend_highlight == 2) color = flash_color;
-            int y = al_fixtoi(get_sproingy_jump_height(num));
-            crosshairs_full(obj_x, obj_y-y, color, 1);
-         }
-         break;
-         case 16: // block manip
-         {
-            int color = 12;
-            if (legend_highlight == 2) color = flash_color;
-            int x2 = item[num][6];
-            int y2 = item[num][7];
-            int x3 = x2 + item[num][8]-1;
-            int y3 = y2 + item[num][9]-1;;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
-
-            // draw range
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
-
-            find_and_show_event_links(2, num, 0);
-
-         }
-         break;
-         case 17: // block damage
-         {
-            int color = 10;
-            if (legend_highlight == 2) color = flash_color;
-            int x2 = item[num][6];
-            int y2 = item[num][7];
-            int x3 = x2 + item[num][8]-1;
-            int y3 = y2 + item[num][9]-1;;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
-
-            // draw range
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
-
-            find_and_show_event_links(2, num, 0);
-         }
-         break;
-
-      } // end of switch case
-   }
-}
-
-void ovw_title(int obj_type, int num, int legend_highlight)
-{
-   int sub_type=0;
-   if (obj_type == 2) sub_type = item[num][0];
-   if (obj_type == 3) sub_type = Ei[num][0];
-   int ov_xc = ov_window_x1 + ov_window_w/2;
-   int yt = ov_window_y1+14;
-
-   // legend line text
-   char lmsg[5][80];
-   for (int x=0; x<5; x++) sprintf(lmsg[x],"%s","");
-
-   // legend line colors
-   int legend_color[5];
-
-   // default number of legend lines
-   num_legend_lines = 2;
-
-   legend_color[0] = 7;   // legend color
-   legend_color[1] = 13;  // location color
-   legend_color[2] = 14;  // yellow
-   legend_color[3] = 10;  // red
-   legend_color[4] = 0;   // unused
-
-   if (legend_highlight == 1) legend_color[1] = flash_color;
-
-   if (!legend_highlight)
-   {
-      // title bar
-      msg[0] = 0;
-      if (obj_type == 2) sprintf(msg, "Item Viewer [%d]", num);
-      if (obj_type == 3) sprintf(msg, "Enemy Viewer [%d]", num);
-      if (obj_type == 4) sprintf(msg, "Lift Viewer [%d]", num);
-      for (int x=0; x<15; x++)
-         al_draw_line(ov_window_x1, ov_window_y1+x, ov_window_x2, ov_window_y1+x, palette_color[13+(x*16)], 1);
-      al_draw_text(font, palette_color[15], ov_xc, ov_window_y1+2, ALLEGRO_ALIGN_CENTER,  msg);
-   }
-
-   if (obj_type == 4)  // lifts
-   {
-      num_legend_lines = 0;
-      al_draw_rectangle(ov_xc-94, yt, ov_xc+94, yt+22, palette_color[15], 1);
-      al_draw_textf(font, palette_color[13], ov_xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, num_lifts);
-   }
-   if (obj_type == 3)  // enemies
-   {
-      if (!legend_highlight)
-      {
-         al_draw_rectangle(ov_xc-94, yt, ov_xc+94, yt+22, palette_color[15], 1);
-         draw_enemy_shape(num, ov_xc-92, yt+1);
-         sprintf(msg,"%s %d of %d", (const char *)enemy_name[sub_type],1+num - e_first_num[sub_type],e_num_of_type[sub_type]);
-         al_draw_text(font, palette_color[13], ov_xc-69, yt+8, 0, msg);
-      }
-      switch (sub_type)
-      {
-         case 3: // archwagon
-         {
-            num_legend_lines = 3;
-            sprintf(lmsg[1],"ArchWagon Location");
-            sprintf(lmsg[2],"Bullet Proximity");
-            legend_color[2] = 14;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-         }
-         break;
-         case 4: sprintf(lmsg[1],"Bouncer Location"); break;
-         case 6: sprintf(lmsg[1],"Cannon Location"); break;
-         case 7: // podzilla
-         {
-            sprintf(lmsg[1],"Podzilla Location");
-            sprintf(lmsg[2],"Extended Postion");
-            sprintf(lmsg[3],"Trigger Box");
-            num_legend_lines = 4;
-
-            legend_color[2] = 10;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-
-            legend_color[3] = 14;
-            if (legend_highlight == 3) legend_color[3] = flash_color;
-         }
-         break;
-         case 8: // trakbot
-         {
-            num_legend_lines = 3;
-            sprintf(lmsg[1],"TrakBot Location");
-            sprintf(lmsg[2],"Bullet Proximity");
-            legend_color[2] = 14;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-         }
-         break;
-         case 9: // cloner
-         {
-            sprintf(lmsg[1],"Cloner Location");
-            sprintf(lmsg[2],"Source Area");
-            sprintf(lmsg[3],"Destination Area");
-            sprintf(lmsg[4],"Trigger Box");
-            num_legend_lines = 5;
-
-            legend_color[2] = 11;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-
-            legend_color[3] = 10;
-            if (legend_highlight == 3) legend_color[3] = flash_color;
-
-            legend_color[4] = 14;
-            if (legend_highlight == 4) legend_color[4] = flash_color;
-         }
-         break;
-         case 10: // field
-         {
-            sprintf(lmsg[1],"Field Location");
-            sprintf(lmsg[2],"Field Area");
-            sprintf(lmsg[3],"Trigger Box");
-            num_legend_lines = 4;
-
-            legend_color[2] = 10;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-
-            legend_color[3] = 14;
-            if (legend_highlight == 3) legend_color[3] = flash_color;
-         }
-         break;
-         case 11: sprintf(lmsg[1],"Block Walker Location"); break;
-         case 12: // flapper
-         {
-            sprintf(lmsg[1],"Flapper Location");
-            sprintf(lmsg[2],"Bullet Trigger Box");
-            sprintf(lmsg[3],"Height Above Player");
-            num_legend_lines = 4;
-
-            legend_color[2] = 14;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-
-            legend_color[3] = 10;
-            if (legend_highlight == 3) legend_color[3] = flash_color;
-         }
-         break;
-      }
-   }
-   if (obj_type == 2)  // items
-   {
-      if (!legend_highlight)
-      {
-         al_draw_rectangle(ov_xc-94, yt, ov_xc+94, yt+22, palette_color[15], 1);
-         draw_item_shape(num, ov_xc-94, yt+1);
-         sprintf(msg,"%s %d of %d", item_name[sub_type], 1+num - item_first_num[sub_type],item_num_of_type[sub_type]);
-         al_draw_text(font, palette_color[13], ov_xc-69, yt+8, 0, msg);
-      }
-      switch (sub_type)
-      {
-         case 1: // door
-         {
-            num_legend_lines = 3;
-            legend_color[2] = 10;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-
-            if (item[num][8] == 0)  // exit only, no destination
-            {
-               // find src door(s)
-               int num_src = 0;
-               for (int i=0; i<500; i++)
-                  if ((item[i][0] == 1) && (item[i][9] == num))
-                  {
-                     num_src++;
-                  }
-               sprintf(lmsg[1],"Exit Door Location");
-               if (num_src == 0) sprintf(lmsg[2],"No Source Door");
-               if (num_src == 1) sprintf(lmsg[2],"Source Door Position");
-               if (num_src >  1) sprintf(lmsg[2],"Source Door Positions");
-            }
-
-            if (item[num][8] == 1)  // draw destination
-            {
-               sprintf(lmsg[1],"Door Location");
-               sprintf(lmsg[2],"Destination");
-            }
-         }
-         break;
-         case 2: sprintf(lmsg[1],"Bonus Location"); break;
-         case 3: sprintf(lmsg[1],"Exit Location"); break;
-         case 4: // key
-         {
-            num_legend_lines = 3;
-            sprintf(lmsg[1],"Key Location");
-            sprintf(lmsg[2],"Block Range");
-
-            legend_color[2] = 10;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-         }
-         break;
-         case 5: sprintf(lmsg[1],"Start Location"); break;
-         case 7: sprintf(lmsg[1],"Mine Location"); break;
-         case 8:
-         {
-            num_legend_lines = 3;
-            sprintf(lmsg[1],"Bomb Location");
-            sprintf(lmsg[2],"Damage Range");
-            legend_color[2] = 14;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-         }
-         break;
-         case 9: // trigger
-         {
-            num_legend_lines = 3;
-            sprintf(lmsg[1],"Trigger Item Location");
-            sprintf(lmsg[2],"Trigger Field");
-            legend_color[2] = 10;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-         }
-         break;
-         case 10:
-         {
-            sprintf(lmsg[1],"Message Location");
-            sprintf(lmsg[2],"Display Position");
-            num_legend_lines = 3;
-         }
-         break;
-         case 11:
-         {
-            num_legend_lines = 3;
-            sprintf(lmsg[1],"Rocket Location");
-            sprintf(lmsg[2],"Damage Range");
-            legend_color[2] = 14;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-         }
-         break;
-         case 12: sprintf(lmsg[1],"Warp Location"); break;
-         case 14: sprintf(lmsg[1],"Switch Location"); break;
-         case 15: sprintf(lmsg[1],"Sproingy Location");
-         {
-            num_legend_lines = 3;
-            legend_color[2] = 14;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-         }
-         break;
-         case 16: // block manip
-         {
-            num_legend_lines = 3;
-            sprintf(lmsg[1],"Block Manip Item Location");
-            sprintf(lmsg[2],"Manip Field");
-            legend_color[2] = 12;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-         }
-         break;
-         case 17: // block damage
-         {
-            num_legend_lines = 3;
-            sprintf(lmsg[1],"Item Location");
-            sprintf(lmsg[2],"Damage Area");
-            legend_color[2] = 10;
-            if (legend_highlight == 2) legend_color[2] = flash_color;
-         }
-         break;
-      } // end of switch case
-   }  // end of items
-
-   if (!legend_highlight)
-   {
-      ov_window_h += num_legend_lines*8 + 8;
-      ov_window_y2 = ov_window_y1 + ov_window_h;
-      if (num_legend_lines > 0)
-      {
-         al_draw_text(font, palette_color[legend_color[0]], ov_xc, ov_window_y2-36+ (4-num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
-         al_draw_rectangle(ov_xc-100, ov_window_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_window_y2-1, palette_color[13], 1); // big frame
-         al_draw_rectangle(ov_xc-100, ov_window_y2-38+ (4-num_legend_lines)*8, ov_xc+100, ov_window_y2-28+ (4-num_legend_lines)*8, palette_color[13], 1); // top frame
-      }
-      al_draw_rectangle(ov_window_x1, ov_window_y1, ov_window_x2, ov_window_y2, palette_color[13], 1);  // outline entire window
-
-   }
-
-   for (int x=1; x<num_legend_lines; x++)// draw text lines
-      al_draw_text(font, palette_color[legend_color[x]], ov_xc, ov_window_y2-26+(3-num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
-
-}
-
-
-void ovw_process_scrolledge(void)
-{
-   int bw = BORDER_WIDTH;
-   int scrolledge = 10;
-   int scroll_amount = 20;
-
-   if (mouse_x < scrolledge) WX-=scroll_amount;           // scroll left
-   if (mouse_x > SCREEN_W-scrolledge) WX+=scroll_amount;  // scroll right
-   if (mouse_y < scrolledge) WY-=scroll_amount;           // scroll up
-   if (mouse_y > SCREEN_H-scrolledge) WY+=scroll_amount;  // scroll down
-
-      // find the size of the source screen from actual screen size and scaler
-   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
-   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
-   if (SW > 2000) SW = 2000;
-   if (SH > 2000) SH = 2000;
-
-   // correct for edges
-   if (WX < 0) WX = 0;
-   if (WY < 0) WY = 0;
-   if (WX > (2000 - SW)) WX = 2000 - SW;
-   if (WY > (2000 - SH)) WY = 2000 - SH;
-
-   // used by get_new_background to only get what is needed
-   level_display_region_x = WX;
-   level_display_region_y = WY;
-   level_display_region_w = SW;
-   level_display_region_h = SH;
-
-}
-
-
-void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy)
-{
-   // x, y in 0-99 scale
-   // the mouse position past the border width is how far we are into the scaled map
-   float mx1 = mouse_x-BORDER_WIDTH;
-   float my1 = mouse_y-BORDER_WIDTH;
-
-   // divide that by bs to get how many blocks we are into the map
-   float mx2 = mx1 / (scale_factor_current * 20);
-   float my2 = my1 / (scale_factor_current * 20);
-   // get block position of WX
-   float mx3 = (float)WX / 20;
-   float my3 = (float)WY / 20;
-
-   // add
-   float mx4 = mx3 + mx2;
-   float my4 = my3 + my2;
-
-   *x = (int) mx4;
-   *y = (int) my4;
-
-   if (*x < 0)  *x = 0;
-   if (*y < 0)  *y = 0;
-   if (*x > 99) *x = 99;
-   if (*y > 99) *y = 99;
-
-   // hx, hy in 0-1999 scale
-   // the mouse position past the border width is how far we are into the scaled map
-   mx1 = mouse_x-BORDER_WIDTH;
-   my1 = mouse_y-BORDER_WIDTH;
-
-   // scale
-   mx2 = mx1 / scale_factor_current;
-   my2 = my1 / scale_factor_current;
-
-   // get position of WX
-   mx3 = (float)WX;
-   my3 = (float)WY;
-
-   // add
-   mx4 = mx3 + mx2;
-   my4 = my3 + my2;
-
-   *hx = (int) mx4;
-   *hy = (int) my4;
-
-   if (*hx < 0)    *hx = 0;
-   if (*hy < 0)    *hy = 0;
-   if (*hx > 1999) *hx = 1999;
-   if (*hy > 1999) *hy = 1999;
-}
-
-// ------------------------------------------
-// ----------- map move ---------------------
-// ------------------------------------------
 void ovw_map_move(int &obt, int &num)
 {
    int gx=0, gy=0, hx=0, hy=0;
@@ -1909,74 +1959,10 @@ void ovw_map_move(int &obt, int &num)
             Ei[num][18] = gy;
          }
          ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
-         ovw_redraw_background(obt, type, num, 0, 0);
+         ovw_redraw_background(obt, num, type, 0, 0);
       } // end of while mouse pressed
    } // end of if mouse pressed
 }
-
-// -------------------------------------------
-// ----  move window by dragging by title bar
-// -------------------------------------------
-void ovw_proc_move_window(int obt, int num, int type)
-{
-   if ((mouse_x > ov_window_x1) && (mouse_x < ov_window_x2) && (mouse_y > ov_window_y1) && (mouse_y < ov_window_y1+14)) // is mouse on title bar
-   {
-      // draw rectangle around title bar to show it can be dragged
-      // al_draw_rectangle(ov_window_x, ov_window_y, ov_window_x2, ov_window_y+14, palette_color[14], 1);
-      // color text in title bar to show it can be moved
-      //msg[0] = 0;
-      //if (obt == 2) sprintf(msg, "Item Viewer [%d]", num);
-      //if (obt == 3) sprintf(msg, "Enemy Viewer [%d]", num);
-      //int ov_xc = (ov_window_x + ov_window_x2) / 2;
-      //al_draw_text(font, palette_color[10], ov_xc, ov_window_y+2, ALLEGRO_ALIGN_CENTER,  msg);
-      if (mouse_b1)
-      {
-         int mxo = mouse_x - ov_window_x1; // get offset from mouse position to window x, y
-         int myo = mouse_y - ov_window_y1;
-         while (mouse_b1)
-         {
-            ov_window_x1 = mouse_x - mxo;
-            ov_window_y1 = mouse_y - myo;
-            ov_window_x2 = ov_window_x1 + ov_window_w;
-            ov_window_y2 = ov_window_y1 + ov_window_h;
-            ovw_redraw_background(obt, type, num, 0, 1);
-         }
-      }
-   }
-}
-
-int ovw_redraw_background(int obt, int type, int num, int legend_line, int show_window)
-{
-   al_flip_display();
-   proc_scale_factor_change();
-   proc_controllers();
-   proc_frame_delay();
-   if (obt == 4) init_level_background(); // to draw new lift lines
-   get_new_background(0);
-   draw_lifts();
-   draw_items();
-   draw_enemies();
-
-   ovw_draw_overlays(obt, num, legend_line);
-
-   // if current object is message, show all messages
-   if ((obt == 2) && (type == 10))
-   {
-      for (int i=0; i<500; i++)
-         if (item[i][0] == 10) draw_pop_message(i);
-   }
-
-   get_new_screen_buffer(3, 0, 0);
-
-   int mb = 0;
-   if (show_window)
-   {
-      mb = ovw_draw_buttons(num, type, obt);
-      ovw_title(obt, num, 0); // draw button title, frame and legend lines
-   }
-   return mb;
-}
-
 
 void object_viewerw(int obt, int num)
 {
@@ -2011,7 +1997,7 @@ void object_viewerw(int obt, int num)
       // ------------------------------------------------------------------------
       // ----  redraw the level background and the object viewer window ---------
       // ------------------------------------------------------------------------
-      int mb = ovw_redraw_background(obt, type, num, legend_line, 1);
+      int mb = ovw_redraw_background(obt, num, type, legend_line, 1);
 
       // ------------------------------------------------------------------------
       // ----  if mouse on legend lines, show highlights
@@ -2154,7 +2140,7 @@ void object_viewerw(int obt, int num)
                   draw_enemies();
                   ovw_draw_overlays(obt, num, legend_line);
                   get_new_screen_buffer(3, obj_x, obj_y);
-                  ovw_draw_buttons(num, type, obt);
+                  ovw_draw_buttons(obt, num, type);
                   ovw_title(obt, num, 0);
                }
                while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers(); // wait for release

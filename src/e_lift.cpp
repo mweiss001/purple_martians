@@ -201,8 +201,8 @@ int create_lift(void)
          lifts[lift].num_steps++; // add one to steps
 
          set_lift_to_step(lift, 0); // set step 0 for lift
-         ovw_redraw_background(4, 0, lift, 0, 1);
-         ovw_redraw_background(4, 0, lift, 0, 1); // do this twice to get proper window height
+         ovw_redraw_background(4, lift, 0, 0, 1);
+         ovw_redraw_background(4, lift, 0, 0, 1); // do this twice to get proper window height
          insert_steps_until_quit(lift, step);
          return 1;
       }
@@ -328,8 +328,8 @@ int insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'ste
          ret = 0;
       }
       else ret = 1;
-      ovw_redraw_background(4, 0, lift, 0, 1);
-      ovw_redraw_background(4, 0, lift, 0, 1); // do this twice to get proper window height
+      ovw_redraw_background(4, lift, 0, 0, 1);
+      ovw_redraw_background(4, lift, 0, 0, 1); // do this twice to get proper window height
 
    }
    return ret;

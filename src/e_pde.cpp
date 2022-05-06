@@ -77,7 +77,7 @@ int process_status_window(int draw_only)
 
 
 
-   if (point_item_type > 1) obj_buttons(swx1+162, swx2+60, swy1+46, 0, 16, point_item_type, point_item_num);
+   if (point_item_type > 1) obj_buttons(point_item_type, point_item_num, swx1+162, swx2+60, swy1+46, 0, 16);
 
 
 

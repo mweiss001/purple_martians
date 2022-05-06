@@ -891,6 +891,11 @@ extern int level_display_region_h;
 
 extern int display_transform_double;
 extern int saved_display_transform_double;
+extern int show_dtd;
+
+
+
+
 
 extern int level_editor_running;
 extern int help_screens_running;
@@ -1046,6 +1051,7 @@ void crosshairs_full(int cx, int cy, int color, int line_width);
 void crosshairs(int mx, int my, int x, int y, int color);
 void crosshairs_nodb(int mx, int my, int x, int y, int db, int color);
 void title(const char *txt, int y, int tc, int fc);
+void titlex(const char *txt, int y, int tc, int fc, int x1, int x2);
 
 // e_glt.h
 void show_block_list(void);
@@ -1081,46 +1087,34 @@ int create_cloner(void);
 int create_pod(void);
 
 
-// e_object_viewer.h
-//int move_obt_with_map(int obt, int type, int num);
-
-
 
 // e_object_viewer_window.h
-void object_viewerw(int obt, int num);
 int create_obj(int obt, int sub_type, int sent_num);
-int obj_buttons(int xa, int xb, int ty, int a, int bts, int obt, int num);
+//int ovw_get_size(int obt, int type, int*w, int*h);
+//void ovw_process_scrolledge(void);
+//void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy);
+int ovw_redraw_background(int obt, int num, int type, int legend_line, int show_window);
+//void ovw_proc_move_window(int obt, int num, int type);
 
-void ovw_draw_overlays(int obj_type, int num, int legend_highlight);
-int ovw_draw_buttons(int num, int type, int obt);
-void ovw_title(int obj_type, int num, int legend_highlight);
-
-int ovw_redraw_background(int obt, int type, int num, int legend_line, int show_window);
-
-
-
+void ovw_title(int obt, int num, int legend_highlight);
+void ovw_draw_overlays(int obt, int num, int legend_highlight);
+int ovw_draw_buttons(int obt, int num, int type);
+int obj_buttons(int obt, int num, int xa, int xb, int ty, int a, int bts);
+void object_viewerw(int obt, int num);
 
 
 
 
 // e_lift.h
-void title_lift(int lift);
-
 int lift_find_previous_move_step(int lift, int step);
 al_fixed lift_get_distance_to_previous_move_step(int lift, int step);
-
-
 int draw_current_step_buttons(int xa, int xb, int y, int l, int s);
-
-
-
 void show_all_lifts(void);
 void erase_lift(int lift);
 void delete_lift_step(int lift, int step);
 void lift_setup(void);
 void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int rc);
 int draw_steps(int xa, int xb, int step_ty, int lift, int current_step, int highlight_step);
-void highlight_current_lift(int lift);
 int create_lift(void);
 void move_lift_step(int lift, int step);
 int redraw_get_new_lift_step_menu(int sty, int step, int highlight);
@@ -1129,8 +1123,10 @@ int insert_lift_step(int lift, int step);
 void insert_steps_until_quit(int lift, int step);
 void step_popup_menu(int lift, int step);
 void set_bts(int lift);
-void redraw_lift_viewer(int lift, int step);
-int lift_viewer(int lift);
+
+
+
+
 
 // e_pde.h
 int load_PDE();
@@ -1167,17 +1163,9 @@ void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, 
 void mdw_slider0_int(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt, const char *txt2);
 
-
-
-
 int  mdw_button( int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 );
 int  mdw_buttont(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
 void mdw_buttonp(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var);
-
-
-
-
-
 
 void mdw_colsel (int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 );
 int mdw_toggle  (int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
