@@ -4,13 +4,18 @@
 
 
 #define NUM_OBJ 600
+
+
+// list of objects to edit as a group
 int obj_list[NUM_OBJ][3] = {0};
+
+// toggles to filter objects in list based on object type and subtype
 int obj_filter[4][20] = {0};
 
+// to keep track of window locations and sizes for erasing and redrawing
 int ge_window_array[5][5] = {0};
 
-
-
+// predefined things that can be group editted
 struct ge_datum
 {
    char name[40];
@@ -235,10 +240,10 @@ void init_ge_data(void)
 // iterate the object list to find out what controls are valid
 void set_valid_ge_controls(void)
 {
-   // set all controls valid
+   // set all controls valid by default
    for (int i=0; i<40; i++) if (ge_data[i].vartyp) ge_data[i].valid = 1;
 
-   // removed one by one as soon as they don't apply to all items in list
+   // remove controls as soon as they don't apply to all objects in list
    for (int i=0; i<NUM_OBJ; i++)
       if (obj_list[i][0])
       {
@@ -349,8 +354,6 @@ void remove_obj_list_filtered_items(void)
       }
 }
 
-
-
 int draw_filter_toggles(int x1, int x2, int y1)
 {
    int fs = 12;   // frame size
@@ -440,7 +443,6 @@ int enemy_initial_position_random(int e, int csw)
       return 0;
    }
 }
-
 
 void item_initial_position_random(int i, int csw)
 {
@@ -595,8 +597,6 @@ int show_obj_list(int x, int y, int *ex2)
   *ex2 = x2 + fs; // set the actual width here
   return yf2;
 }
-
-
 
 int show_ge_controls(int gx, int gy)
 {
@@ -909,8 +909,6 @@ int ge_draw_on_screen_buffer(int xa, int ya, int &show_sel_frame)
 
    // window positions
    int xb = xa + 300;
-   int xc = (xa+xb)/2;
-
 
    int f = 0; // title bar
    al_draw_filled_rectangle(ge_window_array[f][0], ge_window_array[f][1], ge_window_array[f][2], ge_window_array[f][3], palette_color[0]); // erase
@@ -918,9 +916,9 @@ int ge_draw_on_screen_buffer(int xa, int ya, int &show_sel_frame)
    int tbx2 = xb;
    int tby1 = ya;
    int tby2 = ya+12;
-   for (int x=0; x<15; x++)
-      al_draw_line(tbx1, tby1+x, tbx2, tby1+x, palette_color[13+(x*16)], 1);
-   al_draw_text(font, palette_color[15], xc, tby1+2, ALLEGRO_ALIGN_CENTER, "Group Edit");
+
+   titlex("Group Edit", 15, 13, tbx1, tbx2, tby1);
+
    ge_window_array[f][0] = tbx1;
    ge_window_array[f][1] = tby1;
    ge_window_array[f][2] = tbx2;
@@ -1042,8 +1040,6 @@ void group_edit(void)
       process_flash_color();
 
       mouse_on_window = ge_draw_on_screen_buffer(ge_window_x, ge_window_y, show_sel_frame);
-
-
 
       int f = 0; // title bar
       int mowt = 2;

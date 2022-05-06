@@ -119,6 +119,15 @@ void draw_top_display(void)
       al_draw_textf(font, palette_color[15],SCREEN_W*2/3, 2, ALLEGRO_ALIGN_CENTER, "Scale:%-3.2f", scale_factor);
    }
 
+   if (show_dtd > 0)
+   {
+      show_dtd --;
+      if (saved_display_transform_double) al_draw_textf(font, palette_color[15],SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [f]", display_transform_double);
+      else                                al_draw_textf(font, palette_color[15],SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [a]", display_transform_double);
+   }
+
+
+
 
    int cy = BORDER_WIDTH-6;
    int cx = SCREEN_W-320;
@@ -136,7 +145,8 @@ void draw_top_display(void)
 
       al_draw_filled_rectangle(cx-4, cy+6, cx+230, cy+54, palette_color[0]);
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "SCREEN %d x %d", SCREEN_W, SCREEN_H);
-      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "full:%d display_transform_double:%d ", fullscreen, display_transform_double);
+//      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "full:%d display_transform_double:%d saved_dtd:%d", fullscreen, display_transform_double, saved_display_transform_double);
+      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "full:%d dtd:%d saved_dtd:%d", fullscreen, display_transform_double, saved_display_transform_double);
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "disp_curr %d x %d ", disp_w_curr, disp_h_curr);
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "display  %d x %d ", al_get_display_width(display), al_get_display_height(display));
 

@@ -530,6 +530,7 @@ int level_display_region_h;
 
 int display_transform_double = 1;
 int saved_display_transform_double = -1;
+int show_dtd = 0;;
 
 
 int level_editor_running = 0;
@@ -545,7 +546,7 @@ int show_player_join_quit_jq = 0;
 float scale_factor = 1.0;
 float scale_factor_current  = 1.0;
 float scale_factor_inc = 0.03;
-int show_scale_factor;
+int show_scale_factor = 0;
 
 
 

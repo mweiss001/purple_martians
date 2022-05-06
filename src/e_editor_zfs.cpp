@@ -2,21 +2,15 @@
 
 #include "pm.h"
 
-void pointer_text(int x, int y, int ty)
+void pointer_text(int mx, int my, int x1, int x2, int y)
 {
-
-
-
-   if ((x<99) && (y < 99))
+   int xc = (x1+x2)/2;
+   if ((mx<99) && (my < 99))
    {
-      al_draw_text( font, palette_color[15], txc, ty-37, ALLEGRO_ALIGN_CENTER, "Pointer");
-      al_draw_textf(font, palette_color[15], txc, ty-29, ALLEGRO_ALIGN_CENTER, "  x:%d    y:%d ", x, y);
-
-      al_draw_rectangle(txc-70, ty-39, txc+70, ty-20, palette_color[15], 1);
-
-
+      al_draw_text( font, palette_color[15], xc, y+2,  ALLEGRO_ALIGN_CENTER, "Pointer");
+      al_draw_textf(font, palette_color[15], xc, y+11, ALLEGRO_ALIGN_CENTER, "  x:%d    y:%d ", mx, my);
+      al_draw_rectangle(x1, y+0, x2, y+20, palette_color[15], 1);
    }
-   int sey = -20;
    int rx1 = stx *20;    // source x
    int ry1 = sty *20;    // source y
    int rx2 = sux *20;    // sizes
@@ -55,18 +49,22 @@ void pointer_text(int x, int y, int ty)
                if (lifts[d].y1 < ry2)
                   lib++;
 
-   al_draw_rectangle(txc-70, ty+sey, txc+70, ty+sey+10,palette_color[14], 1);
-   al_draw_rectangle(txc-70, ty+sey, txc+70, ty+sey+36,palette_color[14], 1);
-   al_draw_rectangle(txc-70, ty+sey, txc+70, ty+sey+62,palette_color[14], 1);
 
-   al_draw_text( font, palette_color[6], txc, ty+sey+1,  ALLEGRO_ALIGN_CENTER, "Selection");
-   al_draw_textf(font, palette_color[6], txc, ty+sey+11, ALLEGRO_ALIGN_CENTER, " x:%2d  y:%2d ", stx, sty);
-   al_draw_textf(font, palette_color[6], txc, ty+sey+19, ALLEGRO_ALIGN_CENTER, " width:%d ",  sux-stx);
-   al_draw_textf(font, palette_color[6], txc, ty+sey+27, ALLEGRO_ALIGN_CENTER, " height:%d ", suy-sty);
+   y+=24;
 
-   al_draw_textf(font, palette_color[7], txc, ty+sey+37, ALLEGRO_ALIGN_CENTER, " %d Enemies ", eib);
-   al_draw_textf(font, palette_color[7], txc, ty+sey+45, ALLEGRO_ALIGN_CENTER, " %d Items ", iib);
-   al_draw_textf(font, palette_color[7], txc, ty+sey+53, ALLEGRO_ALIGN_CENTER, " %d Lifts ", lib);
+   al_draw_rectangle(x1, y, x2, y+10, palette_color[14], 1);
+   al_draw_rectangle(x1, y, x2, y+36, palette_color[14], 1);
+   al_draw_rectangle(x1, y, x2, y+62, palette_color[14], 1);
+
+
+   al_draw_text( font, palette_color[6], xc, y+1,  ALLEGRO_ALIGN_CENTER, "Selection");
+   al_draw_textf(font, palette_color[6], xc, y+11, ALLEGRO_ALIGN_CENTER, " x:%2d  y:%2d ", stx, sty);
+   al_draw_textf(font, palette_color[6], xc, y+19, ALLEGRO_ALIGN_CENTER, " width:%d ",  sux-stx);
+   al_draw_textf(font, palette_color[6], xc, y+27, ALLEGRO_ALIGN_CENTER, " height:%d ", suy-sty);
+
+   al_draw_textf(font, palette_color[7], xc, y+37, ALLEGRO_ALIGN_CENTER, " %d Enemies ", eib);
+   al_draw_textf(font, palette_color[7], xc, y+45, ALLEGRO_ALIGN_CENTER, " %d Items ", iib);
+   al_draw_textf(font, palette_color[7], xc, y+53, ALLEGRO_ALIGN_CENTER, " %d Lifts ", lib);
 }
 
 
@@ -140,335 +138,11 @@ void do_brf(int x, int y, int flood_block)
 
 }
 
-int zoom_full_screen(int wx, int wy, int draw_item)
-{
-   int exit =0;
-   copy_mode = 0;
-   brf_mode = 0;
 
-//   // return window size
-//   int rw_x1, rw_y1, rw_x2, rw_y2;
-//   int rw_w = (SCREEN_W/20);
-//   int rw_h = (SCREEN_H/20);
 
-// i don't like this, its usually too big
-// and it always reset everytime you come here
-// the old way remembers the last selection
 
-   // initial selection
-   // set initial selection to screen position of editor
-//   stx = wx;
-//   sty = wy;
-//   sux = stx + (SCREEN_W/20);
-//   suy = sty + (SCREEN_H/20);
 
 
-   while (mouse_b2) proc_controllers();
-   while (!exit)
-   {
-      al_set_target_backbuffer(display);
-      al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
-
-      proc_controllers();
-
-      al_rest(mouse_loop_pause);
-
-      draw_big(1);
-      show_big();
-
-      title("Zoom Full Screen",  0, 15, 13);
-
-
-
-      // button x positions
-      int xa = SCREEN_W-(SCREEN_W-(db*100))+1;
-      int xb = SCREEN_W-3;
-      int xc = (xa+xb)/2;
-
-      int x1 = xc - 70;
-      int x2 = xc + 70;
-
-      int x3 = xc - 90;
-      int x4 = xc + 90;
-
-
-
-
-      // y positions
-      // ty is a global...that's where the buttons start
-
-      int yfb = ty+80; // where the filter buttons start
-      bts = 16;        // button size
-      int a = 0;       // keep track of button y spacing
-
-      // draw frame around filter buttons
-      int fs = 12;
-      int y1 = yfb-fs-2;
-      int y2 = y1+5*bts+fs*2;
-      int ci = 16; //color inc
-      for (int q=0; q<fs; q++)
-         al_draw_rectangle(x1-fs+q, y1+q, x2+fs-q, y2-q, palette_color[12+32+(q*ci)], 1);
-      al_draw_text(font, palette_color[15], xc, y1+2, ALLEGRO_ALIGN_CENTER, "Selection Filters");
-
-
-      int col = 15+64;
-      if (copy_blocks) col = 9;
-      if (mdw_button(x1, yfb+a*bts, x2, yfb+(a+1)*bts-2, 600, copy_blocks,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // block filter
-      {
-         copy_blocks  = !copy_blocks;
-         if (copy_mode) draw_fsel();
-      }
-      a++;
-
-      col = 15+64;
-      if (copy_flags) col = 9;
-      if (mdw_button(x1, yfb+a*bts, x2, yfb+(a+1)*bts-2, 604, copy_flags,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // flags filter
-      {
-         copy_flags = !copy_flags;
-         if (copy_mode) draw_fsel();
-      }
-      a++;
-
-
-      col = 15+64;
-      if (copy_enemies) col = 9;
-      if (mdw_button(x1, yfb+a*bts, x2, yfb+(a+1)*bts-2, 601, copy_enemies,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // enemy filter
-      {
-         copy_enemies  = !copy_enemies;
-         if (copy_mode) draw_fsel();
-      }
-      a++;
-
-      col = 15+64;
-      if (copy_items) col = 9;
-      if (mdw_button(x1, yfb+a*bts, x2, yfb+(a+1)*bts-2, 602, copy_items,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // item filter
-      {
-         copy_items  = !copy_items;
-         if (copy_mode) draw_fsel();
-      }
-      a++;
-
-      col = 15+64;
-      if (copy_lifts) col = 9;
-      if (mdw_button(x1, yfb+a*bts, x2, yfb+(a+1)*bts-2, 603, copy_lifts,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // lift filter
-      {
-         copy_lifts  = !copy_lifts;
-         if (copy_mode) draw_fsel();
-      }
-      a++;
-
-
-      a++;
-
-
-      if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 620, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // move selection
-      {
-         if (copy_mode) copy_mode = 0;
-         else
-         {
-            copy_mode = 1;
-            save_selection(0); // just puts in ft_
-            draw_fsel();
-            do_clear();
-         }
-      }
-      a++;
-      if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 621, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // clear selection
-      {
-         do_clear();
-      }
-      a++;
-
-
-      col = 9;
-      if (copy_mode) col = 10;
-      if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 622, 0,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // paste selection
-      {
-         if (copy_mode) copy_mode = 0;
-         else
-         {
-            copy_mode = 1;
-            save_selection(0); // just puts in ft_
-            draw_fsel();
-         }
-      }
-      a++;
-
-
-
-
-
-
-
-      a++;
-
-
-      if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 623, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // save to disk
-      {
-         save_selection(1); // puts in ft_ and saves to disk
-      }
-      a++;
-      if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 624, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // load from disk
-      {
-         if (load_selection())
-         {
-            copy_mode = 1;
-            draw_fsel();
-         }
-      }
-      a+=2;
-
-
-
-      if (draw_item_type == 1) // don't even show these 3 buttons unless...
-      {
-         if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 610, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // block fill
-         {
-            for (int x=stx; x<sux; x++)
-               for (int y=sty; y<suy; y++)
-               {
-                  if ((copy_flags) && (copy_blocks))  l[x][y] = draw_item_num;
-                  if ((copy_flags) && (!copy_blocks))
-                  {
-                     int flags = draw_item_num & PM_BTILE_MOST_FLAGS; // get only flags from draw item
-                     l[x][y] &= ~PM_BTILE_MOST_FLAGS;                 // clear flags in destination
-                     l[x][y] |= flags;                                // merge
-                  }
-               }
-         }
-         a++;
-
-         if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 611, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // block frame
-         {
-            for (int x=stx; x<sux; x++)
-            {
-               l[x][sty] = draw_item_num;
-               l[x][suy-1] = draw_item_num;
-            }
-            for (int y=sty; y<suy; y++)
-            {
-               l[stx][y] = draw_item_num;
-               l[sux-1][y] = draw_item_num;
-            }
-         }
-         a++;
-
-         col = 9;
-         if (brf_mode) col = 10;
-         if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 612, 0,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // block floodfill
-            brf_mode = !brf_mode;
-         a++;
-      }
-
-
-
-
-
-
-      // mark selection on map
-      al_draw_rectangle(stx*db, sty*db, (sux*db)-1, (suy*db)-1, palette_color[14], 1);
-      al_draw_text(font, palette_color[14], stx*db+2, sty*db-11,  0, "selection");
-
-
-      // get the mouse block index on the map
-      x1 = mouse_x/db;
-      y1 = mouse_y/db;
-
-      // show information about selection and pointer
-      pointer_text(x1, y1, ty+12);
-
-      if ((x1 < 100) && (y1 < 100)) // if mouse pointer on map
-      {
-//         // show return window outline
-//         if ((!copy_mode) && (!brf_mode))
-//         {
-//            // set ul corner from mouse pos
-//            rw_x1 = x1;
-//            rw_y1 = y1;
-//            // if lr pos is off screen, adjust ul pos
-//            if (rw_x1 > 100-rw_w) rw_x1 = 100-rw_w;
-//            if (rw_y1 > 100-rw_h) rw_y1 = 100-rw_h;
-//
-//            // calc lr position
-//            rw_x2 = rw_x1 + rw_w;
-//            rw_y2 = rw_y1 + rw_h;
-//
-//            al_draw_text(font, palette_color[15], rw_x1*db+2, rw_y1*db-10, 0, "exit window");
-//            al_draw_rectangle(rw_x1*db, rw_y1*db, rw_x2*db - 1, rw_y2*db - 1, palette_color[15], 1);
-//         }
-
-         if (copy_mode) // show copy outline window
-         {
-            x2 = x1 + ft_level_header[8];
-            y2 = y1 + ft_level_header[9];
-            if (x2 > 100) x2 = 100;
-            if (y2 > 100) y2 = 100;
-
-            al_set_clipping_rectangle(0, 0, display_transform_double*db*100-1, display_transform_double*db*100-1);
-            al_draw_bitmap(ft_bmp, x1*db, y1*db, 0);
-            al_draw_text(font, palette_color[42], x1*db+2, y1*db-11, 0, "paste selection");
-            //al_draw_textf(font, palette_color[42], x1*db+2, y1*db-19, 0, "%d %d %d %d", x1, y1, x2, y2);
-            al_draw_rectangle(x1*db, y1*db, x2*db-1, y2*db-1, palette_color[10], 1);
-            al_reset_clipping_rectangle();
-
-         }
-
-         if (mouse_b1)
-         {
-            if ((copy_mode) || (brf_mode)) while (mouse_b1) proc_controllers(); // wait for release
-            if (copy_mode) do_fcopy(x1, y1);
-            if (brf_mode) do_brf(x1, y1, draw_item_num);
-            if ((!copy_mode) && (!brf_mode)) // get new selection
-            {
-               // initial selection
-               stx = x1;
-               sty = y1;
-               sux = x1+1;
-               suy = y1+1;
-
-               while (mouse_b1)
-               {
-                  proc_controllers();
-                  sux = (mouse_x/db)+1;
-                  if (sux > 100) sux = 100;
-                  suy = (mouse_y/db)+1;
-                  if (suy > 100) suy = 100;
-
-                  show_big();
-                  // show selection rectangle
-                  al_draw_rectangle(stx*db, sty*db, (sux*db)-1, (suy*db)-1, palette_color[14], 1);
-                  al_draw_text(font, palette_color[14], stx*db+2, sty*db-11,  0, "selection");
-                  al_flip_display();
-                  al_rest(.02);
-               }
-               if (sux < stx) // swap if wrong order
-               {
-                  int temp = sux;
-                  sux = stx;
-                  stx = temp;
-               }
-               if (suy < sty)
-               {
-                  int temp = suy;
-                  suy = sty;
-                  sty = temp;
-               }
-               if (stx - sux == 0) sux++;  // don't allow zero size
-               if (sty - suy == 0) suy++;  // don't allow zero size
-            } // end of get new selection
-         }
-
-      } // end of if mouse pointer on map
-      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
-      {
-         proc_controllers();
-         exit = 1;
-      }
-   } // end of while (!exit)
-  // return (y1*100)+x1;
-  return 0;
-}
 
 
 
@@ -1277,4 +951,380 @@ void draw_fsel(void)
    al_draw_scaled_bitmap(temp, 0, 0, t_w, t_h, 0, 0, ft_w, ft_h, 0);
    al_destroy_bitmap(temp);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void zfs_draw_selection_filters(int x1, int y1, int x2)
+{
+   int a = 0;
+
+   int xc = (x1+x2)/2;
+
+   // draw frame around filter buttons
+   int fs = 12;
+
+   int y2 = y1+5*bts+fs*2;
+
+   int ci = 16; //color inc
+   for (int q=0; q<fs; q++)
+      al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, palette_color[12+32+(q*ci)], 1);
+   al_draw_text(font, palette_color[15], xc, y1+2, ALLEGRO_ALIGN_CENTER, "Selection Filters");
+
+
+   int yfb = y1+fs;
+
+   x1+=fs;
+   x2-=fs;
+
+   int col = 15+64;
+   if (copy_blocks) col = 9;
+   if (mdw_button(x1, yfb+a*bts, x2, yfb+(a+1)*bts-2, 600, copy_blocks,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // block filter
+   {
+      copy_blocks  = !copy_blocks;
+      if (copy_mode) draw_fsel();
+   }
+   a++;
+
+   col = 15+64;
+   if (copy_flags) col = 9;
+   if (mdw_button(x1, yfb+a*bts, x2, yfb+(a+1)*bts-2, 604, copy_flags,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // flags filter
+   {
+      copy_flags = !copy_flags;
+      if (copy_mode) draw_fsel();
+   }
+   a++;
+   col = 15+64;
+   if (copy_enemies) col = 9;
+   if (mdw_button(x1, yfb+a*bts, x2, yfb+(a+1)*bts-2, 601, copy_enemies,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // enemy filter
+   {
+      copy_enemies  = !copy_enemies;
+      if (copy_mode) draw_fsel();
+   }
+   a++;
+   col = 15+64;
+   if (copy_items) col = 9;
+   if (mdw_button(x1, yfb+a*bts, x2, yfb+(a+1)*bts-2, 602, copy_items,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // item filter
+   {
+      copy_items  = !copy_items;
+      if (copy_mode) draw_fsel();
+   }
+   a++;
+
+   col = 15+64;
+   if (copy_lifts) col = 9;
+   if (mdw_button(x1, yfb+a*bts, x2, yfb+(a+1)*bts-2, 603, copy_lifts,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // lift filter
+   {
+      copy_lifts  = !copy_lifts;
+      if (copy_mode) draw_fsel();
+   }
+}
+void zfs_draw_buttons(int x3, int yfb, int x4)
+{
+   int a=0, col=0;
+   if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 620, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // move selection
+   {
+      if (copy_mode) copy_mode = 0;
+      else
+      {
+         copy_mode = 1;
+         save_selection(0); // just puts in ft_
+         draw_fsel();
+         do_clear();
+      }
+   }
+   a++;
+   if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 621, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) do_clear(); // clear selection
+   a++;
+   col = 9;
+   if (copy_mode) col = 10;
+   if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 622, 0,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // paste selection
+   {
+      if (copy_mode) copy_mode = 0;
+      else
+      {
+         copy_mode = 1;
+         save_selection(0); // just puts in ft_
+         draw_fsel();
+      }
+   }
+   a+=2;
+   if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 623, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) save_selection(1); // puts in ft_ and saves to disk
+   a++;
+   if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 624, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // load from disk
+   {
+      if (load_selection())
+      {
+         copy_mode = 1;
+         draw_fsel();
+      }
+   }
+   a+=2;
+   if (draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
+   {
+      if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 610, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // block fill
+      {
+         for (int x=stx; x<sux; x++)
+            for (int y=sty; y<suy; y++)
+            {
+               if ((copy_flags) && (copy_blocks))  l[x][y] = draw_item_num;
+               if ((copy_flags) && (!copy_blocks))
+               {
+                  int flags = draw_item_num & PM_BTILE_MOST_FLAGS; // get only flags from draw item
+                  l[x][y] &= ~PM_BTILE_MOST_FLAGS;                 // clear flags in destination
+                  l[x][y] |= flags;                                // merge
+               }
+            }
+      }
+      a++;
+      if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 611, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // block frame
+      {
+         for (int x=stx; x<sux; x++)
+         {
+            l[x][sty] = draw_item_num;
+            l[x][suy-1] = draw_item_num;
+         }
+         for (int y=sty; y<suy; y++)
+         {
+            l[stx][y] = draw_item_num;
+            l[sux-1][y] = draw_item_num;
+         }
+      }
+      a++;
+
+      col = 9;
+      if (brf_mode) col = 10;
+      if (mdw_button(x3, yfb+a*bts, x4, yfb+(a+1)*bts-2, 612, 0,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // block floodfill
+         brf_mode = !brf_mode;
+      a++;
+   }
+}
+
+
+
+
+
+
+void zfs_proc_window_move(int *x1, int *y1, int *x2, int *y2, int w, int h)
+{
+   // move window by dragging title bar
+   if ((mouse_x > *x1) && (mouse_x < *x2) && (mouse_y > *y1) && (mouse_y < *y1+15))
+   {
+      if (mouse_b1)
+      {
+         int mxo = mouse_x - *x1; // get offset from mouse position to window x, y
+         int myo = mouse_y - *y1;
+
+         while (mouse_b1)
+         {
+            *x1 = mouse_x - mxo;
+            *y1 = mouse_y - myo;
+
+            *x2 = *x1 + w;
+            *y2 = *y1 + h;
+
+
+
+            al_flip_display();
+            al_clear_to_color(al_map_rgb(0,0,0));
+            al_draw_rectangle(*x1-1, *y1-1, *x2+1, *y2+1, palette_color[13], 1);
+            proc_controllers();
+
+         }
+      }
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+int zoom_full_screen(int wx, int wy, int draw_item)
+{
+   int zfs_window_x1 = 400;
+   int zfs_window_w = 160;
+   int zfs_window_x2 = zfs_window_x1 + zfs_window_w;
+   int zfs_window_y1 = 40;
+   int zfs_window_h = 378;
+   int zfs_window_y2 = zfs_window_y1 + zfs_window_h;
+
+   bts = 16;
+
+   int exit =0;
+   copy_mode = 0;
+   brf_mode = 0;
+   while (mouse_b2) proc_controllers();
+   while (!exit)
+   {
+      al_set_target_backbuffer(display);
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+
+      proc_controllers();
+
+      al_rest(mouse_loop_pause);
+
+      draw_big(1);
+      show_big();
+
+
+
+
+      // erase background
+      al_draw_filled_rectangle(zfs_window_x1-1, zfs_window_y1-1, zfs_window_x2+1, zfs_window_y2+1, palette_color[0]);
+
+      // draw title
+      titlex("Zoom Full Screen", 15, 13, zfs_window_x1-1, zfs_window_x2+1, zfs_window_y1);
+
+      // draw filter buttons
+      zfs_draw_selection_filters(zfs_window_x1, zfs_window_y1+110, zfs_window_x2);
+
+      // draw action buttons
+      zfs_draw_buttons(zfs_window_x1, zfs_window_y1+220, zfs_window_x2);
+
+      // mark selection on map
+      al_draw_rectangle(stx*db, sty*db, (sux*db)-1, (suy*db)-1, palette_color[14], 1);
+      al_draw_text(font, palette_color[14], stx*db+2, sty*db-11,  0, "selection");
+
+      // get the mouse block index on the map
+      int x1 = mouse_x/db;
+      int y1 = mouse_y/db;
+
+      // show information about selection and pointer
+      pointer_text(x1, y1, zfs_window_x1, zfs_window_x2, zfs_window_y1+20);
+
+      // frame
+      al_draw_rectangle(zfs_window_x1-1, zfs_window_y1-1, zfs_window_x2+1, zfs_window_y2+1, palette_color[13], 1);
+
+      // procew zfs_window move by dragging title bar
+      zfs_proc_window_move(&zfs_window_x1, &zfs_window_y1, &zfs_window_x2, &zfs_window_y2, zfs_window_w, zfs_window_h);
+
+
+
+
+      if ((x1 < 100) && (y1 < 100)) // if mouse pointer on map
+      {
+//         // show return window outline
+//         if ((!copy_mode) && (!brf_mode))
+//         {
+//            // set ul corner from mouse pos
+//            rw_x1 = x1;
+//            rw_y1 = y1;
+//            // if lr pos is off screen, adjust ul pos
+//            if (rw_x1 > 100-rw_w) rw_x1 = 100-rw_w;
+//            if (rw_y1 > 100-rw_h) rw_y1 = 100-rw_h;
+//
+//            // calc lr position
+//            rw_x2 = rw_x1 + rw_w;
+//            rw_y2 = rw_y1 + rw_h;
+//
+//            al_draw_text(font, palette_color[15], rw_x1*db+2, rw_y1*db-10, 0, "exit window");
+//            al_draw_rectangle(rw_x1*db, rw_y1*db, rw_x2*db - 1, rw_y2*db - 1, palette_color[15], 1);
+//         }
+
+         if (copy_mode) // show copy outline window
+         {
+            int x2 = x1 + ft_level_header[8];
+            int y2 = y1 + ft_level_header[9];
+            if (x2 > 100) x2 = 100;
+            if (y2 > 100) y2 = 100;
+
+            al_set_clipping_rectangle(0, 0, display_transform_double*db*100-1, display_transform_double*db*100-1);
+            al_draw_bitmap(ft_bmp, x1*db, y1*db, 0);
+            al_draw_text(font, palette_color[42], x1*db+2, y1*db-11, 0, "paste selection");
+            //al_draw_textf(font, palette_color[42], x1*db+2, y1*db-19, 0, "%d %d %d %d", x1, y1, x2, y2);
+            al_draw_rectangle(x1*db, y1*db, x2*db-1, y2*db-1, palette_color[10], 1);
+            al_reset_clipping_rectangle();
+
+         }
+
+         if (mouse_b1)
+         {
+            if ((copy_mode) || (brf_mode)) while (mouse_b1) proc_controllers(); // wait for release
+            if (copy_mode) do_fcopy(x1, y1);
+            if (brf_mode) do_brf(x1, y1, draw_item_num);
+            if ((!copy_mode) && (!brf_mode)) // get new selection
+            {
+               // initial selection
+               stx = x1;
+               sty = y1;
+               sux = x1+1;
+               suy = y1+1;
+
+               while (mouse_b1)
+               {
+                  proc_controllers();
+                  sux = (mouse_x/db)+1;
+                  if (sux > 100) sux = 100;
+                  suy = (mouse_y/db)+1;
+                  if (suy > 100) suy = 100;
+
+                  show_big();
+                  // show selection rectangle
+                  al_draw_rectangle(stx*db, sty*db, (sux*db)-1, (suy*db)-1, palette_color[14], 1);
+                  al_draw_text(font, palette_color[14], stx*db+2, sty*db-11,  0, "selection");
+                  al_flip_display();
+                  al_rest(.02);
+               }
+               if (sux < stx) // swap if wrong order
+               {
+                  int temp = sux;
+                  sux = stx;
+                  stx = temp;
+               }
+               if (suy < sty)
+               {
+                  int temp = suy;
+                  suy = sty;
+                  sty = temp;
+               }
+               if (stx - sux == 0) sux++;  // don't allow zero size
+               if (sty - suy == 0) suy++;  // don't allow zero size
+            } // end of get new selection
+         }
+
+      } // end of if mouse pointer on map
+      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
+      {
+         proc_controllers();
+         exit = 1;
+      }
+   } // end of while (!exit)
+  // return (y1*100)+x1;
+  return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

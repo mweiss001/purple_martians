@@ -24395,6 +24395,17 @@ you can set the variable "saved_display_transform_double" in the config file or 
 
 
 
+20220506 6:20 AM
+started converting zfs to the same scaled background stuff..
+made all buttons and controls into a moveable window
+
+
+
+
+
+
+
+
 
 
 

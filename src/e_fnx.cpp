@@ -1213,6 +1213,12 @@ void title(const char *txt, int y, int tc, int fc)
    al_draw_text(font, palette_color[tc], txc, y+2, ALLEGRO_ALIGN_CENTER,  txt);
 }
 
+void titlex(const char *txt, int tc, int fc, int x1, int x2, int y)
+{
+   for (int x=0; x<15; x++)
+      al_draw_line(x1, y+x, x2, y+x, palette_color[fc+(x*16)], 1);
+   al_draw_text(font, palette_color[tc], (x1+x2)/2, y+2, ALLEGRO_ALIGN_CENTER,  txt);
+}
 
 
 

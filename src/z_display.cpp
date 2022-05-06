@@ -182,6 +182,8 @@ void set_display_transform()
    if (!saved_display_transform_double) auto_set_display_transform_double();
    else display_transform_double = saved_display_transform_double;
 
+   show_dtd = 80;
+
    al_set_target_backbuffer(display);
    SCREEN_W = disp_w_curr/display_transform_double;
    SCREEN_H = disp_h_curr/display_transform_double;
