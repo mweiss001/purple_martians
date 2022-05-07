@@ -988,11 +988,7 @@ int edit_menu(int el)
                int draw_item;
                if (draw_item_type == 1) draw_item = draw_item_num;
                else draw_item = 0;
-               c = zoom_full_screen(wx, wy, draw_item);
-               // for mouse and window pos
-               wy = (c / 100);
-               c = c - (wy * 100);
-               wx = c;
+               zoom_full_screen(draw_item);
                process_scrolledge(); // for wx and wy bounds check
                draw_big(1);
             }

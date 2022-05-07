@@ -220,32 +220,10 @@ int sw_mouse_gone = 0;
 // ------------------------------------------------
 // ---------------zoom full screen ----------------
 // ------------------------------------------------
-int stx=10;  // zfs selection window
+int stx=10;  // selection window
 int sty=10;
 int sux=40;
 int suy=30;
-
-int copy_blocks=1;
-int copy_enemies=1;
-int copy_items=1;
-int copy_lifts=1;
-int copy_flags=1;
-int copy_mode = 0;
-int brf_mode =0;
-
-int ft_level_header[20];
-int ft_l[100][100];
-int ft_item[500][16];
-char ft_pmsgtext[500][500] = {0};
-
-
-int ft_Ei[100][32];
-al_fixed ft_Efi[100][16];
-
-char ft_ln[NUM_LIFTS][80];
-int ft_lift[NUM_LIFTS][6];
-int ft_ls[NUM_LIFTS][40][6];
-
 
 
 // ------------------------------------------------
