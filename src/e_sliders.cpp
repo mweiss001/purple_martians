@@ -2231,44 +2231,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
       }
    }
 
-
-
-   if (bn == 600)
-   {
-      if (num) sprintf(smsg, "Blocks:ON ");
-      else     sprintf(smsg, "Blocks:OFF");
-      if (press) return 1;
-   }
-
-   if (bn == 601)
-   {
-      if (num) sprintf(smsg, "Enemies:ON ");
-      else     sprintf(smsg, "Enemies:OFF");
-      if (press) return 1;
-   }
-   if (bn == 602)
-   {
-      if (num) sprintf(smsg, "Items:ON ");
-      else     sprintf(smsg, "Items:OFF");
-      if (press) return 1;
-   }
-   if (bn == 603)
-   {
-      if (num) sprintf(smsg, "Lifts:ON ");
-      else     sprintf(smsg, "Lifts:OFF");
-      if (press) return 1;
-   }
-
-   if (bn == 604)
-   {
-      if (num) sprintf(smsg, "Flags:ON ");
-      else     sprintf(smsg, "Flags:OFF");
-      if (press) return 1;
-   }
-
-
-
-
    if (bn == 620)
    {
       sprintf(smsg, "Move Selection");
@@ -2296,11 +2258,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Load From Disk");
       if (press) return 1;
    }
-
-
-
-
-
 
    if (bn == 610)
    {
@@ -2457,6 +2414,7 @@ int mdw_toggle(int x1, int y1, int x2, int y2,
           q1 = frame_col1;
           q2 = text_col1;
           sprintf(smsg, "%s", t1);
+          retval = 1;
 
       }
       else
@@ -2464,6 +2422,7 @@ int mdw_toggle(int x1, int y1, int x2, int y2,
          q1 = frame_col0;
          q2 = text_col0;
          sprintf(smsg, "%s", t0);
+         retval = 0;
       }
    }
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame

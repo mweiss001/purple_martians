@@ -24400,6 +24400,289 @@ started converting zfs to the same scaled background stuff..
 made all buttons and controls into a moveable window
 
 
+20220507 5:00 AM
+making good progress on zfs...
+
+make the paste selection bitmap work....
+
+
+how about taking it directly from level background?
+
+should I aleady have level background hide items, enemies, etc if not selected??
+
+I made it work with only one line:
+al_draw_bitmap_region(level_buffer, stx*20, sty*20, sw*20, sh*20, gx*20, gy*20, 0);
+
+now I want to filter it to only show what actually will be pasted...
+
+I think I will need ft_bmp for that...
+I want the level background to show everything
+so that means my copying a region of it and excluding things will not work as is..
+
+
+made it work...
+
+
+void draw_fsel(void)
+{
+   if (copy_blocks)
+   {
+      init_level_background();
+      get_new_background(0);
+   }
+   else
+   {
+      al_set_target_bitmap(level_buffer);
+      al_clear_to_color(al_map_rgb(0,0,0));
+   }
+
+
+   if (copy_items) draw_items();
+   if (copy_enemies) draw_enemies();
+   if (copy_lifts) draw_lifts();
+
+
+   int sw = sux-stx;
+   int sh = suy-sty;
+   al_destroy_bitmap(ft_bmp);
+   ft_bmp = al_create_bitmap(sw*20, sh*20);
+   al_set_target_bitmap(ft_bmp);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap_region(level_buffer, stx*20, sty*20, sw*20, sh*20, 0, 0, 0);
+}
+
+void zfs_redraw_background(int gx, int gy)
+{
+   al_flip_display();
+   proc_scale_factor_change();
+   proc_controllers();
+   proc_frame_delay();
+   get_new_background(0);
+   draw_lifts();
+   draw_items();
+   draw_enemies();
+
+   zfs_show_level_buffer_block_rect(stx, sty, sux, suy, 14, "selection");
+
+   if (copy_mode)
+   {
+      int sw = sux-stx;
+      int sh = suy-sty;
+      al_draw_bitmap(ft_bmp, gx*20, gy*20, 0);
+      zfs_show_level_buffer_block_rect(gx, gy, gx+sw, gy+sh, 10, "paste");
+   }
+   get_new_screen_buffer(3, 0, 0);
+}
+
+
+I would really like the selection to show as transparent when block are not being copied....
+
+in order to make that work...
+I need to create level_buffer like this:
+
+   // create level_background and level_buffer bitmaps
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
+// al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA);
+   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+   level_background = al_create_bitmap(2000,2000);
+   level_buffer = al_create_bitmap(2000,2000);
+//   printf("level_background\n");
+//   show_pixel_format(al_get_bitmap_format(level_background));
+//   show_bitmap_flags(al_get_bitmap_flags(level_background));
+
+   // reset defaults to use for new bitmaps
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
+   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+
+then when I use it to create ft_bmp I need to clear it like this:
+//al_clear_to_color(al_map_rgb(0,0,0));
+al_clear_to_color(al_map_rgba(0,0,0,0));
+
+then when I create ft_bmp I need to:
+al_clear_to_color(al_map_rgba(0,0,0,0));
+
+were all of these changes worth it?
+
+pro's
+- now all bitmaps are created with the same format
+
+con's
+- might use a little more memory
+
+do it for now, but leave options to revert....
+
+what is left?
+- implement scroll...done
+
+
+I think everything is working...
+
+do some code cleanup and test....
+
+// e_editor_zfs.h
+void zfs_pointer_text(int x, int y, int ty);
+void zfs_do_brf(int x, int y, int flood_block);
+void zfs_clear_ft(void);
+int zfs_load_selection(void);
+void zfs_save_selection(int save);
+int enforce_limit(int val, int ll, int ul);
+int check_limit(int val, int ll, int ul);
+void zfs_do_fcopy(int qx1, int qy1);
+void zfs_do_clear(void);
+void zfs_draw_selection_filters(int x1, int y1, int x2);
+void zfs_draw_buttons(int x3, int x4, int yfb);
+void zfs_proc_window_move(int *x1, int *y1, int *x2, int *y2, int w, int h);
+void zfs_draw_fsel(void);
+void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
+void zfs_redraw_background(int gx, int gy);
+int zfs_redraw_window(int zfs_window_x1, int zfs_window_y1, int zfs_window_x2, int zfs_window_y2, int gx, int gy);
+int zoom_full_screen(int wx, int wy, int draw_item);
+
+
+does anything in zfs use ty, bts..no mention at all....
+
+what globals does it use?
+
+extern int stx;
+extern int sty;
+extern int sux;
+extern int suy;
+
+extern int copy_blocks;
+extern int copy_enemies;
+extern int copy_items;
+extern int copy_lifts;
+extern int copy_flags;
+extern int copy_mode;
+extern int brf_mode;
+
+extern int ft_level_header[20];
+extern int ft_l[100][100];
+extern int ft_item[500][16];
+extern char ft_pmsgtext[500][500];
+
+extern int ft_Ei[100][32];
+extern al_fixed ft_Efi[100][16];
+
+extern char ft_ln[NUM_LIFTS][80];
+extern int ft_lift[NUM_LIFTS][6];
+extern int ft_ls[NUM_LIFTS][40][6];
+
+
+what would happen if I put some in the file zfs?
+I moved all these to the start of e_editor_zfs and it compiles clean....
+
+int copy_blocks=1;
+int copy_enemies=1;
+int copy_items=1;
+int copy_lifts=1;
+int copy_flags=1;
+int copy_mode = 0;
+int brf_mode =0;
+
+int ft_level_header[20];
+int ft_l[100][100];
+int ft_item[500][16];
+char ft_pmsgtext[500][500] = {0};
+
+
+int ft_Ei[100][32];
+al_fixed ft_Efi[100][16];
+
+char ft_ln[NUM_LIFTS][80];
+int ft_lift[NUM_LIFTS][6];
+int ft_ls[NUM_LIFTS][40][6];
+
+
+all that is left is these:
+extern int stx;
+extern int sty;
+extern int sux;
+extern int suy;
+
+they are shared with group_edit...
+
+do they need to be?  no....
+but its nice that the selection is persitant between those two functions so I'm going to leave it
+
+in block floodfill mode, show selected block...done
+
+
+I am done with zfs..
+
+
+move on to the hugest one of all...editor_main....
+
+20220507 8:20 AM..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

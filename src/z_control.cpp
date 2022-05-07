@@ -949,12 +949,10 @@ void serial_key_check(int key)
       {
          if (memcmp((skc + skc_index-tl), tst, tl) == 0)
          {
-             show_non_default_blocks =! show_non_default_blocks;
-             Redraw = 1;
+            show_non_default_blocks =! show_non_default_blocks;
+            Redraw = 1;
          }
       }
-
-
 
       sprintf(tst, "sbf");
       tl = strlen(tst);
@@ -962,12 +960,11 @@ void serial_key_check(int key)
       {
          if (memcmp((skc + skc_index-tl), tst, tl) == 0)
          {
-             show_flag_details =! show_flag_details;
-             Redraw = 1;
+            show_flag_details =! show_flag_details;
+            Redraw = 1;
          }
 
       }
-
 
       sprintf(tst, "alb");
       tl = strlen(tst);
@@ -978,17 +975,10 @@ void serial_key_check(int key)
              autoload_bookmark =! autoload_bookmark;
              if (autoload_bookmark) printf("autoload bookmark on\n");
              else                   printf("autoload bookmark off\n");
-
-
              Redraw = 1;
              save_config();
          }
-
       }
-
-
-
-
    }
 }
 

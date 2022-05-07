@@ -62,9 +62,9 @@ void create_bmp(void)
 //   show_bitmap_flags(al_get_bitmap_flags(M_tilemap));
 
 
-
    // create level_background and level_buffer bitmaps
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA);
+   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
+// al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA);
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
    level_background = al_create_bitmap(2000,2000);
    level_buffer = al_create_bitmap(2000,2000);

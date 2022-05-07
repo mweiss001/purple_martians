@@ -395,29 +395,6 @@ extern int sty;
 extern int sux;
 extern int suy;
 
-extern int copy_blocks;
-extern int copy_enemies;
-extern int copy_items;
-extern int copy_lifts;
-extern int copy_flags;
-extern int copy_mode;
-extern int brf_mode;
-
-
-
-extern int ft_level_header[20];
-extern int ft_l[100][100];
-extern int ft_item[500][16];
-extern char ft_pmsgtext[500][500];
-
-extern int ft_Ei[100][32];
-extern al_fixed ft_Efi[100][16];
-
-extern char ft_ln[NUM_LIFTS][80];
-extern int ft_lift[NUM_LIFTS][6];
-extern int ft_ls[NUM_LIFTS][40][6];
-
-
 // ------------------------------------------------
 // ----------------- demo mode --------------------
 // ------------------------------------------------
@@ -1002,18 +979,31 @@ void draw_item_info(int x, int y, int color, int type, int num);
 int edit_menu(int el);
 
 
+
 // e_editor_zfs.h
-void clear_ft(void);
-int load_selection(void);
-void save_selection(int save);
+void zfs_pointer_text(int x, int y, int ty);
+void zfs_do_brf(int x, int y, int flood_block);
+void zfs_clear_ft(void);
+int zfs_load_selection(void);
+void zfs_save_selection(int save);
 int enforce_limit(int val, int ll, int ul);
 int check_limit(int val, int ll, int ul);
-void do_fcopy(int qx1, int qy1);
-void do_clear(void);
-void draw_fsel(void);
-void pointer_text(int x, int y, int ty);
-void do_brf(int x, int y, int flood_block);
-int zoom_full_screen(int wx, int wy, int draw_item);
+void zfs_do_fcopy(int qx1, int qy1);
+void zfs_do_clear(void);
+void zfs_draw_selection_filters(int x1, int y1, int x2);
+void zfs_draw_buttons(int x3, int x4, int yfb);
+void zfs_proc_window_move(int *x1, int *y1, int *x2, int *y2, int w, int h);
+void zfs_draw_fsel(void);
+void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
+void zfs_redraw_background(int gx, int gy);
+int zfs_redraw_window(int zfs_window_x1, int zfs_window_y1, int zfs_window_x2, int zfs_window_y2, int gx, int gy);
+void zoom_full_screen(int draw_item);
+
+
+
+
+
+
 
 // e_group_edit.cpp
 void group_edit(void);
