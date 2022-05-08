@@ -1,7 +1,13 @@
-// e_nev.cpp
+// e_enemy.cpp
 
 #include "pm.h"
 
+
+void erase_enemy(int e)
+{
+   for (int a=0; a<32; a++) Ei[e][a] = 0;
+   for (int a=0; a<16; a++) Efi[e][a] = al_itofix(0);
+}
 
 int get_empty_enemy(void)
 {
@@ -40,24 +46,18 @@ int get_empty_enemy(int type)
    }
 }
 
-int move_trigger_box(int num, int type)
+void recalc_pod(int e)
 {
-   if (get_block_range("Trigger Box", &Ei[num][11], &Ei[num][12], &Ei[num][13], &Ei[num][14], 2)) return 1;
-   else return 0;
-}
-
-void recalc_pod(int EN)
-{
-   al_fixed xlen = Efi[EN][5] - Efi[EN][0];      // get the x distance
-   al_fixed ylen = Efi[EN][6] - Efi[EN][1];      // get the y distance
+   al_fixed xlen = Efi[e][5] - Efi[e][0];      // get the x distance
+   al_fixed ylen = Efi[e][6] - Efi[e][1];      // get the y distance
    al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-   al_fixed speed = Efi[EN][9];                  // speed
+   al_fixed speed = Efi[e][9];                  // speed
    al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
    al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
    al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
-   Efi[EN][2] = xinc;
-   Efi[EN][3] = yinc;
-   Efi[EN][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
+   Efi[e][2] = xinc;
+   Efi[e][3] = yinc;
+   Efi[e][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
 
    // set number of steps
    al_fixed ns;
@@ -65,20 +65,7 @@ void recalc_pod(int EN)
    else  ns = al_fixdiv(ylen, yinc);
    int num_steps = al_fixtoi(ns);
    if ((num_steps > 0) && (num_steps < 2000))
-      Ei[EN][7] = num_steps;
-
-
-}
-
-int move_pod_extended(int num)
-{
-   if (getxy("Pod Extended Position", 99, 7, num) == 1)
-   {
-      Redraw = 1;
-      return 1;
-   }
-   else
- return 0;
+      Ei[e][7] = num_steps;
 }
 
 
@@ -107,7 +94,7 @@ void show_all_enemies(void)
    text_pos = enemy_data(10, text_pos);
    for (int e=0; e<num_enemy; e++)
    {
-      draw_enemy_shape(e, 0, text_pos);
+      draw_enemy(e, 1, 0, text_pos);
       al_draw_textf(font, palette_color[14], 20, text_pos+6, 0, "[%2d]",e);
       strcpy(msg,"");
       for (int j=0; j<32; j++)
@@ -214,18 +201,11 @@ int create_cloner(void)
       Ei[e][25] = 25;  // health bonus
       Ei[e][29] = 10;  // default collision box
 
-      draw_big(1);
-      show_big();
-
       if (get_block_range("Cloner Source Area", &Ei[e][15], &Ei[e][16], &Ei[e][19], &Ei[e][20], 3))
       {
-         draw_big(1);
-
          if (getxy("Cloner Destination Area", 98, 9, e ) == 1)
          {
-            if (!move_trigger_box(e, 9)) aborted_create = 1;
-            draw_big(1);
-            show_big();
+            if (!get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
          }
          else aborted_create = 1;
       }  // end of get source area
@@ -261,18 +241,9 @@ int create_field(void)
       Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_PLAYER; // set flag
       Ei[e][3] |= PM_ENEMY_FIELD_DAMAGE_CURR;    // set flag
 
-      draw_big(1);
-      show_big();
       if (get_block_range("Damage Field Location", &Ei[e][15], &Ei[e][16], &Ei[e][17], &Ei[e][18], 1))
       {
-         draw_big(1);
-         show_big();
-         if (get_block_range("Trigger Field Location", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 1))
-         {
-            draw_big(1);
-            show_big();
-         } // end of set trigger field
-         else aborted_create = 1;
+         if (!get_block_range("Trigger Field Location", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 1)) aborted_create = 1;
       }  // end of set damage field
       else aborted_create = 1;;
    }  // end of set field location
@@ -308,13 +279,8 @@ int create_pod(void)
 
       Ei[e][25] = 12;     // health bonus
       Ei[e][29] = 10;  // default collision box
-
-      draw_big(1);
-      show_big();
-
-      if (!move_pod_extended(e)) aborted_create = 1;
-
-      if (!move_trigger_box(e, 7)) aborted_create = 1;
+      if (!getxy("Pod Extended Position", 99, 7, e)) aborted_create = 1;
+      if (!get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
    }
 
    if (aborted_create)

@@ -17,21 +17,6 @@ int enemy_data(int x_pos, int y_pos)
    return y_pos;
 }
 
-void get_enemy_draw_shape(int e)
-{
-   int flags = 0;
-   if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
-   if (Ei[e][2] == 1) flags = 0;
-   if (Ei[e][2] == 2) flags = ALLEGRO_FLIP_VERTICAL;
-   if (Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL | ALLEGRO_FLIP_HORIZONTAL;
-
-   al_set_target_bitmap(dtemp);
-   al_clear_to_color(palette_color[0]);
-   float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
-   al_draw_rotated_bitmap(tile[Ei[e][1]], 10, 10, 10, 10, rot, flags);
-//   if (Ei[e][0] == 8) // show trakbot mode
-//      al_draw_textf(font, palette_color[10], 10, 6, ALLEGRO_ALIGN_CENTER, "%d" ,Ei[e][5] );
-}
 
 void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color)
 {
@@ -48,6 +33,203 @@ void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int s
 }
 
 
+void draw_enemy(int e, int custom, int cx, int cy)
+{
+   int type = Ei[e][0];
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
+   if (custom)
+   {
+      EXint = cx;
+      EYint = cy;
+   }
+   if (type == 10) draw_enemy_field(e, EXint, EYint); // field - do not draw anything here for field, let draw_enemy_field() do it all
+   else
+   {
+       int flags = 0;
+       if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+       if (Ei[e][2] == 1) flags = 0;
+       if (Ei[e][2] == 2) flags = ALLEGRO_FLIP_VERTICAL;
+       if (Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+       int tn = Ei[e][1];
+
+       float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
+       float sc = al_fixtof(Efi[e][12]);
+       al_draw_scaled_rotated_bitmap(tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
+
+       // if enemy is expiring show how many seconds it has left
+       if ((!level_editor_running) && (Ei[e][27])) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+   }
+
+   if (type == 9) // cloner
+   {
+      // trigger box
+      float tx1 = (float)Ei[e][11]*20;
+      float ty1 = (float)Ei[e][12]*20;
+      float tx2 = (float)Ei[e][13]*20+20;
+      float ty2 = (float)Ei[e][14]*20+20;
+      int tc1 = 14 + 128; // trigger box color
+
+      // source
+      float sx1 = (float)Ei[e][15]*20;
+      float sy1 = (float)Ei[e][16]*20;
+      float sx2 = sx1 + (float)Ei[e][19]*20;
+      float sy2 = sy1 + (float)Ei[e][20]*20;
+      int sc1 = 11 + 128; // source box color
+
+      // destination
+      float dx1 = (float)Ei[e][17]*20;
+      float dy1 = (float)Ei[e][18]*20;
+      float dx2 = dx1 + (float)Ei[e][19]*20;
+      float dy2 = dy1 + (float)Ei[e][20]*20;
+      int dc1 = 10 + 128; // destination box color
+
+      int m = Ei[e][5]; // 2 - 9  total seq (8)
+
+      if ((m > 1) && (m < 6)) // first half (2 - 5) // flash source box green
+      {
+         int co = 0, d = m-2; // 0 to 3
+         if (d == 0) co = 64;
+         if (d == 1) co = 0;
+         if (d == 2) co = 0;
+         if (d == 3) co = 64;
+         sc1 = 11 + co; // source box color
+      }
+      if ((m > 5) && (m < 10)) // second half (6 - 9) // flash destination box red
+      {
+         int co = 0, d =  m-6; // 0 to 3
+         if (d == 0) co = 64;
+         if (d == 1) co = 0;
+         if (d == 2) co = 0;
+         if (d == 3) co = 64;
+         dc1 = 10 + co; // destination box color
+      }
+      if (Ei[e][5] != 0) // in trigger box
+      {
+         tc1 = 14 + 32; // trigger box color brighter
+
+         // show vertical red green bar animation sequence
+        // int b = (Ei[e][7] * 10) / (Ei[e][6]+1);
+        // int t = zz[5+b][53];
+        // al_draw_scaled_rotated_bitmap(tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, ALLEGRO_FLIP_VERTICAL);
+      }
+
+      // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
+      int q = Ei[e][4];
+      if ((q == 1) || (q == 3))
+         rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
+      if ((q == 2) || (q == 3))
+      {
+         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // source
+         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64); // destination
+      }
+   }
+
+
+   #ifdef SHOW_POD_CLONER_TRIGGER_BOX
+   if ((Ei[e][0] == 7) || (Ei[e][0] == 9))// show podzilla or cloner trigger box
+   {
+      int x1 = Ei[e][11] * 20;
+      int y1 = Ei[e][12] * 20;
+      int x2 = Ei[e][13] * 20 + 20;
+      int y2 = Ei[e][14] * 20 + 20;
+      al_draw_rectangle(x1, y1, x2, y2, palette_color[14], 1);
+   }
+   #endif
+
+   #ifdef SHOW_CANNON_COLLISION_BOX
+   if (Ei[e][0] == 6) // cannon
+   {
+      // draw some test rects here
+      int cbs = Ei[e][29]; // collision box size
+
+      // enemy position (add 10 to get the center)
+      int x1 = al_fixtoi(Efi[e][0]) + 10;
+      int y1 = al_fixtoi(Efi[e][1]) + 10;
+
+      int il = cbs;
+      int color = 11;
+      //  printf("x1:%d  y1:%d il:%d  color:%d\n",x1, y1, il, color);
+
+      // check for collision with player
+      al_fixed b = al_itofix(Ei[e][29]); // collision box size
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((players[p].active) && (!players[p].paused))
+         {
+            al_fixed px = players[p].PX;
+            al_fixed py = players[p].PY;
+
+            al_fixed ex1 = Efi[e][0] - b;
+            al_fixed ex2 = Efi[e][0] + b;
+            al_fixed ey1 = Efi[e][1] - b;
+            al_fixed ey2 = Efi[e][1] + b;
+
+            // if player in collision box color = red
+            if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) color = 10;
+      }
+      al_draw_rectangle(x1-il, y1-il, x1+il, y1+il, palette_color[color], 1);
+   }
+   #endif
+
+
+
+   #ifdef SHOW_FLAPPER_DEBUG
+   if (Ei[e][0] == 12) // flapper
+   {
+
+     // draw flap height
+      int base =  Ei[e][14]+10;
+      int y1 = base - Ei[e][21];
+      int y2 = base + Ei[e][21];
+
+      al_draw_line(EXint-140, base, EXint+140, base, palette_color[11], 1);
+      al_draw_rectangle(EXint-40, y1, EXint+40, y2, palette_color[11], 1);
+
+      // draw height above player
+      int hab =  Ei[e][20];
+      al_draw_line(EXint-40, base+hab, EXint+40, base+hab, palette_color[12], 1);
+
+//            // draw trigger box
+//            int width =  Ei[e][17];
+//            int height = Ei[e][18];
+//            int depth =  Ei[e][19];
+//            al_draw_rectangle(EXint-width+10, EYint-height, EXint+width+10, EYint+depth, palette_color[14], 1);
+
+   }
+   #endif
+
+
+   #ifdef SHOW_TRAKBOT_BULLET_TRIGGER_CIRCLE
+   if (Ei[e][0] == 8) // trakbot
+   {
+      int prox = Ei[e][17];
+      int color = 14; // default circle color
+
+      // is any player in range?
+      int mode = Ei[e][5];
+      int quad;
+      switch (mode)
+      {
+         case 0: case 5: quad = 1; break; // floor right, lwall up
+         case 1: case 4: quad = 2; break; // rwall up floor left
+         case 2: case 7: quad = 3; break; // ceil left, rwall down
+         case 3: case 6: quad = 4; break; // lwall down, ceil right
+      }
+      int p = find_closest_player_quad(e, quad, prox);
+      if (p != -1)
+      {
+         color = 10; // change circle color to red
+         // mark player with blue crosshairs
+         int px = al_fixtoi(players[p].PX)+10;
+         int py = al_fixtoi(players[p].PY)+10;
+         al_draw_line(px-20, py, px+20, py, palette_color[13], 1);
+         al_draw_line(px, py-20, px, py+20, palette_color[13], 1);
+      }
+      al_draw_circle(EXint+10, EYint+10, prox, palette_color[color], 1);
+   }
+   #endif
+
+}
 
 
 
@@ -56,197 +238,7 @@ void draw_enemies(void)
    al_set_target_bitmap(level_buffer);
    for (int e=0; e<100; e++)
       if (Ei[e][0])  // if enemy active
-      {
-         if (Ei[e][0] == 10) draw_enemy_field(e); // field - do not draw anything here for field, let draw_enemy_field() do it all
-         else
-         {
-             int EXint = al_fixtoi(Efi[e][0]);
-             int EYint = al_fixtoi(Efi[e][1]);
-             int flags = 0;
-             if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
-             if (Ei[e][2] == 1) flags = 0;
-             if (Ei[e][2] == 2) flags = ALLEGRO_FLIP_VERTICAL;
-             if (Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-             int tn = Ei[e][1];
-
-             float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
-             float sc = al_fixtof(Efi[e][12]);
-             al_draw_scaled_rotated_bitmap(tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
-
-             // if enemy is expiring show how many seconds it has left
-             if (Ei[e][27]) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
-         }
-
-
-
-         #ifdef SHOW_POD_CLONER_TRIGGER_BOX
-         if ((Ei[e][0] == 7) || (Ei[e][0] == 9))// show podzilla or cloner trigger box
-         {
-            int x1 = Ei[e][11] * 20;
-            int y1 = Ei[e][12] * 20;
-            int x2 = Ei[e][13] * 20 + 20;
-            int y2 = Ei[e][14] * 20 + 20;
-            al_draw_rectangle(x1, y1, x2, y2, palette_color[14], 1);
-         }
-         #endif
-
-         #ifdef SHOW_CANNON_COLLISION_BOX
-         if (Ei[e][0] == 6) // cannon
-         {
-            // draw some test rects here
-            int cbs = Ei[e][29]; // collision box size
-
-            // enemy position (add 10 to get the center)
-            int x1 = al_fixtoi(Efi[e][0]) + 10;
-            int y1 = al_fixtoi(Efi[e][1]) + 10;
-
-            int il = cbs;
-            int color = 11;
-            //  printf("x1:%d  y1:%d il:%d  color:%d\n",x1, y1, il, color);
-
-            // check for collision with player
-            al_fixed b = al_itofix(Ei[e][29]); // collision box size
-            for (int p=0; p<NUM_PLAYERS; p++)
-               if ((players[p].active) && (!players[p].paused))
-               {
-                  al_fixed px = players[p].PX;
-                  al_fixed py = players[p].PY;
-
-                  al_fixed ex1 = Efi[e][0] - b;
-                  al_fixed ex2 = Efi[e][0] + b;
-                  al_fixed ey1 = Efi[e][1] - b;
-                  al_fixed ey2 = Efi[e][1] + b;
-
-                  // if player in collision box color = red
-                  if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) color = 10;
-            }
-            al_draw_rectangle(x1-il, y1-il, x1+il, y1+il, palette_color[color], 1);
-         }
-         #endif
-
-
-         if (Ei[e][0] == 9) // cloner
-         {
-            // trigger box
-            float tx1 = (float)Ei[e][11]*20;
-            float ty1 = (float)Ei[e][12]*20;
-            float tx2 = (float)Ei[e][13]*20+20;
-            float ty2 = (float)Ei[e][14]*20+20;
-            int tc1 = 14 + 128; // trigger box color
-
-            // source
-            float sx1 = (float)Ei[e][15]*20;
-            float sy1 = (float)Ei[e][16]*20;
-            float sx2 = sx1 + (float)Ei[e][19]*20;
-            float sy2 = sy1 + (float)Ei[e][20]*20;
-            int sc1 = 11 + 128; // source box color
-
-            // destination
-            float dx1 = (float)Ei[e][17]*20;
-            float dy1 = (float)Ei[e][18]*20;
-            float dx2 = dx1 + (float)Ei[e][19]*20;
-            float dy2 = dy1 + (float)Ei[e][20]*20;
-            int dc1 = 10 + 128; // destination box color
-
-            int m = Ei[e][5]; // 2 - 9  total seq (8)
-
-            if ((m > 1) && (m < 6)) // first half (2 - 5) // flash source box green
-            {
-               int co = 0, d = m-2; // 0 to 3
-               if (d == 0) co = 64;
-               if (d == 1) co = 0;
-               if (d == 2) co = 0;
-               if (d == 3) co = 64;
-               sc1 = 11 + co; // source box color
-            }
-            if ((m > 5) && (m < 10)) // second half (6 - 9) // flash destination box red
-            {
-               int co = 0, d =  m-6; // 0 to 3
-               if (d == 0) co = 64;
-               if (d == 1) co = 0;
-               if (d == 2) co = 0;
-               if (d == 3) co = 64;
-               dc1 = 10 + co; // destination box color
-            }
-            if (Ei[e][5] != 0) // in trigger box
-            {
-               tc1 = 14 + 32; // trigger box color brighter
-
-               // show vertical red green bar animation sequence
-              // int b = (Ei[e][7] * 10) / (Ei[e][6]+1);
-              // int t = zz[5+b][53];
-              // al_draw_scaled_rotated_bitmap(tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, ALLEGRO_FLIP_VERTICAL);
-            }
-
-            // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
-            int q = Ei[e][4];
-            if ((q == 1) || (q == 3))
-               rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
-            if ((q == 2) || (q == 3))
-            {
-               rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // source
-               rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64); // destination
-            }
-         }
-
-
-         #ifdef SHOW_FLAPPER_DEBUG
-         if (Ei[e][0] == 12) // flapper
-         {
-
-           // draw flap height
-            int base =  Ei[e][14]+10;
-            int y1 = base - Ei[e][21];
-            int y2 = base + Ei[e][21];
-
-            al_draw_line(EXint-140, base, EXint+140, base, palette_color[11], 1);
-            al_draw_rectangle(EXint-40, y1, EXint+40, y2, palette_color[11], 1);
-
-            // draw height above player
-            int hab =  Ei[e][20];
-            al_draw_line(EXint-40, base+hab, EXint+40, base+hab, palette_color[12], 1);
-
-//            // draw trigger box
-//            int width =  Ei[e][17];
-//            int height = Ei[e][18];
-//            int depth =  Ei[e][19];
-//            al_draw_rectangle(EXint-width+10, EYint-height, EXint+width+10, EYint+depth, palette_color[14], 1);
-
-         }
-         #endif
-
-
-         #ifdef SHOW_TRAKBOT_BULLET_TRIGGER_CIRCLE
-         if (Ei[e][0] == 8) // trakbot
-         {
-            int prox = Ei[e][17];
-            int color = 14; // default circle color
-
-            // is any player in range?
-            int mode = Ei[e][5];
-            int quad;
-            switch (mode)
-            {
-               case 0: case 5: quad = 1; break; // floor right, lwall up
-               case 1: case 4: quad = 2; break; // rwall up floor left
-               case 2: case 7: quad = 3; break; // ceil left, rwall down
-               case 3: case 6: quad = 4; break; // lwall down, ceil right
-            }
-            int p = find_closest_player_quad(e, quad, prox);
-            if (p != -1)
-            {
-               color = 10; // change circle color to red
-               // mark player with blue crosshairs
-               int px = al_fixtoi(players[p].PX)+10;
-               int py = al_fixtoi(players[p].PY)+10;
-               al_draw_line(px-20, py, px+20, py, palette_color[13], 1);
-               al_draw_line(px, py-20, px, py+20, palette_color[13], 1);
-            }
-            al_draw_circle(EXint+10, EYint+10, prox, palette_color[color], 1);
-         }
-         #endif
-
-      } // end of if enemy active
+         draw_enemy(e, 0, 0, 0);
 }
 
 void proc_enemy_collision_with_pbullet(int e)
@@ -317,16 +309,16 @@ void move_enemies()
          }
          switch (Ei[e][0])
          {
-            case 3:   enemy_archwagon(e);  break;
-            case 4:   enemy_bouncer(e);  break;
-            case 6:   enemy_cannon(e);  break;
-            case 7:   enemy_podzilla(e);  break;
-            case 8:   enemy_trakbot(e);  break;
-            case 9:   enemy_cloner(e);  break;
-            case 10:  enemy_field(e);  break;
-            case 11:  enemy_block_walker(e);  break;
-            case 12:  enemy_flapper(e);  break;
-            case 99:  enemy_deathcount(e); break;
+            case 3:  enemy_archwagon(e);  break;
+            case 4:  enemy_bouncer(e);  break;
+            case 6:  enemy_cannon(e);  break;
+            case 7:  enemy_podzilla(e);  break;
+            case 8:  enemy_trakbot(e);  break;
+            case 9:  enemy_cloner(e);  break;
+            case 10: enemy_field(e);  break;
+            case 11: enemy_block_walker(e);  break;
+            case 12: enemy_flapper(e);  break;
+            case 99: enemy_deathcount(e); break;
          }
       }
 }
@@ -1004,17 +996,13 @@ void set_field_location_from_lift(int e, int dt, int a20)
    }
 }
 
-void draw_enemy_field(int e)
+void draw_enemy_field(int e, int ex, int ey)
 {
    int mode = Ei[e][5];
    int draw_mode = Ei[e][2];
 
    int FLAGS = Ei[e][3];
    int col = 15;
-
-   // field enemy position
-   int ex = al_fixtoi(Efi[e][0]);
-   int ey = al_fixtoi(Efi[e][1]);
 
    if (level_editor_running) al_draw_bitmap(tile[476], ex, ey, 0);
 
@@ -1406,13 +1394,13 @@ void enemy_block_walker(int e)
    enemy_player_hit_proc(e);
    if (Ei[e][31]) // hit
    {
-      int tx = EXint/20;
-      int ty = EYint/20;
+      int ex = EXint/20;
+      int ey = EYint/20;
 
-      l[tx][ty] = 168 | PM_BTILE_ALL_SOLID;
+      l[ex][ey] = 168 | PM_BTILE_ALL_SOLID;
       al_set_target_bitmap(level_background);
-      al_draw_filled_rectangle(tx*20, ty*20, tx*20+20, ty*20+20, palette_color[0]);
-      al_draw_bitmap(tile[168], tx*20, ty*20, 0);
+      al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, palette_color[0]);
+      al_draw_bitmap(tile[168], ex*20, ey*20, 0);
 
       game_event(60, 0, 0, e, Ei[e][26], 0, 0);
       Ei[e][0] = 0;

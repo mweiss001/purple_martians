@@ -311,81 +311,81 @@ void draw_top_display(void)
       if (show_debug_overlay) // show a bunch of data for troubleshooting
       {
          int tx = BORDER_WIDTH;
-         int ty = 80;
+         int ty1 = 80;
 
          if (players1[p].stdf_rx > 0)
          {
             sprintf(msg, "stdf rx'd:%d on_time:%d late:%d [%d]",
                           players1[p].stdf_rx, players1[p].stdf_on_time,
                           players1[p].stdf_late, (players1[p].stdf_on_time * 100) / players1[p].stdf_rx);
-            al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-            al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+            al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+            al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
          }
 
          sprintf(msg, "dif corrections:%d ", players1[p].dif_corr);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "late cdats dropped by server:%d", players1[p].serr_c_sync_err);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "game moves lead from server:%d min:%d err:%d", players1[p].client_game_move_sync, players1[p].client_game_move_sync_min, players1[p].client_game_move_sync_err);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "server sync:%d ", players1[p].client_sync);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "moves:%d", game_move_entry_pos);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "moves skipped:%d", players1[p].moves_skipped);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "moves skipped per second :%d", players1[p].moves_skipped_last_tally);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "sdat skipped:%d", players1[p].client_sdat_packets_skipped);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "frames_skipped:%d", players1[p].frames_skipped);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
 
-         ty +=8;
+         ty1 +=8;
 
          sprintf(msg, "bandwidth (bytes per second)");
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "TX currrent:[%d] max:[%d]", players1[p].tx_bytes_per_tally, players1[p].tx_max_bytes_per_tally);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "RX currrent:[%d] max:[%d]", players1[p].rx_bytes_per_tally, players1[p].rx_max_bytes_per_tally);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
-         ty +=8;
+         ty1 +=8;
 
          sprintf(msg, "packets per second");
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "TX currrent:[%d] max:[%d]", players1[p].tx_packets_per_tally, players1[p].tx_max_packets_per_tally);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
          sprintf(msg, "RX currrent:[%d] max:[%d]", players1[p].rx_packets_per_tally, players1[p].rx_max_packets_per_tally);
-         al_draw_filled_rectangle(tx, ty+8, tx+strlen(msg)*8, ty+16, palette_color[0]);
-         al_draw_text(font, palette_color[15], tx, ty+=8, 0, msg);
+         al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
 
          int x = BORDER_WIDTH;

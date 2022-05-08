@@ -3,9 +3,20 @@
 #include "pm.h"
 
 
+/*
 
+int test = 0;
+printBits(4, &test);
+printf("b4:[%s]\n",msg);
 
+test |= PM_LIFT_NO_DRAW;
+printBits(4, &test);
+printf("af:'%s'\n",msg);
 
+b4:[00000000 00000000 00000000 00000000 ]
+af:'00001000 00000000 00000000 00000000 '
+
+*/
 
 
 
@@ -13,7 +24,6 @@ void printBits(size_t const size, void const * const ptr)
 {
    char st[256] = {0};
    int sc = 0;
-
 
    unsigned char *b = (unsigned char*) ptr;
    unsigned char byte;
@@ -24,38 +34,15 @@ void printBits(size_t const size, void const * const ptr)
       for (j = 7; j >= 0; j--)
       {
          byte = (b[i] >> j) & 1;
-//         printf("%u", byte);
          st[sc] = byte+48;
          sc++;
-
-
-
       }
       st[sc] = 32;
       sc++;
-
    }
-//   puts("");
    st[sc] = 0;
    sprintf(msg, "%s", st);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 al_fixed get_sproingy_jump_height(int num)
@@ -93,116 +80,6 @@ void set_rocket_rot(int num, int x2, int y2)
    al_fixed rot = al_fixatan2(ylen, xlen) + al_itofix(64);
    item[num][10] = al_fixtoi(rot) * 10;
 }
-
-void set_wx(int x, int y)
-{
-   int d;
-   wx = x - SCREEN_W/40;
-   wy = y - SCREEN_H/40;
-
-   // check limits
-   d = 100 - (SCREEN_W/20);
-   if (wx>d) wx = d;
-   if (wx<0) wx = 0;
-
-   d = 100 - (SCREEN_H/20);
-   if (wy>d) wy = d;
-   if (wy<0) wy = 0;
-}
-void set_wx_from_start_block(void)
-{
-   int x = 0, y = 0;
-   for (int c=0; c<500; c++)  // get initial wx, wy from start block
-   if (item[c][0] == 5)
-   {
-      x = item[c][4]/20;
-      y = item[c][5]/20;
-      break;
-   }
-   set_wx(x+4, y);
-}
-
-void show_big(void)
-{
-   al_draw_bitmap(lefsm, 0, 0, 0);
-}
-
-void draw_big(int draw_lifts)
-{
-   init_level_background(); // fill level_background with blocks and lift lines
-   draw_level2(level_background, 0, 0, 2000, 1, 1, 1, 1, 0);
-   draw_level2(lefsm, 0, 0, db*100, 1, 1, 1, draw_lifts, 0);
-   al_set_target_backbuffer(display);
-}
-
-void draw_bs(int cc)
-{
-   ALLEGRO_BITMAP *jtemp = NULL;
-
-   // get mouse pos
-   int dx = mouse_x/db;
-   int dy = mouse_y/db;
-
-   // set bullseye map size
-   int ssz = 180;
-   if (db == 4) ssz = 220;
-   if (db == 6) ssz = 180;
-   if (db > 7) ssz = 300;
-   if (db > 9) ssz = 300;
-
-
-   int ccz = (((ssz/20)-1)/2); // 7 = 3, 5 = 2, 3 = 1
-
-   int smx = -ssz/2 + (db*100) + (SCREEN_W-(db*100)) / 2;
-   int smy = (db*100)-ssz-2;
-
-   int ex = dx*20 - (ssz/2-10);
-   int ey = dy*20 - (ssz/2-10);
-
-   if ((dx<100) && (dy < 100))
-   {
-      // get background from level_background for bullseye map sized ssz x ssz
-      jtemp = al_create_bitmap(ssz, ssz);
-      al_set_target_bitmap(jtemp);
-      al_draw_bitmap_region(level_background, ex, ey, ssz, ssz, 0, 0, 0);
-
-      // clear edges if necessary
-      if (dx < ccz)    al_draw_filled_rectangle(0,   0,  ((ccz-dx)*20)-1,    ssz-1,   palette_color[0]);
-      if (dy < ccz)    al_draw_filled_rectangle(0,   0,   ssz-1,   ((ccz-dy)*20)-1,   palette_color[0]);
-      if (dx > 99-ccz) al_draw_filled_rectangle(ssz-(ccz-(99-dx))*20,  0,  ssz-1,  ssz-1,   palette_color[0]);
-      if (dy > 99-ccz) al_draw_filled_rectangle(0,  ssz-(ccz-(99-dy))*20,  ssz-1,  ssz-1,   palette_color[0]);
-
-      // draw red bullseye
-      al_draw_line(       0,   ssz/2-10,     ssz-1,  ssz/2-10,  palette_color[10],1);
-      al_draw_line(       0,   ssz/2+11,     ssz-1,  ssz/2+11,  palette_color[10],1);
-      al_draw_line(ssz/2-10,          0,  ssz/2-10,     ssz-1,  palette_color[10],1);
-      al_draw_line(ssz/2+11,          0,  ssz/2+11,     ssz-1,  palette_color[10],1);
-
-      al_set_clipping_rectangle(display_transform_double*db*100+1, 0, SCREEN_W-2, SCREEN_H-1);
-
-
-      al_set_target_backbuffer(display);
-      al_draw_bitmap(jtemp, smx+1, smy+1, 0);
-      al_destroy_bitmap(jtemp);
-      // frame bullseye
-      al_draw_rectangle(smx, smy, smx+ssz+1, smy+ssz+1, palette_color[10], 1);
-      al_reset_clipping_rectangle();
-      al_draw_textf(font, palette_color[15], txc, smy-9, ALLEGRO_ALIGN_CENTER, " x=%-2d     y=%-2d ", dx, dy );
-   }
-   else
-   {
-      al_draw_text(font, palette_color[14], txc, smy-9, ALLEGRO_ALIGN_CENTER, "  mouse off map  ");
-      // erase bullseye map
-      al_draw_filled_rectangle(smx, smy, smx+ssz, smy+ssz, palette_color[0]);
-      // frame bullseye
-      al_draw_rectangle(smx, smy, smx+ssz+1, smy+ssz+1, palette_color[10], 1);
-   }
-}
-
-
-
-
-
 
 int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type)
 {
@@ -1156,32 +1033,6 @@ int get_item(int obj_type, int sub_type, int num )
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void crosshairs_full(int x, int y, int color, int line_width) // draws a square and crosshairs around a full 20x20 block on level buffer
 {
    al_draw_rectangle(x-10, y-10, x+11, y+11, palette_color[color], line_width);
@@ -1190,38 +1041,10 @@ void crosshairs_full(int x, int y, int color, int line_width) // draws a square 
    al_draw_line(x,    0, x, y-10, palette_color[color], line_width);
    al_draw_line(x, y+11, x, 1999, palette_color[color], line_width);
 }
-
-void crosshairs(int smx, int smy, int x, int y, int color) // function to draw rectangle and crosshairs
-{
-   //al_draw_filled_rectangle(smx+(x*db), smy+(y*db), smx+(x*db)+db-1, smy+(y*db)+db-1, palette_color[color]);
-   al_draw_filled_rectangle(smx+(x*db)-1, smy+(y*db)-1, smx+(x*db)+db, smy+(y*db)+db, palette_color[color]);
-   al_draw_line(smx+1, smy+(y*db)+db/2, smx+(100*db)-2, smy+(y*db)+db/2, palette_color[color], 1);
-   al_draw_line(smx+(x*db)+db/2, smy+1, smx+(x*db)+db/2, smy+(100*db)-2, palette_color[color], 1);
-}
-
-void crosshairs_nodb(int smx, int smy, int x, int y, int db, int color) // function to draw rectangle and crosshairs
-{
-   al_draw_filled_rectangle(smx+(x), smy+(y), smx+(x)+db-1, smy+(y)+db-1, palette_color[color]);
-   al_draw_line(smx, smy+(y)+db/2, smx+(100*db), smy+(y)+db/2, palette_color[color], 1);
-   al_draw_line(smx+(x)+db/2, smy, smx+(x)+db/2, smy+(100*db), palette_color[color], 1);
-}
-
-void title(const char *txt, int y, int tc, int fc)
-{
-   for (int x=0; x<15; x++)
-      al_draw_line(db*100, y+x, SCREEN_W-2, y+x, palette_color[fc+(x*16)], 1);
-   al_draw_text(font, palette_color[tc], txc, y+2, ALLEGRO_ALIGN_CENTER,  txt);
-}
-
 void titlex(const char *txt, int tc, int fc, int x1, int x2, int y)
 {
    for (int x=0; x<15; x++)
       al_draw_line(x1, y+x, x2, y+x, palette_color[fc+(x*16)], 1);
    al_draw_text(font, palette_color[tc], (x1+x2)/2, y+2, ALLEGRO_ALIGN_CENTER,  txt);
 }
-
-
-
-
-
 

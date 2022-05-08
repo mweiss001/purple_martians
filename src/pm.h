@@ -289,14 +289,12 @@ extern int zz[20][NUM_ANS];
 // ----- level editor unsorted --------------------
 // ------------------------------------------------
 extern char sel_filename[500];
-extern int ty;   // button start
+
 extern int bts;  // button spacing
-extern int wx; // level editor start block UL corner
-extern int wy;
+
 extern int pop_msg_viewer_pos;
-extern int Redraw;
 extern int num_legend_lines;
-extern int Viewer_lock;
+extern int viewer_lock;
 
 
 
@@ -388,7 +386,7 @@ extern int sw_mouse_gone;
 
 
 // ------------------------------------------------
-// ---------------zoom full screen ----------------
+// ---zoom full screen and group edit--------------
 // ------------------------------------------------
 extern int stx;
 extern int sty;
@@ -416,7 +414,7 @@ extern int skc_index;
 
 extern char *key_names[];
 extern bool key[ALLEGRO_KEY_MAX];
-extern int Key_pressed_ASCII;
+extern int key_pressed_ASCII;
 
 extern float mouse_loop_pause;
 
@@ -486,7 +484,6 @@ extern ALLEGRO_BITMAP *M_dtilemap;
 extern ALLEGRO_BITMAP *tile[NUM_SPRITES];
 extern ALLEGRO_BITMAP *btile[NUM_SPRITES];
 
-
 extern int sa[NUM_SPRITES][2];
 
 extern ALLEGRO_BITMAP *player_tile[16][32];
@@ -495,10 +492,6 @@ extern ALLEGRO_BITMAP *door_tile[2][16][8];
 extern ALLEGRO_BITMAP *level_background;
 extern ALLEGRO_BITMAP *level_buffer;
 
-extern ALLEGRO_BITMAP *dtemp; // temp draw
-extern ALLEGRO_BITMAP *lefsm; // level editor fullscreen map
-
-extern ALLEGRO_BITMAP *mp;     //  mouse_pointer
 extern ALLEGRO_BITMAP *ft_bmp;  //  file temp paste bmp
 
 extern ALLEGRO_BITMAP *logo_ichael;
@@ -913,17 +906,6 @@ extern int menu_map_size;
 extern int menu_map_x;
 extern int menu_map_y;
 
-extern int db;  // level editor zoom fullscreen map double
-extern int txc; // center of right hand side panel in level editor
-
-// game map
-extern int game_map_on;
-extern int map_x;
-extern int map_y;
-extern int map_size;
-extern int new_size;
-
-
 // ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
@@ -941,43 +923,34 @@ void animation_sequence_editor(void);
 void copy_tiles(void);
 void edit_btile_attributes(void);
 
-
+// draws text descriptions, common to all
 void draw_flag_text(int x, int y, int ys, int col, int last_flag_draw);
 
-// this is the common one, called by all
-// if mouse is on button, return button number
+// draws checkbox rectangles to go with text...if mouse is on a box, return box number
 int draw_flag_rects(int tn, int x, int y, int w, int h, int ys, int last_flag_draw);
 
-// this is for copy bitmap and only only affects sa[][]
+// this one combines rect and text..used by: draw item, point item, block selection description
+void draw_flags(int x1, int y1, int* num, int* mpow, int view_only, int clear_background, int ignore_mpow);
+
+// this is for editing shape attributes, or default flags in copy bitmap and only only affects sa[][]
 void draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys);
-
-// this is only for draw_item
-void draw_and_proc_flag_rects_draw_item(int x, int y, int w, int h, int ys);
-
-
 
 int draw_and_process_button(int x, int y, const char * text, int c1, int c2, int center);
 
 
 
-
-
-
 // e_editor_main.h
-void get_item_draw_shape(int i);
-void draw_item_shape(int i, int x, int y);
-void draw_enemy_shape(int e, int x, int y);
-void draw_PDE_shape(int pde, int x, int y);
-void show_draw_item_cursor(void);
-void set_block_range(int bx1, int by1, int bx2, int by2);
-void get_new_box(int* bx1, int*by1, int*bx2, int*by2);
-void update_editor_background(void);
-int process_scrolledge(void);
-
-char* get_text_description_of_block_based_on_flags(int flags);
-void draw_item_info(int x, int y, int color, int type, int num);
+void em_check_s_window_pos(int reset_pos);
+void em_process_status_window(int draw_only, int gx, int gy, int* mpow);
+void em_process_select_window(int draw_only, int* mpow);
+void em_set_swbl(void);
+void em_set_block_range(int bx1, int by1, int bx2, int by2);
+void em_get_new_box(int*bx1, int*by1, int*bx2, int*by2);
+char* em_get_text_description_of_block_based_on_flags(int flags);
+void em_show_draw_item_cursor(void);
+void em_draw_item_info(int x, int y, int color, int type, int num);
+void em_redraw_background(int gx, int gy);
 int edit_menu(int el);
-
 
 
 // e_editor_zfs.h
@@ -1017,11 +990,8 @@ void printBits(size_t const size, void const * const ptr);
 al_fixed get_sproingy_jump_height(int num);
 void set_xyinc_rot(int EN, int x2, int y2);
 void set_rocket_rot(int num, int x2, int y2);
-void set_wx(int x, int y);
-void set_wx_from_start_block(void);
-void show_big(void);
-void draw_big(int draw_lifts);
-void draw_bs(int cc);
+
+
 
 int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type);
 int getxy(const char *txt, int obj_type, int sub_type, int num );
@@ -1036,11 +1006,7 @@ int get_unused_pm_event(void);
 int get_trigger_item(int obj_type, int sub_type, int num);
 void find_and_show_event_links(int type, int i, int num2);
 int get_item(int obj_type, int sub_type, int num );
-
 void crosshairs_full(int cx, int cy, int color, int line_width);
-void crosshairs(int mx, int my, int x, int y, int color);
-void crosshairs_nodb(int mx, int my, int x, int y, int db, int color);
-void title(const char *txt, int y, int tc, int fc);
 void titlex(const char *txt, int y, int tc, int fc, int x1, int x2);
 
 // e_glt.h
@@ -1064,23 +1030,24 @@ int create_door(int type);
 int create_field(void);
 int create_item(int type);
 
+
 // e_enemy.h
+void erase_enemy(int e);
 void show_all_enemies(void);
 void sort_enemy(void);
 int get_empty_enemy(void);
 int get_empty_enemy(int type);
-int move_trigger_box(int num, int type);
 void recalc_pod(int EN);
 void get_pod_extended_position(int e, int *x, int *y);
-int move_pod_extended(int num);
 int create_cloner(void);
 int create_pod(void);
 
 
 
+
 // e_object_viewer_window.h
 int create_obj(int obt, int sub_type, int sent_num);
-//int ovw_get_size(int obt, int type, int*w, int*h);
+int ovw_get_size(int obt, int type, int*w, int*h);
 //void ovw_process_scrolledge(void);
 //void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy);
 int ovw_redraw_background(int obt, int num, int type, int legend_line, int show_window);
@@ -1127,10 +1094,8 @@ al_fixed edit_fix(int x, int y, al_fixed val);
 void PDE_swap(int s1, int s2);
 void PDE_sort(void);
 void predefined_enemies(void);
-void check_s_window_pos(int reset_pos);
-int process_status_window(int draw_only);
-int process_select_window(int draw_only);
-void set_swbl(void);
+
+
 
 // e_sliders.h
 void update_var(int bn, int type, int num, float f);
@@ -1285,6 +1250,8 @@ int enemy_data(int x_pos, int y_pos);
 void get_enemy_draw_shape(int e);
 
 void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color);
+
+void draw_enemy(int e, int custom, int cx, int cy);
 void draw_enemies(void);
 
 //void proc_enemy_collision_with_player(int p);
@@ -1305,7 +1272,7 @@ void enemy_player_hit_proc(int EN);
 
 void enemy_field(int e);
 void proc_field_collision(int t, int p, int x);
-void draw_enemy_field(int e);
+void draw_enemy_field(int e, int x, int y);
 
 void detect_field_collisions(void);
 void set_field_location_from_lift(int e, int dt, int a20);
@@ -1382,6 +1349,8 @@ void change_linked_door_color_and_shape(int door);
 void remove_block(int x, int y);
 void draw_pop_message(int c);
 void draw_door(int c, int x, int y);
+
+void draw_item(int i, int custom, int x, int y);
 void draw_items(void);
 void move_items(void);
 int player_drop_item(int p);
@@ -1391,7 +1360,7 @@ void proc_lit_bomb(int);
 void proc_lit_rocket(int);
 
 void process_trigger(int);
-void draw_trigger(int);
+void draw_trigger(int i, int x, int y);
 void set_item_trigger_location_from_lift(int, int);
 void detect_trigger_collisions(int i);
 
@@ -1399,12 +1368,12 @@ void proc_start_collision(int p, int i);
 
 
 void process_block_manip(int i);
-void draw_block_manip(int i);
+void draw_block_manip(int i, int x, int y);
 
 void proc_item_damage_collisions(int i);
 void set_item_damage_location_from_lift(int , int);
 void process_block_damage(int i);
-void draw_block_damage(int i);
+void draw_block_damage(int i, int x, int y);
 
 
 

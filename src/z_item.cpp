@@ -574,6 +574,151 @@ void draw_rocket_lines(int i)
 
 
 
+void draw_item(int i, int custom, int cx, int cy)
+{
+   int type = item[i][0];
+   int x = al_fixtoi(itemf[i][0]);
+   int y = al_fixtoi(itemf[i][1]);
+
+   if (custom)
+   {
+      x = cx;
+      y = cy;
+   }
+
+   int shape = item[i][1];                       // get shape
+   if (shape > 999) shape = zz[0][shape-1000];   // ans
+   int drawn = 0;
+
+   if ((type == 10) && (item[i][6] > 0)) // pop up message
+   {
+      item[i][6]--;
+      draw_pop_message(i);
+   }
+
+   if (type == 1)
+   {
+       draw_door(i, x, y);
+       drawn = 1;
+   }
+
+   if (type == 9)
+   {
+       draw_trigger(i, x, y);
+       drawn = 1;
+   }
+
+   if (type == 16)
+   {
+       draw_block_manip(i, x, y);
+       drawn = 1;
+   }
+
+   if (type == 17)
+   {
+       draw_block_damage(i, x, y);
+       drawn = 1;
+   }
+
+
+   if (type == 99)
+   {
+      draw_lit_bomb(i);
+      if (item[i][11]) al_draw_bitmap(tile[440], x, y, 0);  // bomb sticky spikes
+      drawn = 1;
+   }
+   if ((type == 8) && (item[i][11])) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
+
+   // moving key in final sequence
+   if ((type == 4) && (item[i][11] > 0) && (item[i][11] < 10))
+   {
+      // moving key in final stage gets static shape not ans
+      shape = item[i][1];                           // get shape
+      if (shape > 999) shape = zz[5][shape-1000];   // get first shape only
+
+      // stretch the key
+      float sc = 1 + 4*((10 - (float)item[i][11]) / 10);
+      float rot = al_fixtof(al_fixmul(al_itofix(item[i][10]/10), al_fixtorad_r));
+      al_draw_scaled_rotated_bitmap(tile[shape],10, 10, x+10, y+10, sc, sc, rot, 0);
+      drawn = 1;
+
+      // draw a collapsing rectangle
+      int x1 = item[i][6] * 20;
+      int y1 = item[i][7] * 20;
+      int x2 = (item[i][8]+1) * 20;
+      int y2 = (item[i][9]+1) * 20;
+      int xw = x2-x1;
+      int yh = y2-y1;
+      float xinc = xw/8;
+      float yinc = yh/8;
+
+      float seq = 9 - item[i][11]; // starts at 0, goes to 8
+      int xo = (int)(seq * xinc / 2);
+      int yo = (int)(seq * yinc / 2);
+      al_draw_rectangle(x1+xo, y1+yo, x2-xo, y2-yo, palette_color[15], 1);
+   }
+
+
+    // these types need rotation
+   if ((type == 11) || (type == 98) ||  // rockets
+      ((type == 4) && (item[i][11] > 0))) // moving key
+   {
+      float rot = al_fixtof(al_fixmul(al_itofix(item[i][10]/10), al_fixtorad_r));
+      al_draw_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, rot, 0);
+      drawn = 1;
+   }
+
+   if (type == 98) draw_rocket_lines(i); // for lit rockets
+
+
+
+
+   if (type == 5) // start
+   {
+      if (number_of_starts > 1)
+      {
+         al_draw_bitmap(tile[shape], x, y, 0);
+         al_draw_textf(f3, palette_color[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", item[i][7]);
+         drawn = 1;
+      }
+   }
+
+   if (type == 3) // exit
+   {
+      al_draw_bitmap(tile[399], x, y, 0); // 'exit' text not shown
+      if (frame_num % 60 > 30)
+         al_draw_text(f3, palette_color[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
+
+      int exit_enemys_left = num_enemy - item[i][8];
+      if (exit_enemys_left > 0) // locked
+      {
+         al_draw_bitmap(tile[366], x, y, 0); // show lock
+         if (frame_num % 60 < 30)
+            al_draw_textf(f3, palette_color[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
+
+      }
+      drawn = 1;
+   }
+
+   if ((type == 2) && (item[i][6] == 3)) // purple coin custom draw
+   {
+      if (!level_editor_running)
+      {
+         spin_shape(shape, x, y, 0, 0, 19, 19, 0.8, 0.5, 40);
+         drawn = 1;
+      }
+   }
+
+   // default draw if nothing else has drawn it up to now
+   if (!drawn) al_draw_bitmap(tile[shape], x, y, 0);
+
+   if (!level_editor_running)
+   {
+      // if item is expiring show how many seconds left it has
+      if ((item[i][14]>10) && (type != 9) && (type != 16) && (type != 17))
+         al_draw_textf(f3, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
+   }
+}
 
 
 void draw_items(void)
@@ -581,7 +726,15 @@ void draw_items(void)
    al_set_target_bitmap(level_buffer);
    for (int i=0; i<500; i++)
       if (item[i][0])
-      {
+         draw_item(i, 0, 0, 0);
+}
+
+
+
+
+/*
+
+
          int type = item[i][0];
          int x = al_fixtoi(itemf[i][0]);
          int y = al_fixtoi(itemf[i][1]);
@@ -603,19 +756,19 @@ void draw_items(void)
 
          if (type == 9)
          {
-             draw_trigger(i);
+             draw_trigger(i, x, y);
              drawn = 1;
          }
 
          if (type == 16)
          {
-             draw_block_manip(i);
+             draw_block_manip(i, x, y);
              drawn = 1;
          }
 
          if (type == 17)
          {
-             draw_block_damage(i);
+             draw_block_damage(i, x, y);
              drawn = 1;
          }
 
@@ -723,7 +876,7 @@ void draw_items(void)
 }
 
 
-
+*/
 
 
 
@@ -1825,11 +1978,11 @@ void detect_trigger_collisions(int i)
 
 
 
-void draw_trigger(int i)
+void draw_trigger(int i, int x, int y)
 {
    if (level_editor_running)
    {
-      al_draw_bitmap(tile[991], item[i][4], item[i][5], 0); // draw item shape in level editor, invisible when game running
+      al_draw_bitmap(tile[991], x, y, 0); // draw item shape in level editor, invisible when game running
       if (item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
    }
 
@@ -2001,11 +2154,11 @@ void process_block_manip(int i)
 
 
 
-void draw_block_manip(int i)
+void draw_block_manip(int i, int x, int y)
 {
    if (level_editor_running)
    {
-      al_draw_bitmap(tile[989], item[i][4], item[i][5], 0); // draw item shape in level editor, invisible when game running
+      al_draw_bitmap(tile[989], x, y, 0); // draw item shape in level editor, invisible when game running
    }
    if (item[i][2]) // draw mode on
    {
@@ -2194,14 +2347,17 @@ void proc_item_damage_collisions(int i)
          }
 }
 
-void draw_block_damage(int i)
+void draw_block_damage(int i, int x, int y)
 {
    int draw_mode = item[i][2];
    int mode = item[i][11];
    int FLAGS = item[i][3];
 
-   float x0 = item[i][4];
-   float y0 = item[i][5];
+//   float x0 = item[i][4];
+//   float y0 = item[i][5];
+
+   float x0 = x;
+   float y0 = y;
    float x1 = item[i][6];
    float y1 = item[i][7];
    float x2 = x1 + item[i][8];

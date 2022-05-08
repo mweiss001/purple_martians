@@ -1,663 +1,5 @@
 // e_pde.cpp
-
 #include "pm.h"
-
-void check_s_window_pos(int reset_pos)
-{
-   int reset_status = 0;
-   int reset_select = 0;
-
-   int status_window_x2 = status_window_x + status_window_w;
-   int status_window_y2 = status_window_y + status_window_h;
-   if ((status_window_x < 0) || (status_window_x2 > SCREEN_W)) reset_status = 1;
-   if ((status_window_y < 0) || (status_window_y2 > SCREEN_H)) reset_status = 1;
-
-   if (reset_status)
-   {
-      status_window_x = 10;
-      status_window_y = 10;
-   }
-
-   int select_window_x2 = select_window_x + select_window_w;
-   int select_window_y2 = select_window_y + select_window_h;
-   if ((select_window_x < 0) || (select_window_x2 > SCREEN_W)) reset_select = 1;
-   if ((select_window_y < 0) || (select_window_y2 > SCREEN_H)) reset_select = 1;
-
-   if (reset_select)
-   {
-      select_window_x = SCREEN_W - (select_window_w + 10);
-      select_window_y = 10;
-   }
-}
-
-int process_status_window(int draw_only)
-{
-   int swx1 = status_window_x;
-   int swy1 = status_window_y;
-   int swh = status_window_h;
-   int sww = status_window_w;
-   int swx2 = swx1 + sww;
-   int swy2 = swy1 + swh;
-
-   al_set_target_backbuffer(display);
-   // erase background
-   al_draw_filled_rectangle(swx1-2, swy1-2, swx2+2, swy2+2, palette_color[0]);
-
-   // draw item area
-   al_draw_rectangle(swx1, swy1 + 12, swx1 + 160, swy2, palette_color[9], 1);
-   al_draw_text(font, palette_color[15], swx1 + 24,  swy1 + 14,  0, "Draw Item   ");
-   al_draw_text(font, palette_color[14], swx1 + 100, swy1 + 14,  0, "mouse");
-   al_draw_text(font, palette_color[14], swx1 + 143, swy1 + 14,  0, "b1");
-   draw_item_info(swx1+2,   swy1+21, 9, draw_item_type, draw_item_num);
-
-
-   if ((show_flag_details) && (draw_item_type == 1))
-   {
-      // flags section
-      int ftx = swx1+11;
-      int fty = swy1+47;
-      int ys = 10; // y spacing
-      draw_flag_text(ftx+4, fty, ys, 15, 0);
-
-      int frw = 6;         // flag rectangle width
-      int frh = 6;         // flag rectangle height
-      int frx = ftx-frw-2;        // flag rectangle x
-      int fry = fty - (frh/2)+4;  // flag rectangle y
-
-      draw_and_proc_flag_rects_draw_item(frx, fry, frw, frh, ys);
-   }
-
-   // view item area
-   al_draw_rectangle(swx1 + 160, swy1 + 12, swx2, swy2, palette_color[9], 1);
-   al_draw_text(font, palette_color[15], swx1 + 184, swy1 + 14,  0, "View Item ");
-   al_draw_text(font, palette_color[14], swx1 + 261, swy1 + 14,  0, "mouse");
-   al_draw_text(font, palette_color[14], swx1 + 303, swy1 + 14,  0, "b2");
-   draw_item_info(swx1+162, swy1+21, 9, point_item_type, point_item_num);
-
-
-
-
-   if (point_item_type > 1) obj_buttons(point_item_type, point_item_num, swx1+162, swx2+60, swy1+46, 0, 16);
-
-
-
-
-
-   if ((show_flag_details) && (point_item_type == 1))
-   {
-      // flags section
-      int ftx = swx1+160+11;
-      int fty = swy1+47;
-      int ys = 10; // y spacing
-      draw_flag_text(ftx+4, fty, ys, 15, 0);
-
-      int frw = 6;         // flag rectangle width
-      int frh = 6;         // flag rectangle height
-      int frx = ftx-frw-2;        // flag rectangle x
-      int fry = fty - (frh/2)+4;  // flag rectangle y
-
-      draw_flag_rects(point_item_num, frx, fry, frw, frh, ys, 14);
-   }
-
-   // title bar background color
-   al_draw_filled_rectangle(swx1, swy1, swx2, swy1 + 11, palette_color[9+192]);
-
-   // frame title bar
-   al_draw_rectangle(swx1, swy1, swx2, swy1+11, palette_color[9], 1);
-
-   al_draw_textf(font, palette_color[9],  swx1+2,   swy1+2, 0, "Status Window    level:%d ",last_level_loaded);
-   al_draw_textf(font, palette_color[15], swx1+186, swy1+2, 0, "%d ",last_level_loaded);
-
-
-   int x100 = mouse_x/20 + wx;
-   int y100 = mouse_y/20 + wy;
-   if (x100>99) x100 = 99;
-   if (y100>99) y100 = 99;
-
-   al_draw_textf(font, palette_color[15], swx1+222, swy1+2, 0, "x:%-2d y:%-2d ", x100, y100);
-   al_draw_text( font, palette_color[9],  swx1+222, swy1+2, 0, "x:");
-   al_draw_text( font, palette_color[9],  swx1+262, swy1+2, 0, "y:");
-
-   al_draw_text(font, palette_color[9], swx2-10, swy1+2, 0, "X");
-   al_draw_text(font, palette_color[9], swx2-24, swy1+2, 0, "?");
-
-   // faded frame
-   int th = 1;
-   for (int a=0; a<th; a++)
-      al_draw_rectangle(swx1-a, swy1-a, swx2+a, swy2+a, palette_color[9+a*(256/th)], 1);
-
-   if (draw_only == 0)
-   {
-      if ( (mouse_x > swx1+310) && (mouse_x < swx1+320) && (mouse_y > swy1) && (mouse_y < swy1+12) )
-      {
-         al_draw_text(font, palette_color[14], swx2-10, swy1+2, 0, "X");
-         if (mouse_b1)
-         {
-            while (mouse_b1) proc_controllers();
-            status_window_active = 0;
-            return 1001;
-         }
-      }
-
-      if ( (mouse_x > swx1+296) && (mouse_x < swx1+304) && (mouse_y > swy1) && (mouse_y < swy1+12) )
-      {
-         al_draw_text(font, palette_color[14], swx2-24, swy1+2, 0, "?");
-         if (mouse_b1)
-         {
-            while (mouse_b1) proc_controllers();
-            help("Status Window");
-            return 1001;
-         }
-      }
-
-      if ((mouse_x > swx1) && (mouse_x < swx1+296) && (mouse_y > swy1) && (mouse_y < swy1+12))
-      {
-         al_draw_rectangle(swx1, swy1, swx2, swy1+11,  palette_color[14], 1);
-         if (mouse_b1) // title bar move
-         {
-            int tx = (mouse_x-swx1); // x offset
-            int ty = (mouse_y-swy1); // y offset
-            while (mouse_b1)
-            {
-               proc_controllers();
-               update_editor_background();
-               process_select_window(1); // draw only
-               process_status_window(1); // draw only
-               al_flip_display();
-               al_clear_to_color(al_map_rgb(0,0,0));
-               status_window_x = mouse_x-tx;
-               status_window_y = mouse_y-ty;
-            }
-            check_s_window_pos(0);
-            save_config();
-            return 1001;
-         }
-      }
-   }
-   return 1;
-}
-
-int process_select_window(int draw_only)
-{
-   int x;
-
-   int swx1 = select_window_x;
-   int swy1 = select_window_y;
-   int swh = select_window_h;
-   int sww = select_window_w;
-   int swx2 = swx1 + sww;
-   int swy2 = swy1 + swh;
-
-   int c = 13;            // first y line of sub-windows;
-   select_window_h = 200; // for now
-
-   // set special start y
-   if (select_window_special_on)
-   {
-      select_window_special_y = c;
-      c = 16 + c + select_window_num_special_lines*20;
-   }
-   // set special start y
-   if (select_window_block_on)
-   {
-      select_window_block_y = c;
-      c = 16 + c + swnbl_cur*20;
-   }
-   select_window_text_y = c;
-   select_window_h = select_window_text_y;
-
-   int sys = swy1 + select_window_special_y;
-   int syb = swy1 + select_window_block_y;
-   int syt = swy1 + select_window_text_y;
-   int sxw = swx1 + select_window_w-1;
-   int vx = (mouse_x-select_window_x-2)/20; // column
-
-
-   al_set_target_backbuffer(display);
-   // erase background
-   al_draw_filled_rectangle(swx1-1, swy1-1, swx2+1, swy2+1, palette_color[0]);
-
-   // main top bar frame and text
-   // title bar background color
-   al_draw_filled_rectangle(swx1, swy1, swx2, swy1 + 11, palette_color[9+192]);
-   al_draw_rectangle(swx1, swy1, swx2, swy1 + 12, palette_color[9], 1);
-   al_draw_text(font, palette_color[9], swx1+2,  swy1+2, 0, "Selection Window");
-   al_draw_text(font, palette_color[9], sxw-145, swy1+2, 0, "Blocks  Special  X");
-   al_draw_text(font, palette_color[9], sxw-21,  swy1+2, 0, "?");
-
-   // special top bar frame and text
-   if (select_window_special_on)
-   {
-      al_draw_filled_rectangle(            swx1,    sys, swx2, sys+12, palette_color[9+192]);
-      al_draw_rectangle       (            swx1,    sys, swx2, sys+12, palette_color[9], 1);
-      al_draw_text(font, palette_color[9], swx1+2,  sys+2, 0, "Special Items");
-      al_draw_text(font, palette_color[9], swx2-9,  sys+2, 0, "X");
-      al_draw_text(font, palette_color[9], swx2-25, sys+2, 0, "-");
-      al_draw_text(font, palette_color[9], swx2-41, sys+2, 0, "+");
-
-      // draw special block
-      for (c=0; c<16*select_window_num_special_lines; c++)
-      {
-         int tn = PDEi[c][1]; // default is the tile in PDEi[c][1]
-         if (tn > 999) tn = zz[5][tn-1000]; // ans
-         al_draw_bitmap(tile[tn], swx1+(c-((c/16)*16) )*20+1, swy1+14+select_window_special_y+1+(c/16*20), 0 );
-      }
-   }
-   // blocks top bar frame and text
-   if (select_window_block_on)
-   {
-      al_draw_filled_rectangle(swx1, syb, swx2, syb+12, palette_color[9+192]);
-      al_draw_rectangle(       swx1, syb, swx2, syb+12, palette_color[9], 1);
-      al_draw_text(font, palette_color[9], swx1+2,  syb+2, 0, "Block Selection ");
-      al_draw_text(font, palette_color[9], swx2-9,  syb+2, 0, "X");
-      al_draw_text(font, palette_color[9], swx2-25, syb+2, 0, "-");
-      al_draw_text(font, palette_color[9], swx2-41, syb+2, 0, "+");
-
-      for (c=0; c<16*swnbl_cur; c++)
-         al_draw_bitmap(btile[swbl[c][0] & 1023], swx1+(c-((c/16)*16) )*20+1, swy1+select_window_block_y+1+14+(c/16*20), 0 );
-   }
-
-   // frame the whole thing
-   al_draw_rectangle(swx1, swy1, swx2, swy2, palette_color[9], 1);
-
-   if (draw_only == 0)
-   {
-      // check for mouse on whole window
-      if ((mouse_x > swx1) && (mouse_x < swx2) && (mouse_y > swy1) && (mouse_y < swy2))
-      {
-         sw_mouse_gone = 0;
-
-         // check for mouse on top title bar
-         if (mouse_y < 14 + swy1)
-         {
-            al_draw_rectangle(swx1, swy1, swx2, swy1 + 12, palette_color[14], 1);
-            al_draw_text(font, palette_color[14], swx1+2, swy1+2, 0, "Selection Window");
-
-            // 'X' to close whole selection window
-            if ((mouse_x > sxw-8) && (mouse_x < sxw))
-            {
-               al_draw_text(font, palette_color[14], sxw-9, select_window_y+2, 0, "X");
-               if (mouse_b1)
-               {
-                  while (mouse_b1) proc_controllers();  // wait for release
-                  select_window_active = 0;
-                  return -1;
-               }
-            }
-            // '?' button
-            if ((mouse_x > sxw-21) && (mouse_x < sxw-13))
-            {
-               al_draw_text(font, palette_color[14], sxw-21, swy1+2,  0,"?" );
-               if (mouse_b1)
-               {
-                  while (mouse_b1) proc_controllers();  // wait for release
-                  help("Selection Window");
-                  return -1;
-               }
-            }
-
-            // 'Special' button
-            if ((mouse_x > sxw-81) && (mouse_x < sxw-25))
-            {
-               al_draw_text(font, palette_color[14], sxw-81, swy1+2, 0, "Special");
-               if (mouse_b1)
-               {
-                  while (mouse_b1) proc_controllers();  // wait for release
-                  select_window_special_on = !select_window_special_on;
-                  return -1;
-               }
-            }
-
-            // 'Block' button
-            if ((mouse_x > sxw-144) && (mouse_x < sxw-88))
-            {
-               al_draw_text(font, palette_color[14], sxw-145, swy1+2, 0, "Blocks");
-               if (mouse_b1)
-               {
-                  while (mouse_b1) proc_controllers();  // wait for release
-                  select_window_block_on = !select_window_block_on;
-                  return -1;
-               }
-            }
-
-            // title bar drag move!
-            if (mouse_b1)
-            {
-               int tx = (mouse_x-swx1); // x offset
-               int ty = (mouse_y-swy1); // y offset
-               while (mouse_b1)
-               {
-                  proc_controllers();
-                  update_editor_background();
-                  process_status_window(1); // draw only
-                  process_select_window(1); // draw only
-                  al_flip_display();
-                  al_clear_to_color(al_map_rgb(0,0,0));
-                  select_window_x = mouse_x-tx;
-                  select_window_y = mouse_y-ty;
-               }
-               check_s_window_pos(0);
-               save_config();
-               return -1;
-
-            }
-         } // end of if mouse on title bar
-
-         // check for mouse on special window title bar
-         if (select_window_special_on)
-         {
-            if ((mouse_y > sys) && (mouse_y < 14 + sys)) // on s title bar
-            {
-               al_draw_rectangle       (swx1, sys, swx2, sys+12, palette_color[14], 1);
-               al_draw_text(font, palette_color[14], swx1+2,  sys+2, 0, "Special Items");
-               if ((mouse_x > swx2-8) && (mouse_x < swx2))  // close special sub window
-               {
-                  al_draw_text(font, palette_color[14], swx2-9,  sys+2, 0, "X");
-                  if (mouse_b1)
-                  {
-                     while (mouse_b1) proc_controllers();  // wait for release
-                     select_window_special_on = 0;
-                     return -1;
-                  }
-               }
-               if ((mouse_x > swx2-25) && (mouse_x < swx2-17))  // Special button
-               {
-                  al_draw_text(font, palette_color[14], swx2-25,  sys+2, 0, "-");
-                  if (mouse_b1)
-                     {
-                        while (mouse_b1) proc_controllers();  // wait for release
-                        if (--select_window_num_special_lines < 1 )
-                        {
-                           select_window_num_special_lines++;
-                           select_window_special_on = 0;
-                        }
-                        return -1;
-                     }
-               }
-               if ((mouse_x > swx2-41) && (mouse_x < swx2-33))  // Special button
-               {
-                  al_draw_text(font, palette_color[14], swx2-41,  sys+2, 0, "+");
-                  if (mouse_b1)
-                  {
-                     while (mouse_b1) proc_controllers();  // wait for release
-                     if (++select_window_num_special_lines > 4 )
-                           select_window_num_special_lines = 4;
-                     return -1;
-                  }
-               }
-            }
-         } // end of if special select window on
-
-         // check for mouse on block window title bar
-         if (select_window_block_on)
-         {
-            if ( (mouse_y > syb) && (mouse_y < 14 + syb) ) // on title bar
-            {
-               al_draw_rectangle       (swx1, syb, swx2, syb+12, palette_color[14], 1);
-               al_draw_text(font, palette_color[14], swx1+2,  syb+2, 0, "Block Selection");
-               if ((mouse_x > swx2-8) && (mouse_x < swx2))  // close special sub window
-               {
-                  al_draw_text(font, palette_color[14], swx2-9,  syb+2, 0, "X");
-                  if (mouse_b1)
-                     {
-                        while (mouse_b1) proc_controllers();  // wait for release
-                        select_window_block_on = 0;
-                        return -1;
-                     }
-               }
-               if ((mouse_x > swx2-25) && (mouse_x < swx2-17))  // - button
-               {
-                  al_draw_text(font, palette_color[14], swx2-25,  syb+2, 0, "-");
-                  if (mouse_b1)
-                  {
-                     while (mouse_b1) proc_controllers();  // wait for release
-
-                     if (--swnbl_cur < 1 )
-                     {
-                        swnbl_cur++;
-                        select_window_block_on = 0;
-                     }
-                     return -1;
-                  }
-               }
-               if ((mouse_x > swx2-41) && (mouse_x < swx2-33))  // + button
-               {
-                  al_draw_text(font, palette_color[14], swx2-41,  syb+2, 0, "+");
-                  if (mouse_b1)
-                  {
-                     while (mouse_b1) proc_controllers();  // wait for release
-                     if (++swnbl_cur > swnbl) swnbl_cur = swnbl;
-                     return -1;
-                  }
-               }
-            }
-         } // end of if (select_window_block_on)
-
-         // check for mouse on special window
-         if ( (select_window_special_on) && (mouse_y > 15 + sys) && (mouse_y < 16 + sys + select_window_num_special_lines * 20) )
-         {
-            int vy = (mouse_y-sys-15)/20; // row
-            int ret = vy*16+vx;
-            int tl = 0; // text lines
-            if (ret < 100) // dont try to show anything above PDE[99]
-            {
-               // set  text length (number of lines)
-               for (x=0; x<20; x++)
-                  if (strncmp(PDEt[ret][x],"<end>", 5) == 0) tl = x;
-               if (tl<5) tl = 5;
-
-                // remove line endings
-               for (x=0; x<20; x++)
-                  for (int z=0; z<40; z++)
-                  {
-                     if (PDEt[ret][x][z] == 10) PDEt[ret][x][z] = 32;
-                     if (PDEt[ret][x][z] == 13) PDEt[ret][x][z] = 32;
-                  }
-
-               // erase and frame
-               al_draw_filled_rectangle(swx1, syt, swx2, 12+syt+3+(8*tl), palette_color[0]);
-               al_draw_rectangle(swx1, syt, swx2, 12+syt+3+(8*tl), palette_color[9], 1);
-
-               // title and frame
-               al_draw_rectangle(swx1, syt, swx2, syt+12, palette_color[9], 1);
-               al_draw_text(font, palette_color[9], swx1+2, syt+2, 0, "Description ");
-
-               // draw text for this pde
-               stext_draw_flag=1;
-               for (x=0; x<tl; x++)
-                  al_draw_text(font, palette_color[15], swx1+2, swy1 + select_window_text_y+14+(x*8), 0, PDEt[ret][x]);
-
-               if (mouse_b1)
-               {
-                  while (mouse_b1) proc_controllers();     // wait for release
-                  if (PDEi[ret][0] < 200) return ret-2000; // item or enemy copy type pde
-
-                  if (PDEi[ret][0] > 199) // Creator
-                  {
-                     switch (PDEi[ret][0]-199)
-                     {
-                        case 1:  create_obj(2, 1, 0); break; // type 200 - door
-                        case 2:  create_obj(2, 5, 0); break; // type 201 - start
-                        case 3:  create_obj(2, 3, 0); break; // type 202 - exit
-                        case 4:  create_obj(2, 4, 0); break; // type 203 - key
-                        case 5:  create_obj(3, 7, 0); break; // type 204 - pod
-                        case 7:  create_obj(2, 10,0); break; // type 206 - msg
-                        case 8:  create_obj(3, 9, 0); break; // type 207 - cloner
-                        case 9: if (create_lift()) object_viewerw(4, num_lifts-1); break; // type 208 - lift
-                        case 10: create_door(1); break; // type 209 - 1 way al_fixed exit door
-                        case 11: create_door(2); break; // type 210 - 1 way linked exit door
-                        case 12: create_door(3); break; // type 211 - 2 way door set
-                        case 13: create_obj(3, 10, 0); break; // type 212 - field
-                        case 14: create_obj(2, 9, 0); break;  // type 213 - trigger
-                        case 15: create_obj(2, 16, 0); break;  // type 214 - block manip
-                        case 16: create_obj(2, 17, 0); break;  // type 215 - block damage
-                     }
-                     draw_big(1);
-                     return -1;
-                  } // end of if creator
-
-               } // end of if (mouse_b & 1)
-            }
-         }  // end of mouse on special
-         else // mouse not on special
-         {
-            if (stext_draw_flag)
-            {
-               stext_draw_flag = 0;
-               return -1;
-            }
-         }
-
-         // check for mouse on block window
-         if ( (select_window_block_on) && (mouse_y > 14 + syb) && (mouse_y < 14 + syb + swnbl_cur * 20))
-         {
-            int vy = (mouse_y-syb-14)/20; // row
-            int ret = vy*16+vx;
-            int tl = 3; // text lines
-            int syt2 = syt+15+(8*tl);
-            if (show_flag_details) syt2 += 140;
-
-            ret = swbl[ret][0];
-
-            // erase
-            al_draw_filled_rectangle(swx1, syt, swx2, syt2, palette_color[0]);
-
-            // frame
-            al_draw_rectangle(swx1, syt, swx2, syt2, palette_color[9], 1);
-
-            // title and frame
-            al_draw_rectangle(swx1, syt, swx2, syt+12, palette_color[9], 1);
-            al_draw_text(font, palette_color[9], swx1+2, syt+2,  0, "Description");
-
-            // draw text for this block
-            btext_draw_flag=1;
-            get_text_description_of_block_based_on_flags(ret);
-            al_draw_text (font, palette_color[15], swx1+2, syt+14, 0, "---------------------");
-            al_draw_textf(font, palette_color[15], swx1+2, syt+22, 0, "Block %d - %s ", ret&1023, msg);
-            al_draw_text (font, palette_color[15], swx1+2, syt+30, 0, "---------------------");
-
-            if (show_flag_details)
-            {
-               // flags section
-               int ftx = swx1+11;
-               int fty = syt+38;
-               int ys = 10; // y spacing
-               draw_flag_text(ftx+4, fty, ys, 15, 0);
-
-               int frw = 6;         // flag rectangle width
-               int frh = 6;         // flag rectangle height
-               int frx = ftx-frw-2;        // flag rectangle x
-               int fry = fty - (frh/2)+4;  // flag rectangle y
-               draw_flag_rects(ret, frx, fry, frw, frh, ys, 14);
-            }
-
-            if ((mouse_b1) || (mouse_b2))
-            {
-               while (mouse_b1) proc_controllers(); // wait for release
-               return ret;
-            }
-         } // end of mouse on block
-         else // mouse not on block
-         {
-            if (btext_draw_flag)
-            {
-               btext_draw_flag = 0;
-               return -1;
-            }
-         }
-      } // end of if mouse on whole window
-
-
-      else
-      {
-         sw_mouse_gone++;
-         if (stext_draw_flag)
-         {
-            stext_draw_flag = 0;
-            return -1;
-         }
-         if (btext_draw_flag)
-         {
-            btext_draw_flag = 0;
-            return -1;
-         }
-      }
-   }
-
-   return -1;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-
-// Assumes little endian
-void printBits(size_t const size, void const * const ptr)
-{
-    unsigned char *b = (unsigned char*) ptr;
-    unsigned char byte;
-    int i, j;
-
-    for (i = size-1; i >= 0; i--) {
-        for (j = 7; j >= 0; j--) {
-            byte = (b[i] >> j) & 1;
-            printf("%u", byte);
-        }
-    }
-    puts("");
-}
-
-Test:
-
-int main(int argv, char* argc[])
-{
-    int i = 23;
-    uint ui = UINT_MAX;
-    float f = 23.45f;
-    printBits(sizeof(i), &i);
-    printBits(sizeof(ui), &ui);
-    printBits(sizeof(f), &f);
-    return 0;
-}
-
-
-
-*/
-
-
-
-void set_swbl(void)
-{
-   swbn = 0;
-   for (int c=0; c<NUM_SPRITES; c++)
-   {
-      swbl[c][0] = swbl[c][1] = 0;                    // erase
-      if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
-      {
-         swbl[swbn][0] = c | sa[c][0];                // add to list with default flags
-         swbl[swbn][0] &= ~PM_BTILE_SHOW_SELECT_WIN;  // clear flag
-         swbn++;
-      }
-   }
-   swnbl = (swbn / 16) + 1;
-   if (swnbl_cur == 0) swnbl_cur = swnbl; // initial only
-}
 
 int load_PDE()
 {
@@ -686,7 +28,6 @@ void save_PDE()
    }
    else m_err("Error saving pde.pm");
 }
-
 
 // this is a non blocking, pass through function and should be called in a loop
 int bottom_menu(int menu_num)
@@ -982,7 +323,7 @@ void predefined_enemies(void)
          {
             int line_length = 30;
             int tx = mouse_x/8;
-            int ty = (mouse_y-20)/8;
+            int ty1 = (mouse_y-20)/8;
             int text_edit_quit = 0;
             while (!text_edit_quit)
             {
@@ -999,27 +340,27 @@ void predefined_enemies(void)
                   al_draw_text(font, palette_color[15], 0, 20+(x*8), 0, PDEt[EN][x]);
                }
                // mark the text entry position
-               al_draw_filled_rectangle((tx*8), 20+(ty*8), (tx*8)+8, 20+(ty*8)+8, palette_color[138]);
-               msg[0] = PDEt[EN][ty][tx];
+               al_draw_filled_rectangle((tx*8), 20+(ty1*8), (tx*8)+8, 20+(ty1*8)+8, palette_color[138]);
+               msg[0] = PDEt[EN][ty1][tx];
                if (msg[0] == (char)NULL) msg[0] = 32;
                msg[1] = (char)NULL;
-               al_draw_text(font, palette_color[10], (tx*8), 20+(ty*8), 0, msg);
+               al_draw_text(font, palette_color[10], (tx*8), 20+(ty1*8), 0, msg);
                al_flip_display();
 
 
                proc_controllers();
-               int k = Key_pressed_ASCII;
+               int k = key_pressed_ASCII;
                if ((k>31) && (k<127)) // insert if alphanumeric or return
                {
-                  int z = strlen(PDEt[EN][ty]);
+                  int z = strlen(PDEt[EN][ty1]);
                   if (z > line_length) z = line_length;
                   for (x=z; x>tx; x--)
-                     PDEt[EN][ty][x] = PDEt[EN][ty][x-1];
-                  PDEt[EN][ty][tx] = k;
+                     PDEt[EN][ty1][x] = PDEt[EN][ty1][x-1];
+                  PDEt[EN][ty1][tx] = k;
                   if (++tx > line_length) // end of line?
                   {
-                     PDEt[EN][ty][tx] = (char)NULL; // terminate the line
-                     ty++;  // LF
+                     PDEt[EN][ty1][tx] = (char)NULL; // terminate the line
+                     ty1++;  // LF
                      tx = 0; // CR
                   }
                }
@@ -1028,42 +369,42 @@ void predefined_enemies(void)
                {
                   while (key[ALLEGRO_KEY_BACKSPACE]) proc_controllers();
                   if (--tx<0) tx = 0;
-                  int z = strlen(PDEt[EN][ty]);
+                  int z = strlen(PDEt[EN][ty1]);
                   for (x=tx; x<z; x++)
-                     PDEt[EN][ty][x] = PDEt[EN][ty][x+1];
+                     PDEt[EN][ty1][x] = PDEt[EN][ty1][x+1];
                }
                if (key[ALLEGRO_KEY_ENTER])
                {
                   while (key[ALLEGRO_KEY_ENTER]) proc_controllers();
-                  for (y=19; y>ty; y--)  // slide all down
+                  for (y=19; y>ty1; y--)  // slide all down
                      strcpy(PDEt[EN][y],PDEt[EN][y-1]);
-                  if (strlen(PDEt[EN][ty]) == 999) // cursor past end of line
-                     PDEt[EN][ty+1][0] = (char)NULL; // next line empty
-                  if ((signed int)strlen(PDEt[EN][ty]) >= tx) // cursor not past end of line
+                  if (strlen(PDEt[EN][ty1]) == 999) // cursor past end of line
+                     PDEt[EN][ty1+1][0] = (char)NULL; // next line empty
+                  if ((signed int)strlen(PDEt[EN][ty1]) >= tx) // cursor not past end of line
                   {
                      for (x=0; x <= 30-tx; x++)         // split line at tx
-                         PDEt[EN][ty+1][x] = PDEt[EN][ty+1][tx+x];
+                         PDEt[EN][ty1+1][x] = PDEt[EN][ty1+1][tx+x];
 
-                     PDEt[EN][ty][tx] = (char)NULL;  // terminate top line
+                     PDEt[EN][ty1][tx] = (char)NULL;  // terminate top line
                      tx = 0;
-                     ty++;
+                     ty1++;
                   }
                }
                if (key[ALLEGRO_KEY_DELETE])
                {
                   while (key[ALLEGRO_KEY_DELETE]) proc_controllers();
-                  if (PDEt[EN][ty][tx] == (char)NULL)
+                  if (PDEt[EN][ty1][tx] == (char)NULL)
                   {
                      for (x=0; x<=30-tx; x++) // get portion from line below
-                         PDEt[EN][ty][tx+x] = PDEt[EN][ty+1][x];
-                     for (y=ty+1; y<19; y++)  // slide all up
+                         PDEt[EN][ty1][tx+x] = PDEt[EN][ty1+1][x];
+                     for (y=ty1+1; y<19; y++)  // slide all up
                         strcpy(PDEt[EN][y],PDEt[EN][y+1]);
                      PDEt[EN][19][0] = (char)NULL; // last line empty
                   }
                   else
                   {
-                     for (x = tx; x < (int)strlen(PDEt[EN][ty]); x++)
-                        PDEt[EN][ty][x] = PDEt[EN][ty][x+1];
+                     for (x = tx; x < (int)strlen(PDEt[EN][ty1]); x++)
+                        PDEt[EN][ty1][x] = PDEt[EN][ty1][x+1];
                   }
                }
 
@@ -1080,19 +421,19 @@ void predefined_enemies(void)
                if (key[ALLEGRO_KEY_UP])
                {
                   while (key[ALLEGRO_KEY_UP]) proc_controllers();
-                  if (--ty < 0) ty = 0;
+                  if (--ty1 < 0) ty1 = 0;
                }
                if (key[ALLEGRO_KEY_DOWN])
                {
                   while (key[ALLEGRO_KEY_DOWN]) proc_controllers();
-                  if (++ty > 19) ty = 19;
+                  if (++ty1 > 19) ty1 = 19;
                }
                if ((mouse_b1) && (mouse_x < 250) && (mouse_y > 20) && (mouse_y < 180))
                {
-                  ty = (mouse_y-20)/8;
+                  ty1 = (mouse_y-20)/8;
                   tx = mouse_x/8;
                }
-               if (tx > (signed int)strlen(PDEt[EN][ty])) tx = strlen(PDEt[EN][ty]);
+               if (tx > (signed int)strlen(PDEt[EN][ty1])) tx = strlen(PDEt[EN][ty1]);
 
                while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
                {
@@ -1102,9 +443,6 @@ void predefined_enemies(void)
             }
             redraw = 1;
          } // end of edit text
-
-
-
          if (key[ALLEGRO_KEY_RIGHT])
          {
             while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();
@@ -1120,10 +458,6 @@ void predefined_enemies(void)
             if (EN < 0) EN = 0;
             redraw =1;
          }
-
-
-
-
          if (key[ALLEGRO_KEY_PGUP])
          {
             while (key[ALLEGRO_KEY_PGUP]) proc_controllers();
@@ -1148,9 +482,6 @@ void predefined_enemies(void)
             redraw =1;
             //PDE_sort();
          }
-
-
-
          if (menu_sel == 1) // prev PDE
          {
             if (--EN < 0) EN = 0;
@@ -1171,7 +502,6 @@ void predefined_enemies(void)
             load_PDE();
             redraw =1;
          }
-
          if ((mouse_y > 20) && (mouse_y < 148) && (mouse_b1))  // edit variables
          {
             y = (mouse_y-20)/8;
@@ -1179,8 +509,7 @@ void predefined_enemies(void)
             if ((mouse_x > 400) && (mouse_x < 500)) PDEi[EN][y]    = edit_int(440, 20+(y*8), PDEi[EN][y], 1, -1, 20000);
             if ((mouse_x > 500) && (mouse_x < 600)) PDEi[EN][y+16] = edit_int(540, 20+(y*8), PDEi[EN][y+16], 1, -1, 20000);
             redraw=1;
-        }
-
+         }
          while (key[ALLEGRO_KEY_ESCAPE])
          {
             quit = 1;
@@ -1190,27 +519,5 @@ void predefined_enemies(void)
       }
    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

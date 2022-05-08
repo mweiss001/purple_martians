@@ -942,28 +942,18 @@ void serial_key_check(int key)
          if (memcmp((skc + skc_index-tl), tst, tl) == 0) spline_test();
       }
 
-
       sprintf(tst, "sndb");
       tl = strlen(tst);
       if (skc_index > tl-1)
       {
-         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-         {
-            show_non_default_blocks =! show_non_default_blocks;
-            Redraw = 1;
-         }
+         if (memcmp((skc + skc_index-tl), tst, tl) == 0) show_non_default_blocks =! show_non_default_blocks;
       }
 
       sprintf(tst, "sbf");
       tl = strlen(tst);
       if (skc_index > tl-1)
       {
-         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-         {
-            show_flag_details =! show_flag_details;
-            Redraw = 1;
-         }
-
+         if (memcmp((skc + skc_index-tl), tst, tl) == 0) show_flag_details =! show_flag_details;
       }
 
       sprintf(tst, "alb");
@@ -975,7 +965,6 @@ void serial_key_check(int key)
              autoload_bookmark =! autoload_bookmark;
              if (autoload_bookmark) printf("autoload bookmark on\n");
              else                   printf("autoload bookmark off\n");
-             Redraw = 1;
              save_config();
          }
       }
@@ -1044,8 +1033,8 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
    }
    if (ev.type == ALLEGRO_EVENT_KEY_CHAR)
    {
-      Key_pressed_ASCII = ev.keyboard.unichar;
-      serial_key_check(Key_pressed_ASCII);
+      key_pressed_ASCII = ev.keyboard.unichar;
+      serial_key_check(key_pressed_ASCII);
    }
    if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS)
    {
@@ -1091,7 +1080,7 @@ int proc_controllers()
    int menu_timer_block = 1;
 
    key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
-   Key_pressed_ASCII = 0;
+   key_pressed_ASCII = 0;
 
    while (menu_timer_block)
    {

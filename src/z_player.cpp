@@ -1024,56 +1024,56 @@ void proc_player_ladder_move(int p)
    {
       if (yd > 0) // y+
       {
-         for (int ty = old_py; ty <= py; ty++)
+         for (int ty1 = old_py; ty1 <= py; ty1++)
          {
             if (players[p].right)
             {
-               al_fixed tm = is_right_solidfm(players[p].PX, al_itofix(ty), m, 0);
+               al_fixed tm = is_right_solidfm(players[p].PX, al_itofix(ty1), m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d py:%d opy:%d ty:%d y+r\n", frame_num, py, old_py, ty );
-                  players[p].PY = al_itofix(ty); // set y to passed by pos
+                  //printf("%d py:%d opy:%d ty1:%d y+r\n", frame_num, py, old_py, ty1 );
+                  players[p].PY = al_itofix(ty1); // set y to passed by pos
                   players[p].PX += m; // move in x
-                  ty = py+1; // break out of loop
+                  ty1 = py+1; // break out of loop
                }
             }
             else if (players[p].left)
             {
-               al_fixed tm = is_left_solidfm(players[p].PX, al_itofix(ty),  m, 0);
+               al_fixed tm = is_left_solidfm(players[p].PX, al_itofix(ty1),  m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d py:%d opy:%d ty:%d y+l\n", frame_num, py, old_py, ty );
-                  players[p].PY = al_itofix(ty); // set y to passed by pos
+                  //printf("%d py:%d opy:%d ty1:%d y+l\n", frame_num, py, old_py, ty1 );
+                  players[p].PY = al_itofix(ty1); // set y to passed by pos
                   players[p].PX -= m; // move in x
-                  ty = py+1; // break out of loop
+                  ty1 = py+1; // break out of loop
                }
             }
          }
       }
       if (yd < 0) // y-
       {
-         for (int ty = py; ty <= old_py; ty++)
+         for (int ty1 = py; ty1 <= old_py; ty1++)
          {
             if (players[p].right)
             {
-               al_fixed tm = is_right_solidfm(players[p].PX, al_itofix(ty), m, 0);
+               al_fixed tm = is_right_solidfm(players[p].PX, al_itofix(ty1), m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d py:%d opy:%d ty:%d y-r\n", frame_num, py, old_py, ty );
-                  players[p].PY = al_itofix(ty); // set y to passed by pos
+                  //printf("%d py:%d opy:%d ty1:%d y-r\n", frame_num, py, old_py, ty1 );
+                  players[p].PY = al_itofix(ty1); // set y to passed by pos
                   players[p].PX += m; // move in x
-                  ty = old_py+1; // break out of loop
+                  ty1 = old_py+1; // break out of loop
                }
             }
             else if (players[p].left)
             {
-               al_fixed tm = is_left_solidfm(players[p].PX, al_itofix(ty),  m, 0);
+               al_fixed tm = is_left_solidfm(players[p].PX, al_itofix(ty1),  m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d py:%d opy:%d ty:%d y-l\n", frame_num, py, old_py, ty );
-                  players[p].PY = al_itofix(ty); // set y to passed by pos
+                  //printf("%d py:%d opy:%d ty1:%d y-l\n", frame_num, py, old_py, ty1 );
+                  players[p].PY = al_itofix(ty1); // set y to passed by pos
                   players[p].PX -= m; // move in x
-                  ty = old_py+1; // break out of loop
+                  ty1 = old_py+1; // break out of loop
                }
             }
          }

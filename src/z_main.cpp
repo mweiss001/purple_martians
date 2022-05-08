@@ -12,11 +12,9 @@
 int pm_event[1000];
 
 
-// temp testing variable
-
+// temp testing variables
 int pct_x = 0;
 int pct_y = 0;
-
 
 int tx1=0;
 int ty1=0;
@@ -27,6 +25,8 @@ int tx2=0;
 int ty2=0;
 int ttc2=0;
 float ttfloat2=0;
+
+
 
 
 
@@ -108,7 +108,6 @@ char local_hostname[80];
 char pm_version_string[80];
 char al_version_string[80];
 
-
 char global_string[20][25][80];
 char msg[1024];
 char color_name[16][20];
@@ -124,16 +123,10 @@ int zz[20][NUM_ANS];
 // ----- level editor unsorted --------------------
 // ------------------------------------------------
 char sel_filename[500];
-int ty = 46;   // button start
 int bts = 12;  // button spacing
-
-// level editor start block UL corner
-int wx=0;
-int wy=0;
 int pop_msg_viewer_pos;
-int Redraw = 1;
 int num_legend_lines = 2;
-int Viewer_lock = 0;
+int viewer_lock = 0;
 
 
 // ------------------------------------------------
@@ -170,8 +163,6 @@ int ov_window_x2 = 300;
 int ov_window_y2 = 740;
 int ov_window_w = 240;
 int ov_window_h = 600;
-
-
 int ov_window_lift_buttons_h = 0;
 
 
@@ -202,11 +193,11 @@ int swbl[NUM_SPRITES][2];
 int show_non_default_blocks = 0;
 int show_flag_details = 1;
 
+
 int autoload_bookmark = 0;
 int bookmark_level = 0;
 int bookmark_obj = 0;
 int bookmark_num = 0;
-
 
 
 int select_window_block_y;
@@ -218,7 +209,7 @@ int stext_draw_flag;
 int sw_mouse_gone = 0;
 
 // ------------------------------------------------
-// ---------------zoom full screen ----------------
+// --------zoom full screen and group edit --------
 // ------------------------------------------------
 int stx=10;  // selection window
 int sty=10;
@@ -244,7 +235,7 @@ char skc[64];
 int skc_index = 0;
 
 bool key[ALLEGRO_KEY_MAX];
-int Key_pressed_ASCII;
+int key_pressed_ASCII;
 
 float mouse_loop_pause = 0;
 
@@ -330,10 +321,6 @@ ALLEGRO_BITMAP *door_tile[2][16][8] = {NULL};
 ALLEGRO_BITMAP *level_background = NULL;
 ALLEGRO_BITMAP *level_buffer = NULL;
 
-ALLEGRO_BITMAP *dtemp = NULL; // temp draw
-ALLEGRO_BITMAP *lefsm = NULL; // level editor fullscreen map
-
-ALLEGRO_BITMAP *mp = NULL;     //  mouse_pointer
 ALLEGRO_BITMAP *ft_bmp = NULL;  //  file temp paste bmp
 
 ALLEGRO_BITMAP *logo_ichael = NULL;
@@ -547,23 +534,10 @@ float mdw_logo_scale_dec;
 float mdw_logo_x_dec;
 float mdw_logo_y_dec;
 
-
-
 // position and size of map on menu screen
 int menu_map_x;
 int menu_map_y;
 int menu_map_size;
-
-int db;  // level editor zoom fullscreen map double
-int txc; // center of right hand side panel in level editor
-
-// game map
-int game_map_on;
-int map_x = BORDER_WIDTH;
-int map_y = BORDER_WIDTH;
-int map_size = 0;
-int new_size = 0;
-
 
 void final_wrapup(void)
 {
@@ -1342,7 +1316,6 @@ int main(int argument_count, char **argument_array)
 //   show_var_sizes();
 
 /*
-
    int test = 0;
    printBits(4, &test);
 
@@ -1354,10 +1327,8 @@ int main(int argument_count, char **argument_array)
    printBits(4, &test);
 
    printf("af:'%s'\n",msg);
+
 */
-
-
-
 
 
 
