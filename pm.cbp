@@ -211,7 +211,6 @@
 		<Unit filename="src/z_logo.cpp" />
 		<Unit filename="src/z_loop.cpp" />
 		<Unit filename="src/z_main.cpp" />
-		<Unit filename="src/z_map.cpp" />
 		<Unit filename="src/z_menu.cpp" />
 		<Unit filename="src/z_player.cpp" />
 		<Unit filename="src/z_screen.cpp" />

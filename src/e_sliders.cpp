@@ -319,14 +319,12 @@ void mdw_slider(int x1, int y1, int x2, int y2,
    // is mouse on adjustment bar?
    if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
-      //Redraw = 2; // flag that we are in charge of drawing the mouse
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
       if (mouse_b3) // only when initially clicked
       {
          float f = sdx; //initial value
-         Redraw = 1;  // flag to not draw screen buffer until refreshed because it will have old position
          while (mouse_b3)
          {
             if (mouse_dz)
@@ -353,7 +351,6 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
       if (mouse_b1) // only when initially clicked
       {
-         //Redraw = 1;  // flag to not draw screen buffer until refreshed because it will have old position
          while (mouse_b1)
          {
             float my = mouse_y;
@@ -463,14 +460,12 @@ void mdw_slider0_int(int x1, int y1, int x2, int y2, int bn, int num, int type, 
    // is mouse on adjustment bar?
    if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
-      //Redraw = 2; // flag that we are in charge of drawing the mouse
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
       if (mouse_b3) // only when initially clicked
       {
          float f = sdx; //initial value
-         Redraw = 1;  // flag to not draw screen buffer until refreshed because it will have old position
          while (mouse_b3)
          {
             if (mouse_dz)
@@ -575,14 +570,12 @@ void mdw_slider2_int(int x1, int y1, int x2, int y2, int bn, int num, int type, 
    // is mouse on adjustment bar?
    if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
-      //Redraw = 2; // flag that we are in charge of drawing the mouse
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
       if (mouse_b3) // only when initially clicked
       {
          float f = sdx; //initial value
-         Redraw = 1;  // flag to not draw screen buffer until refreshed because it will have old position
          while (mouse_b3)
          {
             if (mouse_dz)
@@ -662,14 +655,12 @@ void mdw_slider2_fix(int x1, int y1, int x2, int y2, int bn, int num, int type, 
    // is mouse on adjustment bar?
    if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
-      //Redraw = 2; // flag that we are in charge of drawing the mouse
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
       if (mouse_b3) // only when initially clicked
       {
          float f = sdx; //initial value
-         Redraw = 1;  // flag to not draw screen buffer until refreshed because it will have old position
          while (mouse_b3)
          {
             if (mouse_dz)
@@ -750,14 +741,12 @@ void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, 
    // is mouse on adjustment bar?
    if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
-      //Redraw = 2; // flag that we are in charge of drawing the mouse
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
       if (mouse_b3) // only when initially clicked
       {
          float f = sdx; //initial value
-         Redraw = 1;  // flag to not draw screen buffer until refreshed because it will have old position
          while (mouse_b3)
          {
             if (mouse_dz)
@@ -995,7 +984,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
          {
              int i = get_item(2, 1, num );
              if (i > -1) item[num][9] = i;
-             Redraw = 1;
          }
       }
    }
@@ -1005,7 +993,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
       if (press)
       {
          get_block_range("Block Range", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1);
-         Redraw = 1;
       }
    }
    if (bn == 6)
@@ -1014,7 +1001,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
       if (press)
       {
          getxy("Initial Direction", 97, 11, num);
-         Redraw = 1;
       }
    }
    if (bn == 7)
@@ -1030,10 +1016,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
    if (bn == 10)
    {
       sprintf(smsg, "Set Initial Direction"); // bouncer direction
-      if (press)
-      {
-         if (getxy("Initial Direction", 96, 4, num) == 1) Redraw = 1;
-      }
+      if (press) (getxy("Initial Direction", 96, 4, num) == 1);
    }
 
 
@@ -1045,7 +1028,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
       {
          if (++Ei[num][5] > 7) Ei[num][5] = 0;
          set_trakbot_mode(num, Ei[num][5]);
-         Redraw = 1;
       }
    }
 
@@ -1084,29 +1066,22 @@ int mdw_button(int x1, int y1, int x2, int y2,
    if (bn == 15)
    {
       sprintf(smsg, "Move Extended Position");
-      if (press) move_pod_extended(num);
+      if (press) getxy("Pod Extended Position", 99, 7, num);
    }
    if (bn == 16)
    {
       sprintf(smsg, "Set Trigger Box");
-      if (press) move_trigger_box(num, 9);
+      if (press) get_block_range("Trigger Box", &Ei[num][11], &Ei[num][12], &Ei[num][13], &Ei[num][14], 2);
    }
    if (bn == 17)
    {
       sprintf(smsg, "Set Source Area");
-      if (press)
-      {
-         if (get_block_range("Cloner Source Area", &Ei[num][15], &Ei[num][16], &Ei[num][19], &Ei[num][20], 3)) Redraw = 1;
-      }
+      if (press) get_block_range("Cloner Source Area", &Ei[num][15], &Ei[num][16], &Ei[num][19], &Ei[num][20], 3);
    }
    if (bn == 18)
    {
       sprintf(smsg, "Set Destination");
-      if (press)
-      {
-         getxy("Cloner Destination", 98, 9, num);
-         Redraw = 1;
-      }
+      if (press) getxy("Cloner Destination", 98, 9, num);
    }
    if (bn == 19)
    {
@@ -1190,8 +1165,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
          {
             item[num][9] = num;  // link to self
             item[num][11] = 1;   // trigger with up
-          }
-         Redraw = 1;
+         }
       }
    }
    if (bn == 50) // door entry type
@@ -1204,7 +1178,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
       {
          item[num][11]++;
          if (item[num][11] > 2) item[num][11] = 0;
-         Redraw = 1;
       }
    }
    if (bn == 51) // door show dest line type
@@ -1217,7 +1190,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
       {
          item[num][12]++;
          if (item[num][12] > 2) item[num][12] = 0;
-         Redraw = 1;
       }
    }
    if (bn == 52)
@@ -1227,15 +1199,11 @@ int mdw_button(int x1, int y1, int x2, int y2,
       {
          int shape = item[num][13];
          if (shape == 448) shape = 1083;
-         else
-         {
-            if (shape == 1083) shape = 448;
-         }
+         else if (shape == 1083) shape = 448;
          if ((shape != 448) && (shape != 1083)) shape = 1083;
          item[num][13] = shape;
          item[num][1] = shape;
          change_linked_door_color_and_shape(num);
-         Redraw = 1;
       }
    }
    if (bn == 53) // door move type
@@ -1253,18 +1221,13 @@ int mdw_button(int x1, int y1, int x2, int y2,
    if (bn == 55)
    {
       sprintf(smsg, "Set Message Position");
-      if (press)
-      {
-         getxy("Message Position", 95, 10, num);
-         draw_big(1);
-         Redraw = 1;
-      }
+      if (press) getxy("Message Position", 95, 10, num);
    }
    if (bn == 56)
    {
-      if (Viewer_lock) sprintf(smsg,  "Locked");
+      if (viewer_lock) sprintf(smsg,  "Locked");
       else             sprintf(smsg, "Unlocked");
-      if (press) Viewer_lock = !Viewer_lock;
+      if (press) viewer_lock = !viewer_lock;
    }
    if (bn == 57)
    {
@@ -1288,7 +1251,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
          item[num][12] = !item[num][12];
          if (item[num][12]) item[num][1] = 537;
          else item[num][1] = 464;
-         Redraw = 1;
       }
    }
    if (bn == 78)
@@ -1339,26 +1301,20 @@ int mdw_button(int x1, int y1, int x2, int y2,
    if (bn == 85)
    {
       sprintf(smsg, "Get New Damage Field");
-      if (press)
-      {
-         if (get_block_range("Get New Field", &Ei[num][15], &Ei[num][16], &Ei[num][17], &Ei[num][18], 1)) Redraw = 1;
-      }
+      if (press) get_block_range("Get New Field", &Ei[num][15], &Ei[num][16], &Ei[num][17], &Ei[num][18], 1);
    }
    if (bn == 86)
    {
       sprintf(smsg, "Get New Trigger Field");
-      if (press)
-      {
-         if (get_block_range("Trigger Field Location", &Ei[num][11], &Ei[num][12], &Ei[num][13], &Ei[num][14], 1)) Redraw = 1;
-      }
+      if (press) get_block_range("Trigger Field Location", &Ei[num][11], &Ei[num][12], &Ei[num][13], &Ei[num][14], 1);
    }
    if (bn == 87) // field mode
    {
-      if (Ei[num][5] == 0) sprintf(smsg, "MODE:Damage Field Always ON          ");
-      if (Ei[num][5] == 1) sprintf(smsg, "MODE:Damage Field Toggle             ");
-      if (Ei[num][5] == 2) sprintf(smsg, "MODE:Damage Field ON Until Triggered ");
-      if (Ei[num][5] == 3) sprintf(smsg, "MODE:Damage Field OFF Until Triggered");
-      if (Ei[num][5] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF   ");
+      if (Ei[num][5] == 0) sprintf(smsg, "MODE:Damage Always ON          ");
+      if (Ei[num][5] == 1) sprintf(smsg, "MODE:Damage Toggle             ");
+      if (Ei[num][5] == 2) sprintf(smsg, "MODE:Damage ON Until Triggered ");
+      if (Ei[num][5] == 3) sprintf(smsg, "MODE:Damage OFF Until Triggered");
+      if (Ei[num][5] == 4) sprintf(smsg, "MODE:Damage Timed ON And OFF   ");
       if (press)
       {
          Ei[num][5]++;
@@ -1387,36 +1343,27 @@ int mdw_button(int x1, int y1, int x2, int y2,
    }
    if (bn == 98)
    {
-      if (Ei[num][2] == 0) sprintf(smsg, "Draw Mode:Hidden           ");
-      if (Ei[num][2] == 1) sprintf(smsg, "Draw Mode:Small Number     ");
-      if (Ei[num][2] == 2) sprintf(smsg, "Draw Mode:Large Number     ");
-      if (Ei[num][2] == 3) sprintf(smsg, "Draw Mode:Small Percent Bar");
-      if (Ei[num][2] == 4) sprintf(smsg, "Draw Mode:Large Percent Bar");
+      if (Ei[num][2] == 0) sprintf(smsg, "Draw Mode:Hidden      ");
+      if (Ei[num][2] == 1) sprintf(smsg, "Draw Mode:Small Number");
+      if (Ei[num][2] == 2) sprintf(smsg, "Draw Mode:Large Number");
+      if (Ei[num][2] == 3) sprintf(smsg, "Draw Mode:Small Bar   ");
+      if (Ei[num][2] == 4) sprintf(smsg, "Draw Mode:Large Bar   ");
       if (press) if (++Ei[num][2] > 4) Ei[num][2] = 0;
    }
    if (bn == 102) // Damage Field
    {
-      if (Ei[num][19] == 0) sprintf(smsg, "Draw Type:Red Rectangle (default)");
-      if (Ei[num][19] == 1) sprintf(smsg, "Draw Type:Spikey Floor");
-      if (Ei[num][19] == 2) sprintf(smsg, "Draw Type:none");
+      if (Ei[num][19] == 0) sprintf(smsg, "Draw Type:Red Rectangle");
+      if (Ei[num][19] == 1) sprintf(smsg, "Draw Type:Spikey Floor ");
+      if (Ei[num][19] == 2) sprintf(smsg, "Draw Type:none         ");
       if (press) if (++Ei[num][19] > 2) Ei[num][19] = 0;
    }
 
    if (bn == 105) // Trigger Field
    {
-      if (Ei[num][10] == 0) sprintf(smsg, "Draw Type:Yellow Rectangle (default)");
-      if (Ei[num][10] == 1) sprintf(smsg, "Draw Type:none");
+      if (Ei[num][10] == 0) sprintf(smsg, "Draw Type:Yellow Box");
+      if (Ei[num][10] == 1) sprintf(smsg, "Draw Type:none      ");
       if (press) if (++Ei[num][10] > 1) Ei[num][10] = 0;
    }
-
-
-
-
-
-
-
-
-
    if (bn == 120)
    {
       if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_PLAYER) sprintf(smsg, "Affects Players:ON          ");
@@ -1439,13 +1386,13 @@ int mdw_button(int x1, int y1, int x2, int y2,
    {
       if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_PBUL)   sprintf(smsg, "Affects Player's Bullets:ON ");
       else                                           sprintf(smsg, "Affects Player's Bullets:OFF");
+      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_PBUL;
    }
    if (bn == 124)
    {
       if (Ei[num][3] & PM_ENEMY_FIELD_DAMAGE_EBUL)   sprintf(smsg, "Affects Enemy's Bullets:ON  ");
       else                                           sprintf(smsg, "Affects Enemy's Bullets:OFF ");
       if (press) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_EBUL;
-      if (press) Ei[num][3] ^= PM_ENEMY_FIELD_DAMAGE_PBUL;
    }
    if (bn == 125)
    {
@@ -1708,10 +1655,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
    if (bn == 200)
    {
       sprintf(smsg, "Get New Trigger Field"); // item
-      if (press)
-      {
-         if (!get_block_range("Trigger Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1)) Redraw = 1;
-      }
+      if (press) get_block_range("Trigger Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1);
    }
    if (bn == 210)
    {
@@ -1819,10 +1763,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
    if (bn == 300)
    {
       sprintf(smsg, "Get New Block Manip Field"); // item
-      if (press)
-      {
-         if (!get_block_range("Block Manip Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1)) Redraw = 1;
-      }
+      if (press) get_block_range("Block Manip Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1);
    }
    if (bn == 301) // block manip mode
    {
@@ -1896,16 +1837,12 @@ int mdw_button(int x1, int y1, int x2, int y2,
                }
             }
          }
-         Redraw = 1;
       }
    }
    if (bn == 400)
    {
       sprintf(smsg, "Get New Block Damage Field"); // item
-      if (press)
-      {
-         if (!get_block_range("Block Damage Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1)) Redraw = 1;
-      }
+      if (press) get_block_range("Block Damage Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1);
    }
    if (bn == 401) // timer draw mode
    {
@@ -2379,7 +2316,6 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
          lift_steps[num][type].type |= cf; // merge color with type
 
       }
-      Redraw = 1;
    }
 }
 

@@ -5,24 +5,28 @@
 // gets block with flags from level
 int select_bitmap(int tn)
 {
-   int redraw = 1;
+   int gx=0, gy=0, hx=0, hy=0;
    int quit = 0;
    while (!quit)
    {
-
-      int x100 = mouse_x/20 + wx;
-      int y100 = mouse_y/20 + wy;
-      if (x100>99) x100 = 99;
-      if (y100>99) y100 = 99;
-
-      point_item_type = 1;
-      point_item_num = l[x100][y100];
+      ovw_process_scrolledge();
+      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+      al_flip_display();
+      proc_scale_factor_change();
+      proc_controllers();
+      proc_frame_delay();
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
 
       // draw rectangle around selected block
-      int mx = mouse_x/20;
-      int my = mouse_y/20;
-      al_draw_rectangle(mx*20, my*20, mx*20+20, my*20+20, palette_color[15], 1);
+      al_draw_rectangle(gx*20, gy*20, gx*20+20, gy*20+20, palette_color[15], 1);
 
+      get_new_screen_buffer(3, 0, 0);
+
+      point_item_type = 1;
+      point_item_num = l[gx][gy];
 
       int swx1 = 200;
       int swy1 = 200;
@@ -31,14 +35,14 @@ int select_bitmap(int tn)
       int swy2 = swy1 + 32;  // above flags
 
       // erase background and frame
-/*      int swy3 = swy2 + 145; // below flags
+      int swy3 = swy2 + 145; // below flags
       al_draw_filled_rectangle(             swx1-2,  swy1-2,  swx2+2, swy3, palette_color[0]);
-      al_draw_rectangle(                    swx1-2,  swy1-2,  swx2+2, swy3, palette_color[13], 1); */
+      al_draw_rectangle(                    swx1-2,  swy1-2,  swx2+2, swy3, palette_color[13], 1);
 
       // view item area
       al_draw_rectangle(                    swx1,    swy1,    swx2, swy2, palette_color[9], 1);
       al_draw_text(font, palette_color[15], swx1+24, swy1+2, 0, "Choose Block");
-      draw_item_info(                       swx1+2,  swy1+9, 9, point_item_type, point_item_num);
+      em_draw_item_info(                    swx1+2,  swy1+9, 9, point_item_type, point_item_num);
 
       // flags section
       int ftx = swx1+11;
@@ -57,23 +61,6 @@ int select_bitmap(int tn)
          while (mouse_b1) proc_controllers(); // wait for release
          return point_item_num;
       }
-
-      al_rest(mouse_loop_pause);
-
-      al_set_target_backbuffer(display);
-      al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
-
-      proc_controllers();
-      process_scrolledge();
-      update_editor_background();
-
-      if (redraw)
-      {
-         redraw = 0;
-         draw_big(1);
-      }
-
       if (key[ALLEGRO_KEY_ESCAPE])  // trap here 1st
       {
          while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
@@ -303,6 +290,9 @@ void redraw_grid(int x, int y, int current_selection) // draw 32x32 bitmaps
       }
 }
 
+
+
+
 void draw_flag_text(int x, int y, int ys, int col, int last_flag_show)
 {
    al_draw_text(font, palette_color[col], x, y, 0, "SOLID_PLAYER");     y+=ys;
@@ -387,34 +377,48 @@ void draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys)
 
 
 
-
-// this is only for draw_item
-void draw_and_proc_flag_rects_draw_item(int x, int y, int w, int h, int ys)
+// this common one calls text and rect and allows changes if applicable
+// used by draw iten, point item and block selection description
+void draw_flags(int x1, int y1, int* num, int *mpow, int view_only, int clear_background, int ignore_mpow)
 {
-   int highlight = draw_flag_rects(draw_item_num, x, y, w, h, ys, 14);
-   if (highlight > -1)
+   int ys = 10; // y spacing
+   int frw = 6; // flag rectangle width
+   int frh = 6; // flag rectangle height
+
+   if (clear_background)
    {
-      al_draw_rectangle(x-1, y+(ys*highlight)-1, x+w+1, y+h+(ys*highlight)+1, palette_color[15], 0);
-      if (mouse_b1)
+      al_draw_filled_rectangle(x1-1, y1-1, x1+142, y1+(13*ys)+8, palette_color[0]);
+      al_draw_rectangle(x1-2, y1-2, x1+142, y1+(13*ys)+9, palette_color[15], 1);
+   }
+   if (!ignore_mpow) if ((mouse_x > x1-2) && (mouse_x < x1+155) && (mouse_y > y1-2) && (mouse_y < y1+(13*ys)+9)) *mpow = 1;
+   int highlight = draw_flag_rects(*num, x1, y1, frw, frh, ys, 14);
+   if (!view_only)
+   {
+      if (highlight > -1)
       {
-         while (mouse_b1) proc_controllers(); // wait for release
-         if (highlight ==  0) draw_item_num ^= PM_BTILE_SOLID_PLAYER;
-         if (highlight ==  1) draw_item_num ^= PM_BTILE_SOLID_ENEMY;
-         if (highlight ==  2) draw_item_num ^= PM_BTILE_SOLID_ITEM;
-         if (highlight ==  3) draw_item_num ^= PM_BTILE_SOLID_PBUL;
-         if (highlight ==  4) draw_item_num ^= PM_BTILE_SOLID_EBUL;
-         if (highlight ==  5) draw_item_num ^= PM_BTILE_SEMISOLID_PLAYER;
-         if (highlight ==  6) draw_item_num ^= PM_BTILE_SEMISOLID_ENEMY;
-         if (highlight ==  7) draw_item_num ^= PM_BTILE_SEMISOLID_ITEM;
-         if (highlight ==  8) draw_item_num ^= PM_BTILE_BOMBABLE;
-         if (highlight ==  9) draw_item_num ^= PM_BTILE_BREAKABLE_PBUL;
-         if (highlight == 10) draw_item_num ^= PM_BTILE_BREAKABLE_EBUL;
-         if (highlight == 11) draw_item_num ^= PM_BTILE_LADDER_MOVE;
-         if (highlight == 12) draw_item_num ^= PM_BTILE_ROPE_MOVE;
-         if (highlight == 13) draw_item_num ^= PM_BTILE_SECRET;
-         if (highlight == 14) draw_item_num ^= PM_BTILE_SHOW_SELECT_WIN;
+         al_draw_rectangle(x1-1, y1+(ys*highlight)-1, x1+frw+1, y1+frh+(ys*highlight)+1, palette_color[15], 1);
+         if (mouse_b1)
+         {
+            while (mouse_b1) proc_controllers(); // wait for release
+            if (highlight ==  0) (*num) ^= PM_BTILE_SOLID_PLAYER;
+            if (highlight ==  1) (*num) ^= PM_BTILE_SOLID_ENEMY;
+            if (highlight ==  2) (*num) ^= PM_BTILE_SOLID_ITEM;
+            if (highlight ==  3) (*num) ^= PM_BTILE_SOLID_PBUL;
+            if (highlight ==  4) (*num) ^= PM_BTILE_SOLID_EBUL;
+            if (highlight ==  5) (*num) ^= PM_BTILE_SEMISOLID_PLAYER;
+            if (highlight ==  6) (*num) ^= PM_BTILE_SEMISOLID_ENEMY;
+            if (highlight ==  7) (*num) ^= PM_BTILE_SEMISOLID_ITEM;
+            if (highlight ==  8) (*num) ^= PM_BTILE_BOMBABLE;
+            if (highlight ==  9) (*num) ^= PM_BTILE_BREAKABLE_PBUL;
+            if (highlight == 10) (*num) ^= PM_BTILE_BREAKABLE_EBUL;
+            if (highlight == 11) (*num) ^= PM_BTILE_LADDER_MOVE;
+            if (highlight == 12) (*num) ^= PM_BTILE_ROPE_MOVE;
+            if (highlight == 13) (*num) ^= PM_BTILE_SECRET;
+            if (highlight == 14) (*num) ^= PM_BTILE_SHOW_SELECT_WIN;
+         }
       }
    }
+   draw_flag_text(x1+12, y1, ys, 15, 0);
 }
 
 
@@ -586,13 +590,13 @@ void edit_btile_attributes(void)
       int csy = fty-ys-1;
 
       int tx = 40;
-      int ty = 670;
+      int ty1 = 670;
 
       if (mode == 0) // show flags for one tile
       {
-         al_draw_rounded_rectangle(            tx, ty, tx+508, ty+26, 2, 2, palette_color[13], 1);
-         al_draw_text(font, palette_color[15], tx+2, ty+2,  0, "left  mouse button (b1) - select a tile");
-         al_draw_text(font, palette_color[15], tx+2, ty+16, 0, "right mouse button (b2) - paste selected tile flags to new tile");
+         al_draw_rounded_rectangle(            tx, ty1, tx+508, ty1+26, 2, 2, palette_color[13], 1);
+         al_draw_text(font, palette_color[15], tx+2, ty1+2,  0, "left  mouse button (b1) - select a tile");
+         al_draw_text(font, palette_color[15], tx+2, ty1+16, 0, "right mouse button (b2) - paste selected tile flags to new tile");
 
          draw_and_proc_flag_rects_for_sa(current_selection, frx, fry, frw, frh, ys);
          al_draw_rectangle(                       csx-1,  csy-7, csx+195, csy+15, palette_color[10], 1);
@@ -602,9 +606,9 @@ void edit_btile_attributes(void)
 
       if (mode == 1) // show the tallied flags multiple
       {
-         al_draw_rounded_rectangle(            tx, ty, tx+302, ty+26, 2, 2, palette_color[13], 1);
-         al_draw_text(font, palette_color[15], tx+2, ty+2,  0, "- draw selection rectangle");
-         al_draw_text(font, palette_color[15], tx+2, ty+16, 0, "- toggle flags for all selected tiles");
+         al_draw_rounded_rectangle(            tx, ty1, tx+302, ty1+26, 2, 2, palette_color[13], 1);
+         al_draw_text(font, palette_color[15], tx+2, ty1+2,  0, "- draw selection rectangle");
+         al_draw_text(font, palette_color[15], tx+2, ty1+16, 0, "- toggle flags for all selected tiles");
 
          draw_flag_rects_multiple(bx1, by1, bx2, by2, frx, fry, frw, frh, ys, 10, 11, -1);
          al_draw_rectangle(csx-4, csy-7, csx+195, csy+15, palette_color[10], 1);
@@ -768,7 +772,7 @@ void edit_btile_attributes(void)
          quit = 1;
       }
    }
-   set_swbl();
+   em_set_swbl();
 }
 
 

@@ -781,6 +781,29 @@ LOGGING_NETPLAY_show_dif1 = 0
 LOGGING_NETPLAY_show_dif2 = 0
 
 
+<section>Serial Key Shortcuts
+
+alb - autoload bookmarks on/off
+
+sbf - show block flags on/off
+
+sndb - show non-default blocks
+
+mdwa - spline adjust
+
+mdwt - spline test
+
+fakekey - fake keypress mode
+
+ston - speed test on
+
+stoff - speed test off
+
+bmsgon - bottom messages on
+
+bmsgoff - bottom messages off
+
+
 <section>Level Editor Basics
 
 

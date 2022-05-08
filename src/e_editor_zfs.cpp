@@ -1034,11 +1034,11 @@ void zfs_draw_fsel(void)
 
    int sw = sux-stx;
    int sh = suy-sty;
+   al_destroy_bitmap(ft_bmp);
    ft_bmp = al_create_bitmap(sw*20, sh*20);
    al_set_target_bitmap(ft_bmp);
    al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap_region(level_buffer, stx*20, sty*20, sw*20, sh*20, 0, 0, 0);
-   al_destroy_bitmap(ft_bmp);
 }
 
 void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)

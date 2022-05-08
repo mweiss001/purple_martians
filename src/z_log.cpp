@@ -724,7 +724,7 @@ int log_file_viewer(int type)
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
 
-      int ty = 0;
+      int ty1 = 0;
       int color = 15;
       int first_line = 0;
 
@@ -819,7 +819,7 @@ int log_file_viewer(int type)
          if (type == 99) // bad tags on this line
          {
             sprintf(msg, "i[%d] t[%d] p[%d] pc[%d] (bad tags)- %s", i, type, p, pc, log_lines[i]);
-            al_draw_text(font, palette_color[color], 0, ty+=8, 0, msg);
+            al_draw_text(font, palette_color[color], 0, ty1+=8, 0, msg);
          }
          else
          {
@@ -831,10 +831,10 @@ int log_file_viewer(int type)
 
             color = tags[type][1];
             if ((tags[type][0]) && (lp[p][0])) // tag and player filter
-               al_draw_text(font, palette_color[color], 0, ty+=8, 0, msg);
+               al_draw_text(font, palette_color[color], 0, ty1+=8, 0, msg);
          }
          if (++i >= num_lines) done = 1; // no more lines
-         if (ty > SCREEN_H - 20) done = 1; // no more screen
+         if (ty1 > SCREEN_H - 20) done = 1; // no more screen
       }
       al_flip_display();
 
@@ -1229,13 +1229,13 @@ void log_bandwidth_graph(int num_lines, int end_pc)
                   int pc = data[i][0];
                   int dp = data[i][1];
                   int tx = data[i][2];
-                  int ty = data[i][3];
+                  int ty1 = data[i][3];
                   int col = players[p].color;
                   if (dp == p)
                   {
                      int ix = xbl + (int) ( (float)(pc-gs_pc) * p2g);
                      int ity = ybl - (int) ( (float)tx * y_scale);
-                     int iry = ybl - (int) ( (float)ty * y_scale);
+                     int iry = ybl - (int) ( (float)ty1 * y_scale);
                      if (first_time) // set previous point to this point
                      {
                         first_time = 0;

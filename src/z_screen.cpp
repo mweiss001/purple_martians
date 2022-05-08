@@ -76,9 +76,6 @@ void create_bmp(void)
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 
-   // temp bitmap for passing draw shape
-   dtemp = al_create_bitmap(20,20);
-
    // bottom msg bitmaps
    for (int x=0; x<20; x++)
    {
@@ -121,7 +118,6 @@ void rebuild_bitmaps(void)
    text_title_bitmaps_create = 1;
 
    set_map_var();
-   Redraw = 1;
 
    load_visual_level_select_done = 0;
    if (visual_level_select_running) load_visual_level_select();
@@ -509,31 +505,10 @@ void get_new_screen_buffer(int type, int x, int y)
 
 void set_map_var(void)
 {
-   // set intial map size based on minimum screen dimension / 3
-   int smin = 0;
-   if (SCREEN_H < SCREEN_W) smin = SCREEN_H;
-   else smin = SCREEN_W;
-   new_size = smin / 3;
-   map_size = new_size;
-
-   // set db and create map for level editor
-   db = (SCREEN_H/100);
-   if (db < 4) db = 4;
-   if (db > 20) db = 20;
-   // check to see if there is enough space for buttons on the right panel...if not, re-adjust
-   while (SCREEN_W - db*100 < 200) db--;
-   if (db < 2) db = 2;
-   al_destroy_bitmap(lefsm);
-   lefsm = al_create_bitmap(db*100,db*100);
-
-   // center of right side panel in level editor
-   txc = SCREEN_W - (SCREEN_W - db*100) / 2;
 
    // check that status and select windows are not off screen
-   check_s_window_pos(0);
+   em_check_s_window_pos(0);
 
-   // create a bitmap to use as a mouse pointer
-   mp = al_create_bitmap(db*25,db*25);
 
    // determine menu_map_size and position
    int y_size = SCREEN_H-160;

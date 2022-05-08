@@ -359,7 +359,7 @@ int draw_filter_toggles(int x1, int x2, int y1)
    int fs = 12;   // frame size
    int y = y1+fs; // button y position
 
-   bts = 12;        // button size
+   int bts = 12;        // button size
    int a = 0;       // keep track of button y spacing
 
    int tc1 = 15;    // text color 1
@@ -626,7 +626,7 @@ int show_ge_controls(int gx, int gy)
             int y = gy;
 
             int a = 0;
-            bts = 16;
+            int bts = 16;
 
             sprintf(msg, "Group Edit - %s", ge_data[ge_num].name);
             mdw_toggle(x1, y+a*bts, x2, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,1,0,0, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 15+64); a++;

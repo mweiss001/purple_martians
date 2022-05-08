@@ -315,7 +315,6 @@ void proc_display_change(void)
    set_display_transform();
    rebuild_bitmaps();
    save_config();
-   Redraw = 1;
    //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
 }
 

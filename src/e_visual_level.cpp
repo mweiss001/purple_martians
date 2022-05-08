@@ -2,6 +2,9 @@
 
 #include "pm.h"
 
+
+
+
 // globals
 int sel = 0;
 int old_sel = 0;
@@ -9,6 +12,9 @@ int cur = 0;
 int old_cur = 0;
 
 int draw_frames = 1;
+
+int vl_redraw = 1;
+
 
 int lev_show_level_data(int x_pos, int y_pos)
 {
@@ -219,23 +225,23 @@ void lev_draw(int full)
    show_msel();
 
    int xpos = 1000 + (1280 - 1000)/2;
-   int ty = 840;
+   int ty1 = 840;
 
-   al_draw_text(font, palette_color[14], xpos, ty+=8, ALLEGRO_ALIGN_CENTER, "Change currently selected");
-   al_draw_text(font, palette_color[14], xpos, ty+=8, ALLEGRO_ALIGN_CENTER, "level with left mouse button");
-   ty+=20;
+   al_draw_text(font, palette_color[14], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "Change currently selected");
+   al_draw_text(font, palette_color[14], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "level with left mouse button");
+   ty1+=20;
 
-   al_draw_text(font, palette_color[10], xpos, ty+=8, ALLEGRO_ALIGN_CENTER, "Move currently selected");
-   al_draw_text(font, palette_color[10], xpos, ty+=8, ALLEGRO_ALIGN_CENTER, "level to empty level");
-   al_draw_text(font, palette_color[10], xpos, ty+=8, ALLEGRO_ALIGN_CENTER, "with right mouse button");
-   ty+=20;
+   al_draw_text(font, palette_color[10], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "Move currently selected");
+   al_draw_text(font, palette_color[10], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "level to empty level");
+   al_draw_text(font, palette_color[10], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "with right mouse button");
+   ty1+=20;
 
-   al_draw_text(font, palette_color[11], xpos, ty+=8, ALLEGRO_ALIGN_CENTER, "View currently selected" );
-   al_draw_text(font, palette_color[11], xpos, ty+=8, ALLEGRO_ALIGN_CENTER, "level full screen");
-   al_draw_text(font, palette_color[11], xpos, ty+=8, ALLEGRO_ALIGN_CENTER, "by holding 'S'");
-   al_draw_text(font, palette_color[11], xpos, ty+=8, ALLEGRO_ALIGN_CENTER, "or right mouse button");
-   ty+=20;
-   al_draw_text(font, palette_color[12], xpos, ty+=8, ALLEGRO_ALIGN_CENTER, "Quit with ESC");
+   al_draw_text(font, palette_color[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "View currently selected" );
+   al_draw_text(font, palette_color[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "level full screen");
+   al_draw_text(font, palette_color[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "by holding 'S'");
+   al_draw_text(font, palette_color[11], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "or right mouse button");
+   ty1+=20;
+   al_draw_text(font, palette_color[12], xpos, ty1+=8, ALLEGRO_ALIGN_CENTER, "Quit with ESC");
 }
 
 
@@ -405,9 +411,9 @@ void show_cur_vs(int cur, int x1, int y1, int size, int fc)
    if (load_level(cur, 0))
    {
       draw_level2(NULL, x1+2, y1+26, size-3, 1, 1, 1, 1, 0);
-      int ty = lev_show_level_data(x1+2, y2+32+24);
+      int ty1 = lev_show_level_data(x1+2, y2+32+24);
       for (int a=0; a<16; a++)
-         al_draw_rectangle(x1+0-a, y2+55-a, x2-0+a, ty+a, palette_color[fc + (15-a)*16], 1 );
+         al_draw_rectangle(x1+0-a, y2+55-a, x2-0+a, ty1+a, palette_color[fc + (15-a)*16], 1 );
    }
    else al_draw_text(font, palette_color[10], xc, y1+30, ALLEGRO_ALIGN_CENTER, "not found" );
 }
@@ -573,13 +579,13 @@ int visual_level_select(void)
    grid_sel_row = ss / grid_cols;
    grid_sel_col = ss - grid_sel_row * grid_cols;
 
-   Redraw = 1;
+   vl_redraw = 1;
    while (!quit)
    {
-      if (Redraw)
+      if (vl_redraw)
       {
          al_set_target_backbuffer(display);
-         Redraw = 0;
+         vl_redraw = 0;
          al_clear_to_color(al_map_rgb(0,0,0));
 
          // draw the grid of icons
@@ -604,20 +610,20 @@ int visual_level_select(void)
 
          // text legend position
          int tx = sel_x + (sel_size/2);
-         int ty = 0;
+         int ty1 = 0;
 
          // draw the legend frame
          int x1 = sel_x;
          int x2 = sel_x + sel_size;
-         int y1 = ty+15;
-         int y2 = ty+46;
+         int y1 = ty1+15;
+         int y2 = ty1+46;
          for (int a=0; a<16; a++)
             al_draw_rectangle(x1-a, y1-a, x2+a, y2+a, palette_color[fc + (15-a)*16], 1 );
 
          // draw the legend
-         al_draw_text(font, palette_color[14], tx, ty+=16, ALLEGRO_ALIGN_CENTER, "Choose a level with <ENTER>");
-         al_draw_text(font, palette_color[11], tx, ty+=12, ALLEGRO_ALIGN_CENTER, "Arrow keys change selection" );
-         al_draw_text(font, palette_color[10], tx, ty+=12, ALLEGRO_ALIGN_CENTER, "<ESC> to abort");
+         al_draw_text(font, palette_color[14], tx, ty1+=16, ALLEGRO_ALIGN_CENTER, "Choose a level with <ENTER>");
+         al_draw_text(font, palette_color[11], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "Arrow keys change selection" );
+         al_draw_text(font, palette_color[10], tx, ty1+=12, ALLEGRO_ALIGN_CENTER, "<ESC> to abort");
 
          al_flip_display();
       } // end of redraw
@@ -630,14 +636,14 @@ int visual_level_select(void)
       {
          left_held = 1;
          if (--grid_sel_col < 0) grid_sel_col = 0;
-         Redraw = 1;
+         vl_redraw = 1;
       }
       if ( (!(key[ALLEGRO_KEY_LEFT])) &&  (!(players[0].left)) )  left_held = 0;
       if (((key[ALLEGRO_KEY_UP]) || (players[0].up)) && (up_held == 0))
       {
          up_held = 1;
          if (--grid_sel_row < 0) grid_sel_row = 0;
-         Redraw = 1;
+         vl_redraw = 1;
       }
       if ( (!(key[ALLEGRO_KEY_UP])) && (!(players[0].up)) ) up_held = 0;
       if (((key[ALLEGRO_KEY_RIGHT]) || (players[0].right)) && (right_held == 0))
@@ -646,7 +652,7 @@ int visual_level_select(void)
          if (++grid_sel_col > grid_cols-1) grid_sel_col = grid_cols-1;
          // don't allow select of empty level
          if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--;
-         Redraw = 1;
+         vl_redraw = 1;
       }
       if ( (!(key[ALLEGRO_KEY_RIGHT])) &&  (!(players[0].right)) )  right_held = 0;
       if (((key[ALLEGRO_KEY_DOWN]) || (players[0].down)) && (down_held == 0))
@@ -656,7 +662,7 @@ int visual_level_select(void)
          if (++grid_sel_row > grid_rows-1) grid_sel_row = grid_rows-1;
          // don't allow select of empty level
          if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_row--;
-         Redraw = 1;
+         vl_redraw = 1;
       }
       if ( (!(key[ALLEGRO_KEY_DOWN])) && (!(players[0].down)) ) down_held = 0;
 

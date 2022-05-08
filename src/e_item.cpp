@@ -15,11 +15,8 @@ void show_all_items(void)
 
    for (int i=0; i<num_items; i++)
    {
-      get_item_draw_shape(i);
-      al_set_target_backbuffer(display);
-      al_draw_bitmap(dtemp, 0, text_pos, 0);
+      draw_item(i, 1, 0, text_pos);
       sprintf(msg,"item:[%2d] ",i );
-
       for (int j=0; j<16; j++)
       {
          char msg2[80];
@@ -52,26 +49,26 @@ int sort_item(void)
    for (int c=0; c < 500; c++)
       if (item[c][0] == 1) //door
          item[c][15] = c; // tag this door with its original item number
-   int inum, c, d, quit, temp, swap;
+   int inum, c, d, quit, temp, iswap;
    quit=0;
    while (!quit) // sort item list
    {
-      quit=1; // quit if no swap
+      quit=1; // quit if no iswap
       for (c=0; c < 499; c++)
       {
          itemf[c][0] = al_itofix(item[c][4]);
          itemf[c][1] = al_itofix(item[c][5]);
 
          if (item[c][0] < item[c+1][0]) // sort by first value 'type'
-            swap = 1;
+            iswap = 1;
 //         else if (item[c][0] == item[c+1][0]) // if type is the same
 //            if (item[c][1] < item[c+1][1]) // sort by 2nd value 'ans'
-//               swap =1;
+//               iswap =1;
 
-         if (swap)
+         if (iswap)
          {
-            quit=0;      // as long as a swap has been made
-            swap = 0;
+            quit=0;      // as long as a iswap has been made
+            iswap = 0;
             if ((item[c][0] == 10) && (item[c+1][0] == 10)) // both messages
             {
                strcpy(msg, pmsgtext[c]);
@@ -589,11 +586,6 @@ int create_door(int type)
 
                item[c][11] = 1;    // trigger with up
                item[c][12] = 1;    // always draw line
-
-               draw_big(1);
-               show_big();
-
-
                if (getxy("Destination Door", 2, 1, d) == 1)
                {
                   item[c][9] = d;    // linked exit
@@ -609,24 +601,14 @@ int create_door(int type)
                   item[d][2] = 1;    // draw mode normal
                   item[d][3] = 0;    // stationary
                   item[d][8] = 0;    // type: exit only
-
-                  draw_big(1);
-                  show_big();
                } // end of get destination without cancel
-               else // cancelled while choosing destination
-               {
-                  item[c][0] = 0;
-               }
-             } // end of get location without cancel
-             else  // cancelled while choosing location
-             {
-                item[c][0] = 0;
-             }
-          } // end of found empty items
+               else item[c][0] = 0;
 
+             } // end of get location without cancel
+             else item[c][0] = 0;
+          } // end of found empty items
       }
       break;
-
       case 3: // two way door set
       {
          int found_empty_items = 0;
@@ -662,9 +644,6 @@ int create_door(int type)
                item[c][11] = 1;    // trigger with up
                item[c][12] = 1;    // always draw line
 
-               draw_big(1);
-               show_big();
-
                if (getxy("2nd Door", 2, 1, d) == 1)
                {
                   item[c][9] = d;    // linked exit
@@ -683,22 +662,12 @@ int create_door(int type)
                   item[d][1] = 1083;     // current shape
                   item[d][6] = 13;      // default color = lt blue
 
-                  draw_big(1);
-                  show_big();
                } // end of get destination without cancel
-               else // cancelled while choosing destination
-               {
-                  erase_item(c);
-               }
-             } // end of get location without cancel
-             else  // cancelled while choosing location
-             {
-                erase_item(c);
-             }
-          } // end of found empty items
-
+               else erase_item(c);
+            } // end of get location without cancel
+            else erase_item(c);
+         } // end of found empty items
       }
-
       break;
    }
    return sort_item();
@@ -708,12 +677,7 @@ int create_item(int type)
 {
    // check for no creator
    if ((type != 1) && (type != 3) && (type != 4) && (type != 5) && (type != 9) && (type != 10) && (type != 16) && (type != 17)) return 9999;
-
-
-
    int i = get_empty_item(type); // get a place to put it
-
-
    if (i > 499) return i; // no items
    switch (type)
    {
@@ -725,12 +689,8 @@ int create_item(int type)
       case 16: if (!create_block_manip(i))  erase_item(i); break;
       case 17: if (!create_block_damage(i)) erase_item(i); break;
    }
-
    sort_item();
    i = item_first_num[type]+item_num_of_type[type]-1;
-   draw_big(1);
-   show_big();
-   set_wx(item[i][4]/20+4, item[i][5]/20);
    return i;
 }
 

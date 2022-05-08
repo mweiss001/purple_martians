@@ -24614,39 +24614,76 @@ I am done with zfs..
 move on to the hugest one of all...editor_main....
 
 20220507 8:20 AM..
+make point item blink on level background....
 
 
 
+select_bitmap uses some shit from editor_main...
+process_scrolledge();
+update_editor_background();
 
+lets fix that first
+then remove...done
 
 
+now I am working on showing the draw item....
 
 
+there are a lot of function that are all doing close to the same thing
 
 
 
+draw_item...get item shape...etc...
 
 
 
+I want one function that when you pass it item number, it will draw the item...
+either where it belongs in the level, or an arbitary x and y
 
+in all cases, draw on whatever bitmap is active...
 
+void draw_item(int i, int default, int x, int y, float scale);
 
 
+this can be called by the main game draw_items..like:
+ i, 1, 0, 0, 0)
 
 
+I have gotten rid of the extra draw item stuff and now only use:
+void draw_item(int i, int custom, int cx, int cy)
 
+what about enemies? done also...
 
+now that all looks good and much extra duplicated code has been removed....
 
+why do I get a crash when putting draw item? i and e only not block....fixed...
 
 
+what about the section where you draw under the windows...done...
 
+what about multiple selected objects...seems like its working as well as it did before...
 
 
+only 900 lines...and 235 are for setblockrange...
 
+clean up function names..done..
 
+// e_editor_main.h
+void em_set_block_range(int bx1, int by1, int bx2, int by2);
+void em_get_new_box(int*bx1, int*by1, int*bx2, int*by2);
+char* em_get_text_description_of_block_based_on_flags(int flags);
+void em_show_draw_item_cursor(void);
+void em_draw_item_info(int x, int y, int color, int type, int num);
+int edit_menu(int el);
 
+now only 850 lines....
 
 
+what globals does this use...
+int draw_item_num;
+int draw_item_type;
+int point_item_type;
+int point_item_num;
 
 
 
@@ -24657,193 +24694,220 @@ move on to the hugest one of all...editor_main....
 
 
 
+int move_pod_extended(int num)
+{
+   if (getxy("Pod Extended Position", 99, 7, num) == 1) return 1;
+   else return 0;
+}
 
+replace with just: getxy("Pod Extended Position", 99, 7, num)
 
 
+int move_trigger_box(int num, int type)
+{
+   if (get_block_range("Trigger Box", &Ei[num][11], &Ei[num][12], &Ei[num][13], &Ei[num][14], 2)) return 1;
+   else return 0;
+}
 
+replace with just:
+get_block_range("Trigger Box", &Ei[num][11], &Ei[num][12], &Ei[num][13], &Ei[num][14], 2)
 
 
+ty is gone!!!
 
+bts??
+
+don't kill them all, just the global ones...
+
+there are a lot of them especially in lifts...I'll come back to this...
+zfs paste crashes....fixed
+
+level disappears when moving status and selection window..fixed
+
+erase background under flags
+
+I am going to make status window do its own detection of mouse on window...done
+
+make sel window take pointer parameter instead of convoluted return values
+
+
+holy shit...under 50 lines!
+
+int edit_menu(int el)
+{
+   al_show_mouse_cursor(display);
+   level_editor_running = 1;
+   resume_allowed = 0;
+   draw_item_type = 1;
+   draw_item_num  = 0;
+   check_s_window_pos(0);
+   load_PDE();
+   sort_enemy();
+   sort_item();
+   set_swbl();
+   set_frame_nums(0);
+   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear_key array
+   int quit=0, mouse_pointer_on_window=0;
+   int gx=0, gy=0, hx=0, hy=0;
+   if (!el) load_level_prompt(); // load prompt
+   else load_level(el, 0);       // blind load
+   if (autoload_bookmark)
+   {
+      printf("load bookmark\n");
+      if (bookmark_level == last_level_loaded)
+      {
+         if ((bookmark_obj == 2) && (item[bookmark_num]))       object_viewerw(2, bookmark_num);
+         if ((bookmark_obj == 3) && (Ei[bookmark_num]))         object_viewerw(3, bookmark_num);
+         if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) object_viewerw(4, bookmark_num);
+      }
+   }
+   while (!quit)
+   {
+      ovw_process_scrolledge();
+      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+      em_redraw_background(gx, gy);
+      mouse_pointer_on_window = 0;
+      if (status_window_active) process_status_window(0, gx, gy, &mouse_pointer_on_window);
+      if (select_window_active) process_select_window(0, &mouse_pointer_on_window);
+      if (!mouse_pointer_on_window) // mouse pointer is not on window
+      {
+         em_find_point_item(gx, gy, hx, hy);
+         if (mouse_b1) em_process_mouse_b1(gx, gy);
+         if (mouse_b2) quit = em_process_mouse_b2(gx, gy);
+      }
+      else point_item_type = -1; // to mark that
+      quit = em_process_keypress();
+   }
+   level_editor_running = 0;
+   al_hide_mouse_cursor(display);
+   return last_level_loaded;
+}
 
 
+OK edit menu is looking really good....now what?
 
+status window:
 
+- somehow accomodate the button lists....
+- erase background for flags..
+- maybe make some buttons to turn on and off the more detailed shit...like buttons and flags...
 
 
+PDE...can you redo it?...why?..its only ~500 self contained lines..
 
+move status and select windows to their own file
+or stick them in with editor...yes do that....done
 
+db is gone...
 
+z_map.cpp
+omg...i did not even know this was still in the sources!  wow!....
+I am removing so much stuff....
 
 
+20220507 8:02 PM
+code stats:
+code stats:
+39 files
+23126 code only
+ 6983 empty lines
+ 4023 comment lines
+ 4331 code and comments
+38463 total
 
 
+--------
 
+where are the flags drawn?
 
 
+ftx text x
+tfy text y
 
+frx - tfx-frw-2
 
+   if ((show_flag_details) && (draw_item_type == 1))
+   {
+      // flags section
+      int ftx = swx1+11;
+      int fty = swy1+47;
+      int ys = 10; // y spacing
+      draw_flag_text(ftx+4, fty, ys, 15, 0);
 
+      int frw = 6;         // flag rectangle width
+      int frh = 6;         // flag rectangle height
+      int frx = ftx-frw-2;        // flag rectangle x
+      int fry = fty - (frh/2)+4;  // flag rectangle y
 
+      draw_and_proc_flag_rects_draw_item(frx, fry, frw, frh, ys);
 
 
+      int frx2 = frx+frw;
+      int fry2 = fty+frh+(ys*13);
 
+      frx  -=2;
+      frx2 +=2;
+      fry  -=2;
+      fry2 +=4;
 
+      if ((mouse_x > frx) && (mouse_x < frx2) && (mouse_y > fry) && (mouse_y < fry2))
+      {
+         *mpow = 1;
+         al_draw_rectangle(frx, fry, frx2, fry2, palette_color[14], 1);
+      }
+   }
 
 
+I'm going to change all of this
 
+from now on, you just draw the rectangle and pass x and y
 
+the text will automatically be called..
 
+int draw_flags(int x1, int y1)
+{
 
+}
 
+done and it looks good...
 
+I have a dilemma...
+mpow....
+when on a window, the flags don't show, the point item flags dissappear then a block is selected as point item
+and the flags reappear
+just don't do mpow...done
 
+now all the flag drawing for draw item, point item and block select all use the same function..
 
+bug with drawing field...in the wrong place??..fixed
 
 
+maybe a second line in status window
 
+more controls like:
+simple/detailed descriptions
+sndb on/off
+save
+zfs
+ge
 
+make button list better...its as good as it gets
 
+bug...group edit, when mouse on list, flash on screen..
 
+filter for object viewer..controls what the map move snaps to...
 
+i, e, l and sub types...
 
+i picture clicking on the top bar and a drop down filter list will pop up...
 
+I really want to get a handle on the proliferation of globals and find an elegant way to encapsulate them...
 
+--make the copying of items secondary things like keys block range work like map move with holding shift
+instead of native pop up prompts.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+fix the bullet proximity for flapper...
 
 
 

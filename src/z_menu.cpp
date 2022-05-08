@@ -66,7 +66,7 @@ void help(const char *topic)
    char buff2[200];
    char msg[200];
 
-   Redraw = 1;
+   int redraw = 1;
    ALLEGRO_BITMAP * hlift = NULL;
    ALLEGRO_BITMAP * status_window = NULL;
    ALLEGRO_BITMAP * selection_window = NULL;
@@ -141,9 +141,9 @@ void help(const char *topic)
    while (!quit)
    {
 
-      if (Redraw)
+      if (redraw)
       {
-         Redraw = 0;
+         redraw = 0;
          al_destroy_bitmap(hlift);
          hlift = al_load_bitmap("help/lift.bmp");
          al_destroy_bitmap(status_window);
@@ -461,9 +461,9 @@ void help(const char *topic)
       if (line > last_pos)  line = last_pos;
       if (got_num) al_draw_textf(font, palette_color[ftc], dx+320, SCREEN_H-9, ALLEGRO_ALIGN_CENTER, "jump to section %1d_", got_num-27);
 
-      if (Key_pressed_ASCII)
+      if (key_pressed_ASCII)
       {
-          int k = Key_pressed_ASCII;
+          int k = key_pressed_ASCII;
           if ((k>47) && (k<58))   // if 0-9
           {
              if (got_num) // last keypress was num
@@ -1076,10 +1076,6 @@ int edit_pmsg_text(int c, int new_msg)
    char f[1800];
    int quit = 0;
 
-   // button row x values
-//   int xa = 4+SCREEN_W-(SCREEN_W-(db*100));
-//   int xb = SCREEN_W-4;
-
    int xa = ov_window_x1;
    int xb = ov_window_x2;
 
@@ -1104,10 +1100,7 @@ int edit_pmsg_text(int c, int new_msg)
    while (!quit)
    {
 
-      title("Message Creator", 2, 15, 12);
-
       al_set_target_backbuffer(display);
-
       // draw the message
       display_pop_message(c, f, smx, smy, 1, 0);
 
@@ -1115,6 +1108,8 @@ int edit_pmsg_text(int c, int new_msg)
       int by = smy-bts/2-2;
 
       int ey = by+a*bts; // erase y1
+
+      titlex("Message Creator", 15, 12, xa, xb, smy-58);
 
       mdw_button(xa, by+a*bts, xb, by+(a+1)*bts-2, 7, 999, 0, 0, 0, 14, 15,  0, 1,0,0,0);  // edit text placeholder
 
@@ -1198,7 +1193,7 @@ int edit_pmsg_text(int c, int new_msg)
 
       if (k)
       {
-         k = Key_pressed_ASCII;
+         k = key_pressed_ASCII;
          if (k==13) k = 126; // replace enter with 126 ~
 
          if ((k>31) && (k<127)) // if alphanumeric
@@ -1247,226 +1242,6 @@ int edit_pmsg_text(int c, int new_msg)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-int old_edit_pmsg_text(int c, int new_msg)
-{
-   int tc = item[c][8];
-   int char_count;
-   int cursor_pos=0;
-   int old_cp=0;
-   int blink_count = 3;
-   int blink_counter = 0;
-   int a, k=0;
-   char f[1800];
-   int quit = 0;
-
-   // button row x values
-   int xa = 4+SCREEN_W-(SCREEN_W-(db*100));
-   int xb = SCREEN_W-4;
-
-   int smx = txc;  // x center
-   int smy = pop_msg_viewer_pos;
-
-   int bad=0;
-
-   if (new_msg)
-   {
-      smy = 200;
-      f[0] = (char)NULL;
-      f[1] = (char)NULL;
-      char_count = 1;
-   }
-   else
-   {
-      strcpy(f, pmsgtext[c]);
-      char_count = strlen(f);
-   }
-
-   while (!quit)
-   {
-
-      title("Message Creator", 2, 15, 12);
-
-      al_set_target_backbuffer(display);
-
-      // draw the message
-      display_pop_message(c, f, smx, smy, 1, 0);
-
-      a = -3; //back up from the message to the buttons;;
-      int by = smy-bts/2-2;
-
-      mdw_button(xa, by+a*bts, xb, by+(a+1)*bts-2, 7, 999, 0, 0, 0, 14, 15,  0, 1,0,0,0);  // edit text placeholder
-
-      a++;
-      if (mdw_button(xa, by+a*bts, xb, by+(a+1)*bts-2, 1,   0, 0, 0, 0, 11, 15, 15, 1,0,0,0))  // OK
-      {
-         quit = 1;
-         bad = 0;
-      }
-
-      a++;
-      if (mdw_button(xa, by+a*bts, xb, by+(a+1)*bts-2, 3,   0, 0, 0, 0, 10, 15, 15, 1,0,0,0))  // Cancel
-      {
-         quit = 1;
-         bad = 1;
-      }
-
-      if (blink_counter++ < blink_count)
-         show_cursor(f, cursor_pos, smx, smy, tc, 0, 0);
-      else show_cursor(f, cursor_pos, smx, smy, tc, 1, 0);
-      if (blink_counter> blink_count*2) blink_counter = 0;
-
-      if (cursor_pos != old_cp)
-      {
-         show_cursor(f, old_cp, smx, smy, tc, 1, 0); // erase old blinking cursor if moved
-         old_cp = cursor_pos;
-         blink_counter = 0;
-      }
-
-      k = proc_controllers();
-
-      if (key[ALLEGRO_KEY_RIGHT])
-      {
-         if (++cursor_pos >= char_count) cursor_pos = char_count-1;
-      }
-      if (key[ALLEGRO_KEY_LEFT])
-      {
-         if (--cursor_pos < 0) cursor_pos = 0;
-      }
-      if ((key[ALLEGRO_KEY_DELETE]) && (cursor_pos < char_count))
-      {
-         for (a = cursor_pos; a < char_count; a++)
-           f[a]=f[a+1];
-         char_count--;
-         // set last to NULL
-         f[char_count] = (char)NULL;
-      }
-      if ((key[ALLEGRO_KEY_BACKSPACE]) && (cursor_pos > 0))
-      {
-         cursor_pos--;
-         for (a = cursor_pos; a < char_count; a++)
-           f[a]=f[a+1];
-         char_count--;
-         // set last to NULL
-         f[char_count] = (char)NULL;
-      }
-      if (key[ALLEGRO_KEY_DOWN])
-      {
-         // find next line break
-         while ((++cursor_pos < char_count) && (f[cursor_pos] != 126));
-         cursor_pos++;
-         // make sure we are not past the end
-         if (cursor_pos >= char_count) cursor_pos = char_count-1;
-      }
-      if (key[ALLEGRO_KEY_UP])
-      {
-         // find previous line break
-         while ((--cursor_pos > 0) && (f[cursor_pos] != 126));
-         cursor_pos--;
-         // make sure we are not before the start
-         if (cursor_pos < 0) cursor_pos = 0;
-      }
-      if (key[ALLEGRO_KEY_HOME])
-      {
-         cursor_pos = 0;
-      }
-      if (key[ALLEGRO_KEY_END])
-      {
-         cursor_pos = char_count-1;
-      }
-
-      if (k)
-      {
-         k = Key_pressed_ASCII;
-         if (k==13) k = 126; // replace enter with 126 ~
-
-         if ((k>31) && (k<127)) // if alphanumeric
-         {
-            // move over to make room
-            for (a = char_count; a>=cursor_pos; a--)
-               f[a+1]=f[a];
-
-            // set char
-            f[cursor_pos] = k;
-
-            // inc both
-            cursor_pos++;
-            char_count++;
-
-            // set last to NULL
-            f[char_count] = (char)NULL;
-         }
-      }
-      if (key[ALLEGRO_KEY_ESCAPE])
-      {
-         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
-         quit = 1;
-         bad = 1;
-      }
-
-      al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
-      al_rest(0.07);
-   } // end of while (!quit)
-
-   if (bad) return 0;
-   else
-   {
-      strcpy(pmsgtext[c], f);
-      return 1;
-   }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void edit_server_name(void)
 {
    char fst[80];
@@ -1481,26 +1256,26 @@ void edit_server_name(void)
    while (!quit)
    {
       int tx = SCREEN_W/2;
-      int ty = SCREEN_H/2;
+      int ty1 = SCREEN_H/2;
       int w = (char_count+1)*4;
 
       al_flip_display();
       // clear text background
-      al_draw_filled_rectangle(tx-w-8, ty-4-2, tx+w+18, ty+4+3, palette_color[0]);
+      al_draw_filled_rectangle(tx-w-8, ty1-4-2, tx+w+18, ty1+4+3, palette_color[0]);
 
-      al_draw_text(font, palette_color[15], tx, ty-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
+      al_draw_text(font, palette_color[15], tx, ty1-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
       // frame text
-      al_draw_rectangle       (tx-w-1, ty-4-1, tx+w+6, ty+6, palette_color[15], 1);
+      al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, palette_color[15], 1);
 
-      rtextout_centre(NULL, fst, tx, ty+1, 15, 1, 0, 1);
+      rtextout_centre(NULL, fst, tx, ty1+1, 15, 1, 0, 1);
 
-      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty-3, 15, 0, 0);
-      else show_cursor(fst, cursor_pos, tx, ty-3, 15, 1, 0);
+      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, 15, 0, 0);
+      else show_cursor(fst, cursor_pos, tx, ty1-3, 15, 1, 0);
       if (blink_counter> blink_count*2) blink_counter = 0;
 
       if (cursor_pos != old_cp)
       {
-         show_cursor(fst, old_cp, tx, ty-3, 15, 1, 0); // erase old blinking cursor if moved
+         show_cursor(fst, old_cp, tx, ty1-3, 15, 1, 0); // erase old blinking cursor if moved
          old_cp = cursor_pos;
          blink_counter = 0;
       }
@@ -1531,7 +1306,7 @@ void edit_server_name(void)
          fst[char_count] = (char)NULL; // set last to NULL
       }
 
-      k = Key_pressed_ASCII;
+      k = key_pressed_ASCII;
       if ((k>31) && (k<127)) // insert if alphanumeric or return
       {
          // move over to make room
@@ -1579,7 +1354,7 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
       int x2 = x1 + (lifts[lift].width) -1;
       int y2 = y1 + (lifts[lift].height) -1;
       int tx = ((x1+x2)/2);
-      int ty = ((y1+y2)/2) - 3;
+      int ty1 = ((y1+y2)/2) - 3;
 
       //int color = lifts[lift].color;
 
@@ -1590,16 +1365,16 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
       for (a=0; a<10; a++)
         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[color + ((9 - a)*16)], 2 );
       al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
-      al_draw_text(font, palette_color[color+160], tx, ty, ALLEGRO_ALIGN_CENTRE, fst);
+      al_draw_text(font, palette_color[color+160], tx, ty1, ALLEGRO_ALIGN_CENTRE, fst);
 
 
-      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty, 15, 0, 0);
-      else show_cursor(fst, cursor_pos, tx, ty, 15, 1, 0);
+      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1, 15, 0, 0);
+      else show_cursor(fst, cursor_pos, tx, ty1, 15, 1, 0);
       if (blink_counter> blink_count*2) blink_counter = 0;
 
       if (cursor_pos != old_cp)
       {
-         show_cursor(fst, old_cp, tx, ty, 15, 1, 0); // erase old blinking cursor if moved
+         show_cursor(fst, old_cp, tx, ty1, 15, 1, 0); // erase old blinking cursor if moved
          old_cp = cursor_pos;
          blink_counter = 0;
       }
@@ -1631,7 +1406,7 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
          fst[char_count] = (char)NULL;
       }
 
-      k = Key_pressed_ASCII;
+      k = key_pressed_ASCII;
       if ((k>31) && (k<127)) // insert if alphanumeric or return
       {
          // move over to make room
