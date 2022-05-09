@@ -249,8 +249,17 @@ void level_viewer(void)
 {
    le_temp = al_create_bitmap(1000,1000);
    int redraw = 2;
-   while (!key[ALLEGRO_KEY_ESCAPE])
+   int quit = 0;
+
+
+   while (!quit)
    {
+     if (key[ALLEGRO_KEY_ESCAPE])
+     {
+        while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
+        quit = 1;
+     }
+
       proc_controllers();
       if (key[ALLEGRO_KEY_S])
       {

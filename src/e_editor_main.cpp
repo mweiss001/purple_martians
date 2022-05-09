@@ -59,28 +59,30 @@ void em_process_status_window(int draw_only, int gx, int gy, int* mpow)
    em_draw_item_info(                    swx1 + 162, swy1 + 21, 9, point_item_type, point_item_num);
 
 
-   // draw buttons based on object type
-   if (point_item_type > 1)
-   {
-      int type=0;
-      if (point_item_type == 2) type = item[point_item_num][0];
-      if (point_item_type == 3) type = Ei[point_item_num][0];
 
-      int x1 = swx1+162;
-      int y1 = swy1+46;
-      int w=0, h=0;
-      ovw_get_size(point_item_type, type, &w, &h);
-      int x2 = x1 + w;
-      int y2 = y1 + h;
-
-      al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
-      //printf("x1:%d y1:%d x2:%d y2:%d w:%d h:%d\n", ov_window_x1, ov_window_y1, ov_window_x2, ov_window_y2, ov_window_w, ov_window_h);
-
-      obj_buttons(point_item_type, point_item_num, x1, x2, y1, 0, 16);
-
-   }
-
-
+//
+//   // draw buttons based on object type
+//   if (point_item_type > 1)
+//   {
+//      int type=0;
+//      if (point_item_type == 2) type = item[point_item_num][0];
+//      if (point_item_type == 3) type = Ei[point_item_num][0];
+//
+//      int x1 = swx1+162;
+//      int y1 = swy1+46;
+//      int w=0, h=0;
+//      ovw_get_size(point_item_type, type, &w, &h);
+//      int x2 = x1 + w;
+//      int y2 = y1 + h;
+//
+//      al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
+//      //printf("x1:%d y1:%d x2:%d y2:%d w:%d h:%d\n", ov_window_x1, ov_window_y1, ov_window_x2, ov_window_y2, ov_window_w, ov_window_h);
+//
+//      obj_buttons(point_item_type, point_item_num, x1, x2, y1, 0, 16);
+//
+//   }
+//
+//
 
 
 
@@ -863,17 +865,16 @@ void em_draw_item_info(int x, int y, int color, int type, int num)
          draw_item(num, 1, x, y);
          a = item[num][0]; // type
          al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", item_name[a]);
-         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - item_first_num[a],item_num_of_type[a]);
+         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - item_first_num[a], item_num_of_type[a]);
       break;
       case 3:
          draw_enemy(num, 1, x, y);
          a = Ei[num][0]; // type
          al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", enemy_name[a]);
-         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - e_first_num[a],e_num_of_type[a]);
+         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - e_first_num[a], e_num_of_type[a]);
       break;
       case 4:
       {
-
          int col = lifts[num].color;
          int width = lifts[num].width;
          if (width > 140) width = 140;
@@ -993,85 +994,86 @@ void em_process_mouse_b1(int gx, int gy)
       case 2:  // item
       {
          int type = item[din][0];
+         int ofx = gx*20 - item[din][4]; // get offset of move in 2000 format
+         int ofy = gy*20 - item[din][5];
          int c = get_empty_item(type); // get a place to put it
          if (c == -1)  break;
-         for (int b=0; b<16; b++) // copy from draw item
-            item[c][b] = item[din][b];
-         item[c][4]= gx*20; // get x
-         item[c][5]= gy*20; // get y
-         if (type == 4) // key
-            if (al_show_native_message_box(display, "Move?", "Move the key's block range also?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
-            {
-               item[c][6] = item[din][6] + gx - item[din][4]/20; // move x
-               item[c][7] = item[din][7] + gy - item[din][5]/20;
-               item[c][8] = item[din][8] + gx - item[din][4]/20;
-               item[c][9] = item[din][9] + gy - item[din][5]/20;
-            }
-         if ((type == 9) || (type == 16) || (type == 17)) // trigger, manip, damage
+         for (int b=0; b<16; b++) item[c][b] = item[din][b]; // copy from draw item
+         item[c][4] += ofx; // adjust with offsets
+         item[c][5] += ofy;
+         if ((type == 4) || (type == 9) || (type == 16) || (type == 17)) // move range for key, trig, manip, damage
          {
-            item[c][6] = item[din][6] + (gx*20) - item[din][4]; // move field relative to item move
-            item[c][7] = item[din][7] + (gy*20) - item[din][5];
+            item[c][6] += ofx; // adjust with offsets
+            item[c][7] += ofy;
          }
-         if (type == 10) strcpy(pmsgtext[c], pmsgtext[din]); // msg
+         if (type == 10)
+         {
+            item[c][10] += ofx; // adjust with offsets
+            item[c][11] += ofy;
+            strcpy(pmsgtext[c], pmsgtext[din]); // msg
+         }
          sort_item();
       }
       break;
       case 3:    // enemy
       {
          int type = Ei[din][0];
+
+         int ofx = gx*20 - al_fixtoi(Efi[din][0]); // get offset of move in 2000 format
+         int ofy = gy*20 - al_fixtoi(Efi[din][1]);
+
          int c = get_empty_enemy(type); // get a place to put it
          if (c == -1)  break;
          for (int x=0; x<32; x++) Ei[c][x]  = Ei[din][x];
          for (int x=0; x<16; x++) Efi[c][x] = Efi[din][x];
-         Efi[c][0] = al_itofix(gx*20);  // set new x,y
-         Efi[c][1] = al_itofix(gy*20);
-         al_fixed fx_offset = al_itofix( 20 * (gx - (al_fixtoi(Efi[din][0]) / 20)));
-         al_fixed fy_offset = al_itofix( 20 * (gy - (al_fixtoi(Efi[din][1]) / 20)));
-         int x_offset = gx - al_fixtoi(Efi[din][0]/20) ;
-         int y_offset = gy - al_fixtoi(Efi[din][1]/20) ;
+
+         Efi[c][0] += al_itofix(ofx);  // apply offsets
+         Efi[c][1] += al_itofix(ofy);
+
 
          if (type == 7) // podzilla
          {
-            if (al_show_native_message_box(display, "Move?", "Move podzilla's extended position too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+            //if (al_show_native_message_box(display, "Move?", "Move podzilla's extended position too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
             {
-                Efi[c][5] = Efi[din][5] + fx_offset;
-                Efi[c][6] = Efi[din][6] + fy_offset;
+                Efi[c][5] = Efi[din][5] + al_itofix(ofx);
+                Efi[c][6] = Efi[din][6] + al_itofix(ofy);
             }
-            if (al_show_native_message_box(display, "Move?", "Move podzilla's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+            //if (al_show_native_message_box(display, "Move?", "Move podzilla's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
             {
-               Ei[c][11] = Ei[din][11] + x_offset;
-               Ei[c][12] = Ei[din][12] + y_offset;
-               Ei[c][13] = Ei[din][13] + x_offset;
-               Ei[c][14] = Ei[din][14] + y_offset;
+               Ei[c][11] = Ei[din][11] + ofx;
+               Ei[c][12] = Ei[din][12] + ofy;
             }
             recalc_pod(c);
          }
          if (type == 9) // cloner
          {
-            if (al_show_native_message_box(display, "Move?", "Move cloner's source and destination boxes too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+            //if (al_show_native_message_box(display, "Move?", "Move cloner's source and destination boxes too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
             {
-               Ei[c][15] = Ei[din][15] + x_offset;
-               Ei[c][16] = Ei[din][16] + y_offset;
-               Ei[c][17] = Ei[din][17] + x_offset;
-               Ei[c][18] = Ei[din][18] + y_offset;
+               Ei[c][15] = Ei[din][15] + ofx;
+               Ei[c][16] = Ei[din][16] + ofy;
+               Ei[c][17] = Ei[din][17] + ofx;
+               Ei[c][18] = Ei[din][18] + ofy;
             }
-            if (al_show_native_message_box(display, "Move?", "Move cloner's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+            //if (al_show_native_message_box(display, "Move?", "Move cloner's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
             {
-               Ei[c][11] = Ei[din][11] + x_offset;
-               Ei[c][12] = Ei[din][12] + y_offset;
-               Ei[c][13] = Ei[din][13] + x_offset;
-               Ei[c][14] = Ei[din][14] + y_offset;
+               Ei[c][11] = Ei[din][11] + ofx;
+               Ei[c][12] = Ei[din][12] + ofy;
             }
          }
 
          if (type == 10) // field
          {
+            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
             // (al_show_native_message_box(display, "Move?", "Move field's damage and trigger fields too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
             {
-               Ei[c][11] = Ei[din][11] + x_offset*20;
-               Ei[c][12] = Ei[din][12] + y_offset*20;
-               Ei[c][15] = Ei[din][15] + x_offset*20;
-               Ei[c][16] = Ei[din][16] + y_offset*20;
+               Ei[c][11] = Ei[din][11] + ofx;
+               Ei[c][12] = Ei[din][12] + ofy;
+               Ei[c][15] = Ei[din][15] + ofx;
+               Ei[c][16] = Ei[din][16] + ofy;
             }
          }
          sort_enemy();
@@ -1269,6 +1271,8 @@ int em_process_keypress(void)
 
 int edit_menu(int el)
 {
+   if (!el) load_level_prompt(); // load prompt
+   else load_level(el, 0);       // blind load
    al_show_mouse_cursor(display);
    level_editor_running = 1;
    resume_allowed = 0;
@@ -1283,8 +1287,6 @@ int edit_menu(int el)
    for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear_key array
    int quit=0, mouse_pointer_on_window=0;
    int gx=0, gy=0, hx=0, hy=0;
-   if (!el) load_level_prompt(); // load prompt
-   else load_level(el, 0);       // blind load
    if (autoload_bookmark)
    {
       printf("load bookmark\n");

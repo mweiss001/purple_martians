@@ -1395,7 +1395,50 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
       {
          lifts[l].color = 0;
       }
+
+
+
+      // converting pmsg position from 100 to 2000 format
+      for (int y=0; y<500; y++)
+         if (item[y][0] == 10) // p msg
+         {
+            item[y][10] *= 20;
+            item[y][11] *= 20;
+         }
+
+
+
+      // converting pod and cloner trigger from 100 x1 y1 x2 y2 to 2000 xywh format
+
+      for (int y=0; y<100; y++)
+         if ((Ei[y][0] == 7) || (Ei[y][0] == 9))
+         {
+            int w = Ei[y][13] - Ei[y][11];
+            Ei[y][11] *= 20;
+            Ei[y][13] = w*20;
+
+            int h = Ei[y][14] - Ei[y][12];
+            Ei[y][12] *= 20;
+            Ei[y][14] = h*20;
+
+         }
 */
+
+/*
+      // converting cloner source and dest from 100 xywh to 2000 xywh format
+      for (int y=0; y<100; y++)
+         if (Ei[y][0] == 9)
+         {
+            Ei[y][15] *= 20;
+            Ei[y][16] *= 20;
+            Ei[y][17] *= 20;
+            Ei[y][18] *= 20;
+            Ei[y][19] *= 20;
+            Ei[y][20] *= 20;
+         }
+
+*/
+
 
       if (0)
       {

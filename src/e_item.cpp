@@ -4,6 +4,13 @@
 
 void show_all_items(void)
 {
+   ALLEGRO_BITMAP *tmp;
+   tmp = al_create_bitmap(20, 20);
+
+
+
+
+   sort_item();
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
@@ -13,9 +20,16 @@ void show_all_items(void)
    int num_items = sort_item();
    text_pos = item_data(10, text_pos);
 
+   int rh = 10; // row height
+
    for (int i=0; i<num_items; i++)
    {
-      draw_item(i, 1, 0, text_pos);
+      al_set_target_bitmap(tmp);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      draw_item(i, 1, 0, 0);
+      al_set_target_backbuffer(display);
+      al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
+
       sprintf(msg,"item:[%2d] ",i );
       for (int j=0; j<16; j++)
       {
@@ -29,8 +43,8 @@ void show_all_items(void)
          if (j == 5) sprintf(msg2,"[%-4d] ", item[i][j]);
          strcat(msg, msg2);
       }
-      al_draw_text(font, palette_color[13], 20, text_pos+6, 0, msg);
-      text_pos +=20;
+      al_draw_text(font, palette_color[13], rh+2, text_pos+(rh-8)/2, 0, msg);
+      text_pos +=rh;
       if (text_pos > SCREEN_H - 10)
       {
          al_flip_display();
@@ -41,6 +55,7 @@ void show_all_items(void)
    }
    al_flip_display();
    tsw(); // wait for keypress
+   al_destroy_bitmap(tmp);
 }
 
 int sort_item(void)
@@ -172,6 +187,46 @@ int get_empty_item(int type) // finds, sets type, sorts, refinds
    }
    return mt;
 }
+
+// not used!!!!! too much hassle....
+void check_item(int i, int ct)
+{
+
+   // range check for key, trig, manip, damage
+   // probably wont use for trig, manip, damage, because they can be slaved to a lift and go off screen
+   if (ct == 1)
+   {
+      if (item[i][6] > 1980)
+      {
+         item[i][6] = 1980;
+         item[i][8] = 2000;
+      }
+      if (item[i][7] > 1980)
+      {
+         item[i][7] = 1980;
+         item[i][9] = 2000;
+      }
+      if (item[i][6] < 0)
+      {
+         item[i][8] += item[i][6]+20; // first adjust width
+         item[i][6] = 0;              // then adjust x
+      }
+      if (item[i][7] < 0)
+      {
+         item[i][9] += item[i][7]+20; // first adjust height
+         item[i][7] = 0;              // then adjust y
+      }
+
+      // w and h
+      if (item[i][6] + item[i][8] > 2000) item[i][8] = 2000-item[i][6];
+      if (item[i][7] + item[i][9] > 2000) item[i][9] = 2000-item[i][7];
+   }
+}
+
+
+
+
+
 
 void test_items(void)
 {

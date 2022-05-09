@@ -86,16 +86,34 @@ void get_pod_extended_position(int e, int *x, int *y)
 
 void show_all_enemies(void)
 {
+   ALLEGRO_BITMAP *tmp;
+   tmp = al_create_bitmap(20, 20);
+
    int text_pos = 0;
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
+
+   int rh = 16; // row height
 
    sort_enemy();
    text_pos = enemy_data(10, text_pos);
    for (int e=0; e<num_enemy; e++)
    {
-      draw_enemy(e, 1, 0, text_pos);
-      al_draw_textf(font, palette_color[14], 20, text_pos+6, 0, "[%2d]",e);
+      al_set_target_bitmap(tmp);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      draw_enemy(e, 1, 0, 0);
+      al_set_target_backbuffer(display);
+      al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
+
+
+      al_draw_line(0, text_pos, SCREEN_W, text_pos, palette_color[15+128], 0);
+
+
+      int tp1 = text_pos+(rh-16)/2;
+      int tp2 = tp1+8;
+      int tpc = (tp1+tp2)/2;
+
+      al_draw_textf(font, palette_color[14], rh+2, tpc, 0, "[%2d]",e);
       strcpy(msg,"");
       for (int j=0; j<32; j++)
       {
@@ -103,7 +121,7 @@ void show_all_enemies(void)
          sprintf(msg2,"[%d] ", Ei[e][j]);
          strcat(msg, msg2);
       }
-      al_draw_text(font, palette_color[13], 54, text_pos+2, 0, msg);
+      al_draw_text(font, palette_color[13], 54, tp1, 0, msg);
       strcpy(msg,"");
       for (int j=0; j<16; j++)
       {
@@ -111,8 +129,8 @@ void show_all_enemies(void)
          sprintf(msg2,"[%3.2f] ", al_fixtof(Efi[e][j]));
          strcat(msg, msg2);
       }
-      al_draw_text(font, palette_color[9], 54, text_pos+10, 0, msg);
-      text_pos +=20;
+      al_draw_text(font, palette_color[9], 54, tp2, 0, msg);
+      text_pos +=rh;
       if (text_pos > SCREEN_H - 10)
       {
          al_flip_display();
@@ -123,6 +141,7 @@ void show_all_enemies(void)
    }
    al_flip_display();
    tsw(); // wait for keypress
+   al_destroy_bitmap(tmp);
 }
 
 
@@ -201,7 +220,7 @@ int create_cloner(void)
       Ei[e][25] = 25;  // health bonus
       Ei[e][29] = 10;  // default collision box
 
-      if (get_block_range("Cloner Source Area", &Ei[e][15], &Ei[e][16], &Ei[e][19], &Ei[e][20], 3))
+      if (get_block_range("Cloner Source Area", &Ei[e][15], &Ei[e][16], &Ei[e][19], &Ei[e][20], 1))
       {
          if (getxy("Cloner Destination Area", 98, 9, e ) == 1)
          {
