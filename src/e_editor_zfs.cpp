@@ -374,16 +374,7 @@ void zfs_save_selection(int save)
             ft_item[c][4] = item[b][4] - x1;
             ft_item[c][5] = item[b][5] - y1;
 
-            if (item[b][0] == 4) // key
-            {   // set new destination
-               ft_item[c][6] = item[b][6] - stx;
-               ft_item[c][7] = item[b][7] - sty;
-               ft_item[c][8] = item[b][8] - stx;
-               ft_item[c][9] = item[b][9] - sty;
-            }
-
-
-            if ((item[b][0] == 9) || (item[b][0] == 16) || (item[b][0] == 17)) // trigger, manip, damage
+            if ((item[b][0] == 4) || (item[b][0] == 9) || (item[b][0] == 16) || (item[b][0] == 17)) // key, trigger, manip, damage
             {   // set new destination
                ft_item[c][6] = item[b][6] - stx*20;
                ft_item[c][7] = item[b][7] - sty*20;
@@ -391,8 +382,8 @@ void zfs_save_selection(int save)
 
             if (item[b][0] == 10) // message
             {
-               ft_item[c][10] = item[b][10] - stx;
-               ft_item[c][11] = item[b][11] - sty;
+               ft_item[c][10] = item[b][10] - stx*20;
+               ft_item[c][11] = item[b][11] - sty*20;
                strcpy(ft_pmsgtext[c], pmsgtext[b]);
             }
          }
@@ -413,23 +404,18 @@ void zfs_save_selection(int save)
 
             if (ft_Ei[c][0] == 7 ) // podzilla
             {
-               ft_Ei[c][11]-= x1/20;
-               ft_Ei[c][12]-= y1/20;
-               ft_Ei[c][13]-= x1/20;
-               ft_Ei[c][14]-= y1/20;
+               ft_Ei[c][11]-= x1;
+               ft_Ei[c][12]-= y1;
             }
             if (ft_Ei[c][0] == 9 ) // cloner
             {
-               ft_Ei[c][11]-= x1/20;
-               ft_Ei[c][12]-= y1/20;
-               ft_Ei[c][13]-= x1/20;
-               ft_Ei[c][14]-= y1/20;
-               ft_Ei[c][15]-= x1/20;
-               ft_Ei[c][16]-= y1/20;
-               ft_Ei[c][17]-= x1/20;
-               ft_Ei[c][18]-= y1/20;
+               ft_Ei[c][11]-= x1;
+               ft_Ei[c][12]-= y1;
+               ft_Ei[c][15]-= x1;
+               ft_Ei[c][16]-= y1;
+               ft_Ei[c][17]-= x1;
+               ft_Ei[c][18]-= y1;
             }
-
             if (ft_Ei[c][0] == 10 ) // field
             {
                ft_Ei[c][11]-= x1;
@@ -555,8 +541,9 @@ void zfs_do_fcopy(int qx1, int qy1)
    int x5 = ft_level_header[8];
    int y5 = ft_level_header[9];
 
+
    int erase_out_of_bounds_main = 0;      // if 0 we will adjust
-   int erase_out_of_bounds_secondary = 0; // if 0 we will adjust
+   //int erase_out_of_bounds_secondary = 0; // if 0 we will adjust
 
    if (copy_blocks)
       for (x=0; x<x5; x++)
@@ -654,27 +641,20 @@ void zfs_do_fcopy(int qx1, int qy1)
                      Efi[c][0] = al_itofix(enforce_limit(al_fixtoi(Efi[c][0]), 0, 1980));
                      Efi[c][1] = al_itofix(enforce_limit(al_fixtoi(Efi[c][1]), 0, 1980));
                   }
-
                   if (Ei[c][0] == 7) // podzilla trigger box
                   {
-                     Ei[c][11]+= x3/20;
-                     Ei[c][12]+= y3/20;
-                     Ei[c][13]+= x3/20;
-                     Ei[c][14]+= y3/20;
+                     Ei[c][11]+= x3;
+                     Ei[c][12]+= y3;
                   }
                   if (Ei[c][0] == 9) // cloner
                   {
-                     Ei[c][11]+= x3/20;
-                     Ei[c][12]+= y3/20;
-                     Ei[c][13]+= x3/20;
-                     Ei[c][14]+= y3/20;
-
-                     Ei[c][15]+= x3/20;
-                     Ei[c][16]+= y3/20;
-                     Ei[c][17]+= x3/20;
-                     Ei[c][18]+= y3/20;
+                     Ei[c][11]+= x3;
+                     Ei[c][12]+= y3;
+                     Ei[c][15]+= x3;
+                     Ei[c][16]+= y3;
+                     Ei[c][17]+= x3;
+                     Ei[c][18]+= y3;
                   }
-
                   if (Ei[c][0] == 10) // field
                   {
                      Ei[c][11]+= x3;
@@ -682,7 +662,6 @@ void zfs_do_fcopy(int qx1, int qy1)
                      Ei[c][15]+= x3;
                      Ei[c][16]+= y3;
                   }
-
                   if (lim)
                   {
                      //copied = -1;
@@ -760,68 +739,26 @@ void zfs_do_fcopy(int qx1, int qy1)
                         item[c][var_index] = ev2;
                      }
 
-                  if ((item[c][0] == 9) || (item[c][0] == 16) || (item[c][0] == 17)) // move field for trigger, manip, damage
+                  if ((item[c][0] == 4) || (item[c][0] == 9) || (item[c][0] == 16) || (item[c][0] == 17)) // key, trigger, manip, damage
                   {
                      item[c][6] += qx1*20;
                      item[c][7] += qy1*20;
-                     // really should do some bounds checks here
                   }
-
-
                   if (item[c][0] == 5) // start
                   {
-
-                      // do something here to prevent exact duplicates
-
-                  }
-
-                  if (item[c][0] == 4) // // set new key block range
-                  {
-                     // apply offsets
-                     item[c][6] += qx1;
-                     item[c][7] += qy1;
-                     item[c][8] += qx1;
-                     item[c][9] += qy1;
-
-                     if (erase_out_of_bounds_secondary)
-                     {
-                        if (check_limit(item[c][6], 0, 99)) lim = 1;
-                        if (check_limit(item[c][7], 0, 99)) lim = 1;
-                        if (check_limit(item[c][8], 0, 99)) lim = 1;
-                        if (check_limit(item[c][9], 0, 99)) lim = 1;
-                     }
-                     else // adjust if out of bounds
-                     {
-                        item[c][6] = enforce_limit(item[c][6], 0, 99);
-                        item[c][7] = enforce_limit(item[c][7], 0, 99);
-                        item[c][8] = enforce_limit(item[c][8], 0, 99);
-                        item[c][9] = enforce_limit(item[c][9], 0, 99);
-                     }
-
+                     // do something here to prevent exact duplicates
                   }
                   if (item[c][0] == 10) // message
                   {
-                     // apply offsets
-                     item[c][10] += qx1;
-                     item[c][11] += qy1;
-
-                     if (erase_out_of_bounds_secondary)
-                     {
-                        if (check_limit(item[c][10], 0, 99)) lim = 1;
-                        if (check_limit(item[c][11], 0, 99)) lim = 1;
-                     }
-                     else // adjust if out of bounds
-                     {
-                        item[c][10] = enforce_limit(item[c][10], 0, 99);
-                        item[c][11] = enforce_limit(item[c][11], 0, 99);
-                     }
+                     item[c][10] += qx1*20; // adjust msg location
+                     item[c][11] += qy1*20;
                      strcpy(pmsgtext[c], ft_pmsgtext[b]);
                   }
                   // limits exceeded; erase
                   if (lim)
                   {
+                     erase_item(c);
                      //copied = -1;
-                     for (y=0; y<16; y++) item[c][y] = 0;
                   }
                   c = 500; // end loop
                } // end of found empty

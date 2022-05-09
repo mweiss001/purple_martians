@@ -24859,32 +24859,20 @@ frx - tfx-frw-2
 
 
 I'm going to change all of this
-
 from now on, you just draw the rectangle and pass x and y
-
 the text will automatically be called..
-
 int draw_flags(int x1, int y1)
-{
-
-}
-
 done and it looks good...
-
 I have a dilemma...
-mpow....
 when on a window, the flags don't show, the point item flags dissappear then a block is selected as point item
 and the flags reappear
 just don't do mpow...done
-
 now all the flag drawing for draw item, point item and block select all use the same function..
 
-bug with drawing field...in the wrong place??..fixed
 
 
 maybe a second line in status window
-
-more controls like:
+ore controls like:
 simple/detailed descriptions
 sndb on/off
 save
@@ -24893,21 +24881,493 @@ ge
 
 make button list better...its as good as it gets
 
-bug...group edit, when mouse on list, flash on screen..
-
-filter for object viewer..controls what the map move snaps to...
-
-i, e, l and sub types...
-
-i picture clicking on the top bar and a drop down filter list will pop up...
-
 I really want to get a handle on the proliferation of globals and find an elegant way to encapsulate them...
+
+
+20220508 - 6:00 AM
+
+bug...items are all messed up with number like 42 of 0...fixed
+sort was done before load level at start of edit menu
+
+
+
+in all of these level editor map things I want a thin line to show the edge of the level if smaller than the screen...done
+
+
+
+bug...group edit, when mouse on list, flash on screen..
+when highlight are show in draw on level buffer, they are cleared first..
+when this is removed it works, but they need to be cleared somehwere...
+fixed by on checking for mouse on item in map if mouse not on window
+
+
 
 --make the copying of items secondary things like keys block range work like map move with holding shift
 instead of native pop up prompts.
 
+tried to copy from zfs but that was wrong too...
 
-fix the bullet proximity for flapper...
+make a txt file that describes all the different rectangles and formats...done...
+
+now fix it...I have made em copy move the stuff correctly....
+
+lets actually change all the things to a common format....
+
+very easy should be pmg
+position from 100 to 2000
+
+
+do a glt thing to muliply all 10 and 11 by 20...done
+changed void draw_pop_message(int i)
+they work fine in game...
+
+map move....done...
+adjust in ov...follow button to getxy and fixed there...
+create...works fine
+edit text...all good...one done!!!
+wait!!! what about:
+
+obv move main item..msg should follow....
+copy with em...done..moves msg too
+copy with zfs...not yet...
+in zfs you have to adjust when saving and loading...done
+copy with cloner...
+
+secondary items move:
+msg
+k t m d
+
+em copy....done
+zfs paste...done
+ov map move..done
+cloner copy..only message text was changed nothing adjusted
+
+ok items should be all done...
+
+
+next do pod and cloner trigger
+range and w h
+this could take some time
+
+x1 = Ei[][11];
+y1 = Ei[][12];
+x2 = Ei[][13];
+y2 = Ei[][14];
+
+glt line....
+
+
+      for (y=0; y<100; y++)
+         if ((Ei[y][0] == 7) || (Ei[y][0] == 9))
+         {
+            int w = Ei[y][13] - Ei[y][11];
+            Ei[y][11] *= 20;
+            Ei[y][13] = w*20;
+
+            int h = Ei[y][14] - Ei[y][12];
+            Ei[y][12] *= 20;
+            Ei[y][14] = h*20;
+
+         }
+
+backup levels and pull the trigger.....done...
+
+now where to start...
+
+
+void enemy_cloner(int e)
+
+old:
+   int x4 = Ei[e][11]*20 - 10; // trigger box
+   int y4 = Ei[e][12]*20 - 10;
+   int x5 = Ei[e][13]*20 + 10;
+   int y5 = Ei[e][14]*20 + 10;
+
+new:
+   int x4 = Ei[e][11] - 10; // trigger box
+   int y4 = Ei[e][12] - 10;
+   int x5 = Ei[e][11] + Ei[e][13] + 10;
+   int y5 = Ei[e][12] + Ei[e][14] + 10;
+
+
+draw cloner...
+
+old:
+      // trigger box
+      float tx1 = (float)Ei[e][11]*20;
+      float ty1 = (float)Ei[e][12]*20;
+      float tx2 = (float)Ei[e][13]*20+20;
+      float ty2 = (float)Ei[e][14]*20+20;
+new:
+      // trigger box
+      float tx1 = (float)Ei[e][11];
+      float ty1 = (float)Ei[e][12];
+      float tx2 = (float)(Ei[e][11]+Ei[e][13]+20);
+      float ty2 = (float)(Ei[e][12]+Ei[e][14]+20);
+
+void ovw_draw_overlays(int obt, int num, int legend_highlight)
+
+pod old:
+            int tx1 = Ei[num][11]*20;
+            int ty1 = Ei[num][12]*20;
+            int tx2 = Ei[num][13]*20 + 20;
+            int ty2 = Ei[num][14]*20 + 20;
+pod new:
+            int tx1 = Ei[num][11];
+            int ty1 = Ei[num][12];
+            int tx2 = Ei[num][11]+Ei[num][13] + 20;
+            int ty2 = Ei[num][12]+Ei[num][14] + 20;
+
+same for cloner
+
+
+void ovw_map_move(int &obt, int &num)
+old:
+            int x1 = Ei[b][11]*20;
+            int y1 = Ei[b][12]*20;
+            int x2 = Ei[b][13]*20+20;
+            int y2 = Ei[b][14]*20+20;
+new:
+            int x1 = Ei[b][11];
+            int y1 = Ei[b][12];
+            int x2 = Ei[b][11]+Ei[b][13]+20;
+            int y2 = Ei[b][12]+Ei[b][14]+20;
+
+
+
+old:
+         if (mouse_on_tb_ul) // move trigger box from ul
+         {
+            //printf("mouse pressed on tb_ul\n");
+            // get the width and height
+            int w = Ei[num][13] - Ei[num][11];
+            int h = Ei[num][14] - Ei[num][12];
+            // set new position
+            Ei[num][11] = gx;
+            Ei[num][12] = gy;
+            Ei[num][13] = gx+w;
+            Ei[num][14] = gy+h;
+new:
+         if (mouse_on_tb_ul) // move trigger box from ul
+         {
+            //printf("mouse pressed on tb_ul\n");
+            Ei[num][11] = gx*20;
+            Ei[num][12] = gy*20;
+         }
+
+
+old:
+         if (mouse_on_tb_lr)  // resize trigger box from lr
+         {
+            // prevent lr corner from being less than ul corner
+            if (gx < Ei[num][11]) gx = Ei[num][11];
+            if (gy < Ei[num][12]) gy = Ei[num][12];
+            // set new postion
+            Ei[num][13] = gx;
+            Ei[num][14] = gy;
+         }
+
+new:
+         if (mouse_on_tb_lr)  // resize trigger box from lr
+         {
+            // prevent lr corner from being less than ul corner
+            if (gx < Ei[num][11]/20) gx = Ei[num][11]/20;
+            if (gy < Ei[num][12]/20) gy = Ei[num][12]/20;
+            // set new postion
+            Ei[num][13] = gx*20 - Ei[num][11];
+            Ei[num][14] = gy*20 - Ei[num][12];
+         }
+
+
+
+old:
+               if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+               {
+                  // move podzilla's trigger box too
+                  if (Ei[num][0] == 7)
+                  {
+                     Ei[num][11] += x_off;
+                     Ei[num][12] += y_off;
+                     Ei[num][13] += x_off;
+                     Ei[num][14] += y_off;
+                  }
+                  // move cloner's stuff too
+                  if (Ei[num][0] == 9)
+                  {
+                     Ei[num][11] += x_off; // trigger box
+                     Ei[num][12] += y_off;
+                     Ei[num][13] += x_off;
+                     Ei[num][14] += y_off;
+
+
+new:
+               if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+               {
+                  // move podzilla's trigger box too
+                  if (Ei[num][0] == 7)
+                  {
+                     Ei[num][11] += x_off*20;
+                     Ei[num][12] += y_off*20;
+                  }
+                  // move cloner's stuff too
+                  if (Ei[num][0] == 9)
+                  {
+                     Ei[num][11] += x_off*20; // trigger box
+                     Ei[num][12] += y_off*20;
+                     Ei[num][15] += x_off; // source
+                     Ei[num][16] += y_off;
+                     Ei[num][17] += x_off; // dest
+                     Ei[num][18] += y_off;
+                  }
+
+
+all that seem to work great:
+
+now onto
+em_copy
+old:
+            if (al_show_native_message_box(display, "Move?", "Move podzilla's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
+            {
+               Ei[c][11] = Ei[din][11] + ofx/20;
+               Ei[c][12] = Ei[din][12] + ofy/20;
+               Ei[c][13] = Ei[din][13] + ofx/20;
+               Ei[c][14] = Ei[din][14] + ofy/20;
+
+new:
+               Ei[c][11] = Ei[din][11] + ofx;
+               Ei[c][12] = Ei[din][12] + ofy;
+
+same for cloner...tested
+
+
+
+
+
+
+
+
+zfs_copy
+
+old save:
+
+            if (ft_Ei[c][0] == 7 ) // podzilla
+            {
+               ft_Ei[c][11]-= x1/20;
+               ft_Ei[c][12]-= y1/20;
+               ft_Ei[c][13]-= x1/20;
+               ft_Ei[c][14]-= y1/20;
+            }
+            if (ft_Ei[c][0] == 9 ) // cloner
+            {
+               ft_Ei[c][11]-= x1/20;
+               ft_Ei[c][12]-= y1/20;
+               ft_Ei[c][13]-= x1/20;
+               ft_Ei[c][14]-= y1/20;
+
+new save:
+            if (ft_Ei[c][0] == 7 ) // podzilla
+            {
+               ft_Ei[c][11]-= x1;
+               ft_Ei[c][12]-= y1;
+            }
+            if (ft_Ei[c][0] == 9 ) // cloner
+            {
+               ft_Ei[c][11]-= x1;
+               ft_Ei[c][12]-= y1;
+
+old fcopy:
+                  if (Ei[c][0] == 7) // podzilla trigger box
+                  {
+                     Ei[c][11]+= x3/20;
+                     Ei[c][12]+= y3/20;
+                     Ei[c][13]+= x3/20;
+                     Ei[c][14]+= y3/20;
+                  }
+                  if (Ei[c][0] == 9) // cloner
+                  {
+                     Ei[c][11]+= x3/20;
+                     Ei[c][12]+= y3/20;
+                     Ei[c][13]+= x3/20;
+                     Ei[c][14]+= y3/20;
+
+new fcopy:
+                  if (Ei[c][0] == 7) // podzilla trigger box
+                  {
+                     Ei[c][11]+= x3;
+                     Ei[c][12]+= y3;
+                  }
+                  if (Ei[c][0] == 9) // cloner
+                  {
+                     Ei[c][11]+= x3;
+                     Ei[c][12]+= y3;
+
+that works flawlessly
+
+
+create and move with buttons...done
+
+in: int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type)
+could modified type 2 only used for this
+
+or I can try type 1...
+size is off by one
+
+modify type 2 then...done...
+
+
+now on to cloner source and dest and then I will be done....
+
+
+glt line:
+
+      // converting cloner source and dest from 100 xywh to 2000 xywh format
+      for (int y=0; y<100; y++)
+         if (Ei[y][0] == 9)
+         {
+            Ei[y][15] *= 20;
+            Ei[y][16] *= 20;
+            Ei[y][17] *= 20;
+            Ei[y][18] *= 20;
+            Ei[y][19] *= 20;
+            Ei[y][20] *= 20;
+         }
+
+
+
+backup levels and do it...
+
+
+
+
+
+void enemy_cloner(int e)
+draw cloner
+void ovw_draw_overlays(int obt, int num, int legend_highlight)
+map move...
+all done...
+
+I think this is all done....
+
+now all rects have the same format
+
+implement the shift thing in em copy...done
+
+
+
+
+filter for object viewer..controls what the map move snaps to...
+i, e, l and sub types...
+i picture clicking on the top bar and a drop down filter list will pop up...
+
+this will be used by more than just viewer
+ge has one
+zfs has one
+
+I want to make a common very good one
+
+ge has the most detailed one
+
+could right click on it and get a popup menu:
+clear all
+clear all items
+clear all enemies
+set all enemies
+set all items
+
+It should also have lifts, blocks and block flags,
+altough they won't be needed in every case, but they can be turned on and off as needed.
+
+What variable structure?
+
+
+int obj_filter[4][20] = {0};
+
+change this to 5 and make it global
+
+1 block
+2 item
+3 enemy
+4 lift
+
+
+
+ge - item and enemies only
+ov - item, enemies, lifts
+zfs - everything
+em - ???
+
+pass an int mode
+
+now show it in ov
+
+now use it in ov
+map move....
+
+that is fucking awesome...
+
+
+now I want to be able to collapse it and stick it on the top border
+
+
+it should be easy to use it for zfs also...
+
+lifts, block and flags already have corresponding buttons
+
+the only difference will be to filter for item and enemy types
+
+but before I do that...
+i want to make it an independant window
+moveable, collapseable, resizable
+is there a case for making this a structure?
+all variables could be contained there.
+and all in one source file
+
+first of all it needs its own x and y positions
+and hidden or not..
+
+int ft_window_x1 = 100;
+int ft_window_x1 = 180;
+int ft_window_y1 = 200;
+int ft_window_collapsed = 0;
+
+
+
+
+i ran into a problem when one window is on top of another..
+you would expect the window on top to be the active one, but..
+on top just means it was draw last...
+the one underneath that was drawn first will eat the mouse clicks first...
+
+
+20220508
+got filter window to work
+it moves and it collapseable...
+need to figure out how to make only one window get mouse when more than one overlap and are active
+once i figure that out the rest of the window stuff will work
+
+I might have to do more window management stuff, but it might be worth it in the end.
+
+i also have to do something to make sure all these new moveable window are not off
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

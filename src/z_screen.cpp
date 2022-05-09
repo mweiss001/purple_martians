@@ -470,6 +470,37 @@ void get_new_screen_buffer(int type, int x, int y)
    // this is what all the previous calculation have been building up to:
    al_draw_scaled_bitmap(level_buffer, WX, WY, SW, SH, sbx, sby, sbw, sbh, 0);
 
+
+
+   // in level editor mode, if the level is smaller than the screen edges, draw a thin line to show where it ends...
+   if (type == 3)
+   {
+      sbw = SCREEN_W-bw*2; // recalc these beacuse they have been modified
+      sbh = SCREEN_H-bw*2;
+      int xdraw = 0;
+      int ydraw = 0;
+      int xl=SCREEN_W-bw; // default screen edge positions
+      int yl=SCREEN_H-bw;
+      if (sls < sbw)
+      {
+         xl = sbx+sls;
+         xdraw = 1;
+      }
+      if (sls < sbh)
+      {
+         yl = sby+sls;
+         ydraw = 1;
+      }
+      if (xdraw) al_draw_line(xl, bw, xl, yl, palette_color[c], 0);
+      if (ydraw) al_draw_line(bw, yl, xl, yl, palette_color[c], 0);
+      //al_draw_rectangle(sbx, sby, sbx+sbw, sby+sbh, palette_color[c], 0);
+   }
+
+
+
+
+
+
    //printf("WX:%d, WY:%d, SW:%d, SH:%d, sbx:%d, sby:%d, sbw:%d, sbh:%d\n", WX, WY, SW, SH, sbx, sby, sbw, sbh);
 
 

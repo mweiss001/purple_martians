@@ -1076,7 +1076,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
    if (bn == 17)
    {
       sprintf(smsg, "Set Source Area");
-      if (press) get_block_range("Cloner Source Area", &Ei[num][15], &Ei[num][16], &Ei[num][19], &Ei[num][20], 3);
+      if (press) get_block_range("Cloner Source Area", &Ei[num][15], &Ei[num][16], &Ei[num][19], &Ei[num][20], 1);
    }
    if (bn == 18)
    {

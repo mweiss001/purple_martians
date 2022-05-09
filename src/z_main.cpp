@@ -215,6 +215,13 @@ int stx=10;  // selection window
 int sty=10;
 int sux=40;
 int suy=30;
+int obj_filter[5][20] = {0};
+
+int ft_window_x1 = 100;
+int ft_window_x2 = 180;
+int ft_window_y1 = 200;
+int ft_window_collapsed = 0;
+
 
 
 // ------------------------------------------------

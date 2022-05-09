@@ -93,12 +93,12 @@ void draw_pop_message(int i)
 
    // x positions
    int pxw = (longest_line_len+2)*8;  // width is set from longest text line
-   int px1 = item[i][10]*20;          // item sets left edge with specified corner block
+   int px1 = item[i][10];             // item sets left edge with specified corner block
    int px2 = px1 + pxw + 8;           // right edge depends on text width
    int pxc = px1 + pxw / 2;           // text center position
 
    // y positions
-   int py1 = item[i][11]*20;          // item sets top edge with specified corner block
+   int py1 = item[i][11];             // item sets top edge with specified corner block
    int py2 = py1 + (num_lines+3) * 8; // bottom edge is set from number of lines of text
 
    int fc = item[i][9];               // frame color

@@ -64,24 +64,24 @@ void draw_enemy(int e, int custom, int cx, int cy)
    if (type == 9) // cloner
    {
       // trigger box
-      float tx1 = (float)Ei[e][11]*20;
-      float ty1 = (float)Ei[e][12]*20;
-      float tx2 = (float)Ei[e][13]*20+20;
-      float ty2 = (float)Ei[e][14]*20+20;
+      float tx1 = (float)Ei[e][11];
+      float ty1 = (float)Ei[e][12];
+      float tx2 = (float)(Ei[e][11]+Ei[e][13]+20);
+      float ty2 = (float)(Ei[e][12]+Ei[e][14]+20);
       int tc1 = 14 + 128; // trigger box color
 
       // source
-      float sx1 = (float)Ei[e][15]*20;
-      float sy1 = (float)Ei[e][16]*20;
-      float sx2 = sx1 + (float)Ei[e][19]*20;
-      float sy2 = sy1 + (float)Ei[e][20]*20;
+      float sx1 = (float)Ei[e][15];
+      float sy1 = (float)Ei[e][16];
+      float sx2 = sx1 + (float)Ei[e][19];
+      float sy2 = sy1 + (float)Ei[e][20];
       int sc1 = 11 + 128; // source box color
 
       // destination
-      float dx1 = (float)Ei[e][17]*20;
-      float dy1 = (float)Ei[e][18]*20;
-      float dx2 = dx1 + (float)Ei[e][19]*20;
-      float dy2 = dy1 + (float)Ei[e][20]*20;
+      float dx1 = (float)Ei[e][17];
+      float dy1 = (float)Ei[e][18];
+      float dx2 = dx1 + (float)Ei[e][19];
+      float dy2 = dy1 + (float)Ei[e][20];
       int dc1 = 10 + 128; // destination box color
 
       int m = Ei[e][5]; // 2 - 9  total seq (8)
@@ -1433,6 +1433,103 @@ int is_player_in_trigger_box(int x1, int y1, int x2, int y2)
 }
 
 
+void cloner_create(int e)
+{
+   al_fixed x1 = al_itofix(Ei[e][15]-2);    // source
+   al_fixed y1 = al_itofix(Ei[e][16]-2);
+   al_fixed x3 = al_itofix(Ei[e][17]-2);    // destination
+   al_fixed y3 = al_itofix(Ei[e][18]-2);
+   al_fixed w =  al_itofix(Ei[e][19]);     // width
+   al_fixed h =  al_itofix(Ei[e][20]);     // height
+   al_fixed x2 = x1 + w;
+   al_fixed y2 = y1 + h;
+
+
+   int no=0, cl=Ei[e][10]; // limit on number of created objects
+   if (cl)
+   {
+      // count number of active objects tagged by this cloner
+      for (int x=0; x<100; x++)
+         if ((Ei[x][0]) && (Ei[x][28] == 1000 + e)) no++;
+      for (int x=0; x<500; x++)
+         if ((item[x][0]) && (item[x][15] == 1000 + e)) no++;
+   }
+   else cl = 600; // no limit is same as max limit
+   if (no < cl) // if number of objects < create limit
+   {
+      // check for enemies in box
+      for (int b=0; b<100; b++)
+         if (Ei[b][0])
+            if ((Efi[b][0] > x1) && (Efi[b][0] < x2) && (Efi[b][1] > y1) && (Efi[b][1] < y2) && (no < cl))
+            {
+               // check if new position is empty
+               al_fixed new_x_pos = Efi[b][0] + x3 - x1;
+               al_fixed new_y_pos = Efi[b][1] + y3 - y1;
+               int nx = al_fixtoi(new_x_pos) / 20;
+               int ny = al_fixtoi(new_y_pos) / 20;
+               if (is_block_empty(nx, ny, 1, 0, 0)) // block only
+               {
+                  for (int c=0; c<100; c++) // look for a place to put it
+                     if (Ei[c][0] == 0)  // found empty
+                     {
+                        for (int y=0; y<32; y++)  Ei[c][y] =  Ei[b][y];
+                        for (int y=0; y<16; y++) Efi[c][y] = Efi[b][y];
+                        Efi[c][0] = new_x_pos;
+                        Efi[c][1] = new_y_pos;
+                        Ei[c][27] = Ei[e][9]; // set time to live
+                        Ei[c][28] = 1000+e;   // tag with cloner item id
+                        c = 100; // end loop
+                        no++;    // one more object created
+                     }
+               }
+            }
+
+      // check for items in box
+      for (int b=0; b<500; b++)
+         if (item[b][0])
+            if ((itemf[b][0] > x1) && (itemf[b][0] < x2) && (itemf[b][1] > y1) && (itemf[b][1] < y2) && (no < cl))
+            {
+               // check if new position is empty
+               al_fixed new_x_pos = itemf[b][0] + x3 - x1;
+               al_fixed new_y_pos = itemf[b][1] + y3 - y1;
+               int nx = al_fixtoi(new_x_pos) / 20;
+               int ny = al_fixtoi(new_y_pos) / 20;
+               if (is_block_empty(nx, ny, 1, 1, 0)) // block only
+               {
+                  for (int c=0; c<500; c++)
+                     if (item[c][0] == 0) // found empty
+                     {
+                        for (int y=0; y<16; y++) item[c][y] = item[b][y];
+                        itemf[c][0]= new_x_pos;
+                        itemf[c][1]= new_y_pos;
+                        itemf[c][2]= al_itofix(0);
+                        itemf[c][3]= al_itofix(0);
+
+                        // are we copying something that already has an expiry date?? if so leave it
+                        if (item[b][14] == 0) item[c][14] = Ei[e][9]; // otherwise set time to live from cloner
+                        if (item[c][0] == 10) strcpy(pmsgtext[c], pmsgtext[b]); // message
+                        item[c][15] = 1000+e;   // tag with cloner item id
+                        c = 500; // end loop
+                        no++;    // one more object created
+                     }
+               }
+            }
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //--9--cloner-----------------------------------------------------------------------------
 //      Ei[e][5] = mode
 //      Ei[e][6] = create wait
@@ -1451,23 +1548,12 @@ int is_player_in_trigger_box(int x1, int y1, int x2, int y2)
 
 void enemy_cloner(int e)
 {
-   al_fixed x1 = al_itofix(Ei[e][15]*20-2);    // source
-   al_fixed y1 = al_itofix(Ei[e][16]*20-2);
-   al_fixed x3 = al_itofix(Ei[e][17]*20-2);    // destination
-   al_fixed y3 = al_itofix(Ei[e][18]*20-2);
-   al_fixed w =  al_itofix(Ei[e][19]*20);     // width
-   al_fixed h =  al_itofix(Ei[e][20]*20);     // height
-   al_fixed x2 = x1 + w;
-   al_fixed y2 = y1 + h;
-
-   int x4 = Ei[e][11]*20 - 10; // trigger box
-   int y4 = Ei[e][12]*20 - 10;
-   int x5 = Ei[e][13]*20 + 10;
-   int y5 = Ei[e][14]*20 + 10;
-
+   int x4 = Ei[e][11] - 10; // trigger box
+   int y4 = Ei[e][12] - 10;
+   int x5 = Ei[e][11] + Ei[e][13] + 10;
+   int y5 = Ei[e][12] + Ei[e][14] + 10;
 
    Ei[e][1] = zz[0][105]; // default shape
-
 
    if (Ei[e][31] && (Ei[e][30] == 0)) // hit and not invincible
    {
@@ -1475,13 +1561,7 @@ void enemy_cloner(int e)
       return;
    }
    else Ei[e][31] = 0;
-
-
    enemy_player_hit_proc(e);
-
-
-
-
 
    // set draw shape
    Ei[e][2] = 0;  // flip mode
@@ -1492,32 +1572,21 @@ void enemy_cloner(int e)
    int b = (Ei[e][7] * 9) / (Ei[e][6]+1);
    Ei[e][1] = zz[5+b][107];
 
-
    if (Ei[e][8] == 2) Ei[e][1] = zz[0][105]; // to make something happen for immed
-
-
 
 //   printf("%d %d %d \n", b, Ei[e][7], Ei[e][6]);
 
 
-
    int create_now = 0;
 
-
-
    int player_in_box = is_player_in_trigger_box(x4, y4, x5, y5);
-
    int player_just_entered_trigger_box = 0;
-
    if ((!Ei[e][5]) && (player_in_box)) player_just_entered_trigger_box = 1; // not in trig box last time and in box this time
-
 
    // mode (Ei[e][5]
    // 0 = not in trigger box last time
    // 1 = in trigger box last time
-
    // Ei[][8]  trigger mode (0=wait, 1=reset, 2=immed)//
-
 
    // wait mode, player in box, run timer
    if ((Ei[e][8] == 0) && (player_in_box) && (--Ei[e][7] == 0))
@@ -1544,91 +1613,9 @@ void enemy_cloner(int e)
          }
       }
    }
-
-
    if (player_in_box) Ei[e][5] = 1; // for next time
    else Ei[e][5] = 0;
-
-
-   if (create_now)
-   {
-      printf("create now\n");
-
-      int no=0, cl=Ei[e][10]; // limit on number of created objects
-      if (cl)
-      {
-         // count number of active objects tagged by this cloner
-         for (int x=0; x<100; x++)
-            if ((Ei[x][0]) && (Ei[x][28] == 1000 + e)) no++;
-         for (int x=0; x<500; x++)
-            if ((item[x][0]) && (item[x][15] == 1000 + e)) no++;
-      }
-      else cl = 600; // no limit is same as max limit
-      if (no < cl) // if number of objects < create limit
-      {
-         for (int b=0; b<100; b++)
-            if (Ei[b][0])     // check for enemies in box
-               if ((Efi[b][0] > x1) && (Efi[b][0] < x2) && (Efi[b][1] > y1) && (Efi[b][1] < y2) && (no < cl))
-               {
-
-
-                  // check if new position is empty
-                  al_fixed new_x_pos = Efi[b][0] + x3 - x1;
-                  al_fixed new_y_pos = Efi[b][1] + y3 - y1;
-                  int nx = al_fixtoi(new_x_pos) / 20;
-                  int ny = al_fixtoi(new_y_pos) / 20;
-                  if (is_block_empty(nx, ny, 1, 0, 0)) // block only
-                  {
-                     for (int c=0; c<100; c++) // look for a place to put it
-                        if (Ei[c][0] == 0)  // found empty
-                        {
-                           for (int y=0; y<32; y++)
-                              Ei[c][y] = Ei[b][y];
-                           for (int y=0; y<16; y++)
-                              Efi[c][y] = Efi[b][y];
-                           Efi[c][0] = new_x_pos;
-                           Efi[c][1] = new_y_pos;
-                           Ei[c][27] = Ei[e][9]; // set time to live
-                           Ei[c][28] = 1000+e;   // tag with cloner item id
-
-
-                           c = 100; // end loop
-                           no++;    // one more object created
-                        }
-                  }
-               }
-         for (int b=0; b<500; b++)
-            if (item[b][0])    //  check for items in box
-               if ((itemf[b][0] > x1) && (itemf[b][0] < x2) && (itemf[b][1] > y1) && (itemf[b][1] < y2) && (no < cl))
-               {
-                  // check if new position is empty
-                  al_fixed new_x_pos = itemf[b][0] + x3 - x1;
-                  al_fixed new_y_pos = itemf[b][1] + y3 - y1;
-                  int nx = al_fixtoi(new_x_pos) / 20;
-                  int ny = al_fixtoi(new_y_pos) / 20;
-                  if (is_block_empty(nx, ny, 1, 1, 0)) // block only
-                  {
-                     for (int c=0; c<500; c++)
-                        if (item[c][0] == 0) // found empty
-                        {
-                           for (int y=0; y<16; y++)
-                              item[c][y] = item[b][y];
-                           itemf[c][0]= new_x_pos;
-                           itemf[c][1]= new_y_pos;
-                           itemf[c][2]= al_itofix(0);
-                           itemf[c][3]= al_itofix(0);
-
-                           // are we copying something that already has an expiry date?? if so leave it
-                           if (item[b][14] == 0) item[c][14] = Ei[e][9]; // otherwise set time to live from cloner
-
-                           item[c][15] = 1000+e;   // tag with cloner item id
-                           c = 500; // end loop
-                           no++;    // one more object created
-                        }
-                  }
-               }
-      }
-   } // end of create
+   if (create_now) cloner_create(e);
 }
 
 

@@ -1,0 +1,149 @@
+20220508 converted all to common format
+range: 2000
+format x, y, w, h
+
+
+
+---------------------
+all items position
+---------------------
+range: 2000
+format x, y
+variables:
+integer
+x = item[][4];
+y = item[][5];
+fixed only when game is running
+x = itemf[][0];
+y = itemf[][1];
+
+
+---------------------
+key block range
+trigger
+block manip
+block damage
+---------------------
+range: 2000
+format x, y, w, h
+variables:
+x = item[][6];
+y = item[][7];
+w = item[][8];
+h = item[][9];
+
+---------------------
+pop-message position
+---------------------
+range: 2000
+format x, y
+variables:
+x = item[][10];
+y = item[][11];
+
+
+---------------------
+all enemys positions
+---------------------
+range: 2000
+format x, y
+variables:
+integer:
+x = Ei[][0];
+y = Ei[][1];
+fixed:
+x = Efi[][0];
+y = Efi[][1];
+
+
+---------------------
+podzilla extended position
+---------------------
+range: 2000
+format x, y
+variables:
+fixed:
+x = Efi[][5];
+y = Efi[][6];
+
+
+
+---------------------
+podzilla trigger
+cloner trigger
+---------------------
+range: 2000
+format x, y, w, h
+x = Ei[][11];
+y = Ei[][12];
+w = Ei[][13];
+h = Ei[][14];
+
+---------------------
+cloner source
+---------------------
+range: 2000
+format x, y, w, h
+x = Ei[][15];
+y = Ei[][16];
+w = Ei[][19];
+h = Ei[][20];
+
+---------------------
+cloner dest
+---------------------
+range: 2000
+format x, y, w, h
+x = Ei[][17];
+y = Ei[][18];
+w = Ei[][19];
+h = Ei[][20];
+
+---------------------
+field
+---------------------
+range: 2000
+format x, y, w, h
+
+tx = Ei[][11];
+ty = Ei[][12];
+tw = Ei[][13];
+th = Ei[][14];
+
+dx = Ei[][15];
+dy = Ei[][16];
+dw = Ei[][17];
+dh = Ei[][18];
+
+---------------------
+lift main
+---------------------
+integer:
+range: 2000
+format x1, y1, x2, y2, w, h
+variables:
+x1 = lifts[l].x1;
+y1 = lifts[l].y1;
+x2 = lifts[l].x2;
+y2 = lifts[l].y2;
+w = lifts[l].width;
+h = lifts[l].height;
+
+fixed:
+range: 2000
+format x, y
+variables:
+x = lifts[l].fx;
+y = lifts[l].fy;
+
+---------------------
+lift step 
+---------------------
+range: 2000
+format x, y, w, h
+variables:
+x = lift_steps[l][s].x;
+y = lift_steps[l][s].y;
+w = lift_steps[l][s].w;
+h = lift_steps[l][s].h;
+

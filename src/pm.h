@@ -392,6 +392,14 @@ extern int stx;
 extern int sty;
 extern int sux;
 extern int suy;
+extern int obj_filter[5][20];
+extern int ft_window_x1;
+extern int ft_window_x2;
+extern int ft_window_y1;
+extern int ft_window_collapsed;
+
+
+
 
 // ------------------------------------------------
 // ----------------- demo mode --------------------
@@ -979,9 +987,12 @@ void zoom_full_screen(int draw_item);
 
 
 // e_group_edit.cpp
+int draw_filter_toggles(int x1, int x2, int y1, int mode);
 void group_edit(void);
 void ovw_process_scrolledge(void);
 void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy);
+
+
 
 
 
@@ -1019,6 +1030,7 @@ int sort_item(void);
 int get_empty_item(void);
 int get_empty_item(int type);
 void erase_item(int num);
+void check_item(int i, int ct);
 void test_items(void);
 int create_pmsg(int c);
 void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, int show_line_breaks);

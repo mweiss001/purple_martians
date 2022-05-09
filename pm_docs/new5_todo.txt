@@ -13,12 +13,25 @@ does remote trigger have a delay before the explosion?
 I want it immediate to help the player time exploding moving things
 
 
-if a pmsg gets cloned program will crash...
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+
+fix the bullet proximity for flapper...
+right now it uses a lot of variables..I am thinking of just using a circle like trakbot...
+maybe some fancy pie slice arc....
+
+
+
+zfs - make block frame and fill work like they do in main editor
+
+
+
+
 
 make leaving ropes to ladder immed instead of fall and vice versa
 
@@ -27,12 +40,6 @@ when you touch the lock it will show the blocks that get removed
 
 what if you had to press FIRE to grab a rocket, but then after that you did not need to hold FIRE?
 you could dismount with JUMP? ... that sounds cool
-
-
-how can I force the screen thing in level editor
-add some variables to the config file
-display_transform_double
-force values or let it be auto
 
 
 demo mode annoys me when it starts in the middle of things I am doing
@@ -49,19 +56,8 @@ look into github.io for webpages
 
 how about optional swappable tilesets for levels
 
-how about barriers that are configurable for enemies, players, bullets, objects
-
 make the version number auto increment based on something like date...
 or how many time it has been compiled...
-
-
-
-what about more lift step types:
-only move if player is riding...
-
-reset to step 0 if player is not on for x seconds
-just jump immediatley???
-
 
 
 new items that emit triggers
@@ -78,105 +74,12 @@ trigger field that has a count of enemies or items or players
 matching set of items that need to be brought together
 
 
-
 what if I made coins to collect in the level?
 it is super fun in mario!
 then I could have end of level stuff like how many coins you got, how many enemies you killed, etc...
 
 they would be items and at the start of the level how many there are would be counted
 then each player would have a tally of how many they got...
-
-
-
-
-l[100][100] uses ints that are 4 bytes
-most of these are unused
-
-I have 1024 tiles or sprites and I use 32 bits to store an int that needs only 10
-
-I want to make a way of encoding so much more into these ints....
-
-when I want to draw them I'll only care about the 10 bits that describe the tile...
-
-I can have so many more flags...like
-
-solid,
-semi solid
-empty
-bombable
-breakable
-
-these flags do not need to be exclusive like they are now...
-
-there is so much more that can be done
-
-like solid for player
-solid for enemy
-solid for bullet....etc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 how about making health bonus only take the ammount of health needed to get to 100
@@ -188,11 +91,6 @@ make a field that manipulates the players controls, like gravity, etc...
 
 make an obvious item that reacts when getting shot... toggle on and off..
 
-
-
-
-
-
 to colorize tiles....use shades of white....when replacing, if r=g=b then it should be replaced with color
 
 
@@ -203,7 +101,6 @@ to colorize tiles....use shades of white....when replacing, if r=g=b then it sho
 make a level where the field gives you health...
 then cannons shoot you from below and push you up...
 can enemies control how powerful their bullets are?...no bullets have fixed damage...for now
-
 
 
 make a level with block 0 and 1 that look the same but set block manip to change block 1...
@@ -223,10 +120,7 @@ level with 100 random flapper...vertical jumping section in middle...332
 how about a level where you have a cannon following you through a constricting one way
 maze, probably up past semi solid and then kill it with a bomb
 
-
 make a level that relies on being able to carry a door through a door
-
-
 
 ------------------------------------------------------
 ------------------------ ememy ideas -----------------
@@ -242,15 +136,9 @@ that could be useful for timed things and other stuff
 
 what if when a player is in a cloner src that fires, a free man is created?
 
-
-
-
 stationary cannon
 wait, there is more!
 uses prox to fire bullet instead of timer
-
-can be a lot more accurate, if when firing a bullet it takes into account how fast the player is moving
-
 
 
 ------------------------------------------------------
@@ -267,46 +155,13 @@ make the switches able to see through if stacked
 
 2022
 
-
 update display page, it is woefully out of date now...
 
-update the history to 2022 in the web page and docs the game
-
-add github to the line with the project pages
-maybe downplay itch.io
-
-redo the info on the allegro.cc page
-especially about the sources....
 
 
-made a new page for bullets...done
-
-updated the copyright at the bottom of the pages
-made a perl script to do that automatically
-update_footer...done
-
-
-
-2018 stuff below
-
-
-look into pandoc...
-
-rename level_array
-how about level drawing
-
-working on events...
-
-I don't know if I document re-build bitmaps.
-In tiles there is some of it and also some in level background.
-
-At the bottom of files add links to other related docs
-
-
+older:
 
 netplay overall TODO:
-
-
 
 make
 
@@ -317,38 +172,22 @@ netplay - packets..done
 
 netplay - main TODO:
 
-
 netplay - state_corr TODO:
 when are they sent
 show dif
 tell about dif from start and regular dif
 
-
 netplay - join TODO:
 
 
-
-
----------------------------------------------------------
+--------------------------------------------------------
 ------------------- reduce globals ----------------------
 ---------------------------------------------------------
 
-edit_fix()
-edit_int()
-dont even use globals anymore, they just return the val
-
-getxy()  19 calls
-getbox() 5 calls
-pass pointers to values we want to edit...
-fuck it, why bother?
-
+bts needs to go
 
 ---------------------------------------------------------
 ------------------------ linux --------------------------
----------------------------------------------------------
-
----------------------------------------------------------
------------------------- A5 fixes -----------------------
 ---------------------------------------------------------
 
 

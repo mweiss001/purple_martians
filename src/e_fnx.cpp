@@ -103,7 +103,6 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
       ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
       ovw_process_scrolledge();
 
-
       al_draw_filled_rectangle(tx-90, 70, tx+90, 170, palette_color[0]);
       al_draw_rectangle(       tx-90, 70, tx+90, 170, palette_color[15], 1);
 
@@ -114,26 +113,12 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
       al_draw_text(font, palette_color[9],   tx, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
       al_draw_text(font, palette_color[14],  tx, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
       al_draw_text(font, palette_color[14],  tx, 138, ALLEGRO_ALIGN_CENTER, "or right mouse button");
-
       al_draw_textf(font, palette_color[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", gx, gy);
 
       if (mouse_b1)
       {
-         if (type == 1) // key block range 0-1999 xywh
-         {
-            *x1 = gx*20;
-            *y1 = gy*20;
-         }
-         if (type == 2) // pod cloner trigger box 0-99 x1, y1, x2, y2
-         {
-            *x1 = gx;
-            *y1 = gy;
-         }
-         if (type == 3) // cloner src 0-99 x y w h
-         {
-            *x1 = gx;
-            *y1 = gy;
-         }
+         *x1 = gx*20;
+         *y1 = gy*20;
          while (mouse_b1)
          {
             al_flip_display();
@@ -146,30 +131,15 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
             draw_enemies();
 
             // show the selection rectangle
-            if (type == 1) al_draw_rectangle(*x1,    *y1,     *x1+*x2,      *y1+*y2,     palette_color[15], 1);
-            if (type == 2) al_draw_rectangle(*x1*20, *y1*20, (*x2+1)*20,   (*y2+1)*20,   palette_color[15], 1);
-            if (type == 3) al_draw_rectangle(*x1*20, *y1*20, (*x2+*x1)*20, (*y2+*y1)*20, palette_color[15], 1);
+            if (type == 1) al_draw_rectangle(*x1,    *y1,    *x1+*x2,      *y1+*y2,      palette_color[15], 1);
+            if (type == 2) al_draw_rectangle(*x1,    *y1,    *x1+*x2+20,   *y1+*y2+20,   palette_color[15], 1);
 
             get_new_screen_buffer(3, 0, 0);
             ovw_process_scrolledge();
             ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
 
-            if (type == 1)
-            {
-               *x2 = gx*20-*x1;
-               *y2 = gy*20-*y1;
-            }
-
-            if (type == 2)
-            {
-               *x2 = gx;
-               *y2 = gy;
-            }
-            if (type == 3)
-            {
-               *x2 = gx-*x1;
-               *y2 = gy-*y1;
-            }
+            *x2 = gx*20-*x1;
+            *y2 = gy*20-*y1;
 
             al_draw_filled_rectangle(tx-90, 70, tx+90, 170, palette_color[0]);
             al_draw_rectangle(       tx-90, 70, tx+90, 170, palette_color[15], 1);
@@ -181,92 +151,40 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
             al_draw_text(font, palette_color[9],   tx, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
             al_draw_text(font, palette_color[14],  tx, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
             al_draw_text(font, palette_color[14],  tx, 138, ALLEGRO_ALIGN_CENTER, "or right mouse button");
-
-            if (type == 1)
-            {
-               al_draw_textf(font, palette_color[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", *x1/20, *y1/20);
-               al_draw_textf(font, palette_color[15], tx, 158, ALLEGRO_ALIGN_CENTER, "w:%2d h:%2d", *x2/20, *y2/20);
-            }
-            if (type == 2)
-            {
-               al_draw_textf(font, palette_color[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x1:%2d y1:%2d", *x1, *y1);
-               al_draw_textf(font, palette_color[15], tx, 158, ALLEGRO_ALIGN_CENTER, "x2:%2d y2:%2d", *x2, *y2);
-            }
-            if (type == 3)
-            {
-               al_draw_textf(font, palette_color[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", *x1, *y1);
-               al_draw_textf(font, palette_color[15], tx, 158, ALLEGRO_ALIGN_CENTER, "w:%2d h:%2d", *x2, *y2);
-            }
-
+            al_draw_textf(font, palette_color[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", *x1/20, *y1/20);
+            al_draw_textf(font, palette_color[15], tx, 158, ALLEGRO_ALIGN_CENTER, "w:%2d h:%2d", *x2/20, *y2/20);
          }
          quit = 1;
          ret = 1;
          //printf("before limit check - x1:%d y1:%d x2:%d y2:%d\n", *x1, *y1, *x2, *y2);
-         if (type == 1) // 2000 w h
+
+         // don't allow 0 width or height
+         if (*x2 == 0) *x2 = 20;
+         if (*y2 == 0) *y2 = 20;
+
+         // UR corner must be at least one block from limit
+         if (*x1 > 1980) *x1 = 1980;
+         if (*y1 > 1980) *y1 = 1980;
+
+         // correct if lr corner is off level
+         if ((*x1 + *x2) > 2000) *x2 = 2000 - *x1;
+         if ((*y1 + *y2) > 2000) *y2 = 2000 - *y1;
+
+         // swap if negative width or height
+         if (*x2 < 0)
          {
-            // don't allow 0 width or height
-            if (*x2 == 0) *x2 = 20;
-            if (*y2 == 0) *y2 = 20;
-
-            // UR corner must be at least one block from limit
-            if (*x1 > 1980) *x1 = 1980;
-            if (*y1 > 1980) *y1 = 1980;
-
-            // correct if lr corner is off level
-            if ((*x1 + *x2) > 2000) *x2 = 2000 - *x1;
-            if ((*y1 + *y2) > 2000) *y2 = 2000 - *y1;
-
-            // swap if negative width or height
-            if (*x2 < 0)
-            {
-               *x1 = *x1 + *x2;
-               *x2 = -*x2;
-            }
-            if (*y2 < 0)
-            {
-               *y1 = *y1 + *y2;
-               *y2 = -*y2;
-            }
+            *x1 = *x1 + *x2;
+            *x2 = -*x2;
          }
-         if (type == 2) // 100 x2 y2
+         if (*y2 < 0)
          {
-            int z; // swap x1 and x2 if neccesary
-            if (*x1 > *x2) { z = *x1; *x1 = *x2; *x2 = z;}
-            if (*y1 > *y2) { z = *y1; *y1 = *y2; *y2 = z;}
-
-            if (*x1 > 99) *x1 = 99;
-            if (*y1 > 99) *y1 = 99;
-            if (*x2 > 99) *x2 = 99;
-            if (*y2 > 99) *y2 = 99;
-         }
-         if (type == 3) // 100 w h
-         {
-            // don't allow 0 width or height
-            if (*x2 == 0) *x2 = 1;
-            if (*y2 == 0) *y2 = 1;
-
-            // UR corner must be at least one block from limit
-            if (*x1 > 98) *x1 = 98;
-            if (*y1 > 98) *y1 = 98;
-
-            // correct if lr corner is off level
-            if ((*x1 + *x2) > 99) *x2 = 100 - *x1;
-            if ((*y1 + *y2) > 99) *y2 = 100 - *y1;
-
-            // swap if negative width or height
-            if (*x2 < 0)
-            {
-               *x1 = *x1 + *x2;
-               *x2 = -*x2;
-            }
-            if (*y2 < 0)
-            {
-               *y1 = *y1 + *y2;
-               *y2 = -*y2;
-            }
+            *y1 = *y1 + *y2;
+            *y2 = -*y2;
          }
          //printf("after limit check - x1:%d y1:%d x2:%d y2:%d\n", *x1, *y1, *x2, *y2);
       }
+
+
       if (mouse_b2)
       {
          while (mouse_b2) proc_controllers(); // wait for release
@@ -281,19 +199,6 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
    }
    return ret;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -432,10 +337,10 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       }
       if (obj_type == 98) // move cloner destination
       {
-         float dx1 = (float)Ei[num][17]*20;
-         float dy1 = (float)Ei[num][18]*20;
-         float dx2 = dx1 + (float)Ei[num][19]*20;
-         float dy2 = dy1 + (float)Ei[num][20]*20;
+         float dx1 = (float)Ei[num][17];
+         float dy1 = (float)Ei[num][18];
+         float dx2 = dx1 + (float)Ei[num][19];
+         float dy2 = dy1 + (float)Ei[num][20];
          int dc1 = 10 + 128; // destination box color
          rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64); // destination
       }
@@ -510,8 +415,8 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          break;
          case 98: // cloner destination
          {
-            Ei[num][17] = gx;
-            Ei[num][18] = gy;
+            Ei[num][17] = gx*20;
+            Ei[num][18] = gy*20;
          }
          break;
          case 97: // set new rocket direction
@@ -526,8 +431,8 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          break;
          case 95: // message position
          {
-            item[num][10] = gx;
-            item[num][11] = gy;
+            item[num][10] = gx*20;
+            item[num][11] = gy*20;
          }
       }
 
