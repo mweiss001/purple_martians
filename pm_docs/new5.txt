@@ -25349,7 +25349,7 @@ I might have to do more window management stuff, but it might be worth it in the
 
 i also have to do something to make sure all these new moveable window are not off
 
-
+redo push..crashed last time..hope it's ok
 
 
 
