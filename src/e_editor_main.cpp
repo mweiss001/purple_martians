@@ -1271,6 +1271,22 @@ int em_process_keypress(void)
 
 int edit_menu(int el)
 {
+   mWindow test[4];
+
+   test[0].set_pos(100, 100);
+   test[0].set_size(100, 100);
+   test[0].set_title("win1");
+
+   test[1].set_pos(300, 100);
+   test[1].set_size(100, 100);
+   test[1].set_title("win2");
+
+   test[2].set_pos(500, 100);
+   test[2].set_size(100, 100);
+   test[2].set_title("win3");
+
+
+
    if (!el) load_level_prompt(); // load prompt
    else load_level(el, 0);       // blind load
    al_show_mouse_cursor(display);
@@ -1302,7 +1318,26 @@ int edit_menu(int el)
       ovw_process_scrolledge();
       ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
       em_redraw_background(gx, gy);
+
+
       mouse_pointer_on_window = 0;
+
+
+      for (int a=0; a<3; a++)
+      {
+         test[a].detect_mouse();
+         test[a].draw();
+         test[a].process();
+
+         if (test[a].mouse_on_window) mouse_pointer_on_window = 1;
+
+      }
+
+
+
+
+
+
       if (status_window_active) em_process_status_window(0, gx, gy, &mouse_pointer_on_window);
       if (select_window_active) em_process_select_window(0, &mouse_pointer_on_window);
       if (!mouse_pointer_on_window) // mouse pointer is not on window
