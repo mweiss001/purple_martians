@@ -180,6 +180,7 @@
 		</Unit>
 		<Unit filename="pm_docs/new5.txt" />
 		<Unit filename="pm_docs/new5_todo.txt" />
+		<Unit filename="src/c_mWindow.cpp" />
 		<Unit filename="src/e_bitmap.cpp" />
 		<Unit filename="src/e_editor_main.cpp" />
 		<Unit filename="src/e_editor_zfs.cpp" />

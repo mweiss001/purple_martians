@@ -1,5 +1,28 @@
 // pm.h - header file for both the game and the level editor
 
+
+
+class mWindow
+{
+   public:
+   int x1, y1, x2, y2, w, h;
+   int color;
+   int mouse_on_window;
+   char title[80];
+
+   mWindow(); // default constructor
+   void set_pos(int, int);
+   void set_size(int, int);
+   void draw(void);
+   void detect_mouse(void);
+   void set_title(const char*);
+   void process(void);
+};
+
+
+
+
+
 #include <stdio.h>
 #include <math.h>
 

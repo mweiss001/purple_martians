@@ -1277,10 +1277,6 @@ void game_menu(void)
 
 
 
-
-
-
-
 int main(int argument_count, char **argument_array)
 {
 

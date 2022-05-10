@@ -25360,6 +25360,210 @@ redo push..crashed last time..hope it's ok
 
 
 
+to solve my window problem....
+
+I need to get more complex...
+
+each window should be like an object..a C++ object...
+
+it should have its own variables, methods, etc...
+
+it should keep track of its position and size..
+
+it should have a method to draw itself and a separate method to accept input
+
+
+lets see what I can do with this, with the filter window....
+
+
+
+class mWindow
+{
+   public:
+   int x1, y1, x2, y2, w, h;
+   void set_pos(int, int);
+   void set_size(int, int);
+};
+
+void mWindow::set_pos(int x, int y)
+{
+   x1 = x;
+   y1 = y;
+   x2 = x + w;
+   y2 = y + h;
+}
+
+void mWindow::set_size(int sw, int sy)
+{
+   w = sw;
+   h = sh;
+   x2 = x + w;
+   y2 = y + h;
+}
+
+
+where do I declare it?
+in pm.h
+
+
+
+20220510 6:00 AM
+
+Some thought on windows..
+
+declare an array of them so they can be accessed in a loop
+
+each one will have properties like:
+
+active
+has_focus
+draw_order
+moveable
+
+
+'active'
+used to determine if the window is shown or hidden
+if not active the window is completely ignored, not drawn or processed at all
+I am thinking that only one should accept input at a time
+and I am thinking of enfocring that by only allowing one to have focus
+
+'has_focus'
+if the mouse moves to another window, that window will grab focus
+when a window has focus, show it with a frame highlight
+if the mouse is on multiple windows do not change focus
+only when the mouse is on only one window
+only the window that has focus can accept input or be moved
+
+'draw_order'
+maybe not needed as long as window that has fcous is drawn last
+
+
+
+when they are called in a loop, the entire edit menu will change...
+
+- draw level background, but customized, based on what edit_mode we are in
+- process the window loop that draws and accepts input from all the active windows
+- process mouse click and drags on the background based on what mode we are in..
+
+
+the modes will be:
+- edit menu
+- group edit
+- object viewer
+- zfs
+
+I will have a separate file for each window...
+status
+select
+filter
+object_viewer
+zfs action
+group edit list
+group edit buttons
+
+- edit menu
+status
+select
+
+- group edit
+filter
+group edit list
+group edit buttons
+
+- object viewer
+filter
+object_viewer
+
+- zfs
+filter
+zfs action
+
+
+Then I can do things with each window like:
+resizeable or not
+moveable or not
+collapseable or not
+dockable to the frame
+
+Then I can implement a method to ensure they are not off the edges of the screen
+
+This will be a major re-write, but I think it will be worth it.
+
+Buttons and slider will all have to be modified.
+They need a variable they are passed that tells them to draw only or draw and process mouse clicks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

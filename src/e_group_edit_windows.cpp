@@ -352,6 +352,9 @@ void remove_obj_list_filtered_items(void)
 
 int draw_filter_toggles(int jjx1, int jjx2, int jjy1, int mode)
 {
+
+
+
    int x1 = ft_window_x1;
    int x2 = ft_window_x2;
    int y1 = ft_window_y1;
@@ -1217,6 +1220,10 @@ int ge_draw_on_screen_buffer(int xa, int ya, int &show_sel_frame)
 
 void group_edit(void)
 {
+
+
+
+
    init_level_background();
    int gx=0, gy=0, hx=0, hy=0;
 
