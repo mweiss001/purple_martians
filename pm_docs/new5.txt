@@ -25495,6 +25495,150 @@ They need a variable they are passed that tells them to draw only or draw and pr
 
 
 
+I cannot get clipping to work....probably has something to do with display transform
+
+   /*
+
+   int cx, cy, cw, ch;
+   al_get_clipping_rectangle(&cx, &cy, &cw, &ch);
+   printf("1 - x:%d y:%d w:%d h:%d\n", cx, cy, cw, ch);
+
+
+
+   al_set_clipping_rectangle(x1, y1, w, h);
+
+   al_get_clipping_rectangle(&cx, &cy, &cw, &ch);
+   printf("2 - x:%d y:%d w:%d h:%d\n", cx, cy, cw, ch);
+
+//   al_reset_clipping_rectangle();
+
+
+*/
+
+
+
+
+20220510 6:00 PM
+
+I have a nice example going...3 window in an array...
+
+- the class "mWindow" is defined in pm.h
+- all the member functions are prototyped there too
+
+the actual function implementations are all in c_mWindow.cpp
+
+10 objects are declared in main and externed in pm.h
+
+mWindow mW[10];
+this should make them visible everywhere
+
+
+make only one have focus...
+or none...
+
+I might have to go higher...
+run through all windows, but only detect if mouse is on window
+
+if only one window set that to the one that has focus
+
+if more than one, choose the one with the high layer (or draw order)...
+
+i could achieve the same effect by drawing them in reverse order and detecting mouse on in that order
+
+start with mouse_on_window = 0
+
+if on lowest window set mow to that window
+then move to higher windows
+if any overlap the higher ones will overwrite the lower one...
+
+maybe this is all too complex
+
+draw order...0 is on top and is the only one with focus
+
+whenever a new one is brought to top all others slide down in order
+
+
+
+
+what I did:
+int layer
+draw them in order by layer and detect mouse also
+that way the highest layer mouse detection will override lower layers
+mouse detected window has focus
+
+this works good but the draw order never changes
+
+how about at the end...
+make the mouse detected window the highest layer
+
+function to re-arrange layers
+
+
+pass it a window number..
+
+void set_to_new_top_layer(int wn)
+{
+   // get layer number of wn we are promoting
+   int oln = mW[wn].layer;
+
+   // slide everything up one layer (add 1 to all layers)
+   for (int a=0; a<NUM_MW; a++)
+      if (mW[a].active) mW[a].layer++;
+
+   // set new top layer
+   mW[wn].layer = 0;
+
+}
+
+it is looking good..
+I can move and resize
+only one window has focus and is on top
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

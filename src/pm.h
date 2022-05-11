@@ -6,6 +6,11 @@ class mWindow
 {
    public:
    int x1, y1, x2, y2, w, h;
+
+   int active;
+   int have_focus;
+   int layer;
+
    int color;
    int mouse_on_window;
    char title[80];
@@ -14,11 +19,17 @@ class mWindow
    void set_pos(int, int);
    void set_size(int, int);
    void draw(void);
-   void detect_mouse(void);
+   int detect_mouse(void);
    void set_title(const char*);
    void process(void);
+
+   void set_focus(int);
+
 };
 
+#define NUM_MW 10
+
+extern mWindow mW[NUM_MW];
 
 
 
