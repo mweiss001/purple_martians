@@ -8,6 +8,10 @@
 
 
 
+mWindow mW[NUM_MW];
+
+
+
 
 int pm_event[1000];
 
