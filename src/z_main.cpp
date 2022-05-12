@@ -846,6 +846,7 @@ void game_menu(void)
    do
    {
       //printf("post load level\n");
+
       top_menu_sel = zmenu(7, top_menu_sel, 10);
 
 

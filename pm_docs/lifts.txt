@@ -90,7 +90,7 @@ val - trigger event
 ------------------------------------------------------------------------
 The first step (lift_steps[lift][0]) is always type 1 - move.
 The values of x, y, w, h are the initial lift values.
-val is only used moving TO this step
+val is only used for moving TO this step
 ------------------------------------------------------------------------
 The last step is always type 4 - end
 val determines what happens from there

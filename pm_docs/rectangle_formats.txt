@@ -48,9 +48,6 @@ all enemys positions
 range: 2000
 format x, y
 variables:
-integer:
-x = Ei[][0];
-y = Ei[][1];
 fixed:
 x = Efi[][0];
 y = Efi[][1];
@@ -96,7 +93,7 @@ range: 2000
 format x, y, w, h
 x = Ei[][17];
 y = Ei[][18];
-w = Ei[][19];
+w = Ei[][19]; // same as source
 h = Ei[][20];
 
 ---------------------

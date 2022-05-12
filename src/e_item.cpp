@@ -71,8 +71,9 @@ int sort_item(void)
       quit=1; // quit if no iswap
       for (c=0; c < 499; c++)
       {
-         itemf[c][0] = al_itofix(item[c][4]);
-         itemf[c][1] = al_itofix(item[c][5]);
+         // to prevent items being reset when resuming game...remove these lines
+         //itemf[c][0] = al_itofix(item[c][4]);
+         //itemf[c][1] = al_itofix(item[c][5]);
 
          if (item[c][0] < item[c+1][0]) // sort by first value 'type'
             iswap = 1;
