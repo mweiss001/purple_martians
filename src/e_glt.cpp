@@ -1227,7 +1227,11 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
          {
             count1++;
 
-            int type = lift_steps[l][s].type;
+            int type = lift_steps[l][s].type & 31;
+            int val = lift_steps[l][s].val;
+            char typemsg[10] = {0};
+            if ((type >0) && (type < 6)) sprintf(typemsg,"%s", lift_step_type_name[type] );
+
 
             if ((type < 1) || (type > 4))
             {
@@ -1251,57 +1255,59 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
              }
 
 
-            int zv = lift_steps[l][s].val;
+            int zv = val;
             if ((zv < 0) || (zv > 1999))
             {
                 count2++;
                 printf("Lev:%3d lift:%-2d step%d val:%d\n",le[x], l, s, zv);
              }
-
-
-            printf("step:%-2d ",s);
-            printf("x:%-4d y:%-4d ", lift_steps[l][s].x, lift_steps[l][s].y);
-            printf("val:%-4d type:%d ",  lift_steps[l][s].val, lift_steps[l][s].type );
-
-//            printf("(%s)\n", lift_step_type_name[lift_steps[l][s].type] );
-
-            printf("\n");
-
-
-
-
             printf("step:%-2d x:%-4d y:%-4d val:%-4d type:%d(%s)\n",
-                         s, lift_steps[l][s].x,
-                         lift_steps[l][s].y, lift_steps[l][s].val, lift_steps[l][s].type,
-                         lift_step_type_name[lift_steps[l][s].type] );
-
-
+                         s, lift_steps[l][s].x, lift_steps[l][s].y, val, type, typemsg);
          }
-//         printf("------------------------------------------------------------\n");
+         printf("------------------------------------------------------------\n");
       }
 
+*/
+
+/*
 
 
+      for (int l=0; l<num_lifts; l++)
+      {
+         for (int s=0; s<lifts[l].num_steps; s++)
+         {
+            int type = lift_steps[l][s].type & 31;
+            int val = lift_steps[l][s].val;
 
+            if (type == 4)
+            {
+                count0++;
+                if (val == 0) count1++;
+                if (val == 20) lift_steps[l][s].val = 0; //count2++;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                printf("Lev:%3d lift:%-2d step%d val:%d\n",le[x], l, s, val);
+             }
+         }
+      }
 
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

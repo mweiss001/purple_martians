@@ -25595,6 +25595,132 @@ I can move and resize
 only one window has focus and is on top
 
 
+lets add some more functionality like
+moveable
+resizable
+min_w
+min_h
+max_w
+max_h
+
+
+
+
+
+it might be time to make some numbers permanently tied to window numbers...
+
+
+filter = 3;
+always....
+
+
+make a custom function to draw the buttons
+
+done
+
+
+edit toggle so that it can do the read only thing..
+find unused var...q7
+
+how about:
+q6 = draw
+q7 = process input
+
+
+done...i bet that broke a lot of stuff!!!
+
+eventually I will do this for all the buttons and slider...
+
+wait...in the interests of not breaking everything and being backwards compatible....
+lets reverse those.....
+q6 = don't draw (hide)
+q7 = don't process input
+
+that works!!!
+
+I am on the way!!!
+
+now implement the collapse button on the title bar...
+
+use a toggle but with only a single char + or -
+make a way to not draw the frame...
+
+
+
+when in drag mode, deactivate the button detection...
+still if you drag too fast and the mouse in on the buttons it freezes...done...
+
+
+20220512 6:30 AM  push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

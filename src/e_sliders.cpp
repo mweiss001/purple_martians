@@ -2090,6 +2090,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       if (num == 5)  sprintf(smsg, "for Trigger Event:%d", v);
       if (num == 4)
       {
+         sprintf(smsg, "Step - undefined val");
          if (v == 0) sprintf(smsg, "Step - Loop to Start");
          if (v == 1) sprintf(smsg, "Step - Warp to Start");
          if (v == 2) sprintf(smsg, "Step - Freeze Here");
@@ -2102,6 +2103,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
    }
    if (bn == 505) // lift step end step mode
    {
+      sprintf(smsg, "Undefined value");
       if (lift_steps[num][type].val == 0) sprintf(smsg, "Loop to Start");
       if (lift_steps[num][type].val == 1) sprintf(smsg, "Warp to Start");
       if (lift_steps[num][type].val == 2) sprintf(smsg, "Freeze Here  ");
@@ -2336,7 +2338,7 @@ int mdw_toggle(int x1, int y1, int x2, int y2,
    // is mouse pressed on this button?
    int press = 0;
    int retval = 0;
-   if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
    {
       while (mouse_b1) proc_controllers(); // wait for release
       press = 1;
@@ -2361,9 +2363,16 @@ int mdw_toggle(int x1, int y1, int x2, int y2,
          retval = 0;
       }
    }
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
-   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
+   if (!q6)
+   {
+      draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+      if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
+      else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   }
+
+
+
    return retval;
 }
 

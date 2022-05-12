@@ -7,9 +7,14 @@ class mWindow
    public:
    int x1, y1, x2, y2, w, h;
 
+   int index;
    int active;
    int have_focus;
    int layer;
+
+   int moveable;
+   int moving;
+   int resizable;
 
    int color;
    int mouse_on_window;

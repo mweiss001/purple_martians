@@ -1275,24 +1275,30 @@ int edit_menu(int el)
    mW[1].set_size(100, 100);
    mW[1].set_title("win1");
    mW[1].active = 1;
+   mW[1].index = 1;
    mW[1].layer = 0;
 
    mW[2].set_pos(300, 100);
    mW[2].set_size(100, 100);
    mW[2].set_title("win2");
    mW[2].active = 1;
+   mW[2].index = 2;
    mW[2].layer = 1;
 
    mW[3].set_pos(500, 100);
-   mW[3].set_size(100, 100);
-   mW[3].set_title("win3");
+   mW[3].set_size(82, 100);
+   mW[3].set_title("Filters");
    mW[3].active = 1;
+   mW[3].resizable = 1;
+   mW[3].index = 3;
    mW[3].layer = 2;
+
 
    mW[4].set_pos(700, 100);
    mW[4].set_size(100, 100);
    mW[4].set_title("win4");
    mW[4].active = 1;
+   mW[4].index = 4;
    mW[4].layer = 3;
 
    if (!el) load_level_prompt(); // load prompt
