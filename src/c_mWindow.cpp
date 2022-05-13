@@ -396,6 +396,10 @@ void mWindow::draw(void)
 
       int vx = (mouse_x-x1)/20; // column
 
+      if (vx < 0) vx = 0;
+      if (vx > 15) vx = 15;
+
+
       if (select_window_special_on)
       {
          al_draw_rectangle(x1, sys, x2, sys+12, palette_color[9], 1);
@@ -412,6 +416,16 @@ void mWindow::draw(void)
                select_window_num_special_lines++;
                select_window_special_on = 0;
             }
+
+         // draw special block
+         for (c=0; c<16*select_window_num_special_lines; c++)
+         {
+            int tn = PDEi[c][1]; // default is the tile in PDEi[c][1]
+            if (tn > 999) tn = zz[5][tn-1000]; // ans
+            al_draw_bitmap(tile[tn], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0 );
+         }
+
+
       }
 
       if (select_window_block_on)
@@ -433,21 +447,14 @@ void mWindow::draw(void)
             }
 
 
-
-         // draw special block
-         for (c=0; c<16*select_window_num_special_lines; c++)
-         {
-            int tn = PDEi[c][1]; // default is the tile in PDEi[c][1]
-            if (tn > 999) tn = zz[5][tn-1000]; // ans
-            al_draw_bitmap(tile[tn], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0 );
-         }
-
-
+         for (c=0; c<16*swnbl_cur; c++)
+            al_draw_bitmap(btile[swbl[c][0] & 1023], x1+(c-((c/16)*16) )*20+1, y1+select_window_block_y+1+14+(c/16*20), 0 );
 
       }
 
 
-
+      if ((have_focus) && (!moving))
+      {
 
          // check for mouse on special window
          if ((select_window_special_on) && (mouse_y > 15 + sys) && (mouse_y < 16 + sys + select_window_num_special_lines * 20))
@@ -519,42 +526,47 @@ void mWindow::draw(void)
          else stext_draw_flag = 0; // mouse not on special
 
 
+         // check for mouse on block window
+         if ( (select_window_block_on) && (mouse_y > 14 + syb) && (mouse_y < 14 + syb + swnbl_cur * 20))
+         {
+            int vy = (mouse_y-syb-14)/20; // row
+            int ret = vy*16+vx;
+            int tl = 3; // text lines
+            int syt2 = syt+15+(8*tl);
+            if (show_flag_details) syt2 += 140;
 
+            ret = swbl[ret][0];
 
+            // erase
+            al_draw_filled_rectangle(x1, syt, x2, syt2, palette_color[0]);
 
+            // frame
+            al_draw_rectangle(x1, syt, x2, syt2, palette_color[9], 1);
 
+            // title and frame
+            al_draw_rectangle(x1, syt, x2, syt+12, palette_color[9], 1);
+            al_draw_text(font, palette_color[9], x1+2, syt+2,  0, "Description");
 
+            // draw text for this block
+            btext_draw_flag=1;
+            em_get_text_description_of_block_based_on_flags(ret);
+            al_draw_text (font, palette_color[15], x1+2, syt+14, 0, "---------------------");
+            al_draw_textf(font, palette_color[15], x1+2, syt+22, 0, "Block %d - %s ", ret&1023, msg);
+            al_draw_text (font, palette_color[15], x1+2, syt+30, 0, "---------------------");
 
+            int junk;
+            if (show_flag_details) draw_flags(x1+4, syt+38, &ret, &junk, 1, 0, 1);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            if ((mouse_b1) || (mouse_b2))
+            {
+               while (mouse_b1) proc_controllers(); // wait for release
+               draw_item_type = 1;
+               draw_item_num = ret;
+            }
+         } // end of mouse on block
+         else btext_draw_flag = 0; // mouse not on block
+      }
    }
-
-
-
-
-
 
 
 

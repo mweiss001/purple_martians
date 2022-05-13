@@ -1345,8 +1345,13 @@ int edit_menu(int el)
       if (status_window_active) mW[1].active = 1;
       else mW[1].active = 0;
 
+      if (select_window_active) mW[2].active = 1;
+      else mW[2].active = 0;
+
+
+
   //    if (status_window_active) em_process_status_window(0, gx, gy, &mouse_on_window);
-      if (select_window_active) em_process_select_window(0, &mouse_on_window);
+  //    if (select_window_active) em_process_select_window(0, &mouse_on_window);
       if (!mouse_on_window) // mouse pointer is not on window
       {
          em_find_point_item(gx, gy, hx, hy);
