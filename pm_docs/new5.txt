@@ -25705,18 +25705,14 @@ move on to select window...it will be 2...
 selection window is coming along fine....
 
 currently working on text desription lines for special...
-and how to only show if mouse is on window and slection is valid...
+and how to only show if mouse is on window and selection is valid...fixed...use have_focus
 
 push
 
 20220513 6:32 AM
 friday the 13th!...woooo!
-
-
-
-
-
-
+now show blocks....
+holy shit this is coming along so good...i think its done....
 
 
 
