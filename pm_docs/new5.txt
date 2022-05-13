@@ -25646,12 +25646,97 @@ use a toggle but with only a single char + or -
 make a way to not draw the frame...
 
 
-
 when in drag mode, deactivate the button detection...
 still if you drag too fast and the mouse in on the buttons it freezes...done...
 
-
 20220512 6:30 AM  push
+
+
+implement the +/- collapse button
+
+what kind of button?? the same!
+that was easy!
+still need to make it look better, like with no frame...done...
+
+bug..why do I have a funny sized red rect when moving window...
+its like my y2 is off...fixed..when I set y2 I also need to set h
+
+implement the b2 menu...done..
+
+
+I think filters is perfect...
+
+next up for an easy one...
+
+status_window
+
+will always be 1...
+
+fixed size..
+
+I think I want to make mouse_on_window a static int in the class
+i will still need to externally clear, check and set it.
+but then I could see it inside the instances...
+try it...
+cant get it to work...
+make it a global...no need, just calulate in place
+
+status window looks perfect
+hide old one...done
+make pop up menu for status window to show/hide sbf..done
+
+
+
+
+when moving a window, show all windows...done
+need to make an external funtion to draw all windows in order...done
+
+
+status window looks great...
+still want to:
+make status window collapse like filters
+when collapsed move y pos to title bar
+
+now all I need to do in a loop is:
+mouse_on_window = mw_cycle_windows(0);
+
+move on to select window...it will be 2...
+
+selection window is coming along fine....
+
+currently working on text desription lines for special...
+and how to only show if mouse is on window and slection is valid...
+
+push
+
+20220513 6:32 AM
+friday the 13th!...woooo!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

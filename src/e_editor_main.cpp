@@ -59,7 +59,6 @@ void em_process_status_window(int draw_only, int gx, int gy, int* mpow)
    em_draw_item_info(                    swx1 + 162, swy1 + 21, 9, point_item_type, point_item_num);
 
 
-
 //
 //   // draw buttons based on object type
 //   if (point_item_type > 1)
@@ -475,6 +474,10 @@ void em_process_select_window(int draw_only, int* mpow)
             } // end of ret < 99
          }  // end of mouse on special
          else stext_draw_flag = 0; // mouse not on special
+
+
+
+
          // check for mouse on block window
          if ( (select_window_block_on) && (mouse_y > 14 + syb) && (mouse_y < 14 + syb + swnbl_cur * 20))
          {
@@ -1272,15 +1275,15 @@ int em_process_keypress(void)
 int edit_menu(int el)
 {
    mW[1].set_pos(100, 100);
-   mW[1].set_size(100, 100);
-   mW[1].set_title("win1");
+   mW[1].set_size(320, 43);
+   mW[1].set_title("Status Window");
    mW[1].active = 1;
    mW[1].index = 1;
    mW[1].layer = 0;
 
-   mW[2].set_pos(300, 100);
-   mW[2].set_size(100, 100);
-   mW[2].set_title("win2");
+   mW[2].set_pos(100, 300);
+   mW[2].set_size(322, 100);
+   mW[2].set_title("Selection Window");
    mW[2].active = 1;
    mW[2].index = 2;
    mW[2].layer = 1;
@@ -1289,7 +1292,7 @@ int edit_menu(int el)
    mW[3].set_size(82, 100);
    mW[3].set_title("Filters");
    mW[3].active = 1;
-   mW[3].resizable = 1;
+   mW[3].resizable = 0;
    mW[3].index = 3;
    mW[3].layer = 2;
 
@@ -1298,6 +1301,7 @@ int edit_menu(int el)
    mW[4].set_size(100, 100);
    mW[4].set_title("win4");
    mW[4].active = 1;
+   mW[4].resizable = 1;
    mW[4].index = 4;
    mW[4].layer = 3;
 
@@ -1315,7 +1319,7 @@ int edit_menu(int el)
    em_set_swbl();
    set_frame_nums(0);
    for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear_key array
-   int quit=0, mouse_on_window=0;
+   int quit=0, mouse_on_window = 0;
    int gx=0, gy=0, hx=0, hy=0;
    if (autoload_bookmark)
    {
@@ -1333,41 +1337,15 @@ int edit_menu(int el)
       ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
       em_redraw_background(gx, gy);
 
-
-      mouse_on_window = 0;
-
-
-      // find max layer
-      int max_layer = 0;
-      for (int a=0; a<NUM_MW; a++)
-         if ((mW[a].active) && (mW[a].layer > max_layer)) max_layer = mW[a].layer;
-
-
-      // cycle layers down from max, drawing and detecting mouse as we go
-      for (int b = max_layer; b>=0; b--)
-         for (int a=0; a<NUM_MW; a++) // draw any window at that layer
-            if ((mW[a].active) && (mW[a].layer == b))
-            {
-               mW[a].draw();
-               if (mW[a].detect_mouse()) mouse_on_window = a;
-            }
-
-      // set all window to not have focus
-      for (int a=0; a<NUM_MW; a++)
-         if (mW[a].active) mW[a].have_focus = 0;
-
-      // this one does
-      if (mouse_on_window) mW[mouse_on_window].set_focus(mouse_on_window);
-
-
-      // process window that has focus
-      for (int a=0; a<NUM_MW; a++)
-         if ((mW[a].active) && (mW[a].have_focus)) mW[a].process();
+      mouse_on_window = mw_cycle_windows(0);
 
 
 
 
-      if (status_window_active) em_process_status_window(0, gx, gy, &mouse_on_window);
+      if (status_window_active) mW[1].active = 1;
+      else mW[1].active = 0;
+
+  //    if (status_window_active) em_process_status_window(0, gx, gy, &mouse_on_window);
       if (select_window_active) em_process_select_window(0, &mouse_on_window);
       if (!mouse_on_window) // mouse pointer is not on window
       {
