@@ -17,7 +17,6 @@ class mWindow
    int resizable;
 
    int color;
-   int mouse_on_window;
    char title[80];
 
    mWindow(); // default constructor
@@ -32,10 +31,15 @@ class mWindow
 
 };
 
+
+
+
 #define NUM_MW 10
 
 extern mWindow mW[NUM_MW];
 
+
+int mw_cycle_windows(int draw_only);
 
 
 

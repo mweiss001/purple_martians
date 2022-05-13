@@ -386,25 +386,28 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
 void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
-   // erase with background color ( never shows unless if (aa > 224) break; is enabled below
-   int d = y2-y1;
-   // outline
-   for (int c=0; c<d/2+1; c++)
+   if (q1 != -1)
    {
-      int a;
-      if (q4) // frame fades from black outer to solid inner
+      // erase with background color ( never shows unless if (aa > 224) break; is enabled below
+      int d = y2-y1;
+      // outline
+      for (int c=0; c<d/2+1; c++)
       {
-         a = (c*32); // color increment
-         // if (aa > 224) break; uncomment this line to let the background color q0 show through in the middle
-         if (a>224) a = 224;
+         int a;
+         if (q4) // frame fades from black outer to solid inner
+         {
+            a = (c*32); // color increment
+            // if (aa > 224) break; uncomment this line to let the background color q0 show through in the middle
+            if (a>224) a = 224;
+         }
+         else // frame fades from solid outer to black inner
+         {
+            a = 224 - (c*32); // color increment
+            if (a<0) a = 0;
+         }
+   //      al_draw_rectangle(x1+c, y1+c, x2-c, y2-c, palette_color[q1+a], 1);
+         al_draw_rounded_rectangle(x1+c, y1+c, x2-c, y2-c, 1, 1, palette_color[q1+a], 1);
       }
-      else // frame fades from solid outer to black inner
-      {
-         a = 224 - (c*32); // color increment
-         if (a<0) a = 0;
-      }
-//      al_draw_rectangle(x1+c, y1+c, x2-c, y2-c, palette_color[q1+a], 1);
-      al_draw_rounded_rectangle(x1+c, y1+c, x2-c, y2-c, 1, 1, palette_color[q1+a], 1);
    }
 }
 
@@ -2327,6 +2330,21 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
 
 
 
+/*
+
+q0 = background color; (not used)
+q1 = frame color
+q2 = text color    (use white 99% of time)
+q3 = slider color  (use white 99% of time)
+q4 = slider color  (draw frame mode) now i always use 1
+q5 = text justify  (0-center 1-left...buttons only)
+q6 - (0-normal) (1-dont draw)
+q7 - (0-normal) (1-dont process mouse b1 press)
+
+*/
+
+
+
 
 int mdw_toggle(int x1, int y1, int x2, int y2,
                 int bn, int num, int type, int obt,
@@ -2414,19 +2432,31 @@ int mdw_togglf(int x1, int y1, int x2, int y2,
 }
 
 
-
+/*
+q0 = background color; (not used)
+q1 = frame color
+q2 = text color    (use white 99% of time)
+q3 = slider color  (use white 99% of time)
+q4 = slider color  (draw frame mode) now i always use 1
+q5 = text justify  (0-center 1-left...buttons only)
+q6 - (0-normal) (1-dont draw)
+q7 - (0-normal) (1-dont process mouse b1 press)
+*/
 
 
 // just display a text string, and return 1 if pressed
 int mdw_buttont(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
-   sprintf(smsg, "%s", txt);
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
-   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   if (!q6)
+   {
+      sprintf(smsg, "%s", txt);
+      draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+      if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
+      else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
-   if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   }
+   if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
       while (mouse_b1) proc_controllers(); // wait for release
       return 1;

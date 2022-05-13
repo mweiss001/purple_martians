@@ -541,8 +541,6 @@ int draw_filter_toggles(int jjx1, int jjx2, int jjy1, int mode)
    return y2;
 }
 
-
-
 int old_draw_filter_toggles(int x1, int x2, int y1)
 {
    int fs = 12;   // frame size
@@ -592,33 +590,6 @@ int old_draw_filter_toggles(int x1, int x2, int y1)
   // al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
    return y2;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 float mdw_rnd(float rmin, float rmax)
 {
