@@ -25714,6 +25714,389 @@ friday the 13th!...woooo!
 now show blocks....
 holy shit this is coming along so good...i think its done....
 
+when resuming game, items return to start of level positions
+more accuratlely, when exiting to menu...
+sort item called by item_data to show list of items on menu
+I hope removing it wont mess things up...
+
+lift viewer end step text wrong..is is only on old lifts??
+now I can't reproduce...
+I found some lifts that have an end step with a val of 20
+don't know how it happened, this should not be
+I think the value used to be ignored until recently when I made different types of end step
+used glt to make all 20 into 0
+changed buttons to show undefined val
+
+
+
+
+20220513 6:00PM
+
+make filters collapse to top frame
+when collapsed, can still move in x axis
+restoring restores both x and y
+will need more variables...
+int alt1_x1
+int alt1_y1
+
+int alt2_x1
+int alt2_y1
+
+collapsing switches to using alt2
+
+
+normal:
+collapse = 0;
+use x1 and y1
+
+
+switch to collapse
+put x1 and y1 in alt1
+get x1 and y1 from alt2
+only allow x move...
+
+switch to expand
+put x1 and y2 in alt2
+get x1 and x2 from alt1
+back to normal...
+
+this all sounds so complex....
+
+enforce windows to be on screen...done
+
+
+
+fix the bug - cannot draw backwards selection in em...
+or in zfs
+or in ge
+
+
+fix it once and use it everywhere dammit
+
+first click...set x1, y1
+release...set x2, y2
+simple...
+
+show proper progress
+
+
+
+
+
+void get_new_box(void) // keep the mouse !!
+{
+   int z; // for swap
+   bx2 = bx1; // set all three to intial
+   by2 = by1;
+   int x1 = bx1;
+   int y1 = by1;
+   int x2 = bx2;
+   int y2 = by2;
+
+   while (mouse_b1)
+   {
+      al_flip_display();
+      proc_controllers();
+      show_draw_item_cursor();
+      process_scrolledge();
+      update_editor_background();
+
+      bx2 = (mouse_x)/20+wx; // set both with mouse pointer
+      by2 = (mouse_y)/20+wy;
+
+      x2 = bx2;  // set with mouse
+      y2 = by2;
+
+      x1 = bx1; // get inital in case it was swapped
+      y1 = by1;
+
+      // swap x1 and x2 if neccesary
+      if (x1 > x2) { z = x1; x1 = x2; x2 = z;}
+      if (y1 > y2) { z = y1; y1 = y2; y2 = z;}
+
+      if (x1>99) x1 = 99;
+      if (y1>99) y1 = 99;
+      if (x2>99) x2 = 99;
+      if (y2>99) y2 = 99;
+
+      // show the selection rectangle
+      al_draw_rectangle((x1-wx)*20, (y1-wy)*20, (x2-wx)*20+19, (y2-wy)*20+19, palette_color[127], 1);
+      al_draw_textf(font, palette_color[15], 100, 20, 0, " x1:%d y2:%d ", x1, y1);
+      al_draw_textf(font, palette_color[15], 100, 28, 0, " x2:%d y2:%d ", x2, y2);
+
+   }
+   // swap bx1 and bx2 if neccesary
+   if (bx1 > bx2) { z = bx1; bx1 = bx2; bx2 = z; }
+   if (by1 > by2) { z = by1; by1 = by2; by2 = z;}
+
+   // always set second to one more
+   bx2++;
+   by2++;
+}
+
+
+fuck it...make it so that they can be the same......
+
+
+
+what is stx, sty, sux, suy bullshit?
+lets use..bx1, by1, bx2, by2 // block selection x1, y1, x2, y2
+main and pm.h...done
+
+I should remove all traces of stx and sty and fix stuff as I go...
+
+ge_edit first.....I think it is done....all that was needed was to add selection to list....
+
+can I make this common?
+
+I think zfs is good....
+
+
+all stx shit is gone...
+
+I want to make the function that draws the sel on level buffer common...
+
+void ge_draw_box(void)
+{
+   int x1 = bx1;
+   int y1 = by1;
+   int x2 = bx2;
+   int y2 = by2;
+   if (x1 > x2) swap_int(&x1, &x2);
+   if (y1 > y2) swap_int(&y1, &y2);
+   int dstx = x1*20;
+   if (dstx == 0) dstx = 1;
+   int dsty = y1*20;
+   if (dsty == 0) dsty = 1;
+   al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, palette_color[14], 1);
+   al_draw_text(font, palette_color[14], x1*20+2, y1*20+3,  0, "selection");
+   //al_draw_textf(font, palette_color[14], x1*20+2, y1*20+3,  0, "selection bx1:%d by1:%d bx2:%d by2:%d", bx1, by1, bx2, by2);
+}
+
+void zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, int color, "selection")
+
+void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
+{
+   if (x1 > x2) swap_int(&x1, &x2);
+   if (y1 > y2) swap_int(&y1, &y2);
+   int dstx = x1*20;
+   if (dstx == 0) dstx = 1;
+   int dsty = y1*20;
+   if (dsty == 0) dsty = 1;
+   al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, palette_color[14], 1);
+   al_draw_text(font, palette_color[color], x1*20+2, y1*20-11,  0, text);
+}
+
+done...
+now there is only one....
+void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
+
+patch it into em....done...
+
+
+bug zfs does not copy items....yes it does...
+sort item used to set itemf pos, removed to fix another bug...
+
+now I made item sort set itemf for all cased except the one where items are listed...
+
+
+next I will do zfs...its a simple single window
+then make the new filter window work with zfs...
+
+then group edit...
+it has:
+-filter window
+-a few buttons
+-list
+-gedit action list
+I will probably attach the buttons to the list and make the action stuff a separate window
+
+then object viewer..
+one window and filters...
+this could take some time cleaning up all the sliders and buttons, there are a lot!!!
+
+
+finally when all of that is done....
+
+
+make more things common...
+
+all of these methods that I am treating as separate:
+em
+ge
+ov
+zfs
+
+they all have many things in common...
+
+they all have the scaled level as the background
+
+the redraw background will be made to be common
+with custom drawing on the level background as necessary for each mode...
+em:
+selection,
+non-defult flags
+
+zfs:
+selection
+
+group edit:
+selected objects
+
+ov:
+lots of things to adjust
+
+then after the get screen buffer:
+
+then window processing will be very streamlined..
+
+
+then if mouse not on window, process mouse on the background...
+
+
+quite a lot......
+
+
+first things...i need to get all the windows working under the new manager...
+
+in zfs loop...
+
+put filter...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

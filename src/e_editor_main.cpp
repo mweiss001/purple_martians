@@ -702,12 +702,12 @@ void em_set_block_range(int bx1, int by1, int bx2, int by2)
          fsy[i][j] |= draw_item_flags;
 
 
-   if ((bx2-bx1==1) && (by2-by1==1)) l[bx1][by1] = draw_item_num; // single block 1 x 1
+   if ((bx2==bx1) && (by2==by1)) l[bx1][by1] = draw_item_num; // single block 1 x 1
 
-   if ((bx2-bx1==1) && (by2-by1>1)) // vertical line 1 x >1
+   if ((bx2==bx1) && (by2-by1>0)) // vertical line 1 x >1
    {
       int a = bx1;
-      for (int b=by1; b<by2; b++) // cycle the range
+      for (int b=by1; b<by2+1; b++) // cycle the range
       {
          l[a][b] = draw_item_num; // set draw item as default
          for (int x=0; x<20; x++)
@@ -716,16 +716,16 @@ void em_set_block_range(int bx1, int by1, int bx2, int by2)
                if (((draw_item_num&1023) >= (fsy[x][0]&1023)) && ((draw_item_num&1023) <= (fsy[x][1]&1023)))
                {
                   l[a][b] = fsy[x][2]; // default
-                  if (b == by1)   l[a][b] = fsy[x][3]; // left end cap
-                  if (b == by2-1) l[a][b] = fsy[x][4]; // right end cap
+                  if (b == by1) l[a][b] = fsy[x][3]; // left end cap
+                  if (b == by2) l[a][b] = fsy[x][4]; // right end cap
                }
             }
       }
    }
-   if ((bx2-bx1>1) && (by2-by1==1)) // horizontal line >1 x 1
+   if ((bx2-bx1>0) && (by2==by1)) // horizontal line >1 x 1
    {
       int b = by1;
-      for (int a=bx1; a<bx2; a++) // cycle the range
+      for (int a=bx1; a<bx2+1; a++) // cycle the range
       {
          l[a][b] = draw_item_num; // set draw item as default
          for (int x=0; x<20; x++)
@@ -735,18 +735,18 @@ void em_set_block_range(int bx1, int by1, int bx2, int by2)
                if (((draw_item_num&1023) >= (fsx[x][0]&1023)) && ((draw_item_num&1023) <= (fsx[x][1]&1023)))
                {
                   l[a][b] = fsx[x][2]; // default
-                  if (a == bx1)   l[a][b] = fsx[x][3]; // left end cap
-                  if (a == bx2-1) l[a][b] = fsx[x][4]; // right end cap
+                  if (a == bx1) l[a][b] = fsx[x][3]; // left end cap
+                  if (a == bx2) l[a][b] = fsx[x][4]; // right end cap
                }
             }
          }
       }
    }
-   if ((bx2-bx1>1) && (by2-by1>1)) // box shape with corners >1 x >1
+   if ((bx2-bx1>0) && (by2-by1>0)) // box shape with corners >1 x >1
    {
       int special_handler = 0;
-      for (int a=bx1; a<bx2; a++)       // cycle the range
-         for (int b=by1; b<by2; b++)
+      for (int a=bx1; a<bx2+1; a++)       // cycle the range
+         for (int b=by1; b<by2+1; b++)
             for (int x=0; x<20; x++)
                if (fsd[x][0]&1023)
                {
@@ -754,44 +754,42 @@ void em_set_block_range(int bx1, int by1, int bx2, int by2)
                   {
                      special_handler = 1;
 
-                     if (fsd[x][9] != -1) l[a][b] = fsd[x][9]; // default block
-
-                     if (b == by1  ) l[a][b] = fsd[x][16];         // upper horizontal through
-                     if (b == by2-1) l[a][b] = fsd[x][17];         // lower horizontal through
+                     if (fsd[x][9] != -1) l[a][b] = fsd[x][9];   // default block
+                     if (b == by1)        l[a][b] = fsd[x][16];  // upper horizontal through
+                     if (b == by2)        l[a][b] = fsd[x][17];  // lower horizontal through
 
 
                      if (a == bx1)
                      {
-                        if (b == by1) l[a][b] = fsd[x][10];        // upper-right corner
-                        else if (b == by2-1) l[a][b] = fsd[x][12]; // lower-right corner
-                        else l[a][b] = fsd[x][14];                 // right vertical through
+                        if (b == by1)      l[a][b] = fsd[x][10];  // upper-right corner
+                        else if (b == by2) l[a][b] = fsd[x][12];  // lower-right corner
+                        else               l[a][b] = fsd[x][14];  // right vertical through
                      }
-                     if (a == bx2-1)
+                     if (a == bx2)
                      {
-                        if (b == by1) l[a][b] = fsd[x][11];        // upper-left corner
-                        else if (b == by2-1) l[a][b] = fsd[x][13]; // lower-left corner
-                        else l[a][b] = fsd[x][15];                 // left vertical through
+                        if (b == by1)      l[a][b] = fsd[x][11];  // upper-left corner
+                        else if (b == by2) l[a][b] = fsd[x][13];  // lower-left corner
+                        else               l[a][b] = fsd[x][15];  // left vertical through
                      }
                   }
                   if (!special_handler) l[a][b] = draw_item_num;
 
              } // end of cycle block range
-   } // end of box shape with corners*/
+   } // end of box shape with corners
 }
 
-void em_get_new_box(int* bx1, int*by1, int*bx2, int*by2) // keep the mouse !!
+void em_get_new_box() // keep the mouse !!
 {
-   *bx2 = *bx1; // set to initial
-   *by2 = *by1;
    int gx=0, gy=0, hx=0, hy=0;
+   ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+   // initial selection
+   bx2 = bx1 = gx;
+   by2 = by1 = gy;
    while (mouse_b1)
    {
-      ovw_process_scrolledge();
-      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
-      *bx2 = gx; // set with mouse pointer
-      *by2 = gy;
-      if (*bx2 < *bx1) *bx2 = *bx1; // enforce x2 >= x1
-      if (*by2 < *by1) *by2 = *by1;
+      bx2 = gx;
+      by2 = gy;
+
       al_flip_display();
       proc_scale_factor_change();
       proc_controllers();
@@ -800,18 +798,16 @@ void em_get_new_box(int* bx1, int*by1, int*bx2, int*by2) // keep the mouse !!
       draw_lifts();
       draw_items();
       draw_enemies();
-      al_draw_rectangle(*bx1*20, *by1*20, *bx2*20+21, *by2*20+21, palette_color[10], 1); // show the selection rectangle
-//      al_draw_textf(font, palette_color[15], *bx1*20, *by1*20-18, 0, " x1:%d y2:%d ", *bx1, *by1);
-//      al_draw_textf(font, palette_color[15], *bx1*20, *by1*20-10, 0, " x2:%d y2:%d ", *bx2, *by2);
+
+      zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
+
       get_new_screen_buffer(3, 0, 0);
+      ovw_process_scrolledge();
+      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
    }
-   // swap bx1 and bx2 if neccesary
-   int z; // for swap
-   if (*bx1 > *bx2) { z = *bx1; *bx1 = *bx2; *bx2 = z; }
-   if (*by1 > *by2) { z = *by1; *by1 = *by2; *by2 = z;}
-   // always set second to one more
-   *bx2 = *bx2 +1;
-   *by2 = *by2 +1;
+
+   if (bx1 > bx2) swap_int(&bx1, &bx2); // swap if wrong order
+   if (by1 > by2) swap_int(&by1, &by2);
 }
 
 char* em_get_text_description_of_block_based_on_flags(int flags)
@@ -979,7 +975,6 @@ void em_find_point_item(int gx, int gy, int hx, int hy)
 
 void em_process_mouse_b1(int gx, int gy)
 {
-   int bx1, bx2, by1, by2;
    // don't allow drag draw selection unless draw type is block
    if (draw_item_type != 1) while (mouse_b1) proc_controllers();
 
@@ -990,7 +985,7 @@ void em_process_mouse_b1(int gx, int gy)
       {
          bx1 = gx;
          by1 = gy;
-         em_get_new_box(&bx1, &by1, &bx2, &by2);
+         em_get_new_box();
          em_set_block_range(bx1, by1, bx2, by2);
       }
       break;
@@ -1015,7 +1010,7 @@ void em_process_mouse_b1(int gx, int gy)
             item[c][11] += ofy;
             strcpy(pmsgtext[c], pmsgtext[din]); // msg
          }
-         sort_item();
+         sort_item(1);
       }
       break;
       case 3:    // enemy
@@ -1093,7 +1088,7 @@ void em_process_mouse_b1(int gx, int gy)
          item[d][0] -= 100;
          item[d][4] = gx*20;
          item[d][5] = gy*20;
-         sort_item();
+         sort_item(1);
       }
       if (PDEi[din][0] < 99) // PDE enemy
       {
@@ -1161,7 +1156,7 @@ int em_process_mouse_b2(int gx, int gy)
                   draw_item_num = 0;
                }
                erase_item(point_item_num);
-               sort_item();
+               sort_item(1);
             break;
             case 3: // zero enemy
                if ((draw_item_type == 3) && (draw_item_num == point_item_num)) // are you deleting the draw item?
@@ -1207,7 +1202,7 @@ int em_process_mouse_b2(int gx, int gy)
       case 12: // load level
          load_level_prompt();
          sort_enemy();
-         sort_item();
+         sort_item(1);
       break;
       case 13: save_level_prompt(); break; // save level
       case 14: if (save_level_prompt()) quit=1; break; // save and exit
@@ -1292,6 +1287,7 @@ int edit_menu(int el)
    mW[3].set_size(82, 100);
    mW[3].set_title("Filters");
    mW[3].active = 1;
+   mW[3].filter_mode = 1;
    mW[3].resizable = 0;
    mW[3].index = 3;
    mW[3].layer = 2;
@@ -1315,7 +1311,7 @@ int edit_menu(int el)
    em_check_s_window_pos(0);
    load_PDE();
    sort_enemy();
-   sort_item();
+   sort_item(1);
    em_set_swbl();
    set_frame_nums(0);
    for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear_key array
@@ -1338,9 +1334,6 @@ int edit_menu(int el)
       em_redraw_background(gx, gy);
 
       mouse_on_window = mw_cycle_windows(0);
-
-
-
 
       if (status_window_active) mW[1].active = 1;
       else mW[1].active = 0;

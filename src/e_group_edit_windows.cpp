@@ -612,8 +612,8 @@ int enemy_initial_position_random(int e, int csw)
       empt = 1;
       if (csw) // confine to selection window
       {
-         if ((x < stx) || (x >= sux)) empt = 0;
-         if ((y < sty) || (y >= suy)) empt = 0;
+         if ((x < bx1) || (x >= bx2+1)) empt = 0;
+         if ((y < by1) || (y >= by2+1)) empt = 0;
       }
       if (!is_block_empty(x, y, 1, 1, 1)) empt = 0;
    }
@@ -642,8 +642,8 @@ void item_initial_position_random(int i, int csw)
       empt = 1;
       if (1) // confine to selection window
       {
-         if ((x < stx) || (x >= sux)) empt = 0;
-         if ((y < sty) || (y >= suy)) empt = 0;
+         if ((x < bx1) || (x >= bx2+1)) empt = 0;
+         if ((y < by1) || (y >= by2+1)) empt = 0;
       }
 
       if (!is_block_empty(x, y, 1, 1, 1)) empt = 0;
@@ -952,15 +952,15 @@ int show_ge_controls(int gx, int gy)
    return gy;
 }
 
-void add_selection_to_list(int stx, int sty, int sux, int suy)
+void ge_add_selection_to_list(void)
 {
    // add everything in selection to list...
-   int rx1 = stx *20;    // source x
-   int ry1 = sty *20;    // source y
-   int rx2 = sux *20;    // sizes
-   int ry2 = suy *20;
+   int rx1 = bx1*20;
+   int ry1 = by1*20;
+   int rx2 = bx2*20+20;
+   int ry2 = by2*20+20;
 
-   al_fixed frx1 = al_itofix(rx1); // source position and size
+   al_fixed frx1 = al_itofix(rx1);
    al_fixed fry1 = al_itofix(ry1);
    al_fixed frx2 = al_itofix(rx2);
    al_fixed fry2 = al_itofix(ry2);
@@ -987,7 +987,7 @@ void add_selection_to_list(int stx, int sty, int sux, int suy)
    }
 }
 
-void ge_draw_on_level_buffer(int gx, int gy, int stx, int sty, int sux, int suy, int show_sel_frame, int mouse_on_window)
+void ge_draw_on_level_buffer(int gx, int gy, int show_sel_frame, int mouse_on_window)
 {
    al_flip_display();
    proc_scale_factor_change();
@@ -1070,17 +1070,14 @@ void ge_draw_on_level_buffer(int gx, int gy, int stx, int sty, int sux, int suy,
       }
 
    }
-   if (show_sel_frame)
-   {
-      int dstx = stx*20;
-      if (dstx == 0) dstx = 1;
-      int dsty = sty*20;
-      if (dsty == 0) dsty = 1;
-      al_draw_rectangle(dstx, dsty, (sux*20)-1, (suy*20)-1, palette_color[14], 1);
 
-      al_draw_text(font, palette_color[14], stx*20+2, sty*20+3,  0, "selection");
-      //al_draw_textf(font, palette_color[14], stx*20+2, sty*20+3,  0, "selection x1:%d y1:%d x2:%d y2:%d", stx, sty, sux, suy);
-   }
+
+//   sprintf(msg, "selection");
+//   sprintf(msg, "selection bx1:%d by1:%d bx2:%d by2:%d", bx1, by1, bx2, by2);
+//   if (show_sel_frame) zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, msg);
+   if (show_sel_frame) zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
+
+
    else if (!mouse_on_window) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 }
 
@@ -1118,7 +1115,7 @@ int ge_draw_on_screen_buffer(int xa, int ya, int &show_sel_frame)
    int bpy1 = ya+15;
    int bpy2 = bpy1+12;
    mdw_toggle(bpx1+2, bpy1, bpx1+110, bpy2, 1000, 0,0,0,   0,0,0,0,1,0,0,0, show_sel_frame,  "Selection:OFF", "Selection:ON ", 15, 15, 15+64, 14);
-   if (show_sel_frame) if (mdw_buttont(bpx1+120, bpy1, bpx2-2, bpy2, 0,0,0,0,  0,10,15,0,1,0,0,0, "Add Selection to List")) add_selection_to_list(stx, sty, sux, suy);
+   if (show_sel_frame) if (mdw_buttont(bpx1+120, bpy1, bpx2-2, bpy2, 0,0,0,0,  0,10,15,0,1,0,0,0, "Add Selection to List")) ge_add_selection_to_list();
    ge_window_array[f][0] = bpx1;
    ge_window_array[f][1] = bpy1;
    ge_window_array[f][2] = bpx2;
@@ -1189,11 +1186,10 @@ int ge_draw_on_screen_buffer(int xa, int ya, int &show_sel_frame)
    return mouse_on_window;
 }
 
+
+
 void group_edit(void)
 {
-
-
-
 
    init_level_background();
    int gx=0, gy=0, hx=0, hy=0;
@@ -1213,7 +1209,7 @@ void group_edit(void)
    while (mouse_b2) proc_controllers();
    while (!exit)
    {
-      ge_draw_on_level_buffer(gx, gy, stx, sty, sux, suy, show_sel_frame, mouse_on_window);
+      ge_draw_on_level_buffer(gx, gy, show_sel_frame, mouse_on_window);
       ovw_process_scrolledge();
       ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
       get_new_screen_buffer(3, 0, 0);
@@ -1237,7 +1233,7 @@ void group_edit(void)
             {
                ge_window_x = mouse_x - mxo;
                ge_window_y = mouse_y - myo;
-               ge_draw_on_level_buffer(gx, gy, stx, sty, sux, suy, show_sel_frame, mouse_on_window);
+               ge_draw_on_level_buffer(gx, gy, show_sel_frame, mouse_on_window);
                get_new_screen_buffer(3, 0, 0);
                mouse_on_window = ge_draw_on_screen_buffer(ge_window_x, ge_window_y, show_sel_frame);
 
@@ -1245,50 +1241,33 @@ void group_edit(void)
          } // mouse b1 pressed
       } // mouse on title bar
 
-
-
       if (mouse_b1)
       {
          if (show_sel_frame) // draw new selection rectangle
          {
             // initial selection
-            stx = gx;
-            sty = gy;
-            sux = gx+1;
-            suy = gy+1;
-
+            bx2 = bx1 = gx;
+            by2 = by1 = gy;
             while (mouse_b1)
             {
-               sux = gx+1;
-               suy = gy+1;
-
-               ge_draw_on_level_buffer(gx, gy, stx, sty, sux, suy, show_sel_frame, mouse_on_window);
+               bx2 = gx;
+               by2 = gy;
+               ge_draw_on_level_buffer(gx, gy, show_sel_frame, mouse_on_window);
                get_new_screen_buffer(3, 0, 0);
                ovw_process_scrolledge();
                ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
             }
-            if (sux < stx) // swap if wrong order
-            {
-               int temp = sux;
-               sux = stx;
-               stx = temp;
-            }
-            if (suy < sty)
-            {
-               int temp = suy;
-               suy = sty;
-               sty = temp;
-            }
-            if (stx - sux == 0) sux++;  // don't allow zero size
-            if (sty - suy == 0) suy++;  // don't allow zero size
+
+            if (bx1 > bx2) swap_int(&bx1, &bx2); // swap if wrong order
+            if (by1 > by2) swap_int(&by1, &by2);
+
 
             if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
-               add_selection_to_list(stx, sty, sux, suy); // add everything in selection to list...
+               ge_add_selection_to_list(); // add everything in selection to list...
 
          } // end of get new selection
          else
          {
-
             while (mouse_b1) proc_controllers();
 
             // is mouse on item

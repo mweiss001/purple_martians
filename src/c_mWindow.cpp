@@ -14,6 +14,12 @@ int mw_get_max_layer(void)
 // iterate windows by layers down from max, drawing and detecting mouse as we go
 int mw_cycle_windows(int draw_only)
 {
+   for (int a=0; a<NUM_MW; a++) mW[a].check_offscreen();
+
+
+
+
+
    int mouse_on_window = 0;
    for (int b = mw_get_max_layer(); b>=0; b--)
       for (int a=0; a<NUM_MW; a++) // draw any window at that layer
@@ -56,7 +62,25 @@ mWindow::mWindow()
    moveable = 1;
    moving = 0;
    resizable = 0;
+   filter_mode = 0;
 }
+
+
+void mWindow::check_offscreen(void)
+{
+   int change = 0;
+
+   if (x1<1) {x1=1; change=1;}
+   if (y1<1) {y1=1; change=1;}
+
+   if (x1>SCREEN_W-100) {x1=SCREEN_W-100; change=1;}
+   if (y1>SCREEN_H-100) {y1=SCREEN_H-100; change=1;}
+
+
+   if (change) set_pos(x1, y1);
+
+}
+
 
 void mWindow::process(void)
 {
@@ -645,7 +669,7 @@ void mWindow::draw(void)
       int fc = 15;
       if (have_focus) fc = 10;
       al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1); // frame entire window
-      y2 = 1 + mw_draw_filter_buttons(x1+1, x2-1, y1+1, 1, have_focus, moving);
+      y2 = 1 + mw_draw_filter_buttons(x1+1, x2-1, y1+1, filter_mode, have_focus, moving);
       h = y2 - y1;
    }
 

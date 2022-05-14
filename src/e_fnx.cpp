@@ -19,6 +19,13 @@ af:'00001000 00000000 00000000 00000000 '
 */
 
 
+void swap_int(int *i1, int* i2)
+{
+   int it = *i1;
+   *i1 = *i2;
+   *i2 = it;
+}
+
 
 void printBits(size_t const size, void const * const ptr)
 {
