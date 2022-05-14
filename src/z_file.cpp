@@ -203,7 +203,7 @@ void zero_level_data(void)
       for (int x=0; x<16; x++) item[c][x] = 0;
       for (int x=0; x<4; x++) itemf[c][x] = al_itofix(0);
    }
-   sort_item();
+   sort_item(1);
 
    for (int c=0; c<100; c++)
    {
@@ -354,7 +354,7 @@ int save_level(int level_to_save)
    for (int i=0; i<20; i++) level_header[i] = 0;
 
    level_header[0] = 5; // .pml level version
-   level_header[3] = sort_item(); // num_of_items
+   level_header[3] = sort_item(1); // num_of_items
    sort_enemy();
    level_header[4] = num_enemy;  // num_of_enemies
    lift_setup();

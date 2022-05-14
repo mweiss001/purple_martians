@@ -2144,7 +2144,7 @@ void object_viewerw(int obt, int num)
             if (obt== 2)
             {
                erase_item(num);
-               sort_item();
+               sort_item(1);
                if (num >= item_first_num[type]+item_num_of_type[type]) num--;
                if (item_num_of_type[type] < 1) quit = 1;
             }

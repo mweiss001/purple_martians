@@ -6,11 +6,7 @@
 // all global variables should be declared here and externed in pm.h
 
 
-
-
 mWindow mW[NUM_MW];
-
-
 
 int pm_event[1000];
 
@@ -214,10 +210,11 @@ int sw_mouse_gone = 0;
 // ------------------------------------------------
 // --------zoom full screen and group edit --------
 // ------------------------------------------------
-int stx=10;  // selection window
-int sty=10;
-int sux=40;
-int suy=30;
+int bx1=10;  // selection window
+int by1=10;
+int bx2=40;
+int by2=30;
+
 int obj_filter[5][20] = {0};
 
 int ft_window_x1 = 100;

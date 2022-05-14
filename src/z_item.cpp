@@ -4,7 +4,7 @@
 
 int item_data(int x, int y)
 {
-   int inum = sort_item();
+   int inum = sort_item(0);
                                al_draw_textf(font, palette_color[12], x, y, 0, "%d Items",      inum);                 y+=8;
                                al_draw_textf(font, palette_color[12], x, y, 0, "--------");                            y+=8;
                                al_draw_textf(font, palette_color[13], x, y, 0, "%d Starts",     item_num_of_type[5]);  y+=8;

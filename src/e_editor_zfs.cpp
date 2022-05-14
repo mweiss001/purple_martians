@@ -36,14 +36,14 @@ void zfs_pointer_text(int mx, int my, int x1, int x2, int y, int mouse_on_window
 
       al_draw_rectangle(x1, y+0, x2, y+20, palette_color[15], 1);
    }
-   int rx1 = stx *20;    // source x
-   int ry1 = sty *20;    // source y
-   int rx2 = sux *20;    // sizes
-   int ry2 = suy *20;
+   int rx1 = bx1*20;    // source x
+   int ry1 = by1*20;    // source y
+   int rx2 = bx2*20+20;
+   int ry2 = by2*20+20;
    int eib=0;
    int iib=0;
    int lib=0;
-   al_fixed frx1 = al_itofix(rx1); // source position and size
+   al_fixed frx1 = al_itofix(rx1); // source
    al_fixed fry1 = al_itofix(ry1);
    al_fixed frx2 = al_itofix(rx2);
    al_fixed fry2 = al_itofix(ry2);
@@ -83,9 +83,9 @@ void zfs_pointer_text(int mx, int my, int x1, int x2, int y, int mouse_on_window
 
 
    al_draw_text( font, palette_color[6], xc, y+1,  ALLEGRO_ALIGN_CENTER, "Selection");
-   al_draw_textf(font, palette_color[6], xc, y+11, ALLEGRO_ALIGN_CENTER, " x:%2d  y:%2d ", stx, sty);
-   al_draw_textf(font, palette_color[6], xc, y+19, ALLEGRO_ALIGN_CENTER, " width:%d ",  sux-stx);
-   al_draw_textf(font, palette_color[6], xc, y+27, ALLEGRO_ALIGN_CENTER, " height:%d ", suy-sty);
+   al_draw_textf(font, palette_color[6], xc, y+11, ALLEGRO_ALIGN_CENTER, " x:%2d  y:%2d ", bx1, by1);
+   al_draw_textf(font, palette_color[6], xc, y+19, ALLEGRO_ALIGN_CENTER, " width:%d ",  bx2-bx1+1);
+   al_draw_textf(font, palette_color[6], xc, y+27, ALLEGRO_ALIGN_CENTER, " height:%d ", by2-by1+1);
 
    al_draw_textf(font, palette_color[7], xc, y+37, ALLEGRO_ALIGN_CENTER, " %d Enemies ", eib);
    al_draw_textf(font, palette_color[7], xc, y+45, ALLEGRO_ALIGN_CENTER, " %d Items ", iib);
@@ -344,10 +344,10 @@ void zfs_save_selection(int save)
    int eib=0;
    int iib=0;
    int lib=0;
-   int x1 = stx * 20;    // source x
-   int y1 = sty * 20;    // source y
-   int x2 = sux * 20;    // sizes
-   int y2 = suy * 20;
+   int x1 = bx1*20;
+   int y1 = by1*20;
+   int x2 = bx2*20+20;
+   int y2 = by2*20+20;
    al_fixed fx1 = al_itofix(x1);
    al_fixed fy1 = al_itofix(y1);
    al_fixed fx2 = al_itofix(x2);
@@ -356,10 +356,10 @@ void zfs_save_selection(int save)
    zfs_clear_ft();
 
    if (copy_blocks)
-      for (x=0; x<(sux-stx); x++)
-         for (y=0; y<(suy-sty); y++)
-            if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (stx+x >= 0) && (stx+x < 100) && (sty+y >= 0) && (sty+y < 100) )
-               ft_l[x][y] = l[stx+x][sty+y];
+      for (x=0; x<(bx2-bx1+1); x++)
+         for (y=0; y<(by2-by1+1); y++)
+            if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (bx1+x >= 0) && (bx1+x < 100) && (by1+y >= 0) && (by1+y < 100) )
+               ft_l[x][y] = l[bx1+x][by1+y];
 
    if (copy_items)
       for (b=0; b<500; b++) // check for items in box
@@ -376,14 +376,14 @@ void zfs_save_selection(int save)
 
             if ((item[b][0] == 4) || (item[b][0] == 9) || (item[b][0] == 16) || (item[b][0] == 17)) // key, trigger, manip, damage
             {   // set new destination
-               ft_item[c][6] = item[b][6] - stx*20;
-               ft_item[c][7] = item[b][7] - sty*20;
+               ft_item[c][6] = item[b][6] - bx1*20;
+               ft_item[c][7] = item[b][7] - by1*20;
             }
 
             if (item[b][0] == 10) // message
             {
-               ft_item[c][10] = item[b][10] - stx*20;
-               ft_item[c][11] = item[b][11] - sty*20;
+               ft_item[c][10] = item[b][10] - bx1*20;
+               ft_item[c][11] = item[b][11] - by1*20;
                strcpy(ft_pmsgtext[c], pmsgtext[b]);
             }
          }
@@ -460,11 +460,14 @@ void zfs_save_selection(int save)
 
 
    ft_level_header[3] = iib; // num_of_items
+
+  // printf("num of items:%d",iib);
+
    ft_level_header[4] = eib; // num_of_enemies
    ft_level_header[5] = lib; // num_of_lifts
 
-   ft_level_header[8] =  sux-stx; // width
-   ft_level_header[9] =  suy-sty; // height
+   ft_level_header[8] =  bx2-bx1+1; // width
+   ft_level_header[9] =  by2-by1+1; // height
 
    // printf("finished copying to ft - i:%d e:%d l:%d\n", iib, eib, lib);
 
@@ -481,8 +484,8 @@ void zfs_save_selection(int save)
          FILE * filepntr = fopen(sel_filename,"w");
          for (x=0; x<20; x++)
             fprintf(filepntr,"%d\n",ft_level_header[x]);
-         for (c=0; c<(sux-stx); c++)  // selection of blocks
-            for (x=0; x<(suy-sty); x++)
+         for (c=0; c<(bx2-bx1+1); c++)  // selection of blocks
+            for (x=0; x<(by2-by1+1); x++)
                fprintf(filepntr,"%d\n",ft_l[c][x]);
 
          for (c=0; c < ft_level_header[3]; c++) // items
@@ -757,6 +760,7 @@ void zfs_do_fcopy(int qx1, int qy1)
                   // limits exceeded; erase
                   if (lim)
                   {
+                     printf("erase:%d\n",c);
                      erase_item(c);
                      //copied = -1;
                   }
@@ -767,17 +771,17 @@ void zfs_do_fcopy(int qx1, int qy1)
       } // end of iterate items ft
    } // end of if copy items
    sort_enemy();
-   sort_item();
+   sort_item(1);
 }
 
 void zfs_do_clear(void)
 {
    int b, y;
 
-   int x1 = stx *20;  // source box
-   int y1 = sty *20;
-   int x2 = sux *20;
-   int y2 = suy *20;
+   int x1 = bx1*20;  // source box
+   int y1 = by1*20;
+   int x2 = bx1*20+20;
+   int y2 = by2*20+20;
 
    al_fixed fx1 = al_itofix(x1);
    al_fixed fy1 = al_itofix(y1);
@@ -785,8 +789,8 @@ void zfs_do_clear(void)
    al_fixed fy2 = al_itofix(y2);
 
    if (copy_blocks) // erase blocks
-      for (b=stx; b<sux; b++)
-         for (y=sty; y<suy; y++) l[b][y]=0;
+      for (b=bx1; b<bx2+1; b++)
+         for (y=by1; y<by2+1; y++) l[b][y]=0;
 
    if (copy_items)  // erase items
       for (b=0; b<500; b++)
@@ -890,8 +894,8 @@ void zfs_draw_buttons(int x3, int x4, int yfb)
    {
       if (mdw_button(x3, yfb+a*bnh, x4, yfb+(a+1)*bnh-2, 610, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // block fill
       {
-         for (int x=stx; x<sux; x++)
-            for (int y=sty; y<suy; y++)
+         for (int x=bx1; x<bx2+1; x++)
+            for (int y=by1; y<by2+1; y++)
             {
                if ((copy_flags) && (copy_blocks))  l[x][y] = draw_item_num;
                if ((copy_flags) && (!copy_blocks))
@@ -906,15 +910,15 @@ void zfs_draw_buttons(int x3, int x4, int yfb)
       a++;
       if (mdw_button(x3, yfb+a*bnh, x4, yfb+(a+1)*bnh-2, 611, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // block frame
       {
-         for (int x=stx; x<sux; x++)
+         for (int x=bx1; x<bx2+1; x++)
          {
-            l[x][sty] = draw_item_num;
-            l[x][suy-1] = draw_item_num;
+            l[x][by1] = draw_item_num;
+            l[x][by2] = draw_item_num;
          }
-         for (int y=sty; y<suy; y++)
+         for (int y=by1; y<by2+1; y++)
          {
-            l[stx][y] = draw_item_num;
-            l[sux-1][y] = draw_item_num;
+            l[bx1][y] = draw_item_num;
+            l[bx2][y] = draw_item_num;
          }
          init_level_background();
       }
@@ -969,22 +973,26 @@ void zfs_draw_fsel(void)
    if (copy_enemies) draw_enemies();
    if (copy_lifts) draw_lifts();
 
-   int sw = sux-stx;
-   int sh = suy-sty;
+   int sw = bx2-bx1+1;
+   int sh = by2-by1+1;
    al_destroy_bitmap(ft_bmp);
    ft_bmp = al_create_bitmap(sw*20, sh*20);
    al_set_target_bitmap(ft_bmp);
    al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap_region(level_buffer, stx*20, sty*20, sw*20, sh*20, 0, 0, 0);
+   al_draw_bitmap_region(level_buffer, bx1*20, by1*20, sw*20, sh*20, 0, 0, 0);
 }
 
+// this function draws a box at full scale on level buffer
+// even if the top left and bottom right corners are switched
 void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
 {
+   if (x1 > x2) swap_int(&x1, &x2);
+   if (y1 > y2) swap_int(&y1, &y2);
    int dstx = x1*20;
    if (dstx == 0) dstx = 1;
    int dsty = y1*20;
    if (dsty == 0) dsty = 1;
-   al_draw_rectangle(dstx, dsty, (x2*20)-1, (y2*20)-1, palette_color[color], 1);
+   al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, palette_color[14], 1);
    al_draw_text(font, palette_color[color], x1*20+2, y1*20-11,  0, text);
 }
 
@@ -1000,12 +1008,12 @@ void zfs_redraw_background(int gx, int gy)
    draw_enemies();
 
    if (brf_mode) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
-   else zfs_show_level_buffer_block_rect(stx, sty, sux, suy, 14, "selection");
+   else zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
 
    if (copy_mode)
    {
-      int sw = sux-stx;
-      int sh = suy-sty;
+      int sw = bx2-bx1;
+      int sh = by2-by1;
       al_draw_bitmap(ft_bmp, gx*20, gy*20, 0);
       zfs_show_level_buffer_block_rect(gx, gy, gx+sw, gy+sh, 10, "paste");
    }
@@ -1039,6 +1047,12 @@ int zfs_redraw_window(int zfs_window_x1, int zfs_window_y1, int zfs_window_x2, i
 
 void zoom_full_screen(int draw_item)
 {
+   mW[1].active = 0; // status
+   mW[2].active = 0; // select
+   mW[3].active = 1; // filter
+   mW[3].filter_mode = 3;
+   mW[4].active = 0; //
+
    init_level_background();
    int zfs_window_x1 = 400;
    int zfs_window_w = 160;
@@ -1067,6 +1081,10 @@ void zoom_full_screen(int draw_item)
       // redraw window
       mouse_on_window = zfs_redraw_window(zfs_window_x1, zfs_window_y1, zfs_window_x2, zfs_window_y2, gx, gy);
 
+
+      mouse_on_window = mw_cycle_windows(0);
+
+
       // process window move by dragging title bar
       if (mouse_on_window) zfs_proc_window_move(&zfs_window_x1, &zfs_window_y1, &zfs_window_x2, &zfs_window_y2, zfs_window_w, zfs_window_h);
       else // mouse is not on window
@@ -1087,32 +1105,22 @@ void zoom_full_screen(int draw_item)
             }
             if ((!copy_mode) && (!brf_mode)) // get new selection
             {
-               // initial values
-               stx = gx;
-               sty = gy;
-               sux = gx+1;
-               suy = gy+1;
+
+               // initial selection
+               bx2 = bx1 = gx;
+               by2 = by1 = gy;
                while (mouse_b1)
                {
-                  sux = gx+1;
-                  suy = gy+1;
+                  bx2 = gx;
+                  by2 = gy;
                   ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
                   zfs_redraw_background(gx, gy);
                }
-               if (sux < stx) // swap if wrong order
-               {
-                  int temp = sux;
-                  sux = stx;
-                  stx = temp;
-               }
-               if (suy < sty)
-               {
-                  int temp = suy;
-                  suy = sty;
-                  sty = temp;
-               }
-               if (stx - sux == 0) sux++;  // don't allow zero size
-               if (sty - suy == 0) suy++;  // don't allow zero size
+
+               if (bx1 > bx2) swap_int(&bx1, &bx2); // swap if wrong order
+               if (by1 > by2) swap_int(&by1, &by2);
+
+
             }
          }
       }
@@ -1122,5 +1130,12 @@ void zoom_full_screen(int draw_item)
          exit = 1;
       }
    }
+
+   mW[1].active = 1; // status
+   mW[2].active = 1; // select
+   mW[3].active = 1; // filter
+   mW[4].active = 1; //
+
+
 }
 

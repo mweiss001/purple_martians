@@ -14,22 +14,24 @@ I want it immediate to help the player time exploding moving things
 
 
 
-when resuming game, items return to start of level positions
-more accuratlely, when exiting to menu...
-sort item called by item_data to show list of items on menu
-I hope removing it wont mess things up...
-
-
-
-lift viewer end step text wrong..is is only on old lifts??
-now I can't reproduce...
-I found some lifts that have an end step with a val of 20
-don't know how it happened, this should not be
-I think the value used to be ignored until recently when I made different types of end step
-used glt to make all 20 into 0
-changed buttons to show undefined val
-
 rockets cannot go through semisolid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

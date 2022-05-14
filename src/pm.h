@@ -16,6 +16,8 @@ class mWindow
    int moving;
    int resizable;
 
+   int filter_mode;
+
    int color;
    char title[80];
 
@@ -26,6 +28,8 @@ class mWindow
    int detect_mouse(void);
    void set_title(const char*);
    void process(void);
+   void check_offscreen(void);
+
 
    void set_focus(int);
 
@@ -40,6 +44,9 @@ extern mWindow mW[NUM_MW];
 
 
 int mw_cycle_windows(int draw_only);
+
+
+
 
 
 
@@ -431,10 +438,11 @@ extern int sw_mouse_gone;
 // ------------------------------------------------
 // ---zoom full screen and group edit--------------
 // ------------------------------------------------
-extern int stx;
-extern int sty;
-extern int sux;
-extern int suy;
+extern int bx1;  // selection window
+extern int by1;
+extern int bx2;
+extern int by2;
+
 extern int obj_filter[5][20];
 extern int ft_window_x1;
 extern int ft_window_x2;
@@ -996,7 +1004,7 @@ void em_process_status_window(int draw_only, int gx, int gy, int* mpow);
 void em_process_select_window(int draw_only, int* mpow);
 void em_set_swbl(void);
 void em_set_block_range(int bx1, int by1, int bx2, int by2);
-void em_get_new_box(int*bx1, int*by1, int*bx2, int*by2);
+void em_get_new_box();
 char* em_get_text_description_of_block_based_on_flags(int flags);
 void em_show_draw_item_cursor(void);
 void em_draw_item_info(int x, int y, int color, int type, int num);
@@ -1035,11 +1043,14 @@ void group_edit(void);
 void ovw_process_scrolledge(void);
 void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy);
 
+void ge_add_selection_to_list(void);
+
 
 
 
 
 // e_fnx.h
+void swap_int(int *i1, int* i2);
 void printBits(size_t const size, void const * const ptr);
 al_fixed get_sproingy_jump_height(int num);
 void set_xyinc_rot(int EN, int x2, int y2);
@@ -1069,7 +1080,7 @@ void global_level();
 
 // e_item.h
 void show_all_items(void);
-int sort_item(void);
+int sort_item(int);
 int get_empty_item(void);
 int get_empty_item(int type);
 void erase_item(int num);

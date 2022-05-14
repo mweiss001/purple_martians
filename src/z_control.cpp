@@ -544,6 +544,15 @@ void function_key_check(void)
          scale_factor_current = scale_factor;
 
 
+         for (int a=0; a<NUM_MW; a++)
+         {
+            mW[a].set_pos(mW[a].x1/sfa, mW[a].y1/sfa);
+         }
+
+
+
+
+
          window_title();
       }
       else

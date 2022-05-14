@@ -7,17 +7,14 @@ void show_all_items(void)
    ALLEGRO_BITMAP *tmp;
    tmp = al_create_bitmap(20, 20);
 
-
-
-
-   sort_item();
+   sort_item(1);
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
    test_items();
    int text_pos = 0;
 
-   int num_items = sort_item();
+   int num_items = sort_item(1);
    text_pos = item_data(10, text_pos);
 
    int rh = 10; // row height
@@ -58,7 +55,7 @@ void show_all_items(void)
    al_destroy_bitmap(tmp);
 }
 
-int sort_item(void)
+int sort_item(int set_pos)
 {
    // to not break linked items
    for (int c=0; c < 500; c++)
@@ -71,9 +68,12 @@ int sort_item(void)
       quit=1; // quit if no iswap
       for (c=0; c < 499; c++)
       {
-         // to prevent items being reset when resuming game...remove these lines
-         //itemf[c][0] = al_itofix(item[c][4]);
-         //itemf[c][1] = al_itofix(item[c][5]);
+         if (set_pos)
+         {
+            itemf[c][0] = al_itofix(item[c][4]);
+            itemf[c][1] = al_itofix(item[c][5]);
+         }
+
 
          if (item[c][0] < item[c+1][0]) // sort by first value 'type'
             iswap = 1;
@@ -181,7 +181,7 @@ int get_empty_item(int type) // finds, sets type, sorts, refinds
       erase_item(mt);
       item[mt][0] = type; // set type
       item[mt][9] = 9999; // mark to find after sort !!
-      sort_item();
+      sort_item(1);
       mt = 0;
       while ((mt < 500) && (item[mt][9] != 9999)) mt++;
       item[mt][9] = 0; // remove mark
@@ -726,7 +726,7 @@ int create_door(int type)
       }
       break;
    }
-   return sort_item();
+   return sort_item(1);
 }
 
 int create_item(int type)
@@ -745,7 +745,7 @@ int create_item(int type)
       case 16: if (!create_block_manip(i))  erase_item(i); break;
       case 17: if (!create_block_damage(i)) erase_item(i); break;
    }
-   sort_item();
+   sort_item(1);
    i = item_first_num[type]+item_num_of_type[type]-1;
    return i;
 }
