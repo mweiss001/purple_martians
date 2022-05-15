@@ -5,12 +5,11 @@
 // gets block with flags from level
 int select_bitmap(int tn)
 {
-   int gx=0, gy=0, hx=0, hy=0;
    int quit = 0;
    while (!quit)
    {
       ovw_process_scrolledge();
-      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+      ovw_get_block_position_on_map();
       al_flip_display();
       proc_scale_factor_change();
       proc_controllers();

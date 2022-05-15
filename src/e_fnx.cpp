@@ -19,12 +19,50 @@ af:'00001000 00000000 00000000 00000000 '
 */
 
 
+
+
+
+
+
+
+
+int enforce_limit(int val, int ll, int ul)
+{
+   if (val < ll) val = ll;
+   if (val > ul) val = ul;
+   return val;
+}
+
+int check_limit(int val, int ll, int ul)
+{
+   if (val < ll) return 1;
+   if (val > ul) return 1;
+   return 0;
+}
+
+
+
+
+
+
 void swap_int(int *i1, int* i2)
 {
    int it = *i1;
    *i1 = *i2;
    *i2 = it;
 }
+
+
+float mdw_rnd(float rmin, float rmax)
+{
+   int imin = (int) (rmin * 100.0);
+   int irng = (int) ((rmax-rmin) * 100.0);
+   int s = imin + rand() % irng;
+   float res = (float)s / 100.0;
+   return res;
+}
+
+
 
 
 void printBits(size_t const size, void const * const ptr)
@@ -91,7 +129,6 @@ void set_rocket_rot(int num, int x2, int y2)
 int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type)
 {
    init_level_background();
-   int gx=0, gy=0, hx=0, hy=0;
    int tx = SCREEN_W/2;
    int quit = 0;
    int ret = 0;
@@ -107,7 +144,7 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
       draw_enemies();
       crosshairs_full(gx*20+10, gy*20+10, 15, 1);
       get_new_screen_buffer(3, 0, 0);
-      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+      ovw_get_block_position_on_map();
       ovw_process_scrolledge();
 
       al_draw_filled_rectangle(tx-90, 70, tx+90, 170, palette_color[0]);
@@ -143,7 +180,7 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
 
             get_new_screen_buffer(3, 0, 0);
             ovw_process_scrolledge();
-            ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+            ovw_get_block_position_on_map();
 
             *x2 = gx*20-*x1;
             *y2 = gy*20-*y1;
@@ -257,7 +294,6 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
 int getxy(const char *txt, int obj_type, int sub_type, int num)
 {
    init_level_background();
-   int gx=0, gy=0, hx=0, hy=0;
    int tx = SCREEN_W/2;
 
    // in case these are needed for lifts
@@ -381,7 +417,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
 
       get_new_screen_buffer(3, 0, 0);
       ovw_process_scrolledge();
-      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+      ovw_get_block_position_on_map();
 
       al_draw_filled_rectangle(tx-100, 70, tx+100, 128, palette_color[0]);
       al_draw_rectangle(       tx-100, 70, tx+100, 128, palette_color[15], 1);
@@ -734,7 +770,6 @@ void find_and_show_event_links(int type, int i, int num2)
 int get_trigger_item(int obj_type, int sub_type, int num )
 {
    init_level_background();
-   int gx=0, gy=0, hx=0, hy=0;
    int tx = SCREEN_W/2;
 
    // in case these are needed for lifts
@@ -786,7 +821,7 @@ int get_trigger_item(int obj_type, int sub_type, int num )
 
       get_new_screen_buffer(3, 0, 0);
       ovw_process_scrolledge();
-      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+      ovw_get_block_position_on_map();
 
       al_draw_filled_rectangle(tx-110, 78, tx+110, 146, palette_color[0]);
       al_draw_rectangle(       tx-110, 78, tx+110, 146, palette_color[15], 1);
@@ -867,7 +902,6 @@ int get_trigger_item(int obj_type, int sub_type, int num )
 int get_item(int obj_type, int sub_type, int num )
 {
    init_level_background();
-   int gx=0, gy=0, hx=0, hy=0;
    int tx = SCREEN_W/2;
 
    int ret_item=0;
@@ -898,7 +932,7 @@ int get_item(int obj_type, int sub_type, int num )
 
       get_new_screen_buffer(3, 0, 0);
       ovw_process_scrolledge();
-      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+      ovw_get_block_position_on_map();
 
       al_draw_filled_rectangle(tx-110, 78, tx+110, 146, palette_color[0]);
       al_draw_rectangle(       tx-110, 78, tx+110, 146, palette_color[15], 1);

@@ -17,18 +17,10 @@ I want it immediate to help the player time exploding moving things
 rockets cannot go through semisolid
 
 
+pasting flags in zfs does not work how I want...
 
 
-
-
-
-
-
-
-
-
-
-
+lifts running needs fixing..
 
 
 
@@ -39,6 +31,15 @@ rockets cannot go through semisolid
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+clean up variables for old window positions...
+maybe find a way to save them...
+
+
+
+
+
+
 
 
 
