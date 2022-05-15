@@ -27,7 +27,7 @@ struct ge_datum
 };
 struct ge_datum ge_data[40];
 
-void init_ge_data(void)
+void ge_init_data(void)
 {
    int i;
    for (i=0; i<40; i++)
@@ -234,7 +234,7 @@ void init_ge_data(void)
 }
 
 // iterate the object list to find out what controls are valid
-void set_valid_ge_controls(void)
+void ge_set_valid_controls(void)
 {
    // set all controls valid by default
    for (int i=0; i<40; i++) if (ge_data[i].vartyp) ge_data[i].valid = 1;
@@ -294,7 +294,7 @@ void set_valid_ge_controls(void)
       }
 }
 
-void add_to_obj_list(int t, int i)
+void ge_add_to_obj_list(int t, int i)
 {
    // check if already in list
    int duplicate = 0;
@@ -312,7 +312,7 @@ void add_to_obj_list(int t, int i)
    }
 }
 
-void remove_obj_list_item(int o)
+void ge_remove_obj_list_item(int o)
 {
    // slide down to close hole
    for (int i=o; i<NUM_OBJ-1; i++)
@@ -323,7 +323,19 @@ void remove_obj_list_item(int o)
    }
 }
 
-void swap_obj_list_items(int i1, int i2)
+void ge_remove_obj_list_filtered_items(void)
+{
+   for (int i=0; i<NUM_OBJ; i++)
+      if (obj_list[i][0])
+      {
+         int type = obj_list[i][0];
+         int num = obj_list[i][1];
+         if ((type == 2) && (obj_filter[type][item[num][0]] == 0)) ge_remove_obj_list_item(i);
+         if ((type == 3) && (obj_filter[type][  Ei[num][0]] == 0)) ge_remove_obj_list_item(i);
+      }
+}
+
+void ge_swap_obj_list_items(int i1, int i2)
 {
    int t0 = obj_list[i1][0];
    int t1 = obj_list[i1][1];
@@ -338,269 +350,7 @@ void swap_obj_list_items(int i1, int i2)
    obj_list[i2][2] = t2;
 }
 
-void remove_obj_list_filtered_items(void)
-{
-   for (int i=0; i<NUM_OBJ; i++)
-      if (obj_list[i][0])
-      {
-         int type = obj_list[i][0];
-         int num = obj_list[i][1];
-         if ((type == 2) && (obj_filter[type][item[num][0]] == 0)) remove_obj_list_item(i);
-         if ((type == 3) && (obj_filter[type][  Ei[num][0]] == 0)) remove_obj_list_item(i);
-      }
-}
-
-int draw_filter_toggles(int jjx1, int jjx2, int jjy1, int mode)
-{
-
-
-
-   int x1 = ft_window_x1;
-   int x2 = ft_window_x2;
-   int y1 = ft_window_y1;
-
-   int fs = 12;   // frame size
-   int y = y1+fs; // button y position
-
-   int bts = 12;    // button size
-   int a = 0;       // keep track of button y spacing
-
-   int tc1 = 15;    // text color 1
-   int tc2 = 15;    // text color 2
-   int fc1 = 15+64; // frame color 1
-   int fc2 = 4;     // frame color 2
-
-   int tl=0; // text_lines
-   if (mode == 1) tl = 25;
-   if (mode == 2) tl = 27;
-   if (mode == 3) tl = 29;
-
-   if (ft_window_collapsed) tl = -1;
-
-   int y2 = y1+tl*bts+fs*2; // pre calc
-
-   // erase background
-   al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
-
-   // draw frame around filter buttons
-   int ci = 16; //color inc
-   for (int q=0; q<fs; q++)
-      al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, palette_color[12+32+(q*ci)], 1);
-   al_draw_text(font, palette_color[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "Filters");
-
-   if (!ft_window_collapsed)
-   {
-      if (mode > 2) // add blocks and flags
-      {
-         mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[1][1],  "Blocks", "Blocks", tc1, tc2, fc1, fc2); a++;
-         mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[1][2],  "Flags",  "Flags",  tc1, tc2, fc1, fc2); a++;
-      }
-      if (mode > 1) // add lifts
-      {
-         mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[4][1],  "Lifts",  "Lifts",  tc1, tc2, fc1, fc2); a++;
-         a++;
-      }
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][3],  "Arcwgn", "Arcwgn", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][4],  "Bouncr", "Bouncr", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][6],  "Cannon", "Cannon", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][7],  "Podzil", "Podzil", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][8],  "Trakbt", "Trakbt", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][9],  "Cloner", "Cloner", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][10], "Field",  "Field",  tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][11], "Blk Wk", "Blk Wk", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][12], "Flappr", "Flappr", tc1, tc2, fc1, fc2); a++;
-      a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][1],  "Door",   "Door",   tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][2],  "Bonus",  "Bonus",  tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][3],  "Exit",   "Exit",   tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][4],  "Key",    "Key",    tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][5],  "Start",  "Start",  tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][7],  "Mine",   "Mine",   tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][8],  "Bomb",   "Bomb",   tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][9],  "Triggr", "Triggr", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][10], "Messge", "Messge", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][11], "Rocket", "Rocket", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][12], "Warp",   "Warp",   tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][14], "Switch", "Switch", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][15], "Spring", "Spring", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][16], "Blk Mn", "Blk Mn", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][17], "Blk Dm", "Blk Dm", tc1, tc2, fc1, fc2); a++;
-      sprintf(msg, "-");
-   }
-   else sprintf(msg, "+");
-
-   // mouse on collapse +/-
-   int cc = 15;
-   if ((mouse_x > x2-12) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y1+8))
-   {
-      cc = 10;
-      if (mouse_b1)
-      {
-         while (mouse_b1) proc_controllers();
-         ft_window_collapsed =! ft_window_collapsed;
-      }
-   }
-   al_draw_text(font, palette_color[cc], x2-10, y1+2, 0, msg);
-
-
-   // mouse on title bar, but not +/-
-   if ((mouse_x > x1) && (mouse_x < x2-14) && (mouse_y > y1) && (mouse_y < y1+fs))
-   {
-      al_draw_rectangle(x1, y1, x2-14, y1+fs, palette_color[10], 1);
-      if (mouse_b1)
-      {
-         int mxo = mouse_x - ft_window_x1; // get offset from mouse position to window x, y
-         int myo = mouse_y - ft_window_y1;
-
-         int mw = x2-x1; // get window width...hack for now
-         int mh = y2-y1;
-
-         while (mouse_b1)
-         {
-            ft_window_x1 = mouse_x - mxo;
-            ft_window_y1 = mouse_y - myo;
-            ft_window_x2 = ft_window_x1 + mw;
-            y2 = ft_window_y1 + mh;
-
-            x1 = ft_window_x1;
-            y1 = ft_window_y1;
-            x2 = ft_window_x2;
-
-
-            al_flip_display();
-            proc_scale_factor_change();
-            proc_controllers();
-            proc_frame_delay();
-            get_new_background(0);
-            draw_lifts();
-            draw_items();
-            draw_enemies();
-
-            get_new_screen_buffer(3, 0, 0);
-
-
-            // erase background
-            al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
-
-            // draw frame around filter buttons
-            int ci = 16; //color inc
-            for (int q=0; q<fs; q++)
-               al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, palette_color[12+32+(q*ci)], 1);
-            al_draw_text(font, palette_color[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "Filters");
-
-         }
-      }
-   }
-   // mouse b2 anywhere on window
-   if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
-   {
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
-
-      if (mouse_b2)
-      {
-         sprintf(global_string[6][0],"Filters");
-         sprintf(global_string[6][1],"---------------");
-         sprintf(global_string[6][2],"All On");
-         sprintf(global_string[6][3],"All Items On");
-         sprintf(global_string[6][4],"All Enemies On");
-         sprintf(global_string[6][5],"All Off");
-         sprintf(global_string[6][6],"All Items Off");
-         sprintf(global_string[6][7],"All Enemies Off");
-         sprintf(global_string[6][8],"end");
-         switch (pmenu(6, 13))
-         {
-             case 2:
-                for (int i=0; i<5; i++)
-                   for (int j=0; j<20; j++)
-                      obj_filter[i][j] = 1;
-                break;
-             case 3:
-                for (int j=0; j<20; j++)
-                   obj_filter[2][j] = 1;
-             break;
-             case 4:
-                for (int j=0; j<20; j++)
-                   obj_filter[3][j] = 1;
-             break;
-             case 5:
-             for (int i=0; i<5; i++)
-                for (int j=0; j<20; j++)
-                   obj_filter[i][j] = 0;
-             break;
-             case 6:
-                for (int j=0; j<20; j++)
-                   obj_filter[2][j] = 0;
-             break;
-             case 7:
-                for (int j=0; j<20; j++)
-                   obj_filter[3][j] = 0;
-             break;
-         }
-      }
-   }
-   return y2;
-}
-
-int old_draw_filter_toggles(int x1, int x2, int y1)
-{
-   int fs = 12;   // frame size
-   int y = y1+fs; // button y position
-
-   int bts = 12;        // button size
-   int a = 0;       // keep track of button y spacing
-
-   int tc1 = 15;    // text color 1
-   int tc2 = 15;    // text color 2
-   int fc1 = 15+64; // frame color 1
-   int fc2 = 4;     // frame color 2
-
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][3],  "Arcwgn", "Arcwgn", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][4],  "Bouncr", "Bouncr", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][6],  "Cannon", "Cannon", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][7],  "Podzil", "Podzil", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][8],  "Trakbt", "Trakbt", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][9],  "Cloner", "Cloner", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][10], "Field",  "Field",  tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][11], "Blk Wk", "Blk Wk", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[3][12], "Flappr", "Flappr", tc1, tc2, fc1, fc2); a++;
-   a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][1],  "Door",   "Door",   tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][2],  "Bonus",  "Bonus",  tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][3],  "Exit",   "Exit",   tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][4],  "Key",    "Key",    tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][5],  "Start",  "Start",  tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][7],  "Mine",   "Mine",   tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][8],  "Bomb",   "Bomb",   tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][9],  "Triggr", "Triggr", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][10], "Messge", "Messge", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][11], "Rocket", "Rocket", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][12], "Warp",   "Warp",   tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][14], "Switch", "Switch", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][15], "Spring", "Spring", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][16], "Blk Mn", "Blk Mn", tc1, tc2, fc1, fc2); a++;
-   mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,0, obj_filter[2][17], "Blk Dm", "Blk Dm", tc1, tc2, fc1, fc2); a++;
-
-   // draw frame around filter buttons
-   int y2 = y1+a*bts+fs*2;
-   int ci = 16; //color inc
-   for (int q=0; q<fs; q++)
-      al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, palette_color[12+32+(q*ci)], 1);
-   al_draw_text(font, palette_color[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "Filters");
-
-  // al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
-   return y2;
-}
-
-float mdw_rnd(float rmin, float rmax)
-{
-   int imin = (int) (rmin * 100.0);
-   int irng = (int) ((rmax-rmin) * 100.0);
-   int s = imin + rand() % irng;
-   float res = (float)s / 100.0;
-   return res;
-}
-
-int enemy_initial_position_random(int e, int csw)
+void ge_enemy_initial_position_random(int e, int csw)
 {
    int x, y, empt = 0, lb = 0;
    while ((!empt) && (lb < 10000))
@@ -621,16 +371,11 @@ int enemy_initial_position_random(int e, int csw)
    {
       Efi[e][0] = al_itofix(x)*20;
       Efi[e][1] = al_itofix(y)*20;
-      return 1;
    }
-   else
-   {
-      printf("could not find empty\n");
-      return 0;
-   }
+   else printf("could not find empty block space for enemy\n");
 }
 
-void item_initial_position_random(int i, int csw)
+void ge_item_initial_position_random(int i, int csw)
 {
    int x, y, empt = 0, lb = 0;
    while ((!empt) && (lb < 10000))
@@ -647,7 +392,6 @@ void item_initial_position_random(int i, int csw)
       }
 
       if (!is_block_empty(x, y, 1, 1, 1)) empt = 0;
-
    }
    if (empt)
    {
@@ -656,69 +400,75 @@ void item_initial_position_random(int i, int csw)
       itemf[i][0] = al_itofix(item[i][4]);
       itemf[i][1] = al_itofix(item[i][5]);
    }
-   else printf("could not find empty\n");
+   else printf("could not find empty block space for item\n");
 }
 
-int draw_list_items(int x1, int y1, int flash_color, int ni)
+int ge_draw_list_items(int x1, int y1, int flash_color, int ni)
 {
-   int x2 = x1+100+12;
-   int y2 = y1 + (ni+1)*8;
    int xt = x1; // to keep track of pos as we expand in the x axis
-
-   // erase background
-   al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
-
-   // column headers
-   al_draw_text(font, palette_color[15], xt, y1, 0, " #");  xt+=24;
-   al_draw_text(font, palette_color[15], xt, y1, 0, "S");   xt+=16;
-   al_draw_text(font, palette_color[15], xt, y1, 0, "num"); xt+=32;
-   for (int ge_num=0; ge_num<40; ge_num++)
-      if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
-      {
-         al_draw_textf(font, palette_color[15], xt, y1, 0, "%.4s", ge_data[ge_num].name);
-         xt+=40;
-      }
-
-   // rows
-   for (int i=0; i<NUM_OBJ; i++)
-      if (obj_list[i][0])
-      {
-         y1+=8;
-         int type = obj_list[i][0];
-         int num = obj_list[i][1];
-         int col = 15;
-         if (obj_list[i][2]) col = flash_color;
-
-         xt = x1; // to keep track of pos as we expand in the x axis
-
-         al_draw_textf(font, palette_color[col], xt, y1, 0, "%2d",i); xt+=24; // list item number
-
-         int tn = 0;
-         if (type == 2) tn = item_tile[item[num][0]];
-         if (type == 3) tn = enemy_tile[Ei[num][0]];
-         al_draw_scaled_bitmap(tile[tn], 0, 0, 20, 20, xt, y1, 8, 8, 0); xt+=16; // bitmap
-
-         al_draw_textf(font, palette_color[col], xt, y1, 0, "%3d", num); xt+=32; // object number
-
-         // valid variables
-         for (int ge_num=0; ge_num<40; ge_num++)
+   if (ni == 0)
+   {
+      al_draw_text(font, palette_color[15], xt, y1, 0, "<empty>");
+      xt+=56;
+   }
+   else
+   {
+      // column headers
+      al_draw_text(font, palette_color[15], xt, y1, 0, " #");  xt+=24;
+      al_draw_text(font, palette_color[15], xt, y1, 0, "S");   xt+=16;
+      al_draw_text(font, palette_color[15], xt, y1, 0, "num"); xt+=32;
+      for (int ge_num=0; ge_num<40; ge_num++)
          if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
-            {
-               int vt = ge_data[ge_num].vartyp;
-               int vn = ge_data[ge_num].varnum;
+         {
+            al_draw_textf(font, palette_color[15], xt, y1, 0, "%.4s", ge_data[ge_num].name);
+            xt+=40;
+         }
 
-               if (vt == 2) al_draw_textf(font, palette_color[col], xt, y1, 0, "%2d", item[num][vn]);
-               if (vt == 3) al_draw_textf(font, palette_color[col], xt, y1, 0, "%2d", Ei[num][vn]);
-               if (vt == 4) al_draw_textf(font, palette_color[col], xt, y1, 0, "%2.1f", al_fixtof(Efi[num][vn]));
-               if (vt == 5) al_draw_textf(font, palette_color[col], xt, y1, 0, "%2d", Ei[num][2]);
-               xt+=40;
-            }
-      }
+      // rows
+      for (int i=0; i<NUM_OBJ; i++)
+         if (obj_list[i][0])
+         {
+            y1+=8;
+            int type = obj_list[i][0];
+            int num = obj_list[i][1];
+            int col = 15;
+            if (obj_list[i][2]) col = flash_color;
+
+            xt = x1; // to keep track of pos as we expand in the x axis
+
+            al_draw_textf(font, palette_color[col], xt, y1, 0, "%2d",i); xt+=24; // list item number
+
+            int tn = 0;
+            if (type == 2) tn = item_tile[item[num][0]];
+            if (type == 3) tn = enemy_tile[Ei[num][0]];
+            al_draw_scaled_bitmap(tile[tn], 0, 0, 20, 20, xt, y1, 8, 8, 0); xt+=16; // bitmap
+
+            al_draw_textf(font, palette_color[col], xt, y1, 0, "%3d", num); xt+=32; // object number
+
+            // valid variables
+            for (int ge_num=0; ge_num<40; ge_num++)
+            if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
+               {
+                  int vt = ge_data[ge_num].vartyp;
+                  int vn = ge_data[ge_num].varnum;
+
+                  if (vt == 2) al_draw_textf(font, palette_color[col], xt, y1, 0, "%2d", item[num][vn]);
+                  if (vt == 3) al_draw_textf(font, palette_color[col], xt, y1, 0, "%2d", Ei[num][vn]);
+                  if (vt == 4) al_draw_textf(font, palette_color[col], xt, y1, 0, "%2.1f", al_fixtof(Efi[num][vn]));
+                  if (vt == 5) al_draw_textf(font, palette_color[col], xt, y1, 0, "%2d", Ei[num][2]);
+                  xt+=40;
+               }
+         }
+   }
    return xt;
 }
 
-int show_obj_list(int x, int y, int *ex2)
+void ge_show_obj_list(int x, int y, int *ew, int *eh, int have_focus, int moving)
 {
+   int d = 1;
+   if (have_focus) d = 0;
+   if (moving) d = 1;
+
    // find number of items in list
    int ni = 0;
    for (int i=0; i<NUM_OBJ; i++)
@@ -733,59 +483,65 @@ int show_obj_list(int x, int y, int *ex2)
    int yf1 = y;
    int yf2 = y + (ni+1)*8 + fs*2;
 
-   if (ni < 1) al_draw_textf(font, palette_color[15], x1, y1, 0, "<empty>");
-   else
-   {
-      x2 = draw_list_items(x1, y1, flash_color, ni);
-      if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > yf1) && (mouse_y < yf2)) // detect if mouse is on list
-      {
-         for (int o=0; o<NUM_OBJ; o++) obj_list[o][2] = 0; // clear all highlights
-         int mpl = ((mouse_y - yf1 + fs)/8)-4;             // get raw list item
-         if ((mpl < -1) || (mpl > ni-1)) mpl = -1;         // ensure valid list item
-         if (mpl != -1)                                    // mouse is on valid list item
-         {
-            obj_list[mpl][2] = 1;                          // mark this item as highlighted
-            al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, palette_color[10], 1); // draw rectangle around list item
-            if (mouse_b1)
-            {
-               if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // remove item from list
-               {
-                  while (mouse_b1) proc_controllers();
-                  remove_obj_list_item(mpl);
-               }
-               else // keep mouse for drag swap
-               {
-                  int old_mpl = mpl;
-                  while (mouse_b1)
-                  {
-                     al_flip_display();
-                     proc_controllers();
-                     mpl = ((mouse_y - yf1 + fs)/8)-4;             // get raw list item
-                     if ((mpl < -1) || (mpl > ni-1)) mpl = -1;     // ensure valid list item
-                     if (mpl != -1)                                // mouse is on valid list item
-                     {
-                        draw_list_items(x1, y1, 10, ni);
-                        al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, palette_color[10], 1); // draw rectangle around list item pointer
-                     }
-                  }
-                  swap_obj_list_items(old_mpl, mpl); // do the swap
-               }
-            } // mouse_b1 pressed
-         } // mouse on valid list item
-      } // mouse on obj list
-   } // more than zero items
+   x2 = ge_draw_list_items(x1, y1, flash_color, ni);
+
+   *ew = (x2+fs) - x ; // actual width
+   *eh = yf2 - y;      // actual height
 
    // draw frame around list
    int ci = 16; //color inc
    for (int q=0; q<fs; q++)
       al_draw_rectangle(x1-fs+q, yf1+q, x2+fs-q, yf2-q, palette_color[12+32+(q*ci)], 1);
    al_draw_textf(font, palette_color[15], (x1+x2)/2, yf1+2, ALLEGRO_ALIGN_CENTER, "%d Objects", ni);
-  *ex2 = x2 + fs; // set the actual width here
-  return yf2;
+
+   if ((!d) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > yf1) && (mouse_y < yf2)) // detect if mouse is on list
+   {
+      for (int o=0; o<NUM_OBJ; o++) obj_list[o][2] = 0; // clear all highlights
+      int mpl = ((mouse_y - yf1 + fs)/8)-4;             // get raw list item
+      if ((mpl < -1) || (mpl > ni-1)) mpl = -1;         // ensure valid list item
+      if (mpl != -1)                                    // mouse is on valid list item
+      {
+         obj_list[mpl][2] = 1;                          // mark this item as highlighted
+         al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, palette_color[10], 1); // draw rectangle around list item
+         if (mouse_b1)
+         {
+            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // remove item from list
+            {
+               while (mouse_b1) proc_controllers();
+               ge_remove_obj_list_item(mpl);
+            }
+            else // keep mouse for drag swap
+            {
+               int old_mpl = mpl;
+               while (mouse_b1)
+               {
+                  cm_redraw_level_editor_background();
+                  mpl = ((mouse_y - yf1 + fs)/8)-4;             // get raw list item
+                  if ((mpl < -1) || (mpl > ni-1)) mpl = -1;     // ensure valid list item
+                  if (mpl != -1)                                // mouse is on valid list item
+                  {
+                     al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, palette_color[10], 1); // draw rectangle around list item pointer
+                     ge_swap_obj_list_items(old_mpl, mpl); // do the swap
+                     mW[5].draw();
+                  }
+               }
+            } // mouse b1 held
+         } // mouse_b1 pressed
+      } // mouse on valid list item
+   } // mouse on obj list
 }
 
-int show_ge_controls(int gx, int gy)
+int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving, int hidden)
 {
+   int nc = 0; // number of valid controls
+   int d = 1;
+   if (have_focus) d = 0;
+   if (moving) d = 1;
+
+   int by = y;
+   int bts = 16;
+   int y_spacing = 6; // spacing between groups
+
    // find number of items in list
    int ni = 0;
    for (int i=0; i<NUM_OBJ; i++)
@@ -793,35 +549,29 @@ int show_ge_controls(int gx, int gy)
 
    if (ni)
    {
-      set_valid_ge_controls();
+      ge_set_valid_controls();
 
-      gy-=6;
       for (int ge_num=0; ge_num<40; ge_num++)
          if (ge_data[ge_num].valid)
          {
+            nc++;
             int gvt = ge_data[ge_num].vartyp;
             int gvn = ge_data[ge_num].varnum;
-            int xa = gx;
+            int xa = x;
 
             int x1 = xa;
             int x2 = x1 + 320;
             int x3 = x2 - 60;
             int x4 = x1 + 160;
 
-            gy+=6; // spacing between groups
-            int y = gy;
-
-            int a = 0;
-            int bts = 16;
-
             sprintf(msg, "Group Edit - %s", ge_data[ge_num].name);
-            mdw_toggle(x1, y+a*bts, x2, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,1,0,0, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 15+64); a++;
-            gy+=bts;
+            mdw_toggle(x1, by, x2, by+bts-2, 1000, 0,0,0,0,0,0,0,1,1,0,d, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 15+64);
+
             if (!ge_data[ge_num].collapsed)
             {
+               by+=bts;
                if ((gvt == 2) || (gvt == 3) || (gvt == 4))
                {
-                  gy+= bts*3;
                   // find min max and average
                   float mins = 9999;
                   float maxs = -9999;
@@ -844,16 +594,16 @@ int show_ge_controls(int gx, int gy)
                   float avg = tally / (float) ni;
 
                   sprintf(msg, "Current - min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
-                  mdw_buttont(x1+8, y+a*bts, x2, y+(a+1)*bts-2, 0,0,0,0,  0,13,15,0,1,0,0,0, msg); a++;
+                  mdw_buttont(x1+8, by, x2, by+bts-2, 0,0,0,0,  0,13,15,0,1,0,0,1, msg); by+=bts;
 
                   float mna = ge_data[ge_num].min_allowed;
                   float mxa = ge_data[ge_num].max_allowed;
 
-                  mdw_slider2_flt(x1+8, y+a*bts, x4, y+(a+1)*bts-2, 0,0,0,0, 0,3,15,0,1,0,0,0, ge_data[ge_num].adj_min, mxa, mna, 1, "Min:");
-                  mdw_slider2_flt(x4,   y+a*bts, x2, y+(a+1)*bts-2, 0,0,0,0, 0,3,15,0,1,0,0,0, ge_data[ge_num].adj_max, mxa, mna, 1, "Max:"); a++;
+                  mdw_slider2_flt(x1+8, by, x4, by+bts-2, 0,0,0,0, 0,3,15,0,1,0,0,d, ge_data[ge_num].adj_min, mxa, mna, 1, "Min:");
+                  mdw_slider2_flt(x4,   by, x2, by+bts-2, 0,0,0,0, 0,3,15,0,1,0,0,d, ge_data[ge_num].adj_max, mxa, mna, 1, "Max:"); by+=bts;
 
-                  mdw_buttonp(    x1+8, y+a*bts, x3, y+(a+1)*bts-2, 100,0,0,0,  0, 4,15,0,1,1,0,0, ge_data[ge_num].adj_mode); // Action type
-                  if (mdw_buttont(x3,   y+a*bts, x2, y+(a+1)*bts-2, 0,0,0,0,    0,10,15,0,1,0,0,0, "Do It!"))
+                  mdw_buttonp(    x1+8, by, x3, by+bts-2, 100,0,0,0,  0, 4,15,0,1,1,0,d, ge_data[ge_num].adj_mode); // Action type
+                  if (mdw_buttont(x3,   by, x2, by+bts-2, 0,0,0,0,    0,10,15,0,1,0,0,d, "Do It!"))
                   {
                      float mn = ge_data[ge_num].adj_min;
                      float mx = ge_data[ge_num].adj_max;
@@ -904,8 +654,7 @@ int show_ge_controls(int gx, int gy)
                } // end of types 2, 3, 4
                else if (gvt == 5)
                {
-                  gy+=bts;
-                  if (mdw_buttont(x1+10, y+a*bts, x4, y+(a+1)*bts-2, 0,0,0,0,  0,10,15,0,1,0,0,0, "Random"))
+                  if (mdw_buttont(x1+10, by, x4, by+bts-2, 0,0,0,0,  0,10,15,0,1,0,0,d, "Random"))
                   {
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
                         if (obj_list[i][0])
@@ -914,7 +663,7 @@ int show_ge_controls(int gx, int gy)
                            set_xyinc_rot(num, rand() % 2000, rand() % 2000); // random
                         }
                   }
-                  if (mdw_buttont(x4, y+a*bts, x2, y+(a+1)*bts-2, 0,0,0,0,  0,10,15,0,1,0,0,0, "Aim at Start Block"))
+                  if (mdw_buttont(x4, by, x2, by+bts-2, 0,0,0,0,  0,10,15,0,1,0,0,d, "Aim at Start Block"))
                   {
                      int sbx = 0, sby = 0; // start block x and y
                      for (int c=0; c<500; c++)
@@ -933,26 +682,32 @@ int show_ge_controls(int gx, int gy)
                } // end of type 5
                else if (gvt == 6)
                {
-                  gy+=bts;
-                  if (mdw_buttont(x1+10, y+a*bts, x2, y+(a+1)*bts-2, 0,0,0,0,  0,10,15,0,1,0,0,0, "Randomize Position Within Selection"))
+                  if (mdw_buttont(x1+10, by, x2, by+bts-2, 0,0,0,0,  0,10,15,0,1,0,0,d, "Randomize Position Within Selection"))
                   {
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
                         if (obj_list[i][0])
                         {
                            int typ = obj_list[i][0];
                            int num = obj_list[i][1];
-                           if (typ == 2) item_initial_position_random(num, 1);
-                           if (typ == 3) enemy_initial_position_random(num, 1);
+                           if (typ == 2) ge_item_initial_position_random(num, 1);
+                           if (typ == 3) ge_enemy_initial_position_random(num, 1);
                         }
                   }
                }
             } // end of not collapsed
+
+            by+=bts;
+            by+=y_spacing;
+
          } // end of valid ge_num
-   } // end of more than 0 itsems in list
-   return gy;
+   } // end of more than 0 items in list
+
+   *ew = 322; // fixed width for now
+   *eh = by-y-y_spacing;
+   return nc;
 }
 
-void ge_add_selection_to_list(void)
+void ge_add_selection_to_list(int set_filters)
 {
    // add everything in selection to list...
    int rx1 = bx1*20;
@@ -966,16 +721,14 @@ void ge_add_selection_to_list(void)
    al_fixed fry2 = al_itofix(ry2);
 
    for (int b=0; b<100; b++) // add enemies in selection
-      if ((Ei[b][0]) && (Efi[b][0] >= frx1) && (Efi[b][0] < frx2) && (Efi[b][1] >= fry1) && (Efi[b][1] < fry2)) add_to_obj_list(3, b);
+      if ((Ei[b][0]) && (Efi[b][0] >= frx1) && (Efi[b][0] < frx2) && (Efi[b][1] >= fry1) && (Efi[b][1] < fry2)) ge_add_to_obj_list(3, b);
 
    for (int b=0; b<500; b++) // add items in selection
-      if ((item[b][0]) && (item[b][4] >= rx1) && (item[b][4] < rx2) && (item[b][5] >= ry1) && (item[b][5] < ry2)) add_to_obj_list(2, b);
-
+      if ((item[b][0]) && (item[b][4] >= rx1) && (item[b][4] < rx2) && (item[b][5] >= ry1) && (item[b][5] < ry2)) ge_add_to_obj_list(2, b);
 
    // set filters to what is actually in the list
-   if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+   if (set_filters)
    {
-
       for (int i=0; i<NUM_OBJ; i++)
       if (obj_list[i][0])
       {
@@ -987,318 +740,94 @@ void ge_add_selection_to_list(void)
    }
 }
 
-void ge_draw_on_level_buffer(int gx, int gy, int show_sel_frame, int mouse_on_window)
+void ge_proc_mouse(int mouse_on_window)
 {
-   al_flip_display();
-   proc_scale_factor_change();
-   proc_controllers();
-   proc_frame_delay();
-   get_new_background(0);
-   draw_lifts();
-   draw_items();
-   draw_enemies();
-
-   // mark objects on map that are capable of being added to list
-   for (int i=0; i<500; i++)
+   if (mouse_b1)
    {
-      int type = (item[i][0]);
-      if ((type) && (obj_filter[2][type]))
+      if (show_sel_frame) // draw new selection rectangle
       {
-         int sox = item[i][4];
-         int soy = item[i][5];
-         al_draw_rectangle(sox, soy, sox+20, soy+20, palette_color[13], 1);
-      }
-   }
-   for (int e=0; e<100; e++)
-   {
-      int type = (Ei[e][0]);
-      if ((type) && (obj_filter[3][type]))
-      {
-         int sox = al_fixtoi(Efi[e][0]);
-         int soy = al_fixtoi(Efi[e][1]);
-         al_draw_rectangle(sox, soy, sox+20, soy+20, palette_color[13], 1);
-      }
-   }
-
-   // is mouse on obj already in list?
-   if (!mouse_on_window)
-      for (int i=0; i<NUM_OBJ; i++)
-      {
-         obj_list[i][2] = 0; // turn off highlight by default
-         if (obj_list[i][0])
+         // initial selection
+         bx2 = bx1 = gx;
+         by2 = by1 = gy;
+         while (mouse_b1)
          {
-            int typ = obj_list[i][0];
-            int num = obj_list[i][1];
-            int hix=0, hiy=0;
+            bx2 = gx;
+            by2 = gy;
+            cm_redraw_level_editor_background();
+            get_new_screen_buffer(3, 0, 0);
+            ovw_process_scrolledge();
+            ovw_get_block_position_on_map();
+         }
 
-            if (typ == 2) // item
+         if (bx1 > bx2) swap_int(&bx1, &bx2); // swap if wrong order
+         if (by1 > by2) swap_int(&by1, &by2);
+
+         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+            ge_add_selection_to_list(1); // add everything in selection to list...
+
+      } // end of get new selection
+      else
+      {
+         while (mouse_b1) proc_controllers();
+
+         // is mouse on item
+         for (int i=0; i<500; i++)
+         {
+            int type = item[i][0];
+            if ((type) && (obj_filter[2][type])) // filter for this type of item
             {
-               hix = item[num][4]/20;
-               hiy = item[num][5]/20;
+               int sox = item[i][4]/20;
+               int soy = item[i][5]/20;
+               if ((gx == sox) && (gy == soy)) ge_add_to_obj_list(2, i);
             }
-            if (typ == 3) // enemy
+         }
+         // is mouse on enemy
+         for (int e=0; e<100; e++)
+         {
+            int type = Ei[e][0];
+            if ((type) && (obj_filter[3][type])) // filter for this type of enemy
             {
-               hix = al_fixtoi(Efi[num][0]/20);
-               hiy = al_fixtoi(Efi[num][1]/20);
+               int sox = al_fixtoi(Efi[e][0]/20);
+               int soy = al_fixtoi(Efi[e][1]/20);
+               if ((gx == sox) && (gy == soy)) ge_add_to_obj_list(3, e);
             }
-            if ((gx == hix) && (gy == hiy)) obj_list[i][2] = 1; // turn on highlight for this list item
          }
       }
-
-   // mark objects on map that have already been added to list
-   for (int i=0; i<NUM_OBJ; i++)
-   {
-      if (obj_list[i][0])
-      {
-         int typ = obj_list[i][0];
-         int num = obj_list[i][1];
-         int hx=0, hy=0;
-         if (typ == 2)
-         {
-            hx = item[num][4];
-            hy = item[num][5];
-         }
-         if (typ == 3)
-         {
-            hx = al_fixtoi(Efi[num][0]);
-            hy = al_fixtoi(Efi[num][1]);
-         }
-
-
-         if (obj_list[i][2]) al_draw_rectangle(hx-2, hy-2, hx+20+2, hy+20+2, palette_color[flash_color], 1);
-         else                al_draw_rectangle(hx, hy, hx+20, hy+20,         palette_color[10], 1);
-      }
-
    }
-
-
-//   sprintf(msg, "selection");
-//   sprintf(msg, "selection bx1:%d by1:%d bx2:%d by2:%d", bx1, by1, bx2, by2);
-//   if (show_sel_frame) zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, msg);
-   if (show_sel_frame) zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
-
-
-   else if (!mouse_on_window) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 }
-
-int ge_draw_on_screen_buffer(int xa, int ya, int &show_sel_frame)
-{
-   int mouse_on_window = 0;
-   int mowt = 4; // mouse on window threshold
-
-   // window positions
-   int xb = xa + 300;
-
-   int f = 0; // title bar
-   al_draw_filled_rectangle(ge_window_array[f][0], ge_window_array[f][1], ge_window_array[f][2], ge_window_array[f][3], palette_color[0]); // erase
-   int tbx1 = xa;
-   int tbx2 = xb;
-   int tby1 = ya;
-   int tby2 = ya+12;
-
-   titlex("Group Edit", 15, 13, tbx1, tbx2, tby1);
-
-   ge_window_array[f][0] = tbx1;
-   ge_window_array[f][1] = tby1;
-   ge_window_array[f][2] = tbx2;
-   ge_window_array[f][3] = tby2;
-   if ((mouse_x > ge_window_array[f][0]-mowt) && (mouse_x < ge_window_array[f][2]+mowt) && (mouse_y > ge_window_array[f][1]-mowt) && (mouse_y < ge_window_array[f][3]+mowt))
-   {
-       mouse_on_window = 1;
-       al_draw_rectangle(ge_window_array[f][0], ge_window_array[f][1], ge_window_array[f][2], ge_window_array[f][3], palette_color[14], 1); // frame
-   }
-
-   f = 1; // selection and mode button positions
-   al_draw_filled_rectangle(ge_window_array[f][0], ge_window_array[f][1], ge_window_array[f][2], ge_window_array[f][3], palette_color[0]); // erase
-   int bpx1 = xa;
-   int bpx2 = bpx1+300;
-   int bpy1 = ya+15;
-   int bpy2 = bpy1+12;
-   mdw_toggle(bpx1+2, bpy1, bpx1+110, bpy2, 1000, 0,0,0,   0,0,0,0,1,0,0,0, show_sel_frame,  "Selection:OFF", "Selection:ON ", 15, 15, 15+64, 14);
-   if (show_sel_frame) if (mdw_buttont(bpx1+120, bpy1, bpx2-2, bpy2, 0,0,0,0,  0,10,15,0,1,0,0,0, "Add Selection to List")) ge_add_selection_to_list();
-   ge_window_array[f][0] = bpx1;
-   ge_window_array[f][1] = bpy1;
-   ge_window_array[f][2] = bpx2;
-   ge_window_array[f][3] = bpy2;
-   if ((mouse_x > ge_window_array[f][0]-mowt) && (mouse_x < ge_window_array[f][2]+mowt) && (mouse_y > ge_window_array[f][1]-mowt) && (mouse_y < ge_window_array[f][3]+mowt))
-   {
-       mouse_on_window = 1;
-       al_draw_rectangle(ge_window_array[f][0], ge_window_array[f][1], ge_window_array[f][2], ge_window_array[f][3], palette_color[14], 1); // frame
-   }
-
-
-   f = 2; // filter toggle positions
-   al_draw_filled_rectangle(ge_window_array[f][0], ge_window_array[f][1], ge_window_array[f][2], ge_window_array[f][3], palette_color[0]); // erase
-   int ftx1 = xa;
-   int ftx2 = ftx1 + 82;
-   int fty1 = bpy2 + 2;
-   int fty2 = draw_filter_toggles(ftx1, ftx2, fty1, 1);
-   ge_window_array[f][0] = ftx1;
-   ge_window_array[f][1] = fty1;
-   ge_window_array[f][2] = ftx2;
-   ge_window_array[f][3] = fty2;
-   if ((mouse_x > ge_window_array[f][0]-mowt) && (mouse_x < ge_window_array[f][2]+mowt) && (mouse_y > ge_window_array[f][1]-mowt) && (mouse_y < ge_window_array[f][3]+mowt))
-   {
-       mouse_on_window = 1;
-       al_draw_rectangle(ge_window_array[f][0], ge_window_array[f][1], ge_window_array[f][2], ge_window_array[f][3], palette_color[14], 1); // frame
-   }
-
-
-   f = 3; // object list positions
-   al_draw_filled_rectangle(ge_window_array[f][0], ge_window_array[f][1], ge_window_array[f][2], ge_window_array[f][3], palette_color[0]); // erase
-   int olx1 = ftx2+2;
-   int olx2 = 0;
-   int oly1 = fty1;
-   int oly2 = show_obj_list(olx1, oly1, &olx2);
-   ge_window_array[f][0] = olx1;
-   ge_window_array[f][1] = oly1;
-   ge_window_array[f][2] = olx2;
-   ge_window_array[f][3] = oly2;
-   if ((mouse_x > ge_window_array[f][0]-mowt) && (mouse_x < ge_window_array[f][2]+mowt) && (mouse_y > ge_window_array[f][1]-mowt) && (mouse_y < ge_window_array[f][3]+mowt))
-   {
-       mouse_on_window = 1;
-       al_draw_rectangle(ge_window_array[f][0], ge_window_array[f][1], ge_window_array[f][2], ge_window_array[f][3], palette_color[14], 1); // frame
-   }
-
-
-   f = 4; // ge control positions
-   al_draw_filled_rectangle(ge_window_array[f][0]-2, ge_window_array[f][1], ge_window_array[f][2], ge_window_array[f][3], palette_color[0]); // erase
-   int gex1 = ftx2+14;
-   int gex2 = gex1+322;
-   int gey1 = oly2+4;
-   int gey2 = gey1+100;
-   if (gey1 > SCREEN_H - 200)
-   {
-      gey1 = ya;
-      gex1 = ftx2+200;
-   }
-   gey2 = show_ge_controls(gex1, gey1);
-   ge_window_array[f][0] = gex1;
-   ge_window_array[f][1] = gey1;
-   ge_window_array[f][2] = gex2;
-   ge_window_array[f][3] = gey2;
-   if ((mouse_x > ge_window_array[f][0]-mowt) && (mouse_x < ge_window_array[f][2]+mowt) && (mouse_y > ge_window_array[f][1]-mowt) && (mouse_y < ge_window_array[f][3]+mowt))
-   {
-       mouse_on_window = 1;
-       al_draw_rectangle(ge_window_array[f][0], ge_window_array[f][1], ge_window_array[f][2], ge_window_array[f][3], palette_color[14], 1); // frame
-   }
-
-   return mouse_on_window;
-}
-
-
 
 void group_edit(void)
 {
+   set_windows(3); // group edit
 
    init_level_background();
-   int gx=0, gy=0, hx=0, hy=0;
+   ge_init_data();
 
-   init_ge_data();
-
-   int show_sel_frame = 1;
    int mouse_on_window = 0;
 
-   int ge_window_x = 400;
-   int ge_window_y = 40;
+   int exit=0;
 
-   int exit =0;
    al_show_mouse_cursor(display);
    al_set_target_backbuffer(display);
 
    while (mouse_b2) proc_controllers();
    while (!exit)
    {
-      ge_draw_on_level_buffer(gx, gy, show_sel_frame, mouse_on_window);
-      ovw_process_scrolledge();
-      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
-      get_new_screen_buffer(3, 0, 0);
+      cm_redraw_level_editor_background();
 
-      remove_obj_list_filtered_items();
-
-      process_flash_color();
-
-      mouse_on_window = ge_draw_on_screen_buffer(ge_window_x, ge_window_y, show_sel_frame);
-
-      int f = 0; // title bar
-      int mowt = 2;
-      if ((mouse_x > ge_window_array[f][0]-mowt) && (mouse_x < ge_window_array[f][2]+mowt) && (mouse_y > ge_window_array[f][1]-mowt) && (mouse_y < ge_window_array[f][3]+mowt))
-      {
-         if (mouse_b1)
-         {
-            int mxo = mouse_x - ge_window_x; // get offset from mouse position to window x, y
-            int myo = mouse_y - ge_window_y;
-
-            while (mouse_b1)
-            {
-               ge_window_x = mouse_x - mxo;
-               ge_window_y = mouse_y - myo;
-               ge_draw_on_level_buffer(gx, gy, show_sel_frame, mouse_on_window);
-               get_new_screen_buffer(3, 0, 0);
-               mouse_on_window = ge_draw_on_screen_buffer(ge_window_x, ge_window_y, show_sel_frame);
-
-            } // mouse b1 held
-         } // mouse b1 pressed
-      } // mouse on title bar
-
-      if (mouse_b1)
-      {
-         if (show_sel_frame) // draw new selection rectangle
-         {
-            // initial selection
-            bx2 = bx1 = gx;
-            by2 = by1 = gy;
-            while (mouse_b1)
-            {
-               bx2 = gx;
-               by2 = gy;
-               ge_draw_on_level_buffer(gx, gy, show_sel_frame, mouse_on_window);
-               get_new_screen_buffer(3, 0, 0);
-               ovw_process_scrolledge();
-               ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
-            }
-
-            if (bx1 > bx2) swap_int(&bx1, &bx2); // swap if wrong order
-            if (by1 > by2) swap_int(&by1, &by2);
+      ge_remove_obj_list_filtered_items();
 
 
-            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
-               ge_add_selection_to_list(); // add everything in selection to list...
 
-         } // end of get new selection
-         else
-         {
-            while (mouse_b1) proc_controllers();
+      mouse_on_window = mw_cycle_windows(0);
 
-            // is mouse on item
-            for (int i=0; i<500; i++)
-            {
-               int type = item[i][0];
-               if ((type) && (obj_filter[2][type])) // filter for this type of item
-               {
-                  int sox = item[i][4]/20;
-                  int soy = item[i][5]/20;
-                  if ((gx == sox) && (gy == soy)) add_to_obj_list(2, i);
-               }
-            }
+      if (!mouse_on_window) ge_proc_mouse(mouse_on_window);
 
-            // is mouse on enemy
-            for (int e=0; e<100; e++)
-            {
-               int type = Ei[e][0];
-               if ((type) && (obj_filter[3][type])) // filter for this type of enemy
-               {
-                  int sox = al_fixtoi(Efi[e][0]/20);
-                  int soy = al_fixtoi(Efi[e][1]/20);
-                  if ((gx == sox) && (gy == soy)) add_to_obj_list(3, e);
-               }
-            }
-         }
-      }
       while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
       {
          proc_controllers();
          exit = 1;
       }
    }
+   set_windows(1); // edit menu
 }

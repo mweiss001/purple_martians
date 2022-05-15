@@ -2,6 +2,9 @@
 
 
 
+
+
+
 class mWindow
 {
    public:
@@ -12,11 +15,20 @@ class mWindow
    int have_focus;
    int layer;
 
+   int hidden;
+
+
    int moveable;
    int moving;
    int resizable;
 
    int filter_mode;
+
+   int obt;
+   int num;
+   int mb;
+
+   int legend_line;
 
    int color;
    char title[80];
@@ -42,9 +54,11 @@ class mWindow
 
 extern mWindow mW[NUM_MW];
 
+void set_windows(int mode);
 
 int mw_cycle_windows(int draw_only);
 
+int is_mouse_on_any_window(void);
 
 
 
@@ -345,6 +359,7 @@ extern int bts;  // button spacing
 extern int pop_msg_viewer_pos;
 extern int num_legend_lines;
 extern int viewer_lock;
+extern int level_editor_mode;
 
 
 
@@ -442,8 +457,24 @@ extern int bx1;  // selection window
 extern int by1;
 extern int bx2;
 extern int by2;
+extern int show_sel_frame;
 
+
+extern int gx; // absolute mouse position realive to on scaled level background
+extern int gy;
+extern int hx;
+extern int hy;
+
+
+
+#define NUM_OBJ 600
+// list of objects to edit as a group
+extern int obj_list[NUM_OBJ][3];
 extern int obj_filter[5][20];
+
+
+
+
 extern int ft_window_x1;
 extern int ft_window_x2;
 extern int ft_window_y1;
@@ -998,7 +1029,20 @@ int draw_and_process_button(int x, int y, const char * text, int c1, int c2, int
 
 
 
+
+
+
+
+
+
+
+
 // e_editor_main.h
+
+void cm_redraw_level_editor_background(void);
+
+
+
 void em_check_s_window_pos(int reset_pos);
 void em_process_status_window(int draw_only, int gx, int gy, int* mpow);
 void em_process_select_window(int draw_only, int* mpow);
@@ -1008,48 +1052,81 @@ void em_get_new_box();
 char* em_get_text_description_of_block_based_on_flags(int flags);
 void em_show_draw_item_cursor(void);
 void em_draw_item_info(int x, int y, int color, int type, int num);
-void em_redraw_background(int gx, int gy);
 int edit_menu(int el);
 
 
 // e_editor_zfs.h
-void zfs_pointer_text(int x, int y, int ty);
+void zfs_pointer_text(int x1, int x2, int y, int mouse_on_window);
 void zfs_do_brf(int x, int y, int flood_block);
 void zfs_clear_ft(void);
 int zfs_load_selection(void);
 void zfs_save_selection(int save);
-int enforce_limit(int val, int ll, int ul);
-int check_limit(int val, int ll, int ul);
 void zfs_do_fcopy(int qx1, int qy1);
 void zfs_do_clear(void);
-void zfs_draw_selection_filters(int x1, int y1, int x2);
-void zfs_draw_buttons(int x3, int x4, int yfb);
+int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving);
 void zfs_proc_window_move(int *x1, int *y1, int *x2, int *y2, int w, int h);
 void zfs_draw_fsel(void);
 void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
-void zfs_redraw_background(int gx, int gy);
 int zfs_redraw_window(int zfs_window_x1, int zfs_window_y1, int zfs_window_x2, int zfs_window_y2, int gx, int gy);
 void zoom_full_screen(int draw_item);
 
-
-
-
-
-
-
-// e_group_edit.cpp
-int draw_filter_toggles(int x1, int x2, int y1, int mode);
+// e_group_edit_windows.cpp
+void ge_init_data(void);
+void ge_set_valid_controls(void);
+void ge_add_to_obj_list(int t, int i);
+void ge_remove_obj_list_item(int o);
+void ge_remove_obj_list_filtered_items(void);
+void ge_swap_obj_list_items(int i1, int i2);
+void ge_enemy_initial_position_random(int e, int csw);
+void ge_item_initial_position_random(int i, int csw);
+int ge_draw_list_items(int x1, int y1, int flash_color, int ni);
+void ge_show_obj_list(int x, int y, int*ew, int* eh, int have_focus, int moving);
+int ge_show_controls(int gx, int gy, int *ew, int *eh, int have_focus, int moving, int hidden);
+void ge_add_selection_to_list(int set_filters);
+void ge_proc_mouse(int mouse_on_window);
 void group_edit(void);
+
+// e_object_viewer_windows.cpp
+int create_obj(int obt, int sub_type, int sent_num);
+int ovw_get_size(int obt, int num, int*w, int*h);
 void ovw_process_scrolledge(void);
-void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy);
+void ovw_get_block_position_on_map();
+void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_highlight);
+void ovw_draw_buttons(int x1, int y1, int x2, int y2, int obt, int num, int have_focus, int moving);
+void ovw_draw_overlays(int obt, int num, int legend_highlight);
+void ovw_map_move(int &obt, int &num);
+void ovw_proc_keys(int &obt, int &num, int &quit);
+void object_viewerw(int obt, int num);
 
-void ge_add_selection_to_list(void);
 
+// e_lift.h
+int lift_find_previous_move_step(int lift, int step);
+al_fixed lift_get_distance_to_previous_move_step(int lift, int step);
+int draw_current_step_buttons(int xa, int xb, int y, int l, int s);
+void show_all_lifts(void);
+void erase_lift(int lift);
+void delete_lift_step(int lift, int step);
+void lift_setup(void);
+void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int rc);
+int draw_steps(int xa, int xb, int step_ty, int lift, int current_step, int highlight_step);
+int create_lift(void);
+void move_lift_step(int lift, int step);
+int redraw_get_new_lift_step_menu(int sty, int step, int highlight);
+int get_new_lift_step(int lift, int step);
+int insert_lift_step(int lift, int step);
+void insert_steps_until_quit(int lift, int step);
+void step_popup_menu(int lift, int step);
+void set_bts(int lift);
 
 
 
 
 // e_fnx.h
+int enforce_limit(int val, int ll, int ul);
+int check_limit(int val, int ll, int ul);
+
+
+float mdw_rnd(float rmin, float rmax);
 void swap_int(int *i1, int* i2);
 void printBits(size_t const size, void const * const ptr);
 al_fixed get_sproingy_jump_height(int num);
@@ -1110,42 +1187,6 @@ int create_pod(void);
 
 
 
-
-// e_object_viewer_window.h
-int create_obj(int obt, int sub_type, int sent_num);
-int ovw_get_size(int obt, int type, int*w, int*h);
-//void ovw_process_scrolledge(void);
-//void ovw_get_block_position_on_map(int*x, int*y, int *hx, int *hy);
-int ovw_redraw_background(int obt, int num, int type, int legend_line, int show_window);
-//void ovw_proc_move_window(int obt, int num, int type);
-
-void ovw_title(int obt, int num, int legend_highlight);
-void ovw_draw_overlays(int obt, int num, int legend_highlight);
-int ovw_draw_buttons(int obt, int num, int type);
-int obj_buttons(int obt, int num, int xa, int xb, int ty, int a, int bts);
-void object_viewerw(int obt, int num);
-
-
-
-
-// e_lift.h
-int lift_find_previous_move_step(int lift, int step);
-al_fixed lift_get_distance_to_previous_move_step(int lift, int step);
-int draw_current_step_buttons(int xa, int xb, int y, int l, int s);
-void show_all_lifts(void);
-void erase_lift(int lift);
-void delete_lift_step(int lift, int step);
-void lift_setup(void);
-void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int rc);
-int draw_steps(int xa, int xb, int step_ty, int lift, int current_step, int highlight_step);
-int create_lift(void);
-void move_lift_step(int lift, int step);
-int redraw_get_new_lift_step_menu(int sty, int step, int highlight);
-int get_new_lift_step(int lift, int step);
-int insert_lift_step(int lift, int step);
-void insert_steps_until_quit(int lift, int step);
-void step_popup_menu(int lift, int step);
-void set_bts(int lift);
 
 
 

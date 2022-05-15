@@ -2,11 +2,6 @@
 
 #include "pm.h"
 
-int copy_blocks=1;
-int copy_enemies=1;
-int copy_items=1;
-int copy_lifts=1;
-int copy_flags=1;
 int copy_mode = 0;
 int brf_mode =0;
 
@@ -14,7 +9,6 @@ int ft_level_header[20];
 int ft_l[100][100];
 int ft_item[500][16];
 char ft_pmsgtext[500][500] = {0};
-
 
 int ft_Ei[100][32];
 al_fixed ft_Efi[100][16];
@@ -24,18 +18,19 @@ int ft_lift[NUM_LIFTS][6];
 int ft_ls[NUM_LIFTS][40][6];
 
 
-void zfs_pointer_text(int mx, int my, int x1, int x2, int y, int mouse_on_window)
+void zfs_pointer_text(int x1, int x2, int y, int mouse_on_window)
 {
    int xc = (x1+x2)/2;
-   if ((mx<99) && (my < 99))
-   {
-      al_draw_text( font, palette_color[15], xc, y+2,  ALLEGRO_ALIGN_CENTER, "Pointer");
 
-      if (!mouse_on_window) al_draw_textf(font, palette_color[15], xc, y+11, ALLEGRO_ALIGN_CENTER, "  x:%d    y:%d ", mx, my);
-      else                  al_draw_text( font, palette_color[15], xc, y+11, ALLEGRO_ALIGN_CENTER, "  x:--    y:-- ");
+   al_draw_text( font, palette_color[15], xc, y+2,  ALLEGRO_ALIGN_CENTER, "Pointer");
 
-      al_draw_rectangle(x1, y+0, x2, y+20, palette_color[15], 1);
-   }
+   if (!mouse_on_window) al_draw_textf(font, palette_color[15], xc, y+11, ALLEGRO_ALIGN_CENTER, "  x:%d    y:%d ", gx, gy);
+   else                  al_draw_text( font, palette_color[15], xc, y+11, ALLEGRO_ALIGN_CENTER, "  x:--    y:-- ");
+
+   al_draw_rectangle(x1, y+0, x2, y+20, palette_color[15], 1);
+
+
+
    int rx1 = bx1*20;    // source x
    int ry1 = by1*20;    // source y
    int rx2 = bx2*20+20;
@@ -139,9 +134,8 @@ void zfs_do_brf(int x, int y, int flood_block)
                if (f[a1][b1]) l[a1][b1] = flood_block;
 
          init_level_background();
-         zfs_redraw_background(0, 0);
+         cm_redraw_level_editor_background();
          al_rest(.04);
-
       }
    } while (found);
    if (!show_progress)
@@ -355,76 +349,80 @@ void zfs_save_selection(int save)
 
    zfs_clear_ft();
 
-   if (copy_blocks)
+   // blocks
+   if (obj_filter[1][1])
       for (x=0; x<(bx2-bx1+1); x++)
          for (y=0; y<(by2-by1+1); y++)
             if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (bx1+x >= 0) && (bx1+x < 100) && (by1+y >= 0) && (by1+y < 100) )
                ft_l[x][y] = l[bx1+x][by1+y];
 
-   if (copy_items)
-      for (b=0; b<500; b++) // check for items in box
-         if ((item[b][0]) && (item[b][4] >= x1) && (item[b][4] < x2) && (item[b][5] >= y1) && (item[b][5] < y2))
-         {
-            c = iib++;
-            // copy all 16 variables
-            for (y=0; y<16; y++)
-                ft_item[c][y] = item[b][y];
 
-            // set new x, y (now relative to the selection window ul corner)
-            ft_item[c][4] = item[b][4] - x1;
-            ft_item[c][5] = item[b][5] - y1;
+   // items
+   for (b=0; b<500; b++)
+      if ((item[b][0]) && (obj_filter[2][item[b][0]])  && (item[b][4] >= x1) && (item[b][4] < x2) && (item[b][5] >= y1) && (item[b][5] < y2))
+      {
+         c = iib++;
+         // copy all 16 variables
+         for (y=0; y<16; y++)
+             ft_item[c][y] = item[b][y];
 
-            if ((item[b][0] == 4) || (item[b][0] == 9) || (item[b][0] == 16) || (item[b][0] == 17)) // key, trigger, manip, damage
-            {   // set new destination
-               ft_item[c][6] = item[b][6] - bx1*20;
-               ft_item[c][7] = item[b][7] - by1*20;
-            }
+         // set new x, y (now relative to the selection window ul corner)
+         ft_item[c][4] = item[b][4] - x1;
+         ft_item[c][5] = item[b][5] - y1;
 
-            if (item[b][0] == 10) // message
-            {
-               ft_item[c][10] = item[b][10] - bx1*20;
-               ft_item[c][11] = item[b][11] - by1*20;
-               strcpy(ft_pmsgtext[c], pmsgtext[b]);
-            }
+         if ((item[b][0] == 4) || (item[b][0] == 9) || (item[b][0] == 16) || (item[b][0] == 17)) // key, trigger, manip, damage
+         {   // set new destination
+            ft_item[c][6] = item[b][6] - bx1*20;
+            ft_item[c][7] = item[b][7] - by1*20;
          }
 
-   if (copy_enemies)
-      for (b=0; b<100; b++) // check for enemies in box
-         if ((Ei[b][0]) && (Efi[b][0] >= fx1) && (Efi[b][0] < fx2) && (Efi[b][1] >= fy1) && (Efi[b][1] < fy2))
+         if (item[b][0] == 10) // message
          {
-            //printf("copying enemy:%d to ft\n", b);
-            c = eib++;
-            for (y=0; y<32; y++)
-               ft_Ei[c][y] = Ei[b][y];
-            for (y=0; y<16; y++)
-               ft_Efi[c][y] = Efi[b][y];
-
-            ft_Efi[c][0]-= fx1;
-            ft_Efi[c][1]-= fy1;
-
-            if (ft_Ei[c][0] == 7 ) // podzilla
-            {
-               ft_Ei[c][11]-= x1;
-               ft_Ei[c][12]-= y1;
-            }
-            if (ft_Ei[c][0] == 9 ) // cloner
-            {
-               ft_Ei[c][11]-= x1;
-               ft_Ei[c][12]-= y1;
-               ft_Ei[c][15]-= x1;
-               ft_Ei[c][16]-= y1;
-               ft_Ei[c][17]-= x1;
-               ft_Ei[c][18]-= y1;
-            }
-            if (ft_Ei[c][0] == 10 ) // field
-            {
-               ft_Ei[c][11]-= x1;
-               ft_Ei[c][12]-= y1;
-               ft_Ei[c][15]-= x1;
-               ft_Ei[c][16]-= y1;
-            }
+            ft_item[c][10] = item[b][10] - bx1*20;
+            ft_item[c][11] = item[b][11] - by1*20;
+            strcpy(ft_pmsgtext[c], pmsgtext[b]);
          }
-   if (copy_lifts)
+      }
+
+   // enemies
+   for (b=0; b<100; b++) // check for enemies in box
+      if ((Ei[b][0]) && (obj_filter[3][Ei[b][0]]) && (Efi[b][0] >= fx1) && (Efi[b][0] < fx2) && (Efi[b][1] >= fy1) && (Efi[b][1] < fy2))
+      {
+         //printf("copying enemy:%d to ft\n", b);
+         c = eib++;
+         for (y=0; y<32; y++)
+            ft_Ei[c][y] = Ei[b][y];
+         for (y=0; y<16; y++)
+            ft_Efi[c][y] = Efi[b][y];
+
+         ft_Efi[c][0]-= fx1;
+         ft_Efi[c][1]-= fy1;
+
+         if (ft_Ei[c][0] == 7 ) // podzilla
+         {
+            ft_Ei[c][11]-= x1;
+            ft_Ei[c][12]-= y1;
+         }
+         if (ft_Ei[c][0] == 9 ) // cloner
+         {
+            ft_Ei[c][11]-= x1;
+            ft_Ei[c][12]-= y1;
+            ft_Ei[c][15]-= x1;
+            ft_Ei[c][16]-= y1;
+            ft_Ei[c][17]-= x1;
+            ft_Ei[c][18]-= y1;
+         }
+         if (ft_Ei[c][0] == 10 ) // field
+         {
+            ft_Ei[c][11]-= x1;
+            ft_Ei[c][12]-= y1;
+            ft_Ei[c][15]-= x1;
+            ft_Ei[c][16]-= y1;
+         }
+      }
+
+   // lifts
+   if (obj_filter[4][1])
       for (b=0; b<num_lifts; b++) // source, if in selection
          if ((lifts[b].x1 >= x1) && (lifts[b].x1 < x2) && (lifts[b].y1 >= y1) && (lifts[b].y1 < y2))
          {
@@ -522,20 +520,6 @@ void zfs_save_selection(int save)
    }
 }
 
-int enforce_limit(int val, int ll, int ul)
-{
-   if (val < ll) val = ll;
-   if (val > ul) val = ul;
-   return val;
-}
-
-int check_limit(int val, int ll, int ul)
-{
-   if (val < ll) return 1;
-   if (val > ul) return 1;
-   return 0;
-}
-
 void zfs_do_fcopy(int qx1, int qy1)
 {
    int b, c, x, y;
@@ -544,18 +528,16 @@ void zfs_do_fcopy(int qx1, int qy1)
    int x5 = ft_level_header[8];
    int y5 = ft_level_header[9];
 
-
    int erase_out_of_bounds_main = 0;      // if 0 we will adjust
-   //int erase_out_of_bounds_secondary = 0; // if 0 we will adjust
 
-   if (copy_blocks)
+   // blocks
+   if (obj_filter[1][1])
       for (x=0; x<x5; x++)
          for (y=0; y<y5; y++)
-            if ( (qx1+x >= 0) && (qx1+x < 100) )
-               if ( (qy1+y >= 0) && (qy1+y < 100) )
-                  l[qx1+x][qy1+y] = ft_l[x][y];
+            if ((qx1+x >= 0) && (qx1+x < 100) && (qy1+y >= 0) && (qy1+y < 100)) l[qx1+x][qy1+y] = ft_l[x][y];
 
-   if (copy_lifts)
+   // lifts
+   if (obj_filter[4][1])
    {
       for (b=0; b<ft_level_header[5]; b++)
       {
@@ -610,168 +592,160 @@ void zfs_do_fcopy(int qx1, int qy1)
                //copied = -1;
             }
          }
-      } // end of iterate enemies in ft
+      }
    } // end of if copy lifts
-   if (copy_enemies)
-   {
-      for (b=0; b<100; b++) // iterate enemies in ft
+
+   // enemies
+   for (b=0; b<100; b++) // iterate enemies in ft
+      if ((ft_Ei[b][0]) && (obj_filter[3][Ei[b][0]])) // if active attempt to copy this enemy
       {
-         if (ft_Ei[b][0]) // if active attempt to copy this enemy
+         //int copied = 0;
+         for (c=0; c<100; c++)
          {
-            //int copied = 0;
-            for (c=0; c<100; c++)
+            if (Ei[c][0] == 0) // found empty
             {
-               if (Ei[c][0] == 0) // found empty
+               //copied = 1000+c;
+               int lim = 0;
+               for (y=0; y<32; y++)        // copy 32 ints
+                  Ei[c][y] = ft_Ei[b][y];
+               for (y=0; y<16; y++)        // copy 16 al_fixed
+                  Efi[c][y] = ft_Efi[b][y];
+
+               // apply offsets
+               Efi[c][0] += al_itofix(x3);
+               Efi[c][1] += al_itofix(y3);
+
+               if (erase_out_of_bounds_main)
                {
-                  //copied = 1000+c;
-                  int lim = 0;
-                  for (y=0; y<32; y++)        // copy 32 ints
-                     Ei[c][y] = ft_Ei[b][y];
-                  for (y=0; y<16; y++)        // copy 16 al_fixed
-                     Efi[c][y] = ft_Efi[b][y];
-
-                  // apply offsets
-                  Efi[c][0] += al_itofix(x3);
-                  Efi[c][1] += al_itofix(y3);
-
-                  if (erase_out_of_bounds_main)
-                  {
-                     if (check_limit(al_fixtoi(Efi[c][0]), 0, 1980)) lim = 1;
-                     if (check_limit(al_fixtoi(Efi[c][1]), 0, 1980)) lim = 1;
-                  }
-                  else // adjust if out of bounds
-                  {
-                     Efi[c][0] = al_itofix(enforce_limit(al_fixtoi(Efi[c][0]), 0, 1980));
-                     Efi[c][1] = al_itofix(enforce_limit(al_fixtoi(Efi[c][1]), 0, 1980));
-                  }
-                  if (Ei[c][0] == 7) // podzilla trigger box
-                  {
-                     Ei[c][11]+= x3;
-                     Ei[c][12]+= y3;
-                  }
-                  if (Ei[c][0] == 9) // cloner
-                  {
-                     Ei[c][11]+= x3;
-                     Ei[c][12]+= y3;
-                     Ei[c][15]+= x3;
-                     Ei[c][16]+= y3;
-                     Ei[c][17]+= x3;
-                     Ei[c][18]+= y3;
-                  }
-                  if (Ei[c][0] == 10) // field
-                  {
-                     Ei[c][11]+= x3;
-                     Ei[c][12]+= y3;
-                     Ei[c][15]+= x3;
-                     Ei[c][16]+= y3;
-                  }
-                  if (lim)
-                  {
-                     //copied = -1;
-                     for (y=0; y<32; y++) Ei[c][y] = 0;
-                     for (y=0; y<16; y++) Efi[c][y] = al_itofix(0);
-                  }
-                  c = 100; // end loop
-               } // end of found empty
-            }  // end if iterate real enemy array
-         } // end of attempt copy
-      } // end of iterate enemies in ft
-   } // end of if copy enemies
+                  if (check_limit(al_fixtoi(Efi[c][0]), 0, 1980)) lim = 1;
+                  if (check_limit(al_fixtoi(Efi[c][1]), 0, 1980)) lim = 1;
+               }
+               else // adjust if out of bounds
+               {
+                  Efi[c][0] = al_itofix(enforce_limit(al_fixtoi(Efi[c][0]), 0, 1980));
+                  Efi[c][1] = al_itofix(enforce_limit(al_fixtoi(Efi[c][1]), 0, 1980));
+               }
+               if (Ei[c][0] == 7) // podzilla trigger box
+               {
+                  Ei[c][11]+= x3;
+                  Ei[c][12]+= y3;
+               }
+               if (Ei[c][0] == 9) // cloner
+               {
+                  Ei[c][11]+= x3;
+                  Ei[c][12]+= y3;
+                  Ei[c][15]+= x3;
+                  Ei[c][16]+= y3;
+                  Ei[c][17]+= x3;
+                  Ei[c][18]+= y3;
+               }
+               if (Ei[c][0] == 10) // field
+               {
+                  Ei[c][11]+= x3;
+                  Ei[c][12]+= y3;
+                  Ei[c][15]+= x3;
+                  Ei[c][16]+= y3;
+               }
+               if (lim)
+               {
+                  //copied = -1;
+                  for (y=0; y<32; y++) Ei[c][y] = 0;
+                  for (y=0; y<16; y++) Efi[c][y] = al_itofix(0);
+               }
+               c = 100; // end loop
+            } // end of found empty
+         }  // end if iterate real enemy array
+      } // end of attempt copy
 
 
-   if (copy_items)
+   // this section is to make any copied pm_event links have new unique pm_events and still linked properly
+   int clt[500][4] = { 0 };
+   int clt_last = 0; // index
+
+   for (b=0; b<500; b++)       // iterate items in selection
    {
-
-      // this section is to make any copied pm_event links have new unique pm_events and still linked properly
-      int clt[500][4] = { 0 };
-      int clt_last = 0; // index
-
-      for (b=0; b<500; b++)       // iterate items in selection
+      if ((ft_item[b][0] == 16) || (ft_item[b][0] == 17)) // manip or block
       {
-         if ((ft_item[b][0] == 16) || (ft_item[b][0] == 17)) // manip or block
-         {
-            clt_last += add_item_link_translation(b, 1, ft_item[b][1], clt, clt_last);
-         }
-
-         if (ft_item[b][0] == 9) // trigger
-         {
-            clt_last += add_item_link_translation(b, 11, ft_item[b][11], clt, clt_last);
-            clt_last += add_item_link_translation(b, 12, ft_item[b][12], clt, clt_last);
-            clt_last += add_item_link_translation(b, 13, ft_item[b][13], clt, clt_last);
-            clt_last += add_item_link_translation(b, 14, ft_item[b][14], clt, clt_last);
-         }
+         clt_last += add_item_link_translation(b, 1, ft_item[b][1], clt, clt_last);
       }
 
-      for (b=0; b<500; b++)       // iterate items in selection
+      if (ft_item[b][0] == 9) // trigger
       {
-         if (ft_item[b][0])       // if active attempt copy
+         clt_last += add_item_link_translation(b, 11, ft_item[b][11], clt, clt_last);
+         clt_last += add_item_link_translation(b, 12, ft_item[b][12], clt, clt_last);
+         clt_last += add_item_link_translation(b, 13, ft_item[b][13], clt, clt_last);
+         clt_last += add_item_link_translation(b, 14, ft_item[b][14], clt, clt_last);
+      }
+   }
+   // items
+   for (b=0; b<500; b++)
+      if ((item[b][0]) && (obj_filter[2][item[b][0]]))
+      {
+         //int copied = 0;
+         for (c=0; c<500; c++) // search for empty place to copy to
          {
-            //int copied = 0;
-            for (c=0; c<500; c++) // search for empty place to copy to
+            if (item[c][0] == 0) // found empty
             {
-               if (item[c][0] == 0) // found empty
+               //copied = 1000+c;
+               int lim = 0;
+               // copy all 16 variables
+               for (y=0; y<16; y++)
+                     item[c][y] = ft_item[b][y];
+
+               // apply offsets
+               item[c][4] += x3;
+               item[c][5] += y3;
+
+               if (erase_out_of_bounds_main)
                {
-                  //copied = 1000+c;
-                  int lim = 0;
-                  // copy all 16 variables
-                  for (y=0; y<16; y++)
-                        item[c][y] = ft_item[b][y];
+                  if (check_limit(item[c][4], 0, 1980)) lim = 1;
+                  if (check_limit(item[c][5], 0, 1980)) lim = 1;
+               }
+               else // adjust if out of bounds
+               {
+                  item[c][4] = enforce_limit(item[c][4], 0, 1980);
+                  item[c][5] = enforce_limit(item[c][5], 0, 1980);
+               }
 
-                  // apply offsets
-                  item[c][4] += x3;
-                  item[c][5] += y3;
+               // does this copy item have an entry in the clt table?
+               for (int i=0; i<clt_last; i++)
+                  if (clt[i][0] == b) // found index of source item table
+                  {
+                     int var_index = clt[i][1]; // var #
+                     int ev2 = clt[i][3];       // new ev
 
-                  if (erase_out_of_bounds_main)
-                  {
-                     if (check_limit(item[c][4], 0, 1980)) lim = 1;
-                     if (check_limit(item[c][5], 0, 1980)) lim = 1;
-                  }
-                  else // adjust if out of bounds
-                  {
-                     item[c][4] = enforce_limit(item[c][4], 0, 1980);
-                     item[c][5] = enforce_limit(item[c][5], 0, 1980);
+                     item[c][var_index] = ev2;
                   }
 
-                  // does this copy item have an entry in the clt table?
-                  for (int i=0; i<clt_last; i++)
-                     if (clt[i][0] == b) // found index of source item table
-                     {
-                        int var_index = clt[i][1]; // var #
-                        int ev2 = clt[i][3];       // new ev
-
-                        item[c][var_index] = ev2;
-                     }
-
-                  if ((item[c][0] == 4) || (item[c][0] == 9) || (item[c][0] == 16) || (item[c][0] == 17)) // key, trigger, manip, damage
-                  {
-                     item[c][6] += qx1*20;
-                     item[c][7] += qy1*20;
-                  }
-                  if (item[c][0] == 5) // start
-                  {
-                     // do something here to prevent exact duplicates
-                  }
-                  if (item[c][0] == 10) // message
-                  {
-                     item[c][10] += qx1*20; // adjust msg location
-                     item[c][11] += qy1*20;
-                     strcpy(pmsgtext[c], ft_pmsgtext[b]);
-                  }
-                  // limits exceeded; erase
-                  if (lim)
-                  {
-                     printf("erase:%d\n",c);
-                     erase_item(c);
-                     //copied = -1;
-                  }
-                  c = 500; // end loop
-               } // end of found empty
-            }  // end if iterate real item array
-         } // end of attempt copy
-      } // end of iterate items ft
-   } // end of if copy items
+               if ((item[c][0] == 4) || (item[c][0] == 9) || (item[c][0] == 16) || (item[c][0] == 17)) // key, trigger, manip, damage
+               {
+                  item[c][6] += qx1*20;
+                  item[c][7] += qy1*20;
+               }
+               if (item[c][0] == 5) // start
+               {
+                  // do something here to prevent exact duplicates
+               }
+               if (item[c][0] == 10) // message
+               {
+                  item[c][10] += qx1*20; // adjust msg location
+                  item[c][11] += qy1*20;
+                  strcpy(pmsgtext[c], ft_pmsgtext[b]);
+               }
+               // limits exceeded; erase
+               if (lim)
+               {
+                  printf("erase:%d\n",c);
+                  erase_item(c);
+                  //copied = -1;
+               }
+               c = 500; // end loop
+            } // end of found empty
+         }  // end if iterate real item array
+      } // end of attempt copy
    sort_enemy();
    sort_item(1);
+   init_level_background();
 }
 
 void zfs_do_clear(void)
@@ -788,71 +762,63 @@ void zfs_do_clear(void)
    al_fixed fx2 = al_itofix(x2);
    al_fixed fy2 = al_itofix(y2);
 
-   if (copy_blocks) // erase blocks
+   // blocks
+   if (obj_filter[1][1])
       for (b=bx1; b<bx2+1; b++)
          for (y=by1; y<by2+1; y++) l[b][y]=0;
 
-   if (copy_items)  // erase items
-      for (b=0; b<500; b++)
-         if (item[b][0])
-            if ((item[b][4] >= x1) && (item[b][4] < x2))
-               if ((item[b][5] >= y1) && (item[b][5] < y2)) erase_item(b);
+   // items
+   for (b=0; b<500; b++)
+      if ((item[b][0]) && (obj_filter[2][item[b][0]]))
+         if ((item[b][4] >= x1) && (item[b][4] < x2) && (item[b][5] >= y1) && (item[b][5] < y2)) erase_item(b);
 
-   if (copy_enemies)  // erase enemies
-      for (b=0; b<100; b++)
-         if (Ei[b][0])
-            if ((Efi[b][0] >= fx1) && (Efi[b][0] < fx2))
-               if ((Efi[b][1] >= fy1) && (Efi[b][1] < fy2))
-               {
-                  for (y=0; y<32; y++) Ei[b][y] = 0;
-                  for (y=0; y<16; y++) Efi[b][y] = al_itofix(0);
-               }
+   // enemies
+   for (b=0; b<100; b++)
+      if ((Ei[b][0]) && (obj_filter[3][Ei[b][0]]))
+         if ((Efi[b][0] >= fx1) && (Efi[b][0] < fx2) && (Efi[b][1] >= fy1) && (Efi[b][1] < fy2))
+         {
+            for (y=0; y<32; y++) Ei[b][y] = 0;
+            for (y=0; y<16; y++) Efi[b][y] = al_itofix(0);
+         }
 
-   if (copy_lifts) // erase lifts
+   // lifts
+   if (obj_filter[4][1])
       for (b=num_lifts-1; b>=0; b--) // have to iterate backwards because erase_lift() does a resort after every erase
-         if ((lifts[b].x1 >= x1) && (lifts[b].x1 < x2))
-            if ((lifts[b].y1 >= y1) && (lifts[b].y1 < y2)) erase_lift(b);
+         if ((lifts[b].x1 >= x1) && (lifts[b].x1 < x2) && (lifts[b].y1 >= y1) && (lifts[b].y1 < y2)) erase_lift(b);
 
+   sort_enemy();
+   sort_item(1);
 }
 
-void zfs_draw_selection_filters(int x1, int y1, int x2)
+void set_block_from_draw_item(int x, int y)
 {
-   int a=0, bnh=16, fs=12;
-   int xc = (x1+x2)/2;
+   if ((x>=0) && (x<100) && (y>=0) && (y<100))
+   {
+      // blocks and flags
+      if ((obj_filter[1][1]) && (obj_filter[1][2]))  l[x][y] = draw_item_num;
 
-   // draw frame around filter buttons
-   int y2 = y1+5*bnh+fs*2;
-   int ci = 16; //color inc
-   for (int q=0; q<fs; q++)
-      al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, palette_color[12+32+(q*ci)], 1);
-   al_draw_text(font, palette_color[15], xc, y1+2, ALLEGRO_ALIGN_CENTER, "Selection Filters");
+      // flags only
+      if ((!obj_filter[1][1]) && (obj_filter[1][2]))
+      {
+         int flags = draw_item_num & PM_BTILE_MOST_FLAGS; // get only flags from draw item
+         l[x][y] &= ~PM_BTILE_MOST_FLAGS;                 // clear flags in destination
+         l[x][y] |= flags;                                // merge
+      }
 
-   int yfb = y1+fs;
-   x1+=fs;
-   x2-=fs;
-
-   if (mdw_toggle(x1, yfb+a*bnh, x2, yfb+(a+1)*bnh-2, 1000,0,0,0,0,0,0,0,1,0,0,0, copy_blocks, "Copy Blocks", "Copy Blocks", 15, 15, 15+64, 9)) // block filter
-      if (copy_mode) zfs_draw_fsel();
-   a++;
-   if (mdw_toggle(x1, yfb+a*bnh, x2, yfb+(a+1)*bnh-2, 1000,0,0,0,0,0,0,0,1,0,0,0, copy_flags, "Copy Flags", "Copy Flags", 15, 15, 15+64, 9)) // flags filter
-      if (copy_mode) zfs_draw_fsel();
-   a++;
-   if (mdw_toggle(x1, yfb+a*bnh, x2, yfb+(a+1)*bnh-2, 1000,0,0,0,0,0,0,0,1,0,0,0, copy_items, "Copy Items", "Copy Items", 15, 15, 15+64, 9)) // item filter
-      if (copy_mode) zfs_draw_fsel();
-   a++;
-   if (mdw_toggle(x1, yfb+a*bnh, x2, yfb+(a+1)*bnh-2, 1000,0,0,0,0,0,0,0,1,0,0,0, copy_enemies, "Copy Enemies", "Copy Enemies", 15, 15, 15+64, 9)) // enemy filter
-      if (copy_mode) zfs_draw_fsel();
-   a++;
-   if (mdw_toggle(x1, yfb+a*bnh, x2, yfb+(a+1)*bnh-2, 1000,0,0,0,0,0,0,0,1,0,0,0, copy_lifts, "Copy Lifts", "Copy Lifts", 15, 15, 15+64, 9)) // lifts filter
-      if (copy_mode) zfs_draw_fsel();
-   a++;
+      // blocks only (same as block and flags?)
+      if ((obj_filter[1][1]) && (!obj_filter[1][2])) l[x][y] = draw_item_num;
+   }
 }
 
-void zfs_draw_buttons(int x3, int x4, int yfb)
+int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
 {
-   int bnh = 16;
-   int a=0, col=0;
-   if (mdw_button(x3, yfb+a*bnh, x4, yfb+(a+1)*bnh-2, 620, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // move selection
+   int d = 1;
+   if (have_focus) d = 0;
+   if (moving) d = 1;
+
+   int bnh = 14;
+   int col=0;
+   if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Move Selection"))
    {
       if (copy_mode) copy_mode = 0;
       else
@@ -863,12 +829,15 @@ void zfs_draw_buttons(int x3, int x4, int yfb)
          zfs_do_clear();
       }
    }
-   a++;
-   if (mdw_button(x3, yfb+a*bnh, x4, yfb+(a+1)*bnh-2, 621, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) zfs_do_clear(); // clear selection
-   a++;
+   yfb+=bnh+2;
+
+
+   if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Clear Selection")) zfs_do_clear();
+   yfb+=bnh+2;
+
    col = 9;
    if (copy_mode) col = 10;
-   if (mdw_button(x3, yfb+a*bnh, x4, yfb+(a+1)*bnh-2, 622, 0,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // paste selection
+   if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,col,15,0, 1,0,0,d, "Paste Selection"))
    {
       if (copy_mode) copy_mode = 0;
       else
@@ -878,10 +847,17 @@ void zfs_draw_buttons(int x3, int x4, int yfb)
          zfs_draw_fsel();
       }
    }
-   a+=2;
-   if (mdw_button(x3, yfb+a*bnh, x4, yfb+(a+1)*bnh-2, 623, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) zfs_save_selection(1); // puts in ft_ and saves to disk
-   a++;
-   if (mdw_button(x3, yfb+a*bnh, x4, yfb+(a+1)*bnh-2, 624, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // load from disk
+   yfb+=bnh+2;
+
+
+
+   yfb+=bnh/2; // spacing between groups
+
+
+   if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Save To Disk")) zfs_save_selection(1); // puts in ft_ and saves to disk
+   yfb+=bnh+2;
+
+   if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Load From Disk"))
    {
       if (zfs_load_selection())
       {
@@ -889,79 +865,53 @@ void zfs_draw_buttons(int x3, int x4, int yfb)
          zfs_draw_fsel();
       }
    }
-   a+=2;
+   yfb+=bnh+2;
+
    if (draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
    {
-      if (mdw_button(x3, yfb+a*bnh, x4, yfb+(a+1)*bnh-2, 610, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // block fill
+      yfb+=bnh/2; // spacing between groups
+      if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Block Fill"))
       {
          for (int x=bx1; x<bx2+1; x++)
             for (int y=by1; y<by2+1; y++)
-            {
-               if ((copy_flags) && (copy_blocks))  l[x][y] = draw_item_num;
-               if ((copy_flags) && (!copy_blocks))
-               {
-                  int flags = draw_item_num & PM_BTILE_MOST_FLAGS; // get only flags from draw item
-                  l[x][y] &= ~PM_BTILE_MOST_FLAGS;                 // clear flags in destination
-                  l[x][y] |= flags;                                // merge
-               }
-            }
+               set_block_from_draw_item(x, y);
          init_level_background();
+         al_set_target_backbuffer(display);
       }
-      a++;
-      if (mdw_button(x3, yfb+a*bnh, x4, yfb+(a+1)*bnh-2, 611, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // block frame
+      yfb+=bnh+2;
+      if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Block Frame"))
       {
          for (int x=bx1; x<bx2+1; x++)
          {
-            l[x][by1] = draw_item_num;
-            l[x][by2] = draw_item_num;
+            set_block_from_draw_item(x, by1);
+            set_block_from_draw_item(x, by2);
          }
          for (int y=by1; y<by2+1; y++)
          {
-            l[bx1][y] = draw_item_num;
-            l[bx2][y] = draw_item_num;
+            set_block_from_draw_item(bx1, y);
+            set_block_from_draw_item(bx2, y);
          }
          init_level_background();
+         al_set_target_backbuffer(display);
       }
-      a++;
+      yfb+=bnh+2;
 
       col = 9;
       if (brf_mode) col = 10;
-      if (mdw_button(x3, yfb+a*bnh, x4, yfb+(a+1)*bnh-2, 612, 0,  0, 0, 0,  col, 15, 0, 1,0,0,0)) // block floodfill
+      if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,col,15,0, 1,0,0,d, "Block Floodfill"))
          brf_mode = !brf_mode;
-      a++;
+      yfb+=bnh+2;
+
    }
-}
 
-void zfs_proc_window_move(int *x1, int *y1, int *x2, int *y2, int w, int h)
-{  // move window by dragging title bar
-   if ((mouse_x > *x1) && (mouse_x < *x2) && (mouse_y > *y1) && (mouse_y < *y1+15))
-   {
-      if (mouse_b1)
-      {
-         int mxo = mouse_x - *x1; // get offset from mouse position to window x, y
-         int myo = mouse_y - *y1;
+   return yfb;
 
-         while (mouse_b1)
-         {
-            *x1 = mouse_x - mxo;
-            *y1 = mouse_y - myo;
-            *x2 = *x1 + w;
-            *y2 = *y1 + h;
-
-            zfs_redraw_background(0, 0);
-            zfs_redraw_window(*x1, *y1, *x2, *y2, 0, 0);
-         }
-      }
-   }
 }
 
 void zfs_draw_fsel(void)
 {
-   if (copy_blocks)
-   {
-      // do this to remove any other drawing on the level buffer
-      get_new_background(0);
-   }
+   // draw blocks
+   if (obj_filter[1][1]) get_new_background(0); // remove any other drawing on the level buffer
    else
    {
       // do this to make the blocks transparent by making the level_buffer transparent
@@ -969,9 +919,16 @@ void zfs_draw_fsel(void)
       al_clear_to_color(al_map_rgba(0,0,0,0)); // transparent zero pixels
    }
 
-   if (copy_items) draw_items();
-   if (copy_enemies) draw_enemies();
-   if (copy_lifts) draw_lifts();
+   // draw items
+   for (int i=0; i<500; i++)
+      if ((item[i][0]) && (obj_filter[2][item[i][0]])) draw_item(i, 0, 0, 0);
+
+   // draw enemies
+   for (int e=0; e<100; e++)
+      if ((Ei[e][0]) && (obj_filter[3][Ei[e][0]])) draw_enemy(e, 0, 0, 0);
+
+   // draw lifts
+   if (obj_filter[4][1]) draw_lifts();
 
    int sw = bx2-bx1+1;
    int sh = by2-by1+1;
@@ -984,6 +941,7 @@ void zfs_draw_fsel(void)
 
 // this function draws a box at full scale on level buffer
 // even if the top left and bottom right corners are switched
+// used by zfs, ge and em
 void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
 {
    if (x1 > x2) swap_int(&x1, &x2);
@@ -996,134 +954,53 @@ void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color,
    al_draw_text(font, palette_color[color], x1*20+2, y1*20-11,  0, text);
 }
 
-void zfs_redraw_background(int gx, int gy)
+void zfs_process_mouse_buttons(void)
 {
-   al_flip_display();
-   proc_scale_factor_change();
-   proc_controllers();
-   proc_frame_delay();
-   get_new_background(0);
-   draw_lifts();
-   draw_items();
-   draw_enemies();
-
-   if (brf_mode) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
-   else zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
-
-   if (copy_mode)
+   if (mouse_b1)
    {
-      int sw = bx2-bx1;
-      int sh = by2-by1;
-      al_draw_bitmap(ft_bmp, gx*20, gy*20, 0);
-      zfs_show_level_buffer_block_rect(gx, gy, gx+sw, gy+sh, 10, "paste");
+      if (copy_mode)
+      {
+         while (mouse_b1) proc_controllers();
+         zfs_do_fcopy(gx, gy);
+      }
+      if (brf_mode)
+      {
+         while (mouse_b1)proc_controllers();
+         zfs_do_brf(gx, gy, draw_item_num);
+      }
+      if ((!copy_mode) && (!brf_mode)) // get new selection
+      {
+         // initial selection
+         bx2 = bx1 = gx;
+         by2 = by1 = gy;
+         while (mouse_b1)
+         {
+            bx2 = gx;
+            by2 = gy;
+            cm_redraw_level_editor_background();
+         }
+         if (bx1 > bx2) swap_int(&bx1, &bx2); // swap if wrong order
+         if (by1 > by2) swap_int(&by1, &by2);
+      }
    }
-   get_new_screen_buffer(3, 0, 0);
-}
-
-int zfs_redraw_window(int zfs_window_x1, int zfs_window_y1, int zfs_window_x2, int zfs_window_y2, int gx, int gy)
-{
-   int mouse_on_window = ((mouse_x > zfs_window_x1) && (mouse_x < zfs_window_x2) && (mouse_y > zfs_window_y1) && (mouse_y < zfs_window_y2));
-
-   // erase background
-   al_draw_filled_rectangle(zfs_window_x1-1, zfs_window_y1-1, zfs_window_x2+1, zfs_window_y2+1, palette_color[0]);
-
-   // draw title
-   titlex("Zoom Full Screen", 15, 13, zfs_window_x1-1, zfs_window_x2+1, zfs_window_y1);
-
-   // draw filter buttons
-   zfs_draw_selection_filters(zfs_window_x1, zfs_window_y1+110, zfs_window_x2);
-
-   // draw action buttons
-   zfs_draw_buttons(zfs_window_x1, zfs_window_x2, zfs_window_y1+220);
-
-   // show information about selection and pointer
-   zfs_pointer_text(gx, gy, zfs_window_x1, zfs_window_x2, zfs_window_y1+20, mouse_on_window);
-
-   // frame
-   al_draw_rectangle(zfs_window_x1-1, zfs_window_y1-1, zfs_window_x2+1, zfs_window_y2+1, palette_color[13], 1);
-
-   return mouse_on_window;
 }
 
 void zoom_full_screen(int draw_item)
 {
-   mW[1].active = 0; // status
-   mW[2].active = 0; // select
-   mW[3].active = 1; // filter
-   mW[3].filter_mode = 3;
-   mW[4].active = 0; //
+   set_windows(2); // zfs
 
    init_level_background();
-   int zfs_window_x1 = 400;
-   int zfs_window_w = 160;
-   int zfs_window_x2 = zfs_window_x1 + zfs_window_w;
-   int zfs_window_y1 = 40;
-   int zfs_window_h = 378;
-   int zfs_window_y2 = zfs_window_y1 + zfs_window_h;
-
-   int gx=0, gy=0, hx=0, hy=0;
-   int mouse_on_window = 0;
 
    int exit =0;
    copy_mode = 0;
    brf_mode = 0;
    while (mouse_b2) proc_controllers();
+
    while (!exit)
    {
-      ovw_process_scrolledge();
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) zfs_process_mouse_buttons();
 
-      // get mouse position on scaled level background
-      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
-
-      // redraw level background
-      zfs_redraw_background(gx, gy);
-
-      // redraw window
-      mouse_on_window = zfs_redraw_window(zfs_window_x1, zfs_window_y1, zfs_window_x2, zfs_window_y2, gx, gy);
-
-
-      mouse_on_window = mw_cycle_windows(0);
-
-
-      // process window move by dragging title bar
-      if (mouse_on_window) zfs_proc_window_move(&zfs_window_x1, &zfs_window_y1, &zfs_window_x2, &zfs_window_y2, zfs_window_w, zfs_window_h);
-      else // mouse is not on window
-      {
-         if (mouse_b1)
-         {
-            if (copy_mode)
-            {
-               while (mouse_b1) proc_controllers();
-               zfs_do_fcopy(gx, gy);
-               init_level_background();
-            }
-            if (brf_mode)
-            {
-               while (mouse_b1) proc_controllers();
-               zfs_do_brf(gx, gy, draw_item_num);
-               init_level_background();
-            }
-            if ((!copy_mode) && (!brf_mode)) // get new selection
-            {
-
-               // initial selection
-               bx2 = bx1 = gx;
-               by2 = by1 = gy;
-               while (mouse_b1)
-               {
-                  bx2 = gx;
-                  by2 = gy;
-                  ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
-                  zfs_redraw_background(gx, gy);
-               }
-
-               if (bx1 > bx2) swap_int(&bx1, &bx2); // swap if wrong order
-               if (by1 > by2) swap_int(&by1, &by2);
-
-
-            }
-         }
-      }
       while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
       {
          proc_controllers();
@@ -1131,11 +1008,33 @@ void zoom_full_screen(int draw_item)
       }
    }
 
-   mW[1].active = 1; // status
-   mW[2].active = 1; // select
-   mW[3].active = 1; // filter
-   mW[4].active = 1; //
-
-
+   set_windows(1); // edit menu
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

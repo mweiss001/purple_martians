@@ -25963,6 +25963,311 @@ in zfs loop...
 
 put filter...
 
+20220514 5:00AM
+
+make zfs use filter window values...
+
+should be easy for lifts, blocks, flags, they have a 1-1 with exist buttons...
+old var:
+int copy_blocks=1;
+int copy_enemies=1;
+int copy_items=1;
+int copy_lifts=1;
+int copy_flags=1;
+
+new vars:
+obj_filter[1][1],  "Blocks"
+obj_filter[1][2],  "Flags"
+obj_filter[4][1],  "Lifts"
+
+obj_filter[3][3],  "Arcwgn"
+obj_filter[3][4],  "Bouncr"
+obj_filter[3][6],  "Cannon"
+obj_filter[3][7],  "Podzil"
+obj_filter[3][8],  "Trakbt"
+obj_filter[3][9],  "Cloner"
+obj_filter[3][10], "Field"
+obj_filter[3][11], "Blk Wk"
+obj_filter[3][12], "Flappr"
+
+obj_filter[2][1],  "Door"
+obj_filter[2][2],  "Bonus"
+obj_filter[2][3],  "Exit"
+obj_filter[2][4],  "Key"
+obj_filter[2][5],  "Start"
+obj_filter[2][7],  "Mine"
+obj_filter[2][8],  "Bomb"
+obj_filter[2][9],  "Triggr"
+obj_filter[2][10], "Messge"
+obj_filter[2][11], "Rocket"
+obj_filter[2][12], "Warp"
+obj_filter[2][14], "Switch"
+obj_filter[2][15], "Spring"
+obj_filter[2][16], "Blk Mn"
+obj_filter[2][17], "Blk Dm"
+
+
+obj_filter[2][item[b][0]]
+
+if ((item[b][0]) && (item[b][4] >= x1) && (item[b][4] < x2) && (item[b][5] >= y1) && (item[b][5] < y2))
+
+
+filter window has been integrated into zfs...
+
+
+now convert window to 4...
+
+what if I try status window for zfs?
+
+
+
+---- should I just bite the bullet and make gx, gy, hx, hy global?????
+I pass them around a lot....
+do it...right beside bx1...
+
+there are a lot of refernces...
+
+start by removing all other declarations..done 11 times...
+
+now stop passing them to this
+ovw_get_block_position_on_map(&gx, &gy, &hx, &hy); .. done 19 refs
+
+OK I think Im done....
+
+new zfs looks good..disable old one....
+
+now fix the buttons so they only detect mouse b when have focus
+
+int mw_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int moving)
+{
+   int d = 1;
+   if (have_focus) d = 0;
+   if (moving) d = 1;
+
+
+this uses custom buttons...
+610, 611, 612
+620, 621, 622, 623, 624
+
+replace them all with generic
+
+if (mdw_button(x3, yfb, x4, yfb+bnh, 610, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // block fill
+
+// just display a text string, and return 1 if pressed
+int mdw_buttont(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt,
+                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+
+
+those buttons are completely removed....
+
+there is some weirdness around block fill and frame...
+
+
+
+   if (draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
+   {
+      yfb+=bnh/2; // spacing between groups
+      if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Block Fill"))
+      {
+         for (int x=bx1; x<bx2+1; x++)
+            for (int y=by1; y<by2+1; y++)
+            {
+               if ((obj_filter[1][2]) && (obj_filter[1][1]))  l[x][y] = draw_item_num;
+               if ((obj_filter[1][2]) && (!obj_filter[1][1]))
+               {
+                  int flags = draw_item_num & PM_BTILE_MOST_FLAGS; // get only flags from draw item
+                  l[x][y] &= ~PM_BTILE_MOST_FLAGS;                 // clear flags in destination
+                  l[x][y] |= flags;                                // merge
+               }
+            }
+         init_level_background();
+      }
+      yfb+=bnh+2;
+      if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Block Frame"))
+      {
+         for (int x=bx1; x<bx2+1; x++)
+         {
+            l[x][by1] = draw_item_num;
+            l[x][by2] = draw_item_num;
+         }
+         for (int y=by1; y<by2+1; y++)
+         {
+            l[bx1][y] = draw_item_num;
+            l[bx2][y] = draw_item_num;
+         }
+         init_level_background();
+      }
+      yfb+=bnh+2;
+
+make a function to set a block from draw_item
+
+void set_block_from_draw_item(int x, int y)
+{
+   if ((x>=0) && (x<100) && (y>=0) && (y<100))
+   {
+
+      // blocks and flags
+      if ((obj_filter[1][1]) && (obj_filter[1][2]))  l[x][y] = draw_item_num;
+
+      // flags only
+      if ((!obj_filter[1][1]) && (obj_filter[1][2]))
+      {
+         int flags = draw_item_num & PM_BTILE_MOST_FLAGS; // get only flags from draw item
+         l[x][y] &= ~PM_BTILE_MOST_FLAGS;                 // clear flags in destination
+         l[x][y] |= flags;                                // merge
+      }
+
+      // blocks only (same as block and flags???)
+      if ((obj_filter[1][1]) && (obj_filter[1][2])) l[x][y] = draw_item_num;
+   }
+}
+
+8:00 AM I think zfs is done
+
+moving on to group edit
+the list window will be 5..
+disable existing filter window...
+
+ge list was very easy to add....
+make the draw only version....done
+ge_show_obj_list(int x, int y, int *ew, int *eh)
+
+
+
+ge list is done....
+
+
+next....
+ge controls will be 6
+
+looking good....
+give it a title bar for dragging...done
+remove old one...i removed a lot
+
+draw only buttons...done
+
+find a way to implement mouse on window so mouse click won't pass through to level beneath..done
+
+
+find a way to add functionality of two buttons....
+show selection
+add selection to list
+and maybe more...
+pop up menu toggles...
+show/hide selection
+put in on the object list...done
+
+
+hide when no valid controls...
+here is the thing...if I make the window inactive, i won;t be able to detect when to bring it back???
+I can do it from the list maybe...
+or I can make another setting for mWindows called hidden...done
+
+
+11:31 AM
+
+my next step is a big one...
+
+object viewer is huge...
+
+luckily there is only window....
+it will be 7
+
+it still uses the old filters....
+
+it needs some clean up....
+
+all these four modes should be cleaned up so that they all look common and can be integrated easily
+
+
+something is stealing my mouse....fixed
+
+
+
+making a new title function...
+
+pass it x1, y1, x2, y2...something else will figure that out....
+this is not the place to do it...
+
+
+OK i got the title to somewhat work....
+only buttons left
+
+the height is working good...
+get the return mb to where I can use it...done...
+now the legend highlights...
+
+making great progress....
+
+
+now to go through all the buttons...
+
+clean them up...and make them respect draw only...
+everything in sliders has been modified to be read only if q7==1
+everything in buttons has been done too....
+yay!!!
+
+20220514 7:00PM
+
+I have probably introduced some bugs that I will need to catch...
+
+the next thing on the list was to try to merge and simplify more things
+
+
+
+make an global int that tells me what mode the level editor is in
+
+level_editor_mode
+0 = undef
+1 = em
+2 = zfs
+3 = ge
+4 = ov
+
+
+make a common redraw background function
+
+void cm_redraw_level_editor_background(int mode)
+{
+
+em replaced 3 calls
+zfs replaced 2 calls
+ge replaced 2 calls
+ov 3 calls and 4 in lifts...
+that is coming along nicely....
+
+
+I know I have some bugs in the lifts stuff
+but what the hell am I going to do about it?...fixit!!
+
+
+so the high level common stuff....
+
+
+
+- redraw the background
+- redraw the windows
+
+- process mouse on windows
+- process mouse on background
+
+this is pretty much done like this:
+
+
+
+      cm_redraw_level_editor_background();
+
+      mouse_on_window = mw_cycle_windows(0);
+
+      if (!mouse_on_window) // mouse pointer is not on window
+      {
+         em_find_point_item();
+         if (mouse_b1) em_process_mouse_b1();
+         if (mouse_b2) quit = em_process_mouse_b2();
+      }
+      else point_item_type = -1; // to mark that
+      quit = em_process_keypress();
+
 
 
 

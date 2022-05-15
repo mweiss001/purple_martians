@@ -2063,10 +2063,10 @@ void enemy_podzilla(int e)
    if (Ei[e][5] == 0) // mode 0 - wait for trigger
    {
       // trigger box offset
-      int x1 = Ei[e][11]*20 - 10;
-      int y1 = Ei[e][12]*20 - 10;
-      int x2 = Ei[e][13]*20 + 10;
-      int y2 = Ei[e][14]*20 + 10;
+      int x1 = Ei[e][11] - 10;
+      int y1 = Ei[e][12] - 10;
+      int x2 = x1 + Ei[e][13];
+      int y2 = y1 + Ei[e][14];
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((players[p].active) && (!players[p].paused))

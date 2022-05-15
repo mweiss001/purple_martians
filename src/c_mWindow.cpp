@@ -3,6 +3,137 @@
 
 
 
+
+
+void set_windows(int mode)
+{
+
+   mW[1].set_pos(100, 100);
+   mW[1].set_size(320, 43);
+   mW[1].set_title("Status Window");
+   mW[1].active = 1;
+   mW[1].index = 1;
+   mW[1].layer = 0;
+
+
+
+
+   mW[2].set_pos(100, 300);
+   mW[2].set_size(322, 100);
+   mW[2].set_title("Selection Window");
+   mW[2].active = 1;
+   mW[2].index = 2;
+   mW[2].layer = 1;
+
+   mW[3].set_pos(500, 100);
+   mW[3].set_size(82, 100);
+   mW[3].set_title("Filters");
+   mW[3].active = 0;
+   mW[3].filter_mode = 1;
+   mW[3].resizable = 0;
+   mW[3].index = 3;
+   mW[3].layer = 2;
+
+   mW[4].set_pos(700, 100);
+   mW[4].set_size(160, 269);
+   mW[4].set_title("zfs");
+   mW[4].active = 0;
+   mW[4].resizable = 1;
+   mW[4].index = 4;
+   mW[4].layer = 3;
+
+
+   mW[5].set_pos(400, 400);
+   mW[5].set_size(160, 269);
+   mW[5].set_title("ge list");
+   mW[5].active = 0;
+   mW[5].resizable = 0;
+   mW[5].index = 5;
+   mW[5].layer = 4;
+
+
+   mW[6].set_pos(600, 60);
+   mW[6].set_size(100, 100);
+   mW[6].set_title("ge controls");
+   mW[6].active = 0;
+   mW[6].resizable = 0;
+   mW[6].index = 6;
+   mW[6].layer = 5;
+
+   mW[7].set_pos(200, 60);
+   mW[7].set_size(300, 300);
+   mW[7].set_title("viewer");
+   mW[7].obt = 0;
+   mW[7].num = 0;
+   mW[7].active = 0;
+   mW[7].resizable = 0;
+   mW[7].index = 7;
+   mW[7].layer = 6;
+
+   if (mode == 1) // edit menu
+   {
+      level_editor_mode = 1;
+      mW[1].active = 1; // status
+      mW[2].active = 1; // select
+      mW[3].active = 0; // filter
+      mW[4].active = 0; // zfs
+      mW[5].active = 0; // ge list
+      mW[6].active = 0; // ge controls
+      mW[7].active = 0; // viewer
+   }
+
+   if (mode == 2) // zfs
+   {
+      level_editor_mode = 2;
+      mW[1].active = 0; // status
+      mW[2].active = 0; // select
+      mW[3].active = 1; // filter
+      mW[3].filter_mode = 3;
+      mW[4].active = 1; // zfs
+      mW[5].active = 0; // ge list
+      mW[6].active = 0; // ge controls
+      mW[7].active = 0; // viewer
+   }
+   if (mode == 3) // group edit
+   {
+      level_editor_mode = 3;
+      mW[1].active = 0; // status
+      mW[2].active = 0; // select
+      mW[3].active = 1; // filter
+      mW[3].filter_mode = 1;
+      mW[4].active = 0; // zfs
+      mW[5].active = 1; // ge list
+      mW[6].active = 1; // ge controls
+      mW[7].active = 0; // viewer
+   }
+   if (mode == 4) // object viewer
+   {
+      level_editor_mode = 4;
+      mW[1].active = 0; // status
+      mW[2].active = 0; // select
+      mW[3].active = 1; // filter
+      mW[3].filter_mode = 2;
+      mW[4].active = 0; // zfs
+      mW[5].active = 0; // ge list
+      mW[6].active = 0; // ge controls
+      mW[7].active = 1; // viewer
+   }
+}
+
+
+
+
+
+int is_mouse_on_any_window(void)
+{
+   for (int a=0; a<NUM_MW; a++)
+      if ((mW[a].active) && (mW[a].detect_mouse())) return 1;
+   return 0;
+}
+
+
+
+
 int mw_get_max_layer(void)
 {
    int max_layer = 0;
@@ -59,6 +190,7 @@ mWindow::mWindow()
    active = 0;
    have_focus = 0;
    layer = 0;
+   hidden = 0;
    moveable = 1;
    moving = 0;
    resizable = 0;
@@ -81,124 +213,150 @@ void mWindow::check_offscreen(void)
 
 }
 
-
 void mWindow::process(void)
 {
-   if (mouse_b1)
+   if (!hidden)
    {
-      // moveable and mouse on title bar
-      if ((moveable) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y1+8))
+      if (mouse_b1)
       {
-         int mxo = mouse_x - x1; // get offset from mouse position to window x, y
-         int myo = mouse_y - y1;
-         moving = 1;
-         while (mouse_b1)
+         // moveable and mouse on title bar
+         if ((moveable) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y1+8))
          {
-            set_pos(mouse_x-mxo, mouse_y-myo);
-            proc_controllers();
-            al_flip_display();
-            proc_scale_factor_change();
-            proc_controllers();
-            proc_frame_delay();
-            get_new_background(0);
-            draw_lifts();
-            draw_items();
-            draw_enemies();
-            get_new_screen_buffer(3, 0, 0);
-            mw_cycle_windows(1); // draw only
+            int mxo = mouse_x - x1; // get offset from mouse position to window x, y
+            int myo = mouse_y - y1;
+            moving = 1;
+            while (mouse_b1)
+            {
+               set_pos(mouse_x-mxo, mouse_y-myo);
+               proc_controllers();
+               al_flip_display();
+               proc_scale_factor_change();
+               proc_controllers();
+               proc_frame_delay();
+               get_new_background(0);
+               draw_lifts();
+               draw_items();
+               draw_enemies();
+               get_new_screen_buffer(3, 0, 0);
+               mw_cycle_windows(1); // draw only
+            }
+            moving = 0;
+         }
+         // resizable and mouse on lower right corner
+         if ((resizable) && (mouse_x > x2-10) && (mouse_x < x2) && (mouse_y > y2-10) && (mouse_y < y2))
+         {
+            int mxo = mouse_x - x2; // get offset from mouse position to window x, y
+            int myo = mouse_y - y2;
+            moving = 1;
+            while (mouse_b1)
+            {
+               x2 = mouse_x-mxo;
+               y2 = mouse_y-myo;
+               w = x2 - x1;
+               h = y2 - y1;
+               proc_controllers();
+               al_flip_display();
+               proc_scale_factor_change();
+               proc_controllers();
+               proc_frame_delay();
+               get_new_background(0);
+               draw_lifts();
+               draw_items();
+               draw_enemies();
+               get_new_screen_buffer(3, 0, 0);
+               mw_cycle_windows(1); // draw only
+            }
          }
          moving = 0;
       }
-      // resizable and mouse on lower right corner
-      if ((resizable) && (mouse_x > x2-10) && (mouse_x < x2) && (mouse_y > y2-10) && (mouse_y < y2))
-      {
-         int mxo = mouse_x - x2; // get offset from mouse position to window x, y
-         int myo = mouse_y - y2;
-         moving = 1;
-         while (mouse_b1)
-         {
-            x2 = mouse_x-mxo;
-            y2 = mouse_y-myo;
-            w = x2 - x1;
-            h = y2 - y1;
-            proc_controllers();
-            al_flip_display();
-            proc_scale_factor_change();
-            proc_controllers();
-            proc_frame_delay();
-            get_new_background(0);
-            draw_lifts();
-            draw_items();
-            draw_enemies();
-            get_new_screen_buffer(3, 0, 0);
-            mw_cycle_windows(1); // draw only
-         }
-      }
-      moving = 0;
-   }
 
-
-   // mouse b2 anywhere on window
-   if ((mouse_b2) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
-   {
-      if (index == 3) // filter window
+      // mouse b2 anywhere on window
+      if ((mouse_b2) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
       {
-         sprintf(global_string[6][0],"Filters");
-         sprintf(global_string[6][1],"---------------");
-         sprintf(global_string[6][2],"All On");
-         sprintf(global_string[6][3],"All Items On");
-         sprintf(global_string[6][4],"All Enemies On");
-         sprintf(global_string[6][5],"All Off");
-         sprintf(global_string[6][6],"All Items Off");
-         sprintf(global_string[6][7],"All Enemies Off");
-         sprintf(global_string[6][8],"end");
-         switch (pmenu(6, 13))
+         if (index == 3) // filter window
          {
-             case 2:
+            sprintf(global_string[6][0],"Filters");
+            sprintf(global_string[6][1],"---------------");
+            sprintf(global_string[6][2],"All On");
+            sprintf(global_string[6][3],"All Items On");
+            sprintf(global_string[6][4],"All Enemies On");
+            sprintf(global_string[6][5],"All Off");
+            sprintf(global_string[6][6],"All Items Off");
+            sprintf(global_string[6][7],"All Enemies Off");
+            sprintf(global_string[6][8],"end");
+            switch (pmenu(6, 13))
+            {
+                case 2:
+                   for (int i=0; i<5; i++)
+                      for (int j=0; j<20; j++)
+                         obj_filter[i][j] = 1;
+                   break;
+                case 3:
+                   for (int j=0; j<20; j++)
+                      obj_filter[2][j] = 1;
+                break;
+                case 4:
+                   for (int j=0; j<20; j++)
+                      obj_filter[3][j] = 1;
+                break;
+                case 5:
                 for (int i=0; i<5; i++)
                    for (int j=0; j<20; j++)
-                      obj_filter[i][j] = 1;
+                      obj_filter[i][j] = 0;
                 break;
-             case 3:
-                for (int j=0; j<20; j++)
-                   obj_filter[2][j] = 1;
-             break;
-             case 4:
-                for (int j=0; j<20; j++)
-                   obj_filter[3][j] = 1;
-             break;
-             case 5:
-             for (int i=0; i<5; i++)
-                for (int j=0; j<20; j++)
-                   obj_filter[i][j] = 0;
-             break;
-             case 6:
-                for (int j=0; j<20; j++)
-                   obj_filter[2][j] = 0;
-             break;
-             case 7:
-                for (int j=0; j<20; j++)
-                   obj_filter[3][j] = 0;
-             break;
+                case 6:
+                   for (int j=0; j<20; j++)
+                      obj_filter[2][j] = 0;
+                break;
+                case 7:
+                   for (int j=0; j<20; j++)
+                      obj_filter[3][j] = 0;
+                break;
+            }
          }
-      }
-
-      if (index == 1) // filter window
-      {
-         sprintf(global_string[6][0],"Status Windows");
-         sprintf(global_string[6][1],"---------------");
-
-         if (show_flag_details) sprintf(global_string[6][2],"Hide Block Flags");
-         else                   sprintf(global_string[6][2],"Show Block Flags");
-
-         if (show_non_default_blocks) sprintf(global_string[6][3],"Hide Non-Default Blocks");
-         else                         sprintf(global_string[6][3],"Show Non-Default Blocks");
-
-         sprintf(global_string[6][4],"end");
-         switch (pmenu(6, 13))
+         if (index == 1) // filter window
          {
-             case 2: show_flag_details =! show_flag_details; break;
-             case 3: show_non_default_blocks =! show_non_default_blocks; break;
+            sprintf(global_string[6][0],"Status Window");
+            sprintf(global_string[6][1],"--------------");
+
+            if (show_flag_details) sprintf(global_string[6][2],"Hide Block Flags");
+            else                   sprintf(global_string[6][2],"Show Block Flags");
+
+            if (show_non_default_blocks) sprintf(global_string[6][3],"Hide Non-Default Blocks");
+            else                         sprintf(global_string[6][3],"Show Non-Default Blocks");
+
+            sprintf(global_string[6][4],"end");
+            switch (pmenu(6, 13))
+            {
+                case 2: show_flag_details =! show_flag_details; break;
+                case 3: show_non_default_blocks =! show_non_default_blocks; break;
+            }
+         }
+         if (index == 5) // ge list
+         {
+            sprintf(global_string[6][0],"Group Edit Object List");
+            sprintf(global_string[6][1],"----------------------");
+
+            if (show_sel_frame)
+            {
+                sprintf(global_string[6][2],"Hide Selection");
+                sprintf(global_string[6][3],"Add Filtered Selection To List");
+                sprintf(global_string[6][4],"Add Selection To List And Set Filters");
+                sprintf(global_string[6][5],"end");
+
+                  switch (pmenu(6, 13))
+                  {
+                      case 2: show_sel_frame = 0; break;
+                      case 3: ge_add_selection_to_list(0); break;
+                      case 4: ge_add_selection_to_list(1); break;
+                  }
+            }
+            else
+            {
+               sprintf(global_string[6][2],"Show Selection");
+               sprintf(global_string[6][3],"end");
+               if (pmenu(6, 13) == 2) show_sel_frame = 1;
+            }
          }
       }
    }
@@ -311,10 +469,10 @@ int mw_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 void mWindow::draw(void)
 {
    // erase background
-   al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
+   if (!hidden) al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
 
    // default window
-   if ((index != 1) && (index != 2) && (index != 3))
+   if ((index != 1) && (index != 2) && (index != 3) && (index != 4) && (index != 5) && (index != 6) && (index != 7))
    {
       // frame window
       al_draw_rectangle(x1, y1, x2, y2, palette_color[color], 1);
@@ -351,10 +509,6 @@ void mWindow::draw(void)
          }
       }
    }
-
-
-
-
 
 
    if (index == 2) // selection window
@@ -593,8 +747,6 @@ void mWindow::draw(void)
    }
 
 
-
-
    if (index == 1) // status window
    {
       // title bar background color
@@ -606,14 +758,11 @@ void mWindow::draw(void)
       al_draw_textf(font, palette_color[9],  x1+2,   y1+2, 0, "Status Window    level:%d ",last_level_loaded);
       al_draw_textf(font, palette_color[15], x1+186, y1+2, 0, "%d ",last_level_loaded);
 
-      int mow = 0;
-      for (int a=0; a<NUM_MW; a++)
-         if ((mW[a].active) && (mW[a].detect_mouse())) mow = 1;
 
+      int mow = is_mouse_on_any_window();
       if (!mow)
       {
-         int gx=0, gy=0, hx=0, hy=0;
-         ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+         ovw_get_block_position_on_map();
          al_draw_textf(font, palette_color[15], x1+222, y1+2, 0, "x:%-2d y:%-2d ", gx, gy);
       }
       else
@@ -674,11 +823,60 @@ void mWindow::draw(void)
    }
 
 
+   if (index == 4) // zfs
+   {
+      titlex("Zoom Full Screen", 15, 13, x1, x2, y1+1);
+
+      int mow = is_mouse_on_any_window();
+      zfs_pointer_text(x1+1, x2-1, y1+20, mow);
+
+      int sy2 = zfs_draw_buttons(x1+1, x2-1, y1+110, have_focus, moving);
+      set_size(w, sy2-y1-1);
+
+      int fc = 13;
+      if (have_focus) fc = 10;
+      al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1); // frame entire window
+   }
+
+   if (index == 5) // ge list
+   {
+      int ew, eh;
+      ge_show_obj_list(x1, y1, &ew, &eh, have_focus, moving);
+      set_size(ew, eh);
+   }
+
+
+   if (index == 6) // ge controls
+   {
+
+      int ew, eh;
+      int nc = ge_show_controls(x1, y1+20, &ew, &eh, have_focus, moving, hidden);
+      set_size(ew, eh+20);
+
+      if (!nc) hidden = 1;
+      else hidden = 0;
+
+      if (!hidden)
+      {
+         titlex("Group Edit Controls", 15, 13, x1, x2, y1+1);
+         int fc = 13;
+         if (have_focus) fc = 10;
+         al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1); // frame entire window
+      }
+   }
+
+   if (index == 7) // object viewer
+   {
+      ovw_get_size(obt, num, &w, &h);
+      set_size(w, h);
+      ovw_title(x1, x2, y1, y2, obt, num, legend_line);
+      ovw_draw_buttons(x1, y1, x2, y2, obt, num, have_focus, moving);
+   }
 }
 
 int mWindow::detect_mouse(void)
 {
-   if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2)) return 1;
+   if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!hidden)) return 1;
    else return 0;
 }
 

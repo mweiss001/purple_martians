@@ -223,7 +223,7 @@ void update_var(int bn, int type, int num, float f)
 // q3 = slider color  (use white 99% of time)
 // q4 = slider color  (draw frame mode) now i always use 1
 // q5 = text justify  (0-center 1-left...buttons only)
-
+// modified to be display only if q7 == 1
 void mdw_slider(int x1, int y1, int x2, int y2,
                     int bn, int num, int type, int obt,
                     int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
@@ -317,7 +317,7 @@ void mdw_slider(int x1, int y1, int x2, int y2,
    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
    // is mouse on adjustment bar?
-   if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
@@ -440,7 +440,7 @@ float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, i
 
 
 
-
+// modified to be display only if q7 == 1
 
 void mdw_slider0_int(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt, const char *txt2)
@@ -461,7 +461,7 @@ void mdw_slider0_int(int x1, int y1, int x2, int y2, int bn, int num, int type, 
    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
    // is mouse on adjustment bar?
-   if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
@@ -556,6 +556,7 @@ void mdw_slider0_int(int x1, int y1, int x2, int y2, int bn, int num, int type, 
 
 
 
+// modified to be display only if q7 == 1
 
 void mdw_slider2_int(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt)
@@ -571,7 +572,7 @@ void mdw_slider2_int(int x1, int y1, int x2, int y2, int bn, int num, int type, 
    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
    // is mouse on adjustment bar?
-   if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
@@ -640,7 +641,7 @@ void mdw_slider2_int(int x1, int y1, int x2, int y2, int bn, int num, int type, 
 
 
 
-
+// modified to be display only if q7 == 1
 void mdw_slider2_fix(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  al_fixed &var, float sul, float sll, float sinc, const char *txt)
 {
@@ -656,7 +657,7 @@ void mdw_slider2_fix(int x1, int y1, int x2, int y2, int bn, int num, int type, 
    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
    // is mouse on adjustment bar?
-   if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
@@ -725,8 +726,7 @@ void mdw_slider2_fix(int x1, int y1, int x2, int y2, int bn, int num, int type, 
 
 
 
-
-
+// modified to accept no input if q7 == 1
 void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  float &var, float sul, float sll, float sinc, const char *txt)
 {
@@ -741,8 +741,10 @@ void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, 
 
    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
+
+
    // is mouse on adjustment bar?
-   if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
@@ -941,6 +943,8 @@ void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, 
 // q2 = text color    (use white 99% of time)
 // q5 = text justify  (0-center 1-left...buttons only)
 
+// modified to be display only if q7 == 1
+
 
 int mdw_button(int x1, int y1, int x2, int y2,
                 int bn, int num, int type, int obt,
@@ -951,10 +955,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
    int press = 0;
    int retval = 0;
 
-
-
-
-   if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
       while (mouse_b1) proc_controllers(); // wait for release
       press = 1;
@@ -1086,41 +1087,10 @@ int mdw_button(int x1, int y1, int x2, int y2,
       sprintf(smsg, "Set Destination");
       if (press) getxy("Cloner Destination", 98, 9, num);
    }
-   if (bn == 19)
-   {
-      sprintf(smsg, "Move");
-      if (obt == 4) sprintf(smsg, "Run Lifts");
-      if (press) return 1;
-   }
 
-   if (bn == 20)
-   {
-      sprintf(smsg, "Create");
-      if (press) return 1;
-   }
-   if (bn == 21)
-   {
-      sprintf(smsg, "Delete");
-      if (press) return 1;
-   }
-   if (bn == 22)
-   {
-      sprintf(smsg, "Next");
-      if (press) return 1;
-   }
-   if (bn == 23)
-   {
-      sprintf(smsg, "Prev");
-      if (press) return 1;
-   }
    if (bn == 24)
    {
       sprintf(smsg, "Copy to Draw Item");
-      if (press) return 1;
-   }
-   if (bn == 25)
-   {
-      sprintf(smsg, "Help");
       if (press) return 1;
    }
    if (bn == 26)
@@ -1144,11 +1114,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
          if (++Ei[num][8] > 2) Ei[num][8] = 0;
       }
    }
-   if (bn == 28)
-   {
-      sprintf(smsg, "Run Lifts");
-      if (press) return 1;
-   }
+
    if (bn == 48) // key block erase type
    {
       if (item[num][12]) sprintf(smsg, "Erase Only Matching Blocks");
@@ -1225,12 +1191,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
    {
       sprintf(smsg, "Set Message Position");
       if (press) getxy("Message Position", 95, 10, num);
-   }
-   if (bn == 56)
-   {
-      if (viewer_lock) sprintf(smsg,  "Locked");
-      else             sprintf(smsg, "Unlocked");
-      if (press) viewer_lock = !viewer_lock;
    }
    if (bn == 57)
    {
@@ -2151,8 +2111,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
    }
 
 
-
-
    if (bn == 520)
    {
       sprintf(smsg, "Set Event Trigger (%d)", lift_steps[num][type].val);
@@ -2173,59 +2131,10 @@ int mdw_button(int x1, int y1, int x2, int y2,
       }
    }
 
-   if (bn == 620)
-   {
-      sprintf(smsg, "Move Selection");
-      if (press) return 1;
-   }
-
-   if (bn == 621)
-   {
-      sprintf(smsg, "Clear Selection");
-      if (press) return 1;
-   }
-   if (bn == 622)
-   {
-      sprintf(smsg, "Paste Selection");
-      if (press) return 1;
-   }
-
-   if (bn == 623)
-   {
-      sprintf(smsg, "Save To Disk");
-      if (press) return 1;
-   }
-   if (bn == 624)
-   {
-      sprintf(smsg, "Load From Disk");
-      if (press) return 1;
-   }
-
-   if (bn == 610)
-   {
-      sprintf(smsg, "Block Fill");
-      if (press) return 1;
-   }
-   if (bn == 611)
-   {
-      sprintf(smsg, "Block Frame");
-      if (press) return 1;
-   }
-   if (bn == 612)
-   {
-      sprintf(smsg, "Block Floodfill");
-      if (press) return 1;
-   }
-
-
-
-
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
 
    if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
    else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-
-
 
    // special cases that need bitmaps draw on them
    if (bn == 13)
@@ -2258,14 +2167,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
       al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
       al_draw_bitmap(btile[tn&1023], x, y, 0);
    }
-
-
-
-
-
-
-
-
    return retval;
 }
 
@@ -2273,6 +2174,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
 
 
 
+// modified to be display only if q7 == 1
 
 void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
@@ -2299,7 +2201,7 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
    al_draw_rectangle(x1, y1, x2, y2, palette_color[15], 1);
 
    // is mouse pressed on button?
-   if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (mouse_b1))
+   if ((!q7) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (mouse_b1))
    {
       while (mouse_b1) proc_controllers();
       int color = (int)(1+(mouse_x-x1)/b);
@@ -2340,10 +2242,7 @@ q4 = slider color  (draw frame mode) now i always use 1
 q5 = text justify  (0-center 1-left...buttons only)
 q6 - (0-normal) (1-dont draw)
 q7 - (0-normal) (1-dont process mouse b1 press)
-
 */
-
-
 
 
 int mdw_toggle(int x1, int y1, int x2, int y2,
@@ -2394,7 +2293,7 @@ int mdw_toggle(int x1, int y1, int x2, int y2,
    return retval;
 }
 
-
+// modified to be display only if q7 == 1
 int mdw_togglf(int x1, int y1, int x2, int y2,
                 int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
@@ -2403,7 +2302,7 @@ int mdw_togglf(int x1, int y1, int x2, int y2,
    // is mouse pressed on this button?
    int press = 0;
    int retval = 0;
-   if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
       while (mouse_b1) proc_controllers(); // wait for release
       press = 1;
@@ -2466,12 +2365,13 @@ int mdw_buttont(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
 
 
 
+// modified to be display only if q7 == 1
 // increment passed pointer (int &var) and display different text for each value
 void mdw_buttonp(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
 {
    int press = 0;
-   if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
       while (mouse_b1) proc_controllers(); // wait for release
       press = 1;
@@ -2500,14 +2400,4 @@ void mdw_buttonp(int x1, int y1, int x2, int y2, int bn, int num, int type, int 
    if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
    else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 }
-
-
-
-
-
-
-
-
-
-
 

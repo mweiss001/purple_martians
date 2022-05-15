@@ -126,6 +126,9 @@ int bts = 12;  // button spacing
 int pop_msg_viewer_pos;
 int num_legend_lines = 2;
 int viewer_lock = 0;
+int level_editor_mode = 0;
+
+
 
 
 // ------------------------------------------------
@@ -214,6 +217,14 @@ int bx1=10;  // selection window
 int by1=10;
 int bx2=40;
 int by2=30;
+int show_sel_frame=1;
+
+int gx=0; // absolute mouse position realive to scaled level background
+int gy=0;
+int hx=0;
+int hy=0;
+
+
 
 int obj_filter[5][20] = {0};
 

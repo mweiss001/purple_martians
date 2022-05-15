@@ -1,6 +1,199 @@
 // e_editor_main.cpp
 #include "pm.h"
 
+
+
+
+
+
+
+void cm_redraw_level_editor_background(void)
+{
+   process_flash_color();
+
+   int mouse_on_window = is_mouse_on_any_window();
+
+   if (!mouse_on_window)
+   {
+      ovw_get_block_position_on_map();
+      ovw_process_scrolledge();
+   }
+
+   al_flip_display();
+   proc_scale_factor_change();
+   proc_controllers();
+   proc_frame_delay();
+
+
+   if ((level_editor_mode == 4) && (mW[7].obt == 4)) init_level_background(); // to draw new lift lines
+
+
+   init_level_background();
+   get_new_background(0);
+   draw_lifts();
+   draw_items();
+   draw_enemies();
+
+
+   if (level_editor_mode == 1) // edit menu
+   {
+      if (!mouse_on_window) em_show_draw_item_cursor();
+   }
+
+   if (level_editor_mode == 2) // zfs
+   {
+      // alway show selection
+      zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
+
+      // only show these if mouse not in window
+      if (!mouse_on_window)
+      {
+         extern int copy_mode;
+         extern int brf_mode;
+         if (brf_mode) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
+         if (copy_mode)
+         {
+            int sw = bx2-bx1;
+            int sh = by2-by1;
+            al_draw_bitmap(ft_bmp, gx*20, gy*20, 0);
+            zfs_show_level_buffer_block_rect(gx, gy, gx+sw, gy+sh, 10, "paste");
+         }
+      }
+   }
+   if (level_editor_mode == 3) // ge
+   {
+
+      // mark objects on map that are capable of being added to list
+      for (int i=0; i<500; i++)
+      {
+         int type = (item[i][0]);
+         if ((type) && (obj_filter[2][type]))
+         {
+            int sox = item[i][4];
+            int soy = item[i][5];
+            al_draw_rectangle(sox, soy, sox+20, soy+20, palette_color[13], 1);
+         }
+      }
+      for (int e=0; e<100; e++)
+      {
+         int type = (Ei[e][0]);
+         if ((type) && (obj_filter[3][type]))
+         {
+            int sox = al_fixtoi(Efi[e][0]);
+            int soy = al_fixtoi(Efi[e][1]);
+            al_draw_rectangle(sox, soy, sox+20, soy+20, palette_color[13], 1);
+         }
+      }
+
+      // is mouse on obj already in list?
+      if (!mouse_on_window)
+         for (int i=0; i<NUM_OBJ; i++)
+         {
+            obj_list[i][2] = 0; // turn off highlight by default
+            if (obj_list[i][0])
+            {
+               int typ = obj_list[i][0];
+               int num = obj_list[i][1];
+               int hix=0, hiy=0;
+
+               if (typ == 2) // item
+               {
+                  hix = item[num][4]/20;
+                  hiy = item[num][5]/20;
+               }
+               if (typ == 3) // enemy
+               {
+                  hix = al_fixtoi(Efi[num][0]/20);
+                  hiy = al_fixtoi(Efi[num][1]/20);
+               }
+               if ((gx == hix) && (gy == hiy)) obj_list[i][2] = 1; // turn on highlight for this list item
+            }
+         }
+
+      // mark objects on map that have already been added to list
+      for (int i=0; i<NUM_OBJ; i++)
+      {
+         if (obj_list[i][0])
+         {
+            int typ = obj_list[i][0];
+            int num = obj_list[i][1];
+            int hx=0, hy=0;
+            if (typ == 2)
+            {
+               hx = item[num][4];
+               hy = item[num][5];
+            }
+            if (typ == 3)
+            {
+               hx = al_fixtoi(Efi[num][0]);
+               hy = al_fixtoi(Efi[num][1]);
+            }
+
+
+            if (obj_list[i][2]) al_draw_rectangle(hx-2, hy-2, hx+20+2, hy+20+2, palette_color[flash_color], 1);
+            else                al_draw_rectangle(hx, hy, hx+20, hy+20,         palette_color[10], 1);
+         }
+
+      }
+
+   //   sprintf(msg, "selection");
+   //   sprintf(msg, "selection bx1:%d by1:%d bx2:%d by2:%d", bx1, by1, bx2, by2);
+   //   if (show_sel_frame) zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, msg);
+      if (show_sel_frame) zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
+      else if (!mouse_on_window) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
+   }
+   if (level_editor_mode == 4) // ov
+   {
+      // if current object is message, show all messages
+      if ((mW[7].obt == 2) && (item[mW[7].num][0] == 10))
+      {
+         for (int i=0; i<500; i++)
+            if (item[i][0] == 10) draw_pop_message(i);
+      }
+
+      // if mouse on legend line, show highlight
+      process_flash_color();
+      mW[7].legend_line = 0;
+      int y1_legend = mW[7].y2 - 34 + (5-num_legend_lines)*8; // legend pos
+      int y2_legend = y1_legend + (num_legend_lines-1)*8;
+      if ((mouse_x > mW[7].x1) && (mouse_x < mW[7].x2) && (mouse_y > y1_legend) && (mouse_y < y2_legend)) // is mouse on legend
+         mW[7].legend_line = ((mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
+
+      ovw_draw_overlays(mW[7].obt, mW[7].num, mW[7].legend_line);
+
+   }
+   get_new_screen_buffer(3, 0, 0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void em_check_s_window_pos(int reset_pos)
 {
    int reset_status = 0;
@@ -151,7 +344,7 @@ void em_process_status_window(int draw_only, int gx, int gy, int* mpow)
             int my = (mouse_y-swy1); // y offset
             while (mouse_b1)
             {
-               em_redraw_background(gx, gy);
+               cm_redraw_level_editor_background();
                int junk = 0;
                em_process_select_window(1, &junk); // draw only
                em_process_status_window(1, gx, gy, &junk); // draw only
@@ -311,7 +504,7 @@ void em_process_select_window(int draw_only, int* mpow)
                int my = (mouse_y-swy1); // y offset
                while (mouse_b1)
                {
-                  em_redraw_background(0, 0);
+                  cm_redraw_level_editor_background();
                   int junk = 0;
                   em_process_status_window(1, 0, 0, &junk); // draw only
                   em_process_select_window(1, &junk); // draw only
@@ -780,8 +973,7 @@ void em_set_block_range(int bx1, int by1, int bx2, int by2)
 
 void em_get_new_box() // keep the mouse !!
 {
-   int gx=0, gy=0, hx=0, hy=0;
-   ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+   ovw_get_block_position_on_map();
    // initial selection
    bx2 = bx1 = gx;
    by2 = by1 = gy;
@@ -803,7 +995,7 @@ void em_get_new_box() // keep the mouse !!
 
       get_new_screen_buffer(3, 0, 0);
       ovw_process_scrolledge();
-      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
+      ovw_get_block_position_on_map();
    }
 
    if (bx1 > bx2) swap_int(&bx1, &bx2); // swap if wrong order
@@ -823,8 +1015,10 @@ char* em_get_text_description_of_block_based_on_flags(int flags)
    return msg;
 }
 
-void em_show_draw_item_cursor(int x, int y)
+void em_show_draw_item_cursor()
 {
+   int x = gx;
+   int y = gy;
    if (point_item_type > -1) // if mouse pointer on window, do not show draw item
    {
       int type = draw_item_type;
@@ -894,22 +1088,7 @@ void em_draw_item_info(int x, int y, int color, int type, int num)
    }
 }
 
-void em_redraw_background(int gx, int gy)
-{
-   al_flip_display();
-   proc_scale_factor_change();
-   proc_controllers();
-   proc_frame_delay();
-   init_level_background();
-   get_new_background(0);
-   draw_lifts();
-   draw_items();
-   draw_enemies();
-   em_show_draw_item_cursor(gx, gy);
-   get_new_screen_buffer(3, 0, 0);
-}
-
-void em_find_point_item(int gx, int gy, int hx, int hy)
+void em_find_point_item()
 {
    // find point item
    point_item_type = 1; // block by default
@@ -973,7 +1152,7 @@ void em_find_point_item(int gx, int gy, int hx, int hy)
    }
 }
 
-void em_process_mouse_b1(int gx, int gy)
+void em_process_mouse_b1()
 {
    // don't allow drag draw selection unless draw type is block
    if (draw_item_type != 1) while (mouse_b1) proc_controllers();
@@ -1104,7 +1283,7 @@ void em_process_mouse_b1(int gx, int gy)
    } // end of switch case
 }
 
-int em_process_mouse_b2(int gx, int gy)
+int em_process_mouse_b2()
 {
    int quit = 0;
    switch (point_item_type)
@@ -1269,38 +1448,7 @@ int em_process_keypress(void)
 
 int edit_menu(int el)
 {
-   mW[1].set_pos(100, 100);
-   mW[1].set_size(320, 43);
-   mW[1].set_title("Status Window");
-   mW[1].active = 1;
-   mW[1].index = 1;
-   mW[1].layer = 0;
-
-   mW[2].set_pos(100, 300);
-   mW[2].set_size(322, 100);
-   mW[2].set_title("Selection Window");
-   mW[2].active = 1;
-   mW[2].index = 2;
-   mW[2].layer = 1;
-
-   mW[3].set_pos(500, 100);
-   mW[3].set_size(82, 100);
-   mW[3].set_title("Filters");
-   mW[3].active = 1;
-   mW[3].filter_mode = 1;
-   mW[3].resizable = 0;
-   mW[3].index = 3;
-   mW[3].layer = 2;
-
-
-   mW[4].set_pos(700, 100);
-   mW[4].set_size(100, 100);
-   mW[4].set_title("win4");
-   mW[4].active = 1;
-   mW[4].resizable = 1;
-   mW[4].index = 4;
-   mW[4].layer = 3;
-
+   set_windows(1);
    if (!el) load_level_prompt(); // load prompt
    else load_level(el, 0);       // blind load
    al_show_mouse_cursor(display);
@@ -1316,7 +1464,6 @@ int edit_menu(int el)
    set_frame_nums(0);
    for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear_key array
    int quit=0, mouse_on_window = 0;
-   int gx=0, gy=0, hx=0, hy=0;
    if (autoload_bookmark)
    {
       printf("load bookmark\n");
@@ -1329,9 +1476,7 @@ int edit_menu(int el)
    }
    while (!quit)
    {
-      ovw_process_scrolledge();
-      ovw_get_block_position_on_map(&gx, &gy, &hx, &hy);
-      em_redraw_background(gx, gy);
+      cm_redraw_level_editor_background();
 
       mouse_on_window = mw_cycle_windows(0);
 
@@ -1341,15 +1486,11 @@ int edit_menu(int el)
       if (select_window_active) mW[2].active = 1;
       else mW[2].active = 0;
 
-
-
-  //    if (status_window_active) em_process_status_window(0, gx, gy, &mouse_on_window);
-  //    if (select_window_active) em_process_select_window(0, &mouse_on_window);
       if (!mouse_on_window) // mouse pointer is not on window
       {
-         em_find_point_item(gx, gy, hx, hy);
-         if (mouse_b1) em_process_mouse_b1(gx, gy);
-         if (mouse_b2) quit = em_process_mouse_b2(gx, gy);
+         em_find_point_item();
+         if (mouse_b1) em_process_mouse_b1();
+         if (mouse_b2) quit = em_process_mouse_b2();
       }
       else point_item_type = -1; // to mark that
       quit = em_process_keypress();
