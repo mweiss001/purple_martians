@@ -498,7 +498,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
 {
    y+=4;
 
-   demo_mode_countdown = 2400;
+   demo_mode_countdown_val = demo_mode_countdown_reset;
 
    int highlight = menu_pos;
    int selection = 999;
@@ -517,30 +517,31 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       al_set_target_backbuffer(display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0, 0, 0));
+      proc_controllers();
 
+      frame_and_title(1);
+      mdw_an();
 
-      if (menu_num == 3)
-      {
-         frame_and_title(0);
-
-      }
-      else
-      {
-         frame_and_title(1);
-         mdw_an();
-      }
 
       int mx = SCREEN_W/2;
       if (menu_num == 7)
       {
          draw_level(); // only draw map on main menu
-      /*   if (--demo_mode_countdown < 0)
+
+         if (resume_allowed) demo_mode_enabled = 0;
+         if (demo_mode_enabled)
          {
-            demo_mode_countdown = 2400;
-            return 9;
-         } */
-         if (resume_allowed) demo_mode_countdown = 2400;
-         sprintf(global_string[7][9], "Demo Mode (%d)", demo_mode_countdown / 80);
+            if (--demo_mode_countdown_val < 0)
+            {
+               demo_mode_countdown_val = demo_mode_countdown_reset;
+               return 9;
+            }
+            sprintf(global_string[7][9], "Demo Mode (%d)", demo_mode_countdown_val / 80);
+         }
+         else
+         {
+            sprintf(global_string[7][9], "Demo Mode");
+         }
       }
 
       // draw the menu items
@@ -568,10 +569,6 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       }
       last_list_item = c-1;
 
-
-      if (proc_controllers()) demo_mode_countdown = 2400;
-
-      if (resume_allowed) demo_mode_countdown = 2400;
 
       // shortcut key for level editor
       //if (menu_num == 7) if (key[ALLEGRO_KEY_L]) return 9;
@@ -1066,6 +1063,7 @@ void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color
 
 int edit_pmsg_text(int c, int new_msg)
 {
+   int bts = 16;
    int tc = item[c][8];
    int char_count;
    int cursor_pos=0;
@@ -1076,11 +1074,11 @@ int edit_pmsg_text(int c, int new_msg)
    char f[1800];
    int quit = 0;
 
-   int xa = ov_window_x1;
-   int xb = ov_window_x2;
+   int xa = mW[7].x1;
+   int xb = mW[7].x2;
 
    int smx = (xa+xb)/2;  // x center
-   int smy = pop_msg_viewer_pos;
+   int smy = mW[7].pop_msg_viewer_pos;
 
    int bad=0;
 

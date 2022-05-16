@@ -1,17 +1,13 @@
 // e_object_viewer_windows.cpp
 #include "pm.h"
 
-int create_obj(int obt, int sub_type, int sent_num)
+int create_obj(int obt, int type, int num)
 {
-   int num = sent_num; // default
-   int ret;
-
    if (obt == 2) // items
    {
-      ret = create_item(sub_type);
+      int ret = create_item(type);
       if (ret > 500)
       {
-         num = sent_num;
          al_show_native_message_box(display,
                "Error", "No creator exists for the current item type",
                "Copy from an existing item of that type, or get one from the selection window",
@@ -21,7 +17,7 @@ int create_obj(int obt, int sub_type, int sent_num)
    }
    if (obt == 3)
    {
-      if (sub_type == 7)
+      if (type == 7)
       {
          int e = create_pod();
          if ((e>=0) && (e<99) && (Ei[e][0] == 7))
@@ -30,7 +26,7 @@ int create_obj(int obt, int sub_type, int sent_num)
             num = e;
          }
       }
-      if (sub_type == 9)
+      if (type == 9)
       {
          int e = create_cloner();
          if ((e>=0) && (e<99) && (Ei[e][0] == 9))
@@ -39,7 +35,7 @@ int create_obj(int obt, int sub_type, int sent_num)
             num = e;
          }
       }
-      if (sub_type == 10)
+      if (type == 10)
       {
          int e = create_field();
          if ((e>=0) && (e<99) && (Ei[e][0] == 10))
@@ -52,129 +48,52 @@ int create_obj(int obt, int sub_type, int sent_num)
    if (obt == 4) create_lift();
    return num;  // return number of created obj or sent_num if bad create
 }
-int ovw_get_size(int obt, int num, int*w, int*h)
+void ovw_get_size(void)
 {
-   int type=0;
+   int obt = mW[7].obt;
+   int num = mW[7].num;
+   int type=0, w=300, h=300;
    if (obt == 2) type = item[num][0];
    if (obt == 3) type = Ei[num][0];
 
-   int ret = 0;
-
-   if ((obt == 2) && (type == 1 )) { *w = 210; *h = 262; ret = 1;} // door
-   if ((obt == 2) && (type == 2 )) { *w = 200; *h = 190; ret = 1;} // bonus
-   if ((obt == 2) && (type == 3 )) { *w = 200; *h = 158; ret = 1;} // exit
-   if ((obt == 2) && (type == 4 )) { *w = 200; *h = 182; ret = 1;} // key
-   if ((obt == 2) && (type == 5 )) { *w = 200; *h = 174; ret = 1;} // start
-   if ((obt == 2) && (type == 7 )) { *w = 200; *h = 158; ret = 1;} // mine
-   if ((obt == 2) && (type == 8 )) { *w = 200; *h = 214; ret = 1;} // bomb
-   if ((obt == 2) && (type == 9 )) { *w = 280; *h = 406; ret = 1;} // trigger
-   if ((obt == 2) && (type == 10)) { *w = 220; *h = 390; ret = 1;} // message
-   if ((obt == 2) && (type == 11)) { *w = 220; *h = 230; ret = 1;} // rocket
-   if ((obt == 2) && (type == 12)) { *w = 220; *h = 214; ret = 1;} // warp
-   if ((obt == 2) && (type == 14)) { *w = 200; *h = 142; ret = 1;} // switch
-   if ((obt == 2) && (type == 15)) { *w = 240; *h = 166; ret = 1;} // sproingy
-   if ((obt == 2) && (type == 16)) { *w = 280; *h = 358; ret = 1;} // bm
-   if ((obt == 2) && (type == 17)) { *w = 290; *h = 358; ret = 1;} // bd
+   if ((obt == 2) && (type == 1 )) { w = 210; h = 262;} // door
+   if ((obt == 2) && (type == 2 )) { w = 200; h = 190;} // bonus
+   if ((obt == 2) && (type == 3 )) { w = 200; h = 158;} // exit
+   if ((obt == 2) && (type == 4 )) { w = 200; h = 182;} // key
+   if ((obt == 2) && (type == 5 )) { w = 200; h = 174;} // start
+   if ((obt == 2) && (type == 7 )) { w = 200; h = 158;} // mine
+   if ((obt == 2) && (type == 8 )) { w = 200; h = 214;} // bomb
+   if ((obt == 2) && (type == 9 )) { w = 280; h = 406;} // trigger
+   if ((obt == 2) && (type == 10)) { w = 220; h = 390;} // message
+   if ((obt == 2) && (type == 11)) { w = 220; h = 230;} // rocket
+   if ((obt == 2) && (type == 12)) { w = 220; h = 214;} // warp
+   if ((obt == 2) && (type == 14)) { w = 200; h = 142;} // switch
+   if ((obt == 2) && (type == 15)) { w = 240; h = 166;} // sproingy
+   if ((obt == 2) && (type == 16)) { w = 280; h = 358;} // bm
+   if ((obt == 2) && (type == 17)) { w = 290; h = 358;} // bd
 
 
-   if ((obt == 3) && (type == 3 )) { *w = 220; *h = 422; ret = 1;} // archwagon
-   if ((obt == 3) && (type == 4 )) { *w = 220; *h = 302; ret = 1;} // bouncer
-   if ((obt == 3) && (type == 6 )) { *w = 220; *h = 318; ret = 1;} // cannon
-   if ((obt == 3) && (type == 7 )) { *w = 220; *h = 302; ret = 1;} // podzilla
-   if ((obt == 3) && (type == 8 )) { *w = 220; *h = 342; ret = 1;} // trakbot
-   if ((obt == 3) && (type == 9 )) { *w = 220; *h = 390; ret = 1;} // cloner
-   if ((obt == 3) && (type == 11)) { *w = 220; *h = 350; ret = 1;} // block walker
-   if ((obt == 3) && (type == 12)) { *w = 220; *h = 446; ret = 1;} // flapper
+   if ((obt == 3) && (type == 3 )) { w = 220; h = 422;} // archwagon
+   if ((obt == 3) && (type == 4 )) { w = 220; h = 302;} // bouncer
+   if ((obt == 3) && (type == 6 )) { w = 220; h = 318;} // cannon
+   if ((obt == 3) && (type == 7 )) { w = 220; h = 302;} // podzilla
+   if ((obt == 3) && (type == 8 )) { w = 220; h = 342;} // trakbot
+   if ((obt == 3) && (type == 9 )) { w = 220; h = 390;} // cloner
+   if ((obt == 3) && (type == 11)) { w = 220; h = 350;} // block walker
+   if ((obt == 3) && (type == 12)) { w = 220; h = 446;} // flapper
 
-   if ((obt == 3) && (type == 10)) { *w = 280; *h = 350; ret = 1;} // field
+   if ((obt == 3) && (type == 10)) { w = 280; h = 350;} // field
 
-   if (obt == 4)                   { *w = 300; *h = ov_window_lift_buttons_h; ret = 1;} // lift
+   if (obt == 4)                   { w = 300; h = mW[7].ov_window_lift_buttons_h;} // lift
 
-   return ret;
-}
-void ovw_process_scrolledge(void)
-{
-   int bw = BORDER_WIDTH;
-   int scrolledge = 10;
-   int scroll_amount = 20;
-
-   if (mouse_x < scrolledge) WX-=scroll_amount;           // scroll left
-   if (mouse_x > SCREEN_W-scrolledge) WX+=scroll_amount;  // scroll right
-   if (mouse_y < scrolledge) WY-=scroll_amount;           // scroll up
-   if (mouse_y > SCREEN_H-scrolledge) WY+=scroll_amount;  // scroll down
-
-      // find the size of the source screen from actual screen size and scaler
-   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
-   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
-   if (SW > 2000) SW = 2000;
-   if (SH > 2000) SH = 2000;
-
-   // correct for edges
-   if (WX < 0) WX = 0;
-   if (WY < 0) WY = 0;
-   if (WX > (2000 - SW)) WX = 2000 - SW;
-   if (WY > (2000 - SH)) WY = 2000 - SH;
-
-   // used by get_new_background to only get what is needed
-   level_display_region_x = WX;
-   level_display_region_y = WY;
-   level_display_region_w = SW;
-   level_display_region_h = SH;
+   mW[7].set_size(w, h);
 
 }
-void ovw_get_block_position_on_map()
+
+void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
 {
-   // x, y in 0-99 scale
-   // the mouse position past the border width is how far we are into the scaled map
-   float mx1 = mouse_x-BORDER_WIDTH;
-   float my1 = mouse_y-BORDER_WIDTH;
-
-   // divide that by bs to get how many blocks we are into the map
-   float mx2 = mx1 / (scale_factor_current * 20);
-   float my2 = my1 / (scale_factor_current * 20);
-   // get block position of WX
-   float mx3 = (float)WX / 20;
-   float my3 = (float)WY / 20;
-
-   // add
-   float mx4 = mx3 + mx2;
-   float my4 = my3 + my2;
-
-   gx = (int) mx4;
-   gy = (int) my4;
-
-   if (gx < 0)  gx = 0;
-   if (gy < 0)  gy = 0;
-   if (gx > 99) gx = 99;
-   if (gy > 99) gy = 99;
-
-   // hx, hy in 0-1999 scale
-   // the mouse position past the border width is how far we are into the scaled map
-   mx1 = mouse_x-BORDER_WIDTH;
-   my1 = mouse_y-BORDER_WIDTH;
-
-   // scale
-   mx2 = mx1 / scale_factor_current;
-   my2 = my1 / scale_factor_current;
-
-   // get position of WX
-   mx3 = (float)WX;
-   my3 = (float)WY;
-
-   // add
-   mx4 = mx3 + mx2;
-   my4 = my3 + my2;
-
-   hx = (int) mx4;
-   hy = (int) my4;
-
-   if (hx < 0)    hx = 0;
-   if (hy < 0)    hy = 0;
-   if (hx > 1999) hx = 1999;
-   if (hy > 1999) hy = 1999;
-}
-void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_highlight)
-{
+   int obt = mW[7].obt;
+   int num = mW[7].num;
    int type=0;
    if (obt == 2) type = item[num][0];
    if (obt == 3) type = Ei[num][0];
@@ -192,7 +111,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
    int legend_color[5];
 
    // default number of legend lines
-   num_legend_lines = 2;
+   mW[7].num_legend_lines = 2;
 
    legend_color[0] = 7;   // legend color
    legend_color[1] = 13;  // location color
@@ -215,7 +134,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
 
    if (obt == 4)  // lifts
    {
-      num_legend_lines = 0;
+      mW[7].num_legend_lines = 0;
       al_draw_rectangle(xc-94, yt, xc+94, yt+22, palette_color[15], 1);
       al_draw_textf(font, palette_color[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, num_lifts);
    }
@@ -229,7 +148,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
       {
          case 3: // archwagon
          {
-            num_legend_lines = 3;
+            mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"ArchWagon Location");
             sprintf(lmsg[2],"Bullet Proximity");
             legend_color[2] = 14;
@@ -243,7 +162,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
             sprintf(lmsg[1],"Podzilla Location");
             sprintf(lmsg[2],"Extended Postion");
             sprintf(lmsg[3],"Trigger Box");
-            num_legend_lines = 4;
+            mW[7].num_legend_lines = 4;
 
             legend_color[2] = 10;
             if (legend_highlight == 2) legend_color[2] = flash_color;
@@ -254,7 +173,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
          break;
          case 8: // trakbot
          {
-            num_legend_lines = 3;
+            mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"TrakBot Location");
             sprintf(lmsg[2],"Bullet Proximity");
             legend_color[2] = 14;
@@ -267,7 +186,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
             sprintf(lmsg[2],"Source Area");
             sprintf(lmsg[3],"Destination Area");
             sprintf(lmsg[4],"Trigger Box");
-            num_legend_lines = 5;
+            mW[7].num_legend_lines = 5;
 
             legend_color[2] = 11;
             if (legend_highlight == 2) legend_color[2] = flash_color;
@@ -284,7 +203,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
             sprintf(lmsg[1],"Field Location");
             sprintf(lmsg[2],"Field Area");
             sprintf(lmsg[3],"Trigger Box");
-            num_legend_lines = 4;
+            mW[7].num_legend_lines = 4;
 
             legend_color[2] = 10;
             if (legend_highlight == 2) legend_color[2] = flash_color;
@@ -299,7 +218,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
             sprintf(lmsg[1],"Flapper Location");
             sprintf(lmsg[2],"Bullet Trigger Box");
             sprintf(lmsg[3],"Height Above Player");
-            num_legend_lines = 4;
+            mW[7].num_legend_lines = 4;
 
             legend_color[2] = 14;
             if (legend_highlight == 2) legend_color[2] = flash_color;
@@ -320,7 +239,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
       {
          case 1: // door
          {
-            num_legend_lines = 3;
+            mW[7].num_legend_lines = 3;
             legend_color[2] = 10;
             if (legend_highlight == 2) legend_color[2] = flash_color;
 
@@ -350,7 +269,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
          case 3: sprintf(lmsg[1],"Exit Location"); break;
          case 4: // key
          {
-            num_legend_lines = 3;
+            mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"Key Location");
             sprintf(lmsg[2],"Block Range");
 
@@ -362,7 +281,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
          case 7: sprintf(lmsg[1],"Mine Location"); break;
          case 8:
          {
-            num_legend_lines = 3;
+            mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"Bomb Location");
             sprintf(lmsg[2],"Damage Range");
             legend_color[2] = 14;
@@ -371,7 +290,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
          break;
          case 9: // trigger
          {
-            num_legend_lines = 3;
+            mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"Trigger Item Location");
             sprintf(lmsg[2],"Trigger Field");
             legend_color[2] = 10;
@@ -382,12 +301,12 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
          {
             sprintf(lmsg[1],"Message Location");
             sprintf(lmsg[2],"Display Position");
-            num_legend_lines = 3;
+            mW[7].num_legend_lines = 3;
          }
          break;
          case 11:
          {
-            num_legend_lines = 3;
+            mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"Rocket Location");
             sprintf(lmsg[2],"Damage Range");
             legend_color[2] = 14;
@@ -398,14 +317,14 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
          case 14: sprintf(lmsg[1],"Switch Location"); break;
          case 15: sprintf(lmsg[1],"Sproingy Location");
          {
-            num_legend_lines = 3;
+            mW[7].num_legend_lines = 3;
             legend_color[2] = 14;
             if (legend_highlight == 2) legend_color[2] = flash_color;
          }
          break;
          case 16: // block manip
          {
-            num_legend_lines = 3;
+            mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"Block Manip Item Location");
             sprintf(lmsg[2],"Manip Field");
             legend_color[2] = 12;
@@ -414,7 +333,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
          break;
          case 17: // block damage
          {
-            num_legend_lines = 3;
+            mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"Item Location");
             sprintf(lmsg[2],"Damage Area");
             legend_color[2] = 10;
@@ -426,18 +345,22 @@ void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_high
 
    al_draw_rectangle(x1, y1, x2, y2, palette_color[13], 1);  // outline entire window
 
-   if (num_legend_lines > 0)
+   if (mW[7].num_legend_lines > 0)
    {
-      al_draw_text(font, palette_color[legend_color[0]], xc, y2-36+ (4-num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
-      al_draw_rectangle(xc-100, y2-38+ (4-num_legend_lines)*8, xc+100, y2-1, palette_color[13], 1); // big frame
-      al_draw_rectangle(xc-100, y2-38+ (4-num_legend_lines)*8, xc+100, y2-28+ (4-num_legend_lines)*8, palette_color[13], 1); // top frame
+      al_draw_text(font, palette_color[legend_color[0]], xc, y2-36+ (4-mW[7].num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
+      al_draw_rectangle(xc-100, y2-38+ (4-mW[7].num_legend_lines)*8, xc+100, y2-1, palette_color[13], 1); // big frame
+      al_draw_rectangle(xc-100, y2-38+ (4-mW[7].num_legend_lines)*8, xc+100, y2-28+ (4-mW[7].num_legend_lines)*8, palette_color[13], 1); // top frame
    }
 
-   for (int x=1; x<num_legend_lines; x++)// draw text lines
-      al_draw_text(font, palette_color[legend_color[x]], xc, y2-26+(3-num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
+   for (int x=1; x<mW[7].num_legend_lines; x++)// draw text lines
+      al_draw_text(font, palette_color[legend_color[x]], xc, y2-26+(3-mW[7].num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 }
-void ovw_draw_buttons(int x1, int y1, int x2, int y2, int obt, int num, int have_focus, int moving)
+void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving)
 {
+
+   int obt = mW[7].obt;
+   int num = mW[7].num;
+
    int d = 1;
    if (have_focus) d = 0;
    if (moving) d = 1;
@@ -460,18 +383,16 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int obt, int num, int have
    int x27 = xa + 2 * (xb-xa) / 7; // 2/7
    int x57 = xa + 5 * (xb-xa) / 7; // 5/7
 
-   int dim = 128;
-
-   int lc = 6; // lock_color;
-   if (viewer_lock) lc = 7;
+   int bts=16, dim=128;
 
 
    // --------------------------------------------------
    // --- Common ---------------------------------------
    // --------------------------------------------------
-
+   int lc = 6; // lock_color;
+   if (mW[7].viewer_lock) lc = 7;
    if (mdw_buttont(xa,  ya, x27-1, ya+bts-2, 0,0,0,0,  0,  9, 15, 0,  1,0,0,d, "Prev")) mW[7].mb = 22;
-        mdw_toggle(x27, ya, x57-1, ya+bts-2, 0,0,0,0,  0, lc, 15, 0,  1,0,0,d, viewer_lock, "Unlocked", "Locked", 15, 15, 6, 7);
+        mdw_toggle(x27, ya, x57-1, ya+bts-2, 0,0,0,0,  0, lc, 15, 0,  1,0,0,d, mW[7].viewer_lock, "Unlocked", "Locked", 15, 15, 6, 7);
    if (mdw_buttont(x57, ya, xb,    ya+bts-2, 0,0,0,0,  0,  9, 15, 0,  1,0,0,d, "Next")) mW[7].mb = 21;
    ya+=bts;
 
@@ -537,7 +458,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int obt, int num, int have
 
       // draw buttons for the current step button and get y postion for next item (lift)
       int yld = ycs + draw_current_step_buttons(xa, xb, ycs, lift, step);
-      ov_window_lift_buttons_h = yld - ov_window_y1-9; // global variable for height of ovw when variable due to lift
+      mW[7].ov_window_lift_buttons_h = yld - mW[7].y1-9; // global variable for height of ovw when variable due to lift
       yld += bts;
 
       // draw current lift under step list buttons
@@ -879,7 +800,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int obt, int num, int have
             mdw_button(xa, ya, xb, ya+bts-2, 200,  num, type, obt, 0, 14, 14, 14, 1,0,0,d); ya+=bts*2; // Get New Trigger Field
 
             // draw trigger field on/off with optional color select if on
-            mdw_togglf(xa, ya, xb, ya+bts-2, 0,0,0,0,  0,0,0,0,  1,0,0,d, item[num][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF           ","Draw Trigger Field:ON            ", 15+96, 15, 15+96, item[num][2]); ya+=bts; // Draw on/off
+            mdw_togglf(xa, ya, xb, ya+bts-2, 0,0,0,0,  0,0,0,0,  1,0,0,d, item[num][3], PM_ITEM_TRIGGER_DRAW_ON, "Draw Trigger Field:OFF           ","Draw Trigger Field:ON            ", 15+dim, 15, 15+dim, item[num][2]); ya+=bts; // Draw on/off
             if (FLAGS & PM_ITEM_TRIGGER_DRAW_ON)
             {
                mdw_colsel(xa, ya, xb, ya+bts-2, 6, num, type, obt,  0,0,0,0,  0,0,0,d); ya+=bts; // color select
@@ -1013,9 +934,9 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int obt, int num, int have
             ya+=bts*2; // leave space for OK and Cancel buttons
 
             // draw the current one last to ensure it is on top
-            pop_msg_viewer_pos = ya+bts/2+2;
+            mW[7].pop_msg_viewer_pos = ya+bts/2+2;
 
-            display_pop_message(num, pmsgtext[num], (xa+xb)/2, pop_msg_viewer_pos, 0, d); // show the message
+            display_pop_message(num, pmsgtext[num], (xa+xb)/2, mW[7].pop_msg_viewer_pos, 0, d); // show the message
             ya+=bts*8;
 
          break;
@@ -1042,8 +963,11 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int obt, int num, int have
       }
    }
 }
-void ovw_draw_overlays(int obt, int num, int legend_highlight)
+void ovw_draw_overlays(int legend_highlight)
 {
+   int obt = mW[7].obt;
+   int num = mW[7].num;
+
    al_set_target_bitmap(level_buffer);
 
    if (obt == 4)  // lifts
@@ -1359,20 +1283,17 @@ void ovw_draw_overlays(int obt, int num, int legend_highlight)
       } // end of switch case
    }
 }
-void ovw_map_move(int &obt, int &num)
+void ovw_process_mouse(void)
 {
-   ovw_get_block_position_on_map();
-
    int lift=0, step=0;
-   if (obt == 4)
+   if (mW[7].obt == 4)
    {
-      lift = num;
+      lift = mW[7].num;
       step = lifts[lift].current_step;
    }
 
    int mouse_on_obj = 0;
    int mouse_on_podx = 0;
-   int mouse_on_podx_num = 0;
    int mouse_on_csb_ul = 0;
    int mouse_on_csb_lr = 0;
    int mouse_on_cdb_ul = 0;
@@ -1395,178 +1316,211 @@ void ovw_map_move(int &obt, int &num)
    int msn = 10-mst; // mouse select negative threshold
    int msp = 10+mst; // mouse select positive threshold
 
+
    // -----------------------------------------------------------
    // --  detect if mouse pointer is on enemy
    // -----------------------------------------------------------
    for (int b=0; b<100; b++)
-      if ((Ei[b][0]) && (obj_filter[3][Ei[b][0]])) // iterate valid enemies that have the obj_filter on
+      if (Ei[b][0])
       {
          int ex = al_fixtoi(Efi[b][0]);
          int ey = al_fixtoi(Efi[b][1]);
          int type = Ei[b][0];
-         if ((hx>ex+msn) && (hx<ex+msp) && (hy>ey+msn) && (hy<ey+msp)) // set this enemy to current object
+
+         // check to see if we can set this object to be the current object
+         if ((hx>ex+msn) && (hx<ex+msp) && (hy>ey+msn) && (hy<ey+msp) && (!mW[7].viewer_lock) && (!key[MAP_LOCK_KEY]) && (obj_filter[3][type]))
          {
-            obt = 3;
-            num = b;
+            // set this enemy to current object
+            mW[7].obt = 3;
+            mW[7].num = b;
             mouse_move = 1;
             mouse_on_obj = 1;
          }
-         if (type == 8) // trakbot bullet prox
+
+         // if this object is already current object
+         if ((hx>ex+msn) && (hx<ex+msp) && (hy>ey+msn) && (hy<ey+msp) && (mW[7].obt == 3) && (mW[7].num == b))
          {
-            float x0 = al_fixtof(Efi[b][0])+10; // get center of item location
-            float y0 = al_fixtof(Efi[b][1])+10;
-            float fx = (float) hx;
-            float fy = (float) hy;
-            float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse
-            float bdr = (float) Ei[b][17]; // prox radius
-            float dif = dst-bdr; // difference
-            if ((dif < 3 ) && (dif > -3))  // mouse is on prox circle
-            {
-               mouse_on_trk = 1;
-               mouse_move = 1;
-            }
-         }
-         if (type == 7) // podzilla extended position
-         {
-            int px=0, py=0;
-            get_pod_extended_position(b, &px, &py);
-            if ((hx>px+msn) && (hx<px+msp) && (hy>py+msn) && (hy<py+msp))
-            {
-               mouse_move = 1;
-               mouse_on_podx = 1;
-               mouse_on_podx_num = b;
-            }
-         }
-         if ((type == 7) || (type == 9)) // podzilla and cloner trigger box
-         {
-            int x1 = Ei[b][11];
-            int y1 = Ei[b][12];
-            int x2 = Ei[b][11]+Ei[b][13]+20;
-            int y2 = Ei[b][12]+Ei[b][14]+20;
-            if ((hx>x1-mst) && (hx<x1+mst) && (hy>y1-mst) && (hy<y1+mst)) // upper left corner (move)
-            {
-               mouse_on_tb_ul = 1;
-               mouse_move = 1;
-            }
-            if ((hx>x2-mst) && (hx<x2+mst) && (hy>y2-mst) && (hy<y2+mst)) // lower right corner (resize)
-            {
-               mouse_on_tb_lr = 1;
-               mouse_adj = 1;
-            }
-         }
-         if (type == 9) // cloner source and destination boxes
-         {
-            int w = Ei[num][19];     // width
-            int h = Ei[num][20];     // height
-            int x1 = Ei[num][15];    // source box
-            int y1 = Ei[num][16];
-            int x2 = x1 + w - 1;
-            int y2 = y1 + h - 1;
-            int x3 = Ei[num][17];    // dest box
-            int y3 = Ei[num][18];
-            if ((hx>x1-mst) && (hx<x1+mst) && (hy>y1-mst) && (hy<y1+mst)) // source upper left corner (move)
-            {
-               mouse_on_csb_ul = 1;
-               mouse_move = 1;
-            }
-            if ((hx>x2-mst) && (hx<x2+mst) && (hy>y2-mst) && (hy<y2+mst)) // source lower right corner (re-size)
-            {
-               mouse_on_csb_lr = 1;
-               mouse_adj = 1;
-            }
-            if ((hx>x3-mst) && (hx<x3+mst) && (hy>y3-mst) && (hy<y3+mst)) // destination upper left corner (move)
-            {
-               mouse_on_cdb_ul = 1;
-               mouse_move = 1;
-            }
+            mouse_move = 1;
+            mouse_on_obj = 1;
          }
       }
+
+   // if current object is enemy, check for secondaries
+   if (mW[7].obt == 3)
+   {
+      int b = mW[7].num;
+      int type = Ei[b][0];
+      if (type == 8) // trakbot bullet prox
+      {
+         float x0 = al_fixtof(Efi[b][0])+10; // get center of item location
+         float y0 = al_fixtof(Efi[b][1])+10;
+         float fx = (float) hx;
+         float fy = (float) hy;
+         float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse
+         float bdr = (float) Ei[b][17]; // prox radius
+         float dif = dst-bdr; // difference
+         if ((dif < 3 ) && (dif > -3))  // mouse is on prox circle
+         {
+            mouse_on_trk = 1;
+            mouse_move = 1;
+         }
+      }
+      if (type == 7) // podzilla extended position
+      {
+         int px=0, py=0;
+         get_pod_extended_position(b, &px, &py);
+         if ((hx>px+msn) && (hx<px+msp) && (hy>py+msn) && (hy<py+msp))
+         {
+            mouse_move = 1;
+            mouse_on_podx = 1;
+         }
+      }
+      if ((type == 7) || (type == 9)) // podzilla and cloner trigger box
+      {
+         int x1 = Ei[b][11];
+         int y1 = Ei[b][12];
+         int x2 = Ei[b][11]+Ei[b][13]+20;
+         int y2 = Ei[b][12]+Ei[b][14]+20;
+         if ((hx>x1-mst) && (hx<x1+mst) && (hy>y1-mst) && (hy<y1+mst)) // upper left corner (move)
+         {
+            mouse_on_tb_ul = 1;
+            mouse_move = 1;
+         }
+         if ((hx>x2-mst) && (hx<x2+mst) && (hy>y2-mst) && (hy<y2+mst)) // lower right corner (resize)
+         {
+            mouse_on_tb_lr = 1;
+            mouse_adj = 1;
+         }
+      }
+      if (type == 9) // cloner source and destination boxes
+      {
+         int w = Ei[mW[7].num][19];     // width
+         int h = Ei[mW[7].num][20];     // height
+         int x1 = Ei[mW[7].num][15];    // source box
+         int y1 = Ei[mW[7].num][16];
+         int x2 = x1 + w - 1;
+         int y2 = y1 + h - 1;
+         int x3 = Ei[mW[7].num][17];    // dest box
+         int y3 = Ei[mW[7].num][18];
+         if ((hx>x1-mst) && (hx<x1+mst) && (hy>y1-mst) && (hy<y1+mst)) // source upper left corner (move)
+         {
+            mouse_on_csb_ul = 1;
+            mouse_move = 1;
+         }
+         if ((hx>x2-mst) && (hx<x2+mst) && (hy>y2-mst) && (hy<y2+mst)) // source lower right corner (re-size)
+         {
+            mouse_on_csb_lr = 1;
+            mouse_adj = 1;
+         }
+         if ((hx>x3-mst) && (hx<x3+mst) && (hy>y3-mst) && (hy<y3+mst)) // destination upper left corner (move)
+         {
+            mouse_on_cdb_ul = 1;
+            mouse_move = 1;
+         }
+      }
+   }
+
+
+
+
+
 
    // -----------------------------------------------------------
    // --  detect if mouse pointer is on item
    // -----------------------------------------------------------
    for (int b=0; b<500; b++)
-      if ((item[b][0]) && (obj_filter[2][item[b][0]])) // iterate valid items that have the obj filter on
+      if (item[b][0])
       {
          int ix = item[b][4];
          int iy = item[b][5];
-         if ((hx>ix+msn) && (hx<ix+msp) && (hy>iy+msn) && (hy<iy+msp)) // set this item to current object
+         int type = item[b][0];
+         // check to see if we can set this object to be the current object
+         if ((hx>ix+msn) && (hx<ix+msp) && (hy>iy+msn) && (hy<iy+msp) && (!mW[7].viewer_lock) && (!key[MAP_LOCK_KEY]) && (obj_filter[2][type]))
          {
-            obt = 2;
-            num = b;
+            // set this item to current object
+            mW[7].obt = 2;
+            mW[7].num = b;
             mouse_move = 1;
             mouse_on_obj = 1;
          }
-         if (item[b][0] == 10) // pop message
+         // if this object is already current object
+         if ((hx>ix+msn) && (hx<ix+msp) && (hy>iy+msn) && (hy<iy+msp) && (mW[7].obt == 2) && (mW[7].num == b))
          {
-            int x1 = item[num][10];
-            int y1 = item[num][11];
-            if ((hx>x1-mst) && (hx<x1+mst) && (hy>y1-mst) && (hy<y1+mst)) // upper left corner (move)
-            {
-               mouse_on_msg_ul = 1;
-               mouse_move = 1;
-            }
-         }
-         if ((item[b][0] == 8) || (item[b][0] == 11)) // bomb or rocket
-         {
-            float x0 = (float) item[num][4]+10; // get center of item location
-            float y0 = (float) item[num][5]+10;
-            float fx = (float) hx;
-            float fy = (float) hy;
-            float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse to item
-            float bdr = (float) item[num][7]; // bomb damage radius
-            float dif = dst-bdr; // difference
-            if ((dif < 3 ) && (dif > -3))  // mouse is on blast radius circle
-            {
-               mouse_on_bmb = 1;
-               mouse_move = 1;
-            }
-         }
-         if (item[b][0] == 15) // sproingy
-         {
-            int x1 = item[num][4];
-            int y1 = item[num][5];
-            int y2 = y1 - al_fixtoi(get_sproingy_jump_height(num));
-
-            if ((hx>x1+msn) && (hx<x1+msp) && (hy>y2+msn) && (hy<y2+msp))
-            {
-               mouse_on_sp = 1;
-               mouse_move = 1;
-            }
-         }
-         if ((item[b][0] == 4) || (item[b][0] == 9) || (item[b][0] == 16) || (item[b][0]== 17)) // key, trigger, manip, damage
-         {
-            int x1 = item[num][6];
-            int y1 = item[num][7];
-            int x2 = x1 + item[num][8];
-            int y2 = y1 + item[num][9];
-
-            if ((hx>x1-mst) && (hx<x1+mst) && (hy>y1-mst) && (hy<y1+mst)) // upper left corner (move)
-            {
-               mouse_on_kbr_ul = 1;
-               mouse_move = 1;
-            }
-            if ((hx>x2-mst) && (hx<x2+mst) && (hy>y2-mst) && (hy<y2+mst)) // lower right corner (resize)
-            {
-               mouse_on_kbr_lr = 1;
-               mouse_adj = 1;
-            }
-
-
-
-
+            mouse_move = 1;
+            mouse_on_obj = 1;
          }
       }
+
+   // if current object is item, check for secondaries
+   if (mW[7].obt == 2)
+   {
+      int b = mW[7].num;
+      int type = item[b][0];
+
+      if (type == 10) // pop message
+      {
+         int x1 = item[mW[7].num][10];
+         int y1 = item[mW[7].num][11];
+         if ((hx>x1-mst) && (hx<x1+mst) && (hy>y1-mst) && (hy<y1+mst)) // upper left corner (move)
+         {
+            mouse_on_msg_ul = 1;
+            mouse_move = 1;
+         }
+      }
+      if ((type == 8) || (type == 11)) // bomb or rocket
+      {
+         float x0 = (float) item[mW[7].num][4]+10; // get center of item location
+         float y0 = (float) item[mW[7].num][5]+10;
+         float fx = (float) hx;
+         float fy = (float) hy;
+         float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse to item
+         float bdr = (float) item[mW[7].num][7]; // bomb damage radius
+         float dif = dst-bdr; // difference
+         if ((dif < 3 ) && (dif > -3))  // mouse is on blast radius circle
+         {
+            mouse_on_bmb = 1;
+            mouse_move = 1;
+         }
+      }
+      if (type == 15) // sproingy
+      {
+         int x1 = item[mW[7].num][4];
+         int y1 = item[mW[7].num][5];
+         int y2 = y1 - al_fixtoi(get_sproingy_jump_height(mW[7].num));
+
+         if ((hx>x1+msn) && (hx<x1+msp) && (hy>y2+msn) && (hy<y2+msp))
+         {
+            mouse_on_sp = 1;
+            mouse_move = 1;
+         }
+      }
+      if ((type == 4) || (type == 9) || (type == 16) || (type == 17)) // key, trigger, manip, damage
+      {
+         int x1 = item[mW[7].num][6];
+         int y1 = item[mW[7].num][7];
+         int x2 = x1 + item[mW[7].num][8];
+         int y2 = y1 + item[mW[7].num][9];
+
+         if ((hx>x1-mst) && (hx<x1+mst) && (hy>y1-mst) && (hy<y1+mst)) // upper left corner (move)
+         {
+            mouse_on_kbr_ul = 1;
+            mouse_move = 1;
+         }
+         if ((hx>x2-mst) && (hx<x2+mst) && (hy>y2-mst) && (hy<y2+mst)) // lower right corner (resize)
+         {
+            mouse_on_kbr_lr = 1;
+            mouse_adj = 1;
+         }
+      }
+   }
 
    // -----------------------------------------------------------
    // --  detect if mouse pointer is on lift
    // -----------------------------------------------------------
    mouse_on_lift = 0;
-
    if (obj_filter[4][1])
    {
-
-      if ((!key[MAP_LOCK_KEY]) && (!viewer_lock)) // no lock...check all lifts and steps
+      if ((!key[MAP_LOCK_KEY]) && (!mW[7].viewer_lock)) // no lock...check all lifts and steps
       {
          for (int x=0; x<num_lifts; x++)  // cycle lifts
             for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
@@ -1579,8 +1533,8 @@ void ovw_map_move(int &obt, int &num)
                   if ((hx > nx - w)  && (hx < nx + w) && (hy > ny - h)  && (hy < ny + h)) // is mouse on this step ?
                   {
                      mouse_on_lift = 1;
-                     obt = 4;
-                     num = x;
+                     mW[7].obt = 4;
+                     mW[7].num = x;
                      lift = x;
                      step = y;
                      set_lift_to_step(lift, step);   // set current step in current lift
@@ -1588,7 +1542,7 @@ void ovw_map_move(int &obt, int &num)
                }
       }
 
-      if (((key[MAP_LOCK_KEY]) || (viewer_lock)) && (obt == 4)) // locked, but locked to current lift
+      if (((key[MAP_LOCK_KEY]) || (mW[7].viewer_lock)) && (mW[7].obt == 4)) // locked, but locked to current lift
       {
          int x = lift; // check only current lift
          for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
@@ -1619,12 +1573,23 @@ void ovw_map_move(int &obt, int &num)
       else mouse_move = 1;
    }
 
+
+
+
+
+
+
+
    // -----------------------------------------------------------
    // --  set mouse cursor
    // -----------------------------------------------------------
    if (mouse_move) al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_MOVE);
    else if (mouse_adj) al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE);
    else al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+
+
+
+
 
 
    if (mouse_b1)
@@ -1634,62 +1599,62 @@ void ovw_map_move(int &obt, int &num)
          if (mouse_on_obj)
          {
             //printf("mouse pressed on obj\n");
-            if (obt == 2) // move item
+            if (mW[7].obt == 2) // move item
             {
                // get offset of move
-               int x_off = gx - item[num][4] / 20;
-               int y_off = gy - item[num][5] / 20;
+               int x_off = gx - item[mW[7].num][4] / 20;
+               int y_off = gy - item[mW[7].num][5] / 20;
 
-               item[num][4] = gx*20;
-               item[num][5] = gy*20;
-               itemf[num][0] = al_itofix(gx*20);
-               itemf[num][1] = al_itofix(gy*20);
+               item[mW[7].num][4] = gx*20;
+               item[mW[7].num][5] = gy*20;
+               itemf[mW[7].num][0] = al_itofix(gx*20);
+               itemf[mW[7].num][1] = al_itofix(gy*20);
 
                if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
                {
-                   if ((item[num][0] == 4) || (item[num][0] == 9) || (item[num][0] == 16) || (item[num][0]== 17)) // key, trigger, manip, damage
+                   if ((item[mW[7].num][0] == 4) || (item[mW[7].num][0] == 9) || (item[mW[7].num][0] == 16) || (item[mW[7].num][0]== 17)) // key, trigger, manip, damage
                    {
-                      item[num][6] += x_off*20;
-                      item[num][7] += y_off*20;
+                      item[mW[7].num][6] += x_off*20;
+                      item[mW[7].num][7] += y_off*20;
                    }
-                   if (item[num][0] == 10) // msg
+                   if (item[mW[7].num][0] == 10) // msg
                    {
-                      item[num][10] += x_off*20;
-                      item[num][11] += y_off*20;
+                      item[mW[7].num][10] += x_off*20;
+                      item[mW[7].num][11] += y_off*20;
                    }
                }
             }
-            if (obt == 3) // move enemy
+            if (mW[7].obt == 3) // move enemy
             {
                // get offset of move
-               int x_off = gx - al_fixtoi(Efi[num][0]) / 20;
-               int y_off = gy - al_fixtoi(Efi[num][1]) / 20;
+               int x_off = gx - al_fixtoi(Efi[mW[7].num][0]) / 20;
+               int y_off = gy - al_fixtoi(Efi[mW[7].num][1]) / 20;
 
                // set new position
-               Efi[num][0] = al_itofix(gx*20);
-               Efi[num][1] = al_itofix(gy*20);
+               Efi[mW[7].num][0] = al_itofix(gx*20);
+               Efi[mW[7].num][1] = al_itofix(gy*20);
 
                if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
                {
                   // move podzilla's trigger box too
-                  if (Ei[num][0] == 7)
+                  if (Ei[mW[7].num][0] == 7)
                   {
-                     Ei[num][11] += x_off*20;
-                     Ei[num][12] += y_off*20;
+                     Ei[mW[7].num][11] += x_off*20;
+                     Ei[mW[7].num][12] += y_off*20;
                   }
                   // move cloner's stuff too
-                  if (Ei[num][0] == 9)
+                  if (Ei[mW[7].num][0] == 9)
                   {
-                     Ei[num][11] += x_off*20; // trigger box
-                     Ei[num][12] += y_off*20;
-                     Ei[num][15] += x_off*20; // source
-                     Ei[num][16] += y_off*20;
-                     Ei[num][17] += x_off*20; // dest
-                     Ei[num][18] += y_off*20;
+                     Ei[mW[7].num][11] += x_off*20; // trigger box
+                     Ei[mW[7].num][12] += y_off*20;
+                     Ei[mW[7].num][15] += x_off*20; // source
+                     Ei[mW[7].num][16] += y_off*20;
+                     Ei[mW[7].num][17] += x_off*20; // dest
+                     Ei[mW[7].num][18] += y_off*20;
                   }
                }
             }
-            if (obt == 4) // lift
+            if (mW[7].obt == 4) // lift
             {
                if (mouse_move)
                {
@@ -1713,116 +1678,117 @@ void ovw_map_move(int &obt, int &num)
          }
          if (mouse_on_podx)
          {
-            int num = mouse_on_podx_num;
-            Efi[num][5] = al_itofix(gx * 20);
-            Efi[num][6] = al_itofix(gy * 20);
-            recalc_pod(num);
+            Efi[mW[7].num][5] = al_itofix(gx * 20);
+            Efi[mW[7].num][6] = al_itofix(gy * 20);
+            recalc_pod(mW[7].num);
          }
          if (mouse_on_tb_ul) // move trigger box from ul
          {
             //printf("mouse pressed on tb_ul\n");
-            Ei[num][11] = gx*20;
-            Ei[num][12] = gy*20;
+            Ei[mW[7].num][11] = gx*20;
+            Ei[mW[7].num][12] = gy*20;
          }
          if (mouse_on_tb_lr)  // resize trigger box from lr
          {
             // prevent lr corner from being less than ul corner
-            if (gx < Ei[num][11]/20) gx = Ei[num][11]/20;
-            if (gy < Ei[num][12]/20) gy = Ei[num][12]/20;
+            if (gx < Ei[mW[7].num][11]/20) gx = Ei[mW[7].num][11]/20;
+            if (gy < Ei[mW[7].num][12]/20) gy = Ei[mW[7].num][12]/20;
             // set new postion
-            Ei[num][13] = gx*20 - Ei[num][11];
-            Ei[num][14] = gy*20 - Ei[num][12];
+            Ei[mW[7].num][13] = gx*20 - Ei[mW[7].num][11];
+            Ei[mW[7].num][14] = gy*20 - Ei[mW[7].num][12];
          }
          if (mouse_on_msg_ul) // move msg
          {
-            item[num][10] = gx*20;
-            item[num][11] = gy*20;
+            item[mW[7].num][10] = gx*20;
+            item[mW[7].num][11] = gy*20;
          }
          if (mouse_on_sp) // adjust sproingy jump height
          {
-            item[num][7] -= mouse_dy/2;
+            item[mW[7].num][7] -= mouse_dy/2;
             // bounds check
-            if (item[num][7] < 40) item[num][7] = 40;
-            if (item[num][7] > 200) item[num][7] = 200;
+            if (item[mW[7].num][7] < 40) item[mW[7].num][7] = 40;
+            if (item[mW[7].num][7] > 200) item[mW[7].num][7] = 200;
          }
          if (mouse_on_bmb) // adjust bomb blast radius
          {
-            float x0 = (float) item[num][4]+10; // get center of item location
-            float y0 = (float) item[num][5]+10;
+            float x0 = (float) item[mW[7].num][4]+10; // get center of item location
+            float y0 = (float) item[mW[7].num][5]+10;
             float fx = (float) hx;
             float fy = (float) hy;
             float dist = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse to item
-            item[num][7] = (int) dist;
+            item[mW[7].num][7] = (int) dist;
          }
          if (mouse_on_trk) // adjust trakbot bulet prox
          {
-            float x0 = al_fixtof(Efi[num][0])+10; // get center of item location
-            float y0 = al_fixtof(Efi[num][1])+10;
+            float x0 = al_fixtof(Efi[mW[7].num][0])+10; // get center of item location
+            float y0 = al_fixtof(Efi[mW[7].num][1])+10;
             float fx = (float) hx;
             float fy = (float) hy;
             float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse
-            Ei[num][17] = (int) dst;
+            Ei[mW[7].num][17] = (int) dst;
          }
          // ranges for key, trigger, manip and damage
          if (mouse_on_kbr_ul) // move block range from ul
          {
             // set new position
-            item[num][6] = gx*20;
-            item[num][7] = gy*20;
+            item[mW[7].num][6] = gx*20;
+            item[mW[7].num][7] = gy*20;
          }
          if (mouse_on_kbr_lr) // adjust block range from lr
          {
             // don't allow lr to be less than ul
-            if (gx < item[num][6]/20) gx = item[num][6]/20;
-            if (gy < item[num][7]/20) gy = item[num][7]/20;
+            if (gx < item[mW[7].num][6]/20) gx = item[mW[7].num][6]/20;
+            if (gy < item[mW[7].num][7]/20) gy = item[mW[7].num][7]/20;
 
             // set new position
-            item[num][8] = gx*20 - item[num][6];
-            item[num][9] = gy*20 - item[num][7];
+            item[mW[7].num][8] = gx*20 - item[mW[7].num][6];
+            item[mW[7].num][9] = gy*20 - item[mW[7].num][7];
          }
          if (mouse_on_csb_ul) // move cloner source box from ul
          {
-            Ei[num][15] = gx*20; // set new postion
-            Ei[num][16] = gy*20;
+            Ei[mW[7].num][15] = gx*20; // set new postion
+            Ei[mW[7].num][16] = gy*20;
          } // end of mouse csb_ul
          if (mouse_on_csb_lr) // resize box from lr
          {
             // get ul corner
-            int x1 = Ei[num][15]/20;
-            int y1 = Ei[num][16]/20;
+            int x1 = Ei[mW[7].num][15]/20;
+            int y1 = Ei[mW[7].num][16]/20;
 
             // prevent lr corner from being less than ul corner
             if (gx < x1+1) gx = x1+1;
             if (gy < y1+1) gy = y1+1;
 
             // set new sizes
-            Ei[num][19] = (gx-x1)*20;
-            Ei[num][20] = (gy-y1)*20;
+            Ei[mW[7].num][19] = (gx-x1)*20;
+            Ei[mW[7].num][20] = (gy-y1)*20;
          } // end of mouse csb_lr
 
          if (mouse_on_cdb_ul) // cloner destination ul
          {
-            Ei[num][17] = gx*20; // set new postion
-            Ei[num][18] = gy*20;
+            Ei[mW[7].num][17] = gx*20; // set new postion
+            Ei[mW[7].num][18] = gy*20;
          }
-         ovw_get_block_position_on_map();
          cm_redraw_level_editor_background();
-
       } // end of while mouse pressed
    } // end of if mouse pressed
 }
-void ovw_proc_keys(int &obt, int &num, int &quit )
+int ovw_process_keypress(void)
 {
+
+
+
+   int quit = 0;
    int mb = mW[7].mb;
    int type=0, lift=0, step=0;
-   if (obt == 2) type = item[num][0];
-   if (obt == 3) type = Ei[num][0];
-   if (obt == 4)
+   if (mW[7].obt == 2) type = item[mW[7].num][0];
+   if (mW[7].obt == 3) type = Ei[mW[7].num][0];
+   if (mW[7].obt == 4)
    {
-      lift = num;
-      step = lifts[num].current_step;
+      lift = mW[7].num;
+      step = lifts[mW[7].num].current_step;
       set_lift_to_step(lift, step);   // set current step in current lift
-      lifts[num].current_step = step;
+      lifts[mW[7].num].current_step = step;
    }
    if (key[ALLEGRO_KEY_B])
    {
@@ -1831,8 +1797,8 @@ void ovw_proc_keys(int &obt, int &num, int &quit )
       {
          printf("save bookmark\n");
          bookmark_level = last_level_loaded;
-         bookmark_obj = obt;
-         bookmark_num = num;
+         bookmark_obj = mW[7].obt;
+         bookmark_num = mW[7].num;
          save_config();
       }
       else
@@ -1842,18 +1808,18 @@ void ovw_proc_keys(int &obt, int &num, int &quit )
          {
             if ((bookmark_obj == 2) && (item[bookmark_num]))
             {
-               obt = bookmark_obj;
-               num = bookmark_num;
+               mW[7].obt = bookmark_obj;
+               mW[7].num = bookmark_num;
             }
             if ((bookmark_obj == 3) && (Ei[bookmark_num]))
             {
-               obt = bookmark_obj;
-               num = bookmark_num;
+               mW[7].obt = bookmark_obj;
+               mW[7].num = bookmark_num;
             }
             if ((bookmark_obj == 4) && (bookmark_num < num_lifts))
             {
-               obt = bookmark_obj;
-               num = bookmark_num;
+               mW[7].obt = bookmark_obj;
+               mW[7].num = bookmark_num;
             }
          }
       }
@@ -1895,33 +1861,25 @@ void ovw_proc_keys(int &obt, int &num, int &quit )
    {
       case 18: // move
       {
-         if (obt==2)
+         if (mW[7].obt==2)
          {
             sprintf(msg,"%s", item_name[type]);
-            getxy(msg,obt, type, num);
+            getxy(msg,mW[7].obt, type, mW[7].num);
          }
-         if (obt==3)
+         if (mW[7].obt==3)
          {
             sprintf(msg,"%s", enemy_name[type]);
-            getxy(msg,obt, type, num);
+            getxy(msg,mW[7].obt, type, mW[7].num);
          }
-         if (obt==4)
+         if (mW[7].obt==4)
          {
             while (!key[ALLEGRO_KEY_ESCAPE])
             {
                for (int t=0; t<2; t++) move_lifts(1);  // move lifts for 2 frames
-               al_flip_display();
-               proc_scale_factor_change();
-               proc_controllers();
-               proc_frame_delay();
-               get_new_background(0);
-               draw_lifts();
-               draw_items();
-               draw_enemies();
-               ovw_draw_overlays(obt, num, 0);
+               cm_redraw_level_editor_background(0);
+               ovw_draw_overlays(0);
                get_new_screen_buffer(3, 0, 0);
-               ovw_draw_buttons(mW[7].x1, mW[7].x2, mW[7].y1, mW[7].y2, obt, num, mW[7].have_focus, mW[7].moving);
-               ovw_title(mW[7].x1, mW[7].x2, mW[7].y1, mW[7].y2, obt, num, 0);
+               mW[7].draw();
             }
             while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers(); // wait for release
             lift_setup(); // reset all lifts to step 0
@@ -1929,45 +1887,45 @@ void ovw_proc_keys(int &obt, int &num, int &quit )
       }
       break;
       case 19:
-         num = create_obj(obt, type, num);
+         mW[7].num = create_obj(mW[7].obt, type, mW[7].num);
       break;
       case 20: // delete
-         if (obt== 2)
+         if (mW[7].obt== 2)
          {
-            erase_item(num);
+            erase_item(mW[7].num);
             sort_item(1);
-            if (num >= item_first_num[type]+item_num_of_type[type]) num--;
+            if (mW[7].num >= item_first_num[type]+item_num_of_type[type]) mW[7].num--;
             if (item_num_of_type[type] < 1) quit = 1;
          }
-         if (obt == 3)
+         if (mW[7].obt == 3)
          {
-            Ei[num][0] = 0;
+            Ei[mW[7].num][0] = 0;
             sort_enemy();
-            if (num >= e_first_num[type]+e_num_of_type[type]) num--;
+            if (mW[7].num >= e_first_num[type]+e_num_of_type[type]) mW[7].num--;
             if (e_num_of_type[type] < 1) quit = 1;
          }
-         if (obt == 4)
+         if (mW[7].obt == 4)
          {
-            erase_lift(num);
-            if (--num < 0) num = 0;      // set to prev lift or zero
+            erase_lift(mW[7].num);
+            if (--mW[7].num < 0) mW[7].num = 0;      // set to prev lift or zero
             if (num_lifts < 1) quit = 1; // if erased last lift; exit lift viewer
          }
       break;
       case 21: // next
-         if ((obt==2) && (++num >= item_first_num[type] + item_num_of_type[type])) num--;
-         if ((obt==3) && (++num >= e_first_num[type] + e_num_of_type[type])) num--;
-         if ((obt==4) && (++num > num_lifts-1)) num--;
+         if ((mW[7].obt==2) && (++mW[7].num >= item_first_num[type] + item_num_of_type[type])) mW[7].num--;
+         if ((mW[7].obt==3) && (++mW[7].num >= e_first_num[type] + e_num_of_type[type])) mW[7].num--;
+         if ((mW[7].obt==4) && (++mW[7].num > num_lifts-1)) mW[7].num--;
       break;
       case 22: // previous
-         if ((obt==3) && (--num < e_first_num[type])) num++;
-         if ((obt==2) && (--num < item_first_num[type])) num++;
-         if ((obt==4) && (--num < 0)) num++;
+         if ((mW[7].obt==3) && (--mW[7].num < e_first_num[type])) mW[7].num++;
+         if ((mW[7].obt==2) && (--mW[7].num < item_first_num[type])) mW[7].num++;
+         if ((mW[7].obt==4) && (--mW[7].num < 0)) mW[7].num++;
       break;
       case 24:  // viewer help
          help("Viewer Basics");
       break;
       case 25:  // object help
-         if (obt==3)
+         if (mW[7].obt==3)
          {
             if (type == 3)  help("Archwagon Viewer");
             if (type == 4)  help("Bouncer Viewer");
@@ -1979,7 +1937,7 @@ void ovw_proc_keys(int &obt, int &num, int &quit )
             if (type == 11) help("Block Walker Viewer");
             if (type == 12) help("Flapper Viewer");
          }
-         if (obt==2)
+         if (mW[7].obt==2)
          {
             if (type == 1)  help("Door Viewer");
             if (type == 2)  help("Health Bonus Viewer");
@@ -1995,29 +1953,29 @@ void ovw_proc_keys(int &obt, int &num, int &quit )
             if (type == 14) help("Switch Viewer");
             if (type == 15) help("Sproingy Viewer");
          }
-         if (obt==4)
+         if (mW[7].obt==4)
          {
             help("Lift Viewer");
          }
       break;
       case 26: // up
       {
-         if (obt == 2)  // prev item type
+         if (mW[7].obt == 2)  // prev item type
          {
             do
             {
                type--;
                if (type < 1) type = 20;
             } while (item_num_of_type[type] == 0);
-            num = item_first_num[type];
+            mW[7].num = item_first_num[type];
          }
-         if (obt == 3) // prev enemy type
+         if (mW[7].obt == 3) // prev enemy type
          {
             while (e_num_of_type[--type] == 0)
                if (type < 3) type = 20;
-            num = e_first_num[type];
+            mW[7].num = e_first_num[type];
          }
-         if (obt == 4) // prev lift step
+         if (mW[7].obt == 4) // prev lift step
          {
             if (--step < 0) step = 0;
          }
@@ -2025,56 +1983,86 @@ void ovw_proc_keys(int &obt, int &num, int &quit )
       break;
       case 27: // down
       {
-         if (obt == 2) // next obj type
+         if (mW[7].obt == 2) // next obj type
          {
             do
             {
                type++;
                if (type > 20) type = 1;
             } while (item_num_of_type[type] == 0);
-            num = item_first_num[type];
+            mW[7].num = item_first_num[type];
          }
-         if (obt == 3) // next obj type
+         if (mW[7].obt == 3) // next obj type
          {
             while (e_num_of_type[++type] == 0)
                if (type > 20) type = 1;
-            num = e_first_num[type];
+            mW[7].num = e_first_num[type];
          }
-         if (obt == 4) // next lift step
+         if (mW[7].obt == 4) // next lift step
          {
             if (++step > (lifts[lift].num_steps-1)) step = (lifts[lift].num_steps-1);
          }
       }
       break;
    } // end of switch (mb)
-
+   return quit;
 }
+
 void object_viewerw(int obt, int num)
 {
    set_windows(4); // object viewer
 
    init_level_background();
-   bts = 16; // button y size
-   int quit=0;
 
+   // from here on I will use the internal mW values
+   mW[7].obt = obt;
+   mW[7].num = num;
+
+   int quit=0;
    while (!quit)
    {
-      mW[7].obt = obt;
-      mW[7].num = num;
-
       cm_redraw_level_editor_background();
-
-      if (!mw_cycle_windows(0)) // returns 0 if mouse not on window
-      {
-         ovw_process_scrolledge();
-         ovw_map_move(obt, num);
-      }
-
-      ovw_proc_keys(obt, num, quit);
-
-   } // end of while (!quit)
+      if (!mw_cycle_windows(0)) ovw_process_mouse();
+      quit = ovw_process_keypress();
+   }
    al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
    set_windows(1); // edit menu
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

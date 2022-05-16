@@ -6,7 +6,7 @@
 // all global variables should be declared here and externed in pm.h
 
 
-mWindow mW[NUM_MW];
+
 
 int pm_event[1000];
 
@@ -118,18 +118,6 @@ int num_filenames;
 // animation sequence array
 int zz[20][NUM_ANS];
 
-// ------------------------------------------------
-// ----- level editor unsorted --------------------
-// ------------------------------------------------
-char sel_filename[500];
-int bts = 12;  // button spacing
-int pop_msg_viewer_pos;
-int num_legend_lines = 2;
-int viewer_lock = 0;
-int level_editor_mode = 0;
-
-
-
 
 // ------------------------------------------------
 // ------------ game moves array ------------------
@@ -152,86 +140,31 @@ float game_event_retrigger_holdoff_tally[10];
 ALLEGRO_BITMAP *bmsg_temp;
 
 
+
+
 // ------------------------------------------------
-// -----------status and selection window----------
+// ----- level editor unsorted --------------------
 // ------------------------------------------------
+int level_editor_mode = 0;
 
-
-// object viewer window
-int ov_window_active = 1;
-int ov_window_x1 = 60;
-int ov_window_y1 = 140;
-int ov_window_x2 = 300;
-int ov_window_y2 = 740;
-int ov_window_w = 240;
-int ov_window_h = 600;
-int ov_window_lift_buttons_h = 0;
-
-
-
-// status window
-int status_window_active = 1;
-int status_window_x = 9999;
-int status_window_y = 35;
-int status_window_w = 320;
-int status_window_h = 43;
-int draw_item_num;
-int draw_item_type;
-int point_item_num;
-int point_item_type;
-
-// select window
-int select_window_active = 1;
-int select_window_x = 9999;
-int select_window_y = 100;
-int select_window_w = 322;
-int select_window_h;
-int select_window_text_y;
-int select_window_block_on = 1;
-int swbn = 0;
-int swnbl;
-int swnbl_cur = 0;
+mWindow mW[NUM_MW];
+int obj_filter[5][20] = {0};
 int swbl[NUM_SPRITES][2];
-int show_non_default_blocks = 0;
-int show_flag_details = 1;
-
 
 int autoload_bookmark = 0;
 int bookmark_level = 0;
 int bookmark_obj = 0;
 int bookmark_num = 0;
 
-
-int select_window_block_y;
-int btext_draw_flag;
-int select_window_special_on = 1;
-int select_window_num_special_lines = 3;
-int select_window_special_y;
-int stext_draw_flag;
-int sw_mouse_gone = 0;
-
-// ------------------------------------------------
-// --------zoom full screen and group edit --------
-// ------------------------------------------------
-int bx1=10;  // selection window
+int bx1=10;  // global selection window
 int by1=10;
 int bx2=40;
 int by2=30;
-int show_sel_frame=1;
 
-int gx=0; // absolute mouse position realive to scaled level background
+int gx=0; // absolute mouse position relative to scaled level background
 int gy=0;
 int hx=0;
 int hy=0;
-
-
-
-int obj_filter[5][20] = {0};
-
-int ft_window_x1 = 100;
-int ft_window_x2 = 180;
-int ft_window_y1 = 200;
-int ft_window_collapsed = 0;
 
 
 
@@ -241,8 +174,11 @@ int ft_window_collapsed = 0;
 ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
 int demo_played[100];
 int num_demo_filenames = 0;
+int demo_mode_enabled = 1;
 int demo_mode_on = 0;
-int demo_mode_countdown;
+int demo_mode_countdown_val;
+int demo_mode_countdown_reset = 2400;
+
 
 // ------------------------------------------------
 // ----------------- mouse and keys ---------------
@@ -530,8 +466,6 @@ float scale_factor = 1.0;
 float scale_factor_current  = 1.0;
 float scale_factor_inc = 0.03;
 int show_scale_factor = 0;
-
-
 
 int show_splash_screen = 1;
 int splash_screen_done = 0;

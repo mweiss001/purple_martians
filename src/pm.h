@@ -1,37 +1,63 @@
 // pm.h - header file for both the game and the level editor
 
-
-
-
-
-
 class mWindow
 {
    public:
    int x1, y1, x2, y2, w, h;
-
    int index;
    int active;
    int have_focus;
    int layer;
-
-   int hidden;
-
-
    int moveable;
    int moving;
    int resizable;
+   int hidden;
+   int color;
+   char title[80];
 
+
+
+
+   // mW[1] - status window only
+   int draw_item_num;
+   int draw_item_type;
+   int point_item_type;
+   int point_item_num;
+   int show_flag_details;
+   int show_non_default_blocks;
+
+   // mW[2] - select window only
+   int select_window_block_on;
+   int select_window_special_on;
+   int select_window_num_special_lines;
+   int swbn;  // number of blocks
+   int swnbl; // number of block lines (just swbn / 16 + 1)
+   int swnbl_cur; // current number of lines shown
+
+   // mW[3] - filter window only
+   int collapsed;
    int filter_mode;
 
+   // mW[4] - zfs window only
+   int copy_mode;
+   int brf_mode;
+
+
+
+   // mW[5] - group edit list only
+   int show_sel_frame;
+
+
+
+   // mW[7] - object viewer window only
    int obt;
    int num;
    int mb;
-
+   int viewer_lock;
    int legend_line;
-
-   int color;
-   char title[80];
+   int num_legend_lines;
+   int ov_window_lift_buttons_h;
+   int pop_msg_viewer_pos;
 
    mWindow(); // default constructor
    void set_pos(int, int);
@@ -41,25 +67,15 @@ class mWindow
    void set_title(const char*);
    void process(void);
    void check_offscreen(void);
-
-
    void set_focus(int);
-
 };
 
 
-
-
 #define NUM_MW 10
-
 extern mWindow mW[NUM_MW];
-
 void set_windows(int mode);
-
 int mw_cycle_windows(int draw_only);
-
 int is_mouse_on_any_window(void);
-
 
 
 
@@ -281,12 +297,7 @@ extern int suicide_pbullets;
 
 
 
-//#define STATE_SIZE  105280
-//#define STATE_SIZE 105920
 #define STATE_SIZE 105952
-
-
-
 // server's copies of client states
 extern char srv_client_state[8][2][STATE_SIZE];
 extern int srv_client_state_frame_num[8][2];
@@ -349,19 +360,6 @@ extern int num_filenames;
 // animation sequence array
 extern int zz[20][NUM_ANS];
 
-// ------------------------------------------------
-// ----- level editor unsorted --------------------
-// ------------------------------------------------
-extern char sel_filename[500];
-
-extern int bts;  // button spacing
-
-extern int pop_msg_viewer_pos;
-extern int num_legend_lines;
-extern int viewer_lock;
-extern int level_editor_mode;
-
-
 
 // ------------------------------------------------
 // ------------ game moves array ------------------
@@ -388,84 +386,31 @@ extern float game_event_retrigger_holdoff_tally[10];
 
 
 
+
+
+
+
 // ------------------------------------------------
-// -----------status and selection window----------
+// ----- level editor unsorted --------------------
 // ------------------------------------------------
 
-// object viewer window
-extern int ov_window_active;
-extern int ov_window_x1;
-extern int ov_window_y1;
-extern int ov_window_x2;
-extern int ov_window_y2;
-extern int ov_window_w;
-extern int ov_window_h;
-extern int ov_window_lift_buttons_h;
-
-// status window
-extern int status_window_active;
-extern int status_window_x;
-extern int status_window_y;
-extern int status_window_w;
-extern int status_window_h;
-
-extern int draw_item_num;
-extern int draw_item_type;
-extern int point_item_type;
-extern int point_item_num;
-
-// select window
-extern int select_window_active;
-extern int select_window_x;
-extern int select_window_y;
-extern int select_window_w;
-extern int select_window_h;
-extern int select_window_text_y;
-extern int select_window_block_on;
-extern int swbn;
-extern int swnbl;
-extern int swnbl_cur;
+extern int level_editor_mode;
 extern int swbl[NUM_SPRITES][2];
-extern int show_non_default_blocks;
-extern int show_flag_details;
 
 extern int autoload_bookmark;
 extern int bookmark_level;
 extern int bookmark_obj;
 extern int bookmark_num;
 
-
-
-extern int select_window_block_y;
-extern int btext_draw_flag;
-extern int select_window_special_on;
-extern int select_window_num_special_lines;
-extern int select_window_special_y;
-extern int stext_draw_flag;
-extern int sw_mouse_gone;
-
-
-
-
-
-
-
-// ------------------------------------------------
-// ---zoom full screen and group edit--------------
-// ------------------------------------------------
 extern int bx1;  // selection window
 extern int by1;
 extern int bx2;
 extern int by2;
-extern int show_sel_frame;
-
 
 extern int gx; // absolute mouse position realive to on scaled level background
 extern int gy;
 extern int hx;
 extern int hy;
-
-
 
 #define NUM_OBJ 600
 // list of objects to edit as a group
@@ -475,10 +420,7 @@ extern int obj_filter[5][20];
 
 
 
-extern int ft_window_x1;
-extern int ft_window_x2;
-extern int ft_window_y1;
-extern int ft_window_collapsed;
+
 
 
 
@@ -486,11 +428,18 @@ extern int ft_window_collapsed;
 // ------------------------------------------------
 // ----------------- demo mode --------------------
 // ------------------------------------------------
+
+
 extern ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
 extern int demo_played[100];
 extern int num_demo_filenames;
 extern int demo_mode_on;
 extern int demo_mode_countdown;
+extern int demo_mode_countdown_val;
+extern int demo_mode_countdown_reset;
+extern int demo_mode_enabled;
+
+
 
 // ------------------------------------------------
 // ----------------- mouse and keys ---------------
@@ -1032,33 +981,33 @@ int draw_and_process_button(int x, int y, const char * text, int c1, int c2, int
 
 
 
-
-
-
-
-
 // e_editor_main.h
 
+//common
+void cm_get_block_position_on_map();
+void cm_process_scrolledge(void);
+void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
+void cm_get_new_box();
 void cm_redraw_level_editor_background(void);
+void cm_redraw_level_editor_background(int mode);
+int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int moving);
 
 
-
-void em_check_s_window_pos(int reset_pos);
-void em_process_status_window(int draw_only, int gx, int gy, int* mpow);
-void em_process_select_window(int draw_only, int* mpow);
 void em_set_swbl(void);
-void em_set_block_range(int bx1, int by1, int bx2, int by2);
-void em_get_new_box();
+void em_set_block_range(void);
 char* em_get_text_description_of_block_based_on_flags(int flags);
 void em_show_draw_item_cursor(void);
-void em_draw_item_info(int x, int y, int color, int type, int num);
+void em_show_item_info(int x, int y, int color, int type, int num);
+void em_find_point_item(void);
+int em_process_mouse(void);
+int em_process_keypress(void);
 int edit_menu(int el);
-
 
 // e_editor_zfs.h
 void zfs_pointer_text(int x1, int x2, int y, int mouse_on_window);
 void zfs_do_brf(int x, int y, int flood_block);
 void zfs_clear_ft(void);
+void set_block_with_flag_filters(int x, int y, int tn);
 int zfs_load_selection(void);
 void zfs_save_selection(int save);
 void zfs_do_fcopy(int qx1, int qy1);
@@ -1066,8 +1015,6 @@ void zfs_do_clear(void);
 int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving);
 void zfs_proc_window_move(int *x1, int *y1, int *x2, int *y2, int w, int h);
 void zfs_draw_fsel(void);
-void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
-int zfs_redraw_window(int zfs_window_x1, int zfs_window_y1, int zfs_window_x2, int zfs_window_y2, int gx, int gy);
 void zoom_full_screen(int draw_item);
 
 // e_group_edit_windows.cpp
@@ -1083,21 +1030,19 @@ int ge_draw_list_items(int x1, int y1, int flash_color, int ni);
 void ge_show_obj_list(int x, int y, int*ew, int* eh, int have_focus, int moving);
 int ge_show_controls(int gx, int gy, int *ew, int *eh, int have_focus, int moving, int hidden);
 void ge_add_selection_to_list(int set_filters);
-void ge_proc_mouse(int mouse_on_window);
+void ge_process_mouse(void);
+int ge_process_keypress(void);
 void group_edit(void);
 
 // e_object_viewer_windows.cpp
-int create_obj(int obt, int sub_type, int sent_num);
-int ovw_get_size(int obt, int num, int*w, int*h);
-void ovw_process_scrolledge(void);
-void ovw_get_block_position_on_map();
-void ovw_title(int x1, int x2, int y1, int y2, int obt, int num, int legend_highlight);
-void ovw_draw_buttons(int x1, int y1, int x2, int y2, int obt, int num, int have_focus, int moving);
-void ovw_draw_overlays(int obt, int num, int legend_highlight);
-void ovw_map_move(int &obt, int &num);
-void ovw_proc_keys(int &obt, int &num, int &quit);
+int create_obj(int obt, int type, int num);
+void ovw_get_size(void);
+void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight);
+void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving);
+void ovw_draw_overlays(int legend_highlight);
+void ovw_process_mouse(void);
+int ovw_process_keypress(void);
 void object_viewerw(int obt, int num);
-
 
 // e_lift.h
 int lift_find_previous_move_step(int lift, int step);
@@ -1116,29 +1061,19 @@ int get_new_lift_step(int lift, int step);
 int insert_lift_step(int lift, int step);
 void insert_steps_until_quit(int lift, int step);
 void step_popup_menu(int lift, int step);
-void set_bts(int lift);
-
-
-
 
 // e_fnx.h
+void draw_block_non_default_flags(int tn, int x, int y);
 int enforce_limit(int val, int ll, int ul);
 int check_limit(int val, int ll, int ul);
-
-
 float mdw_rnd(float rmin, float rmax);
 void swap_int(int *i1, int* i2);
 void printBits(size_t const size, void const * const ptr);
 al_fixed get_sproingy_jump_height(int num);
 void set_xyinc_rot(int EN, int x2, int y2);
 void set_rocket_rot(int num, int x2, int y2);
-
-
-
 int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type);
 int getxy(const char *txt, int obj_type, int sub_type, int num );
-
-
 void clear_pm_events(void);
 int check_clt_for_event(int ev, int clt[][4], int clt_last);
 int get_unused_pm_event_extended(int clt[][4], int clt_last);
@@ -1166,7 +1101,6 @@ void test_items(void);
 int create_pmsg(int c);
 void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, int show_line_breaks);
 void show_all_pmsg(void);
-int create_key(int c);
 int create_start_block(int c);
 int create_exit(int c);
 int create_door(int type);
@@ -1185,13 +1119,6 @@ void get_pod_extended_position(int e, int *x, int *y);
 int create_cloner(void);
 int create_pod(void);
 
-
-
-
-
-
-
-
 // e_pde.h
 int load_PDE();
 void save_PDE();
@@ -1201,8 +1128,6 @@ al_fixed edit_fix(int x, int y, al_fixed val);
 void PDE_swap(int s1, int s2);
 void PDE_sort(void);
 void predefined_enemies(void);
-
-
 
 // e_sliders.h
 void update_var(int bn, int type, int num, float f);
@@ -1236,7 +1161,6 @@ int mdw_togglf  (int x1, int y1, int x2, int y2, int bn, int num, int type, int 
                   int &var, int flags, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_color0, int frame_color1);
 
 
-
 // e_visual_level.h
 int lev_show_level_data(int x_pos, int y_pos);
 void mark_rect(int sel, int color);
@@ -1248,8 +1172,6 @@ void level_viewer(void);
 void show_cur_vs(int cur, int x1, int y1, int size, int fc);
 void load_visual_level_select(void);
 int visual_level_select(void);
-
-
 
 // n_client.h
 int  ClientInitNetwork(const char *serveraddress);
@@ -1376,16 +1298,16 @@ void enemy_deathcount(int e);
 void move_enemies(void);
 void enemy_killed(int EN);
 void enemy_player_hit_proc(int EN);
-
 void enemy_field(int e);
 void proc_field_collision(int t, int p, int x);
 void draw_enemy_field(int e, int x, int y);
-
 void detect_field_collisions(void);
 void set_field_location_from_lift(int e, int dt, int a20);
 
 
 // z_file.h
+void save_mW(void);
+void load_mW(void);
 void save_sprit(void);
 void load_sprit(void);
 void make_filename(int x);
@@ -1456,7 +1378,6 @@ void change_linked_door_color_and_shape(int door);
 void remove_block(int x, int y);
 void draw_pop_message(int c);
 void draw_door(int c, int x, int y);
-
 void draw_item(int i, int custom, int x, int y);
 void draw_items(void);
 void move_items(void);
@@ -1465,27 +1386,17 @@ void proc_player_carry(int p);
 void proc_item_collision(int p, int x);
 void proc_lit_bomb(int);
 void proc_lit_rocket(int);
-
 void process_trigger(int);
 void draw_trigger(int i, int x, int y);
 void set_item_trigger_location_from_lift(int, int);
 void detect_trigger_collisions(int i);
-
 void proc_start_collision(int p, int i);
-
-
 void process_block_manip(int i);
 void draw_block_manip(int i, int x, int y);
-
 void proc_item_damage_collisions(int i);
 void set_item_damage_location_from_lift(int , int);
 void process_block_damage(int i);
 void draw_block_damage(int i, int x, int y);
-
-
-
-
-
 
 // z_lift.h
 int construct_lift(int l, char* lift_name);
@@ -1536,7 +1447,6 @@ void mdw_an(void);
 void spline_test(void);
 void redraw_spline(int s);
 void spline_adjust(void);
-
 void scaled_tile_test(void);
 
 
@@ -1589,11 +1499,6 @@ void init_player(int p, int t);
 
 
 // z_display.h
-
-
-
-
-
 void show_bitmap_flags(int flags);
 void show_pixel_format(int df);
 void show_display_flags(int flags);
@@ -1602,18 +1507,12 @@ void show_display_orienation(void);
 void show_fullscreen_modes(void);
 void auto_set_display_transform_double(void);
 void set_display_transform();
-
-
-
 void show_disp_values(void);
 void proc_display_change_tofs(void);
 void proc_display_change_fromfs(void);
 void proc_display_change(void);
 int init_display(void);
-
 void save_display_window_position(void);
-
-
 
 // z_screen.h
 void create_bmp(void);

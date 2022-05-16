@@ -2,27 +2,15 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-rarely...start block does not get filled in on edit menu choices...can't reproduce
-
 why is logo so goddam slow in linux? ...opengl?
 when I set mnu_timer faster the first screens go by really fast, but all the spline ones are very slow...
 even in a small screen resolution
 maybe later I could profile and see what takes up all the time...
+it's most likely an opengl thing
+
 
 does remote trigger have a delay before the explosion?
 I want it immediate to help the player time exploding moving things
-
-
-
-rockets cannot go through semisolid
-
-
-pasting flags in zfs does not work how I want...
-
-
-lifts running needs fixing..
-
-
 
 
 
@@ -32,13 +20,9 @@ lifts running needs fixing..
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-clean up variables for old window positions...
-maybe find a way to save them...
 
 
-
-
-
+add sticky and remote bombs to PDE
 
 
 
@@ -64,9 +48,10 @@ what if you had to press FIRE to grab a rocket, but then after that you did not 
 you could dismount with JUMP? ... that sounds cool
 
 
-demo mode annoys me when it starts in the middle of things I am doing
-I could make it start on a timer, but only if nothing happens after the program is first run
-after that do not automatically start it again
+
+
+
+
 
 
 When I do dev on ubuntu...
@@ -92,7 +77,6 @@ trigger field that has a count of enemies or items or players
 
 matching set of items that need to be brought together
 
-
 what if I made coins to collect in the level?
 it is super fun in mario!
 then I could have end of level stuff like how many coins you got, how many enemies you killed, etc...
@@ -100,8 +84,7 @@ then I could have end of level stuff like how many coins you got, how many enemi
 they would be items and at the start of the level how many there are would be counted
 then each player would have a tally of how many they got...
 
-
-how about making health bonus only take the ammount of health needed to get to 100
+how about making health bonus only take the amount of health needed to get to 100
 if any is left, just subtract and don't erase the item
 
 

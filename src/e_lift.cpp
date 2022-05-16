@@ -191,6 +191,9 @@ int create_lift(void)
 
 
          insert_steps_until_quit(lift, step);
+
+         object_viewerw(4, num_lifts-1);
+
          return 1;
       }
       else
@@ -213,13 +216,14 @@ void move_lift_step(int lift, int step)
 
 int get_new_lift_step(int lift, int step)
 {
+   int bts = 16;
    // step is a new blank step already created for us
    // if we return 99 the step will be erased
 
    // position the menu on top of the step we are inserting before
 //   int sty = 53 + (step + 9) * bts;
 
-   int sty = ov_window_y1 + 44 + (step + 10) * bts;
+   int sty = mW[7].y1 + 44 + (step + 10) * bts;
 
    if (sty > SCREEN_H-60) sty = SCREEN_H-60;
 
@@ -230,7 +234,7 @@ int get_new_lift_step(int lift, int step)
    int fc = 14; // frame color
    int tc = 15; // text color
 
-   int xc = (ov_window_x1 + ov_window_x2)/2;
+   int xc = (mW[7].x1 + mW[7].x2)/2;
 
    al_draw_filled_rectangle(xc-98, sty-8, xc+96, sty2, palette_color[fc+192]); // erase to background color
    al_draw_rectangle       (xc-98, sty-8, xc+96, sty2, palette_color[fc], 1); // frame
@@ -279,6 +283,7 @@ int get_new_lift_step(int lift, int step)
 
 int insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'step'
 {
+   int bts = 16;
    int ret = 0;
 
    // increment the number of steps
@@ -301,8 +306,8 @@ int insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'ste
          lift_steps[lift][x+1].type = lift_steps[lift][x].type;
       }
       clear_lift_step(lift, step);
-      int step_ty = ov_window_y1+ 38 + 7 * bts;
-      draw_steps(ov_window_x1+1, ov_window_x2-1, step_ty, lift, step, step);     // show lift steps
+      int step_ty = mW[7].y1+ 38 + 7 * bts;
+      draw_steps(mW[7].x1+1, mW[7].x2-1, step_ty, lift, step, step);     // show lift steps
       if (get_new_lift_step(lift, step) == 99) // cancelled
       {
          delete_lift_step(lift, step);
@@ -451,6 +456,7 @@ void step_popup_menu(int lift, int step)
 
 int draw_current_step_buttons(int x1, int x2, int y, int l, int s)
 {
+   int bts = 16;
    int fs = 14; // frame_size
    int a = 0;
    int xa = x1+fs;
@@ -555,6 +561,7 @@ void draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc)
 
 int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_step)
 {
+   int bts = 16;
    int fs = 14; // frame_size
    int a = 0;
    int xa = x1+fs;

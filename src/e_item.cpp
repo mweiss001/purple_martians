@@ -273,65 +273,6 @@ void erase_item(int num)
    for (int x=0; x<16; x++) item[num][x] = 0;
 }
 
-int create_key(int c)
-{
-   int key_color = 0, exit=0, bad=0;
-   al_flip_display();
-   al_clear_to_color(al_map_rgb(0,0,0));
-
-   // first get a key color
-   al_draw_text(font, palette_color[15], SCREEN_W/2, 10,  ALLEGRO_ALIGN_CENTER, "Key and Locked Block Creator");
-   al_draw_text(font, palette_color[15], SCREEN_W/2, 18,  ALLEGRO_ALIGN_CENTER, "----------------------------");
-   al_draw_text(font, palette_color[15], SCREEN_W/2, 180, ALLEGRO_ALIGN_CENTER, "b1 to choose a color");
-   al_draw_text(font, palette_color[15], SCREEN_W/2, 188, ALLEGRO_ALIGN_CENTER, "b2 or <esc> to quit");
-
-   for (int x=0; x<4; x++)
-      al_draw_bitmap(btile[220+x], SCREEN_W/2, (x*20)+60, 0);
-
-   al_flip_display();
-
-   while (!exit)
-   {
-      proc_controllers();
-      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
-      {
-         proc_controllers();
-         exit = 1;
-         bad = 1;
-      }
-
-      if ((mouse_b1) && (mouse_x > (SCREEN_W/2)) && (mouse_x < ((SCREEN_W/2)+20)))
-      {
-         exit = 1;
-         key_color = (mouse_y - 60)/20;
-         if ((key_color < 0) || (key_color > 3)) key_color = 0;
-         while (mouse_b1) proc_controllers(); // wait for release
-      }
-   }
-
-   // then set the key location
-   if (!bad)
-   {
-      if (getxy("Key", 2, 4, c) == 1)
-      {
-         item[c][0] = 4;     // type 4 - key
-         item[c][1] = 1039 + key_color; // animation seq
-         item[c][2] = 1; // draw mode
-         item[c][3] = 1; // fall
-         l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
-      }
-      else bad = 1;
-   }
-
-   // then set the block range
-   if (!bad)
-   {
-      if (!get_block_range("Block Range", &item[c][6], &item[c][7], &item[c][8], &item[c][9], 1)) bad = 1;
-   }
-   if (bad) return 0;
-   else return 1;
-}
-
 int create_trigger(int i)
 {
    int bad = 0;
@@ -732,13 +673,12 @@ int create_door(int type)
 int create_item(int type)
 {
    // check for no creator
-   if ((type != 1) && (type != 3) && (type != 4) && (type != 5) && (type != 9) && (type != 10) && (type != 16) && (type != 17)) return 9999;
+   if ((type != 1) && (type != 3) /*&& (type != 4)*/ && (type != 5) && (type != 9) && (type != 10) && (type != 16) && (type != 17)) return 9999;
    int i = get_empty_item(type); // get a place to put it
    if (i > 499) return i; // no items
    switch (type)
    {
       case 3:  if (!create_exit(i))         erase_item(i); break;
-      case 4:  if (!create_key(i))          erase_item(i); break;
       case 5:  if (!create_start_block(i))  erase_item(i); break;
       case 9:  if (!create_trigger(i))      erase_item(i); break;
       case 10: if (!create_pmsg(i))         erase_item(i); break;

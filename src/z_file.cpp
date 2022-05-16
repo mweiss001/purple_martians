@@ -97,6 +97,26 @@ void load_sprit(void)
 }
 
 
+void save_mW(void)
+{
+   printf("saving mW.pm\n");
+   FILE *fp = fopen("bitmaps/mW.pm", "wb");
+   fwrite(mW, sizeof(mW), 1, fp);
+   fclose(fp);
+}
+
+
+void load_mW(void)
+{
+   FILE *fp = fopen("bitmaps/mW.pm", "rb");
+   fread(mW, sizeof(mW), 1, fp);
+   fclose(fp);
+}
+
+
+
+
+
 
 int load_tiles(void)
 {

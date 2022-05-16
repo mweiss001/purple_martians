@@ -8,24 +8,12 @@ int select_bitmap(int tn)
    int quit = 0;
    while (!quit)
    {
-      ovw_process_scrolledge();
-      ovw_get_block_position_on_map();
-      al_flip_display();
-      proc_scale_factor_change();
-      proc_controllers();
-      proc_frame_delay();
-      get_new_background(0);
-      draw_lifts();
-      draw_items();
-      draw_enemies();
-
-      // draw rectangle around selected block
-      al_draw_rectangle(gx*20, gy*20, gx*20+20, gy*20+20, palette_color[15], 1);
-
+      cm_redraw_level_editor_background(0);
+      crosshairs_full(gx*20+10, gy*20+10, 15, 1);
       get_new_screen_buffer(3, 0, 0);
 
-      point_item_type = 1;
-      point_item_num = l[gx][gy];
+      int local_point_item_type = 1;
+      int local_point_item_num = l[gx][gy];
 
       int swx1 = 200;
       int swy1 = 200;
@@ -41,7 +29,7 @@ int select_bitmap(int tn)
       // view item area
       al_draw_rectangle(                    swx1,    swy1,    swx2, swy2, palette_color[9], 1);
       al_draw_text(font, palette_color[15], swx1+24, swy1+2, 0, "Choose Block");
-      em_draw_item_info(                    swx1+2,  swy1+9, 9, point_item_type, point_item_num);
+      em_show_item_info(                    swx1+2,  swy1+9, 9, local_point_item_type, local_point_item_num);
 
       // flags section
       int ftx = swx1+11;
@@ -53,12 +41,12 @@ int select_bitmap(int tn)
       int frh = 6;            // flag rectangle height
       int frx = ftx-frw-2;        // flag rectangle x
       int fry = fty - (frh/2)+4;  // flag rectangle y
-      draw_flag_rects(point_item_num, frx, fry, frw, frh, ys, 14);
+      draw_flag_rects(local_point_item_num, frx, fry, frw, frh, ys, 14);
 
       if (mouse_b1)
       {
          while (mouse_b1) proc_controllers(); // wait for release
-         return point_item_num;
+         return local_point_item_num;
       }
       if (key[ALLEGRO_KEY_ESCAPE])  // trap here 1st
       {

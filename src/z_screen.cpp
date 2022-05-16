@@ -536,11 +536,6 @@ void get_new_screen_buffer(int type, int x, int y)
 
 void set_map_var(void)
 {
-
-   // check that status and select windows are not off screen
-   em_check_s_window_pos(0);
-
-
    // determine menu_map_size and position
    int y_size = SCREEN_H-160;
    int x_size = SCREEN_W-260;
@@ -589,6 +584,17 @@ void set_scale_factor(int instant)
    show_scale_factor = 80;
 }
 
+
+void mark_non_default_block(int x, int y)
+{
+   int c = l[x][y] & 1023;
+   if ((sa[c][0] & PM_BTILE_MOST_FLAGS) != (l[x][y] & PM_BTILE_MOST_FLAGS))
+   {
+      al_draw_line(x*20, y*20, x*20+20, y*20+20, palette_color[10], 1);
+      al_draw_line(x*20+20, y*20, x*20, y*20+20, palette_color[10], 1);
+   }
+}
+
 void init_level_background(void) // fill level_background with blocks and lift lines
 {
    //printf("init_level_background\n");
@@ -597,16 +603,9 @@ void init_level_background(void) // fill level_background with blocks and lift l
    for (int x=0; x<100; x++)
       for (int y=0; y<100; y++)
       {
-         int c = l[x][y] & 1023;
-         al_draw_bitmap(btile[c], x*20, y*20, 0);
-         if ((level_editor_running) && (show_non_default_blocks))
-         {
-            if ((sa[c][0] & PM_BTILE_MOST_FLAGS) != (l[x][y] & PM_BTILE_MOST_FLAGS))
-            {
-               al_draw_line(x*20, y*20, x*20+20, y*20+20, palette_color[10], 1);
-               al_draw_line(x*20+20, y*20, x*20, y*20+20, palette_color[10], 1);
-            }
-         }
+         al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+         if ((level_editor_running) && (mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+         //draw_block_non_default_flags(l[x][y], x*20, y*20);
       }
    draw_lift_lines();
 }
