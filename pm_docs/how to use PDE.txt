@@ -74,19 +74,12 @@ changed to:
 
 
 
+PDE sort...
 
-
-
-
-
-
-
-
- 
- 
-
-
-
+first by type
+second by text line
+then there is this section that lines them up in rows
+might need to be manually tweaked as numbers grow...
 
 
 

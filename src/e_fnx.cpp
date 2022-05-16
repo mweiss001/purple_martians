@@ -21,9 +21,16 @@ af:'00001000 00000000 00000000 00000000 '
 
 
 
-
-
-
+void draw_block_non_default_flags(int tn, int x, int y)
+{
+   int c = tn & 1023;
+   al_draw_bitmap(btile[c], x, y, 0);
+   if ((sa[c][0] & PM_BTILE_MOST_FLAGS) != (tn & PM_BTILE_MOST_FLAGS))
+   {
+      al_draw_line(x, y, x+20, y+20, palette_color[10], 1);
+      al_draw_line(x+20, y, x, y+20, palette_color[10], 1);
+   }
+}
 
 
 int enforce_limit(int val, int ll, int ul)
@@ -134,18 +141,9 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
    int ret = 0;
    while (!quit)
    {
-      al_flip_display();
-      proc_scale_factor_change();
-      proc_controllers();
-      proc_frame_delay();
-      get_new_background(0);
-      draw_lifts();
-      draw_items();
-      draw_enemies();
+      cm_redraw_level_editor_background(0);
       crosshairs_full(gx*20+10, gy*20+10, 15, 1);
       get_new_screen_buffer(3, 0, 0);
-      ovw_get_block_position_on_map();
-      ovw_process_scrolledge();
 
       al_draw_filled_rectangle(tx-90, 70, tx+90, 170, palette_color[0]);
       al_draw_rectangle(       tx-90, 70, tx+90, 170, palette_color[15], 1);
@@ -161,82 +159,24 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
 
       if (mouse_b1)
       {
-         *x1 = gx*20;
-         *y1 = gy*20;
-         while (mouse_b1)
+         cm_get_new_box();
+         *x1 = bx1*20;
+         *y1 = by1*20;
+         *x2 = (bx2-bx1)*20+20;
+         *y2 = (by2-by1)*20+20;
+
+         if (type == 2)
          {
-            al_flip_display();
-            proc_scale_factor_change();
-            proc_controllers();
-            proc_frame_delay();
-            get_new_background(0);
-            draw_lifts();
-            draw_items();
-            draw_enemies();
-
-            // show the selection rectangle
-            if (type == 1) al_draw_rectangle(*x1,    *y1,    *x1+*x2,      *y1+*y2,      palette_color[15], 1);
-            if (type == 2) al_draw_rectangle(*x1,    *y1,    *x1+*x2+20,   *y1+*y2+20,   palette_color[15], 1);
-
-            get_new_screen_buffer(3, 0, 0);
-            ovw_process_scrolledge();
-            ovw_get_block_position_on_map();
-
-            *x2 = gx*20-*x1;
-            *y2 = gy*20-*y1;
-
-            al_draw_filled_rectangle(tx-90, 70, tx+90, 170, palette_color[0]);
-            al_draw_rectangle(       tx-90, 70, tx+90, 170, palette_color[15], 1);
-
-            al_draw_text(font, palette_color[9],   tx, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
-            al_draw_text(font, palette_color[10],  tx, 80,  ALLEGRO_ALIGN_CENTER, txt);
-            al_draw_text(font, palette_color[9],   tx, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
-            al_draw_text(font, palette_color[9],   tx, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
-            al_draw_text(font, palette_color[9],   tx, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
-            al_draw_text(font, palette_color[14],  tx, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
-            al_draw_text(font, palette_color[14],  tx, 138, ALLEGRO_ALIGN_CENTER, "or right mouse button");
-            al_draw_textf(font, palette_color[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", *x1/20, *y1/20);
-            al_draw_textf(font, palette_color[15], tx, 158, ALLEGRO_ALIGN_CENTER, "w:%2d h:%2d", *x2/20, *y2/20);
+            *x2 = (bx2-bx1)*20;
+            *y2 = (by2-by1)*20;
          }
+
          quit = 1;
          ret = 1;
-         //printf("before limit check - x1:%d y1:%d x2:%d y2:%d\n", *x1, *y1, *x2, *y2);
-
-         // don't allow 0 width or height
-         if (*x2 == 0) *x2 = 20;
-         if (*y2 == 0) *y2 = 20;
-
-         // UR corner must be at least one block from limit
-         if (*x1 > 1980) *x1 = 1980;
-         if (*y1 > 1980) *y1 = 1980;
-
-         // correct if lr corner is off level
-         if ((*x1 + *x2) > 2000) *x2 = 2000 - *x1;
-         if ((*y1 + *y2) > 2000) *y2 = 2000 - *y1;
-
-         // swap if negative width or height
-         if (*x2 < 0)
-         {
-            *x1 = *x1 + *x2;
-            *x2 = -*x2;
-         }
-         if (*y2 < 0)
-         {
-            *y1 = *y1 + *y2;
-            *y2 = -*y2;
-         }
-         //printf("after limit check - x1:%d y1:%d x2:%d y2:%d\n", *x1, *y1, *x2, *y2);
       }
-
-
-      if (mouse_b2)
+      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
       {
-         while (mouse_b2) proc_controllers(); // wait for release
-         quit = 1;
-         ret = 0;
-      }
-      if (key[ALLEGRO_KEY_ESCAPE])
-      {
+         proc_controllers(); // wait for release
          quit = 1;
          ret = 0;
       }
@@ -356,16 +296,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
 
    while(!quit)
    {
-
-      al_flip_display();
-      proc_scale_factor_change();
-      proc_controllers();
-      proc_frame_delay();
-      get_new_background(0);
-      draw_lifts();
-      draw_items();
-      draw_enemies();
-
+      cm_redraw_level_editor_background(0);
       crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 
       if (obj_type == 99) // move pod extended
@@ -416,8 +347,6 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       }
 
       get_new_screen_buffer(3, 0, 0);
-      ovw_process_scrolledge();
-      ovw_get_block_position_on_map();
 
       al_draw_filled_rectangle(tx-100, 70, tx+100, 128, palette_color[0]);
       al_draw_rectangle(       tx-100, 70, tx+100, 128, palette_color[15], 1);
@@ -799,15 +728,7 @@ int get_trigger_item(int obj_type, int sub_type, int num )
 
    while(!quit)
    {
-      al_flip_display();
-      proc_scale_factor_change();
-      proc_controllers();
-      proc_frame_delay();
-      get_new_background(0);
-      draw_lifts();
-      draw_items();
-      draw_enemies();
-
+      cm_redraw_level_editor_background(0);
       crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 
       if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, palette_color[10], 2);
@@ -817,12 +738,7 @@ int get_trigger_item(int obj_type, int sub_type, int num )
          if (obj_type == 4) find_and_show_event_links(3, lift, step);
       }
 
-
-
       get_new_screen_buffer(3, 0, 0);
-      ovw_process_scrolledge();
-      ovw_get_block_position_on_map();
-
       al_draw_filled_rectangle(tx-110, 78, tx+110, 146, palette_color[0]);
       al_draw_rectangle(       tx-110, 78, tx+110, 146, palette_color[15], 1);
 
@@ -868,37 +784,6 @@ int get_trigger_item(int obj_type, int sub_type, int num )
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int get_item(int obj_type, int sub_type, int num )
 {
    init_level_background();
@@ -917,22 +802,12 @@ int get_item(int obj_type, int sub_type, int num )
 
    while(!quit)
    {
-      al_flip_display();
-      proc_scale_factor_change();
-      proc_controllers();
-      proc_frame_delay();
-      get_new_background(0);
-      draw_lifts();
-      draw_items();
-      draw_enemies();
-
+      cm_redraw_level_editor_background(0);
       crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 
       if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, palette_color[10], 2);
 
       get_new_screen_buffer(3, 0, 0);
-      ovw_process_scrolledge();
-      ovw_get_block_position_on_map();
 
       al_draw_filled_rectangle(tx-110, 78, tx+110, 146, palette_color[0]);
       al_draw_rectangle(       tx-110, 78, tx+110, 146, palette_color[15], 1);

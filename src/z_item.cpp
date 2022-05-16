@@ -596,30 +596,10 @@ void draw_item(int i, int custom, int cx, int cy)
       draw_pop_message(i);
    }
 
-   if (type == 1)
-   {
-       draw_door(i, x, y);
-       drawn = 1;
-   }
-
-   if (type == 9)
-   {
-       draw_trigger(i, x, y);
-       drawn = 1;
-   }
-
-   if (type == 16)
-   {
-       draw_block_manip(i, x, y);
-       drawn = 1;
-   }
-
-   if (type == 17)
-   {
-       draw_block_damage(i, x, y);
-       drawn = 1;
-   }
-
+   if (type == 1)  { draw_door(i, x, y);         drawn = 1; }
+   if (type == 9)  { draw_trigger(i, x, y);      drawn = 1; }
+   if (type == 16) { draw_block_manip(i, x, y);  drawn = 1; }
+   if (type == 17) { draw_block_damage(i, x, y); drawn = 1; }
 
    if (type == 99)
    {
@@ -669,9 +649,6 @@ void draw_item(int i, int custom, int cx, int cy)
    }
 
    if (type == 98) draw_rocket_lines(i); // for lit rockets
-
-
-
 
    if (type == 5) // start
    {
@@ -737,18 +714,74 @@ int is_item_stuck_to_wall(int i)
    return 0;
 }
 
+
+
+
+
+
+
+void proc_moving_key(int i)
+{
+   // do the incs until the last 10 frames, which are for final sequence
+   if (item[i][11] > 10)
+   {
+      itemf[i][0] += itemf[i][2];  // xinc
+      itemf[i][1] += itemf[i][3];  // yinc
+   }
+   item[i][11]--;
+   if (item[i][11] == 0)
+   {
+      // remove the key
+      item[i][0] = 0;
+
+      int x1 = item[i][6] / 20;
+      int y1 = item[i][7] / 20;
+      int x2 = (item[i][6] + item[i][8]) / 20;
+      int y2 = (item[i][7] + item[i][9]) / 20;
+      if (item[i][12]) // matching keyed blocks only
+      {
+         int key = item[i][1] - 1039;
+         for (int x = x1; x < x2; x++)
+            for (int y = y1; y < y2; y++)
+               if (((l[x][y]&1023) == 188 + key) || ((l[x][y]&1023) == 204 + key) || ((l[x][y]&1023) == 220 + key))
+                  remove_block(x, y);
+      }
+      else // remove all blocks in range
+      {
+         for (int x = x1; x < x2; x++)
+            for (int y = y1; y < y2; y++)
+               remove_block(x, y);
+      }
+      draw_lift_lines(); // in case removing the key blocks erases lift lines
+    }
+}
+
+
+
+
+
+
 void move_items()
 {
    for (int i=0; i<500; i++)
       if (item[i][0])
       {
-         if      (item[i][0] == 9) process_trigger(i);
-         else if (item[i][0] == 16) process_block_manip(i);
-         else if (item[i][0] == 17) process_block_damage(i);
-         else
-         {
+         int x = al_fixtoi(itemf[i][0]);
+         int y = al_fixtoi(itemf[i][1]);
+         if ((x<0) || (x>1980) || (y<0) || (y>1980)) item[i][0] = 0; // remove if out of bounds
 
-            // check for time to live
+         int type = item[i][0];
+         if ((type == 4) && (item[i][11] > 0)) proc_moving_key(i);
+         if (type == 9) process_trigger(i);
+         if (type == 16) process_block_manip(i);
+         if (type == 17) process_block_damage(i);
+         if (type == 99) proc_lit_bomb(i);
+         if (type == 98) proc_lit_rocket(i);
+
+
+         // check for time to live
+         if ((type != 9) && (type != 16) && (type != 17))
+         {
             int ttl = item[i][14];
             if (ttl)
             {
@@ -758,191 +791,148 @@ void move_items()
                   int sq = 10-ttl;
                   item[i][1] = zz[5+sq][74];
                }
-               if (ttl == 1) item[i][0] = 0; // kill instantly
+               if (ttl == 1) type = 0; // kill instantly
                item[i][14]--;
             }
+         }
 
-            if (item[i][0] == 99) proc_lit_bomb(i);
-            if (item[i][0] == 98) proc_lit_rocket(i);
-            if ((item[i][0] == 4) && (item[i][11] > 0)) // moving key
+         // not stationary and not lit rocket
+         if ((item[i][3]) && (type != 98))
+         {
+            // check if being carried
+            int pc = 0;
+            for (int p=0; p<NUM_PLAYERS; p++)
+               if (players[p].active)
+                  if ((!players[p].paused) || (players[p].paused && players[p].paused_type == 2))
+                     if (i == (players[p].carry_item-1)) pc = 1;
+
+            if (!pc) // not being carried
             {
-               // do the incs until the last 10 frames, which are for final sequence
-               if (item[i][11] > 10)
+               // check for sticky bomb stuck to wall
+               int sticky = 0;
+               if ((type == 99) && (item[i][11])) sticky = 1;
+               if ((sticky) && (is_item_stuck_to_wall(i)) )
                {
+                  itemf[i][2] = al_itofix(0);  // xinc
+                  itemf[i][3] = al_itofix(0);  // yinc
+               }
+               else
+               {
+                  // apply incs
                   itemf[i][0] += itemf[i][2];  // xinc
                   itemf[i][1] += itemf[i][3];  // yinc
-               }
-               item[i][11]--;
-               if (item[i][11] == 0)
-               {
-                  // remove the key
-                  item[i][0] = 0;
-                  if (item[i][12]) // matching keyed blocks only
+
+                  // slow down xinc (friction)
+                  if (itemf[i][2] > al_itofix(0))
                   {
-                     int key = item[i][1] - 1039;
-                     int x1 = item[i][6] / 20;
-                     int y1 = item[i][7] / 20;
-                     int x2 = (item[i][6] + item[i][8]) / 20;
-                     int y2 = (item[i][7] + item[i][9]) / 20;
-
-
-
-                     for (int x = x1; x < x2; x++)
-                        for (int y = y1; y < y2; y++)
-                           if (((l[x][y]&1023) == 188 + key) || ((l[x][y]&1023) == 204 + key) || ((l[x][y]&1023) == 220 + key))
-                              remove_block(x, y);
-
-
-
+                      itemf[i][2] -= al_ftofix(.01);     // slow down +xinc
+                         if (itemf[i][2] < al_itofix(0)) // set to zero if crosses zero
+                            itemf[i][2] = al_itofix(0);
                   }
-                  else // remove all blocks in range
+
+                  if (itemf[i][2] < al_itofix(0))
                   {
-                     int x1 = item[i][6] / 20;
-                     int y1 = item[i][7] / 20;
-                     int x2 = (item[i][6] + item[i][8]) / 20;
-                     int y2 = (item[i][7] + item[i][9]) / 20;
-                     for (int x = x1; x < x2; x++)
-                        for (int y = y1; y < y2; y++)
-                           remove_block(x, y);
+                      itemf[i][2] += al_ftofix(.01);     // slow down - xinc
+                         if (itemf[i][2] > al_itofix(0)) // set to zero if crosses zero
+                            itemf[i][2] = al_itofix(0);
                   }
-                  draw_lift_lines(); // in case removing the key blocks erases lift lines
-                }
-            }  // end of moving key
-            else if ((item[i][3]) && (item[i][0] != 98)) // and not stationary and not lit rocket
-            {
-               int pc = 0;
-               for (int p=0; p<NUM_PLAYERS; p++)
-                  if (players[p].active)
-                     if ((!players[p].paused) || (players[p].paused && players[p].paused_type == 2))
-                        if (i == (players[p].carry_item-1)) pc = 1;
 
-               if (!pc) // not being carried
-               {
-                  int sticky = 0;
-                  if ((item[i][0] == 99) && (item[i][11])) sticky = 1;
-                  if ((sticky) && (is_item_stuck_to_wall(i)) )
+                  x = al_fixtoi(itemf[i][0]);
+                  y = al_fixtoi(itemf[i][1]);
+
+
+                  // moving right
+                  if ((itemf[i][2] > al_itofix(0)) && (is_right_solid(x,y, 1, 3)))
                   {
-                     itemf[i][2] = al_itofix(0);  // xinc
-                     itemf[i][3] = al_itofix(0);  // yinc
+                     if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
+                     itemf[i][2] = al_itofix(0);     // stop
                   }
-                  else
+
+                  // moving left
+                  if ((itemf[i][2] < al_itofix(0)) && (is_left_solid(x,y, 1, 3)))
                   {
+                     if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
+                     itemf[i][2] = al_itofix(0);     // stop
+                  }
 
-                     // apply incs
-                     itemf[i][0] += itemf[i][2];  // xinc
-                     itemf[i][1] += itemf[i][3];  // yinc
+                  x = al_fixtoi(itemf[i][0]);
+                  y = al_fixtoi(itemf[i][1]);
 
-                     // always slow down xinc (kinda like friction)
-                     if (itemf[i][2] > al_itofix(0))
+                  // moving up
+                  if (itemf[i][3] < al_itofix(0))
+                  {
+                     if (is_up_solid(x, y, 0, 3) == 1)    // only check for solid blocks
+                        itemf[i][3] = al_itofix(0);        // if collision kill upwards yinc
+                     else itemf[i][3] += al_ftofix(.1);    // else de-accel
+                  }
+                  else // not moving up
+                  {
+                     int a = is_down_solid(x, y, 1, 3);             // check for block below
+                     if (a==0)
                      {
-                         itemf[i][2] -= al_ftofix(.01); // slow down + x move
-                            if (itemf[i][2] < al_itofix(0)) // set to zero if crosses zero
-                               itemf[i][2] = al_itofix(0);
+                        itemf[i][3] += al_ftofix(.1);                             // apply gravity to yinc
+                        if (itemf[i][3] > al_itofix(3)) itemf[i][3] = al_itofix(3);  // max gravity
+                     }
+                     if (a) // slow down xinc if block or lift below
+                     {
+                        if (itemf[i][2] > al_itofix(0)) itemf[i][2] -= al_ftofix(.12);
+                        if (itemf[i][2] < al_itofix(0)) itemf[i][2] += al_ftofix(.12);
                      }
 
-                     if (itemf[i][2] < al_itofix(0))
+                     if ((a==1) || (a==2)) // align with ground if block below
                      {
-                         itemf[i][2] += al_ftofix(.01); // slow down + x move
-                            if (itemf[i][2] > al_itofix(0)) // set to zero if crosses zero
-                               itemf[i][2] = al_itofix(0);
+                        itemf[i][1] = al_itofix((y/20)*20); // align with ground
+                        itemf[i][3] = al_itofix(0);  // zero yinc
                      }
 
-                     int x = al_fixtoi(itemf[i][0]);
-                     int y = al_fixtoi(itemf[i][1]);
-
-                     // moving right
-                     if ((itemf[i][2] > al_itofix(0)) && (is_right_solid(x,y, 1, 3)))
+                     if (a > 31) // item riding lift
                      {
-                        if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
-                        itemf[i][2] = al_itofix(0);     // stop
-                     }
+                        int capture = 0;
 
-                     // moving left
-                     if ((itemf[i][2] < al_itofix(0)) && (is_left_solid(x,y, 1, 3)))
-                     {
-                        if (!sticky) itemf[i][0] -= itemf[i][2];  // take back xinc
-                        itemf[i][2] = al_itofix(0);     // stop
-                     }
-
-                     x = al_fixtoi(itemf[i][0]);
-                     y = al_fixtoi(itemf[i][1]);
-
-                     // moving up
-                     if (itemf[i][3] < al_itofix(0))
-                     {
-                        if (is_up_solid(x, y, 0, 3) == 1)    // only check for solid blocks
-                           itemf[i][3] = al_itofix(0);        // if collision kill upwards yinc
-                        else itemf[i][3] += al_ftofix(.1);    // else de-accel
-                     }
-                     else // not moving up
-                     {
-                        int a = is_down_solid(x, y, 1, 3);             // check for block below
-                        if (a==0)
+                        if (lifts[a-32].fyinc < al_itofix(0)) // lift is moving up
                         {
-                           itemf[i][3] += al_ftofix(.1);                             // apply gravity to yinc
-                           if (itemf[i][3] > al_itofix(3)) itemf[i][3] = al_itofix(3);  // max gravity
+                           int offset = al_fixtoi(lifts[a-32].fy) - y;   // to prevent lift from picking up early when lift going up
+                           if (offset < 21) capture = 1;
                         }
-                        if (a) // slow down xinc if block or lift below
+                        if (lifts[a-32].fyinc >= al_itofix(0)) // lift is moving down or steady
                         {
-                           if (itemf[i][2] > al_itofix(0)) itemf[i][2] -= al_ftofix(.12);
-                           if (itemf[i][2] < al_itofix(0)) itemf[i][2] += al_ftofix(.12);
+                           if (is_down_solid(x, y, 0, 3)) capture = 0; // to prevent lift attempting to take item down through solid block
+                           else capture = 1;
+                           int offset = al_fixtoi(lifts[a-32].fy) - y;   // to prevent lift from picking up early when item going down
+                           if (offset > 21) capture = 0;
                         }
-
-                        if ((a==1) || (a==2)) // align with ground if block below
+                        if (capture)
                         {
-                           itemf[i][1] = al_itofix((y/20)*20); // align with ground
-                           itemf[i][3] = al_itofix(0);  // zero yinc
+                           al_fixed lxi = lifts[a-32].fxinc;
+                           al_fixed lyi = lifts[a-32].fyinc;
+
+                           itemf[i][0] += lxi;                             // move x with lift's xinc
+                           itemf[i][1]  = lifts[a-32].fy - al_itofix(20);  // align with lift's y
+
+                           x = al_fixtoi(itemf[i][0]);
+                           y = al_fixtoi(itemf[i][1]);
+
+                           if (lyi > al_itofix(0)) // down
+                              if (is_down_solid(x, y, 0, 3))                      // no lift check
+                                 itemf[i][1] = al_itofix(y - (y % 20));        // item not on lift anymore, align with block
+
+                           if (lyi < al_itofix(0)) // up
+                              if (is_up_solid(x, y, 0, 3) == 1)
+                                 itemf[i][1] += al_itofix(10);
+
+                           if (lxi > al_itofix(0)) // right
+                              if (is_right_solid(x, y, 1, 3))
+                                 itemf[i][0] -= lxi;
+
+                           if (lxi < al_itofix(0)) // left
+                              if (is_left_solid(x, y, 1, 3))
+                                 itemf[i][0] -= lxi;
                         }
-
-                        if (a > 31) // item riding lift
-                        {
-                           int capture = 0;
-
-                           if (lifts[a-32].fyinc < al_itofix(0)) // lift is moving up
-                           {
-                              int offset = al_fixtoi(lifts[a-32].fy) - y;   // to prevent lift from picking up early when lift going up
-                              if (offset < 21) capture = 1;
-                           }
-                           if (lifts[a-32].fyinc >= al_itofix(0)) // lift is moving down or steady
-                           {
-                              if (is_down_solid(x, y, 0, 3)) capture = 0; // to prevent lift attempting to take item down through solid block
-                              else capture = 1;
-                              int offset = al_fixtoi(lifts[a-32].fy) - y;   // to prevent lift from picking up early when item going down
-                              if (offset > 21) capture = 0;
-                           }
-                           if (capture)
-                           {
-                              al_fixed lxi = lifts[a-32].fxinc;
-                              al_fixed lyi = lifts[a-32].fyinc;
-
-                              itemf[i][0] += lxi;                             // move x with lift's xinc
-                              itemf[i][1]  = lifts[a-32].fy - al_itofix(20);  // align with lift's y
-
-                              x = al_fixtoi(itemf[i][0]);
-                              y = al_fixtoi(itemf[i][1]);
-
-                              if (lyi > al_itofix(0)) // down
-                                 if (is_down_solid(x, y, 0, 3))                      // no lift check
-                                    itemf[i][1] = al_itofix(y - (y % 20));        // item not on lift anymore, align with block
-
-                              if (lyi < al_itofix(0)) // up
-                                 if (is_up_solid(x, y, 0, 3) == 1)
-                                    itemf[i][1] += al_itofix(10);
-
-                              if (lxi > al_itofix(0)) // right
-                                 if (is_right_solid(x, y, 1, 3))
-                                    itemf[i][0] -= lxi;
-
-                              if (lxi < al_itofix(0)) // left
-                                 if (is_left_solid(x, y, 1, 3))
-                                    itemf[i][0] -= lxi;
-                           }
-                        } // end of riding lift
-                     } // end of not moving up
-                  } // end of not stuck to wall
-               } // end of not being carried
-            } // end of if not stationary and not lit rocket
-         } // end of if not item 9
+                     } // end of riding lift
+                  } // end of not moving up
+               } // end of not stuck to wall
+            } // end of not being carried
+         } // end of if not stationary and not lit rocket
       } // end of iterate all active items
 }
 
@@ -1589,17 +1579,17 @@ void proc_item_collision(int p, int i)
 
 void proc_lit_rocket(int i)
 {
-   int max_speed = item[i][8]*1000;
-   int accel = item[i][9];
    lit_item = 1;
 
-   if (item[i][11] < max_speed) item[i][11]+=accel;   // speed and accel
+   int max_speed = item[i][8]*1000;
+   int accel = item[i][9];
+   if (item[i][11] < max_speed) item[i][11]+=accel;   // add accel to speed
 
    al_fixed angle = al_itofix((item[i][10]-640) / 10);
-   itemf[i][2] = (al_fixcos(angle) * item[i][11]) / 1000;       // hypotenuse is the speed!
+   itemf[i][2] = (al_fixcos(angle) * item[i][11]) / 1000;
    itemf[i][3] = (al_fixsin(angle) * item[i][11]) / 1000;
 
-   int x = al_fixtoi(itemf[i][0] += itemf[i][2]); // temp apply the increments
+   int x = al_fixtoi(itemf[i][0] += itemf[i][2]); // apply the increments
    int y = al_fixtoi(itemf[i][1] += itemf[i][3]);
 
    // check for wall collisions
@@ -1621,7 +1611,7 @@ void proc_lit_rocket(int i)
    }
    else
    {
-      // if any players are riding this rocket, bind then to rocket's position
+      // if any players are riding this rocket, bind them to rocket's position
       for (int p=0; p<NUM_PLAYERS; p++)
          if ( (players[p].active) && (!players[p].paused) && (players[p].carry_item) && (players[p].carry_item == i+1 ))
          {

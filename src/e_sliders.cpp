@@ -24,9 +24,6 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 10) sprintf(smsg, "Sproinginess:%d", item[num][7]);
    if (bn == 11) sprintf(smsg, "Mine Damage:%d", item[num][8]);
 
-//   if (bn == 26) sprintf(smsg, "%s", "" ); // button height
-   if (bn == 26) sprintf(smsg, "%d", bts ); // button height
-
    if (bn == 27) sprintf(smsg, "Initial Time:%d", item[num][8]);
    if (bn == 28) sprintf(smsg, "Warp Level:%d", item[num][8]);
    if (bn == 30) sprintf(smsg, "Pause:%d", Ei[num][9]);
@@ -136,7 +133,7 @@ void update_var(int bn, int type, int num, float f)
    if (bn == 10) item[num][7] = (int)f;     // sproingieness
    if (bn == 11) item[num][8] = (int)f;     // mine damage
 
-   if (bn == 26) bts = (int)f;             // button height
+
    if (bn == 28) item[num][8] = (int)f;    // warp level
    if (bn == 30) Ei[num][9] = (int)f;      // pod wait time
    if (bn == 33) Efi[num][2] = al_ftofix(f);  // flapper x speed
@@ -245,7 +242,6 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 10: sul=200;  sll=40;    sinc=1;   sdx=item[num][7];                break;  // sproinginess
       case 11: sul=20;   sll=1;     sinc=1;   sdx=item[num][8];                break;  // mine damage
 
-      case 26: sul=40;   sll=4;     sinc=1;   sdx=bts;                         break;  // button height
       case 27: sul=800;  sll=10;    sinc=1;   sdx=item[num][8];                break;  // initial time
       case 28: sul=100;  sll=1;     sinc=1;   sdx=item[num][8];                break;  // warp level
       case 30: sul=40;   sll=0;     sinc=1;   sdx=Ei[num][9];                  break;  // pod wait time
@@ -2260,25 +2256,23 @@ int mdw_toggle(int x1, int y1, int x2, int y2,
       while (mouse_b1) proc_controllers(); // wait for release
       press = 1;
    }
-   if (bn == 1000)
+
+   if (press) var = ! var;
+
+   if (var)
    {
-      if (press) var = ! var;
+       q1 = frame_col1;
+       q2 = text_col1;
+       sprintf(smsg, "%s", t1);
+       retval = 1;
 
-      if (var)
-      {
-          q1 = frame_col1;
-          q2 = text_col1;
-          sprintf(smsg, "%s", t1);
-          retval = 1;
-
-      }
-      else
-      {
-         q1 = frame_col0;
-         q2 = text_col0;
-         sprintf(smsg, "%s", t0);
-         retval = 0;
-      }
+   }
+   else
+   {
+      q1 = frame_col0;
+      q2 = text_col0;
+      sprintf(smsg, "%s", t0);
+      retval = 0;
    }
 
    if (!q6)
@@ -2287,9 +2281,6 @@ int mdw_toggle(int x1, int y1, int x2, int y2,
       if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
       else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
    }
-
-
-
    return retval;
 }
 
@@ -2307,22 +2298,19 @@ int mdw_togglf(int x1, int y1, int x2, int y2,
       while (mouse_b1) proc_controllers(); // wait for release
       press = 1;
    }
-   if (bn == 1000)
-   {
-      if (press) var ^= flag;
+   if (press) var ^= flag;
 
-      if (var & flag)
-      {
-          q1 = frame_col1;
-          q2 = text_col1;
-          sprintf(smsg, "%s", t1);
-      }
-      else
-      {
-         q1 = frame_col0;
-         q2 = text_col0;
-         sprintf(smsg, "%s", t0);
-      }
+   if (var & flag)
+   {
+       q1 = frame_col1;
+       q2 = text_col1;
+       sprintf(smsg, "%s", t1);
+   }
+   else
+   {
+      q1 = frame_col0;
+      q2 = text_col0;
+      sprintf(smsg, "%s", t0);
    }
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
    if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);

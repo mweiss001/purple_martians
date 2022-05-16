@@ -2,9 +2,6 @@
 
 #include "pm.h"
 
-int copy_mode = 0;
-int brf_mode =0;
-
 int ft_level_header[20];
 int ft_l[100][100];
 int ft_item[500][16];
@@ -131,7 +128,12 @@ void zfs_do_brf(int x, int y, int flood_block)
          //printf("times:%d found:%d\n", times, found);
          for (int a1=0; a1<100; a1++)
             for (int b1=0; b1<100; b1++)
-               if (f[a1][b1]) l[a1][b1] = flood_block;
+               if (f[a1][b1]) set_block_with_flag_filters(a1, b1, flood_block);
+
+
+
+
+
 
          init_level_background();
          cm_redraw_level_editor_background();
@@ -143,7 +145,7 @@ void zfs_do_brf(int x, int y, int flood_block)
       // or we could just do it instantly at the end
       for (int a=0; a<100; a++)
          for (int b=0; b<100; b++)
-            if (f[a][b]) l[a][b] = flood_block;
+            if (f[a][b]) set_block_with_flag_filters(a, b, flood_block);
       init_level_background();
    }
 }
@@ -179,6 +181,7 @@ int zfs_load_selection(void)
 {
    FILE *filepntr;
    int loop, ch, c, x, y;
+   char sel_filename[500];
    char buff[2000];
    sprintf(sel_filename,"sel\\");
    if (mw_file_select("Load Selection", sel_filename, ".sel", 0))
@@ -350,16 +353,18 @@ void zfs_save_selection(int save)
    zfs_clear_ft();
 
    // blocks
-   if (obj_filter[1][1])
-      for (x=0; x<(bx2-bx1+1); x++)
-         for (y=0; y<(by2-by1+1); y++)
-            if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (bx1+x >= 0) && (bx1+x < 100) && (by1+y >= 0) && (by1+y < 100) )
-               ft_l[x][y] = l[bx1+x][by1+y];
+   for (x=0; x<(bx2-bx1+1); x++)
+      for (y=0; y<(by2-by1+1); y++)
+         if ( (x >= 0) && (x < 100) && (y >= 0) && (y < 100) && (bx1+x >= 0) && (bx1+x < 100) && (by1+y >= 0) && (by1+y < 100) )
+         {
+            if (obj_filter[1][1])                          ft_l[x][y] = l[bx1+x][by1+y];                       // get block and flags
+            if ((!obj_filter[1][1]) && (obj_filter[1][2])) ft_l[x][y] = l[bx1+x][by1+y] & PM_BTILE_MOST_FLAGS; // get flags only
+         }
 
 
    // items
    for (b=0; b<500; b++)
-      if ((item[b][0]) && (obj_filter[2][item[b][0]])  && (item[b][4] >= x1) && (item[b][4] < x2) && (item[b][5] >= y1) && (item[b][5] < y2))
+      if ((item[b][0]) && (obj_filter[2][item[b][0]]) && (item[b][4] >= x1) && (item[b][4] < x2) && (item[b][5] >= y1) && (item[b][5] < y2))
       {
          c = iib++;
          // copy all 16 variables
@@ -472,7 +477,7 @@ void zfs_save_selection(int save)
 
    if (save)
    {
-
+      char sel_filename[500];
       al_make_directory("sel"); // create if not already created
       sprintf(sel_filename, "sel\\");
       if (mw_file_select("Save Selection", sel_filename, ".sel", 1))
@@ -531,10 +536,10 @@ void zfs_do_fcopy(int qx1, int qy1)
    int erase_out_of_bounds_main = 0;      // if 0 we will adjust
 
    // blocks
-   if (obj_filter[1][1])
-      for (x=0; x<x5; x++)
-         for (y=0; y<y5; y++)
-            if ((qx1+x >= 0) && (qx1+x < 100) && (qy1+y >= 0) && (qy1+y < 100)) l[qx1+x][qy1+y] = ft_l[x][y];
+   for (x=0; x<x5; x++)
+      for (y=0; y<y5; y++)
+         if ((qx1+x >= 0) && (qx1+x < 100) && (qy1+y >= 0) && (qy1+y < 100))
+            set_block_with_flag_filters(qx1+x, qy1+y, ft_l[x][y]);
 
    // lifts
    if (obj_filter[4][1])
@@ -790,23 +795,23 @@ void zfs_do_clear(void)
    sort_item(1);
 }
 
-void set_block_from_draw_item(int x, int y)
+
+void set_block_with_flag_filters(int x, int y, int tn)
 {
    if ((x>=0) && (x<100) && (y>=0) && (y<100))
    {
       // blocks and flags
-      if ((obj_filter[1][1]) && (obj_filter[1][2]))  l[x][y] = draw_item_num;
+      if ((obj_filter[1][1]) && (obj_filter[1][2]))  l[x][y] = tn;
 
       // flags only
       if ((!obj_filter[1][1]) && (obj_filter[1][2]))
       {
-         int flags = draw_item_num & PM_BTILE_MOST_FLAGS; // get only flags from draw item
-         l[x][y] &= ~PM_BTILE_MOST_FLAGS;                 // clear flags in destination
-         l[x][y] |= flags;                                // merge
+         int flags = tn & PM_BTILE_MOST_FLAGS; // get only flags from draw item
+         l[x][y] &= ~PM_BTILE_MOST_FLAGS;                       // clear flags in destination
+         l[x][y] |= flags;                                      // merge
       }
-
       // blocks only (same as block and flags?)
-      if ((obj_filter[1][1]) && (!obj_filter[1][2])) l[x][y] = draw_item_num;
+      if ((obj_filter[1][1]) && (!obj_filter[1][2])) l[x][y] = tn;
    }
 }
 
@@ -820,10 +825,10 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
    int col=0;
    if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Move Selection"))
    {
-      if (copy_mode) copy_mode = 0;
+      if (mW[4].copy_mode) mW[4].copy_mode = 0;
       else
       {
-         copy_mode = 1;
+         mW[4].copy_mode = 1;
          zfs_save_selection(0); // just puts in ft_
          zfs_draw_fsel();
          zfs_do_clear();
@@ -836,13 +841,13 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
    yfb+=bnh+2;
 
    col = 9;
-   if (copy_mode) col = 10;
+   if (mW[4].copy_mode) col = 10;
    if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,col,15,0, 1,0,0,d, "Paste Selection"))
    {
-      if (copy_mode) copy_mode = 0;
+      if (mW[4].copy_mode) mW[4].copy_mode = 0;
       else
       {
-         copy_mode = 1;
+         mW[4].copy_mode = 1;
          zfs_save_selection(0); // just puts in ft_
          zfs_draw_fsel();
       }
@@ -861,20 +866,20 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
    {
       if (zfs_load_selection())
       {
-         copy_mode = 1;
+         mW[4].copy_mode = 1;
          zfs_draw_fsel();
       }
    }
    yfb+=bnh+2;
 
-   if (draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
+   if (mW[1].draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
    {
       yfb+=bnh/2; // spacing between groups
       if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Block Fill"))
       {
          for (int x=bx1; x<bx2+1; x++)
             for (int y=by1; y<by2+1; y++)
-               set_block_from_draw_item(x, y);
+               set_block_with_flag_filters(x, y, mW[7].draw_item_num);
          init_level_background();
          al_set_target_backbuffer(display);
       }
@@ -883,13 +888,13 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
       {
          for (int x=bx1; x<bx2+1; x++)
          {
-            set_block_from_draw_item(x, by1);
-            set_block_from_draw_item(x, by2);
+            set_block_with_flag_filters(x, by1, mW[7].draw_item_num);
+            set_block_with_flag_filters(x, by2, mW[7].draw_item_num);
          }
          for (int y=by1; y<by2+1; y++)
          {
-            set_block_from_draw_item(bx1, y);
-            set_block_from_draw_item(bx2, y);
+            set_block_with_flag_filters(bx1, y, mW[7].draw_item_num);
+            set_block_with_flag_filters(bx2, y, mW[7].draw_item_num);
          }
          init_level_background();
          al_set_target_backbuffer(display);
@@ -897,9 +902,9 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
       yfb+=bnh+2;
 
       col = 9;
-      if (brf_mode) col = 10;
+      if (mW[4].brf_mode) col = 10;
       if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,col,15,0, 1,0,0,d, "Block Floodfill"))
-         brf_mode = !brf_mode;
+         mW[4].brf_mode = !mW[4].brf_mode;
       yfb+=bnh+2;
 
    }
@@ -939,51 +944,37 @@ void zfs_draw_fsel(void)
    al_draw_bitmap_region(level_buffer, bx1*20, by1*20, sw*20, sh*20, 0, 0, 0);
 }
 
-// this function draws a box at full scale on level buffer
-// even if the top left and bottom right corners are switched
-// used by zfs, ge and em
-void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
-{
-   if (x1 > x2) swap_int(&x1, &x2);
-   if (y1 > y2) swap_int(&y1, &y2);
-   int dstx = x1*20;
-   if (dstx == 0) dstx = 1;
-   int dsty = y1*20;
-   if (dsty == 0) dsty = 1;
-   al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, palette_color[14], 1);
-   al_draw_text(font, palette_color[color], x1*20+2, y1*20-11,  0, text);
-}
 
-void zfs_process_mouse_buttons(void)
+void zfs_process_mouse(void)
 {
    if (mouse_b1)
    {
-      if (copy_mode)
+      if (mW[4].copy_mode)
       {
          while (mouse_b1) proc_controllers();
          zfs_do_fcopy(gx, gy);
       }
-      if (brf_mode)
+      if (mW[4].brf_mode)
       {
          while (mouse_b1)proc_controllers();
-         zfs_do_brf(gx, gy, draw_item_num);
+         zfs_do_brf(gx, gy, mW[1].draw_item_num);
       }
-      if ((!copy_mode) && (!brf_mode)) // get new selection
-      {
-         // initial selection
-         bx2 = bx1 = gx;
-         by2 = by1 = gy;
-         while (mouse_b1)
-         {
-            bx2 = gx;
-            by2 = gy;
-            cm_redraw_level_editor_background();
-         }
-         if (bx1 > bx2) swap_int(&bx1, &bx2); // swap if wrong order
-         if (by1 > by2) swap_int(&by1, &by2);
-      }
+      if ((!mW[4].copy_mode) && (!mW[4].brf_mode)) cm_get_new_box(); // get new selection
    }
 }
+
+
+int zfs_process_keypress(void)
+{
+   int quit = 0;
+   while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
+   {
+      proc_controllers();
+      quit = 1;
+   }
+   return quit;
+}
+
 
 void zoom_full_screen(int draw_item)
 {
@@ -991,23 +982,15 @@ void zoom_full_screen(int draw_item)
 
    init_level_background();
 
-   int exit =0;
-   copy_mode = 0;
-   brf_mode = 0;
+   int quit =0;
    while (mouse_b2) proc_controllers();
 
-   while (!exit)
+   while (!quit)
    {
       cm_redraw_level_editor_background();
-      if (!mw_cycle_windows(0)) zfs_process_mouse_buttons();
-
-      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
-      {
-         proc_controllers();
-         exit = 1;
-      }
+      if (!mw_cycle_windows(0)) zfs_process_mouse();
+      quit = zfs_process_keypress();
    }
-
    set_windows(1); // edit menu
 }
 

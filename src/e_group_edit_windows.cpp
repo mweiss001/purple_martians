@@ -740,32 +740,15 @@ void ge_add_selection_to_list(int set_filters)
    }
 }
 
-void ge_proc_mouse(int mouse_on_window)
+void ge_process_mouse(void)
 {
    if (mouse_b1)
    {
-      if (show_sel_frame) // draw new selection rectangle
+      if (mW[5].show_sel_frame) // get new selection rectangle
       {
-         // initial selection
-         bx2 = bx1 = gx;
-         by2 = by1 = gy;
-         while (mouse_b1)
-         {
-            bx2 = gx;
-            by2 = gy;
-            cm_redraw_level_editor_background();
-            get_new_screen_buffer(3, 0, 0);
-            ovw_process_scrolledge();
-            ovw_get_block_position_on_map();
-         }
-
-         if (bx1 > bx2) swap_int(&bx1, &bx2); // swap if wrong order
-         if (by1 > by2) swap_int(&by1, &by2);
-
-         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
-            ge_add_selection_to_list(1); // add everything in selection to list...
-
-      } // end of get new selection
+         cm_get_new_box();
+         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) ge_add_selection_to_list(1); // add everything in selection to list and set filters...
+      }
       else
       {
          while (mouse_b1) proc_controllers();
@@ -796,6 +779,20 @@ void ge_proc_mouse(int mouse_on_window)
    }
 }
 
+int ge_process_keypress(void)
+{
+   int quit = 0;
+   while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
+   {
+      proc_controllers();
+      quit = 1;
+   }
+   return quit;
+}
+
+
+
+
 void group_edit(void)
 {
    set_windows(3); // group edit
@@ -803,31 +800,59 @@ void group_edit(void)
    init_level_background();
    ge_init_data();
 
-   int mouse_on_window = 0;
 
-   int exit=0;
+   int quit=0;
 
    al_show_mouse_cursor(display);
    al_set_target_backbuffer(display);
 
    while (mouse_b2) proc_controllers();
-   while (!exit)
+
+
+
+   while (!quit)
    {
       cm_redraw_level_editor_background();
-
-      ge_remove_obj_list_filtered_items();
-
-
-
-      mouse_on_window = mw_cycle_windows(0);
-
-      if (!mouse_on_window) ge_proc_mouse(mouse_on_window);
-
-      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
-      {
-         proc_controllers();
-         exit = 1;
-      }
+      if (!mw_cycle_windows(0)) ge_process_mouse();
+      quit = ge_process_keypress();
    }
    set_windows(1); // edit menu
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

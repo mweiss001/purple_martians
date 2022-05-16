@@ -80,6 +80,11 @@ int edit_int(int x, int y, int val, int inc, int lv, int uv)
 
       val = val - ((mouse_y - old_mouse) * inc);
 
+      if (key[ALLEGRO_KEY_0]) val = 0;
+
+      if (key[ALLEGRO_KEY_1]) val = 100;
+      if (key[ALLEGRO_KEY_2]) val = 1000;
+
       if (val > uv) val = uv;
       if (val < lv) val = lv;
 
@@ -178,7 +183,105 @@ void PDE_sort(void)
       swap_flag = 0;
       for (int x=0; x<99; x++)
       {
-         if ( PDEi[x][0] > PDEi[x+1][0]) // sort by type
+         if (PDEi[x][0] > PDEi[x+1][0]) // sort by type
+         {
+            PDE_swap(x, x + 1);
+            swap_flag++; // if any swaps
+         }
+      }
+   }
+
+   // then sort by text line
+   swap_flag = 1;
+   int do_swap = 0;
+   while (swap_flag)
+   {
+      do_swap = 0;
+      swap_flag = 0;
+      for (int x=0; x<99; x++)
+      {
+         if ((PDEi[x][0] > 199) && ( PDEi[x][0] < 300))  // if both creators
+            if ((PDEi[x+1][0] > 199) && ( PDEi[x+1][0] < 300))
+               if (strncmp(PDEt[x][1], PDEt[x+1][1], strlen(PDEt[x][1])) > 0)
+                  do_swap = 1;
+
+         if ((PDEi[x][0] > 99) && ( PDEi[x][0] < 200))  // if both items
+            if ((PDEi[x+1][0] > 99) && ( PDEi[x+1][0] < 200))
+               if ( PDEi[x][0] == PDEi[x+1][0] ) // if same type
+                  if (strncmp(PDEt[x][1], PDEt[x+1][1], strlen(PDEt[x][1]) ) > 0)  // secondary sort by text line 1
+                     do_swap = 1;
+
+         if ((PDEi[x][0] > 0) && ( PDEi[x][0] < 100))  // if both enemies
+            if ((PDEi[x+1][0] > 0) && ( PDEi[x+1][0] < 100))
+               if ( PDEi[x][0] == PDEi[x+1][0] ) // if same type
+                  if (strncmp(PDEt[x][1], PDEt[x+1][1], strlen(PDEt[x][1]) ) > 0)  // secondary sort by text line 1
+                     do_swap = 1;
+
+         if (do_swap) // do the swap
+         {
+            do_swap = 0;
+            swap_flag++; // if any swaps
+            PDE_swap(x, x + 1);
+         } // end of swap
+      } // end of for x
+   } // end of while swap flag
+
+
+
+   for (int x=0; x<50; x++) PDE_swap(x, x + 50); // move all to + 50
+
+   int insert_pos = 0; // creators to 0
+   for (int x=50; x<100; x++)
+   {
+      int rt = PDEi[x][0];
+      if (rt > 199) PDE_swap(x, insert_pos++);
+   }
+
+   insert_pos = 16; // items to 16   while (key[KEY_ESC]) proc_controllers();
+
+   for (int x=50; x<100; x++)
+   {
+      int rt = PDEi[x][0];
+      if ((rt > 99) && (rt < 200)) PDE_swap(x, insert_pos++);
+   }
+
+   insert_pos = 48; // enemies to 48
+   for (int x=50; x<100; x++)
+   {
+      int rt = PDEi[x][0];
+      if ((rt) && (rt < 99)) PDE_swap(x, insert_pos++);
+   }
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+
+void PDE_sort(void)
+{
+   // first just sort by type
+   int swap_flag = 1;
+   while (swap_flag)
+   {
+      swap_flag = 0;
+      for (int x=0; x<99; x++)
+      {
+         if (PDEi[x][0] > PDEi[x+1][0]) // sort by type
          {
             PDE_swap(x, x + 1);
             swap_flag++; // if any swaps
@@ -221,6 +324,17 @@ void PDE_sort(void)
       } // end of for x
    } // end of while swap flag
 }
+
+
+*/
+
+
+
+
+
+
+
+
 
 
 
@@ -290,30 +404,6 @@ void predefined_enemies(void)
          {
             while (key[ALLEGRO_KEY_S]) proc_controllers();
             PDE_sort();
-
-            for (int x=0; x<50; x++) PDE_swap(x, x + 50); // move all to + 50
-
-            int insert_pos = 0; // creators to 0
-            for (int x=50; x<100; x++)
-            {
-               int rt = PDEi[x][0];
-               if (rt > 199) PDE_swap(x, insert_pos++);
-            }
-
-            insert_pos = 16; // items to 16   while (key[KEY_ESC]) proc_controllers();
-
-            for (int x=50; x<100; x++)
-            {
-               int rt = PDEi[x][0];
-               if ((rt > 99) && (rt < 200)) PDE_swap(x, insert_pos++);
-            }
-
-            insert_pos = 32; // enemies to 32
-            for (int x=50; x<100; x++)
-            {
-               int rt = PDEi[x][0];
-               if ((rt) && (rt < 99)) PDE_swap(x, insert_pos++);
-            }
             redraw = 1;
          }
 
@@ -443,6 +533,16 @@ void predefined_enemies(void)
             }
             redraw = 1;
          } // end of edit text
+
+
+
+
+
+
+
+
+
+
          if (key[ALLEGRO_KEY_RIGHT])
          {
             while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();

@@ -25372,10 +25372,7 @@ it should keep track of its position and size..
 
 it should have a method to draw itself and a separate method to accept input
 
-
 lets see what I can do with this, with the filter window....
-
-
 
 class mWindow
 {
@@ -25401,11 +25398,8 @@ void mWindow::set_size(int sw, int sy)
    y2 = y + h;
 }
 
-
 where do I declare it?
 in pm.h
-
-
 
 20220510 6:00 AM
 
@@ -25419,7 +25413,6 @@ active
 has_focus
 draw_order
 moveable
-
 
 'active'
 used to determine if the window is shown or hidden
@@ -25557,9 +25550,6 @@ draw order...0 is on top and is the only one with focus
 
 whenever a new one is brought to top all others slide down in order
 
-
-
-
 what I did:
 int layer
 draw them in order by layer and detect mouse also
@@ -25603,21 +25593,13 @@ min_h
 max_w
 max_h
 
-
-
-
-
 it might be time to make some numbers permanently tied to window numbers...
-
 
 filter = 3;
 always....
 
-
 make a custom function to draw the buttons
-
 done
-
 
 edit toggle so that it can do the read only thing..
 find unused var...q7
@@ -25625,7 +25607,6 @@ find unused var...q7
 how about:
 q6 = draw
 q7 = process input
-
 
 done...i bet that broke a lot of stuff!!!
 
@@ -25645,12 +25626,10 @@ now implement the collapse button on the title bar...
 use a toggle but with only a single char + or -
 make a way to not draw the frame...
 
-
 when in drag mode, deactivate the button detection...
 still if you drag too fast and the mouse in on the buttons it freezes...done...
 
 20220512 6:30 AM  push
-
 
 implement the +/- collapse button
 
@@ -25662,7 +25641,6 @@ bug..why do I have a funny sized red rect when moving window...
 its like my y2 is off...fixed..when I set y2 I also need to set h
 
 implement the b2 menu...done..
-
 
 I think filters is perfect...
 
@@ -25685,12 +25663,8 @@ status window looks perfect
 hide old one...done
 make pop up menu for status window to show/hide sbf..done
 
-
-
-
 when moving a window, show all windows...done
 need to make an external funtion to draw all windows in order...done
-
 
 status window looks great...
 still want to:
@@ -25728,10 +25702,7 @@ used glt to make all 20 into 0
 changed buttons to show undefined val
 
 
-
-
 20220513 6:00PM
-
 make filters collapse to top frame
 when collapsed, can still move in x axis
 restoring restores both x and y
@@ -25743,7 +25714,6 @@ int alt2_x1
 int alt2_y1
 
 collapsing switches to using alt2
-
 
 normal:
 collapse = 0;
@@ -25764,12 +25734,9 @@ this all sounds so complex....
 
 enforce windows to be on screen...done
 
-
-
 fix the bug - cannot draw backwards selection in em...
 or in zfs
 or in ge
-
 
 fix it once and use it everywhere dammit
 
@@ -25778,10 +25745,6 @@ release...set x2, y2
 simple...
 
 show proper progress
-
-
-
-
 
 void get_new_box(void) // keep the mouse !!
 {
@@ -25886,19 +25849,16 @@ void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color,
    al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, palette_color[14], 1);
    al_draw_text(font, palette_color[color], x1*20+2, y1*20-11,  0, text);
 }
-
 done...
 now there is only one....
 void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
 
 patch it into em....done...
 
-
 bug zfs does not copy items....yes it does...
 sort item used to set itemf pos, removed to fix another bug...
 
 now I made item sort set itemf for all cased except the one where items are listed...
-
 
 next I will do zfs...its a simple single window
 then make the new filter window work with zfs...
@@ -25915,9 +25875,7 @@ then object viewer..
 one window and filters...
 this could take some time cleaning up all the sliders and buttons, there are a lot!!!
 
-
 finally when all of that is done....
-
 
 make more things common...
 
@@ -25947,20 +25905,14 @@ ov:
 lots of things to adjust
 
 then after the get screen buffer:
-
 then window processing will be very streamlined..
 
-
 then if mouse not on window, process mouse on the background...
-
-
 quite a lot......
-
 
 first things...i need to get all the windows working under the new manager...
 
 in zfs loop...
-
 put filter...
 
 20220514 5:00AM
@@ -26006,14 +25958,11 @@ obj_filter[2][15], "Spring"
 obj_filter[2][16], "Blk Mn"
 obj_filter[2][17], "Blk Dm"
 
-
 obj_filter[2][item[b][0]]
 
 if ((item[b][0]) && (item[b][4] >= x1) && (item[b][4] < x2) && (item[b][5] >= y1) && (item[b][5] < y2))
 
-
 filter window has been integrated into zfs...
-
 
 now convert window to 4...
 
@@ -26057,12 +26006,8 @@ if (mdw_button(x3, yfb, x4, yfb+bnh, 610, 0,  0, 0, 0,  9, 15, 0, 1,0,0,0)) // b
 int mdw_buttont(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 
-
 those buttons are completely removed....
-
 there is some weirdness around block fill and frame...
-
-
 
    if (draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
    {
@@ -26132,10 +26077,7 @@ ge list was very easy to add....
 make the draw only version....done
 ge_show_obj_list(int x, int y, int *ew, int *eh)
 
-
-
 ge list is done....
-
 
 next....
 ge controls will be 6
@@ -26148,7 +26090,6 @@ draw only buttons...done
 
 find a way to implement mouse on window so mouse click won't pass through to level beneath..done
 
-
 find a way to add functionality of two buttons....
 show selection
 add selection to list
@@ -26156,7 +26097,6 @@ and maybe more...
 pop up menu toggles...
 show/hide selection
 put in on the object list...done
-
 
 hide when no valid controls...
 here is the thing...if I make the window inactive, i won;t be able to detect when to bring it back???
@@ -26182,8 +26122,6 @@ all these four modes should be cleaned up so that they all look common and can b
 
 something is stealing my mouse....fixed
 
-
-
 making a new title function...
 
 pass it x1, y1, x2, y2...something else will figure that out....
@@ -26199,7 +26137,6 @@ now the legend highlights...
 
 making great progress....
 
-
 now to go through all the buttons...
 
 clean them up...and make them respect draw only...
@@ -26208,12 +26145,8 @@ everything in buttons has been done too....
 yay!!!
 
 20220514 7:00PM
-
 I have probably introduced some bugs that I will need to catch...
-
 the next thing on the list was to try to merge and simplify more things
-
-
 
 make an global int that tells me what mode the level editor is in
 
@@ -26224,9 +26157,7 @@ level_editor_mode
 3 = ge
 4 = ov
 
-
 make a common redraw background function
-
 void cm_redraw_level_editor_background(int mode)
 {
 
@@ -26236,14 +26167,10 @@ ge replaced 2 calls
 ov 3 calls and 4 in lifts...
 that is coming along nicely....
 
-
 I know I have some bugs in the lifts stuff
 but what the hell am I going to do about it?...fixit!!
 
-
 so the high level common stuff....
-
-
 
 - redraw the background
 - redraw the windows
@@ -26252,8 +26179,6 @@ so the high level common stuff....
 - process mouse on background
 
 this is pretty much done like this:
-
-
 
       cm_redraw_level_editor_background();
 
@@ -26269,336 +26194,252 @@ this is pretty much done like this:
       quit = em_process_keypress();
 
 
+20220515 6:00 AM
+cleaning up...
+
+made some common functions:
+void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
+void cm_get_new_box(void)
+make get box use my new stuff...done...
+lets do getxy also...
+
+make a version of cm_redraw_level_editor_background() that stops just before get_new_screen_buffer()
+mode 0...
+
+more common stuff sorted out..
+run lifts looks good now....
+
+what about mouse_on_window??
+for all the bullshit time I spend passing it around...
+I could make it a global...
+make it part of the mWindow class...
+calculate it every time I need it...
+how about
+
+this is how condensed I got the edit menu loop:
+
+em:
+while (!quit)
+{
+   cm_redraw_level_editor_background();
+   if (!mw_cycle_windows(0)) quit = em_process_mouse();
+   quit = em_process_keypress();
+}
+
+lets see if I can do similar for others
+
+zfs:
+while (!quit)
+{
+   cm_redraw_level_editor_background();
+   if (!mw_cycle_windows(0)) zfs_process_mouse();
+   quit = zfs_process_keypress();
+}
+
+ge:
+while (!quit)
+{
+   cm_redraw_level_editor_background();
+   if (!mw_cycle_windows(0)) ge_process_mouse();
+   quit = ge_process_keypress();
+}
+ovw:
+while (!quit)
+{
+   cm_redraw_level_editor_background();
+   if (!mw_cycle_windows(0)) ovw_process_mouse();
+   quit = ovw_process_keypress();
+}
+
+
+now...
+
+go through the variables....
+each window used to have its own custom global variables...
+
+I could hide a lot of the window globals in mWindow...
 
+got rid of a bunch, but these I will add...
+
+// status window only used by mW[1]
+extern int draw_item_num;
+extern int draw_item_type;
+extern int point_item_type;
+extern int point_item_num;
 
+// object viewer window
+extern int ov_window_lift_buttons_h;
 
+// status window
+extern int draw_item_num;
+extern int draw_item_type;
+extern int point_item_type;
+extern int point_item_num;
 
+// select window
+extern int select_window_block_on;
+extern int select_window_special_on;
+extern int select_window_num_special_lines;
 
+extern int swbn;  // number of special
+extern int swnbl; // number if special lines (just swbn / 16 + 1)
+extern int swnbl_cur; // current number of lines shown
+extern int swbl[NUM_SPRITES][2];
 
+extern int show_non_default_blocks;
+extern int show_flag_details;
 
+Well I got rid of a lot.....the list is smaller now
 
+lifts seem to work fine
+pop message seem to be fine
 
 
+viewer lock has some issues:
+- when locked, it still switches
+- can't move any secondary stuff on map for current object when not selected in filters...
+if viewer lock on and current obt = 3
+only do stuff for that
+wow this is tougher that I thought...
+if viewer_lock only process move for main obj and aux things for that object...
+if obt is different dont even do that section...
+maybe I need to split this huge function into detection and processing....
+its kind of like that already...only one thing can be pass to the second half for adjustment
+the detection part will stop at the first valid match and send it....
+another assumption is that if you are adjusting a secondary thing, the main object is set to current object
+I think I have fixed it....
 
+I want to see the non-default blocks in the draw item and view_item and draw item cursor....done
 
+Purple Martians Version 7.10
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+running level editor for level:4
+00000000 00011001 00000000 10000000  - draw_item
+00000000 00011001 00000000 00000000  - flags only
+00000000 00011111 00000000 11011100  - destination block
+00111111 11111111 00000000 00000000  - PM_BTILE_MOST_FLAGS
+11000000 00000000 11111111 11111111  - ~PM_BTILE_MOST_FLAGS
+00000000 00000000 00000000 11011100  - destination block =~PM_BTILE_MOST_FLAGS
+00000000 00011001 00000000 11011100  - merge l[x][y] |= flags
 
+this works exactly as intended....
 
+void set_block_from_draw_item(int x, int y)
+{
+   if ((x>=0) && (x<100) && (y>=0) && (y<100))
+   {
 
+      printBits(4, &mW[1].draw_item_num);
+      printf("%s - draw_item\n", msg);
 
+      // blocks and flags
+      if ((obj_filter[1][1]) && (obj_filter[1][2]))  l[x][y] = mW[1].draw_item_num;
 
 
 
 
+      // flags only
+      if ((!obj_filter[1][1]) && (obj_filter[1][2]))
+      {
 
+         int flags = mW[1].draw_item_num & PM_BTILE_MOST_FLAGS; // get only flags from draw item
 
+         printBits(4, &flags);
+         printf("%s - flags only\n", msg);
 
 
+         printBits(4, &l[x][y]);
+         printf("%s - destination block\n", msg);
 
+         int f = PM_BTILE_MOST_FLAGS;
+         printBits(4, &f);
+         printf("%s - PM_BTILE_MOST_FLAGS\n", msg);
 
 
+         f = ~PM_BTILE_MOST_FLAGS;
+         printBits(4, &f);
+         printf("%s - ~PM_BTILE_MOST_FLAGS\n", msg);
 
 
+         l[x][y] &= ~PM_BTILE_MOST_FLAGS;                 // clear flags in destination
+         printBits(4, &l[x][y]);
+         printf("%s - destination block =~PM_BTILE_MOST_FLAGS\n", msg);
 
+         l[x][y] |= flags;                                // merge
+         printBits(4, &l[x][y]);
+         printf("%s - merge l[x][y] |= flags\n", msg);
 
 
+      }
 
+      // blocks only (same as block and flags?)
+      if ((obj_filter[1][1]) && (!obj_filter[1][2])) l[x][y] = mW[1].draw_item_num;
+   }
+}
 
+I think I was expecting the other part of zfs to do this...the copy paste...
+I made a common function to do both:
 
 
+void set_block_with_flag_filters(int x, int y, int tn)
+{
+   if ((x>=0) && (x<100) && (y>=0) && (y<100))
+   {
+      // blocks and flags
+      if ((obj_filter[1][1]) && (obj_filter[1][2]))  l[x][y] = tn;
 
+      // flags only
+      if ((!obj_filter[1][1]) && (obj_filter[1][2]))
+      {
+         int flags = tn & PM_BTILE_MOST_FLAGS; // get only flags from draw item
+         l[x][y] &= ~PM_BTILE_MOST_FLAGS;                       // clear flags in destination
+         l[x][y] |= flags;                                      // merge
+      }
+      // blocks only (same as block and flags?)
+      if ((obj_filter[1][1]) && (!obj_filter[1][2])) l[x][y] = tn;
+   }
+}
 
+look into brf mode also...done...
 
+also if block filter is not set, nothing gets copied to ft_...fixed
 
+make it so that the paste selection is updated when ever filter changes...done...
 
+clean up variables for old window positions...
+maybe find a way to save them...
+I could save the entire array of window objects...
+have a simple load and save thing...T-save Y-load
+when do I load? in
+save when quitting level editor
+load when starting
+seems to work pretty good...
 
 
+20220516 4:30AM
 
+rockets cannot go through semisolid..has it alwats been this way?
+I could just clear item solid...
 
+rockets can go off the edge of the level....fixed for all items
 
 
+demo mode annoys me when it starts in the middle of things I am doing
+I could make it start on a timer, but only if nothing happens after the program is first run
+after that do not automatically start it again
+done...and it is so much nicer now!
 
 
+add 4 keys to PDE and remove key creator....done
 
+allow key color to be changed later.....
 
+I am going to remove enemy field...everything it does can be done with trig, bm and bd...
+PDE is removed....
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+20220516 6:30 AM push
 
 
 

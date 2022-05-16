@@ -217,26 +217,14 @@ void save_config(void)
       else
          sprintf(global_string[3][18],"[OFF]:Auto Save Game On Exit             ");
 
-
-      sprintf(msg, "%d", status_window_x);
-      al_set_config_value(cfg, "LEVEL_EDITOR", "status_window_x", msg);
-
-      sprintf(msg, "%d", status_window_y);
-      al_set_config_value(cfg, "LEVEL_EDITOR", "status_window_y", msg);
-
-      sprintf(msg, "%d", select_window_x);
-      al_set_config_value(cfg, "LEVEL_EDITOR", "select_window_x", msg);
-
-      sprintf(msg, "%d", select_window_y);
-      al_set_config_value(cfg, "LEVEL_EDITOR", "select_window_y", msg);
-
+/*
       sprintf(msg, "%d", show_non_default_blocks);
       al_set_config_value(cfg, "LEVEL_EDITOR", "show_non_default_blocks", msg);
 
       sprintf(msg, "%d", show_flag_details);
       al_set_config_value(cfg, "LEVEL_EDITOR", "show_flag_details", msg);
 
-
+*/
       sprintf(msg, "%d", autoload_bookmark);
       al_set_config_value(cfg, "LEVEL_EDITOR", "autoload_bookmark", msg);
 
@@ -462,23 +450,7 @@ void get_config_values(void)
    val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_show_dif2");
    if (!val) L_LOGGING_NETPLAY_show_dif2 = 0;
    else L_LOGGING_NETPLAY_show_dif2 = atoi(val);
-
-   val = al_get_config_value(cfg, "LEVEL_EDITOR", "status_window_x");
-   if (!val) status_window_x = 10;
-   else status_window_x = atoi(val);
-
-   val = al_get_config_value(cfg, "LEVEL_EDITOR", "status_window_y");
-   if (!val) status_window_y = 10;
-   else status_window_y = atoi(val);
-
-   val = al_get_config_value(cfg, "LEVEL_EDITOR", "select_window_x");
-   if (!val) select_window_x = 10;
-   else select_window_x = atoi(val);
-
-   val = al_get_config_value(cfg, "LEVEL_EDITOR", "select_window_y");
-   if (!val) select_window_y = 10;
-   else select_window_y = atoi(val);
-
+/*
    val = al_get_config_value(cfg, "LEVEL_EDITOR", "show_non_default_blocks");
    if (!val) show_non_default_blocks = 0;
    else show_non_default_blocks = atoi(val);
@@ -486,7 +458,7 @@ void get_config_values(void)
    val = al_get_config_value(cfg, "LEVEL_EDITOR", "show_flag_details");
    if (!val) show_flag_details = 0;
    else show_flag_details = atoi(val);
-
+*/
    val = al_get_config_value(cfg, "LEVEL_EDITOR", "autoload_bookmark");
    if (!val) autoload_bookmark = 0;
    else autoload_bookmark = atoi(val);
