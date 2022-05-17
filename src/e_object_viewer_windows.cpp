@@ -59,7 +59,7 @@ void ovw_get_size(void)
    if ((obt == 2) && (type == 1 )) { w = 210; h = 262;} // door
    if ((obt == 2) && (type == 2 )) { w = 200; h = 190;} // bonus
    if ((obt == 2) && (type == 3 )) { w = 200; h = 158;} // exit
-   if ((obt == 2) && (type == 4 )) { w = 200; h = 182;} // key
+   if ((obt == 2) && (type == 4 )) { w = 200; h = 198;} // key
    if ((obt == 2) && (type == 5 )) { w = 200; h = 174;} // start
    if ((obt == 2) && (type == 7 )) { w = 200; h = 158;} // mine
    if ((obt == 2) && (type == 8 )) { w = 200; h = 214;} // bomb
@@ -67,7 +67,7 @@ void ovw_get_size(void)
    if ((obt == 2) && (type == 10)) { w = 220; h = 390;} // message
    if ((obt == 2) && (type == 11)) { w = 220; h = 230;} // rocket
    if ((obt == 2) && (type == 12)) { w = 220; h = 214;} // warp
-   if ((obt == 2) && (type == 14)) { w = 200; h = 142;} // switch
+   if ((obt == 2) && (type == 14)) { w = 200; h = 158;} // switch
    if ((obt == 2) && (type == 15)) { w = 240; h = 166;} // sproingy
    if ((obt == 2) && (type == 16)) { w = 280; h = 358;} // bm
    if ((obt == 2) && (type == 17)) { w = 290; h = 358;} // bd
@@ -774,8 +774,14 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
          break;
          case 4: // key
             mdw_button(xa, ya, xb, ya+bts-2, 2,  num, type, obt, 0, 15, 15, 15, 1,0,0,d); ya+=bts; // stat | fall
+            mdw_buttonp(xa, ya, xb, ya+bts-2, 102,0,0,0,         0,  8, 15,  0, 1,0,0,d, item[num][1]); ya+=bts; // color
             mdw_button(xa, ya, xb, ya+bts-2, 5,  num, type, obt, 0, 10, 10,  0, 1,0,0,d); ya+=bts; // set new block range
             mdw_toggle(xa, ya, xb, ya+bts-2, 0,0,0,0,            0,  0,  0,  0, 1,0,0,d, item[num][12], "Remove All Blocks", "Remove Only Matching", 15, 15, 4, 4); ya+=bts; // range type
+
+
+
+
+
          break;
          case 5: // start
             mdw_button(xa, ya, xb, ya+bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,d); ya+=bts; // stat | fall | carry
@@ -950,6 +956,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
          break;
          case 14: // switch
             mdw_button(xa, ya, xb, ya+bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,d); ya+=bts; // stat | fall | carry
+            mdw_buttonp(xa, ya, xb, ya+bts-2, 103,0,0,0,         0,  8, 15,  0, 1,0,0,d, item[num][1]); ya+=bts; // color
          break;
          case 15: // sproingy
             mdw_button(xa, ya, xb, ya+bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,d); ya+=bts; // stat | fall | carry
@@ -1196,6 +1203,9 @@ void ovw_draw_overlays(int legend_highlight)
             al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
             al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
             al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+
+            // show blocks that will be affected
+            proc_key_block_range(num, 2);
          }
          break;
          case 8: // bomb
@@ -1589,11 +1599,20 @@ void ovw_process_mouse(void)
 
 
 
-
-
-
    if (mouse_b1)
    {
+
+      // get offset from where mouse was clicked to lift step upper left origin
+      int lsox=0, lsoy=0;
+      if (mouse_on_lift)
+      {
+         int l = mW[7].num;
+         int s = lifts[l].current_step;
+         lsox = (gx - lift_steps[l][s].x/20);
+         lsoy = (gy - lift_steps[l][s].y/20);
+      }
+
+
       while (mouse_b1)
       {
          if (mouse_on_obj)
@@ -1658,8 +1677,10 @@ void ovw_process_mouse(void)
             {
                if (mouse_move)
                {
-                  lift_steps[lift][step].x = gx*20;
-                  lift_steps[lift][step].y = gy*20;
+                  lift_steps[lift][step].x = (gx-lsox)*20;
+                  lift_steps[lift][step].y = (gy-lsoy)*20;
+//                  lift_steps[lift][step].x = gx*20;
+//                  lift_steps[lift][step].y = gy*20;
 
                   set_lift_to_step(lift, step);   // set current step in current lift
                }

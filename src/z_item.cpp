@@ -716,7 +716,32 @@ int is_item_stuck_to_wall(int i)
 
 
 
+void proc_key_block_range(int i, int action)
+{
+   int x1 = item[i][6] / 20;
+   int y1 = item[i][7] / 20;
+   int x2 = (item[i][6] + item[i][8]) / 20;
+   int y2 = (item[i][7] + item[i][9]) / 20;
 
+   for (int x=x1; x<x2; x++)
+      for (int y=y1; y<y2; y++)
+      {
+         if (item[i][12]) // matching keyed blocks only
+         {
+            int key = item[i][1] - 1039;
+            if (((l[x][y]&1023) == 188 + key) || ((l[x][y]&1023) == 204 + key) || ((l[x][y]&1023) == 220 + key))
+            {
+               if (action == 1) remove_block(x, y);
+               if (action == 2) bomb_block_crosshairs(x, y); //crosshairs_full(x*20+10, y*20+10, 15, 1);
+            }
+         }
+         else // all blocks in range
+         {
+            if (action == 1) remove_block(x, y);
+            if (action == 2) bomb_block_crosshairs(x, y); //crosshairs_full(x*20+10, y*20+10, 15, 1);
+         }
+      }
+}
 
 
 
@@ -731,35 +756,11 @@ void proc_moving_key(int i)
    item[i][11]--;
    if (item[i][11] == 0)
    {
-      // remove the key
-      item[i][0] = 0;
-
-      int x1 = item[i][6] / 20;
-      int y1 = item[i][7] / 20;
-      int x2 = (item[i][6] + item[i][8]) / 20;
-      int y2 = (item[i][7] + item[i][9]) / 20;
-      if (item[i][12]) // matching keyed blocks only
-      {
-         int key = item[i][1] - 1039;
-         for (int x = x1; x < x2; x++)
-            for (int y = y1; y < y2; y++)
-               if (((l[x][y]&1023) == 188 + key) || ((l[x][y]&1023) == 204 + key) || ((l[x][y]&1023) == 220 + key))
-                  remove_block(x, y);
-      }
-      else // remove all blocks in range
-      {
-         for (int x = x1; x < x2; x++)
-            for (int y = y1; y < y2; y++)
-               remove_block(x, y);
-      }
+      item[i][0] = 0; // remove the key
+      proc_key_block_range(i, 1);
       draw_lift_lines(); // in case removing the key blocks erases lift lines
     }
 }
-
-
-
-
-
 
 void move_items()
 {

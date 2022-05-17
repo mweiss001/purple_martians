@@ -237,8 +237,23 @@ void PDE_sort(void)
       if (rt > 199) PDE_swap(x, insert_pos++);
    }
 
-   insert_pos = 16; // items to 16   while (key[KEY_ESC]) proc_controllers();
+   insert_pos = 32; // keys to 32
+   for (int x=50; x<100; x++)
+   {
+      int rt = PDEi[x][0];
+      if (rt == 104) PDE_swap(x, insert_pos++);
+   }
 
+
+   insert_pos = 36; // switches to 36
+   for (int x=50; x<100; x++)
+   {
+      int rt = PDEi[x][0];
+      if (rt == 114) PDE_swap(x, insert_pos++);
+   }
+
+
+   insert_pos = 16; // items to 16
    for (int x=50; x<100; x++)
    {
       int rt = PDEi[x][0];

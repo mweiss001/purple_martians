@@ -2339,8 +2339,8 @@ int mdw_buttont(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
    {
       sprintf(smsg, "%s", txt);
       draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-      if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
-      else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+      if (q5) al_draw_text(font, palette_color[q2], x1+4,      (y2+y1)/2-3, 0,                    smsg);
+      else    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
    }
    if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
@@ -2382,6 +2382,46 @@ void mdw_buttonp(int x1, int y1, int x2, int y2, int bn, int num, int type, int 
       if (var == 3) sprintf(smsg, "Type: Purple Coin");
       if (press) if (++var > 3) var = 1;
    }
+
+
+   if (bn == 102)
+   {
+      if (press) if (++var > 1042) var = 1039;
+      sprintf(smsg, "undef:%d", var);
+      if (var == 1039) { sprintf(smsg, "Color:Red");    q1 = 10; }
+      if (var == 1040) { sprintf(smsg, "Color:Green");  q1 = 11; }
+      if (var == 1041) { sprintf(smsg, "Color:Blue");   q1 = 13; }
+      if (var == 1042) { sprintf(smsg, "Color:Purple"); q1 = 8;  }
+   }
+
+   if (bn == 103)
+   {
+      if (press)
+      {
+         if      (var == 777) var = 745;
+         else if (var == 745) var = 809;
+         else if (var == 809) var = 841;
+         else if (var == 841) var = 777;
+      }
+      sprintf(smsg, "undef:%d", var);
+      if (var == 777) { sprintf(smsg, "Color:Red");    q1 = 10; }
+      if (var == 745) { sprintf(smsg, "Color:Green");  q1 = 11; }
+      if (var == 809) { sprintf(smsg, "Color:Blue");   q1 = 12; }
+      if (var == 841) { sprintf(smsg, "Color:Purple"); q1 = 8;  }
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
 

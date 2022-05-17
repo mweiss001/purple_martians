@@ -26434,70 +26434,19 @@ done...and it is so much nicer now!
 
 add 4 keys to PDE and remove key creator....done
 
-allow key color to be changed later.....
+
 
 I am going to remove enemy field...everything it does can be done with trig, bm and bd...
 PDE is removed....
 
 20220516 6:30 AM push
 
+bug...when moving lift step from map move, take into account the offset...done
 
+in PDE custom draw 4 keys and 4 switches on a line by themselves...done
+allow key color (and switch) to be changed in viewer...done
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+when doing highlights for key, show blocks that will be removed...done...
 
 
 

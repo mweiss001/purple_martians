@@ -9,34 +9,25 @@ maybe later I could profile and see what takes up all the time...
 it's most likely an opengl thing
 
 
-does remote trigger have a delay before the explosion?
-I want it immediate to help the player time exploding moving things
-
-
-
-
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+show block that will be affected by switch, just like with key...
+
+
 
 
 add sticky and remote bombs to PDE
 
+make it so that if mW.pm does not exist it fails gracefully...
 
-
+continue with cleaning up the variables for mWindows
 
 fix the bullet proximity for flapper...
 right now it uses a lot of variables..I am thinking of just using a circle like trakbot...
 maybe some fancy pie slice arc....
-
-
-
-zfs - make block frame and fill work like they do in main editor
-
-
-
 
 
 make leaving ropes to ladder immed instead of fall and vice versa
@@ -48,9 +39,10 @@ what if you had to press FIRE to grab a rocket, but then after that you did not 
 you could dismount with JUMP? ... that sounds cool
 
 
+does remote trigger have a delay before the explosion?
+I want it immediate to help the player time exploding moving things
 
-
-
+zfs - make block frame and fill work like they do in main editor..maybe not..
 
 
 
