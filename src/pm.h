@@ -1380,6 +1380,10 @@ void draw_pop_message(int c);
 void draw_door(int c, int x, int y);
 void draw_item(int i, int custom, int x, int y);
 void draw_items(void);
+
+void proc_key_block_range(int i, int action);
+
+
 void move_items(void);
 int player_drop_item(int p);
 void proc_player_carry(int p);
