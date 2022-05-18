@@ -26447,6 +26447,40 @@ in PDE custom draw 4 keys and 4 switches on a line by themselves...done
 allow key color (and switch) to be changed in viewer...done
 
 when doing highlights for key, show blocks that will be removed...done...
+do the same for switch...done...
+
+
+20220517 4:30 AM
+
+clean up the mWindows stuff
+
+there are 4 outside functions that are used to do things to all mWindows:
+
+void set_windows(int mode)
+int is_mouse_on_any_window(void)
+int mw_get_max_layer(void)
+int mw_cycle_windows(int draw_only)
+they are all in the file: c_mWindow.cpp
+I am thinking of putting all the common funtions there too.
+maybe renaming it to e_mWindows.cpp for consistancy...
+do it...done...
+
+did that gain me anything??
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

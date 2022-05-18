@@ -2398,14 +2398,14 @@ void mdw_buttonp(int x1, int y1, int x2, int y2, int bn, int num, int type, int 
    {
       if (press)
       {
-         if      (var == 777) var = 745;
-         else if (var == 745) var = 809;
-         else if (var == 809) var = 841;
-         else if (var == 841) var = 777;
+         if      (var == 841) { var = 745; item[num][8] = 745; item[num][9] = 746; item[num][10] = 172; item[num][11] = 7; }
+         else if (var == 745) { var = 777; item[num][8] = 777; item[num][9] = 778; item[num][10] = 173; item[num][11] = 8; }
+         else if (var == 777) { var = 809; item[num][8] = 809; item[num][9] = 810; item[num][10] = 174; item[num][11] = 9; }
+         else if (var == 809) { var = 841; item[num][8] = 841; item[num][9] = 842; item[num][10] = 175; item[num][11] = 10; }
       }
       sprintf(smsg, "undef:%d", var);
-      if (var == 777) { sprintf(smsg, "Color:Red");    q1 = 10; }
       if (var == 745) { sprintf(smsg, "Color:Green");  q1 = 11; }
+      if (var == 777) { sprintf(smsg, "Color:Red");    q1 = 10; }
       if (var == 809) { sprintf(smsg, "Color:Blue");   q1 = 12; }
       if (var == 841) { sprintf(smsg, "Color:Purple"); q1 = 8;  }
    }

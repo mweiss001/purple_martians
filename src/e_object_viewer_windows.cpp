@@ -956,7 +956,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
          break;
          case 14: // switch
             mdw_button(xa, ya, xb, ya+bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,d); ya+=bts; // stat | fall | carry
-            mdw_buttonp(xa, ya, xb, ya+bts-2, 103,0,0,0,         0,  8, 15,  0, 1,0,0,d, item[num][1]); ya+=bts; // color
+            mdw_buttonp(xa, ya, xb, ya+bts-2, 103,num,0,0,       0,  8, 15,  0, 1,0,0,d, item[num][1]); ya+=bts; // color
          break;
          case 15: // sproingy
             mdw_button(xa, ya, xb, ya+bts-2, 26, num, type, obt, 0, 15, 15, 15, 1,0,0,d); ya+=bts; // stat | fall | carry
@@ -1207,6 +1207,11 @@ void ovw_draw_overlays(int legend_highlight)
             // show blocks that will be affected
             proc_key_block_range(num, 2);
          }
+         break;
+         case 14: // switch
+            for (int c=0; c<100; c++)
+               for (int y=0; y<100; y++)
+                  if (((l[c][y]&1023) == item[num][11]) || ((l[c][y]&1023) == item[num][10])) bomb_block_crosshairs(c, y);
          break;
          case 8: // bomb
          {
