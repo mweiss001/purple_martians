@@ -180,7 +180,6 @@
 		</Unit>
 		<Unit filename="pm_docs/new5.txt" />
 		<Unit filename="pm_docs/new5_todo.txt" />
-		<Unit filename="src/c_mWindow.cpp" />
 		<Unit filename="src/e_bitmap.cpp" />
 		<Unit filename="src/e_editor_main.cpp" />
 		<Unit filename="src/e_editor_zfs.cpp" />
@@ -190,6 +189,7 @@
 		<Unit filename="src/e_group_edit_windows.cpp" />
 		<Unit filename="src/e_item.cpp" />
 		<Unit filename="src/e_lift.cpp" />
+		<Unit filename="src/e_mWindow.cpp" />
 		<Unit filename="src/e_object_viewer_windows.cpp" />
 		<Unit filename="src/e_pde.cpp" />
 		<Unit filename="src/e_sliders.cpp" />

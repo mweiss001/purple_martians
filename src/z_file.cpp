@@ -109,14 +109,9 @@ void save_mW(void)
 void load_mW(void)
 {
    FILE *fp = fopen("bitmaps/mW.pm", "rb");
-   fread(mW, sizeof(mW), 1, fp);
+   if (fp) fread(mW, sizeof(mW), 1, fp);
    fclose(fp);
 }
-
-
-
-
-
 
 int load_tiles(void)
 {

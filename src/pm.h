@@ -1,5 +1,6 @@
 // pm.h - header file for both the game and the level editor
 
+
 class mWindow
 {
    public:
@@ -14,9 +15,6 @@ class mWindow
    int hidden;
    int color;
    char title[80];
-
-
-
 
    // mW[1] - status window only
    int draw_item_num;
@@ -42,12 +40,10 @@ class mWindow
    int copy_mode;
    int brf_mode;
 
-
-
    // mW[5] - group edit list only
    int show_sel_frame;
 
-
+   // mW[6] - group edit controls only
 
    // mW[7] - object viewer window only
    int obt;
@@ -59,23 +55,45 @@ class mWindow
    int ov_window_lift_buttons_h;
    int pop_msg_viewer_pos;
 
+
    mWindow(); // default constructor
    void set_pos(int, int);
    void set_size(int, int);
    void draw(void);
    int detect_mouse(void);
    void set_title(const char*);
-   void process(void);
+   void process_mouse(void);
    void check_offscreen(void);
    void set_focus(int);
 };
 
-
 #define NUM_MW 10
 extern mWindow mW[NUM_MW];
+
+
+
+// e_mWindow.cpp
 void set_windows(int mode);
 int mw_cycle_windows(int draw_only);
 int is_mouse_on_any_window(void);
+
+//common
+void cm_get_block_position_on_map();
+void cm_process_scrolledge(void);
+void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
+void cm_get_new_box();
+void cm_redraw_level_editor_background(void);
+void cm_redraw_level_editor_background(int mode);
+int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int moving);
+
+
+
+
+
+
+
+
+
 
 
 
@@ -982,17 +1000,6 @@ int draw_and_process_button(int x, int y, const char * text, int c1, int c2, int
 
 
 // e_editor_main.h
-
-//common
-void cm_get_block_position_on_map();
-void cm_process_scrolledge(void);
-void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
-void cm_get_new_box();
-void cm_redraw_level_editor_background(void);
-void cm_redraw_level_editor_background(int mode);
-int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int moving);
-
-
 void em_set_swbl(void);
 void em_set_block_range(void);
 char* em_get_text_description_of_block_based_on_flags(int flags);
@@ -1376,6 +1383,7 @@ void process_flash_color(void);
 int item_data(int x_pos, int y_pos);
 void change_linked_door_color_and_shape(int door);
 void remove_block(int x, int y);
+void bomb_block_crosshairs(int e, int f);
 void draw_pop_message(int c);
 void draw_door(int c, int x, int y);
 void draw_item(int i, int custom, int x, int y);
