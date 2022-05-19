@@ -55,15 +55,13 @@ void ovw_get_size(void)
    if ((obt == 2) && (type == 7 )) { w = 200; h = 158;} // mine
    if ((obt == 2) && (type == 8 )) { w = 200; h = 214;} // bomb
    if ((obt == 2) && (type == 9 )) { w = 280; h = mW[7].h;} // trigger
-//   if ((obt == 2) && (type == 9 )) { w = 280; h = 406;} // trigger
-
    if ((obt == 2) && (type == 10)) { w = 220; h = 390;} // message
    if ((obt == 2) && (type == 11)) { w = 220; h = 230;} // rocket
    if ((obt == 2) && (type == 12)) { w = 220; h = 214;} // warp
    if ((obt == 2) && (type == 14)) { w = 200; h = 158;} // switch
    if ((obt == 2) && (type == 15)) { w = 240; h = 166;} // sproingy
-   if ((obt == 2) && (type == 16)) { w = 280; h = 358;} // bm
-   if ((obt == 2) && (type == 17)) { w = 290; h = 358;} // bd
+   if ((obt == 2) && (type == 16)) { w = 280; h = mW[7].h;} // bm
+   if ((obt == 2) && (type == 17)) { w = 290; h = mW[7].h;} // bd
 
    if ((obt == 3) && (type == 3 )) { w = 220; h = 422;} // archwagon
    if ((obt == 3) && (type == 4 )) { w = 220; h = 302;} // bouncer
@@ -75,9 +73,7 @@ void ovw_get_size(void)
    if ((obt == 3) && (type == 12)) { w = 220; h = 398;} // flapper
 
    if (obt == 4)                   { w = 300; h = mW[7].ov_window_lift_buttons_h;} // lift
-
    mW[7].set_size(w, h);
-
 }
 
 void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
@@ -691,8 +687,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_togglf(xa, ya, xb, ya+bts-2, 0,0,0,0,  0,0,0,0,  1,0,0,d, item[num][3], PM_ITEM_TRIGGER_ENEMY,  "Triggered by Enemies:OFF         ","Triggered by Enemies:ON          ", 15+dim, 15, 14+dim, 14); ya+=bts;
             mdw_togglf(xa, ya, xb, ya+bts-2, 0,0,0,0,  0,0,0,0,  1,0,0,d, item[num][3], PM_ITEM_TRIGGER_ITEM,   "Triggered by Items:OFF           ","Triggered by Items:ON            ", 15+dim, 15, 14+dim, 14); ya+=bts;
             mdw_togglf(xa, ya, xb, ya+bts-2, 0,0,0,0,  0,0,0,0,  1,0,0,d, item[num][3], PM_ITEM_TRIGGER_PBUL,   "Triggered by Player's Bullets:OFF","Triggered by Player's Bullets:ON ", 15+dim, 15, 14+dim, 14); ya+=bts;
-            mdw_togglf(xa, ya, xb, ya+bts-2, 0,0,0,0,  0,0,0,0,  1,0,0,d, item[num][3], PM_ITEM_TRIGGER_EBUL,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+dim, 15, 14+dim, 14); ya+=bts;
-            ya+=bts;
+            mdw_togglf(xa, ya, xb, ya+bts-2, 0,0,0,0,  0,0,0,0,  1,0,0,d, item[num][3], PM_ITEM_TRIGGER_EBUL,   "Triggered by Enemy's Bullets:OFF ","Triggered by Enemy's Bullets:ON  ", 15+dim, 15, 14+dim, 14); ya+=bts*2;
 
             if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) // Trigger Field follows lift:ON
             {
@@ -708,17 +703,14 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_slider(xa, ya, xb, ya+bts-2, 95,  num, type, obt, 0, 13, 15, 15, 1,0,0,d); ya+=bts;  // trigger output TGON
             mdw_slider(xa, ya, xb, ya+bts-2, 96,  num, type, obt, 0, 13, 15, 15, 1,0,0,d); ya+=bts;  // trigger output TGOF
 
-            printf("ya:%d\n",ya-y1+32);
-
             mW[7].h = ya-y1+32;
             mW[7].set_size(mW[7].w, mW[7].h);
-
-
-
          }
          break;
          case 16: // block manip
-            mdw_button(xa, ya, xb, ya+bts-2, 300,  num, type, obt, 0, 14, 14, 14, 1,0,0,d); ya+=bts*2; // Get New Block Range
+            if (mdw_buttont(xa, ya, xb, ya+bts-2, 0,0,0,0,  0, 14, 14, 14, 1,0,0,d, "Get New Block Manip Field")) get_block_range("Block Manip Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1);
+            ya+=bts*2;
+
             if (item[num][2])
             {
                int col = item[num][12];
@@ -731,11 +723,13 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             }
             ya+=bts;
             mdw_button(xa, ya, xb, ya+bts-2, 301,  num, type, obt, 0, 14, 14, 14, 1,0,0,d); ya+=bts*2; // mode
-            mdw_button(xa, ya, xb, ya+bts-2, 310,  num, type, obt, 0, 14, 14, 14, 1,0,0,d); ya+=bts;  // block 1
-            mdw_button(xa, ya, xb, ya+bts-2, 311,  num, type, obt, 0, 14, 14, 14, 1,0,0,d); ya+=bts*2; // block 2
-            mdw_slider(xa, ya, xb, ya+bts-2, 92,   num, type, obt, 0, 13, 15, 15, 1,0,0,d); ya+=bts*2; // pm_event trigger
-            ya+=bts;
-            mdw_button(xa, ya, xb, ya+bts-2, 320,  num, type, obt, 0, 13, 15, 15, 1,0,0,d); ya+=bts*2; // set trigger
+            mdw_button(xa, ya, xb, ya+bts-2, 310,  num, type, obt, 0, 14, 15, 14, 1,0,0,d); ya+=bts+6; // block 1
+            mdw_button(xa, ya, xb, ya+bts-2, 311,  num, type, obt, 0, 14, 15, 14, 1,0,0,d); ya+=bts*2; // block 2
+            mdw_slider(xa, ya, xb, ya+bts-2, 92,   num, type, obt, 0, 13, 15, 15, 1,0,0,d); ya+=bts;   // pm_event trigger
+            mdw_button(xa, ya, xb, ya+bts-2, 320,  num, type, obt, 0, 13, 15, 15, 1,0,0,d); ya+=bts;   // set trigger
+
+            mW[7].h = ya-y1+32;
+            mW[7].set_size(mW[7].w, mW[7].h);
          break;
          case 17: // block damage
          {
@@ -803,13 +797,14 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             else                              { mdw_button(xa, ya, xb, ya+bts-2, 423, num, type, obt, 0, 10+dim, 15+dim,  0,1,0,0,d); ya+=bts; }
             if (FLAGS & PM_ITEM_DAMAGE_EBUL)  { mdw_button(xa, ya, xb, ya+bts-2, 424, num, type, obt, 0, 10,     15,  0,1,0,0,d); ya+=bts; }
             else                              { mdw_button(xa, ya, xb, ya+bts-2, 424, num, type, obt, 0, 10+dim, 15+dim,  0,1,0,0,d); ya+=bts; }
-            ya+=bts;
             if ((MODE == 1) || (MODE == 2) || (MODE == 3)) // Mode 1, 2, and 3
             {
-               mdw_slider(xa, ya, xb, ya+bts-2, 92,   num, type, obt, 0, 13, 15, 15, 1,0,0,d); ya+=bts; // pm_event trigger
                ya+=bts;
-               mdw_button(xa, ya, xb, ya+bts-2, 320,  num, type, obt, 0, 13, 15, 15, 1,0,0,d); ya+=bts*2; // set trigger
+               mdw_slider(xa, ya, xb, ya+bts-2, 92,   num, type, obt, 0, 13, 15, 15, 1,0,0,d); ya+=bts; // pm_event trigger
+               mdw_button(xa, ya, xb, ya+bts-2, 320,  num, type, obt, 0, 13, 15, 15, 1,0,0,d); ya+=bts; // set trigger
             }
+            mW[7].h = ya-y1+32;
+            mW[7].set_size(mW[7].w, mW[7].h);
          }
          break;
          case 10: // message

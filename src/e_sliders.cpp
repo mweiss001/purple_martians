@@ -86,8 +86,8 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 101) sprintf(smsg, "Initial Time:%d", item[num][13]);
    if (bn == 102) sprintf(smsg, "Damage Time:%d",  item[num][14]);
 
-   if (bn == 103) sprintf(smsg, "Damage Field ON Time:%d",   item[num][12]);
-   if (bn == 104) sprintf(smsg, "Damage Field OFF Time:%d",  item[num][12]);
+   if (bn == 103) sprintf(smsg, "ON Time:%d",   item[num][12]);
+   if (bn == 104) sprintf(smsg, "OFF Time:%d",  item[num][12]);
 
 
    // lifts ----------------------------
@@ -1340,11 +1340,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
          }
       }
    }
-   if (bn == 300)
-   {
-      sprintf(smsg, "Get New Block Manip Field"); // item
-      if (press) get_block_range("Block Manip Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1);
-   }
+
    if (bn == 301) // block manip mode
    {
       if (item[num][3] == 0) sprintf(smsg, "MODE:OFF");
@@ -1466,11 +1462,11 @@ int mdw_button(int x1, int y1, int x2, int y2,
    }
    if (bn == 402) // damage mode
    {
-      if (item[num][11] == 0) sprintf(smsg, "MODE:Damage Field Always ON");
-      if (item[num][11] == 1) sprintf(smsg, "MODE:Damage Field Toggle");
-      if (item[num][11] == 2) sprintf(smsg, "MODE:Damage Field ON Until Triggered");
-      if (item[num][11] == 3) sprintf(smsg, "MODE:Damage Field OFF Until Triggered");
-      if (item[num][11] == 4) sprintf(smsg, "MODE:Damage Field Timed ON And OFF");
+      if (item[num][11] == 0) sprintf(smsg, "MODE:Always ON");
+      if (item[num][11] == 1) sprintf(smsg, "MODE:Toggle");
+      if (item[num][11] == 2) sprintf(smsg, "MODE:ON Until Triggered");
+      if (item[num][11] == 3) sprintf(smsg, "MODE:OFF Until Triggered");
+      if (item[num][11] == 4) sprintf(smsg, "MODE:Timed ON And OFF");
       if (press) if (++item[num][11] > 4) item[num][11] = 0;
    }
    if (bn == 403) // Instant death for player
@@ -1481,9 +1477,9 @@ int mdw_button(int x1, int y1, int x2, int y2,
    }
    if (bn == 404) // Block Damage draw mode
    {
-      if (item[num][2] == 0) sprintf(smsg, "Block Damage Field Draw Type:none                   ");
-      if (item[num][2] == 1) sprintf(smsg, "Block Damage Field Draw Type:Red Rectangle (default)");
-      if (item[num][2] == 2) sprintf(smsg, "Block Damage Field Draw Type:Spikey Floor           ");
+      if (item[num][2] == 0) sprintf(smsg, "Draw Type:none         ");
+      if (item[num][2] == 1) sprintf(smsg, "Draw Type:Red Rectangle");
+      if (item[num][2] == 2) sprintf(smsg, "Draw Type:Spikey Floor ");
       if (press) if (++item[num][2] > 2) item[num][2] = 0; // draw mode
    }
    if (bn == 410)
@@ -1771,7 +1767,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       int x = (x2+x1)/2+60;
       int y = (y2+y1)/2-10;
 
-      al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, palette_color[0]);
       al_draw_bitmap(btile[tn&1023], x, y, 0);
    }
 
@@ -1781,7 +1777,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       int x = (x2+x1)/2+60;
       int y = (y2+y1)/2-10;
 
-      al_draw_filled_rectangle(x, y, x+20, y+20, palette_color[0]);
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, palette_color[0]);
       al_draw_bitmap(btile[tn&1023], x, y, 0);
    }
    return retval;
