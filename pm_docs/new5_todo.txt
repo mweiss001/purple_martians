@@ -9,6 +9,16 @@ maybe later I could profile and see what takes up all the time...
 it's most likely an opengl thing
 
 
+
+bug in bd display in level editor, spikey red floor draw doubles and is not lined up...
+changes when screen scaling changes
+
+the only thing I can find that draws it is in
+
+
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 

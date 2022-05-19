@@ -2217,7 +2217,7 @@ void draw_block_damage(int i, int x, int y)
       int tn = 808;
       if (FLAGS & PM_ITEM_DAMAGE_CURR) tn = 807;
       for (int hx = x1; hx<x2; hx+=20)
-         al_draw_bitmap(tile[tn], hx, y2-20, 0); // draw extended spikes only on bottom row
+         al_draw_bitmap(tile[tn], hx, y2-20, 0); // draw spikes only on bottom row
    }
 
 
