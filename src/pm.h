@@ -152,40 +152,6 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 #define PM_BTILE_SECRET            0b00100000000000000000000000000000
 #define PM_BTILE_SHOW_SELECT_WIN   0b01000000000000000000000000000000
 
-
-
-
-#define PM_ENEMY_FIELD_DAMAGE_PLAYER  0b00000000000000000000000000000001
-#define PM_ENEMY_FIELD_DAMAGE_ENEMY   0b00000000000000000000000000000010
-#define PM_ENEMY_FIELD_DAMAGE_ITEM    0b00000000000000000000000000000100
-#define PM_ENEMY_FIELD_DAMAGE_PBUL    0b00000000000000000000000000001000
-#define PM_ENEMY_FIELD_DAMAGE_EBUL    0b00000000000000000000000000010000
-#define PM_ENEMY_FIELD_TRIGGER_PLAYER 0b00000000000000000000000000100000
-#define PM_ENEMY_FIELD_TRIGGER_ENEMY  0b00000000000000000000000001000000
-#define PM_ENEMY_FIELD_TRIGGER_ITEM   0b00000000000000000000000010000000
-#define PM_ENEMY_FIELD_TRIGGER_PBUL   0b00000000000000000000000100000000
-#define PM_ENEMY_FIELD_TRIGGER_EBUL   0b00000000000000000000001000000000
-#define PM_ENEMY_FIELD_DAMAGE_CURR    0b00000000000000000000010000000000
-#define PM_ENEMY_FIELD_TRIGGER_CURR   0b00000000000000000000100000000000
-#define PM_ENEMY_FIELD_TRIGGER_PREV   0b00000000000000000001000000000000
-#define PM_ENEMY_FIELD_LIFT_TRG_ON    0b00000000000000000010000000000000
-#define PM_ENEMY_FIELD_LIFT_TRG_XC    0b00000000000000000100000000000000
-#define PM_ENEMY_FIELD_LIFT_TRG_XF    0b00000000000000001000000000000000
-#define PM_ENEMY_FIELD_LIFT_TRG_XL    0b00000000000000010000000000000000
-#define PM_ENEMY_FIELD_LIFT_TRG_YC    0b00000000000000100000000000000000
-#define PM_ENEMY_FIELD_LIFT_TRG_YF    0b00000000000001000000000000000000
-#define PM_ENEMY_FIELD_LIFT_TRG_YL    0b00000000000010000000000000000000
-#define PM_ENEMY_FIELD_LIFT_DMG_ON    0b00000000000100000000000000000000
-#define PM_ENEMY_FIELD_LIFT_DMG_XC    0b00000000001000000000000000000000
-#define PM_ENEMY_FIELD_LIFT_DMG_XF    0b00000000010000000000000000000000
-#define PM_ENEMY_FIELD_LIFT_DMG_XL    0b00000000100000000000000000000000
-#define PM_ENEMY_FIELD_LIFT_DMG_YC    0b00000001000000000000000000000000
-#define PM_ENEMY_FIELD_LIFT_DMG_YF    0b00000010000000000000000000000000
-#define PM_ENEMY_FIELD_LIFT_DMG_YL    0b00000100000000000000000000000000
-
-
-
-
 #define PM_ITEM_TRIGGER_PLAYER   0b00000000000000001
 #define PM_ITEM_TRIGGER_ENEMY    0b00000000000000010
 #define PM_ITEM_TRIGGER_ITEM     0b00000000000000100
@@ -224,10 +190,6 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 #define PM_ITEM_DAMAGE_INSTGIB  0b100000000000000000
 
 
-
-
-
-
 // enemy debug stuff
 //#define SHOW_POD_CLONER_TRIGGER_BOX
 // #define SHOW_CANNON_COLLISION_BOX
@@ -240,10 +202,7 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 // screen debug stuff
 // #define SHOW_HYSTERESIS_WINDOW
 
-
-
 //#define RELEASE
-
 
 
 // ------------------------------------------------
@@ -1111,7 +1070,6 @@ void show_all_pmsg(void);
 int create_start_block(int c);
 int create_exit(int c);
 int create_door(int type);
-int create_field(void);
 int create_item(int type);
 
 
@@ -1284,13 +1242,9 @@ int proc_controllers(void);
 // z_enemy.h
 int enemy_data(int x_pos, int y_pos);
 void get_enemy_draw_shape(int e);
-
 void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color);
-
 void draw_enemy(int e, int custom, int cx, int cy);
 void draw_enemies(void);
-
-//void proc_enemy_collision_with_player(int p);
 void proc_enemy_collision_with_pbullet(void);
 void enemy_flapper(int e);
 void enemy_block_walker(int e);
@@ -1305,11 +1259,6 @@ void enemy_deathcount(int e);
 void move_enemies(void);
 void enemy_killed(int EN);
 void enemy_player_hit_proc(int EN);
-void enemy_field(int e);
-void proc_field_collision(int t, int p, int x);
-void draw_enemy_field(int e, int x, int y);
-void detect_field_collisions(void);
-void set_field_location_from_lift(int e, int dt, int a20);
 
 
 // z_file.h

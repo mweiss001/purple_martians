@@ -9,30 +9,11 @@ maybe later I could profile and see what takes up all the time...
 it's most likely an opengl thing
 
 
-when adjusting damage range of bomb...if it gets small enough you move item at same time...
-
-
-draw item show sticky....
-
-name is too long for remote dtoenator bomb..
-
-try Remote Bomb and Remote Sticky Bomb
-
-
-
-
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 
 
-
-fix the bullet proximity for flapper...
-right now it uses a lot of variables..I am thinking of just using a circle like trakbot...
-maybe some fancy pie slice arc....
-
+add prox to cannon, just like every other enemy
 
 
 make leaving ropes to ladder immed instead of fall and vice versa

@@ -1445,6 +1445,16 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 */
 
+//      printf("Lev:%3d \n",le[x]);
+
+
+//      for (int y=0; y<100; y++)
+//         if (Ei[y][0] == 10)
+//            printf("Lev:%3d b:%d\n",le[x], y);
+
+
+
+
 
       if (0)
       {

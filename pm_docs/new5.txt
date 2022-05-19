@@ -26464,8 +26464,110 @@ they are all in the file: c_mWindow.cpp
 I am thinking of putting all the common funtions there too.
 maybe renaming it to e_mWindows.cpp for consistancy...
 do it...done...
-
 did that gain me anything??
+its a little cleaner
+
+draw item show sticky....done
+name is too long for remote detonator bomb..
+try Remote Bomb and Remote Sticky Bmb..works...
+
+bug...when adjusting damage range of bomb...if it gets small enough you move item at same time...
+did not fix...I just don't care...
+
+bug zfs crashes hard....
+after loading mW from file, there are a few things that need to be reset.
+one is copy mode...
+as a matter of fact, I should do that whenever I start zfs...fixed...
+
+removed just about all traces of enemy field...
+
+
+
+
+
+fix the bullet proximity for flapper...
+right now it uses a lot of variables..I am thinking of just using a circle like trakbot...
+maybe some fancy pie slice arc....
+
+start with just a circle...
+
+what var currently used??
+//   Ei[][17] = prox width
+//   Ei[][18] = prox height
+//   Ei[][19] = prox depth
+
+remove all this and use as a circle...
+//     Ei[e][17] = prox
+
+did all the editor stuff
+
+now I just need to fix the actual code...done
+
+// try to shoot right
+      p = find_closest_player_flapper(e, 1);
+      if (--Ei[e][16] < 0)
+
+
+I can see the pieslice if I turn on debug flapper stuff..
+i just use a circle in level editor...
+now I can add it to group edit...done
+
+bug in level 314 with trigger and bd?????
+trigger justs keep falling....
+make move never apply to trigger, bm, bd..
+
+many things have been done, what is next?
+a new enemy? a new item?
+implement some more things that emit triggers...
+some more fields like maybe gravity direction change or very low gravity might be easier...
+maybe field that regenerates health instead of taking it...
+
+
+
+bug - item viewer for bd..height should dynamically change and text length too long for draw...
+
+
+I can do dynamic size of height by letting the buttons draw, then at the end of that setting size...
+It only works if I disable the set size from lookup table in the draw code...
+and it has to draw twice to get the proper height...
+
+I could disable the set height for just one item, like trigger and let it do its own....
+that works....
+
+
+do more later...gtg
+
+20220519 6:25 AM push....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

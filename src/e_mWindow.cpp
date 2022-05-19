@@ -100,7 +100,6 @@ void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, 
    al_draw_text(font, palette_color[color], x1*20+2, y1*20-11,  0, text);
 }
 
-
 // used by zfs, ge and em
 // blocks while mouse b1 is pressed
 void cm_get_new_box(void)
@@ -156,8 +155,10 @@ void cm_redraw_level_editor_background(void)
 
    if (level_editor_mode == 2) // zfs
    {
+      printf("test 1\n");
       // alway show selection
       cm_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
+      printf("test 2\n");
 
       // only show if mouse not on window
       if (!mouse_on_window)
@@ -171,6 +172,10 @@ void cm_redraw_level_editor_background(void)
             cm_show_level_buffer_block_rect(gx, gy, gx+sw, gy+sh, 10, "paste");
          }
       }
+
+      printf("test 2\n");
+
+
    }
    if (level_editor_mode == 3) // ge
    {
@@ -270,9 +275,6 @@ void cm_redraw_level_editor_background(void)
    if (level_editor_mode) get_new_screen_buffer(3, 0, 0);
 }
 
-
-
-
 int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int moving)
 {
    int d = 1;
@@ -292,9 +294,9 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
    int fc2 = 4;     // frame color 2
 
    int tl=0; // text_lines
-   if (mode == 1) tl = 25;
-   if (mode == 2) tl = 27;
-   if (mode == 3) tl = 29;
+   if (mode == 1) tl = 24;
+   if (mode == 2) tl = 26;
+   if (mode == 3) tl = 28;
 
    if (mW[3].collapsed) tl = -1;
 
@@ -336,7 +338,6 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
       mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][7],  "Podzil", "Podzil", tc1, tc2, fc1, fc2); a++;
       mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][8],  "Trakbt", "Trakbt", tc1, tc2, fc1, fc2); a++;
       mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][9],  "Cloner", "Cloner", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][10], "Field",  "Field",  tc1, tc2, fc1, fc2); a++;
       mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][11], "Blk Wk", "Blk Wk", tc1, tc2, fc1, fc2); a++;
       mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][12], "Flappr", "Flappr", tc1, tc2, fc1, fc2); a++;
       a++;
@@ -443,6 +444,8 @@ void set_windows(int mode)
       mW[3].active = 1; // filter
       mW[3].filter_mode = 3;
       mW[4].active = 1; // zfs
+      mW[4].copy_mode = 0;
+      mW[4].brf_mode = 0;
       mW[5].active = 0; // ge list
       mW[6].active = 0; // ge controls
       mW[7].active = 0; // viewer
@@ -456,6 +459,7 @@ void set_windows(int mode)
       mW[3].filter_mode = 1;
       mW[4].active = 0; // zfs
       mW[5].active = 1; // ge list
+      mW[5].show_sel_frame = 1;
       mW[6].active = 1; // ge controls
       mW[7].active = 0; // viewer
    }
@@ -1077,10 +1081,14 @@ void mWindow::draw(void)
 
    if (index == 4) // zfs
    {
+
+
+
       titlex("Zoom Full Screen", 15, 13, x1, x2, y1+1);
 
       int mow = is_mouse_on_any_window();
       zfs_pointer_text(x1+1, x2-1, y1+20, mow);
+      printf("test 2\n");
 
       int sy2 = zfs_draw_buttons(x1+1, x2-1, y1+110, have_focus, moving);
       set_size(w, sy2-y1-1);
@@ -1119,7 +1127,6 @@ void mWindow::draw(void)
       ovw_draw_buttons(x1, y1, x2, y2, have_focus, moving);
    }
 }
-
 int mWindow::detect_mouse(void)
 {
    if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!hidden)) return 1;

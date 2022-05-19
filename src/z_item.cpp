@@ -798,7 +798,7 @@ void move_items()
          }
 
          // not stationary and not lit rocket
-         if ((item[i][3]) && (type != 98))
+         if ((item[i][3]) && (type != 98) && (type != 9) && (type != 16) && (type != 17))
          {
             // check if being carried
             int pc = 0;

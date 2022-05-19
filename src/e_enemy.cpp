@@ -241,45 +241,6 @@ int create_cloner(void)
    else return e;
 }
 
-
-
-int create_field(void)
-{
-   int aborted_create = 0;
-   int e = get_empty_enemy(10); // type 10 field
-   if (getxy("Field Object", 3, 10, e) == 1)
-   {
-      Efi[e][4] = al_itofix(2); // damage
-
-      Ei[e][2] = 1;     // draw type (small text)
-      Ei[e][5] = 0;     // mode
-      Ei[e][6] = 100;   // timer
-      Ei[e][8] = 40;    // timer flip val
-
-      Ei[e][3] |= PM_ENEMY_FIELD_DAMAGE_PLAYER;  // set flag
-      Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_PLAYER; // set flag
-      Ei[e][3] |= PM_ENEMY_FIELD_DAMAGE_CURR;    // set flag
-
-      if (get_block_range("Damage Field Location", &Ei[e][15], &Ei[e][16], &Ei[e][17], &Ei[e][18], 1))
-      {
-         if (!get_block_range("Trigger Field Location", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 1)) aborted_create = 1;
-      }  // end of set damage field
-      else aborted_create = 1;;
-   }  // end of set field location
-   else aborted_create = 1;
-   //sort_enemy(); this is done before we start...
-
-   if (aborted_create)
-   {
-      Ei[e][0] = 0;
-      sort_enemy();
-      return -1;
-   }
-   else return e;
-}
-
-
-
 int create_pod(void)
 {
    int aborted_create = 0;
