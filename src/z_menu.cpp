@@ -677,13 +677,16 @@ void menu_setup(void)
 
 
    strcpy (enemy_name[0],  "empty");
+   strcpy (enemy_name[1],  "undef");
+   strcpy (enemy_name[2],  "undef");
    strcpy (enemy_name[3],  "ArchWagon");
    strcpy (enemy_name[4],  "Bouncer");
+   strcpy (enemy_name[5],  "undef");
    strcpy (enemy_name[6],  "Cannon");
    strcpy (enemy_name[7],  "PodZilla");
    strcpy (enemy_name[8],  "TrakBot");
    strcpy (enemy_name[9],  "Cloner");
-   strcpy (enemy_name[10], "Field");
+   strcpy (enemy_name[10], "undef");
    strcpy (enemy_name[11], "Block Walker");
    strcpy (enemy_name[12], "Flapper");
 
@@ -694,15 +697,7 @@ void menu_setup(void)
    enemy_tile[8]  = 384;
    enemy_tile[9]  = 550;
    enemy_tile[11] = 866;
-   enemy_tile[10] = 476;
    enemy_tile[12] = 159;
-
-
-
-
-
-
-
 
 
    strcpy (color_name[0],  "Zombie");

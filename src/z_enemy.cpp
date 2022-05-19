@@ -43,23 +43,20 @@ void draw_enemy(int e, int custom, int cx, int cy)
       EXint = cx;
       EYint = cy;
    }
-   if (type == 10) draw_enemy_field(e, EXint, EYint); // field - do not draw anything here for field, let draw_enemy_field() do it all
-   else
-   {
-       int flags = 0;
-       if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
-       if (Ei[e][2] == 1) flags = 0;
-       if (Ei[e][2] == 2) flags = ALLEGRO_FLIP_VERTICAL;
-       if (Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
-       int tn = Ei[e][1];
 
-       float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
-       float sc = al_fixtof(Efi[e][12]);
-       al_draw_scaled_rotated_bitmap(tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
+   int flags = 0;
+   if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+   if (Ei[e][2] == 1) flags = 0;
+   if (Ei[e][2] == 2) flags = ALLEGRO_FLIP_VERTICAL;
+   if (Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+   int tn = Ei[e][1];
 
-       // if enemy is expiring show how many seconds it has left
-       if ((!level_editor_running) && (Ei[e][27])) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
-   }
+   float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
+   float sc = al_fixtof(Efi[e][12]);
+   al_draw_scaled_rotated_bitmap(tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
+
+   // if enemy is expiring show how many seconds it has left
+   if ((!level_editor_running) && (Ei[e][27])) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
 
    if (type == 9) // cloner
    {
@@ -195,6 +192,17 @@ void draw_enemy(int e, int custom, int cx, int cy)
 //            int depth =  Ei[e][19];
 //            al_draw_rectangle(EXint-width+10, EYint-height, EXint+width+10, EYint+depth, palette_color[14], 1);
 
+
+      int prox = Ei[e][17];
+      int color = 14; // default circle color
+      //al_draw_circle(EXint+10, EYint+10, prox, palette_color[color], 1);
+
+      if (Efi[e][2] > al_itofix(0)) al_draw_pieslice(EXint+10, EYint+10, prox, 0.785, -1.571,    palette_color[color], 1);
+      else al_draw_pieslice(EXint+10, EYint+10, prox, 3.927, -1.571,    palette_color[color], 1);
+
+
+
+
    }
    #endif
 
@@ -315,7 +323,6 @@ void move_enemies()
             case 7:  enemy_podzilla(e);  break;
             case 8:  enemy_trakbot(e);  break;
             case 9:  enemy_cloner(e);  break;
-            case 10: enemy_field(e);  break;
             case 11: enemy_block_walker(e);  break;
             case 12: enemy_flapper(e);  break;
             case 99: enemy_deathcount(e); break;
@@ -581,9 +588,10 @@ void enemy_flapper(int e)
          Ei[e][2] = 0;              // change direction
       }
       // try to shoot right
-      p = find_closest_player_flapper(e, 1);
+
       if (--Ei[e][16] < 0)
       {
+         p = find_closest_player_flapper(e, 1);
          if (p != -1)
          {
             fire_enemy_bulleta(e, 62, p);
@@ -604,9 +612,9 @@ void enemy_flapper(int e)
          Ei[e][2] = 1;             // change direction
       }
       // try to shoot left
-      p = find_closest_player_flapper(e, 0);
       if (--Ei[e][16] < 0)
       {
+         p = find_closest_player_flapper(e, 0);
          if (p != -1)
          {
             fire_enemy_bulleta(e, 62, p);
@@ -894,483 +902,6 @@ void walker_archwagon_common(int e)
 
 
 
-
-void set_field_location_from_lift(int e, int dt, int a20)
-{
-   if (dt==0) // Damage Field
-   {
-      int d = Ei[e][21]; // lift number
-      if (d < num_lifts) // only proceed if lift number is valid
-      {
-         // x axis
-         int lx1 = lifts[d].x1;
-         int lx2 = lifts[d].x2;
-         int C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XC;
-         int F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XF;
-         int L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_XL;
-         if (C)
-         {
-            int lxc = lx1 + (lx2-lx1)/2; // get center of lift
-            Ei[e][15] = lxc - Ei[e][17]/2;
-         }
-         else
-         {
-            if ((!F) && (!L)) Ei[e][15] = lx1;             // fx1 = lx1
-            if ((!F) && ( L)) Ei[e][15] = lx2;             // fx1 = lx2
-            if (( F) && (!L)) Ei[e][15] = lx1 - Ei[e][17]; // fx2 = lx1
-            if (( F) && ( L)) Ei[e][15] = lx2 - Ei[e][17]; // fx2 = lx2
-         }
-         // y axis
-         int ly1 = lifts[d].y1;
-         int ly2 = lifts[d].y2;
-         C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_YC;
-         F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_YF;
-         L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_YL;
-         if (C)
-         {
-            int lyc = ly1 + (ly2-ly1)/2; // get center of lift
-            Ei[e][16] = lyc - Ei[e][18]/2;
-         }
-         else
-         {
-            if ((!F) && (!L)) Ei[e][16] = ly1;             // fy1 = ly1
-            if ((!F) && ( L)) Ei[e][16] = ly2;             // fy1 = ly2
-            if (( F) && (!L)) Ei[e][16] = ly1 - Ei[e][18]; // fy2 = ly1
-            if (( F) && ( L)) Ei[e][16] = ly2 - Ei[e][18]; // fy2 = ly2
-         }
-         if (a20) // align to 20 grid
-         {
-            Ei[e][15] = round20(Ei[e][15]);
-            Ei[e][16] = round20(Ei[e][16]);
-         }
-      }
-   }
-   else // Trigger Field
-   {
-      int d = Ei[e][20]; // lift number
-      if (d < num_lifts) // only proceed if lift number is valid
-      {
-         // x axis
-         int lx1 = lifts[d].x1;
-         int lx2 = lifts[d].x2;
-         int C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_XC;
-         int F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_XF;
-         int L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_XL;
-         if (C)
-         {
-            int lxc = lx1 + (lx2-lx1)/2; // get center of lift
-            Ei[e][11] = lxc - Ei[e][13]/2;
-         }
-         else
-         {
-            if ((!F) && (!L)) Ei[e][11] = lx1;             // fx1 = lx1
-            if ((!F) && ( L)) Ei[e][11] = lx2;             // fx1 = lx2
-            if (( F) && (!L)) Ei[e][11] = lx1 - Ei[e][13]; // fx2 = lx1
-            if (( F) && ( L)) Ei[e][11] = lx2 - Ei[e][13]; // fx2 = lx2
-         }
-         // y axis
-         int ly1 = lifts[d].y1;
-         int ly2 = lifts[d].y2;
-         C = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_YC;
-         F = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_YF;
-         L = Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_YL;
-
-         if (C)
-         {
-            int lyc = ly1 + (ly2-ly1)/2; // get center of lift
-            Ei[e][12] = lyc - Ei[e][14]/2;
-         }
-         else
-         {
-            if ((!F) && (!L)) Ei[e][12] = ly1;             // fy1 = ly1
-            if ((!F) && ( L)) Ei[e][12] = ly2;             // fy1 = ly2
-            if (( F) && (!L)) Ei[e][12] = ly1 - Ei[e][14]; // fy2 = ly1
-            if (( F) && ( L)) Ei[e][12] = ly2 - Ei[e][14]; // fy2 = ly2
-         }
-         if (a20) // align to 20 grid
-         {
-            Ei[e][11] = round20(Ei[e][11]);
-            Ei[e][12] = round20(Ei[e][12]);
-         }
-      }
-   }
-}
-
-void draw_enemy_field(int e, int ex, int ey)
-{
-   int mode = Ei[e][5];
-   int draw_mode = Ei[e][2];
-
-   int FLAGS = Ei[e][3];
-   int col = 15;
-
-   if (level_editor_running) al_draw_bitmap(tile[476], ex, ey, 0);
-
-   if ((mode == 2) || (mode == 3))
-   {
-      if (((draw_mode == 1) || (draw_mode == 2)) && (Ei[e][7] > 0)) // small or big number and timer is running
-      {
-         // time to show
-         int tts = (Ei[e][7]); // raw (40ths of a second)
-         //int tts = (Ei[e][7] / 40); // seconds
-         //int tts = (Ei[e][7] / 4); // tenths of a second
-         //int tts = (Ei[e][7] / 8); // fifths of a second
-
-         if (mode == 2) col = 11;
-         if (mode == 3) col = 10;
-         if (draw_mode == 1) al_draw_textf(f3,   palette_color[col], ex+10, ey+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (draw_mode == 2) al_draw_textf(font, palette_color[col], ex+10, ey+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-
-      }
-      if ((draw_mode == 3) || (draw_mode == 4)) // percent bar
-      {
-         int percent = 0;
-         if (mode == 2) percent =       ((Ei[e][7]) * 100) / Ei[e][6];
-         if (mode == 3) percent = 100 - ((Ei[e][7]) * 100) / Ei[e][6];
-
-         if (draw_mode == 3) draw_percent_bar(ex+9, ey +5, 32, 8,  percent);
-         if (draw_mode == 4) draw_percent_bar(ex+9, ey +1, 64, 16, percent);
-
-      }
-   }
-   if (mode == 4)
-   {
-      int tt = Ei[e][6]; // total time
-      int ct = Ei[e][7]; // current time
-      int st = Ei[e][8]; // switch time
-
-      int percent = 0;
-      int tts = 0;
-      int col = 0;
-
-      if (ct >= st) // upper range, damage off
-      {
-         int gt = tt-st; // total time in the upper
-         int dt = ct-st; // current time relative to that
-         percent = 100 - (dt * 100) / gt;
-         tts = (dt / 4) + 1;
-         col = 11;
-      }
-      else // lower range, damage on
-      {
-         int gt = st; // total time in lower
-         int dt = ct; // current time relative to that
-         tts = (dt / 4) + 1;
-         percent = (dt * 100) / gt;
-         col = 10;
-      }
-
-      if (draw_mode == 1) al_draw_textf(f3,   palette_color[col], ex+10, ey+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
-      if (draw_mode == 2) al_draw_textf(font, palette_color[col], ex+10, ey+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-      if (draw_mode == 3) draw_percent_bar(ex+9, ey +5, 32, 8,  percent);
-      if (draw_mode == 4) draw_percent_bar(ex+9, ey +1, 64, 16, percent);
-   }
-
-
-
-
-
-
-
-   // Trigger Box
-   int show_trigger = 1;
-   if ((mode == 0) || (mode == 4)) show_trigger = 0;
-   if (show_trigger)
-   {
-      int tx1 = Ei[e][11]; // Trigger Field
-      int ty1 = Ei[e][12];
-      int tx2 = tx1 + Ei[e][13];
-      int ty2 = ty1 + Ei[e][14];
-      int tc1 = 14 + 64; // trigger box color
-
-      int draw_type = Ei[e][10];
-
-      if (draw_type == 0) rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
-
-      if (draw_type == 1); // draw nothing
-
-
-   }
-
-   // Damage Field
-   int sx1 = Ei[e][15];
-   int sy1 = Ei[e][16];
-   int sx2 = sx1 + Ei[e][17];
-   int sy2 = sy1 + Ei[e][18];
-
-   int draw_type = Ei[e][19];
-
-   if (FLAGS & PM_ENEMY_FIELD_DAMAGE_CURR) // currently in damage mode
-   {
-      if (draw_type == 0)
-      {
-         int sc1 = 10 + 64; // field box color
-         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // field
-      }
-      if (draw_type == 1) for (int hx = sx1; hx<sx2; hx+=20) al_draw_bitmap(tile[807], hx, sy2-20, 0); // draw extended spikes only on bottom row
-
-      if (draw_type == 2); // draw nothing
-   }
-   else // draw dimmer
-   {
-      if (draw_type == 0)
-      {
-         int sc1 = 15 + 128 + 64; // field box color
-         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+16); // field
-      }
-      if (draw_type == 1) for (int hx = sx1; hx<sx2; hx+=20) al_draw_bitmap(tile[808], hx, sy2-20, 0); // draw retracted spikes only on bottom row
-   }
-
-
-
-
-   if (level_editor_running) // snap to lift here because main function wont be called
-   {
-      if (FLAGS & PM_ENEMY_FIELD_LIFT_DMG_ON) set_field_location_from_lift(e, 0, 1);
-      if (FLAGS & PM_ENEMY_FIELD_LIFT_TRG_ON) set_field_location_from_lift(e, 1, 1);
-   }
-}
-
-void detect_field_collisions(int e)
-{
-   int mode = Ei[e][5];
-   int FLAGS = Ei[e][3];
-   int cd = FLAGS & PM_ENEMY_FIELD_DAMAGE_CURR;
-
-   int cdp =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_PLAYER)); // damage active and player flag
-   int cde =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_ENEMY));  // damage active and enemy flag
-   int cdi =  ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_ITEM));   // damage active and item flag
-   int cdpb = ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_PBUL));   // damage active and player bullet flag
-   int cdeb = ((cd) && (FLAGS & PM_ENEMY_FIELD_DAMAGE_EBUL));   // damage active and enemy bullet flag
-
-
-   int ct = 1; // check trigger by default
-   if ((mode == 0) || (mode == 4)) ct = 0;
-
-   int ctp =  ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_PLAYER));
-   int cte =  ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_ENEMY));
-   int cti =  ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_ITEM));
-   int ctpb = ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_PBUL));
-   int cteb = ((ct) && (FLAGS & PM_ENEMY_FIELD_TRIGGER_EBUL));
-
-   // trigger field
-   al_fixed tfx1 = al_itofix(Ei[e][11]-10);
-   al_fixed tfy1 = al_itofix(Ei[e][12]-10);
-   al_fixed tfx2 = tfx1 + al_itofix(Ei[e][13]);
-   al_fixed tfy2 = tfy1 + al_itofix(Ei[e][14]);
-
-   // damage field
-   al_fixed dfx1 = al_itofix(Ei[e][15]-10);
-   al_fixed dfy1 = al_itofix(Ei[e][16]-10);
-   al_fixed dfx2 = dfx1 + al_itofix(Ei[e][17]);
-   al_fixed dfy2 = dfy1 + al_itofix(Ei[e][18]);
-
-   for (int p=0; p<NUM_PLAYERS; p++) // check players
-      if ((players[p].active) && (!players[p].paused))
-      {
-         al_fixed x = players[p].PX;
-         al_fixed y = players[p].PY;
-         if ((ctp) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
-         if ((cdp) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(0, p, e);
-      }
-   for (int e2=0; e2<100; e2++) // check enemies
-      if (Ei[e2][0])
-      {
-         al_fixed x = Efi[e2][0];
-         al_fixed y = Efi[e2][1];
-         if ((cte) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
-         if ((cde) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(1, e2, e);
-      }
-   for (int i=0; i<500; i++) // check items
-      if (item[i][0])
-      {
-         al_fixed x = itemf[i][0];
-         al_fixed y = itemf[i][1];
-         if ((cti) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
-         if ((cdi) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(2, i, e);
-      }
-   for (int b=0; b<50; b++) // check player bullets
-      if (pbullet[b][0])
-      {
-         al_fixed x = al_itofix(pbullet[b][2]);
-         al_fixed y = al_itofix(pbullet[b][3]);
-         if ((ctpb) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
-         if ((cdpb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(3, b, e);
-      }
-   for (int b=0; b<50; b++) // check enemy bullets
-      if (e_bullet_active[b])
-      {
-         al_fixed x = e_bullet_fx[b];
-         al_fixed y = e_bullet_fy[b];
-         if ((cteb) && (x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) Ei[e][3] |= PM_ENEMY_FIELD_TRIGGER_CURR;
-         if ((cdeb) && (x > dfx1) && (x < dfx2) && (y > dfy1) && (y < dfy2)) proc_field_collision(4, b, e);
-      }
-}
-
-void proc_field_collision(int type, int x, int e)
-{
-   if (type == 0) // player
-   {
-      players[x].LIFE -= Efi[e][4];
-      game_event(57, 0, 0, x, e, 0, 0);
-   }
-   if (type == 1) // enemy
-   {
-         Ei[x][31] = 3;           // flag that this enemy got shot with bullet
-         Ei[x][26] = x;           // number of player's bullet that hit enemy
-   }
-   if (type == 2) // item
-   {
-      if (item[x][0] != 66)
-      {
-         //item[i][0] = 66;
-         item[x][14] = 10;
-      }
-   }
-   if (type == 3) // player bullet
-   {
-       pbullet[x][0] = 0; // kill the bullet
-   }
-   if (type == 4) // enemy bullet
-   {
-      e_bullet_active[x] = 0; // kill the bullet
-   }
-}
-
-
-/*
-[10]--field-----------------------------------------------------------------------------
-
-Ei[][0] = 10;
-Ei[][1] - unused
-Ei[][2] - unused
-
-Ei[][3] = flags - (also used for deathcount ans)
-#define PM_ENEMY_FIELD_AFFECTS_PLAYER 0b000000000000000000000001
-#define PM_ENEMY_FIELD_AFFECTS_ENEMY  0b000000000000000000000010
-#define PM_ENEMY_FIELD_AFFECTS_ITEM   0b000000000000000000000100
-#define PM_ENEMY_FIELD_AFFECTS_PBUL   0b000000000000000000001000
-#define PM_ENEMY_FIELD_AFFECTS_EBUL   0b000000000000000000010000
-#define PM_ENEMY_FIELD_TRIGGER_PLAYER 0b000000000000000000100000
-#define PM_ENEMY_FIELD_TRIGGER_ENEMY  0b000000000000000001000000
-#define PM_ENEMY_FIELD_TRIGGER_ITEM   0b000000000000000010000000
-#define PM_ENEMY_FIELD_TRIGGER_PBUL   0b000000000000000100000000
-#define PM_ENEMY_FIELD_TRIGGER_EBUL   0b000000000000001000000000
-#define PM_ENEMY_FIELD_INVULNERABLE   0b000000000000010000000000
-#define PM_ENEMY_FIELD_BULLET_TOGGLE  0b000000000000100000000000
-#define PM_ENEMY_FIELD_BULLET_EATEN   0b000000000001000000000000
-#define PM_ENEMY_FIELD_CURRENT_DAMAGE 0b000000000010000000000000
-#define PM_ENEMY_FIELD_LIFT_SETS_FLD  0b000000000100000000000000
-#define PM_ENEMY_FIELD_LIFT_SETS_TRG  0b000000001000000000000000
-#define PM_ENEMY_FIELD_TRIGGER_CURR   0b000000010000000000000000
-#define PM_ENEMY_FIELD_TRIGGER_PREV   0b000000100000000000000000
-
-Ei[][4] - unused
-
-Ei[][5]  mode
-
-Ei[][6]  timer1 value
-Ei[][7]  timer1 count
-Ei[][8]  timer2 value
-
-Ei[][9]  - unused
-
-Ei[][10] trigger draw type
-
-Ei[][11] trigger field x
-Ei[][12] trigger field y
-Ei[][13] trigger field w
-Ei[][14] trigger field h
-
-Ei[][15] damage field x
-Ei[][16] damage field y
-Ei[][17] damage field w
-Ei[][18] damage field h
-
-Ei[][19] damage draw type
-
-Ei[][20] trigger field lift
-Ei[][21] damage field lift
-
-
-Ei[][22] =                 player hit
-Ei[][23] =                 player hit retrigger
-Ei[][24] =                 health bonus shape
-Ei[][25] =                 health bonus amount
-Ei[][26] =                 used to tell what player killed enemy
-Ei[][27] =                 time to live
-Ei[][28] =                 cloner create id
-Ei[][29] =                 collision box size
-Ei[][30] =                 death loop count
-Ei[][31] =                 flag that this enemy got shot with bullet
-
-
-
-Efi[][0]  // x
-Efi[][1]  // y
-Efi[][2]  // xinc
-Efi[][3]  // yinc
-Efi[][4]  // field damage also regular damage (regular damage has been permanently disabled)
-
-Efi[][11]  // scale inc
-Efi[][12]  // scale
-Efi[][13]  // rot inc
-Efi[][14]  // rot
-
-*/
-
-
-
-void enemy_field(int e)
-{
-   int mode = Ei[e][5];
-   int trig_toggle = 0;
-
-   Ei[e][3] &= ~PM_ENEMY_FIELD_TRIGGER_CURR;  // clear current trigger flag
-   detect_field_collisions(e);
-   if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) // is current trigger flag set?
-   {
-      if (!(Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_PREV)) trig_toggle = 1; // if triggered this frame and not triggered last frame, set trigger toggle
-      Ei[e][3] |=  PM_ENEMY_FIELD_TRIGGER_PREV; // set previous trigger for next frame
-   }
-   else Ei[e][3] &= ~PM_ENEMY_FIELD_TRIGGER_PREV; // clear previous trigger for next frame
-
-   if (mode == 0) Ei[e][3] |= PM_ENEMY_FIELD_DAMAGE_CURR; // in mode 0, always set damage flag
-
-   if ((mode == 1) && (trig_toggle)) Ei[e][3] ^= PM_ENEMY_FIELD_DAMAGE_CURR; // toggle current damage flag
-
-   if (mode == 2) // damage unless timer running  (no damage when triggered)
-   {
-      if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) Ei[e][7] = Ei[e][6];
-
-      if (Ei[e][7] == 0) Ei[e][3] |= PM_ENEMY_FIELD_DAMAGE_CURR;   // set damage on
-      else Ei[e][3] &= ~PM_ENEMY_FIELD_DAMAGE_CURR;                // set damage off
-   }
-
-   if (mode == 3) // damage when timer is running (no damage until triggered)
-   {
-      if (Ei[e][3] & PM_ENEMY_FIELD_TRIGGER_CURR) Ei[e][7] = Ei[e][6];
-
-
-      if (Ei[e][7] > 0)  Ei[e][3] |= PM_ENEMY_FIELD_DAMAGE_CURR;   // set damage on
-      else Ei[e][3] &= ~PM_ENEMY_FIELD_DAMAGE_CURR;                // set damage off
-   }
-
-   if (mode == 4) // timed on and off
-   {
-      // timer will run outside this function always, but in this mode, when it gets to zero, we will reset it
-      if (Ei[e][7] == 0) Ei[e][7] = Ei[e][6];
-
-      if (Ei[e][7] < Ei[e][8]) Ei[e][3] |=  PM_ENEMY_FIELD_DAMAGE_CURR;  // set damage on
-      else                     Ei[e][3] &= ~PM_ENEMY_FIELD_DAMAGE_CURR;  // set damage off
-   }
-
-   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_DMG_ON) set_field_location_from_lift(e, 0, 0);
-   if (Ei[e][3] & PM_ENEMY_FIELD_LIFT_TRG_ON) set_field_location_from_lift(e, 1, 0);
-
-   if (--Ei[e][7] < 0) Ei[e][7] = 0; // always run timer
-
-}
 
 
 

@@ -755,13 +755,10 @@ void zfs_do_fcopy(int qx1, int qy1)
 
 void zfs_do_clear(void)
 {
-   int b, y;
-
-   int x1 = bx1*20;  // source box
+   int x1 = bx1*20;
    int y1 = by1*20;
-   int x2 = bx1*20+20;
+   int x2 = bx2*20+20;
    int y2 = by2*20+20;
-
    al_fixed fx1 = al_itofix(x1);
    al_fixed fy1 = al_itofix(y1);
    al_fixed fx2 = al_itofix(x2);
@@ -769,27 +766,27 @@ void zfs_do_clear(void)
 
    // blocks
    if (obj_filter[1][1])
-      for (b=bx1; b<bx2+1; b++)
-         for (y=by1; y<by2+1; y++) l[b][y]=0;
+      for (int x=bx1; x<bx2+1; x++)
+         for (int y=by1; y<by2+1; y++) l[x][y]=0;
 
    // items
-   for (b=0; b<500; b++)
-      if ((item[b][0]) && (obj_filter[2][item[b][0]]))
-         if ((item[b][4] >= x1) && (item[b][4] < x2) && (item[b][5] >= y1) && (item[b][5] < y2)) erase_item(b);
+   for (int i=0; i<500; i++)
+      if ((item[i][0]) && (obj_filter[2][item[i][0]]))
+         if ((item[i][4] >= x1) && (item[i][4] < x2) && (item[i][5] >= y1) && (item[i][5] < y2)) erase_item(i);
 
    // enemies
-   for (b=0; b<100; b++)
-      if ((Ei[b][0]) && (obj_filter[3][Ei[b][0]]))
-         if ((Efi[b][0] >= fx1) && (Efi[b][0] < fx2) && (Efi[b][1] >= fy1) && (Efi[b][1] < fy2))
+   for (int e=0; e<100; e++)
+      if ((Ei[e][0]) && (obj_filter[3][Ei[e][0]]))
+         if ((Efi[e][0] >= fx1) && (Efi[e][0] < fx2) && (Efi[e][1] >= fy1) && (Efi[e][1] < fy2))
          {
-            for (y=0; y<32; y++) Ei[b][y] = 0;
-            for (y=0; y<16; y++) Efi[b][y] = al_itofix(0);
+            for (int y=0; y<32; y++) Ei[e][y] = 0;
+            for (int y=0; y<16; y++) Efi[e][y] = al_itofix(0);
          }
 
    // lifts
    if (obj_filter[4][1])
-      for (b=num_lifts-1; b>=0; b--) // have to iterate backwards because erase_lift() does a resort after every erase
-         if ((lifts[b].x1 >= x1) && (lifts[b].x1 < x2) && (lifts[b].y1 >= y1) && (lifts[b].y1 < y2)) erase_lift(b);
+      for (int l=num_lifts-1; l>=0; l--) // have to iterate backwards because erase_lift() does a resort after every erase
+         if ((lifts[l].x1 >= x1) && (lifts[l].x1 < x2) && (lifts[l].y1 >= y1) && (lifts[l].y1 < y2)) erase_lift(l);
 
    sort_enemy();
    sort_item(1);
@@ -978,6 +975,8 @@ int zfs_process_keypress(void)
 
 void zoom_full_screen(int draw_item)
 {
+
+
    set_windows(2); // zfs
 
    init_level_background();

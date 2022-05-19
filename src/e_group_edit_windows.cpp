@@ -274,7 +274,7 @@ void ge_set_valid_controls(void)
 
             if ((etyp != 3) && (etyp != 6) && (etyp != 7) && (etyp != 8) && (etyp != 12)) ge_data[24].valid = 0; // bullet speed (archwagon, cannon, podzilla, trakbot, flapper)
             if ((etyp != 3) && (etyp != 6) && (etyp != 8) && (etyp != 12))                ge_data[25].valid = 0; // bullet retrigger (archwagon, cannon, trakbot, flapper)
-            if ((etyp != 3) && (etyp != 8))                                               ge_data[26].valid = 0; // bullet proximity (archwagon, trakbot)
+            if ((etyp != 3) && (etyp != 8) && (etyp != 12))                               ge_data[26].valid = 0; // bullet proximity (archwagon, trakbot, flapper)
 
             if (etyp != 12) // flapper specific
             {

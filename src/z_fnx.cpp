@@ -348,14 +348,7 @@ void seek_set_xyinc(int EN, int x, int y)
 
 int find_closest_player_flapper(int EN, int dir)
 {
-   al_fixed width = al_itofix(Ei[EN][17]); // al_fixed version of width
-   int height  = Ei[EN][18];
-   int depth   = Ei[EN][19];
-
-   // get the enemy's trigger box y values
-   int ey = al_fixtoi(Efi[EN][1]);
-   int ey1 = ey - height;
-   int ey2 = ey + depth;
+   al_fixed prox = al_itofix(Ei[EN][17]); // al_fixed version of prox
 
    al_fixed d[NUM_PLAYERS]; // array of distances for each player
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -363,17 +356,35 @@ int find_closest_player_flapper(int EN, int dir)
       d[p] = al_itofix(-1); // default result (player not in range or not active)
       if ((players[p].active) && (!players[p].paused))
       {
-         // is player in the y range?
-         int py = al_fixtoi(players[p].PY)+10;
-         if ((py > ey1) && (py < ey2))
-         {
-            al_fixed xlen = players[p].PX - Efi[EN][0]; // get x distance
-            if ((!dir) && (xlen < al_itofix(0))) d[p] = -xlen; // left
-            if ( (dir) && (xlen > al_itofix(0))) d[p] =  xlen; // right
-         }
+         al_fixed xlen = players[p].PX - Efi[EN][0]; // get x distance
+         al_fixed ylen = players[p].PY - Efi[EN][1]; // get y distance
+         al_fixed dist = al_fixhypot(xlen, ylen);
+
+         al_fixed angle = al_fixatan2(ylen, xlen);
+
+         int ngl = al_fixtoi(angle);
+
+         // printf("angle:%d\n", ngl);
+
+         /*
+                     -64
+             -127    |
+           128/-128 -+- 0
+              127    |
+                     64
+
+        only shoots a bullet at players in a 90 degree pie slice from 45 to 135 for +xinc and 225 to 315 for -xinc
+
+         */
+
+
+         if ((dir == 1) && (ngl > -32) && (ngl < 32) && (dist < prox)) d[p] = dist; // right
+         if ((dir == 0) && ((ngl > 96) || (ngl < -96)) && (dist < prox)) d[p] = dist; // left
+
+
+
+
       }
-      // check if distance is within range (width); invalidate if not
-      if (d[p] > width) d[p] = al_itofix(-1);
    }
 
    al_fixed closest_val = al_itofix(9999);
@@ -389,6 +400,50 @@ int find_closest_player_flapper(int EN, int dir)
    if (closest_val == al_itofix(9999)) return -1;    // no player in range
    else return closest_p;
 }
+//
+//int find_closest_player_flapper(int EN, int dir)
+//{
+//   al_fixed width = al_itofix(Ei[EN][17]); // al_fixed version of width
+//   int height  = Ei[EN][18];
+//   int depth   = Ei[EN][19];
+//
+//   // get the enemy's trigger box y values
+//   int ey = al_fixtoi(Efi[EN][1]);
+//   int ey1 = ey - height;
+//   int ey2 = ey + depth;
+//
+//   al_fixed d[NUM_PLAYERS]; // array of distances for each player
+//   for (int p=0; p<NUM_PLAYERS; p++)
+//   {
+//      d[p] = al_itofix(-1); // default result (player not in range or not active)
+//      if ((players[p].active) && (!players[p].paused))
+//      {
+//         // is player in the y range?
+//         int py = al_fixtoi(players[p].PY)+10;
+//         if ((py > ey1) && (py < ey2))
+//         {
+//            al_fixed xlen = players[p].PX - Efi[EN][0]; // get x distance
+//            if ((!dir) && (xlen < al_itofix(0))) d[p] = -xlen; // left
+//            if ( (dir) && (xlen > al_itofix(0))) d[p] =  xlen; // right
+//         }
+//      }
+//      // check if distance is within range (width); invalidate if not
+//      if (d[p] > width) d[p] = al_itofix(-1);
+//   }
+//
+//   al_fixed closest_val = al_itofix(9999);
+//   int closest_p = -1;
+//   for (int p=0; p<NUM_PLAYERS; p++)
+//   {
+//      if ((d[p] != al_itofix(-1)) && (d[p] < closest_val))
+//      {
+//         closest_val = d[p];
+//         closest_p = p;
+//      }
+//   }
+//   if (closest_val == al_itofix(9999)) return -1;    // no player in range
+//   else return closest_p;
+//}
 
 
 int find_closest_player_quad(int EN, int quad, int prox)
