@@ -10,10 +10,6 @@ it's most likely an opengl thing
 
 
 
-bug in bd display in level editor, spikey red floor draw doubles and is not lined up...
-changes when screen scaling changes
-
-the only thing I can find that draws it is in
 
 
 
@@ -23,10 +19,8 @@ the only thing I can find that draws it is in
 ------------------------ To Do --------------------------
 
 
-add prox to cannon, just like every other enemy
-
-
 make leaving ropes to ladder immed instead of fall and vice versa
+
 
 
 what if you had to press FIRE to grab a rocket, but then after that you did not need to hold FIRE?
@@ -171,8 +165,6 @@ netplay - join TODO:
 --------------------------------------------------------
 ------------------- reduce globals ----------------------
 ---------------------------------------------------------
-
-bts needs to go
 
 ---------------------------------------------------------
 ------------------------ linux --------------------------

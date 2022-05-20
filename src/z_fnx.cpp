@@ -494,6 +494,30 @@ int find_closest_player_quad(int EN, int quad, int prox)
    else return closest_p;
 }
 
+
+
+// finds closest player
+// if closest player is not within dist, returns -1
+int find_closest_player_cannon(int e, int dist)
+{
+   int closest_player = -1; // default if no player within distance
+   al_fixed hd = al_itofix(10000);
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (!players[p].paused))
+      {
+         al_fixed h = al_fixhypot((players[p].PX - Efi[e][0]), (players[p].PY - Efi[e][1]));
+         if (h < hd)
+         {
+             hd = h;
+             closest_player = p;
+         }
+      }
+   if (al_fixtoi(hd) < dist) return closest_player;
+   else return -1;
+}
+
+
+
 int find_closest_player(int EN)
 {
    int closest_player = 0; // defaults to zero (will always return a valid player)

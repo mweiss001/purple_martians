@@ -1453,6 +1453,13 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 //            printf("Lev:%3d b:%d\n",le[x], y);
 
 
+/*
+      for (int y=0; y<100; y++)
+         if (Ei[y][0] == 6)
+            Ei[y][17] = 2000;
+
+*/
+
 
 
 

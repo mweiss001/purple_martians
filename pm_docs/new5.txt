@@ -26540,6 +26540,28 @@ do more later...gtg
 20220519 6:25 AM push....
 
 
+bug in bd display in level editor, spikey red floor draw doubles and is not lined up...
+changes when screen scaling changes
+the only thing I can find that draws it is draw_block_damage()
+called by draw_item()...
+fixed...
+when draw_item is called in custom mode, do not draw bd damage field
+
+
+change archwagon prox to match all others
+add prox to cannon, just like every other enemy
+done all in viewer...
+
+now I need to do a glt and set all cannons 17 to 2000....done
+
+when this is done these will all have the same:
+archwagon
+cannon
+trakbot
+flapper
+done...added to ge...done
+
+bug - when items (post death flower) expire they leave a dot and do not erase...fixed
 
 
 

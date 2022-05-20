@@ -599,7 +599,7 @@ void draw_item(int i, int custom, int cx, int cy)
    if (type == 1)  { draw_door(i, x, y);         drawn = 1; }
    if (type == 9)  { draw_trigger(i, x, y);      drawn = 1; }
    if (type == 16) { draw_block_manip(i, x, y);  drawn = 1; }
-   if (type == 17) { draw_block_damage(i, x, y); drawn = 1; }
+   if (type == 17) { draw_block_damage(i, x, y, custom); drawn = 1; }
 
    if (type == 99)
    {
@@ -792,7 +792,7 @@ void move_items()
                   int sq = 10-ttl;
                   item[i][1] = zz[5+sq][74];
                }
-               if (ttl == 1) type = 0; // kill instantly
+               if (ttl == 1) item[i][0] = 0; // kill instantly
                item[i][14]--;
             }
          }
@@ -2182,15 +2182,11 @@ void proc_item_damage_collisions(int i)
          }
 }
 
-void draw_block_damage(int i, int x, int y)
+void draw_block_damage(int i, int x, int y, int custom)
 {
    int draw_mode = item[i][2];
    int mode = item[i][11];
    int FLAGS = item[i][3];
-
-//   float x0 = item[i][4];
-//   float y0 = item[i][5];
-
    float x0 = x;
    float y0 = y;
    float x1 = item[i][6];
@@ -2205,21 +2201,24 @@ void draw_block_damage(int i, int x, int y)
    }
 
    // damage field drawing
-   if (draw_mode == 1) // basic
+   if (!custom)
    {
-      int col = 11;
-      if (FLAGS & PM_ITEM_DAMAGE_CURR) col = 10;
-      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96);
-   }
 
-   if (draw_mode == 2) // spikey floor
-   {
-      int tn = 808;
-      if (FLAGS & PM_ITEM_DAMAGE_CURR) tn = 807;
-      for (int hx = x1; hx<x2; hx+=20)
-         al_draw_bitmap(tile[tn], hx, y2-20, 0); // draw spikes only on bottom row
-   }
+      if (draw_mode == 1) // basic
+      {
+         int col = 11;
+         if (FLAGS & PM_ITEM_DAMAGE_CURR) col = 10;
+         rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96);
+      }
 
+      if (draw_mode == 2) // spikey floor
+      {
+         int tn = 808;
+         if (FLAGS & PM_ITEM_DAMAGE_CURR) tn = 807;
+         for (int hx = x1; hx<x2; hx+=20)
+            al_draw_bitmap(tile[tn], hx, y2-20, 0); // draw spikes only on bottom row
+      }
+   }
 
    // timer drawing
    int timer_draw_mode1 = item[i][3] & PM_ITEM_DAMAGE_TIMR_SN;
