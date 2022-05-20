@@ -52,9 +52,7 @@ class mWindow
    int viewer_lock;
    int legend_line;
    int num_legend_lines;
-   int ov_window_lift_buttons_h;
    int pop_msg_viewer_pos;
-
 
    mWindow(); // default constructor
    void set_pos(int, int);
@@ -1299,6 +1297,9 @@ al_fixed get_rot_from_xyinc(int EN);
 al_fixed get_rot_from_PXY(int EN, int p);
 void seek_set_xyinc(int EN);
 void seek_set_xyinc(int EN, int x, int y);
+
+int find_closest_player_cannon(int e, int dist);
+
 int find_closest_player_flapper(int EN, int dir);
 int find_closest_player_quad(int EN, int quad, int prox);
 int find_closest_player(int EN);
@@ -1357,7 +1358,7 @@ void draw_block_manip(int i, int x, int y);
 void proc_item_damage_collisions(int i);
 void set_item_damage_location_from_lift(int , int);
 void process_block_damage(int i);
-void draw_block_damage(int i, int x, int y);
+void draw_block_damage(int i, int x, int y, int custom);
 
 // z_lift.h
 int construct_lift(int l, char* lift_name);

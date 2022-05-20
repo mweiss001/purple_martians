@@ -237,6 +237,27 @@ void draw_enemy(int e, int custom, int cx, int cy)
    }
    #endif
 
+
+/* // show any bullet prox
+
+      int prox = Ei[e][17];
+      int color = 14; // default circle color
+      al_draw_circle(EXint+10, EYint+10, prox, palette_color[color], 1);
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -1767,20 +1788,21 @@ void enemy_cannon(int e)
       }
    }
 
-   int p = find_closest_player(e);
+//   int p = find_closest_player(e);
+   int p = find_closest_player_cannon(e, Ei[e][17]);
 
    // time to shoot cannonball ?
    if (Ei[e][15])
       if (--Ei[e][16] < 0) // cannon shot wait
       {
-         fire_enemy_bulleta(e, 55, p);
          Ei[e][16] = Ei[e][15]; // reset cannon shot wait
+         if (p != -1) fire_enemy_bulleta(e, 55, p);
       }
 
    bouncer_cannon_common(e);
 
-   // set rotation to always face player
-   Efi[e][14] = get_rot_from_PXY(e, p);
+   if (p != -1) Efi[e][14] = get_rot_from_PXY(e, p); // set rotation to face player
+   else Efi[e][14] = get_rot_from_xyinc(e); // set rotation based on direction of travel
 
    // set bitmap
    al_fixed ratio = al_fixdiv(al_itofix(Ei[e][16]), al_itofix(Ei[e][15]));
@@ -2067,6 +2089,8 @@ Ei[][8]   seek count
 Ei[][9]   extra hits to kill
 Ei[][15]  bullet retrigger value
 Ei[][16]  bullet retrigger counter
+Ei[][17]  bullet prox
+
 Efi[][5]  seek speed
 Efi[][7]  bullet speed
 Efi[][12] scale

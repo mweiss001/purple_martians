@@ -65,14 +65,15 @@ void ovw_get_size(void)
 
    if ((obt == 3) && (type == 3 )) { w = 220; h = 422;} // archwagon
    if ((obt == 3) && (type == 4 )) { w = 220; h = 302;} // bouncer
-   if ((obt == 3) && (type == 6 )) { w = 220; h = 318;} // cannon
+   if ((obt == 3) && (type == 6 )) { w = 220; h = 350;} // cannon
    if ((obt == 3) && (type == 7 )) { w = 220; h = 302;} // podzilla
    if ((obt == 3) && (type == 8 )) { w = 220; h = 342;} // trakbot
    if ((obt == 3) && (type == 9 )) { w = 220; h = 390;} // cloner
    if ((obt == 3) && (type == 11)) { w = 220; h = 350;} // block walker
    if ((obt == 3) && (type == 12)) { w = 220; h = 398;} // flapper
 
-   if (obt == 4)                   { w = 300; h = mW[7].ov_window_lift_buttons_h;} // lift
+   if (obt == 4)                   { w = 300; h = mW[7].h;} // lift
+
    mW[7].set_size(w, h);
 }
 
@@ -142,7 +143,15 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
          }
          break;
          case 4: sprintf(lmsg[1],"Bouncer Location"); break;
-         case 6: sprintf(lmsg[1],"Cannon Location"); break;
+         case 6: // cannon
+         {
+            mW[7].num_legend_lines = 3;
+            sprintf(lmsg[1],"Cannon Location");
+            sprintf(lmsg[2],"Bullet Proximity");
+            legend_color[2] = 14;
+            if (legend_highlight == 2) legend_color[2] = flash_color;
+         }
+         break;
          case 7: // podzilla
          {
             sprintf(lmsg[1],"Podzilla Location");
@@ -430,7 +439,11 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
 
       // draw buttons for the current step button and get y postion for next item (lift)
       int yld = ycs + draw_current_step_buttons(xa, xb, ycs, lift, step);
-      mW[7].ov_window_lift_buttons_h = yld - mW[7].y1-9; // global variable for height of ovw when variable due to lift
+
+
+      mW[7].h = yld - mW[7].y1-1; // global variable for height of ovw when variable due to lift
+      mW[7].set_size(mW[7].w, mW[7].h);
+
       yld += bts;
 
       // draw current lift under step list buttons
@@ -502,6 +515,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_slider2_int(xa, ya, xb, ya+bts-2, 0,0,0,0,       0, 12, 15, 15, 1,0,0,d, Ei[num][8], 100, 0, 1,     "Seek Count:"); ya+=bts*2;
             mdw_slider2_int(xa, ya, xb, ya+bts-2, 0,0,0,0,       0, 8,  15, 15, 1,0,0,d, Ei[num][9], 40, 0, 1,      "Extra Hits To Kill:"); ya+=bts*2;
             mdw_slider2_fix(xa, ya, xb, ya+bts-2, 0,0,0,0,       0, 9,  15, 15, 1,0,0,d, Efi[num][7], 20, 0.8, 0.1, "Bullet Speed:"); ya+=bts;
+            mdw_slider2_int(xa, ya, xb, ya+bts-2, 0,0,0,0,       0, 9,  15, 15, 1,0,0,d, Ei[num][17], 2000, 20, 1,  "Bullet Proximity:"); ya+=bts;
             mdw_slider2_int(xa, ya, xb, ya+bts-2, 0,0,0,0,       0, 9,  15, 15, 1,0,0,d, Ei[num][15], 200, 1, 1,    "Bullet Retrigger Time:"); ya+=bts*2;
             mdw_slider2_int(xa, ya, xb, ya+bts-2, 0,0,0,0,       0, 4,  15, 15, 1,0,0,d, Ei[num][29], 20, 0, 1,     "Collision Box:"); ya+=bts;
             mdw_slider2_fix(xa, ya, xb, ya+bts-2, 0,0,0,0,       0, 4,  15, 15, 1,0,0,d, Efi[num][4], 10, 0, 0.1,   "Health Decrement:"); ya+=bts;
@@ -876,7 +890,7 @@ void ovw_draw_overlays(int legend_highlight)
    }
    if (obt == 3)  // enemies
    {
-      int sub_type = Ei[num][0];
+      int type = Ei[num][0];
       int obj_x = al_fixtoi(Efi[num][0])+10;
       int obj_y = al_fixtoi(Efi[num][1])+10;
 
@@ -884,123 +898,96 @@ void ovw_draw_overlays(int legend_highlight)
       if (legend_highlight == 1) color = flash_color;
       crosshairs_full(obj_x, obj_y, color, 1);
 
-      switch (sub_type)
+      if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // archwagon, cannon, trakbot, flapper
       {
-         case 3: // archwagon
-         {
-            // yellow bullet prox
-            int color = 14;
-            if (legend_highlight == 2) color = flash_color;
-            int bs = Ei[num][17];
-            al_draw_rectangle(obj_x-bs, obj_y-bs, obj_x+bs, obj_y+bs, palette_color[color], 1);
-         }
-         break;
-         case 7: // podzilla
-         {
-            // extended position
-            int color1 = 10;
-            if (legend_highlight == 2) color1 = flash_color;
-
-
-            int px=0, py=0;
-            get_pod_extended_position(num, &px, &py);
-            crosshairs_full(px+10, py+10, color1, 1);
-
-            // draw tile at extended pos
-            float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-            al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
-
-            // draw connecting line
-            al_draw_line(obj_x, obj_y, px+10, py+10, palette_color[10], 1);
-
-
-            // trigger box
-            int color = 14;
-            if (legend_highlight == 3) color = flash_color;
-            int tx1 = Ei[num][11];
-            int ty1 = Ei[num][12];
-            int tx2 = Ei[num][11]+Ei[num][13] + 20;
-            int ty2 = Ei[num][12]+Ei[num][14] + 20;
-            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color], 1);
-         }
-         break;
-         case 8: // trakbot
-         {
-            // draw yellow bullet prox circle
-            int color = 14;
-            if (legend_highlight == 2) color = flash_color;
-            al_draw_circle(obj_x, obj_y, Ei[num][17], palette_color[color], 1);
-         }
-         break;
-         case 9: // cloner
-         {
-            int color2 = 11;
-            if (legend_highlight == 2) color2 = flash_color;
-
-            int color3 = 10;
-            if (legend_highlight == 3) color3 = flash_color;
-
-            int color4 = 14;
-            if (legend_highlight == 4) color4 = flash_color;
-
-            int cw = Ei[num][19];     // width
-            int ch = Ei[num][20];     // height
-
-            int cx1 = Ei[num][15];    // source
-            int cy1 = Ei[num][16];
-            int cx2 = cx1 + cw;
-            int cy2 = cy1 + ch;
-            al_draw_rectangle(cx1, cy1, cx2, cy2, palette_color[color2], 1);
-
-            int cx3 = Ei[num][17];    // destination
-            int cy3 = Ei[num][18];
-            int cx4 = cx3 + cw;
-            int cy4 = cy3 + ch;
-            al_draw_rectangle(cx3, cy3, cx4, cy4, palette_color[color3], 1);
-
-            // draw trigger box
-            int tx1 = Ei[num][11];
-            int ty1 = Ei[num][12];
-            int tx2 = Ei[num][11]+Ei[num][13] + 20;
-            int ty2 = Ei[num][12]+Ei[num][14] + 20;
-            al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color4], 1);
-         }
-         break;
-         case 12: // flapper
-         {
-            int color2 = 14;
-            if (legend_highlight == 2) color2 = flash_color;
-
-            int color3 = 10;
-            if (legend_highlight == 3) color3 = flash_color;
-
-            // draw yellow bullet prox circle
-            al_draw_circle(obj_x, obj_y, Ei[num][17], palette_color[color2], 1);
-
-            // draw red height above player line
-            int hab = Ei[num][20];
-            al_draw_line(obj_x-40, obj_y+hab, obj_x+40, obj_y+hab, palette_color[color3], 3);
-
-            // draw flap height
-            int fh = Ei[num][21];
-            al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, palette_color[12], 1);
-            al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, palette_color[12], 1);
-
-         }
-         break;
+         // draw yellow bullet prox circle
+         int color = 14;
+         if (legend_highlight == 2) color = flash_color;
+         al_draw_circle(obj_x, obj_y, Ei[num][17], palette_color[color], 1);
       }
-      al_reset_clipping_rectangle();
+      if (type == 7) // podzilla
+      {
+         // extended position
+         int color1 = 10;
+         if (legend_highlight == 2) color1 = flash_color;
 
+         int px=0, py=0;
+         get_pod_extended_position(num, &px, &py);
+         crosshairs_full(px+10, py+10, color1, 1);
+
+         // draw tile at extended pos
+         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
+
+         // draw connecting line
+         al_draw_line(obj_x, obj_y, px+10, py+10, palette_color[10], 1);
+
+         // trigger box
+         int color = 14;
+         if (legend_highlight == 3) color = flash_color;
+         int tx1 = Ei[num][11];
+         int ty1 = Ei[num][12];
+         int tx2 = Ei[num][11]+Ei[num][13] + 20;
+         int ty2 = Ei[num][12]+Ei[num][14] + 20;
+         al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color], 1);
+      }
+      if (type == 9) // cloner
+      {
+         int color2 = 11;
+         if (legend_highlight == 2) color2 = flash_color;
+
+         int color3 = 10;
+         if (legend_highlight == 3) color3 = flash_color;
+
+         int color4 = 14;
+         if (legend_highlight == 4) color4 = flash_color;
+
+         int cw = Ei[num][19];     // width
+         int ch = Ei[num][20];     // height
+
+         int cx1 = Ei[num][15];    // source
+         int cy1 = Ei[num][16];
+         int cx2 = cx1 + cw;
+         int cy2 = cy1 + ch;
+         al_draw_rectangle(cx1, cy1, cx2, cy2, palette_color[color2], 1);
+
+         int cx3 = Ei[num][17];    // destination
+         int cy3 = Ei[num][18];
+         int cx4 = cx3 + cw;
+         int cy4 = cy3 + ch;
+         al_draw_rectangle(cx3, cy3, cx4, cy4, palette_color[color3], 1);
+
+         // draw trigger box
+         int tx1 = Ei[num][11];
+         int ty1 = Ei[num][12];
+         int tx2 = Ei[num][11]+Ei[num][13] + 20;
+         int ty2 = Ei[num][12]+Ei[num][14] + 20;
+         al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color4], 1);
+      }
+      if (type == 12) // flapper
+      {
+         int color = 10;
+         if (legend_highlight == 3) color = flash_color;
+
+         // draw red height above player line
+         int hab = Ei[num][20];
+         al_draw_line(obj_x-40, obj_y+hab, obj_x+40, obj_y+hab, palette_color[color], 3);
+
+         // draw flap height
+         int fh = Ei[num][21];
+         al_draw_line(obj_x-60, obj_y+fh, obj_x+60, obj_y+fh, palette_color[12], 1);
+         al_draw_line(obj_x-60, obj_y-fh, obj_x+60, obj_y-fh, palette_color[12], 1);
+      }
    }
    if (obt == 2)  // items
    {
-      int sub_type = item[num][0];
+      int type = item[num][0];
       int obj_x = item[num][4]+10;
       int obj_y = item[num][5]+10;
       int color = 13;
       if (legend_highlight == 1) color = flash_color;
       crosshairs_full(obj_x, obj_y, color, 1);
-      switch (sub_type)
+      switch (type)
       {
          case 1: // door
          {
@@ -1212,7 +1199,7 @@ void ovw_process_mouse(void)
    {
       int b = mW[7].num;
       int type = Ei[b][0];
-      if ((type == 8) || (type == 12)) // trakbot and flapper bullet prox
+      if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // archwagon, cannon, trakbot and flapper bullet prox
       {
          float x0 = al_fixtof(Efi[b][0])+10; // get center of item location
          float y0 = al_fixtof(Efi[b][1])+10;

@@ -274,7 +274,7 @@ void ge_set_valid_controls(void)
 
             if ((etyp != 3) && (etyp != 6) && (etyp != 7) && (etyp != 8) && (etyp != 12)) ge_data[24].valid = 0; // bullet speed (archwagon, cannon, podzilla, trakbot, flapper)
             if ((etyp != 3) && (etyp != 6) && (etyp != 8) && (etyp != 12))                ge_data[25].valid = 0; // bullet retrigger (archwagon, cannon, trakbot, flapper)
-            if ((etyp != 3) && (etyp != 8) && (etyp != 12))                               ge_data[26].valid = 0; // bullet proximity (archwagon, trakbot, flapper)
+            if ((etyp != 3) && (etyp != 6) && (etyp != 8) && (etyp != 12))                ge_data[26].valid = 0; // bullet proximity (archwagon, cannon, trakbot, flapper)
 
             if (etyp != 12) // flapper specific
             {
@@ -796,25 +796,12 @@ int ge_process_keypress(void)
 void group_edit(void)
 {
    set_windows(3); // group edit
-
-   init_level_background();
    ge_init_data();
-
-
-   int quit=0;
-
-   al_show_mouse_cursor(display);
-   al_set_target_backbuffer(display);
-
-   while (mouse_b2) proc_controllers();
-
-
-
-   while (!quit)
+   init_level_background();
+   while (!ge_process_keypress())
    {
       cm_redraw_level_editor_background();
       if (!mw_cycle_windows(0)) ge_process_mouse();
-      quit = ge_process_keypress();
    }
    set_windows(1); // edit menu
 }
