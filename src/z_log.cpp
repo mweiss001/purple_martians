@@ -441,6 +441,10 @@ void add_log_entry_header(int type, int player, const char *txt, int blank_lines
 
 
 
+// for log file viewer code to find most recent log file
+ALLEGRO_FS_ENTRY *filenames[1000];
+int num_filenames;
+
 int fill_filename_array(ALLEGRO_FS_ENTRY *fs, void * extra)
 {
    if (num_filenames > 999) return 0; // only get 1000 max

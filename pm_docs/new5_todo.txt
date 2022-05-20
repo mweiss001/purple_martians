@@ -9,71 +9,10 @@ maybe later I could profile and see what takes up all the time...
 it's most likely an opengl thing
 
 
-
-
-
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
+---------------------------------------------------------
 
-
-make leaving ropes to ladder immed instead of fall and vice versa
-
-
-
-what if you had to press FIRE to grab a rocket, but then after that you did not need to hold FIRE?
-you could dismount with JUMP? ... that sounds cool
-
-
-does remote trigger have a delay before the explosion?
-I want it immediate to help the player time exploding moving things
-
-zfs - make block frame and fill work like they do in main editor..maybe not..
-
-
-how about optional swappable tilesets for levels
-
-make the version number auto increment based on something like date...
-or how many time it has been compiled...
-
-new items that emit triggers
-
-make the type of key you need to take to a matching lock
-when you touch the lock it will show the blocks that get removed
-
-something you jump on just like a switch
-only emits toggle on and toggle off depending on shape...
-
-something you shoot and it emits a trigger
-
-you can carry these around just like items...
-
-matching set of items that need to be brought together
-
-make an obvious item that reacts when getting shot... toggle on and off..
-
-
-
-trigger field that has a count of enemies or items or players
-
-
-what if I made coins to collect in the level?
-it is super fun in mario!
-then I could have end of level stuff like how many coins you got, how many enemies you killed, etc...
-
-they would be items and at the start of the level how many there are would be counted
-then each player would have a tally of how many they got...
-
-how about making health bonus only take the amount of health needed to get to 100
-if any is left, just subtract and don't erase the item
-
-
-make a field that manipulates the players controls, like gravity, etc...
-
-
-to colorize tiles....use shades of white....when replacing, if r=g=b then it should be replaced with color
 
 
 ------------------------------------------------------
@@ -128,6 +67,51 @@ uses prox to fire bullet instead of timer
 ------------------------------------------------------
 
 make the switches able to see through if stacked
+
+
+new items that emit triggers
+
+make the type of key you need to take to a matching lock
+when you touch the lock it will show the blocks that get removed
+
+something you jump on just like a switch
+only emits toggle on and toggle off depending on shape...
+
+something you shoot and it emits a trigger
+
+you can carry these around just like items...
+
+matching set of items that need to be brought together
+
+make an obvious item that reacts when getting shot... toggle on and off..
+
+trigger field that has a count of enemies or items or players
+
+
+what if I made coins to collect in the level?
+it is super fun in mario!
+then I could have end of level stuff like how many coins you got, how many enemies you killed, etc...
+
+they would be items and at the start of the level how many there are would be counted
+then each player would have a tally of how many they got...
+
+how about making health bonus only take the amount of health needed to get to 100
+if any is left, just subtract and don't erase the item
+
+
+what if you had to press FIRE to grab a rocket, but then after that you did not need to hold FIRE?
+you could dismount with JUMP? ... that sounds cool
+
+does remote trigger have a delay before the explosion?
+I want it immediate to help the player time exploding moving things
+
+
+
+make a field that manipulates the players controls, like gravity, etc...
+
+
+
+
 
 
 

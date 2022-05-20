@@ -876,7 +876,7 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
       {
          for (int x=bx1; x<bx2+1; x++)
             for (int y=by1; y<by2+1; y++)
-               set_block_with_flag_filters(x, y, mW[7].draw_item_num);
+               set_block_with_flag_filters(x, y, mW[1].draw_item_num);
          init_level_background();
          al_set_target_backbuffer(display);
       }
@@ -885,13 +885,13 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
       {
          for (int x=bx1; x<bx2+1; x++)
          {
-            set_block_with_flag_filters(x, by1, mW[7].draw_item_num);
-            set_block_with_flag_filters(x, by2, mW[7].draw_item_num);
+            set_block_with_flag_filters(x, by1, mW[1].draw_item_num);
+            set_block_with_flag_filters(x, by2, mW[1].draw_item_num);
          }
          for (int y=by1; y<by2+1; y++)
          {
-            set_block_with_flag_filters(bx1, y, mW[7].draw_item_num);
-            set_block_with_flag_filters(bx2, y, mW[7].draw_item_num);
+            set_block_with_flag_filters(bx1, y, mW[1].draw_item_num);
+            set_block_with_flag_filters(bx2, y, mW[1].draw_item_num);
          }
          init_level_background();
          al_set_target_backbuffer(display);

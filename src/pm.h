@@ -85,17 +85,6 @@ void cm_redraw_level_editor_background(int mode);
 int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int moving);
 
 
-
-
-
-
-
-
-
-
-
-
-
 #include <stdio.h>
 #include <math.h>
 
@@ -127,8 +116,6 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 #define PM_LIFT_SOLID_ENEMY      0b00000010000000000000000000000000
 #define PM_LIFT_SOLID_ITEM       0b00000001000000000000000000000000
 #define PM_LIFT_HIDE_LINES       0b00000000100000000000000000000000
-
-
 
 #define PM_BTILE_MOST_FLAGS        0b00111111111111110000000000000000
 #define PM_BTILE_ALL_FLAGS         0b01111111111111110000000000000000
@@ -218,12 +205,6 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 
 
 extern int pm_event[1000];
-//extern int copy_link_tranform[500][4];
-
-
-
-
-
 
 // temp testing variable
 extern int pct_x;
@@ -242,9 +223,8 @@ extern int ttc2;
 extern float ttfloat2;
 
 
-//old#define PML_SIZE 370880
 
-//#define PML_SIZE  371520
+
 #define PML_SIZE 384960
 
 
@@ -301,7 +281,6 @@ extern int grid_cols, grid_rows, grid_size, grid_width, grid_height;
 extern int load_visual_level_select_done;
 
 
-
 // frame_speed, frames per second, frame_num stuff
 extern int speed_testing;
 extern int actual_fps;
@@ -328,9 +307,7 @@ extern char global_string[20][25][80];
 extern char msg[1024];
 extern char color_name[16][20];
 
-// for log file viewer code to find most recent log file
-extern ALLEGRO_FS_ENTRY *filenames[1000];
-extern int num_filenames;
+
 
 // animation sequence array
 extern int zz[20][NUM_ANS];

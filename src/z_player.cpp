@@ -1083,8 +1083,14 @@ void proc_player_ladder_move(int p)
 
 void proc_player_rope(int p)
 {
-   if (players[p].on_rope)                                      // if player is currently on rope
-      players[p].on_rope = is_player_within_rope_reach(p);      // check to see if player is still on rope
+   if (players[p].on_rope)                 // if player is currently on rope
+   {
+      if (!is_player_within_rope_reach(p)) // check to see if player is still on rope
+      {
+         players[p].on_rope = 0;
+         players[p].on_ladder = is_player_within_ladder_reach(p); // automatically grab ladder if with reach and just leaving rope
+      }
+   }
    else
    {
       if ( (is_player_within_rope_reach(p)) &&                   // not already on rope and within rope reach
