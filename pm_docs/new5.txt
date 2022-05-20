@@ -26563,7 +26563,23 @@ done...added to ge...done
 
 bug - when items (post death flower) expire they leave a dot and do not erase...fixed
 
+bug - zfs block fill and frame do not work..fixed
 
+
+
+make leaving ropes to ladder immed instead of fall and vice versa
+ladder to rope looks good...player falls, but then immediately grabs rope
+leaving rope by moving past ends....
+detect if on ladder before fall...done
+
+   if (players[p].on_rope)                 // if player is currently on rope
+   {
+      if (!is_player_within_rope_reach(p)) // check to see if player is still on rope
+      {
+         players[p].on_rope = 0;
+         players[p].on_ladder = is_player_within_ladder_reach(p); // automatically grab ladder if with reach and just leaving rope
+      }
+   }
 
 
 

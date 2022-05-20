@@ -111,9 +111,6 @@ char global_string[20][25][80];
 char msg[1024];
 char color_name[16][20];
 
-// for log file viewer code to find most recent log file
-ALLEGRO_FS_ENTRY *filenames[1000];
-int num_filenames;
 
 // animation sequence array
 int zz[20][NUM_ANS];
