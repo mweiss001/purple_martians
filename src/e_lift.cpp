@@ -456,9 +456,8 @@ void step_popup_menu(int lift, int step)
 
 int draw_current_step_buttons(int x1, int x2, int y, int l, int s)
 {
-   int bts = 16;
-   int fs = 14; // frame_size
-   int a = 0;
+   int bts = 16; // button height
+   int fs = 14;  // frame_size
    int xa = x1+fs;
    int xb = x2-fs;
    int ya = y+fs;
@@ -470,68 +469,73 @@ int draw_current_step_buttons(int x1, int x2, int y, int l, int s)
    {
       case 1: // move and resize
          sprintf(msg, "Step:%d - Move and Resize", s);
-         mdw_buttont(xa, ya+a*bts, xb, ya+(a+1)*bts-2,  0, 0, 0, 0, 0, sd, 15,  0, 1,0,0,0, msg); a++; //
+         mdw_buttont(xa, ya, xb, bts,  1,0,0,0, 0,sd,15,0, 1,0,0,0, msg);
       break;
       case 2: // wait time
          sprintf(msg, "Step:%d - Wait For Timer", s);
-         mdw_buttont(xa, ya+a*bts, xb, ya+(a+1)*bts-2,  0, 0, 0, 0, 0, sd, 15,  0, 1,0,0,0, msg); a++; //
+         mdw_buttont(xa, ya, xb, bts,  1,0,0,0, 0,sd,15,0, 1,0,0,0, msg);
       break;
       case 3: // wait prox
          sprintf(msg, "Step:%d - Wait For Player Proximity", s);
-         mdw_buttont(xa, ya+a*bts, xb, ya+(a+1)*bts-2,  0, 0, 0, 0, 0, sd, 15,  0, 1,0,0,0, msg); a++; //
+         mdw_buttont(xa, ya, xb, bts,  1,0,0,0, 0,sd,15,0, 1,0,0,0, msg);
       break;
       case 4: // end step
          sprintf(msg, "Step:%d - Ending Step", s);
-         mdw_buttont(xa, ya+a*bts, xb, ya+(a+1)*bts-2,  0, 0, 0, 0, 0, sd, 15,  0, 1,0,0,0, msg); a++; //
+         mdw_buttont(xa, ya, xb, bts,  1,0,0,0, 0,sd,15,0, 1,0,0,0, msg);
       break;
       case 5: // wait trigger
          sprintf(msg, "Step:%d - Wait For Trigger", s);
-         mdw_buttont(xa, ya+a*bts, xb, ya+(a+1)*bts-2,  0, 0, 0, 0, 0, sd, 15,  0, 1,0,0,0, msg); a++; //
+         mdw_buttont(xa, ya, xb, bts,  1,0,0,0, 0,sd,15,0, 1,0,0,0, msg);
       break;
    }
 
    // default buttons
    int col = (lift_steps[l][s].type >> 28) & 15;
    sprintf(msg, "Step Color:%d", col);
-   mdw_buttont(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 0, 0, 0, 0, 0, col, 15,  0, 0,0,0,0, msg); a++;
+   mdw_buttont(xa, ya, xb, bts, 1,0,0,0,  0, col, 15, 0,   0,0,0,0, msg);
 
-   mdw_colsel(xa, ya+a*bts, xb, ya+(a+1)*bts-2,  8,  l, s, 0, 0, 15, 13, 14, 0,0,0,0); a++; // lift step color
-   mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 510, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step draw on/off
-   mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 514, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step lines draw on/off
-   mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 511, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step solid player on/off
-   mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 512, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step solid enemy on/off
-   mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 513, l, s, 0, 0, 13, 15,  0, 1,0,0,0); a++; // lift step solid item on/off
+   mdw_colsel(xa, ya, xb, bts, 8,l,s,0,  0,15,13,14,   0,0,1,0); // lift step color
+
+   int dim = 32;
+   int c2 = 14;
+   int c3 = 15;
+
+   mdw_togglf(xa, ya, xb, bts, 1,0,0,0, 0,0,0,0, 1,0,0,0, lift_steps[l][s].type, PM_LIFT_NO_DRAW,      "Draw Lift",            "Hide Lift",            c3, c3+dim, c2, c2+dim);
+   mdw_togglf(xa, ya, xb, bts, 1,0,0,0, 0,0,0,0, 1,0,0,0, lift_steps[l][s].type, PM_LIFT_SOLID_PLAYER, "Solid for Player:OFF", "Solid for Player:ON ", c3+dim, c3, c2+dim, c2);
+   mdw_togglf(xa, ya, xb, bts, 1,0,0,0, 0,0,0,0, 1,0,0,0, lift_steps[l][s].type, PM_LIFT_SOLID_ENEMY,  "Solid for Enemy:OFF ", "Solid for Enemy:ON  ", c3+dim, c3, c2+dim, c2);
+   mdw_togglf(xa, ya, xb, bts, 1,0,0,0, 0,0,0,0, 1,0,0,0, lift_steps[l][s].type, PM_LIFT_SOLID_ITEM,   "Solid for Item:OFF  ", "Solid for Item:ON   ", c3+dim, c3, c2+dim, c2);
+   mdw_togglf(xa, ya, xb, bts, 1,0,0,0, 0,0,0,0, 1,0,0,0, lift_steps[l][s].type, PM_LIFT_HIDE_LINES,   "Draw Lift Lines",      "Hide Lift Lines",      c3, c3+dim, c2, c2+dim);
 
    // specific buttons
    switch (lift_steps[l][s].type & 31)
    {
       case 1: // move and resize
-         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 550, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step resize speed
-         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 551, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step width
-         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 552, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step height
+         mdw_slider(xa, ya, xb, ya+bts-2, 550, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step resize speed
+         mdw_slider(xa, ya, xb, ya+bts-2, 551, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step width
+         mdw_slider(xa, ya, xb, ya+bts-2, 552, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step height
       break;
       case 2: // wait time
-         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 553, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step wait time
+         mdw_slider(xa, ya, xb, ya+bts-2, 553, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step wait time
       break;
       case 3: // wait prox
-          mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 554, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step wait player prox distance
+         mdw_slider(xa, ya, xb, ya+bts-2, 554, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step wait player prox distance
       break;
       case 4: // end step
-         mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 505, l, s, 0, 0, c1, 15, 0,  1,0,0,0); a++; // lift step end step mode
+         mdw_button(xa, ya, xb, bts,      505, l, s, 0, 0, c1, 15, 0,  1,0,1,0); // lift step end step mode
       break;
       case 5: // wait trigger
-         mdw_slider(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 556, l, s, 0, 0, c1, 15, 15, 1,0,0,0); a++; // lift step wait trigger slider
-         mdw_button(xa, ya+a*bts, xb, ya+(a+1)*bts-2, 520, l, s, 4, 0, c1, 15, 0,  1,0,0,0); a++; // lift step wait trigger get event
+         mdw_slider(xa, ya, xb, ya+bts-2, 556, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step wait trigger slider
+         mdw_button(xa, ya, xb, bts,      520, l, s, 4, 0, c1, 15, 0,  1,0,1,0); ya+=bts; // lift step wait trigger get event
       break;
    }
 
    // frame and title
    int y1 = y;
-   int y2 = y1+(a*bts)+(fs*2)-2;
+   int y2 = ya-bts+(fs*2);
    for (int q=0; q<fs; q++)
       al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, palette_color[10+(q*16)], 1);
    al_draw_text(font, palette_color[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "Current Step Details");
-   return (a*bts)+(fs*2); // return how much y space was used
+   return y2-y1+2; // return how much y space was used
 }
 
 void draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc)
@@ -545,17 +549,17 @@ void draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc)
    int x4 = x3 + 42; // third  column (type)   is fixed size
    if (s == -1) // show row headers
    {
-      mdw_button(x1, ty1, x2, ty2, 501, -1, 0, 0, 0, rc, 15, 0,1,0,0,0); // num
-      mdw_button(x2, ty1, x3, ty2, 506, -1, 0, 0, 0, rc, 15, 0,1,0,0,0); // 'C'
-      mdw_button(x3, ty1, x4, ty2, 502, -1, 0, 0, 0, rc, 15, 0,1,0,0,0); // type
-      mdw_button(x4, ty1, xb, ty2, 503, -1, 0, 0, 0, rc, 15, 0,1,0,0,0); // description
+      mdw_button(x1, ty1, x2, ty2-ty1, 501, -1, 0, 0, 0, rc, 15, 0,1,0,0,0); // num
+      mdw_button(x2, ty1, x3, ty2-ty1, 506, -1, 0, 0, 0, rc, 15, 0,1,0,0,0); // 'C'
+      mdw_button(x3, ty1, x4, ty2-ty1, 502, -1, 0, 0, 0, rc, 15, 0,1,0,0,0); // type
+      mdw_button(x4, ty1, xb, ty2-ty1, 503, -1, 0, 0, 0, rc, 15, 0,1,0,0,0); // description
    }
    else
    {
-      mdw_button(x1, ty1, x2, ty2, 501, s, 0, 0, 0, rc, 15, 0,1,0,0,0); // num
-      mdw_button(x2, ty1, x3, ty2, 506, c, 0, 0, 0, c,  15, 0,0,0,0,0); // color
-      mdw_button(x3, ty1, x4, ty2, 502, t, 0, 0, 0, rc, 15, 0,1,0,0,0); // type
-      mdw_button(x4, ty1, xb, ty2, 503, t, l, s, 0, rc, 15, 0,1,1,0,0); // description
+      mdw_button(x1, ty1, x2, ty2-ty1, 501, s, 0, 0, 0, rc, 15, 0,1,0,0,0); // num
+      mdw_button(x2, ty1, x3, ty2-ty1, 506, c, 0, 0, 0, c,  15, 0,0,0,0,0); // color
+      mdw_button(x3, ty1, x4, ty2-ty1, 502, t, 0, 0, 0, rc, 15, 0,1,0,0,0); // type
+      mdw_button(x4, ty1, xb, ty2-ty1, 503, t, l, s, 0, rc, 15, 0,1,1,0,0); // description
    }
 }
 

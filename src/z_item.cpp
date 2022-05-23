@@ -110,6 +110,8 @@ void draw_pop_message(int i)
       al_draw_text(font, palette_color[tc], pxc+4, py1+row*8+9, ALLEGRO_ALIGN_CENTRE, dt[row]);
 }
 
+
+
 void draw_door(int i, int x, int y)
 {
    ALLEGRO_BITMAP *tmp = NULL;
@@ -574,6 +576,21 @@ void draw_rocket_lines(int i)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void draw_item(int i, int custom, int cx, int cy)
 {
    int type = item[i][0];
@@ -715,6 +732,41 @@ int is_item_stuck_to_wall(int i)
 }
 
 
+void proc_switch_block_range(int i, int action)
+{
+   int x1 = item[i][6] / 20;
+   int y1 = item[i][7] / 20;
+   int x2 = (item[i][6] + item[i][8]) / 20;
+   int y2 = (item[i][7] + item[i][9]) / 20;
+   for (int x=x1; x<x2; x++)
+      for (int y=y1; y<y2; y++)
+      {
+         int tn = l[x][y]&1023;
+         if (action == 1)
+         {
+            if ((item[i][10] & 0b0001) && (tn == 172)) l[x][y] = 7;  // green  solid to empty
+            if ((item[i][10] & 0b0010) && (tn == 173)) l[x][y] = 8;  // red    solid to empty
+            if ((item[i][10] & 0b0100) && (tn == 174)) l[x][y] = 9;  // blue   solid to empty
+            if ((item[i][10] & 0b1000) && (tn == 175)) l[x][y] = 10; // purple solid to empty
+            if ((item[i][10] & 0b0001) && (tn ==  7))  l[x][y] = (172 | PM_BTILE_ALL_SOLID); // green  empty to solid
+            if ((item[i][10] & 0b0010) && (tn ==  8))  l[x][y] = (173 | PM_BTILE_ALL_SOLID); // red    empty to solid
+            if ((item[i][10] & 0b0100) && (tn ==  9))  l[x][y] = (174 | PM_BTILE_ALL_SOLID); // blue   empty to solid
+            if ((item[i][10] & 0b1000) && (tn == 10))  l[x][y] = (175 | PM_BTILE_ALL_SOLID); // purple empty to solid
+         }
+         if (action == 2)
+         {
+            if ((item[i][10] & 0b0001) && ( (tn == 7)  || (tn == 172)) ) bomb_block_crosshairs(x, y);
+            if ((item[i][10] & 0b0010) && ( (tn == 8)  || (tn == 173)) ) bomb_block_crosshairs(x, y);
+            if ((item[i][10] & 0b0100) && ( (tn == 9)  || (tn == 174)) ) bomb_block_crosshairs(x, y);
+            if ((item[i][10] & 0b1000) && ( (tn == 10) || (tn == 175)) ) bomb_block_crosshairs(x, y);
+         }
+      }
+   if (action == 1)
+   {
+      init_level_background();
+      draw_lift_lines();
+   }
+}
 
 void proc_key_block_range(int i, int action)
 {
@@ -1471,6 +1523,48 @@ void proc_warp_collision(int p, int i)
    game_event(4, 0, 0, p, i, 0, 0);
 }
 
+
+
+
+
+
+
+/*
+       6     8    9    10   11
+green  0001  745  746  172  7
+red    0010  777  778  173  8
+blue   0100  809  810  174  9
+purple 1000  841  842  175  10
+*/
+
+void proc_switch_collision(int p, int i)
+{
+   if (item[i][11] < frame_num) // if not lockout
+   {
+      // if falling and landing on it
+      if ( (players[p].PX  > itemf[i][0] - al_itofix(12)) && (players[p].PX  < itemf[i][0] + al_itofix(12)) &&
+           (players[p].PY  > itemf[i][1] - al_itofix(16)) && (players[p].PY  < itemf[i][1] - al_itofix(8)) &&
+           (players[p].yinc > al_itofix(0)) )  // falling
+      {
+         item[i][11] = frame_num + 4; // switch lockout for next 4 frames
+         game_event(30, 0, 0, p, i, 0, 0);
+
+         if (item[i][1] > 111) item[i][1] -= 16;
+         else item[i][1] += 16;
+
+//         if (item[i][1] == 200) item[i][1] = 201;
+//         else item[i][1] = 200;
+
+         al_set_target_bitmap(level_background);
+
+         proc_switch_block_range(i, 1);
+
+      }  // end of falling and landing on
+   } // end of if not lockout
+}
+
+/*
+
 void proc_switch_collision(int p, int i)
 {
    if (item[i][7] < frame_num) // if not lockout
@@ -1511,7 +1605,7 @@ void proc_switch_collision(int p, int i)
       }  // end of falling and landing on
    } // end of if not lockout
 }
-
+*/
 void proc_sproingy_collision(int p, int i)
 {
    if ( (players[p].PX  > itemf[i][0] - al_itofix(10)) &&
@@ -1696,10 +1790,18 @@ void process_trigger(int i)
          item[i][3] &= ~PM_ITEM_TRIGGER_PREV;    // clear previous trigger flag
 
    FLAGS = item[i][3]; // update FLAGS
+
 /*   if (FLAGS & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", frame_num);
    if (FLAGS & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", frame_num);
    if (FLAGS & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", frame_num);
    if (FLAGS & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", frame_num); */
+
+   // clear them all
+   pm_event[item[i][11]] = 0;
+   pm_event[item[i][12]] = 0;
+   pm_event[item[i][13]] = 0;
+   pm_event[item[i][14]] = 0;
+
    if   (FLAGS & PM_ITEM_TRIGGER_CURR)  pm_event[item[i][11]] = 1;
    if (!(FLAGS & PM_ITEM_TRIGGER_CURR)) pm_event[item[i][12]] = 1;
    if   (FLAGS & PM_ITEM_TRIGGER_TGON)  pm_event[item[i][13]] = 1;
@@ -1836,34 +1938,21 @@ void draw_trigger(int i, int x, int y)
 
 
 /*
-
 item[][0] = 16 - Block Manip
 item[][1] = pm_event_trigger
 item[][2] = draw on
 item[][3] = mode
-
 item[][4] = x pos (2000)
 item[][5] = y pos (2000)
-
 item[][6]  = trigger field x (2000)
 item[][7]  = trigger field y (2000)
 item[][8]  = trigger field w (2000)
 item[][9]  = trigger field x (2000)
-
-
 item[][10] block 1
 item[][11] block 2
-
-
 item[][12] = draw color
 
-
-
-
 */
-
-
-
 void process_block_manip(int i)
 {
    int et = item[i][1]; // pm_event trigger we are looking for
@@ -1914,76 +2003,8 @@ void process_block_manip(int i)
                   al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
                }
             }
-
-
-/* old way...uses only tile number, not tile and flags
-
-
-            if (mode == 1) // set all blocks to block 1
-            {
-               l[x][y] = block1 | sa[block1][0]; // replace block (use default flags)
-               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-               al_draw_bitmap(btile[block1], x*20, y*20, 0 );
-            }
-
-            if (mode == 2) // set all block2 to block 1
-            {
-               if ((l[x][y]&1023) == block2)
-               {
-                  l[x][y] = block1 | sa[block1][0]; // replace block
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                  al_draw_bitmap(btile[block1], x*20, y*20, 0 );
-               }
-            }
-
-            if (mode == 3) // toggle block1 and block 2
-            {
-               if ((l[x][y]&1023) == block1)
-               {
-                  l[x][y] = block2 | sa[block2][0];
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                  al_draw_bitmap(btile[block2], x*20, y*20, 0 );
-               }
-               else if ((l[x][y]&1023) == block2)
-               {
-                  l[x][y] = block1 | sa[block1][0];
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                  al_draw_bitmap(btile[block1], x*20, y*20, 0 );
-               }
-            }
-
-
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
          }
       draw_lift_lines();
-      pm_event[et] = 0; // clear the trigger when we are done with it
    }
 }
 
@@ -2133,7 +2154,7 @@ void proc_item_damage_collisions(int i)
                else
                {
                   players[p].LIFE -= al_fixdiv(al_itofix(item[i][15]), al_itofix(100));
-                  game_event(59, 0, 0, p, i, 0, 0);
+                  if (item[i][15] > 0) game_event(59, 0, 0, p, i, 0, 0); // only do damage noise when taking health..??
                }
             }
          }
@@ -2319,29 +2340,17 @@ void process_block_damage(int i)
 
    if (mode == 1)
    {
-      if (pm_event[et])
-      {
-          item[i][3] ^= PM_ITEM_DAMAGE_CURR; // toggle current damage flag
-          pm_event[et] = 0;
-      }
+      if (pm_event[et]) item[i][3] ^= PM_ITEM_DAMAGE_CURR; // toggle current damage flag
    }
    if (mode == 2) // damage unless timer running  (no damage when triggered)
    {
-      if (pm_event[et])
-      {
-          item[i][13] = item[i][12]; // reset timer
-          pm_event[et] = 0;
-      }
+      if (pm_event[et]) item[i][13] = item[i][12];              // reset timer
       if (item[i][13] == 0) item[i][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
       else                  item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // set damage off
    }
    if (mode == 3) // damage when timer is running (no damage until triggered)
    {
-      if (pm_event[et])
-      {
-          item[i][13] = item[i][12]; // reset timer
-          pm_event[et] = 0;
-      }
+      if (pm_event[et]) item[i][13] = item[i][12];             // reset timer
       if (item[i][13] > 0) item[i][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
       else                 item[i][3] &= ~PM_ITEM_DAMAGE_CURR; // set damage off
    }
@@ -2357,44 +2366,11 @@ void process_block_damage(int i)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*
+
 item variable descriptions
 
 list of items
-
 
 
 [1]  - door
@@ -2402,7 +2378,6 @@ list of items
 [3]  - exit
 [4]  - key
 [5]  - start
-[6]  - free man
 [7]  - mine
 [8]  - bomb
 [10] - pop-up msg
@@ -2417,15 +2392,18 @@ list of items
 item[][0] = active and type
 item[][1] = bitmap or ans
 item[][2] = draw type (not used)
-item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door -3=sticky)
-item[][4] = x pos (int) (2000)
-item[][5] = y pos (int) (2000)
+item[][3] = (0=stat, 1=fall, -1=carry, -2=carry through door)
+item[][4] = x pos
+item[][5] = y pos
 
 item[][14] = time to live
 item[][15] = tag with cloner item id
 
 
 // type specific
+
+
+
 [1] - door
 item[][6]  color
 item[][7]  move type (0=auto, 1=force instant, 2=force move)
@@ -2436,33 +2414,28 @@ item[][11] door entry type (0=immed, 1=up, 2=down)
 item[][12] draw lines always, never, only when touched
 item[][13] base animation shape
 
-
 [2] - bonus
-
 item[][6] bonus type
 1 - Health
 2 - Free Man
 3 - Purple Coin
-
 item[][7] health bonus
-item[][8] bullet bonus (ignored now)
-item[][9] timer bonus  (ignored now)
 
 [3] - exit
 item[][8] exit with x enemies left
 
 [4] - key
-item[][6]  block range x1 (100)
-item[][7]  block range y1 (100)
-item[][8]  block range x2 (100)
-item[][9]  block range y2 (100)
+item[][6]  block range x
+item[][7]  block range y
+item[][8]  block range w
+item[][9]  block range h
 item[][10] rotation for key move
 item[][11] counter for key move
 item[][12] matching keyed blocks only
 
 [5] - start
+item[][6] mode
 item[][7] start index
-item[][8] initial time (ignored now)
 
 [7] - mine
 item[][8] mine damage
@@ -2472,10 +2445,23 @@ item[][6]  mode (2=explosion)
 item[][7]  blast size
 item[][8]  fuse length counter
 item[][9]  fuse length value
-
 item[][11]  sticky
 item[][12]  timer / remote
 
+
+
+[9]  - Trigger
+item[][2] = draw_type (color)
+item[][3] = flags
+item[][6]  = trigger field x (2000)
+item[][7]  = trigger field y (2000)
+item[][8]  = trigger field w (2000)
+item[][9]  = trigger field x (2000)
+item[][10] = trigger field lift number
+item[][11] = CURR ON  pm_event
+item[][12] = CURR OFF pm_event
+item[][13] = TGON pm_event #
+item[][14] = TGOF pm_event #
 
 
 
@@ -2498,21 +2484,62 @@ item[][10] rocket rotation (scaled by 10)
 item[][8] warp level
 
 [14]  - switch
-item[][6]  on/off
-item[][7]  lockout
-item[][8]  on bmp
-item[][9]  off bmp
-item[][10] solid block shape
-item[][11] empty block shape
+item[][6]  block range x
+item[][7]  block range y
+item[][8]  block range w
+item[][9]  block range h
+item[][10] color flags
+item[][11]  lockout
 
 [15] - sproingy
 item[][6] jump length (only used in level editor)
 item[][7] sproinginess
 
 
+[16] - Block Manip
+item[][1] = pm_event_trigger
+item[][2] = draw on
+item[][3] = mode
+item[][6]  = trigger field x (2000)
+item[][7]  = trigger field y (2000)
+item[][8]  = trigger field w (2000)
+item[][9]  = trigger field x (2000)
+item[][10] block 1
+item[][11] block 2
+item[][12] = draw color
+
+[17] - Block Damage
+item[][6]  = field x (2000)
+item[][7]  = field y (2000)
+item[][8]  = field w (2000)
+item[][9]  = field h (2000)
+item[][10] = lift number
+item[][11] = mode
+item[][12] = t1 val
+item[][13] = count
+item[][14] = t2 val
+item[][15] = damage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [98] - lit rocket
-
-
 
 [99] - lit bomb
 item[][6]  mode (1=lit, 2=explosion, 3=remote detonator)
@@ -2523,10 +2550,6 @@ item[][9]  fuse length value
 item[][11] sticky
 item[][12] timer | remote
 item[][13] last player to touch
-
-
-
-
 
 */
 

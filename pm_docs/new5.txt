@@ -26584,6 +26584,397 @@ detect if on ladder before fall...done
 
 
 
+20220521 7:00AM
+
+make the switches able to see through if stacked
+
+
+I am going to make a single switch capable of having more than one color
+
+
+right now, so much of the code for a switch is tied to the switch itself
+
+there is:
+
+
+
+item[i][6]  // bit to indicate what position it is currently in
+item[i][7]  // lockout
+item[i][8]  // on bmp
+item[i][9]  // off bmp
+item[i][10] // solid block
+item[i][11] // empty block
+
+how will I change it?
+
+use a bitfield for each color
+use item[][6] for that
+0000 = none (do not allow)
+0001 = green
+0010 = red
+0100 = blue
+1000 = purple
+
+do not need a value for what position it currently is in
+use the bitmap
+use only one set (green) 745, 746
+toggle everytime it is jumped on
+
+make a function that based on flags toggles the appropriate blocks
+
+make a custom draw to fill in colors based on flags
+       6     8    9    10   11
+green  0001  745  746  172  7
+red    0010  777  778  173  8
+blue   0100  809  810  174  9
+purple 1000  841  842  175  10
+
+
+just a side note:
+this kind of looks like what a trigger and bm set could do
+
+also...
+
+how hard would it be to set a range like key has?
+what var does key use? 6, 7, 8, 9
+
+I would need to move my current 6,7 to 10, 11....not a big deal....
+
+do it...
+
+item[i][6]  // x
+item[i][7]  // y
+item[i][8]  // w
+item[i][9]  // h
+item[i][10] // color flags
+item[i][11] // lockout
+
+
+
+it all works...now to do the drawing....
+make a neutral shape...
+
+
+how many different shapes do I need?
+
+nc = 1;
+4 - one for each color
+
+nc = 2;
+1st color could be any one of four
+2nd color coule be any one of four
+16?? no...
+no doubles, order does not matter...
+i think 6...
+
+g r
+g b
+g p
+
+r b
+r p
+
+b p
+
+
+
+
+
+nc = 3;
+4 - one missing each color
+
+nc = 4;
+1 - with all four colors
+
+
+so total of 15...
+
+make a funtion to colorize...later will decide dynamic or static...
+
+
+static....
+
+switch_tile[16]
+0 white
+
+1 g
+2 r
+3 b
+4 p
+
+5 gr
+6 gb
+7 gp
+8 rb
+9 rp
+10 bp
+
+11 grb
+12 grp
+13 gbp
+14 rbp
+
+15 grbp
+
+
+
+
+I have all these drawn...
+
+now what about the yin/yang circle?
+draw on top...
+
+make two yin yang versions and save to disk with all other tiles
+
+or I could use regular tiles...96-124  do it..
+
+
+
+how do I save??
+
+
+   tilemap = al_load_bitmap("bitmaps/tiles.bmp");
+   if (draw_and_process_button(b1_x2-36, b1_y-12, "Save", 15, 10, 0)) al_save_bitmap(b1_fn, b1);
+
+al_save_bitmap("bitmaps/tiles.bmp", tilemap);
+
+
+done... they are all a part of tiles now....
+now patch that into draw....
+
+draw code is the same as every other item.. draw the tile in item[][1]...
+make the logic to set that somehwere else...
+
+in proc_switch_collision?... only gets called when collision...
+can use that to add or subtract 16 when jumped on....
+
+in level editor is where it will need to be set...
+when creating or changing color flags...done...
+
+now I want to implement the range thing, just like keys...
+
+to start with, all existing switches need to be glt'd to have 0,0 2000, 2000...
+also existing switches need the new color format...done...
+
+
+now implement the switch block range...
+
+PDE make all 2000 for new...done...
+edit in ov...
+
+
+I think it is all done...
+map move, draw new range, highlights...
+
+maybe redo the shapes to get some black see through....
+that took much longer than expected, but finally I am happy with it...
+
+made it possible for field to give health...
+
+has a bad noise though...
+
+
+zfs paste from disk, just gets stuff from current level
+it looks like the draw fsel uses the real level...it should use the ft_stuff...
+
+
+zfs move....erases stuff after paste
+
+I recently added some calls to save selection...
+I wanted fresh stuff when filters changed
+I might have to rethink this...
+
+
+
+it looks like the draw fsel uses the real level...it should use the ft_stuff...
+is that the real problem??
+the ft_bmp has a 1-1 scale
+fixed this so that draw_fsel uses ft_
+
+now test to see what still doesn't work...
+
+move still erases after copy...
+it's beacuse of when I call zfs_save_selection from draw_filter_buttons...
+any mouse button will trigger it...
+
+am I doing this wrong?
+I filter when i draw from the ft_ that should be good enough??
+just tested and it does nothing...fixed a few occurances of missing ft_ when testing...
+
+when load from disk, set size properly...done...
+now check to see that the block filter stuff is working properly...ok...
+
+can I show ndf in selection? yes...done
+
+
+
+
+20220522 6:00 AM
+
+
+bug - purple coin cannot set carry fall lift..fixed
+
+bug - fix show items complaints...done
+
+p msgs show funny @ char sometimes...fixed
+never on level, only when drawn below buttons
+only when <cr>
+
+
+increase max bullet recoil in -y direction...done from 5 to 8
+also decrease max x from 5 to 4...
+
+
+made all the viewer buttons dynamically set height...
+
+
+right now when something uses an event, it clears it
+this works because we are never sure it what order items are processed
+and clearing them at the start of every frame, might clear them bofore they get to be used...
+this also means that multiple event receiver cannot use the same trigger...
+I was thinking of a different method...
+The thing that sets the event could be the thing that clears it...
+right now only trigger sets events...
+
+this seems to work..i need to finish implementing it...
+
+remove where bd bm and lift eats triggers...done...
+
+make a level where the field gives you health...
+then cannons shoot you from below and push you up...
+can enemies control how powerful their bullets are?...no bullets have fixed damage...for now
+done...
+
+
+
+going to clean up sliders...
+
+use regex to find calls
+
+I want something that matches mdw_button( x, x, x, x, !!! )
+
+mdw_button(
+
+then skip past 4 values and commas...
+
+then the next number
+
+tried:
+mdw_button(.*15
+lots of results
+
+
+better:
+mdw_button(.*[,]+ 15
+
+
+
+mdw_button(.*[,]+ 15
+nothing
+
+
+mdw_button( ([A-Za-z0-9]{1}[,])4 15
+
+
+
+
+it would also be nice if I did not have to increment y pos in a seperate line
+what if I passed bts as y2...
+passed ya as a pointer... and let the function add to it and return...
+
+lets just do it for mdw_buttont for now...
+how many calls
+
+
+
+the new function is:
+
+// just display a text string, and return 1 if pressed
+// in this version y2 has been replaced by height
+// y1 is modified to add height if bn == 1
+int mdw_buttont2(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt,
+                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+{
+   int y2 = y1+bts-2;
+   int ret = 0;
+
+
+   if (!q6)
+   {
+      sprintf(smsg, "%s", txt);
+      draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+      if (q5) al_draw_text(font, palette_color[q2], x1+4,      y1+bts/2-3, 0,                    smsg);
+      else    al_draw_text(font, palette_color[q2], (x2+x1)/2, y1+bts/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
+   }
+
+   if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   {
+      while (mouse_b1) proc_controllers(); // wait for release
+      ret = 1;
+   }
+   if (bn) y1+=bts;
+   return ret;
+}
+
+when I remove all traces of the original, i will rename this to remove the 2....done....
+
+this is a lot cleaner...
+what about toggle_f2....done....
+
+what about colsel? all 6 occurences are done...
+
+
+plain old buttons have 90 matches...I am going to try to thin that out....
+
+lets do 6 of buttonp first....done...
+
+
+
+how many left now....83 matches
+
+
+
+now to convert the stat fall things...
+button p
+
+
+now I am down to 65....
+
+
+now I am down to ~30
+
+fuck it, lets make buttons like all the others...done
+
+
+
+10 slider0_int...done
+32 slider2_int...done
+23 slider2_fix...done
+
+
+35 slider
+I should convert as many as I can...
+
+
+i have 31 left...I need to take a break...
+
+20220522 7:30PM
+
+push....
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

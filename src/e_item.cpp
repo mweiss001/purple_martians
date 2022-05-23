@@ -234,28 +234,31 @@ void test_items(void)
    for (int c=0; c<500; c++)
       if (item[c][0])
       {
+         int type = item[c][0];
          // first check for valid type
          int good = 0;
-         if (item[c][0] == 1) good = 1;
-         if (item[c][0] == 2) good = 1;
-         if (item[c][0] == 3) good = 1;
-         if (item[c][0] == 4) good = 1;
-         if (item[c][0] == 5) good = 1;
-         if (item[c][0] == 7) good = 1;
-         if (item[c][0] == 8) good = 1;
-         if (item[c][0] == 10) good = 1;
-         if (item[c][0] == 11) good = 1;
-         if (item[c][0] == 12) good = 1;
-         if (item[c][0] == 14) good = 1;
-         if (item[c][0] == 15) good = 1;
+         if (type == 1) good = 1;
+         if (type == 2) good = 1;
+         if (type == 3) good = 1;
+         if (type == 4) good = 1;
+         if (type == 5) good = 1;
+         if (type == 7) good = 1;
+         if (type == 8) good = 1;
+         if (type == 9) good = 1;
+         if (type == 10) good = 1;
+         if (type == 11) good = 1;
+         if (type == 12) good = 1;
+         if (type == 14) good = 1;
+         if (type == 15) good = 1;
+         if (type == 16) good = 1;
+         if (type == 17) good = 1;
 
-         if (item[c][0] == 20) good = 1;
 
          if (!good)  printf("Item:%d - bad type:%d\n", c, item[c][0]);
          // if (!good)  item[c][0] = 0; //erase bad type
          if (good)
          {
-            if ((item[c][1] < 169) || (item[c][1] > 1084))
+            if ( ((item[c][1] < 95) || (item[c][1] > 1084)) && (type != 9) && (type != 16) && (type != 17) )
                printf("Item:%d - bad shape:%d\n", c, item[c][1]);
             int xpos = item[c][4];
             if ((xpos < 20) || (xpos > 1960))

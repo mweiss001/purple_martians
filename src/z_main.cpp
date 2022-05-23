@@ -1277,10 +1277,8 @@ int main(int argument_count, char **argument_array)
 */
 
 
-
-
-
-
+//   void colorize_tile(void);
+//   colorize_tile();
 
 
 

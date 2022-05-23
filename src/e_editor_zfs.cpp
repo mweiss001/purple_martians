@@ -130,11 +130,6 @@ void zfs_do_brf(int x, int y, int flood_block)
             for (int b1=0; b1<100; b1++)
                if (f[a1][b1]) set_block_with_flag_filters(a1, b1, flood_block);
 
-
-
-
-
-
          init_level_background();
          cm_redraw_level_editor_background();
          al_rest(.04);
@@ -345,6 +340,7 @@ void zfs_save_selection(int save)
    int y1 = by1*20;
    int x2 = bx2*20+20;
    int y2 = by2*20+20;
+
    al_fixed fx1 = al_itofix(x1);
    al_fixed fy1 = al_itofix(y1);
    al_fixed fx2 = al_itofix(x2);
@@ -469,10 +465,10 @@ void zfs_save_selection(int save)
    ft_level_header[4] = eib; // num_of_enemies
    ft_level_header[5] = lib; // num_of_lifts
 
-   ft_level_header[8] =  bx2-bx1+1; // width
-   ft_level_header[9] =  by2-by1+1; // height
+   mW[4].sw = ft_level_header[8] =  bx2-bx1+1; // width
+   mW[4].sh = ft_level_header[9] =  by2-by1+1; // height
 
-   // printf("finished copying to ft - i:%d e:%d l:%d\n", iib, eib, lib);
+   //printf("finished copying to ft - i:%d e:%d l:%d\n", iib, eib, lib);
 
 
    if (save)
@@ -527,17 +523,17 @@ void zfs_save_selection(int save)
 
 void zfs_do_fcopy(int qx1, int qy1)
 {
+   // printf("do fcopy\n");
+
    int b, c, x, y;
    int x3 = qx1*20;         // dest x
    int y3 = qy1*20;         // dest y
-   int x5 = ft_level_header[8];
-   int y5 = ft_level_header[9];
 
-   int erase_out_of_bounds_main = 0;      // if 0 we will adjust
+   int erase_out_of_bounds_main = 0;  // 0 = adjust
 
    // blocks
-   for (x=0; x<x5; x++)
-      for (y=0; y<y5; y++)
+   for (x=0; x<mW[4].sw; x++)
+      for (y=0; y<mW[4].sh; y++)
          if ((qx1+x >= 0) && (qx1+x < 100) && (qy1+y >= 0) && (qy1+y < 100))
             set_block_with_flag_filters(qx1+x, qy1+y, ft_l[x][y]);
 
@@ -602,7 +598,7 @@ void zfs_do_fcopy(int qx1, int qy1)
 
    // enemies
    for (b=0; b<100; b++) // iterate enemies in ft
-      if ((ft_Ei[b][0]) && (obj_filter[3][Ei[b][0]])) // if active attempt to copy this enemy
+      if ((ft_Ei[b][0]) && (obj_filter[3][ft_Ei[b][0]])) // if active attempt to copy this enemy
       {
          //int copied = 0;
          for (c=0; c<100; c++)
@@ -684,7 +680,7 @@ void zfs_do_fcopy(int qx1, int qy1)
    }
    // items
    for (b=0; b<500; b++)
-      if ((item[b][0]) && (obj_filter[2][item[b][0]]))
+      if ((ft_item[b][0]) && (obj_filter[2][ft_item[b][0]]))
       {
          //int copied = 0;
          for (c=0; c<500; c++) // search for empty place to copy to
@@ -792,13 +788,12 @@ void zfs_do_clear(void)
    sort_item(1);
 }
 
-
 void set_block_with_flag_filters(int x, int y, int tn)
 {
    if ((x>=0) && (x<100) && (y>=0) && (y<100))
    {
       // blocks and flags
-      if ((obj_filter[1][1]) && (obj_filter[1][2]))  l[x][y] = tn;
+      if ((obj_filter[1][1]) && (obj_filter[1][2])) l[x][y] = tn;
 
       // flags only
       if ((!obj_filter[1][1]) && (obj_filter[1][2]))
@@ -817,62 +812,46 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
    int d = 1;
    if (have_focus) d = 0;
    if (moving) d = 1;
-
-   int bnh = 14;
+   int bts = 16;
    int col=0;
-   if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Move Selection"))
+
+   if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Move Selection"))
+   {
+      mW[4].copy_mode = 1;
+      zfs_save_selection(0); // just puts in ft_
+      zfs_draw_fsel();
+      zfs_do_clear();
+   }
+   if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Clear Selection")) zfs_do_clear();
+   mW[4].copy_mode ? col=10 : col=9;
+   if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,col,15,0, 1,0,0,d, "Paste Selection"))
    {
       if (mW[4].copy_mode) mW[4].copy_mode = 0;
       else
       {
          mW[4].copy_mode = 1;
-         zfs_save_selection(0); // just puts in ft_
-         zfs_draw_fsel();
-         zfs_do_clear();
-      }
-   }
-   yfb+=bnh+2;
-
-
-   if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Clear Selection")) zfs_do_clear();
-   yfb+=bnh+2;
-
-   col = 9;
-   if (mW[4].copy_mode) col = 10;
-   if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,col,15,0, 1,0,0,d, "Paste Selection"))
-   {
-      if (mW[4].copy_mode) mW[4].copy_mode = 0;
-      else
-      {
-         mW[4].copy_mode = 1;
-         zfs_save_selection(0); // just puts in ft_
+         zfs_save_selection(0); // puts selection in ft_ only
          zfs_draw_fsel();
       }
    }
-   yfb+=bnh+2;
 
+   yfb+=bts/2; // spacing between groups
 
-
-   yfb+=bnh/2; // spacing between groups
-
-
-   if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Save To Disk")) zfs_save_selection(1); // puts in ft_ and saves to disk
-   yfb+=bnh+2;
-
-   if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Load From Disk"))
+   if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Save To Disk")) zfs_save_selection(1); // puts in ft_ and saves to disk
+   if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Load From Disk"))
    {
       if (zfs_load_selection())
       {
          mW[4].copy_mode = 1;
+         mW[4].sw = ft_level_header[8];
+         mW[4].sh = ft_level_header[9];
          zfs_draw_fsel();
       }
    }
-   yfb+=bnh+2;
-
    if (mW[1].draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
    {
-      yfb+=bnh/2; // spacing between groups
-      if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Block Fill"))
+      yfb+=bts/2; // spacing between groups
+      if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Block Fill"))
       {
          for (int x=bx1; x<bx2+1; x++)
             for (int y=by1; y<by2+1; y++)
@@ -880,8 +859,7 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
          init_level_background();
          al_set_target_backbuffer(display);
       }
-      yfb+=bnh+2;
-      if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,9,15,0, 1,0,0,d, "Block Frame"))
+      if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Block Frame"))
       {
          for (int x=bx1; x<bx2+1; x++)
          {
@@ -896,51 +874,144 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
          init_level_background();
          al_set_target_backbuffer(display);
       }
-      yfb+=bnh+2;
+      mW[4].brf_mode ? col=10 : col=9;
+      if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,col,15,0, 1,0,0,d, "Block Floodfill")) mW[4].brf_mode = !mW[4].brf_mode;
+   }
+   return yfb;
+}
 
-      col = 9;
-      if (mW[4].brf_mode) col = 10;
-      if (mdw_buttont(x3, yfb, x4, yfb+bnh, 0,0,0,0, 0,col,15,0, 1,0,0,d, "Block Floodfill"))
-         mW[4].brf_mode = !mW[4].brf_mode;
-      yfb+=bnh+2;
 
+void zfs_draw_item_ft(int i)
+{
+   int x = ft_item[i][4];
+   int y = ft_item[i][5];
+   int type = ft_item[i][0];
+
+   int shape = ft_item[i][1];                    // get shape
+   if (shape > 999) shape = zz[5][shape-1000];   // ans
+   int drawn = 0;
+
+   if ((type == 2) && (ft_item[i][6] == 3)) shape = 197; // purple coin
+
+   if (type == 9)   shape = 991; // trig
+   if (type == 16)  shape = 989; // bm
+   if (type == 17)  shape = 988; // bd
+
+   if ((type == 8) && (ft_item[i][11])) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
+
+   if (type == 11) // rockets
+   {
+      float rot = al_fixtof(al_fixmul(al_itofix(ft_item[i][10]/10), al_fixtorad_r));
+      al_draw_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, rot, 0);
+      drawn = 1;
    }
 
-   return yfb;
-
+   // default draw if nothing else has drawn it up to now
+   if (!drawn) al_draw_bitmap(tile[shape], x, y, 0);
 }
+
+
+void zfs_draw_enemy_ft(int e)
+{
+   int type = ft_Ei[e][0];
+   int EXint = al_fixtoi(ft_Efi[e][0]);
+   int EYint = al_fixtoi(ft_Efi[e][1]);
+   int flags = 0;
+   if (ft_Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
+   if (ft_Ei[e][2] == 1) flags = 0;
+   if (ft_Ei[e][2] == 2) flags = ALLEGRO_FLIP_VERTICAL;
+   if (ft_Ei[e][2] == 3) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
+   int tn = ft_Ei[e][1];
+
+   float rot = al_fixtof(al_fixmul(ft_Efi[e][14], al_fixtorad_r));
+   float sc = al_fixtof(ft_Efi[e][12]);
+   al_draw_scaled_rotated_bitmap(tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
+
+   if (type == 9) // cloner
+   {
+      // trigger box
+      float tx1 = (float)ft_Ei[e][11];
+      float ty1 = (float)ft_Ei[e][12];
+      float tx2 = (float)(ft_Ei[e][11]+ft_Ei[e][13]+20);
+      float ty2 = (float)(ft_Ei[e][12]+ft_Ei[e][14]+20);
+      int tc1 = 14 + 128; // trigger box color
+
+      // source
+      float sx1 = (float)ft_Ei[e][15];
+      float sy1 = (float)ft_Ei[e][16];
+      float sx2 = sx1 + (float)ft_Ei[e][19];
+      float sy2 = sy1 + (float)ft_Ei[e][20];
+      int sc1 = 11 + 128; // source box color
+
+      // destination
+      float dx1 = (float)ft_Ei[e][17];
+      float dy1 = (float)ft_Ei[e][18];
+      float dx2 = dx1 + (float)ft_Ei[e][19];
+      float dy2 = dy1 + (float)ft_Ei[e][20];
+      int dc1 = 10 + 128; // destination box color
+
+      // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
+      int q = ft_Ei[e][4];
+      if ((q == 1) || (q == 3))
+         rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
+      if ((q == 2) || (q == 3))
+      {
+         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // source
+         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64); // destination
+      }
+   }
+}
+
+
+void zfs_draw_lifts_ft()
+{
+   for (int l=0; l<ft_level_header[5]; l++)
+   {
+      int col = (ft_lift[l][1] >> 28) & 15;
+
+      int x1 = ft_ls[l][0][0];
+      int y1 = ft_ls[l][0][1];
+      int x2 = x1 + ft_ls[l][0][2];
+      int y2 = y1 + ft_ls[l][0][3];
+
+
+      int a;
+      for (a=0; a<10; a++)
+        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[col + ((9 - a)*16)], 2 ); // faded outer shell
+      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[col] );                            // solid core
+      al_draw_text(font, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, ft_ln[l]); // name
+
+   }
+}
+
 
 void zfs_draw_fsel(void)
 {
+   al_destroy_bitmap(ft_bmp);
+   ft_bmp = al_create_bitmap(mW[4].sw*20, mW[4].sh*20);
+   al_set_target_bitmap(ft_bmp);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+
    // draw blocks
-   if (obj_filter[1][1]) get_new_background(0); // remove any other drawing on the level buffer
-   else
+   if (obj_filter[1][1])
    {
-      // do this to make the blocks transparent by making the level_buffer transparent
-      al_set_target_bitmap(level_buffer);
-      al_clear_to_color(al_map_rgba(0,0,0,0)); // transparent zero pixels
+      for (int x=0; x<mW[4].sw; x++)
+         for (int y=0; y<mW[4].sh; y++)
+            if (mW[1].show_non_default_blocks) draw_block_non_default_flags(ft_l[x][y], x*20, y*20);
    }
 
    // draw items
    for (int i=0; i<500; i++)
-      if ((item[i][0]) && (obj_filter[2][item[i][0]])) draw_item(i, 0, 0, 0);
+      if ((ft_item[i][0]) && (obj_filter[2][ft_item[i][0]])) zfs_draw_item_ft(i);
 
    // draw enemies
    for (int e=0; e<100; e++)
-      if ((Ei[e][0]) && (obj_filter[3][Ei[e][0]])) draw_enemy(e, 0, 0, 0);
+      if ((ft_Ei[e][0]) && (obj_filter[3][ft_Ei[e][0]])) zfs_draw_enemy_ft(e);
 
    // draw lifts
-   if (obj_filter[4][1]) draw_lifts();
+   if (obj_filter[4][1]) zfs_draw_lifts_ft();
 
-   int sw = bx2-bx1+1;
-   int sh = by2-by1+1;
-   al_destroy_bitmap(ft_bmp);
-   ft_bmp = al_create_bitmap(sw*20, sh*20);
-   al_set_target_bitmap(ft_bmp);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap_region(level_buffer, bx1*20, by1*20, sw*20, sh*20, 0, 0, 0);
 }
-
 
 void zfs_process_mouse(void)
 {
@@ -959,7 +1030,6 @@ void zfs_process_mouse(void)
       if ((!mW[4].copy_mode) && (!mW[4].brf_mode)) cm_get_new_box(); // get new selection
    }
 }
-
 
 int zfs_process_keypress(void)
 {

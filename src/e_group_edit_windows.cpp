@@ -565,11 +565,10 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving,
             int x4 = x1 + 160;
 
             sprintf(msg, "Group Edit - %s", ge_data[ge_num].name);
-            mdw_toggle(x1, by, x2, by+bts-2, 1000, 0,0,0,0,0,0,0,1,1,0,d, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 15+64);
+            mdw_toggle(x1, by, x2, bts, 1,0,0,0, 0,0,0,0, 1,1,0,d, ge_data[ge_num].collapsed, msg, msg,  15, 15, 12, 15+64);
 
             if (!ge_data[ge_num].collapsed)
             {
-               by+=bts;
                if ((gvt == 2) || (gvt == 3) || (gvt == 4))
                {
                   // find min max and average
@@ -594,7 +593,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving,
                   float avg = tally / (float) ni;
 
                   sprintf(msg, "Current - min:%2.1f max:%2.1f avg:%2.1f", mins, maxs, avg);
-                  mdw_buttont(x1+8, by, x2, by+bts-2, 0,0,0,0,  0,13,15,0,1,0,0,1, msg); by+=bts;
+                  mdw_buttont(x1+8, by, x2, bts, 1,0,0,0,  0,13,15,0,1,0,0,1, msg);
 
                   float mna = ge_data[ge_num].min_allowed;
                   float mxa = ge_data[ge_num].max_allowed;
@@ -602,8 +601,8 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving,
                   mdw_slider2_flt(x1+8, by, x4, by+bts-2, 0,0,0,0, 0,3,15,0,1,0,0,d, ge_data[ge_num].adj_min, mxa, mna, 1, "Min:");
                   mdw_slider2_flt(x4,   by, x2, by+bts-2, 0,0,0,0, 0,3,15,0,1,0,0,d, ge_data[ge_num].adj_max, mxa, mna, 1, "Max:"); by+=bts;
 
-                  mdw_buttonp(    x1+8, by, x3, by+bts-2, 100,0,0,0,  0, 4,15,0,1,1,0,d, ge_data[ge_num].adj_mode); // Action type
-                  if (mdw_buttont(x3,   by, x2, by+bts-2, 0,0,0,0,    0,10,15,0,1,0,0,d, "Do It!"))
+                  mdw_buttonp(    x1+8, by, x3, bts,   100,0,0,0,  0, 4,15,0,1,1,0,d, ge_data[ge_num].adj_mode); // Action type
+                  if (mdw_buttont(x3,  by, x2, bts,      1,0,0,0,  0,10,15,0,1,0,0,d, "Do It!"))
                   {
                      float mn = ge_data[ge_num].adj_min;
                      float mx = ge_data[ge_num].adj_max;
@@ -654,7 +653,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving,
                } // end of types 2, 3, 4
                else if (gvt == 5)
                {
-                  if (mdw_buttont(x1+10, by, x4, by+bts-2, 0,0,0,0,  0,10,15,0,1,0,0,d, "Random"))
+                  if (mdw_buttont(x1+10, by, x4, bts, 1,0,0,0,  0,10,15,0,1,0,0,d, "Random"))
                   {
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
                         if (obj_list[i][0])
@@ -663,7 +662,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving,
                            set_xyinc_rot(num, rand() % 2000, rand() % 2000); // random
                         }
                   }
-                  if (mdw_buttont(x4, by, x2, by+bts-2, 0,0,0,0,  0,10,15,0,1,0,0,d, "Aim at Start Block"))
+                  if (mdw_buttont(x4, by, x2, bts, 1,0,0,0,  0,10,15,0,1,0,0,d, "Aim at Start Block"))
                   {
                      int sbx = 0, sby = 0; // start block x and y
                      for (int c=0; c<500; c++)
@@ -682,7 +681,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving,
                } // end of type 5
                else if (gvt == 6)
                {
-                  if (mdw_buttont(x1+10, by, x2, by+bts-2, 0,0,0,0,  0,10,15,0,1,0,0,d, "Randomize Position Within Selection"))
+                  if (mdw_buttont(x1+10, by, x2, bts, 1,0,0,0,  0,10,15,0,1,0,0,d, "Randomize Position Within Selection"))
                   {
                      for (int i=0; i<NUM_OBJ; i++) // iterate all items in list
                         if (obj_list[i][0])
@@ -695,10 +694,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving,
                   }
                }
             } // end of not collapsed
-
-            by+=bts;
             by+=y_spacing;
-
          } // end of valid ge_num
    } // end of more than 0 items in list
 

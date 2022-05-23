@@ -16,17 +16,13 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 22) sprintf(smsg, "Speed:%-1.2f", al_fixtof(Efi[num][5])); // bouncer and cannon speed
    if (bn == 29) sprintf(smsg, "Speed:%-2.1f", al_fixtof(Efi[num][9])); // pod speed
 
-   if (bn == 4)  sprintf(smsg, "Damage Range:%d", item[num][7]);
-   if (bn == 5)  sprintf(smsg, "Fuse Length:%d",  item[num][9]);
    if (bn == 6)  sprintf(smsg, "Acceleration:%d", item[num][9]);
    if (bn == 7)  sprintf(smsg, "Maximum Speed:%d",item[num][8]);
    if (bn == 8)  sprintf(smsg, "Steerability:%d", item[num][6]);
    if (bn == 10) sprintf(smsg, "Sproinginess:%d", item[num][7]);
-   if (bn == 11) sprintf(smsg, "Mine Damage:%d", item[num][8]);
 
    if (bn == 27) sprintf(smsg, "Initial Time:%d", item[num][8]);
    if (bn == 28) sprintf(smsg, "Warp Level:%d", item[num][8]);
-   if (bn == 30) sprintf(smsg, "Pause:%d", Ei[num][9]);
    if (bn == 33) sprintf(smsg, "X-Speed:%-1.2f", al_fixtof(Efi[num][2]));
 
 
@@ -117,25 +113,28 @@ void update_var(int bn, int type, int num, float f)
          Efi[num][3] = al_itofix(0);
       }
    }
-
    if (bn == 29)                           // pod speed
    {
       Efi[num][9] = al_ftofix(f);
       recalc_pod(num);
    }
 
-   if (bn == 4) item[num][7] = (int)f;      // blast size
-   if (bn == 5) item[num][9] = (int)f;      // fuse length
+
+
    if (bn == 6) item[num][9] = (int)f;      // accel
    if (bn == 7) item[num][8] = (int)f;      // max speed
    if (bn == 8) item[num][6] = (int)f;      // steerability
    if (bn == 9) item[num][6] = (int)f;      // jump length
    if (bn == 10) item[num][7] = (int)f;     // sproingieness
-   if (bn == 11) item[num][8] = (int)f;     // mine damage
+
 
 
    if (bn == 28) item[num][8] = (int)f;    // warp level
-   if (bn == 30) Ei[num][9] = (int)f;      // pod wait time
+
+
+
+
+
    if (bn == 33) Efi[num][2] = al_ftofix(f);  // flapper x speed
    if (bn == 43) lifts[num].width = (int) f;  // lift width
    if (bn == 44) lifts[num].height = (int) f; // lift height
@@ -208,18 +207,16 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
       case 2:  sul=200;  sll=2;     sinc=1;   sdx=item[num][8];                break;  // bullet bonus
       case 3:  sul=400;  sll=5;     sinc=1;   sdx=item[num][9];                break;  // timer bonus
-      case 4:  sul=1200; sll=20;    sinc=1;   sdx=item[num][7];                break;  // blast size
-      case 5:  sul=2000; sll=1;     sinc=1;   sdx=item[num][9];                break;  // fuse length
+
+
       case 6:  sul=200;  sll=1;     sinc=1;   sdx=item[num][9];                break;  // accel
       case 7:  sul=20;   sll=1;     sinc=1;   sdx=item[num][8];                break;  // max speed
       case 8:  sul=50;   sll=1;     sinc=1;   sdx=item[num][6];                break;  // steerability
       case 9:  sul=7;    sll=1;     sinc=1;   sdx=item[num][6];                break;  // jump length
       case 10: sul=200;  sll=40;    sinc=1;   sdx=item[num][7];                break;  // sproinginess
-      case 11: sul=20;   sll=1;     sinc=1;   sdx=item[num][8];                break;  // mine damage
 
       case 27: sul=800;  sll=10;    sinc=1;   sdx=item[num][8];                break;  // initial time
       case 28: sul=100;  sll=1;     sinc=1;   sdx=item[num][8];                break;  // warp level
-      case 30: sul=40;   sll=0;     sinc=1;   sdx=Ei[num][9];                  break;  // pod wait time
       case 33: sul=5;    sll=.7;    sinc=.1;  sdx=al_fixtof(Efi[num][2]);      break;  // flapper x speed
 
 
@@ -259,7 +256,7 @@ void mdw_slider(int x1, int y1, int x2, int y2,
 
       case 97: sul=39;   sll=0;     sinc=1;   sdx=item[num][10];               break;  // damage lift number
 
-      case 98: sul=2000; sll=0;     sinc=1;   sdx=item[num][15];               break;  // item damage player amount
+      case 98: sul=2000; sll=-2000; sinc=1;   sdx=item[num][15];               break;  // item damage player amount
 
       case 100: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage total time
       case 101: sul=1000; sll=0;    sinc=1;   sdx=item[num][13];               break;  // item damage total time
@@ -406,16 +403,14 @@ float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, i
 
 
 
-
-
-
-
-
 // modified to be display only if q7 == 1
 
-void mdw_slider0_int(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+
+void mdw_slider0_int(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt, const char *txt2)
 {
+   int y2 = y1+bts-2;
+
    float sdx = (float) var;
    float dsx;
 
@@ -498,6 +493,7 @@ void mdw_slider0_int(int x1, int y1, int x2, int y2, int bn, int num, int type, 
          }  // end of mouse b1 held
       }  // end of mouse b1 pressed
    }
+   if (q6 == 1) y1+=bts;
 }
 
 
@@ -513,25 +509,12 @@ void mdw_slider0_int(int x1, int y1, int x2, int y2, int bn, int num, int type, 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // modified to be display only if q7 == 1
-
-void mdw_slider2_int(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+// y1 is passed as a reference and is modified by height (bts) if q6 == 1
+void mdw_slider2_int(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt)
 {
+   int y2 = y1+bts-2;
    float sdx = (float) var;
    float dsx;
 
@@ -607,15 +590,20 @@ void mdw_slider2_int(int x1, int y1, int x2, int y2, int bn, int num, int type, 
          }  // end of mouse b1 held
       }  // end of mouse b1 pressed
    }
+
+   if (q6 == 1) y1+=bts;
+
 }
 
 
 
 
 // modified to be display only if q7 == 1
-void mdw_slider2_fix(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+void mdw_slider2_fix(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  al_fixed &var, float sul, float sll, float sinc, const char *txt)
 {
+   int y2 = y1+bts-2;
+
    float sdx = al_fixtof(var);
    float dsx;
 
@@ -691,6 +679,7 @@ void mdw_slider2_fix(int x1, int y1, int x2, int y2, int bn, int num, int type, 
          }  // end of mouse b1 held
       }  // end of mouse b1 pressed
    }
+   if (q6 == 1) y1+=bts;
 }
 
 
@@ -905,6 +894,95 @@ void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ------------------------------------------------------------------------------------
 // --------------------------buttons---------------------------------------------------
 // ------------------------------------------------------------------------------------
@@ -915,12 +993,13 @@ void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, 
 // q5 = text justify  (0-center 1-left...buttons only)
 
 // modified to be display only if q7 == 1
+// q6 adjust y
 
-
-int mdw_button(int x1, int y1, int x2, int y2,
+int mdw_button(int x1, int &y1, int x2, int bts,
                 int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
+   int y2 = y1+bts-2;
 
    // is mouse pressed on this button?
    int press = 0;
@@ -933,22 +1012,8 @@ int mdw_button(int x1, int y1, int x2, int y2,
    }
 
 
-   if (bn == 1)
-   {
-      sprintf(smsg, "OK");
-      if (press) return 1;
-   }
-   if (bn == 2)
-   {
-      if (item[num][3] ==  0) sprintf(smsg,  "    Stationary   ");
-      if (item[num][3] ==  1) sprintf(smsg,  "       Fall      ");
-      if (press) if (++item[num][3] > 1) item[num][3] = 0;
-   }
-   if (bn == 3)
-   {
-      sprintf(smsg, "Cancel");
-      if (press) return 1;
-   }
+
+
    if (bn == 4)
    {
       if (item[num][8] == 0) sprintf(smsg, "disabled");
@@ -962,39 +1027,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
          }
       }
    }
-   if (bn == 5)
-   {
-      sprintf(smsg, "Get New Block Range");
-      if (press)
-      {
-         get_block_range("Block Range", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1);
-      }
-   }
-   if (bn == 6)
-   {
-      sprintf(smsg, "Set Initial Direction"); // rocket direction
-      if (press)
-      {
-         getxy("Initial Direction", 97, 11, num);
-      }
-   }
-   if (bn == 7)
-   {
-      sprintf(smsg, "Edit Message");
-      if (press)
-      {
-         if (num != 999) edit_pmsg_text(num, 0);
-      }
-   }
-
-
-   if (bn == 10)
-   {
-      sprintf(smsg, "Set Initial Direction"); // bouncer direction
-      if (press) (getxy("Initial Direction", 96, 4, num) == 1);
-   }
-
-
 
    if (bn == 11)
    {
@@ -1004,6 +1036,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
          if (++Ei[num][5] > 7) Ei[num][5] = 0;
          set_trakbot_mode(num, Ei[num][5]);
       }
+      if ((Ei[num][5] < 0) || (Ei[num][5] > 7)) Ei[num][5] = 0; // enforce limits
    }
 
    if (bn == 13)
@@ -1038,60 +1071,10 @@ int mdw_button(int x1, int y1, int x2, int y2,
          Ei[num][6] = seek_ans;
       }
    }
-   if (bn == 15)
-   {
-      sprintf(smsg, "Move Extended Position");
-      if (press) getxy("Pod Extended Position", 99, 7, num);
-   }
-   if (bn == 16)
-   {
-      sprintf(smsg, "Set Trigger Box");
-      if (press) get_block_range("Trigger Box", &Ei[num][11], &Ei[num][12], &Ei[num][13], &Ei[num][14], 2);
-   }
-   if (bn == 17)
-   {
-      sprintf(smsg, "Set Source Area");
-      if (press) get_block_range("Cloner Source Area", &Ei[num][15], &Ei[num][16], &Ei[num][19], &Ei[num][20], 1);
-   }
-   if (bn == 18)
-   {
-      sprintf(smsg, "Set Destination");
-      if (press) getxy("Cloner Destination", 98, 9, num);
-   }
 
-   if (bn == 24)
-   {
-      sprintf(smsg, "Copy to Draw Item");
-      if (press) return 1;
-   }
-   if (bn == 26)
-   {
-      if (item[num][3] ==  1) sprintf(smsg, "      Fall        ");
-      if (item[num][3] ==  0) sprintf(smsg, "    Stationary    ");
-      if (item[num][3] == -1) sprintf(smsg, "      Carry       ");
-      if (item[num][3] == -2) sprintf(smsg, "Carry Through Door");
-      if (press)
-      {
-         if (++item[num][3] > 1) item[num][3] = -2;
-      }
-   }
-   if (bn == 27) // cloner trigger type
-   {
-      if (Ei[num][8] == 0) sprintf(smsg, "Trigger Type:Timer Runs  ");
-      if (Ei[num][8] == 1) sprintf(smsg, "Trigger Type:Timer Resets");
-      if (Ei[num][8] == 2) sprintf(smsg, "Trigger Type:Immediate   ");
-      if (press)
-      {
-         if (++Ei[num][8] > 2) Ei[num][8] = 0;
-      }
-   }
 
-   if (bn == 48) // key block erase type
-   {
-      if (item[num][12]) sprintf(smsg, "Erase Only Matching Blocks");
-      else               sprintf(smsg, "Erase All Blocks In Range ");
-      if (press) item[num][12] = !item[num][12]; // key block remove type
-   }
+
+
    if (bn == 49) // door type
    {
       if (item[num][8] == 0) sprintf(smsg, "Door Type:Exit Only");
@@ -1110,26 +1093,26 @@ int mdw_button(int x1, int y1, int x2, int y2,
    }
    if (bn == 50) // door entry type
    {
-      if (item[num][11] == 0) sprintf(smsg, "Enter Immediate  ");
-      if (item[num][11] == 1) sprintf(smsg, "Enter with <up>  ");
-      if (item[num][11] == 2) sprintf(smsg, "Enter with <down>");
-      if (item[num][8]  == 0) sprintf(smsg, "disabled");
-      if (press)
+      if (item[num][8] == 0) sprintf(smsg, "disabled");
+      else
       {
-         item[num][11]++;
-         if (item[num][11] > 2) item[num][11] = 0;
+         if (press) item[num][11]++;
+         if ((item[num][11] < 0) || (item[num][11] > 2)) item[num][11] = 0; // enforce limits
+         if (item[num][11] == 0) sprintf(smsg, "Enter Immediate  ");
+         if (item[num][11] == 1) sprintf(smsg, "Enter with <up>  ");
+         if (item[num][11] == 2) sprintf(smsg, "Enter with <down>");
       }
    }
    if (bn == 51) // door show dest line type
    {
-      if (item[num][12] == 0) sprintf(smsg, "Exit link:never show  ");
-      if (item[num][12] == 1) sprintf(smsg, "Exit link:alway show  ");
-      if (item[num][12] == 2) sprintf(smsg, "Exit link:when touched");
-      if (item[num][8]  == 0) sprintf(smsg, "disabled");
-      if (press)
+      if (item[num][8] == 0) sprintf(smsg, "disabled");
+      else
       {
-         item[num][12]++;
-         if (item[num][12] > 2) item[num][12] = 0;
+         if (press) item[num][12]++;
+         if ((item[num][12] < 0) || (item[num][12] > 2)) item[num][12] = 0; // enforce limits
+         if (item[num][12] == 0) sprintf(smsg, "Exit link:never show  ");
+         if (item[num][12] == 1) sprintf(smsg, "Exit link:alway show  ");
+         if (item[num][12] == 2) sprintf(smsg, "Exit link:when touched");
       }
    }
    if (bn == 52)
@@ -1146,23 +1129,23 @@ int mdw_button(int x1, int y1, int x2, int y2,
          change_linked_door_color_and_shape(num);
       }
    }
+
+
    if (bn == 53) // door move type
    {
-      if (item[num][7] == 0) sprintf(smsg, "Move Type:Automatic    ");
-      if (item[num][7] == 1) sprintf(smsg, "Move Type:Force Instant");
-      if (item[num][7] == 2) sprintf(smsg, "Move Type:Force Move   ");
       if (item[num][8] == 0) sprintf(smsg, "disabled");
-      if (press)
+      else
       {
-         item[num][7]++;
-         if (item[num][7] > 2) item[num][7] = 0;
+         if (press) item[num][7]++;
+         if ((item[num][7] < 0) || (item[num][7] > 2)) item[num][7] = 0; // enforce limits
+         if (item[num][7] == 0) sprintf(smsg, "Move Type:Automatic    ");
+         if (item[num][7] == 1) sprintf(smsg, "Move Type:Force Instant");
+         if (item[num][7] == 2) sprintf(smsg, "Move Type:Force Move   ");
       }
    }
-   if (bn == 55)
-   {
-      sprintf(smsg, "Set Message Position");
-      if (press) getxy("Message Position", 95, 10, num);
-   }
+
+
+
    if (bn == 57)
    {
        if (obt == 2) sprintf(smsg,"%s Help", item_name[type]);
@@ -1170,12 +1153,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
        if (obt == 4) sprintf(smsg,"Lift Help");
        if (press) return 1;
    }
-   if (bn == 76)
-   {
-      if (item[num][11] == 0) sprintf(smsg, "Sticky:Off");
-      if (item[num][11] == 1) sprintf(smsg, "Sticky:On ");
-      if (press) item[num][11] = !item[num][11];
-   }
+
    if (bn == 77)
    {
       if (item[num][12] == 0) sprintf(smsg, "   Fuse Timer   ");
@@ -1187,62 +1165,12 @@ int mdw_button(int x1, int y1, int x2, int y2,
          else item[num][1] = 464;
       }
    }
-   if (bn == 78)
-   {
-      if (item[num][6] == 0) sprintf(smsg, "Start Mode:Default");
-      if (item[num][6] == 1) sprintf(smsg, "Team Start");
-      if (item[num][6] == 2) sprintf(smsg, "Checkpoint Common");
-      if (item[num][6] == 3) sprintf(smsg, "Checkpoint Individual");
-      if (press)
-      {
-         if (++item[num][6] > 3) item[num][6] = 0;
-      }
-   }
-   if (bn == 79)
-   {
-      sprintf(smsg, "Start Index:%d", item[num][7]);
-      if (press)
-      {
-         if (++item[num][7] > 7) item[num][7] = 0;
-      }
-   }
-
-   if (bn == 81)
-   {
-      if (Ei[num][4] == 0) sprintf(smsg, "Draw Boxes:off");
-      if (Ei[num][4] == 1) sprintf(smsg, "Draw Boxes:trigger only");
-      if (Ei[num][4] == 2) sprintf(smsg, "Draw Boxes:src/dst only");
-      if (Ei[num][4] == 3) sprintf(smsg, "Draw Boxes:all");
-      if (press)
-      {
-         if (++Ei[num][4] > 3) Ei[num][4] = 0;
-      }
-   }
-   if (bn == 82) // rocket only
-   {
-      if (item[num][3] ==  1) sprintf(smsg,  "       Fall      ");
-      if (item[num][3] ==  0) sprintf(smsg,  "    Stationary   ");
-      if (item[num][3] == -2) sprintf(smsg,  "Ride Through Door");
-      if (press)
-      {
-         item[num][3]++;
-         if (item[num][3] > 1) item[num][3] = -2;
-         if (item[num][3] == -1) item[num][3] = 0;
-      }
-   }
 
 
-   if (bn == 200)
-   {
-      sprintf(smsg, "Get New Trigger Field"); // item
-      if (press) get_block_range("Trigger Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1);
-   }
-   if (bn == 210)
-   {
-      if (item[num][3] & PM_ITEM_TRIGGER_LIFT_ON) sprintf(smsg, "Follows Lift:ON");
-      else sprintf(smsg, "Follows Lift:OFF");
-      if (press) item[num][3] ^= PM_ITEM_TRIGGER_LIFT_ON;
-   }
+
+
+
+
    if (bn == 211) // Trigger Field X Lift Alignment
    {
       int C = item[num][3] & PM_ITEM_TRIGGER_LIFT_XC;
@@ -1341,20 +1269,8 @@ int mdw_button(int x1, int y1, int x2, int y2,
       }
    }
 
-   if (bn == 301) // block manip mode
-   {
-      if (item[num][3] == 0) sprintf(smsg, "MODE:OFF");
-      if (item[num][3] == 1) sprintf(smsg, "MODE:Set All To Block 1");
-      if (item[num][3] == 2) sprintf(smsg, "MODE:Set All Block 2 To Block 1");
-      if (item[num][3] == 3) sprintf(smsg, "MODE:Toggle Block 2 To Block 1");
-      if (press) if (++item[num][3] > 3) item[num][3] = 0; // block manip mode
-   }
-   if (bn == 304) // Block Manip Draw
-   {
-      if (item[num][2])  sprintf(smsg, "Draw Block Manip Field:ON     ");
-      else               sprintf(smsg, "Draw Block Manip Field:OFF    ");
-      if (press) item[num][2] = !item[num][2]; // block manip draw mode
-   }
+
+
    if (bn == 310) // block 1 select...
    {
       int tn = item[num][10]&1023; //block 1
@@ -1415,11 +1331,11 @@ int mdw_button(int x1, int y1, int x2, int y2,
          }
       }
    }
-   if (bn == 400)
-   {
-      sprintf(smsg, "Get New Block Damage Field"); // item
-      if (press) get_block_range("Block Damage Rectangle", &item[num][6], &item[num][7], &item[num][8], &item[num][9], 1);
-   }
+
+
+
+
+
    if (bn == 401) // timer draw mode
    {
                                                  sprintf(smsg, "Timer Display: OFF          ");
@@ -1460,34 +1376,11 @@ int mdw_button(int x1, int y1, int x2, int y2,
          }
       }
    }
-   if (bn == 402) // damage mode
-   {
-      if (item[num][11] == 0) sprintf(smsg, "MODE:Always ON");
-      if (item[num][11] == 1) sprintf(smsg, "MODE:Toggle");
-      if (item[num][11] == 2) sprintf(smsg, "MODE:ON Until Triggered");
-      if (item[num][11] == 3) sprintf(smsg, "MODE:OFF Until Triggered");
-      if (item[num][11] == 4) sprintf(smsg, "MODE:Timed ON And OFF");
-      if (press) if (++item[num][11] > 4) item[num][11] = 0;
-   }
-   if (bn == 403) // Instant death for player
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_INSTGIB) sprintf(smsg, "Player Instant Death:ON   ");
-      else                                       sprintf(smsg, "Player Instant Death:OFF  ");
-      if (press) item[num][3] ^= PM_ITEM_DAMAGE_INSTGIB;  // Instant death for player
-   }
-   if (bn == 404) // Block Damage draw mode
-   {
-      if (item[num][2] == 0) sprintf(smsg, "Draw Type:none         ");
-      if (item[num][2] == 1) sprintf(smsg, "Draw Type:Red Rectangle");
-      if (item[num][2] == 2) sprintf(smsg, "Draw Type:Spikey Floor ");
-      if (press) if (++item[num][2] > 2) item[num][2] = 0; // draw mode
-   }
-   if (bn == 410)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_LIFT_ON) sprintf(smsg, "Follows Lift:ON");
-      else sprintf(smsg, "Follows Lift:OFF");
-      if (press) item[num][3] ^= PM_ITEM_DAMAGE_LIFT_ON;
-   }
+
+
+
+
+
    if (bn == 411) // DAMAGE Field X Lift Alignment
    {
       int C = item[num][3] & PM_ITEM_DAMAGE_LIFT_XC;
@@ -1589,49 +1482,9 @@ int mdw_button(int x1, int y1, int x2, int y2,
          }
       }
    }
-   if (bn == 420)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_PLAYER) sprintf(smsg, "Affects Players:ON          ");
-      else                                      sprintf(smsg, "Affects Players:OFF         ");
-      if (press) item[num][3] ^= PM_ITEM_DAMAGE_PLAYER;
-   }
-   if (bn == 421)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_ENEMY)  sprintf(smsg, "Affects Enemies:ON          ");
-      else                                      sprintf(smsg, "Affects Enemies:OFF         ");
-      if (press) item[num][3] ^= PM_ITEM_DAMAGE_ENEMY;
-   }
-   if (bn == 422)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_ITEM)   sprintf(smsg, "Affects Items:ON            ");
-      else                                      sprintf(smsg, "Affects Items:OFF           ");
-      if (press) item[num][3] ^= PM_ITEM_DAMAGE_ITEM;
-   }
-   if (bn == 423)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_PBUL)   sprintf(smsg, "Affects Player's Bullets:ON ");
-      else                                      sprintf(smsg, "Affects Player's Bullets:OFF");
-      if (press) item[num][3] ^= PM_ITEM_DAMAGE_PBUL;
-   }
-   if (bn == 424)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_EBUL)   sprintf(smsg, "Affects Enemy's Bullets:ON  ");
-      else                                      sprintf(smsg, "Affects Enemy's Bullets:OFF ");
-      if (press) item[num][3] ^= PM_ITEM_DAMAGE_EBUL;
-   }
-   if (bn == 433)
-   {
-      if (item[num][3] & PM_ITEM_DAMAGE_CURR) sprintf(smsg, "Damage Field Initially ON");
-      else sprintf(smsg, "Damage Field Initially OFF");
-      if (press) item[num][3] ^= PM_ITEM_DAMAGE_CURR;
-   }
-   if (bn == 500) // lift mode
-   {
-      sprintf(smsg, "undefined mode (%d)", lifts[num].mode);
-      if (lifts[num].mode == 0) sprintf(smsg, "Mode 0 - Normal");
-      if (lifts[num].mode == 1) sprintf(smsg, "Mode 1 - Prox Run and Reset");
-      if (press) if (++lifts[num].mode > 1) lifts[num].mode = 0; // lift mode
-   }
+
+
+
    if (bn == 501)
    {
       if (num == -1) sprintf(smsg, "#");       // show row header
@@ -1651,16 +1504,11 @@ int mdw_button(int x1, int y1, int x2, int y2,
    {
       int l = type;
       int s = obt;
-//      int x = lift_steps[l][s].x;
-//      int y = lift_steps[l][s].y;
-//      int w = lift_steps[l][s].w;
-//      int h = lift_steps[l][s].h;
       int v = lift_steps[l][s].val;
 
       if (num == -1) sprintf(smsg, "Details");  // show row header
       if (num == 0)  sprintf(smsg, "blank");
       if (num == 1)  sprintf(smsg, "and Resize [speed:%d]", v);
-//      if (num == 1)  sprintf(smsg, "x:%4d y:%4d w:%4d h:%4d [speed:%d]", x, y, w, h, v);
       if (num == 2)  sprintf(smsg, "for Timer:%d", v);
       if (num == 3)  sprintf(smsg, "for Player prox:%d", v);
       if (num == 5)  sprintf(smsg, "for Trigger Event:%d", v);
@@ -1690,39 +1538,6 @@ int mdw_button(int x1, int y1, int x2, int y2,
       if (num == -1) sprintf(smsg, "C");       // show row header
       else           sprintf(smsg, "%d", num); // show num
    }
-   if (bn == 510)
-   {
-      if (lift_steps[num][type].type & PM_LIFT_NO_DRAW)   sprintf(smsg, "Hide Lift");
-      else                                                sprintf(smsg, "Draw Lift");
-      if (press) lift_steps[num][type].type ^= PM_LIFT_NO_DRAW;
-   }
-   if (bn == 511)
-   {
-      if (lift_steps[num][type].type & PM_LIFT_SOLID_PLAYER) sprintf(smsg, "Solid for Player:ON ");
-      else                                                   sprintf(smsg, "Solid for Player:OFF");
-      if (press) lift_steps[num][type].type ^= PM_LIFT_SOLID_PLAYER;
-   }
-   if (bn == 512)
-   {
-      if (lift_steps[num][type].type & PM_LIFT_SOLID_ENEMY)  sprintf(smsg, "Solid for Enemy:ON  ");
-      else                                                   sprintf(smsg, "Solid for Enemy:OFF ");
-      if (press) lift_steps[num][type].type ^= PM_LIFT_SOLID_ENEMY;
-   }
-   if (bn == 513)
-   {
-      if (lift_steps[num][type].type & PM_LIFT_SOLID_ITEM)   sprintf(smsg, "Solid for Item:ON   ");
-      else                                                   sprintf(smsg, "Solid for Item:OFF  ");
-      if (press) lift_steps[num][type].type ^= PM_LIFT_SOLID_ITEM;
-   }
-
-
-   if (bn == 514)
-   {
-      if (lift_steps[num][type].type & PM_LIFT_HIDE_LINES)   sprintf(smsg, "Hide Lift Lines");
-      else                                                   sprintf(smsg, "Draw Lift Lines");
-      if (press) lift_steps[num][type].type ^= PM_LIFT_HIDE_LINES;
-   }
-
 
    if (bn == 520)
    {
@@ -1780,6 +1595,7 @@ int mdw_button(int x1, int y1, int x2, int y2,
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, palette_color[0]);
       al_draw_bitmap(btile[tn&1023], x, y, 0);
    }
+   if (q6) y1+=bts;
    return retval;
 }
 
@@ -1787,10 +1603,81 @@ int mdw_button(int x1, int y1, int x2, int y2,
 
 
 
-// modified to be display only if q7 == 1
 
-void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// modified to be display only if q7 == 1
+// and q6 for apply bts
+
+void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
+   int y2 = y1+bts-2;
+
    // erase
    al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
 
@@ -1828,21 +1715,18 @@ void mdw_colsel(int x1, int y1, int x2, int y2, int bn, int num, int type, int o
       }
       if (bn == 6) item[num][2] = color;     // trigger color
       if (bn == 7) item[num][12] = color;    // block manip color
-      if (bn == 8)
+
+
+      if (bn == 8) // lift step color
       {
         // printf("n:%d t:%d c:%d\n",num, type, color);
          int cf = color << 28; // shift 4 bits of color into place
          lift_steps[num][type].type &= 0b00001111111111111111111111111111; // clear old color
          lift_steps[num][type].type |= cf; // merge color with type
-
       }
    }
+   if (q6 == 1) y1+=bts;
 }
-
-
-
-
-
 
 
 /*
@@ -1858,82 +1742,87 @@ q7 - (0-normal) (1-dont process mouse b1 press)
 */
 
 
-int mdw_toggle(int x1, int y1, int x2, int y2,
+int mdw_toggle(int x1, int &y1, int x2, int bts,
                 int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                   int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
-
-
 {
+   int y2 = y1+bts-2;
+   int ret = 0;
    // is mouse pressed on this button?
-   int press = 0;
-   int retval = 0;
    if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
    {
       while (mouse_b1) proc_controllers(); // wait for release
-      press = 1;
+      var = ! var;
    }
-
-   if (press) var = ! var;
-
    if (var)
    {
        q1 = frame_col1;
        q2 = text_col1;
        sprintf(smsg, "%s", t1);
-       retval = 1;
-
+       ret = 1;
    }
    else
    {
       q1 = frame_col0;
       q2 = text_col0;
       sprintf(smsg, "%s", t0);
-      retval = 0;
+      ret = 0;
    }
-
    if (!q6)
    {
       draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
       if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
       else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
    }
-   return retval;
+   if (bn == 1) y1+=bts;
+   return ret;
 }
 
-// modified to be display only if q7 == 1
-int mdw_togglf(int x1, int y1, int x2, int y2,
+
+// toggle the flag and displays the corresponding string
+// returns the value of the flag
+// y1 is passed as a reference and is modified by height (bts) if bn == 1
+int mdw_togglf(int x1, int &y1, int x2, int bts,
                 int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                   int &var, int flag, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
 {
+   int ret = 0;
+   int y2 = y1+bts-2;
+
    // is mouse pressed on this button?
-   int press = 0;
-   int retval = 0;
    if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
       while (mouse_b1) proc_controllers(); // wait for release
-      press = 1;
+      var ^= flag;
    }
-   if (press) var ^= flag;
-
    if (var & flag)
    {
        q1 = frame_col1;
        q2 = text_col1;
        sprintf(smsg, "%s", t1);
+       ret = 1;
    }
    else
    {
       q1 = frame_col0;
       q2 = text_col0;
       sprintf(smsg, "%s", t0);
+      ret = 0;
    }
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
-   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-   return retval;
+   if (!q6)
+   {
+      draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+      if (q5) al_draw_text(font, palette_color[q2], x1+4,      (y1+y2)/2-3, 0,                    smsg);
+      else    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y1+y2)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
+   }
+   if (bn == 1) y1+=bts;
+   return ret;
 }
+
+
 
 
 /*
@@ -1947,85 +1836,187 @@ q6 - (0-normal) (1-dont draw)
 q7 - (0-normal) (1-dont process mouse b1 press)
 */
 
-
-// just display a text string, and return 1 if pressed
-int mdw_buttont(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt,
+// displays a text string, and returns 1 if pressed
+// y1 is passed as a reference and is modified by height (bts) if bn == 1
+int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
+   int y2 = y1+bts-2;
+   int ret = 0;
    if (!q6)
    {
       sprintf(smsg, "%s", txt);
       draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-      if (q5) al_draw_text(font, palette_color[q2], x1+4,      (y2+y1)/2-3, 0,                    smsg);
-      else    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+      if (q5) al_draw_text(font, palette_color[q2], x1+4,      y1+bts/2-3, 0,                    smsg);
+      else    al_draw_text(font, palette_color[q2], (x2+x1)/2, y1+bts/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
    }
    if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
       while (mouse_b1) proc_controllers(); // wait for release
-      return 1;
+      ret = 1;
    }
-   return 0;
+   if (bn) y1+=bts;
+   return ret;
 }
 
 
 
 // modified to be display only if q7 == 1
 // increment passed pointer (int &var) and display different text for each value
-void mdw_buttonp(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt,
+
+// q6 used for add bts or not
+
+void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
 {
+   int y2 = y1+bts-2;
+
+
    int press = 0;
    if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
       while (mouse_b1) proc_controllers(); // wait for release
       press = 1;
    }
+
+
+
+
+
+   if (bn == 21)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(smsg,  "Stationary");
+      if (var == 1) sprintf(smsg,  "Fall");
+   }
+
+   if (bn == 22)
+   {
+      if (press) var++;
+      if ((var < -2) || (var > 1)) var = -2;
+      if (var ==  1) sprintf(smsg, "Fall");
+      if (var ==  0) sprintf(smsg, "Stationary");
+      if (var == -1) sprintf(smsg, "Carry");
+      if (var == -2) sprintf(smsg, "Carry Through Door");
+   }
+   if (bn == 23) // rocket only
+   {
+      if (press) var++;
+      if ((var < -2) || (var > 1)) var = -2;
+      if (var == -1) var = 0;
+      if (var ==  1) sprintf(smsg,  "Fall");
+      if (var ==  0) sprintf(smsg,  "Stationary");
+      if (var == -2) sprintf(smsg,  "Ride Through Door");
+   }
+
+
+   if (bn == 27) // cloner trigger type
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(smsg, "Trigger Type:Timer Runs  ");
+      if (var == 1) sprintf(smsg, "Trigger Type:Timer Resets");
+      if (var == 2) sprintf(smsg, "Trigger Type:Immediate   ");
+   }
+
+
+   if (bn == 78)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(smsg, "Start Mode:Default");
+      if (var == 1) sprintf(smsg, "Team Start");
+      if (var == 2) sprintf(smsg, "Checkpoint Common");
+      if (var == 3) sprintf(smsg, "Checkpoint Individual");
+   }
+
+   if (bn == 79)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 7)) var = 0;
+      sprintf(smsg, "Start Index:%d", var);
+   }
+
+
+   if (bn == 81)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(smsg, "Draw Boxes:off");
+      if (var == 1) sprintf(smsg, "Draw Boxes:trigger only");
+      if (var == 2) sprintf(smsg, "Draw Boxes:src/dst only");
+      if (var == 3) sprintf(smsg, "Draw Boxes:all");
+   }
    if (bn == 100)
    {
-      sprintf(smsg, "undef:%d", var);
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
       if (var == 0) sprintf(smsg, "Action:Randomize");
       if (var == 1) sprintf(smsg, "Action:Step from Min to Max");
       if (var == 2) sprintf(smsg, "Action:Set all to Min");
-      if (press) if (++var > 2) var = 0;
    }
-
-
    if (bn == 101)
    {
-      sprintf(smsg, "undef:%d", var);
+      if (press) var++;
+      if ((var < 1) || (var > 3)) var = 1;
       if (var == 1) sprintf(smsg, "Type: Health Bonus");
       if (var == 2) sprintf(smsg, "Type: Free Man");
       if (var == 3) sprintf(smsg, "Type: Purple Coin");
-      if (press) if (++var > 3) var = 1;
    }
-
-
    if (bn == 102)
    {
-      if (press) if (++var > 1042) var = 1039;
-      sprintf(smsg, "undef:%d", var);
+      if (press) var++;
+      if ((var < 1039) || (var > 1042)) var = 1039;
       if (var == 1039) { sprintf(smsg, "Color:Red");    q1 = 10; }
       if (var == 1040) { sprintf(smsg, "Color:Green");  q1 = 11; }
       if (var == 1041) { sprintf(smsg, "Color:Blue");   q1 = 13; }
       if (var == 1042) { sprintf(smsg, "Color:Purple"); q1 = 8;  }
    }
 
-   if (bn == 103)
+   if (bn == 301) // block manip mode
    {
-      if (press)
-      {
-         if      (var == 841) { var = 745; item[num][8] = 745; item[num][9] = 746; item[num][10] = 172; item[num][11] = 7; }
-         else if (var == 745) { var = 777; item[num][8] = 777; item[num][9] = 778; item[num][10] = 173; item[num][11] = 8; }
-         else if (var == 777) { var = 809; item[num][8] = 809; item[num][9] = 810; item[num][10] = 174; item[num][11] = 9; }
-         else if (var == 809) { var = 841; item[num][8] = 841; item[num][9] = 842; item[num][10] = 175; item[num][11] = 10; }
-      }
-      sprintf(smsg, "undef:%d", var);
-      if (var == 745) { sprintf(smsg, "Color:Green");  q1 = 11; }
-      if (var == 777) { sprintf(smsg, "Color:Red");    q1 = 10; }
-      if (var == 809) { sprintf(smsg, "Color:Blue");   q1 = 12; }
-      if (var == 841) { sprintf(smsg, "Color:Purple"); q1 = 8;  }
+      if (press) var++;
+      if ((var < 0) || (var > 3)) var = 0;
+      if (var == 0) sprintf(smsg, "MODE:OFF");
+      if (var == 1) sprintf(smsg, "MODE:Set All To Block 1");
+      if (var == 2) sprintf(smsg, "MODE:Set All Block 2 To Block 1");
+      if (var == 3) sprintf(smsg, "MODE:Toggle Block 2 To Block 1");
    }
+
+   if (bn == 402) // damage mode
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 4)) var = 0;
+      if (var == 0) sprintf(smsg, "MODE:Always ON");
+      if (var == 1) sprintf(smsg, "MODE:Toggle");
+      if (var == 2) sprintf(smsg, "MODE:ON Until Triggered");
+      if (var == 3) sprintf(smsg, "MODE:OFF Until Triggered");
+      if (var == 4) sprintf(smsg, "MODE:Timed ON And OFF");
+   }
+
+   if (bn == 404) // Block Damage draw mode
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(smsg, "Draw Type:none         ");
+      if (var == 1) sprintf(smsg, "Draw Type:Red Rectangle");
+      if (var == 2) sprintf(smsg, "Draw Type:Spikey Floor ");
+   }
+
+
+   if (bn == 500) // lift mode
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 1)) var = 0;
+      if (var == 0) sprintf(smsg, "Mode 0 - Normal");
+      if (var == 1) sprintf(smsg, "Mode 1 - Prox Run and Reset");
+   }
+
+
+
+
 
 
 
@@ -2044,5 +2035,15 @@ void mdw_buttonp(int x1, int y1, int x2, int y2, int bn, int num, int type, int 
 
    if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
    else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
+
+
+   if (q6) y1+=bts;
+
+
+
+
+
+
 }
 

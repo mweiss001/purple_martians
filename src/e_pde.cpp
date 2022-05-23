@@ -83,7 +83,7 @@ int edit_int(int x, int y, int val, int inc, int lv, int uv)
       if (key[ALLEGRO_KEY_0]) val = 0;
 
       if (key[ALLEGRO_KEY_1]) val = 100;
-      if (key[ALLEGRO_KEY_2]) val = 1000;
+      if (key[ALLEGRO_KEY_2]) val = 2000;
 
       if (val > uv) val = uv;
       if (val < lv) val = lv;
@@ -122,7 +122,7 @@ al_fixed edit_fix(int x, int y, al_fixed val)
 
       if (key[ALLEGRO_KEY_0]) val = al_ftofix(0);
       if (key[ALLEGRO_KEY_1]) val = al_ftofix(1);
-      if (key[ALLEGRO_KEY_2]) val = al_ftofix(2);
+      if (key[ALLEGRO_KEY_2]) val = al_ftofix(2000);
       if (key[ALLEGRO_KEY_3]) val = al_ftofix(3);
       if (key[ALLEGRO_KEY_4]) val = al_ftofix(4);
       if (key[ALLEGRO_KEY_5]) val = al_ftofix(5);
