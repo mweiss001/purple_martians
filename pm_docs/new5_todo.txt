@@ -9,9 +9,18 @@ maybe later I could profile and see what takes up all the time...
 it's most likely an opengl thing
 
 
+seg fault when switching lift mode...can't reproduce...???
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+go through sliders and see how many I can convert...
+
+
+
 
 
 
@@ -19,9 +28,6 @@ it's most likely an opengl thing
 ------------------------ Level ideas -----------------
 ------------------------------------------------------
 
-make a level where the field gives you health...
-then cannons shoot you from below and push you up...
-can enemies control how powerful their bullets are?...no bullets have fixed damage...for now
 
 
 make a level with block 0 and 1 that look the same but set block manip to change block 1...
@@ -66,8 +72,6 @@ uses prox to fire bullet instead of timer
 ------------------------ item ideas ------------------
 ------------------------------------------------------
 
-make the switches able to see through if stacked
-
 
 new items that emit triggers
 
@@ -78,12 +82,14 @@ something you jump on just like a switch
 only emits toggle on and toggle off depending on shape...
 
 something you shoot and it emits a trigger
+make an obvious item that reacts when getting shot... toggle on and off..
 
-you can carry these around just like items...
 
 matching set of items that need to be brought together
+you can carry these around just like items...
 
-make an obvious item that reacts when getting shot... toggle on and off..
+what if you could carry around normal triggers and the field would follow?
+
 
 trigger field that has a count of enemies or items or players
 

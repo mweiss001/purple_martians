@@ -402,7 +402,6 @@ void move_lifts(int ignore_prox)
 
             case 5: // trigger wait
                if (pm_event[lifts[l].limit_counter]) next_step = 1;
-               pm_event[lifts[l].limit_counter] = 0; // clear the trigger
             break;
          }
       }

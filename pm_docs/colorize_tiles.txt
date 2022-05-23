@@ -1,0 +1,55 @@
+
+
+
+
+void colorize_tile(void)
+{
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_draw_text(font, palette_color[15], 320, 20, ALLEGRO_ALIGN_CENTER, "Colorize");
+
+   ALLEGRO_BITMAP *ctmp = al_create_bitmap(20, 20);
+   al_set_target_bitmap(ctmp);
+
+   al_draw_bitmap(btile[139], 0, 0, 0);
+
+
+
+   al_lock_bitmap(ctmp, al_get_bitmap_format(ctmp), ALLEGRO_LOCK_READWRITE);
+
+
+   int cs = -1;
+
+   int sc = 9; // source color
+
+   for (int x=0; x<20; x++)
+      for (int y=0; y<20; y++)
+      {
+         ALLEGRO_COLOR p = al_get_pixel(ctmp, x, y);
+           float D = 0.1;
+
+           for (int c=sc; c<255; c+=16)
+              if (  (abs(p.r - palette_color[c].r) < D) &&
+                    (abs(p.g - palette_color[c].g) < D) &&
+                    (abs(p.b - palette_color[c].b) < D) ) al_put_pixel(x, y, palette_color[c+cs]);
+      }
+  al_unlock_bitmap(ctmp);
+  al_convert_mask_to_alpha(ctmp, al_map_rgb(0, 0, 0)) ;
+
+
+
+   al_set_target_backbuffer(display);
+   al_draw_bitmap(ctmp, 200, 200, 0);
+
+
+
+
+
+
+
+   al_flip_display();
+
+   al_destroy_bitmap(ctmp);
+   tsw(); // wait for keypress
+}

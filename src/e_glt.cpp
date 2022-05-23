@@ -1428,9 +1428,9 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
             Ei[y][14] = h*20;
 
          }
-*/
 
-/*
+
+
       // converting cloner source and dest from 100 xywh to 2000 xywh format
       for (int y=0; y<100; y++)
          if (Ei[y][0] == 9)
@@ -1452,16 +1452,57 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 //         if (Ei[y][0] == 10)
 //            printf("Lev:%3d b:%d\n",le[x], y);
 
-
 /*
+
       for (int y=0; y<100; y++)
-         if (Ei[y][0] == 6)
-            Ei[y][17] = 2000;
-
+         if (Ei[y][0] == 14) Ei[y][0] = 0;
 */
+/*
+      for (int y=0; y<500; y++)
+         if (item[y][0] == 14) // switch
+         {
+            int t = item[y][1];
+
+            for (int i=6; i<16; i++) item[y][i] = 0; // clear all ints from 6 up
+
+            item[y][2] = 0;
+            item[y][8] = 2000;
+            item[y][9] = 2000;
 
 
+//            printf("Lev:%3d t:%d\n" ,le[x], t);
+//            if (t == 745) count0++;
+//            if (t == 777) count1++;
+//            if (t == 809) count2++;
+//            if (t == 841) count3++;
+//            if ((t != 745) && (t != 777) && (t != 809) && (t != 841)) count3++;
 
+
+            if (t == 745) // green
+            {
+               item[y][1] = 97;
+               item[y][10] = 1;
+            }
+
+            if (t == 777) // red
+            {
+               item[y][1] = 98;
+               item[y][10] = 2;
+            }
+
+            if (t == 809) // blue
+            {
+               item[y][1] = 99;
+               item[y][10] = 4;
+            }
+
+            if (t == 841) // purple
+            {
+               item[y][1] = 100;
+               item[y][10] = 8;
+            }
+         }
+*/
 
       if (0)
       {

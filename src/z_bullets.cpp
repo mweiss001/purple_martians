@@ -146,18 +146,18 @@ void proc_ebullet_collision(int p, int b)
    if (e_bullet_fxinc[b] > al_itofix(0))
    {
       players[p].right_xinc += (e_bullet_fxinc[b]/2);
-      if (players[p].right_xinc > al_itofix( 5)) players[p].right_xinc = al_itofix(5);
+      if (players[p].right_xinc > al_itofix( 4)) players[p].right_xinc = al_itofix(4);
    }
    if (e_bullet_fxinc[b] < al_itofix(0))
    {
       players[p].left_xinc += (e_bullet_fxinc[b]/2);
-      if (players[p].left_xinc < al_itofix( -5)) players[p].left_xinc = al_itofix(-5);
+      if (players[p].left_xinc < al_itofix(-4)) players[p].left_xinc = al_itofix(-4);
    }
 
    players[p].yinc += (e_bullet_fyinc[b]/2);
 
    if (players[p].yinc > al_itofix( 5)) players[p].yinc = al_itofix( 5);
-   if (players[p].yinc < al_itofix(-5)) players[p].yinc = al_itofix(-5);
+   if (players[p].yinc < al_itofix(-8)) players[p].yinc = al_itofix(-8);
 
    e_bullet_active[b] = 0; // bullet dies
 }

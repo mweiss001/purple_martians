@@ -155,10 +155,8 @@ void cm_redraw_level_editor_background(void)
 
    if (level_editor_mode == 2) // zfs
    {
-      printf("test 1\n");
-      // alway show selection
-      cm_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
-      printf("test 2\n");
+      // show selection
+      if (!mW[4].copy_mode) cm_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
 
       // only show if mouse not on window
       if (!mouse_on_window)
@@ -166,16 +164,10 @@ void cm_redraw_level_editor_background(void)
          if (mW[4].brf_mode) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
          if (mW[4].copy_mode)
          {
-            int sw = bx2-bx1;
-            int sh = by2-by1;
             al_draw_bitmap(ft_bmp, gx*20, gy*20, 0);
-            cm_show_level_buffer_block_rect(gx, gy, gx+sw, gy+sh, 10, "paste");
+            cm_show_level_buffer_block_rect(gx, gy, gx+mW[4].sw-1, gy+mW[4].sh-1, 10, "paste");
          }
       }
-
-      printf("test 2\n");
-
-
    }
    if (level_editor_mode == 3) // ge
    {
@@ -286,7 +278,6 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
    int y = y1+fs; // button y position
 
    int bts = 12;    // button size
-   int a = 0;       // keep track of button y spacing
 
    int tc1 = 15;    // text color 1
    int tc2 = 15;    // text color 2
@@ -311,57 +302,54 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
       al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, palette_color[12+32+(q*ci)], 1);
    al_draw_text(font, palette_color[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "Filters");
 
-   mdw_toggle(x2-10, y1+2, x2-2, y1+10, 1000, 0,0,0,0,0,0,0,1,0,0,d, mW[3].collapsed,  "-", "+", tc1, tc2, -1, -1);
+
+   int by1 = y1+2;
+   mdw_toggle(x2-10, by1, x2-2, 8, 0,0,0,0, 0,0,0,0, 1,0,0,d, mW[3].collapsed,  "-", "+", tc1, tc2, -1, -1);
 
 
    // detect mouse click before toggles, but don't do anything until after the toggles change
    int refresh_selection = 0;
    if ((mode == 3) && (mW[4].copy_mode) && (mouse_b1)) refresh_selection = 1;
 
-
-
    if (!mW[3].collapsed)
    {
       if (mode > 2) // add blocks and flags
       {
-         mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[1][1],  "Blocks", "Blocks", tc1, tc2, fc1, fc2); a++;
-         mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[1][2],  "Flags",  "Flags",  tc1, tc2, fc1, fc2); a++;
+         mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[1][1],  "Blocks", "Blocks", tc1, tc2, fc1, fc2);
+         mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[1][2],  "Flags",  "Flags",  tc1, tc2, fc1, fc2);
       }
       if (mode > 1) // add lifts
       {
-         mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[4][1],  "Lifts",  "Lifts",  tc1, tc2, fc1, fc2); a++;
-         a++;
+         mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[4][1],  "Lifts",  "Lifts",  tc1, tc2, fc1, fc2);
+
       }
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][3],  "Arcwgn", "Arcwgn", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][4],  "Bouncr", "Bouncr", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][6],  "Cannon", "Cannon", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][7],  "Podzil", "Podzil", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][8],  "Trakbt", "Trakbt", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][9],  "Cloner", "Cloner", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][11], "Blk Wk", "Blk Wk", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][12], "Flappr", "Flappr", tc1, tc2, fc1, fc2); a++;
-      a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][1],  "Door",   "Door",   tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][2],  "Bonus",  "Bonus",  tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][3],  "Exit",   "Exit",   tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][4],  "Key",    "Key",    tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][5],  "Start",  "Start",  tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][7],  "Mine",   "Mine",   tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][8],  "Bomb",   "Bomb",   tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][9],  "Triggr", "Triggr", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][10], "Messge", "Messge", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][11], "Rocket", "Rocket", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][12], "Warp",   "Warp",   tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][14], "Switch", "Switch", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][15], "Spring", "Spring", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][16], "Blk Mn", "Blk Mn", tc1, tc2, fc1, fc2); a++;
-      mdw_toggle(x1+fs, y+a*bts, x2-fs, y+(a+1)*bts-2, 1000, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][17], "Blk Dm", "Blk Dm", tc1, tc2, fc1, fc2); a++;
+      y+=bts;
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][3],  "Arcwgn", "Arcwgn", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][4],  "Bouncr", "Bouncr", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][6],  "Cannon", "Cannon", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][7],  "Podzil", "Podzil", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][8],  "Trakbt", "Trakbt", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][9],  "Cloner", "Cloner", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][11], "Blk Wk", "Blk Wk", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[3][12], "Flappr", "Flappr", tc1, tc2, fc1, fc2);
+      y+=bts;
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][1],  "Door",   "Door",   tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][2],  "Bonus",  "Bonus",  tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][3],  "Exit",   "Exit",   tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][4],  "Key",    "Key",    tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][5],  "Start",  "Start",  tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][7],  "Mine",   "Mine",   tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][8],  "Bomb",   "Bomb",   tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][9],  "Triggr", "Triggr", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][10], "Messge", "Messge", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][11], "Rocket", "Rocket", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][12], "Warp",   "Warp",   tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][14], "Switch", "Switch", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][15], "Spring", "Spring", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][16], "Blk Mn", "Blk Mn", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,0,d, obj_filter[2][17], "Blk Dm", "Blk Dm", tc1, tc2, fc1, fc2);
    }
-   if (refresh_selection)
-   {
-      zfs_save_selection(0);
-      zfs_draw_fsel();
-   }
+   if (refresh_selection) zfs_draw_fsel();
    return y2;
 }
 
@@ -804,10 +792,13 @@ void mWindow::draw(void)
       if (have_focus) d = 0;
       if (moving) d = 1;
 
-      if (mdw_buttont(x2-10,  y1+1, x2-2,   y1+10, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mW[2].active = 0;
-      if (mdw_buttont(x2-22,  y1+1, x2-14,  y1+10, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       help("Selection Window");
-      if (mdw_buttont(x2-153, y1+1, x2-105, y1+10, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Blocks"))  mW[2].select_window_block_on = !mW[2].select_window_block_on;
-      if (mdw_buttont(x2-90,  y1+1, x2-34,  y1+10, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Special")) mW[2].select_window_special_on = !mW[2].select_window_special_on;
+
+      int by1 = y1+1;
+
+      if (mdw_buttont(x2-10,  by1, x2-2,   9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mW[2].active = 0;
+      if (mdw_buttont(x2-22,  by1, x2-14,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       help("Selection Window");
+      if (mdw_buttont(x2-153, by1, x2-105, 9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Blocks"))  mW[2].select_window_block_on = !mW[2].select_window_block_on;
+      if (mdw_buttont(x2-90,  by1, x2-34,  9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Special")) mW[2].select_window_special_on = !mW[2].select_window_special_on;
 
       int c = 11;  // first y line of sub-windows;
 
@@ -849,15 +840,16 @@ void mWindow::draw(void)
 
       if (mW[2].select_window_special_on)
       {
+         by1 = sys+2;
          al_draw_rectangle(x1, sys, x2, sys+12, palette_color[9], 1);
          al_draw_text(font, palette_color[9], x1+2, sys+2, 0, "Special Items");
 
-         if (mdw_buttont(x2-9, sys+2, x2-1, sys+10, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[2].select_window_special_on = 0;
+         if (mdw_buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[2].select_window_special_on = 0;
 
-         if (mdw_buttont(x2-41, sys+2, x2-33, sys+10, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
+         if (mdw_buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
             if (++mW[2].select_window_num_special_lines > 4 ) mW[2].select_window_num_special_lines = 4;
 
-         if (mdw_buttont(x2-25, sys+2, x2-17, sys+10, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
+         if (mdw_buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
             if (--mW[2].select_window_num_special_lines < 1 )
             {
                mW[2].select_window_num_special_lines++;
@@ -886,15 +878,16 @@ void mWindow::draw(void)
 
       if (mW[2].select_window_block_on)
       {
+         by1 = syb+2;
          al_draw_rectangle(x1, syb, x2, syb+12, palette_color[9], 1);
          al_draw_text(font, palette_color[9], x1+2, syb+2, 0, "Block Selection");
 
-         if (mdw_buttont(x2-9, syb+2, x2-1, syb+10, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[2].select_window_block_on = 0;
+         if (mdw_buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[2].select_window_block_on = 0;
 
-         if (mdw_buttont(x2-41, syb+2, x2-33, syb+10, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
+         if (mdw_buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
             if (++mW[2].swnbl_cur > mW[2].swnbl) mW[2].swnbl_cur = mW[2].swnbl;
 
-         if (mdw_buttont(x2-25, syb+2, x2-17, syb+10, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
+         if (mdw_buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
             if (--mW[2].swnbl_cur < 1 )
             {
                mW[2].swnbl_cur++;
@@ -1047,8 +1040,9 @@ void mWindow::draw(void)
       if (have_focus) d = 0;
       if (moving) d = 1;
 
-      if (mdw_buttont(x2-10, y1+1, x2-2, y1+10, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[1].active = 0;
-      if (mdw_buttont(x2-22, y1+1, x2-14, y1+10, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) help("Status Window");
+      int by1 = y1+1;
+      if (mdw_buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[1].active = 0;
+      if (mdw_buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) help("Status Window");
 
 
       // draw item area
@@ -1081,14 +1075,10 @@ void mWindow::draw(void)
 
    if (index == 4) // zfs
    {
-
-
-
       titlex("Zoom Full Screen", 15, 13, x1, x2, y1+1);
 
       int mow = is_mouse_on_any_window();
       zfs_pointer_text(x1+1, x2-1, y1+20, mow);
-      printf("test 2\n");
 
       int sy2 = zfs_draw_buttons(x1+1, x2-1, y1+110, have_focus, moving);
       set_size(w, sy2-y1-1);

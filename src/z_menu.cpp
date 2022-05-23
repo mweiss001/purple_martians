@@ -1065,7 +1065,7 @@ int edit_pmsg_text(int c, int new_msg)
    int old_cp=0;
    int blink_count = 3;
    int blink_counter = 0;
-   int a, k=0;
+   int k=0;
    char f[1800];
    int quit = 0;
 
@@ -1092,37 +1092,20 @@ int edit_pmsg_text(int c, int new_msg)
 
    while (!quit)
    {
-
       al_set_target_backbuffer(display);
-      // draw the message
       display_pop_message(c, f, smx, smy, 1, 0);
 
-      a = -3; //back up from the message to the buttons;;
       int by = smy-bts/2-2;
+      int ey = by+-3*bts; // erase y1
+      int by1 = ey;
 
-      int ey = by+a*bts; // erase y1
+      mdw_buttont(    xa, by1, xb, bts, 1,0,0,0,  0,15,13,0, 1,0,0,1, "Type a New Message"); // display text only
+      if (mdw_buttont(xa, by1, xb, bts, 1,0,0,0,  0,11,15,0, 1,0,0,0, "OK"))     { quit = 1; bad = 0; }
+      if (mdw_buttont(xa, by1, xb, bts, 1,0,0,0,  0,10,15,0, 1,0,0,0, "Cancel")) { quit = 1; bad = 1; }
 
-      titlex("Message Creator", 15, 12, xa, xb, smy-58);
 
-      mdw_button(xa, by+a*bts, xb, by+(a+1)*bts-2, 7, 999, 0, 0, 0, 14, 15,  0, 1,0,0,0);  // edit text placeholder
-
-      a++;
-      if (mdw_button(xa, by+a*bts, xb, by+(a+1)*bts-2, 1,   0, 0, 0, 0, 11, 15, 15, 1,0,0,0))  // OK
-      {
-         quit = 1;
-         bad = 0;
-      }
-
-      a++;
-      if (mdw_button(xa, by+a*bts, xb, by+(a+1)*bts-2, 3,   0, 0, 0, 0, 10, 15, 15, 1,0,0,0))  // Cancel
-      {
-         quit = 1;
-         bad = 1;
-      }
-
-      if (blink_counter++ < blink_count)
-         show_cursor(f, cursor_pos, smx, smy, tc, 0, 0);
-      else show_cursor(f, cursor_pos, smx, smy, tc, 1, 0);
+      if (blink_counter++ < blink_count) show_cursor(f, cursor_pos, smx, smy, tc, 0, 0);
+      else                               show_cursor(f, cursor_pos, smx, smy, tc, 1, 0);
       if (blink_counter> blink_count*2) blink_counter = 0;
 
       if (cursor_pos != old_cp)
@@ -1144,8 +1127,8 @@ int edit_pmsg_text(int c, int new_msg)
       }
       if ((key[ALLEGRO_KEY_DELETE]) && (cursor_pos < char_count))
       {
-         for (a = cursor_pos; a < char_count; a++)
-           f[a]=f[a+1];
+         for (int aa = cursor_pos; aa < char_count; aa++)
+           f[aa]=f[aa+1];
          char_count--;
          // set last to NULL
          f[char_count] = (char)NULL;
@@ -1153,8 +1136,8 @@ int edit_pmsg_text(int c, int new_msg)
       if ((key[ALLEGRO_KEY_BACKSPACE]) && (cursor_pos > 0))
       {
          cursor_pos--;
-         for (a = cursor_pos; a < char_count; a++)
-           f[a]=f[a+1];
+         for (int aa = cursor_pos; aa < char_count; aa++)
+           f[aa]=f[aa+1];
          char_count--;
          // set last to NULL
          f[char_count] = (char)NULL;
@@ -1192,8 +1175,8 @@ int edit_pmsg_text(int c, int new_msg)
          if ((k>31) && (k<127)) // if alphanumeric
          {
             // move over to make room
-            for (a = char_count; a>=cursor_pos; a--)
-               f[a+1]=f[a];
+            for (int aa = char_count; aa>=cursor_pos; aa--)
+               f[aa+1]=f[aa];
 
             // set char
             f[cursor_pos] = k;

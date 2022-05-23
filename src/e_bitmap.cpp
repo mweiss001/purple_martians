@@ -1,6 +1,210 @@
 // e_bitmap.cpp
 #include "pm.h"
 
+void color_shiftc(ALLEGRO_BITMAP *b, int sc, int cs, int x, int y)
+{
+   ALLEGRO_COLOR p = al_get_pixel(b, x, y);
+   float D = 0.1;
+   for (int c=sc; c<255; c+=16)
+      if (  (abs(p.r - palette_color[c].r) < D) && (abs(p.g - palette_color[c].g) < D) && (abs(p.b - palette_color[c].b) < D) )
+         al_put_pixel(x, y, palette_color[c+cs]);
+}
+
+void color_shift4(ALLEGRO_BITMAP *b, int sc, int cs1, int cs2, int cs3, int cs4)
+{
+   al_set_target_bitmap(b);
+   al_draw_bitmap(tile[200], 0, 0, 0);
+   al_lock_bitmap(b, al_get_bitmap_format(b), ALLEGRO_LOCK_READWRITE);
+   for (int x=2; x<7; x++)
+      for (int y=0; y<20; y++)
+         color_shiftc(b, sc, cs1, x, y);
+   for (int x=7; x<11; x++)
+      for (int y=0; y<20; y++)
+         color_shiftc(b, sc, cs2, x, y);
+   for (int x=11; x<15; x++)
+      for (int y=0; y<20; y++)
+         color_shiftc(b, sc, cs3, x, y);
+   for (int x=15; x<18; x++)
+      for (int y=0; y<20; y++)
+         color_shiftc(b, sc, cs4, x, y);
+   al_unlock_bitmap(b);
+   al_convert_mask_to_alpha(b, al_map_rgb(0, 0, 0)) ;
+}
+
+void color_shift3(ALLEGRO_BITMAP *b, int sc, int cs1, int cs2, int cs3)
+{
+   al_set_target_bitmap(b);
+   al_draw_bitmap(tile[200], 0, 0, 0);
+   al_lock_bitmap(b, al_get_bitmap_format(b), ALLEGRO_LOCK_READWRITE);
+   for (int x=2; x<8; x++)
+      for (int y=0; y<20; y++)
+         color_shiftc(b, sc, cs1, x, y);
+   for (int x=8; x<13; x++)
+      for (int y=0; y<20; y++)
+         color_shiftc(b, sc, cs2, x, y);
+   for (int x=13; x<18; x++)
+      for (int y=0; y<20; y++)
+         color_shiftc(b, sc, cs3, x, y);
+   al_unlock_bitmap(b);
+   al_convert_mask_to_alpha(b, al_map_rgb(0, 0, 0)) ;
+}
+
+void color_shift2(ALLEGRO_BITMAP *b, int sc, int cs1, int cs2)
+{
+   al_set_target_bitmap(b);
+   al_draw_bitmap(tile[200], 0, 0, 0);
+   al_lock_bitmap(b, al_get_bitmap_format(b), ALLEGRO_LOCK_READWRITE);
+   for (int x=0; x<10; x++)
+      for (int y=0; y<20; y++)
+         color_shiftc(b, sc, cs1, x, y);
+   for (int x=10; x<20; x++)
+      for (int y=0; y<20; y++)
+         color_shiftc(b, sc, cs2, x, y);
+   al_unlock_bitmap(b);
+   al_convert_mask_to_alpha(b, al_map_rgb(0, 0, 0)) ;
+}
+
+
+
+void color_shift(ALLEGRO_BITMAP *b, int sc, int cs)
+{
+   al_set_target_bitmap(b);
+   al_draw_bitmap(tile[200], 0, 0, 0);
+   al_lock_bitmap(b, al_get_bitmap_format(b), ALLEGRO_LOCK_READWRITE);
+   for (int x=0; x<20; x++)
+      for (int y=0; y<20; y++)
+         color_shiftc(b, sc, cs, x, y);
+
+   al_unlock_bitmap(b);
+   al_convert_mask_to_alpha(b, al_map_rgb(0, 0, 0)) ;
+}
+
+
+void colorize_tile(void)
+{
+   ALLEGRO_BITMAP *switch_tiles[32];
+   for (int d=0; d<32; d++) switch_tiles[d] = al_create_bitmap(20, 20);
+
+   int sc = 9; // source color
+
+   color_shift(switch_tiles[0], sc, 6); // tile 0 - white
+
+   color_shift(switch_tiles[1], sc, 0);  // tile 1 - green
+   color_shift(switch_tiles[2], sc, 1);  // tile 2 - red
+   color_shift(switch_tiles[3], sc, 3);  // tile 3 - blue
+   color_shift(switch_tiles[4], sc, -1); // tile 1 - purple
+
+   color_shift2(switch_tiles[5],  sc, 0, 1);  // gr
+   color_shift2(switch_tiles[6],  sc, 0, 3);  // gb
+   color_shift2(switch_tiles[7],  sc, 0, -1); // gp
+   color_shift2(switch_tiles[8],  sc, 1, 3);  // rb
+   color_shift2(switch_tiles[9],  sc, 1, -1); // rp
+   color_shift2(switch_tiles[10], sc, 3, -1); // bp
+
+
+   color_shift3(switch_tiles[11], sc, 0, 1, 3);  // grb
+   color_shift3(switch_tiles[12], sc, 0, 1, -1); // grp
+   color_shift3(switch_tiles[13], sc, 0, 3, -1); // gbp
+   color_shift3(switch_tiles[14], sc, 1, 0, -1); // rbp
+
+   color_shift4(switch_tiles[15], sc, 0, 1, 3, -1); // grbp
+
+   // fill second half and draw yin yang
+   for (int d=0; d<16; d++)
+   {
+      al_set_target_bitmap(switch_tiles[d+16]);
+      al_draw_bitmap(switch_tiles[d], 0, 0, 0);
+      al_draw_bitmap(tile[204], 0, 1, 0);
+      al_set_target_bitmap(switch_tiles[d]);
+      al_draw_bitmap(tile[205], 0, 1, 0);
+
+      al_convert_mask_to_alpha(switch_tiles[d], al_map_rgb(0, 0, 0)) ;
+      al_convert_mask_to_alpha(switch_tiles[d+16], al_map_rgb(0, 0, 0)) ;
+
+
+   }
+
+
+
+   // draw all the bitmaps
+   al_set_target_backbuffer(display);
+//   al_clear_to_color(al_map_rgb(255, 10, 10));
+//   al_clear_to_color(al_map_rgb(100, 100, 100));
+   al_clear_to_color(al_map_rgb(0, 0, 0));
+   for (int d=0; d<32; d++) al_draw_bitmap(switch_tiles[d], 20+d*20, 200, 0);
+
+   al_flip_display(); tsw(); // wait for keypress
+
+
+
+   // show tilemap before
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap(tilemap, 0, 0, 0);
+   al_flip_display(); tsw(); // wait for keypress
+
+
+
+   // draw on the tilemap
+   al_set_target_bitmap(tilemap);
+   // erase
+//   for (int d=0; d<32; d++) al_draw_bitmap(tile[0], d*20, 60, 0);
+
+   al_draw_filled_rectangle(0, 60, 640, 80, palette_color[0]);
+
+   // show tilemap after erase
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap(tilemap, 0, 0, 0);
+   al_flip_display(); tsw(); // wait for keypress
+
+
+   al_set_target_bitmap(tilemap);
+   for (int d=0; d<32; d++) al_draw_bitmap(switch_tiles[d], d*20, 60, 0);
+
+   al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
+
+
+
+   al_save_bitmap("bitmaps/tiles.bmp", tilemap);
+
+   for (int d=0; d<32; d++) al_destroy_bitmap(switch_tiles[d]);
+
+
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap(tilemap, 0, 0, 0);
+   al_flip_display(); tsw(); // wait for keypress
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // used by sliders only for item block manip
 // gets block with flags from level
 int select_bitmap(int tn)
