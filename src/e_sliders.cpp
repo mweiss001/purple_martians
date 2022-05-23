@@ -16,76 +16,6 @@ void fill_smsg_slider(int bn, int type, int num)
    if (bn == 22) sprintf(smsg, "Speed:%-1.2f", al_fixtof(Efi[num][5])); // bouncer and cannon speed
    if (bn == 29) sprintf(smsg, "Speed:%-2.1f", al_fixtof(Efi[num][9])); // pod speed
 
-   if (bn == 6)  sprintf(smsg, "Acceleration:%d", item[num][9]);
-   if (bn == 7)  sprintf(smsg, "Maximum Speed:%d",item[num][8]);
-   if (bn == 8)  sprintf(smsg, "Steerability:%d", item[num][6]);
-   if (bn == 10) sprintf(smsg, "Sproinginess:%d", item[num][7]);
-
-   if (bn == 27) sprintf(smsg, "Initial Time:%d", item[num][8]);
-   if (bn == 28) sprintf(smsg, "Warp Level:%d", item[num][8]);
-   if (bn == 33) sprintf(smsg, "X-Speed:%-1.2f", al_fixtof(Efi[num][2]));
-
-
-   if (bn == 43) sprintf(smsg, "Lift Step Width:%d",lifts[num].width);
-   if (bn == 44) sprintf(smsg, "Lift Step Height:%d",lifts[num].height);
-   if (bn == 54) sprintf(smsg, "Message display time:%d",item[num][7]);
-
-   if (bn == 78) sprintf(smsg, "Start Index:%d",item[num][7]);
-   if (bn == 82) sprintf(smsg, "Damage Field Timer:%d", Ei[num][6]);
-   if (bn == 83) sprintf(smsg, "Player Damage:%3.2f          ", al_fixtof(Efi[num][4]));
-   if (bn == 84) sprintf(smsg, "Damage Field Follows Lift:%d", Ei[num][21]);
-   if (bn == 85) sprintf(smsg, "Trigger Field Follows Lift:%d", Ei[num][20]);
-   if (bn == 86) sprintf(smsg, "Total Time:%d",   Ei[num][6]);
-   if (bn == 87) sprintf(smsg, "Initial Time:%d", Ei[num][7]);
-   if (bn == 88) sprintf(smsg, "Damage Time:%d",  Ei[num][8]);
-   if (bn == 89) sprintf(smsg, "Damage Field ON Time:%d",  Ei[num][6]);
-   if (bn == 90) sprintf(smsg, "Damage Field OFF Time:%d",  Ei[num][6]);
-   if (bn == 91) sprintf(smsg, "Trigger Field Follows Lift:%d", item[num][10]);
-
-   if (bn == 92)
-   {
-      if (item[num][1]) sprintf(smsg, "Event Trigger:%2d ", item[num][1]); // block manip trigger input
-      else              sprintf(smsg, "Event Trigger:OFF");
-   }
-
-   if (bn == 93)
-   {
-      if (item[num][11]) sprintf(smsg, "Set Event Always While On   :%2d ", item[num][11]); // trigger output
-      else               sprintf(smsg, "Set Event Always While On   :OFF");
-   }
-   if (bn == 94)
-   {
-      if (item[num][12]) sprintf(smsg, "Set Event Always While Off  :%2d ", item[num][12]); // trigger output
-      else               sprintf(smsg, "Set Event Always While Off  :OFF");
-   }
-
-   if (bn == 95)
-   {
-      if (item[num][13]) sprintf(smsg, "Set Event When Switching On :%2d ", item[num][13]); // trigger output
-      else               sprintf(smsg, "Set Event When Switching On :OFF");
-   }
-
-   if (bn == 96)
-   {
-      if (item[num][14]) sprintf(smsg, "Set Event When Switching Off:%2d ", item[num][14]); // trigger output
-      else               sprintf(smsg, "Set Event When Switching Off:OFF");
-   }
-
-
-   if (bn == 97) sprintf(smsg, "Damage Field Follows Lift:%d", item[num][10]);
-
-
-   if (bn == 98) sprintf(smsg, "Player Damage:%-4d        ", item[num][15]); // item damage player damage amount
-
-
-   if (bn == 100) sprintf(smsg, "Total Time:%d",   item[num][12]);
-   if (bn == 101) sprintf(smsg, "Initial Time:%d", item[num][13]);
-   if (bn == 102) sprintf(smsg, "Damage Time:%d",  item[num][14]);
-
-   if (bn == 103) sprintf(smsg, "ON Time:%d",   item[num][12]);
-   if (bn == 104) sprintf(smsg, "OFF Time:%d",  item[num][12]);
-
-
    // lifts ----------------------------
    if (bn == 550) sprintf(smsg, "Speed:%d",         lift_steps[num][type].val);  // lift step move and resize time
    if (bn == 551) sprintf(smsg, "Width:%d",         lift_steps[num][type].w);    // lift step width
@@ -121,60 +51,6 @@ void update_var(int bn, int type, int num, float f)
 
 
 
-   if (bn == 6) item[num][9] = (int)f;      // accel
-   if (bn == 7) item[num][8] = (int)f;      // max speed
-   if (bn == 8) item[num][6] = (int)f;      // steerability
-   if (bn == 9) item[num][6] = (int)f;      // jump length
-   if (bn == 10) item[num][7] = (int)f;     // sproingieness
-
-
-
-   if (bn == 28) item[num][8] = (int)f;    // warp level
-
-
-
-
-
-   if (bn == 33) Efi[num][2] = al_ftofix(f);  // flapper x speed
-   if (bn == 43) lifts[num].width = (int) f;  // lift width
-   if (bn == 44) lifts[num].height = (int) f; // lift height
-   if (bn == 54) item[num][7] = (int)f;       // pop message delay
-
-
-   if (bn == 78) item[num][7] = (int)f;       // start index
-
-   if (bn == 91)
-   {
-      item[num][10] = (int)f;                           // item trigger lift number
-      set_item_trigger_location_from_lift(num, 1);
-   }
-
-   if (bn == 92) item[num][1] = (int)f; // block manip pm_event
-
-   if (bn == 93) item[num][11] = (int)f; // // trigger output CURR ON
-   if (bn == 94) item[num][12] = (int)f; // // trigger output CURR OFF
-   if (bn == 95) item[num][13] = (int)f; // // trigger output TGON
-   if (bn == 96) item[num][14] = (int)f; // // trigger output TGOF
-
-
-   if (bn == 97)
-   {
-      item[num][10] = (int)f;                     // lift that damage field is slaved to
-      //set_item_damage_location_from_lift(num, 1);
-   }
-
-
-   if (bn == 98) item[num][15] = (int)f; // item damage player amount
-
-
-   if (bn == 100) item[num][12] = (int)f; // item damage total time
-   if (bn == 101) item[num][13] = (int)f; // item damage initial time
-   if (bn == 102) item[num][14] = (int)f; // item damage damage time
-
-   if (bn == 103) item[num][12] = (int)f; // Damage Field ON Time
-   if (bn == 104) item[num][12] = (int)f; // Damage Field OFF Time
-
-
    // lifts ---------------------------------
    if (bn == 550) lift_steps[num][type].val = (int)f; // lift step resize speed
    if (bn == 551) lift_steps[num][type].w   = (int)f; // lift step width
@@ -205,65 +81,6 @@ void mdw_slider(int x1, int y1, int x2, int y2,
       case 22: sul=12;   sll=0;     sinc=.01; sdx=al_fixtof(Efi[num][5]);      break;  // cannon speed
       case 29: sul=30;   sll=.5;    sinc=.5;  sdx=al_fixtof(Efi[num][9]);      break;  // pod speed
 
-      case 2:  sul=200;  sll=2;     sinc=1;   sdx=item[num][8];                break;  // bullet bonus
-      case 3:  sul=400;  sll=5;     sinc=1;   sdx=item[num][9];                break;  // timer bonus
-
-
-      case 6:  sul=200;  sll=1;     sinc=1;   sdx=item[num][9];                break;  // accel
-      case 7:  sul=20;   sll=1;     sinc=1;   sdx=item[num][8];                break;  // max speed
-      case 8:  sul=50;   sll=1;     sinc=1;   sdx=item[num][6];                break;  // steerability
-      case 9:  sul=7;    sll=1;     sinc=1;   sdx=item[num][6];                break;  // jump length
-      case 10: sul=200;  sll=40;    sinc=1;   sdx=item[num][7];                break;  // sproinginess
-
-      case 27: sul=800;  sll=10;    sinc=1;   sdx=item[num][8];                break;  // initial time
-      case 28: sul=100;  sll=1;     sinc=1;   sdx=item[num][8];                break;  // warp level
-      case 33: sul=5;    sll=.7;    sinc=.1;  sdx=al_fixtof(Efi[num][2]);      break;  // flapper x speed
-
-
-      case 43: sul=1999; sll=4;     sinc=1;   sdx=lifts[num].width;            break;  // lift width
-      case 44: sul=1999; sll=4;     sinc=1;   sdx=lifts[num].height;           break;  // lift heigth
-      case 54: sul=200;  sll=1;     sinc=1;   sdx=item[num][7];                break;  // Message delay time
-
-
-
-
-
-
-      case 78: sul=20;   sll=0;     sinc=1;   sdx=item[num][7];                break;  // Start index
-
-
-
-      case 82: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // field timer
-      case 83: sul=100;  sll=.01;   sinc=.01; sdx=al_fixtof(Efi[num][4]);      break;  // field damage
-
-      case 84: sul=39;   sll=0;     sinc=1;   sdx=Ei[num][21];                 break;  // damage lift number
-      case 85: sul=39;   sll=0;     sinc=1;   sdx=Ei[num][20];                 break;  // trigger lift number
-      case 86: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // field timer total time
-      case 87: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][7];                  break;  // field timer initial time
-      case 88: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][8];                  break;  // field timer damage time
-
-      case 89: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // damage field on time
-      case 90: sul=1000; sll=0;     sinc=1;   sdx=Ei[num][6];                  break;  // damage field off time
-
-      case 91: sul=39;   sll=0;     sinc=1;   sdx=item[num][10];               break;  // item trigger lift number
-
-      case 92: sul=99;   sll=0;     sinc=1;   sdx=item[num][1];                break;  // block manip pm_event trigger
-
-      case 93: sul=99;   sll=0;     sinc=1;   sdx=item[num][11];                break;  // trigger output CURR ON
-      case 94: sul=99;   sll=0;     sinc=1;   sdx=item[num][12];                break;  // trigger output CURR OFF
-      case 95: sul=99;   sll=0;     sinc=1;   sdx=item[num][13];                break;  // trigger output TGON
-      case 96: sul=99;   sll=0;     sinc=1;   sdx=item[num][14];                break;  // trigger output TGOF
-
-      case 97: sul=39;   sll=0;     sinc=1;   sdx=item[num][10];               break;  // damage lift number
-
-      case 98: sul=2000; sll=-2000; sinc=1;   sdx=item[num][15];               break;  // item damage player amount
-
-      case 100: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage total time
-      case 101: sul=1000; sll=0;    sinc=1;   sdx=item[num][13];               break;  // item damage total time
-      case 102: sul=1000; sll=0;    sinc=1;   sdx=item[num][14];               break;  // item damage total time
-
-      case 103: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage field on time
-      case 104: sul=1000; sll=0;    sinc=1;   sdx=item[num][12];               break;  // item damage field off total time
 
       // lifts --------------------------------------
       case 550: sul=1000; sll=1;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step resize speed
