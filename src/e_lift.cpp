@@ -506,26 +506,65 @@ int draw_current_step_buttons(int x1, int x2, int y, int l, int s)
    mdw_togglf(xa, ya, xb, bts, 1,0,0,0, 0,0,0,0, 1,0,0,0, lift_steps[l][s].type, PM_LIFT_SOLID_ITEM,   "Solid for Item:OFF  ", "Solid for Item:ON   ", c3+dim, c3, c2+dim, c2);
    mdw_togglf(xa, ya, xb, bts, 1,0,0,0, 0,0,0,0, 1,0,0,0, lift_steps[l][s].type, PM_LIFT_HIDE_LINES,   "Draw Lift Lines",      "Hide Lift Lines",      c3, c3+dim, c2, c2+dim);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   /*
+
+
+
+   if (bn == 550) sprintf(smsg, "Speed:%d",         lift_steps[num][type].val);  // lift step move and resize time
+   if (bn == 551) sprintf(smsg, "Width:%d",         lift_steps[num][type].w);    // lift step width
+   if (bn == 552) sprintf(smsg, "Height:%d",        lift_steps[num][type].h);    // lift step height
+   if (bn == 553) sprintf(smsg, "Timer:%-3d",       lift_steps[num][type].val);  // lift step wait timer
+   if (bn == 554) sprintf(smsg, "Distance:%-3d",    lift_steps[num][type].val);  // lift step wait player prox distance
+   if (bn == 555) sprintf(smsg, "Reset Timer:%-3d", lifts[num].val2);            // lift mode 1 player ride timer
+   if (bn == 556) sprintf(smsg, "Trigger:%-2d",     lift_steps[num][type].val);  // lift step wait trigger
+
+      // lifts --------------------------------------
+      case 550: sul=1000; sll=1;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step resize speed
+      case 551: sul=1600; sll=20;   sinc=1;   sdx=lift_steps[num][type].w;     break;  // lift step width
+      case 552: sul=1600; sll=20;   sinc=1;   sdx=lift_steps[num][type].h;     break;  // lift step height
+      case 553: sul=2000; sll=1;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step wait time
+      case 554: sul=200;  sll=20;   sinc=10;  sdx=lift_steps[num][type].val;   break;  // lift step wait player prox distance
+      case 555: sul=2000; sll=1;    sinc=1;   sdx=lifts[num].val2;             break;  // lift mode 1 player ride timer
+      case 556: sul=99;   sll=0;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step wait trigger
+
+   */
+
+
    // specific buttons
    switch (lift_steps[l][s].type & 31)
    {
       case 1: // move and resize
-         mdw_slider(xa, ya, xb, ya+bts-2, 550, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step resize speed
-         mdw_slider(xa, ya, xb, ya+bts-2, 551, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step width
-         mdw_slider(xa, ya, xb, ya+bts-2, 552, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step height
+         mdw_slider2_int(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,0, lift_steps[l][s].val, 1000, 1, 1, "Speed:");
+         mdw_slider2_int(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,0, lift_steps[l][s].w,   1600, 20, 1, "Width:");
+         mdw_slider2_int(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,0, lift_steps[l][s].h,   1600, 20, 1, "Height:");
       break;
       case 2: // wait time
-         mdw_slider(xa, ya, xb, ya+bts-2, 553, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step wait time
+         mdw_slider2_int(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,0, lift_steps[l][s].val, 2000, 1, 1, "Timer:");
       break;
       case 3: // wait prox
-         mdw_slider(xa, ya, xb, ya+bts-2, 554, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step wait player prox distance
+         mdw_slider2_int(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,0, lift_steps[l][s].val, 200, 20, 10, "Distance:");
       break;
       case 4: // end step
-         mdw_button(xa, ya, xb, bts,      505, l, s, 0, 0, c1, 15, 0,  1,0,1,0); // lift step end step mode
+         mdw_button(     xa, ya, xb, bts,  505,l,s,0, 0,c1,15,0,  1,0,1,0); // lift step end step mode
       break;
       case 5: // wait trigger
-         mdw_slider(xa, ya, xb, ya+bts-2, 556, l, s, 0, 0, c1, 15, 15, 1,0,0,0); ya+=bts; // lift step wait trigger slider
-         mdw_button(xa, ya, xb, bts,      520, l, s, 4, 0, c1, 15, 0,  1,0,1,0); ya+=bts; // lift step wait trigger get event
+         mdw_slider2_int(xa, ya, xb, bts,  0,0,0,0,   0,c1,15,15, 1,0,1,0, lift_steps[l][s].val, 99, 0, 1, "Trigger:");
+         mdw_button(     xa, ya, xb, bts,  520,l,s,4, 0,c1,15,0,  1,0,1,0); ya+=bts; // lift step wait trigger get event
       break;
    }
 
