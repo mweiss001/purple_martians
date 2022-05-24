@@ -10,164 +10,6 @@ int bw = 3; // slider adjustment bar width
 // ---------------------------sliders--------------------------------------------------
 // ------------------------------------------------------------------------------------
 
-void fill_smsg_slider(int bn, int type, int num)
-{
-
-   if (bn == 22) sprintf(smsg, "Speed:%-1.2f", al_fixtof(Efi[num][5])); // bouncer and cannon speed
-   if (bn == 29) sprintf(smsg, "Speed:%-2.1f", al_fixtof(Efi[num][9])); // pod speed
-
-   // lifts ----------------------------
-   if (bn == 550) sprintf(smsg, "Speed:%d",         lift_steps[num][type].val);  // lift step move and resize time
-   if (bn == 551) sprintf(smsg, "Width:%d",         lift_steps[num][type].w);    // lift step width
-   if (bn == 552) sprintf(smsg, "Height:%d",        lift_steps[num][type].h);    // lift step height
-   if (bn == 553) sprintf(smsg, "Timer:%-3d",       lift_steps[num][type].val);  // lift step wait timer
-   if (bn == 554) sprintf(smsg, "Distance:%-3d",    lift_steps[num][type].val);  // lift step wait player prox distance
-   if (bn == 555) sprintf(smsg, "Reset Timer:%-3d", lifts[num].val2);            // lift mode 1 player ride timer
-   if (bn == 556) sprintf(smsg, "Trigger:%-2d",     lift_steps[num][type].val);  // lift step wait trigger
-
-}
-
-void update_var(int bn, int type, int num, float f)
-{
-   if (bn == 22)                           // scale bouncer and cannon speed
-   {
-      al_fixed old_speed = Efi[num][5];
-      Efi[num][5] = al_ftofix(f);
-      al_fixed fratio = al_fixdiv(Efi[num][5], old_speed);
-      Efi[num][2] = al_fixmul(Efi[num][2], fratio);
-      Efi[num][3] = al_fixmul(Efi[num][3], fratio);
-
-      if (f == 0)
-      {
-         Efi[num][2] = al_itofix(0);
-         Efi[num][3] = al_itofix(0);
-      }
-   }
-   if (bn == 29)                           // pod speed
-   {
-      Efi[num][9] = al_ftofix(f);
-      recalc_pod(num);
-   }
-
-
-
-   // lifts ---------------------------------
-   if (bn == 550) lift_steps[num][type].val = (int)f; // lift step resize speed
-   if (bn == 551) lift_steps[num][type].w   = (int)f; // lift step width
-   if (bn == 552) lift_steps[num][type].h   = (int)f; // lift step height
-   if (bn == 553) lift_steps[num][type].val = (int)f; // lift step wait timer
-   if (bn == 554) lift_steps[num][type].val = (int)f; // lift step wait player prox distance
-   if (bn == 555) lifts[num].val2           = (int)f; // lift mode 1 player ride timer
-   if (bn == 556) lift_steps[num][type].val = (int)f; // lift step wait trigger
-
-}
-
-
-
-// q0 = background color; (not used)
-// q1 = frame color
-// q2 = text color    (use white 99% of time)
-// q3 = slider color  (use white 99% of time)
-// q4 = slider color  (draw frame mode) now i always use 1
-// q5 = text justify  (0-center 1-left...buttons only)
-// modified to be display only if q7 == 1
-void mdw_slider(int x1, int y1, int x2, int y2,
-                    int bn, int num, int type, int obt,
-                    int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
-{
-   float sdx, sul, sll, sinc, dsx;
-   switch (bn)
-   {
-      case 22: sul=12;   sll=0;     sinc=.01; sdx=al_fixtof(Efi[num][5]);      break;  // cannon speed
-      case 29: sul=30;   sll=.5;    sinc=.5;  sdx=al_fixtof(Efi[num][9]);      break;  // pod speed
-
-
-      // lifts --------------------------------------
-      case 550: sul=1000; sll=1;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step resize speed
-      case 551: sul=1600; sll=20;   sinc=1;   sdx=lift_steps[num][type].w;     break;  // lift step width
-      case 552: sul=1600; sll=20;   sinc=1;   sdx=lift_steps[num][type].h;     break;  // lift step height
-      case 553: sul=2000; sll=1;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step wait time
-      case 554: sul=200;  sll=20;   sinc=10;  sdx=lift_steps[num][type].val;   break;  // lift step wait player prox distance
-      case 555: sul=2000; sll=1;    sinc=1;   sdx=lifts[num].val2;             break;  // lift mode 1 player ride timer
-      case 556: sul=99;   sll=0;    sinc=1;   sdx=lift_steps[num][type].val;   break;  // lift step wait trigger
-
-
-   }
-
-
-   // draw the slider
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-   dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
-   fill_smsg_slider(bn, type, num);
-   al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-
-   // is mouse on adjustment bar?
-   if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
-   {
-      draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-
-      if (mouse_b3) // only when initially clicked
-      {
-         float f = sdx; //initial value
-         while (mouse_b3)
-         {
-            if (mouse_dz)
-            {
-               int dif = mouse_dz;
-               mouse_dz = 0;
-
-               f += dif * sinc;                  // only allow increments of sinc
-               if (f < sll) f = sll;             // limit check
-               if (f > sul) f = sul;
-               f = round(f/sinc) * sinc;         // round to sinc
-               update_var(bn, type, num, f);
-            }
-            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-            fill_smsg_slider(bn, type, num);
-            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
-            al_flip_display();
-            proc_controllers();
-
-         } // end of mouse b4 held
-      } // end of mouse b4 pressed
-
-
-      if (mouse_b1) // only when initially clicked
-      {
-         while (mouse_b1)
-         {
-            float my = mouse_y;
-            float mx = mouse_x;
-            float a, b, c, d, e, f ;
-
-            // enforce limits
-            if (my<y1) my = y1;
-            if (mx<x1) mx = x1;
-            if (my>y2) my = y2;
-            if (mx>x2) mx = x2;
-
-            // get slider position
-            a = mx-x1;                  // relative postion of slider bar in range
-            b = x2-x1;                  // range
-            c = a / b;                  // ratio = position / range
-            d = sul-sll;                // range from buttons
-            e = c * d;                  // ratio * range
-            f = e + sll;                // add to ll
-            f = round(f/sinc) * sinc;   // round to sinc
-            update_var(bn, type, num, f);
-
-            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-            fill_smsg_slider(bn, type, num);
-            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
-            al_flip_display();
-            proc_controllers();
-         }  // end of mouse b1 held
-      }  // end of mouse b1 pressed
-   }
-}
 
 void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
@@ -219,11 +61,9 @@ float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, i
 }
 
 
-
 // modified to be display only if q7 == 1
 
-
-void mdw_slider0_int(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt, const char *txt2)
 {
    int y2 = y1+bts-2;
@@ -315,22 +155,12 @@ void mdw_slider0_int(int x1, int &y1, int x2, int bts, int bn, int num, int type
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 // modified to be display only if q7 == 1
 // y1 is passed as a reference and is modified by height (bts) if q6 == 1
-void mdw_slider2_int(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt)
 {
+
    int y2 = y1+bts-2;
    float sdx = (float) var;
    float dsx;
@@ -413,10 +243,8 @@ void mdw_slider2_int(int x1, int &y1, int x2, int bts, int bn, int num, int type
 }
 
 
-
-
 // modified to be display only if q7 == 1
-void mdw_slider2_fix(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  al_fixed &var, float sul, float sll, float sinc, const char *txt)
 {
    int y2 = y1+bts-2;
@@ -462,6 +290,8 @@ void mdw_slider2_fix(int x1, int &y1, int x2, int bts, int bn, int num, int type
             proc_controllers();
 
          } // end of mouse b4 held
+         if (bn == 22) scale_bouncer_and_cannon_speed(num);
+         if (bn == 29) recalc_pod(num);
       } // end of mouse b4 pressed
       if (mouse_b1) // only when initially clicked
       {
@@ -486,7 +316,6 @@ void mdw_slider2_fix(int x1, int &y1, int x2, int bts, int bn, int num, int type
             f = e + sll;                // add to ll
             f = round(f/sinc) * sinc;   // round to sinc
             var = al_ftofix(f); // update var
-
             draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
             sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
             al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
@@ -494,19 +323,20 @@ void mdw_slider2_fix(int x1, int &y1, int x2, int bts, int bn, int num, int type
             al_flip_display();
             proc_controllers();
          }  // end of mouse b1 held
+         if (bn == 22) scale_bouncer_and_cannon_speed(num);
+         if (bn == 29) recalc_pod(num);
       }  // end of mouse b1 pressed
    }
    if (q6 == 1) y1+=bts;
 }
 
 
-
-
-
-// modified to accept no input if q7 == 1
-void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+// float version
+void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  float &var, float sul, float sll, float sinc, const char *txt)
 {
+   int y2 = y1+bts-2;
+
    float sdx = var;
    float dsx;
 
@@ -517,8 +347,6 @@ void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, 
    sprintf(smsg, "%s%3.2f", txt, var);
 
    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-
-
 
    // is mouse on adjustment bar?
    if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
@@ -584,52 +412,8 @@ void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, 
          }  // end of mouse b1 held
       }  // end of mouse b1 pressed
    }
+   if (q6 == 1) y1+=bts;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -809,9 +593,6 @@ void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, 
 // q2 = text color    (use white 99% of time)
 // q5 = text justify  (0-center 1-left...buttons only)
 
-// modified to be display only if q7 == 1
-// q6 adjust y
-
 int mdw_button(int x1, int &y1, int x2, int bts,
                 int bn, int num, int type, int obt,
                  int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
@@ -891,11 +672,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
 
 
-
    if (bn == 49) // door type
    {
-      if (item[num][8] == 0) sprintf(smsg, "Door Type:Exit Only");
-      if (item[num][8] == 1) sprintf(smsg, "Door Type:Normal   ");
       if (press)
       {
          item[num][8] = !item[num][8];
@@ -907,31 +685,11 @@ int mdw_button(int x1, int &y1, int x2, int bts,
             item[num][11] = 1;   // trigger with up
          }
       }
+      if (item[num][8] == 0) sprintf(smsg, "Door Type:Exit Only");
+      if (item[num][8] == 1) sprintf(smsg, "Door Type:Normal   ");
    }
-   if (bn == 50) // door entry type
-   {
-      if (item[num][8] == 0) sprintf(smsg, "disabled");
-      else
-      {
-         if (press) item[num][11]++;
-         if ((item[num][11] < 0) || (item[num][11] > 2)) item[num][11] = 0; // enforce limits
-         if (item[num][11] == 0) sprintf(smsg, "Enter Immediate  ");
-         if (item[num][11] == 1) sprintf(smsg, "Enter with <up>  ");
-         if (item[num][11] == 2) sprintf(smsg, "Enter with <down>");
-      }
-   }
-   if (bn == 51) // door show dest line type
-   {
-      if (item[num][8] == 0) sprintf(smsg, "disabled");
-      else
-      {
-         if (press) item[num][12]++;
-         if ((item[num][12] < 0) || (item[num][12] > 2)) item[num][12] = 0; // enforce limits
-         if (item[num][12] == 0) sprintf(smsg, "Exit link:never show  ");
-         if (item[num][12] == 1) sprintf(smsg, "Exit link:alway show  ");
-         if (item[num][12] == 2) sprintf(smsg, "Exit link:when touched");
-      }
-   }
+
+
    if (bn == 52)
    {
       sprintf(smsg, "Change Door Shape");
@@ -948,18 +706,6 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    }
 
 
-   if (bn == 53) // door move type
-   {
-      if (item[num][8] == 0) sprintf(smsg, "disabled");
-      else
-      {
-         if (press) item[num][7]++;
-         if ((item[num][7] < 0) || (item[num][7] > 2)) item[num][7] = 0; // enforce limits
-         if (item[num][7] == 0) sprintf(smsg, "Move Type:Automatic    ");
-         if (item[num][7] == 1) sprintf(smsg, "Move Type:Force Instant");
-         if (item[num][7] == 2) sprintf(smsg, "Move Type:Force Move   ");
-      }
-   }
 
 
 
@@ -1475,28 +1221,24 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
 
 
+/*
+q0 = background color; (not used)
+q1 = frame color
+q2 = text color    (use white 99% of time)
+q3 = slider color  (use white 99% of time)
+q4 = slider color  (draw frame mode) now i always use 1
+q5 = text justify  (0-center 1-left...buttons only)
+q6 - increment y1 with bts
+q7 - (0-normal) (1-dont process mouse b1 press)
+*/
 
 
 
-
-
-
-
-
-
-
-
-
-
-// modified to be display only if q7 == 1
-// and q6 for apply bts
 
 void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 )
 {
    int y2 = y1+bts-2;
-
-   // erase
-   al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
+   al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]); // erase
 
    // draw colors (1-15)
    float a = x2-x1; // range
@@ -1558,11 +1300,9 @@ q6 - (0-normal) (1-dont draw)
 q7 - (0-normal) (1-dont process mouse b1 press)
 */
 
-
-int mdw_toggle(int x1, int &y1, int x2, int bts,
-                int bn, int num, int type, int obt,
-                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                  int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
+// toggles the int and displays text, text color, and frame color based on value
+int mdw_toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+               int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
 {
    int y2 = y1+bts-2;
    int ret = 0;
@@ -1586,24 +1326,19 @@ int mdw_toggle(int x1, int &y1, int x2, int bts,
       sprintf(smsg, "%s", t0);
       ret = 0;
    }
-   if (!q6)
-   {
-      draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-      if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
-      else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-   }
-   if (bn == 1) y1+=bts;
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
+   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+
+   if (q6 == 1) y1+=bts;
    return ret;
 }
 
 
 // toggle the flag and displays the corresponding string
 // returns the value of the flag
-// y1 is passed as a reference and is modified by height (bts) if bn == 1
-int mdw_togglf(int x1, int &y1, int x2, int bts,
-                int bn, int num, int type, int obt,
-                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
-                  int &var, int flag, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
+int mdw_togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+               int &var, int flag, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1)
 {
    int ret = 0;
    int y2 = y1+bts-2;
@@ -1628,79 +1363,44 @@ int mdw_togglf(int x1, int &y1, int x2, int bts,
       sprintf(smsg, "%s", t0);
       ret = 0;
    }
-   if (!q6)
-   {
-      draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-      if (q5) al_draw_text(font, palette_color[q2], x1+4,      (y1+y2)/2-3, 0,                    smsg);
-      else    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y1+y2)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-
-   }
-   if (bn == 1) y1+=bts;
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+   if (q5) al_draw_text(font, palette_color[q2], x1+4,      (y1+y2)/2-3, 0,                    smsg);
+   else    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y1+y2)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   if (q6 == 1) y1+=bts;
    return ret;
 }
 
 
-
-
-/*
-q0 = background color; (not used)
-q1 = frame color
-q2 = text color    (use white 99% of time)
-q3 = slider color  (use white 99% of time)
-q4 = slider color  (draw frame mode) now i always use 1
-q5 = text justify  (0-center 1-left...buttons only)
-q6 - (0-normal) (1-dont draw)
-q7 - (0-normal) (1-dont process mouse b1 press)
-*/
-
 // displays a text string, and returns 1 if pressed
-// y1 is passed as a reference and is modified by height (bts) if bn == 1
-int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt,
-                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
    int y2 = y1+bts-2;
    int ret = 0;
-   if (!q6)
-   {
-      sprintf(smsg, "%s", txt);
-      draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-      if (q5) al_draw_text(font, palette_color[q2], x1+4,      y1+bts/2-3, 0,                    smsg);
-      else    al_draw_text(font, palette_color[q2], (x2+x1)/2, y1+bts/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   sprintf(smsg, "%s", txt);
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+   if (q5) al_draw_text(font, palette_color[q2], x1+4,      y1+bts/2-3, 0,                    smsg);
+   else    al_draw_text(font, palette_color[q2], (x2+x1)/2, y1+bts/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
-   }
    if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
       while (mouse_b1) proc_controllers(); // wait for release
       ret = 1;
    }
-   if (bn) y1+=bts;
+   if (q6) y1+=bts;
    return ret;
 }
 
 
-
-// modified to be display only if q7 == 1
 // increment passed pointer (int &var) and display different text for each value
-
-// q6 used for add bts or not
-
-void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt,
-                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
+void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var)
 {
    int y2 = y1+bts-2;
-
-
    int press = 0;
    if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
       while (mouse_b1) proc_controllers(); // wait for release
       press = 1;
    }
-
-
-
-
-
    if (bn == 21)
    {
       if (press) var++;
@@ -1727,8 +1427,6 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var ==  0) sprintf(smsg,  "Stationary");
       if (var == -2) sprintf(smsg,  "Ride Through Door");
    }
-
-
    if (bn == 27) // cloner trigger type
    {
       if (press) var++;
@@ -1737,6 +1435,36 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 1) sprintf(smsg, "Trigger Type:Timer Resets");
       if (var == 2) sprintf(smsg, "Trigger Type:Immediate   ");
    }
+   if (bn == 50) // door entry type
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(smsg, "Enter Immediate  ");
+      if (var == 1) sprintf(smsg, "Enter with <up>  ");
+      if (var == 2) sprintf(smsg, "Enter with <down>");
+   }
+   if (bn == 51) // door show dest line type
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(smsg, "Exit link:never show  ");
+      if (var == 1) sprintf(smsg, "Exit link:alway show  ");
+      if (var == 2) sprintf(smsg, "Exit link:when touched");
+   }
+   if (bn == 53) // door move type
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(smsg, "Move Type:Automatic    ");
+      if (var == 1) sprintf(smsg, "Move Type:Force Instant");
+      if (var == 2) sprintf(smsg, "Move Type:Force Move   ");
+   }
+
+
+
+
+
+
 
 
    if (bn == 78)
@@ -1748,15 +1476,12 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 2) sprintf(smsg, "Checkpoint Common");
       if (var == 3) sprintf(smsg, "Checkpoint Individual");
    }
-
    if (bn == 79)
    {
       if (press) var++;
       if ((var < 0) || (var > 7)) var = 0;
       sprintf(smsg, "Start Index:%d", var);
    }
-
-
    if (bn == 81)
    {
       if (press) var++;
@@ -1791,7 +1516,6 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 1041) { sprintf(smsg, "Color:Blue");   q1 = 13; }
       if (var == 1042) { sprintf(smsg, "Color:Purple"); q1 = 8;  }
    }
-
    if (bn == 301) // block manip mode
    {
       if (press) var++;
@@ -1801,7 +1525,6 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 2) sprintf(smsg, "MODE:Set All Block 2 To Block 1");
       if (var == 3) sprintf(smsg, "MODE:Toggle Block 2 To Block 1");
    }
-
    if (bn == 402) // damage mode
    {
       if (press) var++;
@@ -1812,7 +1535,6 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 3) sprintf(smsg, "MODE:OFF Until Triggered");
       if (var == 4) sprintf(smsg, "MODE:Timed ON And OFF");
    }
-
    if (bn == 404) // Block Damage draw mode
    {
       if (press) var++;
@@ -1821,8 +1543,6 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 1) sprintf(smsg, "Draw Type:Red Rectangle");
       if (var == 2) sprintf(smsg, "Draw Type:Spikey Floor ");
    }
-
-
    if (bn == 500) // lift mode
    {
       if (press) var++;
@@ -1831,36 +1551,9 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 1) sprintf(smsg, "Mode 1 - Prox Run and Reset");
    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-
    if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
    else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-
-
-
    if (q6) y1+=bts;
-
-
-
-
-
-
 }
 

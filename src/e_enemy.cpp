@@ -48,10 +48,10 @@ int get_empty_enemy(int type)
 
 void recalc_pod(int e)
 {
-   al_fixed xlen = Efi[e][5] - Efi[e][0];      // get the x distance
-   al_fixed ylen = Efi[e][6] - Efi[e][1];      // get the y distance
+   al_fixed xlen = Efi[e][5] - Efi[e][0];           // get the x distance
+   al_fixed ylen = Efi[e][6] - Efi[e][1];           // get the y distance
    al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-   al_fixed speed = Efi[e][9];                  // speed
+   al_fixed speed = Efi[e][9];                      // speed
    al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
    al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
    al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
@@ -59,7 +59,7 @@ void recalc_pod(int e)
    Efi[e][3] = yinc;
    Efi[e][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
 
-   // set number of steps
+   // set number of steps (or time)
    al_fixed ns;
    if (abs(xlen) > abs(ylen)) ns = al_fixdiv(xlen, xinc);
    else  ns = al_fixdiv(ylen, yinc);

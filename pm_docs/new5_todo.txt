@@ -8,8 +8,8 @@ even in a small screen resolution
 maybe later I could profile and see what takes up all the time...
 it's most likely an opengl thing
 
-
 seg fault when switching lift mode...can't reproduce...???
+
 
 
 ---------------------------------------------------------
@@ -17,16 +17,13 @@ seg fault when switching lift mode...can't reproduce...???
 ---------------------------------------------------------
 
 
-go through sliders and see how many I can convert...
-
-
-
-
+as soon as bomb starts to explode...don't draw spikes anymore
 
 
 ------------------------------------------------------
 ------------------------ Level ideas -----------------
 ------------------------------------------------------
+
 
 
 
@@ -111,13 +108,7 @@ you could dismount with JUMP? ... that sounds cool
 does remote trigger have a delay before the explosion?
 I want it immediate to help the player time exploding moving things
 
-
-
 make a field that manipulates the players controls, like gravity, etc...
-
-
-
-
 
 
 

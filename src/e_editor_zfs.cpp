@@ -815,16 +815,16 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
    int bts = 16;
    int col=0;
 
-   if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Move Selection"))
+   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Move Selection"))
    {
       mW[4].copy_mode = 1;
       zfs_save_selection(0); // just puts in ft_
       zfs_draw_fsel();
       zfs_do_clear();
    }
-   if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Clear Selection")) zfs_do_clear();
+   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Clear Selection")) zfs_do_clear();
    mW[4].copy_mode ? col=10 : col=9;
-   if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,col,15,0, 1,0,0,d, "Paste Selection"))
+   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Paste Selection"))
    {
       if (mW[4].copy_mode) mW[4].copy_mode = 0;
       else
@@ -837,8 +837,8 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
 
    yfb+=bts/2; // spacing between groups
 
-   if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Save To Disk")) zfs_save_selection(1); // puts in ft_ and saves to disk
-   if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Load From Disk"))
+   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Save To Disk")) zfs_save_selection(1); // puts in ft_ and saves to disk
+   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Load From Disk"))
    {
       if (zfs_load_selection())
       {
@@ -851,7 +851,7 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
    if (mW[1].draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
    {
       yfb+=bts/2; // spacing between groups
-      if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Block Fill"))
+      if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Block Fill"))
       {
          for (int x=bx1; x<bx2+1; x++)
             for (int y=by1; y<by2+1; y++)
@@ -859,7 +859,7 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
          init_level_background();
          al_set_target_backbuffer(display);
       }
-      if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,9,15,0, 1,0,0,d, "Block Frame"))
+      if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Block Frame"))
       {
          for (int x=bx1; x<bx2+1; x++)
          {
@@ -875,7 +875,7 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
          al_set_target_backbuffer(display);
       }
       mW[4].brf_mode ? col=10 : col=9;
-      if (mdw_buttont(x3, yfb, x4, bts, 1,0,0,0, 0,col,15,0, 1,0,0,d, "Block Floodfill")) mW[4].brf_mode = !mW[4].brf_mode;
+      if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Block Floodfill")) mW[4].brf_mode = !mW[4].brf_mode;
    }
    return yfb;
 }

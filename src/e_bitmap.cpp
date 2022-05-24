@@ -176,14 +176,43 @@ void colorize_tile(void)
    al_draw_bitmap(tilemap, 0, 0, 0);
    al_flip_display(); tsw(); // wait for keypress
 
+}
+
+
+
+
+void combine_tile(void)
+{
+
+   // show tilemap before
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap(tilemap, 0, 0, 0);
+   al_flip_display(); tsw(); // wait for keypress
+
+
+   al_set_target_bitmap(tile[534]);
+   al_draw_bitmap(tile[440], 0, 0, 0);
+
+   al_set_target_bitmap(tile[535]);
+   al_draw_bitmap(tile[440], 0, 0, 0);
+
+
+
+   // show tilemap after
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_bitmap(tilemap, 0, 0, 0);
+   al_flip_display(); tsw(); // wait for keypress
 
 
 
 
 
-
+  //   al_save_bitmap("bitmaps/tiles.bmp", tilemap);
 
 }
+
 
 
 
@@ -324,17 +353,9 @@ void animation_sequence_editor(void)
 {
    int zzindx = 3;
    int pointer = zzindx;
-   int as_quit = 0;
    int quit = 0;
-   int c, x;
-
-
-   int button_x1 = 40;
-   int button_x2 = 260;
-   int button_xc = button_x1 + (button_x2-button_x1)/2;
-   int button_y = 240;
-   int jh;
-
+   int xa = 330;
+   int xb = 530;
 
    al_set_target_backbuffer(display);
    al_show_mouse_cursor(display);
@@ -344,6 +365,9 @@ void animation_sequence_editor(void)
       proc_controllers();
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
+
+      frame_num++;
+      update_animation();
 
       sprintf(msg, "Animation Sequence Editor");
       int l = 2+strlen(msg)*4;
@@ -358,46 +382,23 @@ void animation_sequence_editor(void)
          al_draw_rectangle(643.5-l-2, 191, 642.5, 201, palette_color[9], 1);
       }
 
-      jh=1;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Get New Shapes");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      jh=2;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Animation Delay %-2d  ",zz[3][zzindx]);
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-      jh=3;
-      al_draw_rectangle(button_x1, button_y+(jh*12), button_x2, button_y+(jh*12)+10, palette_color[15], 1);
-      sprintf(msg,"Save Changes");
-      al_draw_text(font, palette_color[13], button_xc, button_y+(jh*12)+1, ALLEGRO_ALIGN_CENTER, msg);
-
-
       sprintf(msg, "Current Sequence %d",zzindx);
       l = 2+strlen(msg)*4;
       al_draw_text(font, palette_color[13], 150, 202, ALLEGRO_ALIGN_CENTER, msg);
       al_draw_rectangle(150-l, 201, 150+l, 211, palette_color[13], 1);
 
-      for (c = 0; c < zz[4][zzindx] + 1; c++)   // show current seq shapes
+      for (int c = 0; c < zz[4][zzindx] + 1; c++)   // show current seq shapes
          if (( zz[5+c][zzindx] < NUM_SPRITES) && (zz[5+c][zzindx] > 0))
             al_draw_bitmap(tile[ zz[5+c][zzindx] ], 1+c*20, 212, 0);
       al_draw_rectangle(0.5, 211.5, 302.5, 232.5, palette_color[13], 1);
 
-      for (c=0; c < 32; c++)   // draw 32x8 grid of animation sequences
-         for (x=0; x < 8; x++)
+      for (int c=0; c < 32; c++)   // draw 32x8 grid of animation sequences
+         for (int x=0; x < 8; x++)
             if (zz[4][c + (x * 32)] != 0)
                if ((zz[0][c + (x * 32)] < NUM_SPRITES) && (zz[0][c + (x * 32)] > 0 ))
                   al_draw_bitmap(tile[zz[0][c + (x * 32)]], 2+c*20, 30+x*20, 0);
+
       al_draw_rectangle(0.5, 29.5, 642.5, 190.5, palette_color[9], 1);
-
-
-      // erase current sequence
-      if (key[ALLEGRO_KEY_DELETE])
-      {
-         for (c=0;c<20;c++)
-            zz[c][zzindx] = 0;
-      }
 
       // if mouse on grid, get current animation sequence pointer
       if ((mouse_y > 30) && (mouse_y < 190) && (mouse_x < 642))
@@ -407,62 +408,50 @@ void animation_sequence_editor(void)
       }
       else pointer = -1;
 
+      if ((pointer != -1) && (mouse_b1)) zzindx = pointer;
 
-      if (mouse_b1)
+
+
+      int y5 = 200;
+      if (mdw_buttont(xa, y5, xb, 16, 0,0,0,0, 0,11,15,0, 1,0,1,0, "Get New Shapes"))
       {
-         if (pointer != -1) zzindx = pointer; // mouse is on map and pointer is valid
-
-         // edit delay
-         if ( (mouse_y > 262) && (mouse_y < 272) && (mouse_x > 200) && (mouse_x < 220) )
-            zz[3][zzindx] = edit_int(190, 265, zz[3][zzindx], 1, 0, 100);
-
-         while (mouse_b1) proc_controllers(); // wait for release
-
-         if ((mouse_x > button_x1) && (mouse_x < button_x2) && (mouse_y > button_y) && (mouse_y < button_y+(6*12) ))
+         for (int c=0; c<20; c++) zz[c][zzindx] = 0;
+         int as_quit = 0;
+         while (!as_quit)
          {
-            int mb = (mouse_y - button_y) / 12;
-            switch(mb)
+            int x = select_bitmap_ans(zzindx);
+            if (x == 1) // good return b1
             {
-               case 1:
-                  for (c=0;c<20;c++)
-                     zz[c][zzindx] = 0;
-                  as_quit = 0;
-                  while (!as_quit)
-                  {
-                     x = select_bitmap_ans(zzindx);
-                     if (x == 1) // good return b1
-                     {
-                        zz[5 + zz[4][zzindx]][zzindx] = bmp_index;
-                        zz[4][zzindx]++; // set last shape to point at next
-                     }
-                     if (x == -1)  // abort esc
-                     {
-                        zz[4][zzindx]--;
-                        as_quit=1;
-                     }
-                     if (zz[4][zzindx] > 14) // last shape
-                     {
-                        zz[4][zzindx]--;
-                        as_quit=1;
-                     }
-                  }
-               break;
-               case 3: save_sprit(); break;
+               zz[5 + zz[4][zzindx]][zzindx] = bmp_index;
+               zz[4][zzindx]++; // set last shape to point at next
+            }
+            if (x == -1)  // abort esc
+            {
+               zz[4][zzindx]--;
+               as_quit=1;
+            }
+            if (zz[4][zzindx] > 14) // last shape
+            {
+               zz[4][zzindx]--;
+               as_quit=1;
             }
          }
       }
+      mdw_slideri(xa, y5, xb, 16, 0,0,0,0,  0,12,15,15,  1,0,1,0, zz[3][zzindx], 100, 0, 1, "Animation Delay:");
+      if (mdw_buttont(xa, y5, xb, 16, 0,0,0,0,    0,10,15,0, 1,0,1,0, "Save Changes")) save_sprit();
 
-      frame_num++;
-      update_animation();
-
+      if (key[ALLEGRO_KEY_DELETE]) // erase current sequence
+      {
+         for (int c=0; c<20; c++) zz[c][zzindx] = 0;
+      }
 
       while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
       {
          proc_controllers();
          quit = 1;
       }
-
    }
+   set_frame_nums(0);
 }
 
 

@@ -1600,10 +1600,10 @@ void enemy_trakbot(int e)
 //     Ei[e][7] = sequence limit
 //     Ei[e][8] = wait count
 //     Ei[e][9] = wait limit
-//     Ei[e][11] = trigger box x1
-//     Ei[e][12] = trigger box x1
-//     Ei[e][13] = trigger box x2
-//     Ei[e][14] = trigger box y2
+//     Ei[e][11] = trigger box x
+//     Ei[e][12] = trigger box y
+//     Ei[e][13] = trigger box w
+//     Ei[e][14] = trigger box h
 void enemy_podzilla(int e)
 {
    if (Ei[e][31]) // podzilla hit
@@ -1612,13 +1612,16 @@ void enemy_podzilla(int e)
       return;
    }
    enemy_player_hit_proc(e);
+
    if (Ei[e][5] == 0) // mode 0 - wait for trigger
    {
+      Ei[e][6] = 0; // extend counter
+
       // trigger box offset
       int x1 = Ei[e][11] - 10;
       int y1 = Ei[e][12] - 10;
-      int x2 = x1 + Ei[e][13];
-      int y2 = y1 + Ei[e][14];
+      int x2 = x1 + Ei[e][13]+20;
+      int y2 = y1 + Ei[e][14]+20;
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((players[p].active) && (!players[p].paused))
@@ -1627,8 +1630,7 @@ void enemy_podzilla(int e)
             int py = al_fixtoi(players[p].PY);
             if ((px > x1) && (px < x2) && (py > y1) &&  (py < y2))
             {
-               Ei[e][5] = 1;          // set next mode
-               Ei[e][6] = Ei[e][7];   // set extend counter
+               Ei[e][5] = 1;   // set next mode
             }
          }
    }
@@ -1636,50 +1638,46 @@ void enemy_podzilla(int e)
    {
       Efi[e][0] += Efi[e][2];
       Efi[e][1] += Efi[e][3];
-      if (--Ei[e][6] == 0)  // counter done?
+      if (++Ei[e][6] >= Ei[e][7]) // extend done
       {
          Ei[e][5] = 2; // set next mode
-         Ei[e][8] = frame_num;
+         Ei[e][8] = Ei[e][9];
       }
    }
    if (Ei[e][5] == 2)  // mode 2; wait then shoot
    {
-      if (Ei[e][8] < (frame_num-Ei[e][9]))
+      if (--Ei[e][8] <= 0)
       {
          int p = find_closest_player(e);
          fire_enemy_bulleta(e, 54, p);
          Ei[e][5] = 3; // set next mode
-         Ei[e][8] = frame_num;
+         Ei[e][8] = Ei[e][9];
       }
    }
    if (Ei[e][5] == 3)  // mode 3; post shoot pause
    {
-      if (Ei[e][8] < (frame_num-Ei[e][9]) )
-      {
-         Ei[e][5] = 4;        // next mode
-         Ei[e][6] = Ei[e][7]; // set retract counter
-      }
+      if (--Ei[e][8] <= 0) Ei[e][5] = 4; // next mode
    }
+
    if (Ei[e][5] == 4) // mode 4; retract
    {
       Efi[e][0] -= Efi[e][2];
       Efi[e][1] -= Efi[e][3];
-      if (--Ei[e][6] == 0)  // counter done?
+      if (--Ei[e][6] <= 0)  // retract done
       Ei[e][5] = 0; // set next mode (back to trigger)
    }
 
-   Ei[e][1] = zz[ 5 + (Ei[e][6] * zz[4][15] / Ei[e][7]) ][15];  // bitmap = counter * numshapes / limit
+   // set shape based on how far it has retracted
+   int ns = zz[4][15]; // number of shapes
+   float v = (float)Ei[e][6] / (float)Ei[e][7]; // ratio
+   int s = v*ns;
+   //printf("v:%f, 6:%f  7:%f  s:%d\n", v, (float)Ei[e][6], (float)Ei[e][7], s);
+   Ei[e][1] = zz[5+s][15];
 
-   if ((Ei[e][5] == 2) || (Ei[e][5] == 3)) // rotate to face player
-   {
-      int p = find_closest_player(e);
-      Efi[e][14] = get_rot_from_PXY(e, p);
-      Ei[e][1] = 335; // green cannon ball
-   }
-   else Efi[e][14] = get_rot_from_xyinc(e); // rotate to face direction of movement
+   // set rotation
+   if (!Ei[e][5]) Efi[e][14] = get_rot_from_xyinc(e);              // rotate to face direction of movement
+   else Efi[e][14] = get_rot_from_PXY(e, find_closest_player(e));  // rotate to face player in any mode except wait
 }
-
-
 
 void bouncer_cannon_common(int e)
 {
