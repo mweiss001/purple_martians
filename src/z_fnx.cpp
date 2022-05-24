@@ -334,13 +334,59 @@ void seek_set_xyinc(int EN, int x, int y)
    al_fixed xlen = al_itofix(x) - Efi[EN][0];       // get the x distance between enemy and x
    al_fixed ylen = al_itofix(y) - Efi[EN][1];       // get the y distance between enemy and y
    al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
-   al_fixed speed = Efi[EN][5];                  // speed
-   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
-   al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc
+   al_fixed speed = Efi[EN][5];                     // speed
+   al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler (it's time... distance/speed is time)
+   al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc  (what is this? v? distance/time = speed
    al_fixed yinc = al_fixdiv(ylen, scaler);         // calc yinc
    Efi[EN][2] = xinc;
    Efi[EN][3] = yinc;
 }
+
+
+
+
+// when speed is changed in level editor (Efi[][5]) scale the xinc, yinc to match
+void scale_bouncer_and_cannon_speed(int e)
+{
+   // new v
+   float nv =  al_fixtof(Efi[e][5]);
+
+   // get the original x and y velocities
+   float oxv = al_fixtof(Efi[e][2]);
+   float oyv = al_fixtof(Efi[e][3]);
+
+   // get the combined original velocity
+   float ov = sqrt( pow(oxv, 2) + pow(oyv, 2) );
+
+   // if this was previously stationary, set direction to 100% up
+   if (ov == 0)
+   {
+      Efi[e][3] = -Efi[e][5];
+      Efi[e][14] = get_rot_from_xyinc(e); // set rotation
+   }
+   else
+   {
+      // if new speed is zero, zero both x and y
+      if (nv == 0)
+      {
+         Efi[e][2] = al_ftofix(0);
+         Efi[e][3] = al_ftofix(0);
+      }
+      if (nv>0)
+      {
+         // get the scaler
+         float sc = nv/ov;
+
+         // apply that to the old
+         oxv *= sc;
+         oyv *= sc;
+
+         Efi[e][2] = al_ftofix(oxv);
+         Efi[e][3] = al_ftofix(oyv);
+      }
+   }
+}
+
 
 
 
@@ -367,13 +413,21 @@ int find_closest_player_flapper(int EN, int dir)
          // printf("angle:%d\n", ngl);
 
          /*
-                     -64
-             -127    |
-           128/-128 -+- 0
-              127    |
-                     64
+                       -64
+                        |
+             -127       |
+           128/-128 ----+---- 0
+              127       |
+                        |
+                       +64
 
-        only shoots a bullet at players in a 90 degree pie slice from 45 to 135 for +xinc and 225 to 315 for -xinc
+        only shoots a bullet at players in a 90 degree pie slice
+        45  to 135 for +xinc (-32 to +32)
+        225 to 315 for -xinc (96 to -96)
+
+        but it is actually from (96 to 128) and (-96 to -128)
+        not (96 to -96)
+
 
          */
 

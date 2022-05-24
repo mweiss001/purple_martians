@@ -698,6 +698,9 @@ int em_process_keypress(void)
 
 int edit_menu(int el)
 {
+   for (int i=0; i<5; i++)
+      for (int j=0; j<20; j++)
+         obj_filter[i][j] = 1;
    set_windows(0);
    load_mW();
    if (!el) load_level_prompt(); // load prompt

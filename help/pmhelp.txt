@@ -72,7 +72,7 @@
 <c15>Every level has at least one exit.
 
 
-                         <l13>        Normal exit
+                         <h13>        Normal exit
                               <a22>
 
 
@@ -81,7 +81,7 @@
 <c15>left alive is less than a specified number.
 
 
-                         <l13>        Locked Exit
+                         <h13>        Locked Exit
                               <s367>
 <l15>___________________________________________________________________________
 
@@ -371,14 +371,14 @@
 
 
 <l13>             Switch
-<s841><s745><s777><s809> Swap solid and empty blocks.   <a88>  <ab89>
+<s097><s098><s099><s100> Swap solid and empty blocks.   <a88>  <ab89>
 
 
 
 <l13>    Key
 <a48> Opens matching locked blocks of the same color.
 
-   Locked Block 1      Locked Block 2      Locked Block 3
+<h13>   Locked Block 1      Locked Block 2      Locked Block 3
 <ab49>                 <ab50>                 <ab51>
 
 
@@ -1394,7 +1394,7 @@ bmsgoff - bottom messages off
 <section>Start Viewer
 
 
-<l14>    Start
+<h14>    Start
 <a21>
 <b15>
 
@@ -1465,7 +1465,7 @@ bmsgoff - bottom messages off
 <section>Exit Viewer
 
 
-<l14>    Exit
+<h14>    Exit
 <a22>
 <b15>
 
@@ -1498,7 +1498,7 @@ bmsgoff - bottom messages off
 <section>Message Viewer
 
 
-<l14>    Pop-Up Message
+<h14>    Pop-Up Message
 <a36>
 <b15>
 
@@ -1558,7 +1558,7 @@ bmsgoff - bottom messages off
 <section>Door Viewer
 
 
-<l14>        Door
+<h14>        Door
 <a83> <a05>
 <b15>
 
@@ -1647,7 +1647,7 @@ bmsgoff - bottom messages off
 <section>Key Viewer
 
 
-<l14>    Key
+<h14>    Key
 <a39>
 <b15>
 
@@ -1690,7 +1690,7 @@ bmsgoff - bottom messages off
 <section>Mine Viewer
 
 
-<l14>    Mine
+<h14>    Mine
 <a24>
 <b15>
 
@@ -1715,11 +1715,11 @@ bmsgoff - bottom messages off
 <section>Health Bonus Viewer
 
 
-<l14>    Health Bonus (10)
+<h14>    Health Bonus (10)
 <a23>
 <b15>
 
-<l14>    Health Bonus (50)
+<h14>    Health Bonus (50)
 <a27>
 <b15>
 
@@ -1744,7 +1744,7 @@ bmsgoff - bottom messages off
 <section>Free Man Viewer
 
 
-<l14>    Free Man
+<h14>    Free Man
 <a38>
 <b15>
 
@@ -1764,28 +1764,45 @@ bmsgoff - bottom messages off
 <section>Bomb Viewer
 
 
-<l14>    Bomb
-<a25>
+<b15>
+
+<h14>    Bomb with Fuse                   Sticky Bomb with Fuse
+<s466>                              <s534>
 <b15>
 
 <l04>    Description:
 
-<l15> When a bomb is touched by a player, the fuse starts burning.
+<l15> When touched by a player, the fuse starts burning.
 
 <l15> When the fuse is done, the bomb expodes!
 
-<l15> Bombs have various blast sizes and fuse lengths.
 
-<l15> All enemies in the blast area are killed.
-<l15> (unless they take more than one hit to kill)
+<b15>
 
-<l15> Items and lifts are unaffected by bombs.
+<h14>    Bomb with Remote Detonator       Sticky Bomb with Remote Detonator
+<s537>                              <s535>
+<b15>
 
-<l15> Certain blocks can be destroyed by bombs, but most can't.
+<l04>    Description:
 
-<l15> If a player is in the blast area they will lose health.
+<l15> When touched by a player, the player gets the remote.
 
-<l15> Bombs can be carried and thrown by players.
+<l15> When the player presses [DOWN], the bomb explodes!
+
+
+<b15>
+
+<l15> - Bombs can be carried and thrown by players.
+
+<l15> - Sticky bombs will stick to ceilings and walls.
+
+<l15> - Bombs have various blast sizes and fuse lengths.
+
+<l15> - Enemies in the blast area are killed.
+
+<l15> - Players in the blast area will take damage.
+
+<l15> - Bombs can destroy certain blocks.
 
 <b15>
 
@@ -1796,9 +1813,19 @@ bmsgoff - bottom messages off
 <l15>  - Does the item fall, or is it stationary, or carryable?
 
 
+<l09> [Fuse Timer | Remote Detonator]
+
+<l15>  - Sets what will detonate the bomb
+
+
 <l09> Fuse Length:
 
-<l15>  - How long before the bomb explods.
+<l15>  - How long before the bomb explodes.
+
+
+<l09> Sticky [ON|OFF]
+
+<l15>  - Adds spikes so bombs stick to walls and ceilings when thrown.
 
 
 <l09> Damage Range:
@@ -1808,18 +1835,25 @@ bmsgoff - bottom messages off
 <l14>   (shown on the map as a yellow rectangle)
 
 
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Change the size of the damage range by dragging the yellow circle.
+
+
 <section>Rocket Viewer
 
 
-<l14>    Rocket
+<h14>    Rocket
 <a26>
 <b15>
 
 <l04>    Description:
 
-<l15> When activated by being touched by a player, the rocket travels
+<l15> When touched by a player, the rocket accelerates until it hits something.
 
-<l15> until it hits something solid, then explodes like a bomb.
+<l15> Then it explodes just like a bomb. (See bombs)
 
 <l15> Players can ride rockets by holding the [FIRE] button and
 
@@ -1832,7 +1866,7 @@ bmsgoff - bottom messages off
 
 <l09> Fall:[On or Off]
 
-<l15>  - Does the item obey gravity or is it stationary?
+<l15>  - Does the unactivated rocket obey gravity or is it stationary?
 
 
 <l09> Set New Direction:
@@ -1844,7 +1878,7 @@ bmsgoff - bottom messages off
 
 <l15>  - The size of the blast area.
 
-<l14> (shown on the map as a yellow rectangle)
+<l14> (shown on the map as a yellow circle)
 
 
 <l09> Acceleration:[10-100]:
@@ -1862,25 +1896,37 @@ bmsgoff - bottom messages off
 <l15>  - How fast the rocket turns with [LEFT] and [RIGHT].
 
 
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Change the size of the damage range by dragging the yellow circle.
+
+
 <section>Switch Viewer
 
 
-<l14>             Switches
-<s745><s777><s809><s841>
+<h14>                                             Switches
+<s097><s098><s099><s100><s101><s102><s103><s104><s105><s106><s107><s108><s108><s110><s111>
+
 <b15>
 
 <l04>    Description:
 
 <l15> When you jump on a switch, solid and hollow blocks switch.
 
+<l15> Affects only blocks in the specified block range.
+
+<l15> The multi-colored switches flip multiple colors.
+
 <b15>
 
-<l14>             Solid Blocks
+<h14>             Solid Blocks
 <sb172><sb173><sb174><sb175>
 
 <b15>
 
-<l14>             Hollow Blocks
+<h14>             Hollow Blocks
 <sb007><sb008><sb009><sb010>
 
 <b15>
@@ -1888,22 +1934,40 @@ bmsgoff - bottom messages off
 <l04>    Buttons:
 
 <l09> [Stationary:Fall:Carry]
-
+7
 <l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<l09> Color selections:
+
+<l15>  - Choose the colors that the switch affects.
+
+
+<l09> Get New Block Range
+
+<l15>  - Sets a new Block Range area that will be affected by the switch.
+
+<l10> (shown on the map as a red rectangle)
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Move block range by dragging from the upper left corner on the map.
+
+<l15> - Re-size block range by dragging from the lower right corner on the map.
 
 
 <section>Sproingy Viewer
 
 
-<l14>    Sproingy
+<h14>    Sproingy
 <a52>
 <b15>
 
 <l04>    Description:
 
-<l15> When you land on a Sproingy while holding [JUMP]
-
-<l15> you will jump extra high.
+<l15> Fall onto a Sproingy while holding [JUMP] to jump extra high.
 
 <b15>
 
@@ -1931,7 +1995,7 @@ bmsgoff - bottom messages off
 <section>Archwagon Viewer
 
 
-<l14>    ArchWagon
+<h14>    ArchWagon
 <a02>
 <b15>
 
@@ -1993,7 +2057,7 @@ bmsgoff - bottom messages off
 <section>Trakbot Viewer
 
 
-<l14>    Trakbot
+<h14>    Trakbot
 <a17>
 <b15>
 
@@ -2045,7 +2109,7 @@ bmsgoff - bottom messages off
 <section>Bouncer Viewer
 
 
-<l14>    Bouncer
+<h14>    Bouncer
 <a14>
 <b15>
 
@@ -2090,7 +2154,7 @@ bmsgoff - bottom messages off
 <section>Cannon Viewer
 
 
-<l14>    Cannon
+<h14>    Cannon
 <a19>
 <b15>
 
@@ -2137,7 +2201,7 @@ bmsgoff - bottom messages off
 <section>Cloner Viewer
 
 
-<l14>    Cloner
+<h14>    Cloner
 <a53>
 <b15>
 
@@ -2210,7 +2274,7 @@ bmsgoff - bottom messages off
 <section>Flapper Viewer
 
 
-<l14>    Flapper
+<h14>    Flapper
 <a61>
 <b15>
 
@@ -2278,7 +2342,7 @@ bmsgoff - bottom messages off
 <section>Podzilla Viewer
 
 
-<l14>    Podzilla
+<h14>    Podzilla
 <a15>
 <b15>
 
@@ -2330,7 +2394,7 @@ bmsgoff - bottom messages off
 <section>Block Walker Viewer
 
 
-<l14>    Block Walker
+<h14>    Block Walker
 <a56>
 <b15>
 

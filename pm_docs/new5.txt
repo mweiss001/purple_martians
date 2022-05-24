@@ -26967,6 +26967,284 @@ push....
 i have vewy few weft....heh heh heh....
 9:10 PM
 
+20220523 5:00AM
+
+I only have 2 sliders left and they have custom code...
+
+pod extended
+bouncer cannon speed
+
+
+
+list the funtions and variables...
+
+int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 );
+
+they all have 4 ints to start:
+int x1, int &y1, int x2, int bts,
+
+then the next four ints:
+int bn, int num, int type, int obt,
+
+then the next 8 ints:
+int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7
+
+I want to make q6 the y inc flag for all....
+
+right now a few use something else....
+
+these uses bn beacuse b6 is used for no draw....
+toggle not actually used...fixed
+togglef not actually used...fixed
+buttont not actually used... fixed
+
+make them all common...
+q0 = background color; (not used)
+q1 = frame color
+q2 = text color    (use white 99% of time)
+q3 = slider color  (use white 99% of time)
+q4 = slider color  (draw frame mode) now i always use 1
+q5 = text justify  (0-center 1-left...buttons only)
+q6 - add bts to y1
+q7 - (0-normal) (1-dont process mouse b1 press)
+
+
+
+
+
+I really want to put the last 2 sliders in slider2_int...
+2 never uses bn...i think I could...
+
+slider is gone.....
+
+now I want to make the function names not so long...and the same length...
+
+mdw_slider2_int
+mdw_slider2_fix
+mdw_slider2_flt
+mdw_slider0_int
+mdw_button
+mdw_buttont
+mdw_buttonp
+mdw_colsel
+mdw_toggle
+mdw_togglf
+
+
+mdw_slideri int
+mdw_sliderf fixed
+mdw_sliderd float
+mdw_slider0 int 0
+mdw_button
+mdw_buttont
+mdw_buttonp
+mdw_colsel
+mdw_toggle
+mdw_togglf
+
+
+change all slider2_int to slideri..done
+change all slider2_fix to sliderf..done
+change all slider2_flt to sliderd..done
+change all slider0_int to slider0..done
+
+
+
+I think I have all the buttons in ov lined up nice...
+
+there are a few in lifts that do not have the no draw d q7 thing....
+
+int draw_current_step_buttons(int x1, int x2, int y, int l, int s)
+
+pass d to it...
+
+
+void draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc)
+
+called by:
+
+int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_step)
+
+called by
+int insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'step'
+and ov
+      int ycs = ysb + draw_steps(xa, xb, ysb, lift, step, step_pointer);
+      ycs +=bts;
+
+
+int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_step)
+will now have d....
+
+when called from insert steps pass 1 for d to make it read only...
+
+now pass d on to
+
+void draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc)..
+
+
+OK done...
+
+lets go through all the things once and then call it done...
+
+mdw_slideri 58 all good
+mdw_sliderf 26 all good
+mdw_sliderd 2 all good
+mdw_slider0 16 all good
+mdw_button 31 all good
+mdw_buttont 56 all good
+mdw_buttonp 27 all good
+mdw_colsel 6 all good
+mdw_toggle 39 all good
+mdw_togglf 24 all good
+
+
+now do I have some bugs to fix??
+
+can bd be cleaned up more...nah...its good...
+
+filters does not display properly...fixed
+
+
+set speed for cannon does not have effect until next seek
+also bouncer
+
+this function could work without knowing the old speed...
+
+
+- use the old speed to get angle
+- use the new speed to make xinc, yinc
+
+void scale_bouncer_and_cannon_speed(int num, float f)
+{
+   al_fixed old_speed = Efi[num][5];
+   Efi[num][5] = al_ftofix(f);
+   al_fixed fratio = al_fixdiv(Efi[num][5], old_speed);
+   Efi[num][2] = al_fixmul(Efi[num][2], fratio);
+   Efi[num][3] = al_fixmul(Efi[num][3], fratio);
+
+   if (f == 0)
+   {
+      Efi[num][2] = al_itofix(0);
+      Efi[num][3] = al_itofix(0);
+   }
+}
+
+or...
+- use xinc and yinc to get old speed (just hypot)
+- the calculate the scale factor between old speed and new speed
+- then apply that to the xinc, yinc,
+bad things happen when speed == 0....fixed
+
+
+
+make pod look at you when extending...
+podzilla has some weird old code that I barely can comprehend..
+frame number is being used count delay between modes??
+Ei[][6] is the extend retract counter
+Ei[][7] is used to reset Ei[][6]..
+where does this come from??
+the number of steps needed to reach the extended position??
+it is set in recalc pod...
+OK..moving on....
+removed the bit where it uses frame number...
+now to figure out the ans stuff...done
+also fixed trigger box...
+podzilla is done now...
+
+lets make sure everything else works, too...
+
+add sliders to PDE and remove edit int....
+got rid of bottom menu....
+
+animation sequence editor has been redone with buttons
+lost edit_edit...
+
+back to PDE...
+am I ready to kill the old edit int shit??
+
+i think so...OK now PDE looks a lot better....
+edit text is its own function..
+edit int and fixed are gone...
+
+looking good...
+
+door shit in ov..
+door uses 6 custom button...
+when exit only, 4 buttons could disappear...done
+make all filters on by delfault..done
+door links show to draw item...fixed
+
+update the switch page in help...done....
+what else has changed?
+keys..same
+doors..same
+bonus has changed...not done yet...
+bombs have changed....yes they have....
+
+
+20220523 9:14 PM push
+
+finished cleaning up the sliders
+removed bottom_menu edit_int...
+fixed up PDE with sliders
+did some additions to help
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

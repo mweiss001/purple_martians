@@ -1281,6 +1281,8 @@ int main(int argument_count, char **argument_array)
 //   colorize_tile();
 
 
+//void combine_tile(void);
+//   combine_tile();
 
 
 

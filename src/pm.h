@@ -990,13 +990,13 @@ void object_viewerw(int obt, int num);
 // e_lift.h
 int lift_find_previous_move_step(int lift, int step);
 al_fixed lift_get_distance_to_previous_move_step(int lift, int step);
-int draw_current_step_buttons(int xa, int xb, int y, int l, int s);
+int draw_current_step_buttons(int xa, int xb, int y, int l, int s, int d);
 void show_all_lifts(void);
 void erase_lift(int lift);
 void delete_lift_step(int lift, int step);
 void lift_setup(void);
-void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int rc);
-int draw_steps(int xa, int xb, int step_ty, int lift, int current_step, int highlight_step);
+void draw_step_button(int xa, int xb, int ty, int ty2, int lift, int step, int rc, int d);
+int draw_steps(int xa, int xb, int step_ty, int lift, int current_step, int highlight_step, int d);
 int create_lift(void);
 void move_lift_step(int lift, int step);
 int redraw_get_new_lift_step_menu(int sty, int step, int highlight);
@@ -1013,6 +1013,7 @@ float mdw_rnd(float rmin, float rmax);
 void swap_int(int *i1, int* i2);
 void printBits(size_t const size, void const * const ptr);
 al_fixed get_sproingy_jump_height(int num);
+void scale_bouncer_and_cannon_speed(int e);
 void set_xyinc_rot(int EN, int x2, int y2);
 void set_rocket_rot(int num, int x2, int y2);
 int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type);
@@ -1049,7 +1050,6 @@ int create_exit(int c);
 int create_door(int type);
 int create_item(int type);
 
-
 // e_enemy.h
 void erase_enemy(int e);
 void show_all_enemies(void);
@@ -1064,11 +1064,9 @@ int create_pod(void);
 // e_pde.h
 int load_PDE();
 void save_PDE();
-int bottom_menu(int menu_num);
-int edit_int(int x, int y, int val, int inc, int lv, int uv);
-al_fixed edit_fix(int x, int y, al_fixed val);
 void PDE_swap(int s1, int s2);
 void PDE_sort(void);
+void PDE_edit_text(int EN);
 void predefined_enemies(void);
 
 // e_sliders.h
@@ -1078,18 +1076,20 @@ void fill_smsg_slider(int bn, int type, int num);
 void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 );
 float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, int y2, int dm, int col);
 
-void mdw_slider     (int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 );
 
-void mdw_slider2_int(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+
+void mdw_slider     (int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 );
+
+void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt);
 
-void mdw_slider2_fix(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  al_fixed &var, float sul, float sll, float sinc, const char *txt);
 
-void mdw_slider2_flt(int x1, int y1, int x2, int y2, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  float &var, float sul, float sll, float sinc, const char *txt);
 
-void mdw_slider0_int(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt, const char *txt2);
 
 int  mdw_button( int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 );
@@ -1102,18 +1102,10 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
 void mdw_colsel (int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7 );
 
 
-int mdw_toggle(int x1, int &y1, int x2, int bts,
-                int bn, int num, int type, int obt,
-                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+int mdw_toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                   int &var, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1);
 
-
-
-
-
-int mdw_togglf(int x1, int &y1, int x2, int bts,
-                int bn, int num, int type, int obt,
-                 int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+int mdw_togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                   int &var, int flag, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1);
 
 
@@ -1331,7 +1323,7 @@ void change_linked_door_color_and_shape(int door);
 void remove_block(int x, int y);
 void bomb_block_crosshairs(int e, int f);
 void draw_pop_message(int c);
-void draw_door(int c, int x, int y);
+void draw_door(int c, int x, int y, int custom);
 
 void draw_item(int i, int custom, int x, int y);
 void draw_items(void);

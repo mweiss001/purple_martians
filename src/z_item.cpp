@@ -112,7 +112,7 @@ void draw_pop_message(int i)
 
 
 
-void draw_door(int i, int x, int y)
+void draw_door(int i, int x, int y, int custom)
 {
    ALLEGRO_BITMAP *tmp = NULL;
    int col = item[i][6];
@@ -130,7 +130,7 @@ void draw_door(int i, int x, int y)
    }
 
    int drawn = 0;
-   if (item[i][8] == 1)  // linked item destination
+   if ((item[i][8] == 1) && (!custom)) // linked item destination
    {
       // linked destination item position
       int dx = al_fixtoi(itemf[item[i][9]][0]);
@@ -613,10 +613,15 @@ void draw_item(int i, int custom, int cx, int cy)
       draw_pop_message(i);
    }
 
-   if (type == 1)  { draw_door(i, x, y);         drawn = 1; }
-   if (type == 9)  { draw_trigger(i, x, y);      drawn = 1; }
-   if (type == 16) { draw_block_manip(i, x, y);  drawn = 1; }
+   if (type == 1)  { draw_door(i, x, y, custom);         drawn = 1; }
+   if (type == 9)  { draw_trigger(i, x, y);              drawn = 1; }
+   if (type == 16) { draw_block_manip(i, x, y);          drawn = 1; }
    if (type == 17) { draw_block_damage(i, x, y, custom); drawn = 1; }
+
+
+
+   if ((type == 8) && (item[i][11])) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
+
 
    if (type == 99)
    {
@@ -624,7 +629,6 @@ void draw_item(int i, int custom, int cx, int cy)
       if (item[i][11]) al_draw_bitmap(tile[440], x, y, 0);  // bomb sticky spikes
       drawn = 1;
    }
-   if ((type == 8) && (item[i][11])) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
 
    // moving key in final sequence
    if ((type == 4) && (item[i][11] > 0) && (item[i][11] < 10))
@@ -705,6 +709,8 @@ void draw_item(int i, int custom, int cx, int cy)
 
    // default draw if nothing else has drawn it up to now
    if (!drawn) al_draw_bitmap(tile[shape], x, y, 0);
+
+
 
    if (!level_editor_running)
    {

@@ -183,6 +183,8 @@ void help(const char *topic)
          {
             processed_tag_this_time_through = 0;
 
+            int tay = 0; // text align for lining up with bitmaps
+
             int sy = 12 + (c*8);    // shape draw y position
             int sx = 20 + xindent;  // shape draw x pos left just
             int sxc = (640/2) - 10; // shape draw x pos centered
@@ -190,10 +192,7 @@ void help(const char *topic)
             if (strncmp(msg, "<title>", 7) == 0) // show title
             {
                 al_set_clipping_rectangle((dx+12)*display_transform_double, (12*display_transform_double), (639-12*2)*display_transform_double, (SCREEN_H-12*2)*display_transform_double);
-//                draw_title(dx+sxc+10, sy-108, 360, 64, 8);
                 draw_title(dx+sxc+10, sy, 360, 64, 8);
-
-
                 msg[0]= 0;
                 al_reset_clipping_rectangle();
            }
@@ -318,8 +317,8 @@ void help(const char *topic)
                 buff2[2] = 0;
                 int pco = atoi(buff2);
                 int ans = zz[1][9];
-                al_draw_bitmap(player_tile[pco-1][ans], dx+sxc-40, sy, 0 );
-                al_draw_text(font, palette_color[pco], dx+sxc+24-40, sy+6, 0, color_name[pco]);
+                al_draw_bitmap(player_tile[pco][ans], dx+sxc-40, sy, 0 );
+                al_draw_text(font, palette_color[pco], dx+sxc+24-40, sy+7, 0, color_name[pco]);
                 msg[0]= 0;
             }
             if (strncmp(msg, "<p", 2) == 0) // <pxx> show player (left just)
@@ -381,6 +380,20 @@ void help(const char *topic)
                color = atoi(buff2);
                chop_first_x_char(msg, 5);
             }
+
+            if (strncmp(msg, "<h", 2) == 0) // <lxx> line color xx (left just) plus 4 for y align
+            {
+               processed_tag_this_time_through = 1;
+               buff2[0] = msg[2];
+               buff2[1] = msg[3];
+               buff2[2] = 0;
+               color = atoi(buff2);
+               chop_first_x_char(msg, 5);
+               tay=3;
+            }
+
+
+
             if (strncmp(msg, "<c", 2) == 0) // <cxx> line color xx (centered)
             {
                processed_tag_this_time_through = 1;
@@ -433,7 +446,7 @@ void help(const char *topic)
                chop_first_x_char(msg, nexttag);   // remove this from the beginning of 'msg'
             }
             if (just) al_draw_text(font, palette_color[color], dx+320,          24+(c*8), ALLEGRO_ALIGN_CENTER, txt );
-            else      al_draw_text(font, palette_color[color], dx+20 + xindent, 24+(c*8), 0, txt );
+            else      al_draw_text(font, palette_color[color], dx+20 + xindent, 24+(c*8)+tay, 0, txt );
             xindent += strlen(txt) * 8;
          } // end of while nexttag != -1
       } // end of cycle lines
@@ -491,6 +504,7 @@ void help(const char *topic)
    al_destroy_bitmap(selection_window);
    al_destroy_bitmap(hlift);
    help_screens_running = 0;
+   set_frame_nums(0);
 }
 
 
@@ -1099,9 +1113,9 @@ int edit_pmsg_text(int c, int new_msg)
       int ey = by+-3*bts; // erase y1
       int by1 = ey;
 
-      mdw_buttont(    xa, by1, xb, bts, 1,0,0,0,  0,15,13,0, 1,0,0,1, "Type a New Message"); // display text only
-      if (mdw_buttont(xa, by1, xb, bts, 1,0,0,0,  0,11,15,0, 1,0,0,0, "OK"))     { quit = 1; bad = 0; }
-      if (mdw_buttont(xa, by1, xb, bts, 1,0,0,0,  0,10,15,0, 1,0,0,0, "Cancel")) { quit = 1; bad = 1; }
+      mdw_buttont(    xa, by1, xb, bts, 0,0,0,0,  0,15,13,0, 1,0,1,1, "Type a New Message"); // display text only
+      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,11,15,0, 1,0,1,0, "OK"))     { quit = 1; bad = 0; }
+      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,10,15,0, 1,0,1,0, "Cancel")) { quit = 1; bad = 1; }
 
 
       if (blink_counter++ < blink_count) show_cursor(f, cursor_pos, smx, smy, tc, 0, 0);
