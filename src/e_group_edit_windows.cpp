@@ -598,8 +598,8 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving,
                   float mna = ge_data[ge_num].min_allowed;
                   float mxa = ge_data[ge_num].max_allowed;
 
-                  mdw_sliderd(x1+8, by, x4, bts, 0,0,0,0, 0,3,15,0,1,0,0,d, ge_data[ge_num].adj_min, mxa, mna, 1, "Min:");
-                  mdw_sliderd(x4,   by, x2, bts, 0,0,0,0, 0,3,15,0,1,0,1,d, ge_data[ge_num].adj_max, mxa, mna, 1, "Max:");
+                  mdw_sliderd(x1+8, by, x4, bts, 0,0,0,0, 0,3,15,0,1,0,0,d, ge_data[ge_num].adj_min, mxa, mna, .1, "Min:");
+                  mdw_sliderd(x4,   by, x2, bts, 0,0,0,0, 0,3,15,0,1,0,1,d, ge_data[ge_num].adj_max, mxa, mna, .1, "Max:");
 
                   mdw_buttonp(    x1+8, by, x3, bts,   100,0,0,0,  0, 4,15,0,1,1,0,d, ge_data[ge_num].adj_mode); // Action type
                   if (mdw_buttont(x3,  by, x2, bts,      0,0,0,0,  0,10,15,0,1,0,1,d, "Do It!"))

@@ -27189,15 +27189,10 @@ removed bottom_menu edit_int...
 fixed up PDE with sliders
 did some additions to help
 
+some buttons have text that is not centered in the y axis
+did a bunch of button clean up...
 
-
-
-
-
-
-
-
-
+as soon as bomb starts to explode...don't draw spikes anymore...done
 
 
 
