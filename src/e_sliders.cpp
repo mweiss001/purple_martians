@@ -38,6 +38,13 @@ void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, i
    }
 }
 
+void draw_slider_text(int x1, int y1, int x2, int y2, int q2, int q5)
+{
+   int xt = (x2+x1)/2;
+   int yt = y1 + (y2-y1-8)/2;
+   if (q5) al_draw_text(font, palette_color[q2], x1+4, yt, 0, smsg);
+   else    al_draw_text(font, palette_color[q2], xt, yt, ALLEGRO_ALIGN_CENTER, smsg);
+}
 
 float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, int y2, int dm, int col)
 {
@@ -61,33 +68,39 @@ float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, i
 }
 
 
-// modified to be display only if q7 == 1
+float draw_slider(int x1, int y1, int x2, int y2, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, float sdx, float sul, float sll, int order)
+{
+   float dsx = 0;
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+   if (order == 1)
+   {
+      dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
+      draw_slider_text(x1, y1, x2, y2, q2, q5);
+   }
+   if (order == 2)
+   {
+      draw_slider_text(x1, y1, x2, y2, q2, q5);
+      dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
+   }
+   return dsx;
+}
+
+
 
 void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt, const char *txt2)
 {
    int y2 = y1+bts-2;
-
    float sdx = (float) var;
-   float dsx;
-
-   // draw the slider
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-   dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
-
-
    if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
    else          sprintf(smsg, "%s%d", txt, var);
-
-
-
-   al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
 
    // is mouse on adjustment bar?
    if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
       if (mouse_b3) // only when initially clicked
       {
@@ -105,11 +118,9 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                f = round(f/sinc) * sinc;         // round to sinc
                var = (int)f; // update var
             }
-            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
             if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
             else          sprintf(smsg, "%s%d", txt, var);
-            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
             al_flip_display();
             proc_controllers();
 
@@ -138,13 +149,9 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
             f = e + sll;                // add to ll
             f = round(f/sinc) * sinc;   // round to sinc
             var = (int)f; // update var
-
-
-            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
             if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
             else          sprintf(smsg, "%s%d", txt, var);
-            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
             al_flip_display();
             proc_controllers();
          }  // end of mouse b1 held
@@ -155,28 +162,22 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
 
 
 
-// modified to be display only if q7 == 1
-// y1 is passed as a reference and is modified by height (bts) if q6 == 1
+
+
 void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                  int &var, float sul, float sll, float sinc, const char *txt)
 {
-
    int y2 = y1+bts-2;
    float sdx = (float) var;
-   float dsx;
-
-   // draw the slider
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-   dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
 
    sprintf(smsg, "%s%d", txt, var);
-   al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
 
    // is mouse on adjustment bar?
    if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+      draw_slider_text(x1, y1, x2, y2, q2, q5);
 
       if (mouse_b3) // only when initially clicked
       {
@@ -194,16 +195,16 @@ void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                f = round(f/sinc) * sinc;         // round to sinc
                var = (int)f; // update var
             }
-            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+
             sprintf(smsg, "%s%d", txt, var);
-            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 2);
+
             al_flip_display();
             proc_controllers();
 
-         } // end of mouse b4 held
-      } // end of mouse b4 pressed
-      if (mouse_b1) // only when initially clicked
+         } // end of mouse b3 held
+      } // end of mouse b3 pressed
+      if (mouse_b1) // when initially clicked
       {
          while (mouse_b1)
          {
@@ -227,19 +228,15 @@ void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
             f = round(f/sinc) * sinc;   // round to sinc
             var = (int)f; // update var
 
-
-            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
             sprintf(smsg, "%s%d", txt, var);
-            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 2);
+
             al_flip_display();
             proc_controllers();
          }  // end of mouse b1 held
       }  // end of mouse b1 pressed
    }
-
    if (q6 == 1) y1+=bts;
-
 }
 
 
@@ -248,23 +245,17 @@ void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                  al_fixed &var, float sul, float sll, float sinc, const char *txt)
 {
    int y2 = y1+bts-2;
-
    float sdx = al_fixtof(var);
-   float dsx;
 
    // draw the slider
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-   dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
-
    sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
-
-   al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
 
    // is mouse on adjustment bar?
    if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
       if (mouse_b3) // only when initially clicked
       {
@@ -282,12 +273,10 @@ void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                f = round(f/sinc) * sinc;         // round to sinc
                var = al_ftofix(f); // update var
             }
-            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-            sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
-            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
-            al_flip_display();
-            proc_controllers();
+               sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
+               draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
+               al_flip_display();
+               proc_controllers();
 
          } // end of mouse b4 held
          if (bn == 22) scale_bouncer_and_cannon_speed(num);
@@ -316,10 +305,9 @@ void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
             f = e + sll;                // add to ll
             f = round(f/sinc) * sinc;   // round to sinc
             var = al_ftofix(f); // update var
-            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
+
             sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
-            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
             al_flip_display();
             proc_controllers();
          }  // end of mouse b1 held
@@ -336,23 +324,16 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                  float &var, float sul, float sll, float sinc, const char *txt)
 {
    int y2 = y1+bts-2;
-
    float sdx = var;
-   float dsx;
-
-   // draw the slider
-   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
-   dsx = draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 1, q3);
 
    sprintf(smsg, "%s%3.2f", txt, var);
-
-   al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
 
    // is mouse on adjustment bar?
    if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
       if (mouse_b3) // only when initially clicked
       {
@@ -370,10 +351,8 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                f = round(f/sinc) * sinc;         // round to sinc
                var = f; // update var
             }
-            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
             sprintf(smsg, "%s%3.2f", txt, var);
-            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
             al_flip_display();
             proc_controllers();
 
@@ -402,11 +381,8 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
             f = e + sll;                // add to ll
             f = round(f/sinc) * sinc;   // round to sinc
             var = f; // update var
-
-            draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7);
             sprintf(smsg, "%s%3.2f", txt, var);
-            al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
-            draw_slider_bar(f, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
             al_flip_display();
             proc_controllers();
          }  // end of mouse b1 held
@@ -719,8 +695,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 77)
    {
-      if (item[num][12] == 0) sprintf(smsg, "   Fuse Timer   ");
-      if (item[num][12] == 1) sprintf(smsg, "Remote Detonator");
+      if (item[num][12] == 0) sprintf(smsg, "Type:Fuse Timer");
+      if (item[num][12] == 1) sprintf(smsg, "Type:Remote Detonator");
       if (press)
       {
          item[num][12] = !item[num][12];
@@ -1123,9 +1099,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    }
 
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-
-   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
-   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5);
 
    // special cases that need bitmaps draw on them
    if (bn == 13)
@@ -1254,9 +1228,11 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    if (bn == 6) sprintf(smsg, "Select Trigger Field Color");
    if (bn == 7) sprintf(smsg, "Select Block Manip Field Color");
    if (bn == 8) sprintf(smsg, "Select Lift Step Color");
-   al_draw_text(font, palette_color[0], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
-    // draw outline
+
+   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+
+   // draw outline
    al_draw_rectangle(x1, y1, x2, y2, palette_color[15], 1);
 
    // is mouse pressed on button?
@@ -1327,8 +1303,7 @@ int mdw_toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
       ret = 0;
    }
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
-   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5);
 
    if (q6 == 1) y1+=bts;
    return ret;
@@ -1364,11 +1339,12 @@ int mdw_togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
       ret = 0;
    }
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   if (q5) al_draw_text(font, palette_color[q2], x1+4,      (y1+y2)/2-3, 0,                    smsg);
-   else    al_draw_text(font, palette_color[q2], (x2+x1)/2, (y1+y2)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5);
    if (q6 == 1) y1+=bts;
    return ret;
 }
+
+
 
 
 // displays a text string, and returns 1 if pressed
@@ -1377,9 +1353,9 @@ int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    int y2 = y1+bts-2;
    int ret = 0;
    sprintf(smsg, "%s", txt);
+
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   if (q5) al_draw_text(font, palette_color[q2], x1+4,      y1+bts/2-3, 0,                    smsg);
-   else    al_draw_text(font, palette_color[q2], (x2+x1)/2, y1+bts/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5);
 
    if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
@@ -1459,14 +1435,6 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 1) sprintf(smsg, "Move Type:Force Instant");
       if (var == 2) sprintf(smsg, "Move Type:Force Move   ");
    }
-
-
-
-
-
-
-
-
    if (bn == 78)
    {
       if (press) var++;
@@ -1550,10 +1518,8 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 0) sprintf(smsg, "Mode 0 - Normal");
       if (var == 1) sprintf(smsg, "Mode 1 - Prox Run and Reset");
    }
-
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-   if (q5) al_draw_text(font, palette_color[q2], x1+4, (y2+y1)/2-3, 0, smsg);
-   else al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+   draw_slider_text(x1, y1,  x2, y2, q2, q5);
    if (q6) y1+=bts;
 }
 

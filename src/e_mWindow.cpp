@@ -273,7 +273,6 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
    if (have_focus) d = 0;
    if (moving) d = 1;
 
-
    int fs = 12;   // frame size
    int y = y1+fs; // button y position
 
@@ -285,13 +284,13 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
    int fc2 = 4;     // frame color 2
 
    int tl=0; // text_lines
-   if (mode == 1) tl = 24;
-   if (mode == 2) tl = 26;
-   if (mode == 3) tl = 28;
+   if (mode == 1) tl = 24*bts-bts/2;
+   if (mode == 2) tl = 26*bts-bts;
+   if (mode == 3) tl = 28*bts-bts;
 
-   if (mW[3].collapsed) tl = -1;
+   if (mW[3].collapsed) tl = -bts+2;
 
-   int y2 = y1+tl*bts+fs*2-2; // pre calc
+   int y2 = y1+tl+fs*2-2; // pre calc
 
    // erase background
    al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
@@ -302,10 +301,8 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
       al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, palette_color[12+32+(q*ci)], 1);
    al_draw_text(font, palette_color[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "Filters");
 
-
    int by1 = y1+2;
    mdw_toggle(x2-10, by1, x2-2, 8, 0,0,0,0, 0,0,0,0, 1,0,0,d, mW[3].collapsed,  "-", "+", tc1, tc2, -1, -1);
-
 
    // detect mouse click before toggles, but don't do anything until after the toggles change
    int refresh_selection = 0;
@@ -321,7 +318,7 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
       if (mode > 1) // add lifts
       {
          mdw_toggle(x1+fs, y, x2-fs, bts, 1, 0,0,0,0,0,0,0,1,0,1,d, obj_filter[4][1],  "Lifts",  "Lifts",  tc1, tc2, fc1, fc2);
-         y+=bts;
+         y+=bts/2;
       }
 
 
@@ -334,7 +331,7 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][9],  "Cloner", "Cloner", tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][11], "Blk Wk", "Blk Wk", tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][12], "Flappr", "Flappr", tc1, tc2, fc1, fc2);
-      y+=bts;
+      y+=bts/2;
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][1],  "Door",   "Door",   tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][2],  "Bonus",  "Bonus",  tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][3],  "Exit",   "Exit",   tc1, tc2, fc1, fc2);

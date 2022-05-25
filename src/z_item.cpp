@@ -618,15 +618,12 @@ void draw_item(int i, int custom, int cx, int cy)
    if (type == 16) { draw_block_manip(i, x, y);          drawn = 1; }
    if (type == 17) { draw_block_damage(i, x, y, custom); drawn = 1; }
 
-
-
-   if ((type == 8) && (item[i][11])) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
-
+   if ((type == 8) && (item[i][11]) ) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
 
    if (type == 99)
    {
       draw_lit_bomb(i);
-      if (item[i][11]) al_draw_bitmap(tile[440], x, y, 0);  // bomb sticky spikes
+      if ((item[i][11]) && (item[i][6] != 2)) al_draw_bitmap(tile[440], x, y, 0);  // bomb sticky spikes
       drawn = 1;
    }
 
@@ -1530,19 +1527,6 @@ void proc_warp_collision(int p, int i)
 }
 
 
-
-
-
-
-
-/*
-       6     8    9    10   11
-green  0001  745  746  172  7
-red    0010  777  778  173  8
-blue   0100  809  810  174  9
-purple 1000  841  842  175  10
-*/
-
 void proc_switch_collision(int p, int i)
 {
    if (item[i][11] < frame_num) // if not lockout
@@ -1558,60 +1542,12 @@ void proc_switch_collision(int p, int i)
          if (item[i][1] > 111) item[i][1] -= 16;
          else item[i][1] += 16;
 
-//         if (item[i][1] == 200) item[i][1] = 201;
-//         else item[i][1] = 200;
-
          al_set_target_bitmap(level_background);
-
          proc_switch_block_range(i, 1);
-
-      }  // end of falling and landing on
-   } // end of if not lockout
+      }
+   }
 }
 
-/*
-
-void proc_switch_collision(int p, int i)
-{
-   if (item[i][7] < frame_num) // if not lockout
-   {
-      // if falling and landing on it
-      if ( (players[p].PX  > itemf[i][0] - al_itofix(12)) &&
-           (players[p].PX  < itemf[i][0] + al_itofix(12)) &&
-           (players[p].PY  > itemf[i][1] - al_itofix(16)) &&
-           (players[p].PY  < itemf[i][1] - al_itofix(8)) &&
-           (players[p].yinc > al_itofix(0)) )  // falling
-      {
-         item[i][7] = frame_num + 4; // switch lockout for next 4 frames
-         item[i][6] = !item[i][6];
-         if (item[i][6]) item[i][1] = item[i][8]; // on bmp
-         else            item[i][1] = item[i][9]; // off bmp
-         al_set_target_bitmap(level_background);
-
-         // toggle blocks
-         for (int c=0; c<100; c++)
-            for (int y=0; y<100; y++)
-            {
-               if ((l[c][y]&1023) == item[i][11]) // empty switch block
-               {
-                  l[c][y] = item[i][10] | PM_BTILE_ALL_SOLID; // replace with solid switch block
-                  al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
-                  al_draw_bitmap(btile[l[c][y]&1023], c*20, y*20, 0 );
-               }
-               else if ((l[c][y]&1023) == item[i][10]) // solid switch block
-               {
-                  l[c][y] = item[i][11]; // replace with empty switch block
-                  al_draw_filled_rectangle(c*20, y*20, c*20+19, y*20+19, palette_color[0]);
-                  al_draw_bitmap(btile[l[c][y]&1023], c*20, y*20, 0 );
-               }
-
-            } // end of toggle blocks
-         draw_lift_lines();
-         game_event(30, 0, 0, p, i, 0, 0);
-      }  // end of falling and landing on
-   } // end of if not lockout
-}
-*/
 void proc_sproingy_collision(int p, int i)
 {
    if ( (players[p].PX  > itemf[i][0] - al_itofix(10)) &&

@@ -11,13 +11,19 @@ it's most likely an opengl thing
 seg fault when switching lift mode...can't reproduce...???
 
 
+in map move, when holding mouse button and moving...the windows are still detected and won't let the mouse move where they are...
+
+
+
+
+
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
 
-as soon as bomb starts to explode...don't draw spikes anymore
+make a pde for warp...
 
 
 ------------------------------------------------------
@@ -68,6 +74,20 @@ uses prox to fire bullet instead of timer
 ------------------------------------------------------
 ------------------------ item ideas ------------------
 ------------------------------------------------------
+
+
+make a green ball that you need to carry to its corresponding base to emit a trigger event
+
+make cloner capable of being triggered by an event
+
+something like a ball on a stalk that turns greens when triggered
+
+you can shoot it or just touch it
+
+
+
+
+
 
 
 new items that emit triggers
