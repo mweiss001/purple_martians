@@ -27194,6 +27194,74 @@ did a bunch of button clean up...
 
 as soon as bomb starts to explode...don't draw spikes anymore...done
 
+make a pde for warp...done...
+
+
+make a new item to emit trigger
+something like a ball on a stalk that turns greens when triggered
+what to call it...orb
+what number...6
+tiles:
+417 empty
+418 green
+419 red
+
+only 2 values.. on or off
+can emit 4 events, just like trigger
+
+modes like trigger...
+toggle
+timed on/off
+permanent on/off
+
+can have different triggers like:
+touch
+up
+down
+
+item[][0] = 6 - orb
+item[][1] = bitmap
+item[][2] = flags
+item[][3] = stat | fall | carry
+item[][4] = x pos (2000)
+item[][5] = y pos (2000)
+
+
+
+item[][6]  = MODE
+item[][7]  = timer val
+item[][8]  = time count
+item[][9]  =
+
+
+item[][10] = CURR ON  pm_event
+item[][11] = CURR OFF pm_event
+item[][12] = TGON pm_event #
+item[][13] = TGOF pm_event #
+
+
+#define PM_ITEM_ORB_TRIG_TOUCH 0b0000000000000001
+#define PM_ITEM_ORB_TRIG_UP    0b0000000000000010
+#define PM_ITEM_ORB_TRIG_DOWN  0b0000000000000100
+#define PM_ITEM_ORB_CURR       0b0000000000001000
+#define PM_ITEM_ORB_PREV       0b0000000000010000
+#define PM_ITEM_ORB_TGON       0b0000000000100000
+#define PM_ITEM_ORB_TGOF       0b0000000001000000
+
+void proc_orb_collision(int p, int i)
+if touch or up or down set the flags...
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -367,7 +367,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
    int x27 = xa + 2 * (xb-xa) / 7; // 2/7
    int x57 = xa + 5 * (xb-xa) / 7; // 5/7
 
-   int bts=16+pct_y;
+   int bts=16;
    int dim=128;
 
 
@@ -684,6 +684,26 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             ya+=4; // spacer
             mdw_buttonp(    xa, ya, xb, bts, 78,0,0,0,  0,11,15,0,   1,0,1,d, item[n][6]); // start mode
             mdw_buttonp(    xa, ya, xb, bts, 79,0,0,0,  0,11,15,0,   1,0,1,d, item[n][7]); // start index
+         break;
+         case 6: // orb
+            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, item[n][3]); // stat | fall | carry
+
+
+            ya+=4; // spacer
+            mdw_button(     xa, ya, xb, bts, 90,n,0,0,  0,12,15, 0,  1,0,1,d);          // orb trigger type
+
+
+
+            ya+=4; // spacer
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][10], 99, 0, 1,    "Set Event Always While On   :", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][11], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][12], 99, 0, 1,    "Set Event When Switching On :", "OFF");
+            mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][13], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
+
+
+
+
+
          break;
          case 7: // mine
             mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, item[n][3]); // stat | fall | carry
