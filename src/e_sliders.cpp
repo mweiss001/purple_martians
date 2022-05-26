@@ -709,6 +709,36 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
 
 
+   if (bn == 90) // Orb trigger type
+   {
+      if (press)
+      {
+         if (item[num][2] & PM_ITEM_ORB_TRIG_TOUCH)
+         {
+            item[num][2] &= ~PM_ITEM_ORB_TRIG_TOUCH; // clear flag
+            item[num][2] |= PM_ITEM_ORB_TRIG_UP; // set flag
+         }
+         else if (item[num][2] & PM_ITEM_ORB_TRIG_UP)
+         {
+            item[num][2] &= ~PM_ITEM_ORB_TRIG_UP; // clear flag
+            item[num][2] |= PM_ITEM_ORB_TRIG_DOWN; // set flag
+         }
+         else if (item[num][2] & PM_ITEM_ORB_TRIG_DOWN)
+         {
+            item[num][2] &= ~PM_ITEM_ORB_TRIG_DOWN; // clear flag
+            item[num][2] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
+         }
+      }
+
+      sprintf(smsg, "undef");
+
+      if (item[num][2] & PM_ITEM_ORB_TRIG_TOUCH) sprintf(smsg, "Trigger:Touch");
+      if (item[num][2] & PM_ITEM_ORB_TRIG_UP)    sprintf(smsg, "Trigger:Up");
+      if (item[num][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(smsg, "Trigger:Down");
+   }
+
+
+
 
    if (bn == 211) // Trigger Field X Lift Alignment
    {

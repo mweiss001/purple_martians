@@ -828,6 +828,7 @@ void move_items()
 
          int type = item[i][0];
          if ((type == 4) && (item[i][11] > 0)) proc_moving_key(i);
+         if (type == 6) process_orb(i);
          if (type == 9) process_trigger(i);
          if (type == 16) process_block_manip(i);
          if (type == 17) process_block_damage(i);
@@ -1073,6 +1074,43 @@ void proc_player_carry(int p)
          }
       }
 }
+
+void process_orb(int i)
+{
+   item[i][1] = 418;
+   if (item[i][2] & PM_ITEM_ORB_CURR) item[i][1] = 419;
+
+   item[i][2] &= ~PM_ITEM_ORB_CURR;  // clear CURR flag
+
+
+}
+
+void proc_orb_collision(int p, int i)
+{
+   item[i][2] &= ~PM_ITEM_ORB_CURR;  // clear CURR flag
+   item[i][2] &= ~PM_ITEM_ORB_TGON;  // clear TGON flag
+   item[i][2] &= ~PM_ITEM_ORB_TGOF;  // clear TGOF flag
+
+   int current_trig = 0;
+   if (item[i][2]  & PM_ITEM_ORB_TRIG_TOUCH)                      current_trig = 1;
+   if ((item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (players[p].up))   current_trig = 1;
+   if ((item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (players[p].down)) current_trig = 1;
+
+   if (current_trig)
+   {
+      if (!(item[i][2] & PM_ITEM_ORB_PREV)) item[i][2] |= PM_ITEM_ORB_TGON; // set TGON flag
+      item[i][2] |= PM_ITEM_ORB_CURR; // set CURR flag
+      item[i][2] |= PM_ITEM_ORB_PREV; // set PREV flag
+   }
+   else
+   {
+      if (item[i][2] & PM_ITEM_ORB_PREV) item[i][2] |= PM_ITEM_ORB_TGOF; // set TGOFF flag
+      item[i][2] &= ~PM_ITEM_ORB_PREV; // clear PREV flag
+   }
+}
+
+
+
 
 void proc_door_collision(int p, int i)
 {
@@ -1604,6 +1642,7 @@ void proc_item_collision(int p, int i)
       case 3:  proc_exit_collision(p, i);     break;
       case 4:  proc_key_collision(p, i);      break;
       case 5:  proc_start_collision(p, i);    break;
+      case 6:  proc_orb_collision(p, i);      break;
       case 7:  proc_mine_collision(p, i);     break;
       case 8:  proc_bomb_collision(p, i);     break;
       case 10: item[i][6] = item[i][7];       break; // set pop-up message timer
@@ -2461,20 +2500,6 @@ item[][12] = t1 val
 item[][13] = count
 item[][14] = t2 val
 item[][15] = damage
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
