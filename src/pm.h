@@ -186,6 +186,8 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 #define PM_ITEM_ORB_TRIG_CURR   0b0000000010000000
 #define PM_ITEM_ORB_TRIG_PREV   0b0000000100000000
 
+#define PM_ITEM_ORB_ROTB        0b1100000000000000
+
 
 
 // enemy debug stuff
@@ -1505,7 +1507,10 @@ void mtextout(char *txt1, int x, int y, float x_scale, float y_scale, int col);
 void mtextout_centre(const char *txt1, int x, int y, float x_scale, float y_scale, int col);
 void show_level_done(int keypress);
 void draw_percent_bar(int cx, int y, int width, int height, int percent);
+void draw_percent_barc(int cx, int y, int width, int height, int percent, int c1, int c2, int fc);
 void draw_percent_bar_range(int cx, int y, int width, int height, int color, int start, int end);
+
+
 
 // z_screen_overlay.h
 void draw_screen_overlay(void);

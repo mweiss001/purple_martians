@@ -896,6 +896,25 @@ void show_level_done(int keypress)
 }
 
 
+
+void draw_percent_barc(int cx, int y, int width, int height, int percent, int c1, int c2, int fc)
+{
+   int x = cx - width/2; // get x from center
+   al_draw_filled_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, palette_color[c1]); //  all c1 to start
+   if (percent > 0)
+   {
+      int w2 = (int) (width * ((float)percent/100)); // how much green
+      al_draw_filled_rectangle(x+0.5f, y+0.5f, x + w2+0.5f, y + height+0.5f, palette_color[c2]); //  then c2
+   }
+
+   if (fc) al_draw_rectangle(x-0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, palette_color[fc], 1); //  frame
+
+}
+
+
+
+
+
 void draw_percent_bar(int cx, int y, int width, int height, int percent)
 {
    int x = cx - width/2; // get x from center
@@ -907,6 +926,8 @@ void draw_percent_bar(int cx, int y, int width, int height, int percent)
    }
    al_draw_rectangle(x-0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, palette_color[15], 1); //  white frame
 }
+
+
 
 void draw_percent_bar_line(int cx, int y, int width, int height, int rise, int color, int percent )
 {

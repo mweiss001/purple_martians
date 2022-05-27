@@ -697,6 +697,9 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             ya+=4; // spacer
             mdw_button(     xa, ya, xb, bts, 92,n,0,0,  0, 8,15, 0,  1,0,1,d);          // mode
 
+            ya+=4; // spacer
+            mdw_button(     xa, ya, xb, bts, 94,n,0,0,  0, 8,15, 0,  1,0,1,d);          // rotation
+
             if (item[n][6] == 0) // only show initial state for toggle mode
             {
                ya+=4; // spacer
