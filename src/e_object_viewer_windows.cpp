@@ -277,6 +277,10 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
              mW[7].num_legend_lines = 2;
              sprintf(lmsg[1],"Start Location");
          break;
+         case 6:
+             mW[7].num_legend_lines = 2;
+             sprintf(lmsg[1],"Orb Location");
+         break;
          case 7:
              mW[7].num_legend_lines = 2;
              sprintf(lmsg[1],"Mine Location");
@@ -687,10 +691,25 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
          break;
          case 6: // orb
             mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, item[n][3]); // stat | fall | carry
-
-
             ya+=4; // spacer
             mdw_button(     xa, ya, xb, bts, 90,n,0,0,  0,12,15, 0,  1,0,1,d);          // orb trigger type
+
+            ya+=4; // spacer
+            mdw_button(     xa, ya, xb, bts, 92,n,0,0,  0, 8,15, 0,  1,0,1,d);          // mode
+
+            if (item[n][6] == 0) // only show initial state for toggle mode
+            {
+               ya+=4; // spacer
+               mdw_togglf(  xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 15, 15, 11, 10);
+
+            }
+
+            if ((item[n][6] == 3) || (item[n][6] == 4)) // only show timer for mode 3 and 4
+            {
+               ya+=4; // spacer
+               mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][7], 400, 1, 1,  "Time:");
+            }
+
 
 
 
@@ -699,11 +718,6 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][11], 99, 0, 1,    "Set Event Always While Off  :", "OFF");
             mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][12], 99, 0, 1,    "Set Event When Switching On :", "OFF");
             mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][13], 99, 0, 1,    "Set Event When Switching Off:", "OFF");
-
-
-
-
-
          break;
          case 7: // mine
             mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, item[n][3]); // stat | fall | carry

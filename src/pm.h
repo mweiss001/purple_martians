@@ -176,15 +176,15 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 #define PM_ITEM_DAMAGE_TIMR_BP  0b010000000000000000
 #define PM_ITEM_DAMAGE_INSTGIB  0b100000000000000000
 
-
-#define PM_ITEM_ORB_TRIG_TOUCH  0b0000000000000001
-#define PM_ITEM_ORB_TRIG_UP     0b0000000000000010
-#define PM_ITEM_ORB_TRIG_DOWN   0b0000000000000100
-#define PM_ITEM_ORB_CURR        0b0000000000001000
-#define PM_ITEM_ORB_PREV        0b0000000000010000
-#define PM_ITEM_ORB_TGON        0b0000000000100000
-#define PM_ITEM_ORB_TGOF        0b0000000001000000
-
+#define PM_ITEM_ORB_STATE       0b0000000000000001
+#define PM_ITEM_ORB_PREV_STATE  0b0000000000000010
+#define PM_ITEM_ORB_TGON        0b0000000000000100
+#define PM_ITEM_ORB_TGOF        0b0000000000001000
+#define PM_ITEM_ORB_TRIG_TOUCH  0b0000000000010000
+#define PM_ITEM_ORB_TRIG_UP     0b0000000000100000
+#define PM_ITEM_ORB_TRIG_DOWN   0b0000000001000000
+#define PM_ITEM_ORB_TRIG_CURR   0b0000000010000000
+#define PM_ITEM_ORB_TRIG_PREV   0b0000000100000000
 
 
 
@@ -1352,6 +1352,9 @@ void proc_lit_rocket(int);
 
 
 void process_orb(int);
+void draw_orb(int i, int x, int y);
+
+
 
 void process_trigger(int);
 void draw_trigger(int i, int x, int y);

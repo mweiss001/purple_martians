@@ -709,7 +709,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
 
 
-   if (bn == 90) // Orb trigger type
+   if (bn == 90) // orb trigger type
    {
       if (press)
       {
@@ -737,6 +737,34 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       if (item[num][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(smsg, "Trigger:Down");
    }
 
+
+   if (bn == 92) // orb mode
+   {
+      if (press) item[num][6]++;
+      if ((item[num][6] < 0) || (item[num][6] > 4)) item[num][6] = 0;
+      sprintf(smsg, "undef");
+      if (item[num][6] == 0) sprintf(smsg, "Mode:Toggle");
+      if (item[num][6] == 1)
+      {
+         sprintf(smsg, "Mode:Stick ON");
+         item[num][2] &= ~PM_ITEM_ORB_STATE;
+      }
+      if (item[num][6] == 2)
+      {
+         sprintf(smsg, "Mode:Stick OFF");
+         item[num][2] |= PM_ITEM_ORB_STATE;
+      }
+      if (item[num][6] == 3)
+      {
+         sprintf(smsg, "Mode:Timed ON");
+         item[num][2] &= ~PM_ITEM_ORB_STATE;
+      }
+      if (item[num][6] == 4)
+      {
+         sprintf(smsg, "Mode:Timed OFF");
+         item[num][2] |= PM_ITEM_ORB_STATE;
+      }
+   }
 
 
 
