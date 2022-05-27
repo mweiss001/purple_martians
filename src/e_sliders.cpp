@@ -766,6 +766,23 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       }
    }
 
+   if (bn == 94) // orb rotation
+   {
+      // get rb
+      int rb = (item[num][2] & PM_ITEM_ORB_ROTB) >> 14;
+
+      if (press) rb++;
+      if ((rb < 0) || (rb > 3)) rb = 0;
+
+      sprintf(smsg, "Change Rotation");
+
+      // set rb
+      rb = rb << 14; // shift bits into place
+      item[num][2] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
+      item[num][2] |= rb; // merge
+
+
+   }
 
 
    if (bn == 211) // Trigger Field X Lift Alignment

@@ -27315,7 +27315,48 @@ wait...
 
 this works good...
 
-now I want a small progress bar to count down, or up...
+now I want a small progress bar to count down, or up...done...
+
+I think that the new item is fully functional
+
+I could make it look a little better....
+
+I could make it capable of being triggered by players bullets...
+
+that sounds like a lot more work...
+
+
+I could make it rotatable so it would look good anchored to walls and ceilings
+
+how do other items handle rotation?
+
+
+I should be able to do the rotation with 2 bits
+
+00 normal
+01 right wall
+10 celing
+11 left wall
+
+// get rb
+#define PM_ITEM_ORB_ROTB        0b1100000000000000
+int rb = (item[][2] & PM_ITEM_ORB_ROTB) >> 14;
+
+// set rb
+int rb = rb << 14; // shift bits into place
+item[][2] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
+item[][2] |= rb; // merge
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1077,8 +1077,6 @@ void proc_player_carry(int p)
 }
 
 
-
-
 /*
 
 item[][0] = 6 - orb
@@ -1111,22 +1109,8 @@ item[][13] = TGOF pm_event
 
 void process_orb(int i)
 {
-   // trigger stuff
-   int MODE = item[i][6];
-   if (item[i][2] & PM_ITEM_ORB_TRIG_CURR)                   // currently triggered
-   {
-      if ((MODE == 3) || (MODE == 4)) item[i][8] = item[i][7]; // reset counter
-      if (!(item[i][2] & PM_ITEM_ORB_TRIG_PREV))             // not triggered last time
-      {
-         item[i][2] |= PM_ITEM_ORB_TRIG_PREV;                 // set PREV flag
-         if (MODE == 0) item[i][2] ^= PM_ITEM_ORB_STATE;      // toggle state
-         if (MODE == 1) item[i][2] |= PM_ITEM_ORB_STATE;      // stick ON
-         if (MODE == 2) item[i][2] &= ~PM_ITEM_ORB_STATE;     // stick OFF
-      }
-   }
-   else item[i][2] &= ~PM_ITEM_ORB_TRIG_PREV;                 // clear PREV flag
-   item[i][2] &= ~PM_ITEM_ORB_TRIG_CURR;                      // clear CURR flag
 
+   int MODE = item[i][6];
 
    if (MODE == 3) // timed ON
    {
@@ -1151,6 +1135,26 @@ void process_orb(int i)
 
 
 
+
+
+
+
+
+   // trigger stuff
+
+   if (item[i][2] & PM_ITEM_ORB_TRIG_CURR)                   // currently triggered
+   {
+      if ((MODE == 3) || (MODE == 4)) item[i][8] = item[i][7]; // reset counter
+      if (!(item[i][2] & PM_ITEM_ORB_TRIG_PREV))             // not triggered last time
+      {
+         item[i][2] |= PM_ITEM_ORB_TRIG_PREV;                 // set PREV flag
+         if (MODE == 0) item[i][2] ^= PM_ITEM_ORB_STATE;      // toggle state
+         if (MODE == 1) item[i][2] |= PM_ITEM_ORB_STATE;      // stick ON
+         if (MODE == 2) item[i][2] &= ~PM_ITEM_ORB_STATE;     // stick OFF
+      }
+   }
+   else item[i][2] &= ~PM_ITEM_ORB_TRIG_PREV;                 // clear PREV flag
+   item[i][2] &= ~PM_ITEM_ORB_TRIG_CURR;                      // clear CURR flag
 
    // STATE stuff
    item[i][2] &= ~PM_ITEM_ORB_TGON;               // clear TGON flag
@@ -1190,17 +1194,35 @@ void draw_orb(int i, int x, int y)
 {
    item[i][1] = 418;                                          // green orb
    if (item[i][2] & PM_ITEM_ORB_STATE) item[i][1] = 419;      // red orb
-   al_draw_bitmap(tile[item[i][1]], x, y, 0);
+
+   // get rb
+   int rb = (item[i][2] & PM_ITEM_ORB_ROTB) >> 14;
+
+   float a=0; // angle
+   int xo=0;
+   int yo=0;
+
+   if (rb == 0) { a = 0;             xo = 10, yo = 10; }  // floor
+   if (rb == 1) { a = ALLEGRO_PI/2;  xo = 7, yo = 8; }   // wall left
+   if (rb == 2) { a = ALLEGRO_PI;    xo = 9, yo = 5; }   // ceiling
+   if (rb == 3) { a = -ALLEGRO_PI/2; xo = 12, yo = 7; } // wall right
+
+   al_draw_rotated_bitmap(tile[item[i][1]], 10, 10, x+10, y+10, a, 0);
 
    int MODE = item[i][6];
    if ((MODE == 3) || (MODE == 4))
    {
-      int percent = 100 - ((item[i][8]) * 100) / item[i][7];
-      if ((percent > 0) && (percent < 100))
-
-      draw_percent_bar(x+10, y, 16, 4,  percent);
+      int c1=11, c2=10;
+      if (MODE == 4) {c1=10; c2=11;}
+      int percent =  (item[i][8] * 100) / item[i][7];
+      if (percent > 0)
+      {
+         // al_draw_textf(f3, palette_color[15], x+10, y-12, ALLEGRO_ALIGN_CENTER, "%d", percent);
+         //draw_percent_barc(x+10, y+3, 10, 3,  percent, c1, c2, 15); // above
+         draw_percent_barc(x+xo, y+yo, 5, 5,  percent, c1, c2, -1);   // 5x5 inside
+         //draw_percent_barc(x+10, y+9, 5, 6,  percent, c1, c2, 6);   // inside with frame
+      }
    }
-
 }
 
 void proc_orb_collision(int p, int i)
@@ -1210,9 +1232,6 @@ void proc_orb_collision(int p, int i)
         ((item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (players[p].down)) )
            item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
 }
-
-
-
 void proc_door_collision(int p, int i)
 {
    if ((players[p].marked_door == -1)  // player has no marked door yet
