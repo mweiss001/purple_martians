@@ -614,6 +614,7 @@ void draw_item(int i, int custom, int cx, int cy)
    }
 
    if (type == 1)  { draw_door(i, x, y, custom);         drawn = 1; }
+   if (type == 6)  { draw_orb(i, x, y);                  drawn = 1; }
    if (type == 9)  { draw_trigger(i, x, y);              drawn = 1; }
    if (type == 16) { draw_block_manip(i, x, y);          drawn = 1; }
    if (type == 17) { draw_block_damage(i, x, y, custom); drawn = 1; }
@@ -1075,40 +1076,140 @@ void proc_player_carry(int p)
       }
 }
 
+
+
+
+/*
+
+item[][0] = 6 - orb
+item[][1] = bitmap
+item[][2] = flags
+item[][3] = stat | fall | carry
+item[][4] = x pos (2000)
+item[][5] = y pos (2000)
+item[][6]  = MODE
+item[][7]  = timer val
+item[][8]  = time count
+item[][9]  =
+item[][10] = STATE ON  pm_event
+item[][11] = SATEE OFF pm_event
+item[][12] = TGON pm_event
+item[][13] = TGOF pm_event
+
+#define PM_ITEM_ORB_STATE       0b0000000000000001
+#define PM_ITEM_ORB_PREV_STATE  0b0000000000000010
+#define PM_ITEM_ORB_TGON        0b0000000000000100
+#define PM_ITEM_ORB_TGOF        0b0000000000001000
+
+#define PM_ITEM_ORB_TRIG_TOUCH  0b0000000000010000
+#define PM_ITEM_ORB_TRIG_UP     0b0000000000100000
+#define PM_ITEM_ORB_TRIG_DOWN   0b0000000001000000
+#define PM_ITEM_ORB_TRIG_CURR   0b0000000010000000
+#define PM_ITEM_ORB_TRIG_PREV   0b0000000100000000
+
+*/
+
 void process_orb(int i)
 {
-   item[i][1] = 418;
-   if (item[i][2] & PM_ITEM_ORB_CURR) item[i][1] = 419;
+   // trigger stuff
+   int MODE = item[i][6];
+   if (item[i][2] & PM_ITEM_ORB_TRIG_CURR)                   // currently triggered
+   {
+      if ((MODE == 3) || (MODE == 4)) item[i][8] = item[i][7]; // reset counter
+      if (!(item[i][2] & PM_ITEM_ORB_TRIG_PREV))             // not triggered last time
+      {
+         item[i][2] |= PM_ITEM_ORB_TRIG_PREV;                 // set PREV flag
+         if (MODE == 0) item[i][2] ^= PM_ITEM_ORB_STATE;      // toggle state
+         if (MODE == 1) item[i][2] |= PM_ITEM_ORB_STATE;      // stick ON
+         if (MODE == 2) item[i][2] &= ~PM_ITEM_ORB_STATE;     // stick OFF
+      }
+   }
+   else item[i][2] &= ~PM_ITEM_ORB_TRIG_PREV;                 // clear PREV flag
+   item[i][2] &= ~PM_ITEM_ORB_TRIG_CURR;                      // clear CURR flag
 
-   item[i][2] &= ~PM_ITEM_ORB_CURR;  // clear CURR flag
 
+   if (MODE == 3) // timed ON
+   {
+      if (--item[i][8] < 0)
+      {
+         item[i][8] = 0;
+         item[i][2] &= ~PM_ITEM_ORB_STATE;  // OFF
+      }
+      else item[i][2] |= PM_ITEM_ORB_STATE; // ON
+   }
+
+   if (MODE == 4) // timed OFF
+   {
+      if (--item[i][8] < 0)
+      {
+         item[i][8] = 0;
+         item[i][2] |= PM_ITEM_ORB_STATE; // ON
+      }
+      else item[i][2] &= ~PM_ITEM_ORB_STATE;  // OFF
+   }
+
+
+
+
+
+   // STATE stuff
+   item[i][2] &= ~PM_ITEM_ORB_TGON;               // clear TGON flag
+   item[i][2] &= ~PM_ITEM_ORB_TGOF;               // clear TGOF flag
+   if (item[i][2] & PM_ITEM_ORB_STATE)            // orb state ON
+   {
+      item[i][1] = 419;                           // red orb
+      if (!(item[i][2] & PM_ITEM_ORB_PREV_STATE)) // prev OFF
+      {
+         item[i][2] |= PM_ITEM_ORB_TGON;          // set TGON flag
+         item[i][2] |= PM_ITEM_ORB_PREV_STATE;    // set PREV flag
+      }
+   }
+   else                                           // orb state OFF
+   {
+      item[i][1] = 418;                           // green orb
+      if ((item[i][2] & PM_ITEM_ORB_PREV_STATE))  // prev ON
+      {
+         item[i][2] |=  PM_ITEM_ORB_TGOF;         // set TGOF flag
+         item[i][2] &= ~PM_ITEM_ORB_PREV_STATE;   // clear PREV flag
+      }
+   }
+
+   // clear all events
+   pm_event[item[i][10]] = 0;
+   pm_event[item[i][11]] = 0;
+   pm_event[item[i][12]] = 0;
+   pm_event[item[i][13]] = 0;
+   int FLAGS = item[i][2];
+   if   (FLAGS & PM_ITEM_ORB_STATE)  pm_event[item[i][10]] = 1;
+   if (!(FLAGS & PM_ITEM_ORB_STATE)) pm_event[item[i][11]] = 1;
+   if   (FLAGS & PM_ITEM_ORB_TGON)   pm_event[item[i][12]] = 1;
+   if   (FLAGS & PM_ITEM_ORB_TGOF)   pm_event[item[i][13]] = 1;
+}
+
+void draw_orb(int i, int x, int y)
+{
+   item[i][1] = 418;                                          // green orb
+   if (item[i][2] & PM_ITEM_ORB_STATE) item[i][1] = 419;      // red orb
+   al_draw_bitmap(tile[item[i][1]], x, y, 0);
+
+   int MODE = item[i][6];
+   if ((MODE == 3) || (MODE == 4))
+   {
+      int percent = 100 - ((item[i][8]) * 100) / item[i][7];
+      if ((percent > 0) && (percent < 100))
+
+      draw_percent_bar(x+10, y, 16, 4,  percent);
+   }
 
 }
 
 void proc_orb_collision(int p, int i)
 {
-   item[i][2] &= ~PM_ITEM_ORB_CURR;  // clear CURR flag
-   item[i][2] &= ~PM_ITEM_ORB_TGON;  // clear TGON flag
-   item[i][2] &= ~PM_ITEM_ORB_TGOF;  // clear TGOF flag
-
-   int current_trig = 0;
-   if (item[i][2]  & PM_ITEM_ORB_TRIG_TOUCH)                      current_trig = 1;
-   if ((item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (players[p].up))   current_trig = 1;
-   if ((item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (players[p].down)) current_trig = 1;
-
-   if (current_trig)
-   {
-      if (!(item[i][2] & PM_ITEM_ORB_PREV)) item[i][2] |= PM_ITEM_ORB_TGON; // set TGON flag
-      item[i][2] |= PM_ITEM_ORB_CURR; // set CURR flag
-      item[i][2] |= PM_ITEM_ORB_PREV; // set PREV flag
-   }
-   else
-   {
-      if (item[i][2] & PM_ITEM_ORB_PREV) item[i][2] |= PM_ITEM_ORB_TGOF; // set TGOFF flag
-      item[i][2] &= ~PM_ITEM_ORB_PREV; // clear PREV flag
-   }
+   if (  (item[i][2] & PM_ITEM_ORB_TRIG_TOUCH) ||
+        ((item[i][2] & PM_ITEM_ORB_TRIG_UP)   && (players[p].up)) ||
+        ((item[i][2] & PM_ITEM_ORB_TRIG_DOWN) && (players[p].down)) )
+           item[i][2] |= PM_ITEM_ORB_TRIG_CURR;
 }
-
 
 
 
@@ -2183,6 +2284,10 @@ void proc_item_damage_collisions(int i)
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) e_bullet_active[b] = 0; // kill the bullet
          }
 }
+
+
+
+
 
 void draw_block_damage(int i, int x, int y, int custom)
 {
