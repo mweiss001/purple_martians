@@ -491,6 +491,72 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
 
 
 
+void show_event_line(int x, int &y, int ev, int type, int v1, int v2)
+{
+   if (type == 1) // item
+   {
+      if (item[v1][0] == 6)  al_draw_textf(font, palette_color[7],  x, y, 0, "ev:%2d - item:%3d [orb] ", ev, v1);
+      if (item[v1][0] == 9)  al_draw_textf(font, palette_color[14], x, y, 0, "ev:%2d - item:%3d [trg] ", ev, v1);
+      if (item[v1][0] == 16) al_draw_textf(font, palette_color[13], x, y, 0, "ev:%2d - item:%3d [bm]  ", ev, v1);
+      if (item[v1][0] == 17) al_draw_textf(font, palette_color[10], x, y, 0, "ev:%2d - item:%3d [bd]  ", ev, v1);
+   }
+   if (type == 2) // lift
+   {
+      al_draw_textf(font, palette_color[15], x, y, 0, "ev:%2d - lift:%3d step:%d", ev, v1, v2);
+   }
+   y+=8;
+}
+
+
+void show_all_events(void)
+{
+   int x = 0, y = 20;
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_draw_textf(font, palette_color[15], 0, 0, 0, "All non-zero event references");
+
+   for (int i=0; i<500; i++)
+   {
+      if (item[i][0] == 6) // orb
+      {
+         if (item[i][10]) show_event_line(x, y, item[i][10], 1, i, 0);
+         if (item[i][11]) show_event_line(x, y, item[i][11], 1, i, 0);
+         if (item[i][12]) show_event_line(x, y, item[i][12], 1, i, 0);
+         if (item[i][13]) show_event_line(x, y, item[i][13], 1, i, 0);
+      }
+      if (item[i][0] == 9) // trigger
+      {
+         if (item[i][11]) show_event_line(x, y, item[i][11], 1, i, 0);
+         if (item[i][12]) show_event_line(x, y, item[i][12], 1, i, 0);
+         if (item[i][13]) show_event_line(x, y, item[i][13], 1, i, 0);
+         if (item[i][14]) show_event_line(x, y, item[i][14], 1, i, 0);
+      }
+
+
+      if ((item[i][0] == 16) && (item[i][1])) show_event_line(x, y, item[i][1], 1, i, 0);
+      if ((item[i][0] == 17) && (item[i][1])) show_event_line(x, y, item[i][1], 1, i, 0);
+   }
+
+   for (int l=0; l<num_lifts; l++) // iterate lifts
+      for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
+         if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val)) show_event_line(x, y, lift_steps[l][s].val, 2, l, s);
+
+
+
+
+   al_flip_display();
+   tsw(); // wait for keypress
+}
+
+
+
+
+
+
+
+
+
 
 
 int add_item_link_translation(int sel_item_num, int sel_item_var, int sel_item_ev, int clt[][4], int clt_last)
@@ -550,16 +616,30 @@ int is_pm_event_used(int ev)
 {
    for (int i=0; i<500; i++)
    {
-      if (item[i][0] == 9)
+      if (item[i][0] == 6) // orb
+      {
+         if (item[i][10] == ev) return 1;
+         if (item[i][11] == ev) return 1;
+         if (item[i][12] == ev) return 1;
+         if (item[i][13] == ev) return 1;
+      }
+      if (item[i][0] == 9) // trigger
       {
          if (item[i][11] == ev) return 1;
          if (item[i][12] == ev) return 1;
          if (item[i][13] == ev) return 1;
          if (item[i][14] == ev) return 1;
       }
+
+
       if ((item[i][0] == 16) && (item[i][1] == ev)) return 1;
       if ((item[i][0] == 17) && (item[i][1] == ev)) return 1;
    }
+
+   for (int l=0; l<num_lifts; l++) // iterate lifts
+      for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
+         if (((lift_steps[l][s].type & 31) == 5) && (lift_steps[l][s].val == ev)) return 1;
+
    return 0;
 }
 
@@ -752,7 +832,7 @@ int get_trigger_item(int obj_type, int sub_type, int num )
 
       mouse_on_item = 0;
       for (int x=0; x<500; x++)
-         if (item[x][0] == 9)    // trigger only
+         if ((item[x][0] == 9) || (item[x][0] == 6))    // trigger or orb only
          {
             itx = item[x][4]/20;
             ity = item[x][5]/20;

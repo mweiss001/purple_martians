@@ -854,8 +854,8 @@ void move_items()
             }
          }
 
-         // not stationary and not lit rocket
-         if ((item[i][3]) && (type != 98) && (type != 9) && (type != 16) && (type != 17))
+         // not stationary and not lit rocket, trigger, bm, bd or moving key
+         if ((item[i][3]) && (type != 98) && (type != 9) && (type != 16) && (type != 17) && (! ((type == 4) && (item[i][11] > 0)))    )
          {
             // check if being carried
             int pc = 0;
@@ -1107,54 +1107,67 @@ item[][13] = TGOF pm_event
 
 */
 
+int proc_orb_bullet_collision(int i)
+{
+   int s = 8; // collison box size
+   int x = al_fixtoi(itemf[i][0]);
+   int y = al_fixtoi(itemf[i][1]);
+   for (int b=0; b<50; b++)
+      if (pbullet[b][0])
+      {
+         int bx = pbullet[b][2];
+         int by = pbullet[b][3];
+         if ((x > bx-s) && (x < bx+s) && (y > by-s) && (y < by+s)) return 1;
+      }
+   return 0;
+}
+
+
 void process_orb(int i)
 {
-
    int MODE = item[i][6];
 
+   // timer mode stuff
    if (MODE == 3) // timed ON
    {
-      if (--item[i][8] < 0)
+      if (--item[i][8] <= 0)
       {
          item[i][8] = 0;
          item[i][2] &= ~PM_ITEM_ORB_STATE;  // OFF
       }
       else item[i][2] |= PM_ITEM_ORB_STATE; // ON
    }
-
    if (MODE == 4) // timed OFF
    {
-      if (--item[i][8] < 0)
+      if (--item[i][8] <= 0)
       {
          item[i][8] = 0;
-         item[i][2] |= PM_ITEM_ORB_STATE; // ON
+         item[i][2] |= PM_ITEM_ORB_STATE;    // ON
       }
-      else item[i][2] &= ~PM_ITEM_ORB_STATE;  // OFF
+      else item[i][2] &= ~PM_ITEM_ORB_STATE; // OFF
    }
 
 
-
-
-
-
+   if ((item[i][2] & PM_ITEM_ORB_TRIG_BULLET) && (proc_orb_bullet_collision(i))) item[i][2] |= PM_ITEM_ORB_TRIG_CURR; // set CURR flag
 
 
 
    // trigger stuff
-
-   if (item[i][2] & PM_ITEM_ORB_TRIG_CURR)                   // currently triggered
+   if (item[i][2] & PM_ITEM_ORB_TRIG_CURR)                     // currently triggered
    {
       if ((MODE == 3) || (MODE == 4)) item[i][8] = item[i][7]; // reset counter
-      if (!(item[i][2] & PM_ITEM_ORB_TRIG_PREV))             // not triggered last time
+      if (!(item[i][2] & PM_ITEM_ORB_TRIG_PREV))               // not triggered last time
       {
-         item[i][2] |= PM_ITEM_ORB_TRIG_PREV;                 // set PREV flag
-         if (MODE == 0) item[i][2] ^= PM_ITEM_ORB_STATE;      // toggle state
-         if (MODE == 1) item[i][2] |= PM_ITEM_ORB_STATE;      // stick ON
-         if (MODE == 2) item[i][2] &= ~PM_ITEM_ORB_STATE;     // stick OFF
+         item[i][2] |= PM_ITEM_ORB_TRIG_PREV;                  // set PREV flag
+         if (MODE == 0) item[i][2] ^= PM_ITEM_ORB_STATE;       // toggle state
+         if (MODE == 1) item[i][2] |= PM_ITEM_ORB_STATE;       // stick ON
+         if (MODE == 2) item[i][2] &= ~PM_ITEM_ORB_STATE;      // stick OFF
       }
    }
-   else item[i][2] &= ~PM_ITEM_ORB_TRIG_PREV;                 // clear PREV flag
-   item[i][2] &= ~PM_ITEM_ORB_TRIG_CURR;                      // clear CURR flag
+   else item[i][2] &= ~PM_ITEM_ORB_TRIG_PREV;                  // clear PREV flag
+   item[i][2] &= ~PM_ITEM_ORB_TRIG_CURR;                       // clear CURR flag
+
+
 
    // STATE stuff
    item[i][2] &= ~PM_ITEM_ORB_TGON;               // clear TGON flag
@@ -1195,21 +1208,16 @@ void draw_orb(int i, int x, int y)
    item[i][1] = 418;                                          // green orb
    if (item[i][2] & PM_ITEM_ORB_STATE) item[i][1] = 419;      // red orb
 
-   // get rb
+   // rotation
    int rb = (item[i][2] & PM_ITEM_ORB_ROTB) >> 14;
-
-   float a=0; // angle
-   int xo=0;
-   int yo=0;
-
-   if (rb == 0) { a = 0;             xo = 10, yo = 10; }  // floor
-   if (rb == 1) { a = ALLEGRO_PI/2;  xo = 7, yo = 8; }   // wall left
-   if (rb == 2) { a = ALLEGRO_PI;    xo = 9, yo = 5; }   // ceiling
-   if (rb == 3) { a = -ALLEGRO_PI/2; xo = 12, yo = 7; } // wall right
-
-   al_draw_rotated_bitmap(tile[item[i][1]], 10, 10, x+10, y+10, a, 0);
+   float a=0, xo=0, yo=0; // angle, x and y offsets
+   if (rb == 0) { a = 0;             xo = 10, yo = 9; } // floor
+   if (rb == 1) { a = ALLEGRO_PI/2;  xo = 7,  yo = 7; } // wall left
+   if (rb == 2) { a = ALLEGRO_PI;    xo = 9,  yo = 4; } // ceiling
+   if (rb == 3) { a = -ALLEGRO_PI/2; xo = 12, yo = 6; } // wall right
 
    int MODE = item[i][6];
+   int drawn = 0;
    if ((MODE == 3) || (MODE == 4))
    {
       int c1=11, c2=10;
@@ -1217,14 +1225,13 @@ void draw_orb(int i, int x, int y)
       int percent =  (item[i][8] * 100) / item[i][7];
       if (percent > 0)
       {
-         // al_draw_textf(f3, palette_color[15], x+10, y-12, ALLEGRO_ALIGN_CENTER, "%d", percent);
-         //draw_percent_barc(x+10, y+3, 10, 3,  percent, c1, c2, 15); // above
-         draw_percent_barc(x+xo, y+yo, 5, 5,  percent, c1, c2, -1);   // 5x5 inside
-         //draw_percent_barc(x+10, y+9, 5, 6,  percent, c1, c2, 6);   // inside with frame
+         draw_percent_barc(x+xo, y+yo, 7, 7,  percent, c1, c2, -1);
+         al_draw_rotated_bitmap(tile[417], 10, 10, x+10, y+10, a, 0);
+         drawn = 1;
       }
    }
+   if (!drawn) al_draw_rotated_bitmap(tile[item[i][1]], 10, 10, x+10, y+10, a, 0);
 }
-
 void proc_orb_collision(int p, int i)
 {
    if (  (item[i][2] & PM_ITEM_ORB_TRIG_TOUCH) ||
@@ -1615,17 +1622,10 @@ void proc_key_collision(int p, int i)
 {
    if (item[i][11] == 0) // only collide if not already moving
    {
-
-//      int x2 = (item[i][6] + item[i][8]) * 10;         // get the center of the block range
-//      int y2 = (item[i][7] + item[i][9]) * 10;
       int x2 = (item[i][6] + item[i][8] / 2);         // get the center of the block range
       int y2 = (item[i][7] + item[i][9] / 2);
-
-
-
       al_fixed xlen = al_itofix(x2) - itemf[i][0];     // distance between block range and key
       al_fixed ylen = al_itofix(y2) - itemf[i][1];
-
       al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
       al_fixed speed = al_itofix(12);                  // speed
       al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler

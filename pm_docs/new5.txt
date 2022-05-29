@@ -27256,9 +27256,6 @@ triggered is indicated by CURR being set
 
 the only way toggle happens is when transitioning
 
-
-
-
 let make mode 1 toggle...
 
 it can toogle from any trigger but only when TGON
@@ -27297,8 +27294,6 @@ timed ON or OFF
       if (var == 3) sprintf(smsg, "Mode:Timed ON");
       if (var == 4) sprintf(smsg, "Mode:Timed OFF");
 
-
-
 having trouble with touch trigger
 
 the code only works when a collision is detected so cant be reset
@@ -27321,11 +27316,6 @@ I think that the new item is fully functional
 
 I could make it look a little better....
 
-I could make it capable of being triggered by players bullets...
-
-that sounds like a lot more work...
-
-
 I could make it rotatable so it would look good anchored to walls and ceilings
 
 how do other items handle rotation?
@@ -27346,6 +27336,167 @@ int rb = (item[][2] & PM_ITEM_ORB_ROTB) >> 14;
 int rb = rb << 14; // shift bits into place
 item[][2] &= ~PM_ITEM_ORB_ROTB; // clear bits in target
 item[][2] |= rb; // merge
+
+I could make it capable of being triggered by players bullets...
+that sounds like a lot more work...done
+
+still need to patch into filters...
+
+rotation wrong in sel view of zfs for orb...fixed
+
+
+
+make new enemy...jumpworm
+
+expands and contracts as it moves side to side
+
+number 5
+tile 768-775
+
+
+20220528 7:00AM
+orb is done
+working on jumpwagon
+
+added 'turn before hole' to archwagon common
+now archwagons can patrol platforms without falling off the ends...
+
+
+make jumpworm move along the floor in a wormlike manner...
+
+expanding has no x motion, contracting does
+4 tiles: 768-771
+all have nose at the right side of tile
+768 longest
+771 shortest
+
+
+
+8 cycles
+4 of them are expanding and 4 retracting
+get them from frame % 8
+
+expanding head moves forward while tails is stationary
+contracting head is stationary with tails catched up
+
+0-3 expand
+4-7 contract
+
+cycle tile xinc
+0     771   +2   (shortest)
+1     770   +2
+2     769   +2
+3     768   +2    (longest)
+4     768   0
+5     769   0
+6     770   0
+7     771   0
+
+
+this works:
+int cycle = frame_num % 6;
+
+if (cycle < 3) ...move
+
+if (cycle == 0) tn = 770;
+if (cycle == 1) tn = 769;
+if (cycle == 2) tn = 768;
+if (cycle == 3) tn = 769;
+if (cycle == 4) tn = 770;
+if (cycle == 5) tn = 771;
+
+
+
+I just made a 6 tile version...
+704-709
+
+
+int cycle = frame_num % 10;
+if (cycle < 5) ...move
+
+// moving (expanding)
+// x is increasing, and tile is expanding
+// it looks like the tail is stationary while the head moves
+
+if (cycle == 0) tn = 708;
+if (cycle == 1) tn = 707;
+if (cycle == 2) tn = 706;
+if (cycle == 3) tn = 705;
+if (cycle == 4) tn = 704;
+
+// not moving (contracting)
+// x is not changing, tile is contracting
+// it looks like the head is stationary while the tail is moving
+
+if (cycle == 5) tn = 705;
+if (cycle == 6) tn = 706;
+if (cycle == 7) tn = 707;
+if (cycle == 8) tn = 708;
+if (cycle == 9) tn = 709;
+
+
+that looks better...
+
+because of the tiles, this only looks good moving at 2 frames
+
+I want to do something for wall collisions
+
+when collisions happen, it must be in the move phase, because that is the only time x changes
+
+when that happens, I want to stop expanding and have the tail contract
+then when the tail is fully retracted, then turn around and start from 0...
+
+I might be able to do this with a cycle offset from frame_num
+
+I need some more variables...
+13 change dir on next cycle 0
+14 cycle offset
+
+
+
+I am very happy with how that looks...
+
+now for the y movement
+different shape for that..or rotated...
+float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
+
+I have rotation for y working..might look better if I made the lines on the worm thicker..yes..
+
+what else do I need to do for this?
+
+death ans 79
+
+somehow I managed to shift tiles.bmp by one pixel....arghhhhh!...fixed
+bug... cloner has a big delay from first clone in timed mode....cloner fixed
+bug... jumpworm can escape from a 1x1 box...
+only when jumping...fixed...
+add speed divider as a control
+seperate for inch and jump...
+I need a fixed for jump x speed
+I need an int for inch divider..done
+
+this enemy is looking good..was there anything else you wanted to do with it?
+nothing comes to mind right now...use it in a level
+
+
+seg fault when seting orb mode timed on...fixed div by zero error
+
+key move? stops at solid blocks?? fixed by adding exclusion for moving key in move items
+
+add help entries for trigger, bm, bd, orb, jumpworm
+
+fix adding trigger with orb...done...
+
+get used event needs to find orbs also...done
+also made it find lifts...
+
+make a function to show used events that are not zero
+
+
+got a lot done...time for a push...
+
+20220528 7:20 PM
+
 
 
 

@@ -52,6 +52,7 @@ void ovw_get_size(void)
    if ((obt == 2) && (type == 3 )) w = 200; // exit
    if ((obt == 2) && (type == 4 )) w = 200; // key
    if ((obt == 2) && (type == 5 )) w = 200; // start
+   if ((obt == 2) && (type == 6 )) w = 280; // orb
    if ((obt == 2) && (type == 7 )) w = 200; // mine
    if ((obt == 2) && (type == 8 )) w = 200; // bomb
    if ((obt == 2) && (type == 9 )) w = 280; // trigger
@@ -65,6 +66,7 @@ void ovw_get_size(void)
 
    if ((obt == 3) && (type == 3 )) w = 220; // archwagon
    if ((obt == 3) && (type == 4 )) w = 220; // bouncer
+   if ((obt == 3) && (type == 5 )) w = 220; // jumpworm
    if ((obt == 3) && (type == 6 )) w = 220; // cannon
    if ((obt == 3) && (type == 7 )) w = 220; // podzilla
    if ((obt == 3) && (type == 8 )) w = 220; // trakbot
@@ -184,6 +186,10 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
          case 4:
             mW[7].num_legend_lines = 2;
             sprintf(lmsg[1],"Bouncer Location");
+         break;
+         case 5:
+            mW[7].num_legend_lines = 2;
+            sprintf(lmsg[1],"JumpWorm Location");
          break;
          case 6: // cannon
             sprintf(lmsg[1],"Cannon Location");
@@ -489,6 +495,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
             mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
             ya+=4; // spacer
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
             mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
             mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
             mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
@@ -502,6 +509,24 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Efi[n][4], 10, 0, 0.1,   "Health Decrement:");
             mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
+         case 5:     // jumpworm
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Efi[n][6], 12, 0.7, 0.01,"X-Speed (Jump):");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,11,15,15,  1,0,1,d, Ei[n][4],  12, 1, 1,     "X-Speed (Ground):1/");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Efi[n][3], 9, 0.7, 0.01, "Y-Speed:");
+            ya+=4; // spacer
+            mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
+            ya+=4; // spacer
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][6],  500, 0, 1,    "Jump Timer Wait:",  "Off");
+            ya+=4; // spacer
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Efi[n][4], 10, 0, 0.1,   "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
+         break;
+
          case 4: // bouncer
             mdw_sliderf(    xa, ya, xb, bts,  22,n,0,0, 0, 9,15,15,  1,0,1,d, Efi[n][5], 12, 0, 0.01, "Speed:");
             ya+=4; // spacer
@@ -692,30 +717,15 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
          case 6: // orb
             mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15,0,   1,0,1,d, item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            mdw_button(     xa, ya, xb, bts, 90,n,0,0,  0,12,15, 0,  1,0,1,d);          // orb trigger type
-
+            mdw_button(     xa, ya, xb, bts, 94,n,0,0,  0, 7,15, 0,  1,0,1,d);             // rotation
             ya+=4; // spacer
-            mdw_button(     xa, ya, xb, bts, 92,n,0,0,  0, 8,15, 0,  1,0,1,d);          // mode
-
+            mdw_button(     xa, ya, xb, bts, 90,n,0,0,  0,12,15, 0,  1,0,1,d);             // orb trigger type
             ya+=4; // spacer
-            mdw_button(     xa, ya, xb, bts, 94,n,0,0,  0, 8,15, 0,  1,0,1,d);          // rotation
-
-            if (item[n][6] == 0) // only show initial state for toggle mode
-            {
-               ya+=4; // spacer
-               mdw_togglf(  xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 15, 15, 11, 10);
-
-            }
-
-            if ((item[n][6] == 3) || (item[n][6] == 4)) // only show timer for mode 3 and 4
-            {
-               ya+=4; // spacer
-               mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][7], 400, 1, 1,  "Time:");
-            }
-
-
-
-
+            mdw_button(     xa, ya, xb, bts, 92,n,0,0,  0, 8,15, 0,  1,0,1,d);             // mode
+            if (item[n][6] == 0)                                                           // only show initial state for toggle mode
+               mdw_togglf(  xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_ORB_STATE, "Initial State:OFF","Initial State:ON ", 15, 15, 8, 8);
+            if ((item[n][6] == 3) || (item[n][6] == 4))                                    // only show timer for mode 3 and 4
+               mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,8,15,15,  1,0,1,d, item[n][7], 400, 1, 1,  "Time:");
             ya+=4; // spacer
             mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][10], 99, 0, 1,    "Set Event Always While On   :", "OFF");
             mdw_slider0(    xa, ya, xb, bts, 0,0,0,0,    0,13,15,15,  1,0,1,d, item[n][11], 99, 0, 1,    "Set Event Always While Off  :", "OFF");

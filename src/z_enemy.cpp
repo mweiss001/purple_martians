@@ -340,6 +340,7 @@ void move_enemies()
          {
             case 3:  enemy_archwagon(e);  break;
             case 4:  enemy_bouncer(e);  break;
+            case 5:  enemy_jumpworm(e);  break;
             case 6:  enemy_cannon(e);  break;
             case 7:  enemy_podzilla(e);  break;
             case 8:  enemy_trakbot(e);  break;
@@ -357,6 +358,11 @@ void enemy_deathcount(int e)
    int EYint = al_fixtoi(Efi[e][1]);
    Efi[e][14] += Efi[e][13]; // rot inc
    Efi[e][12] = al_fixmul(Efi[e][11], Efi[e][12]); // scale inc
+
+   Efi[e][0] += Efi[e][2]; // xinc
+   Efi[e][1] += Efi[e][3]; // yinc
+
+
 
    Ei[e][1] = zz[0][ Ei[e][3] ]; // draw current ans shape
    // dec and check countdown timer
@@ -414,9 +420,13 @@ void enemy_killed(int e)
    if (ht == 2) hb = 2; // explosion
    if (ht == 1) hb = 1; // field
 
+   Efi[e][2] = al_itofix(0); // xinc
+   Efi[e][3] = al_itofix(0); // yinc
+
+
    // almost all do this but not enough to do by default
    int a = Ei[e][0];
-   if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==12)
+   if (a==3 || a==4 || a==5 || a==6 || a==7 || a==8 || a==9 || a==12)
    {
       Efi[e][4] = al_itofix(0);  // cant hurt anymore
       Ei[e][25]*=hb; // health bonus
@@ -435,7 +445,7 @@ void enemy_killed(int e)
          zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
-      case 4:
+      case 4: // bouncer
          na = Ei[e][3]; //new ans
          dl = Ei[e][30] = 20; // death_loop_wait;  set delay
          Ei[e][24] = 928+(hb-1)*32; // shape
@@ -451,7 +461,23 @@ void enemy_killed(int e)
          zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
-      case 6:
+
+      case 5: //jump worm
+         na = Ei[e][3] = 79;  // new ans
+         dl = Ei[e][30] = 20; // death_loop_wait; set delay
+         Ei[e][24] = 935+(hb-1)*32; // shape
+         Efi[e][11] = al_ftofix(.96); // scale multiplier
+         Efi[e][13] = al_itofix(20); // 255/dl/2;  rot inc
+//         Efi[e][3] = al_ftofix(0.4); // yinc
+         Efi[e][3] = al_ftofix(-2); // yinc
+         zz[0][na] = zz[5][na]; // set shape
+         zz[1][na] = 0;         // point to zero
+         zz[2][na] = frame_num; // set counter
+         zz[3][na] = dl / (zz[4][na]+1); // set ans timer
+      break;
+
+
+      case 6: // cannon
          na = Ei[e][3] = 37;  // new ans
          dl = Ei[e][30] = 20; // death_loop_wait; set delay
          Ei[e][24] = 930+(hb-1)*32; // shape
@@ -530,7 +556,7 @@ void enemy_killed(int e)
    } // end of switch
 
    // almost all do this but not enough to do by default
-   if (a==3 || a==4 || a==6 || a==7 || a==8 || a==9 || a==10 || a==12 )
+   if (a==3 || a==4 || a==5 || a==6 || a==7 || a==8 || a==9 || a==10 || a==12 )
    {
       if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
       if (ht == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
@@ -716,260 +742,6 @@ void enemy_flapper(int e)
 }
 
 
-void walker_archwagon_common(int e)
-{
-//Ei[][5]   jump/fall -160 max jump, 160 max fall
-//Ei[][6]   jump wait (0=none)
-//Ei[][7]   jump when player above
-//Ei[][8]   follow(0) or bounce(1)
-//Ei[][11]  jump before hole
-//Ei[][12]  jump before wall
-
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
-
-   if (!Ei[e][8]) // follow mode
-   {
-      int p = find_closest_player(e);
-      if (EXint < al_fixtoi(players[p].PX)) Efi[e][2] = Efi[e][6];
-      if (EXint > al_fixtoi(players[p].PX)) Efi[e][2] = -Efi[e][6];
-   }
-
-   int on_solid = 0;
-   int on_lift = 0;
-   int ret = is_down_solid(EXint, EYint, 1, 2);
-   if ((ret == 1) || (ret == 2)) on_solid = 1;
-
-   if (ret >= 32) //on lift
-   {
-      on_lift = 1;
-      Efi[e][1] += lifts[ret-32].fyinc ;  // move with lift
-   }
-
-   if (Ei[e][2] == 1)  // move right
-   {
-      Efi[e][2] = Efi[e][6];
-      Efi[e][0] += Efi[e][2];
-      EXint= al_fixtoi(Efi[e][0]);
-      if ((on_solid) || (on_lift))
-      {
-         if (Ei[e][12]) // jump before wall
-           if (is_right_solid(EXint+Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
-         if (Ei[e][11]) // jump before hole
-            if (!is_right_solid(EXint+Ei[e][11]-18, EYint+20, 1, 2)) Ei[e][5] = -160;
-      }
-      if (is_right_solid(EXint, EYint, 1, 2))
-      {
-         Ei[e][2] = 0; // change direction;
-         Efi[e][0] -= Efi[e][2]; // take back last move
-         EXint= al_fixtoi(Efi[e][0]);
-      }
-   }
-   if (Ei[e][2] == 0)  // move left
-   {
-      Efi[e][2] = -Efi[e][6];
-      Efi[e][0] += Efi[e][2];
-      EXint= al_fixtoi(Efi[e][0]);
-      if ((on_solid) || (on_lift))
-      {
-         if (Ei[e][12]) // jump before wall
-            if (is_left_solid(EXint-Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
-         if (Ei[e][11]) // jump before hole
-            if (!is_left_solid(EXint-Ei[e][11]+18, EYint+20, 1, 2)) Ei[e][5] = -160;
-      }
-      if (is_left_solid(EXint, EYint, 1, 2))
-      {
-         Efi[e][0] -= Efi[e][2]; // take back last move
-         Ei[e][2] = 1; // change direction;
-         EXint= al_fixtoi(Efi[e][0]);
-      }
-   }
-
-   if ((on_solid) && (Ei[e][5] >= 0)) // solid and not jumping (falling or steady)
-   {
-      Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
-      Efi[e][1] = al_itofix (al_fixtoi(Efi[e][1]));  // remove decimal
-      Ei[e][5] = 0;
-   }
-
-   if ((!on_solid) && (!on_lift) && (Ei[e][5] >= 0)) // not solid and falling
-   {
-      Ei[e][5] +=5; // gravity
-      if (Ei[e][5] > 160) Ei[e][5] = 160; // terminal velocity
-
-      // apply y move
-      al_fixed ym = Ei[e][5] * Efi[e][3];
-      al_fixed ym1 = ym/100;
-
-      Efi[e][1] += ym1;
-
-      EYint = al_fixtoi(Efi[e][1]);
-      if (is_down_solid(EXint, EYint, 1, 2))
-      {
-         on_solid = 1;
-         Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
-         Efi[e][1] = al_itofix (al_fixtoi(Efi[e][1]));  // remove decimal
-         Ei[e][5] = 0;
-      }
-   }
-
-   if (Ei[e][5] < 0) // rising or jumping
-   {
-      Ei[e][5] +=5; // gravity
-      if (Ei[e][5] < -160) Ei[e][5] = -160; // terminal velocity
-
-      // apply y move
-      al_fixed ym = Ei[e][5] * Efi[e][3];
-      al_fixed ym1 = ym/100;
-      Efi[e][1] += ym1;
-
-      EYint = al_fixtoi(Efi[e][1]);
-      if ((is_up_solid(EXint, EYint, 1, 2) == 1) || (is_up_solid(EXint, EYint, 1, 2) > 31) )
-         Ei[e][5] = 0;  // stop rising
-   }
-
-   if ((on_solid) || (on_lift))
-   {
-      // frame_num jump
-      if ((Ei[e][6] > 0) && ((frame_num % Ei[e][6]) == 1)) Ei[e][5] = -160;
-
-      // check for jump if player passes above
-      if (Ei[e][7] > 0)
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (!players[p].paused) )
-               if ((EXint < (al_fixtoi(players[p].PX) + Ei[e][7])) &&
-                   (EXint > (al_fixtoi(players[p].PX) - Ei[e][7])) &&
-                   (EYint > al_fixtoi(players[p].PY)))
-                      Ei[e][5] = -160;
-   }
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//--11--block walker-----------------------------------------------------------------------------
-//      Ei[e][6] = jump wait (0=none)
-//      Ei[e][7] = jump when player above
-//      Ei[e][8] = follow(0) or bounce(1)
-//      Ei[e][11] = jump before hole
-//      Ei[e][12] = jump before wall
-//      Efi[e][8] = fall and fallcount
-//      Efi[e][9] = jump and jumpcount */
-//      Ei[e][18] = bullet trigger box y1
-//      Ei[e][19] = bullet trigger box y2
-
-void enemy_block_walker(int e)
-{
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
-
-   enemy_player_hit_proc(e);
-   if (Ei[e][31]) // hit
-   {
-      int ex = EXint/20;
-      int ey = EYint/20;
-
-      l[ex][ey] = 168 | PM_BTILE_ALL_SOLID;
-      al_set_target_bitmap(level_background);
-      al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, palette_color[0]);
-      al_draw_bitmap(tile[168], ex*20, ey*20, 0);
-
-      game_event(60, 0, 0, e, Ei[e][26], 0, 0);
-      Ei[e][0] = 0;
-      return; // to stop rest of execution
-   }
-
-   walker_archwagon_common(e);
-
-   // set the bitmap and drawing mode
-   int b = Ei[e][3];     // ans
-   int c = zz[4][b];     // num_of_shapes in seq
-
-   // animate with h move
-   int x = (EXint/2) % c;
-   Ei[e][1] = zz[x+5][b];
-}
-
 
 
 int is_player_in_trigger_box(int x1, int y1, int x2, int y2)
@@ -1141,7 +913,7 @@ void enemy_cloner(int e)
    // Ei[][8]  trigger mode (0=wait, 1=reset, 2=immed)//
 
    // wait mode, player in box, run timer
-   if ((Ei[e][8] == 0) && (player_in_box) && (--Ei[e][7] == 0))
+   if ((Ei[e][8] == 0) && (player_in_box) && (--Ei[e][7] <= 0))
    {
       Ei[e][7] = Ei[e][6]; // reset counter
       create_now = 1;
@@ -1158,7 +930,7 @@ void enemy_cloner(int e)
 
       if (player_in_box)
       {
-         if (--Ei[e][7] == 0) // other wise run timer
+         if (--Ei[e][7] <= 0) // other wise run timer
          {
             Ei[e][7] = Ei[e][6]; // reset counter
             create_now = 1;
@@ -1856,10 +1628,27 @@ void enemy_bouncer(int e)
 }
 
 
+
+
+
+
+
 //-------------------------------------------------------------------------------------------
 //--3--archwagon-----------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------
+/*
+// see walker_archwagon_common
+
+Ei[][3]   ans (2=wagon with arrow, 3=empty wagon)
+Ei[][15]  bullet retrigger value
+Ei[][16]  bullet retrigger count
+Ei[][17]  bullet prox
+
+Efi[][7]  bullet speed
+
+*/
+
+
 void enemy_archwagon(int e)
 {
    int EXint = al_fixtoi(Efi[e][0]);
@@ -1922,6 +1711,443 @@ void enemy_archwagon(int e)
       Ei[e][1] = zz[5+c-x][b];
    }
 }
+
+
+//-------------------------------------------------------------------------------------------
+//--archwagon and block walker common -------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+/*
+
+Ei[][2]   direction (0=left, 1=right)
+Ei[][5]   jump/fall -160 max jump, 160 max fall
+Ei[][6]   jump wait (0=none)
+Ei[][7]   jump when player above
+Ei[][8]   follow(0) or bounce(1)
+Ei[][10]  turn before hole
+Ei[][11]  jump before hole
+Ei[][12]  jump before wall
+
+Efi[][2]  y speed
+Efi[][6]  x speed
+
+*/
+
+
+
+
+void walker_archwagon_common(int e)
+{
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
+
+   if (!Ei[e][8]) // follow mode
+   {
+      int p = find_closest_player(e);
+      if (EXint < al_fixtoi(players[p].PX)) Efi[e][2] = Efi[e][6];
+      if (EXint > al_fixtoi(players[p].PX)) Efi[e][2] = -Efi[e][6];
+   }
+
+   int on_solid = 0;
+   int on_lift = 0;
+   int ret = is_down_solid(EXint, EYint, 1, 2);
+   if ((ret == 1) || (ret == 2)) on_solid = 1;
+
+   if (ret >= 32) //on lift
+   {
+      on_lift = 1;
+      Efi[e][1] += lifts[ret-32].fyinc ;  // move with lift
+   }
+
+   if (Ei[e][2] == 1)  // move right
+   {
+      int change_dir = 0;
+      Efi[e][2] = Efi[e][6];
+      Efi[e][0] += Efi[e][2];
+      EXint= al_fixtoi(Efi[e][0]);
+      if ((on_solid) || (on_lift))
+      {
+         if (Ei[e][10]) // turn before hole
+           if (!is_right_solid(EXint+Ei[e][10]-10, EYint+20, 1, 2)) change_dir = 1;
+         if (Ei[e][12]) // jump before wall
+           if (is_right_solid(EXint+Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
+         if (Ei[e][11]) // jump before hole
+            if (!is_right_solid(EXint+Ei[e][11]-18, EYint+20, 1, 2)) Ei[e][5] = -160;
+      }
+      if ((is_right_solid(EXint, EYint, 1, 2)) || (change_dir))
+      {
+         Ei[e][2] = 0; // change direction;
+         Efi[e][0] -= Efi[e][2]; // take back last move
+         EXint= al_fixtoi(Efi[e][0]);
+      }
+   }
+   if (Ei[e][2] == 0)  // move left
+   {
+      int change_dir = 0;
+      Efi[e][2] = -Efi[e][6];
+      Efi[e][0] += Efi[e][2];
+      EXint= al_fixtoi(Efi[e][0]);
+      if ((on_solid) || (on_lift))
+      {
+         if (Ei[e][10]) // turn before hole
+           if (!is_left_solid(EXint-Ei[e][10]+10, EYint+20, 1, 2)) change_dir = 1;
+         if (Ei[e][12]) // jump before wall
+            if (is_left_solid(EXint-Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
+         if (Ei[e][11]) // jump before hole
+            if (!is_left_solid(EXint-Ei[e][11]+18, EYint+20, 1, 2)) Ei[e][5] = -160;
+      }
+      if ((is_left_solid(EXint, EYint, 1, 2)) || (change_dir))
+      {
+         Efi[e][0] -= Efi[e][2]; // take back last move
+         Ei[e][2] = 1; // change direction;
+         EXint= al_fixtoi(Efi[e][0]);
+      }
+   }
+
+   if ((on_solid) && (Ei[e][5] >= 0)) // solid and not jumping (falling or steady)
+   {
+      Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
+      Efi[e][1] = al_itofix (al_fixtoi(Efi[e][1]));  // remove decimal
+      Ei[e][5] = 0;
+   }
+
+   if ((!on_solid) && (!on_lift) && (Ei[e][5] >= 0)) // not solid and falling
+   {
+      Ei[e][5] +=5; // gravity
+      if (Ei[e][5] > 160) Ei[e][5] = 160; // terminal velocity
+
+      // apply y move
+      al_fixed ym = Ei[e][5] * Efi[e][3];
+      al_fixed ym1 = ym/100;
+
+      Efi[e][1] += ym1;
+
+      EYint = al_fixtoi(Efi[e][1]);
+      if (is_down_solid(EXint, EYint, 1, 2))
+      {
+         on_solid = 1;
+         Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
+         Efi[e][1] = al_itofix (al_fixtoi(Efi[e][1]));  // remove decimal
+         Ei[e][5] = 0;
+      }
+   }
+
+   if (Ei[e][5] < 0) // rising or jumping
+   {
+      Ei[e][5] +=5; // gravity
+      if (Ei[e][5] < -160) Ei[e][5] = -160; // terminal velocity
+
+      // apply y move
+      al_fixed ym = Ei[e][5] * Efi[e][3];
+      al_fixed ym1 = ym/100;
+      Efi[e][1] += ym1;
+
+      EYint = al_fixtoi(Efi[e][1]);
+      if ((is_up_solid(EXint, EYint, 1, 2) == 1) || (is_up_solid(EXint, EYint, 1, 2) > 31) )
+         Ei[e][5] = 0;  // stop rising
+   }
+
+   if ((on_solid) || (on_lift))
+   {
+      // frame_num jump
+      if ((Ei[e][6] > 0) && ((frame_num % Ei[e][6]) == 1)) Ei[e][5] = -160;
+
+      // check for jump if player passes above
+      if (Ei[e][7] > 0)
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((players[p].active) && (!players[p].paused) )
+               if ((EXint < (al_fixtoi(players[p].PX) + Ei[e][7])) &&
+                   (EXint > (al_fixtoi(players[p].PX) - Ei[e][7])) &&
+                   (EYint > al_fixtoi(players[p].PY)))
+                      Ei[e][5] = -160;
+   }
+
+}
+
+
+//-------------------------------------------------------------------------------------------
+//--11--block walker ------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+// see walker_archwagon_common
+
+
+void enemy_block_walker(int e)
+{
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
+
+   enemy_player_hit_proc(e);
+
+   if (Ei[e][31]) // hit
+   {
+      int ex = EXint/20;
+      int ey = EYint/20;
+
+      l[ex][ey] = 168 | PM_BTILE_ALL_SOLID;
+      al_set_target_bitmap(level_background);
+      al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, palette_color[0]);
+      al_draw_bitmap(tile[168], ex*20, ey*20, 0);
+
+      game_event(60, 0, 0, e, Ei[e][26], 0, 0);
+      Ei[e][0] = 0;
+      return; // to stop rest of execution
+   }
+
+   walker_archwagon_common(e);
+
+   // set the bitmap and drawing mode
+   int b = Ei[e][3];     // ans
+   int c = zz[4][b];     // num_of_shapes in seq
+
+   // animate with h move
+   int x = (EXint/2) % c;
+   Ei[e][1] = zz[x+5][b];
+}
+
+
+//-------------------------------------------------------------------------------------------
+//--5--jumpworm-----------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------
+/*
+
+Ei[][1]   tile to draw
+
+Ei[][2]   direction (0=left, 1=right)
+
+Ei[][4]   ground speed divider
+
+Ei[][5]   jump/fall -160 max jump, 160 max fall
+Ei[][6]   jump wait (0=none)
+Ei[][7]   jump when player above
+Ei[][8]   follow(0) or bounce(1)
+Ei[][10]  turn before hole
+Ei[][11]  jump before hole
+Ei[][12]  jump before wall
+
+Ei[][13]  change dir on next cycle 0
+Ei[][14]  cycle offset
+
+Efi[][2]  y speed
+Efi[][6]  x speed when jumping
+
+
+
+ */
+
+
+
+void enemy_jumpworm(int e)
+{
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
+
+   if (Ei[e][31]) // hit
+   {
+      enemy_killed(e);
+      return; // break;  to stop rest of execution
+   }
+   enemy_player_hit_proc(e);
+
+   int sd = Ei[e][4]; // ground speed divider
+
+   int c = frame_num % (10*sd);
+   int mf = 0; // move frame
+   if (c % sd == 0) mf = 1;
+
+   int cycle = c/sd;
+
+   cycle += Ei[e][14]; // add cycle_offset
+   while (cycle > 9) cycle -=10;
+
+
+
+   // if change direction on next cycle 0
+   if ((Ei[e][13]) && (cycle == 0))
+   {
+      Ei[e][13] = 0;
+      if (Ei[e][2])
+      {
+          Ei[e][2] = 0;
+          Efi[e][0] += al_itofix(10);
+      }
+      else
+      {
+          Ei[e][2] = 1;
+          Efi[e][0] -= al_itofix(10);
+      }
+   }
+
+
+   int attempt_jump = 0;
+   int on_solid = 0;
+   int on_lift = 0;
+
+   int ret = is_down_solid(EXint, EYint, 1, 2);
+   if ((ret == 1) || (ret == 2)) on_solid = 1;
+
+   if (ret >= 32) // on lift
+   {
+      on_lift = 1;
+      Efi[e][1] += lifts[ret-32].fyinc ;  // move with lift
+   }
+
+   // x move when on ground (0-4 move) (5-9 retract)
+   if ((cycle < 5) && (mf) && (!Ei[e][5]))
+   {
+      if (Ei[e][2] == 1)  // move right
+      {
+         int change_dir = 0;
+         Efi[e][0] += al_itofix(2);
+         EXint = al_fixtoi(Efi[e][0]);
+         if ((on_solid) || (on_lift))
+         {
+            if (Ei[e][10]) // turn before hole
+              if (!is_right_solid(EXint+Ei[e][10]-6, EYint+20, 1, 2)) change_dir = 1;
+            if (Ei[e][12]) // jump before wall
+              if (is_right_solid(EXint+Ei[e][12], EYint, 1, 2)) attempt_jump = 1;
+            if (Ei[e][11]) // jump before hole
+               if (!is_right_solid(EXint+Ei[e][11]-18, EYint+20, 1, 2)) attempt_jump = 1;
+         }
+         if ((is_right_solid(EXint, EYint, 1, 2)) || (change_dir))
+         {
+            Ei[e][13] = 1; // change direction on next cycle 0;
+            if (cycle == 0) Ei[e][14] +=8;
+            if (cycle == 1) Ei[e][14] +=6;
+            if (cycle == 2) Ei[e][14] +=4;
+            if (cycle == 3) Ei[e][14] +=2;
+         }
+      }
+      if (Ei[e][2] == 0)  // move left
+      {
+         int change_dir = 0;
+         Efi[e][0] -= al_itofix(2);
+         EXint = al_fixtoi(Efi[e][0]);
+         if ((on_solid) || (on_lift))
+         {
+            if (Ei[e][10]) // turn before hole
+              if (!is_left_solid(EXint-Ei[e][10]+6, EYint+20, 1, 2)) change_dir = 1;
+            if (Ei[e][12]) // jump before wall
+               if (is_left_solid(EXint-Ei[e][12], EYint, 1, 2)) attempt_jump = 1;
+            if (Ei[e][11]) // jump before hole
+               if (!is_left_solid(EXint-Ei[e][11]+18, EYint+20, 1, 2)) attempt_jump = 1;
+         }
+         if ((is_left_solid(EXint-2, EYint, 1, 2)) || (change_dir))
+         {
+            Ei[e][13] = 1; // change direction on next cycle 0;
+            if (cycle == 0) Ei[e][14] +=8;
+            if (cycle == 1) Ei[e][14] +=6;
+            if (cycle == 2) Ei[e][14] +=4;
+            if (cycle == 3) Ei[e][14] +=2;
+         }
+      }
+   }
+
+
+   if (cycle == 0) Ei[e][1] = 708;
+   if (cycle == 1) Ei[e][1] = 707;
+   if (cycle == 2) Ei[e][1] = 706;
+   if (cycle == 3) Ei[e][1] = 705;
+   if (cycle == 4) Ei[e][1] = 704;
+   if (cycle == 5) Ei[e][1] = 705;
+   if (cycle == 6) Ei[e][1] = 706;
+   if (cycle == 7) Ei[e][1] = 707;
+   if (cycle == 8) Ei[e][1] = 708;
+   if (cycle == 9) Ei[e][1] = 709;
+
+
+   if ((on_solid) && (Ei[e][5] >= 0)) // solid and not jumping (falling or steady)
+   {
+      Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
+      Efi[e][1] = al_itofix (al_fixtoi(Efi[e][1]));  // remove decimal
+      Ei[e][5] = 0;
+   }
+
+   if ((!on_solid) && (!on_lift) && (Ei[e][5] >= 0)) // not solid and falling
+   {
+      Ei[e][5] +=5; // gravity
+      if (Ei[e][5] > 160) Ei[e][5] = 160; // terminal velocity
+
+      // apply y move
+      al_fixed ym = Ei[e][5] * Efi[e][3];
+      al_fixed ym1 = ym/100;
+      Efi[e][1] += ym1;
+
+      EYint = al_fixtoi(Efi[e][1]);
+      if (is_down_solid(EXint, EYint, 1, 2))
+      {
+         on_solid = 1;
+         Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
+         Efi[e][1] = al_itofix (al_fixtoi(Efi[e][1]));  // remove decimal
+         Ei[e][5] = 0;
+      }
+   }
+
+   if (Ei[e][5] < 0) // rising or jumping
+   {
+      Ei[e][5] +=5; // gravity
+      if (Ei[e][5] < -160) Ei[e][5] = -160; // max velocity
+
+      // apply y move
+      al_fixed ym = Ei[e][5] * Efi[e][3];
+      al_fixed ym1 = ym/100;
+      Efi[e][1] += ym1;
+      EYint = al_fixtoi(Efi[e][1]);
+      if ((is_up_solid(EXint, EYint, 1, 2) == 1) || (is_up_solid(EXint, EYint, 1, 2) > 31) ) Ei[e][5] = 0;  // stop rising
+   }
+
+   // timed jump and jump when player passes above
+   if ((on_solid) || (on_lift))
+   {
+      // frame_num jump
+      if ((Ei[e][6] > 0) && ((frame_num % Ei[e][6]) == 1)) attempt_jump = 1;
+
+      // check for jump if player passes above
+      if (Ei[e][7] > 0)
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if ((players[p].active) && (!players[p].paused) )
+               if ((EXint < (al_fixtoi(players[p].PX) + Ei[e][7])) &&
+                   (EXint > (al_fixtoi(players[p].PX) - Ei[e][7])) &&
+                   (EYint > al_fixtoi(players[p].PY)))
+                      attempt_jump = 1;
+   }
+
+   if (attempt_jump)
+   {
+      EXint = al_fixtoi(Efi[e][0]);
+      EYint = al_fixtoi(Efi[e][1]);
+      if ((is_up_solid(EXint, EYint, 1, 2) != 1) && (is_up_solid(EXint, EYint, 1, 2) < 32) ) Ei[e][5] = -160;
+   }
+
+   Efi[e][14] = al_itofix(0); // default is no rotation
+
+   // x move differently if jumping or falling
+   if (Ei[e][5])
+   {
+      al_fixed js = Efi[e][6]; // speed for jump
+      if (Ei[e][2] == 1)  // move right
+      {
+         if (is_right_solid(EXint+al_fixtoi(js), EYint, 1, 2)) Ei[e][2] = 0; // change direction
+         else Efi[e][0] += js;                                               // make the move
+      }
+      else if (Ei[e][2] == 0)  // move left
+      {
+         if (is_left_solid(EXint-al_fixtoi(js), EYint, 1, 2)) Ei[e][2] = 1; // change direction
+         else Efi[e][0] -= js;                                              // make the move
+      }
+      Ei[e][1] = 704;              // only one shape for falling or jumping
+      al_fixed ym = Ei[e][5] * Efi[e][3] / 100;
+      al_fixed angle = al_fixatan2(ym, js);
+      if (!Ei[e][2]) angle = -angle;   // reverse angle depending on x direction
+      Efi[e][14] = angle;
+   }
+}
+
+
+
+
+
 
 
 
@@ -2072,6 +2298,8 @@ Ei[][7]   jump when player above
 Ei[][8]   follow(0) or bounce(1)
 Ei[][11]  jump before hole
 Ei[][12]  jump before wall
+
+
 
 
 [4]--bouncer-----------------------------------------------------------------------------
