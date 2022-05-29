@@ -10,25 +10,27 @@ it's most likely an opengl thing
 
 seg fault when switching lift mode...can't reproduce...???
 
+in map move, when holding mouse button and moving...the windows are hidden but still detected and won't let the mouse move where they are...
 
-in map move, when holding mouse button and moving...the windows are still detected and won't let the mouse move where they are...
-
-
-
-
+bug...orb timed on..when time set to 1, never triggers toggle on
+figure this out later maybe, for now just set timer to 2 or use always on event
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-
-
+add jumpworm to filters
 
 
 ------------------------------------------------------
 ------------------------ Level ideas -----------------
 ------------------------------------------------------
+
+make a level where you ride a lift and it is carrying an orb that is used on multiple steps to continue....
+it works... you can have an orb with fall mode stay riding a lift and have it trigger multiple steps in turn...
+
+make a level where jumpworms bounce back and forth between skinny walls
 
 
 
@@ -79,15 +81,6 @@ uses prox to fire bullet instead of timer
 make a green ball that you need to carry to its corresponding base to emit a trigger event
 
 make cloner capable of being triggered by an event
-
-something like a ball on a stalk that turns greens when triggered
-
-you can shoot it or just touch it
-
-
-
-
-
 
 
 new items that emit triggers

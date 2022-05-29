@@ -545,11 +545,23 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
 
 
 
-
-
-
-
-
+void set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
+{
+   if (item[i][0] == 6) // orb
+   {
+      item[i][10] = ev0;
+      item[i][11] = ev1;
+      item[i][12] = ev2;
+      item[i][13] = ev3;
+   }
+   if (item[i][0] == 9) // trigger
+   {
+      item[i][11] = ev0;
+      item[i][12] = ev1;
+      item[i][13] = ev2;
+      item[i][14] = ev3;
+   }
+}
 
 
 
@@ -587,7 +599,6 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
 
 
-
    if (bn == 4)
    {
       if (item[num][8] == 0) sprintf(smsg, "disabled");
@@ -601,6 +612,13 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          }
       }
    }
+
+
+
+
+
+
+
 
    if (bn == 11)
    {
@@ -709,6 +727,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
 
 
+
    if (bn == 90) // orb trigger type
    {
       if (press)
@@ -725,16 +744,22 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          }
          else if (item[num][2] & PM_ITEM_ORB_TRIG_DOWN)
          {
-            item[num][2] &= ~PM_ITEM_ORB_TRIG_DOWN; // clear flag
+            item[num][2] &= ~PM_ITEM_ORB_TRIG_DOWN;  // clear flag
+            item[num][2] |= PM_ITEM_ORB_TRIG_BULLET; // set flag
+         }
+         else if (item[num][2] & PM_ITEM_ORB_TRIG_BULLET)
+         {
+            item[num][2] &= ~PM_ITEM_ORB_TRIG_BULLET; // clear flag
             item[num][2] |= PM_ITEM_ORB_TRIG_TOUCH; // set flag
          }
       }
 
       sprintf(smsg, "undef");
 
-      if (item[num][2] & PM_ITEM_ORB_TRIG_TOUCH) sprintf(smsg, "Trigger:Touch");
-      if (item[num][2] & PM_ITEM_ORB_TRIG_UP)    sprintf(smsg, "Trigger:Up");
-      if (item[num][2] & PM_ITEM_ORB_TRIG_DOWN)  sprintf(smsg, "Trigger:Down");
+      if (item[num][2] & PM_ITEM_ORB_TRIG_TOUCH)  sprintf(smsg, "Trigger:Touch");
+      if (item[num][2] & PM_ITEM_ORB_TRIG_UP)     sprintf(smsg, "Trigger:Up");
+      if (item[num][2] & PM_ITEM_ORB_TRIG_DOWN)   sprintf(smsg, "Trigger:Down");
+      if (item[num][2] & PM_ITEM_ORB_TRIG_BULLET) sprintf(smsg, "Trigger:Bullet");
    }
 
 
@@ -910,45 +935,17 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
             if (item[num][0] == 16) // block manip
             {
-               if (item[num][3] == 3) // mode 3 - toggle blocks
-               {
-                  item[i][11] = 0;
-                  item[i][12] = 0;
-                  item[i][13] = ev;  // needs a toggle trigger
-                  item[i][14] = 0;
-               }
-               else
-               {
-                  item[i][11] = ev;  // regular trigger
-                  item[i][12] = 0;
-                  item[i][13] = 0;
-                  item[i][14] = 0;
-               }
+               if (item[num][3] == 3) set_trigger_event(i, 0, 0, ev, 0); // mode 3 - toggle blocks - needs a toggle ON trigger
+               else                   set_trigger_event(i, ev, 0, 0, 0); // needs a regular ON trigger
             }
             if (item[num][0] == 17) // block damage
             {
-               if (item[num][11] == 1) // mode 1 - toggle damage
-               {
-                  item[i][11] = 0;
-                  item[i][12] = 0;
-                  item[i][13] = ev;  // needs a toggle trigger
-                  item[i][14] = 0;
-               }
-               else
-               {
-                  item[i][11] = ev;  // regular trigger
-                  item[i][12] = 0;
-                  item[i][13] = 0;
-                  item[i][14] = 0;
-               }
+               if (item[num][11] == 1) set_trigger_event(i, 0, 0, ev, 0); // mode 1 - toggle damage - needs a toggle ON trigger
+               else                    set_trigger_event(i, ev, 0, 0, 0); // needs a regular ON trigger
             }
          }
       }
    }
-
-
-
-
 
    if (bn == 401) // timer draw mode
    {
@@ -1164,11 +1161,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
          {
             int ev = get_unused_pm_event();
             lift_steps[num][type].val = ev;
-            // toggle trigger
-            item[i][11] = 0;
-            item[i][12] = 0;
-            item[i][13] = ev;
-            item[i][14] = 0;
+            set_trigger_event(i, 0, 0, ev, 0); // toggle ON trigger
          }
       }
    }
@@ -1459,7 +1452,6 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if (var == 0) sprintf(smsg,  "Stationary");
       if (var == 1) sprintf(smsg,  "Fall");
    }
-
    if (bn == 22)
    {
       if (press) var++;

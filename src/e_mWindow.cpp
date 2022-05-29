@@ -284,9 +284,9 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
    int fc2 = 4;     // frame color 2
 
    int tl=0; // text_lines
-   if (mode == 1) tl = 24*bts-bts/2;
-   if (mode == 2) tl = 26*bts-bts;
-   if (mode == 3) tl = 28*bts-bts;
+   if (mode == 1) tl = 26*bts-bts/2;
+   if (mode == 2) tl = 28*bts-bts;
+   if (mode == 3) tl = 30*bts-bts;
 
    if (mW[3].collapsed) tl = -bts+2;
 
@@ -325,6 +325,7 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][3],  "Arcwgn", "Arcwgn", tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][4],  "Bouncr", "Bouncr", tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][5],  "Jmpwrm", "Jmpwrm", tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][6],  "Cannon", "Cannon", tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][7],  "Podzil", "Podzil", tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[3][8],  "Trakbt", "Trakbt", tc1, tc2, fc1, fc2);
@@ -337,6 +338,7 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][3],  "Exit",   "Exit",   tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][4],  "Key",    "Key",    tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][5],  "Start",  "Start",  tc1, tc2, fc1, fc2);
+      mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][6],  "Orb",    "Orb",    tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][7],  "Mine",   "Mine",   tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][8],  "Bomb",   "Bomb",   tc1, tc2, fc1, fc2);
       mdw_toggle(x1+fs, y, x2-fs, bts, 0,0,0,0,0,0,0,0,1,0,1,d, obj_filter[2][9],  "Triggr", "Triggr", tc1, tc2, fc1, fc2);

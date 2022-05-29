@@ -183,8 +183,9 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 #define PM_ITEM_ORB_TRIG_TOUCH  0b0000000000010000
 #define PM_ITEM_ORB_TRIG_UP     0b0000000000100000
 #define PM_ITEM_ORB_TRIG_DOWN   0b0000000001000000
-#define PM_ITEM_ORB_TRIG_CURR   0b0000000010000000
-#define PM_ITEM_ORB_TRIG_PREV   0b0000000100000000
+#define PM_ITEM_ORB_TRIG_BULLET 0b0000000010000000
+#define PM_ITEM_ORB_TRIG_CURR   0b0000000100000000
+#define PM_ITEM_ORB_TRIG_PREV   0b0000001000000000
 
 #define PM_ITEM_ORB_ROTB        0b1100000000000000
 
@@ -1031,6 +1032,7 @@ void set_xyinc_rot(int EN, int x2, int y2);
 void set_rocket_rot(int num, int x2, int y2);
 int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type);
 int getxy(const char *txt, int obj_type, int sub_type, int num );
+void show_all_events(void);
 void clear_pm_events(void);
 int check_clt_for_event(int ev, int clt[][4], int clt_last);
 int get_unused_pm_event_extended(int clt[][4], int clt_last);
@@ -1253,11 +1255,17 @@ void enemy_trakbot(int e);
 void enemy_podzilla(int e);
 void enemy_cannon(int e);
 void enemy_bouncer(int e);
+
+void walker_archwagon_common(int e);
+
+void enemy_jumpworm(int e);
 void enemy_archwagon(int e);
 void enemy_deathcount(int e);
 void move_enemies(void);
 void enemy_killed(int EN);
 void enemy_player_hit_proc(int EN);
+
+
 
 
 // z_file.h

@@ -672,6 +672,13 @@ int em_process_keypress(void)
       while (key[ALLEGRO_KEY_E]) proc_controllers();
       show_all_enemies();
    }
+   if (key[ALLEGRO_KEY_V])
+   {
+      while (key[ALLEGRO_KEY_V]) proc_controllers();
+      show_all_events();
+   }
+
+
    if (key[ALLEGRO_KEY_L])
    {
       while (key[ALLEGRO_KEY_L]) proc_controllers();

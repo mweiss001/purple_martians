@@ -897,6 +897,13 @@ void zfs_draw_item_ft(int i)
    if (type == 16)  shape = 989; // bm
    if (type == 17)  shape = 988; // bd
 
+   if (type == 6)
+   {
+      int rb = (ft_item[i][2] & PM_ITEM_ORB_ROTB) >> 14;
+      float a=rb*(ALLEGRO_PI/2);
+      al_draw_rotated_bitmap(tile[ft_item[i][1]], 10, 10, x+10, y+10, a, 0);
+      drawn = 1;
+   }
    if ((type == 8) && (ft_item[i][11])) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
 
    if (type == 11) // rockets

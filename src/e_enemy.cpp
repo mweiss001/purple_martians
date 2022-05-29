@@ -215,7 +215,7 @@ int create_cloner(void)
       Ei[e][8] = 2;     // trigger type
 
       Ei[e][6] = 400;  // default delay
-      Ei[e][7] = 400;  // default delay
+      Ei[e][7] = 0;  // default delay
 
       Ei[e][25] = 25;  // health bonus
       Ei[e][29] = 10;  // default collision box
