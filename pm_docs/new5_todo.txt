@@ -20,6 +20,71 @@ figure this out later maybe, for now just set timer to 2 or use always on event
 ---------------------------------------------------------
 
 
+I want to make some changes to the level editor layout
+
+put some controls and indicators in the top border..
+
+level number
+x and y pos
+zoom + and -
+indication of mode
+menus..like save
+
+left most menu...file
+with save, load, exit, new...
+
+
+I think I should combine the loops for all 4 modes...
+
+
+   while (!quit)
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) quit = em_process_mouse();
+      quit = em_process_keypress();
+   }
+   while (!quit)
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) zfs_process_mouse();
+      quit = zfs_process_keypress();
+   }
+   while (!ge_process_keypress())
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) ge_process_mouse();
+   }
+   while (!quit)
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) ovw_process_mouse();
+      quit = ovw_process_keypress();
+   }
+
+
+All that needs to change is a selector to call the appropriate mouse and key functions based on what mode we are in
+
+then I will need a way to change modes..
+
+right now em is the base and I only go from em to the other 3 and back
+I want to go from any mode to any other
+
+level_editor_mode = 1; // em
+level_editor_mode = 2; // zfs
+level_editor_mode = 3; // ge
+level_editor_mode = 4; // ov
+
+right now...do the combine....
+
+move all other setup code into set_windows()
+for all except em..
+
+
+
+
+
+
+
 
 
 
