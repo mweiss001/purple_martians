@@ -36,7 +36,6 @@ with save, load, exit, new...
 
 I think I should combine the loops for all 4 modes...
 
-
    while (!quit)
    {
       cm_redraw_level_editor_background();
@@ -78,6 +77,44 @@ right now...do the combine....
 
 move all other setup code into set_windows()
 for all except em..
+
+ov has 14 calls
+could replace with something just sets mode and then returns
+this could fix the issue of ov calling itself when already in it...
+now it will just set obt and num
+
+ge has one call from em
+zfs has one call from em
+
+
+made the loops even smaller
+
+   while (!zfs_process_keypress())
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) zfs_process_mouse();
+   }
+   while (!ovw_process_keypress())
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) ovw_process_mouse();
+   }
+
+
+   make a function...
+
+   cm_process_mouse that calls all the others
+
+
+
+
+
+
+
+
+
+
+
 
 
 
