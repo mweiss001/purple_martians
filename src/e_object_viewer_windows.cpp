@@ -299,7 +299,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
          case 9: // trigger
             sprintf(lmsg[1],"Trigger Item Location");
             sprintf(lmsg[2],"Trigger Field");
-            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
+            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
          break;
          case 10:
             sprintf(lmsg[1],"Message Location");
@@ -397,10 +397,13 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
    if (mdw_buttont(x13, ya, x23-1, bts,                0,0,0,0,  0,14,15,0, 1,0,0,d, "Create")) mW[7].mb = 19;
    if (mdw_buttont(x23, ya, xb,    bts,                0,0,0,0,  0,10,15,0, 1,0,1,d, "Delete")) mW[7].mb = 20;
 
-   if (mdw_buttont(xa,  ya, x14-1, bts,                0,0,0,0,  0,1,15,0,  1,0,0,d, "Help")) mW[7].mb = 24; // viewer help
-   if (mdw_button( x14, ya, xb,    bts, 57, n, type, obt,      0,1,15,0,  1,0,1,d)) mW[7].mb = 25; // specific object help
+   if (mdw_buttont( xa, ya, x14-1, bts,                0,0,0,0,  0,1,15,0,  1,0,0,d, "Help")) help("Viewer Basics");
+   mdw_button(     x14, ya, xb,    bts,               57,0,0,0,  0,1,15,0,  1,0,1,d);         // object specific help
 
    ya+=4; // space after common buttons
+
+
+
 
 
    // --------------------------------------------------
@@ -611,6 +614,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
             mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);
             ya+=4; // spacer
+            mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][10], 100, 0, 1,    "Turn Before Hole:", "Off");
             mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][11], 100, 0, 1,    "Jump Before Hole:", "Off");
             mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][12], 100, 0, 1,    "Jump Before Wall:", "Off");
             mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0, 7,15,15,  1,0,1,d, Ei[n][7],  600, 0, 1,    "Jump Under Width:", "Off");
@@ -1521,7 +1525,7 @@ void ovw_process_mouse(void)
 
                if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
                {
-                   if ((item[mW[7].num][0] == 4) || (item[mW[7].num][0] == 9) || (item[mW[7].num][0] == 16) || (item[mW[7].num][0]== 17)) // key, trigger, manip, damage
+                   if ((item[mW[7].num][0] == 4) || (item[mW[7].num][0] == 9) || (item[mW[7].num][0] == 14) || (item[mW[7].num][0] == 16) || (item[mW[7].num][0]== 17)) // key, trigger, switch, manip, damage
                    {
                       item[mW[7].num][6] += x_off*20;
                       item[mW[7].num][7] += y_off*20;
@@ -1831,43 +1835,6 @@ int ovw_process_keypress(void)
          if ((mW[7].obt==3) && (--mW[7].num < e_first_num[type])) mW[7].num++;
          if ((mW[7].obt==2) && (--mW[7].num < item_first_num[type])) mW[7].num++;
          if ((mW[7].obt==4) && (--mW[7].num < 0)) mW[7].num++;
-      break;
-      case 24:  // viewer help
-         help("Viewer Basics");
-      break;
-      case 25:  // object help
-         if (mW[7].obt==3)
-         {
-            if (type == 3)  help("Archwagon Viewer");
-            if (type == 4)  help("Bouncer Viewer");
-            if (type == 6)  help("Cannon Viewer");
-            if (type == 7)  help("Podzilla Viewer");
-            if (type == 8)  help("Trakbot Viewer");
-            if (type == 9)  help("Cloner Viewer");
-            if (type == 10) help("Field Viewer");
-            if (type == 11) help("Block Walker Viewer");
-            if (type == 12) help("Flapper Viewer");
-         }
-         if (mW[7].obt==2)
-         {
-            if (type == 1)  help("Door Viewer");
-            if (type == 2)  help("Health Bonus Viewer");
-            if (type == 3)  help("Exit Viewer");
-            if (type == 4)  help("Key Viewer");
-            if (type == 5)  help("Start Viewer");
-            if (type == 6)  help("Free Man Viewer");
-            if (type == 7)  help("Mine Viewer");
-            if (type == 8)  help("Bomb Viewer");
-            if (type == 10) help("Message Viewer");
-            if (type == 11) help("Rocket Viewer");
-            if (type == 12) help("Warp Viewer");
-            if (type == 14) help("Switch Viewer");
-            if (type == 15) help("Sproingy Viewer");
-         }
-         if (mW[7].obt==4)
-         {
-            help("Lift Viewer");
-         }
       break;
       case 26: // up
       {

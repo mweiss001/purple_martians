@@ -62,6 +62,7 @@
  <a href="timers.html#Second timer" target="_top">Second timer</a>
  <a href="timers.html#Frames per second timer" target="_top">Frames per second timer</a>
  <a href="timers.html#Game speed regulation" target="_top">Game speed regulation</a>
+ <a href="timers.html#Speed test mode" target="_top">Speed test mode</a>
  <a href="timers.html#Speed adjust during netgame" target="_top">Speed adjust during netgame</a>
 </mdw_file_toc><hr></mh3>
 
@@ -100,9 +101,10 @@ int initial_setup(void)
 <mh3>        
 The game menu runs a loop that processes both the menu and the logo animation.
 
-The function 'proc_controller()' is called in this loop and will block until it gets a timer event.
+The function '<a href="events.html#Processing the event queue" target="_top">proc_controllers()</a>' is called in this loop and will block until it gets a timer event.
 
-'mnu_timer' generates events every 0.01s, which means the menu will run at 100 frames per second.
+'mnu_timer' generates events every 0.01s, which means the menu should run at 100 frames per second.
+
 </mh3>
 <pre><code class="language-cpp">int proc_controllers()
 {
@@ -215,12 +217,16 @@ When the game is lagging, proc_frame_delay() will skip drawing for the current f
    players1[active_local_player].frames_skipped++;
 }</code></pre>
 
+
+<br><a name="Speed test mode"></a>
+<mh7>Speed test mode</mh7>
 <mh3>
 In speed test mode:
 
 - every frame is forced to be drawn
 - fps_timer count is set to the current frame
 - waiting for the fps_timer is disabled, the game runs as fast or slow as it is able
+
 </mh3>
 <pre><code class="language-cpp">if (speed_testing) // draw every frame no matter how fast or slow it is
 {
@@ -235,8 +241,8 @@ Speed test mode is only used for testing and debugging.
 - to test how different drawing methods compare
 
 To enable it when the game is running type 'ston', to disable type 'stoff'.
-</mh3>
 
+</mh3>
 
 <br><a name="Speed adjust during netgame"></a>
 <mh7>Speed adjust during netgame</mh7>

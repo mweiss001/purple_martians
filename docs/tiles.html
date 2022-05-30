@@ -1,5 +1,5 @@
 <!doctype html>
-<title>Tiles</title>
+<title>Bitmaps and tiles</title>
 
 <html>
 
@@ -57,12 +57,15 @@
 
 			
 <mh3><hr></mh3>
-<mh8>Tiles</mh8>
+<mh8>Bitmaps and tiles</mh8>
 
 <mh3><hr><mdw_file_toc> <a href="tiles.html#Overview" target="_top">Overview</a>
- <a href="tiles.html#Creating bitmaps for tiles" target="_top">Creating bitmaps for tiles</a>
+ <a href="tiles.html#History" target="_top">History</a>
+ <a href="tiles.html#Data Structure" target="_top">Data Structure</a>
+ <a href="tiles.html#Creating bitmaps" target="_top">Creating bitmaps</a>
  <a href="tiles.html#Loading tile bitmaps" target="_top">Loading tile bitmaps</a>
  <a href="tiles.html#Rebuilding tile bitmaps" target="_top">Rebuilding tile bitmaps</a>
+ <a href="tiles.html#Using indexed tiles" target="_top">Using indexed tiles</a>
 </mdw_file_toc><hr></mh3>
 
 
@@ -77,6 +80,10 @@ Each level is 100x100 tiles or 2000 x 2000 pixels.
 
 The tiles are stored in arrays of bitmaps and accessed by the array indexes.
 
+</mh3>
+<a name="History"></a>
+<mh7>History</mh7>
+<mh3>
 From the very beginning in 1997 up until 2017, the tiles were 256 color, 8 bit bitmaps.
 I made my own bitmap and palette editor and drew all my bitmaps with those tools.
 I ended up making my own custom palette with 15 colors, each color being faded 16 times.
@@ -94,11 +101,16 @@ Unfortunately, my bitmap and palette editor did not survive the conversion.  Now
 I used to store different colorized versions of players and doors with the main tiles.
 I have since converted door and player tiles to have their tilemap files.
 
-The 3 tilemaps are stored in the bitmap/ folder:
+</mh3>
+<a name="Data Structure"></a>
+<mh7>Data Structure</mh7>
+<mh3>
+The bitmap files for the tilemaps are stored in the bitmap/ folder:
 </mh3>
 
 <pre><code class="language-cpp">tiles.bmp        (1024 main tile storage)
-player_tiles.bmp (16 colors x 19 shapes)
+block_tiles      (1024 tiles used for blocks in levels)
+player_tiles.bmp (16 colors x 24 shapes)
 door_tiles.bmp   (16 colors x 8 shapes x 2 door types)</code></pre>
 
 <mh3>
@@ -107,6 +119,7 @@ I load these from file only once when the game starts. They are stored here as v
 <pre><code class="language-cpp">al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
 al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
 tilemap  = al_create_bitmap(640, 640);
+btilemap = al_create_bitmap(640, 640);
 ptilemap = al_create_bitmap(380, 320);
 dtilemap = al_create_bitmap(160, 640);</code></pre>
 
@@ -116,6 +129,7 @@ They are also stored here as memory bitmaps so that I can re-store the video bit
 <pre><code class="language-cpp">al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
 al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
 M_tilemap =  al_create_bitmap(640,640);
+M_btilemap = al_create_bitmap(640,640);
 M_ptilemap = al_create_bitmap(380,320);
 M_dtilemap = al_create_bitmap(160,640);</code></pre>
 
@@ -124,36 +138,46 @@ I use sub-bitmaps created from the video bitmaps so that I can draw with indexes
 </mh3>
 
 <pre><code class="language-cpp">ALLEGRO_BITMAP *tile[NUM_SPRITES];
+ALLEGRO_BITMAP *btile[NUM_SPRITES];
 ALLEGRO_BITMAP *player_tile[16][32];
 ALLEGRO_BITMAP *door_tile[2][16][8];
 </code></pre>
 
 <br><a name="Creating bitmaps for tiles"></a>
-<mh7>Creating bitmaps for tiles</mh7>
+<mh7>Creating bitmaps</mh7>
 
 <mh3>
-- called only once from 'initial_setup()'</mh3>
-<pre><code class="language-cpp">void create_bmp(void)
+'create_bitmaps()' is called only once from 'initial_setup()'
+
+</mh3>
+<pre><code class="language-cpp">void create_bitmaps(void)
 {
-   // create tilemap bitmaps
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-   tilemap = al_create_bitmap(640, 640);
-   ptilemap = al_create_bitmap(380,320);
-   dtilemap = al_create_bitmap(160,640);
 
    // create memory bitmaps as temp storage for restoring tilemaps after screen change
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   M_tilemap = al_create_bitmap(640,640);
-   M_ptilemap = al_create_bitmap(380,320);
+   M_tilemap  = al_create_bitmap(640,640);
+   M_btilemap = al_create_bitmap(640,640);
+   M_ptilemap = al_create_bitmap(480,320);
    M_dtilemap = al_create_bitmap(160,640);
+
+   // create tilemap bitmaps
+   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
+   tilemap  = al_create_bitmap(640, 640);
+   btilemap = al_create_bitmap(640, 640);
+   ptilemap = al_create_bitmap(480,320);
+   dtilemap = al_create_bitmap(160,640);
+
+   // create level_background and level_buffer bitmaps
+   level_background = al_create_bitmap(2000,2000);
+   level_buffer = al_create_bitmap(2000,2000);
 }</code></pre>
             
 <br><a name="Loading tile bitmaps"></a>
 <mh7>Loading tile bitmaps</mh7>
             
 <mh3>
-- called only once from 'initial_setup()'
+'load tiles()' is only called only once from 'initial_setup()'
 - tilemaps are loaded from files
 - M_tilemaps are created from tilemaps
 - sub_bitmaps are created from tilemaps
@@ -161,9 +185,11 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
 
 <pre><code class="language-cpp">int load_tiles(void)
 {
+   int load_error = 0;
+
    // get main tiles
    tilemap = al_load_bitmap("bitmaps/tiles.bmp");
-   if (!tilemap) m_err("Can't load tiles from bitmaps/tiles.bmp");
+   if (!tilemap) load_error = 1;
    else
    {
       al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
@@ -172,24 +198,37 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
       for (int y=0; y<32; y++)
          for (int x=0; x<32; x++)
             tile[y*32 + x] = al_create_sub_bitmap(tilemap, x*20, y*20, 20, 20);
-    }
-			
+   }
+
+   // get block tiles
+   btilemap = al_load_bitmap("bitmaps/block_tiles.bmp");
+   if (!btilemap) load_error = 1;
+   else
+   {
+      al_convert_mask_to_alpha(btilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(M_btilemap);
+      al_draw_bitmap(btilemap, 0, 0, 0);
+      for (int y=0; y<32; y++)
+         for (int x=0; x<32; x++)
+            btile[y*32 + x] = al_create_sub_bitmap(btilemap, x*20, y*20, 20, 20);
+   }
+
    // get player tiles
    ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
-   if (!ptilemap) m_err("Can't load tiles from bitmaps/player_tiles.bmp");
+   if (!ptilemap) load_error = 1;
    else
    {
       al_convert_mask_to_alpha(ptilemap, al_map_rgb(0, 0, 0)) ;
       al_set_target_bitmap(M_ptilemap);
       al_draw_bitmap(ptilemap, 0, 0, 0);
       for (int a=0; a<16; a++)
-         for (int b=0; b<19; b++)
+         for (int b=0; b<24; b++)
             player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
    }
 
    // get door tiles
    dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
-   if (!dtilemap) m_err("Can't load tiles from bitmaps/door_tiles.bmp");
+   if (!dtilemap) load_error = 1;
    else
    {
       al_convert_mask_to_alpha(dtilemap, al_map_rgb(0, 0, 0)) ;
@@ -202,6 +241,11 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
             door_tile[1][a][b] = al_create_sub_bitmap(dtilemap, b*20, 320+a*20, 20, 20);
          }
    }
+
+   load_sprit(); // get animation sequences and shape attributes
+
+   if (load_error) return 0;
+   else return 1;
 }</code></pre>
 
 <br><a name="Rebuilding tile bitmaps"></a>
@@ -209,17 +253,17 @@ ALLEGRO_BITMAP *door_tile[2][16][8];
 
 <mh3>
 The tilemap bitmaps are rebuilt if the display changes and their contents are lost.
-
 This is done by drawing the memory bitmaps (M_tilemaps) to the video bitmaps (tilemaps).
-
 The sub_bitmaps do not need to rebuilt, just their parents.
-
 This is only called from 'proc_screen_change()'
 </mh3>
 <pre><code class="language-cpp">void rebuild_bitmaps(void)
 {
    al_set_target_bitmap(tilemap);
    al_draw_bitmap(M_tilemap, 0, 0, 0);
+
+   al_set_target_bitmap(btilemap);
+   al_draw_bitmap(M_btilemap, 0, 0, 0);
 
    al_set_target_bitmap(ptilemap);
    al_draw_bitmap(M_ptilemap, 0, 0, 0);
@@ -228,10 +272,27 @@ This is only called from 'proc_screen_change()'
    al_draw_bitmap(M_dtilemap, 0, 0, 0);
 }</code></pre>
 
+<br><a name="Using indexed tiles"></a>
+<mh7>Using indexed tiles</mh7>
+
 <mh3>
-            
-</mh3>            
-            
+The indexed tiles are used like this:
+</mh3>
+<pre><code class="language-cpp">al_draw_bitmap(tile[shape], x, y, 0);</code></pre>
+
+<mh3> where shape is an int from 0-1023.
+
+
+Both btile[] and tile[] have only one index [0-1023]
+
+ptilemap[][] has an 2nd index for color.
+</mh3>
+<pre><code class="language-cpp">ptilemap[color 0-15][shape 0-23]</code></pre>
+<mh3> 
+dtilemap[][][] has an 2nd index for color and a 3rd for the 2 types of door shapes
+</mh3>
+<pre><code class="language-cpp">dtilemap[shape type 0-1][color 0-15][shape 0-7]</code></pre>
+           
 
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">

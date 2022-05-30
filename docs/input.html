@@ -82,11 +82,7 @@ extern volatile int mouse_b;
 extern JOYSTICK_INFO joy[n];
 </code></pre>
 <mh3>
-I recreated most of these, or similar equivalents, and update them when I get events.
-
-This does not happen asynchronously, I have to process the event queue.
-
-Every frame, 'proc_controllers()' is called, which processes all events in the event queue.
+I recreated most of these, or similar equivalents, and update them when I process the event queue. (see <a href="events.html#Processing events" target="_top">Processing events</a>)
 
 </mh3>
 

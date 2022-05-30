@@ -235,6 +235,9 @@ void draw_lifts()
             {
                int lw = lifts[l].width-10;
                int lh = lifts[l].height-10;
+
+               if (lifts[l].val2 == 0) lifts[l].val2 = 1;
+
                int percent = (100 * lifts[l].val1) / lifts[l].val2;
                draw_percent_bar((x1+x2)/2, y1+4, lw, lh, percent);
             }

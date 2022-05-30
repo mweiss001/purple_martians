@@ -8,19 +8,19 @@ even in a small screen resolution
 maybe later I could profile and see what takes up all the time...
 it's most likely an opengl thing
 
-seg fault when switching lift mode...can't reproduce...???
 
 in map move, when holding mouse button and moving...the windows are hidden but still detected and won't let the mouse move where they are...
 
+
 bug...orb timed on..when time set to 1, never triggers toggle on
 figure this out later maybe, for now just set timer to 2 or use always on event
-
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-add jumpworm to filters
+
+
 
 
 ------------------------------------------------------
@@ -131,9 +131,6 @@ make a field that manipulates the players controls, like gravity, etc...
 
 2022
 
-update display page, it is woefully out of date now...
-
-
 
 older:
 
@@ -169,31 +166,48 @@ netplay - join TODO:
 ------------------------ Help file ------------
 ---------------------------------------------------------
 
-add more bombable and semi-solid blocks..done
+working on lift....
 
-change viewer common 'item' to 'object'..done
 
-level editor basics and mouse control both refer to pop-up menu
 
-The level editor has three major modes:
+
+
+
+
+
+The level editor has four major modes:
 
 1 - Main editor
-- partial level in background, scrollable by moving mouse to screen edges
 - most common way to draw blocks and add objects from selection window
 - also can set draw item with mouse b2 and put draw item with mouse b1
 - the only mode that has the pop-up menu
 
 2 - Zoom Full Screen
-- entire level shown in UL corner
 - mostly used for manipulating rectagular selections of the level
 - clear, copy, paste, move, save and load selection to disk...
 - block fill, block frame, block floodfill
 
 3 - Object Viewer
-- entire level shown in UL corner
-- used for maninulating indiviudual objects, (items, enemies, lifts)
-- can move and edit object properties with buttons and slider
+- used for manipulating properties of indiviudual objects, (items, enemies, lifts)
+- can move and edit object properties with buttons and sliders
 - can move and edit object properties with map
+
+4 - Group Edit
+- used for maninulating groups of (items and enemies)
+- can set or randomize locations, variables, etc
+
+
+All modes have a scalable level in the background.
+It can be adjusted just like when the game is running
+- scale can be adjusted with F5/F6
+- fullscreen can be toggled with F12
+- CTRL SHIFT F12 cycles the ortho double
+
+
+
+
+
+
 
 
 ---------------------------------------------------------

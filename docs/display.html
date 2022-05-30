@@ -60,8 +60,10 @@
 <mh3><hr><mdw_file_toc> <a href="display.html#Global variables" target="_top">Global variables</a>
  <a href="display.html#Creating the display" target="_top">Creating the display</a>
  <a href="display.html#Process screen change" target="_top">Process screen change</a>
+ <a href="display.html#Toggle fullscreen mode with F12" target="_top">Toggle fullscreen mode with F12</a>
+ <a href="display.html#Saving window size and position" target="_top">Saving window size and position</a>
  <a href="display.html#Display transform double" target="_top">Display transform double</a>
- <a href="display.html#Detecting window move" target="_top">Detecting window move</a>
+ <a href="display.html#Changing display transform double with F12" target="_top">Changing display transform double with F12</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Global variables"></a>
@@ -74,27 +76,40 @@ I use these global variables for the display:
 </mh3>
     
 <pre><code class="language-cpp">ALLEGRO_DISPLAY *display;
-int fullscreen;
 
-// current size and position
-int disp_x_curr; 
+int desktop_width;
+int desktop_height;
+
+int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
 int disp_y_curr;
 int disp_w_curr;
 int disp_h_curr;
 
-// size and position of windowed mode
-int disp_x_wind;
+int disp_x_wind; // windowed
 int disp_y_wind;
 int disp_w_wind;
 int disp_h_wind;
 
-// In windowed mode current values are same as windowed values.
-// In fullscreen mode, they are read from the display struct.
+int disp_x_full; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+int disp_y_full;
+int disp_w_full;
+int disp_h_full;
 
-int display_transform_double = 2;
 int SCREEN_W;
 int SCREEN_H;
-</code></pre>
+int WX;
+int WY;
+int fullscreen = 1;
+
+// used to only redraw a region of background to increase fps
+int level_display_region_x;
+int level_display_region_y;
+int level_display_region_w;
+int level_display_region_h;
+
+int display_transform_double = 1;
+int saved_display_transform_double = -1;
+int show_dtd = 0;</code></pre>
 
 <mh3>
 These values are also saved in the config file:
@@ -104,103 +119,142 @@ int disp_x_wind;
 int disp_y_wind;
 int disp_w_wind;
 int disp_h_wind;
+int saved_display_transform_double;
 </code></pre>
             
 <br>
 <a name="Creating the display"></a>
 <mh7>Creating the display</mh7>
 
-<pre><code class="language-cpp">int init_screen(void)
+<pre><code class="language-cpp">int init_display(void)
 {
    al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
    // (most of the time I get a 32 bit anyway, but if I get 16, it can be faster)
-
-   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
-   if (fullscreen) flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
-   al_set_new_display_flags(flags);
-
-   display = al_create_display(disp_w_wind, disp_h_wind);
+   int flags = 0;
+   if (fullscreen)
+   {
+      flags = ALLEGRO_FULLSCREEN_WINDOW | ALLEGRO_RESIZABLE;
+      al_set_new_display_flags(flags);
+      display = al_create_display(disp_w_wind, disp_h_wind);
+   }
+   else // windowed
+   {
+      flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE;
+      al_set_new_display_flags(flags);
+      display = al_create_display(disp_w_wind, disp_h_wind);
+   }
    if(!display)
    {
       sprintf(msg, "Error creating display\n");
       m_err(msg);
       exit(0);
    }
-
-   if (!fullscreen)
-   {
-      disp_x_curr = disp_x_wind;
-      disp_y_curr = disp_y_wind;
-      al_set_window_position(display, disp_x_curr, disp_y_curr);
-   }
-
+   if (!fullscreen) al_set_window_position(display, disp_x_wind, disp_y_wind);
+   if (fullscreen)  al_resize_display(display, disp_w_full, disp_h_full);
+   al_acknowledge_resize(display);
+   
    disp_w_curr = al_get_display_width(display);
    disp_h_curr = al_get_display_height(display);
    al_get_window_position(display, &disp_x_curr, &disp_y_curr);
 
-   auto_set_display_transform_double();
+   set_display_transform();
+   window_title();
+   create_bitmaps();
+   make_palette();
    return 1;
 }</code></pre>
+
 
 <br>
 <a name="Process screen change"></a>
 <mh7>Process screen change</mh7>
 <mh3>
 This function is called when:
-    
+
 - an event 'ALLEGRO_EVENT_DISPLAY_RESIZE' is received
-- F12 is used to toggle fullscreen
-- proc_controllers() detects the window has been moved
-    
+
+- fullscreen mode is toggled on or off with F12
 </mh3>
-<pre><code class="language-cpp">void proc_screen_change(int new_sw, int new_sh, int new_sx, int new_sy, int new_fs)
+<pre><code class="language-cpp">void proc_display_change(void)
 {
-   if ((!fullscreen) && (new_fs)) //  changing to fullscreen
+   al_acknowledge_resize(display);                              // important that this is here, later and it does not work as intended
+   al_get_window_position(display, &disp_x_curr, &disp_y_curr); // set my local variables with the system ones
+   int disp_w_curr = al_get_display_width(display);   
+   int disp_h_curr = al_get_display_height(display);
+   if (fullscreen)
    {
-      fullscreen = 1;
-      al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 1);
-      al_get_window_position(display, &disp_x_curr, &disp_y_curr);
-      disp_w_curr = al_get_display_width(display);
-      disp_h_curr = al_get_display_height(display);
-      auto_set_display_transform_double();
-      rebuild_bitmaps();
-      save_config();
-      Redraw = 1;
+      disp_x_full = disp_x_curr;
+      disp_y_full = disp_y_curr;
+      disp_w_full = disp_w_curr;
+      disp_h_full = disp_h_curr;
    }
-   else if ((fullscreen) && (!new_fs)) //  changing away from fullscreen
+   else
    {
-      fullscreen = 0;
-      al_resize_display(display, disp_w_wind, disp_h_wind);
-      al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, 0);
-      al_set_window_position(display, disp_x_wind, disp_y_wind);
-      al_get_window_position(display, &disp_x_curr, &disp_y_curr);
-      disp_w_curr = al_get_display_width(display);
-      disp_h_curr = al_get_display_height(display);
-      auto_set_display_transform_double();
-      rebuild_bitmaps();
-      save_config();
-      Redraw = 1;
+      disp_x_wind = disp_x_curr;
+      disp_y_wind = disp_y_curr;
+      disp_w_wind = disp_w_curr;
+      disp_h_wind = disp_h_curr;
    }
-   else if (!fullscreen)
-   {
-      if ((new_sw != disp_w_curr) || (new_sh != disp_h_curr)) // window has been resized
-      {
-         al_acknowledge_resize(display);
-         disp_w_curr = disp_w_wind = al_get_display_width(display);
-         disp_h_curr = disp_h_wind = al_get_display_height(display);
-         auto_set_display_transform_double();
-         rebuild_bitmaps();
-         save_config();
-         Redraw = 1;
-     }
-     if ((new_sx != disp_x_curr) || (new_sy != disp_y_curr)) // window has been moved
-     {
-        disp_x_curr = disp_x_wind = new_sx;;
-        disp_y_curr = disp_y_wind = new_sy;;
-        save_config();
-     }
-  }
+   set_display_transform();
+   rebuild_bitmaps();
+   save_config();
 }</code></pre>
+
+<br>
+<a name="Toggle fullscreen mode with F12"></a>
+<mh7>Toggle fullscreen mode with F12</mh7>
+<mh3>
+The F12 key toggles fullscreen mode.
+  
+</mh3>
+
+<pre><code class="language-cpp">if (key[ALLEGRO_KEY_F12])
+{
+   if (fullscreen) proc_display_change_fromfs();
+   else            proc_display_change_tofs();
+}
+
+void proc_display_change_tofs(void)
+{
+   fullscreen = 1;
+   // save window position and size before entering fullscreen
+   al_get_window_position(display, &disp_x_wind, &disp_y_wind);
+   disp_w_wind = al_get_display_width(display);
+   disp_h_wind = al_get_display_height(display);
+   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+   proc_display_change();
+}
+
+void proc_display_change_fromfs(void)
+{
+   fullscreen = 0;
+   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
+   al_acknowledge_resize(display);
+   // here is one of the few places I will set xywh from my local variables
+   al_resize_display(display, disp_w_wind, disp_h_wind);
+   al_set_window_position(display, disp_x_wind, disp_y_wind);
+   proc_display_change();
+}</code></pre>
+
+<br>
+<a name="Saving window size and position"></a>
+<mh7>Saving window size and position</mh7>
+<mh3>
+This is called when the display is resized or switched to fullscreen, but not when the window is simply moved.
+
+So I also call this when exiting.
+</mh3>
+<pre><code class="language-cpp">void save_display_window_position(void)
+{
+   if (!fullscreen)
+   {
+      al_get_window_position(display, &disp_x_wind, &disp_y_wind);
+      disp_w_wind = al_get_display_width(display);
+      disp_h_wind = al_get_display_height(display);
+      save_config();
+   }
+}</code></pre>
+
 
 <br>            
 <a name="Display transform double"></a>
@@ -210,8 +264,16 @@ I also use an orthographic transform to double or triple the screen size.
 
 This was implemented to address large screen sizes and small text on menus and overlays.
 </mh3>
-<pre><code class="language-cpp">void set_display_transform(void)
+<pre><code class="language-cpp">extern int display_transform_double;
+// 1 = normal (no double)
+// 2 = double
+// 3 = triple
+
+void set_display_transform()
 {
+   if (!saved_display_transform_double) auto_set_display_transform_double();
+   else display_transform_double = saved_display_transform_double;
+   show_dtd = 80;
    al_set_target_backbuffer(display);
    SCREEN_W = disp_w_curr/display_transform_double;
    SCREEN_H = disp_h_curr/display_transform_double;
@@ -219,37 +281,24 @@ This was implemented to address large screen sizes and small text on menus and o
    al_identity_transform(&trans);
    al_orthographic_transform(&trans, 0, 0, -1.0, SCREEN_W, SCREEN_H, 1.0);
    al_use_projection_transform(&trans);
+   set_map_var();
 }
 
 void auto_set_display_transform_double(void)
 {
    display_transform_double = 1;
-
    if (disp_w_curr > 1023) display_transform_double = 2;
    if (disp_h_curr > 1023) display_transform_double = 2;
-
    if (disp_w_curr < 1024) display_transform_double = 1;
-   if (disp_h_curr < 700) display_transform_double = 1;
-
+   if (disp_h_curr < 700)  display_transform_double = 1;
    if (level_editor_running) display_transform_double = 1;
-
    if (help_screens_running)
    {
       if (disp_w_curr > 1279) display_transform_double = 2;
       if (disp_w_curr < 1280) display_transform_double = 1;
    }
-   set_display_transform();
-   set_map_var();
 }</code></pre>
-<mh3>    
-This extern variable controls the doubling:    
-</mh3>
-<pre><code class="language-cpp">extern int display_transform_double = 1;
-// 1 = normal (no double)
-// 2 = double
-// 3 = triple
-</code></pre>
-<mh3>    
+<mh3>
 Then all of my drawing functions throughout the rest of the game that need to know screen size use
 the prescaled 'SCREEN_W' and 'SCREEN_H' instead of the actual sizes.
 
@@ -260,23 +309,37 @@ mouse_y = ev.mouse.y / display_transform_double;
 </code></pre>
 
 <br>
-<a name="Detecting window move"></a>
-<mh7>Detecting window move</mh7>
+<a name="Changing display transform double with F12"></a>
+<mh7>Changing display transform double with F12</mh7>
 <mh3>
-Because no events are triggered when the display window is moved,  I had to detect it myself.
+If [CONTROL] and [SHIFT] are held, the F12 key cycles display_transform_double
 
-Every frame, in the function 'proc_controllers()',  I compare the display's window position to the stored values.
+It can be forced to 1, 2, or 3.
 
-If they differ, I call 'proc_screen_change()' with the new values.
+Or if it is set to 0, it will be automatically set with the function 'auto_set_display_transform_double()'
+
+This value is then saved in the config file.
+  
 </mh3>
-<pre><code class="language-cpp">if (!fullscreen) // detect if window was moved
+
+<pre><code class="language-cpp">if (key[ALLEGRO_KEY_F12])
 {
-   int x, y;
-   al_get_window_position(display, &x, &y);
-   if ((x != disp_x_curr) || (y != disp_y_curr))
-   proc_screen_change(disp_w_curr, disp_h_curr, x, y, fullscreen);
-}
-</code></pre>
+   if ((key[ALLEGRO_KEY_LSHIFT]) && (key[ALLEGRO_KEY_LCTRL]))
+   {
+      float old_display_transform_double = display_transform_double;
+      if (++saved_display_transform_double>3) saved_display_transform_double = 0;
+      save_config();
+      set_display_transform();
+      set_map_var();
+
+      float new_display_transform_double = display_transform_double;
+      float sfa = new_display_transform_double/old_display_transform_double;
+      scale_factor /= sfa;
+      scale_factor_current = scale_factor;
+   }
+}</code></pre>
+
+
 
 
 

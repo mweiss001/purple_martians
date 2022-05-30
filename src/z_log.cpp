@@ -706,10 +706,6 @@ int log_file_viewer(int type)
       }
 
 
-   //int original_display_transform_double = display_transform_double;
-   //set_display_transform(0);
-
-
    while (!quit)
    {
       if (line_mode)
@@ -936,8 +932,6 @@ int log_file_viewer(int type)
          quit = 1;
       }
    } // end of log file viewer
-
-//   set_display_transform(original_display_transform_double);
    return 0;
 }
 

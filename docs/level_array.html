@@ -58,7 +58,6 @@
 <mh8>Level Array</mh8>
 <mh3><hr><mdw_file_toc> <a href="level_array.html#Overview" target="_top">Overview</a>
  <a href="level_array.html#Drawing the level" target="_top">Drawing the level</a>
- <a href="level_array.html#Rebuilding level_background" target="_top">Rebuilding level_background</a>
  <a href="level_array.html#Drawing sequence in game loop" target="_top">Drawing sequence in game loop</a>
  <a href="level_array.html#Get new background" target="_top">Get new background</a>
  <a href="level_array.html#Get new screen buffer" target="_top">Get new screen buffer</a>
@@ -75,32 +74,17 @@ Each level is 100 x 100 tiles or 2000 x 2000 pixels.
 The level array is a 100 x 100 array of integers.
 </mh3>    
 <pre><code class="language-cpp">extern int l[100][100];</code></pre>
-<mh3>Each integer is an index to the tile that is drawn at that position on the level. (see <a href="tiles.html" target="_top">tiles</a>)
-    
-The integer has certain special ranges:
-</mh3>
-<pre><code class="language-cpp">0  - 31  - empty
-32 - 63  - semi-solid (players and enemies can jump through from below)
-64 - 95  - bombable   (will be destroyed by bombs)
-96 - 127 - breakable  (will be destroyed by bullets)
-128+     - solid  
-</code></pre>
-            
+<mh3>Each integer is an index to the tile that is drawn at that position on the level. (see <a href="tiles.html" target="_top">tiles</a> and <a href="block_flags.html" target="_top">blocks</a>)
+ </mh3>      
 <br><a name="Drawing the level"></a>
 <mh7>Drawing the level</mh7>
 
 <mh3>
-Two bitmaps are used, each 2000 x 2000 pixels:
+Two bitmaps are used, each the size of the entire level (2000x2000):
 </mh3>
-<pre><code class="language-cpp">extern ALLEGRO_BITMAP *level_background = NULL;
-extern ALLEGRO_BITMAP *level_buffer = NULL;
-void create_bmp(void)
-{
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA);
-   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-   level_background = al_create_bitmap(2000,2000);
+<pre><code class="language-cpp">   level_background = al_create_bitmap(2000,2000);
    level_buffer = al_create_bitmap(2000,2000);
-}</code></pre>
+</code></pre>
 <mh3>
 When a level is loaded, all 10,000 tiles are drawn to the level_background.
 </mh3>
@@ -113,21 +97,12 @@ When a level is loaded, all 10,000 tiles are drawn to the level_background.
          al_draw_bitmap(tile[l[x][y]], x*20, y*20, 0);
    draw_lift_lines();
 }</code></pre>
-
-<br><a name="Rebuilding level_background"></a>
-<mh7>Rebuilding level_background</mh7>
 <mh3>
-To make things faster, all bitmaps are created with ALLEGRO_NO_PRESERVE_TEXTURE.
-That means that if the display changes the contents will be lost.
-This has no effect on the bitmaps that are redrawn every frame like level_buffer.
-However level_background is not redrawn each frame and must be redrawn if the display changes.
-</mh3>
+It is rare for the level_background to be redrawn. Only when the screen size is changed, or blocks change in the level.
 
-<pre><code class="language-cpp">void rebuild_bitmaps(void)
-{
-   init_level_background();
-   //...
-}</code></pre>
+This is the base background that is copied to level_buffer every frame and then that is drawn on.
+
+</mh3>
 
 <br><a name="Drawing sequence in game loop"></a>
 <mh7>Drawing sequence in game loop</mh7>

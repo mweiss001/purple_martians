@@ -60,7 +60,6 @@
 <mh3><hr><mdw_file_toc> <a href="events.html#Overview" target="_top">Overview</a>
  <a href="events.html#Processing the event queue" target="_top">Processing the event queue</a>
  <a href="events.html#Processing events" target="_top">Processing events</a>
- <a href="events.html#Handling multiple resize events" target="_top">Handling multiple resize events</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
@@ -81,7 +80,7 @@ while (1)
       handle_game_tick();
       need_redraw = true;
    }
-   if (need_draw && al_event_queue_is_empty(queue))
+   if (need_redraw && al_event_queue_is_empty(queue))
    {
       render_last_frame();
       need_redraw = false;
@@ -99,6 +98,7 @@ I never call al_wait_for_event().  Once every game loop, I process all events in
 When the game is not running and I'm in a menu or the level editor, or whatever, I just call 'proc_controllers()' in whatever loop I'm in.
     
 The speed of the game and menu are controlled by <a href="timers.html" target="_top">timers</a>.
+
 </mh3>    
 
 <br>
@@ -106,14 +106,28 @@ The speed of the game and menu are controlled by <a href="timers.html" target="_
 <mh7>Processing the event queue</mh7>
     
 <mh3>
-Once every frame I read all the events from the queue and process them.
+This function is very important.
 
-Most events are passed on to 'proc_events()', except for TIMER and DISPLAY RESIZE which are handled differently.
+It processes the ALLEGRO event queue and handles all input.
+
+When the game is running, it is called once per frame.
+When the game is not running, it must be called in whatever loop you are in.
+If not, everything freezes and locks.
+
+Most events are passed on to '<a href="events.html#Processing events" target="_top">proc_events()</a>' for processing.
+
+'ALLEGRO_EVENT_DISPLAY_RESIZE' is handled by <a href="display.html#Process screen change" target="_top">proc_screen_change()</a>.
+
+The speed of the menu is controlled by the timer event here, but the speed of the game is handled differently.
+
+See <a href="timers.html" target="_top">Timers</a> or <a href="timers.html#Game speed regulation" target="_top">Game speed regulation</a>.
+
 </mh3>
 <pre><code class="language-cpp">int proc_controllers()
 {
-   int ret = 0;
-   int menu_timer_block = 1;
+   int ret=0, menu_timer_block=1;
+   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
+   key_pressed_ASCII = 0;
    while (menu_timer_block)
    {
       while (!al_is_event_queue_empty(event_queue))
@@ -122,27 +136,21 @@ Most events are passed on to 'proc_events()', except for TIMER and DISPLAY RESIZ
          if (al_get_next_event(event_queue, &ev))
          {
             if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_block = 0;
-            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
-            {
-               // check to see if we have more resize events piling up
-               ALLEGRO_EVENT ev2;
-               while (al_get_next_event(event_queue, &ev2))
-               {
-                  if (ev2.type == ALLEGRO_EVENT_DISPLAY_RESIZE) ev = ev2;
-                  else ret = proc_events(ev2, ret);
-               }
-               proc_screen_change(ev.display.width, ev.display.height, disp_x_curr, disp_y_curr, fullscreen);
-            }
+            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
             else ret = proc_events(ev, ret);
          }
       }
-      if (game_exit) // if called from menu only do key check for active local player
+      function_key_check();
+      if (game_exit) // if if not called from game only do key check for active local player
       {
-          //....   
+          clear_controls(active_local_player);
+          set_controls_from_player_key_check(active_local_player);
       }
-      else
+      else // game is in progress
       {
          menu_timer_block = 0;
+         proc_player_input(ret);
+         proc_game_move();  // run once per frame to process system messages from game_move
       }
    }
    return ret;
@@ -153,7 +161,9 @@ Most events are passed on to 'proc_events()', except for TIMER and DISPLAY RESIZ
 <mh7>Processing events</mh7>
     
 <mh3>
-Here is how most events are processed:</mh3>
+Here is how most events are processed:  (also see <a href="input.html" target="_top">input</a>)
+
+</mh3>
 
 <pre><code class="language-cpp">int proc_events(ALLEGRO_EVENT ev, int ret)
 {
@@ -240,59 +250,6 @@ Here is how most events are processed:</mh3>
    }
    return ret;
 }</code></pre>               
-            
-<br>
-<a name="Handling multiple resize events"></a>
-<mh7>Handling multiple resize events</mh7>
-<mh3>
-When the display changes, an ALLEGRO_EVENT_DISPLAY_RESIZE event is generated.
-This is usually when the window is resized by the user.
-It is possible to get a lot of these events as the window is being resized.
-
-Also when the display changes, all video bitmaps are destroyed and must be rebuilt.  See: <a href="tiles.html#Rebuilding Tile Bitmaps" target="_top">Rebuilding Bitmaps</a>
-This takes longer than a normal frame, and may cause delays, especially if I do it for every resize event in a long string of them.
-
-So I implemented an algorithm in the event queue processing code to ignore all resize events except for the last one.
-
-Here is a description of the algorithm:
-
-If I get an ALLEGRO_EVENT_DISPLAY_RESIZE event, the first thing I do is check to see there are more events in the queue.
-If there are no more events in the queue, I process the ALLEGRO_EVENT_DISPLAY_RESIZE event.
-If there are more events in the queue, then I check to see if they are also ALLEGRO_EVENT_DISPLAY_RESIZE events.
-If they are not ALLEGRO_EVENT_DISPLAY_RESIZE events, I process them right away.
-If they are ALLEGRO_EVENT_DISPLAY_RESIZE events, I set the first event (ev) to the second one (ev2), overwriting and losing the first one.
-When I no longer have any events in the queue, then I process the resize event in ev.    
-
-This method allows me to ignore all but the last ALLEGRO_EVENT_DISPLAY_RESIZE event, while still processing all other events.
-    
-</mh3>
-<img src="images/event_pileup.png" width=676 height=481 alt="flowchart">
-<pre><code class="language-cpp">while (!al_is_event_queue_empty(event_queue))
-{
-   ALLEGRO_EVENT ev;
-   if (al_get_next_event(event_queue, &ev))
-   {
-      if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE)
-      {
-         // check to see if we have more resize events piling up
-         ALLEGRO_EVENT ev2;
-         while (al_get_next_event(event_queue, &ev2))
-         {
-            if (ev2.type == ALLEGRO_EVENT_DISPLAY_RESIZE) ev = ev2;
-            else ret = proc_events(ev2, ret);
-         }
-         proc_screen_change(ev.display.width, ev.display.height, disp_x_curr, disp_y_curr, fullscreen);
-      }
-      else ret = proc_events(ev, ret);
-   }
-}</code></pre>           
-<mh3>
-See also:  <a href="display.html#Process screen change" target="_top">proc_screen_change()</a>   <a href="events.html#Processing events" target="_top">proc_events()</a>
-
-</mh3>
-
-
-
 
 
                <footer>                <mh11>Purple Martians</mh11><hr>

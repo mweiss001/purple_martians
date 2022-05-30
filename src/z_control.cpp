@@ -513,9 +513,6 @@ void function_key_check(void)
    if (!key[ALLEGRO_KEY_RIGHT]) KEY_RIGHT_held = 0;
 
 
-
-
-
    if ((key[ALLEGRO_KEY_F12]) && (!KEY_F12_held))
    {
       KEY_F12_held = 1;
@@ -547,11 +544,6 @@ void function_key_check(void)
             mW[a].set_pos(mW[a].x1/sfa, mW[a].y1/sfa);
          }
 
-
-
-
-
-         window_title();
       }
       else
       {
@@ -1081,14 +1073,35 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
    return ret;
 }
 
+
+
+void proc_player_input(int ret)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) // cycle all active players
+      {
+         if (players[p].control_method == 0) // local single player control
+         {
+            if (level_done_trig) add_game_move(frame_num, 6, 0, 0); // insert level done into game move
+            set_comp_move_from_player_key_check(p); // but don't set controls !!!
+            if (players1[p].comp_move != players1[p].old_comp_move)
+            {
+               players1[p].old_comp_move = players1[p].comp_move;
+               add_game_move(frame_num, 5, p, players1[p].comp_move);
+            }
+         }
+         if (players[p].control_method == 1) rungame_key_check(p, ret); // run game from file
+         if (players[p].control_method == 3) server_local_control(p);
+         if (players[p].control_method == 4) client_local_control(p);
+         set_controls_from_game_move(p); // common for all players
+      }
+}
+
 int proc_controllers()
 {
-   int ret = 0;
-   int menu_timer_block = 1;
-
+   int ret=0, menu_timer_block=1;
    key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
    key_pressed_ASCII = 0;
-
    while (menu_timer_block)
    {
       while (!al_is_event_queue_empty(event_queue))
@@ -1101,38 +1114,19 @@ int proc_controllers()
             else ret = proc_events(ev, ret);
          }
       }
-      if (game_exit) // if called from menu only do key check for active local player
+      function_key_check();
+      if (game_exit) // if not called from game only do key check for active local player
       {
           clear_controls(active_local_player);
           set_controls_from_player_key_check(active_local_player);
-          function_key_check();
       }
       else // game is in progress
       {
          menu_timer_block = 0;
-         function_key_check();
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if (players[p].active) // cycle all active players
-            {
-               if (players[p].control_method == 0) // local single player control
-               {
-                  if (level_done_trig) add_game_move(frame_num, 6, 0, 0); // insert level done into game move
-                  set_comp_move_from_player_key_check(p); // but don't set controls !!!
-                  if (players1[p].comp_move != players1[p].old_comp_move)
-                  {
-                     players1[p].old_comp_move = players1[p].comp_move;
-                     add_game_move(frame_num, 5, p, players1[p].comp_move);
-                  }
-               }
-               if (players[p].control_method == 1) rungame_key_check(p, ret); // run game from file
-               if (players[p].control_method == 3) server_local_control(p);
-               if (players[p].control_method == 4) client_local_control(p);
-               set_controls_from_game_move(p); // common for all players
-            }   // end of active player iterate
+         proc_player_input(ret);
          proc_game_move();  // run once per frame to process system messages from game_move
-      } // end of if (!game_exit)
+      }
    }
-   //printf("ret:%d\n", ret);
    return ret;
 }
 

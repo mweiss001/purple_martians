@@ -2,6 +2,10 @@ How to work with web pages:
 
 I have some perl scripts to help me rebuild the indexes
 
+start command prompt and naviagate to the docs folder
+run a script with 'perl <scriptname>'
+
+
 mh7.pl
 shows where all mh7 tags are in all .html files
 
