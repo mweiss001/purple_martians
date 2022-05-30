@@ -792,8 +792,6 @@ int ge_process_keypress(void)
 void group_edit(void)
 {
    set_windows(3); // group edit
-   ge_init_data();
-   init_level_background();
    while (!ge_process_keypress())
    {
       cm_redraw_level_editor_background();

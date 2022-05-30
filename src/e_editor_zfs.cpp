@@ -1052,20 +1052,11 @@ int zfs_process_keypress(void)
 
 void zoom_full_screen(int draw_item)
 {
-
-
    set_windows(2); // zfs
-
-   init_level_background();
-
-   int quit =0;
-   while (mouse_b2) proc_controllers();
-
-   while (!quit)
+   while (!zfs_process_keypress())
    {
       cm_redraw_level_editor_background();
       if (!mw_cycle_windows(0)) zfs_process_mouse();
-      quit = zfs_process_keypress();
    }
    set_windows(1); // edit menu
 }

@@ -453,6 +453,7 @@ void set_windows(int mode)
       mW[5].show_sel_frame = 1;
       mW[6].active = 1; // ge controls
       mW[7].active = 0; // viewer
+      ge_init_data();
    }
    if (mode == 4) // object viewer
    {
