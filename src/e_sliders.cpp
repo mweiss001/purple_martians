@@ -700,15 +700,64 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    }
 
 
-
-
-
    if (bn == 57)
    {
-       if (obt == 2) sprintf(smsg,"%s Help", item_name[type]);
-       if (obt == 3) sprintf(smsg,"%s Help", (const char *)enemy_name[type]);
-       if (obt == 4) sprintf(smsg,"Lift Help");
-       if (press) return 1;
+      int o = mW[7].obt;
+      int n = mW[7].num;
+      int t = 0;
+      sprintf(smsg,"?? Help");
+
+      if (o == 2)
+      {
+         t = item[n][0];
+         sprintf(smsg,"%s Help", item_name[t]);
+      }
+      if (o == 3)
+      {
+         t = Ei[n][0];
+         sprintf(smsg,"%s Help", (const char *)enemy_name[t]);
+      }
+      if (o == 4) sprintf(smsg,"Lift Help");
+
+      if (press)
+      {
+         if (o==3)
+         {
+            if (t == 3)  help("Archwagon Viewer");
+            if (t == 4)  help("Bouncer Viewer");
+            if (t == 5)  help("Jumpworm Viewer");
+            if (t == 6)  help("Cannon Viewer");
+            if (t == 7)  help("Podzilla Viewer");
+            if (t == 8)  help("Trakbot Viewer");
+            if (t == 9)  help("Cloner Viewer");
+            if (t == 10) help("Field Viewer");
+            if (t == 11) help("Block Walker Viewer");
+            if (t == 12) help("Flapper Viewer");
+         }
+         if (o==2)
+         {
+            if (t == 1)  help("Door Viewer");
+            if (t == 2)  help("Bonus Viewer");
+            if (t == 3)  help("Exit Viewer");
+            if (t == 4)  help("Key Viewer");
+            if (t == 5)  help("Start Viewer");
+            if (t == 6)  help("Orb Viewer");
+            if (t == 7)  help("Mine Viewer");
+            if (t == 8)  help("Bomb Viewer");
+            if (t == 9)  help("Trigger Viewer");
+            if (t == 10) help("Message Viewer");
+            if (t == 11) help("Rocket Viewer");
+            if (t == 12) help("Warp Viewer");
+            if (t == 14) help("Switch Viewer");
+            if (t == 15) help("Sproingy Viewer");
+            if (t == 16) help("Block Manip Viewer");
+            if (t == 17) help("Block Damage Viewer");
+         }
+         if (o==4)
+         {
+            help("Lift Viewer");
+         }
+      }
    }
 
    if (bn == 77)

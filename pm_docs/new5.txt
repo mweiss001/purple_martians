@@ -27490,12 +27490,90 @@ fix adding trigger with orb...done...
 get used event needs to find orbs also...done
 also made it find lifts...
 
-make a function to show used events that are not zero
+made a function to show used events that are not zero
+add jumpworm to filters...done
 
 
 got a lot done...time for a push...
 
 20220528 7:20 PM
+
+20220529 7:00 AM
+
+working on docs
+
+level_array
+block_flags
+tiles
+are all good
+display...done
+
+events needs changing...
+
+OK i have a few thing to change:
+rungame_key_check(p, ret); // run game from file
+is only called once...ret is needed to determine if you can change players in the view or any key exits....
+no! it is the keypress that is sent...keep it...
+done...
+
+now events, timer and input...which are all related...
+
+link input in events
+link timer in events
+events...done
+input...done
+timers..done
+change the created with section...done
+
+now do some pm_help....
+make freeman and purple coin a part of bonus...done
+I have done trigger, bm, bd, orb
+now just jumpworm left..done...
+trakbot prox....
+
+make switch move range with shift like key...done
+
+lifts is out of date too.....
+there are many changes
+
+
+seg fault when switching lift mode...can't reproduce...???
+happens when current step is not step 0
+happens when reset timer is zero..
+how can i fix it??
+when the division by zero happens for the percent bar, detect 0 and change to 1...fixed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

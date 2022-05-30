@@ -1293,7 +1293,7 @@ bmsgoff - bottom messages off
 
 <l09> [object] Help
 
-<l15>  - shows help related to the specifc object you are viewing
+<l15>  - shows help related to the specific object you are viewing
 
 
 <l15>___________________________________________________________________________
@@ -1302,7 +1302,7 @@ bmsgoff - bottom messages off
 <l04>   Object Specific Buttons and Sliders
 
 
-<l15> Each type of object will have buttons and sliders specific to its type.
+<l15> Each type of object will have specific buttons and sliders.
 
 
 <l15> Refer to the help section for each object type.
@@ -1553,6 +1553,7 @@ bmsgoff - bottom messages off
 
 <l15> - Set new message display position by dragging the message on the map.
 
+<l15> - Hold SHIFT to move the message item and the displayed message together.
 
 
 <section>Door Viewer
@@ -1644,6 +1645,7 @@ bmsgoff - bottom messages off
 <l15>  - Choose a new color for the door
 
 
+
 <section>Key Viewer
 
 
@@ -1653,7 +1655,7 @@ bmsgoff - bottom messages off
 
 <l04>    Description:
 
-<l15> Removes blocks in the specified block range.
+<l15> Removes blocks in the specified Block Range.
 
 <b15>
 
@@ -1669,22 +1671,337 @@ bmsgoff - bottom messages off
 
 <l15>  - Sets a new Block Range area that will be affected by the key.
 
-<l10> (shown on the map as a red rectangle)
+<l10>    (shown on the map as a red rectangle)
 
 
 <l09> [Erase only matching blocks | Erase all blocks in range]
 
 <l15>  - If only matching is chosen, only blocks with a matching
 
-<l15>  - color lock in the block range will be removed.
+<l15>  - color lock in the Block Range will be removed.
 
 <b15>
 
 <l04>   Map Controls:
 
-<l15> - Move block range by dragging from the upper left corner on the map.
+<l15> - Move Block Range by dragging from the upper left corner on the map.
 
-<l15> - Re-size block range by dragging from the lower right corner on the map.
+<l15> - Re-size Block Range by dragging from the lower right corner on the map.
+
+<l15> - Hold SHIFT when moving Key to move Block Range also
+
+
+
+<section>Orb Viewer
+
+
+<h14>    Orb
+<s418>
+<b15>
+
+<l04>    Description:
+
+<l15> An item that can generate events.
+
+<l15> Can be triggered by:
+<l15> - Player collision
+<l15> - Player collision and [UP] pressed
+<l15> - Player collision and [DOWN] pressed
+<l15> - Player's bullet collision
+
+<b15>
+
+<l15> Can emit up to four different events:
+<l15> - Set Event Always While On
+<l15> - Set Event Always While Off
+<l15> - Set Event When Switching On
+<l15> - Set Event When Switching Off
+
+<b15>
+
+<l15> Other objects can use events as inputs to trigger some action.
+<l15> Some examples are: Lifts, Block Damage, Block Manip
+
+<b15>
+
+<l09> - Mode: Toggle
+<l15>   When triggered the Orb toggles ON and OFF.
+
+<l09> - Mode: Stick ON
+<l15>   In this mode, the Orb is initially OFF.
+<l15>   When triggered, it turns ON and sticks there forever.
+
+<l09> - Mode: Stick OFF
+<l15>   In this mode, the Orb is initially ON.
+<l15>   When triggered, it turns OFF and sticks there forever.
+
+<l09> - Mode: Timed ON
+<l15>   In this mode, the Orb is normally OFF.
+<l15>   When triggered, it turns ON while a timer runs.
+<l15>   The slider 'Time:' sets the ON time.
+
+<l09> - Mode: Timed OFF
+<l15>   In this mode, the Orb is normally ON.
+<l15>   When triggered, it turns OFF while a timer runs.
+<l15>   The slider 'Time:' sets the OFF time.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> [Stationary:Fall:Carry]
+
+<l15>  - Does the item fall, or is it stationary, or carryable?
+
+
+<l09> Change Rotation
+
+<l15>  - Cycles through the four rotations
+
+
+<l09> Trigger:[Touch|Up|Down|Bullet]
+
+<l15>  - Cycles through the different trigger types
+
+
+<l09> The 4 "Set Event..." sliders let you specify the event number.
+<l15>  - The better way to set them is by automatically linking from
+<l15>    an object that takes an event trigger input.
+
+
+<section>Trigger Viewer
+
+
+<h14>    Trigger
+<s991>
+<b15>
+
+<l04>    Description:
+
+<l15> Specifies a rectangular trigger area that can generate events.
+
+<l15> Detects the presence or absense of five types of objects:
+<l15> - Players
+<l15> - Enemies
+<l15> - Items
+<l15> - Player's Bullets
+<l15> - Enemy's Bullets
+
+<b15>
+
+<l15> Can emit up to four different events:
+<l15> - Continous when triggered
+<l15> - Continous when not triggered
+<l15> - One time when first triggered
+<l15> - One time when first not triggered
+
+<b15>
+
+<l15> Other objects can use events as inputs to trigger some action.
+<l15> Some examples are: Lifts, Block Damage, Block Manip
+
+<b15>
+
+
+The actual shape <s991> is only visible in the level editor.
+
+The rectangular trigger area can be hidden or shown in various colors.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> Get New Trigger Field
+<l15>  - Prompts you to draw a new Trigger Field.
+<l14>    (shown on the map as a yellow rectangle)
+
+
+<l09> Draw Trigger Field: [ON|OFF]
+<l15>  - Shows or hides the Trigger Field and lets you select the color. 
+
+
+<l09> [Players, Enemies, Items, Player's Bullets, Enemy's Bullets]
+<l15>  - Toggles triggering for each object individually.
+
+
+<l09> The 4 "Set Event..." sliders let you specify the event number.
+<l15>  - The better way to set them is by automatically linking from
+<l15>    an object that takes an event trigger input.
+
+
+<l09> Follows lift
+<l15>  - The Damage Field can follow the motion of a lift.
+<l15>    Set the lift number of the lift to follow.
+<l15>    There are options for aligning to the lift in the X and Y axis.
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Move the trigger area by dragging from the upper left corner on the map.
+
+<l15> - Re-size trigger area by dragging from the lower right corner on the map.
+
+
+<section>Block Manip Viewer
+
+
+<h14>    Block Manip
+<s989>
+<b15>
+
+<l04>    Description:
+
+<l15> Specifies a rectangular area for Block Manipulation.
+
+<l15> Needs to be triggered by another object that emits trigger events.
+<l15> Some examples are Trigger and Orb.
+
+<l15> When triggered, it changes blocks in the Block Manip Field.
+
+<l15> - Mode: Set all to block 1.
+<l15> - Mode: Set all block 2 to block 1
+<l15> - Mode: Toggle block 2 to block 1
+
+<b15>
+
+
+The actual shape <s989> is only visible in the level editor.
+
+The Block Manip Field can be hidden or shown in various colors.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> Get New Block Manip Field
+<l15>  - Prompts you to draw a new Block Manip Field.
+<l12>    (shown on the map as a blue rectangle)
+
+
+<l09> Draw Block Manip Field: [ON|OFF]
+<l15>  - Shows or hides the Block Manip Field and lets you select the color. 
+
+
+<l09> Block 1 and Block 2
+<l15>  - Prompts you to set the block for Block 1 or Block 2
+
+
+<l09> The "Event Trigger:" slider lets you specify the event number.
+<l15>  - The better way to set it is by clicking the button "Set Event Trigger"
+<l15>    which will prompt you to choose a trigger item, then automatically
+<l15>    find an unused event and set it for both objects.
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Move the Field by dragging from the upper left corner on the map.
+
+<l15> - Re-size the Field by dragging from the lower right corner on the map.
+
+
+<section>Block Damage Viewer
+
+
+<h14>    Block Damage
+<s988>
+<b15>
+
+<l04>    Description:
+
+<l15> Specifies a rectangular area for Block Damage.
+
+<l15> Can be triggered by another object that emits trigger events.
+<l15> Some examples are Trigger and Orb.
+
+<b15>
+
+<l15> When ON, the Damage Field causes damage to objects in the field.
+<l15> Each object type can be toggled on or off.
+<l15> - Players
+<l15> - Enemies
+<l15> - Items
+<l15> - Player's Bullets
+<l15> - Enemy's Bullets
+
+<b15>
+
+<l15> If ON the object will be destroyed.
+
+<l15> For players, the player can either be killed instantly,
+<l15> or lose (or gain!) a specified amount of health.
+
+<b15>
+
+<l15> The Damage Field has a few different modes:
+
+<l09> Mode: Always ON
+<l15>   The Damage Field is always active.
+
+<l09> - Mode: Toggle
+<l15>   When triggered the Damage Field toggles ON and OFF.
+<l15>   In this mode the only trigger type that makes sense is a toggle.
+<l15>   If you chose a constant trigger, the field will toggle every frame.
+<l15>   (Which is probably not what you want)
+
+<l09> - Mode: ON until triggered
+<l15>   In this mode, the Damage Field is normally ON.
+<l15>   When triggered, it turns OFF while a timer runs.
+<l15>   The slider "OFF time:" sets the OFF time.
+
+<l09> - Mode: OFF until triggered
+<l15>   In this mode, the Damage Field is normally OFF.
+<l15>   When triggered, it turns ON while a timer runs.
+<l15>   The slider "ON time:" sets the ON time.
+
+<l09> - Mode: Timed ON and OFF
+<l15>   In this mode, the Damage Field turns ON and OFF based on timers.
+<l15>   The slider "Total time:' sets the entire cycle time.
+<l15>   The slider "Damage time:" sets when the Damage turns ON.
+
+<l15>   - timer starts at "Total time" with Damage OFF.
+<l15>   - timer runs down until "Damage time:" and turns Damage ON. 
+<l15>   - timer runs down to 0 and then resets to "Total Time".
+
+<b15>
+
+
+The actual shape <s988> is only visible in the level editor.
+
+The Block Damage Field can be hidden or shown in various ways.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> Get New Block Damage Field
+<l15>  - Prompts you to draw a new Block Damage Field.
+<l10>    (shown on the map as a red rectangle)
+
+
+<l09> Draw Type: [None|Red Rectangle|Spikey Floor]
+<l15>  - Cycles through the draw types.
+
+
+<l09> The "Event Trigger:" slider lets you specify the event number.
+<l15>  - The better way to set it is by clicking the button "Set Event Trigger"
+<l15>    which will prompt you to choose a trigger item, then automatically
+<l15>    find an unused event and set it for both objects.
+
+
+<l09> Follows lift
+<l15>  - The Damage Field can follow the motion of a lift.
+<l15>    Set the lift number of the lift to follow.
+<l15>    There are options for aligning to the lift in the X and Y axis.
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Move the Field by dragging from the upper left corner on the map.
+
+<l15> - Re-size the Field by dragging from the lower right corner on the map.
 
 
 <section>Mine Viewer
@@ -1712,8 +2029,12 @@ bmsgoff - bottom messages off
 <l15>  - Sets amount of Health that is lost while touching it.
 
 
-<section>Health Bonus Viewer
+<section>Bonus Viewer
 
+
+<l15> There are 3 types of Bonus:
+
+<b15>
 
 <h14>    Health Bonus (10)
 <a23>
@@ -1740,9 +2061,7 @@ bmsgoff - bottom messages off
 
 <l15>  - the amount of health given (100 = full health)
 
-
-<section>Free Man Viewer
-
+<b15>
 
 <h14>    Free Man
 <a38>
@@ -1754,11 +2073,14 @@ bmsgoff - bottom messages off
 
 <b15>
 
-<l04>    Buttons:
+<h14>    Purple Coin
+<s197>
+<b15>
 
-<l09> Fall:[On or Off]
+<l04>    Description:
 
-<l15>  - Does the item obey gravity or is it stationary?
+<l15> Does nothing but give you a sense of satisfaction!
+
 
 
 <section>Bomb Viewer
@@ -1913,11 +2235,11 @@ bmsgoff - bottom messages off
 
 <l04>    Description:
 
-<l15> When you jump on a switch, solid and hollow blocks switch.
+<l15> When you jump on a Switch, solid and hollow blocks switch.
 
-<l15> Affects only blocks in the specified block range.
+<l15> Affects only blocks in the specified Block Range.
 
-<l15> The multi-colored switches flip multiple colors.
+<l15> The multi-colored Switches flip multiple colors.
 
 <b15>
 
@@ -1945,17 +2267,19 @@ bmsgoff - bottom messages off
 
 <l09> Get New Block Range
 
-<l15>  - Sets a new Block Range area that will be affected by the switch.
+<l15>  - Sets a new Block Range area that will be affected by the Switch.
 
-<l10> (shown on the map as a red rectangle)
+<l10>    (shown on the map as a red rectangle)
 
 <b15>
 
 <l04>   Map Controls:
 
-<l15> - Move block range by dragging from the upper left corner on the map.
+<l15> - Move Block Range by dragging from the upper left corner on the map.
 
-<l15> - Re-size block range by dragging from the lower right corner on the map.
+<l15> - Re-size Block Range by dragging from the lower right corner on the map.
+
+<l15> - Hold SHIFT when moving Switch to move Block Range also
 
 
 <section>Sproingy Viewer
@@ -2001,7 +2325,7 @@ bmsgoff - bottom messages off
 
 <l04>    Description:
 
-<l15> ArchWagons shoot arrows at the player.
+<l15> ArchWagons roll, jump and shoot arrows at the player.
 
 <b15>
 
@@ -2019,28 +2343,36 @@ bmsgoff - bottom messages off
 <l09> [Bounce Mode-Follow Mode]
 <l15>  - bounce off walls, or blindly follow player
 
+<b15>
+
+<l09> Turn Before Hole:[0-100](0 = Off)
+<l15>  - Turns around at the specified distance before falling in a hole.
+
+<l09> Jump Before Hole:[0-100](0 = Off)
+<l15>  - Attempts to jump at the specified distance before falling in a hole.
+
+<l09> Jump Before Wall:[0-100](0 = Off)
+<l15>  - Attempts to jump at the specified distance before an hitting a wall.
+
+<l09> Jump Under Width:[0-600](0 = Off)
+<l15>  - When the ArchWagon is under a player (+/- width) a jump is attempted.
+
 <l09> Jump Wait:[0-500](0 = Off)
-<l15>  - waits for the specified number of ticks, then attempts to jump
+<l15>  - waits for the specified number of frames, then attempts to jump
 
-<l09> Jump When Under Width:[0-800](0 = Off)
-<l15>  - When the ArchWagon is directly under (+/- width)
-<l15>  - the player, a jump is attempted.
+<b15>
 
-<l09> Jump before wall:[0-500](0 = Off)
-<l15>  - Attempts to jump the specified distance before an hitting an obstacle.
-
-<l09> Jump before hole:[0-40](0 = Off)
-<l15>  - Attempts to jump the specified distance before falling.
+<l09> Bullet Proximity:
+<l15>  - Players within the Bullet Proximity circle will be fired on.
+<l14>    (shown on the map as a yellow circle)
 
 <l09> Bullet Speed:[0.3 - 20.0]
 <l15>  - The speed of the arrows.
 
-<l09> Bullet Prox:[20-600]
-<l15>  - If the player is out of Bullet Prox area no arrows will be fired
+<l09> Bullet Retrigger Time:[0-300]
+<l15>  - The delay between firing successive arrows.
 
-<l09> Retrigger Time:[0-300]
-<l15>  - After firing an arrow, the ArchWagon waits for the
-<l15>    specified retrigger time before it can fire another.
+<b15>
 
 <l09> Collision Box:[8-18]
 <l15>  - An area around the Archwagon that takes Health from the
@@ -2052,6 +2384,12 @@ bmsgoff - bottom messages off
 
 <l09> Health Bonus:
 <l15>  - The amount of health in the post-death flower.
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Change the Bullet Proximity by dragging the yellow circle.
 
 
 <section>Trakbot Viewer
@@ -2083,16 +2421,83 @@ bmsgoff - bottom messages off
 <l09> Drop Mode:[On-Off]
 <l15>  - when TrakBot on ceiling, drop on player.
 
+<b15>
+
+<l09> Bullet Proximity:
+<l15>  - Players within the Bullet Proximity circle will be fired on.
+<l14>    (shown on the map as a yellow circle)
+
 <l09> Bullet Speed:
-<l15>  - The speed of the bullet.
+<l15>  - The speed of the bullets.
 
-<l09> Bullet Prox:
-<l15>  - If the player is out of Bullet Prox area no bullets will be fired.
-<l14> (shown on the map as a yellow rectangle)
+<l09> Bullet Retrigger Time:[0-300]
+<l15>  - The delay between firing successive bullets.
 
-<l09> Retrigger Time:[0-300]
-<l15>  - After firing a bullet, the TrakBot waits for the
-<l15>    specified retrigger time before it can fire another.
+<b15>
+
+<l09> Collision Box:[8-18]
+<l15>  - An area around the TrakBot that takes Health from the
+<l15>    player, when the player is in it. (see Health Decrement)
+
+<l09> Health Decrement:[0.1-2.0]
+<l15>  - The amount to subtract from players Health
+<l15>    when player is in the Collision Box.
+
+<l09> Health Bonus:
+<l15>  - The amount of health in the post-death flower.
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Change the Bullet Proximity by dragging the yellow circle.
+
+
+<section>Jumpworm Viewer
+
+
+<h14>    Jumpworm
+<a47>
+<b15>
+
+<l04>    Description:
+
+<l15> Jumpworms inch along the floor.  They can jump surprisingly far.
+
+<b15>
+
+<l04>    Buttons:
+
+<l09> X-Speed (Jump):[0.7-12.0]
+<l15>  - jump speed
+
+<l09> X-Speed (Ground):[1/1 to 1/12]
+<l15>  - ground speed (1/1 is the fastest, 1/2 is half...etc.)
+
+<l09> Y - Speed:[0.7-9.0]
+<l15>  - vertical speed
+
+<l09> Initial Direction:[Right-Left]
+<l15>  - Initial direction.
+
+<b15>
+
+<l09> Turn Before Hole:[0-100](0 = Off)
+<l15>  - Turns around at the specified distance before falling in a hole.
+
+<l09> Jump Before Hole:[0-100](0 = Off)
+<l15>  - Attempts to jump at the specified distance before falling in a hole.
+
+<l09> Jump Before Wall:[0-100](0 = Off)
+<l15>  - Attempts to jump at the specified distance before an hitting a wall.
+
+<l09> Jump Under Width:[0-600](0 = Off)
+<l15>  - When the ArchWagon is under a player (+/- width) a jump is attempted.
+
+<l09> Jump Wait:[0-500](0 = Off)
+<l15>  - waits for the specified number of frames, then attempts to jump
+
+<b15>
 
 <l09> Collision Box:[8-18]
 <l15>  - An area around the TrakBot that takes Health from the
@@ -2115,9 +2520,9 @@ bmsgoff - bottom messages off
 
 <l04>    Description:
 
-<l15> Bounces off walls, ignores gravity.  Counts bounces
+<l15> Bounces off walls, ignores gravity.
 
-<l15> then seeks the player directly.
+<l15> Counts bounces, then seeks the player directly.
 
 <b15>
 
@@ -2138,6 +2543,8 @@ bmsgoff - bottom messages off
 
 <l09> Seek Shape:[click to toggle shape]
 <l15>  - The shape used when in seek mode.
+
+<b15>
 
 <l09> Collision Box:[8-18]
 <l15>  - An area around the Bouncer that takes Health from the
@@ -2176,12 +2583,15 @@ bmsgoff - bottom messages off
 <l09> Seek Count:[0-500]
 <l15>  - Number of bounces before seek.
 
+<b15>
+
 <l09> Bullet Speed:[1.0-8.0]
 <l15>  - The speed of the cannonball.
 
-<l09> Retrigger Time:[0-500]
-<l15>  - After firing a cannonball, the Cannon waits for the
-<l15>    specified time before it fires another.
+<l09> Bullet Retrigger Time:[0-200]
+<l15>  - The delay between firing successive cannonballs.
+
+<b15>
 
 <l09> Collision Box:[8-18]
 <l15>  - An area around the Cannon that takes Health from the
@@ -2207,42 +2617,51 @@ bmsgoff - bottom messages off
 
 <l04>    Description:
 
-<l15> When the delay timer runs out, Cloner copies all enemies
+<l15> When triggered, the Cloner copies all enemies and items
 
-<l15> and items in the source area to the destination area.
+<l15> in the source area to the destination area.
 
 <b15>
 
 <l04>    Buttons:
 
 <l09> Create Delay[0-500]
-<l15>  - The delay between succesive clonings!
+<l15>  - The delay between succesive clonings.
 
-
-<l09> [Normal:Reset On Trigger:Immediate On Trigger]
-
-<l09> Normal
-<l15>  - when the player is in the Trigger Area the Create Delay runs
-<l15>  - when the Create Delay is done, a clone is made
-
-<l09> Reset On Trigger
-<l15>  - when the player enters the Trigger Area the Create Delay is reset
-<l15>  - the Create Delay runs while the player remains in the Trigger Area
-<l15>  - when the Create Delay is done, the clone is made
-
-<l09> Immediate On Trigger
+<l09> Trigger Type:Immediate
 <l15>  - as soon as the player enters the Trigger Area a clone is made
 <l15>  - the Create Delay runs while the player remains in the Trigger Area
 <l15>  - when the Create Delay is done, another clone is made
 
+<l09> Trigger Type:Timer Runs
+<l15>  - when the player is in the Trigger Area the Create Delay runs
+<l15>  - when the Create Delay is done, a clone is made
+
+<l09> Trigger Type:Timer Resets
+<l15>  - when the player enters the Trigger Area the Create Delay is reset
+<l15>  - the Create Delay runs while the player remains in the Trigger Area
+<l15>  - when the Create Delay is done, the clone is made
+
+<b15>
+
+<l09> Created Time To Live: [0=OFF]
+<l15>  - Gives all created objects a time to live.
+
+<l09> Max Created Objects: [0=OFF]
+<l15>  - Sets a limit to the number of active created objects.
+
+<b15>
+
 <l10> Get New Source Area
-<l10>  - Prompts you to draw a new cloning source area.
+<l10>  - Prompts you to draw a new Source Area.
 
 <l11> Set Destination
-<l11>  - Prompts you to position the destination area.
+<l11>  - Prompts you to position the Destination Area.
 
 <l14> Set Trigger Box
 <l14>  - Prompts you to draw a new Trigger Box.
+
+<b15>
 
 <l09> Collision Box:[8 - 18]
 <l15>  - An area around the Cloner that takes Health from the
@@ -2259,16 +2678,16 @@ bmsgoff - bottom messages off
 
 <l04>   Map Controls:
 
-<l14> - Move trigger box by dragging from the upper left corner on the map.
-<l14> - Re-size trigger box by dragging from the lower right corner on the map.
+<l10> - Move Source Area by dragging from the upper left corner on the map.
+<l10> - Re-size Source Area by dragging from the lower right corner on the map.
 
-<l10> - Move source area by dragging from the upper left corner on the map.
-<l10> - Re-size source area by dragging from the lower right corner on the map.
+<l11> - Move Destination Area by dragging from the upper left corner on the map.
 
-<l11> - Move destination area by dragging from the upper left corner on the map.
+<l14> - Move Trigger Box by dragging from the upper left corner on the map.
+<l14> - Re-size Trigger Box by dragging from the lower right corner on the map.
 
-<l15> - Move the cloner and all three boxes together by dragging from the map.
-<l15> - (to move just the main item, use the move button)
+<l15> - Hold SHIFT while dragging cloner to move all three boxes with cloner.
+
 
 
 <section>Flapper Viewer
@@ -2280,14 +2699,14 @@ bmsgoff - bottom messages off
 
 <l04>    Description:
 
-<l15>  Flies in the X axis and bounces when it hits something solid.
+<l15> Flies in the X axis and bounces when it hits something solid.
 
-<l15>  If a player is in the trigger box and in front of the flapper:
+<l15> If a player is in the trigger box and in front of the flapper:
 <l15>  - the flapper will attempt to seek in the y direction at Y Speed
 <l15>  - the flapper will fire a bullet at the player
 
-<l15>  The flapper attempt to keeps its Y distance from the player
-<l15>  at the value set by "Height Above Player"
+<l15> The flapper attempt to keeps its Y distance from the player
+<l15> at the value set by "Height Above Player"
 
 <b15>
 
@@ -2312,20 +2731,19 @@ bmsgoff - bottom messages off
 <l15>  - the distance above (or below if negative) that the
 <l15>    flapper will try to maintain in respect to the player
 
+<b15>
+
+<l09> Bullet Proximity:
+<l15>  - Players within the Bullet Proximity circle will be fired on.
+<l14>    (shown on the map as a yellow circle)
+
 <l09> Bullet Speed:<l13>[0.8 - 20.0]
 <l15>  - The speed of the bullet.
 
-<l09> Bullet Retrigger Time:<l13>[1 - 200]
-<l15>  - After firing a bullet, the Flapper waits for the
-<l15>    specified retrigger time before it can fire another.
+<l09> Bullet Retrigger Time:[0-300]
+<l15>  - The delay between firing successive bullets.
 
-<l09> Trigger Box Width :<l13>[20 - 500]
-<l09> Trigger Box Height:<l13>[0 - 600]
-<l09> Trigger Box Depth :<l13>[0 - 600]
-<l14> (shown on the map as a yellow rectangle)
-<l15>  If a player is in the trigger box and in front of the flapper:
-<l15>  - the flapper will attempt to seek in the y direction at Y Speed
-<l15>  - the flapper will fire a bullet at the player
+<b15>
 
 <l09> Collision Box:<l13>[8 - 18]
 <l15>  - An area around the Cloner that takes Health from the
@@ -2337,6 +2755,13 @@ bmsgoff - bottom messages off
 
 <l09> Health Bonus:<l13>[0 -50]
 <l15>  - The amount of health in the post-death flower.
+
+<b15>
+
+<l04>   Map Controls:
+
+<l15> - Change the Bullet Proximity by dragging the yellow circle.
+
 
 
 <section>Podzilla Viewer
@@ -2361,6 +2786,8 @@ bmsgoff - bottom messages off
 <l09> Wait Time:[0-500]
 <l15>  - The delay before shooting and retreating.
 
+<b15>
+
 <l09> Bullet Speed:[1.0-8.0]
 <l15>  - The speed of the Podzilla's green balls.
 
@@ -2369,6 +2796,8 @@ bmsgoff - bottom messages off
 
 <l14> Move Trigger Box
 <l14>  - Prompts you to draw a new trigger box.
+
+<b15>
 
 <l09> Collision Box:[8-18]
 <l15>  - An area around the Podzilla that takes Health from the
@@ -2388,6 +2817,10 @@ bmsgoff - bottom messages off
 <l15> - Move trigger box by dragging from the upper left corner on the map.
 
 <l15> - Re-size trigger box by dragging from the lower right corner on the map.
+
+<l15> - Move the extended position by clicking and dragging on it.
+
+<l15> - Hold SHIFT when dragging main shape to move trigger box also.
 
 
 
@@ -2418,18 +2851,24 @@ bmsgoff - bottom messages off
 <l09> [Bounce Mode-Follow Mode]
 <l15>  - bounce off walls, or blindly follow player
 
+<b15>
+
+<l09> Turn Before Hole:[0-100](0 = Off)
+<l15>  - Turns around at the specified distance before falling in a hole.
+
+<l09> Jump Before Hole:[0-100](0 = Off)
+<l15>  - Attempts to jump at the specified distance before falling in a hole.
+
+<l09> Jump Before Wall:[0-100](0 = Off)
+<l15>  - Attempts to jump at the specified distance before an hitting a wall.
+
+<l09> Jump Under Width:[0-600](0 = Off)
+<l15>  - When the ArchWagon is under a player (+/- width) a jump is attempted.
+
 <l09> Jump Wait:[0-500](0 = Off)
-<l15>  - waits for the specified number of ticks, then attempts to jump
+<l15>  - waits for the specified number of frames, then attempts to jump
 
-<l09> Jump When Under Width:[0-800](0 = Off)
-<l15>  - When the ArchWagon is directly under (+/- width)
-<l15>  - the player, a jump is attempted.
-
-<l09> Jump before wall:[0-500](0 = Off)
-<l15>  - Attempts to jump the specified distance before an hitting an obstacle.
-
-<l09> Jump before hole:[0-40](0 = Off)
-<l15>  - Attempts to jump the specified distance before falling.
+<b15>
 
 <l09> Collision Box:[8-18]
 <l15>  - An area around the Archwagon that takes Health from the
@@ -2444,7 +2883,10 @@ bmsgoff - bottom messages off
 
 
 
-<l04>    Description:<lift>
+<l04>                <lift>
+<b15>
+
+<l04>    Description:
 
 <l15> A lift is a moveable solid rectangular block.
 
@@ -2458,11 +2900,11 @@ bmsgoff - bottom messages off
 
 <l15> the player will lose health.
 
-<l15> Both player bullets and enemy bullets can pass through lifts.
+<l15> Both player bullets and enemy bullets pass through lifts.
 
-<l15> Lifts can pass through other stationary blocks and other lifts.
+<l15> Lifts pass through stationary blocks and other lifts.
 
-
+<b15>
 
 <l04>    Lift Steps:
 
@@ -2478,73 +2920,82 @@ bmsgoff - bottom messages off
 
 <l13>  Loop to Step 0<l15> - the last step links to the first one.
 
+<b15>
 
 <l04>    Buttons:
 
-<l09> Lift Width:[1-100]<l15>  - sets the lift width
+<l09> Mode:0 - Normal
+<l15>  - The normal method of running.
 
-<l09> Lift Height:[1-100]<l15> - sets the lift height
+<l09> Mode:1 - Prox Run and Reset 
+<l15>  - The lift does not run unless a player is riding it.
+<l15>  - If the player gets off the lift, it stops and the timer counts down.
+<l15>  - If the player gets back on the lift, the timer resets.
+<l15>  - If the timer reaches zero, the lift resets back to step 0 and waits.
 
-<l09> Lift Color:<l15>         - sets the lift color
+<l09> Reset Timer:
+<l15>  - The timer value in Mode:1
 
-<l09> Lift Name:<l15>          - opens a dialog to change the lift name
+
+<l09> Lift Name:
+<l15>  - opens a dialog to change the lift name
 
 <l09> Run Lifts
-
 <l15>  - sets all the lifts in motion, ignoring wait proximity steps
-
 <l15>  - use as a troubleshooting tool to see how your lifts will move
-
 <l15>  - press [ESC] to stop running lifts
 
+<b15>
 
 <l04>    List of Steps
 
-<l15> The steps for the Current Lift are listed, and the Current Step is shown.
+<l15> The steps for the Current Lift are shown in a list under the Buttons.
 
-<l15> The Current Lift and Current Step are also marked on the map.
+<l15> The Current Lift is highlighted red and is also marked on the map.
 
 <l15> Click a step button to make it the Current Step.
 
-<l15> You can also set the Current Lift and Step by touching a Step on the map.
+<l15> You can also set the Current Lift and Step by with the map.
 
-<l15> To lock the viewer to the Current Lift, click the <l07>'Locked' <l15>button.
-
-
-<l15> To edit a value in a step, drag the slider with the mouse.
-
+<l15> To lock the viewer to the Current Lift, click the <l07>"Locked" <l15>button.
 
 <l15> Click and hold the right mouse button on a step to show the step menu.
 
 <l15> From there you can you can move, delete, or insert new steps.
 
+<b15>
+
+<l04>    Current Step Details
+
+<l15> Under the "List of Steps" are the "Current Step Details"
+<l15> Here you can change many things about the Current Step
+<l15> - Color
+<l15> - [Draw|Hide]
+<l15> - Solid for Player
+<l15> - Solid for Enemy
+<l15> - Solid for Item
+<l15> - and other setting specific to the type of lift step
+
+<b15>
 
 <l04>    Moving Steps
-
 <l15> The easiest way to move a step is to drag it to a new location on the map.
-
 <l15> You can also choose 'Move' from the Pop-Up Menu.
 
+<b15>
 
 <l04>    Step Pop-Up Menu
-
 <l15> To access the Step Pop-Up Menu, right click and hold on either
-
 <l15> a step in the list of steps, or the step itself on the map.
-
 <l15> While holding the right mouse button, move the mouse up and down
-
 <l15> to highlight your choice, then release the mouse button to select.
 
+<b15>
 
 <l04>    Inserting Steps
-
 <l15> Position the mouse on the step to want to insert new steps before.
-
 <l15> Press and hold the right mouse button and then select "Insert Step".
-
 <l15> Choose the type of step you wish to add from the list.
-
 <l15>  (You are prompted to keep adding more steps until you press 'Cancel')
 
 

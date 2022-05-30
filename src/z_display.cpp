@@ -227,7 +227,6 @@ int init_display(void)
 //   al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
 
 
-
    int flags = 0;
 
    if (fullscreen)
@@ -250,9 +249,6 @@ int init_display(void)
 //   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL | ALLEGRO_OPENGL_3_0;
 
 //   al_set_display_flag(display, ALLEGRO_FULLSCREEN_WINDOW, fullscreen);
-
-
-
 
 
    if(!display)
@@ -281,7 +277,7 @@ int init_display(void)
    //printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
 
    //printf("init screen\n");
-   create_bmp();
+   create_bitmaps();
    make_palette();
    return 1;
 }
@@ -292,25 +288,23 @@ int init_display(void)
 
 void proc_display_change(void)
 {
-   al_acknowledge_resize(display);          // important that this is here, later and it does not work as intended
-   int w = al_get_display_width(display);   // set my local variables with the system ones
-   int h = al_get_display_height(display);
-   int x, y;
-   al_get_window_position(display, &x, &y);
-
+   al_acknowledge_resize(display);                              // important that this is here, later and it does not work as intended
+   al_get_window_position(display, &disp_x_curr, &disp_y_curr); // set my local variables with the system ones
+   disp_w_curr = al_get_display_width(display);
+   disp_h_curr = al_get_display_height(display);
    if (fullscreen)
    {
-      disp_x_curr = disp_x_full = x;
-      disp_y_curr = disp_y_full = y;
-      disp_w_curr = disp_w_full = w;
-      disp_h_curr = disp_h_full = h;
+      disp_x_full = disp_x_curr;
+      disp_y_full = disp_y_curr;
+      disp_w_full = disp_w_curr;
+      disp_h_full = disp_h_curr;
    }
    else
    {
-      disp_x_curr = disp_x_wind = x;
-      disp_y_curr = disp_y_wind = y;
-      disp_w_curr = disp_w_wind = w;
-      disp_h_curr = disp_h_wind = h;
+      disp_x_wind = disp_x_curr;
+      disp_y_wind = disp_y_curr;
+      disp_w_wind = disp_w_curr;
+      disp_h_wind = disp_h_curr;
    }
    set_display_transform();
    rebuild_bitmaps();
@@ -327,13 +321,9 @@ void save_display_window_position(void)
 
    if (!fullscreen)
    {
-      int x, y;
-      al_get_window_position(display, &x, &y);
-      disp_x_wind = x;
-      disp_y_wind = y;
+      al_get_window_position(display, &disp_x_wind, &disp_y_wind);
       disp_w_wind = al_get_display_width(display);
       disp_h_wind = al_get_display_height(display);
-
       save_config();
    }
 }
@@ -344,10 +334,7 @@ void proc_display_change_tofs(void)
    fullscreen = 1;
 
    // save window position and size before entering fullscreen
-   int x, y;
-   al_get_window_position(display, &x, &y);
-   disp_x_wind = x;
-   disp_y_wind = y;
+   al_get_window_position(display, &disp_x_wind, &disp_y_wind);
    disp_w_wind = al_get_display_width(display);
    disp_h_wind = al_get_display_height(display);
 

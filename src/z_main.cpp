@@ -412,10 +412,8 @@ int pm_bullet_collision_box = 8;
 // ---------------- display -----------------------
 // ------------------------------------------------
 
-
 int desktop_width;
 int desktop_height;
-
 
 int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
 int disp_y_curr;
@@ -446,7 +444,11 @@ int level_display_region_h;
 
 int display_transform_double = 1;
 int saved_display_transform_double = -1;
-int show_dtd = 0;;
+int show_dtd = 0;
+
+
+
+
 
 
 int level_editor_running = 0;

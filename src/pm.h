@@ -834,6 +834,7 @@ extern al_fixed e_bullet_fyinc[50];
 extern int pm_bullet_collision_box;
 
 
+
 extern int desktop_width;
 extern int desktop_height;
 
@@ -852,8 +853,6 @@ extern int disp_y_full;
 extern int disp_w_full;
 extern int disp_h_full;
 
-
-
 extern int SCREEN_W;
 extern int SCREEN_H;
 extern int WX;
@@ -869,6 +868,8 @@ extern int level_display_region_h;
 extern int display_transform_double;
 extern int saved_display_transform_double;
 extern int show_dtd;
+
+
 
 
 
@@ -1495,7 +1496,7 @@ int init_display(void);
 void save_display_window_position(void);
 
 // z_screen.h
-void create_bmp(void);
+void create_bitmaps(void);
 void rebuild_bitmaps(void);
 void load_fonts(void);
 void get_new_background(int full);
