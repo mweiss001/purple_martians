@@ -787,7 +787,7 @@ int ge_process_keypress(void)
 }
 
 
-
+/*
 
 void group_edit(void)
 {
@@ -801,7 +801,7 @@ void group_edit(void)
 }
 
 
-
+*/
 
 
 

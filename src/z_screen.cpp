@@ -574,17 +574,20 @@ void set_map_var(void)
 //   printf("xdec %f ydec %f\n", mdw_logo_x_dec*320, mdw_logo_y_dec*320 );
 }
 
-void set_scale_factor(int instant)
+void set_scale_factor(float new_scale_factor, int instant)
 {
-   // enforce max and min
-   if (scale_factor < .2) scale_factor = .2;
-   if (scale_factor > 40) scale_factor = 40;
-   save_config();
-
-   if (instant) scale_factor_current = scale_factor;
-   show_scale_factor = 80;
+   if ((scale_factor_holdoff <= 0) || (instant))
+   {
+      scale_factor = new_scale_factor;
+      scale_factor_holdoff = 10;
+      // enforce max and min
+      if (scale_factor < .2) scale_factor = .2;
+      if (scale_factor > 40) scale_factor = 40;
+      show_scale_factor = 80;
+      save_config();
+      if (instant) scale_factor_current = scale_factor;
+   }
 }
-
 
 void mark_non_default_block(int x, int y)
 {
@@ -735,7 +738,8 @@ void frame_and_title(int show_players)
 
 void proc_scale_factor_change(void)
 {
-   show_scale_factor--;
+   if (show_scale_factor > 0) show_scale_factor--;
+   if (scale_factor_holdoff > 0) scale_factor_holdoff--;
    if (scale_factor_current < scale_factor)
    {
        // try to scale the inc, larger as scale_factor gets larger

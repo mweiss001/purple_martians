@@ -1020,6 +1020,7 @@ void zfs_draw_fsel(void)
 
 }
 
+
 void zfs_process_mouse(void)
 {
    if (mouse_b1)
@@ -1038,6 +1039,7 @@ void zfs_process_mouse(void)
    }
 }
 
+/*
 int zfs_process_keypress(void)
 {
    int quit = 0;
@@ -1048,6 +1050,10 @@ int zfs_process_keypress(void)
    }
    return quit;
 }
+
+*/
+
+/*
 
 
 void zoom_full_screen(int draw_item)
@@ -1062,7 +1068,7 @@ void zoom_full_screen(int draw_item)
 }
 
 
-
+*/
 
 
 

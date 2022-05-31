@@ -126,16 +126,48 @@ void cm_redraw_level_editor_background(int mode)
    level_editor_mode = old_lem;
 }
 
+
+void cm_process_mouse(int &ret)
+{
+   if (level_editor_mode == 1) ret = em_process_mouse();
+   if (level_editor_mode == 2) zfs_process_mouse();
+   if (level_editor_mode == 3) ge_process_mouse();
+   if (level_editor_mode == 4) ovw_process_mouse();
+}
+
+void cm_process_keypress(int &ret)
+{
+   if (level_editor_mode == 1) ret = em_process_keypress();
+   if ((level_editor_mode == 2) || (level_editor_mode == 3)) // zfs or ge
+   {
+      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
+      {
+         proc_controllers();
+         set_windows(1); // em
+      }
+   }
+   if (level_editor_mode == 4) // ovw
+   {
+      if (ovw_process_keypress()) set_windows(1); // em
+   }
+
+
+}
+
+
+
 void cm_redraw_level_editor_background(void)
 {
    process_flash_color();
 
    int mouse_on_window = is_mouse_on_any_window();
 
+   cm_process_scrolledge();
+
    if ((!mouse_on_window) || (level_editor_mode == 0))
    {
       cm_get_block_position_on_map();
-      cm_process_scrolledge();
+   //   cm_process_scrolledge();
    }
 
    al_flip_display();
@@ -266,6 +298,70 @@ void cm_redraw_level_editor_background(void)
    }
    if (level_editor_mode) get_new_screen_buffer(3, 0, 0);
 }
+
+
+void cm_process_menu_bar(void)
+{
+   int x1 = 400;
+   int y1 = 0;
+
+   int by1 = y1+2;
+   int bts = 8;
+
+
+//      if (key[ALLEGRO_KEY_F5]) set_scale_factor(scale_factor * .90, 0);
+//      if (key[ALLEGRO_KEY_F6]) set_scale_factor(scale_factor * 1.1, 0);
+//      if ((key[ALLEGRO_KEY_F5]) && (key[ALLEGRO_KEY_F6])) set_scale_factor(1,1);
+
+
+   al_draw_textf(font, palette_color[9],  x1+2,   y1+2, 0, "Zoom");
+   if (mdw_buttont(x1-10, by1, x1-2,  bts, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"-")) set_scale_factor(scale_factor * .90, 0);
+   if (mdw_buttont(x1+34, by1, x1+42, bts, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"+")) set_scale_factor(scale_factor * 1.1, 0);
+
+   x1 += 100;
+
+   if (mdw_buttont(x1-10, by1, x1-2,  bts, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"D")) cycle_display_transform();
+
+   x1+=40;
+
+
+   al_draw_textf(font, palette_color[9],  x1+2,   y1+2, 0, "Status Window   level:%d ",last_level_loaded);
+
+   al_draw_textf(font, palette_color[15], x1+178, y1+2, 0, "%d ",last_level_loaded);
+
+   int mow = is_mouse_on_any_window();
+   if (mow)
+   {
+      al_draw_textf(font, palette_color[15], x1+222, y1+2, 0, "x:-- y:-- ");
+      mW[1].point_item_type = -1;
+   }
+   else
+   {
+      al_draw_textf(font, palette_color[15], x1+222, y1+2, 0, "x:%-2d y:%-2d ", gx, gy);
+      em_find_point_item();
+   }
+
+   al_draw_text( font, palette_color[9],  x1+222, y1+2, 0, "x:");
+   al_draw_text( font, palette_color[9],  x1+262, y1+2, 0, "y:");
+
+   int d = 0;
+
+
+   int x2 = x1+320;
+   if (mdw_buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[1].active = 0;
+   if (mdw_buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) help("Status Window");
+
+
+
+
+
+
+}
+
+
+
+
+
 
 int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int moving)
 {
@@ -472,9 +568,17 @@ void set_windows(int mode)
 
 int is_mouse_on_any_window(void)
 {
+   int mow = 0;
    for (int a=0; a<NUM_MW; a++)
-      if ((mW[a].active) && (mW[a].detect_mouse())) return 1;
-   return 0;
+      if ((mW[a].active) && (mW[a].detect_mouse())) mow = 1;
+
+   if (mouse_x < BORDER_WIDTH) mow = 1;
+   if (mouse_y < BORDER_WIDTH) mow = 1;
+
+   if (mouse_x > SCREEN_W - BORDER_WIDTH) mow = 1;
+   if (mouse_y > SCREEN_H - BORDER_WIDTH) mow = 1;
+
+   return mow;
 }
 
 
@@ -505,7 +609,6 @@ int mw_cycle_windows(int draw_only)
   // and 'mouse_on_window' is set to the top window that has the mouse on it
 
 
-
    // allows focus to change
    // allows mouse drag move to start
    // allows mouse b2 pop up menu
@@ -523,6 +626,10 @@ int mw_cycle_windows(int draw_only)
          if ((mW[a].active) && (mW[a].have_focus)) mW[a].process_mouse();
 
    }
+
+
+
+
    return mouse_on_window;
 }
 

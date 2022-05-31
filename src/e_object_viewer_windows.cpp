@@ -1690,9 +1690,6 @@ void ovw_process_mouse(void)
 }
 int ovw_process_keypress(void)
 {
-
-
-
    int quit = 0;
    int mb = mW[7].mb;
    int type=0, lift=0, step=0;
@@ -1891,13 +1888,15 @@ void object_viewerw(int obt, int num)
    mW[7].obt = obt;
    mW[7].num = num;
    set_windows(4); // object viewer
-   while (!ovw_process_keypress())
-   {
-      cm_redraw_level_editor_background();
-      if (!mw_cycle_windows(0)) ovw_process_mouse();
-   }
-   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
-   set_windows(1); // edit menu
+
+
+//   while (!ovw_process_keypress())
+//   {
+//      cm_redraw_level_editor_background();
+//      if (!mw_cycle_windows(0)) ovw_process_mouse();
+//   }
+//   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+//   set_windows(1); // edit menu
 }
 
 

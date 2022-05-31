@@ -177,6 +177,37 @@ void auto_set_display_transform_double(void)
    }
 }
 
+void cycle_display_transform(void)
+{
+   float old_display_transform_double = display_transform_double;
+
+   if (++saved_display_transform_double>3) saved_display_transform_double = 0;
+   save_config();
+
+   set_display_transform();
+   set_map_var();
+
+   float new_display_transform_double = display_transform_double;
+   float sfa = new_display_transform_double/old_display_transform_double;
+
+   //printf("old_display_transform_double:%f new_display_transform_double:%f sfa:%f \n", old_display_transform_double, new_display_transform_double, sfa);
+
+   //printf("1scale factor:%f\n", scale_factor);
+   scale_factor /= sfa;
+   //printf("2scale factor:%f\n", scale_factor);
+
+   scale_factor_current = scale_factor;
+
+
+   for (int a=0; a<NUM_MW; a++)
+   {
+      mW[a].set_pos(mW[a].x1/sfa, mW[a].y1/sfa);
+   }
+
+
+
+}
+
 void set_display_transform()
 {
    if (!saved_display_transform_double) auto_set_display_transform_double();

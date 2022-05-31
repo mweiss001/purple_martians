@@ -465,6 +465,8 @@ float scale_factor = 1.0;
 float scale_factor_current  = 1.0;
 float scale_factor_inc = 0.03;
 int show_scale_factor = 0;
+int scale_factor_holdoff = 0;
+
 
 int show_splash_screen = 1;
 int splash_screen_done = 0;

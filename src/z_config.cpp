@@ -287,9 +287,8 @@ void get_config_values(void)
    else fullscreen = atoi(val);
 
    val = al_get_config_value(cfg, "SCREEN", "scale_factor");
-   if (!val) scale_factor = 1.0;
-   else scale_factor = atof(val);
-   set_scale_factor(1);
+   if (!val) set_scale_factor(1, 1);
+   else set_scale_factor(atof(val), 1);
 
 
    val = al_get_config_value(cfg, "SCREEN", "show_splash_screen");
