@@ -389,30 +389,12 @@ void function_key_check(void)
       }
       if (!key[ALLEGRO_KEY_F4]) KEY_F4_held = 0;
 */
-      if ((key[ALLEGRO_KEY_F5]) && (!KEY_F5_held))
-      {
-         KEY_F5_held = 10;
-         scale_factor *= .90;
-         set_scale_factor(0);
-      }
-      if (!key[ALLEGRO_KEY_F5]) KEY_F5_held = 0;
-      if (key[ALLEGRO_KEY_F5]) if (--KEY_F5_held < 0) KEY_F5_held = 0;
-      if ((key[ALLEGRO_KEY_F6]) && (!KEY_F6_held))
-      {
-         KEY_F6_held = 10;
-         scale_factor *= 1.1;
-         set_scale_factor(0);
-      }
-      if (!key[ALLEGRO_KEY_F6]) KEY_F6_held = 0;
-      if (key[ALLEGRO_KEY_F6]) if (--KEY_F6_held < 0) KEY_F6_held = 0;
 
-      if ((KEY_F5_held) && (KEY_F6_held))
-      {
-         KEY_F5_held = 10;
-         KEY_F6_held = 10;
-         scale_factor = 1.0;
-         set_scale_factor(1);
-      }
+
+      if (key[ALLEGRO_KEY_F5]) set_scale_factor(scale_factor * .90, 0);
+      if (key[ALLEGRO_KEY_F6]) set_scale_factor(scale_factor * 1.1, 0);
+      if ((key[ALLEGRO_KEY_F5]) && (key[ALLEGRO_KEY_F6])) set_scale_factor(1,1);
+
 
       if ((!ima_client) && (!ima_server)) // only adjust speed if not in netgame
       {
@@ -519,30 +501,8 @@ void function_key_check(void)
       if ( ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) &&
            ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) )
       {
-         float old_display_transform_double = display_transform_double;
+         cycle_display_transform();
 
-         if (++saved_display_transform_double>3) saved_display_transform_double = 0;
-         save_config();
-
-         set_display_transform();
-         set_map_var();
-
-         float new_display_transform_double = display_transform_double;
-         float sfa = new_display_transform_double/old_display_transform_double;
-
-         //printf("old_display_transform_double:%f new_display_transform_double:%f sfa:%f \n", old_display_transform_double, new_display_transform_double, sfa);
-
-         //printf("1scale factor:%f\n", scale_factor);
-         scale_factor /= sfa;
-         //printf("2scale factor:%f\n", scale_factor);
-
-         scale_factor_current = scale_factor;
-
-
-         for (int a=0; a<NUM_MW; a++)
-         {
-            mW[a].set_pos(mW[a].x1/sfa, mW[a].y1/sfa);
-         }
 
       }
       else

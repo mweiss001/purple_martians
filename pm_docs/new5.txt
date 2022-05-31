@@ -27544,6 +27544,148 @@ how can i fix it??
 when the division by zero happens for the percent bar, detect 0 and change to 1...fixed
 
 
+I think I should combine the loops for all 4 modes...
+
+   while (!quit)
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) quit = em_process_mouse();
+      quit = em_process_keypress();
+   }
+   while (!quit)
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) zfs_process_mouse();
+      quit = zfs_process_keypress();
+   }
+   while (!ge_process_keypress())
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) ge_process_mouse();
+   }
+   while (!quit)
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) ovw_process_mouse();
+      quit = ovw_process_keypress();
+   }
+
+
+All that needs to change is a selector to call the appropriate mouse and key functions based on what mode we are in
+
+then I will need a way to change modes..
+
+right now em is the base and I only go from em to the other 3 and back
+I want to go from any mode to any other
+
+level_editor_mode = 1; // em
+level_editor_mode = 2; // zfs
+level_editor_mode = 3; // ge
+level_editor_mode = 4; // ov
+
+right now...do the combine....
+
+move all other setup code into set_windows()
+for all except em..
+
+ov has 14 calls
+could replace with something just sets mode and then returns
+this could fix the issue of ov calling itself when already in it...
+now it will just set obt and num
+
+ge has one call from em
+zfs has one call from em
+
+
+made the loops even smaller
+
+   while (!zfs_process_keypress())
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) zfs_process_mouse();
+   }
+   while (!ovw_process_keypress())
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) ovw_process_mouse();
+   }
+
+
+   make a function...
+
+   cm_process_mouse that calls all the others
+
+
+20220531 3:00 AM
+
+made common cm_process_mouse and cm_process_keypress
+
+
+lets remove call to ge and replace with set_windows(3);
+works, but when exiting, le quits to game...
+replace xfs call also...done
+
+now ovw calls...done...
+
+now the only loop is the one in em...
+
+now what?
+
+add some common buttons on the top border...
+
+start with zoom +-
+
+
+I need to make the holdoff not tied to the keys...done
+
+
+now can I do F12 double...done
+
+
+make it so that mpow also counts border as window
+
+
+??? edit
+
+int is_mouse_on_any_window(void)
+{
+   for (int a=0; a<NUM_MW; a++)
+      if ((mW[a].active) && (mW[a].detect_mouse())) return 1;
+   return 0;
+}
+
+this works but now scroll is broken...
+
+made it so scroll works all the time...
+now if I go on top border for menu it scrolls up...
+
+this is a real catch 22
+
+I could make the scroll happen before the border...??
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

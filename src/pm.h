@@ -82,6 +82,12 @@ void cm_get_block_position_on_map();
 void cm_process_scrolledge(void);
 void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
 void cm_get_new_box();
+
+void cm_process_mouse(int &quit);
+void cm_process_keypress(int &ret);
+
+void cm_process_menu_bar(void);
+
 void cm_redraw_level_editor_background(void);
 void cm_redraw_level_editor_background(int mode);
 int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int moving);
@@ -890,6 +896,11 @@ extern float scale_factor_current;
 extern float scale_factor_inc;
 extern int show_scale_factor;
 
+extern int scale_factor_holdoff;
+
+
+
+
 extern int show_splash_screen;
 extern int splash_screen_done;
 
@@ -973,6 +984,7 @@ void zfs_do_clear(void);
 int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving);
 void zfs_proc_window_move(int *x1, int *y1, int *x2, int *y2, int w, int h);
 void zfs_draw_fsel(void);
+void zfs_process_mouse(void);
 void zoom_full_screen(int draw_item);
 
 // e_group_edit_windows.cpp
@@ -1487,6 +1499,7 @@ void show_display_options(void);
 void show_display_orienation(void);
 void show_fullscreen_modes(void);
 void auto_set_display_transform_double(void);
+void cycle_display_transform();
 void set_display_transform();
 void show_disp_values(void);
 void proc_display_change_tofs(void);
@@ -1504,7 +1517,7 @@ void stimp(void);
 void stamp(void);
 void get_new_screen_buffer(int type, int x, int y);
 void set_map_var(void);
-void set_scale_factor(int instant);
+void set_scale_factor(float new_scale_factor, int instant);
 void init_level_background(void);
 void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
 void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor);

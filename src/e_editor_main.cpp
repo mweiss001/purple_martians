@@ -608,15 +608,23 @@ int em_process_mouse(void)
             }
          break;
          case 5: break; // menu divider
+         case 6: set_windows(2); break; // zoom full screen
+         case 7: set_windows(3); break; // group edit
+/*
          case 6: // zoom full screen
          {
-            int draw_item;
-            if (mW[1].draw_item_type == 1) draw_item = mW[1].draw_item_num;
-            else draw_item = 0;
-            zoom_full_screen(draw_item);
+
+//            int draw_item;
+//            if (mW[1].draw_item_type == 1) draw_item = mW[1].draw_item_num;
+//            else draw_item = 0;
+//            zoom_full_screen(draw_item);
+            set_windows(2); // zfs
          }
          break;
-         case 7: group_edit(); break;
+
+
+//         case 7: group_edit(); break;
+*/
          case 8: mW[1].active = 1; break; // status_window
          case 9: mW[2].active = 1; break; // select_window
          case 11: // new level
@@ -738,8 +746,12 @@ int edit_menu(int el)
    while (!quit)
    {
       cm_redraw_level_editor_background();
-      if (!mw_cycle_windows(0)) quit = em_process_mouse();
-      quit = em_process_keypress();
+
+      cm_process_menu_bar();
+
+
+      if (!mw_cycle_windows(0)) cm_process_mouse(quit);
+      cm_process_keypress(quit);
    }
    level_editor_running = 0;
    al_hide_mouse_cursor(display);
