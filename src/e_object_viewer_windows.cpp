@@ -349,7 +349,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
    for (int x=1; x<mW[7].num_legend_lines; x++)// draw text lines
       al_draw_text(font, palette_color[legend_color[x]], xc, y2-26+(3-mW[7].num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 }
-void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving)
+void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving, int draw_only)
 {
    int obt = mW[7].obt;
    int n = mW[7].num;
@@ -360,6 +360,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
    int d = 1;
    if (have_focus) d = 0;
    if (moving) d = 1;
+   if (draw_only) d = 1;
 
    mW[7].mb = 0;
 
@@ -1791,7 +1792,7 @@ int ovw_process_keypress(void)
                cm_redraw_level_editor_background(0);
                ovw_draw_overlays(0);
                get_new_screen_buffer(3, 0, 0);
-               mW[7].draw();
+               mW[7].draw(1);
             }
             while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers(); // wait for release
             lift_setup(); // reset all lifts to step 0

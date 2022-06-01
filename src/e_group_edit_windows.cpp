@@ -522,7 +522,7 @@ void ge_show_obj_list(int x, int y, int *ew, int *eh, int have_focus, int moving
                   {
                      al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, palette_color[10], 1); // draw rectangle around list item pointer
                      ge_swap_obj_list_items(old_mpl, mpl); // do the swap
-                     mW[5].draw();
+                     mW[5].draw(0);
                   }
                }
             } // mouse b1 held

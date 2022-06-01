@@ -46,7 +46,32 @@ void draw_slider_text(int x1, int y1, int x2, int y2, int q2, int q5)
    else    al_draw_text(font, palette_color[q2], xt, yt, ALLEGRO_ALIGN_CENTER, smsg);
 }
 
-float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, int y2, int dm, int col)
+
+float get_slider_position2(float sul, float sll, float sinc, int x1, int y1, int x2, int y2)
+{
+   float my = mouse_y;
+   float mx = mouse_x;
+   float a, b, c, d, e, f ;
+
+   // enforce limits
+   if (my<y1) my = y1;
+   if (mx<x1) mx = x1;
+   if (my>y2) my = y2;
+   if (mx>x2) mx = x2;
+
+   // get slider position
+   a = mx-x1;                  // relative postion of slider bar in range
+   b = x2-x1;                  // range
+   c = a / b;                  // ratio = position / range
+   d = sul-sll;                // range from buttons
+   e = c * d;                  // ratio * range
+   f = e + sll;                // add to ll
+   f = round(f/sinc) * sinc;   // round to sinc
+   return f;
+}
+
+
+float get_slider_position(float sdx, float sul, float sll, int x1, int y1, int x2, int y2)
 {
    float a, b, c, d, e, f;
    // get slider position
@@ -56,6 +81,12 @@ float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, i
    d = x2-x1;   // range
    e = d * c;   // range * old ratio
    f = e + x1;  // add offset
+   return f;
+}
+
+float draw_slider_bar(float sdx, float sul, float sll, int x1, int y1, int x2, int y2, int dm, int col)
+{
+   float f = get_slider_position(sdx, sul, sll, x1, y1, x2, y2);
    int sx1 = (int)f - bw;
    int sx2 = (int)f + bw;
    // draw slider bar
@@ -118,11 +149,13 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                f = round(f/sinc) * sinc;         // round to sinc
                var = (int)f; // update var
             }
+            cm_redraw_level_editor_background();
+            mw_cycle_windows(1);
             if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
             else          sprintf(smsg, "%s%d", txt, var);
             draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
-            al_flip_display();
-            proc_controllers();
+//            al_flip_display();
+//            proc_controllers();
 
          } // end of mouse b4 held
       } // end of mouse b4 pressed
@@ -149,11 +182,13 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
             f = e + sll;                // add to ll
             f = round(f/sinc) * sinc;   // round to sinc
             var = (int)f; // update var
+            cm_redraw_level_editor_background();
+            mw_cycle_windows(1);
             if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
             else          sprintf(smsg, "%s%d", txt, var);
             draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
-            al_flip_display();
-            proc_controllers();
+//            al_flip_display();
+//            proc_controllers();
          }  // end of mouse b1 held
       }  // end of mouse b1 pressed
    }
@@ -196,11 +231,14 @@ void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                var = (int)f; // update var
             }
 
+            cm_redraw_level_editor_background();
+            mw_cycle_windows(1);
+
             sprintf(smsg, "%s%d", txt, var);
             draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 2);
 
-            al_flip_display();
-            proc_controllers();
+//            al_flip_display();
+//            proc_controllers();
 
          } // end of mouse b3 held
       } // end of mouse b3 pressed
@@ -208,31 +246,12 @@ void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       {
          while (mouse_b1)
          {
-            float my = mouse_y;
-            float mx = mouse_x;
-            float a, b, c, d, e, f ;
-
-            // enforce limits
-            if (my<y1) my = y1;
-            if (mx<x1) mx = x1;
-            if (my>y2) my = y2;
-            if (mx>x2) mx = x2;
-
-            // get slider position
-            a = mx-x1;                  // relative postion of slider bar in range
-            b = x2-x1;                  // range
-            c = a / b;                  // ratio = position / range
-            d = sul-sll;                // range from buttons
-            e = c * d;                  // ratio * range
-            f = e + sll;                // add to ll
-            f = round(f/sinc) * sinc;   // round to sinc
-            var = (int)f; // update var
-
+            cm_redraw_level_editor_background();
+            mw_cycle_windows(1);
+            var = (int) get_slider_position2(sul, sll, sinc, x1, y1, x2, y2); // update var
             sprintf(smsg, "%s%d", txt, var);
-            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 2);
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float) var, sul, sll, 2);
 
-            al_flip_display();
-            proc_controllers();
          }  // end of mouse b1 held
       }  // end of mouse b1 pressed
    }
@@ -273,47 +292,31 @@ void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                f = round(f/sinc) * sinc;         // round to sinc
                var = al_ftofix(f); // update var
             }
-               sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
-               draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
-               al_flip_display();
-               proc_controllers();
+            cm_redraw_level_editor_background();
+            mw_cycle_windows(1);
+
+            sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
+//               al_flip_display();
+//               proc_controllers();
 
          } // end of mouse b4 held
          if (bn == 22) scale_bouncer_and_cannon_speed(num);
          if (bn == 29) recalc_pod(num);
       } // end of mouse b4 pressed
-      if (mouse_b1) // only when initially clicked
+      if (mouse_b1)
       {
          while (mouse_b1)
          {
-            float my = mouse_y;
-            float mx = mouse_x;
-            float a, b, c, d, e, f ;
-
-            // enforce limits
-            if (my<y1) my = y1;
-            if (mx<x1) mx = x1;
-            if (my>y2) my = y2;
-            if (mx>x2) mx = x2;
-
-            // get slider position
-            a = mx-x1;                  // relative postion of slider bar in range
-            b = x2-x1;                  // range
-            c = a / b;                  // ratio = position / range
-            d = sul-sll;                // range from buttons
-            e = c * d;                  // ratio * range
-            f = e + sll;                // add to ll
-            f = round(f/sinc) * sinc;   // round to sinc
-            var = al_ftofix(f); // update var
-
+            cm_redraw_level_editor_background();
+            mw_cycle_windows(1);
+            var = al_ftofix(get_slider_position2(sul, sll, sinc, x1, y1, x2, y2)); // update var
             sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
-            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
-            al_flip_display();
-            proc_controllers();
-         }  // end of mouse b1 held
+            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, al_fixtof(var), sul, sll, 1);
+         }
          if (bn == 22) scale_bouncer_and_cannon_speed(num);
          if (bn == 29) recalc_pod(num);
-      }  // end of mouse b1 pressed
+      }
    }
    if (q6 == 1) y1+=bts;
 }
@@ -351,10 +354,14 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                f = round(f/sinc) * sinc;         // round to sinc
                var = f; // update var
             }
+            cm_redraw_level_editor_background();
+            mw_cycle_windows(1);
+
+
             sprintf(smsg, "%s%3.2f", txt, var);
             draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
-            al_flip_display();
-            proc_controllers();
+//            al_flip_display();
+//            proc_controllers();
 
          } // end of mouse b4 held
       } // end of mouse b4 pressed
@@ -381,10 +388,17 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
             f = e + sll;                // add to ll
             f = round(f/sinc) * sinc;   // round to sinc
             var = f; // update var
+
+            if (bn == 1) scale_factor_current = scale_factor;
+
+            cm_redraw_level_editor_background();
+            mw_cycle_windows(1);
+
+
             sprintf(smsg, "%s%3.2f", txt, var);
             draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, f, sul, sll, 1);
-            al_flip_display();
-            proc_controllers();
+//            al_flip_display();
+//            proc_controllers();
          }  // end of mouse b1 held
       }  // end of mouse b1 pressed
    }
