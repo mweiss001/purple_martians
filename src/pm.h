@@ -59,7 +59,7 @@ class mWindow
    mWindow(); // default constructor
    void set_pos(int, int);
    void set_size(int, int);
-   void draw(void);
+   void draw(int draw_only);
    int detect_mouse(void);
    void set_title(const char*);
    void process_mouse(void);
@@ -1008,7 +1008,7 @@ void group_edit(void);
 int create_obj(int obt, int type, int num);
 void ovw_get_size(void);
 void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight);
-void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving);
+void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving, int draw_only);
 void ovw_draw_overlays(int legend_highlight);
 void ovw_process_mouse(void);
 int ovw_process_keypress(void);

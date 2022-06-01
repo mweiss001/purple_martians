@@ -746,10 +746,7 @@ int edit_menu(int el)
    while (!quit)
    {
       cm_redraw_level_editor_background();
-
       cm_process_menu_bar();
-
-
       if (!mw_cycle_windows(0)) cm_process_mouse(quit);
       cm_process_keypress(quit);
    }

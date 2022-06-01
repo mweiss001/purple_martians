@@ -27663,6 +27663,95 @@ this is a real catch 22
 
 I could make the scroll happen before the border...??
 
+Make the file menu
+
+
+slider for zoom
+can I make a live slider?? one that does not capture the mouse??
+
+
+I think I have done it..
+
+just call
+
+cm_redraw_level_editor_background();
+mw_cycle_windows(1);
+
+in the loop where the slider has captured the mouse
+then I needed to pass the 1 for not draw in the call to mw_cycle_windows(1);
+all the way down to ovw_draw_buttons...
+If I didn't the button would get called in a recursion loop and when I let go they loop would unwind
+and you would see all of the moves replay...
+
+for now it is only done for slider int b1...
+
+I am wondering if I should do it for all, or have it able to be set by a parameter
+I like how the whole screen updates...it looked funny before when only up to the one slider did...
+
+I like it a lot...I want to make them all that way....
+
+do I have an unused q value I could use to turn it off?
+basically just don't run the cycle window and redraw_backgound
+
+
+
+
+
+
+
+I am going to need to make a different kind of menu...
+
+
+when I click on the name with mouse b1, the menu will display and stay there
+it will block and do nothing until another mouse b1
+then it will either be a choice made or menu goes away
+
+
+mouse b1 on menu title
+wait for release
+show menu
+keep mouse and wait for mouse b1
+wait for release
+if on menu item do that
+menu done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -308,12 +308,6 @@ void cm_process_menu_bar(void)
    int by1 = y1+2;
    int bts = 8;
 
-
-//      if (key[ALLEGRO_KEY_F5]) set_scale_factor(scale_factor * .90, 0);
-//      if (key[ALLEGRO_KEY_F6]) set_scale_factor(scale_factor * 1.1, 0);
-//      if ((key[ALLEGRO_KEY_F5]) && (key[ALLEGRO_KEY_F6])) set_scale_factor(1,1);
-
-
    al_draw_textf(font, palette_color[9],  x1+2,   y1+2, 0, "Zoom");
    if (mdw_buttont(x1-10, by1, x1-2,  bts, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"-")) set_scale_factor(scale_factor * .90, 0);
    if (mdw_buttont(x1+34, by1, x1+42, bts, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"+")) set_scale_factor(scale_factor * 1.1, 0);
@@ -344,15 +338,16 @@ void cm_process_menu_bar(void)
    al_draw_text( font, palette_color[9],  x1+222, y1+2, 0, "x:");
    al_draw_text( font, palette_color[9],  x1+262, y1+2, 0, "y:");
 
-   int d = 0;
 
 
    int x2 = x1+320;
-   if (mdw_buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[1].active = 0;
-   if (mdw_buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) help("Status Window");
+   if (mdw_buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"X")) mW[1].active = 0;
+   if (mdw_buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"?")) help("Status Window");
 
 
+   x1 += 400;
 
+   mdw_sliderd(x1, by1, x1+100, bts, 1,0,0,0,    0,13,15,15, 1,0,1,0, scale_factor, 40, .2, .01,  "Zoom");
 
 
 
@@ -452,6 +447,289 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
    return y2;
 }
 
+
+void cm_draw_status_window(int x1, int x2, int y1, int y2, int have_focus, int moving)
+{
+   // frame entire window
+   al_draw_rectangle(x1, y1, x2, y2, palette_color[9], 1);
+
+   // frame draw item
+   al_draw_rectangle(x1, y1 + 11, x1 + 160, y2, palette_color[9], 1);
+
+   // frame view item
+   al_draw_rectangle(x1 + 160, y1 + 11, x2, y2, palette_color[9], 1);
+
+   // title bar background color
+   al_draw_filled_rectangle(x1, y1, x2, y1 + 11, palette_color[9+192]);
+
+   // frame title bar
+   int c = 9;
+   if ((have_focus) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y1+8)) c = 14; // highlight to indicate move is possible
+   al_draw_rectangle(x1, y1, x2, y1+11, palette_color[c], 1);
+
+
+   al_draw_textf(font, palette_color[9],  x1+2,   y1+2, 0, "Status Window   level:%d ",last_level_loaded);
+   al_draw_textf(font, palette_color[15], x1+178, y1+2, 0, "%d ",last_level_loaded);
+
+   int mow = is_mouse_on_any_window();
+   if (mow)
+   {
+      al_draw_textf(font, palette_color[15], x1+222, y1+2, 0, "x:-- y:-- ");
+      mW[1].point_item_type = -1;
+   }
+   else
+   {
+      al_draw_textf(font, palette_color[15], x1+222, y1+2, 0, "x:%-2d y:%-2d ", gx, gy);
+      em_find_point_item();
+   }
+
+   al_draw_text( font, palette_color[9],  x1+222, y1+2, 0, "x:");
+   al_draw_text( font, palette_color[9],  x1+262, y1+2, 0, "y:");
+
+   int d = 1;
+   if (have_focus) d = 0;
+   if (moving) d = 1;
+
+   int by1 = y1+1;
+   if (mdw_buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[1].active = 0;
+   if (mdw_buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) help("Status Window");
+
+
+   // draw item area
+   al_draw_text(font, palette_color[15], x1 + 24,  y1 + 13, 0, "Draw Item   ");
+   al_draw_text(font, palette_color[14], x1 + 100, y1 + 13, 0, "mouse");
+   al_draw_text(font, palette_color[14], x1 + 143, y1 + 13, 0, "b1");
+   em_show_item_info(                    x1 + 2,   y1 + 20, 9, mW[1].draw_item_type, mW[1].draw_item_num);
+   if ((mW[1].draw_item_type == 1) && (mW[1].show_flag_details)) draw_flags(x1+4, y1+47, &mW[1].draw_item_num, &mow, 0, 1, 0); // flags
+
+   // view item area
+   al_draw_text(font, palette_color[15], x1 + 184, y1 + 13, 0, "View Item ");
+   al_draw_text(font, palette_color[14], x1 + 261, y1 + 13, 0, "mouse");
+   al_draw_text(font, palette_color[14], x1 + 303, y1 + 13, 0, "b2");
+   em_show_item_info(                    x1 + 162, y1 + 20, 9, mW[1].point_item_type, mW[1].point_item_num);
+   if ((mW[1].point_item_type == 1) && (mW[1].show_flag_details)) draw_flags(x1+164, y1+47, &mW[1].point_item_num, &mow, 1, 0, 1); // flags
+}
+
+
+void cm_draw_selection_window(int x1, int x2, int y1, int y2, int have_focus, int moving)
+{
+   // frame entire window
+   al_draw_rectangle(x1, y1, x2, y2, palette_color[9], 1);
+
+   // title bar background color
+   al_draw_filled_rectangle(x1, y1, x2, y1 + 11, palette_color[9+192]);
+
+
+
+   int d = 1;
+   if (have_focus) d = 0;
+   if (moving) d = 1;
+
+
+   int by1 = y1+1;
+
+   if (mdw_buttont(x2-10,  by1, x2-2,   9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mW[2].active = 0;
+   if (mdw_buttont(x2-22,  by1, x2-14,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       help("Selection Window");
+   if (mdw_buttont(x2-153, by1, x2-105, 9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Blocks"))  mW[2].select_window_block_on = !mW[2].select_window_block_on;
+   if (mdw_buttont(x2-90,  by1, x2-34,  9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Special")) mW[2].select_window_special_on = !mW[2].select_window_special_on;
+
+   int c = 11;  // first y line of sub-windows;
+
+   // set special start y
+   int select_window_special_y = 0;
+   if (mW[2].select_window_special_on)
+   {
+      select_window_special_y = c;
+      c = 16 + c + mW[2].select_window_num_special_lines*20;
+   }
+
+   // set block start y
+   int select_window_block_y = 0;
+   if (mW[2].select_window_block_on)
+   {
+      select_window_block_y = c;
+      c = 16 + c + mW[2].swnbl_cur*20;
+   }
+
+   // set text start y
+   int select_window_text_y = c;
+
+   // set entire window h
+   mW[2].h = select_window_text_y;
+
+   // set entire window y2
+   mW[2].y2 = y1+mW[2].h;
+
+   int sys = y1 + select_window_special_y;
+   int syb = y1 + select_window_block_y;
+   int syt = y1 + select_window_text_y;
+
+
+   int vx = (mouse_x-x1)/20; // column
+
+   if (vx < 0) vx = 0;
+   if (vx > 15) vx = 15;
+
+
+   if (mW[2].select_window_special_on)
+   {
+      by1 = sys+2;
+      al_draw_rectangle(x1, sys, x2, sys+12, palette_color[9], 1);
+      al_draw_text(font, palette_color[9], x1+2, sys+2, 0, "Special Items");
+
+      if (mdw_buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[2].select_window_special_on = 0;
+
+      if (mdw_buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
+         if (++mW[2].select_window_num_special_lines > 4 ) mW[2].select_window_num_special_lines = 4;
+
+      if (mdw_buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
+         if (--mW[2].select_window_num_special_lines < 1 )
+         {
+            mW[2].select_window_num_special_lines++;
+            mW[2].select_window_special_on = 0;
+         }
+      // draw special blocks
+      for (c=0; c<16*mW[2].select_window_num_special_lines; c++)
+      {
+         int tn = PDEi[c][1]; // default is the tile in PDEi[c][1]
+         if (tn > 999) tn = zz[0][tn-1000]; // ans
+         al_draw_bitmap(tile[tn], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0 );
+
+         if ((PDEi[c][0] == 108) && (PDEi[c][11])) al_draw_bitmap(tile[440], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0); // bomb sticky spikes
+
+      }
+   }
+
+
+   // frame title bar
+   int col = 9;
+   if ((have_focus) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y1+8)) col = 14; // highlight to indicate move is possible
+   al_draw_rectangle(x1, y1, x2, y1+11, palette_color[col], 1);
+   al_draw_textf(font, palette_color[9],  x1+2,   y1+2, 0, "Selection Window");
+
+
+
+   if (mW[2].select_window_block_on)
+   {
+      by1 = syb+2;
+      al_draw_rectangle(x1, syb, x2, syb+12, palette_color[9], 1);
+      al_draw_text(font, palette_color[9], x1+2, syb+2, 0, "Block Selection");
+
+      if (mdw_buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[2].select_window_block_on = 0;
+
+      if (mdw_buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
+         if (++mW[2].swnbl_cur > mW[2].swnbl) mW[2].swnbl_cur = mW[2].swnbl;
+
+      if (mdw_buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
+         if (--mW[2].swnbl_cur < 1 )
+         {
+            mW[2].swnbl_cur++;
+            mW[2].select_window_block_on = 0;
+         }
+      // draw blocks
+      for (c=0; c<16*mW[2].swnbl_cur; c++)
+         al_draw_bitmap(btile[swbl[c][0] & 1023], x1+(c-((c/16)*16) )*20+1, y1+select_window_block_y+1+14+(c/16*20), 0 );
+   }
+   if ((have_focus) && (!moving))
+   {
+      // check for mouse on special window
+      if ((mW[2].select_window_special_on) && (mouse_y > 15 + sys) && (mouse_y < 16 + sys + mW[2].select_window_num_special_lines * 20))
+      {
+         int vy = (mouse_y-sys-15)/20; // row
+         int ret = vy*16+vx;
+         int tl = 0; // text lines
+         if (ret < 100) // dont try to show anything above PDE[99]
+         {
+            // set  text length (number of lines)
+            for (int x=0; x<20; x++)
+               if (strncmp(PDEt[ret][x],"<end>", 5) == 0) tl = x;
+            if (tl<5) tl = 5;
+
+             // remove line endings
+            for (int x=0; x<20; x++)
+               for (int z=0; z<40; z++)
+               {
+                  if (PDEt[ret][x][z] == 10) PDEt[ret][x][z] = 32;
+                  if (PDEt[ret][x][z] == 13) PDEt[ret][x][z] = 32;
+               }
+
+            // erase and frame
+            al_draw_filled_rectangle(x1, syt, x2, 12+syt+3+(8*tl), palette_color[0]);
+            al_draw_rectangle(x1, syt, x2, 12+syt+3+(8*tl), palette_color[9], 1);
+
+            // title and frame
+            al_draw_rectangle(x1, syt, x2, syt+12, palette_color[9], 1);
+            al_draw_text(font, palette_color[9], x1+2, syt+2, 0, "Description ");
+
+            // draw text for this pde
+            for (int x=0; x<tl; x++)
+               al_draw_text(font, palette_color[15], x1+2, y1 + select_window_text_y+14+(x*8), 0, PDEt[ret][x]);
+
+            if (mouse_b1)
+            {
+               while (mouse_b1) proc_controllers();     // wait for release
+               int pn = PDEi[ret][0];
+               if (pn < 200)
+               {
+                  mW[1].draw_item_type = 5;
+                  mW[1].draw_item_num = ret;
+               }
+               if (pn > 199) // Creator
+               {
+                  switch (pn)
+                  {
+                     case 200: create_obj(2, 1, 0);  break; // type 200 - door
+                     case 201: create_obj(2, 5, 0);  break; // type 201 - start
+                     case 202: create_obj(2, 3, 0);  break; // type 202 - exit
+                     case 204: create_obj(3, 7, 0);  break; // type 204 - pod
+                     case 206: create_obj(2, 10,0);  break; // type 206 - msg
+                     case 207: create_obj(3, 9, 0);  break; // type 207 - cloner
+                     case 208: create_lift();       break; // type 208 - lift
+                     case 209: create_door(1);       break; // type 209 - 1 way al_fixed exit door
+                     case 210: create_door(2);       break; // type 210 - 1 way linked exit door
+                     case 211: create_door(3);       break; // type 211 - 2 way door set
+                     case 212: create_obj(3, 10, 0); break; // type 212 - field
+                     case 213: create_obj(2, 9, 0);  break; // type 213 - trigger
+                     case 214: create_obj(2, 16, 0); break; // type 214 - block manip
+                     case 215: create_obj(2, 17, 0); break; // type 215 - block damage
+                  }
+               }
+            }
+         }
+      }
+
+      // check for mouse on block window
+      if ( (mW[2].select_window_block_on) && (mouse_y > 14 + syb) && (mouse_y < 14 + syb + mW[2].swnbl_cur * 20))
+      {
+         int vy = (mouse_y-syb-14)/20; // row
+         int ret = vy*16+vx;
+         int tl = 3; // text lines
+         int syt2 = syt+15+(8*tl);
+         if (mW[1].show_flag_details) syt2 += 140;
+         ret = swbl[ret][0];
+         al_draw_filled_rectangle(x1, syt, x2, syt2, palette_color[0]); // erase
+         al_draw_rectangle(x1, syt, x2, syt2, palette_color[9], 1);     // frame
+         al_draw_rectangle(x1, syt, x2, syt+12, palette_color[9], 1); // title and frame
+         al_draw_text(font, palette_color[9], x1+2, syt+2,  0, "Description");
+
+         // draw text for this block
+         em_get_text_description_of_block_based_on_flags(ret);
+         al_draw_text (font, palette_color[15], x1+2, syt+14, 0, "---------------------");
+         al_draw_textf(font, palette_color[15], x1+2, syt+22, 0, "Block %d - %s ", ret&1023, msg);
+         al_draw_text (font, palette_color[15], x1+2, syt+30, 0, "---------------------");
+
+         int junk;
+         if (mW[1].show_flag_details) draw_flags(x1+4, syt+38, &ret, &junk, 1, 0, 1);
+
+         if ((mouse_b1) || (mouse_b2))
+         {
+            while (mouse_b1) proc_controllers(); // wait for release
+            mW[1].draw_item_type = 1;
+            mW[1].draw_item_num = ret;
+         }
+      }
+   }
+}
 
 void set_windows(int mode)
 {
@@ -602,12 +880,11 @@ int mw_cycle_windows(int draw_only)
       for (int a=0; a<NUM_MW; a++) // draw any window at that layer
          if ((mW[a].active) && (mW[a].layer == b))
          {
-            mW[a].draw();
+            mW[a].draw(draw_only);
             if ((!draw_only) && (mW[a].detect_mouse())) mouse_on_window = a;
          }
   // at this point, all windows have been drawn in order
   // and 'mouse_on_window' is set to the top window that has the mouse on it
-
 
    // allows focus to change
    // allows mouse drag move to start
@@ -626,10 +903,6 @@ int mw_cycle_windows(int draw_only)
          if ((mW[a].active) && (mW[a].have_focus)) mW[a].process_mouse();
 
    }
-
-
-
-
    return mouse_on_window;
 }
 
@@ -844,7 +1117,7 @@ void mWindow::set_focus(int n)
    }
 }
 
-void mWindow::draw(void)
+void mWindow::draw(int draw_only)
 {
    // erase background
    if (!hidden) al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
@@ -889,292 +1162,8 @@ void mWindow::draw(void)
    }
 
 
-   if (index == 2) // selection window
-   {
-      // frame entire window
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[9], 1);
-
-      // title bar background color
-      al_draw_filled_rectangle(x1, y1, x2, y1 + 11, palette_color[9+192]);
-
-
-
-      int d = 1;
-      if (have_focus) d = 0;
-      if (moving) d = 1;
-
-
-      int by1 = y1+1;
-
-      if (mdw_buttont(x2-10,  by1, x2-2,   9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mW[2].active = 0;
-      if (mdw_buttont(x2-22,  by1, x2-14,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       help("Selection Window");
-      if (mdw_buttont(x2-153, by1, x2-105, 9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Blocks"))  mW[2].select_window_block_on = !mW[2].select_window_block_on;
-      if (mdw_buttont(x2-90,  by1, x2-34,  9, 0,0,0,0, 0,-1,9,0, 0,1,0,d, "Special")) mW[2].select_window_special_on = !mW[2].select_window_special_on;
-
-      int c = 11;  // first y line of sub-windows;
-
-      // set special start y
-      int select_window_special_y = 0;
-      if (mW[2].select_window_special_on)
-      {
-         select_window_special_y = c;
-         c = 16 + c + mW[2].select_window_num_special_lines*20;
-      }
-
-      // set block start y
-      int select_window_block_y = 0;
-      if (mW[2].select_window_block_on)
-      {
-         select_window_block_y = c;
-         c = 16 + c + mW[2].swnbl_cur*20;
-      }
-
-      // set text start y
-      int select_window_text_y = c;
-
-      // set entire window h
-      h = select_window_text_y;
-
-      // set entire window y2
-      y2 = y1+h;
-
-      int sys = y1 + select_window_special_y;
-      int syb = y1 + select_window_block_y;
-      int syt = y1 + select_window_text_y;
-
-
-      int vx = (mouse_x-x1)/20; // column
-
-      if (vx < 0) vx = 0;
-      if (vx > 15) vx = 15;
-
-
-      if (mW[2].select_window_special_on)
-      {
-         by1 = sys+2;
-         al_draw_rectangle(x1, sys, x2, sys+12, palette_color[9], 1);
-         al_draw_text(font, palette_color[9], x1+2, sys+2, 0, "Special Items");
-
-         if (mdw_buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[2].select_window_special_on = 0;
-
-         if (mdw_buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
-            if (++mW[2].select_window_num_special_lines > 4 ) mW[2].select_window_num_special_lines = 4;
-
-         if (mdw_buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
-            if (--mW[2].select_window_num_special_lines < 1 )
-            {
-               mW[2].select_window_num_special_lines++;
-               mW[2].select_window_special_on = 0;
-            }
-         // draw special blocks
-         for (c=0; c<16*mW[2].select_window_num_special_lines; c++)
-         {
-            int tn = PDEi[c][1]; // default is the tile in PDEi[c][1]
-            if (tn > 999) tn = zz[0][tn-1000]; // ans
-            al_draw_bitmap(tile[tn], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0 );
-
-            if ((PDEi[c][0] == 108) && (PDEi[c][11])) al_draw_bitmap(tile[440], x1+(c-((c/16)*16) )*20+1, y1+14+select_window_special_y+1+(c/16*20), 0); // bomb sticky spikes
-
-         }
-      }
-
-
-      // frame title bar
-      int col = 9;
-      if ((have_focus) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y1+8)) col = 14; // highlight to indicate move is possible
-      al_draw_rectangle(x1, y1, x2, y1+11, palette_color[col], 1);
-      al_draw_textf(font, palette_color[9],  x1+2,   y1+2, 0, "Selection Window");
-
-
-
-      if (mW[2].select_window_block_on)
-      {
-         by1 = syb+2;
-         al_draw_rectangle(x1, syb, x2, syb+12, palette_color[9], 1);
-         al_draw_text(font, palette_color[9], x1+2, syb+2, 0, "Block Selection");
-
-         if (mdw_buttont(x2-9, by1, x2-1, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[2].select_window_block_on = 0;
-
-         if (mdw_buttont(x2-41, by1, x2-33, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"+"))
-            if (++mW[2].swnbl_cur > mW[2].swnbl) mW[2].swnbl_cur = mW[2].swnbl;
-
-         if (mdw_buttont(x2-25, by1, x2-17, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"-"))
-            if (--mW[2].swnbl_cur < 1 )
-            {
-               mW[2].swnbl_cur++;
-               mW[2].select_window_block_on = 0;
-            }
-         // draw blocks
-         for (c=0; c<16*mW[2].swnbl_cur; c++)
-            al_draw_bitmap(btile[swbl[c][0] & 1023], x1+(c-((c/16)*16) )*20+1, y1+select_window_block_y+1+14+(c/16*20), 0 );
-      }
-      if ((have_focus) && (!moving))
-      {
-         // check for mouse on special window
-         if ((mW[2].select_window_special_on) && (mouse_y > 15 + sys) && (mouse_y < 16 + sys + mW[2].select_window_num_special_lines * 20))
-         {
-            int vy = (mouse_y-sys-15)/20; // row
-            int ret = vy*16+vx;
-            int tl = 0; // text lines
-            if (ret < 100) // dont try to show anything above PDE[99]
-            {
-               // set  text length (number of lines)
-               for (int x=0; x<20; x++)
-                  if (strncmp(PDEt[ret][x],"<end>", 5) == 0) tl = x;
-               if (tl<5) tl = 5;
-
-                // remove line endings
-               for (int x=0; x<20; x++)
-                  for (int z=0; z<40; z++)
-                  {
-                     if (PDEt[ret][x][z] == 10) PDEt[ret][x][z] = 32;
-                     if (PDEt[ret][x][z] == 13) PDEt[ret][x][z] = 32;
-                  }
-
-               // erase and frame
-               al_draw_filled_rectangle(x1, syt, x2, 12+syt+3+(8*tl), palette_color[0]);
-               al_draw_rectangle(x1, syt, x2, 12+syt+3+(8*tl), palette_color[9], 1);
-
-               // title and frame
-               al_draw_rectangle(x1, syt, x2, syt+12, palette_color[9], 1);
-               al_draw_text(font, palette_color[9], x1+2, syt+2, 0, "Description ");
-
-               // draw text for this pde
-               for (int x=0; x<tl; x++)
-                  al_draw_text(font, palette_color[15], x1+2, y1 + select_window_text_y+14+(x*8), 0, PDEt[ret][x]);
-
-               if (mouse_b1)
-               {
-                  while (mouse_b1) proc_controllers();     // wait for release
-                  int pn = PDEi[ret][0];
-                  if (pn < 200)
-                  {
-                     mW[1].draw_item_type = 5;
-                     mW[1].draw_item_num = ret;
-                  }
-                  if (pn > 199) // Creator
-                  {
-                     switch (pn)
-                     {
-                        case 200: create_obj(2, 1, 0);  break; // type 200 - door
-                        case 201: create_obj(2, 5, 0);  break; // type 201 - start
-                        case 202: create_obj(2, 3, 0);  break; // type 202 - exit
-                        case 204: create_obj(3, 7, 0);  break; // type 204 - pod
-                        case 206: create_obj(2, 10,0);  break; // type 206 - msg
-                        case 207: create_obj(3, 9, 0);  break; // type 207 - cloner
-                        case 208: create_lift();       break; // type 208 - lift
-                        case 209: create_door(1);       break; // type 209 - 1 way al_fixed exit door
-                        case 210: create_door(2);       break; // type 210 - 1 way linked exit door
-                        case 211: create_door(3);       break; // type 211 - 2 way door set
-                        case 212: create_obj(3, 10, 0); break; // type 212 - field
-                        case 213: create_obj(2, 9, 0);  break; // type 213 - trigger
-                        case 214: create_obj(2, 16, 0); break; // type 214 - block manip
-                        case 215: create_obj(2, 17, 0); break; // type 215 - block damage
-                     }
-                  }
-               }
-            }
-         }
-
-         // check for mouse on block window
-         if ( (mW[2].select_window_block_on) && (mouse_y > 14 + syb) && (mouse_y < 14 + syb + mW[2].swnbl_cur * 20))
-         {
-            int vy = (mouse_y-syb-14)/20; // row
-            int ret = vy*16+vx;
-            int tl = 3; // text lines
-            int syt2 = syt+15+(8*tl);
-            if (mW[1].show_flag_details) syt2 += 140;
-            ret = swbl[ret][0];
-            al_draw_filled_rectangle(x1, syt, x2, syt2, palette_color[0]); // erase
-            al_draw_rectangle(x1, syt, x2, syt2, palette_color[9], 1);     // frame
-            al_draw_rectangle(x1, syt, x2, syt+12, palette_color[9], 1); // title and frame
-            al_draw_text(font, palette_color[9], x1+2, syt+2,  0, "Description");
-
-            // draw text for this block
-            em_get_text_description_of_block_based_on_flags(ret);
-            al_draw_text (font, palette_color[15], x1+2, syt+14, 0, "---------------------");
-            al_draw_textf(font, palette_color[15], x1+2, syt+22, 0, "Block %d - %s ", ret&1023, msg);
-            al_draw_text (font, palette_color[15], x1+2, syt+30, 0, "---------------------");
-
-            int junk;
-            if (mW[1].show_flag_details) draw_flags(x1+4, syt+38, &ret, &junk, 1, 0, 1);
-
-            if ((mouse_b1) || (mouse_b2))
-            {
-               while (mouse_b1) proc_controllers(); // wait for release
-               mW[1].draw_item_type = 1;
-               mW[1].draw_item_num = ret;
-            }
-         }
-      }
-   }
-
-   if (index == 1) // status window
-   {
-      // frame entire window
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[9], 1);
-
-      // frame draw item
-      al_draw_rectangle(x1, y1 + 11, x1 + 160, y2, palette_color[9], 1);
-
-      // frame view item
-      al_draw_rectangle(x1 + 160, y1 + 11, x2, y2, palette_color[9], 1);
-
-      // title bar background color
-      al_draw_filled_rectangle(x1, y1, x2, y1 + 11, palette_color[9+192]);
-
-      // frame title bar
-      int c = 9;
-      if ((have_focus) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y1+8)) c = 14; // highlight to indicate move is possible
-      al_draw_rectangle(x1, y1, x2, y1+11, palette_color[c], 1);
-
-
-      al_draw_textf(font, palette_color[9],  x1+2,   y1+2, 0, "Status Window   level:%d ",last_level_loaded);
-      al_draw_textf(font, palette_color[15], x1+178, y1+2, 0, "%d ",last_level_loaded);
-
-      int mow = is_mouse_on_any_window();
-      if (mow)
-      {
-         al_draw_textf(font, palette_color[15], x1+222, y1+2, 0, "x:-- y:-- ");
-         mW[1].point_item_type = -1;
-      }
-      else
-      {
-         al_draw_textf(font, palette_color[15], x1+222, y1+2, 0, "x:%-2d y:%-2d ", gx, gy);
-         em_find_point_item();
-      }
-
-      al_draw_text( font, palette_color[9],  x1+222, y1+2, 0, "x:");
-      al_draw_text( font, palette_color[9],  x1+262, y1+2, 0, "y:");
-
-      int d = 1;
-      if (have_focus) d = 0;
-      if (moving) d = 1;
-
-      int by1 = y1+1;
-      if (mdw_buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"X")) mW[1].active = 0;
-      if (mdw_buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,d,"?")) help("Status Window");
-
-
-      // draw item area
-      al_draw_text(font, palette_color[15], x1 + 24,  y1 + 13, 0, "Draw Item   ");
-      al_draw_text(font, palette_color[14], x1 + 100, y1 + 13, 0, "mouse");
-      al_draw_text(font, palette_color[14], x1 + 143, y1 + 13, 0, "b1");
-      em_show_item_info(                    x1 + 2,   y1 + 20, 9, mW[1].draw_item_type, mW[1].draw_item_num);
-      if ((mW[1].draw_item_type == 1) && (mW[1].show_flag_details)) draw_flags(x1+4, y1+47, &mW[1].draw_item_num, &mow, 0, 1, 0); // flags
-
-      // view item area
-      al_draw_text(font, palette_color[15], x1 + 184, y1 + 13, 0, "View Item ");
-      al_draw_text(font, palette_color[14], x1 + 261, y1 + 13, 0, "mouse");
-      al_draw_text(font, palette_color[14], x1 + 303, y1 + 13, 0, "b2");
-      em_show_item_info(                    x1 + 162, y1 + 20, 9, mW[1].point_item_type, mW[1].point_item_num);
-      if ((mW[1].point_item_type == 1) && (mW[1].show_flag_details)) draw_flags(x1+164, y1+47, &mW[1].point_item_num, &mow, 1, 0, 1); // flags
-   }
-
-
-
-
-
+   if (index == 1) cm_draw_status_window(x1, x2, y1, y2, have_focus, moving);
+   if (index == 2) cm_draw_selection_window(x1, x2, y1, y2, have_focus, moving);
    if (index == 3) // filter window
    {
       int fc = 15;
@@ -1183,11 +1172,9 @@ void mWindow::draw(void)
       y2 = 1 + cm_draw_filter_buttons(x1+1, x2-1, y1+1, filter_mode, have_focus, moving);
       h = y2 - y1;
    }
-
    if (index == 4) // zfs
    {
       titlex("Zoom Full Screen", 15, 13, x1, x2, y1+1);
-
       int mow = is_mouse_on_any_window();
       zfs_pointer_text(x1+1, x2-1, y1+20, mow);
 
@@ -1198,7 +1185,6 @@ void mWindow::draw(void)
       if (have_focus) fc = 10;
       al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1); // frame entire window
    }
-
    if (index == 5) // ge list
    {
       ge_remove_obj_list_filtered_items();
@@ -1206,7 +1192,6 @@ void mWindow::draw(void)
       ge_show_obj_list(x1, y1, &ew, &eh, have_focus, moving);
       set_size(ew, eh);
    }
-
    if (index == 6) // ge controls
    {
       int ew, eh, nc = ge_show_controls(x1, y1+20, &ew, &eh, have_focus, moving, hidden);
@@ -1225,7 +1210,7 @@ void mWindow::draw(void)
    {
       ovw_get_size();
       ovw_title(x1, x2, y1, y2, legend_line);
-      ovw_draw_buttons(x1, y1, x2, y2, have_focus, moving);
+      ovw_draw_buttons(x1, y1, x2, y2, have_focus, moving, draw_only);
    }
 }
 int mWindow::detect_mouse(void)
