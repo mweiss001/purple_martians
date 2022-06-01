@@ -492,7 +492,7 @@ int draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d)
    // default buttons
    int col = (lift_steps[l][s].type >> 28) & 15;
    sprintf(msg, "Step Color:%d", col);
-   mdw_buttont(xa, ya, xb, bts, 0,0,0,0,  0, col, 15, 0,   0,0,1,d, msg);
+   mdw_buttont(xa, ya, xb, bts, 0,0,0,0,  0, col, 15, 0,   1,0,1,d, msg);
 
    mdw_colsel(xa, ya, xb, bts, 8,l,s,0,  0,15,13,14,   0,0,1,d); // lift step color
 
@@ -557,7 +557,7 @@ void draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc, in
    else
    {
       mdw_button(x1, ty1, x2, ty2-ty1, 501, s, 0, 0,   0,rc,15,0,  1,0,0,d); // num
-      mdw_button(x2, ty1, x3, ty2-ty1, 506, c, 0, 0,   0, c,15,0,  0,0,0,d); // color
+      mdw_button(x2, ty1, x3, ty2-ty1, 506, c, 0, 0,   0, c,15,0,  1,0,0,d); // color
       mdw_button(x3, ty1, x4, ty2-ty1, 502, t, 0, 0,   0,rc,15,0,  1,0,0,d); // type
       mdw_button(x4, ty1, xb, ty2-ty1, 503, t, l, s,   0,rc,15,0,  1,1,0,d); // description
    }

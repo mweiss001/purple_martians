@@ -998,7 +998,7 @@ void ge_enemy_initial_position_random(int e, int csw);
 void ge_item_initial_position_random(int i, int csw);
 int ge_draw_list_items(int x1, int y1, int flash_color, int ni);
 void ge_show_obj_list(int x, int y, int*ew, int* eh, int have_focus, int moving);
-int ge_show_controls(int gx, int gy, int *ew, int *eh, int have_focus, int moving, int hidden);
+int ge_show_controls(int gx, int gy, int *ew, int *eh, int have_focus, int moving, int hidden, int draw_only);
 void ge_add_selection_to_list(int set_filters);
 void ge_process_mouse(void);
 int ge_process_keypress(void);

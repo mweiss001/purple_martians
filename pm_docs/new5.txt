@@ -27694,11 +27694,6 @@ do I have an unused q value I could use to turn it off?
 basically just don't run the cycle window and redraw_backgound
 
 
-
-
-
-
-
 I am going to need to make a different kind of menu...
 
 
@@ -27714,6 +27709,36 @@ keep mouse and wait for mouse b1
 wait for release
 if on menu item do that
 menu done
+
+
+i need to do the same for group edit..pass draw only
+
+did a bunch of cleanup to make sliders use common functions...
+
+hope I didn't break other stuff...
+
+try the sliders in animation_sequence_editor...
+yes, its broken...
+make a way to disable this...
+
+
+choose between these 2: with q4
+
+   proc_controllers();
+   al_flip_display();
+
+//   cm_redraw_level_editor_background();
+//   mw_cycle_windows(1);
+
+done....
+now where else??
+PDE..done..
+i think that is all...
+
+
+now what the heck was I doing before this??
+
+a new kind of menu
 
 
 

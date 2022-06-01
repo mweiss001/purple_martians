@@ -437,7 +437,7 @@ void animation_sequence_editor(void)
             }
          }
       }
-      mdw_slideri(xa, y5, xb, 16, 0,0,0,0,  0,12,15,15,  1,0,1,0, zz[3][zzindx], 100, 0, 1, "Animation Delay:");
+      mdw_slideri(xa, y5, xb, 16, 0,0,0,0,  0,12,15,15,  0,0,1,0, zz[3][zzindx], 100, 0, 1, "Animation Delay:");
       if (mdw_buttont(xa, y5, xb, 16, 0,0,0,0,    0,10,15,0, 1,0,1,0, "Save Changes")) save_sprit();
 
       if (key[ALLEGRO_KEY_DELETE]) // erase current sequence

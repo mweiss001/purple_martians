@@ -324,11 +324,11 @@ void predefined_enemies(void)
                for (int x=0; x<16; x++)
                {
                   sprintf(msg,"F[%d]:", x);
-                  mdw_sliderf(xa, y5, xb-4, 16, 0,0,0,0,  0,12,15,15,  1,0,0,0, PDEfx[EN][x], 1000, 0, 1, msg);
+                  mdw_sliderf(xa, y5, xb-4, 16, 0,0,0,0,  0,12,15,15,  0,0,0,0, PDEfx[EN][x], 1000, 0, 1, msg);
                   sprintf(msg,"I[%d]:", x);
-                  mdw_slideri(xb, y5, xc-4, 16, 0,0,0,0,  0,11,15,15,  1,0,0,0, PDEi[EN][x], 1100, -2, 1, msg);
+                  mdw_slideri(xb, y5, xc-4, 16, 0,0,0,0,  0,11,15,15,  0,0,0,0, PDEi[EN][x], 1100, -2, 1, msg);
                   sprintf(msg,"I[%d]:", x+16);
-                  mdw_slideri(xc, y5, xd-4, 16, 0,0,0,0,  0,11,15,15,  1,0,1,0, PDEi[EN][x+16], 1000, 0, 1, msg);
+                  mdw_slideri(xc, y5, xd-4, 16, 0,0,0,0,  0,11,15,15,  0,0,1,0, PDEi[EN][x+16], 1000, 0, 1, msg);
                }
             }
             if ((rt > 99) && (rt < 200))
@@ -337,7 +337,7 @@ void predefined_enemies(void)
                for (int x=0; x<16; x++)
                {
                   sprintf(msg,"I[%d]:", x);
-                  mdw_slideri(xa, y5, xb, 16, 0,0,0,0,  0,11,15,15,  1,0,1,0, PDEi[EN][x], 1100, -2, 1, msg);
+                  mdw_slideri(xa, y5, xb, 16, 0,0,0,0,  0,11,15,15,  0,0,1,0, PDEi[EN][x], 1100, -2, 1, msg);
                }
             }
             if (rt > 199)
@@ -348,11 +348,11 @@ void predefined_enemies(void)
                for (int x=0; x<16; x++)
                {
                   sprintf(msg,"F[%d]:", x);
-                  mdw_sliderf(xa, y5, xb-4, 16, 0,0,0,0,  0,12,15,15,  1,0,0,0, PDEfx[EN][x], 1000, 0, 1, msg);
+                  mdw_sliderf(xa, y5, xb-4, 16, 0,0,0,0,  0,12,15,15,  0,0,0,0, PDEfx[EN][x], 1000, 0, 1, msg);
                   sprintf(msg,"I[%d]:", x);
-                  mdw_slideri(xb, y5, xc-4, 16, 0,0,0,0,  0,11,15,15,  1,0,0,0, PDEi[EN][x], 1100, -2, 1, msg);
+                  mdw_slideri(xb, y5, xc-4, 16, 0,0,0,0,  0,11,15,15,  0,0,0,0, PDEi[EN][x], 1100, -2, 1, msg);
                   sprintf(msg,"I[%d]:", x+16);
-                  mdw_slideri(xc, y5, xd-4, 16, 0,0,0,0,  0,11,15,15,  1,0,1,0, PDEi[EN][x+16], 1000, 0, 1, msg);
+                  mdw_slideri(xc, y5, xd-4, 16, 0,0,0,0,  0,11,15,15,  0,0,1,0, PDEi[EN][x+16], 1000, 0, 1, msg);
                }
             }
          }

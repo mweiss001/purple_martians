@@ -1194,7 +1194,7 @@ void mWindow::draw(int draw_only)
    }
    if (index == 6) // ge controls
    {
-      int ew, eh, nc = ge_show_controls(x1, y1+20, &ew, &eh, have_focus, moving, hidden);
+      int ew, eh, nc = ge_show_controls(x1, y1+20, &ew, &eh, have_focus, moving, hidden, draw_only);
       set_size(ew, eh+20);
       if (!nc) hidden = 1;
       else hidden = 0;
