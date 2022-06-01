@@ -531,12 +531,13 @@ void ge_show_obj_list(int x, int y, int *ew, int *eh, int have_focus, int moving
    } // mouse on obj list
 }
 
-int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving, int hidden)
+int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving, int hidden, int draw_only)
 {
    int nc = 0; // number of valid controls
    int d = 1;
    if (have_focus) d = 0;
    if (moving) d = 1;
+   if (draw_only) d = 1;
 
    int by = y;
    int bts = 16;
