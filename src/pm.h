@@ -86,7 +86,7 @@ void cm_get_new_box();
 void cm_process_mouse(int &quit);
 void cm_process_keypress(int &ret);
 
-void cm_process_menu_bar(void);
+void cm_process_menu_bar(int &quit);
 
 void cm_redraw_level_editor_background(void);
 void cm_redraw_level_editor_background(int mode);
@@ -968,8 +968,8 @@ char* em_get_text_description_of_block_based_on_flags(int flags);
 void em_show_draw_item_cursor(void);
 void em_show_item_info(int x, int y, int color, int type, int num);
 void em_find_point_item(void);
-int em_process_mouse(void);
-int em_process_keypress(void);
+void em_process_mouse(int &quit);
+void em_process_keypress(int &quit);
 int edit_menu(int el);
 
 // e_editor_zfs.h
@@ -1467,10 +1467,11 @@ void draw_map(void);
 int load_help(void);
 void chop_first_x_char(char *str, int n);
 void help(const char *topic);
+int tmenu(int menu_num, int menu_pos, int x, int y);
 int zmenu(int menu_num, int menu_pos, int y);
+int pmenu(int menu_num, int bg_color);
 void menu_setup(void);
 void set_key_menu(int menu, int p, int start_row);
-int pmenu(int menu_num, int bg_color);
 void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore, int rot);
 int edit_pmsg_text(int c, int new_msg);
 void edit_server_name(void);

@@ -412,9 +412,8 @@ void em_find_point_item(void)
    }
 }
 
-int em_process_mouse(void)
+void em_process_mouse(int &quit)
 {
-   int quit=0;
 
    if (mouse_b1)
    {
@@ -653,12 +652,10 @@ int em_process_mouse(void)
 
       } // end of switch case
    } // end of mouse_b2
-   return quit;
 }
 
-int em_process_keypress(void)
+void em_process_keypress(int &quit)
 {
-   int quit = 0;
    if (key[ALLEGRO_KEY_B])
    {
       while (key[ALLEGRO_KEY_B]) proc_controllers();
@@ -708,7 +705,6 @@ int em_process_keypress(void)
       if (al_show_native_message_box(display, "Save?", "Save before exit?", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1) save_level(last_level_loaded);
       quit = 1;
    }
-   return quit;
 }
 
 int edit_menu(int el)
@@ -746,7 +742,7 @@ int edit_menu(int el)
    while (!quit)
    {
       cm_redraw_level_editor_background();
-      cm_process_menu_bar();
+      cm_process_menu_bar(quit);
       if (!mw_cycle_windows(0)) cm_process_mouse(quit);
       cm_process_keypress(quit);
    }

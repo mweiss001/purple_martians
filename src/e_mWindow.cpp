@@ -127,17 +127,17 @@ void cm_redraw_level_editor_background(int mode)
 }
 
 
-void cm_process_mouse(int &ret)
+void cm_process_mouse(int &quit)
 {
-   if (level_editor_mode == 1) ret = em_process_mouse();
+   if (level_editor_mode == 1) em_process_mouse(quit);
    if (level_editor_mode == 2) zfs_process_mouse();
    if (level_editor_mode == 3) ge_process_mouse();
    if (level_editor_mode == 4) ovw_process_mouse();
 }
 
-void cm_process_keypress(int &ret)
+void cm_process_keypress(int &quit)
 {
-   if (level_editor_mode == 1) ret = em_process_keypress();
+   if (level_editor_mode == 1) em_process_keypress(quit);
    if ((level_editor_mode == 2) || (level_editor_mode == 3)) // zfs or ge
    {
       while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
@@ -150,8 +150,6 @@ void cm_process_keypress(int &ret)
    {
       if (ovw_process_keypress()) set_windows(1); // em
    }
-
-
 }
 
 
@@ -300,13 +298,153 @@ void cm_redraw_level_editor_background(void)
 }
 
 
-void cm_process_menu_bar(void)
+void cm_process_menu_bar(int & quit)
 {
-   int x1 = 400;
+   int x1 = BORDER_WIDTH;
    int y1 = 0;
 
-   int by1 = y1+2;
+   int by1 = y1+4;
    int bts = 8;
+
+
+
+   if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,0, "File"))
+   {
+      strcpy (global_string[5][0],"File"); // PD sub menu
+      strcpy (global_string[5][1],"New");
+      strcpy (global_string[5][2],"Load");
+      strcpy (global_string[5][3],"Save");
+      strcpy (global_string[5][4],"Save and Exit");
+      strcpy (global_string[5][5],"Exit");
+      strcpy (global_string[5][6],"end");
+
+      int ret = tmenu(5, 1, x1, by1-2);
+
+      if (ret == 1)
+      {
+         if (al_show_native_message_box(display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
+         {
+            zero_level_data();
+            save_level_prompt();
+         }
+         load_level(last_level_loaded, 0);
+      }
+      if (ret == 2)
+      {
+         load_level_prompt();
+         sort_enemy();
+         sort_item(1);
+      }
+      if (ret == 3)
+      {
+         save_level_prompt();
+      }
+      if (ret == 4)
+      {
+         if (save_level_prompt()) quit=1;
+      }
+      if (ret == 5)
+      {
+         quit=1;
+      }
+   }
+   x1 += 44;
+
+
+
+   if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,0, "View"))
+   {
+      strcpy (global_string[5][0],"View");
+      strcpy (global_string[5][1],"Toggle Fullscreen             F12");
+      strcpy (global_string[5][2],"Zoom Out                       F5");
+      strcpy (global_string[5][3],"Zoom In                        F6");
+      strcpy (global_string[5][4],"Reset Zoom                  F5+F6");
+
+      if (saved_display_transform_double==0)
+      sprintf(global_string[5][5],"Text Double:Auto   CTRL-SHIFT F12");
+
+      else
+      sprintf(global_string[5][5],"Text Double:%d      CTRL-SHIFT F12", saved_display_transform_double);
+
+      strcpy (global_string[5][6],"end");
+
+      int ret = tmenu(5, 1, x1, by1-2);
+
+      if (ret == 1)
+      {
+         if (fullscreen) proc_display_change_fromfs();
+         else            proc_display_change_tofs();
+      }
+      if (ret == 2) set_scale_factor(scale_factor * .90, 0);
+      if (ret == 3) set_scale_factor(scale_factor * 1.1, 0);
+      if (ret == 4) set_scale_factor(1.0, 0);
+      if (ret == 5) cycle_display_transform();
+
+
+   }
+   x1 += 44;
+
+
+
+
+
+
+
+
+
+
+
+
+
+   if (mdw_buttont(x1, by1, x1+64, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,0, "Advanced"))
+   {
+      strcpy (global_string[5][0],"Advanced");
+      strcpy (global_string[5][1],"Predefined Enemy Editor");
+      strcpy (global_string[5][2],"Global Level Thingy!!");
+      strcpy (global_string[5][3],"Level Viewer!");
+      strcpy (global_string[5][4],"Animation Sequence Editor");
+      strcpy (global_string[5][5],"Copy Tiles");
+      strcpy (global_string[5][6],"Default Flag Editor");
+      strcpy (global_string[5][7],"end");
+
+      int ret = tmenu(5, 1, x1, by1-2);
+
+      if (ret == 1) predefined_enemies();
+      if (ret == 2) global_level();
+      if (ret == 3) level_viewer();
+      if (ret == 4) animation_sequence_editor();
+      if (ret == 5) copy_tiles();
+      if (ret == 6) edit_btile_attributes();
+
+   }
+   x1 += 76;
+
+
+
+   if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,0, "Help"))
+   {
+      strcpy (global_string[5][0],"Help");
+      strcpy (global_string[5][1],"Help");
+      strcpy (global_string[5][2],"About");
+      strcpy (global_string[5][3],"end");
+      int ret = tmenu(5, 1, x1, by1-2);
+      if (ret == 1) help("Level Editor Basics");
+      if (ret == 2) help("Credits");
+   }
+   x1 += 40;
+
+
+
+
+
+
+
+   x1 = 400;
+
+
+
+
+
 
    al_draw_textf(font, palette_color[9],  x1+2,   y1+2, 0, "Zoom");
    if (mdw_buttont(x1-10, by1, x1-2,  bts, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"-")) set_scale_factor(scale_factor * .90, 0);
