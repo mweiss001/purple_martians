@@ -507,136 +507,6 @@ void help(const char *topic)
    set_frame_nums(0);
 }
 
-
-int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pass through, it waits for a selection and then exits
-{
-   y+=4;
-
-   demo_mode_countdown_val = demo_mode_countdown_reset;
-
-   int highlight = menu_pos;
-   int selection = 999;
-   int last_list_item;
-
-   int up_held = 0;
-   int down_held = 0;
-   int left_held = 0;
-   int right_held = 0;
-
-   // clear_key array (but not SHIFTS, CTRL etc above 200)
-   for (int k = ALLEGRO_KEY_A; k < 200; k++) key[k] = 0;
-
-   while (selection == 999)
-   {
-      al_set_target_backbuffer(display);
-      al_flip_display();
-      al_clear_to_color(al_map_rgb(0, 0, 0));
-      proc_controllers();
-
-      frame_and_title(1);
-      mdw_an();
-
-
-      int mx = SCREEN_W/2;
-      if (menu_num == 7)
-      {
-         draw_level(); // only draw map on main menu
-
-         if (resume_allowed) demo_mode_enabled = 0;
-         if (demo_mode_enabled)
-         {
-            if (--demo_mode_countdown_val < 0)
-            {
-               demo_mode_countdown_val = demo_mode_countdown_reset;
-               return 9;
-            }
-            sprintf(global_string[7][9], "Demo Mode (%d)", demo_mode_countdown_val / 80);
-         }
-         else
-         {
-            sprintf(global_string[7][9], "Demo Mode");
-         }
-      }
-
-      // draw the menu items
-      int c = 0;
-      while (strcmp(global_string[menu_num][c],"end") != 0)
-      {
-
-         //ALLEGRO_COLOR reg = al_map_rgb(0,255,0);
-         //ALLEGRO_COLOR dim = al_map_rgb(0,200,0);
-         //int b = players[active_local_player].color;
-         int b = 15;
-         if ((!resume_allowed) && (menu_num == 7) && (c==4)) b+=80; // dimmer if can't resume
-
-         al_draw_text(font, palette_color[b+48], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[menu_num][c]);
-
-         if (c == highlight)
-            al_draw_text(font, palette_color[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[menu_num][c]);
-
-         if (c == highlight)
-         {
-            int sl = strlen(global_string[menu_num][c]) * 4;
-            al_draw_rectangle(mx-sl-2+0.5f, y+(c*10)-1+0.5f, mx+sl+0.5f, y+(c*10)+9+0.5f, palette_color[b+80], 1);
-         }
-         c++;
-      }
-      last_list_item = c-1;
-
-
-      // shortcut key for level editor
-      //if (menu_num == 7) if (key[ALLEGRO_KEY_L]) return 9;
-
-
-      if (((key[ALLEGRO_KEY_RIGHT]) || (players[0].right)) && (right_held == 0))
-      {
-         right_held = 1;
-         selection = highlight + 100;
-      }
-      if ( (!(key[ALLEGRO_KEY_RIGHT])) &&  (!(players[0].right)) )  right_held = 0;
-
-
-
-      if (((key[ALLEGRO_KEY_LEFT]) || (players[0].left)) && (left_held == 0))
-      {
-         left_held = 1;
-         selection = highlight + 200;
-      }
-      if ( (!(key[ALLEGRO_KEY_LEFT])) &&  (!(players[0].left)) )  left_held = 0;
-
-
-
-      if (((key[ALLEGRO_KEY_DOWN]) || (players[0].down))  && (down_held == 0))
-      {
-         if (++highlight > last_list_item) highlight = last_list_item;
-         down_held = 1;
-      }
-      if ( (!(key[ALLEGRO_KEY_DOWN])) && (!(players[0].down))) down_held = 0;
-
-
-
-      if (((key[ALLEGRO_KEY_UP]) || (players[0].up)) && (up_held == 0))
-      {
-         if (--highlight < 2) highlight = 2;
-         up_held = 1;
-      }
-      if ( (!(key[ALLEGRO_KEY_UP])) && (!(players[0].up))) up_held = 0;
-
-
-
-      if (key[ALLEGRO_KEY_ENTER]) selection = highlight;
-
-      if (key[ALLEGRO_KEY_ESCAPE])
-      {
-         selection = 2; // default position for back
-         if (menu_num == 7)  selection = 1; // for top menu only
-      }
-      if (key[ALLEGRO_KEY_PGDN]) highlight = last_list_item;
-      if (key[ALLEGRO_KEY_PGUP]) highlight = 2;
-   }
-   return selection;
-}
-
 void menu_setup(void)
 {
    strcpy (lift_step_type_name[0], "BAD!");
@@ -797,16 +667,6 @@ void menu_setup(void)
    strcpy (global_string[4][7], "Deathmatch Bullet Damage:5");
    strcpy (global_string[4][8], "end");
 
-   strcpy (global_string[5][0],"PUT"); // PD sub menu
-   strcpy (global_string[5][1],"PREV");
-   strcpy (global_string[5][2],"NEXT");
-   strcpy (global_string[5][3],"");
-   strcpy (global_string[5][4],"COPY");
-   strcpy (global_string[5][5],"SAVE");
-   strcpy (global_string[5][6],"LOAD");
-   strcpy (global_string[5][7],"BACK");
-
-
    sprintf(global_string[6][0],"Lift:0 Step:0");
    sprintf(global_string[6][1],"---------------");
    sprintf(global_string[6][2],"Cancel");
@@ -884,6 +744,238 @@ void set_key_menu(int menu, int p, int start_row)
          strcat(global_string[m][b], " ");
 
 }
+
+
+
+int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function does not pass through, it waits for a selection and then exits
+{
+
+   int highlight = menu_pos;
+   int selection = 999;
+   int c=0, last_list_item = 0;
+   int max_strlen = 0;
+
+   // find max string length
+   while (strcmp(global_string[menu_num][c],"end") != 0)
+   {
+      int len = strlen(global_string[menu_num][c]);
+      if (len > max_strlen) max_strlen = len;
+      c++;
+   }
+   last_list_item = c;
+
+   int x2 = x1+max_strlen*8+2;
+   int y2 = y1+last_list_item*10;
+
+   while (selection == 999)
+   {
+      al_flip_display();
+      proc_controllers();
+
+
+      // draw menu title
+      int mt = strlen(global_string[menu_num][0])*8;
+      al_draw_filled_rectangle(x1-2, y1, x1+mt, y1+10, palette_color[0]);
+      al_draw_rectangle(       x1-2, y1, x1+mt, y1+10, palette_color[15], 1);
+      al_draw_text(font, palette_color[15], x1, y1+1, 0, global_string[menu_num][0]);
+
+      // erase menu background
+      al_draw_filled_rectangle(x1-2, y1+10, x2, y2, palette_color[0]);
+      al_draw_rectangle(x1-2, y1+10, x2, y2, palette_color[15], 1);
+
+      // draw the menu items
+      for (c=1; c<last_list_item; c++)
+      {
+         int b = 15+48; // default text color
+         int h = 15;    // highlight text color
+         al_draw_text(font, palette_color[b], x1, y1+(c*10)+1, 0, global_string[menu_num][c]);
+         if (c == highlight)
+         {
+            al_draw_text(font, palette_color[h], x1, y1+(c*10)+1, 0, global_string[menu_num][c]);
+            al_draw_rectangle(x1-2, y1+(c*10)-1+0.5f, x2, y1+(c*10)+9+0.5f, palette_color[h], 1);
+         }
+      }
+
+      if ( (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1 ) && (mouse_y < y2) )
+      {
+         highlight = (mouse_y - y1)/10;
+      }
+      else highlight = 0;
+
+      if (highlight < 1) highlight = 0;
+      if (highlight > last_list_item-1) highlight = 0;
+
+
+      if (mouse_b1)
+      {
+         while (mouse_b1) proc_controllers();
+         selection = highlight;
+      }
+
+      if (mouse_b2)
+      {
+         while (mouse_b2) proc_controllers();
+         selection = 0;
+      }
+
+      if (key[ALLEGRO_KEY_ESCAPE])
+      {
+         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
+         selection = 0; // default position for back
+      }
+
+   }
+   return selection;
+}
+
+
+int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pass through, it waits for a selection and then exits
+{
+   y+=4;
+
+   demo_mode_countdown_val = demo_mode_countdown_reset;
+
+   int highlight = menu_pos;
+   int selection = 999;
+   int last_list_item;
+
+   int up_held = 0;
+   int down_held = 0;
+   int left_held = 0;
+   int right_held = 0;
+
+   // clear_key array (but not SHIFTS, CTRL etc above 200)
+   for (int k = ALLEGRO_KEY_A; k < 200; k++) key[k] = 0;
+
+   while (selection == 999)
+   {
+      al_set_target_backbuffer(display);
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+      proc_controllers();
+
+      frame_and_title(1);
+      mdw_an();
+
+
+      int mx = SCREEN_W/2;
+      if (menu_num == 7)
+      {
+         draw_level(); // only draw map on main menu
+
+         if (resume_allowed) demo_mode_enabled = 0;
+         if (demo_mode_enabled)
+         {
+            if (--demo_mode_countdown_val < 0)
+            {
+               demo_mode_countdown_val = demo_mode_countdown_reset;
+               demo_mode_enabled = 0;
+               return 9;
+            }
+            sprintf(global_string[7][9], "Demo Mode (%d)", demo_mode_countdown_val / 100);
+         }
+         else
+         {
+            sprintf(global_string[7][9], "Demo Mode");
+         }
+      }
+
+      // draw the menu items
+      int c = 0;
+      while (strcmp(global_string[menu_num][c],"end") != 0)
+      {
+
+         //ALLEGRO_COLOR reg = al_map_rgb(0,255,0);
+         //ALLEGRO_COLOR dim = al_map_rgb(0,200,0);
+         //int b = players[active_local_player].color;
+         int b = 15;
+         if ((!resume_allowed) && (menu_num == 7) && (c==4)) b+=80; // dimmer if can't resume
+
+         al_draw_text(font, palette_color[b+48], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[menu_num][c]);
+
+         if (c == highlight)
+            al_draw_text(font, palette_color[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[menu_num][c]);
+
+         if (c == highlight)
+         {
+            int sl = strlen(global_string[menu_num][c]) * 4;
+            al_draw_rectangle(mx-sl-2+0.5f, y+(c*10)-1+0.5f, mx+sl+0.5f, y+(c*10)+9+0.5f, palette_color[b+80], 1);
+         }
+         c++;
+      }
+      last_list_item = c-1;
+
+
+      // shortcut key for level editor
+      //if (menu_num == 7) if (key[ALLEGRO_KEY_L]) return 9;
+
+
+      if (((key[ALLEGRO_KEY_RIGHT]) || (players[0].right)) && (right_held == 0))
+      {
+         right_held = 1;
+         selection = highlight + 100;
+      }
+      if ( (!(key[ALLEGRO_KEY_RIGHT])) &&  (!(players[0].right)) )  right_held = 0;
+
+
+
+      if (((key[ALLEGRO_KEY_LEFT]) || (players[0].left)) && (left_held == 0))
+      {
+         left_held = 1;
+         selection = highlight + 200;
+      }
+      if ( (!(key[ALLEGRO_KEY_LEFT])) &&  (!(players[0].left)) )  left_held = 0;
+
+
+
+      if (((key[ALLEGRO_KEY_DOWN]) || (players[0].down))  && (down_held == 0))
+      {
+         if (++highlight > last_list_item) highlight = last_list_item;
+         down_held = 1;
+         demo_mode_countdown_val = demo_mode_countdown_reset;
+         demo_mode_enabled = 0;
+      }
+      if ( (!(key[ALLEGRO_KEY_DOWN])) && (!(players[0].down))) down_held = 0;
+
+
+
+      if (((key[ALLEGRO_KEY_UP]) || (players[0].up)) && (up_held == 0))
+      {
+         if (--highlight < 2) highlight = 2;
+         up_held = 1;
+         demo_mode_countdown_val = demo_mode_countdown_reset;
+         demo_mode_enabled = 0;
+      }
+      if ( (!(key[ALLEGRO_KEY_UP])) && (!(players[0].up))) up_held = 0;
+
+
+
+      if (key[ALLEGRO_KEY_ENTER]) selection = highlight;
+
+      if (key[ALLEGRO_KEY_ESCAPE])
+      {
+         selection = 2; // default position for back
+         if (menu_num == 7)  selection = 1; // for top menu only
+      }
+      if (key[ALLEGRO_KEY_PGDN]) highlight = last_list_item;
+      if (key[ALLEGRO_KEY_PGUP]) highlight = 2;
+   }
+   return selection;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // this menu function does not pass through like the next one
 // it waits for a selection and then exits
