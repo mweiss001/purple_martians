@@ -15,29 +15,11 @@ in map move, when holding mouse button and moving...the windows are hidden but s
 bug...orb timed on..when time set to 1, never triggers toggle on
 figure this out later maybe, for now just set timer to 2 or use always on event
 
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
-
-
-I want to make some changes to the level editor layout
-
-put some controls and indicators in the top border..
-
-level number
-x and y pos
-zoom + and -
-indication of mode
-menus..like save
-
-left most menu...file
-with save, load, exit, new...
-
-
-
-
-
-
 
 
 

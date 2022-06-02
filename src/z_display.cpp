@@ -158,6 +158,12 @@ void show_fullscreen_modes(void)
    }
 }
 
+
+
+
+
+
+
 void auto_set_display_transform_double(void)
 {
    display_transform_double = 1;
@@ -168,7 +174,7 @@ void auto_set_display_transform_double(void)
    if (disp_w_curr < 1024) display_transform_double = 1;
    if (disp_h_curr < 700)  display_transform_double = 1;
 
-   if (level_editor_running) display_transform_double = 1;
+//   if (level_editor_running) display_transform_double = 1;
 
    if (help_screens_running)
    {
@@ -177,6 +183,31 @@ void auto_set_display_transform_double(void)
    }
 }
 
+
+
+
+void set_saved_display_transform(int sdt)
+{
+   float old_display_transform_double = display_transform_double;
+
+   saved_display_transform_double = sdt;
+   save_config();
+
+   set_display_transform();
+
+   float new_display_transform_double = display_transform_double;
+   float sfa = new_display_transform_double/old_display_transform_double;
+   scale_factor /= sfa;
+   scale_factor_current = scale_factor;
+
+   // adjust window positions
+   for (int a=0; a<NUM_MW; a++)
+      mW[a].set_pos(mW[a].x1/sfa, mW[a].y1/sfa);
+
+
+}
+
+
 void cycle_display_transform(void)
 {
    float old_display_transform_double = display_transform_double;
@@ -184,27 +215,18 @@ void cycle_display_transform(void)
    if (++saved_display_transform_double>3) saved_display_transform_double = 0;
    save_config();
 
+
    set_display_transform();
-   set_map_var();
 
    float new_display_transform_double = display_transform_double;
    float sfa = new_display_transform_double/old_display_transform_double;
-
-   //printf("old_display_transform_double:%f new_display_transform_double:%f sfa:%f \n", old_display_transform_double, new_display_transform_double, sfa);
-
-   //printf("1scale factor:%f\n", scale_factor);
    scale_factor /= sfa;
-   //printf("2scale factor:%f\n", scale_factor);
-
    scale_factor_current = scale_factor;
 
 
+   // adjust window positions
    for (int a=0; a<NUM_MW; a++)
-   {
       mW[a].set_pos(mW[a].x1/sfa, mW[a].y1/sfa);
-   }
-
-
 
 }
 

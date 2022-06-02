@@ -57,15 +57,15 @@ void cm_get_block_position_on_map()
 void cm_process_scrolledge(void)
 {
    int bw = BORDER_WIDTH;
-   int scrolledge = 10;
-   int scroll_amount = 20;
+   int swb = SCREEN_W-bw;
+   int shb = SCREEN_H-bw;
 
-   if (mouse_x < scrolledge) WX-=scroll_amount;           // scroll left
-   if (mouse_x > SCREEN_W-scrolledge) WX+=scroll_amount;  // scroll right
-   if (mouse_y < scrolledge) WY-=scroll_amount;           // scroll up
-   if (mouse_y > SCREEN_H-scrolledge) WY+=scroll_amount;  // scroll down
+   if (mouse_y > shb) WY+=(mouse_y - shb)*2; // scroll down
+   if (mouse_x > swb) WX+=(mouse_x - swb)*2; // scroll right
+   if (mouse_x < bw)  WX-=(bw - mouse_x)*2;  // scroll left
+   if (mouse_y < 4)   WY-=(4  - mouse_y)*7;  // scroll up (is different because of menu)
 
-      // find the size of the source screen from actual screen size and scaler
+   // find the size of the source screen from actual screen size and scaler
    int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
    int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
    if (SW > 2000) SW = 2000;
@@ -82,7 +82,6 @@ void cm_process_scrolledge(void)
    level_display_region_y = WY;
    level_display_region_w = SW;
    level_display_region_h = SH;
-
 }
 
 // this function draws a box at full scale on level buffer
@@ -137,6 +136,8 @@ void cm_process_mouse(int &quit)
 
 void cm_process_keypress(int &quit)
 {
+   if (mW[8].active == 0) em_catch_quit(quit);
+
    if (level_editor_mode == 1) em_process_keypress(quit);
    if ((level_editor_mode == 2) || (level_editor_mode == 3)) // zfs or ge
    {
@@ -298,27 +299,33 @@ void cm_redraw_level_editor_background(void)
 }
 
 
-void cm_process_menu_bar(int & quit)
+void cm_process_menu_bar(int have_focus, int moving, int draw_only)
 {
+
+   mW[8].set_pos(0, 0);
+   mW[8].set_size(SCREEN_W, BORDER_WIDTH);
+
    int x1 = BORDER_WIDTH;
    int y1 = 0;
 
    int by1 = y1+4;
-   int bts = 8;
+   int bts = 10;
 
+   int d = 1;
+   if (have_focus) d = 0;
+   if (moving) d = 1;
+   if (draw_only) d = 1;
 
-
-   if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,0, "File"))
+   if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "File"))
    {
       strcpy (global_string[5][0],"File"); // PD sub menu
       strcpy (global_string[5][1],"New");
       strcpy (global_string[5][2],"Load");
       strcpy (global_string[5][3],"Save");
-      strcpy (global_string[5][4],"Save and Exit");
-      strcpy (global_string[5][5],"Exit");
-      strcpy (global_string[5][6],"end");
+      strcpy (global_string[5][4],"Exit");
+      strcpy (global_string[5][5],"end");
 
-      int ret = tmenu(5, 1, x1, by1-2);
+      int ret = tmenu(5, 1, x1, by1-1);
 
       if (ret == 1)
       {
@@ -329,46 +336,28 @@ void cm_process_menu_bar(int & quit)
          }
          load_level(last_level_loaded, 0);
       }
-      if (ret == 2)
-      {
-         load_level_prompt();
-         sort_enemy();
-         sort_item(1);
-      }
-      if (ret == 3)
-      {
-         save_level_prompt();
-      }
-      if (ret == 4)
-      {
-         if (save_level_prompt()) quit=1;
-      }
-      if (ret == 5)
-      {
-         quit=1;
-      }
+      if (ret == 2) load_level_prompt();
+      if (ret == 3) save_level_prompt();
+      if (ret == 4) mW[8].active = 0;
    }
    x1 += 44;
 
 
 
-   if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,0, "View"))
+   if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "View"))
    {
       strcpy (global_string[5][0],"View");
-      strcpy (global_string[5][1],"Toggle Fullscreen             F12");
-      strcpy (global_string[5][2],"Zoom Out                       F5");
-      strcpy (global_string[5][3],"Zoom In                        F6");
-      strcpy (global_string[5][4],"Reset Zoom                  F5+F6");
+      strcpy (global_string[5][1],"Toggle Fullscreen       F12");
+      strcpy (global_string[5][2],"Zoom Out                 F5");
+      strcpy (global_string[5][3],"Zoom In                  F6");
+      strcpy (global_string[5][4],"Reset Zoom            F5+F6");
+      sprintf(global_string[5][5],"Text Double:Auto");
+      sprintf(global_string[5][6],"Text Double:1");
+      sprintf(global_string[5][7],"Text Double:2");
+      sprintf(global_string[5][8],"Text Double:3");
+      strcpy (global_string[5][9],"end");
 
-      if (saved_display_transform_double==0)
-      sprintf(global_string[5][5],"Text Double:Auto   CTRL-SHIFT F12");
-
-      else
-      sprintf(global_string[5][5],"Text Double:%d      CTRL-SHIFT F12", saved_display_transform_double);
-
-      strcpy (global_string[5][6],"end");
-
-      int ret = tmenu(5, 1, x1, by1-2);
+      int ret = tmenu(5, 1, x1, by1-1);
 
       if (ret == 1)
       {
@@ -378,25 +367,37 @@ void cm_process_menu_bar(int & quit)
       if (ret == 2) set_scale_factor(scale_factor * .90, 0);
       if (ret == 3) set_scale_factor(scale_factor * 1.1, 0);
       if (ret == 4) set_scale_factor(1.0, 0);
-      if (ret == 5) cycle_display_transform();
-
+      if (ret == 5) set_saved_display_transform(0);
+      if (ret == 6) set_saved_display_transform(1);
+      if (ret == 7) set_saved_display_transform(2);
+      if (ret == 8) set_saved_display_transform(3);
 
    }
    x1 += 44;
 
+   if (mdw_buttont(x1, by1, x1+40, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Lists"))
+   {
+      strcpy (global_string[5][0],"Lists");
+
+      strcpy (global_string[5][1],"List all Items");
+      strcpy (global_string[5][2],"List all Enemies");
+      strcpy (global_string[5][3],"List all Lifts");
+      strcpy (global_string[5][4],"List all pmsg");
+      strcpy (global_string[5][5],"List all Events");
+      strcpy (global_string[5][6],"Level Check");
+      strcpy (global_string[5][7],"end");
+      int ret = tmenu(5, 1, x1, by1-1);
+      if (ret == 1) show_all_items();
+      if (ret == 2) show_all_enemies();
+      if (ret == 3) show_all_lifts();
+      if (ret == 4) show_all_pmsg();
+      if (ret == 5) show_all_events();
+      if (ret == 6) level_check();
+   }
+   x1 += 52;
 
 
-
-
-
-
-
-
-
-
-
-
-   if (mdw_buttont(x1, by1, x1+64, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,0, "Advanced"))
+   if (mdw_buttont(x1, by1, x1+64, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Advanced"))
    {
       strcpy (global_string[5][0],"Advanced");
       strcpy (global_string[5][1],"Predefined Enemy Editor");
@@ -407,7 +408,7 @@ void cm_process_menu_bar(int & quit)
       strcpy (global_string[5][6],"Default Flag Editor");
       strcpy (global_string[5][7],"end");
 
-      int ret = tmenu(5, 1, x1, by1-2);
+      int ret = tmenu(5, 1, x1, by1-1);
 
       if (ret == 1) predefined_enemies();
       if (ret == 2) global_level();
@@ -419,75 +420,66 @@ void cm_process_menu_bar(int & quit)
    }
    x1 += 76;
 
-
-
-   if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,0, "Help"))
+   if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "Help"))
    {
       strcpy (global_string[5][0],"Help");
-      strcpy (global_string[5][1],"Help");
-      strcpy (global_string[5][2],"About");
+      strcpy (global_string[5][1],"Level Editor Basics");
+      strcpy (global_string[5][2],"Credits");
       strcpy (global_string[5][3],"end");
-      int ret = tmenu(5, 1, x1, by1-2);
+      int ret = tmenu(5, 1, x1, by1-1);
       if (ret == 1) help("Level Editor Basics");
       if (ret == 2) help("Credits");
    }
-   x1 += 40;
+   x1 += 44;
 
+   x1+= 12;
 
+   if (level_editor_mode == 1) sprintf(msg, "Mode:Main Edit");
+   if (level_editor_mode == 2) sprintf(msg, "Mode:Zoom Fullscreen");
+   if (level_editor_mode == 3) sprintf(msg, "Mode:Group Edit");
+   if (level_editor_mode == 4) sprintf(msg, "Mode:Object Viewer");
 
-
-
-
-
-   x1 = 400;
-
-
-
-
-
-
-   al_draw_textf(font, palette_color[9],  x1+2,   y1+2, 0, "Zoom");
-   if (mdw_buttont(x1-10, by1, x1-2,  bts, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"-")) set_scale_factor(scale_factor * .90, 0);
-   if (mdw_buttont(x1+34, by1, x1+42, bts, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"+")) set_scale_factor(scale_factor * 1.1, 0);
-
-   x1 += 100;
-
-   if (mdw_buttont(x1-10, by1, x1-2,  bts, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"D")) cycle_display_transform();
-
-   x1+=40;
-
-
-   al_draw_textf(font, palette_color[9],  x1+2,   y1+2, 0, "Status Window   level:%d ",last_level_loaded);
-
-   al_draw_textf(font, palette_color[15], x1+178, y1+2, 0, "%d ",last_level_loaded);
-
-   int mow = is_mouse_on_any_window();
-   if (mow)
+   if (mdw_buttont(x1, by1, x1+100, bts, 0,0,0,0, 0,-1,15,0, 0,1,0,d, msg))
    {
-      al_draw_textf(font, palette_color[15], x1+222, y1+2, 0, "x:-- y:-- ");
-      mW[1].point_item_type = -1;
-   }
-   else
-   {
-      al_draw_textf(font, palette_color[15], x1+222, y1+2, 0, "x:%-2d y:%-2d ", gx, gy);
-      em_find_point_item();
+      strcpy (global_string[5][0],msg);
+      strcpy (global_string[5][1],"Mode:Main Edit");
+      strcpy (global_string[5][2],"Mode:Zoom Fullscreen");
+      strcpy (global_string[5][3],"Mode:Group Edit");
+      strcpy (global_string[5][4],"Mode:Object Viewer");
+      strcpy (global_string[5][5],"end");
+      int ret = tmenu(5, 1, x1+4, by1-1);
+      if (ret == 1) set_windows(1);
+      if (ret == 2) set_windows(2);
+      if (ret == 3) set_windows(3);
+      if (ret == 4) set_windows(4);
    }
 
-   al_draw_text( font, palette_color[9],  x1+222, y1+2, 0, "x:");
-   al_draw_text( font, palette_color[9],  x1+262, y1+2, 0, "y:");
+//   if (level_editor_mode == 1) al_draw_textf(font, palette_color[15], x1, by1-1, 0, "Mode:Main Edit");
+//   if (level_editor_mode == 2) al_draw_textf(font, palette_color[15], x1, by1-1, 0, "Mode:Zoom Fullscreen");
+//   if (level_editor_mode == 3) al_draw_textf(font, palette_color[15], x1, by1-1, 0, "Mode:Group Edit");
+//   if (level_editor_mode == 4) al_draw_textf(font, palette_color[15], x1, by1-1, 0, "Mode:Object Viewer");
 
 
+   // status display in the lower right border
+   int y2 = SCREEN_H-BORDER_WIDTH+2;
+   x1 = SCREEN_W-172;
+   al_draw_textf(font, palette_color[9],  x1+2,  y2, 0, "Level:");
+   al_draw_textf(font, palette_color[15], x1+50, y2, 0, "%d ",last_level_loaded);
+   x1 += 80;
 
-   int x2 = x1+320;
-   if (mdw_buttont(x2-10, by1, x2-2,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"X")) mW[1].active = 0;
-   if (mdw_buttont(x2-22, by1, x2-14, 9, 0,0,0,0, 0,-1,9,0, 0,0,0,0,"?")) help("Status Window");
+   al_draw_text( font, palette_color[9],  x1,    y2, 0, "x:");
+   al_draw_text( font, palette_color[9],  x1+40, y2, 0, "y:");
+   if (is_mouse_on_any_window()) al_draw_textf(font, palette_color[15], x1, y2, 0, "  --   -- ");
+   else                          al_draw_textf(font, palette_color[15], x1, y2, 0, "  %-2d   %-2d ", gx, gy);
 
+   x1 = SCREEN_W-400;
+   al_draw_textf(font, palette_color[9],  x1,    y2, 0, "Zoom:");
+   al_draw_textf(font, palette_color[15],  x1+40, y2, 0, "%3.1f", scale_factor);
+   x1 +=80;
 
-   x1 += 400;
-
-   mdw_sliderd(x1, by1, x1+100, bts, 1,0,0,0,    0,13,15,15, 1,0,1,0, scale_factor, 40, .2, .01,  "Zoom");
-
-
+   al_draw_textf(font, palette_color[9],  x1,   y2, 0, "Text Double:");
+   if (saved_display_transform_double == 0) al_draw_textf(font, palette_color[15],  x1+96,   y2, 0, "Auto");
+   else                                     al_draw_textf(font, palette_color[15],  x1+96,   y2, 0, "%d", saved_display_transform_double);
 
 }
 
@@ -664,7 +656,7 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int have_focus, in
    if (moving) d = 1;
 
 
-   int by1 = y1+1;
+   int by1 = y1+2;
 
    if (mdw_buttont(x2-10,  by1, x2-2,   9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "X"))       mW[2].active = 0;
    if (mdw_buttont(x2-22,  by1, x2-14,  9, 0,0,0,0, 0,-1,9,0, 0,0,0,d, "?"))       help("Selection Window");
@@ -925,6 +917,15 @@ void set_windows(int mode)
       mW[7].active = 0;
       mW[7].index = 7;
       mW[7].layer = 6;
+
+      mW[8].set_pos(0, 0);
+      mW[8].set_size(SCREEN_W, BORDER_WIDTH);
+      mW[8].set_title("top menu");
+      mW[8].active = 1;
+      mW[8].moveable = 0;
+      mW[8].index = 8;
+      mW[8].layer = 7;
+
    }
 
    if (mode == 1) // edit menu
@@ -993,6 +994,7 @@ int is_mouse_on_any_window(void)
 
    if (mouse_x > SCREEN_W - BORDER_WIDTH) mow = 1;
    if (mouse_y > SCREEN_H - BORDER_WIDTH) mow = 1;
+
 
    return mow;
 }
@@ -1258,10 +1260,10 @@ void mWindow::set_focus(int n)
 void mWindow::draw(int draw_only)
 {
    // erase background
-   if (!hidden) al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
+   if ((!hidden) && (index != 8)) al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
 
    // default window
-   if ((index != 1) && (index != 2) && (index != 3) && (index != 4) && (index != 5) && (index != 6) && (index != 7))
+   if ((index != 1) && (index != 2) && (index != 3) && (index != 4) && (index != 5) && (index != 6) && (index != 7) && (index != 8))
    {
       // frame window
       al_draw_rectangle(x1, y1, x2, y2, palette_color[color], 1);
@@ -1350,10 +1352,19 @@ void mWindow::draw(int draw_only)
       ovw_title(x1, x2, y1, y2, legend_line);
       ovw_draw_buttons(x1, y1, x2, y2, have_focus, moving, draw_only);
    }
+
+   if (index == 8) // top menu
+   {
+      cm_process_menu_bar(have_focus, moving, draw_only);
+   }
+
+
+
+
 }
 int mWindow::detect_mouse(void)
 {
-   if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!hidden)) return 1;
+   if ((mouse_x >= x1) && (mouse_x <= x2) && (mouse_y >= y1) && (mouse_y <= y2) && (!hidden)) return 1;
    else return 0;
 }
 

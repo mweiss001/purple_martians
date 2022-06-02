@@ -86,7 +86,7 @@ void cm_get_new_box();
 void cm_process_mouse(int &quit);
 void cm_process_keypress(int &ret);
 
-void cm_process_menu_bar(int &quit);
+void cm_process_menu_bar(int have_focus, int moving, int draw_only);
 
 void cm_redraw_level_editor_background(void);
 void cm_redraw_level_editor_background(int mode);
@@ -970,6 +970,7 @@ void em_show_item_info(int x, int y, int color, int type, int num);
 void em_find_point_item(void);
 void em_process_mouse(int &quit);
 void em_process_keypress(int &quit);
+void em_catch_quit(int &quit);
 int edit_menu(int el);
 
 // e_editor_zfs.h
@@ -1500,6 +1501,7 @@ void show_display_options(void);
 void show_display_orienation(void);
 void show_fullscreen_modes(void);
 void auto_set_display_transform_double(void);
+void set_saved_display_transform(int sdt);
 void cycle_display_transform();
 void set_display_transform();
 void show_disp_values(void);
