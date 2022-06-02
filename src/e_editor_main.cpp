@@ -609,21 +609,6 @@ void em_process_mouse(int &quit)
          case 5: break; // menu divider
          case 6: set_windows(2); break; // zoom full screen
          case 7: set_windows(3); break; // group edit
-/*
-         case 6: // zoom full screen
-         {
-
-//            int draw_item;
-//            if (mW[1].draw_item_type == 1) draw_item = mW[1].draw_item_num;
-//            else draw_item = 0;
-//            zoom_full_screen(draw_item);
-            set_windows(2); // zfs
-         }
-         break;
-
-
-//         case 7: group_edit(); break;
-*/
          case 8: mW[1].active = 1; break; // status_window
          case 9: mW[2].active = 1; break; // select_window
          case 11: // new level
@@ -653,6 +638,17 @@ void em_process_mouse(int &quit)
       } // end of switch case
    } // end of mouse_b2
 }
+
+
+
+void em_catch_quit(int &quit)
+{
+   if (al_show_native_message_box(display, "Save?", "Save before exit?", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1) save_level(last_level_loaded);
+   quit = 1;
+}
+
+
+
 
 void em_process_keypress(int &quit)
 {
@@ -702,8 +698,7 @@ void em_process_keypress(int &quit)
    if (key[ALLEGRO_KEY_ESCAPE])
    {
       while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
-      if (al_show_native_message_box(display, "Save?", "Save before exit?", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1) save_level(last_level_loaded);
-      quit = 1;
+      em_catch_quit(quit);
    }
 }
 
@@ -714,6 +709,8 @@ int edit_menu(int el)
          obj_filter[i][j] = 1;
    set_windows(0);
    load_mW();
+   mW[8].active = 1;      // this is used to quit so it needs to be turned back on
+   level_editor_mode = 1; // force start in main edit mode
    if (!el) load_level_prompt(); // load prompt
    else load_level(el, 0);       // blind load
    al_show_mouse_cursor(display);
@@ -742,7 +739,6 @@ int edit_menu(int el)
    while (!quit)
    {
       cm_redraw_level_editor_background();
-      cm_process_menu_bar(quit);
       if (!mw_cycle_windows(0)) cm_process_mouse(quit);
       cm_process_keypress(quit);
    }

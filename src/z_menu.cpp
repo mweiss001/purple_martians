@@ -769,9 +769,8 @@ int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function doe
 
    while (selection == 999)
    {
-      al_flip_display();
-      proc_controllers();
-
+      cm_redraw_level_editor_background();
+      mw_cycle_windows(1);
 
       // draw menu title
       int mt = strlen(global_string[menu_num][0])*8;

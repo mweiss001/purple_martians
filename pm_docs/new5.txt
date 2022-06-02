@@ -27748,7 +27748,54 @@ now what?
 
 
 
+fix the mouse detection when on upper border bar...
+in em it draws sel, should do nothing...same in zfs
 
+here is the problem...
+
+      cm_redraw_level_editor_background();
+      cm_process_menu_bar(quit);
+      if (!mw_cycle_windows(0)) cm_process_mouse(quit);
+      cm_process_keypress(quit);
+
+menu_bar needs to detect mouse on it, just like the windows do...
+
+I should make it a window
+
+one that is always active in all level editor modes
+
+then it could be processed just the same as all the other windows and detect mouse just the same....
+
+what number should I make it?
+
+1-7 are used so use 8...
+that works....
+now how to get quit out of it...use mW[8].active...done
+and how to draw it so that it does not erase background..done
+
+still drawing selection rectangle when on menu....fixed
+mW[8] was moveable!
+
+everything is looking good now...
+
+object viewer with no object..works but is it OK?
+
+save position even in other modes??
+no..go back to mode 1
+
+
+width of mW[8] when double changes...fixed
+
+scroll edge?? variable speed?...done and works great!!!
+
+put level and xy on bottom...
+yes...status stuff on bottom...maybe show zoom level and double also
+done....
+
+make the quit common, now its only keys, but do the same for mouse...ok done
+
+make tmenu look better??
+highlight under menu items??
 
 
 
