@@ -119,37 +119,33 @@ void cm_get_new_box(void)
 
 void cm_redraw_level_editor_background(int mode)
 {
-   int old_lem = level_editor_mode;
-   level_editor_mode = mode;
+   int old_lem = mW[8].level_editor_mode;
+   mW[8].level_editor_mode = mode;
    cm_redraw_level_editor_background();
-   level_editor_mode = old_lem;
+   mW[8].level_editor_mode = old_lem;
 }
 
 
-void cm_process_mouse(int &quit)
+void cm_process_mouse(void)
 {
-   if (level_editor_mode == 1) em_process_mouse(quit);
-   if (level_editor_mode == 2) zfs_process_mouse();
-   if (level_editor_mode == 3) ge_process_mouse();
-   if (level_editor_mode == 4) ovw_process_mouse();
+   if (mW[8].level_editor_mode == 1) em_process_mouse();
+   if (mW[8].level_editor_mode == 2) zfs_process_mouse();
+   if (mW[8].level_editor_mode == 3) ge_process_mouse();
+   if (mW[8].level_editor_mode == 4) ovw_process_mouse();
 }
 
-void cm_process_keypress(int &quit)
+void cm_process_keypress(void)
 {
-   if (mW[8].active == 0) em_catch_quit(quit);
-
-   if (level_editor_mode == 1) em_process_keypress(quit);
-   if ((level_editor_mode == 2) || (level_editor_mode == 3)) // zfs or ge
+   if (mW[8].level_editor_mode == 1) em_process_keypress();
+   if (mW[8].level_editor_mode == 4) ovw_process_keypress();
+   if ((mW[8].level_editor_mode == 2) || (mW[8].level_editor_mode == 3)) // zfs or ge
    {
-      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
-      {
-         proc_controllers();
-         set_windows(1); // em
-      }
+      while (key[ALLEGRO_KEY_ESCAPE]) { proc_controllers(); mW[8].active = 0; }
    }
-   if (level_editor_mode == 4) // ovw
+   if (mW[8].active == 0)
    {
-      if (ovw_process_keypress()) set_windows(1); // em
+      if (al_show_native_message_box(display, "Save?", "Save before exit?", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
+         save_level(last_level_loaded);
    }
 }
 
@@ -163,7 +159,7 @@ void cm_redraw_level_editor_background(void)
 
    cm_process_scrolledge();
 
-   if ((!mouse_on_window) || (level_editor_mode == 0))
+   if ((!mouse_on_window) || (mW[8].level_editor_mode == 0))
    {
       cm_get_block_position_on_map();
    //   cm_process_scrolledge();
@@ -179,12 +175,12 @@ void cm_redraw_level_editor_background(void)
    draw_items();
    draw_enemies();
 
-   if (level_editor_mode == 1) // edit menu
+   if (mW[8].level_editor_mode == 1) // edit menu
    {
       if (!mouse_on_window) em_show_draw_item_cursor();
    }
 
-   if (level_editor_mode == 2) // zfs
+   if (mW[8].level_editor_mode == 2) // zfs
    {
       // show selection
       if (!mW[4].copy_mode) cm_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
@@ -200,7 +196,7 @@ void cm_redraw_level_editor_background(void)
          }
       }
    }
-   if (level_editor_mode == 3) // ge
+   if (mW[8].level_editor_mode == 3) // ge
    {
       int x=0, y=0;
 
@@ -276,7 +272,7 @@ void cm_redraw_level_editor_background(void)
       }
    }
 
-   if (level_editor_mode == 4) // ov
+   if (mW[8].level_editor_mode == 4) // ov
    {
       // if current object is message, show all messages
       if ((mW[7].obt == 2) && (item[mW[7].num][0] == 10))
@@ -295,7 +291,7 @@ void cm_redraw_level_editor_background(void)
       ovw_draw_overlays(mW[7].legend_line);
 
    }
-   if (level_editor_mode) get_new_screen_buffer(3, 0, 0);
+   if (mW[8].level_editor_mode) get_new_screen_buffer(3, 0, 0);
 }
 
 
@@ -434,10 +430,10 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
 
    x1+= 12;
 
-   if (level_editor_mode == 1) sprintf(msg, "Mode:Main Edit");
-   if (level_editor_mode == 2) sprintf(msg, "Mode:Zoom Fullscreen");
-   if (level_editor_mode == 3) sprintf(msg, "Mode:Group Edit");
-   if (level_editor_mode == 4) sprintf(msg, "Mode:Object Viewer");
+   if (mW[8].level_editor_mode == 1) sprintf(msg, "Mode:Main Edit");
+   if (mW[8].level_editor_mode == 2) sprintf(msg, "Mode:Zoom Fullscreen");
+   if (mW[8].level_editor_mode == 3) sprintf(msg, "Mode:Group Edit");
+   if (mW[8].level_editor_mode == 4) sprintf(msg, "Mode:Object Viewer");
 
    if (mdw_buttont(x1, by1, x1+100, bts, 0,0,0,0, 0,-1,15,0, 0,1,0,d, msg))
    {
@@ -454,10 +450,6 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
       if (ret == 4) set_windows(4);
    }
 
-//   if (level_editor_mode == 1) al_draw_textf(font, palette_color[15], x1, by1-1, 0, "Mode:Main Edit");
-//   if (level_editor_mode == 2) al_draw_textf(font, palette_color[15], x1, by1-1, 0, "Mode:Zoom Fullscreen");
-//   if (level_editor_mode == 3) al_draw_textf(font, palette_color[15], x1, by1-1, 0, "Mode:Group Edit");
-//   if (level_editor_mode == 4) al_draw_textf(font, palette_color[15], x1, by1-1, 0, "Mode:Object Viewer");
 
 
    // status display in the lower right border
@@ -923,6 +915,7 @@ void set_windows(int mode)
       mW[8].set_title("top menu");
       mW[8].active = 1;
       mW[8].moveable = 0;
+      mW[8].level_editor_mode = 1;
       mW[8].index = 8;
       mW[8].layer = 7;
 
@@ -930,7 +923,6 @@ void set_windows(int mode)
 
    if (mode == 1) // edit menu
    {
-      level_editor_mode = 1;
       mW[1].active = 1; // status
       mW[2].active = 1; // select
       mW[3].active = 0; // filter
@@ -938,11 +930,11 @@ void set_windows(int mode)
       mW[5].active = 0; // ge list
       mW[6].active = 0; // ge controls
       mW[7].active = 0; // viewer
+      mW[8].level_editor_mode = 1;
    }
 
    if (mode == 2) // zfs
    {
-      level_editor_mode = 2;
       mW[1].active = 0; // status
       mW[2].active = 0; // select
       mW[3].active = 1; // filter
@@ -953,10 +945,10 @@ void set_windows(int mode)
       mW[5].active = 0; // ge list
       mW[6].active = 0; // ge controls
       mW[7].active = 0; // viewer
+      mW[8].level_editor_mode = 2;
    }
    if (mode == 3) // group edit
    {
-      level_editor_mode = 3;
       mW[1].active = 0; // status
       mW[2].active = 0; // select
       mW[3].active = 1; // filter
@@ -966,11 +958,11 @@ void set_windows(int mode)
       mW[5].show_sel_frame = 1;
       mW[6].active = 1; // ge controls
       mW[7].active = 0; // viewer
+      mW[8].level_editor_mode = 3;
       ge_init_data();
    }
    if (mode == 4) // object viewer
    {
-      level_editor_mode = 4;
       mW[1].active = 0; // status
       mW[2].active = 0; // select
       mW[3].active = 1; // filter
@@ -979,6 +971,7 @@ void set_windows(int mode)
       mW[5].active = 0; // ge list
       mW[6].active = 0; // ge controls
       mW[7].active = 1; // viewer
+      mW[8].level_editor_mode = 4;
    }
 }
 

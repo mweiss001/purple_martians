@@ -56,6 +56,12 @@ class mWindow
    int num_legend_lines;
    int pop_msg_viewer_pos;
 
+   // mW[8] - top menu only
+   int level_editor_mode;
+
+
+
+
    mWindow(); // default constructor
    void set_pos(int, int);
    void set_size(int, int);
@@ -83,8 +89,8 @@ void cm_process_scrolledge(void);
 void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
 void cm_get_new_box();
 
-void cm_process_mouse(int &quit);
-void cm_process_keypress(int &ret);
+void cm_process_mouse(void);
+void cm_process_keypress(void);
 
 void cm_process_menu_bar(int have_focus, int moving, int draw_only);
 
@@ -368,13 +374,7 @@ extern float game_event_retrigger_holdoff_tally[10];
 // ----- level editor unsorted --------------------
 // ------------------------------------------------
 
-extern int level_editor_mode;
 extern int swbl[NUM_SPRITES][2];
-
-extern int autoload_bookmark;
-extern int bookmark_level;
-extern int bookmark_obj;
-extern int bookmark_num;
 
 extern int bx1;  // selection window
 extern int by1;
@@ -968,9 +968,8 @@ char* em_get_text_description_of_block_based_on_flags(int flags);
 void em_show_draw_item_cursor(void);
 void em_show_item_info(int x, int y, int color, int type, int num);
 void em_find_point_item(void);
-void em_process_mouse(int &quit);
-void em_process_keypress(int &quit);
-void em_catch_quit(int &quit);
+void em_process_mouse(void);
+void em_process_keypress(void);
 int edit_menu(int el);
 
 // e_editor_zfs.h
@@ -986,7 +985,6 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving);
 void zfs_proc_window_move(int *x1, int *y1, int *x2, int *y2, int w, int h);
 void zfs_draw_fsel(void);
 void zfs_process_mouse(void);
-void zoom_full_screen(int draw_item);
 
 // e_group_edit_windows.cpp
 void ge_init_data(void);
@@ -1002,8 +1000,6 @@ void ge_show_obj_list(int x, int y, int*ew, int* eh, int have_focus, int moving)
 int ge_show_controls(int gx, int gy, int *ew, int *eh, int have_focus, int moving, int hidden, int draw_only);
 void ge_add_selection_to_list(int set_filters);
 void ge_process_mouse(void);
-int ge_process_keypress(void);
-void group_edit(void);
 
 // e_object_viewer_windows.cpp
 int create_obj(int obt, int type, int num);
@@ -1011,8 +1007,10 @@ void ovw_get_size(void);
 void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight);
 void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving, int draw_only);
 void ovw_draw_overlays(int legend_highlight);
+void ovw_check_if_valid(int type);
 void ovw_process_mouse(void);
-int ovw_process_keypress(void);
+void ovw_process_keypress(void);
+
 void object_viewerw(int obt, int num);
 
 // e_lift.h

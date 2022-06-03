@@ -47,6 +47,10 @@ void ovw_get_size(void)
    if (obt == 2) type = item[num][0];
    if (obt == 3) type = Ei[num][0];
 
+   ovw_check_if_valid(type);
+
+
+
    if ((obt == 2) && (type == 1 )) w = 210; // door
    if ((obt == 2) && (type == 2 )) w = 200; // bonus
    if ((obt == 2) && (type == 3 )) w = 200; // exit
@@ -1689,9 +1693,44 @@ void ovw_process_mouse(void)
       } // end of while mouse pressed
    } // end of if mouse pressed
 }
-int ovw_process_keypress(void)
+
+
+void ovw_set_to_0(void)
 {
-   int quit = 0;
+   mW[7].obt = 2;
+   mW[7].num = 0;
+   if (item[mW[7].num][0] == 0) set_windows(1);
+}
+
+void ovw_check_if_valid(int type)
+{
+   //printf("valid? obt:%d num:%d\n", mW[7].obt, mW[7].num);
+
+   if (mW[7].obt==0) ovw_set_to_0();
+
+   if (mW[7].obt==2)
+   {
+      if (item_num_of_type[type] < 1) ovw_set_to_0();
+      if (item[mW[7].num][0] != type) ovw_set_to_0();
+      if (item[mW[7].num][0] == 0) ovw_set_to_0();
+   }
+   if (mW[7].obt==3)
+   {
+      if (e_num_of_type[type] < 1) ovw_set_to_0();
+      if (Ei[mW[7].num][0] != type) ovw_set_to_0();
+   }
+
+   if (mW[7].obt==4)
+   {
+      //printf("num:%d num_lifts:%d\n", mW[7].num, num_lifts);
+      if (mW[7].num >= num_lifts) ovw_set_to_0();
+      if (num_lifts < 1) ovw_set_to_0();
+   }
+}
+
+
+void ovw_process_keypress(void)
+{
    int mb = mW[7].mb;
    int type=0, lift=0, step=0;
    if (mW[7].obt == 2) type = item[mW[7].num][0];
@@ -1703,72 +1742,13 @@ int ovw_process_keypress(void)
       set_lift_to_step(lift, step);   // set current step in current lift
       lifts[mW[7].num].current_step = step;
    }
-   if (key[ALLEGRO_KEY_B])
-   {
-      while (key[ALLEGRO_KEY_B]) proc_controllers();
-      if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
-      {
-         printf("save bookmark\n");
-         bookmark_level = last_level_loaded;
-         bookmark_obj = mW[7].obt;
-         bookmark_num = mW[7].num;
-         save_config();
-      }
-      else
-      {
-         printf("load bookmark\n");
-         if (bookmark_level == last_level_loaded)
-         {
-            if ((bookmark_obj == 2) && (item[bookmark_num]))
-            {
-               mW[7].obt = bookmark_obj;
-               mW[7].num = bookmark_num;
-            }
-            if ((bookmark_obj == 3) && (Ei[bookmark_num]))
-            {
-               mW[7].obt = bookmark_obj;
-               mW[7].num = bookmark_num;
-            }
-            if ((bookmark_obj == 4) && (bookmark_num < num_lifts))
-            {
-               mW[7].obt = bookmark_obj;
-               mW[7].num = bookmark_num;
-            }
-         }
-      }
-   }
 
-
-   while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
-   {
-      proc_controllers();
-      quit = 1;  // wait for release
-   }
-   while (key[ALLEGRO_KEY_DELETE])
-   {
-      mb = 20;
-      proc_controllers();
-   }
-   while (key[ALLEGRO_KEY_RIGHT])
-   {
-      mb = 21;
-      proc_controllers();
-   }
-   while (key[ALLEGRO_KEY_LEFT])
-   {
-      mb = 22;
-      proc_controllers();
-   }
-   while (key[ALLEGRO_KEY_UP])
-   {
-      mb = 26;
-      proc_controllers();
-   }
-   while (key[ALLEGRO_KEY_DOWN])
-   {
-      mb = 27;
-      proc_controllers();
-   }
+   while (key[ALLEGRO_KEY_ESCAPE]) { proc_controllers(); mW[8].active = 0; }
+   while (key[ALLEGRO_KEY_DELETE]) { proc_controllers(); mb = 20; }
+   while (key[ALLEGRO_KEY_RIGHT])  { proc_controllers(); mb = 21; }
+   while (key[ALLEGRO_KEY_LEFT])   { proc_controllers(); mb = 22; }
+   while (key[ALLEGRO_KEY_UP])     { proc_controllers(); mb = 26; }
+   while (key[ALLEGRO_KEY_DOWN])   { proc_controllers(); mb = 27; }
 
    switch(mb)
    {
@@ -1808,20 +1788,20 @@ int ovw_process_keypress(void)
             erase_item(mW[7].num);
             sort_item(1);
             if (mW[7].num >= item_first_num[type]+item_num_of_type[type]) mW[7].num--;
-            if (item_num_of_type[type] < 1) quit = 1;
+            ovw_check_if_valid(type);
          }
          if (mW[7].obt == 3)
          {
             Ei[mW[7].num][0] = 0;
             sort_enemy();
             if (mW[7].num >= e_first_num[type]+e_num_of_type[type]) mW[7].num--;
-            if (e_num_of_type[type] < 1) quit = 1;
+            ovw_check_if_valid(type);
          }
          if (mW[7].obt == 4)
          {
             erase_lift(mW[7].num);
             if (--mW[7].num < 0) mW[7].num = 0;      // set to prev lift or zero
-            if (num_lifts < 1) quit = 1; // if erased last lift; exit lift viewer
+            ovw_check_if_valid(0);
          }
       break;
       case 21: // next
@@ -1881,7 +1861,6 @@ int ovw_process_keypress(void)
       }
       break;
    } // end of switch (mb)
-   return quit;
 }
 
 void object_viewerw(int obt, int num)
@@ -1889,15 +1868,7 @@ void object_viewerw(int obt, int num)
    mW[7].obt = obt;
    mW[7].num = num;
    set_windows(4); // object viewer
-
-
-//   while (!ovw_process_keypress())
-//   {
-//      cm_redraw_level_editor_background();
-//      if (!mw_cycle_windows(0)) ovw_process_mouse();
-//   }
 //   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
-//   set_windows(1); // edit menu
 }
 
 

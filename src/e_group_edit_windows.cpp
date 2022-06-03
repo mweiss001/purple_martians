@@ -776,35 +776,6 @@ void ge_process_mouse(void)
    }
 }
 
-int ge_process_keypress(void)
-{
-   int quit = 0;
-   while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
-   {
-      proc_controllers();
-      quit = 1;
-   }
-   return quit;
-}
-
-
-/*
-
-void group_edit(void)
-{
-   set_windows(3); // group edit
-   while (!ge_process_keypress())
-   {
-      cm_redraw_level_editor_background();
-      if (!mw_cycle_windows(0)) ge_process_mouse();
-   }
-   set_windows(1); // edit menu
-}
-
-
-*/
-
-
 
 
 

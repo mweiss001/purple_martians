@@ -412,7 +412,7 @@ void em_find_point_item(void)
    }
 }
 
-void em_process_mouse(int &quit)
+void em_process_mouse(void)
 {
 
    if (mouse_b1)
@@ -625,9 +625,9 @@ void em_process_mouse(int &quit)
             sort_item(1);
          break;
          case 13: save_level_prompt(); break; // save level
-         case 14: if (save_level_prompt()) quit=1; break; // save and exit
+         case 14: if (save_level_prompt()) mW[8].active = 0; break; // save and exit
          case 15: help("Level Editor Basics"); break;// help
-         case 16: quit = 1; break; // exit
+         case 16: mW[8].active = 0; break; // exit
          case 18: predefined_enemies(); break;
          case 19: global_level(); break;
          case 20: level_viewer(); break;
@@ -640,29 +640,9 @@ void em_process_mouse(int &quit)
 }
 
 
-
-void em_catch_quit(int &quit)
+void em_process_keypress(void)
 {
-   if (al_show_native_message_box(display, "Save?", "Save before exit?", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1) save_level(last_level_loaded);
-   quit = 1;
-}
 
-
-
-
-void em_process_keypress(int &quit)
-{
-   if (key[ALLEGRO_KEY_B])
-   {
-      while (key[ALLEGRO_KEY_B]) proc_controllers();
-      printf("load bookmark\n");
-      if (bookmark_level == last_level_loaded)
-      {
-         if ((bookmark_obj == 2) && (item[bookmark_num]))       object_viewerw(2, bookmark_num);
-         if ((bookmark_obj == 3) && (Ei[bookmark_num]))         object_viewerw(3, bookmark_num);
-         if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) object_viewerw(4, bookmark_num);
-      }
-   }
    if (key[ALLEGRO_KEY_I])
    {
       while (key[ALLEGRO_KEY_I]) proc_controllers();
@@ -678,8 +658,6 @@ void em_process_keypress(int &quit)
       while (key[ALLEGRO_KEY_V]) proc_controllers();
       show_all_events();
    }
-
-
    if (key[ALLEGRO_KEY_L])
    {
       while (key[ALLEGRO_KEY_L]) proc_controllers();
@@ -695,22 +673,19 @@ void em_process_keypress(int &quit)
       while (key[ALLEGRO_KEY_P]) proc_controllers();
       show_all_pmsg();
    }
-   if (key[ALLEGRO_KEY_ESCAPE])
-   {
-      while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
-      em_catch_quit(quit);
-   }
+   while (key[ALLEGRO_KEY_ESCAPE]) { proc_controllers(); mW[8].active = 0; }
 }
 
 int edit_menu(int el)
 {
+   // set all filters on
    for (int i=0; i<5; i++)
-      for (int j=0; j<20; j++)
-         obj_filter[i][j] = 1;
+      for (int j=0; j<20; j++) obj_filter[i][j] = 1;
+
    set_windows(0);
    load_mW();
    mW[8].active = 1;      // this is used to quit so it needs to be turned back on
-   level_editor_mode = 1; // force start in main edit mode
+//   mW[8].level_editor_mode = 1; // force start in main edit mode
    if (!el) load_level_prompt(); // load prompt
    else load_level(el, 0);       // blind load
    al_show_mouse_cursor(display);
@@ -724,23 +699,12 @@ int edit_menu(int el)
    em_set_swbl();
    set_frame_nums(0);
    for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear_key array
-   int quit=0;
 
-   if (autoload_bookmark)
-   {
-      printf("load bookmark\n");
-      if (bookmark_level == last_level_loaded)
-      {
-         if ((bookmark_obj == 2) && (item[bookmark_num]))       object_viewerw(2, bookmark_num);
-         if ((bookmark_obj == 3) && (Ei[bookmark_num]))         object_viewerw(3, bookmark_num);
-         if ((bookmark_obj == 4) && (bookmark_num < num_lifts)) object_viewerw(4, bookmark_num);
-      }
-   }
-   while (!quit)
+   while (mW[8].active)
    {
       cm_redraw_level_editor_background();
-      if (!mw_cycle_windows(0)) cm_process_mouse(quit);
-      cm_process_keypress(quit);
+      if (!mw_cycle_windows(0)) cm_process_mouse();
+      cm_process_keypress();
    }
    level_editor_running = 0;
    al_hide_mouse_cursor(display);

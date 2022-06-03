@@ -1020,7 +1020,6 @@ void zfs_draw_fsel(void)
 
 }
 
-
 void zfs_process_mouse(void)
 {
    if (mouse_b1)
@@ -1038,44 +1037,6 @@ void zfs_process_mouse(void)
       if ((!mW[4].copy_mode) && (!mW[4].brf_mode)) cm_get_new_box(); // get new selection
    }
 }
-
-/*
-int zfs_process_keypress(void)
-{
-   int quit = 0;
-   while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
-   {
-      proc_controllers();
-      quit = 1;
-   }
-   return quit;
-}
-
-*/
-
-/*
-
-
-void zoom_full_screen(int draw_item)
-{
-   set_windows(2); // zfs
-   while (!zfs_process_keypress())
-   {
-      cm_redraw_level_editor_background();
-      if (!mw_cycle_windows(0)) zfs_process_mouse();
-   }
-   set_windows(1); // edit menu
-}
-
-
-*/
-
-
-
-
-
-
-
 
 
 

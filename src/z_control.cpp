@@ -915,18 +915,6 @@ void serial_key_check(int key)
          if (memcmp((skc + skc_index-tl), tst, tl) == 0) mW[1].show_flag_details =! mW[1].show_flag_details;
       }
 
-      sprintf(tst, "alb");
-      tl = strlen(tst);
-      if (skc_index > tl-1)
-      {
-         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-         {
-             autoload_bookmark =! autoload_bookmark;
-             if (autoload_bookmark) printf("autoload bookmark on\n");
-             else                   printf("autoload bookmark off\n");
-             save_config();
-         }
-      }
    }
 }
 

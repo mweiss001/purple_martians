@@ -27799,6 +27799,86 @@ highlight under menu items??
 
 
 
+mouse b2 takes me out of ov..disable this...
+fix the exit from each mode...
+mouse b2 does not exit
+esc sets mW[8].active to 0
+ov done...
+zfs ge done...
+I sure am passing quit around a lot...can I reduce this to never?
+main edit loop is now:
+
+   while (mW[8].active)
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) cm_process_mouse(quit);
+      cm_process_keypress(quit);
+   }
+done...quit is never passed and the code is simpler...
+
+
+do something about ov not having a valid obt and num
+what if I delete last obt of type?...
+I think this is fixed....
+
+
+
+put more variables in mW[8]
+
+can I combine level_editor_mode and level_editor_running?
+
+if mode == 0???
+same as level editor not running?
+
+I should be able to do this
+
+first add level_editor_mode to mW[8]...done
+
+now make level_editor_running use it too...
+
+where are the windows created??
+do I want to drag all that into the game?
+don't do it yet..
+
+ov still starts bad....
+do a start with no loadmW then set mode to ov..fixed
+now I also check for obt==0
+
+do I need bookmark?? can I just use saved mW.. i think I can...
+removed bookmarks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

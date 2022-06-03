@@ -22,15 +22,9 @@ figure this out later maybe, for now just set timer to 2 or use always on event
 ---------------------------------------------------------
 
 
+scrollbars vs scrolledge??
 
-
-
-
-
-
-
-
-
+level stats..makes more sense in level editor than in game!
 
 
 
