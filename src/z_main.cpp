@@ -137,21 +137,12 @@ float game_event_retrigger_holdoff_tally[10];
 ALLEGRO_BITMAP *bmsg_temp;
 
 
-
-
 // ------------------------------------------------
 // ----- level editor unsorted --------------------
 // ------------------------------------------------
-int level_editor_mode = 0;
-
 mWindow mW[NUM_MW];
 int obj_filter[5][20] = {0};
 int swbl[NUM_SPRITES][2];
-
-int autoload_bookmark = 0;
-int bookmark_level = 0;
-int bookmark_obj = 0;
-int bookmark_num = 0;
 
 int bx1=10;  // global selection window
 int by1=10;
@@ -162,7 +153,6 @@ int gx=0; // absolute mouse position relative to scaled level background
 int gy=0;
 int hx=0;
 int hy=0;
-
 
 
 // ------------------------------------------------
