@@ -9,11 +9,19 @@ maybe later I could profile and see what takes up all the time...
 it's most likely an opengl thing
 
 
-in map move, when holding mouse button and moving...the windows are hidden but still detected and won't let the mouse move where they are...
-
-
 bug...orb timed on..when time set to 1, never triggers toggle on
 figure this out later maybe, for now just set timer to 2 or use always on event
+
+make sure mouse cursor is set properly...a few random times it is wrong
+
+fix mouse move with sproingy height, mouse pointer goes off the screen
+I want to do this with the actual postion, not mouse_dy..
+
+I can get main position and distance from that with hy...
+
+
+
+
 
 
 
@@ -22,9 +30,10 @@ figure this out later maybe, for now just set timer to 2 or use always on event
 ---------------------------------------------------------
 
 
+
+
 scrollbars vs scrolledge??
 
-level stats..makes more sense in level editor than in game!
 
 
 

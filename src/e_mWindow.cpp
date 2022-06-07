@@ -159,11 +159,7 @@ void cm_redraw_level_editor_background(void)
 
    cm_process_scrolledge();
 
-   if ((!mouse_on_window) || (mW[8].level_editor_mode == 0))
-   {
-      cm_get_block_position_on_map();
-   //   cm_process_scrolledge();
-   }
+   if ((!mouse_on_window) || (mW[8].level_editor_mode == 0) || (mW[8].level_editor_mode == 4)) cm_get_block_position_on_map();
 
    al_flip_display();
    proc_scale_factor_change();
@@ -317,12 +313,12 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
       strcpy (global_string[5][0],"File"); // PD sub menu
       strcpy (global_string[5][1],"New");
       strcpy (global_string[5][2],"Load");
-      strcpy (global_string[5][3],"Save");
-      strcpy (global_string[5][4],"Exit");
-      strcpy (global_string[5][5],"end");
-
+      strcpy (global_string[5][3],"Reload");
+      strcpy (global_string[5][4],"Save");
+      strcpy (global_string[5][5],"Save As");
+      strcpy (global_string[5][6],"Exit");
+      strcpy (global_string[5][7],"end");
       int ret = tmenu(5, 1, x1, by1-1);
-
       if (ret == 1)
       {
          if (al_show_native_message_box(display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
@@ -333,11 +329,12 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
          load_level(last_level_loaded, 0);
       }
       if (ret == 2) load_level_prompt();
-      if (ret == 3) save_level_prompt();
-      if (ret == 4) mW[8].active = 0;
+      if (ret == 3) load_level(last_level_loaded, 0);
+      if (ret == 4) save_level(last_level_loaded);
+      if (ret == 5) save_level_prompt();
+      if (ret == 6) mW[8].active = 0;
    }
    x1 += 44;
-
 
 
    if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "View"))
@@ -352,9 +349,7 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
       sprintf(global_string[5][7],"Text Double:2");
       sprintf(global_string[5][8],"Text Double:3");
       strcpy (global_string[5][9],"end");
-
       int ret = tmenu(5, 1, x1, by1-1);
-
       if (ret == 1)
       {
          if (fullscreen) proc_display_change_fromfs();
@@ -367,7 +362,6 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
       if (ret == 6) set_saved_display_transform(1);
       if (ret == 7) set_saved_display_transform(2);
       if (ret == 8) set_saved_display_transform(3);
-
    }
    x1 += 44;
 
@@ -381,7 +375,8 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
       strcpy (global_string[5][4],"List all pmsg");
       strcpy (global_string[5][5],"List all Events");
       strcpy (global_string[5][6],"Level Check");
-      strcpy (global_string[5][7],"end");
+      strcpy (global_string[5][7],"Show Level Data");
+      strcpy (global_string[5][8],"end");
       int ret = tmenu(5, 1, x1, by1-1);
       if (ret == 1) show_all_items();
       if (ret == 2) show_all_enemies();
@@ -389,6 +384,8 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
       if (ret == 4) show_all_pmsg();
       if (ret == 5) show_all_events();
       if (ret == 6) level_check();
+      if (ret == 7) show_level_data();
+
    }
    x1 += 52;
 
@@ -403,16 +400,13 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
       strcpy (global_string[5][5],"Copy Tiles");
       strcpy (global_string[5][6],"Default Flag Editor");
       strcpy (global_string[5][7],"end");
-
       int ret = tmenu(5, 1, x1, by1-1);
-
       if (ret == 1) predefined_enemies();
       if (ret == 2) global_level();
       if (ret == 3) level_viewer();
       if (ret == 4) animation_sequence_editor();
       if (ret == 5) copy_tiles();
       if (ret == 6) edit_btile_attributes();
-
    }
    x1 += 76;
 
@@ -435,7 +429,7 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
    if (mW[8].level_editor_mode == 3) sprintf(msg, "Mode:Group Edit");
    if (mW[8].level_editor_mode == 4) sprintf(msg, "Mode:Object Viewer");
 
-   if (mdw_buttont(x1, by1, x1+100, bts, 0,0,0,0, 0,-1,15,0, 0,1,0,d, msg))
+   if (mdw_buttont(x1, by1, x1+140, bts, 0,0,0,0, 0,-1,15,0, 0,1,0,d, msg))
    {
       strcpy (global_string[5][0],msg);
       strcpy (global_string[5][1],"Mode:Main Edit");

@@ -1079,6 +1079,7 @@ int create_item(int type);
 
 // e_enemy.h
 void erase_enemy(int e);
+void show_level_data(void);
 void show_all_enemies(void);
 void sort_enemy(void);
 int get_empty_enemy(void);

@@ -1036,6 +1036,12 @@ void zfs_process_mouse(void)
       }
       if ((!mW[4].copy_mode) && (!mW[4].brf_mode)) cm_get_new_box(); // get new selection
    }
+
+   if (mouse_b2)
+   {
+      while (mouse_b2) proc_controllers();
+      set_windows(1);
+   }
 }
 
 

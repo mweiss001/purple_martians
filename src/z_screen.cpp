@@ -650,19 +650,6 @@ void draw_level(void) // draws the map on the menu screen
 
    draw_level2(NULL, menu_map_x, menu_map_y, menu_map_size, blocks, 1, 1, 1, 1);
 
-
-   // show level data
-   int y_pos = 140;
-   int x_pos = SCREEN_W/2+(menu_map_size/2);
-   if (valid_level_loaded)
-   {
-      y_pos = enemy_data(x_pos, y_pos) + 8;
-      y_pos = item_data(x_pos, y_pos) + 8;
-      al_draw_textf(font, palette_color[15], x_pos, y_pos,   0, "%d Lifts  ", num_lifts);
-      al_draw_text(font, palette_color[15], x_pos, y_pos+8,  0, "-------");
-   }
-
-
    int text_x = SCREEN_W / 2;
    int text_y = menu_map_y - 16;
    al_draw_textf(font, palette_color[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", start_level );
