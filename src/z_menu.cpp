@@ -601,8 +601,6 @@ void menu_setup(void)
    strcpy (color_name[14], "Yellow");
    strcpy (color_name[15], "White");
 
-
-
    strcpy (global_string[2][0], "Level Editor Pop-Up Menu");
    strcpy (global_string[2][1], "------------------------");
    strcpy (global_string[2][2], "Copy ---");
@@ -621,17 +619,17 @@ void menu_setup(void)
    strcpy (global_string[2][15],"Help Screens");
    strcpy (global_string[2][16],"Quit Level Editor");
    strcpy (global_string[2][17],"end");
-
-#ifndef RELEASE
-   strcpy (global_string[2][17],"----");
-   strcpy (global_string[2][18],"Predefined Enemy Editor");
-   strcpy (global_string[2][19],"Global Level Thingy!!");
-   strcpy (global_string[2][20],"Level Viewer!");
-   strcpy (global_string[2][21],"Animation Sequence Editor");
-   strcpy (global_string[2][22],"Copy Tiles");
-   strcpy (global_string[2][23],"Default Flag Editor");
-   strcpy (global_string[2][24],"end");
-#endif
+//
+//#ifndef RELEASE
+//   strcpy (global_string[2][17],"----");
+//   strcpy (global_string[2][18],"Predefined Enemy Editor");
+//   strcpy (global_string[2][19],"Global Level Thingy!!");
+//   strcpy (global_string[2][20],"Level Viewer!");
+//   strcpy (global_string[2][21],"Animation Sequence Editor");
+//   strcpy (global_string[2][22],"Copy Tiles");
+//   strcpy (global_string[2][23],"Default Flag Editor");
+//   strcpy (global_string[2][24],"end");
+//#endif
 
 
    strcpy (global_string[3][0], "Logging Options Menu");
@@ -749,6 +747,7 @@ void set_key_menu(int menu, int p, int start_row)
 
 int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function does not pass through, it waits for a selection and then exits
 {
+   int pc = players[active_local_player].color;
 
    int highlight = menu_pos;
    int selection = 999;
@@ -764,8 +763,11 @@ int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function doe
    }
    last_list_item = c;
 
+
+   int yh = 12; // y height
+
    int x2 = x1+max_strlen*8+2;
-   int y2 = y1+last_list_item*10;
+   int y2 = y1+last_list_item*yh-1;
 
    while (selection == 999)
    {
@@ -774,30 +776,31 @@ int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function doe
 
       // draw menu title
       int mt = strlen(global_string[menu_num][0])*8;
-      al_draw_filled_rectangle(x1-2, y1, x1+mt, y1+10, palette_color[0]);
-      al_draw_rectangle(       x1-2, y1, x1+mt, y1+10, palette_color[15], 1);
+      al_draw_filled_rectangle(x1-2, y1-2, x1+mt+2, y1+yh, palette_color[pc+128]);
+      al_draw_rectangle(       x1-2, y1-2, x1+mt+2, y1+yh, palette_color[15], 1);
       al_draw_text(font, palette_color[15], x1, y1+1, 0, global_string[menu_num][0]);
 
       // erase menu background
-      al_draw_filled_rectangle(x1-2, y1+10, x2, y2, palette_color[0]);
-      al_draw_rectangle(x1-2, y1+10, x2, y2, palette_color[15], 1);
+      al_draw_filled_rectangle(x1-2, y1+12, x2, y2, palette_color[pc+128+48]);
+      al_draw_rectangle(x1-2, y1+12, x2, y2, palette_color[15], 1);
 
       // draw the menu items
       for (c=1; c<last_list_item; c++)
       {
          int b = 15+48; // default text color
          int h = 15;    // highlight text color
-         al_draw_text(font, palette_color[b], x1, y1+(c*10)+1, 0, global_string[menu_num][c]);
+         al_draw_text(font, palette_color[b], x1, y1+(c*12)+2, 0, global_string[menu_num][c]);
          if (c == highlight)
          {
-            al_draw_text(font, palette_color[h], x1, y1+(c*10)+1, 0, global_string[menu_num][c]);
-            al_draw_rectangle(x1-2, y1+(c*10)-1+0.5f, x2, y1+(c*10)+9+0.5f, palette_color[h], 1);
+            al_draw_filled_rectangle(            x1-2, y1+(c*12), x2, y1+(c*12)+11, palette_color[h+128]);
+            al_draw_text(font, palette_color[h], x1,   y1+(c*12)+2, 0, global_string[menu_num][c]);
+            al_draw_rectangle(                   x1-2, y1+(c*12), x2, y1+(c*12)+11, palette_color[h], 1);
          }
       }
 
       if ( (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1 ) && (mouse_y < y2) )
       {
-         highlight = (mouse_y - y1)/10;
+         highlight = (mouse_y - y1)/yh;
       }
       else highlight = 0;
 

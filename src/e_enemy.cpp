@@ -83,6 +83,24 @@ void get_pod_extended_position(int e, int *x, int *y)
 }
 
 
+void show_level_data(void)
+{
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   int y_pos = 40;
+   int x_pos = 40;
+   if (valid_level_loaded)
+   {
+      y_pos = enemy_data(x_pos, y_pos) + 8;
+      y_pos = item_data(x_pos, y_pos) + 8;
+      al_draw_textf(font, palette_color[15], x_pos, y_pos,   0, "%d Lifts  ", num_lifts);
+      al_draw_text(font, palette_color[15], x_pos, y_pos+8,  0, "-------");
+   }
+   al_flip_display();
+   tsw(); // wait for keypress
+}
+
+
 
 void show_all_enemies(void)
 {

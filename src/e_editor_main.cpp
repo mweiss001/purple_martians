@@ -541,6 +541,79 @@ void em_process_mouse(void)
    } // end of mouse_b1
    if (mouse_b2)
    {
+
+
+/*
+
+      strcpy (global_string[2][0], "Level Editor Pop-Up Menu");
+      strcpy (global_string[2][1], "------------------------");
+
+
+      if (level_editor_mode == 1)
+      {
+
+         switch (mW[1].point_item_type)
+         {
+            case 1:
+               sprintf(global_string[2][2], "Copy Block    ");
+               sprintf(global_string[2][3], "              ");
+               sprintf(global_string[2][4], "                ");
+            break;
+            case 2:
+               sprintf(global_string[2][2], "Copy %s  ",  item_name[item[mW[1].point_item_num][0]]);
+               sprintf(global_string[2][3], "View %s  ",  item_name[item[mW[1].point_item_num][0]]);
+               sprintf(global_string[2][4], "Delete %s ", item_name[item[mW[1].point_item_num][0]]);
+            break;
+            case 3:
+               sprintf(global_string[2][2], "Copy %s  ",  (const char *)enemy_name[Ei[mW[1].point_item_num][0]]);
+               sprintf(global_string[2][3], "View %s  ",  (const char *)enemy_name[Ei[mW[1].point_item_num][0]]);
+               sprintf(global_string[2][4], "Delete %s ", (const char *)enemy_name[Ei[mW[1].point_item_num][0]]);
+            break;
+            case 4:
+               sprintf(global_string[2][2], "              ");
+               sprintf(global_string[2][3], "View Lift '%s'",   lifts[mW[1].point_item_num].lift_name);
+               sprintf(global_string[2][4], "Delete Lift '%s'", lifts[mW[1].point_item_num].lift_name);
+            break;
+         }
+
+
+
+   strcpy (global_string[2][2], "Copy ---");
+   strcpy (global_string[2][3], "View ---");
+   strcpy (global_string[2][4], "Delete ---");
+   strcpy (global_string[2][5], "------------------------");
+   strcpy (global_string[2][6], "Zoom Full Screen");
+   strcpy (global_string[2][7], "Group Edit");
+   strcpy (global_string[2][8], "Show Status Window");
+   strcpy (global_string[2][9], "Show Selection Window");
+   strcpy (global_string[2][10], "------");
+   strcpy (global_string[2][11],"New Level");
+   strcpy (global_string[2][12],"Load Level");
+   strcpy (global_string[2][13],"Save Level");
+   strcpy (global_string[2][14],"Save and Quit");
+   strcpy (global_string[2][15],"Help Screens");
+   strcpy (global_string[2][16],"Quit Level Editor");
+   strcpy (global_string[2][17],"end");
+
+
+  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       switch (mW[1].point_item_type)
       {
          case 1:
@@ -607,8 +680,8 @@ void em_process_mouse(void)
             }
          break;
          case 5: break; // menu divider
-         case 6: set_windows(2); break; // zoom full screen
-         case 7: set_windows(3); break; // group edit
+         case 6: set_windows(2); break;   // zoom full screen
+         case 7: set_windows(3); break;   // group edit
          case 8: mW[1].active = 1; break; // status_window
          case 9: mW[2].active = 1; break; // select_window
          case 11: // new level
@@ -628,12 +701,16 @@ void em_process_mouse(void)
          case 14: if (save_level_prompt()) mW[8].active = 0; break; // save and exit
          case 15: help("Level Editor Basics"); break;// help
          case 16: mW[8].active = 0; break; // exit
+
+
          case 18: predefined_enemies(); break;
          case 19: global_level(); break;
          case 20: level_viewer(); break;
          case 21: animation_sequence_editor(); break;
          case 22: copy_tiles(); break;
          case 23: edit_btile_attributes(); break;
+
+
 
       } // end of switch case
    } // end of mouse_b2

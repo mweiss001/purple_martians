@@ -774,6 +774,11 @@ void ge_process_mouse(void)
          }
       }
    }
+   if (mouse_b2)
+   {
+      while (mouse_b2) proc_controllers();
+      set_windows(1);
+   }
 }
 
 

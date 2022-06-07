@@ -1198,6 +1198,14 @@ void ovw_draw_overlays(int legend_highlight)
 }
 void ovw_process_mouse(void)
 {
+
+   if (mouse_b2)
+   {
+      while (mouse_b2) proc_controllers();
+      set_windows(1);
+   }
+
+
    int lift=0, step=0;
    if (mW[7].obt == 4)
    {
@@ -1484,11 +1492,6 @@ void ovw_process_mouse(void)
 
 
 
-
-
-
-
-
    // -----------------------------------------------------------
    // --  set mouse cursor
    // -----------------------------------------------------------
@@ -1496,7 +1499,7 @@ void ovw_process_mouse(void)
    else if (mouse_adj) al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE);
    else al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 
-
+   if (!mouse_on_sp) al_show_mouse_cursor(display);
 
    if (mouse_b1)
    {
@@ -1624,10 +1627,18 @@ void ovw_process_mouse(void)
          }
          if (mouse_on_sp) // adjust sproingy jump height
          {
+            al_hide_mouse_cursor(display);
+
             item[mW[7].num][7] -= mouse_dy/2;
             // bounds check
             if (item[mW[7].num][7] < 40) item[mW[7].num][7] = 40;
             if (item[mW[7].num][7] > 200) item[mW[7].num][7] = 200;
+
+//            int y = al_fixtoi(get_sproingy_jump_height(num));
+//            crosshairs_full(obj_x, obj_y-y, color, 1);
+
+
+
          }
          if (mouse_on_bmb) // adjust bomb blast radius
          {

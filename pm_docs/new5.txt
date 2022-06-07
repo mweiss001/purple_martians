@@ -27848,6 +27848,32 @@ do I need bookmark?? can I just use saved mW.. i think I can...
 removed bookmarks
 
 
+I don't like some of the changes
+
+I want to be able to exit ov, zfs, ge with mouse b2 like I used to be able to
+em will be the default mode...done...
+em can be quit with esc or menu only..already like that
+
+
+change file menu to add save as, use current
+make save do a blind save
+make reload do a blind load..
+done....
+
+add to the detection length of mode menu button...done
+
+make the pop-up menu shorter..done
+
+level stats..makes more sense in level editor than in game!
+removed from game and added under lists in level editor
+
+
+bug...in map move, when holding mouse button and moving...the windows are hidden but still detected and won't let the mouse move where they are...
+fixed...
+if ((!mouse_on_window) || (mW[8].level_editor_mode == 0) || (mW[8].level_editor_mode == 4)) cm_get_block_position_on_map();
+
+
+
 
 
 
