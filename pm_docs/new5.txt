@@ -27874,227 +27874,1456 @@ if ((!mouse_on_window) || (mW[8].level_editor_mode == 0) || (mW[8].level_editor_
 
 
 
+fix mouse move with sproingy height, mouse pointer goes off the screen
+I want to do this with the actual postion, not mouse_dy..
 
+I can get main position and distance from that with hy...
 
 
+al_fixed get_sproingy_jump_height(int num)
+{
+   al_fixed t1 = al_fixdiv(al_itofix(item[num][7]), al_ftofix(7.1));
+   al_fixed t2 = al_itofix(-15); // jump starts not at zero, but at almost one block height off ground
+   while (t1 > al_itofix(0))
+   {
+      t2 += t1; // distance moved this time period
+      t1 -= al_ftofix(.2); // minus slow gravity
+   }
+   return t2;
+}
 
 
+t1:
+start with int (item[][7]) from 40 to 200
+divide by 7.1
+this is the upwards velocity
 
+t3 = (t1/0.2) * t1;
 
 
+t2: this is the y position
+start at -15
 
 
+what am I trying to do here?
 
+make it so that I can drag the jump height position of sproingy and have sproinginess set automatically...
 
+I need the reverse of this formula
 
+formula to get jump height given sproiginess
+s = sproinginess (int 40-200)
 
+s/=7.1
+while s>0
+{
+   th+=s
+   s-=.2
+}
+h = th - 15;
 
+----------
+reverse
 
+given h
 
+th = 0
+s = 0
 
+while (th< h+15)
+{
+   th+=s;
+   s+=0.2;
+}
+return s*7.1
 
+I spent too much time on this before giving up....
+fuck it...who cares?
 
 
+make sure mouse cursor is set properly...a few random times it is wrong
+when ever leaving ov..do it in set windows...
 
 
 
 
 
+implement the end of level summary thing...
 
+the biggest challenge is modifying the netgame code
 
+that expects the next level to start immediately....
 
+here is how I want it to go...
 
+- when level done show a summary screen for all players
+- time out after 20s or when all players have pressed any key
 
 
+make a new state....
+the game loop needs to keep running
+but the players are paused and the level done screen is shown
 
 
+I am hoping I can do pretty much what I did before only now I will pause before doing it..
 
 
+how about a new paused type, 3
 
+players[p].paused
+players[p].paused_type
+players[p].paused_mode
+players[p].paused_mode_count
 
+trigger it from server only with a keypress for now
+or maybe when level_done is triggered
 
+then have another special move item to start the new level
 
+when first starting that mode
+- all players need to have paused=1, type=3,
 
+- the server will keep track of when clients press any key, or when the timer runs out
 
 
+I will need to hook into the game_moves array special moves thingy..
 
 
 
 
+20220611
+figure out how you can pause a netgame...
+it must come from the server...
 
+I am thinking about letting the game run and just pausing all the players, enemies, lifts, bullets, etc...
+some of that depends on frame_num and the netgame code does also...
 
+if I only freeze at the end of the game that can be handled...
 
+lets make some test levels...71, 72, 73
 
+what happens now when level done is activated...
 
+in both single and netgame a special move is inserted in game moves
 
+then this is processed by
 
 
 
+            case 6:  // 'level done'
+               if ((ima_client) || (ima_server))
+               {
+                  for (int p=0; p<NUM_PLAYERS; p++)
+                     if (players[p].active) players1[p].quit_reason = 80;
 
+                  if (L_LOGGING_NETPLAY)
+                  {
+                     sprintf(msg,"LEVEL %d DONE", play_level);
+                     add_log_entry_header(10, 0, msg, 3);
+                     if (ima_client) log_ending_stats();
+                     if (ima_server) log_ending_stats_server();
+                  }
+               }
+               proc_level_done();
 
 
 
 
+I need to seprate this into 'level done' and 'next_level'
 
+make another special game move: 'next_level'
 
+move most of the funtionality of existing 'level_done' to 'next_level'
 
+then make level done pause and show end of level stats
 
 
+what game moves do I have now? 1 and 6
 
+add 7 'next_level'
 
+rename proc_level_done to proc_next_level...
+done...
+framework is in place...
 
+void proc_game_move(void)
+{
+         switch (game_moves[x][1])
+         {
+            case 1: proc_player_state_game_move(x); break;
 
+//            case 6: proc_level_done(); break; // new one
+            case 6: proc_next_level(); break; // old one
+            case 7: proc_next_level(); break;
+         }
+      }
+   }
+}
 
 
+now add stuff to proc_level_done()
+- pause all players
+- set up something that will time out
 
+void proc_level_done(void)
+{
+   // set all players to paused mode 3
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active)
+      {
+         players[p].paused = 1;
+         players[p].paused_type = 3;
+      }
 
+   // set player 0
+   players[0].paused_mode = 0;
+   players[0].paused_mode_count = 200;
 
+}
 
+- then add new game move 'next_level'
 
 
+the problem now is that players do not process moves from game move array when paused
 
 
+the global variable 'level_done_trig' is set...
 
+void proc_warp_collision(int p, int i)
+{
+   next_level = item[i][8];
+   level_done_trig = 1;
+   game_event(4, 0, 0, p, i, 0, 0);
+}
 
+void proc_exit_collision(int p, int i)
+{
+   int exit_enemys_left = num_enemy - item[i][8];
+   if (exit_enemys_left <= 0)
+   {
+      level_done_trig = 1;
+      next_level = play_level + 1;
+      game_event(4, 0, 0, 0, 0, 0, 0);
+   }
+   else game_event(3, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
+}
 
+a game move is entered in single and server mode..
+and the flag is cleared
 
 
+         if (players[p].control_method == 0) // local single player control
+         {
+            if (level_done_trig)
+            {
+               add_game_move(frame_num, 6, 0, 0); // insert level done into game move
+               level_done_trig = 0;
+            }
 
+void server_local_control(int p)
+{
+   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+   set_comp_move_from_player_key_check(p);
+   if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
+   {
+      players1[p].old_comp_move = players1[p].comp_move;
+      add_game_move(fn, 5, p, players1[p].comp_move);
+   }
+   if (level_done_trig)
+   {
+      add_game_move(fn, 6, 0, 0);        // insert level done into game move
+      level_done_trig = 0;
+   }
 
 
+then in proc game moves the game move is read...
 
 
+void proc_game_move(void)
+{
+   // this function looks in the game_moves array for an exact frame_num match
+   // this only processes system moves, not regular game_moves
+   // its likely that an exact frame_num match won't be found and nothing will be done
+   // if multiple frame_nums match they all will be processed
 
+   int ll;
+   if (players[0].control_method == 1) ll = 0; // run game needs to look back to the start
+   else ll = game_move_entry_pos - 100; // every other mode can just look back 100
+   if (ll < 0) ll = 0; // don't look back past zero!
 
+   for (int x=game_move_entry_pos; x>ll; x--)  // look back for frame_num
+   {
+      if (game_moves[x][0] == frame_num)
+      {
+         switch (game_moves[x][1])
+         {
+            case 1: proc_player_state_game_move(x); break;
 
+            case 6: proc_level_done(); break; // new one
 
+//            case 6: proc_next_level(); break; // old one
 
 
+then in
 
+void proc_level_done(void)
+{
+   // set all players to paused mode 3
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active)
+      {
+         players[p].paused = 200;
+         players[p].paused_type = 3;
+      }
+}
 
 
+then in
 
+void proc_player_paused(int p)
+{
+   players[p].player_ride = 0;
 
+   if (players[p].paused_type == 3)// paused type 3: level done
+   {
+      if (p == 0)
+      {
+         if (--players[0].paused < 1)
+         {
+            int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+            add_game_move(fn, 7, 0, 0);
+         }
+      }
+   }
 
 
 
+need to reset player in new level...
 
+   if (t == 17) // player common
+   {
+      players[p].paused = 0;
 
 
+make level_done show on first step..
 
 
+make level done show as part of screen overlay...
+it seems to slow things down
 
+how about level_done_mode
+0 = normal
+4 = triggered (can only trigger from mode 0)
+3 = ld_gm entered
+2 = ld_gm proc (waiting mode)
+1 = wait done (nl_gm entered)
 
 
 
 
 
+void proc_exit_collision(int p, int i)
+{
+   int exit_enemys_left = num_enemy - item[i][8];
+   if (exit_enemys_left <= 0)
+   {
+      if (level_done_mode) == 0)
+      {
+         level_done_mode = 4;
+         next_level = play_level + 1;
+         game_event(4, 0, 0, 0, 0, 0, 0);
+      }
+   }
+   else game_event(3, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
+}
 
+void proc_warp_collision(int p, int i)
+{
+   if (level_done_mode) == 0)
+   {
+      level_done_mode = 4;
+      next_level = item[i][8];
+      game_event(4, 0, 0, p, i, 0, 0);
+   }
+}
 
+removed all level_done_trig
 
+replace level_done_proc with level_done_mode = 1;
+used to trigger start mode 5...then set to zero..
 
+at start of loop
 
+//      if (level_done_proc) proc_start_mode(5);
+      if (level_done_mode == 1)
+      {
+          level_done_mode = 0;
+          proc_start_mode(5);
+      }
 
+at the end of next_level set to 1
 
 
+back to documenting all level_done_mode references..
 
+---------------------------------
 
+at the start of game_loop()
 
+if (level_done_mode == 1)
+{
+    level_done_mode = 0;
+    proc_start_mode(5);
+}
 
 
+at the end of proc_next_level()
+level_done_mode = 1;
 
+when triggered by exit or warp
+if (level_done_mode == 0)
+{
+   level_done_mode = 4;
 
 
+single player mode
+void proc_player_input(int ret)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) // cycle all active players
+      {
+         if (players[p].control_method == 0) // local single player control
+         {
+            if (level_done_mode == 4)
+            {
+               level_done_mode = 3;
+               add_game_move(frame_num, 6, 0, 0); // insert level done into game move
+            }
 
 
+void server_local_control(int p)
+{
+   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+   set_comp_move_from_player_key_check(p);
+   if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
+   {
+      players1[p].old_comp_move = players1[p].comp_move;
+      add_game_move(fn, 5, p, players1[p].comp_move);
+   }
+   if (level_done_mode == 4)
+   {
+      level_done_mode = 3;
+      add_game_move(fn, 6, 0, 0); // insert level done into game move
+   }
+}
 
+OK now what is needed?
+when processed by
 
+void proc_level_done(void)
+{
+   level_done_mode = 2;
+   // set all players to paused mode 3
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active)
+      {
+         players[p].paused = 120;
+         players[p].paused_type = 3;
+      }
 
+   if (L_LOGGING_NETPLAY)
+   {
+      sprintf(msg,"LEVEL %d DONE", play_level);
+      add_log_entry_header(10, 0, msg, 3);
+      if (ima_client) log_ending_stats();
+      if (ima_server) log_ending_stats_server();
+   }
 
+}
 
+while in mode 2, show the level done overlay...done
 
+when 2 is done, game_move 'next_level' is entered
+when that is processed set mode to 1..already done...
 
 
+what is left?
 
+while in mode 2 can something else besides player_paused control things?
 
+while in mode 2, stop updating enemies, lifts, items, etc players....
+how?
 
+make a custom event loop for level_done?
 
 
 
 
 
+how about each player has the paused count set..
+if a player presses any key then that is set to 0
 
 
 
 
+go back to using paused_mode_count...done
 
+         players[p].paused = 1;
+         players[p].paused_type = 3;
+         players[p].paused_mode_count = 120;
 
 
+now all that player paused does is count this down
 
+   if (players[p].paused_type == 3)// paused type 3: level done
+   {
+      if (players[p].paused_mode_count>0) players[p].paused_mode_count--;
+   }
 
+   can't do this here ...wont be called
 
 
 
 
 
+then make a separate function to process this..
 
 
 
 
+      {
+            int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+            add_game_move(fn, 7, 0, 0);
 
+         }
+      }
 
 
 
+It is working good now...
+-------------------------------------------
+time for some new documentation...
+---------------------------------------------
+global int level_done_mode
 
+0 = normal
+4 = triggered (can only trigger from mode 0)
+3 = game move 'Level Done' entered
+2 = game move 'Level Done' received and processed (waiting mode)
+2 - when done game move 'Next Level' is entered
+1 = game move 'Next Level' received and process started
 
 
+when triggered by any player touching exit or warp
+if (level_done_mode == 0)
+{
+   level_done_mode = 4;
+}
 
+can only be triggered from mode 0, to prevent multiple triggering
 
 
+In single player mode:
 
+void proc_player_input(int ret)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) // cycle all active players
+      {
+         if (players[p].control_method == 0) // local single player control
+         {
+            if (level_done_mode == 4)
+            {
+               level_done_mode = 3;
+               add_game_move(frame_num, 6, 0, 0); // insert level done into game move
+            }
 
 
+In netgame, only server processes it:
 
+void server_local_control(int p)
+{
+   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+   if (level_done_mode == 4)
+   {
+      level_done_mode = 3;
+      add_game_move(fn, 6, 0, 0); // insert level done into game move
+   }
+}
 
+These are the only 2 ways that we go from mode 4 to mode 3...
 
+In mode 3 we are waiting for the special game move 'Level Done' to be received and processed..
 
+in proc_controllers(), proc_game_move() is called very frame in every mode
+it calls proc_level_done();
 
+void proc_level_done(void)
+{
+   level_done_mode = 2;
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active)
+      {
+         players[p].paused = 1;
+         players[p].paused_type = 3;
+         players[p].paused_mode_count = 120;
+      }
+}
 
+now we are in mode 2...
 
+all active players are paused..
 
+nothing different happens with move player..
 
+void game_loop(int start_mode)
+{
+   game_exit = 0;
+   while (!game_exit)
+   {
+      if (level_done_mode > 1)
+      {
+         stop_sound();
+         while (level_done_mode > 1)
+         {
+            proc_scale_factor_change();
+            if (ima_server) server_control();
+            if (ima_client) client_control();
+            proc_controllers();
 
+            proc_level_done_mode2();
+            proc_frame_delay();
+            if (draw_frame)
+            {
+               get_new_screen_buffer(0, 0, 0);
+               draw_screen_overlay();
+               al_flip_display();
+            }
+         }
+      }
 
 
 
+lets make the count larger like 400.
 
+then I need to work on ways of detecting keypresses from clients
 
+I should ignore all for the first 1-2 seconds...
 
 
+what other methods do I have for client keypress on the server...
 
+last cdat received...??
 
+could let the client set its own timeout and then wait for that to be synced back to the server
+that won't work..sync does not go that way...
 
 
+look in the game moves array to see if a game move change from that player was received since level done
+that could work...on clients, once level done is received and more cdats sent should just do an acknowledge on the server...
 
 
 
+what if I had more level done game events
 
+ld1 to ld2 - 2 seconds no skip possible
 
+after ld2 - 10 seconds with possible skip if all active players press a key
 
 
+why am I doing this? to get a hold off where pressed keys don't do anything
 
+I could have a series of screens....
 
 
+bug..pressing esc during the timeout freezes game...
 
+when inserting ld1 game move also insert ld2 game move 40 frames in the future...
 
+while in mode ld1 accept no input at all
 
+in mode ld2 accept input
 
+i need to make more level done game moves
 
+-----------------
 
+Im going to fix it, by adding more modes
 
 
+0 = normal
+8 = triggered (can only trigger from mode 0)
+7 = game move 'Level Done 1' and 'Level Done 2' entered
+6 = game move 'Level Done 1' received and processed (wait mode 1 - time only)
+5 = game move 'Level Done 2' received and processed (wait mode 2 - time or keypress)
+4 = local player timed out or keypress
+3 = all players timed out or keypress
+2 - game move 'Next Level' entered
+1 = game move 'Next Level' received and process started
+0 = new level started
 
 
+in modes 1234 678 - input from player disabled
+in modes 12345678 - player move disabled, all other moveable objects movement disabled
+actually this happens when switching from mode 7 to 6 when 'Level Done 1' is processed
+does that happen differently between server and client?
+
+in game loop stuff happens differently when mode 8 and 7 are active..
+this happens on server, but not on client until gm is received
+
+make is so that in game loop nothing different until mode 6
+to make server and client do the same thing
+7 and 8 sre still need to prevent multiple level done
+
+
+
+void proc_exit_collision(int p, int i)
+{
+   if (level_done_mode == 0)
+   {
+      level_done_mode = 8;
+      next_level = play_level + 1;
+      game_event(4, 0, 0, 0, 0, 0, 0);
+   }
+}
+
+void proc_warp_collision(int p, int i)
+{
+   if (level_done_mode == 0)
+   {
+      level_done_mode = 8;
+      next_level = item[i][8];
+      game_event(4, 0, 0, p, i, 0, 0);
+   }
+}
+
+void proc_player_input(int ret)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) // cycle all active players
+      {
+         if (players[p].control_method == 0) // local single player control
+         {
+            if (level_done_mode == 8)
+            {
+               level_done_mode = 7;
+               add_game_move(frame_num,     6, 0, 1); // insert level done into game move
+               add_game_move(frame_num+120, 6, 0, 2);
+            }
+
+void server_local_control(int p)
+{
+   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+   if (level_done_mode == 8)
+   {
+      level_done_mode = 7;
+      add_game_move(fn,     6, 0, 1); // insert level done into game move
+      add_game_move(fn+120, 6, 0, 2); // insert level done into game move
+   }
+
+
+void proc_game_move(void)
+{
+   if (game_moves[x][0] == frame_num)
+   {
+      switch (game_moves[x][1])
+      {
+         case 1: proc_player_state_game_move(x); break;
+         case 6: proc_level_done(x); break;
+         case 7: proc_next_level(); break;
+      }
+   }
+}
+
+void proc_level_done(int x)
+{
+   if (game_moves[x][3]) // level done 1
+   {
+      level_done_mode = 6;
+      // set all players to paused type 3
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            players[p].paused = 1;
+            players[p].paused_type = 3;
+            players[p].paused_mode_count = 120;
+         }
+   }
+   else // level done 2
+   {
+      level_done_mode = 5;
+      // set all players to paused type 3
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            players[p].paused = 1;
+            players[p].paused_type = 3;
+            players[p].paused_mode_count = 120;
+         }
+   }
+}
+
+
+in game loop
+I pass it all to proc_level_done_mode();
+
+void game_loop(int start_mode)
+{
+   game_exit = 0;
+   proc_start_mode(start_mode);
+   while (!game_exit)
+   {
+      if ((level_done_mode > 0) && (level_done_mode < 7)) proc_level_done_mode();
+      else
+      {
+
+
+
+
+
+now I am thinking about using game_move entries to track acknowledgements
+
+level done 1
+level done 2
+player acknowledgements or time outs
+next level
+
+I will need a new type of game move...
+type 8 player acknowledge (pak)
+
+when any cdat is received in mode 5 enter pak
+
+
+
+- disable all player input in mode 6
+- turn it back on for mode 5, but only to acknowledge
+
+
+what if I put all three gms in at once:
+
+ld1
+ld2+120
+nl+200
+
+then if all players ack after ld2 nl can be done sooner...
+
+now make no input..done
+
+insert player ack in mode 5
+
+check for all players ack to skip wait...
+
+I think I have it working in single player mode..now net also...
+
+doc again..
+
+--------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+
+0 = normal
+8 = triggered (can only trigger from mode 0)
+7 = all three game moves entered 'Level Done 1' 'Level Done 2' 'Next Level'
+6 = game move 'Level Done 1' received and processed (wait mode 1 - time only)
+5 = game move 'Level Done 2' received and processed (wait mode 2 - time or keypress)
+4 = all players timed out or keypress
+1 = game move 'Next Level' received and process started
+0 = new level started
+
+game moves:
+
+6 0 1 "Level Done 1"
+6 0 2 "Level Done 2"
+7 0 0 "Next Level"
+8 p 0 "Player Acknowledge"
+
+High Level
+- All game moves are entered with future frame_nums
+- 1st stage does nothing but wait
+- 2nd stage waits, but also accepts ack from players
+- if all players ack, or timer runs out
+- insert another 'next level' game move with a earlier frame num
+
+
+Details:
+
+in all mode (single, netgame, client, server, rungame), any player will trigger level done
+
+void proc_exit_collision(int p, int i)
+{
+   if (level_done_mode == 0)
+   {
+      level_done_mode = 8;
+      next_level = play_level + 1;
+      game_event(4, 0, 0, 0, 0, 0, 0);
+   }
+}
+
+void proc_warp_collision(int p, int i)
+{
+   if (level_done_mode == 0)
+   {
+      level_done_mode = 8;
+      next_level = item[i][8];
+      game_event(4, 0, 0, p, i, 0, 0);
+   }
+}
+
+
+but...only in single player or server will that have any effect:
+
+void proc_player_input(int ret)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) // cycle all active players
+      {
+         if (players[p].control_method == 0) // local single player control
+         {
+            if (level_done_mode == 8) start_level_done(p);
+
+void server_local_control(int p)
+{
+   if (level_done_mode == 8) start_level_done(p);
+
+
+void start_level_done(int p)
+{
+   level_done_mode = 7;
+   int fn = frame_num + control_lead_frames;
+   add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
+   add_game_move(fn+100, 6, 0, 2); // insert level done 2 into game move
+   add_game_move(fn+200, 7, 0, 0); // insert next level into game move
+   players1[p].old_comp_move = players1[p].comp_move = 0; // reset both
+}
+
+Then nothing happens for a few frames, until the game move "Level Done 1" is processed
+this is common to all (single, server, client)
+
+once that happens we are in mode 6
+
+level_done_mode = 6;
+for (int p=0; p<NUM_PLAYERS; p++)
+   if (players[p].active)
+   {
+      players[p].paused = 1;
+      players[p].paused_type = 3;
+   }
+
+while in mode 6, in game_loop() things are done differently
+there is an entirely different main loop
+
+in mode 6 this does nothing
+
+void game_loop(int start_mode)
+{
+   game_exit = 0;
+   proc_start_mode(start_mode);
+   while (!game_exit)
+   {
+      if ((level_done_mode > 0) && (level_done_mode < 7)) proc_level_done_mode();
+      else
+      {
+
+
+proc_player_input has been modifoed to only do the regular stuff in level_done_mode == 0
+so it does nothing in mode 6 either
+
+void proc_player_input(int ret)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) // cycle all active players
+      {
+         if (players[p].control_method == 0) // local single player control
+         {
+
+            if (level_done_mode == 0)
+            {
+               set_comp_move_from_player_key_check(p); // but don't set controls !!!
+               if (players1[p].comp_move != players1[p].old_comp_move)
+               {
+                  players1[p].old_comp_move = players1[p].comp_move;
+                  add_game_move(frame_num, 5, p, players1[p].comp_move);
+               }
+            }
+
+
+so in this mode we are just waiting for the next game_move "level done 2"
+
+the screen overlay is shown in all level_done_modes that are not zero...
+
+then when 'level_done 2' is received we go into mode 5
+
+
+in mode 5 game_loop calls
+
+void proc_level_done_mode(void)
+{
+   if (level_done_mode == 5) // check if all players have acknowledged
+   {
+      int aa = 1; // yes by default, set to no if any have not ack
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+            if (!has_player_acknowledged(p)) aa = 0;
+      if (aa)
+      {
+         int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+         add_game_move(fn, 7, 0, 0); // insert next level into game move
+         level_done_mode = 4;
+      }
+   }
+
+int has_player_acknowledged(int p)
+{
+   for (int x=game_move_entry_pos; x>0; x--)  // look back for frame_num
+      if ((game_moves[x][1] == 8) && (game_moves[x][2] == p)) return 1;
+   return 0;
+}
+
+also in mode 5:
+
+single player and server have a special cases to enter ack
+
+            if (level_done_mode == 5)
+            {
+               set_comp_move_from_player_key_check(p); // but don't set controls !!!
+               if (players1[p].comp_move != players1[p].old_comp_move)
+               {
+                  players1[p].old_comp_move = players1[p].comp_move;
+                  if (players1[p].comp_move) add_game_move(frame_num, 8, p, 0); // insert player ack
+               }
+            }
+
+client still sends cdat exactly the same, but when received on server...
+
+void server_proc_cdat_packet(void)
+{
+   if (level_done_mode == 5) add_game_move(fn, 8, p, 0); // add ack to game_move array
+   else
+
+this all seems to work fine but it seems overly complicated....
+
+test more...
+
+modify this:
+
+
+
+            if (level_done_mode == 0)
+            {
+               set_comp_move_from_player_key_check(p); // but don't set controls !!!
+               if (players1[p].comp_move != players1[p].old_comp_move)
+               {
+                  players1[p].old_comp_move = players1[p].comp_move;
+                  add_game_move(frame_num, 5, p, players1[p].comp_move);
+               }
+            }
+            if (level_done_mode == 5)
+            {
+               set_comp_move_from_player_key_check(p); // but don't set controls !!!
+               if (players1[p].comp_move != players1[p].old_comp_move)
+               {
+                  players1[p].old_comp_move = players1[p].comp_move;
+                  if (players1[p].comp_move) add_game_move(frame_num, 8, p, 0); // insert player ack
+               }
+            }
+
+
+            if (level_done_mode == 5) if (players1[p].comp_move) add_game_move(frame_num, 8, p, 0); // insert player ack
+
+
+
+void add_game_move(int frame, int type, int data1, int data2)
+{
+
+   if ((level_done_mode == 5) && (type == 5) && (data2))  // ack mode and not zero move
+   {
+      game_moves[game_move_entry_pos][0] = frame;
+      game_moves[game_move_entry_pos][1] = 8;
+      game_moves[game_move_entry_pos][2] = data1; // player num
+      game_moves[game_move_entry_pos][3] = 0;
+      game_move_entry_pos++;
+      return; // to exit immediately
+   }
+
+
+make every player that initiates level_done_mode 8 get paused...
+just so that it looks good...and the player does not keep moving past the exit or warp...done
+
+
+fix it so that no input can happen while in modes...
+
+in single player esc during wait kills it bad...
+
+added this to single and server:
+
+            if ((level_done_mode == 0) || (level_done_mode == 5))
+            {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+docs looks good...now test everything...
+
+
+here is a normal single player game
+
+
+number of entries 29
+deathmatch_pbullets 0
+deathmatch_pbullets_damage 5
+suicide_pbullets 0
+[ gm][  pc][p][cm]
+[  0][   0]-------------START (level:71)-------------
+[  1][   0]-------------PLAYER 0 ACTIVE (color:12)--
+[  2][  18][0][ 3]  [    ][    ][    ][  ][RIGHT][LEFT]
+[  3][  19][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[  4][  27][0][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[  5][  41][0][50]  [FIRE][JUMP][    ][  ][RIGHT][    ]
+[  6][  42][0][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[  7][  45][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[  8][  47][0][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[  9][  50][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 10][  53][0][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[ 11][  54][0][38]  [FIRE][    ][    ][UP][RIGHT][    ]
+[ 12][  55][0][36]  [FIRE][    ][    ][UP][     ][    ]
+[ 13][  56][0][52]  [FIRE][JUMP][    ][UP][     ][    ]
+[ 14][  58][0][21]  [    ][JUMP][    ][UP][     ][LEFT]
+[ 15][  62][0][37]  [FIRE][    ][    ][UP][     ][LEFT]
+[ 16][  63][0][36]  [FIRE][    ][    ][UP][     ][    ]
+[ 17][  64][0][ 4]  [    ][    ][    ][UP][     ][    ]
+[ 18][  66][0][ 6]  [    ][    ][    ][UP][RIGHT][    ]
+[ 19][  67][0][22]  [    ][JUMP][    ][UP][RIGHT][    ]
+[ 20][  69][0][23]  [    ][JUMP][    ][UP][RIGHT][LEFT]
+[ 21][  71][0][39]  [FIRE][    ][    ][UP][RIGHT][LEFT]
+[ 22][  72][0][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[ 23][  76][0][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 24][  84]-------------LEVEL DONE 1 ----------------
+[ 25][ 184]-------------LEVEL DONE 2 ----------------
+[ 26][ 684]-------------NEXT LEVEL!------------------
+[ 27][ 215]-------------PLAYER 0 ACKNOWLEDGE------
+[ 28][ 216]-------------NEXT LEVEL!------------------
+
+
+here is a 2 player game
+
+
+number of entries 63
+deathmatch_pbullets 0
+deathmatch_pbullets_damage 5
+suicide_pbullets 0
+[ gm][  pc][p][cm]
+[  0][   0]-------------START (level:71)-------------
+[  1][   0]-------------PLAYER 0 ACTIVE (color:12)--
+[  2][  97]-------------PLAYER 1 ACTIVE (color:13)--
+[  3][ 154][0][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[  4][ 164][0][ 3]  [    ][    ][    ][  ][RIGHT][LEFT]
+[  5][ 166][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[  6][ 196][0][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[  7][ 204][0][ 3]  [    ][    ][    ][  ][RIGHT][LEFT]
+[  8][ 205][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[  9][ 209][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 10][ 210][0][16]  [    ][JUMP][    ][  ][     ][    ]
+[ 11][ 215][0][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 12][ 254][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 13][ 259][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 14][ 263][0][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[ 15][ 268][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 16][ 282][0][16]  [    ][JUMP][    ][  ][     ][    ]
+[ 17][ 302][0][48]  [FIRE][JUMP][    ][  ][     ][    ]
+[ 18][ 303][0][32]  [FIRE][    ][    ][  ][     ][    ]
+[ 19][ 306][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 20][ 311][0][32]  [FIRE][    ][    ][  ][     ][    ]
+[ 21][ 314][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 22][ 318][0][32]  [FIRE][    ][    ][  ][     ][    ]
+[ 23][ 321][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 24][ 392][1][ 3]  [    ][    ][    ][  ][RIGHT][LEFT]
+[ 25][ 394][1][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 26][ 407][1][16]  [    ][JUMP][    ][  ][     ][    ]
+[ 27][ 410][1][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 28][ 418][1][50]  [FIRE][JUMP][    ][  ][RIGHT][    ]
+[ 29][ 421][1][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[ 30][ 423][1][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[ 31][ 426][1][49]  [FIRE][JUMP][    ][  ][     ][LEFT]
+[ 32][ 429][1][33]  [FIRE][    ][    ][  ][     ][LEFT]
+[ 33][ 430][1][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[ 34][ 434][1][49]  [FIRE][JUMP][    ][  ][     ][LEFT]
+[ 35][ 437][1][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[ 36][ 440][1][33]  [FIRE][    ][    ][  ][     ][LEFT]
+[ 37][ 442][1][49]  [FIRE][JUMP][    ][  ][     ][LEFT]
+[ 38][ 443][1][48]  [FIRE][JUMP][    ][  ][     ][    ]
+[ 39][ 444][1][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 40][ 447][1][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 41][ 449][1][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[ 42][ 450][1][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 43][ 459][1][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 44][ 468][1][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 45][ 484][1][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 46][ 489][1][16]  [    ][JUMP][    ][  ][     ][    ]
+[ 47][ 498][1][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 48][ 503][1][16]  [    ][JUMP][    ][  ][     ][    ]
+[ 49][ 506][1][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 50][ 521]-------------LEVEL DONE 1 ----------------
+[ 51][ 621]-------------LEVEL DONE 2 ----------------
+[ 52][1121]-------------NEXT LEVEL!------------------
+[ 53][ 593][1][16]  [    ][JUMP][    ][  ][     ][    ]
+[ 54][ 598][1][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 55][ 684]-------------PLAYER 1 ACKNOWLEDGE------
+[ 56][ 687]-------------PLAYER 1 ACKNOWLEDGE------
+[ 57][ 767]-------------PLAYER 0 ACKNOWLEDGE------
+[ 58][ 768]-------------NEXT LEVEL!------------------
+[ 59][ 769]-------------NEXT LEVEL!------------------
+[ 60][ 770]-------------NEXT LEVEL!------------------
+[ 61][ 771]-------------NEXT LEVEL!------------------
+[ 62][ 771][0][ 0]  [    ][    ][    ][  ][     ][    ]
+
+here is a 3 player game
+
+number of entries 96
+deathmatch_pbullets 0
+deathmatch_pbullets_damage 5
+suicide_pbullets 0
+[ gm][  pc][p][cm]
+[  0][   0]-------------START (level:71)-------------
+[  1][   0]-------------PLAYER 0 ACTIVE (color:12)--
+[  2][ 113]-------------PLAYER 1 ACTIVE (color:13)--
+[  3][1522]-------------PLAYER 2 ACTIVE (color:14)--
+[  4][1662][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[  5][1681][0][ 3]  [    ][    ][    ][  ][RIGHT][LEFT]
+[  6][1682][0][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[  7][1686][0][17]  [    ][JUMP][    ][  ][     ][LEFT]
+[  8][1688][0][16]  [    ][JUMP][    ][  ][     ][    ]
+[  9][1697][0][50]  [FIRE][JUMP][    ][  ][RIGHT][    ]
+[ 10][1700][0][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[ 11][1703][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 12][1704][0][16]  [    ][JUMP][    ][  ][     ][    ]
+[ 13][1708][0][48]  [FIRE][JUMP][    ][  ][     ][    ]
+[ 14][1709][0][32]  [FIRE][    ][    ][  ][     ][    ]
+[ 15][1714][0][48]  [FIRE][JUMP][    ][  ][     ][    ]
+[ 16][1716][0][49]  [FIRE][JUMP][    ][  ][     ][LEFT]
+[ 17][1717][0][17]  [    ][JUMP][    ][  ][     ][LEFT]
+[ 18][1721][0][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[ 19][1722][0][33]  [FIRE][    ][    ][  ][     ][LEFT]
+[ 20][1723][0][32]  [FIRE][    ][    ][  ][     ][    ]
+[ 21][1724][0][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[ 22][1728][0][50]  [FIRE][JUMP][    ][  ][RIGHT][    ]
+[ 23][1730][0][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 24][1731][0][17]  [    ][JUMP][    ][  ][     ][LEFT]
+[ 25][1734][0][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[ 26][1735][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 27][1736][0][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[ 28][1740][0][33]  [FIRE][    ][    ][  ][     ][LEFT]
+[ 29][1741][0][17]  [    ][JUMP][    ][  ][     ][LEFT]
+[ 30][1745][0][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 31][1746][0][50]  [FIRE][JUMP][    ][  ][RIGHT][    ]
+[ 32][1747][0][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[ 33][1749][0][49]  [FIRE][JUMP][    ][  ][     ][LEFT]
+[ 34][1751][0][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[ 35][1752][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 36][1796][2][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[ 37][1803][2][ 3]  [    ][    ][    ][  ][RIGHT][LEFT]
+[ 38][1812][2][33]  [FIRE][    ][    ][  ][     ][LEFT]
+[ 39][1815][2][49]  [FIRE][JUMP][    ][  ][     ][LEFT]
+[ 40][1817][2][17]  [    ][JUMP][    ][  ][     ][LEFT]
+[ 41][1819][2][19]  [    ][JUMP][    ][  ][RIGHT][LEFT]
+[ 42][1821][2][22]  [    ][JUMP][    ][UP][RIGHT][    ]
+[ 43][1822][2][38]  [FIRE][    ][    ][UP][RIGHT][    ]
+[ 44][1827][2][54]  [FIRE][JUMP][    ][UP][RIGHT][    ]
+[ 45][1828][2][22]  [    ][JUMP][    ][UP][RIGHT][    ]
+[ 46][1831][2][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 47][1832][2][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[ 48][1838][2][50]  [FIRE][JUMP][    ][  ][RIGHT][    ]
+[ 49][1839][2][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 50][1843][2][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 51][1844][2][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[ 52][1849][2][50]  [FIRE][JUMP][    ][  ][RIGHT][    ]
+[ 53][1851][2][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 54][1857][2][34]  [FIRE][    ][    ][  ][RIGHT][    ]
+[ 55][1863][2][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 56][1865][2][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[ 57][1870][2][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 58][1881][2][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 59][1884][2][16]  [    ][JUMP][    ][  ][     ][    ]
+[ 60][1889]-------------LEVEL DONE 1 ----------------
+[ 61][1989]-------------LEVEL DONE 2 ----------------
+[ 62][2489]-------------NEXT LEVEL!------------------
+[ 63][1889][2][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 64][1902][2][16]  [    ][JUMP][    ][  ][     ][    ]
+[ 65][1903][2][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 66][1981][1][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 67][1989][1][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[ 68][1994]-------------PLAYER 1 ACKNOWLEDGE------
+[ 69][1998]-------------PLAYER 1 ACKNOWLEDGE------
+[ 70][2099]-------------PLAYER 0 ACKNOWLEDGE------
+[ 71][2103][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 72][2117]-------------PLAYER 0 ACKNOWLEDGE------
+[ 73][2121][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 74][2129]-------------PLAYER 0 ACKNOWLEDGE------
+[ 75][2134][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 76][2141]-------------PLAYER 0 ACKNOWLEDGE------
+[ 77][2146][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 78][2171]-------------PLAYER 0 ACKNOWLEDGE------
+[ 79][2176][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 80][2194]-------------PLAYER 0 ACKNOWLEDGE------
+[ 81][2199][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 82][2205]-------------PLAYER 0 ACKNOWLEDGE------
+[ 83][2210][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 84][2216]-------------PLAYER 0 ACKNOWLEDGE------
+[ 85][2221][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 86][2231]-------------PLAYER 0 ACKNOWLEDGE------
+[ 87][2237][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 88][2245]-------------PLAYER 0 ACKNOWLEDGE------
+[ 89][2250][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 90][2273]-------------PLAYER 2 ACKNOWLEDGE------
+[ 91][2276]-------------NEXT LEVEL!------------------
+[ 92][2277]-------------NEXT LEVEL!------------------
+[ 93][2278]-------------NEXT LEVEL!------------------
+[ 94][2279]-------------NEXT LEVEL!------------------
+[ 95][2277]-------------PLAYER 2 ACKNOWLEDGE------
+
+
+now lets work on making the overlay look better...
+
+what can I show?
+
+
+I really don't have anything
+
+I will have to add all that I need:
+
+They will need to be in the synced part of players
+
+
+re-spawns
+bullets fired
+enemies killed
+
+Time spent in level
+
+Health lost
+Health restored
+Health wasted
+
+Other players killed
+Damage to other player
+
+Purple Coins collected
+Free Men collected
+
+
+% of kills
+
+moves made (control changes)
+
+
+
+lets just add these for now...
+
+6 more ints
+
+   int stat_respawns;
+   int stat_bullets_fired;
+   int stat_enemy_hits;
+   int stat_player_hits;
+   int stat_self_hits;
+   int stat_purple_coins;
+
+
+   reset here in common
+
+   if (t == 17) // player common
+   {
+      players[p].stat_respawns = 0;
+      players[p].stat_bullets_fired = 0;
+      players[p].stat_enemy_hits = 0;
+      players[p].stat_player_hits = 0;
+      players[p].stat_self_hits = 0;
+      players[p].stat_purple_coins = 0;
+
+
+
+now what do I have to do if the size changes??
+
+
+Purple Martians Version 7.10
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+
+Variables used to save levels in pml format
+
+level_header:    80
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts       :  5280
+lift_steps  : 38400
+pmsgtext    :250000
+------------:------
+total       :384960
+
+Variables used for netgame state exchange
+
+players  :  1664
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    : 32000
+lifts    :  5280
+l        : 40000
+---------:------
+total    :106144
+
+
+now start to count these...
+bullets_fired...done
+enemy hits...done
+respawns...done
+purple coins..done
+
+I want to know how many purple coins there are in total
+the only way I can think of to do that is a global variable
+that got me thinking...can I group a bunch of current_level variables together and put them in a struct?
+
+what are some candidates?
+
+level_done_mode
+last_loaded_level
+is_level_valid
+
+// global game control
+extern int game_exit;
+extern int level_done_mode;
+extern int next_level;
+
+how can I show level done nice
+stop music
+
+the show 2 lines things for level done really slows shit down
+
+what can I do?
+
+make it static
+- temp bitmap for screen buffer or for level done overlay
+
+don't draw it every time...i think I have it fixed..
+
+I dont draw it in the screen overlay code..
+I dont get a new screen buffer in the loop code
+I draw in once in proc_game_move when I get level done 1
+seems to work good..
 
 
 

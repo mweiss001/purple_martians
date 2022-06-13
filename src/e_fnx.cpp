@@ -96,7 +96,6 @@ void printBits(size_t const size, void const * const ptr)
    sprintf(msg, "%s", st);
 }
 
-
 al_fixed get_sproingy_jump_height(int num)
 {
    al_fixed t1 = al_fixdiv(al_itofix(item[num][7]), al_ftofix(7.1));
@@ -108,6 +107,41 @@ al_fixed get_sproingy_jump_height(int num)
    }
    return t2;
 }
+/*
+float get_jh(int num)
+{
+   float t1 = (float) num / 7.1;
+   float t2 = -15;
+
+   while (t1 > 0)
+   {
+      t2 += t1;  // distance moved this time period
+      t1 -= 0.2; // minus slow gravity
+   }
+   return t2;
+}
+*/
+// used for calculating sproinginess from jump height
+// used only for map move of sproingy jump height
+// misses some numbers
+// 1933 = 197
+// 1934 = 199
+int get_sp(float jh)
+{
+   float t1 = 0;
+   float t2 = 0;
+   while (t1 < (jh - 15))
+   {
+      t1 += t2;
+      t2 += 0.2;
+   }
+   return (int) round(t2*7.1);
+}
+
+
+
+
+
 
 // used only in sliders for button set new direction (cannon and podzilla)
 void set_xyinc_rot(int EN, int x2, int y2)

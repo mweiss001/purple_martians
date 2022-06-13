@@ -298,7 +298,7 @@ void proc_enemy_collision_with_pbullet(int e)
             int p = pbullet[c][1];   // player number that shot bullet
             Ei[e][31] = 1;           // flag that this enemy got shot with bullet
             Ei[e][26] = p;           // number of player's bullet that hit enemy
-            players[p].num_hits++;   // add to number of hits the player has
+            players[p].stat_enemy_hits++;  // add to number of hits the player has
             pbullet[c][0] = 0;       // bullet dies
          }
       }

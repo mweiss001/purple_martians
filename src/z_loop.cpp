@@ -1,7 +1,5 @@
 // zloop.cpp
-
 #include "pm.h"
-
 
 void proc_frame_delay(void)
 {
@@ -33,21 +31,34 @@ void proc_frame_delay(void)
    }
 }
 
-void proc_level_done(void)
+
+
+/* original, before I rearranged it
+
+void proc_next_level(void)
 {
-   stop_sound();
+   if ((ima_client) || (ima_server))
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active) players1[p].quit_reason = 80;
+   }
+   if (L_LOGGING_NETPLAY)
+   {
+      sprintf(msg,"NEXT LEVEL:%d", next_level);
+      add_log_entry_header(10, 0, msg, 3);
+   }
+
    int p = active_local_player;
-   if (players[p].control_method == 0) show_level_done(1); // wait for keypress in single player mode
-   if (players[p].control_method == 1)
+   if (players[p].control_method == 1) // play demo level mode
    {
       show_level_done(0);
       al_rest(1);
       game_exit = 1;// run game file play exits after level done
       return;
    }
+
    if ((ima_server) || (ima_client))
    {
-      show_level_done(0);
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          // free all the used clients, so they can be re-assigned on the next level
@@ -59,12 +70,69 @@ void proc_level_done(void)
       if (ima_client) client_flush();
       al_rest(1);
    }
+
+
+
+   stop_sound();
    blind_save_game_moves(1);
    save_log_file();
    play_level = next_level;
-   level_done_trig = 0;
-   level_done_proc = 1;
-   if ((!ima_client) && (!ima_server)) stamp();
+   level_done_mode = 0;
+   proc_start_mode(5);
+}
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void proc_next_level(void)
+{
+   if (L_LOGGING_NETPLAY)
+   {
+      sprintf(msg,"NEXT LEVEL:%d", next_level);
+      add_log_entry_header(10, 0, msg, 3);
+   }
+   // run demo mode saved game file
+   if (players[active_local_player].control_method == 1)
+   {
+      show_level_done(0);
+      al_rest(1);
+      game_exit = 1;// run game file play exits after level done
+      return; // to exit immediately
+   }
+   if ((ima_client) || (ima_server))
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         if (players[p].active) players1[p].quit_reason = 80;
+
+         // free all the used clients, so they can be re-assigned on the next level
+         if (players[p].control_method == 9) players[p].control_method = 0;
+         // set all clients inactive on server and client, to force them to re-chase and lock on the new level
+         if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
+      }
+      if (ima_server) server_flush();
+      if (ima_client) client_flush();
+      al_rest(1);
+   }
+   stop_sound();
+   blind_save_game_moves(1);
+   save_log_file();
+   play_level = next_level;
+   level_done_mode = 0;
+   proc_start_mode(5);
 }
 
 // start modes:
@@ -145,10 +213,56 @@ void proc_start_mode(int start_mode)
    clear_pm_events();
 
    show_player_join_quit_timer = 0;
-   level_done_trig = 0;
-   level_done_proc = 0;
    start_music(0); // rewind and start theme
+}
 
+
+int ami_server_or_single(void)
+{
+   int a = active_local_player;
+   int cm = players[a].control_method;
+
+   if ((cm == 0) || (cm == 3)) return 1;
+   return 0;
+
+}
+
+
+
+int has_player_acknowledged(int p)
+{
+   for (int x=game_move_entry_pos; x>0; x--)  // look back for frame_num
+      if ((game_moves[x][1] == 8) && (game_moves[x][2] == p)) return 1;
+   return 0;
+}
+
+
+void proc_level_done_mode(void)
+{
+   stop_sound();
+   proc_frame_delay();
+   if (draw_frame)
+   {
+      draw_screen_overlay();
+      al_flip_display();
+   }
+   if (level_done_mode == 5)
+   {
+      if (ima_server)
+      {
+         int aa = 1; // yes by default, set to no if any have not ack
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if (players[p].active)
+               if (!has_player_acknowledged(p)) aa = 0;
+         if (aa)
+         {
+            int fn = frame_num + control_lead_frames;
+            add_game_move(fn, 7, 0, 0); // insert next level into game move
+         }
+      }
+      if ((players[0].control_method == 0) && (has_player_acknowledged(0)))    // single player
+         add_game_move(frame_num, 7, 0, 0); // insert next level into game move
+   }
 }
 
 void game_loop(int start_mode)
@@ -157,39 +271,38 @@ void game_loop(int start_mode)
    proc_start_mode(start_mode);
    while (!game_exit)
    {
-      //printf("t1 ld:%d\n", level_done);
-
-      if (level_done_proc) proc_start_mode(5);
-
       proc_scale_factor_change();
-
       proc_sound();
 
       if (ima_server) server_control();
       if (ima_client) client_control();
       proc_controllers();
 
-      move_ebullets();
-      move_pbullets();
-      move_lifts(0);
-      move_players();
-      move_enemies();
-      move_items();
-      proc_frame_delay();
-      if (draw_frame)
+      if ((level_done_mode > 0) && (level_done_mode < 7)) proc_level_done_mode();
+      else
       {
-         get_new_background(0);
+         move_ebullets();
+         move_pbullets();
+         move_lifts(0);
+         move_players();
+         move_enemies();
+         move_items();
+         proc_frame_delay();
+         if (draw_frame)
+         {
+            get_new_background(0);
 
-         draw_lifts();
-         draw_items();
-         draw_enemies();
-         draw_ebullets();
-         draw_pbullets();
-         draw_players();
+            draw_lifts();
+            draw_items();
+            draw_enemies();
+            draw_ebullets();
+            draw_pbullets();
+            draw_players();
 
-         get_new_screen_buffer(0, 0, 0);
-         draw_screen_overlay();
-         al_flip_display();
+            get_new_screen_buffer(0, 0, 0);
+            draw_screen_overlay();
+            al_flip_display();
+         }
       }
    }
    if (ima_server) server_exit();

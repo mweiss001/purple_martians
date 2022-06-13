@@ -12,15 +12,6 @@ it's most likely an opengl thing
 bug...orb timed on..when time set to 1, never triggers toggle on
 figure this out later maybe, for now just set timer to 2 or use always on event
 
-make sure mouse cursor is set properly...a few random times it is wrong
-
-fix mouse move with sproingy height, mouse pointer goes off the screen
-I want to do this with the actual postion, not mouse_dy..
-
-I can get main position and distance from that with hy...
-
-
-
 
 
 
@@ -32,9 +23,25 @@ I can get main position and distance from that with hy...
 
 
 
-scrollbars vs scrolledge??
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+scrollbars as an option vs scrolledge??
 
 
 ------------------------------------------------------

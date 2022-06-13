@@ -39,6 +39,8 @@ void proc_pbullet_shoot(int p)
          players[p].fire_held = 1;
          if (players[p].bullet_wait_counter < 1 )
          {
+            players[p].stat_bullets_fired++;
+
             for (int b=0; b<50; b++)     // search for empty bullet
                if (!pbullet[b][0])
                {

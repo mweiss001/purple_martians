@@ -280,7 +280,11 @@ extern int suicide_pbullets;
 
 
 
-#define STATE_SIZE 105952
+//#define STATE_SIZE 105952
+#define STATE_SIZE 106144
+
+
+
 // server's copies of client states
 extern char srv_client_state[8][2][STATE_SIZE];
 extern int srv_client_state_frame_num[8][2];
@@ -321,10 +325,9 @@ extern int frame_num;
 
 // global game control
 extern int game_exit;
-extern int level_done_trig;
-extern int level_done_proc;
-
+extern int level_done_mode;
 extern int next_level;
+
 
 // some global strings
 extern char level_filename[80];
@@ -612,6 +615,26 @@ struct player // synced between server and client
 
    int num_hits;       // when players bullet hits enemy
    int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
+
+   int stat_respawns;
+   int stat_bullets_fired;
+   int stat_enemy_hits;
+   int stat_player_hits;
+   int stat_self_hits;
+   int stat_purple_coins;
+
+/*   int stat_enemy_expoded;
+   int stat_player_expoded;
+   int stat_self_expoded;
+
+   fixed stat_LIFE_inc;
+   fixed stat_LIFE_dec;
+   fixed stat_LIFE_wasted;
+  */
+
+
+
+
 };
 
 struct player1 // not synced between server and client
@@ -804,6 +827,9 @@ extern int valid_level_loaded;
 extern int last_level_loaded;
 extern int resume_allowed;
 extern int number_of_starts;
+extern int number_of_purple_coins;
+
+
 
 // items
 extern int item[500][16];      // item ints
@@ -1251,6 +1277,9 @@ void proc_game_move(void);
 void serial_key_check(int key);
 void set_controls_from_game_move(int p);
 int proc_events(ALLEGRO_EVENT ev, int ret);
+
+void start_level_done(int p);
+
 int proc_controllers(void);
 
 // z_enemy.h
@@ -1445,7 +1474,9 @@ void scaled_tile_test(void);
 
 // z_loop.h
 void proc_frame_delay(void);
-void proc_level_done(void);
+
+int has_player_acknowledged(int p);
+void proc_next_level(void);
 void proc_start_mode(int start_mode);
 void game_loop(int start_mode);
 

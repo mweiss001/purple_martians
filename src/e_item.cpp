@@ -156,6 +156,8 @@ int sort_item(int set_pos)
 
    // set number of starts...
    number_of_starts = item_num_of_type[5];
+
+
    return inum;
 }
 

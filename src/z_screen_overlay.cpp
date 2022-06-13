@@ -2,6 +2,211 @@
 
 #include "pm.h"
 
+
+
+int dif_from_now_to_nl()
+{
+   int min_nl = 9999999;
+   for (int x=game_move_entry_pos; x>0; x--)  // look back
+      if (game_moves[x][1] == 7)
+      {
+         if (game_moves[x][0] < min_nl) min_nl = game_moves[x][0];
+      }
+   if (min_nl < 9999999) return min_nl - frame_num;
+   return 0;
+}
+
+
+
+void show_player_stat_box(int tx, int y, int p)
+{
+
+   al_draw_filled_rectangle(tx, y, tx+200, y+50, palette_color[0]);
+   al_draw_rectangle(       tx, y, tx+200, y+50, palette_color[15], 1);
+   al_draw_rectangle(       tx, y, tx+200, y+11, palette_color[15], 1);
+
+
+   y+=2;
+
+   int c = 15;
+
+   if ((ima_server) || (ima_client))
+      al_draw_textf(font, palette_color[c], tx+2, y, 0, "Player:%d [%s]", p, players1[p].hostname);
+   else al_draw_textf(font, palette_color[c], tx+2, y, 0, "Player:%d", p);
+
+
+   if ((level_done_mode == 5) && (!has_player_acknowledged(p)))
+   {
+      c = flash_color;
+      al_draw_textf(font, palette_color[c], tx+158, y+12, 0, "press");
+      al_draw_textf(font, palette_color[c], tx+158, y+20, 0, " any");
+      int tl = dif_from_now_to_nl()/40;
+      if (tl > 9) al_draw_textf(font, palette_color[c], tx+154, y+29, 0, "  %2d", dif_from_now_to_nl()/40);
+      else        al_draw_textf(font, palette_color[c], tx+158, y+29, 0, "  %d", dif_from_now_to_nl()/40);
+   }
+   if ((level_done_mode == 5) && (has_player_acknowledged(p))) al_draw_textf(font, palette_color[15], tx+158, y+20, 0, "ready");
+
+
+   y += 12;
+
+   al_draw_bitmap(player_tile[players[p].color][1], tx+2, y, 0); // draw shape
+
+
+   c = 15;
+   al_draw_textf(font, palette_color[15], tx+24, y, 0, "Deaths:%d", players[p].stat_respawns); y+=8;
+   al_draw_textf(font, palette_color[15], tx+24, y, 0, "Shots:%d", players[p].stat_bullets_fired); y+=8;
+   al_draw_textf(font, palette_color[15], tx+24, y, 0, "Enemy Hits:%d", players[p].stat_enemy_hits); y+=8;
+   al_draw_textf(font, palette_color[15], tx+24, y, 0, "Purple Coins:%d/%d", players[p].stat_purple_coins, number_of_purple_coins); y+=8;
+
+}
+
+
+
+void new_show_level_done(void)
+{
+   int x = SCREEN_W/2;
+   int y = SCREEN_H/2;
+
+//   al_draw_text(font, palette_color[15], x, y, ALLEGRO_ALIGN_CENTER, "LEVEL DONE"); y+=8;
+//   int col = players[active_local_player].color;
+//   if (frame_num % 20 == 1) draw_large_2lines(f2, "Level", "Done!", col, .6);
+
+   process_flash_color();
+
+   int np = 0; // number of active players
+   for (int p=0; p<NUM_PLAYERS; p++) if (players[p].active) np++;
+
+   int tx=0, ty=0, pc=0;
+   if (np == 1)
+   {
+      tx = x-100;
+      ty = y-25;
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            show_player_stat_box(tx, ty, p);
+            ty += 56;
+         }
+   }
+   if (np == 2)
+   {
+      int tx = x-200;
+      int ty = y-25;
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            show_player_stat_box(tx, ty, p);
+            tx = x+5;
+         }
+   }
+   if (np == 3)
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            if (pc == 0) { tx = x-100; ty = y-80; }
+            if (pc == 1) { tx = x-100; ty = y-25; }
+            if (pc == 2) { tx = x-100; ty = y+30; }
+            show_player_stat_box(tx, ty, p);
+            pc++;
+         }
+   }
+   if (np == 4)
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            if (pc == 0) { tx = x+-200; ty = y-50; }
+            if (pc == 1) { tx = x+5;    ty = y-50; }
+            if (pc == 2) { tx = x+-200; ty = y+5; }
+            if (pc == 3) { tx = x+5;    ty = y+5; }
+            show_player_stat_box(tx, ty, p);
+            pc++;
+         }
+   }
+   if ((np == 5) || (np == 6))
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            if (pc == 0) { tx = x-200; ty = y-80; }
+            if (pc == 1) { tx = x+5;   ty = y-80; }
+            if (pc == 2) { tx = x-200; ty = y-25; }
+            if (pc == 3) { tx = x+5;   ty = y-25; }
+            if (pc == 4) { tx = x-200; ty = y+30; }
+            if (pc == 5) { tx = x+5;   ty = y+30; }
+            show_player_stat_box(tx, ty, p);
+            pc++;
+         }
+   }
+   if ((np == 7) || (np == 8))
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            if (pc == 0) { tx = x-200; ty = y-105; }
+            if (pc == 1) { tx = x+5;   ty = y-105; }
+            if (pc == 2) { tx = x-200; ty = y-50; }
+            if (pc == 3) { tx = x+5;   ty = y-50; }
+            if (pc == 4) { tx = x-200; ty = y+5; }
+            if (pc == 5) { tx = x+5;   ty = y+5; }
+            if (pc == 6) { tx = x-200; ty = y+60; }
+            if (pc == 7) { tx = x+5;   ty = y+60; }
+            show_player_stat_box(tx, ty, p);
+            pc++;
+         }
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+//
+//
+//   for (int p=0; p<NUM_PLAYERS; p++)
+//      if (players[p].active)
+//      {
+//         show_player_stat_box(tx, y, p);
+//         y += 56;
+//
+//      }
+//
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
 void draw_screen_overlay(void)
 {
    // these all draw on screen buffer
@@ -9,6 +214,10 @@ void draw_screen_overlay(void)
    draw_top_display();
    draw_bmsg();
    show_player_join_quit();
+
+   if (level_done_mode) new_show_level_done();
+
+
 }
 
 void show_player_join_quit(void)
