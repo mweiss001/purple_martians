@@ -1553,67 +1553,25 @@ void proc_bonus_collision(int p, int i)
    if (bonus_type == 3) // purple coin!!!
    {
       item[i][0] = 0;
+      players[p].stat_purple_coins++;
+
       // game_event(70, 0, 0, p, i, 0, 0);
 
    }
-
-
-
-
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void proc_exit_collision(int p, int i)
 {
    int exit_enemys_left = num_enemy - item[i][8];
    if (exit_enemys_left <= 0)
    {
-      level_done_trig = 1;
-      next_level = play_level + 1;
-      game_event(4, 0, 0, 0, 0, 0, 0);
+      if (level_done_mode == 0)
+      {
+         players[p].paused = 5;
+         level_done_mode = 8;
+         next_level = play_level + 1;
+         game_event(4, 0, 0, 0, 0, 0, 0);
+      }
    }
    else game_event(3, 0, 0, p, i, exit_enemys_left, 0); // not enough dead yet
 }
@@ -1679,9 +1637,13 @@ void proc_rocket_collision(int p, int i)
 
 void proc_warp_collision(int p, int i)
 {
-   next_level = item[i][8];
-   level_done_trig = 1;
-   game_event(4, 0, 0, p, i, 0, 0);
+   if (level_done_mode == 0)
+   {
+      players[p].paused = 5;
+      level_done_mode = 8;
+      next_level = item[i][8];
+      game_event(4, 0, 0, p, i, 0, 0);
+   }
 }
 
 

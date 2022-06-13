@@ -238,6 +238,11 @@ void zero_level_data(void)
 
 void level_check(void)
 {
+   // set number of purple coins
+   number_of_purple_coins = 0;
+   for (int c=0; c < 500; c++)
+      if ((item[c][0] == 2) && (item[c][6] == 3)) number_of_purple_coins++;
+
 /*
    int error = 0;
 
@@ -545,8 +550,13 @@ void save_gm_txt(char *sfname)
             if (val > 63) fprintf(filepntr,"-------------PLAYER %d INACTIVE----------- ", p);
          }
 
-         if (game_moves[x][1] == 6)
-            fprintf(filepntr,"-------------LEVEL DONE!------------------ ");
+         if ((game_moves[x][1] == 6) && (game_moves[x][3] == 1)) fprintf(filepntr,"-------------LEVEL DONE 1 ---------------- ");
+         if ((game_moves[x][1] == 6) && (game_moves[x][3] == 2)) fprintf(filepntr,"-------------LEVEL DONE 2 ---------------- ");
+
+         if (game_moves[x][1] == 7)                              fprintf(filepntr,"-------------NEXT LEVEL!------------------ ");
+
+         if (game_moves[x][1] == 8)                              fprintf(filepntr,"-------------PLAYER %d ACKNOWLEDGE------ ", game_moves[x][2]);
+
 
          if (game_moves[x][1] == 5)
          {

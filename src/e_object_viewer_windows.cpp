@@ -1499,11 +1499,8 @@ void ovw_process_mouse(void)
    else if (mouse_adj) al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE);
    else al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 
-   if (!mouse_on_sp) al_show_mouse_cursor(display);
-
    if (mouse_b1)
    {
-
       // get offset from where mouse was clicked to lift step upper left origin
       int lsox=0, lsoy=0;
       if (mouse_on_lift)
@@ -1627,18 +1624,16 @@ void ovw_process_mouse(void)
          }
          if (mouse_on_sp) // adjust sproingy jump height
          {
-            al_hide_mouse_cursor(display);
+            //al_hide_mouse_cursor(display);
+            //item[mW[7].num][7] -= mouse_dy/2;
+            int get_sp(float jh);
+            float y0 = (float) item[mW[7].num][5]+10;
+            float fy = (float) hy;
+            item[mW[7].num][7] = get_sp(y0-fy);
 
-            item[mW[7].num][7] -= mouse_dy/2;
             // bounds check
             if (item[mW[7].num][7] < 40) item[mW[7].num][7] = 40;
             if (item[mW[7].num][7] > 200) item[mW[7].num][7] = 200;
-
-//            int y = al_fixtoi(get_sproingy_jump_height(num));
-//            crosshairs_full(obj_x, obj_y-y, color, 1);
-
-
-
          }
          if (mouse_on_bmb) // adjust bomb blast radius
          {

@@ -535,22 +535,27 @@ void server_proc_cdat_packet(void)
    sprintf(tmsg1,"rx cdat p:%d client_pc:[%d] c_sync:[%d]", p, fn, c_sync );
    sprintf(tmsg2,"\n");
 
-   if (c_sync >= 0) add_game_move(fn, 5, p, cm); // add to game_move array
-   else                                          // unless late, then drop and inc error
+
+   if (level_done_mode == 5) add_game_move(fn, 8, p, 0); // add ack to game_move array
+   else
    {
-      players1[p].server_game_move_sync_err++;
-      sprintf(tmsg2, "<--ERROR! (total errors:%d)\n", players1[p].server_game_move_sync_err);
+      if (c_sync >= 0) add_game_move(fn, 5, p, cm); // add to game_move array
+      else                                          // unless late, then drop and inc error
+      {
+         players1[p].server_game_move_sync_err++;
+         sprintf(tmsg2, "<--ERROR! (total errors:%d)\n", players1[p].server_game_move_sync_err);
 
-      Packet("serr"); // server error
-      PacketPut1ByteInt(1); // error type 1
-      PacketPut4ByteInt(frame_num);
-      PacketPut4ByteInt(c_sync);
-      PacketPut4ByteInt(players1[p].server_game_move_sync_err);
-      ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+         Packet("serr"); // server error
+         PacketPut1ByteInt(1); // error type 1
+         PacketPut4ByteInt(frame_num);
+         PacketPut4ByteInt(c_sync);
+         PacketPut4ByteInt(players1[p].server_game_move_sync_err);
+         ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+      }
+
+      sprintf(msg, "%s %s", tmsg1, tmsg2);
+      if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
    }
-
-   sprintf(msg, "%s %s", tmsg1, tmsg2);
-   if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
 }
 
 
@@ -743,10 +748,16 @@ void server_local_control(int p)
 {
    int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
    set_comp_move_from_player_key_check(p);
-   if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
+   if (level_done_mode == 8) start_level_done(p);
+   if ((level_done_mode == 0) || (level_done_mode == 5))  // only allow player input in these modes
    {
-      players1[p].old_comp_move = players1[p].comp_move;
-      add_game_move(fn, 5, p, players1[p].comp_move);
+      if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
+      {
+         players1[p].old_comp_move = players1[p].comp_move;
+         add_game_move(fn, 5, p, players1[p].comp_move);
+      }
    }
-   if (level_done_trig) add_game_move(fn, 6, 0, 0);        // insert level done into game move
 }
+
+
+

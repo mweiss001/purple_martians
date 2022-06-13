@@ -845,6 +845,10 @@ void mtextout_centre(const char *txt1, int x, int y, float x_scale, float y_scal
 
 void show_level_done(int keypress)
 {
+   // new method
+   int col = players[active_local_player].color;
+   draw_large_2lines(f2, "Level", "Done!", col, .6);
+
 
    float x_scale = (float)SCREEN_W/40;
    float y_scale = (float)SCREEN_H/16;
@@ -854,25 +858,23 @@ void show_level_done(int keypress)
    int x = SCREEN_W/2;
    int y = SCREEN_H/2;
 
-   int col = players[active_local_player].color;
 
-   draw_large_2lines(f2, "Level", "Done!", col, .6);
+/*
+   // old method
+   int yu = y - (int)(y_scale*8);
+   int col = 9; // color
+   int ns = 8;  // num of shadows
+   int ci = 16; // color inc
+   int st = 6;  // skip step between 1st and 2nd color
 
-
-//   int yu = y - (int)(y_scale*8);
-//   int col = 9; // color
-//   int ns = 8;  // num of shadows
-//   int ci = 16; // color inc
-//   int st = 6;  // skip step between 1st and 2nd color
-//
-//   for (int a = ns; a >= 0; a--)
-//   {
-//      int b = col+a*ci;
-//      if (a) b = col+( (a+st) * ci); // not first color
-//      mtextout_centre("Level", x+a, yu+a, x_scale, y_scale, b);
-//      mtextout_centre("Done!", x+a, y+a, x_scale, y_scale, b);
-//   }
-//
+   for (int a = ns; a >= 0; a--)
+   {
+      int b = col+a*ci;
+      if (a) b = col+( (a+st) * ci); // not first color
+      mtextout_centre("Level", x+a, yu+a, x_scale, y_scale, b);
+      mtextout_centre("Done!", x+a, y+a, x_scale, y_scale, b);
+   }
+*/
    if (keypress)
    {
       x_scale = (float)SCREEN_W/240;
@@ -884,7 +886,8 @@ void show_level_done(int keypress)
       al_flip_display();
       tsw();
    }
-   else al_flip_display();
+  // else al_flip_display();
+
 }
 
 

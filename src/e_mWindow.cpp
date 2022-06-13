@@ -447,7 +447,7 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
 
 
    // status display in the lower right border
-   int y2 = SCREEN_H-BORDER_WIDTH+2;
+   int y2 = SCREEN_H-BORDER_WIDTH+3;
    x1 = SCREEN_W-172;
    al_draw_textf(font, palette_color[9],  x1+2,  y2, 0, "Level:");
    al_draw_textf(font, palette_color[15], x1+50, y2, 0, "%d ",last_level_loaded);
@@ -849,6 +849,7 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int have_focus, in
 
 void set_windows(int mode)
 {
+   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
    if (!mode)
    {
       mode = 1;

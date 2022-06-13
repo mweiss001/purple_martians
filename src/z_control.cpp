@@ -323,18 +323,18 @@ void function_key_check(void)
 {
    if ((!game_exit) || (level_editor_running))
    {
- /*
+
       if ((key[ALLEGRO_KEY_F1]) && (!KEY_F1_held))
       {
          KEY_F1_held = 1;
 
-         frame_speed = 4;
-         set_speed();
+//         frame_speed = 4;
+//         set_speed();
 
 
 //         #ifndef RELEASE
-//         players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
-//         printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
+         players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
+         printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
 //         #endif
 
 
@@ -364,31 +364,31 @@ void function_key_check(void)
       }
       if (!key[ALLEGRO_KEY_F1]) KEY_F1_held = 0;
 
-      if ((key[ALLEGRO_KEY_F2]) && (!KEY_F2_held))
-      {
-         KEY_F2_held = 1;
+//      if ((key[ALLEGRO_KEY_F2]) && (!KEY_F2_held))
+//      {
+//         KEY_F2_held = 1;
+//
+//         while (key[ALLEGRO_KEY_F2]) proc_controllers();
+//
+//         #ifndef RELEASE
+////         speed_testing =!speed_testing; // remove all speed limiting and force draw each frame
+//         #endif
+//      }
+//      if (!key[ALLEGRO_KEY_F2]) KEY_F2_held = 0;
+//
+//      if ((key[ALLEGRO_KEY_F3]) && (!KEY_F3_held))
+//      {
+//         KEY_F3_held = 1;
+//         //next_map_size();
+//      }
+//      if (!key[ALLEGRO_KEY_F3]) KEY_F3_held = 0;
+//      if ((key[ALLEGRO_KEY_F4]) && (!KEY_F4_held))
+//      {
+//         KEY_F4_held = 1;
+//         //next_map_mode();
+//      }
+//      if (!key[ALLEGRO_KEY_F4]) KEY_F4_held = 0;
 
-         while (key[ALLEGRO_KEY_F2]) proc_controllers();
-
-         #ifndef RELEASE
-//         speed_testing =!speed_testing; // remove all speed limiting and force draw each frame
-         #endif
-      }
-      if (!key[ALLEGRO_KEY_F2]) KEY_F2_held = 0;
-
-      if ((key[ALLEGRO_KEY_F3]) && (!KEY_F3_held))
-      {
-         KEY_F3_held = 1;
-         //next_map_size();
-      }
-      if (!key[ALLEGRO_KEY_F3]) KEY_F3_held = 0;
-      if ((key[ALLEGRO_KEY_F4]) && (!KEY_F4_held))
-      {
-         KEY_F4_held = 1;
-         //next_map_mode();
-      }
-      if (!key[ALLEGRO_KEY_F4]) KEY_F4_held = 0;
-*/
 
 
       if (key[ALLEGRO_KEY_F5]) set_scale_factor(scale_factor * .90, 0);
@@ -587,18 +587,16 @@ void rungame_key_check(int p, int ret)
 
 void add_game_move(int frame, int type, int data1, int data2)
 {
-   if (type == 6) // special level done move
+
+   if ((level_done_mode == 5) && (type == 5) && (data2))  // ack mode and not zero move
    {
       game_moves[game_move_entry_pos][0] = frame;
-      game_moves[game_move_entry_pos][1] = 6; // type 6; level done
-      game_moves[game_move_entry_pos][2] = 0;
+      game_moves[game_move_entry_pos][1] = 8;
+      game_moves[game_move_entry_pos][2] = data1; // player num
       game_moves[game_move_entry_pos][3] = 0;
       game_move_entry_pos++;
       return; // to exit immediately
    }
-
-
-
 
    if ((type == 5) && (data2 == 127))  // menu key
    {
@@ -794,25 +792,42 @@ void proc_game_move(void)
          switch (game_moves[x][1])
          {
             case 1: proc_player_state_game_move(x); break;
-            case 6:  // 'level done'
-               if ((ima_client) || (ima_server))
+            case 6: // level done
+            {
+               if (game_moves[x][3] == 1) // level done 1
                {
-                  for (int p=0; p<NUM_PLAYERS; p++)
-                     if (players[p].active) players1[p].quit_reason = 80;
+                  printf("process_level_done 1\n");
+                  level_done_mode = 6;
+
+                  int col = players[active_local_player].color;
+                  draw_large_2lines(f2, "Level", "Done!", col, .6);
 
                   if (L_LOGGING_NETPLAY)
                   {
-                     sprintf(msg,"LEVEL %d DONE", play_level);
+                     sprintf(msg,"LEVEL %d DONE (1)", play_level);
                      add_log_entry_header(10, 0, msg, 3);
                      if (ima_client) log_ending_stats();
                      if (ima_server) log_ending_stats_server();
                   }
+
                }
-               proc_level_done();
+               if (game_moves[x][3] == 2) // level done 2
+               {
+                  printf("process_level_done 2\n");
+                  level_done_mode = 5;
+                  if (L_LOGGING_NETPLAY)
+                  {
+                     sprintf(msg,"LEVEL %d DONE (2)", play_level);
+                     add_log_entry_header(10, 0, msg, 3);
+                  }
+               }
+
+            }
             break;
-         } // end of switch type
-      } // end of frame_num match
-   } // end of look back from entry pos
+            case 7: proc_next_level(); break;
+         }
+      }
+   }
 }
 
 void serial_key_check(int key)
@@ -937,6 +952,7 @@ void set_controls_from_game_move(int p)
 
 int proc_events(ALLEGRO_EVENT ev, int ret)
 {
+   if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
    if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
    if (ev.type == ALLEGRO_EVENT_MOUSE_WARPED)
    {
@@ -1023,6 +1039,19 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
 
 
 
+
+
+void start_level_done(int p)
+{
+   level_done_mode = 7;
+   int fn = frame_num + control_lead_frames;
+   add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
+   add_game_move(fn+100, 6, 0, 2); // insert level done 2 into game move
+   add_game_move(fn+600, 7, 0, 0); // insert next level into game move
+   players1[p].old_comp_move = players1[p].comp_move = 0; // reset both
+}
+
+
 void proc_player_input(int ret)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
@@ -1030,18 +1059,26 @@ void proc_player_input(int ret)
       {
          if (players[p].control_method == 0) // local single player control
          {
-            if (level_done_trig) add_game_move(frame_num, 6, 0, 0); // insert level done into game move
-            set_comp_move_from_player_key_check(p); // but don't set controls !!!
-            if (players1[p].comp_move != players1[p].old_comp_move)
+            if (level_done_mode == 8) start_level_done(p);
+            if ((level_done_mode == 0) || (level_done_mode == 5)) // only allow player input in these modes
             {
-               players1[p].old_comp_move = players1[p].comp_move;
-               add_game_move(frame_num, 5, p, players1[p].comp_move);
+               set_comp_move_from_player_key_check(p); // but don't set controls !!!
+               if (players1[p].comp_move != players1[p].old_comp_move)
+               {
+                  players1[p].old_comp_move = players1[p].comp_move;
+                  add_game_move(frame_num, 5, p, players1[p].comp_move);
+               }
             }
          }
          if (players[p].control_method == 1) rungame_key_check(p, ret); // run game from file
          if (players[p].control_method == 3) server_local_control(p);
          if (players[p].control_method == 4) client_local_control(p);
-         set_controls_from_game_move(p); // common for all players
+
+         if (level_done_mode == 0)
+         {
+            set_controls_from_game_move(p); // common for all players
+         }
+
       }
 }
 
@@ -1058,7 +1095,6 @@ int proc_controllers()
          if (al_get_next_event(event_queue, &ev))
          {
             if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_block = 0;
-            if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
             else ret = proc_events(ev, ret);
          }
       }

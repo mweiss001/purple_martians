@@ -175,6 +175,8 @@ void proc_player_health(int p)
 
       game_event(90, 0, 0, p, 0, 0, 0);  // player death
 
+      players[p].stat_respawns++;
+
       show_player_join_quit_timer = 60;
       show_player_join_quit_player = p;
       show_player_join_quit_jq = 3;
@@ -379,7 +381,7 @@ void proc_player_xy_move(int p)
       // if moving up and solid block above
       if ((lifts[d].fyinc < z) && (is_up_solid(x, y, 0, 1) == 1))
       {
-         players[p].player_ride = 0;     // player knocked off lift due to collision above
+         players[p].player_ride = 0;        // player knocked off lift due to collision above
          players[p].LIFE -= al_itofix(1);   // take some damage
          game_event(54, x, y, p, 0, 0, 0);
       }
@@ -392,7 +394,7 @@ void proc_player_xy_move(int p)
          game_event(54, x, y, p, 0, 0, 0);
       }
 
-      if (players[p].player_ride)                    // if still riding
+      if (players[p].player_ride)                       // if still riding
          players[p].PY  = lifts[d].fy - al_itofix(20);  // align with fy
 
       // moving down
@@ -400,7 +402,7 @@ void proc_player_xy_move(int p)
       {
          if (is_down_solid(x, y, 0, 1))                          // no lift check
          {
-            players[p].player_ride = 0;                       // ride over
+            players[p].player_ride = 0;                          // ride over
             players[p].PY = al_itofix(y - (y % 20));             // align with floor
          }
          else players[p].PY = lifts[d].fy - al_itofix(20);       // align with fy
@@ -447,10 +449,10 @@ void proc_player_xy_move(int p)
 
          x = al_fixtoi(players[p].PX);
          y = al_fixtoi(players[p].PY);
-         if (is_down_solid(x, y, 0, 1))                          // check for floor below (no lift)
+         if (is_down_solid(x, y, 0, 1))                       // check for floor below (no lift)
          {
             players[p].yinc = z;                              // kill downwards motion
-            players[p].PY = al_itofix(y - (y % 20));             // align with floor
+            players[p].PY = al_itofix(y - (y % 20));          // align with floor
 
             // check for collision with lift above if lift is moving down
             int a = is_up_solid(x, y, 1, 1);
@@ -484,6 +486,7 @@ void proc_player_xy_move(int p)
 void proc_player_paused(int p)
 {
    players[p].player_ride = 0;
+
    if (players[p].paused_type == 1) // frozen after player dies, until the timer runs out
    {
       players[p].carry_item = 0;
@@ -723,7 +726,7 @@ void proc_player_collisions(int p)
    // enemies
    for (int e=0; e<100; e++)
    {
-      if ((Ei[e][0]) && (Ei[e][0] != 99) && (Ei[e][0] != 10)) // if active and not deathcount or field
+      if ((Ei[e][0]) && (Ei[e][0] != 99)) // if active and not deathcount
       {
          al_fixed b = al_itofix(Ei[e][29]); // collision box size
          al_fixed ex1 = Efi[e][0] - b;
@@ -896,12 +899,10 @@ void proc_player_rope_move(int p)
       players[p].left_right = 1;
       players[p].PX += is_right_solidfm(players[p].PX, players[p].PY, m, 0);
    }
-
    if (players[p].down)
    {
       players[p].on_rope = 0;
       players[p].PY += al_itofix(4);
-
    }
 }
 
@@ -1448,6 +1449,7 @@ void init_player(int p, int t)
 
    if (t == 17) // player common
    {
+      players[p].paused = 0;
       players[p].carry_item = 0;
       players[p].player_ride = 0;
       players[p].on_ladder = 0;
@@ -1475,14 +1477,37 @@ void init_player(int p, int t)
       players[p].draw_scale = al_itofix(1);
       players[p].shape = 0;;
 
+      players[p].stat_respawns = 0;
+      players[p].stat_bullets_fired = 0;
+      players[p].stat_enemy_hits = 0;
+      players[p].stat_player_hits = 0;
+      players[p].stat_self_hits = 0;
+      players[p].stat_purple_coins = 0;
+
       players1[p].comp_move = 0;
       players1[p].old_comp_move = 0;
+
+
+
+
 
       players1[p].health_display = 0;
       players1[p].last_health_adjust = 0;
       players1[p].potential_bomb_damage = 0;
 
       players1[p].frames_skipped = 0;
+
+
+
+
+
+
+
+
+
+
+
+
    }
 
    if (t == 21) // netgame counters, etc

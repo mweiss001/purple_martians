@@ -31,6 +31,7 @@
 <div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
 <div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
 <div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
 <div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
 <div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
 <div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
@@ -67,7 +68,6 @@
  <a href="netgame_main.html#Control lead frames" target="_top">Control lead frames</a>
  <a href="netgame_main.html#Player numbers" target="_top">Player numbers</a>
  <a href="netgame_main.html#Player control methods" target="_top">Player control methods</a>
- <a href="netgame_main.html#Level Done" target="_top">Level Done</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
@@ -374,94 +374,6 @@ int players[p].control_method;
 99 = in netgame, used client in current level (to prevent re-use in same level)
 
 </mh3>
-
-<br><a name="Level Done"></a>
-<mh7>Level Done</mh7>
-<mh3>    
-When any player touches an exit or warp, the global variable level_done is set.
-</mh3>
-
-<pre><code class="language-cpp">void proc_item_collision()
-{
-...
-   case 3: // exit
-   {
-      level_done = 1;
-      next_level = play_level + 1;
-   }
-   break;
-   case 12: // warp
-   {
-     level_done = 1;
-	 next_level = item[x][8];
-   }
-   break;
-}
-</code></pre>
-
-<mh3>    
-In single player mode, the function proc_controllers() adds the level done game move: 
-</mh3>
-<pre><code class="language-cpp">if (players[p].control_method == 0) // local single player control
-   if (level_done) add_game_move(frame_num, 6, 0, 0); // insert level done into game move
-</code></pre>
-
-<mh3>    
-In server mode, the function server_local_control() adds the level done game move: 
-</mh3>
-<pre><code class="language-cpp">void server_local_control(int p)
-{
-   if (level_done) add_game_move(fpc, 6, 0, 0); // insert level done into game move
-}</code></pre>
-
-
-<mh3>    
-In client mode, the client never adds ANY game moves to its array directly, they all come from the server. 
-
-
-
-Then in all modes, the level done game move is processed by 'proc_game_move(void)'
-This calls the function: 'proc_level_done()'
-</mh3>
-<pre><code class="language-cpp">void proc_level_done(void)
-{
-   stop_sound();
-   int p = active_local_player;
-
-   if (players[p].control_method == 0) show_level_done(1); // wait for keypress in single player mode
-   else
-   {
-      show_level_done(0);
-      al_rest(1);
-   }
-
-   #ifdef NETPLAY
-   if (ima_server) server_flush();
-   if (ima_client) client_flush();
-   if ((ima_server) || (ima_client))
-      for (int p=0; p < NUM_PLAYERS; p++)
-      {
-         // free all the used clients, so they can be re-assigned on the next level
-         if (players[p].control_method == 9) players[p].control_method = 0;
-         // set all clients inactive on server and client, to force them to re-chase and lock on the new level
-         if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
-   }
-   #endif
-
-   if (players[p].control_method == 1) // run game file play
-   {
-      game_exit = 1;
-   }
-   else // all modes except run game file play
-   {
-      blind_save_game_moves(1);
-      save_log_file();
-      play_level = next_level;
-      start_mode = 3; // level_done
-   }
-}</code></pre>
-
-
 
 
                <footer>                <mh11>Purple Martians</mh11><hr>

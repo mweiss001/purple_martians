@@ -95,8 +95,7 @@ int frame_speed = 40;
 int frame_num;
 
 // global game control
-int level_done_trig = 0;
-int level_done_proc = 0;
+int level_done_mode = 0;
 int next_level = 0;
 int game_exit = 1;
 
@@ -354,6 +353,7 @@ int valid_level_loaded;
 int last_level_loaded; // used by level editor and load file to keep track of last level loaded
 int resume_allowed=0;
 int number_of_starts;
+int number_of_purple_coins;
 
 
 // items
@@ -1271,6 +1271,29 @@ int main(int argument_count, char **argument_array)
 */
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //   void colorize_tile(void);
 //   colorize_tile();
 
@@ -1286,8 +1309,94 @@ int main(int argument_count, char **argument_array)
 
 */
 
+/*
 
 
+float get_jh(int num);
+int get_sp(float jh);
+//
+//for (int n=40; n<200; n++)
+//{
+//   float t = get_jh(n);
+//
+//   int s = get_sp(t);
+//
+//   float t2 = get_jh(s);
+//
+//   printf("n:%d   t:%f  s:%d -- dif:%d   t2:%f   d2:%f\n", n, t, s, n-s, t2, t2-t);
+//
+//}
+//
+
+for (float h=1900; h<2000; h++)
+{
+   printf("h:%f  s:%d \n", h, get_sp(h));
+}
+*/
+
+/*
+
+
+void new_show_level_done(void);
+
+
+   al_set_target_backbuffer(display);
+
+   int quit = 0;
+   while (!quit)
+   {
+      proc_controllers();
+      al_clear_to_color(al_map_rgb(0,0,0));
+      new_show_level_done();
+      al_flip_display();
+
+      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
+      {
+         proc_controllers();
+         quit = 1;
+      }
+
+      if (key[ALLEGRO_KEY_1])
+      {
+         while (key[ALLEGRO_KEY_1]) proc_controllers();
+         players[1].active = !players[1].active;
+      }
+      if (key[ALLEGRO_KEY_2])
+      {
+         while (key[ALLEGRO_KEY_2]) proc_controllers();
+         players[2].active = !players[2].active;
+      }
+      if (key[ALLEGRO_KEY_3])
+      {
+         while (key[ALLEGRO_KEY_3]) proc_controllers();
+         players[3].active = !players[3].active;
+      }
+      if (key[ALLEGRO_KEY_4])
+      {
+         while (key[ALLEGRO_KEY_4]) proc_controllers();
+         players[4].active = !players[4].active;
+      }
+      if (key[ALLEGRO_KEY_5])
+      {
+         while (key[ALLEGRO_KEY_5]) proc_controllers();
+         players[5].active = !players[5].active;
+      }
+      if (key[ALLEGRO_KEY_6])
+      {
+         while (key[ALLEGRO_KEY_6]) proc_controllers();
+         players[6].active = !players[6].active;
+      }
+      if (key[ALLEGRO_KEY_7])
+      {
+         while (key[ALLEGRO_KEY_7]) proc_controllers();
+         players[7].active = !players[7].active;
+      }
+
+
+   }
+
+
+*/
 
 
 
@@ -1509,6 +1618,8 @@ int copy_files_to_clients(int exe_only)
 
 
    sprintf(client[num_clients++], "\\\\4230j\\pm_client3");  // 4230j win 7
+
+   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
 
 
 //   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden
