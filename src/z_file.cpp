@@ -524,6 +524,9 @@ void save_gm_txt(char *sfname)
    char fname[80];
    sprintf(fname, "savegame/%s.txt", sfname);
 
+   printf("%s - saved\n", fname);
+
+
    //replace_extension(fname, fname, "txt", sizeof(fname) );
 
    filepntr = fopen(fname,"w");
@@ -640,6 +643,8 @@ void blind_save_game_moves(int d)
       if (d == 2) strftime(filename, sizeof(filename), "game_exit_%Y%m%d-%H%M%S",  timenow);
       if (d == 3) strftime(filename, sizeof(filename), "bad_exit_%Y%m%d-%H%M%S",   timenow);
       strcat(filename, lev);
+
+
       save_gm_gm(filename);  // first save as a playable *.gm
       save_gm_txt(filename); // then as a human readable text file
    }

@@ -31,72 +31,6 @@ void proc_frame_delay(void)
    }
 }
 
-
-
-/* original, before I rearranged it
-
-void proc_next_level(void)
-{
-   if ((ima_client) || (ima_server))
-   {
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active) players1[p].quit_reason = 80;
-   }
-   if (L_LOGGING_NETPLAY)
-   {
-      sprintf(msg,"NEXT LEVEL:%d", next_level);
-      add_log_entry_header(10, 0, msg, 3);
-   }
-
-   int p = active_local_player;
-   if (players[p].control_method == 1) // play demo level mode
-   {
-      show_level_done(0);
-      al_rest(1);
-      game_exit = 1;// run game file play exits after level done
-      return;
-   }
-
-   if ((ima_server) || (ima_client))
-   {
-      for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         // free all the used clients, so they can be re-assigned on the next level
-         if (players[p].control_method == 9) players[p].control_method = 0;
-         // set all clients inactive on server and client, to force them to re-chase and lock on the new level
-         if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
-      }
-      if (ima_server) server_flush();
-      if (ima_client) client_flush();
-      al_rest(1);
-   }
-
-
-
-   stop_sound();
-   blind_save_game_moves(1);
-   save_log_file();
-   play_level = next_level;
-   level_done_mode = 0;
-   proc_start_mode(5);
-}
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void proc_next_level(void)
 {
    if (L_LOGGING_NETPLAY)
@@ -116,8 +50,6 @@ void proc_next_level(void)
    {
       for (int p=0; p<NUM_PLAYERS; p++)
       {
-         if (players[p].active) players1[p].quit_reason = 80;
-
          // free all the used clients, so they can be re-assigned on the next level
          if (players[p].control_method == 9) players[p].control_method = 0;
          // set all clients inactive on server and client, to force them to re-chase and lock on the new level
@@ -274,11 +206,18 @@ void game_loop(int start_mode)
       proc_scale_factor_change();
       proc_sound();
 
+//      printf("f:%d ldm:%d  ", frame_num, level_done_mode);
+
       if (ima_server) server_control();
       if (ima_client) client_control();
+
+//      printf(" ldm:%d  ", level_done_mode);
+
       proc_controllers();
 
-      if ((level_done_mode > 0) && (level_done_mode < 7)) proc_level_done_mode();
+//      printf(" ldm:%d\n", level_done_mode);
+
+      if ((level_done_mode > 0) && (level_done_mode < 9)) proc_level_done_mode();
       else
       {
          move_ebullets();

@@ -382,12 +382,15 @@ void function_key_check(void)
 //         //next_map_size();
 //      }
 //      if (!key[ALLEGRO_KEY_F3]) KEY_F3_held = 0;
-//      if ((key[ALLEGRO_KEY_F4]) && (!KEY_F4_held))
-//      {
-//         KEY_F4_held = 1;
-//         //next_map_mode();
-//      }
-//      if (!key[ALLEGRO_KEY_F4]) KEY_F4_held = 0;
+
+
+      if ((key[ALLEGRO_KEY_F4]) && (!KEY_F4_held))
+      {
+         KEY_F4_held = 1;
+         blind_save_game_moves(3);
+         save_log_file();
+      }
+      if (!key[ALLEGRO_KEY_F4]) KEY_F4_held = 0;
 
 
 
@@ -668,6 +671,7 @@ void proc_player_state_game_move(int x)
 
       game_event(80, 0, 0, p, 0, 0, 0);
 
+      if (ima_client) init_level_background();
 
       if ((ima_server) || (ima_client))
          if (p != active_local_player) players[p].control_method = 2;
@@ -799,8 +803,20 @@ void proc_game_move(void)
                   printf("process_level_done 1\n");
                   level_done_mode = 6;
 
+                  // send state to every client because periodic sending is done
+                  if (ima_server)
+                     for (int p=1; p<NUM_PLAYERS; p++)
+                        if ((players[p].active) && (players[p].control_method == 2))
+                           server_send_stdf(p);
+
+
+
+
+
+                  // these are drawn here because screen_buffer is frozen from now on
                   int col = players[active_local_player].color;
                   draw_large_2lines(f2, "Level", "Done!", col, .6);
+                  draw_top_display();
 
                   if (L_LOGGING_NETPLAY)
                   {
@@ -1046,9 +1062,13 @@ void start_level_done(int p)
    level_done_mode = 7;
    int fn = frame_num + control_lead_frames;
    add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
-   add_game_move(fn+100, 6, 0, 2); // insert level done 2 into game move
-   add_game_move(fn+600, 7, 0, 0); // insert next level into game move
+   add_game_move(fn+80,  6, 0, 2); // insert level done 2 into game move
+   add_game_move(fn+800, 7, 0, 0); // insert next level into game move
    players1[p].old_comp_move = players1[p].comp_move = 0; // reset both
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) players1[p].quit_reason = 80;
+
 }
 
 

@@ -1615,23 +1615,19 @@ int copy_files_to_clients(int exe_only)
 //   sprintf(client[num_clients++], "\\\\m7667\\pm_client12"); // core2 2G 32bit GeForce 7500 LE
 //   sprintf(client[num_clients++], "\\\\nv59\\pm_client13");  // gateway nv59 i3 4G 1600x1200
 //   sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
+//   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden
+//   sprintf(client[num_clients++], "\\\\sat-p100\\pm_client31");  // win 7 does not work...32 bit??
 
-
-   sprintf(client[num_clients++], "\\\\4230j\\pm_client3");  // 4230j win 7
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
+   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
 
-   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
 
-   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-
-   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7
-
-   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28");  // win 7
-
-   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-
-//   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden
 
 
    if (exe_only == 1)
