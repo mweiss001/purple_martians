@@ -35,14 +35,18 @@ void show_player_stat_box(int tx, int y, int p)
    else al_draw_textf(font, palette_color[c], tx+2, y, 0, "Player:%d", p);
 
 
+
+
+
    if ((level_done_mode == 5) && (!has_player_acknowledged(p)))
    {
       c = flash_color;
-      al_draw_textf(font, palette_color[c], tx+158, y+12, 0, "press");
-      al_draw_textf(font, palette_color[c], tx+158, y+20, 0, " any");
-      int tl = dif_from_now_to_nl()/40;
-      if (tl > 9) al_draw_textf(font, palette_color[c], tx+154, y+29, 0, "  %2d", dif_from_now_to_nl()/40);
-      else        al_draw_textf(font, palette_color[c], tx+158, y+29, 0, "  %d", dif_from_now_to_nl()/40);
+      int pay = 16;
+      al_draw_textf(font, palette_color[c], tx+158, y+pay, 0, "press");
+      al_draw_textf(font, palette_color[c], tx+158, y+pay+8, 0, " any");
+      int tl = (dif_from_now_to_nl()+30)/40;
+      if (tl > 9) al_draw_textf(font, palette_color[c], tx+154, y+pay+18, 0, "  %2d", tl);
+      else        al_draw_textf(font, palette_color[c], tx+158, y+pay+18, 0, "  %d", tl);
    }
    if ((level_done_mode == 5) && (has_player_acknowledged(p))) al_draw_textf(font, palette_color[15], tx+158, y+20, 0, "ready");
 
@@ -70,6 +74,17 @@ void new_show_level_done(void)
 //   al_draw_text(font, palette_color[15], x, y, ALLEGRO_ALIGN_CENTER, "LEVEL DONE"); y+=8;
 //   int col = players[active_local_player].color;
 //   if (frame_num % 20 == 1) draw_large_2lines(f2, "Level", "Done!", col, .6);
+
+
+
+   al_set_target_backbuffer(display);
+
+   al_draw_filled_rectangle(x-100, 78, x+100, 90, palette_color[0]);
+   al_draw_textf(font, palette_color[15], x, 80, ALLEGRO_ALIGN_CENTER, "f:%d mode:%d", frame_num, level_done_mode);
+
+   printf("yf:%d ldm:%d\n", frame_num, level_done_mode);
+
+
 
    process_flash_color();
 
@@ -209,15 +224,16 @@ void new_show_level_done(void)
 
 void draw_screen_overlay(void)
 {
-   // these all draw on screen buffer
-   if (speed_testing) draw_speed_test_data();
-   draw_top_display();
-   draw_bmsg();
-   show_player_join_quit();
-
+   al_set_target_backbuffer(display);
    if (level_done_mode) new_show_level_done();
-
-
+   else
+   {
+      // these all draw on screen buffer
+      if (speed_testing) draw_speed_test_data();
+      draw_top_display();
+      draw_bmsg();
+      show_player_join_quit();
+   }
 }
 
 void show_player_join_quit(void)

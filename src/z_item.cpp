@@ -1555,7 +1555,7 @@ void proc_bonus_collision(int p, int i)
       item[i][0] = 0;
       players[p].stat_purple_coins++;
 
-      // game_event(70, 0, 0, p, i, 0, 0);
+       game_event(70, 0, 0, p, i, 0, 0);
 
    }
 }

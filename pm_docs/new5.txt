@@ -29325,6 +29325,602 @@ I dont get a new screen buffer in the loop code
 I draw in once in proc_game_move when I get level done 1
 seems to work good..
 
+- time display in top border borks when too big?? maybe due to freeze at end of level
+this is in all modes...timer keeps updating, but the screen buffer does not so timer smears
+fix it but not updating that stuff when frozen in level_done state...fixed
+
+- blocks that are erased, like breakable, still show as solid on clients that joined after the were removed.
+they act erase, but show as there...do i need to redraw level background after receiving new state?
+I added init_level_background to client code just before sending stak and that seemed to fix that problem
+
+
+
+
+
+good single player exit
+
+
+number of entries 15
+deathmatch_pbullets 1
+deathmatch_pbullets_damage 1
+suicide_pbullets 1
+[ gm][  pc][p][cm]
+[  0][   0]-------------START (level:71)-------------
+[  1][   0]-------------PLAYER 0 ACTIVE (color:8)--
+[  2][  49][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[  3][  77][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[  4][  82][0][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[  5][  87][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[  6][  97][0][16]  [    ][JUMP][    ][  ][     ][    ]
+[  7][ 105][0][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[  8][ 123][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[  9][ 124][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 10][ 137]-------------LEVEL DONE 1 ----------------
+[ 11][ 237]-------------LEVEL DONE 2 ----------------
+[ 12][ 737]-------------NEXT LEVEL!------------------
+[ 13][ 361]-------------PLAYER 0 ACKNOWLEDGE------
+[ 14][ 362]-------------NEXT LEVEL!------------------
+
+
+good 2 player exit
+no press any key or anything showed on client...
+
+
+number of entries 33
+deathmatch_pbullets 1
+deathmatch_pbullets_damage 1
+suicide_pbullets 1
+[ gm][  pc][p][cm]
+[  0][   0]-------------START (level:71)-------------
+[  1][   0]-------------PLAYER 0 ACTIVE (color:8)--
+[  2][ 129]-------------PLAYER 1 ACTIVE (color:9)--
+[  3][ 252][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[  4][ 267][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[  5][ 270][0][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[  6][ 276][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[  7][ 277][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[  8][ 282][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[  9][ 283][0][ 1]  [    ][    ][    ][  ][     ][LEFT]
+[ 10][ 286][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 11][ 287][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 12][ 297][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 13][ 307][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 14][ 312][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 15][ 362][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 16][ 367][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 17][ 374][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 18][ 379][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 19][ 381][0][16]  [    ][JUMP][    ][  ][     ][    ]
+[ 20][ 389][0][18]  [    ][JUMP][    ][  ][RIGHT][    ]
+[ 21][ 398][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[ 22][ 408][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 23][ 413]-------------LEVEL DONE 1 ----------------
+[ 24][ 513]-------------LEVEL DONE 2 ----------------
+[ 25][1013]-------------NEXT LEVEL!------------------
+[ 26][ 751]-------------PLAYER 0 ACKNOWLEDGE------
+[ 27][ 755][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[ 28][ 817]-------------PLAYER 1 ACKNOWLEDGE------
+[ 29][ 820]-------------NEXT LEVEL!------------------
+[ 30][ 821]-------------NEXT LEVEL!------------------
+[ 31][ 822]-------------NEXT LEVEL!------------------
+[ 32][ 823]-------------NEXT LEVEL!------------------
+
+
+
+netgame bugs
+- end of level stats freezes everything when fake keypress mode
+loop is still running, F12 works...
+when server actually quits by closing window, only then do clients show lost server connection
+
+- when 2 player end, second player eol does not show any timeout or press any key..
+
+my end of level stuff is not working properly
+why?? how??
+
+turn on some more debugging...
+
+reproduce:
+
+2 player game server exits...
+display on client is not correct
+never shows press any key or ready....
+on server it shows properly
+
+game moves array looks the same...
+
+showed mode...client is stuck on mode 8...why??
+
+what moves you from 8 to 7...when server or single player adds packets..never happens on client...
+client has no state 7
+
+what gets you into state 6?
+when the game move 'level done 1' is processed...
+
+this should happen on client also, right?
+it does and it does get set, but something must set it back....
+
+added this check...
+
+void client_local_control(int p)
+{
+   if ((level_done_mode == 0) || (level_done_mode == 5))
+   {
+      if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
+      else set_comp_move_from_player_key_check(p);
+   }
+
+still the same...
+
+try this...
+
+void client_local_control(int p)
+{
+   if ((level_done_mode == 0) || (level_done_mode == 5))
+   {
+      if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
+      else set_comp_move_from_player_key_check(p);
+      if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
+      {
+         players1[p].old_comp_move = players1[p].comp_move;
+         Packet("cdat");
+         PacketPut1ByteInt(p);
+         PacketPut4ByteInt(frame_num + control_lead_frames); // add control_lead_frames to frame_num
+         PacketPut1ByteInt(players1[p].comp_move);
+         ClientSend(packetbuffer, packetsize);
+
+         players1[p].client_cdat_packets_tx++;
+         sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
+         if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, active_local_player, msg);
+      }
+   }
+}
+
+had no effect, but i'm going to leave it...
+
+
+now I think this might be the cause:
+in mode 8 the level done keeps triggering
+
+
+void game_loop(int start_mode)
+{
+   game_exit = 0;
+   proc_start_mode(start_mode);
+   while (!game_exit)
+   {
+      proc_scale_factor_change();
+      proc_sound();
+
+      if (ima_server) server_control();
+      if (ima_client) client_control();
+      proc_controllers();
+
+      if ((level_done_mode > 0) && (level_done_mode < 7)) proc_level_done_mode();
+      else
+
+
+      try this
+
+      if ((level_done_mode > 0) && (level_done_mode < 9)) proc_level_done_mode();
+
+
+no dif...
+maybe its not that the mode is 8, maybe its that it never updates..never calls screen_overlay...
+it does...
+I added  al_set_target_backbuffer(display); and now it seems to work...
+
+well that was many hours of troubleshooting to fix that....
+
+now test with fake keypress mode....that seems to work...
+
+server player did not timeout...
+single player does...
+
+all that is need for timeout is for the game move 'next level' to get processed
+of course now I can't make it fail...
+when I saw it fail, the countdown on the server went negative
+
+
+
+
+
+
+bugs - why frameskipping...is it when I added init_level_background to client code just before sending stak...yes
+calling that causes minor frameskipping
+
+moved it to:
+void proc_player_state_game_move(int x)
+{
+   // player becomes active
+   if ((players[p].active == 0) && (val > 0) && (val < 16))
+   {
+      if (ima_client) init_level_background();
+
+better, but still off by a couple of blocks here and there
+maybe if I could trigger it to do after the first state after join
+
+
+bug.. why does the end of level thing suck so bad!
+
+
+everytime I do a three players end of game, one of them quits before the count starts....
+
+
+it looks like server dropped the player due to lack of sdat rx for the last 100 frames...
+coincidentally the same amount of time between level_done 1 and 2..
+
+should I increase it to make it more obviuos... also, why does only one player do that and not both?
+
+it is always this one client, e6400, doesn't matter if it's client 1 or 2...why??
+
+what is the deal behind this drop anyway??
+it was a typo that i fixed, it is supposed to be SDAK not SDAT...
+
+how often does the server send sdat with no data...
+players1[p].server_sdat_sync_freq = 20 or 0
+
+from the server logs....
+
+[22][0][339]+--------------------------------------------------------------------------+
+[22][0][339]|                               Player Array                               |
+[22][0][339]+--------------------------------------------------------------------------+
+[22][0][339]|        [p][wh][a][co][m]                                                 |
+[22][0][339]|        [0][99][1][ 8][3] - mi3  <-- server                               |
+[22][0][339]|        [1][ 0][1][ 9][2] - e6430  <-- active client                      |
+[22][0][339]|        [2][ 1][1][10][2] - e6400  <-- active client                      |
+[22][0][339]|        [3][99][0][ 0][0] -                                               |
+[22][0][339]|        [4][99][0][ 0][0] -                                               |
+
+
+[37][1][337]tx sdat p:1 st:15 nm:3
+[37][2][337]tx sdat p:2 st:15 nm:3
+[39][1][338]rx sdak p:1 nep:[18] server_sync:[2] frames skipped:2
+[39][2][338]rx sdak p:2 nep:[18] server_sync:[2] frames skipped:1
+
+[10][0][339]|                            LEVEL 71 DONE (1)                             |
+
+[37][1][358]tx sdat p:1 st:18 nm:0 (sync only) (sf:20)
+[37][2][358]tx sdat p:2 st:18 nm:0 (sync only) (sf:20)
+
+[39][1][368]rx sdak p:1 nep:[18] server_sync:[28] frames skipped:3
+[27][1][368]rx stak p:1 ack frame:365 corr:0 total_corr:1 set new base
+
+[37][1][368]tx sdat p:1 st:18 nm:0 (sync only) (sf:1)
+
+
+
+
+[39][1][369]rx sdak p:1 nep:[18] server_sync:[2] frames skipped:29
+[27][1][377]rx stak p:1 ack frame:375 corr:0 total_corr:1 set new base
+[37][2][379]tx sdat p:2 st:18 nm:0 (sync only) (sf:20)
+[27][1][387]rx stak p:1 ack frame:385 corr:0 total_corr:1 set new base
+[37][1][389]tx sdat p:1 st:18 nm:0 (sync only) (sf:20)
+[39][1][390]rx sdak p:1 nep:[18] server_sync:[2] frames skipped:29
+[27][1][397]rx stak p:1 ack frame:395 corr:0 total_corr:1 set new base
+[37][2][400]tx sdat p:2 st:18 nm:0 (sync only) (sf:20)
+[27][1][407]rx stak p:1 ack frame:405 corr:0 total_corr:1 set new base
+
+[37][1][410]tx sdat p:1 st:18 nm:0 (sync only) (sf:20)
+[39][1][411]rx sdak p:1 nep:[18] server_sync:[2] frames skipped:29
+[27][1][417]rx stak p:1 ack frame:415 corr:0 total_corr:1 set new base
+
+[37][2][421]tx sdat p:2 st:18 nm:0 (sync only) (sf:20)
+
+[27][1][427]rx stak p:1 ack frame:425 corr:0 total_corr:1 set new base
+[37][1][431]tx sdat p:1 st:18 nm:0 (sync only) (sf:20)
+[39][1][432]rx sdak p:1 nep:[18] server_sync:[2] frames skipped:29
+[27][1][437]rx stak p:1 ack frame:435 corr:0 total_corr:1 set new base
+[10][2][439]+--------------------------------------------------------------------------+
+[10][2][439]|                                                                          |
+[10][2][439]|               Server dropped player:2 (last sdat rx > 100)               |
+[10][2][439]|                                                                          |
+[10][2][439]+--------------------------------------------------------------------------+
+[37][1][440]tx sdat p:1 st:18 nm:1
+[37][2][440]tx sdat p:2 st:18 nm:1
+[10][2][440]+--------------------------------------------------------------------------+
+[10][2][440]|                                                                          |
+[10][2][440]|               Server dropped player:2 (last sdat rx > 100)               |
+[10][2][440]|                                                                          |
+[10][2][440]+--------------------------------------------------------------------------+
+[39][1][441]rx sdak p:1 nep:[19] server_sync:[2] frames skipped:29
+
+[37][1][441]tx sdat p:1 st:19 nm:1
+[37][2][441]tx sdat p:2 st:18 nm:2
+
+[10][2][441]+--------------------------------------------------------------------------+
+[10][2][441]|                                                                          |
+[10][2][441]|               Server dropped player:2 (last sdat rx > 100)               |
+[10][2][441]|                                                                          |
+[10][2][441]+--------------------------------------------------------------------------+
+[39][1][442]rx sdak p:1 nep:[20] server_sync:[2] frames skipped:29
+[37][1][442]tx sdat p:1 st:20 nm:1
+[37][2][442]tx sdat p:2 st:18 nm:3
+[10][2][442]+--------------------------------------------------------------------------+
+[10][2][442]|                                                                          |
+[10][2][442]|               Server dropped player:2 (last sdat rx > 100)               |
+[10][2][442]|                                                                          |
+[10][2][442]+--------------------------------------------------------------------------+
+[39][1][443]rx sdak p:1 nep:[21] server_sync:[2] frames skipped:29
+[37][1][443]tx sdat p:1 st:21 nm:1
+[37][2][443]tx sdat p:2 st:18 nm:4
+[10][2][443]+--------------------------------------------------------------------------+
+[10][2][443]|                                                                          |
+[10][2][443]|               Server dropped player:2 (last sdat rx > 100)               |
+[10][2][443]|                                                                          |
+[10][2][443]+--------------------------------------------------------------------------+
+[39][1][444]rx sdak p:1 nep:[22] server_sync:[2] frames skipped:29
+[37][1][444]tx sdat p:1 st:22 nm:1
+[39][1][445]rx sdak p:1 nep:[23] server_sync:[2] frames skipped:29
+[27][1][445]tx stdf p:1 [src:435 dst:445] cmp:136 ratio:0.13 [1 packets needed]
+[28][1][445]tx stdf p:1 piece [1 of 1] [435 to 445] st:   0 sz: 136
+[27][1][447]rx stak p:1 ack frame:445 corr:0 total_corr:1 set new base
+[27][1][450]tx stdf p:1 [src:445 dst:450] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][450]tx stdf p:1 piece [1 of 1] [445 to 450] st:   0 sz: 126
+[27][1][452]rx stak p:1 ack frame:450 corr:0 total_corr:1 set new base
+[27][1][455]tx stdf p:1 [src:450 dst:455] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][455]tx stdf p:1 piece [1 of 1] [450 to 455] st:   0 sz: 126
+[27][1][457]rx stak p:1 ack frame:455 corr:0 total_corr:1 set new base
+[27][1][460]tx stdf p:1 [src:455 dst:460] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][460]tx stdf p:1 piece [1 of 1] [455 to 460] st:   0 sz: 126
+[27][1][462]rx stak p:1 ack frame:460 corr:0 total_corr:1 set new base
+[37][1][465]tx sdat p:1 st:23 nm:0 (sync only) (sf:20)
+[27][1][465]tx stdf p:1 [src:460 dst:465] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][465]tx stdf p:1 piece [1 of 1] [460 to 465] st:   0 sz: 126
+[39][1][466]rx sdak p:1 nep:[23] server_sync:[2] frames skipped:29
+[27][1][467]rx stak p:1 ack frame:465 corr:0 total_corr:1 set new base
+[27][1][470]tx stdf p:1 [src:465 dst:470] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][470]tx stdf p:1 piece [1 of 1] [465 to 470] st:   0 sz: 126
+[27][1][472]rx stak p:1 ack frame:470 corr:0 total_corr:1 set new base
+[27][1][475]tx stdf p:1 [src:470 dst:475] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][475]tx stdf p:1 piece [1 of 1] [470 to 475] st:   0 sz: 126
+[27][1][477]rx stak p:1 ack frame:475 corr:0 total_corr:1 set new base
+[27][1][480]tx stdf p:1 [src:475 dst:480] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][480]tx stdf p:1 piece [1 of 1] [475 to 480] st:   0 sz: 126
+[23][0][480]bandwidth (B/s) TX cur:[ 1389] max:[ 3702] RX cur:[  196] max:[  384]
+[24][0][480]packets per s TX cur:[ 16] max:[ 25] RX cur:[ 13] max:[ 23]
+[23][1][480]bandwidth (B/s) TX cur:[ 1287] max:[ 2751] RX cur:[  196] max:[  187]
+[24][1][480]packets per s TX cur:[ 13] max:[ 17] RX cur:[ 13] max:[ 11]
+[27][1][482]rx stak p:1 ack frame:480 corr:0 total_corr:1 set new base
+[27][1][485]tx stdf p:1 [src:480 dst:485] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][485]tx stdf p:1 piece [1 of 1] [480 to 485] st:   0 sz: 126
+[37][1][486]tx sdat p:1 st:23 nm:0 (sync only) (sf:20)
+[39][1][487]rx sdak p:1 nep:[23] server_sync:[2] frames skipped:29
+[27][1][487]rx stak p:1 ack frame:485 corr:0 total_corr:1 set new base
+[27][1][490]tx stdf p:1 [src:485 dst:490] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][490]tx stdf p:1 piece [1 of 1] [485 to 490] st:   0 sz: 126
+[27][1][492]rx stak p:1 ack frame:490 corr:0 total_corr:1 set new base
+[27][1][495]tx stdf p:1 [src:490 dst:495] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][495]tx stdf p:1 piece [1 of 1] [490 to 495] st:   0 sz: 126
+[27][1][497]rx stak p:1 ack frame:495 corr:0 total_corr:1 set new base
+[27][1][500]tx stdf p:1 [src:495 dst:500] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][500]tx stdf p:1 piece [1 of 1] [495 to 500] st:   0 sz: 126
+[27][1][502]rx stak p:1 ack frame:500 corr:0 total_corr:1 set new base
+[27][1][505]tx stdf p:1 [src:500 dst:505] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][505]tx stdf p:1 piece [1 of 1] [500 to 505] st:   0 sz: 126
+[27][1][507]rx stak p:1 ack frame:505 corr:0 total_corr:1 set new base
+[37][1][507]tx sdat p:1 st:23 nm:0 (sync only) (sf:20)
+[39][1][508]rx sdak p:1 nep:[23] server_sync:[2] frames skipped:29
+[27][1][510]tx stdf p:1 [src:505 dst:510] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][510]tx stdf p:1 piece [1 of 1] [505 to 510] st:   0 sz: 126
+[27][1][512]rx stak p:1 ack frame:510 corr:0 total_corr:1 set new base
+[27][1][515]tx stdf p:1 [src:510 dst:515] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][515]tx stdf p:1 piece [1 of 1] [510 to 515] st:   0 sz: 126
+[27][1][517]rx stak p:1 ack frame:515 corr:0 total_corr:1 set new base
+[27][1][520]tx stdf p:1 [src:515 dst:520] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][520]tx stdf p:1 piece [1 of 1] [515 to 520] st:   0 sz: 126
+[23][0][520]bandwidth (B/s) TX cur:[ 1210] max:[ 3702] RX cur:[  122] max:[  384]
+[24][0][520]packets per s TX cur:[ 10] max:[ 25] RX cur:[ 10] max:[ 23]
+[23][1][520]bandwidth (B/s) TX cur:[ 1210] max:[ 2751] RX cur:[  122] max:[  196]
+[24][1][520]packets per s TX cur:[ 10] max:[ 17] RX cur:[ 10] max:[ 13]
+[27][1][522]rx stak p:1 ack frame:520 corr:0 total_corr:1 set new base
+[39][2][522]rx sdak p:2 nep:[18] server_sync:[182] frames skipped:2
+[39][2][522]rx sdak p:2 nep:[18] server_sync:[182] frames skipped:2
+[39][2][522]rx sdak p:2 nep:[18] server_sync:[182] frames skipped:2
+[39][2][523]rx sdak p:2 nep:[18] server_sync:[183] frames skipped:2
+[39][2][523]rx sdak p:2 nep:[19] server_sync:[183] frames skipped:2
+[39][2][523]rx sdak p:2 nep:[20] server_sync:[183] frames skipped:2
+[39][2][523]rx sdak p:2 nep:[21] server_sync:[183] frames skipped:2
+[39][2][523]rx sdak p:2 nep:[22] server_sync:[183] frames skipped:2
+[27][2][523]rx stak p:2 ack frame:440 corr:0 total_corr:0 set new base
+[27][1][525]tx stdf p:1 [src:520 dst:525] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][525]tx stdf p:1 piece [1 of 1] [520 to 525] st:   0 sz: 126
+[27][1][527]rx stak p:1 ack frame:525 corr:0 total_corr:1 set new base
+[37][1][528]tx sdat p:1 st:23 nm:0 (sync only) (sf:20)
+[39][1][529]rx sdak p:1 nep:[23] server_sync:[2] frames skipped:29
+[27][1][530]tx stdf p:1 [src:525 dst:530] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][530]tx stdf p:1 piece [1 of 1] [525 to 530] st:   0 sz: 126
+[27][1][532]rx stak p:1 ack frame:530 corr:0 total_corr:1 set new base
+[27][1][535]tx stdf p:1 [src:530 dst:535] cmp:126 ratio:0.12 [1 packets needed]
+[28][1][535]tx stdf p:1 piece [1 of 1] [530 to 535] st:   0 sz: 126
+[27][1][537]rx stak p:1 ack frame:535 corr:0 total_corr:1 set new base
+[10][0][539]+--------------------------------------------------------------------------+
+[10][0][539]|                                                                          |
+[10][0][539]|                                                                          |
+[10][0][539]|                                                                          |
+[10][0][539]|                            LEVEL 71 DONE (2)                             |
+[10][0][539]|                                                                          |
+[10][0][539]|                                                                          |
+[10][0][539]|                                                                          |
+[10][0][539]+--------------------------------------------------------------------------+
+
+it looks like the server kept sending periodic sdat but got no reply from p2
+from 358 on, until frame 522 when 8 arrived at once...
+522-358=164/40 = 4.1s
+
+
+tried it again with p1 and p2 reversed
+
+e6400 was still the one to quit
+
+last sdak rx just before level done 497
+then none till 680 when 8 came at once
+680-497=183/40 = 4.6s
+
+and only on e6400...
+
+tried a reboot
+tried TCP instead of UDP
+tried turning off microsoft QOS
+still the same....
+fuck that computer...swap it out...
+
+that solved that problem....
+
+next problem...the level after that does not level done nicely
+works and looks good on the server but the clients never show press any...
+
+
+tested a few times...
+
+sometimes it works fine
+
+sometimes just does show on client but still ack on server
+
+sometimes nothing on clients or server and it just freezes in mode 8 on clients...
+
+I think I have some issues with the state sync thing still going..
+
+how about once level done happens, one more state sync happens then that shuts down
+on the server, no more changes are accepted, that is the final state, push it out to the clients
+
+I wonder if I can or should decouple the state sync thing from the game loop...
+
+all I need to do is stop sending states from the server...
+
+after level done 1, send a state then stop the periodic sending until the next level starts...
+
+after level done 1 is processed on the server, wait 5 frame then send the final state...
+then wait until we are sure it has been processed before level done 2...
+
+
+to implement this:
+
+use level_done mode to stop periodic states
+in server mode when processing level done 1, send a state to all clients....
+
+
+void server_send_stdf(void)
+{
+   if ((frame_num > 1) && (level_done_mode == 0))
+
+   for (int p=1; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (players[p].control_method == 2))
+         server_send_stdf(p);
+
+
+this worked fine from 71-72-73 but leaving 73 client were frozen
+74 started without them but the joing at frame 1500, server looked good but clients were still stuck on level done..
+
+
+
+when the clients get stuck, they get stuck in mode 8
+on the server they come active around fram 1500, but on the client they are still stuck in mode 8...
+
+
+what could cause a client getting stuck in mode 8?
+
+colliding with exit but never getting the level done game move synced back to make them go to mode 6
+
+try to capture this...
+
+71-72 good
+72 level done bad
+
+client game moves for 72 has no actual moves...
+just a bunch of starts for frame 0
+
+it looks like locally it thinks it is inactive, but the state keeps correcting it to active
+
+
+even on a good one...
+client has a lot of frame 0 starts
+client does not have anything right in the game moves array till about 1300 frames
+
+I might have to re-think this entire method....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

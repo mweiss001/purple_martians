@@ -502,6 +502,9 @@ void client_apply_diff()
          sprintf(msg, "dif [%d to %d] %s\n", client_state_dif_src, client_state_dif_dst, tmsg);
          if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
 
+         // init_level_background(); // causes frame skips
+
+
          // send ack to server
          Packet("stak");
          PacketPut1ByteInt(p);
@@ -745,20 +748,22 @@ void client_control(void)
 
 void client_local_control(int p)
 {
-   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
-   else set_comp_move_from_player_key_check(p);
-
-   if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
+   if ((level_done_mode == 0) || (level_done_mode == 5))
    {
-      players1[p].old_comp_move = players1[p].comp_move;
-      Packet("cdat");
-      PacketPut1ByteInt(p);
-      PacketPut4ByteInt(frame_num + control_lead_frames); // add control_lead_frames to frame_num
-      PacketPut1ByteInt(players1[p].comp_move);
-      ClientSend(packetbuffer, packetsize);
+      if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
+      else set_comp_move_from_player_key_check(p);
+      if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
+      {
+         players1[p].old_comp_move = players1[p].comp_move;
+         Packet("cdat");
+         PacketPut1ByteInt(p);
+         PacketPut4ByteInt(frame_num + control_lead_frames); // add control_lead_frames to frame_num
+         PacketPut1ByteInt(players1[p].comp_move);
+         ClientSend(packetbuffer, packetsize);
 
-      players1[p].client_cdat_packets_tx++;
-      sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
-      if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, active_local_player, msg);
+         players1[p].client_cdat_packets_tx++;
+         sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
+         if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, active_local_player, msg);
+      }
    }
 }

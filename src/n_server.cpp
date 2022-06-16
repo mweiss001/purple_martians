@@ -397,10 +397,24 @@ void server_send_stdf(int p)
    }
 }
 
+
+/*
+   stdf_freq - frames in between stdf sends
+   only one client is sent to at a time
+   it finds the last one sent to, then searches for the next one to send to
+
+
+
+*/
+
+
+
+
+
 void server_send_stdf(void)
 {
    // figure out when and what players to send stdf to
-   if (frame_num > 1)
+   if ((frame_num > 1) && (level_done_mode == 0))
    {
       if (frame_num % stdf_freq == 0)
       {
@@ -511,7 +525,7 @@ void server_proc_player_drop(void)
             //printf("[%4d][%4d] drop p:%d \n", frame_num, players1[p].server_last_sdak_rx_frame_num, p);
             add_game_move(frame_num + 4, 1, p, 71); // make client inactive (reason no sdak for 100 frames)
 
-            sprintf(msg,"Server dropped player:%d (last sdat rx > 100)", p);
+            sprintf(msg,"Server dropped player:%d (last sdak rx > 100)", p);
             if (L_LOGGING_NETPLAY) add_log_entry_header(10, p, msg, 1);
          }
       }

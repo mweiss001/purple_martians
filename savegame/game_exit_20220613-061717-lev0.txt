@@ -1,5 +1,0 @@
-number of entries 0
-deathmatch_pbullets 1
-deathmatch_pbullets_damage 1
-suicide_pbullets 1
-[ gm][  pc][p][cm]
