@@ -125,10 +125,6 @@ void get_hostname(void)
    fclose(fp);
 }
 
-
-
-
-
 void process_flash_color(void)
 {
    if (++flash_counter > 16) flash_counter = 1;
@@ -137,9 +133,6 @@ void process_flash_color(void)
    if ((flash_counter > 8)  && (flash_counter < 13)) flash_color = 15;
    if ((flash_counter > 12) && (flash_counter < 17)) flash_color = 11;
 }
-
-
-
 
 void make_palette(void)
 {
@@ -1994,10 +1987,13 @@ void show_state_dif(char *a, char *b)
    }
    if (memcmp(c1_l, c2_l, sizeof(l)))
    {
+
+      init_level_background();
       if (L_LOGGING_NETPLAY_show_dif1)
       {
          sprintf(msg, "block errors detected\n");
-         add_log_entry2(31, active_local_player, msg); printf("%s", msg);
+         add_log_entry2(31, active_local_player, msg);// printf("%s", msg);
+         printf("frame:%d block errors detected - running init_level_background();\n", frame_num);
       }
       if (L_LOGGING_NETPLAY_show_dif2)
       {

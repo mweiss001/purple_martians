@@ -309,7 +309,7 @@ void client_exit(void)
    active_local_player = 0;
 }
 
-void client_read_game_move_from_packet(int x, int clf_check)
+void client_read_game_move_from_packet(int x)
 {
    // read from the packet
    int g0 = PacketGet4ByteInt();
@@ -339,7 +339,7 @@ void client_read_game_move_from_packet(int x, int clf_check)
       game_moves[x][2] = g2;
       game_moves[x][3] = g3;
 
-      if (clf_check)
+      if (1)
       {
          int p = active_local_player;
          int c_sync = g0 - frame_num;                                // calculate c_csync
@@ -504,7 +504,6 @@ void client_apply_diff()
 
          // init_level_background(); // causes frame skips
 
-
          // send ack to server
          Packet("stak");
          PacketPut1ByteInt(p);
@@ -638,11 +637,15 @@ void client_process_sdat_packet(void)
 
    // client timer adjust
    players1[p].client_sync = sdat_frame_num - frame_num;
-   int fps_chase = frame_speed + (players1[p].client_sync - server_lead_frames)*2;
-   if (fps_chase < 4) fps_chase = 4; // never let this go negative
-   al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+   float fps_chase = frame_speed + (players1[p].client_sync - server_lead_frames)*1;
 
-   sprintf(tmsg2,"sync:[%d] fps:[%d]", players1[p].client_sync, fps_chase);
+   if (fps_chase < 10) fps_chase = 10; // never let this go negative
+   if (fps_chase > 70) fps_chase = 70;
+
+
+   al_set_timer_speed(fps_timer, ( 1 / fps_chase));
+
+   sprintf(tmsg2,"sync:[%d] fps:[%f]", players1[p].client_sync, fps_chase);
 
    if (num_entries == 0) sprintf(tmsg,"syn");
 
@@ -661,7 +664,7 @@ void client_process_sdat_packet(void)
    if (nep > game_move_entry_pos) // only enter if they are newer
    {
       for (int x=start_entry; x<nep; x++)
-         client_read_game_move_from_packet(x, 1);
+         client_read_game_move_from_packet(x);
       game_move_entry_pos = nep;
    }
 
@@ -671,6 +674,7 @@ void client_process_sdat_packet(void)
    PacketPut4ByteInt(nep);
    PacketPut4ByteInt(players1[p].stdf_late);
    PacketPut4ByteInt(players1[p].frames_skipped);
+   PacketPut4ByteInt((int)fps_chase);
    ClientSend(packetbuffer, packetsize);
 
    sprintf(msg,"tx sdak nep:[%d] stdf_late:[%d] frames skipped:%d\n", nep, players1[p].stdf_late, players1[p].frames_skipped);

@@ -66,24 +66,19 @@ void show_player_stat_box(int tx, int y, int p)
 
 
 
-void new_show_level_done(void)
+void show_level_done(void)
 {
    int x = SCREEN_W/2;
    int y = SCREEN_H/2;
 
-//   al_draw_text(font, palette_color[15], x, y, ALLEGRO_ALIGN_CENTER, "LEVEL DONE"); y+=8;
-//   int col = players[active_local_player].color;
-//   if (frame_num % 20 == 1) draw_large_2lines(f2, "Level", "Done!", col, .6);
+   draw_large_text_overlay(2, 0);
 
 
-
-   al_set_target_backbuffer(display);
-
-   al_draw_filled_rectangle(x-100, 78, x+100, 90, palette_color[0]);
-   al_draw_textf(font, palette_color[15], x, 80, ALLEGRO_ALIGN_CENTER, "f:%d mode:%d", frame_num, level_done_mode);
-
-   printf("yf:%d ldm:%d\n", frame_num, level_done_mode);
-
+//   al_set_target_backbuffer(display);
+//   al_draw_filled_rectangle(x-100, 78, x+100, 90, palette_color[0]);
+//   al_draw_textf(font, palette_color[15], x, 80, ALLEGRO_ALIGN_CENTER, "f:%d mode:%d", frame_num, level_done_mode);
+//
+//   printf("yf:%d ldm:%d\n", frame_num, level_done_mode);
 
 
    process_flash_color();
@@ -171,46 +166,6 @@ void new_show_level_done(void)
             pc++;
          }
    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//
-//   for (int p=0; p<NUM_PLAYERS; p++)
-//      if (players[p].active)
-//      {
-//         show_player_stat_box(tx, y, p);
-//         y += 56;
-//
-//      }
-//
-
-
-
 }
 
 
@@ -225,15 +180,11 @@ void new_show_level_done(void)
 void draw_screen_overlay(void)
 {
    al_set_target_backbuffer(display);
-   if (level_done_mode) new_show_level_done();
-   else
-   {
-      // these all draw on screen buffer
-      if (speed_testing) draw_speed_test_data();
-      draw_top_display();
-      draw_bmsg();
-      show_player_join_quit();
-   }
+   if (level_done_mode) show_level_done();
+   if (speed_testing) draw_speed_test_data();
+   draw_top_display();
+   draw_bmsg();
+   show_player_join_quit();
 }
 
 void show_player_join_quit(void)
@@ -316,7 +267,7 @@ void draw_top_display(void)
    int tdx = BORDER_WIDTH;
    int tdy = 0;
 
-   if (demo_mode_on) draw_demo_mode_overlay();
+   if (demo_mode_on) draw_large_text_overlay(3, 15);
 
    if (SCREEN_W < 600) // special case for narrow screens
    {

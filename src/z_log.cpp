@@ -141,6 +141,85 @@ void log_player_array(void)
 }
 
 
+/*
+   int game_move_entry_pos;             // server only for client game_move data sync
+
+   int server_last_sdat_sent_frame_num; // only server uses it, to keep track of when last sdat was sent to client
+
+   int server_last_sdat_sent_start;     // used by server to prevent sending multiple sdats with same start and num
+   int server_last_sdat_sent_num;
+
+   int server_last_sdak_rx_frame_num; // used by server to see if client is still responding
+   int client_last_sdat_rx_frame_num; // used by client to see if server is still responding
+
+   int server_sdat_sync_freq;
+
+
+   int client_sync;
+   int server_sync;
+
+   int client_game_move_sync;
+   int client_game_move_sync_min;
+   int client_game_move_sync_err;
+
+   int server_game_move_sync;
+   int server_game_move_sync_min;
+   int server_game_move_sync_err;
+
+   int client_cdat_packets_tx;
+   int client_sdat_packets_rx;
+   int client_sdat_packets_skipped;
+   int moves_entered;
+   int moves_skipped;
+   int moves_skipped_tally;
+   int moves_skipped_last_tally;
+
+   // server error sync'd back to client
+   int serr_c_sync_err;
+   int serr_display_timer;
+
+*/
+
+
+void log_player_array2(void)
+{
+   sprintf(msg, "[p][a][m][sy][gme] - level_done_mode:%d", level_done_mode);
+   add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      int gme = players1[p].game_move_entry_pos;
+      if (p == 0) gme = game_move_entry_pos;
+
+      int sy = players1[p].server_sync;
+      if (p == 0) sy = 0;
+
+      sprintf(msg, "[%d][%d][%d][%2d][%d]",   p,
+                                              players[p].active,
+                                              players[p].control_method,
+                                              sy, gme );
+      add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void log_ending_stats()
@@ -459,7 +538,7 @@ int fill_filename_array(ALLEGRO_FS_ENTRY *fs, void * extra)
 
 
 
-
+void log_client_server_sync_graph(int num_lines, int end_pc);
 void log_bandwidth_graph(int num_lines, int end_pc);
 int lp[8][2];
 
@@ -596,6 +675,8 @@ int log_file_viewer(int type)
 
    tags[23][0] = 0; tags[23][1] = 15; tags[23][3] = 66; sprintf(ctags[23], "byts"); // bandwidth    (B) [CS]
    tags[24][0] = 0; tags[24][1] = 15; tags[24][3] = 65; sprintf(ctags[24], "pcks"); // packets      (A) [CS]
+
+   tags[26][0] = 1; tags[26][1] = 15; tags[26][3] = 82; sprintf(ctags[26], "parr"); // player array (R) [CS]
 
    tags[27][0] = 1; tags[27][1] = 13; tags[27][3] = 88; sprintf(ctags[27], "stdf"); // stdf         (X) [CS]
    tags[28][0] = 0; tags[28][1] = 1;  tags[28][3] = 80; sprintf(ctags[28], "stdp"); // stdf piece   (P) [CS]
@@ -925,6 +1006,11 @@ int log_file_viewer(int type)
          while (key[ALLEGRO_KEY_DELETE]) proc_controllers();
 
          log_bandwidth_graph(num_lines, end_pc);
+      }
+      if (key[ALLEGRO_KEY_INSERT])
+      {
+         while (key[ALLEGRO_KEY_INSERT]) proc_controllers();
+         log_client_server_sync_graph(num_lines, end_pc);
       }
       if (key[ALLEGRO_KEY_ESCAPE])
       {
@@ -1406,6 +1492,629 @@ void log_bandwidth_graph(int num_lines, int end_pc)
       }
    }
 }
+
+
+
+
+
+
+
+
+
+
+void log_client_server_sync_graph(int num_lines, int end_pc)
+{
+   // server only
+   // draws a graph of client server sync
+   // uses this log entry:
+
+   // [39][7][301]rx sdak p:7 nep:[1548] server_sync:[2] frames skipped:75
+
+
+   // log file has already been loaded into:
+   // int log_lines_int[1000000][3];
+   // char log_lines[1000000][100];
+   // with num_lines and end_pc set
+
+   // player array has already been populated
+   // int lp[8][2];
+
+
+
+   // build array of data points
+   char buff2[80];
+
+   // array of graph data points
+   int data[10000][5];
+   // 0 = frame_num
+   // 1 = player
+   // 2  server_sync
+   // 3  not used
+
+   int num_data = 0;
+
+   //clear data points
+   for (int i=0; i<10000; i++)
+      for (int j=0; j<5; j++)
+         data[i][j] = 0;
+
+   int pa[8] = {0}; // keep track of when players come active
+
+
+
+   // iterate all log lines and build array of data point
+   for (int i=0; i<num_lines; i++)
+   {
+      char tll[200]; // temp log line
+      sprintf(tll, "%s", log_lines[i]);
+
+
+      // find where players became active
+      if (log_lines_int[i][0] == 10)
+      {
+
+
+         int p = log_lines_int[i][1];
+         int fn = log_lines_int[i][2];
+
+
+         const char act[10] = "ACTIVE";
+         const char ict[10] = "INACTIVE";
+
+         char * ar = strstr(tll, act);
+         char * ir = strstr(tll, ict);
+
+         if ((ar) && (!ir))
+         {
+
+            printf("Frame:%d Player:%d --- Active\n", fn, p);
+            pa[p] = 1;
+
+
+            data[num_data][0] = fn;
+            data[num_data][1] = p;
+            data[num_data][2] = -999;
+            data[num_data][3] = -999;
+            data[num_data][4] = 1; // player active
+
+            num_data++;
+
+         }
+      }
+
+
+
+
+
+      if (log_lines_int[i][0] == 39)
+      {
+         int p = log_lines_int[i][1];
+         int fn = log_lines_int[i][2];
+         int sy = 0;
+         int fc = 0;
+
+
+         // get first tag and discard - nep
+         char * pch1 = strchr(tll, '[');
+         char * pch2 = strchr(tll, ']');
+         int p1 = pch1-tll;
+         int p2 = pch2-tll;
+         if (p2 - p1 < 8)
+         {
+            for(int j=0; j<p2; j++)
+               buff2[j] = tll[j+p1+1];
+            buff2[p2] = 0;
+            chop_first_x_char(tll, p2+1);
+         }
+         // get second tag - server_sync
+         pch1 = strchr(tll, '[');
+         pch2 = strchr(tll, ']');
+         p1 = pch1-tll;
+         p2 = pch2-tll;
+         if ((p1>10) && (p1<30))
+         {
+            if (p2 - p1 < 8)
+            {
+                for(int j=0; j<p2; j++)
+                   buff2[j] = tll[j+p1+1];
+                buff2[p2] = 0;
+                sy = atoi(buff2);
+                chop_first_x_char(tll, p2+1);
+            }
+            // get third tag - fps_chase
+            pch1 = strchr(tll, '[');
+            pch2 = strchr(tll, ']');
+            p1 = pch1-tll;
+            p2 = pch2-tll;
+
+            if (p2 - p1 < 8)
+            {
+                for(int j=0; j<p2; j++)
+                   buff2[j] = tll[j+p1+1];
+                buff2[p2] = 0;
+                fc = atoi(buff2);
+                chop_first_x_char(tll, p2+1);
+            }
+
+            // enter one array data point
+            data[num_data][0] = fn;
+            data[num_data][1] = p;
+            data[num_data][2] = sy;
+            data[num_data][3] = fc;
+            data[num_data][4] = pa[p]; // player active
+
+            num_data++;
+            //printf("fn:%d  p:%d sync:%d fps_chase:%d\n", fn, p, sy, fc);
+            if (num_data>9999) i=num_lines; // break out of loop
+         }
+      }
+   }
+   // all the data is in the array
+
+   int gquit = 0;
+   int redraw = 1;
+
+   // set the graph width and x baseline
+   int xbl = 70;                 // x baseline
+   int graph_w = SCREEN_W - 70;
+
+
+   // x axis legend y pos
+   int yxl = SCREEN_H - 20;
+
+   int gs_pc = 0; // graph start pc
+   int rangef = 0; // frame range of current display, used to set scroll amount
+
+   float p2g = 1;
+   int old_ix, old_ity;
+
+   int g1_y_screen = SCREEN_H - 90;     // g1 y lowest screen pos
+   int g1_h_screen = SCREEN_H/2 - 40;   // g1 y screen height
+
+   // min and max y data values
+   int g1_y_lowest_val  = -50;
+   int g1_y_highest_val = 50;
+   int g1_y_range = g1_y_highest_val - g1_y_lowest_val;
+
+   // set y scale based on screen height and range
+   float g1_y_scale = (float)g1_h_screen / (float)(g1_y_range);
+
+
+   int g2_y_screen = SCREEN_H/2 - 80;   // g2 y lowest screen pos
+   int g2_h_screen = SCREEN_H/2 - 100;  // g2 y screen height
+
+   // min and max y data values
+   int g2_y_lowest_val  = 0;
+   int g2_y_highest_val = 80;
+   int g2_y_range = g2_y_highest_val - g2_y_lowest_val;
+
+   // set y scale based on screen height and range
+   float g2_y_scale = (float)g2_h_screen / (float)(g2_y_range);
+
+
+   int g3_y_screen = SCREEN_H - 30;   // g3 y lowest screen pos
+   int g3_h_screen = 30;              // g3 y screen height
+
+   // min and max y data values
+   int g3_y_lowest_val  = 0;
+   int g3_y_highest_val = 1;
+   int g3_y_range = g3_y_highest_val - g3_y_lowest_val;
+
+   // set y scale based on screen height and range
+   float g3_y_scale = (float)g3_h_screen / (float)(g3_y_range);
+
+
+
+
+
+   while (!gquit)
+   {
+      if (redraw)
+      {
+         al_set_target_backbuffer(display);
+         al_clear_to_color(al_map_rgb(0,0,0));
+
+         if (redraw == 1) // auto set scale
+         {
+            // set x scale based on graph width and end frame
+            p2g = (float)graph_w / (float)440;  // start with showing 11 seconds
+         }
+
+         // label the x axis and draw gridlines
+         // first of all, what is the range of data in frames?
+         // we will use this to determine the units (frames, seconds, minutes)
+         int maxf = 0;
+         for (float i=gs_pc; (int)((i-gs_pc)*p2g) < graph_w; i++) if (i > maxf) maxf = i;
+         rangef = maxf-gs_pc;
+
+         // now choose units
+         if (rangef < 400) // frames
+         {
+            al_draw_text(font, palette_color[13], xbl+graph_w/2, yxl+12, ALLEGRO_ALIGN_CENTER, "time (frames)");
+            int div = 1;
+            // get max label text size in pixels
+            sprintf(msg, "%d ", maxf / div);
+            int tm = strlen(msg) * 8;
+            int spi = (int) ((float)tm / p2g); // scale to graph size
+            int sp2 = ((spi/div) * div) + div; // snap to div size
+            // draw legend and gridline every sp2 frames
+            for (float i=gs_pc; (int)((i-gs_pc)*p2g) < graph_w; i+= sp2)
+            {
+               int hx = xbl + (int)((i-gs_pc)*p2g);
+               al_draw_textf(font, palette_color[13], hx, yxl+4, ALLEGRO_ALIGN_CENTER, "%d", (int)(i));
+               al_draw_line(hx, 0, hx, yxl, palette_color[13+96], 1);
+            }
+         }
+
+         if ((rangef >= 400) && (rangef < 20000)) // seconds
+         {
+            al_draw_text(font, palette_color[13], xbl+graph_w/2, yxl+12, ALLEGRO_ALIGN_CENTER, "time (seconds)");
+            int div = 40;
+            // get max label text size in pixels
+            sprintf(msg, "%d ", maxf / div);
+            int tm = strlen(msg) * 8;
+            int spi = (int) ((float)tm / p2g); // scale to graph size
+            int sp2 = ((spi/div) * div) + div; // snap to div size
+
+             // only allowed values are 40, 80, 200, 400, 800
+            if ((sp2 > 80) && (sp2 < 200)) sp2 = 200;
+            if ((sp2 > 200) && (sp2 < 400)) sp2 = 400;
+            if ((sp2 > 400) && (sp2 < 800)) sp2 = 800;
+            if ((sp2 > 800) && (sp2 < 1600)) sp2 = 1600;
+
+            // draw legend every sp2 frames
+            for (float i=gs_pc; (int)((i-gs_pc)*p2g) < graph_w; i+= sp2)
+            {
+               int hx = xbl + (int)((i-gs_pc)*p2g);
+               al_draw_textf(font, palette_color[13], hx, yxl+4, ALLEGRO_ALIGN_CENTER, "%d", (int)(i/div));
+               //al_draw_line(hx, 0, hx, ybl+4, palette_color[13+32], 1);
+            }
+            // draw scale lines every second
+            for (float i=gs_pc; (int)((i-gs_pc)*p2g) < graph_w; i+= 40)
+            {
+               int hx = xbl + (int)((i-gs_pc)*p2g);
+               al_draw_line(hx, 0, hx, yxl+2, palette_color[13+96], 1);
+            }
+            // draw scale line every 10 seconds
+            for (float i=gs_pc; (int)((i-gs_pc)*p2g) < graph_w; i+= 400)
+            {
+               int hx = xbl + (int)((i-gs_pc)*p2g);
+               al_draw_line(hx, 0, hx, yxl+2, palette_color[13+32], 2);
+            }
+         }
+
+         if (rangef >= 20000) // minutes
+         {
+            al_draw_text(font, palette_color[13], xbl+graph_w/2, yxl+12, ALLEGRO_ALIGN_CENTER, "time (minutes)");
+            int div = 2400;
+            // get max label text size in pixels
+            sprintf(msg, "%d ", maxf / div);
+            int tm = strlen(msg) * 8;
+            int spi = (int) ((float)tm / p2g); // scale to graph size
+            int sp2 = ((spi/div) * div) + div; // snap to div size
+            // draw legend and scale line every sp2 frames
+            for (float i=gs_pc; (int)((i-gs_pc)*p2g) < graph_w; i+= sp2)
+            {
+               int hx = xbl + (int)((i-gs_pc)*p2g);
+               al_draw_textf(font, palette_color[13], hx, yxl+4, ALLEGRO_ALIGN_CENTER, "%d", (int)(i/div));
+               al_draw_line(hx, 0, hx, yxl, palette_color[13+32], 2);
+            }
+            // draw x scale lines every 10 seconds
+            for (float i=gs_pc; (int)((i-gs_pc)*p2g) < graph_w; i+= 400)
+            {
+               int hx = xbl + (int)((i-gs_pc)*p2g);
+               al_draw_line(hx, 0, hx, yxl, palette_color[13+32], 1);
+            }
+         }
+
+
+         // label the y axis and draw gridlines
+
+         // g1 numbered labels
+         for (float i=g1_y_lowest_val; i<=g1_y_highest_val; i+=10)
+         {
+            int y_pos = g1_y_screen - (i-g1_y_lowest_val) * g1_y_scale;
+            al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[15+96], 1);
+            al_draw_textf(font, palette_color[15], 0, y_pos-4, 0, "%5.0f", i);
+            al_draw_textf(font, palette_color[15], 8, y_pos+4, 0, "frames");
+         }
+         // minor grid lines
+         for (float i=g1_y_lowest_val; i<=g1_y_highest_val; i+=2)
+         {
+            int y_pos = g1_y_screen - (i-g1_y_lowest_val) * g1_y_scale;
+            al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[15+96], 0);
+         }
+
+         // g2 numbered labels
+         for (float i=g2_y_lowest_val; i<=g2_y_highest_val; i+=10)
+         {
+            int y_pos = g2_y_screen - (i-g2_y_lowest_val) * g2_y_scale;
+            al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[15+96], 1);
+            al_draw_textf(font, palette_color[15], 0, y_pos-4, 0, "%4.0f fps", i);
+//            al_draw_textf(font, palette_color[15], 8, y_pos+4, 0, "fps");
+         }
+         // minor grid lines
+         for (float i=g2_y_lowest_val; i<=g2_y_highest_val; i+=2)
+         {
+            int y_pos = g2_y_screen - (i-g2_y_lowest_val) * g2_y_scale;
+            al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[15+96], 0);
+         }
+
+         // g3 labels
+         float i=g3_y_lowest_val;
+         int y_pos = g3_y_screen - (i-g3_y_lowest_val) * g3_y_scale;
+         al_draw_textf(font, palette_color[15], 0, y_pos-4, 0, "Inactive");
+         al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[15+96], 0);
+
+         i=g3_y_highest_val;
+         y_pos = g3_y_screen - (i-g3_y_lowest_val) * g3_y_scale;
+         al_draw_textf(font, palette_color[15], 0, y_pos-4, 0, "Active");
+         al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[15+96], 0);
+
+
+
+         // plot g1 data
+         for (int p=0; p<NUM_PLAYERS; p++)
+         {
+            if (lp[p][0])
+            {
+               int first_time = 1;
+               for (int i=0; i<num_data; i++)
+               {
+                  if (data[i][2] != -999)
+                  {
+                     int pc = data[i][0];
+                     int dp = data[i][1];
+                     int sy = data[i][2]-g1_y_lowest_val;
+                     int col = players[p].color;
+
+
+                     if (dp == p)
+                     {
+                        int ix = xbl + (int) ( (float)(pc-gs_pc) * p2g);
+                        int ity =  g1_y_screen - (int) ( (float)sy * g1_y_scale);
+                        if (first_time) // set previous point to this point
+                        {
+                           first_time = 0;
+                           old_ix = ix;
+                           old_ity = ity;
+                        }
+                        al_draw_line(old_ix, old_ity, ix, ity, palette_color[col], 1);
+                        old_ix = ix;
+                        old_ity = ity;
+                     }
+                  }
+               }
+            }
+         }
+
+         // plot g2 data
+         for (int p=0; p<NUM_PLAYERS; p++)
+         {
+            if (lp[p][0])
+            {
+               int first_time = 1;
+               for (int i=0; i<num_data; i++)
+               {
+                  if (data[i][3] != -999)
+                  {
+                     int pc = data[i][0];
+                     int dp = data[i][1];
+                     int fc = data[i][3]-g2_y_lowest_val;
+                     int col = players[p].color;
+                     if (dp == p)
+                     {
+                        int ix = xbl + (int) ( (float)(pc-gs_pc) * p2g);
+                        int ity =  g2_y_screen - (int) ( (float)fc * g2_y_scale);
+                        if (first_time) // set previous point to this point
+                        {
+                           first_time = 0;
+                           old_ix = ix;
+                           old_ity = ity;
+                        }
+                        al_draw_line(old_ix, old_ity, ix, ity, palette_color[col], 1);
+                        old_ix = ix;
+                        old_ity = ity;
+                     }
+                  }
+               }
+            }
+         }
+
+
+
+         // plot g3 data
+         for (int p=0; p<NUM_PLAYERS; p++)
+         {
+            if (lp[p][0])
+            {
+               int first_time = 1;
+               for (int i=0; i<num_data; i++)
+               {
+                  int pc = data[i][0];
+                  int dp = data[i][1];
+                  int pa = data[i][4]-g3_y_lowest_val;
+                  int col = players[p].color;
+                  if (dp == p)
+                  {
+                     int ix = xbl + (int) ( (float)(pc-gs_pc) * p2g);
+                     int ity =  g3_y_screen - (int) ( (float)pa * g3_y_scale)+p;
+                     if (first_time) // set previous point to this point
+                     {
+                        first_time = 0;
+                        old_ix = ix;
+                        old_ity = ity;
+                     }
+                     al_draw_line(old_ix, old_ity, ix, ity, palette_color[col], 1);
+                     old_ix = ix;
+                     old_ity = ity;
+                  }
+               }
+            }
+         }
+
+
+
+
+
+         // title g1
+         int xc = SCREEN_W/2;
+         int x1 = xc-75;
+         int x2 = xc+75;
+         int y1 = g1_y_screen-g1_h_screen-16;
+         int y2 = y1 + 13;
+         al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[12+160]);
+         al_draw_rounded_rectangle(x1, y1, x2, y2, 2, 2, palette_color[12], 2);
+         al_draw_text(font, palette_color[15], xc, y1+3, ALLEGRO_ALIGN_CENTER, "Client-Server Sync");
+
+         // title g2
+         x1 = xc-67;
+         x2 = xc+67;
+         y1 = g2_y_screen-g2_h_screen-16;
+         y2 = y1 + 13;
+         al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[12+160]);
+         al_draw_rounded_rectangle(x1, y1, x2, y2, 2, 2, palette_color[12], 2);
+         al_draw_text(font, palette_color[15], xc, y1+3, ALLEGRO_ALIGN_CENTER, "Client Chase FPS");
+
+         // title g3
+         x1 = xc-67;
+         x2 = xc+67;
+         y1 = g3_y_screen-g3_h_screen-16;
+         y2 = y1 + 13;
+         al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[12+160]);
+         al_draw_rounded_rectangle(x1, y1, x2, y2, 2, 2, palette_color[12], 2);
+         al_draw_text(font, palette_color[15], xc, y1+3, ALLEGRO_ALIGN_CENTER, "Client Active");
+
+
+
+
+
+
+
+         // draw controls
+         int ypos = 6;
+         int xpos = SCREEN_W - 234;
+
+         al_draw_filled_rectangle(xpos-1, ypos+6, xpos+232, ypos+73, palette_color[15+196]);
+         al_draw_rectangle(xpos-1, ypos+6, xpos+232, ypos+73, palette_color[15], 1);
+
+         // framed title bar
+         xc = xpos + 116;
+         al_draw_filled_rectangle(xc-34, ypos-5, xc+34, ypos+6, palette_color[15+196]);
+         al_draw_rectangle(xc-34, ypos-5, xc+34, ypos+6, palette_color[15], 1);
+         al_draw_text(font, palette_color[15], xc, ypos-3, ALLEGRO_ALIGN_CENTER, "Controls");
+
+         al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[NUMBERS 1-7] toggle client");
+         al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[RIGHT]       zoom in x axis");
+         al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[LEFT]        zoom out x axis");
+         al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[CTRL][RIGHT] scroll right");
+         al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[CTRL][LEFT]  scroll left");
+         al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][RIGHT] scroll faster");
+         al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][LEFT]  scroll faster");
+         al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[ESC]         quit");
+
+
+         // draw legend
+         xpos = SCREEN_W - 226;
+         ypos+=28;
+
+         // framed title bar
+         xc = xpos + 110;
+         al_draw_filled_rectangle(xc-30, ypos-13, xc+30, ypos-2, palette_color[15+196]);
+         al_draw_rectangle(xc-30, ypos-13, xc+30, ypos-2, palette_color[15], 1);
+         al_draw_text(font, palette_color[15], xc, ypos-11, ALLEGRO_ALIGN_CENTER, "Legend");
+
+         xpos +=64;
+
+         // iterate players that have data
+         for (int i=1; i<8; i++)
+            if (lp[i][1])
+            {
+               // clear and frame row
+               al_draw_filled_rectangle(xpos-1, ypos-1, xpos+98, ypos+8, palette_color[15+196]);
+               al_draw_rectangle(       xpos-2, ypos-2, xpos+98, ypos+9, palette_color[15], 1);
+
+               int col = players[i].color;
+               char tmsg[5];
+               if (lp[i][0]) sprintf(tmsg,"on ");
+               else
+               {
+                  sprintf(tmsg,"off");
+                  col = 127; //grey
+               }
+               al_draw_textf(font, palette_color[col], xpos+1, ypos, 0, "player:%d %s", i, tmsg);
+               ypos+=11;
+            }
+         al_flip_display();
+         redraw = 0;
+      } // end of redraw
+
+      int k = proc_controllers();
+      if ((k > 27) && (k < 35)) // numbers 0-7 toggle players
+      {
+         redraw = 1;
+         int p = k-27;
+         lp[p][0] = !lp[p][0];
+      }
+
+      int scroll_amt = rangef / 10; // scroll 10% of screen at once
+      if (scroll_amt < 1) scroll_amt = 1;
+
+      if (key[ALLEGRO_KEY_RIGHT])
+      {
+         while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();
+         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL]))
+         {
+            gs_pc += scroll_amt;
+            if (gs_pc > end_pc) gs_pc = end_pc;
+         }
+         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         {
+            gs_pc += scroll_amt * 10;
+            if (gs_pc > end_pc) gs_pc = end_pc;
+         }
+         else p2g *= 1.1;
+         redraw = 2;
+      }
+      if (key[ALLEGRO_KEY_LEFT])
+      {
+         while (key[ALLEGRO_KEY_LEFT]) proc_controllers();
+         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL]))
+         {
+            gs_pc -= scroll_amt;
+            if (gs_pc < 0) gs_pc = 0;
+         }
+         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         {
+            gs_pc -= scroll_amt * 10;
+            if (gs_pc < 0) gs_pc = 0;
+         }
+         else p2g *= .9;
+         redraw = 2;
+      }
+      if (key[ALLEGRO_KEY_ESCAPE])
+      {
+         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
+         gquit = 1;
+      }
+   }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -485,6 +485,10 @@ void server_send_sdat(void)
                if (L_LOGGING_NETPLAY_sdat) add_log_entry2(37, p, msg);
             }
          }
+//         sprintf(msg,"nx sdat p:%d gme:%d pgme:%d\n", p, start_entry, num_entries);
+//         if (L_LOGGING_NETPLAY_sdat) add_log_entry2(37, p, msg);
+
+
 
          // send even if no data, every x frames for sync
 
@@ -549,29 +553,30 @@ void server_proc_cdat_packet(void)
    sprintf(tmsg1,"rx cdat p:%d client_pc:[%d] c_sync:[%d]", p, fn, c_sync );
    sprintf(tmsg2,"\n");
 
-
-   if (level_done_mode == 5) add_game_move(fn, 8, p, 0); // add ack to game_move array
+   if (players[p].active == 0) sprintf(tmsg2,"<-- ERROR! player inactive\n");
    else
    {
-      if (c_sync >= 0) add_game_move(fn, 5, p, cm); // add to game_move array
-      else                                          // unless late, then drop and inc error
+      if (c_sync > 10) sprintf(tmsg2,"<-- ERROR! more than 10 frames in the future\n");
+      else
       {
-         players1[p].server_game_move_sync_err++;
-         sprintf(tmsg2, "<--ERROR! (total errors:%d)\n", players1[p].server_game_move_sync_err);
+         if (c_sync >= 0) add_game_move(fn, 5, p, cm); // add to game_move array
+         else                                          // unless late, then drop and inc error
+         {
+            players1[p].server_game_move_sync_err++;
+            //sprintf(tmsg2, "<--ERROR! (total errors:%d)\n", players1[p].server_game_move_sync_err);
+            sprintf(tmsg2, "<-- ERROR! too late\n");
 
-         Packet("serr"); // server error
-         PacketPut1ByteInt(1); // error type 1
-         PacketPut4ByteInt(frame_num);
-         PacketPut4ByteInt(c_sync);
-         PacketPut4ByteInt(players1[p].server_game_move_sync_err);
-         ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
-      }
-
-      sprintf(msg, "%s %s", tmsg1, tmsg2);
-      if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
-   }
+            Packet("serr"); // server error
+            PacketPut1ByteInt(1); // error type 1
+            PacketPut4ByteInt(frame_num);
+            PacketPut4ByteInt(c_sync);
+            PacketPut4ByteInt(players1[p].server_game_move_sync_err);
+            ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+         } // end of too late
+      } // end of not too far in future
+   } // end of active
+   if (L_LOGGING_NETPLAY_cdat) { sprintf(msg, "%s %s", tmsg1, tmsg2); add_log_entry2(35, p, msg);}
 }
-
 
 void server_proc_stak_packet(void)
 {
@@ -615,34 +620,64 @@ void server_proc_sdak_packet(void)
 {
    int p = PacketGet1ByteInt();
    int client_fn = PacketGet4ByteInt();
-   players1[p].game_move_entry_pos = PacketGet4ByteInt(); // mark as rx'ed by setting new entry pos
-   players1[p].stdf_late = PacketGet4ByteInt();
-   players1[p].frames_skipped = PacketGet4ByteInt();
+   int gmep = PacketGet4ByteInt();
+   int sl = PacketGet4ByteInt();
+   int fs = PacketGet4ByteInt();
+   int fps_chase = PacketGet4ByteInt();
 
-   // set server_sync in player struct
-   players1[p].server_sync = frame_num - client_fn;
-
-
-   // set server_sdat_sync_freq
-   if (players1[p].server_sync == server_lead_frames + 1) players1[p].server_sdat_sync_freq = 20;
-   else players1[p].server_sdat_sync_freq = 1;
-
-   // this is used to see if client is still alive
-   players1[p].server_last_sdak_rx_frame_num = frame_num;
-
-   sprintf(msg,"rx sdak p:%d nep:[%d] server_sync:[%d] frames skipped:%d\n", p, players1[p].game_move_entry_pos, players1[p].server_sync, players1[p].frames_skipped);
-   if (L_LOGGING_NETPLAY_sdak) add_log_entry2(39, p, msg);
-
-   if ((!players[p].active) && (players[p].control_method == 2)) // inactive client chasing for lock
+   if (gmep > game_move_entry_pos)
    {
-      if (players1[p].made_active_holdoff) players1[p].made_active_holdoff--;
-      else if ((players1[p].server_sync < 4) && (players1[p].server_sync > -2))
+      sprintf(msg,"rx sdak p:%d nep:[%d] <-- ERROR! future gmep\n", p, players1[p].game_move_entry_pos);
+      if (L_LOGGING_NETPLAY_sdak) add_log_entry2(39, p, msg);
+   }
+   else
+   {
+      players1[p].game_move_entry_pos = gmep; // mark as rx'ed by setting new entry pos
+      players1[p].stdf_late = sl;
+      players1[p].frames_skipped = fs;
+
+      // set server_sync in client's player struct
+      players1[p].server_sync = frame_num - client_fn;
+
+      // set server_sdat_sync_freq
+      if (players1[p].server_sync == server_lead_frames + 1) players1[p].server_sdat_sync_freq = 20;
+      else players1[p].server_sdat_sync_freq = 1;
+
+      // this is used to see if client is still alive
+      players1[p].server_last_sdak_rx_frame_num = frame_num;
+
+      sprintf(msg,"rx sdak p:%d nep:[%d] server_sync:[%d] fps_chase:[%d] frames skipped:%d\n", p, players1[p].game_move_entry_pos, players1[p].server_sync, fps_chase, players1[p].frames_skipped);
+      if (L_LOGGING_NETPLAY_sdak) add_log_entry2(39, p, msg);
+
+
+      if ((!players[p].active) && (players[p].control_method == 2)) // inactive client chasing for lock
+      {
+         if ((players1[p].server_sync > -2) && (players1[p].server_sync < 5)) players1[p].sync_stabilization_holdoff++;
+         else players1[p].sync_stabilization_holdoff = 0;
+      }
+
+      if (players1[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
       {
          add_game_move(frame_num + 4, 1, p, players[p].color);
-         players1[p].made_active_holdoff = 6;
+         players1[p].sync_stabilization_holdoff = 0;
          sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
          if (L_LOGGING_NETPLAY_JOIN) add_log_entry2(11, p, msg);
       }
+
+//      if ((!players[p].active) && (players[p].control_method == 2)) // inactive client chasing for lock
+//      {
+//         if (players1[p].made_active_holdoff) players1[p].made_active_holdoff--;
+//         else if ((players1[p].server_sync < 4) && (players1[p].server_sync > -2))
+//         {
+//            add_game_move(frame_num + 4, 1, p, players[p].color);
+//            players1[p].made_active_holdoff = 6;
+//            sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
+//            if (L_LOGGING_NETPLAY_JOIN) add_log_entry2(11, p, msg);
+//         }
+//      }
+
+
+
    }
 }
 
@@ -742,6 +777,11 @@ void server_proc_CJON_packet(int who)
 
 void server_control() // this is the main server loop to process packet send and receive
 {
+   log_player_array2();
+
+   if (L_LOGGING_NETPLAY_PLAYER_ARRAY)
+
+
    if (frame_num == 0) reset_states(); // for stdf
    ServerListen();      // listen for new client connections
    int who;
