@@ -29838,6 +29838,871 @@ client does not have anything right in the game moves array till about 1300 fram
 
 I might have to re-think this entire method....
 
+20220617 4:00AM
+
+why does client get stuck on mode 8?
+it puts itself in mode 8
+the only way from 8 to 6 and beyond is to receive the level done game move
+why is that not happening?
+
+are they being sent?
+
+server log 281 level done starts
+
+server sent sdat:
+278 sync only 16 0 reply 279
+299 sync only 16 0 reply 300
+320 sync only 16 0 reply 321
+
+they are not being sent!!!...why??
+
+check the succesful level before...
+
+server log 168 level done starts
+server sent sdat:
+166 6 3 reply 167
+
+
+right from the start of the bad level, client keeps acknowledging move 16
+i think the problem is in the game move sync stuff..
+
+I want to show on the debug screen the game move entry position
+
+i think the reason the server does not send the game moves is, right away the client acknowledges moves in the future...
+
+add some sanity checks...
+don't let server rxing sdaks set gmep in the future...ignore the packet entirely and flag an error...
+
+void server_proc_sdak_packet(void)
+{
+   int p = PacketGet1ByteInt();
+   int client_fn = PacketGet4ByteInt();
+   int gmep = PacketGet4ByteInt();
+   int sl = PacketGet4ByteInt();
+   int fs = PacketGet4ByteInt();
+
+   if (gmep > game_move_entry_pos)
+   {
+      sprintf(msg,"rx sdak p:%d nep:[%d] server_sync:[%d] frames skipped:%d -- error client tried to acknowlege future game move entry position\n", p, players1[p].game_move_entry_pos, players1[p].server_sync, players1[p].frames_skipped);
+      if (L_LOGGING_NETPLAY_sdak) add_log_entry2(39, p, msg);
+   }
+   else
+   {
+      players1[p].game_move_entry_pos = gmep; // mark as rx'ed by setting new entry pos
+      players1[p].stdf_late = sl;
+      players1[p].frames_skipped = fs;
+
+
+
+holy shit!  i think I finally fixed it!
+
+
+lets test more....
+
+8 player game with fake keypress
+
+71-72 good
+
+72 level done
+-player 5 did not acknowledge
+all others did
+p5 stuck in mode 8
+press any count went negative for p5
+exactly the same on all clients and server
+never went to next level...
+killed the server and all players lost server connection...
+
+
+look into the logs....
+server log:
+
+all 7 clients send a cdat every frame
+for some reason server only sends sdat back to 12347
+why not 5 and 6??
+
+when server sends sdats, show why it chose which ones to send
+
+
+or just show the entire player structure every frame
+
+20220618 7:00AM
+
+saturday...I should have a bigger block of time today...
+work on netgame and how you broke it...
+the issue is how level done works..all the rest of netgame seems to work fine
+
+
+test... end of level 72 server froze...
+
+it looks like there are lots of problem in the game move sync thing
+packets arriving in chunks way too late,
+huge amount of packets arriving in the same frame
+
+
+
+test end of level 73 server froze stuck in mode 6
+game moves:
+652 ld1
+732 ld2
+1452 nl
+
+in server logs: 652 level_done 1 is there...
+by then only client 1 and 5 were up to date with gmep at 4000
+all other clients were stuck at 200
+server kept sending periodic sdats to these clients, but with nm=0 (sync only)
+
+lets go back and see if we can find where it all went wrong...
+
+right at the start server is still receiving cdats with frame numbers from the last level
+and they are getting entered in the game moves array
+
+how about adding some more checks:
+on server when receiving cdats:
+- do not enter any gm for players that are currently not active
+- do not eneter any gm if more than 20? frames in the future
+on client:
+when in ld2 mode....can't think of a way to stop sending...leave it for now...
+
+
+try again....
+got all the way to 74 with no errors...
+
+
+try again
+
+player 6 stuck in mode 8...
+same thing...
+gm sync for that player went bad and it was way behind...
+
+try again...good till 74
+
+what variable on the server shows timing drift for each client? players1[p].server_sync
+
+clients could be drifting too much...lets see...
+
+once the game is running server_sync is very stable at 2...
+but at the start is goes from approx 20 to -7 for the first 5 seconds or so...
+
+lets do some more tests...
+71-74 perfect..again...
+
+I think I might have completed it.
+
+make it so that player array can be switched on and off in log viewer..
+does it need its own type?? yes 26 player array color 15
+that was easy...done
+
+I would like to have more information...
+like a graph of how the timing drift fixes itself
+and at the same time, errors on the same graph
+just the sync graph for now....
+now I can experiment with different sync strategies ...
+
+
+what are the inputs?
+what can I change?
+
+server_sync
+clients fps
+how often the fps gets changed
+
+where do I want to see this?
+
+server would be nice...
+
+client adjusts when rxing sdat
+client needs to respond with actual fps in sdak...
+
+   // client timer adjust
+   players1[p].client_sync = sdat_frame_num - frame_num;
+   int fps_chase = frame_speed + (players1[p].client_sync - server_lead_frames)*2;
+   if (fps_chase < 4) fps_chase = 4; // never let this go negative
+   al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+
+just reply with fps_chase also...
+then what? when server gets it..log it...
+
+I cant tell the frequency in fake keypress mode, server sends sdat every frame anyways
+
+I would like to do the graph as a two part...one on top of the other
+this took a long time, but it's done!!
+
+i would like to learn how to do a dashed line in allegro..gave up again...
+
+
+
+show comparison between
+int fps_chase = frame_speed + (players1[p].client_sync - server_lead_frames)*2;
+and
+int fps_chase = frame_speed + (players1[p].client_sync - server_lead_frames);
+maybe three also...
+
+test method...
+- 8 players
+- fake keypress
+- ld 71, 72, 73, quit on 74 once they have all stabilised...
+run the graph and printscreen...
+did 1, 2 and 0.5....1 is the best
+
+
+
+bug--timout does not work on server player level done...
+
+only when fakekeypress mode
+
+game moves gets so filled up that looking back 100 does not find next level..
+
+solution..prevent duplicate ack's
+
+also when server read cdats it directly entered acks..changed this so that add_game_move does this now...
+
+its looking really good now....
+
+made graph look even better and now I am re-doing the sync graphs
+
+bug - server cannot cancel timeout...fixed. in add_game_move allow next level to be added in ld mode 5..
+
+clamped fps chase to 10 and 70...
+
+make logging parr optional...done...
+
+
+
+extern ALLEGRO_BITMAP *level_done_bitmap;
+extern int level_done_bitmap_create;
+
+I think I have it done....
+
+now use it and fix the loop..
+
+
+i want to make draw_2_lines be able to draw on an arbitrary bitmap that i pass it...or the screen_buffer
+
+then I will use it for splash screen, level_done and demo_mode
+
+why don't I make them all use the same bitmap that is the same size as the screen....
+
+and have an int flag that tells the status so I dont redraw it
+
+extern ALLEGRO_BITMAP *large_text_overlay_bitmap;
+extern int large_text_overlay_state;
+
+0 - not_valid and needs to be created
+1 - PURPLE MARTIANS
+2 - LEVEL DONE
+3 - DEMO MODE
+
+replaced level done...
+
+all have been replaced and it is a lot simpler now...
+
+test run game...seems to work....
+
+
+bug - when blocks are erased in netgame...
+players joining later have the exact level array (because state_dif makes sure of that)
+but they sometimes might not have the correct level_background
+I can't redraw that too often as it causes frame skips
+I tried redrawing it whenever I got a state on the client, but that was like once per second and I got skips every second
+I tried redrawing it when client first synced, but still missed a few...
+
+I could do on client if l has any state dif errors...yes...
+
+I think this is working...only a few occur and its right around when syncing...
+
+
+
+
+
+
+what if I re-did the chase and lock thing...
+right now I think it joins too soon...
+
+make it so that if sync is between 0 and 4 for 40 frames then set active...
+
+can I show on the graph where players became active??
+I should...
+
+what log entry?? 10
+but it is shared with other stuff....
+
+now the graph shows when client become active...
+
+players1[p].made_active_holdoff is used so that I dont set player active every frame
+
+added:
+int sync_stabilization_holdoff;
+
+changed:
+
+if ((!players[p].active) && (players[p].control_method == 2)) // inactive client chasing for lock
+{
+   if (players1[p].made_active_holdoff) players1[p].made_active_holdoff--;
+   else if ((players1[p].server_sync < 4) && (players1[p].server_sync > -2))
+   {
+      add_game_move(frame_num + 4, 1, p, players[p].color);
+      players1[p].made_active_holdoff = 6;
+      sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
+      if (L_LOGGING_NETPLAY_JOIN) add_log_entry2(11, p, msg);
+   }
+}
+
+to:
+
+if ((!players[p].active) && (players[p].control_method == 2)) // inactive client chasing for lock
+{
+   if ((players1[p].server_sync >= 0) && (players1[p].server_sync <= 4)) players1[p].sync_stabilization_holdoff++;
+   else players1[p].sync_stabilization_holdoff = 0;
+}
+
+if (players1[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
+{
+   add_game_move(frame_num + 4, 1, p, players[p].color);
+   players1[p].sync_stabilization_holdoff = 0;
+   sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
+   if (L_LOGGING_NETPLAY_JOIN) add_log_entry2(11, p, msg);
+}
+
+did not do that much for stabilization..
+the oscillation seems to happen after the clients come active and fake keypress happens
+
+set the holdoff to much in the future to test...
+yes...oscillation comes when clients go active
+
+try it without fake keypress....
+
+
+
+
+
+
+test on linux...
+
+mx linux on mr5mx1
+
+l - erase all from shared folder
+w - copy all files to shared folder
+l - sudo ./op
+open proj in code::blocks
+set build target ldm
+build all
+run from command line ./pm
+
+seems to work just fine in linux
+
+opengl does not look as nice...
+
+stats:
+
+Purple Martians Version 7.10
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+available fullscreen modes:
+w: 640 h: 480 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 640 h: 480 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 640 h: 480 -- refresh rate:72 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 640 h: 480 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 720 h: 400 -- refresh rate:70 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 720 h: 480 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 720 h: 480 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 720 h: 480 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 720 h: 480 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 720 h: 576 -- refresh rate:50 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 720 h: 576 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 720 h: 576 -- refresh rate:72 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 720 h: 576 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 800 h: 600 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 800 h: 600 -- refresh rate:72 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 800 h: 600 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1024 h: 768 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1024 h: 768 -- refresh rate:70 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1024 h: 768 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1152 h: 864 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1280 h: 720 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1280 h: 720 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1280 h: 720 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1280 h: 720 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1280 h: 720 -- refresh rate:50 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1280 h: 720 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1280 h: 720 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1280 h: 800 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1280 h: 960 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1280 h:1024 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1280 h:1024 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1360 h: 768 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1440 h: 900 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1600 h: 900 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1600 h:1200 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1600 h:1200 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1600 h:1200 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1600 h:1200 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1680 h:1050 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1920 h:1080 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1920 h:1080 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1920 h:1080 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1920 h:1080 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1920 h:1080 -- refresh rate:50 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1920 h:1080 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1920 h:1080 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1920 h:1200 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1920 h:1200 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1920 h:1200 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:1920 h:1200 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:2048 h:1536 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:2048 h:1536 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:2048 h:1536 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:2048 h:1536 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:2560 h:1440 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:2560 h:1440 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:2560 h:1440 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:2560 h:1440 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:3840 h:1620 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:3840 h:1620 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:3840 h:1620 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:3840 h:1620 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:3840 h:2160 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:3840 h:2160 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:3840 h:2160 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:3840 h:2160 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:4096 h:2160 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:4096 h:2160 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w:4096 h:2160 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_XRGB_8888
+w: 640 h: 480 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 640 h: 480 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 640 h: 480 -- refresh rate:72 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 640 h: 480 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 720 h: 400 -- refresh rate:70 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 720 h: 480 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 720 h: 480 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 720 h: 480 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 720 h: 480 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 720 h: 576 -- refresh rate:50 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 720 h: 576 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 720 h: 576 -- refresh rate:72 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 720 h: 576 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 800 h: 600 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 800 h: 600 -- refresh rate:72 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w: 800 h: 600 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1024 h: 768 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1024 h: 768 -- refresh rate:70 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1024 h: 768 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1152 h: 864 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1280 h: 720 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1280 h: 720 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1280 h: 720 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1280 h: 720 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1280 h: 720 -- refresh rate:50 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1280 h: 720 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1280 h: 720 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1280 h: 800 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1280 h: 960 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1280 h:1024 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1280 h:1024 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1360 h: 768 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1440 h: 900 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1600 h: 900 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1600 h:1200 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1600 h:1200 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1600 h:1200 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1600 h:1200 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1680 h:1050 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1920 h:1080 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1920 h:1080 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1920 h:1080 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1920 h:1080 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1920 h:1080 -- refresh rate:50 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1920 h:1080 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1920 h:1080 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1920 h:1200 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1920 h:1200 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1920 h:1200 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:1920 h:1200 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:2048 h:1536 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:2048 h:1536 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:2048 h:1536 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:2048 h:1536 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:2560 h:1440 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:2560 h:1440 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:2560 h:1440 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:2560 h:1440 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:3840 h:1620 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:3840 h:1620 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:3840 h:1620 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:3840 h:1620 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:3840 h:2160 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:3840 h:2160 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:3840 h:2160 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:3840 h:2160 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:4096 h:2160 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:4096 h:2160 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+w:4096 h:2160 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+display flags:
+ALLEGRO_WINDOWED
+ALLEGRO_DIRECT3D_INTERNAL
+ALLEGRO_RESIZABLE
+display options
+ALLEGRO_RED_SIZE:5
+ALLEGRO_GREEN_SIZE:6
+ALLEGRO_BLUE_SIZE:5
+ALLEGRO_ALPHA_SIZE:0
+ALLEGRO_RED_SHIFT:11
+ALLEGRO_GREEN_SHIFT:5
+ALLEGRO_BLUE_SHIFT:0
+ALLEGRO_ALPHA_SHIFT:0
+ALLEGRO_ACC_RED_SIZE:0
+ALLEGRO_ACC_GREEN_SIZE:0
+ALLEGRO_ACC_BLUE_SIZE:0
+ALLEGRO_ACC_ALPHA_SIZE:0
+ALLEGRO_STEREO:0
+ALLEGRO_AUX_BUFFERS:0
+ALLEGRO_COLOR_SIZE:16
+ALLEGRO_DEPTH_SIZE:0
+ALLEGRO_STENCIL_SIZE:0
+ALLEGRO_SAMPLE_BUFFERS:0
+ALLEGRO_SAMPLES:0
+ALLEGRO_RENDER_METHOD:0
+ALLEGRO_FLOAT_COLOR:0
+ALLEGRO_FLOAT_DEPTH:0
+ALLEGRO_SINGLE_BUFFER:0
+ALLEGRO_SWAP_METHOD:0
+ALLEGRO_COMPATIBLE_DISPLAY:1
+ALLEGRO_UPDATE_DISPLAY_REGION:0
+ALLEGRO_VSYNC:0
+ALLEGRO_MAX_BITMAP_SIZE:16384
+ALLEGRO_SUPPORT_NPOT_BITMAP:1
+ALLEGRO_SUPPORT_SEPARATE_ALPHA:1
+ALLEGRO_AUTO_CONVERT_BITMAPS:1
+ALLEGRO_SUPPORTED_ORIENTATIONS:0
+ALLEGRO_OPENGL_MAJOR_VERSION:0
+ALLEGRO_OPENGL_MINOR_VERSION:0
+ALLEGRO_DISPLAY_OPTIONS_COUNT:0
+pixel format:ALLEGRO_PIXEL_FORMAT_RGB_565
+ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN
+refresh rate:30
+
+
+
+Purple Martians Version 7.10
+Allegro Version: 5.2.8.0
+System ID: Xglx
+Desktop Resolution: 3840x2160
+available fullscreen modes:
+w:3840 h:2160 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:4096 h:2160 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:4096 h:2160 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:4096 h:2160 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:4096 h:2160 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:3840 h:2160 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:3840 h:2160 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:3840 h:2160 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:2880 h:1620 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:2560 h:1600 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:2560 h:1440 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:2560 h:1440 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:2048 h:1536 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:2048 h:1536 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1440 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1440 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1856 h:1392 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1856 h:1392 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1792 h:1344 -- refresh rate:74 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1792 h:1344 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:2048 h:1152 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:2048 h:1152 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:2048 h:1152 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1200 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1200 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1080 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1080 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1080 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1080 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1080 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1080 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1080 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1080 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1080 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1080 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1920 h:1080 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1600 h:1200 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1600 h:1200 -- refresh rate:70 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1600 h:1200 -- refresh rate:65 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1600 h:1200 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1680 h:1050 -- refresh rate:74 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1680 h:1050 -- refresh rate:69 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1680 h:1050 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1680 h:1050 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1600 h:1024 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1400 h:1050 -- refresh rate:74 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1400 h:1050 -- refresh rate:69 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1400 h:1050 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1600 h: 900 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1600 h: 900 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1600 h: 900 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1600 h: 900 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h:1024 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h:1024 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1440 h: 900 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1440 h: 900 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1400 h: 900 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1400 h: 900 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 960 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1440 h: 810 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1440 h: 810 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1368 h: 768 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1368 h: 768 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1360 h: 768 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1360 h: 768 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1360 h: 768 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 800 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 800 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 800 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 800 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1152 h: 864 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1152 h: 864 -- refresh rate:74 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1152 h: 864 -- refresh rate:70 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1152 h: 864 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 720 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 720 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 720 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 720 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 720 -- refresh rate:30 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 720 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 720 -- refresh rate:29 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 720 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 720 -- refresh rate:24 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1280 h: 720 -- refresh rate:23 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1024 h: 768 -- refresh rate:150 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1024 h: 768 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1024 h: 768 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1024 h: 768 -- refresh rate:70 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1024 h: 768 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 960 h: 720 -- refresh rate:150 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 960 h: 720 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 928 h: 696 -- refresh rate:150 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 928 h: 696 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 896 h: 672 -- refresh rate:150 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 896 h: 672 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1024 h: 576 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1024 h: 576 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1024 h: 576 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w:1024 h: 576 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 960 h: 600 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 960 h: 600 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 832 h: 624 -- refresh rate:74 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 960 h: 540 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 960 h: 540 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 960 h: 540 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 960 h: 540 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 800 h: 600 -- refresh rate:150 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 800 h: 600 -- refresh rate:140 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 800 h: 600 -- refresh rate:130 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 800 h: 600 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 800 h: 600 -- refresh rate:72 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 800 h: 600 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 800 h: 600 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 800 h: 600 -- refresh rate:56 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 840 h: 525 -- refresh rate:149 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 840 h: 525 -- refresh rate:139 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 840 h: 525 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 840 h: 525 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 864 h: 486 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 864 h: 486 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 800 h: 512 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 700 h: 525 -- refresh rate:149 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 700 h: 525 -- refresh rate:140 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 700 h: 525 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 800 h: 450 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 800 h: 450 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 720 h: 480 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 720 h: 480 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 512 -- refresh rate:150 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 512 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 720 h: 450 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 700 h: 450 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 700 h: 450 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 480 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 480 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 480 -- refresh rate:72 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 480 -- refresh rate:75 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 480 -- refresh rate:60 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 480 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 720 h: 405 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 720 h: 405 -- refresh rate:58 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 720 h: 400 -- refresh rate:70 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 684 h: 384 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 684 h: 384 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 680 h: 384 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 680 h: 384 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 400 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 400 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 576 h: 432 -- refresh rate:150 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 576 h: 432 -- refresh rate:149 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 576 h: 432 -- refresh rate:140 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 576 h: 432 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 360 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 360 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 360 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 640 h: 360 -- refresh rate:59 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 512 h: 384 -- refresh rate:150 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 512 h: 384 -- refresh rate:140 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 512 h: 384 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 512 h: 288 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 512 h: 288 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 416 h: 312 -- refresh rate:149 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 480 h: 270 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 480 h: 270 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 400 h: 300 -- refresh rate:144 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 400 h: 300 -- refresh rate:150 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 400 h: 300 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 400 h: 300 -- refresh rate:112 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 432 h: 243 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 432 h: 243 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 320 h: 240 -- refresh rate:145 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 320 h: 240 -- refresh rate:150 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 320 h: 240 -- refresh rate:120 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 360 h: 202 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 360 h: 202 -- refresh rate:118 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 320 h: 180 -- refresh rate:119 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+w: 320 h: 180 -- refresh rate:118 pixel format:ALLEGRO_PIXEL_FORMAT_ANY
+display flags:
+ALLEGRO_OPENGL
+ALLEGRO_RESIZABLE
+ALLEGRO_FULLSCREEN_WINDOW
+display options
+ALLEGRO_RED_SIZE:8
+ALLEGRO_GREEN_SIZE:8
+ALLEGRO_BLUE_SIZE:8
+ALLEGRO_ALPHA_SIZE:8
+ALLEGRO_RED_SHIFT:0
+ALLEGRO_GREEN_SHIFT:8
+ALLEGRO_BLUE_SHIFT:16
+ALLEGRO_ALPHA_SHIFT:24
+ALLEGRO_ACC_RED_SIZE:0
+ALLEGRO_ACC_GREEN_SIZE:0
+ALLEGRO_ACC_BLUE_SIZE:0
+ALLEGRO_ACC_ALPHA_SIZE:0
+ALLEGRO_STEREO:0
+ALLEGRO_AUX_BUFFERS:0
+ALLEGRO_COLOR_SIZE:32
+ALLEGRO_DEPTH_SIZE:0
+ALLEGRO_STENCIL_SIZE:0
+ALLEGRO_SAMPLE_BUFFERS:0
+ALLEGRO_SAMPLES:0
+ALLEGRO_RENDER_METHOD:2
+ALLEGRO_FLOAT_COLOR:0
+ALLEGRO_FLOAT_DEPTH:0
+ALLEGRO_SINGLE_BUFFER:0
+ALLEGRO_SWAP_METHOD:32867
+ALLEGRO_COMPATIBLE_DISPLAY:1
+ALLEGRO_UPDATE_DISPLAY_REGION:0
+ALLEGRO_VSYNC:0
+ALLEGRO_MAX_BITMAP_SIZE:16384
+ALLEGRO_SUPPORT_NPOT_BITMAP:1
+ALLEGRO_SUPPORT_SEPARATE_ALPHA:1
+ALLEGRO_AUTO_CONVERT_BITMAPS:1
+ALLEGRO_SUPPORTED_ORIENTATIONS:0
+ALLEGRO_OPENGL_MAJOR_VERSION:4
+ALLEGRO_OPENGL_MINOR_VERSION:3
+ALLEGRO_DISPLAY_OPTIONS_COUNT:0
+pixel format:ALLEGRO_PIXEL_FORMAT_ABGR_8888
+ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN
+refresh rate:0
+m@mr5mx1:~/Desktop/pm_client22
+
+
+
+
+some things in linux flicker...
+
+level_viewer in level_editor
+
+after some testing I have come to realize...
+the stuff in linux looks way better when I change the desktop resoultion to 1920x1080 and the refresh rate to 60
+it looks way better, the splash screen is way faster, level editor is way more responsive.
+the old way 3840x2160 30fps was very choppy and the game was always skipping frames to match the desktop refresh rate..
+
+
+20220619 10:05PM
+lots done this weekend
+large text screen overlay
+chase fps and sync graph
+tested new player lock code
+fixed blocks not erasing on clients level background
+netgame is much more stable...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

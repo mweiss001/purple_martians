@@ -45,115 +45,99 @@ void draw_title(int x, int y, int w, int h, int color)
    al_draw_scaled_bitmap(text_title, 0, 0, bbw1, bbh1, x-w/2, y, w, h, 0);
 }
 
-void draw_demo_mode_overlay(void)
+void draw_large_text_overlay(int type, int color)
 {
-   ALLEGRO_FONT *tf = f2;
+   char m1[80] = {0};
+   char m2[80] = {0};
 
-   int bbx1, bby1, bbw1, bbh1;
-   al_get_text_dimensions(tf, "Demo", &bbx1, &bby1, &bbw1, &bbh1);
+   int rebuild = 0;
 
-   if (text_demomode_bitmaps_create)
+   if ((type == 1) && (large_text_overlay_state != 1))
    {
-      text_demomode_bitmaps_create = 0;
-      al_destroy_bitmap(text_demo);
-      text_demo = al_create_bitmap(bbw1,bbh1);
-      al_set_target_bitmap(text_demo);
-      al_clear_to_color(al_map_rgb(0,0,0));
-      al_draw_text(tf, palette_color[15], 0-bbx1, 0-bby1, 0, "Demo");
-      al_convert_mask_to_alpha(text_demo, al_map_rgb(0, 0, 0)) ;
-
-      al_destroy_bitmap(text_mode);
-      text_mode = al_create_bitmap(bbw1,bbh1);
-      al_set_target_bitmap(text_mode);
-      al_clear_to_color(al_map_rgb(0,0,0));
-      al_draw_text(tf, palette_color[15], 0-bbx1, 0-bby1, 0, "Mode");
-      al_convert_mask_to_alpha(text_mode, al_map_rgb(0, 0, 0)) ;
-
-      al_set_target_backbuffer(display);
+      sprintf(m1, "PURPLE");
+      sprintf(m2, "MARTIANS");
+      large_text_overlay_state = 1;
+      rebuild = 1;
    }
 
-   //int xs = SCREEN_W*7/8; // x size
-   //int ys = SCREEN_H*3/8; // y size
+   if ((type == 2) && (large_text_overlay_state != 2))
+   {
+      color = players[active_local_player].color;
+      sprintf(m1, "LEVEL");
+      sprintf(m2, "DONE");
+      large_text_overlay_state = 2;
+      rebuild = 1;
+   }
 
-   float xs = SCREEN_W*2/8; // x size
-   float ys = SCREEN_H*1/8; // y size
+   if ((type == 3) && (large_text_overlay_state != 3))
+   {
+      sprintf(m1, "DEMO");
+      sprintf(m2, "MODE");
+      large_text_overlay_state = 3;
+      rebuild = 1;
+   }
 
-   int x1 = (SCREEN_W - xs)/2;
-   int x2 = xs;
+   if (rebuild)
+   {
 
-   //int yu1 = SCREEN_H*1/4 - ys/2;
-   //int yu1 = SCREEN_H/2 - ys * 1.0;
-   int yu1 = BORDER_WIDTH + 4;
-   int yu2 = ys;
+      int bbx1, bby1, bbw1, bbh1;
+      int bbx2, bby2, bbw2, bbh2;
+      al_get_text_dimensions(f2, m1, &bbx1, &bby1, &bbw1, &bbh1);
+      al_get_text_dimensions(f2, m2, &bbx2, &bby2, &bbw2, &bbh2);
+      // get max w and h
+      float bbw3 = bbw1; if (bbw2 > bbw1) bbw3 = bbw2;
+      float bbh3 = bbh1; if (bbh2 > bbh1) bbh3 = bbh2;
 
-   //int yl1 = SCREEN_H*3/4 - ys/2;
-   //int yl1 = SCREEN_H/2 + ys * 0.0;
-   //int yl2 = ys;
+   //   printf("m1:%s  m2:%s \n",m1, m2);
+   //   printf("bbx1:%4d bby1:%4d bbw1:%4d bbh1:%4d\n",bbx1, bby1, bbw1, bbh1);
+   //   printf("bbx2:%4d bby2:%4d bbw2:%4d bbh2:%4d\n",bbx2, bby2, bbw2, bbh2);
 
-   float f = 0.2;
-   ALLEGRO_COLOR fc = al_map_rgba_f(f,f,f,f);
+      ALLEGRO_BITMAP *t1 = al_create_bitmap(bbw3, bbh3);
+      al_set_target_bitmap(t1);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_draw_text(f2, palette_color[color], 0-bbx1 + (bbw3-bbw1)/2, 0-bby1, 0, m1);
+      al_convert_mask_to_alpha(t1, al_map_rgb(0, 0, 0));
 
-   al_draw_tinted_scaled_bitmap(text_demo, fc, 0, 0, bbw1, bbh1, x1, yu1, x2, yu2, 0);
-//   al_draw_tinted_scaled_bitmap(text_mode, fc, 0, 0, bbw1, bbh1, x1, yl1, x2, yl2, 0);
-//   al_draw_line(0, SCREEN_H/2, SCREEN_W, SCREEN_H/2, palette_color[15], 1);
-//   al_draw_line(SCREEN_W/2, 0, SCREEN_W/2, SCREEN_H, palette_color[15], 1);
-}
+      ALLEGRO_BITMAP *t2 = al_create_bitmap(bbw3, bbh3);
+      al_set_target_bitmap(t2);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      al_draw_text(f2, palette_color[color], 0-bbx2 + (bbw3-bbw2)/2, 0-bby2, 0, m2);
+      al_convert_mask_to_alpha(t2, al_map_rgb(0, 0, 0));
 
+      int xs = SCREEN_W*7/8; // x size
+      int ys = SCREEN_H*3/8; // y size
 
+      int x1 = (SCREEN_W - xs)/2;
+      int x2 = xs;
 
-void draw_large_2lines(ALLEGRO_FONT *tf, const char * m1, const char * m2, int color, float opa )
-{
-   int bbx1, bby1, bbw1, bbh1;
-   int bbx2, bby2, bbw2, bbh2;
-   al_get_text_dimensions(tf, m1, &bbx1, &bby1, &bbw1, &bbh1);
-   al_get_text_dimensions(tf, m2, &bbx2, &bby2, &bbw2, &bbh2);
-   // get max w and h
-   float bbw3 = bbw1; if (bbw2 > bbw1) bbw3 = bbw2;
-   float bbh3 = bbh1; if (bbh2 > bbh1) bbh3 = bbh2;
+      int yu1 = SCREEN_H*1/4 - ys/2;
+      int yu2 = ys;
 
-//   printf("m1:%s  m2:%s \n",m1, m2);
-//   printf("bbx1:%4d bby1:%4d bbw1:%4d bbh1:%4d\n",bbx1, bby1, bbw1, bbh1);
-//   printf("bbx2:%4d bby2:%4d bbw2:%4d bbh2:%4d\n",bbx2, bby2, bbw2, bbh2);
-
-   ALLEGRO_BITMAP *t1 = al_create_bitmap(bbw3, bbh3);
-   al_set_target_bitmap(t1);
-   al_clear_to_color(al_map_rgb(0,0,0));
-   al_draw_text(tf, palette_color[color], 0-bbx1 + (bbw3-bbw1)/2, 0-bby1, 0, m1);
-   al_convert_mask_to_alpha(t1, al_map_rgb(0, 0, 0));
-
-   ALLEGRO_BITMAP *t2 = al_create_bitmap(bbw3, bbh3);
-   al_set_target_bitmap(t2);
-   al_clear_to_color(al_map_rgb(0,0,0));
-   al_draw_text(tf, palette_color[color], 0-bbx2 + (bbw3-bbw2)/2, 0-bby2, 0, m2);
-   al_convert_mask_to_alpha(t2, al_map_rgb(0, 0, 0));
-
-   int xs = SCREEN_W*7/8; // x size
-   int ys = SCREEN_H*3/8; // y size
-
-   int x1 = (SCREEN_W - xs)/2;
-   int x2 = xs;
-
-   int yu1 = SCREEN_H*1/4 - ys/2;
-   int yu2 = ys;
-
-   int yl1 = SCREEN_H*3/4 - ys/2;
-   int yl2 = ys;
-
-   al_set_target_backbuffer(display);
-
-//   al_draw_scaled_bitmap(t1, 0, 0, bbw3, bbh3, x1, yu1, x2, yu2, 0);
-//   al_draw_scaled_bitmap(t2, 0, 0, bbw3, bbh3, x1, yl1, x2, yl2, 0);
+      int yl1 = SCREEN_H*3/4 - ys/2;
+      int yl2 = ys;
 
 
+      al_destroy_bitmap(large_text_overlay_bitmap);
+      large_text_overlay_bitmap = al_create_bitmap(SCREEN_W, SCREEN_H);
+      al_set_target_bitmap(large_text_overlay_bitmap);
+      al_clear_to_color(al_map_rgb(0,0,0));
+
+
+      al_draw_scaled_bitmap(t1, 0, 0, bbw3, bbh3, x1, yu1, x2, yu2, 0);
+      al_draw_scaled_bitmap(t2, 0, 0, bbw3, bbh3, x1, yl1, x2, yl2, 0);
+
+      al_destroy_bitmap(t1);
+      al_destroy_bitmap(t2);
+   }
+
+   float opa = 1.0;
+   if (type == 2) opa = 0.6;
+   if (type == 3) opa = 0.2;
    ALLEGRO_COLOR fc = al_map_rgba_f(opa, opa, opa, opa);
-
-   al_draw_tinted_scaled_bitmap(t1, fc, 0, 0, bbw3, bbh3, x1, yu1, x2, yu2, 0);
-   al_draw_tinted_scaled_bitmap(t2, fc, 0, 0, bbw3, bbh3, x1, yl1, x2, yl2, 0);
-
-
-   al_destroy_bitmap(t1);
-   al_destroy_bitmap(t2);
+   al_set_target_backbuffer(display);
+   al_draw_tinted_bitmap(large_text_overlay_bitmap, fc, 0, 0, 0);
 }
+
 
 void idw(int txt, int x, int y, float x_scale, float y_scale)
 {
@@ -216,11 +200,8 @@ void splash_screen(void)
    int quit = 0;
    proc_controllers();
 
-   al_set_target_backbuffer(display);
-   al_flip_display();
-   al_clear_to_color(al_map_rgb(0, 0, 0));
+   draw_large_text_overlay(1, 8);
 
-   draw_large_2lines(f2, "Purple", "Martians", 8, 1);
    al_flip_display();
    al_clear_to_color(al_map_rgb(0, 0, 0));
 

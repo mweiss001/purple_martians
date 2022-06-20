@@ -268,13 +268,13 @@ ALLEGRO_BITMAP *logo_avid = NULL;
 ALLEGRO_BITMAP *logo_eiss = NULL;
 int logo_text_bitmaps_create = 1;
 
-ALLEGRO_BITMAP *text_demo = NULL;
-ALLEGRO_BITMAP *text_mode = NULL;
-int text_demomode_bitmaps_create = 1;
 
 ALLEGRO_BITMAP *text_title = NULL;
 int text_title_bitmaps_create = 1;
 int text_title_draw_color = -1;
+
+ALLEGRO_BITMAP *large_text_overlay_bitmap;
+int large_text_overlay_state = 0;
 
 
 // ------------------------------------------------
@@ -291,6 +291,7 @@ int log_timer; // to measure chase and lock time
 
 int L_LOGGING_NETPLAY = 0;
 int L_LOGGING_NETPLAY_JOIN = 0;
+int L_LOGGING_NETPLAY_PLAYER_ARRAY = 0;
 int L_LOGGING_NETPLAY_bandwidth = 0;
 int L_LOGGING_NETPLAY_cdat = 0;
 int L_LOGGING_NETPLAY_game_move = 0;
@@ -916,6 +917,7 @@ void game_menu(void)
                   {
                      L_LOGGING_NETPLAY=1;
                      L_LOGGING_NETPLAY_JOIN=1;
+                     L_LOGGING_NETPLAY_PLAYER_ARRAY=1;
                      L_LOGGING_NETPLAY_bandwidth=1;
                      L_LOGGING_NETPLAY_cdat=1;
                      L_LOGGING_NETPLAY_game_move=1;
@@ -935,6 +937,7 @@ void game_menu(void)
                   {
                      L_LOGGING_NETPLAY=0;
                      L_LOGGING_NETPLAY_JOIN=0;
+                     L_LOGGING_NETPLAY_PLAYER_ARRAY=0;
                      L_LOGGING_NETPLAY_bandwidth=0;
                      L_LOGGING_NETPLAY_cdat=0;
                      L_LOGGING_NETPLAY_game_move=0;
@@ -951,78 +954,99 @@ void game_menu(void)
                   }
 
 
-                  if (logging_menu_sel == 5)
+                  int q = 5;
+
+                  if (logging_menu_sel == q)
                   {
                      L_LOGGING_NETPLAY= !L_LOGGING_NETPLAY;
                      save_config();
                   }
-                  if (logging_menu_sel == 6)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      L_LOGGING_NETPLAY_JOIN= !L_LOGGING_NETPLAY_JOIN;
                      save_config();
                   }
-                  if (logging_menu_sel == 7)
+                  q++;
+                  if (logging_menu_sel == q)
+                  {
+                     L_LOGGING_NETPLAY_PLAYER_ARRAY= !L_LOGGING_NETPLAY_PLAYER_ARRAY;
+                     save_config();
+                  }
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      L_LOGGING_NETPLAY_bandwidth= !L_LOGGING_NETPLAY_bandwidth;
                      save_config();
                   }
-                  if (logging_menu_sel == 8)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      L_LOGGING_NETPLAY_cdat= !L_LOGGING_NETPLAY_cdat;
                      save_config();
                   }
-                  if (logging_menu_sel == 9)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      L_LOGGING_NETPLAY_game_move= !L_LOGGING_NETPLAY_game_move;
                      save_config();
                   }
-
-                  if (logging_menu_sel == 10)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                     L_LOGGING_NETPLAY_sdat = !L_LOGGING_NETPLAY_sdat;
                      save_config();
                   }
-                  if (logging_menu_sel == 11)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      L_LOGGING_NETPLAY_sdak= !L_LOGGING_NETPLAY_sdak;
                      save_config();
                   }
-                  if (logging_menu_sel == 12)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      L_LOGGING_NETPLAY_stdf= !L_LOGGING_NETPLAY_stdf;
                      save_config();
                   }
-                  if (logging_menu_sel == 13)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      L_LOGGING_NETPLAY_stdf_all_packets= !L_LOGGING_NETPLAY_stdf_all_packets;
                      save_config();
                   }
-                  if (logging_menu_sel == 14)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      L_LOGGING_NETPLAY_stdf_when_to_apply= !L_LOGGING_NETPLAY_stdf_when_to_apply;
                      save_config();
                   }
-                  if (logging_menu_sel == 15)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      L_LOGGING_NETPLAY_show_dif1= !L_LOGGING_NETPLAY_show_dif1;
                      save_config();
                   }
-                  if (logging_menu_sel == 16)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      L_LOGGING_NETPLAY_show_dif2 = !L_LOGGING_NETPLAY_show_dif2;
                      save_config();
                   }
-                  if (logging_menu_sel == 17)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      auto_save_game_on_level_done= !auto_save_game_on_level_done;
                      save_config();
                   }
-                  if (logging_menu_sel == 18)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      auto_save_game_on_exit= !auto_save_game_on_exit;
                      save_config();
                   }
-                  if (logging_menu_sel == 19)
+                  q++;
+                  if (logging_menu_sel == q)
                   {
                      log_file_viewer(1);
                   }
@@ -1337,7 +1361,7 @@ for (float h=1900; h<2000; h++)
 /*
 
 
-void new_show_level_done(void);
+void show_level_done(void);
 
 
    al_set_target_backbuffer(display);
@@ -1347,7 +1371,7 @@ void new_show_level_done(void);
    {
       proc_controllers();
       al_clear_to_color(al_map_rgb(0,0,0));
-      new_show_level_done();
+      show_level_done();
       al_flip_display();
 
       while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
@@ -1617,16 +1641,16 @@ int copy_files_to_clients(int exe_only)
 //   sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
 //   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden
 //   sprintf(client[num_clients++], "\\\\sat-p100\\pm_client31");  // win 7 does not work...32 bit??
+//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 -- has stupid network issues, sometimes take 4s to get a packet reply
 
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
    sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
-
-//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
 
 
 
@@ -1677,6 +1701,11 @@ int copy_files_to_clients(int exe_only)
       printf("copying all files to clients\n");
       for (int c=0; c<num_clients; c++)
       {
+         // erase all files (but not directories)
+//         sprintf(sys_cmd, "del %s\\*.* /S /Q", client[c]);
+//         printf("%s\n",sys_cmd);
+//         ret = system(sys_cmd);
+
          sprintf(sys_cmd, "xcopy *.* %s /E /Y", client[c]);
          printf("%s\n",sys_cmd);
          ret = system(sys_cmd);

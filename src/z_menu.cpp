@@ -639,20 +639,21 @@ void menu_setup(void)
    strcpy (global_string[3][4], "ALL OFF");
    strcpy (global_string[3][5], "LOGGING_NETPLAY");
    strcpy (global_string[3][6], "LOGGING_NETPLAY_JOIN");
-   strcpy (global_string[3][7], "LOGGING_NETPLAY_bandwidth");
-   strcpy (global_string[3][8], "LOGGING_NETPLAY_cdat");
-   strcpy (global_string[3][9], "LOGGING_NETPLAY_game_move");
-   strcpy (global_string[3][10], "LOGGING_NETPLAY_sdat");
-   strcpy (global_string[3][11], "LOGGING_NETPLAY_sdak");
-   strcpy (global_string[3][12], "LOGGING_NETPLAY_stdf");
-   strcpy (global_string[3][13], "LOGGING_NETPLAY_stdf_all_packets");
-   strcpy (global_string[3][14], "LOGGING_NETPLAY_stdf_when_to_apply");
-   strcpy (global_string[3][15], "LOGGING_NETPLAY_show_dif1");
-   strcpy (global_string[3][16], "LOGGING_NETPLAY_show_dif2");
-   strcpy (global_string[3][17], "Auto Save Game On Level Done");
-   strcpy (global_string[3][18], "Auto Save Game On Exit");
-   strcpy (global_string[3][19], "Log File Viewer");
-   strcpy (global_string[3][20], "end");
+   strcpy (global_string[3][7], "LOGGING_NETPLAY_PLAYER_ARRAY");
+   strcpy (global_string[3][8], "LOGGING_NETPLAY_bandwidth");
+   strcpy (global_string[3][9], "LOGGING_NETPLAY_cdat");
+   strcpy (global_string[3][10], "LOGGING_NETPLAY_game_move");
+   strcpy (global_string[3][11], "LOGGING_NETPLAY_sdat");
+   strcpy (global_string[3][12], "LOGGING_NETPLAY_sdak");
+   strcpy (global_string[3][13], "LOGGING_NETPLAY_stdf");
+   strcpy (global_string[3][14], "LOGGING_NETPLAY_stdf_all_packets");
+   strcpy (global_string[3][15], "LOGGING_NETPLAY_stdf_when_to_apply");
+   strcpy (global_string[3][16], "LOGGING_NETPLAY_show_dif1");
+   strcpy (global_string[3][17], "LOGGING_NETPLAY_show_dif2");
+   strcpy (global_string[3][18], "Auto Save Game On Level Done");
+   strcpy (global_string[3][19], "Auto Save Game On Exit");
+   strcpy (global_string[3][20], "Log File Viewer");
+   strcpy (global_string[3][21], "end");
 
 
    strcpy (global_string[4][0], "Netgame Options Menu");

@@ -13,6 +13,79 @@ bug...orb timed on..when time set to 1, never triggers toggle on
 figure this out later maybe, for now just set timer to 2 or use always on event
 
 
+bug - when creating display,
+check if screen size is larger than desktop...
+check if windowed screen is off desktop...
+
+and correct if it is
+
+
+
+I want netgame to be better documented
+
+add to level done stuff
+- how periodic state thing is disabled after sending one final state to all clients
+
+
+where are all the variables?
+
+- time in level_done 1
+- time in level_done 2
+
+
+server drop player
+- time before server drops player for last sdak rx'd
+- amount that server_sync triggers drop
+
+on server when client becomes active:
+- threshold + and -
+- frames in future to become active
+
+server_sdat_sync_freq
+      if (players1[p].server_sync == server_lead_frames + 1) players1[p].server_sdat_sync_freq = 20;
+      else players1[p].server_sdat_sync_freq = 1;
+
+
+
+make some demo videos:
+
+show off the level editor
+show off the log file viewer
+show off netgame
+
+show historical stuff like really old level editor..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

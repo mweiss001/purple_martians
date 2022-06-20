@@ -515,14 +515,12 @@ extern ALLEGRO_BITMAP *logo_avid;
 extern ALLEGRO_BITMAP *logo_eiss;
 extern int logo_text_bitmaps_create;
 
-extern ALLEGRO_BITMAP *text_demo;
-extern ALLEGRO_BITMAP *text_mode;
-extern int text_demomode_bitmaps_create;
-
 extern ALLEGRO_BITMAP *text_title;
 extern int text_title_bitmaps_create;
 extern int text_title_draw_color;
 
+extern ALLEGRO_BITMAP *large_text_overlay_bitmap;
+extern int large_text_overlay_state;
 
 
 
@@ -541,6 +539,7 @@ extern int log_timer;
 
 extern int L_LOGGING_NETPLAY;
 extern int L_LOGGING_NETPLAY_JOIN;
+extern int L_LOGGING_NETPLAY_PLAYER_ARRAY;
 extern int L_LOGGING_NETPLAY_bandwidth;
 extern int L_LOGGING_NETPLAY_cdat;
 extern int L_LOGGING_NETPLAY_game_move;
@@ -698,6 +697,12 @@ struct player1 // not synced between server and client
    int serr_display_timer;
 
    int made_active_holdoff;
+
+   int sync_stabilization_holdoff;
+
+
+
+
    int join_stdf_sent;
 
    int join_frame;
@@ -1188,7 +1193,7 @@ void client_flush(void);
 int  client_init_join(void);
 void client_exit(void);
 int  client_init(void);
-void client_read_game_move_from_packet(int x, int clf_check);
+void client_read_game_move_from_packet(int x);
 int  client_process_stdf_packet(void);
 void client_apply_diff();
 void client_block_until_initial_state_received(void);
@@ -1438,6 +1443,7 @@ void log_reason_for_client_quit(int p);
 void log_time_date_stamp(void);
 void log_versions(void);
 void log_player_array(void);
+void log_player_array2(void);
 void log_ending_stats(void);
 void log_ending_stats_server(void);
 void erase_log(void);
@@ -1453,8 +1459,7 @@ int log_file_viewer(int type);
 // z_logo.h
 void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt);
 void draw_title(int tx, int ty, int ttw, int tth, int color);
-void draw_demo_mode_overlay(void);
-void draw_large_2lines(ALLEGRO_FONT *tf, const char * m1, const char * m2, int color, float opa );
+void draw_large_text_overlay(int type, int color);
 void idw(int txt, int x, int y, float x_scale, float y_scale);
 void splash_screen(void);
 void splash_toggle(void);

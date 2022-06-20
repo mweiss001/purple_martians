@@ -590,14 +590,16 @@ void rungame_key_check(int p, int ret)
 
 void add_game_move(int frame, int type, int data1, int data2)
 {
-
-   if ((level_done_mode == 5) && (type == 5) && (data2))  // ack mode and not zero move
+   if ((level_done_mode == 5) && (type == 5) && (data2)) // all move type inputs are acks in this mode
    {
-      game_moves[game_move_entry_pos][0] = frame;
-      game_moves[game_move_entry_pos][1] = 8;
-      game_moves[game_move_entry_pos][2] = data1; // player num
-      game_moves[game_move_entry_pos][3] = 0;
-      game_move_entry_pos++;
+      if (!has_player_acknowledged(data1)) // to prevent multiple acks
+      {
+         game_moves[game_move_entry_pos][0] = frame;
+         game_moves[game_move_entry_pos][1] = 8;
+         game_moves[game_move_entry_pos][2] = data1; // player num
+         game_moves[game_move_entry_pos][3] = 0;
+         game_move_entry_pos++;
+      }
       return; // to exit immediately
    }
 
@@ -610,7 +612,7 @@ void add_game_move(int frame, int type, int data1, int data2)
          resume_allowed = 1;
          return; // to exit immediately
       }
-      else // everything except single player (client, server, rungame)
+      else // everything except single player (client, server)
       {
          // change menu key to player state inactive special move
          game_moves[game_move_entry_pos][0] = frame + 2; // add 2 frames so server has time to sync back to client before dropping
@@ -634,10 +636,8 @@ void proc_player_state_game_move(int x)
    int p = game_moves[x][2];   // player number
    int val = game_moves[x][3]; // color, active, quit reason, this does it all
 
-
    // if player was already active - just set color
    if ((players[p].active == 1) && (val > 0) && (val < 16)) players[p].color = val;
-
 
    // player becomes active
    if ((players[p].active == 0) && (val > 0) && (val < 16))
@@ -679,9 +679,6 @@ void proc_player_state_game_move(int x)
       // if player 0 is file play all added players will be too
       if (players[0].control_method == 1) players[p].control_method = 1;
    }
-
-
-
 
    // player becomes inactive
    if (val > 63)
@@ -734,8 +731,6 @@ void proc_player_state_game_move(int x)
             for (int pp=1; pp<NUM_PLAYERS; pp++)
                if ((players[pp].active) && (players[pp].control_method == 2))
                   players1[pp].quit_reason = 92;
-
-
             game_exit = 1;
          }
 
@@ -800,23 +795,12 @@ void proc_game_move(void)
             {
                if (game_moves[x][3] == 1) // level done 1
                {
-                  printf("process_level_done 1\n");
                   level_done_mode = 6;
 
-                  // send state to every client because periodic sending is done
+                  // send final state to every client because periodic sending is done
                   if (ima_server)
                      for (int p=1; p<NUM_PLAYERS; p++)
-                        if ((players[p].active) && (players[p].control_method == 2))
-                           server_send_stdf(p);
-
-
-
-
-
-                  // these are drawn here because screen_buffer is frozen from now on
-                  int col = players[active_local_player].color;
-                  draw_large_2lines(f2, "Level", "Done!", col, .6);
-                  draw_top_display();
+                        if ((players[p].active) && (players[p].control_method == 2)) server_send_stdf(p);
 
                   if (L_LOGGING_NETPLAY)
                   {
@@ -825,11 +809,9 @@ void proc_game_move(void)
                      if (ima_client) log_ending_stats();
                      if (ima_server) log_ending_stats_server();
                   }
-
                }
                if (game_moves[x][3] == 2) // level done 2
                {
-                  printf("process_level_done 2\n");
                   level_done_mode = 5;
                   if (L_LOGGING_NETPLAY)
                   {
@@ -837,7 +819,6 @@ void proc_game_move(void)
                      add_log_entry_header(10, 0, msg, 3);
                   }
                }
-
             }
             break;
             case 7: proc_next_level(); break;
@@ -1053,10 +1034,6 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
    return ret;
 }
 
-
-
-
-
 void start_level_done(int p)
 {
    level_done_mode = 7;
@@ -1070,7 +1047,6 @@ void start_level_done(int p)
       if (players[p].active) players1[p].quit_reason = 80;
 
 }
-
 
 void proc_player_input(int ret)
 {

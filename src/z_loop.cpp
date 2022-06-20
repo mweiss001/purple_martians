@@ -5,7 +5,6 @@ void proc_frame_delay(void)
 {
    frame_num++;
    update_animation();
-
    if (al_get_timer_count(sec_timer) > 0)
    {
       al_set_timer_count(sec_timer, 0); // reset_second_timer
@@ -33,15 +32,10 @@ void proc_frame_delay(void)
 
 void proc_next_level(void)
 {
-   if (L_LOGGING_NETPLAY)
+   if (L_LOGGING_NETPLAY) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
+   if (players[active_local_player].control_method == 1) // run demo mode saved game file
    {
-      sprintf(msg,"NEXT LEVEL:%d", next_level);
-      add_log_entry_header(10, 0, msg, 3);
-   }
-   // run demo mode saved game file
-   if (players[active_local_player].control_method == 1)
-   {
-      show_level_done(0);
+      //show_level_done(0);
       al_rest(1);
       game_exit = 1;// run game file play exits after level done
       return; // to exit immediately
@@ -131,6 +125,9 @@ void proc_start_mode(int start_mode)
       return;
 	}
 
+
+   set_frame_nums(0);
+
    if ((ima_client) || (ima_server))
    {
       sprintf(msg,"LEVEL %d STARTED", play_level);
@@ -138,7 +135,6 @@ void proc_start_mode(int start_mode)
    }
    else stimp();
 
-   set_frame_nums(0);
    clear_bmsg();
    clear_bullets();
    clear_keys();
@@ -159,8 +155,6 @@ int ami_server_or_single(void)
 
 }
 
-
-
 int has_player_acknowledged(int p)
 {
    for (int x=game_move_entry_pos; x>0; x--)  // look back for frame_num
@@ -168,13 +162,20 @@ int has_player_acknowledged(int p)
    return 0;
 }
 
-
 void proc_level_done_mode(void)
 {
    stop_sound();
    proc_frame_delay();
    if (draw_frame)
    {
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
+      draw_ebullets();
+      draw_pbullets();
+      draw_players();
+      get_new_screen_buffer(0, 0, 0);
       draw_screen_overlay();
       al_flip_display();
    }
@@ -184,13 +185,8 @@ void proc_level_done_mode(void)
       {
          int aa = 1; // yes by default, set to no if any have not ack
          for (int p=0; p<NUM_PLAYERS; p++)
-            if (players[p].active)
-               if (!has_player_acknowledged(p)) aa = 0;
-         if (aa)
-         {
-            int fn = frame_num + control_lead_frames;
-            add_game_move(fn, 7, 0, 0); // insert next level into game move
-         }
+            if ((players[p].active) && (!has_player_acknowledged(p))) aa = 0;
+         if (aa) add_game_move(frame_num + control_lead_frames, 7, 0, 0); // insert next level into game move
       }
       if ((players[0].control_method == 0) && (has_player_acknowledged(0)))    // single player
          add_game_move(frame_num, 7, 0, 0); // insert next level into game move
@@ -205,19 +201,10 @@ void game_loop(int start_mode)
    {
       proc_scale_factor_change();
       proc_sound();
-
-//      printf("f:%d ldm:%d  ", frame_num, level_done_mode);
-
       if (ima_server) server_control();
       if (ima_client) client_control();
-
-//      printf(" ldm:%d  ", level_done_mode);
-
       proc_controllers();
-
-//      printf(" ldm:%d\n", level_done_mode);
-
-      if ((level_done_mode > 0) && (level_done_mode < 9)) proc_level_done_mode();
+      if (level_done_mode) proc_level_done_mode();
       else
       {
          move_ebullets();
@@ -230,14 +217,12 @@ void game_loop(int start_mode)
          if (draw_frame)
          {
             get_new_background(0);
-
             draw_lifts();
             draw_items();
             draw_enemies();
             draw_ebullets();
             draw_pbullets();
             draw_players();
-
             get_new_screen_buffer(0, 0, 0);
             draw_screen_overlay();
             al_flip_display();
