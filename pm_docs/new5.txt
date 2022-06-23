@@ -30633,6 +30633,175 @@ netgame is much more stable...
 
 
 
+20220620 6:00AM
+fixed some things in level viewer where it compares levels to find duplicates
+
+load_level make a way to not display
+
+all 28 calls to load_level send display=0
+but load_level does nothing with it...
+
+load_level
+
+
+
+this does not flicker:
+
+   // load every level and get icon bitmaps
+   for (int x=0; x<num_levs; x++)
+      if (load_level(le[x], 0))
+      {
+         al_set_target_bitmap(level_icon_bmp[x]);
+         draw_level2(level_icon_bmp[x], 0, 0, grid_size, 1, 1, 1, 1, 0);
+         int pc = x*100 / num_levs;
+
+         al_set_target_backbuffer(display);
+         draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, pc );
+         al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating level icon grid");
+         al_flip_display();
+
+      }
+
+this does:
+
+      al_set_target_bitmap(le_temp);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      for (int my=0; my<20; my++)
+         for (int mx=0; mx<20; mx++)
+         {
+            al_set_target_bitmap(le_temp);
+            int level = my*20 + mx;
+            int col = 11;
+            if (!load_level(level, 0)) col = 10;
+            else draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
+            al_draw_textf(font, palette_color[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
+
+            // show progress bar
+            int pc = level*100 / 400;
+            al_set_target_backbuffer(display);
+            draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, pc );
+            al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Levels");
+            al_flip_display();
+         }
+
+changed the order of load level and set target...
+did not make any dif...
+
+
+the same bullshit difference happens when inserting a new lift step
+
+I think what is going on is in opengl....
+you can't just leave stuff on the backbuffer, draw on it again, then flip
+you have to completely erase it every time you flip or weird shit happens
+
+if I use single buffer mode in opengl it seem to work...
+and its also just as fast...
+
+it also still seems to work in windows...
+
+level editor for new lift step does not work nicely for move step...in linux..
+new_lift_step type move does not show where the new step will be in linux, but when you click there it is placed there..
+works fine in windows
+fixed by adding al_flip_display() in getxy()
+
+
+I think I have broken stuff in level editor windows...can't right click on lift step in map mode and get pop-up menu...
+both lin and win...
+
+
+tried 4230 ubuntu 20.04 1280x800 60Hz
+main logo speed good
+level editor seems a little sluggish but still works
+speed test can do over 100fps
+i though that open gl capped it to desktop refresh rate? not in this case open gl 1.4
+when expanding screen in game, speed test fps drops to 50 when you can see the whole level...
+
+
+20220623 6:00AM
+
+bugs to work on...
+
+display init broken on windows
+errors and upside down
+could be due to new display settings I recently changed
+also need to add the checking of cfg values against desktop settings
+also if display init fails, set so sensible values in cfg for next time...
+
+right click menu for lift step
+
+
+level editor sluggish in linux,
+what fps does it run at?
+same as game?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

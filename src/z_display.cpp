@@ -273,11 +273,21 @@ void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head
 
 int init_display(void)
 {
-   show_fullscreen_modes();
+   //show_fullscreen_modes();
 
    al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_REQUIRE);
+
+
+   // this is needed to make opengl 4.3 work the same as windows
+   // see visual level select, etc..
+   al_set_new_display_option(ALLEGRO_SINGLE_BUFFER, 1, ALLEGRO_REQUIRE);
+
+
+
+//   al_set_new_display_option(ALLEGRO_SWAP_METHOD, 1, ALLEGRO_REQUIRE);
+
   // al_set_new_display_option(ALLEGRO_COLOR_SIZE, 16, ALLEGRO_SUGGEST);
-   al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
+  // al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
 
 
    int flags = 0;
@@ -325,9 +335,9 @@ int init_display(void)
 
    show_display_flags(al_get_display_flags(display));
    show_display_options();
-   show_pixel_format(al_get_display_format(display));
-   show_display_orienation();
-   printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
+//   show_pixel_format(al_get_display_format(display));
+//   show_display_orienation();
+//   printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
 
    //printf("init screen\n");
    create_bitmaps();

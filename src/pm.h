@@ -1326,7 +1326,7 @@ int save_level_prompt(void);
 int load_tiles(void);
 void zero_level_data(void);
 void level_check(void);
-int load_level(int level_to_load, int display);
+int load_level(int level_to_load, int load_only);
 int save_level(int level_to_save);
 int mw_file_select(const char * title, char * fn, const char * ext, int save);
 char* cmtos(int cm);

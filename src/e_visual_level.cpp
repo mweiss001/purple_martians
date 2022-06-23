@@ -84,6 +84,99 @@ void show_msel(void)
 }
 
 
+void compare_curr(int sel)
+{
+   // check if other levels are similar
+
+   // compare l[100][100]
+   // count number of non-zero blocks
+   // count how many match with other levels...
+
+   int m[100][100];
+
+   // copy current level to m
+   for (int a=0; a<100; a++)
+      for (int b=0; b<100; b++)
+         m[a][b] = l[a][b];
+
+   // iterate and load levels
+   int le[NUM_LEV]; // level exists array
+   int num_levs = 0;
+
+   for (int x=0; x<NUM_LEV; x++) le[x] = 0;
+
+   char fn[20] = "levels/level000.pml";
+
+   // level range to look for
+   int lll = 0; // lower level limit
+   int ull = 400; // upper level limit
+
+   // look for levels that exist and put them in array
+   for (int x=lll; x<ull; x++)
+   {
+      int h, d, rem = x;
+
+      h = rem/100; // hundreds
+      fn[12] = 48+h;
+      rem -=h*100;
+
+      d = rem/10;  // tens
+      fn[13] = 48 + d;
+      rem -=d*10;
+
+      fn[14] = 48 + rem;
+      if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
+   }
+
+   int num_matches = 0;
+
+
+   int ypos = 0;
+
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   sprintf(msg, "<-------------- Compare Level:%d -------------->", sel);
+   al_draw_text(font, palette_color[15], 0, ypos, 0, msg); ypos+=8;
+   printf("%s\n", msg);
+   al_flip_display();
+
+
+   // load every level
+   for (int x=0; x<num_levs; x++)
+      if (load_level(le[x], 1))
+      {
+         int sb1 = 0, sb2 = 0, sbm = 0;
+         for (int a=0; a<100; a++)
+            for (int b=0; b<100; b++)
+            {
+               if (l[a][b]) sb2++;
+               if (m[a][b])
+               {
+                  sb1++;
+                  if (m[a][b] == l[a][b]) sbm++;
+                  }
+            }
+
+         int match = sbm*100/sb1;
+
+         // printf("match !!compare to level:[%d] sb1:%d sb2:%d smb:%d [%d]\n", le[x], sb1, sb2, sbm, sbm*100/sb1);
+
+         if (match > 90)
+         {
+            al_set_target_backbuffer(display);
+            sprintf(msg, "----> match [%3d%%] with level:%3d <----", match, le[x]);
+            al_draw_text(font, palette_color[15], 0, ypos, 0, msg); ypos+=8;
+            num_matches++;
+         }
+
+      }
+   al_set_target_backbuffer(display);
+   sprintf(msg, "<--------Done. Press any key to continue------->");
+   al_draw_text(font, palette_color[15], 0, ypos, 0, msg);
+   printf("%s\n", msg);
+   al_flip_display();
+   tsw();
+}
 void compare_all(void)
 {
    // iterate and load levels
@@ -116,26 +209,37 @@ void compare_all(void)
    }
 
    int num_matches = 0;
+   int ypos = 0;
+
+
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   sprintf(msg, "<----------- Compare all Levels ----------->");
+   al_draw_text(font, palette_color[15], SCREEN_W/2, ypos, ALLEGRO_ALIGN_CENTER, msg);
+   printf("%s\n", msg);
+
+   ypos = 60;
 
    sprintf(msg, "<-------------List of matches------------------>");
+   al_draw_text(font, palette_color[15], 10, ypos, 0, msg); ypos+=8;
    printf("%s\n", msg);
-   al_draw_text(font, palette_color[15], 10, 100+num_matches*8, 0, msg);
    al_flip_display();
-
-   num_matches++;
-
-
 
    // load every level (outer loop)
    for (int x=0; x<num_levs; x++)
-      if (load_level(le[x], 0))
+      if (load_level(le[x], 1))
       {
 
+         al_set_target_backbuffer(display);
          int pc = (x+1)*100 / num_levs;
-         draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, pc );
-         al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, msg);
+         draw_percent_bar(SCREEN_W/2, 10, SCREEN_W-200, 14, pc );
 
-         printf("compare to level:%d\n", le[x]);
+         sprintf(msg, "checking level:%d", le[x]);
+         al_draw_text(font, palette_color[15], SCREEN_W/2, 14, ALLEGRO_ALIGN_CENTER, msg);
+
+         printf("%s\n", msg);
+
          int sb = 0;
          int m[100][100];
          // copy current level to m
@@ -148,8 +252,18 @@ void compare_all(void)
 
          // load every level (inner loop)
          for (int x1=0; x1<num_levs; x1++)
-            if (load_level(le[x1], 0))
+            if (load_level(le[x1], 1))
             {
+
+               al_set_target_backbuffer(display);
+               int pc = (x1+1)*100 / num_levs;
+               draw_percent_bar(SCREEN_W/2, 30, SCREEN_W-200, 14, pc );
+
+               sprintf(msg, "checking level:%d", le[x1]);
+               al_draw_text(font, palette_color[15], SCREEN_W/2, 34, ALLEGRO_ALIGN_CENTER, msg);
+
+               al_flip_display();
+
                int sbm = 0;
                for (int a=0; a<100; a++)
                   for (int b=0; b<100; b++)
@@ -158,26 +272,30 @@ void compare_all(void)
 
                int match = sbm*100/sb;
 
-//               printf("match !!compare to level:[%d] sb1:%d sb2:%d smb:%d [%d]\n", le[x], sb1, sb2, sbm, sbm*100/sb1);
+               // printf("match !!compare to level:[%d] sb1:%d sb2:%d smb:%d [%d]\n", le[x], sb1, sb2, sbm, sbm*100/sb1);
 
                if (match > 90)
                {
                   if (le[x] != le[x1])
                   {
+                     al_set_target_backbuffer(display);
                      sprintf(msg, "----> level%d - match [%d%%] with level:%d <----", le[x], match, le[x1]);
+                     al_draw_text(font, palette_color[15], 10, ypos, 0, msg); ypos+=8;
                      printf("%s\n", msg);
-                     al_draw_text(font, palette_color[15], 10, 100+num_matches*8, 0, msg);
                      num_matches++;
-                     al_flip_display();
-                  }
+                   }
                }
-
+               proc_controllers();
+               if (key[ALLEGRO_KEY_ESCAPE]) x1 = num_levs; // break out of inner loop
             } // next level (inner loop)
-      } // next level (outer loop)
+         proc_controllers();
+         while (key[ALLEGRO_KEY_ESCAPE]) { proc_controllers(); x = num_levs; } // break out of outer loop
+   } // next level (outer loop)
 
+   al_set_target_backbuffer(display);
    sprintf(msg, "<--------Done. Press any key to continue------->");
+   al_draw_text(font, palette_color[15], 10, ypos, 0, msg);
    printf("%s\n", msg);
-   al_draw_text(font, palette_color[15], 10, 100+num_matches*8, 0, msg);
    al_flip_display();
    tsw();
 }
@@ -198,16 +316,17 @@ void lev_draw(int full)
       for (int my=0; my<20; my++)
          for (int mx=0; mx<20; mx++)
          {
-            al_set_target_bitmap(le_temp);
             int level = my*20 + mx;
             int col = 11;
             if (!load_level(level, 0)) col = 10;
-            else draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
+            al_set_target_bitmap(le_temp);
+            if (valid_level_loaded) draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
             al_draw_textf(font, palette_color[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
 
             // show progress bar
             int pc = level*100 / 400;
             al_set_target_backbuffer(display);
+            //al_clear_to_color(al_map_rgb(0,0,0));
             draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, pc );
             al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Levels");
             al_flip_display();
@@ -216,7 +335,7 @@ void lev_draw(int full)
    }
 
    al_set_target_backbuffer(display);
-   al_draw_bitmap(le_temp, 0,0,0);
+   al_draw_bitmap(le_temp,0,0,0);
 
    mark_rect(sel, 10);
    mark_rect(cur, 14);
@@ -248,26 +367,17 @@ void lev_draw(int full)
 void level_viewer(void)
 {
    le_temp = al_create_bitmap(1000,1000);
+
+//   show_pixel_format(al_get_bitmap_format(le_temp));
+//   show_bitmap_flags(al_get_bitmap_flags(le_temp));
+
    int redraw = 2;
    int quit = 0;
 
-
    while (!quit)
    {
-     if (key[ALLEGRO_KEY_ESCAPE])
-     {
-        while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
-        quit = 1;
-     }
-
       proc_controllers();
-      if (key[ALLEGRO_KEY_S])
-      {
-         if (load_level(cur, 0)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
-         al_flip_display();
-         while (key[ALLEGRO_KEY_S]) proc_controllers();
-         redraw = 1;
-      }
+
       if (redraw)
       {
          al_set_target_backbuffer(display);
@@ -278,87 +388,29 @@ void level_viewer(void)
          al_flip_display();
       }
 
-      if (key[ALLEGRO_KEY_A]) compare_all();
+      while (key[ALLEGRO_KEY_ESCAPE]) { proc_controllers(); quit = 1; }
+      if (key[ALLEGRO_KEY_A])
+      {
+         while (key[ALLEGRO_KEY_A]) proc_controllers();
+         compare_all();
+         redraw = 1;
+      }
 
       if (key[ALLEGRO_KEY_C])
       {
-         // check if other levels are similar
-
-         // compare l[100][100]
-         // count number of non-zero blocks
-         // count how many match with other levels...
-         printf("Current level :[%d]\n", sel);
-
-         int m[100][100];
-
-         // copy current level to m
-         for (int a=0; a<100; a++)
-            for (int b=0; b<100; b++)
-               m[a][b] = l[a][b];
-
-         // iterate and load levels
-         int le[NUM_LEV]; // level exists array
-         int num_levs = 0;
-
-         for (int x=0; x<NUM_LEV; x++) le[x] = 0;
-
-         char fn[20] = "levels/level000.pml";
-
-         // level range to look for
-         int lll = 0; // lower level limit
-         int ull = 400; // upper level limit
-
-         // look for levels that exist and put them in array
-         for (int x=lll; x<ull; x++)
-         {
-            int h, d, rem = x;
-
-            h = rem/100; // hundreds
-            fn[12] = 48+h;
-            rem -=h*100;
-
-            d = rem/10;  // tens
-            fn[13] = 48 + d;
-            rem -=d*10;
-
-            fn[14] = 48 + rem;
-            if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
-         }
-
-         int num_matches = 0;
-
-         // load every level
-         for (int x=0; x<num_levs; x++)
-            if (load_level(le[x], 0))
-            {
-               int sb1 = 0, sb2 = 0, sbm = 0;
-               for (int a=0; a<100; a++)
-                  for (int b=0; b<100; b++)
-                  {
-                     if (l[a][b]) sb2++;
-                     if (m[a][b])
-                     {
-                        sb1++;
-                        if (m[a][b] == l[a][b]) sbm++;
-                        }
-                  }
-
-               int match = sbm*100/sb1;
-
-               printf("match !!compare to level:[%d] sb1:%d sb2:%d smb:%d [%d]\n", le[x], sb1, sb2, sbm, sbm*100/sb1);
-
-               if (match > 90)
-               {
-                  sprintf(msg, "----> match [%d%%] with level:%d <----", match, le[x]);
-                  //textout_ex(screen, font, msg, 10, 100+num_matches*8, palette_color[15], 0);
-                  al_draw_text(font, palette_color[15], 10, 100+num_matches*8, 0, msg );
-                  num_matches++;
-               }
-
-            }
-         tsw();
+         while (key[ALLEGRO_KEY_C]) proc_controllers();
+         compare_curr(sel);
          redraw = 1;
       }
+
+      if (key[ALLEGRO_KEY_S])
+      {
+         if (load_level(cur, 0)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
+         al_flip_display();
+         while (key[ALLEGRO_KEY_S]) proc_controllers();
+         redraw = 1;
+      }
+
 
       if ((mouse_x < 1000) && (mouse_y < 1000))  // mouse is on the level grid
       {
@@ -519,9 +571,14 @@ void load_visual_level_select(void)
    for (int x=0; x<num_levs; x++)
    {
       level_icon_bmp[x] = al_create_bitmap(grid_size, grid_size);
+
       al_set_target_bitmap(level_icon_bmp[x]);
       al_clear_to_color(al_map_rgb(0,0,0));
    }
+
+//   show_pixel_format(al_get_bitmap_format(level_icon_bmp[0]));
+//   show_bitmap_flags(al_get_bitmap_flags(level_icon_bmp[0]));
+
 
    // load every level and get icon bitmaps
    for (int x=0; x<num_levs; x++)

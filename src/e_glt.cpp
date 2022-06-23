@@ -129,7 +129,7 @@ void global_level()
       draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, (x+1)*100 / num_levs);
       al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
       al_draw_textf(font, palette_color[11], 10, 10+x*8, 0, "lev:%d", le[x]);
-      load_level(le[x], 0);
+      load_level(le[x], 1);
 
       //------------------------------------------------------------------------------------------------------------------
       //--------------check for bad enemy data ---------------------------------------------------------------------------

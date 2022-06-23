@@ -305,7 +305,7 @@ void level_check(void)
 
 
 
-int load_level(int level_to_load, int display)
+int load_level(int level_to_load, int load_only)
 {
    for (int i=0; i<20; i++) level_header[i] = 0;
 
@@ -349,20 +349,22 @@ int load_level(int level_to_load, int display)
    }
    else
    {
-      valid_level_loaded = 1;
-      num_lifts = level_header[5];
-      lift_setup();
-      for (int x=0; x<500; x++)
-         if (item[x][0]) // only if active set x y
-         {
-            itemf[x][0] = al_itofix(item[x][4]);
-            itemf[x][1] = al_itofix(item[x][5]);
-         }
-      level_check();
-      init_level_background(); // draw blocks and lift lines on level_background
-      reset_animation_sequence_frame_nums(0);
-  //   for (int p=0; p<NUM_PLAYERS; p++) set_player_start_pos(p, 0);
-      set_player_start_pos(0, 0);
+      if (!load_only)
+      {
+         valid_level_loaded = 1;
+         num_lifts = level_header[5];
+         lift_setup();
+         for (int x=0; x<500; x++)
+            if (item[x][0]) // only if active set x y
+            {
+               itemf[x][0] = al_itofix(item[x][4]);
+               itemf[x][1] = al_itofix(item[x][5]);
+            }
+         level_check();
+         init_level_background(); // draw blocks and lift lines on level_background
+         reset_animation_sequence_frame_nums(0);
+         set_player_start_pos(0, 0);
+      }
       return 1;
    }
 }

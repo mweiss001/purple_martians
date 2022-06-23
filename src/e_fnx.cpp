@@ -391,6 +391,8 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       al_draw_text(font,  palette_color[14],  tx, 110, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC>");
       al_draw_text(font,  palette_color[14],  tx, 118, ALLEGRO_ALIGN_CENTER, "or right mouse button");
 
+      al_flip_display();
+
 
       switch (obj_type)
       {
