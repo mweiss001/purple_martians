@@ -7,6 +7,12 @@ when I set mnu_timer faster the first screens go by really fast, but all the spl
 even in a small screen resolution
 maybe later I could profile and see what takes up all the time...
 it's most likely an opengl thing
+seems to work a lot better when linux desktop refresh rate is 60, not 30...
+
+
+
+
+
 
 
 bug...orb timed on..when time set to 1, never triggers toggle on
