@@ -165,11 +165,19 @@ void cm_redraw_level_editor_background(void)
    proc_scale_factor_change();
    proc_controllers();
    proc_frame_delay();
-   init_level_background();
-   get_new_background(0);
-   draw_lifts();
-   draw_items();
-   draw_enemies();
+
+   if (frame_num <  al_get_timer_count(fps_timer)) set_frame_nums(frame_num); // set fps_timer count to frame_num
+
+   if (draw_frame)
+   {
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
+   }
+   else al_set_target_bitmap(level_buffer);
+
+
 
    if (mW[8].level_editor_mode == 1) // edit menu
    {
@@ -187,8 +195,12 @@ void cm_redraw_level_editor_background(void)
          if (mW[4].brf_mode) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
          if (mW[4].copy_mode)
          {
-            al_draw_bitmap(ft_bmp, gx*20, gy*20, 0);
-            cm_show_level_buffer_block_rect(gx, gy, gx+mW[4].sw-1, gy+mW[4].sh-1, 10, "paste");
+            if (ft_bmp)
+            {
+               al_draw_bitmap(ft_bmp, gx*20, gy*20, 0);
+               cm_show_level_buffer_block_rect(gx, gy, gx+mW[4].sw-1, gy+mW[4].sh-1, 10, "paste");
+            }
+            else mW[4].copy_mode = 0;
          }
       }
    }
@@ -294,6 +306,9 @@ void cm_redraw_level_editor_background(void)
 void cm_process_menu_bar(int have_focus, int moving, int draw_only)
 {
 
+  al_set_target_backbuffer(display);
+
+
    mW[8].set_pos(0, 0);
    mW[8].set_size(SCREEN_W, BORDER_WIDTH);
 
@@ -307,6 +322,11 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
    if (have_focus) d = 0;
    if (moving) d = 1;
    if (draw_only) d = 1;
+
+//   sprintf(msg, "FPS set:%d act:%d", frame_speed, actual_fps);
+//   sprintf(msg, "frame skip:[%d]  FPS set:%d act:%d", frames_skipped_last_second, frame_speed, actual_fps);
+//   al_draw_text(font, palette_color[15], SCREEN_W - (strlen(msg)+2) * 8, 2, 0, msg);
+
 
    if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "File"))
    {
@@ -1187,7 +1207,7 @@ void mWindow::process_mouse(void)
             switch (pmenu(6, 13))
             {
                 case 2: mW[1].show_flag_details =! mW[1].show_flag_details; break;
-                case 3: mW[1].show_non_default_blocks =! mW[1].show_non_default_blocks; break;
+                case 3: mW[1].show_non_default_blocks =! mW[1].show_non_default_blocks; init_level_background(); break;
             }
          }
          if (index == 5) // ge list

@@ -137,51 +137,64 @@ int is_player_riding_lift(int l)
    return 0;
 }
 
-void draw_lift_lines()
+
+
+
+void draw_lift_line(int l)
 {
-   for (int l=0; l<num_lifts; l++)  // cycle lifts
+   if ((!(lifts[l].flags & PM_LIFT_NO_DRAW)) || (level_editor_running))
    {
-      if ((!(lifts[l].flags & PM_LIFT_NO_DRAW)) || (level_editor_running))
+      int col = 15;
+      int sx = lift_steps[l][0].x + lift_steps[l][0].w / 2;  // start pos
+      int sy = lift_steps[l][0].y + lift_steps[l][0].h / 2;
+      int px = sx; // previous
+      int py = sy;
+      int nx = 0;  // next
+      int ny = 0;
+      if (lifts[l].num_steps > 1) // only draw lines if more than one step
       {
-         int col = 15;
-         int sx = lift_steps[l][0].x + lift_steps[l][0].w / 2;  // start pos
-         int sy = lift_steps[l][0].y + lift_steps[l][0].h / 2;
-         int px = sx; // previous
-         int py = sy;
-         int nx = 0;  // next
-         int ny = 0;
-         al_set_target_bitmap(level_background);
-         if (lifts[l].num_steps > 1) // only draw lines if more than one step
+         for (int s=0; s<lifts[l].num_steps; s++) // cycle steps
          {
-            for (int s=0; s<lifts[l].num_steps; s++) // cycle steps
+            if ((lift_steps[l][s].type & 31) == 1) // filter for move steps
             {
-               if ((lift_steps[l][s].type & 31) == 1) // filter for move steps
+               nx = lift_steps[l][s].x + lift_steps[l][s].w / 2;
+               ny = lift_steps[l][s].y + lift_steps[l][s].h / 2;
+
+
+               if (!(lift_steps[l][s].type & PM_LIFT_HIDE_LINES))
                {
-                  nx = lift_steps[l][s].x + lift_steps[l][s].w / 2;
-                  ny = lift_steps[l][s].y + lift_steps[l][s].h / 2;
-
-
-                  if (!(lift_steps[l][s].type & PM_LIFT_HIDE_LINES))
-                  {
-                     col = (lift_steps[l][s].type >> 28) & 15;
-                     al_draw_line( px, py, nx, ny, palette_color[col], 1);
-                     for (int c=3; c>=0; c--)
-                        al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
-                  }
-
-                  px = nx;
-                  py = ny;
+                  col = (lift_steps[l][s].type >> 28) & 15;
+                  al_draw_line( px, py, nx, ny, palette_color[col], 1);
+                  for (int c=3; c>=0; c--)
+                     al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
                }
+
+               px = nx;
+               py = ny;
             }
-            if (!(lift_steps[l][0].type & PM_LIFT_HIDE_LINES))
-            {
-               col = (lift_steps[l][0].type >> 28) & 15;
-               al_draw_line(sx, sy, nx, ny, palette_color[col], 1); // draw line from last to first
-            }
+         }
+         if (!(lift_steps[l][0].type & PM_LIFT_HIDE_LINES))
+         {
+            col = (lift_steps[l][0].type >> 28) & 15;
+            al_draw_line(sx, sy, nx, ny, palette_color[col], 1); // draw line from last to first
          }
       }
    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -201,12 +214,17 @@ void draw_lift(int l, int x1, int y1, int x2, int y2)
   // printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
 
    //al_draw_textf(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", lifts[l].current_step, lifts[l].val1);    // debug name
+
+
 }
 
 
 void draw_lifts()
 {
    al_set_target_bitmap(level_buffer);
+
+   for (int l=0; l<num_lifts; l++) draw_lift_line(l);
+
    for (int l=0; l<num_lifts; l++)
    {
       if ((!(lifts[l].flags & PM_LIFT_NO_DRAW)) || (level_editor_running))
@@ -217,6 +235,8 @@ void draw_lifts()
          int y1 = lifts[l].y1;
          int y2 = lifts[l].y2;
          draw_lift(l, x1, y1, x2, y2);
+
+
 
          // show if player is riding this lift
 //         int p = is_player_riding_lift(l);

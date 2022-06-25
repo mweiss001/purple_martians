@@ -1199,13 +1199,6 @@ void ovw_draw_overlays(int legend_highlight)
 void ovw_process_mouse(void)
 {
 
-   if (mouse_b2)
-   {
-      while (mouse_b2) proc_controllers();
-      set_windows(1);
-   }
-
-
    int lift=0, step=0;
    if (mW[7].obt == 4)
    {
@@ -1578,9 +1571,6 @@ void ovw_process_mouse(void)
                {
                   lift_steps[lift][step].x = (gx-lsox)*20;
                   lift_steps[lift][step].y = (gy-lsoy)*20;
-//                  lift_steps[lift][step].x = gx*20;
-//                  lift_steps[lift][step].y = gy*20;
-
                   set_lift_to_step(lift, step);   // set current step in current lift
                }
                if (mouse_adj)
@@ -1696,8 +1686,14 @@ void ovw_process_mouse(void)
             Ei[mW[7].num][18] = gy*20;
          }
          cm_redraw_level_editor_background();
-      } // end of while mouse pressed
-   } // end of if mouse pressed
+      } // end of while mouse_b1 pressed
+   } // end of if mouse_b1 pressed
+
+   if (mouse_b2)
+   {
+      while (mouse_b2) proc_controllers();
+      set_windows(1);
+   }
 }
 
 

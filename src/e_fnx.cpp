@@ -267,7 +267,6 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
 
 int getxy(const char *txt, int obj_type, int sub_type, int num)
 {
-   init_level_background();
    int tx = SCREEN_W/2;
 
    // in case these are needed for lifts
@@ -331,6 +330,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
    while(!quit)
    {
       cm_redraw_level_editor_background(0);
+
       crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 
       if (obj_type == 99) // move pod extended
@@ -411,7 +411,6 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
             lift_steps[lift][step].x = gx*20;
             lift_steps[lift][step].y = gy*20;
             set_lift_to_step(lift, step);   // set current step in current lift
-            init_level_background();        // to redraw lift lines
          }
          break;
          case 99: // move pod extended

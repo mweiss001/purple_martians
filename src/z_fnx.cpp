@@ -2072,6 +2072,8 @@ int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra)
 
 void demo_mode(void)
 {
+   int debug_print = 0;
+
    demo_mode_on = 1;
    num_demo_filenames = 0;
 
@@ -2089,6 +2091,8 @@ void demo_mode(void)
    // iterate levels in demo folder and put in filename array
    al_for_each_fs_entry(FS_fname, fill_demo_array, NULL);
 
+
+   //printf("\nDemo mode. List of demo files found\n");
 //   for (int i=0; i< num_demo_filenames; i++)
 //     printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
 
@@ -2098,7 +2102,7 @@ void demo_mode(void)
       demo_mode_on = 0;
    }
 
-   int prev_lev = 0, lev, pass = 1;
+   int prev_lev = -1, lev, pass = 1;
    while (demo_mode_on)
    {
       if (num_demo_filenames > 1)
@@ -2113,17 +2117,32 @@ void demo_mode(void)
          while (lev < 0)
          {
             lev = rand() % num_demo_filenames;      // get random index
-            if (demo_played[lev] >= pass) lev = -1; // already been played this pass
-            if (prev_lev == lev) lev = -1;          // just previously played
+
+            if (debug_print) printf("\nNew random level:%d", lev);
+
+            if (demo_played[lev] >= pass) // already been played this pass
+            {
+               if (debug_print) printf("  -  already been played this pass");
+               lev = -1;
+            }
+            if (prev_lev == lev)         // just previously played
+            {
+               if (debug_print) printf("  -  just previously played");
+               lev = -1;
+            }
+            printf("\n");
+
+
+            if (debug_print) for (int i=0; i< num_demo_filenames; i++) printf("demo_played[%d] - %d \n", i, demo_played[i]);
+
+
          }
          demo_played[lev] = pass;
          prev_lev = lev;
       }
       else lev = 0;
 
-//     printf("demo level index [%d]\n", lev);
-//     for (int i=0; i< num_demo_filenames; i++)
-//        printf("%d demo_played[%d] - \n", i, demo_played[i]);
+
 
       if (load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
       {

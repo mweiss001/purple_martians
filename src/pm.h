@@ -410,11 +410,14 @@ extern int obj_filter[5][20];
 extern ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
 extern int demo_played[100];
 extern int num_demo_filenames;
+
+
 extern int demo_mode_on;
 extern int demo_mode_countdown;
 extern int demo_mode_countdown_val;
 extern int demo_mode_countdown_reset;
 extern int demo_mode_enabled;
+extern int demo_mode_last_pc;
 
 
 
@@ -1431,7 +1434,7 @@ void clear_lift(int l);
 int construct_lift_step(int lift, int step, int type, int x, int y, int w, int h, int val);
 void clear_lift_step(int lift, int step);
 void set_lift_to_step(int lift, int step);
-void draw_lift_lines(void);
+void draw_lift_line(int l);
 void draw_lift(int l, int x1, int y1, int x2, int y2);
 void draw_lifts(void);
 void set_lift_xyinc(int d, int step);
@@ -1556,7 +1559,7 @@ void stamp(void);
 void get_new_screen_buffer(int type, int x, int y);
 void set_map_var(void);
 void set_scale_factor(float new_scale_factor, int instant);
-void init_level_background(void);
+void init_level_background();
 void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
 void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor);
 void draw_level(void);

@@ -164,7 +164,7 @@ int demo_mode_enabled = 1;
 int demo_mode_on = 0;
 int demo_mode_countdown_val;
 int demo_mode_countdown_reset = 2400;
-
+int demo_mode_last_pc = 0;
 
 // ------------------------------------------------
 // ----------------- mouse and keys ---------------
@@ -607,7 +607,7 @@ void set_and_get_versions(void)
 void get_desktop_resolution()
 {
    ALLEGRO_MONITOR_INFO aminfo;
-   al_get_monitor_info(0 , &aminfo);
+   al_get_monitor_info(0, &aminfo);
    desktop_width  = aminfo.x2 - aminfo.x1;
    desktop_height = aminfo.y2 - aminfo.y1;
    printf("Desktop Resolution: %dx%d\n", desktop_width, desktop_height);
@@ -1642,7 +1642,6 @@ int copy_files_to_clients(int exe_only)
 //   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden
 //   sprintf(client[num_clients++], "\\\\sat-p100\\pm_client31");  // win 7 does not work...32 bit??
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 -- has stupid network issues, sometimes take 4s to get a packet reply
-
 
 //   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7

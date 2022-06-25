@@ -68,20 +68,11 @@ void show_player_stat_box(int tx, int y, int p)
 
 void show_level_done(void)
 {
+   draw_large_text_overlay(2, 0);
+   process_flash_color();
+
    int x = SCREEN_W/2;
    int y = SCREEN_H/2;
-
-   draw_large_text_overlay(2, 0);
-
-
-//   al_set_target_backbuffer(display);
-//   al_draw_filled_rectangle(x-100, 78, x+100, 90, palette_color[0]);
-//   al_draw_textf(font, palette_color[15], x, 80, ALLEGRO_ALIGN_CENTER, "f:%d mode:%d", frame_num, level_done_mode);
-//
-//   printf("yf:%d ldm:%d\n", frame_num, level_done_mode);
-
-
-   process_flash_color();
 
    int np = 0; // number of active players
    for (int p=0; p<NUM_PLAYERS; p++) if (players[p].active) np++;
@@ -622,15 +613,6 @@ void draw_top_display(void)
 
    if (players[0].control_method == 1) // file play
    {
-      // find last gm with frame_num !=0
-      int last_pc = 0;
-      for (int g = game_move_entry_pos; g>0; g--)
-         if (game_moves[g][0] != 0)
-         {
-            last_pc = game_moves[g][0];
-            break; // exit loop immed
-         }
-
       int bdx = BORDER_WIDTH;
       int bdy = SCREEN_H - 10;
       int ts = 0;  // text spacing
@@ -645,12 +627,12 @@ void draw_top_display(void)
          al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
       }
 
-      sprintf(msg, "[%d%%] ", frame_num*100/last_pc);
+      sprintf(msg, "[%d%%] ", frame_num*100/demo_mode_last_pc);
       al_draw_text(font, palette_color[14], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
       if (show_debug_overlay)
       {
-         sprintf(msg, "Time:[%d%%] ", frame_num*100/last_pc);
+         sprintf(msg, "Time:[%d%%] ", frame_num*100/demo_mode_last_pc);
          al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
          al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
       }
@@ -711,7 +693,7 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
                al_play_sample(snd[4], 0.78, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
             }
          break;
-         case  70: // bonus and free man
+         case 70: case 71: // free man and purple coin
            if (sample_delay[2]+30 < frame_num)
             {
                sample_delay[2] = frame_num;
@@ -797,6 +779,13 @@ int bmsg_draw_tile(int tn, int bmsg_length)
    return 20;
 }
 
+int bmsg_draw_tile2(int tn, int bmsg_length, int xo, int yo)
+{
+   al_draw_bitmap(tile[tn], bmsg_length+xo, +yo, 0);
+   return 20;
+}
+
+
 int bmsg_draw_player(int p, int bmsg_length)
 {
    int len = 0;
@@ -850,7 +839,6 @@ int bmsg_show_health(int h, int bmsg_length)
 void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
 
-
    // event retrigger holdoff for these events that can repeat every frame
    if (ev == 3) // exit
    {
@@ -864,13 +852,11 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
       else ev = 0;
    }
 
-
    if ((ev == 57) || (ev == 59)) // raw damage that needs to be tallied
    {
       int p = z1;
 
       float damage = 0;
-      if (ev == 57) damage = al_fixtof(Efi[z2][4]);     // damage from enemy 10 - field
       if (ev == 59) damage = (float)item[z2][15] / 100; // damage from item 17 - damage
 
       //players1[p].field_damage_enemy_number = z2;
@@ -954,26 +940,13 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
 
          bmsg_length += bmsg_show_text(tmsg, c1, bmsg_length);
          bmsg_length += bmsg_show_text(" key ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_tile(tn, bmsg_length);
+         bmsg_length += bmsg_draw_tile2(tn, bmsg_length, -10, 0);
       }
       if (ev == 30) // switch
       {
          custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" flipped a ", 15, bmsg_length);
-
-         int c1 =0;  // color
-         int tn = 0; // tile_numer
-         int k = item[z2][10] - 172;
-         char tmsg[20] = {0};
-
-         if (k == 0) { sprintf(tmsg, "green");  c1 = 9;  tn = 745; } // green
-         if (k == 1) { sprintf(tmsg, "red");    c1 = 10; tn = 777; } // red
-         if (k == 2) { sprintf(tmsg, "blue");   c1 = 12; tn = 809; } // blue
-         if (k == 3) { sprintf(tmsg, "purple"); c1 = 8;  tn = 841; } // purple
-
-         bmsg_length += bmsg_show_text(tmsg, c1, bmsg_length);
-         bmsg_length += bmsg_show_text(" switch ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_tile(tn, bmsg_length);
+         bmsg_length += bmsg_show_text(" flipped a switch ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_tile2(item[z2][1], bmsg_length, -10, -2);
       }
       if (ev == 40) // player got shot by another player
       {
@@ -1073,6 +1046,14 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += bmsg_show_text(" got a free man! ", 15, bmsg_length);
          bmsg_length += bmsg_draw_tile(265, bmsg_length);
       }
+
+      if (ev == 71) // player got a purple coin
+      {
+         custom_drawn = 1;
+         bmsg_length += bmsg_show_text(" got a purple coin! ", 15, bmsg_length);
+         bmsg_length += bmsg_draw_tile(265, bmsg_length);
+      }
+
       if (ev == 72) // player got a health bonus
       {
          custom_drawn = 1;

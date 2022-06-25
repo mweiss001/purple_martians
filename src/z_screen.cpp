@@ -601,7 +601,7 @@ void mark_non_default_block(int x, int y)
    }
 }
 
-void init_level_background(void) // fill level_background with blocks and lift lines
+void init_level_background() // fill level_background with block tiles
 {
    //printf("init_level_background\n");
    al_set_target_bitmap(level_background);
@@ -611,9 +611,7 @@ void init_level_background(void) // fill level_background with blocks and lift l
       {
          al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
          if ((level_editor_running) && (mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
-         //draw_block_non_default_flags(l[x][y], x*20, y*20);
       }
-   draw_lift_lines();
 }
 
 void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)

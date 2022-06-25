@@ -290,6 +290,18 @@ int init_display(void)
   // al_set_new_display_option(ALLEGRO_VSYNC, 2, ALLEGRO_SUGGEST);
 
 
+
+//   show_disp_values(0, 0, 1, 1, 1, "init");
+   // check if windowed values are valid
+   int th = 100;
+   if (disp_x_wind > disp_w_full-th) disp_x_wind = disp_w_full-th;
+   if (disp_y_wind > disp_h_full-th) disp_y_wind = disp_h_full-th;
+   if (disp_w_wind > disp_w_full) disp_w_wind = disp_w_full;
+   if (disp_h_wind > disp_h_full) disp_h_wind = disp_h_full;
+//   show_disp_values(0, 0, 1, 1, 1, "pc");
+   save_config();
+
+
    int flags = 0;
 
    if (fullscreen)
@@ -333,8 +345,8 @@ int init_display(void)
    set_display_transform();
    window_title();
 
-   show_display_flags(al_get_display_flags(display));
-   show_display_options();
+//   show_display_flags(al_get_display_flags(display));
+//   show_display_options();
 //   show_pixel_format(al_get_display_format(display));
 //   show_display_orienation();
 //   printf("refresh rate:%d\n", al_get_display_refresh_rate(display));

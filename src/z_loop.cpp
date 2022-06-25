@@ -13,6 +13,9 @@ void proc_frame_delay(void)
       frames_skipped_last_second = (players1[active_local_player].frames_skipped - last_frames_skipped);
       last_frames_skipped = players1[active_local_player].frames_skipped;
    }
+
+//   printf("fn:%d timer:%d\n", frame_num, al_get_timer_count(fps_timer));
+
    if (speed_testing) // draw every frame no matter how fast or slow it is
    {
       draw_frame = 1;
@@ -91,7 +94,25 @@ void proc_start_mode(int start_mode)
    // clear game moves array, except demo
    if  (start_mode != 9) clear_game_moves();
 
-   if (start_mode == 9) players[0].control_method = 1;
+   if (start_mode == 9)
+   {
+      players[0].control_method = 1;
+
+      // find last gm with frame_num !=0
+      demo_mode_last_pc = 0;
+      for (int g = game_move_entry_pos; g>0; g--)
+         if (game_moves[g][0] != 0)
+         {
+            demo_mode_last_pc = game_moves[g][0];
+            break; // exit loop immed
+         }
+
+
+
+
+
+      //game_exit = 0;
+   }
 
    if (start_mode == 2) // server
    {
@@ -190,6 +211,12 @@ void proc_level_done_mode(void)
       }
       if ((players[0].control_method == 0) && (has_player_acknowledged(0)))    // single player
          add_game_move(frame_num, 7, 0, 0); // insert next level into game move
+
+      if (players[0].control_method == 1) // run demo mode
+      {
+         level_done_mode = 0;
+         game_exit = 1;
+      }
    }
 }
 
