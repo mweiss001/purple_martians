@@ -153,7 +153,7 @@ void set_player_start_pos(int p, int cont)
 
 void proc_player_health(int p)
 {
-   if (players1[p].field_damage_holdoff == frame_num) game_event(58, 0, 0, p, 0, 0, 0);
+   if ((frame_num) && (frame_num == players1[p].field_damage_holdoff)) game_event(58, 0, 0, p, 0, 0, 0);
 
    if (players[p].old_LIFE != players[p].LIFE)
    {

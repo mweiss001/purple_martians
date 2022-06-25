@@ -430,14 +430,9 @@ void proc_lit_bomb(int i)
       bomb_enemies(i, 2, dr, itemf[i][0], itemf[i][1]);
       bomb_players(i, 2, dr, itemf[i][0], itemf[i][1]);
 
-
       if (item[i][8] == 16) game_event(22,0,0,0,0,0,0); // explosion sound
 
-      if (item[i][8] < 1)
-      {
-         item[i][0] = 0; // explosion done, erase item
-         draw_lift_lines();
-      }
+      if (item[i][8] < 1) item[i][0] = 0; // explosion done, erase item
    }
 }
 
@@ -765,11 +760,7 @@ void proc_switch_block_range(int i, int action)
             if ((item[i][10] & 0b1000) && ( (tn == 10) || (tn == 175)) ) bomb_block_crosshairs(x, y);
          }
       }
-   if (action == 1)
-   {
-      init_level_background();
-      draw_lift_lines();
-   }
+   if (action == 1) init_level_background();
 }
 
 void proc_key_block_range(int i, int action)
@@ -814,7 +805,6 @@ void proc_moving_key(int i)
    {
       item[i][0] = 0; // remove the key
       proc_key_block_range(i, 1);
-      draw_lift_lines(); // in case removing the key blocks erases lift lines
     }
 }
 
@@ -1155,8 +1145,8 @@ void process_orb(int i)
    // trigger stuff
    if (item[i][2] & PM_ITEM_ORB_TRIG_CURR)                     // currently triggered
    {
-      if ((MODE == 3) || (MODE == 4)) item[i][8] = item[i][7]; // reset counter
-      if (!(item[i][2] & PM_ITEM_ORB_TRIG_PREV))               // not triggered last time
+      if ((MODE == 3) || (MODE == 4)) item[i][8] = item[i][7]+1; // reset counter
+      if (!(item[i][2] & PM_ITEM_ORB_TRIG_PREV))                 // not triggered last time
       {
          item[i][2] |= PM_ITEM_ORB_TRIG_PREV;                  // set PREV flag
          if (MODE == 0) item[i][2] ^= PM_ITEM_ORB_STATE;       // toggle state
@@ -1222,7 +1212,7 @@ void draw_orb(int i, int x, int y)
    {
       int c1=11, c2=10;
       if (MODE == 4) {c1=10; c2=11;}
-      int percent =  (item[i][8] * 100) / item[i][7];
+      int percent =  ((item[i][8]-1) * 100) / item[i][7];
       if (percent > 0)
       {
          draw_percent_barc(x+xo, y+yo, 7, 7,  percent, c1, c2, -1);
@@ -1548,15 +1538,11 @@ void proc_bonus_collision(int p, int i)
       game_event(70, 0, 0, p, i, 0, 0);
    }
 
-
-
    if (bonus_type == 3) // purple coin!!!
    {
       item[i][0] = 0;
       players[p].stat_purple_coins++;
-
-       game_event(70, 0, 0, p, i, 0, 0);
-
+      game_event(71, 0, 0, p, i, 0, 0);
    }
 }
 
@@ -1690,7 +1676,7 @@ void proc_item_collision(int p, int i)
    if (players[p].carry_item) // already carrying item
    {
       already_carrying = 1;
-      if ((item[players[p].carry_item][0] == 10) && (item[i][0] != 10)) // carried item is bonus and new item is not bonus
+      if ((item[players[p].carry_item][0] == 2) && (item[i][0] != 2)) // carried item is bonus and new item is not bonus
          already_carrying = 0;
    }
 
@@ -2067,7 +2053,6 @@ void process_block_manip(int i)
                }
             }
          }
-      draw_lift_lines();
    }
 }
 
@@ -2212,7 +2197,7 @@ void proc_item_damage_collisions(int i)
                if (FLAGS & PM_ITEM_DAMAGE_INSTGIB)
                {
                   players[p].LIFE = al_itofix(0);
-                  //game_event(57, 0, 0, p, i, 0, 0);
+                  //game_event(59, 0, 0, p, i, 0, 0);
                }
                else
                {

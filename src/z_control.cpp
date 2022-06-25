@@ -570,11 +570,8 @@ void rungame_key_check(int p, int ret)
    }
 
 
-// not sure about this code, so i removed it to see what would happen
-// maybe if games_moves doesn't end with an explicit exit and run game just keeps on going??
-
-//   int last_pc = game_moves[game_move_entry_pos-4][0];
-//   if ((last_pc < frame_num - 100) || (key[ALLEGRO_KEY_ESCAPE]))
+   // if games_moves doesn't end with level_done kill it after 4 seconds
+   if (frame_num > demo_mode_last_pc+160) game_exit = 1;
 
    if (key[ALLEGRO_KEY_ESCAPE])
    {
@@ -912,7 +909,7 @@ void serial_key_check(int key)
       {
          if (memcmp((skc + skc_index-tl), tst, tl) == 0) spline_test();
       }
-
+/*
       sprintf(tst, "sndb");
       tl = strlen(tst);
       if (skc_index > tl-1)
@@ -926,7 +923,7 @@ void serial_key_check(int key)
       {
          if (memcmp((skc + skc_index-tl), tst, tl) == 0) mW[1].show_flag_details =! mW[1].show_flag_details;
       }
-
+*/
    }
 }
 
@@ -945,6 +942,15 @@ void set_controls_from_game_move(int p)
             found = 1;
          }
    if (!found) clear_controls(p); // if no match found (no move entry for player in entire game move array)
+
+
+   // in run game mode and past the end of the file
+   if ((players[p].control_method == 1) && (frame_num > demo_mode_last_pc)) clear_controls(p);
+
+
+
+
+
 }
 
 int proc_events(ALLEGRO_EVENT ev, int ret)

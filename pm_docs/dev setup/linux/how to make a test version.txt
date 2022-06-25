@@ -1,0 +1,29 @@
+how to make a test version o linux
+
+
+
+on linux dev machine:
+- close code::blocks
+- erase everything in project folder
+
+on windows dev machine
+- copy project files to linux dev machine
+
+on linux machine:
+- run script 'sudo ./op' to set persmissions for all project files
+- open code::blocks by clicking on pm.cbp
+- set build target to ldm
+- build all
+- run script ./lin_make_release
+
+on windows machine:
+- copy that folder to any linux machine you want to test on..
+
+
+
+
+
+
+
+
+

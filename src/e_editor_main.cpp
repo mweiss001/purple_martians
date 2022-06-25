@@ -414,7 +414,6 @@ void em_find_point_item(void)
 
 void em_process_mouse(void)
 {
-
    if (mouse_b1)
    {
       // don't allow drag draw selection unless draw type is block
@@ -429,6 +428,7 @@ void em_process_mouse(void)
             by1 = gy;
             cm_get_new_box();
             em_set_block_range();
+            init_level_background();
          }
          break;
          case 2:  // item
@@ -599,21 +599,6 @@ void em_process_mouse(void)
   */
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       switch (mW[1].point_item_type)
       {
          case 1:
@@ -755,6 +740,11 @@ void em_process_keypress(void)
 
 int edit_menu(int el)
 {
+   level_editor_running = 1;
+   resume_allowed = 0;
+   al_show_mouse_cursor(display);
+
+
    // set all filters on
    for (int i=0; i<5; i++)
       for (int j=0; j<20; j++) obj_filter[i][j] = 1;
@@ -765,9 +755,6 @@ int edit_menu(int el)
 //   mW[8].level_editor_mode = 1; // force start in main edit mode
    if (!el) load_level_prompt(); // load prompt
    else load_level(el, 0);       // blind load
-   al_show_mouse_cursor(display);
-   level_editor_running = 1;
-   resume_allowed = 0;
    mW[1].draw_item_type = 1;
    mW[1].draw_item_num  = 0;
    load_PDE();

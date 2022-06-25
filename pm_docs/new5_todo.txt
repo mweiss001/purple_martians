@@ -2,100 +2,6 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-why is logo so goddam slow in linux? ...opengl?
-when I set mnu_timer faster the first screens go by really fast, but all the spline ones are very slow...
-even in a small screen resolution
-maybe later I could profile and see what takes up all the time...
-it's most likely an opengl thing
-seems to work a lot better when linux desktop refresh rate is 60, not 30...
-
-
-
-
-
-
-
-bug...orb timed on..when time set to 1, never triggers toggle on
-figure this out later maybe, for now just set timer to 2 or use always on event
-
-
-bug - when creating display,
-check if screen size is larger than desktop...
-check if windowed screen is off desktop...
-
-and correct if it is
-
-
-
-I want netgame to be better documented
-
-add to level done stuff
-- how periodic state thing is disabled after sending one final state to all clients
-
-
-where are all the variables?
-
-- time in level_done 1
-- time in level_done 2
-
-
-server drop player
-- time before server drops player for last sdak rx'd
-- amount that server_sync triggers drop
-
-on server when client becomes active:
-- threshold + and -
-- frames in future to become active
-
-server_sdat_sync_freq
-      if (players1[p].server_sync == server_lead_frames + 1) players1[p].server_sdat_sync_freq = 20;
-      else players1[p].server_sdat_sync_freq = 1;
-
-
-
-make some demo videos:
-
-show off the level editor
-show off the log file viewer
-show off netgame
-
-show historical stuff like really old level editor..
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -104,27 +10,12 @@ show historical stuff like really old level editor..
 ---------------------------------------------------------
 
 
+make cloner capable of having a trigger input
+think of the things you could do
+but is it that easy?
+trigger would take the place of player in trigger box
+would still need timer, immediate, etc...
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-scrollbars as an option vs scrolledge??
 
 
 ------------------------------------------------------
@@ -215,6 +106,8 @@ then I could have end of level stuff like how many coins you got, how many enemi
 they would be items and at the start of the level how many there are would be counted
 then each player would have a tally of how many they got...
 
+
+
 how about making health bonus only take the amount of health needed to get to 100
 if any is left, just subtract and don't erase the item
 
@@ -236,25 +129,47 @@ make a field that manipulates the players controls, like gravity, etc...
 2022
 
 
-older:
 
-netplay overall TODO:
 
-make
 
-netplay - libnet
-netplay - status..started
-netplay - config..done
-netplay - packets..done
+I want netgame to be better documented
 
-netplay - main TODO:
+add to level done stuff
+- how periodic state thing is disabled after sending one final state to all clients
 
-netplay - state_corr TODO:
-when are they sent
-show dif
-tell about dif from start and regular dif
 
-netplay - join TODO:
+where are all the variables?
+
+- time in level_done 1
+- time in level_done 2
+
+
+server drop player
+- time before server drops player for last sdak rx'd
+- amount that server_sync triggers drop
+
+on server when client becomes active:
+- threshold + and -
+- frames in future to become active
+
+server_sdat_sync_freq
+      if (players1[p].server_sync == server_lead_frames + 1) players1[p].server_sdat_sync_freq = 20;
+      else players1[p].server_sdat_sync_freq = 1;
+
+
+
+make some demo videos:
+
+show off the level editor
+show off the log file viewer
+show off netgame
+
+show historical stuff like really old level editor..
+
+
+
+
+
 
 
 --------------------------------------------------------
@@ -265,19 +180,9 @@ netplay - join TODO:
 ------------------------ linux --------------------------
 ---------------------------------------------------------
 
-
 ---------------------------------------------------------
 ------------------------ Help file ------------
 ---------------------------------------------------------
-
-working on lift....
-
-
-
-
-
-
-
 
 The level editor has four major modes:
 
@@ -297,7 +202,7 @@ The level editor has four major modes:
 - can move and edit object properties with map
 
 4 - Group Edit
-- used for maninulating groups of (items and enemies)
+- used for maninulating groups of objects (items and enemies)
 - can set or randomize locations, variables, etc
 
 

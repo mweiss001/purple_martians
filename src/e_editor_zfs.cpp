@@ -131,7 +131,9 @@ void zfs_do_brf(int x, int y, int flood_block)
                if (f[a1][b1]) set_block_with_flag_filters(a1, b1, flood_block);
 
          init_level_background();
-         cm_redraw_level_editor_background();
+         get_new_background(0);
+         get_new_screen_buffer(3, 0, 0);
+         al_flip_display();
          al_rest(.04);
       }
    } while (found);

@@ -30632,6 +30632,14 @@ fixed blocks not erasing on clients level background
 netgame is much more stable...
 
 
+bug:
+why is logo so goddam slow in linux? ...opengl?
+when I set mnu_timer faster the first screens go by really fast, but all the spline ones are very slow...
+even in a small screen resolution
+maybe later I could profile and see what takes up all the time...
+it's most likely an opengl thing
+seems to work a lot better when linux desktop refresh rate is 60, not 30...
+
 
 20220620 6:00AM
 fixed some things in level viewer where it compares levels to find duplicates
@@ -30725,14 +30733,288 @@ display init broken on windows
 errors and upside down
 could be due to new display settings I recently changed
 also need to add the checking of cfg values against desktop settings
-also if display init fails, set so sensible values in cfg for next time...
+also if display init fails, set sensible values in cfg for next time...
 
-right click menu for lift step
+this is set during initial setup and can be relied upon...
+
+void get_desktop_resolution()
+{
+   ALLEGRO_MONITOR_INFO aminfo;
+   al_get_monitor_info(0, &aminfo);
+   desktop_width  = aminfo.x2 - aminfo.x1;
+   desktop_height = aminfo.y2 - aminfo.y1;
+   printf("Desktop Resolution: %dx%d\n", desktop_width, desktop_height);
+
+   disp_x_full = 0; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+   disp_y_full = 0;
+   disp_w_full = desktop_width;
+   disp_h_full = desktop_height;
+}
+
+added this in init display
+
+   show_disp_values(0, 0, 1, 1, 1, "init");
+   // check if windowed values are valid
+   int th = 100;
+   if (disp_x_wind > disp_w_full-th) disp_x_wind = disp_w_full-th;
+   if (disp_y_wind > disp_h_full-th) disp_y_wind = disp_h_full-th;
+   if (disp_w_wind > disp_w_full) disp_w_wind = disp_w_full;
+   if (disp_h_wind > disp_h_full) disp_h_wind = disp_h_full;
+   show_disp_values(0, 0, 1, 1, 1, "pc");
+   save_config();
+
+cannot reproduce the upside down display
+
 
 
 level editor sluggish in linux,
 what fps does it run at?
 same as game?
+
+display the fps of level editor same as game....
+
+the problem is that init_level background is called every frame....
+when that is removed, level editor draws a lot faster
+so how can i only call it when needed?
+
+I like how lift lines are dyanmically redrawn when moving lift steps
+
+
+add it where it is needed....
+after drawing blocks in em...done..
+
+drawing blocks in zfs
+block and fraem is good already..
+need something for floodfill..done
+
+paste selection in zfs...
+menu bar is drawn on top of fsel and pasted into level...
+why don't I just make sure menu sets backbuffer before drawing...
+yes that did it..
+
+
+when moving lift step
+
+map move...
+
+at the start of move, init level background with no lift lines
+
+change init
+
+
+done, but now draw lift lines assume we are always drawing on level background
+I want to make it optional to draw on level buffer...
+
+
+
+would it make it easier if lift lines were drawn when lift is drawn...always...everywhere...
+yes did that...
+getxy...done
+
+now all I need to to find where frame_num gets ahead of itself...
+like in add lift steps
+
+maybe I can remove the draw frame wait entirely....now that init level background is gone...
+
+i just did this instead:
+
+   proc_frame_delay();
+
+   if (frame_num <  al_get_timer_count(fps_timer)) set_frame_nums(frame_num); // set fps_timer count to frame_num
+
+   if (draw_frame)
+   {
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
+   }
+
+
+
+   seems to work, need to test in linux
+
+seems to work just fine in linux
+
+
+20220625 6:00 AM
+
+bug...right click menu for lift step has been inadvertantly disabled..fixed
+
+bug...getxy leaves draw cursor crosshair on level_backround
+lift fixed
+pod extended...create only...
+testing creators...
+why does trig bm bd show object for initial placement and pod and cloner does not??
+fixed....
+
+bug -- if you quit level editor in zfs paste mode, it crashes hard when you start le again...fixed
+on load if ft_bmp is NULL do not draw and set copy_mode = 0;
+
+
+bug...orb timed on..when time set to 1, never triggers toggle on
+figure this out later maybe, for now just set timer to 2 or use always on event
+- added 1 to count when reset
+- subtracted 1 from count when calc percent to draw red/green
+...fixed
+
+
+bmsg has some spurious messages
+always starts with damage field
+ev 58
+if ((frame_num) && (frame_num == players1[p].field_damage_holdoff)) game_event(58, 0, 0, p, 0, 0, 0);
+fixed by not doing when frame num == 0....
+
+purple coin shows as free man
+check all bonus...
+health..good 72
+free man..good 70
+purple coin..good 71
+
+bug show non default blocks does not initially show in level editor...fixed
+
+bug toggling show non default blocks should trigger init_level_background...done
+
+going through levels
+
+test the save game thing...
+
+how does it deal with the acks?
+not well??
+
+what should it do?
+stop at level done 2
+
+what if it doesnt have level done?
+stop at last gm...
+
+where do I do this in code?
+
+it all seems to work good, but what about a level that does not end with level done?
+
+lets see if we can make that happen...
+it just keeps going...
+there is a progress screen overlay...if it is over 100% kill the level...
+
+
+   if (players[0].control_method == 1) // file play
+   {
+      // find last gm with frame_num !=0
+      int last_pc = 0;
+      for (int g = game_move_entry_pos; g>0; g--)
+         if (game_moves[g][0] != 0)
+         {
+            last_pc = game_moves[g][0];
+            break; // exit loop immed
+         }
+
+
+where can I do this??
+
+in rungame_key_check
+
+rungame happens from 3 places
+- menu 'DEMO'
+- menu "RUN DEMO"
+- command line
+
+should I have a common function they all pass through?
+
+looks like they all just load the files then run game_loop(9); // demo game
+
+how about in start_mode
+extern int demo_mode_last_pc;
+
+set it in start_mode...done
+
+use it in screen overlay done..
+
+use it in rungame key check...done
+
+   // in run game mode and past the end of the file
+   if ((players[p].control_method == 1) && (frame_num > demo_mode_last_pc)) clear_controls(p);
+
+should be all done now...
+
+
+
+bug..player carry is supposed to favor anything but bonus
+it doesn't seem to be working properly
+is bonus type 10?? change to 2 like it should be....fixed
+
+fixed bmsg switch...
+
+20220625 4:00 PM
+
+time for a push
+
+notes:
+separated draw lift lines from init_level_background
+fixed sluggish level editor by removing call to init_level_background every frame
+init display now uses single buffer so that opengl and d3d both act the same
+init display limit checks
+player carry bug fixes
+demo mode bug fixes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

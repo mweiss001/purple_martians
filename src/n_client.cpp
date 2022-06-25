@@ -502,8 +502,6 @@ void client_apply_diff()
          sprintf(msg, "dif [%d to %d] %s\n", client_state_dif_src, client_state_dif_dst, tmsg);
          if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
 
-         // init_level_background(); // causes frame skips
-
          // send ack to server
          Packet("stak");
          PacketPut1ByteInt(p);

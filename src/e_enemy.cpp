@@ -220,23 +220,26 @@ int create_cloner(void)
 {
    int aborted_create = 0;
    int e = get_empty_enemy(9); // type 9 cloner
+
+   Efi[e][12] = al_itofix(1);  // scale
+   Efi[e][14] = al_itofix(0);  // rotation
+
+   Ei[e][1] = 550;   // shape
+   Ei[e][2] = 0;     // draw type
+
+   Ei[e][4] = 3;     // draw all boxes
+   Ei[e][5] = 0;     // mode
+   Ei[e][8] = 2;     // trigger type
+
+   Ei[e][6] = 400;  // default delay
+   Ei[e][7] = 0;  // default delay
+
+   Ei[e][25] = 25;  // health bonus
+   Ei[e][29] = 10;  // default collision box
+
+
    if (getxy("Cloner Location", 3, 9, e) == 1)
    {
-      Efi[e][12] = al_itofix(1);  // scale
-      Efi[e][14] = al_itofix(0);  // rotation
-
-      Ei[e][1] = 550;   // shape
-      Ei[e][2] = 0;     // draw type
-
-      Ei[e][4] = 3;     // draw all boxes
-      Ei[e][5] = 0;     // mode
-      Ei[e][8] = 2;     // trigger type
-
-      Ei[e][6] = 400;  // default delay
-      Ei[e][7] = 0;  // default delay
-
-      Ei[e][25] = 25;  // health bonus
-      Ei[e][29] = 10;  // default collision box
 
       if (get_block_range("Cloner Source Area", &Ei[e][15], &Ei[e][16], &Ei[e][19], &Ei[e][20], 1))
       {
@@ -263,23 +266,30 @@ int create_pod(void)
 {
    int aborted_create = 0;
    int e = get_empty_enemy(7); // type 7 - pod
+
+   Ei[e][1] = 374;   // shape
+   Ei[e][2] = 0;     // draw type
+   Efi[e][12] = al_itofix(1);  // scale
+   Efi[e][14] = al_itofix(0);  // rotation
+
+   Efi[e][7] = al_itofix(6);     // bullet speed
+   Efi[e][9] = al_itofix(10);    // default speed
+
+   Ei[e][7] = 20;    // default seq delay
+   Ei[e][9] = 20;    // default delay
+
+   Ei[e][25] = 12;  // health bonus
+   Ei[e][29] = 10;  // default collision box
+
    if (getxy("Podzilla", 3, 7, e) == 1)
    {
-      Efi[e][7] = al_itofix(6);     // bullet speed
-      Efi[e][9] = al_itofix(10);    // default speed
-      Efi[e][12] = al_itofix(1);    // default scale
-
-      Ei[e][1] = 374;   // shape
-      Ei[e][2] = 0;     // draw type
-
-      Ei[e][7] = 20;    // default seq delay
-      Ei[e][9] = 20;    // default delay
-
-      Ei[e][25] = 12;     // health bonus
-      Ei[e][29] = 10;  // default collision box
-      if (!getxy("Pod Extended Position", 99, 7, e)) aborted_create = 1;
-      if (!get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
+      if (getxy("Pod Extended Position", 99, 7, e) == 1)
+      {
+         if (!get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
+      }
+      else aborted_create = 1;
    }
+   else aborted_create = 1;
 
    if (aborted_create)
    {
