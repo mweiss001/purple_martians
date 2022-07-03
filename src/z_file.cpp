@@ -56,6 +56,7 @@ int save_level_prompt()
       g[3] = 0;
       num = atoi(g);
       save_level(num);
+      last_level_loaded = num;
       return 1;
    }
    else return 0; // user pressed cancel

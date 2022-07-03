@@ -30958,6 +30958,202 @@ demo mode bug fixes
 
 
 
+bug-- when holding on to sproingy that expires you immediatley get it again with full time...
+same thing if it is destroyed by a field
+during player carry I need to check if item being carried has been destroyed
+fixed
+
+bug--zfs enemies don't respect selection filter
+well they do, but the selection window stats show everything
+while the actual stuff that will be copied respects the filters
+fixed...
+
+I spent a fair amount of time on level 17 - the one with the big blue rocket
+it will probably be one of the main ones..
+
+bug -- H blocks are erased from level background??
+was still using tile from tiles instead of btiles...fixed...
+
+bug - new bullet thing need to check for bad discriminant and A==0...done
+
+
+
+20220628
+
+set up OBS and do some screen recording
+
+show creating a level and playing it...very simple
+
+bug creating a new level should take you to that level....fixed
+
+
+warp is just like an exit, only it takes you to a specified level instead of next one numerically
+
+
+
+Can I say that I am done changing things in the game mechanics?
+
+I think so..
+
+
+
+what about the level rearrangement?
+
+that was kind of the main reason for coming back...
+
+if I make an over world it will need to be scalable for all screen sizes...
+
+
+
+
+bug - when window is too small level viewer crashes
+
+400x405 works
+402x347 works
+
+
+407x220 works
+
+
+407x210 good ia 450
+407x202 good ia 433
+407x201 good ia 431
+407x200 bad ia 427
+
+
+300x340 good
+
+282x340 good
+281x340 bad
+
+so the min is 282x201
+no that is bad also???
+
+enforce minimum screen size of 320x240
+did this in init display...seems to work
+
+   al_set_window_constraints(display, 320, 240, 0, 0);
+   al_apply_window_constraints(display, 1);
+   save_config();
+
+
+make is so that resizing during vls works...done...
+
+
+
+
+bug -- rockets cannot go through semisolid at an angle anymore
+just clear the block flags for item solid
+
+
+bug - jumping while pressing up on ladder
+when I get to the semi-solid at the top i warp over
+only when a ladder is directly below
+
+When player is jumping and has up pressed
+
+up makes you want to grab ladder
+jump make you want to no grab ladder
+
+how about make the up grab only work when jump is not also pressed...
+
+that is just crazy enough to work, lets try it...
+
+it can still happen but much less frequently
+
+
+
+
+I am thinking more about the overmap thing...
+
+I really don't like rearranging levels
+
+This could be a solution to that
+
+but is the solution more complicated than the problems?
+
+right now all level done just starts the next level
+
+
+I would need something that intercepts that and either:
+
+goes to the next level on the list...
+
+goes to the overmap...
+
+what would the overmap look like?
+
+A long horizontal scrolling?  A grid?
+
+
+types of levels...lists...flags...tags...
+
+- training
+- show off object capablities
+- good for multiplayer
+- difficult
+- not that good...
+- best
+
+
+
+its like I am paralyzed, trying to figure out the level thing...
+
+and yet that is the main reason I came back to do more with the game...
+
+
+level sets...
+
+training...
+
+main story game...
+
+all
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

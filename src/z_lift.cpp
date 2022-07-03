@@ -92,6 +92,8 @@ void clear_lift_step(int l, int s)
    lift_steps[l][s].val  = 0;
 }
 
+
+
 void set_lift_to_step(int l, int s)
 {
    // new behaviour
@@ -263,22 +265,29 @@ void draw_lifts()
             }
          }
 
-         switch (lifts[l].limit_type) // limit type
+
+         int cs = lifts[l].current_step;
+         if (!(lift_steps[l][cs].type & PM_LIFT_HIDE_LINES))
          {
-            case 2: // timer wait
-               if (lifts[l].limit_counter > 0)
-                  al_draw_textf(font, palette_color[color+64], (x1 + x2)/2 + 2, lifts[l].y1 - 8, ALLEGRO_ALIGN_CENTRE, "%d", lifts[l].limit_counter);
-            break;
-            case 3: // prox wait
+            switch (lifts[l].limit_type) // limit type
             {
-               int pd = lifts[l].limit_counter; // prox dist
-               int bx1 = x1 - pd;
-               int by1 = y1 - pd;
-               int bx2 = x2 + pd;
-               int by2 = y2 + pd;
-               al_draw_rectangle(bx1+10, by1+10, bx2-10, by2-10, palette_color[color+128], 1);
+
+
+               case 2: // timer wait
+                  if (lifts[l].limit_counter > 0)
+                     al_draw_textf(font, palette_color[color+64], (x1 + x2)/2 + 2, lifts[l].y1 - 8, ALLEGRO_ALIGN_CENTRE, "%d", lifts[l].limit_counter);
+               break;
+               case 3: // prox wait
+               {
+                  int pd = lifts[l].limit_counter; // prox dist
+                  int bx1 = x1 - pd;
+                  int by1 = y1 - pd;
+                  int bx2 = x2 + pd;
+                  int by2 = y2 + pd;
+                  al_draw_rectangle(bx1+10, by1+10, bx2-10, by2-10, palette_color[color+128], 1);
+               }
+               break;
             }
-            break;
          }
       }
    }  // end of iterate lifts

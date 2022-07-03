@@ -3,6 +3,62 @@
 ---------------------------------------------------------
 
 
+bug---can't see any prox line in level editor for prox lift step
+it shows up fine in game
+in level editor the function:
+void set_lift_to_step(int l, int s)
+{
+   // new behaviour
+   // if passed step is a move step, set that
+   // if not, then set to previous move step
+does not actually set lift's current step to steps that are not move steps
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ---------------------------------------------------------
@@ -10,11 +66,67 @@
 ---------------------------------------------------------
 
 
+rearrange levels...again?
+
+What if I gave my levels names?
+That way if they are re-arranged it wont matter
+
+
+What if I had an overlay screen for levels
+This all sounds very complex...
+
+
+
+
 make cloner capable of having a trigger input
 think of the things you could do
 but is it that easy?
 trigger would take the place of player in trigger box
 would still need timer, immediate, etc...
+
+
+I want some better tiles...
+I just looked up some free tiles...I am so jealous...my tiles are so amateuristic...
+I just need to stop soon, before I waste a lot more time...
+
+
+make a water tile with same flags as ladder...done
+
+
+
+
+
+
+
+
+
+-----------------------------------------------
+------------ Favorite Levels  -----------------
+-----------------------------------------------
+
+level 11
+dual rocket levels
+good and evil
+
+
+level 14
+tons of lifts
+
+
+level 16
+the big green apple
+
+level 17
+big blue rocket
+
+
+
+
+
+
+
+
+
 
 
 

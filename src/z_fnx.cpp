@@ -206,8 +206,10 @@ void m_err(const char * err_msg)
 
 void window_title(void)
 {
-   sprintf(msg, "Purple Martians");
+//   sprintf(msg, "Purple Martians");
+   sprintf(msg, "Purple Martians %s", pm_version_string);
 //   sprintf(msg, "Purple Martians %s   [%d x %d]", pm_version_string, SCREEN_W, SCREEN_H);
+//   sprintf(msg, "%d x %d", SCREEN_W, SCREEN_H);
 //   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", pm_version_string, SCREEN_W, SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
    al_set_window_title(display, msg);
 }
@@ -626,10 +628,35 @@ void fire_enemy_bulleta(int EN, int bullet_ans, int p)
    float B = 2*(x*pvx) + 2*(y*pvy);
    float C = pow(x,2) + pow(y,2);
 
-   float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
-   al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
-   al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
-   fire_enemy_bulletz(EN, bullet_ans, px1, py1);
+
+// Egdar: You will have to check your code for division by A=0 and for a negative B^2 - 4AC discriminant.
+
+// Quadratic Formula: The roots of a quadratic equation ax2 + bx + c = 0 are given by x = [-b ± √(b² - 4ac)]/2a.
+// The discriminant of the quadratic equation is D = b2 - 4ac
+// For D > 0 the roots are real and distinct.
+// For D = 0 the roots are real and equal.
+// For D < 0 the roots do not exist, or the roots are imaginary.
+
+   float D = pow(B,2) - 4*(A*C); // discriminant
+
+//   if (A == 0)     printf("A == 0 in function 'fire_enemy_bulleta'\n");
+//   else if (D < 0) printf("negative discriminant in function 'fire_enemy_bulleta'\n");
+//   else
+//   {
+//      float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
+//      al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
+//      al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
+//      fire_enemy_bulletz(EN, bullet_ans, px1, py1);
+//   }
+//
+
+   if ((A != 0) && (D >= 0))
+   {
+      float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
+      al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
+      al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
+      fire_enemy_bulletz(EN, bullet_ans, px1, py1);
+   }
 }
 
 void fire_enemy_x_bullet(int EN, int p)
