@@ -2,86 +2,13 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="win_static" />
-	<File name="src\z_menu.cpp" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\e_object_viewer_windows.cpp" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="23890" topLine="626" />
-		</Cursor>
-	</File>
-	<File name="src\n_network.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="244" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="pm_docs\new5_todo.txt" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="181" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src\z_fnx.cpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="68747" topLine="2055" />
-		</Cursor>
-	</File>
-	<File name="src\e_lift.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="8808" topLine="171" />
-		</Cursor>
-		<Folding>
-			<Collapse line="5" />
-			<Collapse line="100" />
-			<Collapse line="110" />
-			<Collapse line="122" />
-			<Collapse line="135" />
-			<Collapse line="149" />
-			<Collapse line="330" />
-		</Folding>
-	</File>
-	<File name="src\z_file.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="8625" topLine="283" />
-		</Cursor>
-		<Folding>
-			<Collapse line="66" />
-		</Folding>
-	</File>
-	<File name="src\z_screen.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="18835" topLine="552" />
-		</Cursor>
-	</File>
-	<File name="src\n_server.cpp" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="22896" topLine="632" />
-		</Cursor>
-	</File>
-	<File name="src\e_editor_main.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="28221" topLine="0" />
-		</Cursor>
-		<Folding>
-			<Collapse line="4" />
-			<Collapse line="21" />
-			<Collapse line="255" />
-			<Collapse line="268" />
-			<Collapse line="303" />
-			<Collapse line="351" />
-			<Collapse line="415" />
-			<Collapse line="705" />
-		</Folding>
-	</File>
-	<File name="src\z_lift.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="6329" topLine="175" />
-		</Cursor>
-	</File>
-	<File name="src\e_object_viewer_windows.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="83275" topLine="599" />
+			<Cursor1 position="39821" topLine="437" />
 		</Cursor>
 		<Folding>
 			<Collapse line="88" />
 			<Collapse line="129" />
-			<Collapse line="356" />
 			<Collapse line="910" />
 		</Folding>
 	</File>
@@ -90,19 +17,19 @@
 			<Cursor1 position="7736" topLine="239" />
 		</Cursor>
 	</File>
-	<File name="src\z_bullets.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3967" topLine="91" />
-		</Cursor>
-	</File>
 	<File name="src\z_logo.cpp" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="4328" topLine="72" />
 		</Cursor>
 	</File>
-	<File name="src\e_sliders.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+	<File name="src\z_bullets.cpp" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3530" topLine="90" />
+			<Cursor1 position="4717" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\e_sliders.cpp" open="1" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="37015" topLine="1216" />
 		</Cursor>
 	</File>
 	<File name="src\e_glt.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -110,29 +37,32 @@
 			<Cursor1 position="36564" topLine="1490" />
 		</Cursor>
 	</File>
-	<File name="src\z_control.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\z_main.cpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="32833" topLine="918" />
+			<Cursor1 position="46573" topLine="1610" />
 		</Cursor>
 	</File>
-	<File name="src\z_main.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\z_control.cpp" open="1" top="1" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4051" topLine="160" />
+			<Cursor1 position="29977" topLine="828" />
 		</Cursor>
 	</File>
-	<File name="src\z_sound.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\z_file.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2567" topLine="27" />
+			<Cursor1 position="8719" topLine="295" />
 		</Cursor>
+		<Folding>
+			<Collapse line="67" />
+		</Folding>
 	</File>
 	<File name="src\n_client.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="17007" topLine="501" />
 		</Cursor>
 	</File>
-	<File name="pm_docs\new5.txt" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\z_screen.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="834690" topLine="30884" />
+			<Cursor1 position="3653" topLine="113" />
 		</Cursor>
 	</File>
 	<File name="src\e_item.cpp" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -140,19 +70,14 @@
 			<Cursor1 position="4788" topLine="118" />
 		</Cursor>
 	</File>
-	<File name="src\z_enemy.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="9470" topLine="274" />
-		</Cursor>
-	</File>
 	<File name="src\z_player.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2911" topLine="144" />
+			<Cursor1 position="35633" topLine="1120" />
 		</Cursor>
 	</File>
-	<File name="src\n_packet.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="icon.rc" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="687" topLine="0" />
+			<Cursor1 position="58" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="src\e_bitmap.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -162,7 +87,7 @@
 	</File>
 	<File name="src\z_item.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="20408" topLine="514" />
+			<Cursor1 position="33824" topLine="857" />
 		</Cursor>
 		<Folding>
 			<Collapse line="35" />
@@ -170,39 +95,55 @@
 			<Collapse line="725" />
 		</Folding>
 	</File>
+	<File name="src\n_packet.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="687" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\z_sound.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2567" topLine="27" />
+		</Cursor>
+	</File>
 	<File name="src\e_mWindow.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="43201" topLine="1076" />
+			<Cursor1 position="10729" topLine="243" />
 		</Cursor>
 		<Folding>
 			<Collapse line="5" />
 			<Collapse line="57" />
+			<Collapse line="1094" />
+			<Collapse line="1104" />
+			<Collapse line="1244" />
 		</Folding>
 	</File>
-	<File name="src\e_editor_zfs.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="pm_docs\new5_todo.txt" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="32172" topLine="16" />
+			<Cursor1 position="538" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\e_editor_zfs.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1176" topLine="0" />
 		</Cursor>
 		<Folding>
-			<Collapse line="18" />
-			<Collapse line="87" />
-			<Collapse line="150" />
-			<Collapse line="177" />
-			<Collapse line="335" />
-			<Collapse line="526" />
-			<Collapse line="754" />
-			<Collapse line="793" />
-			<Collapse line="812" />
-			<Collapse line="886" />
-			<Collapse line="923" />
-			<Collapse line="975" />
-			<Collapse line="997" />
-			<Collapse line="1025" />
+			<Collapse line="88" />
+			<Collapse line="151" />
+			<Collapse line="178" />
+			<Collapse line="527" />
+			<Collapse line="755" />
+			<Collapse line="794" />
+			<Collapse line="813" />
+			<Collapse line="887" />
+			<Collapse line="924" />
+			<Collapse line="976" />
+			<Collapse line="998" />
+			<Collapse line="1026" />
 		</Folding>
 	</File>
-	<File name="src\z_screen_overlay.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\z_log.cpp" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="35276" topLine="891" />
+			<Cursor1 position="54329" topLine="1668" />
 		</Cursor>
 	</File>
 	<File name="src\pm.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -210,24 +151,14 @@
 			<Cursor1 position="12539" topLine="406" />
 		</Cursor>
 	</File>
-	<File name="src\z_log.cpp" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="54329" topLine="1668" />
-		</Cursor>
-	</File>
 	<File name="src\e_pde.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="9435" topLine="296" />
 		</Cursor>
 	</File>
-	<File name="src\e_fnx.cpp" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\e_fnx.cpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="5641" topLine="265" />
-		</Cursor>
-	</File>
-	<File name="src\z_config.cpp" open="0" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="5325" topLine="118" />
+			<Cursor1 position="6185" topLine="265" />
 		</Cursor>
 	</File>
 	<File name="src\z_loop.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -235,14 +166,19 @@
 			<Cursor1 position="4322" topLine="164" />
 		</Cursor>
 	</File>
-	<File name="src\e_visual_level.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\z_config.cpp" open="0" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="7597" topLine="217" />
+			<Cursor1 position="5325" topLine="118" />
 		</Cursor>
 	</File>
-	<File name="icon.rc" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\z_enemy.cpp" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="58" topLine="0" />
+			<Cursor1 position="26724" topLine="785" />
+		</Cursor>
+	</File>
+	<File name="src\e_visual_level.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="18208" topLine="576" />
 		</Cursor>
 	</File>
 	<File name="src\e_group_edit_windows.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -263,9 +199,73 @@
 			<Collapse line="707" />
 		</Folding>
 	</File>
-	<File name="src\z_display.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\z_menu.cpp" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="13726" topLine="247" />
+			<Cursor1 position="23890" topLine="626" />
+		</Cursor>
+	</File>
+	<File name="src\z_display.cpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="14327" topLine="265" />
+		</Cursor>
+	</File>
+	<File name="src\z_fnx.cpp" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="31261" topLine="988" />
+		</Cursor>
+	</File>
+	<File name="src\n_network.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="244" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\z_screen_overlay.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="35276" topLine="891" />
+		</Cursor>
+	</File>
+	<File name="src\e_lift.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1312" topLine="0" />
+		</Cursor>
+		<Folding>
+			<Collapse line="5" />
+			<Collapse line="100" />
+			<Collapse line="110" />
+			<Collapse line="122" />
+			<Collapse line="135" />
+			<Collapse line="149" />
+			<Collapse line="330" />
+		</Folding>
+	</File>
+	<File name="pm_docs\new5.txt" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="837449" topLine="31062" />
+		</Cursor>
+	</File>
+	<File name="src\e_editor_main.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="28391" topLine="0" />
+		</Cursor>
+		<Folding>
+			<Collapse line="4" />
+			<Collapse line="21" />
+			<Collapse line="255" />
+			<Collapse line="268" />
+			<Collapse line="303" />
+			<Collapse line="351" />
+			<Collapse line="415" />
+			<Collapse line="705" />
+		</Folding>
+	</File>
+	<File name="src\z_lift.cpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6214" topLine="210" />
+		</Cursor>
+	</File>
+	<File name="src\n_server.cpp" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="22896" topLine="632" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

@@ -312,30 +312,28 @@ void move_enemies()
       {
          num_enemy++; // count enemies
 
-         if (Ei[e][0] != 10) // skip all this for field
+         if (Ei[e][0] < 50) proc_enemy_collision_with_pbullet(e);
+
+         // check for time to live
+         int ttl = Ei[e][27];
+         if (ttl)
          {
-             if (Ei[e][0] < 50) proc_enemy_collision_with_pbullet(e);
-
-             // check for time to live
-             int ttl = Ei[e][27];
-             if (ttl)
-             {
-                if (ttl < 11)
-                {
-                   Ei[e][0] = 66;             // change to different type to prevent use
-                   Efi[e][4] = al_itofix(0);  // cant hurt anymore
-                   Ei[e][29] = 0;             // no collision box
-                   int sq = 10-ttl;
-                   Ei[e][1] = zz[5+sq][74];
-                }
-                if (ttl == 1) Ei[e][0] = 0; // kill instantly
-                Ei[e][27]--;
-             }
-
-             // check for out of bounds
-             if ((Efi[e][0] < al_itofix(0)) || (Efi[e][0] > al_itofix(1999))) Ei[e][0]=0;
-             if ((Efi[e][1] < al_itofix(0)) || (Efi[e][1] > al_itofix(1999))) Ei[e][0]=0;
+            if (ttl < 11)
+            {
+               Ei[e][0] = 66;             // change to different type to prevent use
+               Efi[e][4] = al_itofix(0);  // cant hurt anymore
+               Ei[e][29] = 0;             // no collision box
+               int sq = 10-ttl;
+               Ei[e][1] = zz[5+sq][74];
+            }
+            if (ttl == 1) Ei[e][0] = 0; // kill instantly
+            Ei[e][27]--;
          }
+
+         // check for out of bounds
+         if ((Efi[e][0] < al_itofix(0)) || (Efi[e][0] > al_itofix(1999))) Ei[e][0]=0;
+         if ((Efi[e][1] < al_itofix(0)) || (Efi[e][1] > al_itofix(1999))) Ei[e][0]=0;
+
          switch (Ei[e][0])
          {
             case 3:  enemy_archwagon(e);  break;
@@ -818,7 +816,7 @@ void cloner_create(int e)
                al_fixed new_y_pos = itemf[b][1] + y3 - y1;
                int nx = al_fixtoi(new_x_pos) / 20;
                int ny = al_fixtoi(new_y_pos) / 20;
-               if (is_block_empty(nx, ny, 1, 1, 0)) // block only
+               if (is_block_empty(nx, ny, 1, 0, 0)) // block only
                {
                   for (int c=0; c<500; c++)
                      if (item[c][0] == 0) // found empty
@@ -1887,7 +1885,7 @@ void enemy_block_walker(int e)
       l[ex][ey] = 168 | PM_BTILE_ALL_SOLID;
       al_set_target_bitmap(level_background);
       al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, palette_color[0]);
-      al_draw_bitmap(tile[168], ex*20, ey*20, 0);
+      al_draw_bitmap(btile[168], ex*20, ey*20, 0);
 
       game_event(60, 0, 0, e, Ei[e][26], 0, 0);
       Ei[e][0] = 0;

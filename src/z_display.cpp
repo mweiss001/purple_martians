@@ -291,6 +291,10 @@ int init_display(void)
 
 
 
+
+
+
+
 //   show_disp_values(0, 0, 1, 1, 1, "init");
    // check if windowed values are valid
    int th = 100;
@@ -316,6 +320,12 @@ int init_display(void)
       al_set_new_display_flags(flags);
       display = al_create_display(disp_w_wind, disp_h_wind);
    }
+
+   al_set_window_constraints(display, 320, 240, 0, 0);
+   al_apply_window_constraints(display, 1);
+   save_config();
+
+
 
 //   int flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_OPENGL ;
 //   if (fullscreen) flags = ALLEGRO_WINDOWED | ALLEGRO_RESIZABLE | ALLEGRO_FRAMELESS | ALLEGRO_OPENGL;
@@ -385,6 +395,8 @@ void proc_display_change(void)
    rebuild_bitmaps();
    save_config();
    //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
+   window_title();
+
 }
 
 

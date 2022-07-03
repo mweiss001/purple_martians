@@ -123,7 +123,7 @@ void rebuild_bitmaps(void)
    set_map_var();
 
    load_visual_level_select_done = 0;
-   if (visual_level_select_running) load_visual_level_select();
+//   if (visual_level_select_running) load_visual_level_select();
 }
 
 void get_new_background(int full)

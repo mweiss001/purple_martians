@@ -511,6 +511,9 @@ void load_visual_level_select(void)
       if (al_filename_exists(fn)) le[num_levs++] = x; // put in array
    }
 
+
+
+
    // now we have the number of levels, we can figure out grid sizes
 
    // make selection map size 1/3 of SCREEN_W
@@ -526,25 +529,47 @@ void load_visual_level_select(void)
    // what is the area of the space left
    int area = x_space * SCREEN_H;
 
+
+
+
    // how much space for each icon
    int ia = area / num_levs;
 
+//   printf("ia:%d\n", ia);
+
+
+
    // get the size from this
    grid_size = (int) sqrt((float)ia);
+//   printf("gs:%d\n", grid_size);
    grid_size -= grid_size% 20; // mod 20
+//   printf("gs:%d\n", grid_size);
+   if (grid_size < 20) grid_size = 10;
+//   printf("gs:%d\n", grid_size);
 
    // how many icon will fit vertically?
    grid_cols = x_space / grid_size;
    grid_width = grid_cols * grid_size;
 
+
    // how many horizontal rows are needed?
    grid_rows = (num_levs-1) / grid_cols+1;
    grid_height = grid_rows * grid_size;
+
+
 
    // check if the intended grid is off the bottom of the screen
    while (grid_height >= SCREEN_H)
    {
       grid_size -= 20;
+
+      if (grid_size < 20)
+      {
+         grid_size = 10;
+//         printf("gs:%d\n", grid_size);
+         break;
+      }
+
 
       // how many icon will fit vertically
       grid_cols = x_space / grid_size;
@@ -554,6 +579,9 @@ void load_visual_level_select(void)
       grid_rows = (num_levs-1) / grid_cols+1;
       grid_height = grid_rows * grid_size;
    }
+
+
+
 
    // how many icon will fit vertically
    grid_cols = x_space / grid_size;
@@ -567,6 +595,8 @@ void load_visual_level_select(void)
    sel_size = SCREEN_W - 64 - grid_width; // (32 for grid frame, 32 for selmap frame)
    sel_x = SCREEN_W - sel_size - 16;  // -16 for frame
 
+
+
    // create icon bitmaps
    for (int x=0; x<num_levs; x++)
    {
@@ -576,8 +606,11 @@ void load_visual_level_select(void)
       al_clear_to_color(al_map_rgb(0,0,0));
    }
 
+
+
 //   show_pixel_format(al_get_bitmap_format(level_icon_bmp[0]));
 //   show_bitmap_flags(al_get_bitmap_flags(level_icon_bmp[0]));
+
 
 
    // load every level and get icon bitmaps
@@ -592,7 +625,6 @@ void load_visual_level_select(void)
          draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, pc );
          al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating level icon grid");
          al_flip_display();
-
       }
 
    // create the icon grid bitmap
@@ -648,6 +680,11 @@ int visual_level_select(void)
    vl_redraw = 1;
    while (!quit)
    {
+      if (!load_visual_level_select_done)
+      {
+         load_visual_level_select();
+         vl_redraw = 1;
+      }
       if (vl_redraw)
       {
          al_set_target_backbuffer(display);

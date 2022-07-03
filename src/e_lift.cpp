@@ -42,7 +42,7 @@ void show_all_lifts(void)
       int v2 = lifts[l].val2;
 
       int col  = lifts[l].color;
-      sprintf(msg,"lift:%-2d  1:%-4d y:%-4d w:%-4d h:%-4d x2:%-4d y2:%-4d mode:%d v1:%d v2:%d col:%-2d ns:%-2d  name:%s  ", l, x1, y1, w, h, x2, y2, mode, v1, v2, col, lifts[l].num_steps, lifts[l].lift_name);
+      sprintf(msg,"lift:%-2d  x:%-4d y:%-4d w:%-4d h:%-4d x2:%-4d y2:%-4d mode:%d v1:%d v2:%d col:%-2d ns:%-2d  name:%s  ", l, x1, y1, w, h, x2, y2, mode, v1, v2, col, lifts[l].num_steps, lifts[l].lift_name);
       al_draw_text(font, palette_color[10], 10, text_pos*8, 0, msg);
       text_pos++;
 

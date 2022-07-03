@@ -1140,7 +1140,7 @@ void proc_player_ladder(int p)
    }
    else // not initially grabbing ladder when function started
    {
-      if (is_player_within_ladder_reach(p) && (players[p].up)) // within ladder reach and up pressed
+      if (is_player_within_ladder_reach(p) && (players[p].up) && (!players[p].jump)) // within ladder reach and up pressed AND jump not pressed
       {
          // just got on ladder
          players[p].on_ladder = 1;
@@ -1152,7 +1152,7 @@ void proc_player_ladder(int p)
          while (!done)
          {
             al_fixed m = is_right_solidfm(players[p].PX-f1, players[p].PY, f1, 0);
-            //printf("R %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
+            printf("R %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
             if (m < f1) players[p].PX -= f1;
             else done = 1;
          }
@@ -1162,7 +1162,7 @@ void proc_player_ladder(int p)
          while (!done)
          {
             al_fixed m = is_left_solidfm(players[p].PX+f1, players[p].PY, f1, 0);
-            //printf("L %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
+            printf("L %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
             if (m < f1) players[p].PX += f1;
             else done = 1;
          }

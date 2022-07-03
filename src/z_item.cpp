@@ -1029,6 +1029,11 @@ void proc_player_carry(int p)
       if (!players[p].paused || (players[p].paused && players[p].paused_type == 2))// player is carrying item
       {
          int i = players[p].carry_item-1; // number of item
+
+
+         if (!item[i][0]) players[p].carry_item = 0; // player was carrying item that had become inactive
+
+
          if ((item[i][0] == 98) || (item[i][0] == 99)) item[i][13] = p; // mark player carrying lit bomb or rocket
          if (item[i][0] != 98)            // not lit rocket
          {

@@ -40,31 +40,32 @@ void zfs_pointer_text(int x1, int x2, int y, int mouse_on_window)
    al_fixed frx2 = al_itofix(rx2);
    al_fixed fry2 = al_itofix(ry2);
 
-   // count enemies in box
-   for (int b=0; b<100; b++)
-      if (Ei[b][0])
-         if (Efi[b][0] >= frx1)
-            if (Efi[b][0] < frx2)
-               if (Efi[b][1] >= fry1)
-                  if (Efi[b][1] < fry2)
-                     eib++;
-
    // count items in box
    for (int b=0; b<500; b++)
-      if (item[b][0])
+      if ((item[b][0]) && (obj_filter[2][item[b][0]]))
          if (item[b][4] >= rx1)
             if (item[b][4] < rx2)
                if (item[b][5] >= ry1)
                   if (item[b][5] < ry2)
                      iib++;
 
+   // count enemies in box
+   for (int b=0; b<100; b++)
+      if ((Ei[b][0]) && (obj_filter[3][Ei[b][0]]))
+         if (Efi[b][0] >= frx1)
+            if (Efi[b][0] < frx2)
+               if (Efi[b][1] >= fry1)
+                  if (Efi[b][1] < fry2)
+                     eib++;
+
    // count lifts in box
-   for (int d=0; d<num_lifts; d++)
-      if (lifts[d].x1 >= rx1)
-         if (lifts[d].x1 < rx2)
-            if (lifts[d].y1 >= ry1)
-               if (lifts[d].y1 < ry2)
-                  lib++;
+   if (obj_filter[4][1])
+      for (int d=0; d<num_lifts; d++)
+         if (lifts[d].x1 >= rx1)
+            if (lifts[d].x1 < rx2)
+               if (lifts[d].y1 >= ry1)
+                  if (lifts[d].y1 < ry2)
+                     lib++;
 
 
    y+=24;
