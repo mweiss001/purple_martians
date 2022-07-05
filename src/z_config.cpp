@@ -297,7 +297,7 @@ void get_config_values(void)
    if (!show_splash_screen) splash_screen_done = 1;
 
    val = al_get_config_value(cfg, "SCREEN", "saved_display_transform_double");
-   if (!val) saved_display_transform_double = -1;
+   if (!val) saved_display_transform_double = 0;
    else saved_display_transform_double = atoi(val);
 
    val = al_get_config_value(cfg, "GAME", "start_level");
@@ -335,11 +335,11 @@ void get_config_values(void)
    else players1[0].right_key = atoi(val);
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_jump_key");
-   if (!val) players1[0].jump_key = ALLEGRO_KEY_X;
+   if (!val) players1[0].jump_key = ALLEGRO_KEY_SPACE;
    else players1[0].jump_key = atoi(val);
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_fire_key");
-   if (!val) players1[0].fire_key = ALLEGRO_KEY_Z;
+   if (!val) players1[0].fire_key = ALLEGRO_KEY_ALT;
    else players1[0].fire_key = atoi(val);
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_menu_key");

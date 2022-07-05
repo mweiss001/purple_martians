@@ -197,8 +197,8 @@ void get_all_keys(int p) // prompts for all seven keys
       {
          case  2: players1[p].up_key    =  my_readkey(); break;
          case  3: players1[p].down_key  =  my_readkey(); break;
-         case  4: players1[p].right_key =  my_readkey(); break;
-         case  5: players1[p].left_key  =  my_readkey(); break;
+         case  4: players1[p].left_key  =  my_readkey(); break;
+         case  5: players1[p].right_key =  my_readkey(); break;
          case  6: players1[p].jump_key  =  my_readkey(); break;
          case  7: players1[p].fire_key  =  my_readkey(); break;
          case  8: players1[p].menu_key  =  my_readkey(); break;

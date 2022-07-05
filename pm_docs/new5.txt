@@ -31111,6 +31111,22 @@ main story game...
 all
 
 
+20220705 6:00AM
+
+bug -- delete config and run game crashes
+saved_display_transform_double is -1...is that valid??
+SCREEN_W and H are being set to -800 and -600
+what is auto? 0?...fixed...
+
+
+working on beginning level and default keys
+space alt...confirm....no...make it so....
+p0_jump_key=75
+p0_fire_key=219
+done....
+
+
+
 
 
 

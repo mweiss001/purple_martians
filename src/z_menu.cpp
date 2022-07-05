@@ -725,8 +725,8 @@ void set_key_menu(int menu, int p, int start_row)
    int m = menu;
    sprintf(global_string[m][a+0], "Up ---- %s", key_names[ players1[p].up_key]);
    sprintf(global_string[m][a+1], "Down -- %s", key_names[ players1[p].down_key]);
-   sprintf(global_string[m][a+2], "Right - %s", key_names[ players1[p].right_key]);
-   sprintf(global_string[m][a+3], "Left -- %s", key_names[ players1[p].left_key]);
+   sprintf(global_string[m][a+2], "Left -- %s", key_names[ players1[p].left_key]);
+   sprintf(global_string[m][a+3], "Right - %s", key_names[ players1[p].right_key]);
    sprintf(global_string[m][a+4], "Jump -- %s", key_names[ players1[p].jump_key]);
    sprintf(global_string[m][a+5], "Fire -- %s", key_names[ players1[p].fire_key]);
    sprintf(global_string[m][a+6], "Menu -- %s", key_names[ players1[p].menu_key]);
