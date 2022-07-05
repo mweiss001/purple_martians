@@ -295,14 +295,14 @@ int init_display(void)
 
 
 
-//   show_disp_values(0, 0, 1, 1, 1, "init");
+   // show_disp_values(0, 0, 1, 1, 1, "init");
    // check if windowed values are valid
    int th = 100;
    if (disp_x_wind > disp_w_full-th) disp_x_wind = disp_w_full-th;
    if (disp_y_wind > disp_h_full-th) disp_y_wind = disp_h_full-th;
    if (disp_w_wind > disp_w_full) disp_w_wind = disp_w_full;
    if (disp_h_wind > disp_h_full) disp_h_wind = disp_h_full;
-//   show_disp_values(0, 0, 1, 1, 1, "pc");
+   //show_disp_values(0, 0, 1, 1, 1, "pc");
    save_config();
 
 
@@ -320,6 +320,8 @@ int init_display(void)
       al_set_new_display_flags(flags);
       display = al_create_display(disp_w_wind, disp_h_wind);
    }
+
+
 
    al_set_window_constraints(display, 320, 240, 0, 0);
    al_apply_window_constraints(display, 1);
@@ -352,6 +354,8 @@ int init_display(void)
    al_get_window_position(display, &disp_x_curr, &disp_y_curr);
    //printf("x:%d y:%d w:%d h:%4d\n", disp_x_curr, disp_y_curr, disp_w_curr, disp_h_curr);
 
+
+
    set_display_transform();
    window_title();
 
@@ -364,6 +368,8 @@ int init_display(void)
    //printf("init screen\n");
    create_bitmaps();
    make_palette();
+
+
    return 1;
 }
 

@@ -769,6 +769,7 @@ int initial_setup(void)
 void game_menu(void)
 {
    int top_menu_sel = 3;
+   //printf("b4 splash\n");
    if (!splash_screen_done)
    {
       splash_screen();
@@ -1128,8 +1129,8 @@ void game_menu(void)
 
                   if (p1_menu_sel == 10) players1[0].up_key =    my_readkey();
                   if (p1_menu_sel == 11) players1[0].down_key =  my_readkey();
-                  if (p1_menu_sel == 12) players1[0].right_key = my_readkey();
-                  if (p1_menu_sel == 13) players1[0].left_key =  my_readkey();
+                  if (p1_menu_sel == 12) players1[0].left_key =  my_readkey();
+                  if (p1_menu_sel == 13) players1[0].right_key = my_readkey();
                   if (p1_menu_sel == 14) players1[0].jump_key =  my_readkey();
                   if (p1_menu_sel == 15) players1[0].fire_key =  my_readkey();
                   if (p1_menu_sel == 16) players1[0].menu_key =  my_readkey();
@@ -1608,6 +1609,9 @@ void show_level_done(void);
             fast_exit(0);
          }
       } // end of argument_count == 3
+
+      //printf("before gm call\n");
+
       game_menu(); // this is where it all happens
    } // end of if initial setup
 

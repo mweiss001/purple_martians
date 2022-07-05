@@ -49,7 +49,6 @@ void draw_large_text_overlay(int type, int color)
 {
    char m1[80] = {0};
    char m2[80] = {0};
-
    int rebuild = 0;
 
    if ((type == 1) && (large_text_overlay_state != 1))
@@ -92,6 +91,7 @@ void draw_large_text_overlay(int type, int color)
    //   printf("bbx1:%4d bby1:%4d bbw1:%4d bbh1:%4d\n",bbx1, bby1, bbw1, bbh1);
    //   printf("bbx2:%4d bby2:%4d bbw2:%4d bbh2:%4d\n",bbx2, bby2, bbw2, bbh2);
 
+
       ALLEGRO_BITMAP *t1 = al_create_bitmap(bbw3, bbh3);
       al_set_target_bitmap(t1);
       al_clear_to_color(al_map_rgb(0,0,0));
@@ -103,6 +103,7 @@ void draw_large_text_overlay(int type, int color)
       al_clear_to_color(al_map_rgb(0,0,0));
       al_draw_text(f2, palette_color[color], 0-bbx2 + (bbw3-bbw2)/2, 0-bby2, 0, m2);
       al_convert_mask_to_alpha(t2, al_map_rgb(0, 0, 0));
+
 
       int xs = SCREEN_W*7/8; // x size
       int ys = SCREEN_H*3/8; // y size
@@ -116,9 +117,9 @@ void draw_large_text_overlay(int type, int color)
       int yl1 = SCREEN_H*3/4 - ys/2;
       int yl2 = ys;
 
-
       al_destroy_bitmap(large_text_overlay_bitmap);
       large_text_overlay_bitmap = al_create_bitmap(SCREEN_W, SCREEN_H);
+
       al_set_target_bitmap(large_text_overlay_bitmap);
       al_clear_to_color(al_map_rgb(0,0,0));
 
@@ -129,6 +130,7 @@ void draw_large_text_overlay(int type, int color)
       al_destroy_bitmap(t1);
       al_destroy_bitmap(t2);
    }
+
 
    float opa = 1.0;
    if (type == 2) opa = 0.6;
@@ -200,7 +202,10 @@ void splash_screen(void)
    int quit = 0;
    proc_controllers();
 
+
    draw_large_text_overlay(1, 8);
+
+
 
    al_flip_display();
    al_clear_to_color(al_map_rgb(0, 0, 0));

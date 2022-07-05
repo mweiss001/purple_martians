@@ -15,35 +15,9 @@ does not actually set lift's current step to steps that are not move steps
 
 
 
+bug  -- change controller setup to WASD ULDR
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+bug -- in level editor can't see trigger box edges on left or top if zero
 
 
 
