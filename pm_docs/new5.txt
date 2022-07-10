@@ -31127,6 +31127,28 @@ done....
 
 
 
+2020710
+
+I have been working on levels...
+
+bug  -- archwagon in confined space always faces right
+follow mode does nothing??
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
