@@ -1739,12 +1739,6 @@ void walker_archwagon_common(int e)
    int EXint = al_fixtoi(Efi[e][0]);
    int EYint = al_fixtoi(Efi[e][1]);
 
-   if (!Ei[e][8]) // follow mode
-   {
-      int p = find_closest_player(e);
-      if (EXint < al_fixtoi(players[p].PX)) Efi[e][2] = Efi[e][6];
-      if (EXint > al_fixtoi(players[p].PX)) Efi[e][2] = -Efi[e][6];
-   }
 
    int on_solid = 0;
    int on_lift = 0;
@@ -1801,6 +1795,15 @@ void walker_archwagon_common(int e)
          EXint= al_fixtoi(Efi[e][0]);
       }
    }
+
+   if (!Ei[e][8]) // follow mode
+   {
+      int p = find_closest_player(e);
+      if (EXint < al_fixtoi(players[p].PX)) Ei[e][2] = 1;
+      if (EXint > al_fixtoi(players[p].PX)) Ei[e][2] = 0;
+   }
+
+
 
    if ((on_solid) && (Ei[e][5] >= 0)) // solid and not jumping (falling or steady)
    {

@@ -2319,13 +2319,13 @@ The Block Damage Field can be hidden or shown in various ways.
 <section>Archwagon Viewer
 
 
-<h14>    ArchWagon
+<h14>    Archwagon
 <a02>
 <b15>
 
 <l04>    Description:
 
-<l15> ArchWagons roll, jump and shoot arrows at the player.
+<l15> Archwagons roll, jump and shoot arrows at the player.
 
 <b15>
 
@@ -2355,7 +2355,7 @@ The Block Damage Field can be hidden or shown in various ways.
 <l15>  - Attempts to jump at the specified distance before an hitting a wall.
 
 <l09> Jump Under Width:[0-600](0 = Off)
-<l15>  - When the ArchWagon is under a player (+/- width) a jump is attempted.
+<l15>  - When the Archwagon is under a player (+/- width) a jump is attempted.
 
 <l09> Jump Wait:[0-500](0 = Off)
 <l15>  - waits for the specified number of frames, then attempts to jump
@@ -2419,7 +2419,7 @@ The Block Damage Field can be hidden or shown in various ways.
 <l15>  - Initial floor direction.
 
 <l09> Drop Mode:[On-Off]
-<l15>  - when TrakBot on ceiling, drop on player.
+<l15>  - when the Trakbot is on a ceiling, drop on players below.
 
 <b15>
 
@@ -2436,7 +2436,7 @@ The Block Damage Field can be hidden or shown in various ways.
 <b15>
 
 <l09> Collision Box:[8-18]
-<l15>  - An area around the TrakBot that takes Health from the
+<l15>  - An area around the Trakbot that takes Health from the
 <l15>    player, when the player is in it. (see Health Decrement)
 
 <l09> Health Decrement:[0.1-2.0]
@@ -2492,7 +2492,7 @@ The Block Damage Field can be hidden or shown in various ways.
 <l15>  - Attempts to jump at the specified distance before an hitting a wall.
 
 <l09> Jump Under Width:[0-600](0 = Off)
-<l15>  - When the ArchWagon is under a player (+/- width) a jump is attempted.
+<l15>  - When the Jumpworm is under a player (+/- width) a jump is attempted.
 
 <l09> Jump Wait:[0-500](0 = Off)
 <l15>  - waits for the specified number of frames, then attempts to jump
@@ -2500,7 +2500,7 @@ The Block Damage Field can be hidden or shown in various ways.
 <b15>
 
 <l09> Collision Box:[8-18]
-<l15>  - An area around the TrakBot that takes Health from the
+<l15>  - An area around the Jumpworm that takes Health from the
 <l15>    player, when the player is in it. (see Health Decrement)
 
 <l09> Health Decrement:[0.1-2.0]
