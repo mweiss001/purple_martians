@@ -31131,8 +31131,40 @@ done....
 
 I have been working on levels...
 
-bug  -- archwagon in confined space always faces right
-follow mode does nothing??
+
+I could use a config file for high score stuff
+
+
+
+each entry would be:
+
+lev_num
+num players
+finished (yes/no)
+time
+enemy killed
+enemy left alive
+shots fired
+purple coins
+
+
+
+bug -- some blocks are still not being shown as being erased when bombed or shot
+remove_block is called when:
+ remove key block range
+ pbul hits breakable block
+ ebul hits breakable block
+ do bomb damage
+
+the problem was that in bomb damage, cycling the blocks would cycle some out of range block
+added code to test for this:
+   for (int e = (bx-bd); e < (bx+bd)+1; e++)        // cycle blast range of blocks
+      for (int f = (by-bd); f < (by+bd)+1; f++)
+      {
+         if ((e) && (e < 100) && (f) && (f < 100))
+
+
+
 
 
 
