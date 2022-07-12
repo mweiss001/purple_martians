@@ -288,19 +288,24 @@ void bomb_blocks(int i, int t, int dr, al_fixed fx, al_fixed fy)
    for (int e = (bx-bd); e < (bx+bd)+1; e++)        // cycle blast range of blocks
       for (int f = (by-bd); f < (by+bd)+1; f++)
       {
-         // get center of block
-         float cx = (float)(e*20+10);
-         float cy = (float)(f*20+10);
-
-         // check radius from center
-         float xd = abs(x-cx);
-         float yd = abs(y-cy);
-         float br = sqrt(xd*xd+yd*yd);
-
-         if ((br < d) && (l[e][f] & PM_BTILE_BOMBABLE))
+         if ((e) && (e < 100) && (f) && (f < 100))
          {
-            if (t == 1) bomb_block_crosshairs(e, f);
-            if (t == 2) remove_block(e, f);
+
+
+            // get center of block
+            float cx = (float)(e*20+10);
+            float cy = (float)(f*20+10);
+
+            // check radius from center
+            float xd = abs(x-cx);
+            float yd = abs(y-cy);
+            float br = sqrt(xd*xd+yd*yd);
+
+            if ((br < d) && (l[e][f] & PM_BTILE_BOMBABLE))
+            {
+               if (t == 1) bomb_block_crosshairs(e, f);
+               if (t == 2) remove_block(e, f);
+            }
          }
       }
 }
