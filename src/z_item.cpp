@@ -1760,8 +1760,17 @@ void proc_lit_rocket(int i)
 
       item[i][0] = 99;   // change to lit bomb
       item[i][6] = 2;    // mode 2; explosion
+
+      item[i][3] = 1;   // not carryable (fall)
+
       item[i][8] = 20;   // explosion timer count
       item[i][9] = 20;   // explosion timer limit
+
+
+      // if any players are riding this rocket, make them drop it
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ( (players[p].active) && (!players[p].paused) && (players[p].carry_item) && (players[p].carry_item == i+1 )) players[p].carry_item = 0;
+
    }
    else
    {

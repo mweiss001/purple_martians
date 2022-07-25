@@ -1187,7 +1187,7 @@ void move_players(void)
                proc_player_rope(p);
                proc_player_ladder(p);
                if (!players[p].on_ladder && !players[p].on_rope) // not on ladder or rope
-                  //proc_player_xy_move_test(p);
+                //  proc_player_xy_move_test(p);
                   proc_player_xy_move(p);
             }
 

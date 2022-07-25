@@ -3,6 +3,13 @@
 ---------------------------------------------------------
 
 
+
+
+
+
+
+
+
 bug---can't see any prox line in level editor for prox lift step
 it shows up fine in game
 in level editor the function:
@@ -14,27 +21,12 @@ void set_lift_to_step(int l, int s)
 does not actually set lift's current step to steps that are not move steps
 
 
-
-bug  -- change controller setup to WASD ULDR
-
 bug -- in level editor can't see trigger box edges on left or top if zero
 
 
 
-bug block damage off until triggered
-triggers initially
-
+bug in block damage in mode "off until triggered"...triggers initially
 unless go into toggle mode and set initial off???
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -56,8 +48,6 @@ That way if they are re-arranged it wont matter
 
 What if I had an overlay screen for levels
 This all sounds very complex...
-
-
 
 
 make cloner capable of having a trigger input
