@@ -31165,6 +31165,47 @@ added code to test for this:
 
 
 
+change controller setup to WASD ULDR..done
+
+20220722
+pixel in ul corner of purple player only when player color is zero... should use color 8 instead..fixed
+
+
+
+
+hide bmsg when player is there...
+how to detect if player is there...
+detect what level blocks are covered by bmsg
+made a method to reduce number of lines shown depending how close player is to bottom of screen
+seems to work good...
+
+
+I want to remove the entire lives and game over concept
+- do not display in top_display
+- remove free men bonus...
+just have purple coins...
+
+for now just replaced free men with purple coins on top display
+
+
+bug -- if you are riding a rocket when it explodes, no damage is done to blocks
+only rockets, bombs are fine
+looks like explosion moves downwards, but only if player is still riding...fixed by forcing any player riding to drop rocket item
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

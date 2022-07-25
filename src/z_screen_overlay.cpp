@@ -277,9 +277,21 @@ void draw_top_display(void)
    al_draw_textf(font, palette_color[14], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", al_fixtoi(players[p].LIFE));
    tdx += 88;
 
-   // draw free men
-   for (int a=0; a<players[p].LIVES; a++)
-      al_draw_scaled_rotated_bitmap(player_tile[players[p].color][1], 10, 10, tdx+8+(a*10), tdy+6, .5, .5, 0, 0);
+//   // draw free men
+//   for (int a=0; a<players[p].LIVES; a++)
+//      al_draw_scaled_rotated_bitmap(player_tile[players[p].color][1], 10, 10, tdx+8+(a*10), tdy+6, .5, .5, 0, 0);
+
+
+   // draw purple coins
+   al_draw_scaled_bitmap(tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
+   // spin_shape(197, tdx+5, tdy-3, 0, 0, 19, 19, 0.6, 0.5, 60);
+   al_draw_textf(font, palette_color[14], tdx+17, tdy+2, 0, ":%d/%d", players[active_local_player].stat_purple_coins, number_of_purple_coins);
+
+
+
+
+
+
 
    if (show_scale_factor > 0)
    {
@@ -942,12 +954,22 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += bmsg_show_text(" key ", 15, bmsg_length);
          bmsg_length += bmsg_draw_tile2(tn, bmsg_length, -10, 0);
       }
+
       if (ev == 30) // switch
       {
          custom_drawn = 1;
          bmsg_length += bmsg_show_text(" flipped a switch ", 15, bmsg_length);
          bmsg_length += bmsg_draw_tile2(item[z2][1], bmsg_length, -10, -2);
       }
+
+//      if (ev == 30) // switch
+//      {
+//         custom_drawn = 1;
+//         bmsg_length += bmsg_show_text("012345678901234567890123456789012345678901234567Z-", 15, bmsg_length);
+//      }
+
+
+
       if (ev == 40) // player got shot by another player
       {
          custom_drawn = 1;
@@ -1122,11 +1144,19 @@ void draw_bmsg()
 {
    if (bottom_msg_on)
    {
-      //bottom_msg = 100; // always draw
+
+//      bottom_msg = 100; // always draw
       if (bottom_msg > 0)
       {
          bottom_msg--;
-         int nb = 20;  // number of bottom message lines to display (max 20)
+
+         int nb = 8;  // number of bottom message lines to display (max 20)
+
+         int dfb = 2000 - al_fixtoi(players[active_local_player].PY); // player distance from bottom of level
+         if (dfb < 300)  nb = 4;
+         if (dfb < 200)  nb = 2;
+
+
          int sw = 800; // string length in pixels
          int sh = 20;  // string height in pixels
          float x = SCREEN_W/2 - 10;
@@ -1149,8 +1179,8 @@ void draw_bmsg()
 
          for (int m=0; m<nb; m++)
          {
-            float dw = chs * 800;
-            float dh = cvs * 20;
+            float dw = chs * sw;
+            float dh = cvs * sh;
             ALLEGRO_COLOR col = al_map_rgba_f(co, co, co, co);
             al_draw_tinted_scaled_bitmap(bmsg_bmp2[m], col, 0, 0, sw, sh, x-dw/2, y, dw, dh, 0);
             co -= oss;
@@ -1158,6 +1188,11 @@ void draw_bmsg()
             chs -= hss;
             y -= dh;
          }
+
+         // draw bounding box to show what size it is
+//         float tvs = (sw/2)*ivs;
+//         al_draw_rectangle(x-tvs, SCREEN_H,  x+tvs, y, palette_color[15], 1);
+
       }
    }
 }

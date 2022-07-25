@@ -497,8 +497,8 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
       switch (type) // enemy subtypes
       {
          case 3:     // archwag
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Efi[n][6], 9, 0.7, 0.01, "X-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Efi[n][3], 9, 0.7, 0.01, "Y-Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Efi[n][6], 9,  0.7, 0.01, "X-Speed:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Efi[n][3], 16, 0.7, 0.01, "Y-Speed:");
             ya+=4; // spacer
             mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 13, 13, 15, 15);
             mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][8], "Follow Mode",             "Bounce Mode",             13, 13, 15, 15);

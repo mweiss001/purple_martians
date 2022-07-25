@@ -329,7 +329,7 @@ void help(const char *topic)
                 buff2[2] = 0;
                 int pco = atoi(buff2);
                 int ans = zz[1][9];
-                al_draw_bitmap(player_tile[pco-1][ans], dx+sx, sy, 0 );
+                al_draw_bitmap(player_tile[pco][ans], dx+sx, sy, 0 );
                 chop_first_x_char(msg, 5);
                 xindent +=24;
             }
