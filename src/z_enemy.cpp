@@ -170,6 +170,14 @@ void draw_enemy(int e, int custom, int cx, int cy)
 
 
 
+/*
+   if (Ei[e][0] == 3) // archwagon
+   {
+      al_draw_textf(font, palette_color[15], EXint+30, EYint+10, 0, "%d", Ei[e][5]);
+   }
+*/
+
+
    #ifdef SHOW_FLAPPER_DEBUG
    if (Ei[e][0] == 12) // flapper
    {
@@ -1744,12 +1752,9 @@ void walker_archwagon_common(int e)
    int on_lift = 0;
    int ret = is_down_solid(EXint, EYint, 1, 2);
    if ((ret == 1) || (ret == 2)) on_solid = 1;
+   if (ret >= 32) on_lift = 1;
 
-   if (ret >= 32) //on lift
-   {
-      on_lift = 1;
-      Efi[e][1] += lifts[ret-32].fyinc ;  // move with lift
-   }
+
 
    if (Ei[e][2] == 1)  // move right
    {
@@ -1803,14 +1808,15 @@ void walker_archwagon_common(int e)
       if (EXint > al_fixtoi(players[p].PX)) Ei[e][2] = 0;
    }
 
-
-
    if ((on_solid) && (Ei[e][5] >= 0)) // solid and not jumping (falling or steady)
    {
       Efi[e][1] -= al_itofix ((al_fixtoi(Efi[e][1]) % 20));  // align with floor
       Efi[e][1] = al_itofix (al_fixtoi(Efi[e][1]));  // remove decimal
       Ei[e][5] = 0;
    }
+
+
+
 
    if ((!on_solid) && (!on_lift) && (Ei[e][5] >= 0)) // not solid and falling
    {
@@ -1833,7 +1839,12 @@ void walker_archwagon_common(int e)
       }
    }
 
-   if (Ei[e][5] < 0) // rising or jumping
+   if ((!on_solid) && (!on_lift) && (Ei[e][5] == 0)) // not solid and falling
+      Ei[e][5] +=5; // start falling
+
+
+
+   if ((Ei[e][5] < 0) && (!on_lift))  // rising or jumping
    {
       Ei[e][5] +=5; // gravity
       if (Ei[e][5] < -160) Ei[e][5] = -160; // terminal velocity
@@ -1847,6 +1858,12 @@ void walker_archwagon_common(int e)
       if ((is_up_solid(EXint, EYint, 1, 2) == 1) || (is_up_solid(EXint, EYint, 1, 2) > 31) )
          Ei[e][5] = 0;  // stop rising
    }
+
+   if (on_lift)
+   {
+      Efi[e][1] += lifts[ret-32].fyinc ;  // move with lift
+   }
+
 
    if ((on_solid) || (on_lift))
    {
