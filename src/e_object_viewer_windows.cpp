@@ -853,7 +853,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_buttonp(       xa, ya, xb, bts, 404,0,0,0, 0, 8,15,0,  1,0,1,d, item[n][2]); // damage draw mode
             ya+=4; // spacer
             int p=7; // mode color
-            mdw_buttonp(       xa, ya, xb, bts, 402,0,0,0, 0,p,15,0,   1,0,1,d, item[n][11]); // MODE
+            mdw_buttonp(       xa, ya, xb, bts, 402,n,0,0, 0,p,15,0,   1,0,1,d, item[n][11]); // MODE
             int MODE = item[n][11];
 
             ya+=4; // spacer
