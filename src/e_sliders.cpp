@@ -1353,10 +1353,22 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if ((var < 0) || (var > 4)) var = 0;
       if (var == 0) sprintf(smsg, "MODE:Always ON");
       if (var == 1) sprintf(smsg, "MODE:Toggle");
-      if (var == 2) sprintf(smsg, "MODE:ON Until Triggered");
-      if (var == 3) sprintf(smsg, "MODE:OFF Until Triggered");
+      if (var == 2)
+      {
+         sprintf(smsg, "MODE:ON Until Triggered");
+         item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
+      }
+
+      if (var == 3)
+      {
+         sprintf(smsg, "MODE:OFF Until Triggered");
+         item[num][3] &=  ~PM_ITEM_DAMAGE_CURR; // set damage off
+      }
+
       if (var == 4) sprintf(smsg, "MODE:Timed ON And OFF");
    }
+
+
    if (bn == 404) // Block Damage draw mode
    {
       if (press) var++;
