@@ -1475,7 +1475,7 @@ void init_player(int p, int t)
 
       players[p].draw_rot = al_itofix(0);
       players[p].draw_scale = al_itofix(1);
-      players[p].shape = 0;;
+      players[p].shape = 0;
 
       players[p].stat_respawns = 0;
       players[p].stat_bullets_fired = 0;
