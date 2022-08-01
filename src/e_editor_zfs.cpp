@@ -789,6 +789,7 @@ void zfs_do_clear(void)
 
    sort_enemy();
    sort_item(1);
+   init_level_background();
 }
 
 void set_block_with_flag_filters(int x, int y, int tn)

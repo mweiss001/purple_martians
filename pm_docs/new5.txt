@@ -31193,6 +31193,17 @@ only rockets, bombs are fine
 looks like explosion moves downwards, but only if player is still riding...fixed by forcing any player riding to drop rocket item
 
 
+20220730
+
+bug in block damage in mode "off until triggered"...triggers initially
+unless go into toggle mode and set initial off???
+fixed
+
+
+
+
+
+
 
 
 
