@@ -2,7 +2,29 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-when clearing blocks in zfs, need to init_level_background...
+bug - when lift is in timer rest mode, does not count down unless move step?
+does not work in end step freeze or wait for trigger...
+
+changes this line:
+
+not sure if it has unforseen consquences...need to test...
+
+//      if ((mode == 1) && (cst == 1)) // prox run and reset mode, current step type = move
+      if (mode == 1) // prox run and reset mode
+
+
+this looks tricky to fix....
+
+I could add a flag to lift step...apply reset timer to this step...
+
+
+
+
+
+
+
+
+
 
 
 
@@ -21,6 +43,12 @@ bug -- in level editor can't see trigger box edges on left or top if zero
 
 bug  -- archwagon in confined space always faces right
 fix code for follow mode
+
+
+
+
+
+
 
 
 

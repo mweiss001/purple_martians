@@ -31199,6 +31199,7 @@ bug in block damage in mode "off until triggered"...triggers initially
 unless go into toggle mode and set initial off???
 fixed
 
+when clearing blocks in zfs, need to init_level_background...fixed
 
 
 
