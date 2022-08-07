@@ -82,19 +82,13 @@ void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+void change_block(int x, int y, int block)
+{
+   l[x][y] = block;
+   al_set_target_bitmap(level_background);
+   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+   al_draw_bitmap(btile[block & 1023], x*20, y*20, 0);
+}
 
 void clear_game_moves(void)
 {
@@ -104,8 +98,6 @@ void clear_game_moves(void)
    game_move_entry_pos = 0;
    game_move_current_pos = 0;
 }
-
-
 
 void get_hostname(void)
 {
@@ -2014,7 +2006,6 @@ void show_state_dif(char *a, char *b)
    }
    if (memcmp(c1_l, c2_l, sizeof(l)))
    {
-
       init_level_background();
       if (L_LOGGING_NETPLAY_show_dif1)
       {

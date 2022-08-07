@@ -112,7 +112,7 @@ void move_pbullets()
          if ((d & PM_BTILE_SOLID_PBUL) || (d & PM_BTILE_BREAKABLE_PBUL)) // bullet hit solid or breakable wall
          {
             pbullet[b][0] = 0;  // bullet is done
-            if (d & PM_BTILE_BREAKABLE_PBUL) remove_block(x, y);
+            if (d & PM_BTILE_BREAKABLE_PBUL) change_block(x, y, 0);
          }
       }
 }
@@ -182,7 +182,7 @@ void move_ebullets()
          if (d & PM_BTILE_SOLID_EBUL)  // bullet hit solid or breakable wall
          {
             e_bullet_active[b] = 0;                                // bullet dies
-            if (d & PM_BTILE_BREAKABLE_EBUL) remove_block(xi, yi); // breakable wall
+            if (d & PM_BTILE_BREAKABLE_EBUL) change_block(xi, yi, 0); // breakable wall
 
 
          }

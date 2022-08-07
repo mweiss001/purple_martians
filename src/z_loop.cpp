@@ -243,6 +243,8 @@ void game_loop(int start_mode)
          proc_frame_delay();
          if (draw_frame)
          {
+
+
             get_new_background(0);
             draw_lifts();
             draw_items();

@@ -109,21 +109,13 @@ void rebuild_bitmaps(void)
    al_draw_bitmap(M_dtilemap, 0, 0, 0);
 
    init_level_background();
-
    set_display_transform();
-
    load_fonts();
-
    logo_text_bitmaps_create = 1;
-
    large_text_overlay_state = 0;
-
    text_title_bitmaps_create = 1;
-
    set_map_var();
-
    load_visual_level_select_done = 0;
-//   if (visual_level_select_running) load_visual_level_select();
 }
 
 void get_new_background(int full)

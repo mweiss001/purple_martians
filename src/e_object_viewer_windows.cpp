@@ -596,7 +596,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
          case 9: // cloner
             mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][30], "Not Invincible", "Invincible!", 15, 15, 12, 10);
             ya+=4; // spacer
-            mdw_buttonp(    xa, ya, xb, bts,  27,0,0,0, 0,12,15, 0,  1,0,1,d, Ei[n][8]); // trigger type
+            mdw_buttonp(    xa, ya, xb, bts,  27,n,0,0, 0,12,15, 0,  1,0,1,d, Ei[n][8]); // trigger type
             mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Ei[n][6], 1000, 20, 1, "Delay Timer:");
             ya+=4; // spacer
             mdw_slider0(    xa, ya, xb, bts,  0,0,0,0,  0,14,15,15,  1,0,1,d, Ei[n][9], 4800, 0, 1,  "Created Time To Live:", "-");

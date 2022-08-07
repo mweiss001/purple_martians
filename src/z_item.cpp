@@ -54,14 +54,6 @@ void change_linked_door_color_and_shape(int door)
       }
 }
 
-void remove_block(int x, int y)
-{
-   l[x][y] = 0;
-   al_set_target_bitmap(level_background);
-   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-   al_draw_bitmap(btile[0], x*20, y*20, 0);
-}
-
 
 void draw_pop_message(int i)
 {
@@ -273,11 +265,17 @@ void bomb_block_crosshairs(int e, int f)
 
 void bomb_blocks(int i, int t, int dr, al_fixed fx, al_fixed fy)
 {
+
+
    // center of bomb
 //   float x = al_fixtoi(itemf[i][0]) + 10;
 //   float y = al_fixtoi(itemf[i][1]) + 10;
    float x = al_fixtoi(fx) + 10;
    float y = al_fixtoi(fy) + 10;
+
+//   printf("bomb_blocks %d %d   %1.3f %1.3f \n", t, dr, x, y);
+
+
    float d = (float)dr;
 
    // convert to 0-100 range to cycle block rect
@@ -304,7 +302,7 @@ void bomb_blocks(int i, int t, int dr, al_fixed fx, al_fixed fy)
             if ((br < d) && (l[e][f] & PM_BTILE_BOMBABLE))
             {
                if (t == 1) bomb_block_crosshairs(e, f);
-               if (t == 2) remove_block(e, f);
+               if (t == 2) change_block(e, f, 0);
             }
          }
       }
@@ -742,30 +740,60 @@ void proc_switch_block_range(int i, int action)
    int y1 = item[i][7] / 20;
    int x2 = (item[i][6] + item[i][8]) / 20;
    int y2 = (item[i][7] + item[i][9]) / 20;
-   for (int x=x1; x<x2; x++)
-      for (int y=y1; y<y2; y++)
-      {
-         int tn = l[x][y]&1023;
-         if (action == 1)
+
+
+   if (action == 1)
+   {
+      al_set_target_bitmap(level_background);
+      for (int x=x1; x<x2; x++)
+         for (int y=y1; y<y2; y++)
          {
-            if ((item[i][10] & 0b0001) && (tn == 172)) l[x][y] = 7;  // green  solid to empty
-            if ((item[i][10] & 0b0010) && (tn == 173)) l[x][y] = 8;  // red    solid to empty
-            if ((item[i][10] & 0b0100) && (tn == 174)) l[x][y] = 9;  // blue   solid to empty
-            if ((item[i][10] & 0b1000) && (tn == 175)) l[x][y] = 10; // purple solid to empty
-            if ((item[i][10] & 0b0001) && (tn ==  7))  l[x][y] = (172 | PM_BTILE_ALL_SOLID); // green  empty to solid
-            if ((item[i][10] & 0b0010) && (tn ==  8))  l[x][y] = (173 | PM_BTILE_ALL_SOLID); // red    empty to solid
-            if ((item[i][10] & 0b0100) && (tn ==  9))  l[x][y] = (174 | PM_BTILE_ALL_SOLID); // blue   empty to solid
-            if ((item[i][10] & 0b1000) && (tn == 10))  l[x][y] = (175 | PM_BTILE_ALL_SOLID); // purple empty to solid
+            int tn = l[x][y]&1023;
+            if ((item[i][10] & 0b0001) && (tn == 172)) change_block(x, y, 7);  // green  solid to empty
+            if ((item[i][10] & 0b0010) && (tn == 173)) change_block(x, y, 8);  // red    solid to empty
+            if ((item[i][10] & 0b0100) && (tn == 174)) change_block(x, y, 9);  // blue   solid to empty
+            if ((item[i][10] & 0b1000) && (tn == 175)) change_block(x, y, 10); // purple solid to empty
+            if ((item[i][10] & 0b0001) && (tn ==  7))  change_block(x, y, (172 | PM_BTILE_ALL_SOLID)); // green  empty to solid
+            if ((item[i][10] & 0b0010) && (tn ==  8))  change_block(x, y, (173 | PM_BTILE_ALL_SOLID)); // red    empty to solid
+            if ((item[i][10] & 0b0100) && (tn ==  9))  change_block(x, y, (174 | PM_BTILE_ALL_SOLID)); // blue   empty to solid
+            if ((item[i][10] & 0b1000) && (tn == 10))  change_block(x, y, (175 | PM_BTILE_ALL_SOLID)); // purple empty to solid
          }
-         if (action == 2)
+      al_set_target_backbuffer(display);
+   }
+
+   // this method sets block then calls init_level..
+//   if (action == 1)
+//   {
+//      for (int x=x1; x<x2; x++)
+//         for (int y=y1; y<y2; y++)
+//         {
+//            int tn = l[x][y]&1023;
+//
+//            if ((item[i][10] & 0b0001) && (tn == 172)) l[x][y] = 7;  // green  solid to empty
+//            if ((item[i][10] & 0b0010) && (tn == 173)) l[x][y] = 8;  // red    solid to empty
+//            if ((item[i][10] & 0b0100) && (tn == 174)) l[x][y] = 9;  // blue   solid to empty
+//            if ((item[i][10] & 0b1000) && (tn == 175)) l[x][y] = 10; // purple solid to empty
+//            if ((item[i][10] & 0b0001) && (tn ==  7))  l[x][y] = (172 | PM_BTILE_ALL_SOLID); // green  empty to solid
+//            if ((item[i][10] & 0b0010) && (tn ==  8))  l[x][y] = (173 | PM_BTILE_ALL_SOLID); // red    empty to solid
+//            if ((item[i][10] & 0b0100) && (tn ==  9))  l[x][y] = (174 | PM_BTILE_ALL_SOLID); // blue   empty to solid
+//            if ((item[i][10] & 0b1000) && (tn == 10))  l[x][y] = (175 | PM_BTILE_ALL_SOLID); // purple empty to solid
+//         }
+//      if (action == 1) init_level_background();
+//   }
+
+
+   if (action == 2)
+   {
+      for (int x=x1; x<x2; x++)
+         for (int y=y1; y<y2; y++)
          {
+            int tn = l[x][y]&1023;
             if ((item[i][10] & 0b0001) && ( (tn == 7)  || (tn == 172)) ) bomb_block_crosshairs(x, y);
             if ((item[i][10] & 0b0010) && ( (tn == 8)  || (tn == 173)) ) bomb_block_crosshairs(x, y);
             if ((item[i][10] & 0b0100) && ( (tn == 9)  || (tn == 174)) ) bomb_block_crosshairs(x, y);
             if ((item[i][10] & 0b1000) && ( (tn == 10) || (tn == 175)) ) bomb_block_crosshairs(x, y);
          }
-      }
-   if (action == 1) init_level_background();
+   }
 }
 
 void proc_key_block_range(int i, int action)
@@ -783,14 +811,14 @@ void proc_key_block_range(int i, int action)
             int key = item[i][1] - 1039;
             if (((l[x][y]&1023) == 188 + key) || ((l[x][y]&1023) == 204 + key) || ((l[x][y]&1023) == 220 + key))
             {
-               if (action == 1) remove_block(x, y);
-               if (action == 2) bomb_block_crosshairs(x, y); //crosshairs_full(x*20+10, y*20+10, 15, 1);
+               if (action == 1) change_block(x, y, 0);
+               if (action == 2) bomb_block_crosshairs(x, y);
             }
          }
          else // all blocks in range
          {
-            if (action == 1) remove_block(x, y);
-            if (action == 2) bomb_block_crosshairs(x, y); //crosshairs_full(x*20+10, y*20+10, 15, 1);
+            if (action == 1) change_block(x, y, 0);
+            if (action == 2) bomb_block_crosshairs(x, y);
          }
       }
 }
@@ -923,7 +951,10 @@ void move_items()
                      int a = is_down_solid(x, y, 1, 3);             // check for block below
                      if (a==0)
                      {
-                        itemf[i][3] += al_ftofix(.1);                             // apply gravity to yinc
+
+                        if (! ((type == 99) && (item[i][6] == 2))) // no gravity for exploding bomb
+                           itemf[i][3] += al_ftofix(.1);           // apply gravity to yinc
+
                         if (itemf[i][3] > al_itofix(3)) itemf[i][3] = al_itofix(3);  // max gravity
                      }
                      if (a) // slow down xinc if block or lift below
@@ -1581,6 +1612,13 @@ void proc_key_collision(int p, int i)
       al_fixed xlen = al_itofix(x2) - itemf[i][0];     // distance between block range and key
       al_fixed ylen = al_itofix(y2) - itemf[i][1];
       al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
+
+   //   printf("hy_dist:%d\n", al_fixtoi(hy_dist));
+
+
+
+
+
       al_fixed speed = al_itofix(12);                  // speed
       al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
       al_fixed xinc = al_fixdiv(xlen, scaler);         // calc xinc

@@ -861,7 +861,7 @@ void cloner_create(int e)
 
 
 //--9--cloner-----------------------------------------------------------------------------
-//      Ei[e][5] = mode
+//      Ei[e][5] = player in box
 //      Ei[e][6] = create wait
 //      Ei[e][7] = create wait counter
 //      Ei[e][8] = trigger mode (0 = wait, 1=reset, 2=immed)
@@ -893,6 +893,8 @@ void enemy_cloner(int e)
    else Ei[e][31] = 0;
    enemy_player_hit_proc(e);
 
+
+
    // set draw shape
    Ei[e][2] = 0;  // flip mode
 
@@ -907,15 +909,22 @@ void enemy_cloner(int e)
 //   printf("%d %d %d \n", b, Ei[e][7], Ei[e][6]);
 
 
+   if (Ei[e][7] > Ei[e][6]) Ei[e][7] = Ei[e][6]; // ensure counter is never more than counter reset value
+
+
    int create_now = 0;
 
    int player_in_box = is_player_in_trigger_box(x4, y4, x5, y5);
+
    int player_just_entered_trigger_box = 0;
    if ((!Ei[e][5]) && (player_in_box)) player_just_entered_trigger_box = 1; // not in trig box last time and in box this time
 
-   // mode (Ei[e][5]
+
+
+   // player in box last time (Ei[e][5]
    // 0 = not in trigger box last time
    // 1 = in trigger box last time
+
    // Ei[][8]  trigger mode (0=wait, 1=reset, 2=immed)//
 
    // wait mode, player in box, run timer
@@ -945,6 +954,8 @@ void enemy_cloner(int e)
    }
    if (player_in_box) Ei[e][5] = 1; // for next time
    else Ei[e][5] = 0;
+
+
    if (create_now) cloner_create(e);
 }
 

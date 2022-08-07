@@ -217,7 +217,7 @@ void draw_lift(int l, int x1, int y1, int x2, int y2)
 
 //   al_draw_textf(font, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", lifts[l].current_step, lifts[l].val1);    // debug name
 
-   al_draw_textf(font, palette_color[15], (x1+x2)/2, (y1+y2)/2 - 16, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", lifts[l].current_step, lifts[l].val1);    // debug name
+//   al_draw_textf(font, palette_color[15], (x1+x2)/2, (y1+y2)/2 - 16, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", lifts[l].current_step, lifts[l].val1);    // debug name
 
 
 }
@@ -240,8 +240,6 @@ void draw_lifts()
          int y2 = lifts[l].y2;
          draw_lift(l, x1, y1, x2, y2);
 
-
-
          // show if player is riding this lift
 //         int p = is_player_riding_lift(l);
 //         if (p)
@@ -254,38 +252,22 @@ void draw_lifts()
 
          if ((lifts[l].mode == 1) && (!is_player_riding_lift(l)))
          {
-            int draw_percent = 0;
-
-
-            // check if stuck on step 0 and haven't moved yet
-            if (!((lifts[l].current_step == 0) && (lifts[l].x1 == lift_steps[l][0].x) && (lifts[l].y1 == lift_steps[l][0].y))) draw_percent = 1;
-
-
-
-
-
-
-            if (draw_percent)
-
+            // if not in initial position
+            if (!((lifts[l].x1 == lift_steps[l][0].x) && (lifts[l].y1 == lift_steps[l][0].y)))
             {
                int lw = lifts[l].width-10;
                int lh = lifts[l].height-10;
-
-               if (lifts[l].val2 == 0) lifts[l].val2 = 1;
-
+               if (lifts[l].val2 == 0) lifts[l].val2 = 1; // to prevent divide by zero
                int percent = (100 * lifts[l].val1) / lifts[l].val2;
                draw_percent_bar((x1+x2)/2, y1+4, lw, lh, percent);
             }
          }
-
 
          int cs = lifts[l].current_step;
          if (!(lift_steps[l][cs].type & PM_LIFT_HIDE_LINES))
          {
             switch (lifts[l].limit_type) // limit type
             {
-
-
                case 2: // timer wait
                   if (lifts[l].limit_counter > 0)
                      al_draw_textf(font, palette_color[color+64], (x1 + x2)/2 + 2, lifts[l].y1 - 8, ALLEGRO_ALIGN_CENTRE, "%d", lifts[l].limit_counter);
@@ -369,21 +351,10 @@ void move_lifts(int ignore_prox)
 {
    for (int l=0; l<num_lifts; l++)
    {
-      int mode = lifts[l].mode;
-      int cs = lifts[l].current_step;
-      int cst = lift_steps[l][cs].type & 31;
       int next_step = 0;
       int frozen = 0;
 
-      // modes----------------------------------------------------------------------
-      if ((mode == 1) && (cst == 1)) // prox run and reset mode, current step type = move
-
-//      if (mode == 1) // prox run and reset mode
-
-
-//      if ((mode == 1) && (cs)) // prox run and reset mode, current step != start
-
-
+      if (lifts[l].mode == 1) // prox run and reset mode
       {
          if (is_player_riding_lift(l)) lifts[l].val1 = lifts[l].val2; // reset timer
          else
