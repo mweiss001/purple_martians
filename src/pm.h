@@ -1342,6 +1342,7 @@ int load_gm(const char *sfname);
 // z_fnx.h
 int round20(int val);
 void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
+void change_block(int x, int y, int block);
 void clear_game_moves(void);
 void get_hostname(void);
 void make_palette(void);
@@ -1391,7 +1392,6 @@ void process_flash_color(void);
 // z_item.h
 int item_data(int x_pos, int y_pos);
 void change_linked_door_color_and_shape(int door);
-void remove_block(int x, int y);
 void bomb_block_crosshairs(int e, int f);
 void draw_pop_message(int c);
 void draw_door(int c, int x, int y, int custom);
@@ -1401,7 +1401,6 @@ void draw_items(void);
 
 void proc_key_block_range(int i, int action);
 void proc_switch_block_range(int i, int action);
-
 
 void move_items(void);
 int player_drop_item(int p);

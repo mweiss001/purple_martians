@@ -2,32 +2,6 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-bug - when lift is in timer rest mode, does not count down unless move step?
-does not work in end step freeze or wait for trigger...
-
-changes this line:
-
-not sure if it has unforseen consquences...need to test...
-
-//      if ((mode == 1) && (cst == 1)) // prox run and reset mode, current step type = move
-      if (mode == 1) // prox run and reset mode
-
-
-this looks tricky to fix....
-
-I could add a flag to lift step...apply reset timer to this step...
-
-
-
-
-
-
-
-
-
-
-
-
 bug---can't see any prox line in level editor for prox lift step
 it shows up fine in game
 in level editor the function:
@@ -38,11 +12,37 @@ void set_lift_to_step(int l, int s)
    // if not, then set to previous move step
 does not actually set lift's current step to steps that are not move steps
 
+
+
 bug -- in level editor can't see trigger box edges on left or top if zero
 
 
 bug  -- archwagon in confined space always faces right
 fix code for follow mode
+
+
+
+bug - blocks that are marked by bomb to explode are not the same ones that are actually removed
+does the bomb shift slightly??
+
+it looks like I am trying to make the explosion circle start small and grow
+probably that is where the problem is...no that was good
+the bomb falls slightly with gravity..
+i want to disable gravity, but not the constant motion of the bomb
+done...
+
+
+bug - if a key is exactly in the center of the block range it crashes, probably divide by zero..
+now I can't reproduce....
+
+
+
+actually it was a bonus item with health 100
+
+
+
+
+
 
 
 
@@ -55,6 +55,10 @@ fix code for follow mode
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+
+
 
 
 rearrange levels...again?

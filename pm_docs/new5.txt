@@ -31203,6 +31203,72 @@ when clearing blocks in zfs, need to init_level_background...fixed
 
 
 
+make the init_level_background different...
+make a flag to do it...
+then only during the draw frame thing do it...
+
+this would ensure:
+it was only called once per frame
+it was only called when the frame was drawn..
+
+when is it called in the game...
+switch
+key
+bomb
+breakable
+
+
+actually remove_block does not call it...
+
+very few things do call it...
+
+- when applying a state if block errors are detected
+- switch block....
+
+instead..I want to modify switch thing to not use it...
+
+after much testing there was no difference with either method
+
+I think the new way would be better when fewer block are changed
+
+
+so now the only call to init_level_background when game running are:
+when level is loaded
+when state detects block differences
+when client becomes active
+
+
+
+bug - when lift is in timer rest mode, does not count down unless move step?
+does not work in end step freeze or wait for trigger...
+
+changes this line:
+
+not sure if it has unforseen consquences...need to test...
+
+//      if ((mode == 1) && (cst == 1)) // prox run and reset mode, current step type = move
+      if (mode == 1) // prox run and reset mode
+
+
+this looks tricky to fix....
+
+I could add a flag to lift step...apply reset timer to this step...
+
+there are two parts to this:
+
+the part where the timer runs
+
+the part where the timer is drawn
+
+I am confident I want the timer to run all the time
+
+now just don't show it in certain situations
+like if step 1 and same x y as step 0
+that seems to have fixed the issue...
+
+
+
+
 
 
 

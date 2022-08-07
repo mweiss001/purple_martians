@@ -1080,9 +1080,10 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
       {
          custom_drawn = 1;
          bmsg_length += bmsg_show_text(" picked up a Health Bonus! ", 15, bmsg_length);
-         int bt = z3;
+         int bt = 320;
          if (z3 == 1023) bt = 304;
          if (z3 == 1027) bt = 240;
+         if (z3 == 1035) bt = 320;
          bmsg_length += bmsg_draw_tile(bt, bmsg_length);
          bmsg_length += bmsg_show_health(z4, bmsg_length);
       }

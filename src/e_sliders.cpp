@@ -1261,8 +1261,18 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    {
       if (press) var++;
       if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(smsg, "Trigger Type:Timer Runs  ");
-      if (var == 1) sprintf(smsg, "Trigger Type:Timer Resets");
+      if (var == 0)
+      {
+         sprintf(smsg, "Trigger Type:Timer Runs  ");
+         Ei[num][7] = Ei[num][6]; // set counter
+      }
+
+      if (var == 1)
+      {
+         sprintf(smsg, "Trigger Type:Timer Resets");
+         Ei[num][7] = Ei[num][6]; // set counter
+      }
+
       if (var == 2) sprintf(smsg, "Trigger Type:Immediate   ");
    }
    if (bn == 50) // door entry type
