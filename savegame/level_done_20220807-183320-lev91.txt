@@ -1,0 +1,14 @@
+number of entries 9
+deathmatch_pbullets 1
+deathmatch_pbullets_damage 5
+suicide_pbullets 1
+[ gm][  pc][p][cm]
+[  0][   0]-------------START (level:91)------------- 
+[  1][   0]-------------PLAYER 0 ACTIVE (color:8)-- 
+[  2][ 712][0][ 2]  [    ][    ][    ][  ][RIGHT][    ]
+[  3][ 736][0][ 0]  [    ][    ][    ][  ][     ][    ]
+[  4][ 740]-------------LEVEL DONE 1 ---------------- 
+[  5][ 820]-------------LEVEL DONE 2 ---------------- 
+[  6][1540]-------------NEXT LEVEL!------------------ 
+[  7][ 826]-------------PLAYER 0 ACKNOWLEDGE------ 
+[  8][ 827]-------------NEXT LEVEL!------------------ 
