@@ -87,7 +87,7 @@ void zfs_pointer_text(int x1, int x2, int y, int mouse_on_window)
 
 void zfs_do_brf(int x, int y, int flood_block)
 {
-   int show_progress = 1;
+   int show_progress = 0;
    int f[100][100] = {0};   // array of blocks to mark
    int rb = l[x][y];        // block num to replace
    f[x][y] = 1;             // mark initial block pos in array
@@ -138,12 +138,126 @@ void zfs_do_brf(int x, int y, int flood_block)
          al_rest(.04);
       }
    } while (found);
+//   if (!show_progress)
+//   {
+//      // or we could just do it instantly at the end
+//      for (int a=0; a<100; a++)
+//         for (int b=0; b<100; b++)
+//            if (f[a][b]) set_block_with_flag_filters(a, b, flood_block);
+//      init_level_background();
+//   }
    if (!show_progress)
    {
       // or we could just do it instantly at the end
       for (int a=0; a<100; a++)
          for (int b=0; b<100; b++)
-            if (f[a][b]) set_block_with_flag_filters(a, b, flood_block);
+            if (f[a][b])
+            {
+               // choose which block to use
+
+               // find block to left
+               int bl_l = 0;
+               int la = a-1;
+               if (la > -1) bl_l = f[la][b];
+
+               // find block to right
+               int bl_r = 0;
+               int ra = a+1;
+               if (ra < 100) bl_r = f[ra][b];
+
+               // find block above
+               int bl_u = 0;
+               int ab = b-1;
+               if (ab > -1) bl_u = f[a][ab];
+
+               // find block below
+               int bl_d = 0;
+               int bb = b+1;
+               if (bb < 100) bl_d = f[a][bb];
+
+
+               int fb = 496;
+
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = 486; // upper horizontal through
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = 487; // lower horizontal through
+
+
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = 484; // left vertical through
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 485; // right vertical through
+
+
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = 480; // upper left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = 481; // upper right corner
+
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = 482; // lower left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = 483; // lower right corner
+
+
+
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = 495; // upper end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = 493; // lower end line
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 494; // left end line
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = 492; // right end line
+
+
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 489; // horizontal through line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 488; // vertical through line
+
+
+
+
+//                  // grey bricks
+//   fsy[4][0] = 480; // trigger blocks start
+//   fsy[4][1] = 496; // trigger block end
+//   fsy[4][2] = 488; // middle
+//   fsy[4][3] = 495; // upper end
+//   fsy[4][4] = 493; // lower end
+//
+//
+//
+//
+//   // grey bricks
+//   fsx[4][0] = 480; // trigger blocks start
+//   fsx[4][1] = 496; // trigger block end
+//   fsx[4][2] = 489; // middle
+//   fsx[4][3] = 494; // left end
+//   fsx[4][4] = 492; // right end
+//
+//
+
+//
+//                  // grey brick with corners
+//   fsd[6][0] = 480; // trigger blocks start
+//   fsd[6][1] = 496; // trigger block end
+//   fsd[6][9] = 496; // default shape
+//   fsd[6][10] = 480; // upper left corner
+//   fsd[6][11] = 481; // upper right corner
+//   fsd[6][12] = 482; // lower left corner
+//   fsd[6][13] = 483; // lower right corner
+//   fsd[6][14] = 484; // left vertical through
+//   fsd[6][15] = 485; // right vertical through
+//   fsd[6][16] = 486; // upper horizontal through
+//   fsd[6][17] = 487; // lower horizontal through
+//
+
+
+
+
+
+
+      // flags only
+
+         int flags = flood_block & PM_BTILE_MOST_FLAGS; // get only flags from draw item
+         fb &= ~PM_BTILE_MOST_FLAGS;                       // clear flags in destination
+         fb |= flags;                                      // merge
+
+
+               set_block_with_flag_filters(a, b, fb);
+            }
+
+
+
+
       init_level_background();
    }
 }
