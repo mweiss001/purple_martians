@@ -62,7 +62,7 @@ void em_set_block_range(void)
    fsd[2][16] = 614; // upper horizontal through
    fsd[2][17] = 614; // lower horizontal through
 
-   // brick with corners
+   // brown brick with corners
    fsd[3][0] = 640; // trigger blocks start
    fsd[3][1] = 656; // trigger block end
    fsd[3][9] = 656; // default shape
@@ -74,6 +74,26 @@ void em_set_block_range(void)
    fsd[3][15] = 645; // right vertical through
    fsd[3][16] = 646; // upper horizontal through
    fsd[3][17] = 647; // lower horizontal through
+
+
+
+   // grey brick with corners
+   fsd[6][0] = 480; // trigger blocks start
+   fsd[6][1] = 496; // trigger block end
+   fsd[6][9] = 496; // default shape
+   fsd[6][10] = 480; // upper left corner
+   fsd[6][11] = 481; // upper right corner
+   fsd[6][12] = 482; // lower left corner
+   fsd[6][13] = 483; // lower right corner
+   fsd[6][14] = 484; // left vertical through
+   fsd[6][15] = 485; // right vertical through
+   fsd[6][16] = 486; // upper horizontal through
+   fsd[6][17] = 487; // lower horizontal through
+
+
+
+
+
 
    // rainbows
    fsd[4][0] = 672; // trigger blocks start
@@ -136,12 +156,20 @@ void em_set_block_range(void)
    fsx[3][3] = 177; // left end
    fsx[3][4] = 179; // right end
 
+
+   // grey bricks
+   fsx[4][0] = 480; // trigger blocks start
+   fsx[4][1] = 496; // trigger block end
+   fsx[4][2] = 489; // middle
+   fsx[4][3] = 494; // left end
+   fsx[4][4] = 492; // right end
+
    // semi-solid screen
-   fsx[4][0] = 33; // trigger blocks start
-   fsx[4][1] = 39; // trigger block end
-   fsx[4][2] = 37; // middle
-   fsx[4][3] = 36; // left end
-   fsx[4][4] = 38; // right end
+   fsx[5][0] = 33; // trigger blocks start
+   fsx[5][1] = 39; // trigger block end
+   fsx[5][2] = 37; // middle
+   fsx[5][3] = 36; // left end
+   fsx[5][4] = 38; // right end
 
    for (int i=0; i<20; i++)
       for (int j=0; j<5; j++)
@@ -164,12 +192,25 @@ void em_set_block_range(void)
    fsy[1][3] = 623; // upper end
    fsy[1][4] = 621; // lower end
 
+
+   // grey bricks
+   fsy[4][0] = 480; // trigger blocks start
+   fsy[4][1] = 496; // trigger block end
+   fsy[4][2] = 488; // middle
+   fsy[4][3] = 495; // upper end
+   fsy[4][4] = 493; // lower end
+
+
    // semi-solid screen
-   fsy[4][0] = 33; // trigger blocks start
-   fsy[4][1] = 39; // trigger block end
-   fsy[4][2] = 34; // middle
-   fsy[4][3] = 33; // upper end
-   fsy[4][4] = 35; // lower end
+   fsy[5][0] = 33; // trigger blocks start
+   fsy[5][1] = 39; // trigger block end
+   fsy[5][2] = 34; // middle
+   fsy[5][3] = 33; // upper end
+   fsy[5][4] = 35; // lower end
+
+
+
+
 
    for (int i=0; i<20; i++)
       for (int j=0; j<5; j++)

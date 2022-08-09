@@ -43,18 +43,42 @@ actually it was a bonus item with health 100
 
 
 
-
-
-
-
-
-
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+make block selection window line up with different set of blocks
+
+
+make a smart floodfill
+
+set region like zfs
+
+set source and or destination to be a group of blocks
+
+automatically do the corners and edges
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
