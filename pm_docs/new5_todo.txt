@@ -61,6 +61,24 @@ automatically do the corners and edges
 
 
 
+to do this with outline only I need a different approach...
+
+do nothing for bound blocks
+
+how about the first pass that only sets non bound blocks with h and v thrus
+
+then a second pass that only connects those
+
+
+
+
+
+
+
+
+
+
+
 
 
 

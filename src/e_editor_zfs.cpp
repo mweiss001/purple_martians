@@ -176,83 +176,229 @@ void zfs_do_brf(int x, int y, int flood_block)
                if (bb < 100) bl_d = f[a][bb];
 
 
-               int fb = 496;
-
-               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = 480; // upper left corner
-               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = 481; // upper right corner
-               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = 482; // lower left corner
-               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = 483; // lower right corner
-
-               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = 484; // left vertical through
-               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 485; // right vertical through
-               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = 486; // upper horizontal through
-               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = 487; // lower horizontal through
-
-               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 488; // vertical through line
-               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 489; // horizontal through line
-
-               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = 492; // right end line
-               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = 493; // lower end line
-               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 494; // left end line
-               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = 495; // upper end line
-
-
-
-
+               // grey bricks - works good
+//               int t = 480;     // base
+//               int fb = t + 16; // default shape
+//
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 2;  // lower left corner
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 3;  // lower right corner
+//
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = t + 4;  // left vertical tee
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 5;  // right vertical tee
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 6;  // upper horizontal tee
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 7;  // lower horizontal tee
+//
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 8;  // vertical through line
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 9;  // horizontal through line
+//
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = t + 12; // right end line
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 13; // lower end line
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 14; // left end line
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 15; // upper end line
 
 
-//                  // grey bricks
-//   fsy[4][0] = 480; // trigger blocks start
-//   fsy[4][1] = 496; // trigger block end
-//   fsy[4][2] = 488; // middle
-//   fsy[4][3] = 495; // upper end
-//   fsy[4][4] = 493; // lower end
+
+                 // purple pipes with filled cross solid center - works good
+//               int t = 576;
+//               int fb = t + 16; // default shape
+//
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 2;  // lower left corner
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 3;  // lower right corner
+//
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = t + 8;  // left vertical tee
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 10; // right vertical tee
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 9;  // upper horizontal tee
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 11; // lower horizontal tee
+//
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 4;  // vertical through line
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 6;  // horizontal through line
+//
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = t + 12; // right end line
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 13; // lower end line
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 14; // left end line
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 15; // upper end line
+//
+
+//               // wires with filled cross solid center - works good
+//               int t = 608;     // base
+//               int fb = t + 16; // default shape
+//
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 2;  // lower left corner
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 3;  // lower right corner
+//
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = t + 8;  // left vertical tee
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 10; // right vertical tee
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 9;  // upper horizontal tee
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 11; // lower horizontal tee
+//
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 4;  // vertical through line
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 6;  // horizontal through line
+//
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = t + 12; // right end line
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 13; // lower end line
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 14; // left end line
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 15; // upper end line
+//
+//
+
+
+
+                 // purple pipes with open center
+               int t = 576;
+               int fb = -1; // default shape
+
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 2;  // lower left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 3;  // lower right corner
+
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = t + 8;  // left vertical tee
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 10; // right vertical tee
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 9;  // upper horizontal tee
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 11; // lower horizontal tee
+
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 4;  // vertical through line
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 6;  // horizontal through line
+
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = t + 12; // right end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 13; // lower end line
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 14; // left end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 15; // upper end line
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//               // purple pipes with open center - does not work well
+//               int fb = 0;
+//
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = 576; // upper left corner
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = 577; // upper right corner
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = 578; // lower left corner
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = 579; // lower right corner
+//
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = 580; // left vertical through
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 581; // right vertical through
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = 582; // upper horizontal through
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_0d == 0)) fb = 583; // lower horizontal through
+//
+//
+////               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = 584; // left vertical tee
+////               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 586; // right vertical tee
+////               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = 585; // upper horizontal tee
+////               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = 587; // lower horizontal tee
 //
 //
 //
 //
-//   // grey bricks
-//   fsx[4][0] = 480; // trigger blocks start
-//   fsx[4][1] = 496; // trigger block end
-//   fsx[4][2] = 489; // middle
-//   fsx[4][3] = 494; // left end
-//   fsx[4][4] = 492; // right end
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 580; // vertical through line
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 582; // horizontal through line
 //
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = 588; // right end line
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = 589; // lower end line
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 590; // left end line
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = 591; // upper end line
+
+
+
+
+//               // purple pipes with solid color center - really bad....
+//
+//               int fb = 528;
+//
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = 512; // upper left corner
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = 513; // upper right corner
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = 514; // lower left corner
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = 515; // lower right corner
+//
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = 520; // left vertical tee
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 522; // right vertical tee
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = 521; // upper horizontal tee
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = 523; // lower horizontal tee
+//
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 580; // vertical through line
+//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 582; // horizontal through line
+//
+//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = 588; // right end line
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = 589; // lower end line
+//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 590; // left end line
+//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = 591; // upper end line
 //
 
-//
-//                  // grey brick with corners
-//   fsd[6][0] = 480; // trigger blocks start
-//   fsd[6][1] = 496; // trigger block end
-//   fsd[6][9] = 496; // default shape
-//   fsd[6][10] = 480; // upper left corner
-//   fsd[6][11] = 481; // upper right corner
-//   fsd[6][12] = 482; // lower left corner
-//   fsd[6][13] = 483; // lower right corner
-//   fsd[6][14] = 484; // left vertical through
-//   fsd[6][15] = 485; // right vertical through
-//   fsd[6][16] = 486; // upper horizontal through
-//   fsd[6][17] = 487; // lower horizontal through
-//
+/*
+
+   // purple pipe with solid center
+   fsd[1][0] = 512; // trigger blocks start
+   fsd[1][1] = 528; // trigger block end
+   fsd[1][9] = 528;  // default shape
+   fsd[1][10] = 512; // upper left corner
+   fsd[1][11] = 513; // upper right corner
+   fsd[1][12] = 514; // lower left corner
+   fsd[1][13] = 515; // lower right corner
+   fsd[1][14] = 516; // left vertical through
+   fsd[1][15] = 517; // right vertical through
+   fsd[1][16] = 518; // upper horizontal through
+   fsd[1][17] = 519; // lower horizontal through
+
+*/
 
 
 
 
 
 
-      // flags only
 
-         int flags = flood_block & PM_BTILE_MOST_FLAGS; // get only flags from draw item
-         fb &= ~PM_BTILE_MOST_FLAGS;                       // clear flags in destination
-         fb |= flags;                                      // merge
+               if (fb == -1)
+               {
+                  // do nothing
+               }
+               if (fb == 0)
+               {
+                  set_block_with_flag_filters(a, b, fb);
+               }
 
-
-               set_block_with_flag_filters(a, b, fb);
+               if (fb > 0)
+               {
+                  int flags = flood_block & PM_BTILE_MOST_FLAGS;    // get flags from draw item
+                  fb &= ~PM_BTILE_MOST_FLAGS;                       // clear flags in destination
+                  fb |= flags;                                      // merge
+                  set_block_with_flag_filters(a, b, fb);
+               }
             }
-
-
-
-
       init_level_background();
    }
 }
