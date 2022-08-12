@@ -72,6 +72,57 @@ then a second pass that only connects those
 
 
 
+I want to make a whole new editor screen...block manip...
+
+It will have a selection that is show on the level using ft[100][100]
+
+you will be able to add to the selection
+single blocks by clicking on them
+block range by drawing
+all blocks of the same tile within a selection area
+all blocks of the same tile group within a selection area
+advanced - set selection to only outline
+
+then you can change all the selected blocks based on a pattern or block..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
