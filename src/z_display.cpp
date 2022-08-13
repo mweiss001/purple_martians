@@ -270,9 +270,51 @@ void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head
 }
 
 
-
 int init_display(void)
 {
+
+/*
+
+
+   ALLEGRO_MONITOR_INFO info;
+   int i, j;
+
+   int num_adapters = al_get_num_video_adapters();
+
+   printf("%d adapters found...\n", num_adapters);
+
+   for (i = 0; i < num_adapters; i++)
+   {
+      al_get_monitor_info(i, &info);
+      printf("Adapter %d: ", i);
+      int dpi = al_get_monitor_dpi(i);
+      printf("(%d, %d) - (%d, %d) - dpi: %d\n", info.x1, info.y1, info.x2, info.y2, dpi);
+      al_set_new_display_adapter(i);
+
+//      printf("   Available fullscreen display modes:\n");
+//
+//      for (j = 0; j < al_get_num_display_modes(); j++)
+//      {
+//         ALLEGRO_DISPLAY_MODE mode;
+//         al_get_display_mode(j, &mode);
+//         printf("   Mode %3d: %4d x %4d, %d Hz\n", j, mode.width, mode.height, mode.refresh_rate);
+//      }
+   }
+
+
+      al_set_new_display_adapter(1);
+
+
+
+*/
+
+
+
+
+
+
+
+
    //show_fullscreen_modes();
 
    al_set_new_display_option(ALLEGRO_COLOR_SIZE, 32, ALLEGRO_REQUIRE);
@@ -368,8 +410,6 @@ int init_display(void)
    //printf("init screen\n");
    create_bitmaps();
    make_palette();
-
-
    return 1;
 }
 

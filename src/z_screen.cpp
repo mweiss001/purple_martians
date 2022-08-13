@@ -36,6 +36,12 @@ void load_fonts(void)
 }
 
 
+
+
+
+
+
+
 // done at start only now
 void create_bitmaps(void)
 {
@@ -48,6 +54,20 @@ void create_bitmaps(void)
    M_btilemap = al_create_bitmap(640,640);
    M_ptilemap = al_create_bitmap(480,320);
    M_dtilemap = al_create_bitmap(160,640);
+
+   al_set_target_bitmap(M_tilemap);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_set_target_bitmap(M_btilemap);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_set_target_bitmap(M_ptilemap);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_set_target_bitmap(M_dtilemap);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+
 //   printf("M_tilemap\n");
 //   show_pixel_format(al_get_bitmap_format(M_tilemap));
 //   show_bitmap_flags(al_get_bitmap_flags(M_tilemap));
@@ -58,6 +78,20 @@ void create_bitmaps(void)
    btilemap = al_create_bitmap(640, 640);
    ptilemap = al_create_bitmap(480,320);
    dtilemap = al_create_bitmap(160,640);
+
+   al_set_target_bitmap(tilemap);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_set_target_bitmap(btilemap);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_set_target_bitmap(ptilemap);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_set_target_bitmap(dtilemap);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+
 //   printf("tilemap\n");
 //   show_pixel_format(al_get_bitmap_format(tilemap));
 //   show_bitmap_flags(al_get_bitmap_flags(tilemap));
@@ -69,6 +103,14 @@ void create_bitmaps(void)
 //   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
    level_background = al_create_bitmap(2000,2000);
    level_buffer = al_create_bitmap(2000,2000);
+
+
+   al_set_target_bitmap(level_background);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   al_set_target_bitmap(level_buffer);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
 //   printf("level_background\n");
 //   show_pixel_format(al_get_bitmap_format(level_background));
 //   show_bitmap_flags(al_get_bitmap_flags(level_background));
@@ -81,6 +123,9 @@ void create_bitmaps(void)
    for (int x=0; x<20; x++)
    {
       bmsg_bmp[x] = al_create_bitmap(800, 20);
+      al_set_target_bitmap(bmsg_bmp[x]);
+      al_clear_to_color(al_map_rgb(0,0,0));
+
       bmsg_bmp2[x] = bmsg_bmp[x];
    }
 }
