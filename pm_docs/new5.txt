@@ -31268,6 +31268,15 @@ that seems to have fixed the issue...
 
 
 
+20220813
+
+I am going to add functionality for extra displays
+
+right now it only is designed to work on the main one
+
+
+
+
 
 
 
