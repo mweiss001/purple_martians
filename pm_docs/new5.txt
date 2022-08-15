@@ -31271,8 +31271,75 @@ that seems to have fixed the issue...
 20220813
 
 I am going to add functionality for extra displays
-
 right now it only is designed to work on the main one
+
+the simplest way is to add a config value and let the user set it to something else if they want...
+
+what are the correct terms:
+"monitor" or "display adapter"
+primary will be 0 and x and y will be zero
+other monitors will be relative to that and may be negative
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
