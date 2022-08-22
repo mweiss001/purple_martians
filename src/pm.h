@@ -60,6 +60,11 @@ class mWindow
    int level_editor_mode;
 
 
+   // mW[9] - tile helper only
+   int th_add_del;
+   int th_match;
+   int th_group;
+   int th_sel;
 
 
    mWindow(); // default constructor
@@ -479,6 +484,7 @@ extern ALLEGRO_EVENT_QUEUE *event_queue;
 extern ALLEGRO_DISPLAY *display;
 extern ALLEGRO_COLOR palette_color[256];
 extern int flash_color;
+extern int flash_color2;
 extern int flash_counter;
 extern ALLEGRO_FONT *font;
 extern ALLEGRO_FONT *f1;
@@ -829,6 +835,10 @@ extern int sound_on;
 // ---------------- level -------------------------
 // ------------------------------------------------
 extern int l[100][100];
+
+extern int thl[100][100]; // tile helper
+
+
 extern int start_level;
 extern int play_level;
 extern int valid_level_loaded;
@@ -990,6 +1000,11 @@ void draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys)
 
 int draw_and_process_button(int x, int y, const char * text, int c1, int c2, int center);
 
+
+
+// e_tile_helper.cpp
+int th_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving);
+void th_process_mouse(void);
 
 
 

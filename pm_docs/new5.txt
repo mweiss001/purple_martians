@@ -31267,6 +31267,29 @@ like if step 1 and same x y as step 0
 that seems to have fixed the issue...
 
 
+bug - blocks that are marked by bomb to explode are not the same ones that are actually removed
+does the bomb shift slightly??
+
+it looks like I am trying to make the explosion circle start small and grow
+probably that is where the problem is...no that was good
+the bomb falls slightly with gravity..
+i want to disable gravity, but not the constant motion of the bomb
+done...
+
+
+bug - if a key is exactly in the center of the block range it crashes, probably divide by zero..
+now I can't reproduce....
+
+
+
+actually it was a bonus item with health 100
+
+
+
+
+
+
+
 
 20220813
 
@@ -31279,6 +31302,226 @@ what are the correct terms:
 "monitor" or "display adapter"
 primary will be 0 and x and y will be zero
 other monitors will be relative to that and may be negative
+
+
+
+
+
+20220821
+
+make blocks line up in block selection...done
+
+make a new mWindow...
+
+th_
+
+tile helper
+mW[9].
+mode == 9
+
+add to file menu mode...
+
+
+buttons...
+
+
+mode:
+
+add single tile
+add rect selection of tiles
+
+add all tiles that match one tile
+add all tiles that match group
+
+
+show marked blocks
+where am I going to declare 100 100
+global...where else??
+int fhl[100][100] = {0};   // array of blocks to mark
+
+
+show marked blocks is working
+
+now what??
+
+action: add/remove
+all
+specific block or rectangular range
+all of one type of block
+all of one type of block group
+
+
+range:
+entire level
+within selection only
+
+all blocks
+connected blocks
+
+change highlight color
+
+where do I add buttons??
+in the draw method
+
+need a variable for mode or something
+// mW[9] - tile helper only
+int th_mode;
+
+
+mode 1 is add blocks
+mode 2 is remove blocks
+
+add del works
+
+now another mode..
+single
+match all
+match connected
+
+global/only in selection
+
+single block / block group
+
+th_add_del
+0 = del
+1 = add
+
+th_match
+0 = single specific tile position
+1 = match all tile with same tile num
+2 = match only connecting tiles with same tile num
+
+th_group
+0 = single tile num
+1 = any in tile group
+
+
+th_sel
+0 = global
+1 = only in selection
+
+
+I want to do some replacement stuff now...
+
+make a button for purple pipes and for wires
+
+
+how do I add default block flags??
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

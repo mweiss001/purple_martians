@@ -117,14 +117,28 @@ void get_hostname(void)
    fclose(fp);
 }
 
+//void process_flash_color(void)
+//{
+//   if (++flash_counter > 16) flash_counter = 1;
+//   if ((flash_counter > 0)  && (flash_counter < 5))  { flash_color = 10; flash_color2 = 15; }
+//   if ((flash_counter > 4)  && (flash_counter < 9))  { flash_color = 14; flash_color2 = 11; }
+//   if ((flash_counter > 8)  && (flash_counter < 13)) { flash_color = 15; flash_color2 = 10; }
+//   if ((flash_counter > 12) && (flash_counter < 17)) { flash_color = 11; flash_color2 = 14; }
+//}
+
+
 void process_flash_color(void)
 {
-   if (++flash_counter > 16) flash_counter = 1;
-   if ((flash_counter > 0)  && (flash_counter < 5)) flash_color = 10;
-   if ((flash_counter > 4)  && (flash_counter < 9)) flash_color = 14;
-   if ((flash_counter > 8)  && (flash_counter < 13)) flash_color = 15;
-   if ((flash_counter > 12) && (flash_counter < 17)) flash_color = 11;
+   if (++flash_counter > 32) flash_counter = 1;
+   if ((flash_counter > 0)  && (flash_counter < 9))   { flash_color = 10; flash_color2 = 15; }
+   if ((flash_counter > 8)  && (flash_counter < 15))  { flash_color = 14; flash_color2 = 11; }
+   if ((flash_counter > 16)  && (flash_counter < 23)) { flash_color = 15; flash_color2 = 10; }
+   if ((flash_counter > 24) && (flash_counter < 33))  { flash_color = 11; flash_color2 = 14; }
 }
+
+
+
+
 
 void make_palette(void)
 {

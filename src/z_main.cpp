@@ -226,6 +226,7 @@ ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 ALLEGRO_DISPLAY *display = NULL;
 ALLEGRO_COLOR palette_color[256];
 int flash_color = 0;
+int flash_color2 = 0;
 int flash_counter = 0;
 ALLEGRO_FONT *font = NULL;
 ALLEGRO_FONT *f1 = NULL;
@@ -348,6 +349,8 @@ char lift_step_type_name[10][10];
 // ---------------- level -------------------------
 // ------------------------------------------------
 int l[100][100];
+int thl[100][100] = {0}; // tile helper
+
 int start_level;
 int play_level;
 int valid_level_loaded;

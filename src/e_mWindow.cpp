@@ -132,6 +132,7 @@ void cm_process_mouse(void)
    if (mW[8].level_editor_mode == 2) zfs_process_mouse();
    if (mW[8].level_editor_mode == 3) ge_process_mouse();
    if (mW[8].level_editor_mode == 4) ovw_process_mouse();
+   if (mW[8].level_editor_mode == 9) th_process_mouse();
 }
 
 void cm_process_keypress(void)
@@ -176,7 +177,6 @@ void cm_redraw_level_editor_background(void)
       draw_enemies();
    }
    else al_set_target_bitmap(level_buffer);
-
 
 
    if (mW[8].level_editor_mode == 1) // edit menu
@@ -299,6 +299,32 @@ void cm_redraw_level_editor_background(void)
       ovw_draw_overlays(mW[7].legend_line);
 
    }
+
+
+   if (mW[8].level_editor_mode == 9) // th
+   {
+      // show marked blocks
+      for (int x=0; x<100; x++)
+         for (int y=0; y<100; y++)
+         {
+            if (thl[x][y])
+            {
+               //int col = 10;
+               int c = flash_color+64;
+               int c2 = flash_color2+64;
+               al_draw_rectangle(x*20+0.5, y*20+0.5, x*20+20, y*20+20,   palette_color[c2], 0);
+               al_draw_line(x*20, y*20, x*20+20, y*20+20,   palette_color[c], 0);
+               al_draw_line(x*20+20, y*20, x*20, y*20+20,   palette_color[c], 0);
+
+
+
+
+
+            }
+         }
+   }
+
+
    if (mW[8].level_editor_mode) get_new_screen_buffer(3, 0, 0);
 }
 
@@ -448,6 +474,7 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
    if (mW[8].level_editor_mode == 2) sprintf(msg, "Mode:Zoom Fullscreen");
    if (mW[8].level_editor_mode == 3) sprintf(msg, "Mode:Group Edit");
    if (mW[8].level_editor_mode == 4) sprintf(msg, "Mode:Object Viewer");
+   if (mW[8].level_editor_mode == 9) sprintf(msg, "Mode:Tile Helper");
 
    if (mdw_buttont(x1, by1, x1+140, bts, 0,0,0,0, 0,-1,15,0, 0,1,0,d, msg))
    {
@@ -456,12 +483,14 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
       strcpy (global_string[5][2],"Mode:Zoom Fullscreen");
       strcpy (global_string[5][3],"Mode:Group Edit");
       strcpy (global_string[5][4],"Mode:Object Viewer");
-      strcpy (global_string[5][5],"end");
+      strcpy (global_string[5][5],"Mode:Tile Helper");
+      strcpy (global_string[5][6],"end");
       int ret = tmenu(5, 1, x1+4, by1-1);
       if (ret == 1) set_windows(1);
       if (ret == 2) set_windows(2);
       if (ret == 3) set_windows(3);
       if (ret == 4) set_windows(4);
+      if (ret == 5) set_windows(9);
    }
 
 
@@ -654,8 +683,6 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int have_focus, in
 
    // title bar background color
    al_draw_filled_rectangle(x1, y1, x2, y1 + 11, palette_color[9+192]);
-
-
 
    int d = 1;
    if (have_focus) d = 0;
@@ -934,6 +961,22 @@ void set_windows(int mode)
       mW[8].index = 8;
       mW[8].layer = 7;
 
+      mW[9].set_pos(100, 300);
+      mW[9].set_size(300, 300);
+      mW[9].set_title("Tile Helper");
+
+      mW[9].th_add_del = 0;
+      mW[9].th_match = 0;
+      mW[9].th_group = 0;
+      mW[9].th_sel = 0;
+
+      mW[9].active = 0;
+      mW[9].resizable = 1;
+      mW[9].index = 9;
+      mW[9].layer = 8;
+
+
+
    }
 
    if (mode == 1) // edit menu
@@ -946,6 +989,7 @@ void set_windows(int mode)
       mW[6].active = 0; // ge controls
       mW[7].active = 0; // viewer
       mW[8].level_editor_mode = 1;
+      mW[9].active = 0; // tile helper
    }
 
    if (mode == 2) // zfs
@@ -961,6 +1005,7 @@ void set_windows(int mode)
       mW[6].active = 0; // ge controls
       mW[7].active = 0; // viewer
       mW[8].level_editor_mode = 2;
+      mW[9].active = 0; // tile helper
    }
    if (mode == 3) // group edit
    {
@@ -975,6 +1020,7 @@ void set_windows(int mode)
       mW[7].active = 0; // viewer
       mW[8].level_editor_mode = 3;
       ge_init_data();
+      mW[9].active = 0; // tile helper
    }
    if (mode == 4) // object viewer
    {
@@ -987,6 +1033,20 @@ void set_windows(int mode)
       mW[6].active = 0; // ge controls
       mW[7].active = 1; // viewer
       mW[8].level_editor_mode = 4;
+      mW[9].active = 0; // tile helper
+   }
+
+   if (mode == 9) // tile helper
+   {
+      mW[1].active = 0; // status
+      mW[2].active = 0; // select
+      mW[3].active = 0; // filter
+      mW[4].active = 0; // zfs
+      mW[5].active = 0; // ge list
+      mW[6].active = 0; // ge controls
+      mW[7].active = 0; // viewer
+      mW[8].level_editor_mode = 9;
+      mW[9].active = 1;
    }
 }
 
@@ -1145,6 +1205,7 @@ void mWindow::process_mouse(void)
       // mouse b2 anywhere on window
       if ((mouse_b2) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
       {
+
          if (index == 3) // filter window
          {
             sprintf(global_string[6][0],"Filters");
@@ -1192,7 +1253,7 @@ void mWindow::process_mouse(void)
               zfs_draw_fsel();
             }
          }
-         if (index == 1) // filter window
+         if (index == 1) // status window
          {
             sprintf(global_string[6][0],"Status Window");
             sprintf(global_string[6][1],"--------------");
@@ -1271,7 +1332,7 @@ void mWindow::draw(int draw_only)
    if ((!hidden) && (index != 8)) al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
 
    // default window
-   if ((index != 1) && (index != 2) && (index != 3) && (index != 4) && (index != 5) && (index != 6) && (index != 7) && (index != 8))
+   if ((index != 1) && (index != 2) && (index != 3) && (index != 4) && (index != 5) && (index != 6) && (index != 7) && (index != 8) && (index != 9))
    {
       // frame window
       al_draw_rectangle(x1, y1, x2, y2, palette_color[color], 1);
@@ -1280,13 +1341,21 @@ void mWindow::draw(int draw_only)
       al_draw_rectangle(x1, y1, x2, y1+11, palette_color[color], 1);
 
       // title
-      al_draw_textf(font, palette_color[color], x1+2, y1+2, 0, title);
+      al_draw_textf(font, palette_color[color], x1+2, y1+2, 0, "title:%s", title);
+
+      al_draw_textf(font, palette_color[color], x1+2, y1+12, 0, "index:%d", index);
 
       al_draw_textf(font, palette_color[color], x1+2, y1+22, 0, "layer:%d", layer);
       al_draw_textf(font, palette_color[color], x1+2, y1+30, 0, "focus:%d", have_focus);
 
-//   al_draw_textf(font, palette_color[color], x1+2, y1+14, 0, "x1:%d x2:%d w:%d", x1, x2, w);
-//   al_draw_textf(font, palette_color[color], x1+2, y1+22, 0, "y1:%d y2:%d h:%d", y1, y2, h);
+
+   al_draw_textf(font, palette_color[color], x1+2, y1+38, 0, "x1:%d x2:%d w:%d", x1, x2, w);
+   al_draw_textf(font, palette_color[color], x1+2, y1+46, 0, "y1:%d y2:%d h:%d", y1, y2, h);
+
+
+      al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
+
+
 
       if (have_focus)
       {
@@ -1333,6 +1402,26 @@ void mWindow::draw(int draw_only)
       if (have_focus) fc = 10;
       al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1); // frame entire window
    }
+
+   if (index == 9) // tile helper
+   {
+      titlex("Tile Helper", 15, 13, x1, x2, y1+1);
+   //   int mow = is_mouse_on_any_window();
+
+      int fc = 13;
+      if (have_focus) fc = 10;
+      al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1); // frame entire window
+
+      th_draw_buttons(x1+1, x2-1, y1+60, have_focus, moving);
+
+
+   }
+
+
+
+
+
+
    if (index == 5) // ge list
    {
       ge_remove_obj_list_filtered_items();
