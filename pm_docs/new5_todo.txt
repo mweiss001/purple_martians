@@ -12,35 +12,10 @@ void set_lift_to_step(int l, int s)
    // if not, then set to previous move step
 does not actually set lift's current step to steps that are not move steps
 
-
-
 bug -- in level editor can't see trigger box edges on left or top if zero
-
 
 bug  -- archwagon in confined space always faces right
 fix code for follow mode
-
-
-
-bug - blocks that are marked by bomb to explode are not the same ones that are actually removed
-does the bomb shift slightly??
-
-it looks like I am trying to make the explosion circle start small and grow
-probably that is where the problem is...no that was good
-the bomb falls slightly with gravity..
-i want to disable gravity, but not the constant motion of the bomb
-done...
-
-
-bug - if a key is exactly in the center of the block range it crashes, probably divide by zero..
-now I can't reproduce....
-
-
-
-actually it was a bonus item with health 100
-
-
-
 
 
 ---------------------------------------------------------
@@ -84,69 +59,6 @@ all blocks of the same tile group within a selection area
 advanced - set selection to only outline
 
 then you can change all the selected blocks based on a pattern or block..
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -9,6 +9,14 @@ void em_set_swbl(void)
       swbl[c][0] = swbl[c][1] = 0;                    // erase
       if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
       {
+         if ((c == 480) || (c == 512) || (c == 576) || (c == 608) || (c == 640)|| (c == 672)|| (c == 704)) // start new line
+         {
+            int off = (16 - (mW[2].swbn % 16));
+            if (off < 16) mW[2].swbn += off;
+         }
+
+
+
          swbl[mW[2].swbn][0] = c | sa[c][0];                // add to list with default flags
          swbl[mW[2].swbn][0] &= ~PM_BTILE_SHOW_SELECT_WIN;  // clear flag
          mW[2].swbn++;
