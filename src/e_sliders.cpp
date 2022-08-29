@@ -610,8 +610,6 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       }
    }
 
-
-
    if (bn == 49) // door type
    {
       if (press)
