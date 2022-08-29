@@ -131,6 +131,10 @@ void global_level()
       al_draw_textf(font, palette_color[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       load_level(le[x], 1);
 
+
+
+      /*
+
       //------------------------------------------------------------------------------------------------------------------
       //--------------check for bad enemy data ---------------------------------------------------------------------------
       //------------------------------------------------------------------------------------------------------------------
@@ -141,6 +145,7 @@ void global_level()
          if (type == 0)  good = 1; // this is a legal value
          if (type == 3)  good = 1;
          if (type == 4)  good = 1;
+         if (type == 5)  good = 1;
          if (type == 6)  good = 1;
          if (type == 7)  good = 1;
          if (type == 8)  good = 1;
@@ -152,7 +157,7 @@ void global_level()
          if (!good)
          {
             Ei[y][0] = 0; // erase
-            printf("Level:%3d - Enemy:%d - bad type%d   <----- will be erased!!!!!\n", le[x], y, type);
+            printf("Level:%3d - Enemy:%d - bad type:%d   <----- will be erased!!!!!\n", le[x], y, type);
          }
             else if (type) // only check the rest if type valid
          {
@@ -270,7 +275,7 @@ void global_level()
       }
 
 
-
+*/
 
 
 
@@ -946,14 +951,36 @@ then semisolid...add to solid
 
   */
 
-  /*
 
 
       // blocks
       for (int y=0; y<100; y++)
          for (int z=0; z<100; z++)
          {
-            blt[l[y][z]]++; // inc block counter
+            int t = l[y][z] & 1023; // get tile only
+
+            blt[t]++; // inc block counter
+
+
+            if ((t > 639) && (t < 660))
+            {
+               printf("Lev:%3d\n" ,le[x]);
+
+            }
+
+
+
+
+
+
+         }
+
+
+
+
+
+            /*
+
 
             if (l[y][z] == 18) l[y][z] |= PM_BTILE_LADDER_MOVE;
             if (l[y][z] == 19) l[y][z] |= PM_BTILE_ROPE_MOVE;
@@ -1519,8 +1546,8 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
    printf("Total count3:%d \n",count3 );
    printf("min:%d max:%d\n", min, max);
 
-   show_block_list();
-   tsw();
+//   show_block_list();
+//   tsw();
 
  //  remove_unused_tiles();
 

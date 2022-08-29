@@ -1,18 +1,6 @@
 // e_tile_helper.cpp
 #include "pm.h"
 
-
-
-
-
-
-
-
-
-
-
-
-
 void th_replace(int type)
 {
    for (int a=0; a<100; a++)
@@ -41,6 +29,22 @@ void th_replace(int type)
             int bb = b+1;
             if (bb < 100) bl_d = thl[a][bb];
 
+            // find block to upper left
+            int bl_ul = 0;
+            if ((la > -1) && (ab > -1)) bl_ul = thl[la][ab];
+
+            // find block to upper right
+            int bl_ur = 0;
+            if ((ra < 100) && (ab > -1)) bl_ur = thl[ra][ab];
+
+            // find block to lower left
+            int bl_dl = 0;
+            if ((la > -1) && (bb < 100)) bl_dl = thl[la][bb];
+
+            // find block to lower right
+            int bl_dr = 0;
+            if ((ra < 100) && (bb < 100)) bl_dr = thl[ra][bb];
+
 
             int t=0;
             int fb = -1; // default shape
@@ -49,7 +53,6 @@ void th_replace(int type)
             if (type == 1) // purple pipes with cross center
             {
                t = 576; // base shape
-
                fb = t+16; // cross center
 
                if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
@@ -74,8 +77,7 @@ void th_replace(int type)
             if (type == 2) // wires with filled cross solid center - works good
             {
                t = 608; // base shape
-               fb = t + 16; // cross center
-
+               fb = t+16; // cross center
 
                if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
                if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
@@ -95,12 +97,15 @@ void th_replace(int type)
                if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 14; // left end line
                if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 15; // upper end line
 
+               if ((bl_ur == 0) && (bl_ul == 0) && (bl_dl == 0) && (bl_dr == 0)) // no diagonals
+                  if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) // no blocks on all u d l r
+                     fb = 626;  // orphan single block
             }
 
             if (type == 3) // grey bricks
             {
                t = 480; // base shape
-               fb = t + 16; // cross center
+               fb = t+16; // cross center
                if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
                if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
                if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 2;  // lower left corner
@@ -118,6 +123,125 @@ void th_replace(int type)
                if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 13; // lower end line
                if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 14; // left end line
                if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 15; // upper end line
+
+
+               if ((bl_ur == 0) && (bl_ul == 0) && (bl_dl == 0) && (bl_dr == 0)) // no diagonals
+                  if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) // no blocks on all u d l r
+                     fb = t+18;  // orphan single block
+            }
+
+            if (type == 5) // brown bricks
+            {
+               t = 448; // base shape
+               fb = t+16; // cross center
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 2;  // lower left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 3;  // lower right corner
+
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = t + 4;  // left vertical tee
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 5;  // right vertical tee
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 6;  // upper horizontal tee
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 7;  // lower horizontal tee
+
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 8;  // vertical through line
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 9;  // horizontal through line
+
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = t + 12; // right end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 13; // lower end line
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 14; // left end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 15; // upper end line
+
+
+               if ((bl_ur == 0) && (bl_ul == 0) && (bl_dl == 0) && (bl_dr == 0)) // no diagonals
+                  if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) // no blocks on all u d l r
+                     fb = t+18;  // orphan single block
+
+            }
+
+
+            if (type == 7) // brown and yellow thatch
+            {
+               t = 416; // base shape
+               fb = t+16; // cross center
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 2;  // lower left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 3;  // lower right corner
+
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = t + 4;  // left vertical tee
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 5;  // right vertical tee
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 6;  // upper horizontal tee
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 7;  // lower horizontal tee
+
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 8;  // vertical through line
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 9;  // horizontal through line
+
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = t + 12; // right end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 13; // lower end line
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 14; // left end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 15; // upper end line
+
+               if ((bl_ur == 0) && (bl_ul == 0) && (bl_dl == 0) && (bl_dr == 0)) // no diagonals
+                  if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) // no blocks on all u d l r
+                     fb = t+18;  // orphan single block
+            }
+
+
+            if (type == 8) // brain
+            {
+               t = 384; // base shape
+               fb = t+16; // cross center
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 2;  // lower left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 3;  // lower right corner
+
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = t + 4;  // left vertical tee
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 5;  // right vertical tee
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 6;  // upper horizontal tee
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 7;  // lower horizontal tee
+
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 8;  // vertical through line
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 9;  // horizontal through line
+
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = t + 12; // right end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 13; // lower end line
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 14; // left end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 15; // upper end line
+
+               if ((bl_ur == 0) && (bl_ul == 0) && (bl_dl == 0) && (bl_dr == 0)) // no diagonals
+                  if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) // no blocks on all u d l r
+                     fb = t+18;  // orphan single block
+            }
+
+            if (type == 6) // open purple pipes - not working
+            {
+               t = 448; // base shape
+               fb = t+16; // cross center
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 2;  // lower left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 3;  // lower right corner
+
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = t + 4;  // left vertical tee
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 5;  // right vertical tee
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 6;  // upper horizontal tee
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 7;  // lower horizontal tee
+
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = t + 8;  // vertical through line
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 9;  // horizontal through line
+
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = t + 12; // right end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 13; // lower end line
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = t + 14; // left end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 15; // upper end line
+
+
+               if ((bl_ur == 0) && (bl_ul == 0) && (bl_dl == 0) && (bl_dr == 0)) // no diagonals
+                  if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) // no blocks on all u d l r
+                     fb = t+18;  // orphan single block
+
             }
 
 
@@ -128,16 +252,94 @@ void th_replace(int type)
 
 
 
+            if (type == 4) // purple pipes with solid color center
+            {
+               t = 512;     // base shape
+               fb = t + 16; // solid center
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = t + 0;  // upper left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = t + 1;  // upper right corner
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = t + 2;  // lower left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = t + 3;  // lower right corner
+
+               // solid interior
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) // blocks on all u d l r
+               {
+                  // single corner notch
+                  if (bl_ul == 0) fb = 524; // empty to ul
+                  if (bl_ur == 0) fb = 525; // empty to ur
+                  if (bl_dl == 0) fb = 526; // empty to dr
+                  if (bl_dr == 0) fb = 527; // empty to dl
+
+                  // double corner notches
+                  if ((bl_ur == 0) && (bl_dr == 0)) fb = 520; // empty to ur and dr
+                  if ((bl_dr == 0) && (bl_dl == 0)) fb = 521; // empty to dr and dl
+                  if ((bl_dl == 0) && (bl_ul == 0)) fb = 522; // empty to dl and ul
+                  if ((bl_ul == 0) && (bl_ur == 0)) fb = 523; // empty to ul and ur
+
+                  // triple corner notches
+                  if ((bl_ur == 0) && (bl_ul == 1) && (bl_dl == 0) && (bl_dr == 0)) fb = 537; // only ul
+                  if ((bl_ur == 1) && (bl_ul == 0) && (bl_dl == 0) && (bl_dr == 0)) fb = 538; // only ur
+                  if ((bl_ur == 0) && (bl_ul == 0) && (bl_dl == 0) && (bl_dr == 1)) fb = 539; // only dr
+                  if ((bl_ur == 0) && (bl_ul == 0) && (bl_dl == 1) && (bl_dr == 0)) fb = 540; // only dl
+
+                  // all corner notches
+                  if ((bl_ur == 0) && (bl_ul == 0) && (bl_dl == 0) && (bl_dr == 0)) fb = 592; // no diagonals
+
+               }
+
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) // solid except for left
+               {
+                  if ((bl_ur == 1) && (bl_dr == 1)) fb = 516; // solid to ur and dr
+                  if ((bl_ur == 0) && (bl_dr == 1)) fb = 529; // open to ur and solid to dr
+                  if ((bl_ur == 1) && (bl_dr == 0)) fb = 530; // solid to ur and open to dr
+                  if ((bl_ur == 0) && (bl_dr == 0)) fb = 584; // open to ur and dr
+               }
+
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) // solid except for right
+               {
+                  if ((bl_ul == 1) && (bl_dl == 1)) fb = 517; // solid to ul and dl
+                  if ((bl_ul == 0) && (bl_dl == 1)) fb = 531; // open to ul and solid to dl
+                  if ((bl_ul == 1) && (bl_dl == 0)) fb = 532; // solid to ul and open to dl
+                  if ((bl_ul == 0) && (bl_dl == 0)) fb = 586; // open to ul and dl
+               }
+
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) // solid except for up
+               {
+                  if ((bl_dl == 1) && (bl_dr == 1)) fb = 518; // solid to dl and dr
+                  if ((bl_dl == 0) && (bl_dr == 1)) fb = 533; // open to dl and solid to dr
+                  if ((bl_dl == 1) && (bl_dr == 0)) fb = 534; // solid to dl and open to dr
+                  if ((bl_dl == 0) && (bl_dr == 0)) fb = 585; // open to dl and dr
+               }
+
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) // solid except for down
+               {
+                  if ((bl_ul == 1) && (bl_ur == 1)) fb = 519; // solid to ul and ur
+                  if ((bl_ul == 0) && (bl_ur == 1)) fb = 535; // open to ul and solid to ur
+                  if ((bl_ul == 1) && (bl_ur == 0)) fb = 536; // solid to ul and open to ur
+                  if ((bl_ul == 0) && (bl_ur == 0)) fb = 587; // open to ul and ur
+               }
+
+               if ((bl_ur == 0) && (bl_ul == 0) && (bl_dl == 0) && (bl_dr == 0)) // no diagonals
+                  if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) // no blocks on all u d l r
+                     fb = 541;  // orphan single block
+
+               // single block line corners
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1) && (bl_dr == 0)) fb = 576;  // upper left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1) && (bl_dl == 0)) fb = 577;  // upper right corner
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0) && (bl_ur == 0)) fb = 578;  // lower left corner
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0) && (bl_ul == 0)) fb = 579;  // lower right corner
 
 
 
 
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 580; // vertical through line
+               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 582; // horizontal through line
 
-
-
-
-
-
+               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = 588; // right end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = 589; // lower end line
+               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 590; // left end line
+               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = 591; // upper end line
+            }
 
             if (fb == -1)
             {
@@ -158,48 +360,6 @@ void th_replace(int type)
 }
 
 
-//               // purple pipes with solid color center - really bad....
-//
-//               int fb = 528;
-//
-//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = 512; // upper left corner
-//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = 513; // upper right corner
-//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = 514; // lower left corner
-//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = 515; // lower right corner
-//
-//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 1) && (bl_d == 1)) fb = 520; // left vertical tee
-//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 522; // right vertical tee
-//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 1)) fb = 521; // upper horizontal tee
-//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 1) && (bl_d == 0)) fb = 523; // lower horizontal tee
-//
-//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 1)) fb = 580; // vertical through line
-//               if ((bl_l == 1) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 582; // horizontal through line
-//
-//               if ((bl_l == 1) && (bl_r == 0) && (bl_u == 0) && (bl_d == 0)) fb = 588; // right end line
-//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 1) && (bl_d == 0)) fb = 589; // lower end line
-//               if ((bl_l == 0) && (bl_r == 1) && (bl_u == 0) && (bl_d == 0)) fb = 590; // left end line
-//               if ((bl_l == 0) && (bl_r == 0) && (bl_u == 0) && (bl_d == 1)) fb = 591; // upper end line
-//
-
-/*
-
-   // purple pipe with solid center
-   fsd[1][0] = 512; // trigger blocks start
-   fsd[1][1] = 528; // trigger block end
-   fsd[1][9] = 528;  // default shape
-   fsd[1][10] = 512; // upper left corner
-   fsd[1][11] = 513; // upper right corner
-   fsd[1][12] = 514; // lower left corner
-   fsd[1][13] = 515; // lower right corner
-   fsd[1][14] = 516; // left vertical through
-   fsd[1][15] = 517; // right vertical through
-   fsd[1][16] = 518; // upper horizontal through
-   fsd[1][17] = 519; // lower horizontal through
-
-*/
-
-
-
 
 
 
@@ -212,16 +372,28 @@ int th_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
    if (moving) d = 1;
    int bts = 16;
 
-   if ((mW[9].th_add_del == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add"))) mW[9].th_add_del = 0;
-   if ((mW[9].th_add_del == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Del"))) mW[9].th_add_del = 1;
+   x4-=20;
 
-   yfb+=bts/2; // spacing between groups
+   mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Modify Tile Selection");
+
+   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Clear Selection"))
+   {
+      for (int a=0; a<100; a++)
+         for (int b=0; b<100; b++) thl[a][b] = 0;
+
+   }
+
+
+   if ((mW[9].th_add_del == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add Tiles to Selection"))) mW[9].th_add_del = 0;
+   if ((mW[9].th_add_del == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Remove Tiles from Selection"))) mW[9].th_add_del = 1;
+
+
+
 
    if      ((mW[9].th_match == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Single"))) mW[9].th_match = 1;
    else if ((mW[9].th_match == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "All"))) mW[9].th_match = 2;
    else if ((mW[9].th_match == 2) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Connecting"))) mW[9].th_match = 0;
 
-   yfb+=bts/2; // spacing between groups
 
    if      ((mW[9].th_group == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Specific Tile"))) mW[9].th_group = 1;
    else if ((mW[9].th_group == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Tile Group"))) mW[9].th_group = 0;
@@ -230,10 +402,15 @@ int th_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
    yfb+=bts/2; // spacing between groups
 
 
-   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Purple Pipes with Cross Center")) th_replace(1);
-   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Wires with Cross Center")) th_replace(2);
-   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Grey Bricks")) th_replace(3);
+   if      (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Purple Pipes with Cross Center")) th_replace(1);
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Purple Pipes with Solid Center")) th_replace(4);
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Wires with Cross Center")) th_replace(2);
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Grey Bricks")) th_replace(3);
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Brown Bricks")) th_replace(5);
+//   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Open Purple Pipes")) th_replace(6);
 
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Brown and Yellow Thatch")) th_replace(7);
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Brain")) th_replace(8);
 
 
 
@@ -261,10 +438,9 @@ int th_compare_tile(int rb, int cb, int group)
       // even though group is selected, if we have an exact match just do it
       if (r == c) return 1;
 
-
       // grey brick with corners
       int sb = 480; // start block
-      int eb = 496; // end block
+      int eb = 498; // end block
       if ((r >= sb) && (r <= eb) && (c >= sb) && (c <= eb)) return 1;
 
       // purple pipe with open center
@@ -274,17 +450,29 @@ int th_compare_tile(int rb, int cb, int group)
 
       // purple pipe with solid center
       sb = 512; // start block
-      eb = 528; // end block
+      eb = 541; // end block
       if ((r >= sb) && (r <= eb) && (c >= sb) && (c <= eb)) return 1;
 
       // wires
-      sb = 605; // start block
-      eb = 624; // end block
+      sb = 608; // start block
+      eb = 626; // end block
       if ((r >= sb) && (r <= eb) && (c >= sb) && (c <= eb)) return 1;
 
       // brown brick with corners
-      sb = 640; // start block
-      eb = 656; // end block
+      sb = 448; // start block
+      eb = 466; // end block
+      if ((r >= sb) && (r <= eb) && (c >= sb) && (c <= eb)) return 1;
+
+      // brown and yellow thatch
+      sb = 416; // start block
+      eb = 434; // end block
+      if ((r >= sb) && (r <= eb) && (c >= sb) && (c <= eb)) return 1;
+
+
+
+      // white brain with blue background
+      sb = 384; // start block
+      eb = 402; // end block
       if ((r >= sb) && (r <= eb) && (c >= sb) && (c <= eb)) return 1;
 
 
@@ -293,14 +481,8 @@ int th_compare_tile(int rb, int cb, int group)
 
 
    }
-
-
    return 0;
 }
-
-
-
-
 
 void th_find_connected(int x, int y, int group)
 {

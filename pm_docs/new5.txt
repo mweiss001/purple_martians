@@ -31408,6 +31408,84 @@ make a button for purple pipes and for wires
 
 how do I add default block flags??
 
+make the esc key work in th just like all other windows
+
+
+make a section header like modify marked tiles
+make a button to clear all
+
+made new brown bricks
+448
+
+remove old brown bricks
+640-656
+10
+23
+33
+116
+322
+370
+375
+done...
+
+erased from tilemap and default flags...done
+
+done in em_set_block_range()
+
+next I need to make open purple pipes work
+
+
+
+make it so that when the tiles are changed the block flags stay the same
+
+make it less confusing what the buttons do
+
+
+header:
+"Modify Which Tiles Are Marked"
+Tiles marked: 0/10,000
+Clear all Marks
+Action: Add Marks/Remove Marks
+Add Specific Tile / Add Tile Group  || Remove Specific Tile / Remove Tile Group
+Add Single / Add Connected / Add All
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
