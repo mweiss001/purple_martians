@@ -372,45 +372,114 @@ int th_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
    if (moving) d = 1;
    int bts = 16;
 
-   x4-=20;
+   int marked_count = 0;
 
-   mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Modify Tile Selection");
+   for (int a=0; a<100; a++)
+      for (int b=0; b<100; b++)
+         if (thl[a][b]) marked_count++;
 
-   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Clear Selection"))
+   int yfb_old = yfb;
+
+
+   x3+=4;
+   x4-=4;
+
+
+
+   sprintf(msg, "Number of Tiles Marked: %d/10,000", marked_count);
+
+   mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,-1,15,0, 1,0,1,d, msg);
+
+
+
+   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Clear All Marks"))
    {
       for (int a=0; a<100; a++)
          for (int b=0; b<100; b++) thl[a][b] = 0;
 
    }
 
-
-   if ((mW[9].th_add_del == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add Tiles to Selection"))) mW[9].th_add_del = 0;
-   if ((mW[9].th_add_del == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Remove Tiles from Selection"))) mW[9].th_add_del = 1;
-
+   if ((mW[9].th_add_del == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Main Action: Add Marks to Tiles"))) mW[9].th_add_del = 0;
+   if ((mW[9].th_add_del == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Main Action: Remove Marks from Tiles"))) mW[9].th_add_del = 1;
 
 
 
-   if      ((mW[9].th_match == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Single"))) mW[9].th_match = 1;
-   else if ((mW[9].th_match == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "All"))) mW[9].th_match = 2;
-   else if ((mW[9].th_match == 2) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Connecting"))) mW[9].th_match = 0;
+   if (mW[9].th_add_del == 1)
+   {
+      if      ((mW[9].th_match == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add Single Tile"))) mW[9].th_match = 1;
+      else if ((mW[9].th_match == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add All Matching Tiles"))) mW[9].th_match = 2;
+      else if ((mW[9].th_match == 2) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Add All Connected Matchig Tiles"))) mW[9].th_match = 0;
+   }
+   else
+   {
+      if      ((mW[9].th_match == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Remove Single Tile"))) mW[9].th_match = 1;
+      else if ((mW[9].th_match == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Remove All Matching Tiles"))) mW[9].th_match = 2;
+      else if ((mW[9].th_match == 2) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Remove All Connected Matchig Tiles"))) mW[9].th_match = 0;
+   }
+
+   if (mW[9].th_match)
+   {
+      if      ((mW[9].th_group == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Tile Filter: Specific Tile"))) mW[9].th_group = 1;
+      else if ((mW[9].th_group == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Tile Filter: Tile Group"))) mW[9].th_group = 0;
+
+   }
 
 
-   if      ((mW[9].th_group == 0) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Specific Tile"))) mW[9].th_group = 1;
-   else if ((mW[9].th_group == 1) && (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Tile Group"))) mW[9].th_group = 0;
 
 
-   yfb+=bts/2; // spacing between groups
+   // draw a rectangle around this group of buttons
+   titlex("Modify Which Tiles Are Marked", 15, 14, x3, x4, yfb_old-16);
+   al_draw_rectangle(x3, yfb_old-16, x4, yfb-1, palette_color[14], 1);
 
 
-   if      (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Purple Pipes with Cross Center")) th_replace(1);
-   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Purple Pipes with Solid Center")) th_replace(4);
-   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Wires with Cross Center")) th_replace(2);
-   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Grey Bricks")) th_replace(3);
-   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Brown Bricks")) th_replace(5);
+   yfb+=bts*2; // spacing between groups
+
+
+   yfb_old = yfb;
+   bts = 24;
+
+   int c = 10;
+
+
+   if      (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,c,15,0, 1,1,1,d, "     Purple Pipes with Cross Center")) th_replace(1);
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,c,15,0, 1,1,1,d, "     Purple Pipes with Solid Center")) th_replace(4);
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,c,15,0, 1,1,1,d, "     Wires with Cross Center")) th_replace(2);
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,c,15,0, 1,1,1,d, "     Grey Bricks")) th_replace(3);
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,c,15,0, 1,1,1,d, "     Brown Bricks")) th_replace(5);
 //   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Open Purple Pipes")) th_replace(6);
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,c,15,0, 1,1,1,d, "     Brown and Yellow Thatch")) th_replace(7);
+   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,c,15,0, 1,1,1,d, "     Brain")) th_replace(8);
 
-   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Brown and Yellow Thatch")) th_replace(7);
-   else if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Brain")) th_replace(8);
+   // draw a rectangle around this group of buttons
+   titlex("Change Marked Tiles", 15, 10, x3, x4, yfb_old-16);
+   al_draw_rectangle(x3, yfb_old-16, x4, yfb-1, palette_color[10], 1);
+
+
+   // draw tiles
+   int x = x3+14;
+   int ti=0;
+
+   for (int y = yfb_old+1; y<yfb; y += bts)
+   {
+      al_draw_filled_rectangle(x-1, y-1, x+21, y+21, palette_color[0]);
+
+      if (ti == 0) al_draw_bitmap(btile[576], x, y, 0);
+      if (ti == 1) al_draw_bitmap(btile[512], x, y, 0);
+      if (ti == 2) al_draw_bitmap(btile[608], x, y, 0);
+      if (ti == 3) al_draw_bitmap(btile[480], x, y, 0);
+      if (ti == 4) al_draw_bitmap(btile[448], x, y, 0);
+      if (ti == 5) al_draw_bitmap(btile[416], x, y, 0);
+      if (ti == 6) al_draw_bitmap(btile[384], x, y, 0);
+
+      ti++;
+   }
+
+
+
+
+
+
+
 
 
 
