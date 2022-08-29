@@ -139,7 +139,7 @@ void cm_process_keypress(void)
 {
    if (mW[8].level_editor_mode == 1) em_process_keypress();
    if (mW[8].level_editor_mode == 4) ovw_process_keypress();
-   if ((mW[8].level_editor_mode == 2) || (mW[8].level_editor_mode == 3)) // zfs or ge
+   if ((mW[8].level_editor_mode == 2) || (mW[8].level_editor_mode == 3) || (mW[8].level_editor_mode == 9)) // zfs, ge or th
    {
       while (key[ALLEGRO_KEY_ESCAPE]) { proc_controllers(); mW[8].active = 0; }
    }

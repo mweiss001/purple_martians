@@ -28,3 +28,64 @@ N set pencil
 then file->overwrite
 
 
+
+changing block tiles
+
+make some new ones in gimp
+
+move tiles around also with copy tiles in pm
+add block flags in pm
+
+make tiles line up on row starts by editing 'em_set_swbl()'
+
+customize automatic group drawing in: 'em_set_block_range()'
+
+
+customize group match ranges in: 'int th_compare_tile(int rb, int cb, int group)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
