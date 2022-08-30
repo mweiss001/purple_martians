@@ -95,10 +95,24 @@ void em_set_block_range(void)
    fsd[f][16] = b+6; // upper horizontal through
    fsd[f][17] = b+7; // lower horizontal through
 
+//   // purple pipe with solid center
+//   b = 512; f++;
+//   fsd[f][0] = b;    // trigger blocks start
+//   fsd[f][1] = b+29; // trigger block end
+//   fsd[f][9] = b+16; // default shape
+//   fsd[f][10] = b+0; // upper left corner
+//   fsd[f][11] = b+1; // upper right corner
+//   fsd[f][12] = b+2; // lower left corner
+//   fsd[f][13] = b+3; // lower right corner
+//   fsd[f][14] = b+4; // left vertical through
+//   fsd[f][15] = b+5; // right vertical through
+//   fsd[f][16] = b+6; // upper horizontal through
+//   fsd[f][17] = b+7; // lower horizontal through
+
    // purple pipe with solid center
    b = 512; f++;
    fsd[f][0] = b;    // trigger blocks start
-   fsd[f][1] = b+29; // trigger block end
+   fsd[f][1] = b+7;  // trigger block end
    fsd[f][9] = b+16; // default shape
    fsd[f][10] = b+0; // upper left corner
    fsd[f][11] = b+1; // upper right corner
@@ -108,6 +122,24 @@ void em_set_block_range(void)
    fsd[f][15] = b+5; // right vertical through
    fsd[f][16] = b+6; // upper horizontal through
    fsd[f][17] = b+7; // lower horizontal through
+
+   // purple pipe with solid center rev
+   b = 520; f++;
+   fsd[f][0] = b;    // trigger blocks start
+   fsd[f][1] = b+20; // trigger block end
+   fsd[f][9] = 0;    // default shape
+   fsd[f][10] = b+7; // upper left corner
+   fsd[f][11] = b+6; // upper right corner
+   fsd[f][12] = b+5; // lower left corner
+   fsd[f][13] = b+4; // lower right corner
+   fsd[f][14] = b-3; // left vertical through
+   fsd[f][15] = b-4; // right vertical through
+   fsd[f][16] = b-1; // upper horizontal through
+   fsd[f][17] = b-2; // lower horizontal through
+
+
+
+
 
    // purple pipe with open center
    b = 576; f++;
