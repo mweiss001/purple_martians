@@ -962,7 +962,7 @@ void set_windows(int mode)
       mW[8].layer = 7;
 
       mW[9].set_pos(100, 300);
-      mW[9].set_size(300, 300);
+      mW[9].set_size(320, 328);
       mW[9].set_title("Tile Helper");
 
       mW[9].th_add_del = 0;
@@ -971,7 +971,6 @@ void set_windows(int mode)
       mW[9].th_sel = 0;
 
       mW[9].active = 0;
-      mW[9].resizable = 1;
       mW[9].index = 9;
       mW[9].layer = 8;
 
@@ -1408,11 +1407,13 @@ void mWindow::draw(int draw_only)
       titlex("Tile Helper", 15, 13, x1, x2, y1+1);
    //   int mow = is_mouse_on_any_window();
 
-      int fc = 13;
-      if (have_focus) fc = 10;
+      int fc = 13+64;
+      if (have_focus) fc = 13;
       al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1); // frame entire window
 
       th_draw_buttons(x1+1, x2-1, y1+60, have_focus, moving);
+
+   //   al_draw_textf(font, palette_color[color], x1+2, y1-38, 0, "w:%d h:%d", w, h);
 
 
    }
