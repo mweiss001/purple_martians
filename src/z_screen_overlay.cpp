@@ -274,23 +274,13 @@ void draw_top_display(void)
    }
    // draw health bar
    draw_percent_bar(tdx+44, tdy, 88, 10, al_fixtoi(players[p].LIFE));
-   al_draw_textf(font, palette_color[14], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", al_fixtoi(players[p].LIFE));
+   al_draw_textf(font, palette_color[16], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", al_fixtoi(players[p].LIFE));
    tdx += 88;
-
-//   // draw free men
-//   for (int a=0; a<players[p].LIVES; a++)
-//      al_draw_scaled_rotated_bitmap(player_tile[players[p].color][1], 10, 10, tdx+8+(a*10), tdy+6, .5, .5, 0, 0);
-
 
    // draw purple coins
    al_draw_scaled_bitmap(tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
    // spin_shape(197, tdx+5, tdy-3, 0, 0, 19, 19, 0.6, 0.5, 60);
    al_draw_textf(font, palette_color[14], tdx+17, tdy+2, 0, ":%d/%d", players[active_local_player].stat_purple_coins, number_of_purple_coins);
-
-
-
-
-
 
 
    if (show_scale_factor > 0)

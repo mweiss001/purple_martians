@@ -609,16 +609,17 @@ void menu_setup(void)
    strcpy (global_string[2][5], "------------------------");
    strcpy (global_string[2][6], "Zoom Full Screen");
    strcpy (global_string[2][7], "Group Edit");
-   strcpy (global_string[2][8], "Show Status Window");
-   strcpy (global_string[2][9], "Show Selection Window");
-   strcpy (global_string[2][10], "------");
-   strcpy (global_string[2][11],"New Level");
-   strcpy (global_string[2][12],"Load Level");
-   strcpy (global_string[2][13],"Save Level");
-   strcpy (global_string[2][14],"Save and Quit");
-   strcpy (global_string[2][15],"Help Screens");
-   strcpy (global_string[2][16],"Quit Level Editor");
-   strcpy (global_string[2][17],"end");
+   strcpy (global_string[2][8], "Tile Helper");
+   strcpy (global_string[2][9], "Show Status Window");
+   strcpy (global_string[2][10], "Show Selection Window");
+   strcpy (global_string[2][11], "------");
+   strcpy (global_string[2][12],"New Level");
+   strcpy (global_string[2][13],"Load Level");
+   strcpy (global_string[2][14],"Save Level");
+   strcpy (global_string[2][15],"Save and Quit");
+   strcpy (global_string[2][16],"Help Screens");
+   strcpy (global_string[2][17],"Quit Level Editor");
+   strcpy (global_string[2][18],"end");
 //
 //#ifndef RELEASE
 //   strcpy (global_string[2][17],"----");

@@ -1303,7 +1303,7 @@ void serial_key_check(int key);
 void set_controls_from_game_move(int p);
 int proc_events(ALLEGRO_EVENT ev, int ret);
 
-void start_level_done(int p);
+void start_level_done(int p, int t1, int t2);
 
 int proc_controllers(void);
 

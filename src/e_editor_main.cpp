@@ -846,9 +846,10 @@ void em_process_mouse(void)
          case 5: break; // menu divider
          case 6: set_windows(2); break;   // zoom full screen
          case 7: set_windows(3); break;   // group edit
-         case 8: mW[1].active = 1; break; // status_window
-         case 9: mW[2].active = 1; break; // select_window
-         case 11: // new level
+         case 8: set_windows(9); break;   // tile helper
+         case 9: mW[1].active = 1; break; // status_window
+         case 10: mW[2].active = 1; break; // select_window
+         case 12: // new level
          if (al_show_native_message_box(display, "New Level", "Clicking OK will create a new blank level", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
          {
             zero_level_data();
@@ -856,15 +857,19 @@ void em_process_mouse(void)
          }
          load_level(last_level_loaded, 0); // blind load
          break;
-         case 12: // load level
+         case 13: // load level
             load_level_prompt();
             sort_enemy();
             sort_item(1);
          break;
-         case 13: save_level_prompt(); break; // save level
-         case 14: if (save_level_prompt()) mW[8].active = 0; break; // save and exit
-         case 15: help("Level Editor Basics"); break;// help
-         case 16: mW[8].active = 0; break; // exit
+         case 14: save_level_prompt(); break; // save level
+         case 15: if (save_level_prompt()) mW[8].active = 0; break; // save and exit
+         case 16: help("Level Editor Basics"); break;// help
+         case 17: mW[8].active = 0; break; // exit
+
+
+
+/*
 
 
          case 18: predefined_enemies(); break;
@@ -874,7 +879,7 @@ void em_process_mouse(void)
          case 22: copy_tiles(); break;
          case 23: edit_btile_attributes(); break;
 
-
+*/
 
       } // end of switch case
    } // end of mouse_b2

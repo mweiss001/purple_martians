@@ -802,7 +802,8 @@ void server_local_control(int p)
 {
    int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
    set_comp_move_from_player_key_check(p);
-   if (level_done_mode == 8) start_level_done(p);
+   if (level_done_mode == 8) start_level_done(p, 80, 800);
+   if (level_done_mode == 9) start_level_done(p, 10, 40);
    if ((level_done_mode == 0) || (level_done_mode == 5))  // only allow player input in these modes
    {
       if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
