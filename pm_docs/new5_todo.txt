@@ -2,6 +2,14 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+
+bug - sometimes tiles are not drawn with proper masking, like player
+restarting fixes it...
+make sure that all bitmaps are properly cleared before use....
+
+
+
+
 bug---can't see any prox line in level editor for prox lift step
 it shows up fine in game
 in level editor the function:
@@ -18,9 +26,26 @@ bug  -- archwagon in confined space always faces right
 fix code for follow mode
 
 
+
+
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+make end pieces for chains and maybe vines and ladders and ropes
+
+
+
+
+
+
+
+
+
 
 
 make block selection window line up with different set of blocks

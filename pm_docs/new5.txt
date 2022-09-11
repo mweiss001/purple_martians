@@ -31449,6 +31449,77 @@ Action: Add Marks/Remove Marks
 Add Specific Tile / Add Tile Group  || Remove Specific Tile / Remove Tile Group
 Add Single / Add Connected / Add All
 
+this looks a lot better now..
+
+
+
+
+
+
+20200910
+
+make a hub level with warps to various things
+
+made warp faster
+without fucking up level_done..
+
+add level_done_mode 9 for warp
+
+void proc_warp_collision(int p, int i)
+{
+   if (level_done_mode == 0)
+   {
+      players[p].paused = 5;
+      level_done_mode = 9;
+      next_level = item[i][8];
+      game_event(4, 0, 0, p, i, 0, 0);
+   }
+}
+
+void start_level_done(int p, int t1, int t2)
+{
+   level_done_mode = 7;
+   int fn = frame_num + control_lead_frames;
+   add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
+
+   add_game_move(fn+t1,  6, 0, 2); // insert level done 2 into game move
+   add_game_move(fn+t2, 7, 0, 0); // insert next level into game move
+   players1[p].old_comp_move = players1[p].comp_move = 0; // reset both
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) players1[p].quit_reason = 80;
+}
+
+void server_local_control(int p)
+{
+   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+   set_comp_move_from_player_key_check(p);
+   if (level_done_mode == 8) start_level_done(p, 80, 800);
+   if (level_done_mode == 9) start_level_done(p, 10, 40);
+
+
+void proc_player_input(int ret)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) // cycle all active players
+      {
+         if (players[p].control_method == 0) // local single player control
+         {
+            if (level_done_mode == 8) start_level_done(p, 80, 800);
+            if (level_done_mode == 9) start_level_done(p, 1, 2);
+
+
+
+made it so that pmsg will stay forever if time is set to -1
+
+
+bug...triggers, bd and bm are item, but are not destryoed with bd set to kill items
+top kill them item[][14] is set to 10, but these three items have custom uses for that varaiable
+kill them outright...
+
+
+
+
 
 
 

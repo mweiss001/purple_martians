@@ -1040,19 +1040,21 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
    return ret;
 }
 
-void start_level_done(int p)
+void start_level_done(int p, int t1, int t2)
 {
    level_done_mode = 7;
    int fn = frame_num + control_lead_frames;
    add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
-   add_game_move(fn+80,  6, 0, 2); // insert level done 2 into game move
-   add_game_move(fn+800, 7, 0, 0); // insert next level into game move
+   add_game_move(fn+t1,  6, 0, 2); // insert level done 2 into game move
+   add_game_move(fn+t2,  7, 0, 0); // insert next level into game move
    players1[p].old_comp_move = players1[p].comp_move = 0; // reset both
 
    for (int p=0; p<NUM_PLAYERS; p++)
       if (players[p].active) players1[p].quit_reason = 80;
-
 }
+
+
+
 
 void proc_player_input(int ret)
 {
@@ -1061,7 +1063,9 @@ void proc_player_input(int ret)
       {
          if (players[p].control_method == 0) // local single player control
          {
-            if (level_done_mode == 8) start_level_done(p);
+            if (level_done_mode == 8) start_level_done(p, 80, 800);
+            if (level_done_mode == 9) start_level_done(p, 1, 2);
+
             if ((level_done_mode == 0) || (level_done_mode == 5)) // only allow player input in these modes
             {
                set_comp_move_from_player_key_check(p); // but don't set controls !!!

@@ -761,7 +761,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, item[n][3]); // stat | fall | carry
             ya+=4; // spacer
             if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,14,15, 0,  1,0,1,d, "Set Message Position"))  getxy("Message Position", 95, 10, n);
-            mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][7], 400, 1, 1,  "Message display time:");
+            mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][7], 400, -1, 1,  "Message display time:");
             mdw_colsel(     xa, ya, xb, bts, 2,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // frame color select
             mdw_colsel(     xa, ya, xb, bts, 3,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // text color select
             if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,15,13, 0,  1,0,1,d, "Edit Message")) edit_pmsg_text(n, 0);

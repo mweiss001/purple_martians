@@ -605,7 +605,7 @@ void draw_item(int i, int custom, int cx, int cy)
    if (shape > 999) shape = zz[0][shape-1000];   // ans
    int drawn = 0;
 
-   if ((type == 10) && (item[i][6] > 0)) // pop up message
+   if ((type == 10) && (item[i][6])) // pop up message
    {
       item[i][6]--;
       draw_pop_message(i);
@@ -721,7 +721,10 @@ void draw_items(void)
 {
    al_set_target_bitmap(level_buffer);
    for (int i=0; i<500; i++)
-      if (item[i][0]) draw_item(i, 0, 0, 0);
+      if ((item[i][0]) && (item[i][0] != 10)) draw_item(i, 0, 0, 0);
+
+   for (int i=0; i<500; i++) // draw msg last so they are on top...
+      if (item[i][0] == 10) draw_item(i, 0, 0, 0);
 }
 
 
@@ -1674,7 +1677,7 @@ void proc_warp_collision(int p, int i)
    if (level_done_mode == 0)
    {
       players[p].paused = 5;
-      level_done_mode = 8;
+      level_done_mode = 9;
       next_level = item[i][8];
       game_event(4, 0, 0, p, i, 0, 0);
    }
@@ -2283,6 +2286,10 @@ void proc_item_damage_collisions(int i)
             al_fixed y = itemf[i][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
+               if ((item[i][0] == 9) || (item[i][0] == 15) || (item[i][0] == 16)) item[i][0] = 0; // kill these immed, do not make bonus
+
+
+
                if (item[i][0] != 66)
                {
                   //item[i][0] = 66;

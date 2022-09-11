@@ -368,14 +368,14 @@ void th_replace(int type)
             }
             if (fb == 0)
             {
-               set_block_with_flag_filters(a, b, fb);
+               l[a][b] = 0;
             }
 
             if (fb > 0)
             {
-               //set_block_with_flag_filters(a, b, fb | sa[fb][0]);
-               set_block_with_flag_filters(a, b, fb | l[fb][0]); // preserve existing block flags
-
+               // change only tile portion (lower 10 bits)
+               l[a][b] &= 0b11111111111111110000000000000000; // clear lower bits
+               l[a][b] |= fb; // merge tile number
             }
          }
    init_level_background();
@@ -455,13 +455,14 @@ int th_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
 
 int th_compare_tile(int rb, int cb, int group)
 {
-   if (group == 0) if (rb == cb) return 1;
+   // remove flags for comparison
+   int r = rb & 1023;
+   int c = cb & 1023;
+
+   if (group == 0) if (r == c) return 1;
 
    if (group == 1)
    {
-      // remove flags for comparison
-      int r = rb & 1023;
-      int c = cb & 1023;
 
       // even though group is selected, if we have an exact match just do it
       if (r == c) return 1;
