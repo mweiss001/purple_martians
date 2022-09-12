@@ -605,10 +605,24 @@ void draw_item(int i, int custom, int cx, int cy)
    if (shape > 999) shape = zz[0][shape-1000];   // ans
    int drawn = 0;
 
-   if ((type == 10) && (item[i][6])) // pop up message
+   if (type == 10) // pop up message
    {
-      item[i][6]--;
-      draw_pop_message(i);
+      // if psmg is always on (item[i][7] < 0)
+      // force 6 to be that also so it will show before being touched the first time
+      // i don't know why doing that while level editor running make the object viewer button not show
+      if ((!level_editor_running) && (item[i][7] < 0))
+      {
+         item[i][6] = item[i][7];
+         drawn = 1; // don't draw actual msg if always on
+
+      }
+
+
+      if (item[i][6])
+      {
+         item[i][6]--;
+         draw_pop_message(i);
+      }
    }
 
    if (type == 1)  { draw_door(i, x, y, custom);         drawn = 1; }
@@ -2286,11 +2300,11 @@ void proc_item_damage_collisions(int i)
             al_fixed y = itemf[i][1];
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2))
             {
-               if ((item[i][0] == 9) || (item[i][0] == 15) || (item[i][0] == 16)) item[i][0] = 0; // kill these immed, do not make bonus
+               // orb, trig, bm, bd -- kill these immed
+               if ((item[i][0] == 6) || (item[i][0] == 9) || (item[i][0] == 16) || (item[i][0] == 17)) item[i][0] = 0;
 
+               if ((item[i][0] != 66) && (item[i][0] != 5)) // never kill start
 
-
-               if (item[i][0] != 66)
                {
                   //item[i][0] = 66;
                   item[i][14] = 10;
@@ -2494,13 +2508,18 @@ list of items
 [3]  - exit
 [4]  - key
 [5]  - start
+[6]  - orb
 [7]  - mine
 [8]  - bomb
+[9]  - trigger
 [10] - pop-up msg
 [11] - rocket
 [12] - warp
 [14] - switch
 [15] - sproingy
+[16] - block manip
+[17] - block damage
+
 [98] - lit rocket
 [99] - lit bomb
 

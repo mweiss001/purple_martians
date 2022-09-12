@@ -56,16 +56,17 @@ void create_bitmaps(void)
    M_dtilemap = al_create_bitmap(160,640);
 
    al_set_target_bitmap(M_tilemap);
-   al_clear_to_color(al_map_rgb(0,0,0));
+//   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
 
    al_set_target_bitmap(M_btilemap);
-   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
 
    al_set_target_bitmap(M_ptilemap);
-   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
 
    al_set_target_bitmap(M_dtilemap);
-   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
 
 
 //   printf("M_tilemap\n");
@@ -80,16 +81,16 @@ void create_bitmaps(void)
    dtilemap = al_create_bitmap(160,640);
 
    al_set_target_bitmap(tilemap);
-   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
 
    al_set_target_bitmap(btilemap);
-   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
 
    al_set_target_bitmap(ptilemap);
-   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
 
    al_set_target_bitmap(dtilemap);
-   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
 
 
 //   printf("tilemap\n");
@@ -104,12 +105,11 @@ void create_bitmaps(void)
    level_background = al_create_bitmap(2000,2000);
    level_buffer = al_create_bitmap(2000,2000);
 
-
    al_set_target_bitmap(level_background);
-   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
 
    al_set_target_bitmap(level_buffer);
-   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
 
 //   printf("level_background\n");
 //   show_pixel_format(al_get_bitmap_format(level_background));
@@ -124,8 +124,7 @@ void create_bitmaps(void)
    {
       bmsg_bmp[x] = al_create_bitmap(800, 20);
       al_set_target_bitmap(bmsg_bmp[x]);
-      al_clear_to_color(al_map_rgb(0,0,0));
-
+      al_clear_to_color(al_map_rgba(0,0,0,0));
       bmsg_bmp2[x] = bmsg_bmp[x];
    }
 }

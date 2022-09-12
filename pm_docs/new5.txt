@@ -31311,6 +31311,42 @@ other monitors will be relative to that and may be negative
 
 make blocks line up in block selection...done
 
+
+
+make a smart floodfill
+
+set region like zfs
+
+set source and or destination to be a group of blocks
+
+automatically do the corners and edges
+
+
+
+to do this with outline only I need a different approach...
+
+do nothing for bound blocks
+
+how about the first pass that only sets non bound blocks with h and v thrus
+
+then a second pass that only connects those
+
+
+
+
+I want to make a whole new editor screen...block manip...
+
+It will have a selection that is show on the level using ft[100][100]
+
+you will be able to add to the selection
+single blocks by clicking on them
+block range by drawing
+all blocks of the same tile within a selection area
+all blocks of the same tile group within a selection area
+advanced - set selection to only outline
+
+then you can change all the selected blocks based on a pattern or block..
+
 make a new mWindow...
 
 th_
@@ -31456,6 +31492,16 @@ this looks a lot better now..
 
 
 
+
+
+
+
+
+
+
+
+
+
 20200910
 
 make a hub level with warps to various things
@@ -31512,12 +31558,29 @@ void proc_player_input(int ret)
 
 made it so that pmsg will stay forever if time is set to -1
 
+made block selection window line up with different set of blocks
 
 bug...triggers, bd and bm are item, but are not destryoed with bd set to kill items
 top kill them item[][14] is set to 10, but these three items have custom uses for that varaiable
-kill them outright...
+kill them outright...9 16 17 orb?
 
 
+bug - sometimes tiles are not drawn with proper masking, like player
+they don't have transparent alpha channel for black background
+restarting fixes it...
+make sure that all bitmaps are properly cleared before use....
+changed a bunch of
+//   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+
+
+bug - when starts are erased with BD bad stuff happens
+how about we never erase starts with bd...done
+
+
+fixed code for archwagon follow mode
+now has hystersis to prevent oscilation
+now does not oscillate when blocked by right wall
 
 
 
