@@ -360,7 +360,6 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
    int type=0;
    if (obt == 2) type = item[n][0];
    if (obt == 3) type = Ei[n][0];
-
    int d = 1;
    if (have_focus) d = 0;
    if (moving) d = 1;

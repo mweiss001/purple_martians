@@ -1751,13 +1751,10 @@ Efi[][6]  x speed
 */
 
 
-
-
 void walker_archwagon_common(int e)
 {
    int EXint = al_fixtoi(Efi[e][0]);
    int EYint = al_fixtoi(Efi[e][1]);
-
 
    int on_solid = 0;
    int on_lift = 0;
@@ -1767,57 +1764,76 @@ void walker_archwagon_common(int e)
 
 
 
-   if (Ei[e][2] == 1)  // move right
+   // check if stuck
+   int EXintR = al_fixtoi(Efi[e][0]+Efi[e][6]);
+   int EXintL = al_fixtoi(Efi[e][0]-Efi[e][6]);
+
+
+   if ((is_left_solid(EXintL, EYint, 1, 2)) && (is_right_solid(EXintR, EYint, 1, 2))) // stuck
    {
-      int change_dir = 0;
-      Efi[e][2] = Efi[e][6];
-      Efi[e][0] += Efi[e][2];
-      EXint= al_fixtoi(Efi[e][0]);
-      if ((on_solid) || (on_lift))
-      {
-         if (Ei[e][10]) // turn before hole
-           if (!is_right_solid(EXint+Ei[e][10]-10, EYint+20, 1, 2)) change_dir = 1;
-         if (Ei[e][12]) // jump before wall
-           if (is_right_solid(EXint+Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
-         if (Ei[e][11]) // jump before hole
-            if (!is_right_solid(EXint+Ei[e][11]-18, EYint+20, 1, 2)) Ei[e][5] = -160;
-      }
-      if ((is_right_solid(EXint, EYint, 1, 2)) || (change_dir))
-      {
-         Ei[e][2] = 0; // change direction;
-         Efi[e][0] -= Efi[e][2]; // take back last move
-         EXint= al_fixtoi(Efi[e][0]);
-      }
+      int p = find_closest_player(e);
+      if (EXint < al_fixtoi(players[p].PX)-5) Ei[e][2] = 1;
+      if (EXint > al_fixtoi(players[p].PX)+5) Ei[e][2] = 0;
    }
-   if (Ei[e][2] == 0)  // move left
+   else
    {
-      int change_dir = 0;
-      Efi[e][2] = -Efi[e][6];
-      Efi[e][0] += Efi[e][2];
-      EXint= al_fixtoi(Efi[e][0]);
-      if ((on_solid) || (on_lift))
+
+
+
+
+      if (Ei[e][2] == 1)  // move right
       {
-         if (Ei[e][10]) // turn before hole
-           if (!is_left_solid(EXint-Ei[e][10]+10, EYint+20, 1, 2)) change_dir = 1;
-         if (Ei[e][12]) // jump before wall
-            if (is_left_solid(EXint-Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
-         if (Ei[e][11]) // jump before hole
-            if (!is_left_solid(EXint-Ei[e][11]+18, EYint+20, 1, 2)) Ei[e][5] = -160;
-      }
-      if ((is_left_solid(EXint, EYint, 1, 2)) || (change_dir))
-      {
-         Efi[e][0] -= Efi[e][2]; // take back last move
-         Ei[e][2] = 1; // change direction;
+         int change_dir = 0;
+         Efi[e][2] = Efi[e][6];
+         Efi[e][0] += Efi[e][2];
          EXint= al_fixtoi(Efi[e][0]);
+         if ((on_solid) || (on_lift))
+         {
+            if (Ei[e][10]) // turn before hole
+              if (!is_right_solid(EXint+Ei[e][10]-10, EYint+20, 1, 2)) change_dir = 1;
+            if (Ei[e][12]) // jump before wall
+              if (is_right_solid(EXint+Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
+            if (Ei[e][11]) // jump before hole
+               if (!is_right_solid(EXint+Ei[e][11]-18, EYint+20, 1, 2)) Ei[e][5] = -160;
+         }
+         if ((is_right_solid(EXint, EYint, 1, 2)) || (change_dir))
+         {
+            Ei[e][2] = 0; // change direction;
+            Efi[e][0] -= Efi[e][2]; // take back last move
+            EXint= al_fixtoi(Efi[e][0]);
+         }
+      }
+      else if (Ei[e][2] == 0)  // move left
+      {
+         int change_dir = 0;
+         Efi[e][2] = -Efi[e][6];
+         Efi[e][0] += Efi[e][2];
+         EXint= al_fixtoi(Efi[e][0]);
+         if ((on_solid) || (on_lift))
+         {
+            if (Ei[e][10]) // turn before hole
+              if (!is_left_solid(EXint-Ei[e][10]+10, EYint+20, 1, 2)) change_dir = 1;
+            if (Ei[e][12]) // jump before wall
+               if (is_left_solid(EXint-Ei[e][12], EYint, 1, 2)) Ei[e][5] = -160;
+            if (Ei[e][11]) // jump before hole
+               if (!is_left_solid(EXint-Ei[e][11]+18, EYint+20, 1, 2)) Ei[e][5] = -160;
+         }
+         if ((is_left_solid(EXint, EYint, 1, 2)) || (change_dir))
+         {
+            Efi[e][0] -= Efi[e][2]; // take back last move
+            Ei[e][2] = 1; // change direction;
+            EXint= al_fixtoi(Efi[e][0]);
+         }
+      }
+
+      if (!Ei[e][8]) // follow mode
+      {
+         int p = find_closest_player(e);
+         if (EXint < al_fixtoi(players[p].PX)-5) Ei[e][2] = 1;
+         if (EXint > al_fixtoi(players[p].PX)+5) Ei[e][2] = 0;
       }
    }
 
-   if (!Ei[e][8]) // follow mode
-   {
-      int p = find_closest_player(e);
-      if (EXint < al_fixtoi(players[p].PX)) Ei[e][2] = 1;
-      if (EXint > al_fixtoi(players[p].PX)) Ei[e][2] = 0;
-   }
 
    if ((on_solid) && (Ei[e][5] >= 0)) // solid and not jumping (falling or steady)
    {
