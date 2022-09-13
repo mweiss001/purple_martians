@@ -31585,6 +31585,148 @@ now does not oscillate when blocked by right wall
 
 
 
+make podzilla have the opion to only be killed while extended
+or only when at rest, or both
+with bombs always??
+
+I wish podzillas used splines to move
+splines need 4 points, but I already have 2, the start and end
+not really, I have start and xinc, yinc
+
+6 fixed (5 to 10)
+7 ints (15-21)
+
+start is already 4,5 so i only need 6 more
+
+I should make a brand new enemy for now
+
+variable to control how long it take to get there in frames
+
+then calculate all the points (one per frame)
+
+then draw where we are in the array...
+
+new enemy VinePod type 13
+basic PDE
+
+basic move and get killed functions
+
+to do editor, set extended and contol points
+
+
+what variables??
+
+what order are spline points? start cp1 cp2 end
+
+it would be nice to have them all in order:
+45 start
+67 cp1
+89 cp2
+1011 end
+
+trigger is 11 12 13 14
+
+lets do:
+4 5 start
+15 16 cp1
+17 18 cp2
+19 20 end
+
+then I do not have to move trigger or other stuff
+
+wait a minute!  enemies do not use 4 and 5 for initial position
+i could use 3 to 10 for my 8 variables
+
+3 is used for enemy deathcount but until then I plan to use it
+
+3,4 initial postion
+5,6 cp1
+7,8 cp2
+9,10 extended position
+11,12,13,14 trigger box
+
+then I have seven ints (15, 16, 17, 18, 19, 20, 21) for other stuff
+
+somehow I need to enforce that 3,4 are the same as fixed 0,1
+
+show exended pos..done
+next make a way to change...
+
+then do the saem for cp1 and cp2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

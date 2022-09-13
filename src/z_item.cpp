@@ -631,6 +631,10 @@ void draw_item(int i, int custom, int cx, int cy)
    if (type == 16) { draw_block_manip(i, x, y);          drawn = 1; }
    if (type == 17) { draw_block_damage(i, x, y, custom); drawn = 1; }
 
+
+
+
+
    if ((type == 8) && (item[i][11]) ) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
 
    if (type == 99)

@@ -353,6 +353,7 @@ void move_enemies()
             case 9:  enemy_cloner(e);  break;
             case 11: enemy_block_walker(e);  break;
             case 12: enemy_flapper(e);  break;
+            case 13: enemy_vinepod(e);  break;
             case 99: enemy_deathcount(e); break;
          }
       }
@@ -432,7 +433,7 @@ void enemy_killed(int e)
 
    // almost all do this but not enough to do by default
    int a = Ei[e][0];
-   if (a==3 || a==4 || a==5 || a==6 || a==7 || a==8 || a==9 || a==12)
+   if (a==3 || a==4 || a==5 || a==6 || a==7 || a==8 || a==9 || a==12 || a==13)
    {
       Efi[e][4] = al_itofix(0);  // cant hurt anymore
       Ei[e][25]*=hb; // health bonus
@@ -495,7 +496,7 @@ void enemy_killed(int e)
          zz[2][na] = frame_num; // set counter
          zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
-      case 7:
+      case 7: case 13: // podzilla, vinepod
          na = Ei[e][3] = 45;  // new ans
          dl = Ei[e][30] = 40; // death_loop_wait; set delay
          Ei[e][24] = 932+(hb-1)*32; // shape
@@ -562,7 +563,7 @@ void enemy_killed(int e)
    } // end of switch
 
    // almost all do this but not enough to do by default
-   if (a==3 || a==4 || a==5 || a==6 || a==7 || a==8 || a==9 || a==10 || a==12 )
+   if (a==3 || a==4 || a==5 || a==6 || a==7 || a==8 || a==9 || a==10 || a==12 || a==13)
    {
       if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
       if (ht == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
@@ -1397,8 +1398,13 @@ void enemy_podzilla(int e)
 {
    if (Ei[e][31]) // podzilla hit
    {
-      enemy_killed(e);
-      return;
+      if (Ei[e][5] == 2)  // mode 2; wait then shoot
+      {
+         enemy_killed(e);
+         return;
+      }
+      else Ei[e][31] = 0;
+
    }
    enemy_player_hit_proc(e);
 
@@ -1435,6 +1441,7 @@ void enemy_podzilla(int e)
    }
    if (Ei[e][5] == 2)  // mode 2; wait then shoot
    {
+
       if (--Ei[e][8] <= 0)
       {
          int p = find_closest_player(e);
@@ -2190,12 +2197,18 @@ void enemy_jumpworm(int e)
 }
 
 
+void enemy_vinepod(int e)
+{
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
 
-
-
-
-
-
+   if (Ei[e][31]) // hit
+   {
+      enemy_killed(e);
+      return; // break;  to stop rest of execution
+   }
+   enemy_player_hit_proc(e);
+}
 
 /*
 
@@ -2299,7 +2312,11 @@ Ei[][31] = flag that this enemy got shot with bullet
 
 Efi[][0] =  x
 Efi[][1] =  y
+Efi[][2] =  xinc
+Efi[][3] =  yinc
 Efi[][4] =  LIFE decrement
+
+
 Efi[][11] = scale multiplier
 Efi[][12] = scale;
 Efi[][13] = rot inc
@@ -2311,12 +2328,15 @@ Efi[][14] = rot
 ----------------------------------
 3  - Archwagon
 4  - Bouncer
+5  - Jumpworm
 6  - Cannon
 7  - Podzilla
 8  - Trakbot
 9  - Cloner
 11 - Block Walker
 12 - Flapper
+13 - Spline Podzilla
+
 
 similar types
 3 - Archwagon

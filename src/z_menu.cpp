@@ -573,6 +573,7 @@ void menu_setup(void)
    strcpy (enemy_name[10], "undef");
    strcpy (enemy_name[11], "Block Walker");
    strcpy (enemy_name[12], "Flapper");
+   strcpy (enemy_name[13], "VinePod");
 
    enemy_tile[3]  = 496;
    enemy_tile[4]  = 508;

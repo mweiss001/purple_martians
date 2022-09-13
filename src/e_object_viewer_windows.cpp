@@ -140,11 +140,11 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
    int yt = y1+14;
 
    // legend line text
-   char lmsg[5][80];
-   for (int x=0; x<5; x++) sprintf(lmsg[x],"%s","");
+   char lmsg[6][80];
+   for (int x=0; x<6; x++) sprintf(lmsg[x],"%s","");
 
    // legend line colors
-   int legend_color[5];
+   int legend_color[6];
 
    // default number of legend lines and colors
    mW[7].num_legend_lines = 3;
@@ -153,6 +153,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
    legend_color[2] = 14;  // yellow
    legend_color[3] = 10;  // red
    legend_color[4] = 0;   // unused
+   legend_color[5] = 0;   // unused
 
    legend_highlight == 1 ? legend_color[1] = flash_color : legend_color[1] = 13;
 
@@ -235,6 +236,22 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
             legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 10;
          break;
+
+         case 13: // vinepod
+            mW[7].num_legend_lines = 6;
+            sprintf(lmsg[1],"Vinepod Location");
+            sprintf(lmsg[2],"Extended Position");
+            sprintf(lmsg[3],"Control Point 1");
+            sprintf(lmsg[4],"Control Point 2");
+            sprintf(lmsg[5],"Trigger Box");
+            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
+            legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 12;
+            legend_highlight == 4 ? legend_color[4] = flash_color : legend_color[4] = 12;
+            legend_highlight == 5 ? legend_color[5] = flash_color : legend_color[5] = 14;
+         break;
+
+
+
       }
    }
    if (obt == 2)  // items
@@ -646,6 +663,20 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Efi[n][4], 10, 0, 0.1,   "Health Decrement:");
             mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
          break;
+
+         case 13: // vinepod
+            ya+=4; // spacer
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Efi[n][7], 20, 0.8, 0.1, "Bullet Speed:");
+            ya+=4; // spacer
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) get_block_range("Trigger Box", &Ei[n][11], &Ei[n][12], &Ei[n][13], &Ei[n][14], 2);
+            ya+=4; // spacer
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Efi[n][4], 10, 0, 0.1,   "Health Decrement:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][25], 50, 0, 1,     "Health Bonus:");
+         break;
+
+
+
       }
    }
 
@@ -976,6 +1007,32 @@ void ovw_draw_overlays(int legend_highlight)
          int ty2 = Ei[num][12]+Ei[num][14] + 20;
          al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color], 1);
       }
+
+      if (type == 13) // vinepod
+      {
+         // extended position
+         int color1 = 10;
+         if (legend_highlight == 2) color1 = flash_color;
+
+         int px = Ei[num][9];
+         int py = Ei[num][10];
+         crosshairs_full(px+10, py+10, color1, 1);
+
+         // draw tile at extended pos
+         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
+
+         // trigger box
+         int color = 14;
+         if (legend_highlight == 5) color = flash_color;
+         int tx1 = Ei[num][11];
+         int ty1 = Ei[num][12];
+         int tx2 = Ei[num][11]+Ei[num][13] + 20;
+         int ty2 = Ei[num][12]+Ei[num][14] + 20;
+         al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color], 1);
+      }
+
+
       if (type == 9) // cloner
       {
          int color2 = 11;

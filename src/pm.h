@@ -1326,6 +1326,8 @@ void enemy_bouncer(int e);
 void walker_archwagon_common(int e);
 
 void enemy_jumpworm(int e);
+void enemy_vinepod(int e);
+
 void enemy_archwagon(int e);
 void enemy_deathcount(int e);
 void move_enemies(void);
