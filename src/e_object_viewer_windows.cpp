@@ -245,8 +245,8 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
             sprintf(lmsg[4],"Control Point 2");
             sprintf(lmsg[5],"Trigger Box");
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
-            legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 12;
-            legend_highlight == 4 ? legend_color[4] = flash_color : legend_color[4] = 12;
+            legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 6;
+            legend_highlight == 4 ? legend_color[4] = flash_color : legend_color[4] = 7;
             legend_highlight == 5 ? legend_color[5] = flash_color : legend_color[5] = 14;
          break;
 
@@ -666,8 +666,14 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
 
          case 13: // vinepod
             ya+=4; // spacer
+
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][17], 400, 10, 10,  "Counter:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][19], 40, 0, 1,      "Pause:");
             mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Efi[n][7], 20, 0.8, 0.1, "Bullet Speed:");
             ya+=4; // spacer
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Move Extended Position")) getxy("Vinepod Extended Position", 90, 13, n);
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 6,15, 0,  1,0,1,d, "Move cp1")) getxy("Vinepod cp1", 91, 13, n);
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 7,15, 0,  1,0,1,d, "Move cp2")) getxy("Vinepod cp2", 92, 13, n);
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) get_block_range("Trigger Box", &Ei[n][11], &Ei[n][12], &Ei[n][13], &Ei[n][14], 2);
             ya+=4; // spacer
             mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
@@ -1010,17 +1016,67 @@ void ovw_draw_overlays(int legend_highlight)
 
       if (type == 13) // vinepod
       {
-         // extended position
-         int color1 = 10;
-         if (legend_highlight == 2) color1 = flash_color;
+         // enforce that 34 is 01
+         Ei[num][3] = al_fixtoi(Efi[num][0]);
+         Ei[num][4] = al_fixtoi(Efi[num][1]);
 
-         int px = Ei[num][9];
-         int py = Ei[num][10];
+         // draw spline!!!!
+         float pnts[8];
+         int o = 10;
+
+         pnts[0] = Ei[num][3]+o;
+         pnts[1] = Ei[num][4]+o;
+         pnts[2] = Ei[num][5]+o;
+         pnts[3] = Ei[num][6]+o;
+         pnts[4] = Ei[num][7]+o;
+         pnts[5] = Ei[num][8]+o;
+         pnts[6] = Ei[num][9]+o;
+         pnts[7] = Ei[num][10]+o;
+
+//         al_draw_spline(pnts, palette_color[10], 0);
+
+         // fill array of points from the spline
+         float dest[200];
+         al_calculate_spline(dest, 8, pnts, 0, 100);
+
+         // set initial rotation from array of points
+         al_fixed xlen = al_ftofix(dest[4] - dest[0]);            // get the x distance
+         al_fixed ylen = al_ftofix(dest[5] - dest[1]);            // get the y distance
+         Efi[num][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
+
+
+         // cp1
+         int color1 = 6;
+         if (legend_highlight == 3) color1 = flash_color;
+         int px = Ei[num][5];
+         int py = Ei[num][6];
+         crosshairs_full(px+10, py+10, color1, 1);
+         al_draw_circle(px+10, py+10, 10, palette_color[color1], 1);
+
+         // cp2
+         color1 = 7;
+         if (legend_highlight == 4) color1 = flash_color;
+         px = Ei[num][7];
+         py = Ei[num][8];
+         crosshairs_full(px+10, py+10, color1, 1);
+         al_draw_circle(px+10, py+10, 10, palette_color[color1], 1);
+
+         // set extended rotation from array of points
+         xlen = al_ftofix(dest[198] - dest[194]);            // get the x distance
+         ylen = al_ftofix(dest[199] - dest[193]);            // get the y distance
+         al_fixed ext_rot = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
+
+         // extended position
+         color1 = 10;
+         if (legend_highlight == 2) color1 = flash_color;
+         px = Ei[num][9];
+         py = Ei[num][10];
          crosshairs_full(px+10, py+10, color1, 1);
 
          // draw tile at extended pos
-         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+         float rot = al_fixtof(al_fixmul(ext_rot, al_fixtorad_r));
          al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
+
 
          // trigger box
          int color = 14;
@@ -1264,10 +1320,19 @@ void ovw_process_mouse(void)
 
    int mouse_on_obj = 0;
    int mouse_on_podx = 0;
+
+   int mouse_on_vpodx = 0;
+   int mouse_on_vpod1 = 0;
+   int mouse_on_vpod2 = 0;
+
    int mouse_on_csb_ul = 0;
    int mouse_on_csb_lr = 0;
    int mouse_on_cdb_ul = 0;
    int mouse_on_trk = 0;
+
+
+
+
 
    int mouse_on_sp = 0;
    int mouse_on_bmb = 0;
@@ -1345,6 +1410,37 @@ void ovw_process_mouse(void)
             mouse_on_podx = 1;
          }
       }
+
+      if (type == 13) // vinepod extended position
+      {
+         int px = Ei[b][9];
+         int py = Ei[b][10];
+         if ((hx>px+msn) && (hx<px+msp) && (hy>py+msn) && (hy<py+msp))
+         {
+            mouse_move = 1;
+            mouse_on_vpodx = 1;
+         }
+
+         px = Ei[b][5];
+         py = Ei[b][6];
+         if ((hx>px+msn) && (hx<px+msp) && (hy>py+msn) && (hy<py+msp))
+         {
+            mouse_move = 1;
+            mouse_on_vpod1 = 1;
+         }
+
+         px = Ei[b][7];
+         py = Ei[b][8];
+         if ((hx>px+msn) && (hx<px+msp) && (hy>py+msn) && (hy<py+msp))
+         {
+            mouse_move = 1;
+            mouse_on_vpod2 = 1;
+         }
+
+      }
+
+
+
       if ((type == 7) || (type == 9)) // podzilla and cloner trigger box
       {
          int x1 = Ei[b][11];
@@ -1609,6 +1705,33 @@ void ovw_process_mouse(void)
                      Ei[mW[7].num][11] += x_off*20;
                      Ei[mW[7].num][12] += y_off*20;
                   }
+
+
+                  // move vinepod's stuff also
+                  if (Ei[mW[7].num][0] == 13)
+                  {
+
+                     // control point and extended pos
+                     Ei[mW[7].num][5] += x_off*20;
+                     Ei[mW[7].num][6] += y_off*20;
+                     Ei[mW[7].num][7] += x_off*20;
+                     Ei[mW[7].num][8] += y_off*20;
+                     Ei[mW[7].num][9] += x_off*20;
+                     Ei[mW[7].num][10] += y_off*20;
+
+                     // trigger box
+                     Ei[mW[7].num][11] += x_off*20;
+                     Ei[mW[7].num][12] += y_off*20;
+
+
+
+
+                  }
+
+
+
+
+
                   // move cloner's stuff too
                   if (Ei[mW[7].num][0] == 9)
                   {
@@ -1648,6 +1771,23 @@ void ovw_process_mouse(void)
             Efi[mW[7].num][6] = al_itofix(gy * 20);
             recalc_pod(mW[7].num);
          }
+         if (mouse_on_vpodx)
+         {
+            Ei[mW[7].num][9]  = gx * 20;
+            Ei[mW[7].num][10] = gy * 20;
+         }
+         if (mouse_on_vpod1)
+         {
+            Ei[mW[7].num][5] = gx * 20;
+            Ei[mW[7].num][6] = gy * 20;
+         }
+         if (mouse_on_vpod2)
+         {
+            Ei[mW[7].num][7] = gx * 20;
+            Ei[mW[7].num][8] = gy * 20;
+         }
+
+
          if (mouse_on_tb_ul) // move trigger box from ul
          {
             //printf("mouse pressed on tb_ul\n");

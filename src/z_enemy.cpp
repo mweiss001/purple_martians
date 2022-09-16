@@ -44,6 +44,48 @@ void draw_enemy(int e, int custom, int cx, int cy)
       EYint = cy;
    }
 
+
+
+   if (type == 13)
+   {
+      ALLEGRO_COLOR c1 = palette_color[9+64];
+      ALLEGRO_COLOR c2 = palette_color[9+128];
+
+      // put variables in spline array
+      float pnts[8];
+      for (int i=0; i<8; i++) pnts[i] = Ei[e][i+3]+10;
+
+      al_draw_spline(pnts, c2, 0);
+
+      // fill array of points from the spline
+      int np = Ei[e][17]; // number of points
+      float dest[np*2];
+      al_calculate_spline(dest, 8, pnts, 0, np);
+
+      // draw as far as vine has extended
+      for (int i=2; i<=Ei[e][16]*2; i+=2)
+      {
+         int x1 = dest[i-2];
+         int y1 = dest[i-1];
+         int x2 = dest[i+0];
+         int y2 = dest[i+1];
+         al_draw_line(x1, y1, x2, y2, c1, 2);
+      }
+
+      // draw circle at start if not resting at start
+      if (Ei[e][16]) al_draw_circle(dest[0], dest[1], 2, palette_color[11], 2);
+
+      // draw circle at end if fully extended
+      if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
+      {
+         int x1 = dest[Ei[e][17]*2-2];
+         int y1 = dest[Ei[e][17]*2-1];
+         al_draw_circle(x1, y1, 1, c2, 1);
+      }
+   }
+
+
+
    int flags = 0;
    if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
    if (Ei[e][2] == 1) flags = 0;
@@ -57,6 +99,8 @@ void draw_enemy(int e, int custom, int cx, int cy)
 
    // if enemy is expiring show how many seconds it has left
    if ((!level_editor_running) && (Ei[e][27])) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+
+//   if ((type == 13) && (!level_editor_running)) // vinepod
 
    if (type == 9) // cloner
    {
@@ -1475,6 +1519,137 @@ void enemy_podzilla(int e)
    else Efi[e][14] = get_rot_from_PXY(e, find_closest_player(e));  // rotate to face player in any mode except wait
 }
 
+
+//--13--vinepod-----------------------------------------------------------------------------
+
+//     Ei[e][11] = trigger box x
+//     Ei[e][12] = trigger box y
+//     Ei[e][13] = trigger box w
+//     Ei[e][14] = trigger box h
+//     Ei[e][15] = mode
+//     Ei[e][16] = sequence counter
+//     Ei[e][17] = sequence limit
+//     Ei[e][18] = wait count
+//     Ei[e][19] = wait limit
+
+
+
+void enemy_vinepod(int e)
+{
+   if (Ei[e][31]) // hit
+   {
+      enemy_killed(e);
+      return; // break;  to stop rest of execution
+   }
+   enemy_player_hit_proc(e);
+
+
+   if (Ei[e][15] == 0) // mode 0 - wait for trigger
+   {
+      Ei[e][16] = 0; // extend counter
+
+      // trigger box offset
+      int x1 = Ei[e][11] - 10;
+      int y1 = Ei[e][12] - 10;
+      int x2 = x1 + Ei[e][13]+20;
+      int y2 = y1 + Ei[e][14]+20;
+
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((players[p].active) && (!players[p].paused))
+         {
+            int px = al_fixtoi(players[p].PX);
+            int py = al_fixtoi(players[p].PY);
+            if ((px > x1) && (px < x2) && (py > y1) &&  (py < y2))
+            {
+               Ei[e][15] = 1;   // set next mode
+            }
+         }
+   }
+   if (Ei[e][15] == 1) // mode 1; extend
+   {
+      if (++Ei[e][16] >= Ei[e][17]-1) // extend done
+      {
+         Ei[e][15] = 2; // set next mode
+         Ei[e][18] = Ei[e][19];
+      }
+   }
+   if (Ei[e][15] == 2)  // mode 2; wait then shoot
+   {
+      if (--Ei[e][18] <= 0)
+      {
+         int p = find_closest_player(e);
+         fire_enemy_bulleta(e, 54, p);
+         Ei[e][15] = 3; // set next mode
+         Ei[e][18] = Ei[e][19];
+      }
+   }
+   if (Ei[e][15] == 3)  // mode 3; post shoot pause
+   {
+      if (--Ei[e][18] <= 0) Ei[e][15] = 4; // next mode
+   }
+
+   if (Ei[e][15] == 4) // mode 4; retract
+   {
+      if (--Ei[e][16] <= 0)  // retract done
+      Ei[e][15] = 0; // set next mode (back to trigger)
+   }
+
+   // set shape based on how far it has extended
+   int ns = zz[4][15]; // number of shapes
+   float v = (float)Ei[e][16] / (float)Ei[e][17]; // ratio
+   int s = v*ns;
+   //printf("v:%f, 6:%f  7:%f  s:%d\n", v, (float)Ei[e][6], (float)Ei[e][7], s);
+   Ei[e][1] = zz[5+s][15];
+
+
+   // put variables in spline array
+   float pnts[8];
+   for (int i=0; i<8; i++) pnts[i] = Ei[e][i+3];
+
+   // fill array of points from the spline
+   int np = Ei[e][17]; // number of points
+   float dest[np*2];
+   al_calculate_spline(dest, 8, pnts, 0, np);
+
+   // set position
+   int npi = Ei[e][16]*2; // index into array
+   Efi[e][0] = al_ftofix(dest[npi]);
+   Efi[e][1] = al_ftofix(dest[npi+1]);
+
+   // set rotation
+   al_fixed xlen = al_ftofix(dest[npi+2] - dest[npi+0]);  // get the x distance
+   al_fixed ylen = al_ftofix(dest[npi+3] - dest[npi+1]);  // get the y distance
+   Efi[e][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
+
+   if ((Ei[e][15] == 2) || (Ei[e][15] == 3)) Efi[e][14] = get_rot_from_PXY(e, find_closest_player(e));  // rotate to face player in wait modes
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void bouncer_cannon_common(int e)
 {
    if ((Ei[e][8]) && (Ei[e][7] > Ei[e][8])) // seek
@@ -2194,20 +2369,6 @@ void enemy_jumpworm(int e)
       if (!Ei[e][2]) angle = -angle;   // reverse angle depending on x direction
       Efi[e][14] = angle;
    }
-}
-
-
-void enemy_vinepod(int e)
-{
-   int EXint = al_fixtoi(Efi[e][0]);
-   int EYint = al_fixtoi(Efi[e][1]);
-
-   if (Ei[e][31]) // hit
-   {
-      enemy_killed(e);
-      return; // break;  to stop rest of execution
-   }
-   enemy_player_hit_proc(e);
 }
 
 /*
