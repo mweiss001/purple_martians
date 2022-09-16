@@ -321,11 +321,35 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       original_dx = item[num][10];
       original_dy = item[num][11];
    }
+
+   if (obj_type == 90) // vinepod extended
+   {
+      original_dx = Ei[num][9];
+      original_dy = Ei[num][10];
+   }
+   if (obj_type == 91) // vinepod cp1
+   {
+      original_dx = Ei[num][5];
+      original_dy = Ei[num][6];
+   }
+   if (obj_type == 92) // vinepod cp2
+   {
+      original_dx = Ei[num][7];
+      original_dy = Ei[num][8];
+   }
+
+
+
    if (obj_type == 4) // lift
    {
       original_dx = lift_steps[lift][step].x;
       original_dy = lift_steps[lift][step].y;
    }
+
+
+
+
+
 
    while(!quit)
    {
@@ -343,6 +367,52 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
          al_draw_line(ex, ey, px, py, palette_color[10], 1); // connect with line
       }
+
+      if (obj_type == 90) // move vinepod extended
+      {
+         int ex = al_fixtoi(Efi[num][0])+10;
+         int ey = al_fixtoi(Efi[num][1])+10;
+         int px = Ei[num][9]+10;
+         int py = Ei[num][10]+10;
+
+         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+
+         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
+         al_draw_line(ex, ey, px, py, palette_color[10], 1); // connect with line
+      }
+
+
+      if (obj_type == 91) // move vinepod cp1
+      {
+         int ex = al_fixtoi(Efi[num][0])+10;
+         int ey = al_fixtoi(Efi[num][1])+10;
+         int px = Ei[num][5]+10;
+         int py = Ei[num][6]+10;
+
+         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+
+         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
+         al_draw_line(ex, ey, px, py, palette_color[6], 1); // connect with line
+      }
+
+      if (obj_type == 92) // move vinepod cp1
+      {
+         int ex = al_fixtoi(Efi[num][0])+10;
+         int ey = al_fixtoi(Efi[num][1])+10;
+         int px = Ei[num][7]+10;
+         int py = Ei[num][8]+10;
+
+         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
+
+         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
+         al_draw_line(ex, ey, px, py, palette_color[7], 1); // connect with line
+      }
+
+
+
+
+
+
       if (obj_type == 98) // move cloner destination
       {
          float dx1 = (float)Ei[num][17];
@@ -379,6 +449,8 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          for (int i=0; i<500; i++)
             if (item[i][0] == 10) draw_pop_message(i);
       }
+
+
 
       get_new_screen_buffer(3, 0, 0);
 
@@ -441,6 +513,24 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
             item[num][10] = gx*20;
             item[num][11] = gy*20;
          }
+         case 90: // vinepod extended
+         {
+            Ei[num][9] = gx*20;
+            Ei[num][10] = gy*20;
+         }
+         break;
+         case 91: // vinepod cp1
+         {
+            Ei[num][5] = gx*20;
+            Ei[num][6] = gy*20;
+         }
+         break;
+         case 92: // vinepod cp2
+         {
+            Ei[num][7] = gx*20;
+            Ei[num][8] = gy*20;
+         }
+         break;
       }
 
 
@@ -481,6 +571,21 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       {
           Efi[num][0] = al_itofix(original_dx);
           Efi[num][1] = al_itofix(original_dy);
+      }
+      if (obj_type == 90)
+      {
+          Ei[num][9] = original_dx;
+          Ei[num][10] = original_dy;
+      }
+      if (obj_type == 91)
+      {
+          Ei[num][5] = original_dx;
+          Ei[num][6] = original_dy;
+      }
+      if (obj_type == 92)
+      {
+          Ei[num][7] = original_dx;
+          Ei[num][8] = original_dy;
       }
       if (obj_type == 99)
       {

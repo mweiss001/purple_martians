@@ -31651,8 +31651,103 @@ somehow I need to enforce that 3,4 are the same as fixed 0,1
 
 show exended pos..done
 next make a way to change...
+then do the same for cp1 and cp2
+done...
+now I can set and move all six points
+now come the fun part... draw a spline based on them!!
+nice!!!
+now make the control points just circles and map moveable..done
+now read in the whole spline to set the start rot and end rot..done
+even nicer!!!
 
-then do the saem for cp1 and cp2
+I think I am ready to start implementing how it works in the game...
+
+
+
+I want to run a counter, very similar to the old method.
+But this time there will be no speed variable.
+The one variable will the the counter and it will correspond to the position in the array of points.
+
+these are the old variables
+//     Ei[e][5] = mode
+//     Ei[e][6] = sequence counter
+//     Ei[e][7] = sequence limit
+//     Ei[e][8] = wait count
+//     Ei[e][9] = wait limit
+
+I can just add 10
+
+//     Ei[e][15] = mode
+//     Ei[e][16] = sequence counter
+//     Ei[e][17] = sequence limit
+//     Ei[e][18] = wait count
+//     Ei[e][19] = wait limit
+
+this works exactly like I had hoped
+
+in draw enemy code draw the spline path
+
+and the path traveled so far...done
+
+make it so that moving main with shift moves all..done
+
+why does game draw not line up with level editor draw for spline  off set by 10????
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
