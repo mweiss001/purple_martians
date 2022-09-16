@@ -665,15 +665,13 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
          break;
 
          case 13: // vinepod
-            ya+=4; // spacer
-
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][17], 400, 10, 10,  "Counter:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][19], 40, 0, 1,      "Pause:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][17], 400, 10, 10,  "Extend Time:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][19], 40,   0,  1,  "Pause:");
             mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Efi[n][7], 20, 0.8, 0.1, "Bullet Speed:");
             ya+=4; // spacer
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Move Extended Position")) getxy("Vinepod Extended Position", 90, 13, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 6,15, 0,  1,0,1,d, "Move cp1")) getxy("Vinepod cp1", 91, 13, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 7,15, 0,  1,0,1,d, "Move cp2")) getxy("Vinepod cp2", 92, 13, n);
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 6,15, 0,  1,0,1,d, "Move Control Point 1")) getxy("Vinepod Control Point 1", 91, 13, n);
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 7,15, 0,  1,0,1,d, "Move Control Point 2")) getxy("Vinepod Control Point 2", 92, 13, n);
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) get_block_range("Trigger Box", &Ei[n][11], &Ei[n][12], &Ei[n][13], &Ei[n][14], 2);
             ya+=4; // spacer
             mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
@@ -1020,62 +1018,63 @@ void ovw_draw_overlays(int legend_highlight)
          Ei[num][3] = al_fixtoi(Efi[num][0]);
          Ei[num][4] = al_fixtoi(Efi[num][1]);
 
-         // draw spline!!!!
+         // put variables in spline array
          float pnts[8];
-         int o = 10;
+         for (int i=0; i<8; i++) pnts[i] = Ei[num][i+3]+10;
 
-         pnts[0] = Ei[num][3]+o;
-         pnts[1] = Ei[num][4]+o;
-         pnts[2] = Ei[num][5]+o;
-         pnts[3] = Ei[num][6]+o;
-         pnts[4] = Ei[num][7]+o;
-         pnts[5] = Ei[num][8]+o;
-         pnts[6] = Ei[num][9]+o;
-         pnts[7] = Ei[num][10]+o;
+         al_draw_spline(pnts, palette_color[10], 0);
 
-//         al_draw_spline(pnts, palette_color[10], 0);
 
          // fill array of points from the spline
          float dest[200];
          al_calculate_spline(dest, 8, pnts, 0, 100);
 
-         // set initial rotation from array of points
+         // initial position
+         int ipx = Ei[num][3];
+         int ipy = Ei[num][4];
+
+         // set initial rotation
          al_fixed xlen = al_ftofix(dest[4] - dest[0]);            // get the x distance
          al_fixed ylen = al_ftofix(dest[5] - dest[1]);            // get the y distance
          Efi[num][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
 
+         // extended position
+         int color1 = 10;
+         if (legend_highlight == 2) color1 = flash_color;
+         int epx = Ei[num][9];
+         int epy = Ei[num][10];
+         crosshairs_full(epx+10, epy+10, color1, 1);
 
-         // cp1
-         int color1 = 6;
+         // set extended rotation
+         xlen = al_ftofix(dest[198] - dest[194]);                     // get the x distance
+         ylen = al_ftofix(dest[199] - dest[193]);                     // get the y distance
+         al_fixed ext_rot = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
+
+         // draw tile at extended pos
+         float rot = al_fixtof(al_fixmul(ext_rot, al_fixtorad_r));
+         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, epx+10, epy+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
+
+         // control point 1
+         color1 = 6;
          if (legend_highlight == 3) color1 = flash_color;
          int px = Ei[num][5];
          int py = Ei[num][6];
-         crosshairs_full(px+10, py+10, color1, 1);
-         al_draw_circle(px+10, py+10, 10, palette_color[color1], 1);
+         al_draw_line(ipx+10, ipy+10, px+10, py+10, palette_color[color1], 0);
+         al_draw_line(epx+10, epy+10, px+10, py+10, palette_color[color1], 0);
+         al_draw_filled_circle(px+10, py+10, 3, palette_color[color1]);
+         al_draw_circle(px+10, py+10, 6, palette_color[color1], 1);
 
-         // cp2
+         // control point 2
          color1 = 7;
          if (legend_highlight == 4) color1 = flash_color;
          px = Ei[num][7];
          py = Ei[num][8];
-         crosshairs_full(px+10, py+10, color1, 1);
-         al_draw_circle(px+10, py+10, 10, palette_color[color1], 1);
+         al_draw_line(ipx+10, ipy+10, px+10, py+10, palette_color[color1], 0);
+         al_draw_line(epx+10, epy+10, px+10, py+10, palette_color[color1], 0);
+         al_draw_filled_circle(px+10, py+10, 3, palette_color[color1]);
+         al_draw_circle(px+10, py+10, 6, palette_color[color1], 1);
 
-         // set extended rotation from array of points
-         xlen = al_ftofix(dest[198] - dest[194]);            // get the x distance
-         ylen = al_ftofix(dest[199] - dest[193]);            // get the y distance
-         al_fixed ext_rot = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
 
-         // extended position
-         color1 = 10;
-         if (legend_highlight == 2) color1 = flash_color;
-         px = Ei[num][9];
-         py = Ei[num][10];
-         crosshairs_full(px+10, py+10, color1, 1);
-
-         // draw tile at extended pos
-         float rot = al_fixtof(al_fixmul(ext_rot, al_fixtorad_r));
-         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px+10, py+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
 
 
          // trigger box
@@ -1441,7 +1440,7 @@ void ovw_process_mouse(void)
 
 
 
-      if ((type == 7) || (type == 9)) // podzilla and cloner trigger box
+      if ((type == 7) || (type == 13) || (type == 9)) // podzilla, vinepod and cloner trigger box
       {
          int x1 = Ei[b][11];
          int y1 = Ei[b][12];

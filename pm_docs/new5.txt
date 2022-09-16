@@ -31691,7 +31691,18 @@ and the path traveled so far...done
 
 make it so that moving main with shift moves all..done
 
-why does game draw not line up with level editor draw for spline  off set by 10????
+I am not entirely happy with the way the animation changes as it extends and how it looks when waiting
+
+I would like to make some leaves on the vine as it extends
+
+modes that are invincible
+
+creator
+
+make path visible or not
+
+
+
 
 
 

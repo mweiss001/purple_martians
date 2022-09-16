@@ -44,9 +44,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
       EYint = cy;
    }
 
-
-
-   if (type == 13)
+   if ((type == 13) && (!custom))
    {
       ALLEGRO_COLOR c1 = palette_color[9+64];
       ALLEGRO_COLOR c2 = palette_color[9+128];
@@ -55,7 +53,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
       float pnts[8];
       for (int i=0; i<8; i++) pnts[i] = Ei[e][i+3]+10;
 
-      al_draw_spline(pnts, c2, 0);
+  //    al_draw_spline(pnts, c2, 0);
 
       // fill array of points from the spline
       int np = Ei[e][17]; // number of points
@@ -71,6 +69,126 @@ void draw_enemy(int e, int custom, int cx, int cy)
          int y2 = dest[i+1];
          al_draw_line(x1, y1, x2, y2, c1, 2);
       }
+
+
+/*
+      // draw as far as vine has extended
+      float dist = 0;
+      float tl = 20;
+
+      for (int i=2; i<=Ei[e][16]*2; i+=2)
+      {
+         int x1 = dest[i-2];
+         int y1 = dest[i-1];
+         int x2 = dest[i+0];
+         int y2 = dest[i+1];
+         al_draw_line(x1, y1, x2, y2, c1, 2);
+
+
+         // get distance
+         float xlen = dest[i-2] - dest[i+0];
+         float ylen = dest[i-1] - dest[i+1];
+         float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
+
+//         dist += ds;
+//
+//         if (dist>tl)
+//         {
+//            printf("dif:%f\n", dist-tl);
+//            tl+=20;
+//            al_draw_circle(x1, y1, 3, c2, 1);
+//
+//
+//         }
+
+         //printf("i:%d tl:%f ds:%f dist:%f \n", i, tl, ds, dist);
+
+
+      }
+
+
+
+
+
+
+
+// make more point to smooth out the distance
+
+      // fill array of points from the spline
+      int np2 = 1000; // number of points
+      float dest2[np2*2];
+      al_calculate_spline(dest2, 8, pnts, 0, np2);
+
+      float dist2 = 0;
+      float tl2 = 20;
+
+      for (int i=2; i<=2000; i+=2)
+      {
+         int x1 = dest2[i-2];
+         int y1 = dest2[i-1];
+         int x2 = dest2[i+0];
+         int y2 = dest2[i+1];
+
+         // get distance
+         float xlen = dest2[i-2] - dest2[i+0];
+         float ylen = dest2[i-1] - dest2[i+1];
+         float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
+
+         dist2 += ds;
+
+         if (dist2>tl2)
+         {
+            printf("dif:%f\n", dist2-tl2);
+            tl2+=20;
+            al_draw_circle(x1, y1, 3, c2, 1);
+
+
+         }
+
+         //printf("i:%d tl:%f ds:%f dist:%f \n", i, tl, ds, dist);
+
+
+
+//               float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
+
+
+
+         if (i % 20 == 0)
+         {
+//            al_draw_circle(x1, y1, 3, c2, 1);
+
+         }
+
+
+
+      }
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       // draw circle at start if not resting at start
       if (Ei[e][16]) al_draw_circle(dest[0], dest[1], 2, palette_color[11], 2);
@@ -100,9 +218,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
    // if enemy is expiring show how many seconds it has left
    if ((!level_editor_running) && (Ei[e][27])) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
 
-//   if ((type == 13) && (!level_editor_running)) // vinepod
-
-   if (type == 9) // cloner
+   if ((type == 9) && (!custom)) // cloner
    {
       // trigger box
       float tx1 = (float)Ei[e][11];
