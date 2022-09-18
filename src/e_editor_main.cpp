@@ -649,6 +649,15 @@ void em_process_mouse(void)
             Efi[c][0] += al_itofix(ofx);  // apply offsets
             Efi[c][1] += al_itofix(ofy);
 
+            if (type == 13) // vinepod
+            {
+               for (int i=3; i<12; i+=2)
+               {
+                  Ei[c][i+0] = Ei[din][i+0] + ofx;
+                  Ei[c][i+1] = Ei[din][i+1] + ofy;
+               }
+            }
+
 
             if (type == 7) // podzilla
             {

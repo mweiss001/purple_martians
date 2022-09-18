@@ -46,163 +46,76 @@ void draw_enemy(int e, int custom, int cx, int cy)
 
    if ((type == 13) && (!custom))
    {
-      ALLEGRO_COLOR c1 = palette_color[9+64];
       ALLEGRO_COLOR c2 = palette_color[9+128];
 
       // put variables in spline array
       float pnts[8];
       for (int i=0; i<8; i++) pnts[i] = Ei[e][i+3]+10;
 
-  //    al_draw_spline(pnts, c2, 0);
+      // draw spline path outline
+      if (Ei[e][20] & PM_ENEMY_VINEPOD_SHOW_PATH) al_draw_spline(pnts, c2, 0);
 
-      // fill array of points from the spline
-      int np = Ei[e][17]; // number of points
-      float dest[np*2];
-      al_calculate_spline(dest, 8, pnts, 0, np);
 
-      // draw as far as vine has extended
-      for (int i=2; i<=Ei[e][16]*2; i+=2)
+      // if anything other than mode 0
+      if (Ei[e][15])
       {
-         int x1 = dest[i-2];
-         int y1 = dest[i-1];
-         int x2 = dest[i+0];
-         int y2 = dest[i+1];
-         al_draw_line(x1, y1, x2, y2, c1, 2);
-      }
 
 
-/*
-      // draw as far as vine has extended
-      float dist = 0;
-      float tl = 20;
-
-      for (int i=2; i<=Ei[e][16]*2; i+=2)
-      {
-         int x1 = dest[i-2];
-         int y1 = dest[i-1];
-         int x2 = dest[i+0];
-         int y2 = dest[i+1];
-         al_draw_line(x1, y1, x2, y2, c1, 2);
+         // fill array of points from the spline
+         int np = Ei[e][17]; // number of points
+         float dest[np*2];
+         al_calculate_spline(dest, 8, pnts, 0, np);
 
 
-         // get distance
-         float xlen = dest[i-2] - dest[i+0];
-         float ylen = dest[i-1] - dest[i+1];
-         float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
+         // drawing leaves
+         float dist = 0;  // extended distance tally
+         float ld = 15;   // distance between leaves
+         float tl = ld;   // next leaf distance tally
+         int lsa = 0;     // leaf side alternate
+         float ls = 0.7;  // leaf size
 
-//         dist += ds;
-//
-//         if (dist>tl)
-//         {
-//            printf("dif:%f\n", dist-tl);
-//            tl+=20;
-//            al_draw_circle(x1, y1, 3, c2, 1);
-//
-//
-//         }
-
-         //printf("i:%d tl:%f ds:%f dist:%f \n", i, tl, ds, dist);
-
-
-      }
-
-
-
-
-
-
-
-// make more point to smooth out the distance
-
-      // fill array of points from the spline
-      int np2 = 1000; // number of points
-      float dest2[np2*2];
-      al_calculate_spline(dest2, 8, pnts, 0, np2);
-
-      float dist2 = 0;
-      float tl2 = 20;
-
-      for (int i=2; i<=2000; i+=2)
-      {
-         int x1 = dest2[i-2];
-         int y1 = dest2[i-1];
-         int x2 = dest2[i+0];
-         int y2 = dest2[i+1];
-
-         // get distance
-         float xlen = dest2[i-2] - dest2[i+0];
-         float ylen = dest2[i-1] - dest2[i+1];
-         float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
-
-         dist2 += ds;
-
-         if (dist2>tl2)
+         // cycle points as far as vine has extended
+         for (int i=2; i<=Ei[e][16]*2; i+=2)
          {
-            printf("dif:%f\n", dist2-tl2);
-            tl2+=20;
-            al_draw_circle(x1, y1, 3, c2, 1);
+            int x1 = dest[i-2];
+            int y1 = dest[i-1];
+            int x2 = dest[i+0];
+            int y2 = dest[i+1];
 
+            // draw vine up to extened point
+            al_draw_line(x1, y1, x2, y2, c2, 1.5);
 
+            // get distance of this step
+            float xlen = x1-x2;
+            float ylen = y1-y2;
+            float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
+
+            dist += ds; // add to total distance
+
+            if (dist > tl)   // time for a leaf
+            {
+               tl += ld;     // next leaf point
+               lsa = !lsa;   // toggle leaf side
+               float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
+               if (lsa) ang+= ALLEGRO_PI;
+               al_draw_scaled_rotated_bitmap(tile[311], 10, 20, x1, y1, ls, ls, ang, 0);
+            }
          }
 
-         //printf("i:%d tl:%f ds:%f dist:%f \n", i, tl, ds, dist);
+         // draw circle at initial position
+         al_draw_filled_circle(dest[0], dest[1], 2, c2);
 
-
-
-//               float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
-
-
-
-         if (i % 20 == 0)
+         // draw circle at end if fully extended
+         if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
          {
-//            al_draw_circle(x1, y1, 3, c2, 1);
-
+            int x1 = dest[Ei[e][17]*2-2];
+            int y1 = dest[Ei[e][17]*2-1];
+            al_draw_filled_circle(x1, y1, 2, c2);
          }
-
-
-
       }
 
-*/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      // draw circle at start if not resting at start
-      if (Ei[e][16]) al_draw_circle(dest[0], dest[1], 2, palette_color[11], 2);
-
-      // draw circle at end if fully extended
-      if ((Ei[e][15] == 2) || (Ei[e][15] == 3))
-      {
-         int x1 = dest[Ei[e][17]*2-2];
-         int y1 = dest[Ei[e][17]*2-1];
-         al_draw_circle(x1, y1, 1, c2, 1);
-      }
    }
-
-
 
    int flags = 0;
    if (Ei[e][2] == 0) flags = ALLEGRO_FLIP_HORIZONTAL;
@@ -213,7 +126,10 @@ void draw_enemy(int e, int custom, int cx, int cy)
 
    float rot = al_fixtof(al_fixmul(Efi[e][14], al_fixtorad_r));
    float sc = al_fixtof(Efi[e][12]);
-   al_draw_scaled_rotated_bitmap(tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
+
+   if ((type == 13) && (Ei[e][15] != 0)) // different rotation point for vinepod
+      al_draw_scaled_rotated_bitmap(tile[tn], 10, 3, EXint+10, EYint+10, sc, sc, rot, flags);
+   else al_draw_scaled_rotated_bitmap(tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
 
    // if enemy is expiring show how many seconds it has left
    if ((!level_editor_running) && (Ei[e][27])) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
@@ -635,7 +551,6 @@ void enemy_killed(int e)
          Ei[e][24] = 935+(hb-1)*32; // shape
          Efi[e][11] = al_ftofix(.96); // scale multiplier
          Efi[e][13] = al_itofix(20); // 255/dl/2;  rot inc
-//         Efi[e][3] = al_ftofix(0.4); // yinc
          Efi[e][3] = al_ftofix(-2); // yinc
          zz[0][na] = zz[5][na]; // set shape
          zz[1][na] = 0;         // point to zero
@@ -1558,12 +1473,12 @@ void enemy_podzilla(int e)
 {
    if (Ei[e][31]) // podzilla hit
    {
-      if (Ei[e][5] == 2)  // mode 2; wait then shoot
+      //if (Ei[e][5] == 2)  // mode 2; wait then shoot
       {
          enemy_killed(e);
          return;
       }
-      else Ei[e][31] = 0;
+      //else Ei[e][31] = 0;
 
    }
    enemy_player_hit_proc(e);
@@ -1638,6 +1553,15 @@ void enemy_podzilla(int e)
 
 //--13--vinepod-----------------------------------------------------------------------------
 
+//     Ei[e][3]  = x initial position
+//     Ei[e][4]  = y initial position
+//     Ei[e][5]  = x control point 1
+//     Ei[e][6]  = y control point 1
+//     Ei[e][7]  = x control point 2
+//     Ei[e][8]  = y control point 2
+//     Ei[e][9]  = x extended position
+//     Ei[e][10] = y extended position
+
 //     Ei[e][11] = trigger box x
 //     Ei[e][12] = trigger box y
 //     Ei[e][13] = trigger box w
@@ -1648,14 +1572,25 @@ void enemy_podzilla(int e)
 //     Ei[e][18] = wait count
 //     Ei[e][19] = wait limit
 
+//     Ei[e][20] = flags
+//     Ei[e][21] = unused
 
 
 void enemy_vinepod(int e)
 {
    if (Ei[e][31]) // hit
    {
-      enemy_killed(e);
-      return; // break;  to stop rest of execution
+      int ek = 0;
+      if ((Ei[e][15] == 0) && (!(Ei[e][20] & PM_ENEMY_VINEPOD_INV_INIT))) ek = 1;
+      if (((Ei[e][15] == 2) || (Ei[e][15] == 3)) && (!(Ei[e][20] & PM_ENEMY_VINEPOD_INV_EXTN))) ek = 1;
+      if (((Ei[e][15] == 1) || (Ei[e][15] == 4)) && (!(Ei[e][20] & PM_ENEMY_VINEPOD_INV_MOVE))) ek = 1;
+
+      if (ek)
+      {
+         enemy_killed(e);
+         return; // break;  to stop rest of execution
+      }
+      else Ei[e][31] = 0; // clear hit
    }
    enemy_player_hit_proc(e);
 
@@ -2228,6 +2163,9 @@ void enemy_block_walker(int e)
       int ey = EYint/20;
 
       l[ex][ey] = 168 | PM_BTILE_ALL_SOLID;
+
+      l[ex][ey] |= PM_BTILE_BREAKABLE_PBUL;
+
       al_set_target_bitmap(level_background);
       al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, palette_color[0]);
       al_draw_bitmap(btile[168], ex*20, ey*20, 0);
@@ -2256,9 +2194,7 @@ void enemy_block_walker(int e)
 /*
 
 Ei[][1]   tile to draw
-
 Ei[][2]   direction (0=left, 1=right)
-
 Ei[][4]   ground speed divider
 
 Ei[][5]   jump/fall -160 max jump, 160 max fall
@@ -2274,8 +2210,6 @@ Ei[][14]  cycle offset
 
 Efi[][2]  y speed
 Efi[][6]  x speed when jumping
-
-
 
  */
 

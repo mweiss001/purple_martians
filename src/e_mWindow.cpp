@@ -841,20 +841,20 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int have_focus, in
                {
                   switch (pn)
                   {
-                     case 200: create_obj(2, 1, 0);  break; // type 200 - door
-                     case 201: create_obj(2, 5, 0);  break; // type 201 - start
-                     case 202: create_obj(2, 3, 0);  break; // type 202 - exit
-                     case 204: create_obj(3, 7, 0);  break; // type 204 - pod
-                     case 206: create_obj(2, 10,0);  break; // type 206 - msg
-                     case 207: create_obj(3, 9, 0);  break; // type 207 - cloner
-                     case 208: create_lift();       break; // type 208 - lift
-                     case 209: create_door(1);       break; // type 209 - 1 way al_fixed exit door
-                     case 210: create_door(2);       break; // type 210 - 1 way linked exit door
-                     case 211: create_door(3);       break; // type 211 - 2 way door set
-                     case 212: create_obj(3, 10, 0); break; // type 212 - field
-                     case 213: create_obj(2, 9, 0);  break; // type 213 - trigger
-                     case 214: create_obj(2, 16, 0); break; // type 214 - block manip
-                     case 215: create_obj(2, 17, 0); break; // type 215 - block damage
+                     case 200: create_obj(2, 1, 0);  break; // door
+                     case 201: create_obj(2, 5, 0);  break; // start
+                     case 202: create_obj(2, 3, 0);  break; // exit
+                     case 204: create_obj(3, 7, 0);  break; // pod
+                     case 206: create_obj(2, 10,0);  break; // msg
+                     case 207: create_obj(3, 9, 0);  break; // cloner
+                     case 208: create_lift();        break; // lift
+                     case 209: create_door(1);       break; // one way al_fixed exit door
+                     case 210: create_door(2);       break; // one way linked exit door
+                     case 211: create_door(3);       break; // two way door set
+                     case 213: create_obj(2, 9, 0);  break; // trigger
+                     case 214: create_obj(2, 16, 0); break; // block manip
+                     case 215: create_obj(2, 17, 0); break; // block damage
+                     case 216: create_obj(3, 13, 0); break; // vinepod
                   }
                }
             }

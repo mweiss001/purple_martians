@@ -35,6 +35,16 @@ int create_obj(int obt, int type, int num)
             num = e;
          }
       }
+      if (type == 13)
+      {
+         int e = create_vinepod();
+         if ((e>=0) && (e<99) && (Ei[e][0] == 13))
+         {
+            object_viewerw(3, e);
+            num = e;
+         }
+      }
+
    }
    if (obt == 4) create_lift();
    return num;  // return number of created obj or sent_num if bad create
@@ -77,6 +87,7 @@ void ovw_get_size(void)
    if ((obt == 3) && (type == 9 )) w = 220; // cloner
    if ((obt == 3) && (type == 11)) w = 220; // block walker
    if ((obt == 3) && (type == 12)) w = 220; // flapper
+   if ((obt == 3) && (type == 13)) w = 220; // vinepod
 
    if (obt == 4)                   w = 300; // lift
 
@@ -583,7 +594,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
          break;
          case 7: // podzilla
             mdw_sliderf(    xa, ya, xb, bts,  29,n,0,0, 0, 9,15,15,  1,0,1,d, Efi[n][9], 30, 0.5, 0.5, "Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][9], 40, 0, 1,      "Pause:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][9], 240, 0, 1,      "Pause:");
             mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Efi[n][7], 20, 0.8, 0.1, "Bullet Speed:");
             ya+=4; // spacer
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Move Extended Position")) getxy("Pod Extended Position", 99, 7, n);
@@ -647,12 +658,12 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
          break;
          case 12: // flapper
             mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Efi[n][5], 8, .5, 0.1,  "X-Speed:");
-            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Efi[n][6], 2, 0.1, 0.1, "X-Accel:");
+            mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,12,15,15,  1,0,1,d, Efi[n][6], 1, 0.01, 0.01, "X-Accel:");
             mdw_toggle(     xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,d, Ei[n][2], "Initial Direction:Left ", "Initial Direction:Right", 15, 15, 12, 12);
             ya+=4; // spacer
             mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, Efi[n][3], 5, 0, 0.01,      "Y-Speed:");
             mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, Efi[n][10], 8, .5, 0.1,     "Flap Speed:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, Ei[n][21], 400, 0, 10,      "Flap Height:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, Ei[n][21], 400, 0, 5,       "Flap Height:");
             mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0,13,15,15,  1,0,1,d, Ei[n][20], 1000, -1000, 10, "Height Above Player:");
             ya+=4; // spacer
             mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Efi[n][7], 20, 0.8, 0.1, "Bullet Speed:");
@@ -666,12 +677,20 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
 
          case 13: // vinepod
             mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][17], 400, 10, 10,  "Extend Time:");
-            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][19], 40,   0,  1,  "Pause:");
+            mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Ei[n][19], 400,  0,  1,  "Pause:");
             mdw_sliderf(    xa, ya, xb, bts,  0,0,0,0,  0, 9,15,15,  1,0,1,d, Efi[n][7], 20, 0.8, 0.1, "Bullet Speed:");
             ya+=4; // spacer
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Move Extended Position")) getxy("Vinepod Extended Position", 90, 13, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 6,15, 0,  1,0,1,d, "Move Control Point 1")) getxy("Vinepod Control Point 1", 91, 13, n);
-            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 7,15, 0,  1,0,1,d, "Move Control Point 2")) getxy("Vinepod Control Point 2", 92, 13, n);
+
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, Ei[n][20], PM_ENEMY_VINEPOD_SHOW_PATH, "Hide Path","Show Path", 15+dim, 15, 14+dim, 14);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, Ei[n][20], PM_ENEMY_VINEPOD_INV_INIT, "Invincible At Rest:OFF", "Invincible At Rest:ON ", 15+dim, 15, 14+dim, 14);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, Ei[n][20], PM_ENEMY_VINEPOD_INV_EXTN, "Invincible Extended:OFF", "Invincible Extended:ON ", 15+dim, 15, 14+dim, 14);
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, Ei[n][20], PM_ENEMY_VINEPOD_INV_MOVE, "Invincible Moving:OFF", "Invincible Moving:ON ", 15+dim, 15, 14+dim, 14);
+
+            ya+=4; // spacer
+
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,d, "Set Extended Position")) getxy("Vinepod Extended Position", 90, 13, n);
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 6,15, 0,  1,0,1,d, "Set Control Point 1")) getxy("Vinepod Control Point 1", 91, 13, n);
+            if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0, 7,15, 0,  1,0,1,d, "Set Control Point 2")) getxy("Vinepod Control Point 2", 92, 13, n);
             if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,d, "Set Trigger Box")) get_block_range("Trigger Box", &Ei[n][11], &Ei[n][12], &Ei[n][13], &Ei[n][14], 2);
             ya+=4; // spacer
             mdw_slideri(    xa, ya, xb, bts,  0,0,0,0,  0, 4,15,15,  1,0,1,d, Ei[n][29], 20, 0, 1,     "Collision Box:");
@@ -1014,77 +1033,8 @@ void ovw_draw_overlays(int legend_highlight)
 
       if (type == 13) // vinepod
       {
-         // enforce that 34 is 01
-         Ei[num][3] = al_fixtoi(Efi[num][0]);
-         Ei[num][4] = al_fixtoi(Efi[num][1]);
+         draw_vinepod_controls(num, legend_highlight);
 
-         // put variables in spline array
-         float pnts[8];
-         for (int i=0; i<8; i++) pnts[i] = Ei[num][i+3]+10;
-
-         al_draw_spline(pnts, palette_color[10], 0);
-
-
-         // fill array of points from the spline
-         float dest[200];
-         al_calculate_spline(dest, 8, pnts, 0, 100);
-
-         // initial position
-         int ipx = Ei[num][3];
-         int ipy = Ei[num][4];
-
-         // set initial rotation
-         al_fixed xlen = al_ftofix(dest[4] - dest[0]);            // get the x distance
-         al_fixed ylen = al_ftofix(dest[5] - dest[1]);            // get the y distance
-         Efi[num][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
-
-         // extended position
-         int color1 = 10;
-         if (legend_highlight == 2) color1 = flash_color;
-         int epx = Ei[num][9];
-         int epy = Ei[num][10];
-         crosshairs_full(epx+10, epy+10, color1, 1);
-
-         // set extended rotation
-         xlen = al_ftofix(dest[198] - dest[194]);                     // get the x distance
-         ylen = al_ftofix(dest[199] - dest[193]);                     // get the y distance
-         al_fixed ext_rot = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
-
-         // draw tile at extended pos
-         float rot = al_fixtof(al_fixmul(ext_rot, al_fixtorad_r));
-         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, epx+10, epy+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
-
-         // control point 1
-         color1 = 6;
-         if (legend_highlight == 3) color1 = flash_color;
-         int px = Ei[num][5];
-         int py = Ei[num][6];
-         al_draw_line(ipx+10, ipy+10, px+10, py+10, palette_color[color1], 0);
-         al_draw_line(epx+10, epy+10, px+10, py+10, palette_color[color1], 0);
-         al_draw_filled_circle(px+10, py+10, 3, palette_color[color1]);
-         al_draw_circle(px+10, py+10, 6, palette_color[color1], 1);
-
-         // control point 2
-         color1 = 7;
-         if (legend_highlight == 4) color1 = flash_color;
-         px = Ei[num][7];
-         py = Ei[num][8];
-         al_draw_line(ipx+10, ipy+10, px+10, py+10, palette_color[color1], 0);
-         al_draw_line(epx+10, epy+10, px+10, py+10, palette_color[color1], 0);
-         al_draw_filled_circle(px+10, py+10, 3, palette_color[color1]);
-         al_draw_circle(px+10, py+10, 6, palette_color[color1], 1);
-
-
-
-
-         // trigger box
-         int color = 14;
-         if (legend_highlight == 5) color = flash_color;
-         int tx1 = Ei[num][11];
-         int ty1 = Ei[num][12];
-         int tx2 = Ei[num][11]+Ei[num][13] + 20;
-         int ty2 = Ei[num][12]+Ei[num][14] + 20;
-         al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color], 1);
       }
 
 

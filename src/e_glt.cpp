@@ -796,6 +796,24 @@ Ef[y][9] = 0;
 
 
 */
+
+
+         for (int y=0; y<100; y++)
+            if (Ei[y][0] == 11) // cannon only
+            {
+               count0++;
+
+               printf("Lev:%3d b:%d\n",le[x], y);
+
+//               al_fixed xlen = Efi[y][2];
+  //             al_fixed ylen = Efi[y][3];
+    //           printf("e:%d  %d [%f] [%f] \n", y, Ei[y][20], al_fixtof(xlen), al_fixtof(ylen));
+            }
+
+
+
+
+
    /*
 
 
@@ -951,7 +969,7 @@ then semisolid...add to solid
 
   */
 
-
+/*
 
       // blocks
       for (int y=0; y<100; y++)
@@ -976,7 +994,7 @@ then semisolid...add to solid
          }
 
 
-
+*/
 
 
             /*

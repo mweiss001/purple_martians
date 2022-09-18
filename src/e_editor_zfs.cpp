@@ -657,6 +657,14 @@ void zfs_save_selection(int save)
          ft_Efi[c][0]-= fx1;
          ft_Efi[c][1]-= fy1;
 
+         if (ft_Ei[c][0] == 13) // vinepod
+         {
+            for (int i=3; i<12; i+=2)
+            {
+               ft_Ei[c][i+0]-= x1;
+               ft_Ei[c][i+1]-= y1;
+            }
+         }
          if (ft_Ei[c][0] == 7 ) // podzilla
          {
             ft_Ei[c][11]-= x1;
@@ -670,13 +678,6 @@ void zfs_save_selection(int save)
             ft_Ei[c][16]-= y1;
             ft_Ei[c][17]-= x1;
             ft_Ei[c][18]-= y1;
-         }
-         if (ft_Ei[c][0] == 10 ) // field
-         {
-            ft_Ei[c][11]-= x1;
-            ft_Ei[c][12]-= y1;
-            ft_Ei[c][15]-= x1;
-            ft_Ei[c][16]-= y1;
          }
       }
 
@@ -884,6 +885,16 @@ void zfs_do_fcopy(int qx1, int qy1)
                   Efi[c][0] = al_itofix(enforce_limit(al_fixtoi(Efi[c][0]), 0, 1980));
                   Efi[c][1] = al_itofix(enforce_limit(al_fixtoi(Efi[c][1]), 0, 1980));
                }
+
+               if (Ei[c][0] == 13) // vinepod
+               {
+                  for (int i=3; i<12; i+=2)
+                  {
+                     Ei[c][i+0]+= x3;
+                     Ei[c][i+1]+= y3;
+                  }
+               }
+
                if (Ei[c][0] == 7) // podzilla trigger box
                {
                   Ei[c][11]+= x3;
@@ -897,13 +908,6 @@ void zfs_do_fcopy(int qx1, int qy1)
                   Ei[c][16]+= y3;
                   Ei[c][17]+= x3;
                   Ei[c][18]+= y3;
-               }
-               if (Ei[c][0] == 10) // field
-               {
-                  Ei[c][11]+= x3;
-                  Ei[c][12]+= y3;
-                  Ei[c][15]+= x3;
-                  Ei[c][16]+= y3;
                }
                if (lim)
                {

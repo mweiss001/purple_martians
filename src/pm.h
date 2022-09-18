@@ -126,6 +126,10 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 #define BORDER_WIDTH 14
 #define NUM_LIFTS 40
 
+#define PM_ENEMY_VINEPOD_SHOW_PATH   0b00000000000000001
+#define PM_ENEMY_VINEPOD_INV_INIT    0b00000000000000010
+#define PM_ENEMY_VINEPOD_INV_EXTN    0b00000000000000100
+#define PM_ENEMY_VINEPOD_INV_MOVE    0b00000000000001000
 
 #define PM_LIFT_TYPE_BITS        0b00000000000000000000000000011111
 #define PM_LIFT_FLAG_BITS        0b00001111111111111111111111100000
@@ -1092,6 +1096,9 @@ void scale_bouncer_and_cannon_speed(int e);
 void set_xyinc_rot(int EN, int x2, int y2);
 void set_rocket_rot(int num, int x2, int y2);
 int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type);
+
+void draw_vinepod_controls(int num, int legend_highlight);
+
 int getxy(const char *txt, int obj_type, int sub_type, int num );
 void show_all_events(void);
 void clear_pm_events(void);
@@ -1137,6 +1144,7 @@ void recalc_pod(int EN);
 void get_pod_extended_position(int e, int *x, int *y);
 int create_cloner(void);
 int create_pod(void);
+int create_vinepod(void);
 
 // e_pde.h
 int load_PDE();

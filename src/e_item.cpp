@@ -355,15 +355,16 @@ int create_start_block(int c)
    item[c][1] = 1021;         // default animation seq
    item[c][2] = 1;            // draw mode
    item[c][3] = 0;            // stationary
-   if (getxy("Start", 2, 5, c) == 1)
-   {
-      // erase all starts except for this newly created one
-      for (int x=0; x<500; x++)
-         if ((item[x][0] == 5) && (x != c)) erase_item(x);
+   item[c][6] = 2;            // mode = checkpoint common
 
-      l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
-      return 1;
-   }
+   // find highest existing start index
+   int hesi = -1;
+   for (int x=0; x<500; x++)
+      if ((item[x][0] == 5) && (x != c))
+         if (item[x][7] > hesi) hesi = item[x][7];
+   item[c][7] = hesi + 1;     // start index
+
+   if (getxy("Start", 2, 5, c) == 1) return 1;
    else return 0;
 }
 
@@ -373,6 +374,9 @@ int create_exit(int c)
    item[c][1] = 1022;         // default animation seq
    item[c][2] = 1;            // draw mode
    item[c][3] = 0;            // stationary
+
+
+
    item[c][8] = 100;          // num enemies left alive to activate this exit
    if (getxy("Exit", 2, 3, c) == 1) // xorg, yorg
    {
