@@ -635,11 +635,16 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       {
          int shape = item[num][13];
          if (shape == 448) shape = 1083;
-         else if (shape == 1083) shape = 448;
-         if ((shape != 448) && (shape != 1083)) shape = 1083;
+         else if (shape == 1083) shape = 0;
+         else if (shape == 0) shape = 448;
+
+         if ((shape != 448)  && (shape != 1083) && (shape != 0)) shape = 1083;
+//         if ((shape != 448) && (shape != 1083)) shape = 1083;
+
          item[num][13] = shape;
          item[num][1] = shape;
-         change_linked_door_color_and_shape(num);
+
+//         if (shape != -1) change_linked_door_color_and_shape(num);
       }
    }
 

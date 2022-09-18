@@ -271,15 +271,13 @@ int create_pod(void)
    Ei[e][2] = 0;     // draw type
    Efi[e][12] = al_itofix(1);  // scale
    Efi[e][14] = al_itofix(0);  // rotation
-
    Efi[e][7] = al_itofix(6);     // bullet speed
    Efi[e][9] = al_itofix(10);    // default speed
-
    Ei[e][7] = 20;    // default seq delay
    Ei[e][9] = 20;    // default delay
-
    Ei[e][25] = 12;  // health bonus
    Ei[e][29] = 10;  // default collision box
+   Efi[e][4] = al_itofix(2);   // damage
 
    if (getxy("Podzilla", 3, 7, e) == 1)
    {
@@ -299,5 +297,58 @@ int create_pod(void)
    }
    else return e;
 }
+
+int create_vinepod(void)
+{
+   int aborted_create = 0;
+   int e = get_empty_enemy(13);
+
+   Ei[e][1] = 374;             // shape
+   Ei[e][2] = 0;               // draw type
+   Efi[e][12] = al_itofix(1);  // scale
+   Efi[e][14] = al_itofix(0);  // rotation
+   Efi[e][7] = al_itofix(6);   // bullet speed
+   Ei[e][17] = 120;            // extend time
+   Ei[e][19] = 20;             // pause
+   Ei[e][25] = 13;             // health bonus
+   Ei[e][29] = 10;             // default collision box
+   Efi[e][4] = al_itofix(2);   // damage
+
+   if (getxy("VinePod Initial Position", 3, 17, e) == 1)
+   {
+      // enforce that 34 is 01
+      Ei[e][3] = al_fixtoi(Efi[e][0]);
+      Ei[e][4] = al_fixtoi(Efi[e][1]);
+
+      // temporarily set control points to the same as initial position
+      Ei[e][5] = Ei[e][3];
+      Ei[e][6] = Ei[e][4];
+      Ei[e][7] = Ei[e][3];
+      Ei[e][8] = Ei[e][4];
+
+      if (getxy("VinePod Extended Position", 90, 17, e) == 1)
+      {
+         if (!get_block_range("Trigger Box", &Ei[e][11], &Ei[e][12], &Ei[e][13], &Ei[e][14], 2)) aborted_create = 1;
+
+         // set control points away from initial position to make them easier to adjust l
+         Ei[e][5] = Ei[e][3]+20;
+         Ei[e][6] = Ei[e][4]-20;
+         Ei[e][7] = Ei[e][3]-20;
+         Ei[e][8] = Ei[e][4]-20;
+
+      }
+      else aborted_create = 1;
+   }
+   else aborted_create = 1;
+
+   if (aborted_create)
+   {
+      Ei[e][0] = 0;
+      sort_enemy();
+      return -1;
+   }
+   else return e;
+}
+
 
 

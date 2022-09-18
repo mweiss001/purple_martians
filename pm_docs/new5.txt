@@ -31662,8 +31662,6 @@ even nicer!!!
 
 I think I am ready to start implementing how it works in the game...
 
-
-
 I want to run a counter, very similar to the old method.
 But this time there will be no speed variable.
 The one variable will the the counter and it will correspond to the position in the array of points.
@@ -31691,15 +31689,209 @@ and the path traveled so far...done
 
 make it so that moving main with shift moves all..done
 
+creator..done
+where? find old one
+
+fix damage when touched (now is zero by default for both pod and vinepod) .. done..set to 2
+
+add flag variable...
+- invincible in initial pos
+- invincible in extended pos
+- invincible when moving
+- show path
+
+Ei[e][20] // flags
+
+#define PM_ENEMY_VINEPOD_SHOW_PATH   0b00000000000000001
+#define PM_ENEMY_VINEPOD_INV_INIT    0b00000000000000010
+#define PM_ENEMY_VINEPOD_INV_EXTN    0b00000000000000100
+#define PM_ENEMY_VINEPOD_INV_MOVE    0b00000000000001000
+
+how should I handle invincible?
+eat bullet but do not kill? ignore bullet?
+eat bullet but do not kill...done
+
 I am not entirely happy with the way the animation changes as it extends and how it looks when waiting
 
-I would like to make some leaves on the vine as it extends
+I want it to rotate from the base of the shape, not the middle...done
 
-modes that are invincible
+I would like to make some leaves on the vine as it extends..done
 
-creator
 
-make path visible or not
+/*
+
+      float dist = 0;
+      float ld = 25;  // distance between leaves
+      float tl = ld;  // leaf distance tally
+
+      // cycle points as far as vine has extended
+      for (int i=2; i<=Ei[e][16]*2; i+=2)
+      {
+         float x1 = dest[i-2];
+         float y1 = dest[i-1];
+         float x2 = dest[i+0];
+         float y2 = dest[i+1];
+
+         // get distance of this step
+         float xlen = x1-x2;
+         float ylen = y1-y2;
+         float ds = sqrt(pow(xlen, 2) + pow(ylen, 2));
+
+         dist += ds; // add to total distance
+
+         if (dist>tl)
+         {
+            // printf("dif:%f\n", dist-tl);
+            tl+=ld;
+            //al_draw_circle(x1, y1, 3, c2, 1);
+
+            // find the angle of a tangent line at this point
+            float ang = atan2(ylen, xlen);
+
+//            printf("ang:%f\n", ang);
+
+            // lets try drawing a line with this angle
+
+            float xo = cos(ang) * 20;
+            float yo = sin(ang) * 20;
+
+            al_draw_line(x1-xo, y1-yo, x1+xo, y1+yo, palette_color[11], 0);
+
+
+            ang += ALLEGRO_PI/2;
+
+            xo = cos(ang) * 20;
+            yo = sin(ang) * 20;
+
+            al_draw_line(x1-xo, y1-yo, x1+xo, y1+yo, palette_color[10], 0);
+
+
+            // I have xlen a ylen aleady
+
+
+            // rotate + or - 90
+
+            // travel a set distance
+
+//
+//            // draw a leaf
+//            float ra = atan2(ylen, xlen); // get the angle of a tangent line at this point
+//
+//
+//            lsa = !lsa;
+//
+//            if (lsa) ra+= ALLEGRO_PI;
+//
+
+            al_draw_circle(x1+xo, y1+yo, 3, palette_color[10], 0);
+//
+
+               // how far off the vine is each leaf
+               //float xo = cos(ang - ALLEGRO_PI/2) * 0;
+               //float yo = sin(ang - ALLEGRO_PI/2) * 0;
+
+
+
+//
+//           al_draw_scaled_rotated_bitmap(tile[311], 10, 20, x1+xo, y1+yo, .6, .6, ra, 0);
+//
+//           //al_draw_textf(f3, palette_color[15], x1+xo, y1+yo, 0,"%2.1f", ra );
+
+
+
+
+
+         }
+      }
+
+
+*/
+
+
+
+
+make it so that when moving with zfs, all points move too..
+
+what about copy with draw item? that too??
+
+
+
+i just realized that all these points are absolute
+they could be relative to the initial position...
+is it worth it to change them?? not now..maybe later..
+
+copy item done...
+zfs done...
+
+still need to do a help file entry for this
+
+also what about making control points not snap to 20??
+
+
+
+straighten out the creators...done
+start block should not erase all others...done
+how are creators sorted??
+
+change block walker...
+make it so that the blocks created can be breakable
+
+
+need a variable for what type of block to create..
+
+normal solid
+breakable with p_bullets
+what other options?
+bombable? breakable with e_bullets
+
+i think by far the most common will be breakable with p_bullets
+so much in fact that I think that could be the only option
+it is very dangerous to make soild blocks, so easy to get trapped...
+
+search with glt and see where used...nothing I need to worry about
+
+OK do it and make a test level..
+
+make it so that permanent pmsg show all the time in level editor...for aligning with other things
+I tried to do this before and ran in to a bug where the buttons on pmsg veiwer did not show...
+this time I fixed it!  when item icon was drawn at the top of viewer with draw item custom
+it was some how changing what gets drawn on..
+
+bug when block walkers get copied with zfs, turn before hole gets changed..cannot reproduce...
+
+make start creator make checkpoint common..done
+and make it use the next index...done
+
+
+make doors able to be invisible
+item[i][13] - base anaimation shape
+448 old style
+done but may be a bit buggy....
+
+the only enemy left to make an advanced level for is jumpworm
+
+then lifts will be rather complex
+
+then items?
+
+start, exit, keys, swicthes, bonus are all very simple
+
+complex..trigger..bm..bd
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

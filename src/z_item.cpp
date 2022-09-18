@@ -108,20 +108,23 @@ void draw_door(int i, int x, int y, int custom)
 {
    ALLEGRO_BITMAP *tmp = NULL;
    int col = item[i][6];
+   int drawn = 0;
    if (item[i][13] == 448) // old style door shape
    {
       int shape = item[i][1];       // get shape
       int si = shape-448;           // convert to index to bitmap sequence
       tmp = door_tile[1][col][si];
    }
-   else // new style doors
+   else if (item[i][13] == 1083) // new style doors
    {
       int an = zz[1][83];             // cheat and use shape index from base door animation sequence
       if (item[i][8] == 0) an = 7-an; // exit only, run the sequence backwards
       tmp = door_tile[0][col][an];
    }
+   else if (item[i][13] == 0) drawn = 1;
+   else if (item[i][13] == -1) drawn = 1;
 
-   int drawn = 0;
+
    if ((item[i][8] == 1) && (!custom)) // linked item destination
    {
       // linked destination item position
@@ -605,19 +608,14 @@ void draw_item(int i, int custom, int cx, int cy)
    if (shape > 999) shape = zz[0][shape-1000];   // ans
    int drawn = 0;
 
-   if (type == 10) // pop up message
+
+   if ((type == 10) && (!custom)) // pop up message
    {
-      // if psmg is always on (item[i][7] < 0)
-      // force 6 to be that also so it will show before being touched the first time
-      // i don't know why doing that while level editor running make the object viewer button not show
-      if ((!level_editor_running) && (item[i][7] < 0))
+      if ((item[i][7] < 0))
       {
          item[i][6] = item[i][7];
-         drawn = 1; // don't draw actual msg if always on
-
+         if (!level_editor_running) drawn = 1; // don't draw actual msg if always on, unless in level editor
       }
-
-
       if (item[i][6])
       {
          item[i][6]--;
@@ -625,15 +623,12 @@ void draw_item(int i, int custom, int cx, int cy)
       }
    }
 
+
    if (type == 1)  { draw_door(i, x, y, custom);         drawn = 1; }
    if (type == 6)  { draw_orb(i, x, y);                  drawn = 1; }
    if (type == 9)  { draw_trigger(i, x, y);              drawn = 1; }
    if (type == 16) { draw_block_manip(i, x, y);          drawn = 1; }
    if (type == 17) { draw_block_damage(i, x, y, custom); drawn = 1; }
-
-
-
-
 
    if ((type == 8) && (item[i][11]) ) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
 

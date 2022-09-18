@@ -259,6 +259,90 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
 
 
 
+void draw_vinepod_controls(int num, int legend_highlight)
+{
+   // enforce that 34 is 01
+   Ei[num][3] = al_fixtoi(Efi[num][0]);
+   Ei[num][4] = al_fixtoi(Efi[num][1]);
+
+   // put variables in spline array
+   float pnts[8];
+   for (int i=0; i<8; i++) pnts[i] = Ei[num][i+3]+10;
+
+   al_draw_spline(pnts, palette_color[10], 0);
+
+   // fill array of points from the spline
+   float dest[200];
+   al_calculate_spline(dest, 8, pnts, 0, 100);
+
+   // initial position
+   int ipx = Ei[num][3];
+   int ipy = Ei[num][4];
+
+   // set initial rotation
+   al_fixed xlen = al_ftofix(dest[4] - dest[0]);            // get the x distance
+   al_fixed ylen = al_ftofix(dest[5] - dest[1]);            // get the y distance
+   Efi[num][14] = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
+
+   // extended position
+   int color1 = 10;
+   if (legend_highlight == 2) color1 = flash_color;
+   int epx = Ei[num][9];
+   int epy = Ei[num][10];
+   crosshairs_full(epx+10, epy+10, color1, 1);
+
+   al_draw_textf(f3, palette_color[15], epx+22, epy+0, 0, "x:%d", epx-ipx);
+   al_draw_textf(f3, palette_color[15], epx+22, epy+8, 0, "y:%d", epy-ipy);
+
+   // set extended rotation
+   xlen = al_ftofix(dest[198] - dest[194]);                     // get the x distance
+   ylen = al_ftofix(dest[199] - dest[193]);                     // get the y distance
+   al_fixed ext_rot = al_fixatan2(ylen, xlen) - al_itofix(64);  // rotation
+
+   // draw tile at extended pos
+   float rot = al_fixtof(al_fixmul(ext_rot, al_fixtorad_r));
+   al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, epx+10, epy+10, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL);
+
+   // control point 1
+   color1 = 6;
+   if (legend_highlight == 3) color1 = flash_color;
+   int px = Ei[num][5];
+   int py = Ei[num][6];
+   al_draw_line(ipx+10, ipy+10, px+10, py+10, palette_color[color1], 0);
+   al_draw_line(epx+10, epy+10, px+10, py+10, palette_color[color1], 0);
+   al_draw_filled_circle(px+10, py+10, 3, palette_color[color1]);
+   al_draw_circle(px+10, py+10, 6, palette_color[color1], 1);
+   al_draw_textf(f3, palette_color[15], px+20, py+0, 0, "x:%d", px-ipx);
+   al_draw_textf(f3, palette_color[15], px+20, py+8, 0, "y:%d", py-ipy);
+
+
+
+   // control point 2
+   color1 = 7;
+   if (legend_highlight == 4) color1 = flash_color;
+   px = Ei[num][7];
+   py = Ei[num][8];
+   al_draw_line(ipx+10, ipy+10, px+10, py+10, palette_color[color1], 0);
+   al_draw_line(epx+10, epy+10, px+10, py+10, palette_color[color1], 0);
+   al_draw_filled_circle(px+10, py+10, 3, palette_color[color1]);
+   al_draw_circle(px+10, py+10, 6, palette_color[color1], 1);
+   al_draw_textf(f3, palette_color[15], px+20, py+0, 0, "x:%d", px-ipx);
+   al_draw_textf(f3, palette_color[15], px+20, py+8, 0, "y:%d", py-ipy);
+
+   // trigger box
+   int color = 14;
+   if (legend_highlight == 5) color = flash_color;
+   int tx1 = Ei[num][11];
+   int ty1 = Ei[num][12];
+   int tx2 = Ei[num][11]+Ei[num][13] + 20;
+   int ty2 = Ei[num][12]+Ei[num][14] + 20;
+   al_draw_rectangle(tx1, ty1, tx2, ty2, palette_color[color], 1);
+
+
+}
+
+
+
 
 
 
@@ -368,49 +452,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          al_draw_line(ex, ey, px, py, palette_color[10], 1); // connect with line
       }
 
-      if (obj_type == 90) // move vinepod extended
-      {
-         int ex = al_fixtoi(Efi[num][0])+10;
-         int ey = al_fixtoi(Efi[num][1])+10;
-         int px = Ei[num][9]+10;
-         int py = Ei[num][10]+10;
-
-         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-
-         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
-         al_draw_line(ex, ey, px, py, palette_color[10], 1); // connect with line
-      }
-
-
-      if (obj_type == 91) // move vinepod cp1
-      {
-         int ex = al_fixtoi(Efi[num][0])+10;
-         int ey = al_fixtoi(Efi[num][1])+10;
-         int px = Ei[num][5]+10;
-         int py = Ei[num][6]+10;
-
-         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-
-         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
-         al_draw_line(ex, ey, px, py, palette_color[6], 1); // connect with line
-      }
-
-      if (obj_type == 92) // move vinepod cp1
-      {
-         int ex = al_fixtoi(Efi[num][0])+10;
-         int ey = al_fixtoi(Efi[num][1])+10;
-         int px = Ei[num][7]+10;
-         int py = Ei[num][8]+10;
-
-         float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-
-         al_draw_scaled_rotated_bitmap(tile[Ei[num][1]], 10, 10, px, py, 1, 1, rot, ALLEGRO_FLIP_HORIZONTAL); // draw tile at extended pos
-         al_draw_line(ex, ey, px, py, palette_color[7], 1); // connect with line
-      }
-
-
-
-
+      if ((obj_type == 90) || (obj_type == 91) || (obj_type == 92)) draw_vinepod_controls(num, -1); // move vinepod extended, cp1, cp2
 
 
       if (obj_type == 98) // move cloner destination
