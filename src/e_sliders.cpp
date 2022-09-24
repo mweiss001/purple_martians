@@ -191,33 +191,51 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    else          sprintf(smsg, "%s%d", txt, var);
    float dsx = draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, sdx, sul, sll, 1);
 
-   // is mouse on adjustment bar?
-   if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
-   {
-      draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
-      if (mouse_b3) // only when initially clicked
+   if (!q7)
+   {
+      // is mouse on adjustment bar?
+      if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
       {
-         while (mouse_b3)
+         draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
+         al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
+
+         if (mouse_b3) // only when initially clicked
          {
-            var = (int)get_slider_position3((float) var, sul, sll, sinc, q4, x1, y1, x2, y2);
-            if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
-            else          sprintf(smsg, "%s%d", txt, var);
-            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float)var, sul, sll, 2);
+            while (mouse_b3)
+            {
+               var = (int)get_slider_position3((float) var, sul, sll, sinc, q4, x1, y1, x2, y2);
+               if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
+               else          sprintf(smsg, "%s%d", txt, var);
+               draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float)var, sul, sll, 2);
+            }
+         }
+         if (mouse_b1)
+         {
+            while (mouse_b1)
+            {
+               var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
+               if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
+               else          sprintf(smsg, "%s%d", txt, var);
+               draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float) var, sul, sll, 1);
+            }
          }
       }
-      if (mouse_b1)
+      else // if not on adjustment bar, is mouse pressed anywhere else on this button?
       {
-         while (mouse_b1)
+         if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
          {
-            var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
-            if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
-            else          sprintf(smsg, "%s%d", txt, var);
-            draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float) var, sul, sll, 1);
+            while (mouse_b1)
+            {
+               var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
+               if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
+               else          sprintf(smsg, "%s%d", txt, var);
+               draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float) var, sul, sll, 1);
+            }
          }
       }
    }
+
    if (q6 == 1) y1+=bts;
 }
 

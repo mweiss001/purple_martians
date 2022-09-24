@@ -31879,6 +31879,61 @@ start, exit, keys, swicthes, bonus are all very simple
 complex..trigger..bm..bd
 
 
+make sliders able to set default values if out of range
+start with jumpworm jump before hole
+changed slider0 so that a mouse click anywhere not on the adjustment bar will jump to that value and act like a mouse click on slider bar
+
+
+in jumpworm, adjust the is up solid...
+this is harder than it would first seem..
+do it only when jumping...when Ei[][5] < 0
+its just too complex...all my collison code assumes that everything is 20x20
+if I have to make exceptions for things that are 20x10 I would need some very complex exceptions
+just live with it, they hit ceilings with a 10 pixel margin...
+
+
+in jumpworm, make an option to wall jump, get a boost when kicking off a wall
+add a variable 'Wall Jump Boost' from 0 (off) to 160 (max)
+done....
+
+I think that is all I want to add to the mechanics of jumpworm...
+should not break any existing, because Ei[][8] is zero...
+
+What if jumpworms left some kind of damaging slime on walls and floors?
+
+I would need to add a whole new mechanic to deal with that...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
