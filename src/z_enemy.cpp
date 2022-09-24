@@ -198,6 +198,19 @@ void draw_enemy(int e, int custom, int cx, int cy)
       }
    }
 
+/*
+   if (Ei[e][0] == 5) // jumpworm
+   {
+      // enemy position (add 10 to get the center)
+      int x1 = al_fixtoi(Efi[e][0]);
+      int y1 = al_fixtoi(Efi[e][1]);
+      int x2 = x1 + 20;
+      int y2 = y1 + 20;
+      al_draw_rectangle(x1, y1, x2, y2, palette_color[14], 1);
+
+   }
+
+*/
 
    #ifdef SHOW_POD_CLONER_TRIGGER_BOX
    if ((Ei[e][0] == 7) || (Ei[e][0] == 9))// show podzilla or cloner trigger box
@@ -2200,7 +2213,8 @@ Ei[][4]   ground speed divider
 Ei[][5]   jump/fall -160 max jump, 160 max fall
 Ei[][6]   jump wait (0=none)
 Ei[][7]   jump when player above
-Ei[][8]   follow(0) or bounce(1)
+Ei[][8]   wall jump boost (0=none, 160=max)
+
 Ei[][10]  turn before hole
 Ei[][11]  jump before hole
 Ei[][12]  jump before wall
@@ -2370,9 +2384,14 @@ void enemy_jumpworm(int e)
       al_fixed ym = Ei[e][5] * Efi[e][3];
       al_fixed ym1 = ym/100;
       Efi[e][1] += ym1;
-      EYint = al_fixtoi(Efi[e][1]);
-      if ((is_up_solid(EXint, EYint, 1, 2) == 1) || (is_up_solid(EXint, EYint, 1, 2) > 31) ) Ei[e][5] = 0;  // stop rising
+      EYint = al_fixtoi(Efi[e][1]) + 0;
+      if ((is_up_solid(EXint, EYint, 1, 2) == 1) || (is_up_solid(EXint, EYint, 1, 2) > 31) )
+      {
+         Ei[e][5] = 1;     // stop rising
+         Efi[e][1] -= ym1; // take back move
+      }
    }
+
 
    // timed jump and jump when player passes above
    if ((on_solid) || (on_lift))
@@ -2399,20 +2418,34 @@ void enemy_jumpworm(int e)
 
    Efi[e][14] = al_itofix(0); // default is no rotation
 
+
    // x move differently if jumping or falling
-   if (Ei[e][5])
+   if ((Ei[e][5]) || (!on_solid))
    {
-      al_fixed js = Efi[e][6]; // speed for jump
-      if (Ei[e][2] == 1)  // move right
+      al_fixed js = Efi[e][6]; // x speed for jump
+      if (Ei[e][2] == 1)                              // move right
       {
-         if (is_right_solid(EXint+al_fixtoi(js), EYint, 1, 2)) Ei[e][2] = 0; // change direction
-         else Efi[e][0] += js;                                               // make the move
+         if (is_right_solid(EXint+al_fixtoi(js), EYint, 1, 2))
+         {
+            Ei[e][2] = 0;                             // change direction
+            Ei[e][5] -= Ei[e][8];                     // wall jump boost
+            if (Ei[e][5] < -160) Ei[e][5] = -160;     // max jump
+         }
+         else Efi[e][0] += js;                        // make the move
       }
-      else if (Ei[e][2] == 0)  // move left
+      else if (Ei[e][2] == 0)                         // move left
       {
-         if (is_left_solid(EXint-al_fixtoi(js), EYint, 1, 2)) Ei[e][2] = 1; // change direction
-         else Efi[e][0] -= js;                                              // make the move
+         if (is_left_solid(EXint-al_fixtoi(js), EYint, 1, 2))
+         {
+            Ei[e][2] = 1;                             // change direction
+            Ei[e][5] -= Ei[e][8];                     // wall jump boost
+            if (Ei[e][5] < -160) Ei[e][5] = -160;     // max jump
+        }
+         else Efi[e][0] -= js;                        // make the move
       }
+
+
+      // set shape
       Ei[e][1] = 704;              // only one shape for falling or jumping
       al_fixed ym = Ei[e][5] * Efi[e][3] / 100;
       al_fixed angle = al_fixatan2(ym, js);
