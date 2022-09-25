@@ -629,16 +629,16 @@ void zfs_save_selection(int save)
          ft_item[c][4] = item[b][4] - x1;
          ft_item[c][5] = item[b][5] - y1;
 
-         if ((item[b][0] == 4) || (item[b][0] == 9) || (item[b][0] == 16) || (item[b][0] == 17)) // key, trigger, manip, damage
+         if ((item[b][0] == 4) || (item[b][0] == 9) || (item[b][0] == 10) || (item[b][0] == 16) || (item[b][0] == 17)) // key, trigger, manip, damage
          {   // set new destination
             ft_item[c][6] = item[b][6] - bx1*20;
             ft_item[c][7] = item[b][7] - by1*20;
          }
-
          if (item[b][0] == 10) // message
          {
-            ft_item[c][10] = item[b][10] - bx1*20;
-            ft_item[c][11] = item[b][11] - by1*20;
+            int x=0, y=0;
+            get_int_3216(item[b][10], x, y);                        // get x and y
+            set_int_3216(ft_item[c][10], x - bx1*20, y - by1*20);   // add offset and set x and y
             strcpy(ft_pmsgtext[c], pmsgtext[b]);
          }
       }
@@ -980,7 +980,7 @@ void zfs_do_fcopy(int qx1, int qy1)
                      item[c][var_index] = ev2;
                   }
 
-               if ((item[c][0] == 4) || (item[c][0] == 9) || (item[c][0] == 16) || (item[c][0] == 17)) // key, trigger, manip, damage
+               if ((item[c][0] == 4) || (item[c][0] == 9)|| (item[c][0] == 10) || (item[c][0] == 16) || (item[c][0] == 17)) // key, trigger, manip, damage
                {
                   item[c][6] += qx1*20;
                   item[c][7] += qy1*20;
@@ -991,8 +991,9 @@ void zfs_do_fcopy(int qx1, int qy1)
                }
                if (item[c][0] == 10) // message
                {
-                  item[c][10] += qx1*20; // adjust msg location
-                  item[c][11] += qy1*20;
+                  int x=0, y=0;
+                  get_int_3216(item[c][10], x, y);                     // get x y
+                  set_int_3216(item[c][10], x + qx1*20, y + qy1*20);   // add offset and set x y
                   strcpy(pmsgtext[c], ft_pmsgtext[b]);
                }
                // limits exceeded; erase

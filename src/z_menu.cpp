@@ -1170,13 +1170,10 @@ void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color
 int edit_pmsg_text(int c, int new_msg)
 {
    int bts = 16;
-   int tc = item[c][8];
    int char_count;
    int cursor_pos=0;
-   int old_cp=0;
-   int blink_count = 3;
+   int blink_count = 8;
    int blink_counter = 0;
-   int k=0;
    char f[1800];
    int quit = 0;
 
@@ -1204,100 +1201,80 @@ int edit_pmsg_text(int c, int new_msg)
    while (!quit)
    {
       al_set_target_backbuffer(display);
-      display_pop_message(c, f, smx, smy, 1, 0);
+
+      if (++blink_counter > blink_count) blink_counter = 0;
+      if (blink_counter > 4) draw_pop_message(c, 1, smx, smy, cursor_pos, f); // show the message with cursor_pos
+      else                   draw_pop_message(c, 1, smx, smy, -1, f);         // show the message without
+
 
       int by = smy-bts/2-2;
       int ey = by+-3*bts; // erase y1
       int by1 = ey;
 
-      mdw_buttont(    xa, by1, xb, bts, 0,0,0,0,  0,15,13,0, 1,0,1,1, "Type a New Message"); // display text only
+            mdw_buttont(    xa, by1, xb, bts, 0,0,0,0,  0,15,13,0, 1,0,1,1, "Edit Message"); // display text only
       if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,11,15,0, 1,0,1,0, "OK"))     { quit = 1; bad = 0; }
-      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,10,15,0, 1,0,1,0, "Cancel")) { quit = 1; bad = 1; }
+     if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,10,15,0, 1,0,1,0, "Cancel")) { quit = 1; bad = 1; }
 
 
-      if (blink_counter++ < blink_count) show_cursor(f, cursor_pos, smx, smy, tc, 0, 0);
-      else                               show_cursor(f, cursor_pos, smx, smy, tc, 1, 0);
-      if (blink_counter> blink_count*2) blink_counter = 0;
+//      al_draw_filled_rectangle(xa, by1-30, xb, by1-10, palette_color[0]);
+//      al_draw_rectangle(xa, by1-30, xb, by1-10, palette_color[15], 1);
+//      al_draw_textf(font, palette_color[15], xa, by1-20, 0, "%d/%d %d", cursor_pos, char_count, strlen(f));
 
-      if (cursor_pos != old_cp)
+      proc_controllers();
+
+      if (key[ALLEGRO_KEY_HOME])  cursor_pos = 0;
+      if (key[ALLEGRO_KEY_END])   cursor_pos = char_count;
+      if (key[ALLEGRO_KEY_RIGHT]) if (++cursor_pos > char_count) cursor_pos = char_count;
+      if (key[ALLEGRO_KEY_LEFT])  if (--cursor_pos < 0) cursor_pos = 0;
+
+      if (key[ALLEGRO_KEY_UP])                                           // move up one line
       {
-         show_cursor(f, old_cp, smx, smy, tc, 1, 0); // erase old blinking cursor if moved
-         old_cp = cursor_pos;
-         blink_counter = 0;
+         while (key[ALLEGRO_KEY_UP]) proc_controllers();                 // wait for release
+         int ocp = cursor_pos;                                           // get original position
+         while ((--cursor_pos > 0) && (f[cursor_pos] != 126));           // find previous LF
+         int mv = cursor_pos - ocp;                                      // how far did we move?
+         while ((--cursor_pos > 0) && (f[cursor_pos] != 126));           // find previous LF
+         cursor_pos -= mv;                                               // subtract move
+         if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
       }
-
-      k = proc_controllers();
-
-      if (key[ALLEGRO_KEY_RIGHT])
+      if (key[ALLEGRO_KEY_DOWN])                                         // move down one line
       {
-         if (++cursor_pos >= char_count) cursor_pos = char_count-1;
-      }
-      if (key[ALLEGRO_KEY_LEFT])
-      {
-         if (--cursor_pos < 0) cursor_pos = 0;
+         while (key[ALLEGRO_KEY_DOWN]) proc_controllers();               // wait for release
+         int ocp = cursor_pos;                                           // get original position
+         while ((++cursor_pos < char_count) && (f[cursor_pos] != 126));  // find next LF
+         int mv = cursor_pos - ocp;                                      // how far did we move?
+         while ((++cursor_pos < char_count) && (f[cursor_pos] != 126));  // find next LF
+         cursor_pos -= mv;                                               // subtract move
+         if (cursor_pos > char_count) cursor_pos = char_count;           // make sure we are not past the end
       }
       if ((key[ALLEGRO_KEY_DELETE]) && (cursor_pos < char_count))
       {
-         for (int aa = cursor_pos; aa < char_count; aa++)
-           f[aa]=f[aa+1];
+         al_rest(0.07);
+         for (int aa = cursor_pos; aa < char_count; aa++) f[aa]=f[aa+1];
          char_count--;
-         // set last to NULL
-         f[char_count] = (char)NULL;
+         f[char_count] = (char)NULL; // set last to NULL
       }
       if ((key[ALLEGRO_KEY_BACKSPACE]) && (cursor_pos > 0))
       {
+         al_rest(0.07);
          cursor_pos--;
-         for (int aa = cursor_pos; aa < char_count; aa++)
-           f[aa]=f[aa+1];
+         for (int aa = cursor_pos; aa < char_count; aa++) f[aa]=f[aa+1];
          char_count--;
-         // set last to NULL
-         f[char_count] = (char)NULL;
+         f[char_count] = (char)NULL; // set last to NULL
       }
-      if (key[ALLEGRO_KEY_DOWN])
+      if (key_pressed_ASCII)
       {
-         // find next line break
-         while ((++cursor_pos < char_count) && (f[cursor_pos] != 126));
-         cursor_pos++;
-         // make sure we are not past the end
-         if (cursor_pos >= char_count) cursor_pos = char_count-1;
-      }
-      if (key[ALLEGRO_KEY_UP])
-      {
-         // find previous line break
-         while ((--cursor_pos > 0) && (f[cursor_pos] != 126));
-         cursor_pos--;
-         // make sure we are not before the start
-         if (cursor_pos < 0) cursor_pos = 0;
-      }
-      if (key[ALLEGRO_KEY_HOME])
-      {
-         cursor_pos = 0;
-      }
-      if (key[ALLEGRO_KEY_END])
-      {
-         cursor_pos = char_count-1;
-      }
-
-      if (k)
-      {
-         k = key_pressed_ASCII;
-         if (k==13) k = 126; // replace enter with 126 ~
+         al_rest(0.07);
+         int k = key_pressed_ASCII;
+         if (k == 13) k = 126; // replace enter with 126 (~)
 
          if ((k>31) && (k<127)) // if alphanumeric
          {
-            // move over to make room
-            for (int aa = char_count; aa>=cursor_pos; aa--)
-               f[aa+1]=f[aa];
-
-            // set char
-            f[cursor_pos] = k;
-
-            // inc both
-            cursor_pos++;
+            for (int aa = char_count; aa>=cursor_pos; aa--) f[aa+1]=f[aa]; // move over to make room
+            f[cursor_pos] = k; // set char
+            cursor_pos++;      // inc both
             char_count++;
-
-            // set last to NULL
-            f[char_count] = (char)NULL;
+            f[char_count] = (char)NULL; // set last to NULL
          }
       }
       if (key[ALLEGRO_KEY_ESCAPE])
@@ -1306,12 +1283,10 @@ int edit_pmsg_text(int c, int new_msg)
          quit = 1;
          bad = 1;
       }
-
       al_flip_display();
       al_draw_filled_rectangle(xa, ey, xb, ey+10*bts, palette_color[0]);
-
-   //   al_clear_to_color(al_map_rgb(0,0,0));
       al_rest(0.07);
+
    } // end of while (!quit)
 
    if (bad) return 0;

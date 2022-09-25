@@ -404,33 +404,8 @@ void show_all_pmsg(void)
          int lines = 1;
          int mll = 0; // max line length
          int tlc = 0; // temp line counter
-
-//            for (int j=0; j<len; j++)
-//               al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "[%d][%d]", j, pmsgtext[i][j]);
-//
-//            for (int j=0; j<len; j++)
-//               al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "[%d][%c]", j, pmsgtext[i][j]);
-
-         al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "Item:%2d len:%3d lines:%2d max length:%2d", i, len, lines, mll);
          for (int j=0; j<len; j++)
          {
-            int col = 15;
-
-            if ((pmsgtext[i][j] < 32) || (pmsgtext[i][j] > 126)) col = 10; // bad char
-
-
-            if (pmsgtext[i][j] == 126)
-            {
-               col = 14;
-               lines++;
-               if (tlc > mll) mll = tlc;
-               tlc = 0;
-            }
-            else tlc++;
-
-
-            al_draw_textf(font, palette_color[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsgtext[i][j], pmsgtext[i][j] );
-
             if (pmsgtext[i][j] == 126)
             {
                lines++;
@@ -439,90 +414,30 @@ void show_all_pmsg(void)
             }
             else tlc++;
          }
+         if (lines == 1) mll = tlc;
+
+         al_draw_textf(font, palette_color[14], 20, text_pos+=8, 0, "Item:%-2d len:%-3d lines:%-2d max length:%-2d", i, len, lines, mll);
+
+         for (int j=0; j<len; j++)
+         {
+            int col = 15;
+            if ((pmsgtext[i][j] < 32) || (pmsgtext[i][j] > 126)) col = 10; // bad char
+            if (pmsgtext[i][j] == 126) col = 9; // LF
+            al_draw_textf(font, palette_color[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsgtext[i][j], pmsgtext[i][j] );
+
+            if (text_pos > SCREEN_H - 20)
+            {
+               al_flip_display();
+               tsw(); // wait for keypress
+               al_clear_to_color(al_map_rgb(0,0,0));
+               text_pos = 0;
+            }
+         }
          text_pos +=8;
-         if (tlc > mll) mll = tlc;
-      }
-      if (text_pos > SCREEN_H - 10)
-      {
-         al_flip_display();
-         tsw(); // wait for keypress
-         al_clear_to_color(al_map_rgb(0,0,0));
-         text_pos = 0;
       }
    }
    al_flip_display();
    tsw(); // wait for keypress
-}
-
-
-void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, int show_line_breaks)
-{
-   if (f != NULL)
-   {
-      int len = strlen(f);
-      char dt[40][120];
-      int row = 0, col = 0;
-      int longest_line_len = 1; // default
-      int num_lines = 0;
-
-
-      int tc=0, fc = 0;                  // text and frame colors
-      get_int_3216(item[c][13], tc, fc);
-
-      for (int a=0; a<len+1; a++)
-      {
-         if (f[a] == 126) // line break
-         {
-            if (show_line_breaks)
-            {
-               dt[row][col] = 64; // mark line break with '@'
-               dt[row][col+1] = (char)NULL;
-            }
-            else dt[row][col] = (char)NULL; // in case len = 0 on 1st line
-            row++;
-            col=0;
-            dt[row][col] = (char)NULL; // in case len = 0 on next line
-         }
-         else  // regular char
-         {
-            dt[row][col] = f[a];
-            if (col > longest_line_len) longest_line_len = col;
-            col++;
-            dt[row][col] = (char)NULL;
-         }
-      }
-      num_lines = row;
-
-      // new positions and sizes if text changed
-      int xw = (longest_line_len+1)*4;
-      int px  = xpos_c-xw-2-8;
-      int py  = ypos-2-8;
-      int px2 = xpos_c+xw+8;
-      int py2 = ypos+(num_lines+1)*8+8;
-      int pxw = px2 - px;
-      int pyh = py2 - py;
-
-      // temp bitmap to draw on
-      ALLEGRO_BITMAP * tmp = NULL;
-      tmp = al_create_bitmap(pxw, pyh);
-      al_set_target_bitmap(tmp);
-      al_clear_to_color(al_map_rgb(0,0,0));
-
-      // draw the message frame
-      for (int a=0; a<12; a++)
-         al_draw_filled_rounded_rectangle(a, a, pxw-a, pyh-a, 4, 4, palette_color[fc+a*16]);
-
-      // draw the message text
-      for (row=0; row<=num_lines; row++)
-         al_draw_text(font, palette_color[tc], pxw/2+1, 10+row*8, ALLEGRO_ALIGN_CENTER, dt[row]);
-
-      // draw on screen
-      al_set_target_backbuffer(display);
-      al_draw_bitmap(tmp, px, py, 0);
-
-      al_destroy_bitmap(tmp);
-      al_set_target_backbuffer(display);
-   }
 }
 
 int create_pmsg(int c)
@@ -532,17 +447,11 @@ int create_pmsg(int c)
    item[c][3] = 0;    // stationary
 
    item[c][2] = 0;    // flags
-
    item[c][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
    item[c][2] |= PM_ITEM_PMSG_AUTOSIZE;
 
-
    item[c][12] = 120;  // default message time
-
-   int tc = 15;        // default text color (white)
-   int fc = 12;        // default frame color (blue)
-   set_int_3216(item[c][13], tc, fc);
-
+   set_int_3216(item[c][13], 15, 13); // default text color (white) and frame color (blue)
 
    int bad=0;
 
@@ -560,9 +469,6 @@ int create_pmsg(int c)
       set_int_3216(item[c][11], w, h);
       get_block_range("Trigger Area", &item[c][6], &item[c][7], &item[c][8], &item[c][9], 1);
    }
-
-
-
 
    if (bad) return 0;
    else object_viewerw(2, c);

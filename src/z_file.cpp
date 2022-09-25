@@ -350,10 +350,10 @@ int load_level(int level_to_load, int load_only)
    }
    else
    {
+      num_lifts = level_header[5];
       if (!load_only)
       {
          valid_level_loaded = 1;
-         num_lifts = level_header[5];
          lift_setup();
          for (int x=0; x<500; x++)
             if (item[x][0]) // only if active set x y

@@ -286,7 +286,7 @@ void cm_redraw_level_editor_background(void)
       if ((mW[7].obt == 2) && (item[mW[7].num][0] == 10))
       {
          for (int i=0; i<500; i++)
-            if (item[i][0] == 10) draw_pop_message(i);
+            if (item[i][0] == 10) draw_pop_message(i, 0, 0, 0, 0, msg);
       }
 
       // if mouse on legend line, show highlight

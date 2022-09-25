@@ -490,11 +490,6 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       original_dy = lift_steps[lift][step].y;
    }
 
-
-
-
-
-
    while(!quit)
    {
       cm_redraw_level_editor_background(0);
@@ -549,7 +544,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       {
          // show all messages
          for (int i=0; i<500; i++)
-            if (item[i][0] == 10) draw_pop_message(i);
+            if (item[i][0] == 10) draw_pop_message(i, 0, 0, 0, 0, msg);
       }
 
 

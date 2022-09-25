@@ -334,12 +334,21 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
          break;
          case 10:
-            mW[7].num_legend_lines = 4;
+            mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"Scroll Location");
-            sprintf(lmsg[2],"Message Area");
-            sprintf(lmsg[3],"Trigger Area");
+
+            if (item[num][2] & PM_ITEM_PMSG_AUTOSIZE) sprintf(lmsg[2],"Message Position");
+            else                                      sprintf(lmsg[2],"Message Area");
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
-            legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 14;
+
+
+
+            if (item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
+            {
+               mW[7].num_legend_lines = 4;
+               sprintf(lmsg[3],"Trigger Area");
+               legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 14;
+            }
          break;
          case 11:
             sprintf(lmsg[1],"Rocket Location");
@@ -823,8 +832,12 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             ya+=4; // spacer
 
             mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_AUTOSIZE ,    "Auto Size:OFF",   "Auto Size:ON",    15+dim, 15, 10+dim, 10);
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15, 0,  1,0,1,d, "Set Message Position"))  getxy("Message Position", 95, 10, n);
-                 mdw_button(xa, ya, xb, bts, 6,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Area
+
+            if (item[n][2] & PM_ITEM_PMSG_AUTOSIZE)
+            {
+               if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15, 0,  1,0,1,d, "Set Message Position"))  getxy("Message Position", 95, 10, n);
+            }
+            else    mdw_button(xa, ya, xb, bts, 6,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Area
 
             ya+=4; // spacer
 
@@ -850,7 +863,9 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             ya+=bts*2; // leave space for OK and Cancel buttons
             // draw the current one last to ensure it is on top
             mW[7].pop_msg_viewer_pos = ya+bts/2+2;
-            display_pop_message(n, pmsgtext[n], (xa+xb)/2, mW[7].pop_msg_viewer_pos, 0, 0); // show the message
+
+            draw_pop_message(n, 1, (xa+xb)/2, mW[7].pop_msg_viewer_pos, -1, pmsgtext[n]); // show the message
+
             ya+=bts*8;
          break;
          case 11: // rocket
@@ -1230,42 +1245,61 @@ void ovw_draw_overlays(int legend_highlight)
          break;
          case 10: // pmsg
          {
-            int color = 14;
-            if (legend_highlight == 3) color = flash_color;
-
-            int x2 = item[num][6];
-            int y2 = item[num][7];
-            int x3 = x2 + item[num][8] - 1;
-            int y3 = y2 + item[num][9] - 1;;
-            int x4 = (x2+x3)/2;
-            int y4 = (y2+y3)/2;
-
-            // draw range
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
-
-            color = 10;
+            int color = 10;
             if (legend_highlight == 2) color = flash_color;
 
-            // draw msg box
-            int mx=0, my=0, mw=0, mh=0;
-            get_int_3216(item[num][10], mx, my);
-            get_int_3216(item[num][11], mw, mh);
+            if (item[num][2] & PM_ITEM_PMSG_AUTOSIZE) // message position
+            {
+               int mx=0, my=0;
+               get_int_3216(item[num][10], mx, my);
+               int x2 = mx;
+               int y2 = my;
+               int x3 = mx + 20;
+               int y3 = my + 20;
+               int x4 = (x2+x3)/2;
+               int y4 = (y2+y3)/2;
 
-            x2 = mx;
-            y2 = my;
-            x3 = mx + mw;
-            y3 = my + mh;
-            x4 = (x2+x3)/2;
-            y4 = (y2+y3)/2;
-            // draw range
-            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
-
+               al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
+               al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
+               al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
 
 
+            }
+            else // message area
+            {
+               int mx=0, my=0, mw=0, mh=0;
+               get_int_3216(item[num][10], mx, my);
+               get_int_3216(item[num][11], mw, mh);
+               int x2 = mx;
+               int y2 = my;
+               int x3 = mx + mw;
+               int y3 = my + mh;
+               int x4 = (x2+x3)/2;
+               int y4 = (y2+y3)/2;
+
+               al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
+               al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
+               al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+            }
+
+
+
+            if (item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
+            {
+               int color = 14;
+               if (legend_highlight == 3) color = flash_color;
+
+               int x2 = item[num][6];
+               int y2 = item[num][7];
+               int x3 = x2 + item[num][8] - 1;
+               int y3 = y2 + item[num][9] - 1;;
+               int x4 = (x2+x3)/2;
+               int y4 = (y2+y3)/2;
+
+               al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
+               al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
+               al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+            }
          }
          break;
          case 11: // rocket
