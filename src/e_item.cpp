@@ -464,8 +464,10 @@ void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, i
       int row = 0, col = 0;
       int longest_line_len = 1; // default
       int num_lines = 0;
-      int tc = item[c][8]; // text color
-      int fc = item[c][9]; // frame color
+
+
+      int tc=0, fc = 0;                  // text and frame colors
+      get_int_3216(item[c][13], tc, fc);
 
       for (int a=0; a<len+1; a++)
       {
@@ -527,13 +529,20 @@ int create_pmsg(int c)
 {
    item[c][0] = 10 ;  // type 10 - msg
    item[c][1] = 1036; // animation seq
-   item[c][2] = 1;    // draw mode
    item[c][3] = 0;    // stationary
 
-   item[c][6] = 0;    // clear counter
-   item[c][7] = 120;  // default message time
-   item[c][8] = 15;   // default text color (white)
-   item[c][9] = 12;   // default frame color (blue)
+   item[c][2] = 0;    // flags
+
+   item[c][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
+   item[c][2] |= PM_ITEM_PMSG_AUTOSIZE;
+
+
+   item[c][12] = 120;  // default message time
+
+   int tc = 15;        // default text color (white)
+   int fc = 12;        // default frame color (blue)
+   set_int_3216(item[c][13], tc, fc);
+
 
    int bad=0;
 
@@ -541,16 +550,20 @@ int create_pmsg(int c)
    if (!edit_pmsg_text(c, 1)) bad = 1;
    if (!bad)
    {
-      if (getxy("Message Object", 2, 10, c) == 1)
-      {
-         l[item[c][4]/20][item[c][5]/20] = 0; // make sure empty block in that pos
-      }
-      else bad = 1;
+      if (getxy("Message Object", 2, 10, c) != 1) bad = 1;
    }
    if (!bad)
    {
-      if (!getxy("Message Display", 95, 10, c)) bad = 1;
+      int x=0, y=0, w=0, h=0;
+      get_block_range("Message Area", &x, &y, &w, &h, 1);
+      set_int_3216(item[c][10], x, y);
+      set_int_3216(item[c][11], w, h);
+      get_block_range("Trigger Area", &item[c][6], &item[c][7], &item[c][8], &item[c][9], 1);
    }
+
+
+
+
    if (bad) return 0;
    else object_viewerw(2, c);
    return 1;

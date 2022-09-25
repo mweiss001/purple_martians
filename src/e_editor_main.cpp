@@ -620,15 +620,16 @@ void em_process_mouse(void)
             for (int b=0; b<16; b++) item[c][b] = item[din][b]; // copy from draw item
             item[c][4] += ofx; // adjust with offsets
             item[c][5] += ofy;
-            if ((type == 4) || (type == 9) || (type == 16) || (type == 17)) // move range for key, trig, manip, damage
+            if ((type == 4) || (type == 9) || (type == 10) || (type == 16) || (type == 17)) // move range for key, trig, msg, manip, damage
             {
                item[c][6] += ofx; // adjust with offsets
                item[c][7] += ofy;
             }
             if (type == 10)
             {
-               item[c][10] += ofx; // adjust with offsets
-               item[c][11] += ofy;
+               int x=0, y=0;
+               get_int_3216(item[c][10], x, y); // get x and y olf upper left corner
+               set_int_3216(item[c][10], x+ofx, y+ofy);
                strcpy(pmsgtext[c], pmsgtext[din]); // msg
             }
             sort_item(1);

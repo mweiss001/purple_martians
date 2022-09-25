@@ -207,8 +207,16 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 #define PM_ITEM_ORB_TRIG_BULLET 0b0000000010000000
 #define PM_ITEM_ORB_TRIG_CURR   0b0000000100000000
 #define PM_ITEM_ORB_TRIG_PREV   0b0000001000000000
-
 #define PM_ITEM_ORB_ROTB        0b1100000000000000
+
+#define PM_ITEM_PMSG_SHOW_ALWAYS   0b00000000000000001
+#define PM_ITEM_PMSG_SHOW_SCROLL   0b00000000000000010
+#define PM_ITEM_PMSG_TRIGGER_BOX   0b00000000000000100
+#define PM_ITEM_PMSG_AUTOSIZE      0b00000000000001000
+
+
+
+
 
 
 
@@ -1090,6 +1098,10 @@ int enforce_limit(int val, int ll, int ul);
 int check_limit(int val, int ll, int ul);
 float mdw_rnd(float rmin, float rmax);
 void swap_int(int *i1, int* i2);
+
+void set_int_3216(int &I32, int H16, int L16);
+void get_int_3216(int I32, int &H16, int &L16);
+
 void printBits(size_t const size, void const * const ptr);
 al_fixed get_sproingy_jump_height(int num);
 void scale_bouncer_and_cannon_speed(int e);
@@ -1437,21 +1449,22 @@ void proc_lit_bomb(int);
 void proc_lit_rocket(int);
 
 
-void process_orb(int);
+void proc_pmsg_reset_timer(int);
+
+void proc_pmsg(int);
+void proc_orb(int);
 void draw_orb(int i, int x, int y);
 
-
-
-void process_trigger(int);
+void proc_trigger(int);
 void draw_trigger(int i, int x, int y);
 void set_item_trigger_location_from_lift(int, int);
 void detect_trigger_collisions(int i);
 void proc_start_collision(int p, int i);
-void process_block_manip(int i);
+void proc_block_manip(int i);
 void draw_block_manip(int i, int x, int y);
 void proc_item_damage_collisions(int i);
 void set_item_damage_location_from_lift(int , int);
-void process_block_damage(int i);
+void proc_block_damage(int i);
 void draw_block_damage(int i, int x, int y, int custom);
 
 // z_lift.h

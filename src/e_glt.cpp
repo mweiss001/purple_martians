@@ -635,27 +635,7 @@ Ef[y][9] = 0;
          if (item[y][0] == 0) item[y][0] = 0;
 
 */
-/*
 
-
-      for (y=0; y<500; y++)
-         if (item[y][0] == 2)
-         {
-            count0++;
-
-            if (item[y][7]) count1++;
-            if (item[y][8]) count2++;
-            if (item[y][9]) count3++;
-
-
-            if (item[y][8]) item[y][0] = 0;
-            if (item[y][9]) item[y][0] = 0;
-
-
-            printf("bonus: %d %d %d\n", item[y][7], item[y][8], item[y][9]);
-         }
-
-*/
 
 
 
@@ -797,7 +777,7 @@ Ef[y][9] = 0;
 
 */
 
-
+/*
          for (int y=0; y<100; y++)
             if (Ei[y][0] == 11) // cannon only
             {
@@ -810,7 +790,7 @@ Ef[y][9] = 0;
     //           printf("e:%d  %d [%f] [%f] \n", y, Ei[y][20], al_fixtof(xlen), al_fixtof(ylen));
             }
 
-
+*/
 
 
 
@@ -1549,7 +1529,74 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
          }
 */
 
-      if (0)
+
+
+
+      for (int y=0; y<500; y++)
+         if (item[y][0] == 10) // pmsg
+         {
+//            int mx = item[y][10];
+//            int my = item[y][11];
+//
+//            item[y][10] = 0;
+//            item[y][11] = 0;
+//
+//            set_int_3216(item[y][10], mx, my);
+
+
+//            int mw = 60, mh = 80;
+//            set_int_3216(item[y][11], mw, mh);
+
+
+
+//            item[y][12] = item[y][7];
+//            item[y][7] = 0;
+
+//            // set flags
+//            item[y][2] = 0;
+//            item[y][2] |= PM_ITEM_PMSG_AUTOSIZE;
+//            item[y][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
+//
+//            if (item[y][7] < 1)
+//            {
+//               item[y][7] = 120; // set timer to default value
+//               item[y][2] |= PM_ITEM_PMSG_SHOW_ALWAYS;
+//               item[y][2] &= ~PM_ITEM_PMSG_SHOW_SCROLL; // clear
+//            }
+
+            //if (item[y][6] < 0) item[y][6] = 0;
+
+
+
+//            count0++;
+//
+//            if (item[y][2] != 0) count1++;
+
+
+            // set_int_3216(item[y][13], item[y][8], item[y][9]);
+
+
+//            item[y][8] = 0;
+//            item[y][9] = 0;
+
+
+
+         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      if (1)
       {
          save_level(le[x]);
          al_set_target_backbuffer(display);

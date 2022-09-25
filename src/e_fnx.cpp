@@ -72,6 +72,61 @@ float mdw_rnd(float rmin, float rmax)
 
 
 
+
+
+
+
+
+// packs two 16 bit ints into one 32 bit int
+void set_int_3216(int &I32, int H16, int L16)
+{
+   int err = 0;
+
+   if (H16 > 65535)
+   {
+      printf("error: H16 > 65535");
+      err = 1;
+   }
+
+   if (H16 < 0)
+   {
+      printf("error: H16 < 0");
+      err = 1;
+   }
+
+   if (L16 > 65535)
+   {
+      printf("error: L16 > 65535");
+      err = 1;
+   }
+
+   if (L16 < 0)
+   {
+      printf("error: L16 < 0");
+      err = 1;
+   }
+
+   if (!err) I32 = (H16<<16) + L16;
+}
+
+
+// extracts two 16 bit ints from one 32 bit int
+void get_int_3216(int I32, int &H16, int &L16)
+{
+   H16 = I32 >> 16; // shift high into low
+   H16 = H16 & 0b00000000000000001111111111111111; // clear high
+
+   L16 = I32 & 0b00000000000000001111111111111111; // clear high
+}
+
+
+
+
+
+
+
+
+
 void printBits(size_t const size, void const * const ptr)
 {
    char st[256] = {0};
@@ -402,8 +457,13 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
    }
    if (obj_type == 95) // message display location
    {
+
+
       original_dx = item[num][10];
-      original_dy = item[num][11];
+//      original_dy = item[num][11];
+
+
+
    }
 
    if (obj_type == 90) // vinepod extended
@@ -552,8 +612,16 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          break;
          case 95: // message position
          {
-            item[num][10] = gx*20;
-            item[num][11] = gy*20;
+//            item[num][10] = gx*20;
+//            item[num][11] = gy*20;
+
+
+            set_int_3216(item[num][10], gx*20, gy*20);
+
+
+
+
+
          }
          case 90: // vinepod extended
          {
@@ -653,7 +721,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       if (obj_type == 95) // message display position
       {
           item[num][10] = original_dx;
-          item[num][11] = original_dy;
+       //   item[num][11] = original_dy;
       }
       if (obj_type == 4)
       {

@@ -31905,7 +31905,326 @@ I would need to add a whole new mechanic to deal with that...
 
 
 
+make pmsg always on if any player is in trigger box area...
+dont break existing, just add this functionality
 
+
+all other item triggers use 6,7,8,9 and these are already used for pmsg
+
+I will need to move some things around....
+
+also while working on pmsg, can we make them have a fixed size?
+I spend so much time lining everything up nicely, adding line breaks so that the size comes out the way I want
+what if I use the fancy multi-line print in allegro
+
+
+I will need two more variables for the width and height of the msg
+
+
+current:
+
+[10] - pop-up msg
+item[][6]  timer counter
+item[][7]  timer value
+item[][8]  text color
+item[][9]  frame color
+item[][10] msg x pos (100)
+item[][11] msg y pos (100)
+
+
+what can i not use?
+
+item[][14] = time to live
+item[][15] = tag with cloner item id
+
+I'll need to get creative here, i want 6 more variables, but only have 2...
+
+2 - flags
+6, 7, 8, 9 trigger
+10 - msg x, y
+11 - msg w, h
+12 - timer count and val
+13 - frame and text color
+when I split an 32 bit int, I get 16 for each 65,536
+
+to start with move timer count and val and colors to 12, 13 and convert all existing psmgs
+
+then I will have 6, 7, 8, 9, 10, 11 free...
+
+
+
+how to pack these in...
+
+what if I make a generic function?
+
+void set_int_3216(int *I32, int H16, int L16)
+// packs two 16 bit ints into one 32 bit int
+
+void get_int_3216(int I32, int *H16, int *L16)
+// extracts two 16 bit ints from one 32 bit int
+
+
+usage:
+
+int tc = 0;
+int fc = 0;
+get_int_3216(item[][13], &tc, &fc);
+
+set_int_3216(&item[][13], tc, fc);
+
+implementation:
+
+
+void set_int_3216(int &I32, int H16, int L16)
+{
+   I32 = H16*65636 + L16;
+}
+
+
+void get_int_3216(int I32, int &H16, int &L16)
+{
+   L16 = I32 << 16; // shift lower into place
+   H16 = I32 - L16;
+}
+
+
+test this....done
+
+now patch in for color....
+
+in glt...
+
+for (int y=0; y<500; y++)
+   if (item[y][0] == 10) // pmsg
+   {
+      set_int_3216(item[y][13], item[y][8], item[y][9]);
+   }
+
+
+patched it in draw_pop_message...seems to work...is this the only place I draw??
+
+erase 8 and 9 and see!!!
+
+backup levels....
+
+still seems to work...
+
+now fix where the colors are changed in level editor...
+
+changed also in:
+void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, int show_line_breaks)
+
+I think that the color stuff is all done...
+
+now for the timer stuff
+
+item[][6]  timer counter
+item[][7]  timer value
+
+12 - timer count and val
+
+this can be negative, watch out!!
+
+lets remove that whole negative thing and go with flags
+
+maybe i should do the flags first
+
+#define PM_ITEM_PMSG_SHOW_ALWAYS   0b00000000000000001
+#define PM_ITEM_PMSG_SHOW_SCROLL   0b00000000000000010
+#define PM_ITEM_PMSG_TRIGGER_BOX   0b00000000000000100
+#define PM_ITEM_PMSG_AUTOSIZE      0b00000000000001000
+
+
+check 2 with glt...
+
+with glt...
+
+if timer 7 < 0 then set 1001 (9)
+else set                1010 (8)
+
+set all <0 timers to 120;
+
+
+for (int y=0; y<500; y++)
+   if (item[y][0] == 10) // pmsg
+   {
+      // set flags
+      item[y][2] = 0;
+      item[y][2] |= PM_ITEM_PMSG_AUTOSIZE;
+      item[y][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
+
+      if (item[y][7] < 1)
+      {
+         item[y][7] = 120; // set timer to default value
+         item[y][2] |= PM_ITEM_PMSG_SHOW_ALWAYS;
+         item[y][2] &= ~PM_ITEM_PMSG_SHOW_SCROLL; // clear
+      }
+
+
+now make the always show thing work...
+
+I think I have it figured out...
+
+now move 67 to packed 12
+
+basically just put 7 in 12
+
+i think the timer is done.....
+
+now do the trigger....
+
+detect if any player in trigger area..works!!
+
+now make it adjustable with map...done
+
+now what I have up to here is:
+
+item[][2]  - flags
+item[][6]  - trigger x
+item[][7]  - trigger y
+item[][8]  - trigger w
+item[][9]  - trigger h
+item[][10] - msg x
+item[][11] - msg y
+item[][12] - timer count and val
+item[][13] - frame and text color
+
+I still want to expand these:
+10 - msg x, y
+11 - msg w, h
+
+
+make the rectangle showable for now and apply it later...
+pack x and y into 10....
+
+in glt:
+
+   int mx = item[y][10];
+   int my = item[y][11];
+
+   item[y][10] = 0;
+   item[y][11] = 0;
+
+   set_int_3216(item[y][10], mx, my);
+
+
+
+
+works for existing
+
+fix set new pos...done
+
+fix map move...move
+
+map move both scroll and msg...done...
+
+show in map overlays and allow lr adjust...done
+
+
+now I'm ready to try custom draw!!!
+
+
+its looking really good....
+
+
+to do...what to do when w and h are off the screen?
+make a button to draw new msg area...done
+
+
+fix copying from draw item....done...
+
+what to do about newlines?  I currently use 126 for newlines
+before displaying, make a copy and modify that...done
+extern char pmsgtext[500][500];
+so I have 500 lines....
+
+can I make xywh not snap to 20's, yes!
+
+
+still need to:
+fix creator...done
+
+fix zfs
+
+clean up objv...
+
+when trigger is on or off...done
+
+drawing in obv
+
+title and overlays
+
+Scroll Location (lt blue)
+
+move trigger box also
+
+Message Area (red)
+
+Trigger Area (yellow)
+
+
+
+
+still need to do:
+fix zfs
+drawing in obv
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+need to set colors for msg creator....wait and do it for all...
 
 
 
