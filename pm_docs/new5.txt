@@ -32226,6 +32226,114 @@ fix this bug, then see how far back we have to go to restore levels...
 
 
 
+found levels from yesterday....now use glt to convert pmsgs...
+
+or wait....I could maybe copy lifts from old levels to new??
+
+void pml_to_var(char * b) // for load level
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
+   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
+   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
+   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
+   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
+   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
+   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
+   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
+}
+
+void var_to_pml(char * b) // for save level
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
+   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
+   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
+   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
+   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
+   offset += sz; sz = sizeof(lifts);        memcpy(b+offset, lifts,        sz);
+   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
+   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
+}
+
+
+get old levels folder on desktop....
+
+get new levels folder on desktop.....
+
+
+now I have levels (the new ones) and old_levels that have lifts not deleted
+
+hi level plan...
+
+
+- load old level
+- save lifts in temp struct
+- load new level
+- copy lift structure over
+- save
+
+in main:
+
+struct lift lifts[NUM_LIFTS];
+struct lift_step lift_steps[NUM_LIFTS][40];
+
+struct lift t_lifts[NUM_LIFTS];
+struct lift_step t_lift_steps[NUM_LIFTS][40];
+
+in pm.h
+
+extern struct lift lifts[NUM_LIFTS];
+extern struct lift_step lift_steps[NUM_LIFTS][40];
+
+extern struct lift t_lifts[NUM_LIFTS];
+extern struct lift_step t_lift_steps[NUM_LIFTS][40];
+
+
+now make a custom load_level
+
+loads from alt location
+
+fills the temp variables
+
+int t_load_level(int level_to_load, int load_only);
+
+I thinks I've restored them all!
+
+now clean up....done....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -126,33 +126,6 @@ void global_level()
       al_draw_textf(font, palette_color[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       load_level(le[x], 1);
 
-
-      printf("Lev:%3d num_lifts:%d\n",le[x], num_lifts);
-
-
-//      for (int l=0; l<num_lifts; l++)
-//      {
-//         for (int s=0; s<lifts[l].num_steps; s++)
-//         {
-//            int type = lift_steps[l][s].type & 31;
-//            int val = lift_steps[l][s].val;
-//
-//            if (type == 4)
-//            {
-//                count0++;
-//                if (val == 0) count1++;
-//                if (val == 20) lift_steps[l][s].val = 0; //count2++;
-//
-//                printf("Lev:%3d lift:%-2d step%d val:%d\n",le[x], l, s, val);
-//             }
-//         }
-//      }
-
-
-
-
-
-
       if (1)
       {
          save_level(le[x]);
@@ -160,6 +133,7 @@ void global_level()
          al_draw_textf(font, palette_color[10], 110, 10+x*8, 0, "lev:%d", le[x]);
       }
    } // end of level iterate
+
    al_flip_display();
 
    printf("Total count0:%d \n",count0 );

@@ -157,7 +157,7 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, c
       al_draw_filled_rounded_rectangle(px1+a, py1+a, px2-a, py2-a, 4, 4, palette_color[fc+a*16]);
 
 
-   if (custom) al_draw_textf(font, palette_color[15], pxc+4, py1, ALLEGRO_ALIGN_CENTRE, "%d/500", strlen(pt));
+   if (custom) al_draw_textf(font, palette_color[15], pxc+4, py1, ALLEGRO_ALIGN_CENTRE, "%d/500", (int) strlen(pt));
 
 
 
