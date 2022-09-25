@@ -62,11 +62,6 @@ void remove_unused_tiles(void)
 
 
 
-
-
-
-
-
 void global_level()
 {
    int old_start_level = start_level;
@@ -130,6 +125,82 @@ void global_level()
       al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
       al_draw_textf(font, palette_color[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       load_level(le[x], 1);
+
+
+      printf("Lev:%3d num_lifts:%d\n",le[x], num_lifts);
+
+
+//      for (int l=0; l<num_lifts; l++)
+//      {
+//         for (int s=0; s<lifts[l].num_steps; s++)
+//         {
+//            int type = lift_steps[l][s].type & 31;
+//            int val = lift_steps[l][s].val;
+//
+//            if (type == 4)
+//            {
+//                count0++;
+//                if (val == 0) count1++;
+//                if (val == 20) lift_steps[l][s].val = 0; //count2++;
+//
+//                printf("Lev:%3d lift:%-2d step%d val:%d\n",le[x], l, s, val);
+//             }
+//         }
+//      }
+
+
+
+
+
+
+      if (1)
+      {
+         save_level(le[x]);
+         al_set_target_backbuffer(display);
+         al_draw_textf(font, palette_color[10], 110, 10+x*8, 0, "lev:%d", le[x]);
+      }
+   } // end of level iterate
+   al_flip_display();
+
+   printf("Total count0:%d \n",count0 );
+   printf("Total count1:%d \n",count1 );
+   printf("Total count2:%d \n",count2 );
+   printf("Total count3:%d \n",count3 );
+   printf("min:%d max:%d\n", min, max);
+
+//   show_block_list();
+//   tsw();
+
+ //  remove_unused_tiles();
+
+
+   start_level = old_start_level;
+   load_level(start_level, 0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1341,11 +1412,6 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 
 
-
-
-
-
-
       // copy lifts to temp structure to resize
       for (int l=0; l<num_lifts; l++)
       {
@@ -1402,6 +1468,7 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 */
 
+
 /*
 
       // put color and flags in all steps
@@ -1436,8 +1503,6 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
             item[y][10] *= 20;
             item[y][11] *= 20;
          }
-
-
 
       // converting pod and cloner trigger from 100 x1 y1 x2 y2 to 2000 xywh format
 
@@ -1482,6 +1547,12 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
       for (int y=0; y<100; y++)
          if (Ei[y][0] == 14) Ei[y][0] = 0;
 */
+
+
+
+
+
+
 /*
       for (int y=0; y<500; y++)
          if (item[y][0] == 14) // switch
@@ -1531,10 +1602,17 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 
 
 
+/*
 
       for (int y=0; y<500; y++)
          if (item[y][0] == 10) // pmsg
          {
+            count0++;
+            if (item[y][3] != 0) count1++;
+
+            if (item[y][3] != 0) printf("Lev:%3d i:%d\n" ,le[x], y);
+
+
 //            int mx = item[y][10];
 //            int my = item[y][11];
 //
@@ -1579,48 +1657,7 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 //            item[y][8] = 0;
 //            item[y][9] = 0;
 
-
-
          }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      if (1)
-      {
-         save_level(le[x]);
-         al_set_target_backbuffer(display);
-         al_draw_textf(font, palette_color[10], 110, 10+x*8, 0, "lev:%d", le[x]);
-      }
-   } // end of level iterate
-   al_flip_display();
-
-   printf("Total count0:%d \n",count0 );
-   printf("Total count1:%d \n",count1 );
-   printf("Total count2:%d \n",count2 );
-   printf("Total count3:%d \n",count3 );
-   printf("min:%d max:%d\n", min, max);
-
-//   show_block_list();
-//   tsw();
-
- //  remove_unused_tiles();
-
-
-   start_level = old_start_level;
-   load_level(start_level, 0);
-}
-
-
+*/
 
 

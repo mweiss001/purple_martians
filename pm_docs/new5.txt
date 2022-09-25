@@ -32163,35 +32163,66 @@ Message Area (red)
 Trigger Area (yellow)
 
 
-
-
 still need to do:
-fix zfs
+fix zfs...done
+
+do I ever need to carry or move a message??
+out of 383 only 4 are not stat...
+one was a mistake but in level 10 there is a legit use for them
+
 drawing in obv
+show how many characters left in msg when editting
+
+i really dont want to have two version that draw the pmsg
+can I extend one...
+
+what does the second one do differently?
+
+the first one is called 3 times
+main draw function
+getxy
+redraw level editor to show all pmsg...
+
+lets extend this one...
+
+now it only takes int c
+
+add:
+int custom
+int xpos_c
+int ypos
+char *f
+
+void draw_pop_message(int c, int custom, int xpos_c, int ypos, char *f);
+done
+
+now try to extend and patch it in
 
 
+I think it is working, but the text does not line up when editing...
+
+what if I let this function highlight the text being edited
+can I even do that??
+
+yes I can!!!
+when cursor is on line feed weird shit happens.. i think I have it fixed
+
+I want to know have many char I have used
+put in on the title
+
+now that I have done all this...I want to try to edit in place...not draw another copy on the viewer
+I will need to update the actual string as I go...abandoned this...just move on....
+
+Now I am finally done with messages until I find new things to do with them, or bugs...
 
 
+when the hell did I delete all my lifts??
+I see nothing in glt that looks like it would have done that....
 
+in load_level if passed load only...num_lifts is not set...
+then when the level is saved no lifts get saved....
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+fix this bug, then see how far back we have to go to restore levels...
 
 
 

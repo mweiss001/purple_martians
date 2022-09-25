@@ -1138,7 +1138,6 @@ void erase_item(int num);
 void check_item(int i, int ct);
 void test_items(void);
 int create_pmsg(int c);
-void display_pop_message(int c, char *f, int xpos_c, int ypos, int redraw_map, int show_line_breaks);
 void show_all_pmsg(void);
 int create_start_block(int c);
 int create_exit(int c);
@@ -1432,7 +1431,8 @@ void process_flash_color(void);
 int item_data(int x_pos, int y_pos);
 void change_linked_door_color_and_shape(int door);
 void bomb_block_crosshairs(int e, int f);
-void draw_pop_message(int c);
+void draw_pop_message(int c, int custom, int xpos_c, int ypos, int cursor_pos, char *f);
+
 void draw_door(int c, int x, int y, int custom);
 
 void draw_item(int i, int custom, int x, int y);

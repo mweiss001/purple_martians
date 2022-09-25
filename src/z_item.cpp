@@ -69,27 +69,47 @@ static bool draw_multiline_cb(int line_num, const char *line, int size, void *ex
    return 1;
 }
 
-void draw_pop_message(int i)
+
+
+void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, char *f)
 {
-   al_set_target_bitmap(level_buffer);
-
    int px1=0, py1=0, pxw=0, pyh=0;
-   get_int_3216(item[i][10], px1, py1); // get x and y of upper left corner
 
+   // set where we will draw
+   if (custom) al_set_target_backbuffer(display);
+   else al_set_target_bitmap(level_buffer);
 
+   // make a copy of the string
+   char pt[500];
 
+   if (custom)
+   {
+      if (strlen(f) > 0) strcpy(pt, f);
+      else sprintf(pt, "<empty>");
 
+      if (cursor_pos > -1) // replace char with highlight char
+      {
+         if ((pt[cursor_pos] == 126) || (pt[cursor_pos] == 0))// line feed or NULL
+         {
+            // shift string to make space for cursor (we don't want to replace LF or NULL)
+            for (int j = strlen(f)+1; j>cursor_pos; j--) pt[j] = pt[j-1];
+         }
+
+         pt[cursor_pos] = 95;
+      }
+   }
+   else strcpy(pt, pmsgtext[i]);
+
+   // break the string into lines and set pxw, pxy
    char dt[40][120];
    int row = 0, col = 0, num_lines = 0;;
    int longest_line_len = 1;
-
-
    if (item[i][2] & PM_ITEM_PMSG_AUTOSIZE)
    {
       // process the text string into lines and rows and put in temp array
-      for (int a=0; a < (int)strlen(pmsgtext[i]) + 1; a++)
+      for (int a=0; a < (int)strlen(pt) + 1; a++)
       {
-         if (pmsgtext[i][a] == 126) // line break
+         if (pt[a] == 126) // line break
          {
             dt[row][col] = 0; // in case len == 0  on first line
             row++;
@@ -98,7 +118,7 @@ void draw_pop_message(int i)
          }
          else  // regular char
          {
-            dt[row][col] = pmsgtext[i][a];
+            dt[row][col] = pt[a];
             if (col > longest_line_len) longest_line_len = col;
             col++;
             dt[row][col] = 0;
@@ -115,6 +135,13 @@ void draw_pop_message(int i)
       pxw -=8; // adjust width by -8
    }
 
+   if (custom)
+   {
+      px1 = xpos_c-pxw/2-8;
+      py1 = ypos-2-8;
+   }
+   else get_int_3216(item[i][10], px1, py1); // get x and y of upper left corner
+
 
    // x position
    int px2 = px1 + pxw + 8;           // right edge depends on text width
@@ -130,6 +157,10 @@ void draw_pop_message(int i)
       al_draw_filled_rounded_rectangle(px1+a, py1+a, px2-a, py2-a, 4, 4, palette_color[fc+a*16]);
 
 
+   if (custom) al_draw_textf(font, palette_color[15], pxc+4, py1, ALLEGRO_ALIGN_CENTRE, "%d/500", strlen(pt));
+
+
+
 
 
    if (item[i][2] & PM_ITEM_PMSG_AUTOSIZE)
@@ -140,18 +171,11 @@ void draw_pop_message(int i)
    }
    else
    {
-
-      // make a copy of the string
-      char pt[500];
-      strcpy(pt, pmsgtext[i]);
-
       // convert 126 to 10 (line break)
       for (int a=0; a < (int)strlen(pt) + 1; a++)
          if (pt[a] == 126) pt[a] = 10; // line break
 
-
       int max_text_width = pxw - 16;
-
 
       int line_height = 8;
 
@@ -700,7 +724,7 @@ void draw_item(int i, int custom, int cx, int cy)
       get_int_3216(item[i][12], timer_count, timer_val);
 
       // if timer running or always show, draw the message
-      if ((timer_count) || (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) draw_pop_message(i);
+      if ((timer_count) || (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) draw_pop_message(i, 0, 0, 0, 0, msg);
 
       // if hide scroll and not running level editor flag scroll as being drawn already
       if ((!(item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL)) && (!level_editor_running)) drawn = 1;
