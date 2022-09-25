@@ -341,6 +341,7 @@ int active_local_player = 0;
 
 struct lift lifts[NUM_LIFTS];
 struct lift_step lift_steps[NUM_LIFTS][40];
+
 int num_lifts;
 char lift_step_type_name[10][10];
 

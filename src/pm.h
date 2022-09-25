@@ -786,6 +786,7 @@ extern int num_lifts;
 extern char lift_step_type_name[10][10];
 extern struct lift lifts[NUM_LIFTS];
 extern struct lift_step lift_steps[NUM_LIFTS][40];
+
 struct lift
 {
    al_fixed fx;
