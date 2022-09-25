@@ -581,6 +581,25 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
 
 
+   if (bn == 6)
+   {
+      sprintf(smsg, "Set Message Area");
+      if (press)
+      {
+         int x=0, y=0, w=0, h=0;
+         get_block_range("Message Area", &x, &y, &w, &h, 1);
+         set_int_3216(item[num][10], x, y);
+         set_int_3216(item[num][11], w, h);
+
+      }
+   }
+
+
+
+
+
+
+
 
 
 
@@ -1535,8 +1554,22 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    {
       while (mouse_b1) proc_controllers();
       int color = (int)(1+(mouse_x-x1)/b);
-      if (bn == 2) item[num][8] = color;     // pop msg text color
-      if (bn == 3) item[num][9] = color;     // pop msg frame color
+
+      if (bn == 2) // text color
+      {
+         int tc=0, fc = 0;
+         get_int_3216(item[num][13], tc, fc);
+         tc = color;
+         set_int_3216(item[num][13], tc, fc);
+      }
+
+      if (bn == 3) // frame color
+      {
+         int tc=0, fc = 0;                  // text and frame colors
+         get_int_3216(item[num][13], tc, fc);
+         fc = color;
+         set_int_3216(item[num][13], tc, fc);
+      }
       if (bn == 4) lifts[num].color = color; // lift color
       if (bn == 5)
       {

@@ -1284,6 +1284,36 @@ int main(int argument_count, char **argument_array)
 //   show_var_sizes();
 
 /*
+
+int it13=0;
+
+printBits(4, &it13);
+printf("b0:[%s]\n",msg);
+
+set_int_3216(it13, 65535, 64000);
+
+printBits(4, &it13);
+printf("b1:[%s]\n",msg);
+
+
+
+
+int tc = 0;
+int fc = 0;
+get_int_3216(it13, tc, fc);
+
+printBits(4, &tc);
+printf("b2:[%s]\n",msg);
+
+printBits(4, &fc);
+printf("b3:[%s]\n",msg);
+
+printf("--- %d  %d\n", tc, fc);
+
+*/
+
+
+/*
    int test = 0;
    printBits(4, &test);
 

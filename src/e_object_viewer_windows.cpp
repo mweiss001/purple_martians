@@ -334,8 +334,12 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
          break;
          case 10:
-            sprintf(lmsg[1],"Message Location");
-            sprintf(lmsg[2],"Display Position");
+            mW[7].num_legend_lines = 4;
+            sprintf(lmsg[1],"Scroll Location");
+            sprintf(lmsg[2],"Message Area");
+            sprintf(lmsg[3],"Trigger Area");
+            legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
+            legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 14;
          break;
          case 11:
             sprintf(lmsg[1],"Rocket Location");
@@ -813,8 +817,33 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
          case 10: // message
             mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, item[n][3]); // stat | fall | carry
             ya+=4; // spacer
-            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,14,15, 0,  1,0,1,d, "Set Message Position"))  getxy("Message Position", 95, 10, n);
-            mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][7], 400, -1, 1,  "Message display time:");
+
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON",  15+dim, 15, 9+dim, 9);
+
+            ya+=4; // spacer
+
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_AUTOSIZE ,    "Auto Size:OFF",   "Auto Size:ON",    15+dim, 15, 10+dim, 10);
+            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15, 0,  1,0,1,d, "Set Message Position"))  getxy("Message Position", 95, 10, n);
+                 mdw_button(xa, ya, xb, bts, 6,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Area
+
+            ya+=4; // spacer
+
+
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_TRIGGER_BOX , "Trigger Box:OFF", "Trigger Box:ON",  15+dim, 15, 14+dim, 14);
+            if (item[n][2] & PM_ITEM_PMSG_TRIGGER_BOX)
+            if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,14,15,0,  1,0,1,d, "Set Trigger Area")) get_block_range("Trigger Area", &item[n][6], &item[n][7], &item[n][8], &item[n][9], 1);
+
+            ya+=4; // spacer
+
+
+            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON",  15+dim, 15, 12+dim, 12);
+            if (!(item[n][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+            mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][12], 400, 0, 1,  "Message display time:");
+
+            ya+=4; // spacer
+
+
+
             mdw_colsel(     xa, ya, xb, bts, 2,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // frame color select
             mdw_colsel(     xa, ya, xb, bts, 3,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // text color select
             if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,15,13, 0,  1,0,1,d, "Edit Message")) edit_pmsg_text(n, 0);
@@ -1199,6 +1228,46 @@ void ovw_draw_overlays(int legend_highlight)
             find_and_show_event_links(1, num, 0);
          }
          break;
+         case 10: // pmsg
+         {
+            int color = 14;
+            if (legend_highlight == 3) color = flash_color;
+
+            int x2 = item[num][6];
+            int y2 = item[num][7];
+            int x3 = x2 + item[num][8] - 1;
+            int y3 = y2 + item[num][9] - 1;;
+            int x4 = (x2+x3)/2;
+            int y4 = (y2+y3)/2;
+
+            // draw range
+            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
+            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+
+            color = 10;
+            if (legend_highlight == 2) color = flash_color;
+
+            // draw msg box
+            int mx=0, my=0, mw=0, mh=0;
+            get_int_3216(item[num][10], mx, my);
+            get_int_3216(item[num][11], mw, mh);
+
+            x2 = mx;
+            y2 = my;
+            x3 = mx + mw;
+            y3 = my + mh;
+            x4 = (x2+x3)/2;
+            y4 = (y2+y3)/2;
+            // draw range
+            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
+            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+
+
+
+         }
+         break;
          case 11: // rocket
          {
             int color = 14;
@@ -1286,6 +1355,8 @@ void ovw_process_mouse(void)
    int mouse_on_sp = 0;
    int mouse_on_bmb = 0;
    int mouse_on_msg_ul = 0;
+   int mouse_on_msg_lr = 0;
+
    int mouse_on_kbr_ul = 0;
    int mouse_on_kbr_lr = 0;
    int mouse_on_tb_ul = 0;
@@ -1468,15 +1539,32 @@ void ovw_process_mouse(void)
       int b = mW[7].num;
       int type = item[b][0];
 
+
+
       if (type == 10) // pop message
       {
-         int x1 = item[mW[7].num][10];
-         int y1 = item[mW[7].num][11];
+
+         int mx=0, my=0, mw=0, mh=0;
+         get_int_3216(item[b][10], mx, my);
+         get_int_3216(item[b][11], mw, mh);
+
+
+         int x1=mx, y1=my;
          if ((hx>x1-mst) && (hx<x1+mst) && (hy>y1-mst) && (hy<y1+mst)) // upper left corner (move)
          {
             mouse_on_msg_ul = 1;
             mouse_move = 1;
          }
+
+         int x2=mx+mw, y2=my+mh;
+         if ((hx>x2-mst) && (hx<x2+mst) && (hy>y2-mst) && (hy<y2+mst)) // lower right corner (move)
+         {
+            mouse_on_msg_lr = 1;
+            mouse_adj = 1;
+         }
+
+
+
       }
       if ((type == 8) || (type == 11)) // bomb or rocket
       {
@@ -1505,7 +1593,7 @@ void ovw_process_mouse(void)
             mouse_move = 1;
          }
       }
-      if ((type == 4) || (type == 9) || (type == 14) || (type == 16) || (type == 17)) // key, switch, trigger, manip, damage
+      if ((type == 4) || (type == 9) || (type == 10) || (type == 14) || (type == 16) || (type == 17)) // key, switch, trigger, manip, damage, msg trigger
       {
          int x1 = item[mW[7].num][6];
          int y1 = item[mW[7].num][7];
@@ -1613,26 +1701,32 @@ void ovw_process_mouse(void)
             //printf("mouse pressed on obj\n");
             if (mW[7].obt == 2) // move item
             {
-               // get offset of move
-               int x_off = gx - item[mW[7].num][4] / 20;
-               int y_off = gy - item[mW[7].num][5] / 20;
+               int n = mW[7].num;
+               int it = item[n][0]; // item_type
 
-               item[mW[7].num][4] = gx*20;
-               item[mW[7].num][5] = gy*20;
-               itemf[mW[7].num][0] = al_itofix(gx*20);
-               itemf[mW[7].num][1] = al_itofix(gy*20);
+               // get offset of move
+               int x_off = gx - item[n][4] / 20;
+               int y_off = gy - item[n][5] / 20;
+
+               item[n][4] = gx*20;
+               item[n][5] = gy*20;
+               itemf[n][0] = al_itofix(gx*20);
+               itemf[n][1] = al_itofix(gy*20);
 
                if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
                {
-                   if ((item[mW[7].num][0] == 4) || (item[mW[7].num][0] == 9) || (item[mW[7].num][0] == 14) || (item[mW[7].num][0] == 16) || (item[mW[7].num][0]== 17)) // key, trigger, switch, manip, damage
+                   if ((it == 4) || (it == 9) || (it == 10) || (it == 14) || (it == 16) || (it == 17)) // key, trigger, msg, switch, manip, damage
                    {
-                      item[mW[7].num][6] += x_off*20;
-                      item[mW[7].num][7] += y_off*20;
+                      item[n][6] += x_off*20;
+                      item[n][7] += y_off*20;
                    }
-                   if (item[mW[7].num][0] == 10) // msg
+                   if (it == 10) // msg
                    {
-                      item[mW[7].num][10] += x_off*20;
-                      item[mW[7].num][11] += y_off*20;
+                      int x1=0, y1=0;
+                      get_int_3216(item[n][10], x1, y1);
+                      x1 += x_off*20;
+                      y1 += y_off*20;
+                      set_int_3216(item[n][10], x1, y1);
                    }
                }
             }
@@ -1655,11 +1749,9 @@ void ovw_process_mouse(void)
                      Ei[mW[7].num][12] += y_off*20;
                   }
 
-
                   // move vinepod's stuff also
                   if (Ei[mW[7].num][0] == 13)
                   {
-
                      // control point and extended pos
                      Ei[mW[7].num][5] += x_off*20;
                      Ei[mW[7].num][6] += y_off*20;
@@ -1671,15 +1763,7 @@ void ovw_process_mouse(void)
                      // trigger box
                      Ei[mW[7].num][11] += x_off*20;
                      Ei[mW[7].num][12] += y_off*20;
-
-
-
-
                   }
-
-
-
-
 
                   // move cloner's stuff too
                   if (Ei[mW[7].num][0] == 9)
@@ -1754,9 +1838,27 @@ void ovw_process_mouse(void)
          }
          if (mouse_on_msg_ul) // move msg
          {
-            item[mW[7].num][10] = gx*20;
-            item[mW[7].num][11] = gy*20;
+            set_int_3216(item[mW[7].num][10], hx, hy);
          }
+
+         if (mouse_on_msg_lr) // move msg
+         {
+            int mx=0, my=0, mw=0, mh=0;
+            get_int_3216(item[mW[7].num][10], mx, my);
+            get_int_3216(item[mW[7].num][11], mw, mh);
+
+            // don't allow lr to be less than ul
+            if (hx < mx+20) hx = mx+20;
+            if (hy < my+20) hy = my+20;
+
+            // set new size
+            mw = hx - mx;
+            mh = hy - my;
+
+            set_int_3216(item[mW[7].num][11], mw, mh);
+
+         }
+
          if (mouse_on_sp) // adjust sproingy jump height
          {
             //al_hide_mouse_cursor(display);

@@ -55,51 +55,136 @@ void change_linked_door_color_and_shape(int door)
 }
 
 
+
+
+typedef struct DRAW_CUSTOM_LINE_EXTRA
+{
+   int num_lines;
+} DRAW_CUSTOM_LINE_EXTRA;
+
+static bool draw_multiline_cb(int line_num, const char *line, int size, void *extra)
+{
+   DRAW_CUSTOM_LINE_EXTRA *s = (DRAW_CUSTOM_LINE_EXTRA *) extra;
+   s->num_lines++;
+   return 1;
+}
+
 void draw_pop_message(int i)
 {
    al_set_target_bitmap(level_buffer);
-   // process the text string into lines and rows and put in temp array
+
+   int px1=0, py1=0, pxw=0, pyh=0;
+   get_int_3216(item[i][10], px1, py1); // get x and y of upper left corner
+
+
+
+
    char dt[40][120];
    int row = 0, col = 0, num_lines = 0;;
    int longest_line_len = 1;
 
-   for (int a=0; a < (int)strlen(pmsgtext[i]) + 1; a++)
+
+   if (item[i][2] & PM_ITEM_PMSG_AUTOSIZE)
    {
-      if (pmsgtext[i][a] == 126) // line break
+      // process the text string into lines and rows and put in temp array
+      for (int a=0; a < (int)strlen(pmsgtext[i]) + 1; a++)
       {
-         dt[row][col] = 0; // in case len == 0  on first line
-         row++;
-         col=0;
-         dt[row][col] = 0; // in case len == 0 on next line
+         if (pmsgtext[i][a] == 126) // line break
+         {
+            dt[row][col] = 0; // in case len == 0  on first line
+            row++;
+            col=0;
+            dt[row][col] = 0; // in case len == 0 on next line
+         }
+         else  // regular char
+         {
+            dt[row][col] = pmsgtext[i][a];
+            if (col > longest_line_len) longest_line_len = col;
+            col++;
+            dt[row][col] = 0;
+         }
       }
-      else  // regular char
-      {
-         dt[row][col] = pmsgtext[i][a];
-         if (col > longest_line_len) longest_line_len = col;
-         col++;
-         dt[row][col] = 0;
-      }
+      num_lines = row;
+      // get width and height
+      pxw = (longest_line_len+2)*8;  // width is set from longest text line
+      pyh = (num_lines+3) * 8;       // height is set from number of lines of text
+   }
+   else // use specified width and height
+   {
+      get_int_3216(item[i][11], pxw, pyh);
+      pxw -=8; // adjust width by -8
    }
 
-   num_lines = row;
 
-   // x positions
-   int pxw = (longest_line_len+2)*8;  // width is set from longest text line
-   int px1 = item[i][10];             // item sets left edge with specified corner block
+   // x position
    int px2 = px1 + pxw + 8;           // right edge depends on text width
    int pxc = px1 + pxw / 2;           // text center position
 
-   // y positions
-   int py1 = item[i][11];             // item sets top edge with specified corner block
-   int py2 = py1 + (num_lines+3) * 8; // bottom edge is set from number of lines of text
+   // y position
+   int py2 = py1 + pyh;
 
-   int fc = item[i][9];               // frame color
+   int tc=0, fc = 0;                  // text and frame colors
+   get_int_3216(item[i][13], tc, fc);
+
    for (int a=0; a<12; a++)           // frame
       al_draw_filled_rounded_rectangle(px1+a, py1+a, px2-a, py2-a, 4, 4, palette_color[fc+a*16]);
 
-   int tc = item[i][8];               // text color
-   for (row=0; row<=num_lines; row++) // text
-      al_draw_text(font, palette_color[tc], pxc+4, py1+row*8+9, ALLEGRO_ALIGN_CENTRE, dt[row]);
+
+
+
+   if (item[i][2] & PM_ITEM_PMSG_AUTOSIZE)
+   {
+      for (row=0; row<=num_lines; row++) // text
+         al_draw_text(font, palette_color[tc], pxc+4, py1+row*8+9, ALLEGRO_ALIGN_CENTRE, dt[row]);
+
+   }
+   else
+   {
+
+      // make a copy of the string
+      char pt[500];
+      strcpy(pt, pmsgtext[i]);
+
+      // convert 126 to 10 (line break)
+      for (int a=0; a < (int)strlen(pt) + 1; a++)
+         if (pt[a] == 126) pt[a] = 10; // line break
+
+
+      int max_text_width = pxw - 16;
+
+
+      int line_height = 8;
+
+      DRAW_CUSTOM_LINE_EXTRA extra;
+      extra.num_lines = 0;
+      al_do_multiline_text(font, max_text_width, pt, draw_multiline_cb, (void *)&extra);
+
+   //   printf("nl:%d\n", extra.num_lines);
+
+      int text_height = extra.num_lines * line_height;
+
+      // try to adjust line height to justify vertically
+      // how much space do we have to work with?
+      int sp = pyh-text_height;
+
+      while (sp > 20)
+      {
+         line_height++;
+         text_height = extra.num_lines * line_height;
+         sp = pyh-text_height;
+      }
+
+      int py3 = py1+(sp)/2 + line_height/2-4;
+
+
+      al_draw_multiline_text(font, palette_color[tc], pxc+4, py3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
+
+//      // crosshairs for alignment
+//      al_draw_line(px1, py1, px2, py2, palette_color[fc], 1);
+//      al_draw_line(px1, py2, px2, py1, palette_color[fc], 1);
+//      al_draw_line(px1+pxw/2+4, py1, px1+pxw/2+4, py2, palette_color[fc], 1);
+//      al_draw_line(px1, py1+pyh/2, px2, py1+pyh/2, palette_color[fc], 1);
+   }
 }
 
 
@@ -611,16 +696,15 @@ void draw_item(int i, int custom, int cx, int cy)
 
    if ((type == 10) && (!custom)) // pop up message
    {
-      if ((item[i][7] < 0))
-      {
-         item[i][6] = item[i][7];
-         if (!level_editor_running) drawn = 1; // don't draw actual msg if always on, unless in level editor
-      }
-      if (item[i][6])
-      {
-         item[i][6]--;
-         draw_pop_message(i);
-      }
+      int timer_count=0, timer_val=0;
+      get_int_3216(item[i][12], timer_count, timer_val);
+
+      // if timer running or always show, draw the message
+      if ((timer_count) || (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) draw_pop_message(i);
+
+      // if hide scroll and not running level editor flag scroll as being drawn already
+      if ((!(item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL)) && (!level_editor_running)) drawn = 1;
+
    }
 
 
@@ -740,6 +824,47 @@ void draw_items(void)
       if (item[i][0] == 10) draw_item(i, 0, 0, 0);
 }
 
+
+void proc_pmsg_reset_timer(int i)
+{
+   int timer_count=0, timer_val=0;
+   get_int_3216(item[i][12], timer_count, timer_val);
+   timer_count = timer_val;
+   set_int_3216(item[i][12], timer_count, timer_val);
+}
+
+void proc_pmsg(int i)
+{
+   // count down the timer
+   if (!(item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
+   {
+      int timer_count=0, timer_val=0;
+      get_int_3216(item[i][12], timer_count, timer_val);
+
+      if (timer_count > 0) timer_count--;
+      set_int_3216(item[i][12], timer_count, timer_val);
+   }
+
+
+   // check for player in trigger box
+   if (item[i][2] & PM_ITEM_PMSG_TRIGGER_BOX)
+   {
+      al_fixed tfx1 = al_itofix(item[i][6]-10);
+      al_fixed tfy1 = al_itofix(item[i][7]-10);
+      al_fixed tfx2 = tfx1 + al_itofix(item[i][8]);
+      al_fixed tfy2 = tfy1 + al_itofix(item[i][9]);
+
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((players[p].active) && (!players[p].paused))
+         {
+            al_fixed x = players[p].PX;
+            al_fixed y = players[p].PY;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) proc_pmsg_reset_timer(i);
+         }
+   }
+
+
+}
 
 int is_item_stuck_to_wall(int i)
 {
@@ -868,10 +993,11 @@ void move_items()
 
          int type = item[i][0];
          if ((type == 4) && (item[i][11] > 0)) proc_moving_key(i);
-         if (type == 6) process_orb(i);
-         if (type == 9) process_trigger(i);
-         if (type == 16) process_block_manip(i);
-         if (type == 17) process_block_damage(i);
+         if (type == 6) proc_orb(i);
+         if (type == 9) proc_trigger(i);
+         if (type == 10) proc_pmsg(i);
+         if (type == 16) proc_block_manip(i);
+         if (type == 17) proc_block_damage(i);
          if (type == 99) proc_lit_bomb(i);
          if (type == 98) proc_lit_rocket(i);
 
@@ -1170,7 +1296,7 @@ int proc_orb_bullet_collision(int i)
 }
 
 
-void process_orb(int i)
+void proc_orb(int i)
 {
    int MODE = item[i][6];
 
@@ -1777,13 +1903,15 @@ void proc_item_collision(int p, int i)
       case 6:  proc_orb_collision(p, i);      break;
       case 7:  proc_mine_collision(p, i);     break;
       case 8:  proc_bomb_collision(p, i);     break;
-      case 10: item[i][6] = item[i][7];       break; // set pop-up message timer
+      case 10: proc_pmsg_reset_timer(i);      break;
       case 11: proc_rocket_collision(p, i);   break;
       case 12: proc_warp_collision(p, i);     break;
       case 14: proc_switch_collision(p, i);   break;
       case 15: proc_sproingy_collision(p, i); break;
    }
 }
+
+
 
 void proc_lit_rocket(int i)
 {
@@ -1884,7 +2012,7 @@ item[][14] = TGOF pm_event #
 
 */
 
-void process_trigger(int i)
+void proc_trigger(int i)
 {
    int FLAGS = item[i][3];
    if (FLAGS & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 0);
@@ -2075,7 +2203,7 @@ item[][11] block 2
 item[][12] = draw color
 
 */
-void process_block_manip(int i)
+void proc_block_manip(int i)
 {
    int et = item[i][1]; // pm_event trigger we are looking for
    if (pm_event[et])
@@ -2454,7 +2582,7 @@ void draw_block_damage(int i, int x, int y, int custom)
 
 
 
-void process_block_damage(int i)
+void proc_block_damage(int i)
 {
    int et = item[i][1];      // number of pm_event trigger we are looking for
    int FLAGS = item[i][3];
