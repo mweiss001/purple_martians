@@ -32305,6 +32305,74 @@ now clean up....done....
 
 
 
+I need top fix that goddamn dialog box I just lost a lot of work...
+
+where it is used??
+al_show_native_message_box(display, "Save?", "Save before exit?", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
+
+I show 14 occurrances....
+
+what do I want??
+
+when ESC is used to quit
+- exit and save
+- exit without saving
+- cancel
+
+
+what do I want from my dialog box
+
+int mdw_message_box_1(char * text, char * button1)
+
+int mdw_message_box_2(char * text, char * button1, char * button2)
+
+show the text in a frame with the buttons below
+block until dismissed
+
+return the button that was pressed or 0 if none or dismissed
+
+what about keypresses ?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+how about I make a version thing
+
+whenever a level is saved, backup versions are created
+
+save level 10...
+- rename level 10 to old level 10
+save level 10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
