@@ -71,9 +71,11 @@ static bool draw_multiline_cb(int line_num, const char *line, int size, void *ex
 
 
 
-void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, char *f)
+void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
 {
-   int px1=0, py1=0, pxw=0, pyh=0;
+   int frame_width = 12;
+
+
 
    // set where we will draw
    if (custom) al_set_target_backbuffer(display);
@@ -82,133 +84,163 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, c
    // make a copy of the string
    char pt[500];
 
-   if (custom)
+   if (custom) // get text from f
    {
       if (strlen(f) > 0) strcpy(pt, f);
       else sprintf(pt, "<empty>");
-
-      if (cursor_pos > -1) // replace char with highlight char
-      {
-         if ((pt[cursor_pos] == 126) || (pt[cursor_pos] == 0))// line feed or NULL
-         {
-            // shift string to make space for cursor (we don't want to replace LF or NULL)
-            for (int j = strlen(f)+1; j>cursor_pos; j--) pt[j] = pt[j-1];
-         }
-
-         pt[cursor_pos] = 95;
-      }
    }
-   else strcpy(pt, pmsgtext[i]);
+   else strcpy(pt, pmsgtext[i]); // get text from pmsg
 
-   // break the string into lines and set pxw, pxy
-   char dt[40][120];
-   int row = 0, col = 0, num_lines = 0;;
-   int longest_line_len = 1;
-   if (item[i][2] & PM_ITEM_PMSG_AUTOSIZE)
+
+   int x1=0, y1=0, w=0, h=0, tc=0, fc = 0;
+   get_int_3216(item[i][10], x1, y1);       // get x and y
+   get_int_3216(item[i][11], w, h);         // get width and height
+   get_int_3216(item[i][13], tc, fc);       // get text and frame colors
+
+   if (custom) // get custom x and y
    {
-      // process the text string into lines and rows and put in temp array
-      for (int a=0; a < (int)strlen(pt) + 1; a++)
-      {
-         if (pt[a] == 126) // line break
-         {
-            dt[row][col] = 0; // in case len == 0  on first line
-            row++;
-            col=0;
-            dt[row][col] = 0; // in case len == 0 on next line
-         }
-         else  // regular char
-         {
-            dt[row][col] = pt[a];
-            if (col > longest_line_len) longest_line_len = col;
-            col++;
-            dt[row][col] = 0;
-         }
-      }
-      num_lines = row;
-      // get width and height
-      pxw = (longest_line_len+2)*8;  // width is set from longest text line
-      pyh = (num_lines+3) * 8;       // height is set from number of lines of text
+      x1 = xpos_c - w/2 - 8;
+      y1 = ypos - 10;
    }
-   else // use specified width and height
+
+   // other x and y positions
+   int x2 = x1 + w;
+   int xc = x1 + w / 2;
+   int y2 = y1 + h;
+
+
+   // background
+   al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[fc+12*16]);
+
+   if (frame_width == 16)
    {
-      get_int_3216(item[i][11], pxw, pyh);
-      pxw -=8; // adjust width by -8
+      for (int a=0; a<frame_width; a++)
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*16], 1.5);
+
    }
+
+
+
+   // draw frame
+   if (frame_width == 12)
+   {
+      for (int a=0; a<frame_width; a++)
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*16], 1.5);
+
+   }
+
+   if (frame_width == 8)
+   {
+      for (int a=0; a<frame_width; a++)
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*16], 1.5);
+   }
+
+   if (frame_width == 6)
+   {
+      for (int a=0; a<frame_width; a++)
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*32], 1.5);
+   }
+
+   if (frame_width == 4)
+   {
+      for (int a=0; a<frame_width; a++)
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*48], 1.5);
+   }
+
+   if (frame_width == 1)
+   {
+      for (int a=0; a<frame_width; a++)
+         al_draw_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[fc+a*48], 1);
+   }
+
+   // debug show inner frame
+//   al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, palette_color[15], 1);
+
+
 
    if (custom)
    {
-      px1 = xpos_c-pxw/2-8;
-      py1 = ypos-2-8;
+      al_draw_textf(font, palette_color[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500", cursor_pos, (int) strlen(pt));
+
+      // show cursor char
+      sprintf(msg, "%c", pt[cursor_pos]);
+      if (pt[cursor_pos] == 10) sprintf(msg, "LF");
+      if (pt[cursor_pos] == 0)  sprintf(msg, "NULL");
+      al_draw_textf(font, palette_color[15], x2-60, y2-9, 0, "[%s]", msg);
+      al_draw_textf(font, palette_color[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
    }
-   else get_int_3216(item[i][10], px1, py1); // get x and y of upper left corner
 
+   // figure out what line height to use so that text is justified vertically
+   float line_height = 7.9; // initial line height
 
-   // x position
-   int px2 = px1 + pxw + 8;           // right edge depends on text width
-   int pxc = px1 + pxw / 2;           // text center position
+   int max_text_width = w - 16;
 
-   // y position
-   int py2 = py1 + pyh;
+   // do_multiline callback to figure out number of lines that will be used
+   DRAW_CUSTOM_LINE_EXTRA extra;
+   extra.num_lines = 0;
+   al_do_multiline_text(font, max_text_width, pt, draw_multiline_cb, (void *)&extra);
 
-   int tc=0, fc = 0;                  // text and frame colors
-   get_int_3216(item[i][13], tc, fc);
+   float sp=0; // space between text_height and frame_height
+   float text_height = 0;
 
-   for (int a=0; a<12; a++)           // frame
-      al_draw_filled_rounded_rectangle(px1+a, py1+a, px2-a, py2-a, 4, 4, palette_color[fc+a*16]);
-
-
-   if (custom) al_draw_textf(font, palette_color[15], pxc+4, py1, ALLEGRO_ALIGN_CENTRE, "%d/500", (int) strlen(pt));
-
-
-
-
-
-   if (item[i][2] & PM_ITEM_PMSG_AUTOSIZE)
+   do
    {
-      for (row=0; row<=num_lines; row++) // text
-         al_draw_text(font, palette_color[tc], pxc+4, py1+row*8+9, ALLEGRO_ALIGN_CENTRE, dt[row]);
+      line_height+=0.1;
+      text_height = extra.num_lines * line_height;
+      sp = h - frame_width*2 - text_height;
+
+   } while ((sp > 1) && (line_height < 100));
+
+//   int y3 = y1+(sp)/2 + line_height/2 -8;
+
+
+//   al_draw_textf(font, palette_color[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
+//   al_draw_textf(font, palette_color[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
+
+
+
+//   int y3 = y1+frame_width+sp/2-line_height/2;
+
+   int y3 = y1+frame_width+line_height/2-4;
+
+   if (sp < 0.9)
+   {
+      sp = h - text_height;
+      y3 = y1+sp/2;
 
    }
-   else
+
+
+
+   al_draw_multiline_text(font, palette_color[tc], xc, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
+
+   if (cursor_blink)
    {
-      // convert 126 to 10 (line break)
-      for (int a=0; a < (int)strlen(pt) + 1; a++)
-         if (pt[a] == 126) pt[a] = 10; // line break
 
-      int max_text_width = pxw - 16;
+      // convert all printable char to blank non-printable spaces (can't use space because multiline text will break in new places)
+      for (int a=0; a<(int)strlen(pt); a++)
+         if ((pt[a] > 32) && (pt[a] < 126)) pt[a] = 30; // alternate space
 
-      int line_height = 8;
-
-      DRAW_CUSTOM_LINE_EXTRA extra;
-      extra.num_lines = 0;
-      al_do_multiline_text(font, max_text_width, pt, draw_multiline_cb, (void *)&extra);
-
-   //   printf("nl:%d\n", extra.num_lines);
-
-      int text_height = extra.num_lines * line_height;
-
-      // try to adjust line height to justify vertically
-      // how much space do we have to work with?
-      int sp = pyh-text_height;
-
-      while (sp > 20)
+      // check if cursor is on special char
+      int cursor_on_special = 0;
+      if ((pt[cursor_pos] == 10) || (pt[cursor_pos] == 32))
       {
-         line_height++;
-         text_height = extra.num_lines * line_height;
-         sp = pyh-text_height;
+         int dcp = cursor_pos;
+         cursor_on_special = 1;
+         while ( (dcp > 0) &&  ((pt[dcp] == 10) || (pt[dcp] == 32)) ) dcp--; // find previous non special char
+         pt[dcp] = 95;
       }
+      else pt[cursor_pos] = 95;
 
-      int py3 = py1+(sp)/2 + line_height/2-4;
-
-
-      al_draw_multiline_text(font, palette_color[tc], pxc+4, py3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
+      al_draw_multiline_text(font, palette_color[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
+   }
 
 //      // crosshairs for alignment
-//      al_draw_line(px1, py1, px2, py2, palette_color[fc], 1);
-//      al_draw_line(px1, py2, px2, py1, palette_color[fc], 1);
-//      al_draw_line(px1+pxw/2+4, py1, px1+pxw/2+4, py2, palette_color[fc], 1);
-//      al_draw_line(px1, py1+pyh/2, px2, py1+pyh/2, palette_color[fc], 1);
-   }
+//      al_draw_line(x1, y1, x2, y2, palette_color[fc], 1);
+//      al_draw_line(x1, y2, x2, y1, palette_color[fc], 1);
+//      al_draw_line(x1+w/2, y1,     x1+w/2, y2,     palette_color[fc], 1);
+//      al_draw_line(x1,     y1+h/2, x2,       y1+h/2, palette_color[fc], 1);
+
 }
 
 
@@ -724,7 +756,7 @@ void draw_item(int i, int custom, int cx, int cy)
       get_int_3216(item[i][12], timer_count, timer_val);
 
       // if timer running or always show, draw the message
-      if ((timer_count) || (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) draw_pop_message(i, 0, 0, 0, 0, msg);
+      if ((timer_count) || (item[i][2] & PM_ITEM_PMSG_SHOW_ALWAYS)) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
 
       // if hide scroll and not running level editor flag scroll as being drawn already
       if ((!(item[i][2] & PM_ITEM_PMSG_SHOW_SCROLL)) && (!level_editor_running)) drawn = 1;

@@ -126,7 +126,24 @@ void global_level()
       al_draw_textf(font, palette_color[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       load_level(le[x], 1);
 
-      if (1)
+
+
+//      for (int y=0; y<500; y++)
+//         if (item[y][0] == 10) // pmsg
+//         {
+//            count0++;
+//
+//
+//            int len = strlen(pmsgtext[y]);
+//            if (len > 0)
+//            {
+//               for (int j=0; j<len; j++)
+//                  if (pmsgtext[y][j] == 126) pmsgtext[y][j] = 10;
+//            }
+//         }
+//
+//
+      if (0)
       {
          save_level(le[x]);
          al_set_target_backbuffer(display);
@@ -1575,63 +1592,5 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
 */
 
 
-
-/*
-
-      for (int y=0; y<500; y++)
-         if (item[y][0] == 10) // pmsg
-         {
-            count0++;
-            if (item[y][3] != 0) count1++;
-
-            if (item[y][3] != 0) printf("Lev:%3d i:%d\n" ,le[x], y);
-
-
-//            int mx = item[y][10];
-//            int my = item[y][11];
-//
-//            item[y][10] = 0;
-//            item[y][11] = 0;
-//
-//            set_int_3216(item[y][10], mx, my);
-
-
-//            int mw = 60, mh = 80;
-//            set_int_3216(item[y][11], mw, mh);
-
-
-
-//            item[y][12] = item[y][7];
-//            item[y][7] = 0;
-
-//            // set flags
-//            item[y][2] = 0;
-//            item[y][2] |= PM_ITEM_PMSG_AUTOSIZE;
-//            item[y][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
-//
-//            if (item[y][7] < 1)
-//            {
-//               item[y][7] = 120; // set timer to default value
-//               item[y][2] |= PM_ITEM_PMSG_SHOW_ALWAYS;
-//               item[y][2] &= ~PM_ITEM_PMSG_SHOW_SCROLL; // clear
-//            }
-
-            //if (item[y][6] < 0) item[y][6] = 0;
-
-
-
-//            count0++;
-//
-//            if (item[y][2] != 0) count1++;
-
-
-            // set_int_3216(item[y][13], item[y][8], item[y][9]);
-
-
-//            item[y][8] = 0;
-//            item[y][9] = 0;
-
-         }
-*/
 
 

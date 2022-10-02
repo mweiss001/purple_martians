@@ -32330,27 +32330,10 @@ show the text in a frame with the buttons below
 block until dismissed
 
 return the button that was pressed or 0 if none or dismissed
-
 what about keypresses ?
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+I made a custom one for level_editor exit
+it looks good
 
 how about I make a version thing
 
@@ -32359,6 +32342,238 @@ whenever a level is saved, backup versions are created
 save level 10...
 - rename level 10 to old level 10
 save level 10
+
+
+nake msg creator not prompt for trigger box
+
+msg edit text...
+
+deal with the blinking cursor jumping better
+what if i just blink the prev char if LF??
+
+
+deal with cursor past the end better
+now I can't seem to make it go past the end...
+
+
+this is getting so complicated....
+
+all I want is to highlight the cursor pos..
+easy, except when the cursor position is LF
+then all I want is to highlight the previous char...
+
+at the start...
+figure out if current pos is LF or NULL
+
+set these...
+
+
+cursor_actual_pos
+cursor_display_pos
+
+cursor_actual_char
+cursor_display_char
+
+
+
+what if I just did a second draw...
+convert to a new string that has spaces for all printable char...
+except the cursor pos...
+
+then draw again...
+
+if LF just move second draw x+8...
+
+try it...
+
+
+multitext breaks lines differently when I replace char with spaces...
+
+
+trying new fonts to replace old built in 8x8
+
+I'm liking Pristine by
+
+https://damieng.com/typography/zx-origins/
+
+These fonts are free to use in your games commercial or otherwise (email me to get permission for non-games).
+A credit is nice if you have a place for that but don't sweat if you don't.
+Either way, let me know about your game so I can add it to the list of real games using each font too.
+
+
+I am using Pristine regular for my built in 8x8 font now...
+
+I use 30 instead or 32 for space and things line up good...
+
+
+now make it work for auto size...
+
+
+it would be so nice to not have auto size....just saying....
+
+if you go through all levels and replace all autosize, I will let you kill it...
+
+424 msg
+352 autosize....wow!!
+
+how about an autosize button....
+
+how about showing height and width....
+then set manual to that and see how it looks...
+
+
+I want to do it automatically...
+
+1-100 319 242
+
+if autosize, set area and not autosize...
+
+
+I have changed all pmsg to manual size and gone throough levels up to 89
+
+still to do...
+
+remove button to set autosize mode
+creator to make manual size
+
+remove code taht deals with that
+
+fix editor in other mode...
+
+also now no messages are anything other than stationary
+
+creator is fixed...
+
+
+marking the cursor position in edit text has been really hard
+
+the way I want to do it now is not change the text string at all...
+every time I go down that path the multiline string splits at different places
+
+the way I did it now it just to go back to the previous char and print my cursor there...
+
+
+needs more testing....look slike I got it...
+
+when loading pxw from item[i][11] I dec 8 every time...
+pxw -=8; // adjust width by -8
+
+use glt to modify all then remove the dec...
+
+int pxw = 0, pyh = 0;
+get_int_3216(item[y][11], pxw, pyh);
+pxw -=8; // adjust width by -8
+set_int_3216(item[y][11], pxw, pyh);
+
+
+
+I would really like to get rid of 126 for LF and just use 10
+
+lets do it...
+
+for (int y=0; y<500; y++)
+   if (item[y][0] == 10) // pmsg
+   {
+      count0++;
+
+
+      int len = strlen(pmsgtext[y]);
+      if (len > 0)
+      {
+         for (int j=0; j<len; j++)
+            if (pmsgtext[y][j] == 126) pmsgtext[y][j] = 10;
+      }
+   }
+
+
+
+I think it is done!!!
+
+
+
+
+cleaning up so much to do with pmsg...
+
+its getting late
+
+tomorrow
+
+better controls on edit text
+
+use flags for some different frame options, including none
+
+show xywh while adjusting
+
+credits for new font...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

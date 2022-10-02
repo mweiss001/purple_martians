@@ -21,6 +21,115 @@ af:'00001000 00000000 00000000 00000000 '
 
 
 
+int exit_level_editor_dialog(void)
+{
+   while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
+
+   al_set_target_backbuffer(display);
+   al_show_mouse_cursor(display);
+
+   int quit = 0;
+   int ret = 0;
+
+   int w = 200, h = 100;
+   int x = (SCREEN_W - w) /2;
+   int y = (SCREEN_H - h) /2;
+
+   int xc = x+w/2;
+   int xa = xc-84;
+   int xb = xc+84;
+   int bts = 16;
+
+   while (!quit)
+   {
+      al_draw_filled_rectangle(x, y, x+w, y+h, palette_color[10+128+64]);
+
+      for (int a=0; a<10; a++)
+         al_draw_rounded_rectangle(x+a, y+a, x+w-a, y+h-a, 1, 1, palette_color[10+a*16], 1);
+      al_draw_text(font, palette_color[15], xc, y+14, ALLEGRO_ALIGN_CENTER, "Exit Level Editor?");
+
+
+      int bc = 15;
+
+      int by1 = y+30;
+
+      if (ret == 0) bc = 10;
+      else bc = 15;
+
+      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Save and Exit"))         { quit = 1; ret = 0; }
+      if (ret == 0) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, palette_color[10], 2);
+
+      by1+=4;
+
+      if (ret == 1) bc = 10;
+      else bc = 15;
+      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Exit Without Saving"))   { quit = 1; ret = 1; }
+      if (ret == 1) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, palette_color[10], 2);
+
+      by1+=4;
+
+      if (ret == 2) bc = 10;
+      else bc = 15;
+      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,bc,15,0, 1,0,1,0, "Cancel"))                { quit = 1; ret = 2; }
+      if (ret == 2) al_draw_rounded_rectangle(xa-1, by1-bts-1, xb+1, by1-1, 2, 2, palette_color[10], 2);
+
+
+
+      proc_controllers();
+      al_flip_display();
+
+
+      if (key[ALLEGRO_KEY_DOWN])
+      {
+         while (key[ALLEGRO_KEY_DOWN]) proc_controllers();
+         if (++ret > 2) ret = 2;
+      }
+
+      if (key[ALLEGRO_KEY_UP])
+      {
+         while (key[ALLEGRO_KEY_UP]) proc_controllers();
+         if (--ret < 0) ret = 0;
+      }
+      if (key[ALLEGRO_KEY_ENTER])
+      {
+         while (key[ALLEGRO_KEY_ENTER]) proc_controllers();
+         quit = 1;
+      }
+      if (key[ALLEGRO_KEY_ESCAPE])
+      {
+         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
+         ret = 2; // cancel
+         quit = 1;
+      }
+   }
+   //printf("ret:%d\n", ret);
+   return ret;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void draw_block_non_default_flags(int tn, int x, int y)
 {
    int c = tn & 1023;
@@ -455,17 +564,6 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       original_xinc = Efi[num][2];
       original_yinc = Efi[num][3];
    }
-   if (obj_type == 95) // message display location
-   {
-
-
-      original_dx = item[num][10];
-//      original_dy = item[num][11];
-
-
-
-   }
-
    if (obj_type == 90) // vinepod extended
    {
       original_dx = Ei[num][9];
@@ -540,15 +638,6 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          al_draw_line(ex, ey, dx, dy, palette_color[10], 1);   // connect with line
       }
 
-      if (obj_type == 95) // set message location
-      {
-         // show all messages
-         for (int i=0; i<500; i++)
-            if (item[i][0] == 10) draw_pop_message(i, 0, 0, 0, 0, msg);
-      }
-
-
-
       get_new_screen_buffer(3, 0, 0);
 
       al_draw_filled_rectangle(tx-100, 70, tx+100, 128, palette_color[0]);
@@ -605,19 +694,6 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
             set_xyinc_rot(num, gx*20, gy*20);
          }
          break;
-         case 95: // message position
-         {
-//            item[num][10] = gx*20;
-//            item[num][11] = gy*20;
-
-
-            set_int_3216(item[num][10], gx*20, gy*20);
-
-
-
-
-
-         }
          case 90: // vinepod extended
          {
             Ei[num][9] = gx*20;
@@ -711,12 +787,6 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
          Efi[num][14] = original_rot;
          Efi[num][2]  = original_xinc;
          Efi[num][3]  = original_yinc;
-      }
-
-      if (obj_type == 95) // message display position
-      {
-          item[num][10] = original_dx;
-       //   item[num][11] = original_dy;
       }
       if (obj_type == 4)
       {

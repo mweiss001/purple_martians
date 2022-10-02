@@ -145,8 +145,19 @@ void cm_process_keypress(void)
    }
    if (mW[8].active == 0)
    {
-      if (al_show_native_message_box(display, "Save?", "Save before exit?", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
-         save_level(last_level_loaded);
+      int ret = exit_level_editor_dialog();
+
+      if (ret == 0) save_level(last_level_loaded); // save and exit
+
+      if (ret == 2) mW[8].active = 1; // cancel
+
+
+//
+//      if (al_show_native_message_box(display, "Save?", "Save before exit?", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
+//         save_level(last_level_loaded);
+
+
+
    }
 }
 
@@ -286,7 +297,7 @@ void cm_redraw_level_editor_background(void)
       if ((mW[7].obt == 2) && (item[mW[7].num][0] == 10))
       {
          for (int i=0; i<500; i++)
-            if (item[i][0] == 10) draw_pop_message(i, 0, 0, 0, 0, msg);
+            if (item[i][0] == 10) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
       }
 
       // if mouse on legend line, show highlight

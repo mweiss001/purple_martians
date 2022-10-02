@@ -824,39 +824,19 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_slideri(    xa, ya, xb, bts, 0,0,0,0,   0,14,15,15,  1,0,1,d, item[n][7], 1200, 20, 1,  "Damage Range:");
          break;
          case 10: // message
-            mdw_buttonp(    xa, ya, xb, bts, 22,0,0,0,  0,13,15, 0,  1,0,1,d, item[n][3]); // stat | fall | carry
-            ya+=4; // spacer
 
             mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON",  15+dim, 15, 9+dim, 9);
-
             ya+=4; // spacer
-
-            mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_AUTOSIZE ,    "Auto Size:OFF",   "Auto Size:ON",    15+dim, 15, 10+dim, 10);
-
-            if (item[n][2] & PM_ITEM_PMSG_AUTOSIZE)
-            {
-               if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,10,15, 0,  1,0,1,d, "Set Message Position"))  getxy("Message Position", 95, 10, n);
-            }
-            else    mdw_button(xa, ya, xb, bts, 6,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Area
-
+            mdw_button(xa, ya, xb, bts, 6,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Area
             ya+=4; // spacer
-
-
             mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_TRIGGER_BOX , "Trigger Box:OFF", "Trigger Box:ON",  15+dim, 15, 14+dim, 14);
             if (item[n][2] & PM_ITEM_PMSG_TRIGGER_BOX)
             if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,14,15,0,  1,0,1,d, "Set Trigger Area")) get_block_range("Trigger Area", &item[n][6], &item[n][7], &item[n][8], &item[n][9], 1);
-
             ya+=4; // spacer
-
-
             mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_SHOW_ALWAYS , "Show Always:OFF", "Show Always:ON",  15+dim, 15, 12+dim, 12);
             if (!(item[n][2] & PM_ITEM_PMSG_SHOW_ALWAYS))
             mdw_slideri(xa, ya, xb, bts,     0,0,0,0,   0,12,15,15,  1,0,1,d, item[n][12], 400, 0, 1,  "Message display time:");
-
             ya+=4; // spacer
-
-
-
             mdw_colsel(     xa, ya, xb, bts, 2,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // frame color select
             mdw_colsel(     xa, ya, xb, bts, 3,n,0,0,   0, 0, 0, 0,  0,0,1,d);  // text color select
             if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,15,13, 0,  1,0,1,d, "Edit Message")) edit_pmsg_text(n, 0);
@@ -864,7 +844,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             // draw the current one last to ensure it is on top
             mW[7].pop_msg_viewer_pos = ya+bts/2+2;
 
-            draw_pop_message(n, 1, (xa+xb)/2, mW[7].pop_msg_viewer_pos, -1, pmsgtext[n]); // show the message
+            draw_pop_message(n, 1, (xa+xb)/2, mW[7].pop_msg_viewer_pos, 0, 0, pmsgtext[n]); // show the message
 
             ya+=bts*8;
          break;
@@ -1882,8 +1862,8 @@ void ovw_process_mouse(void)
             get_int_3216(item[mW[7].num][11], mw, mh);
 
             // don't allow lr to be less than ul
-            if (hx < mx+20) hx = mx+20;
-            if (hy < my+20) hy = my+20;
+            if (hx < mx+8) hx = mx+8;
+            if (hy < my+8) hy = my+8;
 
             // set new size
             mw = hx - mx;

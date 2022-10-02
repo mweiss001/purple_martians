@@ -1094,6 +1094,12 @@ void insert_steps_until_quit(int lift, int step);
 void step_popup_menu(int lift, int step);
 
 // e_fnx.h
+
+int mdw_message_box_2(char * text, char * button1, char * button2);
+
+int exit_level_editor_dialog(void);
+
+
 void draw_block_non_default_flags(int tn, int x, int y);
 int enforce_limit(int val, int ll, int ul);
 int check_limit(int val, int ll, int ul);
@@ -1432,7 +1438,7 @@ void process_flash_color(void);
 int item_data(int x_pos, int y_pos);
 void change_linked_door_color_and_shape(int door);
 void bomb_block_crosshairs(int e, int f);
-void draw_pop_message(int c, int custom, int xpos_c, int ypos, int cursor_pos, char *f);
+void draw_pop_message(int c, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f);
 
 void draw_door(int c, int x, int y, int custom);
 

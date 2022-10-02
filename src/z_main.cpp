@@ -1282,7 +1282,31 @@ int main(int argument_count, char **argument_array)
 // --------------------------------------------------------------------------------------------
 
 
+//   mdw_message_box_2("Hello", "poo", "pee");
+
+
+ //  exit_level_editor_dialog();
+
+
 //   show_var_sizes();
+
+
+
+//   for (int b=0; b<1024; b+=256)
+//   {
+//      al_set_target_backbuffer(display);
+//      al_clear_to_color(al_map_rgb(0,0,0));
+//
+//      int x = 100;
+//      int y = 0;
+//
+//      for (int a=b; a<b+128; a++)
+//         al_draw_textf(font, palette_color[15], x, y+=8, 0, "%d-[%c] %d-[%c]", a, a, a+128, a+128);
+//      al_flip_display();
+//      tsw();
+//   }
+
+
 
 /*
 
