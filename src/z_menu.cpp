@@ -1203,9 +1203,8 @@ int edit_pmsg_text(int c, int new_msg)
       al_set_target_backbuffer(display);
 
       if (++blink_counter > blink_count) blink_counter = 0;
-      if (blink_counter > 4) draw_pop_message(c, 1, smx, smy, cursor_pos, f); // show the message with cursor_pos
-      else                   draw_pop_message(c, 1, smx, smy, -1, f);         // show the message without
-
+      if (blink_counter > 4) draw_pop_message(c, 1, smx, smy, cursor_pos, 1, f); // show the message with cursor_pos
+      else                   draw_pop_message(c, 1, smx, smy, cursor_pos, 0, f); // show the message without
 
       int by = smy-bts/2-2;
       int ey = by+-3*bts; // erase y1
@@ -1224,16 +1223,36 @@ int edit_pmsg_text(int c, int new_msg)
 
       if (key[ALLEGRO_KEY_HOME])  cursor_pos = 0;
       if (key[ALLEGRO_KEY_END])   cursor_pos = char_count;
-      if (key[ALLEGRO_KEY_RIGHT]) if (++cursor_pos > char_count) cursor_pos = char_count;
-      if (key[ALLEGRO_KEY_LEFT])  if (--cursor_pos < 0) cursor_pos = 0;
+      if (key[ALLEGRO_KEY_RIGHT])
+      {
+         while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();                 // wait for release
+         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         {
+            while ((++cursor_pos < char_count) && (f[cursor_pos] != 32));  // find next space
+         }
+         else cursor_pos++;
+         if (cursor_pos > char_count) cursor_pos = char_count;             // make sure we are not past the end
+      }
+
+      if (key[ALLEGRO_KEY_LEFT])
+      {
+         while (key[ALLEGRO_KEY_LEFT]) proc_controllers();               // wait for release
+         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         {
+            while ((--cursor_pos > 0) && (f[cursor_pos] != 32));         // find next space
+         }
+         else cursor_pos--;
+         if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
+      }
+
 
       if (key[ALLEGRO_KEY_UP])                                           // move up one line
       {
          while (key[ALLEGRO_KEY_UP]) proc_controllers();                 // wait for release
          int ocp = cursor_pos;                                           // get original position
-         while ((--cursor_pos > 0) && (f[cursor_pos] != 126));           // find previous LF
+         while ((--cursor_pos > 0) && (f[cursor_pos] != 10));           // find previous LF
          int mv = cursor_pos - ocp;                                      // how far did we move?
-         while ((--cursor_pos > 0) && (f[cursor_pos] != 126));           // find previous LF
+         while ((--cursor_pos > 0) && (f[cursor_pos] != 10));           // find previous LF
          cursor_pos -= mv;                                               // subtract move
          if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
       }
@@ -1241,9 +1260,9 @@ int edit_pmsg_text(int c, int new_msg)
       {
          while (key[ALLEGRO_KEY_DOWN]) proc_controllers();               // wait for release
          int ocp = cursor_pos;                                           // get original position
-         while ((++cursor_pos < char_count) && (f[cursor_pos] != 126));  // find next LF
+         while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
          int mv = cursor_pos - ocp;                                      // how far did we move?
-         while ((++cursor_pos < char_count) && (f[cursor_pos] != 126));  // find next LF
+         while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
          cursor_pos -= mv;                                               // subtract move
          if (cursor_pos > char_count) cursor_pos = char_count;           // make sure we are not past the end
       }
@@ -1266,9 +1285,9 @@ int edit_pmsg_text(int c, int new_msg)
       {
          al_rest(0.07);
          int k = key_pressed_ASCII;
-         if (k == 13) k = 126; // replace enter with 126 (~)
+         if (k == 13) k = 10; // replace CR with LF
 
-         if ((k>31) && (k<127)) // if alphanumeric
+         if ( (k == 10) || ((k>31) && (k<127))) // if alphanumeric
          {
             for (int aa = char_count; aa>=cursor_pos; aa--) f[aa+1]=f[aa]; // move over to make room
             f[cursor_pos] = k; // set char

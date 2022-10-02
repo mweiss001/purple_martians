@@ -6,16 +6,26 @@
 
 void load_fonts(void)
 {
+//   al_destroy_font(font);
+//   font = al_create_builtin_font();
+//   if(!font)
+//   {
+//      sprintf(msg, "Failed to create_builtin_font");
+//      m_err(msg);
+//      printf("%s\n", msg);
+//      exit(0);
+//   }
+//   //else printf("created builtin font\n");
+
+
+
    al_destroy_font(font);
-   font = al_create_builtin_font();
-   if(!font)
-   {
-      sprintf(msg, "Failed to create_builtin_font");
-      m_err(msg);
-      printf("%s\n", msg);
-      exit(0);
-   }
-   //else printf("created builtin font\n");
+   font = al_load_ttf_font("bitmaps/88.ttf", 8, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
+   if(!font) m_err("Failed to load font from bitmaps/88.ttf");
+   //else printf("loaded font Achafont.ttf\n");
+
+
+
 
    al_destroy_font(f1);
    f1 = al_load_ttf_font("bitmaps/Achafont.ttf", 240, 0);

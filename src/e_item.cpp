@@ -406,7 +406,7 @@ void show_all_pmsg(void)
          int tlc = 0; // temp line counter
          for (int j=0; j<len; j++)
          {
-            if (pmsgtext[i][j] == 126)
+            if (pmsgtext[i][j] == 10)
             {
                lines++;
                if (tlc > mll) mll = tlc;
@@ -422,7 +422,7 @@ void show_all_pmsg(void)
          {
             int col = 15;
             if ((pmsgtext[i][j] < 32) || (pmsgtext[i][j] > 126)) col = 10; // bad char
-            if (pmsgtext[i][j] == 126) col = 9; // LF
+            if (pmsgtext[i][j] == 10) col = 9; // LF
             al_draw_textf(font, palette_color[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsgtext[i][j], pmsgtext[i][j] );
 
             if (text_pos > SCREEN_H - 20)
@@ -445,30 +445,21 @@ int create_pmsg(int c)
    item[c][0] = 10 ;  // type 10 - msg
    item[c][1] = 1036; // animation seq
    item[c][3] = 0;    // stationary
-
    item[c][2] = 0;    // flags
    item[c][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
-   item[c][2] |= PM_ITEM_PMSG_AUTOSIZE;
 
    item[c][12] = 120;  // default message time
    set_int_3216(item[c][13], 15, 13); // default text color (white) and frame color (blue)
 
    int bad=0;
 
-   // get text of message
-   if (!edit_pmsg_text(c, 1)) bad = 1;
-   if (!bad)
-   {
-      if (getxy("Message Object", 2, 10, c) != 1) bad = 1;
-   }
-   if (!bad)
-   {
-      int x=0, y=0, w=0, h=0;
-      get_block_range("Message Area", &x, &y, &w, &h, 1);
-      set_int_3216(item[c][10], x, y);
-      set_int_3216(item[c][11], w, h);
-      get_block_range("Trigger Area", &item[c][6], &item[c][7], &item[c][8], &item[c][9], 1);
-   }
+   int x=0, y=0, w=0, h=0;
+   get_block_range("Message Area", &x, &y, &w, &h, 1);
+   set_int_3216(item[c][10], x, y);
+   set_int_3216(item[c][11], w, h);
+
+   if (!bad) if (!edit_pmsg_text(c, 1)) bad = 1; // get text of message
+   if (!bad) if (getxy("Message Object", 2, 10, c) != 1) bad = 1;
 
    if (bad) return 0;
    else object_viewerw(2, c);
