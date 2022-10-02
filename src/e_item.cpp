@@ -447,6 +447,7 @@ int create_pmsg(int c)
    item[c][3] = 0;    // stationary
    item[c][2] = 0;    // flags
    item[c][2] |= PM_ITEM_PMSG_SHOW_SCROLL;
+   item[c][2] |= PM_ITEM_PMSG_FRAME12;
 
    item[c][12] = 120;  // default message time
    set_int_3216(item[c][13], 15, 13); // default text color (white) and frame color (blue)

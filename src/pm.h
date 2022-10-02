@@ -212,11 +212,12 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 #define PM_ITEM_PMSG_SHOW_ALWAYS   0b00000000000000001
 #define PM_ITEM_PMSG_SHOW_SCROLL   0b00000000000000010
 #define PM_ITEM_PMSG_TRIGGER_BOX   0b00000000000000100
-#define PM_ITEM_PMSG_AUTOSIZE      0b00000000000001000
 
-
-
-
+#define PM_ITEM_PMSG_FRAME0        0b00000000000001000
+#define PM_ITEM_PMSG_FRAME1        0b00000000000010000
+#define PM_ITEM_PMSG_FRAME2        0b00000000000100000
+#define PM_ITEM_PMSG_FRAME4        0b00000000001000000
+#define PM_ITEM_PMSG_FRAME12       0b00000000010000000
 
 
 
@@ -1173,6 +1174,8 @@ void PDE_edit_text(int EN);
 void predefined_enemies(void);
 
 // e_sliders.h
+int get_frame_size(int num);
+
 void update_var(int bn, int type, int num, float f);
 void fill_smsg_button(int bn, int obt, int type, int num);
 void fill_smsg_slider(int bn, int type, int num);

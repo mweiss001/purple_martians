@@ -73,8 +73,6 @@ static bool draw_multiline_cb(int line_num, const char *line, int size, void *ex
 
 void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
 {
-   int frame_width = 12;
-
 
 
    // set where we will draw
@@ -109,49 +107,36 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
    int y2 = y1 + h;
 
 
-   // background
-   al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[fc+12*16]);
 
-   if (frame_width == 16)
+   int frame_width = get_frame_size(i);
+
+
+   if (frame_width == 0)
+   {
+      if (level_editor_running) al_draw_rectangle(x1, y1, x2, y2, palette_color[15], 1);
+   }
+   else al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[fc+13*16]);  // background
+
+   if (frame_width == 1)
+   {
+      al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1);
+   }
+   if (frame_width == 2)
    {
       for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*16], 1.5);
-
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*128], 1.5);
    }
-
-
-
-   // draw frame
-   if (frame_width == 12)
-   {
-      for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*16], 1.5);
-
-   }
-
-   if (frame_width == 8)
-   {
-      for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*16], 1.5);
-   }
-
-   if (frame_width == 6)
-   {
-      for (int a=0; a<frame_width; a++)
-         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*32], 1.5);
-   }
-
    if (frame_width == 4)
    {
       for (int a=0; a<frame_width; a++)
          al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[fc+a*48], 1.5);
    }
-
-   if (frame_width == 1)
+   if (frame_width == 12)
    {
       for (int a=0; a<frame_width; a++)
-         al_draw_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[fc+a*48], 1);
+         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 6, 6, palette_color[fc+a*16], 1.5);
    }
+
 
    // debug show inner frame
 //   al_draw_rounded_rectangle(x1+frame_width, y1+frame_width, x2-frame_width, y2-frame_width, 4, 4, palette_color[15], 1);
@@ -160,14 +145,16 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
 
    if (custom)
    {
-      al_draw_textf(font, palette_color[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500", cursor_pos, (int) strlen(pt));
 
       // show cursor char
       sprintf(msg, "%c", pt[cursor_pos]);
       if (pt[cursor_pos] == 10) sprintf(msg, "LF");
       if (pt[cursor_pos] == 0)  sprintf(msg, "NULL");
-      al_draw_textf(font, palette_color[15], x2-60, y2-9, 0, "[%s]", msg);
-      al_draw_textf(font, palette_color[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
+
+      al_draw_textf(font, palette_color[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
+
+//      al_draw_textf(font, palette_color[15], x2-60, y2-9, 0, "[%s]", msg);
+      //al_draw_textf(font, palette_color[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
    }
 
    // figure out what line height to use so that text is justified vertically
@@ -189,21 +176,18 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
       text_height = extra.num_lines * line_height;
       sp = h - frame_width*2 - text_height;
 
-   } while ((sp > 1) && (line_height < 100));
-
-//   int y3 = y1+(sp)/2 + line_height/2 -8;
+   } while ((sp > 2) && (line_height < 100));
 
 
 //   al_draw_textf(font, palette_color[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
 //   al_draw_textf(font, palette_color[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
 
 
+   float y3 = y1+frame_width+line_height/2-3.5;
 
-//   int y3 = y1+frame_width+sp/2-line_height/2;
+//   int y3 = y1+frame_width+line_height/2-4;
 
-   int y3 = y1+frame_width+line_height/2-4;
-
-   if (sp < 0.9)
+   if (sp < 1)
    {
       sp = h - text_height;
       y3 = y1+sp/2;

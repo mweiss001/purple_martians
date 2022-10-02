@@ -3275,6 +3275,11 @@ Numerous small bug fixes and improvements.
 <c15> license: free for non-profit use
 <c15> Font used for main logo and titles
 
+<c11>Pristine.ttf
+<c15> copyright 2021 Damien Guard
+<c15> license: free with notification and credit
+<c15> 8x8 system font used for most text
+
 <c11>Achafont.ttf
 <c15> "A Charming Font" by Gem Fonts
 <c15> license: free

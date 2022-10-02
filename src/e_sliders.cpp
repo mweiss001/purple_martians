@@ -535,6 +535,34 @@ void set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3)
 
 
 
+int get_frame_size(int num)
+{
+   if (item[num][2] & PM_ITEM_PMSG_FRAME0) return 0;
+   if (item[num][2] & PM_ITEM_PMSG_FRAME1) return 1;
+   if (item[num][2] & PM_ITEM_PMSG_FRAME2) return 2;
+   if (item[num][2] & PM_ITEM_PMSG_FRAME4) return 4;
+   if (item[num][2] & PM_ITEM_PMSG_FRAME12) return 12;
+   return 0;
+}
+
+
+void set_frame_size(int num, int frame_size)
+{
+   // clear all flags
+   item[num][2] &= ~PM_ITEM_PMSG_FRAME0;
+   item[num][2] &= ~PM_ITEM_PMSG_FRAME1;
+   item[num][2] &= ~PM_ITEM_PMSG_FRAME2;
+   item[num][2] &= ~PM_ITEM_PMSG_FRAME4;
+   item[num][2] &= ~PM_ITEM_PMSG_FRAME12;
+
+   if (frame_size == 0)  item[num][2] |= PM_ITEM_PMSG_FRAME0;
+   if (frame_size == 1)  item[num][2] |= PM_ITEM_PMSG_FRAME1;
+   if (frame_size == 2)  item[num][2] |= PM_ITEM_PMSG_FRAME2;
+   if (frame_size == 4)  item[num][2] |= PM_ITEM_PMSG_FRAME4;
+   if (frame_size == 12) item[num][2] |= PM_ITEM_PMSG_FRAME12;
+}
+
+
 
 
 
@@ -589,6 +617,26 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
       }
    }
+
+   if (bn == 7)
+   {
+      int frame_size = get_frame_size(num);
+
+      sprintf(smsg, "Frame Size:%d", frame_size);
+      if (press)
+      {
+              if (frame_size == 0)  frame_size = 1;
+         else if (frame_size == 1)  frame_size = 2;
+         else if (frame_size == 2)  frame_size = 4;
+         else if (frame_size == 4)  frame_size = 12;
+         else if (frame_size == 12) frame_size = 0;
+
+         set_frame_size(num, frame_size);
+
+      }
+   }
+
+
 
    if (bn == 11)
    {

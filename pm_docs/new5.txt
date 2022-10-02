@@ -32498,13 +32498,26 @@ its getting late
 
 tomorrow
 
-better controls on edit text
+show xywh while adjusting
+put char count and current char off frame...
 
 use flags for some different frame options, including none
 
-show xywh while adjusting
+cycle through:
+none
+1
+2
+4
+12
+
+
+better controls on edit text
+done
 
 credits for new font...
+
+
+
 
 
 
