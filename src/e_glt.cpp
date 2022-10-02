@@ -128,21 +128,13 @@ void global_level()
 
 
 
-//      for (int y=0; y<500; y++)
-//         if (item[y][0] == 10) // pmsg
-//         {
-//            count0++;
-//
-//
-//            int len = strlen(pmsgtext[y]);
-//            if (len > 0)
-//            {
-//               for (int j=0; j<len; j++)
-//                  if (pmsgtext[y][j] == 126) pmsgtext[y][j] = 10;
-//            }
-//         }
-//
-//
+      for (int y=0; y<500; y++)
+         if (item[y][0] == 10) // pmsg
+         {
+            count0++;
+
+         }
+
       if (0)
       {
          save_level(le[x]);

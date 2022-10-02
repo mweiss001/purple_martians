@@ -336,13 +336,8 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
          case 10:
             mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"Scroll Location");
-
-            if (item[num][2] & PM_ITEM_PMSG_AUTOSIZE) sprintf(lmsg[2],"Message Position");
-            else                                      sprintf(lmsg[2],"Message Area");
+            sprintf(lmsg[2],"Message Area");
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
-
-
-
             if (item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
             {
                mW[7].num_legend_lines = 4;
@@ -828,6 +823,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
             mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_SHOW_SCROLL , "Show Scroll:OFF", "Show Scroll:ON",  15+dim, 15, 9+dim, 9);
             ya+=4; // spacer
             mdw_button(xa, ya, xb, bts, 6,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Area
+            mdw_button(xa, ya, xb, bts, 7,n,0,0,   0,10,15,0,   1,0,1,d); // Set Message Frame
             ya+=4; // spacer
             mdw_togglf(     xa, ya, xb, bts, 0,0,0,0,   0,0,0,0,    1,0,1,d, item[n][2], PM_ITEM_PMSG_TRIGGER_BOX , "Trigger Box:OFF", "Trigger Box:ON",  15+dim, 15, 14+dim, 14);
             if (item[n][2] & PM_ITEM_PMSG_TRIGGER_BOX)
@@ -1228,41 +1224,22 @@ void ovw_draw_overlays(int legend_highlight)
             int color = 10;
             if (legend_highlight == 2) color = flash_color;
 
-            if (item[num][2] & PM_ITEM_PMSG_AUTOSIZE) // message position
-            {
-               int mx=0, my=0;
-               get_int_3216(item[num][10], mx, my);
-               int x2 = mx;
-               int y2 = my;
-               int x3 = mx + 20;
-               int y3 = my + 20;
-               int x4 = (x2+x3)/2;
-               int y4 = (y2+y3)/2;
+            int mx=0, my=0, mw=0, mh=0;
+            get_int_3216(item[num][10], mx, my);
+            get_int_3216(item[num][11], mw, mh);
+            int x2 = mx;
+            int y2 = my;
+            int x3 = mx + mw;
+            int y3 = my + mh;
+            int x4 = (x2+x3)/2;
+            int y4 = (y2+y3)/2;
 
-               al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-               al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-               al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
+            al_draw_textf(font, palette_color[15], x4, y2-10, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d", mx, my);
+            al_draw_textf(font, palette_color[15], x4, y3+2,  ALLEGRO_ALIGN_CENTRE, "w:%d h:%d", mw, mh);
 
-
-            }
-            else // message area
-            {
-               int mx=0, my=0, mw=0, mh=0;
-               get_int_3216(item[num][10], mx, my);
-               get_int_3216(item[num][11], mw, mh);
-               int x2 = mx;
-               int y2 = my;
-               int x3 = mx + mw;
-               int y3 = my + mh;
-               int x4 = (x2+x3)/2;
-               int y4 = (y2+y3)/2;
-
-               al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
-               al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
-               al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
-            }
-
-
+            al_draw_line(0, y4, 1999, y4, palette_color[color], 1);
+            al_draw_line(x4, 0, x4, 1999, palette_color[color], 1);
+            al_draw_rectangle(x2, y2, x3, y3, palette_color[color], 1);
 
             if (item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
             {
@@ -1870,6 +1847,9 @@ void ovw_process_mouse(void)
             mh = hy - my;
 
             set_int_3216(item[mW[7].num][11], mw, mh);
+
+
+
 
          }
 

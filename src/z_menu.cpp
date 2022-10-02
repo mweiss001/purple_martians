@@ -1225,22 +1225,37 @@ int edit_pmsg_text(int c, int new_msg)
       if (key[ALLEGRO_KEY_END])   cursor_pos = char_count;
       if (key[ALLEGRO_KEY_RIGHT])
       {
+         //al_rest(0.02);
          while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();                 // wait for release
-         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         if (((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) && ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])))
          {
-            while ((++cursor_pos < char_count) && (f[cursor_pos] != 32));  // find next space
+            while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
          }
+         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         {
+            while ((++cursor_pos < char_count) && (f[cursor_pos] != 32) && (f[cursor_pos] != 10));  // find next space or LF
+         }
+         else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) cursor_pos+=16;
+
          else cursor_pos++;
          if (cursor_pos > char_count) cursor_pos = char_count;             // make sure we are not past the end
       }
 
       if (key[ALLEGRO_KEY_LEFT])
       {
+         //al_rest(0.02);
          while (key[ALLEGRO_KEY_LEFT]) proc_controllers();               // wait for release
-         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+
+         if (((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) && ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])))
          {
-            while ((--cursor_pos > 0) && (f[cursor_pos] != 32));         // find next space
+            while ((--cursor_pos > 0) && (f[cursor_pos] != 10));  // find next LF
          }
+         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         {
+            while ((--cursor_pos > 0) && (f[cursor_pos] != 32) && (f[cursor_pos] != 10)); // find next space or LF
+         }
+         else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) cursor_pos-=16;
+
          else cursor_pos--;
          if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
       }
@@ -1268,14 +1283,14 @@ int edit_pmsg_text(int c, int new_msg)
       }
       if ((key[ALLEGRO_KEY_DELETE]) && (cursor_pos < char_count))
       {
-         al_rest(0.07);
+         al_rest(0.02);
          for (int aa = cursor_pos; aa < char_count; aa++) f[aa]=f[aa+1];
          char_count--;
          f[char_count] = (char)NULL; // set last to NULL
       }
       if ((key[ALLEGRO_KEY_BACKSPACE]) && (cursor_pos > 0))
       {
-         al_rest(0.07);
+         al_rest(0.02);
          cursor_pos--;
          for (int aa = cursor_pos; aa < char_count; aa++) f[aa]=f[aa+1];
          char_count--;
