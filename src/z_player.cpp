@@ -6,70 +6,90 @@
 
 void set_player_start_pos(int p, int cont)
 {
-   int ns = 0; // count number of starts
-   int s[8] = {0};
-   for (int i=0; i<500; i++)
-      if (item[i][0] == 5)
+   int found = 0;
+   if (warp_level_location)
+   {
+      for (int i=0; i<500; i++)
+         if (item[i][0] == 12)
+         {
+            if (item[i][8] == warp_level_location)
+            {
+               found = 1;
+               //printf("Found warp level location %d\n", warp_level_location);
+               players[p].PX = itemf[i][0];
+               players[p].PY = itemf[i][1] + al_itofix(20);
+            }
+         }
+      warp_level_location = 0;
+   }
+
+   if (found == 0)
+   {
+
+      int ns = 0; // count number of starts
+      int s[8] = {0};
+      for (int i=0; i<500; i++)
+         if (item[i][0] == 5)
+         {
+            ns++;
+            s[item[i][7]] = i; // save index of this start
+         }
+      if (ns == 0)
       {
-         ns++;
-         s[item[i][7]] = i; // save index of this start
+         printf("Error: no start found.\n");
+         players[p].PX = al_itofix(20);
+         players[p].PY = al_itofix(20);;
       }
-   if (ns == 0)
-   {
-      printf("Error: no start found.\n");
-      players[p].PX = al_itofix(20);
-      players[p].PY = al_itofix(20);;
-   }
-   if (ns == 1)
-   {
-      players[p].spawn_point_index = 0;
-      int ps = s[players[p].spawn_point_index];
-      players[p].PX = itemf[ps][0];
-      players[p].PY = itemf[ps][1];
-   }
-
-
-
-   if (ns > 1)
-   {
-      int mode = item[s[0]][6];
-
-      if (mode == 0)
+      if (ns == 1)
       {
-         printf("Error: in start mode:0 there should be only one start.. all other starts are ignored.\n");
          players[p].spawn_point_index = 0;
-         players[p].PX = itemf[s[0]][0];
-         players[p].PY = itemf[s[0]][1];
-
-      }
-
-      if (mode == 1) // team start
-      {
-         if (p % 2) // odd
-         {
-            players[p].spawn_point_index = 1;
-            players[p].PX = itemf[s[1]][0];
-            players[p].PY = itemf[s[1]][1];
-         }
-         else
-         {
-            players[p].spawn_point_index = 0;
-            players[p].PX = itemf[s[0]][0];
-            players[p].PY = itemf[s[0]][1];
-         }
-      }
-
-      if ((mode == 2) || (mode == 3)) // check point common and individual
-      {
-         if (!cont) players[p].spawn_point_index = 0; // initial
          int ps = s[players[p].spawn_point_index];
          players[p].PX = itemf[ps][0];
          players[p].PY = itemf[ps][1];
       }
 
+
+
+      if (ns > 1)
+      {
+         int mode = item[s[0]][6];
+
+         if (mode == 0)
+         {
+            printf("Error: in start mode:0 there should be only one start.. all other starts are ignored.\n");
+            players[p].spawn_point_index = 0;
+            players[p].PX = itemf[s[0]][0];
+            players[p].PY = itemf[s[0]][1];
+
+         }
+
+         if (mode == 1) // team start
+         {
+            if (p % 2) // odd
+            {
+               players[p].spawn_point_index = 1;
+               players[p].PX = itemf[s[1]][0];
+               players[p].PY = itemf[s[1]][1];
+            }
+            else
+            {
+               players[p].spawn_point_index = 0;
+               players[p].PX = itemf[s[0]][0];
+               players[p].PY = itemf[s[0]][1];
+            }
+         }
+
+         if ((mode == 2) || (mode == 3)) // check point common and individual
+         {
+            if (!cont) players[p].spawn_point_index = 0; // initial
+            int ps = s[players[p].spawn_point_index];
+            players[p].PX = itemf[ps][0];
+            players[p].PY = itemf[ps][1];
+         }
+
+      }
+
    }
-
-
 
    /*
 

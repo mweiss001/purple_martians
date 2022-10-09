@@ -189,7 +189,7 @@ void proc_level_done_mode(void)
    proc_frame_delay();
    if (draw_frame)
    {
-      get_new_background(0);
+      get_new_background(1);
       draw_lifts();
       draw_items();
       draw_enemies();
@@ -245,7 +245,7 @@ void game_loop(int start_mode)
          {
 
 
-            get_new_background(0);
+            get_new_background(1);
             draw_lifts();
             draw_items();
             draw_enemies();

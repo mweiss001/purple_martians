@@ -308,6 +308,8 @@ void level_check(void)
 
 int load_level(int level_to_load, int load_only)
 {
+   //printf("loading: %s\n", level_filename);
+
    for (int i=0; i<20; i++) level_header[i] = 0;
 
    int level_load_error = 0;
@@ -322,7 +324,7 @@ int load_level(int level_to_load, int load_only)
    FILE *fp = fopen(level_filename,"rb");
    if (!fp)
    {
-      sprintf(msg, "Error opening %s ", level_filename);
+      //sprintf(msg, "Error opening %s ", level_filename);
       //m_err(msg);
       level_load_error = 1;
    }
@@ -343,7 +345,7 @@ int load_level(int level_to_load, int load_only)
 
    if (level_load_error)
    {
-      sprintf(msg, "Level loading error occurred for: %s ", level_filename);
+      //sprintf(msg, "Level loading error occurred for: %s ", level_filename);
       //m_err(msg);
       num_lifts = 0;
       return 0;

@@ -1466,7 +1466,13 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    {
       if (press) var++;
       if ((var < 0) || (var > 4)) var = 0;
-      if (var == 0) sprintf(smsg, "MODE:Always ON");
+      if (var == 0)
+      {
+         sprintf(smsg, "MODE:Always ON");
+         item[num][3] |=  PM_ITEM_DAMAGE_CURR; // set damage on
+
+      }
+
       if (var == 1) sprintf(smsg, "MODE:Toggle");
       if (var == 2)
       {

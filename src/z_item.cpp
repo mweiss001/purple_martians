@@ -17,9 +17,10 @@ int item_data(int x, int y)
    if (item_num_of_type[8])  { al_draw_textf(font, palette_color[14], x, y, 0, "%d Bombs",      item_num_of_type[8]);  y+=8; }
    if (item_num_of_type[11]) { al_draw_textf(font, palette_color[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
    if (item_num_of_type[7])  { al_draw_textf(font, palette_color[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
+   if (item_num_of_type[6])  { al_draw_textf(font, palette_color[14], x, y, 0, "%d Orbs",       item_num_of_type[6]);  y+=8; }
 
    for (int c=1; c<20; c++)
-      if ((c!= 1) && (c !=3) && (c!= 4) && (c != 5) && (c!= 7) && (c!= 8) && (c!= 9) && (c!= 11) && (c!= 12) && (c!= 14) && (c!= 15) && (c!= 16) && (c!= 17) )
+      if ((c!= 1) && (c !=3) && (c!= 4) && (c != 5) && (c != 6) && (c!= 7) && (c!= 8) && (c!= 9) && (c!= 11) && (c!= 12) && (c!= 14) && (c!= 15) && (c!= 16) && (c!= 17) )
          if (item_num_of_type[c]) // not zero
          {
                          sprintf(msg, "%d type %d???  ", item_num_of_type[c], c); // default unknown
@@ -148,10 +149,13 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
 
       // show cursor char
       sprintf(msg, "%c", pt[cursor_pos]);
-      if (pt[cursor_pos] == 10) sprintf(msg, "LF");
       if (pt[cursor_pos] == 0)  sprintf(msg, "NULL");
+      if (pt[cursor_pos] == 10) sprintf(msg, "LF");
+      if (pt[cursor_pos] == 32) sprintf(msg, "SPACE");
 
-      al_draw_textf(font, palette_color[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
+      al_draw_textf(font, palette_color[15], xc+4, y2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
+
+//      al_draw_textf(font, palette_color[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
 
 //      al_draw_textf(font, palette_color[15], x2-60, y2-9, 0, "[%s]", msg);
       //al_draw_textf(font, palette_color[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
@@ -247,8 +251,6 @@ void draw_door(int i, int x, int y, int custom)
       tmp = door_tile[0][col][an];
    }
    else if (item[i][13] == 0) drawn = 1;
-   else if (item[i][13] == -1) drawn = 1;
-
 
    if ((item[i][8] == 1) && (!custom)) // linked item destination
    {
@@ -260,25 +262,28 @@ void draw_door(int i, int x, int y, int custom)
       if (item[i][12] == 1) // if always draw lines (1)
          al_draw_line(x+10, y+10, dx+10, dy+10, palette_color[line_color], 1);  // draw a line connecting them
 
-      for (int p=0; p<NUM_PLAYERS; p++) // is player touching door
-         if ((players[p].active) && (players[p].marked_door == i))
-         {
-            if (item[i][12] > 0)  // always draw or only draw when touching ( 1 or 2)
-               al_draw_line(x+10, y+10, dx+10, dy+10, palette_color[line_color], 1);  // draw a line connecting them
+      if (!drawn)
+      {
+         for (int p=0; p<NUM_PLAYERS; p++) // is player touching door
+            if ((players[p].active) && (players[p].marked_door == i))
+            {
+               if (item[i][12] > 0)  // always draw or only draw when touching ( 1 or 2)
+                  al_draw_line(x+10, y+10, dx+10, dy+10, palette_color[line_color], 1);  // draw a line connecting them
 
-            // bigger door when player touching it
-            al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, x-5, y-6, 30, 26, 0 );
+               // bigger door when player touching it
+               al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, x-5, y-6, 30, 26, 0 );
 
-            if (item[i][8] == 0) al_draw_scaled_bitmap(tile[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
-            else al_draw_scaled_bitmap(tile[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
+               if (item[i][8] == 0) al_draw_scaled_bitmap(tile[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
+               else al_draw_scaled_bitmap(tile[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
 
-            if (item[i][11] == 1) // enter with <up>
-               al_draw_text(font, palette_color[15],  x+3, y-14, 0, "up");
+               if (item[i][11] == 1) // enter with <up>
+                  al_draw_text(font, palette_color[15],  x+3, y-14, 0, "up");
 
-            if (item[i][11] == 2) // enter with <down>
-               al_draw_text(font, palette_color[15],  x-5, y-14, 0, "down");
-            drawn = 1;
-         }
+               if (item[i][11] == 2) // enter with <down>
+                  al_draw_text(font, palette_color[15],  x-5, y-14, 0, "down");
+               drawn = 1;
+            }
+      }
    }
    if (!drawn)
    {
@@ -287,6 +292,7 @@ void draw_door(int i, int x, int y, int custom)
       if (item[i][8] == 0) al_draw_bitmap(tile[1015], x, y, 0); // OUT
       else al_draw_bitmap(tile[1014], x, y, 0); // IN
    }
+
 }
 
 int seq_color(int mod, int c1, int c2)
@@ -1454,6 +1460,7 @@ void proc_orb_collision(int p, int i)
 }
 void proc_door_collision(int p, int i)
 {
+
    if ((players[p].marked_door == -1)  // player has no marked door yet
      && (players[p].carry_item != i+1)) // player is not carrying this door
    {
@@ -1542,7 +1549,7 @@ void proc_door_collision(int p, int i)
 
             if (!bad_exit)
             {
-               game_event(5, 0, 0, p, i, 0, 0);
+               if (item[i][13]) game_event(5, 0, 0, p, i, 0, 0); // no event if door is inivisible
 
                int instant_move = 0;
                if (item[i][7] == 0) // 0 = auto
@@ -1855,6 +1862,8 @@ void proc_warp_collision(int p, int i)
 {
    if (level_done_mode == 0)
    {
+      if (play_level > 1) warp_level_location = play_level;
+
       players[p].paused = 5;
       level_done_mode = 9;
       next_level = item[i][8];
@@ -2784,6 +2793,7 @@ item[][10] rocket rotation (scaled by 10)
 
 [12]  - warp
 item[][8] warp level
+
 
 [14]  - switch
 item[][6]  block range x

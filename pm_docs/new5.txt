@@ -32514,30 +32514,82 @@ none
 better controls on edit text
 done
 
-credits for new font...
+credits for new font...done
 
+fix the door invisible causing crashes
+when door is invisible, do not play sound...
 
+make text pos show in text button instead of frame...
+but it needs to show when editting...put it below msg...done
 
+finish trigger
 
+finish lifts
 
 
+make warps send player back to specfic loaction in level 1...
 
+I will need a global_variable...
 
+int warp_level_location
 
+if zero start level just like normal
+otherwise find warp that matches that value and warp to there..
+after starting level for any reason set to zero..
 
 
+void proc_warp_collision(int p, int i)
+{
+   if (level_done_mode == 0)
+   {
+      if (play_level > 1) warp_level_location = play_level;
 
+      players[p].paused = 5;
+      level_done_mode = 9;
+      next_level = item[i][8];
+      game_event(4, 0, 0, p, i, 0, 0);
+   }
+}
 
 
+void set_player_start_pos(int p, int cont)
+{
+   int found = 0;
+   if (warp_level_location)
+   {
+      for (int i=0; i<500; i++)
+         if (item[i][0] == 12)
+         {
+            if (item[i][8] == warp_level_location)
+            {
+               found = 1;
+               //printf("Found warp level location %d\n", warp_level_location);
+               players[p].PX = itemf[i][0];
+               players[p].PY = itemf[i][1] + al_itofix(20);
+            }
+         }
+      warp_level_location = 0;
+   }
 
+   if (found == 0)
+   {
 
+      int ns = 0; // count number of starts
+      int s[8] = {0};
+      for (int i=0; i<500; i++)
+         if (item[i][0] == 5)
 
 
+this seems to work....
 
 
+trigger and block manip are done
 
+still to do...
 
+block damage
 
+orb
 
 
 
@@ -32659,7 +32711,30 @@ credits for new font...
 
 
 
-need to set colors for msg creator....wait and do it for all...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
