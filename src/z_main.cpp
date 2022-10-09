@@ -352,6 +352,10 @@ char lift_step_type_name[10][10];
 int l[100][100];
 int thl[100][100] = {0}; // tile helper
 
+int warp_level_location = 0;
+
+
+
 int start_level;
 int play_level;
 int valid_level_loaded;
@@ -779,7 +783,6 @@ void game_menu(void)
       splash_screen();
       splash_screen_done = 1;
    }
-   //printf("game menu\n");
    load_level(start_level, 0);
    do
    {
@@ -787,6 +790,7 @@ void game_menu(void)
 
       top_menu_sel = zmenu(7, top_menu_sel, 10);
 
+      //printf("post top menu\n");
 
 
       while (key[ALLEGRO_KEY_L])

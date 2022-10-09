@@ -18,14 +18,10 @@ void load_fonts(void)
 //   //else printf("created builtin font\n");
 
 
-
    al_destroy_font(font);
-   font = al_load_ttf_font("bitmaps/88.ttf", 8, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
-   if(!font) m_err("Failed to load font from bitmaps/88.ttf");
-   //else printf("loaded font Achafont.ttf\n");
-
-
-
+   font = al_load_ttf_font("bitmaps/Pristine.ttf", 8, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
+   if(!font) m_err("Failed to load font from bitmaps/Pristine.ttf");
+   //else printf("loaded font Pristine.ttf\n");
 
    al_destroy_font(f1);
    f1 = al_load_ttf_font("bitmaps/Achafont.ttf", 240, 0);
@@ -49,14 +45,10 @@ void load_fonts(void)
 
 
 
-
-
-
 // done at start only now
 void create_bitmaps(void)
 {
    al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-
 
    // create memory bitmaps as temp storage for restoring tilemaps after screen change
    al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
@@ -77,7 +69,6 @@ void create_bitmaps(void)
 
    al_set_target_bitmap(M_dtilemap);
    al_clear_to_color(al_map_rgba(0,0,0,0));
-
 
 //   printf("M_tilemap\n");
 //   show_pixel_format(al_get_bitmap_format(M_tilemap));

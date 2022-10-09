@@ -129,9 +129,12 @@ void global_level()
 
 
       for (int y=0; y<500; y++)
-         if (item[y][0] == 10) // pmsg
+         if (item[y][0] == 1) // door
          {
             count0++;
+
+            if (item[y][13] == -1) item[y][13] = 0;
+
 
          }
 

@@ -852,6 +852,7 @@ extern int l[100][100];
 
 extern int thl[100][100]; // tile helper
 
+extern int warp_level_location;
 
 extern int start_level;
 extern int play_level;

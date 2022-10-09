@@ -852,6 +852,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
    // clear_key array (but not SHIFTS, CTRL etc above 200)
    for (int k = ALLEGRO_KEY_A; k < 200; k++) key[k] = 0;
 
+
    while (selection == 999)
    {
       al_set_target_backbuffer(display);
