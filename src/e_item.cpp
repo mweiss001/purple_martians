@@ -454,13 +454,14 @@ int create_pmsg(int c)
 
    int bad=0;
 
+   if (getxy("Message Object", 2, 10, c) != 1) bad = 1;
+
    int x=0, y=0, w=0, h=0;
-   get_block_range("Message Area", &x, &y, &w, &h, 1);
+   if (!bad) get_block_range("Message Area", &x, &y, &w, &h, 1);
    set_int_3216(item[c][10], x, y);
    set_int_3216(item[c][11], w, h);
 
    if (!bad) if (!edit_pmsg_text(c, 1)) bad = 1; // get text of message
-   if (!bad) if (getxy("Message Object", 2, 10, c) != 1) bad = 1;
 
    if (bad) return 0;
    else object_viewerw(2, c);
