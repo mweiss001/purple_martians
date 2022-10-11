@@ -13,37 +13,18 @@ void set_lift_to_step(int l, int s)
    // if not, then set to previous move step
 does not actually set lift's current step to steps that are not move steps
 
-
 bug -- in level editor can't see trigger box edges on left or top if zero
-
-bug  -- archwagon in confined space always faces right
-
-
 
 just found more tilemap stuff..
 btiles had tiles in the background in level editor
 copy tiles looked clean
-F12 to full screnn and back fixed it
-
-
-
-
-weird bug with pmsg always on
-item collision: case 10: item[i][6] = item[i][7];       break; // set pop-up message timer
-so i try to set 6 to 7, but in level editor buttons wont display for pmsg when 6 is -1...
-makes no sense to me....
-
+F12 to full screen and back fixed it
 
 
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
-
-
-
-
-
 
 
 
