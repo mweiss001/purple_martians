@@ -2451,8 +2451,20 @@ void proc_item_damage_collisions(int i)
                }
                else
                {
-                  players[p].LIFE -= al_fixdiv(al_itofix(item[i][15]), al_itofix(100));
-                  if (item[i][15] > 0) game_event(59, 0, 0, p, i, 0, 0); // only do damage noise when taking health..??
+                  if (item[i][15] > 0) // lose health
+                  {
+                     players[p].LIFE -= al_fixdiv(al_itofix(item[i][15]), al_itofix(100));
+                     game_event(59, 0, 0, p, i, 0, 0); // only do damage noise when taking health..??
+                  }
+                  else // gain health
+                  {
+                     al_fixed f100 = al_itofix(100);
+                     if (players[p].LIFE < f100)
+                     {
+                        players[p].LIFE -= al_fixdiv(al_itofix(item[i][15]), al_itofix(100));
+                        if (players[p].LIFE > f100) players[p].LIFE = f100;
+                     }
+                  }
                }
             }
          }

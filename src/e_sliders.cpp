@@ -1501,9 +1501,10 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    if (bn == 500) // lift mode
    {
       if (press) var++;
-      if ((var < 0) || (var > 1)) var = 0;
+      if ((var < 0) || (var > 2)) var = 0;
       if (var == 0) sprintf(smsg, "Mode 0 - Normal");
       if (var == 1) sprintf(smsg, "Mode 1 - Prox Run and Reset");
+      if (var == 2) sprintf(smsg, "Mode 2 - Prox Reset");
    }
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
    draw_slider_text(x1, y1,  x2, y2, q2, q5);

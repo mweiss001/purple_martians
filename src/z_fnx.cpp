@@ -622,6 +622,14 @@ void fire_enemy_bulleta(int EN, int bullet_ans, int p)
    float pvx = players[p].xinc;
    float pvy = players[p].yinc;
 
+   if (players[p].player_ride) // if player is riding lift
+   {
+      int d = players[p].player_ride - 32; // lift number
+      pvx += lifts[d].fxinc;
+      pvy += lifts[d].fyinc;
+   }
+
+
    // Edgar's method
    //float A = pow(pvx,2) + pow(pvy,2) - pow(bv,2);
    //float B = 2*(px*pvx) + 2*(py*pvy) -2*(bx*pvx) -2*(by*pvy);
@@ -663,6 +671,8 @@ void fire_enemy_bulleta(int EN, int bullet_ans, int p)
       al_fixed py1 = py + al_fixmul(pvy, al_ftofix(t));
       fire_enemy_bulletz(EN, bullet_ans, px1, py1);
    }
+   else fire_enemy_bulletz(EN, bullet_ans, px, py);
+
 }
 
 void fire_enemy_x_bullet(int EN, int p)

@@ -241,16 +241,16 @@ void draw_lifts()
          draw_lift(l, x1, y1, x2, y2);
 
          // show if player is riding this lift
-//         int p = is_player_riding_lift(l);
-//         if (p)
-//         {
-//            p -=1; // player number
-//            int pc = players[p].color;
-//            if (pc == color) pc = 127;
-//            al_draw_rounded_rectangle(x1, y1, x2, y2, 4, 4, palette_color[pc], 2);
-//         }
+         int p = is_player_riding_lift(l);
+         if (p)
+         {
+            p -=1; // player number
+            int pc = players[p].color;
+            if (pc == color) pc = 127;
+            al_draw_rounded_rectangle(x1, y1, x2, y2, 4, 4, palette_color[pc], 2);
+         }
 
-         if ((lifts[l].mode == 1) && (!is_player_riding_lift(l)))
+         if ((lifts[l].mode) && (!is_player_riding_lift(l)))
          {
             // if not in initial position
             if (!((lifts[l].x1 == lift_steps[l][0].x) && (lifts[l].y1 == lift_steps[l][0].y)))
@@ -339,7 +339,7 @@ int lift_check_prox(int l, int pd)
    int by2 = lifts[l].y2 + pd - 10;
 
    for (int p=0; p<NUM_PLAYERS; p++)
-      if (players[p].active)
+      if ((players[p].active) && (!players[p].paused))
          if ((players[p].PX > al_itofix(bx1)) && (players[p].PX < al_itofix(bx2)))
             if ((players[p].PY > al_itofix(by1)) && (players[p].PY < al_itofix(by2))) return 1;
    return 0;
@@ -367,6 +367,21 @@ void move_lifts(int ignore_prox)
             }
          }
       }
+
+      if (lifts[l].mode == 2) // prox reset mode
+      {
+         if (is_player_riding_lift(l)) lifts[l].val1 = lifts[l].val2; // reset timer
+         else
+         {
+            if (--lifts[l].val1 < 0)
+            {
+               lifts[l].val1 = lifts[l].val2; // reset timer
+               set_lift_to_step(l, 0);
+            }
+         }
+      }
+
+
 
       if (!frozen)
       {
