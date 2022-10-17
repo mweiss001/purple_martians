@@ -32601,6 +32601,72 @@ can I move on and release and make some videos?
 
 
 
+make a new lift mode..prox reset without stopping the moving when player is absent...done
+
+bug... lift prox run and reset after player dies
+
+when lift resets, due to prox expiring and player is dead, but in location to ride lift..
+
+when player dies, paused should be not zero..
+when detecting if player is riding lift, it should ignore pauswed players.
+so why then?
+
+actually it only happens when in prox reset only mode and when the first step is a prox step
+the prox step check did not have the paused check so I added it and all is good now...
+
+
+
+make bullets accurately shoot moving player when on lift or riding rocket
+can I do this by just setting xinc and yinc???
+riding rocket already works
+fixed for riding lifts..
+
+make it when field adds health to immediately disallow > 100...done
+
+
+remove some weaker levels....done
+
+show zoom in and out very early....done..
+
+
+now go through levels 1 by one for the final time....
+
+also record demos...
+
+
+no more changes allowed!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

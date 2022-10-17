@@ -455,7 +455,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
       int step = lifts[n].current_step;
 
       mdw_buttonp(       xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, lifts[lift].mode); // MODE
-      if (lifts[lift].mode == 1)
+      if (lifts[lift].mode)
          mdw_slideri(xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, lifts[lift].val2, 2000, 1, 1,  "Reset Timer:");
       if (mdw_button(    xa, ya, xb, bts, 504,lift,0,0, 0, 4,15,0,  1,0,1,d)) mW[7].mb = 26; // lift name
       ya+=bts;
