@@ -228,6 +228,7 @@ ALLEGRO_COLOR palette_color[256];
 int flash_color = 0;
 int flash_color2 = 0;
 int flash_counter = 0;
+ALLEGRO_FONT *font0 = NULL;
 ALLEGRO_FONT *font = NULL;
 ALLEGRO_FONT *f1 = NULL;
 ALLEGRO_FONT *f2 = NULL;

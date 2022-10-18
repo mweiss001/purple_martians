@@ -1172,7 +1172,7 @@ void proc_player_ladder(int p)
          while (!done)
          {
             al_fixed m = is_right_solidfm(players[p].PX-f1, players[p].PY, f1, 0);
-            printf("R %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
+            //printf("R %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
             if (m < f1) players[p].PX -= f1;
             else done = 1;
          }
@@ -1182,7 +1182,7 @@ void proc_player_ladder(int p)
          while (!done)
          {
             al_fixed m = is_left_solidfm(players[p].PX+f1, players[p].PY, f1, 0);
-            printf("L %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
+            //printf("L %f %f\n", al_fixtof(m), al_fixtof(players[p].PX));
             if (m < f1) players[p].PX += f1;
             else done = 1;
          }

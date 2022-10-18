@@ -355,7 +355,7 @@ void get_config_values(void)
    else se_scaler = atoi(val);
 
    val = al_get_config_value(cfg, "SOUND", "st_scaler");
-   if (!val) st_scaler = 5;
+   if (!val) st_scaler = 2;
    else st_scaler = atoi(val);
 
    val = al_get_config_value(cfg, "NETWORK", "server_IP");

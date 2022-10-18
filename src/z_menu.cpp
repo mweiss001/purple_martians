@@ -1100,7 +1100,7 @@ int pmenu(int menu_num, int bg_color)
 
 
 
-void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore, int rot)
+void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore)
 {
    int len = strlen(f);
    char dt[40][120];
@@ -1132,38 +1132,18 @@ void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color
    msg[1] = 0;
 
    int x, y;
-   if (rot == 0)
+   x = cursor_col*8+xpos_c - strlen(dt[cursor_row])*4;
+   y = ypos+cursor_row*8;
+
+   if (restore) // black background, text color text
    {
-      x = cursor_col*8+xpos_c - strlen(dt[cursor_row])*4;
-      y = ypos+cursor_row*8;
-
-      if (restore) // black background, text color text
-      {
-         al_draw_filled_rectangle(x, y, x+8, y+8, palette_color[0]);
-         al_draw_text(font, palette_color[cursor_color], x, y, 0, msg);
-      }
-
-      else // red background, black text
-      {
-         al_draw_filled_rectangle(x, y, x+8, y+8, palette_color[10]);
-         al_draw_text(font, palette_color[0], x, y, 0, msg);
-      }
+      al_draw_filled_rectangle(x, y, x+8, y+8, palette_color[0]);
+      al_draw_text(font, palette_color[cursor_color], x, y, 0, msg);
    }
-
-   if (rot == 64)
+   else // red background, black text
    {
-      x = xpos_c+cursor_row*8;
-      y = 8+ cursor_col*8+ypos - strlen(dt[cursor_row])*4;
-      if (restore) // black background, text color text
-      {
-         al_draw_filled_rectangle(x-4, y-4, x+4, y+4, palette_color[0]);
-         rtextout_centre(NULL, msg, x, y, cursor_color, 1, 64, 1);
-      }
-      else // red background, black text
-      {
-         al_draw_filled_rectangle(x-4, y-4, x+4, y+4, palette_color[10]);
-         rtextout_centre(NULL, msg, x, y, 0, 1, 64, 1);
-      }
+      al_draw_filled_rectangle(x, y, x+8, y+8, palette_color[10]);
+      al_draw_text(font, palette_color[0], x, y, 0, msg);
    }
 }
 
@@ -1366,13 +1346,13 @@ void edit_server_name(void)
 
       rtextout_centre(NULL, fst, tx, ty1+1, 15, 1, 0, 1);
 
-      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, 15, 0, 0);
-      else show_cursor(fst, cursor_pos, tx, ty1-3, 15, 1, 0);
+      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, 15, 0);
+      else show_cursor(fst, cursor_pos, tx, ty1-3, 15, 1);
       if (blink_counter> blink_count*2) blink_counter = 0;
 
       if (cursor_pos != old_cp)
       {
-         show_cursor(fst, old_cp, tx, ty1-3, 15, 1, 0); // erase old blinking cursor if moved
+         show_cursor(fst, old_cp, tx, ty1-3, 15, 1); // erase old blinking cursor if moved
          old_cp = cursor_pos;
          blink_counter = 0;
       }
@@ -1465,13 +1445,13 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
       al_draw_text(font, palette_color[color+160], tx, ty1, ALLEGRO_ALIGN_CENTRE, fst);
 
 
-      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1, 15, 0, 0);
-      else show_cursor(fst, cursor_pos, tx, ty1, 15, 1, 0);
+      if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1, 15, 0);
+      else show_cursor(fst, cursor_pos, tx, ty1, 15, 1);
       if (blink_counter> blink_count*2) blink_counter = 0;
 
       if (cursor_pos != old_cp)
       {
-         show_cursor(fst, old_cp, tx, ty1, 15, 1, 0); // erase old blinking cursor if moved
+         show_cursor(fst, old_cp, tx, ty1, 15, 1); // erase old blinking cursor if moved
          old_cp = cursor_pos;
          blink_counter = 0;
       }

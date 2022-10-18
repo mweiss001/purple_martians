@@ -6,16 +6,16 @@
 
 void load_fonts(void)
 {
-//   al_destroy_font(font);
-//   font = al_create_builtin_font();
-//   if(!font)
-//   {
-//      sprintf(msg, "Failed to create_builtin_font");
-//      m_err(msg);
-//      printf("%s\n", msg);
-//      exit(0);
-//   }
-//   //else printf("created builtin font\n");
+   al_destroy_font(font0);
+   font0 = al_create_builtin_font();
+   if(!font0)
+   {
+      sprintf(msg, "Failed to create_builtin_font");
+      m_err(msg);
+      printf("%s\n", msg);
+      exit(0);
+   }
+   //else printf("created builtin font\n");
 
 
    al_destroy_font(font);
@@ -792,7 +792,7 @@ void rtextout_centre(ALLEGRO_BITMAP *dbmp, char *txt1, int x, int y, int col, fl
    al_set_target_bitmap(temp);
    al_clear_to_color(al_map_rgb(0,0,0));
 
-   al_draw_text(font, palette_color[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
+   al_draw_text(font0, palette_color[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
    al_convert_mask_to_alpha(temp, al_map_rgb(0, 0, 0)) ;
 
    if (dbmp != NULL) al_set_target_bitmap(dbmp);

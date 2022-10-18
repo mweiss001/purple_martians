@@ -129,12 +129,14 @@ void global_level()
 
 
       for (int y=0; y<500; y++)
-         if (item[y][0] == 1) // door
+         if (item[y][0] == 2) // bonus
          {
-            count0++;
-
-            if (item[y][13] == -1) item[y][13] = 0;
-
+            if (item[y][6] == 2)
+            {
+               item[y][6] = 3;
+               count0++;
+               printf("Level:%3d\n", le[x]);
+            }
 
          }
 
