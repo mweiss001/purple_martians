@@ -3202,6 +3202,8 @@ Now with dynamic resizing while the game is playing!
 The linux version now is a precompiled executable.
 Numerous small bug fixes and improvements.
 
+Updated to Version 7.24 on October 18, 2022
+Added some new items, enemies, redid levels...
 
 
 <section>Credits
@@ -3222,7 +3224,7 @@ Numerous small bug fixes and improvements.
 <c15>Music by Russel Hoy - Copyright 2000
 <c08>________________________________________
 
-<c15>Last Update: May 1, 2022 to version 7.20
+<c15>Last Update: Oct 18, 2022 to version 7.24
 <c08>________________________________________
 
 

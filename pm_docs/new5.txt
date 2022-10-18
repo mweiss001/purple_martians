@@ -32636,6 +32636,38 @@ also record demos...
 
 no more changes allowed!!
 
+where do I set max level in level chooser? found it...
+
+lift name and player died to use old fonts...
+done for lift name...
+
+went down a rabbit hole for font...
+
+void rtextout_centre(ALLEGRO_BITMAP *dbmp, char *txt1, int x, int y, int col, float scale, int rot, float op)
+
+is called many times...
+
+removed rot from show cursor pos only called by edit server name and edit lift name
+
+done...
+
+
+try erasing cfg and starting new...
+
+
+script win release....
+
+compile win_static_release
+
+I think I have made a windows release on github
+
+now for a linux version...
+
+
+
+
+
+
 
 
 
