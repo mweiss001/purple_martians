@@ -28,6 +28,9 @@ cp license.txt purple_martians__linux/
 cp pml purple_martians__linux/
 cp lin_install_libs purple_martians__linux/
 
+rm purple_martians__linux/bitmaps/mW.pm
+rm purple_martians__linux/bitmaps/pm*.bmp
+
 tar -zcvf ./purple_martians__linux.tar.gz ./purple_martians__linux/*
 
 
