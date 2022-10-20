@@ -32901,9 +32901,46 @@ funny colors on sliders (sometimes yes, sometimes no)
 
 When I redo this the last time...lol
 - include all levels (well 1-199...)
-- when starting client game waiting for sync...adjust the screen pos to where the player will start, not top left...
+- when starting client game waiting for sync...adjust the screen pos to where the player will start, not top left...  done on client and server, because server will sync to client...
+- color of dim buttons...draw frame probably goes past 255 index
 - linux libs, use the build target that builds them into the executable see if we can get a few distros that don't need the library script
 
+
+release again...
+
+now...
+
+when running as client saw this:
+Got reply from server
+Error: no start found.
+
+I think the client is trying to set start position, but there might not be a level loaded yet....
+
+One more thing to fix...
+
+Also fix the text for mW.pm.. make it say error loading -- creating new..just like pm.cfg....
+
+I am very happy with how this is going....
+
+Who cares about ubuntu lan dns???
+
+
+
+
+
+
+
+Manjaro 21.2.4 live
+does not need library script
+level editor good
+netgame server good
+netgame client good (dns works!)
+
+MX-21.2.1
+does not need library script
+level editor good
+netgame server good
+netgame client good (dns works!)
 
 
 

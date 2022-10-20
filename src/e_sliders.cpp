@@ -56,7 +56,10 @@ void draw_slider_frame(int x1, int y1, int x2, int y2, int q0, int q1, int q2, i
          // frame fades from solid outer to black inner
          //int a = 224 - (c*32); // color increment
          //if (a<0) a = 0;
-         al_draw_rounded_rectangle(x1+c, y1+c, x2-c, y2-c, 1, 1, palette_color[q1+a], 1);
+
+         int col = q1+a;
+         while (col > 255) col -=16;
+         al_draw_rounded_rectangle(x1+c, y1+c, x2-c, y2-c, 1, 1, palette_color[col], 1);
       }
    }
 }
