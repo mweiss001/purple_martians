@@ -100,18 +100,25 @@ void load_sprit(void)
 
 void save_mW(void)
 {
-   printf("saving mW.pm\n");
    FILE *fp = fopen("bitmaps/mW.pm", "wb");
-   fwrite(mW, sizeof(mW), 1, fp);
-   fclose(fp);
+   if (fp)
+   {
+      fwrite(mW, sizeof(mW), 1, fp);
+      fclose(fp);
+   }
+   else printf("error saving bitmaps/mW.pm\n");
 }
 
 
 void load_mW(void)
 {
    FILE *fp = fopen("bitmaps/mW.pm", "rb");
-   if (fp) fread(mW, sizeof(mW), 1, fp);
-   fclose(fp);
+   if (fp)
+   {
+      fread(mW, sizeof(mW), 1, fp);
+      fclose(fp);
+   }
+   else printf("error loading bitmaps/mW.pm\n");
 }
 
 int load_tiles(void)
