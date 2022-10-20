@@ -15,6 +15,7 @@ xcopy snd purple_martians__windows\snd /y /i
 xcopy sel purple_martians__windows\sel /y /i
 
 xcopy levels\level0* purple_martians__windows\levels  /y /i
+xcopy levels\level1* purple_martians__windows\levels  /y /i
 
 del purple_martians__windows\bitmaps\mW.pm
 del purple_martians__windows\bitmaps\pm*.bmp
