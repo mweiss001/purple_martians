@@ -32929,7 +32929,6 @@ Who cares about ubuntu lan dns???
 
 
 
-
 Manjaro 21.2.4 live
 does not need library script
 level editor good
@@ -32941,6 +32940,40 @@ does not need library script
 level editor good
 netgame server good
 netgame client good (dns works!)
+
+Fedora 35 live
+does not need library script
+level editor good
+netgame server good
+netgame client good (dns works!)
+
+ubuntu 20.04 live
+needs library script
+level editor good
+netgame server good
+netgame client good (no dns)
+
+ubuntu 22.04 live
+does not need library script
+level editor good
+netgame server good
+netgame client good (no dns)
+
+Linux Mint 20.3
+needs library script
+level editor good
+netgame server good
+netgame client good (no dns)
+
+
+20221020  one more bug...
+
+rectangular fields draw in linux are missing the bottom line
+they look good in level editor, but not when game is running.
+see cloner, trigger, etc..
+
+
+
 
 
 

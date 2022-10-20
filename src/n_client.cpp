@@ -242,8 +242,6 @@ int client_init_join(void)
             players[p].control_method = 4;
             players[p].color = color;
 
-            set_player_start_pos(p, 0);
-
             players1[p].game_move_entry_pos = server_game_move_entry_pos;
             strncpy(players1[p].hostname, local_hostname, 16);
             ima_client = 1;
