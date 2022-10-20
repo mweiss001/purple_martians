@@ -106,7 +106,7 @@ void save_mW(void)
       fwrite(mW, sizeof(mW), 1, fp);
       fclose(fp);
    }
-   else printf("error saving bitmaps/mW.pm\n");
+   else printf("error saving mW.pm\n");
 }
 
 
@@ -118,7 +118,12 @@ void load_mW(void)
       fread(mW, sizeof(mW), 1, fp);
       fclose(fp);
    }
-   else printf("error loading bitmaps/mW.pm\n");
+   else
+   {
+      printf("error loading mW.pm -- recreating\n");
+      save_mW();
+   }
+
 }
 
 int load_tiles(void)
