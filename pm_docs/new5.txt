@@ -32667,6 +32667,200 @@ now for a linux version...
 
 
 
+did both releases 7.24..no more changes!!
+
+testing netgame and linux..
+
+ubuntu 22.04 has some issues with DNS
+it has errors with local DNS stuff
+and local pinging IP's
+
+works good as server, but cannot get to work as client
+
+mi3  192.168.1.154 (win7)
+dred 192.168.1.111 (u22) test
+feck 192.168.1.106 (u22) dev
+
+mi3 can ping dred and 111
+
+
+
+local dns is still bad on all ubuntu
+but I can ping now...
+
+just not from and u to mi3
+but u to a different windows system is good..
+
+used 4230i as server and lin clients can connect but not with hostname
+
+i don't know what the hell is going on
+
+
+
+
+
+
+I am going to take some notes on how the linux version is compiled and the systems I try to run it on...
+
+
+put multiple versions on github
+
+the one I have now was compiled with:
+ubuntu 22.04 (lsb_release -a)
+gcc 11.2.0 (gcc -v)
+kernel version 5.15.0-52 (uname -r)
+allegro 5.2.9
+
+first of all do a version b
+
+u22
+gcc 10.3
+kv 5.15.0-52
+a 5.2.9
+
+
+then a version c
+u20
+gcc 10
+a 5.2.9
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ubuntu 22.04 did not need any libraries, it just worked out of the box
+
+
+MX21-64 live fails with missing:
+also
+MX21.2.1
+
+demo@mx1:~/Downloads/purple_martians__linux
+$ ./pm
+./pm: error while loading shared libraries: libOpenGL.so.0: cannot open shared object file: No such file or directory
+demo@mx1:~/Downloads/purple_martians__linux
+$ ./pml
+./pm: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by ./pm)
+./pm: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by ./pm)
+./pm: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.35' not found (required by ./linux_libs/liballegro_monolith.so.5.2)
+./pm: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by ./linux_libs/liballegro_monolith.so.5.2)
+./pm: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by ./linux_libs/liballegro_monolith.so.5.2)
+demo@mx1:~/Downloads/purple_martians__linux
+$
+
+root@mx1:/lib/x86_64-linux-gnu# ls -l libc.*
+-rw-r--r-- 1 root root 5211330 Oct  2  2021 libc.a
+-rw-r--r-- 1 root root     283 Oct  2  2021 libc.so
+lrwxrwxrwx 1 root root      12 Oct  2  2021 libc.so.6 -> libc-2.31.so
+root@mx1:/lib/x86_64-linux-gnu#
+
+
+
+Manjaro 21.2.4 live
+works right out of the box
+no libs needed
+netgame works as client and server
+
+Fedora 35 live
+./pm: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.35' not found (required by ./linux_libs/liballegro_monolith.so.5.2)
+
+
+Linux Mint 20.3
+same errors as mx21
+
+ubuntu 20.04
+same errors...
+
+
+
+I'm going to try compiling a version with ubuntu 20.04
+
+or maybe a version with gcc 10...
+
+
+
+
+
+
+
+
+
+
+mi3 server died at 3051 seconds with 6 clients
+
+later it died at 3362 with 7 clients...wonder what is timing out....
+
+
+
+
+
+
+testing...
+
+u22 dev machine
+all 3 work...
+
+mx21-2.1
+only c works, but crashes hard with seg fault when starting level editor
+
+manjaro
+all 3 work but all seg fault for level editor
+
+linux mint
+only c works, but crashes hard with seg fault when starting level editor
+
+fedora
+only c works, but crashes hard with seg fault when starting level editor
+
+
+
+fixed a bug when loading mW.pm
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
