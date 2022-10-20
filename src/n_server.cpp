@@ -729,6 +729,10 @@ void server_proc_CJON_packet(int who)
       while (is_player_color_used(color)) if (++color > 15) color = 1;
 
       init_player(cn, 1);
+
+      set_player_start_pos(cn, 0);
+
+
       players[cn].color = color;
       players[cn].control_method = 2; //server client view only
       players1[cn].who = who;

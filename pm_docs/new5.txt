@@ -32843,6 +32843,86 @@ only c works, but crashes hard with seg fault when starting level editor
 
 fixed a bug when loading mW.pm
 
+I checked for NULL before reading from it but not before trying to close it.
+it was fine in windows, but segfaulted in linux....
+
+also check out the funny colors for sliders when dim...does not do it now....
+
+I will need to redo all the releases
+
+new versions:
+
+7.24.0_win
+7.24.0_lin
+
+skip the u22 one...
+
+
+
+
+
+even more tests with 7.24.0
+I only included levels 1-99 ???
+
+u22 dev machine
+runs without libraries
+level editor good.
+netgame server good
+netgame client good (but no dns, had to use IP)
+
+Linux Mint 20.3
+needs library script
+level editor good
+netgame server good
+netgame client good (but no dns, had to use IP)
+
+Fedora 35 live
+needs library script
+level editor good
+netgame server good
+netgame client good (dns works!)
+
+MX-21
+needs library script
+level editor good
+netgame server good
+netgame client good (dns works!)
+funny colors on sliders
+
+Manjaro 21.2.4 live
+needs library script
+level editor good
+netgame server good
+netgame client good (dns works!)
+funny colors on sliders (sometimes yes, sometimes no)
+
+
+
+
+When I redo this the last time...lol
+- include all levels (well 1-199...)
+- when starting client game waiting for sync...adjust the screen pos to where the player will start, not top left...
+- linux libs, use the build target that builds them into the executable see if we can get a few distros that don't need the library script
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
