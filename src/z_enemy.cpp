@@ -28,7 +28,7 @@ void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int s
    if (yd > ld) ld = yd;
    for (float k=-ld; k<ld; k+=spacing)
       al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, palette_color[line_color], 0);
-   al_draw_rectangle(x1+0.5, y1+0.5, x2, y2, palette_color[frame_color], 1);
+   al_draw_rectangle(x1+0.5, y1+0.5, x2-0.5, y2-0.5, palette_color[frame_color], 1);
    al_reset_clipping_rectangle();
 }
 
