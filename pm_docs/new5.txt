@@ -32966,11 +32966,42 @@ netgame server good
 netgame client good (no dns)
 
 
+
+ubuntu 20.04
+ubuntu 22.04
+Linux Mint 20.3
+Manjaro 21.2.4 live
+MX-21
+Fedora 35
+
+
+
+
+
 20221020  one more bug...
 
 rectangular fields draw in linux are missing the bottom line
 they look good in level editor, but not when game is running.
-see cloner, trigger, etc..
+see cloner, trigger, etc..fixed...
+
+Help file...
+
+redo section about tested systems
+
+redo bonus to remove free man
+
+add jumpworm to enemy list
+
+add orb to item list
+done...
+
+now do one more release....
+
+
+
+
+
+
 
 
 

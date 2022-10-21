@@ -103,7 +103,7 @@
 
 
 <hb000>
-<c15>If your health indicator reaches 0, you will lose a life.
+<c15>If your health indicator reaches 0, you will die and respawn.
 
 
 
@@ -318,16 +318,12 @@
 <a56> Turns into a solid block when shot.
 
 
-<l13>    FlutterBy
-<a14> Bounces and seeks.
+<l13>    Jumpworm
+<a47> Inches along the floor and jumps.
 
 
-<l13>    Flicken
-<a29> Bounces and seeks.
-
-
-<l13>    Seeker
-<a31> Bounces and seeks.
+<l13>            Bouncers
+<a14> <a29> <a31> Bounce and seek.
 
 
 <section>Items
@@ -357,8 +353,8 @@
 <a27> Gives you more health (1/2 of full health)
 
 
-<l13>    Free Man
-<a38> Gives you an extra life.
+<l13>    Purple Coin
+<s197> Gives you a purple coin.
 
 
 <l13>    Mine
@@ -687,30 +683,29 @@ Bombs and rockets will destroy these blocks.
 
 <c15>_____________________________________________________________________
 
+<c15>Here is list of systems the game has been tested on:
+
+<c15>Windows 7
+<c15>Windows 10
+<c15>ubuntu 20.04
+<c15>ubuntu 22.04
+<c15>Linux Mint 20.3
+<c15>Manjaro 21.2.4
+<c15>MX-21
+<c15>Fedora 35
+
+<c15>_____________________________________________________________________
 
 
-Recently, the game has been developed and tested on Windows 7.
+<c15>To run in windows, extract and run 'pm.exe'
 
-Here is list of other systems I have tested the game on:
+<c15>_____________________________________________________________________
 
-Windows XP 
-Windows 7
-Windows 10
-ubuntu-16.04.4-desktop-amd64
-ubuntu-17.10.1-desktop-amd64
-linuxmint-18.3-cinnamon-64bit
-elementaryos-0.4.1-stable.20180214
-antergos-18.4-x86_64
-CentOS-7-x86_64-LiveGNOME-1708
-CentOS-7-x86_64-LiveKDE-1708
-Fedora-Workstation-Live-x86_64-27-1.6
 
-To run in windows, extract and run 'pm.exe'
+<c15>To run in linux, extract and run 'pm'
 
-To run in linux, extract and run the script 'pml'
-- the executable is 'pm', the script 'pml' sets up some libaries first
-- optionally you could copy the contents of /linux_libs to /usr/lib
-
+<c15>If it complains about missing libraries, start the game with the script
+<c15>'pml', which sets up a local library path first
 
 
 
@@ -783,25 +778,18 @@ LOGGING_NETPLAY_show_dif2 = 0
 
 <section>Serial Key Shortcuts
 
-alb - autoload bookmarks on/off
 
-sbf - show block flags on/off
+bmsgon - bottom messages on
 
-sndb - show non-default blocks
-
-mdwa - spline adjust
-
-mdwt - spline test
-
-fakekey - fake keypress mode
+bmsgoff - bottom messages off
 
 ston - speed test on
 
 stoff - speed test off
 
-bmsgon - bottom messages on
+mdwa - spline adjust
 
-bmsgoff - bottom messages off
+mdwt - spline test
 
 
 <section>Level Editor Basics
@@ -2063,23 +2051,13 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <b15>
 
-<h14>    Free Man
-<a38>
-<b15>
-
-<l04>    Description:
-
-<l15> Gives the player an extra life.
-
-<b15>
-
 <h14>    Purple Coin
 <s197>
 <b15>
 
 <l04>    Description:
 
-<l15> Does nothing but give you a sense of satisfaction!
+<l15> Gives the player a collectable purple coin.
 
 
 
