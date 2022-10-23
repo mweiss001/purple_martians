@@ -263,7 +263,7 @@ void splash_screen(void)
 
 void splash_toggle(void)
 {
-   get_config_values();
+   load_config();
 
    if (show_splash_screen)
    {

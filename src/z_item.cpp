@@ -1,4 +1,4 @@
-// zitem.cpp
+// z_item.cpp
 
 #include "pm.h"
 
@@ -863,6 +863,7 @@ void draw_item(int i, int custom, int cx, int cy)
 void draw_items(void)
 {
    al_set_target_bitmap(level_buffer);
+
    for (int i=0; i<500; i++)
       if ((item[i][0]) && (item[i][0] != 10)) draw_item(i, 0, 0, 0);
 
@@ -2862,30 +2863,3 @@ item[][12] timer | remote
 item[][13] last player to touch
 
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

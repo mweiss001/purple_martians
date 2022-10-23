@@ -1,4 +1,4 @@
-// zfile.cpp
+// z_file.cpp
 #include "pm.h"
 
 FILE *filepntr;
@@ -840,10 +840,3 @@ int load_gm(const char *sfname )
    }
    return 0;
 }
-
-
-
-
-
-
-

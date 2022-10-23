@@ -250,7 +250,7 @@ void ServerExitNetwork() // Shut the server down
          if(ClientConn[n])
          {
             net_closeconn(ClientConn[n]);
-            ClientConn[n] = 0;
+            ClientConn[n] = NULL;
          }
    	if(ListenConn) net_closeconn(ListenConn);
    	ListenConn = NULL;
@@ -261,7 +261,7 @@ void ServerExitNetwork() // Shut the server down
          if (ClientChannel[n])
          {
              net_closechannel(ClientChannel[n]);
-             ClientChannel[n] = 0;
+             ClientChannel[n] = NULL;
          }
    	if (ListenChannel) net_closechannel(ListenChannel);
    	ListenChannel = NULL;

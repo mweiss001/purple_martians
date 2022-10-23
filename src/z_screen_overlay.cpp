@@ -639,6 +639,8 @@ void draw_top_display(void)
          al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
       }
 
+      //printf("l:%d f:%d\n", play_level, frame_num);
+
       int m = (game_move_current_pos * 100) / game_move_entry_pos;
       sprintf(msg, "Moves:[%d%%] ", m);
       if (show_debug_overlay)
@@ -1187,7 +1189,3 @@ void draw_bmsg()
       }
    }
 }
-
-
-
-

@@ -1,4 +1,4 @@
-// zcfg.cpp
+// z_config.cpp
 
 #include "pm.h"
 
@@ -247,7 +247,7 @@ void save_config(void)
    al_destroy_config(cfg);
 }
 
-void get_config_values(void)
+void load_config(void)
 {
    menu_setup();
 

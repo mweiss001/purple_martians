@@ -1,4 +1,4 @@
-// zloop.cpp
+// z_loop.cpp
 #include "pm.h"
 
 void proc_frame_delay(void)
@@ -226,6 +226,9 @@ void game_loop(int start_mode)
    proc_start_mode(start_mode);
    while (!game_exit)
    {
+//      int f = 1022;
+//      if (frame_num > f) printf("test 1\n");
+
       proc_scale_factor_change();
       proc_sound();
       if (ima_server) server_control();
@@ -238,13 +241,12 @@ void game_loop(int start_mode)
          move_pbullets();
          move_lifts(0);
          move_players();
+//         if (frame_num > f) printf("test 2\n");
          move_enemies();
          move_items();
          proc_frame_delay();
          if (draw_frame)
          {
-
-
             get_new_background(1);
             draw_lifts();
             draw_items();

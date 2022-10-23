@@ -1264,3 +1264,44 @@ void titlex(const char *txt, int tc, int fc, int x1, int x2, int y)
    al_draw_text(font, palette_color[tc], (x1+x2)/2, y+2, ALLEGRO_ALIGN_CENTER,  txt);
 }
 
+// when speed is changed in level editor (Efi[][5]) scale the xinc, yinc to match
+void scale_bouncer_and_cannon_speed(int e)
+{
+   // new v
+   float nv =  al_fixtof(Efi[e][5]);
+
+   // get the original x and y velocities
+   float oxv = al_fixtof(Efi[e][2]);
+   float oyv = al_fixtof(Efi[e][3]);
+
+   // get the combined original velocity
+   float ov = sqrt( pow(oxv, 2) + pow(oyv, 2) );
+
+   // if this was previously stationary, set direction to 100% up
+   if (al_ftofix(ov) == al_ftofix(0))
+   {
+      Efi[e][3] = -Efi[e][5];
+      Efi[e][14] = get_rot_from_xyinc(e); // set rotation
+   }
+   else
+   {
+      if (nv>0)
+      {
+         // get the scaler
+         float sc = nv/ov;
+
+         // apply that to the old
+         oxv *= sc;
+         oyv *= sc;
+
+         Efi[e][2] = al_ftofix(oxv);
+         Efi[e][3] = al_ftofix(oyv);
+      }
+      else // if new speed not > 0, zero both x and y
+      {
+         Efi[e][2] = al_ftofix(0);
+         Efi[e][3] = al_ftofix(0);
+      }
+
+   }
+}

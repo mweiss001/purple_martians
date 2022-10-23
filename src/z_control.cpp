@@ -1,4 +1,4 @@
-// zcontrol.cpp
+// z_control.cpp
 
 #include "pm.h"
 
@@ -564,7 +564,7 @@ void rungame_key_check(int p, int ret)
          {
            demo_mode_on = 0;
            game_exit = 1;
-           get_config_values();
+           load_config();
          }
       }
    }
@@ -581,7 +581,7 @@ void rungame_key_check(int p, int ret)
       // except for local player
       players[0].active = 1;
       game_exit = 1;
-      get_config_values();
+      load_config();
    }
 }
 
@@ -1119,4 +1119,3 @@ int proc_controllers()
    }
    return ret;
 }
-

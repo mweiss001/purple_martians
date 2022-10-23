@@ -36,8 +36,6 @@ void show_block_list(void)
 }
 
 
-
-
 void remove_unused_tiles(void)
 {
    for (int z=0; z<NUM_SPRITES; z++)
@@ -62,7 +60,7 @@ void remove_unused_tiles(void)
 
 
 
-void global_level()
+void global_level(void)
 {
    int old_start_level = start_level;
 
@@ -1587,7 +1585,3 @@ int construct_lift(int l, char* lift_name, int width, int height, int color, int
             }
          }
 */
-
-
-
-

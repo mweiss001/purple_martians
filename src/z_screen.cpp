@@ -931,6 +931,3 @@ void draw_percent_bar_range(int cx, int y, int width, int height, int color, int
    al_draw_filled_rectangle(x+w1+0.5f, y+1.5f, x+w2+0.5f, y+height+0.5f, palette_color[color]);
    al_draw_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, palette_color[15], 1); //  white frame
 }
-
-
-

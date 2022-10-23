@@ -493,4 +493,3 @@ void proc_display_change_fromfs(void)
    al_set_window_position(display, disp_x_wind, disp_y_wind);
    proc_display_change();
 }
-

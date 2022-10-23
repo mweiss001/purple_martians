@@ -1,4 +1,4 @@
-// zfnx.cpp
+// z_fnx.cpp
 #include "pm.h"
 
 
@@ -346,50 +346,6 @@ void seek_set_xyinc(int EN, int x, int y)
 
 
 
-// when speed is changed in level editor (Efi[][5]) scale the xinc, yinc to match
-void scale_bouncer_and_cannon_speed(int e)
-{
-   // new v
-   float nv =  al_fixtof(Efi[e][5]);
-
-   // get the original x and y velocities
-   float oxv = al_fixtof(Efi[e][2]);
-   float oyv = al_fixtof(Efi[e][3]);
-
-   // get the combined original velocity
-   float ov = sqrt( pow(oxv, 2) + pow(oyv, 2) );
-
-   // if this was previously stationary, set direction to 100% up
-   if (ov == 0)
-   {
-      Efi[e][3] = -Efi[e][5];
-      Efi[e][14] = get_rot_from_xyinc(e); // set rotation
-   }
-   else
-   {
-      // if new speed is zero, zero both x and y
-      if (nv == 0)
-      {
-         Efi[e][2] = al_ftofix(0);
-         Efi[e][3] = al_ftofix(0);
-      }
-      if (nv>0)
-      {
-         // get the scaler
-         float sc = nv/ov;
-
-         // apply that to the old
-         oxv *= sc;
-         oyv *= sc;
-
-         Efi[e][2] = al_ftofix(oxv);
-         Efi[e][3] = al_ftofix(oyv);
-      }
-   }
-}
-
-
-
 
 
 
@@ -664,7 +620,8 @@ void fire_enemy_bulleta(int EN, int bullet_ans, int p)
 //   }
 //
 
-   if ((A != 0) && (D >= 0))
+   //if ((A != 0) && (D >= 0)) // this complains about comparing a float to zero
+   if ( ((A > 0) || (A < 0)) && (D >= 0))
    {
       float t = ( -B - sqrt(pow(B,2) - 4*(A*C)) ) / (2*A);
       al_fixed px1 = px + al_fixmul(pvx, al_ftofix(t)); // get player target position based on t
@@ -2160,6 +2117,8 @@ void demo_mode(void)
          {
             lev = rand() % num_demo_filenames;      // get random index
 
+//            printf("Pass:%d Level:%d\n", pass, lev);
+
             if (debug_print) printf("\nNew random level:%d", lev);
 
             if (demo_played[lev] >= pass) // already been played this pass
@@ -2172,11 +2131,12 @@ void demo_mode(void)
                if (debug_print) printf("  -  just previously played");
                lev = -1;
             }
-            printf("\n");
+            if (debug_print) printf("\n");
 
 
             if (debug_print) for (int i=0; i< num_demo_filenames; i++) printf("demo_played[%d] - %d \n", i, demo_played[i]);
 
+//            if (debug_print) for (int i=0; i< num_demo_filenames; i++) printf("demo_played[%d] - %d \n", i, demo_played[i]);
 
          }
          demo_played[lev] = pass;
@@ -2188,6 +2148,7 @@ void demo_mode(void)
 
       if (load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
       {
+         printf("pass:%d - playing demo level:%d\n", pass, play_level);
          game_loop(9); // demo game
       }
       else demo_mode_on = 0;
@@ -2199,7 +2160,7 @@ void demo_mode(void)
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
    players[0].active = 1;
    active_local_player = 0;
-   get_config_values(); // restore player color from config file
+   load_config(); // restore player color from config file
    erase_log();
 }
 
@@ -2225,6 +2186,3 @@ void temp_test(void)
    //spline_test();
    //spline_adjust();
 }
-
-
-

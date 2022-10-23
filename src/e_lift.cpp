@@ -596,5 +596,3 @@ int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_
 
    return fs*2 + (lifts[lift].num_steps + 1) * bts; // return how much y space was used
 }
-
-
