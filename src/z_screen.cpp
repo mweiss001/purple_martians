@@ -58,7 +58,6 @@ void create_bitmaps(void)
    M_dtilemap = al_create_bitmap(160,640);
 
    al_set_target_bitmap(M_tilemap);
-//   al_clear_to_color(al_map_rgb(0,0,0));
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
    al_set_target_bitmap(M_btilemap);
@@ -104,11 +103,10 @@ void create_bitmaps(void)
 // al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA);
 //   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
    level_background = al_create_bitmap(2000,2000);
-   level_buffer = al_create_bitmap(2000,2000);
-
    al_set_target_bitmap(level_background);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
+   level_buffer = al_create_bitmap(2000,2000);
    al_set_target_bitmap(level_buffer);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
@@ -139,18 +137,22 @@ void rebuild_bitmaps(void)
 
    // rebuild main tiles
    al_set_target_bitmap(tilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_tilemap, 0, 0, 0);
 
    // rebuild block tiles
    al_set_target_bitmap(btilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_btilemap, 0, 0, 0);
 
    // rebuild player tiles
    al_set_target_bitmap(ptilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_ptilemap, 0, 0, 0);
 
    // rebuild door tiles
    al_set_target_bitmap(dtilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_dtilemap, 0, 0, 0);
 
    init_level_background();
