@@ -33153,6 +33153,8 @@ void rebuild_bitmaps(void)
    al_draw_bitmap(M_dtilemap, 0, 0, 0);
 
 
+that seemed to fix it....
+
 
 
 
