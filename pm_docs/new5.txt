@@ -33089,6 +33089,78 @@ now I'm really ready for a new release...
 
 20221022 8:34 PM
 
+played some massively long demo sessions and the game never crashed
+
+however there were some differences in linux...some levels did not play the same
+
+level 11 40% done player dies in lin
+level 17 short ends differently
+level 17 long out of sync about 70%
+level 32 out of sync around 75%
+
+update the web docs...at least the version and supported systems...
+
+tried it on an xp system and got 'pm.exe is not a valid Win32 application'
+oh well, i'm not going to troubleshoot any further
+maybe if I had a winxp 64bit system?
+
+what version of gcc am I using in code::blocks
+
+gcc -v
+8.3.0 (Strawberry Perl???)
+8.1.0 (codeblocks mingw)
+
+
+make a new youtube account... see if I can get mweiss0002...or just keep the same one???
+
+
+ran into a weird bug on mr5
+changed desktop to 1920 from 3840
+ran OBS
+kept getting jumpworms tile underneath corners of rounded rainbow tiles
+F12 did not fix, sometime it would, sometimes it was good until F12
+sometimes resizing window fixed...weird
+changing back to 3840 and stopping OBS did not do anything...
+tried on mi3 and cannot reproduce...
+
+I am sure that I clear the all the bitmaps before using...
+maybe I don't...
+
+added 4 x al_clear_to_color(al_map_rgba(0,0,0,0));
+
+void rebuild_bitmaps(void)
+{
+   //printf("rebuild bitmaps\n");
+
+   // rebuild main tiles
+   al_set_target_bitmap(tilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_tilemap, 0, 0, 0);
+
+   // rebuild block tiles
+   al_set_target_bitmap(btilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_btilemap, 0, 0, 0);
+
+   // rebuild player tiles
+   al_set_target_bitmap(ptilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_ptilemap, 0, 0, 0);
+
+   // rebuild door tiles
+   al_set_target_bitmap(dtilemap);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+   al_draw_bitmap(M_dtilemap, 0, 0, 0);
+
+
+
+
+
+
+
+
+
+
 
 
 
