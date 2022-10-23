@@ -1283,8 +1283,3 @@ void copy_tiles(void)
    al_destroy_bitmap(qtmp);
    al_destroy_bitmap(qtmp2);
 }
-
-
-
-
-

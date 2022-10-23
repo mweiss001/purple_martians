@@ -423,5 +423,3 @@ void predefined_enemies(void)
       }
    }
 }
-
-

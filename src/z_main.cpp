@@ -1,4 +1,4 @@
-// zmain.cpp
+// z_main.cpp
 
 #include "pm.h"
 
@@ -635,7 +635,7 @@ int initial_setup(void)
 
    al_init();
    set_and_get_versions();
-   get_config_values();
+   load_config();
    show_system_id();
    get_desktop_resolution();
 
@@ -1076,7 +1076,7 @@ void game_menu(void)
                   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
                   players[0].active = 1;
                   active_local_player = 0;
-                  get_config_values(); // restore player color from config file
+                  load_config(); // restore player color from config file
                   erase_log();
                }
             }

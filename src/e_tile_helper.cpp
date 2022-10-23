@@ -576,4 +576,3 @@ void th_process_mouse(void)
       set_windows(1);
    }
 }
-

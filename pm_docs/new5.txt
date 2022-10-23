@@ -33001,6 +33001,127 @@ now do one more release....
 
 
 
+----
+
+I have a bug...
+
+when running demo for level 11 about 445 seconds in it crashes hard and the program exits...
+
+it has 4172 game moves
+
+the last frame it has is 23,293
+
+23293/40 = 582s
+
+453 * 40 = 18120
+
+pm -f demo\level_done_20221016-170102-lev11.gm
+
+exactly frame 18123...
+
+no game move for that exact frame
+
+18103
+5
+0
+33
+18139
+5
+0
+32
+
+
+it dies in draw_items....
+
+item 78 type 2 bonus... a created bonus...
+
+frame:18122
+item:[73] [2 ] [10497] [1] [-1] [1080] [240 ] [1] [900] [0] [0] [0] [0] [0] [0] [799] [0]
+item:[74] [2 ] [929 ] [1] [-1] [1152] [340 ] [1] [3] [0] [0] [0] [0] [0] [0] [439] [0]
+item:[75] [2 ] [929 ] [1] [-1] [1160] [340 ] [1] [3] [0] [0] [0] [0] [0] [0] [443] [0]
+item:[76] [2 ] [10497] [1] [-1] [1080] [240 ] [1] [900] [0] [0] [0] [0] [0] [0] [799] [0]
+item:[77] [2 ] [10497] [1] [-1] [1080] [240 ] [1] [900] [0] [0] [0] [0] [0] [0] [799] [0]
+frame:18123
+item:[73] [2 ] [10497] [1] [-1] [1080] [240 ] [1] [900] [0] [0] [0] [0] [0] [0] [798] [0]
+item:[74] [2 ] [929 ] [1] [-1] [1152] [340 ] [1] [3] [0] [0] [0] [0] [0] [0] [438] [0]
+item:[75] [2 ] [929 ] [1] [-1] [1160] [340 ] [1] [3] [0] [0] [0] [0] [0] [0] [442] [0]
+item:[76] [2 ] [10497] [1] [-1] [1080] [240 ] [1] [900] [0] [0] [0] [0] [0] [0] [798] [0]
+item:[77] [2 ] [10497] [1] [-1] [1080] [240 ] [1] [900] [0] [0] [0] [0] [0] [0] [798] [0]
+item:[78] [2 ] [147951074] [1] [-1] [1080] [240 ] [1] [41610987] [0] [0] [0] [0] [0] [0] [799] [0]
+
+what enemy died that created that?
+
+it was the cannon...enemy 38
+
+it gets 1 from ei[24] flower shape
+24 is set to 9 just like all the other cannons
+
+it was in the code when an enemy is killed and converted to death animation
+unintialized value for health bonus multiplier
+
+check for other crashes...
+
+level 8 f 11505
+11627 is actual last move
+cant reproduce
+
+im going to run in speedtest mode to make sure every frame is drawn
+that causes some weirdness with press any key at level done
+
+crashes!!
+level 95 frame 1023
+it has block walkers
+pm -f demo\level_done_20221018-074236-lev95.gm
+
+it happens in move enemies
+game_event(60);
+
+// this is wrong....
+game_event(60, 0, 0, e, Ei[e][26], 0, 0);
+
+
+this is how game_event is called for other enemies
+if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
+
+now that I have fixed those 2 bugs, I ran demo mode for > 11 passes with no crashes
+
+now I'm really ready for a new release...
+
+20221022 8:34 PM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

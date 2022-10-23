@@ -349,6 +349,3 @@ int create_vinepod(void)
    }
    else return e;
 }
-
-
-

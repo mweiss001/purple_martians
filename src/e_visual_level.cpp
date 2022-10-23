@@ -1,8 +1,5 @@
-// e_lev.cpp // level viewer and renamer
-
+// e_visual_level.cpp
 #include "pm.h"
-
-
 
 
 // globals
@@ -797,4 +794,3 @@ int visual_level_select(void)
    visual_level_select_running = 0;
    return selected_level;
 }
-

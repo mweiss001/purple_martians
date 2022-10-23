@@ -610,31 +610,3 @@ int create_item(int type)
    i = item_first_num[type]+item_num_of_type[type]-1;
    return i;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

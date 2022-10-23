@@ -1704,6 +1704,3 @@ int mdw_togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
    if (q6 == 1) y1+=bts;
    return ret;
 }
-
-
-

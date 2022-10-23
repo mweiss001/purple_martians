@@ -1,4 +1,4 @@
-// zlifts.cpp
+// z_lift.cpp
 
 #include "pm.h"
 
@@ -494,4 +494,3 @@ void move_lifts(int ignore_prox)
 
    } // end of lift iterate
 }
-

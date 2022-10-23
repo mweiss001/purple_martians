@@ -969,4 +969,3 @@ int edit_menu(int el)
    save_mW();
    return last_level_loaded;
 }
-
