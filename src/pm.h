@@ -901,6 +901,7 @@ extern int SCREEN_H;
 extern int WX;
 extern int WY;
 extern int fullscreen;
+extern int display_adapter_num;
 
 // used to only redraw a region of background to increase fps
 extern int level_display_region_x;

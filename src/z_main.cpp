@@ -415,6 +415,7 @@ int pm_bullet_collision_box = 8;
 int desktop_width;
 int desktop_height;
 
+
 int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
 int disp_y_curr;
 int disp_w_curr;
@@ -435,6 +436,7 @@ int SCREEN_H;
 int WX;
 int WY;
 int fullscreen = 1;
+int display_adapter_num = 0;
 
 // used to only redraw a region of background to increase fps
 int level_display_region_x;
