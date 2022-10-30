@@ -28,6 +28,9 @@ void save_config(void)
       sprintf(msg, "%d", fullscreen);
       al_set_config_value(cfg, "SCREEN", "fullscreen", msg);
 
+      sprintf(msg, "%d", display_adapter_num);
+      al_set_config_value(cfg, "SCREEN", "display_adapter_num", msg);
+
       sprintf(msg, "%f", scale_factor);
       al_set_config_value(cfg, "SCREEN", "scale_factor", msg);
 
@@ -285,6 +288,10 @@ void load_config(void)
    val = al_get_config_value(cfg, "SCREEN", "fullscreen");
    if (!val) fullscreen = 1;
    else fullscreen = atoi(val);
+
+   val = al_get_config_value(cfg, "SCREEN", "display_adapter_num");
+   if (!val) display_adapter_num = 0;
+   else display_adapter_num = atoi(val);
 
    val = al_get_config_value(cfg, "SCREEN", "scale_factor");
    if (!val) set_scale_factor(1, 1);

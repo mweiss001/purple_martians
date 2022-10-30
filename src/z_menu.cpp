@@ -472,8 +472,7 @@ void help(const char *topic)
       // limits
       if (line < 0)  line = 0;
       if (line > last_pos)  line = last_pos;
-      if (got_num) al_draw_textf(font, palette_color[ftc], dx+320, SCREEN_H-9, ALLEGRO_ALIGN_CENTER, "jump to section %1d_", got_num-27);
-
+      if (got_num) al_draw_textf(font, palette_color[ftc], dx+320, SCREEN_H-9, ALLEGRO_ALIGN_CENTER, "jump to section %1d_", got_num-48);
       if (key_pressed_ASCII)
       {
           int k = key_pressed_ASCII;
