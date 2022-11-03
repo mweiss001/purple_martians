@@ -2,7 +2,6 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
-
 bug---can't see any prox line in level editor for prox lift step
 it shows up fine in game
 in level editor the function:
@@ -15,22 +14,34 @@ does not actually set lift's current step to steps that are not move steps
 
 bug -- in level editor can't see trigger box edges on left or top if zero
 
-just found more tilemap stuff..
-btiles had tiles in the background in level editor
-copy tiles looked clean
-F12 to full screen and back fixed it
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+Implement a system of data about levels played and results
+keep a text file when ever a level is completed (or abandonded)
+
+abandoned? whenever going to menu and resume allowed?
+this part is not essential, only wanted to see how many times started and not finished
+
+level_num
+date and time stamp (completed or started)
+time to complete
+number of players
+shots fired
+enemies killed
+purple coins
+enemies left alive at the end
+number of deaths
+
+
+
+
 
 
 
 make end pieces for chains and maybe vines and ladders and ropes
 
-rearrange levels...again?
 
 What if I gave my levels names?
 That way if they are re-arranged it wont matter
@@ -44,54 +55,10 @@ but is it that easy?
 trigger would take the place of player in trigger box
 would still need timer, immediate, etc...
 
-I want some better tiles...
-I just looked up some free tiles...I am so jealous...my tiles are so amateuristic...
-I just need to stop soon, before I waste a lot more time...
-
-make a water tile with same flags as ladder...done
-
-
------------------------------------------------
------------- Favorite Levels  -----------------
------------------------------------------------
-
-level 11
-dual rocket levels
-good and evil
-
-
-level 14
-tons of lifts
-
-
-level 16
-the big green apple
-
-level 17
-big blue rocket
-
-
-
-
-
-
-
-
-
-
-
 
 ------------------------------------------------------
 ------------------------ Level ideas -----------------
 ------------------------------------------------------
-
-make a level where you ride a lift and it is carrying an orb that is used on multiple steps to continue....
-it works... you can have an orb with fall mode stay riding a lift and have it trigger multiple steps in turn...
-
-make a level where jumpworms bounce back and forth between skinny walls
-
-
-
 
 make a level with block 0 and 1 that look the same but set block manip to change block 1...
 

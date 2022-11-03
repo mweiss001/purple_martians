@@ -483,12 +483,8 @@ void load_visual_level_select(void)
    for (int x=0; x<NUM_LEV; x++) le[x] = 0;
 
    // level range to look for
-   int lll = 1; // lower level limit
+   int lll = 1;   // lower level limit
    int ull = 199; // upper level limit
-
-/*   int lll = 190; // lower level limit
-   int ull = 250; // upper level limit
-*/
 
    char fn[20] = "levels/level000.pml";
    // look for levels that exist and put them in array
@@ -527,14 +523,9 @@ void load_visual_level_select(void)
    int area = x_space * SCREEN_H;
 
 
-
-
    // how much space for each icon
    int ia = area / num_levs;
-
 //   printf("ia:%d\n", ia);
-
-
 
    // get the size from this
    grid_size = (int) sqrt((float)ia);
