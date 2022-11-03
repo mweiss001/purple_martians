@@ -872,8 +872,13 @@ void em_process_mouse(void)
             sort_enemy();
             sort_item(1);
          break;
-         case 14: save_level_prompt(); break; // save level
-         case 15: if (save_level_prompt()) mW[8].active = 0; break; // save and exit
+//         case 14: save_level_prompt(); break; // save level
+         case 14: save_level(last_level_loaded); break; // save level
+
+//         case 15: if (save_level_prompt()) mW[8].active = 0; break; // save and exit
+         case 15: mW[8].active = 0; break; // save and exit
+
+
          case 16: help("Level Editor Basics"); break;// help
          case 17: mW[8].active = 0; break; // exit
 

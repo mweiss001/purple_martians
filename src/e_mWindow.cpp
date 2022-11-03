@@ -343,7 +343,7 @@ void cm_redraw_level_editor_background(void)
 void cm_process_menu_bar(int have_focus, int moving, int draw_only)
 {
 
-  al_set_target_backbuffer(display);
+   al_set_target_backbuffer(display);
 
 
    mW[8].set_pos(0, 0);
@@ -390,6 +390,7 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
       if (ret == 4) save_level(last_level_loaded);
       if (ret == 5) save_level_prompt();
       if (ret == 6) mW[8].active = 0;
+      al_set_target_backbuffer(display);
    }
    x1 += 44;
 

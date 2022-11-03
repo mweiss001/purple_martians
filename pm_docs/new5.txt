@@ -33172,6 +33172,31 @@ now I should be able to do obs on second monitor...
 
 
 
+I found 3 more bugs that I want fixed
+
+new level leaves menu artifacts on level buffer..fixed
+
+save and guit from menu still calls native file chooser dialog
+
+pop up menu
+save calls prompt
+save and quit calls prompt then calls my dialog
+make save do blind save....done
+make save and quit just call my dialog...done
+
+menu bar
+save blind saves
+save as calls prompt
+this is good...
+
+
+load and save demo default directories
+look at save_gm and load_gm...can't seem to reproduce this bug....
+
+
+
+
+
 
 
 
