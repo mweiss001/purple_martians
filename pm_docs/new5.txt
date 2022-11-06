@@ -33156,9 +33156,6 @@ void rebuild_bitmaps(void)
 that seemed to fix it....
 
 
-
-
-
 20221024
 
 I have a few more changes to make....
@@ -33189,16 +33186,23 @@ save blind saves
 save as calls prompt
 this is good...
 
-
 load and save demo default directories
 look at save_gm and load_gm...can't seem to reproduce this bug....
 
+block floodfill from zfs does not work as intended....
+always fills with purple pipes....
+zfs_do_brf(gx, gy, mW[1].draw_item_num);
+removed a lot of special block corner drawing code...
+now it just does a straight replace
+any fancy stuff like that can be done in tile helper
+fixed
 
-
-
-
-
-
+zfs clear selection leaves artifacts??
+yes it draws the menu on the level buffer instead of the screen buffer...
+added      al_set_target_backbuffer(display);
+after call to zfs_do_clear();
+for both clear and move...
+fixed
 
 
 
