@@ -33206,6 +33206,63 @@ fixed
 
 
 
+2022119 I have found yet another bug....
+get a spring from selection window
+place in level
+copy from level
+place another copy on level
+2nd paste will not have correct location
+
+cannot reproduce on source version
+
+
+on dl version....
+sproingy at location 10,11 with sproinginess of 64
+copy, first paste good, second paste wrong location
+
+first paste at 13,11 good
+second paste at 15, 11 was placed at 12,11
+
+first paste at 18,11 good
+second paste at 24, 11 was placed at 16,11
+
+
+it is because its the first item?
+
+yes, I can reproduce if the switch is item 0
+also works with switch...
+why??
+
+find empty item moves shit around
+the item we are copying from might have moved...
+no, that's not it....
+not exactly sure why, but changing get_empty_item() to not specify type fixes the bug
+this skips the find empty, set type, sort, then find where it was sorted to, then return empty...
+and just finds the first empty...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
