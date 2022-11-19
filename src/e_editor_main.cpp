@@ -615,7 +615,10 @@ void em_process_mouse(void)
             int type = item[din][0];
             int ofx = gx*20 - item[din][4]; // get offset of move in 2000 format
             int ofy = gy*20 - item[din][5];
-            int c = get_empty_item(type); // get a place to put it
+            int c = get_empty_item(); // get a place to put it
+
+            printf("din:%d c:%d\n", din, c);
+
             if (c == -1)  break;
             for (int b=0; b<16; b++) item[c][b] = item[din][b]; // copy from draw item
             item[c][4] += ofx; // adjust with offsets
@@ -628,7 +631,7 @@ void em_process_mouse(void)
             if (type == 10)
             {
                int x=0, y=0;
-               get_int_3216(item[c][10], x, y); // get x and y olf upper left corner
+               get_int_3216(item[c][10], x, y); // get x and y of upper left corner
                set_int_3216(item[c][10], x+ofx, y+ofy);
                strcpy(pmsgtext[c], pmsgtext[din]); // msg
             }
