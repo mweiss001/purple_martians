@@ -6,82 +6,7 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="win_dynamic">
-				<Option output="pm" prefix_auto="1" extension_auto="1" />
-				<Option object_output="o" />
-				<Option type="1" />
-				<Option compiler="gcc" />
-				<Option use_console_runner="0" />
-				<Compiler>
-					<Add option="-Wall" />
-					<Add option="-pg" />
-					<Add option="-g" />
-					<Add directory="C:/Program Files/CodeBlocks/MinGW/include" />
-				</Compiler>
-				<Linker>
-					<Add option="-pg -lgmon" />
-					<Add option="-pg" />
-					<Add option="-lallegro_monolith.dll" />
-					<Add option="-lnet" />
-					<Add option="-lzlib" />
-					<Add option="-lwsock32" />
-				</Linker>
-			</Target>
-			<Target title="win_static">
-				<Option output="pm" prefix_auto="1" extension_auto="1" />
-				<Option object_output="o" />
-				<Option type="1" />
-				<Option compiler="gcc" />
-				<Option use_console_runner="0" />
-				<Compiler>
-					<Add option="-Wall" />
-					<Add option="-pg" />
-					<Add option="-Og" />
-					<Add option="-g" />
-					<Add option="-DALLEGRO_STATICLINK" />
-					<Add directory="C:/Program Files/CodeBlocks/MinGW/include" />
-				</Compiler>
-				<Linker>
-					<Add option="-pg -lgmon" />
-					<Add option="-static-libstdc++" />
-					<Add option="-static-libgcc" />
-					<Add option="-static" />
-					<Add option="-lallegro_monolith-static" />
-					<Add option="-ldumb" />
-					<Add option="-lfreetype" />
-					<Add option="-lpng16" />
-					<Add option="-lzlib" />
-					<Add option="-ldsound" />
-					<Add option="-lgdiplus" />
-					<Add option="-luuid" />
-					<Add option="-lkernel32" />
-					<Add option="-lwinmm" />
-					<Add option="-lpsapi" />
-					<Add option="-lopengl32" />
-					<Add option="-lglu32" />
-					<Add option="-luser32" />
-					<Add option="-lcomdlg32" />
-					<Add option="-lgdi32" />
-					<Add option="-lshell32" />
-					<Add option="-lole32" />
-					<Add option="-ladvapi32" />
-					<Add option="-lws2_32" />
-					<Add option="-lshlwapi" />
-					<Add option="-ljpeg" />
-					<Add option="-lwebp" />
-					<Add option="-lwebpdecoder" />
-					<Add option="-lFLAC" />
-					<Add option="-ltheoradec" />
-					<Add option="-lvorbisfile" />
-					<Add option="-lvorbis" />
-					<Add option="-lopusfile" />
-					<Add option="-lopus" />
-					<Add option="-logg" />
-					<Add option="-lnet" />
-					<Add option="-lwsock32" />
-				</Linker>
-			</Target>
-			<Target title="win_static_release">
+			<Target title="windows_static">
 				<Option output="pm" prefix_auto="1" extension_auto="1" />
 				<Option object_output="o" />
 				<Option type="1" />
@@ -131,7 +56,7 @@
 					<Add option="-lwsock32" />
 				</Linker>
 			</Target>
-			<Target title="ldm">
+			<Target title="linux">
 				<Option output="pm" prefix_auto="1" extension_auto="1" />
 				<Option object_output="o" />
 				<Option type="1" />
@@ -151,34 +76,13 @@
 					<Add option="-Wl,-rpath=&apos;./linux_libs&apos;" />
 				</Linker>
 			</Target>
-			<Target title="ldm_release">
-				<Option output="pm" prefix_auto="1" extension_auto="1" />
-				<Option object_output="o" />
-				<Option type="1" />
-				<Option compiler="gcc" />
-				<Option use_console_runner="0" />
-				<Option projectCompilerOptionsRelation="1" />
-				<Option projectLinkerOptionsRelation="1" />
-				<Option projectIncludeDirsRelation="1" />
-				<Compiler>
-					<Add option="-Wall" />
-				</Compiler>
-				<Linker>
-					<Add option="-lallegro_monolith" />
-					<Add option="-lz" />
-					<Add option="-lnet" />
-					<Add option="-lpthread" />
-				</Linker>
-			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="icon.rc">
 			<Option compilerVar="WINDRES" />
-			<Option target="win_dynamic" />
-			<Option target="win_static" />
-			<Option target="win_static_release" />
+			<Option target="windows_static" />
 		</Unit>
 		<Unit filename="pm_docs/new5.txt" />
 		<Unit filename="pm_docs/new5_todo.txt" />

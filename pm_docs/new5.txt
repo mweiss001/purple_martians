@@ -33243,6 +33243,61 @@ and just finds the first empty...
 
 
 
+20221120 bug for initial direction of cannon...
+how does it work?
+if ((Ei[e][8]) && (Ei[e][7] > Ei[e][8])) // seek
+{
+   Ei[e][7] = 0;
+   seek_set_xyinc(e);
+}
+so by default how are new cannon set from PDE
+7 is set to 0... all good here...
+what about xinc, yinc....they are all set to 1.63, 1.68
+lets make them set to the full down (y speed)
+al_fixed speed = Efi[EN][5];                  // speed
+normal = 3
+faster = 5
+do the same with the 4 bouncers
+done....
+
+when changing speed in group edit, the seek speed changes, but the xinc and yinc do not change until a seek is called....
+it does when changing with slider....
+if (bn == 22) scale_bouncer_and_cannon_speed(num);
+
+i think I have that fixed too...
+if ((gvt == 4) && (gvn == 5) && ((Ei[num][0] == 4) || (Ei[num][0] == 6))) scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
+in 3 places, set all to min, min to max, random...
+
+do another version....
+
+also removed some build targets
+now only have windows_static and linux
+
+removed e_group_edit.cpp
+was not actually compiled in project
+the real file is e_group_edit_windows.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
