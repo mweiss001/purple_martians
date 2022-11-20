@@ -22,4 +22,4 @@ Please send me an email (mweiss001@gmail.com) with any questions, comments, sugg
 
 Project page on allegro.cc:  https://www.allegro.cc/depot/PurpleMartians
 
-Download page on itch.io:  https://mweiss001.itch.io/purple-martians
+Youtube channel with Purple Martians demonstration videos and original music:  https://www.youtube.com/mweiss0001
