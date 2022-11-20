@@ -619,7 +619,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving,
                               if (gvt == 3) Ei[num][gvn]   = (float) val;
                               if (gvt == 4) Efi[num][gvn]  = al_ftofix(val);
                               if ((gvt == 4) && (gvn == 9)) recalc_pod(num);
-
+                              if ((gvt == 4) && (gvn == 5) && ((Ei[num][0] == 4) || (Ei[num][0] == 6))) scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
                            }
                      }
                      if (ge_data[ge_num].adj_mode == 1) // increment
@@ -634,6 +634,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving,
                               if (gvt == 3) Ei[num][gvn]   = (float) val;
                               if (gvt == 4) Efi[num][gvn]  = al_ftofix(val);
                               if ((gvt == 4) && (gvn == 9)) recalc_pod(num);
+                              if ((gvt == 4) && (gvn == 5) && ((Ei[num][0] == 4) || (Ei[num][0] == 6))) scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
                               val += inc;
                            }
                      }
@@ -648,6 +649,7 @@ int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving,
                               if (gvt == 3) Ei[num][gvn]   = (float) val;
                               if (gvt == 4) Efi[num][gvn]  = al_ftofix(val);
                               if ((gvt == 4) && (gvn == 9)) recalc_pod(num);
+                              if ((gvt == 4) && (gvn == 5) && ((Ei[num][0] == 4) || (Ei[num][0] == 6))) scale_bouncer_and_cannon_speed(num); // cannon and bouncer speed only
                            }
                      }
                   } // end of Do It!
