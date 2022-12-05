@@ -1,25 +1,35 @@
-Shows logs and bandwidth graph for network games
+Custom Viewer for Purple Martians log files.
 
-enable what to log in options->logging options
+Log files are primarily used to monitor and debug netgame sessions.
 
-both server and clients save logs
+Log files can be viewed in any text editor. They are human readable.
 
-the log file is not saved until the program exits
+The log file viewer built into the game has some extra functionality to make interpreting the log files much easier.
 
+Some features:
+filter by type of log file entrys
+filter by player number
+color coded by type of log file entry
 
+It can draw a bandwidth graph over time for all players
+
+It can draw a graph to show how chase and sync happens when players join
+
+Logging must be enabled in options->logging options
+
+Both server and clients save logs
+
+The log file is not saved until the program exits
 
 start pm with pm -l  to jump to the log file viewer and choose a file
 start pm with pm -lr to jump to the log file viewer and open the most recent file
 
+To view bandwidth graphs press DELETE while in log viewer
 
-
-to view bandwidth logs press delete while in log viewer
-
+To view chase and sync graphs press INSERT while in log viewer
 
 
 HOME and END jump to the start and end of the log
-
-DELETE runs the bandwidth graph
 
 ESC quits
 
@@ -28,27 +38,5 @@ normal  100   lines
 SHIFT   1000  lines
 CONTROL 10000 lines
 
-
 L toggles line mode (either moves by lines or frame numbers)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -929,10 +929,20 @@ void serial_key_check(int key)
 
 void set_controls_from_game_move(int p)
 {
-   // this will search back from entry position until it finds the first 'move' type
-   // entry that matches the player and is not in the future
+   // search back from game_move_entry_pos until first 'move' type entry that matches player and is not in the future
+   int gme_search_index = game_move_entry_pos;
+
+   // in rungame mode game_move_entry_pos is always at the end of the already filled array
+   // it can take a long time to search backwards through the entire array, so set the search position 100 moves in the future
+   if (players[p].control_method == 1)
+   {
+      gme_search_index = game_move_current_pos + 100;
+      if (gme_search_index > game_move_entry_pos) gme_search_index = game_move_entry_pos;
+   }
+
+
    int found = 0;
-   for (int g=game_move_entry_pos; g>0; g--)  // look back from entry pos
+   for (int g=game_move_current_pos+100; g>0; g--)  // look back from entry pos
       if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
          if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
          {
@@ -943,14 +953,8 @@ void set_controls_from_game_move(int p)
          }
    if (!found) clear_controls(p); // if no match found (no move entry for player in entire game move array)
 
-
    // in run game mode and past the end of the file
    if ((players[p].control_method == 1) && (frame_num > demo_mode_last_pc)) clear_controls(p);
-
-
-
-
-
 }
 
 int proc_events(ALLEGRO_EVENT ev, int ret)

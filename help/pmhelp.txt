@@ -2979,6 +2979,72 @@ The Block Damage Field can be hidden or shown in various ways.
 
 
 
+<section>Bandwidth Graph
+
+
+<c09>The Bandwidth Graph graphs the bandwidth used in a netplayer game.
+
+<b15>
+
+<c15>First enable "LOGGING_NETPLAY_bandwidth" in logging options.
+<c15>(Options Menu -> Logging Options)
+
+<c15>Then play a multiplayer netgame and exit to save the log.
+
+<c15>Then run Log File Viewer and press DELETE to view the Bandwith Graph.
+<c15>(Options Menu -> Logging Options -> Log File Viewer)
+
+<b15>
+
+<c09>While viewing the following controls are available:
+
+<c15>Mouse wheel - zooms in and out, centered on mouse position
+
+<c15>Click and drag - scrolls the graph
+
+<c15>Shift click and drag - zooms to the selected x region
+
+<c15>F10 - resets graph x axis
+
+<c15>[UP] and [DOWN] - zoom y axis
+
+<c15>0-7 toggles the graph lines for players 0-7 on and off
+
+
+
+<section>Client Chase Graph
+
+
+<c09>Graphs the drift and speed corrections when clients join netgame.
+
+<c09>This only works when run from the server.
+
+<b15>
+
+<c15>First enable "LOGGING_NETPLAY_sdak" in logging options.
+<c15>(Options Menu -> Logging Options)
+
+<c15>Then play a multiplayer netgame and exit to save the log.
+
+<c15>Then run Log File Viewer and press INSERT to view the Client Chase Graph.
+<c15>(Options Menu -> Logging Options -> Log File Viewer)
+
+<b15>
+
+<c09>While viewing the following controls are available:
+
+<c15>Mouse wheel - zooms in and out, centered on mouse position
+
+<c15>Click and drag - scrolls the graph
+
+<c15>Shift click and drag - zooms to the selected x region
+
+<c15>F10 - resets graph x axis
+
+<c15>0-7 toggles the graph lines for players 0-7 on and off
+
+
+
 <section>History
 
 

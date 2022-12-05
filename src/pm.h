@@ -531,10 +531,20 @@ extern int large_text_overlay_state;
 // ------------------------------------------------
 // ----------------- logging ----------------------
 // ------------------------------------------------
-extern char log_msg[100000000]; // for logging
+
+
+//#define NUM_LOG_CHAR  100000000
+//#define NUM_LOG_LINES 2000000
+
+#define NUM_LOG_CHAR  500000000
+#define NUM_LOG_LINES 5000000
+
+
+
+extern char log_msg[NUM_LOG_CHAR]; // for logging
 extern int log_msg_pos;
-extern char log_lines[1000000][100]; // for log file viewer
-extern int log_lines_int[1000000][3]; // for log file viewer
+extern char log_lines[NUM_LOG_LINES][100]; // for log file viewer
+extern int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
 extern int log_timer;
 
 extern int L_LOGGING_NETPLAY;
