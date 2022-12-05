@@ -66,12 +66,10 @@ pm -h
 [CONTROL][F8] increment frame rate by 100
 
 
-[F5] decrement screen scaler
-[F6] increment screen scaler
+[F5] 
+[F6] 
 
 
-[F3] = next map size
-[F4] = next map mode 
 
 
 [F10] - toggle debug screen overlay

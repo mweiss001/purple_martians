@@ -18,6 +18,69 @@ bug -- in level editor can't see trigger box edges on left or top if zero
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+Make it so that a client does not have to have the level a server is serving.
+I am so close anyway.
+All that needs to be done is also sync the lift steps...
+and the pmgstext
+
+Then every part of the necessary game state is sent.
+
+This way a server can edit a level and clients can play it without needing a copy....
+
+Variables used to save levels in pml format
+
+level_header:    80
+l           : 40000
+item        : 32000
+Efi         :  6400
+Ei          : 12800
+lifts       :  5280
+lift_steps  : 38400
+pmsgtext    :250000
+------------:------
+total       :384960
+
+Variables used for netgame state exchange
+
+players  :  1664
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    : 32000
+lifts    :  5280
+l        : 40000
+---------:------
+total    :106144
+
+
+this will add
+lift_steps  : 38400
+wait...I also need pmsgtext, and that is not trivial
+
+maybe during join I can compress and send these static things once...
+
+
+I want to make the packet exchange not run at the same time as the game.
+I want it to run wide open, sending and receiving packets as fast as it can
+not waiting for the next frame...
+maybe I can do this in its own thread??
+
+the goal is to reduce the latency between keypresses and controls taking effect...
+
+control_lead_frames = 3;
+3/40 == 75ms
+
+this is noticeable
+
+
+
+
+
+
+
+
+
+
 Implement a system of data about levels played and results
 keep a text file when ever a level is completed (or abandonded)
 

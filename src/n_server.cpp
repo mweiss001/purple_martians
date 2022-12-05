@@ -781,10 +781,7 @@ void server_proc_CJON_packet(int who)
 
 void server_control() // this is the main server loop to process packet send and receive
 {
-   log_player_array2();
-
-   if (L_LOGGING_NETPLAY_PLAYER_ARRAY)
-
+   if (L_LOGGING_NETPLAY_PLAYER_ARRAY) log_player_array2();
 
    if (frame_num == 0) reset_states(); // for stdf
    ServerListen();      // listen for new client connections
@@ -800,12 +797,38 @@ void server_control() // this is the main server loop to process packet send and
    server_send_stdf();  // send dif states to ensure clients have same state
    server_proc_player_drop();  // check to see if we need to drop clients
    for (int p=0; p<NUM_PLAYERS; p++) if (players[p].active) process_bandwidth_counters(p);
+
+
+
+   // check to see if we are approaching 1,000,000 game moves and do something if we are
+
+   if (game_move_entry_pos > 999900)
+   {
+      sprintf(msg,"Server Approaching 1 Million Game Moves! - Shutting Down");
+      add_log_entry_position_text(01, 0, 76, 10, msg, "|", " ");
+
+      // insert state inactive special move
+      game_moves[game_move_entry_pos][0] = frame_num + 8; // add frames so server has time to sync back to clients before dropping
+      game_moves[game_move_entry_pos][1] = 1;     // type 1; player state
+      game_moves[game_move_entry_pos][2] = 0;     // player num
+      game_moves[game_move_entry_pos][3] = 64;    // inactive
+      game_move_entry_pos++;
+
+   }
+
+
+
+
+
+
+
 }
 
 void server_local_control(int p)
 {
    int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
    set_comp_move_from_player_key_check(p);
+   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
    if (level_done_mode == 8) start_level_done(p, 80, 800);
    if (level_done_mode == 9) start_level_done(p, 10, 40);
    if ((level_done_mode == 0) || (level_done_mode == 5))  // only allow player input in these modes

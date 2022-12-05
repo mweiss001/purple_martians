@@ -282,14 +282,12 @@ int large_text_overlay_state = 0;
 // ------------------------------------------------
 // ----------------- logging ----------------------
 // ------------------------------------------------
-char log_msg[100000000]; // for logging
+
+char log_msg[NUM_LOG_CHAR]; // for logging
 int log_msg_pos = 0;
-
-char log_lines[1000000][100]; // for log file viewer
-int log_lines_int[1000000][3]; // for log file viewer
-
+char log_lines[NUM_LOG_LINES][100]; // for log file viewer
+int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
 int log_timer; // to measure chase and lock time
-
 
 int L_LOGGING_NETPLAY = 0;
 int L_LOGGING_NETPLAY_JOIN = 0;
@@ -1295,7 +1293,7 @@ int main(int argument_count, char **argument_array)
  //  exit_level_editor_dialog();
 
 
-//   show_var_sizes();
+   show_var_sizes();
 
 
 

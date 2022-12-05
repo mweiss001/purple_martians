@@ -33279,6 +33279,729 @@ the real file is e_group_edit_windows.cpp
 
 
 
+20221128
+
+documenting netgame...
+
+how come server does not log when it receives stak....
+
+maybe it does, but the viewer does not display it...
+
+
+type 27
+frame 532
+
+never mind...it does....
+
+
+made some very minor changes...need to commit them...don't need to bother with a release
+
+
+20221203
+
+what is up with the bandwidth graphs?
+too many graph lines....server has >8 lines??
+the one that acted bad had 7 clients, 932k lines 20k frames
+
+did a test with 1 client and looks good
+did a test with 7 clients, 40k lines 2k frames...good
+
+how mnay log lines does p array waste? 9 per frame i believe
+9 x 2000 = 18000, almost half the lines
+
+log lines are read into an array that can only hold 1 million lines
+
+what happens if the log file is larger than that??
+
+I want it to fail gracefully, not overrun arrays...
+
+this is what we currently have:
+char log_msg[100000000]; // for logging
+int log_msg_pos = 0;
+char log_lines[1000000][100]; // for log file viewer
+int log_lines_int[1000000][3]; // for log file viewer
+
+
+100M char in log_msg
+1M in log_line_int
+1M x 100 in log_lines[100]
+
+
+make some defines for max limits
+
+respect them....
+
+in pm.h
+
+#define NUM_LOG_CHAR  1000000000
+#define NUM_LOG_LINES 1000000
+extern char log_msg[NUM_LOG_CHAR]; // for logging
+extern int log_msg_pos;
+extern char log_lines[NUM_LOG_LINES][100]; // for log file viewer
+extern int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
+
+
+in main
+
+char log_msg[NUM_LOG_CHAR]; // for logging
+int log_msg_pos = 0;
+char log_lines[NUM_LOG_LINES][100]; // for log file viewer
+int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
+
+reading file in log file viewer
+
+   filepntr=fopen(fname,"r");
+   while(ch != EOF)
+   {
+      int loop = 0;
+      ch = fgetc(filepntr);
+      while((ch != '\n') && (ch != EOF))
+      {
+         if (ch != 13)
+         {
+            buff[loop] = ch;
+            loop++;
+         }
+         ch = fgetc(filepntr);
+      }
+      buff[loop] = 0;
+      strcpy (log_lines[num_lines], buff);
+      num_lines++;
+
+      if (num_lines >= NUM_LOG_LINES)
+      {
+         ch = EOF;
+         printf("log file exceeded %d lines\n", num_lines);
+      }
+      //printf("num_lines:%d\n", num_lines);
+   }
+   fclose(filepntr);
+   num_lines--;
+
+
+
+
+   set to a smaller number and see how it works
+
+
+#define NUM_LOG_LINES 10000
+
+that seems to work...
+
+what about when generating log files?
+it looks like all log generation passes through this one function:
+
+void add_log_entry2(int type, int player, const char *txt)
+{
+   char tmsg[200];
+   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, frame_num, txt);
+   // strcat(log_msg, tmsg);
+   memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
+   log_msg_pos += strlen(tmsg);
+   log_msg[log_msg_pos+1] = 0; // NULL terminate
+
+   //sprintf(log_msg, "%s", txt);
+   //printf("%s", tmsg);
+}
+
+
+void add_log_entry2(int type, int player, const char *txt)
+{
+   char tmsg[200];
+   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, frame_num, txt);
+   // strcat(log_msg, tmsg);
+
+   if ((log_msg_pos + strlen(tmsg) >= NUM_LOG_CHAR)
+   {
+      printf("log array full\n");
+   }
+   else
+   {
+      memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
+      log_msg_pos += strlen(tmsg);
+      log_msg[log_msg_pos+1] = 0; // NULL terminate
+      //sprintf(log_msg, "%s", txt);
+      //printf("%s", tmsg);
+   }
+}
+
+
+try this with a much smaller value
+
+that seems to work...
+now change back to original
+
+when i tried 1G char program will not run!!
+100M good...
+
+should I compile and make a new version?
+
+not yet....
+
+try a long one like 10 min...
+
+
+
+ran a long one...lev 11 8 players, fake key...
+
+clients time 3666 frame 146,640
+server time 7550, still running...
+log array full
+see if we can find out when it quit...
+
+log file exceeded 1,000,000 lines
+last frame 33,124
+increased lines to 2,000,000 and loaded
+size on disk...101,416,960 bytes ??? should be less that 100,000,000...
+
+even with 1.5M entries last frame was 46670, way too short
+
+try this again and remove some logging
+
+parr and sdak off
+lev 15 8p fk
+log array full at before 1900 seconds
+ending frame 64013 / 40 = 1600s = 26 min
+size on disk 101,531,648
+wtf why is parr stil getting logged?
+parr 576K
+cdat 439
+sdat 447
+
+
+check out this massive bug!!!
+
+void server_control() // this is the main server loop to process packet send and receive
+{
+   log_player_array2();
+
+   if (L_LOGGING_NETPLAY_PLAYER_ARRAY)
+
+   if (frame_num == 0) reset_states(); // for stdf
+   ServerListen();      // listen for new client connections
+   int who;
+
+
+try again with parr off for real
+#define NUM_LOG_CHAR  500000000
+#define NUM_LOG_LINES 5000000
+
+20221203-195145-[11][m36].txt
+
+came back 12300 on server
+one client p1 with windows error pm.exe has stopped working time 1187 (frame 47480)
+all other clients lost server connection 4073s x 40 = 162,920f 67minutes
+server log 162827 server starts dropping clients based on last sdak rx > 100
+it looks like the game_moves_array is full...
+server is sending sdats to clients with start of 999999
+so there we have it, the limit...
+
+lets go over the theory again
+1,000,000 game moves
+divided by 8 players
+divided by 40 fps
+3125 seconds
+divided by 60
+52 minutes
+
+this is the worst case with all 8 players pressing keys 40 times each second
+in reality with human players, this should be much less
+
+can I do something to make this fail gracefully?
+
+on the server, if approaching 1M end the game? go to the next level?
+anything but crashing without any explanation
+
+
+
+
+
+
+
+
+
+
+
+
+nothing in the server log about why p1 stopped working sometime around frame 47480
+looked into it in more detail...
+last rx cdat from p1 was frame 47490
+cdats were arriving in pairs with sync of 0 and 1
+then at frame 4759 server dropped p1 (last sdak rx > 100)
+
+
+why do graphs not work?
+what packets are required for each...
+
+
+sync graph
+max of 10,000 points
+uses log lines:
+type 10 (player becomes active, inactive)
+type 39 sdak to get server sync and fps_chase
+
+why does nothing show before player comes active?
+
+
+bandwidth graph
+max of 10,000 points
+uses log lines:
+type [23][0][1360]bandwidth (B/s) TX cur:[ 1878] max:[ 5060] RX cur:[  480] max:[  514]
+these packets come once per second for each player
+10000 / 8 = 1250s / 60 = 20.8 min
+
+what if I increase x10 I would get 208 min or 3.5 hours
+this is a temp variable that only has scope when graph is viewed...do it
+
+end_pc is passed to the graphs, but it would be better if the graphs calculated it
+there may be less range in the graph set
+
+do it for bandwidth...done
+
+I have increased bandwidth to 100,000 points
+and it seems to work
+
+
+pm.exe uses 67M then when bw graph is started it goes to 69M
+
+
+to do...
+
+
+make server quit gracefully when game_moves_entry reaches 1,000,000
+
+make a scroll and zoom bar for graphs
+
+make so that a drag click on the graph sets the x zoom to that area
+have that working
+
+
+I want to make the redraw a seperate function so that I can call it when sliding..
+
+first try drawing it every frame to see what performance hit i take...
+
+its not bad, but I am on a very fast computer
+
+broke redraw out and made it a function
+same with autoscale
+
+make home key set gs_pc = 0 and autoscale
+
+
+
+
+
+I am fixing variable names so they more accurately describe what they do...
+
+int end_fn; // data set last frame number
+
+int g_stf; // graph start frame
+int g_rng; // graph frame range
+
+float x_scale;
+float y_scale;
+
+
+that looks a lot better
+
+next...
+
+mouse_z zoom in and out...
+
+that was easy to do, but now I want to make it so that it zooms in and out bu what is under the mouse stays the same..
+
+- get x value under mouse
+- change x_scale
+- adjust g_stf to make same position under mouse...
+
+that was quite easy and it looks amazing!!
+
+check limits....
+
+
+
+bug when drawing zoom area very small y_scale disappears, does not happen with any other zoom in, just drag....
+fixed divsion by zero error...
+
+
+
+
+how about drag slide?
+
+we already have mouse click for drawing an area to zomm in on....
+
+maybe that could be change to shift drag
+
+and normal drag will scroll
+
+that has all been done and looks great...
+
+
+do i really need to go to the effort of implementing a scroll bar?
+
+not at this time...
+
+I know it would look great, but it would take a lot of time...
+
+convert the other graph now....
+
+first of all make a test log....
+
+its has all been converted....
+
+I would like to make the y values scale to fit the data better, this one is always hard coded....
+
+first, clip the data so it can't draw on other graphs
+
+I am having one hell of a time figuring out the graph coordinates....
+fy is the base, the lowest part
+fh must be how high up it goes...
+
+
+try to autoscale g2...
+g2 and g1 done
+frame g2 and g1 and g3 done
+remove some gridlines
+
+looking really good....
+
+why do clients even have to have the level the server asks for?
+what is not synced?  lift steps...
+
+did a long 8 player netgame, till the game_moves_array got to 999,990 and exited gracefully...
+
+
+log
+20221204-204923-[11][m36].txt 179.896k
+
+[10][0][132891]+--------------------------------------------------------------------------+
+[22][0][132891]+--------------------------------------------------------------------------+
+[22][0][132891]|                        Server (m36) ending stats                         |
+[22][0][132891]+--------------------------------------------------------------------------+
+[22][0][132891]+--------------------------------------------------------------------------+
+[22][0][132891]|        level.....................[11]                                    |
+[22][0][132891]|        total frames..............[132891]                                |
+[22][0][132891]|        total moves...............[999980]                                |
+[22][0][132891]|        total time (seconds)......[3322]                                  |
+[22][0][132891]|        total time (minutes)......[55]                                    |
+[22][0][132891]|        server frames skipped.. ..[14]                                    |
+[22][0][132891]|        total tx bytes............[81109237]                              |
+[22][0][132891]|        max tx bytes per frame....[5382]                                  |
+[22][0][132891]|        avg tx bytes per frame....[610]                                   |
+[22][0][132891]|        max rx bytes per second...[32014]                                 |
+[22][0][132891]|        avg tx bytes per sec......[-7905]                                 |
+[22][0][132891]|        total tx packets..........[951603]                                |
+[22][0][132891]|        max tx packets per frame..[34]                                    |
+[22][0][132891]|        max tx packets per second.[335]                                   |
+[22][0][132891]|        total rx bytes............[32417689]                              |
+[22][0][132891]|        max rx bytes per frame....[880]                                   |
+[22][0][132891]|        avg rx bytes per frame....[243]                                   |
+[22][0][132891]|        max rx bytes per second...[10530]                                 |
+[22][0][132891]|        avg rx bytes per sec......[9757]                                  |
+[22][0][132891]|        total rx packets..........[1856379]                               |
+[22][0][132891]|        max rx packets per frame..[51]                                    |
+[22][0][132891]|        max rx packets per second.[603]                                   |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+gm
+game_exit_20221204-204922-lev11.gm 16,627k
+
+when viewing, need to increase lines for sync
+
+bw 54 mim
+sy 1 min
+
+changed from   10000
+int max_data = 100000;
+now 5.5 min
+
+int max_data = 1000000;
+crash...
+
+the log has 2.8 million lines
+923,000 sdaks
+
+int max_data = 500000;
+crash...
+
+int max_data = 200000;
+crash...
+
+leave it at 100000...
+at least it doesnt crash...
+
+
+
+
+having a hard time playing back
+game_exit_20221204-204922-lev11.gm
+it has almost 1,000,000 game moves
+can't do more than 80-90 fps or it freezes the display...
+
+there must be some searching the whole array...
+
+void set_controls_from_game_move(int p)
+{
+   // this will search back from entry position until it finds the first 'move' type
+   // entry that matches the player and is not in the future
+   int found = 0;
+   for (int g=game_move_entry_pos; g>0; g--)  // look back from entry pos
+      if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
+         if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
+         {
+            set_controls_from_comp_move(g);
+            game_move_current_pos = g; // for savegame running only
+            g = 0; // break out of loop
+            found = 1;
+         }
+   if (!found) clear_controls(p); // if no match found (no move entry for player in entire game move array)
+
+
+   // in run game mode and past the end of the file
+   if ((players[p].control_method == 1) && (frame_num > demo_mode_last_pc)) clear_controls(p);
+
+
+I need to rethink this....
+
+
+try a netgame overnight, but no fakekey
+24000 seconds / 3600 = 6.667 hours
+24000 x 40 = 960,000 frames
+
+game_moves is 7498, the same as when I started it
+
+p1 died at 7425 seconds / 60 = 123m /60 = 2.0h
+7425 x 40 = 297000 f
+
+what can i see in the log
+
+
+how do I move large amounts in the log??
+
+L - changes between line mode and frame mode
+
+
+    up -1
+  pgup -100
+s pgup -1000
+c pgup -10000
+
+same with down
+
+
+write new help for graphs
+click and drag scrolls the graph
+shift click and drag zooms to the selected x region
+mouse wheel zooms in and out centered on mouse position
+F10 resets graph x axis
+the other keys are not that usefull any more, now that I have these mouse controls
+maybe make a help screen page
+
+
+
+
+
+no labels on sync when zoomed in
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
