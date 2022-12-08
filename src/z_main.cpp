@@ -1293,7 +1293,7 @@ int main(int argument_count, char **argument_array)
  //  exit_level_editor_dialog();
 
 
-   show_var_sizes();
+ //  show_var_sizes();
 
 
 

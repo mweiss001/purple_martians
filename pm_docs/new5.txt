@@ -33811,11 +33811,92 @@ F10 resets graph x axis
 the other keys are not that usefull any more, now that I have these mouse controls
 maybe make a help screen page
 
+no labels on sync when zoomed in..fixed
+
+
+I have done doc and clean up for graphs
+
+
+I was starting doc for log viewer and realized I wanted a scroll bar for the position in the log...
+
+make it temp to start
+
+x height is screen height
+
+correspond to how many lines
+
+also how many lines can be shown on the screen..
+
+do I even need line number mode and frame number mode with this new scroll bar?
+
+lets lose frame mode...That simplified things a lot...
+
+
+now lets line up the scroll bar better....
+
+what is xpos of legend text?
+
+
+hard coded at 760....
+
+lets set it dynamically after drawing lines
+
+done...
+
+show loading when loading a huge log file...done
+
+next...
+
+document lfv
+
+add button for help, or at least a text label that says press ? for help
+
+add help
+
+I think log file viewer is done
+
+so am I ready to make a new release?
+
+store some log files elsewhere...
 
 
 
 
-no labels on sync when zoomed in
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

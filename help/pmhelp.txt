@@ -2979,6 +2979,71 @@ The Block Damage Field can be hidden or shown in various ways.
 
 
 
+<section>Log File Viewer
+
+
+<c09>The Log File Viewer helps view log files created in a netplayer game.
+
+<b15>
+
+<l15>First enable logging.
+<l15>(Options Menu -> Logging Options)
+
+<l15>Then play a multiplayer netgame and exit to save the log.
+
+<l15>Then run Log File Viewer and choose a log file.
+<l15>(Options Menu -> Logging Options -> Log File Viewer)
+
+<b15>
+
+You can move forwards and backwards a number of ways:
+
++/- 1 line               [UP]   and [DOWN]
++/- 10 lines             [PGUP] and [PGDOWN]
++/- 100 lines  [SHIFT] + [PGUP] and [PGDOWN]
++/- 1000 lines [CTRL]  + [PGUP] and [PGDOWN]
+
+Or you can click in the vertical scroll bar to jump to a location.
+
+[HOME] takes you to the first line.
+[END] takes you to the last line.
+
+<b15>
+
+In right panel, data for each type of log line is shown.
+
+For example:
+
+<l03>C cdat on  num:[233]
+<l09>S sdat off num:[301]
+
+In this example the log file constains 233 lines related to cdat packets
+and 301 lines related to sdat packets.
+
+cdat log lines are shown in blue and sdat are green
+
+you can hide or show types of log lines by typing the capital letter
+at the start of the line.
+
+'C' hides/shows cdat log lines and 'S' hides/shows sdat log lines.
+
+<b15>
+
+Also in the right panel, data for each player is shown.
+
+For example:
+
+0 plyr:0 on  num:[168]
+1 plyr:1 on  num:[1786]
+
+In this example there are 168 log lines related to player 0 and
+1786 log lines related to player 1
+
+You can toggle on and off log lines for specific players by typing
+the player number.
+
+
+
 <section>Bandwidth Graph
 
 
@@ -2986,62 +3051,62 @@ The Block Damage Field can be hidden or shown in various ways.
 
 <b15>
 
-<c15>First enable "LOGGING_NETPLAY_bandwidth" in logging options.
-<c15>(Options Menu -> Logging Options)
+<l15>First enable "LOGGING_NETPLAY_bandwidth" in logging options.
+<l15>(Options Menu -> Logging Options)
 
-<c15>Then play a multiplayer netgame and exit to save the log.
+<l15>Then play a multiplayer netgame and exit to save the log.
 
-<c15>Then run Log File Viewer and press DELETE to view the Bandwith Graph.
-<c15>(Options Menu -> Logging Options -> Log File Viewer)
+<l15>Then run Log File Viewer and click 'Bandwidth Graph'
+<l15>(Options Menu -> Logging Options -> Log File Viewer)
 
 <b15>
 
 <c09>While viewing the following controls are available:
 
-<c15>Mouse wheel - zooms in and out, centered on mouse position
+<l15>Mouse wheel - zooms in and out, centered on mouse position
 
-<c15>Click and drag - scrolls the graph
+<l15>Click and drag - scrolls the graph
 
-<c15>Shift click and drag - zooms to the selected x region
+<l15>Shift click and drag - zooms to the selected x region
 
-<c15>F10 - resets graph x axis
+<l15>F10 - resets graph x axis
 
-<c15>[UP] and [DOWN] - zoom y axis
+<l15>[UP] and [DOWN] - zoom y axis
 
-<c15>0-7 toggles the graph lines for players 0-7 on and off
+<l15>0-7 toggles the graph lines for players 0-7 on and off
 
 
 
-<section>Client Chase Graph
+<section>Client Sync Graph
 
 
 <c09>Graphs the drift and speed corrections when clients join netgame.
 
-<c09>This only works when run from the server.
+<c09>(This only works with logs created on the server)
 
 <b15>
 
-<c15>First enable "LOGGING_NETPLAY_sdak" in logging options.
-<c15>(Options Menu -> Logging Options)
+<l15>First enable "LOGGING_NETPLAY_sdak" in logging options.
+<l15>(Options Menu -> Logging Options)
 
-<c15>Then play a multiplayer netgame and exit to save the log.
+<l15>Then play a multiplayer netgame and exit to save the log.
 
-<c15>Then run Log File Viewer and press INSERT to view the Client Chase Graph.
-<c15>(Options Menu -> Logging Options -> Log File Viewer)
+<l15>Then run Log File Viewer and click 'Client Sync Graph'
+<l15>(Options Menu -> Logging Options -> Log File Viewer)
 
 <b15>
 
 <c09>While viewing the following controls are available:
 
-<c15>Mouse wheel - zooms in and out, centered on mouse position
+<l15>Mouse wheel - zooms in and out, centered on mouse position
 
-<c15>Click and drag - scrolls the graph
+<l15>Click and drag - scrolls the graph
 
-<c15>Shift click and drag - zooms to the selected x region
+<l15>Shift click and drag - zooms to the selected x region
 
-<c15>F10 - resets graph x axis
+<l15>F10 - resets graph x axis
 
-<c15>0-7 toggles the graph lines for players 0-7 on and off
+<l15>1-7 toggles the graph lines for clients 1-7 on and off
 
 
 

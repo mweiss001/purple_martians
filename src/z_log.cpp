@@ -454,8 +454,8 @@ int lp[8][2];
 
 int log_file_viewer(int type)
 {
-   int line_mode = 1;
-   int line_pos = 0;
+   al_show_mouse_cursor(display);
+
 
    char fname[1024];
    FILE *filepntr;
@@ -538,6 +538,11 @@ int log_file_viewer(int type)
    al_destroy_path(path);
 
 
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s", tmp);
+   al_flip_display();
+
 
    filepntr=fopen(fname,"r");
    while(ch != EOF)
@@ -603,6 +608,45 @@ int log_file_viewer(int type)
    tags[99][0] = 1; tags[99][1] = 10; // bad tag
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    // find and process tags
    for (int i=0; i<num_lines; i++)
    {
@@ -661,6 +705,20 @@ int log_file_viewer(int type)
          log_lines_int[i][0] = 99;
          tags[99][2]++; // inc number of this tag
       }
+
+
+
+
+      if ((i % (num_lines/100)) == 0)
+      {
+         // printf("i:%d nl:%d\n", i, num_lines);
+         al_set_target_backbuffer(display);
+         al_clear_to_color(al_map_rgb(0,0,0));
+         draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, (i*100)/num_lines);
+         al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Parsing tags");
+         al_flip_display();
+      }
+
    }
 
 
@@ -670,13 +728,11 @@ int log_file_viewer(int type)
    for (int i=0; i<num_lines; i++)
       if (log_lines_int[i][2] > end_pc) end_pc = log_lines_int[i][2];
 
-   int pos = 0; // the top frame_num line on the screen
+   int first_line = 0; // the top frame_num line on the screen
    int quit = 0;
-   //int redraw = 1;
-
 
    // find players in this file
-      for (int i=0; i<8; i++)
+   for (int i=0; i<8; i++)
    {
       lp[i][0] = 0; // show/hide
       lp[i][1] = 0; // num
@@ -701,107 +757,21 @@ int log_file_viewer(int type)
 
    while (!quit)
    {
-      if (line_mode)
-      {
-         if (line_pos < 0) line_pos = 0;
-         if (line_pos > num_lines) line_pos = num_lines;
-         pos = log_lines_int[line_pos][2];
-      }
-      else // pascount mode
-      {
-         if (pos < start_pc) pos = start_pc;
-         if (pos > end_pc) pos = end_pc;
-      }
-
       al_set_target_backbuffer(display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
 
       int ty1 = 0;
       int color = 15;
-      int first_line = 0;
 
-      if (line_mode) first_line = line_pos;
-      else // pascount mode
-      {
-         // find index of first line that is equal to or greater than current frame_num
-         for (int i=0; i<num_lines; i++)
-            if (log_lines_int[i][2] >= pos)
-            {
-               first_line = i;
-               break;
-            }
-         line_pos = first_line;
-      }
-
-      int xpos = 760;
-
-
-      int ly = 20;
-      sprintf(msg, "Log file.........[%s]", fnam);
-      al_draw_text(font, palette_color[15], xpos, ly+=8, 0, msg);
-
-      sprintf(msg, "Number of lines..[%d]", num_lines);
-      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
-
-      sprintf(msg, "Starting frame...[%d]", start_pc);
-      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
-
-      sprintf(msg, "Ending frame.....[%d]", end_pc);
-      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
-
-      ly+=4;
-      sprintf(msg, "Current line.....[%d]", first_line);
-      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
-
-      sprintf(msg, "Current frame....[%d]", pos);
-      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
-
-      ly+=8;
-
-      if (line_mode) sprintf(msg, "Line Mode");
-      else sprintf(msg, "frame_num Mode");
-      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
-
-
-      // show tag labels
-      int lpos = 100;
-      for (int i=23; i<40; i++)
-      {
-         if (tags[i][2]) // this tag type is present in log
-         {
-            int col = tags[i][1];
-            char tmsg[5];
-            if (tags[i][0]) sprintf(tmsg,"on ");
-            else
-            {
-               sprintf(tmsg,"off");
-               col = 127; //grey
-            }
-            tags[i][4] = lpos; lpos+=8; // set the ypos
-            sprintf(msg, "%c %s %s num:[%d]", tags[i][3], ctags[i], tmsg, tags[i][2]);
-            al_draw_text(font, palette_color[col], xpos, lpos, 0, msg);
-         }
-      }
-
-      // show players
-      lpos+=8;
-      for (int i=0; i<8; i++)
-      if (lp[i][1])
-      {
-         int col = 15;
-         char tmsg[5];
-         if (lp[i][0]) sprintf(tmsg,"on ");
-         else
-         {
-            sprintf(tmsg,"off");
-            col = 127; //grey
-         }
-         al_draw_textf(font, palette_color[col], xpos, lpos+=8, 0, "%d plyr:%d %s num:[%d]", i, i, tmsg, lp[i][1]);
-      }
 
       // draw all the lines
       int i = first_line;
+      int last_line = first_line;
+
+      int max_line_length = 0;
+
+
       int done = 0;
       while (!done)
       {
@@ -824,11 +794,188 @@ int log_file_viewer(int type)
 
             color = tags[type][1];
             if ((tags[type][0]) && (lp[p][0])) // tag and player filter
-               al_draw_text(font, palette_color[color], 0, ty1+=8, 0, msg);
+            {
+                al_draw_text(font, palette_color[color], 0, ty1+=8, 0, msg);
+                last_line = i;
+                if ((int)strlen(msg) > max_line_length) max_line_length = strlen(msg);
+            }
          }
          if (++i >= num_lines) done = 1; // no more lines
          if (ty1 > SCREEN_H - 20) done = 1; // no more screen
       }
+
+
+      // use max_line length to get xpos of right side panel info
+      int xpos = max_line_length * 8;
+      if (xpos < 720) xpos = 720;
+
+      // vertical scroll bar
+      int sbc1 = 15; // frame color
+      int sbc3 = 11; // position indicator color
+
+
+      // frame
+      int sbx1 = xpos;
+      int sbx2 = sbx1+8;
+      int sby1 = 8;
+      int sby2 = SCREEN_H - 10;
+      int sbh = sby2-sby1;
+      al_draw_rectangle(sbx1, sby1, sbx2, sby2+2, palette_color[sbc1], 1);
+
+      // position indicator
+
+      // percentage of first line in num lines
+      float fline_pc = (float) first_line / (float)num_lines;
+
+      // percentage of last line in num lines
+      float lline_pc = (float) last_line / (float)num_lines;
+
+      // scale to screen height
+      float sbby1 = fline_pc * sbh;
+      float sbby2 = lline_pc * sbh;
+
+      // enforce minimum size
+      if ((sbby2 - sbby1) < 2) sbby2 = sbby1 + 2;
+
+      //al_draw_rectangle(sbx1+1, sby1+sbby1+1, sbx2-1, sby1+sbby2, palette_color[sbc3], 1);
+      al_draw_filled_rectangle(sbx1+1, sby1+sbby1+1, sbx2-1, sby1+sbby2, palette_color[sbc3]);
+
+
+      al_draw_textf(f3, palette_color[sbc3], sbx2+4, sby1+sbby1-8, 0, "%d", first_line);
+      al_draw_textf(f3, palette_color[sbc3], sbx2+4, sby1+sbby2-1, 0, "%d", last_line);
+
+
+      if ((mouse_x > sbx1) && (mouse_x < sbx2))
+      {
+         //al_draw_rectangle(sbx1, sby1, sbx2, sby2, palette_color[sbc2], 1); // highlight scroll bar
+
+
+         float my = mouse_y - sby1; // mouse offset from start of scroll bar
+         float mp = my / (float)sbh; // percent of mouse to scroll bar height
+         int sbmy = num_lines * (float) mp; // log line that mouse_y corresponds to
+
+
+         // frame number of that log line
+
+         int fn   = log_lines_int[sbmy][2];
+
+         al_draw_textf(f3, palette_color[15], sbx2+4, mouse_y-8, 0, "%d - frame:%d %ds %dm", sbmy, fn, fn/40, fn/2400);
+
+
+
+
+
+         if (mouse_b1)
+         {
+            while (mouse_b1) proc_controllers();
+            first_line = sbmy; // set new log line pos
+         }
+      }
+
+
+
+
+
+
+      // how many lines are visible?
+      int vis_lines = 0;
+      for (int i=0; i<num_lines; i++)
+      {
+         int type = log_lines_int[i][0];
+         int p    = log_lines_int[i][1];
+         if ((tags[type][0]) && (lp[p][0])) vis_lines++; // tag and player filter
+      }
+
+
+      xpos+=32;
+
+      int ly = 4;
+      sprintf(msg, "Current Log");
+      al_draw_text(font, palette_color[15], xpos, ly+=8, 0, msg);
+
+      sprintf(msg, "%s", fnam);
+      al_draw_text(font, palette_color[15], xpos, ly+=8, 0, msg);
+
+      sprintf(msg, "Starting frame...[%d]", start_pc);
+      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
+
+      sprintf(msg, "Ending frame.....[%d]", end_pc);
+      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
+
+      sprintf(msg, "Total lines......[%d]", num_lines);
+      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
+
+      sprintf(msg, "Visible lines....[%d]", vis_lines);
+      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
+
+
+
+
+      // show tag labels
+      ly+=8;
+      for (int i=23; i<40; i++)
+      {
+         if (tags[i][2]) // this tag type is present in log
+         {
+            int col = tags[i][1];
+            char tmsg[5];
+            if (tags[i][0]) sprintf(tmsg,"on ");
+            else
+            {
+               sprintf(tmsg,"off");
+               col = 127; //grey
+            }
+            tags[i][4] = ly; ly+=8; // set the ypos
+            sprintf(msg, "%c %s %s num:[%d]", tags[i][3], ctags[i], tmsg, tags[i][2]);
+            al_draw_text(font, palette_color[col], xpos, ly, 0, msg);
+         }
+      }
+
+      // show players
+      ly+=8;
+      for (int i=0; i<8; i++)
+      if (lp[i][1])
+      {
+         int col = 15;
+         char tmsg[5];
+         if (lp[i][0]) sprintf(tmsg,"on ");
+         else
+         {
+            sprintf(tmsg,"off");
+            col = 127; //grey
+         }
+         al_draw_textf(font, palette_color[col], xpos, ly+=8, 0, "%d plyr:%d %s num:[%d]", i, i, tmsg, lp[i][1]);
+      }
+
+
+
+      // current display
+      ly+=8;
+      sprintf(msg, "Current Display");
+      al_draw_text(font, palette_color[11],xpos, ly+=8, 0, msg);
+
+      sprintf(msg, "Lines......[%d] to [%d]", first_line, last_line);
+      al_draw_text(font, palette_color[11],xpos, ly+=8, 0, msg);
+
+
+      int first_frame = log_lines_int[first_line][2];
+      int last_frame = log_lines_int[last_line][2];
+
+      sprintf(msg, "Frames.....[%d] to [%d]", first_frame, last_frame);
+      al_draw_text(font, palette_color[11],xpos, ly+=8, 0, msg);
+
+
+      ly+=20;
+
+      int xa = xpos;
+      int xb = xpos + 180;
+
+      if (mdw_buttont(xa, ly, xb, 16, 0,0,0,0, 0,13,15,0, 1,0,1,0, "Client Sync Graph"))  log_client_server_sync_graph(num_lines);
+      ly+=4;
+      if (mdw_buttont(xa, ly, xb, 16, 0,0,0,0, 0,13,15,0, 1,0,1,0, "Bandwidth Graph"))    log_bandwidth_graph(num_lines);
+      ly+=4;
+      if (mdw_buttont(xa, ly, xb, 16, 0,0,0,0, 0,14,15,0, 1,0,1,0, "Help"))               help("Log File Viewer");
+
       al_flip_display();
 
 
@@ -840,96 +987,60 @@ int log_file_viewer(int type)
          lp[p][0] = !lp[p][0];
       }
 
-
       if ((k > 0) && (k < 27)) // letters toggle tags
       {
-         //redraw = 1;
          k += 64; // convert to ascii
          //printf("%c\n", k);
          for (int i=23; i<40; i++)
             if (tags[i][3] == k) tags[i][0] = !tags[i][0]; // toggle tag on/off
       }
 
-      if (key[ALLEGRO_KEY_L])
-      {
-         while (key[ALLEGRO_KEY_L]) proc_controllers();
-         line_mode =! line_mode;
-      }
-
       if (key[ALLEGRO_KEY_UP])
       {
          while (key[ALLEGRO_KEY_UP]) proc_controllers();
-         if (line_mode) line_pos--;
-         else pos--;
+         first_line--;
       }
       if (key[ALLEGRO_KEY_DOWN])
       {
          while (key[ALLEGRO_KEY_DOWN]) proc_controllers();
-         if (line_mode) line_pos++;
-         else pos++;
+         first_line++;
       }
       if (key[ALLEGRO_KEY_PGUP])
       {
          while (key[ALLEGRO_KEY_PGUP]) proc_controllers();
-         if (line_mode)
-         {
-            if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) line_pos -= 10000;
-            else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) line_pos -= 1000;
-            else line_pos-=100;
-         }
-         else
-         {
-            if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) pos -= 10000;
-            else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) pos -= 1000;
-            else pos-=100;
-         }
+
+         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) first_line -= 1000;
+         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) first_line -= 100;
+         else first_line-=10;
       }
       if (key[ALLEGRO_KEY_PGDN])
       {
          while (key[ALLEGRO_KEY_PGDN]) proc_controllers();
-         if (line_mode)
-         {
-            if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) line_pos += 10000;
-            else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) line_pos += 1000;
-            else line_pos+=100;
-         }
-         else
-         {
-            if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) pos += 10000;
-            else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) pos += 1000;
-            else pos+=100;
-         }
+         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) first_line += 1000;
+         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) first_line += 100;
+         else first_line+=10;
       }
       if (key[ALLEGRO_KEY_HOME])
       {
          while (key[ALLEGRO_KEY_HOME]) proc_controllers();
-         if (line_mode) line_pos = 0;
-         else pos = 0;
+         first_line=0;
       }
       if (key[ALLEGRO_KEY_END])
       {
          while (key[ALLEGRO_KEY_END]) proc_controllers();
-         if (line_mode) line_pos = num_lines;
-         else pos = end_pc;
+         first_line=num_lines-1;
       }
 
-      if (key[ALLEGRO_KEY_DELETE])
-      {
-         while (key[ALLEGRO_KEY_DELETE]) proc_controllers();
+      if (first_line < 0) first_line = 0;
+      if (first_line > num_lines-1) first_line = num_lines-1;
 
-         log_bandwidth_graph(num_lines);
-      }
-      if (key[ALLEGRO_KEY_INSERT])
-      {
-         while (key[ALLEGRO_KEY_INSERT]) proc_controllers();
-         log_client_server_sync_graph(num_lines);
-      }
       if (key[ALLEGRO_KEY_ESCAPE])
       {
          while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
          quit = 1;
       }
    } // end of log file viewer
+   al_hide_mouse_cursor(display);
    return 0;
 }
 
@@ -1164,14 +1275,16 @@ void redraw_log_bandwidth_graph(int num_data, int data[][4], int graph_w, int gr
 //   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][RIGHT] scroll faster");
 //   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][LEFT]  scroll faster");
 
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "mouse wheel   zoom x axis");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "mouse drag    move x axis");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHIFT] drag  zoom x region");
+
    al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[HOME]        reset x axis");
    al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[UP]          zoom + y axis");
    al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[DOWN]        zoom - y axis");
-   al_draw_text(font, palette_color[15], xpos, ypos+=16, 0, "[?]           help");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[?]           help");
    al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[ESC]         quit");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "----- mouse controls -----");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "wheel         zoom x axis");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "drag          move x axis");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHIFT] drag  zoom x region");
 
 
 
@@ -1242,7 +1355,6 @@ void log_bandwidth_graph(int num_lines)
    // player array has already been populated
    // int lp[8][2];
 
-   al_show_mouse_cursor(display);
 
    // max amount of data points
    int max_data = 100000;
@@ -1542,7 +1654,6 @@ void log_bandwidth_graph(int num_lines)
          gquit = 1;
       }
    }
-   al_hide_mouse_cursor(display);
 }
 
 
@@ -2022,13 +2133,23 @@ void redraw_log_client_server_sync_graph(int num_data, int data[][5], int graph_
    al_draw_text(font, palette_color[15], xc, ypos-3, ALLEGRO_ALIGN_CENTER, "Controls");
 
    al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[NUMBERS 1-7] toggle client");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[RIGHT]       zoom in x axis");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[LEFT]        zoom out x axis");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[CTRL][RIGHT] scroll right");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[CTRL][LEFT]  scroll left");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][RIGHT] scroll faster");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][LEFT]  scroll faster");
+
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[HOME]        reset x axis");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[?]           help");
    al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[ESC]         quit");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "----- mouse controls -----");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "wheel         zoom x axis");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "drag          move x axis");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHIFT] drag  zoom x region");
+
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[RIGHT]       zoom in x axis");
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[LEFT]        zoom out x axis");
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[CTRL][RIGHT] scroll right");
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[CTRL][LEFT]  scroll left");
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][RIGHT] scroll faster");
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][LEFT]  scroll faster");
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[ESC]         quit");
+
 
    // draw legend
    xpos = SCREEN_W - 226;
@@ -2081,7 +2202,6 @@ void log_client_server_sync_graph(int num_lines)
    // player array has already been populated
    // int lp[8][2];
 
-   al_show_mouse_cursor(display);
 
 
    // build array of data points
@@ -2333,31 +2453,6 @@ void log_client_server_sync_graph(int num_lines)
          }
       }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       int k = proc_controllers();
       if ((k > 27) && (k < 35)) // numbers 0-7 toggle players
       {
@@ -2371,6 +2466,14 @@ void log_client_server_sync_graph(int num_lines)
 
 
 
+      if (key[ALLEGRO_KEY_SLASH])
+      {
+         while (key[ALLEGRO_KEY_SLASH]) proc_controllers();
+         help("Client Sync Graph");
+         redraw = 1;
+      }
+
+
       if (key[ALLEGRO_KEY_HOME])
       {
          while (key[ALLEGRO_KEY_HOME]) proc_controllers();
@@ -2381,45 +2484,49 @@ void log_client_server_sync_graph(int num_lines)
 
 
 
-      if (key[ALLEGRO_KEY_RIGHT])
-      {
-         while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();
-         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL]))
-         {
-            g_stf += scroll_amt;
-            if (g_stf > end_fn) g_stf = end_fn;
-         }
-         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
-         {
-            g_stf += scroll_amt * 10;
-            if (g_stf > end_fn) g_stf = end_fn;
-         }
-         else x_scale *= 1.1;
-         redraw = 1;
-      }
-      if (key[ALLEGRO_KEY_LEFT])
-      {
-         while (key[ALLEGRO_KEY_LEFT]) proc_controllers();
-         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL]))
-         {
-            g_stf -= scroll_amt;
-            if (g_stf < 0) g_stf = 0;
-         }
-         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
-         {
-            g_stf -= scroll_amt * 10;
-            if (g_stf < 0) g_stf = 0;
-         }
-         else x_scale *= .9;
-         redraw = 1;
-      }
+
+
+//      if (key[ALLEGRO_KEY_RIGHT])
+//      {
+//         while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();
+//         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL]))
+//         {
+//            g_stf += scroll_amt;
+//            if (g_stf > end_fn) g_stf = end_fn;
+//         }
+//         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+//         {
+//            g_stf += scroll_amt * 10;
+//            if (g_stf > end_fn) g_stf = end_fn;
+//         }
+//         else x_scale *= 1.1;
+//         redraw = 1;
+//      }
+//      if (key[ALLEGRO_KEY_LEFT])
+//      {
+//         while (key[ALLEGRO_KEY_LEFT]) proc_controllers();
+//         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL]))
+//         {
+//            g_stf -= scroll_amt;
+//            if (g_stf < 0) g_stf = 0;
+//         }
+//         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+//         {
+//            g_stf -= scroll_amt * 10;
+//            if (g_stf < 0) g_stf = 0;
+//         }
+//         else x_scale *= .9;
+//         redraw = 1;
+//      }
+
+
+
       if (key[ALLEGRO_KEY_ESCAPE])
       {
          while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
          gquit = 1;
       }
    }
-   al_hide_mouse_cursor(display);
 }
 
 
