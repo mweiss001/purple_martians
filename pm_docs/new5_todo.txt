@@ -73,6 +73,53 @@ control_lead_frames = 3;
 this is noticeable
 
 
+I could do a different thread or i could redo my game loop...
+
+sending of cdat will still occur in the main loop
+
+receiving of packets will occur in its own loop
+
+for client:
+send cdat when controls change (same as now)
+receive all packets and reply in faster loop
+
+for server
+receive cdats in faster loop
+
+
+
+I looked at some discussions of netgame stuff on the interent and I am not sure that I can ever get my game_moves sync method to be fast enough...
+I am relying on a packet being sent to the server and returning before a control change can occur, there will always be an inherent delay...
+
+what if I try to reduce control lead frames?  do it now...
+do I need to do it on client and server??
+as excpeted it ended badly..
+
+skip this for now...just doc what you have......
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
