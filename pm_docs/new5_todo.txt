@@ -100,34 +100,6 @@ skip this for now...just doc what you have......
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Implement a system of data about levels played and results
 keep a text file when ever a level is completed (or abandonded)
 
