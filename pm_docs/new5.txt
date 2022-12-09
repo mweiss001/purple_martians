@@ -33916,6 +33916,79 @@ make a new release and version the goddamn thing 7.24.1
 
 
 
+its still doing it...wtf
+
+what else did I change?
+
+that shit in get new game move from game array....
+
+yes, i found an obvious bug there...
+
+
+I want to redo that whole system of searching through the game moves array
+
+I do it for every player seperately??
+
+I want to narrow the search range
+
+I want to integrate the system moves search into it as well...
+
+
+can I assume that the game moves array is sorted by frame number?
+
+maybe not 100% but it should be no more than a few frames out...
+
+
+void proc_game_move(void)
+called from proc_controllers() when game_in_progress
+
+also called from same place is:
+proc_player_input()
+which for all players calls input based on control method...
+but then calls this for all players:
+
+         if (level_done_mode == 0)
+         {
+            set_controls_from_game_move(p); // common for all players
+         }
+
+
+the way it is now:
+do all system moves for gme
+do player input
+set player controls from gme
+
+
+the way I want to do it
+
+do player input
+search gme once for all system and player crap
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
