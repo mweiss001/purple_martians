@@ -594,7 +594,7 @@ void show_system_id()
 void set_and_get_versions(void)
 {
    // set version name
-   sprintf(pm_version_string, "7.24");
+   sprintf(pm_version_string, PM_VERSION);
 
    sprintf(msg, "Purple Martians Version %s", pm_version_string);
    printf("\n%s\n", msg);

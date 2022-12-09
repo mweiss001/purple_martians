@@ -33861,6 +33861,76 @@ store some log files elsewhere...
 
 
 
+I made a release and uploaded it, but...it does not work on clients
+
+travelmate 4230...
+
+
+all I can think of is that I increased the size of the log file array...
+
+with task manager
+pm normal game takes 10% cpu and 1,421 MB memory and 10% gpu....on m36!!
+
+that is a lot of resources
+
+
+tried an earlier version (last realease) and got same for cpu and gpu, but only 600MB for mem
+
+
+when i tried this on travelmate (win 7) it was 50%cpu and 136M memory
+
+
+
+look into the memory thing...
+
+currently
+#define NUM_LOG_CHAR  500000000
+#define NUM_LOG_LINES 5000000
+
+old
+
+
+
+
+extern char log_msg[100000000]; // for logging
+extern int log_msg_pos;
+extern char log_lines[1000000][100]; // for log file viewer
+extern int log_lines_int[1000000][3]; // for log file viewer
+extern int log_timer;
+
+
+500000000
+100000000
+
+5000000
+1000000
+
+what if I revert and try again....
+
+make pm_test3
+
+that seems to fix it....
+
+make a new release and version the goddamn thing 7.24.1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

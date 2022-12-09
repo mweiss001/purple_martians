@@ -1,6 +1,9 @@
 // pm.h - header file for both the game and the level editor
 
 
+#define PM_VERSION "7.24.1"
+
+
 class mWindow
 {
    public:
@@ -536,9 +539,12 @@ extern int large_text_overlay_state;
 //#define NUM_LOG_CHAR  100000000
 //#define NUM_LOG_LINES 2000000
 
-#define NUM_LOG_CHAR  500000000
-#define NUM_LOG_LINES 5000000
+// this is too much man! causes weird issues
+//#define NUM_LOG_CHAR  500000000
+//#define NUM_LOG_LINES 5000000
 
+#define NUM_LOG_CHAR  100000000
+#define NUM_LOG_LINES 1000000
 
 
 extern char log_msg[NUM_LOG_CHAR]; // for logging
