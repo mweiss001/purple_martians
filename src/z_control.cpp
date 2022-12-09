@@ -769,60 +769,6 @@ void proc_player_state_game_move(int x)
 
 
 
-void proc_game_move(void)
-{
-   // this function looks in the game_moves array for an exact frame_num match
-   // this only processes system moves, not regular game_moves
-   // its likely that an exact frame_num match won't be found and nothing will be done
-   // if multiple frame_nums match they all will be processed
-
-   int ll;
-   if (players[0].control_method == 1) ll = 0; // run game needs to look back to the start
-   else ll = game_move_entry_pos - 100; // every other mode can just look back 100
-   if (ll < 0) ll = 0; // don't look back past zero!
-
-   for (int x=game_move_entry_pos; x>ll; x--)  // look back for frame_num
-   {
-      if (game_moves[x][0] == frame_num)
-      {
-         switch (game_moves[x][1])
-         {
-            case 1: proc_player_state_game_move(x); break;
-            case 6: // level done
-            {
-               if (game_moves[x][3] == 1) // level done 1
-               {
-                  level_done_mode = 6;
-
-                  // send final state to every client because periodic sending is done
-                  if (ima_server)
-                     for (int p=1; p<NUM_PLAYERS; p++)
-                        if ((players[p].active) && (players[p].control_method == 2)) server_send_stdf(p);
-
-                  if (L_LOGGING_NETPLAY)
-                  {
-                     sprintf(msg,"LEVEL %d DONE (1)", play_level);
-                     add_log_entry_header(10, 0, msg, 3);
-                     if (ima_client) log_ending_stats();
-                     if (ima_server) log_ending_stats_server();
-                  }
-               }
-               if (game_moves[x][3] == 2) // level done 2
-               {
-                  level_done_mode = 5;
-                  if (L_LOGGING_NETPLAY)
-                  {
-                     sprintf(msg,"LEVEL %d DONE (2)", play_level);
-                     add_log_entry_header(10, 0, msg, 3);
-                  }
-               }
-            }
-            break;
-            case 7: proc_next_level(); break;
-         }
-      }
-   }
-}
 
 void serial_key_check(int key)
 {
@@ -927,35 +873,6 @@ void serial_key_check(int key)
    }
 }
 
-void set_controls_from_game_move(int p)
-{
-   // search back from game_move_entry_pos until first 'move' type entry that matches player and is not in the future
-   int gme_search_index = game_move_entry_pos;
-
-   // in rungame mode game_move_entry_pos is always at the end of the already filled array
-   // it can take a long time to search backwards through the entire array, so set the search position 100 moves in the future
-   if (players[p].control_method == 1)
-   {
-      gme_search_index = game_move_current_pos + 100;
-      if (gme_search_index > game_move_entry_pos) gme_search_index = game_move_entry_pos;
-   }
-
-
-   int found = 0;
-   for (int g=game_move_current_pos+100; g>0; g--)  // look back from entry pos
-      if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
-         if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
-         {
-            set_controls_from_comp_move(g);
-            game_move_current_pos = g; // for savegame running only
-            g = 0; // break out of loop
-            found = 1;
-         }
-   if (!found) clear_controls(p); // if no match found (no move entry for player in entire game move array)
-
-   // in run game mode and past the end of the file
-   if ((players[p].control_method == 1) && (frame_num > demo_mode_last_pc)) clear_controls(p);
-}
 
 int proc_events(ALLEGRO_EVENT ev, int ret)
 {
@@ -1059,6 +976,90 @@ void start_level_done(int p, int t1, int t2)
 
 
 
+void proc_game_move(void)
+{
+   // this function looks in the game_moves array for an exact frame_num match
+   // this only processes system moves, not regular game_moves
+   // its likely that no exact frame_num match will be found and nothing will be done
+   // if multiple frame_nums match they all will be processed
+
+   int ll;
+   if (players[0].control_method == 1) ll = 0; // run game needs to look back to the start
+   else ll = game_move_entry_pos - 100; // every other mode can just look back 100
+   if (ll < 0) ll = 0; // don't look back past zero!
+
+   for (int x=game_move_entry_pos; x>ll; x--)  // look back for frame_num
+   {
+      if (game_moves[x][0] == frame_num)
+      {
+         switch (game_moves[x][1])
+         {
+            case 1: proc_player_state_game_move(x); break;
+            case 6: // level done
+            {
+               if (game_moves[x][3] == 1) // level done 1
+               {
+                  level_done_mode = 6;
+
+                  // send final state to every client because periodic sending is done
+                  if (ima_server)
+                     for (int p=1; p<NUM_PLAYERS; p++)
+                        if ((players[p].active) && (players[p].control_method == 2)) server_send_stdf(p);
+
+                  if (L_LOGGING_NETPLAY)
+                  {
+                     sprintf(msg,"LEVEL %d DONE (1)", play_level);
+                     add_log_entry_header(10, 0, msg, 3);
+                     if (ima_client) log_ending_stats();
+                     if (ima_server) log_ending_stats_server();
+                  }
+               }
+               if (game_moves[x][3] == 2) // level done 2
+               {
+                  level_done_mode = 5;
+                  if (L_LOGGING_NETPLAY)
+                  {
+                     sprintf(msg,"LEVEL %d DONE (2)", play_level);
+                     add_log_entry_header(10, 0, msg, 3);
+                  }
+               }
+            }
+            break;
+            case 7: proc_next_level(); break;
+         }
+      }
+   }
+}
+
+void set_controls_from_game_move(int p)
+{
+   // search back from game_move_entry_pos until first 'move' type entry that matches player and is not in the future
+   int gme_search_index = game_move_entry_pos;
+
+   // in rungame mode game_move_entry_pos is always at the end of the already filled array
+   // it can take a long time to search backwards through the entire array, so set the search position 100 moves in the future
+   if (players[p].control_method == 1)
+   {
+      gme_search_index = game_move_current_pos + 100;
+      if (gme_search_index > game_move_entry_pos) gme_search_index = game_move_entry_pos;
+   }
+
+
+   int found = 0;
+   for (int g=gme_search_index; g>0; g--)  // look back from entry pos
+      if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
+         if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
+         {
+            set_controls_from_comp_move(g);
+            game_move_current_pos = g; // for savegame running only
+            g = 0; // break out of loop
+            found = 1;
+         }
+   if (!found) clear_controls(p); // if no match found (no move entry for player in entire game move array)
+
+   // in run game mode and past the end of the file
+   if ((players[p].control_method == 1) && (frame_num > demo_mode_last_pc)) clear_controls(p);
+}
 
 void proc_player_input(int ret)
 {
