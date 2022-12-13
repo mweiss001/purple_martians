@@ -18,6 +18,140 @@ bug -- in level editor can't see trigger box edges on left or top if zero
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+How can I do a layered multiplayer recording, where a new player can record while paying back all the old ones?
+
+single player local mode only
+
+play and record mode..
+
+for example:
+
+play file:....
+at a specific time start record one player...
+
+
+I would need a new type of game...
+
+like rungame_record
+
+
+how does active local player work in rungame mode...
+
+
+I might need a second game_move_array for this
+
+while recording, copy from original and add from new playing...
+
+
+how much space is used already by gma?
+
+a drop in the bucket compared to everything else:
+16M out of 1300M
+
+so, make a second array
+
+gma2
+
+
+in rungame all active players have control method 1
+
+make a new control method...like 6 for record rungame
+
+
+
+
+Control panel
+
+file loaded:
+timeline with all 8 possible players and a line shown where there is data for each player
+current position in savegame
+
+able to seek to any pos
+play and pause
+
+set position and record for one player
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Make an 'about' just like 'help'
+
+
 Make it so that a client does not have to have the level a server is serving.
 I am so close anyway.
 All that needs to be done is also sync the lift steps...
@@ -99,7 +233,6 @@ skip this for now...just doc what you have......
 
 
 
-
 Implement a system of data about levels played and results
 keep a text file when ever a level is completed (or abandonded)
 
@@ -115,6 +248,23 @@ enemies killed
 purple coins
 enemies left alive at the end
 number of deaths
+
+
+one line per level started?
+when complete edit the line
+
+what is the end result?
+
+list of levels with number of times started, completed, abandoned
+max time, min time, avg time, total time
+enemies left max, min avg
+purple coins, max, min avg
+
+
+
+
+
+
 
 
 

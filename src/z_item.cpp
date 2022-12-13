@@ -2203,10 +2203,10 @@ void detect_trigger_collisions(int i)
          }
    if (FLAGS & PM_ITEM_TRIGGER_EBUL) // check enemy bullets
       for (int b=0; b<50; b++)
-         if (e_bullet_active[b])
+         if (ebullets[b].active)
          {
-            al_fixed x = e_bullet_fx[b];
-            al_fixed y = e_bullet_fy[b];
+            al_fixed x = ebullets[b].fx;
+            al_fixed y = ebullets[b].fy;
             if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) item[i][3] |= PM_ITEM_TRIGGER_CURR;
          }
 }
@@ -2510,11 +2510,11 @@ void proc_item_damage_collisions(int i)
          }
    if (cdeb) // check enemy bullets
       for (int b=0; b<50; b++)
-         if (e_bullet_active[b])
+         if (ebullets[b].active)
          {
-            al_fixed x = e_bullet_fx[b];
-            al_fixed y = e_bullet_fy[b];
-            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) e_bullet_active[b] = 0; // kill the bullet
+            al_fixed x = ebullets[b].fx;
+            al_fixed y = ebullets[b].fy;
+            if ((x > tfx1) && (x < tfx2) && (y > tfy1) && (y < tfy2)) ebullets[b].active = 0; // kill the bullet
          }
 }
 

@@ -44,12 +44,11 @@ int TCP = 0;
 
 int stdf_freq = 40;
 int zlib_cmp = 7;
-int control_lead_frames = 3;
-int server_lead_frames = 1;
 
 int deathmatch_pbullets = 0;
 int deathmatch_pbullets_damage = 5;
 int suicide_pbullets = 0;
+
 
 // server's copies of client states
 char srv_client_state[8][2][STATE_SIZE];
@@ -345,6 +344,14 @@ int num_lifts;
 char lift_step_type_name[10][10];
 
 
+
+// bullets
+int pbullet[50][6];
+int pm_bullet_collision_box = 8;
+struct ebullet ebullets[50];
+
+
+
 // ------------------------------------------------
 // ---------------- level -------------------------
 // ------------------------------------------------
@@ -389,15 +396,6 @@ int PDEi[100][32];
 al_fixed PDEfx[100][16];
 char PDEt[100][20][40];
 
-// bullets
-int pbullet[50][6];
-int e_bullet_active[50];
-int e_bullet_shape[50];
-al_fixed e_bullet_fx[50];
-al_fixed e_bullet_fy[50];
-al_fixed e_bullet_fxinc[50];
-al_fixed e_bullet_fyinc[50];
-int pm_bullet_collision_box = 8;
 
 
 
@@ -455,7 +453,7 @@ int level_editor_running = 0;
 int help_screens_running = 0;
 int visual_level_select_running = 0;
 
-int show_debug_overlay = 0;
+int show_debug_overlay = 1;
 
 int show_player_join_quit_timer = 0;
 int show_player_join_quit_player = 0;
@@ -632,6 +630,8 @@ int initial_setup(void)
 {
 
    //al_set_config_value(al_get_system_config(), "trace", "level", "debug");
+
+   for (int p=0; p<NUM_PLAYERS; p++) players[p].color = 0; // just to make sure I do this somwhere, init player does not do it
 
    al_init();
    set_and_get_versions();
@@ -1293,7 +1293,7 @@ int main(int argument_count, char **argument_array)
  //  exit_level_editor_dialog();
 
 
- //  show_var_sizes();
+ // show_var_sizes();
 
 
 
@@ -1710,15 +1710,21 @@ int copy_files_to_clients(int exe_only)
 //   sprintf(client[num_clients++], "\\\\sat-p100\\pm_client31");  // win 7 does not work...32 bit??
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 -- has stupid network issues, sometimes take 4s to get a packet reply
 
-//   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
+
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
 
 
+
+
+   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
    sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
    sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
    sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
    sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+
+
+
 
 
    if (exe_only == 1)
@@ -1730,9 +1736,9 @@ int copy_files_to_clients(int exe_only)
          printf("%s\n",sys_cmd);
          ret = system(sys_cmd);
 
-         sprintf(sys_cmd, "copy levels\\*.pml %s\\levels ", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
+//         sprintf(sys_cmd, "copy levels\\*.pml %s\\levels ", client[c]);
+//         printf("%s\n",sys_cmd);
+//         ret = system(sys_cmd);
 
 
 /*

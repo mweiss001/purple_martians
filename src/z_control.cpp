@@ -609,17 +609,64 @@ void add_game_move(int frame, int type, int data1, int data2)
          resume_allowed = 1;
          return; // to exit immediately
       }
-      else // everything except single player (client, server)
+      if ((active_local_player == 0) && (players[0].control_method == 3) && (data1 == 0)) // local server quitting
       {
-         // change menu key to player state inactive special move
-         game_moves[game_move_entry_pos][0] = frame + 2; // add 2 frames so server has time to sync back to client before dropping
-         game_moves[game_move_entry_pos][1] = 1;     // type 1; player state
-         game_moves[game_move_entry_pos][2] = data1; // player num
-         game_moves[game_move_entry_pos][3] = 64;    // inactive
+         printf("local server quitting f:%d\n", frame_num);
+         // first set all connected clients to inactive
+         for (int p=1; p<NUM_PLAYERS; p++)
+            if (players[p].control_method == 2)
+            {
+               game_moves[game_move_entry_pos][0] = frame + 2;
+               game_moves[game_move_entry_pos][1] = 4;   // type 4; client quit
+               game_moves[game_move_entry_pos][2] = p;   // player num
+               game_move_entry_pos++;
+
+               game_moves[game_move_entry_pos][0] = frame + 10;
+               game_moves[game_move_entry_pos][1] = 1;   // type 1; player state
+               game_moves[game_move_entry_pos][2] = p;   // player num
+               game_moves[game_move_entry_pos][3] = 64;  // inactive
+               game_move_entry_pos++;
+            }
+
+         // then set server to inactive in future
+         game_moves[game_move_entry_pos][0] = frame + 10; // add 10 frames so server has time to sync back to client before dropping
+         game_moves[game_move_entry_pos][1] = 1;         // type 1; player state
+         game_moves[game_move_entry_pos][2] = data1;     // player num
+         game_moves[game_move_entry_pos][3] = 64;        // inactive
          game_move_entry_pos++;
+
          return; // to exit immediately
       }
+
+      if ((active_local_player == 0) && (players[0].control_method == 3) && (data1 > 0)) // remote client quitting
+      {
+         printf("remote client quitting\n");
+         // set client inactive
+         game_moves[game_move_entry_pos][0] = frame + 2; // need to set in future
+         game_moves[game_move_entry_pos][1] = 1;         // type 1; player state
+         game_moves[game_move_entry_pos][2] = data1;     // player num
+         game_moves[game_move_entry_pos][3] = 64;        // inactive
+         game_move_entry_pos++;
+
+         return; // to exit immediately
+      }
+
+
+
+      // everything else
+
+      printf("everything else\n");
+
+      // change menu key to player state inactive special move
+      game_moves[game_move_entry_pos][0] = frame + 4; // add 2 frames so server has time to sync back to client before dropping
+      game_moves[game_move_entry_pos][1] = 1;         // type 1; player state
+      game_moves[game_move_entry_pos][2] = data1;     // player num
+      game_moves[game_move_entry_pos][3] = 64;        // inactive
+      game_move_entry_pos++;
+      return; // to exit immediately
    }
+
+
 
    game_moves[game_move_entry_pos][0] = frame;
    game_moves[game_move_entry_pos][1] = type;
@@ -627,6 +674,33 @@ void add_game_move(int frame, int type, int data1, int data2)
    game_moves[game_move_entry_pos][3] = data2;
    game_move_entry_pos++;
 }
+
+
+
+
+void proc_player_client_join_game_move(int x)
+{
+   int p = game_moves[x][2];  // player number
+   int c = game_moves[x][3];  // color
+
+   players[p].control_method = 2;
+   players[p].color = c;
+
+}
+
+
+void proc_player_client_quit_game_move(int x)
+{
+   int p = game_moves[x][2];  // player number
+
+   players[p].control_method = 8;
+
+
+}
+
+
+
+
 
 void proc_player_state_game_move(int x)
 {
@@ -647,7 +721,7 @@ void proc_player_state_game_move(int x)
 
       if (L_LOGGING_NETPLAY)
       {
-         sprintf(msg,"PLAYER:%d became ACTIVE (color:%d)", p, players[p].color);
+         sprintf(msg,"PLAYER:%d became ACTIVE (color:%d...alp%d)", p, players[p].color, active_local_player);
          add_log_entry_header(10, p, msg, 1);
       }
 
@@ -964,7 +1038,7 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
 void start_level_done(int p, int t1, int t2)
 {
    level_done_mode = 7;
-   int fn = frame_num + control_lead_frames;
+   int fn = frame_num;
    add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
    add_game_move(fn+t1,  6, 0, 2); // insert level done 2 into game move
    add_game_move(fn+t2,  7, 0, 0); // insert next level into game move
@@ -988,13 +1062,16 @@ void proc_game_move(void)
    else ll = game_move_entry_pos - 100; // every other mode can just look back 100
    if (ll < 0) ll = 0; // don't look back past zero!
 
-   for (int x=game_move_entry_pos; x>ll; x--)  // look back for frame_num
+   for (int x=game_move_entry_pos; x>=ll; x--)  // look back for frame_num
    {
       if (game_moves[x][0] == frame_num)
       {
          switch (game_moves[x][1])
          {
             case 1: proc_player_state_game_move(x); break;
+            case 3: proc_player_client_join_game_move(x); break;
+            case 4: proc_player_client_quit_game_move(x); break;
+
             case 6: // level done
             {
                if (game_moves[x][3] == 1) // level done 1
@@ -1119,6 +1196,7 @@ int proc_controllers()
       {
          menu_timer_block = 0;
          proc_player_input(ret);
+//         if (!ima_client) proc_game_move();  // run once per frame to process system messages from game_move
          proc_game_move();  // run once per frame to process system messages from game_move
       }
    }

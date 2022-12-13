@@ -1,4 +1,4 @@
-// zbullets.cpp
+// z_bullets.cpp
 
 #include "pm.h"
 
@@ -127,7 +127,7 @@ void proc_ebullet_collision(int p, int b)
 {
    int damage = 0;
    int e_type = 0;
-   switch (e_bullet_shape[b])
+   switch (ebullets[b].shape)
    {
       case 488:   e_type = 3;  damage = 5;  break; // arrow
       case 489:   e_type = 3;  damage = 5;  break; // arrow
@@ -141,38 +141,38 @@ void proc_ebullet_collision(int p, int b)
    game_event(43, 0, 0, p, e_type, 0, damage);
 
    // recoil !!
-   if (e_bullet_fxinc[b] > al_itofix(0))
+   if (ebullets[b].fxinc > al_itofix(0))
    {
-      players[p].right_xinc += (e_bullet_fxinc[b]/2);
+      players[p].right_xinc += (ebullets[b].fxinc/2);
       if (players[p].right_xinc > al_itofix( 4)) players[p].right_xinc = al_itofix(4);
    }
-   if (e_bullet_fxinc[b] < al_itofix(0))
+   if (ebullets[b].fxinc < al_itofix(0))
    {
-      players[p].left_xinc += (e_bullet_fxinc[b]/2);
+      players[p].left_xinc += (ebullets[b].fxinc/2);
       if (players[p].left_xinc < al_itofix(-4)) players[p].left_xinc = al_itofix(-4);
    }
 
-   players[p].yinc += (e_bullet_fyinc[b]/2);
+   players[p].yinc += (ebullets[b].fyinc/2);
 
    if (players[p].yinc > al_itofix( 5)) players[p].yinc = al_itofix( 5);
    if (players[p].yinc < al_itofix(-8)) players[p].yinc = al_itofix(-8);
 
-   e_bullet_active[b] = 0; // bullet dies
+   ebullets[b].active = 0; // bullet dies
 }
 
 void move_ebullets()
 {
    for (int b=0; b<50; b++)
-      if (e_bullet_active[b])
+      if (ebullets[b].active)
       {
-         e_bullet_fx[b] += e_bullet_fxinc[b]; // inc x
-         e_bullet_fy[b] += e_bullet_fyinc[b]; // inc y
+         ebullets[b].fx += ebullets[b].fxinc; // inc x
+         ebullets[b].fy += ebullets[b].fyinc; // inc y
 
-         int ex = al_fixtoi(e_bullet_fx[b]);
-         int ey = al_fixtoi(e_bullet_fy[b]);
+         int ex = al_fixtoi(ebullets[b].fx);
+         int ey = al_fixtoi(ebullets[b].fy);
 
          // check if out of bounds
-         if ((ex<0) || (ex>2000) || (ey<0) || (ey>2000)) e_bullet_active[b] = 0;
+         if ((ex<0) || (ex>2000) || (ey<0) || (ey>2000)) ebullets[b].active = 0;
 
          // check if hit wall (or more accurately if co-located with a block)
          int xi = (ex+10)/20;
@@ -181,7 +181,7 @@ void move_ebullets()
 
          if (d & PM_BTILE_SOLID_EBUL)  // bullet hit solid or breakable wall
          {
-            e_bullet_active[b] = 0;                                // bullet dies
+            ebullets[b].active = 0;                                // bullet dies
             if (d & PM_BTILE_BREAKABLE_EBUL) change_block(xi, yi, 0); // breakable wall
 
 
@@ -209,27 +209,27 @@ void draw_ebullets()
 
 
 
-   for (int b = 0; b < 50; b++)
-      if (e_bullet_active[b])
+   for (int b=0; b<50; b++)
+      if (ebullets[b].active)
       {
-         int t = e_bullet_shape[b];
-         if (t > 1000) t = zz[0][e_bullet_shape[b]-1000];
-         al_draw_bitmap(tile[t], al_fixtof(e_bullet_fx[b]), al_fixtof(e_bullet_fy[b]), 0);
+         int t = ebullets[b].shape;
+         if (t > 1000) t = zz[0][ebullets[b].shape-1000];
+         al_draw_bitmap(tile[t], al_fixtof(ebullets[b].fx), al_fixtof(ebullets[b].fy), 0);
       }
 }
 
 void clear_bullets(void)
 {
-   for (int c = 0; c < 50; c++)
+   for (int b=0; b<50; b++)
    {
-      e_bullet_active[c] = 0;
-      e_bullet_shape[c]  = 0;
-      e_bullet_fxinc[c]  = al_itofix(0);
-      e_bullet_fyinc[c]  = al_itofix(0);
-      e_bullet_fy[c]     = al_itofix(0);
-      e_bullet_fx[c]     = al_itofix(0);
+      ebullets[b].active = 0;
+      ebullets[b].shape  = 0;
+      ebullets[b].fxinc  = al_itofix(0);
+      ebullets[b].fyinc  = al_itofix(0);
+      ebullets[b].fy     = al_itofix(0);
+      ebullets[b].fx     = al_itofix(0);
       for (int y=0; y<6; y++)
-         pbullet[c][y] = 0;
+         pbullet[b][y] = 0;
    }
 }
 

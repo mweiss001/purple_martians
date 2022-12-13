@@ -269,8 +269,6 @@ extern int TCP;
 
 extern int stdf_freq;
 extern int zlib_cmp;
-extern int control_lead_frames;
-extern int server_lead_frames;
 
 extern int deathmatch_pbullets;
 extern int deathmatch_pbullets_damage;
@@ -279,7 +277,9 @@ extern int suicide_pbullets;
 
 
 //#define STATE_SIZE 105952
-#define STATE_SIZE 106144
+//#define STATE_SIZE 106144
+#define STATE_SIZE 108544
+
 
 
 
@@ -345,7 +345,7 @@ extern int zz[20][NUM_ANS];
 // ------------------------------------------------
 // ------------ game moves array ------------------
 // ------------------------------------------------
-#define GAME_MOVES_SIZE 1000000
+#define GAME_MOVES_SIZE 100000
 
 extern int game_moves[GAME_MOVES_SIZE][4];
 extern int game_move_entry_pos;
@@ -628,7 +628,7 @@ struct player // synced between server and client
 
    int on_rope;
 
-   int num_hits;       // when players bullet hits enemy
+   int num_hits;       // when player's bullet hits enemy
    int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
 
    int stat_respawns;
@@ -658,7 +658,6 @@ struct player1 // not synced between server and client
    int last_health_adjust;
    int potential_bomb_damage;
 
-
    float field_damage_tally;
    int field_damage_holdoff;
    int field_damage_enemy_number;
@@ -670,65 +669,37 @@ struct player1 // not synced between server and client
 
    int frames_skipped;
 
-   // position and size of players on screen buffer (used to see if map is covering player)
-   int sbx1,sby1,sbx2,sby2;
-
    int who; // for network id of clients
    char hostname[16];
 
-   int game_move_entry_pos;             // server only for client game_move data sync
+   int server_last_stak_rx_frame_num; // used by server to see if client is still responding
+   int client_last_stdf_rx_frame_num; // used by client to see if server is still responding
 
-   int server_last_sdat_sent_frame_num; // only server uses it, to keep track of when last sdat was sent to client
-
-   int server_last_sdat_sent_start;     // used by server to prevent sending multiple sdats with same start and num
-   int server_last_sdat_sent_num;
-
-   int server_last_sdak_rx_frame_num; // used by server to see if client is still responding
-   int client_last_sdat_rx_frame_num; // used by client to see if server is still responding
-
-   int server_sdat_sync_freq;
-
+   int client_base_resets;
 
    int client_sync;
    int server_sync;
 
-   int client_game_move_sync;
-   int client_game_move_sync_min;
-   int client_game_move_sync_err;
 
+   int sc_sync; // packet stdf from s to c  sfn-cfn
+   int cs_sync; // packet stak from c to s  cfn-sfn
+   int rt_sync; // round trip to server back to server through client via stdf and stak
+
+   int server_rewind_frames;
+
+
+   int client_chase_fps;
    int server_game_move_sync;
-   int server_game_move_sync_min;
-   int server_game_move_sync_err;
+
 
    int client_cdat_packets_tx;
-   int client_sdat_packets_rx;
-   int client_sdat_packets_skipped;
-   int moves_entered;
-   int moves_skipped;
-   int moves_skipped_tally;
-   int moves_skipped_last_tally;
-
-   // server error sync'd back to client
-   int serr_c_sync_err;
-   int serr_display_timer;
 
    int made_active_holdoff;
-
    int sync_stabilization_holdoff;
-
-
-
-
-   int join_stdf_sent;
 
    int join_frame;
    int quit_frame;
    int quit_reason;
-
-   int stdf_rx;
-   int stdf_on_time;
-   int stdf_late;
-   int dif_corr;
 
    // server only - next client to send stdf to
    int n_stdf;
@@ -821,6 +792,30 @@ struct lift_step
    int val;
 };
 
+
+
+// bullets
+extern int pbullet[50][6];
+extern int pm_bullet_collision_box;
+
+extern struct ebullet ebullets[50];
+struct ebullet
+{
+   int active;
+   int shape;
+   al_fixed fx;
+   al_fixed fy;
+   al_fixed fxinc;
+   al_fixed fyinc;
+};
+
+
+
+
+
+
+
+
 // ------------------------------------------------
 // ---------------- sound -------------------------
 // ------------------------------------------------
@@ -882,15 +877,6 @@ extern int PDEi[100][32];
 extern al_fixed PDEfx[100][16];
 extern char PDEt[100][20][40];
 
-// bullets
-extern int pbullet[50][6];
-extern int e_bullet_active[50];
-extern int e_bullet_shape[50];
-extern al_fixed e_bullet_fx[50];
-extern al_fixed e_bullet_fy[50];
-extern al_fixed e_bullet_fxinc[50];
-extern al_fixed e_bullet_fyinc[50];
-extern int pm_bullet_collision_box;
 
 
 
@@ -1562,6 +1548,7 @@ int ami_server_or_single(void);
 int has_player_acknowledged(int p);
 void proc_level_done_mode(void);
 void game_loop(int start_mode);
+void loop_frame(void);
 
 // z_main.h
 void final_wrapup(void);
@@ -1668,5 +1655,14 @@ void load_sound(void);
 void set_se_scaler(void);
 void set_st_scaler(void);
 void sound_toggle(void);
+
+
+
+
+
+
+
+
+
 
 

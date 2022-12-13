@@ -107,10 +107,6 @@ void proc_start_mode(int start_mode)
             break; // exit loop immed
          }
 
-
-
-
-
       //game_exit = 0;
    }
 
@@ -146,7 +142,6 @@ void proc_start_mode(int start_mode)
       return;
 	}
 
-
    set_frame_nums(0);
 
    if ((ima_client) || (ima_server))
@@ -163,6 +158,8 @@ void proc_start_mode(int start_mode)
 
    show_player_join_quit_timer = 0;
    start_music(0); // rewind and start theme
+
+
 }
 
 
@@ -207,7 +204,7 @@ void proc_level_done_mode(void)
          int aa = 1; // yes by default, set to no if any have not ack
          for (int p=0; p<NUM_PLAYERS; p++)
             if ((players[p].active) && (!has_player_acknowledged(p))) aa = 0;
-         if (aa) add_game_move(frame_num + control_lead_frames, 7, 0, 0); // insert next level into game move
+         if (aa) add_game_move(frame_num, 7, 0, 0); // insert next level into game move
       }
       if ((players[0].control_method == 0) && (has_player_acknowledged(0)))    // single player
          add_game_move(frame_num, 7, 0, 0); // insert next level into game move
@@ -226,9 +223,6 @@ void game_loop(int start_mode)
    proc_start_mode(start_mode);
    while (!game_exit)
    {
-//      int f = 1022;
-//      if (frame_num > f) printf("test 1\n");
-
       proc_scale_factor_change();
       proc_sound();
       if (ima_server) server_control();
@@ -241,7 +235,6 @@ void game_loop(int start_mode)
          move_pbullets();
          move_lifts(0);
          move_players();
-//         if (frame_num > f) printf("test 2\n");
          move_enemies();
          move_items();
          proc_frame_delay();
@@ -265,3 +258,49 @@ void game_loop(int start_mode)
    stop_sound();
    stamp();
 }
+
+
+
+void loop_frame(void)
+{
+   proc_game_move();
+
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) // cycle all active players
+         set_controls_from_game_move(p); // common for all players
+
+   move_ebullets();
+   move_pbullets();
+   move_lifts(0);
+   move_players();
+   move_enemies();
+   move_items();
+   frame_num++;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
