@@ -107,12 +107,6 @@ void save_config(void)
       if (suicide_pbullets) strcpy (global_string[4][6], "Suicide Bullets:On ");
       else strcpy (global_string[4][6], "Suicide Bullets:Off");
 
-      sprintf(msg, "%d", control_lead_frames);
-      al_set_config_value(cfg, "NETWORK", "control_lead_frames", msg);
-
-      sprintf(msg, "%d", server_lead_frames);
-      al_set_config_value(cfg, "NETWORK", "server_lead_frames", msg);
-
       sprintf(msg, "%d", stdf_freq);
       al_set_config_value(cfg, "NETWORK", "stdf_freq", msg);
 
@@ -384,14 +378,6 @@ void load_config(void)
    val = al_get_config_value(cfg, "NETWORK", "suicide_pbullets");
    if (!val) suicide_pbullets = 0;
    else suicide_pbullets = atoi(val);
-
-   val = al_get_config_value(cfg, "NETWORK", "control_lead_frames");
-   if (!val) control_lead_frames = 3;
-   else control_lead_frames = atoi(val);
-
-   val = al_get_config_value(cfg, "NETWORK", "server_lead_frames");
-   if (!val) server_lead_frames = 1;
-   else server_lead_frames = atoi(val);
 
    val = al_get_config_value(cfg, "NETWORK", "stdf_freq");
    if (!val) stdf_freq = 5;

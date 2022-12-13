@@ -759,20 +759,20 @@ void proc_player_collisions(int p)
    }
    // ebullets
    for (int b=0; b<50; b++)
-      if (e_bullet_active[b])  // if active
+      if (ebullets[b].active)  // if active
       {
          // new collision box is based on bullet speed and has both x and y component
-         al_fixed ax = abs(e_bullet_fxinc[b]);
-         al_fixed ay = abs(e_bullet_fyinc[b]);
+         al_fixed ax = abs(ebullets[b].fxinc);
+         al_fixed ay = abs(ebullets[b].fyinc);
 
          // enforce minimums
          if (ax < al_itofix(4)) ax = al_itofix(4);
          if (ay < al_itofix(4)) ay = al_itofix(4);
 
-         al_fixed bx1 = e_bullet_fx[b] - ax;
-         al_fixed bx2 = e_bullet_fx[b] + ax;
-         al_fixed by1 = e_bullet_fy[b] - ay;
-         al_fixed by2 = e_bullet_fy[b] + ay;
+         al_fixed bx1 = ebullets[b].fx - ax;
+         al_fixed bx2 = ebullets[b].fx + ax;
+         al_fixed by1 = ebullets[b].fy - ay;
+         al_fixed by2 = ebullets[b].fy + ay;
          if ((players[p].PX > bx1) && (players[p].PX < bx2)
           && (players[p].PY > by1) && (players[p].PY < by2)) proc_ebullet_collision(p, b);
       }
@@ -1237,6 +1237,10 @@ void draw_player(int p)
       int flags = ALLEGRO_FLIP_HORIZONTAL;
       if (players[p].left_right) flags = ALLEGRO_FLIP_VERTICAL & ALLEGRO_FLIP_HORIZONTAL;
 
+
+   //   printf("color:%d shape:%d\n", players[p].color, players[p].shape );
+
+
       al_draw_scaled_rotated_bitmap(player_tile[players[p].color][players[p].shape], 10, 10, AX+10, AY+10, scale, scale, rot, flags);
 
 
@@ -1437,6 +1441,7 @@ void init_player(int p, int t)
       players[p].paused = 0;
       players[p].control_method = 0;
 
+
       players[p].old_LIFE = al_itofix(100);
       players[p].LIFE = al_itofix(100);
 
@@ -1507,77 +1512,37 @@ void init_player(int p, int t)
       players1[p].comp_move = 0;
       players1[p].old_comp_move = 0;
 
-
-
-
-
       players1[p].health_display = 0;
       players1[p].last_health_adjust = 0;
       players1[p].potential_bomb_damage = 0;
 
       players1[p].frames_skipped = 0;
 
-
-
-
-
-
-
-
-
-
-
-
    }
 
    if (t == 21) // netgame counters, etc
    {
       players1[p].client_cdat_packets_tx = 0;
-      players1[p].client_sdat_packets_rx = 0;
-      players1[p].client_sdat_packets_skipped = 0;
-      players1[p].moves_entered = 0;
-      players1[p].moves_skipped = 0;
 
-      players1[p].moves_skipped_tally = 0;
-      players1[p].moves_skipped_last_tally = 0;
-
-      players1[p].server_sdat_sync_freq = 0;
-
-      players1[p].game_move_entry_pos = 0;
       players1[p].client_sync = 0;
       players1[p].server_sync = 0;
-      players1[p].serr_c_sync_err = 0;
-      players1[p].serr_display_timer = 0;
-      players1[p].join_frame = 0;
-      players1[p].server_last_sdat_sent_frame_num = 0;
-      players1[p].server_last_sdat_sent_start = 0;
-      players1[p].server_last_sdat_sent_num = 0;
 
-      players1[p].client_game_move_sync = 0;
-      players1[p].client_game_move_sync_min = 99;
-      players1[p].client_game_move_sync_err = 0;
-
+      players1[p].client_chase_fps = 0;
       players1[p].server_game_move_sync = 0;
-      players1[p].server_game_move_sync_min = 99;
-      players1[p].server_game_move_sync_err = 0;
 
-      players1[p].serr_c_sync_err = 0;
-      players1[p].serr_display_timer = 0;
-      players1[p].server_sync = 99;
-      players1[p].client_sync = 99;
+
+      players1[p].server_rewind_frames = 0;
+
+
       players1[p].quit_frame = 0;
       players1[p].quit_reason = 0;
 
-      players1[p].join_stdf_sent = 0;
+      players1[p].join_frame = 0;
+      players1[p].client_base_resets = 0;
 
       players1[p].num_dif_packets =0 ;
-      players1[p].server_last_sdak_rx_frame_num = 0;
-      players1[p].client_last_sdat_rx_frame_num = 0;
-
-      players1[p].stdf_rx = 0;
-      players1[p].stdf_late = 0;
-      players1[p].stdf_on_time = 0;
-      players1[p].dif_corr = 0;
+      players1[p].server_last_stak_rx_frame_num = 0;
+      players1[p].client_last_stdf_rx_frame_num = 0;
 
       players1[p].cmp_dif_size = 0;
       players1[p].n_stdf = 0;

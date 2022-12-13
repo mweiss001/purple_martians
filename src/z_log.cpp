@@ -135,20 +135,13 @@ void log_player_array(void)
 
 void log_player_array2(void)
 {
-   sprintf(msg, "[p][a][m][sy][gme] - level_done_mode:%d", level_done_mode);
+   sprintf(msg, "[p][a][m][sy] - level_done_mode:%d", level_done_mode);
    add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      int gme = players1[p].game_move_entry_pos;
-      if (p == 0) gme = game_move_entry_pos;
-
       int sy = players1[p].server_sync;
       if (p == 0) sy = 0;
-
-      sprintf(msg, "[%d][%d][%d][%2d][%d]",   p,
-                                              players[p].active,
-                                              players[p].control_method,
-                                              sy, gme );
+      sprintf(msg, "[%d][%d][%d][%2d]",   p, players[p].active, players[p].control_method, sy );
       add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
    }
 }
@@ -180,33 +173,10 @@ void log_ending_stats()
    sprintf(msg,"cdat packets tx'd.........[%d]", players1[p].client_cdat_packets_tx);
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"cdat late to server.......[%d]", players1[p].serr_c_sync_err);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
-   sprintf(msg,"minimum c_sync............[%d]", players1[p].client_game_move_sync_min);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
-   sprintf(msg,"c_sync errors.............[%d]", players1[p].client_game_move_sync_err);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"stdf received.............[%d]", players1[p].stdf_rx );
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"stdf received on time.....[%d]", players1[p].stdf_on_time );
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
-
-   sprintf(msg,"stdf received late........[%d]", players1[p].stdf_late );
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
-
-   if (players1[p].stdf_rx > 0)
-   {
-      sprintf(msg,"percent of late stdf......[%5.2f]", (float)(players1[p].stdf_late*100) / (float)players1[p].stdf_rx);
-      add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
-   }
-   sprintf(msg,"stdf corrections..........[%d]", players1[p].dif_corr);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    log_bandwidth_stats(p);
 
-   add_log_entry_sdat_rx_and_game_move_entered(22, p);
+//   add_log_entry_sdat_rx_and_game_move_entered(22, p);
 
    add_log_entry_centered_text(22, p, 76, "", "+", "-");
 }
@@ -259,15 +229,6 @@ void log_ending_stats_server()
          sprintf(msg,"frames client was active..[%d]", players1[p].quit_frame - players1[p].join_frame);
          add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-         sprintf(msg,"cdat late to server.......[%d]", players1[p].client_game_move_sync_err);
-         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
-
-         sprintf(msg,"stdf late.................[%d]", players1[p].stdf_late);
-         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
-
-         sprintf(msg,"stdf corrections..........[%d]", players1[p].dif_corr);
-         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
-
          sprintf(msg,"frames skipped............[%d]", players1[p].frames_skipped);
          add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
 
@@ -318,22 +279,22 @@ void save_log_file(void)
 }
 
 
-void add_log_entry_sdat_rx_and_game_move_entered(int type, int player)
-{
-   int st = players1[player].client_sdat_packets_rx;      // sdat total
-   int ss = players1[player].client_sdat_packets_skipped; // sdat skipped
-   float sdpc = 0;                                        // % skipped
-   if (st != 0) sdpc = (float)ss * 100 / (float)st;       // prevent divide by zero
-   sprintf(msg,"sdat packets rx'd.........[%3d]  skipped:[%3d][%4.1f%%]", st, ss, sdpc);
-   add_log_entry_position_text(type, player, 76, 10, msg, "|", " ");
-
-   int mt = players1[player].moves_entered + players1[player].moves_skipped; // moves total
-   int ms = players1[player].moves_skipped;                                  // moves skipped
-   float mspc = 0;                                                           // % skipped
-   if (mt != 0) mspc = (float)ms * 100 / (float)mt;                          // prevent divide by zero
-   sprintf(msg,"moves entered:............[%3d]  skipped:[%3d][%4.1f%%]", mt, ms, mspc);
-   add_log_entry_position_text(type, player, 76, 10, msg, "|", " ");
-}
+//void add_log_entry_sdat_rx_and_game_move_entered(int type, int player)
+//{
+//   int st = players1[player].client_sdat_packets_rx;      // sdat total
+//   int ss = players1[player].client_sdat_packets_skipped; // sdat skipped
+//   float sdpc = 0;                                        // % skipped
+//   if (st != 0) sdpc = (float)ss * 100 / (float)st;       // prevent divide by zero
+//   sprintf(msg,"sdat packets rx'd.........[%3d]  skipped:[%3d][%4.1f%%]", st, ss, sdpc);
+//   add_log_entry_position_text(type, player, 76, 10, msg, "|", " ");
+//
+//   int mt = players1[player].moves_entered + players1[player].moves_skipped; // moves total
+//   int ms = players1[player].moves_skipped;                                  // moves skipped
+//   float mspc = 0;                                                           // % skipped
+//   if (mt != 0) mspc = (float)ms * 100 / (float)mt;                          // prevent divide by zero
+//   sprintf(msg,"moves entered:............[%3d]  skipped:[%3d][%4.1f%%]", mt, ms, mspc);
+//   add_log_entry_position_text(type, player, 76, 10, msg, "|", " ");
+//}
 
 void add_log_entry2(int type, int player, const char *txt)
 {
@@ -572,6 +533,9 @@ int log_file_viewer(int type)
    fclose(filepntr);
    num_lines--;
 
+ //  printf("log file 2\n");
+
+
    char ctags[100][20];
    int tags[100][5];
    for (int i=0; i<100; i++)
@@ -598,53 +562,15 @@ int log_file_viewer(int type)
    tags[27][0] = 1; tags[27][1] = 13; tags[27][3] = 88; sprintf(ctags[27], "stdf"); // stdf         (X) [CS]
    tags[28][0] = 0; tags[28][1] = 1;  tags[28][3] = 80; sprintf(ctags[28], "stdp"); // stdf piece   (P) [CS]
    tags[29][0] = 0; tags[29][1] = 7;  tags[29][3] = 87; sprintf(ctags[29], "stdw"); // stdf when    (W) [C]
+   tags[30][0] = 0; tags[30][1] = 6;  tags[30][3] = 75; sprintf(ctags[30], "stak"); // stak         (K) [S]
+
    tags[31][0] = 0; tags[31][1] = 15; tags[31][3] = 68; sprintf(ctags[31], "dif1"); // show diff1   (D) [C]
    tags[32][0] = 0; tags[32][1] = 15; tags[32][3] = 70; sprintf(ctags[32], "dif2"); // show diff2   (F) [C]
    tags[35][0] = 1; tags[35][1] = 3;  tags[35][3] = 67; sprintf(ctags[35], "cdat"); // cdat         (C) [CS]
-   tags[37][0] = 1; tags[37][1] = 9;  tags[37][3] = 83; sprintf(ctags[37], "sdat"); // sdat         (S) [CS]
-   tags[38][0] = 0; tags[38][1] = 6;  tags[38][3] = 71; sprintf(ctags[38], "move"); // game move    (G) [C]
-   tags[39][0] = 0; tags[39][1] = 6;  tags[39][3] = 75; sprintf(ctags[39], "sdak"); // sdak         (K) [S]
 
    tags[99][0] = 1; tags[99][1] = 10; // bad tag
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//   printf("log file 3\n");
 
 
    // find and process tags
@@ -706,21 +632,26 @@ int log_file_viewer(int type)
          tags[99][2]++; // inc number of this tag
       }
 
+      //printf("Line:%d\n", i);
 
 
+//      if ((i % (num_lines/100)) == 0)
+//      {
+//         // printf("i:%d nl:%d\n", i, num_lines);
+//         al_set_target_backbuffer(display);
+//         al_clear_to_color(al_map_rgb(0,0,0));
+//         draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, (i*100)/num_lines);
+//         al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Parsing tags");
+//         al_flip_display();
+//      }
 
-      if ((i % (num_lines/100)) == 0)
-      {
-         // printf("i:%d nl:%d\n", i, num_lines);
-         al_set_target_backbuffer(display);
-         al_clear_to_color(al_map_rgb(0,0,0));
-         draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, (i*100)/num_lines);
-         al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Parsing tags");
-         al_flip_display();
-      }
+
+  //    printf("log file 4\n");
+
 
    }
 
+//   printf("log file 5\n");
 
    // get start and end frame_nums
    int start_pc = log_lines_int[0][2];
@@ -1791,25 +1722,25 @@ void redraw_log_client_server_sync_graph(int num_data, int data[][5], int graph_
    int g1_y_lowest_val  = -40;
    int g1_y_highest_val = +40;
 
-   // auto scale
-   // find min and max
-   int g1_min = 0;
-   int g1_max = 0;
-   for (int i=0; i<num_data; i++)
-   {
-      if (data[i][2] != -999)
-      {
-         if (lp[data[i][1]][0]) // if player active
-         {
-            int fc = data[i][2];
-            if (fc > g1_max) g1_max = fc;
-            if (fc < g1_min) g1_min = fc;
-         }
-      }
-   }
-   // printf("g1_min:%d g1_max:%d\n", g1_min, g1_max);
-   g1_y_lowest_val  = g1_min;
-   g1_y_highest_val = g1_max;
+//   // auto scale
+//   // find min and max
+//   int g1_min = 0;
+//   int g1_max = 0;
+//   for (int i=0; i<num_data; i++)
+//   {
+//      if (data[i][2] != -999)
+//      {
+//         if (lp[data[i][1]][0]) // if player active
+//         {
+//            int fc = data[i][2];
+//            if (fc > g1_max) g1_max = fc;
+//            if (fc < g1_min) g1_min = fc;
+//         }
+//      }
+//   }
+//   // printf("g1_min:%d g1_max:%d\n", g1_min, g1_max);
+//   g1_y_lowest_val  = g1_min;
+//   g1_y_highest_val = g1_max;
 
    int g1_y_range = g1_y_highest_val - g1_y_lowest_val;
    // set y scale based on screen height and range
@@ -2274,7 +2205,7 @@ void log_client_server_sync_graph(int num_lines)
 
 
 
-      if (log_lines_int[i][0] == 39)
+      if (log_lines_int[i][0] == 30)
       {
          int p = log_lines_int[i][1];
          int fn = log_lines_int[i][2];
@@ -2282,23 +2213,26 @@ void log_client_server_sync_graph(int num_lines)
          int fc = 0;
 
 
-         // get first tag and discard - nep
+//         // get first tag and discard - nep
+//         char * pch1 = strchr(tll, '[');
+//         char * pch2 = strchr(tll, ']');
+//         int p1 = pch1-tll;
+//         int p2 = pch2-tll;
+//         if (p2 - p1 < 8)
+//         {
+//            for(int j=0; j<p2; j++)
+//               buff2[j] = tll[j+p1+1];
+//            buff2[p2] = 0;
+//            chop_first_x_char(tll, p2+1);
+//         }
+//
+
+
+         // get first tag - server_sync
          char * pch1 = strchr(tll, '[');
          char * pch2 = strchr(tll, ']');
          int p1 = pch1-tll;
          int p2 = pch2-tll;
-         if (p2 - p1 < 8)
-         {
-            for(int j=0; j<p2; j++)
-               buff2[j] = tll[j+p1+1];
-            buff2[p2] = 0;
-            chop_first_x_char(tll, p2+1);
-         }
-         // get second tag - server_sync
-         pch1 = strchr(tll, '[');
-         pch2 = strchr(tll, ']');
-         p1 = pch1-tll;
-         p2 = pch2-tll;
          if ((p1>10) && (p1<30))
          {
             if (p2 - p1 < 8)
@@ -2309,7 +2243,7 @@ void log_client_server_sync_graph(int num_lines)
                 sy = atoi(buff2);
                 chop_first_x_char(tll, p2+1);
             }
-            // get third tag - fps_chase
+            // get second tag - fps_chase
             pch1 = strchr(tll, '[');
             pch2 = strchr(tll, ']');
             p1 = pch1-tll;
@@ -2333,7 +2267,7 @@ void log_client_server_sync_graph(int num_lines)
 
             num_data++;
             end_fn = fn;
-            //printf("fn:%d  p:%d sync:%d fps_chase:%d\n", fn, p, sy, fc);
+            printf("fn:%d  p:%d sync:%d fps_chase:%d\n", fn, p, sy, fc);
          }
       }
 
@@ -2370,12 +2304,6 @@ void log_client_server_sync_graph(int num_lines)
          redraw_log_client_server_sync_graph(num_data, data, graph_w, x_scale, g_stf, g_rng, end_fn, xbl, yxl);
          al_flip_display();
       }
-
-
-
-
-
-
 
 
       if (mouse_b1)
@@ -2464,16 +2392,12 @@ void log_client_server_sync_graph(int num_lines)
       int scroll_amt = g_rng / 10; // scroll 10% of screen at once
       if (scroll_amt < 1) scroll_amt = 1;
 
-
-
       if (key[ALLEGRO_KEY_SLASH])
       {
          while (key[ALLEGRO_KEY_SLASH]) proc_controllers();
          help("Client Sync Graph");
          redraw = 1;
       }
-
-
       if (key[ALLEGRO_KEY_HOME])
       {
          while (key[ALLEGRO_KEY_HOME]) proc_controllers();
@@ -2481,46 +2405,6 @@ void log_client_server_sync_graph(int num_lines)
          x_scale = (float)graph_w / (float)2400;  // start with showing 60 seconds
          redraw = 1;
       }
-
-
-
-
-
-//      if (key[ALLEGRO_KEY_RIGHT])
-//      {
-//         while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();
-//         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL]))
-//         {
-//            g_stf += scroll_amt;
-//            if (g_stf > end_fn) g_stf = end_fn;
-//         }
-//         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
-//         {
-//            g_stf += scroll_amt * 10;
-//            if (g_stf > end_fn) g_stf = end_fn;
-//         }
-//         else x_scale *= 1.1;
-//         redraw = 1;
-//      }
-//      if (key[ALLEGRO_KEY_LEFT])
-//      {
-//         while (key[ALLEGRO_KEY_LEFT]) proc_controllers();
-//         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL]))
-//         {
-//            g_stf -= scroll_amt;
-//            if (g_stf < 0) g_stf = 0;
-//         }
-//         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
-//         {
-//            g_stf -= scroll_amt * 10;
-//            if (g_stf < 0) g_stf = 0;
-//         }
-//         else x_scale *= .9;
-//         redraw = 1;
-//      }
-
-
-
       if (key[ALLEGRO_KEY_ESCAPE])
       {
          while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();

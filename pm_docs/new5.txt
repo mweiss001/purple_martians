@@ -8495,7 +8495,7 @@ void proc_pbullet_collision(int p)
 void proc_ebullet_collision(int p)
 {
    for (int b=0; b<50; b++)
-      if (e_bullet_active[b])  // if bullet not active skip to next one
+      if (ebullets[].active[b])  // if bullet not active skip to next one
       {
 
          // player position
@@ -8543,7 +8543,7 @@ void proc_player_collisions(int p)
 
    // ebullets
    for (int b=0; b<50; b++)
-      if (e_bullet_active[b])  // if active
+      if (ebullets[].active[b])  // if active
       {
          // new collision box is based on bullet speed and has both x and z component
          al_fixed ax = abs(e_bullet_fxinc[b]);      // enemy_bullet_collision_window x
@@ -33964,77 +33964,1277 @@ the way I want to do it
 do player input
 search gme once for all system and player crap
 
+test that shit works first before changing all of this...
+seems to have fixed the bug
 
+I should actually make this the official 7.24.1 release
+because the old one doesnt work...
+done
 
+now start chopping away at the control gme thing...
 
+do one search through game_move_array
 
+search method
 
+start at the end: game_move_entry_pos
+except if in rungame, then start at game_move_current_pos +100
 
+search to game_move_entry_pos -100
 
+except in rungame then search to 0
 
+normal
+game_move_entry_pos (should be end of array and only a few ahead of current pos)
+game_move_entry_pos -100
 
+rungame
+game_move_current_pos+100 (could be many moves before end
+game_move_current_pos-100
 
 
+how about players keep track of last gme array index they used to set their controls
+why?
+so that we don't have to search back past that
+is that actually as issue?
 
+what problem am I trying to solve?
 
+when searching backward for gme to set controls for a player, could do a lot of searching
+so fucking what??
 
+I am also trying to make the way I do this less complicated, not more
 
 
+2 variables for each player (not synced)
 
+index of last gme used to set controls
 
+-1 if no gme matches player in entire array
 
+last frame that gme searched from
 
+1M x 4 ints x 4bytes per int == 16M
 
 
+pm right now takes 600 to 617M on win10
+when drop gma from 1M to 100K drops to 382 to 386
+now I can't make it take 600 again
+it take 382 no matter what: 1M 10M 100K for gme
 
+10M  383.1
+1M   381.9
+100K 382.4
 
 
+what are my most expensive memory hogs?
 
 
+STATES 100K x 2 for client and 16 for server
+1.8M
 
 
+what about bitmaps??
 
+try resmon on win10
+commit working set
+1300M
+1076M when removed 200M in logging...
 
 
+OK nevermind
+I am using way too much memory, like 1.3G
 
 
 
 
 
+20221211
 
+I have a huge new plan for netgame
 
+I hate the 75ms control lag delay....
 
+I want to remove the whole game_moves_sync thing
 
+clients just send their moves to the server then execute them locally, immediately
 
+stdf is how the moves get sync'd back, not the actual moves, just the result of the moves..
 
+stdf happens very fast anyway
+I get an ack either the next frame or at most 2 frames
 
+where do I control stdf freq? in pm.cfg set to 5
+how fast can I make it?
+2P game
+5 3400 140
+4 4400 150
+3 5500 180
 
+lets go with 4 for now
+now I do this cyclic thing where I only send to one client when stdf_freq comes due
+that would mean a larger delay as I get more clients
 
+frame 0 1 6
+frame 1 2 6
+frame 2 3 7
+frame 3 4
 
+anyway, this is good enough to test the concept
 
+set the client to put moves directly in the array, no frame lead...
 
 
 
+I have run into a problem...the clients moves arrive too late on the server
 
 
+do I need to rethink this entire approach?
 
 
+I have the client running one frame behind the server.
+what would happen if I made the client run ahead of the server?
 
+then the states the server sends would be too old, by the time they got to the client
 
+Its a chicken and egg thing...before I go any further, I need to figure this out...
 
 
+what if on the server, it got these late cdats, then rewound and replayed from the last known ack
 
 
 
+server has last acked state
+collects info from clients
+run simulation from last acked acked state
 
+where should server and client run with respect to each other? exact time, one lagging?
 
 
+on each client:
+keep track on local control changes since last state
+every frame run simulation fro last state with new control inputs
+copy that state to actual state
 
+when a new state arrives, only apply control changes since then
 
 
+on the server:
+collect input from each client and store
 
+for each client,
+keep track of last state acked
+apply all control changes to that
+send to client
 
+I will still need the game_moves_array on the server
 
+This will make somthing already quite complicated, even more complicated
+
+
+Server:
+take last acked state for a specific client and put it somewhere it can be manipulated
+run the game simulation from that state to the current state
+send that state to the client
+
+where can I do this?
+
+probably best to do it in the main game engine
+
+it would be just like rewinding then replaying
+
+- put saved state in game vars
+- set frame number to saved state frame
+- run without drawing to current
+- make a dif from saved state and send to client
+
+repeat for all clients
+
+
+Client:
+put local player input in local array, and send to server
+
+play local game and use only input from last acked state
+
+play local game as normal
+
+when a new state arrives, rewind to that state and play back any local changes since then
+dont just set the new state, or local changes since then will be lost
+
+this way, when a new state arrives, it will not matter if it is late...
+the client will rewind and play from that state, adding new moves the client has made since then
+
+Does the client needs to keep anymore states? It currently only has one old one.
+I don't think that needs to change.
+
+When it gets a new one, all keypresses before that state do not matter
+even if the state bas gets corrupted and new one from zero is sent, it should not matter..
+
+what changes need to be made on client?
+
+do not add anything to gma from sdats
+add local moves to local gma directly and send cdat as normal
+still receive sdats for sync purpose (later I may do away with these and just use stdf)
+
+when an stdf is received and a complete dif is decompressed:
+check to see if the base matches and we can apply it (the destination frame will probably aleady have passed)
+apply it to the current game state
+rewind to that state
+play back to current state (but this time any new moves also get executed)
+
+int client_process_stdf_packet(void)
+this does not need to be changed, all it does it rx packets and decompress state
+
+
+
+I think I have the client done...
+
+now for server...
+
+I don't think I need to save current state anywhere, after rewind and replay, it will be where it should be
+
+remove the part were server sends sdats, except for sync...done
+
+fix it so that server adds cdats, even if late..done
+but not if so late they are before last ack state...not done yet...
+
+
+when it is time to send stdf for a client:
+
+load last ack state for that client into game
+rewind and replay (this is necessary to get skipped game moves)
+make dif and send to client
+
+
+
+
+tried running...
+
+
+client has error setting base state for initial join
+
+client gets as far as starting chase and locking
+server complains about not having the ackd state from client...
+
+client was acking to frame num before replaying...changed order...
+
+
+client starts chase and lock, but server sends only one sdat for sync on same frame as join info...
+client does not receive any sdats....
+
+
+lets drill down and see where client locks..
+
+turn on debug by default....
+
+could it be that gma is still being used to set players active?
+
+interesting...logged player array on server and p0 was active and mode 3 until join, then 0 and 0
+
+
+find out where on server, is the player array reset...
+it is after the server replies to the join request
+
+I think I might have an idea...
+
+the base state is set to zero? should it be set to the level when it is first loaded?
+am I going back to this state, (which is zero, then trying to play from there?)
+cause that will not work!
+on the server, keep a copy of the state immediately after loading level??
+clients too?
+
+yes...
+
+// copy of the state immediately before starting frame 0
+char level_base_state[STATE_SIZE];
+done.
+
+
+well, now the server does not reset itself to 0...making progress...
+now client does not get its control method updated to 2...
+figure that out....
+
+it is set on server whemn replying with sjon....
+then what happens...
+server sends state, but it is based on zero, is it not??
+that will erase player shit that was not set when state was made....
+here is what is needed:
+-load level base state
+-modify player
+-save new level base state
+-fast forward to current frame
+
+or:
+enter a new type of game_move_entry that specifies when a client starts the join process
+
+I am a little confused here, am I going to have to rewind and replay the game from frame 0 very often??
+I hope not, with a lost base just send with a fake base of zero.
+
+moving on...
+
+make a new game_state_move
+1 is player state and it is overloaded already with active, color, quit reason....
+
+1 - player state
+5 - reg game move
+6 - level done
+
+lets make
+3 - client started chase mode, also add color here
+do this on server
+
+I can get the client to join!!
+
+on the client, server player is 0 0
+
+could it be that the client is fighting the server, trying to set player shit from gma??
+
+
+
+could it be that client and server have different cm for each player?
+int players[p].control_method;
+
+0 = local player in single player mode
+1 = file play (run demo game from file)
+2 = in netgame, any non-local player (client players on server, and server and other clients on client)
+3 = in netgame, local server player on server
+4 = in netgame, local client player on client
+99 = in netgame, used client in current level (to prevent re-use in same level)
+
+control_method is synced...wtf!!
+
+on client, fix this to change 2 to 4...
+better!!!
+
+
+server sends stdf, but stak always one less
+
+example
+
+stdf 0-365
+stak 364
+
+from the start...
+server send stdf
+
+OK it looks like that is fixed
+
+
+next, why do client moves not go to server?
+i dont see any cdats in client or server logs..
+
+control_method on client should be 4 not 2...
+
+now its looking a lot better...
+
+
+why are player shapes on client all messed up??
+
+is it something that did not get synced?
+
+why is client color 18??
+it is 9 until it becomes active
+
+server 8 client 9
+server 7 client 16?
+
+I think the base state is using predefined colors
+when I choose 8 or 7 or 6 for server, the client shows 8
+there is a game move at 0 for server color and active....
+where does it go wrong??
+
+color numbers are correct on server...why are they not synced to client??
+maybe the base is different...
+
+all 8p on server are 8
+all 8p on client are 1
+
+when i change server to color 7, all are 7
+
+how can i fix this??
+
+make all 0 clients
+
+I'm having a hard time finding where color is initialized....
+
+i think I have it fixed by doing this:
+
+   if ((ima_client) || (ima_server))
+   {
+      for (int p=0; p<NUM_PLAYERS; p++) players[p].color = 0;
+   }
+
+   if ((ima_client) || (ima_server))
+   {
+      game_vars_to_state(level_base_state);
+   }
+
+
+That seems to work as intended:
+
+choose server color and start
+choose client color and start
+
+bugs...
+when client is waiting to sync, his color is zero
+when client quits, he becomes p0 and gets the server color
+
+
+
+why is this bullshit so convoluted?
+
+do I actually initialize players[].color?
+
+find out...
+
+in main init:
+
+
+
+   val = al_get_config_value(cfg, "GAME", "color");
+   if (!val) players[0].color = 8;
+   else
+   {
+      players[0].color = atoi(val);
+      if (players[0].color < 1) players[0].color = 1;
+      if (players[0].color > 15) players[0].color = 15;
+   }
+
+
+this does not change colors....
+
+   // init all players
+   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+   players[0].active = 1;
+
+Changed to manually setting all colors to 0 just before loading from config for p0
+
+maybe saving at the end of start mode is not the right place...
+maybe it should be done closer to
+
+
+What is the purpose of that original state?
+So i can play back from zero with game moves...
+I will only ever do this on the server
+clients need a copy so they can decompress a dif based on it..
+
+here is the dilemma with colors...
+the base state should have all colors 0;
+if the base state differs between client and server, difs will not work...
+
+my plan is to set them all to zero on the client and server, then save_state
+
+then on the server, when the game_moves_array is read, they will come active and get proper colors
+this will get synced back to the clients
+
+
+
+in server_init
+
+   // create the level_base_state
+   // all players colors should be zero for this base state
+   // restore server color after
+
+   int save_color = players[0].color;
+   for (int p=0; p<NUM_PLAYERS; p++) players[p].color = 0;
+   game_vars_to_state(level_base_state);
+   players[0].color = save_color;
+
+
+15 4
+4 8
+
+
+I am so confused why I can't get the colors right....
+
+lets try with 2 clients....
+
+
+maybe I can leave the color thing for now....
+
+
+what about sync??
+
+I removed the server_lead_frames and it still seems to run 1 frame behind...hard to tell, my resolution is only 1 frame or 25ms
+
+why does it chase from so far back?
+example...
+sjon at 54, locked at 254
+had to chase the whole way...
+
+sjon at 54, locked at 254
+had to chase the whole way...
+
+when it gets first stdf it should run from there...
+uncommented set frame after block until stdf...fixed
+
+now I want to see if I can lose sdat and sdak
+they are only used for sync
+
+add their functionality to stdf and stak
+
+frequency?
+
+sdats
+chasing 2
+when used for sync only also 2
+that's a lot of packets
+
+stdf
+every 4 frames...
+
+
+
+         if (frame_num > players1[p].server_last_sdat_sent_frame_num + players1[p].server_sdat_sync_freq)
+         {
+            players1[p].server_last_sdat_sent_frame_num = frame_num;
+            int start_entry = players1[p].game_move_entry_pos;
+
+            Packet("sdat");
+            PacketPut4ByteInt(frame_num);
+            PacketPut4ByteInt(start_entry);
+            PacketPut1ByteInt(0);
+            ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+
+            sprintf(msg,"tx sdat p:%d st:%d nm:%d (sync only) (sf:%d)\n", p, start_entry, 0, players1[p].server_sdat_sync_freq);
+            if (L_LOGGING_NETPLAY_sdat) add_log_entry2(37, p, msg);
+         }
+      }
+
+
+is that it? frame_number?
+
+im sure stdf already does that
+
+      Packet("stdf");
+      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+      PacketPut1ByteInt(packet_num);
+      PacketPut1ByteInt(num_packets);
+      PacketPut4ByteInt(start_byte);
+      PacketPut4ByteInt(packet_data_size);
+      memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
+      packetsize += packet_data_size;
+
+      ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+
+it does not...unless dst frame_num counts.....it does!!
+
+so no changes needed there.....
+
+
+   Packet("sdak"); // send acknowledgement of game moves received
+   PacketPut1ByteInt(p);
+   PacketPut4ByteInt(frame_num);
+   PacketPut4ByteInt(nep);
+   PacketPut4ByteInt(players1[p].stdf_late);
+   PacketPut4ByteInt(players1[p].frames_skipped);
+   PacketPut4ByteInt((int)fps_chase);
+   ClientSend(packetbuffer, packetsize);
+
+   sprintf(msg,"tx sdak nep:[%d] stdf_late:[%d] frames skipped:%d\n", nep, players1[p].stdf_late, players1[p].frames_skipped);
+   if (L_LOGGING_NETPLAY_sdak) add_log_entry2(39, p, msg);
+
+nep is not needed
+frame_num is probably used on the server to see how far the client is lagging
+stdf_late - does that even matter anymore? they will all be late
+frames_skipped - is nice but hardly necessary
+fps_chase - same...
+
+do stdf's get sent when chasing? if not, they should....
+it does not look like they do....fixed...
+
+add chasing to rx stdf on client....done
+
+
+remove sending of sdat on server....
+
+server drops players...last sdak rx > 100
+lets swap this with stak
+
+rename variable to stak....
+
+
+
+add stuff from sdak to stak on server
+
+already has frame_num...
+but can I use it? it is ack for dif, not necessarily the clients current frame_num.....
+added frame_num
+
+lets add the rest of the stuff then kill sdak and sdat...done...
+
+
+its really coming together...
+
+what next to fix?
+
+
+ive got a client that wont connect
+
+client sync graph uses different packets
+
+make stak and stdf use different packets types in log viewer
+stdf = 28
+
+make stak packets log server sync and chase fps so I can graph it
+done...
+
+
+needs more work on the chase and sync thing
+
+
+how can I tell if client and server are really in sync or not
+2 screens side by side with a moving lift??
+it looks like they are lined up...
+lets try some sync either way....
+even if I do large amounts like +40 -40 -80 stuff still seems to sync???
+game timer is off by 2s but lifts are the same??
+
+
+animation sequences on clients are all messed up...
+
+
+fix it so that when clients quit they go back to menu
+also when server quits, clients go back to menu
+
+I might need to pass some more info...
+when a client goes inactive the only place it matters in the server's player array
+
+the game moves array on the client is solely for local moves to be executed before being confirmed with a state, then they are never needed again
+
+
+cdat's sent from client to server could be extended to do more, but I'm not sure that is needed
+
+
+
+tell me again what happens when server loses base
+server rewinds to 0 and loads that state
+server fast_forwards to current frame
+server sends that state to client
+
+why am I doing it this way?
+why can I not send a state based on zero and skip the whole fast forward thing?
+
+I don't know...
+
+I think I just had en epiphany
+
+I need the previous states on the server because I have to rewind and replay
+I don't need the previous states on the clients for rewinding, just for applying difs to
+
+
+how does server normally send a state?
+jump back to last frame ackd by client
+replay to current frame (and apply game_move that may have been missed)
+send state
+
+so if base is lost how about:
+jump back and replay a few frames
+send that state based on zero
+
+just because a client has acked a state, does not mean that the server didn't have more input after that
+maybe I could keep track on the server
+what frame has been rendered to (just frame_num)
+when a cdat with earlier frame is rx'd, set new var, earliest frame not rx'd
+
+
+
+lets tackle this first...
+client quit
+it used to be handled by game_moves special move read on the client and executed
+now the client becomes inactive on the server and this never gets passed to the client
+
+I need a way to keep sending to the client until the client lets the server know it got the quit
+
+or I could set the client inactive and wait for the server to drop it for not responding
+
+
+one method
+- when client quits, send cdat and locally quit immediately
+
+when server initiates the drop...
+set cm to 8, but still active
+when client gets that, drop like above
+
+let's try something
+on server, keep syncing for used clients
+
+this causes the server to exit without any warning a few seconds later
+
+what happens
+start with client pressing escape
+cdat is sent
+game move type 5 is entered
+
+in add_game_move()
+
+type 5 with escape does something special
+
+         // change menu key to player state inactive special move
+         game_moves[game_move_entry_pos][0] = frame + 2; // add 2 frames so server has time to sync back to client before dropping
+         game_moves[game_move_entry_pos][1] = 1;     // type 1; player state
+         game_moves[game_move_entry_pos][2] = data1; // player num
+         game_moves[game_move_entry_pos][3] = 64;    // inactive
+         game_move_entry_pos++;
+         return; // to exit immediately
+
+
+change this for client
+don't let client enter game_move special type
+special types are not run on clients...
+actually I just left it and allowed special moves to run on clients...
+
+that solves the client initiating the quit, what about the server?
+the client will evetually timeout...
+
+when server quits
+
+here is my dilemma, when I set clients to inactive on the server, they don't sync anymore....
+
+maybe I need more fine tuned control over this
+
+how about some variables for the sync stuff
+
+active should still mean actively particiapting in the game, dont change that.
+
+
+but how about another one for netgame status?
+
+0 not in netgame
+1 syncing
+2 locked
+
+then I could run the sync indepandant of the rest...
+
+so it could be joined, but not actually active and playing
+
+I just want to seperate the two
+
+
+
+-----------------------------------
+
+
+
+Lets try to document exactly what you are doing.
+
+Netgame Method.
+
+I have given up on syncing game moves from server to client.
+
+Clients send game moves to server.
+Server consolidates them.
+Game states are sent to clients.
+
+There are fewer packets now.
+
+Client sends cdat to server.
+
+Server sends stdf's to clients.
+
+Clients acknowlegde with stak.
+
+
+Synchronization.
+The server is the master timing reference and runs at 40fps.
+Clients adjust their fps to stay in sync with the server.
+
+When the server sends time stamped stdf's to clients, clients use that timestamp to determine how close its clock is to the server.
+This is called client_sync and it it calculated on the client like this:
+
+client_sync = server_frame_num - client_frame_num;
+
+Positive values are when the client is behind the server (ealier in game time).
+Negative values are when the client is ahead of the server (later in game time).
+
+This value is used to adjust the client clock like this:
+
+
+
+Ideally the server should be (ahead, behind??)
+
+
+When the client sends time stamped stak's to server, the server uses that timestamp to determine how close the client's clock is to ther server.
+
+
+
+
+
+
+Resetting base:
+server sets a clients base to zero when sending a stdf and the lask ack is 0
+
+when client rx's complete dif with src to zero it resets its base
+
+if client rx's a dif but does not have correct base:
+- currently it just sends staks with actual base it has...is this correct..i guess...
+
+When server rx's stak, if it does not have that base for the client, it does the reset on the server
+
+I want to count these (on the server seems like the best place)
+
+   int client_base_resets;
+
+
+Other things I am tracking:
+
+when server receives cdats, what is their relation to current frame on server?
+
+void server_proc_cdat_packet(void)
+{
+   int p = PacketGet1ByteInt();
+   int cdat_frame_num = PacketGet4ByteInt();
+   int cm = PacketGet1ByteInt();
+   players1[p].server_game_move_sync = cdat_frame_num - frame_num;
+   sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d]\n", p, cdat_frame_num, players1[p].server_game_move_sync);
+   add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
+
+   if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
+}
+
+
+
+
+
+--------------------------------------
+add chase_fps to player1 struct (not sync)
+repurpose something not used..done
+
+
+what else do I want to keep track of:
+
+
+when client receives stdf (actually complete dif) how much rewind and replay is needed
+
+when base is reset
+
+implement this...
+
+on server when rxing cdat
+
+int server_game_move_sync;
+
+
+
+change the join thing
+
+initial join state should be from zero state, not level_base_state...
+
+do i even need level base state???
+we will see?
+completely removed
+
+
+server replies to join
+sets player up locally with player_num color and control_method 2
+adds game move type 3...??
+
+then in normal server_send_stdf they are sent because now control_method is 2
+
+in send_stdf:
+- rewind to last ack state frame for that client
+- replay to current frame
+- send dif of current and last ack state
+
+if last ack state frame == 0
+send dif of current frame and zero;
+
+do the colors work now???
+
+yes, they seem to work great
+
+when client quits, server quits unexpectedly
+
+added some delay to entering the player inactive game_move and it seems to work much better...
+but still when server quits, client just hangs
+
+I think it actually made it to the client, but the client did not know what to do with it...
+or its the same old situation where I set the client inactive on the server and immediately sync stops...
+
+why don't I make a special control_method for clients that are getting dropped by server
+
+mode = 8; active = 0;
+
+it was there for 2 frames then rewind killed it....
+
+make a special game_move like 3 and 4
+
+now how to handle it on the client...done!!!!
+
+-------------------------------------------------------------------------------------------------
+make a method of the server being able to send special system messages to clients...
+
+use 2 variables in players[]
+- type
+- data
+
+if 0 do nothing
+if non zero then do something based on the type..
+
+for example:
+1
+2356
+client quit game on frame 2356
+
+
+2 3345
+level done and load next level on frame 3345
+
+
+what extra variables do I have in players
+
+
+One thing I need to keep in mind, if I just change things on the server and expect them to make it to the client...
+rewind and replay can undo those changes
+I have had to make special game move entries so that rewind and replay do not erase changes
+-------------------------------------------------------------------------------------------------
+One thing I am thinking of is to keep the sync loop always going...
+
+even when players are paused, or waiting for the next level to load...
+
+I have always wanted to make the loop asynchronus, or at least not have to rely on the frame counter
+-------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+next bug to fix, why does client need a long chase?
+
+test 100 frames then join...went really fast....
+
+its something that is not getting reset between client joins
+does not happen when quitting to command line
+
+happens when quitting to menu and rejoining
+on the server log the second joining client start at the frame number the previous one ended at...
+
+in start_mode
+
+   if (start_mode != 3) set_frame_nums(0);
+
+why is there an exception for client ???
+lets comment it out and see if shit breaks....
+seems to work
+
+
+now client quitting does not work good....
+goes to server timeout again
+only happens if quit is the first control a client presses
+there was a bug where system game moves only looked back to >0...changed to >=0
+
+
+can I get rid of serr packet?...done!!
+
+
+
+now what?
+
+why does client not show all join stuff in log?
+
+I get
+- waiting for game state
+- fn updated
+
+but I am missing chase and lock done
+actually, I never get the player active on the client
+it comes from state sync, not game_moves_array...
+
+never mind...
+
+
+
+next bug.....
+why do bullets sometimes not draw properly on clients?
+to be more specific, server player's bullets on client..
+you've got to be shitting me! bullets are not sync'd
+why the fuck not??
+
+how do I deal with that?
+
+
+// bullets
+int pbullet[50][6];
+int e_bullet_active[50];
+int e_bullet_shape[50];
+al_fixed e_bullet_fx[50];
+al_fixed e_bullet_fy[50];
+al_fixed e_bullet_fxinc[50];
+al_fixed e_bullet_fyinc[50];
+
+
+
+size:
+
+50x6x4 = 1200 bytes
+
+I can do this....
+
+first of all, make the enemy bullets into one structure, not 6
+
+ebullet.active
+ebullet.shape
+ebullet.fx
+ebullet.fy
+ebullet.fxinc
+ebullet.fyinc
+
+
+converted
+
+1200 for each
+2400 total
+add this to game state shit
+
+its only like 2.2% bigger
+
+old:
+Variables used for netgame state exchange
+
+players  :  1664
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    : 32000
+lifts    :  5280
+l        : 40000
+---------:------
+total    :106144
+
+
+new:
+Variables used for netgame state exchange
+
+players  :  1664
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    : 32000
+lifts    :  5280
+l        : 40000
+pbullet  :  1200
+ebullets :  1200
+---------:------
+total    :108544
+
+
+OK that is done and was easier than i thought
+
+
+next bug
+animations run way too fast on the clients
+
+I'm sure I don't know why
+
+update_animation is only called from proc_frame_delay() and that is not called when rewinding and fast forwarding...as far as I know
+
+
+what if I cheated and synced zz also...
+
+I really shouldn't need to....
+
+loop frame is not even called on client
+
+does anything manipulate the frame number on client??
+
+I don't know what I did, but the clients animation is normal now
+I put a printf with frame in update_animation...
+
+
+
+
+
+
+
+
+
+
+
+
+
+---------------
+
+looking into sync..
+
+on client the stdf's arrive on the frame that they are needed on
+this is surprising to me
+
+I was expecting to have to play a few moves that were not sent yet, but I don't need to...
+
+that must mean that the server is ahead, it can make a dif of its current frame, send it and the client can rx, decompress and apply in time for the same frame
+
+
+
+
+
+
+I want to measure things...
+
+
+how late are stdf's when received on client
+make that a part of stak
+actually I already do that
+that is the value I use for sync
+
+so to make this easy:
+
+server sends stdf with server frame number
+when client gets it it compares with local frame number and gets a sync from that
+then clinet replies with stak and client frame number
+when server gets that it compares with local again
+
+there should be 3 frame numbers
+
+1 - server origin
+2 - rx on client and send ack
+3 - rx back on server
+
+then on the server
+3-1 = round trip
+3-2 = c to s sync
+2-1 = s to c sync
+
+
+s-s round trip
+s-c sync
+c-s sync
+
+when I get an stak packet back on the server I want to have those three numbers
+too bad they only have a resolution of 25ms
+
+sfn1
+cfn
+sfn2
+
+
+when client gets stdf we can use the already existing dst frame of the dif
+that was sent from the server using the server's current frame num
+
+then when the last stdf piece is rx'd and its time to reply with stak
+add the clients current frame number to stak....
+this is already done
+
+then when stak is received on server we have all three frame numbers
+
+
+
+lose dif corr on stak....
+
+
+      Packet("stak");
+      PacketPut1ByteInt(p);
+      PacketPut4ByteInt(client_state_dif_dst);
+      PacketPut4ByteInt(frame_num);
+      PacketPut4ByteInt(players1[p].frames_skipped);
+      PacketPut4ByteInt(players1[p].client_chase_fps);
+
+
+
+
+
+
+I want to make a dynamic grid for server debug overlay
+
+there are many things I could put on the grid, but I want to be able to dynamically add and arrange them
+
+
+each one will have a column header, a column width, and a variable to display with optional color
+
+I will get to choose the columns and the the order
+done and I added the new three syncs
+they dont show much
+round trip is one frame
+
+what else do I want to monitor?
+
+how many frames need to be rewound on server and client
+
+right now on client it is zero....
+how do i measure?
+
+when client applies dif, compare current frame number to dif_dst
+I already do this:
+its part of the three frames i use on server when rxing stak
+cfn and sfn1
+and it is stored in player array as sc_sync
+
+what about how many frames need to be rewound on server when making dif?
+logging it, its usually 4
+
+lets try more clients and different clients
+
+it works...the problem with more clients is that the stdf frequency is distributed across all clients
+
+what if I make it them all go at the same time?
+
+
+lots of experimenting needed here
+
+
+when I go to stdf freq of 8 and only 1 client....
+server player on client warps a lot....all the rest is acceptable
+4.5k
+server rewind = 8
+
+
+stdf 4
+warp less noticeable
+7-8k
+server rewind = 4
+
+
+stdf 2
+even smoother
+12-13k
+server rewind = 2
+
+stdf 1
+I cant beleive it still works!! nice
+25k
+server rewind = 1
+
+
+try stdf 2 and 2 clients at that rate
+for now if i do stdf 1 and two client it should share
+33k
+sr 2 for both
+fake keypress and all
+
+server local client went all squirelly, cycling between 2 states, but clients felt rock solid and very responsive
+
+
+
+next to do....
+make the stdf sending scheduler better
+
+when I say I want stdf_freq = 2, i mean that I want every client at that freq, not shared
+
+I will stagger the sends though
+
+if I only have 2 frames, ill do half on one and half on the other
+
+
+can I remove control_lead_frames and server_lead_frames...yes...done...
+
+
+i did the most major stress test ever..
+
+7 client, stdf freq 1, forced all 7 to send every frame, fake key mode_t
+
+got up to 900k
+
+some clients were reseting base every frame!
+
+
+20221212 took the day off work today, stayed up till midnight....
+
+I am very happy with how well this is working!
+
+
+I must commit...
 
 
 

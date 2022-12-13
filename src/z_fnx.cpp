@@ -289,6 +289,9 @@ void update_animation(void)
    // 5 = shape 0
    // 19 = shape 14
 
+  // printf("update_animation :%d\n", frame_num);
+
+
    for (int y=0; y<NUM_ANS; y++)
       if (zz[4][y] != 0)
          if ((frame_num - zz[2][y]) > zz[3][y])
@@ -555,16 +558,16 @@ void fire_enemy_bulletz(int EN, int bullet_ans, al_fixed px, al_fixed py)
    al_fixed xinc = al_fixdiv(xlen, scaler);        // calc xinc
    al_fixed yinc = al_fixdiv(ylen, scaler);        // calc yinc
 
-   for (int z=0; z<50; z++)  // find empty e_bullet
-      if (!e_bullet_active[z])
+   for (int b=0; b<50; b++)  // find empty e_bullet
+      if (!ebullets[b].active)
       {
-         e_bullet_active[z] = 1;
-         e_bullet_shape[z] = 1000 + bullet_ans;
-         e_bullet_fx[z] = Efi[EN][0];
-         e_bullet_fy[z] = Efi[EN][1];
-         e_bullet_fxinc[z] = xinc;
-         e_bullet_fyinc[z] = yinc;
-         z=50;
+         ebullets[b].active = 1;
+         ebullets[b].shape = 1000 + bullet_ans;
+         ebullets[b].fx = Efi[EN][0];
+         ebullets[b].fy = Efi[EN][1];
+         ebullets[b].fxinc = xinc;
+         ebullets[b].fyinc = yinc;
+         b=50;
       }
 }
 void fire_enemy_bulleta(int EN, int bullet_ans, int p)
@@ -635,24 +638,24 @@ void fire_enemy_bulleta(int EN, int bullet_ans, int p)
 void fire_enemy_x_bullet(int EN, int p)
 {
    al_fixed x_bullet_speed = Efi[EN][7];
-   for (int z=0; z<50; z++)  // find empty e_bullet
-      if (!e_bullet_active[z])
+   for (int b=0; b<50; b++)  // find empty e_bullet
+      if (!ebullets[b].active)
       {
-         e_bullet_active[z] = 1;
-         e_bullet_fyinc[z] = al_itofix(0);
-         e_bullet_fx[z] = Efi[EN][0];
-         e_bullet_fy[z] = Efi[EN][1];
+         ebullets[b].active = 1;
+         ebullets[b].fyinc = al_itofix(0);
+         ebullets[b].fx = Efi[EN][0];
+         ebullets[b].fy = Efi[EN][1];
          if (Efi[EN][0] < players[p].PX)
          {
-            e_bullet_fxinc[z] = x_bullet_speed;
-            e_bullet_shape[z] = 488;
+            ebullets[b].fxinc = x_bullet_speed;
+            ebullets[b].shape = 488;
          }
          if (Efi[EN][0] >= players[p].PX)
          {
-            e_bullet_fxinc[z] = -x_bullet_speed;
-            e_bullet_shape[z] = 489;
+            ebullets[b].fxinc = -x_bullet_speed;
+            ebullets[b].shape = 489;
          }
-         z=50; // end loop
+         b=50; // end loop
       }
 }
 
@@ -1426,6 +1429,8 @@ void show_var_sizes(void)
    printf("itemf    :%6d\n", (int)sizeof(item)         );
    printf("lifts    :%6d\n", (int)sizeof(lifts)        );
    printf("l        :%6d\n", (int)sizeof(l)            );
+   printf("pbullet  :%6d\n", (int)sizeof(pbullet)      );
+   printf("ebullets :%6d\n", (int)sizeof(ebullets)     );
 
    sz = 0;
    sz+= sizeof(players)      ;
@@ -1435,8 +1440,63 @@ void show_var_sizes(void)
    sz+= sizeof(itemf)        ;
    sz+= sizeof(lifts)        ;
    sz+= sizeof(l)            ;
+   sz+= sizeof(pbullet)      ;
+   sz+= sizeof(ebullets)     ;
    printf("---------:------\n");
    printf("total    :%6d\n",  sz );
+
+
+
+
+
+   printf("\nLarge Variables\n\n");
+
+
+   sz = (int)sizeof(game_moves);
+   printf("game_moves    :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+
+   sz = (int)sizeof(log_msg);
+   printf("log_msg       :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+   sz = (int)sizeof(log_lines);
+   printf("log_lines     :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+   sz = (int)sizeof(log_lines_int);
+   printf("log_lines_int :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+
+   sz = (int)sizeof(&level_background);
+   printf("level_background :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
+
+
+
+//   extern ALLEGRO_BITMAP *tilemap;
+//extern ALLEGRO_BITMAP *btilemap;
+//extern ALLEGRO_BITMAP *ptilemap;
+//extern ALLEGRO_BITMAP *dtilemap;
+//extern ALLEGRO_BITMAP *M_tilemap;
+//extern ALLEGRO_BITMAP *M_btilemap;
+//extern ALLEGRO_BITMAP *M_ptilemap;
+//extern ALLEGRO_BITMAP *M_dtilemap;
+//
+//extern ALLEGRO_BITMAP *tile[NUM_SPRITES];
+//extern ALLEGRO_BITMAP *btile[NUM_SPRITES];
+//
+//extern int sa[NUM_SPRITES][2];
+//
+//extern ALLEGRO_BITMAP *player_tile[16][32];
+//extern ALLEGRO_BITMAP *door_tile[2][16][8];
+//
+//extern ALLEGRO_BITMAP *level_background;
+//extern ALLEGRO_BITMAP *level_buffer;
+
+
+
+
+
+
+
 }
 
 
@@ -1470,25 +1530,29 @@ void var_to_pml(char * b) // for save level
 void game_vars_to_state(char * b)
 {
    int sz = 0, offset = 0;
-   offset += sz; sz = sizeof(players); memcpy(b+offset, players, sz);
-   offset += sz; sz = sizeof(Ei);      memcpy(b+offset, Ei,      sz);
-   offset += sz; sz = sizeof(Efi);     memcpy(b+offset, Efi,     sz);
-   offset += sz; sz = sizeof(item);    memcpy(b+offset, item,    sz);
-   offset += sz; sz = sizeof(itemf);   memcpy(b+offset, itemf,   sz);
-   offset += sz; sz = sizeof(lifts);   memcpy(b+offset, lifts,   sz);
-   offset += sz; sz = sizeof(l);       memcpy(b+offset, l,       sz);
+   offset += sz; sz = sizeof(players);  memcpy(b+offset, players,  sz);
+   offset += sz; sz = sizeof(Ei);       memcpy(b+offset, Ei,       sz);
+   offset += sz; sz = sizeof(Efi);      memcpy(b+offset, Efi,      sz);
+   offset += sz; sz = sizeof(item);     memcpy(b+offset, item,     sz);
+   offset += sz; sz = sizeof(itemf);    memcpy(b+offset, itemf,    sz);
+   offset += sz; sz = sizeof(lifts);    memcpy(b+offset, lifts,    sz);
+   offset += sz; sz = sizeof(l);        memcpy(b+offset, l,        sz);
+   offset += sz; sz = sizeof(pbullet);  memcpy(b+offset, pbullet,  sz);
+   offset += sz; sz = sizeof(ebullets); memcpy(b+offset, ebullets, sz);
 }
 
 void state_to_game_vars(char * b)
 {
    int sz = 0, offset = 0;
-   sz = sizeof(players); memcpy(players, b+offset, sz); offset += sz;
-   sz = sizeof(Ei);      memcpy(Ei,      b+offset, sz); offset += sz;
-   sz = sizeof(Efi);     memcpy(Efi,     b+offset, sz); offset += sz;
-   sz = sizeof(item);    memcpy(item,    b+offset, sz); offset += sz;
-   sz = sizeof(itemf);   memcpy(itemf,   b+offset, sz); offset += sz;
-   sz = sizeof(lifts);   memcpy(lifts,   b+offset, sz); offset += sz;
-   sz = sizeof(l);       memcpy(l,       b+offset, sz); offset += sz;
+   sz = sizeof(players);  memcpy(players,  b+offset, sz); offset += sz;
+   sz = sizeof(Ei);       memcpy(Ei,       b+offset, sz); offset += sz;
+   sz = sizeof(Efi);      memcpy(Efi,      b+offset, sz); offset += sz;
+   sz = sizeof(item);     memcpy(item,     b+offset, sz); offset += sz;
+   sz = sizeof(itemf);    memcpy(itemf,    b+offset, sz); offset += sz;
+   sz = sizeof(lifts);    memcpy(lifts,    b+offset, sz); offset += sz;
+   sz = sizeof(l);        memcpy(l,        b+offset, sz); offset += sz;
+   sz = sizeof(pbullet);  memcpy(pbullet,  b+offset, sz); offset += sz;
+   sz = sizeof(ebullets); memcpy(ebullets, b+offset, sz); offset += sz;
 }
 
 void get_state_dif(char *a, char *b, char *c, int size)
@@ -1505,6 +1569,7 @@ void apply_state_dif(char *a, char *c, int size)
 
 void reset_states(void)
 {
+
    // reset base state on client
    memset(client_state_base, 0, STATE_SIZE);
    client_state_base_frame_num = 0;  // frame_num id
