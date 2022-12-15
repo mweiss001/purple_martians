@@ -1532,6 +1532,7 @@ void init_player(int p, int t)
 
 
       players1[p].server_rewind_frames = 0;
+      players1[p].server_rewind_frames_max = 0;
 
 
       players1[p].quit_frame = 0;

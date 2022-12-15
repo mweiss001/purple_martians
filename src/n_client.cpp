@@ -241,7 +241,7 @@ int client_init_join(void)
             active_local_player = p;
             players[p].control_method = 4;
             players[p].color = color;
-
+            strncpy(players1[0].hostname, m_serveraddress, 16);
             strncpy(players1[p].hostname, local_hostname, 16);
             ima_client = 1;
 
@@ -479,7 +479,6 @@ void client_apply_dif2()
 }
 
 
-
 void client_timer_adjust(int p)
 {
    float fps_chase = frame_speed + (players1[p].client_sync)*2;
@@ -555,6 +554,8 @@ void client_block_until_initial_state_received(void)
    int p = active_local_player;
    sprintf(msg, "Waiting for game state from server");
    rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, 10, 2, 0, 1);
+   al_flip_display();
+
    if (L_LOGGING_NETPLAY_JOIN) add_log_entry_header(11, p, msg, 1);
 
    reset_states();
@@ -563,9 +564,16 @@ void client_block_until_initial_state_received(void)
    {
       if ((packetsize = ClientReceive(packetbuffer)) && (PacketRead("stdf"))) done = client_process_stdf_packet();
       proc_controllers();
-      if (key[ALLEGRO_KEY_ESCAPE]) fast_exit(64); // in case we get trapped here and need a way out
+      if (key[ALLEGRO_KEY_ESCAPE]) // in case we get trapped here and need a way out
+      {
+         client_exit();
+         game_exit = 1;
+         return;
+      }
    }
    set_frame_nums(client_state_dif_dst);
+
+   init_level_background();
 
 
    // set holdoff 200 frames in future so client won't try to drop while syncing
@@ -705,6 +713,8 @@ void client_control(void)
    }
 }
 
+
+
 void client_local_control(int p)
 {
    if ((level_done_mode == 0) || (level_done_mode == 5))
@@ -714,7 +724,10 @@ void client_local_control(int p)
       if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
       {
          players1[p].old_comp_move = players1[p].comp_move;
-         add_game_move(frame_num, 5, p, players1[p].comp_move);
+         set_controls_from_comp_move(p, players1[p].comp_move);
+
+         // add_game_move(frame_num, 5, p, players1[p].comp_move);
+
 
          Packet("cdat");
          PacketPut1ByteInt(p);

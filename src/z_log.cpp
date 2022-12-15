@@ -173,11 +173,7 @@ void log_ending_stats()
    sprintf(msg,"cdat packets tx'd.........[%d]", players1[p].client_cdat_packets_tx);
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-
    log_bandwidth_stats(p);
-
-//   add_log_entry_sdat_rx_and_game_move_entered(22, p);
-
    add_log_entry_centered_text(22, p, 76, "", "+", "-");
 }
 
@@ -501,7 +497,7 @@ int log_file_viewer(int type)
 
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
-   al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s", tmp);
+   al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s       ", fnam);
    al_flip_display();
 
 
@@ -520,7 +516,11 @@ int log_file_viewer(int type)
          ch = fgetc(filepntr);
       }
       buff[loop] = 0;
-      strcpy (log_lines[num_lines], buff);
+
+      if (loop > 99) printf("log line%d exceeded 100 char - %s\n", num_lines, buff);
+
+      strncpy (log_lines[num_lines], buff, 99);
+
       num_lines++;
 
       if (num_lines >= NUM_LOG_LINES)
@@ -532,6 +532,12 @@ int log_file_viewer(int type)
    }
    fclose(filepntr);
    num_lines--;
+
+
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s - Done", fnam);
+   al_flip_display();
 
  //  printf("log file 2\n");
 
@@ -632,18 +638,18 @@ int log_file_viewer(int type)
          tags[99][2]++; // inc number of this tag
       }
 
-      //printf("Line:%d\n", i);
+      // printf("Line:%d\n", i);
 
 
-//      if ((i % (num_lines/100)) == 0)
-//      {
-//         // printf("i:%d nl:%d\n", i, num_lines);
-//         al_set_target_backbuffer(display);
-//         al_clear_to_color(al_map_rgb(0,0,0));
-//         draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, (i*100)/num_lines);
-//         al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Parsing tags");
-//         al_flip_display();
-//      }
+      if ((i % (num_lines/100)) == 0)
+      {
+         // printf("i:%d nl:%d\n", i, num_lines);
+         al_set_target_backbuffer(display);
+         al_clear_to_color(al_map_rgb(0,0,0));
+         draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, (i*100)/num_lines);
+         al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Parsing tags");
+         al_flip_display();
+      }
 
 
   //    printf("log file 4\n");
@@ -895,6 +901,10 @@ int log_file_viewer(int type)
       sprintf(msg, "Frames.....[%d] to [%d]", first_frame, last_frame);
       al_draw_text(font, palette_color[11],xpos, ly+=8, 0, msg);
 
+      sprintf(msg, "Seconds....[%d] to [%d]", first_frame/40, last_frame/40);
+      al_draw_text(font, palette_color[11],xpos, ly+=8, 0, msg);
+
+
 
       ly+=20;
 
@@ -936,6 +946,9 @@ int log_file_viewer(int type)
          while (key[ALLEGRO_KEY_DOWN]) proc_controllers();
          first_line++;
       }
+
+
+
       if (key[ALLEGRO_KEY_PGUP])
       {
          while (key[ALLEGRO_KEY_PGUP]) proc_controllers();
@@ -951,6 +964,26 @@ int log_file_viewer(int type)
          else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) first_line += 100;
          else first_line+=10;
       }
+
+
+//      if (key[ALLEGRO_KEY_PGUP])
+//      {
+//         while (key[ALLEGRO_KEY_PGUP]) proc_controllers();
+//
+//         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) first_line -= 1000;
+//         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) first_line -= 100;
+//         else first_line-=10;
+//      }
+//      if (key[ALLEGRO_KEY_PGDN])
+//      {
+//         while (key[ALLEGRO_KEY_PGDN]) proc_controllers();
+//         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) first_line += 1000;
+//         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) first_line += 100;
+//         else first_line+=10;
+//      }
+//
+
+
       if (key[ALLEGRO_KEY_HOME])
       {
          while (key[ALLEGRO_KEY_HOME]) proc_controllers();
@@ -1099,14 +1132,6 @@ void redraw_log_bandwidth_graph(int num_data, int data[][4], int graph_w, int gr
       }
    }
 
-
-
-   // label the y axis and draw gridlines
-   // first of all, what is the max B/s
-   int maxb = 0;
-   for (float i=0; i*y_scale < graph_h; i+= 1000)
-      if (i > maxb) maxb = i;
-
    // get label spacing
    int s = (int) (10 / y_scale);
    int sp2 = ((s/100) * 100) + 100; // snap to div size
@@ -1115,26 +1140,24 @@ void redraw_log_bandwidth_graph(int num_data, int data[][4], int graph_w, int gr
    if ((sp2 > 1000) && (sp2 < 2000)) sp2 = 2000;
    if ((sp2 > 2000) && (sp2 < 5000)) sp2 = 5000;
 
-   //al_draw_textf(font, palette_color[13], 100, ybl-20, 0, "y_scale:%f, s:%d sp2:%d", y_scale, s, sp2 );
-
    for (float i=0; i*y_scale < graph_h; i+= sp2)
    {
       int y_pos = ybl - (int)(i*y_scale);
       al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[11+96], 1);
 
-      if (i<1000)        sprintf(msg, "%5.0fB/s", i);
-      else if (i<10000)  sprintf(msg, "%3.2fkB/s", i/1000);
-      else if (i<100000) sprintf(msg, "%3.1fkB/s", i/1000);
-      else if (i>999999) sprintf(msg, "%4.0fkB/s", i/1000);
-      al_draw_text(font, palette_color[11], 0, y_pos-4, 0, msg);
+      if (i<1000)         sprintf(msg, "%5.0fB/s", i);
+      else if (i<10000)   sprintf(msg, "%3.2fkB/s", i/1000);
+      else if (i<100000)  sprintf(msg, "%3.1fkB/s", i/1000);
+      else if (i<1000000) sprintf(msg, "%4.0fkB/s", i/1000);
+      al_draw_text(font, palette_color[11], 10, y_pos-4, 0, msg);
    }
 
-   // draw major grid lines every 1kB/s
-   for (float i=0; i*y_scale < graph_h; i+= 1000)
-   {
-      int y_pos = ybl - (int)(i*y_scale);
-      al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[11+96], 2);
-   }
+//   // draw major grid lines every 1kB/s
+//   for (float i=0; i*y_scale < graph_h; i+= 1000)
+//   {
+//      int y_pos = ybl - (int)(i*y_scale);
+//      al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[11+96], 2);
+//   }
 
    // draw the data one player at a time
    int old_ix, old_ity, old_iry;

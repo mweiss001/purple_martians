@@ -269,54 +269,81 @@ void set_speed(void)
 
 void clear_controls(int p)
 {
-   players[p].left = 0;
+   players[p].left  = 0;
    players[p].right = 0;
-   players[p].up = 0;
-   players[p].down = 0;
-   players[p].jump = 0;
-   players[p].fire = 0;
-   players[p].menu = 0;
+   players[p].up    = 0;
+   players[p].down  = 0;
+   players[p].jump  = 0;
+   players[p].fire  = 0;
+   players[p].menu  = 0;
 }
 
-void set_controls_from_comp_move(int g)
+void set_controls_from_comp_move(int p, int comp_move)
 {
-   int p = game_moves[g][2];
-   int t = game_moves[g][3];
    clear_controls(p);
-   if (t == 127) { t -= 127; players[p].menu = 1;  }
-   if (t > 31)   { t -= 32;  players[p].fire = 1;  }
-   if (t > 15)   { t -= 16;  players[p].jump = 1;  }
-   if (t > 7)    { t -= 8;   players[p].down = 1;  }
-   if (t > 3)    { t -= 4;   players[p].up = 1;    }
-   if (t > 1)    { t -= 2;   players[p].right = 1; }
-   if (t > 0)    { t -= 1;   players[p].left = 1;  }
+   if (comp_move & PM_COMPMOVE_LEFT)  players[p].left  = 1;
+   if (comp_move & PM_COMPMOVE_RIGHT) players[p].right = 1;
+   if (comp_move & PM_COMPMOVE_UP)    players[p].up    = 1;
+   if (comp_move & PM_COMPMOVE_DOWN)  players[p].down  = 1;
+   if (comp_move & PM_COMPMOVE_JUMP)  players[p].jump  = 1;
+   if (comp_move & PM_COMPMOVE_FIRE)  players[p].fire  = 1;
+   if (comp_move & PM_COMPMOVE_MENU)  players[p].menu  = 1;
 }
 
 void set_comp_move_from_player_key_check(int p) // but don't set controls !!!
 {
    int cm = 0;
-   if (key[players1[p].left_key])  cm += 1;
-   if (key[players1[p].right_key]) cm += 2;
-   if (key[players1[p].up_key])    cm += 4;
-   if (key[players1[p].down_key])  cm += 8;
-   if (key[players1[p].jump_key])  cm += 16;
-   if (key[players1[p].fire_key])  cm += 32;
-   // if menu key ignore everything else and set to 127
-   if (key[players1[p].menu_key])  cm = 127;
-   if (key[ALLEGRO_KEY_ESCAPE])    cm = 127;
+   if (key[players1[p].left_key])  cm |= PM_COMPMOVE_LEFT;
+   if (key[players1[p].right_key]) cm += PM_COMPMOVE_RIGHT;
+   if (key[players1[p].up_key])    cm += PM_COMPMOVE_UP;
+   if (key[players1[p].down_key])  cm += PM_COMPMOVE_DOWN;
+   if (key[players1[p].jump_key])  cm += PM_COMPMOVE_JUMP;
+   if (key[players1[p].fire_key])  cm += PM_COMPMOVE_FIRE;
+   if (key[players1[p].menu_key])  cm |= PM_COMPMOVE_MENU;
+   if (key[ALLEGRO_KEY_ESCAPE])    cm |= PM_COMPMOVE_MENU;
    players1[p].comp_move = cm;
 }
 
+
+//void set_controls_from_comp_move(int g)
+//{
+//   int p = game_moves[g][2];
+//   int t = game_moves[g][3];
+//   clear_controls(p);
+//   if (t == 127) { t -= 127; players[p].menu = 1;  }
+//   if (t > 31)   { t -= 32;  players[p].fire = 1;  }
+//   if (t > 15)   { t -= 16;  players[p].jump = 1;  }
+//   if (t > 7)    { t -= 8;   players[p].down = 1;  }
+//   if (t > 3)    { t -= 4;   players[p].up = 1;    }
+//   if (t > 1)    { t -= 2;   players[p].right = 1; }
+//   if (t > 0)    { t -= 1;   players[p].left = 1;  }
+//}
+
+//void set_comp_move_from_player_key_check(int p) // but don't set controls !!!
+//{
+//   int cm = 0;
+//   if (key[players1[p].left_key])  cm += 1;
+//   if (key[players1[p].right_key]) cm += 2;
+//   if (key[players1[p].up_key])    cm += 4;
+//   if (key[players1[p].down_key])  cm += 8;
+//   if (key[players1[p].jump_key])  cm += 16;
+//   if (key[players1[p].fire_key])  cm += 32;
+//   // if menu key ignore everything else and set to 127
+//   if (key[players1[p].menu_key])  cm = 127;
+//   if (key[ALLEGRO_KEY_ESCAPE])    cm = 127;
+//   players1[p].comp_move = cm;
+//}
+
 void set_controls_from_player_key_check(int p) // used only in menu
 {
-   if (key[players1[p].up_key])    players[p].up = 1;
-   if (key[players1[p].down_key])  players[p].down = 1;
-   if (key[players1[p].left_key])  players[p].left = 1;
+   if (key[players1[p].left_key])  players[p].left  = 1;
    if (key[players1[p].right_key]) players[p].right = 1;
-   if (key[players1[p].fire_key])  players[p].fire = 1;
-   if (key[players1[p].jump_key])  players[p].jump = 1;
-   if (key[players1[p].menu_key])  players[p].menu = 1;
-   if (key[ALLEGRO_KEY_ESCAPE])    players[p].menu = 1;
+   if (key[players1[p].up_key])    players[p].up    = 1;
+   if (key[players1[p].down_key])  players[p].down  = 1;
+   if (key[players1[p].jump_key])  players[p].jump  = 1;
+   if (key[players1[p].fire_key])  players[p].fire  = 1;
+   if (key[players1[p].menu_key])  players[p].menu  = 1;
+   if (key[ALLEGRO_KEY_ESCAPE])    players[p].menu  = 1;
 }
 
 void function_key_check(void)
@@ -666,16 +693,12 @@ void add_game_move(int frame, int type, int data1, int data2)
       return; // to exit immediately
    }
 
-
-
    game_moves[game_move_entry_pos][0] = frame;
    game_moves[game_move_entry_pos][1] = type;
    game_moves[game_move_entry_pos][2] = data1;
    game_moves[game_move_entry_pos][3] = data2;
    game_move_entry_pos++;
 }
-
-
 
 
 void proc_player_client_join_game_move(int x)
@@ -685,21 +708,14 @@ void proc_player_client_join_game_move(int x)
 
    players[p].control_method = 2;
    players[p].color = c;
-
 }
 
 
 void proc_player_client_quit_game_move(int x)
 {
    int p = game_moves[x][2];  // player number
-
    players[p].control_method = 8;
-
-
 }
-
-
-
 
 
 void proc_player_state_game_move(int x)
@@ -725,16 +741,16 @@ void proc_player_state_game_move(int x)
          add_log_entry_header(10, p, msg, 1);
       }
 
-      if (p == active_local_player)
-      {
-         if (L_LOGGING_NETPLAY)
-         {
-            int finish_time = clock();
-            int time = finish_time - log_timer;
-            sprintf(msg,"Chase and lock done in %dms",time);
-            add_log_entry_header(10, p, msg, 1);
-         }
-      }
+//      if (p == active_local_player)
+//      {
+//         if (L_LOGGING_NETPLAY)
+//         {
+//            int finish_time = clock();
+//            int time = finish_time - log_timer;
+//            sprintf(msg,"Chase and lock done in %dms",time);
+//            add_log_entry_header(10, p, msg, 1);
+//         }
+//      }
 
       show_player_join_quit_timer = 60;
       show_player_join_quit_player = p;
@@ -742,7 +758,7 @@ void proc_player_state_game_move(int x)
 
       game_event(80, 0, 0, p, 0, 0, 0);
 
-      if (ima_client) init_level_background();
+//      if (ima_client) init_level_background();
 
       if ((ima_server) || (ima_client))
          if (p != active_local_player) players[p].control_method = 2;
@@ -840,8 +856,6 @@ void proc_player_state_game_move(int x)
       }
    }  // end of player becomes inactive
 }
-
-
 
 
 void serial_key_check(int key)
@@ -1071,7 +1085,6 @@ void proc_game_move(void)
             case 1: proc_player_state_game_move(x); break;
             case 3: proc_player_client_join_game_move(x); break;
             case 4: proc_player_client_quit_game_move(x); break;
-
             case 6: // level done
             {
                if (game_moves[x][3] == 1) // level done 1
@@ -1127,7 +1140,7 @@ void set_controls_from_game_move(int p)
       if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
          if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
          {
-            set_controls_from_comp_move(g);
+            set_controls_from_comp_move(p, game_moves[g][3]);
             game_move_current_pos = g; // for savegame running only
             g = 0; // break out of loop
             found = 1;
@@ -1164,9 +1177,8 @@ void proc_player_input(int ret)
 
          if (level_done_mode == 0)
          {
-            set_controls_from_game_move(p); // common for all players
+            if (players[p].control_method != 4) set_controls_from_game_move(p); // common for all control methods except local client
          }
-
       }
 }
 
@@ -1175,6 +1187,8 @@ int proc_controllers()
    int ret=0, menu_timer_block=1;
    key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
    key_pressed_ASCII = 0;
+
+
    while (menu_timer_block)
    {
       while (!al_is_event_queue_empty(event_queue))
@@ -1196,8 +1210,7 @@ int proc_controllers()
       {
          menu_timer_block = 0;
          proc_player_input(ret);
-//         if (!ima_client) proc_game_move();  // run once per frame to process system messages from game_move
-         proc_game_move();  // run once per frame to process system messages from game_move
+         if (!ima_client) proc_game_move();  // run once per frame to process system messages from game_move (client should never have system messages)
       }
    }
    return ret;
