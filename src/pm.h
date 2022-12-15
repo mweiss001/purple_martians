@@ -106,6 +106,15 @@ extern mWindow mW[NUM_MW];
 #define BORDER_WIDTH 14
 #define NUM_LIFTS 40
 
+
+#define PM_COMPMOVE_LEFT   0b0000000000000001
+#define PM_COMPMOVE_RIGHT  0b0000000000000010
+#define PM_COMPMOVE_UP     0b0000000000000100
+#define PM_COMPMOVE_DOWN   0b0000000000001000
+#define PM_COMPMOVE_JUMP   0b0000000000010000
+#define PM_COMPMOVE_FIRE   0b0000000000100000
+#define PM_COMPMOVE_MENU   0b0000000001111111
+
 #define PM_ENEMY_VINEPOD_SHOW_PATH   0b00000000000000001
 #define PM_ENEMY_VINEPOD_INV_INIT    0b00000000000000010
 #define PM_ENEMY_VINEPOD_INV_EXTN    0b00000000000000100
@@ -276,16 +285,17 @@ extern int suicide_pbullets;
 
 
 
-//#define STATE_SIZE 105952
-//#define STATE_SIZE 106144
 #define STATE_SIZE 108544
-
-
 
 
 // server's copies of client states
 extern char srv_client_state[8][2][STATE_SIZE];
 extern int srv_client_state_frame_num[8][2];
+
+// server's copies of last stdf states
+extern char srv_stdf_state[4][STATE_SIZE];
+extern int srv_stdf_state_frame_num[4];
+
 
 // local client's states
 extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
@@ -345,11 +355,11 @@ extern int zz[20][NUM_ANS];
 // ------------------------------------------------
 // ------------ game moves array ------------------
 // ------------------------------------------------
-#define GAME_MOVES_SIZE 100000
-
+#define GAME_MOVES_SIZE 1000000
 extern int game_moves[GAME_MOVES_SIZE][4];
 extern int game_move_entry_pos;
 extern int game_move_current_pos;
+
 
 // ------------------------------------------------
 // ------------- screen messages ------------------
@@ -365,12 +375,6 @@ extern float game_event_retrigger_holdoff_tally[10];
 
 
 
-
-
-
-
-
-
 // ------------------------------------------------
 // ----- level editor unsorted --------------------
 // ------------------------------------------------
@@ -382,7 +386,7 @@ extern int by1;
 extern int bx2;
 extern int by2;
 
-extern int gx; // absolute mouse position realive to on scaled level background
+extern int gx; // mouse position relative to scaled level background
 extern int gy;
 extern int hx;
 extern int hy;
@@ -394,17 +398,9 @@ extern int obj_filter[5][20];
 
 
 
-
-
-
-
-
-
 // ------------------------------------------------
 // ----------------- demo mode --------------------
 // ------------------------------------------------
-
-
 extern ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
 extern int demo_played[100];
 extern int num_demo_filenames;
@@ -686,10 +682,13 @@ struct player1 // not synced between server and client
    int rt_sync; // round trip to server back to server through client via stdf and stak
 
    int server_rewind_frames;
+   int server_rewind_frames_max;
 
 
    int client_chase_fps;
    int server_game_move_sync;
+
+
 
 
    int client_cdat_packets_tx;
@@ -1303,7 +1302,12 @@ void test_keys(void);
 void set_start_level(int s);
 void set_speed(void);
 void clear_controls(int p);
-void set_controls_from_comp_move(int g);
+
+
+
+void set_controls_from_comp_move(int p, int comp_move);
+
+
 void set_comp_move_from_player_key_check(int p);
 void set_controls_from_player_key_check(int p);
 void function_key_check(void);

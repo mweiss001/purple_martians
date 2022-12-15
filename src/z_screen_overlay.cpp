@@ -390,14 +390,14 @@ void sdg_show_column(int col, int &x, int y)
 
    if (col == 9) // client_base_resets
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[br]");
+      al_draw_text(font, palette_color[color], x, y+=8, 0, "[base]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%2d]", players1[p].client_base_resets);
+         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].client_base_resets);
       }
-      x+=4*8;
+      x+=6*8;
    }
 
 
@@ -482,7 +482,7 @@ void sdg_show_column(int col, int &x, int y)
       x+=6*8;
    }
 
-   if (col == 18) // name and description
+   if (col == 18) // server name and description
    {
       y+=8;
       for (int p=0; p<NUM_PLAYERS; p++)
@@ -512,6 +512,25 @@ void sdg_show_column(int col, int &x, int y)
       }
    }
 
+
+   if (col == 19) // client name and description
+   {
+      y+=8;
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         y+=8;
+         sprintf(msg, " "); // blank
+         if (p == 0) sprintf(msg, "[%s] <-- server", players1[p].hostname);
+         else
+         {
+            if ((players[p].active) && (players[p].control_method == 2)) sprintf(msg, "[%s] <-- active client", players1[p].hostname);
+            if ((!players[p].active) && (players[p].control_method == 2)) sprintf(msg, "[%s] <-- syncing client", players1[p].hostname);
+            if (players[p].control_method == 9) sprintf(msg, "[%s] <-- used client", players1[p].hostname);
+            if (p == active_local_player) sprintf(msg, "[%s] <-- local client (me)", players1[p].hostname);
+         }
+         al_draw_text(font, palette_color[players[p].color], x, y, 0, msg);
+      }
+   }
 
 
 
@@ -552,32 +571,30 @@ void sdg_show_column(int col, int &x, int y)
    }
 
 
-
    if (col == 23) // server rewind frames
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[sr]");
+      al_draw_text(font, palette_color[color], x, y+=8, 0, "[srw]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%2d]", players1[p].server_rewind_frames);
+         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%3d]", players1[p].server_rewind_frames);
       }
-      x+=4*8;
+      x+=5*8;
    }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+   if (col == 24) // server rewind frames max
+   {
+      al_draw_text(font, palette_color[color], x, y+=8, 0, "[srm]");
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         if (players[p].active == 1) color = color1;
+         if (players[p].active == 0) color = color2;
+         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%3d]", players1[p].server_rewind_frames_max);
+      }
+      x+=5*8;
+   }
 
 }
 
@@ -605,25 +622,44 @@ void sdg_show(int x, int y) // server debug grid
    sdg_show_column(22, x, y); // rt sync
 
    sdg_show_column(23, x, y); // server rewind frames
+   sdg_show_column(24, x, y); // server rewind frames max
 
 
    sdg_show_column(9, x, y); // client base resets
 
-   sdg_show_column(10, x, y); // dif src
-   sdg_show_column(11, x, y); // dif dst
+//   sdg_show_column(10, x, y); // dif src
+//   sdg_show_column(11, x, y); // dif dst
    sdg_show_column(12, x, y); // number of packets
    sdg_show_column(13, x, y); // dif size
    sdg_show_column(14, x, y); // tx kB/sec
    sdg_show_column(15, x, y); // rx kB/sec
    sdg_show_column(16, x, y); // frame skipped
 
-   sdg_show_column(18, x, y); // name and description
+   sdg_show_column(18, x, y); // name and description (server version)
 
 
 
 
 
 }
+
+
+void cdg_show(int x, int y) // client debug grid
+{
+
+   al_draw_filled_rectangle(x, y+8, x+400, y+80, palette_color[0]);
+
+   // al_draw_rectangle(x, y+8, x+400, y+80, palette_color[15], 1);
+
+   sdg_show_column(1, x, y); // player number
+   sdg_show_column(2, x, y); // active
+   sdg_show_column(3, x, y); // color
+   sdg_show_column(4, x, y); // control method
+
+   sdg_show_column(19, x, y); // name and description (client version)
+
+}
+
 
 
 void draw_top_display(void)
@@ -698,7 +734,11 @@ void draw_top_display(void)
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "FPS set:%d act:%d", frame_speed, actual_fps);
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "frames skipped last second:%d", fsls);
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total frames skipped:%d",fs);
+      if (ima_server) al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total game moves:%d", game_move_entry_pos);
       cy+=4;
+
+
+
 //      al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "px:%d     py:%d", al_fixtoi(players[p].PX), al_fixtoi(players[p].PY));
 //      al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "pxinc:%1.2f  pyinc:%1.2f", al_fixtof(players[p].xinc), al_fixtof(players[p].yinc));
 
@@ -719,7 +759,7 @@ void draw_top_display(void)
        for (int p=0; p<NUM_PLAYERS; p++)
           if ((players[p].active) && (players[p].control_method == 2)) num_clients++;
 
-      //sprintf(msg, "[clients:%d] [moves:%d]", num_clients, game_move_entry_pos);
+      // sprintf(msg, "[clients:%d] [moves:%d]", num_clients, game_move_entry_pos);
       sprintf(msg, " clients:%d ", num_clients);
       al_draw_text(font, palette_color[14], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
@@ -735,81 +775,12 @@ void draw_top_display(void)
       al_draw_text(font, palette_color[14], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
 
+
       if (show_debug_overlay)
       {
-         int x = BORDER_WIDTH;
-         int y = BORDER_WIDTH-8;
 
-         sdg_show(x, y); // server debug grid
+         sdg_show(BORDER_WIDTH, BORDER_WIDTH-8); // server debug grid
 
-
-//
-//
-//         al_draw_filled_rectangle(x, y+8, x+880, y+80, palette_color[0]);
-//
-//         sprintf(msg, "[p][wh][a][co][m][sync][sync][late][start][destn][np][difs][tkbp][rkbs][dfcr][frsk][name]");
-//         al_draw_text(font, palette_color[13], x, y + 8, 0, msg);
-//
-//         for (int p=0; p<NUM_PLAYERS; p++)
-//         {
-//            y += 8;
-//
-//            if (players[p].control_method != 2) players1[p].server_last_stak_rx_frame_num = frame_num; // only do sync for active clients
-//
-//            sprintf(msg, "[%d][%2d][%d][%2d][%d][%4d][%4d][%4d][%5d][%5d][%2d][%4d][%4.1f][%4.1f][%4d][%4d]",
-//                                              p,
-//                                              players1[p].who,
-//                                              players[p].active,
-//                                              players[p].color,
-//                                              players[p].control_method,
-//                                              players1[p].server_sync,
-//                                              players1[p].server_game_move_sync,
-////                                              frame_num - players1[p].server_last_stak_rx_frame_num,
-//
-//                                              0, //players1[p].stdf_late,
-//                                              srv_client_state_frame_num[p][0],
-//                                              srv_client_state_frame_num[p][1],
-//                                              players1[p].num_dif_packets,
-//                                              players1[p].cmp_dif_size,
-//                                              (float)players1[p].tx_bytes_per_tally/1000,
-//                                              (float)players1[p].rx_bytes_per_tally/1000,
-////                                              players1[p].dif_corr,
-//                                              0, players1[p].frames_skipped);
-//
-//            int color = 15;
-//            if (players[p].active == 0) color = 63;
-//            if (players[p].active == 1) color = 15;
-//
-//            al_draw_text(font, palette_color[color], x, y + 8, 0, msg);
-//
-//            int sl = strlen(msg);
-//
-//            if (p == 0)
-//            {
-//               sprintf(msg, "[%s] <-- server (me!)", players1[p].hostname);
-//               al_draw_text(font, palette_color[players[p].color], x+(sl)*8, y + 8, 0, msg);
-//            }
-//            if ((players[p].active) && (players[p].control_method == 2))
-//            {
-//               sprintf(msg, "[%s] <-- active client", players1[p].hostname);
-//               al_draw_text(font, palette_color[players[p].color], x+(sl)*8, y + 8, 0, msg);
-//            }
-//            if ((!players[p].active) && (players[p].control_method == 2))
-//            {
-//               sprintf(msg, "[%s] <-- syncing client", players1[p].hostname);
-//               al_draw_text(font, palette_color[players[p].color], x+(sl)*8, y + 8, 0, msg);
-//            }
-//            if (players[p].control_method == 9)
-//            {
-//               sprintf(msg, "[%s] <-- used client", players1[p].hostname);
-//               al_draw_text(font, palette_color[players[p].color], x+(sl)*8, y + 8, 0, msg);
-//            }
-//            if ( (players[p].active) || (players[p].control_method == 2) || (players[p].control_method == 9))
-//            {
-//               sprintf(msg, "[%2d]", players[p].color);
-//               al_draw_text(font, palette_color[players[p].color], x+(10*8), y + 8, 0, msg);
-//            }
-//         }
 
          int pty = cy; // continue on from default overlay
          for(int p=0; p<NUM_PLAYERS; p++)
@@ -828,9 +799,7 @@ void draw_top_display(void)
                sprintf(msg, "p:%d packets   (p/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]", p, players1[p].tx_packets_per_tally, players1[p].tx_max_packets_per_tally, players1[p].rx_packets_per_tally, players1[p].rx_max_packets_per_tally);
                al_draw_text(font, palette_color[15], cx, pty+=8, 0, msg);
             }
-
       }
-
    }
    if (ima_client)
    {
@@ -871,7 +840,7 @@ void draw_top_display(void)
          al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
          al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
-         sprintf(msg, "moves:%d", game_move_entry_pos);
+         sprintf(msg, "local moves:%d", game_move_entry_pos);
          al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
          al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
@@ -909,60 +878,7 @@ void draw_top_display(void)
          al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
          al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
 
-
-         int x = BORDER_WIDTH;
-         int y = BORDER_WIDTH;
-
-         // print player array for client
-
-         sprintf(msg, "[p][a][co][m]");
-         al_draw_filled_rectangle(x, y, tx+strlen(msg)*8, y+8, palette_color[0]);
-         al_draw_text(font, palette_color[13], x, y, 0, msg);
-         for (int p=0; p<NUM_PLAYERS; p++)
-         {
-            y += 8;
-            char ms[80];
-            sprintf(ms, " ");
-
-            if ((players[p].active) && (players[p].control_method == 2))
-               sprintf(ms, " <-- active client");
-
-            if ((!players[p].active) && (players[p].control_method == 2))
-               sprintf(ms, " <-- syncing client");
-
-            if (players[p].control_method == 9) sprintf(ms, " <-- used client");
-
-            if (p == active_local_player) sprintf(ms, " <-- active local player (me!)");
-            if (p == 0) sprintf(ms, " <-- server");
-
-            sprintf(msg, "[%d][%d][%2d][%d]%s",
-                                     p,
-                                     players[p].active,
-                                     players[p].color,
-                                     players[p].control_method,
-                                     ms );
-
-            int color = 15;
-            if (players[p].active == 0) color = 63;
-            if (players[p].active == 1) color = 15;
-//            if (players1[p].server_game_move_sync_err)  color = 10;
-            al_draw_filled_rectangle(x, y, tx+strlen(msg)*8, y+8, palette_color[0]);
-            al_draw_text(font, palette_color[color], x, y, 0, msg);
-
-            // colorize only active, syncing or used
-            if ( (players[p].active) || (players[p].control_method == 2) || (players[p].control_method == 9))
-            {
-               sprintf(msg, "[%2d]", players[p].color);
-               al_draw_text(font, palette_color[players[p].color], x+(6*8), y, 0, msg);
-            }
-
-            if (p == active_local_player)
-            {
-               sprintf(msg, " <-- active local player (me!)");
-               al_draw_text(font, palette_color[players[p].color], x+(13*8), y, 0, msg);
-            }
-
-         }
+         cdg_show(BORDER_WIDTH, BORDER_WIDTH-8); // client debug grid
       } // end of debug overlay
    } // end of if (imaclient)
 

@@ -54,6 +54,9 @@ int suicide_pbullets = 0;
 char srv_client_state[8][2][STATE_SIZE];
 int srv_client_state_frame_num[8][2];
 
+// server's copies of last stdf states
+char srv_stdf_state[4][STATE_SIZE];
+int srv_stdf_state_frame_num[4];
 
 // local client's states
 char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
@@ -1715,13 +1718,13 @@ int copy_files_to_clients(int exe_only)
 
 
 
-
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
    sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
    sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
    sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
    sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
    sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
 
 
 

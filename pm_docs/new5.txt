@@ -35233,8 +35233,806 @@ some clients were reseting base every frame!
 
 I am very happy with how well this is working!
 
-
 I must commit...
+
+20221213
+
+figuring out send stdf...done...
+if we don't send initial stdf, client locks...fixed so escape exits gracefully
+
+next huge bug...why does server player go all squirrely?
+clients seem to work fine...
+
+I don't even know how the loop goes for local server player
+I suspect the rewind and fast forwarding are messing something up
+
+how can I go about figuring out what is happening?
+
+reproduce..needed a few clients before it would reproduce
+
+where do I enter server local game moves? server_local_control
+tried +1 and -1 frame when adding game move, both caused double p0 on server
+
+when sending stdf's look closer at the rewind and playback...
+
+what if I store max_rewind frames? done
+
+
+it seems to not happen until a base reset occurs, no that can happen and still good...
+
+
+frame 123...nothing happening there...no base resets...
+
+new game 4 client fake key happened before 20s
+
+I'm not seeing anything in the logs
+
+how about add rewinds to the logs
+
+whenever a rewind happens make a log
+
+
+I think that one of the clients states is messed up
+then when I load it and ff I get a different state than the others...
+that would make sense
+one frame im here, next frame I'm there
+
+could it be that I'm not replaying on the client when I should?
+If that was the case, the clients should be messed up, right?
+
+nothing the clients do should mess up the server...
+
+
+I could check for a rogue client state
+
+after rewinding and ff on the server
+store something like p0 health or xpos
+then compare to all the others
+
+for testing, make all stdf send on same frame...
+of course now it wont do it...
+stdf = 1;
+4 clients all fake key
+200s, no error
+
+again 200s with no error
+
+
+goddamn it, now I cant make it fail
+stdf = 1;
+240s
+7 clients fakekey
+500 to 1000kBs
+tons of base resets
+
+try stdf=2 and see if it breaks....
+yes, very quickly...
+
+I think that the server rewinding for one client gets a different state than another client on a different frame
+I don't know why, but that could explain it
+
+How about I send all stdf on the same frame?
+I can wait a few frames in between.
+
+Lets take this even further...
+
+- rewind to oldest client ack
+- ff to now
+- make difs for each client based on last client ack
+
+then I will only have to do one rewind, not one for each client
+
+when I am doing a rewind, it's only to apply the game_moves that have not been applied
+maybe I can keep track of game moves received earliest frame numbers
+then when its time to send dif and do rewind, only go as far back as needed to apply...
+
+I would like to implement this:
+
+write it out again:
+
+dif's are made periodiacally. every 2 to 4 frames..
+
+every time that frame happens:
+- rewind to previous dif frame and play back to current to apply late game moves
+- send that dif to all clients
+thid could work...
+and it sounds simple...
+
+and only one rewind is needed
+
+
+I just found a pretty major bug in the send_stdf code...
+rewind was only done if not basing from zero
+wait...is that a bug?
+what would it play back from...
+
+this is the original...
+
+
+
+
+// send stdf to a specific client
+void server_send_stdf(int p)
+{
+
+  // printf("stdf:%d %d\n", frame_num, p);
+
+   int last_ack_state_frame = srv_client_state_frame_num[p][0];
+
+
+   // if last ack state is 0 dont replay anything, just send current state
+   // in this case the dif will be from all zeros to current
+   // and will skip any un processed moves on the client
+   // I would like this method to rewind and replay a bit
+   if (last_ack_state_frame == 0) // set base to all zeros
+   {
+      memset(srv_client_state[p][0], 0, STATE_SIZE);
+   }
+
+
+   // rewind and fast forward from last ack state to apply missed game moves received late
+   // in this case the dif will be from last_ack_state to current
+   else
+   {
+      int saved_current_frame_num = frame_num;               // save old current frame
+
+
+      players1[p].server_rewind_frames = frame_num - srv_client_state_frame_num[p][0];
+
+
+
+      if (players1[p].server_rewind_frames > players1[p].server_rewind_frames_max)
+          players1[p].server_rewind_frames_max = players1[p].server_rewind_frames;
+
+
+
+
+      frame_num = srv_client_state_frame_num[p][0];          // rewind
+      state_to_game_vars(srv_client_state[p][0]);
+
+      while (frame_num < saved_current_frame_num) loop_frame(); // fast forward
+
+   }
+
+
+
+   char dif[STATE_SIZE];
+   char cmp[STATE_SIZE];
+
+   // set dif dest to current frame_num
+   srv_client_state_frame_num[p][1] = frame_num;
+
+   // get current state
+   game_vars_to_state(srv_client_state[p][1]);
+
+   // make a new dif from base and current
+   get_state_dif(srv_client_state[p][0], srv_client_state[p][1], dif, STATE_SIZE);
+
+   // compress dif to cmp
+   uLongf destLen= sizeof(cmp);
+   compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)dif, sizeof(dif), zlib_cmp);
+   int cmp_size = destLen;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// what do I rewind to?
+
+// pick a state from the clients_states??
+
+// any of them should have a copy
+
+// or should I rely on my own...
+
+// im really stuck here??
+
+// i think the server should keep at least a few of the last
+// i know this would work, but is it really necessary?
+// i can always remove it later...
+
+
+// lets keep the last 1 for now
+
+// call it
+//// server's copies of last stdf states
+//char srv_stdf_state[4][STATE_SIZE];
+//int srv_stdf_state_frame_num[4];
+// use only 0 for now
+
+
+// how do i get the first one?
+
+
+// nothing to rewind to
+
+
+// after ff set:
+
+   // put current state in client's state slot 1
+   game_vars_to_state(srv_stdf_state[0]);
+
+   // put current frame_num
+   srv_stdf_state_frame_num[0] = frame_num;
+
+
+
+   before rewind check...
+
+   if (srv_stdf_state_frame_num[0] == 0)
+
+   don't do rewind
+
+
+why do clients that join after key removes blocks, still show the blocks
+I think all they need to do is redraw the level_buffer...
+
+why does that not happen anyway??
+i think it only happens when level is loaded...
+
+so when should I do it?
+after rx first dif?? sure...try that..done....
+
+now what to fix, or log, or improve??
+
+as some point I will need to fix level_done...i hope its not as hard as it was last time....
+
+
+so where have we left this stdf thing?
+it seems to be working good
+
+
+stdf_freq = 2
+seems to work good
+
+if I play a long enough game, moves bleed through to other players
+I was 600 frames in and in and eight player game
+
+moves on player would make would cause other players to move also...
+
+im pretty sure its something on the server
+when it happens all client still look the same
+problem with game moves array on server?
+
+why do i even bother with game moves array on client?
+just enter the keys imediately
+that is the way they always happen anyway
+
+how long was the game?
+log file is 25M and wont open
+
+could I be overwriting stuff when log file overflows?
+
+log file has 25 million char and 350,000 lines? that seems excessive
+frames  24,491 / 40 = 612s
+
+#define NUM_LOG_CHAR  100000000
+#define NUM_LOG_LINES 1000000
+
+i guess it could take 100M...
+
+how many game moves?
+I dont think I am recording the size of the game_moves array anywhere..?
+clients dont have the full one
+why do i even bother with game moves array on client?
+just enter the keys imediately
+that is the way they always happen anyway
+the only reason I still use it is so that I could replay moves on the client, but i don't do that
+also for symetry, to keep all control methods the same (not that important)
+also to replay games, doesnt matter on client, we dont have all moves...
+
+
+[22][0][24572]+--------------------------------------------------------------------------+
+[22][0][24572]|                        Server (m36) ending stats                         |
+[22][0][24572]+--------------------------------------------------------------------------+
+[22][0][24572]+--------------------------------------------------------------------------+
+[22][0][24572]|        level.....................[13]                                    |
+[22][0][24572]|        total frames..............[24572]                                 |
+[22][0][24572]|        total moves...............[32083]                                 |
+[22][0][24572]|        total time (seconds)......[614]                                   |
+[22][0][24572]|        total time (minutes)......[10]                                    |
+[22][0][24572]|        server frames skipped.. ..[8]                                     |
+[22][0][24572]|        total tx bytes............[73295321]                              |
+[22][0][24572]|        max tx bytes per frame....[27338]                                 |
+[22][0][24572]|        avg tx bytes per frame....[2982]                                  |
+[22][0][24572]|        max rx bytes per second...[364412]                                |
+[22][0][24572]|        avg tx bytes per sec......[-55475]                                |
+[22][0][24572]|        total tx packets..........[107108]                                |
+[22][0][24572]|        max tx packets per frame..[32]                                    |
+[22][0][24572]|        max tx packets per second.[460]                                   |
+[22][0][24572]|        total rx bytes............[2414515]                               |
+[22][0][24572]|        max rx bytes per frame....[329]                                   |
+[22][0][24572]|        avg rx bytes per frame....[98]                                    |
+[22][0][24572]|        max rx bytes per second...[4951]                                  |
+[22][0][24572]|        avg rx bytes per sec......[3930]                                  |
+[22][0][24572]|        total rx packets..........[168461]                                |
+[22][0][24572]|        max rx packets per frame..[23]                                    |
+[22][0][24572]|        max rx packets per second.[362]                                   |
+[22][0][24572]+--------------------------------------------------------------------------+
+
+
+add total game moves to server ending stat's and show on debug...
+
+also make client debug grid like ServerSendTo
+
+why doesn't client show servers name??
+when client gets a join reply it should set the hostname for server
+clients don't have names for all the other clients
+they could if I moved local_hostname to players instead of players1 so it gets synced...
+not important enough to do..maybe later if I allow clients to name themselves
+it looks like server ending stats already does total game moves...
+
+so back to finding the weird bug where player's moves affect other players
+
+try to reproduce again...
+
+level 13
+max clients and fake key
+run for 60s at a time then check
+happened arounf 420s or 32000 game moves
+
+double check to see if it happens at 32000 game moves....
+happened around 413s
+total game moves was suddenly reduced to 20K when it was a lot higher, like maybe close to 100k??
+
+wtf? I know, right?
+
+do it again...
+99 -> 14 at time 356s
+WTF?
+
+can open log file, dies at loading screen...
+file is 20k char 300k lines
+
+dies after parsing line 202569
+
+[28][7][10406]tx stdf piece [2 of 2] [10402 to 10406] st:1000 sz: 356
+[30][1][10407]rx stak sync:[1] chase:[40] ack_fn:10406 cli_fn:10406 set new base
+[35][1][10407]rx cdat p:1 fn:[10406] sync:[-1]
+[35][2][10407]rx cdat p:2 fn:[10405] sync:[-2]
+[30][3][10407]rx stak sync:[1] chase:[40] ack_fn:10406 cli_fn:10406 set new base ------------------------- THIS ONE 569
+[35][3][10407]rx cdat p:3 fn:[10406] sync:[-1]
+[30][5][10407]rx stak sync:[2] chase:[38] ack_fn:10404 cli_fn:10405 failed to set new base! cl:10406
+I think the line is too long ...over 100 char...
+fixed in 2 places...when specific log line is added and when lfv adds to lines...
+
+
+now back to why it rolled over....
+
+save game list moves to 3000, then a jump to 14000...
+
+still not sure why
+
+log gmep in server somehow
+
+when rx cdat....
+
+[30][3][13771]rx stak sync:[1] chase:[40] ack_fn:13770 cli_fn:13770 set new base
+[35][3][13771]rx cdat p:3 fn:[13770] sync:[-1] gmep:[99998]
+[30][4][13771]rx stak sync:[1] chase:[40] ack_fn:13770 cli_fn:13770 set new base
+[35][4][13771]rx cdat p:4 fn:[13770] sync:[-1] gmep:[99999]
+[30][5][13771]rx stak sync:[1] chase:[40] ack_fn:13770 cli_fn:13770 set new base
+[35][5][13771]rx cdat p:5 fn:[13770] sync:[-1] gmep:[100000]
+[30][6][13771]rx stak sync:[1] chase:[40] ack_fn:13770 cli_fn:13770 set new base
+[35][6][13771]rx cdat p:6 fn:[13770] sync:[-1] gmep:[13771]
+[30][7][13771]rx stak sync:[1] chase:[40] ack_fn:13770 cli_fn:13770 set new base
+[35][7][13771]rx cdat p:7 fn:[13770] sync:[-1] gmep:[13772]
+[35][1][13772]rx cdat p:1 fn:[13771] sync:[-1] gmep:[13774]
+
+it looks like gmep is being set to frame_num...but why? and where???
+
+
+for the purposes of reproducing, can I start with gmep at 99990?
+yes and it happens just the same, even with no clients
+
+
+it happens in proc_controllers...
+
+it happens in proc_player_input(ret)
+
+it happens in server_local_control()
+
+it happens in add_game_move()
+
+YOU HAVE GOT TO BE SHITTING ME!!!!
+#define GAME_MOVES_SIZE 100000
+why the fuck?...its my own fault!!!!
+
+OK this is now fixed...
+
+I forgot what the hell I was doing....
+
+what next
+
+I did a long game and it seem to work good, tried playing back as demo and it did not work....
+
+try some shorter demos??
+
+maybe later...
+
+
+---------------------------------------------------------------------------------------------------
+if client never plays back moves from its own gma, why do I even bother putting them in there?
+can I do away with that completely on the client and just set controls directly?
+
+
+sort out controls, comp move and game move
+
+the function 'set_controls_from_comp_move' actually sets them from a specific game move
+
+the function 'set_controls_from_game_move' does the whole search thing
+
+
+new:
+
+#define PM_COMPMOVE_LEFT   0b0000000000000001
+#define PM_COMPMOVE_RIGHT  0b0000000000000010
+#define PM_COMPMOVE_UP     0b0000000000000100
+#define PM_COMPMOVE_DOWN   0b0000000000001000
+#define PM_COMPMOVE_JUMP   0b0000000000010000
+#define PM_COMPMOVE_FIRE   0b0000000000100000
+#define PM_COMPMOVE_MENU   0b0000000001111111
+
+void set_controls_from_comp_move(int p, int comp_move)
+{
+   clear_controls(p);
+   if (comp_move & PM_COMPMOVE_LEFT)  players[p].left  = 1;
+   if (comp_move & PM_COMPMOVE_RIGHT) players[p].right = 1;
+   if (comp_move & PM_COMPMOVE_UP)    players[p].up    = 1;
+   if (comp_move & PM_COMPMOVE_DOWN)  players[p].down  = 1;
+   if (comp_move & PM_COMPMOVE_JUMP)  players[p].jump  = 1;
+   if (comp_move & PM_COMPMOVE_FIRE)  players[p].fire  = 1;
+   if (comp_move & PM_COMPMOVE_MENU)  players[p].menu  = 1;
+}
+
+
+void set_comp_move_from_player_key_check(int p) // but don't set controls !!!
+{
+   int cm = 0;
+   if (key[players1[p].left_key])  cm |= PM_COMPMOVE_LEFT;
+   if (key[players1[p].right_key]) cm += PM_COMPMOVE_RIGHT;
+   if (key[players1[p].up_key])    cm += PM_COMPMOVE_UP;
+   if (key[players1[p].down_key])  cm += PM_COMPMOVE_DOWN;
+   if (key[players1[p].jump_key])  cm += PM_COMPMOVE_JUMP;
+   if (key[players1[p].fire_key])  cm += PM_COMPMOVE_FIRE;
+   if (key[players1[p].menu_key])  cm |= PM_COMPMOVE_MENU;
+   if (key[ALLEGRO_KEY_ESCAPE])    cm |= PM_COMPMOVE_MENU;
+   players1[p].comp_move = cm;
+}
+
+
+now on client:
+set controls from keys directly and send cdat
+do nothing with game_move_array
+never rewind
+just update state when server sends it
+
+this seems to work great, but I'm only testing on LAN
+hope it still works good on less than ideal network
+
+right now the server state arrives exactly on the frame it is needed
+but if it arrived a frame or two late, then controls pressed on those frames would have to wait until the next state arrives
+---------------------------------------------------------------------------------------------------
+
+
+moving on... I want to do something about level done, but first lets record some bandwidths
+
+stdf_freq = 1 (25ms)
+level 13 8p fk
+500 to 800kBs max 980
+lots of base resets on all but 6430
+
+stdf_freq = 2 (50ms)
+level 13 8p fk
+180 to 260kBs max 370
+occasional base resets on 4230's
+
+stdf_freq = 3 (75ms)
+level 13 8p fk
+120 to 140 max 150
+only base resets on 6400
+
+stdf_freq = 4 (100ms) still seems very responsive
+level 13 8p fk
+100 to 110 max 112
+only base resets on 6400
+
+stdf_freq = 5 (125ms)
+level 13 8p fk
+82 to 86 max 90
+only a few base resets on 6400
+
+stdf_freq = 6 (150ms)
+level 13 8p fk
+66 to 78 max 82
+only a few base resets on 6400
+
+
+I think I will go with 3 for now....
+
+try it without 6400..
+stdf_freq = 3 (75ms)
+level 13 8p fk
+125 to 135 max 140
+very rare base resets (no 6400!)
+quite stable bandwidth when no base resets!!
+the clients all overlay on the graph, they all transmit at the same time
+
+OK now onto the big one...level done...
+
+
+
+If I can simplify it in anyway that would be great....
+
+I will need to keep the game_loop running, or do I?
+
+Do I want to freeze all players, enemies, items. lifts??
+How about:
+
+Keep level running but:
+Freeze all players, items, lifts
+Kill all enemies.
+Bring all clients to the exit also.
+Show the ending stats and wait for all players to acknowledge or timeout.
+Start the next level.
+Show door opening and player going in.
+
+I still might accomplish this with the game moves array, but only on the server of course.
+
+The client will still take their cues from there....
+I might need a new mode for player.
+
+make a new gmtype the sets all clients to freeze mode
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

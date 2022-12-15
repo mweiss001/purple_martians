@@ -1592,6 +1592,16 @@ void reset_states(void)
       srv_client_state_frame_num[i][0] = 0;  // src
       srv_client_state_frame_num[i][1] = -3; // dst
    }
+
+   // reset server's stdf states
+   for (int i=0; i<4; i++)
+   {
+      memset(srv_stdf_state[i], 0, STATE_SIZE);
+      srv_stdf_state_frame_num[i] = 0;
+   }
+
+
+
 }
 
 void show_state_dif(char *a, char *b)
