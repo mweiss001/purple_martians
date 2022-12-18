@@ -357,8 +357,9 @@ int load_level(int level_to_load, int load_only)
 
    if (level_load_error)
    {
-      //sprintf(msg, "Level loading error occurred for: %s ", level_filename);
-      //m_err(msg);
+      sprintf(msg, "Level loading error occurred for: %s ", level_filename);
+      printf("%s\n", msg);
+      m_err(msg);
       num_lifts = 0;
       return 0;
    }
@@ -376,7 +377,7 @@ int load_level(int level_to_load, int load_only)
                itemf[x][1] = al_itofix(item[x][5]);
             }
          level_check();
-         init_level_background(); // draw blocks on level_background
+         init_level_background(0); // draw blocks on level_background
          reset_animation_sequence_frame_nums(0);
          set_player_start_pos(0, 0);
       }

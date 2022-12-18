@@ -378,7 +378,7 @@ void th_replace(int type)
                l[a][b] |= fb; // merge tile number
             }
          }
-   init_level_background();
+   init_level_background(0);
 
 }
 

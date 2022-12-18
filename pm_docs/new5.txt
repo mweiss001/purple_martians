@@ -35799,6 +35799,876 @@ I might need a new mode for player.
 make a new gmtype the sets all clients to freeze mode
 
 
+how can I handle all these changes getting to the clients?
+
+I am going to rely on the server setting things in the clients player structure and having that synced to clients
+and also setting things in the player0(server struct)
+
+maybe that's where level_done_mode should live...
+
+
+does it need to get synced to clients? can't I just control them directky
+
+I want to set some variable in players struct on the server, might as well call it level done mode...
+
+then do all the normal stuff with that..
+
+but only the server controls it
+
+first mode is freeze and move to exit
+clients, should not have to do anything. let the server move them..
+
+
+20221215 6:45 AM
+
+what do we have now?
+
+when level done,
+server shows end stat, server can ack, client can not...
+
+level done does not work on server even with no clients
+
+
+
+what happens
+
+I have this weird variable that controls the level_done procedure
+
+I have active, control_method, paused, paused_type..
+
+I like control_method. it very closely describes what it is meant to do..
+
+active is very useful. binary 0 or 1, ignore complete if zero..
+
+what I don't like is inactive and control method 2 for chasing
+it seems wrong, like here is an excpetion when inactive is not really active
+
+what two should signify is that difs are being sent to this from the server
+
+
+
+
+how about chase is:
+active 1
+cm 2
+paused
+
+
+
+do this...
+
+
+make more space in the player array, like at least 10 more ints
+keep most of them unused for now, but later use them for more control structures...
+
+current 1664 or 208 per player
+new 2048 or 256 per player
+
+update STATE_SIZE 108928 ...done
+
+now my thoughts on level done are:
+
+add some overall state thing to player 0
+
+like a level_done_mode
+
+the advantages are that I do not have to worry about this getting to the clients
+it will get there!!!
+
+but then what?
+
+do mostly what you already did for level_done
+
+change all level_done_mode to players[0].level_done_mode
+
+done...
+
+just for the hell of it, test it...
+
+
+both client and server were able to ack
+problem is after that...
+
+I think we get as far as proc_next_level();
+
+it looks like the server is frozen until the same ammount of time passes on the new level as the one we just left
+then server player starts at same pos as last level and exits immed...
+
+
+could possibly be a rewind thing...
+
+
+trace the order of things on serv
+
+ldm = players[0].level_done_mode
+
+
+
+loop() calls move_items()
+when exit is touched by any player
+if (players[0].level_done_mode == 0)
+{
+   players[p].paused = 5;
+   players[0].level_done_mode = 8;
+   next_level = play_level + 1;
+
+
+
+in loop:
+if (players[0].level_done_mode) proc_level_done_mode();
+proc_level_done_mode(); has its own custom loop where stuff is drawn but nothing is moved
+and this:
+if (players[0].level_done_mode == 5)
+{
+   if (ima_server)
+   {
+      int aa = 1; // yes by default, set to no if any have not ack
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if ((players[p].active) && (!has_player_acknowledged(p))) aa = 0;
+      if (aa) add_game_move(frame_num, 7, 0, 0); // insert next level into game move
+   }
+
+
+in loop() process_controllers() server_local_control()
+if (players[0].level_done_mode == 8) start_level_done(p, 80, 800);
+void start_level_done(int p, int t1, int t2)
+{
+   players[0].level_done_mode = 7;
+   int fn = frame_num;
+   add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
+   add_game_move(fn+t1,  6, 0, 2); // insert level done 2 into game move
+   add_game_move(fn+t2,  7, 0, 0); // insert next level into game move
+   players1[p].old_comp_move = players1[p].comp_move = 0; // reset both
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) players1[p].quit_reason = 80;
+}
+
+loop() calls proc_controllers() calls proc_game_move()
+when type 6 level done 1 is received, set ldm to 6
+
+loop() calls proc_controllers() calls proc_game_move()
+when type 6 level done 2 is received, set ldm to 5
+
+loop() calls proc_controllers() calls proc_game_move()
+when type 7 next_level is received, calls proc_next_level();
+
+
+
+
+
+
+
+
+
+
+20221217 saturday and I hope I have enough time to fix this level done thing today
+
+leaving the whole detailed description above for now, I want to focus on next level
+
+I all seems to work good, touch exit, level_done 1, level done 2 server and client ack...
+but then when next level happens it freezes...
+
+void proc_next_level(void)
+{
+   if (L_LOGGING_NETPLAY) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
+   if ((ima_client) || (ima_server))
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         // free all the used clients, so they can be re-assigned on the next level
+         if (players[p].control_method == 9) players[p].control_method = 0;
+         // set all clients inactive on server and client, to force them to re-chase and lock on the new level
+         if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
+      }
+      if (ima_server) server_flush();
+      if (ima_client) client_flush();
+      al_rest(1);
+   }
+   stop_sound();
+   blind_save_game_moves(1);
+   save_log_file();
+   play_level = next_level;
+   players[0].level_done_mode = 0;
+   proc_start_mode(5);
+}
+
+OK right away, I see that this will never run on the client, unless I make it somehow, but
+lets just focus on the server for now
+
+- changes all mode 2 to inactive
+- flushes server
+- sets level_done_mode to 0
+- start mode 5
+
+that means that the sync is ended and these local changes to players never get to the client..
+
+that is something else that will need to be fixed, but first, why does the server freeze?
+
+this all might take some time to figure out, but I want to make it simpler...
+
+
+High Level Level Done
+
+Controlled by server, lets skip to the part where the server decides its time to actually do next level...
+
+in every active client set something in player[0] sruct
+
+something that says we are going to start a new level in so many frames
+this will get synced to clients
+when they get it, they will wait until that frame, then load the new level and reset a bunch of things
+
+Do I actually need to quit and re-chase? I would like to do without that...
+
+let's try to flesh this out in more detail
+
+add mode 4 to players[0].level_done_mode
+
+when setting mode 4, also set a delay...
+
+   int next_level_num;
+   int next_level_frame_num;
+
+
+
+make these changes:
+
+When ldm 5 is done (timed out or all players acked)
+- still enter the next level special game move as before
+
+when next_level gm is processed..
+
+
+
+
+- start ldm mode 4
+- set next_level_num and next_level_frame_num
+- make the next level game move still entered
+
+
+
+
+
+this will get sync to clients
+
+in all players:
+monitor for ldm4 and frame_num
+
+
+
+
+
+
+how about on the server I keep track of these states in player struct instead of special game moves?
+
+when the server plays or replays and any player starts exit....
+
+set players[0].level_done_mode
+no special game moves....
+
+this will also happen on clients, but clients are to do nothing with it
+
+players[0].level_done_mode will have a corresponding timer...
+
+on the server when the timer runs down, it goes to the next level_done_mode and gets a new timer
+
+
+ldm 0
+
+exit touched
+ldm 8
+ldt 100
+level freezes
+when this times out
+
+ldm 7
+ldt 100
+if all ack then ldt = 0;
+when this times out or all ack
+
+ldm 6
+ldt 40
+when this times out immediately load new level
+
+
+this looks a lot simpler
+
+lets see if I can implement for single player...
+
+
+start with exit touched:
+
+      if (players[0].level_done_mode == 0)
+      {
+         players[0].level_done_mode = 8;
+         players[0].level_done_timer = 80;
+         next_level = play_level + 1;
+         game_event(4, 0, 0, 0, 0, 0, 0);
+      }
+
+for now it does it for all player and client and server, maybe later I'll need to refine....
+
+
+next, monitor for players[0].level_done_mode in main loop...
+
+      if (players[0].level_done_mode)
+      {
+         stop_sound();
+         proc_frame_delay();
+         if (draw_frame) draw_frame1();
+         proc_level_done_mode();
+      }
+      else
+      {
+         move_ebullets();
+         move_pbullets();
+         move_lifts(0);
+         move_players();
+         move_enemies();
+         move_items();
+         proc_frame_delay();
+         if (draw_frame) draw_frame1();
+      }
+
+this draws the same but does not move any objects
+
+void proc_level_done_mode(void)
+{
+   if (players[0].level_done_mode == 8)
+   {
+      if (--players[0].level_done_timer <= 0)
+      {
+         players[0].level_done_mode = 7;
+         players[0].level_done_timer = 80;
+      }
+   }
+
+   if (players[0].level_done_mode == 7)
+   {
+      if (--players[0].level_done_timer <= 0)
+      {
+         players[0].level_done_mode = 6;
+         players[0].level_done_timer = 80;
+      }
+   }
+
+   if (players[0].level_done_mode == 6)
+   {
+      if (--players[0].level_done_timer <= 0)
+      {
+         players[0].level_done_mode = 5;
+         players[0].level_done_timer = 80;
+      }
+   }
+
+
+
+this simply changes modes...
+
+remove all the things that happen with special game moves....done
+removed start_level_done()
+
+now what?
+
+ldm 0 - nothing
+
+
+ldm 9 - trigger (only last 1 frame)
+ldm 8 - delay only
+ldm 7 - delay and ack
+ldm 6 - wait for actual load new level
+ldm 5 - is the actual call to proc_next_level();
+
+if called from warp, start on 6
+
+
+accept input on 0 and 7
+move objects 0 only
+
+
+the method of acking is still entering game moves
+server_local control 0 or 7
+client_local control 0 or 7
+single player 0 or 7
+
+ack add game move now checks for ldm mode 7 and enters gm type 8(no change there)
+
+now display level_done_mode... and do the timer properly and the ack check
+
+actually make the ack knowledge thing change the timer...
+
+works good in single player...
+
+in 2p mode keeps getting reset??
+9 8...
+
+add proc_level_done_mode to rewind loop....
+
+it looks like it is working!!!
+
+client does not show that it has acked, we should set this on server...
+
+its working so good I am going to remove old stuff....
+
+add warp...done...
+
+
+
+
+
+Document
+
+Level Done Procedure
+
+
+When any player touches an unlocked exit, or warp, the Level Done Procedure is started.
+
+The main variables that control this are:
+
+int players[0].level_done_mode
+int players[0].level_done_timer
+int players[p].level_done_ack
+
+
+In normal game play, players[0].level_done_mode is zero.
+
+At the start of the Level Done Procedure players[0].level_done_mode is set to 9 or 6;
+
+
+players[0].level_done_mode = 0; // normal game play
+players[0].level_done_mode = 9; // exit touched
+players[0].level_done_mode = 8; // 2s unskippable delay
+players[0].level_done_mode = 7; // 10s skippable delay
+players[0].level_done_mode = 6; // both delays done, start load new level countdown
+players[0].level_done_mode = 5; // load new level
+
+All in game objects are frozen in modes 9-5
+Player input only occurs in modes 0 and 7 (in mode 7 input is used only for acknowledging and skipping delay).
+
+When a warp is touched, the Level Done Procedure is started at mode 6, skipping the first two delays.
+
+
+
+
+there are some bugs
+
+client does not have the same blocks as server??
+only the ones that are drawn...
+
+I don't know how anything I changed should affect that...
+
+its not just the client's moves, server's moves also break blocks that don't appear broken on client
+
+
+that is something that has never been synced, only the player array...
+
+it would be expensive to redo this every frame...right??
+
+what about doing it in sections?
+
+
+
+
+instead of 10,000 blocks at a time, maybe 1000
+
+
+test this...
+speed test on
+m36 fs z1.0
+4000 fps 98% gpu
+117  fps 84% gpu init_level_background() every frame
+
+test this on client
+
+I don't think this is a new bug, it has always been this way..
+
+the problem is that the server can manipulate the level blocks array and while the changes to that make it to the client, the actual level_buffe bitmap does not...
+
+how about comparing the array on the client and redrawing blocks that differ...
+
+
+added this in clients apply dif...seems to work good....
+
+
+      // make a copy of the old l[][]
+      int old_l[100][100];
+      memcpy(old_l, l, sizeof(l));
+
+      // copy modified base state to game_vars
+      state_to_game_vars(client_state_base);
+
+      // compare old_l to l
+      for (int x=0; x<100; x++)
+         for (int y=0; y<100; y++)
+         {
+            if (l[x][y] != old_l[x][y])
+            {
+               printf("dif at x:%d y:%d\n", x, y);
+               al_set_target_bitmap(level_background);
+               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, al_map_rgb(0,0,0));
+               al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+            }
+         }
+
+
+
+has_player_acknowledged uses game move entries....
+do I still need to do this?
+
+it would be easier to just mark the flag players[p].level_done_ack..
+...but then I might lose it on rewind...
+
+leave it the way it is for now...
+
+look into game moves at the end
+
+
+why are there moves at the end? after acks...
+I should clear controls...but where? multiple places...
+
+I also should set player paused, like it used to be done...yes that looks better...
+
+
+
+now what about the delay I have 20 to load new level...could I do 10?
+there is a 1s dealy in proc_next_level..try to remove it...still seems to work...
+
+lets try a longer test....
+
+
+OK I am quite happy with this...now document it
+
+
+
+i want to reomve the global int draw_frame...done...handled with a return value from proc_frame_delay()
+
+
+what would happen if I did not force clients to re-chase? its not that easy....
+
+
+
+in mode 8 make all players converge on the active exit
+
+what is the active exit?
+there could possibly be many exits...
+store the data for the one the triggered...where? p0 again...why not...
+
+   int level_done_x;
+   int level_done_y;
+
+ok, now where do I move to that...
+
+
+
+
+
+
+
+
+
+
+
+
+
+what the fuck did i break?
+
+level done for 2p breaks everything
+
+normally server should send first stdf from 0 to somethng but it send from src == dst ???
+
+wtf?
+
+also on client, srv is set inactive??
+
+
+what is not getting done?
+
+
+
+print frame number to screen...
+
+runs for 3 frames then resets to old fn from last level
+
+
+
+probably in server sen stdf when it reads from
+
+
+void server_control() // this is the main server loop to process packet send and receive
+{
+   if (L_LOGGING_NETPLAY_PLAYER_ARRAY) log_player_array2();
+
+   if (frame_num == 0) reset_states(); // for stdf
+
+
+there must be a better place to reset_states
+I do it in proc_next_level() now....
+
+client does it when joining...blocking, waiting for first stdf
+
+what about putting it in start mode...yes
+now the only place it is called is in start_mode, right after loading level and resetting frame numbers and it seem to work...
+
+
+now that I fixed that reset_states() bullshit what about not making inactive??
+I might be able to make that work...
+needed to set clients player position...
+it used to be when it came active, I will still leave that there
+for when joining and the start could be mobile or different one active
+but I also added a set position when resetting player info in start mode....
+it seems to pass the level done shit just fine, but I want to test it more...
+seems to work
+
+
+sometime I get error about not being able to load a level...added more logging shit...
+
+
+
+
+
+
+
+
+
+
+
+
+what about reusing clients?
+try it....
+
+when client quits, do not mark with 9, just mark with zero and init_player shit....
+tried it when player quits, does not seem to cause any bad shit
+
+also happens when server drops player, could try it there...
+
+this will break end of level stats amd possibly rungame demo...
+
+but I can worry about that shit later...
+
+20221217 10:00 PM
+
+I got a lot of shit done today...
+I am so happy that I got level done in a good place, and far less convoluted than before...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

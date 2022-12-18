@@ -176,11 +176,11 @@ void cm_redraw_level_editor_background(void)
    al_flip_display();
    proc_scale_factor_change();
    proc_controllers();
-   proc_frame_delay();
+   int df = proc_frame_delay();
 
    if (frame_num <  al_get_timer_count(fps_timer)) set_frame_nums(frame_num); // set fps_timer count to frame_num
 
-   if (draw_frame)
+   if (df)
    {
       get_new_background(0);
       draw_lifts();
@@ -1279,7 +1279,7 @@ void mWindow::process_mouse(void)
             switch (pmenu(6, 13))
             {
                 case 2: mW[1].show_flag_details =! mW[1].show_flag_details; break;
-                case 3: mW[1].show_non_default_blocks =! mW[1].show_non_default_blocks; init_level_background(); break;
+                case 3: mW[1].show_non_default_blocks =! mW[1].show_non_default_blocks; init_level_background(0); break;
             }
          }
          if (index == 5) // ge list

@@ -56,10 +56,12 @@
                 <mh12>Technical Code Descriptions</mh12><hr>
             </header>
 <mh3><hr></mh3>
-<mh8>Level Done</mh8>
+<mh8>Level Done Procedure</mh8>
 <mh3><hr><mdw_file_toc> <a href="level_done.html#Overview" target="_top">Overview</a>
- <a href="level_done.html#High Level Description" target="_top">High Level Description</a>
- <a href="level_done.html#How The Process Is Initiated" target="_top">How The Process Is Initiated</a>
+ <a href="level_done.html#Variables" target="_top">Variable</a>
+ <a href="level_done.html#Modes" target="_top">Modes</a>
+ <a href="level_done.html#How The Procedure Is Initiated" target="_top">How The Procedure Is Initiated</a>
+ <a href="level_done.html#How The Procedure Progresses" target="_top">How The Procedure Progresses</a>
  <a href="level_done.html#Mode 6" target="_top">Mode 6</a>
  <a href="level_done.html#Mode 5" target="_top">Mode 5</a>
 </mdw_file_toc><hr></mh3>
@@ -67,78 +69,68 @@
 
 
 
+
+
+
+
 <br><a name="Overview"></a>
 <mh7>Overview</mh7>
 <mh3>    
-Who would have thought something as simple as ending the level and starting the next one could end up so complicated?
+A level is completed when any player touches an unlocked exit or a warp spiral.
 
-It didn't start out that way, but with the addition of:
-- netgame and the game moves array
-- showing end of level stats
-- waiting for all netgame players to acknowledge (or timeout)....
+The level is frozen and the end of level stats are shown.
 
-It got rather complex.
+Then after a timeout, or after all players acknowledge, the next level is loaded and started.
 
-Hopefully not more complex than it needs to be....
-
+The server controls the entire process by setting the following variables, which are automatically synced to the clients with the rest of the game data.
 </mh3>
-<br><a name="High Level Description"></a>
-<mh7>High Level Description</mh7>
-<mh3>    
-When any player touches an exit or warp, the level ends.
-
-- Three game moves are entered in the game moves array ("Level Done 1", "Level Done 2", and "Next Level")
-
-- These are entered with frame numbers in the future, so they will not take effect until that frame.
-
-- "Level Done 1" is used only as a delay.
-
-- "Level Done 2" is also a delay, but will also accept player acknowledgement if any control is pressed.
-
-- "Next Level" triggers the next level being loaded and started.
-
-
-These are the global variables used in the process:
-</mh3>
-<pre><code class="language-cpp">extern int level_done_mode;
-extern int next_level;
-</code></pre>
+<br><a name="Variables"></a>
+<mh7>Variables</mh7>
 <mh3>
-There are the different modes:
+These are the variables used in the process:
 </mh3>
-<pre><code class="language-cpp">0 = normal
-8 = triggered (can only trigger from mode 0)
-7 = all three game moves entered 'Level Done 1' 'Level Done 2' 'Next Level'
-6 = game move 'Level Done 1' received and processed (wait mode 1 - time only)
-5 = game move 'Level Done 2' received and processed (wait mode 2 - time or acknowledge)
-0 = done and next level started
+<pre><code class="language-cpp">int players[0].level_done_mode
+int players[0].level_done_timer
+int players[p].level_done_ack
 </code></pre>
+<mh3>'mode' is the current mode
+
+'timer' controls the length of time before switching to the next mode
+
+'ack' keeps track of which players have acknowledged
+</mh3>
+<br><a name="Modes"></a>
+<mh7>Modes</mh7>
+
 <mh3>
-These are the special game moves used: 
+These are the different modes:
 </mh3>
-<pre><code class="language-cpp">type data1 data2 description
-6    0     1     "Level Done 1"
-6    0     2     "Level Done 2"
-7    0     0     "Next Level"
-8    p     0     "Player Acknowledge"
+<pre><code class="language-cpp">players[0].level_done_mode = 0; // normal game play
+players[0].level_done_mode = 9; // exit touched
+players[0].level_done_mode = 8; // 2s unskippable delay
+players[0].level_done_mode = 7; // 10s skippable delay
+players[0].level_done_mode = 6; // both delays done, start load new level countdown
+players[0].level_done_mode = 5; // load new level
 </code></pre>
 
-<br><a name="How The Process Is Initiated"></a>
-<mh7>How The Process Is Initiated</mh7>
+
+<br><a name="How The Procedure Is Initiated"></a>
+<mh7>How The Procedure Is Initiated</mh7>
 <mh3>    
-In all game modes (single player, netgame, client, server, rungame), any player can trigger level done.
+The level done procedure is initiated by setting level_done_mode.
 
-This is done by setting the "level_done_mode" to 8.
+Exits start on mode 9 and warps start on mode 7.
 
-This can only be done from mode 0, to prevent retriggering.
+This is because warps are instantaneous and skip the delays of exits.
+
 </mh3>
 <pre><code class="language-cpp">void proc_exit_collision(int p, int i)
 {
-   if (level_done_mode == 0)
+   if (players[0].level_done_mode == 0)
    {
-      level_done_mode = 8;
-      next_level = play_level + 1;
-      players[p].paused = 5;
+	  players[0].level_done_mode = 9;
+	  players[0].level_done_timer = 0;
+	  next_level = play_level + 1;
    }
 }
 
@@ -146,153 +138,81 @@ void proc_warp_collision(int p, int i)
 {
    if (level_done_mode == 0)
    {
-      level_done_mode = 8;
+	  players[0].level_done_mode = 7;
+	  players[0].level_done_timer = 0;
       next_level = item[i][8];
-      players[p].paused = 5;
    }
 }
 </code></pre>
 
+
+<br><a name="How The Procedure Progresses"></a>
+<mh7>How The Procedure Progresses</mh7>
+
 <mh3>    
-However only single player and server game modes do anything with this.
+In the main game loop, if level_done_mode is non-zero,  'proc_level_done_mode()' is called.
 
-In both cases "start_level_done(p)" is called.
+Otherwise all the objects in the game get moved.
 
-There "level_done_mode" is set to 7 and three game moves are inserted with future frame numbers
+This has the effect of freezing everything when in level done mode.
 
+</mh3>    
+
+<pre><code class="language-cpp">void game_loop(int start_mode)
+{
+   ...
+   if (players[0].level_done_mode) proc_level_done_mode();
+   else move_frame();
+   ...
+</code></pre>
+
+
+
+
+
+
+
+<mh3>    
+In 'proc_level_done_mode()' the timer is decremented and modes are switched until mode 5 when 'proc_next_level()' is called.
 </mh3>
-<pre><code class="language-cpp">void proc_player_input(int ret)
-{
-   for (int p=0; p < NUM_PLAYERS; p++)
-      if (players[p].active) // cycle all active players
-      {
-         if (players[p].control_method == 0) // local single player control
-         {
-            if (level_done_mode == 8) start_level_done(p);
 
-void server_local_control(int p)
-{
-   if (level_done_mode == 8) start_level_done(p);
-
-
-void start_level_done(int p)
-{
-   level_done_mode = 7;
-   int fn = frame_num + control_lead_frames;
-   add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
-   add_game_move(fn+100, 6, 0, 2); // insert level done 2 into game move
-   add_game_move(fn+200, 7, 0, 0); // insert next level into game move
-   players1[p].old_comp_move = players1[p].comp_move = 0; // reset both
-}
-</code></pre>
-
-<mh3>    
-Then nothing happens for a few frames until the game move "Level Done 1" is processed
-
-In "proc_controllers()" "proc_game_move()" is called every frame to process special game moves.
-
-</mh3>    
-<pre><code class="language-cpp">int proc_controllers()
-{
-   proc_game_move();  // run once per frame to process system messages from game_move
-
-void proc_game_move(void)
-{
-	case 6: // level done
-	{
-	   if (game_moves[x][3] == 1) level_done_mode = 6; // level done 1
-</code></pre>
-
-
-<br><a name="Mode 6"></a>
-<mh7>Mode 6</mh7>
-<mh3>    
-Now we are in mode 6. Not much happens here. We are just waiting for the next game move "Level Done 2"
-
-The screen overlay for the end of level statistics is shown is all level_done_modes except 0.
-</mh3>    
-
-<pre><code class="language-cpp">void draw_screen_overlay(void)
-{
-   if (level_done_mode) new_show_level_done();
-</code></pre>
-
-<mh3>    
-In the main game loop, an entirely different loop is called for level_done_modes 1-6:
-
-This does not process any of the moveable objects or redraw them. Everything is frozen.
-
-But the game loop keeps running, which is very important for netgame and processing input.
-
-</mh3>    
 <pre><code class="language-cpp">void proc_level_done_mode(void)
 {
-   proc_frame_delay();
-   if (draw_frame)
+   if (--players[0].level_done_timer <= 0) // time to change to next level_done_mode
    {
-      get_new_screen_buffer(0, 0, 0);
-      draw_screen_overlay();
-      al_flip_display();
+      players[0].level_done_mode--;
+      if (players[0].level_done_mode == 8) players[0].level_done_timer = 80;  // unskippable 2s delay
+      if (players[0].level_done_mode == 7) players[0].level_done_timer = 600; // skippable 15s delay
+      if (players[0].level_done_mode == 6) players[0].level_done_timer = 10;  // delay to load next level
+      if (players[0].level_done_mode == 5) proc_next_level();
    }
-}
-
-void game_loop(int start_mode)
-{
-   game_exit = 0;
-   proc_start_mode(start_mode);
-   while (!game_exit)
-   {
-      proc_scale_factor_change();
-      proc_sound();
-      if (ima_server) server_control();
-      if (ima_client) client_control();
-      proc_controllers();
-      if ((level_done_mode > 0) && (level_done_mode < 7)) proc_level_done_mode();
-      else
-      {
-         move_ebullets();
-         move_pbullets();
-         move_lifts(0);
-         move_players();
-         move_enemies();
-         move_items();
-         proc_frame_delay();
-         if (draw_frame)
-         {
-            get_new_background(0);
-            draw_lifts();
-            draw_items();
-            draw_enemies();
-            draw_ebullets();
-            draw_pbullets();
-            draw_players();
-            get_new_screen_buffer(0, 0, 0);
-            draw_screen_overlay();
-            al_flip_display();
-         }
-      }
-   }
-   if (ima_server) server_exit();
-   if (ima_client) client_exit();
-   stop_sound();
-   stamp();
 }
 </code></pre>
+
+
 <mh3>    
-Also the normal player inputs are disabled in single player and server mode
-</mh3>    
+Mode 7 is a special case because it can be skipped if all players acknowledge.
+
+When in level_done_mode, all player input is disabled, except to acknowledge.
+
+Through the code, wherever there is player input there is a test like this:
+
+</mh3>
+
+
+
+
 
 <pre><code class="language-cpp">void proc_player_input(int ret)
 {
-   for (int p=0; p < NUM_PLAYERS; p++)
+   for (int p=0; p< NUM_PLAYERS; p++)
       if (players[p].active) // cycle all active players
       {
          if (players[p].control_method == 0) // local single player control
          {
-            if (level_done_mode == 8) start_level_done(p);
-            if ((level_done_mode == 0) || (level_done_mode == 5)) // only allow player input in these modes
+            if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 7)) // only allow player input in these modes
             {
-               set_comp_move_from_player_key_check(p); // but don't set controls !!!
+               set_comp_move_from_player_key_check(p);
                if (players1[p].comp_move != players1[p].old_comp_move)
                {
                   players1[p].old_comp_move = players1[p].comp_move;
@@ -300,122 +220,76 @@ Also the normal player inputs are disabled in single player and server mode
                }
             }
          }
+         if (players[p].control_method == 3) server_local_control(p);
+         if (players[p].control_method == 4) client_local_control(p);
+         ...   
 
 void server_local_control(int p)
 {
-   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
    set_comp_move_from_player_key_check(p);
-   if (level_done_mode == 8) start_level_done(p);
-   if ((level_done_mode == 0) || (level_done_mode == 5))  // only allow player input in these modes
+   if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 7))  // only allow player input in these modes
    {
       if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
       {
          players1[p].old_comp_move = players1[p].comp_move;
-         add_game_move(fn, 5, p, players1[p].comp_move);
-      }
-   }
-}
+         add_game_move(frame_num, 5, p, players1[p].comp_move);
+         ...
 
-</code></pre>
-
-<mh3>    
-Nothing happens until "Level Done 2" is processed and level_done_mode is set to 5.
-</mh3>    
-<pre><code class="language-cpp">void proc_game_move(void)
+void client_local_control(int p)
 {
-   case 6: // level done
+   set_comp_move_from_player_key_check(p);
+   if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
    {
-      if (game_moves[x][3] == 2) level_done_mode = 5; // level done 2
+      players1[p].old_comp_move = players1[p].comp_move;
+      if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 7))
+      {
+         Packet("cdat");
+         PacketPut1ByteInt(p);
+         PacketPut4ByteInt(frame_num);
+         PacketPut1ByteInt(players1[p].comp_move);
+         ClientSend(packetbuffer, packetsize);
+         ...
 </code></pre>
 
+
 <mh3>    
-The purpose of the unskippable mode 6 is twofold:
+Clients send input to the server where it is entered into the game moves array, just like in server and single player mode.
 
-First to make a holdoff where keypresses from the game that just ended don't immediatley trigger the players acknowledge.
+However when it level_done_mode the game move enetered is modified to be a special move type 8
 
-Second to have a minimum time that the end of level statistics show.
-
-</mh3>    
+</mh3>
 
 
-<br><a name="Mode 5"></a>
-<mh7>Mode 5</mh7>
-<mh3>    
-In mode 5 we are accepting input from players, but we are treating it differently.
 
-Any input is considered an acknowledge and triggers a special game move entry.
-
-In single player or server mode (the only modes that actually put anything in the game_moves array) the entry is intercepted and modified in level_done_mode 5.
-
-</mh3>    
+<mh3>
+These are the special game moves used: 
+</mh3>
 
 <pre><code class="language-cpp">void add_game_move(int frame, int type, int data1, int data2)
 {
-   if ((level_done_mode == 5) && (type == 5) && (data2))  // ack mode and not zero move
+   if ((players[0].level_done_mode == 7) && (type == 5) && (data2)) // all move type inputs are acks in this mode
    {
-      game_moves[game_move_entry_pos][0] = frame;
-      game_moves[game_move_entry_pos][1] = 8;
-      game_moves[game_move_entry_pos][2] = data1; // player num
-      game_moves[game_move_entry_pos][3] = 0;
-      game_move_entry_pos++;
-      return; // to exit immediately
-   }
-</code></pre>
-
-
-
-
-
-<mh3>    
-To handle the acknowledge from a client, the client does not do anything different.
-
-When a client control change occurs, it still sends the same 'cdat' packet to the server.
-
-When the server processes it, it changes it to a special "Player Acknowledge" game move
-
-</mh3>    
-<pre><code class="language-cpp">void server_proc_cdat_packet(void)
-{
-   int p = PacketGet1ByteInt();
-   int fn = PacketGet4ByteInt();
-   int cm = PacketGet1ByteInt();
-   if (level_done_mode == 5) add_game_move(fn, 8, p, 0); // add ack to game_move array
-   else
-   {
-      add_game_move(fn, 5, p, cm); // add to game_move array
-</code></pre>
-
-
-<mh3>    
-Also in level_done_mode 5, we check if all the players have acknowledged.
-
-If they have, we enter a 'Next Level' game move a few frames in the future.
-
-If this does not happen, the original 'Next Level' game move will eventually get processed.
-
-</mh3>    
-
-
-<pre><code class="language-cpp">void proc_level_done_mode(void)
-{
-   if (level_done_mode == 5)
-   {
-      if (ima_server)
+      if (!has_player_acknowledged(data1)) // to prevent multiple acks
       {
-         int aa = 1; // yes by default, set to no if any have not ack
-         for (int p=0; p < NUM_PLAYERS; p++)
-            if (players[p].active)
-               if (!has_player_acknowledged(p)) aa = 0;
-         if (aa)
-         {
-            int fn = frame_num + control_lead_frames;
-            add_game_move(fn, 7, 0, 0); // insert next level into game move
-         }
-      }
-      if ((players[0].control_method == 0) && (has_player_acknowledged(0)))    // single player
-         add_game_move(frame_num, 7, 0, 0); // insert next level into game move
-   }
-}
+         game_moves[game_move_entry_pos][0] = frame;
+         game_moves[game_move_entry_pos][1] = 8;
+         game_moves[game_move_entry_pos][2] = data1; // player num
+         game_moves[game_move_entry_pos][3] = 0;
+         game_move_entry_pos++;
+         ...   
+</code></pre>
+
+
+
+
+<mh3>
+These are the special game moves used: 
+</mh3>
+
+<pre><code class="language-cpp">type data1 data2 description
+8    p     0     "Player Acknowledge"
+</code></pre>
+
 
 int has_player_acknowledged(int p)
 {

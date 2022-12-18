@@ -459,44 +459,6 @@ void server_send_stdf(void)
 //}
 
 
-// old method
-//void server_send_stdf(void)
-//{
-//   // figure out when and what players to send stdf to
-//   if ((frame_num > 1) && (level_done_mode == 0))
-//   {
-//      if (frame_num % stdf_freq == 0)
-//      {
-//         int p = players1[0].n_stdf; // get last player we sent to
-//         int not_found = 0;
-//         int loop_done = 0;
-//         while (!loop_done)
-//         {
-//            if (++p > 7) p = 1; // only look at 1-7
-//            not_found++;
-////            if ((players[p].active) && (players[p].control_method == 2)) loop_done = 1;
-//            if (players[p].control_method == 2) loop_done = 1;
-//            if (players[p].control_method == 8) loop_done = 1;
-//            if (not_found > 8) // no clients found
-//            {
-//               loop_done = 1;
-//               p = 0; // set to 0 so no send will happen
-//            }
-//         }
-//         players1[0].n_stdf = p;      // set last player we sent to
-//         if (p) server_send_stdf(p);  // send
-//         //printf("[%4d] p:%d\n", frame_num, p);
-//      }
-//   }
-//}
-
-/*
-   stdf_freq - frames in between stdf sends
-   only one client is sent to at a time
-   it finds the last one sent to, then searches for the next one to send to
-*/
-
-
 void server_proc_player_drop(void)
 {
    // check to see if we need to drop clients
@@ -704,7 +666,6 @@ void server_control() // this is the main server loop to process packet send and
 {
    if (L_LOGGING_NETPLAY_PLAYER_ARRAY) log_player_array2();
 
-   if (frame_num == 0) reset_states(); // for stdf
    ServerListen();      // listen for new client connections
    int who;
    while((packetsize = ServerReceive(packetbuffer, &who)))
@@ -737,9 +698,8 @@ void server_local_control(int p)
 {
    set_comp_move_from_player_key_check(p);
    if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
-   if (level_done_mode == 8) start_level_done(p, 80, 800);
-   if (level_done_mode == 9) start_level_done(p, 10, 40);
-   if ((level_done_mode == 0) || (level_done_mode == 5))  // only allow player input in these modes
+
+   if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))  // only allow player input in these modes
    {
       if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
       {

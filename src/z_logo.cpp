@@ -133,7 +133,7 @@ void draw_large_text_overlay(int type, int color)
 
 
    float opa = 1.0;
-   if (type == 2) opa = 0.6;
+   if (type == 2) opa = 0.5;
 //   if (type == 3) opa = 0.16;
    if (type == 3) opa = 0.05;
    ALLEGRO_COLOR fc = al_map_rgba_f(opa, opa, opa, opa);

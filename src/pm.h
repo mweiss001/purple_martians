@@ -284,9 +284,7 @@ extern int deathmatch_pbullets_damage;
 extern int suicide_pbullets;
 
 
-
-#define STATE_SIZE 108544
-
+#define STATE_SIZE 108928
 
 // server's copies of client states
 extern char srv_client_state[8][2][STATE_SIZE];
@@ -327,13 +325,11 @@ extern int actual_fps;
 extern int last_frames_skipped;
 extern int frames_skipped_last_second;
 extern int last_fps_frame_num;
-extern int draw_frame;
 extern int frame_speed;
 extern int frame_num;
 
 // global game control
 extern int game_exit;
-extern int level_done_mode;
 extern int next_level;
 
 
@@ -547,7 +543,7 @@ extern char log_msg[NUM_LOG_CHAR]; // for logging
 extern int log_msg_pos;
 extern char log_lines[NUM_LOG_LINES][100]; // for log file viewer
 extern int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
-extern int log_timer;
+
 
 extern int L_LOGGING_NETPLAY;
 extern int L_LOGGING_NETPLAY_JOIN;
@@ -579,13 +575,19 @@ extern int active_local_player;
 struct player // synced between server and client
 {
    int active;  // all routines that process player will skip inactive
+   int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
    int paused;
    int paused_type; // 1 = death, 2 = door move
    int paused_mode;
    int paused_mode_count;
 
-   int spawn_point_index;
+   int level_done_mode;
+   int level_done_timer;
 
+   int level_done_ack;
+
+   int level_done_x;
+   int level_done_y;
 
    al_fixed PX, PY;       // players position
    al_fixed xinc, yinc;   // players momentum
@@ -593,39 +595,37 @@ struct player // synced between server and client
 
    al_fixed LIFE;
    al_fixed old_LIFE;
-   int LIVES;
 
    int on_ladder;
+   int on_rope;
+   int player_ride;
+   int carry_item;
+
 
    int shape; // index to player_tile
    int color; // used to draw frames and stuff in players color
-
+   al_fixed draw_rot;
+   al_fixed draw_scale;
    int door_draw_rot_num_steps;
    al_fixed door_draw_rot;
    al_fixed door_draw_rot_inc;
-   al_fixed draw_rot;
-   al_fixed draw_scale;
-
    int marked_door;
    int door_item;
    int door_xinc;
    int door_yinc;
    int door_num_steps;
 
+
+   int spawn_point_index;
+
    int left_right; // determines the direction the player is facing
 
-   int player_ride, carry_item;
 
    // flags that indicate a control has been activated or held
    int up, down, left, right, jump, fire, fire_held, menu;
 
    int bullet_wait_counter, request_bullet, bullet_wait, bullet_speed;
 
-
-   int on_rope;
-
-   int num_hits;       // when player's bullet hits enemy
-   int control_method; // 0 = local, 1 = file play, 2 = remote view; 3 = server_local; 4 = client_local
 
    int stat_respawns;
    int stat_bullets_fired;
@@ -634,16 +634,18 @@ struct player // synced between server and client
    int stat_self_hits;
    int stat_purple_coins;
 
-/*   int stat_enemy_expoded;
-   int stat_player_expoded;
-   int stat_self_expoded;
+   int stat_enemy_exploded;
+   int stat_player_exploded;
+   int stat_self_exploded;
 
-   fixed stat_LIFE_inc;
-   fixed stat_LIFE_dec;
-   fixed stat_LIFE_wasted;
-  */
+   al_fixed stat_LIFE_inc;
+   al_fixed stat_LIFE_dec;
+   al_fixed stat_LIFE_wasted;
 
 
+   int spare_int1;
+   int spare_int2;
+   int spare_int3;
 
 
 };
@@ -903,6 +905,8 @@ extern int WX;
 extern int WY;
 extern int fullscreen;
 extern int display_adapter_num;
+extern float WX_shift_speed;
+
 
 // used to only redraw a region of background to increase fps
 extern int level_display_region_x;
@@ -1318,7 +1322,7 @@ void proc_game_move(void);
 void serial_key_check(int key);
 void set_controls_from_game_move(int p);
 int proc_events(ALLEGRO_EVENT ev, int ret);
-void start_level_done(int p, int t1, int t2);
+//void start_level_done(int p, int t1, int t2);
 void proc_player_input(int ret);
 int proc_controllers();
 
@@ -1545,11 +1549,12 @@ void spline_adjust(void);
 void scaled_tile_test(void);
 
 // z_loop.h
-void proc_frame_delay(void);
+int proc_frame_delay(void);
 void proc_next_level(void);
 void proc_start_mode(int start_mode);
 int ami_server_or_single(void);
 int has_player_acknowledged(int p);
+int have_all_players_acknowledged(void);
 void proc_level_done_mode(void);
 void game_loop(int start_mode);
 void loop_frame(void);
@@ -1616,7 +1621,7 @@ void get_new_screen_buffer(int type, int x, int y);
 void set_map_var(void);
 void set_scale_factor(float new_scale_factor, int instant);
 void mark_non_default_block(int x, int y);
-void init_level_background();
+void init_level_background(int);
 void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
 void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor);
 void draw_level(void);

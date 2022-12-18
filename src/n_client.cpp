@@ -309,7 +309,6 @@ void client_exit(void)
    active_local_player = 0;
    load_config(); // to get color back
 
-
 }
 
 
@@ -439,8 +438,28 @@ void client_apply_dif2()
       // apply dif to base state
       apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
 
+
+
+      // make a copy of the old l[][]
+      int old_l[100][100];
+      memcpy(old_l, l, sizeof(l));
+
       // copy modified base state to game_vars
       state_to_game_vars(client_state_base);
+
+      // compare old_l to l
+      for (int x=0; x<100; x++)
+         for (int y=0; y<100; y++)
+         {
+            if (l[x][y] != old_l[x][y])
+            {
+               printf("dif at x:%d y:%d\n", x, y);
+               al_set_target_bitmap(level_background);
+               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, al_map_rgb(0,0,0));
+               al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+            }
+         }
+
 
       // fix control methods to match server
       players[0].control_method = 2;
@@ -558,7 +577,6 @@ void client_block_until_initial_state_received(void)
 
    if (L_LOGGING_NETPLAY_JOIN) add_log_entry_header(11, p, msg, 1);
 
-   reset_states();
    int done = 0;
    while (!done)
    {
@@ -573,13 +591,12 @@ void client_block_until_initial_state_received(void)
    }
    set_frame_nums(client_state_dif_dst);
 
-   init_level_background();
+   init_level_background(0);
 
 
    // set holdoff 200 frames in future so client won't try to drop while syncing
    players1[p].client_last_stdf_rx_frame_num = frame_num + 200;
 
-   log_timer = clock(); // start timing for chase and lock
    if (L_LOGGING_NETPLAY_JOIN) add_log_entry_header(11, p, "frame_nums updated - starting chase and lock", 1);
 }
 
@@ -717,18 +734,18 @@ void client_control(void)
 
 void client_local_control(int p)
 {
-   if ((level_done_mode == 0) || (level_done_mode == 5))
+   set_comp_move_from_player_key_check(p);
+   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
+
+   if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
    {
-      if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
-      else set_comp_move_from_player_key_check(p);
-      if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
+      players1[p].old_comp_move = players1[p].comp_move;
+
+      if (players[0].level_done_mode == 0) set_controls_from_comp_move(p, players1[p].comp_move);
+      else clear_controls(p);
+
+      if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))
       {
-         players1[p].old_comp_move = players1[p].comp_move;
-         set_controls_from_comp_move(p, players1[p].comp_move);
-
-         // add_game_move(frame_num, 5, p, players1[p].comp_move);
-
-
          Packet("cdat");
          PacketPut1ByteInt(p);
          PacketPut4ByteInt(frame_num);

@@ -490,6 +490,10 @@ void function_key_check(void)
       if ((key[ALLEGRO_KEY_F11]) && (!KEY_F11_held))
       {
          KEY_F11_held = 1;
+
+         init_level_background(0);
+
+
       }
       if (!key[ALLEGRO_KEY_F11]) KEY_F11_held = 0;
 
@@ -614,7 +618,7 @@ void rungame_key_check(int p, int ret)
 
 void add_game_move(int frame, int type, int data1, int data2)
 {
-   if ((level_done_mode == 5) && (type == 5) && (data2)) // all move type inputs are acks in this mode
+   if ((players[0].level_done_mode == 5) && (type == 5) && (data2)) // all move type inputs are acks in this mode
    {
       if (!has_player_acknowledged(data1)) // to prevent multiple acks
       {
@@ -741,24 +745,13 @@ void proc_player_state_game_move(int x)
          add_log_entry_header(10, p, msg, 1);
       }
 
-//      if (p == active_local_player)
-//      {
-//         if (L_LOGGING_NETPLAY)
-//         {
-//            int finish_time = clock();
-//            int time = finish_time - log_timer;
-//            sprintf(msg,"Chase and lock done in %dms",time);
-//            add_log_entry_header(10, p, msg, 1);
-//         }
-//      }
-
       show_player_join_quit_timer = 60;
       show_player_join_quit_player = p;
       show_player_join_quit_jq = 1;
 
       game_event(80, 0, 0, p, 0, 0, 0);
 
-//      if (ima_client) init_level_background();
+//      if (ima_client) init_level_background(0);
 
       if ((ima_server) || (ima_client))
          if (p != active_local_player) players[p].control_method = 2;
@@ -831,9 +824,14 @@ void proc_player_state_game_move(int x)
          // remote player quit
          if (players[p].control_method == 2)
          {
-            players[p].active = 0;
-            players[p].control_method = 9; // prevent re-use of this player number in this level
-            players1[p].who = 99;
+//            players[p].active = 0;
+//            players[p].control_method = 9; // prevent re-use of this player number in this level
+//            players1[p].who = 99;
+
+              init_player(p, 1);
+
+
+
          }
          show_player_join_quit_timer = 60;
          show_player_join_quit_player = p;
@@ -1049,21 +1047,6 @@ int proc_events(ALLEGRO_EVENT ev, int ret)
    return ret;
 }
 
-void start_level_done(int p, int t1, int t2)
-{
-   level_done_mode = 7;
-   int fn = frame_num;
-   add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
-   add_game_move(fn+t1,  6, 0, 2); // insert level done 2 into game move
-   add_game_move(fn+t2,  7, 0, 0); // insert next level into game move
-   players1[p].old_comp_move = players1[p].comp_move = 0; // reset both
-
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if (players[p].active) players1[p].quit_reason = 80;
-}
-
-
-
 void proc_game_move(void)
 {
    // this function looks in the game_moves array for an exact frame_num match
@@ -1085,37 +1068,6 @@ void proc_game_move(void)
             case 1: proc_player_state_game_move(x); break;
             case 3: proc_player_client_join_game_move(x); break;
             case 4: proc_player_client_quit_game_move(x); break;
-            case 6: // level done
-            {
-               if (game_moves[x][3] == 1) // level done 1
-               {
-                  level_done_mode = 6;
-
-                  // send final state to every client because periodic sending is done
-                  if (ima_server)
-                     for (int p=1; p<NUM_PLAYERS; p++)
-                        if ((players[p].active) && (players[p].control_method == 2)) server_send_stdf(p);
-
-                  if (L_LOGGING_NETPLAY)
-                  {
-                     sprintf(msg,"LEVEL %d DONE (1)", play_level);
-                     add_log_entry_header(10, 0, msg, 3);
-                     if (ima_client) log_ending_stats();
-                     if (ima_server) log_ending_stats_server();
-                  }
-               }
-               if (game_moves[x][3] == 2) // level done 2
-               {
-                  level_done_mode = 5;
-                  if (L_LOGGING_NETPLAY)
-                  {
-                     sprintf(msg,"LEVEL %d DONE (2)", play_level);
-                     add_log_entry_header(10, 0, msg, 3);
-                  }
-               }
-            }
-            break;
-            case 7: proc_next_level(); break;
          }
       }
    }
@@ -1149,6 +1101,11 @@ void set_controls_from_game_move(int p)
 
    // in run game mode and past the end of the file
    if ((players[p].control_method == 1) && (frame_num > demo_mode_last_pc)) clear_controls(p);
+
+   // do not allow any controls in this mode
+   if (players[0].level_done_mode) clear_controls(p);
+
+
 }
 
 void proc_player_input(int ret)
@@ -1158,10 +1115,7 @@ void proc_player_input(int ret)
       {
          if (players[p].control_method == 0) // local single player control
          {
-            if (level_done_mode == 8) start_level_done(p, 80, 800);
-            if (level_done_mode == 9) start_level_done(p, 1, 2);
-
-            if ((level_done_mode == 0) || (level_done_mode == 5)) // only allow player input in these modes
+            if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5)) // only allow player input in these modes
             {
                set_comp_move_from_player_key_check(p); // but don't set controls !!!
                if (players1[p].comp_move != players1[p].old_comp_move)
@@ -1175,8 +1129,13 @@ void proc_player_input(int ret)
          if (players[p].control_method == 3) server_local_control(p);
          if (players[p].control_method == 4) client_local_control(p);
 
-         if (level_done_mode == 0)
+
+         // what is this check for ?
+         // only set controls if actually playing the game, not in level_done_mode
+
+         if (players[0].level_done_mode == 0)
          {
+            // local client is an exeption that sets controls directly
             if (players[p].control_method != 4) set_controls_from_game_move(p); // common for all control methods except local client
          }
       }

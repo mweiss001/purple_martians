@@ -58,8 +58,6 @@ in rungame all active players have control method 1
 make a new control method...like 6 for record rungame
 
 
-
-
 Control panel
 
 file loaded:
@@ -72,12 +70,22 @@ play and pause
 set position and record for one player
 
 
+------------------------------------------------------------------
+to something more graceful if the next level is not found..
 
+option 1: search for next level
+option 2: if load fails go back to current level
 
+whatever you do, do not just fail and leave a failed level loaded with menu...
 
+------------------------------------------------------------------
 
 
 
+------------------------------------------------------------------
+8 character name for player...
+I use 8 char for 'player x' already so the text should fit
+------------------------------------------------------------------
 
 
 
@@ -88,70 +96,55 @@ set position and record for one player
 
 
 
+---------------------------------
+the display window hystersis window thing shoould slowly drift in the direction the player is looking, so they can see further thay way..
+this is genius and should have been done a long time ago
 
 
+it is working but still needs somne bugs worked out
 
 
+take the players motion into account
+if jumping then scroll to see more up
+if falling then scroll to see more down
 
+if riding rocket then do the same....
 
+can I just use pxinc and pyinc??
+what I am doing is moving the camera...
 
+---------------------------------
 
 
+------------------------------------------
+remove fixed from code, it did not do what I wanted it to do...
+this could take a long time....do I want to waste the time?
+-------------------------------------------------
 
 
 
 
 
+-------------------------------------------------
+in log file viewer, make a second array with only the lines that we are showing
+this will make the scrolling up and down make much more sense
+can do page up and page down intelligently
+moving up and down by one line (or 10 or 100) will actually do what we expect
+-------------------------------------------------
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-------------------------------------------------
 Make an 'about' just like 'help'
+-------------------------------------------------
 
 
+
+
+
+-------------------------------------------------
 Make it so that a client does not have to have the level a server is serving.
 I am so close anyway.
 All that needs to be done is also sync the lift steps...
@@ -190,8 +183,10 @@ total    :106144
 this will add
 lift_steps  : 38400
 wait...I also need pmsgtext, and that is not trivial
-
 maybe during join I can compress and send these static things once...
+maybe I could send the level file, it is already compressed...
+-------------------------------------------------
+
 
 
 I want to make the packet exchange not run at the same time as the game.
@@ -206,7 +201,6 @@ control_lead_frames = 3;
 
 this is noticeable
 
-
 I could do a different thread or i could redo my game loop...
 
 sending of cdat will still occur in the main loop
@@ -220,16 +214,16 @@ receive all packets and reply in faster loop
 for server
 receive cdats in faster loop
 
+client sending cdat in its own loop does not make sense, it should send when the control is pressed
+cient receiving stdf in its own loop also does not make sense, it will either be there when it is needed or not
+if I receive it in between frame, I still will not be able to make use of it unil the next frame
 
 
-I looked at some discussions of netgame stuff on the interent and I am not sure that I can ever get my game_moves sync method to be fast enough...
-I am relying on a packet being sent to the server and returning before a control change can occur, there will always be an inherent delay...
 
-what if I try to reduce control lead frames?  do it now...
-do I need to do it on client and server??
-as excpeted it ended badly..
 
-skip this for now...just doc what you have......
+
+
+
 
 
 
@@ -248,7 +242,6 @@ enemies killed
 purple coins
 enemies left alive at the end
 number of deaths
-
 
 one line per level started?
 when complete edit the line
