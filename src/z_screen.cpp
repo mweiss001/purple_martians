@@ -155,7 +155,7 @@ void rebuild_bitmaps(void)
    al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_bitmap(M_dtilemap, 0, 0, 0);
 
-   init_level_background();
+   init_level_background(0);
    set_display_transform();
    load_fonts();
    logo_text_bitmaps_create = 1;
@@ -433,9 +433,6 @@ void get_new_screen_buffer(int type, int x, int y)
    int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
 
 
-
-
-
    // is the entire level smaller than the screen buffer width?
    if (sls < sbw)
    {
@@ -451,7 +448,6 @@ void get_new_screen_buffer(int type, int x, int y)
       sbh = sls;         // new screen_buffer blit height = sls
       if (!level_editor_running) sby += a/2;        // new screen_buffer blit ypos
    }
-
 
    // find the size of the source screen from actual screen size and scaler
    int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
@@ -476,6 +472,8 @@ void get_new_screen_buffer(int type, int x, int y)
       PY = y;
    }
 
+   int x_size =0, y_size = 0;
+
    if (type != 3)
    {
 
@@ -485,8 +483,35 @@ void get_new_screen_buffer(int type, int x, int y)
       //int WY = PY - SH/2 -10;
 
       // set the scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
-      int x_size = SW / 8; // larger number is smaller window
-      int y_size = SH / 12;
+      x_size = SW / 8; // larger number is smaller window
+      y_size = SH / 12;
+
+
+//      x_size = SW / 4; // larger number is smaller window
+//      y_size = SH / 4;
+
+
+//
+//
+//      int look_shift_speed = 4;
+//
+//      if (players[alp].left_right) WX_shift_speed+=.5;
+//      else WX_shift_speed-=.5;
+//
+//
+//      if (WX_shift_speed > 2) WX_shift_speed = 2;
+//      if (WX_shift_speed < -2) WX_shift_speed = -2;
+//
+//      WX+=WX_shift_speed;
+//
+//      if (players[alp].up) WY-=look_shift_speed;
+//      if (players[alp].down) WY+=look_shift_speed;
+//
+
+
+
+
+
 
       if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size; // hit right edge
       if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size; // hit left edge
@@ -514,6 +539,16 @@ void get_new_screen_buffer(int type, int x, int y)
 
 
 
+//   float hx1 = SCREEN_W/2 - x_size * scale_factor_current;
+//   float hx2 = SCREEN_W/2 + x_size * scale_factor_current;
+//   float hy1 = SCREEN_H/2 - y_size * scale_factor_current;
+//   float hy2 = SCREEN_H/2 + y_size * scale_factor_current;
+//   al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 2);
+
+
+
+
+
    // in level editor mode, if the level is smaller than the screen edges, draw a thin line to show where it ends...
    if (type == 3)
    {
@@ -538,33 +573,7 @@ void get_new_screen_buffer(int type, int x, int y)
       //al_draw_rectangle(sbx, sby, sbx+sbw, sby+sbh, palette_color[c], 0);
    }
 
-
-
-
-
-
-   //printf("WX:%d, WY:%d, SW:%d, SH:%d, sbx:%d, sby:%d, sbw:%d, sbh:%d\n", WX, WY, SW, SH, sbx, sby, sbw, sbh);
-
-
-   // where is the player on the screen buffer ??
-   // needed to see if the map is covering player
-//   float psbx = (PX-WX-10) * scale_factor_current;
-//   float psby = (PY-WY-10) * scale_factor_current;
-//   float fsz = 20 * scale_factor_current;
-//
-//   // convert to int
-//   int px = (int) psbx+bw;
-//   int py = (int) psby+bw;
-//   int sz = (int) fsz;
-//
-//   // show rect around player to make sure I've got it
-//   //al_draw_rectangle(px+1, py+1, px+sz+1, py+sz+1, palette_color[10], 1);
-//
-//   // save in player struct
-//   players1[alp].sbx1 = px;
-//   players1[alp].sby1 = py;
-//   players1[alp].sbx2 = px+sz;
-//   players1[alp].sby2 = py+sz;
+  //printf("WX:%d, WY:%d, SW:%d, SH:%d, sbx:%d, sby:%d, sbw:%d, sbh:%d\n", WX, WY, SW, SH, sbx, sby, sbw, sbh);
 
    #ifdef SHOW_HYSTERESIS_WINDOW
    float hx1 = SCREEN_W/2 - x_size * scale_factor_current;
@@ -640,18 +649,84 @@ void mark_non_default_block(int x, int y)
    }
 }
 
-void init_level_background() // fill level_background with block tiles
+
+
+
+void init_level_background2(int s, int e)
 {
-   //printf("init_level_background\n");
    al_set_target_bitmap(level_background);
-   al_clear_to_color(al_map_rgb(0,0,0));
-   for (int x=0; x<100; x++)
+   al_draw_filled_rectangle(s*20, 0, e*20, 2000, al_map_rgb(0,0,0));
+   for (int x=s; x<e; x++)
       for (int y=0; y<100; y++)
       {
          al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
          if ((level_editor_running) && (mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
       }
 }
+
+void init_level_background(int type) // fill level_background with block tiles
+{
+   //printf("init_level_background\n");
+   if (type == 0)
+   {
+      al_set_target_bitmap(level_background);
+      al_clear_to_color(al_map_rgb(0,0,0));
+      for (int x=0; x<100; x++)
+         for (int y=0; y<100; y++)
+         {
+            al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+            if ((level_editor_running) && (mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+         }
+
+   }
+
+   if (type == 1)
+   {
+      if (frame_num % 40 == 0)
+      {
+         al_set_target_bitmap(level_background);
+         al_clear_to_color(al_map_rgb(0,0,0));
+         for (int x=0; x<100; x++)
+            for (int y=0; y<100; y++)
+            {
+               al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+               if ((level_editor_running) && (mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+            }
+      }
+   }
+   if (type == 2)
+   {
+      int sq = frame_num % 40;
+
+      if (sq == 0)  init_level_background2(0,  10);
+      if (sq == 4)  init_level_background2(10, 20);
+      if (sq == 8)  init_level_background2(20, 30);
+      if (sq == 12) init_level_background2(30, 40);
+      if (sq == 16) init_level_background2(40, 50);
+      if (sq == 20) init_level_background2(50, 60);
+      if (sq == 24) init_level_background2(60, 70);
+      if (sq == 28) init_level_background2(70, 80);
+      if (sq == 32) init_level_background2(80, 90);
+      if (sq == 36) init_level_background2(90, 100);
+
+   }
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players)
 {

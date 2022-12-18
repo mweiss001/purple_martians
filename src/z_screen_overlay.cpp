@@ -2,29 +2,12 @@
 
 #include "pm.h"
 
-
-
-int dif_from_now_to_nl()
-{
-   int min_nl = 9999999;
-   for (int x=game_move_entry_pos; x>0; x--)  // look back
-      if (game_moves[x][1] == 7)
-      {
-         if (game_moves[x][0] < min_nl) min_nl = game_moves[x][0];
-      }
-   if (min_nl < 9999999) return min_nl - frame_num;
-   return 0;
-}
-
-
-
 void show_player_stat_box(int tx, int y, int p)
 {
 
    al_draw_filled_rectangle(tx, y, tx+200, y+50, palette_color[0]);
    al_draw_rectangle(       tx, y, tx+200, y+50, palette_color[15], 1);
    al_draw_rectangle(       tx, y, tx+200, y+11, palette_color[15], 1);
-
 
    y+=2;
 
@@ -34,21 +17,20 @@ void show_player_stat_box(int tx, int y, int p)
       al_draw_textf(font, palette_color[c], tx+2, y, 0, "Player:%d [%s]", p, players1[p].hostname);
    else al_draw_textf(font, palette_color[c], tx+2, y, 0, "Player:%d", p);
 
-
-
-
-
-   if ((level_done_mode == 5) && (!has_player_acknowledged(p)))
+   if (players[0].level_done_mode == 5)
    {
-      c = flash_color;
-      int pay = 16;
-      al_draw_textf(font, palette_color[c], tx+158, y+pay, 0, "press");
-      al_draw_textf(font, palette_color[c], tx+158, y+pay+8, 0, " any");
-      int tl = (dif_from_now_to_nl()+30)/40;
-      if (tl > 9) al_draw_textf(font, palette_color[c], tx+154, y+pay+18, 0, "  %2d", tl);
-      else        al_draw_textf(font, palette_color[c], tx+158, y+pay+18, 0, "  %d", tl);
+      if (!players[p].level_done_ack)
+      {
+         c = flash_color;
+         int pay = 16;
+         al_draw_textf(font, palette_color[c], tx+158, y+pay, 0, "press");
+         al_draw_textf(font, palette_color[c], tx+158, y+pay+8, 0, " any");
+         int tl = players[0].level_done_timer/40;
+         if (tl > 9) al_draw_textf(font, palette_color[c], tx+154, y+pay+18, 0, "  %2d", tl);
+         else        al_draw_textf(font, palette_color[c], tx+158, y+pay+18, 0, "  %d", tl);
+      }
+      else al_draw_textf(font, palette_color[15], tx+158, y+20, 0, "ready");
    }
-   if ((level_done_mode == 5) && (has_player_acknowledged(p))) al_draw_textf(font, palette_color[15], tx+158, y+20, 0, "ready");
 
 
    y += 12;
@@ -171,7 +153,8 @@ void show_level_done(void)
 void draw_screen_overlay(void)
 {
    al_set_target_backbuffer(display);
-   if (level_done_mode) show_level_done();
+   if (players[0].level_done_mode) show_level_done();
+
    if (speed_testing) draw_speed_test_data();
    draw_top_display();
    draw_bmsg();
@@ -735,6 +718,9 @@ void draw_top_display(void)
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "frames skipped last second:%d", fsls);
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total frames skipped:%d",fs);
       if (ima_server) al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total game moves:%d", game_move_entry_pos);
+
+      al_draw_textf(font, palette_color[15], cx, cy+=8, 0, "Level Done Mode:%d", players[0].level_done_mode);
+
       cy+=4;
 
 

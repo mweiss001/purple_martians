@@ -131,7 +131,7 @@ void zfs_do_brf(int x, int y, int flood_block)
             for (int b1=0; b1<100; b1++)
                if (f[a1][b1]) set_block_with_flag_filters(a1, b1, flood_block);
 
-         init_level_background();
+         init_level_background(0);
          get_new_background(0);
          get_new_screen_buffer(3, 0, 0);
          al_flip_display();
@@ -144,7 +144,7 @@ void zfs_do_brf(int x, int y, int flood_block)
       for (int a=0; a<100; a++)
          for (int b=0; b<100; b++)
             if (f[a][b]) set_block_with_flag_filters(a, b, flood_block);
-      init_level_background();
+      init_level_background(0);
    }
 }
 
@@ -754,7 +754,7 @@ void zfs_do_fcopy(int qx1, int qy1)
       } // end of attempt copy
    sort_enemy();
    sort_item(1);
-   init_level_background();
+   init_level_background(0);
 }
 
 void zfs_do_clear(void)
@@ -794,7 +794,7 @@ void zfs_do_clear(void)
 
    sort_enemy();
    sort_item(1);
-   init_level_background();
+   init_level_background(0);
 }
 
 void set_block_with_flag_filters(int x, int y, int tn)
@@ -871,7 +871,7 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
          for (int x=bx1; x<bx2+1; x++)
             for (int y=by1; y<by2+1; y++)
                set_block_with_flag_filters(x, y, mW[1].draw_item_num);
-         init_level_background();
+         init_level_background(0);
          al_set_target_backbuffer(display);
       }
       if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Block Frame"))
@@ -886,7 +886,7 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
             set_block_with_flag_filters(bx1, y, mW[1].draw_item_num);
             set_block_with_flag_filters(bx2, y, mW[1].draw_item_num);
          }
-         init_level_background();
+         init_level_background(0);
          al_set_target_backbuffer(display);
       }
       mW[4].brf_mode ? col=10 : col=9;

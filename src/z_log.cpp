@@ -135,7 +135,7 @@ void log_player_array(void)
 
 void log_player_array2(void)
 {
-   sprintf(msg, "[p][a][m][sy] - level_done_mode:%d", level_done_mode);
+   sprintf(msg, "[p][a][m][sy] - level_done_mode:%d", players[0].level_done_mode);
    add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
    for (int p=0; p<NUM_PLAYERS; p++)
    {
@@ -2290,7 +2290,7 @@ void log_client_server_sync_graph(int num_lines)
 
             num_data++;
             end_fn = fn;
-            printf("fn:%d  p:%d sync:%d fps_chase:%d\n", fn, p, sy, fc);
+            // printf("fn:%d  p:%d sync:%d fps_chase:%d\n", fn, p, sy, fc);
          }
       }
 

@@ -1,8 +1,9 @@
 // z_loop.cpp
 #include "pm.h"
 
-void proc_frame_delay(void)
+int proc_frame_delay(void)
 {
+   int draw_frame = 0;
    frame_num++;
    update_animation();
    if (al_get_timer_count(sec_timer) > 0)
@@ -31,6 +32,7 @@ void proc_frame_delay(void)
       else draw_frame = 1;
       while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
    }
+   return draw_frame;
 }
 
 void proc_next_level(void)
@@ -49,18 +51,21 @@ void proc_next_level(void)
       {
          // free all the used clients, so they can be re-assigned on the next level
          if (players[p].control_method == 9) players[p].control_method = 0;
+
          // set all clients inactive on server and client, to force them to re-chase and lock on the new level
-         if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
+    //     if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
+
+
       }
       if (ima_server) server_flush();
       if (ima_client) client_flush();
-      al_rest(1);
+      // al_rest(1);
    }
    stop_sound();
    blind_save_game_moves(1);
    save_log_file();
    play_level = next_level;
-   level_done_mode = 0;
+   players[0].level_done_mode = 0;
    proc_start_mode(5);
 }
 
@@ -83,7 +88,10 @@ void proc_start_mode(int start_mode)
 
    if (start_mode == 5) // start new level after level done
    {
-      for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 2);
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         init_player(p, 2);
+      }
    }
    else // 1, 2, 3, 9 - full player data reset
    {
@@ -143,6 +151,18 @@ void proc_start_mode(int start_mode)
 	}
 
    set_frame_nums(0);
+   reset_states();
+
+
+   if (start_mode == 5) // start new level after level done
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         set_player_start_pos(p, 0); // get starting position
+      }
+   }
+
+
 
    if ((ima_client) || (ima_server))
    {
@@ -159,9 +179,7 @@ void proc_start_mode(int start_mode)
    show_player_join_quit_timer = 0;
    start_music(0); // rewind and start theme
 
-
 }
-
 
 int ami_server_or_single(void)
 {
@@ -170,7 +188,6 @@ int ami_server_or_single(void)
 
    if ((cm == 0) || (cm == 3)) return 1;
    return 0;
-
 }
 
 int has_player_acknowledged(int p)
@@ -180,42 +197,127 @@ int has_player_acknowledged(int p)
    return 0;
 }
 
+int have_all_players_acknowledged(void)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (!has_player_acknowledged(p))) return 0;
+   return 1;
+}
+
 void proc_level_done_mode(void)
 {
    stop_sound();
-   proc_frame_delay();
-   if (draw_frame)
-   {
-      get_new_background(1);
-      draw_lifts();
-      draw_items();
-      draw_enemies();
-      draw_ebullets();
-      draw_pbullets();
-      draw_players();
-      get_new_screen_buffer(0, 0, 0);
-      draw_screen_overlay();
-      al_flip_display();
-   }
-   if (level_done_mode == 5)
-   {
-      if (ima_server)
-      {
-         int aa = 1; // yes by default, set to no if any have not ack
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if ((players[p].active) && (!has_player_acknowledged(p))) aa = 0;
-         if (aa) add_game_move(frame_num, 7, 0, 0); // insert next level into game move
-      }
-      if ((players[0].control_method == 0) && (has_player_acknowledged(0)))    // single player
-         add_game_move(frame_num, 7, 0, 0); // insert next level into game move
 
-      if (players[0].control_method == 1) // run demo mode
+   if (!ima_client)
+   {
+      if (players[0].level_done_mode == 5)
       {
-         level_done_mode = 0;
-         game_exit = 1;
+         if (have_all_players_acknowledged()) players[0].level_done_timer = 0; // skip
+
+         for (int p=0; p<NUM_PLAYERS; p++)
+            if (players[p].active)
+            {
+               if (has_player_acknowledged(p)) players[p].level_done_ack = 1;
+               else players[p].level_done_ack = 0;
+            }
       }
+   }
+   for (int p=0; p<NUM_PLAYERS; p++) players[p].paused = 5;
+
+
+   if (players[0].level_done_mode == 9)  // set xinc and yinc for player exit home
+   {
+
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            // get distance between px and ex
+            al_fixed dx = al_itofix(players[0].level_done_x) - players[p].PX;
+            al_fixed dy = al_itofix(players[0].level_done_y) - players[p].PY;
+
+            players[p].xinc = al_fixdiv(dx, al_itofix(60));
+            players[p].yinc = al_fixdiv(dy, al_itofix(60));
+
+//            printf("dx:%f  dy:%f \n", al_fixtof(players[p].xinc), al_fixtof(players[p].yinc));
+//            printf("xinc:%f  yinc:%f \n", al_fixtof(players[p].xinc), al_fixtof(players[p].yinc));
+
+
+         }
+
+   }
+
+
+
+   if (players[0].level_done_mode == 8)
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            players[p].PX += players[p].xinc;
+            players[p].PY += players[p].yinc;
+         }
+
+   }
+
+
+   if (players[0].level_done_mode == 7)
+   {
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+
+            players[p].draw_scale -= al_ftofix(0.05);
+
+            players[p].draw_rot -= al_ftofix(8);
+
+         }
+
+   }
+
+
+
+
+
+   if (--players[0].level_done_timer <= 0) // time to change to next level_done_mode
+   {
+      players[0].level_done_mode--;
+      if (players[0].level_done_mode == 8) players[0].level_done_timer = 60;  // unskippable 2s delay - seek
+      if (players[0].level_done_mode == 7) players[0].level_done_timer = 20; // shrink
+      if (players[0].level_done_mode == 6) players[0].level_done_timer = 0;
+      if (players[0].level_done_mode == 5) players[0].level_done_timer = 600; // skippable 15s delay;
+      if (players[0].level_done_mode == 4) players[0].level_done_timer = 0;
+      if (players[0].level_done_mode == 3) players[0].level_done_timer = 0;
+      if (players[0].level_done_mode == 2) players[0].level_done_timer = 10;  // delay to load next level
+      if (players[0].level_done_mode == 1) proc_next_level();
    }
 }
+
+
+void draw_frame(void)
+{
+   get_new_background(1);
+   draw_lifts();
+   draw_items();
+   draw_enemies();
+   draw_ebullets();
+   draw_pbullets();
+   draw_players();
+   get_new_screen_buffer(0, 0, 0);
+   draw_screen_overlay();
+   al_flip_display();
+}
+
+
+void move_frame(void)
+{
+   move_ebullets();
+   move_pbullets();
+   move_lifts(0);
+   move_players();
+   move_enemies();
+   move_items();
+}
+
 
 void game_loop(int start_mode)
 {
@@ -228,30 +330,9 @@ void game_loop(int start_mode)
       if (ima_server) server_control();
       if (ima_client) client_control();
       proc_controllers();
-      if (level_done_mode) proc_level_done_mode();
-      else
-      {
-         move_ebullets();
-         move_pbullets();
-         move_lifts(0);
-         move_players();
-         move_enemies();
-         move_items();
-         proc_frame_delay();
-         if (draw_frame)
-         {
-            get_new_background(1);
-            draw_lifts();
-            draw_items();
-            draw_enemies();
-            draw_ebullets();
-            draw_pbullets();
-            draw_players();
-            get_new_screen_buffer(0, 0, 0);
-            draw_screen_overlay();
-            al_flip_display();
-         }
-      }
+      if (players[0].level_done_mode) proc_level_done_mode();
+      else move_frame();
+      if (proc_frame_delay()) draw_frame();
    }
    if (ima_server) server_exit();
    if (ima_client) client_exit();
@@ -259,48 +340,16 @@ void game_loop(int start_mode)
    stamp();
 }
 
-
-
 void loop_frame(void)
 {
    proc_game_move();
 
+   if (players[0].level_done_mode) proc_level_done_mode();
 
    for (int p=0; p<NUM_PLAYERS; p++)
       if (players[p].active) // cycle all active players
          set_controls_from_game_move(p); // common for all players
 
-   move_ebullets();
-   move_pbullets();
-   move_lifts(0);
-   move_players();
-   move_enemies();
-   move_items();
+   move_frame();
    frame_num++;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

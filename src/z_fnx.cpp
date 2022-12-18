@@ -1734,7 +1734,6 @@ void show_state_dif(char *a, char *b)
                sprintf(msg, "player[%d].left_xinc server:[%f] local:[%f]\n", p, al_fixtof(c1_players[p].left_xinc), al_fixtof(c2_players[p].left_xinc)  );
                add_log_entry2(32, active_local_player, msg);
             }
-
             if (c1_players[p].LIFE != c2_players[p].LIFE)
             {
                sprintf(msg, "player[%d].LIFE   server:[%f] local:[%f]\n", p, al_fixtof(c1_players[p].LIFE), al_fixtof(c2_players[p].LIFE));
@@ -1745,28 +1744,11 @@ void show_state_dif(char *a, char *b)
                sprintf(msg, "player[%d].old_LIFE   server:[%f] local:[%f]\n", p, al_fixtof(c1_players[p].old_LIFE), al_fixtof(c2_players[p].old_LIFE));
                add_log_entry2(32, active_local_player, msg);
             }
-            if (c1_players[p].LIVES  != c2_players[p].LIVES)
-            {
-               sprintf(msg, "player[%d].LIVES   server:[%d] local:[%d]\n", p, c1_players[p].LIVES,  c2_players[p].LIVES);
-               add_log_entry2(32, active_local_player, msg);
-            }
-
-
-//            if (c1_players[p].not_used_bitmap_index  != c2_players[p].not_used_bitmap_index)
-//            {
-//               sprintf(msg, "player[%d].bitmap_index   server:[%d] local:[%d]\n", p, c1_players[p].bitmap_index,  c2_players[p].bitmap_index);
-//               add_log_entry2(32, active_local_player, msg);
-//            }
-
-
             if (c1_players[p].shape  != c2_players[p].shape)
             {
                sprintf(msg, "player[%d].shape   server:[%d] local:[%d]\n", p, c1_players[p].shape,  c2_players[p].shape);
                add_log_entry2(32, active_local_player, msg);
             }
-
-
-
             if (c1_players[p].color  != c2_players[p].color)
             {
                sprintf(msg, "player[%d].color   server:[%d] local:[%d]\n", p, c1_players[p].color,  c2_players[p].color );
@@ -1922,35 +1904,11 @@ void show_state_dif(char *a, char *b)
                add_log_entry2(32, active_local_player, msg);
             }
 
-//            if (c1_players[p].not_used_num_bullets  != c2_players[p].not_used_num_bullets)
-//            {
-//               sprintf(msg, "player[%d].num_bullets   server:[%d] local:[%d]\n", p, c1_players[p].not_used_num_bullets,  c2_players[p].not_used_num_bullets );
-//               add_log_entry2(32, active_local_player, msg);
-//            }
-
-            if (c1_players[p].num_hits  != c2_players[p].num_hits)
-            {
-               sprintf(msg, "player[%d].num_hits   server:[%d] local:[%d]\n", p, c1_players[p].num_hits,  c2_players[p].num_hits );
-               add_log_entry2(32, active_local_player, msg);
-            }
-
             if (c1_players[p].control_method  != c2_players[p].control_method)
             {
                sprintf(msg, "player[%d].control_method   server:[%d] local:[%d]\n", p, c1_players[p].control_method,  c2_players[p].control_method );
                add_log_entry2(32, active_local_player, msg);
             }
-
-
-
-   /*
-            if (c1_players[p].health_display  != c2_players[p].health_display)
-            {
-               sprintf(msg, "player[%d].health_display   server:[%d] local:[%d]\n", p, c1_players[p].health_display,  c2_players[p].health_display );
-               add_log_entry2(32, active_local_player, msg);
-
-            }
-   */
-
          }
       }
    }
@@ -2062,7 +2020,7 @@ void show_state_dif(char *a, char *b)
    }
    if (memcmp(c1_l, c2_l, sizeof(l)))
    {
-      init_level_background();
+      init_level_background(0);
       if (L_LOGGING_NETPLAY_show_dif1)
       {
          sprintf(msg, "block errors detected\n");
@@ -2261,3 +2219,9 @@ void temp_test(void)
    //spline_test();
    //spline_adjust();
 }
+
+
+
+
+
+

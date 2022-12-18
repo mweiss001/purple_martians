@@ -607,7 +607,7 @@ void em_process_mouse(void)
             by1 = gy;
             cm_get_new_box();
             em_set_block_range();
-            init_level_background();
+            init_level_background(0);
          }
          break;
          case 2:  // item

@@ -333,7 +333,7 @@ void set_rocket_rot(int num, int x2, int y2)
 
 int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int type)
 {
-   init_level_background();
+   init_level_background(0);
    int tx = SCREEN_W/2;
    int quit = 0;
    int ret = 0;
@@ -1093,7 +1093,7 @@ void find_and_show_event_links(int type, int i, int num2)
 
 int get_trigger_item(int obj_type, int sub_type, int num )
 {
-   init_level_background();
+   init_level_background(0);
    int tx = SCREEN_W/2;
 
    // in case these are needed for lifts
@@ -1181,7 +1181,7 @@ int get_trigger_item(int obj_type, int sub_type, int num )
 
 int get_item(int obj_type, int sub_type, int num )
 {
-   init_level_background();
+   init_level_background(0);
    int tx = SCREEN_W/2;
 
    int ret_item=0;

@@ -205,10 +205,6 @@ void proc_player_health(int p)
       players[p].paused = 100;
       players[p].paused_type = 1;
 
-      if (--players[p].LIVES < 0) // GAME OVER
-      {
-         players[p].LIVES = 5;
-      }
    }
 }
 
@@ -1444,9 +1440,6 @@ void init_player(int p, int t)
 
       players[p].old_LIFE = al_itofix(100);
       players[p].LIFE = al_itofix(100);
-
-      players[p].LIVES = 5;
-      players[p].num_hits = 0;
 
       players1[p].hostname[0] = 0;
       players1[p].who = 99;

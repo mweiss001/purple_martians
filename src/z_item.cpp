@@ -966,7 +966,7 @@ void proc_switch_block_range(int i, int action)
 //            if ((item[i][10] & 0b0100) && (tn ==  9))  l[x][y] = (174 | PM_BTILE_ALL_SOLID); // blue   empty to solid
 //            if ((item[i][10] & 0b1000) && (tn == 10))  l[x][y] = (175 | PM_BTILE_ALL_SOLID); // purple empty to solid
 //         }
-//      if (action == 1) init_level_background();
+//      if (action == 1) init_level_background(0);
 //   }
 
 
@@ -1765,7 +1765,6 @@ void proc_bonus_collision(int p, int i)
    if (bonus_type == 2) // free man
    {
       item[i][0] = 0;
-      players[p].LIVES++;
       game_event(70, 0, 0, p, i, 0, 0);
    }
 
@@ -1782,10 +1781,14 @@ void proc_exit_collision(int p, int i)
    int exit_enemys_left = num_enemy - item[i][8];
    if (exit_enemys_left <= 0)
    {
-      if (level_done_mode == 0)
+      if (players[0].level_done_mode == 0)
       {
-         players[p].paused = 5;
-         level_done_mode = 8;
+         players[0].level_done_mode = 9;
+         players[0].level_done_timer = 0;
+
+         players[0].level_done_x = al_fixtoi(itemf[i][0]);
+         players[0].level_done_y = al_fixtoi(itemf[i][1]);
+
          next_level = play_level + 1;
          game_event(4, 0, 0, 0, 0, 0, 0);
       }
@@ -1804,10 +1807,6 @@ void proc_key_collision(int p, int i)
       al_fixed hy_dist =  al_fixhypot(xlen, ylen);     // hypotenuse distance
 
    //   printf("hy_dist:%d\n", al_fixtoi(hy_dist));
-
-
-
-
 
       al_fixed speed = al_itofix(12);                  // speed
       al_fixed scaler = al_fixdiv(hy_dist, speed);     // get scaler
@@ -1861,12 +1860,15 @@ void proc_rocket_collision(int p, int i)
 
 void proc_warp_collision(int p, int i)
 {
-   if (level_done_mode == 0)
+   if (players[0].level_done_mode == 0)
    {
       if (play_level > 1) warp_level_location = play_level;
+      players[0].level_done_mode = 3;
+      players[0].level_done_timer = 0;
 
-      players[p].paused = 5;
-      level_done_mode = 9;
+      players[0].level_done_x = al_fixtoi(itemf[i][0]);
+      players[0].level_done_y = al_fixtoi(itemf[i][1]);
+
       next_level = item[i][8];
       game_event(4, 0, 0, p, i, 0, 0);
    }

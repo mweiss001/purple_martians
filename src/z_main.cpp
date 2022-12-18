@@ -92,12 +92,10 @@ int actual_fps;
 int last_frames_skipped = 0;
 int frames_skipped_last_second;
 int last_fps_frame_num = 0;
-int draw_frame;
 int frame_speed = 40;
 int frame_num;
 
 // global game control
-int level_done_mode = 0;
 int next_level = 0;
 int game_exit = 1;
 
@@ -289,7 +287,7 @@ char log_msg[NUM_LOG_CHAR]; // for logging
 int log_msg_pos = 0;
 char log_lines[NUM_LOG_LINES][100]; // for log file viewer
 int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
-int log_timer; // to measure chase and lock time
+
 
 int L_LOGGING_NETPLAY = 0;
 int L_LOGGING_NETPLAY_JOIN = 0;
@@ -436,6 +434,13 @@ int WX;
 int WY;
 int fullscreen = 1;
 int display_adapter_num = 0;
+float WX_shift_speed = 0;
+
+
+
+
+
+
 
 // used to only redraw a region of background to increase fps
 int level_display_region_x;
@@ -1295,9 +1300,7 @@ int main(int argument_count, char **argument_array)
 
  //  exit_level_editor_dialog();
 
-
  // show_var_sizes();
-
 
 
 //   for (int b=0; b<1024; b+=256)
