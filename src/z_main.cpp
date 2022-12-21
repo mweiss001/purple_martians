@@ -164,7 +164,7 @@ int demo_mode_enabled = 1;
 int demo_mode_on = 0;
 int demo_mode_countdown_val;
 int demo_mode_countdown_reset = 2400;
-int demo_mode_last_pc = 0;
+int demo_mode_last_frame = 0;
 
 // ------------------------------------------------
 // ----------------- mouse and keys ---------------
@@ -1722,12 +1722,12 @@ int copy_files_to_clients(int exe_only)
 
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
+//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
 
 
 

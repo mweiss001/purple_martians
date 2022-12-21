@@ -35775,7 +35775,6 @@ the clients all overlay on the graph, they all transmit at the same time
 OK now onto the big one...level done...
 
 
-
 If I can simplify it in anyway that would be great....
 
 I will need to keep the game_loop running, or do I?
@@ -36249,7 +36248,6 @@ When a warp is touched, the Level Done Procedure is started at mode 6, skipping 
 
 
 
-
 there are some bugs
 
 client does not have the same blocks as server??
@@ -36455,123 +36453,284 @@ I am so happy that I got level done in a good place, and far less convoluted tha
 
 
 
+20221218 sunday 5:00 AM
 
+what do I want to accomplish today?
 
+more testing and refining...
 
+documentation
+complete level_done
+work on redoing netgame to match what I am doing now
 
 
 
 
+why does client quitting not work anymore?
+is because on client we are setting the controls directly
+there is no game move used at all on clients
+I will need to do something different there
 
+why does menu set all bits? don't do that anymore
+fixed in pm.h BIT defines
+look for other places...
+searched for comp_move...nothing there
+can't quit single player game
+fixed at add game_move
 
+fixed the local client quitting
 
+now what about when server quits on client?
+it just times out...
 
 
+when add game_moves get a quit from local server:
 
+      if ((active_local_player == 0) && (players[0].control_method == 3) && (data1 == 0)) // local server quitting
+      {
+         printf("local server quitting f:%d\n", frame_num);
+         // first set all connected clients to inactive
+         for (int p=1; p<NUM_PLAYERS; p++)
+            if (players[p].control_method == 2)
+            {
+               game_moves[game_move_entry_pos][0] = frame + 2;
+               game_moves[game_move_entry_pos][1] = 4;   // type 4; client quit
+               game_moves[game_move_entry_pos][2] = p;   // player num
+               game_move_entry_pos++;
 
+               game_moves[game_move_entry_pos][0] = frame + 10;
+               game_moves[game_move_entry_pos][1] = 1;   // type 1; player state
+               game_moves[game_move_entry_pos][2] = p;   // player num
+               game_moves[game_move_entry_pos][3] = 64;  // inactive
+               game_move_entry_pos++;
+            }
 
 
 
+what is the purpose of the type 4??
+so when server rewinds and replays it still happens
 
+but what it does is set control method to 8??
 
+what does that do?
 
+I think it is still supposed to send stdf
 
+      // send dif based on this state to all clients
+      for (int p=1; p<NUM_PLAYERS; p++)
+         if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
 
+then when client gets that, it shuts down..
+// fix control methods
+players[0].control_method = 2; // on client, server is mode 2
+if (players[p].control_method == 2) players[p].control_method = 4; // but don't touch if 8!
+if (players[p].control_method == 8) game_exit = 1; // server quit
 
+This seems to work fine....
 
+also, remove all game move stuff from client then, if not used...
+at least, do not save on client
 
 
+make player face exit when seeking..done
+exit seek to happen before level done display makes display dim..done
+display jq message at that time? yes...done
+I don't know which player actually did the exit...use another player var and save it...done
 
 
 
 
+there seems to be a lot of duplication bewteen
 
+proc_next_level() and proc_start_mode()
 
+I would like to put everything from proc_next_level() in proc_start_mode()...done
 
+now clean up proc_start_mode()..done
 
 
+I have currently disabled the part where client are set inactive so they redo chase and lock on new levels
+I just realized that there is no game move making them active in the new level...hope this does not cause any issues
+maybe its because they are never reset when starting a new level...
 
+that reminds me to reset more level_done_ stuff in init player....done..
 
+I am done with documenting level done!!!
 
 
+start making new netgame docs
 
+I don't want to kill the old one
 
 
+I have been through a few iteration of how I approach the multplayer netgame.
 
 
+The approach I use now:
 
+The server is the final authority of the game state.
+The server syncs its game state to clients.
+Clients send control changes to the server.
 
+This all still the same as the previous way I did things.
+The old method also synced game moves back to client, and I did not execute them on the client until I got them.
+This method worked, but had a few major flaws.
 
+There was considerable lag. Not unplayable, but definitely annoying.
+A client would have to send a control change to the server and wait for a reply before actually applying the control change.
+I only tested it in a LAN and even with that optimal network, the lag was on the order of 75ms (or three frames)
+The server had to run 1 frame behind the client to ensure it got the control changes in time to apply them.
+The client had to mark control changes 3 frames in the future to make sure they could get them back in time to apply them.
 
+The new method I use does not ever try to sync the game moves back to the client. I have abandoned that completely.
 
+Instead, the server's game state is how the changes are propogated back to the clients.
 
+frame 100  - client receives new game state from server and overwrites clients current state
+frame 101  - client makes a control change, applies it directly to its local state, and sends a packet to the server with the control change
+frame 102  - another change
+frame 103  - client receives new game state from server and overwrites clients current state
 
+frame 100 server sends state to client
+frame 101
+frame 102 server gets control change from client for frame 101, too late to apply, stores it.
+frame 103 server rewinds to last time it sent a state (100) then replays and applies all missed moves, then sends state to client
 
+The client and the server are almost running at the same time.
+The server is the timing master and never changes
+The client adjusts its timer slightly so that it always gets the state from the server on exactly the frame it is needed.
 
+This is vastly simpler than the previous method I was using, and the lag is imperceptable!
 
+Occasionally there are corrections when the client's state does not match the servers, but they are neglible, barely noticeable.
 
+What happens on the client, to phrase it differently:
 
+The client runs for a few frames, assuming its local input will be received and applied by the server.
+When the client gets a new state from the server, if the moves were all recieved and applied, the clients guess will be pretty close to the server.
+There are also other players inputs (server, other clients) that the client cannot predict, so those changes will also affect the drift between the client and server.
+But the instant that the client gets a new state, they will be in perfect sync with everyone else.
 
 
 
 
 
+see how broken run game is...it actually seems to work pretty good
+all the demos I have tried seem to work
+lets try recording something
 
+there are definitely some bugs....
 
+long 8P did not work
 
+short 2P OK but went past end
 
 
+when a level_done level is started there will not be all the player active things...need to fix
 
 
+fix the txt version to show other types...done...
 
+I want to simplify type 1
 
 
+right now it handles active, inactive, color and quit reason
 
+I want:
 
+type 1 active and color
+type 2 inactive and reason
 
 
+look at all the add_game_move() s and fix
 
+there are 11 occurances of add_game_move()
 
+2 are defs
 
 
+1 type 0 start
+3 type 5 reg move
 
+1 type 3 client join
 
+0 type 4 for client quit??
 
+2 type 1 inactive
+2 type 1 active
 
+changed both inactive to type 2 and nothing else
 
+done now test...
 
+-----------
 
+client quitting makes server quit also
 
+I missed some manual entries...
+4 exists!!
+8 exists!!
 
 
 
+------------------------
 
+20221219
+why does rungame not work for multiplayer?
 
+around 70s which is about how many game moves are in the file???
 
+there is a bug here
 
 
+where do I set demo_mode_last_pc ?
 
+first of all, change to demo_mode_last_frame...done
 
+it is set in start_mode, but I am going to move it to load_gm()...done
 
 
+I have a test file 4062 frames long (100s)
 
+player 0 goes dumb around 2800 frames (70s)
 
+coincidentally, 2800 is the number of game moves in the file....
 
+those should not interfere....
 
+is that 100 gm from end??? YES!!
 
+I think in this function:
 
+void set_controls_from_game_move(int p)
 
 
+we always search back from game_move_entry_pos...
+but that index is the next one to be set, I think we should search from one less than that.
+many things use this function, could they all be wrong??
 
+fixed this to game_move_entry_pos-1; still the same...
 
+could it be when 2nd players come active??
 
+tried to look at the log, but none is created in rungame mode??
 
+looking in the log, p 0 and 1 are still both active and cm 1
 
 
+I am not getting anywhere....
 
 
+SUCCESS!!! THIS IS THE CODE THAT FUCKS IT UP!!!
 
 
+   // in rungame mode game_move_entry_pos is always at the end of the already filled array
+   // it can take a long time to search backwards through the entire array, so set the search position 100 moves in the future
+   if (players[p].control_method == 1)
+   {
+      gme_search_index = game_move_current_pos + 100;
+      if (gme_search_index > game_move_entry_pos-1) gme_search_index = game_move_entry_pos-1;
+   }
 
 
 
@@ -36588,35 +36747,129 @@ I am so happy that I got level done in a good place, and far less convoluted tha
 
 
 
+simplifed add game move like this...
 
 
+// just enter the move
+void add_game_move2(int frame, int type, int data1, int data2)
+{
+   game_moves[game_move_entry_pos][0] = frame;
+   game_moves[game_move_entry_pos][1] = type;
+   game_moves[game_move_entry_pos][2] = data1;
+   game_moves[game_move_entry_pos][3] = data2;
+   game_move_entry_pos++;
+}
 
 
+void add_game_move(int frame, int type, int data1, int data2)
+{
+   if ((players[0].level_done_mode == 5) && (type == 5) && (data2)) // all move type inputs are acks in this mode
+   {
+      if (!has_player_acknowledged(data1)) // to prevent multiple acks
+      {
+         add_game_move2(frame, 8, int data1, 0);
 
+//         game_moves[game_move_entry_pos][0] = frame;
+//         game_moves[game_move_entry_pos][1] = 8;
+//         game_moves[game_move_entry_pos][2] = data1; // player num
+//         game_moves[game_move_entry_pos][3] = 0;
+//         game_move_entry_pos++;
+      }
+      return; // to exit immediately
+   }
 
+   if ((type == 5) && (data2 & PM_COMPMOVE_MENU))  // menu key
+   {
+      if ((active_local_player == 0) && (players[0].control_method == 0)) // single player mode
+      {
+         // eat this keypress and pretend it never happened
+         game_exit = 1;
+         resume_allowed = 1;
+         return; // to exit immediately
+      }
+      if ((active_local_player == 0) && (players[0].control_method == 3) && (data1 == 0)) // local server quitting
+      {
+         printf("local server quitting f:%d\n", frame_num);
+         // first set all connected clients to inactive
+         for (int p=1; p<NUM_PLAYERS; p++)
+            if (players[p].control_method == 2)
+            {
+               add_game_move2(frame + 2, 4, p, 0); // type 4 - client quit
 
+//               game_moves[game_move_entry_pos][0] = frame + 2;
+//               game_moves[game_move_entry_pos][1] = 4;   // type 4; client quit
+//               game_moves[game_move_entry_pos][2] = p;   // player num
+//               game_move_entry_pos++;
 
 
+               add_game_move2(frame + 10, 2, p, 64); // type 2 - player inactive
+//
+//               game_moves[game_move_entry_pos][0] = frame + 10;
+//               game_moves[game_move_entry_pos][1] = 2;   // type 2 - player inactive
+//               game_moves[game_move_entry_pos][2] = p;   // player num
+//               game_moves[game_move_entry_pos][3] = 64;  // inactive
+//               game_move_entry_pos++;
+            }
 
+         // then set server to inactive in future
+         add_game_move2(frame + 10, 2, 0, 64); // type 2 - player inactive
 
+//         game_moves[game_move_entry_pos][0] = frame + 10;
+//         game_moves[game_move_entry_pos][1] = 2;          // type 2 - player inactive
+//         game_moves[game_move_entry_pos][2] = data1;      // player num
+//         game_moves[game_move_entry_pos][3] = 64;         // inactive
+//         game_move_entry_pos++;
 
+         return; // to exit immediately
+      }
 
+      if ((active_local_player == 0) && (players[0].control_method == 3) && (data1 > 0)) // remote client quitting
+      {
+         printf("remote client quitting\n");
+         // set client inactive
 
+         add_game_move2(frame + 2, 2, data1, 64); // type 2 - player inactive
 
 
+//         game_moves[game_move_entry_pos][0] = frame + 2; // need to set in future
+//         game_moves[game_move_entry_pos][1] = 2;         // type 2 - player inactive
+//         game_moves[game_move_entry_pos][2] = data1;     // player num
+//         game_moves[game_move_entry_pos][3] = 64;        // inactive
+//         game_move_entry_pos++;
 
+         return; // to exit immediately
+      }
 
 
 
+      // everything else
 
+      printf("everything else\n");
 
 
+      add_game_move2(frame + 4, 2, data1, 64); // type 2 - player inactive
 
 
+      // change menu key to player state inactive special move
+//      game_moves[game_move_entry_pos][0] = frame + 4;  // add 2 frames so server has time to sync back to client before dropping
+//      game_moves[game_move_entry_pos][1] = 2;          // type 2 - player inactive
+//      game_moves[game_move_entry_pos][2] = data1;      // player num
+//      game_moves[game_move_entry_pos][3] = 64;         // inactive
+//      game_move_entry_pos++;
+      return; // to exit immediately
+   }
 
 
+   // the normal method of simply entering the game move
 
+   add_game_move2(frame, type, data1, data2);
 
+//   game_moves[game_move_entry_pos][0] = frame;
+//   game_moves[game_move_entry_pos][1] = type;
+//   game_moves[game_move_entry_pos][2] = data1;
+//   game_moves[game_move_entry_pos][3] = data2;
+//   game_move_entry_pos++;
+}
 
 
 
@@ -36637,353 +36890,1205 @@ I am so happy that I got level done in a good place, and far less convoluted tha
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+not working
+f:2699 p:1 scfgm gmep:2821 gmcp:2625 gmsi:2725
+f:2700 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2700 p:1 scfgm gmep:2821 gmcp:2626 gmsi:2726
+f:2701 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2701 p:1 scfgm gmep:2821 gmcp:2627 gmsi:2727
+f:2702 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2702 p:1 scfgm gmep:2821 gmcp:2628 gmsi:2728
+f:2703 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2703 p:1 scfgm gmep:2821 gmcp:2629 gmsi:2729
+f:2704 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2704 p:1 scfgm gmep:2821 gmcp:2630 gmsi:2730
+f:2705 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2705 p:1 scfgm gmep:2821 gmcp:2631 gmsi:2731
+f:2706 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2706 p:1 scfgm gmep:2821 gmcp:2632 gmsi:2732
+f:2707 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2707 p:1 scfgm gmep:2821 gmcp:2633 gmsi:2733
+f:2708 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2708 p:1 scfgm gmep:2821 gmcp:2634 gmsi:2734
+f:2709 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2709 p:1 scfgm gmep:2821 gmcp:2635 gmsi:2735
+f:2710 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2710 p:1 scfgm gmep:2821 gmcp:2636 gmsi:2736
+f:2711 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2711 p:1 scfgm gmep:2821 gmcp:2637 gmsi:2737
+f:2712 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2712 p:1 scfgm gmep:2821 gmcp:2638 gmsi:2738
+f:2713 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2713 p:1 scfgm gmep:2821 gmcp:2639 gmsi:2739
+f:2714 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2714 p:1 scfgm gmep:2821 gmcp:2640 gmsi:2740
+f:2715 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2715 p:1 scfgm gmep:2821 gmcp:2641 gmsi:2741
+f:2716 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2716 p:1 scfgm gmep:2821 gmcp:2642 gmsi:2742
+f:2717 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2717 p:1 scfgm gmep:2821 gmcp:2643 gmsi:2743
+f:2718 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2718 p:1 scfgm gmep:2821 gmcp:2644 gmsi:2744
+f:2719 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2719 p:1 scfgm gmep:2821 gmcp:2645 gmsi:2745
+f:2720 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2720 p:1 scfgm gmep:2821 gmcp:2646 gmsi:2746
+f:2721 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2721 p:1 scfgm gmep:2821 gmcp:2647 gmsi:2747
+f:2722 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2722 p:1 scfgm gmep:2821 gmcp:2648 gmsi:2748
+f:2723 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2723 p:1 scfgm gmep:2821 gmcp:2649 gmsi:2749
+f:2724 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2724 p:1 scfgm gmep:2821 gmcp:2650 gmsi:2750
+f:2725 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2725 p:1 scfgm gmep:2821 gmcp:2651 gmsi:2751
+f:2726 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2726 p:1 scfgm gmep:2821 gmcp:2652 gmsi:2752
+f:2727 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2727 p:1 scfgm gmep:2821 gmcp:2653 gmsi:2753
+f:2728 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2728 p:1 scfgm gmep:2821 gmcp:2654 gmsi:2754
+f:2729 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2729 p:1 scfgm gmep:2821 gmcp:2655 gmsi:2755
+f:2730 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2730 p:1 scfgm gmep:2821 gmcp:2656 gmsi:2756
+f:2731 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2731 p:1 scfgm gmep:2821 gmcp:2657 gmsi:2757
+f:2732 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2732 p:1 scfgm gmep:2821 gmcp:2658 gmsi:2758
+f:2733 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2733 p:1 scfgm gmep:2821 gmcp:2659 gmsi:2759
+f:2734 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2734 p:1 scfgm gmep:2821 gmcp:2660 gmsi:2760
+f:2735 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2735 p:1 scfgm gmep:2821 gmcp:2661 gmsi:2761
+f:2736 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2736 p:1 scfgm gmep:2821 gmcp:2662 gmsi:2762
+f:2737 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2737 p:1 scfgm gmep:2821 gmcp:2663 gmsi:2763
+f:2738 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2738 p:1 scfgm gmep:2821 gmcp:2664 gmsi:2764
+f:2739 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2739 p:1 scfgm gmep:2821 gmcp:2665 gmsi:2765
+f:2740 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2740 p:1 scfgm gmep:2821 gmcp:2666 gmsi:2766
+f:2741 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2741 p:1 scfgm gmep:2821 gmcp:2667 gmsi:2767
+f:2742 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2742 p:1 scfgm gmep:2821 gmcp:2668 gmsi:2768
+f:2743 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2743 p:1 scfgm gmep:2821 gmcp:2669 gmsi:2769
+f:2744 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2744 p:1 scfgm gmep:2821 gmcp:2670 gmsi:2770
+f:2745 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2745 p:1 scfgm gmep:2821 gmcp:2671 gmsi:2771
+f:2746 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2746 p:1 scfgm gmep:2821 gmcp:2672 gmsi:2772
+f:2747 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2747 p:1 scfgm gmep:2821 gmcp:2673 gmsi:2773
+f:2748 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2748 p:1 scfgm gmep:2821 gmcp:2674 gmsi:2774
+f:2749 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2749 p:1 scfgm gmep:2821 gmcp:2675 gmsi:2775
+f:2750 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2750 p:1 scfgm gmep:2821 gmcp:2676 gmsi:2776
+f:2751 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2751 p:1 scfgm gmep:2821 gmcp:2676 gmsi:2776
+f:2752 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2752 p:1 scfgm gmep:2821 gmcp:2677 gmsi:2777
+f:2753 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2753 p:1 scfgm gmep:2821 gmcp:2678 gmsi:2778
+f:2754 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2754 p:1 scfgm gmep:2821 gmcp:2679 gmsi:2779
+f:2755 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2755 p:1 scfgm gmep:2821 gmcp:2680 gmsi:2780
+f:2756 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2756 p:1 scfgm gmep:2821 gmcp:2681 gmsi:2781
+f:2757 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2757 p:1 scfgm gmep:2821 gmcp:2682 gmsi:2782
+f:2758 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2758 p:1 scfgm gmep:2821 gmcp:2683 gmsi:2783
+f:2759 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2759 p:1 scfgm gmep:2821 gmcp:2684 gmsi:2784
+f:2760 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2760 p:1 scfgm gmep:2821 gmcp:2685 gmsi:2785
+f:2761 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2761 p:1 scfgm gmep:2821 gmcp:2686 gmsi:2786
+f:2762 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2762 p:1 scfgm gmep:2821 gmcp:2687 gmsi:2787
+f:2763 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2763 p:1 scfgm gmep:2821 gmcp:2688 gmsi:2788
+f:2764 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2764 p:1 scfgm gmep:2821 gmcp:2689 gmsi:2789
+f:2765 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2765 p:1 scfgm gmep:2821 gmcp:2690 gmsi:2790
+f:2766 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2766 p:1 scfgm gmep:2821 gmcp:2691 gmsi:2791
+f:2767 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2767 p:1 scfgm gmep:2821 gmcp:2692 gmsi:2792
+f:2768 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2768 p:1 scfgm gmep:2821 gmcp:2693 gmsi:2793
+f:2769 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2769 p:1 scfgm gmep:2821 gmcp:2694 gmsi:2794
+f:2770 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2770 p:1 scfgm gmep:2821 gmcp:2695 gmsi:2795
+f:2771 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2771 p:1 scfgm gmep:2821 gmcp:2696 gmsi:2796
+f:2772 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2772 p:1 scfgm gmep:2821 gmcp:2697 gmsi:2797
+f:2773 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2773 p:1 scfgm gmep:2821 gmcp:2698 gmsi:2798
+f:2774 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2774 p:1 scfgm gmep:2821 gmcp:2699 gmsi:2799
+f:2775 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2775 p:1 scfgm gmep:2821 gmcp:2700 gmsi:2800
+f:2776 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2776 p:1 scfgm gmep:2821 gmcp:2700 gmsi:2800
+f:2777 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2777 p:1 scfgm gmep:2821 gmcp:2701 gmsi:2801
+f:2778 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2778 p:1 scfgm gmep:2821 gmcp:2702 gmsi:2802
+f:2779 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2779 p:1 scfgm gmep:2821 gmcp:2703 gmsi:2803
+f:2780 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2780 p:1 scfgm gmep:2821 gmcp:2704 gmsi:2804
+f:2781 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2781 p:1 scfgm gmep:2821 gmcp:2705 gmsi:2805
+f:2782 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2782 p:1 scfgm gmep:2821 gmcp:2706 gmsi:2806
+f:2783 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2783 p:1 scfgm gmep:2821 gmcp:2707 gmsi:2807
+f:2784 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2784 p:1 scfgm gmep:2821 gmcp:2708 gmsi:2808
+f:2785 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2785 p:1 scfgm gmep:2821 gmcp:2709 gmsi:2809
+f:2786 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2786 p:1 scfgm gmep:2821 gmcp:2710 gmsi:2810
+f:2787 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2787 p:1 scfgm gmep:2821 gmcp:2711 gmsi:2811
+f:2788 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2788 p:1 scfgm gmep:2821 gmcp:2712 gmsi:2812
+f:2789 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2789 p:1 scfgm gmep:2821 gmcp:2713 gmsi:2813
+f:2790 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2790 p:1 scfgm gmep:2821 gmcp:2714 gmsi:2814
+f:2791 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2791 p:1 scfgm gmep:2821 gmcp:2715 gmsi:2815
+f:2792 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2792 p:1 scfgm gmep:2821 gmcp:2716 gmsi:2816
+f:2793 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2793 p:1 scfgm gmep:2821 gmcp:2717 gmsi:2817
+f:2794 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2794 p:1 scfgm gmep:2821 gmcp:2718 gmsi:2818
+f:2795 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2795 p:1 scfgm gmep:2821 gmcp:2719 gmsi:2819
+f:2796 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2796 p:1 scfgm gmep:2821 gmcp:2720 gmsi:2820
+f:2797 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2797 p:1 scfgm gmep:2821 gmcp:2721 gmsi:2820
+f:2798 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2798 p:1 scfgm gmep:2821 gmcp:2722 gmsi:2820
+f:2799 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2799 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2800 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2800 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2801 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2801 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2802 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2802 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2803 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2803 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2804 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2804 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2805 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2805 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2806 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2806 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2807 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2807 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2808 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2808 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2809 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2809 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2810 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2810 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2811 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2811 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2812 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2812 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2813 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2813 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2814 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2814 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2815 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2815 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2816 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2816 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2817 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2817 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2818 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2818 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2819 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2819 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2820 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2820 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2821 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2821 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2822 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2822 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2823 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2823 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2824 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2824 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2825 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2825 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2826 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2826 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2827 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2827 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2828 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2828 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2829 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2829 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2830 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2830 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2831 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2831 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2832 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2832 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2833 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2833 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2834 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2834 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2835 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2835 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2836 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2836 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2837 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2837 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2838 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2838 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2839 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2839 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2840 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2840 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2841 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+f:2841 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2842 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2723
+
+
+
+
+
+working:
+f:2699 p:1 scfgm gmep:2821 gmcp:2625 gmsi:2820
+f:2700 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2700 p:1 scfgm gmep:2821 gmcp:2626 gmsi:2820
+f:2701 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2701 p:1 scfgm gmep:2821 gmcp:2627 gmsi:2820
+f:2702 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2702 p:1 scfgm gmep:2821 gmcp:2628 gmsi:2820
+f:2703 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2703 p:1 scfgm gmep:2821 gmcp:2629 gmsi:2820
+f:2704 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2704 p:1 scfgm gmep:2821 gmcp:2630 gmsi:2820
+f:2705 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2705 p:1 scfgm gmep:2821 gmcp:2631 gmsi:2820
+f:2706 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2706 p:1 scfgm gmep:2821 gmcp:2632 gmsi:2820
+f:2707 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2707 p:1 scfgm gmep:2821 gmcp:2633 gmsi:2820
+f:2708 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2708 p:1 scfgm gmep:2821 gmcp:2634 gmsi:2820
+f:2709 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2709 p:1 scfgm gmep:2821 gmcp:2635 gmsi:2820
+f:2710 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2710 p:1 scfgm gmep:2821 gmcp:2636 gmsi:2820
+f:2711 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2711 p:1 scfgm gmep:2821 gmcp:2637 gmsi:2820
+f:2712 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2712 p:1 scfgm gmep:2821 gmcp:2638 gmsi:2820
+f:2713 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2713 p:1 scfgm gmep:2821 gmcp:2639 gmsi:2820
+f:2714 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2714 p:1 scfgm gmep:2821 gmcp:2640 gmsi:2820
+f:2715 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2715 p:1 scfgm gmep:2821 gmcp:2641 gmsi:2820
+f:2716 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2716 p:1 scfgm gmep:2821 gmcp:2642 gmsi:2820
+f:2717 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2717 p:1 scfgm gmep:2821 gmcp:2643 gmsi:2820
+f:2718 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2718 p:1 scfgm gmep:2821 gmcp:2644 gmsi:2820
+f:2719 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2719 p:1 scfgm gmep:2821 gmcp:2645 gmsi:2820
+f:2720 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2720 p:1 scfgm gmep:2821 gmcp:2646 gmsi:2820
+f:2721 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2721 p:1 scfgm gmep:2821 gmcp:2647 gmsi:2820
+f:2722 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2722 p:1 scfgm gmep:2821 gmcp:2648 gmsi:2820
+f:2723 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2723 p:1 scfgm gmep:2821 gmcp:2649 gmsi:2820
+f:2724 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2724 p:1 scfgm gmep:2821 gmcp:2650 gmsi:2820
+f:2725 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2725 p:1 scfgm gmep:2821 gmcp:2651 gmsi:2820
+f:2726 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2726 p:1 scfgm gmep:2821 gmcp:2652 gmsi:2820
+f:2727 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2727 p:1 scfgm gmep:2821 gmcp:2653 gmsi:2820
+f:2728 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2728 p:1 scfgm gmep:2821 gmcp:2654 gmsi:2820
+f:2729 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2729 p:1 scfgm gmep:2821 gmcp:2655 gmsi:2820
+f:2730 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2730 p:1 scfgm gmep:2821 gmcp:2656 gmsi:2820
+f:2731 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2731 p:1 scfgm gmep:2821 gmcp:2657 gmsi:2820
+f:2732 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2732 p:1 scfgm gmep:2821 gmcp:2658 gmsi:2820
+f:2733 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2733 p:1 scfgm gmep:2821 gmcp:2659 gmsi:2820
+f:2734 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2734 p:1 scfgm gmep:2821 gmcp:2660 gmsi:2820
+f:2735 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2735 p:1 scfgm gmep:2821 gmcp:2661 gmsi:2820
+f:2736 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2736 p:1 scfgm gmep:2821 gmcp:2662 gmsi:2820
+f:2737 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2737 p:1 scfgm gmep:2821 gmcp:2663 gmsi:2820
+f:2738 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2738 p:1 scfgm gmep:2821 gmcp:2664 gmsi:2820
+f:2739 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2739 p:1 scfgm gmep:2821 gmcp:2665 gmsi:2820
+f:2740 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2740 p:1 scfgm gmep:2821 gmcp:2666 gmsi:2820
+f:2741 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2741 p:1 scfgm gmep:2821 gmcp:2667 gmsi:2820
+f:2742 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2742 p:1 scfgm gmep:2821 gmcp:2668 gmsi:2820
+f:2743 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2743 p:1 scfgm gmep:2821 gmcp:2669 gmsi:2820
+f:2744 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2744 p:1 scfgm gmep:2821 gmcp:2670 gmsi:2820
+f:2745 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2745 p:1 scfgm gmep:2821 gmcp:2671 gmsi:2820
+f:2746 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2746 p:1 scfgm gmep:2821 gmcp:2672 gmsi:2820
+f:2747 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2747 p:1 scfgm gmep:2821 gmcp:2673 gmsi:2820
+f:2748 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2748 p:1 scfgm gmep:2821 gmcp:2674 gmsi:2820
+f:2749 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2749 p:1 scfgm gmep:2821 gmcp:2675 gmsi:2820
+f:2750 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2750 p:1 scfgm gmep:2821 gmcp:2676 gmsi:2820
+f:2751 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2751 p:1 scfgm gmep:2821 gmcp:2676 gmsi:2820
+f:2752 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2752 p:1 scfgm gmep:2821 gmcp:2677 gmsi:2820
+f:2753 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2753 p:1 scfgm gmep:2821 gmcp:2678 gmsi:2820
+f:2754 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2754 p:1 scfgm gmep:2821 gmcp:2679 gmsi:2820
+f:2755 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2755 p:1 scfgm gmep:2821 gmcp:2680 gmsi:2820
+f:2756 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2756 p:1 scfgm gmep:2821 gmcp:2681 gmsi:2820
+f:2757 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2757 p:1 scfgm gmep:2821 gmcp:2682 gmsi:2820
+f:2758 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2758 p:1 scfgm gmep:2821 gmcp:2683 gmsi:2820
+f:2759 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2759 p:1 scfgm gmep:2821 gmcp:2684 gmsi:2820
+f:2760 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2760 p:1 scfgm gmep:2821 gmcp:2685 gmsi:2820
+f:2761 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2761 p:1 scfgm gmep:2821 gmcp:2686 gmsi:2820
+f:2762 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2762 p:1 scfgm gmep:2821 gmcp:2687 gmsi:2820
+f:2763 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2763 p:1 scfgm gmep:2821 gmcp:2688 gmsi:2820
+f:2764 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2764 p:1 scfgm gmep:2821 gmcp:2689 gmsi:2820
+f:2765 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2765 p:1 scfgm gmep:2821 gmcp:2690 gmsi:2820
+f:2766 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2766 p:1 scfgm gmep:2821 gmcp:2691 gmsi:2820
+f:2767 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2767 p:1 scfgm gmep:2821 gmcp:2692 gmsi:2820
+f:2768 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2768 p:1 scfgm gmep:2821 gmcp:2693 gmsi:2820
+f:2769 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2769 p:1 scfgm gmep:2821 gmcp:2694 gmsi:2820
+f:2770 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2770 p:1 scfgm gmep:2821 gmcp:2695 gmsi:2820
+f:2771 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2771 p:1 scfgm gmep:2821 gmcp:2696 gmsi:2820
+f:2772 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2772 p:1 scfgm gmep:2821 gmcp:2697 gmsi:2820
+f:2773 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2773 p:1 scfgm gmep:2821 gmcp:2698 gmsi:2820
+f:2774 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2774 p:1 scfgm gmep:2821 gmcp:2699 gmsi:2820
+f:2775 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2775 p:1 scfgm gmep:2821 gmcp:2700 gmsi:2820
+f:2776 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2776 p:1 scfgm gmep:2821 gmcp:2700 gmsi:2820
+f:2777 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2777 p:1 scfgm gmep:2821 gmcp:2701 gmsi:2820
+f:2778 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2778 p:1 scfgm gmep:2821 gmcp:2702 gmsi:2820
+f:2779 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2779 p:1 scfgm gmep:2821 gmcp:2703 gmsi:2820
+f:2780 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2780 p:1 scfgm gmep:2821 gmcp:2704 gmsi:2820
+f:2781 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2781 p:1 scfgm gmep:2821 gmcp:2705 gmsi:2820
+f:2782 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2782 p:1 scfgm gmep:2821 gmcp:2706 gmsi:2820
+f:2783 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2783 p:1 scfgm gmep:2821 gmcp:2707 gmsi:2820
+f:2784 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2784 p:1 scfgm gmep:2821 gmcp:2708 gmsi:2820
+f:2785 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2785 p:1 scfgm gmep:2821 gmcp:2709 gmsi:2820
+f:2786 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2786 p:1 scfgm gmep:2821 gmcp:2710 gmsi:2820
+f:2787 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2787 p:1 scfgm gmep:2821 gmcp:2711 gmsi:2820
+f:2788 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2788 p:1 scfgm gmep:2821 gmcp:2712 gmsi:2820
+f:2789 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2789 p:1 scfgm gmep:2821 gmcp:2713 gmsi:2820
+f:2790 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2790 p:1 scfgm gmep:2821 gmcp:2714 gmsi:2820
+f:2791 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2791 p:1 scfgm gmep:2821 gmcp:2715 gmsi:2820
+f:2792 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2792 p:1 scfgm gmep:2821 gmcp:2716 gmsi:2820
+f:2793 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2793 p:1 scfgm gmep:2821 gmcp:2717 gmsi:2820
+f:2794 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2794 p:1 scfgm gmep:2821 gmcp:2718 gmsi:2820
+f:2795 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2795 p:1 scfgm gmep:2821 gmcp:2719 gmsi:2820
+f:2796 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2796 p:1 scfgm gmep:2821 gmcp:2720 gmsi:2820
+f:2797 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2797 p:1 scfgm gmep:2821 gmcp:2721 gmsi:2820
+f:2798 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2798 p:1 scfgm gmep:2821 gmcp:2722 gmsi:2820
+f:2799 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2799 p:1 scfgm gmep:2821 gmcp:2723 gmsi:2820
+f:2800 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2800 p:1 scfgm gmep:2821 gmcp:2724 gmsi:2820
+f:2801 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2801 p:1 scfgm gmep:2821 gmcp:2725 gmsi:2820
+f:2802 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2802 p:1 scfgm gmep:2821 gmcp:2726 gmsi:2820
+f:2803 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2803 p:1 scfgm gmep:2821 gmcp:2727 gmsi:2820
+f:2804 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2804 p:1 scfgm gmep:2821 gmcp:2728 gmsi:2820
+f:2805 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2805 p:1 scfgm gmep:2821 gmcp:2729 gmsi:2820
+f:2806 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2806 p:1 scfgm gmep:2821 gmcp:2730 gmsi:2820
+f:2807 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2807 p:1 scfgm gmep:2821 gmcp:2731 gmsi:2820
+f:2808 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2808 p:1 scfgm gmep:2821 gmcp:2732 gmsi:2820
+f:2809 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2809 p:1 scfgm gmep:2821 gmcp:2733 gmsi:2820
+f:2810 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2810 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2811 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2811 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2812 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2812 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2813 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2813 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2814 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2814 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2815 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2815 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2816 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2816 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2817 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2817 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2818 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2818 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2819 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2819 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2820 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2820 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2821 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2821 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2822 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2822 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2823 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2823 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2824 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2824 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2825 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2825 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2826 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2826 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2827 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2827 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2828 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2828 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2829 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2829 p:1 scfgm gmep:2821 gmcp:2734 gmsi:2820
+f:2830 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2830 p:1 scfgm gmep:2821 gmcp:2735 gmsi:2820
+f:2831 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2831 p:1 scfgm gmep:2821 gmcp:2735 gmsi:2820
+f:2832 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2832 p:1 scfgm gmep:2821 gmcp:2735 gmsi:2820
+f:2833 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2833 p:1 scfgm gmep:2821 gmcp:2735 gmsi:2820
+f:2834 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2834 p:1 scfgm gmep:2821 gmcp:2735 gmsi:2820
+f:2835 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2835 p:1 scfgm gmep:2821 gmcp:2735 gmsi:2820
+f:2836 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2836 p:1 scfgm gmep:2821 gmcp:2735 gmsi:2820
+f:2837 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2837 p:1 scfgm gmep:2821 gmcp:2735 gmsi:2820
+f:2838 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2838 p:1 scfgm gmep:2821 gmcp:2736 gmsi:2820
+f:2839 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2839 p:1 scfgm gmep:2821 gmcp:2737 gmsi:2820
+f:2840 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2840 p:1 scfgm gmep:2821 gmcp:2737 gmsi:2820
+f:2841 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2841 p:1 scfgm gmep:2821 gmcp:2737 gmsi:2820
+f:2842 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2842 p:1 scfgm gmep:2821 gmcp:2737 gmsi:2820
+f:2843 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2843 p:1 scfgm gmep:2821 gmcp:2737 gmsi:2820
+f:2844 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2844 p:1 scfgm gmep:2821 gmcp:2737 gmsi:2820
+f:2845 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2845 p:1 scfgm gmep:2821 gmcp:2737 gmsi:2820
+f:2846 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2846 p:1 scfgm gmep:2821 gmcp:2737 gmsi:2820
+f:2847 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2847 p:1 scfgm gmep:2821 gmcp:2737 gmsi:2820
+f:2848 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2848 p:1 scfgm gmep:2821 gmcp:2737 gmsi:2820
+f:2849 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2849 p:1 scfgm gmep:2821 gmcp:2738 gmsi:2820
+f:2850 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2850 p:1 scfgm gmep:2821 gmcp:2738 gmsi:2820
+f:2851 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2851 p:1 scfgm gmep:2821 gmcp:2738 gmsi:2820
+f:2852 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2852 p:1 scfgm gmep:2821 gmcp:2738 gmsi:2820
+f:2853 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2853 p:1 scfgm gmep:2821 gmcp:2738 gmsi:2820
+f:2854 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2854 p:1 scfgm gmep:2821 gmcp:2739 gmsi:2820
+f:2855 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2855 p:1 scfgm gmep:2821 gmcp:2739 gmsi:2820
+f:2856 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2856 p:1 scfgm gmep:2821 gmcp:2739 gmsi:2820
+f:2857 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2857 p:1 scfgm gmep:2821 gmcp:2739 gmsi:2820
+f:2858 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2858 p:1 scfgm gmep:2821 gmcp:2739 gmsi:2820
+f:2859 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2859 p:1 scfgm gmep:2821 gmcp:2739 gmsi:2820
+f:2860 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2860 p:1 scfgm gmep:2821 gmcp:2739 gmsi:2820
+f:2861 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2861 p:1 scfgm gmep:2821 gmcp:2739 gmsi:2820
+f:2862 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2862 p:1 scfgm gmep:2821 gmcp:2739 gmsi:2820
+f:2863 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2863 p:1 scfgm gmep:2821 gmcp:2740 gmsi:2820
+f:2864 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2864 p:1 scfgm gmep:2821 gmcp:2740 gmsi:2820
+f:2865 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2865 p:1 scfgm gmep:2821 gmcp:2740 gmsi:2820
+f:2866 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2866 p:1 scfgm gmep:2821 gmcp:2740 gmsi:2820
+f:2867 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2867 p:1 scfgm gmep:2821 gmcp:2740 gmsi:2820
+f:2868 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2868 p:1 scfgm gmep:2821 gmcp:2741 gmsi:2820
+f:2869 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2869 p:1 scfgm gmep:2821 gmcp:2742 gmsi:2820
+f:2870 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2870 p:1 scfgm gmep:2821 gmcp:2742 gmsi:2820
+f:2871 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2871 p:1 scfgm gmep:2821 gmcp:2742 gmsi:2820
+f:2872 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2872 p:1 scfgm gmep:2821 gmcp:2742 gmsi:2820
+f:2873 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2873 p:1 scfgm gmep:2821 gmcp:2742 gmsi:2820
+f:2874 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2874 p:1 scfgm gmep:2821 gmcp:2742 gmsi:2820
+f:2875 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2875 p:1 scfgm gmep:2821 gmcp:2743 gmsi:2820
+f:2876 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2876 p:1 scfgm gmep:2821 gmcp:2743 gmsi:2820
+f:2877 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2877 p:1 scfgm gmep:2821 gmcp:2743 gmsi:2820
+f:2878 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2878 p:1 scfgm gmep:2821 gmcp:2743 gmsi:2820
+f:2879 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2879 p:1 scfgm gmep:2821 gmcp:2744 gmsi:2820
+f:2880 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2880 p:1 scfgm gmep:2821 gmcp:2744 gmsi:2820
+f:2881 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2881 p:1 scfgm gmep:2821 gmcp:2744 gmsi:2820
+f:2882 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2882 p:1 scfgm gmep:2821 gmcp:2744 gmsi:2820
+f:2883 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2883 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2884 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2884 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2885 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2885 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2886 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2886 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2887 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2887 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2888 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2888 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2889 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2889 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2890 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2890 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2891 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2891 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2892 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2892 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2893 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2893 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2894 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2894 p:1 scfgm gmep:2821 gmcp:2745 gmsi:2820
+f:2895 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2895 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2896 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2896 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2897 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2897 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2898 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2898 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2899 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2899 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2900 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2900 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2901 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2901 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2902 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2902 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2903 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2903 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2904 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2904 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2905 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2905 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2906 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2906 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2907 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2907 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2908 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2908 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2909 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2909 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+f:2910 p:0 scfgm gmep:2821 gmcp:2623 gmsi:2820
+f:2910 p:1 scfgm gmep:2821 gmcp:2746 gmsi:2820
+
+
+
+
+
+
+
+I think I am getting it now...
+
+gmcp is different for each player
+
+it is the index of the last game move used to set the player controls
+
+it could possibly be valid if we were saving it for each player instead of common
+
+no, even that is flawed...
+
+
+
+
+
+
+I think I want to redo the methods I use to set controls and process game moves from the game moves array..
+
+for starters, there are 2 methods..
+
+void set_controls_from_game_move(int p)
+- called once per frame per player
+- looks gme with greatest frame_num that is <= current frame_num
+
+
+void proc_game_move(void)
+- called once per frame
+- only concerned with exact frame matches
+
+
+- I cannot guarantee that the game_moves array has all frame_num in order
+
+- I don't want to search the entire game_moves array every time
+
+Most of the time I start the search at the end, the most recent entry.
+The only exception would be rungame, where the current_pos is less than the end..
+
+
+In trying to refine the search start and end...
+In all modes, except for rungame, set it at the end..
+
+To make it work in rungame:
+keep game_move_current_pos, but make it so that when any game_move_entry is used to set player's controls only update game_move_current_pos if it is greater
+
+
+Do I really need to search back like this?
+
+What if they are out of order?
+
+
+
+After being away for a while and thinking about it, I think I understand it now.
+
+Write up a thorough description of how game moves are read from the game moves array and applied.
+
+How many types of games are there where stuff is being read from game moves array?
+Single Player
+Server
+Rungame
+
+Client does not read from game moves array any more...
+
+You can tell what mode you are in by the control method of player 0, which always exists.
+
+0 Single Player
+3 Server
+1 Rungame
+
+For modes 0 and 3, search back from end (game_move_entry_pos) until move that matches player and is not in the future
+
+For mode 1
+
+
+
+
+
+
+
+
+
+
+
+------------------
+
+wait...I am trybing to do something better am I not?
+
+
+I propose a single search back through the game moves array for all players and special game moves.
+
+First I will need to determine the search start and end.
+
+Start:
+Same as the other...gmep in mode 0 and 3...gmcp+100 in mode 1
+
+End:
+when frames of gm are 100 less than current frame
+
+
+
+
+what to do when a match is found?
+
+apply special moves only when exact match is found
+apply game moves only when exact match is found (otherwise don't touch controls)
+
+
+this will be a big change from clearing and finding most recent from current frame_num back and applying
+
+
+make a function like this to replace both
+
+modifiy current_pos to never go back...
+
+I did this and it works for all modes so far:
+
+// this function processes all entries in the game_moves array that match current frame_num
+void proc_game_moves_array(void)
+{
+   int start_index = game_move_current_pos + 100;
+   if (start_index > game_move_entry_pos-1) start_index = game_move_entry_pos-1;
+
+   int end_index = game_move_current_pos - 100;
+   if (end_index < 0) end_index = 0;
+
+   for (int x=start_index; x>=end_index; x--)  // search backwards from start_index to end_index
+   {
+      if (game_moves[x][0] == frame_num) // found frame number that matches current frame
+      {
+         if (x > game_move_current_pos) game_move_current_pos = x; // index of last used gm - keep this at the most recent one, never go back
+         switch (game_moves[x][1])
+         {
+            case 1: proc_player_active_game_move(x); break;
+            case 2: proc_player_inactive_game_move(x); break;
+            case 3: proc_player_client_join_game_move(x); break;
+            case 4: proc_player_client_quit_game_move(x); break;
+            case 5: set_controls_from_comp_move(game_moves[x][2], game_moves[x][3]); break;
+         }
+      }
+   }
+}
+
+
+is is called from proc_controllers() like this...
+
+proc_player_input(ret);
+if (!ima_client) proc_game_moves_array();  // run once per frame to process game_moves_array (except client)
+
+and also in
+
+void loop_frame(void)
+{
+   proc_game_moves_array();
+
+
+
+document what you are removing:
+
+void loop_frame(void)
+{
+   proc_game_moves_array();
+
+//   proc_game_move();
+
+   if (players[0].level_done_mode) proc_level_done_mode();
+
+//   for (int p=0; p<NUM_PLAYERS; p++)
+//      if (players[p].active) // cycle all active players
+//         set_controls_from_game_move(p); // common for all players
+
+   move_frame();
+   frame_num++;
+}
+
+
+
+
+
+void proc_player_input(int ret)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) // cycle all active players
+      {
+         if (players[p].control_method == 0) // local single player control
+         {
+            if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5)) // only allow player input in these modes
+            {
+               set_comp_move_from_player_key_check(p); // but don't set controls !!!
+               if (players1[p].comp_move != players1[p].old_comp_move)
+               {
+                  players1[p].old_comp_move = players1[p].comp_move;
+                  add_game_move(frame_num, 5, p, players1[p].comp_move);
+               }
+            }
+         }
+         if (players[p].control_method == 1) rungame_key_check(p, ret); // run game from file
+         if (players[p].control_method == 3) server_local_control(p);
+         if (players[p].control_method == 4) client_local_control(p);
+
+
+//         // what is this check for ?
+//         // only set controls if actually playing the game, not in level_done_mode
+//         if (players[0].level_done_mode == 0)
+//         {
+//            // local client is an exception that sets controls directly
+//          if (players[p].control_method != 4) set_controls_from_game_move(p); // common for all control methods except local client
+//         }
+      }
+}
+
+int proc_controllers()
+{
+   int ret=0, menu_timer_block=1;
+   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
+   key_pressed_ASCII = 0;
+
+
+   while (menu_timer_block)
+   {
+      while (!al_is_event_queue_empty(event_queue))
+      {
+         ALLEGRO_EVENT ev;
+         if (al_get_next_event(event_queue, &ev))
+         {
+            if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_block = 0;
+            else ret = proc_events(ev, ret);
+         }
+      }
+      function_key_check();
+      if (game_exit) // if not called from game only do key check for active local player
+      {
+          clear_controls(active_local_player);
+          set_controls_from_player_key_check(active_local_player);
+      }
+      else // game is in progress
+      {
+         menu_timer_block = 0;
+         proc_player_input(ret);
+         if (!ima_client) proc_game_moves_array();  // run once per frame to process game_moves_array (except client)
+
+//         if (!ima_client) proc_game_move();  // run once per frame to process system messages from game_move (client should never have system messages)
+      }
+   }
+   return ret;
+}
+
+
+
+//
+//void proc_game_move(void)
+//{
+//   // this function looks in the game_moves array for an exact frame_num match
+//   // this only processes system moves, not regular game_moves
+//   // its likely that no exact frame_num match will be found and nothing will be done
+//   // if multiple frame_nums match they all will be processed
+//
+//   int ll;
+//   if (players[0].control_method == 1) ll = 0; // run game needs to look back to the start
+//   else ll = game_move_entry_pos - 100; // every other mode can just look back 100
+//   if (ll < 0) ll = 0; // don't look back past zero!
+//
+//   for (int x=game_move_entry_pos; x>=ll; x--)  // look back for frame_num
+//   {
+//      if (game_moves[x][0] == frame_num)
+//      {
+//         switch (game_moves[x][1])
+//         {
+//            case 1: proc_player_active_game_move(x); break;
+//            case 2: proc_player_inactive_game_move(x); break;
+//            case 3: proc_player_client_join_game_move(x); break;
+//            case 4: proc_player_client_quit_game_move(x); break;
+//         }
+//      }
+//   }
+//}
+//
+//
+//void set_controls_from_game_move(int p)
+//{
+//   // search back from game_move_entry_pos until first 'move' type entry that matches player and is not in the future
+//   int gme_search_index = game_move_entry_pos - 1;
+//
+//   // in rungame mode game_move_entry_pos is always at the end of the already filled array
+//   // it can take a long time to search backwards through the entire array, so set the search position 100 moves in the future
+//
+//   if (players[p].control_method == 1)
+//   {
+//      gme_search_index = game_move_current_pos + 100;
+//      if (gme_search_index > game_move_entry_pos-1) gme_search_index = game_move_entry_pos-1;
+//   }
+//
+//
+////   sprintf(msg, "f:%d p:%d scfgm gmep:%d gmcp:%d gmsi:%d", frame_num, p, game_move_entry_pos, game_move_current_pos, gme_search_index);
+////   add_log_entry2(10, p, msg);
+////
+////   printf("%s\n", msg);
+//
+//   int found = 0;
+//   for (int g=gme_search_index; g>0; g--)  // look back from entry pos
+//      if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
+//         if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
+//         {
+//            set_controls_from_comp_move(p, game_moves[g][3]);
+//
+//
+//            if (g > game_move_current_pos) game_move_current_pos = g; // // for savegame running only - keep this at the most recent one, never go back
+//
+////            game_move_current_pos = g; // for savegame running only
+//
+//            g = 0; // break out of loop
+//            found = 1;
+//         }
+//   if (!found) clear_controls(p); // if no match found (no move entry for player in entire game move array)
+//
+//   // in run game mode and past the end of the file
+//   if ((players[p].control_method == 1) && (frame_num > demo_mode_last_frame)) clear_controls(p);
+//
+//   // do not allow any controls in this mode
+//   if (players[0].level_done_mode) clear_controls(p);
+//
+//
+//}
+
+
+
+wow, this really simplified things...
+
+lets try a really long muliplayer with many clients doing different things...
+
+lev 36 8P 1178s
+
+player 7 was kind of weird and slow jj all others were fine
+when game ended with level done and all acked the game crashed hard and no logs or savegame were stored.
+also on the ending zoom into the level, p2 (ubuntu) was the only one that grew instead of shrinking
+
+test a much shorter example of level done...
+tried 2 and 3 player games with ubuntu and all level done seems to work fine...???
+
+
+now what?  harder tests??
+
+
+
+
+
+
+find out how I can do more in common with all these 3 methods
+
+
+if (players[p].control_method == 0) // local single player control
+{
+   if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5)) // only allow player input in these modes
+   {
+      set_comp_move_from_player_key_check(p);
+      if (players1[p].comp_move != players1[p].old_comp_move)
+      {
+         players1[p].old_comp_move = players1[p].comp_move;
+         add_game_move(frame_num, 5, p, players1[p].comp_move);
+      }
+   }
+}
+
+
+
+
+
+void server_local_control(int p)
+{
+   set_comp_move_from_player_key_check(p);
+   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
+
+   if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))  // only allow player input in these modes
+   {
+      if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
+      {
+         players1[p].old_comp_move = players1[p].comp_move;
+         add_game_move(frame_num, 5, p, players1[p].comp_move);
+      }
+   }
+}
+
+
+void client_local_control(int p)
+{
+   set_comp_move_from_player_key_check(p);
+   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
+
+   if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
+   {
+      players1[p].old_comp_move = players1[p].comp_move;
+
+      if (players[0].level_done_mode == 0) set_controls_from_comp_move(p, players1[p].comp_move);
+      else clear_controls(p);
+
+      if (players[p].menu) game_exit = 1;
+
+      if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))
+      {
+         Packet("cdat");
+         PacketPut1ByteInt(p);
+         PacketPut4ByteInt(frame_num);
+         PacketPut1ByteInt(players1[p].comp_move);
+         ClientSend(packetbuffer, packetsize);
+
+         players1[p].client_cdat_packets_tx++;
+         sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
+         if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
+      }
+   }
+}
+
+
+
+
+this is what I came up with to replace all that
+
+
+void proc_player_input(int ret)
+{
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active) // cycle all active players
+      {
+         int cm = players[p].control_method;
+         if (cm == 1) rungame_key_check(p, ret); // run game from file
+         if ((cm == 0) || (cm == 3) || (cm == 4)) // single player, server, client
+         {
+            if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5)) // only allow player input in these modes
+            {
+               if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
+               else set_comp_move_from_player_key_check(p);
+               if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
+               {
+                  players1[p].old_comp_move = players1[p].comp_move;
+
+                  // in single player and server mode, add to game moves array
+                  if ((cm == 0) || (cm == 3)) add_game_move(frame_num, 5, p, players1[p].comp_move);
+
+                  // in client mode, send cdat packet, and apply move directly to controls
+                  if (cm == 3)
+                  {
+                     Packet("cdat");
+                     PacketPut1ByteInt(p);
+                     PacketPut4ByteInt(frame_num);
+                     PacketPut1ByteInt(players1[p].comp_move);
+                     ClientSend(packetbuffer, packetsize);
+
+                     if (players[0].level_done_mode == 0) set_controls_from_comp_move(p, players1[p].comp_move);
+                     else clear_controls(p);
+
+                     if (players[p].menu) game_exit = 1;
+
+                     players1[p].client_cdat_packets_tx++;
+                     sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
+                     if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
+
+                  }
+               }
+            }
+         }
+      }
+}
+
+wow, even less lines of code!!
+
+
+now, do some more tests
+
+
+don't forget to do a push later....
+
+
+
+did an 8 player game lots of fake key...no errors but did not end where I thought it should...p1 exited when I played it but on replay 4 enemies were still alive
+
+also after game ends enemies were still moving??
+
+
+20221220 22:00 too tired...go to bed after a push...test tomorrow....
 
 
 

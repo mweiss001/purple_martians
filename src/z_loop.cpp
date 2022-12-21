@@ -35,39 +35,9 @@ int proc_frame_delay(void)
    return draw_frame;
 }
 
-void proc_next_level(void)
-{
-   if (L_LOGGING_NETPLAY) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
-   if (players[active_local_player].control_method == 1) // run demo mode saved game file
-   {
-      //show_level_done(0);
-      al_rest(1);
-      game_exit = 1;// run game file play exits after level done
-      return; // to exit immediately
-   }
-   if ((ima_client) || (ima_server))
-   {
-      for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         // free all the used clients, so they can be re-assigned on the next level
-         if (players[p].control_method == 9) players[p].control_method = 0;
-
-         // set all clients inactive on server and client, to force them to re-chase and lock on the new level
-    //     if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
 
 
-      }
-      if (ima_server) server_flush();
-      if (ima_client) client_flush();
-      // al_rest(1);
-   }
-   stop_sound();
-   blind_save_game_moves(1);
-   save_log_file();
-   play_level = next_level;
-   players[0].level_done_mode = 0;
-   proc_start_mode(5);
-}
+
 
 // start modes:
 // 1 single player new game
@@ -78,6 +48,47 @@ void proc_next_level(void)
 // 9 run demo mode
 void proc_start_mode(int start_mode)
 {
+   stop_sound();
+
+
+
+   if (start_mode == 5)
+   {
+      if (L_LOGGING_NETPLAY) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
+      if (players[active_local_player].control_method == 1) // run demo mode saved game file
+      {
+         al_rest(1);
+         game_exit = 1;// run game file play exits after level done
+         return; // to exit immediately
+      }
+
+      if (ima_server) server_flush();
+      if (ima_client) client_flush();
+
+
+      blind_save_game_moves(1);
+      save_log_file();
+      play_level = next_level;
+      players[0].level_done_mode = 0;
+
+
+//      if ((ima_client) || (ima_server))
+//      {
+//         for (int p=0; p<NUM_PLAYERS; p++)
+//         {
+//            // free all the used clients, so they can be re-assigned on the next level
+//            if (players[p].control_method == 9) players[p].control_method = 0;
+//
+//            // set all clients inactive on server and client, to force them to re-chase and lock on the new level
+//            // if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
+//
+//         }
+//         // al_rest(1);
+//      }
+
+   }
+
+
    if (start_mode == 7) // resume single player game
    {
       start_music(1); // resume theme
@@ -86,37 +97,16 @@ void proc_start_mode(int start_mode)
       return;
    }
 
-   if (start_mode == 5) // start new level after level done
-   {
-      for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         init_player(p, 2);
-      }
-   }
-   else // 1, 2, 3, 9 - full player data reset
+   if (start_mode != 5) // 1, 2, 3, 9 - full player data reset
    {
       for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
       players[0].active = 1;
    }
 
-   // clear game moves array, except demo
-   if  (start_mode != 9) clear_game_moves();
 
-   if (start_mode == 9)
-   {
-      players[0].control_method = 1;
+   if (start_mode == 9) players[0].control_method = 1; // rungame demo mode
+   else clear_game_moves(); // clear game moves array, except for demo mode
 
-      // find last gm with frame_num !=0
-      demo_mode_last_pc = 0;
-      for (int g = game_move_entry_pos; g>0; g--)
-         if (game_moves[g][0] != 0)
-         {
-            demo_mode_last_pc = game_moves[g][0];
-            break; // exit loop immed
-         }
-
-      //game_exit = 0;
-   }
 
    if (start_mode == 2) // server
    {
@@ -138,31 +128,29 @@ void proc_start_mode(int start_mode)
       }
    }
 
-   if ( (start_mode == 1) || (start_mode == 2) || (start_mode == 5))
+   if ((start_mode == 1) || (start_mode == 2) || (start_mode == 5))
    {
       add_game_move(0, 0, play_level, 0);       // [00] game_start
       add_game_move(0, 1, 0, players[0].color); // [01] player_state and color
    }
 
-	if (!load_level(play_level, 0))
-	{
-		game_exit = 1;
+   if (!load_level(play_level, 0))
+   {
+      game_exit = 1;
       return;
-	}
+   }
 
    set_frame_nums(0);
    reset_states();
-
 
    if (start_mode == 5) // start new level after level done
    {
       for (int p=0; p<NUM_PLAYERS; p++)
       {
-         set_player_start_pos(p, 0); // get starting position
+         init_player(p, 2);
+         set_player_start_pos(p, 0); // get starting position for all players, active or not
       }
    }
-
-
 
    if ((ima_client) || (ima_server))
    {
@@ -178,7 +166,6 @@ void proc_start_mode(int start_mode)
 
    show_player_join_quit_timer = 0;
    start_music(0); // rewind and start theme
-
 }
 
 int ami_server_or_single(void)
@@ -192,7 +179,10 @@ int ami_server_or_single(void)
 
 int has_player_acknowledged(int p)
 {
-   for (int x=game_move_entry_pos; x>0; x--)  // look back for frame_num
+   int start_pos = game_move_entry_pos;
+   int end_pos = start_pos - 1000;
+   if (end_pos < 0) end_pos = 0;
+   for (int x=start_pos; x>end_pos; x--) // look back for ack
       if ((game_moves[x][1] == 8) && (game_moves[x][2] == p)) return 1;
    return 0;
 }
@@ -227,26 +217,26 @@ void proc_level_done_mode(void)
 
    if (players[0].level_done_mode == 9)  // set xinc and yinc for player exit home
    {
+      show_player_join_quit_timer = 60;
+      show_player_join_quit_player = players[0].level_done_player;
+      show_player_join_quit_jq = 2;
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if (players[p].active)
          {
-            // get distance between px and ex
+            // get distance between player and exit
             al_fixed dx = al_itofix(players[0].level_done_x) - players[p].PX;
             al_fixed dy = al_itofix(players[0].level_done_y) - players[p].PY;
 
+            // get move
             players[p].xinc = al_fixdiv(dx, al_itofix(60));
             players[p].yinc = al_fixdiv(dy, al_itofix(60));
 
-//            printf("dx:%f  dy:%f \n", al_fixtof(players[p].xinc), al_fixtof(players[p].yinc));
-//            printf("xinc:%f  yinc:%f \n", al_fixtof(players[p].xinc), al_fixtof(players[p].yinc));
-
-
+            // set left right direction
+            if (players[p].xinc > al_itofix(0)) players[p].left_right = 1;
+            if (players[p].xinc < al_itofix(0)) players[p].left_right = 0;
          }
-
    }
-
-
 
    if (players[0].level_done_mode == 8)
    {
@@ -256,28 +246,16 @@ void proc_level_done_mode(void)
             players[p].PX += players[p].xinc;
             players[p].PY += players[p].yinc;
          }
-
    }
-
-
    if (players[0].level_done_mode == 7)
    {
       for (int p=0; p<NUM_PLAYERS; p++)
          if (players[p].active)
          {
-
             players[p].draw_scale -= al_ftofix(0.05);
-
             players[p].draw_rot -= al_ftofix(8);
-
          }
-
    }
-
-
-
-
-
    if (--players[0].level_done_timer <= 0) // time to change to next level_done_mode
    {
       players[0].level_done_mode--;
@@ -288,7 +266,7 @@ void proc_level_done_mode(void)
       if (players[0].level_done_mode == 4) players[0].level_done_timer = 0;
       if (players[0].level_done_mode == 3) players[0].level_done_timer = 0;
       if (players[0].level_done_mode == 2) players[0].level_done_timer = 10;  // delay to load next level
-      if (players[0].level_done_mode == 1) proc_next_level();
+      if (players[0].level_done_mode == 1) proc_start_mode(5);
    }
 }
 
@@ -342,14 +320,8 @@ void game_loop(int start_mode)
 
 void loop_frame(void)
 {
-   proc_game_move();
-
+   proc_game_moves_array();
    if (players[0].level_done_mode) proc_level_done_mode();
-
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if (players[p].active) // cycle all active players
-         set_controls_from_game_move(p); // common for all players
-
-   move_frame();
+   else move_frame();
    frame_num++;
 }

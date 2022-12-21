@@ -1511,6 +1511,13 @@ void init_player(int p, int t)
 
       players1[p].frames_skipped = 0;
 
+      players[p].level_done_mode = 0;
+      players[p].level_done_timer = 0;
+      players[p].level_done_ack = 0;
+      players[p].level_done_x = 0;
+      players[p].level_done_y = 0;
+      players[p].level_done_player = 0;
+
    }
 
    if (t == 21) // netgame counters, etc

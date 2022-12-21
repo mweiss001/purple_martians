@@ -427,7 +427,7 @@ void server_send_stdf(void)
 
       // send dif based on this state to all clients
       for (int p=1; p<NUM_PLAYERS; p++)
-         if (players[p].control_method == 2) server_send_stdf(p);
+         if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
    }
 }
 
@@ -468,7 +468,7 @@ void server_proc_player_drop(void)
          if ((players[p].active) && (players1[p].server_sync > 100))
          {
             //printf("[%4d] server_sync:[%4d] drop p:%d \n", frame_num, players1[p].server_sync, p);
-            add_game_move(frame_num + 4, 1, p, 70); // make client inactive (reason sync > 100)
+            add_game_move(frame_num + 4, 2, p, 70); // make client inactive (reason sync > 100)
 
             sprintf(msg,"Server dropped player:%d (server sync > 100)", p);
             if (L_LOGGING_NETPLAY) add_log_entry_header(10, p, msg, 1);
@@ -476,7 +476,7 @@ void server_proc_player_drop(void)
          if (players1[p].server_last_stak_rx_frame_num + 100 < frame_num)
          {
             //printf("[%4d][%4d] drop p:%d \n", frame_num, players1[p].server_last_sdak_rx_frame_num, p);
-            add_game_move(frame_num + 4, 1, p, 71); // make client inactive (reason no sdak for 100 frames)
+            add_game_move(frame_num + 4, 2, p, 71); // make client inactive (reason no sdak for 100 frames)
 
             sprintf(msg,"Server dropped player:%d (last sdak rx > 100)", p);
             if (L_LOGGING_NETPLAY) add_log_entry_header(10, p, msg, 1);
@@ -685,29 +685,31 @@ void server_control() // this is the main server loop to process packet send and
       if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 0);
 
       // insert state inactive special move
-      game_moves[game_move_entry_pos][0] = frame_num + 8; // add frames so server has time to sync back to clients before dropping
-      game_moves[game_move_entry_pos][1] = 1;     // type 1; player state
-      game_moves[game_move_entry_pos][2] = 0;     // player num
-      game_moves[game_move_entry_pos][3] = 64;    // inactive
-      game_move_entry_pos++;
+      add_game_move2(frame_num + 8, 2, 0, 64); // type 2 - player inactive
+
+//      game_moves[game_move_entry_pos][0] = frame_num + 8; // add frames so server has time to sync back to clients before dropping
+//      game_moves[game_move_entry_pos][1] = 2;     // type 1; player state
+//      game_moves[game_move_entry_pos][2] = 0;     // player num
+//      game_moves[game_move_entry_pos][3] = 64;    // inactive
+//      game_move_entry_pos++;
    }
 
 }
-
-void server_local_control(int p)
-{
-   set_comp_move_from_player_key_check(p);
-   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
-
-   if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))  // only allow player input in these modes
-   {
-      if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
-      {
-         players1[p].old_comp_move = players1[p].comp_move;
-         add_game_move(frame_num, 5, p, players1[p].comp_move);
-      }
-   }
-}
-
-
-
+//
+//void server_local_control(int p)
+//{
+//   set_comp_move_from_player_key_check(p);
+//   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
+//
+//   if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))  // only allow player input in these modes
+//   {
+//      if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
+//      {
+//         players1[p].old_comp_move = players1[p].comp_move;
+//         add_game_move(frame_num, 5, p, players1[p].comp_move);
+//      }
+//   }
+//}
+//
+//
+//

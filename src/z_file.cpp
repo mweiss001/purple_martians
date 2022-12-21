@@ -558,34 +558,22 @@ void save_gm_txt(char *sfname)
 
    for (int x=0; x<game_move_entry_pos; x++)
    {
-      fprintf(filepntr,"[%3d][%4d]", x, game_moves[x][0]);
-      {
-         if (game_moves[x][1] == 0)
-            fprintf(filepntr,"-------------START (level:%d)------------- ", game_moves[x][2]);
+      int f = game_moves[x][0]; // frame
+      int t = game_moves[x][1]; // type
+      int p = game_moves[x][2]; // player
+      int v = game_moves[x][3]; // value
 
-         if (game_moves[x][1] == 1)
-         {
-            int val = game_moves[x][3];
-            int p = game_moves[x][2];
-            if ((val > 0) && (val < 16)) fprintf(filepntr,"-------------PLAYER %d ACTIVE (color:%d)-- ", p, val);
-            if (val > 63) fprintf(filepntr,"-------------PLAYER %d INACTIVE----------- ", p);
-         }
+      fprintf(filepntr,"[%3d][%4d][%d][%d][%2d]", x, f, t, p, v);
 
-         if ((game_moves[x][1] == 6) && (game_moves[x][3] == 1)) fprintf(filepntr,"-------------LEVEL DONE 1 ---------------- ");
-         if ((game_moves[x][1] == 6) && (game_moves[x][3] == 2)) fprintf(filepntr,"-------------LEVEL DONE 2 ---------------- ");
-
-         if (game_moves[x][1] == 7)                              fprintf(filepntr,"-------------NEXT LEVEL!------------------ ");
-
-         if (game_moves[x][1] == 8)                              fprintf(filepntr,"-------------PLAYER %d ACKNOWLEDGE------ ", game_moves[x][2]);
+      if (t == 0) fprintf(filepntr,"-------------START (level:%d)------------- ", p);
+      if (t == 1) fprintf(filepntr,"-------------PLAYER %d ACTIVE (color:%d)-- ", p, v);
+      if (t == 2) fprintf(filepntr,"-------------PLAYER %d INACTIVE------------", p);
+      if (t == 3) fprintf(filepntr,"-------------CLIENT %d JOIN!-------------- ", p);
+      if (t == 4) fprintf(filepntr,"-------------CLIENT %d QUIT!-------------- ", p);
+      if (t == 5) fprintf(filepntr,"%s", cmtos(game_moves[x][3]));
+      if (t == 8) fprintf(filepntr,"-------------PLAYER %d ACKNOWLEDGE---------", p);
 
 
-         if (game_moves[x][1] == 5)
-         {
-            fprintf(filepntr,"[%d][%2d] ", game_moves[x][2], game_moves[x][3]);
-            char *tmp = cmtos(game_moves[x][3]);
-            fprintf(filepntr,"%s", tmp);
-         }
-      }
       fprintf(filepntr,"\n");
    }
    fclose(filepntr);
@@ -818,7 +806,6 @@ int load_gm(const char *sfname )
          buff[loop] = 0;
          suicide_pbullets = atoi(buff);
 
-
          // then get all the entries
          for (int x=0; x<game_move_entry_pos; x++)
             for (int y=0; y<4; y++)
@@ -836,6 +823,8 @@ int load_gm(const char *sfname )
             }
          fclose(filepntr);
          play_level = game_moves[0][2]; // set play level
+         demo_mode_last_frame = game_moves[game_move_entry_pos-1][0];
+         printf("dmlf:%d\n", demo_mode_last_frame );
          return 1;
       }
    }

@@ -58,18 +58,16 @@
 <mh3><hr></mh3>
 <mh8>Level Done Procedure</mh8>
 <mh3><hr><mdw_file_toc> <a href="level_done.html#Overview" target="_top">Overview</a>
- <a href="level_done.html#Variables" target="_top">Variable</a>
+ <a href="level_done.html#Variables" target="_top">Variables</a>
  <a href="level_done.html#Modes" target="_top">Modes</a>
  <a href="level_done.html#How The Procedure Is Initiated" target="_top">How The Procedure Is Initiated</a>
  <a href="level_done.html#How The Procedure Progresses" target="_top">How The Procedure Progresses</a>
- <a href="level_done.html#Mode 6" target="_top">Mode 6</a>
- <a href="level_done.html#Mode 5" target="_top">Mode 5</a>
+ <a href="level_done.html#Mode 9 and 8 - Players Seek Exit" target="_top">Mode 9 and 8 - Players Seek Exit</a>
+ <a href="level_done.html#Mode 7 - Players Shrink and Rotate into Exit" target="_top">Mode 7 - Players Shrink and Rotate into Exit</a>
+ <a href="level_done.html#Mode 5 - Skippable Delay" target="_top">Mode 5 - Skippable Delay</a>
+ <a href="level_done.html#Mode 2 - Delay to Load Next Level" target="_top">Mode 2 - Delay to Load Next Level</a>
+ <a href="level_done.html#Mode 1 - Call to proc_start_mode(5)" target="_top">Mode 1 - Call to proc_start_mode(5)</a>
 </mdw_file_toc><hr></mh3>
-
-
-
-
-
 
 
 
@@ -82,7 +80,7 @@ The level is frozen and the end of level stats are shown.
 
 Then after a timeout, or after all players acknowledge, the next level is loaded and started.
 
-The server controls the entire process by setting the following variables, which are automatically synced to the clients with the rest of the game data.
+The server controls the process using the following variables, which are synced to the clients with the rest of the game data.
 </mh3>
 <br><a name="Variables"></a>
 <mh7>Variables</mh7>
@@ -92,12 +90,19 @@ These are the variables used in the process:
 <pre><code class="language-cpp">int players[0].level_done_mode
 int players[0].level_done_timer
 int players[p].level_done_ack
+int players[p].level_done_x
+int players[p].level_done_y
+int players[p].level_done_player
 </code></pre>
 <mh3>'mode' is the current mode
 
 'timer' controls the length of time before switching to the next mode
 
 'ack' keeps track of which players have acknowledged
+
+'x' and 'y' keep track of the exit position on the level
+
+'player' keeps track of which player touched the exit
 </mh3>
 <br><a name="Modes"></a>
 <mh7>Modes</mh7>
@@ -105,24 +110,29 @@ int players[p].level_done_ack
 <mh3>
 These are the different modes:
 </mh3>
-<pre><code class="language-cpp">players[0].level_done_mode = 0; // normal game play
-players[0].level_done_mode = 9; // exit touched
-players[0].level_done_mode = 8; // 2s unskippable delay
-players[0].level_done_mode = 7; // 10s skippable delay
-players[0].level_done_mode = 6; // both delays done, start load new level countdown
-players[0].level_done_mode = 5; // load new level
+<pre><code class="language-cpp">level_done_mode = 9; // set up players seek xinc, yinc and direction
+level_done_mode = 8; // all players move to the exit
+level_done_mode = 7; // all players rotate and shirink into the exit
+level_done_mode = 6; // not used, place holder for future features
+level_done_mode = 5; // skippable 15s delay while level end stats show
+level_done_mode = 4; // not used, place holder for future features
+level_done_mode = 3; // not used, place holder for future features
+level_done_mode = 2; // delay to load next level
+level_done_mode = 1; // call proc_next_level() to load next level
+level_done_mode = 0; // normal game play
 </code></pre>
 
 
 <br><a name="How The Procedure Is Initiated"></a>
 <mh7>How The Procedure Is Initiated</mh7>
 <mh3>    
-The level done procedure is initiated by setting level_done_mode.
+The procedure is initiated by setting 'level_done_mode'.
 
-Exits start on mode 9 and warps start on mode 7.
+It can only be started from mode 0, to prevent retriggering.
 
-This is because warps are instantaneous and skip the delays of exits.
+Exits start on level_done_mode 9.
 
+Warps start on level_done_mode 3 to skip the delays and instantantly load the next level.
 </mh3>
 <pre><code class="language-cpp">void proc_exit_collision(int p, int i)
 {
@@ -138,7 +148,7 @@ void proc_warp_collision(int p, int i)
 {
    if (level_done_mode == 0)
    {
-	  players[0].level_done_mode = 7;
+	  players[0].level_done_mode = 3;
 	  players[0].level_done_timer = 0;
       next_level = item[i][8];
    }
@@ -150,12 +160,12 @@ void proc_warp_collision(int p, int i)
 <mh7>How The Procedure Progresses</mh7>
 
 <mh3>    
-In the main game loop, if level_done_mode is non-zero,  'proc_level_done_mode()' is called.
+Once the procedure is started, 'level_done_mode' works its way back to 1 where the next level is loaded and finally 0 for normal game_play.
+
+
+In the main game loop, if 'level_done_mode' is non-zero, 'proc_level_done_mode()' is called.
 
 Otherwise all the objects in the game get moved.
-
-This has the effect of freezing everything when in level done mode.
-
 </mh3>    
 
 <pre><code class="language-cpp">void game_loop(int start_mode)
@@ -165,15 +175,11 @@ This has the effect of freezing everything when in level done mode.
    else move_frame();
    ...
 </code></pre>
+<mh3>This has the effect of freezing everything when in level done mode.
 
 
 
-
-
-
-
-<mh3>    
-In 'proc_level_done_mode()' the timer is decremented and modes are switched until mode 5 when 'proc_next_level()' is called.
+In 'proc_level_done_mode()' the timer is decremented and modes are switched until mode 1 when 'proc_start_mode(5)' is called.
 </mh3>
 
 <pre><code class="language-cpp">void proc_level_done_mode(void)
@@ -181,27 +187,100 @@ In 'proc_level_done_mode()' the timer is decremented and modes are switched unti
    if (--players[0].level_done_timer <= 0) // time to change to next level_done_mode
    {
       players[0].level_done_mode--;
-      if (players[0].level_done_mode == 8) players[0].level_done_timer = 80;  // unskippable 2s delay
-      if (players[0].level_done_mode == 7) players[0].level_done_timer = 600; // skippable 15s delay
-      if (players[0].level_done_mode == 6) players[0].level_done_timer = 10;  // delay to load next level
-      if (players[0].level_done_mode == 5) proc_next_level();
+      if (players[0].level_done_mode == 8) players[0].level_done_timer = 60; // players seek exit
+      if (players[0].level_done_mode == 7) players[0].level_done_timer = 20; // players shrink and rotate into exit
+      if (players[0].level_done_mode == 6) players[0].level_done_timer = 0;
+      if (players[0].level_done_mode == 5) players[0].level_done_timer = 600; // skippable 15s delay;
+      if (players[0].level_done_mode == 4) players[0].level_done_timer = 0;
+      if (players[0].level_done_mode == 3) players[0].level_done_timer = 0;
+      if (players[0].level_done_mode == 2) players[0].level_done_timer = 10;  // delay to load next level
+      if (players[0].level_done_mode == 1) proc_start_mode(5);
    }
 }
 </code></pre>
 
 
+<br><a name="Mode 9 and 8 - Players Seek Exit"></a>
+<mh7>Mode 9 and 8 - Players Seek Exit</mh7>
+
+
+<mh3>
+When the level done procedure starts, the level is frozen and all players move to the exit.
+</mh3>
+
+<pre><code class="language-cpp">void proc_level_done_mode(void)
+{
+   ...
+   if (players[0].level_done_mode == 9)  // set xinc and yinc for player exit home
+   {
+      for (int p=0; p< NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            // get distance between player and exit
+            al_fixed dx = al_itofix(players[0].level_done_x) - players[p].PX;
+            al_fixed dy = al_itofix(players[0].level_done_y) - players[p].PY;
+
+            // get move
+            players[p].xinc = al_fixdiv(dx, al_itofix(60));
+            players[p].yinc = al_fixdiv(dy, al_itofix(60));
+
+            // set left right direction
+            if (players[p].xinc > al_itofix(0)) players[p].left_right = 1;
+            if (players[p].xinc < al_itofix(0)) players[p].left_right = 0;
+         }
+   }
+
+   if (players[0].level_done_mode == 8)
+   {
+      for (int p=0; p< NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            players[p].PX += players[p].xinc;
+            players[p].PY += players[p].yinc;
+         }
+   }
+   ...
+</code></pre>
+
+
+
+<br><a name="Mode 7 - Players Shrink and Rotate into Exit"></a>
+<mh7>Mode 7 - Players Shrink and Rotate into Exit</mh7>
+
+
+<mh3>
+Then the players shrink and rotate into the exit.
+</mh3>
+
+<pre><code class="language-cpp">void proc_level_done_mode(void)
+{
+   ...
+   if (players[0].level_done_mode == 7)
+   {
+      for (int p=0; p< NUM_PLAYERS; p++)
+         if (players[p].active)
+         {
+            players[p].draw_scale -= al_ftofix(0.05);
+            players[p].draw_rot -= al_ftofix(8);
+         }
+   }
+   ...
+</code></pre>
+
+
+
+
+<br><a name="Mode 5 - Skippable Delay"></a>
+<mh7>Mode 5 - Skippable Delay</mh7>
+
+
 <mh3>    
-Mode 7 is a special case because it can be skipped if all players acknowledge.
+Mode 5 is a special case because it can be skipped if all players acknowledge.
 
 When in level_done_mode, all player input is disabled, except to acknowledge.
 
-Through the code, wherever there is player input there is a test like this:
-
+Throughout the code, wherever there is player input there are tests like this:
 </mh3>
-
-
-
-
 
 <pre><code class="language-cpp">void proc_player_input(int ret)
 {
@@ -210,7 +289,7 @@ Through the code, wherever there is player input there is a test like this:
       {
          if (players[p].control_method == 0) // local single player control
          {
-            if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 7)) // only allow player input in these modes
+            if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5)) // only allow player input in these modes
             {
                set_comp_move_from_player_key_check(p);
                if (players1[p].comp_move != players1[p].old_comp_move)
@@ -227,7 +306,7 @@ Through the code, wherever there is player input there is a test like this:
 void server_local_control(int p)
 {
    set_comp_move_from_player_key_check(p);
-   if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 7))  // only allow player input in these modes
+   if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))  // only allow player input in these modes
    {
       if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
       {
@@ -241,7 +320,7 @@ void client_local_control(int p)
    if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
    {
       players1[p].old_comp_move = players1[p].comp_move;
-      if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 7))
+      if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))
       {
          Packet("cdat");
          PacketPut1ByteInt(p);
@@ -253,21 +332,14 @@ void client_local_control(int p)
 
 
 <mh3>    
-Clients send input to the server where it is entered into the game moves array, just like in server and single player mode.
+All players inputs are entered into the server's game moves array.
 
-However when it level_done_mode the game move enetered is modified to be a special move type 8
-
-</mh3>
-
-
-
-<mh3>
-These are the special game moves used: 
+However when in level_done_mode 5, the game move entered is modified to be a special 'ack' type game move.
 </mh3>
 
 <pre><code class="language-cpp">void add_game_move(int frame, int type, int data1, int data2)
 {
-   if ((players[0].level_done_mode == 7) && (type == 5) && (data2)) // all move type inputs are acks in this mode
+   if ((players[0].level_done_mode == 5) && (type == 5) && (data2)) // all move type inputs are acks in this mode
    {
       if (!has_player_acknowledged(data1)) // to prevent multiple acks
       {
@@ -280,78 +352,219 @@ These are the special game moves used:
 </code></pre>
 
 
-
-
 <mh3>
-These are the special game moves used: 
+Then there is a function to check if a specific player has acknowledged:
 </mh3>
 
-<pre><code class="language-cpp">type data1 data2 description
-8    p     0     "Player Acknowledge"
-</code></pre>
-
-
-int has_player_acknowledged(int p)
+<pre><code class="language-cpp">int has_player_acknowledged(int p)
 {
-   for (int x=game_move_entry_pos; x>0; x--)  // look back for frame_num
+   int start_pos = game_move_entry_pos;
+   int end_pos = start_pos - 1000;
+   if (end_pos < 0) end_pos = 0;
+   for (int x=start_pos; x>end_pos; x--) // look back for ack
       if ((game_moves[x][1] == 8) && (game_moves[x][2] == p)) return 1;
    return 0;
 }
 </code></pre>
 
-
-<mh3>    
-Then when the "Next Level" game move is processed:
-
-- a bunch of cleanup and resetting of varous settings is done
-
-- proc_start_mode(5) is called to load the new level and set up structures after loading a new level
-
-- level_done_mode is set to 0
-</mh3>    
-
-
-<pre><code class="language-cpp">void proc_game_move(void)
+<mh3>
+And a function to check if all active players have acknowledged:
+</mh3>
+<pre><code class="language-cpp">int have_all_players_acknowledged(void)
 {
-   case 7: proc_next_level(); break;
-
-void proc_next_level(void)
-{
-   if ((ima_client) || (ima_server))
-   {
-      for (int p=0; p < NUM_PLAYERS; p++)
-         if (players[p].active) players1[p].quit_reason = 80;
-   }
-
-   stop_sound();
-   int p = active_local_player;
-   if (players[p].control_method == 1)
-   {
-      show_level_done(0);
-      al_rest(1);
-      game_exit = 1;// run game file play exits after level done
-      return;
-   }
-   if ((ima_server) || (ima_client))
-   {
-      for (int p=0; p < NUM_PLAYERS; p++)
-      {
-         // free all the used clients, so they can be re-assigned on the next level
-         if (players[p].control_method == 9) players[p].control_method = 0;
-         // set all clients inactive on server and client, to force them to re-chase and lock on the new level
-         if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
-      }
-      if (ima_server) server_flush();
-      if (ima_client) client_flush();
-      al_rest(1);
-   }
-   blind_save_game_moves(1);
-   save_log_file();
-   play_level = next_level;
-   proc_start_mode(5);
-   level_done_mode = 0;
+   for (int p=0; p< NUM_PLAYERS; p++)
+      if ((players[p].active) && (!has_player_acknowledged(p))) return 0;
+   return 1;
 }
 </code></pre>
+
+
+<mh3>
+In 'proc_level_done_mode()' if all players have acknowledged, the timer for mode 5 is set to 0 to immediately skip the delay
+</mh3>
+
+<pre><code class="language-cpp">void proc_level_done_mode(void)
+{
+   ...
+   if (!ima_client)
+   {
+      if (players[0].level_done_mode == 5)
+      {
+         if (have_all_players_acknowledged()) players[0].level_done_timer = 0; // skip
+
+         for (int p=0; p< NUM_PLAYERS; p++)
+            if (players[p].active)
+            {
+               if (has_player_acknowledged(p)) players[p].level_done_ack = 1;
+               else players[p].level_done_ack = 0;
+            }
+      }
+   }
+</code></pre>
+
+
+<mh3>Also each player is individually checked for acknowledge and the variable 'level_done_ack' is set in the player struct.
+
+This is synced back to the clients as part of the player struct, as only the server controls who has acked.
+
+It is used to display which players have acknowledged in the level done stats.
+
+</mh3>
+
+<pre><code class="language-cpp">void show_player_stat_box(int tx, int y, int p)
+{
+   ...
+   if (players[0].level_done_mode == 5)
+   {
+      if (!players[p].level_done_ack)
+      {
+         c = flash_color;
+         int pay = 16;
+         al_draw_textf(font, palette_color[c], tx+158, y+pay, 0, "press");
+         al_draw_textf(font, palette_color[c], tx+158, y+pay+8, 0, " any");
+         int tl = players[0].level_done_timer/40;
+         if (tl > 9) al_draw_textf(font, palette_color[c], tx+154, y+pay+18, 0, "  %2d", tl);
+         else        al_draw_textf(font, palette_color[c], tx+158, y+pay+18, 0, "  %d", tl);
+      }
+      else al_draw_textf(font, palette_color[15], tx+158, y+20, 0, "ready");
+   }
+</code></pre>
+
+
+<mh3>
+If the player has not acknowledged it looks like this with the timer counting down:
+
+</mh3>
+
+
+<img src="images/ld_stat_not_ack.png" alt="flags" width="403" height="103">
+
+
+<mh3>
+If the player has acknowledged it looks like this:
+
+</mh3>
+
+
+<img src="images/ld_stat_ack.png" alt="flags" width="401" height="102">
+
+
+
+<mh3>
+Once all players have acknowledged or timed out we progress to the next level_done_mode.
+</mh3>
+
+
+
+
+
+
+<br><a name="Mode 2 - Delay to Load Next Level"></a>
+<mh7>Mode 2 - Delay to Load Next Level</mh7>
+
+
+<mh3>
+Now we are done with the delays and end of level statistics and we are ready to load the next level.
+(If we got here by touching a warp instead of an exit, all the previous modes will have been skipped.)
+
+The server cannot just immediately load a new level, the clients will be stuck on the old level and timeout.
+
+So we set a timer for 10 frames in the future when the new level loading will take effect.
+
+This is enough time for the data to propogate to the client, so they can load the new level also and follow the server.
+
+</mh3>
+
+<pre><code class="language-cpp">void proc_level_done_mode(void)
+{
+   if (--players[0].level_done_timer <= 0) // time to change to next level_done_mode
+   {
+      players[0].level_done_mode--;
+      if (players[0].level_done_mode == 8) players[0].level_done_timer = 60; // players seek exit
+      if (players[0].level_done_mode == 7) players[0].level_done_timer = 20; // players shrink and rotate into exit
+      if (players[0].level_done_mode == 6) players[0].level_done_timer = 0;
+      if (players[0].level_done_mode == 5) players[0].level_done_timer = 600; // skippable 15s delay;
+      if (players[0].level_done_mode == 4) players[0].level_done_timer = 0;
+      if (players[0].level_done_mode == 3) players[0].level_done_timer = 0;
+      if (players[0].level_done_mode == 2) players[0].level_done_timer = 10;  // delay to load next level
+      if (players[0].level_done_mode == 1) proc_start_mode(5);
+   }
+}
+</code></pre>
+
+
+
+
+<br><a name="Mode 1 - Call to proc_start_mode(5)"></a>
+<mh7>Mode 1 - Call to proc_start_mode(5)</mh7>
+
+
+
+
+<mh3>
+In 'proc_start_mode(5)' we do all the cleanup, resetting, loading and preparing for the next level.
+</mh3>
+
+
+<pre><code class="language-cpp">// start modes:
+// 1 single player new game
+// 2 server new game
+// 3 client new game
+// 5 level done
+// 7 resume single player
+// 9 run demo mode
+void proc_start_mode(int start_mode)
+{
+   if (start_mode == 5)
+   {
+      players[0].level_done_mode = 0;
+      if (players[active_local_player].control_method == 1) // run demo mode saved game file
+      {
+         al_rest(1);
+         game_exit = 1;// run game file play exits after level done
+         return; // to exit immediately
+      }
+
+      if (ima_server) server_flush();
+      if (ima_client) client_flush();
+
+      blind_save_game_moves(1);
+      save_log_file();
+      play_level = next_level;
+   }
+
+   // clear game moves array, except demo
+   if  (start_mode != 9) clear_game_moves();
+   
+
+   if ( (start_mode == 1) || (start_mode == 2) || (start_mode == 5))
+   {
+      add_game_move(0, 0, play_level, 0);       // [00] game_start
+      add_game_move(0, 1, 0, players[0].color); // [01] player_state and color
+   }
+
+   if (!load_level(play_level, 0))
+   {
+      game_exit = 1;
+      return;
+   }
+   set_frame_nums(0);
+   reset_states();
+   if (start_mode == 5) // start new level after level done
+   {
+      for (int p=0; p< NUM_PLAYERS; p++)
+      {
+         init_player(p, 2);
+		 set_player_start_pos(p, 0); // get starting position for all players, active or not
+      }
+   }
+   clear_bmsg();
+   clear_bullets();
+   clear_keys();
+   clear_pm_events();
+}
+</code></pre>
+
 
 
                <footer>                <mh11>Purple Martians</mh11><hr>

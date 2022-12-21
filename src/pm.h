@@ -99,13 +99,11 @@ extern mWindow mW[NUM_MW];
 #include <libnet.h>
 #include <zlib.h>
 
-
 #define NUM_SPRITES 1024
 #define NUM_ANS 256
 #define NUM_PLAYERS 8
 #define BORDER_WIDTH 14
 #define NUM_LIFTS 40
-
 
 #define PM_COMPMOVE_LEFT   0b0000000000000001
 #define PM_COMPMOVE_RIGHT  0b0000000000000010
@@ -113,7 +111,7 @@ extern mWindow mW[NUM_MW];
 #define PM_COMPMOVE_DOWN   0b0000000000001000
 #define PM_COMPMOVE_JUMP   0b0000000000010000
 #define PM_COMPMOVE_FIRE   0b0000000000100000
-#define PM_COMPMOVE_MENU   0b0000000001111111
+#define PM_COMPMOVE_MENU   0b0000000001000000
 
 #define PM_ENEMY_VINEPOD_SHOW_PATH   0b00000000000000001
 #define PM_ENEMY_VINEPOD_INV_INIT    0b00000000000000010
@@ -407,7 +405,7 @@ extern int demo_mode_countdown;
 extern int demo_mode_countdown_val;
 extern int demo_mode_countdown_reset;
 extern int demo_mode_enabled;
-extern int demo_mode_last_pc;
+extern int demo_mode_last_frame;
 
 
 
@@ -583,11 +581,11 @@ struct player // synced between server and client
 
    int level_done_mode;
    int level_done_timer;
-
    int level_done_ack;
-
    int level_done_x;
    int level_done_y;
+   int level_done_player;
+
 
    al_fixed PX, PY;       // players position
    al_fixed xinc, yinc;   // players momentum
@@ -642,11 +640,8 @@ struct player // synced between server and client
    al_fixed stat_LIFE_dec;
    al_fixed stat_LIFE_wasted;
 
-
    int spare_int1;
    int spare_int2;
-   int spare_int3;
-
 
 };
 
@@ -1316,13 +1311,17 @@ void set_comp_move_from_player_key_check(int p);
 void set_controls_from_player_key_check(int p);
 void function_key_check(void);
 void rungame_key_check(int p, int ret);
+
+void add_game_move2(int frame, int type, int data1, int data2);
 void add_game_move(int frame, int type, int data1, int data2);
+
 void proc_player_state_game_move(int x);
-void proc_game_move(void);
+
+void proc_game_moves_array(void);
+
 void serial_key_check(int key);
-void set_controls_from_game_move(int p);
+
 int proc_events(ALLEGRO_EVENT ev, int ret);
-//void start_level_done(int p, int t1, int t2);
 void proc_player_input(int ret);
 int proc_controllers();
 
@@ -1550,7 +1549,6 @@ void scaled_tile_test(void);
 
 // z_loop.h
 int proc_frame_delay(void);
-void proc_next_level(void);
 void proc_start_mode(int start_mode);
 int ami_server_or_single(void);
 int has_player_acknowledged(int p);
