@@ -1593,13 +1593,12 @@ void reset_states(void)
       srv_client_state_frame_num[i][1] = -3; // dst
    }
 
-   // reset server's stdf states
+   // reset server's stdf state
    for (int i=0; i<4; i++)
    {
       memset(srv_stdf_state[i], 0, STATE_SIZE);
       srv_stdf_state_frame_num[i] = 0;
    }
-
 
 
 }
@@ -2197,28 +2196,10 @@ void demo_mode(void)
    erase_log();
 }
 
-void temp_test(void)
-{
-
-
-
-//   int p[8] = {0};
-//   for (int ns=1; ns<9; ns++)
-//   {
-//      printf("ns = %d\n", ns);
-//      for (int q=0; q<8; q++) p[q] = q % ns;
-//      for (int q=0; q<8; q++) printf("p:%d s:%d\n", q, p[q]);
-//   }
 
 
 
 
-
-
-
-   //spline_test();
-   //spline_adjust();
-}
 
 
 

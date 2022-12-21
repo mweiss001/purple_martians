@@ -288,7 +288,7 @@ extern int suicide_pbullets;
 extern char srv_client_state[8][2][STATE_SIZE];
 extern int srv_client_state_frame_num[8][2];
 
-// server's copies of last stdf states
+// server's copy of last stdf state
 extern char srv_stdf_state[4][STATE_SIZE];
 extern int srv_stdf_state_frame_num[4];
 
@@ -625,6 +625,8 @@ struct player // synced between server and client
    int bullet_wait_counter, request_bullet, bullet_wait, bullet_speed;
 
 
+
+
    int stat_respawns;
    int stat_bullets_fired;
    int stat_enemy_hits;
@@ -678,17 +680,18 @@ struct player1 // not synced between server and client
    int cs_sync; // packet stak from c to s  cfn-sfn
    int rt_sync; // round trip to server back to server through client via stdf and stak
 
-   int server_rewind_frames;
-   int server_rewind_frames_max;
+   int last_gm_index;
+   int last_gm_frame_num;
+   int last_gm_comp_move;
 
 
    int client_chase_fps;
    int server_game_move_sync;
 
-
-
-
    int client_cdat_packets_tx;
+
+   int late_cdats;
+
 
    int made_active_holdoff;
    int sync_stabilization_holdoff;
@@ -1275,7 +1278,7 @@ void server_proc_stak_packet(void );
 void server_proc_sdak_packet(void );
 void server_proc_CJON_packet(int who);
 void server_control();
-void server_local_control(int p);
+
 
 // z_bullets.h
 void proc_pbullet_shoot(int p);
@@ -1437,7 +1440,7 @@ void reset_states(void);
 void show_state_dif(char *a, char *b);
 int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 void demo_mode(void);
-void temp_test(void);
+
 
 // z_item.h
 int item_data(int x, int y);

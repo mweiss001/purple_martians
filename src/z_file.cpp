@@ -824,7 +824,7 @@ int load_gm(const char *sfname )
          fclose(filepntr);
          play_level = game_moves[0][2]; // set play level
          demo_mode_last_frame = game_moves[game_move_entry_pos-1][0];
-         printf("dmlf:%d\n", demo_mode_last_frame );
+         //printf("dmlf:%d\n", demo_mode_last_frame );
          return 1;
       }
    }

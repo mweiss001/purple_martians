@@ -38090,6 +38090,1008 @@ also after game ends enemies were still moving??
 
 20221220 22:00 too tired...go to bed after a push...test tomorrow....
 
+20221221 6:30 -35 outside...I plan to stay home and program all day
+
+
+what happens when server rewinds then plays back and does not find exact frame match in gm?
+it keeps current controls which may not be the right ones...
+each player could save last gm index used to apply controls
+then if that occurs in the future, due to rewind, then the player will need to look back further
+no....
+that new player struct variable will be rewound also as well as the controls
+....so...because the controls are being rewound, there actually should be no problem....
+
+unless...what about when base is lost and we have to restore from zero?
+will that make any difference?
+
+if I have any problem, why don't I just open the start and end wide open?
+am I prematurely optimizing?
+
+worst case I have close to 1 million game move entries
+I will only do one pass per frame, not like before when I did one per player per frame...
+
+
+
+
+
+
+why does the game still move after level_done?
+
+tried some simple examples and they freeze like expected
+
+
+
+
+add more logging...like in proc_game_moves_array
+
+need a new type..use 40...
+
+
+make it so that I can log in rungame mode also...
+
+where do I do that?
+
+comment out the erase_log here:
+
+            if (options_menu_sel == 13) // run game
+            {
+               if (load_gm("-"))
+               {
+                  game_loop(9); // demo game
+
+                  // reset player data
+                  for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
+                  players[0].active = 1;
+                  active_local_player = 0;
+                  load_config(); // restore player color from config file
+                  //erase_log();
+               }
+            }
+
+
+make it so that pm -f starts game in file select for run game...done
+
+remove some RELEASE tags...done...
+
+
+logging for rungame
+
+add tag 40 in log file viewer done...
+I want to know what the max search needed before I found a match..
+
+
+
+more testing...
+
+3P lev 150 fake key , played back quite differently...
+
+removed the reduced game move search and still played back differently...
+
+stared at the code for a while and nothing jumps out...
+
+what about the search back thing I used to do?
+
+server always has a state copy to go back to when rewinding, can never be overwritten
+gets the controls for that state, then plays forward...
+
+
+how does it normally work? move then frame inc? compare with loop_frame
+normal:
+move, then call to proc_frame_delay that incs frame_num
+
+loop_frame
+move then manually inc frame_num
+
+added int last_gm_index to player1
+
+
+
+
+made a bunch of changes and did a test that seemed to work...
+
+I wish I knew what changes made it work...
+
+l 150 3P fk
+[1918][1188]
+p1 exit
+
+test more
+l 150 3P fk
+p1 exit
+[2379][1448]
+did not end up the same...
+
+so what ever the problem is, I have not fixed it by the changes I have made
+
+
+
+whenever a rewind happens corrections get applied
+
+this is probably normal...
+game moves are arriving too late to be processed with exact matches??
+but the server applies them when rewind happens??
+no, the server applies them with the normal game move array function
+
+- 282 rewind and apply all moves
+- 283 correction from gm with frame 282
+- 284 correction from gm with frame 283
+- 285 rewind and apply all moves
+
+Is this correct?
+
+will this play back the same??
+no, when it is getting corrected the changes are occuring a frame late...
+...but when it is rewound and replayed that should be the same as the demo play...right?
+
+the only thing this look back for game moves is doing is modifying the server state (incorrectly) with late client input
+but this should not matter because the rewind should fix that
+
+
+where in the loop is the server doing the rewind?
+
+server_control();                       <-- rewind and send stdf
+proc_controllers();                     <-- proc game_move
+move_frame();
+if (proc_frame_delay()) draw_frame();   <-- inc frame_num
+
+
+what if the server is sending stuff based on a fresh frame num that nothing has happened for yet?
+
+I am a little scared to change the order of things...
+
+what seems most logical?
+
+- get all input
+
+
+- move all things (unless time for a rewind, then rewind and move all things)
+
+- server send and rewind
+
+- draw, pause and inc frame
+
+
+this looks like I would do better making the server receive at the top of the loop (or async)
+
+then local input
+
+then rewind, move, send
+
+then pause and draw and inc frame
+
+
+is this important enough to change??
+
+easy...
+
+make the server receive loop seperate and call it at the top.
+
+
+
+wow, why is this so tough??
+
+what it all comes down to is that what the server puts into the game_moves array cannot be played back to get the same result
+why? if I knew that...
+
+
+at the beginning of send stdf
+
+move has just been completed for the current frame
+
+then stdf which does rewind
+
+then draw frame which incs frame num
+
+
+the rewind sets the frame back to the start
+
+then calls loop frame which does the move, then incs frame_num
+this means that when it ends up on the same frame num as it starts, it has not actually done the move for that frame...
+
+this seems very much like what the probem is...
+
+how to fix...
+
+do one extra then dec frame_num ?
+
+
+         while (frame_num <= saved_current_frame_num) loop_frame(); // fast forward
+
+
+
+      }
+      frame_num--;
+
+      printf("rw2:%d\n", frame_num);
+
+
+
+
+this did not magically fix everything...
+
+
+I am pretty sure that this is how it should be...just look at the previous reason
+
+
+
+could it be that on the server, if cdats come late they are not played with rewind, but in demo mode they are....
+
+that sounds likely...
+
+on the server, if you get a cdat earlier than the last rewind, don't apply it...
+no late but many right on time???
+
+
+what is the timing for this
+
+rx cdat puts in game move array
+
+proc_controllers() does proc game moves array
+
+then move_frame
+
+then server rewinds...
+
+
+move frame:58-------------
+move frame:59-------------
+move frame:60-------------
+rw1:60 57
+move frame:57-------------
+move frame:58-------------
+move frame:59-------------
+move frame:60-------------
+rw2:60 57
+
+move frame:61-------------
+move frame:62-------------
+move frame:63-------------
+rw1:63 60
+move frame:60-------------
+move frame:61-------------
+move frame:62-------------
+move frame:63-------------
+rw2:63 60
+
+move frame:64-------------
+move frame:65-------------
+move frame:66-------------
+rw1:66 63
+move frame:63-------------
+move frame:64-------------
+move frame:65-------------
+move frame:66-------------
+rw2:66 63
+
+move frame:67-------------
+
+
+
+time to run down hall
+7s single player
+5s server
+
+8s single player
+6s server
+rungame 8s
+
+why is server faster?
+
+
+move frame:0-------------
+0 rewind to:0
+saved server state:0
+
+move frame:1-------------
+move frame:2-------------
+move frame:3-------------
+3 rewind to:0
+loaded server state:0
+move frame:0-------------
+move frame:1-------------
+move frame:2-------------
+move frame:3-------------
+saved server state:3
+
+move frame:4-------------
+move frame:5-------------
+move frame:6-------------
+6 rewind to:3
+loaded server state:3
+move frame:3-------------
+move frame:4-------------
+move frame:5-------------
+move frame:6-------------
+saved server state:6
+
+move frame:7-------------
+move frame:8-------------
+move frame:9-------------
+9 rewind to:6
+loaded server state:6
+move frame:6-------------
+move frame:7-------------
+move frame:8-------------
+move frame:9-------------
+saved server state:9
+
+I think I am doing double moves
+
+rewind to state 3, then do state 3 again...
+
+not what I want..
+
+when frame 3 is saved move has been done, then I load it and do move 3 again...
+
+
+
+loaded server state:48
+move frame:49-------------
+move frame:50-------------
+move frame:51-------------
+saved server state:51
+
+move frame:52-------------
+move frame:53-------------
+move frame:54-------------
+54 rewind to:51
+loaded server state:51
+move frame:52-------------
+move frame:53-------------
+move frame:54-------------
+saved server state:54
+
+move frame:55-------------
+move frame:56-------------
+move frame:57-------------
+57 rewind to:54
+loaded server state:54
+move frame:55-------------
+move frame:56-------------
+move frame:57-------------
+saved server state:57
+
+
+ok maybe that has been fixed...it seems to work...
+
+clean up the code...
+
+moved frame_num++ to the start of loop_frame
+
+removed inc, dec and tests from rewind
+
+seems to work..
+
+
+
+
+
+69 rewind to:66
+loaded server state:66
+move frame:67-------------
+move frame:68-------------
+move frame:69-------------
+saved server state:69
+
+move frame:70-------------
+move frame:71-------------
+move frame:72-------------
+72 rewind to:69
+loaded server state:69
+move frame:70-------------
+move frame:71-------------
+move frame:72-------------
+saved server state:72
+
+move frame:73-------------
+move frame:74-------------
+move frame:75-------------
+75 rewind to:72
+loaded server state:72
+move frame:73-------------
+move frame:74-------------
+move frame:75-------------
+saved server state:75
+
+move frame:76-------------
+move frame:77-------------
+move frame:78-------------
+78 rewind to:75
+loaded server state:75
+move frame:76-------------
+
+
+does not play back exactly still...
+
+
+move frame:895-------------
+move frame:896-------------
+move frame:897-------------
+897 rewind to:894
+loaded server state:894
+move frame:895-------------
+move frame:896-------------
+move frame:897-------------
+saved server state:897
+
+[898]late cdat dropped p:2 c:896  state:897-
+move frame:898-------------
+move frame:899-------------
+move frame:900-------------
+900 rewind to:897
+loaded server state:897
+move frame:898-------------
+move frame:899-------------
+move frame:900-------------
+saved server state:900
+
+move frame:901-------------
+move frame:902-------------
+move frame:903-------------
+903 rewind to:900
+loaded server state:900
+move frame:901-------------
+move frame:902-------------
+move frame:903-------------
+saved server state:903
+
+move frame:904-------------
+move frame:905-------------
+move frame:906-------------
+906 rewind to:903
+loaded server state:903
+move frame:904-------------
+move frame:905-------------
+move frame:906-------------
+saved server state:906
+
+move frame:907-------------
+move frame:908-------------
+move frame:909-------------
+909 rewind to:906
+loaded server state:906
+move frame:907-------------
+move frame:908-------------
+move frame:909-------------
+saved server state:909
+
+move frame:910-------------
+move frame:911-------------
+move frame:912-------------
+912 rewind to:909
+loaded server state:909
+move frame:910-------------
+move frame:911-------------
+move frame:912-------------
+saved server state:912
+
+[913]late cdat dropped p:2 c:911  state:912-
+move frame:913-------------
+move frame:914-------------
+move frame:915-------------
+915 rewind to:912
+loaded server state:912
+move frame:913-------------
+move frame:914-------------
+move frame:915-------------
+saved server state:915
+
+
+
+increased rejection of late cdats
+
+
+move frame:1501-------------
+[1502]late cdat dropped p:2 c:1500  state:1500-
+move frame:1502-------------
+move frame:1503-------------
+1503 rewind to:1500
+loaded server state:1500
+move frame:1501-------------
+move frame:1502-------------
+move frame:1503-------------
+saved server state:1503
+
+move frame:1504-------------
+[1505]late cdat dropped p:2 c:1503  state:1503-
+move frame:1505-------------
+move frame:1506-------------
+1506 rewind to:1503
+loaded server state:1503
+move frame:1504-------------
+move frame:1505-------------
+move frame:1506-------------
+saved server state:1506
+
+move frame:1507-------------
+[1508]late cdat dropped p:2 c:1506  state:1506-
+move frame:1508-------------
+move frame:1509-------------
+1509 rewind to:1506
+loaded server state:1506
+move frame:1507-------------
+move frame:1508-------------
+move frame:1509-------------
+saved server state:1509
+
+[1510]late cdat dropped p:2 c:1508  state:1509-
+move frame:1510-------------
+[1511]late cdat dropped p:2 c:1509  state:1509-
+move frame:1511-------------
+move frame:1512-------------
+1512 rewind to:1509
+loaded server state:1509
+move frame:1510-------------
+move frame:1511-------------
+move frame:1512-------------
+
+the stdf frame has already had controls and moves applied
+if we get moves for that frame, they are too late
+
+they happen most often right after stdf has been saved.
+
+so now try a big test...
+
+What is funny is that I never even noticed all these errors.
+The clients got whatever state the server told them and ran with that.
+All these bugs I have been fighting have to do with the server state being different between when the server was running and later when playing back the game moves array...
+
+
+It looks like it is working...
+
+First of all I need to bring back late cdat errors..
+server keeps track for each client
+players1[p].late_cdats;
+
+the problem I have now is that I have a lot of late cdats and the clients quite often make moves that do not get through to the server
+
+why is this??
+
+what can I do?
+
+I can decrease the stdf freq...most misses occur right after a state is received
+
+i can rewind more, but that would require that I take an earlier stdf snapshot...
+what would that require?
+
+
+the basic algorithm is
+-rewind, apply missed moves, replay to now, send dif
+
+
+20s 2P with client fk
+stdf freq   late
+3           226
+4           170
+5           120
+6           100
+
+rewinding more requires that I have a server state from then
+why can't I do that?
+
+would that require more states?
+
+rolling states?
+
+
+100 go back 8 frames and replay
+
+92
+93
+94
+95
+96 when you get to -4 frames save a state, this is now the oldest state
+97
+98
+99
+100
+
+
+101
+102
+103
+104 go back 8 frames and replay
+
+96
+97
+98
+99
+100 when you get to -4 frame save a state
+101
+102
+103
+104
+
+105
+106
+107
+108
+
+
+
+
+
+
+stdf freq = 4
+
+only one stdf state
+
+when time to send stdf
+
+rewind 8
+
+replay 4
+
+save new state
+
+replay 4
+
+send stdf
+
+
+
+this could work....
+
+then don't reject late unless how old??
+
+
+start stdf send when frame_num = srv_stdf_state_frame_num + 6;
+
+rewind to srv_stdf_state_frame_num
+
+play 3 frames
+
+make a new srv_stdf_state
+
+play 3 frames to current
+
+send stdf
+
+
+it looks like I will need 2 server states
+1 from 3 frames ago and one from now
+
+the one from 3 frames ago is the one I will use to rewind next time
+the one from now is the one I will send to clients
+
+changed back to array of 4 for both
+
+lets make 0 the most current (highest frame_num) and 1 the older one
+
+
+
+
+void server_send_stdf(void)
+{
+
+   if (frame_num == 0)
+   {
+      game_vars_to_state(srv_stdf_state[1]);
+      srv_stdf_state_frame_num[1] = frame_num;
+      printf("saved server state[1]:%d\n\n", frame_num);
+   }
+
+
+   // is it time to make a new dif and send to clients?
+   if (frame_num == srv_stdf_state_frame_num[1] + 6)
+   {
+      printf("\n%d rewind to:%d\n", frame_num, srv_stdf_state_frame_num[1]);
+
+      // rewind and fast forward from last stdf state to apply missed game moves received late
+
+      // int saved_current_frame_num = frame_num; // save old current frame
+
+      frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
+      state_to_game_vars(srv_stdf_state[1]);   // rewind state
+
+      printf("loaded server state[1]:%d\n", frame_num);
+
+      loop_frame();
+      loop_frame();
+      loop_frame();
+
+      game_vars_to_state(srv_stdf_state[1]);
+      srv_stdf_state_frame_num[1] = frame_num;
+      printf("saved server state[1]:%d\n", frame_num);
+
+      loop_frame();
+      loop_frame();
+      loop_frame();
+
+      // rewind and replay is done, now save this state as a base for next time
+
+      game_vars_to_state(srv_stdf_state[0]);
+      srv_stdf_state_frame_num[0] = frame_num;
+
+      printf("saved server state[0]:%d\n\n", frame_num);
+
+      // send dif based on this state to all clients
+      for (int p=1; p<NUM_PLAYERS; p++)
+         if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
+
+
+
+   }
+}
+
+no changes to clients, only server
+
+holy shit, it works!
+
+
+909 rewind to:903
+loaded server state[1]:903
+move frame:904-------------
+move frame:905-------------
+move frame:906-------------
+saved server state[1]:906
+move frame:907-------------
+move frame:908-------------
+move frame:909-------------
+saved server state[0]:909
+
+move frame:910-------------
+move frame:911-------------
+move frame:912-------------
+
+912 rewind to:906
+loaded server state[1]:906
+move frame:907-------------
+move frame:908-------------
+move frame:909-------------
+saved server state[1]:909
+move frame:910-------------
+move frame:911-------------
+move frame:912-------------
+saved server state[0]:912
+
+move frame:913-------------
+move frame:914-------------
+move frame:915-------------
+
+915 rewind to:909
+loaded server state[1]:909
+move frame:910-------------
+move frame:911-------------
+move frame:912-------------
+saved server state[1]:912
+move frame:913-------------
+move frame:914-------------
+move frame:915-------------
+
+it seems to be able to play back also
+
+this works fucking awesome rewind 4 skip 2...
+
+after all of this stuff and now its working so good...yay!
+
+
+what if I entered server players controls immed, just like client
+they can be corrected later..seems to work...
+
+
+the look back part in proc_game_moves never seems to find any differences
+
+lets remove it and save a copy here just in case
+
+
+
+// this function processes all entries in the game_moves array that match current frame_num
+void proc_game_moves_array(void)
+{
+   // search entire range
+   int start_index = game_move_entry_pos-1;
+   int end_index = 0;
+
+   // reduce search range
+//   start_index = game_move_current_pos + 100;
+//   if (start_index > game_move_entry_pos-1) start_index = game_move_entry_pos-1;
+//
+//   end_index = game_move_current_pos - 100;
+//   if (end_index < 0) end_index = 0;
+
+//   sprintf(msg, "game_move - gmep:%d gmcp:%d si:%d ei:%d\n", game_move_entry_pos, game_move_current_pos, start_index, end_index);
+//   if (L_LOGGING_NETPLAY_cdat) add_log_entry2(40, 0, msg);
+
+
+// for each active player record the index of the game move that:
+// has the max frame number that is not greater than the current frame num
+
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if (players[p].active)
+      {
+         players1[p].last_gm_index = -1;
+         players1[p].last_gm_frame_num = -1;
+         players1[p].last_gm_comp_move = -1;
+      }
+
+
+
+
+   for (int x=start_index; x>=end_index; x--)  // search backwards from start_index to end_index
+   {
+
+      int f = game_moves[x][0]; // frame
+      int t = game_moves[x][1]; // type
+      int p = game_moves[x][2]; // player
+      int c = game_moves[x][3]; // cm
+      if ((f <= frame_num) && (t == 5)) // frame in range and type game move
+      {
+         if (f > players1[p].last_gm_frame_num) // max frame_num
+         {
+            players1[p].last_gm_frame_num = f;
+            players1[p].last_gm_index = x;
+            players1[p].last_gm_comp_move = c;
+         }
+      }
+
+      if (game_moves[x][0] == frame_num) // found frame number that matches current frame
+      {
+         if (x > game_move_current_pos) game_move_current_pos = x; // index of last used gm - keep this at the most recent one, never go back
+         switch (game_moves[x][1])
+         {
+            case 1: proc_player_active_game_move(x); break;
+            case 2: proc_player_inactive_game_move(x); break;
+            case 3: proc_player_client_join_game_move(x); break;
+            case 4: proc_player_client_quit_game_move(x); break;
+            case 5: set_controls_from_comp_move(game_moves[x][2], game_moves[x][3]); break;
+         }
+      }
+   }
+
+
+   // if not match exact then set max for each player
+   for (int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (players1[p].last_gm_index != -1))
+      {
+         // compare if we actually ever have a difference here
+         // how do I get current gm from controls??
+         int cm = get_comp_move_from_players_controls(p);
+         if (cm != players1[p].last_gm_comp_move)
+         {
+            printf("game_move correction! p:%d f:%d gmfn:%d\n", p, frame_num, players1[p].last_gm_frame_num);
+         }
+
+         set_controls_from_comp_move(p, players1[p].last_gm_comp_move);
+      }
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

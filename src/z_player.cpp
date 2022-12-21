@@ -1524,16 +1524,13 @@ void init_player(int p, int t)
    {
       players1[p].client_cdat_packets_tx = 0;
 
+      players1[p].late_cdats = 0;
+
       players1[p].client_sync = 0;
       players1[p].server_sync = 0;
 
       players1[p].client_chase_fps = 0;
       players1[p].server_game_move_sync = 0;
-
-
-      players1[p].server_rewind_frames = 0;
-      players1[p].server_rewind_frames_max = 0;
-
 
       players1[p].quit_frame = 0;
       players1[p].quit_reason = 0;

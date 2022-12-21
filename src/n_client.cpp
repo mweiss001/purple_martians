@@ -181,15 +181,6 @@ void ClientExitNetwork(void)
 
 int client_init(void)
 {
-   sprintf(msg, "Client mode started on host:[%s]",local_hostname);
-   printf("%s\n", msg);
-   if (L_LOGGING_NETPLAY)
-   {
-      log_versions();
-      add_log_entry_centered_text(10, 0, 76, "", "+", "-");
-      sprintf(msg, "Client mode started on host:[%s]",local_hostname);
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-   }
 
    // initialize driver with server address
    if (!ClientInitNetwork(m_serveraddress)) return 0;

@@ -54,7 +54,7 @@ int suicide_pbullets = 0;
 char srv_client_state[8][2][STATE_SIZE];
 int srv_client_state_frame_num[8][2];
 
-// server's copies of last stdf states
+// server's copy of last stdf state
 char srv_stdf_state[4][STATE_SIZE];
 int srv_stdf_state_frame_num[4];
 
@@ -809,6 +809,7 @@ void game_menu(void)
       }
 
 
+
       if ((top_menu_sel == 4) && (resume_allowed)) // resume game
       {
          game_loop(7); // resume
@@ -1085,7 +1086,7 @@ void game_menu(void)
                   players[0].active = 1;
                   active_local_player = 0;
                   load_config(); // restore player color from config file
-                  erase_log();
+                  //erase_log();
                }
             }
 
@@ -1550,22 +1551,6 @@ void show_level_done(void);
          }
 
 
-         #ifndef RELEASE
-//         // run packet test server
-//         void nc_server(void);
-//         if (strcmp(argument_array[1],"-x") == 0 )
-//         {
-//            nc_server();
-//            exit(0);
-//         }
-//         // run packet test client
-//         if (strcmp(argument_array[1],"-z") == 0 )
-//         {
-//            nc_client();
-//            exit(0);
-//         }
-
-
          if (strcmp(argument_array[1],"-l") == 0 )  // log file viewer
          {
             log_file_viewer(1);
@@ -1577,13 +1562,6 @@ void show_level_done(void);
             log_file_viewer(2);
             fast_exit(0);
          }
-
-         if (strcmp(argument_array[1],"-g") == 0 )  // temp testing
-         {
-             temp_test();
-             fast_exit(0);
-         }
-         #endif
 
          // no server specified; use the one from the config file
          if (strcmp(argument_array[1],"-c") == 0 )
@@ -1599,6 +1577,16 @@ void show_level_done(void);
             play_level = start_level;
             game_loop(2); // server game
             fast_exit(0);
+         }
+
+         if (strcmp(argument_array[1],"-f") == 0 )
+         {
+            show_splash_screen = 0;
+            if (load_gm("-"))
+            {
+               game_loop(9); // demo game
+               fast_exit(0);
+            }
          }
 
          // keep this last so if no other single flag matches try to run like it an int level...
@@ -1651,17 +1639,17 @@ void show_level_done(void);
          }
 
          // run saved game from file -- eg: 'pm.exe -f mz23.gm'
-         if (strcmp(argument_array[1],"-f") == 0 )
-         {
-            show_splash_screen = 0;
-            sprintf(msg, "savegame/%s", argument_array[2] );
-            if (load_gm(msg))
-            {
-               printf("running game file:%s\n", argument_array[2]);
-               game_loop(9); // demo game
-               fast_exit(0);
-            }
-         }
+//         if (strcmp(argument_array[1],"-f") == 0 )
+//         {
+//            show_splash_screen = 0;
+//            sprintf(msg, "savegame/%s", argument_array[2] );
+//            if (load_gm(msg))
+//            {
+//               printf("running game file:%s\n", argument_array[2]);
+//               game_loop(9); // demo game
+//               fast_exit(0);
+//            }
+//         }
          if (strcmp(argument_array[1],"-c") == 0 )
          {
             show_splash_screen = 0;
@@ -1722,12 +1710,12 @@ int copy_files_to_clients(int exe_only)
 
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
+   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
 
 
 

@@ -574,6 +574,9 @@ int log_file_viewer(int type)
    tags[32][0] = 0; tags[32][1] = 15; tags[32][3] = 70; sprintf(ctags[32], "dif2"); // show diff2   (F) [C]
    tags[35][0] = 1; tags[35][1] = 3;  tags[35][3] = 67; sprintf(ctags[35], "cdat"); // cdat         (C) [CS]
 
+
+   tags[40][0] = 1; tags[40][1] = 15; tags[40][3] = 69; sprintf(ctags[40], "gmar"); // game move array (E) [S]
+
    tags[99][0] = 1; tags[99][1] = 10; // bad tag
 
 //   printf("log file 3\n");
@@ -850,7 +853,7 @@ int log_file_viewer(int type)
 
       // show tag labels
       ly+=8;
-      for (int i=23; i<40; i++)
+      for (int i=23; i<50; i++)
       {
          if (tags[i][2]) // this tag type is present in log
          {
@@ -932,7 +935,7 @@ int log_file_viewer(int type)
       {
          k += 64; // convert to ascii
          //printf("%c\n", k);
-         for (int i=23; i<40; i++)
+         for (int i=23; i<50; i++)
             if (tags[i][3] == k) tags[i][0] = !tags[i][0]; // toggle tag on/off
       }
 

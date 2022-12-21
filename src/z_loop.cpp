@@ -104,12 +104,42 @@ void proc_start_mode(int start_mode)
    }
 
 
-   if (start_mode == 9) players[0].control_method = 1; // rungame demo mode
+   if (start_mode == 9)
+   {
+      if (L_LOGGING_NETPLAY)
+      {
+         log_versions();
+         sprintf(msg, "Demo mode started on level:%d", play_level);
+         add_log_entry_header(10, 0, msg, 0);
+      }
+      players[0].control_method = 1; // rungame demo mode
+   }
+
+
    else clear_game_moves(); // clear game moves array, except for demo mode
 
 
    if (start_mode == 2) // server
    {
+
+      if (L_LOGGING_NETPLAY)
+      {
+         log_versions();
+         add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+
+         sprintf(msg, "Server mode started");
+         add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+         printf("%s\n", msg);
+
+         sprintf(msg, "Server hostname:    [%s]", local_hostname);
+         add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+         printf("%s\n", msg);
+
+         sprintf(msg, "Level:              [%d]", play_level);
+         add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+         printf("%s\n", msg);
+      }
+
       if (!server_init())
       {
          server_exit();
@@ -120,6 +150,17 @@ void proc_start_mode(int start_mode)
 
    if (start_mode == 3) // client
    {
+
+      sprintf(msg, "Client mode started on host:[%s]",local_hostname);
+      printf("%s\n", msg);
+      if (L_LOGGING_NETPLAY)
+      {
+         log_versions();
+         add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+         sprintf(msg, "Client mode started on host:[%s]",local_hostname);
+         add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      }
+
       if (!client_init())
       {
          client_exit();
@@ -285,9 +326,9 @@ void draw_frame(void)
    al_flip_display();
 }
 
-
 void move_frame(void)
 {
+   //printf("move frame:%d-------------\n", frame_num);
    move_ebullets();
    move_pbullets();
    move_lifts(0);
@@ -295,7 +336,6 @@ void move_frame(void)
    move_enemies();
    move_items();
 }
-
 
 void game_loop(int start_mode)
 {
@@ -320,8 +360,8 @@ void game_loop(int start_mode)
 
 void loop_frame(void)
 {
+   frame_num++;
    proc_game_moves_array();
    if (players[0].level_done_mode) proc_level_done_mode();
    else move_frame();
-   frame_num++;
 }
