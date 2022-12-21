@@ -153,7 +153,7 @@ void show_level_done(void)
 void draw_screen_overlay(void)
 {
    al_set_target_backbuffer(display);
-   if (players[0].level_done_mode) show_level_done();
+   if ((players[0].level_done_mode > 0) && (players[0].level_done_mode < 6)) show_level_done();
 
    if (speed_testing) draw_speed_test_data();
    draw_top_display();
@@ -172,6 +172,7 @@ void show_player_join_quit(void)
 
       if (jq == 0) sprintf(msg, "Player %d left the game!", p);
       if (jq == 1) sprintf(msg, "Player %d joined the game!", p);
+      if (jq == 2) sprintf(msg, "Player %d found the exit!", p);
       if (jq == 3) sprintf(msg, "Player %d DIED!", p);
 
       float stretch = ( (float)SCREEN_W / (strlen(msg)*8)) - 1; // (SCREEN_W / text length*8) -1
@@ -182,14 +183,14 @@ void show_player_join_quit(void)
 
       if (ratio > .6)
       {
-           float ra1 = 1 - ratio;                 // starts at 0 and increases to .3
+           float ra1 = 1 - ratio;                // starts at 0 and increases to .3
            float ra2 = ra1 * 2.5;                // starts at 0 and increases to .999
            stretch =  ra2 * stretch;
            y_pos = y_pos - y_pos_move + (int)(ra2 * y_pos_move);
       }
       if (ratio < .4)
       {
-           float ra1 = .4 - ratio;                // starts at 0 and increases to .3
+           float ra1 = .4 - ratio;               // starts at 0 and increases to .3
            float ra2 = ra1 * 2.5;                // starts at 0 and increases to .999
            stretch -=  ra2 * stretch;
            y_pos += (int)(ra2 * y_pos_move);
@@ -884,12 +885,12 @@ void draw_top_display(void)
          al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
       }
 
-      sprintf(msg, "[%d%%] ", frame_num*100/demo_mode_last_pc);
+      sprintf(msg, "[%d%%] ", frame_num*100/demo_mode_last_frame);
       al_draw_text(font, palette_color[14], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
       if (show_debug_overlay)
       {
-         sprintf(msg, "Time:[%d%%] ", frame_num*100/demo_mode_last_pc);
+         sprintf(msg, "Time:[%d%%] ", frame_num*100/demo_mode_last_frame);
          al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
          al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
       }

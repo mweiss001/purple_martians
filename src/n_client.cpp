@@ -438,8 +438,6 @@ void client_apply_dif2()
       // apply dif to base state
       apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
 
-
-
       // make a copy of the old l[][]
       int old_l[100][100];
       memcpy(old_l, l, sizeof(l));
@@ -453,7 +451,7 @@ void client_apply_dif2()
          {
             if (l[x][y] != old_l[x][y])
             {
-               printf("dif at x:%d y:%d\n", x, y);
+               // printf("dif at x:%d y:%d\n", x, y);
                al_set_target_bitmap(level_background);
                al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, al_map_rgb(0,0,0));
                al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
@@ -461,14 +459,19 @@ void client_apply_dif2()
          }
 
 
-      // fix control methods to match server
-      players[0].control_method = 2;
+      // fix control methods
+      players[0].control_method = 2; // on client, server is mode 2
       if (players[p].control_method == 2) players[p].control_method = 4; // but don't touch if 8!
+      if (players[p].control_method == 8) game_exit = 1; // server quit
+
 
       // update client base frame_num
       client_state_base_frame_num = client_state_dif_dst;
 
     //  printf("frame_num:%d dif_frame_num:%d\n", frame_num, client_state_dif_dst);
+
+
+
 
 
 
@@ -519,9 +522,7 @@ int client_process_stdf_packet(void)
    int sb = PacketGet4ByteInt();
    int sz = PacketGet4ByteInt();
 
-
    players1[p].client_sync = dst - frame_num;
-
 
    players1[p].client_last_stdf_rx_frame_num = frame_num;
 
@@ -592,7 +593,6 @@ void client_block_until_initial_state_received(void)
    set_frame_nums(client_state_dif_dst);
 
    init_level_background(0);
-
 
    // set holdoff 200 frames in future so client won't try to drop while syncing
    players1[p].client_last_stdf_rx_frame_num = frame_num + 200;
@@ -730,31 +730,33 @@ void client_control(void)
    }
 }
 
-
-
-void client_local_control(int p)
-{
-   set_comp_move_from_player_key_check(p);
-   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
-
-   if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
-   {
-      players1[p].old_comp_move = players1[p].comp_move;
-
-      if (players[0].level_done_mode == 0) set_controls_from_comp_move(p, players1[p].comp_move);
-      else clear_controls(p);
-
-      if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))
-      {
-         Packet("cdat");
-         PacketPut1ByteInt(p);
-         PacketPut4ByteInt(frame_num);
-         PacketPut1ByteInt(players1[p].comp_move);
-         ClientSend(packetbuffer, packetsize);
-
-         players1[p].client_cdat_packets_tx++;
-         sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
-         if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
-      }
-   }
-}
+//
+//
+//void client_local_control(int p)
+//{
+//   set_comp_move_from_player_key_check(p);
+//   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
+//
+//   if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
+//   {
+//      players1[p].old_comp_move = players1[p].comp_move;
+//
+//      if (players[0].level_done_mode == 0) set_controls_from_comp_move(p, players1[p].comp_move);
+//      else clear_controls(p);
+//
+//      if (players[p].menu) game_exit = 1;
+//
+//      if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))
+//      {
+//         Packet("cdat");
+//         PacketPut1ByteInt(p);
+//         PacketPut4ByteInt(frame_num);
+//         PacketPut1ByteInt(players1[p].comp_move);
+//         ClientSend(packetbuffer, packetsize);
+//
+//         players1[p].client_cdat_packets_tx++;
+//         sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
+//         if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
+//      }
+//   }
+//}

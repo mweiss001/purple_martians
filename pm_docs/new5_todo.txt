@@ -18,6 +18,11 @@ bug -- in level editor can't see trigger box edges on left or top if zero
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+
+
+--------------------------------------------------------------------------------------------
+Layered multiplayer recording
+------------------------------------------------------------------------------------------
 How can I do a layered multiplayer recording, where a new player can record while paying back all the old ones?
 
 single player local mode only
@@ -70,39 +75,33 @@ play and pause
 set position and record for one player
 
 
-------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 to something more graceful if the next level is not found..
+--------------------------------------------------------------------------------------------
 
 option 1: search for next level
 option 2: if load fails go back to current level
 
 whatever you do, do not just fail and leave a failed level loaded with menu...
-
+I have changed it to print error to console and merr message on failure
 ------------------------------------------------------------------
+
 
 
 
 ------------------------------------------------------------------
 8 character name for player...
-I use 8 char for 'player x' already so the text should fit
 ------------------------------------------------------------------
+I use 8 char for 'player x' already so the text should fit
 
 
 
+--------------------------------------------------------------------------------------------
+display window hystersis adjust
+--------------------------------------------------------------------------------------------
+the display window hystersis window thing shoould slowly drift in the direction the player is looking, so they can see further thay way..this is genius and should have been done a long time ago
 
-
-
-
-
-
-
----------------------------------
-the display window hystersis window thing shoould slowly drift in the direction the player is looking, so they can see further thay way..
-this is genius and should have been done a long time ago
-
-
-it is working but still needs somne bugs worked out
-
+it works but still needs some bugs worked out
 
 take the players motion into account
 if jumping then scroll to see more up
@@ -116,14 +115,13 @@ what I am doing is moving the camera...
 ---------------------------------
 
 
+
+
+
 ------------------------------------------
 remove fixed from code, it did not do what I wanted it to do...
 this could take a long time....do I want to waste the time?
 -------------------------------------------------
-
-
-
-
 
 -------------------------------------------------
 in log file viewer, make a second array with only the lines that we are showing
@@ -133,19 +131,14 @@ moving up and down by one line (or 10 or 100) will actually do what we expect
 -------------------------------------------------
 
 
-
-
-
 -------------------------------------------------
 Make an 'about' just like 'help'
 -------------------------------------------------
 
 
-
-
-
--------------------------------------------------
+--------------------------------------------------------------------------------------------
 Make it so that a client does not have to have the level a server is serving.
+--------------------------------------------------------------------------------------------
 I am so close anyway.
 All that needs to be done is also sync the lift steps...
 and the pmgstext
@@ -189,7 +182,11 @@ maybe I could send the level file, it is already compressed...
 
 
 
+
+
+-------------------------------------------------
 I want to make the packet exchange not run at the same time as the game.
+-------------------------------------------------
 I want it to run wide open, sending and receiving packets as fast as it can
 not waiting for the next frame...
 maybe I can do this in its own thread??
@@ -221,13 +218,9 @@ if I receive it in between frame, I still will not be able to make use of it uni
 
 
 
-
-
-
-
-
-
+-------------------------------------------------
 Implement a system of data about levels played and results
+-------------------------------------------------
 keep a text file when ever a level is completed (or abandonded)
 
 abandoned? whenever going to menu and resume allowed?
@@ -255,30 +248,29 @@ purple coins, max, min avg
 
 
 
-
-
-
-
-
-
-
-
-
-
+-------------------------------------------------
 make end pieces for chains and maybe vines and ladders and ropes
-
-
+-------------------------------------------------
 What if I gave my levels names?
 That way if they are re-arranged it wont matter
-
+-------------------------------------------------
 What if I had an overlay screen for levels
 This all sounds very complex...
+-------------------------------------------------
 
+------------------------------------------------------------------------------------
 make cloner capable of having a trigger input
 think of the things you could do
 but is it that easy?
 trigger would take the place of player in trigger box
 would still need timer, immediate, etc...
+
+------------------------------------------------------------------------------------
+make a trigger source based on a timer
+I found when making levels, i really wished I had one of those
+I can make block_damage cycle with a timer, because it's built in
+but I can't do the same for the block_manip
+------------------------------------------------------------------------------------
 
 
 ------------------------------------------------------
