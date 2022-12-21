@@ -274,23 +274,6 @@ void ServerExitNetwork() // Shut the server down
 
 int server_init(void)
 {
-   if (L_LOGGING_NETPLAY)
-   {
-      log_versions();
-      add_log_entry_centered_text(10, 0, 76, "", "+", "-");
-
-      sprintf(msg, "Server mode started");
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-      printf("%s\n", msg);
-
-      sprintf(msg, "Server hostname:    [%s]", local_hostname);
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-      printf("%s\n", msg);
-
-      sprintf(msg, "Level:              [%d]", play_level);
-      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-      printf("%s\n", msg);
-   }
 
    if (ServerInitNetwork())
    {
@@ -329,7 +312,6 @@ void server_exit(void)
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
    players[0].active = 1;
 }
-
 
 // send stdf to a specific client
 void server_send_stdf(int p)
@@ -395,69 +377,48 @@ void server_send_stdf(int p)
 }
 
 
-
 void server_send_stdf(void)
 {
-   stdf_freq = 3; // overide for testing
-
-    // is it time to make a new dif and send to clients?
-   if (frame_num % stdf_freq == 0)
+   // set initial state
+   if (frame_num == 0)
    {
-      if (srv_stdf_state_frame_num[0] > 0) // skip rewind and replay the first time
-      {
+      game_vars_to_state(srv_stdf_state[1]);
+      srv_stdf_state_frame_num[1] = frame_num;
+   //   printf("saved server state[1]:%d\n\n", frame_num);
+   }
 
-         // rewind and fast forward from last stdf state to apply missed game moves received late
+   // is it time to make a new dif and send to clients?
+   if (frame_num == srv_stdf_state_frame_num[1] + 4)
+   {
+     // printf("\n%d rewind to:%d\n", frame_num, srv_stdf_state_frame_num[1]);
 
-         int saved_current_frame_num = frame_num; // save old current frame
+      // rewind and fast forward from last stdf state to apply missed game moves received late
+      frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
+      state_to_game_vars(srv_stdf_state[1]);   // rewind state
 
-         players1[0].server_rewind_frames = frame_num - srv_stdf_state_frame_num[0];
-         if (players1[0].server_rewind_frames > players1[0].server_rewind_frames_max)
-            players1[0].server_rewind_frames_max = players1[0].server_rewind_frames;
+    //  printf("loaded server state[1]:%d\n", frame_num);
 
+      loop_frame();
+      loop_frame();
 
-         frame_num = srv_stdf_state_frame_num[0]; // rewind frame num
-         state_to_game_vars(srv_stdf_state[0]);   // rewind state
+      // save state[1] as a base for next rewind
+   //   printf("saved server state[1]:%d\n", frame_num);
+      game_vars_to_state(srv_stdf_state[1]);
+      srv_stdf_state_frame_num[1] = frame_num;
 
-         while (frame_num < saved_current_frame_num) loop_frame(); // fast forward
-      }
+      loop_frame();
+      loop_frame();
 
-      // rewind and replay is done, now save this state as a base for next time
+      // save state[0] as a base for sending client difs
+  //    printf("saved server state[0]:%d\n\n", frame_num);
       game_vars_to_state(srv_stdf_state[0]);
       srv_stdf_state_frame_num[0] = frame_num;
 
-      // send dif based on this state to all clients
+      // send dif based on this state[0] to all clients
       for (int p=1; p<NUM_PLAYERS; p++)
          if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
    }
 }
-
-//void server_send_stdf(void)
-//{
-//   // 1 1234567
-//   // 2 1357 246
-//   // 3 147 25 36
-//   // 4 15 26 37 4
-//   // 5 16 27 3 4 5
-//   // 6 17 2 3 4 5
-//   // 7 1 2 3 4 5 6 7
-//   // 8 1 2 3 4 5 6 7 X
-//
-//   stdf_freq = 1; // overide for testing
-//   int stagger = 0;
-//   for (int p=1; p<NUM_PLAYERS; p++)
-//      if (players[p].control_method == 2)
-//      {
-//         if ((stagger % stdf_freq == 0) && (frame_num % stdf_freq == 0)) server_send_stdf(p);
-//         if ((stagger % stdf_freq == 1) && (frame_num % stdf_freq == 1)) server_send_stdf(p);
-//         if ((stagger % stdf_freq == 2) && (frame_num % stdf_freq == 2)) server_send_stdf(p);
-//         if ((stagger % stdf_freq == 3) && (frame_num % stdf_freq == 3)) server_send_stdf(p);
-//         if ((stagger % stdf_freq == 4) && (frame_num % stdf_freq == 4)) server_send_stdf(p);
-//         if ((stagger % stdf_freq == 5) && (frame_num % stdf_freq == 5)) server_send_stdf(p);
-//         if ((stagger % stdf_freq == 6) && (frame_num % stdf_freq == 6)) server_send_stdf(p);
-//         stagger++;
-//      }
-//}
-
 
 void server_proc_player_drop(void)
 {
@@ -482,6 +443,16 @@ void server_proc_player_drop(void)
             if (L_LOGGING_NETPLAY) add_log_entry_header(10, p, msg, 1);
          }
       }
+
+   // check to see if we are approaching limit of game_moves array and do something if we are
+   if (game_move_entry_pos > (GAME_MOVES_SIZE - 100))
+   {
+      sprintf(msg,"Server Approaching %d Game Moves! - Shutting Down", GAME_MOVES_SIZE);
+      if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 0);
+
+      // insert state inactive special move
+      add_game_move2(frame_num + 8, 2, 0, 64); // type 2 - player inactive
+   }
 }
 
 
@@ -492,7 +463,14 @@ void server_proc_cdat_packet(void)
    int cm = PacketGet1ByteInt();
    players1[p].server_game_move_sync = cdat_frame_num - frame_num;
 
-   add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
+   // check to see if earlier than the last stdf state
+
+   if (cdat_frame_num <= srv_stdf_state_frame_num[1])
+   {
+      printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_stdf_state_frame_num[1], players1[p].late_cdats);
+      players1[p].late_cdats++;
+   }
+   else add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
 
    sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d]\n", p, cdat_frame_num, players1[p].server_game_move_sync, game_move_entry_pos);
    if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
@@ -662,10 +640,9 @@ void server_proc_cjon_packet(int who)
    }
 }
 
+
 void server_control() // this is the main server loop to process packet send and receive
 {
-   if (L_LOGGING_NETPLAY_PLAYER_ARRAY) log_player_array2();
-
    ServerListen();      // listen for new client connections
    int who;
    while((packetsize = ServerReceive(packetbuffer, &who)))
@@ -674,42 +651,10 @@ void server_control() // this is the main server loop to process packet send and
       if(PacketRead("stak")) server_proc_stak_packet();
       if(PacketRead("cjon")) server_proc_cjon_packet(who);
    }
-   server_send_stdf();  // send dif states to ensure clients have same state
+
+   server_send_stdf();         // send dif states to ensure clients have same state
    server_proc_player_drop();  // check to see if we need to drop clients
+
+   if (L_LOGGING_NETPLAY_PLAYER_ARRAY) log_player_array2();
    for (int p=0; p<NUM_PLAYERS; p++) if (players[p].active) process_bandwidth_counters(p);
-
-   // check to see if we are approaching limit of game_moves array and do something if we are
-   if (game_move_entry_pos > (GAME_MOVES_SIZE - 100))
-   {
-      sprintf(msg,"Server Approaching %d Game Moves! - Shutting Down", GAME_MOVES_SIZE);
-      if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 0);
-
-      // insert state inactive special move
-      add_game_move2(frame_num + 8, 2, 0, 64); // type 2 - player inactive
-
-//      game_moves[game_move_entry_pos][0] = frame_num + 8; // add frames so server has time to sync back to clients before dropping
-//      game_moves[game_move_entry_pos][1] = 2;     // type 1; player state
-//      game_moves[game_move_entry_pos][2] = 0;     // player num
-//      game_moves[game_move_entry_pos][3] = 64;    // inactive
-//      game_move_entry_pos++;
-   }
-
 }
-//
-//void server_local_control(int p)
-//{
-//   set_comp_move_from_player_key_check(p);
-//   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
-//
-//   if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))  // only allow player input in these modes
-//   {
-//      if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
-//      {
-//         players1[p].old_comp_move = players1[p].comp_move;
-//         add_game_move(frame_num, 5, p, players1[p].comp_move);
-//      }
-//   }
-//}
-//
-//
-//

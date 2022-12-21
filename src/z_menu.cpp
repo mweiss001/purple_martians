@@ -620,18 +620,6 @@ void menu_setup(void)
    strcpy (global_string[2][16],"Help Screens");
    strcpy (global_string[2][17],"Quit Level Editor");
    strcpy (global_string[2][18],"end");
-//
-//#ifndef RELEASE
-//   strcpy (global_string[2][17],"----");
-//   strcpy (global_string[2][18],"Predefined Enemy Editor");
-//   strcpy (global_string[2][19],"Global Level Thingy!!");
-//   strcpy (global_string[2][20],"Level Viewer!");
-//   strcpy (global_string[2][21],"Animation Sequence Editor");
-//   strcpy (global_string[2][22],"Copy Tiles");
-//   strcpy (global_string[2][23],"Default Flag Editor");
-//   strcpy (global_string[2][24],"end");
-//#endif
-
 
    strcpy (global_string[3][0], "Logging Options Menu");
    strcpy (global_string[3][1], "--------------------");

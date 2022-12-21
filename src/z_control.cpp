@@ -316,6 +316,27 @@ void set_controls_from_player_key_check(int p) // used only in menu
    if (key[ALLEGRO_KEY_ESCAPE])    players[p].menu  = 1;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void function_key_check(void)
 {
    if ((!game_exit) || (level_editor_running))
@@ -991,14 +1012,36 @@ void proc_player_inactive_game_move(int x)
 }
 
 
+int get_comp_move_from_players_controls(int p) // only used to test
+{
+   int cm = 0;
+   if (players[p].left)  cm |= PM_COMPMOVE_LEFT;
+   if (players[p].right) cm |= PM_COMPMOVE_RIGHT;
+   if (players[p].up)    cm |= PM_COMPMOVE_UP;
+   if (players[p].down)  cm |= PM_COMPMOVE_DOWN;
+   if (players[p].jump)  cm |= PM_COMPMOVE_JUMP;
+   if (players[p].fire)  cm |= PM_COMPMOVE_FIRE;
+   if (players[p].menu)  cm |= PM_COMPMOVE_MENU;
+   return cm;
+}
+
+
 // this function processes all entries in the game_moves array that match current frame_num
 void proc_game_moves_array(void)
 {
-   int start_index = game_move_current_pos + 100;
-   if (start_index > game_move_entry_pos-1) start_index = game_move_entry_pos-1;
+   // search entire range
+   int start_index = game_move_entry_pos-1;
+   int end_index = 0;
 
-   int end_index = game_move_current_pos - 100;
-   if (end_index < 0) end_index = 0;
+   // reduce search range
+//   start_index = game_move_current_pos + 100;
+//   if (start_index > game_move_entry_pos-1) start_index = game_move_entry_pos-1;
+//
+//   end_index = game_move_current_pos - 100;
+//   if (end_index < 0) end_index = 0;
+
+//   sprintf(msg, "game_move - gmep:%d gmcp:%d si:%d ei:%d\n", game_move_entry_pos, game_move_current_pos, start_index, end_index);
+//   if (L_LOGGING_NETPLAY_cdat) add_log_entry2(40, 0, msg);
 
    for (int x=start_index; x>=end_index; x--)  // search backwards from start_index to end_index
    {
@@ -1016,23 +1059,6 @@ void proc_game_moves_array(void)
       }
    }
 }
-
-//
-//void single_player_local_control(int p)
-//{
-//   set_comp_move_from_player_key_check(p);
-//   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
-//
-//   if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))  // only allow player input in these modes
-//   {
-//      if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
-//      {
-//         players1[p].old_comp_move = players1[p].comp_move;
-//         add_game_move(frame_num, 5, p, players1[p].comp_move);
-//      }
-//   }
-//}
-
 
 void proc_player_input(int ret)
 {
@@ -1053,6 +1079,13 @@ void proc_player_input(int ret)
 
                   // in single player and server mode, add to game moves array
                   if ((cm == 0) || (cm == 3)) add_game_move(frame_num, 5, p, players1[p].comp_move);
+
+                  // in server mode apply immediately also
+                  if (cm == 3)
+                  {
+                     if (players[0].level_done_mode == 0) set_controls_from_comp_move(p, players1[p].comp_move);
+                     else clear_controls(p);
+                  }
 
                   // in client mode, send cdat packet, and apply move directly to controls
                   if (cm == 4)
@@ -1078,24 +1111,6 @@ void proc_player_input(int ret)
          }
       }
 }
-
-//         if (players[p].control_method == 0) // local single player control
-//         {
-//            if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5)) // only allow player input in these modes
-//            {
-//               set_comp_move_from_player_key_check(p);
-//               if (players1[p].comp_move != players1[p].old_comp_move)
-//               {
-//                  players1[p].old_comp_move = players1[p].comp_move;
-//                  add_game_move(frame_num, 5, p, players1[p].comp_move);
-//               }
-//            }
-//         }
-//         if (players[p].control_method == 1) rungame_key_check(p, ret); // run game from file
-//         if (players[p].control_method == 3) server_local_control(p);
-//         if (players[p].control_method == 4) client_local_control(p);
-//      }
-//}
 
 int proc_controllers()
 {

@@ -555,30 +555,31 @@ void sdg_show_column(int col, int &x, int y)
    }
 
 
-   if (col == 23) // server rewind frames
+   if (col == 23) // late cdats
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[srw]");
+      al_draw_text(font, palette_color[color], x, y+=8, 0, "[lcdt]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%3d]", players1[p].server_rewind_frames);
+         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].late_cdats);
       }
-      x+=5*8;
+      x+=6*8;
    }
 
 
-   if (col == 24) // server rewind frames max
-   {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[srm]");
-      for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         if (players[p].active == 1) color = color1;
-         if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%3d]", players1[p].server_rewind_frames_max);
-      }
-      x+=5*8;
-   }
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
@@ -598,18 +599,17 @@ void sdg_show(int x, int y) // server debug grid
 //   sdg_show_column(5, x, y); // who
    sdg_show_column(6, x, y); // server sync
 //   sdg_show_column(7, x, y); // client chase fps
-//   sdg_show_column(8, x, y); // server_game_move_sync
+   sdg_show_column(8, x, y); // server_game_move_sync
 
 
    sdg_show_column(20, x, y); // sc sync
    sdg_show_column(21, x, y); // cs sync
    sdg_show_column(22, x, y); // rt sync
 
-   sdg_show_column(23, x, y); // server rewind frames
-   sdg_show_column(24, x, y); // server rewind frames max
-
-
    sdg_show_column(9, x, y); // client base resets
+
+//   sdg_show_column(23, x, y); // late cdats
+
 
 //   sdg_show_column(10, x, y); // dif src
 //   sdg_show_column(11, x, y); // dif dst
