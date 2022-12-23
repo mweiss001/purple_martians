@@ -5,11 +5,7 @@
 // --------------- Global Variables ---------------
 // all global variables should be declared here and externed in pm.h
 
-
-
-
 int pm_event[1000];
-
 
 // temp testing variables
 int pct_x = 0;
@@ -24,15 +20,6 @@ int tx2=0;
 int ty2=0;
 int ttc2=0;
 float ttfloat2=0;
-
-
-
-
-
-
-
-
-
 
 // ------------------------------------------------
 // ----------------- netgame ----------------------
@@ -67,12 +54,7 @@ char client_state_dif[STATE_SIZE];     // uncompressed dif
 int  client_state_dif_src;             // uncompressed dif src frame_num
 int  client_state_dif_dst;             // uncompressed dif dst frame_num
 
-
 int level_header[20] = {0};
-
-
-
-
 
 // ------------------------------------------------
 // ----- visual level select ----------------------
@@ -498,6 +480,23 @@ int menu_map_x;
 int menu_map_y;
 int menu_map_size;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void final_wrapup(void)
 {
    save_display_window_position();
@@ -581,7 +580,7 @@ void fast_exit(int why)
 }
 
 
-void show_system_id()
+void show_system_id(void)
 {
    int j = al_get_system_id();
    if (j == ALLEGRO_SYSTEM_ID_UNKNOWN)     printf("System ID: Unknown system\n");
@@ -595,6 +594,16 @@ void show_system_id()
    if (j == ALLEGRO_SYSTEM_ID_SDL)         printf("System ID: SDL\n");
 }
 
+
+
+void set_exe_path(void)
+{
+   ALLEGRO_PATH *ep = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+   al_set_path_filename(ep, NULL);
+   if (!al_change_directory(al_path_cstr(ep, ALLEGRO_NATIVE_PATH_SEP))) printf("Error Changing Current Directory!\n");
+   //printf("Current Directory: %s\n", al_get_current_directory());
+   al_destroy_path(ep);
+}
 
 
 void set_and_get_versions(void)
@@ -634,96 +643,141 @@ void get_desktop_resolution()
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int initial_setup(void)
 {
-
    //al_set_config_value(al_get_system_config(), "trace", "level", "debug");
 
-   for (int p=0; p<NUM_PLAYERS; p++) players[p].color = 0; // just to make sure I do this somwhere, init player does not do it
-
    al_init();
+   set_exe_path();
    set_and_get_versions();
    load_config();
    show_system_id();
    get_desktop_resolution();
 
-
-
-// --- event queue ----------------
+   // --- event queue ----------------
    event_queue = al_create_event_queue();
    if(!event_queue)
    {
       m_err("Failed to create event queue.\n");
-      return -1;
+      return 0;
    }
 
+   // --- display --------------------
+   if (!init_display())
+   {
+      m_err("Failed to initialize display.\n");
+      return 0;
+   }
 
-// --- display --------------------
-   if (!init_display()) return 0;
    al_register_event_source(event_queue, al_get_display_event_source(display));
 
-
-// --- allegro add ons ------------
+   // --- allegro add ons ------------
    if(!al_init_native_dialog_addon())
    {
       m_err("Failed to initialize native dialog addon.\n");
-      return -1;
+      return 0;
    }
-
-
-
-
-
-
-
-
 
    if(!al_init_primitives_addon())
    {
       m_err("Failed to initialize primitives addon.\n");
-      return -1;
+      return 0;
    }
 
    if(!al_init_font_addon())
    {
       m_err("Failed to initialize font addon.\n");
-      return -1;
+      return 0;
    }
 
    if(!al_init_ttf_addon())
    {
       m_err("Failed to initialize ttf addon.\n");
-      return -1;
+      return 0;
    }
    load_fonts();
 
 
-// --- keyboard -------------------
+   // --- keyboard -------------------
    if (!al_install_keyboard())
    {
       m_err("Failed to install keyboard.\n");
-      return -1;
+      return 0;
    }
    //else printf("installed keyboard\n");
    al_register_event_source(event_queue, al_get_keyboard_event_source());
 
 
-// --- mouse ----------------------
+   // --- mouse ----------------------
    if (!al_install_mouse())
    {
       m_err("Failed to install mouse.\n");
-      return -1;
+      return 0;
    }
    //else printf("installed mouse\n");
    al_register_event_source(event_queue, al_get_mouse_event_source());
    al_hide_mouse_cursor(display);
 
 
-// --- joystick -------------------
+   // --- joystick -------------------
    if (!al_install_joystick())
    {
       m_err("Failed to install joystick.\n");
-      return -1;
+      return 0;
    }
    //else printf("installed joystick\n");
    int nj = al_get_num_joysticks();
@@ -741,18 +795,15 @@ int initial_setup(void)
       al_register_event_source(event_queue, al_get_joystick_event_source());
    }
 
-
    if(!al_init_image_addon())
    {
       m_err("Failed to initialize image addon.\n");
-      return -1;
+      return 0;
    }
    load_tiles();
    al_set_display_icon(display, tile[401]);
 
-
-
-// --- timers ---------------------
+   // --- timers ---------------------
    // create timers
    fps_timer = al_create_timer(1/(float)frame_speed);
    sec_timer = al_create_timer(1);
@@ -772,906 +823,28 @@ int initial_setup(void)
    seed_mdw();  // for mdw logo
    fill_mdw();
 
-   // init all players
+   // init players
+   for (int p=1; p<NUM_PLAYERS; p++) players[p].color = 0; // all but player[0] which we got from config file
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
    players[0].active = 1;
 
-   //zero_level_data();
-   //reset_animation_sequence_frame_nums(0);
-   //printf("end of initial setup\n");
    return 1;
 }
 
 
-void game_menu(void)
-{
-   int top_menu_sel = 3;
-   //printf("b4 splash\n");
-   if (!splash_screen_done)
-   {
-      splash_screen();
-      splash_screen_done = 1;
-   }
-   load_level(start_level, 0);
-   do
-   {
-      //printf("post load level\n");
 
-      top_menu_sel = zmenu(7, top_menu_sel, 10);
-
-      //printf("post top menu\n");
-
-
-      while (key[ALLEGRO_KEY_L])
-      {
-         proc_controllers();
-         top_menu_sel = 8;
-      }
-
-
-
-      if ((top_menu_sel == 4) && (resume_allowed)) // resume game
-      {
-         game_loop(7); // resume
-      }
-      if (top_menu_sel == 3) // start new game
-      {
-         play_level = start_level;
-         game_loop(1); // single player game
-         if (resume_allowed) top_menu_sel = 4;
-      }
-      if (top_menu_sel == 2) // start level
-      {
-         int pl = visual_level_select();
-         if (pl)
-         {
-            play_level = pl;
-            set_start_level(pl);
-            printf("lev selected level:%d\n", play_level);
-            top_menu_sel = 3;
-         }
-         else
-         {
-            top_menu_sel = 15; // dummy mode to redraw
-         }
-      }
-
-      if (top_menu_sel == 5) // host network game
-      {
-         play_level = start_level;
-         game_loop(2); // server game
-      }
-      if (top_menu_sel == 6) // join network game
-      {
-         game_loop(3); // client game
-      }
-
-      if (top_menu_sel == 9) demo_mode(); // demo mode
-
-      if (top_menu_sel == 8) // level editor
-      {
-         play_level = edit_menu(start_level);
-
-         // restore menu items
-         set_start_level(play_level);
-         set_speed();
-
-         game_loop(1); // single player game
-      }
-
-      if (top_menu_sel == 10) help(""); // help
-
-      if (top_menu_sel == 15) // dummy mode to redraw
-      {
-         load_level(start_level, 0);
-         top_menu_sel = 2;
-      }
-
-
-      if (top_menu_sel == 7) // options menu
-      {
-         int options_menu_sel = 2;
-         do
-         {
-            options_menu_sel = zmenu(8, options_menu_sel, 30);
-            if (options_menu_sel == 3)
-            {
-               int netgame_menu_sel = 2;
-               do
-               {
-                  netgame_menu_sel = zmenu(4, netgame_menu_sel, 30);
-                  if (netgame_menu_sel == 3) // edit server name
-                  {
-                     edit_server_name();
-                     save_config();
-                  }
-                  if (netgame_menu_sel == 4) // toggle TCP/UDP
-                  {
-                     TCP = !TCP;
-                     save_config();
-                  }
-                  if (netgame_menu_sel == 5) // toggle deathmatch bullets
-                  {
-                     deathmatch_pbullets = !deathmatch_pbullets;
-                     save_config();
-                  }
-                  if (netgame_menu_sel == 6) // toggle suicide bullets
-                  {
-                     suicide_pbullets = !suicide_pbullets;
-                     save_config();
-                  }
-                  if ( (netgame_menu_sel >= 100) && (netgame_menu_sel < 200) ) // right
-                  {
-                     netgame_menu_sel -= 100;
-                     if (netgame_menu_sel == 7) // damage inc
-                     {
-                        if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) deathmatch_pbullets_damage +=10;
-                        else deathmatch_pbullets_damage++;
-                        if (deathmatch_pbullets_damage > 100) deathmatch_pbullets_damage = 100;
-                        save_config();
-                     }
-                  }
-                  if ( (netgame_menu_sel >= 200) && (netgame_menu_sel < 300) )  // left
-                  {
-                     netgame_menu_sel -= 200;
-                     if (netgame_menu_sel == 7) // damage dec
-                     {
-                        if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) deathmatch_pbullets_damage -=10;
-                        else deathmatch_pbullets_damage--;
-                        if (deathmatch_pbullets_damage < -10) deathmatch_pbullets_damage = -10;
-                        save_config();
-                     }
-                  }
-
-               }  while (netgame_menu_sel != 2); // end of netgame options menu
-            }
-
-            if (options_menu_sel == 10) // logging options menu
-            {
-               int logging_menu_sel = 2;
-               do
-               {
-                  logging_menu_sel = zmenu(3, logging_menu_sel, 30);
-                  if (logging_menu_sel == 3) // all on
-                  {
-                     L_LOGGING_NETPLAY=1;
-                     L_LOGGING_NETPLAY_JOIN=1;
-                     L_LOGGING_NETPLAY_PLAYER_ARRAY=1;
-                     L_LOGGING_NETPLAY_bandwidth=1;
-                     L_LOGGING_NETPLAY_cdat=1;
-                     L_LOGGING_NETPLAY_game_move=1;
-                     L_LOGGING_NETPLAY_sdat=1;
-                     L_LOGGING_NETPLAY_sdak=1;
-                     L_LOGGING_NETPLAY_stdf=1;
-                     L_LOGGING_NETPLAY_stdf_all_packets=1;
-                     L_LOGGING_NETPLAY_stdf_when_to_apply=1;
-                     L_LOGGING_NETPLAY_show_dif1=1;
-                     L_LOGGING_NETPLAY_show_dif2=1;
-                     auto_save_game_on_level_done=1;
-                     auto_save_game_on_exit=1;
-                     save_config();
-                  }
-
-                  if (logging_menu_sel == 4 ) // all off
-                  {
-                     L_LOGGING_NETPLAY=0;
-                     L_LOGGING_NETPLAY_JOIN=0;
-                     L_LOGGING_NETPLAY_PLAYER_ARRAY=0;
-                     L_LOGGING_NETPLAY_bandwidth=0;
-                     L_LOGGING_NETPLAY_cdat=0;
-                     L_LOGGING_NETPLAY_game_move=0;
-                     L_LOGGING_NETPLAY_sdat=0;
-                     L_LOGGING_NETPLAY_sdak=0;
-                     L_LOGGING_NETPLAY_stdf=0;
-                     L_LOGGING_NETPLAY_stdf_all_packets=0;
-                     L_LOGGING_NETPLAY_stdf_when_to_apply=0;
-                     L_LOGGING_NETPLAY_show_dif1=0;
-                     L_LOGGING_NETPLAY_show_dif2=0;
-                     auto_save_game_on_level_done=0;
-                     auto_save_game_on_exit=0;
-                     save_config();
-                  }
-
-
-                  int q = 5;
-
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY= !L_LOGGING_NETPLAY;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY_JOIN= !L_LOGGING_NETPLAY_JOIN;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY_PLAYER_ARRAY= !L_LOGGING_NETPLAY_PLAYER_ARRAY;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY_bandwidth= !L_LOGGING_NETPLAY_bandwidth;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY_cdat= !L_LOGGING_NETPLAY_cdat;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY_game_move= !L_LOGGING_NETPLAY_game_move;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                    L_LOGGING_NETPLAY_sdat = !L_LOGGING_NETPLAY_sdat;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY_sdak= !L_LOGGING_NETPLAY_sdak;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY_stdf= !L_LOGGING_NETPLAY_stdf;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY_stdf_all_packets= !L_LOGGING_NETPLAY_stdf_all_packets;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY_stdf_when_to_apply= !L_LOGGING_NETPLAY_stdf_when_to_apply;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY_show_dif1= !L_LOGGING_NETPLAY_show_dif1;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     L_LOGGING_NETPLAY_show_dif2 = !L_LOGGING_NETPLAY_show_dif2;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     auto_save_game_on_level_done= !auto_save_game_on_level_done;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     auto_save_game_on_exit= !auto_save_game_on_exit;
-                     save_config();
-                  }
-                  q++;
-                  if (logging_menu_sel == q)
-                  {
-                     log_file_viewer(1);
-                  }
-               }  while (logging_menu_sel != 2); // end of netgame options menu
-            }
-
-            if (options_menu_sel == 7) sound_toggle();
-            if (options_menu_sel == 11) splash_toggle();
-            if (options_menu_sel == 12) save_gm();
-            if (options_menu_sel == 13) // run game
-            {
-               if (load_gm("-"))
-               {
-                  game_loop(9); // demo game
-
-                  // reset player data
-                  for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
-                  players[0].active = 1;
-                  active_local_player = 0;
-                  load_config(); // restore player color from config file
-                  //erase_log();
-               }
-            }
-
-            if (options_menu_sel == 5) // controller setup menu
-            {
-               set_key_menu(9, 0, 10); //set controller menu keys
-               int p1_menu_sel = 2;
-               do
-               {
-                  p1_menu_sel = zmenu(9, p1_menu_sel, 30);
-                  if (p1_menu_sel == 3) test_keys();
-
-                  if (p1_menu_sel == 4) get_all_keys(0);
-
-                  if (p1_menu_sel == 5) // set all to joy1
-                  {
-                     players1[0].up_key = 128;
-                     players1[0].down_key = 129;
-                     players1[0].right_key = 131;
-                     players1[0].left_key = 130;
-                     players1[0].jump_key = 133;
-                     players1[0].fire_key = 132;
-                     players1[0].menu_key = 135;
-                  }
-
-                  if (p1_menu_sel == 6) // set all to joy2
-                  {
-                     players1[0].up_key = 148;
-                     players1[0].down_key = 149;
-                     players1[0].right_key = 151;
-                     players1[0].left_key = 150;
-                     players1[0].jump_key = 153;
-                     players1[0].fire_key = 152;
-                     players1[0].menu_key = 155;
-                  }
-
-                  if (p1_menu_sel == 7) // set all to arrows
-                  {
-                     players1[0].up_key = 84;
-                     players1[0].down_key = 85;
-                     players1[0].right_key = 83;
-                     players1[0].left_key = 82;
-                     players1[0].jump_key = 75;
-                     players1[0].fire_key = 3;
-                     players1[0].menu_key = 59;
-                  }
-
-                  if (p1_menu_sel == 8) // set all to IJKL
-                  {
-                     players1[0].up_key = 9;
-                     players1[0].down_key = 11;
-                     players1[0].right_key = 12;
-                     players1[0].left_key = 10;
-                     players1[0].jump_key = 75;
-                     players1[0].fire_key = 3;
-                     players1[0].menu_key = 59;
-                  }
-
-                  if (p1_menu_sel == 10) players1[0].up_key =    my_readkey();
-                  if (p1_menu_sel == 11) players1[0].down_key =  my_readkey();
-                  if (p1_menu_sel == 12) players1[0].left_key =  my_readkey();
-                  if (p1_menu_sel == 13) players1[0].right_key = my_readkey();
-                  if (p1_menu_sel == 14) players1[0].jump_key =  my_readkey();
-                  if (p1_menu_sel == 15) players1[0].fire_key =  my_readkey();
-                  if (p1_menu_sel == 16) players1[0].menu_key =  my_readkey();
-
-                  set_key_menu(9, 0, 10); //set controller menu keys
-                  save_config();
-
-                  if ( (p1_menu_sel >= 100) && (p1_menu_sel < 200) ) p1_menu_sel -= 100; // right
-                  if ( (p1_menu_sel >= 200) && (p1_menu_sel < 300) ) p1_menu_sel -= 200; // left
-
-               }  while (p1_menu_sel != 2);
-            }
-
-
-            if ( (options_menu_sel >= 100) && (options_menu_sel < 200) )  // right
-            {
-               options_menu_sel -= 100;
-
-               if (options_menu_sel == 4) // color inc
-               {
-                  int p = 0;
-                  if (++players[p].color > 15) players[p].color = 1;
-                  save_config();
-               }
-
-               if (options_menu_sel == 6) // frame_speed ++
-               {
-                  if (++frame_speed > 500) frame_speed = 500;
-                  set_speed();
-               }
-               if (options_menu_sel == 8) // sound effects vol ++
-               {
-                  if (++se_scaler > 9) se_scaler = 9;
-                  set_se_scaler();
-               }
-               if (options_menu_sel == 9) // sound track vol ++
-               {
-                  if (++st_scaler > 9) st_scaler = 9;
-                  set_st_scaler();
-               }
-            }
-
-
-            if ( (options_menu_sel >= 200) && (options_menu_sel < 300) ) //left
-            {
-               options_menu_sel -= 200;
-
-               if (options_menu_sel == 4) // color dec
-               {
-                  int p = 0;
-                  if (--players[p].color < 1) players[p].color = 15;
-                  save_config();
-               }
-               if (options_menu_sel == 6) // frame_speed --
-               {
-                  if (--frame_speed < 1) frame_speed = 1;
-                  set_speed();
-               }
-               if (options_menu_sel == 8) // sound effects vol --
-               {
-                  if (--se_scaler < 0) se_scaler = 0;
-                  set_se_scaler();
-               }
-               if (options_menu_sel == 9) // sound track vol --
-               {
-                  if (--st_scaler < 0) st_scaler = 0;
-                  set_st_scaler();
-               }
-            }
-         }  while (options_menu_sel != 2); // end of options menu
-         al_rest(0.1);
-      }
-      if ( (top_menu_sel >= 100) && (top_menu_sel < 200) )
-      {
-         // right
-         top_menu_sel -= 100;
-
-         if (top_menu_sel == 2) // start level inc
-         {
-            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) start_level +=100;
-            else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) start_level +=10;
-            else start_level++;
-            if (start_level > 399) start_level = 399;
-            set_start_level(start_level);
-            load_level(start_level, 0);
-         }
-      }
-      if ( (top_menu_sel >= 200) && (top_menu_sel < 300) )
-      {
-         // left
-         top_menu_sel -= 200;
-
-         if (top_menu_sel == 2) // start level dec
-         {
-            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) start_level -=100;
-            else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) start_level -=10;
-            else start_level--;
-            if (start_level < 1) start_level = 1;
-            set_start_level(start_level);
-            load_level(start_level, 0);
-         }
-      }
-   } while (top_menu_sel != 1); // end of game menu
-}
 
 
 
 
 int main(int argument_count, char **argument_array)
 {
-
-// --------------------------------------------------------------------------------------------
-// these flags get processed before initial setup is called
-// --------------------------------------------------------------------------------------------
-
-#ifndef RELEASE
-   if (argument_count == 2) // example 'pmwin x'
-   {
-      int ret = 0;
-      if (strcmp(argument_array[1],"-x") == 0 )
-      {
-          ret = copy_files_to_clients(2); // src only
-          exit(0);
-      }
-      if (strcmp(argument_array[1],"-t") == 0 )
-      {
-          ret = copy_files_to_clients(1); // pm.exe and levels only
-          exit(0);
-      }
-      if (strcmp(argument_array[1],"-u") == 0 )
-      {
-         ret = copy_files_to_clients(0); // all files
-         exit(0);
-      }
-      sprintf(msg, "ret:%d\n",ret); // to suppress warning only!
-   }
-#endif
-
+   proc_command_line_args1(argument_count, argument_array); // these args get processed before initial setup is called
    if (initial_setup())
    {
-
-
-// --------------------------------------------------------------------------------------------
-// these flags get processed after allegro is initialized
-// --------------------------------------------------------------------------------------------
-
-
-//   mdw_message_box_2("Hello", "poo", "pee");
-
-
- //  exit_level_editor_dialog();
-
- // show_var_sizes();
-
-
-//   for (int b=0; b<1024; b+=256)
-//   {
-//      al_set_target_backbuffer(display);
-//      al_clear_to_color(al_map_rgb(0,0,0));
-//
-//      int x = 100;
-//      int y = 0;
-//
-//      for (int a=b; a<b+128; a++)
-//         al_draw_textf(font, palette_color[15], x, y+=8, 0, "%d-[%c] %d-[%c]", a, a, a+128, a+128);
-//      al_flip_display();
-//      tsw();
-//   }
-
-
-
-/*
-
-int it13=0;
-
-printBits(4, &it13);
-printf("b0:[%s]\n",msg);
-
-set_int_3216(it13, 65535, 64000);
-
-printBits(4, &it13);
-printf("b1:[%s]\n",msg);
-
-
-
-
-int tc = 0;
-int fc = 0;
-get_int_3216(it13, tc, fc);
-
-printBits(4, &tc);
-printf("b2:[%s]\n",msg);
-
-printBits(4, &fc);
-printf("b3:[%s]\n",msg);
-
-printf("--- %d  %d\n", tc, fc);
-
-*/
-
-
-/*
-   int test = 0;
-   printBits(4, &test);
-
-   printf("b4:[%s]\n",msg);
-
-   test |= PM_LIFT_NO_DRAW;
-
-
-   printBits(4, &test);
-
-   printf("af:'%s'\n",msg);
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//   void colorize_tile(void);
-//   colorize_tile();
-
-
-//void combine_tile(void);
-//   combine_tile();
-
-
-
-/*
-   load_level(start_level, 0);
-   group_edit();
-
-*/
-
-/*
-
-
-float get_jh(int num);
-int get_sp(float jh);
-//
-//for (int n=40; n<200; n++)
-//{
-//   float t = get_jh(n);
-//
-//   int s = get_sp(t);
-//
-//   float t2 = get_jh(s);
-//
-//   printf("n:%d   t:%f  s:%d -- dif:%d   t2:%f   d2:%f\n", n, t, s, n-s, t2, t2-t);
-//
-//}
-//
-
-for (float h=1900; h<2000; h++)
-{
-   printf("h:%f  s:%d \n", h, get_sp(h));
-}
-*/
-
-/*
-
-
-void show_level_done(void);
-
-
-   al_set_target_backbuffer(display);
-
-   int quit = 0;
-   while (!quit)
-   {
-      proc_controllers();
-      al_clear_to_color(al_map_rgb(0,0,0));
-      show_level_done();
-      al_flip_display();
-
-      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
-      {
-         proc_controllers();
-         quit = 1;
-      }
-
-      if (key[ALLEGRO_KEY_1])
-      {
-         while (key[ALLEGRO_KEY_1]) proc_controllers();
-         players[1].active = !players[1].active;
-      }
-      if (key[ALLEGRO_KEY_2])
-      {
-         while (key[ALLEGRO_KEY_2]) proc_controllers();
-         players[2].active = !players[2].active;
-      }
-      if (key[ALLEGRO_KEY_3])
-      {
-         while (key[ALLEGRO_KEY_3]) proc_controllers();
-         players[3].active = !players[3].active;
-      }
-      if (key[ALLEGRO_KEY_4])
-      {
-         while (key[ALLEGRO_KEY_4]) proc_controllers();
-         players[4].active = !players[4].active;
-      }
-      if (key[ALLEGRO_KEY_5])
-      {
-         while (key[ALLEGRO_KEY_5]) proc_controllers();
-         players[5].active = !players[5].active;
-      }
-      if (key[ALLEGRO_KEY_6])
-      {
-         while (key[ALLEGRO_KEY_6]) proc_controllers();
-         players[6].active = !players[6].active;
-      }
-      if (key[ALLEGRO_KEY_7])
-      {
-         while (key[ALLEGRO_KEY_7]) proc_controllers();
-         players[7].active = !players[7].active;
-      }
-
-
+      proc_command_line_args2(argument_count, argument_array); // these args get processed after initial setup is called
+      game_menu();
    }
-
-
-*/
-
-
-
-
-
-
-
-
-
-//   char tst[20];
-//   printf("sizeof %d\n", sizeof(tst));
-
-   //spline_test();
-   //spline_adjust();
-
-   //scaled_tile_test();
-
-   //tile_editor();
-
-//   edit_tile_attributes();
-
-  // copy_tiles();
-
-//            play_level = start_level;
-//            set_start_level(play_level);
-//            printf("running level editor for level:%d\n", play_level);
-//            play_level = edit_menu(play_level);
-//            set_start_level(play_level);
-//            fast_exit(0);
-
-
-//   al_show_mouse_cursor(display);
-//   load_level(start_level, 0);
-//   lift_viewer(4);
-
-
-
-      if (argument_count == 2) // example 'pmwin arg1'
-      {
-
-         // run level editor -- eg: 'pm.exe -e'
-         if (strcmp(argument_array[1],"-e") == 0 )
-         {
-            play_level = start_level;
-            set_start_level(play_level);
-            printf("running level editor for level:%d\n", play_level);
-            play_level = edit_menu(play_level);
-            set_start_level(play_level);
-            fast_exit(0);
-         }
-
-
-         if (strcmp(argument_array[1],"-h") == 0 )  // help
-         {
-            help("Command Line");
-            fast_exit(0);
-         }
-
-
-         if (strcmp(argument_array[1],"-l") == 0 )  // log file viewer
-         {
-            log_file_viewer(1);
-            fast_exit(0);
-         }
-
-         if (strcmp(argument_array[1],"-lr") == 0 )  // log file viewer most recent
-         {
-            log_file_viewer(2);
-            fast_exit(0);
-         }
-
-         // no server specified; use the one from the config file
-         if (strcmp(argument_array[1],"-c") == 0 )
-         {
-            show_splash_screen = 0;
-            game_loop(3); // client game
-            fast_exit(0);
-         }
-         // no start level specified; use play level from config file
-         if (strcmp(argument_array[1],"-s") == 0 )
-         {
-            show_splash_screen = 0;
-            play_level = start_level;
-            game_loop(2); // server game
-            fast_exit(0);
-         }
-
-         if (strcmp(argument_array[1],"-f") == 0 )
-         {
-            show_splash_screen = 0;
-            if (load_gm("-"))
-            {
-               game_loop(9); // demo game
-               fast_exit(0);
-            }
-         }
-
-         // keep this last so if no other single flag matches try to run like it an int level...
-         // start game on specified level -- eg: 'pm.exe 211'
-         int pl = atoi(argument_array[1]);
-         if ((pl > 0) && (pl < 400))
-         {
-            show_splash_screen = 0;
-            play_level = pl;
-            set_start_level(pl);
-            printf("started game on level:%d\n", play_level);
-            game_loop(1); // single player game
-         }
-         else printf("%s could not be parsed to an integer level number\n", argument_array[1]);
-
-      } // end of argument_count == 2
-
-
-      if (argument_count == 3) // example 'pmwin arg1 arg2'
-      {
-         // start game on specified level -- eg: 'pm.exe -p 211'
-         if (strcmp(argument_array[1],"-p") == 0 )
-         {
-            show_splash_screen = 0;
-            int pl = atoi(argument_array[2]);
-            if ((pl > 0) && (pl < 400))
-            {
-               play_level = pl;
-               set_start_level(pl);
-               printf("started game on level:%d\n", play_level);
-               game_loop(1); // single player game
-            }
-            else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
-         }
-
-         // run level editor for specified level -- eg: 'pm.exe -e 211'
-         if (strcmp(argument_array[1],"-e") == 0 )
-         {
-            int pl = atoi(argument_array[2]);
-            if ((pl > 0) && (pl < 400))
-            {
-               play_level = pl;
-               set_start_level(pl);
-               printf("running level editor for level:%d\n", pl);
-               pl = edit_menu(pl);
-               set_start_level(pl);
-               fast_exit(0);
-            }
-            else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
-         }
-
-         // run saved game from file -- eg: 'pm.exe -f mz23.gm'
-//         if (strcmp(argument_array[1],"-f") == 0 )
-//         {
-//            show_splash_screen = 0;
-//            sprintf(msg, "savegame/%s", argument_array[2] );
-//            if (load_gm(msg))
-//            {
-//               printf("running game file:%s\n", argument_array[2]);
-//               game_loop(9); // demo game
-//               fast_exit(0);
-//            }
-//         }
-         if (strcmp(argument_array[1],"-c") == 0 )
-         {
-            show_splash_screen = 0;
-            sprintf(m_serveraddress, "%s", argument_array[2]);
-            save_config();
-            game_loop(3); // client game
-            fast_exit(0);
-         }
-         if (strcmp(argument_array[1],"-s") == 0 )
-         {
-            show_splash_screen = 0;
-            play_level = atoi(argument_array[2]);
-            game_loop(2); // server game
-            fast_exit(0);
-         }
-      } // end of argument_count == 3
-
-      //printf("before gm call\n");
-
-      game_menu(); // this is where it all happens
-   } // end of if initial setup
-
    blind_save_game_moves(2);
    save_log_file();
    final_wrapup();
@@ -1679,103 +852,3 @@ void show_level_done(void);
 }
 
 
-int copy_files_to_clients(int exe_only)
-{
-   int ret;
-   char sys_cmd[500];
-   char client[20][255];
-   int num_clients = 0;
-
-//   sprintf(client[num_clients++], "\\\\E6400\\pm_client1");  //  E6400
-//   sprintf(client[num_clients++], "\\\\E6410\\pm_client2");  // win7 portable dev system
-//   sprintf(client[num_clients++], "\\\\4230j\\pm_client3");  // win7 acer laptop
-//   sprintf(client[num_clients++], "\\\\E6430\\pm_client4");  // win7 studio pc
-//   sprintf(client[num_clients++], "\\\\E6420\\pm_client5");  // win7 2560x1600 (my room)
-//   sprintf(client[num_clients++], "\\\\pfv\\pm_client6");    // XP 1600x1200
-//   sprintf(client[num_clients++], "\\\\m-4230-3\\pm_client7"); // ubuntu acer laptop
-//   sprintf(client[num_clients++], "\\\\DESKTOP-DBNSJH8\\pm_client8"); // win 10 EID work laptop
-//   sprintf(client[num_clients++], "\\\\e4230f\\pm_client9"); // acer laptop
-//   sprintf(client[num_clients++], "\\\\4230a\\pm_client10"); // acer laptop
-//   sprintf(client[num_clients++], "\\\\insp9400\\pm_client11"); // dell insp 9400 (backup machine)
-//   sprintf(client[num_clients++], "\\\\m7667\\pm_client12"); // core2 2G 32bit GeForce 7500 LE
-//   sprintf(client[num_clients++], "\\\\nv59\\pm_client13");  // gateway nv59 i3 4G 1600x1200
-//   sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
-//   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden
-//   sprintf(client[num_clients++], "\\\\sat-p100\\pm_client31");  // win 7 does not work...32 bit??
-//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 -- has stupid network issues, sometimes take 4s to get a packet reply
-
-
-//   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
-
-
-
-   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
-
-
-
-
-
-   if (exe_only == 1)
-   {
-      printf("copying exe to clients\n");
-      for (int c=0; c<num_clients; c++)
-      {
-         sprintf(sys_cmd, "copy pm.exe %s\\pm.exe /Y", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-
-//         sprintf(sys_cmd, "copy levels\\*.pml %s\\levels ", client[c]);
-//         printf("%s\n",sys_cmd);
-//         ret = system(sys_cmd);
-
-
-/*
-         sprintf(sys_cmd, "copy pm.cfg %s\\pm.cfg /Y", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-
-         */
-
-      }
-   }
-   else if (exe_only == 2)
-   {
-      printf("copying src to clients\n");
-      for (int c=0; c<num_clients; c++)
-      {
-         sprintf(sys_cmd, "copy src\\*.cpp %s\\src ", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-
-         sprintf(sys_cmd, "copy src\\*.h %s\\src ", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-
-         sprintf(sys_cmd, "copy levels\\*.pml %s\\levels ", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-      }
-   }
-   else
-   {
-      printf("copying all files to clients\n");
-      for (int c=0; c<num_clients; c++)
-      {
-         // erase all files (but not directories)
-//         sprintf(sys_cmd, "del %s\\*.* /S /Q", client[c]);
-//         printf("%s\n",sys_cmd);
-//         ret = system(sys_cmd);
-
-         sprintf(sys_cmd, "xcopy *.* %s /E /Y", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-      }
-   }
-   return ret;
-}

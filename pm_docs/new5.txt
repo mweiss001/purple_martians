@@ -38954,14 +38954,889 @@ void proc_game_moves_array(void)
 
          set_controls_from_comp_move(p, players1[p].last_gm_comp_move);
       }
-
-
-
-
-
-
-
 }
+
+
+20221222 4:00AM
+
+fixed a huge problem yesterday...
+
+today:
+
+I am looking at client. It seems really simple.
+- receive and apply difs
+- set controls locally and send cdats
+
+One thing that occurs to me:
+
+I do no checking of the destination frame of the difs.
+
+In the old method, I would hold on to it until dst matched current frame_num
+but I seem to not check for that in this new method.
+
+I just apply it as soon as I get it?
+And I nevee check frame_num?
+
+What if I get it late or early?
+
+
+right now i only call apply dif from rx stdf packet complete
+
+i want to call it also from client_control
+
+I want to add a check to see if the destinations match
+
+done...
+
+something really weird happened when level done occurred...
+
+server froze but clients continued without server?
+
+
+tried a much shorter test...
+why does e6400 always lose server connection on level done...
+e6430 error loading level 000?? should have been 151
+server froze again...
+
+timer seems to be incrementing, but no display
+
+all players are inactive and have no control modes??
+
+I think it happens on the first rewind...
+
+
+it is because the initial state for server is made on frame 0 in void server_send_stdf(void)
+this works for the level thet the server starts on, but after level_done, the first frame to that function is frame 1...
+
+where else could I put this that makes sense?
+in proc_start_mode..done
+
+what about reset_states...no
+
+
+cleaning up proc_start_mode
+I broke it so that server will not even start...
+
+player array is still getting killed by rewind????
+initial state is not being saved...fixed...
+
+do I need to put game move player 0 active at the start of all games, no, but that way I could save the color...
+try it...
+
+works in single player...
+now restore color from config file after demo mode...already done
+
+test multiple..good
+
+p0 white
+p1 lt blue
+p2 green
+
+
+redo txt gm...done
+
+make start gm use val instead of p...
+
+this will break all my existing demos....
+
+I can manually fix them...
+
+fix where it is entered....done
+
+fix display in save txt...done
+
+fix where it is used...
+run demo...done
+
+redo all gms....done
+
+
+what if I make it so that dropping a gm file on the executable opens and runs it
+
+or make it so that the extension is registered to do that
+
+first of all what does dropping do?  show argv and c
+
+dropping on pm.exe starts pm but it can't find any fonts or bitmaps
+printf("Current Directory:%s\n", al_get_current_directory());
+the problem is that it starts in the directory of the dropped file, not the executable..
+when I put it in the same directory as the executable it is passed as an argument with the full path
+
+I have success!
+
+I can now set the association to open .gm files with pm.exe
+
+when pm.exe is run with one argument
+- first it compares to all the flags possible
+- then it tries to convert to an integer level
+- then it tris to run as a demo
+
+in initial setup I check path to executable and if is not current path I change cuurent path to path to executable.
+
+
+ALLEGRO_PATH *ep = al_get_standard_path(ALLEGRO_EXENAME_PATH);
+al_set_path_filename(ep, NULL);
+if (!al_change_directory(al_path_cstr(ep, ALLEGRO_NATIVE_PATH_SEP))) printf("Error Changing Current Directory!\n");
+printf("Current Directory:%s\n", al_get_current_directory());
+al_destroy_path(ep);
+
+
+I would like to move the command line argv stuff into its own file, main is getting big..
+also the menu stuff for main maybe...
+done
+
+now I have:
+
+z_game_menu.cpp - 470 lines with nothing but the game menu
+
+z_args - 480 lines with all the command line args and test stuff
+
+z_main.cpp - 800 lines
+ - 480 variable declarations
+ - 130 initial setup
+ - 60 final wrap up
+ - 10 main
+
+
+
+
+----------------------------
+
+do some tests...
+
+multiplayer tests
+
+
+
+
+
+
+how am I going to handle the new send stdf varaibles?
+
+right now I:
+rewind 4
+replay 2
+save state
+replay 2
+save state
+
+the old variable stdf_freq is the distance between the 2 save states
+
+you could do the initial rewind longer or shorter and that would not affect stdf freq...
+
+make the loop_frame function take a variable for how many frames it loops...done
+
+
+now at the top of stdf have some variables that control it:
+
+
+
+stdf_freq (2-6) distance between states
+
+rewind amount probably greater than stdf_freq..
+
+
+this is the old way:
+
+   // is it time to make a new dif and send to clients?
+   if (frame_num == srv_stdf_state_frame_num[1] + 4)
+   {
+
+
+new way:
+if (frame_num == srv_stdf_state_frame_num[0] + stdf_freq)
+
+rewind stdf_rewind
+
+its like there is this window before and after, I dont think they need to be the same size.0
+
+this seems to work pretty good:
+
+int s1 = 1;
+int s2 = stdf_freq; // 2 or 3 work good
+int s3 = s1+s2;
+
+// is it time to make a new dif and send to clients?
+if (frame_num == srv_stdf_state_frame_num[1] + s3)
+{
+
+   // rewind and fast forward from last stdf state to apply missed game moves received late
+   frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
+   state_to_game_vars(srv_stdf_state[1]);   // rewind state
+
+   if (L_LOGGING_NETPLAY_stdf)
+   {
+     // printf("\n%d rewind to:%d\n", frame_num, srv_stdf_state_frame_num[1]);
+      sprintf(msg, "stdf rewind to:%d\n", srv_stdf_state_frame_num[1]);
+      add_log_entry2(27, 0, msg);
+   }
+
+   loop_frame(s1);
+
+   // save state[1] as a base for next rewind
+   game_vars_to_state(srv_stdf_state[1]);
+   srv_stdf_state_frame_num[1] = frame_num;
+
+   if (L_LOGGING_NETPLAY_stdf)
+   {
+      //printf("saved server state[1]:%d\n", frame_num);
+      sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+      add_log_entry2(27, 0, msg);
+   }
+
+   loop_frame(s2);
+
+   // save state[0] as a base for sending client difs
+   game_vars_to_state(srv_stdf_state[0]);
+   srv_stdf_state_frame_num[0] = frame_num;
+
+
+
+
+
+what about s1 = 0;
+
+
+server does not even do the rewind loop
+
+
+normal...
+
+[27][0][0]stdf saved server state[1]:0
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                             LEVEL 4 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[41][0][0]move frame:0
+[41][0][1]move frame:1
+[41][0][2]move frame:2
+[41][0][3]move frame:3
+[41][0][4]move frame:4
+[27][0][0]stdf rewind to:0
+[41][0][1]move frame:1
+[27][0][1]stdf saved server state[1]:1
+[41][0][2]move frame:2
+[41][0][3]move frame:3
+[41][0][4]move frame:4
+[41][0][5]move frame:5
+[27][0][5]saved server state[0]:5
+[41][0][5]move frame:5
+[27][0][1]stdf rewind to:1
+[41][0][2]move frame:2
+[27][0][2]stdf saved server state[1]:2
+[41][0][3]move frame:3
+[41][0][4]move frame:4
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+[27][0][6]saved server state[0]:6
+[41][0][6]move frame:6
+[27][0][2]stdf rewind to:2
+[41][0][3]move frame:3
+[27][0][3]stdf saved server state[1]:3
+[41][0][4]move frame:4
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+[41][0][7]move frame:7
+[27][0][7]saved server state[0]:7
+[41][0][7]move frame:7
+[27][0][3]stdf rewind to:3
+[41][0][4]move frame:4
+[27][0][4]stdf saved server state[1]:4
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+[41][0][7]move frame:7
+[41][0][8]move frame:8
+[27][0][8]saved server state[0]:8
+[41][0][8]move frame:8
+[27][0][4]stdf rewind to:4
+[41][0][5]move frame:5
+[27][0][5]stdf saved server state[1]:5
+[41][0][6]move frame:6
+[41][0][7]move frame:7
+
+
+
+
+[27][0][0]stdf saved server state[1]:0
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                             LEVEL 4 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[41][0][0]move frame:0
+[41][0][1]move frame:1
+[41][0][2]move frame:2
+[41][0][3]move frame:3
+[27][0][0]stdf rewind to:0
+[27][0][0]stdf saved server state[1]:0
+[41][0][1]move frame:1
+[41][0][2]move frame:2
+[41][0][3]move frame:3
+[41][0][4]move frame:4
+[27][0][4]saved server state[0]:4
+[41][0][4]move frame:4
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+[41][0][7]move frame:7
+[41][0][8]move frame:8
+[41][0][9]move frame:9
+[41][0][10]move frame:10
+[41][0][11]move frame:11
+[41][0][12]move frame:12
+[41][0][13]move frame:13
+[41][0][14]move frame:14
+
+
+change it so that instead of comparing frame_num to earliest
+compare to most recent...
+
+   // is it time to make a new dif and send to clients?
+
+old:
+   if (frame_num == srv_stdf_state_frame_num[1] + s3)
+   {
+
+new:
+   // is it time to make a new dif and send to clients?
+   if (frame_num == srv_stdf_state_frame_num[0] + s2)
+   {
+
+
+this was really jumpy
+
+[27][0][0]stdf saved server state[1]:0
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                             LEVEL 4 STARTED                              |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[41][0][0]move frame:0
+[41][0][1]move frame:1
+[41][0][2]move frame:2
+[27][0][0]stdf rewind to:0
+[41][0][1]move frame:1
+[27][0][1]stdf saved server state[1]:1
+[41][0][2]move frame:2
+[41][0][3]move frame:3
+[41][0][4]move frame:4
+[27][0][4]saved server state[0]:4
+[41][0][4]move frame:4
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+[27][0][1]stdf rewind to:1
+[41][0][2]move frame:2
+[27][0][2]stdf saved server state[1]:2
+[41][0][3]move frame:3
+[41][0][4]move frame:4
+[41][0][5]move frame:5
+[27][0][5]saved server state[0]:5
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+[41][0][7]move frame:7
+[27][0][2]stdf rewind to:2
+[41][0][3]move frame:3
+[27][0][3]stdf saved server state[1]:3
+
+this does not look right...
+
+
+what am I trying to do?
+
+rewind 4 and save state1
+this makes no sense...this earlier one has to move forward in time
+
+my rewind is actually loading state1, then I am ff 0 and saving state1 again? It will never change...
+
+go back and do som experiments to see what is really happening...
+
+
+this is 1 3
+
+play one frame
+
+rewind 4
+play 1 frame
+save state 1
+play 3 frame
+save state 0
+
+
+[27][0][0]stdf saved server state[1]:0
+[41][0][0]move frame:0
+[41][0][1]move frame:1
+[41][0][2]move frame:2
+[41][0][3]move frame:3
+
+[27][0][0]stdf rewind to:0
+[41][0][1]move frame:1
+[27][0][1]stdf saved server state[1]:1
+[41][0][2]move frame:2
+[41][0][3]move frame:3
+[41][0][4]move frame:4
+[27][0][4]saved server state[0]:4
+[41][0][4]move frame:4
+
+[27][0][1]stdf rewind to:1
+[41][0][2]move frame:2
+[27][0][2]stdf saved server state[1]:2
+[41][0][3]move frame:3
+[41][0][4]move frame:4
+[41][0][5]move frame:5
+[27][0][5]saved server state[0]:5
+[41][0][5]move frame:5
+
+[27][0][2]stdf rewind to:2
+[41][0][3]move frame:3
+[27][0][3]stdf saved server state[1]:3
+[41][0][4]move frame:4
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+[27][0][6]saved server state[0]:6
+[41][0][6]move frame:6
+
+[27][0][3]stdf rewind to:3
+[41][0][4]move frame:4
+[27][0][4]stdf saved server state[1]:4
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+[41][0][7]move frame:7
+[27][0][7]saved server state[0]:7
+[41][0][7]move frame:7
+
+[27][0][4]stdf rewind to:4
+[41][0][5]move frame:5
+[27][0][5]stdf saved server state[1]:5
+[41][0][6]move frame:6
+[41][0][7]move frame:7
+[41][0][8]move frame:8
+[27][0][8]saved server state[0]:8
+
+
+
+
+this is 2 2
+
+play two frames
+
+rewind 4
+play 2 frames
+save state 1
+play 2 frames
+save state 0
+
+
+
+
+[27][0][0]stdf saved server state[1]:0
+[41][0][0]move frame:0
+[41][0][1]move frame:1
+[41][0][2]move frame:2
+[41][0][3]move frame:3
+
+[27][0][0]stdf rewind to:0
+[41][0][1]move frame:1
+[41][0][2]move frame:2
+[27][0][2]stdf saved server state[1]:2
+[41][0][3]move frame:3
+[41][0][4]move frame:4
+[27][0][4]saved server state[0]:4
+
+[41][0][4]move frame:4
+[41][0][5]move frame:5
+
+[27][0][2]stdf rewind to:2
+[41][0][3]move frame:3
+[41][0][4]move frame:4
+[27][0][4]stdf saved server state[1]:4
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+[27][0][6]saved server state[0]:6
+
+[41][0][6]move frame:6
+[41][0][7]move frame:7
+
+[27][0][4]stdf rewind to:4
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+[27][0][6]stdf saved server state[1]:6
+[41][0][7]move frame:7
+[41][0][8]move frame:8
+[27][0][8]saved server state[0]:8
+
+
+
+
+
+this is 3 1
+
+play 3 frames
+
+rewind 4
+play 3 frames
+save state 1
+play 1 frames
+save state 0
+
+effective stdf_freq = 3
+
+
+[27][0][0]stdf saved server state[1]:0
+[41][0][0]move frame:0
+[41][0][1]move frame:1
+[41][0][2]move frame:2
+[41][0][3]move frame:3
+
+[27][0][0]stdf rewind to:0
+[41][0][1]move frame:1
+[41][0][2]move frame:2
+[41][0][3]move frame:3
+[27][0][3]stdf saved server state[1]:3
+[41][0][4]move frame:4
+[27][0][4]saved server state[0]:4
+
+[41][0][4]move frame:4
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+
+[27][0][3]stdf rewind to:3
+[41][0][4]move frame:4
+[41][0][5]move frame:5
+[41][0][6]move frame:6
+[27][0][6]stdf saved server state[1]:6
+[41][0][7]move frame:7
+[27][0][7]saved server state[0]:7
+
+[41][0][7]move frame:7
+[41][0][8]move frame:8
+[41][0][9]move frame:9
+
+[27][0][6]stdf rewind to:6
+[41][0][7]move frame:7
+[41][0][8]move frame:8
+[41][0][9]move frame:9
+[27][0][9]stdf saved server state[1]:9
+[41][0][10]move frame:10
+
+
+
+
+so lets try to describe this again, beacuse you obviously didn't quite get it last time
+
+s1 = 2;
+s2 = 2;
+s3 = s1 + s2;
+
+- state[1] is the earliest state the server has
+
+- when current frame == state[1] + s3 do a new stdf
+- rewind (load state[1])
+- step s1 frames
+- save a new state[1]
+- step s2 frames to where you were before rewinding
+- save state[0] and send to clients
+
+- state[0] is only used to make and send difs to clients
+- state[0] is most likely missing some player input
+
+
+- every time a rewind is done
+- the 1st frames played back will be the last chance ever to apply moves in those frames
+- the 2nd frames will be speculative, a guess.
+
+when new cdat arrive, if they are dated earlier than state[1] do not put them in gma
+
+
+I am getting a litte confused about where in the loop the frame number is incremented
+
+in the main loop after move is done, proc frame delay does it
+
+if the ff loop it is done right after move....
+
+I just want it to be consistant, I would like it to be the last thing done..
+that is easy in the main loop, but when I am fast forwarding
+
+where server_control intercepts the main loop, fn has been incremented, but no input or moves have happened yet
+
+so when server rewinds, the original frame has not been processed yet.
+
+when server saves a new state1 has that one been processed?
+
+I'm getting bogged down...lets test...
+
+-----------------------------------------------
+2 1
+
+8P fakekey level 4
+approx 103k spike to 200 at join
+quite a few late cdat (late c frame = state frame)???
+doesn't play back right
+
+if I split server rx to get cdats and send stdf to send on same frame then late cdats could be avoided...
+
+
+2 2
+8P fakekey level 4
+approx 90k spike to 120 at join
+occasional last cdat
+doesn't play back right
+
+
+
+
+---------------------
+
+The next big thing I want to tackle is the order of things...
+
+make it so that frame number inc is always last
+
+
+input
+including
+server rx that might put things in gm for this frame
+
+optional server rewind and dif send
+if server rewind then it will stop just short so that move for this frame is done in regular way
+
+set controls from gm for this frame
+
+move objects
+
+optional draw
+
+frame inc
+
+
+
+frame ff
+set controls from gm for this frame
+move objects
+frame inc
+
+
+
+
+
+first of all, make the server cdat rx loop the first thing that gets done every frame
+or even better, async
+
+
+in server control, the first thing done has always been to receive and process all waiting packets..
+this is done on a frame_number that has not yet had the move applied
+
+so any game moves that arrive on this frame could still get applied on this frame
+
+but more importantly, the frame of state1 is what we are comparing to..
+I need to know if state1 and its frame refer to a frame that has already had its moves applied...
+I would say yes, that state has already had its moves applied
+
+so when rewound to that state the very next thing that should happen is
+immediatley set next frame
+then process input, move and inc frame
+
+that is why loop_frame() had the frame inc at the start
+
+when loop_frame() is done, it leaves the game in the same state..current frame has been done...
+then when doing the rest of the loop ...
+
+
+what if I moved the server send dif to after the main loop has already processed the moves but has not yet inc frame yet
+
+then when rewind is done, it will not have a move after
+
+state1 will still be for a frame that has the moves applied already
+rewind and replay will
+
+
+in the main loop in server mode, the server will take care of the move
+either just calling move, or rewinding...done...
+
+broke up server rx and server_send_stdf
+
+
+when sss is called, input and controls for the current frame have been done, but not move
+if sss does nothing, the move in the main loop right after will do it then proc_frame_delay and frame inc..
+
+if sss rewinds and replays it will do the
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

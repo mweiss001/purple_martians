@@ -1437,7 +1437,6 @@ void init_player(int p, int t)
       players[p].paused = 0;
       players[p].control_method = 0;
 
-
       players[p].old_LIFE = al_itofix(100);
       players[p].LIFE = al_itofix(100);
 

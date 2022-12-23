@@ -181,17 +181,16 @@ void ClientExitNetwork(void)
 
 int client_init(void)
 {
+   if (L_LOGGING_NETPLAY) log_versions();
 
-   // initialize driver with server address
-   if (!ClientInitNetwork(m_serveraddress)) return 0;
+   if (!ClientInitNetwork(m_serveraddress)) return 0; // initialize driver with server address
 
-   add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+   sprintf(msg, "Client mode started on host:[%s]", local_hostname);
+   printf("%s\n", msg);
+   if (L_LOGGING_NETPLAY) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
-   // try to join netgame
-   return client_init_join();
+   return client_init_join(); // send join request
 }
-
-
 
 int client_init_join(void)
 {
@@ -302,8 +301,7 @@ void client_exit(void)
 
 }
 
-
-//void client_apply_diff(void)
+//void old_client_apply_diff(void)
 //{
 //   int p = active_local_player;
 //
@@ -394,100 +392,86 @@ void client_exit(void)
 //
 
 
-void client_apply_dif2()
+void client_apply_diff(void)
 {
    int p = active_local_player;
 
-   // if server has sent dif from src == 0, reset client base to 0
-   if (client_state_dif_src == 0)
+   // check to see if frame_nums match and its time to apply dif
+   if (frame_num != client_state_dif_dst)
    {
-      memset(client_state_base, 0, STATE_SIZE);
-      client_state_base_frame_num = 0;
-      if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, "Resetting client base state to zero\n");
+      // destination of dif does not match current frame_num
+      sprintf(msg, "dif [%d to %d] not applied - dest mismatch\n", client_state_dif_src, client_state_dif_dst);
+      if (L_LOGGING_NETPLAY_stdf_when_to_apply) add_log_entry2(29, p, msg);
    }
-
-
-   // stored base state does NOT match dif source
-   if (client_state_base_frame_num != client_state_dif_src)
+   else
    {
-      sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
-      if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
 
-      // send ack to server with correct acknowledged base state
-      Packet("stak");
-      PacketPut1ByteInt(p);
-      PacketPut4ByteInt(client_state_base_frame_num);
-      PacketPut4ByteInt(frame_num);
-      PacketPut4ByteInt(players1[p].frames_skipped);
-      PacketPut4ByteInt(players1[p].client_chase_fps);
-      ClientSend(packetbuffer, packetsize);
-   }
-   else // stored base state matches dif source
-   {
-      char tmsg[80];
+      // if server has sent dif from src == 0, reset client base to 0
+      if (client_state_dif_src == 0)
+      {
+         memset(client_state_base, 0, STATE_SIZE);
+         client_state_base_frame_num = 0;
+         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, "Resetting client base state to zero\n");
+      }
 
-      // apply dif to base state
-      apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
+      // stored base state does NOT match dif source
+      if (client_state_base_frame_num != client_state_dif_src)
+      {
+         sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
+         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
 
-      // make a copy of the old l[][]
-      int old_l[100][100];
-      memcpy(old_l, l, sizeof(l));
+         // send ack to server with correct acknowledged base state
+         Packet("stak");
+         PacketPut1ByteInt(p);
+         PacketPut4ByteInt(client_state_base_frame_num);
+         PacketPut4ByteInt(frame_num);
+         PacketPut4ByteInt(players1[p].frames_skipped);
+         PacketPut4ByteInt(players1[p].client_chase_fps);
+         ClientSend(packetbuffer, packetsize);
+      }
+      else // stored base state matches dif source
+      {
+         // apply dif to base state
+         apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
 
-      // copy modified base state to game_vars
-      state_to_game_vars(client_state_base);
+         // make a copy of the l[][]
+         int old_l[100][100];
+         memcpy(old_l, l, sizeof(l));
 
-      // compare old_l to l
-      for (int x=0; x<100; x++)
-         for (int y=0; y<100; y++)
-         {
-            if (l[x][y] != old_l[x][y])
-            {
-               // printf("dif at x:%d y:%d\n", x, y);
-               al_set_target_bitmap(level_background);
-               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, al_map_rgb(0,0,0));
-               al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
-            }
-         }
+         // copy modified base state to game_vars
+         state_to_game_vars(client_state_base);
 
+         // compare old_l to l and redraw changed tiles
+         for (int x=0; x<100; x++)
+            for (int y=0; y<100; y++)
+               if (l[x][y] != old_l[x][y])
+               {
+                  // printf("dif at x:%d y:%d\n", x, y);
+                  al_set_target_bitmap(level_background);
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, al_map_rgb(0,0,0));
+                  al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+               }
 
-      // fix control methods
-      players[0].control_method = 2; // on client, server is mode 2
-      if (players[p].control_method == 2) players[p].control_method = 4; // but don't touch if 8!
-      if (players[p].control_method == 8) game_exit = 1; // server quit
+         // fix control methods
+         players[0].control_method = 2; // on client, server is mode 2
+         if (players[p].control_method == 2) players[p].control_method = 4;
+         if (players[p].control_method == 8) game_exit = 1; // server quit
 
+         // update client base frame_num
+         client_state_base_frame_num = client_state_dif_dst;
 
-      // update client base frame_num
-      client_state_base_frame_num = client_state_dif_dst;
+         sprintf(msg, "dif [%d to %d]\n", client_state_dif_src, client_state_dif_dst);
+         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
 
-    //  printf("frame_num:%d dif_frame_num:%d\n", frame_num, client_state_dif_dst);
-
-
-
-
-
-
-//void fast_forward_to_frame(int frame)
-//{
-//   while (frame_num < frame) loop_frame();
-//}
-
-  //    rewind_and_replay(client_state_dif_dst, frame_num);
-
-   //   set_frame_nums(frame_num);
-
-
-      sprintf(msg, "dif [%d to %d] %s\n", client_state_dif_src, client_state_dif_dst, tmsg);
-      if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
-
-
-      // send ack to server
-      Packet("stak");
-      PacketPut1ByteInt(p);
-      PacketPut4ByteInt(client_state_dif_dst);
-      PacketPut4ByteInt(frame_num);
-      PacketPut4ByteInt(players1[p].frames_skipped);
-      PacketPut4ByteInt(players1[p].client_chase_fps);
-      ClientSend(packetbuffer, packetsize);
+         // send ack to server
+         Packet("stak");
+         PacketPut1ByteInt(p);
+         PacketPut4ByteInt(client_state_dif_dst);
+         PacketPut4ByteInt(frame_num);
+         PacketPut4ByteInt(players1[p].frames_skipped);
+         PacketPut4ByteInt(players1[p].client_chase_fps);
+         ClientSend(packetbuffer, packetsize);
+      }
    }
 }
 
@@ -545,7 +529,7 @@ int client_process_stdf_packet(void)
          client_state_dif_src = src; // mark dif data with new src and dst
          client_state_dif_dst = dst;
          retval = 1;
-         client_apply_dif2();
+         client_apply_diff();
       }
       else
       {
@@ -588,7 +572,7 @@ void client_block_until_initial_state_received(void)
    // set holdoff 200 frames in future so client won't try to drop while syncing
    players1[p].client_last_stdf_rx_frame_num = frame_num + 200;
 
-   if (L_LOGGING_NETPLAY_JOIN) add_log_entry_header(11, p, "frame_nums updated - starting chase and lock", 1);
+   if (L_LOGGING_NETPLAY_JOIN) add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
 }
 
 void process_bandwidth_counters(int p)
@@ -716,38 +700,8 @@ void client_control(void)
    else
    {
       while ((packetsize = ClientReceive(packetbuffer))) if(PacketRead("stdf")) client_process_stdf_packet(); // rx multiple per frame
+      client_apply_diff();
       client_proc_player_drop();
       process_bandwidth_counters(active_local_player);
    }
 }
-
-//
-//
-//void client_local_control(int p)
-//{
-//   set_comp_move_from_player_key_check(p);
-//   if (players1[p].fake_keypress_mode) players1[p].comp_move = rand() % 64;
-//
-//   if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
-//   {
-//      players1[p].old_comp_move = players1[p].comp_move;
-//
-//      if (players[0].level_done_mode == 0) set_controls_from_comp_move(p, players1[p].comp_move);
-//      else clear_controls(p);
-//
-//      if (players[p].menu) game_exit = 1;
-//
-//      if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5))
-//      {
-//         Packet("cdat");
-//         PacketPut1ByteInt(p);
-//         PacketPut4ByteInt(frame_num);
-//         PacketPut1ByteInt(players1[p].comp_move);
-//         ClientSend(packetbuffer, packetsize);
-//
-//         players1[p].client_cdat_packets_tx++;
-//         sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
-//         if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
-//      }
-//   }
-//}

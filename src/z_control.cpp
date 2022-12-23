@@ -414,7 +414,7 @@ void function_key_check(void)
 
       if (key[ALLEGRO_KEY_F5]) set_scale_factor(scale_factor * .90, 0);
       if (key[ALLEGRO_KEY_F6]) set_scale_factor(scale_factor * 1.1, 0);
-      if ((key[ALLEGRO_KEY_F5]) && (key[ALLEGRO_KEY_F6])) set_scale_factor(1,1);
+      if ((key[ALLEGRO_KEY_F5]) && (key[ALLEGRO_KEY_F6])) set_scale_factor(1, 1);
 
 
       if ((!ima_client) && (!ima_server)) // only adjust speed if not in netgame
@@ -1034,14 +1034,19 @@ void proc_game_moves_array(void)
    int end_index = 0;
 
    // reduce search range
-//   start_index = game_move_current_pos + 100;
-//   if (start_index > game_move_entry_pos-1) start_index = game_move_entry_pos-1;
-//
-//   end_index = game_move_current_pos - 100;
-//   if (end_index < 0) end_index = 0;
+   start_index = game_move_current_pos + 100;
+   if (start_index > game_move_entry_pos-1) start_index = game_move_entry_pos-1;
 
-//   sprintf(msg, "game_move - gmep:%d gmcp:%d si:%d ei:%d\n", game_move_entry_pos, game_move_current_pos, start_index, end_index);
-//   if (L_LOGGING_NETPLAY_cdat) add_log_entry2(40, 0, msg);
+   end_index = game_move_current_pos - 100;
+   if (end_index < 0) end_index = 0;
+
+
+//   if (L_LOGGING_NETPLAY_cdat)
+//   {
+//      sprintf(msg, "game_move - gmep:%d gmcp:%d si:%d ei:%d\n", game_move_entry_pos, game_move_current_pos, start_index, end_index);
+//      add_log_entry2(40, 0, msg);
+//   }
+
 
    for (int x=start_index; x>=end_index; x--)  // search backwards from start_index to end_index
    {

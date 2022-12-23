@@ -274,6 +274,23 @@ void ServerExitNetwork() // Shut the server down
 
 int server_init(void)
 {
+   if (L_LOGGING_NETPLAY)
+   {
+      log_versions();
+      add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+
+      sprintf(msg, "Server mode started");
+      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      printf("%s\n", msg);
+
+      sprintf(msg, "Server hostname:    [%s]", local_hostname);
+      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      printf("%s\n", msg);
+
+      sprintf(msg, "Level:              [%d]", play_level);
+      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      printf("%s\n", msg);
+   }
 
    if (ServerInitNetwork())
    {
@@ -377,47 +394,61 @@ void server_send_stdf(int p)
 }
 
 
-void server_send_stdf(void)
+int server_send_stdf(void)
 {
-   // set initial state
-   if (frame_num == 0)
-   {
-      game_vars_to_state(srv_stdf_state[1]);
-      srv_stdf_state_frame_num[1] = frame_num;
-   //   printf("saved server state[1]:%d\n\n", frame_num);
-   }
+   int s1 = 3;
+   int s2 = 2;
+   int s3 = s1+s2;
 
    // is it time to make a new dif and send to clients?
-   if (frame_num == srv_stdf_state_frame_num[1] + 4)
+   if (frame_num == srv_stdf_state_frame_num[1] + s3)
    {
-     // printf("\n%d rewind to:%d\n", frame_num, srv_stdf_state_frame_num[1]);
 
       // rewind and fast forward from last stdf state to apply missed game moves received late
       frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
       state_to_game_vars(srv_stdf_state[1]);   // rewind state
 
-    //  printf("loaded server state[1]:%d\n", frame_num);
+      if (L_LOGGING_NETPLAY_stdf)
+      {
+        // printf("\n%d rewind to:%d\n", frame_num, srv_stdf_state_frame_num[1]);
+         sprintf(msg, "stdf rewind to:%d\n", srv_stdf_state_frame_num[1]);
+         add_log_entry2(27, 0, msg);
+      }
 
-      loop_frame();
-      loop_frame();
+      loop_frame(s1);
 
       // save state[1] as a base for next rewind
-   //   printf("saved server state[1]:%d\n", frame_num);
       game_vars_to_state(srv_stdf_state[1]);
       srv_stdf_state_frame_num[1] = frame_num;
 
-      loop_frame();
-      loop_frame();
+      if (L_LOGGING_NETPLAY_stdf)
+      {
+         //printf("saved server state[1]:%d\n", frame_num);
+         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+         add_log_entry2(27, 0, msg);
+      }
+
+      loop_frame(s2);
 
       // save state[0] as a base for sending client difs
-  //    printf("saved server state[0]:%d\n\n", frame_num);
       game_vars_to_state(srv_stdf_state[0]);
       srv_stdf_state_frame_num[0] = frame_num;
+
+
+      if (L_LOGGING_NETPLAY_stdf)
+      {
+         // printf("saved server state[0]:%d\n\n", frame_num);
+         sprintf(msg, "saved server state[0]:%d\n", frame_num);
+         add_log_entry2(27, 0, msg);
+      }
 
       // send dif based on this state[0] to all clients
       for (int p=1; p<NUM_PLAYERS; p++)
          if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
+
+      return 1;
    }
+   else return 0;
 }
 
 void server_proc_player_drop(void)
@@ -652,7 +683,7 @@ void server_control() // this is the main server loop to process packet send and
       if(PacketRead("cjon")) server_proc_cjon_packet(who);
    }
 
-   server_send_stdf();         // send dif states to ensure clients have same state
+   // server_send_stdf();         // send dif states to ensure clients have same state
    server_proc_player_drop();  // check to see if we need to drop clients
 
    if (L_LOGGING_NETPLAY_PLAYER_ARRAY) log_player_array2();
