@@ -528,7 +528,7 @@ int log_file_viewer(int type)
          ch = EOF;
          printf("log file exceeded %d lines\n", num_lines);
       }
-      //printf("num_lines:%d\n", num_lines);
+      // printf("num_lines:%d\n", num_lines);
    }
    fclose(filepntr);
    num_lines--;
@@ -539,7 +539,7 @@ int log_file_viewer(int type)
    al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s - Done", fnam);
    al_flip_display();
 
- //  printf("log file 2\n");
+   // printf("log file 2\n");
 
 
    char ctags[100][20];
@@ -577,9 +577,10 @@ int log_file_viewer(int type)
 
    tags[40][0] = 1; tags[40][1] = 15; tags[40][3] = 69; sprintf(ctags[40], "gmar"); // game move array (E) [S]
 
+
    tags[99][0] = 1; tags[99][1] = 10; // bad tag
 
-//   printf("log file 3\n");
+   // printf("log file 3\n");
 
 
    // find and process tags
@@ -641,26 +642,29 @@ int log_file_viewer(int type)
          tags[99][2]++; // inc number of this tag
       }
 
-      // printf("Line:%d\n", i);
+      //printf("Line:%d\n", i);
 
-
-      if ((i % (num_lines/100)) == 0)
+      if (num_lines > 100)
       {
-         // printf("i:%d nl:%d\n", i, num_lines);
-         al_set_target_backbuffer(display);
-         al_clear_to_color(al_map_rgb(0,0,0));
-         draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, (i*100)/num_lines);
-         al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Parsing tags");
-         al_flip_display();
+         if ((i % (num_lines/100)) == 0)
+         {
+            // printf("i:%d nl:%d\n", i, num_lines);
+            al_set_target_backbuffer(display);
+            al_clear_to_color(al_map_rgb(0,0,0));
+            draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, (i*100)/num_lines);
+            al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Parsing tags");
+            al_flip_display();
+         }
       }
 
 
-  //    printf("log file 4\n");
+
+      // printf("log file 4\n");
 
 
    }
 
-//   printf("log file 5\n");
+   // printf("log file 5\n");
 
    // get start and end frame_nums
    int start_pc = log_lines_int[0][2];

@@ -106,6 +106,7 @@
 		<Unit filename="src/n_packet.cpp" />
 		<Unit filename="src/n_server.cpp" />
 		<Unit filename="src/pm.h" />
+		<Unit filename="src/z_args.cpp" />
 		<Unit filename="src/z_bullets.cpp" />
 		<Unit filename="src/z_config.cpp" />
 		<Unit filename="src/z_control.cpp" />
@@ -113,6 +114,7 @@
 		<Unit filename="src/z_enemy.cpp" />
 		<Unit filename="src/z_file.cpp" />
 		<Unit filename="src/z_fnx.cpp" />
+		<Unit filename="src/z_game_menu.cpp" />
 		<Unit filename="src/z_item.cpp" />
 		<Unit filename="src/z_lift.cpp" />
 		<Unit filename="src/z_log.cpp" />

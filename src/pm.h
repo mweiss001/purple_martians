@@ -1270,7 +1270,7 @@ void server_flush(void);
 int  server_init(void);
 void server_exit(void);
 void server_send_stdf(int p);
-void server_send_stdf(void);
+int server_send_stdf(void);
 void server_send_sdat(void);
 void server_proc_player_drop(void);
 void server_proc_cdat_packet(void );
@@ -1278,6 +1278,15 @@ void server_proc_stak_packet(void );
 void server_proc_sdak_packet(void );
 void server_proc_CJON_packet(int who);
 void server_control();
+
+
+
+
+// z_args.cpp
+void proc_command_line_args1(int argument_count, char **argument_array);
+void proc_command_line_args2(int argument_count, char **argument_array);
+int copy_files_to_clients(int exe_only);
+void temp_test(void);
 
 
 // z_bullets.h
@@ -1441,6 +1450,9 @@ void show_state_dif(char *a, char *b);
 int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 void demo_mode(void);
 
+// z_game_menu.cpp
+void game_menu(void);
+
 
 // z_item.h
 int item_data(int x, int y);
@@ -1548,7 +1560,7 @@ void mdw_an(void);
 void spline_test(void);
 void redraw_spline(int s);
 void spline_adjust(void);
-void scaled_tile_test(void);
+
 
 // z_loop.h
 int proc_frame_delay(void);
@@ -1558,7 +1570,7 @@ int has_player_acknowledged(int p);
 int have_all_players_acknowledged(void);
 void proc_level_done_mode(void);
 void game_loop(int start_mode);
-void loop_frame(void);
+void loop_frame(int);
 
 // z_main.h
 void final_wrapup(void);
@@ -1567,9 +1579,8 @@ void show_system_id();
 void set_and_get_versions(void);
 void get_desktop_resolution();
 int initial_setup(void);
-void game_menu(void);
 int main(int argument_count, char **argument_array);
-int copy_files_to_clients(int exe_only);
+
 
 // z_menu.h
 int load_help(void);

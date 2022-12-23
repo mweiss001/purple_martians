@@ -554,7 +554,7 @@ void save_gm_txt(char *sfname)
    fprintf(filepntr,"deathmatch_pbullets_damage %d\n", deathmatch_pbullets_damage);
    fprintf(filepntr,"suicide_pbullets %d\n", suicide_pbullets);
 
-   fprintf(filepntr,"[ gm][  pc][p][cm]\n");
+   fprintf(filepntr,"[ gm][frame][t][p][cm]\n");
 
    for (int x=0; x<game_move_entry_pos; x++)
    {
@@ -563,9 +563,9 @@ void save_gm_txt(char *sfname)
       int p = game_moves[x][2]; // player
       int v = game_moves[x][3]; // value
 
-      fprintf(filepntr,"[%3d][%4d][%d][%d][%2d]", x, f, t, p, v);
+      fprintf(filepntr,"[%3d][%5d][%d][%d][%2d]", x, f, t, p, v);
 
-      if (t == 0) fprintf(filepntr,"-------------START (level:%d)------------- ", p);
+      if (t == 0) fprintf(filepntr,"-------------START (level:%d)------------- ", v);
       if (t == 1) fprintf(filepntr,"-------------PLAYER %d ACTIVE (color:%d)-- ", p, v);
       if (t == 2) fprintf(filepntr,"-------------PLAYER %d INACTIVE------------", p);
       if (t == 3) fprintf(filepntr,"-------------CLIENT %d JOIN!-------------- ", p);
@@ -822,7 +822,7 @@ int load_gm(const char *sfname )
                game_moves[x][y] = atoi(buff);
             }
          fclose(filepntr);
-         play_level = game_moves[0][2]; // set play level
+         play_level = game_moves[0][3]; // set play level
          demo_mode_last_frame = game_moves[game_move_entry_pos-1][0];
          //printf("dmlf:%d\n", demo_mode_last_frame );
          return 1;

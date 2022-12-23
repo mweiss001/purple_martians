@@ -271,20 +271,10 @@ al_fixed get_sproingy_jump_height(int num)
    }
    return t2;
 }
-/*
-float get_jh(int num)
-{
-   float t1 = (float) num / 7.1;
-   float t2 = -15;
 
-   while (t1 > 0)
-   {
-      t2 += t1;  // distance moved this time period
-      t1 -= 0.2; // minus slow gravity
-   }
-   return t2;
-}
-*/
+
+
+
 // used for calculating sproinginess from jump height
 // used only for map move of sproingy jump height
 // misses some numbers
