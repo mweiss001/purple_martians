@@ -1431,6 +1431,7 @@ void show_var_sizes(void)
    printf("l        :%6d\n", (int)sizeof(l)            );
    printf("pbullet  :%6d\n", (int)sizeof(pbullet)      );
    printf("ebullets :%6d\n", (int)sizeof(ebullets)     );
+   printf("pm_event :%6d\n", (int)sizeof(pm_event)     );
 
    sz = 0;
    sz+= sizeof(players)      ;
@@ -1442,8 +1443,10 @@ void show_var_sizes(void)
    sz+= sizeof(l)            ;
    sz+= sizeof(pbullet)      ;
    sz+= sizeof(ebullets)     ;
+   sz+= sizeof(pm_event)     ;
    printf("---------:------\n");
    printf("total    :%6d\n",  sz );
+
 
 
 
@@ -1539,6 +1542,7 @@ void game_vars_to_state(char * b)
    offset += sz; sz = sizeof(l);        memcpy(b+offset, l,        sz);
    offset += sz; sz = sizeof(pbullet);  memcpy(b+offset, pbullet,  sz);
    offset += sz; sz = sizeof(ebullets); memcpy(b+offset, ebullets, sz);
+   offset += sz; sz = sizeof(pm_event); memcpy(b+offset, pm_event, sz);
 }
 
 void state_to_game_vars(char * b)
@@ -1553,6 +1557,7 @@ void state_to_game_vars(char * b)
    sz = sizeof(l);        memcpy(l,        b+offset, sz); offset += sz;
    sz = sizeof(pbullet);  memcpy(pbullet,  b+offset, sz); offset += sz;
    sz = sizeof(ebullets); memcpy(ebullets, b+offset, sz); offset += sz;
+   sz = sizeof(pm_event); memcpy(pm_event, b+offset, sz); offset += sz;
 }
 
 void get_state_dif(char *a, char *b, char *c, int size)

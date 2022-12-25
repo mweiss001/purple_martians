@@ -19,6 +19,56 @@ bug -- in level editor can't see trigger box edges on left or top if zero
 ---------------------------------------------------------
 
 
+--------------------------------------------------------------------------------------------
+I would like to make a mode where the server can run without a local player
+I would like to be able to start it from the command line via ssh and control it like that too..
+This would kind of suggest that I be able to pause the server...
+
+Fundamentally this will require deep changes.
+Right now the sync loop is dependant on the frame_num incrementing, like when the game is running.
+--------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+add 8 char name
+
+it will be saved in config file
+
+it will be the name used for player[0]
+
+where ever I print Player:x, i will now print 'name'
+
+
+
+
+
+--------------------------------------------------------------------------------------------
+as a pre cursor to layered recording
+
+make a demo player on steroids
+
+slider for speed
+slider for location
+pause, play.
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------
+
+
+
+
+
 
 --------------------------------------------------------------------------------------------
 Layered multiplayer recording
@@ -374,9 +424,6 @@ make a field that manipulates the players controls, like gravity, etc...
 ---------------------------------------------------------
 
 2022
-
-
-
 
 
 I want netgame to be better documented

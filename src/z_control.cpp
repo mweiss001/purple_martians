@@ -316,26 +316,18 @@ void set_controls_from_player_key_check(int p) // used only in menu
    if (key[ALLEGRO_KEY_ESCAPE])    players[p].menu  = 1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+int get_comp_move_from_players_controls(int p) // only used to test
+{
+   int cm = 0;
+   if (players[p].left)  cm |= PM_COMPMOVE_LEFT;
+   if (players[p].right) cm |= PM_COMPMOVE_RIGHT;
+   if (players[p].up)    cm |= PM_COMPMOVE_UP;
+   if (players[p].down)  cm |= PM_COMPMOVE_DOWN;
+   if (players[p].jump)  cm |= PM_COMPMOVE_JUMP;
+   if (players[p].fire)  cm |= PM_COMPMOVE_FIRE;
+   if (players[p].menu)  cm |= PM_COMPMOVE_MENU;
+   return cm;
+}
 
 void function_key_check(void)
 {
@@ -867,6 +859,7 @@ void add_game_move(int frame, int type, int data1, int data2)
 }
 
 
+
 void proc_player_client_join_game_move(int x)
 {
    if (ima_server)
@@ -938,7 +931,10 @@ void proc_player_inactive_game_move(int x)
 
    if (players[p].active)
    {
-      // local player in single player mode became incative
+      sprintf(msg,"PLAYER:%d became INACTIVE", p);
+      add_log_entry_header(10, p, msg, 1);
+
+      // local player in single player mode became inactive
       if (players[p].control_method == 0)
       {
          game_exit = 1;
@@ -956,22 +952,17 @@ void proc_player_inactive_game_move(int x)
          if (!still_active) game_exit = 1;
       }
 
-      // local client player quit
-      if (players[p].control_method == 4)
-      {
-         if (val == 64) players1[p].quit_reason = 90;
-         game_exit = 1;
-      }
-
       // local server player quit
       if (players[p].control_method == 3)
       {
-         if (val == 64) players1[p].quit_reason = 91;
+         // printf("Local Server Player Quit :%d\n", frame_num);
+         players1[p].quit_reason = 91;
 
          // set quit reason for all active clients on server
          for (int pp=1; pp<NUM_PLAYERS; pp++)
             if ((players[pp].active) && (players[pp].control_method == 2))
-               players1[pp].quit_reason = 92;
+               players1[pp].quit_reason = 91;
+         log_ending_stats_server();
          game_exit = 1;
       }
 
@@ -985,45 +976,22 @@ void proc_player_inactive_game_move(int x)
       // remote player quit
       if (players[p].control_method == 2)
       {
-//            players[p].active = 0;
-//            players[p].control_method = 9; // prevent re-use of this player number in this level
-//            players1[p].who = 99;
-           init_player(p, 1);
+         // printf("Remote Player Quit :%d\n", frame_num);
+         players1[p].quit_reason = 93;
+         log_ending_stats(p);
+         init_player(p, 1);
+//         players[p].active = 0;
+//         players[p].control_method = 9; // prevent re-use of this player number in this level
+//         players1[p].who = 99;
       }
       show_player_join_quit_timer = 60;
       show_player_join_quit_player = p;
       show_player_join_quit_jq = 0;
       game_event(81, 0, 0, p, 0, 0, 0);
-
-   }
-
-   if ((L_LOGGING_NETPLAY) && ((ima_client) || (ima_server)) && (game_exit) )
-   {
-      int alp = active_local_player;
-      sprintf(msg,"PLAYER:%d became INACTIVE", p);
-      add_log_entry_header(10, p, msg, 1);
-      if (players1[alp].quit_reason == 70) log_ending_stats();
-      if (players1[alp].quit_reason == 71) log_ending_stats();
-      if (players1[alp].quit_reason == 74) log_ending_stats();
-      if (players1[alp].quit_reason == 90) log_ending_stats();
-      if (players1[alp].quit_reason == 91) log_ending_stats_server();
-      if (players1[alp].quit_reason == 92) log_ending_stats();
    }
 }
 
 
-int get_comp_move_from_players_controls(int p) // only used to test
-{
-   int cm = 0;
-   if (players[p].left)  cm |= PM_COMPMOVE_LEFT;
-   if (players[p].right) cm |= PM_COMPMOVE_RIGHT;
-   if (players[p].up)    cm |= PM_COMPMOVE_UP;
-   if (players[p].down)  cm |= PM_COMPMOVE_DOWN;
-   if (players[p].jump)  cm |= PM_COMPMOVE_JUMP;
-   if (players[p].fire)  cm |= PM_COMPMOVE_FIRE;
-   if (players[p].menu)  cm |= PM_COMPMOVE_MENU;
-   return cm;
-}
 
 
 // this function processes all entries in the game_moves array that match current frame_num
@@ -1084,13 +1052,6 @@ void proc_player_input(int ret)
 
                   // in single player and server mode, add to game moves array
                   if ((cm == 0) || (cm == 3)) add_game_move(frame_num, 5, p, players1[p].comp_move);
-
-                  // in server mode apply immediately also
-                  if (cm == 3)
-                  {
-                     if (players[0].level_done_mode == 0) set_controls_from_comp_move(p, players1[p].comp_move);
-                     else clear_controls(p);
-                  }
 
                   // in client mode, send cdat packet, and apply move directly to controls
                   if (cm == 4)

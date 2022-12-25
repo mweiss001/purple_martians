@@ -570,7 +570,7 @@ void fast_exit(int why)
    // don't overwrite if not zero
    if (why != 0) players1[active_local_player].quit_reason = why;
 
-   if (ima_client) log_ending_stats();
+   if (ima_client) log_ending_stats(active_local_player);
    if (ima_server) log_ending_stats_server();
 
    save_log_file();

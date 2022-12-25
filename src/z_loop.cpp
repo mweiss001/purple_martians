@@ -69,6 +69,9 @@ void proc_start_mode(int start_mode)
          return; // to exit immediately
       }
 
+      if (ima_client) log_ending_stats(active_local_player);
+      if (ima_server) log_ending_stats_server();
+
       if (ima_server) server_flush();
       if (ima_client) client_flush();
 
@@ -311,14 +314,14 @@ void draw_frame(void)
    al_flip_display();
 }
 
-void move_frame(void)
+void move_frame(int t)
 {
 //   if (L_LOGGING_NETPLAY_move_frame)
-   {
-      //printf("move frame:%d-------------\n", frame_num);
-      sprintf(msg, "move frame:%d\n", frame_num);
-      add_log_entry2(41, 0, msg);
-   }
+//   {
+//      //printf("move frame:%d-------------\n", frame_num);
+//      sprintf(msg, "move[%d] frame:%d\n", t, frame_num);
+//      add_log_entry2(41, 0, msg);
+//   }
 
    move_ebullets();
    move_pbullets();
@@ -341,12 +344,10 @@ void game_loop(int start_mode)
       if (ima_client) client_control();
 
       proc_controllers();
+      if (players[0].level_done_mode) proc_level_done_mode();
+      else move_frame(0);
 
-      if ((ima_server) && (!server_send_stdf() ))
-      {
-         if (players[0].level_done_mode) proc_level_done_mode();
-         else move_frame();
-      }
+      if (players1[0].server_send_dif) server_send_stdf();
 
       if (proc_frame_delay()) draw_frame();
    }
@@ -365,7 +366,7 @@ void loop_frame(int times)
    {
       proc_game_moves_array();
       if (players[0].level_done_mode) proc_level_done_mode();
-      else move_frame();
+      else move_frame(1);
       frame_num++;
    }
 }

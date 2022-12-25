@@ -107,6 +107,8 @@ int ServerListen() // Check for connecting clients (0 = ok, got new connection, 
    	packetsize = net_receive(ListenChannel, packetbuffer, 1024, address);
       if ((packetsize) && (PacketRead("1234")))
       {
+         sprintf(msg, "Server recieved initial packet from '%s'",address);
+         printf("%s\n", msg);
          if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
          {
             sprintf(msg, "Error: failed to open channel for %s\n", address);
@@ -132,7 +134,24 @@ int ServerListen() // Check for connecting clients (0 = ok, got new connection, 
          }
          char bufr[32] = "5678";
          net_send (ClientChannel[ClientNum], bufr, strlen (bufr) + 1);
+
+
+//         Packet("5678");
+//         ServerSendTo(packetbuffer, packetsize, who, 0);
+
+
+
+
+
+         sprintf(msg, "Server replied with 5678");
+         printf("%s\n", msg);
+
          ClientNum++;
+
+         sprintf(msg, "ClientNum:%d", ClientNum);
+         printf("%s\n", msg);
+
+
          return 0; // got new connection
       }
       return 1;
@@ -393,20 +412,16 @@ void server_send_stdf(int p)
    }
 }
 
-
-int server_send_stdf(void)
+void server_rewind(void)
 {
-   int s1 = 3;
-   int s2 = 2;
+   int s1 = 2;
+   int s2 = 1;
    int s3 = s1+s2;
 
    // is it time to make a new dif and send to clients?
    if (frame_num == srv_stdf_state_frame_num[1] + s3)
    {
-
       // rewind and fast forward from last stdf state to apply missed game moves received late
-      frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
-      state_to_game_vars(srv_stdf_state[1]);   // rewind state
 
       if (L_LOGGING_NETPLAY_stdf)
       {
@@ -414,6 +429,9 @@ int server_send_stdf(void)
          sprintf(msg, "stdf rewind to:%d\n", srv_stdf_state_frame_num[1]);
          add_log_entry2(27, 0, msg);
       }
+
+      frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
+      state_to_game_vars(srv_stdf_state[1]);   // rewind state
 
       loop_frame(s1);
 
@@ -427,28 +445,31 @@ int server_send_stdf(void)
          sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
          add_log_entry2(27, 0, msg);
       }
-
       loop_frame(s2);
-
-      // save state[0] as a base for sending client difs
-      game_vars_to_state(srv_stdf_state[0]);
-      srv_stdf_state_frame_num[0] = frame_num;
-
-
-      if (L_LOGGING_NETPLAY_stdf)
-      {
-         // printf("saved server state[0]:%d\n\n", frame_num);
-         sprintf(msg, "saved server state[0]:%d\n", frame_num);
-         add_log_entry2(27, 0, msg);
-      }
-
-      // send dif based on this state[0] to all clients
-      for (int p=1; p<NUM_PLAYERS; p++)
-         if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
-
-      return 1;
+      players1[0].server_send_dif = 1;
    }
-   else return 0;
+}
+
+
+void server_send_stdf(void)
+{
+   players1[0].server_send_dif = 0;
+
+   // save state[0] as a base for sending client difs
+   game_vars_to_state(srv_stdf_state[0]);
+   srv_stdf_state_frame_num[0] = frame_num;
+
+
+   if (L_LOGGING_NETPLAY_stdf)
+   {
+      // printf("saved server state[0]:%d\n\n", frame_num);
+      sprintf(msg, "saved server state[0]:[%d] and sent to clients\n", frame_num);
+      add_log_entry2(27, 0, msg);
+   }
+
+   // send dif based on this state[0] to all clients
+   for (int p=1; p<NUM_PLAYERS; p++)
+      if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
 }
 
 void server_proc_player_drop(void)
@@ -494,12 +515,15 @@ void server_proc_cdat_packet(void)
    int cm = PacketGet1ByteInt();
    players1[p].server_game_move_sync = cdat_frame_num - frame_num;
 
+   players1[p].client_cdat_packets_tx++;
+
    // check to see if earlier than the last stdf state
 
-   if (cdat_frame_num <= srv_stdf_state_frame_num[1])
+   if (cdat_frame_num < srv_stdf_state_frame_num[1])
    {
-      printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_stdf_state_frame_num[1], players1[p].late_cdats);
       players1[p].late_cdats++;
+      printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_stdf_state_frame_num[1], players1[p].late_cdats);
+
    }
    else add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
 
@@ -617,13 +641,8 @@ void server_proc_cjon_packet(int who)
    {
       // try to use requested color, unless already used by another player
       while (is_player_color_used(color)) if (++color > 15) color = 1;
-
       init_player(cn, 1);
-
-
       set_player_start_pos(cn, 0);
-
-
       players[cn].color = color;
       players[cn].control_method = 2; //server client view only
       players1[cn].who = who;
@@ -672,9 +691,9 @@ void server_proc_cjon_packet(int who)
 }
 
 
-void server_control() // this is the main server loop to process packet send and receive
+void server_control() // main server loop to process packet send and receive
 {
-   ServerListen();      // listen for new client connections
+   ServerListen(); // listen for new client connections
    int who;
    while((packetsize = ServerReceive(packetbuffer, &who)))
    {
@@ -682,8 +701,7 @@ void server_control() // this is the main server loop to process packet send and
       if(PacketRead("stak")) server_proc_stak_packet();
       if(PacketRead("cjon")) server_proc_cjon_packet(who);
    }
-
-   // server_send_stdf();         // send dif states to ensure clients have same state
+   server_rewind(); // to replay and apply late client input
    server_proc_player_drop();  // check to see if we need to drop clients
 
    if (L_LOGGING_NETPLAY_PLAYER_ARRAY) log_player_array2();

@@ -305,7 +305,7 @@ void game_menu(void)
                   players[0].active = 1;
                   active_local_player = 0;
                   load_config(); // restore player color from config file
-                  //erase_log();
+                  erase_log();
                }
             }
 
