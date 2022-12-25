@@ -282,7 +282,7 @@ extern int deathmatch_pbullets_damage;
 extern int suicide_pbullets;
 
 
-#define STATE_SIZE 108928
+#define STATE_SIZE 112928
 
 // server's copies of client states
 extern char srv_client_state[8][2][STATE_SIZE];
@@ -292,7 +292,6 @@ extern int srv_client_state_frame_num[8][2];
 extern char srv_stdf_state[4][STATE_SIZE];
 extern int srv_stdf_state_frame_num[4];
 
-
 // local client's states
 extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
 extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
@@ -301,7 +300,6 @@ extern int  client_state_base_frame_num;      // last ack state frame_num
 extern char client_state_dif[STATE_SIZE];     // uncompressed dif
 extern int  client_state_dif_src;             // uncompressed dif src frame_num
 extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
-
 
 
 // ------------------------------------------------
@@ -669,6 +667,10 @@ struct player1 // not synced between server and client
 
    int server_last_stak_rx_frame_num; // used by server to see if client is still responding
    int client_last_stdf_rx_frame_num; // used by client to see if server is still responding
+
+
+   int server_send_dif; // used by server to determine which frame to send dif
+
 
    int client_base_resets;
 
@@ -1269,8 +1271,12 @@ void ServerSendTo(void *data, int len, int who, int player);
 void server_flush(void);
 int  server_init(void);
 void server_exit(void);
+
 void server_send_stdf(int p);
-int server_send_stdf(void);
+void server_send_stdf(void);
+void server_rewind(void);
+
+
 void server_send_sdat(void);
 void server_proc_player_drop(void);
 void server_proc_cdat_packet(void );
@@ -1525,12 +1531,12 @@ void move_lifts(int ignore_prox);
 
 // z_log.h
 void log_bandwidth_stats(int p);
-void log_reason_for_client_quit(int p);
+void log_reason_for_player_quit(int p);
 void log_time_date_stamp(void);
 void log_versions(void);
 void log_player_array(void);
 void log_player_array2(void);
-void log_ending_stats(void);
+void log_ending_stats(int p);
 void log_ending_stats_server(void);
 void erase_log(void);
 void save_log_file(void);

@@ -55,7 +55,7 @@ void log_bandwidth_stats(int p)
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 }
 
-void log_reason_for_client_quit(int p)
+void log_reason_for_player_quit(int p)
 {
    char tmsg[80];
    sprintf(tmsg,"unknown");
@@ -69,6 +69,8 @@ void log_reason_for_client_quit(int p)
    if (r == 90) sprintf(tmsg,"local client quit");
    if (r == 91) sprintf(tmsg,"local server quit");
    if (r == 92) sprintf(tmsg,"remote server quit");
+   if (r == 93) sprintf(tmsg,"remote client quit");
+
    sprintf(msg,"reason for quit...........[%s]", tmsg);
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 }
@@ -147,9 +149,8 @@ void log_player_array2(void)
 }
 
 
-void log_ending_stats()
+void log_ending_stats(int p)
 {
-   int p = active_local_player;
    sprintf(msg,"Client %d (%s) ending stats", p, players1[p].hostname);
    add_log_entry_header(22, p, msg, 0);
 
@@ -162,7 +163,7 @@ void log_ending_stats()
    sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-   log_reason_for_client_quit(p);
+   log_reason_for_player_quit(p);
 
    sprintf(msg,"frames client was active..[%d]", players1[p].quit_frame - players1[p].join_frame);
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
@@ -170,7 +171,10 @@ void log_ending_stats()
    sprintf(msg,"frames skipped............[%d]", players1[p].frames_skipped);
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"cdat packets tx'd.........[%d]", players1[p].client_cdat_packets_tx);
+   sprintf(msg,"cdat packets total........[%d]", players1[p].client_cdat_packets_tx);
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+
+   sprintf(msg,"cdat packets late.........[%d]", players1[p].late_cdats);
    add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
    log_bandwidth_stats(p);
@@ -208,7 +212,7 @@ void log_ending_stats_server()
 
    for (int p=1; p<NUM_PLAYERS; p++)
    {
-      if ((players[p].control_method == 2) || (players[p].control_method == 9))
+      if ((players[p].control_method == 2) || (players[p].control_method == 8))
       {
          sprintf(msg,"Player:%d (%s)", p, players1[p].hostname);
          add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
@@ -220,13 +224,19 @@ void log_ending_stats_server()
          sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
          add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
-         log_reason_for_client_quit(p);
+         log_reason_for_player_quit(p);
 
          sprintf(msg,"frames client was active..[%d]", players1[p].quit_frame - players1[p].join_frame);
          add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
          sprintf(msg,"frames skipped............[%d]", players1[p].frames_skipped);
          add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
+
+         sprintf(msg,"cdat packets total........[%d]", players1[p].client_cdat_packets_tx);
+         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+
+         sprintf(msg,"cdat packets late.........[%d]", players1[p].late_cdats);
+         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
 
          log_bandwidth_stats(p);
 
@@ -576,6 +586,9 @@ int log_file_viewer(int type)
 
 
    tags[40][0] = 1; tags[40][1] = 15; tags[40][3] = 69; sprintf(ctags[40], "gmar"); // game move array (E) [S]
+   tags[41][0] = 1; tags[41][1] = 15; tags[41][3] = 77; sprintf(ctags[41], "move"); // move objects    (M) [S]
+
+
 
 
    tags[99][0] = 1; tags[99][1] = 10; // bad tag
@@ -656,12 +669,7 @@ int log_file_viewer(int type)
             al_flip_display();
          }
       }
-
-
-
       // printf("log file 4\n");
-
-
    }
 
    // printf("log file 5\n");

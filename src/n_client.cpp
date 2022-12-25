@@ -61,18 +61,22 @@ int ClientInitNetwork(const char *serveraddress)
          return 0;
       }
       sprintf(msg, "Client network initialized: server[%s] (UDP)", serveraddress);
+
+      printf("Local address of channel%s\n", net_getlocaladdress (ServerChannel));
+
    }
 
    printf("%s\n", msg);
    if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
 
    // Check for reply from server
-   int tries = 4;          // number of times to try
-   float try_delay = 0.02; // delay between tries
+   int tries = 1;         // number of times to try
+   float try_delay = 2; // delay between tries
    int got_reply = 0;
 
    while (!got_reply)
    {
+      printf("ClientCheckResponse %d\n", tries);
       if (ClientCheckResponse())
       {
          got_reply = 1;
@@ -83,7 +87,7 @@ int ClientInitNetwork(const char *serveraddress)
       else
       {
          al_rest(try_delay);
-         if (--tries < 0)
+         if (++tries > 2)
          {
             sprintf(msg,"Did not get reply from server");
             m_err(msg);
@@ -119,15 +123,50 @@ int ClientCheckResponse(void) // check for a repsonse from the server
       // send data to server
       Packet("1234");
       ClientSend(packetbuffer, packetsize);
-      al_rest(0.1);
-      // check for a response
-      packetsize = net_receive(ServerChannel, packetbuffer, 1024, address);
-      if (packetsize && (strcmp(packetbuffer, "5678") == 0)) // got response
+      printf("Sent initial packet to server, waiting for reply");
+
+
+
+      //      al_rest(0.1);
+//      al_rest(2);
+
+
+      int done = 10;
+      while (done)
       {
-          net_assigntarget(ServerChannel, address);
-          return 1;
+         printf(".");
+
+         packetsize = net_receive(ServerChannel, packetbuffer, 1024, address);
+         if (packetsize && (strcmp(packetbuffer, "5678") == 0)) // got response
+         {
+
+             printf("got response: %s\n", address);
+
+
+             net_assigntarget(ServerChannel, address);
+             return 1;
+         }
+
+         al_rest(.2);
+         done--;
+
       }
-      else return 0; // no response yet
+
+      printf("no response\n");
+      return 0; // no response yet
+
+//
+//      // check for a response
+//      packetsize = net_receive(ServerChannel, packetbuffer, 1024, address);
+//      if (packetsize && (strcmp(packetbuffer, "5678") == 0)) // got response
+//      {
+//          net_assigntarget(ServerChannel, address);
+//          return 1;
+//      }
+//      else return 0; // no response yet
+//
+
+
    }
    return 0;
 }
@@ -660,7 +699,7 @@ void client_proc_player_drop(void)
       //tsw();
 
       players1[p].quit_reason = 92;
-      log_ending_stats();
+      log_ending_stats(p);
       game_exit = 1;
    }
 
@@ -688,7 +727,7 @@ void client_proc_player_drop(void)
          tsw();
 
          players1[p].quit_reason = 75;
-         log_ending_stats();
+         log_ending_stats(p);
          game_exit = 1;
       }
    }

@@ -11159,9 +11159,9 @@ fixed the code so it compiles without any dumb string errors
 bug --  warning in linux about
 -------------------------------
 ||=== Build: ldm in pm (compiler: GNU GCC Compiler) ===|
-/home/m/Desktop/pm_client22/src/z_screen_overlay.cpp||In function �void new_bmsg(const char*, int, int, int)�:|
-/home/m/Desktop/pm_client22/src/z_screen_overlay.cpp|519|warning: �sprintf� argument 3 overlaps destination object �b_msg� [-Wrestrict]|
-/home/m/Desktop/pm_client22/src/pm.h|173|note: destination object referenced by �restrict�-qualified argument 1 was declared here|
+/home/m/Desktop/pm_client22/src/z_screen_overlay.cpp||In function ‘void new_bmsg(const char*, int, int, int)’:|
+/home/m/Desktop/pm_client22/src/z_screen_overlay.cpp|519|warning: ‘sprintf’ argument 3 overlaps destination object ‘b_msg’ [-Wrestrict]|
+/home/m/Desktop/pm_client22/src/pm.h|173|note: destination object referenced by ‘restrict’-qualified argument 1 was declared here|
 ||=== Build finished: 0 error(s), 1 warning(s) (0 minute(s), 0 second(s)) ===|
 
 
@@ -39669,219 +39669,921 @@ broke up server rx and server_send_stdf
 when sss is called, input and controls for the current frame have been done, but not move
 if sss does nothing, the move in the main loop right after will do it then proc_frame_delay and frame inc..
 
-if sss rewinds and replays it will do the
+if sss rewinds and replays it will do the move frame for the current frame
+this is not optimal, because then I will need an exception for current frame..
 
+what I really want rewind to do is leave the game loop in the exact condition it found it in...
 
+so maybe it should be before the part where the controls are set for the current frame...
 
 
+here is my loop, pretty much what I already had:
 
+server rx that might put things in gm for this frame
+optional server rewind and dif send
+if server rewind then it will stop just short so that move for this frame is done in regular way
 
+this part happens in main loop every time:
 
+set controls from gm for this frame
+move objects
+optional draw
+frame inc
 
 
+all I need to do is make sure that if server rewinds, it leaves the state exactly like it was before
+same frame number and no moves done for that frame
 
 
+make the log entry for move frame
+- recognized and hideable
+- tell where they were called from
+done
 
 
+now lets run this, generate a log and see if its doing what I want it to do...
 
+[27][0][0]stdf saved server state[1]:0
+[41][0][0][0]move frame:0
+[41][0][1][0]move frame:1
+[41][0][2][0]move frame:2
+[41][0][3][0]move frame:3
+[41][0][4][0]move frame:4
+[27][0][0]stdf rewind to:0
+[41][0][0][1]move frame:0
+[41][0][1][1]move frame:1
+[41][0][2][1]move frame:2
+[27][0][3]stdf saved server state[1]:3
+[41][0][3][1]move frame:3
+[41][0][4][1]move frame:4
+[27][0][5]saved server state[0]:5
+[41][0][5][0]move frame:5
+[41][0][6][0]move frame:6
+[41][0][7][0]move frame:7
+[27][0][3]stdf rewind to:3
+[41][0][3][1]move frame:3
+[41][0][4][1]move frame:4
+[41][0][5][1]move frame:5
+[27][0][6]stdf saved server state[1]:6
+[41][0][6][1]move frame:6
+[41][0][7][1]move frame:7
+[27][0][8]saved server state[0]:8
+[41][0][8][0]move frame:8
+[41][0][9][0]move frame:9
+[41][0][10][0]move frame:10
+[27][0][6]stdf rewind to:6
+[41][0][6][1]move frame:6
+[41][0][7][1]move frame:7
+[41][0][8][1]move frame:8
+[27][0][9]stdf saved server state[1]:9
 
+when state1 is saved the frame number that points to means:
+this is the initial conditions for this frame
+controls and move still need to be done...
 
 
+when loop_frame runs it prints the frame number that is being moved, then incs the frame num
 
+after loop frame the state and frame num can be saved. this is the initial state for that frame
 
 
+this looks like it works up to here.
 
 
+now the next problem is that I want to do the most current move before I send stdf
+but if I leave the original method ill have to hook into it later somehow
 
+in rewind do the current frame
+then mark somehow
+so when I come back to loop, i skip move and dec frame
 
+or
 
+I could just set a flag and send dif after normal move...
 
+yes, I like this better
 
 
+break in up into two functions:
 
+call this after move
 
+if (flag)
 
+server_send_stdf()
+{
+   makes state[0] based on now;
+   sends to all active clients
+}
 
+server_rewind()
+{
 
 
+sets flag
 
+}
 
+-------------------
 
+now I call server rewind in server control...every frame
 
+if it actually does the rewind it sets players1[0].server_send_dif = 1;
 
+then in the main loop, after the move..
 
+if (players1[0].server_send_dif) server_send_stdf();
 
+this makes state[0] and sends to all clients
 
 
 
+now I just need to make sure that rewind stops right where it started
 
+so one less move so that reg thing can move it...
 
+[27][0][0]stdf saved server state[1]:0
+[41][0][0]move[0] frame:0
+[41][0][1]move[0] frame:1
+[41][0][2]move[0] frame:2
+[41][0][3]move[0] frame:3
+[41][0][4]move[0] frame:4
 
+[27][0][5]stdf rewind to:0
+[41][0][0]move[1] frame:0
+[41][0][1]move[1] frame:1
+[41][0][2]move[1] frame:2
+[27][0][3]stdf saved server state[1]:3
+[41][0][3]move[1] frame:3
+[41][0][4]move[1] frame:4
+[41][0][5]move[0] frame:5
+[27][0][5]saved server state[0]:[5] and sent to clients
+[41][0][6]move[0] frame:6
+[41][0][7]move[0] frame:7
 
+[27][0][8]stdf rewind to:3
+[41][0][3]move[1] frame:3
+[41][0][4]move[1] frame:4
+[41][0][5]move[1] frame:5
+[27][0][6]stdf saved server state[1]:6
+[41][0][6]move[1] frame:6
+[41][0][7]move[1] frame:7
+[41][0][8]move[0] frame:8
+[27][0][8]saved server state[0]:[8] and sent to clients
+[41][0][9]move[0] frame:9
+[41][0][10]move[0] frame:10
 
+[27][0][11]stdf rewind to:6
+[41][0][6]move[1] frame:6
+[41][0][7]move[1] frame:7
+[41][0][8]move[1] frame:8
+[27][0][9]stdf saved server state[1]:9
+[41][0][9]move[1] frame:9
+[41][0][10]move[1] frame:10
+[41][0][11]move[0] frame:11
 
+I think this looks like what I want
 
+seems to play back correctly...
 
 
+lev 4 8P fake key
+420s
+no level done
+dif 3 2
+played back flawlessly...
 
+avg 70-80kbps max 100
 
+a few late cdats
+45 for p2 (e6400)
+2 for p7
 
+test again...
+this time with a level_done...
 
+lev 5 8P fake key
+dif 3 2
+played back perfect
+still a few late cdats
+p2 72 (e6400)
+p1 2
+120-150k fairly constant with lots of enemies
 
 
 
+I am doing late cdat properly?
 
+I can still apply them if I rx them on the same frame as state[1]
+because that is the state at the start of that frame, not the end...
 
+   if (cdat_frame_num <= srv_stdf_state_frame_num[1])
+   {
+      printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_stdf_state_frame_num[1], players1[p].late_cdats);
+      players1[p].late_cdats++;
+   }
+   else add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
 
+changed to
 
+   if (cdat_frame_num < srv_stdf_state_frame_num[1])
 
 
 
+test again...
 
+lev 12
+700s
+31k frames
+212k game moves
+plays back perfectly
+don't know how many late cdats
+8P fk 3 2
+80k-100k spike 132
 
+lev 13 8P level done start with fake key...
+frame 1 250kbps then down to 60
 
+why do I not have end of level stats when level done??
+I have it for bad exit..
 
+I also have it when any player quits??
+so they all pile up at the end if server quits...
 
 
+I need to fix this...
 
 
+first, what happens when client quits in the middle of a game?
+nothing on either client or server
 
 
+void log_reason_for_client_quit(int p)
+{
+   char tmsg[80];
+   sprintf(tmsg,"unknown");
+   int r = players1[p].quit_reason;
+   if (r == 64) sprintf(tmsg,"player pressed ESC or menu key");
+   if (r == 70) sprintf(tmsg,"server drop (server sync > 100)");
+   if (r == 71) sprintf(tmsg,"server drop (no sdak for 100 frames)");
+   if (r == 74) sprintf(tmsg,"client never became active");
+   if (r == 75) sprintf(tmsg,"client lost server connection");
+   if (r == 80) sprintf(tmsg,"level done");
+   if (r == 90) sprintf(tmsg,"local client quit");
+   if (r == 91) sprintf(tmsg,"local server quit");
+   if (r == 92) sprintf(tmsg,"remote server quit");
 
+   if (r == 93) sprintf(tmsg,"remote client quit");
 
+   sprintf(msg,"reason for quit...........[%s]", tmsg);
+   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+}
 
+lets just worry about server...
 
+when server quits make sure we have eols for all clients..done
+when client quits (on server show eol then)..done but it shows in log multiple times due to rewind...
+make client show late_cdat stats...done
+now make sure next level works...done
 
+now what the hell else was I doing??
 
 
+im am using 3 2
 
+try 2 1
 
+especially see how aiming rockets looks
 
+level 12 8P fakekey
+mostly 120 to 150k max 230
 
+server eol stats
+max tx frame 20k
+avg tx frame 2.4k
+total tx 93M
+max tx packet per frame = 23
+max tx packet per sec = 284
 
+242k moves
+38k frames
+961s
+16m
+only e6400 had more than a few lates
 
+played great
 
+could not get purple coin in area that said kill all enemies to go down here.
+there were 6 enemies left and they were all unkillable cloners
 
+the block that was blocking looked empty on server, but was not on clients
+is was solid on all.
 
 
+will it play back, it went good until enemies got down to 6 then the block opens and the player went down
+this did not happen when playing the original.
+approx 540
 
+is there something about rewinding that breaks that??
+trigger does set event when switching off..
+and it stores that state in its own data
 
+so when it is rewound it should have that state about the previous frame
+then in this frame that condition is changed...
 
+it should still play out the same...
 
+maybe it has to do with server setting controls in addition to adding to game move...
+probably not....but walk through it..
 
+set directly happens immediately before reading from game moves array
+it really shouldn't matter but I commented it out anyway...
 
+look at trigger code...
 
+it could very well be trigger_array
+- its is not synced to clients
+- it might not like being rewound
 
+when rewinding it does not revert to previous states...
 
+that is most likely the culprit...
 
+how big is it and can I add it to the state?
 
+int pm_event[1000];
 
 
+what the hell...
 
+try testing on a level that makes heavy use of triggers, especially toggle...
+tried the trigger level and in server mode it definitley happens..
 
 
+then add it to the state...
 
+Variables used for netgame state exchange
 
+players  :  2048
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    : 32000
+lifts    :  5280
+l        : 40000
+pbullet  :  1200
+ebullets :  1200
+pm_event :  4000
+---------:------
+total    :112928
 
+I have patched it in and it looks like it is working....
 
 
 
 
+--------------------------
 
+I want to try this on the internet
 
 
 
+set up a server using my home network..
 
 
+try to connect with laptop tethered to phone
 
 
+70.75.228.155:7878
 
+can ping from laptop tethered to phone
 
 
+how do know if I am pinging the router or something behind it..
 
 
+how much space do I have?
+char m_serveraddress[256] = "192.168.1.2";
 
 
 
+25148
 
 
 
+Open firewall ports in Windows 10
+You can manually permit a program to access the internet by opening a firewall port. You will need to know what port it uses and the protocol to make this work.
 
+    Navigate to Control Panel, System and Security and Windows Firewall.
+    Select Advanced settings and highlight Inbound Rules in the left pane.
+    Right click Inbound Rules and select New Rule.
+    Add the port you need to open and click Next.
+    Add the protocol (TCP or UDP) and the port number into the next window and click Next.
+    Select Allow the connection in the next window and hit Next.
+    Select the network type as you see fit and click Next.
+    Name the rule something meaningful and click Finish.
 
+You have now opened a firewall port in Windows 10!
 
 
 
+I think I am having trouble opening the port on my computer...
 
+try ubuntu...
 
 
 
+run server on a pc in my home network
 
+on router make a rule
+192.168.1.123:25148 UDP
 
+open firewall on computer for port 25148
 
 
+test with
 
+https://canyouseeme.org/
 
+or
 
+https://www.yougetsignal.com/tools/open-ports/
 
+they always fail
 
 
+on client set server address to 70.75.228.155:25148
+try to run game
+fails when cant get connection
+client can ping 70.75.228.155
 
 
+try scat
 
+192.168.1.131:25149
 
+ufw is not running
 
+sudo ufw allow from any to any port 25149 proto udp
 
 
+set this up on router as
+25149
 
 
 
 
 
+25148 times out_func
+25149 connection refused
 
 
+when I disable the rule for 192.168.1.131:25149 on my router
+connection timed out:
 
+with the rule I get:
+connection refused
 
+this was tested on m36, on the same subnet..
+when I tried through different connection, it timed out always
 
 
+20221224
 
 
 
 
+Hey Bill,
 
+I was wondering if you could help me with this networking thing for my game.
 
+Mostly just figuring out how to get it to work over the internet.
+It works fine over a LAN. The protocol used is UDP.
 
+The server does not need any information about the clients.
+The clients need to know the IP (or hostname) of the server.
+I start the server and it listens for connections.
+When the server gets one, now it knows how to send to that client.
+After that is established, I can exchange packets.
 
+So now I am trying to get it to work over the internet.
 
+I am running the server from my home internet connection.
+My external IP is 70.75.228.155
+I chose port 25148 to use, as it doesn't seem to be used by others.
+The local IP of the server is 192.168.1.123
 
+In my router I set up a port forwarding rule like this:
+service type: TCP/UDP
+external port: 25148
+internal port: 25148
+internal IP address: 192.168.1.123
 
+in windows firewall I set up a rule like this:
 
+Protocol and Ports:
+protocol:UDP
+local port: 25148
+remote port: 25148
 
+Scope:
+Local IP adresses: any
+Remote IP addresses: any
 
+Advanced:
+Profiles: all (domain, private, public)
+Interface types: (all)
+Edge traversal: Allow edge traversal
 
+Programs and services:
+Programs: All programs that meet the specified conditions
 
 
+The client I am trying to connect to tethered to my phone so it has a different internet connection.
 
+On the client game, I set the server ip to be 70.75.228.155:25148
+But it never gets a connection.
 
+I cannot ping 70.75.228.155 from the client, and when I test for open ports:
+https://www.yougetsignal.com/tools/open-ports/
+70.75.228.155:25148 it says that port is closed
 
+I cannot ping 70.75.228.155, but when I enable remote management on my router and test for open ports:
+https://www.yougetsignal.com/tools/open-ports/
+70.75.228.155:8443 that port is open
+So I am pretty sure it is getting as far as the router
 
+I have a second server set up in my house:
+running ubuntu 20.04 desktop with ufw disabled
+local IP 192.168.1.131
 
+In my router I set up a port forwarding rule like this:
+service type: TCP/UDP
+external port: 25149
+internal port: 25149
+internal IP address: 192.168.1.131
 
+when I test for open ports from the client:
+https://www.yougetsignal.com/tools/open-ports/
+70.75.228.155:25149 it says that port is closed
 
+tried turning off the firewall on client, no change
 
 
 
+it looks like port 24785 is used internally by libnet??
 
+Network initialized - channel mode (UDP)
+Server initialized
+Server opened channel for `192.168.1.105:24785'
+Server opened channel for `192.168.1.125:24785'
+Server opened channel for `192.168.1.105:24785'
 
+when I try to connect locally with any other port it is refused
 
+now I get the server saying
 
+Server opened channel for `174.90.223.220:24786'
+Server opened channel for `174.90.223.220:24786'
 
+when trying to connect from outside client
 
+is there a range I should be using?
 
+why is the IP not local....beacuse it is the remote...duh
+why is the port one off
 
+this is the router log:
+[LAN access from remote] from 174.90.223.80:24786 to 192.168.1.123:24785, Saturday, Dec 24,2022 11:10:26
 
+why does the port sent show 86??
 
+show on client...
 
+NET_CHANNEL *chan;
+chan = net_openchannel (driver, binding);
+printf ("Local address of channel: %s\n", net_getlocaladdress (chan));
 
+client shows 785..
+but server opens channel for 786...
+
+I don't get it
+
+on router open a range 785-788 done
+
+make an outgoing rule on server..done
+
+So much has happend on the server:
+
+It listened and got a packet(1234)
+Then it created a channel and sent a reply
+
+one problem is that it did it 42 times for remote..
+
+that is because remote sent it 42 times...
+
+need longer time out...
+
+   int tries = 40;          // number of times to try
+   float try_delay = 0.02; // delay between tries
+
+
+slowed it way down but still get no response
+
+possibilities:
+- doesn't get off server
+- doesn't pass router
+- doesn't get through client
+
+how can i test any of those?
+
+packet inspection? wireshark to the rescue
+
+22639	419.029865	174.90.223.80	192.168.1.36	UDP	60	24786 → 24785 Len=4
+22640	419.047713	192.168.1.36	174.90.223.80	UDP	47	64554 → 24786 Len=5
+
+this is where the 1234 packet is rx'd and the 5678 reply is tx'd
+this does not tell me if it is getting out of this machine though
+
+what does a local join look like?
+34	3.433074	192.168.1.102	192.168.1.36	UDP	60	24785 → 24785 Len=4
+35	3.450449	192.168.1.36	192.168.1.102	UDP	47	62779 → 24785 Len=5
+
+wireshark on client
+
+I see 3 tries, 4s apart
+192.168.76.248 70.75.228.155 UDP 24785 - 24785 Len=4
+
+but no responses...
+
+
+
+
+what now??
+can I make a box with 2 ethernet ports to capture stuff??
+
+how about explicitly making an outbound rule on server?
+
+
+looks wide open on server, how about client?
+
+could it just be that the internet I am getting by tethering to my phone is the issue?
+
+
+I wish I had another connection...
+ask a neighbor for wifi password?
+try it with radio connection at work?
+put a test radio on my house??
+
+
+
+something else:
+
+why does server send out on 786?
+because that is what it was rx'd on
+
+this could be the problem why the remote machine never sees it...wrong port...
+
+when server gets the initial packet, it is rx'd with 786
+
+when wireshark sees the packet go out on client it has 785
+
+does the router fuck with it??
+
+what else could be doing it??
+
+
+
+
+
+
+I want to redo how client waits for response
+
+      if ((packetsize = ClientReceive(packetbuffer)) && (PacketRead("stdf"))) done = client_process_stdf_packet();
+
+
+
+is this how you reply??
+
+         char bufr[32] = "5678";
+         net_send (ClientChannel[ClientNum], bufr, strlen (bufr) + 1);
+
+
+
+
+
+this is how its sent...
+      Packet("1234");
+      ClientSend(packetbuffer, packetsize);
+
+
+where does server get who from?
+
+   while((packetsize = ServerReceive(packetbuffer, &who)))
+   {
+      if(PacketRead("cdat")) server_proc_cdat_packet();
+      if(PacketRead("stak")) server_proc_stak_packet();
+      if(PacketRead("cjon")) server_proc_cjon_packet(who);
+   }
+
+
+
+not saved in player struct until sjon sent (because we don't know what player to use until then)
+
+
+
+
+now that I've added some more code to display things, lets try it again...
+
+server:
+win 10
+local IP 192.168.1.36 (static on router)
+UDP protocol
+
+external IP: 70.75.228.155
+
+port forwarding on router:
+external start port 24785-24786
+internal start port 24785-24786
+internal IP address: 192.168.1.36
+
+remove all rules related to pm in windows firewall
+run server and windows prompts to allow
+choose private and public and click OK
+2 inbound rules are created, UDP and TCP
+all ports open
+edge traversal, defer to user
+
+now do a test with LAN and write down all you can
+
+Server mode started
+Server hostname:    [m36]
+Level:              [2]
+Network initialized - channel mode (UDP)
+Server initialized
+Server recieved initial packet from '192.168.1.124:24785'
+Server opened channel for `192.168.1.124:24785'
+Server replied with 5678
+ClientNum:1
+Shutting down the server
+savegame/game_exit_20221224-211503-lev2.txt - saved
+logs/20221224-211503-[2][m36].txt saved
+
+Wireshark
+No.	Time	      Source	      Destination	   Protocol	Length	Info
+100	9.747916	   192.168.1.124	192.168.1.36	UDP	   60	      24785 → 24785 Len=4
+101	9.758532	   192.168.1.36	192.168.1.124	UDP	   47	      63959 → 24785 Len=5
+103	9.948899	   192.168.1.124	192.168.1.36	UDP	   63	      24785 → 63959 Len=21
+104	9.957735	   192.168.1.36	192.168.1.124	UDP	   63	      63959 → 24785 Len=21
+105	9.959553	   192.168.1.36	192.168.1.124	UDP	   1064  	63959 → 24785 Len=1022
+106	9.959562	   192.168.1.36	192.168.1.124	UDP	   1064  	63959 → 24785 Len=1022
+107	9.959570	   192.168.1.36	192.168.1.124	UDP	   180   	63959 → 24785 Len=138
+108	10.008408	192.168.1.36	192.168.1.124	UDP	   1064  	63959 → 24785 Len=1022
+109	10.008417	192.168.1.36	192.168.1.124	UDP	   1064  	63959 → 24785 Len=1022
+110	10.008423	192.168.1.36	192.168.1.124	UDP	   176   	63959 → 24785 Len=134
+111	10.059410	192.168.1.36	192.168.1.124	UDP	   1064	   63959 → 24785 Len=1022
+112	10.059418	192.168.1.36	192.168.1.124	UDP	   1064  	63959 → 24785 Len=1022
+113	10.059425	192.168.1.36	192.168.1.124	UDP	   189   	63959 → 24785 Len=147
+
+
+
+C:\Users\m\Desktop\pm_client24>pm -c
+Purple Martians Version 7.24.1
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 1920x1080
+Date and time: 2022-12-24  21:15:06
+Local address of channel:24785
+Client network initialized: server[m36] (UDP)
+ClientCheckResponse 1
+Sent initial packet to server, waiting for reply..got response: 192.168.1.36:63959
+Got reply from server
+Client mode started on host:[e6430]
+logs/20221224-211510-[2][e6430].txt saved
+savegame/bad_exit_20221224-211510-lev2.txt - saved
+C:\Users\m\Desktop\pm_client24>
+
+Wireshark
+No.	Time		   Source		   Destination	   Protocol Length	Info
+262	34.202677	192.168.1.124	192.168.1.36	UDP	   46	      24785 ? 24785 Len=4
+263	34.213413	192.168.1.36	192.168.1.124	UDP   	60	      63959 ? 24785 Len=5
+265	34.403684	192.168.1.124	192.168.1.36	UDP   	63	      24785 ? 63959 Len=21
+266	34.413532	192.168.1.36	192.168.1.124	UDP   	63	      63959 ? 24785 Len=21
+267	34.414530	192.168.1.36	192.168.1.124	UDP   	1064	   63959 ? 24785 Len=1022
+268	34.414531	192.168.1.36	192.168.1.124	UDP   	1064	   63959 ? 24785 Len=1022
+269	34.414532	192.168.1.36	192.168.1.124	UDP   	180	   63959 ? 24785 Len=138
+270	34.463333	192.168.1.36	192.168.1.124	UDP   	1064	   63959 ? 24785 Len=1022
+
+
+
+
+Now do the same thing on WAN...
+
+server same
+
+client win10
+tethered to phone
+client set server IP: 70.75.228.155
+
+firewall rules deleted
+new copy of game (pm5)
+
+Server mode started
+Server hostname:    [m36]
+Level:              [2]
+Network initialized - channel mode (UDP)
+Server initialized
+Server recieved initial packet from '174.90.223.196:24786'
+Server opened channel for `174.90.223.196:24786'
+Server replied with 5678
+ClientNum:1
+Server recieved initial packet from '174.90.223.196:24786'
+Server opened channel for `174.90.223.196:24786'
+Server replied with 5678
+ClientNum:2
+Shutting down the server
+logs/20221224-214504-[2][m36].txt saved
+savegame/bad_exit_20221224-214504-lev2.txt - saved
+
+C:\pm>
+
+No.	Time	      Source	      Destination	   Protocol	Length	Info
+99	   10.640402	174.90.223.196	192.168.1.36	UDP	   60	      24786 → 24785 Len=4
+100	10.648038	192.168.1.36	174.90.223.196	UDP   	47	      52592 → 24786 Len=5
+120	14.854957	174.90.223.196	192.168.1.36	UDP   	60	      24786 → 24785 Len=4
+121	14.873167	192.168.1.36	174.90.223.196	UDP   	47	      52593 → 24786 Len=5
+
+C:\Users\Service2\Desktop\pm5>pm -c
+
+Purple Martians Version 7.24.1
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 1366x768
+Local address of channel:24785
+Client network initialized: server[70.75.228.155] (UDP)
+ClientCheckResponse 1
+Sent initial packet to server, waiting for reply..........no response
+ClientCheckResponse 2
+Sent initial packet to server, waiting for reply..........no response
+Did not get reply from server
+
+C:\Users\Service2\Desktop\pm5>
+
+No.	Time	      Source	      Destination	   Protocol	Length	Info
+5	   15.024284	192.168.76.248	70.75.228.155	UDP	   46	      24785 → 24785 Len=4
+7	   19.037409	192.168.76.248	70.75.228.155	UDP	   46	      24785 → 24785 Len=4
+
+
+Analysis:
+client sent with port 24785 for both src and dest
+
+server received with destination 24785 but src of 24786, so when it replies it never gets there??
+
+maybe I need to set the local port somewhere..
+
+
+search libnet for 24785.....
+
+it is the a default port but can be overridden
+
+can make the server use one port and the client use another??
+
+
+Found this on the internet:
+
+When you connect out from a device which is behind a NAT system like a home modem.
+You have no control of the port that will be used for the outbound connection to the Internet.
+However many of these devices allocate ports using specific patterns. For example, incremental numbers.
+
+so my router could be adding 1 to it
+
+
+
+https://bford.info/pub/net/p2pnat/
+
+Peer-to-Peer Communication Across Network Address Translators
+
+Of the various flavors of NAT, the most common type is traditional or outbound NAT,
+which provides an asymmetric bridge between a private network and a public network.
+
+Outbound NAT by default allows only outbound sessions to traverse the NAT: incoming packets
+are dropped unless the NAT identifies them as being part of an existing session initiated from within the private network.
+
+Outbound NAT conflicts with peer-to-peer protocols because when both peers desiring to communicate are “behind”
+(on the private network side of) two different NATs, whichever peer tries to initiate a session, the other peer's NAT rejects it.
+NAT traversal entails making P2P sessions look like “outbound” sessions to both NATs.
+
+my router is probably blocking the returning packets...
+
+
+well this sucks...
+
+what if I have a server on the internet without NAT? no router...
+
+P2P connections seem like they are quite a hassle to work with...
+
+
+maybe I could have a server on the internet that does nothing but help set up these connections...
 
 
 
