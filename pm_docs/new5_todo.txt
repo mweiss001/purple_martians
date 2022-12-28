@@ -2,6 +2,16 @@
 ------------------------ Bugs ---------------------------
 ---------------------------------------------------------
 
+
+--------------------------------------------------------------------------------------------
+in netgame, why do clients try to load level 153 which does not exist
+warp??
+--------------------------------------------------------------------------------------------
+
+
+
+
+
 bug---can't see any prox line in level editor for prox lift step
 it shows up fine in game
 in level editor the function:
@@ -13,6 +23,10 @@ void set_lift_to_step(int l, int s)
 does not actually set lift's current step to steps that are not move steps
 
 bug -- in level editor can't see trigger box edges on left or top if zero
+
+
+
+
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
@@ -31,6 +45,13 @@ Right now the sync loop is dependant on the frame_num incrementing, like when th
 
 
 
+
+
+
+--------------------------------------------------------------------------------------------
+when client starts,
+don't show anything about level until initial state is received and client player's view is at the start
+--------------------------------------------------------------------------------------------
 
 
 

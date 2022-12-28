@@ -23,7 +23,7 @@ af:'00001000 00000000 00000000 00000000 '
 
 int exit_level_editor_dialog(void)
 {
-   while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
+   while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
 
    al_set_target_backbuffer(display);
    al_show_mouse_cursor(display);
@@ -79,25 +79,11 @@ int exit_level_editor_dialog(void)
       al_flip_display();
 
 
-      if (key[ALLEGRO_KEY_DOWN])
+      if (key[ALLEGRO_KEY_DOWN][3]  )  if (++ret > 2) ret = 2;
+      if (key[ALLEGRO_KEY_UP][3]    )  if (--ret < 0) ret = 0;
+      if (key[ALLEGRO_KEY_ENTER][3] )  quit = 1;
+      if (key[ALLEGRO_KEY_ESCAPE][3])
       {
-         while (key[ALLEGRO_KEY_DOWN]) proc_controllers();
-         if (++ret > 2) ret = 2;
-      }
-
-      if (key[ALLEGRO_KEY_UP])
-      {
-         while (key[ALLEGRO_KEY_UP]) proc_controllers();
-         if (--ret < 0) ret = 0;
-      }
-      if (key[ALLEGRO_KEY_ENTER])
-      {
-         while (key[ALLEGRO_KEY_ENTER]) proc_controllers();
-         quit = 1;
-      }
-      if (key[ALLEGRO_KEY_ESCAPE])
-      {
-         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
          ret = 2; // cancel
          quit = 1;
       }
@@ -105,29 +91,6 @@ int exit_level_editor_dialog(void)
    //printf("ret:%d\n", ret);
    return ret;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void draw_block_non_default_flags(int tn, int x, int y)
@@ -345,7 +308,7 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
       al_draw_text(font, palette_color[14],  tx, 138, ALLEGRO_ALIGN_CENTER, "or right mouse button");
       al_draw_textf(font, palette_color[15], tx, 150, ALLEGRO_ALIGN_CENTER, "x:%2d y:%2d", gx, gy);
 
-      if (mouse_b1)
+      if (mouse_b[1][0])
       {
          cm_get_new_box();
          *x1 = bx1*20;
@@ -362,7 +325,7 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
          quit = 1;
          ret = 1;
       }
-      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
+      while ((mouse_b[2][0]) || (key[ALLEGRO_KEY_ESCAPE][0]))
       {
          proc_controllers(); // wait for release
          quit = 1;
@@ -514,7 +477,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
    int retval=0;
    int quit=0;
 
-   while (mouse_b1) proc_controllers(); // wait for release
+   while (mouse_b[1][0]) proc_controllers(); // wait for release
 
 
    // get original values in case we are cancelled and need to restore them
@@ -705,19 +668,19 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
       }
 
 
-      while (mouse_b1)
+      while (mouse_b[1][0])
       {
          proc_controllers();
          quit = 1;
          retval = 1;  // b1 xy
       }
-      while (mouse_b2)
+      while (mouse_b[2][0])
       {
          proc_controllers();
          quit = 1;
          retval = 2;  // b2 xy
       }
-      while (key[ALLEGRO_KEY_ESCAPE])
+      while (key[ALLEGRO_KEY_ESCAPE][0])
       {
          proc_controllers();
          quit = 1;
@@ -1108,8 +1071,7 @@ int get_trigger_item(int obj_type, int sub_type, int num )
       y2 = lift_steps[lift][pms].y + lift_steps[lift][pms].h / 2;
    }
 
-
-   while (mouse_b1) proc_controllers(); // wait for release
+   while (mouse_b[1][0]) proc_controllers(); // wait for release
 
    while(!quit)
    {
@@ -1151,12 +1113,12 @@ int get_trigger_item(int obj_type, int sub_type, int num )
       itx = item[ret_item][4];
       ity = item[ret_item][5];
 
-      while (mouse_b1)
+      while (mouse_b[1][0])
       {
          proc_controllers();
          quit = 1;
       }
-      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
+      while ((mouse_b[2][0]) || (key[ALLEGRO_KEY_ESCAPE][0]))
       {
          proc_controllers();
          quit = 1;
@@ -1183,7 +1145,7 @@ int get_item(int obj_type, int sub_type, int num )
    int x2 = item[num][4]+10; // get the originating door's location
    int y2 = item[num][5]+10;
 
-   while (mouse_b1) proc_controllers(); // wait for release
+   while (mouse_b[1][0]) proc_controllers(); // wait for release
 
    while(!quit)
    {
@@ -1222,12 +1184,12 @@ int get_item(int obj_type, int sub_type, int num )
       itx = item[ret_item][4];
       ity = item[ret_item][5];
 
-      while (mouse_b1)
+      while (mouse_b[1][0])
       {
          proc_controllers();
          quit = 1;
       }
-      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
+      while ((mouse_b[2][0]) || (key[ALLEGRO_KEY_ESCAPE][0]))
       {
          proc_controllers();
          quit = 1;

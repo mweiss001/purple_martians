@@ -213,7 +213,7 @@ void proc_player_xy_move_test(int p)
 {
    al_fixed m = al_ftofix(0.5);
 
-   if (key[ALLEGRO_KEY_LCTRL]) m *= 4;
+   if (key[ALLEGRO_KEY_LCTRL][0]) m *= 4;
 
    if (players[p].up) players[p].PY -= m;
    if (players[p].down) players[p].PY += m;

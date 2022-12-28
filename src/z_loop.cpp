@@ -15,28 +15,27 @@ int proc_frame_delay(void)
       last_frames_skipped = players1[active_local_player].frames_skipped;
    }
 
-//   printf("fn:%d timer:%d\n", frame_num, al_get_timer_count(fps_timer));
+   printf("fn:%d timer:%d\n", frame_num, al_get_timer_count(fps_timer));
 
-   if (speed_testing) // draw every frame no matter how fast or slow it is
-   {
-      draw_frame = 1;
-      al_set_timer_count(fps_timer, frame_num);
-   }
-   else
-   {
-      if (frame_num <=  al_get_timer_count(fps_timer)) // skip drawing frame
-      {
-         draw_frame = 0;
-         players1[active_local_player].frames_skipped++;
-      }
-      else draw_frame = 1;
-      while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
-   }
+//   if (speed_testing) // draw every frame no matter how fast or slow it is
+//   {
+//      draw_frame = 1;
+//      al_set_timer_count(fps_timer, frame_num);
+//   }
+//   else
+//   {
+//      if (frame_num <=  al_get_timer_count(fps_timer)) // skip drawing frame
+//      {
+//         draw_frame = 0;
+//         players1[active_local_player].frames_skipped++;
+//      }
+//      else draw_frame = 1;
+//      while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+//   }
+
+   draw_frame = 1;
    return draw_frame;
 }
-
-
-
 
 
 // start modes:
@@ -142,6 +141,10 @@ void proc_start_mode(int start_mode)
 
    set_frame_nums(0);
    reset_states();
+   clear_bullets();
+   clear_bmsg();
+   clear_keys();
+   clear_pm_events();
 
 
    if (start_mode == 2) // server new game
@@ -188,10 +191,6 @@ void proc_start_mode(int start_mode)
    }
 
 
-   clear_bmsg();
-   clear_bullets();
-   clear_keys();
-   clear_pm_events();
 
    show_player_join_quit_timer = 0;
    start_music(0); // rewind and start theme

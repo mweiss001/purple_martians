@@ -1,6 +1,7 @@
 // pm.h - header file for both the game and the level editor
 
 
+
 #define PM_VERSION "7.24.1"
 
 
@@ -237,6 +238,9 @@ extern mWindow mW[NUM_MW];
 
 
 
+extern int program_state;
+extern int program_update;
+
 extern int pm_event[1000];
 
 // temp testing variable
@@ -418,7 +422,7 @@ extern int skc_index;
 
 
 extern char *key_names[];
-extern bool key[ALLEGRO_KEY_MAX];
+extern bool key[ALLEGRO_KEY_MAX][4];
 extern int key_pressed_ASCII;
 
 extern float mouse_loop_pause;
@@ -429,29 +433,7 @@ extern int mouse_z;
 extern int mouse_dx;
 extern int mouse_dy;
 extern int mouse_dz;
-extern int mouse_b1;
-extern int mouse_b2;
-extern int mouse_b3;
-extern int mouse_b4;
-
-extern int KEY_F1_held;
-extern int KEY_F2_held;
-extern int KEY_F3_held;
-extern int KEY_F4_held;
-extern int KEY_F5_held;
-extern int KEY_F6_held;
-extern int KEY_F7_held;
-extern int KEY_F8_held;
-extern int KEY_F9_held;
-extern int KEY_F10_held;
-extern int KEY_F11_held;
-extern int KEY_F12_held;
-extern int KEY_PRTSCR_held;
-
-extern int KEY_UP_held;
-extern int KEY_DOWN_held;
-extern int KEY_LEFT_held;
-extern int KEY_RIGHT_held;
+extern bool mouse_b[5][4];
 
 
 
@@ -695,6 +677,9 @@ struct player1 // not synced between server and client
    int late_cdats;
 
 
+
+
+
    int made_active_holdoff;
    int sync_stabilization_holdoff;
 
@@ -704,6 +689,10 @@ struct player1 // not synced between server and client
 
    // server only - next client to send stdf to
    int n_stdf;
+   int s1;
+   int s2;
+
+
 
    // used only to display on server screen overlay in client grid
    int num_dif_packets;
@@ -745,6 +734,31 @@ struct player1 // not synced between server and client
    int rx_total_packets;
 
 };
+
+
+
+
+
+
+
+
+extern struct packet_buffer packet_buffers[200];
+struct packet_buffer
+{
+   int active;
+   int type;
+   double timestamp;
+   int who;
+   int packetsize;
+   char data[1024];
+};
+
+extern ALLEGRO_MUTEX *mutex;
+
+
+
+
+
 
 // ------------------------------------------------
 // ---------------- lifts -----------------------
@@ -1264,7 +1278,7 @@ int PacketGet4ByteInt(void);
 //n_server.h
 int ServerInitNetwork(void);
 void ServerExitNetwork(void);
-int ServerListen(void);
+void ServerListen(void);
 int ServerReceive(void *data, int *sender);
 void ServerBroadcast(void *data, int len);
 void ServerSendTo(void *data, int len, int who, int player);
@@ -1282,7 +1296,7 @@ void server_proc_player_drop(void);
 void server_proc_cdat_packet(void );
 void server_proc_stak_packet(void );
 void server_proc_sdak_packet(void );
-void server_proc_CJON_packet(int who);
+void server_proc_cjon_packet(int who);
 void server_control();
 
 
@@ -1328,7 +1342,7 @@ void set_controls_from_comp_move(int p, int comp_move);
 void set_comp_move_from_player_key_check(int p);
 void set_controls_from_player_key_check(int p);
 void function_key_check(void);
-void rungame_key_check(int p, int ret);
+void rungame_key_check(int p);
 
 void add_game_move2(int frame, int type, int data1, int data2);
 void add_game_move(int frame, int type, int data1, int data2);
@@ -1339,9 +1353,9 @@ void proc_game_moves_array(void);
 
 void serial_key_check(int key);
 
-int proc_events(ALLEGRO_EVENT ev, int ret);
-void proc_player_input(int ret);
-int proc_controllers();
+void proc_events(ALLEGRO_EVENT ev);
+void proc_player_input(void);
+void proc_controllers(void);
 
 // z_display.h
 void show_bitmap_flags(int flags);
@@ -1586,6 +1600,10 @@ void set_and_get_versions(void);
 void get_desktop_resolution();
 int initial_setup(void);
 int main(int argument_count, char **argument_array);
+
+// z_main_loop.h
+void main_loop(void);
+
 
 
 // z_menu.h

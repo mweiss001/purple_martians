@@ -503,17 +503,17 @@ void ge_show_obj_list(int x, int y, int *ew, int *eh, int have_focus, int moving
       {
          obj_list[mpl][2] = 1;                          // mark this item as highlighted
          al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, palette_color[10], 1); // draw rectangle around list item
-         if (mouse_b1)
+         if (mouse_b[1][0])
          {
-            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // remove item from list
+            if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // remove item from list
             {
-               while (mouse_b1) proc_controllers();
+               while (mouse_b[1][0]) proc_controllers();
                ge_remove_obj_list_item(mpl);
             }
             else // keep mouse for drag swap
             {
                int old_mpl = mpl;
-               while (mouse_b1)
+               while (mouse_b[1][0])
                {
                   cm_redraw_level_editor_background();
                   mpl = ((mouse_y - yf1 + fs)/8)-4;             // get raw list item
@@ -526,7 +526,7 @@ void ge_show_obj_list(int x, int y, int *ew, int *eh, int have_focus, int moving
                   }
                }
             } // mouse b1 held
-         } // mouse_b1 pressed
+         } // mouse_b[1][0] pressed
       } // mouse on valid list item
    } // mouse on obj list
 }
@@ -741,16 +741,16 @@ void ge_add_selection_to_list(int set_filters)
 
 void ge_process_mouse(void)
 {
-   if (mouse_b1)
+   if (mouse_b[1][0])
    {
       if (mW[5].show_sel_frame) // get new selection rectangle
       {
          cm_get_new_box();
-         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) ge_add_selection_to_list(1); // add everything in selection to list and set filters...
+         if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) ge_add_selection_to_list(1); // add everything in selection to list and set filters...
       }
       else
       {
-         while (mouse_b1) proc_controllers();
+         while (mouse_b[1][0]) proc_controllers();
 
          // is mouse on item
          for (int i=0; i<500; i++)
@@ -776,9 +776,9 @@ void ge_process_mouse(void)
          }
       }
    }
-   if (mouse_b2)
+   if (mouse_b[2][0])
    {
-      while (mouse_b2) proc_controllers();
+      while (mouse_b[2][0]) proc_controllers();
       set_windows(1);
    }
 }

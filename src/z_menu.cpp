@@ -453,19 +453,17 @@ void help(const char *topic)
 
 
       proc_controllers();
-      if (key[ALLEGRO_KEY_ESCAPE])  quit = 1;
-      if (key[ALLEGRO_KEY_UP])   line --;
-      if (key[ALLEGRO_KEY_DOWN]) line ++;
-      if (key[ALLEGRO_KEY_HOME]) line = 0;
-      if (key[ALLEGRO_KEY_END])  line = last_pos;
-      if (key[ALLEGRO_KEY_PGUP])
+      if (key[ALLEGRO_KEY_ESCAPE][0])  quit = 1;
+      if (key[ALLEGRO_KEY_UP][0])   line --;
+      if (key[ALLEGRO_KEY_DOWN][0]) line ++;
+      if (key[ALLEGRO_KEY_HOME][0]) line = 0;
+      if (key[ALLEGRO_KEY_END][0])  line = last_pos;
+      if (key[ALLEGRO_KEY_PGUP][3])
       {
-         while (key[ALLEGRO_KEY_PGUP]) proc_controllers();
          while ((strncmp(help_string[--line], "<section>", 9) != 0) && (line > 0));
       }
-      if (key[ALLEGRO_KEY_PGDN])
+      if (key[ALLEGRO_KEY_PGDN][3])
       {
-         while (key[ALLEGRO_KEY_PGDN]) proc_controllers();
          while ((strncmp(help_string[++line], "<section>", 9) != 0) && (line < num_of_lines - lpp));
       }
 
@@ -493,7 +491,7 @@ void help(const char *topic)
       frame_num++;
       update_animation();
       al_rest(0.02);
-      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
+      while ((key[ALLEGRO_KEY_ESCAPE][0]) || (mouse_b[2][0]))
       {
          quit = 1;
          proc_controllers();
@@ -798,21 +796,21 @@ int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function doe
       if (highlight > last_list_item-1) highlight = 0;
 
 
-      if (mouse_b1)
+      if (mouse_b[1][0])
       {
-         while (mouse_b1) proc_controllers();
+         while (mouse_b[1][0]) proc_controllers();
          selection = highlight;
       }
 
-      if (mouse_b2)
+      if (mouse_b[2][0])
       {
-         while (mouse_b2) proc_controllers();
+         while (mouse_b[2][0]) proc_controllers();
          selection = 0;
       }
 
-      if (key[ALLEGRO_KEY_ESCAPE])
+      if (key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
+         while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
          selection = 0; // default position for back
       }
 
@@ -837,7 +835,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
    int right_held = 0;
 
    // clear_key array (but not SHIFTS, CTRL etc above 200)
-   for (int k = ALLEGRO_KEY_A; k < 200; k++) key[k] = 0;
+   for (int k = ALLEGRO_KEY_A; k < 200; k++) key[k][0] = 0;
 
 
    while (selection == 999)
@@ -900,58 +898,55 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
 
 
       // shortcut key for level editor
-      //if (menu_num == 7) if (key[ALLEGRO_KEY_L]) return 9;
+      //if (menu_num == 7) if (key[ALLEGRO_KEY_L][0]) return 9;
 
 
-      if (((key[ALLEGRO_KEY_RIGHT]) || (players[0].right)) && (right_held == 0))
+
+      if (((key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) && (right_held == 0))
       {
          right_held = 1;
          selection = highlight + 100;
       }
-      if ( (!(key[ALLEGRO_KEY_RIGHT])) &&  (!(players[0].right)) )  right_held = 0;
+      if ( (!(key[ALLEGRO_KEY_RIGHT][0])) &&  (!(players[0].right)) )  right_held = 0;
 
-
-
-      if (((key[ALLEGRO_KEY_LEFT]) || (players[0].left)) && (left_held == 0))
+      if (((key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) && (left_held == 0))
       {
          left_held = 1;
          selection = highlight + 200;
       }
-      if ( (!(key[ALLEGRO_KEY_LEFT])) &&  (!(players[0].left)) )  left_held = 0;
+      if ( (!(key[ALLEGRO_KEY_LEFT][0])) &&  (!(players[0].left)) )  left_held = 0;
 
-
-
-      if (((key[ALLEGRO_KEY_DOWN]) || (players[0].down))  && (down_held == 0))
+      if (((key[ALLEGRO_KEY_DOWN][0]) || (players[0].down))  && (down_held == 0))
       {
          if (++highlight > last_list_item) highlight = last_list_item;
          down_held = 1;
          demo_mode_countdown_val = demo_mode_countdown_reset;
          demo_mode_enabled = 0;
       }
-      if ( (!(key[ALLEGRO_KEY_DOWN])) && (!(players[0].down))) down_held = 0;
+      if ( (!(key[ALLEGRO_KEY_DOWN][0])) && (!(players[0].down))) down_held = 0;
 
 
 
-      if (((key[ALLEGRO_KEY_UP]) || (players[0].up)) && (up_held == 0))
+      if (((key[ALLEGRO_KEY_UP][0]) || (players[0].up)) && (up_held == 0))
       {
          if (--highlight < 2) highlight = 2;
          up_held = 1;
          demo_mode_countdown_val = demo_mode_countdown_reset;
          demo_mode_enabled = 0;
       }
-      if ( (!(key[ALLEGRO_KEY_UP])) && (!(players[0].up))) up_held = 0;
+      if ( (!(key[ALLEGRO_KEY_UP][0])) && (!(players[0].up))) up_held = 0;
 
 
 
-      if (key[ALLEGRO_KEY_ENTER]) selection = highlight;
+      if (key[ALLEGRO_KEY_ENTER][0]) selection = highlight;
 
-      if (key[ALLEGRO_KEY_ESCAPE])
+      if (key[ALLEGRO_KEY_ESCAPE][0])
       {
          selection = 2; // default position for back
          if (menu_num == 7)  selection = 1; // for top menu only
       }
-      if (key[ALLEGRO_KEY_PGDN]) highlight = last_list_item;
-      if (key[ALLEGRO_KEY_PGUP]) highlight = 2;
+      if (key[ALLEGRO_KEY_PGDN][0]) highlight = last_list_item;
+      if (key[ALLEGRO_KEY_PGUP][0]) highlight = 2;
    }
    return selection;
 }
@@ -972,7 +967,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
 
 // this menu function does not pass through like the next one
 // it waits for a selection and then exits
-// its is entered with mouse_b2 pressed and exits when released
+// its is entered with mouse_b[2][0] pressed and exits when released
 int pmenu(int menu_num, int bg_color)
 {
    int highlight = 2;
@@ -1037,7 +1032,7 @@ int pmenu(int menu_num, int bg_color)
          if ( (mouse_x > (kx - 100)) && (mouse_x < (kx+100)) )
             if ( (mouse_y > ky ) && (mouse_y < ky + ((last_list_item+1)*8)) )
                highlight = (mouse_y-ky) / 8;
-         if (!(mouse_b2)) selection = highlight; // mouse b2 released
+         if (!(mouse_b[2][0])) selection = highlight; // mouse b2 released
 
       } while (selection == 999);
    }
@@ -1070,7 +1065,7 @@ int pmenu(int menu_num, int bg_color)
          if ( (mouse_x > (kx - 100)) && (mouse_x < (kx+100)) )
             if ( (mouse_y < ky ) && (mouse_y > ky - ((last_list_item+1)*8) ) )
                highlight = (ky-mouse_y+8) / 8;
-         if (!(mouse_b2)) selection = highlight; // mouse b2 released
+         if (!(mouse_b[2][0])) selection = highlight; // mouse b2 released
 
       } while (selection == 999);
    }
@@ -1189,49 +1184,46 @@ int edit_pmsg_text(int c, int new_msg)
 
       proc_controllers();
 
-      if (key[ALLEGRO_KEY_HOME])  cursor_pos = 0;
-      if (key[ALLEGRO_KEY_END])   cursor_pos = char_count;
-      if (key[ALLEGRO_KEY_RIGHT])
+      if (key[ALLEGRO_KEY_HOME][0])  cursor_pos = 0;
+      if (key[ALLEGRO_KEY_END][0])   cursor_pos = char_count;
+      if (key[ALLEGRO_KEY_RIGHT][3])
       {
-         //al_rest(0.02);
-         while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();                 // wait for release
-         if (((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) && ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])))
+         if (((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) && ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])))
          {
             while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
          }
-         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0]))
          {
             while ((++cursor_pos < char_count) && (f[cursor_pos] != 32) && (f[cursor_pos] != 10));  // find next space or LF
          }
-         else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) cursor_pos+=16;
+         else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) cursor_pos+=16;
 
          else cursor_pos++;
          if (cursor_pos > char_count) cursor_pos = char_count;             // make sure we are not past the end
       }
 
-      if (key[ALLEGRO_KEY_LEFT])
+      if (key[ALLEGRO_KEY_LEFT][3])
       {
          //al_rest(0.02);
-         while (key[ALLEGRO_KEY_LEFT]) proc_controllers();               // wait for release
+         while (key[ALLEGRO_KEY_LEFT][3]) proc_controllers();               // wait for release
 
-         if (((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) && ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])))
+         if (((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) && ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])))
          {
             while ((--cursor_pos > 0) && (f[cursor_pos] != 10));  // find next LF
          }
-         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0]))
          {
             while ((--cursor_pos > 0) && (f[cursor_pos] != 32) && (f[cursor_pos] != 10)); // find next space or LF
          }
-         else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) cursor_pos-=16;
+         else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) cursor_pos-=16;
 
          else cursor_pos--;
          if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
       }
 
 
-      if (key[ALLEGRO_KEY_UP])                                           // move up one line
+      if (key[ALLEGRO_KEY_UP][3])                                           // move up one line
       {
-         while (key[ALLEGRO_KEY_UP]) proc_controllers();                 // wait for release
          int ocp = cursor_pos;                                           // get original position
          while ((--cursor_pos > 0) && (f[cursor_pos] != 10));           // find previous LF
          int mv = cursor_pos - ocp;                                      // how far did we move?
@@ -1239,9 +1231,8 @@ int edit_pmsg_text(int c, int new_msg)
          cursor_pos -= mv;                                               // subtract move
          if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
       }
-      if (key[ALLEGRO_KEY_DOWN])                                         // move down one line
+      if (key[ALLEGRO_KEY_DOWN][3])                                         // move down one line
       {
-         while (key[ALLEGRO_KEY_DOWN]) proc_controllers();               // wait for release
          int ocp = cursor_pos;                                           // get original position
          while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
          int mv = cursor_pos - ocp;                                      // how far did we move?
@@ -1249,14 +1240,14 @@ int edit_pmsg_text(int c, int new_msg)
          cursor_pos -= mv;                                               // subtract move
          if (cursor_pos > char_count) cursor_pos = char_count;           // make sure we are not past the end
       }
-      if ((key[ALLEGRO_KEY_DELETE]) && (cursor_pos < char_count))
+      if ((key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
       {
          al_rest(0.02);
          for (int aa = cursor_pos; aa < char_count; aa++) f[aa]=f[aa+1];
          char_count--;
          f[char_count] = (char)NULL; // set last to NULL
       }
-      if ((key[ALLEGRO_KEY_BACKSPACE]) && (cursor_pos > 0))
+      if ((key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
       {
          al_rest(0.02);
          cursor_pos--;
@@ -1279,9 +1270,8 @@ int edit_pmsg_text(int c, int new_msg)
             f[char_count] = (char)NULL; // set last to NULL
          }
       }
-      if (key[ALLEGRO_KEY_ESCAPE])
+      if (key[ALLEGRO_KEY_ESCAPE][3])
       {
-         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
          quit = 1;
          bad = 1;
       }
@@ -1301,11 +1291,6 @@ int edit_pmsg_text(int c, int new_msg)
 
 
 
-
-
-
-
-
 void edit_server_name(void)
 {
    char fst[80];
@@ -1315,7 +1300,7 @@ void edit_server_name(void)
    int old_cp=0;
    int blink_count = 3;
    int blink_counter = 0;
-   while (key[ALLEGRO_KEY_ENTER]) proc_controllers();
+   while (key[ALLEGRO_KEY_ENTER][0]) proc_controllers();
    int quit = 0;
    while (!quit)
    {
@@ -1345,23 +1330,23 @@ void edit_server_name(void)
       }
 
       al_rest(.08);
-      int k = proc_controllers();
-      if (key[ALLEGRO_KEY_RIGHT])
+      proc_controllers();
+      if (key[ALLEGRO_KEY_RIGHT][0])
       {
          if (++cursor_pos > char_count) cursor_pos = char_count;
       }
-      if (key[ALLEGRO_KEY_LEFT])
+      if (key[ALLEGRO_KEY_LEFT][0])
       {
          if (--cursor_pos < 0) cursor_pos = 0;
       }
-      if ((key[ALLEGRO_KEY_DELETE]) && (cursor_pos < char_count))
+      if ((key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
       {
          for (int a = cursor_pos; a < char_count; a++)
            fst[a]=fst[a+1];
          --char_count;
          fst[char_count] = (char)NULL; // set last to NULL
       }
-      if ((key[ALLEGRO_KEY_BACKSPACE]) && (cursor_pos > 0))
+      if ((key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
       {
          cursor_pos--;
          for (int a = cursor_pos; a < char_count; a++)
@@ -1370,7 +1355,7 @@ void edit_server_name(void)
          fst[char_count] = (char)NULL; // set last to NULL
       }
 
-      k = key_pressed_ASCII;
+      int k = key_pressed_ASCII;
       if ((k>31) && (k<127)) // insert if alphanumeric or return
       {
          // move over to make room
@@ -1386,18 +1371,14 @@ void edit_server_name(void)
 
          fst[char_count] = (char)NULL; // set last to NULL
       }
-      if (key[ALLEGRO_KEY_ENTER])
+      if (key[ALLEGRO_KEY_ENTER][3])
       {
-         while (key[ALLEGRO_KEY_ENTER]) proc_controllers();
          strcpy(m_serveraddress, fst);
          quit = 1;
       }
 
-      if (key[ALLEGRO_KEY_ESCAPE])
-      {
-         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
-         quit = 1;
-      }
+      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+
    }
 }
 
@@ -1408,7 +1389,7 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
    int old_cp=0;
    int blink_count = 3;
    int blink_counter = 0;
-   int a, k=0;
+   int a=0;
    int char_count = strlen(fst);
    while (1)
    {
@@ -1443,16 +1424,16 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
          blink_counter = 0;
       }
 
-      k = proc_controllers();
-      if (key[ALLEGRO_KEY_RIGHT])
+      proc_controllers();
+      if (key[ALLEGRO_KEY_RIGHT][0])
       {
          if (++cursor_pos >= char_count) cursor_pos = char_count-1;
       }
-      if (key[ALLEGRO_KEY_LEFT])
+      if (key[ALLEGRO_KEY_LEFT][0])
       {
          if (--cursor_pos < 0) cursor_pos = 0;
       }
-      if ((key[ALLEGRO_KEY_DELETE]) && (cursor_pos < char_count))
+      if ((key[ALLEGRO_KEY_DELETE][0]) && (cursor_pos < char_count))
       {
          for (a = cursor_pos; a < char_count; a++)
            fst[a]=fst[a+1];
@@ -1460,7 +1441,7 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
          // set last to NULL
          fst[char_count] = (char)NULL;
       }
-      if ((key[ALLEGRO_KEY_BACKSPACE]) && (cursor_pos > 0))
+      if ((key[ALLEGRO_KEY_BACKSPACE][0]) && (cursor_pos > 0))
       {
          cursor_pos--;
          for (a = cursor_pos; a < char_count; a++)
@@ -1470,7 +1451,7 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
          fst[char_count] = (char)NULL;
       }
 
-      k = key_pressed_ASCII;
+      int k = key_pressed_ASCII;
       if ((k>31) && (k<127)) // insert if alphanumeric or return
       {
          // move over to make room
@@ -1487,16 +1468,8 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
          // set last to NULL
          fst[char_count] = (char)NULL;
       }
-      if (key[ALLEGRO_KEY_ENTER])
-      {
-         while (key[ALLEGRO_KEY_ENTER]) proc_controllers();
-         return 1;
-      }
-      if (key[ALLEGRO_KEY_ESCAPE])
-      {
-         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
-         return 0;
-      }
+      if (key[ALLEGRO_KEY_ENTER][3]) return 1;
+      if (key[ALLEGRO_KEY_ESCAPE][3]) return 0;
    }
 }
 

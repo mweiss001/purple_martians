@@ -203,10 +203,7 @@ void splash_screen(void)
    int quit = 0;
    proc_controllers();
 
-
    draw_large_text_overlay(1, 8);
-
-
 
    al_flip_display();
    al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -214,7 +211,8 @@ void splash_screen(void)
    if (!quit)
       for (int i=0; i<220; i++)
       {
-         if (proc_controllers())
+         proc_controllers();
+         if (key_pressed_ASCII)
          {
             quit = 1;
             i = 1000;
@@ -235,7 +233,8 @@ void splash_screen(void)
    if (!quit)
       for (int i=0; i<120; i++)
       {
-         if (proc_controllers())
+         proc_controllers();
+         if (key_pressed_ASCII)
          {
             quit = 1;
             i = 1000;
@@ -252,7 +251,8 @@ void splash_screen(void)
       al_clear_to_color(al_map_rgb(0,0,0));
       quit = mdw_an2();
       al_flip_display();
-      if (proc_controllers()) quit = 1;
+      proc_controllers();
+      if (key_pressed_ASCII) quit = 1;
    }
 
    al_clear_to_color(al_map_rgb(0,0,0));
@@ -759,29 +759,29 @@ void spline_test(void)
    {
       proc_controllers();
 
-      if (key[ALLEGRO_KEY_RIGHT])
+      if (key[ALLEGRO_KEY_RIGHT][0])
       {
          x_scale += x_scale_inc;
       }
-      if (key[ALLEGRO_KEY_LEFT])
+      if (key[ALLEGRO_KEY_LEFT][0])
       {
          x_scale -= x_scale_inc;
 
       }
-      if (key[ALLEGRO_KEY_UP])
+      if (key[ALLEGRO_KEY_UP][0])
       {
          y_scale += y_scale_inc;
       }
-      if (key[ALLEGRO_KEY_DOWN])
+      if (key[ALLEGRO_KEY_DOWN][0])
       {
          y_scale -= y_scale_inc;
       }
 
-      if (key[ALLEGRO_KEY_I])
+      if (key[ALLEGRO_KEY_I][0])
       {
          th++;
       }
-      if (key[ALLEGRO_KEY_K])
+      if (key[ALLEGRO_KEY_K][0])
       {
          th--;
       }
@@ -792,7 +792,7 @@ void spline_test(void)
       al_flip_display();
 
       al_rest(0.02);
-      if (key[ALLEGRO_KEY_ESCAPE]) quit = 1;
+      if (key[ALLEGRO_KEY_ESCAPE][0]) quit = 1;
    }
 }
 
@@ -836,7 +836,7 @@ void spline_adjust(void)
          if ((mx > px-4) && (mx < px+4) && (my > py-4) && (my < py+4))
          {
             al_draw_circle(points[current_spline][i]+200, points[current_spline][i+1]+200, 6, palette_color[10], 2);
-            while (mouse_b1)
+            while (mouse_b[1][0])
             {
                al_hide_mouse_cursor(display);
                redraw_spline(current_spline);
@@ -853,19 +853,17 @@ void spline_adjust(void)
          }
       }
 
-      if (key[ALLEGRO_KEY_UP])
+      if (key[ALLEGRO_KEY_UP][3])
       {
-         while (key[ALLEGRO_KEY_UP]) proc_controllers();
          if (current_spline == 0) current_spline = 2;
          else if (current_spline == 2) current_spline = 8;
       }
-      if (key[ALLEGRO_KEY_DOWN])
+      if (key[ALLEGRO_KEY_DOWN][3])
       {
-         while (key[ALLEGRO_KEY_DOWN])proc_controllers();
          if (current_spline == 2) current_spline = 0;
          else if (current_spline == 8) current_spline = 2;
       }
-      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
+      while ((key[ALLEGRO_KEY_ESCAPE][0]) || (mouse_b[2][0]))
       {
          proc_controllers();
          quit = 1;

@@ -2,8 +2,27 @@
 
 #include "pm.h"
 
+
+ALLEGRO_THREAD *thread;
+
+
+
 // --------------- Global Variables ---------------
 // all global variables should be declared here and externed in pm.h
+
+
+int program_state = 0;
+// 0 = starting
+// 1 = game menu
+// 2 - game loop
+// 3 - level editor
+
+
+int program_update = 0;
+
+
+
+
 
 int pm_event[1000];
 
@@ -156,7 +175,7 @@ int demo_mode_last_frame = 0;
 char skc[64];
 int skc_index = 0;
 
-bool key[ALLEGRO_KEY_MAX];
+bool key[ALLEGRO_KEY_MAX][4];
 int key_pressed_ASCII;
 
 float mouse_loop_pause = 0;
@@ -167,32 +186,8 @@ int mouse_z = 0;
 int mouse_dx = 0;
 int mouse_dy = 0;
 int mouse_dz = 0;
-int mouse_b1 = 0;
-int mouse_b2 = 0;
-int mouse_b3 = 0;
-int mouse_b4 = 0;
 
-int KEY_F1_held = 0;
-int KEY_F2_held = 0;
-int KEY_F3_held = 0;
-int KEY_F4_held = 0;
-int KEY_F5_held = 0;
-int KEY_F6_held = 0;
-int KEY_F7_held = 0;
-int KEY_F8_held = 0;
-int KEY_F9_held = 0;
-int KEY_F10_held = 0;
-int KEY_F11_held = 0;
-int KEY_F12_held = 0;
-int KEY_PRTSCR_held = 0;
-
-
-int KEY_UP_held = 0;
-int KEY_DOWN_held = 0;
-int KEY_LEFT_held = 0;
-int KEY_RIGHT_held = 0;
-
-
+bool mouse_b[5][4] = { 0 };
 
 
 // ------------------------------------------------
@@ -315,6 +310,11 @@ struct player players[NUM_PLAYERS];
 struct player1 players1[NUM_PLAYERS];
 int active_local_player = 0;
 
+struct packet_buffer packet_buffers[200];
+
+
+ALLEGRO_MUTEX *mutex;
+
 
 // ------------------------------------------------
 // ---------------- lifts -----------------------
@@ -417,12 +417,6 @@ int WY;
 int fullscreen = 1;
 int display_adapter_num = 0;
 float WX_shift_speed = 0;
-
-
-
-
-
-
 
 // used to only redraw a region of background to increase fps
 int level_display_region_x;
@@ -808,10 +802,11 @@ int initial_setup(void)
    fps_timer = al_create_timer(1/(float)frame_speed);
    sec_timer = al_create_timer(1);
    //mnu_timer = al_create_timer(.01);
-   mnu_timer = al_create_timer(.008);
+   mnu_timer = al_create_timer(.008); // 125 fps
 
    // register timer event source
    al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
+   al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
 
    // start timers
    al_start_timer(fps_timer);
@@ -842,8 +837,13 @@ int main(int argument_count, char **argument_array)
    proc_command_line_args1(argument_count, argument_array); // these args get processed before initial setup is called
    if (initial_setup())
    {
+
       proc_command_line_args2(argument_count, argument_array); // these args get processed after initial setup is called
-      game_menu();
+
+      program_state = 10;
+
+      main_loop();
+
    }
    blind_save_game_moves(2);
    save_log_file();

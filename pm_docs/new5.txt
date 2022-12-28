@@ -40585,6 +40585,1668 @@ P2P connections seem like they are quite a hassle to work with...
 
 maybe I could have a server on the internet that does nothing but help set up these connections...
 
+tried to setup port triggering
+service user:any
+service type:UDP
+triggering port 24785
+
+inbound connection
+type:udp
+start port 24785
+end port 24785
+
+when I tried this nothing happened on server, like the packet never got there...
+
+when I went back to the port forwarding, at least the server got the packet...
+
+try this...
+
+
+tried to setup port triggering
+service user:any
+service type:UDP
+triggering port 24785
+
+inbound connection
+type:udp
+start port 24785
+end port 24786
+
+no combination works:
+trigger 85, 86
+
+
+
+try all this again, but restart server for every try
+
+pf 24785       - server gets msg
+pf 24785-24786 - server gets msg
+pf 24786       - no msg
+
+pt 24785 24785-24785
+pt 24785 24785-24786
+
+pt 24786 24785-24786
+
+
+
+I want to go to work, set up a computer as a server on its own connection
+
+not router or anything like that and do some tests...
+
+
+What I need is:
+work laptop and phone for the client..
+
+pick a 4230 to use as the server and leave there...
+
+
+I set up a server up in the lab at work....
+96.45.13.235
+
+tried to connect with work laptop tethered to phone
+server got connection from: 174.90.223.196:24786 and replied
+nothing ever made it back to the client
+
+then I tried conncting work laptop to EID_guest
+server got connection from: 96.45.0.24:24785 and replied
+nothing ever made it back to the client
+
+
+so I gave up and went home..
+
+tried a client at home and success!!!
+
+C:\pm>pm
+
+Purple Martians Version 7.24.1
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+Date and time: 2022-12-25  23:13:06
+Local address of channel:24785
+Client network initialized: server[96.45.13.235] (UDP)
+ClientCheckResponse 1
+Sent initial packet to server, waiting for reply..got response: 96.45.13.235:58136
+Got reply from server
+Client mode started on host:[m36]
+savegame/level_done_20221225-231341-lev150.txt - saved
+logs/20221225-231341-[150][m36].txt saved
+savegame/game_exit_20221225-231430-lev151.txt - saved
+logs/20221225-231430-[151][m36].txt saved
+
+This is officially the first time Purple Martians has ever worked through the internet!
+
+Merry xmas to me!
+
+I have the server playing the loop 150, 151, 152, 150
+
+The game is not working very well from the perspective of the client.
+Laggy input, player position jumping around, breakable blocks in the middle disappearing where it makes no sense..
+All the data that I need is on the server...
+
+random blocks could very well be that I need to clear bullet at next level....
+I do clear the bullets, but I make server's initial state before that...fixed...
+
+
+
+how about I try 2 clients at home?
+
+that would require that each one has their own port, would it not??
+
+I still have the port triggering rule set up on the router...
+pt 24786 24785-24786
+what if I delete it?
+
+It still seems to work, even with no rules on the router..
+
+no port forwarding and no port triggering
+upnp in enabled but nothing shows up in the mapping table
+
+each client that connects has a different port number
+
+so how can I make this work....
+I really want to hook up a test radio on my house....
+
+get small tripod and something to weight it down, 3GHz 450b and ethernet cable run into garage....
+
+or 3GHz panel...
+
+
+what have I learned?
+
+client is simple to make work, server, less so...
+
+turned off upnp just to see if shit still works....
+
+it seems to work even with upnp off...could be just still working from before...
+turn it back on for now and test later when kids are not awake...
+
+
+20221226 11:42 AM
+
+I now have an EID internet connection in the garage.
+
+96.45.15.176 when connected to m36
+
+lets test!!!
+
+It works quite well, no lag like last night...
+
+
+what else can I monitor?
+
+here is one annoying thing
+on client, if move is late and dropped..
+well suppose client presses and holds RIGHT.
+It does not make it to the server so it never takes effect.
+but the client is still holding RIGHT and not moving...
+
+
+what can I adjust of my two rewind timer?
+
+s1 how often to send
+s2 how long to wait for late cdats
+
+Im not 100% sure I have this right...
+
+what are my settings now? 2 1
+
+that is about as fast as I can make it...
+
+lets try 2 2
+
+no late cdats
+
+I really want some way to measure what effect these have
+
+I want to understand the tradeoffs of adjusting each either way...
+
+
+
+But right now 2 2 seems to work great...
+
+lets test with more clients
+
+5 clients
+
+very playable
+
+max 240k
+
+seemed like there were a lot of base resets??
+
+I would like to track that...I am...its called base resets and it is actually shown on grid...
+why are they happening?
+
+client has not acknowledged last stdf before it gets another one?
+try increasing s1...
+
+3 2
+
+base resets are way better
+bandwidth is also a lot better, like around 40-50.
+
+So if I reduce stdf freq (s1) I will get more base resets, because client does not have time to respond before new stdf arrives and base is lost.
+
+What are the drawbacks of increasing s1?
+
+I would guess that more time passes in predictive mode and the corrections are more severe and noticeable...
+lets try with 4 2
+
+it seems mopre jumpy
+now 35-40k
+
+what if I made it dynamically adjustable?
+count how many base resets last second and adjust...
+min 2 max 6?
+
+can I make it manualy adjustable while the game is running?
+the worst it could do it cause base reset when it is changing...
+
+first thing I need to do is assign it a variable...
+
+let do that for s1 and s2
+
+put them in player1
+where do I initialize them...
+
+init_server
+
+
+
+then try to adjust while game running...
+
+
+
+is there a way of assiging a number to base reset, instead of hit miss??
+server only knows when client replies with actual acked base state
+and server discovers it does not have that anymore
+
+srv_stdf_state[0] is made at the end of rewind, but never used...
+the dif is made from the current game_vars
+
+
+when s1 = 1; the game does not work...
+when started at 1 I get a lot of resets
+
+when started at >1 then lowered to 1 while running, client loses conection
+
+I don't think it should ever be 1, 2 is the absolute minimum and 3 would probaly be most common
+
+set at 3 for now and move on to adjusting s2..
+
+if I lower s2 to 1 game freezes badly
+
+
+
+the game seems to work fine, but the correction of predicted motions make it look like players are jumping around
+
+in LAN mode, they were probably a lot closer in sync, now with some delay they are not??
+
+
+should I go to the trouble of making the network stuff asyncronous?
+How would I even go about doing that?
+
+super fast loop
+
+on a timer (40 fps)
+
+when timer fires move frame
+
+if frame has moved try to draw, unless no time...
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+The way I do my main loop and process events is quite unorthodox and convoluted and there might be a better way to do it....
+
+I don't think I ever block in my game, every loop has a call to proc_controllers.
+
+That way I get to process any events..
+
+What I want to do is process the network stack asyncronously.
+As fast as possible I want to check for incoming packets and process them instantly.
+Not have to wait for the next cycle (at 40fps)
+
+I want to be able to do a true ping test at full speed.
+I want to be able to use a much higher resolution to sync the timers of clients..
+
+Otherwise the way it is works fine for most of the things it does.
+cdats get sent the very instant we detect control changes
+stdf's get sent on the exact frame they are created on
+stak's get sent immediatley after receiving stdf's
+
+the server checks for cdat's received immediately before it needs to use them
+clients check for stdf packets at the last possible instant before they could possibly use them
+
+how about a thread on the server that does nothing but listen and instantly reply to ping...
+
+
+
+
+
+
+
+
+
+
+
+
+ALLEGRO_THREAD *thread; //global
+
+
+thread = al_create_thread(thread_func, NULL);
+al_start_thread(thread);
+
+
+al_join_thread(thread, NULL);
+al_destroy_thread(thread);
+
+
+static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
+{
+   int done = 0;
+
+   (void)thr;
+
+   while (!done)
+   {
+
+      while((packetsize = ServerReceive(packetbuffer, &who)))
+      {
+         printf("Packet rx on frame:%d\n", frame_num);
+         if(PacketRead("cdat")) server_proc_cdat_packet();
+         if(PacketRead("stak")) server_proc_stak_packet();
+         if(PacketRead("cjon")) server_proc_cjon_packet(who);
+      }
+   }
+   return NULL;
+}
+
+
+
+
+
+al_run_detached_thread(thread_func, NULL);
+
+static void *thread_func(void *arg)
+{
+   while (ima_server)
+   {
+      int who;
+      while((packetsize = ServerReceive(packetbuffer, &who)))
+      {
+         printf("Packet rx on frame:%d\n", frame_num);
+
+         if(PacketRead("cdat")) server_proc_cdat_packet();
+         if(PacketRead("stak")) server_proc_stak_packet();
+         if(PacketRead("cjon")) server_proc_cjon_packet(who);
+      }
+   }
+   return NULL;
+}
+
+
+I think this is slurping up all packets and will probably interfere with ServerListen....
+
+is there a way to only touch types of packets I am interested in??
+
+
+what does ServerReceive do different from net_receive()
+what is address vs who?
+
+net_receive is passed a channel
+if that channel has data, address is set...
+do I care about address?
+
+server receive polls all clients and if they have data, returns with the client num that has data...
+
+all that who is, is client num...
+
+where is players.who set??
+
+I cant use server_receiev until that client has been created...
+
+it will not even check for data for that client_num because it doesnt exist yet...
+
+glad I got that figured out...
+
+
+why does this system die after 26s??
+
+26x40 = 1000 frames??
+
+this time is happened 18s in
+server dropped client for last sdak (stak?) rx'd > 100
+
+
+server also stopped receiving cdats around the same time....
+
+
+tested again
+
+3796 was the last frame that my rx thread processed...
+
+goddamn it, what if packets are received in the middle of a rewind??
+
+
+they will have weird frame numbers...
+
+why did I want to do this again?
+only for a better return ping number and better sync...
+
+revert back...
+
+can I create 2 channels?
+
+
+I want a fast as possible packet exchange...
+
+try the thread on the client...
+
+only one packet stdf....
+
+but there is a time when I block waiting for it..
+
+also sjon...
+
+this all seems like a lot of work for small returns...
+
+Clean up the code where server and clients set stuff up...done..
+
+test TCP..seems to work fine on lan...and wan...
+
+
+-------------------------------------------------------
+
+
+method for setting s1
+start at 3
+on server, measure total client resets for 4 seconds
+if zero try to reduce
+if greater than 10, increase
+
+min:2
+max:8?
+
+
+method for setting s2:
+start at 2
+on server measure total client late cdats dropped for 4 seconds
+if zero 4 try to reduce
+if greater than 10, increase
+
+min:2
+max:4?
+
+only lower every 4 seconds if perfect
+raise if threshold is reached before that
+
+reset counters every 4 sec
+
+
+
+try a really busy level...
+
+
+It seems way more jumpy over WAN...
+
+could it have to do with the timing...
+sync 2-3 always on WAN
+fairly stable 1 on LAN
+
+
+how is it set again?
+client adjusts so that they get state just when they need it....
+
+this means client is slightly behind server
+
+when lag is increased client will be even further behind
+
+
+what if we adjust to get it one frame before it is needed
+
+not sure about this....but lets try...not good...i need better timers...
+
+
+can I use threads?
+
+
+
+here is the problem...
+
+any variables the thread touches need to be locked....
+
+
+maybe I can just have my packet thread read packets and dump them into arrays to be processed later....
+except for the very time sensitive obnes that I want to process immediatley...
+
+
+
+what is the max packets per frame I want to be able to handle?
+
+lets shoot high with 200..
+
+
+in the packet processing loop I need to lock this structure
+then in the other loop when I process it I also need to lock the structure
+
+
+what will this gain me...
+
+at any time packets can be received, except when the packet buffer is being read by rest of the code...
+
+
+-----------------------------------------------
+can I make a separate connection used only for this fast ping?
+
+
+separate copnnection run in its own thread...
+
+server initiates
+
+client rx and tx in a fast loop
+
+server rx's in a fast loop
+
+compare timers
+
+
+how to setup a second UDP connection
+
+
+
+20221227
+
+Some thoughts for today...
+
+
+I still want a high speed packet loop so I can implement a better packet timer and speed control
+
+ways that I can implement the high speed packet loop:
+
+- second channel or connection that I read in a different thread
+
+- read channel in different thread and store received packets in custom structure for later use
+i can date stamp them the instant they are received
+I will need to lock the functions used to access this array to prevent race condtions
+
+
+structure packet_buffer
+int status (0 = empty, 1=used)
+int packet_type (1 = cdat, 2=stdf...)
+int timestamp
+char data[1024]
+
+
+fast packet loop will receive packets and put them in the first empty slot the packet buffer
+
+in my normal thread I will consume them and mark them as empty
+
+I will have an extract function that is threadsafe
+
+
+I can implement all this before putting it in its own thread
+
+
+extern struct packet_buffer packet_buffers[200];
+struct packet_buffer
+{
+   int active:
+   int type;
+   int timestamp;
+   int who;
+   char data[1024];
+};
+
+
+make a function to initialize...
+
+
+void init_packet_buffer(void)
+{
+   for (i=0; i<200; i++)
+   {
+      packet_buffer.active = 0;
+      packet_buffer.type = 0;
+      packet_buffer.timestamp = 0;
+      packet_buffer.who = 0;
+      packet_buffer.data[0] = 0;
+   }
+}
+
+
+
+
+
+implement for server first:
+
+
+
+I forgot, i broke shit by trying second channel
+
+I removeing all the second channel stuff, I came across an important finding.....
+it was still broken...
+
+
+if (!(ListenChannel = net_openchannel(NetworkDriver, "")))
+if (net_assigntarget(ListenChannel, ""))
+
+these two calls need to be "" not NULL
+
+
+then when I am adding client:
+
+net_openchannel(NetworkDriver, NULL)))
+this has to be NULL
+
+
+
+      if ((packetsize) && (PacketRead("1234")))
+      {
+         sprintf(msg, "Server received initial 1234 packet from '%s'",address);
+         printf("%s\n", msg);
+
+         if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
+         {
+            sprintf(msg, "Error: failed to open channel for %s\n", address);
+            printf("%s", msg);
+            if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+   			return;
+         }
+   		if (net_assigntarget (ClientChannel[ClientNum], address))
+
+
+
+
+
+This seems to work up to here, lets do a quick documentation
+
+------------------------------------------------------------------------
+old:
+------------------------------------------------------------------------
+void server_control() // main server loop to process packet send and receive
+{
+   ServerListen(); // listen for new client connections
+   int who;
+   while((packetsize = ServerReceive(packetbuffer, &who)))
+   {
+      if(PacketRead("cdat")) server_proc_cdat_packet();
+      if(PacketRead("stak")) server_proc_stak_packet();
+      if(PacketRead("cjon")) server_proc_cjon_packet(who);
+   }
+
+
+------------------------------------------------------------------------
+new:
+------------------------------------------------------------------------
+void server_control() // main server loop to process packet send and receive
+{
+   ServerListen(); // listen for new client connections
+
+   server_fast_packet_loop();
+   server_read_packet_buffer();
+
+
+------------------------------------------------------------------------
+in pm.h
+------------------------------------------------------------------------
+extern struct packet_buffer packet_buffers[200];
+struct packet_buffer
+{
+   int active;
+   int type;
+   double timestamp;
+   int who;
+   int packetsize;
+   char data[1024];
+};
+
+------------------------------------------------------------------------
+init structure
+------------------------------------------------------------------------
+void init_packet_buffer(void)
+{
+   for (int i=0; i<200; i++)
+   {
+      packet_buffers[i].active = 0;
+      packet_buffers[i].type = 0;
+      packet_buffers[i].timestamp = 0;
+      packet_buffers[i].who = 0;
+      packet_buffers[i].packetsize = 0;
+      packet_buffers[i].data[0] = 0;
+   }
+}
+
+int ServerInitNetwork() // Initialize the server
+{
+   init_packet_buffer();
+
+
+------------------------------------------------------------------------
+void server_fast_packet_loop(void)
+{
+   int who;
+   while((packetsize = ServerReceive(packetbuffer, &who)))
+   {
+      double timestamp = al_get_time();
+
+      // get type
+      int type = 0;
+      if(PacketRead("cdat")) type = 1;
+      if(PacketRead("stak")) type = 2;
+      if(PacketRead("cjon")) type = 3;
+
+      if (type)
+      {
+         for (int i=0; i<200; i++) // find empty
+            if (!packet_buffers[i].active)
+            {
+               packet_buffers[i].active = 1;
+               packet_buffers[i].type = type;
+               packet_buffers[i].timestamp = timestamp;
+               packet_buffers[i].who = who;
+               packet_buffers[i].packetsize = packetsize;
+               memcpy(packet_buffers[i].data, packetbuffer, 1024);
+               break;
+            }
+      }
+   }
+}
+
+
+void server_read_packet_buffer(void)
+{
+   // process all used
+   for (int i=0; i<200; i++)
+      if (packet_buffers[i].active)
+      {
+         memcpy(packetbuffer, packet_buffers[i].data, 1024);
+         packetsize = packet_buffers[i].packetsize;
+         set_packetpos(0);
+         if(PacketRead("cdat")) server_proc_cdat_packet();
+         if(PacketRead("stak")) server_proc_stak_packet();
+         if(PacketRead("cjon")) server_proc_cjon_packet(packet_buffers[i].who);
+         packet_buffers[i].active = 0;
+      }
+}
+
+
+
+------------------------------------------------------------------------
+this actually works...now lets see if I can do it in a thread....
+
+it should be trivial to do in a thread, but how to protect against race conditions...
+
+could it be as simple as:
+
+global int rx_lock
+
+when reading the packet_buffer in the the main loop, set rx_lock.
+
+in the fast thread, only read the variable and do nothing if set...
+
+try it...
+
+extern int packet_rx_lock;
+
+
+wait a sec, this will stop the fast loop from running when the main loop is reading from pb
+but what about the read happening when the fast loop is running?
+should this be a 2 way lock? each can lock...
+
+void server_read_packet_buffer(void)
+{
+   if (!packet_rx_lock)
+   {
+      packet_rx_lock = 1;
+
+      // process all used
+      for (int i=0; i<200; i++)
+         if (packet_buffers[i].active)
+         {
+            printf("read packet:%d  size:%d \n", i, packet_buffers[i].packetsize);
+
+            memcpy(packetbuffer, packet_buffers[i].data, 1024);
+            packetsize = packet_buffers[i].packetsize;
+            set_packetpos(0);
+
+            if(PacketRead("cdat")) server_proc_cdat_packet();
+            if(PacketRead("stak")) server_proc_stak_packet();
+            if(PacketRead("cjon")) server_proc_cjon_packet(packet_buffers[i].who);
+
+            packet_buffers[i].active = 0;
+         }
+      packet_rx_lock = 0;
+   }
+}
+
+
+now I am ready to try it in a thread....
+
+al_run_detached_thread(thread_func, NULL);
+
+static void *thread_func(void *arg)
+{
+   while (ima_server)
+   {
+      int who;
+      while((packetsize = ServerReceive(packetbuffer, &who)))
+      {
+         printf("Packet rx on frame:%d\n", frame_num);
+
+         if(PacketRead("cdat")) server_proc_cdat_packet();
+         if(PacketRead("stak")) server_proc_stak_packet();
+         if(PacketRead("cjon")) server_proc_cjon_packet(who);
+      }
+   }
+   return NULL;
+}
+
+
+server cannot set up connection in listen, probably because fast loop eats all the packets!!!
+
+it shouldn't...fast calls ServerReceive which only gets packets from players that exist
+
+
+//            if (PacketRead("1234")) // why the fuck this does not work?????
+
+            if ((packetbuffer[0] == '1') && (packetbuffer[1] == '2') && (packetbuffer[2] == '3') && (packetbuffer[3] == '4'))    // printf("1!!!\n");
+            {
+
+
+
+
+now it looks like fast loop is hogging the lock, how about only lock when actually rx something?
+ok done...
+
+after becoming active, the server stops receiving stak from client
+well they stop showing up in the logs anyway
+
+
+tried again, they don't stop right away, client plays for a while then they stop showing up in log..
+
+player active 213
+
+last stak:365
+player drop 465
+
+also last cdat rx'd was also 365
+
+it looks like the server just stopped receiving packets...
+
+
+102 player active
+155 last sdak
+
+printf in fast loop has stoppped...
+
+
+lets try to use an actual mutex instead of my variable
+
+extern ALLEGRO_MUTEX *mutex;
+
+mutex = al_create_mutex();
+
+al_lock_mutex(mutex);
+
+al_unlock_mutex(mutex);
+
+
+that worked, but later the client segfaulted
+
+is is because I am literally running the fast loop wide open??
+
+i don't want to put a rest in there, but sometimes a print adds enough delay to make it work...
+
+maybe instead of a thread, I could call it with a timer....
+
+test...i think that is exactly true...
+
+
+
+I don't have to lose everything I have done up to now...
+
+just modify the main event loop
+
+set up timer to call move and everything else..
+
+generate events when the timer fires...
+
+
+I could have it just call game_loop
+
+game_loop could return instead of blocking..
+
+
+
+
+the highest level loop...
+{
+   proc allegro events
+   including input, display, timers
+
+   if timer do stuff and optionally draw stuff
+   under this would be all modes...menu, game, level_editor
+   all these things would not block....they would return here
+
+   if I have any things that I want to run at a different speed just put them on a timer...
+
+}
+
+
+
+
+what do I have now?
+
+main
+   game_menu
+      game_loop
+      edit_menu
+
+
+
+
+
+start by creating a new file : main_loop.cpp
+
+
+this will be the one thing that is called from main
+
+within that, I will process the allegro event queue
+
+
+I will have a timer for the game_loop and one for the menu_loop
+or should I use the same one...
+
+I could have it call a do_something, then that something could be one one many things
+menu
+game_loop
+level_editor
+
+each of those things will handle its own drawing, or skip if need be
+
+will this actually make things simpler and easier?
+
+i really want to get rid of the menu_timer block hack and waiting in proc frame delay
+while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+
+
+I think I should do it...
+
+
+make a new struct to group a lot of globals..
+
+maybe later...
+
+// ------------------------------------------------
+// ----------------- mouse and keys ---------------
+// ------------------------------------------------
+
+// serial key check
+char skc[64];
+int skc_index = 0;
+
+bool key[ALLEGRO_KEY_MAX];
+int key_pressed_ASCII;
+
+float mouse_loop_pause = 0;
+
+int mouse_x = 0;
+int mouse_y = 0;
+int mouse_z = 0;
+int mouse_dx = 0;
+int mouse_dy = 0;
+int mouse_dz = 0;
+int mouse_b1 = 0;
+int mouse_b2 = 0;
+int mouse_b3 = 0;
+int mouse_b4 = 0;
+
+int KEY_F1_held = 0;
+int KEY_F2_held = 0;
+int KEY_F3_held = 0;
+int KEY_F4_held = 0;
+int KEY_F5_held = 0;
+int KEY_F6_held = 0;
+int KEY_F7_held = 0;
+int KEY_F8_held = 0;
+int KEY_F9_held = 0;
+int KEY_F10_held = 0;
+int KEY_F11_held = 0;
+int KEY_F12_held = 0;
+int KEY_PRTSCR_held = 0;
+
+
+int KEY_UP_held = 0;
+int KEY_DOWN_held = 0;
+int KEY_LEFT_held = 0;
+int KEY_RIGHT_held = 0;
+
+// ------------------------------------------------
+// ---------------- display -----------------------
+// ------------------------------------------------
+
+int desktop_width;
+int desktop_height;
+
+
+int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
+int disp_y_curr;
+int disp_w_curr;
+int disp_h_curr;
+
+int disp_x_wind; // windowed
+int disp_y_wind;
+int disp_w_wind;
+int disp_h_wind;
+
+int disp_x_full; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+int disp_y_full;
+int disp_w_full;
+int disp_h_full;
+
+int SCREEN_W;
+int SCREEN_H;
+int WX;
+int WY;
+int fullscreen = 1;
+int display_adapter_num = 0;
+float WX_shift_speed = 0;
+
+// used to only redraw a region of background to increase fps
+int level_display_region_x;
+int level_display_region_y;
+int level_display_region_w;
+int level_display_region_h;
+
+int display_transform_double = 1;
+int saved_display_transform_double = -1;
+int show_dtd = 0;
+
+
+
+right now I want to get rid of the return value k of proc controller and make it a global
+
+it is used for the ascii value of the last key pressed
+
+
+I think I still want to keep proc_controllers...it has 191 references...
+also, what the hell will I do when I want to wait for a key release?
+maybe I could just use the goddamn events that do that exactly...no they don't...
+
+
+maybe I could add something to my key array thing...
+
+bool key[ALLEGRO_KEY_MAX];
+
+
+bool key[ALLEGRO_KEY_MAX][4];
+
+key[][0]; // current state of key
+key[][1]; // previous state of key
+key[][2]; // true if key was pressed in between last call and now
+key[][3]; // true if key was released in between last call and now
+
+now I can tell if held by 0 and 1 true
+
+
+this is how I used to check for just pressed
+
+if ((key[ALLEGRO_KEY_F1]) && (!KEY_F1_held))
+{
+   KEY_F1_held = 1;
+   // do stuff
+}
+if (!key[ALLEGRO_KEY_F1]) KEY_F1_held = 0;
+
+
+
+this is how I do it now
+
+if (key[ALLEGRO_KEY_F1][2])
+{
+   // do stuff
+}
+
+
+in the events, I just need to set current key state...is it cleared every time?? no
+I need to check fro just pressed in sepeate loop
+
+i've got this all wrong
+
+my keypressed shit does not work like I thought it would
+
+in events it is only processed when something changes
+this is where I should be setting those values
+
+for held, i need to do something outside the loop every frame...
+
+void proc_keys_held(void)
+{
+   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
+   {
+      if ((key[k][0] == true) && (key[k][1] == false)) key[k][2] = true; // just pressed
+      else key[k][2] = false;
+
+      if ((key[k][0] == false) && (key[k][1] == true)) key[k][3] = true; // just released
+      else key[k][3] = false;
+
+      key[k][1] = key[k][0]; // previous for next time
+   }
+}
+
+when processing UP and DOWN events, i only set the one flag [0]
+
+OK that is looking a lot better
+
+does printscreen work?? yes...
+
+
+now figure out k...its pretty rare...12 occurances
+
+
+
+proc_controllers();
+int k = key_pressed_ASCII;
+they are 2 different things
+the first one is the scan code....
+
+lets see if I can convert all those to the second one...
+
+
+find all the things that use k.
+
+k comes from proc_events called once
+then is passed through proc_controllers...
+find calls to proc_controllers that use the return value
+
+190 occurances
+log 938 1541 2422
+menu 1345 1443
+
+edit server_name..its overwritten by key_pressed_ASCII a few lines later...remove and test....done..
+edit lift_name...done but not tested
+
+log 938
+toggle players
+
+      int k = proc_controllers();
+      if ((k > 26) && (k < 35)) // numbers 0-7 toggle players
+      {
+         int p = k-27;
+
+k   27-34
+kpa 48-55
+
+fix and test for all stuff in log...
+
+      proc_controllers();
+      int k = key_pressed_ASCII;
+      if ((k > 47) && (k < 56)) // numbers 0-7 toggle players
+      {
+         int p = k-48;
+
+
+      if ((k > 64) && (k < 91)) // letters toggle tags
+      {
+
+
+      if ((k > 96) && (k < 123)) // letters toggle tags
+      {
+         k-=32;
+      }
+
+
+      if ((k > 64) && (k < 27)) // letters toggle tags
+      {
+         k += 64; // convert to ascii
+         //printf("%c\n", k);
+
+
+
+make the player stuff also work with number pad
+
+37 38 39 40 41 42 43 44
+
+
+ESC does not seem to work in mode 3 in log file viewer??
+does anything work in mode 3??
+
+proc_contoller runs stuff many times while in menu timer block....
+so the just pressed and just released are long gone...
+
+i plan to get rid of that....
+the problem is that I use it give a delay...
+
+now I can get rid of k and ret....
+
+there was alot of places that stupid ret, k value was passed around.
+they are all gone now...
+
+
+here is the next big thing I want to fix:
+
+menu_timer_block....i hate it...
+
+basically whenever proc_controllers() is called,
+it does the event loop, including input..
+
+then if not in a running game, blocks and loops, while running the event loop over and over...
+
+
+I hate it so much!!
+
+in my new loop I will do things differently, but how do I get there from here?
+
+
+I already have 'game_exit'
+
+use that to do 2 different loops
+
+there are so many things that call proc_controllers, I want to migrate away before killing it completely..
+
+keep the timer block, but do nothing in it...done...
+
+now my key[][3] works!!!
+
+down to 171 occurances of proc_controllers
+
+
+I'm wondering if I could do the same for the mouse_buttons...
+
+      if (mouse_b1)
+      {
+         while (mouse_b1) proc_controllers(); // wait for release
+
+convert to:
+
+if (mouse_b1[0]) // current
+if (mouse_b1[1]) // previous
+if (mouse_b1[2]) // just pressed
+if (mouse_b1[3]) // just released
+
+it should be quite doable...
+
+
+I am down to 113 occurances of proc_controllers
+
+I have got as far as menu.cpp
+
+
+
+
+I really want to do the same for mouse...
+old
+
+int mouse_b1 = 0;
+int mouse_b2 = 0;
+int mouse_b3 = 0;
+int mouse_b4 = 0;
+
+new:
+
+int mouse_b[5][4] = { 0 };
+
+5 because I want to call them by their original numbers
+
+
+mouse_b1 102 occurances
+mouse_b2 42 occurances
+mouse_b3 12 occurances
+mouse_b4 4 occurances
+
+
+replace mouse_b1 with mouse_b[1][0]
+replace mouse_b2 with mouse_b[2][0]
+
+
+this all done...
+
+now continue with key replacement
+
+I have been through all occurances op key[ and I think they are all fixed...
+
+
+now back to proc_controllers
+113
+
+fuck it, ill come back later...
+
+
+
+now what is next on the cleaning up of proc_controllers???
+
+
+separate event queueu processing..
+
+
+make two timers with events...
+
+
+one for menu and one for game..
+
+
+
+how fast does the menu normally run?? 125 fps?! wow
+
+
+
+/* Do the main loop; until we're not done. */
+while (!done) {
+
+   do {
+      ALLEGRO_EVENT event;
+      al_wait_for_event(event_queue, &event);
+
+      HandleEvent(event);
+   } while (!al_is_event_queue_empty(event_queue));
+
+   /* Check if the timer has ticked. */
+   while (timer > 0) {
+      --timer;
+      Update();
+      redraw = true;
+   }
+   if (redraw) {
+      draw_framework();
+      redraw = false;
+   }
+}
+
+
+
+repeat {
+  repeat {
+   get event
+   if timer event then update = true
+  } until (queue is empty)
+  if update {
+   logic
+   redraw
+  }
+}
+
+
+I want my loop to look like this:
+
+process_event_queue until empty
+
+I will set up timers to trigger other things
+
+then the rest of the loop is mostly.
+
+
+if do_menu ...
+
+if do_game ...
+
+if do fast packet loop ...
+
+also there I might want an overall meta state engine ytpe thing....
+monitoring variables, handling changing states...
+
+
+I think I am gettin closer....
+
+make variables program_update..
+
+
+
+
+I think I want a lot more states...
+
+
+like
+
+10 start new game
+11 game running
+12 next level
+13 pause
+14 game exit
+
+then it will be easier to move between states...
+
+10 start new game usually goes to 11 next but could also go to game exit
+
+11 game running is the only mode the timer event is actually setting update
+11 can go to 12, 13, 14
+
+try to start implementing this...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

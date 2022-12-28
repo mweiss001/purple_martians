@@ -1037,24 +1037,24 @@ void zfs_draw_fsel(void)
 
 void zfs_process_mouse(void)
 {
-   if (mouse_b1)
+   if (mouse_b[1][0])
    {
       if (mW[4].copy_mode)
       {
-         while (mouse_b1) proc_controllers();
+         while (mouse_b[1][0]) proc_controllers();
          zfs_do_fcopy(gx, gy);
       }
       if (mW[4].brf_mode)
       {
-         while (mouse_b1)proc_controllers();
+         while (mouse_b[1][0])proc_controllers();
          zfs_do_brf(gx, gy, mW[1].draw_item_num);
       }
       if ((!mW[4].copy_mode) && (!mW[4].brf_mode)) cm_get_new_box(); // get new selection
    }
 
-   if (mouse_b2)
+   if (mouse_b[2][0])
    {
-      while (mouse_b2) proc_controllers();
+      while (mouse_b[2][0]) proc_controllers();
       set_windows(1);
    }
 }

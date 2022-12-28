@@ -283,10 +283,10 @@ void compare_all(void)
                    }
                }
                proc_controllers();
-               if (key[ALLEGRO_KEY_ESCAPE]) x1 = num_levs; // break out of inner loop
+               if (key[ALLEGRO_KEY_ESCAPE][3]) x1 = num_levs; // break out of inner loop
             } // next level (inner loop)
          proc_controllers();
-         while (key[ALLEGRO_KEY_ESCAPE]) { proc_controllers(); x = num_levs; } // break out of outer loop
+         if (key[ALLEGRO_KEY_ESCAPE][3]) x = num_levs;  // break out of outer loop
    } // next level (outer loop)
 
    al_set_target_backbuffer(display);
@@ -385,26 +385,23 @@ void level_viewer(void)
          al_flip_display();
       }
 
-      while (key[ALLEGRO_KEY_ESCAPE]) { proc_controllers(); quit = 1; }
-      if (key[ALLEGRO_KEY_A])
+      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      if (key[ALLEGRO_KEY_A][3])
       {
-         while (key[ALLEGRO_KEY_A]) proc_controllers();
          compare_all();
          redraw = 1;
       }
-
-      if (key[ALLEGRO_KEY_C])
+      if (key[ALLEGRO_KEY_C][3])
       {
-         while (key[ALLEGRO_KEY_C]) proc_controllers();
          compare_curr(sel);
          redraw = 1;
       }
 
-      if (key[ALLEGRO_KEY_S])
+      if (key[ALLEGRO_KEY_S][0])
       {
          if (load_level(cur, 0)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
          al_flip_display();
-         while (key[ALLEGRO_KEY_S]) proc_controllers();
+         while (key[ALLEGRO_KEY_S][0]) proc_controllers();
          redraw = 1;
       }
 
@@ -417,18 +414,18 @@ void level_viewer(void)
             old_sel = sel;
             redraw = 1;
          }
-         if (mouse_b1) // set new current level (and show full screen while mouse b1 pressed)
+         if (mouse_b[1][0]) // set new current level (and show full screen while mouse b1 pressed)
          {
             cur = sel;
             if (load_level(cur, 0)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
             al_flip_display();
             redraw = 1;
-            while (mouse_b1) proc_controllers();
+            while (mouse_b[1][0]) proc_controllers();
          }
 
-         if (mouse_b2) // copy current to selected
+         if (mouse_b[2][0]) // copy current to selected
          {
-            while (mouse_b2) proc_controllers();
+            while (mouse_b[2][0]) proc_controllers();
             if ((cur != 0) && (sel !=0) && (cur != sel))
             {
                if (load_level(cur, 0) == 1) // cur exists
@@ -645,7 +642,7 @@ int visual_level_select(void)
    int p = active_local_player;
    int fc = players[p].color; // frame color
 
-   while ( (key[ALLEGRO_KEY_ENTER]) || (players[0].fire) || (players[0].jump) ) proc_controllers();;
+   while ( (key[ALLEGRO_KEY_ENTER][0]) || (players[0].fire) || (players[0].jump) ) proc_controllers();;
 
    if (!load_visual_level_select_done) load_visual_level_select();
 
@@ -723,39 +720,45 @@ int visual_level_select(void)
 
       proc_controllers();
 
-      if (((key[ALLEGRO_KEY_LEFT]) || (players[0].left)) && (left_held == 0))
+      if (((key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) && (left_held == 0))
       {
          left_held = 1;
+         while ((key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) proc_controllers();
          if (--grid_sel_col < 0) grid_sel_col = 0;
          vl_redraw = 1;
       }
-      if ( (!(key[ALLEGRO_KEY_LEFT])) &&  (!(players[0].left)) )  left_held = 0;
-      if (((key[ALLEGRO_KEY_UP]) || (players[0].up)) && (up_held == 0))
+      if ( (!(key[ALLEGRO_KEY_LEFT][0])) &&  (!(players[0].left)) )  left_held = 0;
+
+      if (((key[ALLEGRO_KEY_UP][0]) || (players[0].up)) && (up_held == 0))
       {
          up_held = 1;
+         while ((key[ALLEGRO_KEY_UP][0]) || (players[0].up)) proc_controllers();
          if (--grid_sel_row < 0) grid_sel_row = 0;
          vl_redraw = 1;
       }
-      if ( (!(key[ALLEGRO_KEY_UP])) && (!(players[0].up)) ) up_held = 0;
-      if (((key[ALLEGRO_KEY_RIGHT]) || (players[0].right)) && (right_held == 0))
+      if ( (!(key[ALLEGRO_KEY_UP][0])) && (!(players[0].up)) ) up_held = 0;
+
+      if (((key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) && (right_held == 0))
       {
          right_held = 1;
+         while ((key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) proc_controllers();
          if (++grid_sel_col > grid_cols-1) grid_sel_col = grid_cols-1;
          // don't allow select of empty level
          if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--;
          vl_redraw = 1;
       }
-      if ( (!(key[ALLEGRO_KEY_RIGHT])) &&  (!(players[0].right)) )  right_held = 0;
-      if (((key[ALLEGRO_KEY_DOWN]) || (players[0].down)) && (down_held == 0))
+      if ( (!(key[ALLEGRO_KEY_RIGHT][0])) &&  (!(players[0].right)) )  right_held = 0;
+
+      if (((key[ALLEGRO_KEY_DOWN][0]) || (players[0].down)) && (down_held == 0))
       {
          down_held = 1;
-         while ((key[ALLEGRO_KEY_DOWN]) || (players[0].down)) proc_controllers();
+         while ((key[ALLEGRO_KEY_DOWN][0]) || (players[0].down)) proc_controllers();
          if (++grid_sel_row > grid_rows-1) grid_sel_row = grid_rows-1;
          // don't allow select of empty level
          if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_row--;
          vl_redraw = 1;
       }
-      if ( (!(key[ALLEGRO_KEY_DOWN])) && (!(players[0].down)) ) down_held = 0;
+      if ( (!(key[ALLEGRO_KEY_DOWN][0])) && (!(players[0].down)) ) down_held = 0;
 
       // these checks would normally never be needed, unless screen size changes
       if (grid_sel_col > grid_cols-1) grid_sel_col = 0;
@@ -769,15 +772,13 @@ int visual_level_select(void)
       // update selected row
       selected_level = le[grid_sel_row * grid_cols + grid_sel_col];
 
-      if ( (key[ALLEGRO_KEY_ENTER]) || (players[0].fire) || (players[0].jump) )
+      if ( (key[ALLEGRO_KEY_ENTER][3]) || (players[0].fire) || (players[0].jump) )
       {
-         while (key[ALLEGRO_KEY_ENTER]) proc_controllers();;
          while ((players[0].jump) || (players[0].fire)) proc_controllers();
          quit = 1;
       }
-      if (key[ALLEGRO_KEY_ESCAPE])
+      if (key[ALLEGRO_KEY_ESCAPE][3])
       {
-         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
          selected_level = 0;
          quit = 1;
       }

@@ -797,6 +797,8 @@ int log_file_viewer(int type)
       al_draw_textf(f3, palette_color[sbc3], sbx2+4, sby1+sbby2-1, 0, "%d", last_line);
 
 
+
+
       if ((mouse_x > sbx1) && (mouse_x < sbx2))
       {
          //al_draw_rectangle(sbx1, sby1, sbx2, sby2, palette_color[sbc2], 1); // highlight scroll bar
@@ -817,9 +819,9 @@ int log_file_viewer(int type)
 
 
 
-         if (mouse_b1)
+         if (mouse_b[1][0])
          {
-            while (mouse_b1) proc_controllers();
+            while (mouse_b[1][0]) proc_controllers();
             first_line = sbmy; // set new log line pos
          }
       }
@@ -934,98 +936,50 @@ int log_file_viewer(int type)
 
       al_flip_display();
 
+      proc_controllers();
 
-      int k = proc_controllers();
-      if ((k > 26) && (k < 35)) // numbers 0-7 toggle players
+      int k = key_pressed_ASCII;
+      if ((k > 36) && (k < 45)) k+=11; // convert number pad number to regular numbers
+      if ((k > 47) && (k < 56))        // numbers 0-7 toggle players
       {
-         int p = k-27;
-         //printf("p:%d\n", p);
+         int p = k-48;
          lp[p][0] = !lp[p][0];
       }
-
-      if ((k > 0) && (k < 27)) // letters toggle tags
+      if ((k > 96) && (k < 123)) k-=32; // convert lower case to upper
+      if ((k > 64) && (k < 91))         // letters toggle tags
       {
-         k += 64; // convert to ascii
-         //printf("%c\n", k);
          for (int i=23; i<50; i++)
             if (tags[i][3] == k) tags[i][0] = !tags[i][0]; // toggle tag on/off
       }
 
-      if (key[ALLEGRO_KEY_UP])
+      if (key[ALLEGRO_KEY_UP  ][3]) first_line--;
+      if (key[ALLEGRO_KEY_DOWN][3]) first_line++;
+
+      if (key[ALLEGRO_KEY_PGUP][3])
       {
-         while (key[ALLEGRO_KEY_UP]) proc_controllers();
-         first_line--;
-      }
-      if (key[ALLEGRO_KEY_DOWN])
-      {
-         while (key[ALLEGRO_KEY_DOWN]) proc_controllers();
-         first_line++;
-      }
-
-
-
-      if (key[ALLEGRO_KEY_PGUP])
-      {
-         while (key[ALLEGRO_KEY_PGUP]) proc_controllers();
-
-         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) first_line -= 1000;
-         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) first_line -= 100;
+         if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) first_line -= 1000;
+         else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) first_line -= 100;
          else first_line-=10;
       }
-      if (key[ALLEGRO_KEY_PGDN])
+      if (key[ALLEGRO_KEY_PGDN][3])
       {
-         while (key[ALLEGRO_KEY_PGDN]) proc_controllers();
-         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) first_line += 1000;
-         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) first_line += 100;
+         if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) first_line += 1000;
+         else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) first_line += 100;
          else first_line+=10;
       }
 
-
-//      if (key[ALLEGRO_KEY_PGUP])
-//      {
-//         while (key[ALLEGRO_KEY_PGUP]) proc_controllers();
-//
-//         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) first_line -= 1000;
-//         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) first_line -= 100;
-//         else first_line-=10;
-//      }
-//      if (key[ALLEGRO_KEY_PGDN])
-//      {
-//         while (key[ALLEGRO_KEY_PGDN]) proc_controllers();
-//         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) first_line += 1000;
-//         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) first_line += 100;
-//         else first_line+=10;
-//      }
-//
-
-
-      if (key[ALLEGRO_KEY_HOME])
-      {
-         while (key[ALLEGRO_KEY_HOME]) proc_controllers();
-         first_line=0;
-      }
-      if (key[ALLEGRO_KEY_END])
-      {
-         while (key[ALLEGRO_KEY_END]) proc_controllers();
-         first_line=num_lines-1;
-      }
+      if (key[ALLEGRO_KEY_HOME][3]) first_line = 0;
+      if (key[ALLEGRO_KEY_END ][3]) first_line = num_lines-1;
 
       if (first_line < 0) first_line = 0;
       if (first_line > num_lines-1) first_line = num_lines-1;
 
-      if (key[ALLEGRO_KEY_ESCAPE])
-      {
-         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
-         quit = 1;
-      }
+      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+
    } // end of log file viewer
    al_hide_mouse_cursor(display);
    return 0;
 }
-
-
-
-
 
 
 void autoscale_log_bandwidth_graph(int mode, int num_data, int data[][4], int graph_w, int graph_h, float &y_scale, float &x_scale, int &g_stf, int &g_rng, int end_fn)
@@ -1453,15 +1407,15 @@ void log_bandwidth_graph(int num_lines)
          redraw = 0;
       }
 
-      if (mouse_b1)
+      if (mouse_b[1][0])
       {
-         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // shift drag to set new zoom area
+         if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // shift drag to set new zoom area
          {
             int mx1 = mouse_x;
             int my1 = mouse_y;
             int mx2 = 0;
             int my2 = 0;
-            while (mouse_b1)
+            while (mouse_b[1][0])
             {
                proc_controllers();
                mx2 = mouse_x;
@@ -1494,7 +1448,7 @@ void log_bandwidth_graph(int num_lines)
          {
             int mx = mouse_x;
             int gx = 0;
-            while (mouse_b1)
+            while (mouse_b[1][0])
             {
                proc_controllers();
                gx = (mx - mouse_x) / x_scale; // mouse x offset converted to x axis scale
@@ -1534,14 +1488,12 @@ void log_bandwidth_graph(int num_lines)
 
 
 
-
-
-
-
-      int k = proc_controllers();
-      if ((k > 26) && (k < 35)) // numbers 0-7 toggle players
+      proc_controllers();
+      int k = key_pressed_ASCII;
+      if ((k > 36) && (k < 45)) k+=11; // convert number pad number to regular numbers
+      if ((k > 47) && (k < 56)) // numbers 0-7 toggle players
       {
-         int p = k-27;
+         int p = k-48;
          //printf("p:%d\n", p);
          lp[p][0] = !lp[p][0];
          autoscale_log_bandwidth_graph(0, num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn);
@@ -1551,77 +1503,18 @@ void log_bandwidth_graph(int num_lines)
       int scroll_amt = g_rng / 10; // scroll 10% of screen at once
       if (scroll_amt < 1) scroll_amt = 1;
 
-      if (key[ALLEGRO_KEY_HOME])
+      if (key[ALLEGRO_KEY_HOME][3])
       {
-         while (key[ALLEGRO_KEY_HOME]) proc_controllers();
          autoscale_log_bandwidth_graph(1, num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn);
          redraw = 1;
       }
 
-
-      if (key[ALLEGRO_KEY_SLASH])
+      if (key[ALLEGRO_KEY_SLASH][3])
       {
-         while (key[ALLEGRO_KEY_SLASH]) proc_controllers();
          help("Bandwidth Graph");
          redraw = 1;
       }
-
-
-/*
-
-      if (key[ALLEGRO_KEY_RIGHT])
-      {
-         while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();
-         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL]))
-         {
-            g_stf += scroll_amt;
-            if (g_stf > end_fn) g_stf = end_fn;
-         }
-         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
-         {
-            g_stf += scroll_amt * 10;
-            if (g_stf > end_fn) g_stf = end_fn;
-         }
-         else x_scale *= 1.1;
-         redraw = 1;
-      }
-      if (key[ALLEGRO_KEY_LEFT])
-      {
-         while (key[ALLEGRO_KEY_LEFT]) proc_controllers();
-         if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL]))
-         {
-            g_stf -= scroll_amt;
-            if (g_stf < 0) g_stf = 0;
-         }
-         else if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
-         {
-            g_stf -= scroll_amt * 10;
-            if (g_stf < 0) g_stf = 0;
-         }
-         else x_scale *= .9;
-         redraw = 2;
-      }
-      if (key[ALLEGRO_KEY_UP])
-      {
-         while (key[ALLEGRO_KEY_UP]) proc_controllers();
-         y_scale *= 1.1;
-         redraw = 1;
-      }
-      if (key[ALLEGRO_KEY_DOWN])
-      {
-         while (key[ALLEGRO_KEY_DOWN]) proc_controllers();
-         y_scale *= .9;
-         redraw = 1;
-      }
-
-      */
-
-
-      if (key[ALLEGRO_KEY_ESCAPE])
-      {
-         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
-         gquit = 1;
-      }
+      if (key[ALLEGRO_KEY_ESCAPE][3]) gquit = 1;
    }
 }
 
@@ -2344,15 +2237,15 @@ void log_client_server_sync_graph(int num_lines)
       }
 
 
-      if (mouse_b1)
+      if (mouse_b[1][0])
       {
-         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // shift drag to set new zoom area
+         if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // shift drag to set new zoom area
          {
             int mx1 = mouse_x;
             int my1 = mouse_y;
             int mx2 = 0;
             int my2 = 0;
-            while (mouse_b1)
+            while (mouse_b[1][0])
             {
                proc_controllers();
                mx2 = mouse_x;
@@ -2384,7 +2277,7 @@ void log_client_server_sync_graph(int num_lines)
          {
             int mx = mouse_x;
             int gx = 0;
-            while (mouse_b1)
+            while (mouse_b[1][0])
             {
                proc_controllers();
                gx = (mx - mouse_x) / x_scale; // mouse x offset converted to x axis scale
@@ -2419,53 +2312,31 @@ void log_client_server_sync_graph(int num_lines)
          }
       }
 
-      int k = proc_controllers();
-      if ((k > 27) && (k < 35)) // numbers 0-7 toggle players
+      proc_controllers();
+      int k = key_pressed_ASCII;
+      if ((k > 36) && (k < 45)) k+=11; // convert number pad number to regular numbers
+      if ((k > 47) && (k < 56)) // numbers 0-7 toggle players
       {
+         int p = k-48;
          redraw = 1;
-         int p = k-27;
          lp[p][0] = !lp[p][0];
       }
 
       int scroll_amt = g_rng / 10; // scroll 10% of screen at once
       if (scroll_amt < 1) scroll_amt = 1;
 
-      if (key[ALLEGRO_KEY_SLASH])
+      if (key[ALLEGRO_KEY_SLASH][3])
       {
-         while (key[ALLEGRO_KEY_SLASH]) proc_controllers();
          help("Client Sync Graph");
          redraw = 1;
       }
-      if (key[ALLEGRO_KEY_HOME])
+      if (key[ALLEGRO_KEY_HOME][3])
       {
-         while (key[ALLEGRO_KEY_HOME]) proc_controllers();
          g_stf = 0; // graph start pc
          x_scale = (float)graph_w / (float)2400;  // start with showing 60 seconds
          redraw = 1;
       }
-      if (key[ALLEGRO_KEY_ESCAPE])
-      {
-         while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers();
-         gquit = 1;
-      }
+      if (key[ALLEGRO_KEY_ESCAPE][3]) gquit = 1;
    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

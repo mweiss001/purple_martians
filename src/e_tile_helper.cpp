@@ -551,9 +551,9 @@ void th_find_connected(int x, int y, int group)
 
 void th_process_mouse(void)
 {
-   if (mouse_b1)
+   if (mouse_b[1][0])
    {
-      while (mouse_b1) proc_controllers();
+      while (mouse_b[1][0]) proc_controllers();
 
       // add or del single tile at the specific location
       if (mW[9].th_match == 0) thl[gx][gy] = mW[9].th_add_del;
@@ -570,9 +570,9 @@ void th_process_mouse(void)
       }
    }
 
-   if (mouse_b2)
+   if (mouse_b[2][0])
    {
-      while (mouse_b2) proc_controllers();
+      while (mouse_b[2][0]) proc_controllers();
       set_windows(1);
    }
 }

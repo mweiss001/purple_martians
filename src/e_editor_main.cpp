@@ -593,10 +593,10 @@ void em_find_point_item(void)
 
 void em_process_mouse(void)
 {
-   if (mouse_b1)
+   if (mouse_b[1][0])
    {
       // don't allow drag draw selection unless draw type is block
-      if (mW[1].draw_item_type != 1) while (mouse_b1) proc_controllers();
+      if (mW[1].draw_item_type != 1) while (mouse_b[1][0]) proc_controllers();
 
       int din = mW[1].draw_item_num; // shorter variable name
       switch (mW[1].draw_item_type)
@@ -665,13 +665,13 @@ void em_process_mouse(void)
 
             if (type == 7) // podzilla
             {
-               if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
                //if (al_show_native_message_box(display, "Move?", "Move podzilla's extended position too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                {
                    Efi[c][5] = Efi[din][5] + al_itofix(ofx);
                    Efi[c][6] = Efi[din][6] + al_itofix(ofy);
                }
-               if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
                //if (al_show_native_message_box(display, "Move?", "Move podzilla's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                {
                   Ei[c][11] = Ei[din][11] + ofx;
@@ -682,7 +682,7 @@ void em_process_mouse(void)
             if (type == 9) // cloner
             {
                //if (al_show_native_message_box(display, "Move?", "Move cloner's source and destination boxes too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
-               if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
                {
                   Ei[c][15] = Ei[din][15] + ofx;
                   Ei[c][16] = Ei[din][16] + ofy;
@@ -690,7 +690,7 @@ void em_process_mouse(void)
                   Ei[c][18] = Ei[din][18] + ofy;
                }
                //if (al_show_native_message_box(display, "Move?", "Move cloner's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
-               if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
                {
                   Ei[c][11] = Ei[din][11] + ofx;
                   Ei[c][12] = Ei[din][12] + ofy;
@@ -730,8 +730,8 @@ void em_process_mouse(void)
          }
          break;
       } // end of switch case
-   } // end of mouse_b1
-   if (mouse_b2)
+   } // end of mouse_b[1][0]
+   if (mouse_b[2][0])
    {
       switch (mW[1].point_item_type)
       {
@@ -822,44 +822,20 @@ void em_process_mouse(void)
          case 16: help("Level Editor Basics"); break;// help
          case 17: mW[8].active = 0; break; // exit
       } // end of switch case
-   } // end of mouse_b2
+   } // end of mouse_b[2][0]
 }
 
 
 void em_process_keypress(void)
 {
+   if (key[ALLEGRO_KEY_I][3]) show_all_items();
+   if (key[ALLEGRO_KEY_E][3]) show_all_enemies();
+   if (key[ALLEGRO_KEY_V][3]) show_all_events();
+   if (key[ALLEGRO_KEY_L][3]) show_all_lifts();
+   if (key[ALLEGRO_KEY_S][3]) level_check();
+   if (key[ALLEGRO_KEY_P][3]) show_all_pmsg();
 
-   if (key[ALLEGRO_KEY_I])
-   {
-      while (key[ALLEGRO_KEY_I]) proc_controllers();
-      show_all_items();
-   }
-   if (key[ALLEGRO_KEY_E])
-   {
-      while (key[ALLEGRO_KEY_E]) proc_controllers();
-      show_all_enemies();
-   }
-   if (key[ALLEGRO_KEY_V])
-   {
-      while (key[ALLEGRO_KEY_V]) proc_controllers();
-      show_all_events();
-   }
-   if (key[ALLEGRO_KEY_L])
-   {
-      while (key[ALLEGRO_KEY_L]) proc_controllers();
-      show_all_lifts();
-   }
-   if (key[ALLEGRO_KEY_S])
-   {
-      while (key[ALLEGRO_KEY_S]) proc_controllers();
-      level_check();
-   }
-   if (key[ALLEGRO_KEY_P])
-   {
-      while (key[ALLEGRO_KEY_P]) proc_controllers();
-      show_all_pmsg();
-   }
-   while (key[ALLEGRO_KEY_ESCAPE]) { proc_controllers(); mW[8].active = 0; }
+   if (key[ALLEGRO_KEY_ESCAPE][3]) mW[8].active = 0;
 }
 
 int edit_menu(int el)
@@ -886,7 +862,8 @@ int edit_menu(int el)
    sort_item(1);
    em_set_swbl();
    set_frame_nums(0);
-   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear_key array
+
+   clear_keys();
 
    while (mW[8].active)
    {

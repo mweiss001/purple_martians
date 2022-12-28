@@ -232,13 +232,15 @@ int copy_files_to_clients(int exe_only)
 
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
+//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
 
+//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+//
+//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
+//
 
 
 
@@ -407,48 +409,18 @@ void show_level_done(void);
       show_level_done();
       al_flip_display();
 
-      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
+      while ((key[ALLEGRO_KEY_ESCAPE][0]) || (mouse_b[2][0]))
       {
          proc_controllers();
          quit = 1;
       }
-
-      if (key[ALLEGRO_KEY_1])
-      {
-         while (key[ALLEGRO_KEY_1]) proc_controllers();
-         players[1].active = !players[1].active;
-      }
-      if (key[ALLEGRO_KEY_2])
-      {
-         while (key[ALLEGRO_KEY_2]) proc_controllers();
-         players[2].active = !players[2].active;
-      }
-      if (key[ALLEGRO_KEY_3])
-      {
-         while (key[ALLEGRO_KEY_3]) proc_controllers();
-         players[3].active = !players[3].active;
-      }
-      if (key[ALLEGRO_KEY_4])
-      {
-         while (key[ALLEGRO_KEY_4]) proc_controllers();
-         players[4].active = !players[4].active;
-      }
-      if (key[ALLEGRO_KEY_5])
-      {
-         while (key[ALLEGRO_KEY_5]) proc_controllers();
-         players[5].active = !players[5].active;
-      }
-      if (key[ALLEGRO_KEY_6])
-      {
-         while (key[ALLEGRO_KEY_6]) proc_controllers();
-         players[6].active = !players[6].active;
-      }
-      if (key[ALLEGRO_KEY_7])
-      {
-         while (key[ALLEGRO_KEY_7]) proc_controllers();
-         players[7].active = !players[7].active;
-      }
-
+      if (key[ALLEGRO_KEY_1][3]) players[1].active = !players[1].active;
+      if (key[ALLEGRO_KEY_2][3]) players[2].active = !players[2].active;
+      if (key[ALLEGRO_KEY_3][3]) players[3].active = !players[3].active;
+      if (key[ALLEGRO_KEY_4][3]) players[4].active = !players[4].active;
+      if (key[ALLEGRO_KEY_5][3]) players[5].active = !players[5].active;
+      if (key[ALLEGRO_KEY_6][3]) players[6].active = !players[6].active;
+      if (key[ALLEGRO_KEY_7][3]) players[7].active = !players[7].active;
    }
 
 */

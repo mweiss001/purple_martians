@@ -20,13 +20,7 @@ void game_menu(void)
 
       //printf("post top menu\n");
 
-
-      while (key[ALLEGRO_KEY_L])
-      {
-         proc_controllers();
-         top_menu_sel = 8;
-      }
-
+      if (key[ALLEGRO_KEY_L][2]) top_menu_sel = 8;
 
 
       if ((top_menu_sel == 4) && (resume_allowed)) // resume game
@@ -124,7 +118,7 @@ void game_menu(void)
                      netgame_menu_sel -= 100;
                      if (netgame_menu_sel == 7) // damage inc
                      {
-                        if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) deathmatch_pbullets_damage +=10;
+                        if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) deathmatch_pbullets_damage +=10;
                         else deathmatch_pbullets_damage++;
                         if (deathmatch_pbullets_damage > 100) deathmatch_pbullets_damage = 100;
                         save_config();
@@ -135,7 +129,7 @@ void game_menu(void)
                      netgame_menu_sel -= 200;
                      if (netgame_menu_sel == 7) // damage dec
                      {
-                        if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) deathmatch_pbullets_damage -=10;
+                        if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) deathmatch_pbullets_damage -=10;
                         else deathmatch_pbullets_damage--;
                         if (deathmatch_pbullets_damage < -10) deathmatch_pbullets_damage = -10;
                         save_config();
@@ -447,8 +441,8 @@ void game_menu(void)
 
          if (top_menu_sel == 2) // start level inc
          {
-            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) start_level +=100;
-            else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) start_level +=10;
+            if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) start_level +=100;
+            else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) start_level +=10;
             else start_level++;
             if (start_level > 399) start_level = 399;
             set_start_level(start_level);
@@ -462,8 +456,8 @@ void game_menu(void)
 
          if (top_menu_sel == 2) // start level dec
          {
-            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) start_level -=100;
-            else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) start_level -=10;
+            if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) start_level -=100;
+            else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) start_level -=10;
             else start_level--;
             if (start_level < 1) start_level = 1;
             set_start_level(start_level);
