@@ -13,6 +13,13 @@ extern int packetsize;
 NET_CONN *ServerConn = NULL;
 NET_CHANNEL *ServerChannel;
 
+
+
+//NET_CHANNEL *ServerChannel2;
+//int ClientCheckResponse2(void);
+
+
+
 int ClientInitNetwork(const char *serveraddress)
 {
 	if(NetworkInit())
@@ -61,8 +68,34 @@ int ClientInitNetwork(const char *serveraddress)
          return 0;
       }
       sprintf(msg, "Client network initialized: server[%s] (UDP)", serveraddress);
-
+      printf("%s\n", msg);
+      if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
       printf("Local address of channel%s\n", net_getlocaladdress (ServerChannel));
+
+
+//      ServerChannel2 = net_openchannel(NetworkDriver, NULL);
+//      if (ServerChannel2 == NULL)
+//      {
+//         sprintf(msg, "Error: Client failed to create netchannel2 (UDP)");
+//         m_err(msg);
+//         if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+//         return 0;
+//      }
+//
+//      if (net_assigntarget(ServerChannel2, serveraddress))
+//      {
+//         sprintf(msg, "Error: Client failed to set netchannel2 target: server[%s] (UDP)", serveraddress);
+//         m_err(msg);
+//         if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+//         return 0;
+//      }
+//      sprintf(msg, "Client network2 initialized: server[%s] (UDP)", serveraddress);
+//      printf("%s\n", msg);
+//      if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+//      printf("Local address of channel%s\n", net_getlocaladdress (ServerChannel));
+//
+
+
 
    }
 
@@ -80,7 +113,7 @@ int ClientInitNetwork(const char *serveraddress)
       if (ClientCheckResponse())
       {
          got_reply = 1;
-         sprintf(msg,"Got reply from server");
+         sprintf(msg,"Got reply1 from server");
          printf("%s\n", msg);
          if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
       }
@@ -90,19 +123,53 @@ int ClientInitNetwork(const char *serveraddress)
          if (++tries > 2)
          {
             sprintf(msg,"Did not get reply from server");
-            m_err(msg);
-            // printf("%s\n", msg);
+//            m_err(msg);
+            printf("%s\n", msg);
             if (L_LOGGING_NETPLAY)
             {
                 add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                 add_log_entry_centered_text(10, 0, 76, "", "+", "-");
             }
+            // got_reply = 1; // get us out of here
             return 0;
          }
       }
    }
+
+//   tries = 1;
+//   got_reply = 0;
+//   while (!got_reply)
+//   {
+//      printf("ClientCheckResponse2 %d\n", tries);
+//      if (ClientCheckResponse2())
+//      {
+//         got_reply = 1;
+//         sprintf(msg,"Got reply2 from server");
+//         printf("%s\n", msg);
+//         if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+//      }
+//      else
+//      {
+//         al_rest(try_delay);
+//         if (++tries > 2)
+//         {
+//            sprintf(msg,"Did not get reply from server");
+////            m_err(msg);
+//            printf("%s\n", msg);
+//            if (L_LOGGING_NETPLAY)
+//            {
+//                add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+//                add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+//            }
+//            return 0;
+//         }
+//      }
+//   }
    return 1;
 }
+
+//void ClientSend2(void *data, int len);
+
 
 int ClientCheckResponse(void) // check for a repsonse from the server
 {
@@ -123,13 +190,7 @@ int ClientCheckResponse(void) // check for a repsonse from the server
       // send data to server
       Packet("1234");
       ClientSend(packetbuffer, packetsize);
-      printf("Sent initial packet to server, waiting for reply");
-
-
-
-      //      al_rest(0.1);
-//      al_rest(2);
-
+      printf("Sent initial packet 1234 to server, waiting for reply");
 
       int done = 10;
       while (done)
@@ -139,37 +200,98 @@ int ClientCheckResponse(void) // check for a repsonse from the server
          packetsize = net_receive(ServerChannel, packetbuffer, 1024, address);
          if (packetsize && (strcmp(packetbuffer, "5678") == 0)) // got response
          {
-
-             printf("got response: %s\n", address);
-
-
+             printf("got response 5678: %s\n", address);
              net_assigntarget(ServerChannel, address);
              return 1;
          }
 
          al_rest(.2);
          done--;
-
       }
-
       printf("no response\n");
-      return 0; // no response yet
-
-//
-//      // check for a response
-//      packetsize = net_receive(ServerChannel, packetbuffer, 1024, address);
-//      if (packetsize && (strcmp(packetbuffer, "5678") == 0)) // got response
-//      {
-//          net_assigntarget(ServerChannel, address);
-//          return 1;
-//      }
-//      else return 0; // no response yet
-//
-
-
    }
    return 0;
 }
+
+//int ClientCheckResponse2(void) // check for a response from the server
+//{
+//   if (TCP)
+//   {
+//   	int x = net_poll_connect(ServerConn);
+//      if (x == 0) return 0; // no response yet
+//   	if (x >  0) return 1; // good response
+//   	if (x <  0) // error
+//      {
+//   		net_closeconn(ServerConn);
+//   		return -1;
+//   	}
+//   }
+//   else // UDP
+//   {
+//      char address[32];
+//      // send data to server
+//      Packet("ABCD");
+//      ClientSend2(packetbuffer, packetsize);
+//      printf("Sent initial packet ABCD to server, waiting for reply");
+//
+//
+//      int done = 10;
+//      while (done)
+//      {
+//         printf(".");
+//
+//         packetsize = net_receive(ServerChannel2, packetbuffer, 1024, address);
+//         if (packetsize && (strcmp(packetbuffer, "EFGH") == 0)) // got response
+//         {
+//             printf("got response EFGH: %s\n", address);
+//             net_assigntarget(ServerChannel2, address);
+//             return 1;
+//         }
+//         al_rest(.2);
+//         done--;
+//     }
+//      printf("no response\n");
+//   }
+//   return 0;
+//}
+//
+//
+//
+//
+//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Receive data from the server, and store them in the provided array
 // (must have room for 1024 bytes). Returns the size of the stored data.
@@ -194,6 +316,31 @@ void ClientSend(void *data, int len)
    #endif
 }
 
+//
+//
+//
+//void ClientSend2(void *data, int len)
+//{
+//   if (TCP) net_send_rdm(ServerConn, data, len);
+//   else     net_send(ServerChannel2, data, len);
+//   #ifdef NETPLAY_bandwidth_tracking
+//   players1[active_local_player].tx_current_bytes_for_this_frame+= len;
+//   players1[active_local_player].tx_current_packets_for_this_frame++;
+//   #endif
+//}
+//
+//
+//
+
+
+
+
+
+
+
+
+
+
 void client_flush(void)
 {
    while ((packetsize = ClientReceive(packetbuffer)));
@@ -201,6 +348,11 @@ void client_flush(void)
 
 void ClientExitNetwork(void)
 {
+   sprintf(msg, "Shutting down the client");
+   printf("\n%s\n", msg);
+   if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 1);
+
+
    if (TCP)
    {
    	if(ServerConn) net_closeconn(ServerConn);
@@ -222,17 +374,26 @@ int client_init(void)
 {
    if (L_LOGGING_NETPLAY) log_versions();
 
-   if (!ClientInitNetwork(m_serveraddress)) return 0; // initialize driver with server address
-
-   sprintf(msg, "Client mode started on host:[%s]", local_hostname);
-   printf("%s\n", msg);
+   sprintf(msg, "Client mode started on localhost:[%s]", local_hostname);
+   printf("\n%s\n", msg);
    if (L_LOGGING_NETPLAY) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
+
+   if (!ClientInitNetwork(m_serveraddress)) return 0; // initialize driver with server address
+
+printf("post cin\n");
+
    return client_init_join(); // send join request
+
+
 }
 
 int client_init_join(void)
 {
+
+   printf("sending cjon\n");
+
+
    Packet("cjon");
    PacketPut1ByteInt(players[0].color); // requested color
    PacketAddString(local_hostname);
@@ -250,7 +411,7 @@ int client_init_join(void)
    while (!sjon) // run loop until SJON processed
    {
       proc_controllers();
-      if (key[ALLEGRO_KEY_ESCAPE]) sjon = 98; // emergency exit
+      if (key[ALLEGRO_KEY_ESCAPE][0]) sjon = 98; // emergency exit
       if ((packetsize = ClientReceive(packetbuffer)) && (PacketRead("sjon")))
       {
          int pl = PacketGet2ByteInt();   // play level
@@ -470,6 +631,9 @@ void client_apply_diff(void)
       }
       else // stored base state matches dif source
       {
+         sprintf(msg, "dif [%d to %d] applied.......\n", client_state_dif_src, client_state_dif_dst);
+         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
+
          // apply dif to base state
          apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
 
@@ -597,7 +761,7 @@ void client_block_until_initial_state_received(void)
    {
       if ((packetsize = ClientReceive(packetbuffer)) && (PacketRead("stdf"))) done = client_process_stdf_packet();
       proc_controllers();
-      if (key[ALLEGRO_KEY_ESCAPE]) // in case we get trapped here and need a way out
+      if (key[ALLEGRO_KEY_ESCAPE][0]) // in case we get trapped here and need a way out
       {
          client_exit();
          game_exit = 1;

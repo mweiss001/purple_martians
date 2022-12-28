@@ -473,12 +473,12 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
          if ((mouse_step >= 0) && (mouse_step < lifts[lift].num_steps))   // is this a valid step?
          {
             step_pointer = mouse_step;  // set step pointer to this step
-            if (mouse_b1)
+            if (mouse_b[1][0])
             {
                step = mouse_step; // set current step to this step
                lifts[lift].current_step = step; // set current step in lift
             }
-            if (mouse_b2) step_popup_menu(lift, step_pointer); // step pop-up menu for this step
+            if (mouse_b[2][0]) step_popup_menu(lift, step_pointer); // step pop-up menu for this step
          }
       }
 
@@ -1374,7 +1374,7 @@ void ovw_process_mouse(void)
          int type = Ei[b][0];
 
          // check to see if we can set this object to be the current object
-         if ((hx>ex+msn) && (hx<ex+msp) && (hy>ey+msn) && (hy<ey+msp) && (!mW[7].viewer_lock) && (!key[MAP_LOCK_KEY]) && (obj_filter[3][type]))
+         if ((hx>ex+msn) && (hx<ex+msp) && (hy>ey+msn) && (hy<ey+msp) && (!mW[7].viewer_lock) && (!key[MAP_LOCK_KEY][0]) && (obj_filter[3][type]))
          {
             // set this enemy to current object
             mW[7].obt = 3;
@@ -1508,7 +1508,7 @@ void ovw_process_mouse(void)
          int iy = item[b][5];
          int type = item[b][0];
          // check to see if we can set this object to be the current object
-         if ((hx>ix+msn) && (hx<ix+msp) && (hy>iy+msn) && (hy<iy+msp) && (!mW[7].viewer_lock) && (!key[MAP_LOCK_KEY]) && (obj_filter[2][type]))
+         if ((hx>ix+msn) && (hx<ix+msp) && (hy>iy+msn) && (hy<iy+msp) && (!mW[7].viewer_lock) && (!key[MAP_LOCK_KEY][0]) && (obj_filter[2][type]))
          {
             // set this item to current object
             mW[7].obt = 2;
@@ -1610,7 +1610,7 @@ void ovw_process_mouse(void)
    mouse_on_lift = 0;
    if (obj_filter[4][1])
    {
-      if ((!key[MAP_LOCK_KEY]) && (!mW[7].viewer_lock)) // no lock...check all lifts and steps
+      if ((!key[MAP_LOCK_KEY][0]) && (!mW[7].viewer_lock)) // no lock...check all lifts and steps
       {
          for (int x=0; x<num_lifts; x++)  // cycle lifts
             for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
@@ -1632,7 +1632,7 @@ void ovw_process_mouse(void)
                }
       }
 
-      if (((key[MAP_LOCK_KEY]) || (mW[7].viewer_lock)) && (mW[7].obt == 4)) // locked, but locked to current lift
+      if (((key[MAP_LOCK_KEY][0]) || (mW[7].viewer_lock)) && (mW[7].obt == 4)) // locked, but locked to current lift
       {
          int x = lift; // check only current lift
          for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
@@ -1654,7 +1654,7 @@ void ovw_process_mouse(void)
    if (mouse_on_lift)
    {
       mouse_on_obj = 1;
-      if (mouse_b2) step_popup_menu(lift, step);
+      if (mouse_b[2][0]) step_popup_menu(lift, step);
 
       // is mouse on lower right adjustable corner
       int x2 = lift_steps[lift][step].x + lift_steps[lift][step].w;
@@ -1672,7 +1672,7 @@ void ovw_process_mouse(void)
    else if (mouse_adj) al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_SE);
    else al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 
-   if (mouse_b1)
+   if (mouse_b[1][0])
    {
       // get offset from where mouse was clicked to lift step upper left origin
       int lsox=0, lsoy=0;
@@ -1685,7 +1685,7 @@ void ovw_process_mouse(void)
       }
 
 
-      while (mouse_b1)
+      while (mouse_b[1][0])
       {
          if (mouse_on_obj)
          {
@@ -1704,7 +1704,7 @@ void ovw_process_mouse(void)
                itemf[n][0] = al_itofix(gx*20);
                itemf[n][1] = al_itofix(gy*20);
 
-               if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
                {
                    if ((it == 4) || (it == 9) || (it == 10) || (it == 14) || (it == 16) || (it == 17)) // key, trigger, msg, switch, manip, damage
                    {
@@ -1731,7 +1731,7 @@ void ovw_process_mouse(void)
                Efi[mW[7].num][0] = al_itofix(gx*20);
                Efi[mW[7].num][1] = al_itofix(gy*20);
 
-               if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
                {
                   // move podzilla's trigger box too
                   if (Ei[mW[7].num][0] == 7)
@@ -1927,12 +1927,12 @@ void ovw_process_mouse(void)
             Ei[mW[7].num][18] = gy*20;
          }
          cm_redraw_level_editor_background();
-      } // end of while mouse_b1 pressed
-   } // end of if mouse_b1 pressed
+      } // end of while mouse_b[1][0] pressed
+   } // end of if mouse_b[1][0] pressed
 
-   if (mouse_b2)
+   if (mouse_b[2][0])
    {
-      while (mouse_b2) proc_controllers();
+      while (mouse_b[2][0]) proc_controllers();
       set_windows(1);
    }
 }
@@ -1986,12 +1986,12 @@ void ovw_process_keypress(void)
       lifts[mW[7].num].current_step = step;
    }
 
-   while (key[ALLEGRO_KEY_ESCAPE]) { proc_controllers(); mW[8].active = 0; }
-   while (key[ALLEGRO_KEY_DELETE]) { proc_controllers(); mb = 20; }
-   while (key[ALLEGRO_KEY_RIGHT])  { proc_controllers(); mb = 21; }
-   while (key[ALLEGRO_KEY_LEFT])   { proc_controllers(); mb = 22; }
-   while (key[ALLEGRO_KEY_UP])     { proc_controllers(); mb = 26; }
-   while (key[ALLEGRO_KEY_DOWN])   { proc_controllers(); mb = 27; }
+   if (key[ALLEGRO_KEY_ESCAPE][3]) mW[8].active = 0;
+   if (key[ALLEGRO_KEY_DELETE][3]) mb = 20;
+   if (key[ALLEGRO_KEY_RIGHT][3])  mb = 21;
+   if (key[ALLEGRO_KEY_LEFT][3])   mb = 22;
+   if (key[ALLEGRO_KEY_UP][3])     mb = 26;
+   if (key[ALLEGRO_KEY_DOWN][3])   mb = 27;
 
    switch(mb)
    {
@@ -2009,7 +2009,7 @@ void ovw_process_keypress(void)
          }
          if (mW[7].obt==4)
          {
-            while (!key[ALLEGRO_KEY_ESCAPE])
+            while (!key[ALLEGRO_KEY_ESCAPE][0])
             {
                for (int t=0; t<2; t++) move_lifts(1);  // move lifts for 2 frames
                cm_redraw_level_editor_background(0);
@@ -2017,7 +2017,7 @@ void ovw_process_keypress(void)
                get_new_screen_buffer(3, 0, 0);
                mW[7].draw(1);
             }
-            while (key[ALLEGRO_KEY_ESCAPE]) proc_controllers(); // wait for release
+            while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers(); // wait for release
             lift_setup(); // reset all lifts to step 0
          }
       }

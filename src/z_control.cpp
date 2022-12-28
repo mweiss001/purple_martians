@@ -170,7 +170,9 @@ int my_readkey(void) // used only to set new game control key or joystick bindin
 
 void clear_keys(void)
 {
-   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear my key array
+   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
+      for (int i=0; i<4; i++)
+         key[k][i] = 0; // clear my key array
 }
 
 void get_all_keys(int p) // prompts for all seven keys
@@ -247,7 +249,7 @@ void test_keys(void)
       y +=8;
       if (players[0].menu) al_draw_text(font, c2, x, y, ALLEGRO_ALIGN_CENTRE, "MENU" );
 
-      if (key[ALLEGRO_KEY_F11]) quit = 1;
+      if (key[ALLEGRO_KEY_F11][0]) quit = 1;
       al_flip_display();
       proc_controllers();
       al_rest(0.02);
@@ -293,27 +295,27 @@ void set_controls_from_comp_move(int p, int comp_move)
 void set_comp_move_from_player_key_check(int p) // but don't set controls !!!
 {
    int cm = 0;
-   if (key[players1[p].left_key])  cm |= PM_COMPMOVE_LEFT;
-   if (key[players1[p].right_key]) cm |= PM_COMPMOVE_RIGHT;
-   if (key[players1[p].up_key])    cm |= PM_COMPMOVE_UP;
-   if (key[players1[p].down_key])  cm |= PM_COMPMOVE_DOWN;
-   if (key[players1[p].jump_key])  cm |= PM_COMPMOVE_JUMP;
-   if (key[players1[p].fire_key])  cm |= PM_COMPMOVE_FIRE;
-   if (key[players1[p].menu_key])  cm |= PM_COMPMOVE_MENU;
-   if (key[ALLEGRO_KEY_ESCAPE])    cm |= PM_COMPMOVE_MENU;
+   if (key[players1[p].left_key][0])  cm |= PM_COMPMOVE_LEFT;
+   if (key[players1[p].right_key][0]) cm |= PM_COMPMOVE_RIGHT;
+   if (key[players1[p].up_key][0])    cm |= PM_COMPMOVE_UP;
+   if (key[players1[p].down_key][0])  cm |= PM_COMPMOVE_DOWN;
+   if (key[players1[p].jump_key][0])  cm |= PM_COMPMOVE_JUMP;
+   if (key[players1[p].fire_key][0])  cm |= PM_COMPMOVE_FIRE;
+   if (key[players1[p].menu_key][0])  cm |= PM_COMPMOVE_MENU;
+   if (key[ALLEGRO_KEY_ESCAPE][0])    cm |= PM_COMPMOVE_MENU;
    players1[p].comp_move = cm;
 }
 
 void set_controls_from_player_key_check(int p) // used only in menu
 {
-   if (key[players1[p].left_key])  players[p].left  = 1;
-   if (key[players1[p].right_key]) players[p].right = 1;
-   if (key[players1[p].up_key])    players[p].up    = 1;
-   if (key[players1[p].down_key])  players[p].down  = 1;
-   if (key[players1[p].jump_key])  players[p].jump  = 1;
-   if (key[players1[p].fire_key])  players[p].fire  = 1;
-   if (key[players1[p].menu_key])  players[p].menu  = 1;
-   if (key[ALLEGRO_KEY_ESCAPE])    players[p].menu  = 1;
+   if (key[players1[p].left_key][0])  players[p].left  = 1;
+   if (key[players1[p].right_key][0]) players[p].right = 1;
+   if (key[players1[p].up_key][0])    players[p].up    = 1;
+   if (key[players1[p].down_key][0])  players[p].down  = 1;
+   if (key[players1[p].jump_key][0])  players[p].jump  = 1;
+   if (key[players1[p].fire_key][0])  players[p].fire  = 1;
+   if (key[players1[p].menu_key][0])  players[p].menu  = 1;
+   if (key[ALLEGRO_KEY_ESCAPE][0])    players[p].menu  = 1;
 }
 
 int get_comp_move_from_players_controls(int p) // only used to test
@@ -334,193 +336,98 @@ void function_key_check(void)
    if ((!game_exit) || (level_editor_running))
    {
 
-      if ((key[ALLEGRO_KEY_F1]) && (!KEY_F1_held))
+      if (key[ALLEGRO_KEY_F1][3])
       {
-         KEY_F1_held = 1;
-
 //         frame_speed = 4;
 //         set_speed();
-
 
 //         #ifndef RELEASE
          players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
          printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
 //         #endif
 
-
-//         printf("dif test\n");
-//         players[0].PX += al_ftofix(0.0001);
-//         Ei[2][9]++;
-//         Efi[3][1] += al_ftofix(0.0001);
-//         item[4][3]++;
-//         itemf[5][0] += al_ftofix(0.0001);
-//         lifts[6].fy += al_ftofix(0.0001);
-//         l[2][3]++;
-
-//         printf("dif test\n");
-//         void show_player_dif(int ba);
-//         void show_enemy_dif(int ba);
-//         void show_item_dif(int ba);
-//         void show_lifts_dif(int ba);
-//         show_player_dif(1);
-//         show_player_dif(2);
-//         show_enemy_dif(1);
-//         show_enemy_dif(2);
-//         show_item_dif(1);
-//         show_item_dif(2);
-//         show_lifts_dif(1);
-//         show_lifts_dif(2);
-
       }
-      if (!key[ALLEGRO_KEY_F1]) KEY_F1_held = 0;
-
-//      if ((key[ALLEGRO_KEY_F2]) && (!KEY_F2_held))
-//      {
-//         KEY_F2_held = 1;
-//
-//         while (key[ALLEGRO_KEY_F2]) proc_controllers();
-//
-//         #ifndef RELEASE
-////         speed_testing =!speed_testing; // remove all speed limiting and force draw each frame
-//         #endif
-//      }
-//      if (!key[ALLEGRO_KEY_F2]) KEY_F2_held = 0;
-//
-//      if ((key[ALLEGRO_KEY_F3]) && (!KEY_F3_held))
-//      {
-//         KEY_F3_held = 1;
-//         //next_map_size();
-//      }
-//      if (!key[ALLEGRO_KEY_F3]) KEY_F3_held = 0;
 
 
-      if ((key[ALLEGRO_KEY_F4]) && (!KEY_F4_held))
+      if (key[ALLEGRO_KEY_F4][3])
       {
-         KEY_F4_held = 1;
          blind_save_game_moves(3);
          save_log_file();
       }
-      if (!key[ALLEGRO_KEY_F4]) KEY_F4_held = 0;
 
 
 
-      if (key[ALLEGRO_KEY_F5]) set_scale_factor(scale_factor * .90, 0);
-      if (key[ALLEGRO_KEY_F6]) set_scale_factor(scale_factor * 1.1, 0);
-      if ((key[ALLEGRO_KEY_F5]) && (key[ALLEGRO_KEY_F6])) set_scale_factor(1, 1);
+      if (key[ALLEGRO_KEY_F5][0]) set_scale_factor(scale_factor * .90, 0);
+      if (key[ALLEGRO_KEY_F6][0]) set_scale_factor(scale_factor * 1.1, 0);
+      if ((key[ALLEGRO_KEY_F5][0]) && (key[ALLEGRO_KEY_F6][0])) set_scale_factor(1, 1);
 
 
       if ((!ima_client) && (!ima_server)) // only adjust speed if not in netgame
       {
-         if ((key[ALLEGRO_KEY_F7]) && (!KEY_F7_held))
+         if (key[ALLEGRO_KEY_F7][2])
          {
-            KEY_F7_held = frame_speed/4;
-            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) frame_speed -=100;
-            else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) frame_speed -=20;
+            if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) frame_speed -=100;
+            else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) frame_speed -=20;
             else frame_speed -= 1;
             if (frame_speed < 5) frame_speed = 5;
             set_speed();
          }
-         if (!key[ALLEGRO_KEY_F7]) KEY_F7_held = 0;
-         if (key[ALLEGRO_KEY_F7]) if (--KEY_F7_held < 0) KEY_F7_held = 0;
 
-
-         if ((key[ALLEGRO_KEY_F8]) && (!KEY_F8_held))
+         if (key[ALLEGRO_KEY_F8][2])
          {
-            KEY_F8_held = frame_speed/4;
-            if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) frame_speed +=100;
-            else if ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) frame_speed +=20;
+            if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) frame_speed +=100;
+            else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) frame_speed +=20;
             else frame_speed += 1;
             if (frame_speed > 10000) frame_speed = 10000;
             set_speed();
          }
-         if (!key[ALLEGRO_KEY_F8]) KEY_F8_held = 0;
-         if (key[ALLEGRO_KEY_F8]) if (--KEY_F8_held < 0) KEY_F8_held = 0;
       }
 
-      if ((KEY_F7_held) && (KEY_F8_held))
+//      if ((KEY_F7_held) && (KEY_F8_held))
+      if ((key[ALLEGRO_KEY_F7][0]) && (key[ALLEGRO_KEY_F7][1]) && (key[ALLEGRO_KEY_F8][0]) && (key[ALLEGRO_KEY_F8][1]))
       {
-         KEY_F7_held = 10;
-         KEY_F8_held = 10;
          frame_speed = 40;
          set_speed();
       }
 
-      if ((key[ALLEGRO_KEY_F9]) && (!KEY_F9_held))
+      if (key[ALLEGRO_KEY_F9][2])
       {
-         KEY_F9_held = 1;
       }
-      if (!key[ALLEGRO_KEY_F9]) KEY_F9_held = 0;
 
 
-      if ((key[ALLEGRO_KEY_F10]) && (!KEY_F10_held))
+      if (key[ALLEGRO_KEY_F10][2])
       {
-         KEY_F10_held = 1;
 
          if (show_debug_overlay)  show_debug_overlay = 0;
          else
          {
             #ifdef RELEASE
-            if ( ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) &&
-               ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) )
+            if ( ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) &&
+               ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) )
             #endif
-               show_debug_overlay = 1;
+            show_debug_overlay = 1;
          }
       }
-      if (!key[ALLEGRO_KEY_F10]) KEY_F10_held = 0;
    } // end of if not game exit
 
 
-      if ((key[ALLEGRO_KEY_F11]) && (!KEY_F11_held))
+      if (key[ALLEGRO_KEY_F11][2])
       {
-         KEY_F11_held = 1;
-
          init_level_background(0);
-
-
       }
-      if (!key[ALLEGRO_KEY_F11]) KEY_F11_held = 0;
 
 
+   if (key[ALLEGRO_KEY_UP][   2]) pct_y--;
+   if (key[ALLEGRO_KEY_DOWN][ 2]) pct_y++;
+   if (key[ALLEGRO_KEY_LEFT][ 2]) pct_x--;
+   if (key[ALLEGRO_KEY_RIGHT][2]) pct_x++;
 
-
-   if ((key[ALLEGRO_KEY_UP]) && (!KEY_UP_held))
+   if (key[ALLEGRO_KEY_F12][2])
    {
-      KEY_UP_held = 1;
-      pct_y--;
-   }
-   if (!key[ALLEGRO_KEY_UP]) KEY_UP_held = 0;
-
-   if ((key[ALLEGRO_KEY_DOWN]) && (!KEY_DOWN_held))
-   {
-      KEY_DOWN_held = 1;
-      pct_y++;
-   }
-   if (!key[ALLEGRO_KEY_DOWN]) KEY_DOWN_held = 0;
-
-   if ((key[ALLEGRO_KEY_LEFT]) && (!KEY_LEFT_held))
-   {
-      KEY_LEFT_held = 1;
-      pct_x--;
-   }
-   if (!key[ALLEGRO_KEY_LEFT]) KEY_LEFT_held = 0;
-
-   if ((key[ALLEGRO_KEY_RIGHT]) && (!KEY_RIGHT_held))
-   {
-      KEY_RIGHT_held = 1;
-      pct_x++;
-   }
-   if (!key[ALLEGRO_KEY_RIGHT]) KEY_RIGHT_held = 0;
-
-
-   if ((key[ALLEGRO_KEY_F12]) && (!KEY_F12_held))
-   {
-      KEY_F12_held = 1;
-      if ( ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) &&
-           ((key[ALLEGRO_KEY_LCTRL]) || (key[ALLEGRO_KEY_RCTRL])) )
+      if ( ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) &&
+           ((key[ALLEGRO_KEY_LCTRL ][0]) || (key[ALLEGRO_KEY_RCTRL][0 ])) )
       {
          cycle_display_transform();
-
-
       }
       else
       {
@@ -528,11 +435,10 @@ void function_key_check(void)
          else            proc_display_change_tofs();
       }
    }
-   if (!key[ALLEGRO_KEY_F12]) KEY_F12_held = 0;
 
-   if ((key[ALLEGRO_KEY_PRINTSCREEN]) && (!KEY_PRTSCR_held))
+
+   if (key[ALLEGRO_KEY_PRINTSCREEN][2])
    {
-      KEY_PRTSCR_held = 1;
       ALLEGRO_BITMAP *ss_bmp = al_create_bitmap(disp_w_curr, disp_h_curr);
       al_set_target_bitmap(ss_bmp);
       al_draw_bitmap(al_get_backbuffer(display), 0, 0, 0);
@@ -548,20 +454,19 @@ void function_key_check(void)
       al_save_bitmap(filename, ss_bmp);
       al_destroy_bitmap(ss_bmp);
    }
-   if (!key[ALLEGRO_KEY_PRINTSCREEN]) KEY_PRTSCR_held = 0;
 }
 
 
-void rungame_key_check(int p, int ret)
+void rungame_key_check(int p)
 {
-   if (key[ALLEGRO_KEY_0]) active_local_player = 0;
-   if (key[ALLEGRO_KEY_1]) active_local_player = 1;
-   if (key[ALLEGRO_KEY_2]) active_local_player = 2;
-   if (key[ALLEGRO_KEY_3]) active_local_player = 3;
-   if (key[ALLEGRO_KEY_4]) active_local_player = 4;
-   if (key[ALLEGRO_KEY_5]) active_local_player = 5;
-   if (key[ALLEGRO_KEY_6]) active_local_player = 6;
-   if (key[ALLEGRO_KEY_7]) active_local_player = 7;
+   if (key[ALLEGRO_KEY_0][0]) active_local_player = 0;
+   if (key[ALLEGRO_KEY_1][0]) active_local_player = 1;
+   if (key[ALLEGRO_KEY_2][0]) active_local_player = 2;
+   if (key[ALLEGRO_KEY_3][0]) active_local_player = 3;
+   if (key[ALLEGRO_KEY_4][0]) active_local_player = 4;
+   if (key[ALLEGRO_KEY_5][0]) active_local_player = 5;
+   if (key[ALLEGRO_KEY_6][0]) active_local_player = 6;
+   if (key[ALLEGRO_KEY_7][0]) active_local_player = 7;
 
    // dont let alp be an inactive player
    while (!players[active_local_player].active) // if alp not active
@@ -569,24 +474,18 @@ void rungame_key_check(int p, int ret)
 
    if (demo_mode_on) // look for a keypress to end demo mode
    {
-      if (ret)
+      if (key[ALLEGRO_KEY_ESCAPE][0])
       {
-         // allow keys 0-7 and F1 to F12; all other keys abort demo mode
-         if ( ((ret > 0) && (ret < 27)) || //up to 0
-             ((ret > 34) && (ret <47)) ||
-             ((ret > 58) && (ret <200)) )
-         {
-           demo_mode_on = 0;
-           game_exit = 1;
-           load_config();
-         }
+         demo_mode_on = 0;
+         game_exit = 1;
+         load_config();
       }
    }
 
    // if games_moves doesn't end with level_done kill it after 4 seconds
    if (frame_num > demo_mode_last_frame + 160) game_exit = 1;
 
-   if (key[ALLEGRO_KEY_ESCAPE])
+   if (key[ALLEGRO_KEY_ESCAPE][0])
    {
       // set all players inactive
       for (int p=0; p<NUM_PLAYERS; p++) players[p].active = 0;
@@ -702,93 +601,6 @@ void serial_key_check(int key)
    }
 }
 
-
-int proc_events(ALLEGRO_EVENT ev, int ret)
-{
-   if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
-   if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
-   if (ev.type == ALLEGRO_EVENT_MOUSE_WARPED)
-   {
-      mouse_x = ev.mouse.x / display_transform_double;
-      mouse_y = ev.mouse.y / display_transform_double;
-   }
-   if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
-   {
-      mouse_x = ev.mouse.x / display_transform_double;
-      mouse_y = ev.mouse.y / display_transform_double;
-      mouse_z = ev.mouse.z / display_transform_double;
-      mouse_dx = ev.mouse.dx;
-      mouse_dy = ev.mouse.dy;
-      mouse_dz = ev.mouse.dz;
-   }
-   if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
-   {
-      if (ev.mouse.button == 1) mouse_b1 = 1;
-      if (ev.mouse.button == 2) mouse_b2 = 1;
-      if (ev.mouse.button == 3) mouse_b3 = 1;
-      if (ev.mouse.button == 4) mouse_b4 = 1;
-   }
-   if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_UP)
-   {
-      if (ev.mouse.button == 1) mouse_b1 = 0;
-      if (ev.mouse.button == 2) mouse_b2 = 0;
-      if (ev.mouse.button == 3) mouse_b3 = 0;
-      if (ev.mouse.button == 4) mouse_b4 = 0;
-   }
-   if (ev.type == ALLEGRO_EVENT_KEY_DOWN)
-   {
-      int k = ev.keyboard.keycode;
-      key[k] = true;
-      ret = k;
-   }
-   if (ev.type == ALLEGRO_EVENT_KEY_UP)
-   {
-      int k = ev.keyboard.keycode;
-      key[k] = false;
-      if (k == ALLEGRO_KEY_PRINTSCREEN) key[k] = true; // special exception to make PRINTSCREEN work
-   }
-   if (ev.type == ALLEGRO_EVENT_KEY_CHAR)
-   {
-      key_pressed_ASCII = ev.keyboard.unichar;
-      serial_key_check(key_pressed_ASCII);
-   }
-   if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS)
-   {
-      int jy = getJoystickNum(ev.joystick.id);
-      int jo = 0; // offset
-      if (jy == 0) jo = 0;
-      if (jy == 1) jo = 20;
-      int ax = ev.joystick.axis;
-      float pos = ev.joystick.pos;
-      if (ax == 0) // x axis
-      {
-         key[130+jo] = false;
-         key[131+jo] = false;
-         if (pos > 0) key[131+jo] = true;
-         if (pos < 0) key[130+jo] = true;
-      }
-      if (ax == 1) // y axis
-      {
-         key[128+jo] = false;
-         key[129+jo] = false;
-         if (pos > 0) key[129+jo] = true;
-         if (pos < 0) key[128+jo] = true;
-      }
-   }
-   if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_DOWN)
-   {
-      int jy = getJoystickNum(ev.joystick.id);
-      int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
-      key[sc] = true;
-   }
-   if (ev.type == ALLEGRO_EVENT_JOYSTICK_BUTTON_UP)
-   {
-      int jy = getJoystickNum(ev.joystick.id);
-      int sc = get_scan_code_from_joystick(jy, 1, ev.joystick.button);
-      key[sc] = false;
-   }
-   return ret;
-}
 
 
 void add_game_move2(int frame, int type, int data1, int data2)
@@ -1033,13 +845,13 @@ void proc_game_moves_array(void)
    }
 }
 
-void proc_player_input(int ret)
+void proc_player_input(void)
 {
    for (int p=0; p<NUM_PLAYERS; p++)
       if (players[p].active) // cycle all active players
       {
          int cm = players[p].control_method;
-         if (cm == 1) rungame_key_check(p, ret); // run game from file
+         if (cm == 1) rungame_key_check(p); // run game from file
          if ((cm == 0) || (cm == 3) || (cm == 4)) // single player, server, client
          {
             if ((players[0].level_done_mode == 0) || (players[0].level_done_mode == 5)) // only allow player input in these modes
@@ -1078,12 +890,34 @@ void proc_player_input(int ret)
       }
 }
 
-int proc_controllers()
+void proc_keys_held(void)
 {
-   int ret=0, menu_timer_block=1;
-   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
-   key_pressed_ASCII = 0;
+   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
+   {
+      if ((key[k][0] == true) && (key[k][1] == false)) key[k][2] = true; // just pressed
+      else key[k][2] = false;
+      if ((key[k][0] == false) && (key[k][1] == true)) key[k][3] = true; // just released
+      else key[k][3] = false;
+      key[k][1] = key[k][0]; // previous for next time
+   }
+   for (int m=1; m<5; m++)
+   {
+      if ((mouse_b[m][0] == true) && (mouse_b[m][1] == false)) mouse_b[m][2] = true; // just pressed
+      else mouse_b[m][2] = false;
+      if ((mouse_b[m][0] == false) && (mouse_b[m][1] == true)) mouse_b[m][3] = true; // just released
+      else mouse_b[m][3] = false;
+      mouse_b[m][1] = mouse_b[m][0]; // previous for next time
+   }
+}
 
+
+
+
+void proc_controllers(void)
+{
+   int menu_timer_block=1;
+   key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
+   key_pressed_ASCII = 0;
 
    while (menu_timer_block)
    {
@@ -1093,21 +927,23 @@ int proc_controllers()
          if (al_get_next_event(event_queue, &ev))
          {
             if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_block = 0;
-            else ret = proc_events(ev, ret);
+            else proc_events(ev);
          }
       }
-      function_key_check();
-      if (game_exit) // if not called from game only do key check for active local player
-      {
-          clear_controls(active_local_player);
-          set_controls_from_player_key_check(active_local_player);
-      }
-      else // game is in progress
-      {
-         menu_timer_block = 0;
-         proc_player_input(ret);
-         if (!ima_client) proc_game_moves_array();  // run once per frame to process game_moves_array (except client)
-      }
+      if (!game_exit) menu_timer_block = 0;
    }
-   return ret;
+
+
+   proc_keys_held();
+   function_key_check();
+   if (game_exit) // if not called from game only do key check for active local player
+   {
+       clear_controls(active_local_player);
+       set_controls_from_player_key_check(active_local_player);
+   }
+   else // game is in progress
+   {
+      proc_player_input();
+      if (!ima_client) proc_game_moves_array();  // run once per frame to process game_moves_array (except client)
+   }
 }

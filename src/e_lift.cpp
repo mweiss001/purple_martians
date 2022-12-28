@@ -247,7 +247,7 @@ int get_new_lift_step(int lift, int step)
       al_rest(0.02);
       al_flip_display();
       proc_controllers();
-      if ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE])) quit = 99;
+      if ((mouse_b[2][0]) || (key[ALLEGRO_KEY_ESCAPE][0])) quit = 99;
 
       al_draw_textf(font, palette_color[fc], xc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
 

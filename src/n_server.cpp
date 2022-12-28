@@ -8,6 +8,9 @@ extern int NetworkDriver;
 // n_packet.h
 extern char packetbuffer[1024];
 extern int packetsize;
+void set_packetpos(int pos);
+int get_packetpos(void);
+
 
 // these are never referenced outside of this file
 #define MAX_CLIENTS 32
@@ -17,8 +20,36 @@ NET_CONN *ClientConn[MAX_CLIENTS] = {NULL, };        // array of connections for
 NET_CHANNEL *ListenChannel = NULL;                   // listen channel
 NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
 
+
+
+
+//
+//int ClientNum2 = 0;
+//NET_CHANNEL *ListenChannel2 = NULL;                   // listen channel
+//NET_CHANNEL *ClientChannel2[MAX_CLIENTS] = {NULL, };  // array of channels for each client
+
+
+
+void init_packet_buffer(void)
+{
+   for (int i=0; i<200; i++)
+   {
+      packet_buffers[i].active = 0;
+      packet_buffers[i].type = 0;
+      packet_buffers[i].timestamp = 0;
+      packet_buffers[i].who = 0;
+      packet_buffers[i].packetsize = 0;
+      packet_buffers[i].data[0] = 0;
+   }
+}
+
+
+
 int ServerInitNetwork() // Initialize the server
 {
+   init_packet_buffer();
+
+
 	if(NetworkInit())
    {
       sprintf(msg, "Error: failed to initialize network\n");
@@ -70,21 +101,57 @@ int ServerInitNetwork() // Initialize the server
    		return -1;
    	}
       sprintf(msg, "Network initialized - channel mode (UDP)");
+//      printf("%s\n", msg);
+//      if (L_LOGGING_NETPLAY) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+      printf("Local address of channel%s\n", net_getlocaladdress (ListenChannel));
+
+
+//      // open the listening channel2;
+//      if (!(ListenChannel2 = net_openchannel(NetworkDriver, NULL)))
+//      {
+//         sprintf(msg, "Error: failed to open listening channel2\n");
+//         printf("%s", msg);
+//         m_err(msg);
+//         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+//         return -1;
+//      }
+//
+//      if (net_assigntarget(ListenChannel2, ""))
+//      {
+//         sprintf(msg, "Error: failed to assign target to listening channel2\n");
+//         printf("%s", msg);
+//         m_err(msg);
+//         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+//   		net_closechannel(ListenChannel2);
+//   		return -1;
+//   	}
+//      sprintf(msg, "Network initialized - channel2 mode (UDP)");
+//      printf("%s\n", msg);
+//      if (L_LOGGING_NETPLAY) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+//      printf("Local address of channel%s\n", net_getlocaladdress (ListenChannel));
+//
+
+
+
+
    } // end of UDP
 
    printf("%s\n", msg);
    if (L_LOGGING_NETPLAY) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+
+
+
 	return 0;
 }
 
 
-int ServerListen() // Check for connecting clients (0 = ok, got new connection, 1 = no new connection yet
+void ServerListen() // Check for connecting clients (0 = ok, got new connection, 1 = no new connection yet
 {
   if (TCP)
   {
    	NET_CONN *newconn;
    	newconn = net_poll_listen (ListenConn);
-   	if(newconn == NULL) return 1;
+   	if(newconn == NULL) return;
       else
       {
       	ClientConn[ClientNum] = newconn;
@@ -99,63 +166,170 @@ int ServerListen() // Check for connecting clients (0 = ok, got new connection, 
             add_log_entry_centered_text(11, 0, 76, "", "+", "-");
          }
       }
-   	return 0;
    } // end of if TCP
+
+
+
+
+
+
    else // UDP
    {
-   	char address[32];
-   	packetsize = net_receive(ListenChannel, packetbuffer, 1024, address);
-      if ((packetsize) && (PacketRead("1234")))
-      {
-         sprintf(msg, "Server recieved initial packet from '%s'",address);
-         printf("%s\n", msg);
-         if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
+      // printf("server listen\n");
+
+     	char address[32];
+
+
+     	al_lock_mutex(mutex);
+//
+//
+//      if (!packet_rx_lock)
+//      {
+//         packet_rx_lock = 1;
+
+         packetsize = net_receive(ListenChannel, packetbuffer, 1024, address);
+
+         if (packetsize)
          {
-            sprintf(msg, "Error: failed to open channel for %s\n", address);
-            printf("%s", msg);
-            if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
-   			return 1;
+            printf("packetsize:%d pos:%d  %c%c%c%c\n", packetsize, get_packetpos(), packetbuffer[0], packetbuffer[1], packetbuffer[2], packetbuffer[3] );
+
+            if (packetbuffer[0] == '1')// printf("1!!!\n");
+
+
+//            if (PacketRead("1234")) // why the fuck this does not work?????
+
+            if ((packetbuffer[0] == '1') && (packetbuffer[1] == '2') && (packetbuffer[2] == '3') && (packetbuffer[3] == '4'))    // printf("1!!!\n");
+            {
+               sprintf(msg, "Server received initial 1234 packet from '%s'",address);
+               printf("%s\n", msg);
+
+               if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
+               {
+                  sprintf(msg, "Error: failed to open channel for %s\n", address);
+                  printf("%s", msg);
+                  if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+                  return;
+               }
+               if (net_assigntarget (ClientChannel[ClientNum], address))
+               {
+                  sprintf(msg, "Error: couldn't assign target `%s' to channel\n", address);
+                  printf("%s", msg);
+                  if (L_LOGGING_NETPLAY)  add_log_entry2(10, 0, msg);
+                  net_closechannel (ClientChannel[ClientNum]);
+                  return;
+               }
+               sprintf(msg, "Server opened channel for `%s' and sent reply", address);
+               printf("%s\n", msg);
+               if (L_LOGGING_NETPLAY)
+               {
+                  add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+                  add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+                  add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+               }
+
+               Packet("5678");
+               ServerSendTo(packetbuffer, packetsize, ClientNum, 0);
+               ClientNum++;
+               // sprintf(msg, "ClientNum:%d", ClientNum);
+               // printf("%s\n", msg);
+            }
          }
-   		if (net_assigntarget (ClientChannel[ClientNum], address))
-         {
-            sprintf(msg, "Error: couldn't assign target `%s' to channel\n",address);
-            printf("%s", msg);
-            if (L_LOGGING_NETPLAY)  add_log_entry2(10, 0, msg);
-   			net_closechannel (ClientChannel[ClientNum]);
-   			return 1;
-   		}
-         sprintf(msg, "Server opened channel for `%s'",address);
-         printf("%s\n", msg);
-         if (L_LOGGING_NETPLAY)
-         {
-            add_log_entry_centered_text(11, 0, 76, "", "+", "-");
-            add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-            add_log_entry_centered_text(11, 0, 76, "", "+", "-");
-         }
-         char bufr[32] = "5678";
-         net_send (ClientChannel[ClientNum], bufr, strlen (bufr) + 1);
 
 
-//         Packet("5678");
-//         ServerSendTo(packetbuffer, packetsize, who, 0);
+     	al_unlock_mutex(mutex);
+
+
+//         packet_rx_lock = 0;
+//      }
+
+
+//
+//
+//   	packetsize = net_receive(ListenChannel2, packetbuffer, 1024, address);
+//
+//      if ((packetsize) && (PacketRead("ABCD")))
+//      {
+//         sprintf(msg, "Server received initial ABCD packet from '%s'",address);
+//         printf("%s\n", msg);
+//
+//         if (!(ClientChannel2[ClientNum2] = net_openchannel(NetworkDriver, "")))
+//         {
+//            sprintf(msg, "Error: failed to open channel for %s\n", address);
+//            printf("%s", msg);
+//            if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+//   			return;
+//         }
+//   		if (net_assigntarget (ClientChannel2[ClientNum2], address))
+//         {
+//            sprintf(msg, "Error: couldn't assign target `%s' to channel\n",address);
+//            printf("%s", msg);
+//            if (L_LOGGING_NETPLAY)  add_log_entry2(10, 0, msg);
+//   			net_closechannel (ClientChannel2[ClientNum2]);
+//   			return;
+//   		}
+//         sprintf(msg, "Server opened channel for `%s' and sent reply",address);
+//         printf("%s\n", msg);
+//         if (L_LOGGING_NETPLAY)
+//         {
+//            add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+//            add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+//            add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+//         }
+//
+//         Packet("EFGH");
+//         ServerSendTo(packetbuffer, packetsize, ClientNum2, 0);
+//         ClientNum2++;
+//         // sprintf(msg, "ClientNum:%d", ClientNum);
+//         // printf("%s\n", msg);
+//      }
+//
 
 
 
 
 
-         sprintf(msg, "Server replied with 5678");
-         printf("%s\n", msg);
-
-         ClientNum++;
-
-         sprintf(msg, "ClientNum:%d", ClientNum);
-         printf("%s\n", msg);
 
 
-         return 0; // got new connection
-      }
-      return 1;
+
+
+
+
+
+
+
+
+
+
    } // end of UDP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -260,9 +434,9 @@ void server_flush(void)
 
 void ServerExitNetwork() // Shut the server down
 {
-   sprintf(msg, "Shutting down the server\n");
-   printf("%s", msg);
-   if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+   sprintf(msg, "Shutting down the server");
+   printf("%s\n", msg);
+   if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 1);
    if (TCP)
    {
       for(int n = 0; n < ClientNum; n++)
@@ -291,6 +465,10 @@ void ServerExitNetwork() // Shut the server down
 // ***************************************************************************************************************
 //----------------------------------------------------------------------------------------------------------------
 
+
+static void *server_fast_packet_loop(void *arg);
+
+
 int server_init(void)
 {
    if (L_LOGGING_NETPLAY)
@@ -300,7 +478,7 @@ int server_init(void)
 
       sprintf(msg, "Server mode started");
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-      printf("%s\n", msg);
+      printf("\n%s\n", msg);
 
       sprintf(msg, "Server hostname:    [%s]", local_hostname);
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
@@ -313,15 +491,15 @@ int server_init(void)
 
    if (ServerInitNetwork())
    {
-      sprintf(msg, "Could find no internet driver for server\n");
-      printf("%s", msg);
+      sprintf(msg, "Could not find internet driver!");
+      printf("\n%s\n\n", msg);
       m_err(msg);
       if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
       return 0;
    }
 
-   sprintf(msg, "Server initialized");
-   printf("%s\n", msg);
+   sprintf(msg, "Server successfully initialized");
+   printf("%s\n\n", msg);
    if (L_LOGGING_NETPLAY)
    {
       add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
@@ -336,6 +514,15 @@ int server_init(void)
    ima_server = 1;
    strncpy(players1[0].hostname, local_hostname, 16);
 
+   players1[0].s1 = 3;
+   players1[0].s2 = 1;
+
+
+   mutex = al_create_mutex();
+
+
+   al_run_detached_thread(server_fast_packet_loop, NULL);
+
    return 1;
 }
 
@@ -348,6 +535,7 @@ void server_exit(void)
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
    players[0].active = 1;
 }
+
 
 // send stdf to a specific client
 void server_send_stdf(int p)
@@ -412,11 +600,36 @@ void server_send_stdf(int p)
    }
 }
 
+
+void server_send_stdf(void)
+{
+   players1[0].server_send_dif = 0;
+
+//   // save current game state to state[0] as a base for making client difs
+//   game_vars_to_state(srv_stdf_state[0]);
+//   srv_stdf_state_frame_num[0] = frame_num;
+//
+//   if (L_LOGGING_NETPLAY_stdf)
+//   {
+//      // printf("saved server state[0]:%d\n\n", frame_num);
+//      sprintf(msg, "saved server state[0]:[%d] and sent to clients\n", frame_num);
+//      add_log_entry2(27, 0, msg);
+//   }
+
+
+   // send to all clients
+   for (int p=1; p<NUM_PLAYERS; p++)
+      if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
+}
+
+
 void server_rewind(void)
 {
-   int s1 = 2;
-   int s2 = 1;
+
+   int s1 = players1[0].s1; //+ pct_x;
+   int s2 = players1[0].s2 + pct_x;
    int s3 = s1+s2;
+
 
    // is it time to make a new dif and send to clients?
    if (frame_num == srv_stdf_state_frame_num[1] + s3)
@@ -450,27 +663,6 @@ void server_rewind(void)
    }
 }
 
-
-void server_send_stdf(void)
-{
-   players1[0].server_send_dif = 0;
-
-   // save state[0] as a base for sending client difs
-   game_vars_to_state(srv_stdf_state[0]);
-   srv_stdf_state_frame_num[0] = frame_num;
-
-
-   if (L_LOGGING_NETPLAY_stdf)
-   {
-      // printf("saved server state[0]:%d\n\n", frame_num);
-      sprintf(msg, "saved server state[0]:[%d] and sent to clients\n", frame_num);
-      add_log_entry2(27, 0, msg);
-   }
-
-   // send dif based on this state[0] to all clients
-   for (int p=1; p<NUM_PLAYERS; p++)
-      if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
-}
 
 void server_proc_player_drop(void)
 {
@@ -691,16 +883,109 @@ void server_proc_cjon_packet(int who)
 }
 
 
+
+
+
+static void *server_fast_packet_loop(void *arg)
+{
+
+   while (ima_server)
+   {
+      //printf("fp2\n");
+
+//      printf("ts:%f\n", al_get_time());
+
+
+      int who;
+      while((packetsize = ServerReceive(packetbuffer, &who)))
+      {
+         printf("fp3\n");
+        	al_lock_mutex(mutex);
+
+         double timestamp = al_get_time();
+
+         printf("got packet size:%d\n", packetsize);
+
+         int type = 0;
+
+         // get type
+         if(PacketRead("cdat")) type = 1;
+         if(PacketRead("stak")) type = 2;
+         if(PacketRead("cjon")) type = 3;
+
+//         printf("type:%d\n", type);
+
+         if (type)
+         {
+            // find empty
+            for (int i=0; i<200; i++)
+               if (!packet_buffers[i].active)
+               {
+
+                  printf("%d stored packet:%d size:%d type:%d\n", frame_num, i, packetsize, type);
+
+                  packet_buffers[i].active = 1;
+                  packet_buffers[i].type = type;
+                  packet_buffers[i].timestamp = timestamp;
+                  packet_buffers[i].who = who;
+                  packet_buffers[i].packetsize = packetsize;
+                  memcpy(packet_buffers[i].data, packetbuffer, 1024);
+                  break;
+               }
+         }
+      }
+     	al_unlock_mutex(mutex);
+   }
+   return NULL;
+}
+
+void server_read_packet_buffer(void)
+{
+  	al_lock_mutex(mutex);
+
+   // process all used
+   for (int i=0; i<200; i++)
+      if (packet_buffers[i].active)
+      {
+         printf("%d read packet:%d  size:%d \n", frame_num, i, packet_buffers[i].packetsize);
+
+         memcpy(packetbuffer, packet_buffers[i].data, 1024);
+         packetsize = packet_buffers[i].packetsize;
+
+         set_packetpos(4);
+
+         if (packet_buffers[i].type == 1) server_proc_cdat_packet();
+         if (packet_buffers[i].type == 2) server_proc_stak_packet();
+         if (packet_buffers[i].type == 3) server_proc_cjon_packet(packet_buffers[i].who);
+
+//            if(PacketRead("cdat")) server_proc_cdat_packet();
+//            if(PacketRead("stak")) server_proc_stak_packet();
+//            if(PacketRead("cjon")) server_proc_cjon_packet(packet_buffers[i].who);
+
+         packet_buffers[i].active = 0;
+      }
+
+   al_unlock_mutex(mutex);
+}
+
+
+
 void server_control() // main server loop to process packet send and receive
 {
    ServerListen(); // listen for new client connections
-   int who;
-   while((packetsize = ServerReceive(packetbuffer, &who)))
-   {
-      if(PacketRead("cdat")) server_proc_cdat_packet();
-      if(PacketRead("stak")) server_proc_stak_packet();
-      if(PacketRead("cjon")) server_proc_cjon_packet(who);
-   }
+
+   //server_fast_packet_loop(NULL);
+   server_read_packet_buffer();
+
+//   int who;
+//   while((packetsize = ServerReceive(packetbuffer, &who)))
+//   {
+//      if(PacketRead("cdat")) server_proc_cdat_packet();
+//      if(PacketRead("stak")) server_proc_stak_packet();
+//      if(PacketRead("cjon")) server_proc_cjon_packet(who);
+//   }
+
+
    server_rewind(); // to replay and apply late client input
    server_proc_player_drop();  // check to see if we need to drop clients
 

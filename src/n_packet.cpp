@@ -7,6 +7,19 @@ char packetbuffer[1024];
 int packetsize;
 static int packetpos;
 
+
+void set_packetpos(int pos)
+{
+   packetpos = pos;
+}
+
+int get_packetpos(void)
+{
+   return packetpos;
+}
+
+
+
 // create a new packet
 void Packet(const char *id)
 {

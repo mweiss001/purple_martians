@@ -203,9 +203,9 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
          draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
          al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
-         if (mouse_b3) // only when initially clicked
+         if (mouse_b[3][0]) // only when initially clicked
          {
-            while (mouse_b3)
+            while (mouse_b[3][0])
             {
                var = (int)get_slider_position3((float) var, sul, sll, sinc, q4, x1, y1, x2, y2);
                if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
@@ -213,9 +213,9 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
                draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float)var, sul, sll, 2);
             }
          }
-         if (mouse_b1)
+         if (mouse_b[1][0])
          {
-            while (mouse_b1)
+            while (mouse_b[1][0])
             {
                var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
                if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
@@ -226,9 +226,9 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       }
       else // if not on adjustment bar, is mouse pressed anywhere else on this button?
       {
-         if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+         if ((mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
          {
-            while (mouse_b1)
+            while (mouse_b[1][0])
             {
                var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
                if (var == 0) sprintf(smsg, "%s%s", txt, txt2);
@@ -257,18 +257,18 @@ void mdw_slideri(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       draw_slider_text(x1, y1, x2, y2, q2, q5);
-      if (mouse_b3)
+      if (mouse_b[3][0])
       {
-         while (mouse_b3)
+         while (mouse_b[3][0])
          {
             var = (int)get_slider_position3((float) var, sul, sll, sinc, q4, x1, y1, x2, y2);
             sprintf(smsg, "%s%d", txt, var);
             draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, (float)var, sul, sll, 2);
          }
       }
-      if (mouse_b1)
+      if (mouse_b[1][0])
       {
-         while (mouse_b1)
+         while (mouse_b[1][0])
          {
             var = (int) get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
             sprintf(smsg, "%s%d", txt, var);
@@ -296,9 +296,9 @@ void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
-      if (mouse_b3)
+      if (mouse_b[3][0])
       {
-         while (mouse_b3)
+         while (mouse_b[3][0])
          {
             var = al_ftofix(get_slider_position3(al_fixtof(var), sul, sll, sinc, q4, x1, y1, x2, y2));
             sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
@@ -307,9 +307,9 @@ void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
          if (bn == 22) scale_bouncer_and_cannon_speed(num);
          if (bn == 29) recalc_pod(num);
       }
-      if (mouse_b1)
+      if (mouse_b[1][0])
       {
-         while (mouse_b1)
+         while (mouse_b[1][0])
          {
             var = al_ftofix(get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2)); // update var
             sprintf(smsg, "%s%3.2f", txt, al_fixtof(var));
@@ -339,9 +339,9 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
       al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
-      if (mouse_b3)
+      if (mouse_b[3][0])
       {
-         while (mouse_b3)
+         while (mouse_b[3][0])
          {
             var = get_slider_position3(var, sul, sll, sinc, q4, x1, y1, x2, y2);
             sprintf(smsg, "%s%3.2f", txt, var);
@@ -349,9 +349,9 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
             if (bn == 1) scale_factor_current = scale_factor;
          }
       }
-      if (mouse_b1)
+      if (mouse_b[1][0])
       {
-         while (mouse_b1)
+         while (mouse_b[1][0])
          {
             var = get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
             sprintf(smsg, "%s%3.2f", txt, var);
@@ -586,9 +586,9 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    int press = 0;
    int retval = 0;
 
-   if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
-      while (mouse_b1) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_controllers(); // wait for release
       press = 1;
    }
 
@@ -1290,9 +1290,9 @@ int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
    draw_slider_text(x1, y1,  x2, y2, q2, q5);
 
-   if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
-      while (mouse_b1) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_controllers(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1315,9 +1315,9 @@ int mdw_buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, in
    al_draw_filled_rectangle(x-1, y1+0, x+21, y1+22, palette_color[0]);
    al_draw_bitmap(btile[tn], x, y1+1, 0);
 
-   if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
-      while (mouse_b1) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_controllers(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1335,9 +1335,9 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
 {
    int y2 = y1+bts-2;
    int press = 0;
-   if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
-      while (mouse_b1) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_controllers(); // wait for release
       press = 1;
    }
    if (bn == 21)
@@ -1595,9 +1595,9 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    al_draw_rectangle(x1, y1, x2, y2, palette_color[15], 1);
 
    // is mouse pressed on button?
-   if ((!q7) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (mouse_b1))
+   if ((!q7) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (mouse_b[1][0]))
    {
-      while (mouse_b1) proc_controllers();
+      while (mouse_b[1][0]) proc_controllers();
       int color = (int)(1+(mouse_x-x1)/b);
 
       if (bn == 2) // text color
@@ -1644,9 +1644,9 @@ int mdw_toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
    int y2 = y1+bts-2;
    int ret = 0;
    // is mouse pressed on this button?
-   if ((mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
+   if ((mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
    {
-      while (mouse_b1) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_controllers(); // wait for release
       var = ! var;
    }
    if (var)
@@ -1680,9 +1680,9 @@ int mdw_togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
    int y2 = y1+bts-2;
 
    // is mouse pressed on this button?
-   if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
-      while (mouse_b1) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_controllers(); // wait for release
       var ^= flag;
    }
    if (var & flag)

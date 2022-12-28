@@ -608,7 +608,7 @@ void sdg_show(int x, int y) // server debug grid
 
    sdg_show_column(9, x, y); // client base resets
 
-//   sdg_show_column(23, x, y); // late cdats
+   sdg_show_column(23, x, y); // late cdats
 
 
 //   sdg_show_column(10, x, y); // dif src
@@ -737,9 +737,13 @@ void draw_top_display(void)
       int bdy = SCREEN_H - 10;
       int ts = 0;  // text spacing
 
-      sprintf(msg, "Netgame Server (%s) ", players1[p].hostname );
+//      sprintf(msg, "Netgame Server (%s) ", players1[p].hostname );
+      sprintf(msg, "Netgame Server (%s) s1:[%d] s2:[%d]  ", players1[p].hostname, players1[p].s1 /*+pct_x */, players1[p].s2 +pct_x );
       al_draw_text(font, palette_color[14], bdx, bdy, 0, msg);
       ts += strlen(msg)*8;
+
+
+
 
        // calculate num of clients
        int num_clients = 0;

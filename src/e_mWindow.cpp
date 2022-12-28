@@ -105,7 +105,7 @@ void cm_get_new_box(void)
 {
    bx2 = bx1 = gx; // set both corners to initial position
    by2 = by1 = gy;
-   while (mouse_b1)
+   while (mouse_b[1][0])
    {
       bx2 = gx;
       by2 = gy;
@@ -141,23 +141,13 @@ void cm_process_keypress(void)
    if (mW[8].level_editor_mode == 4) ovw_process_keypress();
    if ((mW[8].level_editor_mode == 2) || (mW[8].level_editor_mode == 3) || (mW[8].level_editor_mode == 9)) // zfs, ge or th
    {
-      while (key[ALLEGRO_KEY_ESCAPE]) { proc_controllers(); mW[8].active = 0; }
+      if (key[ALLEGRO_KEY_ESCAPE][3]) mW[8].active = 0;
    }
    if (mW[8].active == 0)
    {
       int ret = exit_level_editor_dialog();
-
       if (ret == 0) save_level(last_level_loaded); // save and exit
-
       if (ret == 2) mW[8].active = 1; // cancel
-
-
-//
-//      if (al_show_native_message_box(display, "Save?", "Save before exit?", NULL, NULL, ALLEGRO_MESSAGEBOX_OK_CANCEL) == 1)
-//         save_level(last_level_loaded);
-
-
-
    }
 }
 
@@ -574,7 +564,7 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
 
    // detect mouse click before toggles, but don't do anything until after the toggles change
    int refresh_selection = 0;
-   if ((mode == 3) && (mW[4].copy_mode) && (mouse_b1)) refresh_selection = 1;
+   if ((mode == 3) && (mW[4].copy_mode) && (mouse_b[1][0])) refresh_selection = 1;
 
    if (!mW[3].collapsed)
    {
@@ -840,9 +830,9 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int have_focus, in
             for (int x=0; x<tl; x++)
                al_draw_text(font, palette_color[15], x1+2, y1 + select_window_text_y+14+(x*8), 0, PDEt[ret][x]);
 
-            if (mouse_b1)
+            if (mouse_b[1][0])
             {
-               while (mouse_b1) proc_controllers();     // wait for release
+               while (mouse_b[1][0]) proc_controllers();     // wait for release
                int pn = PDEi[ret][0];
                if (pn < 200)
                {
@@ -896,9 +886,9 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int have_focus, in
          int junk;
          if (mW[1].show_flag_details) draw_flags(x1+4, syt+38, &ret, &junk, 1, 0, 1);
 
-         if ((mouse_b1) || (mouse_b2))
+         if ((mouse_b[1][0]) || (mouse_b[2][0]))
          {
-            while (mouse_b1) proc_controllers(); // wait for release
+            while (mouse_b[1][0]) proc_controllers(); // wait for release
             mW[1].draw_item_type = 1;
             mW[1].draw_item_num = ret;
          }
@@ -1176,7 +1166,7 @@ void mWindow::process_mouse(void)
 {
    if (!hidden)
    {
-      if (mouse_b1)
+      if (mouse_b[1][0])
       {
          // moveable and mouse on title bar
          if ((moveable) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y1+8))
@@ -1184,7 +1174,7 @@ void mWindow::process_mouse(void)
             int mxo = mouse_x - x1; // get offset from mouse position to window x, y
             int myo = mouse_y - y1;
             moving = 1;
-            while (mouse_b1)
+            while (mouse_b[1][0])
             {
                set_pos(mouse_x-mxo, mouse_y-myo);
                cm_redraw_level_editor_background(0);
@@ -1199,7 +1189,7 @@ void mWindow::process_mouse(void)
             int mxo = mouse_x - x2; // get offset from mouse position to window x, y
             int myo = mouse_y - y2;
             moving = 1;
-            while (mouse_b1)
+            while (mouse_b[1][0])
             {
                x2 = mouse_x-mxo;
                y2 = mouse_y-myo;
@@ -1214,7 +1204,7 @@ void mWindow::process_mouse(void)
       }
 
       // mouse b2 anywhere on window
-      if ((mouse_b2) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+      if ((mouse_b[2][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
       {
 
          if (index == 3) // filter window

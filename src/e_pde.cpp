@@ -201,17 +201,15 @@ void PDE_edit_text(int EN)
          }
       }
 
-      if (key[ALLEGRO_KEY_BACKSPACE])
+      if (key[ALLEGRO_KEY_BACKSPACE][3])
       {
-         while (key[ALLEGRO_KEY_BACKSPACE]) proc_controllers();
          if (--tx<0) tx = 0;
          int z = strlen(PDEt[EN][ty1]);
          for (int x=tx; x<z; x++)
             PDEt[EN][ty1][x] = PDEt[EN][ty1][x+1];
       }
-      if (key[ALLEGRO_KEY_ENTER])
+      if (key[ALLEGRO_KEY_ENTER][3])
       {
-         while (key[ALLEGRO_KEY_ENTER]) proc_controllers();
          for (int y=19; y>ty1; y--)  // slide all down
             strcpy(PDEt[EN][y],PDEt[EN][y-1]);
          if (strlen(PDEt[EN][ty1]) == 999) // cursor past end of line
@@ -226,9 +224,8 @@ void PDE_edit_text(int EN)
             ty1++;
          }
       }
-      if (key[ALLEGRO_KEY_DELETE])
+      if (key[ALLEGRO_KEY_DELETE][3])
       {
-         while (key[ALLEGRO_KEY_DELETE]) proc_controllers();
          if (PDEt[EN][ty1][tx] == (char)NULL)
          {
             for (int x=0; x<=30-tx; x++) // get portion from line below
@@ -244,34 +241,18 @@ void PDE_edit_text(int EN)
          }
       }
 
-      if (key[ALLEGRO_KEY_RIGHT])
-      {
-         while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();
-         if (++tx > line_length-1) tx = line_length-1;
-      }
-      if (key[ALLEGRO_KEY_LEFT])
-      {
-         while (key[ALLEGRO_KEY_LEFT]) proc_controllers();
-         if (--tx < 0) tx = 0;
-      }
-      if (key[ALLEGRO_KEY_UP])
-      {
-         while (key[ALLEGRO_KEY_UP]) proc_controllers();
-         if (--ty1 < 0) ty1 = 0;
-      }
-      if (key[ALLEGRO_KEY_DOWN])
-      {
-         while (key[ALLEGRO_KEY_DOWN]) proc_controllers();
-         if (++ty1 > 19) ty1 = 19;
-      }
-      if ((mouse_b1) && (mouse_x < 250) && (mouse_y > 20) && (mouse_y < 180))
+      if (key[ALLEGRO_KEY_RIGHT][3]) if (++tx > line_length-1) tx = line_length-1;
+      if (key[ALLEGRO_KEY_LEFT][3])  if (--tx < 0) tx = 0;
+      if (key[ALLEGRO_KEY_UP][3])    if (--ty1 < 0) ty1 = 0;
+      if (key[ALLEGRO_KEY_DOWN][3])  if (++ty1 > 19) ty1 = 19;
+      if ((mouse_b[1][0]) && (mouse_x < 250) && (mouse_y > 20) && (mouse_y < 180))
       {
          ty1 = (mouse_y-20)/8;
          tx = mouse_x/8;
       }
       if (tx > (signed int)strlen(PDEt[EN][ty1])) tx = strlen(PDEt[EN][ty1]);
 
-      while ((key[ALLEGRO_KEY_ESCAPE]) || (mouse_b2))
+      while ((key[ALLEGRO_KEY_ESCAPE][0]) || (mouse_b[2][0]))
       {
          proc_controllers();
          quit = 1;
@@ -284,7 +265,7 @@ void PDE_edit_text(int EN)
 
 void predefined_enemies(void)
 {
-   while (mouse_b2) proc_controllers();
+   while (mouse_b[2][0]) proc_controllers();
    if (load_PDE())
    {
       int EN = 0, redraw = 1;
@@ -367,47 +348,41 @@ void predefined_enemies(void)
         al_rest(0.01);
 
 
-         if ((key[ALLEGRO_KEY_RCTRL]) && (key[ALLEGRO_KEY_S])) // sort
+         if ((key[ALLEGRO_KEY_RCTRL][0]) && (key[ALLEGRO_KEY_S][3])) // sort
          {
-            while (key[ALLEGRO_KEY_S]) proc_controllers();
             PDE_sort();
             redraw = 1;
          }
 
-         if ((mouse_b1) && (mouse_x < 240) && (mouse_y > 20) && (mouse_y < 180)) PDE_edit_text(EN);
+         if ((mouse_b[1][0]) && (mouse_x < 240) && (mouse_y > 20) && (mouse_y < 180)) PDE_edit_text(EN);
 
-         if (key[ALLEGRO_KEY_RIGHT])
+         if (key[ALLEGRO_KEY_RIGHT][3])
          {
-            while (key[ALLEGRO_KEY_RIGHT]) proc_controllers();
             EN +=1;
             if (EN > 99) EN = 99;
             redraw =1;
          }
 
-         if (key[ALLEGRO_KEY_LEFT])
+         if (key[ALLEGRO_KEY_LEFT][3])
          {
-            while (key[ALLEGRO_KEY_LEFT]) proc_controllers();
             EN -=1;
             if (EN < 0) EN = 0;
             redraw =1;
          }
-         if (key[ALLEGRO_KEY_PGUP])
+         if (key[ALLEGRO_KEY_PGUP][3])
          {
-            while (key[ALLEGRO_KEY_PGUP]) proc_controllers();
             EN +=10;
             if (EN > 99) EN = 99;
             redraw =1;
          }
-         if (key[ALLEGRO_KEY_PGDN])
+         if (key[ALLEGRO_KEY_PGDN][3])
          {
-            while (key[ALLEGRO_KEY_PGDN]) proc_controllers();
             EN -=10;
             if (EN < 0) EN = 0;
             redraw =1;
          }
-         if ((key[ALLEGRO_KEY_RCTRL]) && (key[ALLEGRO_KEY_DELETE])) // DELETE PD
+         if ((key[ALLEGRO_KEY_RCTRL][0]) && (key[ALLEGRO_KEY_DELETE][3])) // DELETE PD
          {
-            while (key[ALLEGRO_KEY_DELETE]) proc_controllers();
             for (int y=0; y<32; y++) PDEi[EN][y] = 0;
             for (int y=0; y<16; y++) PDEfx[EN][y] = al_itofix(0);
             for (int y=0; y<20; y++) strcpy(PDEt[EN][y],"");
@@ -415,11 +390,7 @@ void predefined_enemies(void)
             redraw =1;
             //PDE_sort();
          }
-         while (key[ALLEGRO_KEY_ESCAPE])
-         {
-            quit = 1;
-            proc_controllers();
-         }
+         if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
       }
    }
 }
