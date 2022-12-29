@@ -18,10 +18,13 @@ int program_state = 0;
 // 3 - level editor
 
 
+int new_program_state = 0;
+int old_program_state = 0;
 int program_update = 0;
+int program_update_1s = 0;
+int top_menu_sel = 3;
 
-
-
+int main_loop_exit = 0;
 
 
 int pm_event[1000];
@@ -90,8 +93,6 @@ int load_visual_level_select_done = 0;
 // frame_speed, frames per second, frame_num stuff
 int speed_testing = 0;
 int actual_fps;
-int last_frames_skipped = 0;
-int frames_skipped_last_second;
 int last_fps_frame_num = 0;
 int frame_speed = 40;
 int frame_num;
@@ -161,6 +162,7 @@ int hy=0;
 ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
 int demo_played[100];
 int num_demo_filenames = 0;
+int demo_mode_loaded = 0;
 int demo_mode_enabled = 1;
 int demo_mode_on = 0;
 int demo_mode_countdown_val;
@@ -807,6 +809,7 @@ int initial_setup(void)
    // register timer event source
    al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
+   al_register_event_source(event_queue, al_get_timer_event_source(sec_timer));
 
    // start timers
    al_start_timer(fps_timer);
@@ -840,7 +843,7 @@ int main(int argument_count, char **argument_array)
 
       proc_command_line_args2(argument_count, argument_array); // these args get processed after initial setup is called
 
-      program_state = 10;
+      program_state = 1;
 
       main_loop();
 

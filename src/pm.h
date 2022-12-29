@@ -239,7 +239,12 @@ extern mWindow mW[NUM_MW];
 
 
 extern int program_state;
+extern int new_program_state;
+extern int old_program_state;
 extern int program_update;
+extern int program_update_1s;
+extern int top_menu_sel;
+extern int main_loop_exit;
 
 extern int pm_event[1000];
 
@@ -322,8 +327,6 @@ extern int load_visual_level_select_done;
 // frame_speed, frames per second, frame_num stuff
 extern int speed_testing;
 extern int actual_fps;
-extern int last_frames_skipped;
-extern int frames_skipped_last_second;
 extern int last_fps_frame_num;
 extern int frame_speed;
 extern int frame_num;
@@ -400,6 +403,7 @@ extern int obj_filter[5][20];
 extern ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
 extern int demo_played[100];
 extern int num_demo_filenames;
+extern int demo_mode_loaded;
 
 
 extern int demo_mode_on;
@@ -643,6 +647,13 @@ struct player1 // not synced between server and client
    int fake_keypress_mode;
 
    int frames_skipped;
+   int frames_skipped_last_sec;
+   int frames_skipped_last_sec_tally;
+
+   int timer_adjust;
+   int timer_adjust_last_sec;
+   int timer_adjust_last_sec_tally;
+
 
    int who; // for network id of clients
    char hostname[16];
@@ -1582,16 +1593,6 @@ void redraw_spline(int s);
 void spline_adjust(void);
 
 
-// z_loop.h
-int proc_frame_delay(void);
-void proc_start_mode(int start_mode);
-int ami_server_or_single(void);
-int has_player_acknowledged(int p);
-int have_all_players_acknowledged(void);
-void proc_level_done_mode(void);
-void game_loop(int start_mode);
-void loop_frame(int);
-
 // z_main.h
 void final_wrapup(void);
 void fast_exit(int why);
@@ -1602,9 +1603,18 @@ int initial_setup(void);
 int main(int argument_count, char **argument_array);
 
 // z_main_loop.h
+void proc_events(ALLEGRO_EVENT ev);
+void proc_keys_held(void);
+void proc_event_queue(void);
+void draw_frame(void);
+void move_frame(int t);
+void loop_frame(int);
+int has_player_acknowledged(int p);
+int have_all_players_acknowledged(void);
+void proc_level_done_mode(void);
+void proc_program_state(void);
+int proc_frame_skip(void);
 void main_loop(void);
-
-
 
 // z_menu.h
 int load_help(void);

@@ -166,7 +166,10 @@ void cm_redraw_level_editor_background(void)
    al_flip_display();
    proc_scale_factor_change();
    proc_controllers();
-   int df = proc_frame_delay();
+
+   int df = proc_frame_skip();
+
+   while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
 
    if (frame_num <  al_get_timer_count(fps_timer)) set_frame_nums(frame_num); // set fps_timer count to frame_num
 
@@ -349,11 +352,6 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
    if (have_focus) d = 0;
    if (moving) d = 1;
    if (draw_only) d = 1;
-
-//   sprintf(msg, "FPS set:%d act:%d", frame_speed, actual_fps);
-//   sprintf(msg, "frame skip:[%d]  FPS set:%d act:%d", frames_skipped_last_second, frame_speed, actual_fps);
-//   al_draw_text(font, palette_color[15], SCREEN_W - (strlen(msg)+2) * 8, 2, 0, msg);
-
 
    if (mdw_buttont(x1, by1, x1+32, bts, 0,0,0,0, 0,-1,15,0, 0,0,0,d, "File"))
    {

@@ -84,16 +84,16 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-c") == 0 )
       {
          show_splash_screen = 0;
-         game_loop(3); // client game
-         fast_exit(0);
+         new_program_state = 21;
+         return;
       }
       // no start level specified; use play level from config file
       if (strcmp(argument_array[1],"-s") == 0 )
       {
          show_splash_screen = 0;
          play_level = start_level;
-         game_loop(2); // server game
-         fast_exit(0);
+         new_program_state = 20;
+         return;
       }
 
       if (strcmp(argument_array[1],"-f") == 0 )
@@ -101,8 +101,8 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          show_splash_screen = 0;
          if (load_gm("-"))
          {
-            game_loop(9); // demo game
-            fast_exit(0);
+            new_program_state = 14;
+            return;
          }
       }
 
@@ -115,7 +115,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          play_level = pl;
          set_start_level(pl);
          printf("started game on level:%d\n", play_level);
-         game_loop(1); // single player game
+         new_program_state = 10;
       }
       else
       {
@@ -128,8 +128,8 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          if (load_gm(argument_array[1]))
          {
             show_splash_screen = 0;
-            game_loop(9); // demo game
-            fast_exit(0);
+            new_program_state = 14;
+            return;
          }
       }
 
@@ -140,21 +140,6 @@ void proc_command_line_args2(int argument_count, char **argument_array)
 
    if (argument_count == 3) // example 'pmwin arg1 arg2'
    {
-      // start game on specified level -- eg: 'pm.exe -p 211'
-      if (strcmp(argument_array[1],"-p") == 0 )
-      {
-         show_splash_screen = 0;
-         int pl = atoi(argument_array[2]);
-         if ((pl > 0) && (pl < 400))
-         {
-            play_level = pl;
-            set_start_level(pl);
-            printf("started game on level:%d\n", play_level);
-            game_loop(1); // single player game
-         }
-         else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
-      }
-
       // run level editor for specified level -- eg: 'pm.exe -e 211'
       if (strcmp(argument_array[1],"-e") == 0 )
       {
@@ -170,33 +155,20 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          }
          else printf("%s could not be parsed to an integer level number\n", argument_array[2]);
       }
-
-      // run saved game from file -- eg: 'pm.exe -f mz23.gm'
-//         if (strcmp(argument_array[1],"-f") == 0 )
-//         {
-//            show_splash_screen = 0;
-//            sprintf(msg, "savegame/%s", argument_array[2] );
-//            if (load_gm(msg))
-//            {
-//               printf("running game file:%s\n", argument_array[2]);
-//               game_loop(9); // demo game
-//               fast_exit(0);
-//            }
-//         }
       if (strcmp(argument_array[1],"-c") == 0 )
       {
          show_splash_screen = 0;
          sprintf(m_serveraddress, "%s", argument_array[2]);
          save_config();
-         game_loop(3); // client game
-         fast_exit(0);
+         new_program_state = 21;
+         return;
       }
       if (strcmp(argument_array[1],"-s") == 0 )
       {
          show_splash_screen = 0;
          play_level = atoi(argument_array[2]);
-         game_loop(2); // server game
-         fast_exit(0);
+         new_program_state = 20;
+         return;
       }
    } // end of argument_count == 3
 }
@@ -241,7 +213,6 @@ int copy_files_to_clients(int exe_only)
 //
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
 //
-
 
 
 
