@@ -1,6 +1,6 @@
 // z_loop.cpp
 #include "pm.h"
-
+/*
 int proc_frame_delay(void)
 {
    int draw_frame = 0;
@@ -11,11 +11,9 @@ int proc_frame_delay(void)
       al_set_timer_count(sec_timer, 0); // reset_second_timer
       actual_fps = frame_num - last_fps_frame_num;
       last_fps_frame_num = frame_num;
-      frames_skipped_last_second = (players1[active_local_player].frames_skipped - last_frames_skipped);
-      last_frames_skipped = players1[active_local_player].frames_skipped;
    }
 
-   printf("fn:%d timer:%d\n", frame_num, al_get_timer_count(fps_timer));
+//   printf("fn:%d timer:%d\n", frame_num, al_get_timer_count(fps_timer));
 
 //   if (speed_testing) // draw every frame no matter how fast or slow it is
 //   {
@@ -37,6 +35,9 @@ int proc_frame_delay(void)
    return draw_frame;
 }
 
+*/
+
+/*
 
 // start modes:
 // 1 single player new game
@@ -196,139 +197,10 @@ void proc_start_mode(int start_mode)
    start_music(0); // rewind and start theme
 }
 
-int ami_server_or_single(void)
-{
-   int a = active_local_player;
-   int cm = players[a].control_method;
-
-   if ((cm == 0) || (cm == 3)) return 1;
-   return 0;
-}
-
-int has_player_acknowledged(int p)
-{
-   int start_pos = game_move_entry_pos;
-   int end_pos = start_pos - 1000;
-   if (end_pos < 0) end_pos = 0;
-   for (int x=start_pos; x>end_pos; x--) // look back for ack
-      if ((game_moves[x][1] == 8) && (game_moves[x][2] == p)) return 1;
-   return 0;
-}
-
-int have_all_players_acknowledged(void)
-{
-   for (int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (!has_player_acknowledged(p))) return 0;
-   return 1;
-}
-
-void proc_level_done_mode(void)
-{
-   stop_sound();
-
-   if (!ima_client)
-   {
-      if (players[0].level_done_mode == 5)
-      {
-         if (have_all_players_acknowledged()) players[0].level_done_timer = 0; // skip
-
-         for (int p=0; p<NUM_PLAYERS; p++)
-            if (players[p].active)
-            {
-               if (has_player_acknowledged(p)) players[p].level_done_ack = 1;
-               else players[p].level_done_ack = 0;
-            }
-      }
-   }
-   for (int p=0; p<NUM_PLAYERS; p++) players[p].paused = 5;
+*/
 
 
-   if (players[0].level_done_mode == 9)  // set xinc and yinc for player exit home
-   {
-      show_player_join_quit_timer = 60;
-      show_player_join_quit_player = players[0].level_done_player;
-      show_player_join_quit_jq = 2;
-
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active)
-         {
-            // get distance between player and exit
-            al_fixed dx = al_itofix(players[0].level_done_x) - players[p].PX;
-            al_fixed dy = al_itofix(players[0].level_done_y) - players[p].PY;
-
-            // get move
-            players[p].xinc = al_fixdiv(dx, al_itofix(60));
-            players[p].yinc = al_fixdiv(dy, al_itofix(60));
-
-            // set left right direction
-            if (players[p].xinc > al_itofix(0)) players[p].left_right = 1;
-            if (players[p].xinc < al_itofix(0)) players[p].left_right = 0;
-         }
-   }
-
-   if (players[0].level_done_mode == 8)
-   {
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active)
-         {
-            players[p].PX += players[p].xinc;
-            players[p].PY += players[p].yinc;
-         }
-   }
-   if (players[0].level_done_mode == 7)
-   {
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active)
-         {
-            players[p].draw_scale -= al_ftofix(0.05);
-            players[p].draw_rot -= al_ftofix(8);
-         }
-   }
-   if (--players[0].level_done_timer <= 0) // time to change to next level_done_mode
-   {
-      players[0].level_done_mode--;
-      if (players[0].level_done_mode == 8) players[0].level_done_timer = 60;  // unskippable 2s delay - seek
-      if (players[0].level_done_mode == 7) players[0].level_done_timer = 20; // shrink
-      if (players[0].level_done_mode == 6) players[0].level_done_timer = 0;
-      if (players[0].level_done_mode == 5) players[0].level_done_timer = 600; // skippable 15s delay;
-      if (players[0].level_done_mode == 4) players[0].level_done_timer = 0;
-      if (players[0].level_done_mode == 3) players[0].level_done_timer = 0;
-      if (players[0].level_done_mode == 2) players[0].level_done_timer = 10;  // delay to load next level
-      if (players[0].level_done_mode == 1) proc_start_mode(5);
-   }
-}
-
-
-void draw_frame(void)
-{
-   get_new_background(1);
-   draw_lifts();
-   draw_items();
-   draw_enemies();
-   draw_ebullets();
-   draw_pbullets();
-   draw_players();
-   get_new_screen_buffer(0, 0, 0);
-   draw_screen_overlay();
-   al_flip_display();
-}
-
-void move_frame(int t)
-{
-//   if (L_LOGGING_NETPLAY_move_frame)
-//   {
-//      //printf("move frame:%d-------------\n", frame_num);
-//      sprintf(msg, "move[%d] frame:%d\n", t, frame_num);
-//      add_log_entry2(41, 0, msg);
-//   }
-
-   move_ebullets();
-   move_pbullets();
-   move_lifts(0);
-   move_players();
-   move_enemies();
-   move_items();
-}
+/*
 
 void game_loop(int start_mode)
 {
@@ -355,17 +227,6 @@ void game_loop(int start_mode)
    stop_sound();
    stamp();
 }
+*/
 
 
-
-// used for fast forwarding after rewind
-void loop_frame(int times)
-{
-   for (int i=0; i<times; i++)
-   {
-      proc_game_moves_array();
-      if (players[0].level_done_mode) proc_level_done_mode();
-      else move_frame(1);
-      frame_num++;
-   }
-}

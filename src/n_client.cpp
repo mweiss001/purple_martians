@@ -679,6 +679,7 @@ void client_apply_diff(void)
 }
 
 
+
 void client_timer_adjust(int p)
 {
    float fps_chase = frame_speed + (players1[p].client_sync)*2;

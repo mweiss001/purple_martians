@@ -180,7 +180,7 @@ void ServerListen() // Check for connecting clients (0 = ok, got new connection,
      	char address[32];
 
 
-     	al_lock_mutex(mutex);
+//     	al_lock_mutex(mutex);
 //
 //
 //      if (!packet_rx_lock)
@@ -236,7 +236,7 @@ void ServerListen() // Check for connecting clients (0 = ok, got new connection,
          }
 
 
-     	al_unlock_mutex(mutex);
+  //   	al_unlock_mutex(mutex);
 
 
 //         packet_rx_lock = 0;
@@ -466,7 +466,7 @@ void ServerExitNetwork() // Shut the server down
 //----------------------------------------------------------------------------------------------------------------
 
 
-static void *server_fast_packet_loop(void *arg);
+// static void *server_fast_packet_loop(void *arg);
 
 
 int server_init(void)
@@ -518,10 +518,10 @@ int server_init(void)
    players1[0].s2 = 1;
 
 
-   mutex = al_create_mutex();
+  // mutex = al_create_mutex();
 
 
-   al_run_detached_thread(server_fast_packet_loop, NULL);
+ //  al_run_detached_thread(server_fast_packet_loop, NULL);
 
    return 1;
 }
@@ -885,89 +885,89 @@ void server_proc_cjon_packet(int who)
 
 
 
-
-static void *server_fast_packet_loop(void *arg)
-{
-
-   while (ima_server)
-   {
-      //printf("fp2\n");
-
-//      printf("ts:%f\n", al_get_time());
-
-
-      int who;
-      while((packetsize = ServerReceive(packetbuffer, &who)))
-      {
-         printf("fp3\n");
-        	al_lock_mutex(mutex);
-
-         double timestamp = al_get_time();
-
-         printf("got packet size:%d\n", packetsize);
-
-         int type = 0;
-
-         // get type
-         if(PacketRead("cdat")) type = 1;
-         if(PacketRead("stak")) type = 2;
-         if(PacketRead("cjon")) type = 3;
-
-//         printf("type:%d\n", type);
-
-         if (type)
-         {
-            // find empty
-            for (int i=0; i<200; i++)
-               if (!packet_buffers[i].active)
-               {
-
-                  printf("%d stored packet:%d size:%d type:%d\n", frame_num, i, packetsize, type);
-
-                  packet_buffers[i].active = 1;
-                  packet_buffers[i].type = type;
-                  packet_buffers[i].timestamp = timestamp;
-                  packet_buffers[i].who = who;
-                  packet_buffers[i].packetsize = packetsize;
-                  memcpy(packet_buffers[i].data, packetbuffer, 1024);
-                  break;
-               }
-         }
-      }
-     	al_unlock_mutex(mutex);
-   }
-   return NULL;
-}
-
-void server_read_packet_buffer(void)
-{
-  	al_lock_mutex(mutex);
-
-   // process all used
-   for (int i=0; i<200; i++)
-      if (packet_buffers[i].active)
-      {
-         printf("%d read packet:%d  size:%d \n", frame_num, i, packet_buffers[i].packetsize);
-
-         memcpy(packetbuffer, packet_buffers[i].data, 1024);
-         packetsize = packet_buffers[i].packetsize;
-
-         set_packetpos(4);
-
-         if (packet_buffers[i].type == 1) server_proc_cdat_packet();
-         if (packet_buffers[i].type == 2) server_proc_stak_packet();
-         if (packet_buffers[i].type == 3) server_proc_cjon_packet(packet_buffers[i].who);
-
-//            if(PacketRead("cdat")) server_proc_cdat_packet();
-//            if(PacketRead("stak")) server_proc_stak_packet();
-//            if(PacketRead("cjon")) server_proc_cjon_packet(packet_buffers[i].who);
-
-         packet_buffers[i].active = 0;
-      }
-
-   al_unlock_mutex(mutex);
-}
-
+//
+//static void *server_fast_packet_loop(void *arg)
+//{
+//
+//   while (ima_server)
+//   {
+//      //printf("fp2\n");
+//
+////      printf("ts:%f\n", al_get_time());
+//
+//
+//      int who;
+//      while((packetsize = ServerReceive(packetbuffer, &who)))
+//      {
+//         printf("fp3\n");
+//        	al_lock_mutex(mutex);
+//
+//         double timestamp = al_get_time();
+//
+//         printf("got packet size:%d\n", packetsize);
+//
+//         int type = 0;
+//
+//         // get type
+//         if(PacketRead("cdat")) type = 1;
+//         if(PacketRead("stak")) type = 2;
+//         if(PacketRead("cjon")) type = 3;
+//
+////         printf("type:%d\n", type);
+//
+//         if (type)
+//         {
+//            // find empty
+//            for (int i=0; i<200; i++)
+//               if (!packet_buffers[i].active)
+//               {
+//
+//                  printf("%d stored packet:%d size:%d type:%d\n", frame_num, i, packetsize, type);
+//
+//                  packet_buffers[i].active = 1;
+//                  packet_buffers[i].type = type;
+//                  packet_buffers[i].timestamp = timestamp;
+//                  packet_buffers[i].who = who;
+//                  packet_buffers[i].packetsize = packetsize;
+//                  memcpy(packet_buffers[i].data, packetbuffer, 1024);
+//                  break;
+//               }
+//         }
+//      }
+//     	al_unlock_mutex(mutex);
+//   }
+//   return NULL;
+//}
+//
+//void server_read_packet_buffer(void)
+//{
+//  	al_lock_mutex(mutex);
+//
+//   // process all used
+//   for (int i=0; i<200; i++)
+//      if (packet_buffers[i].active)
+//      {
+//         printf("%d read packet:%d  size:%d \n", frame_num, i, packet_buffers[i].packetsize);
+//
+//         memcpy(packetbuffer, packet_buffers[i].data, 1024);
+//         packetsize = packet_buffers[i].packetsize;
+//
+//         set_packetpos(4);
+//
+//         if (packet_buffers[i].type == 1) server_proc_cdat_packet();
+//         if (packet_buffers[i].type == 2) server_proc_stak_packet();
+//         if (packet_buffers[i].type == 3) server_proc_cjon_packet(packet_buffers[i].who);
+//
+////            if(PacketRead("cdat")) server_proc_cdat_packet();
+////            if(PacketRead("stak")) server_proc_stak_packet();
+////            if(PacketRead("cjon")) server_proc_cjon_packet(packet_buffers[i].who);
+//
+//         packet_buffers[i].active = 0;
+//      }
+//
+//   al_unlock_mutex(mutex);
+//}
+//
 
 
 void server_control() // main server loop to process packet send and receive
@@ -975,15 +975,15 @@ void server_control() // main server loop to process packet send and receive
    ServerListen(); // listen for new client connections
 
    //server_fast_packet_loop(NULL);
-   server_read_packet_buffer();
+   // server_read_packet_buffer();
 
-//   int who;
-//   while((packetsize = ServerReceive(packetbuffer, &who)))
-//   {
-//      if(PacketRead("cdat")) server_proc_cdat_packet();
-//      if(PacketRead("stak")) server_proc_stak_packet();
-//      if(PacketRead("cjon")) server_proc_cjon_packet(who);
-//   }
+   int who;
+   while((packetsize = ServerReceive(packetbuffer, &who)))
+   {
+      if(PacketRead("cdat")) server_proc_cdat_packet();
+      if(PacketRead("stak")) server_proc_stak_packet();
+      if(PacketRead("cjon")) server_proc_cjon_packet(who);
+   }
 
 
    server_rewind(); // to replay and apply late client input

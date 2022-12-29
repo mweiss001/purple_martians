@@ -205,7 +205,7 @@ void draw_fps_display(int show_type)
    int p = active_local_player;
    int y = 2;
    int fs = players1[p].frames_skipped;
-   int fsls = frames_skipped_last_second;
+   int fsls = players1[p].frames_skipped_last_sec;
 
    // are we not in a netgame
    if ((players[p].control_method == 0) || (players[p].control_method == 1))
@@ -703,8 +703,12 @@ void draw_top_display(void)
       if (ima_server) {cx = BORDER_WIDTH; cy+=80;}
       int color = 15;
       int fps_color = 14;
+
       int fs = players1[p].frames_skipped;
-      int fsls = frames_skipped_last_second;
+      int fsls = players1[p].frames_skipped_last_sec;
+
+      int ta = players1[p].timer_adjust;
+      int tals = players1[p].timer_adjust_last_sec;
 
       al_draw_filled_rectangle(cx-4, cy+6, cx+230, cy+54, palette_color[0]);
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "SCREEN %d x %d", SCREEN_W, SCREEN_H);
@@ -716,8 +720,16 @@ void draw_top_display(void)
       al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "scale_factor:%f", scale_factor);
       cy+=4;
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "FPS set:%d act:%d", frame_speed, actual_fps);
+
+
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "frames skipped last second:%d", fsls);
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total frames skipped:%d",fs);
+
+      al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "timer adjust last second:%d", tals);
+      al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total timer adjust:%d",ta);
+
+
+
       if (ima_server) al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total game moves:%d", game_move_entry_pos);
 
       al_draw_textf(font, palette_color[15], cx, cy+=8, 0, "Level Done Mode:%d", players[0].level_done_mode);

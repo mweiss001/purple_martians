@@ -41963,7 +41963,7 @@ like
 10 start new game
 11 game running
 12 next level
-13 pause
+13 resume paused game
 14 game exit
 
 then it will be easier to move between states...
@@ -41974,6 +41974,714 @@ then it will be easier to move between states...
 11 can go to 12, 13, 14
 
 try to start implementing this...
+
+
+
+playable, but omg what a mess!!
+
+
+20221208
+
+
+The function 'proc_program_state()' is called every frame.
+
+It handles the meta stuff.
+
+If there is any special code that needs to be done for each program_mode, it will be done there.
+
+If the program mode changes it is also handled there...
+
+how is the program mode change handled?
+
+another global called new_program_state
+
+it can be set anywhere, but only takes effect when 'proc_program_state()' is called
+
+
+
+next big thing....
+
+do something about the frame_delay...right now it is commented out
+when are frame numbers updated?
+
+now that I time the main loop with the timer, am I off by one frame??
+
+proc_frame_delay() increments frame_num and runs update_animation
+then determines whether or not to draw frame
+
+move this all to loop for now....
+
+now how can i tell if I need to skip drawing?
+
+timer fires
+move frame
+frame_num++
+
+
+//      if (frame_num <=  al_get_timer_count(fps_timer)) // skip drawing frame
+
+
+//      {
+//         draw_frame = 0;
+//         players1[active_local_player].frames_skipped++;
+//      }
+//      else draw_frame = 1;
+//      while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+
+
+
+
+OK now I have decison to be made...
+if the game cannot keep up, even with not drawing, what do I do??
+
+correct the timer or correct the frame_num...
+
+correct the timer...and make a note, just like when skipping drawing...
+
+added timer_adjust to player struct, just like frames_skipped
+
+this was also in proc_frame_delay()
+
+   if (al_get_timer_count(sec_timer) > 0)
+   {
+      al_set_timer_count(sec_timer, 0); // reset_second_timer
+      actual_fps = frame_num - last_fps_frame_num;
+      last_fps_frame_num = frame_num;
+      frames_skipped_last_second = (players1[active_local_player].frames_skipped - last_frames_skipped);
+      last_frames_skipped = players1[active_local_player].frames_skipped;
+   }
+
+
+also implement this:
+
+add to player struct
+
+frames_skipped_last_second
+timer_reset_last_second
+
+then add them just like the main ones.
+ill need a tally too
+
+   int frames_skipped;
+   int frames_skipped_last_sec;
+   int frames_skipped_last_sec_tally;
+
+   int timer_adjust;
+   int timer_adjust_last_sec;
+   int timer_adjust_last_sec_tally;
+
+players1[active_local_player].timer_adjust++;
+players1[active_local_player].timer_adjust_last_sec_tally++;
+
+then when sec timer fires, copy tally and reset...done
+
+fix display...done
+then remove all old methods..done
+
+
+what about this?
+
+      actual_fps = frame_num - last_fps_frame_num;
+      last_fps_frame_num = frame_num;
+
+put it in the same place...
+
+now I am all done with proc_frame_delay()
+
+
+
+next big thing...game_menu...
+
+int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pass through, it waits for a selection and then exits
+
+this will need to change to pass through, why? cause I want it to...
+
+its only 130 lines...
+
+why do I want to spend so much time fucking with this
+
+patch it in existing to my new frame_work
+
+program_mode 1 is game_menu..deal with it...
+
+
+when selecting new game, set to 10
+
+
+I need to rethink new_program_state....I have a logic error
+if 0 do nothing..
+if not 0 do the change and set to 0;
+
+now how to quit playing game and go back to menu
+where can I hook that in?
+
+local player presses ESC
+instead of entering game move, its hijacked...
+
+hooked in it the right place and now it works...
+
+Is there any state info that I need to keep for the menu?
+I am calling it new every time now...
+
+make sure resume works...
+
+globals
+
+play_level
+start_level
+resume_allowed
+valid_level_loaded
+
+
+
+
+every time game_menu is called it loads level...
+make it so that only if resume_allowed..done
+
+now make a way for that to happen...
+13 resume paused game
+
+OK that seems to be working properly
+
+
+now what about stimp and stamp?
+
+start and resume use stimp.
+when changing to program_state 1 use stamp...works good...
+
+what next??
+
+demo
+should get its own start up thing
+
+14 start demo
+
+
+demo mode exit...
+
+save position in game menu
+int current_menu_num = 7;
+int current_menu_pos = 3;
+
+
+do I need to save both?
+the only thing I need on options menu is run demo
+later....
+
+
+replace some more game_loop calls...
+when running from command line, it used to exit immediately..now it goes to menu...fix later
+
+also does not work from demo mode...that assumes you can just call it and it will return to you...
+
+
+can I more tightly integrate this into my new system?
+
+
+mode 14 - run game, called from menu and returns to menu
+mode 15 - run game, called from commandline and exits the program when done
+mode 16 - run game, called from demo mode
+this handles its own loading and running of levels
+
+all of these will use mode 11 to actually run, but I need somewhere to hook into after they are done..
+how about when in mode 11 you register the mode to go to next?
+
+mode 11 could exit because:
+local player quit
+demo mode ended
+level done
+...
+
+
+still thinking about how to apply this best?
+
+have my own custom mode 11s for each?...no
+
+
+all that is left is to do server and client....
+then game loop will not be used at all
+I'll still have to work the bugs out of the new system though
+
+
+let go with 20 for server and 21 for client
+
+
+client wont join...do I still have fast packet going?? yes...disabled
+
+client can join!!! yayy!!!
+
+now we can disable game_loop....done
+
+proc_start_mode is called from level_done...need to do something about this...
+
+
+
+
+next I want to implement a way to do something different when 11 ends
+
+
+
+when 11 starts, register an exit code...
+
+
+how do I signal that 11 is starting?
+
+wherever I change game_state to 11 (all from other modes)
+save something to hint at what to do when done..
+
+like if it was started from client new game then do cleanup based on that
+even more so:
+client new game from menu
+client new game command line
+
+how do I signal that 11 is ending
+
+this is what I wanted this whole state change thing to do...make it do it...
+
+
+changing to 11 from many different places is handled by setting new_program_state
+
+leaving 11 does not have a good solution yet...
+
+I have been just setting new_program_state to 1 and going to the menu...
+
+I should have some modes for the different reasons 11 is left.
+
+mode 12 - level done
+mode 13 - local single player quit
+
+
+I still need to track where 11 was started from...
+I could call it old_program_state...
+0 = command_line
+1 = menu
+implement this for 10...done
+
+
+
+I need to make an exhaustive list of everywhere that 11 could be quit...
+I think searching for the old game_exit could do it...
+
+
+
+
+make a state for level_done...
+
+12 level_done
+
+seem to work great in single player mode
+
+
+
+moved almost everything out of old loop.cpp into main_loop.cpp
+proc_frame_delay() is all that is left...
+
+level_editor uses it in one place...how can I make level_editor do something different..
+
+could I just wait on fps_timer event?
+
+
+everything is gone from loop.cpp but I am keeping it around till I'm sure there is nothing left to copy
+
+how can I use a timer in level editor??
+
+I guess it doesn't matter if it blocks there...
+
+added this line...
+while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+
+later I want to try to do it without blocking....
+
+added check for level not found in a few places
+
+if (!load_level(play_level, 0))
+{
+   new_program_state = 1;
+   return;
+}
+
+
+demo mode...
+test all
+from menu good
+from command line
+pm -f good
+from command line
+pm garbage open file selector
+file association open...good
+note: can only stop demo with ESC...
+
+
+actual demo mode...
+needs work...
+new_program_state = 14
+
+
+demo_mode likes to be in charge..at the top of the loops...
+
+it iterates all the demo_files then calls them pseudo randomly
+
+how can I make it so that it can give of control and can be came back to??
+
+it looks like a great number of the variables are global already....
+
+why don't I do something like visual_level_select and only load the files once...
+
+
+// ------------------------------------------------
+// ----------------- demo mode --------------------
+// ------------------------------------------------
+extern ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
+extern int demo_played[100];
+extern int num_demo_filenames;
+
+extern int demo_mode_loaded;
+
+
+extern int demo_mode_on;
+extern int demo_mode_countdown;
+extern int demo_mode_countdown_val;
+extern int demo_mode_countdown_reset;
+extern int demo_mode_enabled;
+extern int demo_mode_last_frame;
+
+
+make another old_program_state...2 = demo mode
+
+then when done it will go back to 2
+
+works but I need to find a way to cancel it..
+level done should continue, otherwise go to 1..
+
+level done does not do anything in demo mode...fixed
+
+I think demo mode is working as intended
+just that note about the keys...look in rungame keycheck...
+
+also...what speed is the menu running at?
+
+do I really need a separate timer?
+
+anything calling proc_controllers is using menu_timer
+
+lets make sure nothing in the game is...
+
+client uses it twice
+- once when waiting for sjon
+- once when waiting for initial state
+
+what control the speed of zmenu and animation? proc_controller()
+
+so why does the menu scream by when game fps is high??
+because the check in proc_controllers() is for ANY timer event...
+
+now implement the saving of menu pos..done
+
+sometimes menupos can be out of range now...fixed
+
+then back to demo keys
+key pressed ASCII cannot be used..
+I read the event loop very fast.
+keypressed on one frame then cleared the next
+its not like everywhere else where I call proc_controllers
+and kpa stays until I call it again..
+
+give up on this method
+
+why does the cancel only work the first time??..fixed...
+
+I am completely happy with demo and run game
+
+-----------------------------------------------------
+
+next up will be to make sure everything works good on server and client
+
+also to do a nice ESC exit from top menu
+
+I think I have it...without fast exit to boot...
+
+speedtest on and off...does nothing now that proc_frame_delay is gone...
+
+do I even care??
+
+I can just keep increasing fps and see what happens
+
+if (speed_testing) // draw every frame no matter how fast or slow it is
+also draw no frames // maybe 1 in 1000? and see how fast it is
+
+omg!
+I can draw one in 10,000 frames
+and run it at 100,000 fps
+only only get 10 adjusts per sec
+...exactly how many times I draw!!
+
+so the game logic can run at 100,000 fps...
+
+what if I tried it on a complex level, 100 enemies, 500 items, 40 lifts, 8 players with fake key
+
+I bet I could do a lot worse....
+
+do that...
+
+make a test level with 100 enemies and cloners to make more, 500 items, 40 lifts with 40 steps.
+then get 8 players with fakekey and run it till just before 1,000,000 game moves
+save that demo and it can be my stress test....
+
+
+but really I am happy with how the changes are coming...I need to make server and client work...
+
+
+20221228 10:00PM push...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+server and client
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -333,7 +333,7 @@ int get_comp_move_from_players_controls(int p) // only used to test
 
 void function_key_check(void)
 {
-   if ((!game_exit) || (level_editor_running))
+   if ((!game_exit) || (level_editor_running) || (program_state == 11))
    {
 
       if (key[ALLEGRO_KEY_F1][3])
@@ -366,7 +366,12 @@ void function_key_check(void)
       {
          if (key[ALLEGRO_KEY_F7][2])
          {
-            if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) frame_speed -=100;
+
+            if (((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) &&  ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) ) frame_speed -=1000;
+
+
+
+            else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) frame_speed -=100;
             else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) frame_speed -=20;
             else frame_speed -= 1;
             if (frame_speed < 5) frame_speed = 5;
@@ -375,10 +380,11 @@ void function_key_check(void)
 
          if (key[ALLEGRO_KEY_F8][2])
          {
-            if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) frame_speed +=100;
+            if (((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) &&  ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) ) frame_speed +=1000;
+            else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) frame_speed +=100;
             else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) frame_speed +=20;
             else frame_speed += 1;
-            if (frame_speed > 10000) frame_speed = 10000;
+            if (frame_speed > 100000) frame_speed = 100000;
             set_speed();
          }
       }
@@ -472,28 +478,22 @@ void rungame_key_check(int p)
    while (!players[active_local_player].active) // if alp not active
       if (++active_local_player > 7) active_local_player = 0;
 
-   if (demo_mode_on) // look for a keypress to end demo mode
-   {
-      if (key[ALLEGRO_KEY_ESCAPE][0])
-      {
-         demo_mode_on = 0;
-         game_exit = 1;
-         load_config();
-      }
-   }
-
    // if games_moves doesn't end with level_done kill it after 4 seconds
-   if (frame_num > demo_mode_last_frame + 160) game_exit = 1;
+   if (frame_num > demo_mode_last_frame + 160) new_program_state = 1;
 
-   if (key[ALLEGRO_KEY_ESCAPE][0])
+   if ((key[ALLEGRO_KEY_ESCAPE][0]) || (key[ALLEGRO_KEY_ENTER][0]) || (key[ALLEGRO_KEY_SPACE][0]))
    {
+      demo_mode_on = 0;
+
       // set all players inactive
       for (int p=0; p<NUM_PLAYERS; p++) players[p].active = 0;
 
       // except for local player
       players[0].active = 1;
-      game_exit = 1;
       load_config();
+
+      new_program_state = 1;
+      old_program_state = 1;
    }
 }
 
@@ -632,6 +632,9 @@ void add_game_move(int frame, int type, int data1, int data2)
       if ((active_local_player == 0) && (players[0].control_method == 0)) // single player mode
       {
          // eat this keypress and pretend it never happened
+         new_program_state = 1;
+
+
          game_exit = 1;
          resume_allowed = 1;
          return; // to exit immediately
@@ -746,12 +749,19 @@ void proc_player_inactive_game_move(int x)
       sprintf(msg,"PLAYER:%d became INACTIVE", p);
       add_log_entry_header(10, p, msg, 1);
 
-      // local player in single player mode became inactive
-      if (players[p].control_method == 0)
-      {
-         game_exit = 1;
-         resume_allowed = 1;
-      }
+//      // local player in single player mode became inactive
+//      if (players[p].control_method == 0)
+//      {
+//
+//         printf("PLAYER:%d became INACTIVE\n", p);
+//
+//         printf("DOES THIS EVER GET HERE!!! \n", p);
+//
+//         new_program_state = 1;
+//
+//         game_exit = 1;
+//         resume_allowed = 1;
+//      }
 
       // player in run demo mode became inactive
       if (players[p].control_method == 1)
@@ -890,26 +900,6 @@ void proc_player_input(void)
       }
 }
 
-void proc_keys_held(void)
-{
-   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
-   {
-      if ((key[k][0] == true) && (key[k][1] == false)) key[k][2] = true; // just pressed
-      else key[k][2] = false;
-      if ((key[k][0] == false) && (key[k][1] == true)) key[k][3] = true; // just released
-      else key[k][3] = false;
-      key[k][1] = key[k][0]; // previous for next time
-   }
-   for (int m=1; m<5; m++)
-   {
-      if ((mouse_b[m][0] == true) && (mouse_b[m][1] == false)) mouse_b[m][2] = true; // just pressed
-      else mouse_b[m][2] = false;
-      if ((mouse_b[m][0] == false) && (mouse_b[m][1] == true)) mouse_b[m][3] = true; // just released
-      else mouse_b[m][3] = false;
-      mouse_b[m][1] = mouse_b[m][0]; // previous for next time
-   }
-}
-
 
 
 
@@ -926,7 +916,7 @@ void proc_controllers(void)
          ALLEGRO_EVENT ev;
          if (al_get_next_event(event_queue, &ev))
          {
-            if (ev.type == ALLEGRO_EVENT_TIMER) menu_timer_block = 0;
+            if ((ev.type == ALLEGRO_EVENT_TIMER) && (ev.timer.source == mnu_timer)) menu_timer_block = 0;
             else proc_events(ev);
          }
       }

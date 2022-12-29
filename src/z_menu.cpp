@@ -896,11 +896,8 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       }
       last_list_item = c-1;
 
-
       // shortcut key for level editor
       //if (menu_num == 7) if (key[ALLEGRO_KEY_L][0]) return 9;
-
-
 
       if (((key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) && (right_held == 0))
       {
@@ -944,12 +941,16 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       {
          selection = 2; // default position for back
          if (menu_num == 7)  selection = 1; // for top menu only
+
       }
       if (key[ALLEGRO_KEY_PGDN][0]) highlight = last_list_item;
       if (key[ALLEGRO_KEY_PGUP][0]) highlight = 2;
    }
    return selection;
 }
+
+
+
 
 
 
