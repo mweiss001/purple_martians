@@ -333,7 +333,7 @@ int get_comp_move_from_players_controls(int p) // only used to test
 
 void function_key_check(void)
 {
-   if ((!game_exit) || (level_editor_running) || (program_state == 11))
+   if ((level_editor_running) || (program_state == 11))
    {
 
       if (key[ALLEGRO_KEY_F1][3])
@@ -634,8 +634,6 @@ void add_game_move(int frame, int type, int data1, int data2)
          // eat this keypress and pretend it never happened
          new_program_state = 1;
 
-
-         game_exit = 1;
          resume_allowed = 1;
          return; // to exit immediately
       }
@@ -734,7 +732,9 @@ void proc_player_inactive_game_move(int x)
 
    players1[p].quit_frame = frame_num;
 
+   // ------------------------------------
    // player never became active
+   // ------------------------------------
    if ((players[p].active == 0) && (players[p].control_method == 2))
    {
       players1[p].join_frame = frame_num;
@@ -749,21 +749,9 @@ void proc_player_inactive_game_move(int x)
       sprintf(msg,"PLAYER:%d became INACTIVE", p);
       add_log_entry_header(10, p, msg, 1);
 
-//      // local player in single player mode became inactive
-//      if (players[p].control_method == 0)
-//      {
-//
-//         printf("PLAYER:%d became INACTIVE\n", p);
-//
-//         printf("DOES THIS EVER GET HERE!!! \n", p);
-//
-//         new_program_state = 1;
-//
-//         game_exit = 1;
-//         resume_allowed = 1;
-//      }
-
+      // ------------------------------------
       // player in run demo mode became inactive
+      // ------------------------------------
       if (players[p].control_method == 1)
       {
          players[p].active = 0;
@@ -771,10 +759,12 @@ void proc_player_inactive_game_move(int x)
          int still_active = 0;
          for (int p=0; p<NUM_PLAYERS; p++)
             if (players[p].active) still_active = 1;
-         if (!still_active) game_exit = 1;
+         if (!still_active) new_program_state = 1;
       }
 
+      // ------------------------------------
       // local server player quit
+      // ------------------------------------
       if (players[p].control_method == 3)
       {
          // printf("Local Server Player Quit :%d\n", frame_num);
@@ -785,17 +775,22 @@ void proc_player_inactive_game_move(int x)
             if ((players[pp].active) && (players[pp].control_method == 2))
                players1[pp].quit_reason = 91;
          log_ending_stats_server();
-         game_exit = 1;
+         new_program_state = 1;
       }
 
-      // remote server player quit
+      // ------------------------------------
+      // remote server quit
+      // ------------------------------------
       if ((ima_client) && (p == 0))
       {
+         // printf("Remote Server Quit :%d\n", frame_num);
          if (val == 64) players1[active_local_player].quit_reason = 92;
-         game_exit = 1;
+         new_program_state = 1;
       }
 
+      // ------------------------------------
       // remote player quit
+      // ------------------------------------
       if (players[p].control_method == 2)
       {
          // printf("Remote Player Quit :%d\n", frame_num);
@@ -887,7 +882,7 @@ void proc_player_input(void)
                      if (players[0].level_done_mode == 0) set_controls_from_comp_move(p, players1[p].comp_move);
                      else clear_controls(p);
 
-                     if (players[p].menu) game_exit = 1;
+                     if (players[p].menu) new_program_state = 25;
 
                      players1[p].client_cdat_packets_tx++;
                      sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
@@ -920,20 +915,12 @@ void proc_controllers(void)
             else proc_events(ev);
          }
       }
-      if (!game_exit) menu_timer_block = 0;
    }
-
 
    proc_keys_held();
    function_key_check();
-   if (game_exit) // if not called from game only do key check for active local player
-   {
-       clear_controls(active_local_player);
-       set_controls_from_player_key_check(active_local_player);
-   }
-   else // game is in progress
-   {
-      proc_player_input();
-      if (!ima_client) proc_game_moves_array();  // run once per frame to process game_moves_array (except client)
-   }
+
+   // only do key check for active local player
+   clear_controls(active_local_player);
+   set_controls_from_player_key_check(active_local_player);
 }

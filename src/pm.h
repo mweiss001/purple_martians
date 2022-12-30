@@ -323,7 +323,6 @@ extern int sel_x, sel_y, sel_size;
 extern int grid_cols, grid_rows, grid_size, grid_width, grid_height;
 extern int load_visual_level_select_done;
 
-
 // frame_speed, frames per second, frame_num stuff
 extern int speed_testing;
 extern int actual_fps;
@@ -332,9 +331,7 @@ extern int frame_speed;
 extern int frame_num;
 
 // global game control
-extern int game_exit;
 extern int next_level;
-
 
 // some global strings
 extern char level_filename[80];
@@ -344,8 +341,6 @@ extern char al_version_string[80];
 extern char global_string[20][25][80];
 extern char msg[1024];
 extern char color_name[16][20];
-
-
 
 // animation sequence array
 extern int zz[20][NUM_ANS];
@@ -750,9 +745,6 @@ struct player1 // not synced between server and client
 
 
 
-
-
-
 extern struct packet_buffer packet_buffers[200];
 struct packet_buffer
 {
@@ -764,10 +756,21 @@ struct packet_buffer
    char data[1024];
 };
 
-extern ALLEGRO_MUTEX *mutex;
 
+extern double timestamp_frame_start;
 
-
+extern int timestamps_index;
+extern struct timestamp timestamps[10000];
+struct timestamp
+{
+   int frame0;
+   int frame1;
+   int frame2;
+   int type;
+   double t0;
+   double t1;
+   double t2;
+};
 
 
 
@@ -1244,6 +1247,10 @@ void load_visual_level_select(void);
 int visual_level_select(void);
 
 // n_client.h
+void client_read_packet_buffer(void);
+void client_fast_packet_loop(void);
+
+
 int  ClientInitNetwork(const char *serveraddress);
 void ClientExitNetwork(void);
 int  ClientCheckResponse(void);
@@ -1254,7 +1261,7 @@ int  client_init_join(void);
 void client_exit(void);
 int  client_init(void);
 void client_read_game_move_from_packet(int x);
-int  client_process_stdf_packet(void);
+void client_process_stdf_packet(double timestamp);
 void client_apply_diff();
 void client_block_until_initial_state_received(void);
 void client_process_sdat_packet(void);
@@ -1287,6 +1294,15 @@ int PacketGet3ByteInt(void);
 int PacketGet4ByteInt(void);
 
 //n_server.h
+
+
+void init_timestamps(void);
+void add_timestamp(int type, int f1, int f2, double t1, double t2);
+int get_timestamp(int f, int type, double &res);
+int get_delta(int f0, int type0, int f1, int type1, double &res);
+int get_newest_timestamp(int type, double &res);
+
+
 int ServerInitNetwork(void);
 void ServerExitNetwork(void);
 void ServerListen(void);
@@ -1310,7 +1326,7 @@ void server_proc_sdak_packet(void );
 void server_proc_cjon_packet(int who);
 void server_control();
 
-
+void server_fast_packet_loop(void);
 
 
 // z_args.cpp
@@ -1602,7 +1618,8 @@ void get_desktop_resolution();
 int initial_setup(void);
 int main(int argument_count, char **argument_array);
 
-// z_main_loop.h
+
+// z_loop.h
 void proc_events(ALLEGRO_EVENT ev);
 void proc_keys_held(void);
 void proc_event_queue(void);
@@ -1613,6 +1630,7 @@ int has_player_acknowledged(int p);
 int have_all_players_acknowledged(void);
 void proc_level_done_mode(void);
 void proc_program_state(void);
+void proc_timer_adjust(void);
 int proc_frame_skip(void);
 void main_loop(void);
 

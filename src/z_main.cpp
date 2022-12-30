@@ -99,7 +99,6 @@ int frame_num;
 
 // global game control
 int next_level = 0;
-int game_exit = 1;
 
 // some global strings
 char level_filename[80];
@@ -312,10 +311,13 @@ struct player players[NUM_PLAYERS];
 struct player1 players1[NUM_PLAYERS];
 int active_local_player = 0;
 
+
+
+
 struct packet_buffer packet_buffers[200];
-
-
-ALLEGRO_MUTEX *mutex;
+struct timestamp timestamps[10000];
+int timestamps_index = 0;
+double timestamp_frame_start = 0;
 
 
 // ------------------------------------------------

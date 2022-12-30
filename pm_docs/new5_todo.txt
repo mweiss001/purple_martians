@@ -12,6 +12,14 @@ warp??
 
 
 
+
+
+
+
+
+
+
+
 bug---can't see any prox line in level editor for prox lift step
 it shows up fine in game
 in level editor the function:
