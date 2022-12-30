@@ -65,7 +65,7 @@ void game_menu(void)
       }
       if (top_menu_sel == 6) // join network game
       {
-         new_program_state = 21;
+         new_program_state = 24;
          return;
       }
 

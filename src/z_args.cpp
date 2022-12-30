@@ -84,7 +84,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-c") == 0 )
       {
          show_splash_screen = 0;
-         new_program_state = 21;
+         new_program_state = 24;
          return;
       }
       // no start level specified; use play level from config file
@@ -160,7 +160,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          show_splash_screen = 0;
          sprintf(m_serveraddress, "%s", argument_array[2]);
          save_config();
-         new_program_state = 21;
+         new_program_state = 24;
          return;
       }
       if (strcmp(argument_array[1],"-s") == 0 )
@@ -277,8 +277,88 @@ int copy_files_to_clients(int exe_only)
 
 
 
+
+
+
+
+
+
+/*
+
+double in=2.132;
+char arr[12] = {};
+memcpy(arr,&in,sizeof(in));
+
+char arr2[12] = ...;
+double out;
+memcpy(&out,arr2,sizeof(out));
+
+*/
+
+//
+//char packetbuffer1[1024] = {0};
+//int packetsize1 = 0;
+//int packetpos1 = 0;
+//
+//void PacketPutDouble1(double d)
+//{
+//   memcpy(packetbuffer1 + packetsize1, &d, 8);
+//	packetsize1+=8;
+//}
+//
+//double PacketGetDouble1(void)
+//{
+//   double d = 0;
+//   memcpy(&d, packetbuffer1 + packetpos1, 8);
+//	packetpos1+=8;
+//	return d;
+//}
+
 void temp_test(void)
 {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   double t0 = 0.000123;
+//   printf("1 - ps:%d pp:%d sot:%d t0:%f\n", packetsize1, packetpos1, sizeof(t0), t0);
+//
+//   PacketPutDouble1(t0);
+//   printf("2 - ps:%d pp:%d sot:%d t0:%f\n", packetsize1, packetpos1, sizeof(t0), t0);
+//
+//
+//   double t1 = PacketGetDouble1();
+//   printf("3 - ps:%d pp:%d sot:%d t1:%f\n", packetsize1, packetpos1, sizeof(t1), t1);
+//
+//
+//
+
+
+
+
+
+
+
+
+
+
+
+
 
 //   mdw_message_box_2("Hello", "poo", "pee");
 

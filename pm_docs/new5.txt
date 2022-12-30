@@ -42433,766 +42433,575 @@ but really I am happy with how the changes are coming...I need to make server an
 
 20221228 10:00PM push...
 
+to start with neither one can quit nicely
+
+client...
+
+where client sends cdat and applies controls directly menu key set game exit=1..changed to new_program_state =1
+that worked perfectly...client exited to command prompt and sent message to server...
+tried from menu and exited to menu very nice...
+could not rejoin, error opening UDP..probably did not clean up like I should have...
+
+get rid of 'int game_exit'...done
+
+level done in netgame works like it should....
+
+
+
+this is what used to be in loop.cpp I am getting rid of it......
+
+
+// z_loop.cpp
+#include "pm.h"
+/*
+int proc_frame_delay(void)
+{
+   int draw_frame = 0;
+   frame_num++;
+   update_animation();
+   if (al_get_timer_count(sec_timer) > 0)
+   {
+      al_set_timer_count(sec_timer, 0); // reset_second_timer
+      actual_fps = frame_num - last_fps_frame_num;
+      last_fps_frame_num = frame_num;
+   }
+
+//   printf("fn:%d timer:%d\n", frame_num, al_get_timer_count(fps_timer));
+
+//   if (speed_testing) // draw every frame no matter how fast or slow it is
+//   {
+//      draw_frame = 1;
+//      al_set_timer_count(fps_timer, frame_num);
+//   }
+//   else
+//   {
+//      if (frame_num <=  al_get_timer_count(fps_timer)) // skip drawing frame
+//      {
+//         draw_frame = 0;
+//         players1[active_local_player].frames_skipped++;
+//      }
+//      else draw_frame = 1;
+//      while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+//   }
+
+   draw_frame = 1;
+   return draw_frame;
+}
+
+*/
+
+/*
+
+// start modes:
+// 1 single player new game
+// 2 server new game
+// 3 client new game
+// 5 level done
+// 7 resume single player
+// 9 run demo mode
+void proc_start_mode(int start_mode)
+{
+   stop_sound();
+
+   if (start_mode == 7) // resume single player game
+   {
+      start_music(1); // resume theme
+      stimp();
+      set_frame_nums(frame_num); // set fps_timer count to frame_num
+      return;
+   }
+
+   if (start_mode == 5) // level done - do clean up from previous level
+   {
+      if (L_LOGGING_NETPLAY) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
+
+      if (players[active_local_player].control_method == 1) // run demo mode saved game file
+      {
+         al_rest(1);
+         game_exit = 1;// run game file play exits after level done
+         return; // to exit immediately
+      }
+
+      if (ima_client) log_ending_stats(active_local_player);
+      if (ima_server) log_ending_stats_server();
+
+      if (ima_server) server_flush();
+      if (ima_client) client_flush();
+
+      blind_save_game_moves(1);
+      save_log_file();
+      play_level = next_level;
+      players[0].level_done_mode = 0;
+
+      if (0) // reset clients
+      {
+         if ((ima_client) || (ima_server))
+         {
+            for (int p=0; p<NUM_PLAYERS; p++)
+            {
+               // free all the used clients, so they can be re-assigned on the next level
+               if (players[p].control_method == 9) players[p].control_method = 0;
+
+               // set all clients inactive on server and client, to force them to re-chase and lock on the new level
+               // if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
+
+            }
+            // al_rest(1);
+         }
+      }
+
+   }
+
+
+   if (start_mode == 3) // client new game (this has to go before load level)
+   {
+      if (!client_init())
+      {
+         client_exit();
+         game_exit = 1;
+         return;
+      }
+   }
+
+   // every mode after this should require load level so why don't I do it here at the top
+   if (!load_level(play_level, 0))
+   {
+      game_exit = 1;
+      return;
+   }
+
+   // reset players
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      if (start_mode == 5) init_player(p, 2); // next level reset
+      else                 init_player(p, 1); // full reset (start modes 1, 2, 3, 9)
+      set_player_start_pos(p, 0);             // get starting position for all players, active or not
+   }
+   players[0].active = 1;
+
+
+   if (start_mode == 9) // load and run demo
+   {
+      if (L_LOGGING_NETPLAY)
+      {
+         log_versions();
+         sprintf(msg, "Demo mode started on level:%d", play_level);
+         add_log_entry_header(10, 0, msg, 0);
+      }
+      players[0].control_method = 1; // rungame demo mode
+   }
+   else clear_game_moves(); // clear game moves array, except for demo mode
+
+
+   set_frame_nums(0);
+   reset_states();
+   clear_bullets();
+   clear_bmsg();
+   clear_keys();
+   clear_pm_events();
+
+
+   if (start_mode == 2) // server new game
+   {
+      if (!server_init())
+      {
+         server_exit();
+         game_exit = 1;
+         return;
+      }
+   }
 
+   if (ima_server) // set server initial state (for both 2-new game and 5-level done when server)
+   {
+      players[0].control_method = 3;
+      game_vars_to_state(srv_stdf_state[1]);
+      srv_stdf_state_frame_num[1] = frame_num;
+      if (L_LOGGING_NETPLAY_stdf)
+      {
+         //   printf("saved server state[1]:%d\n\n", frame_num);
+         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+         add_log_entry2(27, 0, msg);
+      }
+   }
 
+   if ((start_mode == 1) || (start_mode == 2) || (start_mode == 5)) // 1 single player new game, 2 server new game, 5 level done
+   {
+      add_game_move(0, 0, 0, play_level);       // [00] game_start
+
+      // save colors in game moves array
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active) add_game_move(0, 1, p, players[p].color); // [01] player_state and color
+   }
+
+
+   // only do fancy zoom into level if not in netgame
+   if ((!ima_client) && (!ima_server)) stimp();
 
 
+   if (L_LOGGING_NETPLAY)
+   {
+      sprintf(msg,"LEVEL %d STARTED", play_level);
+      add_log_entry_header(10, 0, msg, 3);
+   }
 
 
 
+   show_player_join_quit_timer = 0;
+   start_music(0); // rewind and start theme
+}
 
+*/
 
 
+/*
 
+void game_loop(int start_mode)
+{
+   game_exit = 0;
+   proc_start_mode(start_mode);
+   while (!game_exit)
+   {
+      proc_scale_factor_change();
+      proc_sound();
 
+      if (ima_server) server_control();
+      if (ima_client) client_control();
 
+      proc_controllers();
+      if (players[0].level_done_mode) proc_level_done_mode();
+      else move_frame(0);
 
+      if (players1[0].server_send_dif) server_send_stdf();
 
+      if (proc_frame_delay()) draw_frame();
+   }
+   if (ima_server) server_exit();
+   if (ima_client) client_exit();
+   stop_sound();
+   stamp();
+}
+*/
 
+put all the new stuff back in the original file 'z_loop.cpp'
 
 
 
 
+OK back to client...
+why can't it connect a second time?
+if I quit the game, then I can...
 
+server get the second request and replys
+and as far as I can tell it looks exactly like the first
 
+client times out waiting..
 
+TCP works fine....
 
+now I want to measure some ping times...
 
+I can't have a second rx loop running fast....
+both loops would interfere with each other...
 
+I need to have only one rx loop and use my packet_buffer scheme
 
+thie difference is I will be calling in faster, just not in its own thread...
 
+make an structure of timestamps
 
+extern struct timestamp timestamps[10000];
+struct timestamp
+{
+   int frame0;
+   int frame1;
+   int frame2;
+   int type;
+   double timestamp0;
+   double timestamp1;
+   double timestamp2;
+};
 
 
 
+type
+0 frame start
+1 move start
+2 move done
+3 draw start
+4 draw done
 
+10 = cdat rx
+11 = cjon tx
+...
+...
 
 
+make a function to clear...
 
+where? and where to call it?
+top of server...call when starting 11...done
 
+same for packet buffer..top of server called by init_network
 
 
 
+make a function to add...
 
+void add_timestamp(int type, int f1, int f2, double t1, double t2)
+{
+   if (timestamps_index < 9998)
+   {
+      timestamps[i].frame0 = frame_num;
+      timestamps[i].frame1 = f1;
+      timestamps[i].frame2 = f2;
+      timestamps[i].type   = type;
+      timestamps[i].t0     = al_get_time();
+      timestamps[i].t1     = t1;
+      timestamps[i].t2     = t2;
 
+      timestamps_index++;
+   }
+}
 
 
 
 
 
+I have an ordering issue...
 
+I want to measure draw time, but I also want to mark the time the frame started.....
+the way it currently is...frame is incremented, then draw happens...
 
+I would like the frame_inc to be the very last thing done...
+just because that seems like the best way to order it...
 
+is there anything in draw that cares about frame_num?..probably no...
 
 
 
 
+so I propose to change this:
 
+if (proc_frame_skip()) draw_frame();
+int proc_frame_skip(void)
+{
+   frame_num++;
+   update_animation();
 
+   if (frame_num < al_get_timer_count(fps_timer)) // skip drawing frame
+   {
+      players1[active_local_player].frames_skipped++;
+      players1[active_local_player].frames_skipped_last_sec_tally++;
+      //printf("Skipped drawing frame:%d\n", frame_num);
+      return 0;
+   }
+   return 1;
+}
 
 
 
 
 
 
+to this:
 
+if (proc_frame_skip()) draw_frame();
 
+   frame_num++;
+   update_animation();
 
+int proc_frame_skip(void)
+{
+   if ((frame_num+1) < al_get_timer_count(fps_timer)) // skip drawing frame
+   {
+      players1[active_local_player].frames_skipped++;
+      players1[active_local_player].frames_skipped_last_sec_tally++;
+      //printf("Skipped drawing frame:%d\n", frame_num);
+      return 0;
+   }
+   return 1;
+}
 
+looks simple enough, lets try it....
 
 
 
 
 
+20 event timer processed
 
+22 top of loop
 
+99 last ts before frame_inc
 
 
+in that 25000 us range I want to know when stuff happens
 
+pick a start...
 
+0 top of loop
+99 just before frame inc
 
 
+total range 0 to next 0
+get a start point
+get other values referenced to this start point....
 
+show in text or draw rect...
 
+function to get a single timpestamp...
 
 
 
+so basically after a bunch of testing...
 
+move takes around 10-20 us and draw takes 400-500.
 
+lets say .5ms out of the 25ms period...lots of time....
 
+I cant wait to profile what the server does with send stdf, especially to multiple clients...
 
+can I store these?
+calc every frame...
+every 1s take max and averages
 
+for now lets move on to the packet timing thing....
 
 
+- server sends ping to client
+- client replies
+- server gets reply and measures stuff...
 
 
+void server_control() // main server loop to process packet send and receive
+{
+   ServerListen(); // listen for new client connections
 
+   if (frame_num > 100)
+   {
+      if ((frame_num % 80) == 0)
+      {
+         for (int p=1; p<NUM_PLAYERS; p++)
+            if (players[p].control_method == 2)
+            {
+               Packet("ping");
+               ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+            }
+      }
+   }
 
 
+client recieves....
 
+this means I am going to implement the same packet buffer things for the client....
 
+It should be as common as possible....
 
+use the same buffer struct, but will need different fast rx loop..
 
 
 
+I really want to do away with the 2 blocks in client...
 
 
 
+the first one, block until sjon rx.....
 
+can't i just put it into a mode where all it does is wait for that?
 
+what can I use for the mode?
 
+control_method???
+but the server will try to overwrite it....
 
+what mode is it in already? none...
+mode 2 but inactive???
 
+suppose I set mode to be 7 - client waiting for sjon
+then mode 6 - client waiting for initial stdf
 
 
+find out what control_methods are currently used...
+0 local
+1 demo
+2 remote
+3 local server
+4 local client
 
+8 level done ack
+9 used client
 
+yes use 7 and 6 like you discussed
 
+as soon as client sends cjon...
+set control_method 7 and continue
 
+until sjon is received client does not know what player number to use...so use 0 until then
 
+so I will have player 0, active, and control method 7....???
 
+I have the fast packet set up to process sjon also..
 
+what about client in cm 7...
 
 
 
+when client runs in mode 7 it immediatley tries to load level 0000 and fails...
 
+what can I do to stop this?
 
+I can use a different program_state?
+not 11...
 
+is that not what they were made for??
 
+23 client wait for sjon
+22 client wait for initial state
 
+when starting client, start in state 24
+init network
+send cjon
+go to state 23
 
+state 23
+wait for sjon
+set up stuff
+load level...etc
 
 
+go to 22
 
+state 22
+load level abnd
 
+wait for initial stdf
 
+go to 21
 
+the problem is the initial state will not match the current frame, which is zero....
+I need to make an exception here
 
+that seemed to do it....
 
 
+now rid of any mention of blocking in client....done
 
 
+where should I put the fast_packet stuff?
 
+where should I put the timestamp stuff??
 
+where should I call them from??
 
+make it possible to abort client join sequence...
 
+client does not stop when it gets no server response
 
 
+________-------------------------------------------_______
 
 
+this file is over 40K lines and 1M char...time to start a new one.....
 
-server and client
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+20221228  ...done...

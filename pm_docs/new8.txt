@@ -1,0 +1,411 @@
+20221228
+
+New running log of changes to the project...
+
+The old one was over 40,000 lines and 1M char...
+
+
+do a line count:
+
+24525 code only
+8006 empty
+4979 comment
+4557 code and comment
+----------------
+42067 total
+
+
+where do I use proc_controllers?
+108 matches
+
+not in client anymore since I removed the blocking...
+
+client does not exit when connection fails...fixed first part...
+
+now what about waiting for initial state from server?
+
+break it on the server and test how client responds
+
+did it not used to say waiting for server in a few places?
+
+
+I have made a nice way to quit while waiting for initial state....
+
+I should make all the ways to exit from client go to a state that cleans up....i think I did...
+
+client still will not rejoin until program is restarted....fixed...it was a strange issue with packetpos needing to be reset to 0
+
+
+later make sure that server cleans up at exit like client, and try to restart....
+
+also make sure that TCP still works...
+
+
+
+Now I think I am finally ready to try some fast ping packets
+
+
+OK I have the packet passing...what should I do about it?
+
+
+when server receives pong do some timing
+
+ping time:   0.4 ms
+ping time:   0.8 ms
+ping time:   0.9 ms
+ping time:   0.9 ms
+ping time:   0.9 ms
+ping time:   1.2 ms
+ping time:   1.6 ms
+ping time:   1.6 ms
+ping time:   0.5 ms
+ping time:   1.3 ms
+ping time:   0.9 ms
+ping time:   1.1 ms
+ping time:   1.5 ms
+ping time:   1.0 ms
+ping time:   1.5 ms
+ping time:   0.7 ms
+ping time:   0.6 ms
+ping time:   0.6 ms
+
+this is round trip UDP on LAN
+
+switching to WAN
+
+
+96.45.15.187
+
+
+I am going to send the ts with the packet and add client ts also...
+how do I add a double to a packet?
+
+I could turn it into a char array like I do with state...
+
+
+im guessing sizeof double is 8...
+
+double test = 1.23;
+
+memcpy(packetbuffer+pos, test,  8);
+
+
+
+
+
+   offset += sz; sz = sizeof(Ei);       memcpy(b+offset, Ei,       sz);
+   offset += sz; sz = sizeof(Efi);      memcpy(b+offset, Efi,      sz);
+   offset += sz; sz = sizeof(item);     memcpy(b+offset, item,     sz);
+   offset += sz; sz = sizeof(itemf);    memcpy(b+offset, itemf,    sz);
+   offset += sz; sz = sizeof(lifts);    memcpy(b+offset, lifts,    sz);
+   offset += sz; sz = sizeof(l);        memcpy(b+offset, l,        sz);
+   offset += sz; sz = sizeof(pbullet);  memcpy(b+offset, pbullet,  sz);
+   offset += sz; sz = sizeof(ebullets); memcpy(b+offset, ebullets, sz);
+   offset += sz; sz = sizeof(pm_event); memcpy(b+offset, pm_event, sz);
+}
+
+void state_to_game_vars(char * b)
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(players);  memcpy(players,  b+offset, sz); offset += sz;
+   sz = sizeof(Ei);       memcpy(Ei,       b+offset, sz); offset += sz;
+
+
+
+
+before I do this in a packet, lets just try to do it in a regular way....
+
+
+
+void PacketPutDouble(double *d)
+{
+   memcpy(packetbuffer+packetsize, d, 8);
+	packetsize+=8;
+}
+
+double PacketGetDouble(void)
+{
+   double d[2];
+   memcpy(d, packetbuffer+packetpos, 8);
+	packetpos+=8;
+	return *d;
+}
+
+
+
+use this:
+char packetbuffer[1024];
+
+make a function to stick something in it and another fucntion to get it out....
+
+
+
+
+char packetbuffer1[1024] = {0};
+int packetsize1 = 0;
+int packetpos1 = 0;
+
+void PacketPutDouble1(double d)
+{
+   double dd[2] = {0};
+   dd[0] = d;
+   memcpy(packetbuffer1 + packetsize1, dd, 8);
+	packetsize1+=8;
+}
+
+double PacketGetDouble1(void)
+{
+   double d[2] = {0};
+   memcpy(d, packetbuffer1 + packetpos1, 8);
+	packetpos1+=8;
+	return d[0];
+}
+
+void temp_test(void)
+{
+   double t0 = 0.000123;
+   printf("1 - ps:%d pp:%d sot:%d t0:%f\n", packetsize1, packetpos1, sizeof(t0), t0);
+
+   PacketPutDouble1(t0);
+   printf("2 - ps:%d pp:%d sot:%d t0:%f\n", packetsize1, packetpos1, sizeof(t0), t0);
+
+
+   double t1 = PacketGetDouble1();
+   printf("3 - ps:%d pp:%d sot:%d t1:%f\n", packetsize1, packetpos1, sizeof(t1), t1);
+
+
+this shit works!!!
+
+
+the problem I was having is that memcopy does not like to be passed plain variables, it wants pointers...
+so I made an array of the variable tyope I wanted and only use the first element...
+
+found this:
+
+
+double in=2.132;
+char arr[12] = {};
+memcpy(arr,&in,sizeof(in));
+
+char arr2[12] = ...;
+double out;
+memcpy(&out,arr2,sizeof(out));
+
+void PacketPutDouble1(double d)
+{
+   memcpy(packetbuffer1 + packetsize1, &d, 8);
+	packetsize1+=8;
+}
+
+double PacketGetDouble1(void)
+{
+   double d = 0;
+   memcpy(&d, packetbuffer1 + packetpos1, 8);
+	packetpos1+=8;
+	return d;
+}
+
+that works too!
+
+now put it in the packets....done...
+
+now try
+
+
+C:\pm>pm -s
+
+Purple Martians Version 7.24.1
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+Local address of channel:24785
+Network initialized - channel mode (UDP)
+Server successfully initialized
+
+Server received initial 1234 packet from '192.168.1.116:24785'
+Server opened channel for `192.168.1.116:24785' and sent reply
+ping time:   0.7 ms
+ping time:   0.7 ms
+ping time:   0.4 ms
+ping time:   1.3 ms
+ping time:   0.3 ms
+ping time:   1.1 ms
+ping time:   1.0 ms
+ping time:   1.2 ms
+ping time:   0.4 ms
+ping time:   0.8 ms
+ping time:   0.4 ms
+ping time:   1.1 ms
+ping time:   0.4 ms
+ping time:   0.6 ms
+ping time:   0.5 ms
+Shutting down the server
+
+
+now try internet:
+
+
+Server received initial 1234 packet from '70.75.228.155:24785'
+Server opened channel for `70.75.228.155:24785' and sent reply
+ping time:  30.6 ms
+ping time:  25.7 ms
+ping time:  21.7 ms
+ping time:  26.7 ms
+ping time:  20.7 ms
+ping time:  31.1 ms
+ping time:  26.3 ms
+ping time:  27.9 ms
+ping time:  24.1 ms
+ping time:  27.8 ms
+ping time:  25.9 ms
+ping time:  35.6 ms
+Shutting down the server
+
+
+OK I've got something
+
+now try TCP
+
+Purple Martians Version 7.24.1
+Allegro Version: 5.2.7.1
+System ID: Windows
+Desktop Resolution: 3840x2160
+Network initialized - connection mode (TCP)
+Server successfully initialized
+
+Connection received from 70.75.228.155:63272
+ping time:  34.1 ms
+ping time:  48.3 ms
+ping time:  24.3 ms
+ping time:  23.1 ms
+ping time:  23.7 ms
+ping time:  28.8 ms
+ping time:  26.4 ms
+ping time:  28.8 ms
+ping time:  26.4 ms
+ping time:  27.4 ms
+ping time:  32.7 ms
+ping time:  25.6 ms
+ping time:  30.6 ms
+ping time:  28.6 ms
+ping time:  31.7 ms
+ping time:  70.3 ms
+Shutting down the server
+
+not that much of a difference...
+
+Now how can I use this to monitor and adjust timing..
+
+Now that I can receive stdf any time, I want to know exactly when I am receiving them
+
+this will be a client thing
+
+when client gets an stdf, compare to the latest frame start
+
+it was about 23ms after frame start...
+
+soon, timestamp fills up.. I should make one global timestamp called frame_start....
+I am amazed at how stable the timer is, fps adjust very rarely has anything to do...
+
+now lets try fine tuning the sync...
+
+
+I can get it down to 5-10 instead of 22 with fine tuning, but it does not make the game more playable on WAN
+LAN still looks great
+
+the problem on WAN is the corrections make it look really jumpy
+try s1 = 2...
+
+
+
+it work so good on LAN, whay not WAN, why so many jumpy corrections??
+
+I need to look into the timing closer
+
+maybe running just in time to get difs as needed is not the right approach
+
+If I got difs for a frame that I has already rendered...
+I could replay with the local controls for that frame that has already occured...
+this would mean I am running ahead of the the server
+controls that I am currently pressing are not as old on the server
+
+
+
+If I got difs for a frame that I had not rendered yet...
+i would hold off till then and apply it
+this would mean I am running behind the server
+controls that I am currently pressing are even older on the server
+
+
+
+I will need to experiment with both
+
+20221219 11:22PM ..push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

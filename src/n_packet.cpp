@@ -68,6 +68,19 @@ void PacketReadString(char* s)
 
 
 
+void PacketPutDouble(double d)
+{
+   memcpy(packetbuffer + packetsize, &d, 8);
+	packetsize+=8;
+}
+
+double PacketGetDouble(void)
+{
+   double d = 0;
+   memcpy(&d, packetbuffer + packetpos, 8);
+	packetpos+=8;
+	return d;
+}
 
 void PacketPut1ByteInt(int b)
 {

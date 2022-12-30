@@ -21,15 +21,6 @@ NET_CHANNEL *ListenChannel = NULL;                   // listen channel
 NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
 
 
-
-
-//
-//int ClientNum2 = 0;
-//NET_CHANNEL *ListenChannel2 = NULL;                   // listen channel
-//NET_CHANNEL *ClientChannel2[MAX_CLIENTS] = {NULL, };  // array of channels for each client
-
-
-
 void init_packet_buffer(void)
 {
    for (int i=0; i<200; i++)
@@ -42,6 +33,100 @@ void init_packet_buffer(void)
       packet_buffers[i].data[0] = 0;
    }
 }
+
+
+void init_timestamps(void)
+{
+   timestamps_index = 0;
+   for (int i=0; i<10000; i++)
+   {
+
+      timestamps[i].frame0 = 0;
+      timestamps[i].frame1 = 0;
+      timestamps[i].frame2 = 0;
+      timestamps[i].type   = 0;
+      timestamps[i].t0     = 0;
+      timestamps[i].t1     = 0;
+      timestamps[i].t2     = 0;
+   }
+}
+
+
+void add_timestamp(int type, int f1, int f2, double t1, double t2)
+{
+   if (timestamps_index < 9998)
+   {
+      timestamps[timestamps_index].frame0 = frame_num;
+      timestamps[timestamps_index].frame1 = f1;
+      timestamps[timestamps_index].frame2 = f2;
+      timestamps[timestamps_index].type   = type;
+      timestamps[timestamps_index].t0     = al_get_time();
+      timestamps[timestamps_index].t1     = t1;
+      timestamps[timestamps_index].t2     = t2;
+
+      timestamps_index++;
+   }
+}
+
+int get_timestamp(int f, int type, double &res)
+{
+   for (int i=timestamps_index; i>=0; i--)
+   {
+      if ((timestamps[i].frame0 == f) && (timestamps[i].type == type))
+      {
+         res = timestamps[i].t0;
+         return 1;
+      }
+   }
+   return 0;
+}
+
+
+int get_newest_timestamp(int type, double &res)
+{
+   for (int i=timestamps_index; i>=0; i--)
+   {
+      if (timestamps[i].type == type)
+      {
+         res = timestamps[i].t0;
+         return 1;
+      }
+   }
+   return 0;
+}
+
+
+
+int get_delta(int f0, int type0, int f1, int type1, double &res)
+{
+   double t0 = -1, t1 = -1;
+   for (int i=timestamps_index; i>=0; i--)
+   {
+      if ((timestamps[i].frame0 == f0) && (timestamps[i].type == type0)) t0 = timestamps[i].t0;
+      if ((timestamps[i].frame0 == f1) && (timestamps[i].type == type1)) t1 = timestamps[i].t0;
+   }
+   if ((t0 != -1) && (t1 != -1))
+   {
+      res = t1-t0;
+      return 1;
+   }
+   return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -106,40 +191,10 @@ int ServerInitNetwork() // Initialize the server
       printf("Local address of channel%s\n", net_getlocaladdress (ListenChannel));
 
 
-//      // open the listening channel2;
-//      if (!(ListenChannel2 = net_openchannel(NetworkDriver, NULL)))
-//      {
-//         sprintf(msg, "Error: failed to open listening channel2\n");
-//         printf("%s", msg);
-//         m_err(msg);
-//         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
-//         return -1;
-//      }
-//
-//      if (net_assigntarget(ListenChannel2, ""))
-//      {
-//         sprintf(msg, "Error: failed to assign target to listening channel2\n");
-//         printf("%s", msg);
-//         m_err(msg);
-//         if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
-//   		net_closechannel(ListenChannel2);
-//   		return -1;
-//   	}
-//      sprintf(msg, "Network initialized - channel2 mode (UDP)");
-//      printf("%s\n", msg);
-//      if (L_LOGGING_NETPLAY) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-//      printf("Local address of channel%s\n", net_getlocaladdress (ListenChannel));
-//
-
-
-
-
    } // end of UDP
 
    printf("%s\n", msg);
    if (L_LOGGING_NETPLAY) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-
-
 
 	return 0;
 }
@@ -169,168 +224,53 @@ void ServerListen() // Check for connecting clients (0 = ok, got new connection,
    } // end of if TCP
 
 
-
-
-
-
    else // UDP
    {
       // printf("server listen\n");
 
      	char address[32];
 
+      packetsize = net_receive(ListenChannel, packetbuffer, 1024, address);
 
-//     	al_lock_mutex(mutex);
-//
-//
-//      if (!packet_rx_lock)
-//      {
-//         packet_rx_lock = 1;
-
-         packetsize = net_receive(ListenChannel, packetbuffer, 1024, address);
-
-         if (packetsize)
+      if (packetsize)
+      {
+         set_packetpos(0);
+         if (PacketRead("1234"))
          {
-            printf("packetsize:%d pos:%d  %c%c%c%c\n", packetsize, get_packetpos(), packetbuffer[0], packetbuffer[1], packetbuffer[2], packetbuffer[3] );
+            sprintf(msg, "Server received initial 1234 packet from '%s'",address);
+            printf("%s\n", msg);
 
-            if (packetbuffer[0] == '1')// printf("1!!!\n");
-
-
-//            if (PacketRead("1234")) // why the fuck this does not work?????
-
-            if ((packetbuffer[0] == '1') && (packetbuffer[1] == '2') && (packetbuffer[2] == '3') && (packetbuffer[3] == '4'))    // printf("1!!!\n");
+            if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
             {
-               sprintf(msg, "Server received initial 1234 packet from '%s'",address);
-               printf("%s\n", msg);
-
-               if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
-               {
-                  sprintf(msg, "Error: failed to open channel for %s\n", address);
-                  printf("%s", msg);
-                  if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
-                  return;
-               }
-               if (net_assigntarget (ClientChannel[ClientNum], address))
-               {
-                  sprintf(msg, "Error: couldn't assign target `%s' to channel\n", address);
-                  printf("%s", msg);
-                  if (L_LOGGING_NETPLAY)  add_log_entry2(10, 0, msg);
-                  net_closechannel (ClientChannel[ClientNum]);
-                  return;
-               }
-               sprintf(msg, "Server opened channel for `%s' and sent reply", address);
-               printf("%s\n", msg);
-               if (L_LOGGING_NETPLAY)
-               {
-                  add_log_entry_centered_text(11, 0, 76, "", "+", "-");
-                  add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-                  add_log_entry_centered_text(11, 0, 76, "", "+", "-");
-               }
-
-               Packet("5678");
-               ServerSendTo(packetbuffer, packetsize, ClientNum, 0);
-               ClientNum++;
-               // sprintf(msg, "ClientNum:%d", ClientNum);
-               // printf("%s\n", msg);
+               sprintf(msg, "Error: failed to open channel for %s\n", address);
+               printf("%s", msg);
+               if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
+               return;
             }
+            if (net_assigntarget (ClientChannel[ClientNum], address))
+            {
+               sprintf(msg, "Error: couldn't assign target `%s' to channel\n", address);
+               printf("%s", msg);
+               if (L_LOGGING_NETPLAY)  add_log_entry2(10, 0, msg);
+               net_closechannel (ClientChannel[ClientNum]);
+               return;
+            }
+            sprintf(msg, "Server opened channel for `%s' and sent reply", address);
+            printf("%s\n", msg);
+            if (L_LOGGING_NETPLAY)
+            {
+               add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+               add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+            }
+            Packet("5678");
+            ServerSendTo(packetbuffer, packetsize, ClientNum, 0);
+            ClientNum++;
          }
-
-
-  //   	al_unlock_mutex(mutex);
-
-
-//         packet_rx_lock = 0;
-//      }
-
-
-//
-//
-//   	packetsize = net_receive(ListenChannel2, packetbuffer, 1024, address);
-//
-//      if ((packetsize) && (PacketRead("ABCD")))
-//      {
-//         sprintf(msg, "Server received initial ABCD packet from '%s'",address);
-//         printf("%s\n", msg);
-//
-//         if (!(ClientChannel2[ClientNum2] = net_openchannel(NetworkDriver, "")))
-//         {
-//            sprintf(msg, "Error: failed to open channel for %s\n", address);
-//            printf("%s", msg);
-//            if (L_LOGGING_NETPLAY) add_log_entry2(10, 0, msg);
-//   			return;
-//         }
-//   		if (net_assigntarget (ClientChannel2[ClientNum2], address))
-//         {
-//            sprintf(msg, "Error: couldn't assign target `%s' to channel\n",address);
-//            printf("%s", msg);
-//            if (L_LOGGING_NETPLAY)  add_log_entry2(10, 0, msg);
-//   			net_closechannel (ClientChannel2[ClientNum2]);
-//   			return;
-//   		}
-//         sprintf(msg, "Server opened channel for `%s' and sent reply",address);
-//         printf("%s\n", msg);
-//         if (L_LOGGING_NETPLAY)
-//         {
-//            add_log_entry_centered_text(11, 0, 76, "", "+", "-");
-//            add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-//            add_log_entry_centered_text(11, 0, 76, "", "+", "-");
-//         }
-//
-//         Packet("EFGH");
-//         ServerSendTo(packetbuffer, packetsize, ClientNum2, 0);
-//         ClientNum2++;
-//         // sprintf(msg, "ClientNum:%d", ClientNum);
-//         // printf("%s\n", msg);
-//      }
-//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      }
    } // end of UDP
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
+
 
 
 // Receive data from a client, and store in provided array
@@ -466,7 +406,8 @@ void ServerExitNetwork() // Shut the server down
 //----------------------------------------------------------------------------------------------------------------
 
 
-// static void *server_fast_packet_loop(void *arg);
+
+
 
 
 int server_init(void)
@@ -516,12 +457,6 @@ int server_init(void)
 
    players1[0].s1 = 3;
    players1[0].s2 = 1;
-
-
-  // mutex = al_create_mutex();
-
-
- //  al_run_detached_thread(server_fast_packet_loop, NULL);
 
    return 1;
 }
@@ -626,7 +561,9 @@ void server_send_stdf(void)
 void server_rewind(void)
 {
 
-   int s1 = players1[0].s1; //+ pct_x;
+//    int s1 = players1[0].s1; //+ pct_x;
+
+   int s1 = 2;
    int s2 = players1[0].s2 + pct_x;
    int s3 = s1+s2;
 
@@ -884,111 +821,108 @@ void server_proc_cjon_packet(int who)
 
 
 
+void PacketPutDouble(double);
+double PacketGetDouble(void);
+
+void server_fast_packet_loop(void)
+{
+   int who;
+   while((packetsize = ServerReceive(packetbuffer, &who)))
+   {
+      // printf("fp3\n");
+
+      double timestamp = al_get_time();
+
+      //printf("got packet size:%d\n", packetsize);
+
+      int type = 0;
+
+      // get type
+      if(PacketRead("cdat")) type = 1;
+      if(PacketRead("stak")) type = 2;
+      if(PacketRead("cjon")) type = 3;
+
+
+      if (PacketRead("pong"))
+      {
+         double t0 = PacketGetDouble();
+         //double t1 = PacketGetDouble();
+         double t2 = al_get_time();
+
+         //printf("t0:%f t1:%f t2:%f\n", t0, t1, t2);
+         printf("ping time: %5.1f ms\n", (t2-t0)*1000);
 
 //
-//static void *server_fast_packet_loop(void *arg)
-//{
 //
-//   while (ima_server)
-//   {
-//      //printf("fp2\n");
+//         add_timestamp(67, 0,0,0,0);
+////         printf("pong (%d)\n", frame_num);
 //
-////      printf("ts:%f\n", al_get_time());
-//
-//
-//      int who;
-//      while((packetsize = ServerReceive(packetbuffer, &who)))
-//      {
-//         printf("fp3\n");
-//        	al_lock_mutex(mutex);
-//
-//         double timestamp = al_get_time();
-//
-//         printf("got packet size:%d\n", packetsize);
-//
-//         int type = 0;
-//
-//         // get type
-//         if(PacketRead("cdat")) type = 1;
-//         if(PacketRead("stak")) type = 2;
-//         if(PacketRead("cjon")) type = 3;
-//
-////         printf("type:%d\n", type);
-//
-//         if (type)
-//         {
-//            // find empty
-//            for (int i=0; i<200; i++)
-//               if (!packet_buffers[i].active)
-//               {
-//
-//                  printf("%d stored packet:%d size:%d type:%d\n", frame_num, i, packetsize, type);
-//
-//                  packet_buffers[i].active = 1;
-//                  packet_buffers[i].type = type;
-//                  packet_buffers[i].timestamp = timestamp;
-//                  packet_buffers[i].who = who;
-//                  packet_buffers[i].packetsize = packetsize;
-//                  memcpy(packet_buffers[i].data, packetbuffer, 1024);
-//                  break;
-//               }
-//         }
-//      }
-//     	al_unlock_mutex(mutex);
-//   }
-//   return NULL;
-//}
-//
-//void server_read_packet_buffer(void)
-//{
-//  	al_lock_mutex(mutex);
-//
-//   // process all used
-//   for (int i=0; i<200; i++)
-//      if (packet_buffers[i].active)
-//      {
-//         printf("%d read packet:%d  size:%d \n", frame_num, i, packet_buffers[i].packetsize);
-//
-//         memcpy(packetbuffer, packet_buffers[i].data, 1024);
-//         packetsize = packet_buffers[i].packetsize;
-//
-//         set_packetpos(4);
-//
-//         if (packet_buffers[i].type == 1) server_proc_cdat_packet();
-//         if (packet_buffers[i].type == 2) server_proc_stak_packet();
-//         if (packet_buffers[i].type == 3) server_proc_cjon_packet(packet_buffers[i].who);
-//
-////            if(PacketRead("cdat")) server_proc_cdat_packet();
-////            if(PacketRead("stak")) server_proc_stak_packet();
-////            if(PacketRead("cjon")) server_proc_cjon_packet(packet_buffers[i].who);
-//
-//         packet_buffers[i].active = 0;
-//      }
-//
-//   al_unlock_mutex(mutex);
-//}
-//
+//         double res = 0;
+//         if (get_delta(frame_num,   66, frame_num,   67, res)) printf("ping time: %5.1f ms\n", res*1000);
+
+
+      }
+
+
+
+
+//         printf("type:%d\n", type);
+
+      if (type)
+      {
+         // find empty
+         for (int i=0; i<200; i++)
+            if (!packet_buffers[i].active)
+            {
+
+        //       printf("%d stored packet:%d size:%d type:%d\n", frame_num, i, packetsize, type);
+
+               packet_buffers[i].active = 1;
+               packet_buffers[i].type = type;
+               packet_buffers[i].timestamp = timestamp;
+               packet_buffers[i].who = who;
+               packet_buffers[i].packetsize = packetsize;
+               memcpy(packet_buffers[i].data, packetbuffer, 1024);
+               break;
+            }
+      }
+   }
+}
+
+void server_read_packet_buffer(void)
+{
+   // process all used
+   for (int i=0; i<200; i++)
+      if (packet_buffers[i].active)
+      {
+   //      printf("%d read packet:%d  size:%d \n", frame_num, i, packet_buffers[i].packetsize);
+
+         memcpy(packetbuffer, packet_buffers[i].data, 1024);
+         packetsize = packet_buffers[i].packetsize;
+
+         set_packetpos(4);
+
+         if (packet_buffers[i].type == 1) server_proc_cdat_packet();
+         if (packet_buffers[i].type == 2) server_proc_stak_packet();
+         if (packet_buffers[i].type == 3) server_proc_cjon_packet(packet_buffers[i].who);
+
+         packet_buffers[i].active = 0;
+      }
+}
+
 
 
 void server_control() // main server loop to process packet send and receive
 {
    ServerListen(); // listen for new client connections
 
-   //server_fast_packet_loop(NULL);
-   // server_read_packet_buffer();
-
-   int who;
-   while((packetsize = ServerReceive(packetbuffer, &who)))
-   {
-      if(PacketRead("cdat")) server_proc_cdat_packet();
-      if(PacketRead("stak")) server_proc_stak_packet();
-      if(PacketRead("cjon")) server_proc_cjon_packet(who);
-   }
 
 
+   server_read_packet_buffer();
    server_rewind(); // to replay and apply late client input
    server_proc_player_drop();  // check to see if we need to drop clients
 
    if (L_LOGGING_NETPLAY_PLAYER_ARRAY) log_player_array2();
+
    for (int p=0; p<NUM_PLAYERS; p++) if (players[p].active) process_bandwidth_counters(p);
 }

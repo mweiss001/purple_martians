@@ -86,6 +86,7 @@
 		</Unit>
 		<Unit filename="pm_docs/new5.txt" />
 		<Unit filename="pm_docs/new5_todo.txt" />
+		<Unit filename="pm_docs/new8.txt" />
 		<Unit filename="src/e_bitmap.cpp" />
 		<Unit filename="src/e_editor_main.cpp" />
 		<Unit filename="src/e_editor_zfs.cpp" />
@@ -121,7 +122,6 @@
 		<Unit filename="src/z_logo.cpp" />
 		<Unit filename="src/z_loop.cpp" />
 		<Unit filename="src/z_main.cpp" />
-		<Unit filename="src/z_main_loop.cpp" />
 		<Unit filename="src/z_menu.cpp" />
 		<Unit filename="src/z_player.cpp" />
 		<Unit filename="src/z_screen.cpp" />
