@@ -257,6 +257,17 @@ lift_steps  : 38400
 wait...I also need pmsgtext, and that is not trivial
 maybe during join I can compress and send these static things once...
 maybe I could send the level file, it is already compressed...
+
+the biggest levels are only 8K
+I can already send the state broken up into packets, why not the level??
+
+
+
+
+
+
+
+
 -------------------------------------------------
 
 

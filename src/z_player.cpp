@@ -1517,6 +1517,8 @@ void init_player(int p, int t)
       players[p].level_done_y = 0;
       players[p].level_done_player = 0;
 
+
+
    }
 
    if (t == 21) // netgame counters, etc
@@ -1542,8 +1544,15 @@ void init_player(int p, int t)
       players1[p].client_last_stdf_rx_frame_num = 0;
 
       players1[p].cmp_dif_size = 0;
-      players1[p].n_stdf = 0;
       players1[p].made_active_holdoff = 0;
+
+      players1[p].client_chase_offset = 0.010;
+
+      players1[p].game_move_dsync = 0;
+      players1[p].game_move_dsync_avg_last_sec = 0;
+      players1[p].game_move_dsync_avg_last_sec_tally = 0;
+      players1[p].game_move_dsync_avg_last_sec_count = 0;
+
    }
 
    if (t == 23) // clear bandwidth counters

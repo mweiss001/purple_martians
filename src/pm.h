@@ -662,8 +662,18 @@ struct player1 // not synced between server and client
 
    int client_base_resets;
 
+   int client_last_dif_applied;
+
+
    int client_sync;
    int server_sync;
+
+   double ping;
+
+   double dsync;
+
+   double client_chase_offset;
+
 
 
    int sc_sync; // packet stdf from s to c  sfn-cfn
@@ -680,10 +690,6 @@ struct player1 // not synced between server and client
 
    int client_cdat_packets_tx;
 
-   int late_cdats;
-
-
-
 
 
    int made_active_holdoff;
@@ -693,16 +699,38 @@ struct player1 // not synced between server and client
    int quit_frame;
    int quit_reason;
 
-   // server only - next client to send stdf to
-   int n_stdf;
+
+   // server rewind and stdf frequencies
    int s1;
    int s2;
+
+
+
 
 
 
    // used only to display on server screen overlay in client grid
    int num_dif_packets;
    int cmp_dif_size;
+
+   int late_cdats;
+   int late_cdats_last_sec;
+   int late_cdats_last_sec_tally;
+
+
+   double game_move_dsync; // current value
+
+   double game_move_dsync_max;
+
+   double game_move_dsync_avg_last_sec;
+   double game_move_dsync_avg_last_sec_tally;
+   double game_move_dsync_avg_last_sec_count;
+
+
+
+
+
+
 
 
    // bandwidth counters and tallies
@@ -758,6 +786,8 @@ struct packet_buffer
 
 
 extern double timestamp_frame_start;
+
+
 
 extern int timestamps_index;
 extern struct timestamp timestamps[10000];
@@ -1217,7 +1247,12 @@ void set_trigger_event(int i, int ev0, int ev1, int ev2, int ev3);
 int get_frame_size(int num);
 void set_frame_size(int num, int frame_size);
 int mdw_button(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7);
+
 int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
+int mdw_buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
+
+
+
 int mdw_buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
 void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var);
 void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7);
@@ -1278,6 +1313,10 @@ int NetworkInit();
 // n_packet.h
 extern char packetbuffer[1024];
 extern int packetsize;
+
+void set_packetpos(int pos);
+int get_packetpos(void);
+
 void Packet(const char *id);
 int PacketRead(const char *id);
 void PacketAddByte(char b);
@@ -1292,6 +1331,10 @@ int PacketGet1ByteInt(void);
 int PacketGet2ByteInt(void);
 int PacketGet3ByteInt(void);
 int PacketGet4ByteInt(void);
+void PacketPutDouble(double);
+double PacketGetDouble(void);
+
+
 
 //n_server.h
 
@@ -1320,9 +1363,9 @@ void server_rewind(void);
 
 void server_send_sdat(void);
 void server_proc_player_drop(void);
-void server_proc_cdat_packet(void );
-void server_proc_stak_packet(void );
-void server_proc_sdak_packet(void );
+void server_proc_cdat_packet(double timestamp);
+void server_proc_stak_packet(void);
+void server_proc_sdak_packet(void);
 void server_proc_cjon_packet(int who);
 void server_control();
 

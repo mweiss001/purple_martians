@@ -5,12 +5,6 @@
 // n_network.h
 extern int NetworkDriver;
 
-// n_packet.h
-extern char packetbuffer[1024];
-extern int packetsize;
-void set_packetpos(int pos);
-int get_packetpos(void);
-
 // these are never referenced outside of this file
 NET_CONN *ServerConn = NULL;
 NET_CHANNEL *ServerChannel;
@@ -305,18 +299,24 @@ void client_exit(void)
    load_config(); // to get color back
 }
 
+void client_send_stak(void)
+{
+   int p = active_local_player;
+   Packet("stak");
+   PacketPut1ByteInt(p);
+   PacketPut4ByteInt(client_state_base_frame_num);
+   PacketPut4ByteInt(frame_num);
+   PacketPut4ByteInt(players1[p].frames_skipped);
+   PacketPut4ByteInt(players1[p].client_chase_fps);
+   PacketPutDouble(players1[p].dsync);
+   ClientSend(packetbuffer, packetsize);
+}
+
 void client_apply_diff(void)
 {
    int p = active_local_player;
 
-   // check to see if frame_nums match and its time to apply dif or if initial state when frame_num == 0
-   if ((frame_num != client_state_dif_dst) && (frame_num != 0))
-   {
-      // destination of dif does not match current frame_num
-      sprintf(msg, "dif [%d to %d] not applied - dest mismatch\n", client_state_dif_src, client_state_dif_dst);
-      if (L_LOGGING_NETPLAY_stdf_when_to_apply) add_log_entry2(29, p, msg);
-   }
-   else
+   if ((client_state_dif_dst > client_state_base_frame_num) || (frame_num == 0)) // stored dif with a new dest, or initial state (frame 0)
    {
       if (client_state_dif_src == 0) // if server has sent dif from src == 0, reset client base to 0
       {
@@ -328,21 +328,21 @@ void client_apply_diff(void)
       if (client_state_base_frame_num != client_state_dif_src) // stored base state does NOT match dif source
       {
          sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
-         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
+         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(29, p, msg);
 
-         // send ack to server with correct acknowledged base state
-         Packet("stak");
-         PacketPut1ByteInt(p);
-         PacketPut4ByteInt(client_state_base_frame_num);
-         PacketPut4ByteInt(frame_num);
-         PacketPut4ByteInt(players1[p].frames_skipped);
-         PacketPut4ByteInt(players1[p].client_chase_fps);
-         ClientSend(packetbuffer, packetsize);
+         client_send_stak(); // resend ack to server with correct acknowledged base state
       }
-      else // stored base state matches dif source
+      else // we have a matching base to apply dif
       {
-         sprintf(msg, "dif [%d to %d] applied.......\n", client_state_dif_src, client_state_dif_dst);
-         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
+         char tmsg[64];
+         int ff = 0;
+         if (frame_num == 0) sprintf(tmsg, "initial state\n");
+         else if (client_state_dif_dst < frame_num)
+         {
+            ff = frame_num - client_state_dif_dst;
+            sprintf(tmsg, "rewind [%d] frames\n", ff);
+         }
+         if (client_state_dif_dst == frame_num) sprintf(tmsg, "exact frame match [%d]\n", frame_num);
 
          // apply dif to base state
          apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
@@ -370,38 +370,41 @@ void client_apply_diff(void)
          if (players[p].control_method == 2) players[p].control_method = 4;
          if (players[p].control_method == 8) new_program_state = 1; // server quit
 
-         // update client base frame_num
-         client_state_base_frame_num = client_state_dif_dst;
+         // update frame_num and client base frame_num
+         frame_num = client_state_base_frame_num = client_state_dif_dst;
 
          // for initial state only
          if (frame_num == 0) set_frame_nums(client_state_dif_dst);
 
-         sprintf(msg, "dif [%d to %d]\n", client_state_dif_src, client_state_dif_dst);
-         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
+         players1[p].client_last_dif_applied = frame_num;
 
-         // send ack to server
-         Packet("stak");
-         PacketPut1ByteInt(p);
-         PacketPut4ByteInt(client_state_dif_dst);
-         PacketPut4ByteInt(frame_num);
-         PacketPut4ByteInt(players1[p].frames_skipped);
-         PacketPut4ByteInt(players1[p].client_chase_fps);
-         ClientSend(packetbuffer, packetsize);
+         if (ff) loop_frame(ff); // if we rewound time, play it back
+
+         client_send_stak();
+
+         sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
+         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(29, p, msg);
       }
+   }
+   else
+   {
+      sprintf(msg, "dif [%d to %d] not applied - not newer than current [%d]\n", client_state_dif_src, client_state_dif_dst, client_state_base_frame_num);
+      if (L_LOGGING_NETPLAY_stdf_when_to_apply) add_log_entry2(29, p, msg);
    }
 }
 
-
-void client_timer_adjust(int p)
+void client_timer_adjust(void)
 {
-   float fps_chase = frame_speed + (players1[p].client_sync)*2;
+   int p = active_local_player;
+   double dsync = players1[p].dsync - players1[p].client_chase_offset; // adjust for target offset
+   double fps_adj = dsync * 100; // make the change bigger
+
+   float fps_chase = frame_speed + fps_adj;
    if (fps_chase < 10) fps_chase = 10; // never let this go negative
    if (fps_chase > 70) fps_chase = 70;
    al_set_timer_speed(fps_timer, ( 1 / fps_chase));
    players1[p].client_chase_fps = (int) fps_chase;
 }
-
-
 
 
 void client_process_stdf_packet(double timestamp)
@@ -415,82 +418,43 @@ void client_process_stdf_packet(double timestamp)
    int sb = PacketGet4ByteInt();
    int sz = PacketGet4ByteInt();
 
-   players1[p].client_sync = dst - frame_num;
-
-   players1[p].client_last_stdf_rx_frame_num = frame_num;
 
    sprintf(msg, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", seq+1, max_seq, src, dst, sb, sz);
    if (L_LOGGING_NETPLAY_stdf_all_packets) add_log_entry2(28, p, msg);
 
-   double tfs = timestamp_frame_start;
+   players1[p].client_sync = dst - frame_num;               // crude integer sync based on frame numbers
+   players1[p].client_last_stdf_rx_frame_num = frame_num;   // client keeps track of last stdf rx'd and quits if too long
+   double dsync = al_get_time() - timestamp;                // time between when the packet was received into the packet buffer and now
+   dsync += (double) players1[p].client_sync * 0.025;       // add to integer sync in case we are out by a lot
+   players1[p].dsync = dsync;                               // save in local player array
 
-   double fpsc =  al_get_timer_speed(fps_timer);
-
-
-//   printf("rx stdf on frame:%d for frame:%d  t0:%f  ts:%f  sync:%f\n", frame_num, dst, tfs, timestamp, timestamp-tfs);
-
-
-   //printf("%d %d  sync:%5.1f\n", frame_num, dst, (timestamp-tfs)*1000);
-
-   double dsync = timestamp-tfs;
-
-   printf(" %d  sync:%5.1f  %f \n", players1[p].client_sync, dsync*1000, fpsc);
-
-
-   if (players1[p].client_sync != 0) client_timer_adjust(p);
-   else
-   {
-      float fps_chase = frame_speed - dsync;
-      if (fps_chase < 10) fps_chase = 10; // never let this go negative
-      if (fps_chase > 70) fps_chase = 70;
-      al_set_timer_speed(fps_timer, ( 1 / fps_chase));
-      players1[p].client_chase_fps = (int) fps_chase;
-   }
-
-
-
-
-
-
-
-
-
-
-
-
-
+   client_timer_adjust();
 
    memcpy(client_state_buffer + sb, packetbuffer+22, sz);  // put the piece of data in the buffer
-   client_state_buffer_pieces[seq] = dst; // mark it with destination frame_num
+   client_state_buffer_pieces[seq] = dst;                  // mark it with destination frame_num
 
-
-   int complete = 1; // did we just get the last packet? (yes by default)
+   int complete = 1;                                          // did we just get the last packet? (yes by default)
    for (int i=0; i< max_seq; i++)
       if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
 
    if (complete)
    {
-      char tmsg1[80], tmsg2[80];
-      sprintf(tmsg1, "rx stdf complete [%d to %d] sync[%d]", src, dst, dst -frame_num);
-
       // decompress client_state_buffer to dif
       uLongf destLen = sizeof(client_state_dif);
       uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
 
       if (destLen == STATE_SIZE)
       {
-         sprintf(tmsg2, "good decompress");
+         sprintf(msg, "rx dif complete [%d to %d] sync[%d] dsync[%3.1fms] - decompressed\n", src, dst, players1[p].client_sync, players1[p].dsync*1000);
          client_state_dif_src = src; // mark dif data with new src and dst
          client_state_dif_dst = dst;
-         client_apply_diff();
       }
       else
       {
-         sprintf(tmsg2, "bad decompress");
+         sprintf(msg, "rx dif complete [%d to %d] sync[%d] - bad decompress\n", src, dst, players1[p].client_sync);
          client_state_dif_src = -1; // mark dif data as bad
          client_state_dif_dst = -1;
       }
-      sprintf(msg, "%s %s\n", tmsg1, tmsg2);
       if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
    }
 }
@@ -615,8 +579,6 @@ void client_proc_player_drop(void)
 }
 
 
-void PacketPutDouble(double);
-double PacketGetDouble(void);
 
 
 void client_fast_packet_loop(void)
@@ -632,22 +594,16 @@ void client_fast_packet_loop(void)
       if (PacketRead("ping"))
       {
          double t = PacketGetDouble();
-         printf("ping  :%f\n", t);
-
-
          Packet("pong");
          PacketPutDouble(t);
          PacketPutDouble(al_get_time());
-
-//         PacketPut1ByteInt(p);
-//         PacketPut4ByteInt(client_state_dif_dst);
-//         PacketPut4ByteInt(frame_num);
-//         PacketPut4ByteInt(players1[p].frames_skipped);
-//         PacketPut4ByteInt(players1[p].client_chase_fps);
          ClientSend(packetbuffer, packetsize);
-
       }
-
+      if (PacketRead("pang"))
+      {
+         double t = PacketGetDouble();
+         players1[active_local_player].ping = al_get_time() - t;
+      }
 
 
       // printf("type:%d\n", type);
@@ -663,8 +619,6 @@ void client_fast_packet_loop(void)
                packet_buffers[i].timestamp = timestamp;
                packet_buffers[i].packetsize = packetsize;
                memcpy(packet_buffers[i].data, packetbuffer, 1024);
-
-
                break;
             }
       }

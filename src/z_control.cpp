@@ -867,8 +867,8 @@ void proc_player_input(void)
                {
                   players1[p].old_comp_move = players1[p].comp_move;
 
-                  // in single player and server mode, add to game moves array
-                  if ((cm == 0) || (cm == 3)) add_game_move(frame_num, 5, p, players1[p].comp_move);
+                  // in single player, client and server mode, add to game moves array
+                  if ((cm == 0) || (cm == 3) || (cm == 4)) add_game_move(frame_num, 5, p, players1[p].comp_move);
 
                   // in client mode, send cdat packet, and apply move directly to controls
                   if (cm == 4)

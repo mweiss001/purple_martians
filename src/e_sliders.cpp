@@ -1300,6 +1300,42 @@ int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
 }
 
 
+
+// displays a text string, and returns 1 if pressed but doesnt block
+int mdw_buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
+{
+   int y2 = y1+bts-2;
+   int ret = 0;
+   sprintf(smsg, "%s", txt);
+
+   draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
+   draw_slider_text(x1, y1,  x2, y2, q2, q5);
+
+   if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   {
+//      while (mouse_b[1][0]) proc_controllers(); // wait for release
+      ret = 1;
+   }
+   if (q6) y1+=bts;
+   return ret;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // displays a text string and tile, and returns 1 if pressed --- tile is bn
 int mdw_buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt)
 {
