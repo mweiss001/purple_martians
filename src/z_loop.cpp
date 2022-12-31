@@ -275,28 +275,17 @@ void proc_program_state(void)
    {
       if (new_program_state != program_state)
       {
+         if (new_program_state ==  2) program_state =  2; // demo_mode
          if (new_program_state == 10) program_state = 10; // start new game
          if (new_program_state == 12) program_state = 12; // level_done
          if (new_program_state == 13) program_state = 13; // resume
          if (new_program_state == 14) program_state = 14; // run demo
-
-         if (new_program_state == 2) program_state = 2;   // demo_mode
-
-
          if (new_program_state == 20) program_state = 20; // start server game
-
-
-
-
          if (new_program_state == 21) program_state = 21; // client wait for initial state
          if (new_program_state == 22) program_state = 22; // client load level and set up
          if (new_program_state == 23) program_state = 23; // client wait for sjon
          if (new_program_state == 24) program_state = 24; // client init network and send cjon
-
-
          if (new_program_state == 25) program_state = 25; // client exit and clean up network
-
-
 
          if (new_program_state == 1) // game menu or fast exit
          {
@@ -313,14 +302,16 @@ void proc_program_state(void)
    }
 
 
+
    if (program_state == 0) main_loop_exit = 1; // quit
    if (program_state == 1) game_menu();  // game menu (this blocks)
    if (program_state == 2) demo_mode();  // demo mode
 
 
 
-
-
+   //---------------------------------------
+   // 21 - client exit
+   //---------------------------------------
    if (program_state == 25) // client exit
    {
       client_exit();
@@ -329,7 +320,7 @@ void proc_program_state(void)
 
 
    //---------------------------------------
-   // client new game
+   // 24 - client new game
    //---------------------------------------
    if (program_state == 24)
    {
@@ -341,13 +332,19 @@ void proc_program_state(void)
       new_program_state = 23;
    }
 
-   if (program_state == 23) // client wait for sjon
+   //---------------------------------------
+   // 23 - client wait for join
+   //---------------------------------------
+   if (program_state == 23)
    {
       client_fast_packet_loop();
       client_read_packet_buffer();
    }
 
-   if (program_state == 22) // client set up level
+   //---------------------------------------
+   // 22 - client level setup
+   //---------------------------------------
+   if (program_state == 22)
    {
       printf("client set up level\n");
 
@@ -357,10 +354,10 @@ void proc_program_state(void)
          return;
       }
 
-      // reset players
+
       for (int p=0; p<NUM_PLAYERS; p++)
       {
-         init_player(p, 1);              // full reset (start modes 1, 2, 3, 9)
+         init_player(p, 1);              // full reset
          set_player_start_pos(p, 0);     // get starting position for all players, active or not
       }
       players[0].active = 1;
@@ -374,7 +371,6 @@ void proc_program_state(void)
       clear_keys();
       clear_pm_events();
 
-
       if (L_LOGGING_NETPLAY)
       {
          sprintf(msg,"LEVEL %d STARTED", play_level);
@@ -382,17 +378,19 @@ void proc_program_state(void)
       }
 
       show_player_join_quit_timer = 0;
-      start_music(0); // rewind and start theme
+      start_music(0);
       init_timestamps();
-
       new_program_state = 21;
    }
 
-
+   //---------------------------------------
+   // 21 - client wait for intial state
+   //---------------------------------------
    if (program_state == 21)
    {
       client_fast_packet_loop();
       client_read_packet_buffer();
+      client_apply_diff();
 
       if (key[ALLEGRO_KEY_ESCAPE][3]) program_state = 25;
 
@@ -400,50 +398,38 @@ void proc_program_state(void)
       float stretch = ( (float)SCREEN_W / ((strlen(msg)+2)*8));
       rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, 10, stretch, 0, 1);
 
-
       al_flip_display();
 
       if (frame_num > 0)
       {
-
          printf("got initial state for frame:%d\n", frame_num);
-
          int p = active_local_player;
 
          // set holdoff 200 frames in future so client won't try to drop while syncing
          players1[p].client_last_stdf_rx_frame_num = frame_num + 200;
 
          if (L_LOGGING_NETPLAY_JOIN) add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
-
          program_state = 11;
       }
    }
 
 
-
-
-
-
-
    //---------------------------------------
-   // single player new game
+   // 10 - single player new game
    //---------------------------------------
    if (program_state == 10)
    {
-
       play_level = start_level;
-
       if (!load_level(play_level, 0))
       {
          new_program_state = 1;
          return;
       }
 
-      // reset players
       for (int p=0; p<NUM_PLAYERS; p++)
       {
-         init_player(p, 1); // full reset (start modes 1, 2, 3, 9)
-         set_player_start_pos(p, 0);             // get starting position for all players, active or not
+         init_player(p, 1);            // full reset
+         set_player_start_pos(p, 0);   // get starting position for all players, active or not
       }
       players[0].active = 1;
 
@@ -466,7 +452,7 @@ void proc_program_state(void)
 
 
    //---------------------------------------
-   // level done
+   // 12 - level done
    //---------------------------------------
    if (program_state == 12)
    {
@@ -500,7 +486,7 @@ void proc_program_state(void)
             for (int p=0; p<NUM_PLAYERS; p++)
             {
                // free all the used clients, so they can be re-assigned on the next level
-               if (players[p].control_method == 9) players[p].control_method = 0;
+               // if (players[p].control_method == 9) players[p].control_method = 0;
 
                // set all clients inactive on server and client, to force them to re-chase and lock on the new level
                // if ((players[p].control_method == 2) || (players[p].control_method == 4)) players[p].active = 0;
@@ -508,6 +494,7 @@ void proc_program_state(void)
             }
          }
       }
+
 
 
       // every mode after this should require load level so why don't I do it here at the top
@@ -684,9 +671,9 @@ void proc_program_state(void)
       program_state = 11;
    }
 
-
-
 }
+
+
 
 
 
@@ -705,10 +692,7 @@ void proc_timer_adjust(void)
    }
 }
 
-// ----------------------------------------------------------
-// updates animation and increments frame_num
-// returns 0 to skip drawing for this frame
-// ----------------------------------------------------------
+
 int proc_frame_skip(void)
 {
 
@@ -722,17 +706,10 @@ int proc_frame_skip(void)
    return 1;
 }
 
-
-
-void PacketPutDouble(double d);
-double PacketGetDouble(void);
-
-
 void main_loop(void)
 {
    while (!main_loop_exit)
    {
-
       // ----------------------------------------------------------
       // process state and state changes
       // ----------------------------------------------------------
@@ -745,8 +722,12 @@ void main_loop(void)
       proc_event_queue();
 
 
+      // ----------------------------------------------------------
+      // process fast packet loops
+      // ----------------------------------------------------------
       if (ima_server) server_fast_packet_loop();
       if (ima_client) client_fast_packet_loop();
+
 
       // ----------------------------------------------------------
       // do things based on the 40 Hz fps_timer event
@@ -756,14 +737,13 @@ void main_loop(void)
          program_update = 0;
 
 
-
          if (program_state == 11) // game loop running
          {
+            frame_num++;
+            update_animation();
 
+            add_timestamp(1, 0,0,0,0);
             timestamp_frame_start = al_get_time();
-
-
-//            add_timestamp(12, 0,0,0,0);
 
             proc_timer_adjust();
 
@@ -775,31 +755,25 @@ void main_loop(void)
             proc_player_input();
             proc_game_moves_array();
 
-
-
-
             if (players[0].level_done_mode) proc_level_done_mode();
             else
             {
-               add_timestamp(1, 0,0,0,0);
+               //add_timestamp(5, 0,0,0,0);
                move_frame(0);
-               add_timestamp(2, 0,0,0,0);
+               //add_timestamp(6, 0,0,0,0);
             }
 
             if (players1[0].server_send_dif) server_send_stdf();
 
             if (proc_frame_skip())
             {
-               add_timestamp(3, 0,0,0,0);
+               //add_timestamp(11, 0,0,0,0);
                draw_frame();
-               add_timestamp(4, 0,0,0,0);
+               //add_timestamp(12, 0,0,0,0);
             }
 
 
 
-//
-//
-//
 //            double res = 0;
 //
 //            if (get_delta(frame_num,   3, frame_num,   4, res)) printf("time in draw: %5.1f us\n", res*1000000);
@@ -819,28 +793,14 @@ void main_loop(void)
 //
 //            //printf("base:%f m1:%f m2:%f d1:%f d2:%f\n", base, m1, m2, d1, d2);
 //
-//
 //            printf("base:0 m1:%f m2:%f d1:%f d2:%f\n", m1-base, m2-base, d1-base, d2-base);
-//
-//
 
 
-
-
-
-
-
-
-
-
-
-
-
-            // speed test... draw every frame
+//            // speed test... draw every frame
 //            proc_frame_skip();
 //            draw_frame();
 
-            // speed test...draw no frames...maybe 1 i 1000
+//            // speed test...draw no frames...maybe 1 in 1000
 //            proc_frame_skip();
 //            if (frame_num)
 //            {
@@ -849,44 +809,20 @@ void main_loop(void)
 
 
 
-            add_timestamp(99, 0,0,0,0);
-            frame_num++;
-            update_animation();
-
-
-//
-//            if ((ima_server) && (frame_num > 100))
-//            {
-//               if ((frame_num % 80) == 0)
-//               {
-//                  for (int p=1; p<NUM_PLAYERS; p++)
-//                     if (players[p].control_method == 2)
-//                     {
-//                        add_timestamp(66, 0,0,0,0);
-//                        Packet("ping");
-//                        PacketPutDouble(al_get_time());
-//                        ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
-//                     }
-//               }
-//            }
-//
-//
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            if ((ima_server) && (frame_num > 100))
+            {
+               if ((frame_num % 80) == 0)
+               {
+                  for (int p=1; p<NUM_PLAYERS; p++)
+                     if (players[p].control_method == 2)
+                     {
+                        //printf("ping player:%d\n", p);
+                        Packet("ping");
+                        PacketPutDouble(al_get_time());
+                        ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+                     }
+               }
+            }
          }
       }
 
@@ -900,8 +836,26 @@ void main_loop(void)
          program_update_1s = 0;
          if (program_state == 11) // game loop running
          {
+
+            if (ima_server)
+               for (int p=1; p<NUM_PLAYERS; p++)
+                  if (players[p].control_method == 2)
+                  {
+                     players1[p].late_cdats_last_sec = players1[p].late_cdats_last_sec_tally;
+                     players1[p].late_cdats_last_sec_tally = 0;
+
+                     if (players1[p].game_move_dsync_avg_last_sec_count > 0)
+                     {
+                        players1[p].game_move_dsync_avg_last_sec = players1[p].game_move_dsync_avg_last_sec_tally / players1[p].game_move_dsync_avg_last_sec_count;
+                        players1[p].game_move_dsync_avg_last_sec_tally = 0;
+                        players1[p].game_move_dsync_avg_last_sec_count = 0;
+                     }
+                  }
+
+
             players1[active_local_player].frames_skipped_last_sec = players1[active_local_player].frames_skipped_last_sec_tally;
             players1[active_local_player].frames_skipped_last_sec_tally = 0;
+
             players1[active_local_player].timer_adjust_last_sec = players1[active_local_player].timer_adjust_last_sec_tally;
             players1[active_local_player].timer_adjust_last_sec_tally = 0;
             actual_fps = frame_num - last_fps_frame_num;

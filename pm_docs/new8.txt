@@ -344,6 +344,1070 @@ I will need to experiment with both
 
 
 
+I have some thoughts...
+
+I want to know where in the client frame are the stdf's rx'd and where are they used..
+
+
+Make a graphical overlay for the game
+
+sliding bar to show sync and stuff
+
+controls also...
+
+timestamp bar in screen overlay
+what am I going to show?
+
+where will i get the data for that
+
+should I clear old timestamps every second?
+
+yes and I should do somthing in there about doing some nice averages and min max
+
+later...
+
+
+now I want to have some timestamps that do not get saved, only for current frame...
+I have one for frame start, but I also want one for stdf rx..
+
+
+what if I log these so that I can make a nice graph and look at them?? maybe later...
+
+
+what I am seeing is the stdf being rx'd right after draw in the frame
+
+
+where in the frame does the client use stdf?
+
+at the very start...
+
+- input
+- move
+- draw
+
+
+what if I measured the timestamp difference between stdf packet being received and it being used by the client?
+
+that is the critical timing anyway, is it not?
+
+
+
+I want to solve the client sync thing....
+I want to be able to control where in the frame the stdf is rx'd
+this is proving to be harder than I thought
+
+OK I think I figured out how to do that...
+
+now I want to see if I can have some on screen controls
+
+they will need to be non-blocking
+
+
+run them from debug screen overlay
+
+first can I show mouse??..yes
+
+button works but blocks on mouse press....
+made a non_blocking version
+
+
+         static int pres = 0;
+         if (mdw_buttont_nb(100, yyy, 200, 16,  0,0,0,0,  0,14,15, 0,  1,0,1,0, "Inc"))
+         {
+            if (pres == 0) printf ("incd\n");
+            pres = 1;
+         }
+         else pres = 0;
+
+
+
+
+now make a global to control the client dsync....done
+
+
+when adjusting chase too close the connection is lost
+the client gets difs too late to apply and does nothing??
+
+cleaning up the logging...
+
+removed call to apply dif from rx packet thing
+now only called in the loop every frame and when waiting for intial state
+
+logs look much better now...
+
+I can tell the we are receiving stdf's too late..
+
+they fail all the time when trying to apply, but that is normal.
+
+what I should do is check when they are completed if there is any chance they can be used....
+if they are late then I should raise some errors...already done....but addedd to log...
+in client debug screen if server_sync = -1
+
+and stays there for 100 frames server will drop
+
+should client reply at all, all it has is stak...and we are not acknowledging anything...
+
+we ack when we get a bad base, should we ack when we get a bad dest??...yes...done...
+
+
+
+now sync can go to -1 and client stays connected
+
+I should have something on the client to tell when te last applied dif is.
+
+I am thinking about the nice little graph that shows dsync...
+It could also display last diff applied....
+
+added to player1
+
+   int client_last_diff_applied;
+
+
+That works...
+
+
+now I want to make a nice little display for the client.
+
+graph
+buttons
+chase_offset
+last_dif
+draw in red if last_dif > 2
+
+
+for the actual value, lets take if from
+
+added to player1 struct...
+   double dsync;
+
+
+OMG that looks great...
+
+now what??
+
+that is about the only thing that I can adjust and monitor on the client....
+it sends cdats when they occurs
+it processes stdfs just before it has to apply them...
+
+this client dsync is such an important number that I wonder if I should sync it back to the server.
+I could add it to stak....
+
+on the client
+
+
+move all of these to player1
+
+double timestamp_stdf_rx = 0;
+double timestamp_stdf_ap = 0;
+double client_chase_offset = 0.010;
+
+done...
+
+I actually did not need these and removed them...
+double timestamp_stdf_rx = 0;
+double timestamp_stdf_ap = 0;
+
+still wondering about adding dsync to stak so server has it....
+
+It was as easy as adding one line on the client:
+
+   PacketPutDouble(players1[p].dsync);
+
+   and one on the client...
+
+   players1[p].dsync            = PacketGetDouble();
+
+add display it in server debug...done...
+
+
+now what?
+
+do some things for server...like?
+
+buttons to change s1 and s2
+
+graph to show when clients cdats arrive in relation to current frame...
+
+s1 and s2 are already part of the player1 struct...
+
+done...
+
+
+I want to know at what position in the frame do cdats arrive at, and how many frames behind....
+
+crudely looking in the logs -2 and rarely -3 for a WAN game....
+-1 for a LAN game....this might be unavoidable...
+
+if the round trip ping is around 30 then one way would be 15...
+
+I want to know exactly what it is and see if adjusting the client offset can do anything about it....
+
+
+so how to measure?
+
+
+server fast packet loop already marks cdats with timestamp when they arrive
+
+so go to where they are processed...
+
+
+
+
+I still don't like how the frame_number are processed!!
+I really want to fix it but I am scared of what it will break....
+
+---------------
+- current:
+---------------
+timer_triggers_event
+
+input
+move
+draw
+inc frame
+
+wait until triggered again...
+
+
+---------------
+what I want:
+---------------
+timer_triggers_event
+
+inc frame
+input
+move
+draw
+
+wait until triggered again...
+
+this would mean that for the entirety of the frame, the frame number is the same
+
+not
+change frame number
+wait
+do stuff
+
+the wait would be at the end....
+
+
+goddamn it!! I don't care what I have to fix...I'm going to make it so that is how it is...
+
+one consequence is there will never be a frame 0...I know somethings depend on that....
+
+or rather any setup that is done before the first loop will be done on frame 1....
+
+
+it is done, these are the first lines
+
+frame_num++;
+update_animation();
+
+lets see what still works...
+
+single player seems good....level done too
+
+server and client seem to work...omg...
+
+This will have more of an effect on some timer things I am doing....
+
+
+
+
+[1457]cdat 1455  gc:-2 0.016008
+[1458]cdat 1456  gc:-2 0.012546
+[1459]cdat 1457  gc:-2 0.008733
+[1460]cdat 1458  gc:-2 0.013411
+[1461]cdat 1459  gc:-2 0.015866
+[1462]cdat 1460  gc:-2 0.016015
+[1463]cdat 1461  gc:-2 0.008641
+[1464]cdat 1462  gc:-2 0.012660
+[1465]cdat 1463  gc:-2 0.016165
+[1466]cdat 1464  gc:-2 0.016065
+[1467]cdat 1465  gc:-2 0.008550
+[1468]cdat 1466  gc:-2 0.016006
+[1469]cdat 1467  gc:-2 0.013687
+[1470]cdat 1468  gc:-2 0.010922
+[1471]cdat 1469  gc:-2 0.011143
+[1472]cdat 1470  gc:-2 0.015377
+[1473]cdat 1471  gc:-2 0.011053
+[1474]cdat 1472  gc:-2 0.013461
+[1476]cdat 1473  gc:-3 0.023695
+[1477]cdat 1474  gc:-3 0.023571
+[1477]cdat 1475  gc:-2 0.015960
+[1478]cdat 1476  gc:-2 0.016023
+[1479]cdat 1477  gc:-2 0.008565
+[1480]cdat 1478  gc:-2 0.015372
+[1481]cdat 1479  gc:-2 0.011239
+[1482]cdat 1480  gc:-2 0.015975
+[1483]cdat 1481  gc:-2 0.016240
+[1484]cdat 1482  gc:-2 0.013693
+[1485]cdat 1483  gc:-2 0.013712
+[1486]cdat 1484  gc:-2 0.016219
+[1487]cdat 1485  gc:-2 0.006484
+[1488]cdat 1486  gc:-2 0.010268
+[1489]cdat 1487  gc:-2 0.016290
+[1490]cdat 1488  gc:-2 0.016250
+[1491]cdat 1489  gc:-2 0.005989
+[1492]cdat 1490  gc:-2 0.016332
+[1493]cdat 1491  gc:-2 0.016286
+[1494]cdat 1492  gc:-2 0.011335
+[1496]cdat 1493  gc:-3 0.015332
+[1496]late cdat dropped p:1 c:1493  state:1494  tally:5
+[1496]cdat 1494  gc:-2 0.015881
+[1497]cdat 1495  gc:-2 0.011157
+[1498]cdat 1496  gc:-2 0.016283
+[1500]cdat 1497  gc:-3 0.018602
+[1500]cdat 1498  gc:-2 0.016122
+[1501]cdat 1499  gc:-2 0.016274
+[1502]cdat 1500  gc:-2 0.016290
+[1504]cdat 1501  gc:-3 0.022777
+[1504]cdat 1502  gc:-2 0.015344
+[1505]cdat 1503  gc:-2 0.016394
+[1506]cdat 1504  gc:-2 0.013682
+[1507]cdat 1505  gc:-2 0.005452
+[1508]cdat 1506  gc:-2 0.016448
+[1509]cdat 1507  gc:-2 0.008965
+[1510]cdat 1508  gc:-2 0.013958
+[1511]cdat 1509  gc:-2 0.012853
+[1512]cdat 1510  gc:-2 0.012440
+[1513]cdat 1511  gc:-2 0.010386
+[1514]cdat 1512  gc:-2 0.015350
+[1515]cdat 1513  gc:-2 0.002899
+[1516]cdat 1514  gc:-2 0.015026
+[1517]cdat 1515  gc:-2 0.010401
+[1518]cdat 1516  gc:-2 0.012886
+[1519]cdat 1517  gc:-2 0.012882
+[1520]cdat 1518  gc:-2 0.015386
+[1521]cdat 1519  gc:-2 0.012910
+[1522]cdat 1520  gc:-2 0.015355
+[1523]cdat 1521  gc:-2 0.007923
+[1524]cdat 1522  gc:-2 0.012935
+[1525]cdat 1523  gc:-2 0.012978
+[1526]cdat 1524  gc:-2 0.015520
+[1527]cdat 1525  gc:-2 0.012827
+[1528]cdat 1526  gc:-2 0.015430
+[1529]cdat 1527  gc:-2 0.015545
+[1530]cdat 1528  gc:-2 0.012892
+[1531]cdat 1529  gc:-2 0.012998
+[1532]cdat 1530  gc:-2 0.014326
+[1533]cdat 1531  gc:-2 0.012941
+[1534]cdat 1532  gc:-2 0.015566
+[1535]cdat 1533  gc:-2 0.008016
+[1537]cdat 1535  gc:-2 0.015592
+[1538]cdat 1536  gc:-2 0.015593
+[1539]cdat 1537  gc:-2 0.000435
+[1540]cdat 1538  gc:-2 0.015559
+[1541]cdat 1539  gc:-2 0.015597
+[1542]cdat 1540  gc:-2 0.015425
+[1543]cdat 1541  gc:-2 0.008001
+[1544]cdat 1542  gc:-2 0.014422
+[1545]cdat 1543  gc:-2 0.008050
+[1546]cdat 1544  gc:-2 0.015639
+[1547]cdat 1545  gc:-2 0.015657
+[1548]cdat 1546  gc:-2 0.010277
+[1549]cdat 1547  gc:-2 0.015553
+[1550]cdat 1548  gc:-2 0.013098
+[1551]cdat 1549  gc:-2 0.008058
+[1552]cdat 1550  gc:-2 0.015317
+[1553]cdat 1551  gc:-2 0.016250
+[1554]cdat 1552  gc:-2 0.016115
+[1555]cdat 1553  gc:-2 0.006201
+[1556]cdat 1554  gc:-2 0.016057
+[1557]cdat 1555  gc:-2 0.013614
+[1558]cdat 1556  gc:-2 0.011243
+[1559]cdat 1557  gc:-2 0.013781
+[1560]cdat 1558  gc:-2 0.015270
+[1561]cdat 1559  gc:-2 0.016355
+[1562]cdat 1560  gc:-2 0.016313
+[1563]cdat 1561  gc:-2 0.005983
+[1564]cdat 1562  gc:-2 0.016292
+[1565]cdat 1563  gc:-2 0.016259
+[1566]cdat 1564  gc:-2 0.016243
+[1568]cdat 1565  gc:-3 0.021811
+[1568]late cdat dropped p:1 c:1565  state:1566  tally:6
+[1568]cdat 1566  gc:-2 0.010779
+[1569]cdat 1567  gc:-2 0.013561
+[1570]cdat 1568  gc:-2 0.013822
+[1571]cdat 1569  gc:-2 0.013807
+[1572]cdat 1570  gc:-2 0.016112
+[1573]cdat 1571  gc:-2 0.013626
+[1574]cdat 1572  gc:-2 0.011389
+[1575]cdat 1573  gc:-2 0.008685
+[1576]cdat 1574  gc:-2 0.014161
+[1577]cdat 1575  gc:-2 0.013923
+[1578]cdat 1576  gc:-2 0.013768
+[1579]cdat 1577  gc:-2 0.011336
+[1580]cdat 1578  gc:-2 0.013763
+[1581]cdat 1579  gc:-2 0.013759
+[1582]cdat 1580  gc:-2 0.016342
+[1583]cdat 1581  gc:-2 0.013814
+[1584]cdat 1582  gc:-2 0.009788
+[1585]cdat 1583  gc:-2 0.015957
+[1586]cdat 1584  gc:-2 0.015287
+[1587]cdat 1585  gc:-2 0.012783
+[1588]cdat 1586  gc:-2 0.012283
+[1589]cdat 1587  gc:-2 0.014804
+[1590]cdat 1588  gc:-2 0.009828
+[1591]cdat 1589  gc:-2 0.012939
+[1592]cdat 1590  gc:-2 0.014961
+[1593]cdat 1591  gc:-2 0.014743
+[1594]cdat 1592  gc:-2 0.015493
+[1595]cdat 1593  gc:-2 0.015486
+[1596]cdat 1594  gc:-2 0.015339
+[1597]cdat 1595  gc:-2 0.015183
+[1598]cdat 1596  gc:-2 0.012898
+[1599]cdat 1597  gc:-2 0.012872
+[1600]cdat 1598  gc:-2 0.015144
+[1601]cdat 1599  gc:-2 0.015399
+[1602]cdat 1600  gc:-2 0.015535
+[1603]cdat 1601  gc:-2 0.015149
+[1604]cdat 1602  gc:-2 0.015224
+[1605]cdat 1603  gc:-2 0.015317
+[1606]cdat 1604  gc:-2 0.015380
+[1607]cdat 1605  gc:-2 0.015513
+[1608]cdat 1606  gc:-2 0.015421
+[1609]cdat 1607  gc:-2 0.013009
+[1610]cdat 1608  gc:-2 0.015586
+[1611]cdat 1609  gc:-2 0.013025
+[1612]cdat 1610  gc:-2 0.009968
+[1613]cdat 1611  gc:-2 0.012802
+[1614]cdat 1612  gc:-2 0.015206
+[1615]cdat 1613  gc:-2 0.013571
+[1616]cdat 1614  gc:-2 0.010078
+[1617]cdat 1615  gc:-2 0.013467
+[1618]cdat 1616  gc:-2 0.011040
+[1619]cdat 1617  gc:-2 0.008677
+[1620]cdat 1618  gc:-2 0.013720
+[1621]cdat 1619  gc:-2 0.008645
+[1622]cdat 1620  gc:-2 0.016253
+[1623]cdat 1621  gc:-2 0.013690
+[1624]cdat 1622  gc:-2 0.010371
+[1625]cdat 1623  gc:-2 0.016220
+[1626]cdat 1624  gc:-2 0.016234
+[1627]cdat 1625  gc:-2 0.013284
+[1628]cdat 1626  gc:-2 0.016230
+[1629]cdat 1627  gc:-2 0.016302
+[1630]cdat 1628  gc:-2 0.013344
+[1631]cdat 1629  gc:-2 0.013923
+[1632]cdat 1630  gc:-2 0.014303
+[1633]cdat 1631  gc:-2 0.011076
+[1634]cdat 1632  gc:-2 0.016218
+[1636]cdat 1634  gc:-2 0.016113
+[1637]cdat 1635  gc:-2 0.016295
+[1638]cdat 1636  gc:-2 0.011313
+[1639]cdat 1637  gc:-2 0.011073
+[1640]cdat 1638  gc:-2 0.009382
+[1641]cdat 1639  gc:-2 0.015344
+[1642]cdat 1640  gc:-2 0.013728
+[1643]cdat 1641  gc:-2 0.011338
+[1644]cdat 1642  gc:-2 0.012676
+[1645]cdat 1643  gc:-2 0.016255
+[1646]cdat 1644  gc:-2 0.016330
+[1647]cdat 1645  gc:-2 0.011304
+[1648]cdat 1646  gc:-2 0.012836
+[1649]cdat 1647  gc:-2 0.016026
+[1650]cdat 1648  gc:-2 0.013793
+[1651]cdat 1649  gc:-2 0.011195
+[1652]cdat 1650  gc:-2 0.015942
+[1653]cdat 1651  gc:-2 0.013636
+[1654]cdat 1652  gc:-2 0.013275
+[1655]cdat 1653  gc:-2 0.013769
+[1656]cdat 1654  gc:-2 0.015110
+[1657]cdat 1655  gc:-2 0.010577
+[1658]cdat 1656  gc:-2 0.016374
+[1659]cdat 1657  gc:-2 0.011284
+[1660]cdat 1658  gc:-2 0.010566
+[1661]cdat 1659  gc:-2 0.015398
+[1662]cdat 1660  gc:-2 0.015214
+[1663]cdat 1661  gc:-2 0.012801
+[1664]cdat 1662  gc:-2 0.007925
+[1665]cdat 1663  gc:-2 0.014823
+[1666]cdat 1664  gc:-2 0.012664
+[1667]cdat 1665  gc:-2 0.012927
+[1668]cdat 1666  gc:-2 0.007893
+[1669]cdat 1667  gc:-2 0.013443
+[1670]cdat 1668  gc:-2 0.015582
+[1671]cdat 1669  gc:-2 0.000908
+[1672]cdat 1670  gc:-2 0.009900
+[1673]cdat 1671  gc:-2 0.013594
+[1674]cdat 1672  gc:-2 0.015531
+[1675]cdat 1673  gc:-2 0.010952
+[1676]cdat 1674  gc:-2 0.013435
+[1677]cdat 1675  gc:-2 0.013549
+[1678]cdat 1676  gc:-2 0.008466
+[1680]cdat 1677  gc:-3 0.019645
+[1680]cdat 1678  gc:-2 0.002917
+[1681]cdat 1679  gc:-2 0.008503
+[1682]cdat 1680  gc:-2 0.016072
+[1683]cdat 1681  gc:-2 0.011123
+[1684]cdat 1682  gc:-2 0.003675
+[1685]cdat 1683  gc:-2 0.013604
+[1686]cdat 1684  gc:-2 0.015596
+[1687]cdat 1685  gc:-2 0.016052
+[1688]cdat 1686  gc:-2 0.015212
+[1689]cdat 1687  gc:-2 0.016168
+[1690]cdat 1688  gc:-2 0.011074
+[1691]cdat 1689  gc:-2 0.013681
+[1692]cdat 1690  gc:-2 0.013463
+[1693]cdat 1691  gc:-2 0.011137
+[1694]cdat 1692  gc:-2 0.011156
+[1695]cdat 1693  gc:-2 0.000906
+[1696]cdat 1694  gc:-2 0.009721
+[1697]cdat 1695  gc:-2 0.016065
+[1698]cdat 1696  gc:-2 0.010847
+[1699]cdat 1697  gc:-2 0.008499
+[1700]cdat 1698  gc:-2 0.015868
+[1701]cdat 1699  gc:-2 0.013527
+[1702]cdat 1700  gc:-2 0.012817
+[1703]cdat 1701  gc:-2 0.013946
+[1704]cdat 1702  gc:-2 0.015312
+[1705]cdat 1703  gc:-2 0.016129
+[1706]cdat 1704  gc:-2 0.016215
+[1707]cdat 1705  gc:-2 0.001235
+[1708]cdat 1706  gc:-2 0.016209
+[1709]cdat 1707  gc:-2 0.016298
+[1710]cdat 1708  gc:-2 0.016262
+[1711]cdat 1709  gc:-2 0.006192
+[1712]cdat 1710  gc:-2 0.015423
+[1713]cdat 1711  gc:-2 0.015889
+[1714]cdat 1712  gc:-2 0.013694
+[1715]cdat 1713  gc:-2 0.013802
+[1716]cdat 1714  gc:-2 0.013334
+[1717]cdat 1715  gc:-2 0.011154
+[1718]cdat 1716  gc:-2 0.016351
+[1719]cdat 1717  gc:-2 0.016319
+[1720]cdat 1718  gc:-2 0.002903
+[1721]cdat 1719  gc:-2 0.015321
+[1722]cdat 1720  gc:-2 0.013337
+[1723]cdat 1721  gc:-2 0.013783
+[1724]cdat 1722  gc:-2 0.016235
+[1725]cdat 1723  gc:-2 0.016357
+[1726]cdat 1724  gc:-2 0.015293
+[1727]cdat 1725  gc:-2 0.016391
+[1728]cdat 1726  gc:-2 0.012899
+[1729]cdat 1727  gc:-2 0.011115
+[1730]cdat 1728  gc:-2 0.015705
+[1731]cdat 1729  gc:-2 0.013571
+[1732]cdat 1730  gc:-2 0.013652
+[1733]cdat 1731  gc:-2 0.013832
+[1734]cdat 1732  gc:-2 0.015658
+[1735]cdat 1733  gc:-2 0.013765
+[1736]cdat 1734  gc:-2 0.010355
+[1737]cdat 1735  gc:-2 0.015423
+[1738]cdat 1736  gc:-2 0.012726
+[1739]cdat 1737  gc:-2 0.005048
+[1740]cdat 1738  gc:-2 0.015540
+[1741]cdat 1739  gc:-2 0.010319
+[1742]cdat 1740  gc:-2 0.007640
+[1743]cdat 1741  gc:-2 0.002646
+[1744]cdat 1742  gc:-2 0.010272
+[1745]cdat 1743  gc:-2 0.020515
+[1746]cdat 1744  gc:-2 0.015403
+[1747]cdat 1745  gc:-2 0.012900
+[1748]cdat 1746  gc:-2 0.007992
+[1749]cdat 1747  gc:-2 0.015303
+[1750]cdat 1748  gc:-2 0.010310
+[1751]cdat 1749  gc:-2 0.007921
+[1752]cdat 1750  gc:-2 0.012557
+[1753]cdat 1751  gc:-2 0.015826
+[1754]cdat 1752  gc:-2 0.016052
+[1755]cdat 1753  gc:-2 0.011077
+[1756]cdat 1754  gc:-2 0.013468
+[1757]cdat 1755  gc:-2 0.016045
+[1758]cdat 1756  gc:-2 0.016096
+[1759]cdat 1757  gc:-2 0.011004
+[1760]cdat 1758  gc:-2 0.015371
+[1761]cdat 1759  gc:-2 0.011178
+Shutting down the server
+savegame/game_exit_20221230-183937-lev150.txt - saved
+logs/20221230-183937-[150][m36].txt saved
+
+C:\pm>
+
+
+
+
+
+
+
+so how to combine those two numbers
+
+
+and do they even still make sense?
+
+
+Now, if I get one I can assume by the time it gets added it will be the next frame...
+or this frame because by the time it is processed the frame has incremented
+
+so when I get one that says -2 on frame 1730 for example...
+that mean the cdat is for 1728, 2 frame ago...
+
+
+now that the start of frame timer can be trusted, I should use that to go back and find out exactly when the packet arrived in relation to the frame start.
+
+then I can make a composite number of how late it is...
+
+WAN
+
+[244]cdat 242  gc:-2 0.016242 -33.757700ms
+[245]cdat 243  gc:-2 0.013527 -36.472500ms
+[246]cdat 244  gc:-2 0.001073 -48.926800ms
+[247]cdat 245  gc:-2 0.013675 -36.325100ms
+[248]cdat 246  gc:-2 0.008515 -41.484700ms
+[249]cdat 247  gc:-2 0.013653 -36.346700ms
+[250]cdat 248  gc:-2 0.003773 -46.226500ms
+[251]cdat 249  gc:-2 0.013406 -36.593600ms
+[252]cdat 250  gc:-2 0.013678 -36.322400ms
+[253]cdat 251  gc:-2 0.013635 -36.364900ms
+[255]cdat 252  gc:-3 0.018778 -56.222400ms
+[256]cdat 253  gc:-3 0.013594 -61.405500ms
+[256]cdat 254  gc:-2 0.013532 -36.468100ms
+[257]cdat 255  gc:-2 0.013844 -36.155600ms
+[258]cdat 256  gc:-2 0.008631 -41.369000ms
+[259]cdat 257  gc:-2 0.011310 -38.690000ms
+[260]cdat 258  gc:-2 0.013817 -36.183400ms
+[261]cdat 259  gc:-2 0.012976 -37.023800ms
+[262]cdat 260  gc:-2 0.006389 -43.610600ms
+[263]cdat 261  gc:-2 0.011331 -38.669100ms
+[264]cdat 262  gc:-2 0.013452 -36.548300ms
+[265]cdat 263  gc:-2 0.003223 -46.777400ms
+[266]cdat 264  gc:-2 0.008756 -41.244300ms
+[267]cdat 265  gc:-2 0.011006 -38.994200ms
+[268]cdat 266  gc:-2 0.016051 -33.949000ms
+[269]cdat 267  gc:-2 0.013857 -36.143100ms
+[270]cdat 268  gc:-2 0.008706 -41.294100ms
+[271]cdat 269  gc:-2 0.011205 -38.794700ms
+[272]cdat 270  gc:-2 0.013796 -36.204100ms
+[278]cdat 276  gc:-2 0.006955 -43.044900ms
+
+
+
+LAN 10ms
+
+[352]cdat 351  gc:-1 0.012526 -12.474100ms
+[353]cdat 352  gc:-1 0.011416 -13.583900ms
+[354]cdat 353  gc:-1 0.012495 -12.505200ms
+[355]cdat 354  gc:-1 0.012518 -12.481800ms
+[356]cdat 355  gc:-1 0.011462 -13.538200ms
+[357]cdat 356  gc:-1 0.013423 -11.577100ms
+[358]cdat 357  gc:-1 0.013426 -11.573700ms
+[359]cdat 358  gc:-1 0.012400 -12.599700ms
+[360]cdat 359  gc:-1 0.012547 -12.453300ms
+[361]cdat 360  gc:-1 0.013429 -11.570900ms
+[362]cdat 361  gc:-1 0.012374 -12.626400ms
+[363]cdat 362  gc:-1 0.013445 -11.554800ms
+[364]cdat 363  gc:-1 0.013457 -11.543500ms
+[365]cdat 364  gc:-1 0.012394 -12.606000ms
+[366]cdat 365  gc:-1 0.012999 -12.001300ms
+[367]cdat 366  gc:-1 0.012964 -12.036300ms
+[368]cdat 367  gc:-1 0.011328 -13.672500ms
+
+LAN 2ms
+
+[573]cdat 572  gc:-1 0.021599 -3.400600ms
+[574]cdat 573  gc:-1 0.021587 -3.412900ms
+[575]cdat 574  gc:-1 0.020520 -4.480400ms
+[576]cdat 575  gc:-1 0.020883 -4.117200ms
+[577]cdat 576  gc:-1 0.021548 -3.452300ms
+[578]cdat 577  gc:-1 0.020530 -4.470000ms
+[579]cdat 578  gc:-1 0.021555 -3.445200ms
+[580]cdat 579  gc:-1 0.021530 -3.469900ms
+[581]cdat 580  gc:-1 0.020455 -4.545000ms
+[582]cdat 581  gc:-1 0.021507 -3.493000ms
+[583]cdat 582  gc:-1 0.021511 -3.489000ms
+[584]cdat 583  gc:-1 0.019713 -5.286600ms
+[585]cdat 584  gc:-1 0.021510 -3.490400ms
+[586]cdat 585  gc:-1 0.021510 -3.489900ms
+[587]cdat 586  gc:-1 0.020450 -4.550300ms
+[588]cdat 587  gc:-1 0.021512 -3.488100ms
+
+
+
+I want to have server stats on cdat_rx time
+tally for 1s and do average and max min
+same for late cdats
+
+OK I have done that...big surprise...nothing seems to effect when cdats are received on server, except for client dsync....
+
+
+the only thing I can do to get cdats to the server faster, would be to let the client move ahead of the server in time....
+but then the client would always get difs that were too late to apply....
+
+what if I let the client rewind?
+and apply the local moves from the last frame?
+
+that would mean I would have to keep the clients local moves...it would only be one move per frame max...
+
+this is just crazy enough to maybe work.....
+
+client stores all its game moves in it's own local array....
+when client get a dif that is in the past:
+apply then play back to current...
+
+
+
+right now I have the server in the lead, the client lags behind just enough so I can get the current state from the server and apply it.
+If I let the client pass the server, the server will be able to get cdats with less delay, but who knows what else might happen??
+
+I think it's worth a try....
+
+1 - make client put stuff in its own local game_moves array
+
+2 - remove the part in rx stdf where we ignore late difs
+
+3 - modify apply dif to allow late ones
+
+this is a tricky bit of code here....
+
+   // check to see if frame_nums match and its time to apply dif or if initial state when frame_num == 0
+   if ((frame_num != client_state_dif_dst) && (frame_num != 0))
+   {
+
+
+first of all if the match then do it
+second of all if frame_num == 0 do it
+third of all...
+if newer than last applied dif....
+
+what is the varaible for the last applied dif frame_num? 'client_state_base_frame_num'
+
+so check if the dest of the dif_dest on deck is newer than that
+
+if (client_state_dif_dst > client_state_base_frame_num) // we have dif with a newer dest than previous
+
+omg I am ready to try it....
+
+well it looks like I can run a game succesfully with negative sync... lets try it on WAN
+
+
+client has all been put back together nicely...
+still to do on client
+look into chase multiplier...seems to work good but I have not examined it
+automatically set chase amount, but based on what?
+should it be a sliding scale, or a fixed number?
+
+on server I have issues if I try to lower s1
+raising it is OK but when I lower it, server becomes unresponsive and will not accept new connections
+
+show more about the clients on the server...but what and why??
+
+profile using timestamps certain functions...
+
+move
+draw
+rewind
+send stdf
+receive packets
+
+move packetbuffer code and functions to packet file
+
+
+testing...making the client -40 seemed to make the game a lot smoother....
+
+
+calculate and show ping on client and server...
+
+
+server tx ping from 'loop' with current time
+
+client rx ping and tx pong with passed time and current time
+
+server rx pong
+calc rt
+return passed ts in pang
+
+client rx pang
+calc rt
+
+
+ok now where to store it...
+
+player1
+   double ping;
+
+put it on the bottom for client
+
+in server it will be part of debug array
+
+
+
+flush client and server on level done
+
+
+when does client show red...removed
+
+how about auto setting clients offset to ping....
+
+but I would need to get an average ping
+I only read it every 2s
+
+how about reading it one per second and keep a 10s rolling average....
+
+at the start of when a client joins
+use default of zero to start...
+get 8 pings in 2s for avg then use that to adjust
+then do the rolling replace one every 2 sec
+
+is this overkill...maybe...
+
+but just blindly plugging one ping into offset is bad also
+
+should have some limits....
++20 absolute max, why would you even want to go positive?
+-50 to -80 somehwere around there for the min need to test...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

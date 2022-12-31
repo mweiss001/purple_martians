@@ -5,13 +5,6 @@
 // n_network.h
 extern int NetworkDriver;
 
-// n_packet.h
-extern char packetbuffer[1024];
-extern int packetsize;
-void set_packetpos(int pos);
-int get_packetpos(void);
-
-
 // these are never referenced outside of this file
 #define MAX_CLIENTS 32
 int ClientNum = 0;
@@ -80,6 +73,7 @@ int get_timestamp(int f, int type, double &res)
    }
    return 0;
 }
+
 
 
 int get_newest_timestamp(int type, double &res)
@@ -273,6 +267,10 @@ void ServerListen() // Check for connecting clients (0 = ok, got new connection,
 
 
 
+
+
+
+
 // Receive data from a client, and store in provided array
 // (must have room for 1024 bytes). Returns the size of the stored data
 int ServerReceive(void *data, int *sender)
@@ -400,6 +398,14 @@ void ServerExitNetwork() // Shut the server down
    	ListenChannel = NULL;
    }
 }
+
+
+
+
+
+
+
+
 
 // ---------------------------------------------------------------------------------------------------------------
 // ***************************************************************************************************************
@@ -540,18 +546,6 @@ void server_send_stdf(void)
 {
    players1[0].server_send_dif = 0;
 
-//   // save current game state to state[0] as a base for making client difs
-//   game_vars_to_state(srv_stdf_state[0]);
-//   srv_stdf_state_frame_num[0] = frame_num;
-//
-//   if (L_LOGGING_NETPLAY_stdf)
-//   {
-//      // printf("saved server state[0]:%d\n\n", frame_num);
-//      sprintf(msg, "saved server state[0]:[%d] and sent to clients\n", frame_num);
-//      add_log_entry2(27, 0, msg);
-//   }
-
-
    // send to all clients
    for (int p=1; p<NUM_PLAYERS; p++)
       if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
@@ -560,13 +554,9 @@ void server_send_stdf(void)
 
 void server_rewind(void)
 {
-
-//    int s1 = players1[0].s1; //+ pct_x;
-
-   int s1 = 2;
-   int s2 = players1[0].s2 + pct_x;
+   int s1 = players1[0].s1;
+   int s2 = players1[0].s2;
    int s3 = s1+s2;
-
 
    // is it time to make a new dif and send to clients?
    if (frame_num == srv_stdf_state_frame_num[1] + s3)
@@ -637,7 +627,7 @@ void server_proc_player_drop(void)
 }
 
 
-void server_proc_cdat_packet(void)
+void server_proc_cdat_packet(double timestamp)
 {
    int p = PacketGet1ByteInt();
    int cdat_frame_num = PacketGet4ByteInt();
@@ -646,10 +636,28 @@ void server_proc_cdat_packet(void)
 
    players1[p].client_cdat_packets_tx++;
 
-   // check to see if earlier than the last stdf state
 
+   double cd = timestamp_frame_start - timestamp;
+
+   int gc = players1[p].server_game_move_sync;
+
+   double dd = ((double)gc*0.025) + cd;
+
+   players1[p].game_move_dsync = dd;
+   players1[p].game_move_dsync_avg_last_sec_tally += dd;
+   players1[p].game_move_dsync_avg_last_sec_count +=1;
+
+
+
+   //printf("[%d]cdat %d  gc:%d %f %fms \n", frame_num, cdat_frame_num, gc, cd, dd*1000);
+
+//   printf("%f %f %f\n" ,players1[p].game_move_dsync_avg_last_sec_tally, players1[p].game_move_dsync_avg_last_sec_count, players1[p].game_move_dsync_avg_last_sec);
+
+
+   // check to see if earlier than the last stdf state
    if (cdat_frame_num < srv_stdf_state_frame_num[1])
    {
+      players1[p].late_cdats_last_sec_tally++;
       players1[p].late_cdats++;
       printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_stdf_state_frame_num[1], players1[p].late_cdats);
 
@@ -684,7 +692,7 @@ void server_proc_stak_packet(void)
    int client_frame_num         = PacketGet4ByteInt();
    players1[p].frames_skipped   = PacketGet4ByteInt();
    players1[p].client_chase_fps = PacketGet4ByteInt();
-
+   players1[p].dsync            = PacketGetDouble();
 
    players1[p].server_sync = frame_num - client_frame_num;
    server_lock_client(p);
@@ -820,63 +828,48 @@ void server_proc_cjon_packet(int who)
 }
 
 
-
-void PacketPutDouble(double);
-double PacketGetDouble(void);
+int get_player_num_from_who(int who)
+{
+   for(int p=0; p<NUM_PLAYERS; p++)
+      if ((players[p].active) && (players1[p].who == who)) return p;
+   return -1;
+}
 
 void server_fast_packet_loop(void)
 {
    int who;
    while((packetsize = ServerReceive(packetbuffer, &who)))
    {
-      // printf("fp3\n");
-
-      double timestamp = al_get_time();
-
       //printf("got packet size:%d\n", packetsize);
 
-      int type = 0;
-
-      // get type
-      if(PacketRead("cdat")) type = 1;
-      if(PacketRead("stak")) type = 2;
-      if(PacketRead("cjon")) type = 3;
-
+      double timestamp = al_get_time();
 
       if (PacketRead("pong"))
       {
          double t0 = PacketGetDouble();
-         //double t1 = PacketGetDouble();
+         double t1 = PacketGetDouble();
          double t2 = al_get_time();
 
-         //printf("t0:%f t1:%f t2:%f\n", t0, t1, t2);
-         printf("ping time: %5.1f ms\n", (t2-t0)*1000);
-
-//
-//
-//         add_timestamp(67, 0,0,0,0);
-////         printf("pong (%d)\n", frame_num);
-//
-//         double res = 0;
-//         if (get_delta(frame_num,   66, frame_num,   67, res)) printf("ping time: %5.1f ms\n", res*1000);
-
-
+         int p = get_player_num_from_who(who);
+         if (p != -1)
+         {
+            players1[p].ping = t2-t0;
+            Packet("pang");
+            PacketPutDouble(t1);
+            ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+         }
       }
 
-
-
-
-//         printf("type:%d\n", type);
-
+      int type = 0;
+      if(PacketRead("cdat")) type = 1;
+      if(PacketRead("stak")) type = 2;
+      if(PacketRead("cjon")) type = 3;
       if (type)
       {
-         // find empty
          for (int i=0; i<200; i++)
-            if (!packet_buffers[i].active)
+            if (!packet_buffers[i].active) // find empty
             {
-
-        //       printf("%d stored packet:%d size:%d type:%d\n", frame_num, i, packetsize, type);
-
+               //printf("%d stored packet:%d size:%d type:%d\n", frame_num, i, packetsize, type);
                packet_buffers[i].active = 1;
                packet_buffers[i].type = type;
                packet_buffers[i].timestamp = timestamp;
@@ -891,18 +884,17 @@ void server_fast_packet_loop(void)
 
 void server_read_packet_buffer(void)
 {
-   // process all used
    for (int i=0; i<200; i++)
       if (packet_buffers[i].active)
       {
-   //      printf("%d read packet:%d  size:%d \n", frame_num, i, packet_buffers[i].packetsize);
+         //printf("%d read packet:%d  size:%d \n", frame_num, i, packet_buffers[i].packetsize);
 
          memcpy(packetbuffer, packet_buffers[i].data, 1024);
          packetsize = packet_buffers[i].packetsize;
 
          set_packetpos(4);
 
-         if (packet_buffers[i].type == 1) server_proc_cdat_packet();
+         if (packet_buffers[i].type == 1) server_proc_cdat_packet(packet_buffers[i].timestamp);
          if (packet_buffers[i].type == 2) server_proc_stak_packet();
          if (packet_buffers[i].type == 3) server_proc_cjon_packet(packet_buffers[i].who);
 
@@ -910,19 +902,13 @@ void server_read_packet_buffer(void)
       }
 }
 
-
-
-void server_control() // main server loop to process packet send and receive
+void server_control()
 {
    ServerListen(); // listen for new client connections
-
-
-
    server_read_packet_buffer();
-   server_rewind(); // to replay and apply late client input
+   server_rewind();            // to replay and apply late client input
    server_proc_player_drop();  // check to see if we need to drop clients
 
    if (L_LOGGING_NETPLAY_PLAYER_ARRAY) log_player_array2();
-
    for (int p=0; p<NUM_PLAYERS; p++) if (players[p].active) process_bandwidth_counters(p);
 }
