@@ -691,7 +691,7 @@ void server_proc_stak_packet(void)
    int ack_frame_num            = PacketGet4ByteInt();
    int client_frame_num         = PacketGet4ByteInt();
    players1[p].frames_skipped   = PacketGet4ByteInt();
-   players1[p].client_chase_fps = PacketGet4ByteInt();
+   players1[p].client_chase_fps = PacketGetDouble();
    players1[p].dsync            = PacketGetDouble();
 
    players1[p].server_sync = frame_num - client_frame_num;
@@ -711,8 +711,7 @@ void server_proc_stak_packet(void)
    // this is used to see if client is still alive
    players1[p].server_last_stak_rx_frame_num = frame_num;
 
-
-   sprintf(tmsg1, "rx stak sync:[%d] chase:[%d] ack_fn:%d cli_fn:%d", players1[p].server_sync, players1[p].client_chase_fps, ack_frame_num, client_frame_num );
+   sprintf(tmsg1, "rx stak s[%d] d[%4.1f] c[%4.1f] a:%d c:%d", players1[p].server_sync, players1[p].dsync*1000, players1[p].client_chase_fps, ack_frame_num, client_frame_num );
 
    if (ack_frame_num == srv_client_state_frame_num[p][1]) // check to make sure we have a copy of acknowledged state
    {
@@ -723,7 +722,7 @@ void server_proc_stak_packet(void)
    }
    else // we don't have a copy of acknowledged state !!!
    {
-      sprintf(tmsg2, "failed to set base! cl:%d ", srv_client_state_frame_num[p][1]);
+      sprintf(tmsg2, "fail base set:%d", srv_client_state_frame_num[p][1]);
       memset(srv_client_state[p][0], 0, STATE_SIZE); // reset base to all zero
       srv_client_state_frame_num[p][0] = 0;
       players1[p].client_base_resets++;
@@ -844,21 +843,39 @@ void server_fast_packet_loop(void)
 
       double timestamp = al_get_time();
 
-      if (PacketRead("pong"))
+      if (PacketRead("ping"))
       {
-         double t0 = PacketGetDouble();
-         double t1 = PacketGetDouble();
-         double t2 = al_get_time();
-
          int p = get_player_num_from_who(who);
          if (p != -1)
          {
-            players1[p].ping = t2-t0;
-            Packet("pang");
+            //printf("rx ping from p:%d - tx pong\n", p);
+            double t0 = PacketGetDouble();
+            double t1 = al_get_time();
+            players1[p].ping = t1 - t0;
+            Packet("pong");
+            PacketPutDouble(t0);
             PacketPutDouble(t1);
             ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
          }
       }
+
+      if (PacketRead("pang"))
+      {
+         int p = get_player_num_from_who(who);
+         if (p != -1)
+         {
+            double t0 = PacketGetDouble();
+            double t1 = al_get_time();
+            players1[p].ping = t1 - t0;
+            //printf("rx pang from p:%d [%3.1f ms]\n", p, players1[p].ping*1000);
+         }
+      }
+
+
+
+
+
+
 
       int type = 0;
       if(PacketRead("cdat")) type = 1;

@@ -206,6 +206,8 @@ int client_init(void)
     // initialize driver with server address
    if (!ClientInitNetwork(m_serveraddress)) return 0;
 
+   ping_buffer_clear();
+
    printf("sending cjon\n");
    Packet("cjon");
    PacketPut1ByteInt(players[0].color); // requested color
@@ -307,7 +309,7 @@ void client_send_stak(void)
    PacketPut4ByteInt(client_state_base_frame_num);
    PacketPut4ByteInt(frame_num);
    PacketPut4ByteInt(players1[p].frames_skipped);
-   PacketPut4ByteInt(players1[p].client_chase_fps);
+   PacketPutDouble(players1[p].client_chase_fps);
    PacketPutDouble(players1[p].dsync);
    ClientSend(packetbuffer, packetsize);
 }
@@ -403,7 +405,7 @@ void client_timer_adjust(void)
    if (fps_chase < 10) fps_chase = 10; // never let this go negative
    if (fps_chase > 70) fps_chase = 70;
    al_set_timer_speed(fps_timer, ( 1 / fps_chase));
-   players1[p].client_chase_fps = (int) fps_chase;
+   players1[p].client_chase_fps = fps_chase;
 }
 
 
@@ -591,20 +593,21 @@ void client_fast_packet_loop(void)
       if (PacketRead("stdf")) type = 1;
       if (PacketRead("sjon")) type = 2;
 
-      if (PacketRead("ping"))
+      if (PacketRead("pong"))
       {
-         double t = PacketGetDouble();
-         Packet("pong");
-         PacketPutDouble(t);
-         PacketPutDouble(al_get_time());
+         double t0 = PacketGetDouble();
+         double t1 = PacketGetDouble();
+         double t2 = al_get_time();
+         players1[active_local_player].ping = t2 - t0;
+         // printf("rx pong [%3.1f ms] - send pang\n", players1[active_local_player].ping * 1000);
+
+         ping_array_add(players1[active_local_player].ping);
+
+
+         Packet("pang");
+         PacketPutDouble(t1);
          ClientSend(packetbuffer, packetsize);
       }
-      if (PacketRead("pang"))
-      {
-         double t = PacketGetDouble();
-         players1[active_local_player].ping = al_get_time() - t;
-      }
-
 
       // printf("type:%d\n", type);
       if (type)

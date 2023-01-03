@@ -1,8 +1,10 @@
 // pm.h - header file for both the game and the level editor
 
-
-
 #define PM_VERSION "7.24.1"
+
+
+
+
 
 
 class mWindow
@@ -206,6 +208,177 @@ extern mWindow mW[NUM_MW];
 #define PM_ITEM_PMSG_FRAME2        0b00000000000100000
 #define PM_ITEM_PMSG_FRAME4        0b00000000001000000
 #define PM_ITEM_PMSG_FRAME12       0b00000000010000000
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class mwGraph
+{
+   public:
+   int screen_x1;
+   int screen_y1;
+   int screen_x2;
+   int screen_y2;
+   int screen_w;
+   int screen_h;
+
+
+   int x_axis_scrollbar_x1;
+   int x_axis_scrollbar_x2;
+   int x_axis_scrollbar_w;
+   int x_axis_scrollbar_bar_x1;
+   int x_axis_scrollbar_bar_x2;
+   int x_axis_scrollbar_y1;
+   int x_axis_scrollbar_y2;
+
+   int y_axis_scrollbar_x1;
+   int y_axis_scrollbar_x2;
+   int y_axis_scrollbar_y1;
+   int y_axis_scrollbar_y2;
+   int y_axis_scrollbar_h;
+   int y_axis_scrollbar_bar_y1;
+   int y_axis_scrollbar_bar_y2;
+
+
+   bool x_axis_lock_scroll;
+   bool x_axis_lock_zoom;
+
+   bool y_axis_lock_scroll;
+   int y_axis_zoom_lock;
+
+
+   double data[10000][2];
+   int data_points;
+
+   int show_title;
+   char title[1024];
+   int title_color;
+
+
+   int show_x_axis_legend;
+   char x_axis_legend[1024];
+   int x_axis_legend_color;
+
+   // min, max, and range for entire set of data
+   double x_data_min;
+   double x_data_max;
+   double x_data_rng;
+   double y_data_min;
+   double y_data_max;
+   double y_data_rng;
+
+   // min, max, and range for axis
+   double x_axis_min;
+   double x_axis_max;
+   double x_axis_rng;
+   double y_axis_min;
+   double y_axis_max;
+   double y_axis_rng;
+
+   double x_axis_rng_min;
+   double y_axis_rng_min;
+
+
+   int convert_gxy_to_sxy(double gx, double gy, int &sx, int &sy);
+   int convert_sxy_to_gxy(int sx, int sy, double &gx, double &gy);
+
+
+   void convert_sxy_to_gxy_clamp(int sx, int sy, double &gx, double &gy);
+
+
+   double x_val_disp;                // the minimum value to have at the origin of the graph, if set to less than this, clamp to this
+   double x_val_currntly_displayed;
+
+
+   mwGraph(); // default constructor
+
+   void initialize(void);
+
+   void set_screen_pos(int x1, int y1, int x2, int y2);
+   void draw(void);
+
+   void process_input(void);
+
+   int  draw_x_scrollbar(void);
+   void proc_x_scrollbar(void);
+
+   int  draw_y_scrollbar(void);
+   void proc_y_scrollbar(void);
+
+
+
+   void fill_test_data(int type);
+
+   void add_data_point(double x, double y);
+   void calc_data_range(void);
+
+   void label_axis(void);
+   void autorange_axis(int x, int y);
+
+
+   void adjust_axis(int xy, int mm, int id);
+
+   void set_range_axis(double x_min, double x_max, double y_min, double y_max);
+   void enforce_axis_limits(void);
+   void enforce_axis_limits(int type);
+
+   char* x_axis_get_val_text(double val);
+   char* y_axis_get_val_text(double val);
+
+   int find_closest_point_to_mouse(void);
+
+   void draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f);
+
+   void process_mouse_on_graph(void);
+
+
+};
+extern mwGraph mG[10];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -664,11 +837,11 @@ struct player1 // not synced between server and client
 
    int client_last_dif_applied;
 
-
    int client_sync;
    int server_sync;
 
    double ping;
+   double ping_avg;
 
    double dsync;
 
@@ -685,7 +858,7 @@ struct player1 // not synced between server and client
    int last_gm_comp_move;
 
 
-   int client_chase_fps;
+   double client_chase_fps;
    int server_game_move_sync;
 
    int client_cdat_packets_tx;
@@ -801,6 +974,14 @@ struct timestamp
    double t1;
    double t2;
 };
+
+
+extern double ping_array[8];
+extern int    ping_num_filled;
+extern int    ping_index;
+
+
+
 
 
 
@@ -1690,6 +1871,15 @@ void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color
 int edit_pmsg_text(int c, int new_msg);
 void edit_server_name(void);
 int edit_lift_name(int lift, int step_ty, int bts, char *fst);
+
+// z_ping_buffer.h
+void ping_buffer_clear(void);
+void ping_array_add(double ping);
+
+
+
+
+
 
 // z_player.h
 void set_player_start_pos(int p, int cont);

@@ -349,14 +349,14 @@ void sdg_show_column(int col, int &x, int y)
 
    if (col == 7) // client chase fps
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[ch]");
+      al_draw_text(font, palette_color[color], x, y+=8, 0, "[chas]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%2d]", players1[p].client_chase_fps);
+         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4.1f]", players1[p].client_chase_fps);
       }
-      x+=4*8;
+      x+=6*8;
    }
 
 
@@ -649,7 +649,7 @@ void sdg_show(int x, int y) // server debug grid
    sdg_show_column(4, x, y); // control method
 //   sdg_show_column(5, x, y); // who
    sdg_show_column(6, x, y); // server sync
-//   sdg_show_column(7, x, y); // client chase fps
+   sdg_show_column(7, x, y); // client chase fps
    sdg_show_column(8, x, y); // server_game_move_sync
 
 

@@ -1159,6 +1159,739 @@ should have some limits....
 
 
 
+20221231 9:26 AM
+
+make the client initiate ping, as it is the one that needs it.
+where?
+how about from a timer?
+too complex, just do it like the server does...
+done...
+
+now make way for client to do more right after join...
+
+how about make the cyclic buffer of ping to average first....
+
+then make a method to add new pings
+
+then make a way that the average is calultaed
+
+then make a way that when the buffer is not full, its pings mopre often...
+
+struct ping_buffer
+
+int num_filled;
+int new_index;
+double ping[8];
+double avg;
+
+initially:
+num_filled = 0;
+index = 0;
+all are 0;
+
+as added:
+num_filled++
+index++
+
+num_filled can be greater than index
+
+when doing avg
+
+loop and add from 0 to num filled, or max if full
+
+then divide and set avg...
+
+
+do I need to do it in a struct? probably not the besy way...
+
+double ping_array[8];
+double ping_avg;
+int    ping_num_filled;
+int    ping_index;
+
+make a new file ping_buffer.cpp
+
+clear in client init..done
+
+now make a function to add...done...
+
+now where am I going to save this?
+
+player1
+
+ping_avg
+
+ok that's done...now make it run faster until filled...
+
+done...
+
+now maybe toss out the highest and lowest for average....
+
+experiment with different values of s1 and s2
+
+right now I have been using 3 and 1
+
+re do the client sync graph for the server, especially since I now use dsync
+
+what did I use before?
+
+stak packet on server prints this log line:
+
+sprintf(tmsg1, "rx stak sync:[%d] chase:[%d] ack_fn:%d cli_fn:%d", players1[p].server_sync, players1[p].client_chase_fps, ack_frame_num, client_frame_num );
+
+[30][1][318]rx stak sync:[1] chase:[39] ack_fn:316 cli_fn:317 set new base
+
+I want to add dsync and remove unneeded things...why do I have 2 fn that are always the same??
+
+change client_chase_fps to double from int....
+
+its main use is to get back to the server to be displayed
+
+OK I have parsed it from the log lines in graph...
+
+but the problem is that the data for the graph is an integer array....
+
+for now, multiply by 10...
+
+redo sync to display in ms
+
+I can come back to this later....
+when I get this done I can examine chase better.....
+
+OK, Ive been thinking...
+I want to make the tag parsing thing a separate function...done
+replaced 8-10 calls
+
+Also this sync graph would probably be better on the client.
+
+The server only has data when it receives stak....
+
+what can I do to make the graph look better??
+
+it is not frames anymore, but ms...
+
+better....
+
+can I auto range based on the data shown?...yes...
+
+my stak log line can bee too long
+
+[30][3][500]rx stak syn:[4] dsy:[12405.5] chs:[70.0] afn:496 cfn:496 failed to set base! cl:499
+
+[30][4][6180]rx stak syn:[-2] dsy:[-113.3] chs:[31.7] afn:6177 cfn:6182 failed to set base! cl:6179
+[30][3][6182]rx stak syn:[-2] dsy:[-104.8] chs:[33.0] afn:6179 cfn:6184 failed to set base! cl:6181
+[30][4][6182]rx stak syn:[-2] dsy:[-104.6] chs:[32.6] afn:6177 cfn:6184 failed to set base! cl:6181
+[30][2][6183]rx stak syn:[-2] dsy:[-100.0] chs:[33.0] afn:6179 cfn:6185 failed to set base! cl:6181
+[30][2][6184]rx stak syn:[-2] dsy:[-100.0] chs:[33.0] afn:6179 cfn:6186 failed to set base! cl:6183
+
+
+failed to set base! cl:6183
+change to
+fail base set:6183
+
+saved 9 char
+
+more:
+[30][2][6184]rx stak syn:[-2] dsy:[-100.0] chs:[33.0] afn:6179 cfn:6186 failed to set base! cl:6183
+
+[30][2][6184]rx stak s[-2] d[-100.0] c[33.0] af:6179 cf:6186 fail set base:6183
+
+saved 20 char
+
+
+
+can I make some buttons in graphs?  at the top of the legend scale lock or autorange..
+auto/manual
+manual +/-
+
+
+
+I really want to make the graphs simpler...
+
+wouldn't it be nice to have a common function for all of them?
+
+they all seem to have common x axis...frames, seconds, minutes, etc.....
+
+
+what is the data needed to describe a graph?
+
+screen coordinates x1, y1, x2, y2, w, h
+these are in the standard computer screen format: x1,y1 is upper left corner
+
+graph x axis
+start and end data values
+
+graph y axis
+start and end data values
+
+can get range from these.
+
+an array of data used to plot points on the graph
+
+data[][0] = x
+data[][1] = y
+
+can I make this an object?
+
+why?
+
+so it encaspulates it's own data and methods
+
+I will call it to draw itself
+optionally draw legends and gridlines
+process mouse input on the graph
+
+class mw_graph
+
+make a new file and lets do this....
+
+
+I don't get why I am having such a hard time mapping one range to another....
+am i doing the wrong things??
+I don't need to map the data range to the axis range!
+I need to map the axis range to the screen range!!!!
+
+   double xm = screen_w / x_axis_rng;
+   double ym = screen_h / y_axis_rng;
+
+   for (int i=0; i<data_points; i++)
+   {
+      float x = screen_x1 + (data[i][0]-x_axis_min) * xm;
+      float y = screen_y2 - (data[i][1]-y_axis_min) * ym;
+      al_draw_rectangle(x, y, x+1, y+1, palette_color[10], 1);
+   }
+
+
+now what??
+
+should I put some mouse_controls in?
+yes...
+
+ist show mouse...
+
+2nd show mouse position and convert to values...
+
+this will mean I have to call this in a loop and process event queue....
+
+done...
+now I want an autoscale button
+one for x and y and one for each also...
+
+done...
+
+
+what now?
+
+can you do a nice title...
+
+set a minimum x axis range....
+
+butttons for nice axis management:
+auto/manual
+of just auto button
++ and - to adjust scale
+for each min and mix??
+
+not sure if this will be that usefull
+
+implement mouse_drag...
+x only or x and y?
+can you set a scale conevrsion varaible for x axis and y axis
+do it on the fly..it was easy...
+mouse drag works beautifully
+
+
+
+
+            // graph position under mouse (mx1) needs to stay the same
+
+            // change range?? then find min and max to ensure same pos??
+
+
+            // what if i calulated scaler, then changed that, then worked backwards from there
+//            double x_scaler =  x_axis_rng / screen_w;
+//            x_scaler *= 1.1;
+//            x_axis_rng = x_scaler * screen_w; // convert range back
+
+            // now how do I adjust min so that current pos is the same
+
+            // old distance from current pos to min * scaler  ????
+
+//
+//            // old distance from curent position to min
+//            double old_offset = mx1 - x_axis_min;
+//
+//            printf("old_offset:%f\n", old_offset);
+//
+//
+//            // get original scale
+//            double x_scaler =  x_axis_rng / screen_w;
+//
+//            printf("orignal_scale:%f\n", x_scaler);
+//
+//
+//
+//            // change scale
+//            x_scaler *= 1.1;
+//
+//
+//            printf("new_scale:%f\n", x_scaler);
+//
+//
+//            printf("old range:%f\n", x_axis_rng);
+//
+//            // convert range
+//            x_axis_rng = x_scaler * screen_w;
+//
+//            printf("new range:%f\n", x_axis_rng);
+//
+//
+//
+//            printf("old offset:%f\n", old_offset);
+//
+//            // scale to new
+//            double new_offset = old_offset * 1.1;
+//
+//
+//            printf("new offset:%f\n", new_offset);
+//
+//
+//
+//            printf("old min:%f\n", x_axis_min);
+//
+//            // set min from original position and new offset
+//            x_axis_min = mx1 - new_offset;
+//
+//
+//            printf("new min:%f\n", x_axis_min);
+//
+//            // set max1
+//            x_axis_max = x_axis_min + x_axis_rng;
+//
+//
+//
+
+
+            double old_offset = mx1 - x_axis_min;     // old distance from curent position to min
+            double new_offset = old_offset * 1.1;     // scale to new
+            x_axis_min = mx1 - new_offset;            // set min from original position and new offset
+            x_axis_rng *= 1.1;                        // convert range
+            x_axis_max = x_axis_min + x_axis_rng;     // set new max
+
+
+holy shit that is beautiful!!
+
+mouse drag (x axis)
+mouse wheel zoom (x axis)
+mouse drag zoom in (x and y axis)
+
+do something about mouse drag when off screen, clamp to edges done...
+
+try y drag move...awesome...
+
+try y zoom wheel...wicked...
+
+now if I added lock buttons on the x and y axis to prevent this
+
+will it lock both scroll and zoom??
+
+for x axis
+
+zoom lock..
+
+
+I want scroll bars...
+
+do an x one first
+
+
+I think I am readt to start thinking about some limits....
+
+limit the axis ranges....
+
+make all changes to the axis ranges go through a common function so limit will only need to be tested once
+done...
+it works, but seems a little weird when drag turns into resize...
+drag normally moves both start and end
+if one does not move, it turns into a resize...
+the alternative would be to do nothing, no drag move allowed if it would change range
+
+I can live with it for now...
+
+
+now make some ways to drag the scroll bar...
+
+make scrollbar variables part of class...done
+
+int x_axis_scrollbar_x1;
+int x_axis_scrollbar_x2;
+int x_axis_scrollbar_w;
+
+int x_axis_scrollbar_bar_x1;
+int x_axis_scrollbar_bar_x2;
+
+int x_axis_scrollbar_y1;
+int x_axis_scrollbar_y2;
+
+moved draw into its own function
+
+
+figure out the offset...data does not start till 40...done...
+
+
+now I have 5 ways to adjust the scroll bar with the mouse and its looking pretty good...
+
+sometimes I can adjust past data max and stuff breaks...
+a_axis min can be more the max...this should not happen...
+
+there is some chicken and egg things going on with enforce limits...
+
+testing for min max
+testing for wrong order
+
+I need to test both min and max to see if they are in range
+
+I also want to add another test...minimum range...
+
+I should find the smallest difference between x values and make the minum range 10 of those...
+
+for now, lets just set a static value and test..
+
+if both max and min are stuck near the top separate them by minimum range...
+
+this all looks good...
+
+now I want to do some y ranging
+
+
+   bool x_axis_lock_scroll;
+   bool x_axis_lock_zoom;
+
+   bool y_axis_lock_scroll;
+   bool y_axis_lock_zoom;
+   bool y_axis_lock_auto_zoom;
+
+
+
+y_axis_lock_zoom
+done for drag rect and mouse wheel
+not done for drag scroll...still changes zoom...fixed
+
+y_axis_lock_scroll
+
+y_axis scrollbars
+
+y axis is reversed, which poses some issues
+how am I going to deal with that? at what point do I flip the axis...
+x1 is smaller than x2 when drawing on the screen
+but when the mouse moves they are oppposite...
+make the data reveser
+y2 is min, y1 is max...
+im thinking of doing it all upside down...
+y1 is lower
+
+I just made the scrollbar y1 and y2 reversed....
+
+I have implemented all scrollbar functionality to y scroll bar...
+make the highlight look better, align better, color, size, different mouse_pointer....done...
+
+
+
+now back to the locking...
+
+enforce zoom lock on y scroll bar..done...
+
+
+what does it mean if scroll is locked and zoom is not? does that even make sense??
+it could mean that the x_min is locked, but not x_max and scroll
+
+
+can change   min max rng
+no lock       1   1   1
+zl            1   1   0
+sl            0   1   1
+zl + sl       0   0   0
+
+
+what about autoscale y depending on what is on screen
+
+what if I made zoom_lock have 3 values
+
+0 off
+1 lock
+2 auto
+
+rignt click on axis or scrollbar for options..
+
+mouseover text ...
+
+mouse crosshairs
+
+jump to nearest data position and show data for that...
+
+I want a way to store the units for each axis...
+call a fucntion to set msg
+
+
+
+right click on stuff to popup menu....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+try experimenting with different s1 and s2
+3 1 - default
+
+I'm getting late cdats and stuff from 4230's but not scat or e6430
+the sync on them is jumping around a lot...
+I could probably benefit from some code profiling....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

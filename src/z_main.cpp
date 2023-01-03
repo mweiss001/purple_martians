@@ -5,6 +5,11 @@
 
 ALLEGRO_THREAD *thread;
 
+mwGraph mG[10];
+
+
+
+
 
 
 // --------------- Global Variables ---------------
@@ -318,6 +323,14 @@ struct packet_buffer packet_buffers[200];
 struct timestamp timestamps[10000];
 int timestamps_index = 0;
 double timestamp_frame_start = 0;
+
+
+double ping_array[8] = {0};
+int    ping_num_filled = 0;
+int    ping_index = 0;
+
+
+
 
 
 // ------------------------------------------------

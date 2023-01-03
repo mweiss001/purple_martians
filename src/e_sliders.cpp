@@ -14,7 +14,7 @@ q0 =
 q1 = frame color   (if -1 do not draw frame)
 q2 = text color    (use white 99% of time)
 q3 = slider color  (use white 99% of time)
-q4 = redraw mode   (1 for most, 0 for simple proc_control and flip only)
+q4 = redraw mode   (1 for most, 0 for simple proc_control and flip only) // only for mouse button hold on slider bar
 q5 = text justify  (0-center 1-left...buttons only)
 q6 - increment y1 with bts
 q7 - (0-normal) (1-don't process mouse b1 press)
