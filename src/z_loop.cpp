@@ -809,20 +809,23 @@ void main_loop(void)
 
 
 
-            if ((ima_server) && (frame_num > 100))
+            if ((ima_client) && (frame_num > 100))
             {
-               if ((frame_num % 80) == 0)
+               int mod = 80;
+
+               if (ping_num_filled < 8) mod = 10;
+
+
+               if ((frame_num % mod) == 0)
                {
-                  for (int p=1; p<NUM_PLAYERS; p++)
-                     if (players[p].control_method == 2)
-                     {
-                        //printf("ping player:%d\n", p);
-                        Packet("ping");
-                        PacketPutDouble(al_get_time());
-                        ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
-                     }
+                  //printf("ping server\n");
+                  Packet("ping");
+                  PacketPutDouble(al_get_time());
+                  ClientSend(packetbuffer, packetsize);
                }
             }
+
+
          }
       }
 

@@ -55,6 +55,12 @@ void chop_first_x_char(char *str, int n)
 }
 
 
+
+
+
+
+
+
 void help(const char *topic)
 {
 //   if (SCREEN_H < 480) return;       // wont work with SCREEN_H < 480

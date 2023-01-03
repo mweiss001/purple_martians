@@ -419,6 +419,36 @@ void log_client_server_sync_graph(int num_lines);
 void log_bandwidth_graph(int num_lines);
 int lp[8][2];
 
+
+
+void get_tag_text(char *str, char *res)
+{
+//    printf("\nget tag initial %s\n", str);
+
+   // get first tag - server_sync
+   char * pch1 = strchr(str, '[');
+   char * pch2 = strchr(str, ']');
+   int p1 = pch1-str;
+   int p2 = pch2-str;
+   int plen = p2-p1;
+
+ //  printf("p1:%d  p2:%d  plen:%d\n", p1, p2, plen);
+
+   if (plen < 8) // ???
+   {
+       for(int j=0; j<plen; j++)
+          res[j] = str[j+p1+1];
+       res[plen-1] = 0;
+   //    printf("tag text [%s]\n", res);
+       chop_first_x_char(str, p2+1);
+   }
+//   printf("get tag final %s\n", str);
+}
+
+
+
+
+
 int log_file_viewer(int type)
 {
    al_show_mouse_cursor(display);
@@ -427,7 +457,6 @@ int log_file_viewer(int type)
    char fname[1024];
    FILE *filepntr;
    char buff[200];
-   char buff2[80];
    int num_lines=0;
    int ch=0;
 
@@ -600,55 +629,21 @@ int log_file_viewer(int type)
    for (int i=0; i<num_lines; i++)
    {
       int bad_tags = 0;
-      // get first tag - (type) in the format "[xx]"
-      char * pch1 = strchr(log_lines[i], '[');
-      char * pch2 = strchr(log_lines[i], ']');
-      int p1 = pch1-log_lines[i];
-      int p2 = pch2-log_lines[i];
-      if ((p1 == 0) && (p2 == 3))
-      {
-         buff2[0] = log_lines[i][1];
-         buff2[1] = log_lines[i][2];
-         buff2[2] = 0;
-         log_lines_int[i][0] = atoi(buff2); // type
-         chop_first_x_char(log_lines[i], 4);
-         tags[ log_lines_int[i][0] ]  [2]  ++; // inc number of this tag
 
-      }
-      else bad_tags = 1;
-      if (!bad_tags)
-      {
-         // get second tag - (player) in the format "[x]"
-         char * pch1 = strchr(log_lines[i], '[');
-         char * pch2 = strchr(log_lines[i], ']');
-         int p1 = pch1-log_lines[i];
-         int p2 = pch2-log_lines[i];
-         if ((p1 == 0) && (p2 == 2))
-         {
-            buff2[0] = log_lines[i][1];
-            buff2[1] = 0;
-            log_lines_int[i][1] = atoi(buff2); // player
-            chop_first_x_char(log_lines[i], 3);
-         }
-         else bad_tags = 1;
-      }
-      if (!bad_tags)
-      {
-         // get third tag - (frame_num) in the format "[xxx..]"
-         char * pch1 = strchr(log_lines[i], '[');
-         char * pch2 = strchr(log_lines[i], ']');
-         int p1 = pch1-log_lines[i];
-         int p2 = pch2-log_lines[i];
-         if ((p1 == 0) && (p2 < 8))
-         {
-            for(int j=0; j<p2; j++)
-               buff2[j] = log_lines[i][j+1];
-            buff2[p2] = 0;
-            log_lines_int[i][2] = atoi(buff2); // frame_num
-            chop_first_x_char(log_lines[i], p2+1);
-         }
-         else bad_tags = 1;
-      }
+      char res[80];
+
+      // get first tag - type
+      get_tag_text(log_lines[i], res);
+      log_lines_int[i][0] = atoi(res);
+
+      // get second tag - player
+      get_tag_text(log_lines[i], res);
+      log_lines_int[i][1] = atoi(res);
+
+      // get third tag - frame_num
+      get_tag_text(log_lines[i], res);
+      log_lines_int[i][2] = atoi(res);
+
       if (bad_tags)
       {
          log_lines_int[i][0] = 99;
@@ -1251,7 +1246,6 @@ void redraw_log_bandwidth_graph(int num_data, int data[][4], int graph_w, int gr
             al_draw_filled_circle(rs, yp, 3, palette_color[col]);
             al_draw_filled_circle(re, yp, 3, palette_color[col]);
 
-
             rt = re+20;
             rs = rt+25;
             re = rs+20;
@@ -1265,7 +1259,172 @@ void redraw_log_bandwidth_graph(int num_data, int data[][4], int graph_w, int gr
 }
 
 
-void log_bandwidth_graph(int num_lines)
+
+
+
+
+void log_bandwidth_graph(int asgdj)
+{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   FILE *filepntr;
+   char buff[200];
+   int num_lines=0;
+   int ch=0;
+
+   char fnam[100];
+   sprintf(fnam, "logs/a.txt");
+
+
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s       ", fnam);
+   al_flip_display();
+
+
+   filepntr=fopen(fnam,"r");
+   while(ch != EOF)
+   {
+      int loop = 0;
+      ch = fgetc(filepntr);
+      while((ch != '\n') && (ch != EOF))
+      {
+         if (ch != 13)
+         {
+            buff[loop] = ch;
+            loop++;
+         }
+         ch = fgetc(filepntr);
+      }
+      buff[loop] = 0;
+
+      if (loop > 99) printf("log line%d exceeded 100 char - %s\n", num_lines, buff);
+
+      strncpy (log_lines[num_lines], buff, 99);
+
+      num_lines++;
+
+      if (num_lines >= NUM_LOG_LINES)
+      {
+         ch = EOF;
+         printf("log file exceeded %d lines\n", num_lines);
+      }
+      // printf("num_lines:%d\n", num_lines);
+   }
+   fclose(filepntr);
+   num_lines--;
+
+
+   printf("num_lines:%d\n", num_lines);
+
+
+
+   // iterate all log lines and build array of data points
+   for (int i=0; i<num_lines; i++)
+//   for (int i=0; i<1000; i++)
+   {
+      char tll[200]; // temp log line
+      sprintf(tll, "%s", log_lines[i]);
+
+
+
+      char res[80];
+
+      // get first tag - type
+      get_tag_text(tll, res);
+      int type = atoi(res);
+
+
+      // get 2nd tag -
+      get_tag_text(tll, res);
+      int p = atoi(res);
+
+
+      // get 3rd tag - frame
+      get_tag_text(tll, res);
+      int fn = atoi(res);
+
+
+      if ((type == 23) && (p == 0))
+      {
+         //printf("tll: %s", tll);
+
+         // get 4th - tx
+         get_tag_text(tll, res);
+         int tx = atoi(res);
+
+          mG[0].add_data_point((double) fn, (double) tx);
+    //     printf("added data %d %d %d \n", mG[0].data_points, fn, tx);
+
+      }
+
+   }
+
+
+
+
+
+   al_set_target_backbuffer(display);
+
+   mG[0].set_screen_pos(200, 200, 800, 800);
+   mG[0].calc_data_range();
+   mG[0].autorange_axis(1, 1);
+   mG[0].y_axis_zoom_lock = 0;
+
+
+   sprintf(mG[0].title, "Testing Data");
+   mG[0].show_title = 1;
+   mG[0].title_color = 10;
+
+   sprintf(mG[0].x_axis_legend, "Frame");
+   mG[0].show_x_axis_legend = 1;
+   mG[0].x_axis_legend_color = 10;
+
+
+   int quit = 0;
+   al_show_mouse_cursor(display);
+   while (!quit)
+   {
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+      mG[0].draw();
+      mG[0].process_input();
+
+      al_flip_display();
+      proc_controllers();
+      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+   }
+
+
+
+
+
+
+
+
+
+
+
+}
+
+void oldlog_bandwidth_graph(int num_lines)
 {
    // draws a bandwidth graph
    // uses this log entry:
@@ -1286,13 +1445,13 @@ void log_bandwidth_graph(int num_lines)
 
    // array of data points
    int data[max_data][4];
-   // 0 = frame_num
-   // 1 = player
+   // 0  frame_num
+   // 1  player
    // 2  tx b
    // 3  rx b
 
 
-   char buff2[80];
+   char res[80];
 
    int end_fn = 0; // calculate our own end_fn
 
@@ -1301,61 +1460,27 @@ void log_bandwidth_graph(int num_lines)
       for (int j=0; j<4; j++)
          data[i][j] = 0;
 
-   // iterate all log lines and build array of data point
+   // iterate all log lines and build array of data points
    for (int i=0; i<num_lines; i++)
    {
       if (log_lines_int[i][0] == 23)
       {
          int p = log_lines_int[i][1];
          int fn = log_lines_int[i][2];
-         int tx = 0, rx = 0;
-
 
          char tll[200]; // temp log line
          sprintf(tll, "%s", log_lines[i]);
 
-
          // get first tag - tx_cur
-         char * pch1 = strchr(tll, '[');
-         char * pch2 = strchr(tll, ']');
-         int p1 = pch1-tll;
-         int p2 = pch2-tll;
-         if (p2 - p1 < 8)
-         {
-             for(int j=0; j<p2; j++)
-                buff2[j] = tll[j+p1+1];
-             buff2[p2] = 0;
-             tx = atoi(buff2);
-             chop_first_x_char(tll, p2+1);
-         }
+         get_tag_text(tll, res);
+         int tx = atoi(res);
 
          // get second tag and discard - tx_max
-         pch1 = strchr(tll, '[');
-         pch2 = strchr(tll, ']');
-         p1 = pch1-tll;
-         p2 = pch2-tll;
-         if (p2 - p1 < 8)
-         {
-            for(int j=0; j<p2; j++)
-               buff2[j] = tll[j+p1+1];
-            buff2[p2] = 0;
-            //tx_max = atoi(buff2); // ignore
-            chop_first_x_char(tll, p2+1);
-         }
+         get_tag_text(tll, res);
 
          // get third tag  - rx_cur
-         pch1 = strchr(tll, '[');
-         pch2 = strchr(tll, ']');
-         p1 = pch1-tll;
-         p2 = pch2-tll;
-         if (p2 - p1 < 8)
-         {
-            for(int j=0; j<p2; j++)
-               buff2[j] = tll[j+p1+1];
-            buff2[p2] = 0;
-            rx = atoi(buff2);
-            chop_first_x_char(tll, p2+1);
-         }
+         get_tag_text(tll, res);
+         int rx = atoi(res);
 
          // enter one array data point
          data[num_data][0] = fn;
@@ -1528,11 +1653,7 @@ void log_bandwidth_graph(int num_lines)
 
 
 
-
-
-
-
-
+int test_toggle = 1;
 
 
 
@@ -1544,12 +1665,6 @@ void redraw_log_client_server_sync_graph(int num_data, int data[][5], int graph_
 {
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
-
-
-
-
-   // label the x axis and draw gridlines
-
 
 
 
@@ -1650,28 +1765,51 @@ void redraw_log_client_server_sync_graph(int num_data, int data[][5], int graph_
    int g1_h_screen = SCREEN_H/2 - 40;   // g1 y screen height
 
    // static y scale
-   int g1_y_lowest_val  = -40;
+   int g1_y_lowest_val  = -80;
    int g1_y_highest_val = +40;
 
-//   // auto scale
-//   // find min and max
-//   int g1_min = 0;
-//   int g1_max = 0;
-//   for (int i=0; i<num_data; i++)
-//   {
-//      if (data[i][2] != -999)
-//      {
-//         if (lp[data[i][1]][0]) // if player active
-//         {
-//            int fc = data[i][2];
-//            if (fc > g1_max) g1_max = fc;
-//            if (fc < g1_min) g1_min = fc;
-//         }
-//      }
-//   }
-//   // printf("g1_min:%d g1_max:%d\n", g1_min, g1_max);
-//   g1_y_lowest_val  = g1_min;
-//   g1_y_highest_val = g1_max;
+   if (test_toggle) // auto scale based on visble
+   {
+
+      g_rng = (graph_w / x_scale);    // x axis range in frames
+      int maxf = g_stf + g_rng;       // max x value
+
+
+      printf("stf:%d enf:%d\n", g_stf, maxf);
+
+
+      // find min and ma
+      int g1_min = 0;
+      int g1_max = 0;
+      for (int i=0; i<num_data; i++)
+      {
+         if (data[i][2] != -999)
+         {
+            if (lp[data[i][1]][0]) // if player active
+            {
+               if ((data[i][0] >= g_stf) && (data[i][0] <= maxf))  // is frame range on screen?
+               {
+                  int fc = data[i][2];
+                  if (fc > g1_max) g1_max = fc;
+                  if (fc < g1_min) g1_min = fc;
+               }
+
+            }
+         }
+      }
+      // printf("g1_min:%d g1_max:%d\n", g1_min, g1_max);
+      g1_y_lowest_val  = g1_min;
+      g1_y_highest_val = g1_max;
+
+
+   }
+
+
+
+
+
+
+
 
    int g1_y_range = g1_y_highest_val - g1_y_lowest_val;
    // set y scale based on screen height and range
@@ -1686,8 +1824,8 @@ void redraw_log_client_server_sync_graph(int num_data, int data[][5], int graph_
       {
          int y_pos = g1_y_screen - (i-g1_y_lowest_val) * g1_y_scale;
          al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[15+96], 1);
-         al_draw_textf(font, palette_color[15], 0, y_pos-4, 0, "%5.0f", i);
-         al_draw_textf(font, palette_color[15], 8, y_pos+4, 0, "frames");
+         al_draw_textf(font, palette_color[15], 0, y_pos-4, 0, "%5.0f ms", i);
+//         al_draw_textf(font, palette_color[15], 8, y_pos+4, 0, "ms");
       }
       // minor grid lines
       for (float i=g1_y_lowest_val; i<=g1_y_highest_val; i+=2)
@@ -1703,8 +1841,8 @@ void redraw_log_client_server_sync_graph(int num_data, int data[][5], int graph_
       {
          int y_pos = g1_y_screen - (i-g1_y_lowest_val) * g1_y_scale;
          al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[15+96], 1);
-         al_draw_textf(font, palette_color[15], 0, y_pos-4, 0, "%5.0f", i);
-         al_draw_textf(font, palette_color[15], 8, y_pos+4, 0, "frames");
+         al_draw_textf(font, palette_color[15], 0, y_pos-4, 0, "%5.0f ms", i);
+//         al_draw_textf(font, palette_color[15], 8, y_pos+4, 0, "ms");
       }
       // minor grid lines
       for (float i=g1_y_lowest_val; i<=g1_y_highest_val; i+=1)
@@ -2047,14 +2185,13 @@ void redraw_log_client_server_sync_graph(int num_data, int data[][5], int graph_
 }
 
 
+
+
 void log_client_server_sync_graph(int num_lines)
 {
    // server only
    // draws a graph of client server sync
    // uses this log entry:
-
-   // [39][7][301]rx sdak p:7 nep:[1548] server_sync:[2] frames skipped:75
-
 
    // log file has already been loaded into:
    // int log_lines_int[1000000][3];
@@ -2064,22 +2201,15 @@ void log_client_server_sync_graph(int num_lines)
    // player array has already been populated
    // int lp[8][2];
 
-
-
-   // build array of data points
-   char buff2[80];
-
-
    int max_data = 100000;
 
    // array of graph data points
-
-
    int data[max_data][5];
-   // 0 = frame_num
-   // 1 = player
-   // 2  server_sync
-   // 3  not used
+   // 0  frame_num
+   // 1  player
+   // 2  dsync
+   // 3  fps_chase
+   // 4  player active
 
    int num_data = 0;
    int end_fn = 0;
@@ -2091,7 +2221,6 @@ void log_client_server_sync_graph(int num_lines)
 
    int pa[8] = {0}; // keep track of when players come active
 
-
    // iterate all log lines and build array of data point
    for (int i=0; i<num_lines; i++)
    {
@@ -2102,104 +2231,53 @@ void log_client_server_sync_graph(int num_lines)
       // find where players became active
       if (log_lines_int[i][0] == 10)
       {
-
-
          int p = log_lines_int[i][1];
          int fn = log_lines_int[i][2];
-
-
          const char act[10] = "ACTIVE";
          const char ict[10] = "INACTIVE";
-
          char * ar = strstr(tll, act);
          char * ir = strstr(tll, ict);
-
          if ((ar) && (!ir))
          {
-
             //printf("Frame:%d Player:%d --- Active\n", fn, p);
             pa[p] = 1;
-
-
             data[num_data][0] = fn;
             data[num_data][1] = p;
             data[num_data][2] = -999;
             data[num_data][3] = -999;
             data[num_data][4] = 1; // player active
-
             num_data++;
             end_fn = fn;
          }
       }
 
-
-
-
-
-      if (log_lines_int[i][0] == 30)
+      if (log_lines_int[i][0] == 30) // stak line
       {
          int p = log_lines_int[i][1];
          int fn = log_lines_int[i][2];
-         int sy = 0;
-         int fc = 0;
 
+         char res[80];
 
-//         // get first tag and discard - nep
-//         char * pch1 = strchr(tll, '[');
-//         char * pch2 = strchr(tll, ']');
-//         int p1 = pch1-tll;
-//         int p2 = pch2-tll;
-//         if (p2 - p1 < 8)
-//         {
-//            for(int j=0; j<p2; j++)
-//               buff2[j] = tll[j+p1+1];
-//            buff2[p2] = 0;
-//            chop_first_x_char(tll, p2+1);
-//         }
-//
+         get_tag_text(tll, res); // server_sync
+         // int sy = atoi(res); not used any more
 
+         get_tag_text(tll, res); // dsync
+         double dsy = atof(res);
 
-         // get first tag - server_sync
-         char * pch1 = strchr(tll, '[');
-         char * pch2 = strchr(tll, ']');
-         int p1 = pch1-tll;
-         int p2 = pch2-tll;
-         if ((p1>10) && (p1<30))
-         {
-            if (p2 - p1 < 8)
-            {
-                for(int j=0; j<p2; j++)
-                   buff2[j] = tll[j+p1+1];
-                buff2[p2] = 0;
-                sy = atoi(buff2);
-                chop_first_x_char(tll, p2+1);
-            }
-            // get second tag - fps_chase
-            pch1 = strchr(tll, '[');
-            pch2 = strchr(tll, ']');
-            p1 = pch1-tll;
-            p2 = pch2-tll;
+         get_tag_text(tll, res); // fps_chase
+         double fc = atof(res);
 
-            if (p2 - p1 < 8)
-            {
-                for(int j=0; j<p2; j++)
-                   buff2[j] = tll[j+p1+1];
-                buff2[p2] = 0;
-                fc = atoi(buff2);
-                chop_first_x_char(tll, p2+1);
-            }
+         // enter one array data point
+         data[num_data][0] = fn;
+         data[num_data][1] = p;
+         data[num_data][2] = (int) dsy;
+         data[num_data][3] = (int) fc;
+         data[num_data][4] = pa[p]; // player active
 
-            // enter one array data point
-            data[num_data][0] = fn;
-            data[num_data][1] = p;
-            data[num_data][2] = sy;
-            data[num_data][3] = fc;
-            data[num_data][4] = pa[p]; // player active
+         num_data++;
+         end_fn = fn;
+         // printf("fn:%d  p:%d sync:%d dsync:%f fps_chase:%f\n", fn, p, sy, dsy, fc);
 
-            num_data++;
-            end_fn = fn;
-            // printf("fn:%d  p:%d sync:%d fps_chase:%d\n", fn, p, sy, fc);
-         }
       }
 
       if (num_data>max_data)
@@ -2209,6 +2287,7 @@ void log_client_server_sync_graph(int num_lines)
       }
 
    }
+
    // all the data is in the array
    num_data--;
 
@@ -2229,6 +2308,15 @@ void log_client_server_sync_graph(int num_lines)
 
    while (!gquit)
    {
+
+
+      int ya = 200;
+      int old_test_toggle = test_toggle;
+      mdw_toggle(100, ya, 160, 16, 0,0,0,0,   0, 0, 0, 0,  1,0,1,0, test_toggle, "Fixed", "Auto", 15, 15, 7, 7);
+      if (old_test_toggle == test_toggle) al_flip_display();
+      else redraw = 1;
+
+
       if (redraw)
       {
          redraw = 0;
@@ -2312,6 +2400,7 @@ void log_client_server_sync_graph(int num_lines)
          }
       }
 
+
       proc_controllers();
       int k = key_pressed_ASCII;
       if ((k > 36) && (k < 45)) k+=11; // convert number pad number to regular numbers
@@ -2339,4 +2428,3 @@ void log_client_server_sync_graph(int num_lines)
       if (key[ALLEGRO_KEY_ESCAPE][3]) gquit = 1;
    }
 }
-
