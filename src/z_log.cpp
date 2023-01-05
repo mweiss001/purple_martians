@@ -1384,19 +1384,70 @@ void log_bandwidth_graph(int asgdj)
 
    al_set_target_backbuffer(display);
 
-   mG[0].set_screen_pos(200, 200, 800, 800);
+   mG[0].set_graph_pos(200, 200, 800, 800);
+
+      //   int bwx = (float) SCREEN_W * 0.05;
+//   int bwy = (float) SCREEN_H * 0.05;
+//   mG[0].set_graph_pos(bwx*4, bwy, SCREEN_W-bwx, SCREEN_H-bwy*4);
+
+   mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
+
+
    mG[0].calc_data_range();
    mG[0].autorange_axis(1, 1);
    mG[0].y_axis_zoom_lock = 0;
 
 
-   sprintf(mG[0].title, "Testing Data");
-   mG[0].show_title = 1;
-   mG[0].title_color = 10;
 
-   sprintf(mG[0].x_axis_legend, "Frame");
-   mG[0].show_x_axis_legend = 1;
-   mG[0].x_axis_legend_color = 10;
+
+   mG[0].title_draw_on = 1;
+   mG[0].title_size = 20;
+   sprintf(mG[0].title_text, "Test Data");
+   mG[0].title_text_color = 10;
+   mG[0].title_frame_color = 15;
+
+
+   mG[0].x_axis_type = 1;
+
+
+   mG[0].x_axis_label_draw_on = 1;
+   mG[0].x_axis_label_tick_size = 4;
+
+
+   mG[0].x_axis_legend_draw_on = 1;
+   sprintf(mG[0].x_axis_legend_text, "Time (frames)");
+   mG[0].x_axis_legend_color = 15;
+   mG[0].x_axis_legend_font = 0;
+
+   mG[0].x_axis_scrollbar_draw_on = 1;
+   mG[0].x_axis_scrollbar_size = 12;
+
+
+   mG[0].y_axis_label_draw_on = 1;
+   mG[0].y_axis_label_tick_size = 4;
+
+   mG[0].y_axis_legend_draw_on = 1;
+   sprintf(mG[0].y_axis_legend_text, "Transmit (kBps)");
+   mG[0].y_axis_legend_color = 14;
+   mG[0].y_axis_legend_font = 1;
+
+   mG[0].y_axis_scrollbar_draw_on = 1;
+   mG[0].y_axis_scrollbar_size = 12;
+
+
+
+
+
+
+
+   mG[0].x_axis_get_size_and_arrange_pos();
+   mG[0].y_axis_get_size_and_arrange_pos();
+
+
+
+
+
+
 
 
    int quit = 0;
@@ -1404,6 +1455,13 @@ void log_bandwidth_graph(int asgdj)
    while (!quit)
    {
       al_clear_to_color(al_map_rgb(0, 0, 0));
+
+
+      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
+
+      mG[0].x_axis_get_size_and_arrange_pos();
+      mG[0].y_axis_get_size_and_arrange_pos();
+
       mG[0].draw();
       mG[0].process_input();
 
