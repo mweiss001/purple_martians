@@ -210,36 +210,61 @@ extern mWindow mW[NUM_MW];
 #define PM_ITEM_PMSG_FRAME12       0b00000000010000000
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class mwGraph
 {
    public:
-   int screen_x1;
-   int screen_y1;
-   int screen_x2;
-   int screen_y2;
-   int screen_w;
-   int screen_h;
+
+   int graph_x1;
+   int graph_y1;
+   int graph_x2;
+   int graph_y2;
+   int graph_w;
+   int graph_h;
+
+   int plot_x1;
+   int plot_y1;
+   int plot_x2;
+   int plot_y2;
+   int plot_w;
+   int plot_h;
 
 
+   int  title_draw_on;
+   int  title_size;
+   int  title_draw_size;
+   int  title_draw_y;
+   char title_text[1024];
+   int  title_text_color;
+   int  title_frame_color;
+   void draw_title(int set_size_only);
+
+
+   int x_axis_type;
+
+   double x_axis_divider;
+
+   int x_axis_draw_size;
+
+   int x_axis_label_draw_on;
+   int x_axis_label_draw_size;
+   int x_axis_label_tick_size;
+   int x_axis_label_text_size;
+
+   int  x_axis_legend_draw_on;
+   int  x_axis_legend_draw_size;
+   int  x_axis_legend_font;
+   int  x_axis_legend_draw_y;
+   char x_axis_legend_text[1024];
+   int  x_axis_legend_color;
+
+   char x_axis_units_text[80];
+
+
+
+
+   int x_axis_scrollbar_draw_on;
+   int x_axis_scrollbar_size;
+   int x_axis_scrollbar_draw_size;
    int x_axis_scrollbar_x1;
    int x_axis_scrollbar_x2;
    int x_axis_scrollbar_w;
@@ -247,34 +272,56 @@ class mwGraph
    int x_axis_scrollbar_bar_x2;
    int x_axis_scrollbar_y1;
    int x_axis_scrollbar_y2;
-
-   int y_axis_scrollbar_x1;
-   int y_axis_scrollbar_x2;
-   int y_axis_scrollbar_y1;
-   int y_axis_scrollbar_y2;
-   int y_axis_scrollbar_h;
-   int y_axis_scrollbar_bar_y1;
-   int y_axis_scrollbar_bar_y2;
-
-
    bool x_axis_lock_scroll;
    bool x_axis_lock_zoom;
 
+   void x_axis_draw(void);
+   void x_axis_get_size_and_arrange_pos(void);
+   void x_axis_draw_legend(int set_size_only);
+   void x_axis_draw_gridlines_and_labels(int set_size_only);
+   int  x_axis_draw_scrollbar(int set_size_only);
+   void x_axis_proc_scrollbar(void);
+
+
+   int y_axis_draw_size;
+
+   int y_axis_label_draw_on;
+   int y_axis_label_draw_size;
+   int y_axis_label_tick_size;
+   int y_axis_label_text_size;
+
+   int  y_axis_legend_draw_on;
+   int  y_axis_legend_draw_size;
+   int  y_axis_legend_font;
+   int  y_axis_legend_draw_x;
+   char y_axis_legend_text[1024];
+   int  y_axis_legend_color;
+
+   int y_axis_scrollbar_draw_on;
+   int y_axis_scrollbar_size;
+   int y_axis_scrollbar_draw_size;
+   int y_axis_scrollbar_x1;
+   int y_axis_scrollbar_x2;
+   int y_axis_scrollbar_w;
+   int y_axis_scrollbar_bar_y1;
+   int y_axis_scrollbar_bar_y2;
+   int y_axis_scrollbar_y1;
+   int y_axis_scrollbar_y2;
+   int y_axis_scrollbar_h;
    bool y_axis_lock_scroll;
    int y_axis_zoom_lock;
+
+   void y_axis_draw(void);
+   void y_axis_get_size_and_arrange_pos(void);
+   void y_axis_set_pos(void);
+   void y_axis_draw_legend(int set_size_only);
+   void y_axis_draw_gridlines_and_labels(int set_size_only);
+   int  y_axis_draw_scrollbar(int set_size_only);
+   void y_axis_proc_scrollbar(void);
 
 
    double data[10000][2];
    int data_points;
-
-   int show_title;
-   char title[1024];
-   int title_color;
-
-
-   int show_x_axis_legend;
-   char x_axis_legend[1024];
-   int x_axis_legend_color;
 
    // min, max, and range for entire set of data
    double x_data_min;
@@ -296,58 +343,35 @@ class mwGraph
    double y_axis_rng_min;
 
 
-   int convert_gxy_to_sxy(double gx, double gy, int &sx, int &sy);
-   int convert_sxy_to_gxy(int sx, int sy, double &gx, double &gy);
-
-
+   int  convert_sxy_to_gxy(      int sx, int sy, double &gx, double &gy);
    void convert_sxy_to_gxy_clamp(int sx, int sy, double &gx, double &gy);
-
-
-   double x_val_disp;                // the minimum value to have at the origin of the graph, if set to less than this, clamp to this
-   double x_val_currntly_displayed;
+   int  convert_gxy_to_sxy(double gx, double gy, int &sx, int &sy);
 
 
    mwGraph(); // default constructor
-
    void initialize(void);
+   void set_graph_pos(int x1, int y1, int x2, int y2);
 
-   void set_screen_pos(int x1, int y1, int x2, int y2);
+
    void draw(void);
+   void draw_data(int type, int color);
+   void draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f);
 
    void process_input(void);
-
-   int  draw_x_scrollbar(void);
-   void proc_x_scrollbar(void);
-
-   int  draw_y_scrollbar(void);
-   void proc_y_scrollbar(void);
-
-
-
-   void fill_test_data(int type);
+   void process_mouse_on_graph(void);
 
    void add_data_point(double x, double y);
    void calc_data_range(void);
 
-   void label_axis(void);
    void autorange_axis(int x, int y);
-
-
-   void adjust_axis(int xy, int mm, int id);
-
    void set_range_axis(double x_min, double x_max, double y_min, double y_max);
    void enforce_axis_limits(void);
    void enforce_axis_limits(int type);
 
-   char* x_axis_get_val_text(double val);
-   char* y_axis_get_val_text(double val);
+   char* x_axis_get_val_text(double val, int units);
+   char* y_axis_get_val_text(double val, int units);
 
    int find_closest_point_to_mouse(void);
-
-   void draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f);
-
-   void process_mouse_on_graph(void);
-
 
 };
 extern mwGraph mG[10];

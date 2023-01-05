@@ -1159,6 +1159,15 @@ should have some limits....
 
 
 
+
+try experimenting with different s1 and s2
+3 1 - default
+
+I'm getting late cdats and stuff from 4230's but not scat or e6430
+the sync on them is jumping around a lot...
+I could probably benefit from some code profiling....
+
+
 20221231 9:26 AM
 
 make the client initiate ping, as it is the one that needs it.
@@ -1632,479 +1641,221 @@ jump to nearest data position and show data for that...
 I want a way to store the units for each axis...
 call a fucntion to set msg
 
+right click on stuff to popup menu....done
 
 
-right click on stuff to popup menu....
+20230103 back to work...
 
+what are the main things left to do on graph?
 
+units, axis labels, gridlines
 
+nice bounding boxes for all the graph elements
+(optional) title and (optional)space for it (probably above but not married to it)
 
+y axis labels (could be on left or right side)
+y axis scrollabr (left or right)
 
+x axis labels (could be on top or bottom)
+x axis scrollabr (could be up or down)
 
+all of these things are optional
 
+reset range should turn auto off....
 
+need to stack things on the axis...
 
+gridlines and labels
+axis label
+scrollbar
+these should all dynamically size...
+then when that is all done, I will have the size of the entire graph area
+maybe I can rename that to graph_x y etc... and the other to plot...
 
+graph_x1
+graph_y1
+graph_x2
+graph_y2
+graph_w
+graph_h
 
+these are the main ones that are set outside the class....
+then after the width of all the things in the axes are calculated...
+then what is left over will be for the plot
 
+call resize at the beginning....
 
+these will never be changed internally:
+graph_x1
+graph_y1
+graph_x2
+graph_y2
+graph_w
+graph_h
 
+find out the width needed for axes...
 
+set:
+plot_x1
+plot_y1
+plot_x2
+plot_y2
+plot_w
+plot_h
 
 
 
 
 
+make a function to auto set positions... for each axis...
 
+void x_axis_draw(void) // does gridlines, labels, axis title and scroll bars
 
+int x_axis_get_size(void) // returns the size needed by x_axis
 
 
+start with gridlines and labels...
+make them all optional
 
 
 
 
+I now have:
 
+void x_axis_draw(void);
+void x_axis_get_size(void);
+void x_axis_draw_legend(void);
+void x_axis_draw_gridlines_and_labels(void);
+int  x_axis_draw_scrollbar(void);
+void x_axis_proc_scrollbar(void);
 
 
+called from main draw:
 
+void mwGraph::x_axis_draw(void)
+{
+   x_axis_draw_gridlines_and_labels();
+   x_axis_draw_legend();
+   x_axis_draw_scrollbar();
+}
 
 
+I also have:
 
+void mwGraph::process_input(void)
+{
+   x_axis_proc_scrollbar();
 
+which also calls:
 
+void mwGraph::x_axis_proc_scrollbar(void)
+{
+   int sb = x_axis_draw_scrollbar();
 
 
+how are draw and proc called?
+like this externally:
+mG[0].draw();
+mG[0].process_input();
 
+I will probabaly change that later, do I really need to separarte them?
 
+for now I have other things to do:
 
+get the variables for each x_axis element done
 
 
+int x_axis_label_draw_on;
+int x_axis_label_tick_size;
+int x_axis_label_text_size;
+int x_axis_label_draw_size;
 
 
 
+1st get axis sizes
+2nd set plot size and pos
+3rd set axis pos
 
+do I need a spearate value for actual size, vs stored size
+so I can restore if turned on and off...
 
+I think the x axis is looking really good...now work on the y axis
 
+I am very happy with how these look
 
+next I want to have the option of small text on legends
+done and now I have a much nicer method for drawing those...
 
 
+next, I want to always put labels on origins...
 
+done, but sometimes overwrite other axis labels..
 
 
 
+make a function to display axis values...
 
+why can't I put mouse on point on the edge of plot?? fixed
+also fixed when point text box is draw off screen...
 
+implment units for axis...
 
+x_axis_value_type..
 
+0 = none
+1 = time in frames...
 
+this will have a large impact...
 
+depending on the current displayed range,
+the units for an axis will change..
 
+the max value displayed could be used to set the units in some cases...n other cases the range...
 
+like for time (frames)
+could be frames, sec, minutes...
+depending on what range is shown
 
+this will change:
+x axis legend
+gridlines and labels
+point text box...
 
+I need a main title for the legend:
+Time
+then I need another for units
 
+I could make a type...
 
+type 0 - do nothing
+type 1 - customized for frames
 
+made a type..
 
 
+if 1, where do I check it??
 
+depending on the range I need to set units, divider and legend
 
+where does that naturally happen?
+draw
+set size and pos
+input
 
+none of these actually
 
+how about enforce axis limits?
 
 
+and what am I going to be setting?
 
+if type 1
+use range to set
+legend text
+divider
+units text
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-try experimenting with different s1 and s2
-3 1 - default
-
-I'm getting late cdats and stuff from 4230's but not scat or e6430
-the sync on them is jumping around a lot...
-I could probably benefit from some code profiling....
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+add divider...
 
 
 
