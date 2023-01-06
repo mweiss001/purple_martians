@@ -3,19 +3,6 @@
 #include "pm.h"
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 mwGraph::mwGraph()
 {
    initialize();
@@ -29,13 +16,19 @@ void mwGraph::initialize(void)
    plot_x2 = 0;
    plot_y2 = 0;
 
-   for (int i=0; i<10000; i++)
-   {
-      data[i][0] = 0;
-      data[i][1] = 0;
-   }
-   data_points = 0;
 
+   for (int s=0; s<20; s++)
+   {
+      series[s].active = 0;
+      series[s].num_data = 0;
+      series[s].color = 0;
+      series[s].name[0] = 0;
+      for (int i=0; i<10000; i++)
+      {
+         series[s].data[i][0] = 0;
+         series[s].data[i][1] = 0;
+      }
+   }
    x_data_min = 0;
    x_data_max = 0;
    x_data_rng = 0;
@@ -57,58 +50,59 @@ void mwGraph::initialize(void)
    y_axis_zoom_lock = 0;
 
    x_axis_divider = 1;
-
-
+   y_axis_divider = 1;
 }
 
 
-void mwGraph::draw_data(int type, int col)
+void mwGraph::draw_data(int type)
 {
    al_set_clipping_rectangle(plot_x1 * display_transform_double, plot_y1 * display_transform_double, plot_w * display_transform_double, plot_h * display_transform_double);
-
-   if (type == 1) // point
-   {
-      float x=0, y=0;
-      for (int i=0; i<data_points; i++)
+   for (int s=0; s<20; s++)
+      if ((series[s].active) && (series[s].num_data))
       {
-         x = plot_x1 + (data[i][0]-x_axis_min) * plot_w / x_axis_rng;
-         y = plot_y2 - (data[i][1]-y_axis_min) * plot_h / y_axis_rng;
-         al_draw_filled_circle(x, y, 2, palette_color[col]);
-      }
-   }
-
-   if (type == 2) // line
-   {
-      float x=0, ox=0, y=0, oy=0;
-      bool first_time = 1;
-      for (int i=0; i<data_points; i++)
-      {
-         x = plot_x1 + (data[i][0]-x_axis_min) * plot_w / x_axis_rng;
-         y = plot_y2 - (data[i][1]-y_axis_min) * plot_h / y_axis_rng;
-         if (first_time)
+         if (type == 1) // point
          {
-            first_time = 0;
-            ox = x;
-            oy = y;
+            for (int i=0; i<series[s].num_data; i++)
+            {
+               float x = plot_x1 + (series[s].data[i][0]-x_axis_min) * plot_w / x_axis_rng;
+               float y = plot_y2 - (series[s].data[i][1]-y_axis_min) * plot_h / y_axis_rng;
+               al_draw_filled_circle(x, y, 2, palette_color[series[s].color]);
+            }
          }
-         al_draw_line(x, y, ox, oy, palette_color[col], 1);
-         al_draw_filled_circle(x, y, 2, palette_color[col]);
-         ox = x;
-         oy = y;
+         if (type == 2) // line
+         {
+            float ox=0, oy=0;
+            bool first_time = true;
+            for (int i=0; i<series[s].num_data; i++)
+            {
+               float x = plot_x1 + (series[s].data[i][0]-x_axis_min) * plot_w / x_axis_rng;
+               float y = plot_y2 - (series[s].data[i][1]-y_axis_min) * plot_h / y_axis_rng;
+               if (first_time)
+               {
+                  first_time = false;
+                  ox = x;
+                  oy = y;
+               }
+               al_draw_line(x, y, ox, oy, palette_color[series[s].color], 1);
+               al_draw_filled_circle(x, y, 2, palette_color[series[s].color]);
+               ox = x;
+               oy = y;
+            }
+         }
       }
-   }
-
    al_reset_clipping_rectangle();
 }
 
 void mwGraph::draw()
 {
-
+   enforce_axis_limits();
    draw_title(0);
 
-   // frame entire graph area for testing
-   al_draw_rectangle(graph_x1, graph_y1, graph_x2, graph_y2, palette_color[10], 1);
+   // erase entire graph area
+   al_draw_filled_rectangle(graph_x1, graph_y1, graph_x2, graph_y2, palette_color[0]);
 
+   // frame entire graph area for testing
+   //al_draw_rectangle(graph_x1, graph_y1, graph_x2, graph_y2, palette_color[10], 1);
 
 
    // erase plot background
@@ -117,18 +111,17 @@ void mwGraph::draw()
    // frame plot
    al_draw_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, palette_color[15], 1);
 
-
    x_axis_draw();
    y_axis_draw();
 
-   draw_data(2, 11);
+
+   draw_data(2);
+
 
    // debug - show axis range values
    // al_draw_filled_rectangle(              10, 10, 600, 30, palette_color[0]); // erase background
    // al_draw_textf(font, palette_color[15], 10, 10, 0, "x_axis_min:%5.1f  x_axis_max:%5.1f  x_axis_rng:%5.1f", x_axis_min, x_axis_max, x_axis_rng);
    // al_draw_textf(font, palette_color[15], 10, 18, 0, "y_axis_min:%5.1f  y_axis_max:%5.1f  y_axis_rng:%5.1f", y_axis_min, y_axis_max, y_axis_rng);
-
-
 }
 
 
@@ -152,25 +145,24 @@ void mwGraph::autorange_axis(int x, int y)
       double y_min = 0;
       double y_max = 0;
       double y_rng = 0;
-      if (data_points)
+      int matched = 0;
+      for (int s=0; s<20; s++)
+         if ((series[s].active) && (series[s].num_data))
+            for (int i=0; i<series[s].num_data; i++)
+               if ((series[s].data[i][0] >= x_axis_min) && (series[s].data[i][0] <= x_axis_max))
+               {
+                  if (matched == 0)            y_min = y_max = series[s].data[i][1];
+                  if (series[s].data[i][1]   < y_min)  y_min = series[s].data[i][1];
+                  if (series[s].data[i][1]   > y_max)  y_max = series[s].data[i][1];
+                  matched++;
+               }
+      if (matched > 1) // don't change anything if less than 2 data points in displayed range
       {
-         int matched = 0;
-         for (int i=0; i<data_points; i++)
-            if ((data[i][0] >= x_axis_min) && (data[i][0] <= x_axis_max))
-            {
-               if (matched == 0) y_min = y_max = data[i][1];
-               if (data[i][1] < y_min) y_min = data[i][1];
-               if (data[i][1] > y_max) y_max = data[i][1];
-               matched++;
-            }
-         if (matched > 1) // don't change anything if less than 2 data points in displayed range
-         {
-            y_rng = y_max - y_min;
-            y_axis_min = y_min - y_rng*.05;
-            y_axis_max = y_max + y_rng*.05;
-            y_axis_rng = y_axis_max - y_axis_min;
-            enforce_axis_limits();
-         }
+         y_rng = y_max - y_min;
+         y_axis_min = y_min - y_rng*.05;
+         y_axis_max = y_max + y_rng*.05;
+         y_axis_rng = y_axis_max - y_axis_min;
+         enforce_axis_limits();
       }
    }
 }
@@ -223,7 +215,7 @@ void mwGraph::enforce_axis_limits(int type)
       y_axis_rng = y_axis_max - y_axis_min;
    }
 
-   if (type == 4) // enorce range minimums
+   if (type == 4) // enforce range minimums
    {
       if (x_axis_rng < x_axis_rng_min)
       {
@@ -243,47 +235,59 @@ void mwGraph::enforce_axis_limits(int type)
          enforce_axis_limits(); // test again
       }
    }
+
+   if (type == 5) // special axis types
+   {
+      if (x_axis_type == 1)
+      {
+         if (x_axis_rng < 1000)
+         {
+            x_axis_divider = 1;
+            sprintf(x_axis_units_text, "frames");
+            sprintf(x_axis_legend_text, "Time (frames)");
+
+         }
+         if (x_axis_rng >= 1000)
+         {
+            x_axis_divider = 40;
+            sprintf(x_axis_units_text, "seconds");
+            sprintf(x_axis_legend_text, "Time (seconds)");
+         }
+      }
+
+
+
+      if (y_axis_type == 1)
+      {
+         if (y_axis_max < 1000)
+         {
+            y_axis_divider = 1;
+            //sprintf(y_axis_units_text, "B/s");
+            sprintf(y_axis_legend_text, "Transmit Rate (B/s)");
+
+         }
+         if (y_axis_max >= 1000)
+         {
+            y_axis_divider = 1000;
+            //sprintf(y_axis_units_text, "kB/s");
+            sprintf(y_axis_legend_text, "Transmit Rate (kB/s)");
+         }
+      }
+   }
 }
 
 void mwGraph::enforce_axis_limits(void)
 {
-
-
-
-
-
-
    x_axis_rng_min = 10;
    y_axis_rng_min = 10;
-
    enforce_axis_limits(1); // reverse order
    enforce_axis_limits(2); // min max limits
    enforce_axis_limits(3); // set range
    enforce_axis_limits(4); // enforce range minimums
-
-
-   if (x_axis_type == 1)
-   {
-      if (x_axis_rng < 1000)
-      {
-         x_axis_divider = 1;
-         sprintf(x_axis_units_text, "frames");
-         sprintf(x_axis_legend_text, "Time (frames)");
-
-      }
-      if (x_axis_rng >= 1000)
-      {
-         x_axis_divider = 10;
-         sprintf(x_axis_units_text, "seconds");
-         sprintf(x_axis_legend_text, "Time (seconds)");
-      }
-   }
-
-
-
+   enforce_axis_limits(5); // special axis types
 }
 
-int mwGraph::convert_gxy_to_sxy(double gx, double gy, int &sx, int &sy)
+int mwGraph::convert_gxy_to_sxy(double gx, double gy, double &sx, double &sy)
 {
    sx = plot_x1 + ((gx - x_axis_min) / x_axis_rng)*plot_w;
    sy = plot_y2 - ((gy - y_axis_min) / y_axis_rng)*plot_h;
@@ -334,6 +338,16 @@ double round_to_nearest(double in, double nr)
 // --------------------------------------------------------------------
 // ------------ x axis ------------------------------------------------
 // --------------------------------------------------------------------
+
+void mwGraph::set_title(const char* text, int text_color, int frame_color)
+{
+   sprintf(title_text, "%s", text);
+   title_text_color = text_color;
+   title_frame_color = frame_color;
+   title_draw_on = 1;
+}
+
+
 void mwGraph::draw_title(int set_size_only)
 {
    if (title_draw_on)
@@ -370,7 +384,7 @@ void mwGraph::x_axis_get_size_and_arrange_pos(void)
    x_axis_draw_scrollbar(1);
 
 
-   int pad = 8 + pct_y;
+   int pad = 2;
 
    title_draw_y = graph_y1 + pad;
    plot_y1 = title_draw_y + title_draw_size + pad;
@@ -396,6 +410,45 @@ void mwGraph::x_axis_draw(void)
    //x_axis_draw_scrollbar();
 }
 
+void mwGraph::set_x_axis_legend(const char* text, int font, int text_color, int frame_color)
+{
+   sprintf(x_axis_legend_text, "%s", text);
+   x_axis_legend_font = font;
+   x_axis_legend_text_color = text_color;
+   x_axis_legend_frame_color = frame_color;
+   x_axis_legend_draw_on = 1;
+}
+
+void mwGraph::set_y_axis_legend(const char* text, int font, int text_color, int frame_color)
+{
+   sprintf(y_axis_legend_text, "%s", text);
+   y_axis_legend_font = font;
+   y_axis_legend_text_color = text_color;
+   y_axis_legend_frame_color = frame_color;
+   y_axis_legend_draw_on = 1;
+}
+
+void mwGraph::set_x_axis_labels(int type, int font, int tick_size, int color)
+{
+   x_axis_type = type;
+   x_axis_label_font = font;
+   x_axis_label_tick_size = tick_size;
+   x_axis_label_color = color;
+   x_axis_label_draw_on = 1;
+}
+
+void mwGraph::set_y_axis_labels(int type, int font, int tick_size, int color)
+{
+   y_axis_type = type;
+   y_axis_label_font = font;
+   y_axis_label_tick_size = tick_size;
+   y_axis_label_color = color;
+   y_axis_label_draw_on = 1;
+}
+
+
+
+
 void mwGraph::x_axis_draw_legend(int set_size_only)
 {
    x_axis_legend_draw_size = 0;
@@ -408,16 +461,15 @@ void mwGraph::x_axis_draw_legend(int set_size_only)
       int bx, by, bw, bh;
       al_get_text_dimensions(f, x_axis_legend_text, &bx, &by, &bw, &bh);
 
-      x_axis_legend_draw_size = bh+2+pad*2;
+      x_axis_legend_draw_size = bh+2+pad*2+1;
 
       if (!set_size_only)
       {
-
          ALLEGRO_BITMAP* t = al_create_bitmap(bw+2+pad*2, bh+2+pad*2);
          al_set_target_bitmap(t);
          al_clear_to_color(palette_color[0]);
-         al_draw_textf(f, palette_color[x_axis_legend_color], 1+pad, 1+pad-by, 0, "%s", x_axis_legend_text);
-         al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[x_axis_legend_color], 1);
+         al_draw_textf(f, palette_color[x_axis_legend_text_color], 1+pad, 1+pad-by, 0, "%s", x_axis_legend_text);
+         al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[x_axis_legend_frame_color], 1);
 
          al_set_target_backbuffer(display);
          int xc = plot_x1+plot_w/2;
@@ -430,8 +482,13 @@ void mwGraph::x_axis_draw_legend(int set_size_only)
 
 void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
 {
-   ALLEGRO_FONT *f = f3;
-   x_axis_label_text_size = 5;
+   double lx = 0, ly = 0;
+   ALLEGRO_FONT *f = font;
+   if (x_axis_label_font) f = f3;
+
+   int bx, by, bw, bh;
+   al_get_text_dimensions(f, "1234", &bx, &by, &bw, &bh);
+   x_axis_label_text_size = bh;
 
    x_axis_label_draw_size = 0;
    if (x_axis_label_draw_on)
@@ -440,83 +497,80 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
       if (!set_size_only)
       {
 
-
          int x_axis_label_y0 = plot_y1;                                   // far side of graph
          int x_axis_label_y1 = plot_y2;                                   // side of graph closest to labels
          int x_axis_label_y2 = x_axis_label_y1 + x_axis_label_tick_size;  // end of tick line where text start
          int x_axis_label_y3 = x_axis_label_y2 + x_axis_label_text_size;  // end of area
 
-         // which ones need to be seen outside this function
-
          al_draw_filled_rectangle(plot_x1-12, x_axis_label_y1+1, plot_x2+12, x_axis_label_y3, palette_color[0]);         // erase background
          //al_draw_rectangle(       plot_x1-12, x_axis_label_y1+1, plot_x2+12, x_axis_label_y3, palette_color[15+128], 1); // debug frame
 
-         // draw gridlines
-         // how many to draw?
 
-         // pick a span and see how many...
+         // if we are showing scaled values, set and use temp scaled vars
+         double sx_axis_min = x_axis_min / x_axis_divider;
+         double sx_axis_max = x_axis_max / x_axis_divider;
+         double sx_axis_rng = x_axis_rng / x_axis_divider;
 
-         double x_gl_span = .00001;
-         while (x_axis_rng/x_gl_span > 20) x_gl_span *=10;  // this will choose betwen 2 and 20 major gridlines
 
-         int number_of_major_gridlines = (x_axis_rng/x_gl_span);
-         int lx = 0, ly = 0;
+         double x_gl_span = .00001;                          // pick a span and see how many major gridlines we get
+         while (sx_axis_rng/x_gl_span > 20) x_gl_span *=10;  // this will choose betwen 2 and 20 major gridlines
+         int number_of_major_gridlines = (sx_axis_rng/x_gl_span);
 
-       //al_draw_filled_rectangle              (plot_x1-12, plot_y2+50, x_axis_label_y1, plot_y2+58, palette_color[0]);
-       //al_draw_textf(font, palette_color[15], plot_x1-12, plot_y2+50, 0, "gspan:%-3.5f  num lines:%d", x_gl_span, (int) (x_axis_rng/x_gl_span));
+         //al_draw_filled_rectangle              (plot_x1-12, plot_y2+50, x_axis_label_y1, plot_y2+58, palette_color[0]);
+         // al_draw_textf(font, palette_color[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
 
+
+         int mj_col = x_axis_label_color+128;
+         float mj_size = 0.5;
+         int mn_col = x_axis_label_color+160;
+         float mn_size = 0;
 
          // minor gridlines with no labels
-         int mg_col = 15+190;
          if ((number_of_major_gridlines > 10) && (number_of_major_gridlines < 16))
          {
             double ns = x_gl_span/2;
-            double gx2 = round_to_nearest(x_axis_min, ns);
-            for (double i=gx2; i<=x_axis_max; i+=ns)
+            double gx2 = round_to_nearest(sx_axis_min, ns);
+            for (double i=gx2; i<=sx_axis_max; i+=ns)
             {
-               convert_gxy_to_sxy(i, 9999, lx, ly);
-               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, palette_color[mg_col], 1);
+               convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly);
+               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, palette_color[mn_col], mn_size);
             }
          }
          if ((number_of_major_gridlines > 5) && (number_of_major_gridlines < 11))
          {
             double ns = x_gl_span/5;
-            double gx2 = round_to_nearest(x_axis_min, ns);
-            for (double i=gx2; i<=x_axis_max; i+=ns)
+            double gx2 = round_to_nearest(sx_axis_min, ns);
+            for (double i=gx2; i<=sx_axis_max; i+=ns)
             {
-               convert_gxy_to_sxy(i, 9999, lx, ly);
-               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, palette_color[mg_col], 1);
+               convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly);
+               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, palette_color[mn_col], mn_size);
             }
          }
          if (number_of_major_gridlines < 6)
          {
             double ns = x_gl_span/10;
-            double gx2 = round_to_nearest(x_axis_min, ns);
-            for (double i=gx2; i<=x_axis_max; i+=ns)
+            double gx2 = round_to_nearest(sx_axis_min, ns);
+            for (double i=gx2; i<=sx_axis_max; i+=ns)
             {
-               convert_gxy_to_sxy(i, 9999, lx, ly);
-               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, palette_color[mg_col], 1);
+               convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly);
+               al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, palette_color[mn_col], mn_size);
             }
          }
 
          // major gridlines with labels
-         double gx2 = round_to_nearest(x_axis_min, x_gl_span);
-         //al_draw_textf(font, palette_color[15], plot_x1-12, plot_y2+58, 0, "x_axis_min:%f gx2:%f", x_axis_min, gx2);
-         for (double i=gx2; i<=x_axis_max; i+=x_gl_span)
+         double gx2 = round_to_nearest(sx_axis_min, x_gl_span);
+         for (double i=gx2; i<=sx_axis_max; i+=x_gl_span)
          {
-            int lx = 0, ly = 0;
-            convert_gxy_to_sxy(i, 9999, lx, ly);
-            al_draw_line(lx, x_axis_label_y0, lx, x_axis_label_y2, palette_color[15+128], 1);
-            int y_offset = 0;
-            if (f == f3) y_offset = 4;
-            al_draw_textf(f, palette_color[15], lx, x_axis_label_y2-y_offset, ALLEGRO_ALIGN_CENTER, "%3.0f", i);
+            convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly);
+            al_draw_line(lx, x_axis_label_y0, lx, x_axis_label_y2, palette_color[mj_col], mj_size);
+            al_draw_textf(f, palette_color[x_axis_label_color], lx, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, "%0.0f", i);
          }
 
-         // always put label on origin
-         al_draw_line(plot_x1, plot_y2+1, plot_x1, x_axis_label_y2, palette_color[15+128], 1);
-         int y_offset = 0;
-         if (f == f3) y_offset = 4;
-         al_draw_textf(f, palette_color[15], plot_x1, x_axis_label_y2-y_offset, ALLEGRO_ALIGN_CENTER, "%3.0f", x_axis_min);
+//         // label on origin
+//         al_draw_line(plot_x1, plot_y2+1, plot_x1, x_axis_label_y2, palette_color[mj_col], mj_size);
+//         int y_offset = 0;
+//         if (f == f3) y_offset = 4;
+//         al_draw_textf(f, palette_color[x_axis_label_color], plot_x1, x_axis_label_y2-y_offset, ALLEGRO_ALIGN_CENTER, "%0.0f", sx_axis_min);
 
 
 
@@ -721,8 +775,8 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
          ALLEGRO_BITMAP* t = al_create_bitmap(bw+2+pad*2, bh+2+pad*2);
          al_set_target_bitmap(t);
          al_clear_to_color(palette_color[0]);
-         al_draw_textf(f, palette_color[x_axis_legend_color], 1+pad, 1+pad-by, 0, "%s", y_axis_legend_text);
-         al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[x_axis_legend_color], 1);
+         al_draw_textf(f, palette_color[y_axis_legend_text_color], 1+pad, 1+pad-by, 0, "%s", y_axis_legend_text);
+         al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[y_axis_legend_frame_color], 1);
 
          al_set_target_backbuffer(display);
          int yc = plot_y2 - (plot_y2 - plot_y1) /2;
@@ -735,49 +789,105 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
 
 void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
 {
+   ALLEGRO_FONT *f = font;
+   if (y_axis_label_font) f = f3;
+
+   int bx, by, bw, bh;
+
    y_axis_label_draw_size = 0;
    if (y_axis_label_draw_on)
    {
+      double sy_axis_min = y_axis_min / y_axis_divider;
+      double sy_axis_max = y_axis_max / y_axis_divider;
+      double sy_axis_rng = y_axis_rng / y_axis_divider;
+
+      double lx = 0, ly = 0;
 
       // first I need to get info on num of labels
       double y_gl_span = .00001;
-      while (y_axis_rng/y_gl_span > 40) y_gl_span *=10;
-      double gy2 = round_to_nearest(y_axis_min, y_gl_span);
+      while (sy_axis_rng/y_gl_span > 20) y_gl_span *=10;
+      double gy2 = round_to_nearest(sy_axis_min, y_gl_span);
 
-      // then I need to get max text length
-      int max_text_length = 0;
-      for (double i=gy2; i<y_axis_max; i+=y_gl_span)
+      // then I need to get max width
+      int max_width = 0;
+      for (double i=gy2; i<sy_axis_max; i+=y_gl_span)
       {
-         int lx = 0, ly = 0;
-         convert_gxy_to_sxy(9999, i, lx, ly);
+         convert_gxy_to_sxy(9999, i * y_axis_divider, lx, ly);
          sprintf(msg, "%0.0f", i);
-         if ((int)strlen(msg) > max_text_length) max_text_length = strlen(msg);
+         al_get_text_dimensions(f, msg, &bx, &by, &bw, &bh);
+         if (bw >  max_width) max_width = bw;
       }
+      y_axis_label_text_size = max_width+1;
 
-      y_axis_label_text_size = max_text_length * 4;
 
       // then I set sizes and positions
       int y_axis_label_x0 = plot_x2;                                   // far side of graph
       int y_axis_label_x1 = plot_x1;                                   // side of graph closest to labels
       int y_axis_label_x2 = y_axis_label_x1 - y_axis_label_tick_size;  // x pos of tick start
       int y_axis_label_x3 = y_axis_label_x2 - y_axis_label_text_size;  // x pos of text
-
       y_axis_label_draw_size = y_axis_label_tick_size + y_axis_label_text_size;
 
-      al_draw_filled_rectangle(y_axis_label_x3, plot_y1-5, y_axis_label_x1-1, plot_y2+2, palette_color[0]);     // erase background
-      // al_draw_rectangle       (y_axis_label_x3, plot_y1-5, y_axis_label_x1-1, plot_y2+2, palette_color[15+128], 1); // show for debug
-
       if (!set_size_only)
-         for (double i=gy2; i<y_axis_max; i+=y_gl_span)
+      {
+
+
+         int mj_col = y_axis_label_color+128;
+         float mj_size = .5;
+         int mn_col = y_axis_label_color+160;
+         float mn_size = .5;
+
+         al_draw_filled_rectangle(y_axis_label_x3, plot_y1-5, y_axis_label_x1-1, plot_y2+4, palette_color[0]);     // erase background
+         // al_draw_rectangle       (y_axis_label_x3, plot_y1-5, y_axis_label_x1-1, plot_y2+4, palette_color[15+128], 1); // show for debug
+
+         int number_of_major_gridlines = (sy_axis_rng/y_gl_span);
+
+         //al_draw_filled_rectangle              (plot_x1-12, plot_y2+50, x_axis_label_y1, plot_y2+58, palette_color[0]);
+         // al_draw_textf(font, palette_color[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
+
+         // minor gridlines with no labels
+         if ((number_of_major_gridlines > 10) && (number_of_major_gridlines < 16))
          {
-            int lx = 0, ly = 0;
-            convert_gxy_to_sxy(9999, i, lx, ly);
-            al_draw_line(y_axis_label_x2, ly, y_axis_label_x0, ly, palette_color[15+128], 0);
-            al_draw_textf(f3, palette_color[15], y_axis_label_x2, ly-7, ALLEGRO_ALIGN_RIGHT, "%0.0f", i);
+            double ns = y_gl_span/2;
+            double gy2 = round_to_nearest(sy_axis_min, ns);
+            for (double i=gy2; i<=sy_axis_max; i+=ns)
+            {
+               convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
+               al_draw_line(y_axis_label_x1+1, ly, y_axis_label_x0-1, ly, palette_color[mn_col], mn_size);
+            }
          }
-      // always put label on origin
-      al_draw_line(y_axis_label_x2, plot_y2, plot_x1-1, plot_y2, palette_color[15+128], 0);
-      al_draw_textf(f3, palette_color[15], y_axis_label_x2, plot_y2-7, ALLEGRO_ALIGN_RIGHT, "%3.0f", y_axis_min);
+
+         if ((number_of_major_gridlines > 5) && (number_of_major_gridlines < 11))
+         {
+            double ns = y_gl_span/5;
+            double gy2 = round_to_nearest(sy_axis_min, ns);
+            for (double i=gy2; i<=sy_axis_max; i+=ns)
+            {
+               convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
+               al_draw_line(y_axis_label_x1+1, ly, y_axis_label_x0-1, ly, palette_color[mn_col], mn_size);
+            }
+         }
+         if (number_of_major_gridlines < 6)
+         {
+            double ns = y_gl_span/10;
+            double gy2 = round_to_nearest(sy_axis_min, ns);
+            for (double i=gy2; i<=sy_axis_max; i+=ns)
+            {
+               convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
+               al_draw_line(y_axis_label_x1+1, ly, y_axis_label_x0-1, ly, palette_color[mn_col], mn_size);
+            }
+         }
+
+         // major gridlinws with labels
+         for (double i=gy2; i<sy_axis_max; i+=y_gl_span)
+         {
+            convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
+            al_draw_line(y_axis_label_x2, ly, y_axis_label_x0-1, ly, palette_color[mj_col], mj_size);
+            al_draw_textf(f, palette_color[y_axis_label_color], y_axis_label_x2, ly-by-bh/2, ALLEGRO_ALIGN_RIGHT, "%0.0f", i);
+         }
+//         // always put label on origin
+//         al_draw_line(y_axis_label_x2, plot_y2, plot_x1-1, plot_y2, palette_color[mj_col], mj_size);
+//         al_draw_textf(f, palette_color[y_axis_label_color], y_axis_label_x2, plot_y2-by-bh/2, ALLEGRO_ALIGN_RIGHT, "%3.0f", y_axis_min / y_axis_divider);
+      }
    }
 }
 
@@ -785,7 +895,7 @@ void mwGraph::y_axis_draw(void)
 {
    y_axis_draw_gridlines_and_labels(0);
    y_axis_draw_legend(0);
-   //y_axis_draw_scrollbar();
+   //y_axis_draw_scrollbar(0);
 }
 
 void mwGraph::y_axis_get_size_and_arrange_pos(void)
@@ -794,15 +904,15 @@ void mwGraph::y_axis_get_size_and_arrange_pos(void)
    y_axis_draw_legend(1);
    y_axis_draw_scrollbar(1);
 
-   int pad = 5 + pct_x;
+   int pad = 3;
 
    y_axis_draw_size = 0;
    if (y_axis_label_draw_on)     y_axis_draw_size += (y_axis_label_draw_size + pad);
    if (y_axis_legend_draw_on)    y_axis_draw_size += (y_axis_legend_draw_size + pad);
    if (y_axis_scrollbar_draw_on) y_axis_draw_size += (y_axis_scrollbar_draw_size + pad);
 
-
-   y_axis_scrollbar_x1 = graph_x1 + pad;
+   if (y_axis_scrollbar_draw_on) y_axis_scrollbar_x1 = graph_x1 + pad;
+   else                          y_axis_scrollbar_x1 = graph_x1;
    y_axis_scrollbar_x2 = y_axis_scrollbar_x1 + y_axis_scrollbar_draw_size;
 
    y_axis_legend_draw_x = y_axis_scrollbar_x2 + pad;
@@ -818,21 +928,29 @@ void mwGraph::calc_data_range(void)
    x_data_min = x_data_max = x_data_rng = 0;
    y_data_min = y_data_max = y_data_rng = 0;
 
-   if (data_points)
-   {
-      x_data_min = x_data_max = data[0][0];
-      y_data_min = y_data_max = data[0][1];
+   int first_time = 1;
 
-      for (int i=0; i<data_points; i++)
+   for (int s=0; s<20; s++)
+      if ((series[s].active) && (series[s].num_data))
       {
-         if (data[i][0] < x_data_min) x_data_min = data[i][0];
-         if (data[i][0] > x_data_max) x_data_max = data[i][0];
-         if (data[i][1] < y_data_min) y_data_min = data[i][1];
-         if (data[i][1] > y_data_max) y_data_max = data[i][1];
+         if (first_time)
+         {
+            first_time = 0;
+            x_data_min = x_data_max = series[s].data[0][0];
+            y_data_min = y_data_max = series[s].data[0][1];
+         }
+         for (int i=0; i<series[s].num_data; i++)
+         {
+            if (series[s].data[i][0] < x_data_min) x_data_min = series[s].data[i][0];
+            if (series[s].data[i][0] > x_data_max) x_data_max = series[s].data[i][0];
+            if (series[s].data[i][1] < y_data_min) y_data_min = series[s].data[i][1];
+            if (series[s].data[i][1] > y_data_max) y_data_max = series[s].data[i][1];
+         }
       }
-   }
+
    x_data_rng = x_data_max - x_data_min;
    y_data_rng = y_data_max - y_data_min;
+
 }
 
 void mwGraph::set_graph_pos(int x1, int y1, int x2, int y2)
@@ -845,12 +963,21 @@ void mwGraph::set_graph_pos(int x1, int y1, int x2, int y2)
    graph_h = graph_y2 - graph_y1;
 }
 
-void mwGraph::add_data_point(double x, double y)
+void mwGraph::add_data_point(int s, double x, double y)
 {
-   data[data_points][0] = x;
-   data[data_points][1] = y;
-   data_points++;
+   series[s].data[series[s].num_data][0] = x;
+   series[s].data[series[s].num_data][1] = y;
+   series[s].num_data++;
 }
+
+
+void mwGraph::set_series(int s, const char* text, int color)
+{
+   sprintf(series[s].name, "%s", text);
+   series[s].color = color;
+   series[s].active = 1;
+}
+
 
 
 int mwGraph::y_axis_draw_scrollbar(int set_size_only)
@@ -934,133 +1061,138 @@ int mwGraph::y_axis_draw_scrollbar(int set_size_only)
 
 void mwGraph::y_axis_proc_scrollbar(void)
 {
-   y_axis_scrollbar_y1 = plot_y1;
-   y_axis_scrollbar_y2 = plot_y2;
-   y_axis_scrollbar_h  = plot_h;
-   y_axis_scrollbar_x2 = y_axis_scrollbar_x1 + y_axis_scrollbar_draw_size;
-
-   if (y_axis_zoom_lock == 2) autorange_axis(0, 2);
-
-   int ya = y_axis_scrollbar_y2+4;
-   int yb = y_axis_scrollbar_x2 - y_axis_scrollbar_x1; // to make it square
-   int xa = y_axis_scrollbar_x1;
-   int xb = y_axis_scrollbar_x2;
-   if (y_axis_zoom_lock == 0) sprintf(msg, "U");
-   if (y_axis_zoom_lock == 1) sprintf(msg, "L");
-   if (y_axis_zoom_lock == 2) sprintf(msg, "A");
-   if (mdw_buttont(xa, ya, xb, yb, 0,0,0,0,   0,15+64,15, 0,  1,0,1,0, msg)) y_axis_zoom_lock++;
-   if (y_axis_zoom_lock > 2) y_axis_zoom_lock = 0;
-
-   int sb = y_axis_draw_scrollbar(0);
-
-   if (sb == 1)
+   if (y_axis_scrollbar_draw_on)
    {
-      sprintf(global_string[6][0],"Y Axis Menu");
-      sprintf(global_string[6][1],"---------------");
-      sprintf(global_string[6][2],"Reset Y Axis Range");
-      sprintf(global_string[6][3],"Reset Entire Graph");
-      if (y_axis_zoom_lock == 1) sprintf(global_string[6][4],"Lock Range:ON");
-      else                       sprintf(global_string[6][4],"Lock Range:OFF");
-      if (y_axis_zoom_lock == 2) sprintf(global_string[6][5],"Auto Range:ON");
-      else                       sprintf(global_string[6][5],"Auto Range:OFF");
-      sprintf(global_string[6][6],"end");
 
-      switch (pmenu(6, 13))
+
+      y_axis_scrollbar_y1 = plot_y1;
+      y_axis_scrollbar_y2 = plot_y2;
+      y_axis_scrollbar_h  = plot_h;
+      y_axis_scrollbar_x2 = y_axis_scrollbar_x1 + y_axis_scrollbar_draw_size;
+
+      if (y_axis_zoom_lock == 2) autorange_axis(0, 2);
+
+      int ya = y_axis_scrollbar_y2+4;
+      int yb = y_axis_scrollbar_x2 - y_axis_scrollbar_x1; // to make it square
+      int xa = y_axis_scrollbar_x1;
+      int xb = y_axis_scrollbar_x2;
+      if (y_axis_zoom_lock == 0) sprintf(msg, "U");
+      if (y_axis_zoom_lock == 1) sprintf(msg, "L");
+      if (y_axis_zoom_lock == 2) sprintf(msg, "A");
+      if (mdw_buttont(xa, ya, xb, yb, 0,0,0,0,   0,15+64,15, 0,  1,0,1,0, msg)) y_axis_zoom_lock++;
+      if (y_axis_zoom_lock > 2) y_axis_zoom_lock = 0;
+
+      int sb = y_axis_draw_scrollbar(0);
+
+      if (sb == 1)
       {
-         case 2: autorange_axis(0, 1); break;
-         case 3: autorange_axis(1, 1); break;
+         sprintf(global_string[6][0],"Y Axis Menu");
+         sprintf(global_string[6][1],"---------------");
+         sprintf(global_string[6][2],"Reset Y Axis Range");
+         sprintf(global_string[6][3],"Reset Entire Graph");
+         if (y_axis_zoom_lock == 1) sprintf(global_string[6][4],"Lock Range:ON");
+         else                       sprintf(global_string[6][4],"Lock Range:OFF");
+         if (y_axis_zoom_lock == 2) sprintf(global_string[6][5],"Auto Range:ON");
+         else                       sprintf(global_string[6][5],"Auto Range:OFF");
+         sprintf(global_string[6][6],"end");
 
-         case 4: // lock and unlock
-            if      (y_axis_zoom_lock == 1) y_axis_zoom_lock = 0; // if locked then unlock
-            else if (y_axis_zoom_lock == 0) y_axis_zoom_lock = 1; // if unlocked then lock
-         break;
-
-         case 5: // auto on and off
-            if   (y_axis_zoom_lock == 2) y_axis_zoom_lock = 0; // if auto then unlock
-            else                         y_axis_zoom_lock = 2; // if anything else then set auto
-         break;
-      }
-   }
-
-
-   if (mouse_b[1][0])
-   {
-      double old_y_axis_min = y_axis_min;
-      double old_y_axis_max = y_axis_max;
-      double y_scaler = y_data_rng / y_axis_scrollbar_h;
-      int rmy = mouse_y;
-
-      if (sb == 2) // drag adjust axis mix and max
-      {
-         while (mouse_b[1][0])
+         switch (pmenu(6, 13))
          {
-            double mdy = (mouse_y - rmy) * y_scaler;
-            double new_y_axis_min = old_y_axis_min - mdy;
-            double new_y_axis_max = old_y_axis_max - mdy;
+            case 2: autorange_axis(0, 1); break;
+            case 3: autorange_axis(1, 1); break;
 
-            if (y_axis_zoom_lock)
+            case 4: // lock and unlock
+               if      (y_axis_zoom_lock == 1) y_axis_zoom_lock = 0; // if locked then unlock
+               else if (y_axis_zoom_lock == 0) y_axis_zoom_lock = 1; // if unlocked then lock
+            break;
+
+            case 5: // auto on and off
+               if   (y_axis_zoom_lock == 2) y_axis_zoom_lock = 0; // if auto then unlock
+               else                         y_axis_zoom_lock = 2; // if anything else then set auto
+            break;
+         }
+      }
+
+
+      if (mouse_b[1][0])
+      {
+         double old_y_axis_min = y_axis_min;
+         double old_y_axis_max = y_axis_max;
+         double y_scaler = y_data_rng / y_axis_scrollbar_h;
+         int rmy = mouse_y;
+
+         if (sb == 2) // drag adjust axis mix and max
+         {
+            while (mouse_b[1][0])
             {
-               if (new_y_axis_min < y_data_min) // tried to scroll past edge
+               double mdy = (mouse_y - rmy) * y_scaler;
+               double new_y_axis_min = old_y_axis_min - mdy;
+               double new_y_axis_max = old_y_axis_max - mdy;
+
+               if (y_axis_zoom_lock)
                {
-                  new_y_axis_min = y_data_min;
-                  new_y_axis_max = new_y_axis_min + y_axis_rng;
+                  if (new_y_axis_min < y_data_min) // tried to scroll past edge
+                  {
+                     new_y_axis_min = y_data_min;
+                     new_y_axis_max = new_y_axis_min + y_axis_rng;
+                  }
+                  if (new_y_axis_max > y_data_max) // tried to scroll past edge
+                  {
+                     new_y_axis_max = y_data_max;
+                     new_y_axis_min = new_y_axis_max - y_axis_rng;
+                  }
                }
-               if (new_y_axis_max > y_data_max) // tried to scroll past edge
-               {
-                  new_y_axis_max = y_data_max;
-                  new_y_axis_min = new_y_axis_max - y_axis_rng;
-               }
+               y_axis_min = new_y_axis_min;
+               y_axis_max = new_y_axis_max;
+
+               enforce_axis_limits();
+               draw();
+               y_axis_draw_scrollbar(0);
+               al_flip_display();
+               proc_controllers();
             }
-            y_axis_min = new_y_axis_min;
-            y_axis_max = new_y_axis_max;
-
-            enforce_axis_limits();
-            draw();
-            y_axis_draw_scrollbar(0);
-            al_flip_display();
-            proc_controllers();
          }
-      }
-      if (sb == 6) // drag adjust axis_min
-      {
-         while (mouse_b[1][0])
+         if (sb == 6) // drag adjust axis_min
          {
-            double mdy = (mouse_y - rmy) * y_scaler;
+            while (mouse_b[1][0])
+            {
+               double mdy = (mouse_y - rmy) * y_scaler;
+               y_axis_min = old_y_axis_min - mdy;
+
+               enforce_axis_limits();
+               draw();
+               y_axis_draw_scrollbar(0);
+               al_flip_display();
+               proc_controllers();
+            }
+         }
+         if (sb == 5) // drag adjust axis_min
+         {
+            while (mouse_b[1][0])
+            {
+               double mdy = (mouse_y - rmy) * y_scaler;
+               y_axis_max = old_y_axis_max - mdy;
+
+               enforce_axis_limits();
+               draw();
+               y_axis_draw_scrollbar(0);
+               al_flip_display();
+               proc_controllers();
+            }
+         }
+         if (sb == 4) // set new pos (jump to new pos between data_min and axis_min )
+         {
+            double mdy = (mouse_y - y_axis_scrollbar_bar_y2) * y_scaler;
             y_axis_min = old_y_axis_min - mdy;
-
-            enforce_axis_limits();
-            draw();
-            y_axis_draw_scrollbar(0);
-            al_flip_display();
-            proc_controllers();
-         }
-      }
-      if (sb == 5) // drag adjust axis_min
-      {
-         while (mouse_b[1][0])
-         {
-            double mdy = (mouse_y - rmy) * y_scaler;
             y_axis_max = old_y_axis_max - mdy;
-
             enforce_axis_limits();
-            draw();
-            y_axis_draw_scrollbar(0);
-            al_flip_display();
-            proc_controllers();
          }
-      }
-      if (sb == 4) // set new pos (jump to new pos between data_min and axis_min )
-      {
-         double mdy = (mouse_y - y_axis_scrollbar_bar_y2) * y_scaler;
-         y_axis_min = old_y_axis_min - mdy;
-         y_axis_max = old_y_axis_max - mdy;
-         enforce_axis_limits();
-      }
-      if (sb == 3) // adjust y_axis_max
-      {
-         double mdy = (mouse_y - y_axis_scrollbar_bar_y1) * y_scaler;
-         y_axis_max = old_y_axis_max - mdy;
-         enforce_axis_limits();
+         if (sb == 3) // adjust y_axis_max
+         {
+            double mdy = (mouse_y - y_axis_scrollbar_bar_y1) * y_scaler;
+            y_axis_max = old_y_axis_max - mdy;
+            enforce_axis_limits();
+         }
       }
    }
 }
@@ -1069,8 +1201,32 @@ void mwGraph::y_axis_proc_scrollbar(void)
 
 char* mwGraph::x_axis_get_val_text(double val, int units)
 {
-   if (units) sprintf(msg, "frame:%2.0f", val);
-   else       sprintf(msg, "%2.0f", val);
+   char t1[80] = {0};
+   char t2[80] = {0};
+
+   if (x_axis_type == 1) // time in frames
+   {
+      if (x_axis_divider == 1)
+      {
+         sprintf(t1, "%0.0f", val);
+         sprintf(t2, "frames");
+      }
+      if (x_axis_divider == 40)
+      {
+         sprintf(t1, "%0.0f", val/40);
+         sprintf(t2, "seconds");
+      }
+   }
+   else // generic default
+   {
+      sprintf(t1, "%0.0f", val);
+   }
+
+
+
+
+   if (units) sprintf(msg, "%s %s", t1, t2);
+   else       sprintf(msg, "%s", t1);
    return msg;
 }
 
@@ -1078,6 +1234,11 @@ char* mwGraph::y_axis_get_val_text(double val, int units)
 {
    char t1[80] = {0};
    char t2[80] = {0};
+
+
+//   if (y_axis_type == 1) // bytes per second
+
+
 
    if (val < 1000)
    {
@@ -1097,36 +1258,44 @@ char* mwGraph::y_axis_get_val_text(double val, int units)
 }
 
 
-int mwGraph::find_closest_point_to_mouse(void)
+int mwGraph::find_closest_point_to_mouse(int &sp, int &ip)
 {
    double min_dist = 99;
-   int min_dist_index = -1;
    int first_time = 1;
-   int sx = 0, sy = 0;
+   double sx = 0, sy = 0;
 
-   for (int i=0; i<data_points; i++)
-      if ((data[i][0] >= x_axis_min) && (data[i][0] <= x_axis_max))
-         if (convert_gxy_to_sxy(data[i][0], data[i][1], sx, sy))
-         {
-            double dist = sqrt( pow(mouse_x-sx, 2) + pow(mouse_y- sy, 2) );
-            if (first_time == 1)
-            {
-               min_dist = dist;
-               min_dist_index = i;
-               first_time = 0;
-            }
-            if (dist < min_dist)
-            {
-               min_dist = dist;
-               min_dist_index = i;
-            }
-         }
-   if (min_dist < 10) return min_dist_index;
-   else return -1;
+
+   for (int s=0; s<20; s++)
+      if ((series[s].active) && (series[s].num_data))
+         for (int i=0; i<series[s].num_data; i++)
+            if ((series[s].data[i][0] >= x_axis_min) && (series[s].data[i][0] <= x_axis_max))
+               if (convert_gxy_to_sxy(series[s].data[i][0], series[s].data[i][1], sx, sy))
+               {
+                  double dist = sqrt( pow(mouse_x-sx, 2) + pow(mouse_y- sy, 2) );
+                  if (first_time == 1)
+                  {
+                     min_dist = dist;
+                     ip = i;
+                     sp = s;
+                     first_time = 0;
+                  }
+                  if (dist < min_dist)
+                  {
+                     min_dist = dist;
+                     ip = i;
+                     sp = s;
+                  }
+               }
+   if (min_dist < 10) return 1;
+   else return 0;
 }
 
-void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f)
+void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f, int s)
 {
+   if (s == -1) color = 15;
+   else color = series[s].color;
+
+
    int max_width = 0;
    int height = 0;
    int h2 = 0;
@@ -1151,8 +1320,8 @@ void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALL
 
    al_draw_filled_rectangle(x, y, x+max_width+4, y+height+5, palette_color[0]); // erase old
    al_draw_rectangle(       x, y, x+max_width+4, y+height+5, palette_color[color], 1);
-   al_draw_textf(f, palette_color[color], x+1, y-by+2,    0, "%s", x_axis_get_val_text(mx, 1));
-   al_draw_textf(f, palette_color[color], x+1, y-by+h2+5, 0, "%s", y_axis_get_val_text(my, 1));
+   al_draw_textf(f, palette_color[color], x+2, y-by+2,    0, "%s", x_axis_get_val_text(mx, 1));
+   al_draw_textf(f, palette_color[color], x+2, y-by+h2+5, 0, "%s", y_axis_get_val_text(my, 1));
 }
 
 void mwGraph::process_mouse_on_graph(void)
@@ -1166,21 +1335,22 @@ void mwGraph::process_mouse_on_graph(void)
          float y = 0;
          int col = 15;
 
-         int a = find_closest_point_to_mouse();
-         if (a != -1) // show actual data point if close to mouse
+         int i = 0;
+         int s = 0;
+         if (find_closest_point_to_mouse(s, i)) // show actual data point if close to mouse
          {
-            x = plot_x1 + (data[a][0]-x_axis_min) * plot_w / x_axis_rng;
-            y = plot_y2 - (data[a][1]-y_axis_min) * plot_h / y_axis_rng;
+            x = plot_x1 + (series[s].data[i][0]-x_axis_min) * plot_w / x_axis_rng;
+            y = plot_y2 - (series[s].data[i][1]-y_axis_min) * plot_h / y_axis_rng;
             col = 14;
             al_draw_circle(x, y, 4, palette_color[col], 1);
-            draw_point_data(x, y, data[a][0], data[a][1], col, font);
+            draw_point_data(x, y, series[s].data[i][0], series[s].data[i][1], col, font, s);
          }
          else // show mouse position
          {
             col = 15;
             x = mouse_x;
             y = mouse_y;
-            draw_point_data(x, y, mx1, my1, col, f3);
+            draw_point_data(x, y, mx1, my1, col, f3, -1);
          }
          al_set_clipping_rectangle(plot_x1 * display_transform_double, plot_y1 * display_transform_double, plot_w * display_transform_double, plot_h * display_transform_double);
          al_draw_line(plot_x1, y, plot_x2, y, palette_color[col+64], 0);
@@ -1305,8 +1475,13 @@ void mwGraph::process_mouse_on_graph(void)
 void mwGraph::process_input(void)
 {
    al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+
+   x_axis_get_size_and_arrange_pos();
+   y_axis_get_size_and_arrange_pos();
+
    x_axis_proc_scrollbar();
    y_axis_proc_scrollbar();
+
    process_mouse_on_graph();
 }
 

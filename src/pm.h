@@ -230,7 +230,6 @@ class mwGraph
 
 
    int  title_draw_on;
-   int  title_size;
    int  title_draw_size;
    int  title_draw_y;
    char title_text[1024];
@@ -238,25 +237,34 @@ class mwGraph
    int  title_frame_color;
    void draw_title(int set_size_only);
 
+   void set_title(const char* text, int text_color, int frame_color);
 
-   int x_axis_type;
+   void set_x_axis_legend(const char* text, int font, int text_color, int frame_color);
+   void set_y_axis_legend(const char* text, int font, int text_color, int frame_color);
 
-   double x_axis_divider;
+   void set_x_axis_labels(int type, int font, int tick_size, int color);
+   void set_y_axis_labels(int type, int font, int tick_size, int color);
 
-   int x_axis_draw_size;
+   void set_series(int s, const char* text, int color);
 
-   int x_axis_label_draw_on;
-   int x_axis_label_draw_size;
-   int x_axis_label_tick_size;
-   int x_axis_label_text_size;
 
+
+   int  x_axis_type;
+   int  x_axis_draw_size;
+   int  x_axis_label_draw_on;
+   int  x_axis_label_font;
+   int  x_axis_label_draw_size;
+   int  x_axis_label_tick_size;
+   int  x_axis_label_text_size;
+   int  x_axis_label_color;
    int  x_axis_legend_draw_on;
    int  x_axis_legend_draw_size;
    int  x_axis_legend_font;
    int  x_axis_legend_draw_y;
    char x_axis_legend_text[1024];
-   int  x_axis_legend_color;
-
+   int  x_axis_legend_text_color;
+   int  x_axis_legend_frame_color;
+   double x_axis_divider;
    char x_axis_units_text[80];
 
 
@@ -283,19 +291,27 @@ class mwGraph
    void x_axis_proc_scrollbar(void);
 
 
+
+   int y_axis_type;
    int y_axis_draw_size;
 
    int y_axis_label_draw_on;
+   int y_axis_label_font;
    int y_axis_label_draw_size;
    int y_axis_label_tick_size;
    int y_axis_label_text_size;
+
+   int y_axis_label_color;
 
    int  y_axis_legend_draw_on;
    int  y_axis_legend_draw_size;
    int  y_axis_legend_font;
    int  y_axis_legend_draw_x;
    char y_axis_legend_text[1024];
-   int  y_axis_legend_color;
+   int  y_axis_legend_text_color;
+   int  y_axis_legend_frame_color;
+   double y_axis_divider;
+
 
    int y_axis_scrollbar_draw_on;
    int y_axis_scrollbar_size;
@@ -318,6 +334,18 @@ class mwGraph
    void y_axis_draw_gridlines_and_labels(int set_size_only);
    int  y_axis_draw_scrollbar(int set_size_only);
    void y_axis_proc_scrollbar(void);
+
+
+   struct data_series
+   {
+      double data[10000][2];
+      int num_data;
+      int active;
+      int color;
+      char name[1024];
+   };
+   data_series series[20] = {0};
+
 
 
    double data[10000][2];
@@ -345,7 +373,7 @@ class mwGraph
 
    int  convert_sxy_to_gxy(      int sx, int sy, double &gx, double &gy);
    void convert_sxy_to_gxy_clamp(int sx, int sy, double &gx, double &gy);
-   int  convert_gxy_to_sxy(double gx, double gy, int &sx, int &sy);
+   int  convert_gxy_to_sxy(double gx, double gy, double &sx, double &sy);
 
 
    mwGraph(); // default constructor
@@ -354,13 +382,13 @@ class mwGraph
 
 
    void draw(void);
-   void draw_data(int type, int color);
-   void draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f);
+   void draw_data(int type);
+   void draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f, int s);
 
    void process_input(void);
    void process_mouse_on_graph(void);
 
-   void add_data_point(double x, double y);
+   void add_data_point(int series, double x, double y);
    void calc_data_range(void);
 
    void autorange_axis(int x, int y);
@@ -371,7 +399,7 @@ class mwGraph
    char* x_axis_get_val_text(double val, int units);
    char* y_axis_get_val_text(double val, int units);
 
-   int find_closest_point_to_mouse(void);
+   int find_closest_point_to_mouse(int &s, int &i);
 
 };
 extern mwGraph mG[10];
