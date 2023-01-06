@@ -1858,6 +1858,160 @@ units text
 add divider...
 
 
+----------------------
+
+make labels also able to have font
+start with x..done
+and also reduce space between labels and legend..done
+
+now do y...done...
+
+
+it gets kind of messy at the origin when I draw labels there that conflict with the auto ones...and the x and y sometimes confict too...
+
+remove x, keep y.. actually fixed origin still conficts with auto...remove (comment out) both for now...
+
+
+
+
+
+
+
+
+I am happy with this
+
+
+should I try it on some real data??
+
+what would happen if I tried more data? like a real bandwidth graph...
+
+
+what if I made the array larger, to include more players
+
+
+or I could put them all in the main array but tag them with different series...
+
+or I could make an entirely new graph and overlay the data...
+
+all these things I am thinking of would have a common x axis...
+
+should I try to put everything in one array and tag it by series?
+or should I have multiple arrays?
+
+with any method, I need to make sure the data is in order
+
+
+
+how about a three dimensional array
+
+point[series][x][y]
+
+
+I want an int for series and doubles for the other two..
+
+looks like a structure
+
+max needed would be 16 if I do 8tx and 8rx
+
+
+
+each instance of my class will get this:
+
+
+struct data_seri
+{
+   double data[10000][2];
+   int num_data;
+   int active;
+   int color;
+   char name[1024];
+};
+data_seri series[20] = {0};
+
+use like this:
+series[0].data[i][0]
+
+wow! that was surpisingly easy to get 8 tx rate lines...
+
+next I need a series legend and the ability to toggle series on and off while the graph is running...
+
+I want to be able to have many other things shown as well...
+
+
+when setting unlocked, make sure to set autrange off also...
+
+I want to make a nice gui setup for changing things....
+
+like a page of toggles and checkmarks...
+
+maybe some sliders and buttons too..
+
+show legend like:
+
+series number - series name - show the color and line style - click to toggle
+
+bug--scrollbar does not like negative data
+
+removed clear screen from calling loop, handle it internally
+
+I am calling axis_get_size_and_arrange_pos() externally every loop, do I need to?..yes
+so call it internally then...
+from draw, or proc input?  proc input...
+
+now I only call 3 things externally and one is only in case the user resized the screen...
+
+mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H/2-10);
+mG[0].draw();
+mG[0].process_input();
+
+now back to showing legend for multiple series.......
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

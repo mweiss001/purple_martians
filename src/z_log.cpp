@@ -1265,26 +1265,6 @@ void redraw_log_bandwidth_graph(int num_data, int data[][4], int graph_w, int gr
 
 void log_bandwidth_graph(int asgdj)
 {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    FILE *filepntr;
    char buff[200];
    int num_lines=0;
@@ -1344,8 +1324,6 @@ void log_bandwidth_graph(int asgdj)
       char tll[200]; // temp log line
       sprintf(tll, "%s", log_lines[i]);
 
-
-
       char res[80];
 
       // get first tag - type
@@ -1363,121 +1341,102 @@ void log_bandwidth_graph(int asgdj)
       int fn = atoi(res);
 
 
-      if ((type == 23) && (p == 0))
+      if (type == 23) // tx rate
       {
-         //printf("tll: %s", tll);
-
-         // get 4th - tx
          get_tag_text(tll, res);
          int tx = atoi(res);
+         mG[0].add_data_point(p, (double) fn, (double) tx);
+      }
 
-          mG[0].add_data_point((double) fn, (double) tx);
-    //     printf("added data %d %d %d \n", mG[0].data_points, fn, tx);
+      if (type == 30) // stak
+      {
+         get_tag_text(tll, res);
+         //int sync = atoi(res);
 
+         get_tag_text(tll, res);
+         float dsync = atof(res);
+
+         mG[1].add_data_point(p, (double) fn, dsync);
       }
 
    }
 
+   mG[0].set_series(0, "p0", 7);
+   mG[0].set_series(1, "p1", 8);
+   mG[0].set_series(2, "p2", 9);
+   mG[0].set_series(3, "p3", 10);
+   mG[0].set_series(4, "p4", 11);
+   mG[0].set_series(5, "p5", 12);
+   mG[0].set_series(6, "p6", 13);
+   mG[0].set_series(7, "p7", 14);
 
 
-
-
-   al_set_target_backbuffer(display);
-
-   mG[0].set_graph_pos(200, 200, 800, 800);
-
-      //   int bwx = (float) SCREEN_W * 0.05;
-//   int bwy = (float) SCREEN_H * 0.05;
-//   mG[0].set_graph_pos(bwx*4, bwy, SCREEN_W-bwx, SCREEN_H-bwy*4);
-
-   mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
+   mG[1].set_series(0, "p0", 7);
+   mG[1].set_series(1, "p1", 8);
+   mG[1].set_series(2, "p2", 9);
+   mG[1].set_series(3, "p3", 10);
+   mG[1].set_series(4, "p4", 11);
+   mG[1].set_series(5, "p5", 12);
+   mG[1].set_series(6, "p6", 13);
+   mG[1].set_series(7, "p7", 14);
 
 
    mG[0].calc_data_range();
    mG[0].autorange_axis(1, 1);
-   mG[0].y_axis_zoom_lock = 0;
 
-
-
-
-   mG[0].title_draw_on = 1;
-   mG[0].title_size = 20;
-   sprintf(mG[0].title_text, "Test Data");
-   mG[0].title_text_color = 10;
-   mG[0].title_frame_color = 15;
-
-
-   mG[0].x_axis_type = 1;
-
-
-   mG[0].x_axis_label_draw_on = 1;
-   mG[0].x_axis_label_tick_size = 4;
-
-
-   mG[0].x_axis_legend_draw_on = 1;
-   sprintf(mG[0].x_axis_legend_text, "Time (frames)");
-   mG[0].x_axis_legend_color = 15;
-   mG[0].x_axis_legend_font = 0;
+   mG[0].set_title("Transmit Rate", 14, 15);                // text, text_color, frame_color
+   mG[0].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
+   mG[0].set_y_axis_legend("Transmit (kBps)", 0, 14, 0);    // text, font, text_color, frame_color
+   mG[0].set_x_axis_labels(1, 1, 2, 13);                    // type, font, tick_size, color
+   mG[0].set_y_axis_labels(1, 1, 2, 14);                    // type, font, tick_size, color
 
    mG[0].x_axis_scrollbar_draw_on = 1;
-   mG[0].x_axis_scrollbar_size = 12;
-
-
-   mG[0].y_axis_label_draw_on = 1;
-   mG[0].y_axis_label_tick_size = 4;
-
-   mG[0].y_axis_legend_draw_on = 1;
-   sprintf(mG[0].y_axis_legend_text, "Transmit (kBps)");
-   mG[0].y_axis_legend_color = 14;
-   mG[0].y_axis_legend_font = 1;
-
+   mG[0].x_axis_scrollbar_size = 10;
    mG[0].y_axis_scrollbar_draw_on = 1;
-   mG[0].y_axis_scrollbar_size = 12;
+   mG[0].y_axis_scrollbar_size = 10;
 
 
 
+   mG[1].calc_data_range();
+   mG[1].autorange_axis(1, 1);
 
+   mG[1].set_title("Client dsync", 13, 15);                 // text, text_color, frame_color
+   mG[1].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
+   mG[1].set_y_axis_legend("dsync (ms)", 0, 14, 0);         // text, font, text_color, frame_color
+   mG[1].set_x_axis_labels(1, 1, 2, 13);                    // type, font, tick_size, color
+   mG[1].set_y_axis_labels(0, 1, 2, 14);                    // type, font, tick_size, color
 
+   mG[1].x_axis_scrollbar_draw_on = 1;
+   mG[1].x_axis_scrollbar_size = 10;
 
-
-   mG[0].x_axis_get_size_and_arrange_pos();
-   mG[0].y_axis_get_size_and_arrange_pos();
-
-
-
-
+   mG[1].y_axis_scrollbar_draw_on = 1;
+   mG[1].y_axis_scrollbar_size = 10;
 
 
 
 
    int quit = 0;
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0, 0, 0));
+   al_flip_display();
    al_show_mouse_cursor(display);
    while (!quit)
    {
-      al_clear_to_color(al_map_rgb(0, 0, 0));
+//      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
 
-
-      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
-
-      mG[0].x_axis_get_size_and_arrange_pos();
-      mG[0].y_axis_get_size_and_arrange_pos();
+      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H/2-10);
+      mG[1].set_graph_pos(0,SCREEN_H/2+10, SCREEN_W, SCREEN_H);
 
       mG[0].draw();
       mG[0].process_input();
+
+      mG[1].draw();
+      mG[1].process_input();
 
       al_flip_display();
       proc_controllers();
       if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
-
-
-
-
-
-
-
-
-
 
 
 }
