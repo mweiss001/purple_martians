@@ -3,6 +3,360 @@
 
 
 
+
+
+
+
+
+
+
+
+
+// returns 1 if end adjust...
+int check_and_draw(double x1, double y1, double x2, double y2, double xa, double ya, double xb, double yb, double line_xinc, double line_yinc, int col, float thickness, int &segments_drawn, int &lco)
+{
+   int skip = 0;
+   int start_adj = 0;
+   int end_adj = 0;
+
+   // these checks mean that the segment is entirely not on the line
+   if (((line_xinc > 0) && (xb < x1)) || ((line_xinc < 0) && (xb > x1))) skip = 1; // xb before line start
+   if (((line_xinc > 0) && (xa > x2)) || ((line_xinc < 0) && (xa < x2))) skip = 2; // xa after line end
+   if (((line_yinc > 0) && (yb < y1)) || ((line_yinc < 0) && (yb > y1))) skip = 1; // yb before line start
+   if (((line_yinc > 0) && (ya > y2)) || ((line_yinc < 0) && (ya < y2))) skip = 2; // ya after line end
+
+   if (!skip)
+   {
+      if (((line_xinc > 0) && (xa < x1)) || ((line_xinc < 0) && (xa > x1))) start_adj = 1; // xa is before line start
+      if (((line_yinc > 0) && (ya < y1)) || ((line_yinc < 0) && (ya > y1))) start_adj = 1; // ya is before line start
+
+      if (((line_xinc > 0) && (xb > x2)) || ((line_xinc < 0) && (xb < x2))) end_adj = 1; // xb is after line end
+      if (((line_yinc > 0) && (yb > y2)) || ((line_yinc < 0) && (yb < y2))) end_adj = 1; // yb is after line end
+
+
+
+
+      if (start_adj)
+      {
+         // printf("start_adj\n");
+         xa = x1;
+         ya = y1;
+      }
+      if (end_adj)
+      {
+         // printf("end_adj\n");
+         int xlo = abs(x2-xb);
+         int ylo = abs(y2-yb);
+
+         if (xlo>ylo) lco = xlo;
+         else         lco = ylo;
+
+         xb = x2;
+         yb = y2;
+
+
+      }
+
+      al_draw_line(xa, ya, xb, yb, palette_color[col], thickness);
+      segments_drawn++;
+   }
+   //else printf("skip\n");
+
+ //  if (skip == 2) end_adj = 1;
+
+   return end_adj;
+}
+
+
+
+int mw_draw_line(double x1, double y1, double x2, double y2, float thickness, int c0_val, int c0_col, int c1_val, int c1_col, int c2_val, int c2_col, int line_color_offset)
+{
+  // printf("mw_dl x1:%f y1:%f x2:%f y2:%f\n", x1, y1, x2, y2);
+
+
+   int done = 0;
+
+   int segments_drawn = 0;
+
+//  if (1) al_draw_line(x1, y1, x2, y2, palette_color[c0_col], thickness);
+  if (c1_col == 0) al_draw_line(x1, y1, x2, y2, palette_color[c0_col], thickness);
+  else
+   {
+      int color_span = c0_val + c1_val + c2_val;
+
+      int lco = 0;
+
+//      static int line_color_offset = 0; // in pixels, from 0 to color_span
+
+
+//      printf("test 3  %d\n", i);
+
+
+    //   printf("\nlco:%d\n", line_color_offset);
+
+      double line_xspan = x2-x1;
+      double line_yspan = y2-y1;
+
+
+
+
+      double line_span = sqrt(pow(line_xspan, 2) + pow(line_yspan, 2));
+
+      if (line_span != 0)
+      {
+
+
+
+       //  printf("lxs:%f lys:%f  ls:%f\n", line_xspan, line_yspan, line_span);
+
+
+
+         // one unit of these are one unit of vector move
+         double line_xinc = line_xspan / line_span;
+         double line_yinc = line_yspan / line_span;
+
+         int section = 0;
+
+         while (!done)
+         {
+            // draw first segment
+            double xa = x1 + ((section * color_span) - line_color_offset) * line_xinc; // start position for drawing
+            double ya = y1 + ((section * color_span) - line_color_offset) * line_yinc;
+            double xb = xa + c0_val * line_xinc;
+            double yb = ya + c0_val * line_yinc;
+
+         //   printf("1st segment xa:%f ya:%f xb:%f yb:%f\n", xa, ya, xb, yb);
+            if (check_and_draw(x1, y1, x2, y2, xa, ya, xb, yb, line_xinc, line_yinc, c0_col, thickness, segments_drawn, lco))
+            {
+                done = 1;
+                line_color_offset = color_span - c1_val - c0_val - lco;
+            }
+            if (!done)
+            {
+               // draw second segment
+               xa = x1 + ((section * color_span) - line_color_offset + c0_val) * line_xinc; // start position for drawing
+               ya = y1 + ((section * color_span) - line_color_offset + c0_val) * line_yinc; // start position for drawing
+               xb = xa + (c1_val) * line_xinc;
+               yb = ya + (c1_val) * line_yinc;
+           //    printf("2nd segment xa:%f ya:%f xb:%f yb:%f\n", xa, ya, xb, yb);
+               if (check_and_draw(x1, y1, x2, y2, xa, ya, xb, yb, line_xinc, line_yinc, c1_col, thickness, segments_drawn, lco))
+               {
+                  done = 1;
+                  line_color_offset = color_span - c1_val - lco;
+
+               }
+               if (!done)
+               {
+                  // draw third segment
+                  xa = x1 + ((section * color_span) - line_color_offset + c0_val + c1_val) * line_xinc; // start position for drawing
+                  ya = y1 + ((section * color_span) - line_color_offset + c0_val + c1_val) * line_yinc; // start position for drawing
+                  xb = xa + (c2_val) * line_xinc;
+                  yb = ya + (c2_val) * line_yinc;
+                  // printf("3rd segment xa:%f ya:%f xb:%f yb:%f\n", xa, ya, xb, yb);
+                  if (check_and_draw(x1, y1, x2, y2, xa, ya, xb, yb, line_xinc, line_yinc, c2_col, thickness, segments_drawn, lco))
+                  {
+                     done = 1;
+                     line_color_offset = color_span - lco;
+
+                  }
+               }
+            }
+
+            section++;
+
+
+         }
+
+      }
+   }
+   return segments_drawn;
+}
+
+
+
+
+
+//      else
+//      {
+//         if (((line_xinc > 0) && (xa < x1)) || ((line_xinc < 0) && (xa > x1))) // start is before line start
+//         {
+//            al_draw_line(xa, ya, xb, yb, palette_color[c0_col], thickness);
+//            segments_drawn++;
+//
+//
+//
+//      }
+//
+//      if ((line_xinc > 0) && (xa < x1))
+//
+//
+//
+//
+//
+//
+//
+//      static double remainder = 0;
+//
+//      if (remainder > 1) remainder = 0;
+//
+//
+//      int color_span = c0_val + c1_val + c2_val;
+//      double line_xspan = x2-x1;
+//      double line_yspan = y2-y1;
+//      double line_span = sqrt(pow(line_xspan, 2) + pow(line_yspan, 2));
+//
+//      double c0_div  = line_span  / color_span; // ratio of line length to full color cycle
+//      double c0_xinc = line_xspan / c0_div;
+//      double c0_yinc = line_yspan / c0_div;
+//
+//      double c1_div  = line_span  / c0_val; // ratio of line length to c0 color cycle length
+//      double c1_xinc = line_xspan / c1_div;
+//      double c1_yinc = line_yspan / c1_div;
+//
+//      double c2_div  = line_span  / c1_val; // ratio of line length to c1 color cycle length
+//      double c2_xinc = line_xspan / c2_div;
+//      double c2_yinc = line_yspan / c2_div;
+//
+//      double c3_div  = line_span  / c2_val; // ratio of line length to c3 color cycle length
+//      double c3_xinc = line_xspan / c3_div;
+//      double c3_yinc = line_yspan / c3_div;
+//
+//      //printf("xa:%d ya:%d xb:%d yb:%d\n", xa, ya, xb, yb);
+//
+//      int div_cnt = 0;
+//      while (div_cnt < c0_div+1)
+//      {
+//         int reached_end = 0;
+//         double remx = 0;
+//         double remy = 0;
+//
+//
+//
+//         // first segment
+//         double xa = x1 + c0_xinc * div_cnt - remainder*c0_xinc;
+//         double ya = y1 + c0_yinc * div_cnt - remainder*c0_yinc;
+//         double xb = xa + c1_xinc;
+//         double yb = ya + c1_yinc;
+//
+////         if (((c1_xinc > 0) && (xb > x2)) || ((c1_xinc < 0) && (xb < x2)) || ((c1_yinc > 0) && (yb > y2)) || ((c1_yinc < 0) && (yb < y2)))
+//
+//
+//
+//         if ((c1_xinc > 0) && (xb > x2))  { remx = xb-x2; reached_end = 1; }
+//         if ((c1_xinc < 0) && (xb < x2))  { remx = x2-xb; reached_end = 1; }
+//         if ((c1_yinc > 0) && (yb > y2))  { remy = yb-y2; reached_end = 1; }
+//         if ((c1_yinc < 0) && (yb < y2))  { remy = y2-yb; reached_end = 1; }
+//
+//         if (reached_end)
+//         {
+//            al_draw_line(xa, ya, x2, y2, palette_color[c0_col], thickness); // reached the end
+//            segments_drawn++;
+//         }
+//         else
+//         {
+//            al_draw_line(xa, ya, xb, yb, palette_color[c0_col], thickness);
+//            segments_drawn++;
+//
+//
+//
+//            // second segment
+//            xa =  xb;
+//            ya =  yb;
+//            xb += c2_xinc;
+//            yb += c2_yinc;
+//
+//
+//            if ((c1_xinc > 0) && (xb > x2))  { remx = xb-x2; reached_end = 1; }
+//            if ((c1_xinc < 0) && (xb < x2))  { remx = x2-xb; reached_end = 1; }
+//            if ((c1_yinc > 0) && (yb > y2))  { remy = yb-y2; reached_end = 1; }
+//            if ((c1_yinc < 0) && (yb < y2))  { remy = y2-yb; reached_end = 1; }
+//
+//
+//            if (reached_end)
+//            {
+//               al_draw_line(xa, ya, x2, y2, palette_color[c1_col], thickness); // reached the end
+//               segments_drawn++;
+//            }
+//            else
+//            {
+//               al_draw_line(xa, ya, xb, yb, palette_color[c1_col], thickness);
+//               segments_drawn++;
+//
+//
+//               // third segment
+//               xa =  xb;
+//               ya =  yb;
+//               xb += c3_xinc;
+//               yb += c3_yinc;
+//
+//
+////               if (((c1_xinc > 0) && (xb > x2)) || ((c1_xinc < 0) && (xb < x2)) || ((c1_yinc > 0) && (yb > y2)) || ((c1_yinc < 0) && (yb < y2)))
+//
+//               if ((c1_xinc > 0) && (xb > x2))  { remx = xb-x2; reached_end = 1; }
+//               if ((c1_xinc < 0) && (xb < x2))  { remx = x2-xb; reached_end = 1; }
+//               if ((c1_yinc > 0) && (yb > y2))  { remy = yb-y2; reached_end = 1; }
+//               if ((c1_yinc < 0) && (yb < y2))  { remy = y2-yb; reached_end = 1; }
+//
+//               if (reached_end)
+//               {
+//                  al_draw_line(xa, ya, x2, y2, palette_color[c2_col], thickness); // reached the end
+//                  segments_drawn++;
+//               }
+//               else
+//               {
+//                  al_draw_line(xa, ya, xb, yb, palette_color[c2_col], thickness);
+//                  segments_drawn++;
+//               }
+//            }
+//         }
+//         div_cnt++;
+//
+//         if (reached_end)
+//         {
+//
+//
+//
+////            if (remx )
+////
+////
+////            remainder = rem / c0_xinc;
+////
+//           if (remx > remy) remainder = abs(remx / c0_xinc);
+//           else             remainder = abs(remy / c0_yinc);
+//
+//
+//
+//            printf("remx:%f c0_xinc:%f  remy:%f c0_yinc:%f remainder:%f\n", remx, c0_xinc, remy, c0_yinc, remainder);
+//
+//
+//
+//         }
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//      }
+//   }
+//   return segments_drawn;
+//}
+//
+
+
+
+
+
+
+
+
+
+
+
+
 int round20(int val) // pass it an int and it will round it to the nearest 20
 {
    int m = val%20;
