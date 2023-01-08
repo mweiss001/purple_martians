@@ -1968,6 +1968,561 @@ now back to showing legend for multiple series.......
 
 
 
+figure out how to draw dashed line...
+
+https://www.allegro.cc/forums/thread/615463
+https://www.allegro.cc/forums/thread/615415
+
+
+
+It looks like I can only do al_draw_soft_line on a bitmap, drawing directly to the backbuffer has weird results
+
+so lets try to figure out hpw to do that...
+
+
+make a bitmap the same size as graph
+
+now make all my draw stuff draw on that, but all coordinates will need to be adjust to 0,0 for graph_x and y
+
+there were surprisingly few references to those..mostly in adjust x amd y axis...
+
+now that I am drawing onto a bitmap instead of the backbuffer, the drawing looks a lot blockier...yay! :(
+text looks fine, but the high level primitives (lines) suck...
+
+the gridlines are terriblly blocky and missing in places...
+
+what a goddamn hassle to try to draw dashed lines
+
+there is no godamn reason for it...
+
+
+
+how hard would it be to revert now?
+and either:
+- only draw the plot lines on its own bitmap, or
+- figure out how to use soft lines with backbuffer
+
+reverted...
+
+try to figure out how to use soft lines with backbuffer
+
+- does soft line return x and y that make sense?? yes...
+
+
+if I store all the x and y in an array then draw them outside the function that seems to work...go fig...
+
+
+
+
+
+now how im I going to implement this?
+
+ideally I would like to call something very similar to draw_line
+
+al_draw_line(100, 110, 200, 110, palette_color[15], 1);
+mw_draw_line(100, 110, 200, 110, col1, col2);
+
+
+here it is:
+
+int mw_p[10000][2] = {0};
+int mw_i = 0;
+
+void mw_FirstFunction(uintptr_t state, int x, int y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2) {}
+void mw_StepFunction(uintptr_t state, int step) {}
+
+void mw_DrawFunction(uintptr_t state, int x, int y)
+{
+   if (mw_i < 10000)
+   {
+      mw_p[mw_i][0] = x;
+      mw_p[mw_i][1] = y;
+      mw_i++;
+   }
+}
+
+void mw_draw_line(int x1, int y1, int x2, int y2, int c1, int c2)
+{
+   ALLEGRO_VERTEX v1;
+   ALLEGRO_VERTEX v2;
+   v1.x = x1; v1.y = y1; v1.z = 0;
+   v2.x = x2; v2.y = y2; v2.z = 0;
+
+   mw_i = 0;
+   al_draw_soft_line(&v1, &v2, (uintptr_t)NULL , mw_FirstFunction , mw_StepFunction , mw_DrawFunction);
+
+   int cycle = 0;
+   for (int i=0; i<mw_i; i++)
+   {
+      int x = mw_p[i][0];
+      int y = mw_p[i][1];
+
+      int c = c1;
+      if ((cycle % 8) < 4) c = c2;
+      cycle++;
+
+//      al_draw_filled_circle(x, y, 1, palette_color[c]);
+      al_draw_filled_rectangle(x-0.5, y-0.5, x+0.5, y+0.5, palette_color[c]);
+
+//   printf("x:%d y:%d  cycle:%d  dtd:%d\n", x, y, cycle, display_transform_double);
+      //al_put_pixel(p[i][0], p[i][1], palette_color[p[i][2]]);
+   }
+}
+
+
+I am thinking about doing it slightly different...
+
+make my array contain only line segements of the same color
+
+then use the regular al_draw_line to draw those segments...
+
+then I would have less draw calls, and I could use the thickness of lines
+
+
+values to send to draw:
+cycle total
+cycle 0 col (default color)
+
+// cycle & total < val color = c1
+cycle 1 val
+cycle 1 col
+
+8, 15, 4, 10
+
+then when drawing, draw 1 to 0, 2 to 1...etc...
+
+I have it all implemented except for the thinning of call to al_draw_line
+it would make it more complicated and im not sure it is needed...
+
+not that complicated
+
+now I need to ensure the last point is not skipped...
+
+
+int mw_p[10000][3] = {0};
+struct mw_state
+{
+   int num_points;
+   int cycle_total;
+   int cycle_tally;
+   int default_color;
+   int c1_val;
+   int c1_col;
+   int c2_val;
+   int c2_col;
+};
+
+void mw_FirstFunction(uintptr_t state, int x, int y, ALLEGRO_VERTEX* v1, ALLEGRO_VERTEX* v2) {}
+void mw_StepFunction(uintptr_t state, int step) {}
+
+void mw_DrawFunction(uintptr_t ms1, int x, int y)
+{
+   struct mw_state* ms = (struct mw_state*) ms1;
+   if (ms->num_points < 10000)
+   {
+      // get color from cycle
+      int col = ms->default_color;
+      int mod = ms->cycle_tally++ % ms->cycle_total;
+      if (mod < ms->c1_val) col = ms->c1_col;
+      if (mod < ms->c2_val) col = ms->c2_col;
+
+      // always set these, in case we get to the end and the point is skipped beacuse of duplicate colors
+      mw_p[ms->num_points][0] = x;
+      mw_p[ms->num_points][1] = y;
+
+      // should i add this point?
+      if ((ms->num_points == 0) || (col != mw_p[ms->num_points-1][2])) // if first point, or color different from previous
+      {
+         mw_p[ms->num_points][2] = col;
+         ms->num_points++;
+      }
+   }
+}
+
+void mw_draw_line(int x1, int y1, int x2, int y2, float thickness, int cycle_total, int default_color, int c1_val, int c1_col, int c2_val, int c2_col)
+{
+   ALLEGRO_VERTEX v1;
+   ALLEGRO_VERTEX v2;
+   v1.x = x1; v1.y = y1; v1.z = 0;
+   v2.x = x2; v2.y = y2; v2.z = 0;
+
+   struct mw_state ms;
+   ms.num_points = 0;
+   ms.cycle_total = cycle_total;
+   ms.default_color = default_color;
+   ms.c1_val = c1_val;
+   ms.c1_col = c1_col;
+   ms.c2_val = c2_val;
+   ms.c2_col = c2_col;
+
+   al_draw_soft_line(&v1, &v2, (uintptr_t)&ms, mw_FirstFunction, mw_StepFunction, mw_DrawFunction);
+
+   // ensure last point was not skipped, due to duplicate color
+   mw_p[ms.num_points][2] = mw_p[ms.num_points-1][2];
+   ms.num_points++;
+
+
+   for (int i=1; i<ms.num_points; i++)
+   {
+      int x1 = mw_p[i-1][0];
+      int y1 = mw_p[i-1][1];
+      int x2 = mw_p[i][0];
+      int y2 = mw_p[i][1];
+      int c =  mw_p[i][2];
+      al_draw_line(x1, y1, x2, y2, palette_color[c], thickness);
+      //printf("x:%d y:%d  cycle:%d  dtd:%d\n", x, y, cycle, display_transform_double);
+   }
+}
+
+that was the final iteration...now try it in action!!
+
+see how long it takes...
+it is literally 1000 times slower....
+
+plot time: 0.000210   lines drawn:152
+plot time: 0.227604   lines drawn:156
+
+I commented out the drawing part...
+its not the drawing part, its the call to soft line...
+
+this is useless, but at least now I know it
+
+I just wasted 6 hours on this...
+
+can I make my own code that will do it better?
+
+
+pass it 2 vertexes
+and a span like this:
+
+   int c0_len;
+   int c1_col;
+   int c1_len;
+   int c1_col;
+
+it will create an array of points
+
+point 0 = vertex 1
+next point
+
+what math will you use?
+
+total x span
+total y span
+total length
+
+length of span / color_span = divider
+
+divide xspan and yspan by divider to get incs
+
+do incs and add vertex points...
+
+this is my first hacked together implementaion and it works...
+before I go any further, speed test it....
+
+
+void mw_draw_line2(int x1, int y1, int x2, int y2, float thickness)
+{
+   int color_span = 10;
+
+   double line_xspan = x2-x1;
+   double line_yspan = y2-y1;
+   double line_span = sqrt(pow(line_xspan, 2) + pow(line_yspan, 2));
+
+   double div = line_span / color_span; // number of spans
+
+   double xinc = line_xspan / div;
+   double yinc = line_yspan / div;
+
+   int xa = x1;
+   int ya = y1;
+
+   int xb = xa+xinc;
+   int yb = ya+yinc;
+
+
+   int c = 15;
+
+   while (xa < x2)
+   {
+      al_draw_line(xa, ya, xb, yb, palette_color[c], thickness);
+      if (c == 15) c = 10;
+      else if (c == 10) c = 15;
+      xa+=xinc;
+      ya+=yinc;
+      xb+=xinc;
+      yb+=yinc;
+   }
+}
+
+
+plot time: 0.000283   lines drawn:156
+
+
+I'm back baby! as proof of concept it works and is just as fast as the al_draw_line...
+
+now clean it up....
+
+what if I kept the remainder of the color shift for the next line, that would make the graph look awesome...
+
+I could keep a static int 'distance travelled' and use mod for the cycling repeats
+
+3 colors, just like last one
+
+this will mean a major rewrite of how I do the getting of lines..
+
+it is so simple now because the span is always the same
+
+8 red
+3 blue
+4 yellow
+
+
+get inc from main period (14)
+get inc from main to 2   (3)
+get inc from 2 to 3      (4)
+
+distance_travelled
+
+start with the args...
+ int c0_val, int c0_col, int c1_val, int c1_col, int c2_val, int c2_col))
+
+I have a beautiful three color version working, but no carry over for color shift
+
+plot time: 0.000990   lines drawn:156
+plot time: 0.000983   lines drawn:156
+plot time: 0.000986   lines drawn:156
+
+now it takes almost 1ms...should I be worried?
+
+it depends on how small the color line segments are
+
+
+now how will i make this work in the plot? how will I keep track of color?
+
+negative values for color?
+
+2 values for color?
+
+if second one is 0 just draw normally
+
+
+
+
+
+
+if (series[s].color2 == 0) al_draw_line(ox, oy, x, y, palette_color[series[s].color1], 1.0);
+else                       mw_draw_line(ox, oy, x, y, 1.0, 8, series[s].color1, 10, series[s].color2, 0, 0);
+
+wait how??
+
+
+
+I think I do want to implement the color shift across lines...when lines are too short, sometimes they dont show at all...
+
+
+when I zoom in and get more color segments it really slows down...
+
+do all lines draw every time? yes
+
+try thinning....
+
+did the test for x_axis min...works but i want to draw a line to the first offscreen data points
+
+mak a function to get that....
+
+get lowest x and highet x index on screen...
+for each series
+cycle the dat
+
+that is done...
+
+can I make a way to adjust the color shift span based on size?
+I also could make the color shift carry over...
+
+add clicking on series legend....
+put series legend in y axis lineup...??
+what order? can I assume...
+
+now I want to try the color shift carry over
+
+
+remainder as a fraction of position in the total color cycle...
+
+maybe there is an easier way...
+
+
+startxy endxy
+
+get a unit for 1 pixel diagonally converted to x and y
+
+then I can pick any spot on the line and do x,y
+
+then start drawing the line sequence before the actual line
+
+seg1
+get ab_positin
+static double line_color_offset = 0;
+find un
+
+
+I have finally done it, after much, much work....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

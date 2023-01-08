@@ -1361,24 +1361,26 @@ void log_bandwidth_graph(int asgdj)
 
    }
 
-   mG[0].set_series(0, "p0", 7);
-   mG[0].set_series(1, "p1", 8);
-   mG[0].set_series(2, "p2", 9);
-   mG[0].set_series(3, "p3", 10);
-   mG[0].set_series(4, "p4", 11);
-   mG[0].set_series(5, "p5", 12);
-   mG[0].set_series(6, "p6", 13);
-   mG[0].set_series(7, "p7", 14);
+   int sc = 15;
+
+   mG[0].set_series(0, "p0", 7, sc);
+   mG[0].set_series(1, "p1", 8, sc);
+   mG[0].set_series(2, "p2", 9, sc);
+   mG[0].set_series(3, "p3", 10, sc);
+   mG[0].set_series(4, "p4", 11, sc);
+   mG[0].set_series(5, "p5", 12, sc);
+   mG[0].set_series(6, "p6", 13, sc);
+   mG[0].set_series(7, "p7", 14, sc);
 
 
-   mG[1].set_series(0, "p0", 7);
-   mG[1].set_series(1, "p1", 8);
-   mG[1].set_series(2, "p2", 9);
-   mG[1].set_series(3, "p3", 10);
-   mG[1].set_series(4, "p4", 11);
-   mG[1].set_series(5, "p5", 12);
-   mG[1].set_series(6, "p6", 13);
-   mG[1].set_series(7, "p7", 14);
+   mG[1].set_series(0, "p0", 7, 0);
+   mG[1].set_series(1, "p1", 8, sc);
+   mG[1].set_series(2, "p2", 9, sc);
+   mG[1].set_series(3, "p3", 10, sc);
+   mG[1].set_series(4, "p4", 11, sc);
+   mG[1].set_series(5, "p5", 12, sc);
+   mG[1].set_series(6, "p6", 13, sc);
+   mG[1].set_series(7, "p7", 14, sc);
 
 
    mG[0].calc_data_range();
@@ -1422,16 +1424,26 @@ void log_bandwidth_graph(int asgdj)
    al_show_mouse_cursor(display);
    while (!quit)
    {
-//      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
+      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
 
-      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H/2-10);
-      mG[1].set_graph_pos(0,SCREEN_H/2+10, SCREEN_W, SCREEN_H);
+
+      al_set_target_backbuffer(display);
+
+
+//      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H/2-10);
+//      mG[1].set_graph_pos(0,SCREEN_H/2+10, SCREEN_W, SCREEN_H);
+
+      al_clear_to_color(al_map_rgb(0, 0, 0));
 
       mG[0].draw();
       mG[0].process_input();
 
-      mG[1].draw();
-      mG[1].process_input();
+
+//      mG[1].draw();
+//      mG[1].process_input();
+
+      al_set_target_backbuffer(display);
+
 
       al_flip_display();
       proc_controllers();

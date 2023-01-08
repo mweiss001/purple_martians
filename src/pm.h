@@ -210,9 +210,21 @@ extern mWindow mW[NUM_MW];
 #define PM_ITEM_PMSG_FRAME12       0b00000000010000000
 
 
+
+
+
+
+
+
+
+
+
+
 class mwGraph
 {
    public:
+
+   ALLEGRO_BITMAP* graph;
 
    int graph_x1;
    int graph_y1;
@@ -237,6 +249,18 @@ class mwGraph
    int  title_frame_color;
    void draw_title(int set_size_only);
 
+   void draw_series_legend(void);
+
+   int series_legend_draw_on;
+   int series_legend_x1;
+   int series_legend_x2;
+   int series_legend_w;
+   int series_legend_y1;
+   int series_legend_y2;
+
+
+
+
    void set_title(const char* text, int text_color, int frame_color);
 
    void set_x_axis_legend(const char* text, int font, int text_color, int frame_color);
@@ -245,7 +269,7 @@ class mwGraph
    void set_x_axis_labels(int type, int font, int tick_size, int color);
    void set_y_axis_labels(int type, int font, int tick_size, int color);
 
-   void set_series(int s, const char* text, int color);
+   void set_series(int s, const char* text, int color1, int color2);
 
 
 
@@ -341,15 +365,17 @@ class mwGraph
       double data[10000][2];
       int num_data;
       int active;
-      int color;
+      int color1;
+      int color2;
       char name[1024];
+      int min_visible_index;
+      int max_visible_index;
    };
    data_series series[20] = {0};
 
+   int line_color_offset;
 
-
-   double data[10000][2];
-   int data_points;
+   void set_series_min_and_max_visible_indexes(int s);
 
    // min, max, and range for entire set of data
    double x_data_min;
@@ -372,7 +398,6 @@ class mwGraph
 
 
    int  convert_sxy_to_gxy(      int sx, int sy, double &gx, double &gy);
-   void convert_sxy_to_gxy_clamp(int sx, int sy, double &gx, double &gy);
    int  convert_gxy_to_sxy(double gx, double gy, double &sx, double &sy);
 
 
@@ -403,10 +428,6 @@ class mwGraph
 
 };
 extern mwGraph mG[10];
-
-
-
-
 
 
 
@@ -1726,6 +1747,10 @@ void blind_save_game_moves(int d);
 int load_gm(const char *sfname);
 
 // z_fnx.h
+
+
+int mw_draw_line(double x1, double y1, double x2, double y2, float thickness, int c0_val, int c0_col, int c1_val, int c1_col, int c2_val, int c2_col, int line_color_offset);
+
 int round20(int val);
 void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
 void change_block(int x, int y, int block);
