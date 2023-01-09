@@ -977,293 +977,9 @@ int log_file_viewer(int type)
 }
 
 
-void autoscale_log_bandwidth_graph(int mode, int num_data, int data[][4], int graph_w, int graph_h, float &y_scale, float &x_scale, int &g_stf, int &g_rng, int end_fn)
-{
-   if (mode == 1) // reset x pos and scale
-   {
-      g_stf = 0;
-      g_rng = end_fn;
-      x_scale = (float)graph_w / (float)g_rng;
-   }
-
-   // find the max y value currently displayed
-   int max = 0;
-   for (int i=0; i<num_data; i++)
-   {
-      if (lp[data[i][1]][0]) // only if this player's data is not hidden
-      {
-         if ((data[i][0] >= g_stf) && (data[i][0] <= (g_stf + g_rng) )) // only for the time range currently displayed
-         {
-            if (data[i][2] > max) max = data[i][2];
-            if (data[i][3] > max) max = data[i][3];
-         }
-      }
-   }
-   if (max == 0) y_scale = 1;
-   else y_scale = (float)(graph_h-40) / (float)max; // set y scale based on graph height and largest value
-}
 
 
-
-void redraw_log_bandwidth_graph(int num_data, int data[][4], int graph_w, int graph_h, float y_scale, float x_scale, int &g_stf, int &g_rng, int end_fn, int xbl, int ybl)
-{
-   al_set_target_backbuffer(display);
-   al_clear_to_color(al_map_rgb(0,0,0));
-
-   if (g_stf < 0) g_stf = 0;
-
-   // label the x axis and draw gridlines
-   g_rng = (graph_w / x_scale);    // x axis range in frames
-   int maxf = g_stf + g_rng;       // max x value
-
-   // now choose units
-   if (g_rng < 400) // frames
-   {
-      al_draw_text(font, palette_color[13], xbl+graph_w/2, ybl+12, ALLEGRO_ALIGN_CENTER, "time (frames)");
-      int div = 1;
-      // get max label text size in pixels
-      sprintf(msg, "%d ", maxf / div);
-      int tm = strlen(msg) * 8;
-      int spi = (int) ((float)tm / x_scale); // scale to graph size
-      int sp2 = ((spi/div) * div) + div; // snap to div size
-      // draw legend and gridline every sp2 frames
-      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= sp2)
-      {
-         int hx = xbl + (int)((i-g_stf)*x_scale);
-         al_draw_textf(font, palette_color[13], hx, ybl+4, ALLEGRO_ALIGN_CENTER, "%d", (int)(i));
-         al_draw_line(hx, 0, hx, ybl, palette_color[13+96], 1);
-      }
-   }
-
-   if ((g_rng >= 400) && (g_rng < 20000)) // seconds
-   {
-      al_draw_text(font, palette_color[13], xbl+graph_w/2, ybl+12, ALLEGRO_ALIGN_CENTER, "time (seconds)");
-      int div = 40;
-      // get max label text size in pixels
-      sprintf(msg, "%d ", maxf / div);
-      int tm = strlen(msg) * 8;
-      int spi = (int) ((float)tm / x_scale); // scale to graph size
-      int sp2 = ((spi/div) * div) + div; // snap to div size
-
-       // only allowed values are 40, 80, 200, 400, 800
-      if ((sp2 > 80) && (sp2 < 200)) sp2 = 200;
-      if ((sp2 > 200) && (sp2 < 400)) sp2 = 400;
-      if ((sp2 > 400) && (sp2 < 800)) sp2 = 800;
-      if ((sp2 > 800) && (sp2 < 1600)) sp2 = 1600;
-
-      // draw legend every sp2 frames
-      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= sp2)
-      {
-         int hx = xbl + (int)((i-g_stf)*x_scale);
-         al_draw_textf(font, palette_color[13], hx, ybl+4, ALLEGRO_ALIGN_CENTER, "%d", (int)(i/div));
-         //al_draw_line(hx, 0, hx, ybl+4, palette_color[13+32], 1);
-      }
-      // draw scale lines every second
-      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= 40)
-      {
-         int hx = xbl + (int)((i-g_stf)*x_scale);
-         al_draw_line(hx, 0, hx, ybl+2, palette_color[13+96], 1);
-      }
-      // draw scale line every 10 seconds
-      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= 400)
-      {
-         int hx = xbl + (int)((i-g_stf)*x_scale);
-         al_draw_line(hx, 0, hx, ybl+2, palette_color[13+32], 2);
-      }
-   }
-
-   if (g_rng >= 20000) // minutes
-   {
-      al_draw_text(font, palette_color[13], xbl+graph_w/2, ybl+12, ALLEGRO_ALIGN_CENTER, "time (minutes)");
-      int div = 2400;
-      // get max label text size in pixels
-      sprintf(msg, "%d ", maxf / div);
-      int tm = strlen(msg) * 8;
-      int spi = (int) ((float)tm / x_scale); // scale to graph size
-      int sp2 = ((spi/div) * div) + div; // snap to div size
-      // draw legend and scale line every sp2 frames
-      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= sp2)
-      {
-         int hx = xbl + (int)((i-g_stf)*x_scale);
-         al_draw_textf(font, palette_color[13], hx, ybl+4, ALLEGRO_ALIGN_CENTER, "%d", (int)(i/div));
-         al_draw_line(hx, 0, hx, ybl, palette_color[13+32], 2);
-      }
-      // draw x scale lines every 10 seconds
-      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= 400)
-      {
-         int hx = xbl + (int)((i-g_stf)*x_scale);
-         al_draw_line(hx, 0, hx, ybl, palette_color[13+32], 1);
-      }
-   }
-
-   // get label spacing
-   int s = (int) (10 / y_scale);
-   int sp2 = ((s/100) * 100) + 100; // snap to div size
-   if ((sp2 > 200) && (sp2 < 500)) sp2 = 500;
-   if ((sp2 > 500) && (sp2 < 1000)) sp2 = 1000;
-   if ((sp2 > 1000) && (sp2 < 2000)) sp2 = 2000;
-   if ((sp2 > 2000) && (sp2 < 5000)) sp2 = 5000;
-
-   for (float i=0; i*y_scale < graph_h; i+= sp2)
-   {
-      int y_pos = ybl - (int)(i*y_scale);
-      al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[11+96], 1);
-
-      if (i<1000)         sprintf(msg, "%5.0fB/s", i);
-      else if (i<10000)   sprintf(msg, "%3.2fkB/s", i/1000);
-      else if (i<100000)  sprintf(msg, "%3.1fkB/s", i/1000);
-      else if (i<1000000) sprintf(msg, "%4.0fkB/s", i/1000);
-      al_draw_text(font, palette_color[11], 10, y_pos-4, 0, msg);
-   }
-
-//   // draw major grid lines every 1kB/s
-//   for (float i=0; i*y_scale < graph_h; i+= 1000)
-//   {
-//      int y_pos = ybl - (int)(i*y_scale);
-//      al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[11+96], 2);
-//   }
-
-   // draw the data one player at a time
-   int old_ix, old_ity, old_iry;
-   al_set_clipping_rectangle(xbl*display_transform_double, 0, graph_w*display_transform_double, graph_h*display_transform_double);
-   for (int p=0; p<NUM_PLAYERS; p++)
-   {
-      if (lp[p][0])
-      {
-         int first_time = 1;
-         for (int i=0; i<num_data; i++)
-         {
-            int pc = data[i][0];
-            int dp = data[i][1];
-            int tx = data[i][2];
-            int ty1 = data[i][3];
-            int col = players[p].color;
-            if (dp == p)
-            {
-               int ix = xbl + (int) ( (float)(pc-g_stf) * x_scale);
-               int ity = ybl - (int) ( (float)tx * y_scale);
-               int iry = ybl - (int) ( (float)ty1 * y_scale);
-               if (first_time) // set previous point to this point
-               {
-                  first_time = 0;
-                  old_ix = ix;
-                  old_ity = ity;
-                  old_iry = iry;
-               }
-               al_draw_line(old_ix, old_iry, ix, iry, palette_color[col], 4);
-               al_draw_line(old_ix, old_iry, ix, iry, palette_color[0], 1);
-               al_draw_filled_circle(ix, iry, 3, palette_color[col]);
-
-
-               al_draw_line(old_ix, old_ity, ix, ity, palette_color[col], 4);
-               al_draw_filled_circle(ix, ity, 3, palette_color[col]);
-
-               old_ix = ix;
-               old_ity = ity;
-               old_iry = iry;
-            }
-         }
-      }
-   }
-   al_reset_clipping_rectangle();
-
-
-
-
-   // draw controls
-   int ypos = 6;
-   int xpos = SCREEN_W - 234;
-
-   al_draw_filled_rectangle(xpos-1, ypos+6, xpos+232, ypos+89, palette_color[15+196]);
-   al_draw_rectangle(xpos-1, ypos+6, xpos+232, ypos+89, palette_color[15], 1);
-
-  // framed title bar
-   int xc = xpos + 116;
-   al_draw_filled_rectangle(xc-34, ypos-5, xc+34, ypos+6, palette_color[15+196]);
-   al_draw_rectangle(xc-34, ypos-5, xc+34, ypos+6, palette_color[15], 1);
-   al_draw_text(font, palette_color[15], xc, ypos-3, ALLEGRO_ALIGN_CENTER, "Controls");
-
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[NUMBERS 0-7] toggle player");
-
-
-//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[RIGHT]       zoom in x axis");
-//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[LEFT]        zoom out x axis");
-//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[CTRL][RIGHT] scroll right");
-//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[CTRL][LEFT]  scroll left");
-//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][RIGHT] scroll faster");
-//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][LEFT]  scroll faster");
-
-
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[HOME]        reset x axis");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[UP]          zoom + y axis");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[DOWN]        zoom - y axis");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[?]           help");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[ESC]         quit");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "----- mouse controls -----");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "wheel         zoom x axis");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "drag          move x axis");
-   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHIFT] drag  zoom x region");
-
-
-
-   // draw legend
-   xpos = SCREEN_W - 226;
-   ypos+=28;
-
-   // framed title bar
-   xc = xpos + 110;
-   al_draw_filled_rectangle(xc-30, ypos-13, xc+30, ypos-2, palette_color[15+196]);
-   al_draw_rectangle(xc-30, ypos-13, xc+30, ypos-2, palette_color[15], 1);
-   al_draw_text(font, palette_color[15], xc, ypos-11, ALLEGRO_ALIGN_CENTER, "Legend");
-
-   // iterate players that have bandwidth data
-   for (int i=0; i<8; i++)
-      if (lp[i][1])
-      {
-         // clear and frame row
-         al_draw_filled_rectangle(xpos-1, ypos-1, xpos+220, ypos+8, palette_color[15+196]);
-         al_draw_rectangle(xpos-2, ypos-2, xpos+220, ypos+9, palette_color[15], 1);
-
-         int col = players[i].color;
-         char tmsg[5];
-         if (lp[i][0]) sprintf(tmsg,"on ");
-         else
-         {
-            sprintf(tmsg,"off");
-            col = 127; //grey
-         }
-         al_draw_textf(font, palette_color[col], xpos, ypos, 0, "player:%d %s", i, tmsg);
-
-         if (lp[i][0])
-         {
-            int yp = ypos +4;
-            int rt = xpos +106;
-            int rs = rt+25;
-            int re = rs+20;
-            al_draw_text(font, palette_color[col], rt, ypos, 0, "rx:");
-            al_draw_line(rs, yp, re, yp, palette_color[col], 4);
-            al_draw_line(rs, yp, re, yp, palette_color[0], 1);
-            al_draw_filled_circle(rs, yp, 3, palette_color[col]);
-            al_draw_filled_circle(re, yp, 3, palette_color[col]);
-
-            rt = re+20;
-            rs = rt+25;
-            re = rs+20;
-            al_draw_text(font, palette_color[col], rt, ypos, 0, "tx:");
-            al_draw_line(rs, yp, re, yp, palette_color[col], 4);
-            al_draw_filled_circle(rs, yp, 3, palette_color[col]);
-            al_draw_filled_circle(re, yp, 3, palette_color[col]);
-         }
-         ypos+=11;
-      }
-}
-
-
-
-
-
-
-void log_bandwidth_graph(int asgdj)
+void graph_test(void)
 {
    FILE *filepntr;
    char buff[200];
@@ -1312,10 +1028,7 @@ void log_bandwidth_graph(int asgdj)
    fclose(filepntr);
    num_lines--;
 
-
    printf("num_lines:%d\n", num_lines);
-
-
 
    // iterate all log lines and build array of data points
    for (int i=0; i<num_lines; i++)
@@ -1358,146 +1071,74 @@ void log_bandwidth_graph(int asgdj)
 
          mG[1].add_data_point(p, (double) fn, dsync);
       }
-
    }
 
-   int sc = 15;
-
-   mG[0].set_series(0, "p0", 7, sc);
-   mG[0].set_series(1, "p1", 8, sc);
-   mG[0].set_series(2, "p2", 9, sc);
-   mG[0].set_series(3, "p3", 10, sc);
-   mG[0].set_series(4, "p4", 11, sc);
-   mG[0].set_series(5, "p5", 12, sc);
-   mG[0].set_series(6, "p6", 13, sc);
-   mG[0].set_series(7, "p7", 14, sc);
-
-
-   mG[1].set_series(0, "p0", 7, 0);
-   mG[1].set_series(1, "p1", 8, sc);
-   mG[1].set_series(2, "p2", 9, sc);
-   mG[1].set_series(3, "p3", 10, sc);
-   mG[1].set_series(4, "p4", 11, sc);
-   mG[1].set_series(5, "p5", 12, sc);
-   mG[1].set_series(6, "p6", 13, sc);
-   mG[1].set_series(7, "p7", 14, sc);
-
-
+   mG[0].set_series_legend_type(1);
    mG[0].calc_data_range();
    mG[0].autorange_axis(1, 1);
-
    mG[0].set_title("Transmit Rate", 14, 15);                // text, text_color, frame_color
    mG[0].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
    mG[0].set_y_axis_legend("Transmit (kBps)", 0, 14, 0);    // text, font, text_color, frame_color
    mG[0].set_x_axis_labels(1, 1, 2, 13);                    // type, font, tick_size, color
    mG[0].set_y_axis_labels(1, 1, 2, 14);                    // type, font, tick_size, color
 
-   mG[0].x_axis_scrollbar_draw_on = 1;
-   mG[0].x_axis_scrollbar_size = 10;
-   mG[0].y_axis_scrollbar_draw_on = 1;
-   mG[0].y_axis_scrollbar_size = 10;
-
-
-
+   mG[1].set_series_legend_type(1);
    mG[1].calc_data_range();
    mG[1].autorange_axis(1, 1);
-
    mG[1].set_title("Client dsync", 13, 15);                 // text, text_color, frame_color
    mG[1].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
    mG[1].set_y_axis_legend("dsync (ms)", 0, 14, 0);         // text, font, text_color, frame_color
    mG[1].set_x_axis_labels(1, 1, 2, 13);                    // type, font, tick_size, color
    mG[1].set_y_axis_labels(0, 1, 2, 14);                    // type, font, tick_size, color
 
-   mG[1].x_axis_scrollbar_draw_on = 1;
-   mG[1].x_axis_scrollbar_size = 10;
-
-   mG[1].y_axis_scrollbar_draw_on = 1;
-   mG[1].y_axis_scrollbar_size = 10;
-
-
-
 
    int quit = 0;
-   al_set_target_backbuffer(display);
-   al_clear_to_color(al_map_rgb(0, 0, 0));
-   al_flip_display();
-   al_show_mouse_cursor(display);
    while (!quit)
    {
-      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
-
-
       al_set_target_backbuffer(display);
+      al_clear_to_color(al_map_rgb(0, 0, 0));
 
-
+      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
 //      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H/2-10);
 //      mG[1].set_graph_pos(0,SCREEN_H/2+10, SCREEN_W, SCREEN_H);
 
-      al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      mG[0].draw();
-      mG[0].process_input();
-
-
-//      mG[1].draw();
-//      mG[1].process_input();
-
-      al_set_target_backbuffer(display);
-
+      mG[0].proc_graph();
+//      mG[1].proc_graph();
 
       al_flip_display();
       proc_controllers();
       if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
-
-
 }
 
-void oldlog_bandwidth_graph(int num_lines)
+
+
+
+void log_bandwidth_graph(int num_lines)
 {
    // draws a bandwidth graph
    // uses this log entry:
    // [23][0][1360]bandwidth (B/s) TX cur:[ 1878] max:[ 5060] RX cur:[  480] max:[  514]
-
    // log file has already been loaded into:
    // int log_lines_int[1000000][3];
    // char log_lines[1000000][100];
-   // int num_lines
-   // player array has already been populated
-   // int lp[8][2];
+
+   int both = 1;
 
 
-   // max amount of data points
-   int max_data = 100000;
-
-   int num_data = 0;
-
-   // array of data points
-   int data[max_data][4];
-   // 0  frame_num
-   // 1  player
-   // 2  tx b
-   // 3  rx b
-
-
-   char res[80];
-
-   int end_fn = 0; // calculate our own end_fn
-
-   // clear data points
-   for (int i=0; i<max_data; i++)
-      for (int j=0; j<4; j++)
-         data[i][j] = 0;
+   mG[0].initialize();
+   mG[1].initialize();
 
    // iterate all log lines and build array of data points
    for (int i=0; i<num_lines; i++)
-   {
       if (log_lines_int[i][0] == 23)
       {
          int p = log_lines_int[i][1];
          int fn = log_lines_int[i][2];
 
          char tll[200]; // temp log line
+         char res[80];
          sprintf(tll, "%s", log_lines[i]);
 
          // get first tag - tx_cur
@@ -1512,163 +1153,64 @@ void oldlog_bandwidth_graph(int num_lines)
          int rx = atoi(res);
 
          // enter one array data point
-         data[num_data][0] = fn;
-         data[num_data][1] = p;
-         data[num_data][2] = tx;
-         data[num_data][3] = rx;
-
-         end_fn = fn;
-
-         num_data++;
+         mG[0].add_data_point(p, (double) fn, (double) tx);
+         mG[1].add_data_point(p, (double) fn, (double) rx);
 
          //printf("fn:%d  p:%d tx:%d  rx:%d\n", fn, p, tx, rx);
 
-         if (num_data > max_data)
-         {
-            printf("number of graph points > %d\n", max_data);
-            i=num_lines; // break out of loop
-         }
-      }
-   }
-   // all the data is in the array
-   num_data--;
+    }
 
-   int gquit = 0;
-   int redraw = 1;
 
-   // set the graph width, height and baseline
 
-   int xbl = 70;            // x baseline
-   int ybl = SCREEN_H - 20; // y baseline
+   int c1 = 10;
+   mG[0].set_series_legend_type(1);
+   mG[0].calc_data_range();
+   mG[0].autorange_axis(1, 1);
+   mG[0].set_title("Transmit Rate", c1, c1);                // text, text_color, frame_color
+   mG[0].title_draw_style = 2;
+   mG[0].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
+   mG[0].set_y_axis_legend("Transmit (kBps)", 0, c1, 0);   // text, font, text_color, frame_color
+   mG[0].set_x_axis_labels(1, 1, 2, 15);                    // type, font, tick_size, color
+   mG[0].set_y_axis_labels(1, 1, 2, c1);                    // type, font, tick_size, color
 
-   int graph_w = SCREEN_W - 70;
-   int graph_h = SCREEN_H - 20;
-
-   int g_stf = 0; // graph start fn
-   int g_rng = 0; // graph frame range
-
-   float y_scale = 1;
-   float x_scale = 1;
-
-   autoscale_log_bandwidth_graph(1, num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn);
-
-   while (!gquit)
+   if (both)
    {
-      if (redraw)
+      int c2 = 13;
+      mG[1].set_series_legend_type(1);
+      mG[1].calc_data_range();
+      mG[1].autorange_axis(1, 1);
+      mG[1].set_title("Receive Rate", c2, c2);                // text, text_color, frame_color
+      mG[1].title_draw_style = 2;
+      mG[1].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
+      mG[1].set_y_axis_legend("Transmit (kBps)", 0, c2, 0);   // text, font, text_color, frame_color
+      mG[1].set_x_axis_labels(1, 1, 2, 15);                    // type, font, tick_size, color
+      mG[1].set_y_axis_labels(2, 1, 2, c2);                    // type, font, tick_size, color
+      mG[1].x_axis_slave = 100;
+      mG[1].x_axis_legend_draw_on = 0;
+   }
+
+   int quit = 0;
+   while (!quit)
+   {
+      al_set_target_backbuffer(display);
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+
+      if (both)
       {
-         redraw_log_bandwidth_graph(num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn, xbl, ybl);
-         al_flip_display();
-         redraw = 0;
+         mG[0].set_graph_pos(0, SCREEN_H*1/2, SCREEN_W, SCREEN_H*2/2);
+         mG[1].set_graph_pos(0, SCREEN_H*0/2, SCREEN_W, SCREEN_H*1/2);
+         mG[0].proc_graph();
+         mG[1].proc_graph();
+      }
+      else
+      {
+         mG[0].set_graph_pos(0, 0, SCREEN_W, SCREEN_H);
+         mG[0].proc_graph();
       }
 
-      if (mouse_b[1][0])
-      {
-         if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // shift drag to set new zoom area
-         {
-            int mx1 = mouse_x;
-            int my1 = mouse_y;
-            int mx2 = 0;
-            int my2 = 0;
-            while (mouse_b[1][0])
-            {
-               proc_controllers();
-               mx2 = mouse_x;
-               my2 = mouse_y;
-               redraw_log_bandwidth_graph(num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn, xbl, ybl);
-               al_draw_rectangle(mx1, my1, mx2, my2, palette_color[15], 1);
-               al_flip_display();
-            }
-            // convert mouse x position to graph x pos
-            int gx1 = g_stf + (mx1-xbl) / x_scale;
-            int gx2 = g_stf + (mx2-xbl) / x_scale;
-
-            if (gx1 < 0) gx1 = 0;
-            if (gx2 < 0) gx2 = 0;
-
-            if (gx1 > gx2) swap_int(&gx1, &gx2);
-
-            if (gx1 != gx2)
-            {
-               g_stf = gx1;     // start frame
-               g_rng = gx2-gx1; // frame range
-
-               // calc x_scale so that range fits screen width
-               x_scale = (float)graph_w / (float)g_rng;
-            }
-            autoscale_log_bandwidth_graph(0, num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn);
-            redraw = 1;
-         }
-         else // normal mouse drag to slide graph
-         {
-            int mx = mouse_x;
-            int gx = 0;
-            while (mouse_b[1][0])
-            {
-               proc_controllers();
-               gx = (mx - mouse_x) / x_scale; // mouse x offset converted to x axis scale
-
-               int temp_g_stf = g_stf+gx;
-               if (temp_g_stf < 0) temp_g_stf = 0;
-
-
-               redraw_log_bandwidth_graph(num_data, data, graph_w, graph_h, y_scale, x_scale, temp_g_stf, g_rng, end_fn, xbl, ybl);
-               al_flip_display();
-            }
-            g_stf += gx; // make the offset permanent
-         }
-      }
-
-      if (mouse_dz)
-      {
-         if (mouse_dz > 0)
-         {
-            mouse_dz = 0;
-            int orx = g_stf + (mouse_x-xbl) / x_scale; // get x axis postion under mouse
-            x_scale *= 1.1; // change scale
-            g_stf = orx - (mouse_x-xbl) / x_scale; // change x axis start frame
-            if (g_stf < 0) g_stf = 0;
-            redraw = 1;
-         }
-         if (mouse_dz < 0)
-         {
-            mouse_dz = 0;
-            int orx = g_stf + (mouse_x-xbl) / x_scale; // get x axis postion under mouse
-            x_scale *= 0.9;      // change scale
-            g_stf = orx - (mouse_x-xbl) / x_scale; // change x axis start frame
-            if (g_stf < 0) g_stf = 0;
-            redraw = 1;
-         }
-      }
-
-
-
+      al_flip_display();
       proc_controllers();
-      int k = key_pressed_ASCII;
-      if ((k > 36) && (k < 45)) k+=11; // convert number pad number to regular numbers
-      if ((k > 47) && (k < 56)) // numbers 0-7 toggle players
-      {
-         int p = k-48;
-         //printf("p:%d\n", p);
-         lp[p][0] = !lp[p][0];
-         autoscale_log_bandwidth_graph(0, num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn);
-         redraw = 1;
-      }
-
-      int scroll_amt = g_rng / 10; // scroll 10% of screen at once
-      if (scroll_amt < 1) scroll_amt = 1;
-
-      if (key[ALLEGRO_KEY_HOME][3])
-      {
-         autoscale_log_bandwidth_graph(1, num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn);
-         redraw = 1;
-      }
-
-      if (key[ALLEGRO_KEY_SLASH][3])
-      {
-         help("Bandwidth Graph");
-         redraw = 1;
-      }
-      if (key[ALLEGRO_KEY_ESCAPE][3]) gquit = 1;
+      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
 
@@ -1682,12 +1224,211 @@ void oldlog_bandwidth_graph(int num_lines)
 
 
 
+
+
+
+
+
+
+
+
+
+
+void log_client_server_sync_graph(int num_lines)
+{
+   // server only
+   // draws a graph of client server sync
+
+   // log file has already been loaded into:
+   // int log_lines_int[1000000][3];
+   // char log_lines[1000000][100];
+   // with num_lines and end_pc set
+
+   mG[0].initialize();
+   mG[1].initialize();
+   mG[2].initialize();
+
+   int pa[8] = {0}; // keep track of when players come active
+
+
+   for (int p=0; p<8; p++)
+      mG[0].add_data_point(p, 0, pa[p]); // active
+
+
+
+   // iterate all log lines and build array of data points
+   for (int i=0; i<num_lines; i++)
+   {
+      char tll[200]; // temp log line
+      char res[80];
+      sprintf(tll, "%s", log_lines[i]);
+
+
+
+      // find where players became active
+      if (log_lines_int[i][0] == 10)
+      {
+         int p = log_lines_int[i][1];
+         int fn = log_lines_int[i][2];
+         const char act[10] = "ACTIVE";
+         const char ict[10] = "INACTIVE";
+         char * ar = strstr(tll, act);
+         char * ir = strstr(tll, ict);
+         if ((ar) && (!ir))
+         {
+            mG[0].add_data_point(p, (double) fn-1, 0); // inactive
+            mG[0].add_data_point(p, (double) fn, 1); // active
+            pa[p] = 1;
+         }
+      }
+
+      if (log_lines_int[i][0] == 30) // stak line
+      {
+         int p = log_lines_int[i][1];
+         int fn = log_lines_int[i][2];
+
+         get_tag_text(tll, res); // server_sync
+         //int sy = atoi(res); // not used any more
+
+         get_tag_text(tll, res); // dsync
+         double dsy = atof(res);
+
+         get_tag_text(tll, res); // fps_chase
+         double fc = atof(res);
+
+//         mG[0].add_data_point(p, (double) fn, pa[p]); // active
+         mG[1].add_data_point(p, (double) fn, dsy); // dsync
+         mG[2].add_data_point(p, (double) fn, fc);  // fps chase
+      }
+   }
+
+
+   int last_fn = log_lines_int[num_lines-1][2];
+   for (int p=0; p<8; p++)
+      mG[0].add_data_point(p, (double) last_fn, pa[p]); // active
+
+
+
+   mG[0].set_series_legend_type(1);
+   mG[0].series_legend_draw_on = 0;
+   mG[0].calc_data_range();
+   mG[0].autorange_axis(1, 1);
+
+   mG[0].set_title("Player Active", 11, 11);                // text, text_color, frame_color
+   mG[0].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
+   mG[0].set_y_axis_legend("Active", 0, 14, 0);             // text, font, text_color, frame_color
+   mG[0].set_x_axis_labels(1, 1, 2, 15);                    // type, font, tick_size, color
+   mG[0].set_y_axis_labels(0, 1, 2, 14);                    // type, font, tick_size, color
+   mG[0].x_axis_legend_draw_on = 0;
+   mG[0].title_draw_style = 2;
+   mG[0].x_axis_slave = 101;
+   mG[0].y_axis_type = 0;
+   mG[0].y_axis_min = 0;
+   mG[0].y_axis_max = 1;
+   mG[0].y_axis_rng = 1;
+   mG[0].y_axis_zoom_lock = 1;
+   mG[0].y_axis_label_text_draw = 0;
+   mG[0].y_axis_scrollbar_draw_on = 0;
+   mG[0].y_axis_legend_draw_on = 0;
+
+
+
+   mG[2].set_series_legend_type(1);
+   mG[2].calc_data_range();
+   mG[2].autorange_axis(1, 1);
+   mG[2].set_title("FPS Chase", 10, 10);                    // text, text_color, frame_color
+   mG[2].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
+   mG[2].set_y_axis_legend("Chase (FPS)", 0, 10, 10);       // text, font, text_color, frame_color
+   mG[2].set_x_axis_labels(1, 1, 2, 15);                    // type, font, tick_size, color
+   mG[2].set_y_axis_labels(4, 1, 2, 10);                    // type, font, tick_size, color
+   mG[2].x_axis_slave = 101;
+   mG[2].x_axis_legend_draw_on = 0;
+   mG[2].title_draw_style = 2;
+
+
+
+   mG[1].set_series_legend_type(1);
+   mG[1].calc_data_range();
+   mG[1].autorange_axis(1, 1);
+   mG[1].set_title("D Sync", 13, 13);                    // text, text_color, frame_color
+   mG[1].set_x_axis_legend("Time (frames)", 0, 15, 15);  // text, font, text_color, frame_color
+   mG[1].set_y_axis_legend("D Sync", 0, 13, 13);         // text, font, text_color, frame_color
+   mG[1].set_x_axis_labels(1, 1, 2, 15);                 // type, font, tick_size, color
+   mG[1].set_y_axis_labels(3, 1, 2, 13);                 // type, font, tick_size, color
+   mG[1].x_axis_legend_draw_on = 1;
+   mG[1].title_draw_style = 2;
+
+
+
+   int quit = 0;
+   while (!quit)
+   {
+      al_set_target_backbuffer(display);
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+
+
+      mG[0].set_graph_pos(0,SCREEN_H*0/9, SCREEN_W, SCREEN_H*1/9);
+      mG[2].set_graph_pos(0,SCREEN_H*1/9, SCREEN_W, SCREEN_H*5/9);
+      mG[1].set_graph_pos(0,SCREEN_H*5/9, SCREEN_W, SCREEN_H*9/9);
+
+      mG[0].proc_graph();
+      mG[1].proc_graph();
+      mG[2].proc_graph();
+
+      al_flip_display();
+      proc_controllers();
+      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int test_toggle = 1;
-
-
-
-
-
 
 
 void redraw_log_client_server_sync_graph(int num_data, int data[][5], int graph_w, float x_scale, int &g_stf, int &g_rng, int end_fn, int xbl, int yxl)
@@ -2216,7 +1957,7 @@ void redraw_log_client_server_sync_graph(int num_data, int data[][5], int graph_
 
 
 
-void log_client_server_sync_graph(int num_lines)
+void old_log_client_server_sync_graph(int num_lines)
 {
    // server only
    // draws a graph of client server sync
@@ -2457,3 +2198,509 @@ void log_client_server_sync_graph(int num_lines)
       if (key[ALLEGRO_KEY_ESCAPE][3]) gquit = 1;
    }
 }
+
+
+
+void autoscale_log_bandwidth_graph(int mode, int num_data, int data[][4], int graph_w, int graph_h, float &y_scale, float &x_scale, int &g_stf, int &g_rng, int end_fn)
+{
+   if (mode == 1) // reset x pos and scale
+   {
+      g_stf = 0;
+      g_rng = end_fn;
+      x_scale = (float)graph_w / (float)g_rng;
+   }
+
+   // find the max y value currently displayed
+   int max = 0;
+   for (int i=0; i<num_data; i++)
+   {
+      if (lp[data[i][1]][0]) // only if this player's data is not hidden
+      {
+         if ((data[i][0] >= g_stf) && (data[i][0] <= (g_stf + g_rng) )) // only for the time range currently displayed
+         {
+            if (data[i][2] > max) max = data[i][2];
+            if (data[i][3] > max) max = data[i][3];
+         }
+      }
+   }
+   if (max == 0) y_scale = 1;
+   else y_scale = (float)(graph_h-40) / (float)max; // set y scale based on graph height and largest value
+}
+
+
+
+void redraw_log_bandwidth_graph(int num_data, int data[][4], int graph_w, int graph_h, float y_scale, float x_scale, int &g_stf, int &g_rng, int end_fn, int xbl, int ybl)
+{
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   if (g_stf < 0) g_stf = 0;
+
+   // label the x axis and draw gridlines
+   g_rng = (graph_w / x_scale);    // x axis range in frames
+   int maxf = g_stf + g_rng;       // max x value
+
+   // now choose units
+   if (g_rng < 400) // frames
+   {
+      al_draw_text(font, palette_color[13], xbl+graph_w/2, ybl+12, ALLEGRO_ALIGN_CENTER, "time (frames)");
+      int div = 1;
+      // get max label text size in pixels
+      sprintf(msg, "%d ", maxf / div);
+      int tm = strlen(msg) * 8;
+      int spi = (int) ((float)tm / x_scale); // scale to graph size
+      int sp2 = ((spi/div) * div) + div; // snap to div size
+      // draw legend and gridline every sp2 frames
+      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= sp2)
+      {
+         int hx = xbl + (int)((i-g_stf)*x_scale);
+         al_draw_textf(font, palette_color[13], hx, ybl+4, ALLEGRO_ALIGN_CENTER, "%d", (int)(i));
+         al_draw_line(hx, 0, hx, ybl, palette_color[13+96], 1);
+      }
+   }
+
+   if ((g_rng >= 400) && (g_rng < 20000)) // seconds
+   {
+      al_draw_text(font, palette_color[13], xbl+graph_w/2, ybl+12, ALLEGRO_ALIGN_CENTER, "time (seconds)");
+      int div = 40;
+      // get max label text size in pixels
+      sprintf(msg, "%d ", maxf / div);
+      int tm = strlen(msg) * 8;
+      int spi = (int) ((float)tm / x_scale); // scale to graph size
+      int sp2 = ((spi/div) * div) + div; // snap to div size
+
+       // only allowed values are 40, 80, 200, 400, 800
+      if ((sp2 > 80) && (sp2 < 200)) sp2 = 200;
+      if ((sp2 > 200) && (sp2 < 400)) sp2 = 400;
+      if ((sp2 > 400) && (sp2 < 800)) sp2 = 800;
+      if ((sp2 > 800) && (sp2 < 1600)) sp2 = 1600;
+
+      // draw legend every sp2 frames
+      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= sp2)
+      {
+         int hx = xbl + (int)((i-g_stf)*x_scale);
+         al_draw_textf(font, palette_color[13], hx, ybl+4, ALLEGRO_ALIGN_CENTER, "%d", (int)(i/div));
+         //al_draw_line(hx, 0, hx, ybl+4, palette_color[13+32], 1);
+      }
+      // draw scale lines every second
+      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= 40)
+      {
+         int hx = xbl + (int)((i-g_stf)*x_scale);
+         al_draw_line(hx, 0, hx, ybl+2, palette_color[13+96], 1);
+      }
+      // draw scale line every 10 seconds
+      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= 400)
+      {
+         int hx = xbl + (int)((i-g_stf)*x_scale);
+         al_draw_line(hx, 0, hx, ybl+2, palette_color[13+32], 2);
+      }
+   }
+
+   if (g_rng >= 20000) // minutes
+   {
+      al_draw_text(font, palette_color[13], xbl+graph_w/2, ybl+12, ALLEGRO_ALIGN_CENTER, "time (minutes)");
+      int div = 2400;
+      // get max label text size in pixels
+      sprintf(msg, "%d ", maxf / div);
+      int tm = strlen(msg) * 8;
+      int spi = (int) ((float)tm / x_scale); // scale to graph size
+      int sp2 = ((spi/div) * div) + div; // snap to div size
+      // draw legend and scale line every sp2 frames
+      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= sp2)
+      {
+         int hx = xbl + (int)((i-g_stf)*x_scale);
+         al_draw_textf(font, palette_color[13], hx, ybl+4, ALLEGRO_ALIGN_CENTER, "%d", (int)(i/div));
+         al_draw_line(hx, 0, hx, ybl, palette_color[13+32], 2);
+      }
+      // draw x scale lines every 10 seconds
+      for (float i=g_stf; (int)((i-g_stf)*x_scale) < graph_w; i+= 400)
+      {
+         int hx = xbl + (int)((i-g_stf)*x_scale);
+         al_draw_line(hx, 0, hx, ybl, palette_color[13+32], 1);
+      }
+   }
+
+   // get label spacing
+   int s = (int) (10 / y_scale);
+   int sp2 = ((s/100) * 100) + 100; // snap to div size
+   if ((sp2 > 200) && (sp2 < 500)) sp2 = 500;
+   if ((sp2 > 500) && (sp2 < 1000)) sp2 = 1000;
+   if ((sp2 > 1000) && (sp2 < 2000)) sp2 = 2000;
+   if ((sp2 > 2000) && (sp2 < 5000)) sp2 = 5000;
+
+   for (float i=0; i*y_scale < graph_h; i+= sp2)
+   {
+      int y_pos = ybl - (int)(i*y_scale);
+      al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[11+96], 1);
+
+      if (i<1000)         sprintf(msg, "%5.0fB/s", i);
+      else if (i<10000)   sprintf(msg, "%3.2fkB/s", i/1000);
+      else if (i<100000)  sprintf(msg, "%3.1fkB/s", i/1000);
+      else if (i<1000000) sprintf(msg, "%4.0fkB/s", i/1000);
+      al_draw_text(font, palette_color[11], 10, y_pos-4, 0, msg);
+   }
+
+//   // draw major grid lines every 1kB/s
+//   for (float i=0; i*y_scale < graph_h; i+= 1000)
+//   {
+//      int y_pos = ybl - (int)(i*y_scale);
+//      al_draw_line(xbl, y_pos, xbl+graph_w, y_pos, palette_color[11+96], 2);
+//   }
+
+   // draw the data one player at a time
+   int old_ix, old_ity, old_iry;
+   al_set_clipping_rectangle(xbl*display_transform_double, 0, graph_w*display_transform_double, graph_h*display_transform_double);
+   for (int p=0; p<NUM_PLAYERS; p++)
+   {
+      if (lp[p][0])
+      {
+         int first_time = 1;
+         for (int i=0; i<num_data; i++)
+         {
+            int pc = data[i][0];
+            int dp = data[i][1];
+            int tx = data[i][2];
+            int ty1 = data[i][3];
+            int col = players[p].color;
+            if (dp == p)
+            {
+               int ix = xbl + (int) ( (float)(pc-g_stf) * x_scale);
+               int ity = ybl - (int) ( (float)tx * y_scale);
+               int iry = ybl - (int) ( (float)ty1 * y_scale);
+               if (first_time) // set previous point to this point
+               {
+                  first_time = 0;
+                  old_ix = ix;
+                  old_ity = ity;
+                  old_iry = iry;
+               }
+               al_draw_line(old_ix, old_iry, ix, iry, palette_color[col], 4);
+               al_draw_line(old_ix, old_iry, ix, iry, palette_color[0], 1);
+               al_draw_filled_circle(ix, iry, 3, palette_color[col]);
+
+
+               al_draw_line(old_ix, old_ity, ix, ity, palette_color[col], 4);
+               al_draw_filled_circle(ix, ity, 3, palette_color[col]);
+
+               old_ix = ix;
+               old_ity = ity;
+               old_iry = iry;
+            }
+         }
+      }
+   }
+   al_reset_clipping_rectangle();
+
+
+
+
+   // draw controls
+   int ypos = 6;
+   int xpos = SCREEN_W - 234;
+
+   al_draw_filled_rectangle(xpos-1, ypos+6, xpos+232, ypos+89, palette_color[15+196]);
+   al_draw_rectangle(xpos-1, ypos+6, xpos+232, ypos+89, palette_color[15], 1);
+
+  // framed title bar
+   int xc = xpos + 116;
+   al_draw_filled_rectangle(xc-34, ypos-5, xc+34, ypos+6, palette_color[15+196]);
+   al_draw_rectangle(xc-34, ypos-5, xc+34, ypos+6, palette_color[15], 1);
+   al_draw_text(font, palette_color[15], xc, ypos-3, ALLEGRO_ALIGN_CENTER, "Controls");
+
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[NUMBERS 0-7] toggle player");
+
+
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[RIGHT]       zoom in x axis");
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[LEFT]        zoom out x axis");
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[CTRL][RIGHT] scroll right");
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[CTRL][LEFT]  scroll left");
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][RIGHT] scroll faster");
+//   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHFT][LEFT]  scroll faster");
+
+
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[HOME]        reset x axis");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[UP]          zoom + y axis");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[DOWN]        zoom - y axis");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[?]           help");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[ESC]         quit");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "----- mouse controls -----");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "wheel         zoom x axis");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "drag          move x axis");
+   al_draw_text(font, palette_color[15], xpos, ypos+=8, 0, "[SHIFT] drag  zoom x region");
+
+
+
+   // draw legend
+   xpos = SCREEN_W - 226;
+   ypos+=28;
+
+   // framed title bar
+   xc = xpos + 110;
+   al_draw_filled_rectangle(xc-30, ypos-13, xc+30, ypos-2, palette_color[15+196]);
+   al_draw_rectangle(xc-30, ypos-13, xc+30, ypos-2, palette_color[15], 1);
+   al_draw_text(font, palette_color[15], xc, ypos-11, ALLEGRO_ALIGN_CENTER, "Legend");
+
+   // iterate players that have bandwidth data
+   for (int i=0; i<8; i++)
+      if (lp[i][1])
+      {
+         // clear and frame row
+         al_draw_filled_rectangle(xpos-1, ypos-1, xpos+220, ypos+8, palette_color[15+196]);
+         al_draw_rectangle(xpos-2, ypos-2, xpos+220, ypos+9, palette_color[15], 1);
+
+         int col = players[i].color;
+         char tmsg[5];
+         if (lp[i][0]) sprintf(tmsg,"on ");
+         else
+         {
+            sprintf(tmsg,"off");
+            col = 127; //grey
+         }
+         al_draw_textf(font, palette_color[col], xpos, ypos, 0, "player:%d %s", i, tmsg);
+
+         if (lp[i][0])
+         {
+            int yp = ypos +4;
+            int rt = xpos +106;
+            int rs = rt+25;
+            int re = rs+20;
+            al_draw_text(font, palette_color[col], rt, ypos, 0, "rx:");
+            al_draw_line(rs, yp, re, yp, palette_color[col], 4);
+            al_draw_line(rs, yp, re, yp, palette_color[0], 1);
+            al_draw_filled_circle(rs, yp, 3, palette_color[col]);
+            al_draw_filled_circle(re, yp, 3, palette_color[col]);
+
+            rt = re+20;
+            rs = rt+25;
+            re = rs+20;
+            al_draw_text(font, palette_color[col], rt, ypos, 0, "tx:");
+            al_draw_line(rs, yp, re, yp, palette_color[col], 4);
+            al_draw_filled_circle(rs, yp, 3, palette_color[col]);
+            al_draw_filled_circle(re, yp, 3, palette_color[col]);
+         }
+         ypos+=11;
+      }
+}
+
+
+
+void old_log_bandwidth_graph(int num_lines)
+{
+   // draws a bandwidth graph
+   // uses this log entry:
+   // [23][0][1360]bandwidth (B/s) TX cur:[ 1878] max:[ 5060] RX cur:[  480] max:[  514]
+
+   // log file has already been loaded into:
+   // int log_lines_int[1000000][3];
+   // char log_lines[1000000][100];
+   // int num_lines
+   // player array has already been populated
+   // int lp[8][2];
+
+
+   // max amount of data points
+   int max_data = 100000;
+
+   int num_data = 0;
+
+   // array of data points
+   int data[max_data][4];
+   // 0  frame_num
+   // 1  player
+   // 2  tx b
+   // 3  rx b
+
+
+   char res[80];
+
+   int end_fn = 0; // calculate our own end_fn
+
+   // clear data points
+   for (int i=0; i<max_data; i++)
+      for (int j=0; j<4; j++)
+         data[i][j] = 0;
+
+   // iterate all log lines and build array of data points
+   for (int i=0; i<num_lines; i++)
+   {
+      if (log_lines_int[i][0] == 23)
+      {
+         int p = log_lines_int[i][1];
+         int fn = log_lines_int[i][2];
+
+         char tll[200]; // temp log line
+         sprintf(tll, "%s", log_lines[i]);
+
+         // get first tag - tx_cur
+         get_tag_text(tll, res);
+         int tx = atoi(res);
+
+         // get second tag and discard - tx_max
+         get_tag_text(tll, res);
+
+         // get third tag  - rx_cur
+         get_tag_text(tll, res);
+         int rx = atoi(res);
+
+         // enter one array data point
+         data[num_data][0] = fn;
+         data[num_data][1] = p;
+         data[num_data][2] = tx;
+         data[num_data][3] = rx;
+
+         end_fn = fn;
+
+         num_data++;
+
+         //printf("fn:%d  p:%d tx:%d  rx:%d\n", fn, p, tx, rx);
+
+         if (num_data > max_data)
+         {
+            printf("number of graph points > %d\n", max_data);
+            i=num_lines; // break out of loop
+         }
+      }
+   }
+   // all the data is in the array
+   num_data--;
+
+   int gquit = 0;
+   int redraw = 1;
+
+   // set the graph width, height and baseline
+
+   int xbl = 70;            // x baseline
+   int ybl = SCREEN_H - 20; // y baseline
+
+   int graph_w = SCREEN_W - 70;
+   int graph_h = SCREEN_H - 20;
+
+   int g_stf = 0; // graph start fn
+   int g_rng = 0; // graph frame range
+
+   float y_scale = 1;
+   float x_scale = 1;
+
+   autoscale_log_bandwidth_graph(1, num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn);
+
+   while (!gquit)
+   {
+      if (redraw)
+      {
+         redraw_log_bandwidth_graph(num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn, xbl, ybl);
+         al_flip_display();
+         redraw = 0;
+      }
+
+      if (mouse_b[1][0])
+      {
+         if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // shift drag to set new zoom area
+         {
+            int mx1 = mouse_x;
+            int my1 = mouse_y;
+            int mx2 = 0;
+            int my2 = 0;
+            while (mouse_b[1][0])
+            {
+               proc_controllers();
+               mx2 = mouse_x;
+               my2 = mouse_y;
+               redraw_log_bandwidth_graph(num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn, xbl, ybl);
+               al_draw_rectangle(mx1, my1, mx2, my2, palette_color[15], 1);
+               al_flip_display();
+            }
+            // convert mouse x position to graph x pos
+            int gx1 = g_stf + (mx1-xbl) / x_scale;
+            int gx2 = g_stf + (mx2-xbl) / x_scale;
+
+            if (gx1 < 0) gx1 = 0;
+            if (gx2 < 0) gx2 = 0;
+
+            if (gx1 > gx2) swap_int(&gx1, &gx2);
+
+            if (gx1 != gx2)
+            {
+               g_stf = gx1;     // start frame
+               g_rng = gx2-gx1; // frame range
+
+               // calc x_scale so that range fits screen width
+               x_scale = (float)graph_w / (float)g_rng;
+            }
+            autoscale_log_bandwidth_graph(0, num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn);
+            redraw = 1;
+         }
+         else // normal mouse drag to slide graph
+         {
+            int mx = mouse_x;
+            int gx = 0;
+            while (mouse_b[1][0])
+            {
+               proc_controllers();
+               gx = (mx - mouse_x) / x_scale; // mouse x offset converted to x axis scale
+
+               int temp_g_stf = g_stf+gx;
+               if (temp_g_stf < 0) temp_g_stf = 0;
+
+
+               redraw_log_bandwidth_graph(num_data, data, graph_w, graph_h, y_scale, x_scale, temp_g_stf, g_rng, end_fn, xbl, ybl);
+               al_flip_display();
+            }
+            g_stf += gx; // make the offset permanent
+         }
+      }
+
+      if (mouse_dz)
+      {
+         if (mouse_dz > 0)
+         {
+            mouse_dz = 0;
+            int orx = g_stf + (mouse_x-xbl) / x_scale; // get x axis postion under mouse
+            x_scale *= 1.1; // change scale
+            g_stf = orx - (mouse_x-xbl) / x_scale; // change x axis start frame
+            if (g_stf < 0) g_stf = 0;
+            redraw = 1;
+         }
+         if (mouse_dz < 0)
+         {
+            mouse_dz = 0;
+            int orx = g_stf + (mouse_x-xbl) / x_scale; // get x axis postion under mouse
+            x_scale *= 0.9;      // change scale
+            g_stf = orx - (mouse_x-xbl) / x_scale; // change x axis start frame
+            if (g_stf < 0) g_stf = 0;
+            redraw = 1;
+         }
+      }
+
+
+
+      proc_controllers();
+      int k = key_pressed_ASCII;
+      if ((k > 36) && (k < 45)) k+=11; // convert number pad number to regular numbers
+      if ((k > 47) && (k < 56)) // numbers 0-7 toggle players
+      {
+         int p = k-48;
+         //printf("p:%d\n", p);
+         lp[p][0] = !lp[p][0];
+         autoscale_log_bandwidth_graph(0, num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn);
+         redraw = 1;
+      }
+
+      int scroll_amt = g_rng / 10; // scroll 10% of screen at once
+      if (scroll_amt < 1) scroll_amt = 1;
+
+      if (key[ALLEGRO_KEY_HOME][3])
+      {
+         autoscale_log_bandwidth_graph(1, num_data, data, graph_w, graph_h, y_scale, x_scale, g_stf, g_rng, end_fn);
+         redraw = 1;
+      }
+
+      if (key[ALLEGRO_KEY_SLASH][3])
+      {
+         help("Bandwidth Graph");
+         redraw = 1;
+      }
+      if (key[ALLEGRO_KEY_ESCAPE][3]) gquit = 1;
+   }
+}
+
+

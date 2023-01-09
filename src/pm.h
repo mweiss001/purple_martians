@@ -224,8 +224,6 @@ class mwGraph
 {
    public:
 
-   ALLEGRO_BITMAP* graph;
-
    int graph_x1;
    int graph_y1;
    int graph_x2;
@@ -242,6 +240,10 @@ class mwGraph
 
 
    int  title_draw_on;
+
+   int  title_draw_style;
+
+
    int  title_draw_size;
    int  title_draw_y;
    char title_text[1024];
@@ -251,14 +253,21 @@ class mwGraph
 
    void draw_series_legend(void);
 
+
+   int series_legend_type;
    int series_legend_draw_on;
+   int series_legend_size;
    int series_legend_x1;
    int series_legend_x2;
    int series_legend_w;
    int series_legend_y1;
    int series_legend_y2;
 
+   int series_legend_force_solid_lines;
 
+   int series_legend_show_counts;
+
+   int plot_show_performance;
 
 
    void set_title(const char* text, int text_color, int frame_color);
@@ -270,8 +279,13 @@ class mwGraph
    void set_y_axis_labels(int type, int font, int tick_size, int color);
 
    void set_series(int s, const char* text, int color1, int color2);
+   void set_series_legend_type(int type);
 
 
+
+
+
+   int  x_axis_slave;
 
    int  x_axis_type;
    int  x_axis_draw_size;
@@ -280,6 +294,7 @@ class mwGraph
    int  x_axis_label_draw_size;
    int  x_axis_label_tick_size;
    int  x_axis_label_text_size;
+
    int  x_axis_label_color;
    int  x_axis_legend_draw_on;
    int  x_axis_legend_draw_size;
@@ -312,9 +327,10 @@ class mwGraph
    void x_axis_draw_legend(int set_size_only);
    void x_axis_draw_gridlines_and_labels(int set_size_only);
    int  x_axis_draw_scrollbar(int set_size_only);
-   void x_axis_proc_scrollbar(void);
+   void x_axis_proc_scrollbar(int draw_only);
 
 
+   int  y_axis_slave;
 
    int y_axis_type;
    int y_axis_draw_size;
@@ -324,6 +340,8 @@ class mwGraph
    int y_axis_label_draw_size;
    int y_axis_label_tick_size;
    int y_axis_label_text_size;
+
+   int y_axis_label_text_draw;
 
    int y_axis_label_color;
 
@@ -357,7 +375,7 @@ class mwGraph
    void y_axis_draw_legend(int set_size_only);
    void y_axis_draw_gridlines_and_labels(int set_size_only);
    int  y_axis_draw_scrollbar(int set_size_only);
-   void y_axis_proc_scrollbar(void);
+   void y_axis_proc_scrollbar(int draw_only);
 
 
    struct data_series
@@ -367,13 +385,14 @@ class mwGraph
       int active;
       int color1;
       int color2;
-      char name[1024];
+      char name[256];
       int min_visible_index;
       int max_visible_index;
    };
    data_series series[20] = {0};
 
-   int line_color_offset;
+   float plot_line_size;
+   float plot_point_size;
 
    void set_series_min_and_max_visible_indexes(int s);
 
@@ -405,13 +424,14 @@ class mwGraph
    void initialize(void);
    void set_graph_pos(int x1, int y1, int x2, int y2);
 
-
-   void draw(void);
-   void draw_data(int type);
    void draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f, int s);
 
-   void process_input(void);
-   void process_mouse_on_graph(void);
+   void draw_graph(int draw_only);
+   void proc_graph(void);
+
+//   void draw_plot(int type);
+//   void process_mouse_on_plot(void);
+   void proc_plot_area(int draw_only);
 
    void add_data_point(int series, double x, double y);
    void calc_data_range(void);
@@ -425,6 +445,10 @@ class mwGraph
    char* y_axis_get_val_text(double val, int units);
 
    int find_closest_point_to_mouse(int &s, int &i);
+
+
+
+
 
 };
 extern mwGraph mG[10];
@@ -1748,8 +1772,8 @@ int load_gm(const char *sfname);
 
 // z_fnx.h
 
-
-int mw_draw_line(double x1, double y1, double x2, double y2, float thickness, int c0_val, int c0_col, int c1_val, int c1_col, int c2_val, int c2_col, int line_color_offset);
+int mw_draw_line2(double x1, double y1, double x2, double y2, float thickness, int c0_val, int c0_col, int c1_val, int c1_col, int &line_color_offset);
+int mw_draw_line3(double x1, double y1, double x2, double y2, float thickness, int c0_val, int c0_col, int c1_val, int c1_col, int c2_val, int c2_col, int &line_color_offset);
 
 int round20(int val);
 void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);

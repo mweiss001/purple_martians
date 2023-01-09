@@ -342,34 +342,38 @@ memcpy(&out,arr2,sizeof(out));
 
 void temp_test(void)
 {
-//   al_set_target_backbuffer(display);
-//   al_clear_to_color(palette_color[0]);
+   al_set_target_backbuffer(display);
+   al_clear_to_color(palette_color[0]);
+
+
+
 //
-//   al_draw_line(100, 110, 200, 110, palette_color[15], 1);
-//
-//   mw_draw_line(100, 150, 200, 350, 1, 8, 15, 4, 10, 3, 8);
-//
-//
-//   mw_draw_line(200, 180, 800, 180, 1.0, 30, 15, 30, 10, 30, 14);
+//   // al_draw_line(100, 110, 200, 110, palette_color[15], 1);
 //
 //
-//
-//   mw_draw_line(200, 200, 220, 200, 1.0, 30, 15, 30, 10, 30, 14);
-//   mw_draw_line(220, 200, 220, 220, 1.0, 30, 15, 30, 10, 30, 14);
-//   mw_draw_line(220, 220, 200, 220, 1.0, 30, 15, 30, 10, 30, 14);
-//   mw_draw_line(200, 220, 200, 200, 1.0, 30, 15, 30, 10, 30, 14);
+//   int lco = 0;
 //
 //
-//   mw_draw_line(300, 300, 380, 300, 1.0, 30, 15, 30, 10, 30, 14);
-//   mw_draw_line(380, 300, 380, 380, 1.0, 30, 15, 30, 10, 30, 14);
-//   mw_draw_line(380, 380, 300, 380, 1.0, 30, 15, 30, 10, 30, 14);
-//   mw_draw_line(300, 380, 300, 300, 1.0, 30, 15, 30, 10, 30, 14);
+////   mw_draw_line(100, 150, 200, 350, 1, 8, 15, 4, 10, 3, 8, lco);
+////   mw_draw_line(200, 180, 800, 180, 1.0, 30, 15, 30, 10, 30, 14, lco);
+////
+////   mw_draw_line(200, 200, 220, 200, 1.0, 30, 15, 30, 10, 30, 14, lco);
+////   mw_draw_line(220, 200, 220, 220, 1.0, 30, 15, 30, 10, 30, 14, lco);
+////   mw_draw_line(220, 220, 200, 220, 1.0, 30, 15, 30, 10, 30, 14, lco);
+////   mw_draw_line(200, 220, 200, 200, 1.0, 30, 15, 30, 10, 30, 14, lco);
+//
+//   int a = 10;
+//
+//   mw_draw_line(300, 300, 380, 300, 1.0, 30, 15, 30, 10, a, 14, lco);
+//   mw_draw_line(380, 300, 380, 380, 1.0, 30, 15, 30, 10, a, 14, lco);
+//   mw_draw_line(380, 380, 300, 380, 1.0, 30, 15, 30, 10, a, 14, lco);
+//   mw_draw_line(300, 380, 300, 300, 1.0, 30, 15, 30, 10, a, 14, lco);
 //
 //
-//   mw_draw_line(400, 400, 505, 400, 1.0, 30, 15, 30, 10, 30, 14);
-//   mw_draw_line(505, 400, 505, 630, 1.0, 30, 15, 30, 10, 30, 14);
-//   mw_draw_line(505, 630, 450, 630, 1.0, 30, 15, 30, 10, 30, 14);
-//   mw_draw_line(450, 630, 400, 400, 1.0, 30, 15, 30, 10, 30, 14);
+////   mw_draw_line(400, 400, 505, 400, 1.0, 30, 15, 30, 10, 30, 14, lco);
+////   mw_draw_line(505, 400, 505, 630, 1.0, 30, 15, 30, 10, 30, 14, lco);
+////   mw_draw_line(505, 630, 450, 630, 1.0, 30, 15, 30, 10, 30, 14, lco);
+////   mw_draw_line(450, 630, 400, 400, 1.0, 30, 15, 30, 10, 30, 14, lco);
 //
 //
 //
@@ -380,8 +384,111 @@ void temp_test(void)
 
 
 
-   void log_bandwidth_graph(int);
-   log_bandwidth_graph(0);
+
+
+//
+//
+//   int quit = 0;
+//   while (!quit)
+//   {
+//      al_set_target_backbuffer(display);
+//      al_clear_to_color(al_map_rgb(0, 0, 0));
+//
+//      int a = 10 - pct_y;
+//      int b = 12;
+//      int c = 13;
+//
+//      int lco = 0;
+//
+//      al_draw_textf(font, palette_color[15], 10, 10, 0, "a:%d b:%d c:%d  t:%d", a, b, c, a+b+c);
+//
+//
+//      lco = 0;
+//      mw_draw_line3(200, 200, 220, 200, 1.0, a, 15, b, 10, c, 12, lco);
+//      mw_draw_line3(220, 200, 220, 220, 1.0, a, 15, b, 10, c, 12, lco);
+//      mw_draw_line3(220, 220, 200, 220, 1.0, a, 15, b, 10, c, 12, lco);
+//      mw_draw_line3(200, 220, 200, 200, 1.0, a, 15, b, 10, c, 12, lco);
+//
+//
+//      lco = 0;
+//      mw_draw_line3(300, 300, 380, 300, 1.0, a, 15, b, 10, c, 12, lco);
+//      mw_draw_line3(380, 300, 380, 380, 1.0, a, 15, b, 10, c, 12, lco);
+//      mw_draw_line3(380, 380, 300, 380, 1.0, a, 15, b, 10, c, 12, lco);
+//      mw_draw_line3(300, 380, 300, 300, 1.0, a, 15, b, 10, c, 12, lco);
+//
+//      lco = 0;
+//      mw_draw_line3(400, 400, 505, 400, 1.0, a, 15, b, 10, c, 12, lco);
+//      mw_draw_line3(505, 400, 505, 630, 1.0, a, 15, b, 10, c, 12, lco);
+//      mw_draw_line3(505, 630, 450, 630, 1.0, a, 15, b, 10, c, 12, lco);
+//      mw_draw_line3(450, 630, 400, 400, 1.0, a, 15, b, 10, c, 12, lco);
+//
+//
+//      al_flip_display();
+//      proc_controllers();
+//      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+//   }
+//
+//
+
+//   int quit = 0;
+//   while (!quit)
+//   {
+//      al_set_target_backbuffer(display);
+//      al_clear_to_color(al_map_rgb(0, 0, 0));
+//
+//      int a = 10 - pct_y;
+//      int b = 12;
+//
+//      int lco = 0;
+//
+//      al_draw_textf(font, palette_color[15], 10, 10, 0, "a:%d b:%d t:%d", a, b, a+b);
+//
+//
+//      lco = 0;
+//      mw_draw_line2(200, 200, 220, 200, 1.0, a, 15, b, 10, lco);
+//      mw_draw_line2(220, 200, 220, 220, 1.0, a, 15, b, 10, lco);
+//      mw_draw_line2(220, 220, 200, 220, 1.0, a, 15, b, 10, lco);
+//      mw_draw_line2(200, 220, 200, 200, 1.0, a, 15, b, 10, lco);
+//
+//
+//      lco = 0;
+//      mw_draw_line2(300, 300, 380, 300, 1.0, a, 15, b, 10, lco);
+//      mw_draw_line2(380, 300, 380, 380, 1.0, a, 15, b, 10, lco);
+//      mw_draw_line2(380, 380, 300, 380, 1.0, a, 15, b, 10, lco);
+//      mw_draw_line2(300, 380, 300, 300, 1.0, a, 15, b, 10, lco);
+//
+//      lco = 0;
+//      mw_draw_line2(400, 400, 505, 400, 1.0, a, 15, b, 10, lco);
+//      mw_draw_line2(505, 400, 505, 630, 1.0, a, 15, b, 10, lco);
+//      mw_draw_line2(505, 630, 450, 630, 1.0, a, 15, b, 10, lco);
+//      mw_draw_line2(450, 630, 400, 400, 1.0, a, 15, b, 10, lco);
+//
+//
+//      al_flip_display();
+//      proc_controllers();
+//      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+//   }
+//
+
+
+
+
+
+
+   void graph_test(void);
+   graph_test();
+
+
+
+
+
+
+
+
+
+//
+//   void log_bandwidth_graph(int);
+//   log_bandwidth_graph(0);
 
 
 
