@@ -990,8 +990,9 @@ int pmenu(int menu_num, int bg_color)
    int ky = mouse_y-20;
    if (menu_num == 2) if (ky > SCREEN_H - 160) up=1; // main editor menu
    if (menu_num == 6) if (ky > SCREEN_H - 60) up=1;  // lift step menu
+   if (menu_num == 5) if (ky > SCREEN_H - 80) up=1;  // generic menu
 
-   if (!up) // reverse version !
+   if (!up) // normal version
    {
       do   // until selection is made
       {
@@ -1009,8 +1010,8 @@ int pmenu(int menu_num, int bg_color)
                c++;
             }
             w = max_strlen*4 + 2;
-            al_draw_rectangle(kx-w, ky-2, kx+w, ky+c*8+1, palette_color[bg_color], 1); //frame entire menu
-            al_draw_filled_rectangle(kx-w, ky-2, kx+w, ky+c*8+1, palette_color[bg_color+128+64]); // blank background
+            al_draw_filled_rectangle(kx-w, ky-2, kx+w, ky+c*8+1, palette_color[bg_color+192]); // blank background
+            al_draw_rectangle       (kx-w, ky-2, kx+w, ky+c*8+1, palette_color[bg_color], 1);     // frame entire menu
          }
          c = 0;
          while (strcmp(global_string[menu_num][c],"end") != 0)
@@ -1028,13 +1029,8 @@ int pmenu(int menu_num, int bg_color)
             c++;
          }
          last_list_item = c-1;
-
-
-
-
          al_flip_display();
          proc_controllers();
-
          highlight = 2;
          if ( (mouse_x > (kx - 100)) && (mouse_x < (kx+100)) )
             if ( (mouse_y > ky ) && (mouse_y < ky + ((last_list_item+1)*8)) )
@@ -1043,22 +1039,39 @@ int pmenu(int menu_num, int bg_color)
 
       } while (selection == 999);
    }
-   if (up)  // normal version
+   if (up)  // reverse version
    {
-      ky = mouse_y+12;
+      if (menu_num == 5) ky += 18;  // generic menu
+      else ky = mouse_y+12; // to put mouse on default button
       if (ky > SCREEN_H) ky = SCREEN_H;
       do   // until selection is made
       {
-         c = 0;
          al_rest(0.02);
-         //show_mouse(NULL);
+         int max_strlen = 0;
+         int w = 0;
+         if (bg_color != 0)
+         {
+            c = 0;
+            // run through the menu to get height and width
+            while (strcmp(global_string[menu_num][c],"end") != 0)
+            {
+               int sl = strlen(global_string[menu_num][c]);
+               if (sl > max_strlen) max_strlen = sl;
+               c++;
+            }
+            w = max_strlen*4 + 2;
+            al_draw_filled_rectangle(kx-w, ky+9, kx+w, ky-c*8+6, palette_color[bg_color+192]); // blank background
+            al_draw_rectangle       (kx-w, ky+9, kx+w, ky-c*8+6, palette_color[bg_color], 1);     // frame entire menu
+         }
+
+         c = 0;
          while (strcmp(global_string[menu_num][c],"end") != 0)
          {
             b = 9+96;
             if (c == 0) b = 9;
             if (c == highlight) b=9;
             int w = strlen(global_string[menu_num][c])*4;
-            al_draw_filled_rectangle(kx-w, ky-(c*8), kx+w, ky-(c*8)+8, palette_color[0]);
+            if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky-(c*8), kx+w, ky-(c*8)+8, palette_color[0]);
             al_draw_text(font, palette_color[b], kx, ky-(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
             c++;
          }
