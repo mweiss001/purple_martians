@@ -45,6 +45,10 @@ void mwGraph::initialize(void)
    x_axis_slave = 0;
    y_axis_slave = 0;
 
+   linked_group_id = 0;
+   x_axis_cursor_pos = 0;
+
+
    y_axis_lock_scroll = 0;
    y_axis_zoom_lock = 0;
 
@@ -54,7 +58,8 @@ void mwGraph::initialize(void)
    y_axis_scrollbar_size = 10;
 
 
-   y_axis_label_text_draw = 1;
+   y_axis_grid_label_draw_on = 1;
+   x_axis_grid_label_draw_on = 1;
 
 
    x_axis_divider = 1;
@@ -80,6 +85,14 @@ void mwGraph::set_series_min_and_max_visible_indexes(int s)
       if ((series[s].data[i][0] < x_axis_min) && (series[s].data[i+1][0] >= x_axis_min)) series[s].min_visible_index = i;
       if ((series[s].data[i][0] < x_axis_max) && (series[s].data[i+1][0] >= x_axis_max)) series[s].max_visible_index = i+1;
    }
+
+   series[s].min_visible_index -=2;
+   if (series[s].min_visible_index < 0) series[s].min_visible_index = 0;
+
+   series[s].max_visible_index +=2;
+   if (series[s].max_visible_index > series[s].num_data) series[s].max_visible_index = series[s].num_data;
+
+
 }
 
 void mwGraph::proc_graph(void)
@@ -297,18 +310,22 @@ void mwGraph::enforce_axis_limits(int type)
    }
    if (type == 2) // ensure that neither axis_min or axis_max is beyond data range
    {
-      double xll = x_data_min; // lower limit
-      double xul = x_data_max; // upper limit
-      if (x_axis_min < xll) x_axis_min = xll;
-      if (x_axis_max < xll) x_axis_max = xll;
-      if (x_axis_min > xul) x_axis_min = xul;
-      if (x_axis_max > xul) x_axis_max = xul;
-
+      if (!x_axis_slave)
+      {
+         double xll = x_data_min - x_data_rng*0.25; // lower limit
+         double xul = x_data_max + x_data_rng*0.25; // upper limit
+//         double xll = x_data_min; // lower limit
+//         double xul = x_data_max; // upper limit
+         if (x_axis_min < xll) x_axis_min = xll;
+         if (x_axis_max < xll) x_axis_max = xll;
+         if (x_axis_min > xul) x_axis_min = xul;
+         if (x_axis_max > xul) x_axis_max = xul;
+      }
 
       if (!y_axis_slave)
       {
-         double yll = y_data_min; // lower limit
-         double yul = y_data_max; // upper limit
+         double yll = y_data_min - y_data_rng*0.25; // lower limit
+         double yul = y_data_max + y_data_rng*0.25; // upper limit
          if (y_axis_min < yll) y_axis_min = yll;
          if (y_axis_max < yll) y_axis_max = yll;
          if (y_axis_min > yul) y_axis_min = yul;
@@ -365,15 +382,12 @@ void mwGraph::enforce_axis_limits(int type)
          if (y_axis_max < 1000)
          {
             y_axis_divider = 1;
-            //sprintf(y_axis_units_text, "B/s");
-            sprintf(y_axis_legend_text, "Transmit Rate (B/s)");
-
+            sprintf(y_axis_legend_units, "B/s");
          }
          if (y_axis_max >= 1000)
          {
             y_axis_divider = 1000;
-            //sprintf(y_axis_units_text, "kB/s");
-            sprintf(y_axis_legend_text, "Transmit Rate (kB/s)");
+            sprintf(y_axis_legend_units, "kB/s");
          }
       }
 
@@ -382,42 +396,14 @@ void mwGraph::enforce_axis_limits(int type)
          if (y_axis_max < 1000)
          {
             y_axis_divider = 1;
-            //sprintf(y_axis_units_text, "B/s");
-            sprintf(y_axis_legend_text, "Receive Rate (B/s)");
-
+            sprintf(y_axis_legend_units, "B/s");
          }
          if (y_axis_max >= 1000)
          {
             y_axis_divider = 1000;
-            //sprintf(y_axis_units_text, "kB/s");
-            sprintf(y_axis_legend_text, "Receive Rate (kB/s)");
+            sprintf(y_axis_legend_units, "kB/s");
          }
       }
-
-      if (y_axis_type == 3)
-      {
-         y_axis_divider = 1;
-         sprintf(y_axis_legend_text, "D Sync (ms)");
-      }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    }
 }
 
@@ -465,7 +451,10 @@ int mwGraph::convert_sxy_to_gxy(int sx, int sy, double &gx, double &gy)
 double round_to_nearest(double in, double nr)
 {
    double tmp = fmod(in, nr);
-   return nr + (in - tmp);
+   double nr2 =  nr + (in - tmp);
+   if (nr2 < 0) nr2 -= nr;
+   //printf("in:%f  nr:%f  nr2:%f\n", in, nr, nr2);
+   return nr2;
 }
 
 
@@ -473,13 +462,13 @@ double round_to_nearest(double in, double nr)
 // ------------ x axis ------------------------------------------------
 // --------------------------------------------------------------------
 
-void mwGraph::set_title(const char* text, int text_color, int frame_color)
+void mwGraph::set_title(const char* text, int type, int text_color, int frame_color)
 {
    sprintf(title_text, "%s", text);
    title_text_color = text_color;
    title_frame_color = frame_color;
    title_draw_on = 1;
-   title_draw_style = 1;
+   title_draw_style = type;
 }
 
 
@@ -555,23 +544,22 @@ void mwGraph::x_axis_get_size_and_arrange_pos(void)
    x_axis_draw_legend(1);
    x_axis_draw_scrollbar(1);
 
-
    int pad = 2;
 
    title_draw_y = graph_y1 + pad;
-//   title_draw_y = pad;
    plot_y1 = title_draw_y + title_draw_size + pad;
 
-   x_axis_draw_size = 0;
-   if (x_axis_label_draw_on)     x_axis_draw_size += (x_axis_label_draw_size + pad);
-   if (x_axis_legend_draw_on)    x_axis_draw_size += (x_axis_legend_draw_size + pad);
-   if (x_axis_scrollbar_draw_on) x_axis_draw_size += (x_axis_scrollbar_draw_size + pad);
+   x_axis_draw_size = pad;
+   if (x_axis_grid_label_draw_on) x_axis_draw_size += (x_axis_grid_label_draw_size + pad);
+   if (x_axis_legend_draw_on)     x_axis_draw_size += (x_axis_legend_draw_size     + pad);
+   if (x_axis_scrollbar_draw_on)  x_axis_draw_size += (x_axis_scrollbar_draw_size  + pad);
+
+
 
    plot_y2 = graph_y2 - x_axis_draw_size;
-//   plot_y2 = graph_h - x_axis_draw_size;
    plot_h = plot_y2 - plot_y1;
 
-   x_axis_legend_draw_y = plot_y2 + x_axis_label_draw_size + pad;
+   x_axis_legend_draw_y = plot_y2 + x_axis_grid_label_draw_size + pad;
    x_axis_scrollbar_y1 = x_axis_legend_draw_y + x_axis_legend_draw_size + pad;
 
 }
@@ -593,9 +581,10 @@ void mwGraph::set_x_axis_legend(const char* text, int font, int text_color, int 
    x_axis_legend_draw_on = 1;
 }
 
-void mwGraph::set_y_axis_legend(const char* text, int font, int text_color, int frame_color)
+void mwGraph::set_y_axis_legend(const char* name, const char* units, int font, int text_color, int frame_color)
 {
-   sprintf(y_axis_legend_text, "%s", text);
+   sprintf(y_axis_legend_name, "%s", name);
+   sprintf(y_axis_legend_units, "%s", units);
    y_axis_legend_font = font;
    y_axis_legend_text_color = text_color;
    y_axis_legend_frame_color = frame_color;
@@ -605,19 +594,19 @@ void mwGraph::set_y_axis_legend(const char* text, int font, int text_color, int 
 void mwGraph::set_x_axis_labels(int type, int font, int tick_size, int color)
 {
    x_axis_type = type;
-   x_axis_label_font = font;
-   x_axis_label_tick_size = tick_size;
-   x_axis_label_color = color;
-   x_axis_label_draw_on = 1;
+   x_axis_grid_label_font = font;
+   x_axis_grid_label_tick_size = tick_size;
+   x_axis_grid_label_color = color;
+   x_axis_grid_draw_on = 1;
 }
 
 void mwGraph::set_y_axis_labels(int type, int font, int tick_size, int color)
 {
    y_axis_type = type;
-   y_axis_label_font = font;
-   y_axis_label_tick_size = tick_size;
-   y_axis_label_color = color;
-   y_axis_label_draw_on = 1;
+   y_axis_grid_label_font = font;
+   y_axis_grid_label_tick_size = tick_size;
+   y_axis_grid_label_color = color;
+   y_axis_grid_draw_on = 1;
 }
 
 
@@ -659,27 +648,28 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
 {
    double lx = 0, ly = 0;
    ALLEGRO_FONT *f = font;
-   if (x_axis_label_font) f = f3;
-
+   if (x_axis_grid_label_font) f = f3;
    int bx, by, bw, bh;
    al_get_text_dimensions(f, "1234", &bx, &by, &bw, &bh);
-   x_axis_label_text_size = bh;
+   x_axis_grid_label_text_size = bh;
 
-   x_axis_label_draw_size = 0;
-   if (x_axis_label_draw_on)
+   x_axis_grid_label_draw_size = 0;
+
+   if (x_axis_grid_draw_on)
    {
-      x_axis_label_draw_size = x_axis_label_tick_size + x_axis_label_text_size;
+      if (x_axis_grid_label_draw_on) x_axis_grid_label_draw_size = x_axis_grid_label_tick_size + x_axis_grid_label_text_size;
+
       if (!set_size_only)
       {
+         int x_axis_label_y0 = plot_y1;                                        // far side of plot (top)
+         int x_axis_label_y1 = plot_y2;                                        // side of plot closest to labels
+         int x_axis_label_y2 = x_axis_label_y1 + x_axis_grid_label_tick_size;  // end of tick line where text start
+         int x_axis_label_y3 = x_axis_label_y2 + x_axis_grid_label_text_size;  // end of area
 
-         int x_axis_label_y0 = plot_y1;                                   // far side of graph
-         int x_axis_label_y1 = plot_y2;                                   // side of graph closest to labels
-         int x_axis_label_y2 = x_axis_label_y1 + x_axis_label_tick_size;  // end of tick line where text start
-         int x_axis_label_y3 = x_axis_label_y2 + x_axis_label_text_size;  // end of area
+         if (!x_axis_grid_label_draw_on) x_axis_label_y3 = x_axis_label_y2 = x_axis_label_y1;
 
          al_draw_filled_rectangle(plot_x1-12, x_axis_label_y1+1, plot_x2+12, x_axis_label_y3, palette_color[0]);         // erase background
          //al_draw_rectangle(       plot_x1-12, x_axis_label_y1+1, plot_x2+12, x_axis_label_y3, palette_color[15+128], 1); // debug frame
-
 
          // if we are showing scaled values, set and use temp scaled vars
          double sx_axis_min = x_axis_min / x_axis_divider;
@@ -695,9 +685,9 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
          // al_draw_textf(font, palette_color[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
 
 
-         int mj_col = x_axis_label_color+128;
+         int mj_col = x_axis_grid_label_color+128;
          float mj_size = 0.5;
-         int mn_col = x_axis_label_color+160;
+         int mn_col = x_axis_grid_label_color+160;
          float mn_size = 0;
 
          // minor gridlines with no labels
@@ -731,24 +721,21 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
                al_draw_line(lx, x_axis_label_y0+1, lx, x_axis_label_y1-1, palette_color[mn_col], mn_size);
             }
          }
-
          // major gridlines with labels
          double gx2 = round_to_nearest(sx_axis_min, x_gl_span);
          for (double i=gx2; i<=sx_axis_max; i+=x_gl_span)
          {
             convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly);
             al_draw_line(lx, x_axis_label_y0, lx, x_axis_label_y2, palette_color[mj_col], mj_size);
-            al_draw_textf(f, palette_color[x_axis_label_color], lx, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, "%0.0f", i);
+            if (x_axis_grid_label_draw_on) al_draw_textf(f, palette_color[x_axis_grid_label_color], lx, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, "%0.0f", i);
          }
-
-//         // label on origin
-//         al_draw_line(plot_x1, plot_y2+1, plot_x1, x_axis_label_y2, palette_color[mj_col], mj_size);
-//         int y_offset = 0;
-//         if (f == f3) y_offset = 4;
-//         al_draw_textf(f, palette_color[x_axis_label_color], plot_x1, x_axis_label_y2-y_offset, ALLEGRO_ALIGN_CENTER, "%0.0f", sx_axis_min);
-
-
-
+         if (0) // label on origin
+         {
+            al_draw_line(plot_x1, plot_y2+1, plot_x1, x_axis_label_y2, palette_color[mj_col], mj_size);
+            int y_offset = 0;
+            if (f == f3) y_offset = 4;
+            al_draw_textf(f, palette_color[x_axis_grid_label_color], plot_x1, x_axis_label_y2-y_offset, ALLEGRO_ALIGN_CENTER, "%0.0f", sx_axis_min);
+         }
       }
    }
 }
@@ -945,10 +932,12 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
    {
       int pad = 1;
 
+      sprintf(msg, "%s [%s]", y_axis_legend_name, y_axis_legend_units);
+
       ALLEGRO_FONT *f = font;
       if (y_axis_legend_font) f = f3;
       int bx, by, bw, bh;
-      al_get_text_dimensions(f, y_axis_legend_text, &bx, &by, &bw, &bh);
+      al_get_text_dimensions(f, msg, &bx, &by, &bw, &bh);
 
       y_axis_legend_draw_size = bh+2+pad*2;
 
@@ -957,11 +946,10 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
          ALLEGRO_BITMAP* t = al_create_bitmap(bw+2+pad*2, bh+2+pad*2);
          al_set_target_bitmap(t);
          al_clear_to_color(palette_color[0]);
-         al_draw_textf(f, palette_color[y_axis_legend_text_color], 1+pad, 1+pad-by, 0, "%s", y_axis_legend_text);
+         al_draw_text(f, palette_color[y_axis_legend_text_color], 1+pad, 1+pad-by, 0, msg);
          al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[y_axis_legend_frame_color], 1);
 
          al_set_target_backbuffer(display);
-//         al_set_target_bitmap(graph);
          int yc = plot_y2 - (plot_y2 - plot_y1) /2;
          al_draw_rotated_bitmap(t, 0, 0, y_axis_legend_draw_x, yc+bw/2, -ALLEGRO_PI/2, 0);
 
@@ -973,12 +961,12 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
 void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
 {
    ALLEGRO_FONT *f = font;
-   if (y_axis_label_font) f = f3;
-
+   if (y_axis_grid_label_font) f = f3;
    int bx, by, bw, bh;
 
-   y_axis_label_draw_size = 0;
-   if (y_axis_label_draw_on)
+
+
+   if (y_axis_grid_draw_on)
    {
       double sy_axis_min = y_axis_min / y_axis_divider;
       double sy_axis_max = y_axis_max / y_axis_divider;
@@ -996,27 +984,28 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
       for (double i=gy2; i<sy_axis_max; i+=y_gl_span)
       {
          convert_gxy_to_sxy(9999, i * y_axis_divider, lx, ly);
-         sprintf(msg, "%0.0f", i);
+         //sprintf(msg, "%0.0f", i);
+         sprintf(msg, "%s", y_axis_get_val_text(i, 0));
          al_get_text_dimensions(f, msg, &bx, &by, &bw, &bh);
          if (bw >  max_width) max_width = bw;
       }
-      y_axis_label_text_size = max_width+1;
+      y_axis_grid_label_text_size = max_width+1;
 
 
       // then I set sizes and positions
-      int y_axis_label_x0 = plot_x2;                                   // far side of graph
-      int y_axis_label_x1 = plot_x1;                                   // side of graph closest to labels
-      int y_axis_label_x2 = y_axis_label_x1 - y_axis_label_tick_size;  // x pos of tick start
-      int y_axis_label_x3 = y_axis_label_x2 - y_axis_label_text_size;  // x pos of text
-      y_axis_label_draw_size = y_axis_label_tick_size + y_axis_label_text_size;
+      int y_axis_label_x0 = plot_x2;                                        // far side of graph
+      int y_axis_label_x1 = plot_x1;                                        // side of graph closest to labels
+      int y_axis_label_x2 = y_axis_label_x1 - y_axis_grid_label_tick_size;  // x pos of tick start
+      int y_axis_label_x3 = y_axis_label_x2 - y_axis_grid_label_text_size;  // x pos of text
+
+      y_axis_grid_label_draw_size = y_axis_grid_label_tick_size + y_axis_grid_label_text_size;
+      if (!y_axis_grid_label_draw_on) y_axis_grid_label_draw_size = 0;
 
       if (!set_size_only)
       {
-
-
-         int mj_col = y_axis_label_color+128;
+         int mj_col = y_axis_grid_label_color+128;
          float mj_size = .5;
-         int mn_col = y_axis_label_color+160;
+         int mn_col = y_axis_grid_label_color+160;
          float mn_size = .5;
 
          al_draw_filled_rectangle(y_axis_label_x3, plot_y1-5, y_axis_label_x1-1, plot_y2+4, palette_color[0]);     // erase background
@@ -1056,7 +1045,7 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
             for (double i=gy2; i<=sy_axis_max; i+=ns)
             {
                convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
-               if (y_axis_label_text_draw) al_draw_line(y_axis_label_x1+1, ly, y_axis_label_x0-1, ly, palette_color[mn_col], mn_size);
+               if (y_axis_grid_label_draw_on) al_draw_line(y_axis_label_x1+1, ly, y_axis_label_x0-1, ly, palette_color[mn_col], mn_size);
             }
          }
 
@@ -1065,11 +1054,20 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
          {
             convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
             al_draw_line(y_axis_label_x2, ly, y_axis_label_x0-1, ly, palette_color[mj_col], mj_size);
-            if (y_axis_label_text_draw) al_draw_textf(f, palette_color[y_axis_label_color], y_axis_label_x2, ly-by-bh/2, ALLEGRO_ALIGN_RIGHT, "%0.0f", i);
+
+
+            if (y_axis_grid_label_draw_on) al_draw_text(f, palette_color[y_axis_grid_label_color], y_axis_label_x2, ly-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text(i, 0));
+//            if (y_axis_grid_label_draw_on) al_draw_textf(f, palette_color[y_axis_grid_label_color], y_axis_label_x2, ly-by-bh/2, ALLEGRO_ALIGN_RIGHT, "%0.0f", i);
+//            sprintf(msg, "%0.0f", i);
+//            if (y_axis_type == 4) sprintf(msg, "%0.1f", i);
+//            if (y_axis_grid_label_draw_on) al_draw_text(f, palette_color[y_axis_grid_label_color], y_axis_label_x2, ly-by-bh/2, ALLEGRO_ALIGN_RIGHT, msg);
+
+
+
          }
 //         // always put label on origin
 //         al_draw_line(y_axis_label_x2, plot_y2, plot_x1-1, plot_y2, palette_color[mj_col], mj_size);
-//         al_draw_textf(f, palette_color[y_axis_label_color], y_axis_label_x2, plot_y2-by-bh/2, ALLEGRO_ALIGN_RIGHT, "%3.0f", y_axis_min / y_axis_divider);
+//         al_draw_textf(f, palette_color[y_axis_grid_label_color], y_axis_label_x2, plot_y2-by-bh/2, ALLEGRO_ALIGN_RIGHT, "%3.0f", y_axis_min / y_axis_divider);
       }
    }
 }
@@ -1089,39 +1087,30 @@ void mwGraph::y_axis_get_size_and_arrange_pos(void)
 
    int pad = 3;
 
-   if (x_axis_slave)
+   if (x_axis_slave) // force plot x1, x2 to match master
    {
-      int c = x_axis_slave - 100;
-      plot_x1 = mG[c].plot_x1;
-      plot_x2 = graph_x2 - pad;
-      plot_w = plot_x2 - plot_x1;
-
-      if (y_axis_scrollbar_draw_on) y_axis_scrollbar_x1 = graph_x1 + pad;
-      y_axis_scrollbar_x2 = y_axis_scrollbar_x1 + y_axis_scrollbar_draw_size;
-      y_axis_legend_draw_x = y_axis_scrollbar_x2 + pad;
+      plot_x1 = mG[x_axis_slave - 100].plot_x1;
+      plot_x2 = mG[x_axis_slave - 100].plot_x2;
    }
-   else
+   else  // calculate plot x1 by adding all the things padding it
    {
-      y_axis_draw_size = 0;
-      if (y_axis_label_draw_on)     y_axis_draw_size += (y_axis_label_draw_size + pad);
-      if (y_axis_legend_draw_on)    y_axis_draw_size += (y_axis_legend_draw_size + pad);
-      if (y_axis_scrollbar_draw_on) y_axis_draw_size += (y_axis_scrollbar_draw_size + pad);
+      y_axis_draw_size = pad;
+      if (y_axis_grid_label_draw_on) y_axis_draw_size += (y_axis_grid_label_draw_size + pad);
+      if (y_axis_legend_draw_on)     y_axis_draw_size += (y_axis_legend_draw_size     + pad);
+      if (y_axis_scrollbar_draw_on)  y_axis_draw_size += (y_axis_scrollbar_draw_size  + pad);
 
-      if (y_axis_scrollbar_draw_on) y_axis_scrollbar_x1 = graph_x1 + pad;
-      else                          y_axis_scrollbar_x1 = graph_x1;
-
-      y_axis_scrollbar_x2 = y_axis_scrollbar_x1 + y_axis_scrollbar_draw_size;
-
-      y_axis_legend_draw_x = y_axis_scrollbar_x2 + pad;
-
-      plot_x2 = graph_x2 - pad;
       plot_x1 = graph_x1 + y_axis_draw_size;
-      plot_w = plot_x2 - plot_x1;
-
-   //   printf("ya_draw_size:%d label:%d legend:%d sb:%d\n", y_axis_draw_size, y_axis_label_draw_size, y_axis_legend_draw_size, y_axis_scrollbar_draw_size);
+      plot_x2 = graph_x2 - pad;
    }
-}
+   plot_w = plot_x2 - plot_x1;
 
+   // scrollbar relative to graph x1
+   y_axis_scrollbar_x1 = graph_x1 + pad;
+   y_axis_scrollbar_x2 = y_axis_scrollbar_x1 + y_axis_scrollbar_draw_size;
+
+   // legend relative to labels
+   y_axis_legend_draw_x = plot_x1 - y_axis_grid_label_draw_size - pad - y_axis_legend_draw_size;
+}
 
 void mwGraph::calc_data_range(void)
 {
@@ -1227,9 +1216,6 @@ int mwGraph::y_axis_draw_scrollbar(int set_size_only)
 
          if (!y_axis_slave)
          {
-
-
-
             if ((mx > sbx1) && (mx < sbx2))
             {
                // on entire scrollbar
@@ -1306,15 +1292,15 @@ void mwGraph::y_axis_proc_scrollbar(int draw_only)
          if (!draw_only)
          {
 
-            int ya = y_axis_scrollbar_y2+0;
-            int yb = y_axis_scrollbar_x2 - y_axis_scrollbar_x1; // to make it square
-            int xa = y_axis_scrollbar_x1;
-            int xb = y_axis_scrollbar_x2;
-            if (y_axis_zoom_lock == 0) sprintf(msg, "U");
-            if (y_axis_zoom_lock == 1) sprintf(msg, "L");
-            if (y_axis_zoom_lock == 2) sprintf(msg, "A");
-            if (mdw_buttont(xa, ya, xb, yb, 0,0,0,0,   0,15+64,15, 0,  1,0,1,0, msg)) y_axis_zoom_lock++;
-            if (y_axis_zoom_lock > 2) y_axis_zoom_lock = 0;
+//            int ya = y_axis_scrollbar_y2+0;
+//            int yb = y_axis_scrollbar_x2 - y_axis_scrollbar_x1; // to make it square
+//            int xa = y_axis_scrollbar_x1;
+//            int xb = y_axis_scrollbar_x2;
+//            if (y_axis_zoom_lock == 0) sprintf(msg, "U");
+//            if (y_axis_zoom_lock == 1) sprintf(msg, "L");
+//            if (y_axis_zoom_lock == 2) sprintf(msg, "A");
+//            if (mdw_buttont(xa, ya, xb, yb, 0,0,0,0,   0,15+64,15, 0,  1,0,1,0, msg)) y_axis_zoom_lock++;
+//            if (y_axis_zoom_lock > 2) y_axis_zoom_lock = 0;
 
             if (sb == 1)
             {
@@ -1437,7 +1423,7 @@ char* mwGraph::x_axis_get_val_text(double val, int units)
 {
    char t1[80] = {0};
    char t2[80] = {0};
-
+   sprintf(t1, "%0.0f", val);
    if (x_axis_type == 1) // time in frames
    {
       if (x_axis_divider == 1)
@@ -1451,14 +1437,6 @@ char* mwGraph::x_axis_get_val_text(double val, int units)
          sprintf(t2, "seconds");
       }
    }
-   else // generic default
-   {
-      sprintf(t1, "%0.0f", val);
-   }
-
-
-
-
    if (units) sprintf(msg, "%s %s", t1, t2);
    else       sprintf(msg, "%s", t1);
    return msg;
@@ -1467,66 +1445,37 @@ char* mwGraph::x_axis_get_val_text(double val, int units)
 char* mwGraph::y_axis_get_val_text(double val, int units)
 {
    char t1[80] = {0};
-   char t2[80] = {0};
-
-
-   // default
-   sprintf(t1, "%3.3f", val);
-   sprintf(t2, "");
-
-
-
+   sprintf(t1, "%3.3f", val); // default
 
    if ((y_axis_type == 1) || (y_axis_type == 2)) // B/s
    {
       if (val < 1000)
       {
          sprintf(t1, "%3.0f", val);
-         sprintf(t2, "B/s");
       }
 
       if (val >= 1000)
       {
          sprintf(t1, "%3.3f", val/1000);
-         sprintf(t2, "kB/s");
       }
    }
 
    if (y_axis_type == 3) // ms
    {
-      if (val < 1000)
-      {
-         sprintf(t1, "%3.0f", val);
-         sprintf(t2, "ms");
-      }
-
-      if (val >= 1000)
-      {
-         sprintf(t1, "%3.3f", val/1000);
-         sprintf(t2, "s");
-      }
+      if (abs(val) < 1000) sprintf(t1, "%3.0f", val);
+      if (abs(val) < 100)  sprintf(t1, "%3.1f", val);
+      if (abs(val) < 10)   sprintf(t1, "%3.2f", val);
+      if (abs(val) < 1)    sprintf(t1, "%3.2f", val);
    }
+
 
    if (y_axis_type == 4) // FPS
    {
       sprintf(t1, "%4.2f", val);
-      sprintf(t2, "FPS");
    }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-   if (units) sprintf(msg, "%s %s", t1, t2);
+   if (units) sprintf(msg, "%s %s", t1, y_axis_legend_units);
    else       sprintf(msg, "%s", t1);
    return msg;
 }
@@ -1563,6 +1512,7 @@ int mwGraph::find_closest_point_to_mouse(int &sp, int &ip)
    if (min_dist < 10) return 1;
    else return 0;
 }
+
 
 void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f, int s)
 {
@@ -1706,24 +1656,30 @@ void mwGraph::proc_plot_area(int draw_only)
          {
             sprintf(global_string[5][0],"Main Plot Menu");
             sprintf(global_string[5][1],"--------------");
-            sprintf(global_string[5][2],"Hide/Show Perfromance");
-            sprintf(global_string[5][3],"Hide/Show Series Legend");
-            sprintf(global_string[5][4],"Series Legend Size");
-            sprintf(global_string[5][5],"Force Solid Lines");
+            sprintf(global_string[5][2],"Auto Range All");
+            sprintf(global_string[5][3],"Auto Range X");
+            sprintf(global_string[5][4],"Auto Range Y");
+            sprintf(global_string[5][5],"Hide/Show Perfromance");
+            sprintf(global_string[5][6],"Hide/Show Series Legend");
+            sprintf(global_string[5][7],"Series Legend Size");
+            sprintf(global_string[5][8],"Force Solid Lines");
 
-            sprintf(global_string[5][6],"end");
+            sprintf(global_string[5][9],"end");
             switch (pmenu(5, 13))
             {
-               case 2: plot_show_performance = !plot_show_performance; break;
-               case 3: series_legend_draw_on = !series_legend_draw_on;  break;
-               case 4: series_legend_size = !series_legend_size;  break;
-               case 5: series_legend_force_solid_lines = !series_legend_force_solid_lines;  break;
+               case 2: autorange_axis(1, 1); break;
+               case 3: autorange_axis(1, 0); break;
+               case 4: autorange_axis(0, 1); break;
+               case 5: plot_show_performance = !plot_show_performance; break;
+               case 6: series_legend_draw_on = !series_legend_draw_on;  break;
+               case 7: series_legend_size = !series_legend_size;  break;
+               case 8: series_legend_force_solid_lines = !series_legend_force_solid_lines;  break;
             }
          }
 
          // show mouse crosshairs and data about mouse position
-         float x = 0;
-         float y = 0;
+         double x = 0;
+         double y = 0;
          int col = 15;
 
          int i = 0;
@@ -1743,6 +1699,13 @@ void mwGraph::proc_plot_area(int draw_only)
             y = mouse_y;
             draw_point_data(x, y, mx1, my1, col, f3, -1);
          }
+         if (linked_group_id)
+         {
+            for (int g=0; g<10; g++)
+               if (mG[g].linked_group_id == linked_group_id) mG[g].x_axis_cursor_pos = x;
+         }
+
+
          al_set_clipping_rectangle(plot_x1 * display_transform_double, plot_y1 * display_transform_double, plot_w * display_transform_double, plot_h * display_transform_double);
          al_draw_line(plot_x1, y, plot_x2, y, palette_color[col+64], 0);
          al_draw_line(x, plot_y1, x, plot_y2, palette_color[col+64], 0);
@@ -1789,9 +1752,12 @@ void mwGraph::proc_plot_area(int draw_only)
                   proc_controllers();
                   if (convert_sxy_to_gxy(mouse_x, mouse_y, mx2, my2))
                   {
-                     double mdx = (mouse_x - rmx) * x_scaler;
-                     x_axis_min = old_x_axis_min - mdx;
-                     x_axis_max = old_x_axis_max - mdx;
+                     if (!x_axis_slave)
+                     {
+                        double mdx = (mouse_x - rmx) * x_scaler;
+                        x_axis_min = old_x_axis_min - mdx;
+                        x_axis_max = old_x_axis_max - mdx;
+                     }
 
                      double mdy = (mouse_y - rmy) * y_scaler;
                      double new_y_axis_min = old_y_axis_min + mdy;
@@ -1863,6 +1829,19 @@ void mwGraph::proc_plot_area(int draw_only)
 
 
       } // end of mouse on plot area
+      else // mouse not on plot area
+      {
+         if ((mouse_x > graph_x1) && (mouse_x < graph_x2) && (mouse_y > graph_y1) && (mouse_y < graph_y2)) // not on plot, but on graph
+            for (int g=0; g<10; g++)
+               if (mG[g].linked_group_id == linked_group_id) mG[g].x_axis_cursor_pos = 99999; // set all linked cursors to not valid
+
+         if (x_axis_cursor_pos > -99998)
+            al_draw_line(x_axis_cursor_pos, plot_y1, x_axis_cursor_pos, plot_y2, palette_color[15], 0); // draw if valid
+      }
+
+
+
+
    } // end of !draw_only
 }
 

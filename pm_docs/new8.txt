@@ -2800,9 +2800,6 @@ int mw_draw_line(double x1, double y1, double x2, double y2, float thickness, in
 
 
 
-
-
-
 add pop up menu to plot area or series legend to thin number of segments or change to solid color.
 changing from a segmented line to solid only make a small change
 
@@ -2891,7 +2888,6 @@ void proc_plot_area(int draw_only)
 }
 
 
-
 do the same with scrollbars
 
 have one entry point and an option to draw only...
@@ -2901,9 +2897,6 @@ then have draw itself have an option to draw only
 void mwGraph::y_axis_proc_scrollbar(void)
 {
       int sb = y_axis_draw_scrollbar(0);
-
-
-
 
 now I have one entry point:
 mG[].proc_graph(void)
@@ -2974,9 +2967,183 @@ done....
 
 add reset all to plot menu
 
+add resize slider in between graphs...done...added to bandwidth...
+
+make is so when x_axis_slave, can't even slide x axis a little bit...done
+
+make it so if y legend does not fit on screen, auto set to smaller font...
+
+
+make a way to not draw x_axis labels and reclaim space....
+
+I think I might need to properly separate gridline and labels
+right now I kind of lump them together
+
+I still want to draw them together, but the variable used to control whether tey are draw or not are overly complicated
+
+
+this is what I have now:
+int  x_axis_label_draw_on;
+int  x_axis_label_font;
+int  x_axis_label_draw_size;
+int  x_axis_label_tick_size;
+int  x_axis_label_text_size;
+int  x_axis_label_text_draw;
+int  x_axis_label_color;
+
+change to:
+int x_axis_grid_draw_on
+int x_axis_grid_color
+int x_axis_grid_labels_draw_on
+int x_axis_grid_labels_font
+int x_axis_grid_labels_color
+int x_axis_grid_labels_draw_size
+int x_axis_grid_labels_tick_size
+int x_axis_grid_labels_text_size
+
+
+this is done and it works way better
+
+add one more...
+int x_axis_grid_draw_to_top_of_other_graph...why bother...
+
+removed the lock, unlock, auto button...
+
+now clean up the y axis the same way...
+
+old
+int y_axis_label_draw_on;
+int y_axis_label_font;
+int y_axis_grid_label_draw_size;
+int y_axis_label_tick_size;
+int y_axis_label_text_size;
+int y_axis_label_text_draw;
+int y_axis_label_color;
+
+new
+int y_axis_grid_draw_on
+int y_axis_grid_color
+int y_axis_grid_label_draw_on
+int y_axis_grid_label_font
+int y_axis_grid_label_color
+int y_axis_grid_label_draw_size
+int y_axis_grid_label_tick_size
+int y_axis_grid_label_text_size
+
+fixed some weirdness in void mwGraph::y_axis_get_size_and_arrange_pos(void)
+now it's much simpler
+
+add reset to main menu...done...
 
 
 
+add x_axis_top_graph_gridline...done...
+
+now it matter in what order thing are drawn in
+the graph that draws the gridlines, needs to be last or the other plots will overwrite them
+also when thet are draw, they draw on top of everything else....
+not sure if this was a good idea...removed....
+
+
+how about the mouse position on any graph is sent to the others so they can show that x position on their graph too...
+
+how will I go about linking them?
+
+make a series number that they can share
+if the mouse is diplaying a point, send that to all others in the same series
+
+all others look for shared values when they don't have mouse...
+
+each graph could have a
+
+if graph does not have the mouse, they are listening
+if graph does have the mouse, they sending
+
+
+all I need to link is x_cursor_pos...
+
+any of the linked ones can set all other linked ones...
+
+
+code:
+if mouse on plot, set x_cursor_pos on all others..
+if mouse not on plot read x_cursor pos...
+
+this could work...
+
+vars
+
+int linked_group_id;
+double x_axis_cursor_pos;
+
+ok fine, try it
+
+
+
+
+x_axis_cursor_pos = -99999;
+
+if mouse is on graph, but not on plot set all local and remote to dont show value
+
+if mouse is not on graph at all, read and use value from local
+
+if mouse is on plot, set local and send to all linked
+
+have a common place to draw....
+
+
+
+i need a function that you pass it only an x position
+and you get:
+
+0 = no data at that x point
+1 = scaled y position at that point
+2 = closest point (less tham threshold)
+
+this is getting complicated....
+
+i could have mutiple y matches for x at the destination
+
+keep it simple...
+
+do only the line....done
+
+         else // show mouse position
+         {
+            col = 15;
+            x = mouse_x;
+            y = mouse_y;
+            draw_point_data(x, y, mx1, my1, col, f3, -1);
+         }
+         if (linked_group_id)
+         {
+            for (int g=0; g<10; g++)
+               if (mG[g].linked_group_id == linked_group_id) mG[g].x_axis_cursor_pos = x;
+         }
+
+
+      } // end of mouse on plot area
+      else // mouse not on plot area
+      {
+         if ((mouse_x > graph_x1) && (mouse_x < graph_x2) && (mouse_y > graph_y1) && (mouse_y < graph_y2)) // not on plot, but on graph
+            for (int g=0; g<10; g++)
+               if (mG[g].linked_group_id == linked_group_id) mG[g].x_axis_cursor_pos = 99999; // set all linked cursors to not valid
+
+         if (x_axis_cursor_pos > -99998)
+            al_draw_line(x_axis_cursor_pos, plot_y1, x_axis_cursor_pos, plot_y2, palette_color[15], 0); // draw if valid
+      }
+
+
+
+that is done...now add it to bandwidth graph...done....
+
+
+
+test graph on weak clients...it seems really slow  can take up to 800ms to plot
+in that case I could automatically reduce the x range....
+
+
+is there anything else in the logs I could graph?
 
 
 
@@ -2985,6 +3152,180 @@ make a client sync graph from the clients point of view:
 fps chase
 dsysnc
 ping
+what log line am I basing this on?
+
+the server only has data when the client sends stak but the client should have much more data than that...
+
+
+it looks like the client only adjust timer when rxing stdf....
+
+I thought it would happen more often...but what does it have to sync with?
+
+I suppose we could use ping...
+
+I want to do a ping vs dsync from the client's pov
+
+
+there are three things on the client...
+
+ping
+sync target
+acually sync
+
+I think a graph of those might be insightful
+
+where does it happen and what are the vars again??
+
+
+in client_fast_packet_loop:
+players1[active_local_player].ping = t2 - t0;
+ping_array_add(players1[active_local_player].ping);
+I should add a log entry for this...
+
+then what?
+
+void client_timer_adjust(void)
+{
+   int p = active_local_player;
+   double dsync = players1[p].dsync - players1[p].client_chase_offset; // adjust for target offset
+   double fps_adj = dsync * 100; // make the change bigger
+
+   float fps_chase = frame_speed + fps_adj;
+   if (fps_chase < 10) fps_chase = 10; // never let this go negative
+   if (fps_chase > 70) fps_chase = 70;
+   al_set_timer_speed(fps_timer, ( 1 / fps_chase));
+   players1[p].client_chase_fps = fps_chase;
+}
+
+
+
+
+where is offset calculated...
+
+in ping array add....
+
+places for log inputs:
+- stdf rx (dysnc, fps_chase) this is already done...
+- add ping... (ping_curr, ping avg, offset)
+
+
+add one in timer adjust....
+
+
+36 tmaj // timer adjust
+37 cpng // client ping
+
+
+sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.2f]\n", dsync, players1[p].client_chase_offset, fps_chase);
+if (L_LOGGING_NETPLAY_stdf_all_packets) add_log_entry2(36, p, msg);
+
+sprintf(msg, "ping [%3.2f] avg[%3.2f]\n", ping, players1[p].ping_avg);
+if (L_LOGGING_NETPLAY_stdf_all_packets) add_log_entry2(37, p, msg);
+
+
+OK I have some log lines, now lets make a graph....
+
+
+
+
+I need a way to get value for y axis....
+
+
+just throw a values and it will know how to print it...
+
+i think I started one of those already....
+char* mwGraph::y_axis_get_val_text(double val, int units)
+
+
+dsync is huge at the start....how about we don't actually use it to set fps until after initial state is received and chase starts....
+
+
+
+
+clean up the number formating stuff+...
+
+int y_axis_type
+set for different types
+
+y_axis_type
+y_axis_legend
+y_axis_units
+y_axis_divider
+
+The name you give to legend, should not ever automatically change
+however the units may depending on type...
+
+at init:
+set name, units name, divider,
+
+now I only have types 1 and 2 that change units
+they do that in enforce_axis_limits(5)
+
+
+all the rest should be handled in:
+char* mwGraph::y_axis_get_val_text(double val, int units)
+
+this should not change units, just print formating
+
+type 3 for all ms
+type 4 for FPS
+
+check where thet are all set...done...
+
+
+
+now what else can I monitor??
+
+on the server, late cdat dropped
+
+
+d 3-1 30s 1c
+
+e 3-1 at 15s 3-1 ic
+
+
+
+why? on my latest test graph, do the 2 graphs not line up vertically?
+
+im guessing something to do with enforce limits.....
+can i disable it for x axis on slaves
+
+
+
+also disable slaving of series legend tied to x axis slaving
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

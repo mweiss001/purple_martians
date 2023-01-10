@@ -105,26 +105,6 @@ int mw_draw_line3(double x1, double y1, double x2, double y2, float thickness, i
    return segments_drawn;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int mw_draw_line2(double x1, double y1, double x2, double y2, float thickness, int c0_val, int c0_col, int c1_val, int c1_col, int &line_color_offset)
 {
    int debug_print = 0;
@@ -181,32 +161,6 @@ int mw_draw_line2(double x1, double y1, double x2, double y2, float thickness, i
    }
    return segments_drawn;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
