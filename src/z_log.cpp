@@ -434,7 +434,7 @@ void get_tag_text(char *str, char *res)
 
  //  printf("p1:%d  p2:%d  plen:%d\n", p1, p2, plen);
 
-   if (plen < 8) // ???
+   if (plen < 10) // ???
    {
        for(int j=0; j<plen; j++)
           res[j] = str[j+p1+1];
@@ -613,6 +613,8 @@ int log_file_viewer(int type)
    tags[32][0] = 0; tags[32][1] = 15; tags[32][3] = 70; sprintf(ctags[32], "dif2"); // show diff2   (F) [C]
    tags[35][0] = 1; tags[35][1] = 3;  tags[35][3] = 67; sprintf(ctags[35], "cdat"); // cdat         (C) [CS]
 
+   tags[36][0] = 1; tags[36][1] = 13; tags[36][3] = 84; sprintf(ctags[36], "tmaj"); // timer adjust (T) [C]
+   tags[37][0] = 1; tags[37][1] = 13; tags[37][3] = 78; sprintf(ctags[37], "cpng"); // client ping  (N) [C]
 
    tags[40][0] = 1; tags[40][1] = 15; tags[40][3] = 69; sprintf(ctags[40], "gmar"); // game move array (E) [S]
    tags[41][0] = 1; tags[41][1] = 15; tags[41][3] = 77; sprintf(ctags[41], "move"); // move objects    (M) [S]
@@ -634,7 +636,9 @@ int log_file_viewer(int type)
 
       // get first tag - type
       get_tag_text(log_lines[i], res);
-      log_lines_int[i][0] = atoi(res);
+      int type = atoi(res);
+      log_lines_int[i][0] = type;
+      tags[type][2]++;
 
       // get second tag - player
       get_tag_text(log_lines[i], res);
@@ -697,10 +701,7 @@ int log_file_viewer(int type)
    // set players colors
    for (int i=0; i<8; i++)
       if (lp[i][1]) // we have moves for this player
-      {
-          players[i].color = 8+i;
-      }
-
+         players[i].color = 8+i;
 
    while (!quit)
    {
@@ -874,7 +875,8 @@ int log_file_viewer(int type)
                sprintf(tmsg,"off");
                col = 127; //grey
             }
-            tags[i][4] = ly; ly+=8; // set the ypos
+            tags[i][4] = ly; ly+=8;
+            // set the ypos
             sprintf(msg, "%c %s %s num:[%d]", tags[i][3], ctags[i], tmsg, tags[i][2]);
             al_draw_text(font, palette_color[col], xpos, ly, 0, msg);
          }
@@ -979,6 +981,284 @@ int log_file_viewer(int type)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void graph_test2(void)
+{
+   FILE *filepntr;
+   char buff[200];
+   int num_lines=0;
+   int ch=0;
+
+   char fnam[100];
+   sprintf(fnam, "logs/e.txt");
+
+
+   al_set_target_backbuffer(display);
+   al_clear_to_color(al_map_rgb(0,0,0));
+   al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s       ", fnam);
+   al_flip_display();
+
+
+   filepntr=fopen(fnam,"r");
+   while(ch != EOF)
+   {
+      int loop = 0;
+      ch = fgetc(filepntr);
+      while((ch != '\n') && (ch != EOF))
+      {
+         if (ch != 13)
+         {
+            buff[loop] = ch;
+            loop++;
+         }
+         ch = fgetc(filepntr);
+      }
+      buff[loop] = 0;
+
+      if (loop > 99) printf("log line%d exceeded 100 char - %s\n", num_lines, buff);
+
+      strncpy (log_lines[num_lines], buff, 99);
+
+      num_lines++;
+
+      if (num_lines >= NUM_LOG_LINES)
+      {
+         ch = EOF;
+         printf("log file exceeded %d lines\n", num_lines);
+      }
+      // printf("num_lines:%d\n", num_lines);
+   }
+   fclose(filepntr);
+   num_lines--;
+
+   printf("num_lines:%d\n", num_lines);
+
+   // iterate all log lines and build array of data points
+   for (int i=0; i<num_lines; i++)
+   {
+      char tll[200]; // temp log line
+      sprintf(tll, "%s", log_lines[i]);
+
+      char res[80];
+
+      // get first tag - type
+      get_tag_text(tll, res);
+      int type = atoi(res);
+
+      // get 2nd tag -
+      get_tag_text(tll, res);
+      //int p = atoi(res);
+
+      // get 3rd tag - frame
+      get_tag_text(tll, res);
+      int fn = atoi(res);
+
+      if (type == 36) // tmaj
+      {
+         get_tag_text(tll, res);
+         double dsync = atof(res);
+
+         get_tag_text(tll, res);
+         double offset = atof(res);
+
+         get_tag_text(tll, res);
+         double fps_chase = atof(res);
+
+         //printf("d:%f o:%f c:%f\n", dsync, offset, fps_chase);
+
+         if (dsync < 100) // ignore stupidly high ones at start
+         {
+            mG[0].add_data_point(0, (double) fn, dsync);
+            mG[0].add_data_point(1, (double) fn, offset);
+            mG[0].add_data_point(2, (double) fn, fps_chase);
+         }
+      }
+
+      if (type == 37) // cpng
+      {
+         get_tag_text(tll, res);
+         double ping = atof(res);
+
+         get_tag_text(tll, res);
+         double avg = atof(res);
+
+         //printf("ping:%f avg:%f\n", ping, avg);
+         mG[1].add_data_point(0, (double) fn, ping);
+         mG[1].add_data_point(1, (double) fn, avg);
+      }
+   }
+
+
+   int sc = 13;
+   mG[0].set_series(0, "dsync", 10, 0);
+   mG[0].set_series(1, "offset", 11, 0);
+   mG[0].set_series(2, "chase", 14, 0);
+   mG[0].calc_data_range();
+   mG[0].autorange_axis(1, 1);
+   mG[0].set_title("Timer Adjust", 2, sc, sc);          // text, text_color, frame_color
+   mG[0].set_x_axis_legend("Time (frames)", 0, 15, 0);  // text, font, text_color, frame_color
+   mG[0].set_y_axis_legend("various", "ms and fps", 0, sc, 0);   // text, font, text_color, frame_color
+   mG[0].set_x_axis_labels(1, 1, 2, 15);                // type, font, tick_size, color
+   mG[0].set_y_axis_labels(3, 1, 2, sc);                // type, font, tick_size, color
+   mG[0].linked_group_id = 17;
+
+
+   sc = 7;
+   mG[1].set_series(0, "ping", 10, 0);
+   mG[1].set_series(1, "avg", 11, 0);
+   mG[1].calc_data_range();
+   mG[1].autorange_axis(1, 1);
+   mG[1].set_title("Client to Server Round Trip Ping Times", 2, sc, sc);                 // text, text_color, frame_color
+   mG[1].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
+   mG[1].set_y_axis_legend("Ping", "ms", 0, sc, 0);         // text, font, text_color, frame_color
+   mG[1].set_x_axis_labels(1, 1, 2, 15);                    // type, font, tick_size, color
+   mG[1].set_y_axis_labels(3, 1, 2, sc);                    // type, font, tick_size, color
+
+   mG[1].x_axis_slave = 100;
+   mG[1].x_axis_legend_draw_on = 0;
+   mG[1].x_axis_grid_label_draw_on = 1;
+   mG[1].linked_group_id = 17;
+
+
+
+   int quit = 0;
+   int split_pos = SCREEN_H/2;
+   int sb = 1;  // split_bar_size
+   int sg = 4; // space between graphs
+
+   while (!quit)
+   {
+      al_set_target_backbuffer(display);
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+
+      al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[15]);
+      if ((mouse_y > split_pos-sb) && (mouse_y < split_pos+sb))
+      {
+         al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
+         al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[14]);
+         while (mouse_b[1][0])
+         {
+            split_pos = mouse_y;
+            if (split_pos < SCREEN_H*1/4) split_pos = SCREEN_H*1/4;
+            if (split_pos > SCREEN_H*3/4) split_pos = SCREEN_H*3/4;
+
+            mG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
+            mG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
+            mG[0].draw_graph(1);
+            mG[1].draw_graph(1);
+
+            al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[10]);
+            al_flip_display();
+            proc_controllers();
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+         }
+      }
+
+
+//      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
+
+      mG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
+      mG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
+
+
+      mG[0].proc_graph();
+      mG[1].proc_graph();
+
+      al_flip_display();
+      proc_controllers();
+      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void graph_test(void)
 {
    FILE *filepntr;
@@ -1073,38 +1353,83 @@ void graph_test(void)
       }
    }
 
+
+   int sc = 10;
    mG[0].set_series_legend_type(1);
    mG[0].calc_data_range();
    mG[0].autorange_axis(1, 1);
-   mG[0].set_title("Transmit Rate", 14, 15);                // text, text_color, frame_color
+   mG[0].set_title("Transmit Rate", 2, sc, sc);             // text, text_color, frame_color
    mG[0].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
-   mG[0].set_y_axis_legend("Transmit (kBps)", 0, 14, 0);    // text, font, text_color, frame_color
-   mG[0].set_x_axis_labels(1, 1, 2, 13);                    // type, font, tick_size, color
-   mG[0].set_y_axis_labels(1, 1, 2, 14);                    // type, font, tick_size, color
+   mG[0].set_y_axis_legend("Transmit", "kBps", 0, sc, 15);    // text, font, text_color, frame_color
+   mG[0].set_x_axis_labels(1, 1, 2, 15);                    // type, font, tick_size, color
+   mG[0].set_y_axis_labels(1, 1, 2, sc);                    // type, font, tick_size, color
 
+
+   mG[0].y_axis_grid_draw_on = 1;
+   mG[0].y_axis_grid_label_draw_on = 1;
+   mG[0].y_axis_scrollbar_draw_on = 1;
+   mG[0].y_axis_legend_draw_on = 1;
+
+
+
+
+   sc = 11;
    mG[1].set_series_legend_type(1);
    mG[1].calc_data_range();
    mG[1].autorange_axis(1, 1);
-   mG[1].set_title("Client dsync", 13, 15);                 // text, text_color, frame_color
+   mG[1].set_title("Client dsync", 2, sc, sc);                 // text, text_color, frame_color
    mG[1].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
-   mG[1].set_y_axis_legend("dsync (ms)", 0, 14, 0);         // text, font, text_color, frame_color
-   mG[1].set_x_axis_labels(1, 1, 2, 13);                    // type, font, tick_size, color
-   mG[1].set_y_axis_labels(0, 1, 2, 14);                    // type, font, tick_size, color
+   mG[1].set_y_axis_legend("dsync", "ms", 0, sc, 0);         // text, font, text_color, frame_color
+   mG[1].set_x_axis_labels(1, 1, 2, 15);                    // type, font, tick_size, color
+   mG[1].set_y_axis_labels(3, 1, 2, sc);                    // type, font, tick_size, color
+
+   mG[1].x_axis_slave = 100;
+   mG[1].x_axis_legend_draw_on = 0;
+   mG[1].x_axis_grid_label_draw_on = 0;
+
 
 
    int quit = 0;
+   int split_pos = SCREEN_H/2;
+   int sb = 1;  // split_bar_size
+   int sg = 4; // space between graphs
+
    while (!quit)
    {
       al_set_target_backbuffer(display);
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
-//      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H/2-10);
-//      mG[1].set_graph_pos(0,SCREEN_H/2+10, SCREEN_W, SCREEN_H);
+      al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[15]);
+      if ((mouse_y > split_pos-sb) && (mouse_y < split_pos+sb))
+      {
+         al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
+         al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[14]);
+         while (mouse_b[1][0])
+         {
+            split_pos = mouse_y;
+            if (split_pos < SCREEN_H*1/4) split_pos = SCREEN_H*1/4;
+            if (split_pos > SCREEN_H*3/4) split_pos = SCREEN_H*3/4;
+
+            mG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
+            mG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
+            mG[0].draw_graph(1);
+            mG[1].draw_graph(1);
+
+            al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[10]);
+            al_flip_display();
+            proc_controllers();
+            al_clear_to_color(al_map_rgb(0, 0, 0));
+         }
+      }
+
+
+//      mG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
+      mG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
+      mG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
 
 
       mG[0].proc_graph();
-//      mG[1].proc_graph();
+      mG[1].proc_graph();
 
       al_flip_display();
       proc_controllers();
@@ -1166,12 +1491,12 @@ void log_bandwidth_graph(int num_lines)
    mG[0].set_series_legend_type(1);
    mG[0].calc_data_range();
    mG[0].autorange_axis(1, 1);
-   mG[0].set_title("Transmit Rate", c1, c1);                // text, text_color, frame_color
-   mG[0].title_draw_style = 2;
+   mG[0].set_title("Transmit Rate", 2, c1, c1);                // text, text_color, frame_color
    mG[0].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
-   mG[0].set_y_axis_legend("Transmit (kBps)", 0, c1, 0);   // text, font, text_color, frame_color
+   mG[0].set_y_axis_legend("Transmit", "kBps", 0, c1, 0);   // text, font, text_color, frame_color
    mG[0].set_x_axis_labels(1, 1, 2, 15);                    // type, font, tick_size, color
    mG[0].set_y_axis_labels(1, 1, 2, c1);                    // type, font, tick_size, color
+   mG[0].linked_group_id = 17;
 
    if (both)
    {
@@ -1179,15 +1504,31 @@ void log_bandwidth_graph(int num_lines)
       mG[1].set_series_legend_type(1);
       mG[1].calc_data_range();
       mG[1].autorange_axis(1, 1);
-      mG[1].set_title("Receive Rate", c2, c2);                // text, text_color, frame_color
-      mG[1].title_draw_style = 2;
+      mG[1].set_title("Receive Rate", 2, c2, c2);                // text, text_color, frame_color
       mG[1].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
-      mG[1].set_y_axis_legend("Transmit (kBps)", 0, c2, 0);   // text, font, text_color, frame_color
+      mG[1].set_y_axis_legend("Receive", "kBps", 0, c2, 0);   // text, font, text_color, frame_color
       mG[1].set_x_axis_labels(1, 1, 2, 15);                    // type, font, tick_size, color
       mG[1].set_y_axis_labels(2, 1, 2, c2);                    // type, font, tick_size, color
       mG[1].x_axis_slave = 100;
       mG[1].x_axis_legend_draw_on = 0;
+      mG[1].linked_group_id = 17;
+
+
+      mG[1].x_axis_grid_draw_on = 0;
+      mG[1].x_axis_grid_label_draw_on = 1;
+
+
+
+
    }
+
+
+
+   int split_pos = SCREEN_H/2;
+   int sb = 1;  // split_bar_size
+   int sg = 4; // space between graphs
+
+
 
    int quit = 0;
    while (!quit)
@@ -1197,8 +1538,42 @@ void log_bandwidth_graph(int num_lines)
 
       if (both)
       {
-         mG[0].set_graph_pos(0, SCREEN_H*1/2, SCREEN_W, SCREEN_H*2/2);
-         mG[1].set_graph_pos(0, SCREEN_H*0/2, SCREEN_W, SCREEN_H*1/2);
+         al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[15]);
+
+         if ((mouse_y > split_pos-sb) && (mouse_y < split_pos+sb))
+         {
+            al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
+            al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[14]);
+            while (mouse_b[1][0])
+            {
+               split_pos = mouse_y;
+               if (split_pos < SCREEN_H*1/4) split_pos = SCREEN_H*1/4;
+               if (split_pos > SCREEN_H*3/4) split_pos = SCREEN_H*3/4;
+
+               mG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
+               mG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
+               mG[0].draw_graph(1);
+               mG[1].draw_graph(1);
+
+               al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[10]);
+               al_flip_display();
+               proc_controllers();
+               al_clear_to_color(al_map_rgb(0, 0, 0));
+            }
+         }
+         else al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
+
+      }
+
+
+      if (both)
+      {
+
+         mG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
+         mG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
+
+//         mG[0].set_graph_pos(0, SCREEN_H*1/2, SCREEN_W, SCREEN_H*2/2);
+//         mG[1].set_graph_pos(0, SCREEN_H*0/2, SCREEN_W, SCREEN_H*1/2);
          mG[0].proc_graph();
          mG[1].proc_graph();
       }
@@ -1314,49 +1689,54 @@ void log_client_server_sync_graph(int num_lines)
    mG[0].calc_data_range();
    mG[0].autorange_axis(1, 1);
 
-   mG[0].set_title("Player Active", 11, 11);                // text, text_color, frame_color
+   mG[0].set_title("Player Active", 2, 11, 11);                // text, text_color, frame_color
    mG[0].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
-   mG[0].set_y_axis_legend("Active", 0, 14, 0);             // text, font, text_color, frame_color
+   mG[0].set_y_axis_legend("Active", "", 0, 14, 0);             // text, font, text_color, frame_color
    mG[0].set_x_axis_labels(1, 1, 2, 15);                    // type, font, tick_size, color
    mG[0].set_y_axis_labels(0, 1, 2, 14);                    // type, font, tick_size, color
    mG[0].x_axis_legend_draw_on = 0;
-   mG[0].title_draw_style = 2;
    mG[0].x_axis_slave = 101;
+
+   mG[0].x_axis_grid_label_draw_on = 0;
+
+
    mG[0].y_axis_type = 0;
    mG[0].y_axis_min = 0;
    mG[0].y_axis_max = 1;
    mG[0].y_axis_rng = 1;
    mG[0].y_axis_zoom_lock = 1;
-   mG[0].y_axis_label_text_draw = 0;
+   mG[0].y_axis_grid_draw_on = 0;
    mG[0].y_axis_scrollbar_draw_on = 0;
    mG[0].y_axis_legend_draw_on = 0;
+
+   mG[0].linked_group_id = 17;
 
 
 
    mG[2].set_series_legend_type(1);
    mG[2].calc_data_range();
    mG[2].autorange_axis(1, 1);
-   mG[2].set_title("FPS Chase", 10, 10);                    // text, text_color, frame_color
+   mG[2].set_title("FPS Chase", 2, 10, 10);                    // text, text_color, frame_color
    mG[2].set_x_axis_legend("Time (frames)", 0, 15, 0);      // text, font, text_color, frame_color
-   mG[2].set_y_axis_legend("Chase (FPS)", 0, 10, 10);       // text, font, text_color, frame_color
+   mG[2].set_y_axis_legend("Chase", "FPS", 0, 10, 10);       // text, font, text_color, frame_color
    mG[2].set_x_axis_labels(1, 1, 2, 15);                    // type, font, tick_size, color
    mG[2].set_y_axis_labels(4, 1, 2, 10);                    // type, font, tick_size, color
    mG[2].x_axis_slave = 101;
+   mG[2].x_axis_grid_label_draw_on = 0;
    mG[2].x_axis_legend_draw_on = 0;
-   mG[2].title_draw_style = 2;
-
+   mG[2].linked_group_id = 17;
 
 
    mG[1].set_series_legend_type(1);
    mG[1].calc_data_range();
    mG[1].autorange_axis(1, 1);
-   mG[1].set_title("D Sync", 13, 13);                    // text, text_color, frame_color
+   mG[1].set_title("D Sync", 2, 13, 13);                    // text, text_color, frame_color
    mG[1].set_x_axis_legend("Time (frames)", 0, 15, 15);  // text, font, text_color, frame_color
-   mG[1].set_y_axis_legend("D Sync", 0, 13, 13);         // text, font, text_color, frame_color
+   mG[1].set_y_axis_legend("D Sync", "ms", 0, 13, 13);         // text, font, text_color, frame_color
    mG[1].set_x_axis_labels(1, 1, 2, 15);                 // type, font, tick_size, color
    mG[1].set_y_axis_labels(3, 1, 2, 13);                 // type, font, tick_size, color
    mG[1].x_axis_legend_draw_on = 1;
-   mG[1].title_draw_style = 2;
+   mG[1].linked_group_id = 17;
 
 
 
@@ -1418,7 +1798,7 @@ void log_client_server_sync_graph(int num_lines)
 
 
 
-
+/*
 
 
 
@@ -2704,3 +3084,4 @@ void old_log_bandwidth_graph(int num_lines)
 }
 
 
+*/

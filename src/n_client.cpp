@@ -357,13 +357,13 @@ void client_apply_diff(void)
          state_to_game_vars(client_state_base);
 
          // compare old_l to l and redraw changed tiles
+         al_set_target_bitmap(level_background);
          for (int x=0; x<100; x++)
             for (int y=0; y<100; y++)
                if (l[x][y] != old_l[x][y])
                {
                   // printf("dif at x:%d y:%d\n", x, y);
-                  al_set_target_bitmap(level_background);
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, al_map_rgb(0,0,0));
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
                   al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
                }
 
@@ -398,14 +398,18 @@ void client_apply_diff(void)
 void client_timer_adjust(void)
 {
    int p = active_local_player;
-   double dsync = players1[p].dsync - players1[p].client_chase_offset; // adjust for target offset
-   double fps_adj = dsync * 100; // make the change bigger
+   double chase_dsync = players1[p].dsync - players1[p].client_chase_offset; // adjust for target offset
+   double fps_adj = chase_dsync * 100; // make the change bigger
 
    float fps_chase = frame_speed + fps_adj;
    if (fps_chase < 10) fps_chase = 10; // never let this go negative
    if (fps_chase > 70) fps_chase = 70;
    al_set_timer_speed(fps_timer, ( 1 / fps_chase));
    players1[p].client_chase_fps = fps_chase;
+
+   sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.2f]\n", players1[p].dsync*1000, players1[p].client_chase_offset*1000, fps_chase);
+   if (L_LOGGING_NETPLAY_stdf_all_packets) add_log_entry2(36, p, msg);
+
 }
 
 
@@ -602,7 +606,6 @@ void client_fast_packet_loop(void)
          // printf("rx pong [%3.1f ms] - send pang\n", players1[active_local_player].ping * 1000);
 
          ping_array_add(players1[active_local_player].ping);
-
 
          Packet("pang");
          PacketPutDouble(t1);

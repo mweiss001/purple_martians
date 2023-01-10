@@ -270,10 +270,10 @@ class mwGraph
    int plot_show_performance;
 
 
-   void set_title(const char* text, int text_color, int frame_color);
+   void set_title(const char* text, int _type, int text_color, int frame_color);
 
    void set_x_axis_legend(const char* text, int font, int text_color, int frame_color);
-   void set_y_axis_legend(const char* text, int font, int text_color, int frame_color);
+   void set_y_axis_legend(const char* name, const char* units, int font, int text_color, int frame_color);
 
    void set_x_axis_labels(int type, int font, int tick_size, int color);
    void set_y_axis_labels(int type, int font, int tick_size, int color);
@@ -282,20 +282,23 @@ class mwGraph
    void set_series_legend_type(int type);
 
 
-
+   int linked_group_id;
+   double x_axis_cursor_pos;
 
 
    int  x_axis_slave;
-
    int  x_axis_type;
    int  x_axis_draw_size;
-   int  x_axis_label_draw_on;
-   int  x_axis_label_font;
-   int  x_axis_label_draw_size;
-   int  x_axis_label_tick_size;
-   int  x_axis_label_text_size;
 
-   int  x_axis_label_color;
+   int x_axis_grid_draw_on;
+   int x_axis_grid_color;
+   int x_axis_grid_label_draw_on;
+   int x_axis_grid_label_font;
+   int x_axis_grid_label_color;
+   int x_axis_grid_label_draw_size;
+   int x_axis_grid_label_tick_size;
+   int x_axis_grid_label_text_size;
+
    int  x_axis_legend_draw_on;
    int  x_axis_legend_draw_size;
    int  x_axis_legend_font;
@@ -335,24 +338,25 @@ class mwGraph
    int y_axis_type;
    int y_axis_draw_size;
 
-   int y_axis_label_draw_on;
-   int y_axis_label_font;
-   int y_axis_label_draw_size;
-   int y_axis_label_tick_size;
-   int y_axis_label_text_size;
-
-   int y_axis_label_text_draw;
-
-   int y_axis_label_color;
+   int y_axis_grid_draw_on;
+   int y_axis_grid_color;
+   int y_axis_grid_label_draw_on;
+   int y_axis_grid_label_font;
+   int y_axis_grid_label_color;
+   int y_axis_grid_label_draw_size;
+   int y_axis_grid_label_tick_size;
+   int y_axis_grid_label_text_size;
 
    int  y_axis_legend_draw_on;
    int  y_axis_legend_draw_size;
    int  y_axis_legend_font;
    int  y_axis_legend_draw_x;
-   char y_axis_legend_text[1024];
+   char y_axis_legend_name[1024];
+   char y_axis_legend_units[1024];
    int  y_axis_legend_text_color;
    int  y_axis_legend_frame_color;
    double y_axis_divider;
+
 
 
    int y_axis_scrollbar_draw_on;
