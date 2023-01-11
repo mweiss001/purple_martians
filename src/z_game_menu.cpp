@@ -13,10 +13,7 @@ void game_menu(void)
       splash_screen();
       splash_screen_done = 1;
    }
-
    if (!resume_allowed) load_level(start_level, 0);
-   if (resume_allowed) top_menu_sel = 4;
-
    do
    {
       top_menu_sel = zmenu(7, top_menu_sel, 10);
@@ -39,6 +36,7 @@ void game_menu(void)
       {
          play_level = start_level;
          new_program_state = 10;
+         top_menu_sel = 4; // so we come back on resume
          return;
       }
       if (top_menu_sel == 2) // start level
@@ -85,6 +83,7 @@ void game_menu(void)
          set_start_level(play_level);
          set_speed();
 
+         top_menu_sel = 8;
          new_program_state = 10;
          return;
       }

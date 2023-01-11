@@ -254,6 +254,7 @@ class mwGraph
    void draw_series_legend(void);
 
 
+   int series_legend_slave;
    int series_legend_type;
    int series_legend_draw_on;
    int series_legend_size;
@@ -272,7 +273,7 @@ class mwGraph
 
    void set_title(const char* text, int _type, int text_color, int frame_color);
 
-   void set_x_axis_legend(const char* text, int font, int text_color, int frame_color);
+   void set_x_axis_legend(const char* name, const char* units, int font, int text_color, int frame_color);
    void set_y_axis_legend(const char* name, const char* units, int font, int text_color, int frame_color);
 
    void set_x_axis_labels(int type, int font, int tick_size, int color);
@@ -303,13 +304,15 @@ class mwGraph
    int  x_axis_legend_draw_size;
    int  x_axis_legend_font;
    int  x_axis_legend_draw_y;
-   char x_axis_legend_text[1024];
+
+   char x_axis_legend_name[256];
+   char x_axis_legend_units[256];
+
+
+
    int  x_axis_legend_text_color;
    int  x_axis_legend_frame_color;
    double x_axis_divider;
-   char x_axis_units_text[80];
-
-
 
 
    int x_axis_scrollbar_draw_on;
@@ -322,10 +325,8 @@ class mwGraph
    int x_axis_scrollbar_bar_x2;
    int x_axis_scrollbar_y1;
    int x_axis_scrollbar_y2;
-   bool x_axis_lock_scroll;
-   bool x_axis_lock_zoom;
+   int x_axis_zoom_lock;
 
-   void x_axis_draw(void);
    void x_axis_get_size_and_arrange_pos(void);
    void x_axis_draw_legend(int set_size_only);
    void x_axis_draw_gridlines_and_labels(int set_size_only);
@@ -351,8 +352,8 @@ class mwGraph
    int  y_axis_legend_draw_size;
    int  y_axis_legend_font;
    int  y_axis_legend_draw_x;
-   char y_axis_legend_name[1024];
-   char y_axis_legend_units[1024];
+   char y_axis_legend_name[256];
+   char y_axis_legend_units[256];
    int  y_axis_legend_text_color;
    int  y_axis_legend_frame_color;
    double y_axis_divider;
@@ -370,10 +371,8 @@ class mwGraph
    int y_axis_scrollbar_y1;
    int y_axis_scrollbar_y2;
    int y_axis_scrollbar_h;
-   bool y_axis_lock_scroll;
    int y_axis_zoom_lock;
 
-   void y_axis_draw(void);
    void y_axis_get_size_and_arrange_pos(void);
    void y_axis_set_pos(void);
    void y_axis_draw_legend(int set_size_only);
@@ -408,6 +407,18 @@ class mwGraph
    double y_data_max;
    double y_data_rng;
 
+
+   // min, max, and range for min and max displayable range (used for limits on axis, instead of using data)
+   double x_disp_min;
+   double x_disp_max;
+   double x_disp_rng;
+   double y_disp_min;
+   double y_disp_max;
+   double y_disp_rng;
+
+
+
+
    // min, max, and range for axis
    double x_axis_min;
    double x_axis_max;
@@ -433,12 +444,11 @@ class mwGraph
    void draw_graph(int draw_only);
    void proc_graph(void);
 
-//   void draw_plot(int type);
-//   void process_mouse_on_plot(void);
+   void draw_plot_area(void);
    void proc_plot_area(int draw_only);
 
    void add_data_point(int series, double x, double y);
-   void calc_data_range(void);
+   int calc_data_range(void);
 
    void autorange_axis(int x, int y);
    void set_range_axis(double x_min, double x_max, double y_min, double y_max);
@@ -450,9 +460,12 @@ class mwGraph
 
    int find_closest_point_to_mouse(int &s, int &i);
 
+   void proc_plot_mouse_cursor_crosshairs(double mx1, double my1);
+   void proc_plot_menu(void);
+   int proc_series_legend_menu(void);
 
-
-
+   bool mouse_on_graph;
+   bool mouse_on_scrollbar;
 
 };
 extern mwGraph mG[10];
@@ -1917,6 +1930,15 @@ void add_log_entry_centered_text(int type, int player, int width, const char *tx
 void add_log_entry_header(int type, int player, const char *txt, int blank_lines);
 int fill_filename_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 int log_file_viewer(int type);
+
+
+int load_log_lines_array_from_static_file(const char* f);
+
+void log_ping_graph(int num_lines);
+void log_client_server_sync_graph(int num_lines);
+void log_bandwidth_graph(int num_lines, int both);
+
+
 
 // z_logo.h
 void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt);

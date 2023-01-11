@@ -3285,14 +3285,421 @@ e 3-1 at 15s 3-1 ic
 
 
 
+
 why? on my latest test graph, do the 2 graphs not line up vertically?
 
 im guessing something to do with enforce limits.....
-can i disable it for x axis on slaves
+can i disable it for x axis on slaves...
+made it so that plot can start before data....
+this broke scrollbars, now ends are past...
+2 ways to fix...
+adjust only scrollbar ends to b not past data max...
+adjust data max be larger
+add new variable data display max and min
+set clip...
+
+try set_clip...
+
+also disable slaving of series legend tied to x axis slaving...done
+
+
+make it so that you can see status of things in menu...
+make the main menu do everything
+like locking x and y axis and show status of locking...
+Y axis: free move / locked / auto range
+unlock/lock Y axis
+set y ais auto range..
+
+done and it looks way better...
+
+can you also lock x axis?
+autoscroll does not make sense for x axis, but lock would be nice so I could zoom and move y without moving x...
+
+I don't think I need menus for scroll bars any more, comment out for now....
+
+added this....
+
+   // min, max, and range for min and max displayable range (used for limits on axis, instead of using data)
+   double x_disp_min;
+   double x_disp_max;
+   double x_disp_rng;
+   double y_disp_min;
+   double y_disp_max;
+   double y_disp_rng;
+
+
+cleaned up the scroll bar code a lot...
 
 
 
-also disable slaving of series legend tied to x axis slaving
+
+
+am I drawing scroll bars twice?
+
+
+proc_plot_area calls
+
+x and y axis_draw
+then draws plot
+
+x and y axis_draw call grid and labels, legend and scroll bars
+this seems like too much...
+
+where are they arranged?
+
+down the fucking rabbit hole!!
+
+proc_graph -> draw_graph ->
+
+   x_axis_get_size_and_arrange_pos();
+   y_axis_get_size_and_arrange_pos();
+   enforce_axis_limits();
+
+   proc_plot_area(draw_only);
+
+   draw_title(0);
+   draw_series_legend();
+
+   x_axis_proc_scrollbar(draw_only);
+   y_axis_proc_scrollbar(draw_only);
+
+
+this all works but seems overly complicated
+
+gridlines and labels have always had to be drawn before plot...
+well...I don't want to separate gridlines and labels...
+but they need to be done after old plot is erased and before data is plotted...
+make it a part of draw plot??
+
+this is the way it is now:
+void mwGraph::proc_plot_area(int draw_only)
+{
+   al_draw_filled_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, palette_color[title_frame_color+224]); // erase plot background
+   al_draw_rectangle(plot_x1, plot_y1, plot_x2, plot_y2, palette_color[title_frame_color], 2);         // frame plot
+
+   x_axis_draw();
+   y_axis_draw();
+
+   draw_plot_area();
+
+I want to replace
+   x_axis_draw();
+   y_axis_draw();
+
+
+with just the labels and gridlines
+
+leaving legend and scroll bars for somehwere else...done...much better now...
+
+bool mouse_on_graph;
+bool mouse_on_scrollbar;
+
+done...awesome!!
+
+make x axis use get text...done
+
+
+still have issues with labels, now the first one less than 0 does not show.....
+
+
+
+I'm sure its my rounding function
+
+double round_to_nearest(double in, double nr)
+{
+   double tmp = fmod(in, nr);
+   double nr2 =  nr + (in - tmp);
+   if (nr2 < 0) nr2 -= nr; // hack because negatives were rounding too high
+   printf("in:%f  nr:%f  nr2:%f\n", in, nr, nr2);
+   return nr2;
+}
+
+what is it supposed to do?
+
+round 'in' up to the nearest 'nr'
+
+double round_to_nearest(double in, double nr)
+{
+   double tmp = fmod(in, nr);
+   double nr2 = (in - tmp) + nr;
+   if (tmp < 0) nr2 -= nr; // hack because negatives were rounding too high
+   //printf("in:% 5.1f  out:% 5.1f  tmp:% 3.1f\n", in, nr2, tmp);
+   return nr2;
+}
+this is the fix....nice...
+auto reduce legend font if too tall, also clip so it won't exceed graph..done for y and x
+make x legend do name and units like y....done
+
+make split bar invisible until mouse over...
+remove top padding for graph....
+
+
+20220110 1:11PM
+
+graph is done....
+
+
+put chase and ping into main log thing
+
+make sure the other graphs still work nice
+
+separate the load part of each graph
+fail gracefully if no data found..
+
+
+how to check for no data...
+
+
+I could use
+void mwGraph::calc_data_range(void)
+yes...but need to set series first...done...
+
+now do the same for bandwidth graph...
+
+
+erased all the old graph stuff from z_logs.cpp...1500+ lines gone
+now the entire z_logs.cpp is around 1500 lines...
+
+made it very easy to load graphs....
+
+from log file viewer:
+log_bandwidth_graph(int num_lines, int both);
+log_client_server_sync_graph(int num_lines);
+log_ping_graph(int num_lines);
+
+from anywhere else:
+log_bandwidth_graph(load_log_lines_array_from_static_file("logs/a.txt"), 0);
+log_client_server_sync_graph(load_log_lines_array_from_static_file("logs/a.txt"));
+log_ping_graph(load_log_lines_array_from_static_file("logs/e.txt"));
+
+I use this function in 4 places:
+int load_log_lines_array_from_static_file(const char* f));
+it loads:
+extern char log_lines[NUM_LOG_LINES][100]; // for log file viewer
+extern int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
+
+this makes things much simpler...
+
+
+
+now clean up the other 2 graphs:
+
+bandwidth
+make nice splitter
+why no x gridlines on upper
+done...
+
+client sync...looks good...
+
+now the only thing left is the three way splitter...done
+
+bug... when x axis is locked, disable x scroll bar...done....
+
+we are way further along now.....
+
+can I call the graph thing done? yes...
+
+now what?
+
+log:
+when the server gets late cdats?
+the current s1 and s2 values on the server...
+when clients base is reset
+
+how about some code profiling...
+
+draw_time
+move time
+decompress time
+
+I am going to make the busiest level I can imagine...
+
+how do I get the default menu back on level editor after I come back...done...
+
+bug on graph.. y axis scroll bars draw off their range. it was a bug I inadvertantly introduced when making type 3 for active...fixed...
+
+
+
+what do I have for my timer thing...
+
+I have 10,000 of these
+
+struct timestamp
+{
+   int frame0;
+   int frame1;
+   int frame2;
+   int type;
+   double t0;
+   double t1;
+   double t2;
+};
+
+
+how was i supposed to use them?
+
+void add_timestamp(int type, int f1, int f2, double t1, double t2)
+{
+   if (timestamps_index < 9998)
+   {
+      timestamps[timestamps_index].frame0 = frame_num;
+      timestamps[timestamps_index].frame1 = f1;
+      timestamps[timestamps_index].frame2 = f2;
+      timestamps[timestamps_index].type   = type;
+      timestamps[timestamps_index].t0     = al_get_time();
+      timestamps[timestamps_index].t1     = t1;
+      timestamps[timestamps_index].t2     = t2;
+
+      timestamps_index++;
+   }
+}
+
+            add_timestamp(1, 0,0,0,0);
+            timestamp_frame_start = al_get_time();
+
+            proc_timer_adjust();
+
+            proc_scale_factor_change();
+
+            if (ima_server) server_control();
+            if (ima_client) client_control();
+
+            proc_player_input();
+            proc_game_moves_array();
+
+            if (players[0].level_done_mode) proc_level_done_mode();
+            else
+            {
+               //add_timestamp(5, 0,0,0,0);
+               move_frame(0);
+               //add_timestamp(6, 0,0,0,0);
+            }
+
+            if (players1[0].server_send_dif) server_send_stdf();
+
+
+
+//            if (get_delta(frame_num,   3, frame_num,   4, res)) printf("time in draw: %5.1f us\n", res*1000000);
+//            if (get_delta(frame_num,   1, frame_num,   2, res)) printf("time in move: %5.1f us\n", res*1000000);
+//
+//            if (get_delta(frame_num-2, 1, frame_num-1, 1, res)) printf("total fram time: %5.1f us\n", res*1000000);
+
+
+
+
+now that I have the frame_num inc at the very start of every frame it should make timing easier.
+
+
+I don't know why I have multiple frame numbers in the structure
+
+most of the time I just use the current frame number and the current timestamp
+
+
+so lets do it...
+
+take some times and plot them...
+
+I want to have a log entry every frame
+
+how many timestamps per frame?
+
+lets say 10, that would give me 1000 frames or 250s or just over 4 min...
+
+that's a good start
+
+time for a new log entry...44
+
+holy shit that was fast!
+I got some profile timestamps, made a new log entry and made a dual graph to view them both: draw time and move time
+It only took about 1H to do all that, because of all the framework I have in place...nice...
+
+I can't wait to profile more things....
+
+but I am going to do a push, then get a hot drink...
+
+20220110 10:15PM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
