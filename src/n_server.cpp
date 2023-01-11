@@ -104,6 +104,8 @@ int get_delta(int f0, int type0, int f1, int type1, double &res)
       res = t1-t0;
       return 1;
    }
+   if (t0 == -1) printf("did not find timestamp type:%d for frame:%d\n", type0, f0);
+   if (t1 == -1) printf("did not find timestamp type:%d for frame:%d\n", type1, f1);
    return 0;
 }
 

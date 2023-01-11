@@ -475,26 +475,27 @@ void temp_test(void)
 
 
 
-   void graph_test2(void);
-   graph_test2();
+//   void graph_test2(void);
+//   graph_test2();
 
 
 
+//   void load_ping_graph_from_static_file(const char* f);
+//   load_ping_graph_from_static_file("logs/e.txt");
 
 
 
+//   log_bandwidth_graph(load_log_lines_array_from_static_file("logs/a.txt"), 1);
+//   log_client_server_sync_graph(load_log_lines_array_from_static_file("logs/a.txt"));
+//   log_ping_graph(load_log_lines_array_from_static_file("logs/e.txt"));
 
 
-
-//
-//   void log_bandwidth_graph(int);
-//   log_bandwidth_graph(0);
+   void log_timestamp_graph(int num_lines);
+   log_timestamp_graph(load_log_lines_array_from_static_file("logs/f.txt"));
 
 
-
-
-
-
+//   double round_to_nearest(double in, double nr);
+//   for (double i=50; i>-50; i-=1) round_to_nearest(i, 10);
 
 //   double t0 = 0.000123;
 //   printf("1 - ps:%d pp:%d sot:%d t0:%f\n", packetsize1, packetpos1, sizeof(t0), t0);

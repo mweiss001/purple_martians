@@ -713,6 +713,8 @@ void main_loop(void)
       // ----------------------------------------------------------
       // process state and state changes
       // ----------------------------------------------------------
+
+
       proc_program_state();
 
 
@@ -746,40 +748,45 @@ void main_loop(void)
             timestamp_frame_start = al_get_time();
 
             proc_timer_adjust();
-
             proc_scale_factor_change();
+
+            add_timestamp(2, 0,0,0,0);
 
             if (ima_server) server_control();
             if (ima_client) client_control();
 
+            add_timestamp(3, 0,0,0,0);
+
             proc_player_input();
             proc_game_moves_array();
 
+            add_timestamp(4, 0,0,0,0);
+
             if (players[0].level_done_mode) proc_level_done_mode();
-            else
-            {
-               //add_timestamp(5, 0,0,0,0);
-               move_frame(0);
-               //add_timestamp(6, 0,0,0,0);
-            }
+            else move_frame(0);
+
+
+            add_timestamp(5, 0,0,0,0);
 
             if (players1[0].server_send_dif) server_send_stdf();
 
-            if (proc_frame_skip())
-            {
-               //add_timestamp(11, 0,0,0,0);
-               draw_frame();
-               //add_timestamp(12, 0,0,0,0);
-            }
+            add_timestamp(6, 0,0,0,0);
+
+            if (proc_frame_skip()) draw_frame();
+
+            add_timestamp(7, 0,0,0,0);
+
+
+            double td=0, tm=0, tt=0;
+            if (get_delta(frame_num,   6, frame_num,   7, td)) printf("time in draw: %5.3f us\n", td*1000000);
+            if (get_delta(frame_num,   4, frame_num,   5, tm)) printf("time in move: %5.4f us\n", tm*1000000);
+            if (get_delta(frame_num-1, 1, frame_num,   1, tt)) printf("total   time: %5.5f us\n", tt*1000000);
+
+            sprintf(msg, "tmst [%0.4f] [%0.4f] [%0.4f]\n", td*1000, tm*1000, tt*1000);
+            add_log_entry2(44, 0, msg);
 
 
 
-//            double res = 0;
-//
-//            if (get_delta(frame_num,   3, frame_num,   4, res)) printf("time in draw: %5.1f us\n", res*1000000);
-//            if (get_delta(frame_num,   1, frame_num,   2, res)) printf("time in move: %5.1f us\n", res*1000000);
-//
-//            if (get_delta(frame_num-2, 1, frame_num-1, 1, res)) printf("total fram time: %5.1f us\n", res*1000000);
 //
 //
 //            double base = 0, m1 = 0, m2 = 0, d1 = 0, d2 = 0;
@@ -796,6 +803,10 @@ void main_loop(void)
 //            printf("base:0 m1:%f m2:%f d1:%f d2:%f\n", m1-base, m2-base, d1-base, d2-base);
 
 
+
+
+
+
 //            // speed test... draw every frame
 //            proc_frame_skip();
 //            draw_frame();
@@ -808,14 +819,10 @@ void main_loop(void)
 //            }
 
 
-
             if ((ima_client) && (frame_num > 100))
             {
                int mod = 80;
-
                if (ping_num_filled < 8) mod = 10;
-
-
                if ((frame_num % mod) == 0)
                {
                   //printf("ping server\n");
