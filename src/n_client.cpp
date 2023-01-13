@@ -16,7 +16,7 @@ int ClientInitNetwork(const char *serveraddress)
    {
       sprintf(msg, "Error: failed to initialize network");
       m_err(msg);
-      if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+      if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
       return 0;
    }
    if (TCP)
@@ -26,14 +26,14 @@ int ClientInitNetwork(const char *serveraddress)
       {
          sprintf(msg, "Error: Client failed to create netconnection (TCP)");
          m_err(msg);
-         if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          return 0;
       }
       if(net_connect(ServerConn, serveraddress))
       {
          sprintf(msg, "Error: Client failed to set netconnection target: server[%s] (TCP)", serveraddress);
          m_err(msg);
-         if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          net_closeconn(ServerConn);
    		return 0;
    	}
@@ -47,7 +47,7 @@ int ClientInitNetwork(const char *serveraddress)
          sprintf(msg, "Error: Client failed to create netchannel (UDP)");
          printf("%s\n", msg);
          m_err(msg);
-         if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          return 0;
       }
       if (net_assigntarget(ServerChannel, serveraddress))
@@ -55,12 +55,12 @@ int ClientInitNetwork(const char *serveraddress)
          sprintf(msg, "Error: Client failed to set netchannel target: server[%s] (UDP)", serveraddress);
          printf("%s\n", msg);
          m_err(msg);
-         if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          return 0;
       }
       sprintf(msg, "Client network (UDP) initialized: server:%s local address%s", serveraddress, net_getlocaladdress(ServerChannel));
       printf("%s\n", msg);
-      if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+      if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
    }
 
 
@@ -78,7 +78,7 @@ int ClientInitNetwork(const char *serveraddress)
          got_reply = 1;
          sprintf(msg,"Got reply from server");
          printf("%s\n", msg);
-         if (L_LOGGING_NETPLAY) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
       }
       else
       {
@@ -88,7 +88,7 @@ int ClientInitNetwork(const char *serveraddress)
             sprintf(msg,"Did not get reply from server");
             m_err(msg);
             printf("%s\n", msg);
-            if (L_LOGGING_NETPLAY)
+            if (LOG_NET)
             {
                 add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
                 add_log_entry_centered_text(10, 0, 76, "", "+", "-");
@@ -176,7 +176,7 @@ void ClientExitNetwork(void)
 {
    sprintf(msg, "Shutting down the client network");
    printf("\n%s\n", msg);
-   if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 1);
+   if (LOG_NET) add_log_entry_header(10, 0, msg, 1);
    if (TCP)
    {
    	if(ServerConn) net_closeconn(ServerConn);
@@ -197,11 +197,11 @@ void ClientExitNetwork(void)
 
 int client_init(void)
 {
-   if (L_LOGGING_NETPLAY) log_versions();
+   if (LOG_NET) log_versions();
 
    sprintf(msg, "Client mode started on localhost:[%s]", local_hostname);
    printf("\n%s\n", msg);
-   if (L_LOGGING_NETPLAY) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+   if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
     // initialize driver with server address
    if (!ClientInitNetwork(m_serveraddress)) return 0;
@@ -214,7 +214,7 @@ int client_init(void)
    PacketAddString(local_hostname);
    ClientSend(packetbuffer, packetsize);
 
-   if (L_LOGGING_NETPLAY_JOIN)
+   if (LOG_NET_join)
    {
       sprintf(msg,"Client sent join request to server with player color:[%2d]", players[0].color);
       add_log_entry_centered_text(11, 0, 76, "", "+", "-");
@@ -242,7 +242,7 @@ void client_process_sjon_packet(void)
    {
       sprintf(msg,"Server replied with 'SERVER FULL'\n");
       printf("%s", msg);
-      if (L_LOGGING_NETPLAY_JOIN) add_log_entry2(11, active_local_player, msg);
+      if (LOG_NET_join) add_log_entry2(11, active_local_player, msg);
       new_program_state = 1;
    }
    else // join allowed
@@ -262,7 +262,7 @@ void client_process_sjon_packet(void)
       deathmatch_pbullets_damage = dmd-1000;
       suicide_pbullets = spb;
 
-      if (L_LOGGING_NETPLAY_JOIN)
+      if (LOG_NET_join)
       {
          sprintf(msg,"Client received join invitation from server");
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
@@ -324,13 +324,13 @@ void client_apply_diff(void)
       {
          memset(client_state_base, 0, STATE_SIZE);
          client_state_base_frame_num = 0;
-         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, "Resetting client base state to zero\n");
+         if (LOG_NET_stdf) add_log_entry2(27, p, "Resetting client base state to zero\n");
       }
 
       if (client_state_base_frame_num != client_state_dif_src) // stored base state does NOT match dif source
       {
          sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
-         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(29, p, msg);
+         if (LOG_NET_stdf) add_log_entry2(29, p, msg);
 
          client_send_stak(); // resend ack to server with correct acknowledged base state
       }
@@ -385,13 +385,13 @@ void client_apply_diff(void)
          client_send_stak();
 
          sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
-         if (L_LOGGING_NETPLAY_stdf) add_log_entry2(29, p, msg);
+         if (LOG_NET_stdf) add_log_entry2(29, p, msg);
       }
    }
    else
    {
       sprintf(msg, "dif [%d to %d] not applied - not newer than current [%d]\n", client_state_dif_src, client_state_dif_dst, client_state_base_frame_num);
-      if (L_LOGGING_NETPLAY_stdf_when_to_apply) add_log_entry2(29, p, msg);
+      if (LOG_NET_stdf_when_to_apply) add_log_entry2(29, p, msg);
    }
 }
 
@@ -408,7 +408,7 @@ void client_timer_adjust(void)
    players1[p].client_chase_fps = fps_chase;
 
    sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.2f]\n", players1[p].dsync*1000, players1[p].client_chase_offset*1000, fps_chase);
-   if (L_LOGGING_NETPLAY_stdf_all_packets) add_log_entry2(36, p, msg);
+   if (LOG_NET_stdf_all_packets) add_log_entry2(36, p, msg);
 
 }
 
@@ -426,7 +426,7 @@ void client_process_stdf_packet(double timestamp)
 
 
    sprintf(msg, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", seq+1, max_seq, src, dst, sb, sz);
-   if (L_LOGGING_NETPLAY_stdf_all_packets) add_log_entry2(28, p, msg);
+   if (LOG_NET_stdf_all_packets) add_log_entry2(28, p, msg);
 
    players1[p].client_sync = dst - frame_num;               // crude integer sync based on frame numbers
    players1[p].client_last_stdf_rx_frame_num = frame_num;   // client keeps track of last stdf rx'd and quits if too long
@@ -461,7 +461,7 @@ void client_process_stdf_packet(double timestamp)
          client_state_dif_src = -1; // mark dif data as bad
          client_state_dif_dst = -1;
       }
-      if (L_LOGGING_NETPLAY_stdf) add_log_entry2(27, p, msg);
+      if (LOG_NET_stdf) add_log_entry2(27, p, msg);
    }
 }
 
@@ -515,7 +515,7 @@ void process_bandwidth_counters(int p)
       players1[p].rx_bytes_per_tally = players1[p].rx_bytes_tally;
       players1[p].rx_packets_per_tally = players1[p].rx_packets_tally;
 
-      if (L_LOGGING_NETPLAY_bandwidth)
+      if (LOG_NET_bandwidth)
       {
          // log tallies
          sprintf(msg, "bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]\n", players1[p].tx_bytes_per_tally, players1[p].tx_max_bytes_per_tally, players1[p].rx_bytes_per_tally, players1[p].rx_max_bytes_per_tally);
@@ -560,7 +560,7 @@ void client_proc_player_drop(void)
       int ss = frame_num - lsf;
       if (ss > 120)
       {
-         if (L_LOGGING_NETPLAY)
+         if (LOG_NET)
          {
             sprintf(msg, "Local Player Client %d Lost Server Connection!", p);
             add_log_entry_centered_text(10, p, 76, "", "+", "-");

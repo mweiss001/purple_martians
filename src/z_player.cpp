@@ -191,7 +191,7 @@ void proc_player_health(int p)
       players[p].LIFE = al_itofix(0);
 
       sprintf(msg,"PLAYER:%d DIED!", p);
-      if (L_LOGGING_NETPLAY) add_log_entry_header(10, 0, msg, 1);
+      if (LOG_NET) add_log_entry_header(10, 0, msg, 1);
 
       game_event(90, 0, 0, p, 0, 0, 0);  // player death
 

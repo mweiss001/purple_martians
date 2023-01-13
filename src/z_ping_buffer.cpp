@@ -49,7 +49,7 @@ void ping_array_add(double ping)
 
 
    sprintf(msg, "ping [%3.2f] avg[%3.2f]\n", ping*1000, players1[p].ping_avg*1000);
-   if (L_LOGGING_NETPLAY_stdf_all_packets) add_log_entry2(37, p, msg);
+   if (LOG_NET_stdf_all_packets) add_log_entry2(37, p, msg);
 
 
 

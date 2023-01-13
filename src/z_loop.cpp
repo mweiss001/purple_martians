@@ -145,7 +145,7 @@ void draw_frame(void)
 
 void move_frame(int t)
 {
-//   if (L_LOGGING_NETPLAY_move_frame)
+//   if (LOG_NET_move_frame)
 //   {
 //      //printf("move frame:%d-------------\n", frame_num);
 //      sprintf(msg, "move[%d] frame:%d\n", t, frame_num);
@@ -276,6 +276,10 @@ void proc_program_state(void)
       if (new_program_state != program_state)
       {
          if (new_program_state ==  2) program_state =  2; // demo_mode
+
+
+         if (new_program_state ==  3) program_state =  3; // config
+
          if (new_program_state == 10) program_state = 10; // start new game
          if (new_program_state == 12) program_state = 12; // level_done
          if (new_program_state == 13) program_state = 13; // resume
@@ -292,10 +296,10 @@ void proc_program_state(void)
             if (ima_server) server_exit();
             if (ima_client) client_exit();
 
-
             stop_sound();
-            stamp();
-            program_state = old_program_state; // go back to the state that called 0,1 or 2
+            if (program_state != 3) stamp();
+
+            program_state = old_program_state; // go back to the state that called 0,1,2 or 3
          }
       }
       new_program_state = 0;
@@ -306,6 +310,9 @@ void proc_program_state(void)
    if (program_state == 0) main_loop_exit = 1; // quit
    if (program_state == 1) game_menu();  // game menu (this blocks)
    if (program_state == 2) demo_mode();  // demo mode
+
+   if (program_state == 3) settings_pages(0);  // this blocks
+
 
 
 
@@ -371,7 +378,7 @@ void proc_program_state(void)
       clear_keys();
       clear_pm_events();
 
-      if (L_LOGGING_NETPLAY)
+      if (LOG_NET)
       {
          sprintf(msg,"LEVEL %d STARTED", play_level);
          add_log_entry_header(10, 0, msg, 3);
@@ -408,7 +415,7 @@ void proc_program_state(void)
          // set holdoff 200 frames in future so client won't try to drop while syncing
          players1[p].client_last_stdf_rx_frame_num = frame_num + 200;
 
-         if (L_LOGGING_NETPLAY_JOIN) add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
+         if (LOG_NET_join) add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
          program_state = 11;
       }
    }
@@ -459,7 +466,7 @@ void proc_program_state(void)
       stop_sound();
 
 
-      if (L_LOGGING_NETPLAY) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
+      if (LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
 
       if (players[active_local_player].control_method == 1) // run demo mode saved game file
       {
@@ -528,7 +535,7 @@ void proc_program_state(void)
          players[0].control_method = 3;
          game_vars_to_state(srv_stdf_state[1]);
          srv_stdf_state_frame_num[1] = frame_num;
-         if (L_LOGGING_NETPLAY_stdf)
+         if (LOG_NET_stdf)
          {
             //   printf("saved server state[1]:%d\n\n", frame_num);
             sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
@@ -542,7 +549,7 @@ void proc_program_state(void)
       for (int p=0; p<NUM_PLAYERS; p++)
          if (players[p].active) add_game_move(0, 1, p, players[p].color); // [01] player_state and color
 
-      if (L_LOGGING_NETPLAY)
+      if (LOG_NET)
       {
          sprintf(msg,"LEVEL %d STARTED", play_level);
          add_log_entry_header(10, 0, msg, 3);
@@ -611,6 +618,8 @@ void proc_program_state(void)
    //---------------------------------------
    if (program_state == 20)
    {
+      play_level = start_level;
+
       if (!load_level(play_level, 0))
       {
          new_program_state = 1;
@@ -646,7 +655,7 @@ void proc_program_state(void)
       players[0].control_method = 3;
       game_vars_to_state(srv_stdf_state[1]);
       srv_stdf_state_frame_num[1] = frame_num;
-      if (L_LOGGING_NETPLAY_stdf)
+      if (LOG_NET_stdf)
       {
          //   printf("saved server state[1]:%d\n\n", frame_num);
          sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
@@ -659,7 +668,7 @@ void proc_program_state(void)
       for (int p=0; p<NUM_PLAYERS; p++)
          if (players[p].active) add_game_move(0, 1, p, players[p].color); // [01] player_state and color
 
-      if (L_LOGGING_NETPLAY)
+      if (LOG_NET)
       {
          sprintf(msg,"LEVEL %d STARTED", play_level);
          add_log_entry_header(10, 0, msg, 3);
@@ -777,13 +786,16 @@ void main_loop(void)
             add_timestamp(7, 0,0,0,0);
 
 
-            double td=0, tm=0, tt=0;
-            if (get_delta(frame_num,   6, frame_num,   7, td)) printf("time in draw: %5.3f us\n", td*1000000);
-            if (get_delta(frame_num,   4, frame_num,   5, tm)) printf("time in move: %5.4f us\n", tm*1000000);
-            if (get_delta(frame_num-1, 1, frame_num,   1, tt)) printf("total   time: %5.5f us\n", tt*1000000);
+//            double td=0, ts=0, tm=0, tt=0;
+//            if (get_delta(frame_num,   6, frame_num,   7, td)) printf("time in draw: %5.3f us\n", td*1000000);
+//
+//            if (get_delta(frame_num,   5, frame_num,   6, ts)) printf("time in stdf: %5.3f us\n", ts*1000000);
+//
+//            if (get_delta(frame_num,   4, frame_num,   5, tm)) printf("time in move: %5.4f us\n", tm*1000000);
+//            if (get_delta(frame_num-1, 1, frame_num,   1, tt)) printf("total   time: %5.5f us\n", tt*1000000);
 
-            sprintf(msg, "tmst [%0.4f] [%0.4f] [%0.4f]\n", td*1000, tm*1000, tt*1000);
-            add_log_entry2(44, 0, msg);
+//            sprintf(msg, "tmst [%0.4f] [%0.4f] [%0.4f]\n", td*1000, tm*1000, tt*1000);
+//            add_log_entry2(44, 0, msg);
 
 
 

@@ -134,8 +134,8 @@ void draw_large_text_overlay(int type, int color)
 
    float opa = 1.0;
    if (type == 2) opa = 0.5;
-//   if (type == 3) opa = 0.16;
-   if (type == 3) opa = 0.05;
+   if (type == 3) opa = demo_mode_overlay_opacity;
+//   if (type == 3) opa = 0.05;
    ALLEGRO_COLOR fc = al_map_rgba_f(opa, opa, opa, opa);
    al_set_target_backbuffer(display);
    al_draw_tinted_bitmap(large_text_overlay_bitmap, fc, 0, 0, 0);
@@ -200,6 +200,8 @@ void idw(int txt, int x, int y, float x_scale, float y_scale)
 
 void splash_screen(void)
 {
+   mdw_an_seq = 0;
+   set_map_var();
    int quit = 0;
    proc_controllers();
 
@@ -274,9 +276,6 @@ void splash_toggle(void)
    {
       show_splash_screen = 1;
       save_config();
-
-      mdw_an_seq = 0;
-      set_map_var();
       splash_screen(); // show it now....
    }
 }
@@ -743,8 +742,8 @@ void mdw_an(void)
 
 void spline_test(void)
 {
-   seed_mdw();
-   fill_mdw();
+   //seed_mdw();
+   //fill_mdw();
 
    float x_scale = 1.0;
    float y_scale = 1.0;
@@ -757,7 +756,6 @@ void spline_test(void)
    int quit = 0;
    while (!quit)
    {
-      proc_controllers();
 
       if (key[ALLEGRO_KEY_RIGHT][0])
       {
@@ -786,13 +784,20 @@ void spline_test(void)
          th--;
       }
 
-      al_clear_to_color(al_map_rgb(0,0,0));
 
       draw_mdw(SCREEN_W/2, SCREEN_H/2, x_scale, y_scale, th);
       al_flip_display();
+      al_clear_to_color(al_map_rgb(0,0,0));
+      proc_controllers();
 
-      al_rest(0.02);
-      if (key[ALLEGRO_KEY_ESCAPE][0]) quit = 1;
+    //  al_rest(0.02);
+      if (key[ALLEGRO_KEY_ESCAPE][0])
+      {
+         while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+         quit = 1;
+      }
+
+
    }
 }
 

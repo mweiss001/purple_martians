@@ -3617,468 +3617,663 @@ I can't wait to profile more things....
 
 but I am going to do a push, then get a hot drink...
 
-20220110 10:15PM
+20230110 10:15PM
 
 
+do a timer for server send stdf
+one for each client...or all together?
 
+they will all be on the same frame, but with different player numbers
 
+I can probably do this one in line, without the timer struct...
 
+use tag 45...
 
+more data...like was the base reset? how many packets...
 
+[45][1][169]tmst [1.368000] [0] [835] [1]
+[45][1][172]tmst [1.355800] [0] [792] [1]
+[45][1][175]tmst [1.369900] [0] [800] [1]
+[45][1][178]tmst [1.347400] [0] [704] [1]
+[45][1][181]tmst [1.367600] [0] [804] [1]
+[45][1][184]tmst [1.369800] [0] [799] [1]
 
+I could plot all these on the same graph if /1000 for 3...do it...
 
+20230111 7:41AM
 
 
+I want to make a different, easier way to get these profiling timestamps into a graph..
 
 
+Maybe I could tag each one like td:[] tm:[] stdf:[]
 
+then I will need a tag reader than can get the text before...
 
+I can have multiple log file lines that all have the code 45 tmst
 
+they can all go on the same graph beacuse they all have the same units
 
+I have the very basic framwork in place....
 
 
+I want to make a new gui element.
+I will act exactly like button toggle but will look different
+[] - name
 
 
+I have the logging options page looking really good...
+what other pages?
 
+sound, color, splash screen
 
+controllers
 
+netgame options
 
+make multiple tabbed pages...
 
+this should be fun
 
+in the end it will be so much easier to add new options, so many more that I have not even thought about....
 
+make it look good...
 
 
+I think I have all the functionality for controls except for set indivual
 
+now I need to make it look good..
 
 
+make the list of keys more centered but still left justified
+add a button to the left of each key, 'new' which prompts to set that one control
 
+I want my own function to redraw all keys....done...
 
+what is the maxiumun text length of key_names[]? 11 PRINTSCREEN
+make it so that this displays nicely....
+press new control is 17....
 
+page for controllers is setup and looks great!!
 
+next, nextgame??
+all the controls are in place and working...now make it look good...
 
 
+display server name and give a text description
 
+Server Name: ....
 
+Clients must have the server name or IP address set here.
 
 
+OK...config page for netgame is done...
 
 
+This is looking very nice...how are you going to patch it into the game_menu?
+I think I should have an overall larger background and title:
 
+Like 'Configuration'
 
+make it a fixed width of 400,400
 
 
+do I need a large size for the frame, tabs, and title??
 
+Yes, obviosly....
 
+OK what am I going to name them?
 
+Do I have an actual minimun size for the useable pages?
 
+can I go up from there??
 
+sure why not?
 
+add tab height and title height
 
+that should do it...
 
 
+I don't know where am going to patch it into the menu...
+it seems like it is already pretty busy...
 
+put it on the options menu for now and have a hotkey to bring it up any time from any menu....ok...
+CTRL SHIFT O
 
 
+i like it....
 
+when it gets full I will need to have a second row of tabs...
 
 
+I have changed my mind...
 
 
+I want to start with the full outer size and then shrink it as I move in...
 
+what are my varaible going to be called?
 
 
+this is all I have for now:
 
 
 
+   int cfp_x1 = 200;
+   int cfp_y1 = 200;
+   int cfp_x2 = 600;
+   int cfp_y2 = 600;
+   int cfp_txc = cfp_x1 + (cfp_x2 - cfp_x1) / 2;
 
 
 
+I think I will keep these vars...
 
+entire thing:
+cf_x1
+cf_w
+cf_x2
+cf_y1
+cf_y2
+cf_h
 
+then I will figure out the borders, tab height, title height, and then finally set:
 
+cfp_x1
+cfp_w
+cfp_x2
+cfp_y1
+cfp_y2
+cfp_h
 
+for the display area of the pages
 
 
+goddamn this looksg good...
 
 
+what else can I add?
 
+sound
+color
+splash screen
 
 
+today:
+finish basic page..done
+make advanced page
+add help buttons to pages...
+think about re-arranging menus to make simpler
 
+do I have enough tabs??..yes
 
 
+what wil go on advanced?
+speed
+disable timed demo mode...
+show hysteris box...
 
+what is left on the options menu that I don't have in config pages?
 
+   strcpy (global_string[8][3], "Netgame Options");
+   strcpy (global_string[8][4], "<-Change Color->");
+   strcpy (global_string[8][5], "Controller Setup");
+   strcpy (global_string[8][6], "Speed:40fps");
+   strcpy (global_string[8][7], "Sound:Off");
+   strcpy (global_string[8][8], "Sound Effects Volume:9");
+   strcpy (global_string[8][9], "Sound Track Volume:9");
+   strcpy (global_string[8][10], "Logging Options");
+   strcpy (global_string[8][11], "Splash Screen:ON");
+   strcpy (global_string[8][12], "Save Demo");
+   strcpy (global_string[8][13], "Run Demo");
+   strcpy (global_string[8][14], "Configuration Pages");
+   strcpy (global_string[8][15], "end");
 
+speed
+save demo
+run demo
 
+I could have a tab just for demo...
+run
+save
+disable timed demo
+options for auto save
 
+yes, do this...then options menu can go away totally and be replaced with config pages on main menu....
 
+Maybe it could be renamed to 'Settings'...that seems more generic and apt and standard...done
 
+here is the thing...
 
+running demo from these pages is not as simple as just calling a function...
 
+we are in menu, then in config, how to get back to where the game runs??
 
+we have to:
+- set next program mode
+- quit config
+- quit zmenu
 
 
+I guess this all depends on where config_pages is called from...
 
+lets make sure it is always called from zmenu...
+then we can figure out how to handle return...
+called from:
+args
+zmenu CTRL O
+game_menu options 14
 
+for now just do CTRL O
 
+if I can make config pages return something...
 
+maybe the zmenu was not better choice..another layer deep...
 
+make the CTRL O call option 14 then deal with it there for now in game menu
 
+maybe I am doing this wrong...maybe config pages ahould be another program_state
 
+something that I can return to, like command line and zmenu
 
+that seem a little less hacky...
 
+from menu, leave menu and do configpages..from there do run games...
 
+   if (program_state == 3) config_pages();  // this blocks
 
 
+ok it gets there, but how does it get back??
 
+replace OPTIONS MENU with SETTING and then it will come back there...
 
 
+coming back from playing demo does not come back to config, it come back to menu...why??
 
 
+it seems like a lot of things set old_program_state...too many
 
 
+like for instance it is set when rungame_key_check exits...it is set to 1...why?  how does it know what called it?
 
+where are the places it should be set?
 
 
+0 when delared
+then if called from command line it will know where to go
 
+1 when starting game_menu
 
+2 when starting demo mode
 
+3 when starting config...
 
+those are the only places it should be set....
 
+it is used when leaving a running game to determine where to go back to....
 
 
 
 
+This is what actually is in place:
 
+int old_program_state = 1;
 
+when game_menu() starts
+old_program_state = 1;
 
 
 
+when demo_mode loads a level and plays it
+new_program_state = 14;
+old_program_state = 2;
 
+if demo mode fails to load level
+new_program_state = 1;
+old_program_state = 1;
 
 
+when config starts rungame
+new_program_state = 14;
+old_program_state = 3;
 
+when config ends with ESC
+new_program_state = 1;
+old_program_state = 1;
 
+rungame_key_check
+new_program_state = 1;
+does not set old....
 
 
+OK this is looking a little better...
 
 
+start game, start config, rungame from file...
 
+exit with any key..goes back to config...good
 
+exit with ESC key..skips past config to menu...fix this
+added this in rungame_key_check to eat ESC
+while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
 
+now it does stimp and goes back to config....
+from there you can run another file...
 
+this all works great...
 
+but when you leave config for menu, stimp is called again...
+happens every time config to menu....fixed
+if (program_state != 3) stamp();
 
 
+that was the last thing from options menu...time to retire it....
 
+and at the same time...call it settings...
+settings_pages
 
 
+top_men_sel == 7 // settings
 
+CTRL SHIFT O from zmenu as a shortcut
 
+commented out all option menu stuff in game menu
 
+returns to setting selection when leaving config..
 
+wow! all of this works so good...
 
+I will miss wacthing the title screen change immediatley when changing player color....
 
 
+should I alway have that background behind settings_pages?yes
+the only other possible thing would be a partially played demo level....
+do it...
+call frame and title and make sure settings is centered also....done...
 
+you know what would be amazing?
+If I could center the title 'Settings' on the menu item 'Settings'
+how do I know where that is?
+set_map_vars()
+done....
+now can I show the menu text only....done
 
+now hide the mouse when leaving settings..done
 
+rename...done...
 
+now make that goddamn demo_mode time able to be disabled
 
 
 
+what variables?
 
 
+demo_mode_countdown_val;
+demo_mode_countdown_reset;
 
+demo_mode_enabled
 
+int demo_mode_enabled = 1; when declared
 
+then set to zero:
+if resume allowed
+if any menu key is moved
+if demo mode times out and starts
 
 
+i suppose I could read this value from config file
 
+default it to 1 and if player turns it off in config...
 
+the problem is...any time config file is read, it gets turned back on...
 
+make a separate config file varibale and only use it to set the global one once at startup..
 
+this is getting confusing!!
 
+demo_mode_config_enable
 
+extern int demo_mode_config_enable;
+now use it in initial_setup() to set  demo_mode_enabled
+this is all done!!!
 
+next, demo mode....
+when trying to exit, it quits the current level and immediately plays next....
 
+in rungame_key_check:
 
+      new_program_state = 1;
+      if (old_program_state == 2) old_program_state = 1; // don't send back to demo mode if cancelled
 
+this seems to have fixed it....
 
 
 
+now, does it work from settings....yes, but it comes back to menu, not settings...big deal....
+when demo mode starts it sets old_program_state to 2..in this way we do not know what started demo mode
+it could be menu or settings
 
+do I want yet another variable to track this?
+some humor 'older_program_state'
 
+used only when starting demo mode
+3 from settings
+1 from menu
 
+then when demo mode is cancelled from rungame_key_check it can set the appropriate place to return to...
 
+new_program_state = 1;
+if (old_program_state == 2) old_program_state = older_program_state; // don't send back to demo mode
 
+done and it works perfectly....
 
+now to make demo tab look nicer.. looking pretty good!!!
 
 
+now how many things call zmenu? only one: top
+old ones:
+options
+logging
+netgame
+controller
 
 
 
+put speed on advanced tab...done
 
+also by default make the speed locked, disabling function key
+also speed is never saved to config file
 
+add DEMO MODE overlay transparency option to demo tab...and config file...done
 
+add other hysteris mode stuff somewhere
 
 
+now that I have everything from option menu on the settings page....
 
+I have so many more things I want to put there....
 
+but first...
 
+lets see what it would take to get more tabs....
 
+and a second row....
 
+maybe an optional second row...
 
+erased options menu...now game menu is <70 lines
 
+going through code and removing unneeded references to global_string....
 
 
+why don;t I make a struct for each tab...then make an array of structs
+done and its looking good...
 
 
 
+I want to see how hard it is to draw a filled polygon with allegro primitives....
 
+float v[4][2] = {0};
 
+v[0][0] = 100;
+v[0][1] = 100;
 
+v[1][0] = 100;
+v[1][1] = 200;
 
+v[2][0] = 200;
+v[2][1] = 200;
 
+v[3][0] = 200;
+v[3][1] = 100;
 
+al_draw_filled_polygon(*v, 4, palette_color[14]);
 
+this is all it takes....
 
+now use that to draw tabs....done...
 
+that looks so much better...
 
 
+now what?
 
+rename the logging netplay things and add more....
 
 
+now I have game_menu down to 25 lines!!!
 
+// z_game_menu.cpp
+#include "pm.h"
+void game_menu(void)
+{
+   old_program_state = 1;
+   if (!splash_screen_done) { splash_screen(); splash_screen_done = 1; }
+   if (!resume_allowed) load_level(start_level, 0);
+   if (top_menu_sel < 3) top_menu_sel = 3;
+   while (top_menu_sel != 1)
+   {
+      top_menu_sel = zmenu(7, top_menu_sel, 10);
+      if  (top_menu_sel == 1)  { program_state = 0;                                           return; } // exit
+      if  (top_menu_sel == 2)  { visual_level_select(); top_menu_sel = 3;                             } // visual level select
+      if ((top_menu_sel == 4) && (resume_allowed)) { new_program_state = 13;                  return; } // resume game
+      if  (top_menu_sel == 3)  { new_program_state = 10;  top_menu_sel = 4;                   return; } // start new game
+      if  (top_menu_sel == 5)  { new_program_state = 20;                                      return; } // host network game
+      if  (top_menu_sel == 6)  { new_program_state = 24;                                      return; } // join network game
+      if  (top_menu_sel == 7)  { new_program_state = 3;                                       return; } // settings
+      if  (top_menu_sel == 8)  { play_level = edit_menu(start_level); new_program_state = 10; return; } // level editor
+      if  (top_menu_sel == 9)  { new_program_state = 2;  older_program_state = 1;             return; } // demo mode
+      if  (top_menu_sel == 10)                                                                help(""); // help
+      if (top_menu_sel == 102) if (++start_level > 399) start_level = 399; // start level inc
+      if (top_menu_sel == 202) if (--start_level < 1) start_level = 1;     // start level dec
+      if (top_menu_sel > 100) { set_start_level(start_level); load_level(start_level, 0); top_menu_sel = 2; }
+   }
+}
 
 
 
+these are the config names:
+LOGGING_NETPLAY);
+LOGGING_NETPLAY_JOIN);
+LOGGING_NETPLAY_PLAYER_ARRAY);
+LOGGING_NETPLAY_bandwidth);
+LOGGING_NETPLAY_cdat);
+LOGGING_NETPLAY_game_move);
+LOGGING_NETPLAY_sdat);
+LOGGING_NETPLAY_sdak);
+LOGGING_NETPLAY_stdf);
+LOGGING_NETPLAY_stdf_all_packets);
+LOGGING_NETPLAY_stdf_when_to_apply);
+LOGGING_NETPLAY_show_dif1);
+LOGGING_NETPLAY_show_dif2);
 
 
+extern int L_LOGGING_NETPLAY;
+extern int L_LOGGING_NETPLAY_JOIN;
+extern int L_LOGGING_NETPLAY_PLAYER_ARRAY;
+extern int L_LOGGING_NETPLAY_bandwidth;
+extern int L_LOGGING_NETPLAY_cdat;
+extern int L_LOGGING_NETPLAY_game_move;
+extern int L_LOGGING_NETPLAY_sdat;
+extern int L_LOGGING_NETPLAY_sdak;
+extern int L_LOGGING_NETPLAY_stdf;
+extern int L_LOGGING_NETPLAY_stdf_all_packets;
+extern int L_LOGGING_NETPLAY_stdf_when_to_apply;
+extern int L_LOGGING_NETPLAY_show_dif1;
+extern int L_LOGGING_NETPLAY_show_dif2;
 
 
+I want to make this simpler:
 
+variables:
+LOG_NET_xxx
 
+config
+CLOG_NET
 
+and make them all lower case after the _
 
+replace:
 
+L_LOGGING_NETPLAY_
+LOG_NET_
 
+do it: 75 replaced  still compiles
 
 
+now replace
+LOGGING_NETPLAY
+CLOG
 
+wait why??
+they can have the exact same name, i do it all the time in config..same variable name and config name
+OK
 
+replace
+LOGGING_NETPLAY
+LOG_NET
 
+OK done.. now do lower case for JOIN and PLAYER_ARRAY
 
+ok that's all done too:
 
+demo mode is not on by default...fixed...
 
 
+keep a list in to do of other things to add to settings....
 
 
+many of them will require:
+- making a global variable
+- saving it in config
+- making a way to change it in settings
 
+how about 'send stat to console'
 
+made a lot of those....
 
 
 
 
+what do I call the hyst thing?
+lakitu
+viewport
 
+lets go with viewport
 
+do a global for viewport_type
 
+0 = force to be in the center of the screen all the time, except when near edges of course...
+1 = regular hysteresis
+2 = slowly changing hysteresis
 
+added these globals:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+int viewport_mode = 1;
+int viewport_show_hyst = 0;
+int viewport_x_div = 8;
+int viewport_y_div = 12;
 
 
 

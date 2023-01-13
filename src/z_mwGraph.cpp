@@ -1360,7 +1360,7 @@ void mwGraph::proc_plot_area(int draw_only)
             {
                double mx2 = mx1;
                double my2 = my1;
-               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // [SHIFT] + draw rectangle to set new zoom area
+               if (SHFT()) // [SHIFT] + draw rectangle to set new zoom area
                {
                   int rmx = mouse_x;
                   int rmy = mouse_y;

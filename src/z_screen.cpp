@@ -472,61 +472,60 @@ void get_new_screen_buffer(int type, int x, int y)
       PY = y;
    }
 
-   int x_size =0, y_size = 0;
+   int x_size = 0, y_size = 0;
 
    if (type != 3)
    {
+      if (viewport_mode == 0) // this method always has the player in the middle of the screen
+      {
+         WX = PX - SW/2 -10; // set window from PX, PY
+         WY = PY - SH/2 -10;
+      }
+      else // scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
+      {
+         x_size = SW / viewport_x_div; // larger number is smaller window
+         y_size = SH / viewport_y_div;
 
+         if (viewport_mode == 2) // like mode 1 but gradual move
+         {
+            int look_shift_speed = 4;
 
-      // this method always has the player in the middle of the screen
-      //int WX = PX - SW/2 -10; // set window from PX, PY
-      //int WY = PY - SH/2 -10;
+            if (players[alp].left_right) WX_shift_speed+=.5;
+            else WX_shift_speed-=.5;
 
-      // set the scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
-      x_size = SW / 8; // larger number is smaller window
-      y_size = SH / 12;
+            if (WX_shift_speed > 2) WX_shift_speed = 2;
+            if (WX_shift_speed < -2) WX_shift_speed = -2;
 
+            WX+=WX_shift_speed;
 
-//      x_size = SW / 4; // larger number is smaller window
-//      y_size = SH / 4;
+            if (players[alp].up) WY-=look_shift_speed;
+            if (players[alp].down) WY+=look_shift_speed;
+         }
+         if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size; // hit right edge
+         if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size; // hit left edge
+         if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size; // hit bottom edge
+         if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size; // hit top edge
 
-
-//
-//
-//      int look_shift_speed = 4;
-//
-//      if (players[alp].left_right) WX_shift_speed+=.5;
-//      else WX_shift_speed-=.5;
-//
-//
-//      if (WX_shift_speed > 2) WX_shift_speed = 2;
-//      if (WX_shift_speed < -2) WX_shift_speed = -2;
-//
-//      WX+=WX_shift_speed;
-//
-//      if (players[alp].up) WY-=look_shift_speed;
-//      if (players[alp].down) WY+=look_shift_speed;
-//
-
-
-
-
-
-
-      if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size; // hit right edge
-      if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size; // hit left edge
-      if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size; // hit bottom edge
-      if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size; // hit top edge
-
-
-
+      }
    }
 
    // correct for edges
-   if (WX < 0) WX = 0;
-   if (WY < 0) WY = 0;
-   if (WX > (2000 - SW)) WX = 2000 - SW;
-   if (WY > (2000 - SH)) WY = 2000 - SH;
+//   if (WX < 0) WX = 0;
+//   if (WY < 0) WY = 0;
+//   if (WX > (2000 - SW)) WX = 2000 - SW;
+//   if (WY > (2000 - SH)) WY = 2000 - SH;
+
+
+   int clamp_x0 = 0;
+   int clamp_x1 = 0;
+   int clamp_y0 = 0;
+   int clamp_y1 = 0;
+
+
+   if (WX < 0)           { WX = 0;         clamp_x0 = 1; }
+   if (WY < 0)           { WY = 0;         clamp_y0 = 1; }
+   if (WX > (2000 - SW)) { WX = 2000 - SW; clamp_x1 = 1; }
+   if (WY > (2000 - SH)) { WY = 2000 - SH; clamp_y1 = 1; }
 
    // used by get_new_background to only get what is needed
    level_display_region_x = WX;
@@ -538,15 +537,28 @@ void get_new_screen_buffer(int type, int x, int y)
    al_draw_scaled_bitmap(level_buffer, WX, WY, SW, SH, sbx, sby, sbw, sbh, 0);
 
 
+  //printf("WX:%d, WY:%d, SW:%d, SH:%d, sbx:%d, sby:%d, sbw:%d, sbh:%d\n", WX, WY, SW, SH, sbx, sby, sbw, sbh);
 
-//   float hx1 = SCREEN_W/2 - x_size * scale_factor_current;
-//   float hx2 = SCREEN_W/2 + x_size * scale_factor_current;
-//   float hy1 = SCREEN_H/2 - y_size * scale_factor_current;
-//   float hy2 = SCREEN_H/2 + y_size * scale_factor_current;
-//   al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 2);
+   if (viewport_show_hyst)
+   {
+      float hx1 = SCREEN_W/2 - x_size * scale_factor_current;
+      float hx2 = SCREEN_W/2 + x_size * scale_factor_current;
+      float hy1 = SCREEN_H/2 - y_size * scale_factor_current;
+      float hy2 = SCREEN_H/2 + y_size * scale_factor_current;
+      if (viewport_mode == 0) {hx2+=20* scale_factor_current; hy2+=20* scale_factor_current;}
+
+
+      if (clamp_x0) hx1 = 0;
+      if (clamp_y0) hy1 = 0;
+      if (clamp_x1) hx2 = SCREEN_W;
+      if (clamp_y1) hy2 = SCREEN_H;
 
 
 
+
+      al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 2);
+
+   }
 
 
    // in level editor mode, if the level is smaller than the screen edges, draw a thin line to show where it ends...
@@ -572,16 +584,6 @@ void get_new_screen_buffer(int type, int x, int y)
       if (ydraw) al_draw_line(bw, yl, xl, yl, palette_color[c], 0);
       //al_draw_rectangle(sbx, sby, sbx+sbw, sby+sbh, palette_color[c], 0);
    }
-
-  //printf("WX:%d, WY:%d, SW:%d, SH:%d, sbx:%d, sby:%d, sbw:%d, sbh:%d\n", WX, WY, SW, SH, sbx, sby, sbw, sbh);
-
-   #ifdef SHOW_HYSTERESIS_WINDOW
-   float hx1 = SCREEN_W/2 - x_size * scale_factor_current;
-   float hx2 = SCREEN_W/2 + x_size * scale_factor_current;
-   float hy1 = SCREEN_H/2 - y_size * scale_factor_current;
-   float hy2 = SCREEN_H/2 + y_size * scale_factor_current;
-   al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 2);
-   #endif
 
 }
 

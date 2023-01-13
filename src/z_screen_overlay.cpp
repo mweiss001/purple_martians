@@ -1101,7 +1101,7 @@ void draw_top_display(void)
          {
             if (b1_pres == 0)
             {
-               if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) players1[p].client_chase_offset -=0.01;
+               if (CTRL()) players1[p].client_chase_offset -=0.01;
                else players1[p].client_chase_offset -=0.001;
             }
 
@@ -1116,7 +1116,7 @@ void draw_top_display(void)
          {
             if (b2_pres == 0)
             {
-               if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) players1[p].client_chase_offset +=0.01;
+               if (CTRL()) players1[p].client_chase_offset +=0.01;
                else players1[p].client_chase_offset +=0.001;
             }
 

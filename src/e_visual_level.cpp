@@ -784,5 +784,8 @@ int visual_level_select(void)
       }
    }
    visual_level_select_running = 0;
+   play_level = selected_level;
+   set_start_level(play_level);
+   printf("level selected:%d\n", play_level);
    return selected_level;
 }

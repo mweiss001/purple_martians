@@ -11,7 +11,7 @@ int check_and_draw(double x1, double y1, double line_length, double line_xinc, d
    // these checks mean that the segment is entirely not on the line
    if (za > line_length) skip = 1; // za after line end
    if (zb < 0)           skip = 1; // zb before line start
-   if (skip) sprintf(t, "skip\n");
+   if ((debug_print) && (skip)) sprintf(t, "skip\n");
    else  // at least one point is on the line
    {
       if (za < 0) // za is before line start
@@ -55,11 +55,8 @@ int mw_draw_line3(double x1, double y1, double x2, double y2, float thickness, i
       double line_xspan = x2-x1;
       double line_yspan = y2-y1;
       double line_length = sqrt(pow(line_xspan, 2) + pow(line_yspan, 2));
-
       if (line_length != 0)
       {
-         //printf("lxs:%f lys:%f  ls:%f\n", line_xspan, line_yspan, line_span);
-
          double line_xinc = line_xspan / line_length; // one unit of these are one unit of vector move
          double line_yinc = line_yspan / line_length;
          int section = 0;
@@ -255,7 +252,7 @@ void clear_game_moves(void)
    game_move_current_pos = 0;
 }
 
-void get_hostname(void)
+void get_hostname(int print)
 {
    sprintf(msg, "hostname");
    FILE *fp;
@@ -270,6 +267,9 @@ void get_hostname(void)
       ch = fgetc(fp);
    }
    local_hostname[loop] = 0;
+
+   if (print) printf("Local hostname:%s\n", local_hostname);
+
    fclose(fp);
 }
 
@@ -1812,12 +1812,12 @@ void show_state_dif(char *a, char *b)
 
    if (memcmp(c1_players, c2_players, sop))
    {
-      if (L_LOGGING_NETPLAY_show_dif1)
+      if (LOG_NET_show_dif1)
       {
          sprintf(msg, "player errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
       }
-      if (L_LOGGING_NETPLAY_show_dif2)
+      if (LOG_NET_show_dif2)
       {
 
          // show where
@@ -2083,12 +2083,12 @@ void show_state_dif(char *a, char *b)
    }
    if (memcmp(c1_Ei, c2_Ei, sizeof(Ei)))
    {
-      if (L_LOGGING_NETPLAY_show_dif1)
+      if (LOG_NET_show_dif1)
       {
          sprintf(msg, "Ei errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
       }
-      if (L_LOGGING_NETPLAY_show_dif2)
+      if (LOG_NET_show_dif2)
       {
          for (int e=0; e<100; e++)
             for (int f=0; f<32; f++)
@@ -2101,12 +2101,12 @@ void show_state_dif(char *a, char *b)
    }
    if (memcmp(c1_Efi, c2_Efi, sizeof(Efi)))
    {
-      if (L_LOGGING_NETPLAY_show_dif1)
+      if (LOG_NET_show_dif1)
       {
          sprintf(msg, "Efi errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
       }
-      if (L_LOGGING_NETPLAY_show_dif2)
+      if (LOG_NET_show_dif2)
       {
          for (int e=0; e<100; e++)
             for (int f=0; f<16; f++)
@@ -2119,12 +2119,12 @@ void show_state_dif(char *a, char *b)
    }
    if (memcmp(c1_item, c2_item, sizeof(item)))
    {
-      if (L_LOGGING_NETPLAY_show_dif1)
+      if (LOG_NET_show_dif1)
       {
          sprintf(msg, "item errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
       }
-      if (L_LOGGING_NETPLAY_show_dif2)
+      if (LOG_NET_show_dif2)
       {
          for (int e=0; e<500; e++)
             for (int f=0; f<16; f++)
@@ -2137,12 +2137,12 @@ void show_state_dif(char *a, char *b)
    }
    if (memcmp(c1_itemf, c2_itemf, sizeof(itemf)))
    {
-      if (L_LOGGING_NETPLAY_show_dif1)
+      if (LOG_NET_show_dif1)
       {
          sprintf(msg, "itemf errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
       }
-      if (L_LOGGING_NETPLAY_show_dif2)
+      if (LOG_NET_show_dif2)
       {
          for (int e=0; e<500; e++)
             for (int f=0; f<4; f++)
@@ -2155,12 +2155,12 @@ void show_state_dif(char *a, char *b)
    }
    if (memcmp(c1_lifts, c2_lifts, sizeof(lifts)))
    {
-      if (L_LOGGING_NETPLAY_show_dif1)
+      if (LOG_NET_show_dif1)
       {
          sprintf(msg, "lift errors detected\n");
          add_log_entry2(31, active_local_player, msg); printf("%s", msg);
       }
-      if (L_LOGGING_NETPLAY_show_dif2)
+      if (LOG_NET_show_dif2)
       {
          for (int e=0; e<40; e++)
          {
@@ -2190,13 +2190,13 @@ void show_state_dif(char *a, char *b)
    if (memcmp(c1_l, c2_l, sizeof(l)))
    {
       init_level_background(0);
-      if (L_LOGGING_NETPLAY_show_dif1)
+      if (LOG_NET_show_dif1)
       {
          sprintf(msg, "block errors detected\n");
          add_log_entry2(31, active_local_player, msg);// printf("%s", msg);
          printf("frame:%d block errors detected - running init_level_background();\n", frame_num);
       }
-      if (L_LOGGING_NETPLAY_show_dif2)
+      if (LOG_NET_show_dif2)
       {
          for (int e=0; e<100; e++)
             for (int f=0; f<100; f++)

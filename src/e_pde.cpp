@@ -348,7 +348,7 @@ void predefined_enemies(void)
         al_rest(0.01);
 
 
-         if ((key[ALLEGRO_KEY_RCTRL][0]) && (key[ALLEGRO_KEY_S][3])) // sort
+         if (CTRL() && key[ALLEGRO_KEY_S][3]) // sort
          {
             PDE_sort();
             redraw = 1;
@@ -381,7 +381,7 @@ void predefined_enemies(void)
             if (EN < 0) EN = 0;
             redraw =1;
          }
-         if ((key[ALLEGRO_KEY_RCTRL][0]) && (key[ALLEGRO_KEY_DELETE][3])) // DELETE PD
+         if (CTRL() && key[ALLEGRO_KEY_DELETE][3]) // DELETE PD
          {
             for (int y=0; y<32; y++) PDEi[EN][y] = 0;
             for (int y=0; y<16; y++) PDEfx[EN][y] = al_itofix(0);

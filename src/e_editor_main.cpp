@@ -665,13 +665,13 @@ void em_process_mouse(void)
 
             if (type == 7) // podzilla
             {
-               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
+               if (SHFT()) // move stuff also
                //if (al_show_native_message_box(display, "Move?", "Move podzilla's extended position too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                {
                    Efi[c][5] = Efi[din][5] + al_itofix(ofx);
                    Efi[c][6] = Efi[din][6] + al_itofix(ofy);
                }
-               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
+               if (SHFT()) // move stuff also
                //if (al_show_native_message_box(display, "Move?", "Move podzilla's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
                {
                   Ei[c][11] = Ei[din][11] + ofx;
@@ -682,7 +682,7 @@ void em_process_mouse(void)
             if (type == 9) // cloner
             {
                //if (al_show_native_message_box(display, "Move?", "Move cloner's source and destination boxes too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
-               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
+               if (SHFT()) // move stuff also
                {
                   Ei[c][15] = Ei[din][15] + ofx;
                   Ei[c][16] = Ei[din][16] + ofy;
@@ -690,7 +690,7 @@ void em_process_mouse(void)
                   Ei[c][18] = Ei[din][18] + ofy;
                }
                //if (al_show_native_message_box(display, "Move?", "Move cloner's trigger box too?", NULL, NULL, ALLEGRO_MESSAGEBOX_YES_NO | ALLEGRO_MESSAGEBOX_QUESTION ) == 1)
-               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
+               if (SHFT()) // move stuff also
                {
                   Ei[c][11] = Ei[din][11] + ofx;
                   Ei[c][12] = Ei[din][12] + ofy;
