@@ -1376,6 +1376,23 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       while (mouse_b[1][0]) proc_controllers(); // wait for release
       press = 1;
    }
+
+
+   if (bn == 20)
+   {
+      if (press) var++;
+      if ((var < 0) || (var > 2)) var = 0;
+      if (var == 0) sprintf(smsg,  "Static");
+      if (var == 1) sprintf(smsg,  "Hyst Instant");
+      if (var == 2) sprintf(smsg,  "Hyst Gradual");
+   }
+
+
+
+
+
+
+
    if (bn == 21)
    {
       if (press) var++;
@@ -1705,6 +1722,89 @@ int mdw_toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
    if (q6 == 1) y1+=bts;
    return ret;
 }
+
+
+
+
+
+
+
+
+// toggles the int and displays text, text color, and frame color based on value  -- check box style
+int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+               int &var, const char* t, int text_col, int frame_col)
+{
+   int y2 = y1+bts-2;
+   int ret = 0;
+   // is mouse pressed on this button?
+   if ((mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
+   {
+      while (mouse_b[1][0]) proc_controllers(); // wait for release
+      var = ! var;
+   }
+
+
+   float my1 = y1;
+   float my2 = y2;
+
+   // get y center of button
+   float myc = my1 + (my2-my1)/2;
+
+   float rs = 6; // check box size
+   float ry1 = myc - rs/2;
+   float ry2 = ry1 + rs;
+   float rx1 = x1 + 4;
+   float rx2 = rx1 + rs;
+
+   // text pos
+   float mtx = rx2+6;
+   float mty = myc-4;
+
+   if (q1>0) al_draw_rectangle(x1, y1, x2, y2, palette_color[q1], 1);
+
+
+   if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, palette_color[frame_col]);
+   else     al_draw_rectangle(       rx1, ry1, rx2, ry2, palette_color[frame_col], 1);
+
+   al_draw_text(font, palette_color[text_col], mtx, mty, 0, t);
+
+   if (var) ret = 1;
+   else ret = 0;
+
+   if (q6 == 1) y1+=bts;
+   return ret;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // toggle the flag and displays the corresponding string

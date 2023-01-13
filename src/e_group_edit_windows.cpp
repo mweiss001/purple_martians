@@ -505,7 +505,7 @@ void ge_show_obj_list(int x, int y, int *ew, int *eh, int have_focus, int moving
          al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, palette_color[10], 1); // draw rectangle around list item
          if (mouse_b[1][0])
          {
-            if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // remove item from list
+            if (SHFT()) // remove item from list
             {
                while (mouse_b[1][0]) proc_controllers();
                ge_remove_obj_list_item(mpl);
@@ -746,7 +746,7 @@ void ge_process_mouse(void)
       if (mW[5].show_sel_frame) // get new selection rectangle
       {
          cm_get_new_box();
-         if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) ge_add_selection_to_list(1); // add everything in selection to list and set filters...
+         if (SHFT()) ge_add_selection_to_list(1); // add everything in selection to list and set filters...
       }
       else
       {

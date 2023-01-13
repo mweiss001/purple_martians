@@ -100,10 +100,23 @@ int get_scan_code_from_joystick(int joy, int button, int num)
    return base + ret;
 }
 
-int my_readkey(void) // used only to set new game control key or joystick bindings
+int SHFT(void)
+{
+   if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) return 1;
+   else return 0;
+}
+
+int CTRL(void)
+{
+   if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) return 1;
+   else return 0;
+}
+
+int my_readkey(int x, int y, int tc, int bts, int num) // used only to set new game control key or joystick bindings
 {
    int quit = 0, ret = 0;
-   al_draw_text(font, palette_color[10], SCREEN_W/2, SCREEN_H/2, ALLEGRO_ALIGN_CENTRE, "...press new key or joystick control...");
+
+   redraw_all_controls(x, y, bts, tc, 0, num);
    al_flip_display();
 
    while (!quit)
@@ -132,33 +145,17 @@ int my_readkey(void) // used only to set new game control key or joystick bindin
                 if (jy == 0) jo = 0;
                 if (jy == 1) jo = 20;
 
-                int ax = ev.joystick.axis;
+                int   ax  = ev.joystick.axis;
                 float pos = ev.joystick.pos;
                 if (ax == 0) // x axis
                 {
-                   if (pos > 0)
-                   {
-                       ret = 131+jo;
-                       quit = 1;
-                   }
-                   if (pos < 0)
-                   {
-                       ret = 130+jo;
-                       quit = 1;
-                   }
+                   if (pos > 0) { ret = 131 + jo; quit = 1; }
+                   if (pos < 0) { ret = 130 + jo; quit = 1; }
                 }
                 if (ax == 1) // y axis
                 {
-                   if (pos > 0)
-                   {
-                       ret = 129+jo;
-                       quit = 1;
-                   }
-                   if (pos < 0)
-                   {
-                       ret = 128+jo;
-                       quit = 1;
-                   }
+                   if (pos > 0) { ret = 129 + jo; quit = 1;  }
+                   if (pos < 0) { ret = 128 + jo; quit = 1;  }
                 }
              }
          }
@@ -168,6 +165,10 @@ int my_readkey(void) // used only to set new game control key or joystick bindin
    return ret;
 }
 
+
+
+
+
 void clear_keys(void)
 {
    for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
@@ -175,58 +176,46 @@ void clear_keys(void)
          key[k][i] = 0; // clear my key array
 }
 
-void get_all_keys(int p) // prompts for all seven keys
+
+
+
+
+
+void get_all_keys(int x, int y, int tc, int bts) // prompts for all seven keys
 {
-   int x = SCREEN_W/2;
-   int y = 115;
-   set_key_menu(5, p, 2);
-
-    // iterate the keys
-   for (int key_sel = 2; key_sel < 9; key_sel++)
+   for (int key_sel = 2; key_sel < 9; key_sel++)  // iterate the keys
    {
-      //erase and outline background
-      al_draw_filled_rectangle(x-90, 132, x+90, 204, palette_color[0]) ;
-      al_draw_rectangle(x-90, 132, x+90, 204, palette_color[15], 1) ;
-
-      // redraw all keys
-      for (int sk = 2; sk < 9; sk++)
-         al_draw_text(font, palette_color[15], x, y+10*sk, ALLEGRO_ALIGN_CENTER, global_string[5][sk]);
-
-      // highlighted current key
-      al_draw_text(font, palette_color[10], x, y+10*key_sel, ALLEGRO_ALIGN_CENTER, global_string[5][key_sel]);
-
       switch (key_sel)
       {
-         case  2: players1[p].up_key    =  my_readkey(); break;
-         case  3: players1[p].down_key  =  my_readkey(); break;
-         case  4: players1[p].left_key  =  my_readkey(); break;
-         case  5: players1[p].right_key =  my_readkey(); break;
-         case  6: players1[p].jump_key  =  my_readkey(); break;
-         case  7: players1[p].fire_key  =  my_readkey(); break;
-         case  8: players1[p].menu_key  =  my_readkey(); break;
+         case  2: players1[0].up_key    =  my_readkey(x,y,tc,bts,0); break;
+         case  3: players1[0].down_key  =  my_readkey(x,y,tc,bts,1); break;
+         case  4: players1[0].left_key  =  my_readkey(x,y,tc,bts,2); break;
+         case  5: players1[0].right_key =  my_readkey(x,y,tc,bts,3); break;
+         case  6: players1[0].jump_key  =  my_readkey(x,y,tc,bts,4); break;
+         case  7: players1[0].fire_key  =  my_readkey(x,y,tc,bts,5); break;
+         case  8: players1[0].menu_key  =  my_readkey(x,y,tc,bts,6); break;
       }
-      set_key_menu(5, p, 2);
    }
    save_config();
 }
 
 
-void test_keys(void)
+void test_keys(int x, int sy)
 {
    ALLEGRO_COLOR c1 = palette_color[15];
    ALLEGRO_COLOR c2 = palette_color[10];
+   ALLEGRO_COLOR c3 = palette_color[14];
 
    int quit = 0;
    while (!quit)
    {
-      int x = SCREEN_W/2;
-      int y = BORDER_WIDTH + 8;
-      al_set_target_backbuffer(display);
-      al_clear_to_color(al_map_rgb(0,0,0));
+      int y = sy;
+
+      al_draw_filled_rectangle(x-190, y, x+190, y+170, palette_color[0]); // erase background
 
       al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------" );
       al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Test your controller setup here.");
-      al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "(F11 to quit)");
+      al_draw_text(font, c3, x, y+=8, ALLEGRO_ALIGN_CENTRE, "(F11 to quit)");
       al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------");
       al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Test how pressing multiple");
       al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "controls affects other controls.");
@@ -249,10 +238,9 @@ void test_keys(void)
       y +=8;
       if (players[0].menu) al_draw_text(font, c2, x, y, ALLEGRO_ALIGN_CENTRE, "MENU" );
 
-      if (key[ALLEGRO_KEY_F11][0]) quit = 1;
       al_flip_display();
       proc_controllers();
-      al_rest(0.02);
+      if (key[ALLEGRO_KEY_F11][0]) quit = 1;
    }
 }
 
@@ -265,9 +253,53 @@ void set_start_level(int s)
 
 void set_speed(void)
 {
-   sprintf(global_string[8][6],"Speed:%2dfps", frame_speed);
    al_set_timer_speed(fps_timer, 1/(float)frame_speed);
 }
+
+void set_controls_to_custom_sets(int s)
+{
+   if (s == 1) // set all to joy1
+   {
+      players1[0].up_key = 128;
+      players1[0].down_key = 129;
+      players1[0].right_key = 131;
+      players1[0].left_key = 130;
+      players1[0].jump_key = 133;
+      players1[0].fire_key = 132;
+      players1[0].menu_key = 135;
+   }
+   if (s == 2) // set all to joy2
+   {
+      players1[0].up_key = 148;
+      players1[0].down_key = 149;
+      players1[0].right_key = 151;
+      players1[0].left_key = 150;
+      players1[0].jump_key = 153;
+      players1[0].fire_key = 152;
+      players1[0].menu_key = 155;
+   }
+   if (s == 3) // set all to arrows
+   {
+      players1[0].up_key = 84;
+      players1[0].down_key = 85;
+      players1[0].right_key = 83;
+      players1[0].left_key = 82;
+      players1[0].jump_key = 75;
+      players1[0].fire_key = 3;
+      players1[0].menu_key = 59;
+   }
+   if (s == 4) // set all to IJKL
+   {
+      players1[0].up_key = 9;
+      players1[0].down_key = 11;
+      players1[0].right_key = 12;
+      players1[0].left_key = 10;
+      players1[0].jump_key = 75;
+      players1[0].fire_key = 3;
+      players1[0].menu_key = 59;
+   }
+}
+
 
 void clear_controls(int p)
 {
@@ -335,19 +367,11 @@ void function_key_check(void)
 {
    if ((level_editor_running) || (program_state == 11))
    {
-
       if (key[ALLEGRO_KEY_F1][3])
       {
-//         frame_speed = 4;
-//         set_speed();
-
-//         #ifndef RELEASE
          players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
          printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
-//         #endif
-
       }
-
 
       if (key[ALLEGRO_KEY_F4][3])
       {
@@ -355,51 +379,39 @@ void function_key_check(void)
          save_log_file();
       }
 
-
-
       if (key[ALLEGRO_KEY_F5][0]) set_scale_factor(scale_factor * .90, 0);
       if (key[ALLEGRO_KEY_F6][0]) set_scale_factor(scale_factor * 1.1, 0);
       if ((key[ALLEGRO_KEY_F5][0]) && (key[ALLEGRO_KEY_F6][0])) set_scale_factor(1, 1);
-
 
       if ((!ima_client) && (!ima_server)) // only adjust speed if not in netgame
       {
          if (key[ALLEGRO_KEY_F7][2])
          {
-
-            if (((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) &&  ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) ) frame_speed -=1000;
-
-
-
-            else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) frame_speed -=100;
-            else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) frame_speed -=20;
-            else frame_speed -= 1;
-            if (frame_speed < 5) frame_speed = 5;
+            if (SHFT() && CTRL()) frame_speed -=1000;
+            else if (SHFT())      frame_speed -=100;
+            else if (CTRL())      frame_speed -=20;
+            else                  frame_speed -=1;
+            if (frame_speed < 5)  frame_speed =5;
             set_speed();
          }
 
          if (key[ALLEGRO_KEY_F8][2])
          {
-            if (((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) &&  ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) ) frame_speed +=1000;
-            else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) frame_speed +=100;
-            else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) frame_speed +=20;
-            else frame_speed += 1;
+            if (SHFT() && CTRL()) frame_speed +=1000;
+            else if (SHFT())      frame_speed +=100;
+            else if (CTRL())      frame_speed +=20;
+            else                  frame_speed += 1;
             if (frame_speed > 100000) frame_speed = 100000;
             set_speed();
          }
       }
-
-//      if ((KEY_F7_held) && (KEY_F8_held))
       if ((key[ALLEGRO_KEY_F7][0]) && (key[ALLEGRO_KEY_F7][1]) && (key[ALLEGRO_KEY_F8][0]) && (key[ALLEGRO_KEY_F8][1]))
       {
          frame_speed = 40;
          set_speed();
       }
 
-      if (key[ALLEGRO_KEY_F9][2])
-      {
-      }
-
+      if (key[ALLEGRO_KEY_F9][2]);
 
       if (key[ALLEGRO_KEY_F10][2])
       {
@@ -408,20 +420,14 @@ void function_key_check(void)
          else
          {
             #ifdef RELEASE
-            if ( ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) &&
-               ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) )
+            if (SHFT() && CTRL())
             #endif
             show_debug_overlay = 1;
          }
       }
    } // end of if not game exit
 
-
-      if (key[ALLEGRO_KEY_F11][2])
-      {
-         init_level_background(0);
-      }
-
+   if (key[ALLEGRO_KEY_F11][2] && SHFT()) init_level_background(0);
 
    if (key[ALLEGRO_KEY_UP][   2]) pct_y--;
    if (key[ALLEGRO_KEY_DOWN][ 2]) pct_y++;
@@ -430,11 +436,7 @@ void function_key_check(void)
 
    if (key[ALLEGRO_KEY_F12][2])
    {
-      if ( ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) &&
-           ((key[ALLEGRO_KEY_LCTRL ][0]) || (key[ALLEGRO_KEY_RCTRL][0 ])) )
-      {
-         cycle_display_transform();
-      }
+      if (SHFT() && CTRL()) cycle_display_transform();
       else
       {
          if (fullscreen) proc_display_change_fromfs();
@@ -492,8 +494,13 @@ void rungame_key_check(int p)
       players[0].active = 1;
       load_config();
 
+      while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+
+      printf("old program state:%d\n", old_program_state);
+
       new_program_state = 1;
-      old_program_state = 1;
+      if (old_program_state == 2) old_program_state = older_program_state; // don't send back to demo mode
+
    }
 }
 
@@ -583,21 +590,6 @@ void serial_key_check(int key)
       {
          if (memcmp((skc + skc_index-tl), tst, tl) == 0) spline_test();
       }
-/*
-      sprintf(tst, "sndb");
-      tl = strlen(tst);
-      if (skc_index > tl-1)
-      {
-         if (memcmp((skc + skc_index-tl), tst, tl) == 0) mW[1].show_non_default_blocks =! mW[1].show_non_default_blocks;
-      }
-
-      sprintf(tst, "sbf");
-      tl = strlen(tst);
-      if (skc_index > tl-1)
-      {
-         if (memcmp((skc + skc_index-tl), tst, tl) == 0) mW[1].show_flag_details =! mW[1].show_flag_details;
-      }
-*/
    }
 }
 
@@ -717,7 +709,7 @@ void proc_player_active_game_move(int x)
 
       game_event(80, 0, 0, p, 0, 0, 0);
 
-      if (L_LOGGING_NETPLAY)
+      if (LOG_NET)
       {
          sprintf(msg,"PLAYER:%d became ACTIVE color:%d", p, players[p].color);
          add_log_entry_header(10, p, msg, 1);
@@ -826,7 +818,7 @@ void proc_game_moves_array(void)
    if (end_index < 0) end_index = 0;
 
 
-//   if (L_LOGGING_NETPLAY_cdat)
+//   if (LOG_NET_cdat)
 //   {
 //      sprintf(msg, "game_move - gmep:%d gmcp:%d si:%d ei:%d\n", game_move_entry_pos, game_move_current_pos, start_index, end_index);
 //      add_log_entry2(40, 0, msg);
@@ -886,7 +878,7 @@ void proc_player_input(void)
 
                      players1[p].client_cdat_packets_tx++;
                      sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
-                     if (L_LOGGING_NETPLAY_cdat) add_log_entry2(35, p, msg);
+                     if (LOG_NET_cdat) add_log_entry2(35, p, msg);
 
                   }
                }

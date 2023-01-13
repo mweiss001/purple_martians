@@ -490,8 +490,66 @@ void temp_test(void)
 //   log_ping_graph(load_log_lines_array_from_static_file("logs/e.txt"));
 
 
-   void log_timestamp_graph(int num_lines);
-   log_timestamp_graph(load_log_lines_array_from_static_file("logs/f.txt"));
+//   void log_timestamp_graph(int num_lines);
+//   log_timestamp_graph(load_log_lines_array_from_static_file("logs/g.txt"));
+
+
+
+   settings_pages(6);
+
+
+//
+//float v[4][2] = {0};
+//
+//v[0][0] = 100;
+//v[0][1] = 100;
+//
+//v[1][0] = 100;
+//v[1][1] = 200;
+//
+//v[2][0] = 200;
+//v[2][1] = 200;
+//
+//v[3][0] = 200;
+//v[3][1] = 100;
+//
+//
+//al_draw_filled_rectangle(20,20,40,40, palette_color[10]);
+//al_draw_filled_polygon(*v, 4, palette_color[14]);
+//
+//al_flip_display();
+//
+//tsw();
+//
+//
+
+
+
+
+
+
+
+
+
+
+
+
+
+//   int ml=0;
+//   for (int i=0; i<256; i++)
+//   {
+//      if (strlen(key_names[i]) > ml)
+//      {
+//         ml = strlen(key_names[i]);
+//
+//         printf("i:%d len:%d txt:%s\n", i, ml, key_names[i]);
+//
+//      }
+//
+//   }
+
+
+
 
 
 //   double round_to_nearest(double in, double nr);

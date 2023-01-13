@@ -36,13 +36,9 @@ void save_config(void)
 
       sprintf(msg, "%d", show_splash_screen);
       al_set_config_value(cfg, "SCREEN", "show_splash_screen", msg);
-      if (show_splash_screen) sprintf(global_string[8][11], "Splash Screen:ON ");
-      else sprintf(global_string[8][11], "Splash Screen:OFF");
-
 
       sprintf(msg, "%d", saved_display_transform_double);
       al_set_config_value(cfg, "SCREEN", "saved_display_transform_double", msg);
-
 
       sprintf(msg, "%d",players[0].color );
       al_set_config_value(cfg, "GAME", "color", msg);
@@ -50,6 +46,34 @@ void save_config(void)
       sprintf(msg, "%d", start_level);
       al_set_config_value(cfg, "GAME", "start_level", msg);
       sprintf(global_string[7][2], "Start Level (%d)", start_level);
+
+      sprintf(msg, "%d", demo_mode_config_enable);
+      al_set_config_value(cfg, "GAME", "demo_mode_config_enable", msg);
+
+      sprintf(msg, "%0.2f", demo_mode_overlay_opacity);
+      al_set_config_value(cfg, "GAME", "demo_mode_overlay_opacity", msg);
+
+
+      sprintf(msg, "%d", viewport_mode);
+      al_set_config_value(cfg, "GAME", "viewport_mode", msg);
+      sprintf(msg, "%d", viewport_show_hyst);
+      al_set_config_value(cfg, "GAME", "viewport_show_hyst", msg);
+      sprintf(msg, "%d", viewport_x_div);
+      al_set_config_value(cfg, "GAME", "viewport_x_div", msg);
+      sprintf(msg, "%d", viewport_y_div);
+      al_set_config_value(cfg, "GAME", "viewport_y_div", msg);
+
+
+
+
+
+
+
+
+
+
+
+
 
       sprintf(msg, "%d", players1[0].up_key);
       al_set_config_value(cfg, "GAMECONTROLS", "p0_up_key", msg);
@@ -74,170 +98,74 @@ void save_config(void)
 
       sprintf(msg, "%d", sound_on);
       al_set_config_value(cfg, "SOUND", "sound_on", msg);
-      if (sound_on) sprintf(global_string[8][7],"Sound:On");
-      else sprintf(global_string[8][7],"Sound:Off");
 
       sprintf(msg, "%d", se_scaler);
       al_set_config_value(cfg, "SOUND", "se_scaler", msg);
-      sprintf(global_string[8][8],"Sound Effects Volume:%1d", se_scaler );
 
       sprintf(msg, "%d", st_scaler);
       al_set_config_value(cfg, "SOUND", "st_scaler", msg);
-      sprintf(global_string[8][9],"Sound Track Volume:%1d", st_scaler );
 
       al_set_config_value(cfg, "NETWORK", "server_IP", m_serveraddress);
-      sprintf(global_string[4][3],"Server:%s", m_serveraddress);
 
       sprintf(msg, "%d", TCP);
       al_set_config_value(cfg, "NETWORK", "TCP", msg);
-      if (TCP) strcpy (global_string[4][4], "Packet Type:TCP");
-      else strcpy (global_string[4][4], "Packet Type:UDP");
 
       sprintf(msg, "%d", deathmatch_pbullets);
       al_set_config_value(cfg, "NETWORK", "deathmatch_pbullets", msg);
-      if (deathmatch_pbullets) strcpy (global_string[4][5], "Deathmatch Bullets:On ");
-      else strcpy (global_string[4][5], "Deathmatch Bullets:Off");
 
       sprintf(msg, "%d", deathmatch_pbullets_damage);
       al_set_config_value(cfg, "NETWORK", "deathmatch_pbullets_damage", msg);
-      sprintf(global_string[4][7], "Deathmatch Bullet Damage:%-2d", deathmatch_pbullets_damage);
 
       sprintf(msg, "%d", suicide_pbullets);
       al_set_config_value(cfg, "NETWORK", "suicide_pbullets", msg);
-      if (suicide_pbullets) strcpy (global_string[4][6], "Suicide Bullets:On ");
-      else strcpy (global_string[4][6], "Suicide Bullets:Off");
-
-      sprintf(msg, "%d", stdf_freq);
-      al_set_config_value(cfg, "NETWORK", "stdf_freq", msg);
 
       sprintf(msg, "%d", zlib_cmp);
       al_set_config_value(cfg, "NETWORK", "zlib_cmp", msg);
 
+      sprintf(msg, "%d", LOG_NET);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET", msg);
 
-      int q = 5;
+      sprintf(msg, "%d", LOG_NET_join);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_join", msg);
 
+      sprintf(msg, "%d", LOG_NET_player_array);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_player_array", msg);
 
-      sprintf(msg, "%d", L_LOGGING_NETPLAY);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY", msg);
-      if (L_LOGGING_NETPLAY)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY                    ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY                    ");
+      sprintf(msg, "%d", LOG_NET_bandwidth);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_bandwidth", msg);
 
+      sprintf(msg, "%d", LOG_NET_cdat);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_cdat", msg);
 
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_JOIN);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_JOIN", msg);
-      if (L_LOGGING_NETPLAY_JOIN)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_JOIN               ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_JOIN               ");
+      sprintf(msg, "%d", LOG_NET_game_move);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_game_move", msg);
 
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_PLAYER_ARRAY);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_PLAYER_ARRAY", msg);
-      if (L_LOGGING_NETPLAY_PLAYER_ARRAY)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_PLAYER_ARRAY       ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_PLAYER_ARRAY       ");
+      sprintf(msg, "%d", LOG_NET_sdat);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_sdat", msg);
 
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_bandwidth);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_bandwidth", msg);
-      if (L_LOGGING_NETPLAY_bandwidth)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_bandwidth          ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_bandwidth          ");
+      sprintf(msg, "%d", LOG_NET_sdak);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_sdak", msg);
 
+      sprintf(msg, "%d", LOG_NET_stdf);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_stdf", msg);
 
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_cdat);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_cdat", msg);
-      if (L_LOGGING_NETPLAY_cdat)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_cdat               ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_cdat               ");
+      sprintf(msg, "%d", LOG_NET_stdf_all_packets);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_stdf_all_packets", msg);
 
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_game_move);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_game_move", msg);
-      if (L_LOGGING_NETPLAY_game_move)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_game_move          ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_game_move          ");
+      sprintf(msg, "%d", LOG_NET_stdf_when_to_apply);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_stdf_when_to_apply", msg);
 
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_sdat);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_sdat", msg);
-      if (L_LOGGING_NETPLAY_sdat)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_sdat               ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_sdat               ");
+      sprintf(msg, "%d", LOG_NET_show_dif1);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_show_dif1", msg);
 
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_sdak);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_sdak", msg);
-      if (L_LOGGING_NETPLAY_sdak)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_sdak               ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_sdak               ");
+      sprintf(msg, "%d", LOG_NET_show_dif2);
+      al_set_config_value(cfg, "LOGGING", "LOG_NET_show_dif2", msg);
 
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_stdf);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf", msg);
-      if (L_LOGGING_NETPLAY_stdf)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_stdf               ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_stdf               ");
-
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_stdf_all_packets);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf_all_packets", msg);
-      if (L_LOGGING_NETPLAY_stdf_all_packets)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_stdf_all_packets   ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_stdf_all_packets   ");
-
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_stdf_when_to_apply);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf_when_to_apply", msg);
-      if (L_LOGGING_NETPLAY_stdf_when_to_apply)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_stdf_when_to_apply ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_stdf_when_to_apply ");
-
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_show_dif1);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_show_dif1", msg);
-      if (L_LOGGING_NETPLAY_show_dif1)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_show_dif1          ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_show_dif1          ");
-
-      q++;
-      sprintf(msg, "%d", L_LOGGING_NETPLAY_show_dif2);
-      al_set_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_show_dif2", msg);
-      if (L_LOGGING_NETPLAY_show_dif2)
-         sprintf(global_string[3][q],"[ON ]:LOGGING_NETPLAY_show_dif2          ");
-      else
-         sprintf(global_string[3][q],"[OFF]:LOGGING_NETPLAY_show_dif2          ");
-
-      q++;
       sprintf(msg, "%d", auto_save_game_on_level_done);
       al_set_config_value(cfg, "LOGGING", "auto_save_game_on_level_done", msg);
-      if (auto_save_game_on_level_done)
-         sprintf(global_string[3][q],"[ON ]:Auto Save Game On Level Done       ");
-      else
-         sprintf(global_string[3][q],"[OFF]:Auto Save Game On Level Done       ");
 
-      q++;
       sprintf(msg, "%d", auto_save_game_on_exit);
       al_set_config_value(cfg, "LOGGING", "auto_save_game_on_exit", msg);
-      if (auto_save_game_on_exit)
-         sprintf(global_string[3][q],"[ON ]:Auto Save Game On Exit             ");
-      else
-         sprintf(global_string[3][q],"[OFF]:Auto Save Game On Exit             ");
-
    }
 
    al_save_config_file("pm.cfg", cfg);
@@ -291,7 +219,6 @@ void load_config(void)
    if (!val) set_scale_factor(1, 1);
    else set_scale_factor(atof(val), 1);
 
-
    val = al_get_config_value(cfg, "SCREEN", "show_splash_screen");
    if (!val) show_splash_screen = 1;
    else show_splash_screen = atoi(val);
@@ -318,6 +245,45 @@ void load_config(void)
       if (players[0].color < 1) players[0].color = 1;
       if (players[0].color > 15) players[0].color = 15;
    }
+
+   val = al_get_config_value(cfg, "GAME", "demo_mode_config_enable");
+   if (!val) demo_mode_config_enable = 1;
+   else demo_mode_config_enable = atoi(val);
+
+
+   val = al_get_config_value(cfg, "GAME", "demo_mode_overlay_opacity");
+   if (!val) demo_mode_overlay_opacity = 0.1;
+   else demo_mode_overlay_opacity = atof(val);
+
+
+   val = al_get_config_value(cfg, "GAME", "viewport_mode");
+   if (!val) viewport_mode = 1;
+   else viewport_mode = atoi(val);
+
+   val = al_get_config_value(cfg, "GAME", "viewport_show_hyst");
+   if (!val) viewport_show_hyst = 0;
+   else viewport_show_hyst = atoi(val);
+
+   val = al_get_config_value(cfg, "GAME", "viewport_x_div");
+   if (!val) viewport_x_div = 8;
+   else viewport_x_div = atoi(val);
+
+   val = al_get_config_value(cfg, "GAME", "viewport_y_div");
+   if (!val) viewport_y_div = 12;
+   else viewport_y_div = atoi(val);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    val = al_get_config_value(cfg, "GAMECONTROLS", "p0_up_key");
    if (!val) players1[0].up_key = ALLEGRO_KEY_UP;
@@ -379,10 +345,6 @@ void load_config(void)
    if (!val) suicide_pbullets = 0;
    else suicide_pbullets = atoi(val);
 
-   val = al_get_config_value(cfg, "NETWORK", "stdf_freq");
-   if (!val) stdf_freq = 5;
-   else stdf_freq = atoi(val);
-
    val = al_get_config_value(cfg, "NETWORK", "zlib_cmp");
    if (!val) zlib_cmp = 7;
    else zlib_cmp = atoi(val);
@@ -395,59 +357,58 @@ void load_config(void)
    if (!val) auto_save_game_on_exit = 0;
    else auto_save_game_on_exit = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY");
-   if (!val) L_LOGGING_NETPLAY = 0;
-   else L_LOGGING_NETPLAY = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET");
+   if (!val) LOG_NET = 0;
+   else LOG_NET = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_PLAYER_ARRAY");
-   if (!val) L_LOGGING_NETPLAY_PLAYER_ARRAY = 0;
-   else L_LOGGING_NETPLAY_PLAYER_ARRAY = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_player_array");
+   if (!val) LOG_NET_player_array = 0;
+   else LOG_NET_player_array = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_JOIN");
-   if (!val) L_LOGGING_NETPLAY_JOIN = 0;
-   else L_LOGGING_NETPLAY_JOIN = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_join");
+   if (!val) LOG_NET_join = 0;
+   else LOG_NET_join = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_bandwidth");
-   if (!val) L_LOGGING_NETPLAY_bandwidth = 0;
-   else L_LOGGING_NETPLAY_bandwidth = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_bandwidth");
+   if (!val) LOG_NET_bandwidth = 0;
+   else LOG_NET_bandwidth = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_cdat");
-   if (!val) L_LOGGING_NETPLAY_cdat = 0;
-   else L_LOGGING_NETPLAY_cdat = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_cdat");
+   if (!val) LOG_NET_cdat = 0;
+   else LOG_NET_cdat = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_game_move");
-   if (!val) L_LOGGING_NETPLAY_game_move = 0;
-   else L_LOGGING_NETPLAY_game_move = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_game_move");
+   if (!val) LOG_NET_game_move = 0;
+   else LOG_NET_game_move = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_sdat");
-   if (!val) L_LOGGING_NETPLAY_sdat = 0;
-   else L_LOGGING_NETPLAY_sdat = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_sdat");
+   if (!val) LOG_NET_sdat = 0;
+   else LOG_NET_sdat = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_sdak");
-   if (!val) L_LOGGING_NETPLAY_sdak = 0;
-   else L_LOGGING_NETPLAY_sdak = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_sdak");
+   if (!val) LOG_NET_sdak = 0;
+   else LOG_NET_sdak = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf");
-   if (!val) L_LOGGING_NETPLAY_stdf = 0;
-   else L_LOGGING_NETPLAY_stdf = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_stdf");
+   if (!val) LOG_NET_stdf = 0;
+   else LOG_NET_stdf = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf_all_packets");
-   if (!val) L_LOGGING_NETPLAY_stdf_all_packets = 0;
-   else L_LOGGING_NETPLAY_stdf_all_packets = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_stdf_all_packets");
+   if (!val) LOG_NET_stdf_all_packets = 0;
+   else LOG_NET_stdf_all_packets = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_stdf_when_to_apply");
-   if (!val) L_LOGGING_NETPLAY_stdf_when_to_apply = 0;
-   else L_LOGGING_NETPLAY_stdf_when_to_apply = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_stdf_when_to_apply");
+   if (!val) LOG_NET_stdf_when_to_apply = 0;
+   else LOG_NET_stdf_when_to_apply = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_show_dif1");
-   if (!val) L_LOGGING_NETPLAY_show_dif1 = 0;
-   else L_LOGGING_NETPLAY_show_dif1 = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_show_dif1");
+   if (!val) LOG_NET_show_dif1 = 0;
+   else LOG_NET_show_dif1 = atoi(val);
 
-   val = al_get_config_value(cfg, "LOGGING", "LOGGING_NETPLAY_show_dif2");
-   if (!val) L_LOGGING_NETPLAY_show_dif2 = 0;
-   else L_LOGGING_NETPLAY_show_dif2 = atoi(val);
+   val = al_get_config_value(cfg, "LOGGING", "LOG_NET_show_dif2");
+   if (!val) LOG_NET_show_dif2 = 0;
+   else LOG_NET_show_dif2 = atoi(val);
 
    al_destroy_config(cfg);
    save_config();
 }
-

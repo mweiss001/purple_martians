@@ -254,7 +254,7 @@ void erase_log(void)
 
 void save_log_file(void)
 {
-   //if (L_LOGGING_NETPLAY)
+   //if (LOG_NET)
    {
       al_make_directory("logs"); // create if not already created
       FILE *filepntr;
@@ -860,14 +860,14 @@ int log_file_viewer(int type)
 
       if (key[ALLEGRO_KEY_PGUP][3])
       {
-         if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) first_line -= 1000;
-         else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) first_line -= 100;
+         if (CTRL()) first_line -= 1000;
+         else if (SHFT()) first_line -= 100;
          else first_line-=10;
       }
       if (key[ALLEGRO_KEY_PGDN][3])
       {
-         if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) first_line += 1000;
-         else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) first_line += 100;
+         if (CTRL()) first_line += 1000;
+         else if (SHFT()) first_line += 100;
          else first_line+=10;
       }
 
@@ -1578,8 +1578,11 @@ void log_client_server_sync_graph(int num_lines)
 
 void run_timestamp_graph(void)
 {
+
+
+
+
    int c1 = 10;
-   mG[0].set_series(0, "draw time", c1, 0);
    mG[0].calc_data_range();
    mG[0].autorange_axis(1, 1);
    mG[0].set_title("Draw Time", 2, c1, c1);              // text, text_color, frame_color
@@ -1589,21 +1592,42 @@ void run_timestamp_graph(void)
    mG[0].set_y_axis_labels(3, 1, 2, c1);                 // type, font, tick_size, color
    mG[0].linked_group_id = 17;
 
-   int c2 = 13;
-   mG[1].set_series(0, "move time", c2, 0);
-   mG[1].calc_data_range();
-   mG[1].autorange_axis(1, 1);
-   mG[1].set_title("Move Time", 2, c2, c2);              // text, text_color, frame_color
-   mG[1].set_x_axis_legend("Time", "frames", 0, 15, 0);  // text, font, text_color, frame_color
-   mG[1].set_y_axis_legend("Time", "ms", 0, c2, 0);      // text, font, text_color, frame_color
-   mG[1].set_x_axis_labels(1, 1, 2, 15);                 // type, font, tick_size, color
-   mG[1].set_y_axis_labels(3, 1, 2, c2);                 // type, font, tick_size, color
-   mG[1].x_axis_slave = 100;
-   mG[1].series_legend_slave = 100;
-   mG[1].x_axis_legend_draw_on = 0;
-   mG[1].linked_group_id = 17;
-   mG[1].x_axis_grid_draw_on = 1;
-   mG[1].x_axis_grid_label_draw_on = 0;
+
+
+
+
+
+
+
+
+
+
+//   int c1 = 10;
+//   mG[0].set_series(0, "draw time", c1, 0);
+//   mG[0].calc_data_range();
+//   mG[0].autorange_axis(1, 1);
+//   mG[0].set_title("Draw Time", 2, c1, c1);              // text, text_color, frame_color
+//   mG[0].set_x_axis_legend("Time", "frames", 0, 15, 0);  // text, font, text_color, frame_color
+//   mG[0].set_y_axis_legend("Time", "ms", 0, c1, 0);      // text, font, text_color, frame_color
+//   mG[0].set_x_axis_labels(1, 1, 2, 15);                 // type, font, tick_size, color
+//   mG[0].set_y_axis_labels(3, 1, 2, c1);                 // type, font, tick_size, color
+//   mG[0].linked_group_id = 17;
+//
+//   int c2 = 13;
+//   mG[1].set_series(0, "move time", c2, 0);
+//   mG[1].calc_data_range();
+//   mG[1].autorange_axis(1, 1);
+//   mG[1].set_title("Move Time", 2, c2, c2);              // text, text_color, frame_color
+//   mG[1].set_x_axis_legend("Time", "frames", 0, 15, 0);  // text, font, text_color, frame_color
+//   mG[1].set_y_axis_legend("Time", "ms", 0, c2, 0);      // text, font, text_color, frame_color
+//   mG[1].set_x_axis_labels(1, 1, 2, 15);                 // type, font, tick_size, color
+//   mG[1].set_y_axis_labels(3, 1, 2, c2);                 // type, font, tick_size, color
+//   mG[1].x_axis_slave = 100;
+//   mG[1].series_legend_slave = 100;
+//   mG[1].x_axis_legend_draw_on = 0;
+//   mG[1].linked_group_id = 17;
+//   mG[1].x_axis_grid_draw_on = 1;
+//   mG[1].x_axis_grid_label_draw_on = 0;
 
    int quit = 0;
    while (!quit)
@@ -1611,10 +1635,15 @@ void run_timestamp_graph(void)
       al_set_target_backbuffer(display);
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      mG[0].set_graph_pos(0, SCREEN_H/2, SCREEN_W, SCREEN_H);
-      mG[1].set_graph_pos(0, 0,          SCREEN_W, SCREEN_H/2);
+      mG[0].set_graph_pos(0, 0, SCREEN_W, SCREEN_H);
       mG[0].proc_graph();
-      mG[1].proc_graph();
+
+
+//      mG[0].set_graph_pos(0, SCREEN_H/2, SCREEN_W, SCREEN_H);
+//      mG[1].set_graph_pos(0, 0,          SCREEN_W, SCREEN_H/2);
+//      mG[0].proc_graph();
+//      mG[1].proc_graph();
+
 
       al_flip_display();
       proc_controllers();
@@ -1624,15 +1653,23 @@ void run_timestamp_graph(void)
 
 
 
-
-
 void log_timestamp_graph(int num_lines)
 {
-   mG[0].initialize();
-   mG[0].set_series(0, "draw time", 10, 0);
 
-   mG[1].initialize();
-   mG[1].set_series(0, "move time", 10, 0);
+   mG[0].initialize();
+   mG[0].set_series(0, "stdf time", 10, 0);
+   mG[0].set_series(1, "base0", 11, 0);
+   mG[0].set_series(2, "cmp_size", 12, 0);
+   mG[0].set_series(3, "packets", 13, 0);
+
+
+
+
+//   mG[0].initialize();
+//   mG[0].set_series(0, "draw time", 10, 0);
+//
+//   mG[1].initialize();
+//   mG[1].set_series(0, "move time", 10, 0);
 
    // iterate all log lines and build array of data points
    for (int i=0; i<num_lines; i++)
@@ -1642,24 +1679,46 @@ void log_timestamp_graph(int num_lines)
       char tll[200]; // temp log line
       char res[80];
 
-      if (type == 44) // tmst
+      if (type == 45) // tmst
       {
          sprintf(tll, "%s", log_lines[i]);
 
          get_tag_text(tll, res, 0);
-         double td = atof(res);
+         double stdf = atof(res);
 
          get_tag_text(tll, res, 0);
-         double tm = atof(res);
+         double base = atof(res);
 
          get_tag_text(tll, res, 0);
-         //double tt = atof(res);
+         double cmp_sz = atof(res) / 1000;
+
+         get_tag_text(tll, res, 0);
+         double np = atof(res);
 
         //printf("td:%f tm:%f tt:%f\n", td, tm, tt);
 
-         mG[0].add_data_point(0, (double) fn, td);
-         mG[1].add_data_point(0, (double) fn, tm);
+         mG[0].add_data_point(0, (double) fn, stdf);
+         mG[0].add_data_point(1, (double) fn, base);
+         mG[0].add_data_point(2, (double) fn, cmp_sz);
+         mG[0].add_data_point(3, (double) fn, np);
+
+
+
 //         mG[0].add_data_point(2, (double) fn, tt);
+//         get_tag_text(tll, res, 0);
+//         double td = atof(res);
+//
+//         get_tag_text(tll, res, 0);
+//         double tm = atof(res);
+//
+//         get_tag_text(tll, res, 0);
+//         //double tt = atof(res);
+//
+//        //printf("td:%f tm:%f tt:%f\n", td, tm, tt);
+//
+//         mG[0].add_data_point(0, (double) fn, td);
+//         mG[1].add_data_point(0, (double) fn, tm);
+////         mG[0].add_data_point(2, (double) fn, tt);
       }
    }
    if ((mG[0].calc_data_range()) && (mG[0].calc_data_range())) run_timestamp_graph();

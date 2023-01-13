@@ -9,17 +9,6 @@ warp??
 --------------------------------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
-
-
-
 bug---can't see any prox line in level editor for prox lift step
 it shows up fine in game
 in level editor the function:
@@ -34,11 +23,39 @@ bug -- in level editor can't see trigger box edges on left or top if zero
 
 
 
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+Things to add to settings:
+
+Disable speed settings including function keys
+Speed testing abilites.
+
+Hysterisis window following player
+lots of options there
+
+bottom message settings
+
+show the tools used to make spline logo...done....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 --------------------------------------------------------------------------------------------
@@ -48,6 +65,9 @@ This would kind of suggest that I be able to pause the server...
 
 Fundamentally this will require deep changes.
 Right now the sync loop is dependant on the frame_num incrementing, like when the game is running.
+
+This is not a deal breaker, the game loop can still run, just the local server player will not be participating..
+There would be no menu stuff possible on the server though. I would need a different way to control it.
 --------------------------------------------------------------------------------------------
 
 
@@ -65,11 +85,8 @@ don't show anything about level until initial state is received and client playe
 
 
 add 8 char name
-
 it will be saved in config file
-
 it will be the name used for player[0]
-
 where ever I print Player:x, i will now print 'name'
 
 
@@ -78,26 +95,11 @@ where ever I print Player:x, i will now print 'name'
 
 --------------------------------------------------------------------------------------------
 as a pre cursor to layered recording
-
 make a demo player on steroids
-
 slider for speed
 slider for location
 pause, play.
-
-
-
-
-
-
-
-
 --------------------------------------------------------------------------------------------
-
-
-
-
-
 
 --------------------------------------------------------------------------------------------
 Layered multiplayer recording

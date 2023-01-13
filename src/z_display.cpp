@@ -270,6 +270,35 @@ void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head
 }
 
 
+
+
+void show_display_adapters(void)
+{
+   int num_adapters = al_get_num_video_adapters();
+   printf("%d adapters found...\n", num_adapters);
+
+   ALLEGRO_MONITOR_INFO info;
+   int i, j;
+   for (i=0; i<num_adapters; i++)
+   {
+      al_get_monitor_info(i, &info);
+      printf("Adapter %d: ", i);
+      int dpi = al_get_monitor_dpi(i);
+      printf("(%d, %d) - (%d, %d) - dpi: %d\n", info.x1, info.y1, info.x2, info.y2, dpi);
+      printf("   Available fullscreen display modes:\n");
+      for (j=0; j<al_get_num_display_modes(); j++)
+      {
+         ALLEGRO_DISPLAY_MODE mode;
+         al_get_display_mode(j, &mode);
+         printf("   Mode %3d: %4d x %4d, %d Hz\n", j, mode.width, mode.height, mode.refresh_rate);
+      }
+   }
+}
+
+
+
+
+
 int init_display(void)
 {
 

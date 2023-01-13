@@ -625,40 +625,6 @@ void menu_setup(void)
    strcpy (global_string[2][17],"Quit Level Editor");
    strcpy (global_string[2][18],"end");
 
-   strcpy (global_string[3][0], "Logging Options Menu");
-   strcpy (global_string[3][1], "--------------------");
-   strcpy (global_string[3][2], "Back to Game Menu");
-   strcpy (global_string[3][3], "ALL ON");
-   strcpy (global_string[3][4], "ALL OFF");
-   strcpy (global_string[3][5], "LOGGING_NETPLAY");
-   strcpy (global_string[3][6], "LOGGING_NETPLAY_JOIN");
-   strcpy (global_string[3][7], "LOGGING_NETPLAY_PLAYER_ARRAY");
-   strcpy (global_string[3][8], "LOGGING_NETPLAY_bandwidth");
-   strcpy (global_string[3][9], "LOGGING_NETPLAY_cdat");
-   strcpy (global_string[3][10], "LOGGING_NETPLAY_game_move");
-   strcpy (global_string[3][11], "LOGGING_NETPLAY_sdat");
-   strcpy (global_string[3][12], "LOGGING_NETPLAY_sdak");
-   strcpy (global_string[3][13], "LOGGING_NETPLAY_stdf");
-   strcpy (global_string[3][14], "LOGGING_NETPLAY_stdf_all_packets");
-   strcpy (global_string[3][15], "LOGGING_NETPLAY_stdf_when_to_apply");
-   strcpy (global_string[3][16], "LOGGING_NETPLAY_show_dif1");
-   strcpy (global_string[3][17], "LOGGING_NETPLAY_show_dif2");
-   strcpy (global_string[3][18], "Auto Save Game On Level Done");
-   strcpy (global_string[3][19], "Auto Save Game On Exit");
-   strcpy (global_string[3][20], "Log File Viewer");
-   strcpy (global_string[3][21], "end");
-
-
-   strcpy (global_string[4][0], "Netgame Options Menu");
-   strcpy (global_string[4][1], "--------------------");
-   strcpy (global_string[4][2], "Back to Game Menu");
-   strcpy (global_string[4][3], "Server IP or Hostname:<NOT SET>");
-   strcpy (global_string[4][4], "Packet Type:PPP");
-   strcpy (global_string[4][5], "Deathmatch Bullets:On");
-   strcpy (global_string[4][6], "Suicide Bullets:On");
-   strcpy (global_string[4][7], "Deathmatch Bullet Damage:5");
-   strcpy (global_string[4][8], "end");
-
    sprintf(global_string[6][0],"Lift:0 Step:0");
    sprintf(global_string[6][1],"---------------");
    sprintf(global_string[6][2],"Cancel");
@@ -674,69 +640,12 @@ void menu_setup(void)
    strcpy (global_string[7][4], "Resume Current Game");
    strcpy (global_string[7][5], "Host Network Game");
    strcpy (global_string[7][6], "Join Network Game");
-   strcpy (global_string[7][7], "Options Menu");
+   strcpy (global_string[7][7], "Settings");
    strcpy (global_string[7][8], "Level Editor");
    strcpy (global_string[7][9], "Demo Mode");
    strcpy (global_string[7][10], "Help Screens");
    strcpy (global_string[7][11], "end");
-
-   strcpy (global_string[8][0], "Options Menu");
-   strcpy (global_string[8][1], "----------");
-   strcpy (global_string[8][2], "Back to Game Menu");
-   strcpy (global_string[8][3], "Netgame Options");
-   strcpy (global_string[8][4], "<-Change Color->");
-   strcpy (global_string[8][5], "Controller Setup");
-   strcpy (global_string[8][6], "Speed:40fps");
-   strcpy (global_string[8][7], "Sound:Off");
-   strcpy (global_string[8][8], "Sound Effects Volume:9");
-   strcpy (global_string[8][9], "Sound Track Volume:9");
-   strcpy (global_string[8][10], "Logging Options");
-   strcpy (global_string[8][11], "Splash Screen:ON");
-   strcpy (global_string[8][12], "Save Demo");
-   strcpy (global_string[8][13], "Run Demo");
-   strcpy (global_string[8][14], "end");
-
-   strcpy (global_string[9][0],  "Controller Setup Menu");
-   strcpy (global_string[9][1],  "---------------------");
-   strcpy (global_string[9][2],  "Back to Options Menu");
-   strcpy (global_string[9][3],  "Test Controls" );
-   strcpy (global_string[9][4],  "Set all controls" );
-   strcpy (global_string[9][5],  "Set all to joy1" );
-   strcpy (global_string[9][6],  "Set all to joy2" );
-   strcpy (global_string[9][7],  "Set all to arrows" );
-   strcpy (global_string[9][8],  "Set all to IJKL SPACE C" );
-   strcpy (global_string[9][9],  "-----------------------" );
-   strcpy (global_string[9][23], "end");
-
-
-
 }
-
-void set_key_menu(int menu, int p, int start_row)
-{
-   int a = start_row;
-   int m = menu;
-   sprintf(global_string[m][a+0], "Up ---- %s", key_names[ players1[p].up_key]);
-   sprintf(global_string[m][a+1], "Down -- %s", key_names[ players1[p].down_key]);
-   sprintf(global_string[m][a+2], "Left -- %s", key_names[ players1[p].left_key]);
-   sprintf(global_string[m][a+3], "Right - %s", key_names[ players1[p].right_key]);
-   sprintf(global_string[m][a+4], "Jump -- %s", key_names[ players1[p].jump_key]);
-   sprintf(global_string[m][a+5], "Fire -- %s", key_names[ players1[p].fire_key]);
-   sprintf(global_string[m][a+6], "Menu -- %s", key_names[ players1[p].menu_key]);
-   sprintf(global_string[m][a+7], "end" );
-
-   // find longest text key description
-   unsigned int longest = 0;
-   for (int b=a; b<a+7; b++)
-      if (strlen(global_string[m][b]) > longest) longest = strlen(global_string[m][b]);
-
-   // pad string length to make them all line up nice
-   for (int b=a; b<a+7; b++)
-      while (strlen(global_string[m][b]) < longest)
-         strcat(global_string[m][b], " ");
-
-}
-
 
 
 int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function does not pass through, it waits for a selection and then exits
@@ -840,9 +749,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
    int left_held = 0;
    int right_held = 0;
 
-   // clear_key array (but not SHIFTS, CTRL etc above 200)
-   for (int k = ALLEGRO_KEY_A; k < 200; k++) key[k][0] = 0;
-
+   clear_keys();
 
    while (selection == 999)
    {
@@ -871,39 +778,26 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
             }
             sprintf(global_string[7][9], "Demo Mode (%d)", demo_mode_countdown_val / 100);
          }
-         else
-         {
-            sprintf(global_string[7][9], "Demo Mode");
-         }
+         else sprintf(global_string[7][9], "Demo Mode");
       }
 
       // draw the menu items
       int c = 0;
       while (strcmp(global_string[menu_num][c],"end") != 0)
       {
-
-         //ALLEGRO_COLOR reg = al_map_rgb(0,255,0);
-         //ALLEGRO_COLOR dim = al_map_rgb(0,200,0);
-         //int b = players[active_local_player].color;
-         int b = 15;
-         if ((!resume_allowed) && (menu_num == 7) && (c==4)) b+=80; // dimmer if can't resume
-
-         al_draw_text(font, palette_color[b+48], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[menu_num][c]);
-
-         if (c == highlight)
-            al_draw_text(font, palette_color[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[menu_num][c]);
+         int b = 15; // b = players[active_local_player].color;
+         if ((!resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
 
          if (c == highlight)
          {
             int sl = strlen(global_string[menu_num][c]) * 4;
             al_draw_rectangle(mx-sl-2+0.5f, y+(c*10)-1+0.5f, mx+sl+0.5f, y+(c*10)+9+0.5f, palette_color[b+80], 1);
          }
+         al_draw_text(font, palette_color[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[menu_num][c]);
          c++;
       }
       last_list_item = c-1;
 
-      // shortcut key for level editor
-      //if (menu_num == 7) if (key[ALLEGRO_KEY_L][0]) return 9;
 
       if (((key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) && (right_held == 0))
       {
@@ -911,14 +805,12 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
          selection = highlight + 100;
       }
       if ( (!(key[ALLEGRO_KEY_RIGHT][0])) &&  (!(players[0].right)) )  right_held = 0;
-
       if (((key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) && (left_held == 0))
       {
          left_held = 1;
          selection = highlight + 200;
       }
       if ( (!(key[ALLEGRO_KEY_LEFT][0])) &&  (!(players[0].left)) )  left_held = 0;
-
       if (((key[ALLEGRO_KEY_DOWN][0]) || (players[0].down))  && (down_held == 0))
       {
          if (++highlight > last_list_item) highlight = last_list_item;
@@ -927,9 +819,6 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
          demo_mode_enabled = 0;
       }
       if ( (!(key[ALLEGRO_KEY_DOWN][0])) && (!(players[0].down))) down_held = 0;
-
-
-
       if (((key[ALLEGRO_KEY_UP][0]) || (players[0].up)) && (up_held == 0))
       {
          if (--highlight < 2) highlight = 2;
@@ -940,23 +829,681 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       if ( (!(key[ALLEGRO_KEY_UP][0])) && (!(players[0].up))) up_held = 0;
 
 
+      // shortcut keys
+      if (key[ALLEGRO_KEY_L][0])                      return 8; // level editor
+      if (key[ALLEGRO_KEY_O][0] && SHFT() && CTRL() ) return 7; // settings
 
-      if (key[ALLEGRO_KEY_ENTER][0]) selection = highlight;
-
-      if (key[ALLEGRO_KEY_ESCAPE][0])
-      {
-         selection = 2; // default position for back
-         if (menu_num == 7)  selection = 1; // for top menu only
-
-      }
-      if (key[ALLEGRO_KEY_PGDN][0]) highlight = last_list_item;
-      if (key[ALLEGRO_KEY_PGUP][0]) highlight = 2;
+      if (key[ALLEGRO_KEY_PGDN][0])   highlight = last_list_item;
+      if (key[ALLEGRO_KEY_PGUP][0])   highlight = 2;
+      if (key[ALLEGRO_KEY_ENTER][0])  selection = highlight;
+      if (key[ALLEGRO_KEY_ESCAPE][0]) selection = 1;
    }
    return selection;
 }
 
 
 
+
+void set_all_logging(int v)
+{
+   LOG_NET=v;
+   LOG_NET_join=v;
+   LOG_NET_player_array=v;
+   LOG_NET_bandwidth=v;
+   LOG_NET_cdat=v;
+   LOG_NET_game_move=v;
+   LOG_NET_sdat=v;
+   LOG_NET_sdak=v;
+   LOG_NET_stdf=v;
+   LOG_NET_stdf_all_packets=v;
+   LOG_NET_stdf_when_to_apply=v;
+   LOG_NET_show_dif1=v;
+   LOG_NET_show_dif2=v;
+}
+
+
+int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int num)
+{
+   int xa = x;
+   int xb = xa + 32;  // 'new' button end
+   int tx = xb + 10;  // text pos padded after 'new' button
+   int xc = xa + 240; // end of entire area, used for clearing and framing
+
+   int ya = y;
+   float yo = (bts-8)/2; // text y offset so it is centered with the button
+
+   al_draw_filled_rectangle(x-1, y-1, xc, ya + bts*7, palette_color[13+224]); // erase background
+   al_draw_rectangle       (x-1, y-1, xc, ya + bts*7, palette_color[15], 0);  // frame
+
+   if (num == 0) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Up ---- set new control");
+   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Up ---- %s", key_names[players1[0].up_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].up_key = my_readkey(x, y, tc, bts, 0);
+   ya+=bts;
+
+   if (num == 1) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Down -- set new control");
+   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Down -- %s", key_names[players1[0].down_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].down_key = my_readkey(x, y, tc, bts, 1);
+   ya+=bts;
+
+   if (num == 2) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Left -- set new control");
+   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Left -- %s", key_names[players1[0].left_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].left_key = my_readkey(x, y, tc, bts, 2);
+   ya+=bts;
+
+   if (num == 3) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Right - set new control");
+   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Right - %s", key_names[players1[0].right_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].right_key = my_readkey(x, y, tc, bts, 3);
+   ya+=bts;
+
+   if (num == 4) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Jump -- set new control");
+   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Jump -- %s", key_names[players1[0].jump_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].jump_key = my_readkey(x, y, tc, bts, 4);
+   ya+=bts;
+
+   if (num == 5) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Fire -- set new control");
+   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Fire -- %s", key_names[players1[0].fire_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].fire_key = my_readkey(x, y, tc, bts, 5);
+   ya+=bts;
+
+   if (num == 6) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Menu -- set new control");
+   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Menu -- %s", key_names[players1[0].menu_key]);
+   if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].menu_key = my_readkey(x, y, tc, bts, 6);
+   ya+=bts;
+
+   return ya;
+}
+
+void cfp_draw_player(int pco, int x, int y)
+{
+   al_draw_bitmap(player_tile[pco][1], x, y, 0 );
+   al_draw_text(font, palette_color[pco], x+22, y+7, 0, color_name[pco]);
+}
+
+int cfp_draw_line(int xa, int xb, int ya, int line_spacing, int col)
+{
+   ya+=line_spacing;
+   al_draw_line(xa, ya, xb, ya, palette_color[col], 1);
+   ya+=line_spacing;
+
+   return ya;
+}
+
+struct settings_tab
+{
+   char title[80];
+   float x1;
+   float y1;
+   float x2;
+   float y2;
+};
+
+void draw_tab(struct settings_tab st[], int p, int col, int text_color)
+{
+   float x1 = st[p].x1;
+   float y1 = st[p].y1;
+   float x2 = st[p].x2;
+   float y2 = st[p].y2;
+
+   int s = 2; // slant
+   float v[4][2] = {0};
+   v[0][0] = x1+s;  v[0][1] = y1; // ul
+   v[1][0] = x1;    v[1][1] = y2; // ll
+   v[2][0] = x2;    v[2][1] = y2; // lr
+   v[3][0] = x2-s;  v[3][1] = y1; // ur
+
+   al_draw_filled_polygon(*v, 4, palette_color[col+192]);
+   al_draw_polygon(*v, 4, ALLEGRO_LINE_JOIN_ROUND, palette_color[col], 1.0, 0);
+   al_draw_text(font, palette_color[text_color], x1+4, y1+3, 0, st[p].title);
+}
+
+void settings_pages(int page)
+{
+   struct settings_tab st[20] = {0};
+
+   al_show_mouse_cursor(display);
+
+   char title[80] = {0};
+   sprintf(title, "Settings");
+
+
+   sprintf(st[0].title,  "Basics");
+   sprintf(st[1].title,  "Controls");
+   sprintf(st[2].title,  "Netgame");
+   sprintf(st[3].title,  "Logging");
+   sprintf(st[4].title,  "Demo");
+   sprintf(st[5].title,  "Advanced");
+   sprintf(st[6].title,  "Info");
+   sprintf(st[7].title,  "Viewport");
+   sprintf(st[8].title,  "ggyp 3");
+   sprintf(st[9].title,  "Test 4");
+   sprintf(st[10].title, "Test 5");
+   sprintf(st[11].title, "Test 6");
+   sprintf(st[12].title, "Test 7");
+   sprintf(st[13].title, "Test 8");
+   sprintf(st[14].title, "Test 9");
+   int num_pages = 13;
+
+   int fc = 10; // frame color
+   int tc = 15; // text color
+   int frame_width = 4; // border width
+
+   int quit = 0;
+   while (!quit)
+   {
+      // entire area, including title, tabs, and page
+      int cf_w = 400;
+      int cf_x1 = (SCREEN_W - cf_w)/2;
+      int cf_x2 = cf_x1 + cf_w;
+
+      int cf_h = 400;
+      int cf_y1 = menu_map_y - 61; // line up exactly with the menu item "Settings"
+      int cf_y2 = cf_y1 + cf_h;
+
+      if (cf_y2 > SCREEN_H)     // if bottom is past bottom of screen
+      {
+         cf_y2 = SCREEN_H;      // bottom is bottom of screen
+         cf_y1 = cf_y2 - cf_h;
+
+         if (cf_y1 < 0)         // if top is past top of screen
+         {
+            cf_y1 = 0;          // top is top of screen
+            cf_y2 = cf_y1 + cf_h;
+         }
+      }
+
+      fc = players[0].color; // frame color
+
+      al_set_target_backbuffer(display);
+      al_flip_display();
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+      frame_and_title(1);
+      mdw_an();
+      for (int c=0; c<7; c++)       // show first 7 menu items
+      {
+         int b = 15;
+         if ((!resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
+         al_draw_text(font, palette_color[b], SCREEN_W/2, 14+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[7][c]);
+      }
+
+      proc_controllers();
+
+      al_draw_filled_rectangle(cf_x1, cf_y1, cf_x2, cf_y2, palette_color[fc+224]); // erase everything
+
+      // figure out the title size
+      int bx, by, bw, bh;
+      al_get_text_dimensions(font, title, &bx, &by, &bw, &bh);
+      float title_w = bw + 12;
+      float title_x1 = cf_x1 + (cf_w - title_w) / 2;
+      float title_x2 = title_x1 + title_w;
+      float title_xc = title_x1 + title_w / 2;
+      float title_h = bh + 8;
+      float title_y1 = cf_y1 + frame_width/2-1;
+      float title_y2 = title_y1 + title_h;
+      float title_ty = 0.5 + title_y1 + (title_h - bh) / 2;
+
+      // set page x size, this has to go before the tab size
+      int cfp_x1 = cf_x1 + frame_width;
+      int cfp_x2 = cf_x2 - frame_width;
+      int cfp_txc = cfp_x1 + (cfp_x2 - cfp_x1) / 2;
+
+
+      // iterate through all the tab, determine width and position
+      st[0].x1 = cfp_x1+1; // start at page x1
+      st[0].y2 = 0;        // we don't know where are going to start yet, so do them at offset 0
+      for (int i=0; i<num_pages; i++)
+      {
+         int bx, by, bw, bh; // set size of tab based on text size
+         al_get_text_dimensions(font, st[i].title, &bx, &by, &bw, &bh);
+         bh = 8 + 5; // force 8 because with descender, text height is sometimes different and things don't line up
+         bw += 8;
+
+         if ((st[i].x1 + bw) > cfp_x2) // time for a new line
+         {
+            st[i].y2 -= bh;      // raise y2 one line
+            st[i].x1 = cfp_x1+1; // reset x1
+         }
+
+         st[i].y1 = st[i].y2 - bh; // y1 is above (less than) y2
+         st[i].x2 = st[i].x1 + bw; // x2 is to the right (greater than) x1
+
+         // advance to next
+         st[i+1].x1 = st[i].x2 + 1; // x1 of next tab is x2 of this tab plus pad
+         st[i+1].y2 = st[i].y2;     // y2 of next tab is the same y2 as this tab
+      }
+      int tabs_height = 8 - st[num_pages-1].y1; // find the height of the last tab
+
+
+      // now we can set the top of the page, where the tabs will start
+      int cfp_y1 = cf_y1 + tabs_height + title_h;
+      int cfp_y2 = cf_y2 - frame_width;
+
+
+      // frame everything
+      for (int a=0; a<frame_width; a++)
+         al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cf_y2-a, 4, 4, palette_color[fc+a*48], 1.5);
+
+      // frame from top of page to to top of window, this is here to draw under the tabs
+      for (int a=0; a<frame_width; a++)
+         al_draw_rounded_rectangle(cf_x1+a, cf_y1+a, cf_x2-a, cfp_y1-a+3, 4, 4, palette_color[fc+a*48], 1.5);
+
+      // frame and draw title, this needs to go on top of previous frame
+      for (int a=0; a<frame_width; a++)
+         al_draw_rounded_rectangle(title_x1+a, title_y1+a, title_x2-a, title_y2-a, 4, 4, palette_color[fc+a*48], 1.5);
+      al_draw_text(font, palette_color[tc], title_xc, title_ty, ALLEGRO_ALIGN_CENTER, title);
+
+
+
+      // draw and process tabs
+      int mouse_on_tab = -1;
+      for (int i=0; i<num_pages; i++)
+      {
+         st[i].y1 += cfp_y1; // adjust y values
+         st[i].y2 += cfp_y1;
+         int d = 128; // dim
+         if ((mouse_x > st[i].x1) && (mouse_x < st[i].x2) && (mouse_y > st[i].y1) && (mouse_y < st[i].y2)) mouse_on_tab = i;
+         draw_tab(st, i, fc+d, tc+d); // draw the tab
+      }
+
+      draw_tab(st, page, fc, tc); // draw the current tab on top
+      if (mouse_on_tab != -1)
+      {
+         draw_tab(st, mouse_on_tab, fc, tc); // draw the tab the mouse is on
+         if (mouse_b[1][0])
+         {
+            while (mouse_b[1][0]) proc_controllers();
+            page = mouse_on_tab;
+         }
+      }
+
+
+
+
+
+
+      // frame page
+      for (int a=0; a<frame_width; a++)
+         al_draw_rounded_rectangle(cf_x1+a, cfp_y1+a, cf_x2-a, cf_y2-a, 4, 4, palette_color[fc+a*48], 1.5);
+
+
+
+      if (page == 7) // viewport
+      {
+         int line_spacing = 8;
+         int tc = 15;  // text color
+         int fc = 13;  // frame color
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int bts = 20; // button spacing
+         int ya = cfp_y1;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Sends info to the console");
+         ya +=8;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, viewport_show_hyst, "Show Hyst", fc, fc);
+
+         mdw_buttonp(xa, ya, xb, bts,  20,0,0,0,  0, 0, 0, 0,  1,0,1,0, viewport_mode);
+
+
+//         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show vars")) show_var_sizes();
+//         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname")) get_hostname(1);
+//
+//
+//
+//
+//
+//int viewport_mode = 1;
+//int viewport_show_hyst = 0;
+//int viewport_x_div = 8;
+//int viewport_y_div = 12;
+//
+
+      }
+
+
+
+
+      if (page == 6) // info
+      {
+         int line_spacing = 8;
+         int tc = 15;  // text color
+         int fc = 13;  // frame color
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int bts = 20; // button spacing
+         int ya = cfp_y1;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Sends info to the console");
+         ya +=8;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show vars")) show_var_sizes();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname")) get_hostname(1);
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'tilemap'"))   show_bitmap_flags(al_get_bitmap_flags(tilemap));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'M_tilemap'")) show_bitmap_flags(al_get_bitmap_flags(M_tilemap));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'tilemap'")) show_pixel_format(al_get_bitmap_format(tilemap));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'M_tilemap'")) show_pixel_format(al_get_bitmap_format(M_tilemap));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'display'")) show_pixel_format(al_get_display_format(display));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display flags")) show_display_flags(al_get_display_flags(display));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display options")) show_display_options();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display orienation")) show_display_orienation();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show refesh rate")) printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes")) show_fullscreen_modes();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters")) show_display_adapters();
+
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline adjust")) spline_adjust();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline test")) spline_test();
+
+
+
+
+
+
+
+
+         ya -=2;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+
+      }
+
+
+
+
+
+
+      if (page == 5) // advanced
+      {
+         int line_spacing = 14;
+         int tc = 15;  // text color
+         int fc = 13;  // frame color
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int bts = 20; // button spacing
+         int ya = cfp_y1;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+         int old_frame_speed = frame_speed;
+         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, frame_speed, 200, 4, 1, "Frame Speed:");
+         if (old_frame_speed != frame_speed) set_speed();
+
+
+
+         ya -=2;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+
+      }
+
+      if (page == 4) // demo
+      {
+         int line_spacing = 14;
+         int tc = 15;  // text color
+         int fc = 13;  // frame color
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int bts = 20; // button spacing
+         int ya = cfp_y1;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,0, "Save current game in progress")) save_gm();
+
+
+
+         ya -=2;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, auto_save_game_on_level_done, "Autosave on level done", tc, 14);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, auto_save_game_on_exit,       "Autosave on program exit", tc, 14);
+
+         ya -=2;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run demo game"))
+         if (load_gm("-"))
+         {
+            new_program_state = 14;
+            old_program_state = 3;
+            return;
+         }
+
+         ya +=10;
+
+         if (mdw_buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play random demo game"))
+         {
+            new_program_state = 2;
+            older_program_state = 3;
+            return;
+         }
+
+
+
+         ya -=2;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, demo_mode_config_enable, "Autoplay random demo at program start", tc, fc);
+
+         ya -=2;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         float old_demo_mode_overlay_opacity = demo_mode_overlay_opacity;
+         mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, demo_mode_overlay_opacity, 0.8, 0, .01, "Demo mode overlay opacity:");
+         if (old_demo_mode_overlay_opacity != demo_mode_overlay_opacity) save_config();
+
+
+
+      }
+      if (page == 0) // basics
+      {
+         int line_spacing = 14;
+         int tc = 15;  // text color
+         int fc = 13;  // frame color
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int bts = 16; // button spacing
+         int ya = cfp_y1;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         // ---------------------------------------
+         // splash screen
+         // ---------------------------------------
+         int x1a = cfp_x1 + 10;
+         int x1b = x1a + 250;
+         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, show_splash_screen, "Show splash screen on startup", tc, tc);
+         x1a = x1b + 30;
+         x1b = x1a + 74;
+         if (mdw_buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Show now"))
+         {
+             splash_screen();
+             while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+         }
+         ya -=2;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         // ---------------------------------------
+         // sound
+         // ---------------------------------------
+         x1a = cfp_x1 + 10;
+         x1b = x1a + 60;
+         int old_sound_on = sound_on;
+         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, sound_on, "Sound", tc, tc);
+         if ((old_sound_on == 0) && (sound_on == 1)) load_sound();
+
+         int dim = 0;
+         if (!sound_on) dim = 128;
+
+         int old_se_scaler = se_scaler;
+         x1a = x1b + 12;
+         x1b = x1a + 140;
+         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,0,0, se_scaler, 9, 0, 1, "Sound Effects:");
+         if ((old_se_scaler != se_scaler) && (sound_on)) al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
+
+         int old_st_scaler = st_scaler;
+         x1a = x1b + 12;
+         x1b = x1a + 140;
+         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,1,0, st_scaler, 9, 0, 1, "Sound Track:");
+         if ((old_st_scaler != st_scaler) && (sound_on)) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
+
+         ya -=2;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         // ---------------------------------------
+         // player color
+         // ---------------------------------------
+
+         ya+=7;
+         al_draw_text(font, palette_color[tc], xa,     ya, 0, "Current player color:");
+         cfp_draw_player(players[0].color,     xa+180, ya-7);
+
+         ya+=13;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         int px1 = 0;
+         int py1 = 0;
+         int spacing = 76;
+         for (int i=1; i<16; i++)
+         {
+            cfp_draw_player(i, xa+px1, ya+py1);
+            if ( (mouse_x > (xa + px1)) && (mouse_x < (xa + px1 + spacing)) && (mouse_y > (ya + py1)) && (mouse_y < (ya + py1 +22)) && (mouse_b[1][0]))
+            {
+               while (mouse_b[1][0]) proc_controllers();
+               players[0].color = i;
+            }
+            px1 += spacing;
+            if (px1 > (spacing * 4))
+            {
+               px1 = 0;
+               py1 += 22;
+            }
+         }
+         ya+=64;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+      }
+      if (page == 1) // controls
+      {
+         int tc = 15;  // text color
+         int bts = 14; // button spacing
+
+         int kw = 240; // width of the key display
+         int kx = cfp_x1 + ((cfp_x2-cfp_x1) - kw) / 2; // x pos of key display so its is centered on page
+         int ky = cfp_y1 + 16;
+         int ya = redraw_all_controls(kx, ky, bts, tc, 1, -1);
+
+         int bw = 180; // button width
+         int xa = cfp_x1 + ((cfp_x2-cfp_x1) - bw) / 2;
+         int xb = xa + bw;
+
+         ya+=10;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Get all new controls"))  get_all_keys(kx, ky, tc, 14);
+         ya += 4;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to joystick 1")) set_controls_to_custom_sets(1);
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to joystick 2")) set_controls_to_custom_sets(2);
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to arrow keys")) set_controls_to_custom_sets(3);
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Set all to IJKL"))       set_controls_to_custom_sets(4);
+         ya += 4;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,14,15, 0,  1,0,1,0, "Test controls"))         test_keys(cfp_x1 + (cfp_x2-cfp_x1) / 2, ya-bts*7);
+      }
+      if (page == 2) // netgame
+      {
+         int line_spacing = 10 + pct_y;
+         int tc = 13;
+         int fc = 15;
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int ya = cfp_y1;
+         int bts = 16;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+
+
+         sprintf(msg, "Server IP Address:%s", m_serveraddress);
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,-1,fc, 0,  1,0,1,0, msg))  edit_server_name(1, cfp_txc, ya);
+         ya+=4;
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Clients need the server name");
+         al_draw_text(font, palette_color[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "or IP address set here.");
+
+         ya+=18;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+
+         mdw_toggle( xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, TCP, "Packet type:UDP", "Packet type:TCP", fc, fc, -1, -1);
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The type of packet used to communicate.");
+
+         ya+=10;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, deathmatch_pbullets, "Deathmatch player bullets", fc, fc);
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's bullets affect other players?");
+
+         ya+=10;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, suicide_pbullets, "Suicide player bullets", fc, fc);
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's bullets affect themselves?");
+
+         ya+=10;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+         ya+=4;
+
+         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, deathmatch_pbullets_damage, 100, -10, 1, "Player bullet damage:");
+         ya+=4;
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The amount of damage player's bullets");
+         al_draw_text(font, palette_color[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "do to other players and themselves.");
+
+         ya+=18;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
+
+      }
+
+      if (page == 3) // logging
+      {
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int ya = cfp_y1 + 10;
+         int bts = 10;
+         int tc = 13;
+         int fc = 15;
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET,                    "LOGGING_NETPLAY", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_join,               "LOGGING_NETPLAY_join", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_player_array,       "LOGGING_NETPLAY_player_array", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_bandwidth,          "LOGGING_NETPLAY_bandwidth", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_cdat,               "LOGGING_NETPLAY_cdat", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_game_move,          "LOGGING_NETPLAY_game_move", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_sdat,               "LOGGING_NETPLAY_sdat", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_sdak,               "LOGGING_NETPLAY_sdak", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf,               "LOGGING_NETPLAY_stdf", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_all_packets,   "LOGGING_NETPLAY_stdf_all_packets", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_when_to_apply, "LOGGING_NETPLAY_stdf_when_to_apply", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_show_dif1,          "LOGGING_NETPLAY_show_dif1", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_show_dif2,          "LOGGING_NETPLAY_show_dif2", tc, fc);
+         ya+=10;
+         bts = 14;
+         xb = xa+60;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "All On")) set_all_logging(1);
+         xa = xa+80;
+         xb = xa+60;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,1,0, "All Off")) set_all_logging(0);
+      }
+      if (key[ALLEGRO_KEY_ESCAPE][0])
+      {
+         while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+         quit = 1;
+      }
+   }
+   al_hide_mouse_cursor(display);
+   save_config();
+   new_program_state = 1;
+   old_program_state = 1;
+}
 
 
 
@@ -1193,9 +1740,9 @@ int edit_pmsg_text(int c, int new_msg)
       int ey = by+-3*bts; // erase y1
       int by1 = ey;
 
-            mdw_buttont(    xa, by1, xb, bts, 0,0,0,0,  0,15,13,0, 1,0,1,1, "Edit Message"); // display text only
+      mdw_buttont(    xa, by1, xb, bts, 0,0,0,0,  0,15,13,0, 1,0,1,1, "Edit Message"); // display text only
       if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,11,15,0, 1,0,1,0, "OK"))     { quit = 1; bad = 0; }
-     if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,10,15,0, 1,0,1,0, "Cancel")) { quit = 1; bad = 1; }
+      if (mdw_buttont(xa, by1, xb, bts, 0,0,0,0,  0,10,15,0, 1,0,1,0, "Cancel")) { quit = 1; bad = 1; }
 
 
 //      al_draw_filled_rectangle(xa, by1-30, xb, by1-10, palette_color[0]);
@@ -1208,15 +1755,15 @@ int edit_pmsg_text(int c, int new_msg)
       if (key[ALLEGRO_KEY_END][0])   cursor_pos = char_count;
       if (key[ALLEGRO_KEY_RIGHT][3])
       {
-         if (((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) && ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])))
+         if (SHFT() && CTRL())
          {
             while ((++cursor_pos < char_count) && (f[cursor_pos] != 10));  // find next LF
          }
-         else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0]))
+         else if (SHFT())
          {
             while ((++cursor_pos < char_count) && (f[cursor_pos] != 32) && (f[cursor_pos] != 10));  // find next space or LF
          }
-         else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) cursor_pos+=16;
+         else if (CTRL()) cursor_pos+=16;
 
          else cursor_pos++;
          if (cursor_pos > char_count) cursor_pos = char_count;             // make sure we are not past the end
@@ -1227,15 +1774,15 @@ int edit_pmsg_text(int c, int new_msg)
          //al_rest(0.02);
          while (key[ALLEGRO_KEY_LEFT][3]) proc_controllers();               // wait for release
 
-         if (((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) && ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])))
+         if ((SHFT()) && (CTRL()))
          {
             while ((--cursor_pos > 0) && (f[cursor_pos] != 10));  // find next LF
          }
-         else if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0]))
+         else if (SHFT())
          {
             while ((--cursor_pos > 0) && (f[cursor_pos] != 32) && (f[cursor_pos] != 10)); // find next space or LF
          }
-         else if ((key[ALLEGRO_KEY_LCTRL][0]) || (key[ALLEGRO_KEY_RCTRL][0])) cursor_pos-=16;
+         else if (CTRL()) cursor_pos-=16;
 
          else cursor_pos--;
          if (cursor_pos < 0) cursor_pos = 0;                             // make sure we are not before the start
@@ -1311,7 +1858,7 @@ int edit_pmsg_text(int c, int new_msg)
 
 
 
-void edit_server_name(void)
+void edit_server_name(int type, int x, int y)
 {
    char fst[80];
    strcpy(fst, m_serveraddress);
@@ -1327,6 +1874,13 @@ void edit_server_name(void)
       int tx = SCREEN_W/2;
       int ty1 = SCREEN_H/2;
       int w = (char_count+1)*4;
+
+      if (type == 1)
+      {
+         tx = x;
+         ty1 = y+20;
+
+      }
 
       al_flip_display();
       // clear text background

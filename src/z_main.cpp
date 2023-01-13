@@ -3,13 +3,8 @@
 #include "pm.h"
 
 
-ALLEGRO_THREAD *thread;
 
 mwGraph mG[10];
-
-
-
-
 
 
 // --------------- Global Variables ---------------
@@ -19,18 +14,18 @@ mwGraph mG[10];
 int program_state = 0;
 // 0 = starting
 // 1 = game menu
-// 2 - game loop
-// 3 - level editor
-
+// 2 = demo mode
+// 3 = settings
+// 11 = game loop
 
 int new_program_state = 0;
 int old_program_state = 0;
+int older_program_state = 0;
 int program_update = 0;
 int program_update_1s = 0;
 int top_menu_sel = 3;
 
 int main_loop_exit = 0;
-
 
 int pm_event[1000];
 
@@ -55,10 +50,7 @@ int ima_server = 0;
 int ima_client = 0;
 char m_serveraddress[256] = "192.168.1.2";
 int TCP = 0;
-
-int stdf_freq = 40;
 int zlib_cmp = 7;
-
 int deathmatch_pbullets = 0;
 int deathmatch_pbullets_damage = 5;
 int suicide_pbullets = 0;
@@ -172,6 +164,8 @@ int demo_mode_on = 0;
 int demo_mode_countdown_val;
 int demo_mode_countdown_reset = 2400;
 int demo_mode_last_frame = 0;
+int demo_mode_config_enable = 1;
+float demo_mode_overlay_opacity = 0.1;
 
 // ------------------------------------------------
 // ----------------- mouse and keys ---------------
@@ -272,19 +266,19 @@ char log_lines[NUM_LOG_LINES][100]; // for log file viewer
 int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
 
 
-int L_LOGGING_NETPLAY = 0;
-int L_LOGGING_NETPLAY_JOIN = 0;
-int L_LOGGING_NETPLAY_PLAYER_ARRAY = 0;
-int L_LOGGING_NETPLAY_bandwidth = 0;
-int L_LOGGING_NETPLAY_cdat = 0;
-int L_LOGGING_NETPLAY_game_move = 0;
-int L_LOGGING_NETPLAY_sdat = 0;
-int L_LOGGING_NETPLAY_sdak = 0;
-int L_LOGGING_NETPLAY_stdf = 0;
-int L_LOGGING_NETPLAY_stdf_all_packets = 0;
-int L_LOGGING_NETPLAY_stdf_when_to_apply = 0;
-int L_LOGGING_NETPLAY_show_dif1 = 0;
-int L_LOGGING_NETPLAY_show_dif2 = 0;
+int LOG_NET = 0;
+int LOG_NET_join = 0;
+int LOG_NET_player_array = 0;
+int LOG_NET_bandwidth = 0;
+int LOG_NET_cdat = 0;
+int LOG_NET_game_move = 0;
+int LOG_NET_sdat = 0;
+int LOG_NET_sdak = 0;
+int LOG_NET_stdf = 0;
+int LOG_NET_stdf_all_packets = 0;
+int LOG_NET_stdf_when_to_apply = 0;
+int LOG_NET_show_dif1 = 0;
+int LOG_NET_show_dif2 = 0;
 
 int auto_save_game_on_exit = 0;
 int auto_save_game_on_level_done = 0;
@@ -434,6 +428,17 @@ int WY;
 int fullscreen = 1;
 int display_adapter_num = 0;
 float WX_shift_speed = 0;
+
+int viewport_mode = 1;
+int viewport_show_hyst = 0;
+int viewport_x_div = 8;
+int viewport_y_div = 12;
+
+
+
+
+
+
 
 // used to only redraw a region of background to increase fps
 int level_display_region_x;
@@ -635,7 +640,7 @@ void set_and_get_versions(void)
    sprintf(al_version_string, "Allegro Version: %d.%d.%d.%d", major, minor, revision, release);
    printf("%s\n", al_version_string);
 
-   get_hostname();
+   get_hostname(0);
 }
 
 
@@ -840,6 +845,8 @@ int initial_setup(void)
    for (int p=1; p<NUM_PLAYERS; p++) players[p].color = 0; // all but player[0] which we got from config file
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
    players[0].active = 1;
+
+   demo_mode_enabled = demo_mode_config_enable; // set only at startup from cofing file
 
    return 1;
 }

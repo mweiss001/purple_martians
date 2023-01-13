@@ -1704,7 +1704,7 @@ void ovw_process_mouse(void)
                itemf[n][0] = al_itofix(gx*20);
                itemf[n][1] = al_itofix(gy*20);
 
-               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
+               if (SHFT()) // move stuff also
                {
                    if ((it == 4) || (it == 9) || (it == 10) || (it == 14) || (it == 16) || (it == 17)) // key, trigger, msg, switch, manip, damage
                    {
@@ -1731,7 +1731,7 @@ void ovw_process_mouse(void)
                Efi[mW[7].num][0] = al_itofix(gx*20);
                Efi[mW[7].num][1] = al_itofix(gy*20);
 
-               if ((key[ALLEGRO_KEY_LSHIFT][0]) || (key[ALLEGRO_KEY_RSHIFT][0])) // move stuff also
+               if (SHFT()) // move stuff also
                {
                   // move podzilla's trigger box too
                   if (Ei[mW[7].num][0] == 7)

@@ -1,9 +1,5 @@
 // pm.h - header file for both the game and the level editor
-
 #define PM_VERSION "7.24.1"
-
-
-
 
 
 
@@ -505,8 +501,6 @@ extern mwGraph mG[10];
 // item debug stuff
 // #define SHOW_BOMB_DAMAGE_BOX
 
-// screen debug stuff
-// #define SHOW_HYSTERESIS_WINDOW
 
 //#define RELEASE
 
@@ -528,6 +522,7 @@ extern mwGraph mG[10];
 extern int program_state;
 extern int new_program_state;
 extern int old_program_state;
+extern int older_program_state;
 extern int program_update;
 extern int program_update_1s;
 extern int top_menu_sel;
@@ -570,7 +565,7 @@ extern int ima_client;
 extern char m_serveraddress[256];
 extern int TCP;
 
-extern int stdf_freq;
+
 extern int zlib_cmp;
 
 extern int deathmatch_pbullets;
@@ -694,7 +689,8 @@ extern int demo_mode_countdown_val;
 extern int demo_mode_countdown_reset;
 extern int demo_mode_enabled;
 extern int demo_mode_last_frame;
-
+extern int demo_mode_config_enable;
+extern float demo_mode_overlay_opacity;
 
 
 // ------------------------------------------------
@@ -809,19 +805,19 @@ extern char log_lines[NUM_LOG_LINES][100]; // for log file viewer
 extern int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
 
 
-extern int L_LOGGING_NETPLAY;
-extern int L_LOGGING_NETPLAY_JOIN;
-extern int L_LOGGING_NETPLAY_PLAYER_ARRAY;
-extern int L_LOGGING_NETPLAY_bandwidth;
-extern int L_LOGGING_NETPLAY_cdat;
-extern int L_LOGGING_NETPLAY_game_move;
-extern int L_LOGGING_NETPLAY_sdat;
-extern int L_LOGGING_NETPLAY_sdak;
-extern int L_LOGGING_NETPLAY_stdf;
-extern int L_LOGGING_NETPLAY_stdf_all_packets;
-extern int L_LOGGING_NETPLAY_stdf_when_to_apply;
-extern int L_LOGGING_NETPLAY_show_dif1;
-extern int L_LOGGING_NETPLAY_show_dif2;
+extern int LOG_NET;
+extern int LOG_NET_join;
+extern int LOG_NET_player_array;
+extern int LOG_NET_bandwidth;
+extern int LOG_NET_cdat;
+extern int LOG_NET_game_move;
+extern int LOG_NET_sdat;
+extern int LOG_NET_sdak;
+extern int LOG_NET_stdf;
+extern int LOG_NET_stdf_all_packets;
+extern int LOG_NET_stdf_when_to_apply;
+extern int LOG_NET_show_dif1;
+extern int LOG_NET_show_dif2;
 
 extern int auto_save_game_on_exit;
 extern int auto_save_game_on_level_done;
@@ -1260,6 +1256,14 @@ extern int fullscreen;
 extern int display_adapter_num;
 extern float WX_shift_speed;
 
+extern int viewport_mode;
+extern int viewport_show_hyst;
+extern int viewport_x_div;
+extern int viewport_y_div;
+
+
+
+
 
 // used to only redraw a region of background to increase fps
 extern int level_display_region_x;
@@ -1556,6 +1560,12 @@ int mdw_toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
 int mdw_togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                int &var, int flag, const char* t0, const char* t1 , int text_col0, int text_col1, int frame_col0, int frame_col1);
 
+int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
+               int &var, const char* t, int text_col, int frame_col);
+
+
+
+
 // e_tile_helper.h
 void th_replace(int type);
 int th_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving);
@@ -1691,12 +1701,18 @@ void load_config(void);
 // z_control.h
 int getJoystickNum(ALLEGRO_JOYSTICK* joy);
 int get_scan_code_from_joystick(int joy, int button, int num);
-int my_readkey(void);
+int my_readkey(int x, int y, int tc, int bts, int num);
+
+int SHFT(void);
+int CTRL(void);
+
 void clear_keys(void);
-void get_all_keys(int p);
-void test_keys(void);
+void get_all_keys(int x, int y, int tc, int bts);
+void test_keys(int x, int y);
 void set_start_level(int s);
 void set_speed(void);
+void set_controls_to_custom_sets(int s);
+
 void clear_controls(int p);
 
 
@@ -1734,6 +1750,7 @@ void set_saved_display_transform(int sdt);
 void cycle_display_transform(void);
 void set_display_transform();
 void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head);
+void show_display_adapters(void);
 int init_display(void);
 void proc_display_change(void);
 void save_display_window_position(void);
@@ -1796,7 +1813,7 @@ int round20(int val);
 void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float scale, float dim, int cycle);
 void change_block(int x, int y, int block);
 void clear_game_moves(void);
-void get_hostname(void);
+void get_hostname(int print);
 void process_flash_color(void);
 void make_palette(void);
 void m_err(const char * err_msg);
@@ -1991,12 +2008,20 @@ void chop_first_x_char(char *str, int n);
 void help(const char *topic);
 int tmenu(int menu_num, int menu_pos, int x, int y);
 int zmenu(int menu_num, int menu_pos, int y);
+
+
+void set_all_logging(int v);
+int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int sel);
+void settings_pages(int page);
+
+
+
+
 int pmenu(int menu_num, int bg_color);
 void menu_setup(void);
-void set_key_menu(int menu, int p, int start_row);
 void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore);
 int edit_pmsg_text(int c, int new_msg);
-void edit_server_name(void);
+void edit_server_name(int type, int x, int y);
 int edit_lift_name(int lift, int step_ty, int bts, char *fst);
 
 // z_ping_buffer.h
