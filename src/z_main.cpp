@@ -11,6 +11,9 @@ mwGraph mG[10];
 // all global variables should be declared here and externed in pm.h
 
 
+
+int settings_current_page = 0;
+
 int program_state = 0;
 // 0 = starting
 // 1 = game menu
@@ -32,6 +35,8 @@ int pm_event[1000];
 // temp testing variables
 int pct_x = 0;
 int pct_y = 0;
+
+double t0 = 0;
 
 int tx1=0;
 int ty1=0;
@@ -280,8 +285,18 @@ int LOG_NET_stdf_when_to_apply = 0;
 int LOG_NET_show_dif1 = 0;
 int LOG_NET_show_dif2 = 0;
 
-int auto_save_game_on_exit = 0;
-int auto_save_game_on_level_done = 0;
+int LOG_TMR_move = 0;
+int LOG_TMR_draw = 0;
+int LOG_TMR_sdif = 0;
+int LOG_TMR_cdif = 0;
+int LOG_TMR_rwnd = 0;
+
+
+int autosave_log_on_program_exit = 0;
+int autosave_log_on_game_exit = 0;
+int autosave_log_on_level_done = 0;
+int autosave_game_on_game_exit = 0;
+int autosave_game_on_level_done = 0;
 
 
 // ------------------------------------------------
@@ -586,11 +601,11 @@ void fast_exit(int why)
    // don't overwrite if not zero
    if (why != 0) players1[active_local_player].quit_reason = why;
 
-   if (ima_client) log_ending_stats(active_local_player);
-   if (ima_server) log_ending_stats_server();
+//   if (ima_client) log_ending_stats(active_local_player);
+  // if (ima_server) log_ending_stats_server();
 
-   save_log_file();
-   blind_save_game_moves(3);
+   if (autosave_log_on_program_exit) save_log_file();
+   if (autosave_game_on_game_exit) blind_save_game_moves(3);
    final_wrapup();
    exit(0);
 }
@@ -870,8 +885,7 @@ int main(int argument_count, char **argument_array)
       main_loop();
 
    }
-   blind_save_game_moves(2);
-   save_log_file();
+   if (autosave_log_on_program_exit) save_log_file();
    final_wrapup();
    exit(0);
 }

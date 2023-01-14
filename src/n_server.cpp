@@ -483,15 +483,13 @@ void server_exit(void)
 // send stdf to a specific client
 void server_send_stdf(int p)
 {
-   double t0 = al_get_time();
-
-   int base0 = 0;
+   if (LOG_TMR_sdif) t0 = al_get_time();
 
    // if last_ack_state_frame == 0 set base to all zeros
    if (srv_client_state_frame_num[p][0] == 0)
    {
       memset(srv_client_state[p][0], 0, STATE_SIZE);
-      base0 = 1;
+      //base0 = 1;
    }
 
    char dif[STATE_SIZE];
@@ -549,16 +547,7 @@ void server_send_stdf(int p)
       ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
       start_byte+=1000;
    }
-
-
-   double t1 = al_get_time();
-
-   sprintf(msg, "tmst [%f] [%d] [%d] [%d]\n", (t1-t0) * 1000, base0, cmp_size, num_packets);
-   add_log_entry2(45, p, msg);
-
-
-
-
+  if (LOG_TMR_sdif) add_log_TMR(al_get_time() - t0, "sdif", 0);
 }
 
 
@@ -582,14 +571,13 @@ void server_rewind(void)
    if (frame_num == srv_stdf_state_frame_num[1] + s3)
    {
       // rewind and fast forward from last stdf state to apply missed game moves received late
-
       if (LOG_NET_stdf)
       {
-        // printf("\n%d rewind to:%d\n", frame_num, srv_stdf_state_frame_num[1]);
+         // printf("\n%d rewind to:%d\n", frame_num, srv_stdf_state_frame_num[1]);
          sprintf(msg, "stdf rewind to:%d\n", srv_stdf_state_frame_num[1]);
          add_log_entry2(27, 0, msg);
       }
-
+      if (LOG_TMR_rwnd) t0 = al_get_time();
       frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
       state_to_game_vars(srv_stdf_state[1]);   // rewind state
 
@@ -606,6 +594,7 @@ void server_rewind(void)
          add_log_entry2(27, 0, msg);
       }
       loop_frame(s2);
+      if (LOG_TMR_rwnd) add_log_TMR(al_get_time() - t0, "rwnd", 0);
       players1[0].server_send_dif = 1;
    }
 }

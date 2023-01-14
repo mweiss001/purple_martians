@@ -518,6 +518,7 @@ extern mwGraph mG[10];
 // ------------------------------------------------
 
 
+extern int settings_current_page;
 
 extern int program_state;
 extern int new_program_state;
@@ -534,11 +535,14 @@ extern int pm_event[1000];
 extern int pct_x;
 extern int pct_y;
 
+extern double t0;
 
 extern int tx1;
 extern int ty1;
 extern int ttc1;
 extern float ttfloat1;
+
+
 
 
 extern int tx2;
@@ -819,8 +823,23 @@ extern int LOG_NET_stdf_when_to_apply;
 extern int LOG_NET_show_dif1;
 extern int LOG_NET_show_dif2;
 
-extern int auto_save_game_on_exit;
-extern int auto_save_game_on_level_done;
+extern int LOG_TMR_move;
+extern int LOG_TMR_draw;
+extern int LOG_TMR_sdif;
+extern int LOG_TMR_cdif;
+extern int LOG_TMR_rwnd;
+
+
+extern int autosave_log_on_program_exit;
+extern int autosave_log_on_game_exit;
+extern int autosave_log_on_level_done;
+
+
+
+extern int autosave_game_on_game_exit;
+extern int autosave_game_on_level_done;
+
+
 
 #define NETPLAY_bandwidth_tracking
 
@@ -842,6 +861,7 @@ struct player // synced between server and client
    int paused_mode_count;
 
    int level_done_mode;
+
    int level_done_timer;
    int level_done_ack;
    int level_done_x;
@@ -1932,6 +1952,7 @@ void move_lifts(int ignore_prox);
 // z_log.h
 void log_bandwidth_stats(int p);
 void log_reason_for_player_quit(int p);
+void add_log_TMR(double dt, const char *tag, int p);
 void log_time_date_stamp(void);
 void log_versions(void);
 void log_player_array(void);
@@ -1947,6 +1968,10 @@ void add_log_entry_centered_text(int type, int player, int width, const char *tx
 void add_log_entry_header(int type, int player, const char *txt, int blank_lines);
 int fill_filename_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 int log_file_viewer(int type);
+
+
+void load_profile_graph(void);
+
 
 
 int load_log_lines_array_from_static_file(const char* f);
@@ -1992,14 +2017,20 @@ void proc_events(ALLEGRO_EVENT ev);
 void proc_keys_held(void);
 void proc_event_queue(void);
 void draw_frame(void);
-void move_frame(int t);
+void move_frame(void);
 void loop_frame(int);
 int has_player_acknowledged(int p);
 int have_all_players_acknowledged(void);
 void proc_level_done_mode(void);
 void proc_program_state(void);
 void proc_timer_adjust(void);
+
+
+
 int proc_frame_skip(void);
+
+void process_level_done_mode(void);
+
 void main_loop(void);
 
 // z_menu.h
@@ -2013,7 +2044,6 @@ int zmenu(int menu_num, int menu_pos, int y);
 void set_all_logging(int v);
 int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int sel);
 void settings_pages(int page);
-
 
 
 

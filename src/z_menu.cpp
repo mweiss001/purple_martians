@@ -859,6 +859,11 @@ void set_all_logging(int v)
    LOG_NET_stdf_when_to_apply=v;
    LOG_NET_show_dif1=v;
    LOG_NET_show_dif2=v;
+   LOG_TMR_move=v;
+   LOG_TMR_draw=v;
+   LOG_TMR_sdif=v;
+   LOG_TMR_cdif=v;
+   LOG_TMR_rwnd=v;
 }
 
 
@@ -924,7 +929,6 @@ int cfp_draw_line(int xa, int xb, int ya, int line_spacing, int col)
    ya+=line_spacing;
    al_draw_line(xa, ya, xb, ya, palette_color[col], 1);
    ya+=line_spacing;
-
    return ya;
 }
 
@@ -939,32 +943,23 @@ struct settings_tab
 
 void draw_tab(struct settings_tab st[], int p, int col, int text_color)
 {
-   float x1 = st[p].x1;
-   float y1 = st[p].y1;
-   float x2 = st[p].x2;
-   float y2 = st[p].y2;
-
    int s = 2; // slant
    float v[4][2] = {0};
-   v[0][0] = x1+s;  v[0][1] = y1; // ul
-   v[1][0] = x1;    v[1][1] = y2; // ll
-   v[2][0] = x2;    v[2][1] = y2; // lr
-   v[3][0] = x2-s;  v[3][1] = y1; // ur
-
+   v[0][0] = st[p].x1+s;  v[0][1] = st[p].y1; // ul
+   v[1][0] = st[p].x1;    v[1][1] = st[p].y2; // ll
+   v[2][0] = st[p].x2;    v[2][1] = st[p].y2; // lr
+   v[3][0] = st[p].x2-s;  v[3][1] = st[p].y1; // ur
    al_draw_filled_polygon(*v, 4, palette_color[col+192]);
    al_draw_polygon(*v, 4, ALLEGRO_LINE_JOIN_ROUND, palette_color[col], 1.0, 0);
-   al_draw_text(font, palette_color[text_color], x1+4, y1+3, 0, st[p].title);
+   al_draw_text(font, palette_color[text_color], st[p].x1+4, st[p].y1+3, 0, st[p].title);
 }
 
-void settings_pages(int page)
+void settings_pages(int set_page)
 {
+   if (set_page != -1)  settings_current_page = set_page;
+   int page = settings_current_page;
+
    struct settings_tab st[20] = {0};
-
-   al_show_mouse_cursor(display);
-
-   char title[80] = {0};
-   sprintf(title, "Settings");
-
 
    sprintf(st[0].title,  "Basics");
    sprintf(st[1].title,  "Controls");
@@ -981,7 +976,10 @@ void settings_pages(int page)
    sprintf(st[12].title, "Test 7");
    sprintf(st[13].title, "Test 8");
    sprintf(st[14].title, "Test 9");
-   int num_pages = 13;
+   int num_pages = 8;
+
+   char title[80] = {0};
+   sprintf(title, "Settings");
 
    int fc = 10; // frame color
    int tc = 15; // text color
@@ -990,6 +988,7 @@ void settings_pages(int page)
    int quit = 0;
    while (!quit)
    {
+      al_show_mouse_cursor(display);
       // entire area, including title, tabs, and page
       int cf_w = 400;
       int cf_x1 = (SCREEN_W - cf_w)/2;
@@ -1072,11 +1071,9 @@ void settings_pages(int page)
       }
       int tabs_height = 8 - st[num_pages-1].y1; // find the height of the last tab
 
-
       // now we can set the top of the page, where the tabs will start
       int cfp_y1 = cf_y1 + tabs_height + title_h;
       int cfp_y2 = cf_y2 - frame_width;
-
 
       // frame everything
       for (int a=0; a<frame_width; a++)
@@ -1091,17 +1088,14 @@ void settings_pages(int page)
          al_draw_rounded_rectangle(title_x1+a, title_y1+a, title_x2-a, title_y2-a, 4, 4, palette_color[fc+a*48], 1.5);
       al_draw_text(font, palette_color[tc], title_xc, title_ty, ALLEGRO_ALIGN_CENTER, title);
 
-
-
       // draw and process tabs
       int mouse_on_tab = -1;
       for (int i=0; i<num_pages; i++)
       {
-         st[i].y1 += cfp_y1; // adjust y values
+         st[i].y1 += cfp_y1; // adjust y values to top of page
          st[i].y2 += cfp_y1;
-         int d = 128; // dim
          if ((mouse_x > st[i].x1) && (mouse_x < st[i].x2) && (mouse_y > st[i].y1) && (mouse_y < st[i].y2)) mouse_on_tab = i;
-         draw_tab(st, i, fc+d, tc+d); // draw the tab
+         draw_tab(st, i, fc+128, tc+128); // draw the tab
       }
 
       draw_tab(st, page, fc, tc); // draw the current tab on top
@@ -1111,18 +1105,19 @@ void settings_pages(int page)
          if (mouse_b[1][0])
          {
             while (mouse_b[1][0]) proc_controllers();
-            page = mouse_on_tab;
+            settings_current_page = page = mouse_on_tab;
          }
       }
-
-
-
-
-
 
       // frame page
       for (int a=0; a<frame_width; a++)
          al_draw_rounded_rectangle(cf_x1+a, cfp_y1+a, cf_x2-a, cf_y2-a, 4, 4, palette_color[fc+a*48], 1.5);
+
+
+
+
+
+
 
 
 
@@ -1141,31 +1136,12 @@ void settings_pages(int page)
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-
-
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, viewport_show_hyst, "Show Hyst", fc, fc);
-
          mdw_buttonp(xa, ya, xb, bts,  20,0,0,0,  0, 0, 0, 0,  1,0,1,0, viewport_mode);
-
-
-//         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show vars")) show_var_sizes();
-//         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname")) get_hostname(1);
-//
-//
-//
-//
-//
-//int viewport_mode = 1;
-//int viewport_show_hyst = 0;
 //int viewport_x_div = 8;
 //int viewport_y_div = 12;
-//
 
       }
-
-
-
-
       if (page == 6) // info
       {
          int line_spacing = 8;
@@ -1194,29 +1170,11 @@ void settings_pages(int page)
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show refesh rate")) printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes")) show_fullscreen_modes();
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters")) show_display_adapters();
-
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline adjust")) spline_adjust();
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline test")) spline_test();
-
-
-
-
-
-
-
-
          ya -=2;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-
-
       }
-
-
-
-
-
-
       if (page == 5) // advanced
       {
          int line_spacing = 14;
@@ -1256,50 +1214,42 @@ void settings_pages(int page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,14,tc, 0,  1,0,1,0, "Save current game in progress")) save_gm();
-
-
-
          ya -=2;
+
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, auto_save_game_on_level_done, "Autosave on level done", tc, 14);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, auto_save_game_on_exit,       "Autosave on program exit", tc, 14);
-
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_game_on_level_done, "Autosave on level done", tc, 14);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_game_on_game_exit,  "Autosave on game exit", tc, 14);
          ya -=2;
+
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run demo game"))
+         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Choose file and run saved game"))
          if (load_gm("-"))
          {
             new_program_state = 14;
             old_program_state = 3;
             return;
          }
-
          ya +=10;
-
          if (mdw_buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Play random demo game"))
          {
             new_program_state = 2;
             older_program_state = 3;
             return;
          }
-
-
-
          ya -=2;
+
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, demo_mode_config_enable, "Autoplay random demo at program start", tc, fc);
-
          ya -=2;
+
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          float old_demo_mode_overlay_opacity = demo_mode_overlay_opacity;
          mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, demo_mode_overlay_opacity, 0.8, 0, .01, "Demo mode overlay opacity:");
          if (old_demo_mode_overlay_opacity != demo_mode_overlay_opacity) save_config();
-
-
 
       }
       if (page == 0) // basics
@@ -1466,25 +1416,36 @@ void settings_pages(int page)
 
       if (page == 3) // logging
       {
+         int line_spacing = 10;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
          int ya = cfp_y1 + 10;
          int bts = 10;
          int tc = 13;
          int fc = 15;
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET,                    "LOGGING_NETPLAY", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_join,               "LOGGING_NETPLAY_join", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_player_array,       "LOGGING_NETPLAY_player_array", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_bandwidth,          "LOGGING_NETPLAY_bandwidth", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_cdat,               "LOGGING_NETPLAY_cdat", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_game_move,          "LOGGING_NETPLAY_game_move", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_sdat,               "LOGGING_NETPLAY_sdat", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_sdak,               "LOGGING_NETPLAY_sdak", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf,               "LOGGING_NETPLAY_stdf", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_all_packets,   "LOGGING_NETPLAY_stdf_all_packets", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_when_to_apply, "LOGGING_NETPLAY_stdf_when_to_apply", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_show_dif1,          "LOGGING_NETPLAY_show_dif1", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_show_dif2,          "LOGGING_NETPLAY_show_dif2", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET,                    "LOG_NET", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_join,               "LOG_NET_join", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_player_array,       "LOG_NET_player_array", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_bandwidth,          "LOG_NET_bandwidth", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_cdat,               "LOG_NET_cdat", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_game_move,          "LOG_NET_game_move", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_sdat,               "LOG_NET_sdat", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_sdak,               "LOG_NET_sdak", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf,               "LOG_NET_stdf", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_all_packets,   "LOG_NET_stdf_all_packets", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_when_to_apply, "LOG_NET_stdf_when_to_apply", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_show_dif1,          "LOG_NET_show_dif1", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_show_dif2,          "LOG_NET_show_dif2", tc, fc);
+
+
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move,          "LOG_TMR_move", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_draw,          "LOG_TMR_draw", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_sdif,          "LOG_TMR_sdif", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_cdif,          "LOG_TMR_cdif", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_rwnd,          "LOG_TMR_rwnd", tc, fc);
+
+
+
          ya+=10;
          bts = 14;
          xb = xa+60;
@@ -1492,6 +1453,33 @@ void settings_pages(int page)
          xa = xa+80;
          xb = xa+60;
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,1,0, "All Off")) set_all_logging(0);
+
+
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         bts = 10;
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
+
+
+
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         bts = 16;
+         xb = xa+180;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,13,15, 0,  1,0,0,0, "Run Log File Viewer")) log_file_viewer(1);
+         xa = xa+200;
+         xb = cfp_x2 - 10;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Run Profile Graph")) load_profile_graph();
+
+
+
+
       }
       if (key[ALLEGRO_KEY_ESCAPE][0])
       {

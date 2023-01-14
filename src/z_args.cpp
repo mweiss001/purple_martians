@@ -224,7 +224,7 @@ int copy_files_to_clients(int exe_only)
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
 
-   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
 //   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
 //
@@ -491,11 +491,20 @@ void temp_test(void)
 
 
 //   void log_timestamp_graph(int num_lines);
-//   log_timestamp_graph(load_log_lines_array_from_static_file("logs/g.txt"));
+////   log_timestamp_graph(load_log_lines_array_from_static_file("logs/g.txt"));
+//
+//void load_profile_graph(int num_lines);
+//load_profile_graph(load_log_lines_array_from_static_file("logs/h.txt"));
 
 
+//void load_profile_graph(void);
+//load_profile_graph();
 
-   settings_pages(6);
+void load_profile_graph2(void);
+load_profile_graph2();
+
+
+//   settings_pages(6);
 
 
 //

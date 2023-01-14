@@ -16,7 +16,6 @@ void show_player_stat_box(int tx, int y, int p)
    if ((ima_server) || (ima_client))
       al_draw_textf(font, palette_color[c], tx+2, y, 0, "Player:%d [%s]", p, players1[p].hostname);
    else al_draw_textf(font, palette_color[c], tx+2, y, 0, "Player:%d", p);
-
    if (players[0].level_done_mode == 5)
    {
       if (!players[p].level_done_ack)
@@ -153,7 +152,8 @@ void show_level_done(void)
 void draw_screen_overlay(void)
 {
    al_set_target_backbuffer(display);
-   if ((players[0].level_done_mode > 0) && (players[0].level_done_mode < 6)) show_level_done();
+
+   if ((players[0].level_done_mode) && (players[0].level_done_mode < 8)) show_level_done();
 
    if (speed_testing) draw_speed_test_data();
    draw_top_display();
@@ -787,10 +787,8 @@ void draw_top_display(void)
       al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total timer adjust:%d",ta);
 
 
-
       if (ima_server) al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total game moves:%d", game_move_entry_pos);
 
-      al_draw_textf(font, palette_color[15], cx, cy+=8, 0, "Level Done Mode:%d", players[0].level_done_mode);
 
       cy+=4;
 

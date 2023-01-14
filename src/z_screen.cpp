@@ -412,15 +412,18 @@ void stamp(void) // transition from game to menu
 
 void get_new_screen_buffer(int type, int x, int y)
 {
+   int p = active_local_player;
+   int c = players[p].color;
+
+
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
-
-   int alp = active_local_player;
-   int c = players[alp].color;
 
    // draw frame in local player's color
    for (int x = 0; x < BORDER_WIDTH; x++)
       al_draw_rectangle(x+0.5f, x+0.5f, (SCREEN_W-1-x)+0.5f, (SCREEN_H-1-x)+0.5f,  palette_color[c + (x * 16)], 1);
+
+
 
    // default place and size to draw on screen_buffer
    int bw = BORDER_WIDTH;
@@ -463,8 +466,8 @@ void get_new_screen_buffer(int type, int x, int y)
    // find where to grab the source screen from based on the players position
    if (type == 0)
    {
-      PX = al_fixtoi(players[alp].PX) + 10;
-      PY = al_fixtoi(players[alp].PY) + 10;
+      PX = al_fixtoi(players[p].PX) + 10;
+      PY = al_fixtoi(players[p].PY) + 10;
    }
    if (type == 1)
    {
@@ -490,7 +493,7 @@ void get_new_screen_buffer(int type, int x, int y)
          {
             int look_shift_speed = 4;
 
-            if (players[alp].left_right) WX_shift_speed+=.5;
+            if (players[p].left_right) WX_shift_speed+=.5;
             else WX_shift_speed-=.5;
 
             if (WX_shift_speed > 2) WX_shift_speed = 2;
@@ -498,8 +501,8 @@ void get_new_screen_buffer(int type, int x, int y)
 
             WX+=WX_shift_speed;
 
-            if (players[alp].up) WY-=look_shift_speed;
-            if (players[alp].down) WY+=look_shift_speed;
+            if (players[p].up) WY-=look_shift_speed;
+            if (players[p].down) WY+=look_shift_speed;
          }
          if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size; // hit right edge
          if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size; // hit left edge
@@ -510,22 +513,21 @@ void get_new_screen_buffer(int type, int x, int y)
    }
 
    // correct for edges
-//   if (WX < 0) WX = 0;
-//   if (WY < 0) WY = 0;
-//   if (WX > (2000 - SW)) WX = 2000 - SW;
-//   if (WY > (2000 - SH)) WY = 2000 - SH;
-
-
    int clamp_x0 = 0;
    int clamp_x1 = 0;
    int clamp_y0 = 0;
    int clamp_y1 = 0;
-
-
    if (WX < 0)           { WX = 0;         clamp_x0 = 1; }
    if (WY < 0)           { WY = 0;         clamp_y0 = 1; }
    if (WX > (2000 - SW)) { WX = 2000 - SW; clamp_x1 = 1; }
    if (WY > (2000 - SH)) { WY = 2000 - SH; clamp_y1 = 1; }
+   //if (WX < 0) WX = 0;
+   //if (WY < 0) WY = 0;
+   //if (WX > (2000 - SW)) WX = 2000 - SW;
+   //if (WY > (2000 - SH)) WY = 2000 - SH;
+
+
+
 
    // used by get_new_background to only get what is needed
    level_display_region_x = WX;
@@ -533,9 +535,8 @@ void get_new_screen_buffer(int type, int x, int y)
    level_display_region_w = SW;
    level_display_region_h = SH;
 
-   // this is what all the previous calculation have been building up to:
+   // this is what all the previous calculations have been building up to:
    al_draw_scaled_bitmap(level_buffer, WX, WY, SW, SH, sbx, sby, sbw, sbh, 0);
-
 
   //printf("WX:%d, WY:%d, SW:%d, SH:%d, sbx:%d, sby:%d, sbw:%d, sbh:%d\n", WX, WY, SW, SH, sbx, sby, sbw, sbh);
 
@@ -546,20 +547,12 @@ void get_new_screen_buffer(int type, int x, int y)
       float hy1 = SCREEN_H/2 - y_size * scale_factor_current;
       float hy2 = SCREEN_H/2 + y_size * scale_factor_current;
       if (viewport_mode == 0) {hx2+=20* scale_factor_current; hy2+=20* scale_factor_current;}
-
-
       if (clamp_x0) hx1 = 0;
       if (clamp_y0) hy1 = 0;
       if (clamp_x1) hx2 = SCREEN_W;
       if (clamp_y1) hy2 = SCREEN_H;
-
-
-
-
       al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 2);
-
    }
-
 
    // in level editor mode, if the level is smaller than the screen edges, draw a thin line to show where it ends...
    if (type == 3)

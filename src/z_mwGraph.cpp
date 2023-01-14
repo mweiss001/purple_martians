@@ -424,12 +424,7 @@ void mwGraph::enforce_axis_limits(int type)
          }
       }
 
-
-
-
-
-
-      if (y_axis_type == 5)
+      if (y_axis_type == 5) // player active
       {
          y_axis_min = -0.1;
          y_axis_max = 1.1;

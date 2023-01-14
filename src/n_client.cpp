@@ -550,7 +550,7 @@ void client_proc_player_drop(void)
       //tsw();
 
       players1[p].quit_reason = 92;
-      log_ending_stats(p);
+   //   log_ending_stats(p);
       new_program_state = 1;
    }
 
@@ -578,7 +578,7 @@ void client_proc_player_drop(void)
          tsw();
 
          players1[p].quit_reason = 75;
-         log_ending_stats(p);
+    //     log_ending_stats(p);
          new_program_state = 25;
       }
    }
