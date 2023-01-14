@@ -634,9 +634,9 @@ void save_gm()
 void blind_save_game_moves(int d)
 {
    int do_save = 0;
-   if ((d == 1) && (auto_save_game_on_level_done)) do_save = 1;
-   if ((d == 2) && (auto_save_game_on_exit))       do_save = 1;
-   if ((d == 3) && (auto_save_game_on_exit))       do_save = 1;
+   if ((d == 1) && (autosave_game_on_level_done))    do_save = 1;
+   if ((d == 2) && (autosave_game_on_game_exit))     do_save = 1;
+   if ((d == 3) && (autosave_game_on_game_exit))     do_save = 1;
    if (do_save)
    {
       char lev[80];

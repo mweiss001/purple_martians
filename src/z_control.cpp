@@ -375,8 +375,8 @@ void function_key_check(void)
 
       if (key[ALLEGRO_KEY_F4][3])
       {
-         blind_save_game_moves(3);
-         save_log_file();
+         if (autosave_game_on_game_exit) blind_save_game_moves(3);
+         if (autosave_log_on_program_exit) save_log_file();
       }
 
       if (key[ALLEGRO_KEY_F5][0]) set_scale_factor(scale_factor * .90, 0);
@@ -738,8 +738,8 @@ void proc_player_inactive_game_move(int x)
 
    if (players[p].active)
    {
-      sprintf(msg,"PLAYER:%d became INACTIVE", p);
-      add_log_entry_header(10, p, msg, 1);
+//      sprintf(msg,"PLAYER:%d became INACTIVE", p);
+//      add_log_entry_header(10, p, msg, 1);
 
       // ------------------------------------
       // player in run demo mode became inactive
@@ -766,7 +766,7 @@ void proc_player_inactive_game_move(int x)
          for (int pp=1; pp<NUM_PLAYERS; pp++)
             if ((players[pp].active) && (players[pp].control_method == 2))
                players1[pp].quit_reason = 91;
-         log_ending_stats_server();
+//         log_ending_stats_server();
          new_program_state = 1;
       }
 
@@ -787,7 +787,7 @@ void proc_player_inactive_game_move(int x)
       {
          // printf("Remote Player Quit :%d\n", frame_num);
          players1[p].quit_reason = 93;
-         log_ending_stats(p);
+ //        log_ending_stats(p);
          init_player(p, 1);
 //         players[p].active = 0;
 //         players[p].control_method = 9; // prevent re-use of this player number in this level
@@ -871,8 +871,7 @@ void proc_player_input(void)
                      PacketPut1ByteInt(players1[p].comp_move);
                      ClientSend(packetbuffer, packetsize);
 
-                     if (players[0].level_done_mode == 0) set_controls_from_comp_move(p, players1[p].comp_move);
-                     else clear_controls(p);
+                     set_controls_from_comp_move(p, players1[p].comp_move);
 
                      if (players[p].menu) new_program_state = 25;
 
@@ -886,9 +885,6 @@ void proc_player_input(void)
          }
       }
 }
-
-
-
 
 void proc_controllers(void)
 {

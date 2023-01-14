@@ -1710,39 +1710,6 @@ void proc_start_collision(int p, int i)
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void proc_bonus_collision(int p, int i)
 {
    int bonus_type = item[i][6];
@@ -1785,7 +1752,6 @@ void proc_exit_collision(int p, int i)
       {
          players[0].level_done_mode = 9;
          players[0].level_done_timer = 0;
-
          players[0].level_done_x = al_fixtoi(itemf[i][0]);
          players[0].level_done_y = al_fixtoi(itemf[i][1]);
          players[0].level_done_player = p;
@@ -1861,21 +1827,19 @@ void proc_rocket_collision(int p, int i)
 
 void proc_warp_collision(int p, int i)
 {
+
    if (players[0].level_done_mode == 0)
    {
       if (play_level > 1) warp_level_location = play_level;
       players[0].level_done_mode = 3;
       players[0].level_done_timer = 0;
-
       players[0].level_done_x = al_fixtoi(itemf[i][0]);
       players[0].level_done_y = al_fixtoi(itemf[i][1]);
       players[0].level_done_player = p;
-
       next_level = item[i][8];
       game_event(4, 0, 0, p, i, 0, 0);
    }
 }
-
 
 void proc_switch_collision(int p, int i)
 {

@@ -4276,6 +4276,228 @@ int viewport_x_div = 8;
 int viewport_y_div = 12;
 
 
+20230213 6:24AM Friday the 13th
+I have taken the entire week off work so far, I probably will take today also...
+I have gotten a lot done...
+what are some of my next plans?
+
+make links to graphs??? from settings..and log_file_viewer..done
+
+
+
+
+settings - add more stuff
+program state - clean up and make simpler
+see if I can make level done part of program state...
+
+
+
+
+add timers and LOG_TMR tags for the packets related...
+
+how many do I want?
+
+move
+draw
+stdf send (server only)
+dif unpack (client only)
+rewind time (client or server)
+
+LOG_TMR_move
+LOG_TMR_draw
+LOG_TMR_sdif
+LOG_TMR_cdif
+LOG_TMR_rwnd
+first of all, make these global variables, then save in config, then add toggle in setting...all done
+now just patch them into the code where log entries are entered...
+
+
+
+
+
+make options on logs to never save log files....
+I am so annoyed when shit gets saved and I dont want it to....
+
+
+i am thinking of 2 different types of timestamps
+
+
+one would be used to profile sections of code...
+
+like move, draw, stdf etc....
+
+
+each will have a tag like
+
+tmst move:[]
+
+
+then my tagging system will find them all and apply the label to the series.....
+
+I will have as many or as few as I want, and when I run the graph it will automatically show the ones present
+
+the other type of timestamp would show things in relation to frame start...I can think about that later....
+
+I am excited to do this one....
+
+use these to start:
+LOG_TMR_move
+LOG_TMR_draw
+LOG_TMR_sdif
+LOG_TMR_cdif
+LOG_TMR_rwnd
+
+I want to make global double t0 just to make the code look cleaner
+
+
+now make a graph....
+
+looking good....
+
+make a us y axis type....already done, but store data as ms...al_get_time * 1000 print wih %0.4f
+
+
+looking good...
+
+now make this graph so it can be called with its own file select....
+
+
+then put it on a button in settings....
+
+this looks awesome....
+
+how about saving log when coming back to menu or config, instead of having to quit game..
+
+options:
+
+save log on program exit
+save log on game quit
+save log on level done
+save log manually only
+save log now
+
+do it...
+
+
+
+
+I redid all of the config with macro's..
+it took a while but it is so much shorter and easier
+to do a config value, i need 1 set and one get, before I need 3 for get and 2 for set
+I should really test each one to make sure they are working....
+erase config file and see!!
+looks good...
+color does not stick...fixed...
+
+
+in program_mode 12 - level done
+
+added: if (autosave_log_on_level_done) save_log_file();
+
+this was here:
+blind_save_game_moves(1) - level done
+
+this checks to see if autosave is on and labels the save file accordingly...
+I guess this is OK
+
+what else calls blind save??
+
+
+blind_save_game_moves(2) - game_exit
+at the end of main...we should change this to when leaving running game...that seems much more useful...
+
+blind_save_game_moves(3) - bad exit
+
+fast_exit and
+
+void function_key_check(void)
+{
+   if (key[ALLEGRO_KEY_F4][3])
+   {
+      blind_save_game_moves(3);
+      save_log_file();
+
+
+
+-----------
+
+log files for now...
+
+put checks for program exit in fast exit and end of main....done...
+
+look for occurances of save_log_file...good
+
+now just find an entry point for leaving a running game...
+
+
+resume_allowed...no...
+
+when leaving program_mode 11 to 1 or 3
+
+done...
+
+
+
+
+I think all cases ahould be covered now...
+
+occ of blind_save_game_moves();
+
+blind_save_game_moves(3); F4         only if game_exit set
+blind_save_game_moves(3); fast exit  only if game_exit set
+blind_save_game_moves(2); game quit  only if game_exit set
+blind_save_game_moves(1); level done only if level done set
+
+occ of save_log_file()
+F4           only if program exit set
+fast exit    only if program exit set
+end of main  only if program exit set
+game quit    only if game_exit set
+level done   only if level done set
+
+looking good....
+
+
+
+
+
+lets try some log tmr and view on graph...nice....
+
+tmst back:[0.0060] lifts:[0.0207] items:[0.5058] enem:[0.0101] ebul:[0.0001] pbul:[0.0001] play:[0.0035] buff:[0.0111] ovrl:[0.1171] flip:[0.1415]
+tmst back:[0.0053] lifts:[0.0197] items:[0.5073] enem:[0.0097] ebul:[0.0001] pbul:[0.0002] play:[0.0033] buff:[0.0112] ovrl:[0.1181] flip:[0.1382]
+tmst back:[0.0060] lifts:[0.0206] items:[0.5062] enem:[0.0096] ebul:[0.0002] pbul:[0.0001] play:[0.0034] buff:[0.0108] ovrl:[0.1169] flip:[0.1311]
+
+its 150 lines!!!
+
+
+lets log it...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

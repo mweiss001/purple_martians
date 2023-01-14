@@ -28,6 +28,17 @@ bug -- in level editor can't see trigger box edges on left or top if zero
 ---------------------------------------------------------
 
 
+
+y axis range in graph...mode 3 i think...ms
+
+the y axis labels are drawn with max display value...if max is > 1ms the entire lable range will be 1ms
+that's not too bad, but the mouseover show ms as units and us as value???
+
+also I would like mouse over to show series name (optionally??)
+
+
+
+
 Things to add to settings:
 
 Disable speed settings including function keys
@@ -38,8 +49,48 @@ lots of options there
 
 bottom message settings
 
-show the tools used to make spline logo...done....
 
+
+
+
+what are the next things I can profile?
+
+sometimes draw varies wildy, i would like to know why...
+
+how about all draw?
+
+make a log file entry with many timestamps...
+
+how many?
+
+
+
+   get_new_background(1);
+1
+   draw_lifts();
+2
+   draw_items();
+3
+   draw_enemies();
+4
+   draw_ebullets();
+5
+   draw_pbullets();
+6
+   draw_players();
+7
+   get_new_screen_buffer(0, 0, 0);
+8
+   draw_screen_overlay();
+9
+
+
+do I care about the goddamn line length in log file viewer?
+I should make my own file parser, with blackjack..and hookers...
+
+challenge accepted....
+
+its gonna be fun on the bun...in space....
 
 
 

@@ -76,6 +76,12 @@ void log_reason_for_player_quit(int p)
 }
 
 
+void add_log_TMR(double dt, const char *tag, int p)
+{
+   sprintf(msg, "tmst %s:[%0.4f]\n", tag, dt*1000);
+   add_log_entry2(44, p, msg);
+}
+
 
 
 
@@ -137,7 +143,7 @@ void log_player_array(void)
 
 void log_player_array2(void)
 {
-   sprintf(msg, "[p][a][m][sy] - level_done_mode:%d", players[0].level_done_mode);
+   sprintf(msg, "[p][a][m][sy]");
    add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
    for (int p=0; p<NUM_PLAYERS; p++)
    {
@@ -254,32 +260,29 @@ void erase_log(void)
 
 void save_log_file(void)
 {
-   //if (LOG_NET)
+   al_make_directory("logs"); // create if not already created
+   FILE *filepntr;
+
+   char filename[256];
+   struct tm *timenow;
+   time_t now = time(NULL);
+   timenow = localtime(&now);
+   strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
+
+   char lh[16];
+   strncpy(lh, local_hostname, 16); // to remove compiler error in case local_hostname is too long
+
+   char ph[80];
+   sprintf(ph, "-[%d][%s].txt", play_level, lh );
+
+   strcat(filename, ph);
+
+   if (strlen(log_msg) > 0)
    {
-      al_make_directory("logs"); // create if not already created
-      FILE *filepntr;
-
-      char filename[256];
-      struct tm *timenow;
-      time_t now = time(NULL);
-      timenow = localtime(&now);
-      strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
-
-      char lh[16];
-      strncpy(lh, local_hostname, 16); // to remove compiler error in case local_hostname is too long
-
-      char ph[80];
-      sprintf(ph, "-[%d][%s].txt", play_level, lh );
-
-      strcat(filename, ph);
-
-      if (strlen(log_msg) > 0)
-      {
-         filepntr = fopen(filename,"w");
-         fprintf(filepntr, "%s", log_msg);
-         fclose(filepntr);
-         printf("%s saved \n", filename);
-      }
+      filepntr = fopen(filename,"w");
+      fprintf(filepntr, "%s", log_msg);
+      fclose(filepntr);
+      printf("%s saved \n", filename);
    }
    erase_log();
 }
@@ -1576,11 +1579,468 @@ void log_client_server_sync_graph(int num_lines)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void run_profile_graph(void)
+{
+   printf ("test 0\n");
+   int c1 = 10;
+   mG[0].calc_data_range();
+   mG[0].autorange_axis(1, 1);
+   mG[0].set_title("Profile Time", 2, c1, c1);           // text, text_color, frame_color
+   mG[0].set_x_axis_legend("Time", "frames", 0, 15, 0);  // text, font, text_color, frame_color
+   mG[0].set_y_axis_legend("Time", "ms", 0, c1, 0);      // text, font, text_color, frame_color
+   mG[0].set_x_axis_labels(1, 1, 2, 15);                 // type, font, tick_size, color
+   mG[0].set_y_axis_labels(3, 1, 2, c1);                 // type, font, tick_size, color
+
+
+   printf ("test 1\n");
+   int quit = 0;
+   while (!quit)
+   {
+      al_set_target_backbuffer(display);
+      al_clear_to_color(al_map_rgb(0, 0, 0));
+
+      mG[0].set_graph_pos(0, 0, SCREEN_W, SCREEN_H);
+      mG[0].proc_graph();
+
+      al_flip_display();
+      proc_controllers();
+      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int get_tag_text2(char *str, char *res, char *res1, int show)
+{
+   if (show) printf("Initial string:%s\n", str);
+
+   // get first tag - from space to :
+   char * pch1 = strchr(str, ' ');
+   char * pch2 = strchr(str, ':');
+   if ((pch1 == NULL) || (pch2 == NULL))
+   {
+      printf("Did not find 1st tag\n");
+      return 0;
+   }
+   else
+   {
+      int p1 = pch1-str;
+      int p2 = pch2-str;
+      int plen = p2-p1;
+
+      //if (show) printf("p1:%d  p2:%d  plen:%d\n", p1, p2, plen);
+
+      if (plen < 10) // ???
+      {
+          for(int j=0; j<plen; j++)
+             res[j] = str[j+p1+1];
+          res[plen-1] = 0;
+          if (show) printf("First tag:'%s'\n", res);
+          chop_first_x_char(str, p2+1);
+      }
+      if (show) printf("Final string after chop:'%s'\n", str);
+   }
+
+   // get 2nd tag - from [ to ]
+   pch1 = strchr(str, '[');
+   pch2 = strchr(str, ']');
+   if ((pch1 == NULL) || (pch2 == NULL))
+   {
+      printf("Did not find 2nd tag\n");
+      return 0;
+   }
+   else
+   {
+      int p1 = pch1-str;
+      int p2 = pch2-str;
+      int plen = p2-p1;
+
+      // if (show) printf("p1:%d  p2:%d  plen:%d\n", p1, p2, plen);
+      if (plen < 10) // ???
+      {
+          for(int j=0; j<plen; j++)
+             res1[j] = str[j+p1+1];
+          res1[plen-1] = 0;
+          if (show) printf("2nd tag:'%s'\n", res1);
+          chop_first_x_char(str, p2+1);
+      }
+      if (show) printf("Final string after chop:'%s'\n", str);
+   }
+   return 1;
+}
+
+
+void load_profile_graph(void)
+{
+   char fname[256];
+
+   {
+      int user_cancelled = 0;
+      ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Select Log File to View", "*.txt", 0);
+      if (al_show_native_file_dialog(display, afc))
+      {
+         if (al_get_native_file_dialog_count(afc) == 1)
+         {
+            const char * r = al_get_native_file_dialog_path(afc, 0);
+            sprintf(fname, "%s", r);
+            //printf("file selected:%s\n", fname);
+         }
+      }
+      else
+      {
+         user_cancelled = 1;
+         //printf("file select cancelled\n" );
+      }
+      al_destroy_native_file_dialog(afc);
+      if (user_cancelled) return;
+   }
+
+   // get just the name part of the path
+   ALLEGRO_PATH * path = al_create_path(fname);
+   const char *tmp = al_get_path_filename(path);
+   char fnam[100];
+   sprintf(fnam, "%s", tmp);
+   al_destroy_path(path);
+
+
+
+   int num_lines=0, done=0;
+
+   mG[0].initialize();
+   mG[0].set_series(0, "", 1, 0);
+
+
+   FILE *filepntr=fopen(fname,"r");
+   while(!done)
+   {
+      int ch = fgetc(filepntr);
+      int loop = 0;
+      char buff[256];
+      while((ch != '\n') && (ch != EOF))
+      {
+         if (ch != 13) buff[loop++] = ch;
+         ch = fgetc(filepntr);
+      }
+      buff[loop] = 0; // terminate the string
+      if (loop > 254) printf("log line%d exceeded 254 char - %s\n", num_lines, buff);
+
+      if (ch == EOF) done = 1;
+      else
+      {
+         char res[80];
+         char res1[80];
+         num_lines++;
+
+         get_tag_text(buff, res, 0); // get first tag - type
+         int type = atoi(res);
+         get_tag_text(buff, res, 0); // get second tag - player
+         //int p = atoi(res);
+         get_tag_text(buff, res, 0); // get third tag - frame_num
+         int fn = atoi(res);
+
+         if (type == 44) // tmst
+         {
+            while (strlen(buff) > 4) // keep getting tags
+            {
+               get_tag_text2(buff, res, res1, 0);
+               double v = atof(res1);
+               int match = -1;
+               // search for a series with this name
+               for (int s=0; s<20; s++)
+                  if (strcmp(mG[0].series[s].name, res) == 0)  match = s;
+
+               if (match > -1)
+               {
+                   mG[0].add_data_point(match, (double) fn, v);
+               }
+               else  // no match found
+               {
+                  // find first empty
+                  for (int s=0; s<20; s++)
+                     if (strlen(mG[0].series[s].name) == 0)  match = s;
+
+                  if (match > -1)
+                  {
+                     mG[0].set_series(match, res, 1+match, 0);
+                     mG[0].add_data_point(match, (double) fn, v);
+                  }
+               }
+            }
+            // at this point, if we don't have a match or an empty just do nothing
+         }
+      }
+   }
+   fclose(filepntr);
+   if (mG[0].calc_data_range())  run_profile_graph();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void load_profile_graph2(void)
+{
+   char fname[256];
+
+   {
+      int user_cancelled = 0;
+      ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Select Log File to View", "*.txt", 0);
+      if (al_show_native_file_dialog(display, afc))
+      {
+         if (al_get_native_file_dialog_count(afc) == 1)
+         {
+            const char * r = al_get_native_file_dialog_path(afc, 0);
+            sprintf(fname, "%s", r);
+            //printf("file selected:%s\n", fname);
+         }
+      }
+      else
+      {
+         user_cancelled = 1;
+         //printf("file select cancelled\n" );
+      }
+      al_destroy_native_file_dialog(afc);
+      if (user_cancelled) return;
+   }
+
+   // get just the name part of the path
+   ALLEGRO_PATH * path = al_create_path(fname);
+   const char *tmp = al_get_path_filename(path);
+   char fnam[100];
+   sprintf(fnam, "%s", tmp);
+   al_destroy_path(path);
+
+   int num_lines = load_log_lines_array_from_static_file(fname);
+
+
+
+
+
+
+
+
+
+
+   mG[0].initialize();
+   mG[0].set_series(0, "", 1, 0);
+
+   // iterate all log lines and build array of data points
+   for (int i=0; i<num_lines; i++)
+   {
+      int type = log_lines_int[i][0];
+      int fn = log_lines_int[i][2];
+      char tll[200]; // temp log line
+      char res[80];
+      char res1[80];
+
+      if (type == 44) // tmst
+      {
+         sprintf(tll, "%s", log_lines[i]);
+
+         get_tag_text2(tll, res, res1, 0);
+         double v = atof(res1);
+
+         // printf("%s %f\n", res, v);
+
+
+         int match = -1;
+
+         // search for a series with this name
+         for (int s=0; s<20; s++)
+            if (strcmp(mG[0].series[s].name, res) == 0)  match = s;
+
+         if (match > -1)
+         {
+             mG[0].add_data_point(match, (double) fn, v);
+         }
+         else  // no match found
+         {
+            // find first empty
+            for (int s=0; s<20; s++)
+               if (strlen(mG[0].series[s].name) == 0)  match = s;
+
+            if (match > -1)
+            {
+               mG[0].set_series(match, res, 1+match, 0);
+               mG[0].add_data_point(match, (double) fn, v);
+            }
+         }
+         // at this point, if we don't have a match or an empty just do nothing
+      }
+   }
+   if ((mG[0].calc_data_range()) && (mG[0].calc_data_range())) run_profile_graph();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void run_timestamp_graph(void)
 {
-
-
-
 
    int c1 = 10;
    mG[0].calc_data_range();
