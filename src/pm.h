@@ -216,264 +216,6 @@ extern mWindow mW[NUM_MW];
 
 
 
-class mwGraph
-{
-   public:
-
-   int graph_x1;
-   int graph_y1;
-   int graph_x2;
-   int graph_y2;
-   int graph_w;
-   int graph_h;
-
-   int plot_x1;
-   int plot_y1;
-   int plot_x2;
-   int plot_y2;
-   int plot_w;
-   int plot_h;
-
-
-   int  title_draw_on;
-
-   int  title_draw_style;
-
-
-   int  title_draw_size;
-   int  title_draw_y;
-   char title_text[1024];
-   int  title_text_color;
-   int  title_frame_color;
-   void draw_title(int set_size_only);
-
-   void draw_series_legend(void);
-
-
-   int series_legend_slave;
-   int series_legend_type;
-   int series_legend_draw_on;
-   int series_legend_size;
-   int series_legend_x1;
-   int series_legend_x2;
-   int series_legend_w;
-   int series_legend_y1;
-   int series_legend_y2;
-
-   int series_legend_force_solid_lines;
-
-   int series_legend_show_counts;
-
-   int plot_show_performance;
-
-
-   void set_title(const char* text, int _type, int text_color, int frame_color);
-
-   void set_x_axis_legend(const char* name, const char* units, int font, int text_color, int frame_color);
-   void set_y_axis_legend(const char* name, const char* units, int font, int text_color, int frame_color);
-
-   void set_x_axis_labels(int type, int font, int tick_size, int color);
-   void set_y_axis_labels(int type, int font, int tick_size, int color);
-
-   void set_series(int s, const char* text, int color1, int color2);
-   void set_series_legend_type(int type);
-
-
-   int linked_group_id;
-   double x_axis_cursor_pos;
-
-
-   int  x_axis_slave;
-   int  x_axis_type;
-   int  x_axis_draw_size;
-
-   int x_axis_grid_draw_on;
-   int x_axis_grid_color;
-   int x_axis_grid_label_draw_on;
-   int x_axis_grid_label_font;
-   int x_axis_grid_label_color;
-   int x_axis_grid_label_draw_size;
-   int x_axis_grid_label_tick_size;
-   int x_axis_grid_label_text_size;
-
-   int  x_axis_legend_draw_on;
-   int  x_axis_legend_draw_size;
-   int  x_axis_legend_font;
-   int  x_axis_legend_draw_y;
-
-   char x_axis_legend_name[256];
-   char x_axis_legend_units[256];
-
-
-
-   int  x_axis_legend_text_color;
-   int  x_axis_legend_frame_color;
-   double x_axis_divider;
-
-
-   int x_axis_scrollbar_draw_on;
-   int x_axis_scrollbar_size;
-   int x_axis_scrollbar_draw_size;
-   int x_axis_scrollbar_x1;
-   int x_axis_scrollbar_x2;
-   int x_axis_scrollbar_w;
-   int x_axis_scrollbar_bar_x1;
-   int x_axis_scrollbar_bar_x2;
-   int x_axis_scrollbar_y1;
-   int x_axis_scrollbar_y2;
-   int x_axis_zoom_lock;
-
-   void x_axis_get_size_and_arrange_pos(void);
-   void x_axis_draw_legend(int set_size_only);
-   void x_axis_draw_gridlines_and_labels(int set_size_only);
-   int  x_axis_draw_scrollbar(int set_size_only);
-   void x_axis_proc_scrollbar(int draw_only);
-
-
-   int  y_axis_slave;
-
-   int y_axis_type;
-   int y_axis_draw_size;
-
-   int y_axis_grid_draw_on;
-   int y_axis_grid_color;
-   int y_axis_grid_label_draw_on;
-   int y_axis_grid_label_font;
-   int y_axis_grid_label_color;
-   int y_axis_grid_label_draw_size;
-   int y_axis_grid_label_tick_size;
-   int y_axis_grid_label_text_size;
-
-   int  y_axis_legend_draw_on;
-   int  y_axis_legend_draw_size;
-   int  y_axis_legend_font;
-   int  y_axis_legend_draw_x;
-   char y_axis_legend_name[256];
-   char y_axis_legend_units[256];
-   int  y_axis_legend_text_color;
-   int  y_axis_legend_frame_color;
-   double y_axis_divider;
-
-
-
-   int y_axis_scrollbar_draw_on;
-   int y_axis_scrollbar_size;
-   int y_axis_scrollbar_draw_size;
-   int y_axis_scrollbar_x1;
-   int y_axis_scrollbar_x2;
-   int y_axis_scrollbar_w;
-   int y_axis_scrollbar_bar_y1;
-   int y_axis_scrollbar_bar_y2;
-   int y_axis_scrollbar_y1;
-   int y_axis_scrollbar_y2;
-   int y_axis_scrollbar_h;
-   int y_axis_zoom_lock;
-
-   void y_axis_get_size_and_arrange_pos(void);
-   void y_axis_set_pos(void);
-   void y_axis_draw_legend(int set_size_only);
-   void y_axis_draw_gridlines_and_labels(int set_size_only);
-   int  y_axis_draw_scrollbar(int set_size_only);
-   void y_axis_proc_scrollbar(int draw_only);
-
-
-   struct data_series
-   {
-      double data[10000][2];
-      int num_data;
-      int active;
-      int color1;
-      int color2;
-      char name[256];
-      int min_visible_index;
-      int max_visible_index;
-   };
-   data_series series[20] = {0};
-
-   float plot_line_size;
-   float plot_point_size;
-
-   void set_series_min_and_max_visible_indexes(int s);
-
-   // min, max, and range for entire set of data
-   double x_data_min;
-   double x_data_max;
-   double x_data_rng;
-   double y_data_min;
-   double y_data_max;
-   double y_data_rng;
-
-
-   // min, max, and range for min and max displayable range (used for limits on axis, instead of using data)
-   double x_disp_min;
-   double x_disp_max;
-   double x_disp_rng;
-   double y_disp_min;
-   double y_disp_max;
-   double y_disp_rng;
-
-
-
-
-   // min, max, and range for axis
-   double x_axis_min;
-   double x_axis_max;
-   double x_axis_rng;
-   double y_axis_min;
-   double y_axis_max;
-   double y_axis_rng;
-
-   double x_axis_rng_min;
-   double y_axis_rng_min;
-
-
-   int  convert_sxy_to_gxy(      int sx, int sy, double &gx, double &gy);
-   int  convert_gxy_to_sxy(double gx, double gy, double &sx, double &sy);
-
-
-   mwGraph(); // default constructor
-   void initialize(void);
-   void set_graph_pos(int x1, int y1, int x2, int y2);
-
-   void draw_point_data(int x, int y, double mx, double my, int color, ALLEGRO_FONT *f, int s);
-
-   void draw_graph(int draw_only);
-   void proc_graph(void);
-
-   void draw_plot_area(void);
-   void proc_plot_area(int draw_only);
-
-   void add_data_point(int series, double x, double y);
-   int calc_data_range(void);
-
-   void autorange_axis(int x, int y);
-   void set_range_axis(double x_min, double x_max, double y_min, double y_max);
-   void enforce_axis_limits(void);
-   void enforce_axis_limits(int type);
-
-   char* x_axis_get_val_text(double val, int units);
-   char* y_axis_get_val_text(double val, int units);
-
-   int find_closest_point_to_mouse(int &s, int &i);
-
-   void proc_plot_mouse_cursor_crosshairs(double mx1, double my1);
-   void proc_plot_menu(void);
-   int proc_series_legend_menu(void);
-
-   bool mouse_on_graph;
-   bool mouse_on_scrollbar;
-
-};
-extern mwGraph mG[10];
-
-
-
-
-
-
-
-
-
 
 
 
@@ -614,6 +356,7 @@ extern int speed_testing;
 extern int actual_fps;
 extern int last_fps_frame_num;
 extern int frame_speed;
+extern int speed_control_lock;
 extern int frame_num;
 
 // global game control
@@ -823,8 +566,10 @@ extern int LOG_NET_stdf_when_to_apply;
 extern int LOG_NET_show_dif1;
 extern int LOG_NET_show_dif2;
 
-extern int LOG_TMR_move;
-extern int LOG_TMR_draw;
+extern int LOG_TMR_move_tot;
+extern int LOG_TMR_move_all;
+extern int LOG_TMR_draw_tot;
+extern int LOG_TMR_draw_all;
 extern int LOG_TMR_sdif;
 extern int LOG_TMR_cdif;
 extern int LOG_TMR_rwnd;
@@ -1278,8 +1023,8 @@ extern float WX_shift_speed;
 
 extern int viewport_mode;
 extern int viewport_show_hyst;
-extern int viewport_x_div;
-extern int viewport_y_div;
+extern float viewport_x_div;
+extern float viewport_y_div;
 
 
 
@@ -1292,6 +1037,7 @@ extern int level_display_region_w;
 extern int level_display_region_h;
 
 extern int display_transform_double;
+extern int display_transform_double_max;
 extern int saved_display_transform_double;
 extern int show_dtd;
 
@@ -1835,6 +1581,7 @@ void change_block(int x, int y, int block);
 void clear_game_moves(void);
 void get_hostname(int print);
 void process_flash_color(void);
+void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, int &bw, int &bh);
 void make_palette(void);
 void m_err(const char * err_msg);
 void window_title(void);
@@ -2024,14 +1771,10 @@ int have_all_players_acknowledged(void);
 void proc_level_done_mode(void);
 void proc_program_state(void);
 void proc_timer_adjust(void);
-
-
-
 int proc_frame_skip(void);
-
 void process_level_done_mode(void);
-
 void main_loop(void);
+
 
 // z_menu.h
 int load_help(void);
@@ -2039,14 +1782,6 @@ void chop_first_x_char(char *str, int n);
 void help(const char *topic);
 int tmenu(int menu_num, int menu_pos, int x, int y);
 int zmenu(int menu_num, int menu_pos, int y);
-
-
-void set_all_logging(int v);
-int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int sel);
-void settings_pages(int page);
-
-
-
 int pmenu(int menu_num, int bg_color);
 void menu_setup(void);
 void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color, int restore);
@@ -2054,14 +1789,10 @@ int edit_pmsg_text(int c, int new_msg);
 void edit_server_name(int type, int x, int y);
 int edit_lift_name(int lift, int step_ty, int bts, char *fst);
 
+
 // z_ping_buffer.h
 void ping_buffer_clear(void);
 void ping_array_add(double ping);
-
-
-
-
-
 
 // z_player.h
 void set_player_start_pos(int p, int cont);
@@ -2096,6 +1827,7 @@ void rebuild_bitmaps(void);
 void get_new_background(int full);
 void stimp(void);
 void stamp(void);
+void draw_hyst_rect(void);
 void get_new_screen_buffer(int type, int x, int y);
 void set_map_var(void);
 void set_scale_factor(float new_scale_factor, int instant);
@@ -2134,6 +1866,16 @@ int bmsg_draw_enemy(int e_type, int bmsg_length);
 int bmsg_show_health(int h, int bmsg_length);
 void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4);
 void draw_bmsg();
+
+
+// z_settings.h
+void set_all_logging(int v);
+int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int num);
+void cfp_draw_player(int pco, int x, int y);
+int cfp_draw_line(int xa, int xb, int ya, int line_spacing, int col);
+void draw_tab(struct settings_tab st[], int p, int col, int text_color);
+void settings_pages(int set_page);
+
 
 // z_sound.h
 void start_music(int resume);

@@ -50,18 +50,17 @@ void save_config(void)
       asci(SCREEN, display_adapter_num)
       asci(SCREEN, show_splash_screen)
       asci(SCREEN, saved_display_transform_double)
-
+      asci(SCREEN, display_transform_double_max)
 
       asci(GAME, players[0].color)
-
-
-
       asci(GAME, start_level)
       asci(GAME, viewport_mode)
       asci(GAME, viewport_show_hyst)
-      asci(GAME, viewport_x_div)
-      asci(GAME, viewport_y_div)
+      ascf(GAME, viewport_x_div)
+      ascf(GAME, viewport_y_div)
       asci(GAME, settings_current_page)
+      asci(GAME, speed_control_lock)
+
       asci(GAMECONTROLS, players1[0].up_key)
       asci(GAMECONTROLS, players1[0].down_key)
       asci(GAMECONTROLS, players1[0].left_key)
@@ -93,8 +92,10 @@ void save_config(void)
       asci(LOGGING, LOG_NET_stdf_when_to_apply)
       asci(LOGGING, LOG_NET_show_dif1)
       asci(LOGGING, LOG_NET_show_dif2)
-      asci(LOGGING, LOG_TMR_move)
-      asci(LOGGING, LOG_TMR_draw)
+      asci(LOGGING, LOG_TMR_move_tot)
+      asci(LOGGING, LOG_TMR_move_all)
+      asci(LOGGING, LOG_TMR_draw_tot)
+      asci(LOGGING, LOG_TMR_draw_all)
       asci(LOGGING, LOG_TMR_sdif)
       asci(LOGGING, LOG_TMR_cdif)
       asci(LOGGING, LOG_TMR_rwnd)
@@ -137,25 +138,32 @@ void load_config(void)
    agci(SCREEN, fullscreen, 1)
    agci(SCREEN, display_adapter_num, 0)
    agci(SCREEN, show_splash_screen, 1)
+   agci(SCREEN, display_transform_double_max, 3)
    agci(SCREEN, saved_display_transform_double, 0)
 
    agcf(SCREEN, scale_factor, 1.0)
-   set_scale_factor(1, 1); // ?
+   //set_scale_factor(scale_factor, 1);
+   set_scale_factor(1.0, 1);
+
 
    agci(SCREEN, show_splash_screen, 1)
    if (!show_splash_screen) splash_screen_done = 1;
-   agci(SCREEN, start_level, 1)
-   if (start_level < 1) start_level = 1;
-   if (start_level > 399) start_level = 399;
 
    agci(GAME, players[0].color, 8)
+   agci(GAME, start_level, 1)
+   if (start_level < 1) start_level = 1;
+   if (start_level > 399) start_level = 399;
    if (players[0].color < 1) players[0].color = 1;
    if (players[0].color > 15) players[0].color = 15;
    agci(GAME, viewport_mode, 1)
    agci(GAME, viewport_show_hyst, 0)
-   agci(GAME, viewport_x_div, 8)
-   agci(GAME, viewport_y_div, 12)
+   agcf(GAME, viewport_x_div, 0.33)
+   agcf(GAME, viewport_y_div, 0.33)
    agci(GAME, settings_current_page, 0)
+
+   agci(GAME, speed_control_lock, 1)
+
+
 
    agci(GAMECONTROLS, players1[0].up_key,    ALLEGRO_KEY_UP)
    agci(GAMECONTROLS, players1[0].down_key,  ALLEGRO_KEY_DOWN)
@@ -192,8 +200,10 @@ void load_config(void)
    agci(LOGGING, LOG_NET_stdf_when_to_apply, 0)
    agci(LOGGING, LOG_NET_show_dif1, 0)
    agci(LOGGING, LOG_NET_show_dif2, 0)
-   agci(LOGGING, LOG_TMR_move, 0)
-   agci(LOGGING, LOG_TMR_draw, 0)
+   agci(LOGGING, LOG_TMR_move_tot, 0)
+   agci(LOGGING, LOG_TMR_move_all, 0)
+   agci(LOGGING, LOG_TMR_draw_tot, 0)
+   agci(LOGGING, LOG_TMR_draw_all, 0)
    agci(LOGGING, LOG_TMR_sdif, 0)
    agci(LOGGING, LOG_TMR_cdif, 0)
    agci(LOGGING, LOG_TMR_rwnd, 0)

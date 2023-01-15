@@ -1382,9 +1382,9 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    {
       if (press) var++;
       if ((var < 0) || (var > 2)) var = 0;
-      if (var == 0) sprintf(smsg,  "Static");
-      if (var == 1) sprintf(smsg,  "Hyst Instant");
-      if (var == 2) sprintf(smsg,  "Hyst Gradual");
+      if (var == 0) sprintf(smsg,  "Hysteresis Mode:Static");
+      if (var == 1) sprintf(smsg,  "Hysteresis Mode:Instant");
+      if (var == 2) sprintf(smsg,  "Hysteresis Mode:Gradual");
    }
 
 

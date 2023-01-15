@@ -1,6 +1,9 @@
 // z_mwGraph.cpp
 
 #include "pm.h"
+#include "z_mwGraph.h"
+
+mwGraph mG[10];
 
 mwGraph::mwGraph()
 {
@@ -74,8 +77,6 @@ void mwGraph::initialize(void)
    series_legend_size = 1;
    series_legend_show_counts = 0;
    plot_show_performance = 0;
-
-
 }
 void mwGraph::set_series_min_and_max_visible_indexes(int s)
 {
@@ -90,6 +91,46 @@ void mwGraph::set_series_min_and_max_visible_indexes(int s)
    if (series[s].min_visible_index < 0) series[s].min_visible_index = 0;
    series[s].max_visible_index +=2;
    if (series[s].max_visible_index > series[s].num_data) series[s].max_visible_index = series[s].num_data;
+}
+
+void mwGraph::autoset_new_series_color(int series_index)
+{
+   // sets the first unused color in the list
+   int cl[20][3] = {0};
+   cl[0][0]  = 10; cl[0][1]  = 0;
+   cl[1][0]  = 11; cl[1][1]  = 0;
+   cl[2][0]  = 12; cl[2][1]  = 0;
+   cl[3][0]  = 13; cl[3][1]  = 15;
+   cl[4][0]  = 14; cl[4][1]  = 0;
+   cl[5][0]  = 9;  cl[5][1]  = 0;
+   cl[6][0]  = 8;  cl[6][1]  = 0;
+   cl[7][0]  = 7;  cl[7][1]  = 0;
+   cl[8][0]  = 6;  cl[8][1]  = 15;
+   cl[9][0]  = 5;  cl[9][1]  = 0;
+   cl[10][0] = 10; cl[10][1] = 15;
+   cl[11][0] = 11; cl[11][1] = 15;
+   cl[12][0] = 12; cl[12][1] = 15;
+   cl[13][0] = 13; cl[13][1] = 15;
+   cl[14][0] = 14; cl[14][1] = 15;
+   cl[15][0] = 9;  cl[15][1] = 15;
+   cl[16][0] = 8;  cl[16][1] = 15;
+   cl[17][0] = 7;  cl[17][1] = 15;
+   cl[18][0] = 6;  cl[18][1] = 15;
+   cl[19][0] = 5;  cl[19][1] = 15;
+
+   // find and mark used colors
+   for (int c=0; c<20; c++)
+      for (int s=0; s<20; s++)
+         if ((cl[c][0] == series[s].color1) && (cl[c][1] == series[s].color2)) cl[c][2] = 1; // used
+
+   // get first unused color
+   for (int c=0; c<20; c++)
+      if (cl[c][2] == 0)
+      {
+         series[series_index].color1 = cl[c][0];
+         series[series_index].color2 = cl[c][1];
+         return;
+      }
 }
 
 void mwGraph::proc_graph(void)
@@ -168,22 +209,16 @@ void mwGraph::draw_series_legend(void)
    }
    if (series_legend_draw_on)
    {
-
+      ALLEGRO_FONT *f = font;
       series_legend_x1 = plot_x1+16;
       series_legend_y1 = plot_y1+16;
 
-
-      ALLEGRO_FONT *f = font;
       if (series_legend_size == 0)
       {
          f = f3;
          series_legend_x1 = plot_x1+8;
          series_legend_y1 = plot_y1+8;
       }
-
-
-
-
       int max_width = 0;
       int height = 0;
       int bx, by, bw, bh;
@@ -194,8 +229,7 @@ void mwGraph::draw_series_legend(void)
       for (int s=0; s<series_limit; s++) // run through to get sizes
          if ((series[s].num_data) || (series_legend_type == 1))
          {
-            sprintf(msg, "%s", series[s].name);
-            al_get_text_dimensions(f, msg, &bx, &by, &bw, &bh);
+            mw_get_text_dimensions(f, series[s].name, bx, by, bw, bh);
             bh+=1;
             if (bw > max_width) max_width = bw;
             if (bh>0) height += bh;
@@ -228,10 +262,9 @@ void mwGraph::draw_series_legend(void)
                mouse_sel = s;
                al_draw_rectangle(x1+1, y1+1, x2-1, y1+1+bh, palette_color[15], 0);
             }
-            sprintf(msg, "%s", series[s].name);
-            al_get_text_dimensions(f, msg, &bx, &by, &bw, &bh);
+            mw_get_text_dimensions(f, series[s].name, bx, by, bw, bh);
             bh+=1;
-            al_draw_text(f, palette_color[c1+dim], x1+1, y1+2-by, 0, msg);
+            al_draw_text(f, palette_color[c1+dim], x1+2-bx, y1+2-by, 0, series[s].name);
             if (series_legend_show_counts) al_draw_textf(f, palette_color[c1+dim], x2+2, y1+2-by, 0, "%d", series[s].num_data);
             float lx1 = x2-30;
             float lx2 = x2-4;
@@ -504,13 +537,13 @@ void mwGraph::draw_title(int set_size_only)
          title_draw_size = 0;
          int pad = 2;
          int bx, by, bw, bh;
-         al_get_text_dimensions(font, title_text, &bx, &by, &bw, &bh);
+         mw_get_text_dimensions(font, title_text, bx, by, bw, bh);
          if (!set_size_only)
          {
             ALLEGRO_BITMAP* t = al_create_bitmap(bw+4+pad*2, bh+4+pad*2);
             al_set_target_bitmap(t);
             al_clear_to_color(palette_color[0]);
-            al_draw_text(font, palette_color[title_text_color], 2+pad, 2+pad-by, 0, title_text);
+            al_draw_text(font, palette_color[title_text_color], 2+pad-bx, 2+pad-by, 0, title_text);
 
             for(float a=0.5; a<2.5; a+=0.5)
                al_draw_rounded_rectangle(a, a, bw+4+pad*2-a, bh+4+pad*2-a, 1, 1, palette_color[title_frame_color+(int)(a*64)], 1.5);
@@ -526,7 +559,7 @@ void mwGraph::draw_title(int set_size_only)
       {
          int pad = 1;
          int bx, by, bw, bh;
-         al_get_text_dimensions(font, title_text, &bx, &by, &bw, &bh);
+         mw_get_text_dimensions(font, title_text, bx, by, bw, bh);
          title_draw_size = bh+2+pad*2;
 
          if (!set_size_only)
@@ -534,7 +567,7 @@ void mwGraph::draw_title(int set_size_only)
             ALLEGRO_BITMAP* t = al_create_bitmap(bw+2+pad*2, bh+2+pad*2);
             al_set_target_bitmap(t);
             al_clear_to_color(palette_color[0]);
-            al_draw_text(font, palette_color[title_text_color], 1+pad, 1+pad-by, 0, title_text);
+            al_draw_text(font, palette_color[title_text_color], 1+pad-bx, 1+pad-by, 0, title_text);
             al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[title_frame_color], 1);
 
             al_set_target_backbuffer(display);
@@ -622,11 +655,10 @@ void mwGraph::x_axis_draw_legend(int set_size_only)
       ALLEGRO_FONT *f = font;
       if (x_axis_legend_font) f = f3;
       int bx, by, bw, bh;
-      al_get_text_dimensions(f, msg, &bx, &by, &bw, &bh);
+      mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
       if (bw > plot_w) f = f3; // if legend is too big for area, try smaller font
-      al_get_text_dimensions(f, msg, &bx, &by, &bw, &bh);
-
+      mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
       x_axis_legend_draw_size = bh+2+pad*2+1;
 
@@ -635,7 +667,7 @@ void mwGraph::x_axis_draw_legend(int set_size_only)
          ALLEGRO_BITMAP* t = al_create_bitmap(bw+2+pad*2, bh+2+pad*2);
          al_set_target_bitmap(t);
          al_clear_to_color(palette_color[0]);
-         al_draw_text(f, palette_color[x_axis_legend_text_color], 1+pad, 1+pad-by, 0, msg);
+         al_draw_text(f, palette_color[x_axis_legend_text_color], 1+pad-bx, 1+pad-by, 0, msg);
          al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[x_axis_legend_frame_color], 1);
          al_set_target_backbuffer(display);
          int xc = plot_x1+plot_w/2;
@@ -653,7 +685,7 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
    ALLEGRO_FONT *f = font;
    if (x_axis_grid_label_font) f = f3;
    int bx, by, bw, bh;
-   al_get_text_dimensions(f, "1234", &bx, &by, &bw, &bh);
+   mw_get_text_dimensions(f, "1234", bx, by, bw, bh);
    x_axis_grid_label_text_size = bh;
 
    x_axis_grid_label_draw_size = 0;
@@ -679,9 +711,35 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
          double sx_axis_max = x_axis_max / x_axis_divider;
          double sx_axis_rng = x_axis_rng / x_axis_divider;
 
-
-         double x_gl_span = .00001;                          // pick a span and see how many major gridlines we get
+         // pick a span and see how many major gridlines we get
+         double x_gl_span = .00001;
          while (sx_axis_rng/x_gl_span > 20) x_gl_span *=10;  // this will choose betwen 2 and 20 major gridlines
+
+
+         // find out if major gridline labels will touch each other....
+         int max_space_between_labels = - 9999;
+         while (max_space_between_labels < 10)
+         {
+            // iterate major gridline minus last
+            double gx2 = round_to_nearest(sx_axis_min, x_gl_span);
+            for (double i=gx2; i<=(sx_axis_max-x_gl_span); i+=x_gl_span)
+            {
+               // get current label
+               convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly); // get screen position
+               mw_get_text_dimensions(f, x_axis_get_val_text(i* x_axis_divider, 0), bx, by, bw, bh); // get text dimensions of label
+               int cur_end = lx + bw/2; // xpos at the end of this label
+
+               // get next label
+               convert_gxy_to_sxy((i+x_gl_span) * x_axis_divider, 9999, lx, ly); // get screen position
+               mw_get_text_dimensions(f, x_axis_get_val_text((i+x_gl_span) * x_axis_divider, 0), bx, by, bw, bh); // get text dimensions of label
+               int next_start = lx - bw/2; // xpos at the start of this label
+
+               int space = next_start - cur_end;
+               if (space > max_space_between_labels) max_space_between_labels = space;
+               // printf("space:%d max space betwen labels:%d\n", space, max_space_between_labels);
+            }
+            if (max_space_between_labels < 10) x_gl_span *=10; // increase span
+         }
          int number_of_major_gridlines = (sx_axis_rng/x_gl_span);
 
          //al_draw_filled_rectangle              (plot_x1-12, plot_y2+50, x_axis_label_y1, plot_y2+58, palette_color[0]);
@@ -730,7 +788,7 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
          {
             convert_gxy_to_sxy(i * x_axis_divider, 9999, lx, ly);
             al_draw_line(lx, x_axis_label_y0, lx, x_axis_label_y2, palette_color[mj_col], mj_size);
-            if (x_axis_grid_label_draw_on) al_draw_text(f, palette_color[x_axis_grid_label_color], lx, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, x_axis_get_val_text(i* x_axis_divider, 0));
+            if (x_axis_grid_label_draw_on) al_draw_text(f, palette_color[x_axis_grid_label_color], lx-bx, x_axis_label_y2-by, ALLEGRO_ALIGN_CENTER, x_axis_get_val_text(i* x_axis_divider, 0));
          }
          if (0) // label on origin
          {
@@ -754,11 +812,10 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
       ALLEGRO_FONT *f = font;
       if (y_axis_legend_font) f = f3;
       int bx, by, bw, bh;
-      al_get_text_dimensions(f, msg, &bx, &by, &bw, &bh);
+      mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
       if (bw > plot_h) f = f3; // if legend is too big for area, try smaller font
-      al_get_text_dimensions(f, msg, &bx, &by, &bw, &bh);
-
+      mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
       y_axis_legend_draw_size = bh+2+pad*2;
 
@@ -767,7 +824,7 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
          ALLEGRO_BITMAP* t = al_create_bitmap(bw+2+pad*2, bh+2+pad*2);
          al_set_target_bitmap(t);
          al_clear_to_color(palette_color[0]);
-         al_draw_text(f, palette_color[y_axis_legend_text_color], 1+pad, 1+pad-by, 0, msg);
+         al_draw_text(f, palette_color[y_axis_legend_text_color], 1+pad-bx, 1+pad-by, 0, msg);
          al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[y_axis_legend_frame_color], 1);
 
          al_set_target_backbuffer(display);
@@ -785,8 +842,6 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
    ALLEGRO_FONT *f = font;
    if (y_axis_grid_label_font) f = f3;
    int bx, by, bw, bh;
-
-
 
    if (y_axis_grid_draw_on)
    {
@@ -806,9 +861,7 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
       for (double i=gy2; i<sy_axis_max; i+=y_gl_span)
       {
          convert_gxy_to_sxy(9999, i * y_axis_divider, lx, ly);
-         //sprintf(msg, "%0.0f", i);
-         sprintf(msg, "%s", y_axis_get_val_text(i, 0));
-         al_get_text_dimensions(f, msg, &bx, &by, &bw, &bh);
+         mw_get_text_dimensions(f, y_axis_get_val_text(i, 0), bx, by, bw, bh);
          if (bw >  max_width) max_width = bw;
       }
       y_axis_grid_label_text_size = max_width+1;
@@ -876,12 +929,12 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
          {
             convert_gxy_to_sxy(9999, i*y_axis_divider, lx, ly);
             al_draw_line(y_axis_label_x2, ly, y_axis_label_x0-1, ly, palette_color[mj_col], mj_size);
-            if (y_axis_grid_label_draw_on) al_draw_text(f, palette_color[y_axis_grid_label_color], y_axis_label_x2, ly-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text(i, 0));
+            if (y_axis_grid_label_draw_on) al_draw_text(f, palette_color[y_axis_grid_label_color], y_axis_label_x2-bx, ly-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text(i, 0));
          }
          if (0) // label origin
          {
             al_draw_line(y_axis_label_x2, plot_y2, plot_x1-1, plot_y2, palette_color[mj_col], mj_size);
-            al_draw_textf(f, palette_color[y_axis_grid_label_color], y_axis_label_x2, plot_y2-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text((y_axis_min / y_axis_divider), 0));
+            al_draw_textf(f, palette_color[y_axis_grid_label_color], y_axis_label_x2-bx, plot_y2-by-bh/2, ALLEGRO_ALIGN_RIGHT, y_axis_get_val_text((y_axis_min / y_axis_divider), 0));
          }
       }
    }
@@ -1020,8 +1073,18 @@ char* mwGraph::x_axis_get_val_text(double val, int units)
 
 char* mwGraph::y_axis_get_val_text(double val, int units)
 {
+  // units
+  // 0 - dont show
+  // 1 - don't show, don't change range (for axis labels)
+  // 2 - show and allow range and unit change from axis units (fof point show)
+
+
    char t1[80] = {0};
    sprintf(t1, "%3.3f", val); // default
+
+   char t2[80] = {0};
+   sprintf(t2, "%s", y_axis_legend_units); // default
+
 
    if ((y_axis_type == 1) || (y_axis_type == 2)) // B/s
    {
@@ -1034,9 +1097,15 @@ char* mwGraph::y_axis_get_val_text(double val, int units)
       if (abs(val) < 1000) sprintf(t1, "%3.0f", val);
       if (abs(val) < 100)  sprintf(t1, "%3.1f", val);
       if (abs(val) < 10)   sprintf(t1, "%3.2f", val);
-      if (abs(val) < 1)    sprintf(t1, "%3.1f", val*1000);
-
-
+      if (abs(val) < 1)
+      {
+         sprintf(t1, "%3.1f", val);
+         if (units == 2)
+         {
+            sprintf(t1, "%3.1f", val*1000);
+            sprintf(t2, "us");
+         }
+      }
    }
    if (y_axis_type == 4) sprintf(t1, "%4.2f", val); // FPS
 
@@ -1046,10 +1115,7 @@ char* mwGraph::y_axis_get_val_text(double val, int units)
       else         sprintf(t1, "Inactive");
    }
 
-
-
-
-   if (units) sprintf(msg, "%s %s", t1, y_axis_legend_units);
+   if (units) sprintf(msg, "%s %s", t1, t2);
    else       sprintf(msg, "%s", t1);
    return msg;
 }
@@ -1095,18 +1161,31 @@ void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALL
 
    int max_width = 0;
    int height = 0;
-   int h2 = 0;
+   int y1 = 2, y2 = 0, y3 = 0; // offsets for text y pos
    int bx, by, bw, bh;
 
-   al_get_text_dimensions(f, x_axis_get_val_text(mx, 1), &bx, &by, &bw, &bh);
-   if (bw > max_width) max_width = bw;
-   height += bh+1;
-   h2 = bh;
+   // size of series name
+   if (s != -1)
+   {
+      mw_get_text_dimensions(f, series[s].name, bx, by, bw, bh);
+      if (bw > max_width) max_width = bw;
+      height += bh+2;
+      y2 = y1 + bh+2;
+   }
+   else y2 = y1;
 
-   al_get_text_dimensions(f, y_axis_get_val_text(my, 1), &bx, &by, &bw, &bh);
+   // size of y label
+   mw_get_text_dimensions(f, y_axis_get_val_text(my, 1), bx, by, bw, bh);
    if (bw > max_width) max_width = bw;
-   height += bh+1;
+   height += bh+2;
+   y3 = y2 + bh+2;
 
+   // size of x label
+   mw_get_text_dimensions(f, x_axis_get_val_text(mx, 2), bx, by, bw, bh);
+   if (bw > max_width) max_width = bw;
+   height += bh+2;
+
+   // where to postion around the mouse, so we don't draw off screen or block mouse
    y -= (9 + height); // upper (default)
    if (y < plot_y1)
    {
@@ -1120,10 +1199,14 @@ void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALL
       if ((x + max_width) > plot_x2) x -= (max_width + 12); // move to left side of mouse if it would be drawn off screen
    }
 
-   al_draw_filled_rectangle(x, y, x+max_width+4, y+height+5, palette_color[0]); // erase old
-   al_draw_rectangle(       x, y, x+max_width+4, y+height+5, palette_color[color], 1);
-   al_draw_textf(f, palette_color[color], x+2, y-by+2,    0, "%s", x_axis_get_val_text(mx, 1));
-   al_draw_textf(f, palette_color[color], x+2, y-by+h2+5, 0, "%s", y_axis_get_val_text(my, 1));
+   // draw
+   al_draw_filled_rectangle(x, y, x+max_width+4, y+height+2, palette_color[0]); // erase old
+   al_draw_rectangle(       x, y, x+max_width+4, y+height+2, palette_color[color], 1);
+   if (s != -1) al_draw_textf(f, palette_color[color], x+2-bx, y+y1-by, 0, "%s", series[s].name);
+                al_draw_textf(f, palette_color[color], x+2-bx, y+y2-by, 0, "%s", y_axis_get_val_text(my, 2));
+                al_draw_textf(f, palette_color[color], x+2-bx, y+y3-by, 0, "%s", x_axis_get_val_text(mx, 1));
+
+
 }
 void mwGraph::draw_plot_area(void)
 {
@@ -1175,7 +1258,6 @@ void mwGraph::draw_plot_area(void)
    if (plot_show_performance) al_draw_textf(font, palette_color[15], plot_x1+4, plot_y1+4, 0, "plot time:%3.2f ms  lines drawn:%d segments drawn:%d", (al_get_time() - st)*1000, lines_drawn, segments_drawn);
    al_reset_clipping_rectangle();
 }
-
 
 int mwGraph::proc_series_legend_menu(void)
 {
@@ -1289,7 +1371,6 @@ void mwGraph::proc_plot_menu(void)
       }
    }
 }
-
 
 void mwGraph::proc_plot_mouse_cursor_crosshairs(double mx1, double my1)
 {

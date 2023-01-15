@@ -36,7 +36,7 @@ void load_fonts(void)
    //else printf("loaded font SaucerBB.ttf.ttf\n");
 
    al_destroy_font(f3);
-   f3 = al_load_ttf_font("bitmaps/PixelGosub.otf", 7, ALLEGRO_TTF_MONOCHROME);
+   f3 = al_load_ttf_font("bitmaps/PixelGosub.otf", 7, ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_KERNING);
    if(!f3) m_err("Failed to load font from bitmaps/PixelGosub.otf");
    //else printf("loaded font PixelGosub.otf\n");
 }
@@ -410,6 +410,39 @@ void stamp(void) // transition from game to menu
 }
 
 
+
+
+
+
+
+
+
+// to show in settings
+void draw_hyst_rect(void)
+{
+   int bw = BORDER_WIDTH;
+   float x_size = (SCREEN_W-bw*2) * viewport_x_div/2; // larger number is smaller window
+   float y_size = (SCREEN_H-bw*2) * viewport_y_div/2;
+   float hx1 = SCREEN_W/2 - x_size;
+   float hx2 = SCREEN_W/2 + x_size;
+   float hy1 = SCREEN_H/2 - y_size;
+   float hy2 = SCREEN_H/2 + y_size;
+   al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void get_new_screen_buffer(int type, int x, int y)
 {
    int p = active_local_player;
@@ -486,8 +519,8 @@ void get_new_screen_buffer(int type, int x, int y)
       }
       else // scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
       {
-         x_size = SW / viewport_x_div; // larger number is smaller window
-         y_size = SH / viewport_y_div;
+         x_size = SW * viewport_x_div/2;
+         y_size = SH * viewport_y_div/2;
 
          if (viewport_mode == 2) // like mode 1 but gradual move
          {
@@ -540,6 +573,8 @@ void get_new_screen_buffer(int type, int x, int y)
 
   //printf("WX:%d, WY:%d, SW:%d, SH:%d, sbx:%d, sby:%d, sbw:%d, sbh:%d\n", WX, WY, SW, SH, sbx, sby, sbw, sbh);
 
+
+
    if (viewport_show_hyst)
    {
       float hx1 = SCREEN_W/2 - x_size * scale_factor_current;
@@ -551,7 +586,7 @@ void get_new_screen_buffer(int type, int x, int y)
       if (clamp_y0) hy1 = 0;
       if (clamp_x1) hx2 = SCREEN_W;
       if (clamp_y1) hy2 = SCREEN_H;
-      al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 2);
+      al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 0);
    }
 
    // in level editor mode, if the level is smaller than the screen edges, draw a thin line to show where it ends...

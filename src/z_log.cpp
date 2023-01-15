@@ -1,7 +1,6 @@
 // zlog.cpp
-
 #include "pm.h"
-
+#include "z_mwGraph.h"
 
 void log_bandwidth_stats(int p)
 {
@@ -1596,18 +1595,15 @@ void log_client_server_sync_graph(int num_lines)
 
 void run_profile_graph(void)
 {
-   printf ("test 0\n");
    int c1 = 10;
    mG[0].calc_data_range();
    mG[0].autorange_axis(1, 1);
-   mG[0].set_title("Profile Time", 2, c1, c1);           // text, text_color, frame_color
-   mG[0].set_x_axis_legend("Time", "frames", 0, 15, 0);  // text, font, text_color, frame_color
-   mG[0].set_y_axis_legend("Time", "ms", 0, c1, 0);      // text, font, text_color, frame_color
-   mG[0].set_x_axis_labels(1, 1, 2, 15);                 // type, font, tick_size, color
-   mG[0].set_y_axis_labels(3, 1, 2, c1);                 // type, font, tick_size, color
+   mG[0].set_title("Profile Time", 2, c1, c1);             // text, text_color, frame_color
+   mG[0].set_x_axis_legend("Time", "frames", 0, 15, 0);    // text, font, text_color, frame_color
+   mG[0].set_y_axis_legend("Time", "ms",     0, c1, 0);    // text, font, text_color, frame_color
+   mG[0].set_x_axis_labels(1, 0, 2, 15);                   // type, font, tick_size, color
+   mG[0].set_y_axis_labels(3, 1, 2, c1);                   // type, font, tick_size, color
 
-
-   printf ("test 1\n");
    int quit = 0;
    while (!quit)
    {
@@ -1698,102 +1694,81 @@ int get_tag_text2(char *str, char *res, char *res1, int show)
 
 void load_profile_graph(void)
 {
-   char fname[256];
-
-   {
-      int user_cancelled = 0;
-      ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Select Log File to View", "*.txt", 0);
-      if (al_show_native_file_dialog(display, afc))
-      {
-         if (al_get_native_file_dialog_count(afc) == 1)
-         {
-            const char * r = al_get_native_file_dialog_path(afc, 0);
-            sprintf(fname, "%s", r);
-            //printf("file selected:%s\n", fname);
-         }
-      }
-      else
-      {
-         user_cancelled = 1;
-         //printf("file select cancelled\n" );
-      }
-      al_destroy_native_file_dialog(afc);
-      if (user_cancelled) return;
-   }
-
-   // get just the name part of the path
-   ALLEGRO_PATH * path = al_create_path(fname);
-   const char *tmp = al_get_path_filename(path);
-   char fnam[100];
-   sprintf(fnam, "%s", tmp);
-   al_destroy_path(path);
-
-
-
-   int num_lines=0, done=0;
-
    mG[0].initialize();
    mG[0].set_series(0, "", 1, 0);
+   char fname[256] = {0};
+   int done = 0;
+   int debug_print = 0;
 
 
+   ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Select Log File to View", "*.txt", 0);
+   if (al_show_native_file_dialog(display, afc))
+   {
+      if (al_get_native_file_dialog_count(afc) == 1) sprintf(fname, "%s", al_get_native_file_dialog_path(afc, 0));
+   }
+   else { al_destroy_native_file_dialog(afc); return; } // user cancelled
+   al_destroy_native_file_dialog(afc);
    FILE *filepntr=fopen(fname,"r");
    while(!done)
    {
       int ch = fgetc(filepntr);
       int loop = 0;
-      char buff[256];
-      while((ch != '\n') && (ch != EOF))
+      char buff[512] = {0};
+      while((ch != '\n') && (ch != EOF) && (loop < 500))
       {
          if (ch != 13) buff[loop++] = ch;
          ch = fgetc(filepntr);
       }
       buff[loop] = 0; // terminate the string
-      if (loop > 254) printf("log line%d exceeded 254 char - %s\n", num_lines, buff);
+      if (loop >= 500) printf("log line exceeded 500 char - %s\n", buff);
+
+
+      if (debug_print) printf("%s\n", buff);
 
       if (ch == EOF) done = 1;
       else
       {
          char res[80];
          char res1[80];
-         num_lines++;
 
          get_tag_text(buff, res, 0); // get first tag - type
          int type = atoi(res);
          get_tag_text(buff, res, 0); // get second tag - player
          //int p = atoi(res);
          get_tag_text(buff, res, 0); // get third tag - frame_num
-         int fn = atoi(res);
+         double fn = atof(res);
 
          if (type == 44) // tmst
          {
-            while (strlen(buff) > 4) // keep getting tags
+            while (strlen(buff) > 4) // keep getting more tags
             {
                get_tag_text2(buff, res, res1, 0);
-               double v = atof(res1);
+               double val = atof(res1);
                int match = -1;
-               // search for a series with this name
-               for (int s=0; s<20; s++)
+               for (int s=0; s<20; s++) // search for a series with this name
                   if (strcmp(mG[0].series[s].name, res) == 0)  match = s;
-
                if (match > -1)
                {
-                   mG[0].add_data_point(match, (double) fn, v);
+                   mG[0].add_data_point(match, fn, val);
+                   if (debug_print) printf("added data point to series:%s  fn:%0.0f, val:%0.4f\n", res, fn, val);
                }
                else  // no match found
                {
-                  // find first empty
-                  for (int s=0; s<20; s++)
+                  for (int s=19; s>=0; s--) // find last empty searching backwards
                      if (strlen(mG[0].series[s].name) == 0)  match = s;
 
                   if (match > -1)
                   {
-                     mG[0].set_series(match, res, 1+match, 0);
-                     mG[0].add_data_point(match, (double) fn, v);
+                     mG[0].set_series(match, res, 1, 0);
+                     mG[0].autoset_new_series_color(match);
+                     mG[0].add_data_point(match, fn, val);
+                     if (debug_print) printf("added initial data point to new series[%d]:%s  fn:%0.0f, val:%0.4f\n", match, res, fn, val);
                   }
+                  else if (debug_print) printf("no empty series found\n");
                }
-            }
-            // at this point, if we don't have a match or an empty just do nothing
-         }
+               // at this point, if we don't have a match or an empty just do nothing
+            } // end of log line
+         } // end of type 44
       }
    }
    fclose(filepntr);

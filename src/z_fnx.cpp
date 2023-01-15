@@ -11,7 +11,11 @@ int check_and_draw(double x1, double y1, double line_length, double line_xinc, d
    // these checks mean that the segment is entirely not on the line
    if (za > line_length) skip = 1; // za after line end
    if (zb < 0)           skip = 1; // zb before line start
-   if ((debug_print) && (skip)) sprintf(t, "skip\n");
+
+   if (skip)
+   {
+      if (debug_print) sprintf(t, "skip\n");
+   }
    else  // at least one point is on the line
    {
       if (za < 0) // za is before line start
@@ -292,9 +296,16 @@ void process_flash_color(void)
    if ((flash_counter > 24) && (flash_counter < 33))  { flash_color = 11; flash_color2 = 14; }
 }
 
+void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, int &bw, int &bh)
+{
+    // first get from the allegro method
+   al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
 
-
-
+   // then override for my nefarious purposes!
+   if (f == f3)    { by = 4; bh = 5; }
+   if (f == font)  { by = 0; bh = 8; bx = 0; bw = 8*strlen(txt); }
+   if (f == font0) { by = 0; bh = 8; }
+}
 
 void make_palette(void)
 {

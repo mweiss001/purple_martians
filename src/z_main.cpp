@@ -4,7 +4,7 @@
 
 
 
-mwGraph mG[10];
+
 
 
 // --------------- Global Variables ---------------
@@ -98,6 +98,8 @@ int actual_fps;
 int last_fps_frame_num = 0;
 int frame_speed = 40;
 int frame_num;
+int speed_control_lock = 1;
+
 
 // global game control
 int next_level = 0;
@@ -285,8 +287,11 @@ int LOG_NET_stdf_when_to_apply = 0;
 int LOG_NET_show_dif1 = 0;
 int LOG_NET_show_dif2 = 0;
 
-int LOG_TMR_move = 0;
-int LOG_TMR_draw = 0;
+
+int LOG_TMR_move_tot = 0;
+int LOG_TMR_move_all = 0;
+int LOG_TMR_draw_tot = 0;
+int LOG_TMR_draw_all = 0;
 int LOG_TMR_sdif = 0;
 int LOG_TMR_cdif = 0;
 int LOG_TMR_rwnd = 0;
@@ -446,8 +451,8 @@ float WX_shift_speed = 0;
 
 int viewport_mode = 1;
 int viewport_show_hyst = 0;
-int viewport_x_div = 8;
-int viewport_y_div = 12;
+float viewport_x_div = 8;
+float viewport_y_div = 12;
 
 
 
@@ -462,6 +467,7 @@ int level_display_region_w;
 int level_display_region_h;
 
 int display_transform_double = 1;
+int display_transform_double_max = 3;
 int saved_display_transform_double = -1;
 int show_dtd = 0;
 
