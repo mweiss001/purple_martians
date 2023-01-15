@@ -130,39 +130,35 @@ void proc_event_queue(void)
 void draw_frame(void)
 {
    double t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
-   if (LOG_TMR_draw) t0 = al_get_time();
+   if ((LOG_TMR_draw_tot) || (LOG_TMR_draw_all)) t0 = al_get_time();
    get_new_background(1);
-   if (LOG_TMR_draw) t1 = al_get_time();
+   if (LOG_TMR_draw_all) t1 = al_get_time();
    draw_lifts();
-   if (LOG_TMR_draw) t2 = al_get_time();
+   if (LOG_TMR_draw_all) t2 = al_get_time();
    draw_items();
-   if (LOG_TMR_draw) t3 = al_get_time();
+   if (LOG_TMR_draw_all) t3 = al_get_time();
    draw_enemies();
-   if (LOG_TMR_draw) t4 = al_get_time();
+   if (LOG_TMR_draw_all) t4 = al_get_time();
    draw_ebullets();
-   if (LOG_TMR_draw) t5 = al_get_time();
+   if (LOG_TMR_draw_all) t5 = al_get_time();
    draw_pbullets();
-   if (LOG_TMR_draw) t6 = al_get_time();
+   if (LOG_TMR_draw_all) t6 = al_get_time();
    draw_players();
-   if (LOG_TMR_draw) t7 = al_get_time();
+   if (LOG_TMR_draw_all) t7 = al_get_time();
    get_new_screen_buffer(0, 0, 0);
-   if (LOG_TMR_draw) t8 = al_get_time();
+   if (LOG_TMR_draw_all) t8 = al_get_time();
    draw_screen_overlay();
-   if (LOG_TMR_draw) t9 = al_get_time();
+   if (LOG_TMR_draw_all) t9 = al_get_time();
    al_flip_display();
-   if (LOG_TMR_draw) t10 = al_get_time();
-
-   sprintf(msg, "tmst back:[%0.4f] lifts:[%0.4f] items:[%0.4f] enem:[%0.4f] ebul:[%0.4f] pbul:[%0.4f] play:[%0.4f] buff:[%0.4f] ovrl:[%0.4f] flip:[%0.4f] totl:[%0.4f]\n",
-   (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t7-t6)*1000, (t8-t7)*1000, (t9-t8)*1000, (t10-t9)*1000, (t10-t0)*1000);
-
-   add_log_entry2(44, 0, msg);
-
-//   printf("\n%s\n", msg);
-
-
-
-
-//   if (LOG_TMR_draw) add_log_TMR(al_get_time() - t0, "draw", 0);
+   if (LOG_TMR_draw_all)
+   {
+      t10 = al_get_time();
+      sprintf(msg, "tmst bkgr:[%0.4f] lift:[%0.4f] item:[%0.4f] enem:[%0.4f] ebul:[%0.4f] pbul:[%0.4f] plyr:[%0.4f] buff:[%0.4f] ovrl:[%0.4f] flip:[%0.4f] totl:[%0.4f]\n",
+      (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t7-t6)*1000, (t8-t7)*1000, (t9-t8)*1000, (t10-t9)*1000, (t10-t0)*1000);
+      //printf("\n%s\n", msg);
+      add_log_entry2(44, 0, msg);
+   }
+   if (LOG_TMR_draw_tot) add_log_TMR(al_get_time() - t0, "draw", 0);
 }
 
 
@@ -170,14 +166,32 @@ void draw_frame(void)
 
 void move_frame(void)
 {
-   if (LOG_TMR_move) t0 = al_get_time();
+   double t1, t2, t3, t4, t5, t6;
+   if ((LOG_TMR_move_tot) || (LOG_TMR_move_all)) t0 = al_get_time();
    move_ebullets();
+   if (LOG_TMR_move_all) t1 = al_get_time();
    move_pbullets();
+   if (LOG_TMR_move_all) t2 = al_get_time();
    move_lifts(0);
+   if (LOG_TMR_move_all) t3 = al_get_time();
    move_players();
+   if (LOG_TMR_move_all) t4 = al_get_time();
    move_enemies();
+   if (LOG_TMR_move_all) t5 = al_get_time();
    move_items();
-   if (LOG_TMR_move) add_log_TMR(al_get_time() - t0, "move", 0);
+   if (LOG_TMR_move_all)
+   {
+      t6 = al_get_time();
+      sprintf(msg, "tmst ebul:[%0.4f] pbul:[%0.4f] lift:[%0.4f] plyr:[%0.4f] enem:[%0.4f] item:[%0.4f] totl:[%0.4f]\n",
+      (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t6-t0)*1000);
+      //printf("\n%s\n", msg);
+      add_log_entry2(44, 0, msg);
+   }
+
+
+
+
+   if (LOG_TMR_move_tot) add_log_TMR(al_get_time() - t0, "move", 0);
 }
 
 
@@ -207,6 +221,33 @@ int have_all_players_acknowledged(void)
    for (int p=0; p<NUM_PLAYERS; p++)
       if ((players[p].active) && (!has_player_acknowledged(p))) return 0;
    return 1;
+}
+
+
+
+void game_menu(void)
+{
+   old_program_state = 1;
+   if (!splash_screen_done) { splash_screen(); splash_screen_done = 1; }
+   if (!resume_allowed) load_level(start_level, 0);
+   if (top_menu_sel < 3) top_menu_sel = 3;
+   while (top_menu_sel != 1)
+   {
+      top_menu_sel = zmenu(7, top_menu_sel, 10);
+      if  (top_menu_sel == 1)  { program_state = 0;                                           return; } // exit
+      if  (top_menu_sel == 2)  { visual_level_select(); top_menu_sel = 3;                             } // visual level select
+      if ((top_menu_sel == 4) && (resume_allowed)) { new_program_state = 13;                  return; } // resume game
+      if  (top_menu_sel == 3)  { new_program_state = 10;  top_menu_sel = 4;                   return; } // start new game
+      if  (top_menu_sel == 5)  { new_program_state = 20;                                      return; } // host network game
+      if  (top_menu_sel == 6)  { new_program_state = 24;                                      return; } // join network game
+      if  (top_menu_sel == 7)  { new_program_state = 3;                                       return; } // settings
+      if  (top_menu_sel == 8)  { play_level = edit_menu(start_level); new_program_state = 10; return; } // level editor
+      if  (top_menu_sel == 9)  { new_program_state = 2;  older_program_state = 1;             return; } // demo mode
+      if  (top_menu_sel == 10)                                                                help(""); // help
+      if (top_menu_sel == 102) if (++start_level > 399) start_level = 399; // start level inc
+      if (top_menu_sel == 202) if (--start_level < 1) start_level = 1;     // start level dec
+      if (top_menu_sel > 100) { set_start_level(start_level); load_level(start_level, 0); top_menu_sel = 2; }
+   }
 }
 
 void proc_program_state(void)

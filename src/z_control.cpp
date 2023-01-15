@@ -383,33 +383,39 @@ void function_key_check(void)
       if (key[ALLEGRO_KEY_F6][0]) set_scale_factor(scale_factor * 1.1, 0);
       if ((key[ALLEGRO_KEY_F5][0]) && (key[ALLEGRO_KEY_F6][0])) set_scale_factor(1, 1);
 
-      if ((!ima_client) && (!ima_server)) // only adjust speed if not in netgame
-      {
-         if (key[ALLEGRO_KEY_F7][2])
-         {
-            if (SHFT() && CTRL()) frame_speed -=1000;
-            else if (SHFT())      frame_speed -=100;
-            else if (CTRL())      frame_speed -=20;
-            else                  frame_speed -=1;
-            if (frame_speed < 5)  frame_speed =5;
-            set_speed();
-         }
 
-         if (key[ALLEGRO_KEY_F8][2])
+
+      if (!speed_control_lock)
+      {
+         if ((!ima_client) && (!ima_server)) // only adjust speed if not in netgame
          {
-            if (SHFT() && CTRL()) frame_speed +=1000;
-            else if (SHFT())      frame_speed +=100;
-            else if (CTRL())      frame_speed +=20;
-            else                  frame_speed += 1;
-            if (frame_speed > 100000) frame_speed = 100000;
+            if (key[ALLEGRO_KEY_F7][2])
+            {
+               if (SHFT() && CTRL()) frame_speed -=1000;
+               else if (SHFT())      frame_speed -=100;
+               else if (CTRL())      frame_speed -=20;
+               else                  frame_speed -=1;
+               if (frame_speed < 5)  frame_speed =5;
+               set_speed();
+            }
+            if (key[ALLEGRO_KEY_F8][2])
+            {
+               if (SHFT() && CTRL()) frame_speed +=1000;
+               else if (SHFT())      frame_speed +=100;
+               else if (CTRL())      frame_speed +=20;
+               else                  frame_speed += 1;
+               if (frame_speed > 100000) frame_speed = 100000;
+               set_speed();
+            }
+         }
+         if ((key[ALLEGRO_KEY_F7][0]) && (key[ALLEGRO_KEY_F7][1]) && (key[ALLEGRO_KEY_F8][0]) && (key[ALLEGRO_KEY_F8][1]))
+         {
+            frame_speed = 40;
             set_speed();
          }
       }
-      if ((key[ALLEGRO_KEY_F7][0]) && (key[ALLEGRO_KEY_F7][1]) && (key[ALLEGRO_KEY_F8][0]) && (key[ALLEGRO_KEY_F8][1]))
-      {
-         frame_speed = 40;
-         set_speed();
-      }
+
+
 
       if (key[ALLEGRO_KEY_F9][2]);
 

@@ -212,7 +212,7 @@ void cycle_display_transform(void)
 {
    float old_display_transform_double = display_transform_double;
 
-   if (++saved_display_transform_double>3) saved_display_transform_double = 0;
+   if (++saved_display_transform_double>display_transform_double_max) saved_display_transform_double = 0;
    save_config();
 
 

@@ -4467,10 +4467,360 @@ tmst back:[0.0060] lifts:[0.0207] items:[0.5058] enem:[0.0101] ebul:[0.0001] pbu
 tmst back:[0.0053] lifts:[0.0197] items:[0.5073] enem:[0.0097] ebul:[0.0001] pbul:[0.0002] play:[0.0033] buff:[0.0112] ovrl:[0.1181] flip:[0.1382]
 tmst back:[0.0060] lifts:[0.0206] items:[0.5062] enem:[0.0096] ebul:[0.0002] pbul:[0.0001] play:[0.0034] buff:[0.0108] ovrl:[0.1169] flip:[0.1311]
 
-its 150 lines!!!
-
+its 150 char
 
 lets log it...
+
+
+
+20230114 8:44 AM
+
+working on timestamp logging today....at least for now...
+
+have move and draw done
+total and all individual..
+
+now work on graph and pop up values...
+show series and accurate units
+
+units done
+series name done
+
+
+I have this stupid bug that is annoying me....
+
+I have text drawing routines I have made that can take either 'font' pristine or 'f3' pixel gosub
+
+I have been making good use of:
+al_get_text_dimensions(f3, text, &bx, &by, &bw, &bh);
+
+I have no problems with the width but the bh and by sometimes do strange things...
+
+mostly by
+
+I want to do some experiment with these fonts to see if I can make a solution
+
+I just want my text to line up consistantly
+
+what is the character range?
+
+pristine 32-127
+pixel_gosub 32-127
+
+
+what is the max and min for bx, by, bw, bh
+
+
+the built in font has all 0 0 8 8...nice
+
+how did stuff not break when I changed to pristine??
+why does it still draw with 8 8 like the old one....
+
+
+
+
+int al_get_font_line_height(const ALLEGRO_FONT *f)
+
+font and font0 are 8
+f3 is 9??? WTF
+
+looking into it: almost everything I care about in f3 is 5 high
+exceptions:
+Q - 6
+{} () | $ are 7
+
+also all the ones that are bh5 are also by4...this would cover 99% of what I do with them....
+
+
+so to make some code common.....
+
+do not use al_get_text_dimensions for height...
+you can us it for width, that seems to be fine
+
+have my own custom get text_height thing...
+for font or font0, always return 0 8
+for f3 always return -4 5
+
+void mw_get_text_height(ALLEGRO_FONT *f, int by, int bw)
+{
+   if (f == f3)    { by = 4; bh = 5; }
+   if (f == font)  { by = 0; bh = 8; }
+   if (f == font0) { by = 0; bh = 8; }
+}
+
+this is just craxy enough to work!
+
+what can I do to test it?
+
+make an example that shows the problem...
+
+
+function that you send a char, font, color, x, y and it prints that in a nice bounding box with 1 pixel border.
+then test that funtion with various fonts and text strings....
+
+I think I got it!
+
+2 steps:
+- use my function to get text dimensions
+- use bx and by when drawing text
+this seems to work for all cases
+
+void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, int &bw, int &bh)
+{
+   al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
+   if (f == f3)    { by = 4; bh = 5; }
+   if (f == font)  { by = 0; bh = 8; }
+   if (f == font0) { by = 0; bh = 8; }
+}
+
+void draw_text_in_box(const char* txt, ALLEGRO_FONT *f, int x, int y, int color, int type)
+{
+   int bx, by, bw, bh;
+
+   if (type == 0) // the regular method
+   {
+      al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
+      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
+      al_draw_textf(f, palette_color[color], x+2, y+2, 0, txt);
+   }
+   if (type == 1) // use bx, by to offset text
+   {
+      al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
+      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
+      al_draw_textf(f, palette_color[color], x+2-bx, y+2-by, 0, txt);
+   }
+
+   if (type == 2) // use my method to force by offset and bh size
+   {
+      mw_get_text_dimensions(f, txt, bx, by, bw, bh);
+      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
+      al_draw_textf(f, palette_color[color], x+2-bx, y+2-by, 0, txt);
+   }
+}
+
+
+void temp_test(void)
+{
+   al_set_target_backbuffer(display);
+   al_clear_to_color(palette_color[0]);
+
+   ALLEGRO_FONT *f = font;
+
+   for (int j=0; j<3; j++)
+      for (int i=0; i<3; i++)
+      {
+         if (i == 0) f = font;
+         if (i == 1) f = font0;
+         if (i == 2) f = f3;
+
+         draw_text_in_box("Hellg", f, 100, 100 + i*20 + j*100, 10, j);
+         draw_text_in_box("Hello", f, 150, 100 + i*20 + j*100, 10, j);
+         draw_text_in_box("emmem", f, 200, 100 + i*20 + j*100, 10, j);
+         draw_text_in_box("e{3}",  f, 250, 100 + i*20 + j*100, 10, j);
+      }
+}
+
+
+lets try it out...
+
+where to put my function...in z_fnx...
+
+fixed draw point...perfect...
+
+now lets go through graph, and fix all.....
+
+basically just search for al_get_text_dimensions
+
+make series legend text x + 1
+what if I load that font with no kerning???
+
+
+it is loaded with no kerning...
+
+force bx for that font?? yes...and bw...remember, this font is suppose to be 8x8
+
+void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, int &bw, int &bh)
+{
+    // first get from the allegro method
+   al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
+
+   // then override for my nefarious purposes!
+   if (f == f3)    { by = 4; bh = 5; }
+   if (f == font)  { by = 0; bh = 8; bx = 0; bw = 8*strlen(txt); }
+   if (f == font0) { by = 0; bh = 8; }
+}
+
+
+done all the mw_get_text_dimensions in mwGraph....
+
+I should add some code to see if labels are touching each other because they are too close...
+try x axis first....i have it working....
+labels can only be powers of 10....that is fine...
+what would the whole thing look like if I used this to set major instaed of bewyeen 2 and 20...gave up...
+
+oh this is done...
+
+now what the hell was I doing before?
+
+just added move profiling...
+
+
+better auto colors in graph...
+make a function to set colors...just skip 0....done....
+
+now fix the goddam 2 line drawing bug....done...
+
+take a break and come back for more....
+
+
+now I want to go inside the move enemy and break down individual types..same with draw....
+
+
+Hysterisis window following player
+lots of options there
+
+can I make the hyst div number make more sense?
+
+its a fraction of screen size...
+
+2 is max
+
+how about 1/num * 2 that was 1 will be widest
+
+20 min 1/20 * 2 == .1
+
+save as float from 0.01 to 1
+
+when using it do 1/num and divide by 2....
+
+i use it to divide SCREEN_W and H so now I can just muliply instead...done...
+
+this settings page works, but could use some polish
+
+
+
+
+
+
+make a header of mwGraph and move header there
+
+
+what have you done?
+
+made z_mwGraph.h
+
+put the class declaration there
+and at the end of the class declaration:
+extern mwGraph mG[10];
+
+
+
+// z_mwGraph.cpp
+#include "pm.h"
+#include "z_mwGraph.h"
+mwGraph mG[10];
+
+
+then the only other source file that needed access was z_log.cpp and all I had to do was add
+// zlog.cpp
+#include "pm.h"
+#include "z_mwGraph.h"
+
+
+wow, that was easy...
+
+z_mwGraph.h 250 lines
+z_mwGraph.cpp 1850 lines
+
+viewport page on settings completely done....
+
+zoom is not saved...well it is, but when getting loaded it always loads 1...
+I should make sure of that then remove it from config file...not yet, just disabled and forced to 1.0 instant on load
+
+Disable speed settings including function keys
+Speed testing abilites.
+
+is speed save to config file? no and I don't think it should be
+I do want a variable to unlock speed changes though...
+
+int speed_control_lock = 1;
+
+
+done...
+
+
+I have all the stuff in place for display trandform double, just need to make it look nice...
+
+
+20230114 9:45PM...push
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

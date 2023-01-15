@@ -115,7 +115,6 @@
 		<Unit filename="src/z_enemy.cpp" />
 		<Unit filename="src/z_file.cpp" />
 		<Unit filename="src/z_fnx.cpp" />
-		<Unit filename="src/z_game_menu.cpp" />
 		<Unit filename="src/z_item.cpp" />
 		<Unit filename="src/z_lift.cpp" />
 		<Unit filename="src/z_log.cpp" />
@@ -124,10 +123,12 @@
 		<Unit filename="src/z_main.cpp" />
 		<Unit filename="src/z_menu.cpp" />
 		<Unit filename="src/z_mwGraph.cpp" />
+		<Unit filename="src/z_mwGraph.h" />
 		<Unit filename="src/z_ping_buffer.cpp" />
 		<Unit filename="src/z_player.cpp" />
 		<Unit filename="src/z_screen.cpp" />
 		<Unit filename="src/z_screen_overlay.cpp" />
+		<Unit filename="src/z_settings.cpp" />
 		<Unit filename="src/z_sound.cpp" />
 		<Extensions />
 	</Project>

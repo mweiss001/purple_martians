@@ -339,55 +339,65 @@ memcpy(&out,arr2,sizeof(out));
 
 
 
+//
+//void draw_text_in_box(const char* txt, ALLEGRO_FONT *f, int x, int y, int color, int type)
+//{
+//   int bx, by, bw, bh;
+//
+//   if (type == 0) // the regular method
+//   {
+//      al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
+//      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
+//      al_draw_textf(f, palette_color[color], x+2, y+2, 0, txt);
+//   }
+//   if (type == 1) // use bx, by to offset text
+//   {
+//      al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
+//      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
+//      al_draw_textf(f, palette_color[color], x+2-bx, y+2-by, 0, txt);
+//   }
+//
+//   if (type == 2) // use my method to force by offset and bh size
+//   {
+//      mw_get_text_dimensions(f, txt, bx, by, bw, bh);
+//      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
+//      al_draw_textf(f, palette_color[color], x+2-bx, y+2-by, 0, txt);
+//   }
+//
+//}
+
+
+
+
 
 void temp_test(void)
 {
    al_set_target_backbuffer(display);
    al_clear_to_color(palette_color[0]);
 
-
-
+//   ALLEGRO_FONT *f = font;
+//   for (int j=0; j<3; j++)
+//      for (int i=0; i<3; i++)
+//      {
+//         if (i == 0) f = font;
+//         if (i == 1) f = font0;
+//         if (i == 2) f = f3;
 //
-//   // al_draw_line(100, 110, 200, 110, palette_color[15], 1);
-//
-//
-//   int lco = 0;
-//
-//
-////   mw_draw_line(100, 150, 200, 350, 1, 8, 15, 4, 10, 3, 8, lco);
-////   mw_draw_line(200, 180, 800, 180, 1.0, 30, 15, 30, 10, 30, 14, lco);
-////
-////   mw_draw_line(200, 200, 220, 200, 1.0, 30, 15, 30, 10, 30, 14, lco);
-////   mw_draw_line(220, 200, 220, 220, 1.0, 30, 15, 30, 10, 30, 14, lco);
-////   mw_draw_line(220, 220, 200, 220, 1.0, 30, 15, 30, 10, 30, 14, lco);
-////   mw_draw_line(200, 220, 200, 200, 1.0, 30, 15, 30, 10, 30, 14, lco);
-//
-//   int a = 10;
-//
-//   mw_draw_line(300, 300, 380, 300, 1.0, 30, 15, 30, 10, a, 14, lco);
-//   mw_draw_line(380, 300, 380, 380, 1.0, 30, 15, 30, 10, a, 14, lco);
-//   mw_draw_line(380, 380, 300, 380, 1.0, 30, 15, 30, 10, a, 14, lco);
-//   mw_draw_line(300, 380, 300, 300, 1.0, 30, 15, 30, 10, a, 14, lco);
-//
-//
-////   mw_draw_line(400, 400, 505, 400, 1.0, 30, 15, 30, 10, 30, 14, lco);
-////   mw_draw_line(505, 400, 505, 630, 1.0, 30, 15, 30, 10, 30, 14, lco);
-////   mw_draw_line(505, 630, 450, 630, 1.0, 30, 15, 30, 10, 30, 14, lco);
-////   mw_draw_line(450, 630, 400, 400, 1.0, 30, 15, 30, 10, 30, 14, lco);
-//
-//
-//
-//
+//         draw_text_in_box("Hellg", f, 100, 100 + i*20 + j*100, 10, j);
+//         draw_text_in_box("Hello", f, 150, 100 + i*20 + j*100, 10, j);
+//         draw_text_in_box("emmem", f, 200, 100 + i*20 + j*100, 10, j);
+//         draw_text_in_box("e{3}",  f, 250, 100 + i*20 + j*100, 10, j);
+//      }
 //
 //   al_flip_display();
 //   tsw();
-
-
-
-
-
 //
 //
+
+
+
+
+//   // testing 3 segment line draw
 //   int quit = 0;
 //   while (!quit)
 //   {
@@ -428,8 +438,8 @@ void temp_test(void)
 //      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 //   }
 //
-//
 
+//   // testing 2 segment line draw
 //   int quit = 0;
 //   while (!quit)
 //   {
@@ -468,7 +478,7 @@ void temp_test(void)
 //      proc_controllers();
 //      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 //   }
-//
+
 
 
 
@@ -500,8 +510,10 @@ void temp_test(void)
 //void load_profile_graph(void);
 //load_profile_graph();
 
-void load_profile_graph2(void);
-load_profile_graph2();
+
+// load_profile_graph();
+
+
 
 
 //   settings_pages(6);
