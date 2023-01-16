@@ -23,6 +23,10 @@ does not actually set lift's current step to steps that are not move steps
 bug -- in level editor can't see trigger box edges on left or top if zero
 
 
+I think my hotkey L is triggering level editor on client....disbaled for now, test later
+// found and fixed one bug, reanabled see if it happens again
+
+
 
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
@@ -32,28 +36,89 @@ bug -- in level editor can't see trigger box edges on left or top if zero
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+in hyst gradual:
+if you are running in one direction, you will be pushed up against the hyst for that direction
+I want it be be ahead of you so you can see where you are going
+same with jumping and falling and rockets
+some way of using players speed....
+
+add a reset to defaults button on hyst
+maybe also on display text double
+
+
+Make it so that when you leave settings, you come back on start?
+not sure if that will work...possibly if called with shortcut?
+
+
+
+Make it so that the log graphs can all be loaded directly from settings.
+
+
+
 Things to add to settings:
-
 Speed testing abilites.
-
 bottom message settings
-
 Special function keys and what they do
-
 F12
 F10
 PRINTSCREEN
 etc
-
 I could make these all configurable, just like the other menu keys
 
 
 
 
-
-
-
 what are the next things I can profile?
+how long does it take client to decompress, run a dif, rewind?
+how long does a bomb explosion take?
+low long does it take to switch blocks?
+how long does it take to draw all the blocks?
+how long does it take to draw all messages?
+
+can I assume that the items and enemies are all sorted by type?
+then I could just time type easier?
+
+
+what about the other timing thing I was going to do?
+start of frame, and where everything else happened....not sure how useful that will be....
+
+what about a fancy on screen scrolling graph that shows the netgame stuff.
+kind of like a ping graph, but real time.
+
+I have been getting a lot of jitter in the ping and dsync things. maybe its due to when in the cycle I am sending it.
+
+like if its after the draw and move and they take a variable time, that could make it look like jitter...
+it is possible to send on a more regulay time?
+
+I don't think I want to delay stdf's or cdats, they need to get there as absolutley fast as possible,
+but maybe the ping stuff could be sent at the start of the frame, instead of after move and draw.
+or even anytime in between frames...
+
+I wanted to experiment with differnt s1 and s2 values, but I wanted to be able to actually measure some effect it has.
+that was the big push behind the program state thing, then the graph thing, then the settings menu because I want to be able
+to measure stuff...
+
+
 
 
 

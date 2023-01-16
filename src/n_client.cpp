@@ -16,7 +16,7 @@ int ClientInitNetwork(const char *serveraddress)
    {
       sprintf(msg, "Error: failed to initialize network");
       m_err(msg);
-      if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+      if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       return 0;
    }
    if (TCP)
@@ -26,14 +26,14 @@ int ClientInitNetwork(const char *serveraddress)
       {
          sprintf(msg, "Error: Client failed to create netconnection (TCP)");
          m_err(msg);
-         if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
          return 0;
       }
       if(net_connect(ServerConn, serveraddress))
       {
          sprintf(msg, "Error: Client failed to set netconnection target: server[%s] (TCP)", serveraddress);
          m_err(msg);
-         if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
          net_closeconn(ServerConn);
    		return 0;
    	}
@@ -47,7 +47,7 @@ int ClientInitNetwork(const char *serveraddress)
          sprintf(msg, "Error: Client failed to create netchannel (UDP)");
          printf("%s\n", msg);
          m_err(msg);
-         if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
          return 0;
       }
       if (net_assigntarget(ServerChannel, serveraddress))
@@ -60,7 +60,7 @@ int ClientInitNetwork(const char *serveraddress)
       }
       sprintf(msg, "Client network (UDP) initialized: server:%s local address%s", serveraddress, net_getlocaladdress(ServerChannel));
       printf("%s\n", msg);
-      if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+      if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
    }
 
 
@@ -78,7 +78,7 @@ int ClientInitNetwork(const char *serveraddress)
          got_reply = 1;
          sprintf(msg,"Got reply from server");
          printf("%s\n", msg);
-         if (LOG_NET) add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       }
       else
       {
@@ -90,7 +90,7 @@ int ClientInitNetwork(const char *serveraddress)
             printf("%s\n", msg);
             if (LOG_NET)
             {
-                add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+                add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
                 add_log_entry_centered_text(10, 0, 76, "", "+", "-");
             }
             return 0;
@@ -151,20 +151,16 @@ int ClientReceive(void *data)
    int len;
    if (TCP) len = net_receive_rdm(ServerConn, data, 1024);
    else    	len = net_receive(ServerChannel, data, 1024, NULL);
-   #ifdef NETPLAY_bandwidth_tracking
    players1[active_local_player].rx_current_bytes_for_this_frame+= len;
    players1[active_local_player].rx_current_packets_for_this_frame++;
-   #endif
 	return len;
 }
 void ClientSend(void *data, int len)
 {
    if (TCP) net_send_rdm(ServerConn, data, len);
    else     net_send(ServerChannel, data, len);
-   #ifdef NETPLAY_bandwidth_tracking
    players1[active_local_player].tx_current_bytes_for_this_frame+= len;
    players1[active_local_player].tx_current_packets_for_this_frame++;
-   #endif
 }
 
 void client_flush(void)
@@ -408,8 +404,7 @@ void client_timer_adjust(void)
    players1[p].client_chase_fps = fps_chase;
 
    sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.2f]\n", players1[p].dsync*1000, players1[p].client_chase_offset*1000, fps_chase);
-   if (LOG_NET_stdf_all_packets) add_log_entry2(36, p, msg);
-
+   if (LOG_NET_client_timer_adj) add_log_entry2(36, p, msg);
 }
 
 
@@ -467,8 +462,6 @@ void client_process_stdf_packet(double timestamp)
 
 void process_bandwidth_counters(int p)
 {
-   #ifdef NETPLAY_bandwidth_tracking
-
    // get maximums per frame
    if (players1[p].tx_current_packets_for_this_frame > players1[p].tx_max_packets_per_frame)
       players1[p].tx_max_packets_per_frame = players1[p].tx_current_packets_for_this_frame;
@@ -533,7 +526,6 @@ void process_bandwidth_counters(int p)
 //      players1[p].moves_skipped_last_tally = players1[p].moves_skipped - players1[p].moves_skipped_tally;
 //      players1[p].moves_skipped_tally = players1[p].moves_skipped;
    }
-   #endif
 }
 
 void client_proc_player_drop(void)
@@ -546,11 +538,9 @@ void client_proc_player_drop(void)
       float stretch = ( (float)SCREEN_W / (strlen(msg)*8)) - 1;
       rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, players[p].color, stretch, 0, 1);
       al_flip_display();
-      al_rest(1);
-      //tsw();
-
+      tsw();
       players1[p].quit_reason = 92;
-   //   log_ending_stats(p);
+      if (LOG_NET) log_ending_stats(p);
       new_program_state = 1;
    }
 
@@ -574,11 +564,9 @@ void client_proc_player_drop(void)
          float stretch = ( (float)SCREEN_W / (strlen(msg)*8)) - 1;
          rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, players[p].color, stretch, 0, 1);
          al_flip_display();
-         al_rest(1);
          tsw();
-
          players1[p].quit_reason = 75;
-    //     log_ending_stats(p);
+         if (LOG_NET) log_ending_stats(p);
          new_program_state = 25;
       }
    }

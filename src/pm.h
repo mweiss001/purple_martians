@@ -557,14 +557,13 @@ extern int LOG_NET_join;
 extern int LOG_NET_player_array;
 extern int LOG_NET_bandwidth;
 extern int LOG_NET_cdat;
-extern int LOG_NET_game_move;
-extern int LOG_NET_sdat;
-extern int LOG_NET_sdak;
 extern int LOG_NET_stdf;
 extern int LOG_NET_stdf_all_packets;
 extern int LOG_NET_stdf_when_to_apply;
-extern int LOG_NET_show_dif1;
-extern int LOG_NET_show_dif2;
+extern int LOG_NET_client_ping;
+extern int LOG_NET_client_timer_adj;
+extern int LOG_NET_server_rx_stak;
+
 
 extern int LOG_TMR_move_tot;
 extern int LOG_TMR_move_all;
@@ -584,9 +583,6 @@ extern int autosave_log_on_level_done;
 extern int autosave_game_on_game_exit;
 extern int autosave_game_on_level_done;
 
-
-
-#define NETPLAY_bandwidth_tracking
 
 
 // ------------------------------------------------
@@ -1476,6 +1472,7 @@ void clear_keys(void);
 void get_all_keys(int x, int y, int tc, int bts);
 void test_keys(int x, int y);
 void set_start_level(int s);
+void set_player_color(int p, int c);
 void set_speed(void);
 void set_controls_to_custom_sets(int s);
 
@@ -1619,7 +1616,6 @@ void state_to_game_vars(char * b);
 void get_state_dif(char *a, char *b, char *c, int size);
 void apply_state_dif(char *a, char *c, int size);
 void reset_states(void);
-void show_state_dif(char *a, char *b);
 int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra);
 void demo_mode(void);
 
@@ -1726,6 +1722,8 @@ int load_log_lines_array_from_static_file(const char* f);
 void log_ping_graph(int num_lines);
 void log_client_server_sync_graph(int num_lines);
 void log_bandwidth_graph(int num_lines, int both);
+void show_code_stats(void);
+
 
 
 

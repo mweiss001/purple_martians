@@ -223,16 +223,13 @@ int copy_files_to_clients(int exe_only)
 
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
+   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
 
-//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-//
 
-
-//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-//
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
 //
 
@@ -393,9 +390,6 @@ void temp_test(void)
 //   tsw();
 //
 //
-
-
-
 
 //   // testing 3 segment line draw
 //   int quit = 0;
