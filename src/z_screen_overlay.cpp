@@ -1,6 +1,8 @@
 // z_screen_overlay.cpp
 
 #include "pm.h"
+#include "z_qGraph.h"
+
 
 void show_player_stat_box(int tx, int y, int p)
 {
@@ -790,6 +792,24 @@ void draw_top_display(void)
       if (ima_server) al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total game moves:%d", game_move_entry_pos);
 
 
+//      if (get_delta(frame_num-1,   1, frame_num-1,   7, t0)) al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "CPU:%2.1f\n",(t0/0.025)*100);
+//      printf("CPU:%2.1f\n",(t0/0.025)*100);
+
+
+//       get_delta(frame_num-1,   1, frame_num-1,   7, t0);
+//       double cpu = (t0/0.025)*100;
+//
+//       qG[0].add_data(0, cpu);
+
+       sprintf(qG[0].series[0].name, "CPU");
+       qG[0].series[0].color = 13;
+       qG[0].series[0].active = 1;
+
+       qG[0].width = 200;
+       qG[0].height = 36;
+       qG[0].draw_graph(SCREEN_W-228, SCREEN_H-56);
+
+
       cy+=4;
 
 
@@ -1042,12 +1062,38 @@ void draw_top_display(void)
       if (show_debug_overlay) // show a bunch of data for troubleshooting
       {
 
+         double ds = -players1[p].dsync    * 1000; // the current value of dsync for display
+         double pa = players1[p].ping_avg * 1000;
+
+         qG[1].add_data(0, ds);
+         qG[1].add_data(1, pa);
+
+         sprintf(qG[1].series[0].name, "SYNC");
+         qG[1].series[0].color = 10;
+         qG[1].series[0].active = 1;
+
+         sprintf(qG[1].series[1].name, "PING");
+         qG[1].series[1].color = 14;
+         qG[1].series[1].active = 1;
+
+
+         qG[1].width = 200;
+         qG[1].height = 40;
+         qG[1].draw_graph(SCREEN_W-228, SCREEN_H-36-48-20);
+
+
+//       qG[0].draw_graph(SCREEN_W-228, SCREEN_H-36);
+
+
+
          // client sync graph and buttons
-         int csx1 = cx;
+         int csx1 = SCREEN_W - 160;
+//         int csx1 = cx;
          int csw = 140;
          int csx2 = csx1 + csw;
 
-         int csy1 = cy+20;
+         int csy1 = SCREEN_H-36-48-20-60;
+         //int csy1 = cy+20;
          int csh = 43;
          int csy2 = csy1 + csh;
 

@@ -182,16 +182,12 @@ int ServerInitNetwork() // Initialize the server
    		return -1;
    	}
       sprintf(msg, "Network initialized - channel mode (UDP)");
-//      printf("%s\n", msg);
-//      if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-      printf("Local address of channel%s\n", net_getlocaladdress (ListenChannel));
-
+      // printf("Local address of channel%s\n", net_getlocaladdress (ListenChannel));
 
    } // end of UDP
 
    printf("%s\n", msg);
    if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-
 	return 0;
 }
 
@@ -212,9 +208,9 @@ void ServerListen() // Check for connecting clients (0 = ok, got new connection,
 
          if (LOG_NET)
          {
-            add_log_entry_centered_text(11, 0, 76, "", "+", "-");
-            add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-            add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+            add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+            add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+            add_log_entry_centered_text(10, 0, 76, "", "+", "-");
          }
       }
    } // end of if TCP
@@ -234,7 +230,7 @@ void ServerListen() // Check for connecting clients (0 = ok, got new connection,
          if (PacketRead("1234"))
          {
             sprintf(msg, "Server received initial 1234 packet from '%s'",address);
-            printf("%s\n", msg);
+            // printf("%s\n", msg);
 
             if (!(ClientChannel[ClientNum] = net_openchannel(NetworkDriver, NULL)))
             {
@@ -255,9 +251,9 @@ void ServerListen() // Check for connecting clients (0 = ok, got new connection,
             printf("%s\n", msg);
             if (LOG_NET)
             {
-               add_log_entry_centered_text(11, 0, 76, "", "+", "-");
-               add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-               add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+               add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+               add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+               add_log_entry_centered_text(10, 0, 76, "", "+", "-");
             }
             Packet("5678");
             ServerSendTo(packetbuffer, packetsize, ClientNum, 0);
@@ -286,7 +282,6 @@ int ServerReceive(void *data, int *sender)
    		   int l = net_receive_rdm(ClientConn[n], data, 1024);
    			if(l > 0)
             {
-               #ifdef NETPLAY_bandwidth_tracking
                // add to server's counts
                players1[0].rx_current_bytes_for_this_frame += l;
                players1[0].rx_current_packets_for_this_frame++;
@@ -298,7 +293,6 @@ int ServerReceive(void *data, int *sender)
                      players1[p].rx_current_bytes_for_this_frame += l;
                      players1[p].rx_current_packets_for_this_frame++;
                   }
-               #endif
    				if(sender) *sender = n;
    				return l;
    			}
@@ -314,7 +308,6 @@ int ServerReceive(void *data, int *sender)
             int l = net_receive(ClientChannel[n], data, 1024, NULL);
    			if(l > 0)
             {
-               #ifdef NETPLAY_bandwidth_tracking
                // add to server's counts
                players1[0].rx_current_bytes_for_this_frame += l;
                players1[0].rx_current_packets_for_this_frame++;
@@ -326,7 +319,6 @@ int ServerReceive(void *data, int *sender)
                      players1[p].rx_current_bytes_for_this_frame += l;
                      players1[p].rx_current_packets_for_this_frame++;
                   }
-               #endif
    				if(sender) *sender = n;
    				return l;
    			}
@@ -356,15 +348,12 @@ void ServerSendTo(void *data, int len, int who, int player)
 {
    if (TCP) net_send_rdm(ClientConn[who], data, len);
    else     net_send(ClientChannel[who], data, len);
-
-   #ifdef NETPLAY_bandwidth_tracking
    // add to server's counts
    players1[0].tx_current_bytes_for_this_frame += len;
    players1[0].tx_current_packets_for_this_frame++;
    // add to client's counts
    players1[player].tx_current_bytes_for_this_frame += len;
    players1[player].tx_current_packets_for_this_frame++;
-   #endif
 }
 void server_flush(void)
 {
@@ -738,7 +727,7 @@ void server_proc_stak_packet(void)
    }
 
    sprintf(msg, "%s %s\n", tmsg1, tmsg2);
-   if (LOG_NET_stdf) add_log_entry2(30, p, msg);
+   if (LOG_NET_server_rx_stak) add_log_entry2(30, p, msg);
 }
 
 void server_proc_cjon_packet(int who)
@@ -934,7 +923,6 @@ void server_control()
    server_read_packet_buffer();
    server_rewind();            // to replay and apply late client input
    server_proc_player_drop();  // check to see if we need to drop clients
-
    if (LOG_NET_player_array) log_player_array2();
    for (int p=0; p<NUM_PLAYERS; p++) if (players[p].active) process_bandwidth_counters(p);
 }

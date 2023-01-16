@@ -5,53 +5,53 @@
 void log_bandwidth_stats(int p)
 {
    sprintf(msg,"total tx bytes............[%d]", players1[p].tx_total_bytes);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max tx bytes per frame....[%d]", players1[p].tx_max_bytes_per_frame);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"avg tx bytes per frame....[%d]", players1[p].tx_total_bytes / frame_num);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx bytes per second...[%d]", players1[p].tx_max_bytes_per_tally);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"avg tx bytes per sec......[%d]", (players1[p].tx_total_bytes *40)/ frame_num);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total tx packets..........[%d]", players1[p].tx_total_packets);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max tx packets per frame..[%d]", players1[p].tx_max_packets_per_frame);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max tx packets per second.[%d]", players1[p].tx_max_packets_per_tally);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
 
    sprintf(msg,"total rx bytes............[%d]", players1[p].rx_total_bytes);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx bytes per frame....[%d]", players1[p].rx_max_bytes_per_frame);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"avg rx bytes per frame....[%d]", players1[p].rx_total_bytes / frame_num);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx bytes per second...[%d]", players1[p].rx_max_bytes_per_tally);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"avg rx bytes per sec......[%d]", (players1[p].rx_total_bytes *40)/ frame_num);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total rx packets..........[%d]", players1[p].rx_total_packets);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx packets per frame..[%d]", players1[p].rx_max_packets_per_frame);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx packets per second.[%d]", players1[p].rx_max_packets_per_tally);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 }
 
 void log_reason_for_player_quit(int p)
@@ -71,7 +71,7 @@ void log_reason_for_player_quit(int p)
    if (r == 93) sprintf(tmsg,"remote client quit");
 
    sprintf(msg,"reason for quit...........[%s]", tmsg);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 }
 
 
@@ -109,8 +109,8 @@ void log_versions(void)
 
 void log_player_array(void)
 {
-   add_log_entry_header(22, 0,  "Player Array", 0);
-   add_log_entry_position_text(22, 0, 76, 10, "[p][wh][a][co][m]", "|", " ");
+   add_log_entry_header(10, 0,  "Player Array", 0);
+   add_log_entry_position_text(10, 0, 76, 10, "[p][wh][a][co][m]", "|", " ");
    for (int p=0; p<NUM_PLAYERS; p++)
    {
       char ms[80];
@@ -135,9 +135,9 @@ void log_player_array(void)
                                               players[p].control_method,
                                               players1[p].hostname,
                                               ms );
-      add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
+      add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
    }
-   add_log_entry_centered_text(22, 0, 76, "", "+", "-");
+   add_log_entry_centered_text(10, 0, 76, "", "+", "-");
 }
 
 void log_player_array2(void)
@@ -157,95 +157,95 @@ void log_player_array2(void)
 void log_ending_stats(int p)
 {
    sprintf(msg,"Client %d (%s) ending stats", p, players1[p].hostname);
-   add_log_entry_header(22, p, msg, 0);
+   add_log_entry_header(10, p, msg, 0);
 
    sprintf(msg,"total game frames.........[%d]", frame_num);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
    sprintf(msg,"frame when client joined..[%d]", players1[p].join_frame);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    if (players1[p].quit_frame == 0) players1[p].quit_frame = frame_num;
    sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    log_reason_for_player_quit(p);
 
    sprintf(msg,"frames client was active..[%d]", players1[p].quit_frame - players1[p].join_frame);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"frames skipped............[%d]", players1[p].frames_skipped);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"cdat packets total........[%d]", players1[p].client_cdat_packets_tx);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"cdat packets late.........[%d]", players1[p].late_cdats);
-   add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    log_bandwidth_stats(p);
-   add_log_entry_centered_text(22, p, 76, "", "+", "-");
+   add_log_entry_centered_text(10, p, 76, "", "+", "-");
 }
 
 void log_ending_stats_server()
 {
    sprintf(msg,"Server (%s) ending stats", local_hostname);
-   add_log_entry_header(22, 0, msg, 0);
+   add_log_entry_header(10, 0, msg, 0);
 
-   add_log_entry_centered_text(22, 0, 76, "", "+", "-");
+   add_log_entry_centered_text(10, 0, 76, "", "+", "-");
 
    sprintf(msg,"level.....................[%d]", play_level);
-   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total frames..............[%d]", frame_num);
-   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total moves...............[%d]", game_move_entry_pos);
-   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total time (seconds)......[%d]", frame_num/40);
-   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total time (minutes)......[%d]", frame_num/40/60);
-   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
    sprintf(msg,"server frames skipped.. ..[%d]", players1[0].frames_skipped);
-   add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
+   add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
    log_bandwidth_stats(0);
 
-   add_log_entry_centered_text(22, 0, 76, "", "+", "-");
+   add_log_entry_centered_text(10, 0, 76, "", "+", "-");
 
    for (int p=1; p<NUM_PLAYERS; p++)
    {
       if ((players[p].control_method == 2) || (players[p].control_method == 8))
       {
          sprintf(msg,"Player:%d (%s)", p, players1[p].hostname);
-         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
          sprintf(msg,"frame when client joined..[%d]", players1[p].join_frame);
-         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
          if (players1[p].quit_frame == 0) players1[p].quit_frame = frame_num;
          sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
-         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
          log_reason_for_player_quit(p);
 
          sprintf(msg,"frames client was active..[%d]", players1[p].quit_frame - players1[p].join_frame);
-         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
          sprintf(msg,"frames skipped............[%d]", players1[p].frames_skipped);
-         add_log_entry_position_text(22, 0, 76, 10, msg, "|", " ");
+         add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
          sprintf(msg,"cdat packets total........[%d]", players1[p].client_cdat_packets_tx);
-         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
          sprintf(msg,"cdat packets late.........[%d]", players1[p].late_cdats);
-         add_log_entry_position_text(22, p, 76, 10, msg, "|", " ");
+         add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
          log_bandwidth_stats(p);
 
-         add_log_entry_centered_text(22, p, 76, "", "+", "-");
+         add_log_entry_centered_text(10, p, 76, "", "+", "-");
       }
    }
    log_player_array();
@@ -1006,7 +1006,7 @@ void log_ping_graph(int num_lines)
          get_tag_text(tll, res, 0);
          double fps_chase = atof(res);
 
-         //printf("d:%f o:%f c:%f\n", dsync, offset, fps_chase);
+         printf("d:%f o:%f c:%f\n", dsync, offset, fps_chase);
 
          if (dsync < 100) // ignore stupidly high ones at start
          {
@@ -1025,7 +1025,7 @@ void log_ping_graph(int num_lines)
          get_tag_text(tll, res, 0);
          double avg = atof(res);
 
-         //printf("ping:%f avg:%f\n", ping, avg);
+         printf("ping:%f avg:%f\n", ping, avg);
          mG[1].add_data_point(0, (double) fn, ping);
          mG[1].add_data_point(1, (double) fn, avg);
       }
@@ -2160,9 +2160,238 @@ void log_timestamp_graph(int num_lines)
 }
 
 
+struct code_stat
+{
+   char fname[256];
+   char name[256];
+   int lines;
+   int chars;
+   int blank_chars;
+   int blanks;
+   int code;
+   int comment;
+   int comment_only;
+   int code_only;
+   int code_and_comment;
+   int max_line_length;
+};
+
+
+void mw_code_stat(struct code_stat &cs)
+{
+   int done = 0;
+   int debug_print = 0;
+
+   cs.lines = 0;
+   cs.chars = 0;
+   cs.blank_chars = 0;
+   cs.blanks = 0;
+   cs.code = 0;
+   cs.comment = 0;
+   cs.comment_only = 0;
+   cs.code_only = 0;
+   cs.code_and_comment = 0;
+   cs.max_line_length = 0;
+
+
+   FILE *filepntr=fopen(cs.fname,"r");
+   while(!done)
+   {
+      int ch = fgetc(filepntr);
+      int loop = 0;
+      char buff[512] = {0};
+      while((ch != '\n') && (ch != EOF) && (loop < 500))
+      {
+         if (ch != 13) buff[loop++] = ch;
+         ch = fgetc(filepntr);
+      }
+      buff[loop] = 0; // terminate the string
+      if (loop >= 500) printf("log line exceeded 500 char - %s\n", buff);
+
+
+      if (debug_print) printf("%d - %s\n", cs.lines, buff);
+
+      if (ch == EOF) done = 1;
+      else
+      {
+         cs.lines++;                                          // add to line count
+         int len = strlen(buff);                           // get line length
+         cs.chars += len;                                     // add to total num of char
+         if (len > cs.max_line_length) cs.max_line_length = len; // get max line length
+         //printf("\n%d - len:%d\n%s\n", lines, len, buff);
+         if (len < 1) cs.blanks++;                            // zero length line is blank
+         else                                              // process non zero length line
+         {
+            int blank_c = 1; // set line blank by default, if any non blank space is found clear it
+            int comment_c = 0;
+            int code_c = 0;
+
+            // go through the line one char at a time
+            for (int i=0; i<len; i++)
+            {
+               int c = buff[i]; // current char
+               //printf("%c[%d] ", buff[i], buff[i]);
+
+               // look for lines that have only (9-tab or 32-space)
+               // this never fires, I think the IDE (code::blocks) does not save spaces or tabs on a line if that is the only thing on the line
+               if ((c == 9) || (c == 32)) cs.blank_chars++; // add to blank char count
+               else blank_c = 0;  // entire line has at least one non blank
+
+               if (i > 0) // look for patterns that include previous char
+               {
+                  int pc = buff[i-1];  // previous char
+                  if ((c == 47) && (pc == 47)) // current and previous are both /
+                  {
+                     comment_c = 1;
+
+                     // check if not first non blank thing on line
+                     if ((i-1) > 0)
+                     {
+                        for (int j=0; j<(i-1); j++)
+                        {
+                           int jc = buff[j];
+                           if ((jc != 9) && (jc != 32)) code_c = 1;
+                        }
+                     }
+                  }
+               }
+            }
+            if ((!blank_c) && (!comment_c)) code_c = 1; // code only (line is not blank and does not have a comment)
+            if (blank_c) cs.blanks++;
+            if (code_c) cs.code++;
+            if (comment_c) cs.comment++;
+            if ((code_c) && (comment_c)) cs.code_and_comment++;
+            if ((code_c) && (!comment_c)) cs.code_only++;
+            if ((!code_c) && (comment_c)) cs.comment_only++;
+         }
+      }
+   }
+   fclose(filepntr);
+//   printf("\n");
+//   printf("%6d - Total lines\n", lines);
+//   printf("%6d - Blank lines\n", blanks);
+//
+//   printf("%6d - Total non-blank lines\n", lines-blanks);
+//   printf("%6d - Code\n", code);
+//   printf("%6d - Comments\n", comment);
+//   printf("\n");
+//
+//   printf("%6d - Blank lines\n", blanks);
+//   printf("%6d - Code\n", code);
+//   printf("%6d - Comments\n", comment);
+//
+//   printf("%6d - Code Only\n", code_only);
+//   printf("%6d - Comment Only\n", comment_only);
+//   printf("%6d - Code and Comment\n", code_and_comment);
+//
+//   printf("--------------------\n");
+//   printf("%6d - Total lines\n", lines);
+//
+//   printf("\nmax line length: %d\n", max_line_length);
+//   printf("average length of non blank lines: %d\n", chars / (lines-blanks));
+//   printf("%6d - Total chars\n", chars);
+//   printf("%6d - Blank chars\n", blank_chars);
+//   printf("test Code:[%d] should equal Code Only:[%d] plus Code and Comments:[%d]   [%d]\n", code, code_only, code_and_comment, code_only+code_and_comment);
+//   printf("test Comment:[%d] should equal Comment Only:[%d] plus Code and Comments:[%d]   [%d]\n", comment, comment_only, code_and_comment, comment_only+code_and_comment);
+//   printf("test Total:[%d] should equal Comment Only:[%d] plus Code only:[%d] plus Code and Comments:[%d]  plus blank:[%d]   [%d]\n",
+//           lines, comment_only, code_only, code_and_comment, blanks, comment_only + code_only + code_and_comment + blanks);
+}
 
 
 
+
+
+
+
+
+void show_code_stats(void)
+{
+   struct code_stat cs[100] = {0};
+
+   char fname[1024];
+   sprintf(fname, "src/");
+   ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
+
+   // convert back to string
+   sprintf(fname, "%s\\", al_get_fs_entry_name(FS_fname));
+
+   num_filenames = 0;
+
+   // iterate files in folder and put in filename array
+   al_for_each_fs_entry(FS_fname, fill_filename_array, NULL);
+
+   if (num_filenames == 0) printf("No files found.\n");
+   else
+   {
+      for (int i=0; i<num_filenames; i++)
+      {
+         // printf("%s\n", al_get_fs_entry_name(filenames[i]));
+         sprintf(cs[i].fname, al_get_fs_entry_name(filenames[i]));
+         mw_code_stat(cs[i]);
+
+         // get just the name part of the path
+         ALLEGRO_PATH * path = al_create_path(cs[i].fname);
+         sprintf(cs[i].name, "%s", al_get_path_filename(path));
+         al_destroy_path(path);
+      }
+   }
+   // do the totals
+   for (int i=0; i<num_filenames; i++)
+   {
+      cs[99].lines +=            cs[i].lines;
+      cs[99].chars +=            cs[i].chars;
+      cs[99].blank_chars +=      cs[i].blank_chars;
+      cs[99].blanks +=           cs[i].blanks;
+      cs[99].code +=             cs[i].code;
+      cs[99].comment +=          cs[i].comment;
+      cs[99].comment_only +=     cs[i].comment_only;
+      cs[99].code_only +=        cs[i].code_only;
+      cs[99].code_and_comment += cs[i].code_and_comment;
+      cs[99].max_line_length +=  cs[i].max_line_length;
+   }
+//   sprintf(cs[99].name, "Total");
+   sprintf(cs[99].name, "%d files", num_filenames);
+
+   time_t now = time(NULL);
+   struct tm *timenow = localtime(&now);
+   strftime(msg, sizeof(msg), "%Y-%m-%d  %H:%M:%S", timenow);
+   printf("\n\nPurple Martians Source Code Line Counts [%s]\n\n", msg);
+
+   printf("[%6s][%6s][%6s][%6s][%6s][%6s][%6s]\n", "total", "code", "cd_onl", "commnt", "cm_onl", "cd+cm", "blank");
+   printf("--------------------------------------------------------\n");
+
+   if (0) // list sorted alphabetically (or how file iterator chose them)
+   {
+      for (int i=0; i<num_filenames; i++)
+         printf("[%6d][%6d][%6d][%6d][%6d][%6d][%6d] - %s\n", cs[i].lines, cs[i].code, cs[i].code_only, cs[i].comment, cs[i].comment_only, cs[i].code_and_comment, cs[i].blanks, cs[i].name);
+   }
+   else  // list sorted by code size
+   {
+      int cur_s = 1;  // current max size
+      int i = 0; // current max size index
+      while (cur_s)
+      {
+         cur_s = 0;
+         for (int j=0; j<num_filenames; j++)
+            if (cs[j].code > cur_s)
+            {
+               cur_s = cs[j].code;
+               i = j;
+            }
+         if (cur_s > 0)
+         {
+            printf("[%6d][%6d][%6d][%6d][%6d][%6d][%6d] - %s\n", cs[i].lines, cs[i].code, cs[i].code_only, cs[i].comment, cs[i].comment_only, cs[i].code_and_comment, cs[i].blanks, cs[i].name);
+            cs[i].code = 0; // set to zero so we won't print again
+         }
+      }
+   }
+
+   int i = 99;
+   printf("-------------------------------------------------------- - totals\n");
+   printf("[%6d][%6d][%6d][%6d][%6d][%6d][%6d] - %s\n", cs[i].lines, cs[i].code, cs[i].code_only, cs[i].comment, cs[i].comment_only, cs[i].code_and_comment, cs[i].blanks, cs[i].name);
+
+
+}
 
 
 

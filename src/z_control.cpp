@@ -246,11 +246,20 @@ void test_keys(int x, int sy)
 
 void set_start_level(int s)
 {
-   resume_allowed = 0;
    start_level = s;
+   if (start_level < 1) start_level = 1;
+   if (start_level > 399) start_level = 399;
+   sprintf(global_string[7][2], "Start Level (%d)", start_level);
+   resume_allowed = 0;
    save_config();
 }
 
+void set_player_color(int p, int c)
+{
+   players[p].color = c;
+   if (players[p].color < 1) players[p].color = 1;
+   if (players[p].color > 15) players[p].color = 15;
+}
 void set_speed(void)
 {
    al_set_timer_speed(fps_timer, 1/(float)frame_speed);
@@ -744,8 +753,11 @@ void proc_player_inactive_game_move(int x)
 
    if (players[p].active)
    {
-//      sprintf(msg,"PLAYER:%d became INACTIVE", p);
-//      add_log_entry_header(10, p, msg, 1);
+      if (LOG_NET)
+      {
+         sprintf(msg,"PLAYER:%d became INACTIVE", p);
+         add_log_entry_header(10, p, msg, 1);
+      }
 
       // ------------------------------------
       // player in run demo mode became inactive
@@ -772,7 +784,7 @@ void proc_player_inactive_game_move(int x)
          for (int pp=1; pp<NUM_PLAYERS; pp++)
             if ((players[pp].active) && (players[pp].control_method == 2))
                players1[pp].quit_reason = 91;
-//         log_ending_stats_server();
+         if (LOG_NET) log_ending_stats_server();
          new_program_state = 1;
       }
 
@@ -793,7 +805,7 @@ void proc_player_inactive_game_move(int x)
       {
          // printf("Remote Player Quit :%d\n", frame_num);
          players1[p].quit_reason = 93;
- //        log_ending_stats(p);
+         if (LOG_NET) log_ending_stats(p);
          init_player(p, 1);
 //         players[p].active = 0;
 //         players[p].control_method = 9; // prevent re-use of this player number in this level
@@ -822,14 +834,6 @@ void proc_game_moves_array(void)
 
    end_index = game_move_current_pos - 100;
    if (end_index < 0) end_index = 0;
-
-
-//   if (LOG_NET_cdat)
-//   {
-//      sprintf(msg, "game_move - gmep:%d gmcp:%d si:%d ei:%d\n", game_move_entry_pos, game_move_current_pos, start_index, end_index);
-//      add_log_entry2(40, 0, msg);
-//   }
-
 
    for (int x=start_index; x>=end_index; x--)  // search backwards from start_index to end_index
    {
@@ -880,7 +884,6 @@ void proc_player_input(void)
                      set_controls_from_comp_move(p, players1[p].comp_move);
 
                      if (players[p].menu) new_program_state = 25;
-
                      players1[p].client_cdat_packets_tx++;
                      sprintf(msg,"tx cdat - move:%d\n", players1[p].comp_move);
                      if (LOG_NET_cdat) add_log_entry2(35, p, msg);

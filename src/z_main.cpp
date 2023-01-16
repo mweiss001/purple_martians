@@ -278,15 +278,12 @@ int LOG_NET_join = 0;
 int LOG_NET_player_array = 0;
 int LOG_NET_bandwidth = 0;
 int LOG_NET_cdat = 0;
-int LOG_NET_game_move = 0;
-int LOG_NET_sdat = 0;
-int LOG_NET_sdak = 0;
 int LOG_NET_stdf = 0;
 int LOG_NET_stdf_all_packets = 0;
 int LOG_NET_stdf_when_to_apply = 0;
-int LOG_NET_show_dif1 = 0;
-int LOG_NET_show_dif2 = 0;
-
+int LOG_NET_client_ping = 0;
+int LOG_NET_client_timer_adj = 0;
+int LOG_NET_server_rx_stak = 0;
 
 int LOG_TMR_move_tot = 0;
 int LOG_TMR_move_all = 0;

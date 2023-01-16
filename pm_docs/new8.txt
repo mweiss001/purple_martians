@@ -4756,6 +4756,534 @@ I have all the stuff in place for display trandform double, just need to make it
 
 
 
+I don't think I can profile the individual enemies and items as easy....
+
+so what else can I do...
+
+
+
+
+
+20230115 11:11
+
+so this morning I chose to do something completely different...
+something meta....
+
+source code stats!!!
+
+Purple Martians Source Code Line Counts [2023-01-15  11:11:11]
+
+[ total][  code][cd_onl][commnt][cm_onl][ cd+cm][ blank]
+--------------------------------------------------------
+[  1256][   932][   803][   188][    59][   129][   265] - e_bitmap.cpp
+[   878][   737][   418][   368][    49][   319][    92] - e_editor_main.cpp
+[  1060][   878][   743][   194][    59][   135][   123] - e_editor_zfs.cpp
+[   351][   289][   229][    71][    11][    60][    51] - e_enemy.cpp
+[  1259][   918][   801][   163][    46][   117][   295] - e_fnx.cpp
+[  1587][   899][   814][   183][    98][    85][   590] - e_glt.cpp
+[   784][   690][   607][   103][    20][    83][    74] - e_group_edit_windows.cpp
+[   612][   504][   379][   150][    25][   125][    83] - e_item.cpp
+[   598][   488][   399][   111][    22][    89][    88] - e_lift.cpp
+[  1490][  1145][  1010][   221][    86][   135][   259] - e_mWindow.cpp
+[  2115][  1791][  1376][   522][   107][   415][   217] - e_object_viewer_windows.cpp
+[   396][   328][   288][    48][     8][    40][    60] - e_pde.cpp
+[  1842][  1319][  1095][   272][    48][   224][   475] - e_sliders.cpp
+[   578][   409][   185][   257][    33][   224][   136] - e_tile_helper.cpp
+[   791][   564][   514][   113][    63][    50][   164] - e_visual_level.cpp
+[   199][   149][   149][     0][     0][     0][    50] - libnet.h
+[   655][   529][   483][    84][    38][    46][    88] - n_client.cpp
+[    45][    24][    24][    10][    10][     0][    11] - n_network.cpp
+[   168][   127][   125][     8][     6][     2][    35] - n_packet.cpp
+[   940][   716][   665][   105][    54][    51][   170] - n_server.cpp
+[  1900][  1324][  1278][   195][   149][    46][   427] - pm.h
+[   743][   291][   244][   303][   256][    47][   196] - z_args.cpp
+[   238][   170][   140][    46][    16][    30][    52] - z_bullets.cpp
+[   639][   188][   187][   314][   313][     1][   138] - z_config.cpp
+[   920][   710][   653][   133][    76][    57][   134] - z_control.cpp
+[   508][   334][   331][    58][    55][     3][   119] - z_display.cpp
+[  2720][  1961][  1338][   885][   262][   623][   497] - z_enemy.cpp
+[   832][   640][   604][    96][    60][    36][   132] - z_file.cpp
+[  2454][  1829][  1588][   418][   177][   241][   448] - z_fnx.cpp
+[  2833][  2149][  1713][   601][   165][   436][   519] - z_item.cpp
+[   496][   381][   301][   106][    26][    80][    89] - z_lift.cpp
+[  2378][  1597][  1387][   385][   175][   210][   606] - z_log.cpp
+[   877][   638][   607][   127][    96][    31][   143] - z_logo.cpp
+[   937][   666][   576][   202][   112][    90][   159] - z_loop.cpp
+[   899][   506][   469][   132][    95][    37][   298] - z_main.cpp
+[   109][    90][    86][    13][     9][     4][    10] - z_map.cpp
+[  1395][  1128][   996][   182][    50][   132][   217] - z_menu.cpp
+[  1861][  1589][  1439][   206][    56][   150][   216] - z_mwGraph.cpp
+[   256][   181][   180][     5][     4][     1][    71] - z_mwGraph.h
+[    62][    28][    27][     7][     6][     1][    28] - z_ping_buffer.cpp
+[  1725][  1322][  1106][   315][    99][   216][   304] - z_player.cpp
+[  1040][   683][   595][   197][   109][    88][   248] - z_screen.cpp
+[  1812][  1281][  1102][   312][   133][   179][   398] - z_screen_overlay.cpp
+[   773][   563][   501][   109][    47][    62][   163] - z_settings.cpp
+[   127][   102][   100][     8][     6][     2][    19] - z_sound.cpp
+--------------------------------------------------------
+[ 46138][ 33787][ 28655][  8526][  3394][  5132][  8957] - Total
+
+
+
+
+
+Purple Martians Source Code Line Counts [2023-01-15  11:27:00]
+
+[ total][  code][cd_onl][commnt][cm_onl][ cd+cm][ blank]
+--------------------------------------------------------
+[  2833][  2149][  1713][   601][   165][   436][   519] - z_item.cpp
+[  2720][  1961][  1338][   885][   262][   623][   497] - z_enemy.cpp
+[  2454][  1829][  1588][   418][   177][   241][   448] - z_fnx.cpp
+[  2115][  1791][  1376][   522][   107][   415][   217] - e_object_viewer_windows.cpp
+[  2435][  1623][  1411][   388][   176][   212][   636] - z_log.cpp
+[  1861][  1589][  1439][   206][    56][   150][   216] - z_mwGraph.cpp
+[  1900][  1324][  1278][   195][   149][    46][   427] - pm.h
+[  1725][  1322][  1106][   315][    99][   216][   304] - z_player.cpp
+[  1842][  1319][  1095][   272][    48][   224][   475] - e_sliders.cpp
+[  1812][  1281][  1102][   312][   133][   179][   398] - z_screen_overlay.cpp
+[  1490][  1145][  1010][   221][    86][   135][   259] - e_mWindow.cpp
+[  1395][  1128][   996][   182][    50][   132][   217] - z_menu.cpp
+[  1256][   932][   803][   188][    59][   129][   265] - e_bitmap.cpp
+[  1259][   918][   801][   163][    46][   117][   295] - e_fnx.cpp
+[  1587][   899][   814][   183][    98][    85][   590] - e_glt.cpp
+[  1060][   878][   743][   194][    59][   135][   123] - e_editor_zfs.cpp
+[   878][   737][   418][   368][    49][   319][    92] - e_editor_main.cpp
+[   940][   716][   665][   105][    54][    51][   170] - n_server.cpp
+[   920][   710][   653][   133][    76][    57][   134] - z_control.cpp
+[   784][   690][   607][   103][    20][    83][    74] - e_group_edit_windows.cpp
+[  1040][   683][   595][   197][   109][    88][   248] - z_screen.cpp
+[   937][   666][   576][   202][   112][    90][   159] - z_loop.cpp
+[   832][   640][   604][    96][    60][    36][   132] - z_file.cpp
+[   877][   638][   607][   127][    96][    31][   143] - z_logo.cpp
+[   791][   564][   514][   113][    63][    50][   164] - e_visual_level.cpp
+[   773][   563][   501][   109][    47][    62][   163] - z_settings.cpp
+[   655][   529][   483][    84][    38][    46][    88] - n_client.cpp
+[   899][   506][   469][   132][    95][    37][   298] - z_main.cpp
+[   612][   504][   379][   150][    25][   125][    83] - e_item.cpp
+[   598][   488][   399][   111][    22][    89][    88] - e_lift.cpp
+[   578][   409][   185][   257][    33][   224][   136] - e_tile_helper.cpp
+[   496][   381][   301][   106][    26][    80][    89] - z_lift.cpp
+[   508][   334][   331][    58][    55][     3][   119] - z_display.cpp
+[   396][   328][   288][    48][     8][    40][    60] - e_pde.cpp
+[   743][   291][   244][   303][   256][    47][   196] - z_args.cpp
+[   351][   289][   229][    71][    11][    60][    51] - e_enemy.cpp
+[   639][   188][   187][   314][   313][     1][   138] - z_config.cpp
+[   256][   181][   180][     5][     4][     1][    71] - z_mwGraph.h
+[   238][   170][   140][    46][    16][    30][    52] - z_bullets.cpp
+[   199][   149][   149][     0][     0][     0][    50] - libnet.h
+[   168][   127][   125][     8][     6][     2][    35] - n_packet.cpp
+[   127][   102][   100][     8][     6][     2][    19] - z_sound.cpp
+[   109][    90][    86][    13][     9][     4][    10] - z_map.cpp
+[    62][    28][    27][     7][     6][     1][    28] - z_ping_buffer.cpp
+[    45][    24][    24][    10][    10][     0][    11] - n_network.cpp
+--------------------------------------------------------
+[ 46195][ 33813][ 28679][  8529][  3395][  5134][  8987] - Total
+
+
+sorted by code size
+
+
+
+why the fuck do I still have z_map.cpp??
+
+
+// zmap.cpp
+
+#include "pm.h"
+
+void set_map_position()
+{
+
+//  1   9   2
+//      |
+// -----+-----
+//      |
+//  4   |   3
+
+   int alp = active_local_player;
+
+   int px1 = players1[alp].sbx1;
+   int py1 = players1[alp].sby1;
+   int px2 = players1[alp].sbx2;
+   int py2 = players1[alp].sby2;
+
+//   printf("gmo:%d mx:%d my:%d px1:%d py1:%d px2:%d py2:%d\n",game_map_on, map_x, map_y, px1, py1, px2, py2);
+   switch (game_map_on)
+   {
+      case 0:
+         map_x = BORDER_WIDTH;
+         map_y = BORDER_WIDTH;
+      break;
+      case 1:
+         map_x = BORDER_WIDTH;
+         map_y = BORDER_WIDTH;
+         // check to see if player is covered by the map
+         if ((px1 < map_x + map_size)
+          && (py1 < map_y + map_size))  game_map_on = 2;
+      break;
+      case 2:
+         map_x = SCREEN_W - map_size - BORDER_WIDTH;
+         map_y = BORDER_WIDTH;
+         if ((px2 > map_x)
+          && (py1 < map_y + map_size))  game_map_on = 1;
+      break;
+      case 3:
+         map_x = SCREEN_W - map_size - BORDER_WIDTH;
+         map_y = SCREEN_H - map_size - BORDER_WIDTH;
+         if ((px2 > map_x)
+          && (py2 > map_y))  game_map_on = 4;
+      break;
+      case 4:
+         map_x = BORDER_WIDTH;
+         map_y = SCREEN_H - map_size - BORDER_WIDTH;
+         if ((px1 < map_x + map_size)
+          && (py2 > map_y))  game_map_on = 3;
+      break;
+      case 9:
+         map_x = SCREEN_W/2 - map_size/2;
+         map_y = BORDER_WIDTH;
+         if ((px2 > map_x)
+          && (px1 < map_x + map_size)
+          && (py1 < map_y + map_size))  game_map_on = 4;
+      break;
+   }
+}
+
+void next_map_mode()
+{
+   int old_game_map_on = game_map_on;
+   switch (game_map_on)
+   {
+      case 0: game_map_on = 1; break;
+      case 1: game_map_on = 2; break;
+      case 2: game_map_on = 3; break;
+      case 3: game_map_on = 4; break;
+      case 4: game_map_on = 9; break;
+      case 9: game_map_on = 0; break;
+   }
+   set_map_position();
+   if (old_game_map_on == game_map_on) game_map_on = 0;
+}
+
+void next_map_size()
+{
+   int smin = 0;
+   if (SCREEN_H < SCREEN_W) smin = SCREEN_H;
+   else smin = SCREEN_W;
+
+   if (new_size == smin /4) new_size = smin/3; // 1/3
+   else if (new_size == smin /3) new_size = smin/2; // 1/2
+   else if (new_size == smin /2) new_size = smin/4; // 1/4
+   else  new_size = smin /3; // if for some reason none of these match
+}
+
+void draw_map()
+{
+   if (game_map_on)
+   {
+      // process the size change gradually
+      if (map_size < new_size)
+      {
+         map_size+=30;
+         if (map_size > new_size) map_size = new_size;
+      }
+      if (map_size > new_size)
+      {
+         map_size-=60;
+         if (map_size < new_size) map_size = new_size;
+      }
+      set_map_position();
+      al_draw_scaled_bitmap(level_buffer, 0,0, 2000, 2000, map_x, map_y, map_size, map_size, 0);
+   }
+}
+
+kill it!!!
+
+a few more tweaks then I am done....
+
+Purple Martians Source Code Line Counts [2023-01-15  11:41:32]
+
+[ total][  code][cd_onl][commnt][cm_onl][ cd+cm][ blank]
+--------------------------------------------------------
+[  2833][  2149][  1713][   601][   165][   436][   519] - z_item.cpp
+[  2720][  1961][  1338][   885][   262][   623][   497] - z_enemy.cpp
+[  2454][  1829][  1588][   418][   177][   241][   448] - z_fnx.cpp
+[  2115][  1791][  1376][   522][   107][   415][   217] - e_object_viewer_windows.cpp
+[  2404][  1620][  1405][   391][   176][   215][   608] - z_log.cpp
+[  1861][  1589][  1439][   206][    56][   150][   216] - z_mwGraph.cpp
+[  1900][  1324][  1278][   195][   149][    46][   427] - pm.h
+[  1725][  1322][  1106][   315][    99][   216][   304] - z_player.cpp
+[  1842][  1319][  1095][   272][    48][   224][   475] - e_sliders.cpp
+[  1812][  1281][  1102][   312][   133][   179][   398] - z_screen_overlay.cpp
+[  1490][  1145][  1010][   221][    86][   135][   259] - e_mWindow.cpp
+[  1395][  1128][   996][   182][    50][   132][   217] - z_menu.cpp
+[  1256][   932][   803][   188][    59][   129][   265] - e_bitmap.cpp
+[  1259][   918][   801][   163][    46][   117][   295] - e_fnx.cpp
+[  1587][   899][   814][   183][    98][    85][   590] - e_glt.cpp
+[  1060][   878][   743][   194][    59][   135][   123] - e_editor_zfs.cpp
+[   878][   737][   418][   368][    49][   319][    92] - e_editor_main.cpp
+[   940][   716][   665][   105][    54][    51][   170] - n_server.cpp
+[   920][   710][   653][   133][    76][    57][   134] - z_control.cpp
+[   784][   690][   607][   103][    20][    83][    74] - e_group_edit_windows.cpp
+[  1040][   683][   595][   197][   109][    88][   248] - z_screen.cpp
+[   937][   666][   576][   202][   112][    90][   159] - z_loop.cpp
+[   832][   640][   604][    96][    60][    36][   132] - z_file.cpp
+[   877][   638][   607][   127][    96][    31][   143] - z_logo.cpp
+[   791][   564][   514][   113][    63][    50][   164] - e_visual_level.cpp
+[   773][   563][   501][   109][    47][    62][   163] - z_settings.cpp
+[   655][   529][   483][    84][    38][    46][    88] - n_client.cpp
+[   899][   506][   469][   132][    95][    37][   298] - z_main.cpp
+[   612][   504][   379][   150][    25][   125][    83] - e_item.cpp
+[   598][   488][   399][   111][    22][    89][    88] - e_lift.cpp
+[   578][   409][   185][   257][    33][   224][   136] - e_tile_helper.cpp
+[   496][   381][   301][   106][    26][    80][    89] - z_lift.cpp
+[   508][   334][   331][    58][    55][     3][   119] - z_display.cpp
+[   396][   328][   288][    48][     8][    40][    60] - e_pde.cpp
+[   743][   291][   244][   303][   256][    47][   196] - z_args.cpp
+[   351][   289][   229][    71][    11][    60][    51] - e_enemy.cpp
+[   639][   188][   187][   314][   313][     1][   138] - z_config.cpp
+[   256][   181][   180][     5][     4][     1][    71] - z_mwGraph.h
+[   238][   170][   140][    46][    16][    30][    52] - z_bullets.cpp
+[   199][   149][   149][     0][     0][     0][    50] - libnet.h
+[   168][   127][   125][     8][     6][     2][    35] - n_packet.cpp
+[   127][   102][   100][     8][     6][     2][    19] - z_sound.cpp
+[    62][    28][    27][     7][     6][     1][    28] - z_ping_buffer.cpp
+[    45][    24][    24][    10][    10][     0][    11] - n_network.cpp
+-------------------------------------------------------- - totals
+[ 46055][ 33720][ 28587][  8519][  3386][  5133][  8949] - 44 files
+
+done!!!!...
+
+just for comparison, what does code blocks say?
+
+47 files
+45856 - total
+26651 - code only
+ 4834 - code and comment
+ 8899 - blank
+ 5472 - comment
+
+manually add
+26651 - code only
+ 4834 - code and comment
+-------
+31485
+
+what files does it get that I don't
+
+
+
+
+got to move on.....
+
+
+
+
+
+
+make sure all logging entries throughtout the code have appropriate if statements
+list them...
+
+
+extern int LOG_NET;
+extern int LOG_NET_join;
+extern int LOG_NET_player_array;
+extern int LOG_NET_bandwidth;
+extern int LOG_NET_cdat;
+extern int LOG_NET_game_move;
+extern int LOG_NET_sdat;
+extern int LOG_NET_sdak;
+extern int LOG_NET_stdf;
+extern int LOG_NET_stdf_all_packets;
+extern int LOG_NET_stdf_when_to_apply;
+extern int LOG_NET_show_dif1;
+extern int LOG_NET_show_dif2;
+
+--------------------------------------------------------
+LOG_NET [10]
+--------------------------------------------------------
+
+8 x  ClientInitNetwork()
+1 x ClientExitNetwork()
+2 x client_init()
+3 x client_proc_player_drop()
+
+
+6 x ServerInitNetwork()
+4 x ServerListen()
+1 x ServerExitNetwork()
+3 x server_init()
+3 x server_proc_player_drop()
+
+
+1 x proc_player_active_game_move()
+3 x proc_player_inactive_game_move()
+
+
+
+
+   //---------------------------------------
+   // 22 - client level setup
+   //---------------------------------------
+   if (program_state == 22)
+   if (LOG_NET)
+   {
+      sprintf(msg,"LEVEL %d STARTED", play_level);
+      add_log_entry_header(10, 0, msg, 3);
+   }
+
+
+   //---------------------------------------
+   // 12 - level done
+   //---------------------------------------
+   if (program_state == 12)
+   {
+      if (LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
+
+      if (LOG_NET)
+      {
+         sprintf(msg,"LEVEL %d STARTED", play_level);
+         add_log_entry_header(10, 0, msg, 3);
+      }
+
+
+   //---------------------------------------
+   // server new game
+   //---------------------------------------
+   if (program_state == 20)
+   {
+      if (LOG_NET)
+      {
+         sprintf(msg,"LEVEL %d STARTED", play_level);
+         add_log_entry_header(10, 0, msg, 3);
+      }
+
+
+
+1 x void proc_player_health(int p)
+{
+      sprintf(msg,"PLAYER:%d DIED!", p);
+      if (LOG_NET) add_log_entry_header(10, 0, msg, 1);
+
+
+--------------------------------------------------------
+LOG_NET_join [11]
+--------------------------------------------------------
+client tx cjon
+client rx sjon
+client rx sjon SERVER FULL
+
+server rx cjon
+server tx sjon
+server tx sjon SERVER FULL
+server client has locked
+
+
+
+--------------------------------------------------------
+LOG_NET_player_array [26]
+--------------------------------------------------------
+1 x server_control() [26]
+
+--------------------------------------------------------
+LOG_NET_bandwidth [23][24]
+--------------------------------------------------------
+1 x process_bandwidth_counters() [23][24]
+
+--------------------------------------------------------
+LOG_NET_cdat [35]
+--------------------------------------------------------
+1 x server_proc_cdat_packet() [35]
+1 x proc_player_input() // when client sends cdat [35]
+
+--------------------------------------------------------
+LOG_NET_game_move
+--------------------------------------------------------
+not used
+
+--------------------------------------------------------
+LOG_NET_sdat
+--------------------------------------------------------
+not used
+
+--------------------------------------------------------
+LOG_NET_sdak
+--------------------------------------------------------
+not used
+
+
+--------------------------------------------------------
+LOG_NET_stdf
+--------------------------------------------------------
+1 x client_apply_diff() reset base [27]
+1 x client_apply_diff() dif cannot be applied [29]
+1 x client_apply_diff() dif applied [29]
+1 x client_process_stdf_packet() dif decompressed [27]
+
+1 x server_send_stdf() send all stdf packets [27]
+2 x server_rewind() // once when rewinding to prev state, once when setting new state [27]
+1 x server_proc_stak_packet() [30]
+
+   //---------------------------------------
+   // 12 - level done
+   //---------------------------------------
+   //---------------------------------------
+   // server new game
+   //---------------------------------------
+   // set server initial state (for both 2-new game and 5-level done when server)
+   game_vars_to_state(srv_stdf_state[1]);
+   srv_stdf_state_frame_num[1] = frame_num;
+   if (LOG_NET_stdf)
+   {
+      sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+      add_log_entry2(27, 0, msg);
+   }
+
+
+
+--------------------------------------------------------
+LOG_NET_stdf_all_packets
+--------------------------------------------------------
+1 x client_process_stdf_packet() // when any stdf packets is received [28]
+1 x server_send_stdf() // when sending an individual stdf packets to a client [28]
+
+
+1 x client_timer_adjust() [36]
+   sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.2f]\n", players1[p].dsync*1000, players1[p].client_chase_offset*1000, fps_chase);
+   if (LOG_NET_stdf_all_packets) add_log_entry2(36, p, msg);
+
+1 x ping_array_add() [37]
+   sprintf(msg, "ping [%3.2f] avg[%3.2f]\n", ping*1000, players1[p].ping_avg*1000);
+   if (LOG_NET_stdf_all_packets) add_log_entry2(37, p, msg);
+
+--------------------------------------------------------
+LOG_NET_stdf_when_to_apply
+--------------------------------------------------------
+1 x client_apply_diff() [29]
+   sprintf(msg, "dif [%d to %d] not applied - not newer than current [%d]\n", client_state_dif_src, client_state_dif_dst, client_state_base_frame_num);
+
+
+
+--------------------------------------------------------
+LOG_NET_show_dif1
+--------------------------------------------------------
+all in fnx
+
+--------------------------------------------------------
+LOG_NET_show_dif2
+--------------------------------------------------------
+all in fnx
+
+void show_state_dif(char *a, char *b) 430 lines..has not been used in a while....
+
+maybe its time for all that to go away.....gone...now remove the LOG_NET...done...
+
+
+what about the ping... what is it used for??
+is it only for ping_graph?
+
+Make this list also show the log entry type number....
+also removed game_move, sdat, sdak...
 
 
 
@@ -4767,6 +5295,243 @@ I have all the stuff in place for display trandform double, just need to make it
 
 
 
+---------------------------------------------------------------------------------
+-------------   The official list of how logging works: -------------------------
+---------------------------------------------------------------------------------
+extern int LOG_NET;
+extern int LOG_NET_join;
+extern int LOG_NET_player_array;
+extern int LOG_NET_bandwidth;
+extern int LOG_NET_cdat;
+extern int LOG_NET_stdf;
+extern int LOG_NET_stdf_all_packets;
+extern int LOG_NET_stdf_when_to_apply;
+extern int LOG_NET_client_ping;
+extern int LOG_NET_client_timer_adj;
+extern int LOG_NET_server_rx_stak;
+
+--------------------------------------------------------
+LOG_NET [10] [both]
+--------------------------------------------------------
+8 x  ClientInitNetwork()
+1 x ClientExitNetwork()
+2 x client_init()
+3 x client_proc_player_drop()
+
+6 x ServerInitNetwork()
+4 x ServerListen()
+1 x ServerExitNetwork()
+3 x server_init()
+3 x server_proc_player_drop()
+
+1 x proc_player_active_game_move()
+3 x proc_player_inactive_game_move()
+
+   //---------------------------------------
+   // 22 - client level setup
+   //---------------------------------------
+   if (program_state == 22)
+   if (LOG_NET)
+   {
+      sprintf(msg,"LEVEL %d STARTED", play_level);
+      add_log_entry_header(10, 0, msg, 3);
+   }
+
+   //---------------------------------------
+   // 12 - level done
+   //---------------------------------------
+   if (program_state == 12)
+   {
+      if (LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
+
+      if (LOG_NET)
+      {
+         sprintf(msg,"LEVEL %d STARTED", play_level);
+         add_log_entry_header(10, 0, msg, 3);
+      }
+
+   //---------------------------------------
+   // server new game
+   //---------------------------------------
+   if (program_state == 20)
+   {
+      if (LOG_NET)
+      {
+         sprintf(msg,"LEVEL %d STARTED", play_level);
+         add_log_entry_header(10, 0, msg, 3);
+      }
+
+1 x void proc_player_health(int p)
+{
+      sprintf(msg,"PLAYER:%d DIED!", p);
+      if (LOG_NET) add_log_entry_header(10, 0, msg, 1);
+
+
+--------------------------------------------------------
+LOG_NET_join [11] [both]
+--------------------------------------------------------
+client tx cjon
+client rx sjon
+client rx sjon SERVER FULL
+server rx cjon
+server tx sjon
+server tx sjon SERVER FULL
+server client has locked
+
+--------------------------------------------------------
+LOG_NET_player_array [26] [server]
+--------------------------------------------------------
+1 x server_control()
+
+--------------------------------------------------------
+LOG_NET_bandwidth [23][24] [both]
+--------------------------------------------------------
+1 x process_bandwidth_counters()
+
+--------------------------------------------------------
+LOG_NET_cdat [35] [both]
+--------------------------------------------------------
+1 x server_proc_cdat_packet()
+1 x proc_player_input()
+
+--------------------------------------------------------
+LOG_NET_stdf [27][29] [both]
+--------------------------------------------------------
+1 x client_process_stdf_packet() dif received and decompressed [27]
+1 x client_apply_diff() reset base [27]
+1 x client_apply_diff() dif cannot be applied [29]
+1 x client_apply_diff() dif applied [29]
+
+1 x server_send_stdf() send all stdf packets [27]
+2 x server_rewind() // once when rewinding to prev state, once when setting new state [27]
+
+   //---------------------------------------
+   // 12 - level done [27]
+   //---------------------------------------
+   //---------------------------------------
+   // server new game [27]
+   //---------------------------------------
+   // set server initial state (for both 2-new game and 5-level done when server)
+   game_vars_to_state(srv_stdf_state[1]);
+   srv_stdf_state_frame_num[1] = frame_num;
+   if (LOG_NET_stdf)
+   {
+      sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+      add_log_entry2(27, 0, msg);
+   }
+
+--------------------------------------------------------
+LOG_NET_stdf_all_packets [28] [both]
+--------------------------------------------------------
+1 x client_process_stdf_packet() // when any stdf packets is received
+1 x server_send_stdf() // when sending an individual stdf packets to a client
+
+--------------------------------------------------------
+LOG_NET_stdf_when_to_apply [29] [client]
+--------------------------------------------------------
+1 x client_apply_diff()
+
+--------------------------------------------------------
+LOG_NET_client_timer_adj [36] [client]
+--------------------------------------------------------
+1 x client_timer_adjust()
+
+--------------------------------------------------------
+LOG_NET_client_ping [37] [client]
+--------------------------------------------------------
+1 x ping_array_add()
+
+--------------------------------------------------------
+LOG_NET_server_rx_stak [30] [server]
+--------------------------------------------------------
+1 x server_proc_stak_packet() [30]
+
+
+the only area that I still am not sure about is 27 and 29 for stdf...
+a lot of these things all fall under the stdf blanket...
+but it would be nice to have the option of not filling the log with unneeded stuff...
+
+what is the point of logging that dif was received if I don't say if it was successfully appllied?
+
+
+
+here is what I would like to see in great detail:
+
+1 - server decides to make new dif (this is when the base it uses comes due)
+
+2 - server rewinds to previous saved state
+
+3 - server plays back a set number of frames (and applies all late input)
+
+4 - server saves a new state
+
+5 - server plays a set number of states to get back to where it was originally
+
+6 - server set a flag to send stdf
+
+7 - goes back into the game loop and continues the current frame (processes input, moves frame, draws frame, then sends stdf to clients)
+
+why the delay here? why can't I send it sooner?
+I am already delayed by having to rewind and make a new state....
+Nothing in the state I am sending will change by playing this current loop....
+
+The way I am doing it now is waiting for the worst possible time to do that.
+
+I have waited for the timer to fire, then I send based on the old state
+I don't even get fresh input...
+
+What I think I should do is: (server only)
+
+play the frame to the end (draw also?) ...no... everything but draw
+get all the input
+process all the client packets
+move the frame...
+
+then...before draw...do the server thing if needed....
+
+rewind, make new state, apply lost stuff (you realize this means you will replay the frame you just played...???)
+
+then send the stdf, then draw...
+
+
+I just had a thought...what if all I do is send the stdf before I draw?
+
+would that have the same effect??
+
+also if I could process all client input before I make the dif that should be good also....
+
+
+
+one at a time....
+on the server, when do I process cdats.....
+right at the top of the frame...I cannot make that any sooner...
+
+second...
+I already send the stdf before draw...
+
+you were saying.....
+
+what about when the client sends pings....literally at the end of the game_loop right before the free time....
+
+could I be rewinding and replaying in the background?...idk
+
+i think it is time for some tests....
+
+ping graph needs 36 and 37 tmaj and ping
+
+
+
+
+show in debug overlay, how much time it took to process the last frame
+basically how much free time....
+as a percentage...
+
+50% means it took 20ms...
+
+done...
+
+
+do some more testing....
 
 
 
@@ -4778,15 +5543,128 @@ I have all the stuff in place for display trandform double, just need to make it
 
 
 
+I would like a scrolling real time graph to show on debug overlay...
+oh really, and would you like some gold and silver with that?
 
 
+come on it will be fun and will look so cool....
+
+make it a class kind of like ping buffer...
+
+all you need to do it pass it values once a frame
+
+then call it to draw itself
 
 
+it will only keep a certain ammount of history then throw stuff away.
 
 
+use it to show, ping, dysnc, cpu, draw, move...
 
 
+1 pixel per frame....
 
+
+similar to mWgraph
+
+it doesn't even have to have any history...it can just slide over the bitmap and draw a new pixel...
+
+what am I going to call it?
+
+class qGraph
+
+what about the series size, this should be a lot samller than mwGraph...after all it is quick graph...
+
+4 series max
+1000 data points max
+
+implicit x axis is frames and should be an int
+
+1000 / 40 = 25 sec
+
+yaxis will be a double
+
+how about
+
+double data[1000][4]
+
+the index is the x axis
+
+or this...
+
+   struct data_series
+   {
+      double data[1000];
+      int active;
+      int color1;
+      int color2;
+      char name[256];
+   };
+   data_series series[4] = {0};
+
+this expects new data every frame
+
+when it gets data the old data is pushed down one.
+
+draw is called independantly
+
+
+y axis will be scaled manually or auto
+for now lets start with manual...
+
+
+I will call draw from srceen overlay..done
+I will add data at the end of game loop
+where am I going to set this up..new game...done
+
+
+I don't think I want store x and y in the class...just pass x and y with draw...
+
+the object must know its size though
+
+should we put some data in?
+
+it is working!!
+
+in single player what else can I show but cpu??
+
+client can do ping, dysnc, cpu
+
+I think they should be on separate graphs...
+
+make one just for cpu
+
+auto range from 100 to 50 to 25
+
+OK, challenge accepted
+
+
+make type variable and type 1 == cpu
+
+make y_axis_min, y_axis_max, y_axis_rng
+
+its just fucking beautiful!!
+I love it so much!!
+
+cant wait to make it work on client with dsync and ping....
+
+I could still do it on m36...just make something else the server....
+
+OK lets do this...done....
+
+
+the cpu makes use of the timestamp buffer, which fills up pretty soon...
+change it to just use standard timstamps in the main loop....
+
+
+then try again...
+
+it 11:30 at night....just a little longer....
+
+fixed cpu...now lets get this to as many clients as I can...
+
+
+11:57 push
 
 
 

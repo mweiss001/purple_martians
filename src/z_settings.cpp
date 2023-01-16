@@ -8,14 +8,12 @@ void set_all_logging(int v)
    LOG_NET_player_array=v;
    LOG_NET_bandwidth=v;
    LOG_NET_cdat=v;
-   LOG_NET_game_move=v;
-   LOG_NET_sdat=v;
-   LOG_NET_sdak=v;
    LOG_NET_stdf=v;
    LOG_NET_stdf_all_packets=v;
    LOG_NET_stdf_when_to_apply=v;
-   LOG_NET_show_dif1=v;
-   LOG_NET_show_dif2=v;
+   LOG_NET_client_ping=v;
+   LOG_NET_client_timer_adj=v;
+   LOG_NET_server_rx_stak=v;
    LOG_TMR_move_tot=v;
    LOG_TMR_move_all=v;
    LOG_TMR_draw_tot=v;
@@ -466,15 +464,12 @@ void settings_pages(int set_page)
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_player_array,       "LOG_NET_player_array", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_bandwidth,          "LOG_NET_bandwidth", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_cdat,               "LOG_NET_cdat", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_game_move,          "LOG_NET_game_move", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_sdat,               "LOG_NET_sdat", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_sdak,               "LOG_NET_sdak", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf,               "LOG_NET_stdf", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_all_packets,   "LOG_NET_stdf_all_packets", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_when_to_apply, "LOG_NET_stdf_when_to_apply", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_show_dif1,          "LOG_NET_show_dif1", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_show_dif2,          "LOG_NET_show_dif2", tc, fc);
-
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_client_ping,        "LOG_NET_client_ping", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_client_timer_adj,   "LOG_NET_client_timer_adj", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_server_rx_stak,     "LOG_NET_server_rx_stak", tc, fc);
 
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_tot,      "LOG_TMR_move_tot", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_all,      "LOG_TMR_move_all", tc, fc);
@@ -623,6 +618,15 @@ void settings_pages(int set_page)
          mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, msg);
 
 
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline adjust")) spline_adjust();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline test")) spline_test();
+
+
+
+
 
 
 
@@ -663,10 +667,10 @@ void settings_pages(int set_page)
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show refesh rate")) printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes")) show_fullscreen_modes();
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters")) show_display_adapters();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline adjust")) spline_adjust();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline test")) spline_test();
-         ya -=2;
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics")) show_code_stats();
+
+//         ya -=2;
+//         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
       }
 
 

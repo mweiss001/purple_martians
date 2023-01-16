@@ -1,6 +1,9 @@
 // z_loop.cpp
 #include "pm.h"
 
+#include "z_qGraph.h"
+
+
 void proc_events(ALLEGRO_EVENT ev)
 {
    if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
@@ -244,9 +247,25 @@ void game_menu(void)
       if  (top_menu_sel == 8)  { play_level = edit_menu(start_level); new_program_state = 10; return; } // level editor
       if  (top_menu_sel == 9)  { new_program_state = 2;  older_program_state = 1;             return; } // demo mode
       if  (top_menu_sel == 10)                                                                help(""); // help
-      if (top_menu_sel == 102) if (++start_level > 399) start_level = 399; // start level inc
-      if (top_menu_sel == 202) if (--start_level < 1) start_level = 1;     // start level dec
-      if (top_menu_sel > 100) { set_start_level(start_level); load_level(start_level, 0); top_menu_sel = 2; }
+
+      if ((top_menu_sel > 100) && (top_menu_sel < 200)) // left pressed on menu item
+      {
+         top_menu_sel -= 100;
+         if (top_menu_sel == 2)
+         {
+            set_start_level(--start_level); // start level decrement
+            load_level(start_level, 0);
+         }
+      }
+      if ((top_menu_sel > 200) && (top_menu_sel < 300)) // right pressed on menu item
+      {
+         top_menu_sel -= 200;
+         if (top_menu_sel == 2)
+         {
+            set_start_level(++start_level); // start level increment
+            load_level(start_level, 0);
+         }
+      }
    }
 }
 
@@ -313,6 +332,13 @@ void proc_program_state(void)
          new_program_state = 25;
          return;
       }
+
+      // set up qGraph here
+      // set up qGraph here
+      qG[0].initialize(1);
+      qG[1].initialize(2);
+      qG[2].initialize(2);
+
       new_program_state = 23;
    }
 
@@ -432,6 +458,12 @@ void proc_program_state(void)
 
       init_timestamps();
       program_state = 11;
+
+      // set up qGraph here
+      qG[0].initialize(1);
+      qG[1].initialize(2);
+
+
    }
 
 
@@ -807,37 +839,45 @@ void main_loop(void)
             frame_num++;
             update_animation();
 
-            add_timestamp(1, 0,0,0,0);
+            //add_timestamp(1, 0,0,0,0);
             timestamp_frame_start = al_get_time();
 
             proc_timer_adjust();
             proc_scale_factor_change();
 
-            add_timestamp(2, 0,0,0,0);
+ //           add_timestamp(2, 0,0,0,0);
 
             if (ima_server) server_control();
             if (ima_client) client_control();
 
-            add_timestamp(3, 0,0,0,0);
+//            add_timestamp(3, 0,0,0,0);
 
             proc_player_input();
             proc_game_moves_array();
 
-            add_timestamp(4, 0,0,0,0);
+//            add_timestamp(4, 0,0,0,0);
 
             if (players[0].level_done_mode) process_level_done_mode();
             else move_frame();
 
-            add_timestamp(5, 0,0,0,0);
+//            add_timestamp(5, 0,0,0,0);
 
             if (players1[0].server_send_dif) server_send_stdf();
 
-            add_timestamp(6, 0,0,0,0);
+//            add_timestamp(6, 0,0,0,0);
 
             if (proc_frame_skip()) draw_frame();
 
 //
 //            add_timestamp(7, 0,0,0,0);
+
+
+            double pt = al_get_time() - timestamp_frame_start;
+            double cpu = (pt/0.025)*100;
+            qG[0].add_data(0, cpu);
+
+
+
 //            double td=0, ts=0, tm=0, tt=0;
 //            if (get_delta(frame_num,   6, frame_num,   7, td)) printf("time in draw: %5.3f us\n", td*1000000);
 //
