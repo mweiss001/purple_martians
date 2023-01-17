@@ -1,32 +1,126 @@
 // z_args.cpp
-
 #include "pm.h"
 
+void pm_copy_exe(const char* filepath)
+{
+   char sys_cmd[500];
+   sprintf(sys_cmd, "copy pm.exe %s\\pm.exe /Y", filepath);                       printf("%s\n",sys_cmd); system(sys_cmd);
+}
+
+void pm_copy_cfg(const char* filepath)
+{
+   char sys_cmd[500];
+   sprintf(sys_cmd, "copy pm.cfg %s\\pm.cfg /Y", filepath);                       printf("%s\n",sys_cmd); system(sys_cmd);
+}
+
+void pm_copy_levels(const char* filepath)
+{
+   char sys_cmd[500];
+   sprintf(sys_cmd, "mkdir %s\\levels ", filepath);                               printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "copy levels\\*.pml %s\\levels ", filepath);                  printf("%s\n",sys_cmd);   system(sys_cmd);
+}
+
+void pm_delete_all(const char* filepath)
+{
+   char sys_cmd[500];
+   sprintf(sys_cmd, "del %s\\*.* /S /Q", filepath);                               printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "rmdir %s\\ /S /Q", filepath);                                printf("%s\n",sys_cmd);   system(sys_cmd);
+}
+
+void pm_copy_misc(const char* filepath)
+{
+   char sys_cmd[500];
+   sprintf(sys_cmd, "copy license.txt %s\\pm.exe /Y", filepath);                  printf("%s\n",sys_cmd);   system(sys_cmd);
+
+   sprintf(sys_cmd, "mkdir %s\\savegame\\demo ", filepath);                       printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "copy savegame\\demo\\*.gm %s\\savegame\\demo ", filepath);   printf("%s\n",sys_cmd);   system(sys_cmd);
+
+   sprintf(sys_cmd, "mkdir %s\\bitmaps ", filepath);                              printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "copy bitmaps\\* %s\\bitmaps ", filepath);                    printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "del %s\\bitmaps\\mW.pm ", filepath);                         printf("%s\n",sys_cmd);   system(sys_cmd);
+
+   sprintf(sys_cmd, "mkdir %s\\help ", filepath);                                 printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "copy help\\* %s\\help ", filepath);                          printf("%s\n",sys_cmd);   system(sys_cmd);
+
+   sprintf(sys_cmd, "mkdir %s\\snd ", filepath);                                  printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "copy snd\\* %s\\snd ", filepath);                            printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "mkdir %s\\sel ", filepath);                                  printf("%s\n",sys_cmd);   system(sys_cmd);
+   sprintf(sys_cmd, "copy sel\\* %s\\sel ", filepath);                            printf("%s\n",sys_cmd);   system(sys_cmd);
+}
+
+void copy_files_to_clients(int type)
+{
+   char sys_cmd[500];
+   char client[20][255];
+   int num_clients = 0;
+
+//   sprintf(client[num_clients++], "\\\\E6400\\pm_client1");  //  E6400
+//   sprintf(client[num_clients++], "\\\\E6410\\pm_client2");  // win7 portable dev system
+//   sprintf(client[num_clients++], "\\\\4230j\\pm_client3");  // win7 acer laptop
+//   sprintf(client[num_clients++], "\\\\E6430\\pm_client4");  // win7 studio pc
+//   sprintf(client[num_clients++], "\\\\E6420\\pm_client5");  // win7 2560x1600 (my room)
+//   sprintf(client[num_clients++], "\\\\pfv\\pm_client6");    // XP 1600x1200
+//   sprintf(client[num_clients++], "\\\\m-4230-3\\pm_client7"); // ubuntu acer laptop
+//   sprintf(client[num_clients++], "\\\\DESKTOP-DBNSJH8\\pm_client8"); // win 10 EID work laptop
+//   sprintf(client[num_clients++], "\\\\e4230f\\pm_client9"); // acer laptop
+//   sprintf(client[num_clients++], "\\\\4230a\\pm_client10"); // acer laptop
+//   sprintf(client[num_clients++], "\\\\insp9400\\pm_client11"); // dell insp 9400 (backup machine)
+//   sprintf(client[num_clients++], "\\\\m7667\\pm_client12"); // core2 2G 32bit GeForce 7500 LE
+//   sprintf(client[num_clients++], "\\\\nv59\\pm_client13");  // gateway nv59 i3 4G 1600x1200
+//   sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
+//   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden
+//   sprintf(client[num_clients++], "\\\\sat-p100\\pm_client31");  // win 7 does not work...32 bit??
+//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 -- has stupid network issues, sometimes take 4s to get a packet reply
+//   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
+
+   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
+   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+
+//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
+
+
+   for (int c=0; c<num_clients; c++)
+   {
+      if (type == 1) // exe only
+      {
+         pm_copy_exe(client[c]);
+      }
+      if (type == 2) // exe and levels
+      {
+         pm_copy_exe(client[c]);
+         pm_copy_levels(client[c]);
+      }
+      if (type == 3) // del all and copy like release
+      {
+         pm_delete_all(client[c]);
+         pm_copy_levels(client[c]);
+         pm_copy_misc(client[c]);
+         pm_copy_cfg(client[c]);
+         pm_copy_exe(client[c]);
+      }
+      if (type == 4) // del all and copy absolutely everything0
+      {
+         pm_delete_all(client[c]);
+         sprintf(sys_cmd, "xcopy *.* %s /E /Y", client[c]);
+         printf("%s\n",sys_cmd);
+         system(sys_cmd);
+      }
+   }
+}
 
 void proc_command_line_args1(int argument_count, char **argument_array)
 {
-
    if (argument_count == 2) // example 'pmwin x'
    {
-      int ret = 0;
-      if (strcmp(argument_array[1],"-x") == 0 )
-      {
-          ret = copy_files_to_clients(2); // src only
-          exit(0);
-      }
-      if (strcmp(argument_array[1],"-t") == 0 )
-      {
-          ret = copy_files_to_clients(1); // pm.exe and levels only
-          exit(0);
-      }
-      if (strcmp(argument_array[1],"-u") == 0 )
-      {
-         ret = copy_files_to_clients(0); // all files
-         exit(0);
-      }
-      sprintf(msg, "ret:%d\n",ret); // to suppress warning only!
+      if (strcmp(argument_array[1],"-t")  == 0 ) { copy_files_to_clients(1); exit(0); } // exe only
+      if (strcmp(argument_array[1],"-tl") == 0 ) { copy_files_to_clients(2); exit(0); } // exe and levels
+      if (strcmp(argument_array[1],"-tr") == 0 ) { copy_files_to_clients(3); exit(0); } // del all and copy like release
+      if (strcmp(argument_array[1],"-ta") == 0 ) { copy_files_to_clients(4); exit(0); } // del all and copy absolutely everything
    }
-
 }
 
 
@@ -191,109 +285,6 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       }
    } // end of argument_count == 3
 }
-
-int copy_files_to_clients(int exe_only)
-{
-   int ret;
-   char sys_cmd[500];
-   char client[20][255];
-   int num_clients = 0;
-
-//   sprintf(client[num_clients++], "\\\\E6400\\pm_client1");  //  E6400
-//   sprintf(client[num_clients++], "\\\\E6410\\pm_client2");  // win7 portable dev system
-//   sprintf(client[num_clients++], "\\\\4230j\\pm_client3");  // win7 acer laptop
-//   sprintf(client[num_clients++], "\\\\E6430\\pm_client4");  // win7 studio pc
-//   sprintf(client[num_clients++], "\\\\E6420\\pm_client5");  // win7 2560x1600 (my room)
-//   sprintf(client[num_clients++], "\\\\pfv\\pm_client6");    // XP 1600x1200
-//   sprintf(client[num_clients++], "\\\\m-4230-3\\pm_client7"); // ubuntu acer laptop
-//   sprintf(client[num_clients++], "\\\\DESKTOP-DBNSJH8\\pm_client8"); // win 10 EID work laptop
-//   sprintf(client[num_clients++], "\\\\e4230f\\pm_client9"); // acer laptop
-//   sprintf(client[num_clients++], "\\\\4230a\\pm_client10"); // acer laptop
-//   sprintf(client[num_clients++], "\\\\insp9400\\pm_client11"); // dell insp 9400 (backup machine)
-//   sprintf(client[num_clients++], "\\\\m7667\\pm_client12"); // core2 2G 32bit GeForce 7500 LE
-//   sprintf(client[num_clients++], "\\\\nv59\\pm_client13");  // gateway nv59 i3 4G 1600x1200
-//   sprintf(client[num_clients++], "\\\\y510\\pm_client14");  // y510 XP SP3
-//   sprintf(client[num_clients++], "\\\\zi3\\pm_client99");  // zaiden
-//   sprintf(client[num_clients++], "\\\\sat-p100\\pm_client31");  // win 7 does not work...32 bit??
-//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 -- has stupid network issues, sometimes take 4s to get a packet reply
-
-
-//   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
-
-
-
-   sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
-
-
-//   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
-//
-
-
-
-   if (exe_only == 1)
-   {
-      printf("copying exe to clients\n");
-      for (int c=0; c<num_clients; c++)
-      {
-         sprintf(sys_cmd, "copy pm.exe %s\\pm.exe /Y", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-
-//         sprintf(sys_cmd, "copy levels\\*.pml %s\\levels ", client[c]);
-//         printf("%s\n",sys_cmd);
-//         ret = system(sys_cmd);
-
-
-/*
-         sprintf(sys_cmd, "copy pm.cfg %s\\pm.cfg /Y", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-
-         */
-
-      }
-   }
-   else if (exe_only == 2)
-   {
-      printf("copying src to clients\n");
-      for (int c=0; c<num_clients; c++)
-      {
-         sprintf(sys_cmd, "copy src\\*.cpp %s\\src ", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-
-         sprintf(sys_cmd, "copy src\\*.h %s\\src ", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-
-         sprintf(sys_cmd, "copy levels\\*.pml %s\\levels ", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-      }
-   }
-   else
-   {
-      printf("copying all files to clients\n");
-      for (int c=0; c<num_clients; c++)
-      {
-         // erase all files (but not directories)
-//         sprintf(sys_cmd, "del %s\\*.* /S /Q", client[c]);
-//         printf("%s\n",sys_cmd);
-//         ret = system(sys_cmd);
-
-         sprintf(sys_cmd, "xcopy *.* %s /E /Y", client[c]);
-         printf("%s\n",sys_cmd);
-         ret = system(sys_cmd);
-      }
-   }
-   return ret;
-}
-
 
 
 

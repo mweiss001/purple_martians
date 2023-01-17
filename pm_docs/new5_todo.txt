@@ -23,8 +23,13 @@ does not actually set lift's current step to steps that are not move steps
 bug -- in level editor can't see trigger box edges on left or top if zero
 
 
-I think my hotkey L is triggering level editor on client....disbaled for now, test later
-// found and fixed one bug, reanabled see if it happens again
+I think my hotkey L is triggering level editor on client....disabled for now, test later
+// found and fixed one bug, re-enabled see if it happens again..
+it did, disabled again....
+
+
+
+
 
 
 
@@ -32,27 +37,9 @@ I think my hotkey L is triggering level editor on client....disbaled for now, te
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+log like cpu, but with a multicolored bar...move, draw, other, all added up
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+find out what specifically is making 4230's use 100% cpu
 
 
 
@@ -84,6 +71,14 @@ F10
 PRINTSCREEN
 etc
 I could make these all configurable, just like the other menu keys
+
+options to do the send stuff to clients? including which clients to send to, and text entry to add new ones????
+then maybe I could retrieve log from client after netgame???...whoa...that's just crazy
+
+
+
+
+
 
 
 
