@@ -5663,78 +5663,41 @@ it 11:30 at night....just a little longer....
 
 fixed cpu...now lets get this to as many clients as I can...
 
-
 11:57 push
 
 
 
+20230117 6:0AM
 
+thing are going slower no that I am back to work....
 
+add more options to pm -t
+-t   type 1 exe only
+-tl  type 2 exe and levels
+-tr  type 3 delete everything first and do release
+-ta  type 4 abslutely everything
 
+cleaned up this part of the code...works nicely now...
 
+lets do a full release to all...done
 
 
+not much time...
 
+what graph can I run on client to see what is using all cpu??
 
+profile
 
+level 29 single player on m36
 
+draw from 500 to 800us
 
+move 95% 30us BUT! spikes to 2000 and once to 4000!!!
 
+I need to know what...
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+implement the per enemy and per item timers...
 
 
 

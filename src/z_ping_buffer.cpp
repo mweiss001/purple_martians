@@ -39,7 +39,7 @@ void ping_array_add(double ping)
    players1[p].client_chase_offset = - players1[p].ping_avg;
 
    sprintf(msg, "ping [%3.2f] avg[%3.2f]\n", ping*1000, players1[p].ping_avg*1000);
-   printf(msg);
+   //printf(msg);
    if (LOG_NET_client_ping) add_log_entry2(37, p, msg);
 
 }
