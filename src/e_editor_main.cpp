@@ -499,7 +499,7 @@ void em_show_item_info(int x, int y, int color, int type, int num)
       case 3:
          draw_enemy(num, 1, x, y);
          a = Ei[num][0]; // type
-         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", enemy_name[a]);
+         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", enemy_name[a][0]);
          al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - e_first_num[a], e_num_of_type[a]);
       break;
       case 4:
@@ -746,9 +746,9 @@ void em_process_mouse(void)
             sprintf(global_string[2][4], "Delete %s ", item_name[item[mW[1].point_item_num][0]]);
          break;
          case 3:
-            sprintf(global_string[2][2], "Copy %s  ",  (const char *)enemy_name[Ei[mW[1].point_item_num][0]]);
-            sprintf(global_string[2][3], "View %s  ",  (const char *)enemy_name[Ei[mW[1].point_item_num][0]]);
-            sprintf(global_string[2][4], "Delete %s ", (const char *)enemy_name[Ei[mW[1].point_item_num][0]]);
+            sprintf(global_string[2][2], "Copy %s  ",  (const char *)enemy_name[Ei[mW[1].point_item_num][0]][0]);
+            sprintf(global_string[2][3], "View %s  ",  (const char *)enemy_name[Ei[mW[1].point_item_num][0]][0]);
+            sprintf(global_string[2][4], "Delete %s ", (const char *)enemy_name[Ei[mW[1].point_item_num][0]][0]);
          break;
          case 4:
             sprintf(global_string[2][2], "              ");

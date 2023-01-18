@@ -10,7 +10,7 @@ int enemy_data(int x_pos, int y_pos)
    {
       if (e_num_of_type[c]) // not zero
       {
-         al_draw_textf(font, palette_color[10], x_pos, y_pos,   0, "%-2d %s", e_num_of_type[c], enemy_name[c]);
+         al_draw_textf(font, palette_color[10], x_pos, y_pos,   0, "%-2d %s", e_num_of_type[c], enemy_name[c][0]);
          y_pos += 8;
       }
    }
@@ -403,11 +403,15 @@ void proc_enemy_collision_with_pbullet(int e)
 
 void move_enemies()
 {
+if (LOG_TMR_move_enem) init_timestamps();
+
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
       if (Ei[e][0])
       {
-         num_enemy++; // count enemies
+         if (LOG_TMR_move_enem) t0 = al_get_time();
+
+         num_enemy++; // enemy count
 
          if (Ei[e][0] < 50) proc_enemy_collision_with_pbullet(e);
 
@@ -445,7 +449,69 @@ void move_enemies()
             case 13: enemy_vinepod(e);  break;
             case 99: enemy_deathcount(e); break;
          }
+
+
+         if (LOG_TMR_move_enem) add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
+
+
+
       }
+
+   if (LOG_TMR_move_enem)
+   {
+      double tmr_tally[100][3] = {0};
+
+      for (int i=0; i<10000; i++)
+         if (timestamps[i].type == 103)
+         {
+            tmr_tally[timestamps[i].frame2][0] +=1; // add to number of this type tally
+            tmr_tally[timestamps[i].frame2][1] += timestamps[i].t1; // add to time tally
+         }
+
+      sprintf(msg, "tmst");
+      char t[32];
+
+      for (int i=0; i<100; i++)
+         if (tmr_tally[i][1] > 0)
+         {
+            sprintf(t, " %s:[%0.4f]", enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
+            strcat(msg, t);
+
+
+//            printf("type:%d %s num:%d  cum_time:%0.1f  avg_time:%0.1f\n", i, enemy_name[i][1], (int)tmr_tally[i][0], tmr_tally[i][1]*1000000, (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
+
+//            sprintf(msg, "tmst arch:[%0.4f] boun:[%0.4f] jump:[%0.4f] cann:[%0.4f] podz:[%0.4f] trak:[%0.4f] clon:[%0.4f] blkw:[%0.4f] flap:[%0.4f] vine:[%0.4f] dth2:[%0.4f] dth1:[%0.4f] \n",
+
+
+
+
+
+
+
+//      sprintf(msg, "tmst ebul:[%0.4f] pbul:[%0.4f] lift:[%0.4f] plyr:[%0.4f] enem:[%0.4f] item:[%0.4f] totl:[%0.4f]\n",
+//      (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t6-t0)*1000);
+
+
+         }
+
+      sprintf(t, "\n");
+      strcat(msg, t);
+
+   //   printf("%s", msg);
+
+      add_log_entry2(44, 0, msg);
+
+
+
+
+
+
+   }
+
+
+
+
+
 }
 
 void enemy_deathcount(int e)
@@ -512,8 +578,6 @@ void enemy_killed(int e)
    int hbm = 1; // health bonus multiplier
    if (ht == 1) hbm = 1; // bullet
    if (ht == 2) hbm = 2; // explosion
-   if (ht == 3) hbm = 1; // field
-
 
    Efi[e][2] = al_itofix(0); // xinc
    Efi[e][3] = al_itofix(0); // yinc
@@ -653,7 +717,6 @@ void enemy_killed(int e)
    {
       if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
       if (ht == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
-      if (ht == 3) game_event(64, 0, 0, Ei[e][26], e, 0, 0);
       Ei[e][0] = 99; // set type to death loop
    }
 }

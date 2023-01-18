@@ -1381,7 +1381,7 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
                al_play_sample(snd[7], 0.5, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
             }
          break;
-         case 60: case 62: case 64: // enemy killed
+         case 60: case 62: // enemy killed
             al_play_sample(snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
          break;
          case 90: // d'Oh (player died)
@@ -1486,8 +1486,8 @@ int bmsg_draw_enemy(int e_type, int bmsg_length)
 {
    if (0) // enemy name
    {
-      al_draw_textf(font, palette_color[15], bmsg_length*8, 0, 0, "%s", enemy_name[e_type]);
-      return (strlen(enemy_name[e_type])*16);
+      al_draw_textf(font, palette_color[15], bmsg_length*8, 0, 0, "%s", enemy_name[e_type][0]);
+      return (strlen(enemy_name[e_type][0])*16);
    }
 
    if (1) // enemy tile
@@ -1547,7 +1547,7 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
    }
 
 
-   if ((ev != 0) && (ev != 1) && (ev != 4) && (ev != 15) && (ev != 22) && (ev != 31) ) // events that don't have bmsg handler
+   if ((ev != 0) && (ev != 1) && (ev != 4) && (ev != 15) && (ev != 22) && (ev != 31) && (ev != 31) ) // events that don't have bmsg handler
    {
       int bmsg_length = 0; // keep a running total
       int custom_drawn = 0;
@@ -1556,8 +1556,7 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
       al_set_target_bitmap(bmsg_temp);
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      if (ev != 64) bmsg_length += bmsg_draw_player(z1, bmsg_length); // all bmsg start with player
-      // except for 64
+      bmsg_length += bmsg_draw_player(z1, bmsg_length); // all bmsg start with player
 
 
       if (ev == 5) // player went through a door
@@ -1620,14 +1619,6 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += bmsg_show_text(" flipped a switch ", 15, bmsg_length);
          bmsg_length += bmsg_draw_tile2(item[z2][1], bmsg_length, -10, -2);
       }
-
-//      if (ev == 30) // switch
-//      {
-//         custom_drawn = 1;
-//         bmsg_length += bmsg_show_text("012345678901234567890123456789012345678901234567Z-", 15, bmsg_length);
-//      }
-
-
 
       if (ev == 40) // player got shot by another player
       {
@@ -1714,12 +1705,6 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += bmsg_show_text(" killed ", 15, bmsg_length);
          bmsg_length += bmsg_draw_enemy(Ei[z2][0], bmsg_length);
          bmsg_length += bmsg_show_text(" with explosion!", 15, bmsg_length);
-      }
-      if (ev == 64) // enemy killed with field
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_draw_enemy(Ei[z2][0], bmsg_length);
-         bmsg_length += bmsg_show_text(" killed with damage field!", 15, bmsg_length);
       }
       if (ev == 70) // player got a free man
       {

@@ -739,7 +739,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       if (o == 3)
       {
          t = Ei[n][0];
-         sprintf(smsg,"%s Help", (const char *)enemy_name[t]);
+         sprintf(smsg,"%s Help", (const char *)enemy_name[t][0]);
       }
       if (o == 4) sprintf(smsg,"Lift Help");
 

@@ -37,6 +37,13 @@ it did, disabled again....
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+
+pm -h show commandline options...duh
+
+
+
+
+
 log like cpu, but with a multicolored bar...move, draw, other, all added up
 
 find out what specifically is making 4230's use 100% cpu
