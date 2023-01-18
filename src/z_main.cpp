@@ -130,7 +130,7 @@ int game_move_current_pos = 0; // for savegame running only
 // ------------------------------------------------
 // ------------- screen messages ------------------
 // ------------------------------------------------
-int bottom_msg_on = 1;
+int bottom_msg_on = 0;
 int bottom_msg = 0;
 int bmsg_index = 0;
 ALLEGRO_BITMAP *bmsg_bmp[20] = {NULL};
@@ -287,6 +287,8 @@ int LOG_NET_server_rx_stak = 0;
 
 int LOG_TMR_move_tot = 0;
 int LOG_TMR_move_all = 0;
+int LOG_TMR_move_enem = 0;
+
 int LOG_TMR_draw_tot = 0;
 int LOG_TMR_draw_all = 0;
 int LOG_TMR_sdif = 0;
@@ -397,7 +399,7 @@ int Ei[100][32];        // enemy ints
 al_fixed Efi[100][16];  // enemy fixeds
 int e_num_of_type[50];
 int e_first_num[50];
-char enemy_name[20][40];
+char enemy_name[20][2][40];
 int num_enemy;
 int enemy_tile[20];
 int item_tile[20];

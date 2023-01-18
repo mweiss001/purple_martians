@@ -567,6 +567,9 @@ extern int LOG_NET_server_rx_stak;
 
 extern int LOG_TMR_move_tot;
 extern int LOG_TMR_move_all;
+extern int LOG_TMR_move_enem;
+
+
 extern int LOG_TMR_draw_tot;
 extern int LOG_TMR_draw_all;
 extern int LOG_TMR_sdif;
@@ -977,7 +980,7 @@ extern int Ei[100][32];        // enemy ints
 extern al_fixed Efi[100][16];  // enemy fixeds
 extern int e_num_of_type[50];
 extern int e_first_num[50];
-extern char enemy_name[20][40];
+extern char enemy_name[20][2][40];
 extern int num_enemy;
 
 extern int item_tile[20];

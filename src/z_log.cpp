@@ -1652,7 +1652,7 @@ int get_tag_text2(char *str, char *res, char *res1, int show)
 
       //if (show) printf("p1:%d  p2:%d  plen:%d\n", p1, p2, plen);
 
-      if (plen < 10) // ???
+      if (plen < 20) // ???
       {
           for(int j=0; j<plen; j++)
              res[j] = str[j+p1+1];
@@ -1678,7 +1678,7 @@ int get_tag_text2(char *str, char *res, char *res1, int show)
       int plen = p2-p1;
 
       // if (show) printf("p1:%d  p2:%d  plen:%d\n", p1, p2, plen);
-      if (plen < 10) // ???
+      if (plen < 20) // ???
       {
           for(int j=0; j<plen; j++)
              res1[j] = str[j+p1+1];

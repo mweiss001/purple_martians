@@ -1082,7 +1082,7 @@ char* mwGraph::y_axis_get_val_text(double val, int units)
    char t1[80] = {0};
    sprintf(t1, "%3.3f", val); // default
 
-   char t2[80] = {0};
+   char t2[256] = {0};
    sprintf(t2, "%s", y_axis_legend_units); // default
 
 
@@ -1203,8 +1203,8 @@ void mwGraph::draw_point_data(int x, int y, double mx, double my, int color, ALL
    al_draw_filled_rectangle(x, y, x+max_width+4, y+height+2, palette_color[0]); // erase old
    al_draw_rectangle(       x, y, x+max_width+4, y+height+2, palette_color[color], 1);
    if (s != -1) al_draw_textf(f, palette_color[color], x+2-bx, y+y1-by, 0, "%s", series[s].name);
-                al_draw_textf(f, palette_color[color], x+2-bx, y+y2-by, 0, "%s", y_axis_get_val_text(my, 2));
-                al_draw_textf(f, palette_color[color], x+2-bx, y+y3-by, 0, "%s", x_axis_get_val_text(mx, 1));
+   al_draw_textf(f, palette_color[color], x+2-bx, y+y2-by, 0, "%s", y_axis_get_val_text(my, 2));
+   al_draw_textf(f, palette_color[color], x+2-bx, y+y3-by, 0, "%s", x_axis_get_val_text(mx, 1));
 
 
 }

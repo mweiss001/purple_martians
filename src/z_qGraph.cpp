@@ -47,9 +47,9 @@ void qGraph::draw_graph(int x, int y)
 
    int bc = 12+192; // background color
    int fc = 12;  // frame color
-   int tc = 15;  // title color
+   //int tc = 15;  // title color
    int lc = 15;  // y axis label color
-   int pc = 13;  // plot line color
+   //int pc = 13;  // plot line color
    float ls = 0; // plot line size
 
    float gx1 = x;

@@ -5696,8 +5696,213 @@ move 95% 30us BUT! spikes to 2000 and once to 4000!!!
 
 I need to know what...
 
+did the move_all profiling and found spikes on player (2ms) and enemy (2-4ms)
+
+
+
+
+
 
 implement the per enemy and per item timers...
+
+can I use the timer buffer??
+
+I might have 100 thing to time...
+
+put each enemy in a bin...
+
+      timestamps[i].frame0 = 0;
+      timestamps[i].frame1 = 0;
+      timestamps[i].frame2 = 0;
+      timestamps[i].type   = 0;
+      timestamps[i].t0     = 0;
+      timestamps[i].t1     = 0;
+      timestamps[i].t2     = 0;
+
+
+I think I will precalc each time...
+
+
+then add a timestamp like
+frame0 - current frame
+frame1 - enemy number
+frame2 - enemy type
+t0 - delta time
+
+then at the end, calculate, enter log entry and erase them all...
+
+LOG_TMR_enem added...
+
+I need to know how many enemies cause the number...
+
+
+
+It looks like I have a problem with enemy deathcount...
+walk through what happens....
+
+
+enemy killed by player bullet...
+
+void enemy_bouncer(int e)
+{
+   if (Ei[e][31]) // hit
+   {
+      enemy_killed(e);
+      return; // to stop rest of execution
+   }
+
+in enemy killed:
+Ei[e][0] = 99; // set type to death loop
+
+
+in enemy_move:
+case 99: enemy_deathcount(e); break;
+
+
+void enemy_deathcount(int e)
+{
+   int EXint = al_fixtoi(Efi[e][0]);
+   int EYint = al_fixtoi(Efi[e][1]);
+   Efi[e][14] += Efi[e][13]; // rot inc
+   Efi[e][12] = al_fixmul(Efi[e][11], Efi[e][12]); // scale inc
+
+   Efi[e][0] += Efi[e][2]; // xinc
+   Efi[e][1] += Efi[e][3]; // yinc
+
+   Ei[e][1] = zz[0][ Ei[e][3] ]; // draw current ans shape
+   // dec and check countdown timer
+   if (--Ei[e][30] < 0) // create bonus
+   {
+      Ei[e][0] = 0; // kill enemy
+      for (int c=0; c<500; c++)
+         if (item[c][0] == 0) // find empty
+         {
+            for (int y=0; y<16; y++) item[c][y] = 0; // clear item
+            item[c][0] = 2;           // type - bonus
+            item[c][1] = Ei[e][24];  // flower shape
+            item[c][2] = 1; // draw mode normal
+            item[c][3] = -1; // carryable
+            item[c][4] = EXint;
+            item[c][5] = EYint;
+            item[c][6] = 1; // bonus type 1 - health
+            item[c][7] = Ei[e][25];  //  life
+            item[c][8] = 0;
+
+            item[c][14] = 800; // time to live
+
+            itemf[c][0] = al_itofix(item[c][4]);
+            itemf[c][1] = al_itofix(item[c][5]);
+            itemf[c][2] = al_itofix(0);
+            itemf[c][3] = al_itofix(0);
+            break; // end loop
+         }
+   }
+}
+
+looks like its only the first frame of 99...
+
+tmst arch:[0.3217] cann:[0.3111] trak:[0.6000] clon:[0.1750] flap:[0.4810]
+tmst arch:[0.3043] cann:[0.3444] trak:[0.7000] clon:[0.1500] flap:[0.4333]
+tmst arch:[0.3522] cann:[0.4000] trak:[0.7000] clon:[0.2250] flap:[0.6050] dth1:[1600.6000]
+tmst arch:[0.2957] cann:[0.3333] trak:[0.7000] clon:[0.2000] flap:[0.5050] dth1:[0.1000]
+tmst arch:[0.3000] cann:[0.3111] trak:[0.6000] clon:[0.1500] flap:[0.4800] dth1:[0.1000]
+tmst arch:[0.4174] cann:[0.5000] trak:[0.8000] clon:[0.3250] flap:[0.5750] dth1:[0.3000]
+tmst arch:[0.3565] cann:[0.3556] trak:[0.7000] clon:[0.1750] flap:[0.5400] dth1:[0.1000]
+tmst arch:[0.3261] cann:[0.3778] trak:[0.7000] clon:[0.1750] flap:[0.5350] dth1:[0.1000]
+tmst arch:[0.3087] cann:[0.3444] trak:[0.7000] clon:[0.1750] flap:[0.5100] dth1:[0.2000]
+tmst arch:[0.3174] cann:[0.3444] trak:[0.8000] clon:[0.1500] flap:[0.5250] dth1:[0.1000]
+tmst arch:[0.3174] cann:[0.3444] trak:[0.6000] clon:[0.2000] flap:[0.4750] dth1:[0.1000]
+tmst arch:[0.3609] cann:[0.3667] trak:[0.7000] clon:[0.2000] flap:[0.5450] dth1:[0.1000]
+tmst arch:[0.3174] cann:[0.3222] trak:[0.8000] clon:[0.1250] flap:[0.5300] dth1:[0.1000]
+tmst arch:[0.3783] cann:[0.4333] trak:[0.9000] clon:[0.3750] flap:[0.6400] dth1:[0.1000]
+tmst arch:[0.3565] cann:[0.3778] trak:[0.6000] clon:[0.1750] flap:[0.5350] dth1:[0.1000]
+tmst arch:[0.3348] cann:[0.3667] trak:[0.7000] clon:[0.1500] flap:[0.5250] dth1:[0.1000]
+tmst arch:[0.3565] cann:[0.4222] trak:[0.7000] clon:[0.2000] flap:[0.5000] dth1:[0.2000]
+tmst arch:[0.3391] cann:[0.3889] trak:[0.8000] clon:[0.1750] flap:[0.5450] dth1:[0.1000]
+tmst arch:[0.3174] cann:[0.3667] trak:[0.7000] clon:[0.1750] flap:[0.5000] dth1:[0.1000]
+tmst arch:[0.3348] cann:[0.3889] trak:[0.7000] clon:[0.2250] flap:[0.5500] dth1:[0.2000]
+tmst arch:[0.3391] cann:[0.3778] trak:[0.7000] clon:[0.1750] flap:[0.5100] dth1:[0.1000]
+tmst arch:[0.3913] cann:[0.4556] trak:[0.8000] clon:[0.2750] flap:[0.6200] dth1:[0.2000]
+tmst arch:[0.3304] cann:[0.3444] trak:[0.6000] clon:[0.1750] flap:[0.5100] dth1:[0.1000]
+tmst mpty:[0.2000] arch:[0.3000] cann:[0.4000] trak:[0.7000] clon:[0.2250] flap:[0.6500]
+tmst arch:[0.3217] cann:[0.3556] trak:[0.6000] clon:[0.1750] flap:[0.5000]
+tmst arch:[0.3304] cann:[0.3667] trak:[0.8000] clon:[0.1750] flap:[0.6050]
+
+I think it might be one of these....
+
+//      if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
+//      if (ht == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
+//      if (ht == 3) game_event(64, 0, 0, Ei[e][26], e, 0, 0);
+
+
+3 should not exist...field
+
+
+         case 60: case 62: case 64: // enemy killed
+            al_play_sample(snd[8], 0.5, 0, 1.2, ALLEGRO_PLAYMODE_ONCE, NULL);
+         break;
+
+
+
+its definitely in bmsg...not the sound part though...
+
+is it every call to create new bmsg??.. i think it is...disable this bullshit and see what happens...
+
+much better... now lets try a busy level...
+
+copy all to clients
+
+now I found that drawing the screen overlay takes almost 25ms on 4230 ClientSend
+on e6430 it only takes 2.5ms
+
+
+there are definitely some things to look at....
+
+can I make screen overlay take less?
+how much do graphs take?
+
+
+bottom msg
+why does it take so much when creating a new one?
+displaying them all does not take so much...
+
+
+
+gtg its linzies 18th!!
+
+20230118 6:45AM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

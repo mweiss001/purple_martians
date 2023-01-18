@@ -16,6 +16,7 @@ void set_all_logging(int v)
    LOG_NET_server_rx_stak=v;
    LOG_TMR_move_tot=v;
    LOG_TMR_move_all=v;
+   LOG_TMR_move_enem=v;
    LOG_TMR_draw_tot=v;
    LOG_TMR_draw_all=v;
    LOG_TMR_sdif=v;
@@ -230,7 +231,7 @@ void settings_pages(int set_page)
 
       // now we can set the top of the page, where the tabs will start
       int cfp_y1 = cf_y1 + tabs_height + title_h;
-      int cfp_y2 = cf_y2 - frame_width;
+      //int cfp_y2 = cf_y2 - frame_width;
 
       // frame everything
       for (int a=0; a<frame_width; a++)
@@ -473,6 +474,7 @@ void settings_pages(int set_page)
 
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_tot,      "LOG_TMR_move_tot", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_all,      "LOG_TMR_move_all", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_enem,     "LOG_TMR_move_enem", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_draw_tot,      "LOG_TMR_draw_tot", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_draw_all,      "LOG_TMR_draw_all", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_sdif,          "LOG_TMR_sdif", tc, fc);
@@ -643,7 +645,7 @@ void settings_pages(int set_page)
       {
          int line_spacing = 8;
          int tc = 15;  // text color
-         int fc = 13;  // frame color
+         //int fc = 13;  // frame color
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
          int bts = 20; // button spacing

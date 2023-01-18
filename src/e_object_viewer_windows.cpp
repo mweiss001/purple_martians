@@ -190,7 +190,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
    {
       al_draw_rectangle(xc-94, yt, xc+94, yt+22, palette_color[15], 1);
       draw_enemy(num, 1, xc-92, yt+1);
-      sprintf(msg,"%s %d of %d", (const char *)enemy_name[type],1+num - e_first_num[type],e_num_of_type[type]);
+      sprintf(msg,"%s %d of %d", (const char *)enemy_name[type][0],1+num - e_first_num[type],e_num_of_type[type]);
       al_draw_text(font, palette_color[13], xc-69, yt+8, 0, msg);
       switch (type)
       {
@@ -2004,7 +2004,7 @@ void ovw_process_keypress(void)
          }
          if (mW[7].obt==3)
          {
-            sprintf(msg,"%s", enemy_name[type]);
+            sprintf(msg,"%s", enemy_name[type][0]);
             getxy(msg,mW[7].obt, type, mW[7].num);
          }
          if (mW[7].obt==4)

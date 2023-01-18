@@ -562,20 +562,42 @@ void menu_setup(void)
 
 
 
-   strcpy (enemy_name[0],  "empty");
-   strcpy (enemy_name[1],  "undef");
-   strcpy (enemy_name[2],  "undef");
-   strcpy (enemy_name[3],  "ArchWagon");
-   strcpy (enemy_name[4],  "Bouncer");
-   strcpy (enemy_name[5],  "JumpWorm");
-   strcpy (enemy_name[6],  "Cannon");
-   strcpy (enemy_name[7],  "PodZilla");
-   strcpy (enemy_name[8],  "TrakBot");
-   strcpy (enemy_name[9],  "Cloner");
-   strcpy (enemy_name[10], "undef");
-   strcpy (enemy_name[11], "Block Walker");
-   strcpy (enemy_name[12], "Flapper");
-   strcpy (enemy_name[13], "VinePod");
+   strcpy (enemy_name[0][0],  "empty");
+   strcpy (enemy_name[1][0],  "undef");
+   strcpy (enemy_name[2][0],  "undef");
+   strcpy (enemy_name[3][0],  "ArchWagon");
+   strcpy (enemy_name[4][0],  "Bouncer");
+   strcpy (enemy_name[5][0],  "JumpWorm");
+   strcpy (enemy_name[6][0],  "Cannon");
+   strcpy (enemy_name[7][0],  "PodZilla");
+   strcpy (enemy_name[8][0],  "TrakBot");
+   strcpy (enemy_name[9][0],  "Cloner");
+   strcpy (enemy_name[10][0], "undef");
+   strcpy (enemy_name[11][0], "Block Walker");
+   strcpy (enemy_name[12][0], "Flapper");
+   strcpy (enemy_name[13][0], "VinePod");
+
+
+   strcpy (enemy_name[0][1],  "mpty");
+   strcpy (enemy_name[1][1],  "undf");
+   strcpy (enemy_name[2][1],  "undf");
+   strcpy (enemy_name[3][1],  "arch");
+   strcpy (enemy_name[4][1],  "boun");
+   strcpy (enemy_name[5][1],  "jump");
+   strcpy (enemy_name[6][1],  "cann");
+   strcpy (enemy_name[7][1],  "podz");
+   strcpy (enemy_name[8][1],  "trak");
+   strcpy (enemy_name[9][1],  "clon");
+   strcpy (enemy_name[10][1], "undf");
+   strcpy (enemy_name[11][1], "blkw");
+   strcpy (enemy_name[12][1], "flap");
+   strcpy (enemy_name[13][1], "vine");
+   strcpy (enemy_name[66][1], "dth2");
+   strcpy (enemy_name[99][1], "dth1");
+
+
+
+
 
    enemy_tile[3]  = 496;
    enemy_tile[4]  = 508;
