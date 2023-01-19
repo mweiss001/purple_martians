@@ -29,18 +29,25 @@ it did, disabled again....
 
 
 
-
-
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
+put player stuff all in its own file...maybe a class...
+will that affect the sync chunk of data??
+
+put display stuff all in its own file with header
+
+
+
+
+
+profile stuff on screen overlay page
+
+profile bmsg stuff...
+
 
 pm -h show commandline options...duh
-
-
 
 
 
@@ -692,6 +699,24 @@ make player wall collisions pixel perfect like when on ladder???
 make single block navigation like ladder move...
 this will make jumping up into single block opening very hard...
 this sound like a major re-write..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

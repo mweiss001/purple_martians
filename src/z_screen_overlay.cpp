@@ -2,7 +2,8 @@
 
 #include "pm.h"
 #include "z_qGraph.h"
-
+#include "z_sound.h"
+#include "z_log.h"
 
 void show_player_stat_box(int tx, int y, int p)
 {
@@ -1399,29 +1400,6 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
 }
 
 
-void dtextout(const char *txt1, int x, int y, int col)
-{
-   int sw = strlen(txt1) * 8;      // string length in pixels
-   int sh = 8;                     // string height in pixels
-
-   ALLEGRO_BITMAP *temps = NULL;
-   temps = al_create_bitmap(sw,sh);
-   al_set_target_bitmap(temps);
-   al_clear_to_color(al_map_rgb(0,0,0));
-
-   al_draw_text(font, palette_color[col], 0, 0, 0, txt1 );
-
-   al_set_target_bitmap(bmsg_temp);
-   al_draw_scaled_bitmap(temps, 0, 0, sw, sh, x, y, sw*2, sh*2, 0);
-   al_destroy_bitmap(temps);
-}
-
-
-
-
-
-
-
 
 void clear_bmsg(void)
 {
@@ -1440,7 +1418,8 @@ void clear_bmsg(void)
 
 int bmsg_show_text(const char *txt, int col, int bmsg_length)
 {
-   dtextout(txt, bmsg_length, 2, col);
+   al_draw_text(font2, palette_color[col], bmsg_length, 2, ALLEGRO_ALIGN_INTEGER, txt);
+   //printf("%d %s\n",frame_num, txt);
    return (strlen(txt)*16);
 }
 
@@ -1471,7 +1450,6 @@ int bmsg_draw_player(int p, int bmsg_length)
       al_draw_bitmap(player_tile[players[p].color][1], bmsg_length + len, 0, 0); // draw shape
       len += 20;
    }
-
    if (0) // 'Player x' and tile
    {
       sprintf(msg, "Player %d ", p);
@@ -1484,17 +1462,32 @@ int bmsg_draw_player(int p, int bmsg_length)
 
 int bmsg_draw_enemy(int e_type, int bmsg_length)
 {
+   int len = 0;
    if (0) // enemy name
    {
-      al_draw_textf(font, palette_color[15], bmsg_length*8, 0, 0, "%s", enemy_name[e_type][0]);
-      return (strlen(enemy_name[e_type][0])*16);
+      sprintf(msg, "%s", enemy_name[e_type][0]);
+      len += bmsg_show_text(msg, 15, bmsg_length);
    }
-
    if (1) // enemy tile
    {
       bmsg_draw_tile(enemy_tile[e_type], bmsg_length);
-      return 20;
+      len = 20;
    }
+   if (0) // name and tile
+   {
+      sprintf(msg, "%s ", enemy_name[e_type][0]);
+      len += bmsg_show_text(msg, 15, bmsg_length);
+      bmsg_draw_tile(enemy_tile[e_type], bmsg_length+len);
+      len +=20;
+   }
+   if (0) // tile and name
+   {
+      bmsg_draw_tile(enemy_tile[e_type], bmsg_length);
+      len +=20;
+      sprintf(msg, " %s", enemy_name[e_type][0]);
+      len += bmsg_show_text(msg, 15, bmsg_length+len);
+   }
+   return len;
 }
 
 int bmsg_show_health(int h, int bmsg_length)
@@ -1509,6 +1502,7 @@ int bmsg_show_health(int h, int bmsg_length)
 
 void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
+   if (LOG_TMR_bmsg_add) t0 = al_get_time();
 
    // event retrigger holdoff for these events that can repeat every frame
    if (ev == 3) // exit
@@ -1516,48 +1510,37 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
       if (game_event_retrigger_holdoff[1] < frame_num) game_event_retrigger_holdoff[1] = frame_num + 60;
       else ev = 0;
    }
-
    if (ev == 50) // mine
    {
       if (game_event_retrigger_holdoff[2] < frame_num) game_event_retrigger_holdoff[2] = frame_num + 20;
       else ev = 0;
    }
-
    if ((ev == 57) || (ev == 59)) // raw damage that needs to be tallied
    {
       int p = z1;
-
       float damage = 0;
       if (ev == 59) damage = (float)item[z2][15] / 100; // damage from item 17 - damage
-
-      //players1[p].field_damage_enemy_number = z2;
-
       if (players1[p].field_damage_holdoff < frame_num) // triggered and not in holdoff
       {
          players1[p].field_damage_holdoff = frame_num + 20; // set holdoff
          players1[p].field_damage_tally = damage; // init tally with current damage
          ev = 0; // don't let this event do anything
       }
-
       if (players1[p].field_damage_holdoff > frame_num) // triggered and in holdoff
       {
          players1[p].field_damage_tally += damage; // inc tally with current damage
          ev = 0; // don't let this event do anything
       }
    }
-
-
    if ((ev != 0) && (ev != 1) && (ev != 4) && (ev != 15) && (ev != 22) && (ev != 31) && (ev != 31) ) // events that don't have bmsg handler
    {
       int bmsg_length = 0; // keep a running total
       int custom_drawn = 0;
 
-      bmsg_temp = al_create_bitmap(800, 20); // create a temp bitmap to build a single line
       al_set_target_bitmap(bmsg_temp);
-      al_clear_to_color(al_map_rgb(0, 0, 0));
+      al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 
       bmsg_length += bmsg_draw_player(z1, bmsg_length); // all bmsg start with player
-
 
       if (ev == 5) // player went through a door
       {
@@ -1746,19 +1729,14 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          custom_drawn = 1;
          bmsg_length += bmsg_show_text(" died!", 15, bmsg_length);
       }
-
-
       if (custom_drawn) // caught by one of the handlers here
       {
          bottom_msg = 100; // start the timer
          if (++bmsg_index > 19) bmsg_index = 0;
 
          al_set_target_bitmap(bmsg_bmp[bmsg_index]);
-
-         al_clear_to_color(al_map_rgb(0, 0, 0));
+         al_clear_to_color(al_map_rgba(0, 0, 0, 0));
          al_draw_bitmap(bmsg_temp, (400 - (bmsg_length/2)), 0, 0);
-
-         al_convert_mask_to_alpha(bmsg_bmp[bmsg_index], al_map_rgb(0, 0, 0)) ;
          al_set_target_backbuffer(display);
 
          // convert array to array2 to re-arrange order...this does not actually copy anything except pointers!
@@ -1781,15 +1759,15 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          printf(" no bmsg handler for event:%d\n",ev);
         // 1-shoot 4-exit 15-jump 22-explosion 31-sproingy
       }
-      al_destroy_bitmap(bmsg_temp); // destroy the temp bitmap
    }
+   if (LOG_TMR_bmsg_add) add_log_TMR(al_get_time() - t0, "bmsg_add4", 0);
 }
 
 void draw_bmsg()
 {
+   if (LOG_TMR_bmsg_draw) t0 = al_get_time();
    if (bottom_msg_on)
    {
-
 //      bottom_msg = 100; // always draw
       if (bottom_msg > 0)
       {
@@ -1800,7 +1778,6 @@ void draw_bmsg()
          int dfb = 2000 - al_fixtoi(players[active_local_player].PY); // player distance from bottom of level
          if (dfb < 300)  nb = 4;
          if (dfb < 200)  nb = 2;
-
 
          int sw = 800; // string length in pixels
          int sh = 20;  // string height in pixels
@@ -1833,11 +1810,11 @@ void draw_bmsg()
             chs -= hss;
             y -= dh;
          }
-
          // draw bounding box to show what size it is
 //         float tvs = (sw/2)*ivs;
 //         al_draw_rectangle(x-tvs, SCREEN_H,  x+tvs, y, palette_color[15], 1);
 
       }
    }
+   if (LOG_TMR_bmsg_draw) add_log_TMR(al_get_time() - t0, "bmsg_draw", 0);
 }

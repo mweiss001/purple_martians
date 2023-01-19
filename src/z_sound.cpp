@@ -1,6 +1,24 @@
-// zsound.cpp
-
+// z_sound.cpp
 #include "pm.h"
+#include "z_sound.h"
+
+// ------------------------------------------------
+// ---------------- sound -------------------------
+// ------------------------------------------------
+ALLEGRO_VOICE *voice = NULL;
+ALLEGRO_MIXER *mn_mixer = NULL;
+ALLEGRO_MIXER *se_mixer = NULL;
+ALLEGRO_MIXER *st_mixer = NULL;
+ALLEGRO_SAMPLE *snd[20];
+ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
+ALLEGRO_AUDIO_STREAM *pm_theme_stream;
+int fuse_loop_playing;
+int sample_delay[8];
+int se_scaler=5;
+int st_scaler=5;
+int lit_item;
+int sound_on = 1;
+
 
 void load_sound() // for normal loading of sound driver and samples
 {

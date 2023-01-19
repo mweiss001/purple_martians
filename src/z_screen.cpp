@@ -17,11 +17,44 @@ void load_fonts(void)
    }
    //else printf("created builtin font\n");
 
+//   al_destroy_font(font);
+//   font = al_load_ttf_font("bitmaps/Pristine.ttf", 8, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
+//   if(!font) m_err("Failed to load font from bitmaps/Pristine.ttf");
+//   //else printf("loaded font Pristine.ttf\n");
 
-   al_destroy_font(font);
-   font = al_load_ttf_font("bitmaps/Pristine.ttf", 8, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
-   if(!font) m_err("Failed to load font from bitmaps/Pristine.ttf");
-   //else printf("loaded font Pristine.ttf\n");
+//   al_destroy_font(font2);
+//   font2 = al_load_ttf_font("bitmaps/Pristine.ttf", 16, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
+//   if(!font2) m_err("Failed to load font from bitmaps/Pristine.ttf");
+//   //else printf("loaded font Pristine.ttf\n");
+
+
+   // now we get pristine font from bitmap in the interest of drawing faster
+   ALLEGRO_BITMAP* tmp = al_load_bitmap("bitmaps/Pristine_8.bmp");
+   if (!tmp) m_err((char*)"Can't load bitmaps//Pristine_8.bmp");
+   else
+   {
+      al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
+
+      al_destroy_font(font);
+      int ranges[] = {32, 127};
+      font = al_grab_font_from_bitmap(tmp, 1, ranges);
+      if (!font) m_err("Failed to load font from bitmaps/Pristine_8.bmp");
+      al_destroy_bitmap(tmp);
+   }
+
+   // pristine 16x16 version
+   tmp = al_load_bitmap("bitmaps/Pristine_16.bmp");
+   if (!tmp) m_err((char*)"Can't load bitmaps//Pristine_16.bmp");
+   else
+   {
+      al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
+
+      al_destroy_font(font2);
+      int ranges[] = {32, 127};
+      font2 = al_grab_font_from_bitmap(tmp, 1, ranges);
+      if (!font2) m_err("Failed to load font from bitmaps/Pristine_16.bmp");
+      al_destroy_bitmap(tmp);
+   }
 
    al_destroy_font(f1);
    f1 = al_load_ttf_font("bitmaps/Achafont.ttf", 240, 0);
@@ -77,8 +110,8 @@ void create_bitmaps(void)
    al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
    tilemap  = al_create_bitmap(640, 640);
    btilemap = al_create_bitmap(640, 640);
-   ptilemap = al_create_bitmap(480,320);
-   dtilemap = al_create_bitmap(160,640);
+   ptilemap = al_create_bitmap(480, 320);
+   dtilemap = al_create_bitmap(160, 640);
 
    al_set_target_bitmap(tilemap);
    al_clear_to_color(al_map_rgba(0,0,0,0));
@@ -126,6 +159,10 @@ void create_bitmaps(void)
       al_clear_to_color(al_map_rgba(0,0,0,0));
       bmsg_bmp2[x] = bmsg_bmp[x];
    }
+   bmsg_temp = al_create_bitmap(800, 20); // create a temp bitmap to build a single line
+   al_set_target_bitmap(bmsg_temp);
+   al_clear_to_color(al_map_rgba(0,0,0,0));
+
 }
 
 

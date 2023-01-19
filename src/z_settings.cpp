@@ -1,5 +1,7 @@
 // z_settings.cpp
 #include "pm.h"
+#include "z_sound.h"
+#include "z_log.h"
 
 void set_all_logging(int v)
 {
@@ -17,6 +19,8 @@ void set_all_logging(int v)
    LOG_TMR_move_tot=v;
    LOG_TMR_move_all=v;
    LOG_TMR_move_enem=v;
+   LOG_TMR_bmsg_add=v;
+   LOG_TMR_bmsg_draw=v;
    LOG_TMR_draw_tot=v;
    LOG_TMR_draw_all=v;
    LOG_TMR_sdif=v;
@@ -127,14 +131,14 @@ void settings_pages(int set_page)
    sprintf(st[5].title,  "Advanced");
    sprintf(st[6].title,  "Info");
    sprintf(st[7].title,  "Viewport");
-   sprintf(st[8].title,  "ggyp 3");
+   sprintf(st[8].title,  "Profiling");
    sprintf(st[9].title,  "Test 4");
    sprintf(st[10].title, "Test 5");
    sprintf(st[11].title, "Test 6");
    sprintf(st[12].title, "Test 7");
    sprintf(st[13].title, "Test 8");
    sprintf(st[14].title, "Test 9");
-   int num_pages = 8;
+   int num_pages = 9;
 
    char title[80] = {0};
    sprintf(title, "Settings");
@@ -325,13 +329,18 @@ void settings_pages(int set_page)
          x1a = x1b + 12;
          x1b = x1a + 140;
          mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,0,0, se_scaler, 9, 0, 1, "Sound Effects:");
-         if ((old_se_scaler != se_scaler) && (sound_on)) al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
+
+         if (old_se_scaler != se_scaler) set_se_scaler();
+
+
+         //if ((old_se_scaler != se_scaler) && (sound_on)) al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
 
          int old_st_scaler = st_scaler;
          x1a = x1b + 12;
          x1b = x1a + 140;
          mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,1,0, st_scaler, 9, 0, 1, "Sound Track:");
-         if ((old_st_scaler != st_scaler) && (sound_on)) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
+         if (old_st_scaler != st_scaler) set_st_scaler();
+//         if ((old_st_scaler != st_scaler) && (sound_on)) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
 
          ya -=2;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -472,15 +481,6 @@ void settings_pages(int set_page)
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_client_timer_adj,   "LOG_NET_client_timer_adj", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_server_rx_stak,     "LOG_NET_server_rx_stak", tc, fc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_tot,      "LOG_TMR_move_tot", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_all,      "LOG_TMR_move_all", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_enem,     "LOG_TMR_move_enem", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_draw_tot,      "LOG_TMR_draw_tot", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_draw_all,      "LOG_TMR_draw_all", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_sdif,          "LOG_TMR_sdif", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_cdif,          "LOG_TMR_cdif", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_rwnd,          "LOG_TMR_rwnd", tc, fc);
-
          ya+=10;
          bts = 14;
          xb = xa+60;
@@ -507,7 +507,7 @@ void settings_pages(int set_page)
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,13,15, 0,  1,0,0,0, "Run Log File Viewer")) log_file_viewer(1);
          xa = xa+200;
          xb = cfp_x2 - 10;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Run Profile Graph")) load_profile_graph();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Run Profile Graph")) load_profile_graph(1);
       }
 // ---------------------------------------------------------------
 //  4 - demo
@@ -747,13 +747,84 @@ void settings_pages(int set_page)
          if (viewport_show_hyst) draw_hyst_rect();
       }
 
+// ---------------------------------------------------------------
+//  8 - profiling
+// ---------------------------------------------------------------
+      if (page == 8)
+      {
+         int line_spacing = 10;
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int ya = cfp_y1 + 10;
+         int bts = 10;
+         int tc = 13;
+         int fc = 15;
+
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_tot,      "LOG_TMR_move_tot", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_all,      "LOG_TMR_move_all", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_enem,     "LOG_TMR_move_enem", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_draw_tot,      "LOG_TMR_draw_tot", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_draw_all,      "LOG_TMR_draw_all", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_sdif,          "LOG_TMR_sdif", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_cdif,          "LOG_TMR_cdif", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_rwnd,          "LOG_TMR_rwnd", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_bmsg_add,      "LOG_TMR_bmsg_add", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_bmsg_draw,     "LOG_TMR_bmsg_draw", tc, fc);
+
+         ya+=10;
+         bts = 14;
+         xb = xa+60;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "All On")) set_all_logging(1);
+         xa = xa+80;
+         xb = xa+60;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,1,0, "All Off")) set_all_logging(0);
 
 
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
 
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
+         bts = 10;
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
 
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
+         bts = 16;
+         if (mdw_buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Profile Graph")) load_profile_graph(0);
 
+         ya += 8;
+
+         if (mdw_buttont(xa+40, ya, xb-40, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select and Open Profile Graph")) load_profile_graph(1);
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         if (mdw_buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
+         {
+            new_program_state = 10;
+            old_program_state = 3;
+            return;
+         }
+
+         ya += 8;
+         xb = xa+180;
+         if (mdw_buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
+         {
+            new_program_state = 20;
+            old_program_state = 3;
+            return;
+         }
+         xa = xa+200;
+         xb = cfp_x2 - 30;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
+         {
+            new_program_state = 24;
+            old_program_state = 3;
+            return;
+         }
+      }
 
 
       if (key[ALLEGRO_KEY_ESCAPE][0])

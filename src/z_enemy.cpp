@@ -1,5 +1,6 @@
 // z_enemy.cpp
 #include "pm.h"
+#include "z_log.h"
 
 int enemy_data(int x_pos, int y_pos)
 {
@@ -403,18 +404,14 @@ void proc_enemy_collision_with_pbullet(int e)
 
 void move_enemies()
 {
-if (LOG_TMR_move_enem) init_timestamps();
-
+   if (LOG_TMR_move_enem) init_timestamps();
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
       if (Ei[e][0])
       {
          if (LOG_TMR_move_enem) t0 = al_get_time();
-
          num_enemy++; // enemy count
-
          if (Ei[e][0] < 50) proc_enemy_collision_with_pbullet(e);
-
          // check for time to live
          int ttl = Ei[e][27];
          if (ttl)
@@ -449,70 +446,34 @@ if (LOG_TMR_move_enem) init_timestamps();
             case 13: enemy_vinepod(e);  break;
             case 99: enemy_deathcount(e); break;
          }
-
-
          if (LOG_TMR_move_enem) add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
-
-
-
       }
-
    if (LOG_TMR_move_enem)
    {
+      // tally up all the times for each enemy type
       double tmr_tally[100][3] = {0};
-
       for (int i=0; i<10000; i++)
          if (timestamps[i].type == 103)
          {
-            tmr_tally[timestamps[i].frame2][0] +=1; // add to number of this type tally
+            tmr_tally[timestamps[i].frame2][0] +=1;                 // add to number of this type tally
             tmr_tally[timestamps[i].frame2][1] += timestamps[i].t1; // add to time tally
          }
-
-      sprintf(msg, "tmst");
-      char t[32];
-
+      // build log entry
+      char t[512] = {0};
+      char l[64] = {0};
       for (int i=0; i<100; i++)
          if (tmr_tally[i][1] > 0)
          {
-            sprintf(t, " %s:[%0.4f]", enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
-            strcat(msg, t);
-
-
-//            printf("type:%d %s num:%d  cum_time:%0.1f  avg_time:%0.1f\n", i, enemy_name[i][1], (int)tmr_tally[i][0], tmr_tally[i][1]*1000000, (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
-
-//            sprintf(msg, "tmst arch:[%0.4f] boun:[%0.4f] jump:[%0.4f] cann:[%0.4f] podz:[%0.4f] trak:[%0.4f] clon:[%0.4f] blkw:[%0.4f] flap:[%0.4f] vine:[%0.4f] dth2:[%0.4f] dth1:[%0.4f] \n",
-
-
-
-
-
-
-
-//      sprintf(msg, "tmst ebul:[%0.4f] pbul:[%0.4f] lift:[%0.4f] plyr:[%0.4f] enem:[%0.4f] item:[%0.4f] totl:[%0.4f]\n",
-//      (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t6-t0)*1000);
-
-
+            sprintf(l, "m-%s:[%0.4f] ", enemy_name[i][1], (tmr_tally[i][1]/tmr_tally[i][0])*1000000);
+            strcat(t, l);
          }
-
-      sprintf(t, "\n");
-      strcat(msg, t);
-
-   //   printf("%s", msg);
-
+      sprintf(msg, "tmst %s\n", t);
+      // printf("%s", msg);
       add_log_entry2(44, 0, msg);
-
-
-
-
-
-
    }
-
-
-
-
-
 }
+
+
 
 void enemy_deathcount(int e)
 {

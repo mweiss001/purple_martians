@@ -1,5 +1,7 @@
 // z_args.cpp
 #include "pm.h"
+#include "z_log.h"
+
 
 void pm_copy_exe(const char* filepath)
 {
@@ -573,6 +575,17 @@ void temp_test(void)
 //
 //
 //
+
+
+
+
+
+
+
+
+
+
+
 
 
 

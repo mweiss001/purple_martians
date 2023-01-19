@@ -1,5 +1,6 @@
 // ping_buffer.cpp
 #include "pm.h"
+#include "z_log.h"
 
 void ping_buffer_clear(void)
 {

@@ -1,6 +1,87 @@
 // zlog.cpp
 #include "pm.h"
+#include "z_log.h"
 #include "z_mwGraph.h"
+
+
+
+
+
+
+
+
+
+// ------------------------------------------------
+// ----------------- logging ----------------------
+// ------------------------------------------------
+
+char log_msg[NUM_LOG_CHAR]; // for logging
+int log_msg_pos = 0;
+char log_lines[NUM_LOG_LINES][100]; // for log file viewer
+int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
+
+
+int LOG_NET = 0;
+int LOG_NET_join = 0;
+int LOG_NET_player_array = 0;
+int LOG_NET_bandwidth = 0;
+int LOG_NET_cdat = 0;
+int LOG_NET_stdf = 0;
+int LOG_NET_stdf_all_packets = 0;
+int LOG_NET_stdf_when_to_apply = 0;
+int LOG_NET_client_ping = 0;
+int LOG_NET_client_timer_adj = 0;
+int LOG_NET_server_rx_stak = 0;
+
+int LOG_TMR_move_tot = 0;
+int LOG_TMR_move_all = 0;
+int LOG_TMR_move_enem = 0;
+
+int LOG_TMR_bmsg_add = 0;
+int LOG_TMR_bmsg_draw = 0;
+
+
+
+int LOG_TMR_draw_tot = 0;
+int LOG_TMR_draw_all = 0;
+int LOG_TMR_sdif = 0;
+int LOG_TMR_cdif = 0;
+int LOG_TMR_rwnd = 0;
+
+
+int autosave_log_on_program_exit = 0;
+int autosave_log_on_game_exit = 0;
+int autosave_log_on_level_done = 0;
+int autosave_game_on_game_exit = 0;
+int autosave_game_on_level_done = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void log_bandwidth_stats(int p)
 {
@@ -1692,7 +1773,33 @@ int get_tag_text2(char *str, char *res, char *res1, int show)
 }
 
 
-void load_profile_graph(void)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void load_profile_graph(int choose)
 {
    mG[0].initialize();
    mG[0].set_series(0, "", 1, 0);
@@ -1700,14 +1807,49 @@ void load_profile_graph(void)
    int done = 0;
    int debug_print = 0;
 
-
-   ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Select Log File to View", "*.txt", 0);
-   if (al_show_native_file_dialog(display, afc))
+   if (choose)
    {
-      if (al_get_native_file_dialog_count(afc) == 1) sprintf(fname, "%s", al_get_native_file_dialog_path(afc, 0));
+      ALLEGRO_FILECHOOSER *afc = al_create_native_file_dialog(fname, "Select Log File to View", "*.txt", 0);
+      if (al_show_native_file_dialog(display, afc))
+      {
+         if (al_get_native_file_dialog_count(afc) == 1) sprintf(fname, "%s", al_get_native_file_dialog_path(afc, 0));
+      }
+      else { al_destroy_native_file_dialog(afc); return; } // user cancelled
+      al_destroy_native_file_dialog(afc);
    }
-   else { al_destroy_native_file_dialog(afc); return; } // user cancelled
-   al_destroy_native_file_dialog(afc);
+   else // most recent file
+   {
+      sprintf(fname, "logs/");
+      //printf("fname:%s\n", fname);
+      // convert to 'ALLEGRO_FS_ENTRY' (to makes fully qualified path)
+      ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
+
+      // convert back to string
+      sprintf(fname, "%s\\", al_get_fs_entry_name(FS_fname));
+      //printf("FS_fname:%s\n", fname);
+
+      num_filenames = 0;
+      // iterate levels in log folder and put in filename array
+      al_for_each_fs_entry(FS_fname, fill_filename_array, NULL);
+      if (num_filenames == 0) printf("No log files found.\n");
+      else
+      {
+         //for (int i=0; i< num_filenames; i++)
+         //printf("%s\n", al_get_fs_entry_name(filenames[i]));
+         time_t t = 0;
+         int latest = 0;
+         for (int i=0; i< num_filenames; i++)
+            if (al_get_fs_entry_ctime(filenames[i]) > t)
+            {
+               t = al_get_fs_entry_ctime(filenames[i]);
+               latest = i;
+            }
+         //printf("most recent file is: %s\n", al_get_fs_entry_name(filenames[latest]));
+         sprintf(fname, "%s", al_get_fs_entry_name(filenames[latest]));
+      }
+   }
+
+
    FILE *filepntr=fopen(fname,"r");
    while(!done)
    {

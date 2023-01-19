@@ -1,5 +1,6 @@
 // z_file.cpp
 #include "pm.h"
+#include "z_log.h"
 
 FILE *filepntr;
 

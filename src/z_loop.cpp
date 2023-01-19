@@ -2,6 +2,8 @@
 #include "pm.h"
 
 #include "z_qGraph.h"
+#include "z_sound.h"
+#include "z_log.h"
 
 
 void proc_events(ALLEGRO_EVENT ev)
@@ -156,7 +158,7 @@ void draw_frame(void)
    if (LOG_TMR_draw_all)
    {
       t10 = al_get_time();
-      sprintf(msg, "tmst bkgr:[%0.4f] lift:[%0.4f] item:[%0.4f] enem:[%0.4f] ebul:[%0.4f] pbul:[%0.4f] plyr:[%0.4f] buff:[%0.4f] ovrl:[%0.4f] flip:[%0.4f] totl:[%0.4f]\n",
+      sprintf(msg, "tmst d-bkgr:[%0.4f] d-lift:[%0.4f] d-item:[%0.4f] d-enem:[%0.4f] d-ebul:[%0.4f] d-pbul:[%0.4f] d-plyr:[%0.4f] d-buff:[%0.4f] d-ovrl:[%0.4f] d-flip:[%0.4f] d-totl:[%0.4f]\n",
       (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t7-t6)*1000, (t8-t7)*1000, (t9-t8)*1000, (t10-t9)*1000, (t10-t0)*1000);
       //printf("\n%s\n", msg);
       add_log_entry2(44, 0, msg);
@@ -185,15 +187,11 @@ void move_frame(void)
    if (LOG_TMR_move_all)
    {
       t6 = al_get_time();
-      sprintf(msg, "tmst ebul:[%0.4f] pbul:[%0.4f] lift:[%0.4f] plyr:[%0.4f] enem:[%0.4f] item:[%0.4f] totl:[%0.4f]\n",
+      sprintf(msg, "tmst m-ebul:[%0.4f] m-pbul:[%0.4f] m-lift:[%0.4f] m-plyr:[%0.4f] m-enem:[%0.4f] m-item:[%0.4f] m-totl:[%0.4f]\n",
       (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t6-t0)*1000);
       //printf("\n%s\n", msg);
       add_log_entry2(44, 0, msg);
    }
-
-
-
-
    if (LOG_TMR_move_tot) add_log_TMR(al_get_time() - t0, "move", 0);
 }
 
