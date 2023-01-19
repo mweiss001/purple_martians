@@ -1,7 +1,7 @@
 // z_player.cpp
 
 #include "pm.h"
-
+#include "z_log.h"
 
 
 void set_player_start_pos(int p, int cont)

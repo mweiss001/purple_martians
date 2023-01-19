@@ -118,6 +118,7 @@
 		<Unit filename="src/z_item.cpp" />
 		<Unit filename="src/z_lift.cpp" />
 		<Unit filename="src/z_log.cpp" />
+		<Unit filename="src/z_log.h" />
 		<Unit filename="src/z_logo.cpp" />
 		<Unit filename="src/z_loop.cpp" />
 		<Unit filename="src/z_main.cpp" />
@@ -132,6 +133,7 @@
 		<Unit filename="src/z_screen_overlay.cpp" />
 		<Unit filename="src/z_settings.cpp" />
 		<Unit filename="src/z_sound.cpp" />
+		<Unit filename="src/z_sound.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

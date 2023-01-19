@@ -480,6 +480,7 @@ extern int flash_color2;
 extern int flash_counter;
 extern ALLEGRO_FONT *font0;
 extern ALLEGRO_FONT *font;
+extern ALLEGRO_FONT *font2;
 extern ALLEGRO_FONT *f1;
 extern ALLEGRO_FONT *f2;
 extern ALLEGRO_FONT *f3;
@@ -530,61 +531,6 @@ extern int large_text_overlay_state;
 
 
 
-// ------------------------------------------------
-// ----------------- logging ----------------------
-// ------------------------------------------------
-
-
-//#define NUM_LOG_CHAR  100000000
-//#define NUM_LOG_LINES 2000000
-
-// this is too much man! causes weird issues
-//#define NUM_LOG_CHAR  500000000
-//#define NUM_LOG_LINES 5000000
-
-#define NUM_LOG_CHAR  100000000
-#define NUM_LOG_LINES 1000000
-
-
-extern char log_msg[NUM_LOG_CHAR]; // for logging
-extern int log_msg_pos;
-extern char log_lines[NUM_LOG_LINES][100]; // for log file viewer
-extern int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
-
-
-extern int LOG_NET;
-extern int LOG_NET_join;
-extern int LOG_NET_player_array;
-extern int LOG_NET_bandwidth;
-extern int LOG_NET_cdat;
-extern int LOG_NET_stdf;
-extern int LOG_NET_stdf_all_packets;
-extern int LOG_NET_stdf_when_to_apply;
-extern int LOG_NET_client_ping;
-extern int LOG_NET_client_timer_adj;
-extern int LOG_NET_server_rx_stak;
-
-
-extern int LOG_TMR_move_tot;
-extern int LOG_TMR_move_all;
-extern int LOG_TMR_move_enem;
-
-
-extern int LOG_TMR_draw_tot;
-extern int LOG_TMR_draw_all;
-extern int LOG_TMR_sdif;
-extern int LOG_TMR_cdif;
-extern int LOG_TMR_rwnd;
-
-
-extern int autosave_log_on_program_exit;
-extern int autosave_log_on_game_exit;
-extern int autosave_log_on_level_done;
-
-
-
-extern int autosave_game_on_game_exit;
-extern int autosave_game_on_level_done;
 
 
 
@@ -930,22 +876,6 @@ struct ebullet
 
 
 
-// ------------------------------------------------
-// ---------------- sound -------------------------
-// ------------------------------------------------
-extern ALLEGRO_VOICE *voice;
-extern ALLEGRO_MIXER *mn_mixer;
-extern ALLEGRO_MIXER *se_mixer;
-extern ALLEGRO_MIXER *st_mixer;
-extern ALLEGRO_SAMPLE *snd[20];
-extern ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
-extern ALLEGRO_AUDIO_STREAM *pm_theme_stream;
-extern int fuse_loop_playing;
-extern int sample_delay[8];
-extern int st_scaler;
-extern int se_scaler;
-extern int lit_item;
-extern int sound_on;
 
 
 // ------------------------------------------------
@@ -980,7 +910,7 @@ extern int Ei[100][32];        // enemy ints
 extern al_fixed Efi[100][16];  // enemy fixeds
 extern int e_num_of_type[50];
 extern int e_first_num[50];
-extern char enemy_name[20][2][40];
+extern char enemy_name[100][2][40];
 extern int num_enemy;
 
 extern int item_tile[20];
@@ -1408,7 +1338,6 @@ double PacketGetDouble(void);
 
 //n_server.h
 
-
 void init_timestamps(void);
 void add_timestamp(int type, int f1, int f2, double t1, double t2);
 int get_timestamp(int f, int type, double &res);
@@ -1695,41 +1624,6 @@ void set_lift_xyinc(int d, int step);
 int lift_check_prox(int l, int pd);
 void move_lifts(int ignore_prox);
 
-// z_log.h
-void log_bandwidth_stats(int p);
-void log_reason_for_player_quit(int p);
-void add_log_TMR(double dt, const char *tag, int p);
-void log_time_date_stamp(void);
-void log_versions(void);
-void log_player_array(void);
-void log_player_array2(void);
-void log_ending_stats(int p);
-void log_ending_stats_server(void);
-void erase_log(void);
-void save_log_file(void);
-void add_log_entry_sdat_rx_and_game_move_entered(int type, int player);
-void add_log_entry2(int type, int player, const char *txt);
-void add_log_entry_position_text(int type, int player, int width, int pos, const char *txt, const char *border, const char *fill);
-void add_log_entry_centered_text(int type, int player, int width, const char *txt, const char *border, const char *fill);
-void add_log_entry_header(int type, int player, const char *txt, int blank_lines);
-int fill_filename_array(ALLEGRO_FS_ENTRY *fs, void * extra);
-int log_file_viewer(int type);
-
-
-void load_profile_graph(void);
-
-
-
-int load_log_lines_array_from_static_file(const char* f);
-
-void log_ping_graph(int num_lines);
-void log_client_server_sync_graph(int num_lines);
-void log_bandwidth_graph(int num_lines, int both);
-void show_code_stats(void);
-
-
-
-
 // z_logo.h
 void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt);
 void draw_title(int tx, int ty, int ttw, int tth, int color);
@@ -1857,7 +1751,6 @@ void draw_fps_display(int show_type);
 void draw_speed_test_data(void);
 void draw_top_display(void);
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
-void dtextout(const char *txt1, int x, int y, int col);
 void clear_bmsg(void);
 int bmsg_show_text(const char *txt, int col, int bmsg_length);
 int bmsg_draw_tile(int tn, int bmsg_length);
@@ -1877,15 +1770,6 @@ int cfp_draw_line(int xa, int xb, int ya, int line_spacing, int col);
 void draw_tab(struct settings_tab st[], int p, int col, int text_color);
 void settings_pages(int set_page);
 
-
-// z_sound.h
-void start_music(int resume);
-void stop_sound(void);
-void proc_sound(void);
-void load_sound(void);
-void set_se_scaler(void);
-void set_st_scaler(void);
-void sound_toggle(void);
 
 
 

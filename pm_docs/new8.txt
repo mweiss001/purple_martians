@@ -5874,6 +5874,338 @@ gtg its linzies 18th!!
 
 
 
+run profile graph with screen overlay on/off
+
+could it be that the temp_bitmap created is a memory bitmap??
+
+won't know till I profile...
+
+
+
+
+
+
+
+made profiling page in settings
+button to open most recent graph
+button to run game from that page
+done
+
+
+some duplicate labels are messing up profile graphs...
+
+all draw have d- prefix
+all move have m- prefix
+all move enemy now have m- prefix
+
+
+all profile to add new bmsg
+
+
+
+
+making sounds have its own header...
+
+
+moved all externs and function prototypes to  .h
+
+// ------------------------------------------------
+// ---------------- sound -------------------------
+// ------------------------------------------------
+extern ALLEGRO_VOICE *voice;
+extern ALLEGRO_MIXER *mn_mixer;
+extern ALLEGRO_MIXER *se_mixer;
+extern ALLEGRO_MIXER *st_mixer;
+extern ALLEGRO_SAMPLE *snd[20];
+extern ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
+extern ALLEGRO_AUDIO_STREAM *pm_theme_stream;
+extern int fuse_loop_playing;
+extern int sample_delay[8];
+extern int st_scaler;
+extern int se_scaler;
+extern int lit_item;
+extern int sound_on;
+
+// z_sound.h
+void start_music(int resume);
+void stop_sound(void);
+void proc_sound(void);
+void load_sound(void);
+void set_se_scaler(void);
+void set_st_scaler(void);
+void sound_toggle(void);
+
+
+
+moved all declarations to sound.cpp
+
+ALLEGRO_VOICE *voice = NULL;
+ALLEGRO_MIXER *mn_mixer = NULL;
+ALLEGRO_MIXER *se_mixer = NULL;
+ALLEGRO_MIXER *st_mixer = NULL;
+ALLEGRO_SAMPLE *snd[20];
+ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
+ALLEGRO_AUDIO_STREAM *pm_theme_stream;
+int fuse_loop_playing;
+int sample_delay[8];
+int se_scaler=5;
+int st_scaler=5;
+int lit_item;
+int sound_on = 1;
+
+
+then every file that needs access includes z_sound.h
+
+that seems to work good.....
+
+did the same with z_log...
+
+
+
+
+I am profiling bmsg...
+
+add 1.4-2.2ms
+draw 7us
+
+
+now lets try to change somethings...
+
+see what type of bitmap is created...
+
+
+there is a global variable:
+ALLEGRO_BITMAP *bmsg_temp;
+
+every time new_bmsg is called:
+bmsg_temp = al_create_bitmap(800, 20); // create a temp bitmap to build a single line
+al_destroy_bitmap(bmsg_temp); // destroy the temp bitmap
+
+why do I bother?? it is always the same size...
+bitmap flags:
+ALLEGRO_VIDEO_BITMAP
+ALLEGRO_NO_PRESERVE_TEXTURE
+
+I will try to create it in create bitmap
+
+still 1.6 to 1.9ms
+
+next....
+
+maybe its my dtextout...does nothing except double text size, but it uses a temp bitmap...
+
+comment out and speed test..still 1.1 to 1.3...
+
+
+how about instead of all these temp bitmaps, I just draw on the final...pass a pointer to it to al the subfunctions
+
+
+al_set_target_bitmap(bmsg_bmp[bmsg_index]);
+al_clear_to_color(al_map_rgb(0, 0, 0));
+
+//al_draw_bitmap(bmsg_temp, (400 - (bmsg_length/2)), 0, 0); same as 0
+
+al_convert_mask_to_alpha(bmsg_bmp[bmsg_index], al_map_rgb(0, 0, 0)) ;
+al_set_target_backbuffer(display);
+
+
+so just pass (bmsg_bmp[bmsg_index]);
+
+I don't think that was what was slowing it down
+
+I think it was:
+- the dtextout using a temp bitmap to doubel text size
+- the call to set alpha..
+
+i fixed the text thing by creating another font that is size 16..
+have not figured out the alpha yet...
+
+i think I need to bring bacj the temp bitmap, if for no other reason than:
+I need to make it centered, but can't do that until I am finished drawing...
+like I said, I dont think that was the bottleneck...
+
+changed from
+al_clear_to_color(al_map_rgb(0, 0, 0));
+to
+al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+
+now it works better...
+
+
+first add spikes to 700us then around 100-150us...10x better...
+
+not sure why first one is different
+
+print bmsg when adding and compare to profile graph...
+
+
+why when I draw a tile it takes ~6us but when I draw text, it takes ~100us
+
+it makes no sense to me...
+
+
+
+when I use the built in 8x8 font I get the first spike to 50us then around 10-15us
+
+maybe the problem all along has been the truetype font
+
+can I convert it to a bitmap type font?
+
+
+I sure as fuck am going to try...
+
+first of all print the pristine char set...
+
+
+
+I only care about 32-127
+
+
+now that I have done that, they seem to draw very fast....
+no big spike on start, max for everything in add bmsg is 34us..draw text is typically 10us
+I am very happy with that...I'll need to put it all back together
+
+put the code here in the comments for future reference...
+
+
+
+
+//   convert pristine ttf font to bitmap font so I can draw it faster 16x16 version
+
+
+
+   ALLEGRO_BITMAP *b = al_create_bitmap(290, 110);
+   al_set_target_bitmap(b);
+
+   ALLEGRO_COLOR bg1 = al_map_rgb(255, 0, 0);
+   ALLEGRO_COLOR bg2 = al_map_rgb(0, 0, 0);
+   ALLEGRO_COLOR t = al_map_rgb(255, 255, 255);
+
+   al_clear_to_color(bg1);
+
+   int y = 2;
+   for (int b=32; b<128; b+=16)
+   {
+      int x = 2;
+      for (int a=0; a<16; a++)
+      {
+         al_draw_filled_rectangle(x+a*18, y, x+a*18+16, y+16, bg2);
+         al_draw_textf(font2, t, x+a*18, y, 0, "%c", a+b);
+      }
+      y+=18;
+   }
+
+   al_set_target_backbuffer(display);
+   al_draw_bitmap(b, 0, 0, 0);
+
+   al_save_bitmap("bitmaps/Pristine_16.bmp", b);
+
+
+   al_flip_display();
+   tsw();
+
+
+
+//   convert pristine ttf font to bitmap font so I can draw it faster 8x8 version
+//
+//   ALLEGRO_BITMAP *b = al_create_bitmap(162, 62);
+//   al_set_target_bitmap(b);
+//
+//   ALLEGRO_COLOR bg1 = al_map_rgb(255, 0, 0);
+//   ALLEGRO_COLOR bg2 = al_map_rgb(0, 0, 0);
+//   ALLEGRO_COLOR t = al_map_rgb(255, 255, 255);
+//
+//   al_clear_to_color(bg1);
+//
+//   int y = 2;
+//   for (int b=32; b<128; b+=16)
+//   {
+//      int x = 2;
+//      for (int a=0; a<16; a++)
+//      {
+//         al_draw_filled_rectangle(x+a*10, y, x+a*10+8, y+8, bg2);
+//         al_draw_textf(font, t, x+a*10, y, 0, "%c", a+b);
+//      }
+//      y+=10;
+//   }
+//
+//   al_set_target_backbuffer(display);
+//   al_draw_bitmap(b, 0, 0, 0);
+//
+//   al_save_bitmap("bitmaps/new_p_8.bmp", b);
+//
+//
+//   al_flip_display();
+//   tsw();
+//
+//
+//   ALLEGRO_BITMAP* tmp234 = al_load_bitmap("bitmaps/new_p_8.bmp");
+//   if (!tmp234) m_err((char*)"Can't load bitmaps//new_p_8.bmp");
+//   else
+//   {
+//      al_destroy_font(font);
+//      int ranges[] = {32, 127};
+//      font = al_grab_font_from_bitmap(tmp234, 1, ranges);
+//      if(!font) m_err("Failed to load font from bitmaps/Pristine.ttf");
+//      al_destroy_bitmap(tmp234);
+//   }
+//
+//
+//   al_set_target_backbuffer(display);
+//   al_clear_to_color(bg2);
+//   al_flip_display();
+//
+//   y = 2;
+//   for (int b=32; b<128; b+=16)
+//   {
+//      int x = 2;
+//      for (int a=0; a<16; a++)
+//      {
+//         al_draw_filled_rectangle(x+a*10, y, x+a*10+8, y+8, bg2);
+//         al_draw_textf(font, t, x+a*10, y, 0, "%c", a+b);
+//      }
+//      y+=10;
+//   }
+//
+//
+//
+//
+//   al_flip_display();
+//   tsw();
+//
+//
+
+
+
+
+OK that should be done for now....
+
+I have other things to profile...like screen overlay...lets see if that got any better now that I have fonts fixed....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

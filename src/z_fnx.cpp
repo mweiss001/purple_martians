@@ -1,5 +1,6 @@
 // z_fnx.cpp
 #include "pm.h"
+#include "z_log.h"
 
 int check_and_draw(double x1, double y1, double line_length, double line_xinc, double line_yinc, double za, double zb, int col, float thickness, int &segments_drawn, int &lco)
 {

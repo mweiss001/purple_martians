@@ -1,8 +1,8 @@
 // z_main.cpp
 
 #include "pm.h"
-
-
+#include "z_sound.h"
+#include "z_log.h"
 
 
 
@@ -130,7 +130,7 @@ int game_move_current_pos = 0; // for savegame running only
 // ------------------------------------------------
 // ------------- screen messages ------------------
 // ------------------------------------------------
-int bottom_msg_on = 0;
+int bottom_msg_on = 1;
 int bottom_msg = 0;
 int bmsg_index = 0;
 ALLEGRO_BITMAP *bmsg_bmp[20] = {NULL};
@@ -214,6 +214,7 @@ int flash_color2 = 0;
 int flash_counter = 0;
 ALLEGRO_FONT *font0 = NULL;
 ALLEGRO_FONT *font = NULL;
+ALLEGRO_FONT *font2 = NULL;
 ALLEGRO_FONT *f1 = NULL;
 ALLEGRO_FONT *f2 = NULL;
 ALLEGRO_FONT *f3 = NULL;
@@ -262,63 +263,6 @@ int text_title_draw_color = -1;
 ALLEGRO_BITMAP *large_text_overlay_bitmap;
 int large_text_overlay_state = 0;
 
-
-// ------------------------------------------------
-// ----------------- logging ----------------------
-// ------------------------------------------------
-
-char log_msg[NUM_LOG_CHAR]; // for logging
-int log_msg_pos = 0;
-char log_lines[NUM_LOG_LINES][100]; // for log file viewer
-int log_lines_int[NUM_LOG_LINES][3]; // for log file viewer
-
-
-int LOG_NET = 0;
-int LOG_NET_join = 0;
-int LOG_NET_player_array = 0;
-int LOG_NET_bandwidth = 0;
-int LOG_NET_cdat = 0;
-int LOG_NET_stdf = 0;
-int LOG_NET_stdf_all_packets = 0;
-int LOG_NET_stdf_when_to_apply = 0;
-int LOG_NET_client_ping = 0;
-int LOG_NET_client_timer_adj = 0;
-int LOG_NET_server_rx_stak = 0;
-
-int LOG_TMR_move_tot = 0;
-int LOG_TMR_move_all = 0;
-int LOG_TMR_move_enem = 0;
-
-int LOG_TMR_draw_tot = 0;
-int LOG_TMR_draw_all = 0;
-int LOG_TMR_sdif = 0;
-int LOG_TMR_cdif = 0;
-int LOG_TMR_rwnd = 0;
-
-
-int autosave_log_on_program_exit = 0;
-int autosave_log_on_game_exit = 0;
-int autosave_log_on_level_done = 0;
-int autosave_game_on_game_exit = 0;
-int autosave_game_on_level_done = 0;
-
-
-// ------------------------------------------------
-// ---------------- sound -------------------------
-// ------------------------------------------------
-ALLEGRO_VOICE *voice = NULL;
-ALLEGRO_MIXER *mn_mixer = NULL;
-ALLEGRO_MIXER *se_mixer = NULL;
-ALLEGRO_MIXER *st_mixer = NULL;
-ALLEGRO_SAMPLE *snd[20];
-ALLEGRO_SAMPLE_INSTANCE *sid_hiss;
-ALLEGRO_AUDIO_STREAM *pm_theme_stream;
-int fuse_loop_playing;
-int sample_delay[8];
-int se_scaler=5;
-int st_scaler=5;
-int lit_item;
-int sound_on = 1;
 
 
 
@@ -399,7 +343,7 @@ int Ei[100][32];        // enemy ints
 al_fixed Efi[100][16];  // enemy fixeds
 int e_num_of_type[50];
 int e_first_num[50];
-char enemy_name[20][2][40];
+char enemy_name[100][2][40] = {0};
 int num_enemy;
 int enemy_tile[20];
 int item_tile[20];
@@ -774,6 +718,13 @@ int initial_setup(void)
       return 0;
    }
 
+   if(!al_init_image_addon())
+   {
+      m_err("Failed to initialize image addon.\n");
+      return 0;
+   }
+
+
    if(!al_init_font_addon())
    {
       m_err("Failed to initialize font addon.\n");
@@ -831,11 +782,6 @@ int initial_setup(void)
       al_register_event_source(event_queue, al_get_joystick_event_source());
    }
 
-   if(!al_init_image_addon())
-   {
-      m_err("Failed to initialize image addon.\n");
-      return 0;
-   }
    load_tiles();
    al_set_display_icon(display, tile[401]);
 

@@ -1,6 +1,9 @@
 // z_config.cpp
 
 #include "pm.h"
+#include "z_log.h"
+#include "z_sound.h"
+
 
 #define STRINGIFY_HELPER(x) #x
 #define STRINGIFY(x) STRINGIFY_HELPER(x)
@@ -94,6 +97,11 @@ void save_config(void)
       asci(LOGGING, LOG_TMR_move_tot)
       asci(LOGGING, LOG_TMR_move_all)
       asci(LOGGING, LOG_TMR_move_enem)
+      asci(LOGGING, LOG_TMR_bmsg_add)
+      asci(LOGGING, LOG_TMR_bmsg_draw)
+
+
+
       asci(LOGGING, LOG_TMR_draw_tot)
       asci(LOGGING, LOG_TMR_draw_all)
       asci(LOGGING, LOG_TMR_sdif)
@@ -198,6 +206,9 @@ void load_config(void)
    agci(LOGGING, LOG_TMR_move_tot, 0)
    agci(LOGGING, LOG_TMR_move_all, 0)
    agci(LOGGING, LOG_TMR_move_enem, 0)
+   agci(LOGGING, LOG_TMR_bmsg_add, 0)
+   agci(LOGGING, LOG_TMR_bmsg_draw, 0)
+
    agci(LOGGING, LOG_TMR_draw_tot, 0)
    agci(LOGGING, LOG_TMR_draw_all, 0)
    agci(LOGGING, LOG_TMR_sdif, 0)

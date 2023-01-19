@@ -1,6 +1,10 @@
 // z_item.cpp
 
 #include "pm.h"
+#include "z_sound.h"
+
+
+
 
 int item_data(int x, int y)
 {

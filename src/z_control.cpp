@@ -1,7 +1,7 @@
 // z_control.cpp
 
 #include "pm.h"
-
+#include "z_log.h"
 
 char *key_names[] =
 {
