@@ -44,6 +44,10 @@ extern int LOG_TMR_bmsg_add;
 extern int LOG_TMR_bmsg_draw;
 
 
+extern int LOG_TMR_scrn_overlay;
+
+
+
 extern int LOG_TMR_draw_tot;
 extern int LOG_TMR_draw_all;
 extern int LOG_TMR_sdif;

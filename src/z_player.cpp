@@ -197,9 +197,7 @@ void proc_player_health(int p)
 
       players[p].stat_respawns++;
 
-      show_player_join_quit_timer = 60;
-      show_player_join_quit_player = p;
-      show_player_join_quit_jq = 3;
+      set_player_joint_quit_display(p, 3, 60);
 
       players1[p].health_display = 200;
       players[p].paused = 100;

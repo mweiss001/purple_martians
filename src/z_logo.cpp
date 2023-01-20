@@ -9,9 +9,8 @@ void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt)
    al_get_text_dimensions(tf, txt, &bbx1, &bby1, &bbw1, &bbh1);
    ALLEGRO_BITMAP *t1 = al_create_bitmap(bbw1, bbh1);
    al_set_target_bitmap(t1);
-   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
    al_draw_text(tf, palette_color[col], 0-bbx1, 0-bby1, 0, txt);
-   al_convert_mask_to_alpha(t1, al_map_rgb(0, 0, 0));
    float xs = ( (float)SCREEN_W * x_pc) / (float) bbw1 ; // x scale
    al_set_target_backbuffer(display);
    al_draw_scaled_rotated_bitmap(t1, bbw1/2, bbh1/2, SCREEN_W/2, SCREEN_H/2, xs, xs, 0, 0);
@@ -37,9 +36,8 @@ void draw_title(int x, int y, int w, int h, int color)
       }
       //else printf("created text_title %d %d\n", bbw1,bbh1);
       al_set_target_bitmap(text_title);
-      al_clear_to_color(al_map_rgb(0,0,0));
+      al_clear_to_color(al_map_rgba(0,0,0,0));
       al_draw_text(f2, palette_color[color], 0-bbx1, 0-bby1, 0, msg);
-      al_convert_mask_to_alpha(text_title, al_map_rgb(0, 0, 0)) ;
    }
    al_set_target_backbuffer(display);
    al_draw_scaled_bitmap(text_title, 0, 0, bbw1, bbh1, x-w/2, y, w, h, 0);
@@ -94,16 +92,13 @@ void draw_large_text_overlay(int type, int color)
 
       ALLEGRO_BITMAP *t1 = al_create_bitmap(bbw3, bbh3);
       al_set_target_bitmap(t1);
-      al_clear_to_color(al_map_rgb(0,0,0));
+      al_clear_to_color(al_map_rgba(0,0,0,0));
       al_draw_text(f2, palette_color[color], 0-bbx1 + (bbw3-bbw1)/2, 0-bby1, 0, m1);
-      al_convert_mask_to_alpha(t1, al_map_rgb(0, 0, 0));
 
       ALLEGRO_BITMAP *t2 = al_create_bitmap(bbw3, bbh3);
       al_set_target_bitmap(t2);
-      al_clear_to_color(al_map_rgb(0,0,0));
+      al_clear_to_color(al_map_rgba(0,0,0,0));
       al_draw_text(f2, palette_color[color], 0-bbx2 + (bbw3-bbw2)/2, 0-bby2, 0, m2);
-      al_convert_mask_to_alpha(t2, al_map_rgb(0, 0, 0));
-
 
       int xs = SCREEN_W*7/8; // x size
       int ys = SCREEN_H*3/8; // y size
@@ -157,23 +152,20 @@ void idw(int txt, int x, int y, float x_scale, float y_scale)
       al_destroy_bitmap(logo_ichael);
       logo_ichael = al_create_bitmap(bbw1,bbh1);
       al_set_target_bitmap(logo_ichael);
-      al_clear_to_color(al_map_rgb(0,0,0));
+      al_clear_to_color(al_map_rgba(0,0,0,0));
       al_draw_text(f1, palette_color[8], 0-bbx1, 0-bby1, 0, "ichael");
-      al_convert_mask_to_alpha(logo_ichael, al_map_rgb(0, 0, 0)) ;
 
       al_destroy_bitmap(logo_avid);
       logo_avid = al_create_bitmap(bbw1,bbh1);
       al_set_target_bitmap(logo_avid);
-      al_clear_to_color(al_map_rgb(0,0,0));
+      al_clear_to_color(al_map_rgba(0,0,0,0));
       al_draw_text(f1, palette_color[90], 0-bbx1, 0-bby1, 0, "avid");
-      al_convert_mask_to_alpha(logo_avid, al_map_rgb(0, 0, 0)) ;
 
       al_destroy_bitmap(logo_eiss);
       logo_eiss = al_create_bitmap(bbw1,bbh1);
       al_set_target_bitmap(logo_eiss);
-      al_clear_to_color(al_map_rgb(0,0,0));
+      al_clear_to_color(al_map_rgba(0,0,0,0));
       al_draw_text(f1, palette_color[8], 0-bbx1, 0-bby1, 0, "eiss");
-      al_convert_mask_to_alpha(logo_eiss, al_map_rgb(0, 0, 0)) ;
    }
 
    // scale the scale...

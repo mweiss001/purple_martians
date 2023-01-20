@@ -21,6 +21,8 @@ void set_all_logging(int v)
    LOG_TMR_move_enem=v;
    LOG_TMR_bmsg_add=v;
    LOG_TMR_bmsg_draw=v;
+   LOG_TMR_scrn_overlay=v;
+
    LOG_TMR_draw_tot=v;
    LOG_TMR_draw_all=v;
    LOG_TMR_sdif=v;
@@ -409,7 +411,7 @@ void settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 2)
       {
-         int line_spacing = 10 + pct_y;
+         int line_spacing = 10;
          int tc = 13;
          int fc = 15;
          int xa = cfp_x1 + 10;
@@ -626,7 +628,9 @@ void settings_pages(int set_page)
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline adjust")) spline_adjust();
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline test")) spline_test();
 
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, bottom_msg_on, "Bottom Message Display", tc, 15);
 
 
 
@@ -674,8 +678,6 @@ void settings_pages(int set_page)
 //         ya -=2;
 //         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
       }
-
-
 
 // ---------------------------------------------------------------
 //  7 - viewport
@@ -770,6 +772,8 @@ void settings_pages(int set_page)
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_rwnd,          "LOG_TMR_rwnd", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_bmsg_add,      "LOG_TMR_bmsg_add", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_bmsg_draw,     "LOG_TMR_bmsg_draw", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_scrn_overlay,  "LOG_TMR_scrn_overlay", tc, fc);
+
 
          ya+=10;
          bts = 14;
@@ -805,6 +809,8 @@ void settings_pages(int set_page)
          {
             new_program_state = 10;
             old_program_state = 3;
+            al_hide_mouse_cursor(display);
+            save_config();
             return;
          }
 
@@ -814,6 +820,8 @@ void settings_pages(int set_page)
          {
             new_program_state = 20;
             old_program_state = 3;
+            al_hide_mouse_cursor(display);
+            save_config();
             return;
          }
          xa = xa+200;
@@ -822,6 +830,8 @@ void settings_pages(int set_page)
          {
             new_program_state = 24;
             old_program_state = 3;
+            al_hide_mouse_cursor(display);
+            save_config();
             return;
          }
       }

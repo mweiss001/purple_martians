@@ -36,7 +36,7 @@ int pm_event[1000];
 int pct_x = 0;
 int pct_y = 0;
 
-double t0 = 0;
+double t0=0;
 
 int tx1=0;
 int ty1=0;

@@ -365,6 +365,24 @@ void temp_test(void)
    al_set_target_backbuffer(display);
    al_clear_to_color(palette_color[0]);
 
+
+
+//
+//   void convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bmp_filename, int char_size);
+//   convert_ttf_to_bitmap_font("Pristine.ttf", "Pristine_8.bmp", 8);
+//   convert_ttf_to_bitmap_font("Pristine.ttf", "Pristine_16.bmp", 16);
+
+
+
+
+
+   al_flip_display();
+   tsw();
+
+
+
+
+
 //   ALLEGRO_FONT *f = font;
 //   for (int j=0; j<3; j++)
 //      for (int i=0; i<3; i++)

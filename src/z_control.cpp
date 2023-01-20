@@ -718,9 +718,7 @@ void proc_player_active_game_move(int x)
       // if player 0 is file play all added players will be too
       if (players[0].control_method == 1) players[p].control_method = 1;
 
-      show_player_join_quit_timer = 60;
-      show_player_join_quit_player = p;
-      show_player_join_quit_jq = 1;
+      set_player_joint_quit_display(p, 1, 60);
 
       game_event(80, 0, 0, p, 0, 0, 0);
 
@@ -811,9 +809,7 @@ void proc_player_inactive_game_move(int x)
 //         players[p].control_method = 9; // prevent re-use of this player number in this level
 //         players1[p].who = 99;
       }
-      show_player_join_quit_timer = 60;
-      show_player_join_quit_player = p;
-      show_player_join_quit_jq = 0;
+      set_player_joint_quit_display(p, 0, 60);
       game_event(81, 0, 0, p, 0, 0, 0);
    }
 }
