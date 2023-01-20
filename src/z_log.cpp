@@ -39,7 +39,7 @@ int LOG_TMR_move_enem = 0;
 
 int LOG_TMR_bmsg_add = 0;
 int LOG_TMR_bmsg_draw = 0;
-
+int LOG_TMR_scrn_overlay = 0;
 
 
 int LOG_TMR_draw_tot = 0;

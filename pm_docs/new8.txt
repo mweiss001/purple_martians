@@ -6186,6 +6186,337 @@ I have other things to profile...like screen overlay...lets see if that got any 
 
 
 
+20230120 2:00AM
+profile screen overlay..
+
+
+make a way to disable bmg in settings...done
+hostname is not getting saved...done
+
+
+
+
+on m36 as client
+cpu 120us
+sync 230us
+cbuttons 43us
+
+
+none of that seems excessive....
+
+
+I want to know what happens when player paused due to death...
+
+scrn overlay takes a huge hit in jq...
+why don't I get jq when clients join quit?? i do...
+
+what can I do to make jq faster??
+
+5ms then 1.5, 1.5, 1.5 then 5ms
+spikes once to 6.7 at start and end..
+
+its that fucking convert mask to alpha!!
+265us spike then 35 then 164 spike near end...
+
+why is it sooo slow? why do I need it?
+
+same thing as bmsg....
+
+old:
+al_clear_to_color(al_map_rgb(0,0,0));
+al_draw_text(font0, palette_color[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
+al_convert_mask_to_alpha(temp, al_map_rgb(0, 0, 0)) ;
+
+new:
+al_clear_to_color(al_map_rgba(0,0,0,0));
+al_draw_text(font0, palette_color[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
+
+now it is transparent and really fast...
+
+
+
+find all occurances of: al_convert_mask_to_alpha and see if they are needed...
+
+25 matches...
+
+ignore one that are not in a fast loop..
+6 in bitmap.cpp
+4 in file when loading from file..
+7 in logo
+mw_text for 'created by' fixed...
+title..fixed
+
+2 x void draw_large_text_overlay(int type, int color)..fixed
+3 x void idw(int txt, int x, int y, float x_scale, float y_scale)
+
+some when loading my new fonts...can I do that before I save?
+does not seem to save in bmp format, i still need to call
+
+al_convert_mask_to_alpha(b, al_map_rgb(0, 0, 0)) in bmp after loading and before loading font from it...
+
+here is my new routine:
+
+void convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bmp_filename, int char_size)
+{
+   // converts ttf fonts to bitmap font to draw faster and have consistant size
+   sprintf(msg, "bitmaps/%s", ttf_filename);
+   ALLEGRO_FONT *cf = al_load_ttf_font(msg, char_size, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
+   if(!cf)
+   {
+      sprintf(msg, "Failed to load font from bitmaps/%s", ttf_filename);
+      m_err("Failed to load font from bitmaps/Pristine.ttf");
+   }
+   else printf("loaded font %s\n", msg);
+
+   int bw = 1;                 // border width
+   int step0 = char_size+bw;   // step size between char
+   int step1 = char_size;      // char size
+   int bmp_w = (16 * step0) + bw;
+   int bmp_h = (6  * step0) + bw;
+
+   ALLEGRO_BITMAP *b = al_create_bitmap(bmp_w, bmp_h);
+   al_set_target_bitmap(b);
+
+   al_clear_to_color(al_map_rgb(255, 0, 0));  // set entire bitmap to red, this will be the background color separating the glyphs
+
+   int y = bw;
+   for (int b=32; b<128; b+=16)
+   {
+      int x = bw;
+      for (int a=0; a<16; a++)
+      {
+         al_draw_filled_rectangle(x+a*step0, y, x+a*step0+step1, y+step1, al_map_rgb(0, 0, 0)); // clear glyph background
+         al_draw_textf(cf, al_map_rgb(255, 255, 255), x+a*step0, y, 0, "%c", a+b);
+      }
+      y+=step0;
+   }
+   al_convert_mask_to_alpha(b, al_map_rgb(0, 0, 0)); // does not actually save in bmp format :(
+   al_set_target_backbuffer(display);
+   al_draw_bitmap(b, 0, 0, 0);
+   sprintf(msg, "bitmaps/%s", bmp_filename);
+   al_save_bitmap(msg, b);
+   al_destroy_font(cf);
+}
+
+convert_ttf_to_bitmap_font("Pristine.ttf", "Pristine_8.bmp", 8);
+convert_ttf_to_bitmap_font("Pristine.ttf", "Pristine_16.bmp", 16);
+
+and here is how I load them...
+
+   ALLEGRO_BITMAP* tmp = al_load_bitmap("bitmaps/Pristine_8.bmp");
+   if (!tmp) m_err((char*)"Can't load bitmaps//Pristine_8.bmp");
+   else
+   {
+      al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
+      al_destroy_font(font);
+      int ranges[] = {32, 127};
+      font = al_grab_font_from_bitmap(tmp, 1, ranges);
+      if (!font) m_err("Failed to load font from bitmaps/Pristine_8.bmp");
+      al_destroy_bitmap(tmp);
+   }
+
+   tmp = al_load_bitmap("bitmaps/Pristine_16.bmp");
+   if (!tmp) m_err((char*)"Can't load bitmaps//Pristine_16.bmp");
+   else
+   {
+      al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
+      al_destroy_font(font2);
+      int ranges[] = {32, 127};
+      font2 = al_grab_font_from_bitmap(tmp, 1, ranges);
+      if (!font2) m_err("Failed to load font from bitmaps/Pristine_16.bmp");
+      al_destroy_bitmap(tmp);
+   }
+
+
+back to looking for al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
+
+should be all good...
+
+I have a couple of functions that are not used anymore:
+
+void mtextout(char *txt1, int x, int y, float x_scale, float y_scale, int col);
+void mtextout_centre(const char *txt1, int x, int y, float x_scale, float y_scale, int col);
+
+ill list them here then delete them...
+
+
+
+/*
+
+void mtextout(char *txt1, int x, int y, float x_scale, float y_scale, int col)
+{
+   // can show mirror image text when scales are negative
+   // used only mdw logo animation
+//   int sw = strlen(txt1) * 8;      // string length in pixels
+//   int sh = 8;                     // string height in pixels
+
+
+   int bbx1, bby1, bbw1, bbh1;
+   al_get_text_dimensions(f1, txt1, &bbx1, &bby1, &bbw1, &bbh1);
+
+//   printf("bbx1:%d bby1:%d bbw1:%d bbh1:%d\n",bbx1, bby1, bbw1, bbh1);
+
+   // scale the scale...
+   x_scale *=  24 / (float) al_get_font_line_height(f1);
+   y_scale *=  24 / (float) al_get_font_line_height(f1);
+
+   int sw = bbw1;
+   int sh = bbh1;
+
+
+
+   ALLEGRO_BITMAP *temps = NULL;
+   temps = al_create_bitmap(sw,sh);
+   al_set_target_bitmap(temps);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+
+//   al_draw_text(font,palette_color[col], 0, 0, 0, txt1 );
+
+   al_draw_text(f1, palette_color[col], 0-bbx1, 0-bby1, 0, txt1);
+
+
+   al_convert_mask_to_alpha(temps, al_map_rgb(0, 0, 0)) ;
+
+
+   int flags = 0;
+   if (x_scale < 0) flags |= ALLEGRO_FLIP_HORIZONTAL;
+   if (y_scale < 0) flags |= ALLEGRO_FLIP_VERTICAL;
+
+   // offset x pos if scale is negative
+   if (x_scale < 0) x -= abs( (int) ((float)sw * x_scale) );
+
+   // offset y pos if scale is negative
+   if (y_scale < 0) y -= abs( (int) ((float)sh * y_scale) );
+
+   al_set_target_backbuffer(display);
+   al_draw_scaled_rotated_bitmap(temps, 0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
+   al_destroy_bitmap(temps);
+}
+
+void mtextout_centre(const char *txt1, int x, int y, float x_scale, float y_scale, int col)
+{
+   // used only by bottom message and level done
+   int sw = strlen(txt1) * 8;      // string length in pixels
+   int sh = 8;                     // string height in pixels
+
+   ALLEGRO_BITMAP *temp = al_create_bitmap(sw,sh);
+   al_set_target_bitmap(temp);
+   al_clear_to_color(al_map_rgb(0,0,0));
+
+   int dw = (int) ((float)sw * x_scale);
+   int dh = (int) ((float)sh * y_scale);
+
+   al_draw_text(font, palette_color[col], 0, 0, 0, txt1);
+   al_convert_mask_to_alpha(temp, al_map_rgb(0, 0, 0)) ;
+
+   al_set_target_backbuffer(display);
+   al_draw_scaled_bitmap(temp, 0, 0, sw, sh, x-dw/2, y, dw, dh, 0);
+
+   al_destroy_bitmap(temp);
+}
+*/
+
+
+20230120 7:00AM
+
+well I think I have that sorted out...
+
+
+now back to things that were slowing down on profile...
+
+
+I was in client with the three things in screen overlay...
+
+
+240us sync_ping
+130us CPU
+100   client grid
+90    debug common
+44    cbuttons
+it all adds up to about 700us
+
+
+when running as client everything added up (cpu) takes about 1ms, draw and move
+
+if i turn off the debug overlay everything is around 400us
+
+
+
+
+
+clients still around 90-100%
+
+ran the profile graph on a client and 22ms spent in draw and 17 was screen overlay
+
+
+
+what to do about that?
+
+make it adjustable somehow. I want to see cpu
+
+sync 7ms
+cpu 4ms
+c_grid 2.3
+dbug_com 1.5
+
+the width of the qGraph determines how many points are drawn...
+right now I am using 200 for width which gives me 5s
+
+should I make this adjustable?
+
+set ranges based on how large the screen is?
+
+I notice big swings in the cpu, when running server but cant see in move or draw
+probably server send stdf...
+
+should add cpu to logging...
+
+also sdif seems to be working but when it isnt called and the point is missing on the graph.
+my graph just draw a straight line over it.
+
+I could fix by forcing to add a point on a frame when no stdf was sent...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

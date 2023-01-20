@@ -52,6 +52,8 @@ void save_config(void)
       asci(SCREEN, fullscreen)
       asci(SCREEN, display_adapter_num)
       asci(SCREEN, show_splash_screen)
+      asci(SCREEN, bottom_msg_on)
+
       asci(SCREEN, saved_display_transform_double)
       asci(SCREEN, display_transform_double_max)
 
@@ -74,6 +76,7 @@ void save_config(void)
       asci(SOUND, sound_on)
       asci(SOUND, se_scaler)
       asci(SOUND, st_scaler)
+
       al_set_config_value(cfg, "NETWORK", "server_IP", m_serveraddress);
 
       asci(NETWORK, TCP)
@@ -99,6 +102,7 @@ void save_config(void)
       asci(LOGGING, LOG_TMR_move_enem)
       asci(LOGGING, LOG_TMR_bmsg_add)
       asci(LOGGING, LOG_TMR_bmsg_draw)
+      asci(LOGGING, LOG_TMR_scrn_overlay)
 
 
 
@@ -155,6 +159,8 @@ void load_config(void)
    agci(SCREEN, show_splash_screen, 1)
    if (!show_splash_screen) splash_screen_done = 1;
 
+   agci(SCREEN, bottom_msg_on, 1)
+
    agci(GAME, start_level, 1)
    set_start_level(start_level);
 
@@ -208,6 +214,8 @@ void load_config(void)
    agci(LOGGING, LOG_TMR_move_enem, 0)
    agci(LOGGING, LOG_TMR_bmsg_add, 0)
    agci(LOGGING, LOG_TMR_bmsg_draw, 0)
+   agci(LOGGING, LOG_TMR_scrn_overlay, 0)
+
 
    agci(LOGGING, LOG_TMR_draw_tot, 0)
    agci(LOGGING, LOG_TMR_draw_all, 0)

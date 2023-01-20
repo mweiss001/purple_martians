@@ -726,9 +726,7 @@ void process_level_done_mode(void)
 {
    if (players[0].level_done_mode == 9) // pause players and set up exit xyincs
    {
-      show_player_join_quit_timer = 60;
-      show_player_join_quit_player = players[0].level_done_player;
-      show_player_join_quit_jq = 2;
+      set_player_joint_quit_display(players[0].level_done_player, 2, 60);
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if (players[p].active)

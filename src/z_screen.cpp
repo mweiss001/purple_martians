@@ -3,6 +3,53 @@
 #include "pm.h"
 
 
+void convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bmp_filename, int char_size)
+{
+   // converts ttf fonts to bitmap font to draw faster and have consistant size
+   sprintf(msg, "bitmaps/%s", ttf_filename);
+   ALLEGRO_FONT *cf = al_load_ttf_font(msg, char_size, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
+   if(!cf)
+   {
+      sprintf(msg, "Failed to load font from bitmaps/%s", ttf_filename);
+      m_err("Failed to load font from bitmaps/Pristine.ttf");
+   }
+   else printf("loaded font %s\n", msg);
+
+   int bw = 1;                 // border width
+   int step0 = char_size+bw;   // step size between char
+   int step1 = char_size;      // char size
+   int bmp_w = (16 * step0) + bw;
+   int bmp_h = (6  * step0) + bw;
+
+   ALLEGRO_BITMAP *b = al_create_bitmap(bmp_w, bmp_h);
+   al_set_target_bitmap(b);
+
+   al_clear_to_color(al_map_rgb(255, 0, 0));  // set entire bitmap to red, this will be the background color separating the glyphs
+
+   int y = bw;
+   for (int b=32; b<128; b+=16)
+   {
+      int x = bw;
+      for (int a=0; a<16; a++)
+      {
+         al_draw_filled_rectangle(x+a*step0, y, x+a*step0+step1, y+step1, al_map_rgb(0, 0, 0)); // clear glyph background
+         al_draw_textf(cf, al_map_rgb(255, 255, 255), x+a*step0, y, 0, "%c", a+b);
+      }
+      y+=step0;
+   }
+   al_convert_mask_to_alpha(b, al_map_rgb(0, 0, 0)); // does not actually save in bmp format :(
+   al_set_target_backbuffer(display);
+   al_draw_bitmap(b, 0, 0, 0);
+   sprintf(msg, "bitmaps/%s", bmp_filename);
+   al_save_bitmap(msg, b);
+   al_destroy_font(cf);
+}
+
+
+
+
+
+
 
 void load_fonts(void)
 {
@@ -26,7 +73,6 @@ void load_fonts(void)
 //   font2 = al_load_ttf_font("bitmaps/Pristine.ttf", 16, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
 //   if(!font2) m_err("Failed to load font from bitmaps/Pristine.ttf");
 //   //else printf("loaded font Pristine.ttf\n");
-
 
    // now we get pristine font from bitmap in the interest of drawing faster
    ALLEGRO_BITMAP* tmp = al_load_bitmap("bitmaps/Pristine_8.bmp");
@@ -934,10 +980,9 @@ void rtextout_centre(ALLEGRO_BITMAP *dbmp, char *txt1, int x, int y, int col, fl
    int sw = strlen(txt1) * 8;
    ALLEGRO_BITMAP *temp = al_create_bitmap(sw, 8);
    al_set_target_bitmap(temp);
-   al_clear_to_color(al_map_rgb(0,0,0));
+   al_clear_to_color(al_map_rgba(0,0,0,0));
 
    al_draw_text(font0, palette_color[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
-   al_convert_mask_to_alpha(temp, al_map_rgb(0, 0, 0)) ;
 
    if (dbmp != NULL) al_set_target_bitmap(dbmp);
    else al_set_target_backbuffer(display);
@@ -946,85 +991,6 @@ void rtextout_centre(ALLEGRO_BITMAP *dbmp, char *txt1, int x, int y, int col, fl
    al_draw_tinted_scaled_rotated_bitmap(temp, al_map_rgba_f(op, op, op, op), sw/2, 4, x, y, scale, scale, frot, 0);
    al_destroy_bitmap(temp);
 }
-
-
-
-
-
-void mtextout(char *txt1, int x, int y, float x_scale, float y_scale, int col)
-{
-   // can show mirror image text when scales are negative
-   // used only mdw logo animation
-//   int sw = strlen(txt1) * 8;      // string length in pixels
-//   int sh = 8;                     // string height in pixels
-
-
-   int bbx1, bby1, bbw1, bbh1;
-   al_get_text_dimensions(f1, txt1, &bbx1, &bby1, &bbw1, &bbh1);
-
-//   printf("bbx1:%d bby1:%d bbw1:%d bbh1:%d\n",bbx1, bby1, bbw1, bbh1);
-
-   // scale the scale...
-   x_scale *=  24 / (float) al_get_font_line_height(f1);
-   y_scale *=  24 / (float) al_get_font_line_height(f1);
-
-   int sw = bbw1;
-   int sh = bbh1;
-
-
-
-   ALLEGRO_BITMAP *temps = NULL;
-   temps = al_create_bitmap(sw,sh);
-   al_set_target_bitmap(temps);
-   al_clear_to_color(al_map_rgb(0,0,0));
-
-
-//   al_draw_text(font,palette_color[col], 0, 0, 0, txt1 );
-
-   al_draw_text(f1, palette_color[col], 0-bbx1, 0-bby1, 0, txt1);
-
-
-   al_convert_mask_to_alpha(temps, al_map_rgb(0, 0, 0)) ;
-
-
-   int flags = 0;
-   if (x_scale < 0) flags |= ALLEGRO_FLIP_HORIZONTAL;
-   if (y_scale < 0) flags |= ALLEGRO_FLIP_VERTICAL;
-
-   // offset x pos if scale is negative
-   if (x_scale < 0) x -= abs( (int) ((float)sw * x_scale) );
-
-   // offset y pos if scale is negative
-   if (y_scale < 0) y -= abs( (int) ((float)sh * y_scale) );
-
-   al_set_target_backbuffer(display);
-   al_draw_scaled_rotated_bitmap(temps, 0, 0, x, y, fabs(x_scale), fabs(y_scale), 0, flags);
-   al_destroy_bitmap(temps);
-}
-
-void mtextout_centre(const char *txt1, int x, int y, float x_scale, float y_scale, int col)
-{
-   // used only by bottom message and level done
-   int sw = strlen(txt1) * 8;      // string length in pixels
-   int sh = 8;                     // string height in pixels
-
-   ALLEGRO_BITMAP *temp = al_create_bitmap(sw,sh);
-   al_set_target_bitmap(temp);
-   al_clear_to_color(al_map_rgb(0,0,0));
-
-   int dw = (int) ((float)sw * x_scale);
-   int dh = (int) ((float)sh * y_scale);
-
-   al_draw_text(font, palette_color[col], 0, 0, 0, txt1);
-   al_convert_mask_to_alpha(temp, al_map_rgb(0, 0, 0)) ;
-
-   al_set_target_backbuffer(display);
-   al_draw_scaled_bitmap(temp, 0, 0, sw, sh, x-dw/2, y, dw, dh, 0);
-
-   al_destroy_bitmap(temp);
-}
-
-
 
 void draw_percent_barc(int cx, int y, int width, int height, int percent, int c1, int c2, int fc)
 {
