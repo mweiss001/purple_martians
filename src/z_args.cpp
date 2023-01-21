@@ -82,6 +82,7 @@ void copy_files_to_clients(int type)
    sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
    sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
 
+
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
 
 
@@ -131,6 +132,48 @@ void proc_command_line_args2(int argument_count, char **argument_array)
 {
    if (argument_count == 2) // example 'pmwin arg1'
    {
+      if (strcmp(argument_array[1],"-?") == 0 )
+      {
+         printf("\nUsage:\n");
+
+         printf("\n");
+         printf(" -h        (runs the graphical help screens, eg: 'pm.exe -h')\n");
+
+         printf("\n");
+         printf(" no args   (starts the game normally, eg: 'pm.exe')\n");
+         printf(" [lev]     (starts the game immediately playing level [lev], eg: 'pm.exe 5'\n");
+
+         printf("\n");
+         printf(" -c        (immediately tries to join a netgame using the saved server name, eg: 'pm.exe -c')\n");
+         printf(" -c [srv]  (immediately tries to join a netgame using the supplied server name, eg: 'pm.exe -c '96.45.0.15')\n");
+
+         printf("\n");
+         printf(" -s        (immediately hosts a netgame on the current level eg: 'pm.exe -s')\n");
+         printf(" -s [lev]  (immediately hosts a netgame on level [lev], eg: 'pm.exe -s 23')\n");
+
+         printf("\n");
+         printf(" -e        (starts in level editor mode on the current level, eg: 'pm.exe -e')\n");
+         printf(" -e [lev]  (starts in level editor mode on level [lev], eg: 'pm.exe -e 7')\n");
+
+         printf("\n");
+         printf(" -f        (prompts to choose a demo file to run, eg: 'pm.exe -f')\n");
+         printf(" [file.pm] (immediately runs supplied demo file, eg: 'pm.exe C:/pm/savegame/demo/lev2.gm')\n");
+
+         printf("\n");
+         printf(" -l        (starts log file viewer and prompts for log file, eg: 'pm.exe -l')\n");
+         printf(" -lr       (starts log file viewer and opens most recent log file, eg: 'pm.exe -lr')\n");
+
+         printf("\n");
+         printf("Advanced (windows only)\n");
+         printf(" -t        (copies exe to all clients, eg: 'pm.exe -t')\n");
+         printf(" -tl       (copies exe and levels to all clients, eg: 'pm.exe -tl')\n");
+         printf(" -tr       (deletes all on clients, then copies all needed for release, eg: 'pm.exe -tr')\n");
+         printf(" -ta       (deletes all on clients, then copies everything, eg: 'pm.exe -ta')\n");
+         printf(" -ts       (copies exe to all clients then runs server mode locally, eg: 'pm.exe -ts')\n");
+
+         fast_exit(0);
+      }
+
 
       // run level editor -- eg: 'pm.exe -e'
       if (strcmp(argument_array[1],"-e") == 0 )
@@ -150,13 +193,6 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          fast_exit(0);
       }
 
-
-      if (strcmp(argument_array[1],"-var") == 0 )  // variable sizes
-      {
-         show_var_sizes();
-         fast_exit(0);
-      }
-
       if (strcmp(argument_array[1],"-test") == 0 )  // temp test
       {
          temp_test();
@@ -165,23 +201,12 @@ void proc_command_line_args2(int argument_count, char **argument_array)
 
       if (strcmp(argument_array[1],"-ts") == 0 )  // copy to clients and run server
       {
-
          copy_files_to_clients(1); // pm.exe and levels only
-
-
          show_splash_screen = 0;
          play_level = start_level;
          new_program_state = 20;
          return;
-
-
-
-
-
       }
-
-
-
 
       if (strcmp(argument_array[1],"-l") == 0 )  // log file viewer
       {

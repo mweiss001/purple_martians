@@ -483,8 +483,8 @@ void proc_program_state(void)
          return; // to exit immediately
       }
 
-   //   if (ima_client) log_ending_stats(active_local_player);
- //     if (ima_server) log_ending_stats_server();
+      if ((LOG_NET) && (ima_client)) log_ending_stats(active_local_player);
+      if ((LOG_NET) && (ima_server)) log_ending_stats_server();
 
       if (ima_server) server_flush();
       if (ima_client) client_flush();
@@ -835,40 +835,41 @@ void main_loop(void)
             frame_num++;
             update_animation();
 
-            //add_timestamp(1, 0,0,0,0);
+
             timestamp_frame_start = al_get_time();
 
             proc_timer_adjust();
             proc_scale_factor_change();
 
- //           add_timestamp(2, 0,0,0,0);
+
 
             if (ima_server) server_control();
             if (ima_client) client_control();
 
-//            add_timestamp(3, 0,0,0,0);
+
 
             proc_player_input();
             proc_game_moves_array();
 
-//            add_timestamp(4, 0,0,0,0);
+
 
             if (players[0].level_done_mode) process_level_done_mode();
             else move_frame();
 
-//            add_timestamp(5, 0,0,0,0);
 
+            if (LOG_TMR_sdif) t0 = al_get_time();
             if (players1[0].server_send_dif) server_send_stdf();
+            if (LOG_TMR_sdif) add_log_TMR(al_get_time() - t0, "sdif", 0);
 
-//            add_timestamp(6, 0,0,0,0);
+
 
             if (proc_frame_skip()) draw_frame();
 
-//
-//            add_timestamp(7, 0,0,0,0);
-
-
             double pt = al_get_time() - timestamp_frame_start;
+
+            if (LOG_TMR_cpu) add_log_TMR(pt, "cpu", 0);
+
+
             double cpu = (pt/0.025)*100;
             qG[0].add_data(0, cpu);
 

@@ -742,48 +742,48 @@ void draw_top_frame(int p)
 
 void draw_common_debug_overlay(int p, int &cx, int &cy)
 {
-
    double tt = 0;
    if (LOG_TMR_scrn_overlay) tt = al_get_time();
 
    // -----------------------------------
    // common debug overlay for all modes
    // -----------------------------------
+   if (show_debug_overlay > 2)
+   {
+      //if (ima_server) {cx = BORDER_WIDTH; cy+=80;}
+      int color = 15;
+      int fps_color = 14;
 
-   if (ima_server) {cx = BORDER_WIDTH; cy+=80;}
-   int color = 15;
-   int fps_color = 14;
+      int fs = players1[p].frames_skipped;
+      int fsls = players1[p].frames_skipped_last_sec;
 
-   int fs = players1[p].frames_skipped;
-   int fsls = players1[p].frames_skipped_last_sec;
+      int ta = players1[p].timer_adjust;
+      int tals = players1[p].timer_adjust_last_sec;
 
-   int ta = players1[p].timer_adjust;
-   int tals = players1[p].timer_adjust_last_sec;
+      al_draw_filled_rectangle(cx-4, cy+6, cx+230, cy+54, palette_color[0]);
+      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "SCREEN %d x %d", SCREEN_W, SCREEN_H);
+   //      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "full:%d display_transform_double:%d saved_dtd:%d", fullscreen, display_transform_double, saved_display_transform_double);
+      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "full:%d dtd:%d saved_dtd:%d", fullscreen, display_transform_double, saved_display_transform_double);
+      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "disp_curr %d x %d ", disp_w_curr, disp_h_curr);
+      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "display  %d x %d ", al_get_display_width(display), al_get_display_height(display));
 
-   al_draw_filled_rectangle(cx-4, cy+6, cx+230, cy+54, palette_color[0]);
-   al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "SCREEN %d x %d", SCREEN_W, SCREEN_H);
-//      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "full:%d display_transform_double:%d saved_dtd:%d", fullscreen, display_transform_double, saved_display_transform_double);
-   al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "full:%d dtd:%d saved_dtd:%d", fullscreen, display_transform_double, saved_display_transform_double);
-   al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "disp_curr %d x %d ", disp_w_curr, disp_h_curr);
-   al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "display  %d x %d ", al_get_display_width(display), al_get_display_height(display));
-
-   al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "scale_factor:%f", scale_factor);
-   cy+=4;
-   al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "FPS set:%d act:%d", frame_speed, actual_fps);
-
-
-   al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "frames skipped last second:%d", fsls);
-   al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total frames skipped:%d",fs);
-
-   al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "timer adjust last second:%d", tals);
-   al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total timer adjust:%d",ta);
+      al_draw_textf(font, palette_color[color], cx, cy+=8, 0, "scale_factor:%f", scale_factor);
+      cy+=4;
+      al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "FPS set:%d act:%d", frame_speed, actual_fps);
 
 
-   if (ima_server) al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total game moves:%d", game_move_entry_pos);
+      al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "frames skipped last second:%d", fsls);
+      al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total frames skipped:%d",fs);
 
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_dbgcom", 0);
+      al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "timer adjust last second:%d", tals);
+      al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total timer adjust:%d",ta);
 
-
+      if (ima_server) al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "total game moves:%d", game_move_entry_pos);
+      //al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "px:%d     py:%d", al_fixtoi(players[p].PX), al_fixtoi(players[p].PY));
+      //al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "pxinc:%1.2f  pyinc:%1.2f", al_fixtof(players[p].xinc), al_fixtof(players[p].yinc));
+      if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_dbgcom", 0);
+      cy+=4;
+   }
 
    if (LOG_TMR_scrn_overlay) tt = al_get_time();
 
@@ -795,14 +795,7 @@ void draw_common_debug_overlay(int p, int &cx, int &cy)
    qG[0].height = 36;
    qG[0].draw_graph(SCREEN_W-228, SCREEN_H-56);
 
-   cy+=4;
-
    if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_CPU", 0);
-
-
-   //al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "px:%d     py:%d", al_fixtoi(players[p].PX), al_fixtoi(players[p].PY));
-   //al_draw_textf(font, palette_color[fps_color], cx, cy+=8, 0, "pxinc:%1.2f  pyinc:%1.2f", al_fixtof(players[p].xinc), al_fixtof(players[p].yinc));
-
 }
 
 
@@ -810,260 +803,247 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
 {
    double lts = 0;
 
-   // ------------------------------------
-   // ---   server debug grid
-   // ------------------------------------
-   if (LOG_TMR_scrn_overlay) lts = al_get_time();
-   sdg_show(BORDER_WIDTH, BORDER_WIDTH-8);
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_sgrid", 0);
-
-
-   // -----------------------------------------------------
-   // server buttons to display and change s1 and s2
-   // -----------------------------------------------------
-   if (LOG_TMR_scrn_overlay) lts = al_get_time();
-   int csx1 = cx;
-   int csw = 80;
-   int csx2 = csx1 + csw;
-   int csy1 = cy + 20;
-   int csh = 36;
-   int csy2 = csy1 + csh;
-   int color = 13;
-
-   al_show_mouse_cursor(display);
-
-   al_draw_filled_rectangle(csx1, csy1, csx2, csy2, palette_color[color+224]); // erase background
-   al_draw_rectangle(csx1, csy1, csx2, csy2, palette_color[color], 1);         // frame
-
-   // non blocking buttons!
-   int ya = 0, btw = 16;
-   int csy3 = csy1 + 3;
-
-   ya = csy3;
-   static int b1_pres = 0;
-   if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
+   if (show_debug_overlay > 1)
    {
-      if (b1_pres == 0) players1[p].s1--;
-      if (players1[p].s1 < 1) players1[p].s1 = 1;
-      b1_pres = 1;
-   }
-   else b1_pres = 0;
 
-   ya = csy3;
-   static int b2_pres = 0;
-   if (mdw_buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
-   {
-      if (b2_pres == 0) players1[p].s1++;
-      b2_pres = 1;
-   }
-   else b2_pres = 0;
-   al_draw_textf(font, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", players1[p].s1);
-
-   csy3 += 17;
-
-   ya = csy3;
-   static int b3_pres = 0;
-   if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
-   {
-      if (b3_pres == 0) players1[p].s2--;
-      if (players1[p].s2 < 1) players1[p].s2 = 1;
-      b3_pres = 1;
-   }
-   else b3_pres = 0;
-
-   ya = csy3;
-   static int b4_pres = 0;
-   if (mdw_buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
-   {
-      if (b4_pres == 0) players1[p].s2++;
-      b4_pres = 1;
-   }
-   else b4_pres = 0;
-   al_draw_textf(font, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s2:%d", players1[p].s2);
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_sbutt", 0);
+      // ------------------------------------
+      // ---   server debug grid
+      // ------------------------------------
+      if (LOG_TMR_scrn_overlay) lts = al_get_time();
+      sdg_show(BORDER_WIDTH, BORDER_WIDTH-8);
+      if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_sgrid", 0);
 
 
-   if (0) // show some bandwidth stats
-   {
-      int pty = cy; // continue on from default overlay
-      for(int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active)
-         {
-            al_draw_filled_rectangle(cx, pty+8, cx+600, pty+16, palette_color[0]);
-            sprintf(msg, "p:%d bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]", p, players1[p].tx_bytes_per_tally, players1[p].tx_max_bytes_per_tally, players1[p].rx_bytes_per_tally, players1[p].rx_max_bytes_per_tally);
-            al_draw_text(font, palette_color[15], cx, pty+=8, 0, msg);
-         }
+      // -----------------------------------------------------
+      // server buttons to display and change s1 and s2
+      // -----------------------------------------------------
+      if (LOG_TMR_scrn_overlay) lts = al_get_time();
+      int csx1 = cx;
+      int csw = 80;
+      int csx2 = csx1 + csw;
+      int csy1 = cy + 20;
+      int csh = 36;
+      int csy2 = csy1 + csh;
+      int color = 13;
 
-      pty += 8;
-      for(int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active)
-         {
-            al_draw_filled_rectangle(cx, pty+8, cx+600, pty+16, palette_color[0]);
-            sprintf(msg, "p:%d packets   (p/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]", p, players1[p].tx_packets_per_tally, players1[p].tx_max_packets_per_tally, players1[p].rx_packets_per_tally, players1[p].rx_max_packets_per_tally);
-            al_draw_text(font, palette_color[15], cx, pty+=8, 0, msg);
-         }
+      al_show_mouse_cursor(display);
+
+      al_draw_filled_rectangle(csx1, csy1, csx2, csy2, palette_color[color+224]); // erase background
+      al_draw_rectangle(csx1, csy1, csx2, csy2, palette_color[color], 1);         // frame
+
+      // non blocking buttons!
+      int ya = 0, btw = 16;
+      int csy3 = csy1 + 3;
+
+      ya = csy3;
+      static int b1_pres = 0;
+      if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
+      {
+         if (b1_pres == 0) players1[p].s1--;
+         if (players1[p].s1 < 1) players1[p].s1 = 1;
+         b1_pres = 1;
+      }
+      else b1_pres = 0;
+
+      ya = csy3;
+      static int b2_pres = 0;
+      if (mdw_buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
+      {
+         if (b2_pres == 0) players1[p].s1++;
+         b2_pres = 1;
+      }
+      else b2_pres = 0;
+      al_draw_textf(font, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", players1[p].s1);
+
+      csy3 += 17;
+
+      ya = csy3;
+      static int b3_pres = 0;
+      if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
+      {
+         if (b3_pres == 0) players1[p].s2--;
+         if (players1[p].s2 < 1) players1[p].s2 = 1;
+         b3_pres = 1;
+      }
+      else b3_pres = 0;
+
+      ya = csy3;
+      static int b4_pres = 0;
+      if (mdw_buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
+      {
+         if (b4_pres == 0) players1[p].s2++;
+         b4_pres = 1;
+      }
+      else b4_pres = 0;
+      al_draw_textf(font, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s2:%d", players1[p].s2);
+      if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_sbutt", 0);
+
+
+      if (0) // show some bandwidth stats
+      {
+         int pty = cy; // continue on from default overlay
+         for(int p=0; p<NUM_PLAYERS; p++)
+            if (players[p].active)
+            {
+               al_draw_filled_rectangle(cx, pty+8, cx+600, pty+16, palette_color[0]);
+               sprintf(msg, "p:%d bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]", p, players1[p].tx_bytes_per_tally, players1[p].tx_max_bytes_per_tally, players1[p].rx_bytes_per_tally, players1[p].rx_max_bytes_per_tally);
+               al_draw_text(font, palette_color[15], cx, pty+=8, 0, msg);
+            }
+
+         pty += 8;
+         for(int p=0; p<NUM_PLAYERS; p++)
+            if (players[p].active)
+            {
+               al_draw_filled_rectangle(cx, pty+8, cx+600, pty+16, palette_color[0]);
+               sprintf(msg, "p:%d packets   (p/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]", p, players1[p].tx_packets_per_tally, players1[p].tx_max_packets_per_tally, players1[p].rx_packets_per_tally, players1[p].rx_max_packets_per_tally);
+               al_draw_text(font, palette_color[15], cx, pty+=8, 0, msg);
+            }
+      }
    }
 }
 
 
 void draw_client_debug_overlay(int p, int &cx, int &cy)
 {
-
    double lts = 0;
-
-   // ------------------------------------
-   // ---   client debug grid
-   // ------------------------------------
-   if (LOG_TMR_scrn_overlay) lts = al_get_time();
-   cdg_show(BORDER_WIDTH, BORDER_WIDTH-8); // client debug grid
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_cgrid", 0);
-
-
-   // ----------------------------------
-   // ping and sync graph
-   // ----------------------------------
-   if (LOG_TMR_scrn_overlay) lts = al_get_time();
-
-   double ds = -players1[p].dsync    * 1000; // the current value of dsync for display
-   double pa = players1[p].ping_avg * 1000;
-
-   qG[1].add_data(0, ds);
-   qG[1].add_data(1, pa);
-
-   sprintf(qG[1].series[0].name, "SYNC");
-   qG[1].series[0].color = 10;
-   qG[1].series[0].active = 1;
-
-   sprintf(qG[1].series[1].name, "PING");
-   qG[1].series[1].color = 14;
-   qG[1].series[1].active = 1;
-
-   qG[1].width = 200;
-   qG[1].height = 40;
-   qG[1].draw_graph(SCREEN_W-228, SCREEN_H-36-48-20);
-
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_sync", 0);
-
-
-
-
-   // ----------------------------------
-   // client sync display and adjustment buttons
-   // ----------------------------------
-   if (LOG_TMR_scrn_overlay) lts = al_get_time();
-   int csx1 = SCREEN_W - 160;
-   int csw = 140;
-   int csx2 = csx1 + csw;
-   int csy1 = SCREEN_H-36-48-20-60;
-   int csh = 43;
-   int csy2 = csy1 + csh;
-   int color = 13;
-   double ts = players1[p].dsync; // the current value of dsync for display
-   al_show_mouse_cursor(display);
-   al_draw_filled_rectangle(csx1, csy1, csx2, csy2, palette_color[color+224]); // erase background
-   al_draw_rectangle(csx1, csy1, csx2, csy2, palette_color[color], 1);    // frame
-   al_draw_textf(font, palette_color[15], csx1+csw/2, csy1+2, ALLEGRO_ALIGN_CENTER, "Sync:%+3.0fms", ts*1000);
-   // graph
-   int csy3 = csy1 + 12;
-   int csy4 = csy3 + 12;
-   int csx3 = csx1 + 7;
-   int csx4 = csx2 - 7;
-   int csw2 = csx2 - csx1;
-
-   al_draw_rectangle(csx3, csy3, csx4, csy4, palette_color[color], 1);
-   al_draw_textf(f3, palette_color[color], csx3, csy3-11, ALLEGRO_ALIGN_CENTER, "-50");
-   al_draw_textf(f3, palette_color[color], csx4, csy3-11, ALLEGRO_ALIGN_CENTER, "+25");
-
-   // convert from -0.025 to +0.025 from 0 to csw2
-   double gr = -0.050; // graph start
-   double gs =  0.075; // graph range
-
-   float dt = ((ts-gr)/gs) * csw2; // convert from range of (0.00-0.025) to (0 - csw)
-   al_draw_filled_rectangle(csx3+dt-2, csy3, csx3+dt+2, csy4, palette_color[15]);
-
-   // non blocking buttons!
-   int ya = csy4 + 3;
-   int btw = 16;
-
-   static int b1_pres = 0;
-   if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
+   if (show_debug_overlay > 1)
    {
-      if (b1_pres == 0)
-      {
-         if (CTRL()) players1[p].client_chase_offset -=0.01;
-         else players1[p].client_chase_offset -=0.001;
-      }
-      b1_pres = 1;
-   }
-   else b1_pres = 0;
+      // ----------------------------------
+      // ping and sync graph
+      // ----------------------------------
+      if (LOG_TMR_scrn_overlay) lts = al_get_time();
 
-   ya = csy4 + 3;
-   static int b2_pres = 0;
-   if (mdw_buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
-   {
-      if (b2_pres == 0)
-      {
-         if (CTRL()) players1[p].client_chase_offset +=0.01;
-         else players1[p].client_chase_offset +=0.001;
-      }
+      double ds = -players1[p].dsync    * 1000; // the current value of dsync for display
+      double pa = players1[p].ping_avg * 1000;
+
+      qG[1].add_data(0, ds);
+      qG[1].add_data(1, pa);
+
+      sprintf(qG[1].series[0].name, "SYNC");
+      qG[1].series[0].color = 10;
+      qG[1].series[0].active = 1;
+
+      sprintf(qG[1].series[1].name, "PING");
+      qG[1].series[1].color = 14;
+      qG[1].series[1].active = 1;
+
+      qG[1].width = 200;
+      qG[1].height = 40;
+      qG[1].draw_graph(SCREEN_W-228, SCREEN_H-36-48-20);
+
+      if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_sync", 0);
 
    }
-   else b2_pres = 0;
-   al_draw_textf(font, palette_color[15], csx1+csw/2, csy1+30, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", players1[p].client_chase_offset*1000);
 
-
-   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_cbut", 0);
-
-
-
-
-   int tx = BORDER_WIDTH;
-   int ty1 = 80;
-
-   al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
-   al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
-
-   sprintf(msg, "server sync:%d ", players1[p].client_sync);
-   al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
-   al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
-
-   sprintf(msg, "local moves:%d", game_move_entry_pos);
-   al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
-   al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
-
-   sprintf(msg, "frames_skipped:%d", players1[p].frames_skipped);
-   al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
-   al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
-
-   if (0) // show a bunch of bandwidth stats
+   if (show_debug_overlay > 2)
    {
-      ty1 +=8;
 
-      sprintf(msg, "bandwidth (bytes per second)");
-      al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
-      al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
+      // ------------------------------------
+      // ---   client debug grid
+      // ------------------------------------
+      if (LOG_TMR_scrn_overlay) lts = al_get_time();
+      cdg_show(BORDER_WIDTH, BORDER_WIDTH-8); // client debug grid
+      if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_cgrid", 0);
 
-      sprintf(msg, "TX currrent:[%d] max:[%d]", players1[p].tx_bytes_per_tally, players1[p].tx_max_bytes_per_tally);
-      al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
-      al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
+      // ----------------------------------
+      // client sync display and adjustment buttons
+      // ----------------------------------
+      if (LOG_TMR_scrn_overlay) lts = al_get_time();
+      int csx1 = SCREEN_W - 160;
+      int csw = 140;
+      int csx2 = csx1 + csw;
+      int csy1 = SCREEN_H-36-48-20-60;
+      int csh = 43;
+      int csy2 = csy1 + csh;
+      int color = 13;
+      double ts = players1[p].dsync; // the current value of dsync for display
+      al_show_mouse_cursor(display);
+      al_draw_filled_rectangle(csx1, csy1, csx2, csy2, palette_color[color+224]); // erase background
+      al_draw_rectangle(csx1, csy1, csx2, csy2, palette_color[color], 1);    // frame
+      al_draw_textf(font, palette_color[15], csx1+csw/2, csy1+2, ALLEGRO_ALIGN_CENTER, "Sync:%+3.0fms", ts*1000);
+      // graph
+      int csy3 = csy1 + 12;
+      int csy4 = csy3 + 12;
+      int csx3 = csx1 + 7;
+      int csx4 = csx2 - 7;
+      int csw2 = csx2 - csx1;
 
-      sprintf(msg, "RX currrent:[%d] max:[%d]", players1[p].rx_bytes_per_tally, players1[p].rx_max_bytes_per_tally);
-      al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
-      al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
+      al_draw_rectangle(csx3, csy3, csx4, csy4, palette_color[color], 1);
+      al_draw_textf(f3, palette_color[color], csx3, csy3-11, ALLEGRO_ALIGN_CENTER, "-50");
+      al_draw_textf(f3, palette_color[color], csx4, csy3-11, ALLEGRO_ALIGN_CENTER, "+25");
 
-      ty1 +=8;
+      // convert from -0.025 to +0.025 from 0 to csw2
+      double gr = -0.050; // graph start
+      double gs =  0.075; // graph range
 
-      sprintf(msg, "packets per second");
-      al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
-      al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
+      float dt = ((ts-gr)/gs) * csw2; // convert from range of (0.00-0.025) to (0 - csw)
+      al_draw_filled_rectangle(csx3+dt-2, csy3, csx3+dt+2, csy4, palette_color[15]);
 
-      sprintf(msg, "TX currrent:[%d] max:[%d]", players1[p].tx_packets_per_tally, players1[p].tx_max_packets_per_tally);
-      al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
-      al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
+      // non blocking buttons!
+      int ya = csy4 + 3;
+      int btw = 16;
 
-      sprintf(msg, "RX currrent:[%d] max:[%d]", players1[p].rx_packets_per_tally, players1[p].rx_max_packets_per_tally);
-      al_draw_filled_rectangle(tx, ty1+8, tx+strlen(msg)*8, ty1+16, palette_color[0]);
-      al_draw_text(font, palette_color[15], tx, ty1+=8, 0, msg);
+      static int b1_pres = 0;
+      if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
+      {
+         if (b1_pres == 0)
+         {
+            if (CTRL()) players1[p].client_chase_offset -=0.01;
+            else players1[p].client_chase_offset -=0.001;
+         }
+         b1_pres = 1;
+      }
+      else b1_pres = 0;
+
+      ya = csy4 + 3;
+      static int b2_pres = 0;
+      if (mdw_buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
+      {
+         if (b2_pres == 0)
+         {
+            if (CTRL()) players1[p].client_chase_offset +=0.01;
+            else players1[p].client_chase_offset +=0.001;
+         }
+
+      }
+      else b2_pres = 0;
+      al_draw_textf(font, palette_color[15], csx1+csw/2, csy1+30, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", players1[p].client_chase_offset*1000);
+
+      if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_cbut", 0);
+
+      cy +=8;
+      sprintf(msg, "local moves:%d", game_move_entry_pos);
+      al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+      al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
+
+      if (0) // show a bunch of bandwidth stats
+      {
+         cy +=8;
+         sprintf(msg, "bandwidth (bytes per second)");
+         al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
+
+         sprintf(msg, "TX currrent:[%d] max:[%d]", players1[p].tx_bytes_per_tally, players1[p].tx_max_bytes_per_tally);
+         al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
+
+         sprintf(msg, "RX currrent:[%d] max:[%d]", players1[p].rx_bytes_per_tally, players1[p].rx_max_bytes_per_tally);
+         al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
+
+         cy +=8;
+         sprintf(msg, "packets per second");
+         al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
+
+         sprintf(msg, "TX currrent:[%d] max:[%d]", players1[p].tx_packets_per_tally, players1[p].tx_max_packets_per_tally);
+         al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
+
+         sprintf(msg, "RX currrent:[%d] max:[%d]", players1[p].rx_packets_per_tally, players1[p].rx_max_packets_per_tally);
+         al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+         al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
+      }
    }
 }
 
@@ -1072,8 +1052,8 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
 void draw_top_display(void)
 {
    int p = active_local_player;
-   int cy = BORDER_WIDTH-6;
-   int cx = SCREEN_W-320;
+   int cx = BORDER_WIDTH;
+   int cy = BORDER_WIDTH+72;
 
    double tt = 0;
 
