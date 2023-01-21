@@ -39,21 +39,7 @@ will that affect the sync chunk of data??
 put display stuff all in its own file with header
 
 
-
-
-
-profile stuff on screen overlay page
-
-profile bmsg stuff...
-
-
-pm -h show commandline options...duh
-
-
-
 log like cpu, but with a multicolored bar...move, draw, other, all added up
-
-find out what specifically is making 4230's use 100% cpu
 
 
 
@@ -66,14 +52,8 @@ some way of using players speed....
 add a reset to defaults button on hyst
 maybe also on display text double
 
-
 Make it so that when you leave settings, you come back on start?
 not sure if that will work...possibly if called with shortcut?
-
-
-
-Make it so that the log graphs can all be loaded directly from settings.
-
 
 
 Things to add to settings:
@@ -90,13 +70,6 @@ options to do the send stuff to clients? including which clients to send to, and
 then maybe I could retrieve log from client after netgame???...whoa...that's just crazy
 
 
-
-
-
-
-
-
-
 what are the next things I can profile?
 how long does it take client to decompress, run a dif, rewind?
 how long does a bomb explosion take?
@@ -106,7 +79,6 @@ how long does it take to draw all messages?
 
 can I assume that the items and enemies are all sorted by type?
 then I could just time type easier?
-
 
 what about the other timing thing I was going to do?
 start of frame, and where everything else happened....not sure how useful that will be....
@@ -126,12 +98,6 @@ or even anytime in between frames...
 I wanted to experiment with differnt s1 and s2 values, but I wanted to be able to actually measure some effect it has.
 that was the big push behind the program state thing, then the graph thing, then the settings menu because I want to be able
 to measure stuff...
-
-
-
-
-
-
 
 
 

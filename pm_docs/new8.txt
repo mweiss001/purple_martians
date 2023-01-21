@@ -6450,7 +6450,6 @@ clients still around 90-100%
 ran the profile graph on a client and 22ms spent in draw and 17 was screen overlay
 
 
-
 what to do about that?
 
 make it adjustable somehow. I want to see cpu
@@ -6476,6 +6475,110 @@ also sdif seems to be working but when it isnt called and the point is missing o
 my graph just draw a straight line over it.
 
 I could fix by forcing to add a point on a frame when no stdf was sent...
+
+
+20230221 5:00AM
+pm -? show commandline options...done
+
+
+
+
+show_debug_overlay to have more options:
+
+0-off
+1-minimal
+2-medium
+3-all
+
+mimimal
+cpu only
+
+medium
+cpu and sync (client only)
+
+all
+
+
+make list of things that can be shown:
+- cpu
+- client sync and ping
+- client grid
+- server grid
+
+common list of text
+more list of text...
+
+
+
+
+
+
+I notice big swings in the cpu, when running server but cant see in move or draw
+probably server send stdf...
+
+should add cpu to logging...
+
+also sdif seems to be working but when it isnt called and the point is missing on the graph.
+my graph just draw a straight line over it.
+
+I could fix by forcing to add a point on a frame when no stdf was sent...
+
+the way I have it now is is only measures send to one client...
+and it only add a log entry when it actually sends...
+what I want to do is move it to here:
+
+from loop:
+if (players1[0].server_send_dif) server_send_stdf();
+
+and add a log entry every frame...
+that way I will get the total time, and zero's when nothing happens
+
+between this and rewind, I should have all the main server stuff profiled...done
+
+
+log cpu (total time spent processing each frame)
+
+calc where?
+
+right now screen_overlay does it...is this what I want??
+this is not actually at the end of the frame is it?
+no...it is at the end of loop where it is added to qG
+
+            if (proc_frame_skip()) draw_frame();
+
+            double pt = al_get_time() - timestamp_frame_start;
+            double cpu = (pt/0.025)*100;
+            qG[0].add_data(0, cpu);
+
+literally the last thing...
+this is where I should add the log entry also...
+LOG_TMR_cpu
+
+done...
+
+
+ready for some more tests??
+looking good...
+
+bug..why does it fail at level done when trying to load next level and getting level 0?
+
+it looks like next level is only set when player touches exit or warp...
+I think some clients are missing this...
+
+fix when I get back....
+
+got to go to a first aid class on a saturday...oh well..8H OT..
+
+push..
+
+
+
+
+
+
+
+
+
 
 
 

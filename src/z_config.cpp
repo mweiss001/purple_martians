@@ -97,6 +97,7 @@ void save_config(void)
       asci(LOGGING, LOG_NET_client_timer_adj)
       asci(LOGGING, LOG_NET_server_rx_stak)
 
+      asci(LOGGING, LOG_TMR_cpu)
       asci(LOGGING, LOG_TMR_move_tot)
       asci(LOGGING, LOG_TMR_move_all)
       asci(LOGGING, LOG_TMR_move_enem)
@@ -209,6 +210,7 @@ void load_config(void)
    agci(LOGGING, LOG_NET_server_rx_stak, 0)
 
 
+   agci(LOGGING, LOG_TMR_cpu, 0)
    agci(LOGGING, LOG_TMR_move_tot, 0)
    agci(LOGGING, LOG_TMR_move_all, 0)
    agci(LOGGING, LOG_TMR_move_enem, 0)

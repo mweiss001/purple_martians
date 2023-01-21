@@ -33,6 +33,7 @@ int LOG_NET_client_ping = 0;
 int LOG_NET_client_timer_adj = 0;
 int LOG_NET_server_rx_stak = 0;
 
+int LOG_TMR_cpu = 0;
 int LOG_TMR_move_tot = 0;
 int LOG_TMR_move_all = 0;
 int LOG_TMR_move_enem = 0;
@@ -2019,14 +2020,6 @@ void load_profile_graph2(void)
    al_destroy_path(path);
 
    int num_lines = load_log_lines_array_from_static_file(fname);
-
-
-
-
-
-
-
-
 
 
    mG[0].initialize();

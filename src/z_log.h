@@ -36,6 +36,7 @@ extern int LOG_NET_client_timer_adj;
 extern int LOG_NET_server_rx_stak;
 
 
+extern int LOG_TMR_cpu;
 extern int LOG_TMR_move_tot;
 extern int LOG_TMR_move_all;
 extern int LOG_TMR_move_enem;

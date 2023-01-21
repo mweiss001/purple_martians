@@ -499,15 +499,13 @@ In 'program_state == 12'  we do all the cleanup, resetting, loading and preparin
 <mh3>
 This entire process may seem overly complicated. I have tried to simplify it in as many ways as I can.
 
-I once spent an entire day refactoring the entire procedure and it looked great and was slightly simpler. But it did not work for netgame.
-
-It is very complicated to get this procedure to work with client and server, when either one can rewind and replay frames in order to make the muliplayer work nicely.
-
-As I slowly changed pieces of simpler system, it got more complex, until it was essentially the same algorithm.
-Only I had lost an entire day chasing bugs banging my head against the wall, untill I realized why I did it this way in the first place.
+I once spent an entire day refactoring the entire procedure. It looked great and was slightly simpler. But it did not work for netgame.
+It is very complicated to get this procedure to work with client and server, when either one can rewind and replay frames in order to make multiplayer work.
+As I slowly changed pieces of the simpler system, trying to make it work again, it got more complex, until it was essentially the same algorithm.
+Only I had lost an entire day chasing bugs, banging my head against the wall, until I realized why I had to do it this way in the first place.
 
 There is one more bit of code.
-When the client or server has to rewind a few frames and replay, the level_done procedure has to be replayed also.
+When the client or server has to rewind and replay frames, the level_done procedure has to be replayed also.
 Here is what that looks like:
 
 </mh3>

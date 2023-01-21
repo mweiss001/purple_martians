@@ -430,15 +430,20 @@ void function_key_check(void)
 
       if (key[ALLEGRO_KEY_F10][2])
       {
+         if (++show_debug_overlay > 3) show_debug_overlay = 0;
 
-         if (show_debug_overlay)  show_debug_overlay = 0;
-         else
-         {
-            #ifdef RELEASE
-            if (SHFT() && CTRL())
-            #endif
-            show_debug_overlay = 1;
-         }
+//
+//         if (show_debug_overlay)  show_debug_overlay = 0;
+//         else
+//         {
+//            #ifdef RELEASE
+//            if (SHFT() && CTRL())
+//            #endif
+//            show_debug_overlay = 1;
+//         }
+//
+
+
       }
    } // end of if not game exit
 
@@ -510,8 +515,6 @@ void rungame_key_check(int p)
       load_config();
 
       while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
-
-      printf("old program state:%d\n", old_program_state);
 
       new_program_state = 1;
       if (old_program_state == 2) old_program_state = older_program_state; // don't send back to demo mode

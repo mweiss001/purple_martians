@@ -471,7 +471,6 @@ void server_exit(void)
 // send stdf to a specific client
 void server_send_stdf(int p)
 {
-   if (LOG_TMR_sdif) t0 = al_get_time();
 
    // if last_ack_state_frame == 0 set base to all zeros
    if (srv_client_state_frame_num[p][0] == 0)
@@ -535,7 +534,6 @@ void server_send_stdf(int p)
       ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
       start_byte+=1000;
    }
-  if (LOG_TMR_sdif) add_log_TMR(al_get_time() - t0, "sdif", 0);
 }
 
 

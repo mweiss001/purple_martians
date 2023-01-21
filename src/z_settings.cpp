@@ -16,6 +16,7 @@ void set_all_logging(int v)
    LOG_NET_client_ping=v;
    LOG_NET_client_timer_adj=v;
    LOG_NET_server_rx_stak=v;
+   LOG_TMR_cpu=v;
    LOG_TMR_move_tot=v;
    LOG_TMR_move_all=v;
    LOG_TMR_move_enem=v;
@@ -762,6 +763,7 @@ void settings_pages(int set_page)
          int tc = 13;
          int fc = 15;
 
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_cpu,           "LOG_TMR_cpu", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_tot,      "LOG_TMR_move_tot", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_all,      "LOG_TMR_move_all", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_move_enem,     "LOG_TMR_move_enem", tc, fc);
