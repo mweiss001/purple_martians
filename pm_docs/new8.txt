@@ -330,7 +330,6 @@ this would mean I am running ahead of the the server
 controls that I am currently pressing are not as old on the server
 
 
-
 If I got difs for a frame that I had not rendered yet...
 i would hold off till then and apply it
 this would mean I am running behind the server
@@ -6562,7 +6561,7 @@ looking good...
 
 bug..why does it fail at level done when trying to load next level and getting level 0?
 
-it looks like next level is only set when player touches exit or warp...
+it looks like next_level is only set when player touches exit or warp...
 I think some clients are missing this...
 
 fix when I get back....
@@ -6575,36 +6574,67 @@ push..
 
 
 
+20230121 4:30PM
+moved all settings related stuff to z_settings.cpp and z_settings.h
 
+e_mWindow.h done
+z_player.h done
 
 
+now I am down to 1300 lines in pm.h...little by little, I am chipping away at it....
 
 
+added to player array:
 
+   int level_done_next_level;
 
+find occ of next_level and replace with players[0].level_done_next_level....done
 
+that should fix that....
 
 
+I think I am back to the testing part of things....
+send out to all
 
 
+the dsync on clients has a bit of a strange pattern
 
+on e6430 one peak at +60-500us then a few at -2.3ms
 
+on 4230 4 around +1ms then 1 at -15ms
 
+why is this happening?
 
+what does it all mean?
 
+what happens on a pattern of 5 frames?
 
+I think its the timer adjust...the patterns match...
 
+can I make it less aggressive....
 
 
 
+I am dealing with very small values here...
 
+I have usually kept fps at 40 and set timer with 1/40
 
+I could just as easily set timer with 0.025
 
+1 / 40.00 = 0.0250000
+1 / 40.10 = 0.024937
+            0.000063 or 63us
 
+1 / 40.00 = 0.0250000
+1 / 40.01 = 0.0249937
+            0.0000063 or 6.3us
 
+my adjustments seem really small
 
 
+maybe I need to print all the numbers used in my calc
 
+make a new log entry for now...temp...
 
 
 
@@ -6614,82 +6644,888 @@ push..
 
 
 
+I want to make a PID loop...
 
 
+I have an output I can measure: dsync
+I have a setpoint I am trying to achieve: offset
+I have a variable I can use to control the process: fps
 
 
+first of all I want to graph these...
+then I will try to plug in a new PID algorithm
 
 
+make a new graph just for this....
+client only
 
+in the interests of it all fitting on the same graph I will use fps_adjust as my control
 
+and I will make fps adjust the value added or subtracted to 0.025....
 
+all my values will be in ms to 3 deciaml places...
 
+make a new log entry...done...
 
 
+now I can easily plot...
 
+   float mv = players1[p].dsync;                 // measured value
+   float sp = players1[p].client_chase_offset;   // set point
+   float err = sp - mv;                          // error = set point - measured value
 
 
 
+my control loop currently is just P, err*100 = P
 
+to get the integral I will need a running total...
 
+simply add and subtract the error....
 
+why do I have doubts this will work?
 
+beacuse when it ramps up the I will grow really fast...
 
+2 ways to solve this...
+- set limits on i
+- gradually decay i
 
 
+first of all I need a global variable to keep a running total...
 
+done...
 
 
 
+what if the problem is that the things I am trying to sync are inherently unstable....
 
+what if I took an average of dsync and used that...
 
 
+how often do I get dsync?
 
+with every dif so 2-3 frame...
 
 
+what if I just took a running average, like ping?
 
 
+I can still show the instantaneous ones, but use the average to set chase speed
 
+this needs to be fast for initial chase though...
 
 
+try it....
 
 
 
+make ping_buffer have a header file and be self contained...then add dsync...
 
+add dsync_avg to player1 array..done
 
 
+add call when calc
 
 
 
+I think I have stumbled upon something amazing...all this bullshit happens when we need 2 packets...
 
+each packet causes its own timer adjust, and one is definitely later than the other...duh...
 
 
+how can I make it not do that?
 
+have a variable last stdf_packet frame and check it...
+already had var...check it now and only do one timer adj per frame based on first stdf rx'd..done
 
+still getting some wild oscilliations
 
 
+lets also try starting offset at 0 instead of +10ms
 
 
+set ia to zero.
+how long does it take for mv to climb to zero line?
+then with overshoot how long to cross back down?
 
+pa = 100
+mv  = 748-727 = 21
+mv  = 793-727 = 66
 
+mva = 762-727 = 35
+mva = 805-727 = 78
 
 
+pa = 60
 
+mv  = 428-384 = 44
+mv  = 456-384 = 72
 
+mva = 442-384 = 58
+mva = 471-384 = 87
 
 
 
+make client offset update faster at start of chase..
+it seems to take a while to actually change off zero...
+352-259 = 93 frames
 
+i cant run ping graph...i broks it..fixed
+691-622 = 69
 
+still does not seem to send first ping till frame_num>0 (initial state rx?)
 
 
+this is getting complicated...is is worth it to send pings while still in setup?
+while still in setup stdf packets are being processed and timer is being adjusted...
+might as well be based on a real setpoint based on a real ping...
+while in setup the loop happens very fast and frame_num is not incremented...
 
+need another way to trigger sending pings...
 
 
+how about in loop, after the main 11 is done, send client ping if flag is set.
 
+then I can set this flag in 11 like normal, and also in setup based on a timer...
 
+if (players1[active_local_player].client_ping_flag)
+{
+   players1[active_local_player].client_ping_flag = 0;
+   client_send_ping();
+}
 
+make a new timer png_timer..done...
 
+now the event timer is the only thing that sets the flag...
+it works, but still no pings for the first bit...
+
+why the fuck not??
+
+log...
+all on frame 0:
+got reply
+send and rx join
+start level..
+
+then on frame 152
+152 game state updated
+162 tmaj
+165
+166
+172
+...
+240
+243
+244 ping!!!
+
+this is a long delay...
+
+also client does not show when they became active??
+not in log anyway
+
+so back to the issue at hand:
+
+after client gets initial state, it starts the main loop and and chases, while inactive
+there is a long pause here before the first ping is received...
+
+why?
+
+
+show on console the frames when ping is sent..
+
+191026 initial state
+191028 ping
+191047 ping
+191067 ping
+191087 ping
+191107 ping
+191128 ping
+
+in logs
+191108 1st ping received 24ms
+191129 2nd ping received 28ms
+
+
+I am sending them, but it appears that the first 4 are lost??
+
+what a subtle bug!!!
+on server, when rxing ping and replying, it looks up who from player_num and fails if player is not active yet!!
+
+int get_player_num_from_who(int who)
+{
+   for(int p=0; p<NUM_PLAYERS; p++)
+//      if ((players[p].active) && (players1[p].who == who)) return p;
+      if (players1[p].who == who) return p;
+   return -1;
+}
+
+still the same
+
+console:
+652 initial state
+671 ping
+691 ping
+711 ping
+731 ping
+752 ping
+
+log
+732 1st ping
+753 2nd ping
+
+still missing first 4 pings...
+
+
+more console logging:
+
+049 init state
+069 send ping
+089 send ping
+109 send ping
+129 send ping
+130 rx pong
+150 tx ping
+151 rx pong
+
+as far as I can tell server is not sending reply...
+
+add console logging on server and look into who...
+
+
+I think I forgot to send most recent compile to server...it works now...
+
+
+ping graph dumps a bunch of shit to console...fixed
+
+make it so that once init state is rx, do a one time send ping by setting flag...
+
+OK I think I have that one thing figured out....
+
+clean up and move on...
+
+this is how I handle client ping sends:
+
+made a timer:
+png_timer = al_create_timer(.5);   // 2 fps
+
+made a variable in player1 array:
+players1[].client_ping_flag
+
+when timer event fires:
+if (ev.timer.source == png_timer) players1[active_local_player].client_ping_flag = 1;
+
+in the main loop just after every thing else:
+if ((players1[active_local_player].client_ping_flag) && (ima_client))
+{
+   players1[active_local_player].client_ping_flag = 0;
+   client_send_ping();
+}
+
+in client setup, when initial state is received:
+players1[active_local_player].client_ping_flag = 1;
+
+the only thing I might like to add later is a method of slowing the ping timer...
+maybe I don't need to...2 packets per second is hardly anything
+
+now I want to make the ping and sync graph easier to use..
+
+first of all...
+make a button on logging to load most recent file in log file viewer..done
+then remove profile button from that page...done
+then put both pages adjacent...done
+
+now, how do I make ping sync graph better?
+
+I can do most stuff with generic profile graph
+tmaj and ping
+
+the only nice thing about the specific one is that it has ping also...
+
+make it all use profile...
+
+ping uses 37
+old tmaj uses 36
+
+tmr uses 44
+
+do both for now:
+
+LOG_NET_client_timer_adj 36
+LOG_NET_client_ping 37
+
+new:
+LOG_TMR_client_timer_adj
+LOG_TMR_client_ping
+
+now both graphs can co-exist....
+
+
+after all this messing around, I have not come to any real conclusions
+
+client sync is still pretty much what it used to be...
+
+
+now can I finally look at what changing s1 and s2 do?
+
+
+server_rewind is called and it determines if it is time to make a new state and send dif...
+
+if the current frame_num matches the frame_num of the last saved base+s1+s2....
+
+then it is time....
+
+- rewind to the last saved base
+- play forward s1 frames
+- save new state
+- play forward s2 frames
+
+
+
+
+random demo game is very not random...
+always starts with trigger...
+add this: srand((unsigned) time(&t)); // done
+checkbox to test opacity on demo...done
+when starting stuff from demo save config first so it comes back to the same page..done
+
+
+
+next on my simulation
+keep client and server frame numbers different
+when server is in rewind do not move client fn...
+
+when server makes new state, jump to clients side and receive and rewind it...
+
+
+
+what happens if I set s2 to 0??
+
+LAN seem to work with no issues...
+WAN i get a few late cdats and some noticeable corrections
+
+tried s2 == 1
+WAN was about the same...
+
+
+
+
+
+
+I never use the 4 states in this array:
+// server's copy of last stdf state
+extern char srv_stdf_state[4][STATE_SIZE];
+extern int srv_stdf_state_frame_num[4];
+
+I only ever use [1]
+
+
+I should remove it and make it a flat array....
+
+do I use all 8 of these?
+
+extern char srv_client_state[8][2][STATE_SIZE];
+extern int srv_client_state_frame_num[8][2];
+
+they are server only, so is 0 unused?
+
+I would have to say I think it is
+
+so for server only iI can use 0
+
+I am currently using:
+srv_stdf_state[1]
+srv_stdf_state_frame_num[1]
+
+I propose to use:
+srv_client_state[0][1]
+srv_client_state_frame_num[0][1]
+
+I am 99% sure I can do this...so do it...but doc all that you do....
+
+7 occ of
+pm..done
+main...done
+fnx memset..done
+
+loop: 2 places....
+old:
+game_vars_to_state(srv_stdf_state[1]);
+srv_stdf_state_frame_num[1] = frame_num;
+
+new:
+game_vars_to_state(srv_client_state[0][1]);
+srv_client_state_frame_num[0][1] = frame_num;
+
+server 1:
+//frame_num = srv_stdf_state_frame_num[1]; // set rewind frame num
+//state_to_game_vars(srv_stdf_state[1]);   // apply rewind state
+frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
+state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
+
+server 2:
+//game_vars_to_state(srv_stdf_state[1]);
+//srv_stdf_state_frame_num[1] = frame_num;
+game_vars_to_state(srv_client_state[0][1]);
+srv_client_state_frame_num[0][1] = frame_num;
+
+
+4 more in server:
+if (frame_num == srv_client_state_frame_num[0][1] + s3)
+sprintf(msg, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
+if (cdat_frame_num < srv_client_state_frame_num[0][1])
+printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_client_state_frame_num[0][1], players1[p].late_cdats);
+
+
+
+it still seems to work...remove all traces...
+
+I would like to put all netgame stuff in its own file...
+
+n_netgame.cpp
+n_netgame.h
+
+do it...done...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+method for setting s1
+start at 3
+on server, measure total client resets for 4 seconds
+if zero try to reduce
+if greater than 10, increase
+
+min:2
+max:8?
+
+
+method for setting s2:
+start at 2
+on server measure total client late cdats dropped for 4 seconds
+if zero 4 try to reduce
+if greater than 10, increase
+
+min:2
+max:4?
+
+only lower every 4 seconds if perfect
+raise if threshold is reached before that
+
+reset counters every 4 sec
+
+
+
+
+
+
+
+
+
+
+
+
+
+so lets try to describe this again, beacuse you obviously didn't quite get it last time
+
+s1 = 2;
+s2 = 2;
+s3 = s1 + s2;
+
+- state[1] is the earliest state the server has
+
+- when current frame == state[1] + s3 do a new stdf
+- rewind (load state[1])
+- step s1 frames
+- save a new state[1]
+- step s2 frames to where you were before rewinding
+- save state[0] and send to clients
+
+- state[0] is only used to make and send difs to clients
+- state[0] is most likely missing some player input
+
+
+- every time a rewind is done
+- the 1st frames played back will be the last chance ever to apply moves in those frames
+- the 2nd frames will be speculative, a guess.
+
+when new cdat arrive, if they are dated earlier than state[1] do not put them in gma
+
+
+
+3 2
+
+base resets are way better
+bandwidth is also a lot better, like around 40-50.
+
+So if I reduce stdf freq (s1) I will get more base resets, because client does not have time to respond before new stdf arrives and base is lost.
+
+What are the drawbacks of increasing s1?
+
+I would guess that more time passes in predictive mode and the corrections are more severe and noticeable...
+lets try with 4 2
+
+it seems mopre jumpy
+now 35-40k
+
+what if I made it dynamically adjustable?
+count how many base resets last second and adjust...
+min 2 max 6?
+
+can I make it manualy adjustable while the game is running?
+the worst it could do it cause base reset when it is changing...
+
+first thing I need to do is assign it a variable...
+
+let do that for s1 and s2
+
+put them in player1
+where do I initialize them...
+
+
+
+
+
+
+
+
+
+
+maybe running just in time to get difs as needed is not the right approach
+
+If I got difs for a frame that I has already rendered...
+I could replay with the local controls for that frame that has already occured...
+this would mean I am running ahead of the the server
+controls that I am currently pressing are not as old on the server
+
+
+If I got difs for a frame that I had not rendered yet...
+i would hold off till then and apply it
+this would mean I am running behind the server
+controls that I am currently pressing are even older on the server
+
+
+
+
+
+
+
+
+
+big surprise...nothing seems to effect when cdats are received on server, except for client dsync....
+
+the only thing I can do to get cdats to the server faster, would be to let the client move ahead of the server in time....
+but then the client would always get difs that were too late to apply....
+
+what if I let the client rewind?
+and apply the local moves from the last frame?
+
+that would mean I would have to keep the clients local moves...it would only be one move per frame max...
+
+this is just crazy enough to maybe work.....
+
+client stores all its game moves in it's own local array....
+when client get a dif that is in the past:
+apply then play back to current...
+
+
+
+right now I have the server in the lead, the client lags behind just enough so I can get the current state from the server and apply it.
+If I let the client pass the server, the server will be able to get cdats with less delay, but who knows what else might happen??
+
+I think it's worth a try....
+
+1 - make client put stuff in its own local game_moves array
+
+2 - remove the part in rx stdf where we ignore late difs
+
+3 - modify apply dif to allow late ones
+
+this is a tricky bit of code here....
+
+   // check to see if frame_nums match and its time to apply dif or if initial state when frame_num == 0
+   if ((frame_num != client_state_dif_dst) && (frame_num != 0))
+   {
+
+
+first of all if the match then do it
+second of all if frame_num == 0 do it
+third of all...
+if newer than last applied dif....
+
+what is the varaible for the last applied dif frame_num? 'client_state_base_frame_num'
+
+so check if the dest of the dif_dest on deck is newer than that
+
+if (client_state_dif_dst > client_state_base_frame_num) // we have dif with a newer dest than previous
+
+omg I am ready to try it....
+
+well it looks like I can run a game succesfully with negative sync... lets try it on WAN
 
 
 

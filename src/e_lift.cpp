@@ -1,6 +1,8 @@
 // e_lift.cpp
 
 #include "pm.h"
+#include "e_mWindow.h"
+
 
 al_fixed lift_get_distance_to_previous_move_step(int lift, int step)
 {

@@ -3,6 +3,10 @@
 #include "pm.h"
 #include "z_log.h"
 #include "z_sound.h"
+#include "z_settings.h"
+#include "z_player.h"
+#include "n_netgame.h"
+
 
 
 #define STRINGIFY_HELPER(x) #x
@@ -112,6 +116,13 @@ void save_config(void)
       asci(LOGGING, LOG_TMR_sdif)
       asci(LOGGING, LOG_TMR_cdif)
       asci(LOGGING, LOG_TMR_rwnd)
+      asci(LOGGING, LOG_TMR_client_timer_adj)
+      asci(LOGGING, LOG_TMR_client_ping)
+
+
+
+
+
       asci(LOGGING, autosave_log_on_program_exit)
       asci(LOGGING, autosave_log_on_game_exit)
       asci(LOGGING, autosave_log_on_level_done)
@@ -224,7 +235,12 @@ void load_config(void)
    agci(LOGGING, LOG_TMR_sdif, 0)
    agci(LOGGING, LOG_TMR_cdif, 0)
    agci(LOGGING, LOG_TMR_rwnd, 0)
-   agci(LOGGING, LOG_TMR_rwnd, 0)
+
+   agci(LOGGING, LOG_TMR_client_timer_adj, 0)
+   agci(LOGGING, LOG_TMR_client_ping, 0)
+
+
+
    agci(LOGGING, autosave_log_on_program_exit, 0)
    agci(LOGGING, autosave_log_on_game_exit, 0)
    agci(LOGGING, autosave_log_on_level_done, 0)

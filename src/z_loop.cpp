@@ -4,7 +4,10 @@
 #include "z_qGraph.h"
 #include "z_sound.h"
 #include "z_log.h"
-
+#include "z_settings.h"
+#include "z_player.h"
+#include "z_ping_buffer.h"
+#include "n_netgame.h"
 
 void proc_events(ALLEGRO_EVENT ev)
 {
@@ -94,6 +97,7 @@ void proc_events(ALLEGRO_EVENT ev)
    {
       if (ev.timer.source == fps_timer) program_update = 1;
       if (ev.timer.source == sec_timer) program_update_1s = 1;
+      if (ev.timer.source == png_timer) players1[active_local_player].client_ping_flag = 1;
    }
 }
 
@@ -345,6 +349,7 @@ void proc_program_state(void)
    //---------------------------------------
    if (program_state == 23)
    {
+      //client_send_ping();
       client_fast_packet_loop();
       client_read_packet_buffer();
    }
@@ -416,6 +421,8 @@ void proc_program_state(void)
          // set holdoff 200 frames in future so client won't try to drop while syncing
          players1[p].client_last_stdf_rx_frame_num = frame_num + 200;
 
+         players1[active_local_player].client_ping_flag = 1;
+
          if (LOG_NET_join) add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
          program_state = 11;
       }
@@ -474,7 +481,7 @@ void proc_program_state(void)
 
       players[0].level_done_mode = 0;
 
-      if (LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
+      if (LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", players[0].level_done_next_level); add_log_entry_header(10, 0, msg, 3); }
 
       if (players[active_local_player].control_method == 1) // run demo mode saved game file
       {
@@ -493,7 +500,7 @@ void proc_program_state(void)
 
       if (autosave_log_on_level_done) save_log_file();
 
-      play_level = next_level;
+      play_level = players[0].level_done_next_level;
 
       if (0) // reset clients
       {
@@ -542,8 +549,10 @@ void proc_program_state(void)
       if (ima_server) // set server initial state (for both 2-new game and 5-level done when server)
       {
          players[0].control_method = 3;
-         game_vars_to_state(srv_stdf_state[1]);
-         srv_stdf_state_frame_num[1] = frame_num;
+
+         game_vars_to_state(srv_client_state[0][1]);
+         srv_client_state_frame_num[0][1] = frame_num;
+
          if (LOG_NET_stdf)
          {
             //   printf("saved server state[1]:%d\n\n", frame_num);
@@ -662,8 +671,9 @@ void proc_program_state(void)
       }
 
       players[0].control_method = 3;
-      game_vars_to_state(srv_stdf_state[1]);
-      srv_stdf_state_frame_num[1] = frame_num;
+      game_vars_to_state(srv_client_state[0][1]);
+      srv_client_state_frame_num[0][1] = frame_num;
+
       if (LOG_NET_stdf)
       {
          //   printf("saved server state[1]:%d\n\n", frame_num);
@@ -851,8 +861,6 @@ void main_loop(void)
             proc_player_input();
             proc_game_moves_array();
 
-
-
             if (players[0].level_done_mode) process_level_done_mode();
             else move_frame();
 
@@ -861,53 +869,17 @@ void main_loop(void)
             if (players1[0].server_send_dif) server_send_stdf();
             if (LOG_TMR_sdif) add_log_TMR(al_get_time() - t0, "sdif", 0);
 
-
-
             if (proc_frame_skip()) draw_frame();
 
             double pt = al_get_time() - timestamp_frame_start;
-
             if (LOG_TMR_cpu) add_log_TMR(pt, "cpu", 0);
-
-
             double cpu = (pt/0.025)*100;
             qG[0].add_data(0, cpu);
 
 
-
-//            double td=0, ts=0, tm=0, tt=0;
-//            if (get_delta(frame_num,   6, frame_num,   7, td)) printf("time in draw: %5.3f us\n", td*1000000);
-//
-//            if (get_delta(frame_num,   5, frame_num,   6, ts)) printf("time in stdf: %5.3f us\n", ts*1000000);
-//
-//            if (get_delta(frame_num,   4, frame_num,   5, tm)) printf("time in move: %5.4f us\n", tm*1000000);
-//            if (get_delta(frame_num-1, 1, frame_num,   1, tt)) printf("total   time: %5.5f us\n", tt*1000000);
-//
-//
-//            sprintf(msg, "tmst [%0.4f] [%0.4f] [%0.4f]\n", td*1000, tm*1000, tt*1000);
-//            add_log_entry2(44, 0, msg);
-//
-
-
-//
-//
-//            double base = 0, m1 = 0, m2 = 0, d1 = 0, d2 = 0;
-//            get_timestamp(frame_num, 0, base);
-//            get_timestamp(frame_num, 1, m1);
-//            get_timestamp(frame_num, 2, m2);
-//
-//            get_timestamp(frame_num, 3, d1);
-//
-//            get_timestamp(frame_num, 4, d2);
-//
-//            //printf("base:%f m1:%f m2:%f d1:%f d2:%f\n", base, m1, m2, d1, d2);
-//
-//            printf("base:0 m1:%f m2:%f d1:%f d2:%f\n", m1-base, m2-base, d1-base, d2-base);
-
 //            // speed test... draw every frame
 //            proc_frame_skip();
 //            draw_frame();
-
 //            // speed test...draw no frames...maybe 1 in 1000
 //            proc_frame_skip();
 //            if (frame_num)
@@ -916,22 +888,16 @@ void main_loop(void)
 //            }
 
 
-            if ((ima_client) && (frame_num > 100))
-            {
-               int mod = 80;
-               if (ping_num_filled < 8) mod = 10;
-               if ((frame_num % mod) == 0)
-               {
-                  //printf("ping server\n");
-                  Packet("ping");
-                  PacketPutDouble(al_get_time());
-                  ClientSend(packetbuffer, packetsize);
-               }
-            }
          }
       }
 
 
+      // send client ping at this time in the loop, if flag is set
+      if ((players1[active_local_player].client_ping_flag) && (ima_client))
+      {
+         players1[active_local_player].client_ping_flag = 0;
+         client_send_ping();
+      }
 
       // ----------------------------------------------------------
       // do things based on the 1 Hz sec_timer event

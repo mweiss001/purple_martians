@@ -4,6 +4,8 @@
 #include "z_qGraph.h"
 #include "z_sound.h"
 #include "z_log.h"
+#include "z_player.h"
+#include "n_netgame.h"
 
 void show_player_stat_box(int tx, int y, int p)
 {

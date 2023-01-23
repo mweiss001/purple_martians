@@ -1,6 +1,7 @@
 // z_lift.cpp
 
 #include "pm.h"
+#include "z_player.h"
 
 int construct_lift(int l, char* lift_name)
 {

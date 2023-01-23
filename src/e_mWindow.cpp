@@ -1,5 +1,9 @@
-// e_mWindows.cpp
+// e_mWindow.cpp
 #include "pm.h"
+#include "e_mWindow.h"
+
+mWindow mW[NUM_MW];
+
 
 
 void cm_get_block_position_on_map()

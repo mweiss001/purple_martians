@@ -2,7 +2,7 @@
 #include "pm.h"
 #include "z_log.h"
 #include "z_mwGraph.h"
-
+#include "z_player.h"
 
 
 
@@ -48,6 +48,11 @@ int LOG_TMR_draw_all = 0;
 int LOG_TMR_sdif = 0;
 int LOG_TMR_cdif = 0;
 int LOG_TMR_rwnd = 0;
+
+int LOG_TMR_client_timer_adj = 0;
+int LOG_TMR_client_ping = 0;
+
+
 
 
 int autosave_log_on_program_exit = 0;
@@ -1088,7 +1093,7 @@ void log_ping_graph(int num_lines)
          get_tag_text(tll, res, 0);
          double fps_chase = atof(res);
 
-         printf("d:%f o:%f c:%f\n", dsync, offset, fps_chase);
+         //printf("d:%f o:%f c:%f\n", dsync, offset, fps_chase);
 
          if (dsync < 100) // ignore stupidly high ones at start
          {
@@ -1107,7 +1112,7 @@ void log_ping_graph(int num_lines)
          get_tag_text(tll, res, 0);
          double avg = atof(res);
 
-         printf("ping:%f avg:%f\n", ping, avg);
+         //printf("ping:%f avg:%f\n", ping, avg);
          mG[1].add_data_point(0, (double) fn, ping);
          mG[1].add_data_point(1, (double) fn, avg);
       }

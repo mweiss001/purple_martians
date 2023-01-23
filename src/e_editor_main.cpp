@@ -1,5 +1,8 @@
 // e_editor_main.cpp
 #include "pm.h"
+#include "e_mWindow.h"
+
+
 
 void em_set_swbl(void)
 {

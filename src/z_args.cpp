@@ -1,7 +1,7 @@
 // z_args.cpp
 #include "pm.h"
 #include "z_log.h"
-
+#include "n_netgame.h"
 
 void pm_copy_exe(const char* filepath)
 {
@@ -76,11 +76,11 @@ void copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
 
 
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
@@ -391,6 +391,214 @@ void temp_test(void)
    al_clear_to_color(palette_color[0]);
 
 
+// netgame simulation
+   int quit = 0;
+
+
+   int sfn = 100;
+   int cfn = 101;
+
+
+   int last_state = 100;
+   int s1 = 4;
+   int s2 = 3;
+   int s3 = s1+s2;
+
+   int ls = 10; // line spacing
+
+
+   int sr = 0; // server rewind
+
+
+   int cr = 0; // client rewind
+
+
+   int cfn_b4_rewind = 0;
+   int sfn_b4_rewind = 0;
+
+   char cmsg[128] = {0};
+   char smsg[128] = {0};
+
+
+   while (!quit)
+   {
+      if (cr)
+      {
+         if (cr == 1)
+         {
+//            cfn--;
+            sprintf(cmsg, "Receives State:%d", last_state);
+            cfn_b4_rewind = cfn;
+         }
+         if (cr == 2)
+         {
+            sprintf(cmsg, "Rewinds to State:%d", last_state);
+            cfn = last_state;
+         }
+         if (cr == 3)
+         {
+            sprintf(cmsg, "Replays to last fn before rewind:%d", cfn_b4_rewind);
+            if (cfn > cfn_b4_rewind) cr = 0;
+         }
+      }
+      else // not client
+      {
+         if (sr == 0) // server
+         {
+            if (sfn == last_state + s3)
+            {
+               sr = 1; // start server rewind
+               sfn_b4_rewind = sfn;
+               sfn = last_state;
+               cfn--;
+            }
+         }
+         if (sr == 1)
+         {
+            sprintf(smsg, "Rewind to Last State:%d", last_state);
+            if (sfn > last_state) sr = 2;
+         }
+         else if (sr == 2)
+         {
+            sprintf(smsg, "Play to s1:%d",last_state + s1);
+            if (sfn == last_state + s1) sr = 3;
+         }
+         else if (sr == 3)
+         {
+            sprintf(smsg, "Create New State:%d",last_state + s1);
+            if (sfn > last_state + s1)
+            {
+               last_state += s1;
+               sr = 4;
+               // jump to client now
+               cr = 1;
+            }
+         }
+         else if (sr == 4)
+         {
+            sprintf(smsg, "Replays to last fn before rewind");
+            if (sfn > last_state + s2)
+            {
+               sr = 0;
+               cfn++;
+            }
+         }
+      }
+
+      int cmc = 15;
+      if ((!cr) && (!sr)) sprintf(cmsg, "Normal Move");
+      if ((!cr) && (sr))  sprintf(cmsg, "paused");
+      if (cr) cmc = 10;
+      al_draw_textf(font, palette_color[cmc], 400, 0, 0, "Client %s",cmsg);
+
+
+      int smc = 15;
+      if ((!cr) && (!sr)) sprintf(smsg, "Normal Move");
+      if (cr)             sprintf(smsg, "paused");
+      if ((sr) && (!cr))  smc = 10;
+      al_draw_textf(font, palette_color[smc], 0, 0, 0, "Server %s", smsg);
+
+
+      if (key[ALLEGRO_KEY_SPACE][3])
+      {
+         if (cr) // when in cr mode pause server
+         {
+            if      (cr == 1) cr = 2;
+            else if (cr == 2) cr = 3;
+            else cfn++;
+         }
+         else
+         {
+            if (sr) sfn++; // server only
+            else // both in normal move
+            {
+               cfn++;
+               sfn++;
+            }
+         }
+      }
+
+      // draw server column
+      for (int i=100; i<180; i++)
+      {
+         int sc = 15;
+         if (i == sfn) sc = 10;
+         al_draw_textf(font, palette_color[sc], 0,   10+(i-100)*ls, 0, "%3d", i);
+      }
+
+      // draw client column
+      for (int i=100; i<180; i++)
+      {
+         int sc = 15;
+         if (i+1 == cfn) sc = 10;
+         al_draw_textf(font, palette_color[sc], 400, 10+(i-100)*ls, 0, "%3d", i+1);
+      }
+
+
+      // draw last state and boxes
+      int lsy1 = 10+(last_state    -100)*ls;
+      int lsy2 = 10+(last_state+s1 -100)*ls;
+      int lsy3 = 10+(last_state+s3 -100)*ls;
+
+      al_draw_rectangle(0, lsy1-1, 100, lsy3-1, palette_color[15], 1);
+      //al_draw_rectangle(0, lsy2-1, 200, lsy3-1, palette_color[15], 1);
+
+      al_draw_textf(font, palette_color[9], 102, lsy1, 0, "last state:%d", last_state);
+      al_draw_rectangle(0, lsy1-1, 240, lsy1+ls-1, palette_color[9], 1);
+
+
+      // current frame server
+      int cfy1 = 10+(sfn-100)*ls-2;
+      al_draw_textf(font, palette_color[10], 260, cfy1, 0, "current frame");
+      al_draw_line(0, cfy1+ls/2, 262, cfy1+ls/2, palette_color[10], 1);
+
+      // current frame client
+      cfy1 = 10+(cfn-101)*ls-2;
+      al_draw_textf(font, palette_color[10], 660, cfy1, 0, "current frame");
+      al_draw_line(400, cfy1+ls/2, 662, cfy1+ls/2, palette_color[10], 1);
+
+
+      if ((sr != 4) && (sr != 0))
+      {
+         al_draw_textf(font, palette_color[8], 102, lsy2, 0, "s1");
+         al_draw_rectangle(0, lsy2-1, 200, lsy2+ls-1, palette_color[8], 1);
+      }
+
+      if ((sr) && (!cr))
+      {
+         int yp = 10+(sfn_b4_rewind-100)*ls;
+         al_draw_textf(font, palette_color[13], 102, yp, 0, "fn before rewind");
+         al_draw_rectangle(0, yp-1, 240, yp+ls-1, palette_color[13], 1);
+      }
+
+      if (cr)
+      {
+         int yp = 10+(cfn_b4_rewind-101)*ls;
+         al_draw_textf(font, palette_color[13], 502, yp, 0, "fn before rewind");
+         al_draw_rectangle(400, yp-1, 640, yp+ls-1, palette_color[13], 1);
+      }
+
+      al_flip_display();
+
+      al_clear_to_color(palette_color[0]);
+      proc_controllers();
+      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //
 //   void convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bmp_filename, int char_size);
@@ -398,11 +606,6 @@ void temp_test(void)
 //   convert_ttf_to_bitmap_font("Pristine.ttf", "Pristine_16.bmp", 16);
 
 
-
-
-
-   al_flip_display();
-   tsw();
 
 
 

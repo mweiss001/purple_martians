@@ -1,0 +1,445 @@
+<!doctype html>
+<title>Netgame - Main</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div></mdw_lhs_nav>
+
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - Main</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_main.html#Overview" target="_top">Overview</a>
+ <a href="netgame_main.html#The Game State" target="_top">The Game State</a>
+
+
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+
+
+<mh3>
+This is the latest iteration of Netgame circa 2023
+
+I have completely abandoned syncing game moves between server and client.
+
+The only method used now is sending the server's game state to the clients.
+
+Just like before, the server is the absolute authority.
+
+Clients may run independantly for a few frames, predicting what they think will happen, until a new state from the server is received and blindly overwrites the client's game state.
+
+When the client makes a move (when client's controls change) they are immediately sent to the server and also applied and saved locally.
+
+The clients run slightly ahead of the server in time. That means that when a client receives a state from the server, it will most likely be in past.
+
+The client handles this by rewinding and replaying to the current frame.
+The rewinding is simply applying a state from the past. That has the effect of rewinding.
+
+When the client replays from there, it also re-applies its locally stored moves for frames past what the server has sent.
+
+
+
+Because the server is running behind the clients, game moves from clients will most likely be received too late to be applied.
+The server stores them in the the game moves array, even though they are in the past.
+
+When the server sends states to clients, the server first rewinds and replays to apply the clients moves that arrived too late.
+
+
+</mh3>    
+
+
+<br><a name="The Game State"></a>
+<mh7>The Game State</mh7>
+
+<mh3>
+The Game State is all of the data required to replicate the game between server and client.
+
+It consists of all the relevant variables for the level, player, enemy, item, bullets.. etc.
+
+</mh3>    
+<pre><code class="language-cpp">// Variables used for netgame state exchange
+players  :  2048
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    : 32000
+lifts    :  5280
+l        : 40000
+pbullet  :  1200
+ebullets :  1200
+pm_event :  4000
+---------:------
+total    :112928
+</code></pre>
+
+
+
+<mh3>
+I use memcpy to put all those loose variables into a character array so I can process it as one chunk of data.
+
+I call these large char arrays 'states'.  Clients use 3 and the server uses 16 (2 for each client).
+
+</mh3>
+<pre><code class="language-cpp">#define STATE_SIZE 112928
+
+// server's copies of client states
+extern char srv_client_state[8][2][STATE_SIZE];
+extern int srv_client_state_frame_num[8][2];
+
+// local client's states
+extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
+extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
+extern char client_state_base[STATE_SIZE];    // last ack state
+extern int  client_state_base_frame_num;      // last ack state frame_num
+extern char client_state_dif[STATE_SIZE];     // uncompressed dif
+extern int  client_state_dif_src;             // uncompressed dif src frame_num
+extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
+</code></pre>
+
+<mh3>
+Here is how I put the variables into a char array and how I get them out:
+
+</mh3>
+<pre><code class="language-cpp">void game_vars_to_state(char * b)
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(players);  memcpy(b+offset, players,  sz);
+   offset += sz; sz = sizeof(Ei);       memcpy(b+offset, Ei,       sz);
+   offset += sz; sz = sizeof(Efi);      memcpy(b+offset, Efi,      sz);
+   offset += sz; sz = sizeof(item);     memcpy(b+offset, item,     sz);
+   offset += sz; sz = sizeof(itemf);    memcpy(b+offset, itemf,    sz);
+   offset += sz; sz = sizeof(lifts);    memcpy(b+offset, lifts,    sz);
+   offset += sz; sz = sizeof(l);        memcpy(b+offset, l,        sz);
+   offset += sz; sz = sizeof(pbullet);  memcpy(b+offset, pbullet,  sz);
+   offset += sz; sz = sizeof(ebullets); memcpy(b+offset, ebullets, sz);
+   offset += sz; sz = sizeof(pm_event); memcpy(b+offset, pm_event, sz);
+}
+
+void state_to_game_vars(char * b)
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(players);  memcpy(players,  b+offset, sz); offset += sz;
+   sz = sizeof(Ei);       memcpy(Ei,       b+offset, sz); offset += sz;
+   sz = sizeof(Efi);      memcpy(Efi,      b+offset, sz); offset += sz;
+   sz = sizeof(item);     memcpy(item,     b+offset, sz); offset += sz;
+   sz = sizeof(itemf);    memcpy(itemf,    b+offset, sz); offset += sz;
+   sz = sizeof(lifts);    memcpy(lifts,    b+offset, sz); offset += sz;
+   sz = sizeof(l);        memcpy(l,        b+offset, sz); offset += sz;
+   sz = sizeof(pbullet);  memcpy(pbullet,  b+offset, sz); offset += sz;
+   sz = sizeof(ebullets); memcpy(ebullets, b+offset, sz); offset += sz;
+   sz = sizeof(pm_event); memcpy(pm_event, b+offset, sz); offset += sz;
+}
+</code></pre>
+
+
+
+<br><a name="How a client gets a new state from the server"></a>
+<mh7>How a client gets a new state from the server</mh7>
+<mh3>
+A client receives 'stdf' packets from the server.  Each packet contains pieces of a compressed dif state.
+These packets have up to 1000 bytes of data each and are put into 'client_state_buffer' at the appropriate offset.
+
+When all the pieces have been received, 'client_state_buffer' is uncompressed into 'client_state_dif'.
+The source and destination frame of 'client_state_dif' are updated to mark it as valid.
+</mh3>
+
+<pre><code class="language-cpp">void client_process_stdf_packet(double timestamp)
+{
+   int p = active_local_player;
+   int src = PacketGet4ByteInt();
+   int dst = PacketGet4ByteInt();
+   int seq = PacketGet1ByteInt();
+   int max_seq = PacketGet1ByteInt();
+   int sb = PacketGet4ByteInt();
+   int sz = PacketGet4ByteInt();
+
+   memcpy(client_state_buffer + sb, packetbuffer+22, sz);  // put the piece of data in the buffer
+   client_state_buffer_pieces[seq] = dst;                  // mark it with destination frame_num
+
+   int complete = 1;                                          // did we just get the last packet? (yes by default)
+   for (int i=0; i< max_seq; i++)
+      if (client_state_buffer_pieces[i] != dst) complete = 0; // no, if any piece not at latest frame_num
+
+   if (complete)
+   {
+      // decompress client_state_buffer to dif
+      uLongf destLen = sizeof(client_state_dif);
+      uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
+      if (destLen == STATE_SIZE)
+      {
+         sprintf(msg, "rx dif complete [%d to %d] sync[%d] dsync[%3.1fms] - decompressed\n", src, dst, players1[p].client_sync, players1[p].dsync*1000);
+         client_state_dif_src = src; // mark dif data with new src and dst
+         client_state_dif_dst = dst;
+      }
+      else
+      {
+         sprintf(msg, "rx dif complete [%d to %d] sync[%d] - bad decompress\n", src, dst, players1[p].client_sync);
+         client_state_dif_src = -1; // mark dif data as bad
+         client_state_dif_dst = -1;
+      }
+   }
+}</code></pre>
+
+<br><a name="How a client applies the new state"></a>
+<mh7>How a client applies the new state</mh7>
+
+<mh3>
+Every frame the client checks to see if it has a dif that matches one of these conditions:
+- the destination is newer than client's stored base state, or
+- frame_num == 0, meaning this is the initial state
+</mh3>
+<pre><code class="language-cpp">void client_apply_diff(void)
+{
+   int p = active_local_player;
+   if ((client_state_dif_dst > client_state_base_frame_num) || (frame_num == 0)) // stored dif with a new dest, or initial state (frame 0)
+</code></pre>
+
+<mh3>
+If one of these conditions is met, we will attempt to apply the dif.
+
+First we will check to see if the server sent a dif based on state 0.
+If so, we will set our base to all zeros also.
+</mh3>
+
+
+<pre><code class="language-cpp">      if (client_state_dif_src == 0) // if server has sent dif from src == 0, reset client base to 0
+      {
+         memset(client_state_base, 0, STATE_SIZE);
+         client_state_base_frame_num = 0;
+         if (LOG_NET_stdf) add_log_entry2(27, p, "Resetting client base state to zero\n");
+      }
+</code></pre>
+
+<mh3>
+Next we check to see if we have a stored base that matches src.
+If we do not, we will abort and resend a 'stak' packet back to the server, indicating the last state we have acknowledged and have stored as a base.
+</mh3>
+
+<pre><code class="language-cpp">      if (client_state_base_frame_num != client_state_dif_src) // stored base state does NOT match dif source
+      {
+         sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
+         if (LOG_NET_stdf) add_log_entry2(29, p, msg);
+
+         client_send_stak(); // resend ack to server with correct acknowledged base state
+      }
+      else // we have a matching base to apply dif
+      {
+</code></pre>
+
+<mh3>
+If we get this far, we either have a matching base, or one set to all zeros. Either way, we can proceed.
+
+First we determine if the destination matches the current frame exactly or is in the past.
+</mh3>
+<pre><code class="language-cpp">      else // we have a matching base to apply dif
+      {
+         char tmsg[64];
+         int ff = 0;
+         if (frame_num == 0) sprintf(tmsg, "initial state\n");
+         else if (client_state_dif_dst < frame_num)
+         {
+            ff = frame_num - client_state_dif_dst;
+            sprintf(tmsg, "rewind [%d] frames\n", ff);
+         }
+         if (client_state_dif_dst == frame_num) sprintf(tmsg, "exact frame match [%d]\n", frame_num);
+</code></pre>
+
+<mh3>
+Then we apply the dif to the base state.
+</mh3>
+<pre><code class="language-cpp">         apply_state_dif(client_state_base, client_state_dif, STATE_SIZE); // apply dif to base state
+.....
+void apply_state_dif(char *a, char *c, int size)
+{
+   for (int i=0; i< size; i++) a[i] -= c[i];
+}</code></pre>
+
+<mh3>
+Next, we use that modifed state to overwrite the game variables and update the current frame_num.
+
+This state is our new base state, so we update the frame_num for that too.
+
+</mh3>
+<pre><code class="language-cpp">         state_to_game_vars(client_state_base);                           // copy modified base state to game_vars
+         frame_num = client_state_base_frame_num = client_state_dif_dst;  // update frame_num and client base frame_num
+         if (frame_num == 0) set_frame_nums(client_state_dif_dst);        // for initial state only
+</code></pre>
+
+<mh3>
+Then if we just applied a state from the past, we replay to the current frame. (and any local moves will be re-applied)
+</mh3>
+<pre><code class="language-cpp">         if (ff) loop_frame(ff); // if we rewound time, play it back
+</code></pre>
+
+
+<mh3>
+Then we send a 'stak' packet to the server to acknowledge our new saved base state.
+</mh3>
+<pre><code class="language-cpp">         client_send_stak();
+</code></pre>
+
+<mh3>
+Here is the entire code:
+</mh3>
+<pre><code class="language-cpp">void client_apply_diff(void)
+{
+   int p = active_local_player;
+
+   if ((client_state_dif_dst > client_state_base_frame_num) || (frame_num == 0)) // stored dif with a new dest, or initial state (frame 0)
+   {
+      if (client_state_dif_src == 0) // if server has sent dif from src == 0, reset client base to 0
+      {
+         memset(client_state_base, 0, STATE_SIZE);
+         client_state_base_frame_num = 0;
+         if (LOG_NET_stdf) add_log_entry2(27, p, "Resetting client base state to zero\n");
+      }
+
+      if (client_state_base_frame_num != client_state_dif_src) // stored base state does NOT match dif source
+      {
+         sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
+         if (LOG_NET_stdf) add_log_entry2(29, p, msg);
+
+         client_send_stak(); // resend ack to server with correct acknowledged base state
+      }
+      else // we have a matching base to apply dif
+      {
+         char tmsg[64];
+         int ff = 0;
+         if (frame_num == 0) sprintf(tmsg, "initial state\n");
+         else if (client_state_dif_dst < frame_num)
+         {
+            ff = frame_num - client_state_dif_dst;
+            sprintf(tmsg, "rewind [%d] frames\n", ff);
+         }
+         if (client_state_dif_dst == frame_num) sprintf(tmsg, "exact frame match [%d]\n", frame_num);
+
+         // apply dif to base state
+         apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
+
+         // make a copy of the l[][]
+         int old_l[100][100];
+         memcpy(old_l, l, sizeof(l));
+
+         // copy modified base state to game_vars
+         state_to_game_vars(client_state_base);
+
+         // compare old_l to l and redraw changed tiles
+         al_set_target_bitmap(level_background);
+         for (int x=0; x<100; x++)
+            for (int y=0; y<100; y++)
+               if (l[x][y] != old_l[x][y])
+               {
+                  // printf("dif at x:%d y:%d\n", x, y);
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+               }
+
+         // fix control methods
+         players[0].control_method = 2; // on client, server is mode 2
+         if (players[p].control_method == 2) players[p].control_method = 4;
+         if (players[p].control_method == 8) new_program_state = 1; // server quit
+
+         // update frame_num and client base frame_num
+         frame_num = client_state_base_frame_num = client_state_dif_dst;
+
+         // for initial state only
+         if (frame_num == 0) set_frame_nums(client_state_dif_dst);
+
+         players1[p].client_last_dif_applied = frame_num;
+
+         if (ff) loop_frame(ff); // if we rewound time, play it back
+
+         client_send_stak();
+
+         sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
+         if (LOG_NET_stdf) add_log_entry2(29, p, msg);
+      }
+   }
+   else
+   {
+      sprintf(msg, "dif [%d to %d] not applied - not newer than current [%d]\n", client_state_dif_src, client_state_dif_dst, client_state_base_frame_num);
+      if (LOG_NET_stdf_when_to_apply) add_log_entry2(29, p, msg);
+   }
+
+}</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2022, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>
