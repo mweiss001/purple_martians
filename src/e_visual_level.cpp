@@ -1,6 +1,6 @@
 // e_visual_level.cpp
 #include "pm.h"
-
+#include "z_player.h"
 
 // globals
 int sel = 0;

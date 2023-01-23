@@ -1,5 +1,6 @@
 // e_object_viewer_windows.cpp
 #include "pm.h"
+#include "e_mWindow.h"
 
 int create_obj(int obt, int type, int num)
 {

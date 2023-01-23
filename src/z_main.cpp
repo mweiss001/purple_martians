@@ -3,7 +3,7 @@
 #include "pm.h"
 #include "z_sound.h"
 #include "z_log.h"
-
+#include "z_player.h"
 
 
 
@@ -12,7 +12,9 @@
 
 
 
-int settings_current_page = 0;
+float tmaj_i = 0;
+
+
 
 int program_state = 0;
 // 0 = starting
@@ -48,35 +50,6 @@ int ty2=0;
 int ttc2=0;
 float ttfloat2=0;
 
-// ------------------------------------------------
-// ----------------- netgame ----------------------
-// ------------------------------------------------
-int ima_server = 0;
-int ima_client = 0;
-char m_serveraddress[256] = "192.168.1.2";
-int TCP = 0;
-int zlib_cmp = 7;
-int deathmatch_pbullets = 0;
-int deathmatch_pbullets_damage = 5;
-int suicide_pbullets = 0;
-
-
-// server's copies of client states
-char srv_client_state[8][2][STATE_SIZE];
-int srv_client_state_frame_num[8][2];
-
-// server's copy of last stdf state
-char srv_stdf_state[4][STATE_SIZE];
-int srv_stdf_state_frame_num[4];
-
-// local client's states
-char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
-int  client_state_buffer_pieces[16];   // to mark packet pieces as received
-char client_state_base[STATE_SIZE];    // last ack state
-int  client_state_base_frame_num;      // last ack state frame_num
-char client_state_dif[STATE_SIZE];     // uncompressed dif
-int  client_state_dif_src;             // uncompressed dif src frame_num
-int  client_state_dif_dst;             // uncompressed dif dst frame_num
 
 int level_header[20] = {0};
 
@@ -100,9 +73,6 @@ int frame_speed = 40;
 int frame_num;
 int speed_control_lock = 1;
 
-
-// global game control
-int next_level = 0;
 
 // some global strings
 char level_filename[80];
@@ -144,7 +114,7 @@ ALLEGRO_BITMAP *bmsg_temp;
 // ------------------------------------------------
 // ----- level editor unsorted --------------------
 // ------------------------------------------------
-mWindow mW[NUM_MW];
+
 int obj_filter[5][20] = {0};
 int swbl[NUM_SPRITES][2];
 
@@ -204,6 +174,7 @@ bool mouse_b[5][4] = { 0 };
 ALLEGRO_TIMER * fps_timer;  // used to control the speed of the game
 ALLEGRO_TIMER * mnu_timer;  // used to control the speed of the menu
 ALLEGRO_TIMER * sec_timer;  // used to count the actual frames per second
+ALLEGRO_TIMER * png_timer;  // used to control the speed client pings
 
 
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -266,14 +237,6 @@ int large_text_overlay_state = 0;
 
 
 
-// ------------------------------------------------
-// ---------------- players -----------------------
-// ------------------------------------------------
-struct player players[NUM_PLAYERS];
-struct player1 players1[NUM_PLAYERS];
-int active_local_player = 0;
-
-
 
 
 struct packet_buffer packet_buffers[200];
@@ -282,9 +245,6 @@ int timestamps_index = 0;
 double timestamp_frame_start = 0;
 
 
-double ping_array[8] = {0};
-int    ping_num_filled = 0;
-int    ping_index = 0;
 
 
 
@@ -688,6 +648,9 @@ int initial_setup(void)
    show_system_id();
    get_desktop_resolution();
 
+   srand(time(NULL));
+
+
    // --- event queue ----------------
    event_queue = al_create_event_queue();
    if(!event_queue)
@@ -789,18 +752,21 @@ int initial_setup(void)
    // create timers
    fps_timer = al_create_timer(1/(float)frame_speed);
    sec_timer = al_create_timer(1);
-   //mnu_timer = al_create_timer(.01);
    mnu_timer = al_create_timer(.008); // 125 fps
+   png_timer = al_create_timer(.5);   // 2 fps
+
 
    // register timer event source
    al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(sec_timer));
+   al_register_event_source(event_queue, al_get_timer_event_source(png_timer));
 
    // start timers
    al_start_timer(fps_timer);
    al_start_timer(sec_timer);
    al_start_timer(mnu_timer);
+   al_start_timer(png_timer);
 
    load_sound();
 

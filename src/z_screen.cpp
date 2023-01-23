@@ -1,6 +1,8 @@
 // z_screen.cpp
 
 #include "pm.h"
+#include "e_mWindow.h"
+#include "z_player.h"
 
 
 void convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bmp_filename, int char_size)

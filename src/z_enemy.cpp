@@ -1,6 +1,8 @@
 // z_enemy.cpp
 #include "pm.h"
 #include "z_log.h"
+#include "z_player.h"
+
 
 int enemy_data(int x_pos, int y_pos)
 {

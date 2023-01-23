@@ -1,6 +1,7 @@
 // e_sliders.cpp
 
 #include "pm.h"
+#include "e_mWindow.h"
 
 char smsg[80];
 int bw = 3; // slider adjustment bar width

@@ -1,6 +1,10 @@
 // z_file.cpp
 #include "pm.h"
 #include "z_log.h"
+#include "e_mWindow.h"
+#include "z_player.h"
+#include "n_netgame.h"
+
 
 FILE *filepntr;
 

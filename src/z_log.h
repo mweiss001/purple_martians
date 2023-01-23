@@ -56,6 +56,11 @@ extern int LOG_TMR_cdif;
 extern int LOG_TMR_rwnd;
 
 
+extern int LOG_TMR_client_timer_adj;
+extern int LOG_TMR_client_ping;
+
+
+
 extern int autosave_log_on_program_exit;
 extern int autosave_log_on_game_exit;
 extern int autosave_log_on_level_done;

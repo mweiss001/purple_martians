@@ -3,13 +3,6 @@
 ---------------------------------------------------------
 
 
---------------------------------------------------------------------------------------------
-in netgame, why do clients try to load level 153 which does not exist
-warp??
---------------------------------------------------------------------------------------------
-
-
-
 bug---can't see any prox line in level editor for prox lift step
 it shows up fine in game
 in level editor the function:
@@ -29,18 +22,23 @@ it did, disabled again....
 
 
 
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
-put player stuff all in its own file...maybe a class...
-will that affect the sync chunk of data??
+make a way to force x axis to show either frames or sec..
+make a way to measure on graph
+like CTRL SHIFT DRAG will display info about box size
+
+make log in settings better:
+- make a way to load most recent ping graph with one click
+log like cpu, but with a multicolored bar...move, draw, other, all added up
+...more
+
 
 put display stuff all in its own file with header
-
-
-log like cpu, but with a multicolored bar...move, draw, other, all added up
-
+screen and display and monitor
 
 
 in hyst gradual:
@@ -48,12 +46,6 @@ if you are running in one direction, you will be pushed up against the hyst for 
 I want it be be ahead of you so you can see where you are going
 same with jumping and falling and rockets
 some way of using players speed....
-
-add a reset to defaults button on hyst
-maybe also on display text double
-
-Make it so that when you leave settings, you come back on start?
-not sure if that will work...possibly if called with shortcut?
 
 
 Things to add to settings:
@@ -77,32 +69,13 @@ low long does it take to switch blocks?
 how long does it take to draw all the blocks?
 how long does it take to draw all messages?
 
-can I assume that the items and enemies are all sorted by type?
-then I could just time type easier?
 
 what about the other timing thing I was going to do?
 start of frame, and where everything else happened....not sure how useful that will be....
 
-what about a fancy on screen scrolling graph that shows the netgame stuff.
-kind of like a ping graph, but real time.
-
-I have been getting a lot of jitter in the ping and dsync things. maybe its due to when in the cycle I am sending it.
-
-like if its after the draw and move and they take a variable time, that could make it look like jitter...
-it is possible to send on a more regulay time?
-
-I don't think I want to delay stdf's or cdats, they need to get there as absolutley fast as possible,
-but maybe the ping stuff could be sent at the start of the frame, instead of after move and draw.
-or even anytime in between frames...
-
 I wanted to experiment with differnt s1 and s2 values, but I wanted to be able to actually measure some effect it has.
 that was the big push behind the program state thing, then the graph thing, then the settings menu because I want to be able
 to measure stuff...
-
-
-
-
-
 
 
 

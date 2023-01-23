@@ -1,7 +1,9 @@
 // z_control.cpp
-
 #include "pm.h"
 #include "z_log.h"
+#include "z_settings.h"
+#include "z_player.h"
+#include "n_netgame.h"
 
 char *key_names[] =
 {

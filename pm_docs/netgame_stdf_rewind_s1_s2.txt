@@ -1,0 +1,132 @@
+This is me trying to document the new method.
+
+New as in 2023
+
+
+The client sync now uses a much faster method.
+It's target is to stay ahead of the server.
+This means when the client gets difs, it may need to rewind to apply them.
+
+Why was this neccesary?
+I think it has to do with the server getting late cdats from clients.
+And the only way to fix that was to let the client stay ahead of the server.
+
+I wanted the client to be ahead of the server (why?) but when it did the client complained about late difs
+I fixed that by allowing the client to rewind...
+
+
+
+
+
+
+
+
+The server keeps a copy of the last state it used to send difs to clients.
+
+Very high level approach:
+
+When sending a new state, the server:
+- loads the last saved state
+- plays forward and applies late client inputs
+- saves a new state and sends that to clients
+
+
+More detail:
+
+There are 2 timing windows: s1 and s2
+
+They are measured in frames and control the amount of rewind and replay around the state.
+
+int s1 = players1[0].s1;
+int s2 = players1[0].s2;
+int s3 = s1+s2;
+
+// is it time to make a new dif and send to clients?
+if (frame_num == srv_stdf_state_frame_num[1] + s3)
+{
+
+
+s1 is the frequency that states are made and difs are sent
+
+why do I need s2?
+what is its purpose??
+
+If i did not have s2, the server would send difs and they would arrive too late for client???
+
+
+can I draw some diagrams?
+
+
+4 3
+
+-7
+fast 4
+make state
+fast 3
+normal 4
+-7
+fast 4
+make state
+fast 3
+normal 4
+
+
+3 1
+
+-4
+fast 3
+make state
+fast 1
+normal 3
+-4
+fast 3
+make state
+fast 1
+normal 3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

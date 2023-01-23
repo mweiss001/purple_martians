@@ -1,6 +1,9 @@
 // n_server.cpp
 #include "pm.h"
 #include "z_log.h"
+#include "z_player.h"
+#include "n_netgame.h"
+
 // n_network.h
 extern int NetworkDriver;
 
@@ -551,27 +554,27 @@ void server_rewind(void)
 {
    int s1 = players1[0].s1;
    int s2 = players1[0].s2;
+//   int s2 = players1[0].s2 = 0;
    int s3 = s1+s2;
 
    // is it time to make a new dif and send to clients?
-   if (frame_num == srv_stdf_state_frame_num[1] + s3)
+   if (frame_num == srv_client_state_frame_num[0][1] + s3)
    {
       // rewind and fast forward from last stdf state to apply missed game moves received late
       if (LOG_NET_stdf)
       {
          // printf("\n%d rewind to:%d\n", frame_num, srv_stdf_state_frame_num[1]);
-         sprintf(msg, "stdf rewind to:%d\n", srv_stdf_state_frame_num[1]);
+         sprintf(msg, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
          add_log_entry2(27, 0, msg);
       }
       if (LOG_TMR_rwnd) t0 = al_get_time();
-      frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
-      state_to_game_vars(srv_stdf_state[1]);   // rewind state
+      frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
+      state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
 
       loop_frame(s1);
-
-      // save state[1] as a base for next rewind
-      game_vars_to_state(srv_stdf_state[1]);
-      srv_stdf_state_frame_num[1] = frame_num;
+      // save state as a base for next rewind
+      game_vars_to_state(srv_client_state[0][1]);
+      srv_client_state_frame_num[0][1] = frame_num;
 
       if (LOG_NET_stdf)
       {
@@ -650,11 +653,12 @@ void server_proc_cdat_packet(double timestamp)
 
 
    // check to see if earlier than the last stdf state
-   if (cdat_frame_num < srv_stdf_state_frame_num[1])
+   if (cdat_frame_num < srv_client_state_frame_num[0][1])
    {
       players1[p].late_cdats_last_sec_tally++;
       players1[p].late_cdats++;
-      printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_stdf_state_frame_num[1], players1[p].late_cdats);
+      printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_client_state_frame_num[0][1], players1[p].late_cdats);
+
 
    }
    else add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
@@ -825,7 +829,8 @@ void server_proc_cjon_packet(int who)
 int get_player_num_from_who(int who)
 {
    for(int p=0; p<NUM_PLAYERS; p++)
-      if ((players[p].active) && (players1[p].who == who)) return p;
+//      if ((players[p].active) && (players1[p].who == who)) return p;
+      if (players1[p].who == who) return p;
    return -1;
 }
 

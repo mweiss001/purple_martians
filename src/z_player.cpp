@@ -2,6 +2,12 @@
 
 #include "pm.h"
 #include "z_log.h"
+#include "z_player.h"
+#include "n_netgame.h"
+
+struct player players[NUM_PLAYERS];
+struct player1 players1[NUM_PLAYERS];
+int active_local_player = 0;
 
 
 void set_player_start_pos(int p, int cont)
@@ -500,12 +506,9 @@ void proc_player_xy_move(int p)
 void proc_player_paused(int p)
 {
    players[p].player_ride = 0;
-
    if (players[p].paused_type == 1) // frozen after player dies, until the timer runs out
    {
       players[p].carry_item = 0;
-
-
       if (players[p].paused == 100) // do only once per death
       {
          // does this player have any bomb remotes?
@@ -574,8 +577,7 @@ void proc_player_paused(int p)
          }
          else // next mode
          {
-            if (item[x][13] == 448)
-               item[x][1] = 448; // restore door shape
+            if (item[x][13] == 448) item[x][1] = 448; // restore door shape
             players[p].paused_mode = 2;
             players[p].paused_mode_count = players[p].door_num_steps;
             players[p].xinc = players[p].door_xinc;
@@ -1544,7 +1546,7 @@ void init_player(int p, int t)
       players1[p].cmp_dif_size = 0;
       players1[p].made_active_holdoff = 0;
 
-      players1[p].client_chase_offset = 0.010;
+      players1[p].client_chase_offset = 0.0;
 
       players1[p].game_move_dsync = 0;
       players1[p].game_move_dsync_avg_last_sec = 0;

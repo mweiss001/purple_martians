@@ -226,6 +226,7 @@ void mwGraph::draw_series_legend(void)
       int series_limit = 20;
       if (series_legend_type == 1) series_limit = 8;
 
+
       for (int s=0; s<series_limit; s++) // run through to get sizes
          if ((series[s].num_data) || (series_legend_type == 1))
          {
@@ -255,8 +256,13 @@ void mwGraph::draw_series_legend(void)
          {
             int c1 = series[s].color1;
             int c2 = series[s].color2;
-            int dim = 0;
-            if (!series[s].active) dim = 160;
+            if (!series[s].active)
+            {
+               int dim = 160;
+               c1 += dim;
+               if (c2 != 0) c2 += dim; // only change color 2 if not zero to prevent 2 color lines being drawn
+            }
+
             if ((mouse_ypos != -1) && (mouse_ypos > y1) && (mouse_ypos <= y1+bh))
             {
                mouse_sel = s;
@@ -264,15 +270,15 @@ void mwGraph::draw_series_legend(void)
             }
             mw_get_text_dimensions(f, series[s].name, bx, by, bw, bh);
             bh+=1;
-            al_draw_text(f, palette_color[c1+dim], x1+2-bx, y1+2-by, 0, series[s].name);
-            if (series_legend_show_counts) al_draw_textf(f, palette_color[c1+dim], x2+2, y1+2-by, 0, "%d", series[s].num_data);
+            al_draw_text(f, palette_color[c1], x1+2-bx, y1+2-by, 0, series[s].name);
+            if (series_legend_show_counts) al_draw_textf(f, palette_color[c1], x2+2, y1+2-by, 0, "%d", series[s].num_data);
             float lx1 = x2-30;
             float lx2 = x2-4;
             float ly1 = y1+bh/2+1.5;
             int lco = 0;
-            mw_draw_line2(        lx1, ly1, lx2, ly1, plot_line_size, 10, c1+dim, 10, c2+dim, lco);
-            al_draw_filled_circle(lx1, ly1,           plot_point_size, palette_color[c1+dim]);
-            al_draw_filled_circle(lx2, ly1,           plot_point_size, palette_color[c1+dim]);
+            mw_draw_line2(        lx1, ly1, lx2, ly1, plot_line_size, 10, c1, 10, c2, lco);
+            al_draw_filled_circle(lx1, ly1,           plot_point_size, palette_color[c1]);
+            al_draw_filled_circle(lx2, ly1,           plot_point_size, palette_color[c1]);
             y1+=bh;
          }
       if ((mouse_b[1][0]) && (mouse_sel != -1))

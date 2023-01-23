@@ -1,6 +1,9 @@
 // n_client.cpp
 #include "pm.h"
 #include "z_log.h"
+#include "z_player.h"
+#include "z_ping_buffer.h"
+#include "n_netgame.h"
 
 
 // n_network.h
@@ -204,12 +207,15 @@ int client_init(void)
    if (!ClientInitNetwork(m_serveraddress)) return 0;
 
    ping_buffer_clear();
+   dysnc_buffer_clear();
+
 
    printf("sending cjon\n");
    Packet("cjon");
    PacketPut1ByteInt(players[0].color); // requested color
    PacketAddString(local_hostname);
    ClientSend(packetbuffer, packetsize);
+
 
    if (LOG_NET_join)
    {
@@ -297,6 +303,17 @@ void client_exit(void)
    active_local_player = 0;
    load_config(); // to get color back
 }
+
+void client_send_ping(void)
+{
+   Packet("ping");
+   PacketPutDouble(al_get_time());
+   ClientSend(packetbuffer, packetsize);
+   // printf("%d ping server\n", frame_num);
+}
+
+
+
 
 void client_send_stak(void)
 {
@@ -392,19 +409,42 @@ void client_apply_diff(void)
    }
 }
 
+
+
+
+
 void client_timer_adjust(void)
 {
    int p = active_local_player;
-   double chase_dsync = players1[p].dsync - players1[p].client_chase_offset; // adjust for target offset
-   double fps_adj = chase_dsync * 100; // make the change bigger
 
-   float fps_chase = frame_speed + fps_adj;
+   float mva = players1[p].dsync_avg;            // measured value
+   float mv = players1[p].dsync;                 // measured value
+   float sp = players1[p].client_chase_offset;   // set point
+   float err = sp - mva;                          // error = set point - measured value
+
+   float p_adj = err * 80; // instantaneous error adjustment (proportional)
+
+   tmaj_i += err; // cumulative error adjust (integral)
+   float i_clamp = 5;
+   if (tmaj_i >  i_clamp) tmaj_i =  i_clamp;
+   if (tmaj_i < -i_clamp) tmaj_i = -i_clamp;
+   tmaj_i *= 0.95; // decay
+   float i_adj = tmaj_i * 0;
+
+
+   float t_adj = p_adj + i_adj; // total adj
+
+   float fps_chase = frame_speed - t_adj;
+
    if (fps_chase < 10) fps_chase = 10; // never let this go negative
    if (fps_chase > 70) fps_chase = 70;
    al_set_timer_speed(fps_timer, ( 1 / fps_chase));
    players1[p].client_chase_fps = fps_chase;
 
-   sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.2f]\n", players1[p].dsync*1000, players1[p].client_chase_offset*1000, fps_chase);
+   sprintf(msg, "tmst mv:[%5.2f] ma:[%5.2f] sp:[%5.2f] er:[%6.2f] pa:[%6.2f] ia:[%6.2f] ta:[%6.2f]\n", mv*1000, mva*1000, sp*1000, err*1000, p_adj, i_adj, t_adj);
+   if (LOG_TMR_client_timer_adj) if (frame_num) add_log_entry2(44, 0, msg);
+
+   sprintf(msg, "timer adjust dsync[%3.2f] offset[%3.2f] fps_chase[%3.3f]\n", players1[p].dsync*1000, players1[p].client_chase_offset*1000, fps_chase);
    if (LOG_NET_client_timer_adj) add_log_entry2(36, p, msg);
 }
 
@@ -425,12 +465,17 @@ void client_process_stdf_packet(double timestamp)
    if (LOG_NET_stdf_all_packets) add_log_entry2(28, p, msg);
 
    players1[p].client_sync = dst - frame_num;               // crude integer sync based on frame numbers
-   players1[p].client_last_stdf_rx_frame_num = frame_num;   // client keeps track of last stdf rx'd and quits if too long
-   double dsync = al_get_time() - timestamp;                // time between when the packet was received into the packet buffer and now
-   dsync += (double) players1[p].client_sync * 0.025;       // add to integer sync in case we are out by a lot
-   players1[p].dsync = dsync;                               // save in local player array
 
-   client_timer_adjust();
+
+   if (players1[p].client_last_stdf_rx_frame_num != frame_num)       // this is the first stdf received for this frame
+   {
+      players1[p].client_last_stdf_rx_frame_num = frame_num;         // client keeps track of last stdf rx'd and quits if too long
+      players1[p].dsync = al_get_time() - timestamp;                 // time between when the packet was received into the packet buffer and now
+      players1[p].dsync += (double) players1[p].client_sync * 0.025; // add to integer sync in case we are out by a lot
+      dsync_array_add();
+      client_timer_adjust();
+   }
+
 
    memcpy(client_state_buffer + sb, packetbuffer+22, sz);  // put the piece of data in the buffer
    client_state_buffer_pieces[seq] = dst;                  // mark it with destination frame_num
@@ -592,7 +637,7 @@ void client_fast_packet_loop(void)
          double t1 = PacketGetDouble();
          double t2 = al_get_time();
          players1[active_local_player].ping = t2 - t0;
-         // printf("rx pong [%3.1f ms] - send pang\n", players1[active_local_player].ping * 1000);
+         //printf("%d rx pong [%3.1f ms] - send pang\n", frame_num, players1[active_local_player].ping * 1000);
 
          ping_array_add(players1[active_local_player].ping);
 

@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "z_sound.h"
-
+#include "z_player.h"
 
 
 
@@ -1759,8 +1759,7 @@ void proc_exit_collision(int p, int i)
          players[0].level_done_x = al_fixtoi(itemf[i][0]);
          players[0].level_done_y = al_fixtoi(itemf[i][1]);
          players[0].level_done_player = p;
-
-         next_level = play_level + 1;
+         players[0].level_done_next_level = play_level + 1;
          game_event(4, 0, 0, 0, 0, 0, 0);
       }
    }
@@ -1840,7 +1839,7 @@ void proc_warp_collision(int p, int i)
       players[0].level_done_x = al_fixtoi(itemf[i][0]);
       players[0].level_done_y = al_fixtoi(itemf[i][1]);
       players[0].level_done_player = p;
-      next_level = item[i][8];
+      players[0].level_done_next_level = item[i][8];
       game_event(4, 0, 0, p, i, 0, 0);
    }
 }

@@ -1,6 +1,7 @@
 // zlogo.cpp
 
 #include "pm.h"
+#include "z_player.h"
 
 // used by "created by:"
 void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt)

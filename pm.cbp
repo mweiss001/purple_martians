@@ -12,6 +12,7 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
+				<Option parameters="-test" />
 				<Compiler>
 					<Add option="-Wall" />
 					<Add option="-DALLEGRO_STATICLINK" />
@@ -97,12 +98,15 @@
 		<Unit filename="src/e_item.cpp" />
 		<Unit filename="src/e_lift.cpp" />
 		<Unit filename="src/e_mWindow.cpp" />
+		<Unit filename="src/e_mWindow.h" />
 		<Unit filename="src/e_object_viewer_windows.cpp" />
 		<Unit filename="src/e_pde.cpp" />
 		<Unit filename="src/e_sliders.cpp" />
 		<Unit filename="src/e_tile_helper.cpp" />
 		<Unit filename="src/e_visual_level.cpp" />
 		<Unit filename="src/n_client.cpp" />
+		<Unit filename="src/n_netgame.cpp" />
+		<Unit filename="src/n_netgame.h" />
 		<Unit filename="src/n_network.cpp" />
 		<Unit filename="src/n_packet.cpp" />
 		<Unit filename="src/n_server.cpp" />
@@ -126,12 +130,15 @@
 		<Unit filename="src/z_mwGraph.cpp" />
 		<Unit filename="src/z_mwGraph.h" />
 		<Unit filename="src/z_ping_buffer.cpp" />
+		<Unit filename="src/z_ping_buffer.h" />
 		<Unit filename="src/z_player.cpp" />
+		<Unit filename="src/z_player.h" />
 		<Unit filename="src/z_qGraph.cpp" />
 		<Unit filename="src/z_qGraph.h" />
 		<Unit filename="src/z_screen.cpp" />
 		<Unit filename="src/z_screen_overlay.cpp" />
 		<Unit filename="src/z_settings.cpp" />
+		<Unit filename="src/z_settings.h" />
 		<Unit filename="src/z_sound.cpp" />
 		<Unit filename="src/z_sound.h" />
 		<Extensions />

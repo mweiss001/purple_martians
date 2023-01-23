@@ -1,6 +1,8 @@
 // z_bullets.cpp
 
 #include "pm.h"
+#include "z_player.h"
+#include "n_netgame.h"
 
 void proc_pbullet_collision(int p, int b)
 {

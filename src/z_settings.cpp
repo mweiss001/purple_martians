@@ -2,6 +2,13 @@
 #include "pm.h"
 #include "z_sound.h"
 #include "z_log.h"
+#include "z_settings.h"
+#include "z_player.h"
+#include "n_netgame.h"
+
+int settings_current_page = 0;
+
+
 
 void set_all_logging(int v)
 {
@@ -29,6 +36,10 @@ void set_all_logging(int v)
    LOG_TMR_sdif=v;
    LOG_TMR_cdif=v;
    LOG_TMR_rwnd=v;
+   LOG_TMR_client_timer_adj=v;
+   LOG_TMR_client_ping=v;
+
+
 }
 
 
@@ -129,19 +140,19 @@ void settings_pages(int set_page)
    sprintf(st[0].title,  "Basics");
    sprintf(st[1].title,  "Controls");
    sprintf(st[2].title,  "Netgame");
-   sprintf(st[3].title,  "Logging");
+   sprintf(st[3].title,  "Double");
    sprintf(st[4].title,  "Demo");
    sprintf(st[5].title,  "Advanced");
    sprintf(st[6].title,  "Info");
    sprintf(st[7].title,  "Viewport");
    sprintf(st[8].title,  "Profiling");
-   sprintf(st[9].title,  "Test 4");
+   sprintf(st[9].title,  "Logging");
    sprintf(st[10].title, "Test 5");
    sprintf(st[11].title, "Test 6");
    sprintf(st[12].title, "Test 7");
    sprintf(st[13].title, "Test 8");
    sprintf(st[14].title, "Test 9");
-   int num_pages = 9;
+   int num_pages = 10;
 
    char title[80] = {0};
    sprintf(title, "Settings");
@@ -290,7 +301,7 @@ void settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 0)
       {
-         int line_spacing = 14;
+         int line_spacing = 10;
          int tc = 15;  // text color
          int fc = 13;  // frame color
          int xa = cfp_x1 + 10;
@@ -300,53 +311,6 @@ void settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         // ---------------------------------------
-         // splash screen
-         // ---------------------------------------
-         int x1a = cfp_x1 + 10;
-         int x1b = x1a + 250;
-         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, show_splash_screen, "Show splash screen on startup", tc, tc);
-         x1a = x1b + 30;
-         x1b = x1a + 74;
-         if (mdw_buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Show now"))
-         {
-             splash_screen();
-             while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
-         }
-         ya -=2;
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-         // ---------------------------------------
-         // sound
-         // ---------------------------------------
-         x1a = cfp_x1 + 10;
-         x1b = x1a + 60;
-         int old_sound_on = sound_on;
-         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, sound_on, "Sound", tc, tc);
-         if ((old_sound_on == 0) && (sound_on == 1)) load_sound();
-
-         int dim = 0;
-         if (!sound_on) dim = 128;
-
-         int old_se_scaler = se_scaler;
-         x1a = x1b + 12;
-         x1b = x1a + 140;
-         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,0,0, se_scaler, 9, 0, 1, "Sound Effects:");
-
-         if (old_se_scaler != se_scaler) set_se_scaler();
-
-
-         //if ((old_se_scaler != se_scaler) && (sound_on)) al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
-
-         int old_st_scaler = st_scaler;
-         x1a = x1b + 12;
-         x1b = x1a + 140;
-         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,1,0, st_scaler, 9, 0, 1, "Sound Track:");
-         if (old_st_scaler != st_scaler) set_st_scaler();
-//         if ((old_st_scaler != st_scaler) && (sound_on)) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
-
-         ya -=2;
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          // ---------------------------------------
          // player color
@@ -378,7 +342,77 @@ void settings_pages(int set_page)
             }
          }
          ya+=64;
+
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+
+         // ---------------------------------------
+         // sound
+         // ---------------------------------------
+         int x1a = cfp_x1 + 10;
+         int x1b = x1a + 60;
+         int old_sound_on = sound_on;
+         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, sound_on, "Sound", tc, tc);
+         if ((old_sound_on == 0) && (sound_on == 1)) load_sound();
+
+         int dim = 0;
+         if (!sound_on) dim = 128;
+
+         int old_se_scaler = se_scaler;
+         x1a = x1b + 12;
+         x1b = x1a + 140;
+         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,0,0, se_scaler, 9, 0, 1, "Sound Effects:");
+
+         if (old_se_scaler != se_scaler) set_se_scaler();
+
+
+         //if ((old_se_scaler != se_scaler) && (sound_on)) al_set_mixer_gain(se_mixer, (float)se_scaler / 9);
+
+         int old_st_scaler = st_scaler;
+         x1a = x1b + 12;
+         x1b = x1a + 140;
+         mdw_slideri(x1a, ya, x1b, bts,  0,0,0,0,  0,fc+dim,tc+dim,0,  0,0,1,0, st_scaler, 9, 0, 1, "Sound Track:");
+         if (old_st_scaler != st_scaler) set_st_scaler();
+//         if ((old_st_scaler != st_scaler) && (sound_on)) al_set_mixer_gain(st_mixer, (float)st_scaler / 9);
+
+         ya -=2;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+
+
+
+
+
+
+
+
+
+
+         // ---------------------------------------
+         // splash screen
+         // ---------------------------------------
+         x1a = cfp_x1 + 10;
+         x1b = x1a + 250;
+         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, show_splash_screen, "Show splash screen on startup", tc, tc);
+         x1a = x1b + 30;
+         x1b = x1a + 74;
+         if (mdw_buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Show now"))
+         {
+             splash_screen();
+             while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+         }
+         ya -=2;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, bottom_msg_on, "Show bottom message display", tc, 15);
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+
+
       }
 // ---------------------------------------------------------------
 //  1 - controls
@@ -460,58 +494,96 @@ void settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
       }
+
 // ---------------------------------------------------------------
-//  3 - logging
+//  3 - double
 // ---------------------------------------------------------------
       if (page == 3)
       {
-         int line_spacing = 10;
+         int line_spacing = 11;
+         int tc = 15;  // text color
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
-         int ya = cfp_y1 + 10;
-         int bts = 10;
-         int tc = 13;
-         int fc = 15;
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET,                    "LOG_NET", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_join,               "LOG_NET_join", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_player_array,       "LOG_NET_player_array", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_bandwidth,          "LOG_NET_bandwidth", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_cdat,               "LOG_NET_cdat", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf,               "LOG_NET_stdf", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_all_packets,   "LOG_NET_stdf_all_packets", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_when_to_apply, "LOG_NET_stdf_when_to_apply", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_client_ping,        "LOG_NET_client_ping", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_client_timer_adj,   "LOG_NET_client_timer_adj", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_server_rx_stak,     "LOG_NET_server_rx_stak", tc, fc);
+         int bts = 20; // button spacing
+         int ya = cfp_y1;
+         int e = 9;    // normal
 
-         ya+=10;
-         bts = 14;
-         xb = xa+60;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "All On")) set_all_logging(1);
-         xa = xa+80;
-         xb = xa+60;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,1,0, "All Off")) set_all_logging(0);
+         ya+=5+line_spacing;
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Display Transform Double is a method to");
+         ya+=12;
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "enlarge text. On high resolution displays");
+         ya+=12;
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "the text may become too small to read.");
+         ya+=9;
 
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         ya+=2;
+
+
+         if (saved_display_transform_double == 0) sprintf(msg, "Current Mode: %d [Auto]", display_transform_double);
+         else                                     sprintf(msg, "Current Mode: %d [Static]", display_transform_double);
+         mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,6,tc, 0,  1,0,1,0, msg);
+
+
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+
+         ya+=2;
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In auto mode, a reasonable value is set");
+         ya+=12;
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "automatically, depending on the current");
+         ya+=12;
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen resolution or window size.");
+         ya+=12 + line_spacing;
+
+         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Set to Auto Mode")) set_saved_display_transform(0);
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         ya+=2;
+
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In static mode you can set a permanent");
+         ya+=12;
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "value as well as the maximum values when");
+         ya+=12;
+         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "cycling through with CTRL-SHIFT-F12.");
+         ya+=12;
+
+         mdw_slideri(xa+20, ya, xb-20, bts,  0,0,0,0,  0,7,15,15, 0,0,1,0, display_transform_double_max, 10, 2, 1, "Maximum Value:");
+
+         ya +=4;
+
+         xb = xa+180;
+
+         static int newval = display_transform_double;
+         mdw_slideri(xa+20, ya, xb, bts,  0,0,0,0,  0,e,15,15, 0,0,0,0, newval, display_transform_double_max, 1, 1, "New Value:");
+
+         xa = xa+200;
+         xb = cfp_x2 - 30;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,e,15, 0,  1,0,1,0, "Set New Value Now")) set_saved_display_transform(newval);
 
          xa = cfp_x1 + 10;
          xb = cfp_x2 - 10;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         bts = 10;
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
 
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya +=2;
 
-         bts = 16;
-         xb = xa+180;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,13,15, 0,  1,0,0,0, "Run Log File Viewer")) log_file_viewer(1);
-         xa = xa+200;
-         xb = cfp_x2 - 10;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Run Profile Graph")) load_profile_graph(1);
+
+         if (mdw_buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
+         {
+            display_transform_double_max = 3;
+            set_saved_display_transform(0);
+            newval = display_transform_double;
+         }
+
+
+
       }
+
 // ---------------------------------------------------------------
 //  4 - demo
 // ---------------------------------------------------------------
@@ -524,6 +596,8 @@ void settings_pages(int set_page)
          int xb = cfp_x2 - 10;
          int bts = 20; // button spacing
          int ya = cfp_y1;
+
+         static int test_opacity = 0;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -543,6 +617,8 @@ void settings_pages(int set_page)
          {
             new_program_state = 14;
             old_program_state = 3;
+            al_hide_mouse_cursor(display);
+            save_config();
             return;
          }
          ya +=10;
@@ -550,6 +626,8 @@ void settings_pages(int set_page)
          {
             new_program_state = 2;
             older_program_state = 3;
+            al_hide_mouse_cursor(display);
+            save_config();
             return;
          }
          ya -=2;
@@ -565,6 +643,12 @@ void settings_pages(int set_page)
          mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, demo_mode_overlay_opacity, 0.8, 0, .01, "Demo mode overlay opacity:");
          if (old_demo_mode_overlay_opacity != demo_mode_overlay_opacity) save_config();
 
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, test_opacity, "Test demo mode overlay opacity", tc, fc);
+         ya +=8;
+
+         if (test_opacity) draw_large_text_overlay(3, 15);
+
+
       }
 // ---------------------------------------------------------------
 //  5  - advanced
@@ -573,13 +657,12 @@ void settings_pages(int set_page)
       {
          int line_spacing = 14;
          int tc = 15;  // text color
-         int fc = 13;  // frame color
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
          int bts = 20; // button spacing
          int ya = cfp_y1;
 
-         int e = 11;    // normal
+         int e = 11+pct_y;    // normal
          int d = 10+96; // dim
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -601,27 +684,6 @@ void settings_pages(int set_page)
 
          if (old_frame_speed != frame_speed) set_speed();
          ya -=6;
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-
-
-         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,e,e,e, 0,0,1,0, display_transform_double_max, 10, 2, 1, "Display Transform Double Max:");
-
-
-         static int newval = display_transform_double;
-
-         mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,e,e,e, 0,0,1,0, newval, display_transform_double_max, 1, 1, "New Value:");
-
-         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Set New Value Now")) set_saved_display_transform(newval);
-
-         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Set to Auto Mode")) set_saved_display_transform(0);
-
-
-
-         if (saved_display_transform_double == 0) sprintf(msg, "Current Mode: %d [Auto]", display_transform_double);
-         else                                     sprintf(msg, "Current Mode: %d [Static]", display_transform_double);
-
-         mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, msg);
-
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -631,7 +693,6 @@ void settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, bottom_msg_on, "Bottom Message Display", tc, 15);
 
 
 
@@ -685,7 +746,7 @@ void settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 7)
       {
-         int line_spacing = 8;
+         int line_spacing = 5;
          int tc = 15;  // text color
          int fc = 13;  // frame color
          int xa = cfp_x1 + 10;
@@ -748,6 +809,18 @@ void settings_pages(int set_page)
          ya+=12;
          al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen. (Except near the level boundaries).");
          if (viewport_show_hyst) draw_hyst_rect();
+
+         ya +=8;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         if (mdw_buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
+         {
+            viewport_mode = 1;
+            viewport_show_hyst = 0;
+            viewport_x_div = 0.33;
+            viewport_y_div = 0.33;
+         }
+
       }
 
 // ---------------------------------------------------------------
@@ -755,7 +828,7 @@ void settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 8)
       {
-         int line_spacing = 10;
+         int line_spacing = 8;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
          int ya = cfp_y1 + 10;
@@ -775,6 +848,8 @@ void settings_pages(int set_page)
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_bmsg_add,      "LOG_TMR_bmsg_add", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_bmsg_draw,     "LOG_TMR_bmsg_draw", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_scrn_overlay,  "LOG_TMR_scrn_overlay", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_client_timer_adj, "LOG_TMR_client_timer_adj", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_TMR_client_ping,    "LOG_TMR_client_ping", tc, fc);
 
 
          ya+=10;
@@ -837,6 +912,126 @@ void settings_pages(int set_page)
             return;
          }
       }
+
+
+
+// ---------------------------------------------------------------
+//  9 - logging
+// ---------------------------------------------------------------
+      if (page == 9)
+      {
+         int line_spacing = 10;
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int ya = cfp_y1 + 10;
+         int bts = 10;
+         int tc = 13;
+         int fc = 15;
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET,                    "LOG_NET", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_join,               "LOG_NET_join", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_player_array,       "LOG_NET_player_array", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_bandwidth,          "LOG_NET_bandwidth", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_cdat,               "LOG_NET_cdat", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf,               "LOG_NET_stdf", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_all_packets,   "LOG_NET_stdf_all_packets", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_when_to_apply, "LOG_NET_stdf_when_to_apply", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_client_ping,        "LOG_NET_client_ping", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_client_timer_adj,   "LOG_NET_client_timer_adj", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_server_rx_stak,     "LOG_NET_server_rx_stak", tc, fc);
+
+         ya+=10;
+         bts = 14;
+         xb = xa+60;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "All On")) set_all_logging(1);
+         xa = xa+80;
+         xb = xa+60;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,1,0, "All Off")) set_all_logging(0);
+
+
+         xa = cfp_x1 + 10;
+         xb = cfp_x2 - 10;
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         bts = 10;
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_level_done,    "Autosave log on level done", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_game_exit,     "Autosave log on game exit", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, autosave_log_on_program_exit,  "Autosave log on program exit", tc, fc);
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         bts = 16;
+         if (mdw_buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,10,15, 0,  1,0,1,0, "Open Most Recent Log In Log File Viewer")) log_file_viewer(2);
+         ya+=4;
+         if (mdw_buttont(xa+20, ya, xb-20, bts,  0,0,0,0,  0,13,15, 0,  1,0,1,0, "Select And Open Log In Log File Viewer")) log_file_viewer(1);
+
+
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+
+         if (mdw_buttont(xa+80, ya, xb-80, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Start Single Player Game"))
+         {
+            new_program_state = 10;
+            old_program_state = 3;
+            al_hide_mouse_cursor(display);
+            save_config();
+            return;
+         }
+
+         ya += 8;
+         xb = xa+180;
+         if (mdw_buttont(xa+20, ya, xb, bts,  0,0,0,0,  0,9,15, 0,  1,0,0,0, "Host Network Game"))
+         {
+            new_program_state = 20;
+            old_program_state = 3;
+            al_hide_mouse_cursor(display);
+            save_config();
+            return;
+         }
+         xa = xa+200;
+         xb = cfp_x2 - 30;
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,8,15, 0,  1,0,1,0, "Join Network Game"))
+         {
+            new_program_state = 24;
+            old_program_state = 3;
+            al_hide_mouse_cursor(display);
+            save_config();
+            return;
+         }
+
+
+
+
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
       if (key[ALLEGRO_KEY_ESCAPE][0])
