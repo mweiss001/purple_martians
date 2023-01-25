@@ -83,9 +83,9 @@ struct player1 // not synced between server and client
    int last_health_adjust;
    int potential_bomb_damage;
 
-   float field_damage_tally;
-   int field_damage_holdoff;
-   int field_damage_enemy_number;
+   float block_damage_tally;
+   int block_damage_holdoff;
+   int block_damage_item_number;
 
    int up_key, down_key, left_key, right_key, jump_key, fire_key, menu_key;
    int comp_move, old_comp_move;
@@ -108,13 +108,11 @@ struct player1 // not synced between server and client
 
    int client_last_stdf_rx_frame_num; // used by client to see if server is still responding
 
-
-
    int server_send_dif; // used by server to determine which frame to send dif
 
+   int client_rewind; // for client to keep track of how many frames it needed to rewind
 
    int client_base_resets;
-
    int client_last_dif_applied;
 
    int client_sync;
@@ -130,6 +128,10 @@ struct player1 // not synced between server and client
 
 
    double client_chase_offset;
+   double client_chase_offset_auto_offset;
+   int client_chase_offset_mode; // 0 = manual, 1 = auto
+
+
 
    int sc_sync; // packet stdf from s to c  sfn-cfn
    int cs_sync; // packet stak from c to s  cfn-sfn

@@ -350,56 +350,60 @@ void client_apply_diff(void)
       }
       else // we have a matching base to apply dif
       {
+         int ff = players1[p].client_rewind = frame_num - client_state_dif_dst; // dst compared to current frame_num
          char tmsg[64];
-         int ff = 0;
+         if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", frame_num);
+         if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
+         if (ff < 0)  sprintf(tmsg, "early [%d] frames\n", -ff);
          if (frame_num == 0) sprintf(tmsg, "initial state\n");
-         else if (client_state_dif_dst < frame_num)
+         if ((ff > -1) || (frame_num == 0))
          {
-            ff = frame_num - client_state_dif_dst;
-            sprintf(tmsg, "rewind [%d] frames\n", ff);
+            // apply dif to base state
+            apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
+
+            // make a copy of the l[][]
+            int old_l[100][100];
+            memcpy(old_l, l, sizeof(l));
+
+            // copy modified base state to game_vars
+            state_to_game_vars(client_state_base);
+
+            // compare old_l to l and redraw changed tiles
+            al_set_target_bitmap(level_background);
+            for (int x=0; x<100; x++)
+               for (int y=0; y<100; y++)
+                  if (l[x][y] != old_l[x][y])
+                  {
+                     // printf("dif at x:%d y:%d\n", x, y);
+                     al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                     al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+                  }
+
+            // fix control methods
+            players[0].control_method = 2; // on client, server is mode 2
+            if (players[p].control_method == 2) players[p].control_method = 4;
+            if (players[p].control_method == 8) new_program_state = 1; // server quit
+
+            // update frame_num and client base frame_num
+            frame_num = client_state_base_frame_num = client_state_dif_dst;
+
+            // for initial state only
+            if (frame_num == 0) set_frame_nums(client_state_dif_dst);
+
+            players1[p].client_last_dif_applied = frame_num;
+
+            if (ff) loop_frame(ff); // if we rewound time, play it back
+
+            client_send_stak();
+
+            sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
+            if (LOG_NET_stdf) add_log_entry2(29, p, msg);
          }
-         if (client_state_dif_dst == frame_num) sprintf(tmsg, "exact frame match [%d]\n", frame_num);
-
-         // apply dif to base state
-         apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
-
-         // make a copy of the l[][]
-         int old_l[100][100];
-         memcpy(old_l, l, sizeof(l));
-
-         // copy modified base state to game_vars
-         state_to_game_vars(client_state_base);
-
-         // compare old_l to l and redraw changed tiles
-         al_set_target_bitmap(level_background);
-         for (int x=0; x<100; x++)
-            for (int y=0; y<100; y++)
-               if (l[x][y] != old_l[x][y])
-               {
-                  // printf("dif at x:%d y:%d\n", x, y);
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                  al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
-               }
-
-         // fix control methods
-         players[0].control_method = 2; // on client, server is mode 2
-         if (players[p].control_method == 2) players[p].control_method = 4;
-         if (players[p].control_method == 8) new_program_state = 1; // server quit
-
-         // update frame_num and client base frame_num
-         frame_num = client_state_base_frame_num = client_state_dif_dst;
-
-         // for initial state only
-         if (frame_num == 0) set_frame_nums(client_state_dif_dst);
-
-         players1[p].client_last_dif_applied = frame_num;
-
-         if (ff) loop_frame(ff); // if we rewound time, play it back
-
-         client_send_stak();
-
-         sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
-         if (LOG_NET_stdf) add_log_entry2(29, p, msg);
+         else
+         {
+            sprintf(msg, "dif [%d to %d] not applied yet - [%d] early\n", client_state_dif_src, client_state_dif_dst, -ff);
+            if (LOG_NET_stdf_when_to_apply) add_log_entry2(29, p, msg);
+         }
       }
    }
    else
@@ -460,12 +464,10 @@ void client_process_stdf_packet(double timestamp)
    int sb = PacketGet4ByteInt();
    int sz = PacketGet4ByteInt();
 
-
    sprintf(msg, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", seq+1, max_seq, src, dst, sb, sz);
    if (LOG_NET_stdf_all_packets) add_log_entry2(28, p, msg);
 
-   players1[p].client_sync = dst - frame_num;               // crude integer sync based on frame numbers
-
+   players1[p].client_sync = dst - frame_num;                        // crude integer sync based on frame numbers
 
    if (players1[p].client_last_stdf_rx_frame_num != frame_num)       // this is the first stdf received for this frame
    {

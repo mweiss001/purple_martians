@@ -7088,6 +7088,462 @@ do it...done...
 
 
 
+20230124 6:15AM
+
+I have some thoughts about what I would like to monitor:
+I want to be able to see how much the clients need to rewind
+in LAN test they are exact or 1
+
+
+
+
+
+
+I think I have an idea about what s2 is for..
+its so that the difs sent are not the most current
+
+
+
+
+
+
+
+remove from player1 struct??
+there is no field anymore...
+
+//   float field_damage_tally;
+//   int field_damage_holdoff;
+//   int field_damage_enemy_number;
+
+
+
+
+but is it used for other stuff?  like mine or block damage?
+idk
+yes, used for block damage, but not mine...
+
+
+game_event(59
+called only when block_damage is taking health from player
+
+game_event(57
+not called at all
+
+game_event(50
+mine collison
+
+convert the bit in health to work with block_damage
+OK I fixed all that, but that was not what I planned to do...
+
+
+I wanted to add client_rewind to player1...done and added to client debug grid...done
+LAN always 0 or 1..even when increasing s1 and s2...
+WAN always 1 or 2..even when increasing s1 and s2... (ping ~27)
+
+
+
+20230125 2:20AM
+
+
+add some sort of manual sync control to client
+
+Like I can set to manual, or the value for auto..
+
+I want to experiment with changing offset and seeing how my clients rewinds come out..
+
+
+what variables?, should I put it in settings? yes, and also live control..
+
+players1[p].client_chase_offset
+
+currently set in add ping:
+
+players1[p].client_chase_offset = - players1[p].ping_avg;
+
+also in debug overlay
+
+
+double client_chase_offset;
+double client_chase_offset_auto_offset;
+int client_chase_offset_mode; // 0 = manual, 1 = auto
+
+add button /auto/manual done
+make button adjust ping offset in that mode..done...
+
+now make a way to view client rewind in real time..I can see it in debug grid just fine...
+
+
+in LAN mode, if I increase a few ms, I no longer jump from 0 to 1, I stay steady on 1
+
+in WAN mode with a ping of 20-30, if I add or subtract a few I can force mostly 1 or 2 for rewind
+
+what have I learned from this?
+
+idk...
+
+
+I am trying to figure out the effect of changing client sync offset
+
+what effect does it have on when server receives cdat?  I guess I actually have to press keys to see that!
+
+when client is doing rewind of 2 server say game move sync is 0
+
+
+s1:3 s2:1
+crwd sgms
+2    0
+1    -1
+0    -2
+
+I think I am on to something here...
+
+try this with different s1 and s2 values
+
+s1:3 s2:1
+crwd sgms
+2    0
+1    -1
+0    -2
+
+s1:3 s2:2
+crwd sgms
+2    0
+1    -1
+0    -2
+
+s1:4 s2:2
+crwd sgms
+2    0
+1    -1
+0    -2
+
+that did not seem to change anything...
+how is sgms calculated?
+
+void server_proc_cdat_packet(double timestamp)
+{
+   players1[p].server_game_move_sync = cdat_frame_num - frame_num;
+
+
+what does this tell me?
+
+at what point of sgms are cdats considered late and not applied?
+when they are earlier than last saved server state...
+
+lets try to make that happen...
+
+when client moves ahead of server with a positive offset
+and sgms gets to -3 then I get late cdat errors...
+
+changing s1 did not seem to affect this...
+
+
+on client, when I adjust dsync too high it ramps...see if I con find out why...
+
+
+It looks like my raw calclution of dsync...when it goes over 25, it subtracts 25....
+
+   int src = PacketGet4ByteInt();
+   int dst = PacketGet4ByteInt();
+   players1[p].client_sync = dst - frame_num;               // crude integer sync based on frame numbers
+
+   if (players1[p].client_last_stdf_rx_frame_num != frame_num)       // this is the first stdf received for this frame
+   {
+      players1[p].client_last_stdf_rx_frame_num = frame_num;         // client keeps track of last stdf rx'd and quits if too long
+      players1[p].dsync = al_get_time() - timestamp;                 // time between when the packet was received into the packet buffer and now
+      players1[p].dsync += (double) players1[p].client_sync * 0.025; // add to integer sync in case we are out by a lot
+      dsync_array_add();
+      client_timer_adjust();
+   }
+
+
+the problem is that csync goes to 1 for only one frame
+
+the problem is much deeper than that....
+the client has no way of dealing with a future dif...
+it just applies it, and that has the effect of the client jumping forward in time
+
+yes abandon this line of questioning, I don't really care about this case...or do I?
+
+what would happen if I did not apply till the next frame??
+
+I think I have that fixed, and it seems to work...
+
+
+I need to change to docs...
+
+now why did i do that again?
+
+
+to see what happens to sgms and crwd...ok let see...
+
+
+crwd now goes to -1 and -2, never got less than zero before...
+sgms now to -3 and -4....
+
+when sgms goes to -3 (in s1:3 s2:1) late cdats happen constantly
+
+lets try changing s2....
+
+when s2 goes to 2 late cdats stop...
+then increasing client offset till sgms = 4
+late cdats again...
+
+I think I found out something...
+
+s2 affects late cdats...
+
+lets do a grid compare again..
+
+WAN with 20-30ms ping
+
+
+s1:3 s2:0
+offs crwd sgms late cdats
+-40  2    0
+-15  1    -1  rare
++10  0    -2  constant
++80       -6  game done
+
+s1:3 s2:1
+offs crwd sgms late cdats
+-40  2    0
+-15  1    -1
++10  0    -2
++35  0/-1 -3    rare
++54  0/-2 -4    constant
++80  0/-3 -5    same
+          -6    game done
+
+
+s1:3 s2:2
+offs crwd sgms late cdats
+-40  2    0
+-15  1    -1
++10  0    -2
++35  0/-1 -3    rare
++54  0/-2 -4    constant
++80  0/-3 -5    same game done
+
+
+s1:3 s2:3
+offs crwd sgms late cdats
+-40  2    0
+-15  1    -1
++10  0    -2
++35  0/-1 -3    none
++54  0/-2 -4    rare
++80  0/-3 -5    constant
++86       -6    game done
+
+
+s1:3 s2:4
+offs crwd sgms late cdats
+-40  2    0
+-15  1    -1
++10  0    -2
++35  0/-1 -3
++54  0/-2 -4
++80  0/-3 -5    rare game done
+
+
+OK now what if I try changing s1:
+
+leave s2 at 1
+
+s1:1 s2:1
+offs crwd sgms late cdats base resets
+-40  2    0
+-15  1    -1
++10  0    -2   rare
++35  0/-1 -3
++54  0/-2 -4
++80  0/-3 -5
+
+
+
+with s1 set at 1, I get constant base resets 7K dif size 7 packets 290kBs or 2.3Mbps
+lets just throw this one out...its sending dif every frame...
+
+OK so lets start with the minimum s1 of 2
+now around 30kBs or 0.24Mpbs
+
+s1:2 s2:1
+offs crwd sgms late cdats base resets
+-40  2    0    0          rare
+-15  1    -1   0          rare
++10  0    -2   occ/rare   occ/rare
++35  0/-1 -3   constant   const
++54  0/-2 -4   lost server
+
+
+s1:2 s2:2
+offs crwd sgms late cdats base resets
+-40  2    0    0          rare
+-15  1    -1   0          rare
++10  0    -2   0          rare
++35  0/-1 -3   rare       const
++50  0/-2 -4   const      const
++55  lost server
+
+s1:2 s2:3
+offs crwd sgms late cdats base resets
+-40  2    0    0          rare
+-15  1    -1   0          rare
++10  0    -2   0          rare
++35  0/-1 -3   0          const
++50  0/-2 -4   rare       const
++55  lost server
+
+
+redo 3
+around 21kBps or 0.17Mbps
+
+
+s1:3 s2:1
+offs crwd sgms  late cdats base resets
+-40  2    0     0          0
+-15  1    -1    0          0
++10  0    -2    0          0
++15  0    -2/-3 rare       0
++25  0/-1 -3    const      0
++40  0/-2 -3    const      occ
++45  0/-2 -4    const      const
++85 lost server
+
+
+s1:3 s2:2
+offs crwd sgms  late cdats base resets
+-40  2    0     0          0
+-15  1    -1    0          0
++10  0    -2    0          0
++15  0    -2/-3 rare       0
++25  0/-1 -3    rare       0
++40  0/-2 -3/-4 most       occ
++45  0/-2 -4    const      const
++85 lost server
+
+
+s1:3 s2:3
+offs crwd sgms  late cdats base resets
+-40  2    0     0          0
+-15  1    -1    0          0
++10  0    -2    0          0
++15  0    -2/-3 0          0
++25  0/-1 -3    0          0
++40  0/-2 -3/-4 0          occ
++45  0/-2 -4    0          const
++68       -5    const      const
++80 lost server
+
+now do 4
+15kBps or 0.12Mbps
+
+
+s1:4 s2:1
+offs crwd sgms  late cdats base resets
+-40  2    0     0          0
+-15  1    -1    0          0
++10  0    -2    0          0
++20  0    -2/-3 occ        0
++30  0/-1 -3    const      0
++50  0/-2 -4    const      0
++65       -4/-5 const      occ
++70       -5    const      const
++95       -6
++110 lost server
+
+
+s1:4 s2:2
+offs crwd sgms  late cdats base resets
+-40  2    0     0          0
+-15  1    -1    0          0
++10  0    -2    0          0
++40       -3/-4 rare       0
++50       -4    const      0
++65       -4/-5 const      occ
++70       -5    const      const
++95       -6
++110 lost server
+
+
+s1:4 s2:3
+offs crwd sgms  late cdats base resets
+-40  2    0     0          0
+-15  1    -1    0          0
++10  0    -2    0          0
++50       -4    0          0
++65       -4/-5 rare       occ
++70       -5    const      const
++95       -6
++110 lost server
+
+
+
+OK... there is alot of data:
+
+its 7:30 so I don't have time to analyze
+
+very briefly
+
+s1
+min:2
+best 3-4
+
+
+s2
+min:0
+best 1-3
+
+3 2 will probalby be best...
+
+experiment with auto sync at 1/2 round trip ping....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
