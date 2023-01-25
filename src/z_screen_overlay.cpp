@@ -622,6 +622,22 @@ void sdg_show_column(int col, int &x, int y)
    }
 
 
+   if (col == 28) // client rewind
+   {
+      al_draw_text(font, palette_color[color], x, y+=8, 0, "[crwd]");
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         if (players[p].active == 1) color = color1;
+         if (players[p].active == 0) color = color2;
+         if (p == 0) al_draw_textf(font, palette_color[color], x, y+=8, 0, "[    ]");
+         else        al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].client_rewind);
+      }
+      x+=6*8;
+   }
+
+
+
+
 
 
 
@@ -692,6 +708,7 @@ void cdg_show(int x, int y) // client debug grid
    sdg_show_column(2, x, y); // active
    sdg_show_column(3, x, y); // color
    sdg_show_column(4, x, y); // control method
+   sdg_show_column(28, x, y); // client rewind
 
    sdg_show_column(19, x, y); // name and description (client version)
 
@@ -955,7 +972,7 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       int csw = 140;
       int csx2 = csx1 + csw;
       int csy1 = SCREEN_H-36-48-20-60;
-      int csh = 43;
+      int csh = 52;
       int csy2 = csy1 + csh;
       int color = 13;
       double ts = players1[p].dsync; // the current value of dsync for display
@@ -966,9 +983,13 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       // graph
       int csy3 = csy1 + 12;
       int csy4 = csy3 + 12;
+      int csy5 = csy4 + 10;
+
       int csx3 = csx1 + 7;
       int csx4 = csx2 - 7;
       int csw2 = csx2 - csx1;
+
+
 
       al_draw_rectangle(csx3, csy3, csx4, csy4, palette_color[color], 1);
       al_draw_textf(f3, palette_color[color], csx3, csy3-11, ALLEGRO_ALIGN_CENTER, "-50");
@@ -982,34 +1003,68 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       al_draw_filled_rectangle(csx3+dt-2, csy3, csx3+dt+2, csy4, palette_color[15]);
 
       // non blocking buttons!
-      int ya = csy4 + 3;
+      int ya = csy5 + 2;
       int btw = 16;
 
       static int b1_pres = 0;
-      if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
+      if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "-"))
       {
          if (b1_pres == 0)
          {
-            if (CTRL()) players1[p].client_chase_offset -=0.01;
-            else players1[p].client_chase_offset -=0.001;
+            if (players1[p].client_chase_offset_mode) // auto mode - adjust offset from ping
+            {
+               if (CTRL()) players1[p].client_chase_offset_auto_offset -=0.01;
+               else players1[p].client_chase_offset_auto_offset -=0.001;
+            }
+            else // manual mode - adjust offset directly
+            {
+               if (CTRL()) players1[p].client_chase_offset -=0.01;
+               else players1[p].client_chase_offset -=0.001;
+            }
          }
          b1_pres = 1;
       }
       else b1_pres = 0;
 
-      ya = csy4 + 3;
       static int b2_pres = 0;
-      if (mdw_buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
+      if (mdw_buttont_nb(csx2-btw-2, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, "+"))
       {
          if (b2_pres == 0)
          {
-            if (CTRL()) players1[p].client_chase_offset +=0.01;
-            else players1[p].client_chase_offset +=0.001;
+            if (players1[p].client_chase_offset_mode) // auto mode - adjust offset from ping
+            {
+               if (CTRL()) players1[p].client_chase_offset_auto_offset +=0.01;
+               else players1[p].client_chase_offset_auto_offset +=0.001;
+            }
+            else // manual mode - adjust offset directly
+            {
+               if (CTRL()) players1[p].client_chase_offset +=0.01;
+               else players1[p].client_chase_offset +=0.001;
+            }
          }
-
+         b2_pres = 1;
       }
       else b2_pres = 0;
-      al_draw_textf(font, palette_color[15], csx1+csw/2, csy1+30, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", players1[p].client_chase_offset*1000);
+
+
+      static int b3_pres = 0;
+      sprintf(msg, "Manual");
+      if (players1[p].client_chase_offset_mode) sprintf(msg, "Automatic");
+
+      if (mdw_buttont_nb(csx1+23, ya, csx2-23, 16,  0,0,0,0,  0,color,15, 0,  1,0,0,0, msg))
+      {
+         if (b3_pres == 0)
+         {
+            players1[p].client_chase_offset_mode =  !players1[p].client_chase_offset_mode;
+         }
+         b3_pres = 1;
+      }
+      else b3_pres = 0;
+
+      if (players1[p].client_chase_offset_mode)
+         al_draw_textf(font, palette_color[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "ping offset:%+3.0fms", players1[p].client_chase_offset_auto_offset*1000);
+      else
+         al_draw_textf(font, palette_color[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", players1[p].client_chase_offset*1000);
 
       if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_cbut", 0);
 
@@ -1427,23 +1482,23 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
       if (game_event_retrigger_holdoff[2] < frame_num) game_event_retrigger_holdoff[2] = frame_num + 20;
       else ev = 0;
    }
-   if ((ev == 57) || (ev == 59)) // raw damage that needs to be tallied
+   if (ev == 59) // raw damage that needs to be tallied
    {
       int p = z1;
-      float damage = 0;
-      if (ev == 59) damage = (float)item[z2][15] / 100; // damage from item 17 - damage
-      if (players1[p].field_damage_holdoff < frame_num) // triggered and not in holdoff
+      float damage = (float)item[z2][15] / 100; // damage from item 17 - block damage
+
+      if (players1[p].block_damage_holdoff < frame_num) // triggered and not in holdoff
       {
-         players1[p].field_damage_holdoff = frame_num + 20; // set holdoff
-         players1[p].field_damage_tally = damage; // init tally with current damage
-         ev = 0; // don't let this event do anything
+         players1[p].block_damage_holdoff = frame_num + 20; // set holdoff
+         players1[p].block_damage_tally = damage; // init tally with current damage
       }
-      if (players1[p].field_damage_holdoff > frame_num) // triggered and in holdoff
+      if (players1[p].block_damage_holdoff > frame_num) // triggered and in holdoff
       {
-         players1[p].field_damage_tally += damage; // inc tally with current damage
-         ev = 0; // don't let this event do anything
+         players1[p].block_damage_tally += damage; // inc tally with current damage
       }
+     ev = 0; // this is handled by player health that emits event 58
    }
+
    if ((ev != 0) && (ev != 1) && (ev != 4) && (ev != 15) && (ev != 22) && (ev != 31) && (ev != 31) ) // events that don't have bmsg handler
    {
       int bmsg_length = 0; // keep a running total
@@ -1575,15 +1630,13 @@ void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
          bmsg_length += bmsg_show_health(-z4, bmsg_length);
       }
 
-      if (ev == 58) // player took damage from a field
+      if (ev == 58) // player lost health from block damage
       {
          custom_drawn = 1;
-         int damage = (int) players1[z1].field_damage_tally;
-         int e = players1[z1].field_damage_enemy_number;
-         int type = Ei[e][19];
-
-         if (type == 1) bmsg_length += bmsg_show_text(" was hurt by spikey floor ", 15, bmsg_length);
-         else           bmsg_length += bmsg_show_text(" was hurt by a damage field ", 15, bmsg_length);
+         int damage = (int) players1[z1].block_damage_tally;
+         int type = item[players1[z1].block_damage_item_number][2];
+         if (type == 2) bmsg_length += bmsg_show_text(" was hurt by spikey floor ", 15, bmsg_length);
+         else           bmsg_length += bmsg_show_text(" was hurt by block damage ", 15, bmsg_length);
          bmsg_length += bmsg_show_health(-damage, bmsg_length);
       }
 

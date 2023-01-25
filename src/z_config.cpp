@@ -89,6 +89,9 @@ void save_config(void)
       asci(NETWORK, suicide_pbullets)
       asci(NETWORK, zlib_cmp)
 
+      asci(NETWORK, players1[0].s1)
+      asci(NETWORK, players1[0].s2)
+
       asci(LOGGING, LOG_NET)
       asci(LOGGING, LOG_NET_join)
       asci(LOGGING, LOG_NET_player_array)
@@ -207,6 +210,9 @@ void load_config(void)
    agci(NETWORK, deathmatch_pbullets_damage, 5)
    agci(NETWORK, suicide_pbullets, 0)
    agci(NETWORK, zlib_cmp, 7)
+
+   agci(NETWORK, players1[0].s1, 3)
+   agci(NETWORK, players1[0].s2, 1)
 
    agci(LOGGING, LOG_NET, 0)
    agci(LOGGING, LOG_NET_player_array, 0)

@@ -249,22 +249,21 @@ void game_menu(void)
       if  (top_menu_sel == 8)  { play_level = edit_menu(start_level); new_program_state = 10; return; } // level editor
       if  (top_menu_sel == 9)  { new_program_state = 2;  older_program_state = 1;             return; } // demo mode
       if  (top_menu_sel == 10)                                                                help(""); // help
-
-      if ((top_menu_sel > 100) && (top_menu_sel < 200)) // left pressed on menu item
+      if ((top_menu_sel > 100) && (top_menu_sel < 200)) // right pressed on menu item
       {
          top_menu_sel -= 100;
          if (top_menu_sel == 2)
          {
-            set_start_level(--start_level); // start level decrement
+            set_start_level(++start_level); // start level increment
             load_level(start_level, 0);
          }
       }
-      if ((top_menu_sel > 200) && (top_menu_sel < 300)) // right pressed on menu item
+      if ((top_menu_sel > 200) && (top_menu_sel < 300)) // left pressed on menu item
       {
          top_menu_sel -= 200;
          if (top_menu_sel == 2)
          {
-            set_start_level(++start_level); // start level increment
+            set_start_level(--start_level); // start level decrement
             load_level(start_level, 0);
          }
       }
@@ -341,6 +340,12 @@ void proc_program_state(void)
       qG[1].initialize(2);
       qG[2].initialize(2);
 
+
+      for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1); // full reset
+      players[0].active = 1;
+
+
+
       new_program_state = 23;
    }
 
@@ -369,11 +374,8 @@ void proc_program_state(void)
 
 
       for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         init_player(p, 1);              // full reset
          set_player_start_pos(p, 0);     // get starting position for all players, active or not
-      }
-      players[0].active = 1;
+
 
       clear_game_moves();
 

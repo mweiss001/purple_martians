@@ -454,9 +454,6 @@ int server_init(void)
    ima_server = 1;
    strncpy(players1[0].hostname, local_hostname, 16);
 
-   players1[0].s1 = 3;
-   players1[0].s2 = 1;
-
    return 1;
 }
 
@@ -554,7 +551,6 @@ void server_rewind(void)
 {
    int s1 = players1[0].s1;
    int s2 = players1[0].s2;
-//   int s2 = players1[0].s2 = 0;
    int s3 = s1+s2;
 
    // is it time to make a new dif and send to clients?

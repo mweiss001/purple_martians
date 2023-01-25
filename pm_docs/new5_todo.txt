@@ -21,6 +21,9 @@ I think my hotkey L is triggering level editor on client....disabled for now, te
 it did, disabled again....
 
 
+why does server rack up a shitload of base resets, waiting for client to join?
+
+
 
 
 ---------------------------------------------------------

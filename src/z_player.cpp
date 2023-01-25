@@ -179,7 +179,7 @@ void set_player_start_pos(int p, int cont)
 
 void proc_player_health(int p)
 {
-   if ((frame_num) && (frame_num == players1[p].field_damage_holdoff)) game_event(58, 0, 0, p, 0, 0, 0);
+   if ((frame_num) && (frame_num == players1[p].block_damage_holdoff)) game_event(58, 0, 0, p, 0, 0, 0);
 
    if (players[p].old_LIFE != players[p].LIFE)
    {
@@ -1547,6 +1547,8 @@ void init_player(int p, int t)
       players1[p].made_active_holdoff = 0;
 
       players1[p].client_chase_offset = 0.0;
+      players1[p].client_chase_offset_auto_offset = 0.0;
+      players1[p].client_chase_offset_mode = 1;
 
       players1[p].game_move_dsync = 0;
       players1[p].game_move_dsync_avg_last_sec = 0;
