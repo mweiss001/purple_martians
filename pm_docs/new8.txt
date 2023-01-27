@@ -7501,24 +7501,50 @@ experiment with auto sync at 1/2 round trip ping....
 
 
 
+20230126 3:00AM
 
+So see if you can do so sort of summary...
 
+s1
+controls the frequency or sending difs
+1 sends them every frame, should not use, every dif will be full size
+2 sends every other frame, occasional base resets are common
+3 base reset are very rare
 
 
+s2
+how much the client can lag server without late cdats..
+1-3 works probably use 2..
 
 
+there are probably other things that these affect, that I have not been able to measure yet
+I assume that the longer I take to rewind and resnd, the more jarring the corrections will be..
 
+I need some way of measuring that...
 
 
+how long from sending a cdat, does the client need to wait before it gets a dif with that cdat...
+that sounds so simple, how will I measure it
 
+client rx dif for frame 98-100, current client frame = 102...
 
+client rewinds to 100 and ff 2..
 
+so that worst case is a move made on frame 98 does not get back to client until 102...
 
+something like that, lets look at some real data from a log...
 
+3871 tx cdat
+3873 dif applied 3867-3871
 
+just that one line:
+3873 dif applied 3867-3871
 
+tells me that at worst case 3873-3867 = 6 frames before making a move and getting the official dif from server
 
+this was in mode 4 3..
 
+try in mode 2 3
 
 
 
@@ -7530,458 +7556,544 @@ experiment with auto sync at 1/2 round trip ping....
 
 
 
+side track:
 
+why does server rack up a shitload of base resets, waiting for client to join?
 
+make finer tuning of stdf shit in log
 
+I would like to be able to filter out all unsuccessful dif applied
+there are a lot of them
 
+maybe a different tag for succesfull vs unsuccesful
 
+27 and 29
 
 
+extern int LOG_NET_dif_applied;
+extern int LOG_NET_dif_not_applied;
 
+replace
+extern int LOG_NET_stdf_when_to_apply;
 
+done...the logging is much more better...
 
 
 
+mode 2 3 gets 4...this is better yes?
 
+should I calculate and show on client?
 
 
+where? when dif applied
+saved where?
 
+new var
+int client_move_lag;
 
+done...now experimeting with that..
+I would assume that lower is better..
 
+I have found that when s1 = 2
+I need to adjust offset so dsync is about -12 (half frame) or I get base resets...
 
+should I show somewhere on client the base resets?
 
+I already have players1[p].client_base_resets++; on the server
+re use it for clients...done..now in debug grid
 
 
 
+so, is that what I should do for offset?  aim for - 1/2 frame??
 
+ping  offset
+0-12   -12
+12-37  -37
 
 
+changing the offset changes move_lag also...
 
 
+I have one setup that should work good but the corrections are quite jarring:
+s1:2 s2:2
+move_lag:2
+dsync +12
+sgms -2
+no late cdat
+no base reset
 
+this one has much less jarring corrections:
+s1:2 s2:2
+move_lag:3
+dsync -12
+sgms -1
+jno late cdat
+no base reset
 
+also good is
+s1:3 s2:1
+move_lag:5
+dsync -35
+sgms 0
+jno late cdat
+no base reset
 
+many settings work
+also good
+s1:2 s2:1
 
+maybe the move_lag is not all important...
+it can be longer, as long as the prediction and the actual are not too far off...
 
+I might just be as good as I can get...
 
+set offset so that dsync is about 12-14 ms independant of ping
 
+figure out how to test on worse networks...
 
+why does reducing s1 cause bad problems on server?
+kicks client and wont let new one connect
 
+when the new one tries to connect:
+server log shows stak reply that client fails base set, has base from previous game
 
 
+am I not resetting something on server?
+when that happens on server, server resets its copy of client base state to zero..
+am I not resetting that on client?
 
 
+reset_states()
+client_state_dif_src = -1; // -1 will never match a frame_num
+client_state_dif_dst = -1;
 
+this will mark if we have not received a state yet, or the state is a bad decompress
 
 
 
+server keeps old last acked state for client
 
+need to reset that on server when client quits or is dropped....done
 
+changed this:
+void client_apply_diff(void)
+{
+   int p = active_local_player;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-method for setting s1
-start at 3
-on server, measure total client resets for 4 seconds
-if zero try to reduce
-if greater than 10, increase
-
-min:2
-max:8?
-
-
-method for setting s2:
-start at 2
-on server measure total client late cdats dropped for 4 seconds
-if zero 4 try to reduce
-if greater than 10, increase
-
-min:2
-max:4?
-
-only lower every 4 seconds if perfect
-raise if threshold is reached before that
-
-reset counters every 4 sec
-
-
-
-
-
-
-
-
-
-
-
-
-
-so lets try to describe this again, beacuse you obviously didn't quite get it last time
-
-s1 = 2;
-s2 = 2;
-s3 = s1 + s2;
-
-- state[1] is the earliest state the server has
-
-- when current frame == state[1] + s3 do a new stdf
-- rewind (load state[1])
-- step s1 frames
-- save a new state[1]
-- step s2 frames to where you were before rewinding
-- save state[0] and send to clients
-
-- state[0] is only used to make and send difs to clients
-- state[0] is most likely missing some player input
-
-
-- every time a rewind is done
-- the 1st frames played back will be the last chance ever to apply moves in those frames
-- the 2nd frames will be speculative, a guess.
-
-when new cdat arrive, if they are dated earlier than state[1] do not put them in gma
-
-
-
-3 2
-
-base resets are way better
-bandwidth is also a lot better, like around 40-50.
-
-So if I reduce stdf freq (s1) I will get more base resets, because client does not have time to respond before new stdf arrives and base is lost.
-
-What are the drawbacks of increasing s1?
-
-I would guess that more time passes in predictive mode and the corrections are more severe and noticeable...
-lets try with 4 2
-
-it seems mopre jumpy
-now 35-40k
-
-what if I made it dynamically adjustable?
-count how many base resets last second and adjust...
-min 2 max 6?
-
-can I make it manualy adjustable while the game is running?
-the worst it could do it cause base reset when it is changing...
-
-first thing I need to do is assign it a variable...
-
-let do that for s1 and s2
-
-put them in player1
-where do I initialize them...
-
-
-
-
-
-
-
-
-
-
-maybe running just in time to get difs as needed is not the right approach
-
-If I got difs for a frame that I has already rendered...
-I could replay with the local controls for that frame that has already occured...
-this would mean I am running ahead of the the server
-controls that I am currently pressing are not as old on the server
-
-
-If I got difs for a frame that I had not rendered yet...
-i would hold off till then and apply it
-this would mean I am running behind the server
-controls that I am currently pressing are even older on the server
-
-
-
-
-
-
-
-
-
-big surprise...nothing seems to effect when cdats are received on server, except for client dsync....
-
-the only thing I can do to get cdats to the server faster, would be to let the client move ahead of the server in time....
-but then the client would always get difs that were too late to apply....
-
-what if I let the client rewind?
-and apply the local moves from the last frame?
-
-that would mean I would have to keep the clients local moves...it would only be one move per frame max...
-
-this is just crazy enough to maybe work.....
-
-client stores all its game moves in it's own local array....
-when client get a dif that is in the past:
-apply then play back to current...
-
-
-
-right now I have the server in the lead, the client lags behind just enough so I can get the current state from the server and apply it.
-If I let the client pass the server, the server will be able to get cdats with less delay, but who knows what else might happen??
-
-I think it's worth a try....
-
-1 - make client put stuff in its own local game_moves array
-
-2 - remove the part in rx stdf where we ignore late difs
-
-3 - modify apply dif to allow late ones
-
-this is a tricky bit of code here....
-
-   // check to see if frame_nums match and its time to apply dif or if initial state when frame_num == 0
-   if ((frame_num != client_state_dif_dst) && (frame_num != 0))
+   // check if valid dif
+   if ((client_state_dif_src == -1) || (client_state_dif_dst == -1))
    {
+      sprintf(msg, "dif is not valid - src:%d dst:%d\n", client_state_dif_src, client_state_dif_dst);
+      if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+   }
+   else
+   {
+//      if (frame_num == 0)
+//      {
+//         printf("initial state - dif_src:%d dif_dts:%d  cbsfn:%d \n", client_state_dif_src, client_state_dif_dst, client_state_base_frame_num);
+//      }
+//      if ((client_state_dif_dst > client_state_base_frame_num) || (frame_num == 0)) // stored dif with a new dest, or initial state (frame 0)
 
 
-first of all if the match then do it
-second of all if frame_num == 0 do it
-third of all...
-if newer than last applied dif....
 
-what is the varaible for the last applied dif frame_num? 'client_state_base_frame_num'
+      if ((client_state_dif_dst > client_state_base_frame_num)) // stored dif has a newer dest
+      {
 
-so check if the dest of the dif_dest on deck is newer than that
+OK with that cleaned up..back to why reducing s1 is bad...does not seem to be bad any more, maybe test more...
 
-if (client_state_dif_dst > client_state_base_frame_num) // we have dif with a newer dest than previous
 
-omg I am ready to try it....
+when client does level done and starts new level...
+it is not waiting for initial state...that is the way it should be
+it is still getting stdfs from last level...? at least it is smart enough not to try tp apply them
 
-well it looks like I can run a game succesfully with negative sync... lets try it on WAN
+on the server, do I need to reset client states at level done??
+
+in level done reset_states is called....
+
+clientlog:
+------------------
+1    client rx dif from 22122 to 22124
+     client says wrong client base and replies with 0 for client base
+4    client rx dif from 0-22126
+4-10 client doesnt apply...too early
+11   client rx dif from 0-3
+
+then we are back on track..
+
+
+server log:
+------------------
+22122 tx 22120-22122
+22123 rx stak  22122
+22124 tx 22122-22124
+22125 rx stak  0
+22125 server drop player sync>100
+22126 tx 0-22126
+22127 NEXT LEVEL
+3     tx 0-3
+4     rx stak 3
+
+then we are back on track..
+
+OK what can I do about this?
+nothing right now...its time for work...
+
+20230126 7:37AM
+20230127 4:24 AM
+
+why do I want to do something about it? it works
+I don't like how the server tries to drop the client
+
+
+I don't like how the client is still getting difs from the previous level.
+It is just a natural consequence of the client being ahead of the server..
+
+What if on the client, I check to see if dif_src is much larger than current frame number?
+Won't this also catch initial state? Maybe not...is not initial state dif_src == 0?
+
+if (client_state_dif_src - frame_num > 100)
+
+
+I have rewritten the client_apply_dif() again..
+
+
+this time I have front loaded all the tests and added one for  if (client_state_dif_src - frame_num > 100)
+it only seems to catch when level done and client is ahead of server...
+
+
+void client_apply_dif(void)
+{
+   int p = active_local_player;
+   if ((client_state_dif_src == -1) || (client_state_dif_dst == -1)) // check if valid dif
+   {
+      sprintf(msg, "dif is not valid - src:%d dst:%d\n", client_state_dif_src, client_state_dif_dst);
+      if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+   }
+   else
+   {
+      if (client_state_dif_src - frame_num > 100)
+      {
+         sprintf(msg, "dif_src is > 100 frames in the future - src:%d frame_num:%d\n", client_state_dif_src, frame_num);
+         if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+      }
+      else
+      {
+         if ((client_state_dif_dst <= client_state_base_frame_num)) // stored dif has a newer dest
+         {
+            sprintf(msg, "dif [%d to %d] not applied - not newer than current [%d]\n", client_state_dif_src, client_state_dif_dst, client_state_base_frame_num);
+            if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+         }
+         else
+         {
+            if (client_state_dif_src == 0) // if server has sent dif from src == 0, reset client base to 0
+            {
+               memset(client_state_base, 0, STATE_SIZE);
+               client_state_base_frame_num = 0;
+               if (LOG_NET_dif_not_applied) add_log_entry2(31, p, "Resetting client base state to zero\n");
+               players1[p].client_base_resets++;
+            }
+
+            if (client_state_base_frame_num != client_state_dif_src) // stored base state does NOT match dif source
+            {
+               sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
+               if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+
+               client_send_stak(); // resend ack to server with correct acknowledged base state
+            }
+            else // we have a matching base to apply dif
+            {
+               int ff = players1[p].client_rewind = frame_num - client_state_dif_dst; // dst compared to current frame_num
+               char tmsg[64];
+               if (ff == 0) sprintf(tmsg, "exact frame match [%d]\n", frame_num);
+               if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
+               if (ff < 0)  sprintf(tmsg, "early [%d] frames\n", -ff);
+               if (frame_num == 0) sprintf(tmsg, "initial state\n");
+               if ((ff < 0) && (frame_num != 0))
+               {
+                  sprintf(msg, "dif [%d to %d] not applied yet - [%d] early\n", client_state_dif_src, client_state_dif_dst, -ff);
+                  if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
+               }
+               else
+               {
+                  // make a copy of level array l[][]
+                  int old_l[100][100];
+                  memcpy(old_l, l, sizeof(l));
+
+
+                  // apply dif to base state
+                  apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
+
+                  // copy modified base state to game_vars
+                  state_to_game_vars(client_state_base);
+
+                  // compare old_l to l and redraw changed tiles
+                  al_set_target_bitmap(level_background);
+                  for (int x=0; x<100; x++)
+                     for (int y=0; y<100; y++)
+                        if (l[x][y] != old_l[x][y])
+                        {
+                           // printf("dif at x:%d y:%d\n", x, y);
+                           al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                           al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+                        }
+
+                  // fix control methods
+                  players[0].control_method = 2; // on client, server is mode 2
+                  if (players[p].control_method == 2) players[p].control_method = 4;
+                  if (players[p].control_method == 8) new_program_state = 1; // server quit
+
+                  // update frame_num and client base frame_num
+                  frame_num = client_state_base_frame_num = client_state_dif_dst;
+
+                  // for initial state only
+                  if (frame_num == 0) set_frame_nums(client_state_dif_dst);
+
+                  players1[p].client_last_dif_applied = frame_num;
+
+                  if (ff) loop_frame(ff); // if we rewound time, play it back
+
+                  client_send_stak();
+
+                  players1[p].client_move_lag = frame_num - client_state_dif_src;
+
+                  sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
+                  if (LOG_NET_dif_applied) add_log_entry2(30, p, msg);
+               }
+            }
+         }
+      }
+   }
+}
+
+this is a log of how it works
+
+
+[31][1][2272]dif [2267 to 2269] not applied - not newer than current [2269]
+[27][1][2273]rx dif complete [2269 to 2271] sync[-2] dsync[-35.9ms] - decompressed
+[30][1][2273]dif [2269 to 2271] applied - rewind [2] frames
+[31][1][2274]dif [2269 to 2271] not applied - not newer than current [2271]
+[27][1][2275]rx dif complete [2271 to 2273] sync[-2] dsync[-36.7ms] - decompressed
+[30][1][2275]dif [2271 to 2273] applied - rewind [2] frames
+[10][0][2275]+--------------------------------------------------------------------------+
+[10][0][2275]|                                                                          |
+[10][0][2275]|                                                                          |
+[10][0][2275]|                                                                          |
+[10][0][2275]|                              NEXT LEVEL:151                              |
+[10][0][2275]|                                                                          |
+[10][0][2275]|                                                                          |
+[10][0][2275]|                                                                          |
+[10][0][2275]+--------------------------------------------------------------------------+
+[10][0][0]+--------------------------------------------------------------------------+
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                            LEVEL 151 STARTED                             |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]|                                                                          |
+[10][0][0]+--------------------------------------------------------------------------+
+[31][1][1]dif is not valid - src:-1 dst:-1
+[27][1][2]rx dif complete [2273 to 2275] sync[2273] dsync[56839.2ms] - decompressed
+[31][1][2]dif_src is > 100 frames in the future - src:2273 frame_num:2
+[31][1][3]dif_src is > 100 frames in the future - src:2273 frame_num:3
+[31][1][4]dif_src is > 100 frames in the future - src:2273 frame_num:4
+[31][1][5]dif_src is > 100 frames in the future - src:2273 frame_num:5
+[31][1][6]dif_src is > 100 frames in the future - src:2273 frame_num:6
+[31][1][7]dif_src is > 100 frames in the future - src:2273 frame_num:7
+[31][1][8]dif_src is > 100 frames in the future - src:2273 frame_num:8
+[27][1][9]rx dif complete [0 to 3] sync[-6] dsync[-136.1ms] - decompressed
+[31][1][9]Resetting client base state to zero
+[30][1][9]dif [0 to 3] applied - rewind [6] frames
+[31][1][10]dif [0 to 3] not applied - not newer than current [3]
+[31][1][11]dif [0 to 3] not applied - not newer than current [3]
+[27][1][12]rx dif complete [3 to 5] sync[-7] dsync[-168.9ms] - decompressed
+[30][1][12]dif [3 to 5] applied - rewind [7] frames
+[31][1][13]dif [3 to 5] not applied - not newer than current [5]
+[31][1][14]dif [3 to 5] not applied - not newer than current [5]
+[31][1][15]dif [3 to 5] not applied - not newer than current [5]
+[27][1][16]rx dif complete [5 to 7] sync[-9] dsync[-210.9ms] - decompressed
+[30][1][16]dif [5 to 7] applied - rewind [9] frames
+[31][1][17]dif [5 to 7] not applied - not newer than current [7]
+[31][1][18]dif [5 to 7] not applied - not newer than current [7]
+[27][1][19]rx dif complete [7 to 9] sync[-10] dsync[-243.8ms] - decompressed
+[30][1][19]dif [7 to 9] applied - rewind [10] frames
+[31][1][20]dif [7 to 9] not applied - not newer than current [9]
+[31][1][21]dif [7 to 9] not applied - not newer than current [9]
+[31][1][22]dif [7 to 9] not applied - not newer than current [9]
+[27][1][23]rx dif complete [9 to 11] sync[-12] dsync[-285.9ms] - decompressed
+
+
+
+windows wants to do an update so I am going to do a push first
+
+
+then go through code and make sure dif is not spelled diff
+and that state and dif refer to the proper things...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

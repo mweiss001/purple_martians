@@ -862,7 +862,7 @@ int  client_init(void);
 void client_read_game_move_from_packet(int x);
 void client_send_ping(void);
 void client_process_stdf_packet(double timestamp);
-void client_apply_diff();
+void client_apply_dif();
 void client_block_until_initial_state_received(void);
 void client_process_sdat_packet(void);
 void client_process_serr_packet(void);

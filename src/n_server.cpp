@@ -724,7 +724,7 @@ void server_proc_stak_packet(void)
    }
 
    sprintf(msg, "%s %s\n", tmsg1, tmsg2);
-   if (LOG_NET_server_rx_stak) add_log_entry2(30, p, msg);
+   if (LOG_NET_server_rx_stak) add_log_entry2(33, p, msg);
 }
 
 void server_proc_cjon_packet(int who)

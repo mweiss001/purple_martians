@@ -19,7 +19,8 @@ void set_all_logging(int v)
    LOG_NET_cdat=v;
    LOG_NET_stdf=v;
    LOG_NET_stdf_all_packets=v;
-   LOG_NET_stdf_when_to_apply=v;
+   LOG_NET_dif_applied=v;
+   LOG_NET_dif_not_applied=v;
    LOG_NET_client_ping=v;
    LOG_NET_client_timer_adj=v;
    LOG_NET_server_rx_stak=v;
@@ -934,7 +935,8 @@ void settings_pages(int set_page)
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_cdat,               "LOG_NET_cdat", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf,               "LOG_NET_stdf", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_all_packets,   "LOG_NET_stdf_all_packets", tc, fc);
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_stdf_when_to_apply, "LOG_NET_stdf_when_to_apply", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_dif_applied,        "LOG_NET_dif_applied", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_dif_not_applied,    "LOG_NET_dif_not_applied", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_client_ping,        "LOG_NET_client_ping", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_client_timer_adj,   "LOG_NET_client_timer_adj", tc, fc);
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, LOG_NET_server_rx_stak,     "LOG_NET_server_rx_stak", tc, fc);

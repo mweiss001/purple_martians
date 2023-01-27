@@ -36,3 +36,4 @@ void state_to_game_vars(char * b);
 void get_state_dif(char *a, char *b, char *c, int size);
 void apply_state_dif(char *a, char *c, int size);
 void reset_states(void);
+void reset_client_state(int p); // server only

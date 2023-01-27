@@ -71,6 +71,11 @@ void apply_state_dif(char *a, char *c, int size)
       a[i] -= c[i];
 }
 
+
+
+
+
+
 void reset_states(void)
 {
    // reset base state on client
@@ -98,16 +103,10 @@ void reset_states(void)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+void reset_client_state(int p) // server only
+{
+   memset(srv_client_state[p][0], 0, STATE_SIZE);
+   memset(srv_client_state[p][1], 0, STATE_SIZE);
+   srv_client_state_frame_num[p][0] = 0;  // src
+   srv_client_state_frame_num[p][1] = -3; // dst
+}

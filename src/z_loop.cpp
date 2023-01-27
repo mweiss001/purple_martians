@@ -405,7 +405,7 @@ void proc_program_state(void)
    {
       client_fast_packet_loop();
       client_read_packet_buffer();
-      client_apply_diff();
+      client_apply_dif();
 
       if (key[ALLEGRO_KEY_ESCAPE][3]) program_state = 25;
 
@@ -453,7 +453,6 @@ void proc_program_state(void)
       clear_game_moves(); // clear game moves array, except for demo mode
 
       set_frame_nums(0);
-      reset_states();
       clear_bullets();
       clear_bmsg();
       clear_keys();
@@ -619,7 +618,6 @@ void proc_program_state(void)
       players[0].control_method = 1; // rungame demo mode
 
       set_frame_nums(0);
-      reset_states();
       clear_bullets();
       clear_bmsg();
       clear_keys();

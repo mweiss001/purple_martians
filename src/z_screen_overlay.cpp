@@ -708,6 +708,7 @@ void cdg_show(int x, int y) // client debug grid
    sdg_show_column(2, x, y); // active
    sdg_show_column(3, x, y); // color
    sdg_show_column(4, x, y); // control method
+   sdg_show_column(9, x, y);  // client base resets
    sdg_show_column(28, x, y); // client rewind
 
    sdg_show_column(19, x, y); // name and description (client version)
@@ -1072,6 +1073,13 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       sprintf(msg, "local moves:%d", game_move_entry_pos);
       al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
       al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
+
+      cy +=8;
+      sprintf(msg, "move lag:%d", players1[p].client_move_lag);
+      al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+      al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
+
+
 
       if (0) // show a bunch of bandwidth stats
       {

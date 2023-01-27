@@ -99,7 +99,10 @@ void save_config(void)
       asci(LOGGING, LOG_NET_cdat)
       asci(LOGGING, LOG_NET_stdf)
       asci(LOGGING, LOG_NET_stdf_all_packets)
-      asci(LOGGING, LOG_NET_stdf_when_to_apply)
+
+      asci(LOGGING, LOG_NET_dif_applied)
+      asci(LOGGING, LOG_NET_dif_not_applied)
+
       asci(LOGGING, LOG_NET_client_ping)
       asci(LOGGING, LOG_NET_client_timer_adj)
       asci(LOGGING, LOG_NET_server_rx_stak)
@@ -221,7 +224,10 @@ void load_config(void)
    agci(LOGGING, LOG_NET_cdat, 0)
    agci(LOGGING, LOG_NET_stdf, 0)
    agci(LOGGING, LOG_NET_stdf_all_packets, 0)
-   agci(LOGGING, LOG_NET_stdf_when_to_apply, 0)
+
+   agci(LOGGING, LOG_NET_dif_applied, 0)
+   agci(LOGGING, LOG_NET_dif_not_applied, 0)
+
    agci(LOGGING, LOG_NET_client_ping, 0)
    agci(LOGGING, LOG_NET_client_timer_adj, 0)
    agci(LOGGING, LOG_NET_server_rx_stak, 0)
