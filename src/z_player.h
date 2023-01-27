@@ -112,6 +112,8 @@ struct player1 // not synced between server and client
 
    int client_rewind; // for client to keep track of how many frames it needed to rewind
 
+   int client_move_lag;
+
    int client_base_resets;
    int client_last_dif_applied;
 

@@ -21,7 +21,6 @@ I think my hotkey L is triggering level editor on client....disabled for now, te
 it did, disabled again....
 
 
-why does server rack up a shitload of base resets, waiting for client to join?
 
 
 
@@ -29,6 +28,15 @@ why does server rack up a shitload of base resets, waiting for client to join?
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+
+
+
+
+
+
+
 
 make a way to force x axis to show either frames or sec..
 make a way to measure on graph

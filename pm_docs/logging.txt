@@ -1,0 +1,216 @@
+Last updated 20230125
+
+---------------------------------------------------------------------------------
+-------------   The official list of how logging works: -------------------------
+---------------------------------------------------------------------------------
+
+Just for netgame, timer logging not covered. (yet)
+
+
+
+extern int LOG_NET;
+extern int LOG_NET_join;
+extern int LOG_NET_player_array;
+extern int LOG_NET_bandwidth;
+extern int LOG_NET_cdat;
+extern int LOG_NET_stdf;
+extern int LOG_NET_stdf_all_packets;
+extern int LOG_NET_dif_applied;
+extern int LOG_NET_dif_not_applied;
+extern int LOG_NET_client_ping;
+extern int LOG_NET_client_timer_adj;
+extern int LOG_NET_server_rx_stak;
+
+
+
+
+
+what numbers are used:
+
+10 - LOG_NET
+11 - LOG_NET_join
+23 - LOG_NET_bandwidth
+24 - LOG_NET_bandwidth
+26 - LOG_NET_player_array
+27 - LOG_NET_stdf
+28 - LOG_NET_stdf_all_packets
+30 - LOG_NET_dif_applied
+31 - LOG_NET_dif_not_applied
+33 - LOG_NET_server_rx_stak
+35 - LOG_NET_cdat
+36 - LOG_NET_client_timer_adj
+37 - LOG_NET_client_ping
+
+44 - LOG_TMR_xxx
+
+
+
+
+--------------------------------------------------------
+LOG_NET [10] [both]
+--------------------------------------------------------
+8 x  ClientInitNetwork()
+1 x ClientExitNetwork()
+2 x client_init()
+3 x client_proc_player_drop()
+
+6 x ServerInitNetwork()
+4 x ServerListen()
+1 x ServerExitNetwork()
+3 x server_init()
+3 x server_proc_player_drop()
+
+1 x proc_player_active_game_move()
+3 x proc_player_inactive_game_move()
+
+   //---------------------------------------
+   // 22 - client level setup
+   //---------------------------------------
+   if (program_state == 22)
+   if (LOG_NET)
+   {
+      sprintf(msg,"LEVEL %d STARTED", play_level);
+      add_log_entry_header(10, 0, msg, 3);
+   }
+
+   //---------------------------------------
+   // 12 - level done
+   //---------------------------------------
+   if (program_state == 12)
+   {
+      if (LOG_NET) { sprintf(msg,"NEXT LEVEL:%d", next_level); add_log_entry_header(10, 0, msg, 3); }
+
+      if (LOG_NET)
+      {
+         sprintf(msg,"LEVEL %d STARTED", play_level);
+         add_log_entry_header(10, 0, msg, 3);
+      }
+
+   //---------------------------------------
+   // server new game
+   //---------------------------------------
+   if (program_state == 20)
+   {
+      if (LOG_NET)
+      {
+         sprintf(msg,"LEVEL %d STARTED", play_level);
+         add_log_entry_header(10, 0, msg, 3);
+      }
+
+1 x void proc_player_health(int p)
+{
+      sprintf(msg,"PLAYER:%d DIED!", p);
+      if (LOG_NET) add_log_entry_header(10, 0, msg, 1);
+
+
+--------------------------------------------------------
+LOG_NET_join [11] [both]
+--------------------------------------------------------
+client tx cjon
+client rx sjon
+client rx sjon SERVER FULL
+server rx cjon
+server tx sjon
+server tx sjon SERVER FULL
+server client has locked
+
+--------------------------------------------------------
+LOG_NET_player_array [26] [server]
+--------------------------------------------------------
+1 x server_control()
+
+--------------------------------------------------------
+LOG_NET_bandwidth [23][24] [both]
+--------------------------------------------------------
+1 x process_bandwidth_counters()
+
+
+--------------------------------------------------------
+LOG_NET_stdf [27] [both]
+--------------------------------------------------------
+1 x client_process_stdf_packet() dif received and decompressed
+
+1 x server_send_stdf() send all stdf packets
+2 x server_rewind() // once when rewinding to prev state, once when setting new state
+
+
+   //---------------------------------------
+   // 12 - level done
+   //---------------------------------------
+   //---------------------------------------
+   // server new game
+   //---------------------------------------
+   // set server initial state (for both 2-new game and 5-level done when server)
+   game_vars_to_state(srv_stdf_state[1]);
+   srv_stdf_state_frame_num[1] = frame_num;
+   if (LOG_NET_stdf)
+   {
+      sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+      add_log_entry2(27, 0, msg);
+   }
+
+--------------------------------------------------------
+LOG_NET_stdf_all_packets [28] [both]
+--------------------------------------------------------
+1 x client_process_stdf_packet() // when any stdf packets is received
+1 x server_send_stdf()           // when sending an individual stdf packets to a client
+
+
+--------------------------------------------------------
+LOG_NET_dif_applied [30] [client]
+--------------------------------------------------------
+1 x client_apply_diff()
+
+
+--------------------------------------------------------
+LOG_NET_dif_not_applied [31] [client]
+--------------------------------------------------------
+1 x Resetting client base state to zero
+1 x dif cannot be applied (wrong client base)
+1 x dif [%d to %d] not applied yet - [%d] early
+1 x dif [%d to %d] not applied - not newer than current
+
+
+--------------------------------------------------------
+LOG_NET_server_rx_stak [33] [server]
+--------------------------------------------------------
+1 x server_proc_stak_packet() [30]
+
+--------------------------------------------------------
+LOG_NET_cdat [35] [both]
+--------------------------------------------------------
+1 x server_proc_cdat_packet()
+1 x proc_player_input()
+
+--------------------------------------------------------
+LOG_NET_client_timer_adj [36] [client]
+--------------------------------------------------------
+1 x client_timer_adjust()
+
+--------------------------------------------------------
+LOG_NET_client_ping [37] [client]
+--------------------------------------------------------
+1 x ping_array_add()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

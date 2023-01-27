@@ -1,5 +1,0 @@
-This feature is disabled in the release versions
-
-There is a function called do_rnd() in e_editor_zfs.cpp that you need to manually edit
-
-Then in zoom full screen, make a selection and press the R key

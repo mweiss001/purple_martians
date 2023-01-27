@@ -802,7 +802,7 @@ void proc_player_inactive_game_move(int x)
       }
 
       // ------------------------------------
-      // remote player quit
+      // remote player quit (server only)
       // ------------------------------------
       if (players[p].control_method == 2)
       {
@@ -810,6 +810,9 @@ void proc_player_inactive_game_move(int x)
          players1[p].quit_reason = 93;
          if (LOG_NET) log_ending_stats(p);
          init_player(p, 1);
+
+         reset_client_state(p);
+
 //         players[p].active = 0;
 //         players[p].control_method = 9; // prevent re-use of this player number in this level
 //         players1[p].who = 99;

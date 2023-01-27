@@ -30,10 +30,24 @@ extern int LOG_NET_bandwidth;
 extern int LOG_NET_cdat;
 extern int LOG_NET_stdf;
 extern int LOG_NET_stdf_all_packets;
-extern int LOG_NET_stdf_when_to_apply;
+
+extern int LOG_NET_dif_applied;
+extern int LOG_NET_dif_not_applied;
+
 extern int LOG_NET_client_ping;
 extern int LOG_NET_client_timer_adj;
 extern int LOG_NET_server_rx_stak;
+
+
+
+
+
+
+
+
+
+
+
 
 
 extern int LOG_TMR_cpu;
@@ -46,7 +60,6 @@ extern int LOG_TMR_bmsg_draw;
 
 
 extern int LOG_TMR_scrn_overlay;
-
 
 
 extern int LOG_TMR_draw_tot;
@@ -65,15 +78,8 @@ extern int autosave_log_on_program_exit;
 extern int autosave_log_on_game_exit;
 extern int autosave_log_on_level_done;
 
-
-
 extern int autosave_game_on_game_exit;
 extern int autosave_game_on_level_done;
-
-
-
-
-
 
 
 void log_bandwidth_stats(int p);

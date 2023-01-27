@@ -28,7 +28,10 @@ int LOG_NET_bandwidth = 0;
 int LOG_NET_cdat = 0;
 int LOG_NET_stdf = 0;
 int LOG_NET_stdf_all_packets = 0;
-int LOG_NET_stdf_when_to_apply = 0;
+
+int LOG_NET_dif_applied = 0;
+int LOG_NET_dif_not_applied = 0;
+
 int LOG_NET_client_ping = 0;
 int LOG_NET_client_timer_adj = 0;
 int LOG_NET_server_rx_stak = 0;
@@ -671,11 +674,13 @@ int log_file_viewer(int type)
 
    tags[27][0] = 1; tags[27][1] = 13; tags[27][3] = 88; sprintf(ctags[27], "stdf"); // stdf         (X) [CS]
    tags[28][0] = 0; tags[28][1] = 1;  tags[28][3] = 80; sprintf(ctags[28], "stdp"); // stdf piece   (P) [CS]
-   tags[29][0] = 0; tags[29][1] = 7;  tags[29][3] = 87; sprintf(ctags[29], "stdw"); // stdf when    (W) [C]
-   tags[30][0] = 0; tags[30][1] = 6;  tags[30][3] = 75; sprintf(ctags[30], "stak"); // stak         (K) [S]
 
-   tags[31][0] = 0; tags[31][1] = 15; tags[31][3] = 68; sprintf(ctags[31], "dif1"); // show diff1   (D) [C]
-   tags[32][0] = 0; tags[32][1] = 15; tags[32][3] = 70; sprintf(ctags[32], "dif2"); // show diff2   (F) [C]
+   tags[30][0] = 0; tags[30][1] = 7;  tags[30][3] = 68; sprintf(ctags[30], "difa"); // dif applied  (D) [C]
+   tags[31][0] = 0; tags[31][1] = 8;  tags[31][3] = 87; sprintf(ctags[31], "difn"); // dif not app  (W) [C]
+
+
+   tags[33][0] = 0; tags[33][1] = 6;  tags[33][3] = 75; sprintf(ctags[33], "stak"); // stak         (K) [S]
+
    tags[35][0] = 1; tags[35][1] = 3;  tags[35][3] = 67; sprintf(ctags[35], "cdat"); // cdat         (C) [CS]
 
    tags[36][0] = 1; tags[36][1] = 13; tags[36][3] = 84; sprintf(ctags[36], "tmaj"); // timer adjust (T) [C]
