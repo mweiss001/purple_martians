@@ -7931,6 +7931,40 @@ then go through code and make sure dif is not spelled diff
 and that state and dif refer to the proper things...
 
 
+'state' refers the the entire game state, typically put into a char array of size STATE_SIZE
+'dif' is when 2 states are subtracted, resulting in the diference between the 2
+
+difs are then compressed, optionally broken into packet sized pieces and sent from server to clients
+
+when a client has all the pieces of a dif, and the state on which it is based,
+it applies the dif to its base state, recreating the server state..
+
+                  // update frame_num and client base frame_num
+                  frame_num = client_state_base_frame_num = client_state_dif_dst;
+
+removed this... i don't think it ever applies... in the previous line frame_num will be set to something non-zero
+
+                  // for initial state only
+            //      if (frame_num == 0) set_frame_nums(client_state_dif_dst);
+
+
+
+
+re did the netgame docs for client_apply_dif()
+
+time for work:
+
+20230127 7:25AM
+
+
+what do I want to do next?
+
+make the auto offset run at - 1/2 frame
+
+figure out how to test with bad network...
+
+
+
 
 
 

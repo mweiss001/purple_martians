@@ -91,6 +91,18 @@ normal 3
 
 
 
+'state' refers the the entire game state, typically put into a char array of size STATE_SIZE
+'dif' is when 2 states are subtracted, resulting in the diference between the 2
+
+difs are then compressed, optionally broken into packet sized pieces and sent from server to clients
+
+when a client has all the pieces of a dif, and the state on which it is based,
+it applies the dif to its base state, recreating the server state..
+
+
+
+
+
 
 
 

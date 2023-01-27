@@ -345,7 +345,7 @@ void client_apply_dif(void)
       }
       else
       {
-         if ((client_state_dif_dst <= client_state_base_frame_num)) // stored dif has a newer dest
+         if ((client_state_dif_dst <= client_state_base_frame_num)) // dif destination is not newer than last applied dif
          {
             sprintf(msg, "dif [%d to %d] not applied - not newer than current [%d]\n", client_state_dif_src, client_state_dif_dst, client_state_base_frame_num);
             if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
@@ -364,7 +364,6 @@ void client_apply_dif(void)
             {
                sprintf(msg, "dif cannot be applied (wrong client base) %d %d\n", client_state_base_frame_num, client_state_dif_src);
                if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
-
                client_send_stak(); // resend ack to server with correct acknowledged base state
             }
             else // we have a matching base to apply dif
@@ -375,8 +374,6 @@ void client_apply_dif(void)
                if (ff > 0)  sprintf(tmsg, "rewind [%d] frames\n", ff);
                if (ff < 0)  sprintf(tmsg, "early [%d] frames\n", -ff);
                if (frame_num == 0) sprintf(tmsg, "initial state\n");
-//               if ((ff > -1) || (frame_num == 0))
-//               if (!((ff > -1) || (frame_num == 0)))
                if ((ff < 0) && (frame_num != 0))
                {
                   sprintf(msg, "dif [%d to %d] not applied yet - [%d] early\n", client_state_dif_src, client_state_dif_dst, -ff);
@@ -415,7 +412,15 @@ void client_apply_dif(void)
                   frame_num = client_state_base_frame_num = client_state_dif_dst;
 
                   // for initial state only
-                  if (frame_num == 0) set_frame_nums(client_state_dif_dst);
+                  if (frame_num == 0)
+                  {
+                     set_frame_nums(client_state_dif_dst);
+
+                     printf("Nevr gets here...prove me wrong!!!!\n");
+
+                  }
+
+
 
                   players1[p].client_last_dif_applied = frame_num;
 
