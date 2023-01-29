@@ -1,5 +1,5 @@
 <!doctype html>
-<title>Netgame - Main</title>
+<title>Netgame - Client State</title>
 
 <html>
 
@@ -60,155 +60,33 @@
             </header>
 
 <mh3><hr></mh3>
-<mh8>Netgame - Main</mh8>
-<mh3><hr><mdw_file_toc> <a href="netgame_new.html#Overview" target="_top">Overview</a>
- <a href="netgame_new.html#The Game State" target="_top">The Game State</a>
- <a href="netgame_new.html#The difference bewtween a 'state' and a 'dif'" target="_top">The difference bewtween a 'state' and a 'dif'</a>
- <a href="netgame_new.html#How a client gets a new state from the server" target="_top">How a client gets a new state from the server</a>
- <a href="netgame_new.html#How a client applies the new state" target="_top">How a client applies the new state</a>
+<mh8>Netgame - Client State</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_client_state.html#Overview" target="_top">Overview</a>
+ <a href="netgame_client_state.html#How a client gets a new state from the server" target="_top">How a client gets a new state from the server</a>
+ <a href="netgame_client_state.html#How a client applies the new state" target="_top">How a client applies the new state</a>
+ <a href="netgame_client_state.html#Check for dif based on state zero" target="_top">Check for dif based on state zero</a>
+ <a href="netgame_client_state.html#Check for base match" target="_top">Check for base match</a>
+ <a href="netgame_client_state.html#Check for future dif destination" target="_top">Check for future dif destination</a>
+ <a href="netgame_client_state.html#Applying the dif to the base state" target="_top">Applying the dif to the base state</a>
+ <a href="netgame_client_state.html#Overwriting the client's game state variables" target="_top">Overwriting the client's game state variables</a>
+ <a href="netgame_client_state.html#Updating frame numbers" target="_top">Updating frame numbers</a>
+ <a href="netgame_client_state.html#Fast forward replay" target="_top">Fast forward replay</a>
+ <a href="netgame_client_state.html#Send acknowledge packet to server" target="_top">Send acknowledge packet to server</a>
+ <a href="netgame_client_state.html#The entire function 'client_apply_dif'" target="_top">The entire function 'client_apply_dif'</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
 <mh7>Overview</mh7>
 
-
 <mh3>
-This is the latest iteration of Netgame circa 2023
+The server consolidates input from all clients and syncs the official server <a href="netgame_state_and_dif.html" target="_top">state</a> back to clients.
 
-I have completely abandoned syncing game moves between server and client.
+Clients run independantly for a few frames in between receiving states from the server.
 
-The only method used now is sending the server's game state to the clients.
+During that time, the client's control changes are applied locally and sent to the server.
 
-Just like before, the server is the absolute authority.
-
-Clients may run independantly for a few frames, predicting what they think will happen, until a new state from the server is received and blindly overwrites the client's game state.
-
-When a client's controls change, they are applied to the clients local game state, saved locally on the client, and sent to the server.
-
-The clients run slightly ahead of the server in time. That means that when a client receives a state from the server, it will most likely be in past.
-
-The client handles this by rewinding and replaying to the current frame.
-The rewinding is simply applying a state from the past. That has the effect of rewinding.
-
-When the client replays from there, it also re-applies its locally stored moves for frames past what the server has sent.
-
-
-
-Because the server is running behind the clients, game moves from clients will most likely be received too late to be applied.
-The server stores them in the the game moves array, even though they are in the past.
-
-When the server sends states to clients, the server first rewinds and replays to apply the clients moves that arrived too late.
-
-
+When a client receives a new state from the server, it overwrites its local game state.
 </mh3>    
-
-
-<br><a name="The Game State"></a>
-<mh7>The Game State</mh7>
-
-<mh3>
-The Game State is all of the data required to replicate the game between server and client.
-
-It consists of all the relevant variables for the level, player, enemy, item, bullets.. etc.
-
-</mh3>    
-<pre><code class="language-cpp">// Variables used for netgame state exchange
-players  :  2048
-Ei       : 12800
-Efi      :  6400
-item     : 32000
-itemf    : 32000
-lifts    :  5280
-l        : 40000
-pbullet  :  1200
-ebullets :  1200
-pm_event :  4000
----------:------
-total    :112928
-</code></pre>
-
-
-
-<mh3>
-I use memcpy to put all those loose variables into a character array so I can process it as one chunk of data.
-
-I call these large char arrays 'states'.  Clients use 3 and the server uses 16 (2 for each client).
-
-</mh3>
-<pre><code class="language-cpp">#define STATE_SIZE 112928
-
-// server's copies of client states
-extern char srv_client_state[8][2][STATE_SIZE];
-extern int srv_client_state_frame_num[8][2];
-
-// local client's states
-extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
-extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
-extern char client_state_base[STATE_SIZE];    // last ack state
-extern int  client_state_base_frame_num;      // last ack state frame_num
-extern char client_state_dif[STATE_SIZE];     // uncompressed dif
-extern int  client_state_dif_src;             // uncompressed dif src frame_num
-extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
-</code></pre>
-
-<mh3>
-Here is how I put the variables into a char array and how I get them out:
-
-</mh3>
-<pre><code class="language-cpp">void game_vars_to_state(char * b)
-{
-   int sz = 0, offset = 0;
-   offset += sz; sz = sizeof(players);  memcpy(b+offset, players,  sz);
-   offset += sz; sz = sizeof(Ei);       memcpy(b+offset, Ei,       sz);
-   offset += sz; sz = sizeof(Efi);      memcpy(b+offset, Efi,      sz);
-   offset += sz; sz = sizeof(item);     memcpy(b+offset, item,     sz);
-   offset += sz; sz = sizeof(itemf);    memcpy(b+offset, itemf,    sz);
-   offset += sz; sz = sizeof(lifts);    memcpy(b+offset, lifts,    sz);
-   offset += sz; sz = sizeof(l);        memcpy(b+offset, l,        sz);
-   offset += sz; sz = sizeof(pbullet);  memcpy(b+offset, pbullet,  sz);
-   offset += sz; sz = sizeof(ebullets); memcpy(b+offset, ebullets, sz);
-   offset += sz; sz = sizeof(pm_event); memcpy(b+offset, pm_event, sz);
-}
-
-void state_to_game_vars(char * b)
-{
-   int sz = 0, offset = 0;
-   sz = sizeof(players);  memcpy(players,  b+offset, sz); offset += sz;
-   sz = sizeof(Ei);       memcpy(Ei,       b+offset, sz); offset += sz;
-   sz = sizeof(Efi);      memcpy(Efi,      b+offset, sz); offset += sz;
-   sz = sizeof(item);     memcpy(item,     b+offset, sz); offset += sz;
-   sz = sizeof(itemf);    memcpy(itemf,    b+offset, sz); offset += sz;
-   sz = sizeof(lifts);    memcpy(lifts,    b+offset, sz); offset += sz;
-   sz = sizeof(l);        memcpy(l,        b+offset, sz); offset += sz;
-   sz = sizeof(pbullet);  memcpy(pbullet,  b+offset, sz); offset += sz;
-   sz = sizeof(ebullets); memcpy(ebullets, b+offset, sz); offset += sz;
-   sz = sizeof(pm_event); memcpy(pm_event, b+offset, sz); offset += sz;
-}
-</code></pre>
-
-
-
-
-
-
-<br><a name="The difference bewtween a 'state' and a 'dif'"></a>
-<mh7>The difference bewtween a 'state' and a 'dif'</mh7>
-<mh3>
-'state' refers the the entire game state, memcpy'd to a char array of size STATE_SIZE
-
-'dif' refers to when two states are subtracted, resulting in the difference between the two
-
-Dif's are much more easily compressed, as they only have non-zero entries where the two states differ.
-
-Difs are compressed with zlib, optionally broken into packet sized pieces, and sent from server to clients.
-
-When a client has all the pieces of a dif, and the state on which it is based, it applies the dif to the base state, recreating the server state.
-
-Without the dif scheme, the entire game state typically compresses to 5000-7000 bytes.
-
-A dif, by comparison, typically compresses to 500-1300 bytes, and can be sent in 1 or 2 packets.
-</mh3>
-
 
 <br><a name="How a client gets a new state from the server"></a>
 <mh7>How a client gets a new state from the server</mh7>
@@ -277,9 +155,7 @@ First it checks if the dif is valid:
    {
 </code></pre>
 <mh3>
-Then it checks if the dif source is greater than 100 frames in the future:
-
-(this is to prevent stray late difs from a previous level affecting a newly started level)
+Then it checks if the dif source is greater than 100 frames in the future (this is to prevent stray late difs from a previous level affecting a newly started level)
 </mh3>
 <pre><code class="language-cpp">      if (client_state_dif_src - frame_num > 100)
       {
@@ -307,18 +183,17 @@ If we got this far, we know:
 - the dif source is not greater than 100 frames in the future
 - the dif destination is newer that the last applied dif 
 
-
 At this point we will try to apply the dif.
+</mh3>
 
-First we need to see if we have a locally stored base that matches the dif source.
+<br><a name="Check for dif based on state zero"></a>
+<mh7>Check for dif based on state zero</mh7>
 
-If we do not have the base that the dif was created from we cannot apply it.
+<mh3>
+If the server sent a dif with base zero, the client resets its base to zero also.
+This happens for the initial state, or rarely when the client does not have the same base as the server.
 
-If the server sent a dif with source frame 0, we need to set our local base state to zero also.
-
-This happens for the initial state, or when for some rare occurance, the client does not have the same base as the server.
-
-If the base is reset, the compressed dif sent over the network will be considerably larger, typically requiring 5-7 packets.
+If the base is zero, the compressed dif sent over the network will be considerably larger, typically requiring 5-7 packets. (See <a href="netgame_state_and_dif.html#State compression methods"                    target="_top">State compression methods</a>)
 </mh3>
 <pre><code class="language-cpp">            if (client_state_dif_src == 0) // if server has sent dif from src == 0, reset client base to 0
             {
@@ -329,10 +204,14 @@ If the base is reset, the compressed dif sent over the network will be considera
             }
 </code></pre>
 
-<mh3>
-Now we check to see if our stored base matches the dif source.
 
-If not, we will resend a 'stak' packet back to the server, indicating the last state we have acknowledged and have stored as a base.
+<br><a name="Check for base match"></a>
+<mh7>Check for base match</mh7>
+
+<mh3>
+Next, the dif's base state is compared to the client's stored base state. (the dif cannot be applied if we do not have the base it was created from)
+
+If the bases do not match, the client resends a <a href="netgame_client_state.html#Send acknowledge packet to server"             target="_top">'stak'</a> packet to the server, indicating the last state we have acknowledged and have stored as a base.
 </mh3>
 
 <pre><code class="language-cpp">            if (client_state_base_frame_num != client_state_dif_src) // stored base state does NOT match dif source
@@ -346,9 +225,17 @@ If not, we will resend a 'stak' packet back to the server, indicating the last s
 </code></pre>
 
 <mh3>
-If we get this far, we either have a matching base, or one set to all zeros. Either way, we can proceed.
+If we got this far, the bases match and we can proceed.
+</mh3>
 
-First we determine if the dif destination matches the current frame:
+
+
+<br><a name="Check for future dif destination"></a>
+<mh7>Check for future dif destination</mh7>
+
+
+<mh3>
+If the destination frame of the dif is in the future, we will not apply it yet. (this would have the effect of jumping forward in time)
 </mh3>
 <pre><code class="language-cpp">            else // we have a matching base to apply dif
             {
@@ -367,6 +254,10 @@ First we determine if the dif destination matches the current frame:
                {
 </code></pre>
 
+
+<br><a name="Applying the dif to the base state"></a>
+<mh7>Applying the dif to the base state</mh7>
+
 <mh3>
 If the dif destination is not in the future, we can proceed.
 
@@ -382,14 +273,34 @@ void apply_state_dif(char *a, char *c, int size)
    for (int i=0; i< size; i++) a[i] -= c[i];
 }</code></pre>
 
-<mh3>
-Next, we use that modifed state to overwrite the game variables and update the current frame_num.
 
-This state is our new base state, so we update the frame_num for that too.
+
+<br><a name="Overwriting the client's game state variables"></a>
+<mh7>Overwriting the client's game state variables</mh7>
+
+
+<mh3>
+Next, we use the modifed base state to overwrite the game variables.
 </mh3>
 <pre><code class="language-cpp">         state_to_game_vars(client_state_base);                           // copy modified base state to game_vars
-         frame_num = client_state_base_frame_num = client_state_dif_dst;  // update frame_num and client base frame_num
 </code></pre>
+
+<br><a name="Updating frame numbers"></a>
+<mh7>Updating frame numbers</mh7>
+
+
+
+<mh3>
+Then we update the client's frame number to the frame number of the destination.
+
+This state is our new base state, so we update the frame number for that too.
+</mh3>
+<pre><code class="language-cpp">         frame_num = client_state_base_frame_num = client_state_dif_dst;  // update frame_num and client base frame_num
+</code></pre>
+
+
+<br><a name="Fast forward replay"></a>
+<mh7>Fast forward replay</mh7>
 
 <mh3>
 Then, if we applied a state from the past, we replay to the current frame and re-apply any locally stored moves.
@@ -397,6 +308,8 @@ Then, if we applied a state from the past, we replay to the current frame and re
 <pre><code class="language-cpp">         if (ff) loop_frame(ff); // if we rewound time, play it back
 </code></pre>
 
+<br><a name="Send acknowledge packet to server"></a>
+<mh7>Send acknowledge packet to server</mh7>
 
 <mh3>
 Then we send a 'stak' packet to the server to acknowledge our new saved base state.
@@ -421,9 +334,10 @@ void client_send_stak(void)
 }
 </code></pre>
 
-<mh3>
-Here is the entire code:
-</mh3>
+
+<a name="The entire function 'client_apply_dif()'"></a>
+<mh7>The entire function 'client_apply_dif'</mh7>
+
 <pre><code class="language-cpp">void client_apply_dif(void)
 {
    int p = active_local_player;

@@ -3,6 +3,19 @@
 #include "z_log.h"
 #include "n_netgame.h"
 
+
+
+
+
+
+void pm_copy_src(const char* filepath)
+{
+   char sys_cmd[500];
+   sprintf(sys_cmd, "copy src\\* %s\\src ", filepath);                          printf("%s\n",sys_cmd);   system(sys_cmd);
+}
+
+
+
 void pm_copy_exe(const char* filepath)
 {
    char sys_cmd[500];
@@ -49,6 +62,9 @@ void pm_copy_misc(const char* filepath)
    sprintf(sys_cmd, "mkdir %s\\sel ", filepath);                                  printf("%s\n",sys_cmd);   system(sys_cmd);
    sprintf(sys_cmd, "copy sel\\* %s\\sel ", filepath);                            printf("%s\n",sys_cmd);   system(sys_cmd);
 }
+
+
+
 
 void copy_files_to_clients(int type)
 {
@@ -123,6 +139,9 @@ void proc_command_line_args1(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-tl") == 0 ) { copy_files_to_clients(2); exit(0); } // exe and levels
       if (strcmp(argument_array[1],"-tr") == 0 ) { copy_files_to_clients(3); exit(0); } // del all and copy like release
       if (strcmp(argument_array[1],"-ta") == 0 ) { copy_files_to_clients(4); exit(0); } // del all and copy absolutely everything
+
+      if (strcmp(argument_array[1],"-tu") == 0 ) { pm_copy_src("\\\\scat\\pm_client726"); exit(0); } // copy src dir only to specific linux machine
+
    }
 }
 
@@ -170,6 +189,8 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          printf(" -tr       (deletes all on clients, then copies all needed for release, eg: 'pm.exe -tr')\n");
          printf(" -ta       (deletes all on clients, then copies everything, eg: 'pm.exe -ta')\n");
          printf(" -ts       (copies exe to all clients then runs server mode locally, eg: 'pm.exe -ts')\n");
+
+
 
          fast_exit(0);
       }

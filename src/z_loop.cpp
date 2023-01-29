@@ -314,7 +314,7 @@ void proc_program_state(void)
    if (program_state == 3) settings_pages(-1);  // this blocks
 
    //---------------------------------------
-   // 21 - client exit
+   // 25 - client exit
    //---------------------------------------
    if (program_state == 25) // client exit
    {
@@ -354,9 +354,9 @@ void proc_program_state(void)
    //---------------------------------------
    if (program_state == 23)
    {
-      //client_send_ping();
       client_fast_packet_loop();
       client_read_packet_buffer();
+      if (key[ALLEGRO_KEY_ESCAPE][1]) new_program_state = 25; // give them an escape option
    }
 
    //---------------------------------------
@@ -909,6 +909,12 @@ void main_loop(void)
          {
 
             if (ima_server)
+            {
+               int mcp = players1[0].server_max_client_ping*1000;
+               players1[0].server_max_client_ping = 0;
+               if (mcp > 100) mcp = 100;
+               players1[0].server_state_freq = 2 + mcp/20; // use max_client_ping to set server_state_freq
+
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (players[p].control_method == 2)
                   {
@@ -922,6 +928,7 @@ void main_loop(void)
                         players1[p].game_move_dsync_avg_last_sec_count = 0;
                      }
                   }
+            }
 
 
             players1[active_local_player].frames_skipped_last_sec = players1[active_local_player].frames_skipped_last_sec_tally;

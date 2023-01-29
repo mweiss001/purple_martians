@@ -1,10 +1,10 @@
-how to make a test version o linux
-
+how to make a test version on linux
 
 
 on linux dev machine:
 - close code::blocks
 - erase everything in project folder
+
 
 on windows dev machine
 - copy project files to linux dev machine

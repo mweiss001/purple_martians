@@ -1,5 +1,5 @@
 <!doctype html>
-<title>Netgame - Packets</title>
+<title>Netgame - Client Control Change</title>
 
 <html>
 
@@ -11,7 +11,7 @@
     <body>
 
         <nav class="col-1">
-    
+
 <mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
 <div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
@@ -45,7 +45,7 @@
 <div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
 <div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
 <div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div></mdw_lhs_nav>
-            
+
         </nav>
 
         
@@ -57,84 +57,62 @@
             </header>
 
 <mh3><hr></mh3>
-<mh8>Netgame - Packets</mh8>
-<mh3><hr><mdw_file_toc> <a href="netgame_packets.html#Overview" target="_top">Overview</a>
+<mh8>Netgame - Client Control Change</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_client_control_change.html#Client's controls have changed" target="_top">Client's controls have changed</a>
+ <a href="netgame_client_control_change.html#Server receives control change" target="_top">Server receives control change</a>
 </mdw_file_toc><hr></mh3>
 
-<a name="Overview"></a>
-<mh7>Overview</mh7>
+<a name="Client's controls have changed"></a>
+<mh7>Client's controls have changed</mh7>
+
 <mh3>
-These are all of the packet types used in netgame.
+Every frame, the client's controls are compared with their previous state.
+
+If they have changed:
+
+- the change is applied to the client's local game state
+- an entry is put in the client's local game moves array (in case the change needs to be played back later)
+- a 'cdat' packet with the control change and frame number is sent to the server
 </mh3>    
-<br>
-<pk0>Packet: 'cdat'</pk0>
-<pk1>description: 'client data'
-direction: client to server
-- 1 byte  (player)
-- 4 bytes (frame_num)
-- 1 byte  (comp move of control change)
-</pk1><br>
+<pre><code class="language-cpp">if (players1[p].old_comp_move != players1[p].comp_move)  // player's controls have changed
+{
+   players1[p].old_comp_move = players1[p].comp_move;
 
-<pk0>Packet: 'stdf'</pk0>
-<pk1>description: 'state dif'
-direction: server to client
-- 4 bytes (source frame_num)
-- 4 bytes (destination frame_num)
-- 1 byte  (packet sequence num)
-- 1 byte  (packet sequence total)
-- 4 bytes (data start byte)
-- 4 bytes (data size)
-</pk1><br>
+   set_controls_from_comp_move(p, players1[p].comp_move);
 
-<pk0>Packet: 'stak'</pk0>
-<pk1>description: 'state acknowledge'
-direction: client to server
-- 1 byte  (player)
-- 4 bytes (client_stae_base_fraem_num)
-- 4 bytes (client frame_num)
-- 4 bytes (frames_skipped)
-- 8 bytes double (client_chase_fps)
-- 8 bytes double (dsync)
-</pk1><br>
+   add_game_move(frame_num, 5, p, players1[p].comp_move);
+  
+   Packet("cdat");
+   PacketPut1ByteInt(p);
+   PacketPut4ByteInt(frame_num);
+   PacketPut1ByteInt(players1[p].comp_move);
+   ClientSend(packetbuffer, packetsize);
+}
+</code></pre>
 
-<pk0>Packet: 'cjon'</pk0>
-<pk1>description: 'client join'
-direction: client to server
-- 1 byte   (requested color)
-- 16 bytes (client hostname)
-</pk1><br>
-        
-<pk0>Packet: 'sjon'</pk0>
-<pk1>description: 'server join'
-direction: server to client
-- 2 bytes (play level)
-- 4 bytes (server frame_num)
-- 1 byte  (player number)
-- 1 byte  (player color)
-- 1 byte  (deathmatch_pbullets)
-- 2 byte  (deathmatch_pbullets_damage)
-- 1 byte  (suicide_pbullets)
-</pk1><br>        
+<br><a name="Server receives control change"></a>
+<mh7>Server receives control change</mh7>
 
+<mh3>    
+When the server receives a 'cdat' packet from a client, the server compares the frame number of the client's control change to the frame number of the last saved state on the server.
 
-<pk0>Packet: 'ping'</pk0>
-<pk1>description: 'ping'
-direction: client to server
-- 8 bytes double (ping timestamp)
-</pk1><br>        
+If it is earlier, the cdat arrived too late to be applied and is discarded.
 
-<pk0>Packet: 'pong'</pk0>
-<pk1>description: 'pong'
-direction: server to client
-- 8 bytes double (ping timestamp)
-- 8 bytes double (pong timestamp)
-</pk1><br>        
-
-<pk0>Packet: 'pang'</pk0>
-<pk1>description: 'pang'
-direction: client to server
-- 8 bytes double (pong timestamp)
-</pk1>
+Otherwise the client's control change is added to the server's game moves array.
+</mh3>    
+            
+<pre><code class="language-cpp">void server_proc_cdat_packet(double timestamp)
+{
+   int p = PacketGet1ByteInt();
+   int cdat_frame_num = PacketGet4ByteInt();
+   int cm = PacketGet1ByteInt();
+   // check to see if earlier than the last stdf state
+   if (cdat_frame_num < srv_client_state_frame_num[0][1])
+   {
+      printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_client_state_frame_num[0][1], players1[p].late_cdats);
+   }
+   else add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
+}</code></pre>
 
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">

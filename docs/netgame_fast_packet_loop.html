@@ -1,0 +1,344 @@
+<!doctype html>
+<title>Netgame - Fast Packet Loop</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div></mdw_lhs_nav>
+
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - Fast Packet Loop</mh8>
+
+<mh3><hr><mdw_file_toc> <a href="netgame_fast_packet_loop.html#Overview" target="_top">Overview</a>
+ <a href="netgame_fast_packet_loop.html#Data structure" target="_top">Data structure</a>
+ <a href="netgame_fast_packet_loop.html#Where it is called" target="_top">Where it is called</a>
+ <a href="netgame_fast_packet_loop.html#Server fast packet loop" target="_top">Server fast packet loop</a>
+ <a href="netgame_fast_packet_loop.html#Server read packet buffer" target="_top">Server read packet buffer</a>
+ <a href="netgame_fast_packet_loop.html#Client fast packet loop" target="_top">Client fast packet loop</a>
+ <a href="netgame_fast_packet_loop.html#Client read packet buffer" target="_top">Client read packet buffer</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+
+<mh3>
+Fast packet loop was created to solve one problem; the old method I had for reading packets only checked for new packets once per frame.
+
+This worked fine for almost everything, but there were a few cases where I wanted to process packets faster than once every 25 ms.
+
+Thus fast_packet_loop was born. It runs much faster (as fast as the OS will let it!) and marks each packet received with a timestamp.
+This gives a much finer time of arrival than just knowing what frame it was received on.
+With just frame numbers, the smallest time I could measure was 25ms, which is an eternity in computer and network time. 
+
+If fast_packet_loop does not immediately process a packet, it stores it in a buffer with its timestamp.
+Then when the main game loop runs, the server or client process all the packets waiting in the buffer.
+
+</mh3>    
+
+
+<a name="Data structure"></a>
+<mh7>Data structure</mh7>
+<mh3>
+This is the data structure and the function to initialize it:
+
+Both the client and the server use it.
+</mh3>    
+    
+
+<pre><code class="language-cpp">extern struct packet_buffer packet_buffers[200];
+struct packet_buffer
+{
+   int active;
+   int type;
+   double timestamp;
+   int who;
+   int packetsize;
+   char data[1024];
+};
+
+void init_packet_buffer(void)
+{
+   for (int i=0; i<200; i++)
+   {
+      packet_buffers[i].active = 0;
+      packet_buffers[i].type = 0;
+      packet_buffers[i].timestamp = 0;
+      packet_buffers[i].who = 0;
+      packet_buffers[i].packetsize = 0;
+      packet_buffers[i].data[0] = 0;
+   }
+}
+</code></pre>
+
+
+
+<a name="Where it is called"></a>
+<mh7>Where it is called</mh7>
+
+<mh3>
+It is called outside the game loop, so it is not constrained to running at 40 fps.
+</mh3>    
+
+<pre><code class="language-cpp">void main_loop(void)
+{
+   while (!main_loop_exit)
+   {
+      // ----------------------------------------------------------
+      // process state and state changes
+      // ----------------------------------------------------------
+      proc_program_state();
+
+      // ----------------------------------------------------------
+      // process event queue
+      // ----------------------------------------------------------
+      proc_event_queue();
+
+      // ----------------------------------------------------------
+      // process fast packet loops
+      // ----------------------------------------------------------
+      if (ima_server) server_fast_packet_loop();
+      if (ima_client) client_fast_packet_loop();
+
+      // ----------------------------------------------------------
+      // do things based on the 40 Hz fps_timer event
+      // ----------------------------------------------------------
+      if (program_update)
+      {
+         program_update = 0;
+
+         if (program_state == 11) // game loop running
+         {
+            frame_num++;
+            update_animation();
+			......
+</code></pre>
+
+<a name="Server fast packet loop"></a>
+<mh7>Server fast packet loop</mh7>
+
+<mh3>
+Here is the implementation of 'server_fast_packet_loop()'.
+
+The first thing is a while loop that keeps reading packets until there are none left.
+
+For each packet, it is either processed immediately (<a href="netgame_ping.html#" target="_top">ping and pang</a>) or put in a buffer for later.
+
+If it is put in the buffer, the timestamp when it was received is saved also.
+</mh3>    
+
+<pre><code class="language-cpp">void server_fast_packet_loop(void)
+{
+   int who;
+   while((packetsize = ServerReceive(packetbuffer, &who)))
+   {
+      double timestamp = al_get_time();
+      if (PacketRead("ping"))
+      {
+         int p = get_player_num_from_who(who);
+         if (p != -1)
+         {
+            double t0 = PacketGetDouble();
+            double t1 = al_get_time();
+            Packet("pong");
+            PacketPutDouble(t0);
+            PacketPutDouble(t1);
+            ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+         }
+      }
+      if (PacketRead("pang"))
+      {
+         int p = get_player_num_from_who(who);
+         if (p != -1)
+         {
+            double t0 = PacketGetDouble();
+            double t1 = al_get_time();
+            players1[p].ping = t1 - t0;
+            if (players1[p].ping > players1[0].server_max_client_ping) players1[0].server_max_client_ping = players1[p].ping;
+         }
+      }
+
+      int type = 0;
+      if(PacketRead("cdat")) type = 1;
+      if(PacketRead("stak")) type = 2;
+      if(PacketRead("cjon")) type = 3;
+      if (type)
+      {
+         for (int i=0; i < 200; i++)
+            if (!packet_buffers[i].active) // find empty
+            {
+               packet_buffers[i].active = 1;
+               packet_buffers[i].type = type;
+               packet_buffers[i].timestamp = timestamp;
+               packet_buffers[i].who = who;
+               packet_buffers[i].packetsize = packetsize;
+               memcpy(packet_buffers[i].data, packetbuffer, 1024);
+               break;
+            }
+      }
+   }
+}
+</code></pre>
+
+<a name="Server read packet buffer"></a>
+<mh7>Server read packet buffer</mh7>
+
+<mh3>
+In the game loop (which runs at 40 fps), the server processes all packets stored in the buffer.
+</mh3>    
+<pre><code class="language-cpp">void server_read_packet_buffer(void)
+{
+   for (int i=0; i < 200; i++)
+      if (packet_buffers[i].active)
+      {
+         memcpy(packetbuffer, packet_buffers[i].data, 1024);
+         packetsize = packet_buffers[i].packetsize;
+         set_packetpos(4);
+         if (packet_buffers[i].type == 1) server_proc_cdat_packet(packet_buffers[i].timestamp);
+         if (packet_buffers[i].type == 2) server_proc_stak_packet();
+         if (packet_buffers[i].type == 3) server_proc_cjon_packet(packet_buffers[i].who);
+         packet_buffers[i].active = 0;
+      }
+}
+</code></pre>
+
+
+<mh3>The function 'server_proc_cdat_packet(packet_buffers[i].timestamp)' makes use of the timestamp to determine how close the cdat was to being late.
+
+</mh3>    
+
+
+<a name="Client fast packet loop"></a>
+<mh7>Client fast packet loop</mh7>
+
+<mh3>
+Here is the implementation of 'client_fast_packet_loop()'.
+
+The first thing is a while loop that keeps reading packets until there are none left.
+
+For each packet, it is either processed immediately (<a href="netgame_ping.html#" target="_top">pong</a>) or put in a buffer for later.
+
+If it is put in the buffer, the timestamp when it was received is saved also.
+</mh3>    
+
+<pre><code class="language-cpp">void client_fast_packet_loop(void)
+{
+   while ((packetsize = ClientReceive(packetbuffer)))
+   {
+      double timestamp = al_get_time();
+      if (PacketRead("pong"))
+      {
+         double t0 = PacketGetDouble();
+         double t1 = PacketGetDouble();
+         double t2 = al_get_time();
+         players1[active_local_player].ping = t2 - t0;
+         ping_array_add(players1[active_local_player].ping);
+         Packet("pang");
+         PacketPutDouble(t1);
+         ClientSend(packetbuffer, packetsize);
+      }
+      int type = 0;
+      if (PacketRead("stdf")) type = 1;
+      if (PacketRead("sjon")) type = 2;
+      if (type)
+      {
+         for (int i=0; i<200; i++)
+            if (!packet_buffers[i].active) // find empty
+            {
+               packet_buffers[i].active = 1;
+               packet_buffers[i].type = type;
+               packet_buffers[i].timestamp = timestamp;
+               packet_buffers[i].packetsize = packetsize;
+               memcpy(packet_buffers[i].data, packetbuffer, 1024);
+               break;
+            }
+      }
+   }
+}
+</code></pre>
+
+<a name="Client read packet buffer"></a>
+<mh7>Client read packet buffer</mh7>
+
+<mh3>
+In the game loop (which runs at 40 fps), the client processes all packets stored in the buffer.
+</mh3>    
+<pre><code class="language-cpp">void client_read_packet_buffer(void)
+{
+   for (int i=0; i<200; i++)
+      if (packet_buffers[i].active)
+      {
+         memcpy(packetbuffer, packet_buffers[i].data, 1024);
+         packetsize = packet_buffers[i].packetsize;
+         set_packetpos(4);
+         if (packet_buffers[i].type == 1) client_process_stdf_packet(packet_buffers[i].timestamp);
+         if (packet_buffers[i].type == 2) client_process_sjon_packet();
+         packet_buffers[i].active = 0;
+      }
+}
+</code></pre>
+
+<mh3>The function:  'client_process_stdf_packet(packet_buffers[i].timestamp)'  makes use of the timestamp to make <a href="netgame_client_timing_sync.html#Client receives 'stdf' packet" target="_top">dsync</a>  more precise. 
+
+</mh3>    
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2022, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

@@ -25,6 +25,19 @@ When I commit the web pages are automatically updated.
 
 
 
+20230128 win 10
+strawberry-perl-5.32.1.1.-64bit.msi
+setx path "%path%;C:\Strawberry\perl\bin"
+
+
+
+
+
+
+
+
+
+
 
 
 

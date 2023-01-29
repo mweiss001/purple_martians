@@ -10,9 +10,9 @@ $tag = $ARGV[0];
 @files = <*.html>;
 foreach $file (@files)
 {
-#   print "\n-----------------\n";
-#   print $file . "\n";
-#   print "-----------------\n";
+   //print "\n-----------------\n";
+   //print $file . "\n";
+   //print "-----------------\n";
 
    # open the file
    open(DATA, "<", $file);
@@ -25,7 +25,7 @@ foreach $file (@files)
    
    foreach (@matches)
    {
-      #print $_ . "\n";
+      print $_ . "\n";
 
 	  $_ =~  /<mh7>(.*)<\/mh7>/; 
    

@@ -565,6 +565,10 @@ guest ok = yes
 
 
 
+
+
+
+
 made a folder on the desktop 'pm_client17' and shared it
 
 right-clicking should show an option to share, if not, open it in nautilus file thingy and try again

@@ -1,6 +1,6 @@
 // pm.h - header file for both the game and the level editor
 
-#define PM_VERSION "7.24.1"
+#define PM_VERSION "7.24.2"
 
 #include <stdio.h>
 #include <math.h>
@@ -924,7 +924,6 @@ void server_send_sdat(void);
 void server_proc_player_drop(void);
 void server_proc_cdat_packet(double timestamp);
 void server_proc_stak_packet(void);
-void server_proc_sdak_packet(void);
 void server_proc_cjon_packet(int who);
 void server_control();
 void server_fast_packet_loop(void);

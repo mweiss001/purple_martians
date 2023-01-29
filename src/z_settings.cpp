@@ -126,7 +126,8 @@ void draw_tab(struct settings_tab st[], int p, int col, int text_color)
    v[1][0] = st[p].x1;    v[1][1] = st[p].y2; // ll
    v[2][0] = st[p].x2;    v[2][1] = st[p].y2; // lr
    v[3][0] = st[p].x2-s;  v[3][1] = st[p].y1; // ur
-   al_draw_filled_polygon(*v, 4, palette_color[col+192]);
+   int bc = col+192; if (bc > 256) bc = 0; //  tab background color
+   al_draw_filled_polygon(*v, 4, palette_color[bc]);
    al_draw_polygon(*v, 4, ALLEGRO_LINE_JOIN_ROUND, palette_color[col], 1.0, 0);
    al_draw_text(font, palette_color[text_color], st[p].x1+4, st[p].y1+3, 0, st[p].title);
 }

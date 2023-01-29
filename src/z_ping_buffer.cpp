@@ -36,30 +36,24 @@ void ping_buffer_clear(void)
 
 void ping_array_add(double ping)
 {
-   // always put it where ping_index points
-   ping_array[ping_index] = ping;
+   int p = active_local_player;
 
-   // printf("adding ping:%f i:%d nf:%d \n", ping, ping_index, ping_num_filled);
-
-   ping_index++;
+   ping_array[ping_index] = ping; // always put it where ping_index points
+   if (++ping_index > 7) ping_index = 0;
    ping_num_filled++;
 
-   if (ping_index > 7) ping_index = 0;
-
-   // calculate average
+   // find number of used entries
    int ul = 8; // default
    if (ping_num_filled < 8) ul = ping_num_filled;
 
-   //printf("ul:%d\n", ul);
-
+   // add up the entries
    double tally = 0;
    for (int i=0; i<ul; i++)
-   {
       tally += ping_array[i];
-      //printf("i:%d %f \n", i, ping_array[i]);
-   }
-   int p = active_local_player;
+
+   // get the average
    players1[p].ping_avg = tally / (ul);
+
 
    if (players1[p].client_chase_offset_mode) players1[p].client_chase_offset = - players1[p].ping_avg + players1[p].client_chase_offset_auto_offset;
 
@@ -79,29 +73,21 @@ void dsync_array_add(void)
 {
    int p = active_local_player;
 
-   // always put it where ping_index points
-   dsync_array[dsync_index] = players1[p].dsync;
-
-   // printf("adding ping:%f i:%d nf:%d \n", ping, ping_index, ping_num_filled);
-
-   dsync_index++;
+   dsync_array[dsync_index] = players1[p].dsync; // put it where dsync_index points
+   if (++dsync_index > 7) dsync_index = 0;
    dsync_num_filled++;
 
-   if (dsync_index > 7) dsync_index = 0;
-
-   // calculate average
+   // find number of used entries
    int ul = 8; // default
    if (dsync_num_filled < 8) ul = dsync_num_filled;
 
-   //printf("ul:%d\n", ul);
-
+   // add up the entries
    double tally = 0;
    for (int i=0; i<ul; i++)
-   {
       tally += dsync_array[i];
-      //printf("i:%d %f \n", i, dsync_array[i]);
-   }
-   players1[p].dsync_avg = tally / (ul);
 
+   // get the average
+   players1[p].dsync_avg = tally / (ul);
 }
+
 

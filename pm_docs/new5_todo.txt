@@ -15,13 +15,9 @@ does not actually set lift's current step to steps that are not move steps
 
 bug -- in level editor can't see trigger box edges on left or top if zero
 
-
 I think my hotkey L is triggering level editor on client....disabled for now, test later
 // found and fixed one bug, re-enabled see if it happens again..
 it did, disabled again....
-
-
-
 
 
 
@@ -30,7 +26,7 @@ it did, disabled again....
 ---------------------------------------------------------
 
 
-
+can I let client know when late cdats happen, so I might adjust offset to prevent it??
 
 
 
@@ -497,42 +493,45 @@ make a field that manipulates the players controls, like gravity, etc...
 ------------------ web docs -----------------------------
 ---------------------------------------------------------
 
-2022
+2023
+
+done:
+netgame_client_state
+netgame_client_control_change
+netgame_state_and_dif
+netgame_ping
+netgame_client_timing_sync
+netgame_packets
+netgame_fast_packet_loop
 
 
-I want netgame to be better documented
+to do:
 
-add to level done stuff
-- how periodic state thing is disabled after sending one final state to all clients
+links:
+
+fpl
+client to dsync..done
+server read buffer timetamp to not done in server_proc_cdat_packet....
+ping, pong, pang,...done
+
+cts
+client rx stdf link to fpl...done
 
 
-where are all the variables?
-
-- time in level_done 1
-- time in level_done 2
-
-
-server drop player
-- time before server drops player for last sdak rx'd
-- amount that server_sync triggers drop
-
-on server when client becomes active:
-- threshold + and -
-- frames in future to become active
-
-server_sdat_sync_freq
-      if (players1[p].server_sync == server_lead_frames + 1) players1[p].server_sdat_sync_freq = 20;
-      else players1[p].server_sdat_sync_freq = 1;
+netgame_join
+netgame_config
 
 
 
-make some demo videos:
 
-show off the level editor
-show off the log file viewer
-show off netgame
 
-show historical stuff like really old level editor..
+
+
+
+
+
+
+
 
 
 
