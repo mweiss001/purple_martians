@@ -549,12 +549,12 @@ void server_send_stdf(void)
 
 void server_rewind(void)
 {
-   int s1 = players1[0].s1;
-   int s2 = players1[0].s2;
-   int s3 = s1+s2;
+   int s1 = players1[0].server_state_freq;
+//   int s2 = players1[0].s2;
+//   int s3 = s1+s2;
 
    // is it time to make a new dif and send to clients?
-   if (frame_num == srv_client_state_frame_num[0][1] + s3)
+   if (frame_num >= srv_client_state_frame_num[0][1] + s1)
    {
       // rewind and fast forward from last stdf state to apply missed game moves received late
       if (LOG_NET_stdf)
@@ -578,7 +578,7 @@ void server_rewind(void)
          sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
          add_log_entry2(27, 0, msg);
       }
-      loop_frame(s2);
+//      loop_frame(s2);
       if (LOG_TMR_rwnd) add_log_TMR(al_get_time() - t0, "rwnd", 0);
       players1[0].server_send_dif = 1;
    }
@@ -591,20 +591,14 @@ void server_proc_player_drop(void)
    for (int p=1; p<NUM_PLAYERS; p++)   // server only; skip p[0]
       if (players[p].control_method == 2)
       {
-         if ((players[p].active) && (players1[p].server_sync > 100))
-         {
-            //printf("[%4d] server_sync:[%4d] drop p:%d \n", frame_num, players1[p].server_sync, p);
-            add_game_move(frame_num + 4, 2, p, 70); // make client inactive (reason sync > 100)
 
-            sprintf(msg,"Server dropped player:%d (server sync > 100)", p);
-            if (LOG_NET) add_log_entry_header(10, p, msg, 1);
-         }
+
          if (players1[p].server_last_stak_rx_frame_num + 100 < frame_num)
          {
-            //printf("[%4d][%4d] drop p:%d \n", frame_num, players1[p].server_last_sdak_rx_frame_num, p);
-            add_game_move(frame_num + 4, 2, p, 71); // make client inactive (reason no sdak for 100 frames)
+            //printf("[%4d][%4d] drop p:%d \n", frame_num, players1[p].server_last_stak_rx_frame_num, p);
+            add_game_move(frame_num + 4, 2, p, 71); // make client inactive (reason no stak for 100 frames)
 
-            sprintf(msg,"Server dropped player:%d (last sdak rx > 100)", p);
+            sprintf(msg,"Server dropped player:%d (last stak rx > 100)", p);
             if (LOG_NET) add_log_entry_header(10, p, msg, 1);
          }
       }
@@ -667,7 +661,7 @@ void server_lock_client(int p)
 {
    if ((!players[p].active) && (players[p].control_method == 2)) // inactive client chasing for lock
    {
-      if ((players1[p].server_sync > -2) && (players1[p].server_sync < 5)) players1[p].sync_stabilization_holdoff++;
+      if ((players1[p].dsync > -0.2) && (players1[p].dsync < 0.03)) players1[p].sync_stabilization_holdoff++; // -200 to +30
       else players1[p].sync_stabilization_holdoff = 0;
    }
    if (players1[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
@@ -689,16 +683,7 @@ void server_proc_stak_packet(void)
    players1[p].client_chase_fps = PacketGetDouble();
    players1[p].dsync            = PacketGetDouble();
 
-   players1[p].server_sync = frame_num - client_frame_num;
    server_lock_client(p);
-
-   int sfn1 = ack_frame_num;
-   int cfn = client_frame_num;
-   int sfn2 = frame_num;
-
-   players1[p].sc_sync = sfn1 - cfn; // packet stdf from s to c  sfn1-cfn
-   players1[p].cs_sync = cfn - sfn2; // packet stak from c to s  cfn-sfn
-   players1[p].rt_sync = sfn2 - sfn1; // round trip to server back to server through client via stdf and stak
 
    char tmsg1[80];
    char tmsg2[80];
@@ -706,7 +691,7 @@ void server_proc_stak_packet(void)
    // this is used to see if client is still alive
    players1[p].server_last_stak_rx_frame_num = frame_num;
 
-   sprintf(tmsg1, "rx stak s[%d] d[%4.1f] c[%4.1f] a:%d c:%d", players1[p].server_sync, players1[p].dsync*1000, players1[p].client_chase_fps, ack_frame_num, client_frame_num );
+   sprintf(tmsg1, "rx stak d[%4.1f] c[%4.1f] a:%d c:%d", players1[p].dsync*1000, players1[p].client_chase_fps, ack_frame_num, client_frame_num );
 
    if (ack_frame_num == srv_client_state_frame_num[p][1]) // check to make sure we have a copy of acknowledged state
    {
@@ -726,6 +711,7 @@ void server_proc_stak_packet(void)
    sprintf(msg, "%s %s\n", tmsg1, tmsg2);
    if (LOG_NET_server_rx_stak) add_log_entry2(33, p, msg);
 }
+
 
 void server_proc_cjon_packet(int who)
 {
@@ -759,10 +745,8 @@ void server_proc_cjon_packet(int who)
       Packet("sjon");    // reply with sjon
       PacketPut2ByteInt(0);
       PacketPut4ByteInt(0);
-      PacketPut4ByteInt(0);
       PacketPut1ByteInt(0);
       PacketPut1ByteInt(99); // send sjon with player 99 to indicate server full
-      PacketPut1ByteInt(0);
       PacketPut1ByteInt(0);
       PacketPut2ByteInt(0);
       PacketPut1ByteInt(0);
@@ -785,8 +769,6 @@ void server_proc_cjon_packet(int who)
       Packet("sjon"); // reply with sjon
       PacketPut2ByteInt(play_level);
       PacketPut4ByteInt(frame_num);
-      PacketPut4ByteInt(game_move_entry_pos);
-      PacketPut1ByteInt(frame_speed);
       PacketPut1ByteInt(cn);
       PacketPut1ByteInt(color);
       PacketPut1ByteInt(deathmatch_pbullets);
@@ -800,15 +782,11 @@ void server_proc_cjon_packet(int who)
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Level:[%d]", play_level);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Frame Rate:[%d]", frame_speed);
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Player Number:[%d]", cn);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Player Color:[%d]", color);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Server frame_num:[%d]", frame_num);
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Server Game Moves:[%d]", game_move_entry_pos);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Deathmatch player bullets:[%d]", deathmatch_pbullets);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
@@ -835,10 +813,8 @@ void server_fast_packet_loop(void)
    int who;
    while((packetsize = ServerReceive(packetbuffer, &who)))
    {
-      //printf("got packet size:%d\n", packetsize);
-
+      //printf("got packet - size:%d\n", packetsize);
       double timestamp = al_get_time();
-
       if (PacketRead("ping"))
       {
          int p = get_player_num_from_who(who);
@@ -847,7 +823,6 @@ void server_fast_packet_loop(void)
             //printf("rx ping from p:%d - tx pong\n", p);
             double t0 = PacketGetDouble();
             double t1 = al_get_time();
-            players1[p].ping = t1 - t0;
             Packet("pong");
             PacketPutDouble(t0);
             PacketPutDouble(t1);
@@ -864,14 +839,9 @@ void server_fast_packet_loop(void)
             double t1 = al_get_time();
             players1[p].ping = t1 - t0;
             //printf("rx pang from p:%d [%3.1f ms]\n", p, players1[p].ping*1000);
+            if (players1[p].ping > players1[0].server_max_client_ping) players1[0].server_max_client_ping = players1[p].ping;
          }
       }
-
-
-
-
-
-
 
       int type = 0;
       if(PacketRead("cdat")) type = 1;

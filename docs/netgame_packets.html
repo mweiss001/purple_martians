@@ -71,45 +71,8 @@ These are all of the packet types used in netgame.
 <pk1>description: 'client data'
 direction: client to server
 - 1 byte  (player)
-- 4 bytes (client frame_num of control change)
+- 4 bytes (frame_num)
 - 1 byte  (comp move of control change)
-</pk1><br>
-
-<pk0>Packet: 'sdat'</pk0>
-<pk1>description: 'server data
-sent from server to client
-
-header:
------------------------------
-- 4 bytes (server frame_num)
-- 4 bytes (game_moves start entry)
-- 1 byte (number of entries)
-
-and then one or more entries:
------------------------------
-- 4 bytes (game_moves[x][0]); // frame_num
-- 1 byte (game_moves[x][1]);  // type
-- 1 byte (game_moves[x][2]);  // data 1
-- 1 byte (game_moves[x][3]);  // data 2
-</pk1><br>
-
-<pk0>Packet: 'sdak'</pk0>
-<pk1>description: 'sdat acknowledge'
-direction: client to server
-- 1 byte (player)
-- 4 bytes (client frame_num)
-- 4 bytes (game_moves new entry position)
-- 4 bytes (chdf late count)
-- 4 bytes (frames skipped count)
-</pk1><br>
-            
-<pk0>Packet: 'serr'</pk0>
-<pk1>description: 'server error'
-direction: server to client
-- 1 byte (error type)
-- 4 bytes (server frame_num)
-- 4 bytes (server c sync)
-- 4 bytes (server c sync errors)
 </pk1><br>
 
 <pk0>Packet: 'stdf'</pk0>
@@ -117,40 +80,61 @@ direction: server to client
 direction: server to client
 - 4 bytes (source frame_num)
 - 4 bytes (destination frame_num)
-- 1 byte (packet sequence num)
-- 1 byte (packet sequence total)
+- 1 byte  (packet sequence num)
+- 1 byte  (packet sequence total)
 - 4 bytes (data start byte)
 - 4 bytes (data size)
 </pk1><br>
 
 <pk0>Packet: 'stak'</pk0>
-<pk1>description: 'state dif acknowledge'
+<pk1>description: 'state acknowledge'
 direction: client to server
-- 1 byte (player)
-- 1 byte (diff corr)
+- 1 byte  (player)
+- 4 bytes (client_stae_base_fraem_num)
 - 4 bytes (client frame_num)
+- 4 bytes (frames_skipped)
+- 8 bytes double (client_chase_fps)
+- 8 bytes double (dsync)
 </pk1><br>
 
-<pk0>Packet: 'CJON'</pk0>
+<pk0>Packet: 'cjon'</pk0>
 <pk1>description: 'client join'
 direction: client to server
-- 1 byte (requested color)
+- 1 byte   (requested color)
 - 16 bytes (client hostname)
 </pk1><br>
         
-<pk0>Packet: 'SJON'</pk0>
+<pk0>Packet: 'sjon'</pk0>
 <pk1>description: 'server join'
 direction: server to client
 - 2 bytes (play level)
 - 4 bytes (server frame_num)
-- 4 bytes (server game_move entry position)
-- 1 byte (frame speed)
-- 1 byte (player number)
-- 1 byte (player color)
-- 1 byte (deathmatch_pbullets)
-- 1 byte (deathmatch_pbullets_damage)
-- 1 byte (suicide_pbullets)
-</pk1>        
+- 1 byte  (player number)
+- 1 byte  (player color)
+- 1 byte  (deathmatch_pbullets)
+- 2 byte  (deathmatch_pbullets_damage)
+- 1 byte  (suicide_pbullets)
+</pk1><br>        
+
+
+<pk0>Packet: 'ping'</pk0>
+<pk1>description: 'ping'
+direction: client to server
+- 8 bytes double (ping timestamp)
+</pk1><br>        
+
+<pk0>Packet: 'pong'</pk0>
+<pk1>description: 'pong'
+direction: server to client
+- 8 bytes double (ping timestamp)
+- 8 bytes double (pong timestamp)
+</pk1><br>        
+
+<pk0>Packet: 'pang'</pk0>
+<pk1>description: 'pang'
+direction: client to server
+- 8 bytes double (pong timestamp)
+</pk1>
 
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">

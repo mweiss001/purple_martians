@@ -330,19 +330,6 @@ void sdg_show_column(int col, int &x, int y)
       x+=4*8;
    }
 
-
-   if (col == 6) // server sync
-   {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[sync]");
-      for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         if (players[p].active == 1) color = color1;
-         if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].server_sync);
-      }
-      x+=6*8;
-   }
-
    if (col == 7) // client chase fps
    {
       al_draw_text(font, palette_color[color], x, y+=8, 0, "[chas]");
@@ -512,45 +499,6 @@ void sdg_show_column(int col, int &x, int y)
       }
    }
 
-
-
-
-   if (col == 20) // sc sync
-   {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[sc]");
-      for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         if (players[p].active == 1) color = color1;
-         if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%2d]", players1[p].sc_sync);
-      }
-      x+=4*8;
-   }
-
-   if (col == 21) // cs sync
-   {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[cs]");
-      for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         if (players[p].active == 1) color = color1;
-         if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%2d]", players1[p].cs_sync);
-      }
-      x+=4*8;
-   }
-   if (col == 22) // rt sync
-   {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[rt]");
-      for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         if (players[p].active == 1) color = color1;
-         if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%2d]", players1[p].rt_sync);
-      }
-      x+=4*8;
-   }
-
-
    if (col == 23) // late cdats
    {
       al_draw_text(font, palette_color[color], x, y+=8, 0, "[lcdt]");
@@ -615,7 +563,7 @@ void sdg_show_column(int col, int &x, int y)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         if (p == 0) al_draw_textf(font, palette_color[color], x, y+=8, 0, "[     ]");
+         if (p == 0) al_draw_textf(font, palette_color[color], x, y+=8, 0, "[    ]");
          else        al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4.1f]", players1[p].ping*1000);
       }
       x+=6*8;
@@ -659,27 +607,20 @@ void sdg_show(int x, int y) // server debug grid
    sdg_show_column(3, x, y); // color
    sdg_show_column(4, x, y); // control method
 //   sdg_show_column(5, x, y); // who
-   sdg_show_column(6, x, y); // server sync
-   sdg_show_column(7, x, y); // client chase fps
+//   sdg_show_column(7, x, y); // client chase fps
    sdg_show_column(8, x, y); // server_game_move_sync
-
-
-   sdg_show_column(20, x, y); // sc sync
-   sdg_show_column(21, x, y); // cs sync
-   sdg_show_column(22, x, y); // rt sync
 
    sdg_show_column(9, x, y); // client base resets
 
    sdg_show_column(23, x, y); // late cdats
-   sdg_show_column(24, x, y); // late cdats
-
+   //sdg_show_column(24, x, y); // late cdats last second
 
 //   sdg_show_column(10, x, y); // dif src
 //   sdg_show_column(11, x, y); // dif dst
    sdg_show_column(12, x, y); // number of packets
    sdg_show_column(13, x, y); // dif size
    sdg_show_column(14, x, y); // tx kB/sec
-   sdg_show_column(15, x, y); // rx kB/sec
+//   sdg_show_column(15, x, y); // rx kB/sec
    sdg_show_column(16, x, y); // frame skipped
 
 
@@ -859,8 +800,8 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
       static int b1_pres = 0;
       if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
       {
-         if (b1_pres == 0) players1[p].s1--;
-         if (players1[p].s1 < 1) players1[p].s1 = 1;
+         if (b1_pres == 0) players1[p].server_state_freq--;
+         if (players1[p].server_state_freq < 1) players1[p].server_state_freq = 1;
          b1_pres = 1;
       }
       else b1_pres = 0;
@@ -869,35 +810,13 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
       static int b2_pres = 0;
       if (mdw_buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
       {
-         if (b2_pres == 0) players1[p].s1++;
+         if (b2_pres == 0) players1[p].server_state_freq++;
          b2_pres = 1;
       }
       else b2_pres = 0;
-      al_draw_textf(font, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", players1[p].s1);
+      al_draw_textf(font, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", players1[p].server_state_freq);
 
-      csy3 += 17;
-
-      ya = csy3;
-      static int b3_pres = 0;
-      if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
-      {
-         if (b3_pres == 0) players1[p].s2--;
-         if (players1[p].s2 < 1) players1[p].s2 = 1;
-         b3_pres = 1;
-      }
-      else b3_pres = 0;
-
-      ya = csy3;
-      static int b4_pres = 0;
-      if (mdw_buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
-      {
-         if (b4_pres == 0) players1[p].s2++;
-         b4_pres = 1;
-      }
-      else b4_pres = 0;
-      al_draw_textf(font, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s2:%d", players1[p].s2);
       if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_sbutt", 0);
-
 
       if (0) // show some bandwidth stats
       {
@@ -1079,6 +998,10 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
       al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
 
+      cy +=8;
+      sprintf(msg, "max x correction:%f", players1[p].xcor_max);
+      al_draw_filled_rectangle(cx, cy+8, cx+strlen(msg)*8, cy+16, palette_color[0]);
+      al_draw_text(font, palette_color[15], cx, cy+=8, 0, msg);
 
 
       if (0) // show a bunch of bandwidth stats
@@ -1186,7 +1109,7 @@ void draw_top_display(void)
          sprintf(msg, "Please wait for server syncronization");
          rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2-32, color, 2, 0, 1);
 
-         sprintf(msg, "[%d]", players1[p].client_sync);
+         sprintf(msg, "[%2.1f]", abs(players1[p].client_chase_offset - players1[p].dsync)*1000);
          rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, color, 4, 0, 1);
       }
 
@@ -1205,7 +1128,7 @@ void draw_top_display(void)
       al_draw_text(font, palette_color[14], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
 
-//      sprintf(msg, "sync:%d ", players1[p].client_sync);
+//      sprintf(msg, " sync:%3.1f ", players1[p].dsync*1000);
 //      al_draw_text(font, palette_color[14], bdx + ts, bdy, 0, msg);
 //      ts += strlen(msg)*8;
 

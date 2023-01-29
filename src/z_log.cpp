@@ -151,7 +151,7 @@ void log_reason_for_player_quit(int p)
    int r = players1[p].quit_reason;
    if (r == 64) sprintf(tmsg,"player pressed ESC or menu key");
    if (r == 70) sprintf(tmsg,"server drop (server sync > 100)");
-   if (r == 71) sprintf(tmsg,"server drop (no sdak for 100 frames)");
+   if (r == 71) sprintf(tmsg,"server drop (no stak for 100 frames)");
    if (r == 74) sprintf(tmsg,"client never became active");
    if (r == 75) sprintf(tmsg,"client lost server connection");
    if (r == 80) sprintf(tmsg,"level done");
@@ -236,9 +236,9 @@ void log_player_array2(void)
    add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
    for (int p=0; p<NUM_PLAYERS; p++)
    {
-      int sy = players1[p].server_sync;
+      float sy = players1[p].dsync;
       if (p == 0) sy = 0;
-      sprintf(msg, "[%d][%d][%d][%2d]",   p, players[p].active, players[p].control_method, sy );
+      sprintf(msg, "[%d][%d][%d][%3.2f]",   p, players[p].active, players[p].control_method, sy );
       add_log_entry_position_text(26, 0, 76, 10, msg, "|", " ");
    }
 }
@@ -513,7 +513,7 @@ void get_tag_text(char *str, char *res, int show)
 {
    if (show) printf("\nget tag initial %s\n", str);
 
-   // get first tag - server_sync
+   // get first tag
    char * pch1 = strchr(str, '[');
    char * pch2 = strchr(str, ']');
    int p1 = pch1-str;
@@ -1641,9 +1641,6 @@ void log_client_server_sync_graph(int num_lines)
       {
          int p = log_lines_int[i][1];
          int fn = log_lines_int[i][2];
-
-         get_tag_text(tll, res, 0); // server_sync
-         //int sy = atoi(res); // not used any more
 
          get_tag_text(tll, res, 0); // dsync
          double dsy = atof(res);

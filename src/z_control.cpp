@@ -897,6 +897,10 @@ void proc_player_input(void)
             }
          }
       }
+      else if (players[p].control_method == 4) // not active and control method 4 is a client waiting for server to make it active
+      {
+         if (key[ALLEGRO_KEY_ESCAPE][1]) new_program_state = 25; // give them an escape option
+      }
 }
 
 void proc_controllers(void)

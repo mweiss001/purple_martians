@@ -77,14 +77,15 @@ int ClientInitNetwork(const char *serveraddress)
    while (!got_reply)
    {
       printf("ClientCheckResponse %d\n", tries);
-      if (ClientCheckResponse())
+      int ccr = ClientCheckResponse();
+      if (ccr == 1)
       {
          got_reply = 1;
          sprintf(msg,"Got reply from server");
          printf("%s\n", msg);
          if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
       }
-      else
+      if (ccr == 0)
       {
          al_rest(try_delay);
          if (++tries > 2)
@@ -99,6 +100,30 @@ int ClientInitNetwork(const char *serveraddress)
             }
             return 0;
          }
+      }
+      if (ccr == -1)
+      {
+         sprintf(msg,"TCP response Error!");
+         m_err(msg);
+         printf("%s\n", msg);
+         if (LOG_NET)
+         {
+             add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+             add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+         }
+         return 0;
+      }
+      if (ccr == -2)
+      {
+         sprintf(msg,"Cancelled");
+         //m_err(msg);
+         printf("%s\n", msg);
+         if (LOG_NET)
+         {
+             add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
+             add_log_entry_centered_text(10, 0, 76, "", "+", "-");
+         }
+         return 0;
       }
    }
    return 1;
@@ -127,6 +152,9 @@ int ClientCheckResponse(void) // check for a repsonse from the server
       int done = 10;
       while (done)
       {
+         proc_controllers();
+         if (key[ALLEGRO_KEY_ESCAPE][1]) return -2;
+
          printf(".");
          packetsize = net_receive(ServerChannel, packetbuffer, 1024, address);
          if (packetsize)
@@ -233,8 +261,7 @@ void client_process_sjon_packet(void)
 
    int pl = PacketGet2ByteInt();   // play level
    int server_sjon_frame_num  =  PacketGet4ByteInt();
-   int server_game_move_entry_pos = PacketGet4ByteInt();
-   int z = PacketGet1ByteInt();      // frame speed
+
    int p = PacketGet1ByteInt();      // client player number
    int color = PacketGet1ByteInt();  // client player color
    int dmp = PacketGet1ByteInt();    // deathmatch_pbullets
@@ -258,8 +285,6 @@ void client_process_sjon_packet(void)
       ima_client = 1;
 
       play_level = pl;
-      frame_speed = z;
-      al_set_timer_speed(fps_timer, 1/(float)frame_speed);
 
       deathmatch_pbullets = dmp;
       deathmatch_pbullets_damage = dmd-1000;
@@ -271,15 +296,11 @@ void client_process_sjon_packet(void)
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Level:[%d]", play_level);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Frame Rate:[%d]", z);
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Player Number:[%d]", p);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Player Color:[%d]", color);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Server Frame Num:[%d]", server_sjon_frame_num);
-         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
-         sprintf(msg,"Server Game Moves:[%d]", server_game_move_entry_pos);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
          sprintf(msg,"Deathmatch player bullets:[%d]", deathmatch_pbullets);
          add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
@@ -385,12 +406,38 @@ void client_apply_dif(void)
                   int old_l[100][100];
                   memcpy(old_l, l, sizeof(l));
 
+                  // make a copy of players x pos
+                  float oldpx = al_fixtof(players[p].PX);
+
+
+
 
                   // apply dif to base state
                   apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
 
                   // copy modified base state to game_vars
                   state_to_game_vars(client_state_base);
+
+
+                  // make a copy of players x pos
+                  float xcor = oldpx - al_fixtof(players[p].PX);
+
+
+                  if (frame_num > players1[p].xcor_reset_frame)
+                  {
+                     players1[p].xcor_reset_frame = frame_num + 100;
+                     players1[p].xcor_max = 0;
+
+                  }
+
+                  if (xcor > players1[p].xcor_max)  players1[p].xcor_max = xcor;
+
+
+
+
+
+
+
 
                   // compare old_l to l and redraw changed tiles
                   al_set_target_bitmap(level_background);
@@ -428,7 +475,7 @@ void client_apply_dif(void)
 
                   client_send_stak();
 
-                  players1[p].client_move_lag = frame_num - client_state_dif_src;
+                  if (client_state_dif_src) players1[p].client_move_lag = frame_num - client_state_dif_src;
 
                   sprintf(msg, "dif [%d to %d] applied - %s", client_state_dif_src, client_state_dif_dst, tmsg);
                   if (LOG_NET_dif_applied) add_log_entry2(30, p, msg);
@@ -493,20 +540,20 @@ void client_process_stdf_packet(double timestamp)
    sprintf(msg, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", seq+1, max_seq, src, dst, sb, sz);
    if (LOG_NET_stdf_all_packets) add_log_entry2(28, p, msg);
 
-   players1[p].client_sync = dst - frame_num;                        // crude integer sync based on frame numbers
+   int client_sync = dst - frame_num;                             // crude integer sync based on frame numbers
 
-   if (players1[p].client_last_stdf_rx_frame_num != frame_num)       // this is the first stdf received for this frame
+   if (players1[p].client_last_stdf_rx_frame_num != frame_num)    // this is the first stdf received for this frame
    {
-      players1[p].client_last_stdf_rx_frame_num = frame_num;         // client keeps track of last stdf rx'd and quits if too long
-      players1[p].dsync = al_get_time() - timestamp;                 // time between when the packet was received into the packet buffer and now
-      players1[p].dsync += (double) players1[p].client_sync * 0.025; // add to integer sync in case we are out by a lot
+      players1[p].client_last_stdf_rx_frame_num = frame_num;      // client keeps track of last stdf rx'd and quits if too long
+      players1[p].dsync = al_get_time() - timestamp;              // time between when the packet was received into the packet buffer and now
+      players1[p].dsync += (double) client_sync * 0.025;          // combine with client_sync
       dsync_array_add();
       client_timer_adjust();
    }
 
 
-   memcpy(client_state_buffer + sb, packetbuffer+22, sz);  // put the piece of data in the buffer
-   client_state_buffer_pieces[seq] = dst;                  // mark it with destination frame_num
+   memcpy(client_state_buffer + sb, packetbuffer+22, sz);     // put the piece of data in the buffer
+   client_state_buffer_pieces[seq] = dst;                     // mark it with destination frame_num
 
    int complete = 1;                                          // did we just get the last packet? (yes by default)
    for (int i=0; i< max_seq; i++)
@@ -514,19 +561,19 @@ void client_process_stdf_packet(double timestamp)
 
    if (complete)
    {
-      // decompress client_state_buffer to dif
+      // uncompress client_state_buffer to dif
       uLongf destLen = sizeof(client_state_dif);
       uncompress((Bytef*)client_state_dif, (uLongf*)&destLen, (Bytef*)client_state_buffer, sizeof(client_state_buffer));
 
       if (destLen == STATE_SIZE)
       {
-         sprintf(msg, "rx dif complete [%d to %d] sync[%d] dsync[%3.1fms] - decompressed\n", src, dst, players1[p].client_sync, players1[p].dsync*1000);
+         sprintf(msg, "rx dif complete [%d to %d] dsync[%3.1fms] - uncompressed\n", src, dst, players1[p].dsync*1000);
          client_state_dif_src = src; // mark dif data with new src and dst
          client_state_dif_dst = dst;
       }
       else
       {
-         sprintf(msg, "rx dif complete [%d to %d] sync[%d] - bad decompress\n", src, dst, players1[p].client_sync);
+         sprintf(msg, "rx dif complete [%d to %d] dsync[%3.1f] - bad uncompress\n", src, dst, players1[p].dsync*1000);
          client_state_dif_src = -1; // mark dif data as bad
          client_state_dif_dst = -1;
       }
@@ -654,10 +701,6 @@ void client_fast_packet_loop(void)
    while ((packetsize = ClientReceive(packetbuffer)))
    {
       double timestamp = al_get_time();
-      //printf("got packet size:%d\n", packetsize);
-      int type = 0;
-      if (PacketRead("stdf")) type = 1;
-      if (PacketRead("sjon")) type = 2;
 
       if (PacketRead("pong"))
       {
@@ -674,6 +717,9 @@ void client_fast_packet_loop(void)
          ClientSend(packetbuffer, packetsize);
       }
 
+      int type = 0;
+      if (PacketRead("stdf")) type = 1;
+      if (PacketRead("sjon")) type = 2;
       // printf("type:%d\n", type);
       if (type)
       {

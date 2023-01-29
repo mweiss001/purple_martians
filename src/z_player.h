@@ -117,27 +117,20 @@ struct player1 // not synced between server and client
    int client_base_resets;
    int client_last_dif_applied;
 
-   int client_sync;
-   int server_sync;
-
    int client_ping_flag;
+   double server_max_client_ping;
 
    double ping;
    double ping_avg;
    double dsync;
    double dsync_avg;
 
-
+   float xcor_max;
+   int xcor_reset_frame;
 
    double client_chase_offset;
    double client_chase_offset_auto_offset;
    int client_chase_offset_mode; // 0 = manual, 1 = auto
-
-
-
-   int sc_sync; // packet stdf from s to c  sfn-cfn
-   int cs_sync; // packet stak from c to s  cfn-sfn
-   int rt_sync; // round trip to server back to server through client via stdf and stak
 
    int last_gm_index;
    int last_gm_frame_num;
@@ -156,8 +149,7 @@ struct player1 // not synced between server and client
    int quit_reason;
 
    // server rewind and stdf frequencies
-   int s1;
-   int s2;
+   int server_state_freq;
 
    // used only to display on server screen overlay in client grid
    int num_dif_packets;

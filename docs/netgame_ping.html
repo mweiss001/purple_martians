@@ -1,0 +1,306 @@
+<!doctype html>
+<title>Netgame - Ping</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div></mdw_lhs_nav>
+
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - Ping</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_ping.html#Overview" target="_top">Overview</a>
+ <a href="netgame_ping.html#Client initiates by sending 'ping'" target="_top">Client initiates by sending 'ping'</a>
+ <a href="netgame_ping.html#Server receives 'ping' and sends 'pong'" target="_top">Server receives 'ping' and sends 'pong'</a>
+ <a href="netgame_ping.html#Client receives 'pong' and sends 'pang'" target="_top">Client receives 'pong' and sends 'pang'</a>
+ <a href="netgame_ping.html#Client calculates the rolling average of its ping time" target="_top">Client calculates the rolling average of its ping time</a>
+ <a href="netgame_ping.html#Client uses 'ping_avg' time to set 'client_chase_offset'" target="_top">Client uses 'ping_avg' time to set 'client_chase_offset'</a>
+ <a href="netgame_ping.html#Server receives 'pang'" target="_top">Server receives 'pang'</a>
+ <a href="netgame_ping.html#Server uses 'server_max_client_ping' to set 'server_state_freq'" target="_top">Server uses 'server_max_client_ping' to set 'server_state_freq'</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+
+
+<mh3>
+In order for netgame to function properly, it needs to know the ping times between client and server.
+
+This is used in multiple places on the client and the server to adjust network timing loops.
+
+The clients measure and keep track of the round trip time it takes for a packet to get to the server and back.
+
+The server keeps track of that for each client individually.
+
+</mh3>    
+<a name="Client initiates by sending 'ping'"></a>
+<mh7>Client initiates by sending 'ping'</mh7>
+
+<mh3>
+The client starts the process by sending a 'ping' packet containing the client's local timestamp from when the packet was sent.
+</mh3>    
+
+<pre><code class="language-cpp">void client_send_ping(void)
+{
+   Packet("ping");
+   PacketPutDouble(al_get_time());
+   ClientSend(packetbuffer, packetsize);
+}</code></pre>
+
+
+<mh3>
+To reduce the possibility of interference, the ping is sent at the end of the frame, after drawing.
+This should be a time when the game loop is waiting to start the next frame, not busy doing other things.
+</mh3>    
+<pre><code class="language-cpp">if (players1[active_local_player].client_ping_flag)
+{
+   players1[active_local_player].client_ping_flag = 0;
+   client_send_ping();
+}</code></pre>
+<mh3>
+The flag to send a ping is set whenever the png_timer event fires:
+</mh3>    
+<pre><code class="language-cpp">   png_timer = al_create_timer(.5);   // 2 fps
+   al_register_event_source(event_queue, al_get_timer_event_source(png_timer));
+
+   if (ev.type == ALLEGRO_EVENT_TIMER)
+   {
+      if (ev.timer.source == png_timer) players1[active_local_player].client_ping_flag = 1;
+   }
+</code></pre>
+<mh3>
+And also once when starting a new client game:
+</mh3>    
+<pre><code class="language-cpp">   //---------------------------------------
+   // 21 - client wait for intial state
+   //---------------------------------------
+   if (program_state == 21)
+   {
+      client_fast_packet_loop();
+      client_read_packet_buffer();
+      client_apply_dif();
+
+      sprintf(msg, "Waiting for game state from server");
+      float stretch = ( (float)SCREEN_W / ((strlen(msg)+2)*8));
+      rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, 10, stretch, 0, 1);
+
+      if (frame_num > 0)
+      {
+         printf("got initial state for frame:%d\n", frame_num);
+
+         players1[active_local_player].client_ping_flag = 1;
+....
+</code></pre>
+
+</mh3>    
+<a name="Server receives 'ping' and sends 'pong'"></a>
+<mh7>Server receives 'ping' and sends 'pong'</mh7>
+
+<mh3>
+In the server's fast packet loop, when it receives a 'ping' packet, it immediately replies with a 'pong' packet that contains:
+
+- the timestamp from the 'ping' packet it is replying to, and 
+
+- the server's local timestamp from when it sends the 'pong' packet
+</mh3>    
+<pre><code class="language-cpp">void server_fast_packet_loop(void)
+{
+   while((packetsize = ServerReceive(packetbuffer, &who)))
+   {
+      if (PacketRead("ping"))
+      {
+         double t0 = PacketGetDouble();
+         double t1 = al_get_time();
+         Packet("pong");
+         PacketPutDouble(t0);
+         PacketPutDouble(t1);
+         ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+      }
+</code></pre>
+
+
+
+<a name="Client receives 'pong' and sends 'pang'"></a>
+<mh7>Client receives 'pong' and sends 'pang'</mh7>
+
+<mh3>
+In the client's fast packet loop, when it receives a 'pong' packet:
+
+It calculates the round trip transit time from the client to the server and back and saves it in 'players1[active_local_player].ping'
+
+Then immediately replies with a 'pang' packet that contains the timestamp from the 'pong' packet it is replying to.
+</mh3>    
+<pre><code class="language-cpp">void client_fast_packet_loop(void)
+{
+   while ((packetsize = ClientReceive(packetbuffer)))
+   {
+      if (PacketRead("pong"))
+      {
+         double t0 = PacketGetDouble();
+         double t1 = PacketGetDouble();
+         double t2 = al_get_time();
+         players1[active_local_player].ping = t2 - t0;
+
+         ping_array_add(players1[active_local_player].ping);
+
+         Packet("pang");
+         PacketPutDouble(t1);
+         ClientSend(packetbuffer, packetsize);
+</code></pre>
+
+<a name="Client calculates the rolling average of its ping time"></a>
+<mh7>Client calculates the rolling average of its ping time</mh7>
+
+
+<mh3>
+Because ping times fluctuate based on network conditions, we don't want to use the raw value.
+
+Instead we run it through a rolling average algorithm and use that instead.
+</mh3>    
+<pre><code class="language-cpp">void ping_array_add(double ping)
+{
+   ping_array[ping_index] = ping; // always put it where ping_index points
+   if (++ping_index > 7) ping_index = 0;
+   ping_num_filled++;
+  
+   // find number of used entries
+   int ul = 8; // default
+   if (ping_num_filled < 8) ul = ping_num_filled;
+
+   // add up the entries
+   double tally = 0;
+   for (int i=0; i < ul; i++)
+      tally += ping_array[i];
+
+   // get the average
+   players1[p].ping_avg = tally / (ul);
+</code></pre>
+
+<a name="Client uses 'ping_avg' time to set 'client_chase_offset'"></a>
+<mh7>Client uses 'ping_avg' time to set 'client_chase_offset'</mh7>
+<pre><code class="language-cpp">   if (players1[p].client_chase_offset_mode) players1[p].client_chase_offset = - players1[p].ping_avg + players1[p].client_chase_offset_auto_offset;
+}</code></pre>
+
+<mh3>What this does is:
+
+'client_chase_offset' is used by the client_timing_sync algorith as the target setpoint for dsync (the target amount of time offset between the client and the server)
+
+Ideally, when pings are low, the client and server will run closer to each other.
+
+But as ping times increase, the client's inputs will arrive too late to be applied on the server unless the offset is increased.
+
+</mh3>    
+
+<a name="Server receives 'pang'"></a>
+<mh7>Server receives 'pang'</mh7>
+
+<mh3>
+In the server's fast packet loop, when it receives a 'pang' packet, it calculates the round trip transit time from the server to the client and back.
+
+The server keeps a ping time for each active client in 'players1[p].ping'.
+
+The server also keeps track of the maximum ping time for all clients and stores that in 'players1[0].server_max_client_ping'. 
+</mh3>    
+<pre><code class="language-cpp">void server_fast_packet_loop(void)
+{
+   while((packetsize = ServerReceive(packetbuffer, &who)))
+   {
+      if (PacketRead("pang"))
+      {
+         double t0 = PacketGetDouble();
+         double t1 = al_get_time();
+         players1[p].ping = t1 - t0;
+         if (players1[p].ping > players1[0].server_max_client_ping) players1[0].server_max_client_ping = players1[p].ping;
+      }
+</code></pre>
+
+
+<a name="Server uses 'server_max_client_ping' to set 'server_state_freq'"></a>
+<mh7>Server uses 'server_max_client_ping' to set 'server_state_freq'</mh7>
+<mh3>
+In the 1 Hz timer loop, the server uses 'server_max_client_ping' to set 'server_state_freq'.
+
+Then 'server_max_client_ping' is reset to zero.
+</mh3>    
+<pre><code class="language-cpp">      // ----------------------------------------------------------
+      // do things based on the 1 Hz sec_timer event
+      // ----------------------------------------------------------
+      if (ima_server)
+      {
+         int mcp = players1[0].server_max_client_ping*1000;
+         players1[0].server_max_client_ping = 0;
+         if (mcp > 100) mcp = 100;
+         players1[0].server_state_freq = 2 + mcp/20; // use client max ping to set server_state_freq
+</code></pre>
+
+<mh3>
+What this does is:
+
+As the ping increases, the time between the server sending states to clients, also increases.
+
+When ping times are lower, the server can send states more often, which is desireable.
+
+But as the ping times increase, there is not enough time to send a state and get a reply before its time to send the next state.
+
+</mh3>    
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2022, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

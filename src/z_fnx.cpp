@@ -1596,7 +1596,7 @@ void show_var_sizes(void)
    printf("Ei       :%6d\n", (int)sizeof(Ei)           );
    printf("Efi      :%6d\n", (int)sizeof(Efi)          );
    printf("item     :%6d\n", (int)sizeof(item)         );
-   printf("itemf    :%6d\n", (int)sizeof(item)         );
+   printf("itemf    :%6d\n", (int)sizeof(itemf)        );
    printf("lifts    :%6d\n", (int)sizeof(lifts)        );
    printf("l        :%6d\n", (int)sizeof(l)            );
    printf("pbullet  :%6d\n", (int)sizeof(pbullet)      );

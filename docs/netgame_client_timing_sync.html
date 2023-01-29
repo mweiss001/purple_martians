@@ -1,0 +1,256 @@
+<!doctype html>
+<title>Netgame - Client Timing Sync</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div></mdw_lhs_nav>
+
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - Client Timing Sync</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_client_timing_sync.html#Client Timing Sync" target="_top">Client Timing Sync</a>
+ <a href="netgame_client_timing_sync.html#Server sends 'stdf' packet" target="_top">Server sends 'stdf' packet</a>
+ <a href="netgame_client_timing_sync.html#Client receives 'stdf' packet" target="_top">Client receives 'stdf' packet</a>
+ <a href="netgame_client_timing_sync.html#Calculate the rolling average of dysnc" target="_top">Calculate the rolling average of dysnc</a>
+ <a href="netgame_client_timing_sync.html#Determine the target offset" target="_top">Determine the target offset</a>
+ <a href="netgame_client_timing_sync.html#Adjust client timer" target="_top">Adjust client timer</a>
+</mdw_file_toc><hr></mh3>
+
+
+<br><a name="Client Timing Sync"></a>
+<mh7>Client Timing Sync</mh7>
+
+<mh3>    
+Timing is critical in netgame. The server is the master timing source, and runs at 40fps.
+
+Clients adjust their speed to maintain a slight lead ahead of the server.
+
+The time difference between the client and server is called dsync.
+
+Clients are responsible for measuring dsync and maintaining their timing offset with relation to the server.
+
+</mh3>
+
+
+<br><a name="Server sends 'stdf' packet"></a>
+<mh7>Server sends 'stdf' packet</mh7>
+
+
+
+<mh3>    
+The server sends 'stdf' packets to clients on a regular basis. Usually only a few frames apart.
+
+These stdf packets contain pieces of a compressed dif state, and a header that describes the contents.
+
+From that header, the destination frame number is the frame on the server when the dif was created and sent.
+
+That information is used by the client to measure its timing relation to the server.
+</mh3>
+
+<pre><code class="language-cpp">Packet("stdf");
+PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
+PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+PacketPut1ByteInt(packet_num);
+PacketPut1ByteInt(num_packets);
+PacketPut4ByteInt(start_byte);
+PacketPut4ByteInt(packet_data_size);
+memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
+packetsize += packet_data_size;
+ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+</code></pre>
+
+
+
+
+
+<br><a name="Client receives 'stdf' packet"></a>
+<mh7>Client receives 'stdf' packet</mh7>
+
+
+
+<mh3>    
+When the client receives an 'stdf' packet, it uses the destination frame and its own local frame number to make a crude integer sync.
+This sync only has a resolution of 1 frame (25ms).
+</mh3>
+<pre><code class="language-cpp">void client_process_stdf_packet(double timestamp)
+{
+   int p = active_local_player;
+   int src = PacketGet4ByteInt();
+   int dst = PacketGet4ByteInt();
+   int seq = PacketGet1ByteInt();
+   int max_seq = PacketGet1ByteInt();
+   int sb = PacketGet4ByteInt();
+   int sz = PacketGet4ByteInt();
+
+   int client_sync = dst - frame_num;                             // crude integer sync based on frame numbers
+</code></pre>
+
+
+
+
+<mh3>    
+The passed variable 'timestamp' was recorded by the <a href="netgame_fast_packet_loop.html#Client fast packet loop" target="_top">fast packet loop</a> when the packet was actually received.
+
+This is used to give timing information less than one frame.
+
+The two are combined and the result is 'dsync'.
+</mh3>
+<pre><code class="language-cpp">players1[p].dsync = al_get_time() - timestamp;              // time between when the packet was received into the packet buffer and now
+players1[p].dsync += (double) client_sync * 0.025;          // combine with client_sync
+</code></pre>
+
+
+
+<br><a name="Calculate the rolling average of dysnc"></a>
+<mh7>Calculate the rolling average of dysnc</mh7>
+
+<mh3>    
+Because the value of dsync can rapidly change based on network conditions, we don't want to adjust our speed based on this raw value.
+
+Instead we run it through a rolling average algorithm and use that instead.
+</mh3>
+
+<pre><code class="language-cpp">void dsync_array_add(void)
+{
+   int p = active_local_player;
+   
+   dsync_array[dsync_index] = players1[p].dsync; // put it where dsync_index points
+   dsync_index++;
+   dsync_num_filled++;
+   if (dsync_index > 7) dsync_index = 0;
+
+   // find number of used entries
+   int ul = 8; // default
+   if (dsync_num_filled < 8) ul = dsync_num_filled;
+
+   // add up the entries
+   double tally = 0;
+   for (int i=0; i < ul; i++)
+      tally += dsync_array[i];
+
+   // get the average
+   players1[p].dsync_avg = tally / (ul);
+}
+</code></pre>
+
+
+<br><a name="Determine the target offset"></a>
+<mh7>Determine the target offset</mh7>
+
+<mh3>    
+Now we have a measured value, 'dsync_avg', that describes what our timing offset actually is.
+
+The next step is to determine what we want it to be (our setpoint). This is called 'client_chase_offset'.
+
+The first step in that process involves measuring the return ping time to the server. (This is covered <a href="netgame_ping.html" target="_top">here</a>)
+
+When we have the <a href="netgame_ping.html#Client calculates the rolling average of its ping time" target="_top">average ping time</a> from client to server and back, we use it to set the <a href="netgame_ping.html#Client uses 'ping_avg' time to set 'client_chase_offset'" target="_top">client_chase_offset</a>.
+
+For more details, click the links.
+</mh3>
+
+
+<br><a name="Adjust client timer"></a>
+<mh7>Adjust client timer</mh7>
+
+
+<mh3>    
+At this point we have a measured value and a setpoint.
+
+Next the client timer is adjusted to make the measured value approach the setpoint.
+</mh3>
+
+
+<pre><code class="language-cpp">void client_timer_adjust(void)
+{
+   int p = active_local_player;
+
+   float mva = players1[p].dsync_avg;            // measured value
+   float sp = players1[p].client_chase_offset;   // set point
+   float err = sp - mva;                         // error = set point - measured value
+
+   float p_adj = err * 80; // instantaneous error adjustment (proportional)
+
+   tmaj_i += err;          // cumulative error adjust (integral)
+   float i_clamp = 5;
+   if (tmaj_i >  i_clamp) tmaj_i =  i_clamp;
+   if (tmaj_i < -i_clamp) tmaj_i = -i_clamp;
+   tmaj_i *= 0.95; // decay
+   float i_adj = tmaj_i * 0;
+
+   float t_adj = p_adj + i_adj; // total adj
+
+   float fps_chase = frame_speed - t_adj;
+
+   al_set_timer_speed(fps_timer, ( 1 / fps_chase));
+}
+</code></pre>
+
+<mh3>I was experimenting with implementing a PID control loop here, but found it was not needed, so I just do straight proportional.
+
+</mh3>
+
+
+
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2022, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

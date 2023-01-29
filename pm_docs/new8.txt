@@ -7964,6 +7964,1156 @@ make the auto offset run at - 1/2 frame
 figure out how to test with bad network...
 
 
+document:
+void client_fast_packet_loop(void)
+void server_fast_packet_loop(void)
+
+extern struct packet_buffer packet_buffers[200];
+struct packet_buffer
+{
+   int active;
+   int type;
+   double timestamp;
+   int who;
+   int packetsize;
+   char data[1024];
+};
+
+
+
+files I want to have for netgame
+
+netgame_client_state
+
+netgame_client_sync
+
+netgame_client_control_change
+
+netgame_fast_packet_loop
+
+netgame_state (describes state and dif)
+
+
+
+
+
+
+
+fixed a bug in STATE_SIZE
+old:
+Variables used for netgame state exchange
+
+players  :  2048
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    : 32000
+lifts    :  5280
+l        : 40000
+pbullet  :  1200
+ebullets :  1200
+pm_event :  4000
+---------:------
+total    :112928
+
+new:
+Variables used for netgame state exchange
+
+players  :  2048
+Ei       : 12800
+Efi      :  6400
+item     : 32000
+itemf    :  8000
+lifts    :  5280
+l        : 40000
+pbullet  :  1200
+ebullets :  1200
+pm_event :  4000
+---------:------
+total    :112928
+
+the totals are the same, but the individual value for itemf was wrong..
+
+
+I have netgame_state_and_dif complete...
+
+next finish netgame_client_state..done...
+now make a few links from one to the other....
+did reset to zero -> state copmpression methods...
+stak...done
+state..done
+
+next do:
+
+netgame_client_control_change...done
+
+netgame_client_sync
+
+
+
+I just found something I didn't realize
+
+      Packet("stdf");
+      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+      PacketPut1ByteInt(packet_num);
+      PacketPut1ByteInt(num_packets);
+      PacketPut4ByteInt(start_byte);
+      PacketPut4ByteInt(packet_data_size);
+      memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
+      packetsize += packet_data_size;
+      ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+      start_byte+=1000;
+
+
+I though that the client used the server's local frame number when calculating sync
+it doesn't...
+
+what it uses is the dst frame number, which, depending on s2 is NOT the server's local frame number
+
+what does this all mean?
+
+is my sync not what I thought it is?
+
+the client is syncing to the dst frame of the state....
+
+
+why do I even need s2 is my question??
+
+could I not handle that by just moving clients sync offset??
+
+
+
+
+try this by making s2 = 0 and running some tests...
+
+
+if s2 == 0 then dst == server local frame num...
+
+
+
+
+LAN (ping 0.1-0.2)
+5.5kBs
+s1:2 s2:0
+offs move_lag crwd sgms late_cdats base_resets
+-70  5        3    2    0          0
+-45  4        2    1    0          0 - playable
+-20  3        1    0    0          0 - very playable
++5   2        0    -1   0          0 - very playable
++30  2        0/-1 -2   const      0
+
+
+
+4.5kBs
+s1:3 s2:0
+offs move_lag crwd sgms late_cdats base_resets
+-70  6        3    2    0          0
+-45  5        2    1    0          0 - playable
+-20  4        1    0    0          0 - very playable
++5   3        0    -1   0          0 - very playable
++30  3        0/-1 -2   const      0
+
+
+
+
+
+
+WAN (ping 22-27)
+5.5kBs
+s1:2 s2:0
+offs move_lag crwd sgms late_cdats base_resets
+-63  5        3    1    0          0
+-38  4        2    0    0          0 - playable
+-13  3        1    -1   very rare  0 - playable (better)
++12  2        0    -2   const      some
+
+
+WAN (ping 22-27)
+5.5kBs
+s1:3 s2:0
+offs move_lag crwd sgms late_cdats base_resets
+-63  6        3    1    0          0
+-38  5        2    0    0          0
+-13  4        1    -1   very rare  0
++12  2        0    -2   const      0
+
+
+conclusions:
+
+
+I think I could do without s2: not sure why I had it in the first place....
+
+
+
+am I ready to test degraded network?
+
+
+
+yes!!
+
+
+
+tried clumsy 0.3rc4-win64a on win7 e6430
+failed to open device 577
+
+
+linux...
+
+
+tc and netem
+
+
+Linux — tc & netem
+
+The most low-level and feature-rich at the same time is Linux Network Emulator (netem). If you are using one of the most common Linux distributions(Fedora, OpenSuse, Gentoo, Debian, Mandriva, Ubuntu) you already have it enabled in the kernel. It comes along with another built-in utility Traffic Control(tc). There is no UI, just CLI, the way most of Linux users like it.
+
+Obviously the sky is the limit in terms of functionality with this tool. I would provide some examples, just to give you a hint:
+
+tc qdisc add dev eth0 root netem delay 100ms
+
+What happens here:
+
+    tc qdisc — what Traffic control is doing under the hood is configuring the kernel packet scheduler.
+    add — operation of appending new rule, after the test you probably would want to execute `del` operation.
+    dev eth0 — the device on which the rule would be applied.
+    root — apply it on the egress (outbound traffic) qdisc
+    netem — use the network emulator
+    delay — network metric to be modified
+    100ms — value to be set on this metric
+
+So overall this adds a delay of 100ms to outbound traffic.
+
+This is how can you set it up to simulate 5 percent of packet loss, 2 percent of packet corruption and 1% of duplication:
+
+tc qdisc add dev eth0 root netem loss 5%tc qdisc change dev eth0 root netem corrupt 2%tc qdisc change dev eth0 root netem duplicate 1%
+
+Not enough? Here comes more:
+
+tc qdisc change dev eth0 root netem delay 10ms reorder 25%
+
+With this rule, 25 percent of packets will get sent immediately, others will be delayed by 20ms.
+
+And so on, I think you have got the idea. In the end if you want to delete these traffic shaping rules, just execute:
+
+tc qdisc del dev eth0 root
+
+Check out the manual to get more information.
+
+It is installed on scat Ubuntu 20.04.5 LTS
+
+the line I need to use is:
+
+sudo tc qdisc add dev eno1 root netem delay 100ms
+
+first of all test with 40
+
+
+
+set up 40ms delay on outgoing traffic:
+--------------------------------------
+sudo tc qdisc add dev eno1 root netem delay 40ms
+
+cancel:
+--------------------------------------
+sudo tc qdisc del dev eno1 root
+
+
+
+How can I use netem on incoming traffic?
+
+You need to use the Intermediate Functional Block pseudo-device IFB . This network device allows attaching queuing discplines to incoming packets.
+
+ # modprobe ifb
+ # ip link set dev ifb0 up
+ # tc qdisc add dev eth0 ingress
+ # tc filter add dev eth0 parent ffff: \
+   protocol ip u32 match u32 0 0 flowid 1:1 action mirred egress redirect dev ifb0
+ # tc qdisc add dev ifb0 root netem delay 750ms
+
+
+
+set up 40ms delay on incoming traffic:
+--------------------------------------
+sudo modprobe ifb
+sudo ip link set dev ifb0 up
+sudo tc qdisc add dev eno1 ingress
+sudo tc filter add dev eno1 parent ffff: protocol ip u32 match u32 0 0 flowid 1:1 action mirred egress redirect dev ifb0
+sudo tc qdisc add dev ifb0 root netem delay 40ms
+
+cancel:
+--------------------------------------
+sudo tc qdisc del dev ifb0 root
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+can I do some sort of max correction measurement on the client?
+like actually measure the difference between the local and the server
+lets use players x pos.. beacuse y might be on the ground...
+
+
+how to do this??
+
+
+good, now what to do with it?
+
+get the max and avg
+
+no, just the max, but reset every 2-3 sec
+
+   float xcor_max;
+   int xcor_reset_frame;
+
+
+this works...
+
+
+the max correction I can get is when I am manuall running back and forth, fakekey has much less corrections
+
+the max possible would be if I was running in one direction and changed the same frame I got a correction...i think...
+
+test manually for now by running back and forth
+
+I think the max is achieved by running in one direction than changing
+that way I get multiples of 4, the max x speed of the player
+
+
+
+
+LAN (40ms) 20in 20out
+
+s1:3 s2:0
+offs move_lag crwd sgms late_cdats base_resets xcor_max
+-55  6        3    0    0          0           12
+-35  5        2    -1   0          0           8
+-20  4        1    -1   0          0           4
++5   3        0    -2   yes        0
+
+s1:2 s2:0
+offs move_lag crwd sgms late_cdats base_resets xcor_max
+-55  nan      3    0    0          const       12
+-45  4        2    0    0          0           8
+-20  3        1    -1   0          0           4
++5   2        0    -2   yes        0
+
+
+
+LAN (60ms) 30in 30out
+
+s1:4 s2:0
+offs move_lag crwd sgms  late_cdats base_resets xcor_max
+-50  6/7      2/3  -1    0          0           12
+-45  6        2    -1    0          0           8 - playable
+-36  6        2    -1/-2 yes        0           4 late cdats  start
+
+s1:3 s2:0
+offs move_lag crwd sgms  late_cdats base_resets xcor_max
+-50  5/6      2/3  -1    0          occ         12 base resets stop
+-45  5        2    -1    0          0           8 - playable
+-36  5        2    -1/-2 yes        yes         4 late cdats and base resets start
+
+s1:2 s2:0
+offs move_lag crwd sgms  late_cdats base_resets xcor_max
+at no time do base resets stop...
+late cdats start at -35
+
+
+
+LAN (80ms) 40in 40out
+
+s1:2 const base resets
+s1:3 const base resets
+s1:4 no base resets from 33-48, but nowhere in that range can I get no late cdats
+
+s1:5 no base resets til +43 late cdats start at -55
+offs move_lag crwd sgms  late_cdats base_resets xcor_max
+-60  8        3    -1    0          0           12 - playable
+
+
+
+LAN (100ms) 50in 50out
+s1:5 late cdats start at -76
+offs move_lag crwd sgms  late_cdats base_resets xcor_max
+-80  9        4    -1    0          0           16 - playable
+
+now I want to test with random shittienes...
+
+lets do 30 20 on both in and out
+
+from 10-50 delay
+
+its still playable at -80 on s1:5
+
+
+I can't wait to test dropped packets and corrupt packets
+
+duplicates should not be a problem, but corrupt? I have nothing to stop bad shit from happening...
+
+reset cor_max on level start...with player stuff...done...
+
+don't reset offset mode and offset...
+
+how am I going to set this up?
+
+- use ping average
+
+first of all, how should I set s1:?
+
+actually even before that, does s2 really not do anything useful?
+
+go back to an exmaple
+
+
+
+
+LAN (80ms) 40in 40out
+
+s1:2 const base resets
+s1:3 const base resets
+s1:4 no base resets from 33-48, but nowhere in that range can I get no late cdats
+
+s1:5 no base resets til +43 late cdats start at -55
+offs move_lag crwd sgms  late_cdats base_resets xcor_max
+-60  8        3    -1    0          0           12 - playable
+
+
+try this with different s2 values...
+
+
+sudo tc qdisc change dev eno1 root netem delay 40ms
+sudo tc qdisc change dev ifb0 root netem delay 40ms
+
+
+
+
+LAN (80ms) 40in 40out
+
+then
+s1:4 no base resets from 33-48, but nowhere in that range can I get no late cdats
+
+now:
+s1:4 s2:0
+offs move_lag crwd sgms  late_cdats base_resets xcor_max
+base resets stop at -73 and start again at -1
+
+base resets start at -81
+
+
+
+I am so confused...
+
+
+I should make a training sequence to get this info automatically
+
+It should cycle through the values for offset and see where base resets and late cdats happens...
+
+
+
+how can I do this?
+
+start server on s1:3
+
+redo all these test manually and this time:
+
+measure when br and lc start and stop...
+
+
+
+
+sudo tc qdisc change dev eno1 root netem delay 0ms
+sudo tc qdisc change dev ifb0 root netem delay 0ms
+
+
+LAN (0ms)
+s1:2 s2:0
+offs move_lag crwd sgms  late_cdats base_resets xcor_max
+-25  3/4      1/2   0    0          0
+-15  3        1     0    0          0           4
+0    2/3      0/1   -1   0          0           4
+25   2        -1/0  -2   yes        0
+
+late cdats start >+25 stop: n/a
+base reset start lose sever before than happens
+
+
+ping / 25
+
+>100 = 4
+>75  = 3
+>50  = 2
+>25  = 1
+
+s1 = 2+(ping/25)
+
+2 for LAN
+
+3-5 for internet
+
+first of all, find settings to get no base resets
+s1 and offset
+
+I guess even before that, go back to why lowering s1 can drop client and prevent reconnecting
+I though I had it fixed but it still happens...
+
+on client in the join procedure it look s like it never gets initial state
+
+
+on server the first drop was for last stak rx > 100 (fix spelling!!!)
+
+
+maybe on the server the rewind thing gets broken...
+
+   int s1 = players1[0].s1;
+   int s2 = players1[0].s2;
+   int s3 = s1+s2;
+
+   // is it time to make a new dif and send to clients?
+   if (frame_num == srv_client_state_frame_num[0][1] + s3)
+   {
+
+
+   if (frame_num >= srv_client_state_frame_num[0][1] + s3)
+
+I think that fixed that...lets see if I can lower s2 to 0 also...
+looks good....
+
+
+now how can I do a training session?
+
+makes sense for newly joining clients, but not server
+
+run training session on client....
+
+
+
+ramps through the offset values by fives
+starts at 0 and decreases until -100
+
+stays on each for 1s
+
+how many late_cdats
+how many base_reset
+
+---------------
+
+
+I still want to know if changing s2 does anything
+
+sudo tc qdisc change dev eno1 root netem delay 40ms
+sudo tc qdisc change dev ifb0 root netem delay 40ms
+
+
+LAN (80ms) 40in 40out
+s1:4 s2:0
+base resets
+-81 to -74
+-56 to -49
+-31 to -24
+-6 to +1
+late cdats start at -56
+
+LAN (80ms) 40in 40out
+s1:4 s2:1
+start at -100 and increase
+base resets (7 on)
+-81 to -74
+-56 to -49
+-31 to -24
+-6 to +1
+late cdats start at -31
+
+
+here is some great evidence...changing s2 from 0 to 1 definitely affected late cdats
+but...did it really???
+it just put a 25ms offset on dsync!!!
+
+
+
+test some more...
+
+why are base resets so cyclic?
+
+
+
+
+
+
+
+
+
+
+LAN (100ms) 50in 50out
+s1:5 s2:0
+base resets never
+late cdats start at -76
+
+LAN (100ms) 50in 50out
+s1:4 s2:0
+base resets always
+late cdats start at -76
+
+LAN (90ms) 45in 45out
+s1:5 s2:0
+base resets never
+late cdats start at -66
+
+LAN (90ms) 45in 45out
+s1:4 s2:0
+base resets (16 on)
+-90 to -76
+-66 to -50
+late cdats start at -66
+
+
+LAN (80ms) 40in 40out
+s1:5 s2:0
+base resets never from -100 to +40
+late cdats start at -56
+
+LAN (80ms) 40in 40out
+s1:4 s2:1
+base resets (7 on)
+-81 to -74
+-56 to -49
+-31 to -24
+-6 to +1
+late cdats start at -31
+
+
+LAN (70ms) 35in 35out
+s1:4 s2:0
+base resets: never from -100 to 0
+late cdats start at -46
+
+LAN (70ms) 35in 35out
+s1:3 s2:0
+base resets: (20 on)
+-95 to -75
+-70 to -50
+-55 to -25
+-20 to 0
+late cdats start at -46
+
+
+LAN (60ms) 30in 30out
+s1:4 s2:0
+base resets: never
+late cdats start at -36
+
+LAN (60ms) 30in 30out
+s1:3 s2:0
+base resets: (9 on)
+-86 to -75
+-61 to -49
+-36 to -25
+-11 to 0
+late cdats start at -36
+
+
+
+LAN (50ms) 25in 25out
+s1:4 s2:0
+base resets: never
+late cdats start at -26
+
+LAN (50ms) 25in 25out
+s1:3 s2:0
+base resets: (2 on)
+-76 to -75
+-51 to -50
+-26 to -25
+-1 to 0
+late cdats start at -26
+
+
+LAN (40ms) 20in 20out
+s1:3 s2:0
+base resets: never
+late cdats start at -16
+
+LAN (40ms) 20in 20out
+s1:2 s2:0
+base resets: (16 on)
+91-75
+66-50
+41-25
+16-0
+late cdats start at -16
+
+
+LAN (30ms) 15in 15out
+s1:3 s2:0
+base resets: never
+late cdats start at -6
+
+LAN (30ms) 15in 15out
+s1:2 s2:0
+base resets: (6 on)
+-81 to -75
+-56 to -50
+-31 to -25
+-6 to 0
+late cdats start at -6
+
+
+LAN (20ms) 10in 10out
+s1:2 s2:0
+base resets: never
+late cdats start at +4
+
+LAN (20ms) 10in 10out
+s1:1 s2:0
+base resets: (21 on)
+-96 to -75
+-71 to -50
+-46 to -25
+-21 to 0
+late cdats start at +4
+
+
+LAN (10ms) 5in 5out
+s1:2 s2:0
+base resets: never
+late cdats start at +14
+
+LAN (10ms) 5in 5out
+s1:1 s2:0
+base resets: (11 on)
+-86 to -75
+-61 to -50
+-36 to -25
+-11 to 0
+late cdats start at +14
+
+LAN (0ms) 0in 0out
+s1:2 s2:0
+base resets: never
+late cdats start at +24
+
+LAN (0ms) 0in 0out
+s1:1 s2:0
+base resets: (2 on)
+-76 to -75
+-51 to -50
+-26 to -25
+-1 to 0
+late cdats start at +24
+
+
+what is the correlation of those two variables?
+
+ping 100 needs s1:5 offset < -76  (4 + 25)
+ping 90  needs s1:5 offset < -66  (4 + 16)
+ping 80  needs s1:5 offset < -56  (4 + 7)
+ping 70  needs s1:4 offset < -46  (3 + 20)
+ping 60  needs s1:4 offset < -36  (3 + 9)
+ping 50  needs s1:4 offset < -26  (3 + 2)
+ping 40  needs s1:3 offset < -16  (2 + 16)
+ping 30  needs s1:3 offset < -6   (2 + 6)
+ping 20  needs s1:2 offset < +4   (1 + 21)
+ping 10  needs s1:2 offset < +14  (1 + 11)
+ping  0  needs s1:2 offset < +24  (1 + 2)
+
+so, given an input, ping, formula for s1
+
+                    ping/20
+ 0 < ping < 20 = 2    0
+20 < ping < 40 = 3    1
+40 < ping < 60 = 4    2
+60 < ping < 80 = 5    3
+
+s1 = 2 + (ping/20)
+
+will never be less than 2
+
+
+
+formula for offset
+
+ping  offset
+0  -> 10
+10 -> 0
+20 -> -10
+30 -> -20
+
+offset = (10-ping)
+
+I can easily do this on the client
+offset = (10-ping)
+
+
+on the server though...
+
+take the average client ping?
+worst client ping?
+
+set s1 from that?
+
+
+but I don't want to change it too often
+
+is once per second too often??
+
+first of all, do the client auto stuff...done
+
+
+now where to do the calc on the server
+
+
+
+first of all, what the hell?
+
+
+server sets:
+
+            double t0 = PacketGetDouble();
+            double t1 = al_get_time();
+            players1[p].ping = t1 - t0;
+
+when rxing both ping and pang...that cant be right....
+
+cli tx ping
+srv rx ping then tx pong
+cli rx pong then tx pang
+srv rx pang
+
+it should be only when server rx's pang..it makes no sense to do it after rxing ping...
+
+
+client does a nice average for its local ping..that doesn't help me..
+
+server need to keep track of maximum and reset somehow...
+
+make a var in player struct....
+
+20230129 5:49 AM
+
+I made a lot of progress yesterday...
+
+I am pretty sure that s2 is not needed, all it does is adjust where in the cycle the dif is sent,
+so all it really does give an offset to dsycn on the client...
+
+I did a lot of tests, made some new measurements, and made some automatic adjustments..
+
+I should add some of this info to the docs...
+
+
+what am I going to do with client offset?
+
+10-ping...
+did I not alreay have -ping
+yes I did...
+
+so if I make the offset +10 by default that should so it. It will stay there unless changed..
+that takes are of that...
+
+now for for the other one...
+
+everytime server gets a pang packet, it calculates the ping for that client
+at the same time, it checks that ping value only against max client ping and sets if higher
+
+if (players1[p].ping > players1[0].server_max_client_ping) players1[0].server_max_client_ping = players1[p].ping;
+
+then in the once per second timer area, if server...
+use that max client ping to set s1, then reset max client ping
+
+if (ima_server)
+{
+   int cmp = players1[0].server_max_client_ping*1000;
+   players1[0].server_max_client_ping = 0;
+   if (cmp > 100) cmp = 100;
+   players1[0].s1 = 2 + cmp/20; // use client max ping to set s1
+
+this looks like it is finished, as long as it keeps working as good as it has...
+
+
+so now what?
+
+
+what are sc cs and rt in server debug grid?
+are they used?
+how are they calculated
+
+
+void server_proc_stak_packet(void)
+{
+   int p                        = PacketGet1ByteInt();
+   int ack_frame_num            = PacketGet4ByteInt();
+   int client_frame_num         = PacketGet4ByteInt();
+   players1[p].frames_skipped   = PacketGet4ByteInt();
+   players1[p].client_chase_fps = PacketGetDouble();
+   players1[p].dsync            = PacketGetDouble();
+
+   players1[p].server_sync = frame_num - client_frame_num;
+
+   int sfn1 = ack_frame_num;
+   int cfn = client_frame_num;
+   int sfn2 = frame_num;
+
+   players1[p].sc_sync = sfn1 - cfn; // packet stdf from s to c  sfn1-cfn
+   players1[p].cs_sync = cfn - sfn2; // packet stak from c to s  cfn-sfn
+   players1[p].rt_sync = sfn2 - sfn1; // round trip to server back to server through client via stdf and stak
+
+
+all three of them are only used to show in server debug grid, and I don't recall them ever being useful...
+
+lets kill them...done...
+
+make a new switch -tl to copy src dir only to linux...
+
+
+done...
+
+now just run pm -tu, then recompile on ubuntu..
+
+now I can complie and run on linux with F9...not sure why I could not run on linux before, except command line...
+still can't just click on the executable in linux though...
+
+
+anyway, now that I have that done lets check out the new server debug grid
+
+
+what is lcls...late cdats last second...makes sense...
+lets hide if for now...
+
+
+when server displays dsync for clients, where does it come from?
+client sends it to server with stak packet
+
+what is gmav on server for each client...
+// client game move sync avg last sec
+the amount of time between server getting cdat and when it should be applied...???
+
+pretty much follows offset on client....
+when client offset is 10ms, gmav is -10...etc...i think ill keep it for now....but hide it
+
+
+
+what is server_sync used for?
+
+server keeps track of it for each client when stak packet received
+
+void server_proc_stak_packet(void)
+{
+   int p                        = PacketGet1ByteInt();
+   int ack_frame_num            = PacketGet4ByteInt();
+   int client_frame_num         = PacketGet4ByteInt();
+   players1[p].frames_skipped   = PacketGet4ByteInt();
+   players1[p].client_chase_fps = PacketGetDouble();
+   players1[p].dsync            = PacketGetDouble();
+
+   players1[p].server_sync = frame_num - client_frame_num;
+   server_lock_client(p);
+
+
+
+server uses it to lock clients when first joining
+
+void server_lock_client(int p)
+{
+   if ((!players[p].active) && (players[p].control_method == 2)) // inactive client chasing for lock
+   {
+      if ((players1[p].server_sync > -2) && (players1[p].server_sync < 5)) players1[p].sync_stabilization_holdoff++;
+      else players1[p].sync_stabilization_holdoff = 0;
+   }
+   if (players1[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
+   {
+      add_game_move(frame_num + 4, 1, p, players[p].color);
+      players1[p].sync_stabilization_holdoff = 0;
+
+      sprintf(msg,"Player:%d has locked and will become active in 4 frames!", p);
+      if (LOG_NET_join) add_log_entry_header(11, 0, msg, 0);
+   }
+}
+
+
+server uses it to drop clients if it goes over 100
+
+         if ((players[p].active) && (players1[p].server_sync > 100))
+         {
+            //printf("[%4d] server_sync:[%4d] drop p:%d \n", frame_num, players1[p].server_sync, p);
+            add_game_move(frame_num + 4, 2, p, 70); // make client inactive (reason sync > 100)
+
+            sprintf(msg,"Server dropped player:%d (server sync > 100)", p);
+            if (LOG_NET) add_log_entry_header(10, p, msg, 1);
+         }
+
+
+I now have dsync, which does pretty much the same thing, only higher resolution..
+it is calculated on the client and passed to server with stak packet....
+
+just for the sake of making things simpler, could I replace server_sync with the dsync that I get from clients?
+
+why do I need both?
+
+
+right now, server does not get anything for server_sync until it gets stak packet from client, this should not change anything...
+
+
+lets run a log and look at the stak packets rx'e by server...especially when joining and level done...
+
+
+
+first try to replace in the locking part....
+
+what ranges should I use?
+
+max +30  +0.03
+min -150 -0.15
+try that...
+
+
+it seems to work but I should try it on some shitty networks....
+
+where does it show waiting for sync?
+it show it on the client (duh!) and uses the varaible client_sync...
+
+on the client,
+
+calculated in rx_stdf:
+players1[p].client_sync = dst - frame_num;                        // crude integer sync based on frame numbers
+
+then used to calculate higher resolution dsync:
+players1[p].dsync += (double) players1[p].client_sync * 0.025; // add to integer sync in case we are out by a lot
+
+then after that it is used only to display...
+log entries,
+client debug grid
+"Please wait for server sync" overlay
+
+I think I want make it only used for a few lines in rx stdf
+then after that, just use dsync...
+client_sync is gone....
+
+back to server sync...
+
+test with 40 30 on both
+
+it joined...
+
+
+try 80 on both (160)
+
+it still joined...
+I think the target was 150 (160-10) so try 90 90 (180)
+
+now it fails...
+
+lets try setting the limit to 0.2 or (200)
+
+that works, it finally joined with a ping of 200
+
+reduced stabilization time to 10 frames...
+
+OK moving on to removing server_sync....
+
+do I even need to drop players with a huge sync??
+how about I take a page from the join stuff and make it so that it has to be over the value for a specified number of frames?
+or just don't do it...lets try not doing it....
+
+//         if ((players[p].active) && (players1[p].server_sync > 100))
+//         {
+//            //printf("[%4d] server_sync:[%4d] drop p:%d \n", frame_num, players1[p].server_sync, p);
+//            add_game_move(frame_num + 4, 2, p, 70); // make client inactive (reason sync > 100)
+//
+//            sprintf(msg,"Server dropped player:%d (server sync > 100)", p);
+//            if (LOG_NET) add_log_entry_header(10, p, msg, 1);
+//         }
+server_sync is completely gone....
+
+
+that all seems to work...
+
+
+bug...can't quit on client while waiting for sync
+
+after getting initial state it goes to mode 11, the normal running mode...
+but the client is not active yet, until the server says it is....
+all I want is a way out of this mode...
+
+added this to control....
+
+      else if (players[p].control_method == 4) // not active and control method 4 is a client waiting for server to make it active
+      {
+         if (key[ALLEGRO_KEY_ESCAPE][1]) new_program_state = 25; // give them an escape option
+      }
+
+there do not seem to be any other escape routes in client setup...
+
+if the network setup fails, it will just timeout...
+
+what about when waiting for a join invitation?
+it normally never fails, but lets make it fail then make a way out...done
+nothing is shown, except on the console, but that's ok
+
+can I add one to the network setup?
+especially the part where it waits for a response...done
+
+now fix what you broke....done...
+
+
+moving right along... now what?
+
+remove s2....
+
+should I rename s1?
+
+im doing documnenataion and would like to call it something else..
+
+i used to call it stdf freq
+
+how about dif_freq?
+i like that
+server_state_frequency would be more accurate
+it does rewinds and makes states even when it has no clients...
+
+
+ok
+
+server_state_frequency it is....
+
+find all s1 and replace...
+
+also kill s2..
+
+...........
+
+
+more testing, with corrupted and missing packets
+
+more documentation... did a lot of doc......
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

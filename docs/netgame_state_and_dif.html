@@ -1,0 +1,237 @@
+<!doctype html>
+<title>Netgame - State and dif</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+<div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div></mdw_lhs_nav>
+
+        </nav>
+
+
+
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - State and Dif</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_state_and_dif.html#The game state" target="_top">The game state</a>
+ <a href="netgame_state_and_dif.html#Game state variables" target="_top">Game state variables</a>
+ <a href="netgame_state_and_dif.html#Combining game state variables into 'state'" target="_top">Combining game state variables into 'state'</a>
+ <a href="netgame_state_and_dif.html#'state' variables" target="_top">'state' variables</a>
+ <a href="netgame_state_and_dif.html#State compression methods" target="_top">State compression methods</a>
+ <a href="netgame_state_and_dif.html#The diferential method" target="_top">The diferential method</a>
+</mdw_file_toc><hr></mh3>
+
+
+
+<br><a name="The game state"></a>
+<mh7>The game state</mh7>
+
+<mh3>
+The game state is all of the data required to replicate the game between server and client.
+
+It consists of all the relevant variables for the level, players, enemies, items, bullets, etc.
+
+The server's game state is periodically sent to clients to keep them in sync.
+</mh3>    
+
+
+<br><a name="Game state variables"></a>
+<mh7>Game state variables</mh7>
+
+<pre><code class="language-cpp">// Variables used for netgame state exchange
+players  :  2048 - player structs
+Ei       : 12800 - enemy ints
+Efi      :  6400 - enemy fixeds
+item     : 32000 - item ints
+itemf    :  8000 - item fixeds
+lifts    :  5280 - lift structs
+l        : 40000 - 100 x 100 tile level
+pbullet  :  1200 - player's bullets
+ebullets :  1200 - enemy's bullets
+pm_event :  4000 - events
+---------:------
+total    :112928
+</code></pre>
+
+
+<br><a name="Combining game state variables into 'state'"></a>
+<mh7>Combining game state variables into 'state'</mh7>
+
+
+<mh3>
+The game state variables are copied into a character array with memcpy.
+This is so that thay can be processed as a single chunk of data, rather than individually.
+
+I refer to these large chunks of data as 'states'.
+They contain the entire game state for a specific frame.
+
+This is how data is put into a 'state', and how it is retreived:
+</mh3>
+
+<pre><code class="language-cpp">#define STATE_SIZE 112928
+
+char state[STATE_SIZE];
+
+game_vars_to_state(state) // put game variables into 'state'
+state_to_game_vars(state) // get game variables from 'state'
+
+void game_vars_to_state(char * b)
+{
+   int sz = 0, offset = 0;
+   offset += sz; sz = sizeof(players);  memcpy(b+offset, players,  sz);
+   offset += sz; sz = sizeof(Ei);       memcpy(b+offset, Ei,       sz);
+   offset += sz; sz = sizeof(Efi);      memcpy(b+offset, Efi,      sz);
+   offset += sz; sz = sizeof(item);     memcpy(b+offset, item,     sz);
+   offset += sz; sz = sizeof(itemf);    memcpy(b+offset, itemf,    sz);
+   offset += sz; sz = sizeof(lifts);    memcpy(b+offset, lifts,    sz);
+   offset += sz; sz = sizeof(l);        memcpy(b+offset, l,        sz);
+   offset += sz; sz = sizeof(pbullet);  memcpy(b+offset, pbullet,  sz);
+   offset += sz; sz = sizeof(ebullets); memcpy(b+offset, ebullets, sz);
+   offset += sz; sz = sizeof(pm_event); memcpy(b+offset, pm_event, sz);
+}
+
+void state_to_game_vars(char * b)
+{
+   int sz = 0, offset = 0;
+   sz = sizeof(players);  memcpy(players,  b+offset, sz); offset += sz;
+   sz = sizeof(Ei);       memcpy(Ei,       b+offset, sz); offset += sz;
+   sz = sizeof(Efi);      memcpy(Efi,      b+offset, sz); offset += sz;
+   sz = sizeof(item);     memcpy(item,     b+offset, sz); offset += sz;
+   sz = sizeof(itemf);    memcpy(itemf,    b+offset, sz); offset += sz;
+   sz = sizeof(lifts);    memcpy(lifts,    b+offset, sz); offset += sz;
+   sz = sizeof(l);        memcpy(l,        b+offset, sz); offset += sz;
+   sz = sizeof(pbullet);  memcpy(pbullet,  b+offset, sz); offset += sz;
+   sz = sizeof(ebullets); memcpy(ebullets, b+offset, sz); offset += sz;
+   sz = sizeof(pm_event); memcpy(pm_event, b+offset, sz); offset += sz;
+}
+</code></pre>
+
+
+<br><a name="'state' variables"></a>
+<mh7>'state' variables</mh7>
+
+<mh3>
+Clients use 3 'state's and the server uses 16 (2 for each client).
+</mh3>
+<pre><code class="language-cpp">#define STATE_SIZE 112928
+
+// server's copies of client states
+extern char srv_client_state[8][2][STATE_SIZE];
+extern int srv_client_state_frame_num[8][2];
+
+// local client's states
+extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
+extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
+extern char client_state_base[STATE_SIZE];    // last ack state
+extern int  client_state_base_frame_num;      // last ack state frame_num
+extern char client_state_dif[STATE_SIZE];     // uncompressed dif
+extern int  client_state_dif_src;             // uncompressed dif src frame_num
+extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
+</code></pre>
+
+<br><a name="State compression methods"></a>
+<mh7>State compression methods</mh7>
+
+
+
+<mh3>
+States are quite large, (over 100K) so two methods of compression are used before sending them over the network.
+
+I use the amazing compression library 'zlib' for this.
+
+zlib is: (from their own documentation at zlib.net)
+
+A Massively Spiffy Yet Delicately Unobtrusive Compression Library
+(Also Free, Not to Mention Unencumbered by Patents)
+
+zlib alone will compress the 100K to approximately 6-8K.
+
+Using a diferential method before compressing with zlib results in approx 500-1100 bytes.
+</mh3>
+<br><a name="The diferential method"></a>
+<mh7>The diferential method</mh7>
+
+<mh3>
+The diferential method subtracts one state from another, resulting in a state that only contains differences between the the two.
+
+Whenever the two states have the same value, the dif will have a zero. Only changed values are non-zero.
+
+This results in a dif that is mostly zero's and compresses much better.
+
+Most of the time, the dif is less than 1K and can be sent in a single packet.
+
+This method requires that both the server and the client keep a common previous state that the dif can be applied to.
+</mh3>
+<pre><code class="language-cpp">void get_state_dif(char *a, char *b, char *c, int size)
+{
+   for (int i=0; i < size; i++)
+      c[i] = a[i] - b[i];
+}
+
+void apply_state_dif(char *a, char *c, int size)
+{
+   for (int i=0; i < size; i++)
+      a[i] -= c[i];
+}
+</code></pre>
+
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2022, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

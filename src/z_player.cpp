@@ -1527,9 +1527,6 @@ void init_player(int p, int t)
 
       players1[p].late_cdats = 0;
 
-      players1[p].client_sync = 0;
-      players1[p].server_sync = 0;
-
       players1[p].client_chase_fps = 0;
       players1[p].server_game_move_sync = 0;
 
@@ -1547,14 +1544,16 @@ void init_player(int p, int t)
       players1[p].made_active_holdoff = 0;
 
       players1[p].client_chase_offset = 0.0;
-      players1[p].client_chase_offset_auto_offset = 0.0;
+      players1[p].client_chase_offset_auto_offset = 0.01;
       players1[p].client_chase_offset_mode = 1;
+
+      players1[p].xcor_reset_frame = 0;
+      players1[p].xcor_max = 0;
 
       players1[p].game_move_dsync = 0;
       players1[p].game_move_dsync_avg_last_sec = 0;
       players1[p].game_move_dsync_avg_last_sec_tally = 0;
       players1[p].game_move_dsync_avg_last_sec_count = 0;
-
    }
 
    if (t == 23) // clear bandwidth counters
