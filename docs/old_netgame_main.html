@@ -1,0 +1,397 @@
+<!doctype html>
+<title>Netgame - Main</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+
+</mdw_lhs_nav>
+
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - Main</mh8>
+<mh3><hr><mdw_file_toc> <a href="old_netgame_main.html#Overview" target="_top">Overview</a>
+ <a href="old_netgame_main.html#Game Move Sync" target="_top">Game Move Sync</a>
+ <a href="old_netgame_main.html#Client sends control change" target="_top">Client sends control change</a>
+ <a href="old_netgame_main.html#Server receives control change" target="_top">Server receives control change</a>
+ <a href="old_netgame_main.html#Server sends game move data to clients" target="_top">Server sends game move data to clients</a>
+ <a href="old_netgame_main.html#Client receives game move data from server" target="_top">Client receives game move data from server</a>
+ <a href="old_netgame_main.html#Timing" target="_top">Timing</a>
+ <a href="old_netgame_main.html#Control lead frames" target="_top">Control lead frames</a>
+ <a href="old_netgame_main.html#Player numbers" target="_top">Player numbers</a>
+ <a href="old_netgame_main.html#Player control methods" target="_top">Player control methods</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+
+
+<mh3>
+There are two methods used simultaneously in netgame:
+- game move sync
+- state correction            
+
+Game move sync relies on the game being perfectly deterministic. (The same set of inputs will produce the exact same results).
+All that is needed is to replicate the same set of inputs across all the clients.
+    
+For a long time, game move sync was the only approach I used, and it almost worked perfectly.
+But when it didn't, all was lost.  The game would go out of sync between server and client and become unplayable.   
+I spent years refining and troubleshooting, added a very complex logging system, replaced floats with fixed points...
+I failed.  I could not get it to work reliably enough.
+
+I came upon the second method, state correction, while I was adding code to check if the game had gone out of sync.
+I was having the server send player state info to the clients and having them check if that agreed with their local state.
+Eventually I expanded this method to send the entire game state periodically, and just overwrite the clients state.
+That fixed any drift or loss of sync that occured with the first method. 
+
+Both methods are used at the same time.
+Game move sync happens fast, it can send data from client to server and back in a few frames.
+State correction takes care of any small drift that might occur, it occurs much less frequently but sends a large amount of data when it does.
+</mh3>    
+    
+<br><a name="Game Move Sync"></a>
+<mh7>Game Move Sync</mh7>
+
+<mh3>
+To ensure that all players (server and clients) have the same game state, they need the same set of inputs.
+
+The game_moves array contains all player input, indexed by the frame number when a control change occurred.
+The state of the controls is not stored every frame, only when a control change occurs.
+Every player (server and clients) should have an identical copy of the game moves array.
+
+The server has the master array and syncs that to each client independantly.
+When a client's controls change, those changes are sent to the server, put in the master array, then synced back to every client.
+    
+- client presses a control
+- client sends a packet with that data to the server
+- server puts it in the master game_moves array
+- master game_moves array is synced back to the client
+- the client moves by reading the game move from its locally synced game_move array
+
+<img src="images/netgame3.png" width=531 height=411 alt="diagram">
+    
+This requires that the clients run slightly behind the server. (default is 1 frame or 25ms)
+
+This means there is a delay between when the client presses a control and when the client responds but it is small enough to be barely noticeable.
+</mh3>    
+    
+<br><a name="Client sends control change"></a>
+<mh7>Client sends control change</mh7>
+    
+<mh3>    
+The part where a client sends a control change to the server is very simple:
+
+The client checks to see if its controls have changed from the last frame.
+
+If the client's controls have changed, the client sends a 'cdat' packet to the server like this:
+</mh3>
+<pre><code class="language-cpp">void client_local_control(int p)
+{
+   set_comp_move_from_player_key_check(p); 
+   if (players1[p].old_comp_move != players1[p].comp_move)  // players controls have changed
+   {
+      players1[p].old_comp_move = players1[p].comp_move;
+      Packet("cdat");
+      PacketPut1ByteInt(p);
+      PacketPut4ByteInt(frame_num + control_lead_frames);
+      PacketPut1ByteInt(players1[p].comp_move);
+      ClientSend(packetbuffer, packetsize);
+   }
+}</code></pre>
+
+<br><a name="Server receives control change"></a>
+<mh7>Server receives control change</mh7>
+
+<mh3>    
+When the server receives a 'cdat' packet from a client:
+- the server checks to see if the data is old (contains a frame_num that has already passed on the server)
+- if the data is good, it is added to the server's master game moves array
+- if the data is old, it is discarded and an error is incremented
+
+If the data is discarded, this is will not cause any sync issues, it will be as if the client never pressed the control at all.
+
+The most common reason for cdat's arriving late is the client lagging too far behind server.
+</mh3>    
+            
+<pre><code class="language-cpp">if(PacketRead("cdat"))
+{
+   int p = PacketGet1ByteInt();
+   int pc = PacketGet4ByteInt();
+   int cm = PacketGet1ByteInt();
+   // how far ahead is the client's frame_num for this move, compared to server's frame_num
+   int c_sync = players1[p].c_sync = pc - frame_num;
+
+   if (c_sync >= 0) add_game_move(pc, 5, p, cm);  // add to game_move array
+   else players1[p].c_sync_err++;                 // unless late, then drop and inc error
+}</code></pre>
+            
+<br><a name="Server sends game move data to clients"></a>
+<mh7>Server sends game move data to clients</mh7>
+
+<mh3>    
+The server synchronizes its master game moves array to each client independantly.
+
+The server knows how many game moves are in its master array with the global int 'game_move_entry_pos'.
+The server also tracks the last acknowledged 'game_move_entry_pos' for each player in the player structure.
+
+Every frame the server checks to see if there are un-acknowledged game moves to send for each client.
+If there is data to send, the server sends a 'sdat' packet with the needed data to that client.
+</mh3>
+<pre><code class="language-cpp">void server_send_sdat(void)
+{
+   for (int p=1; p < NUM_PLAYERS; p++)
+      if (players[p].control_method == 2)
+      {
+         if (players1[p].game_move_entry_pos < game_move_entry_pos) // client needs more data
+         {
+            int start_entry = players1[p].game_move_entry_pos;
+            int end_entry = game_move_entry_pos;
+            int num_entries = end_entry - start_entry;
+            if (num_entries > 100) num_entries = 100;
+
+            // to prevent multiple resends of exact same data
+            if ((players1[p].server_last_sdat_sent_start != start_entry) || // different start pos
+               (players1[p].server_last_sdat_sent_num != num_entries))      // different num entries
+            {
+               players1[p].server_last_sdat_sent_start = start_entry;
+               players1[p].server_last_sdat_sent_num = num_entries;
+			
+               Packet("sdat");
+               PacketPut1ByteInt(p);
+               PacketPut4ByteInt(frame_num);
+               PacketPut4ByteInt(start_entry);
+               PacketPut1ByteInt(num_entries);
+
+               for (int x=start_entry; x < start_entry + num_entries; x++)
+               {
+                  PacketPut4ByteInt(game_moves[x][0]); // frame_num
+                  PacketPut1ByteInt(game_moves[x][1]); // type
+                  PacketPut1ByteInt(game_moves[x][2]); // data 1
+                  PacketPut1ByteInt(game_moves[x][3]); // data 2
+               }
+               ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+			}   
+         }
+      }
+}</code></pre>
+<mh3>
+If the server receives an 'sdak' packet (sdat acknowledge), it sets the new acknowledged 'game_move_entry_pos' for that client.
+</mh3>
+<pre><code class="language-cpp">if(PacketRead("sdak"))
+{
+   int p = PacketGet1ByteInt();
+   players1[p].game_move_entry_pos = PacketGet4ByteInt();
+}</code></pre>
+
+    
+<br><a name="Client receives game move data from server"></a>
+<mh7>Client receives game move data from server</mh7>
+<mh3>    
+When a client receives game move data from the server, it adds it to its own local game moves array and sends an acknowledgement of the last entry received.
+</mh3>    
+<pre><code class="language-cpp">if(PacketRead("sdat"))
+{
+   int start_entry = PacketGet4ByteInt();
+   int num_entries = PacketGet1ByteInt();
+   int nep = start_entry + num_entries; // new entry position
+   if (nep > game_move_entry_pos) // only enter if they are newer
+   {
+      for (int x=start_entry; x < nep; x++)
+      {
+         game_moves[x][0] = PacketGet4ByteInt();
+         game_moves[x][1] = PacketGet1ByteInt();
+         game_moves[x][2] = PacketGet1ByteInt();
+         game_moves[x][3] = PacketGet1ByteInt();
+         game_move_entry_pos++;
+         if ((game_moves[x][0] - frame_num) < 0) // game move arrived too late to be applied
+         {
+            // bad error, will cause sync loss    
+         } 
+      }
+   }	  
+   Packet("sdak"); // send acknowledgement of game moves received
+   PacketPut4ByteInt(nep);
+   ClientSend(packetbuffer, packetsize);
+}</code></pre>
+<mh3>When a game move entry is added, the frame_num of the new move is compared to the client's current frame_num.
+If the newly entered game move is marked with a frame_num that has already occured on the client, an error is raised.
+This is a particularily bad error. It means that a game move has been applied on the server, but arrived too late to be applied on the client.
+This will definitely cause the client to be out of sync.
+</mh3>    
+
+<br><a name="Timing"></a>
+<mh7>Timing</mh7>
+
+<mh3>    
+Timing is critical in netgame. The server is the master timing source, and should run at 40fps.
+
+Clients adjust their speed to maintain a slight delay behind the server.
+The delay is measured in frames and is controlled by the global int 'server_lead_frames'.
+It can be changed in the config file, but should be left at its default of 1 frame (25ms).
+
+The client's timing control is adjusted like this:
+
+- the server sends 'sdat' packets to clients when it has data to send (or periodically for sync if it has no data to send)
+- client receives an 'sdat' packet from the server
+- embedded in the packet is the server's frame_num of when the packet was sent
+- the client compares this to its own frame number and adjusts its fps timer
+</mh3>
+<pre><code class="language-cpp">if(PacketRead("sdat"))
+{
+   int sdat_frame_num = PacketGet4ByteInt();
+   players1[p].server_sync = sdat_frame_num - frame_num;
+   int fps_chase = frame_speed + players1[p].server_sync - server_lead_frames;
+   al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+}</code></pre>
+
+<br><a name="Control lead frames"></a>
+<mh7>Control lead frames</mh7>
+<mh3>    
+There is an inherent delay in the client's control scheme.
+
+This is because the clients need to send their control changes through the server.
+
+</mh3>
+<img src="images/netgame2.png" width=653 height=591 alt="diagram">
+
+<mh3>
+To facilitate this, the control changes are sent with their frame_num modified to be in the future.
+Then they can make the the round trip through the server and still get back before it's time to apply them.
+</mh3>
+
+<pre><code class="language-cpp">void client_local_control(int p)
+{
+   set_comp_move_from_player_key_check(p); 
+   if (players1[p].old_comp_move != players1[p].comp_move)  // players controls have changed
+   {
+      players1[p].old_comp_move = players1[p].comp_move;
+      Packet("cdat");
+      PacketPut1ByteInt(p);
+      PacketPut4ByteInt(frame_num + control_lead_frames); // add control_lead_frames to frame_num
+      PacketPut1ByteInt(players1[p].comp_move);
+      ClientSend(packetbuffer, packetsize);
+   }
+}</code></pre>
+
+<mh3>
+The global variable 'control_lead_frames' is set in the config file, but should be left at its default value of 3. 
+
+Any lower than 3 and sometimes the data will not return in time.
+
+At settings higher than 3, the control lag becomes more noticeable.
+
+I have found 3 to be a good compromise. 3 frames is 75ms which is a barely noticeable control lag, and late cdats are rare.
+
+To make things fair for all players, the server has the same delay applied to its control changes.
+</mh3>
+
+<pre><code class="language-cpp">void server_local_control(int p)
+{
+   set_comp_move_from_player_key_check(p);                  
+   if (players1[p].comp_move != players1[p].old_comp_move)  // players controls have changed
+   {
+      players1[p].old_comp_move = players1[p].comp_move;
+      int fpc = frame_num + control_lead_frames;            // add control_lead_frames to frame_num
+      add_game_move(fpc, 5, p, players1[p].comp_move);
+   }
+}</code></pre>
+
+
+<br><a name="Player numbers"></a>
+<mh7>Player numbers</mh7>
+<mh3>
+There are data structures for 8 players, numbered from 0-7.
+
+- single player is always player 0
+- server is always player 0
+- clients can be from 1-7
+
+The global variable 'active_local_player' points to the the local player.
+
+</mh3>
+
+
+<br><a name="Player control methods"></a>
+<mh7>Player control methods</mh7>
+<mh3>    
+An integer in the player structure:
+
+int players[p].control_method;
+
+0 = local player in single player mode
+1 = file play (run demo game from file)
+2 = in netgame, any non-local player (client players on server, and server and other clients on client) 
+3 = in netgame, local server player on server
+4 = in netgame, local client player on client 
+99 = in netgame, used client in current level (to prevent re-use in same level)
+
+</mh3>
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2023, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

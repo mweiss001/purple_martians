@@ -919,7 +919,7 @@ int  server_init(void);
 void server_exit(void);
 void server_send_stdf(int p);
 void server_send_stdf(void);
-void server_rewind(void);
+void server_create_new_state(void);
 void server_send_sdat(void);
 void server_proc_player_drop(void);
 void server_proc_cdat_packet(double timestamp);

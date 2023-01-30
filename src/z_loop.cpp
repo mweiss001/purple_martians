@@ -340,11 +340,8 @@ void proc_program_state(void)
       qG[1].initialize(2);
       qG[2].initialize(2);
 
-
       for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1); // full reset
       players[0].active = 1;
-
-
 
       new_program_state = 23;
    }
@@ -422,8 +419,6 @@ void proc_program_state(void)
 
          // set holdoff 200 frames in future so client won't try to drop while syncing
          players1[p].client_last_stdf_rx_frame_num = frame_num + 200;
-
-         players1[active_local_player].client_ping_flag = 1;
 
          if (LOG_NET_join) add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
          program_state = 11;
@@ -866,7 +861,7 @@ void main_loop(void)
 
 
             if (LOG_TMR_sdif) t0 = al_get_time();
-            if (players1[0].server_send_dif) server_send_stdf();
+            server_send_stdf();
             if (LOG_TMR_sdif) add_log_TMR(al_get_time() - t0, "sdif", 0);
 
             if (proc_frame_skip()) draw_frame();

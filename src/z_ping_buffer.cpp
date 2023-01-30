@@ -54,7 +54,6 @@ void ping_array_add(double ping)
    // get the average
    players1[p].ping_avg = tally / (ul);
 
-
    if (players1[p].client_chase_offset_mode) players1[p].client_chase_offset = - players1[p].ping_avg + players1[p].client_chase_offset_auto_offset;
 
    sprintf(msg, "ping [%3.2f] avg[%3.2f]\n", ping*1000, players1[p].ping_avg*1000);

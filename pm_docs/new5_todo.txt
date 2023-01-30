@@ -503,12 +503,17 @@ netgame_ping
 netgame_client_timing_sync
 netgame_packets
 netgame_fast_packet_loop
+netgame_config
+netgame_join
+netgame_server_state
 
 
 to do:
+netgame_main (or overview) the main landing page that gives the highest level description and links to all the other pages
+netgame_status..started
+
 
 links:
-
 fpl
 client to dsync..done
 server read buffer timetamp to not done in server_proc_cdat_packet....
@@ -518,8 +523,6 @@ cts
 client rx stdf link to fpl...done
 
 
-netgame_join
-netgame_config
 
 
 
