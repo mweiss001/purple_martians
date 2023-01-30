@@ -9099,6 +9099,185 @@ more documentation... did a lot of doc......
 
 
 
+I don't think I need to send the client ping when the client joins...it should be fine just doing it with just the 2 Hz png_timer
+the timer is constantly running, and therefore the flag is set..
+only gets cleared if it actually send a ping...
+
+ima_client gets set when sjon is rx'd
+
+while waiting for initial state we are not in mode 11 yet
+
+as soon as innitial stae is rx'd flag is set and we are in mode 11
+
+but!!.. ping is not sent in game loop, it is sent just past it on the outside..
+
+so ping will be sent with 2 Hz timer as soon as ima_client is set when sjon is rx'd
+the extra one when initial state is rx'd is still not needed...
+
+OK I'm convinced...kill it...
+
+
+I don't think I want to save players1[0].server_state_freq in config file anymore...
+after all, i dysnalically set it...
+just make sure it has a sane value...
+
+at the same time, also lose zlib compression...I have never once changed it...done...
+
+what about TCP/UDP? leave it for now, but its very experimental
+
+Actually I would have liked to experiment with zlib_cmp...
+I should make i changeable as the game is running...but no need to set it in config though...
+
+-------------------------
+
+
+next...
+
+
+while gointg through the code, i realize...
+
+why do I have two states for every client?
+
+I only keep one previous state...
+
+the other one is only used as a temp storage when making difs...
+
+make sure this is the case, then remove it..
+
+15 occurances:
+2 define and declare
+4 for clear
+
+that leaves 9
+4 time server only [0]
+all cases where I use it for the server:
+I use [0][1]
+
+
+I know why!!
+
+I don't actually overwrite the old state until I get an ack for the new one....
+
+OK, just leave it....
+
+
+
+
+
+experiment with zlib...I would really like to see it in real time...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+In the game loop, 'server_send_stdf()' is called after 'move()' but before 'draw()'
+
+It is important that it is in this place in the game loop.
+
+It cannot be called before move...why not??
+
+Was it because in the old way, frame numbers changing was a big issue?
+
+Now the frame numbers are the same in both places.
+
+the state needs to be made at a very specific place in the loop, you can't just move it before or after the input has been applied and moves made
+
+I don't think it really matters at all now, but I would like to test it.....later
+
+now that I think about it, why do I make a state before input is applied for a frame?
+
+I don't know, but it smells wrong...
+
+rewind 3
+play 3
+make state
+do input
+move
+send dif
+draw
+
+back to top
+
+
+
+what do you think it should look like, and why?
+
+rewind and get all missed input
+do input for this frame
+move
+
+make and send state
+
+draw
+
+
+what if I did the rewind for input independant of the make and send state?
+
+and only do it if there is actually something to rewind for...
+
+I could do it every frame. if I remember, it was not expensive in cpu time..
+
+but why? what are you trying to achieve?
+
+premature optimization when you don't even think there is a problem?
+
+the problem I thought I saw was the server replaying and making states early in the frame.
+then still applying local input and doing the move after...
+
+I thought this would result in the state being made and sent to the clients just before it changed as opposed to just after it changed...
+that still seems true..
+
+
+but the way I have things set up, after loading a state, both client and server still expect to play that frame out...
+
+what if I changed it to:
+
+server saves states after all input and moves are done for frame_num
+then when loading them the first thing that shoud be done is to increment the frame number and start at the top of the loop.
+
+basically I would be changing the states behaviuor from:
+frame:100 starting state
+to:
+frame:100 ending state
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

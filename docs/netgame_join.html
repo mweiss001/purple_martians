@@ -39,12 +39,21 @@
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
 <div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
-<div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div></mdw_lhs_nav>
+
+<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+
+</mdw_lhs_nav>
             
         </nav>
 
@@ -59,186 +68,504 @@
 <mh3><hr></mh3>
 <mh8>Netgame - Join</mh8>
 <mh3><hr><mdw_file_toc> <a href="netgame_join.html#Overview" target="_top">Overview</a>
- <a href="netgame_join.html#Client sends CJON" target="_top">Client sends CJON</a>
- <a href="netgame_join.html#Server receives CJON and replies with SJON" target="_top">Server receives CJON and replies with SJON</a>
- <a href="netgame_join.html#Client blocks until it receives SJON" target="_top">Client blocks until it receives SJON</a>
- <a href="netgame_join.html#Client blocks until it gets initial state from server" target="_top">Client blocks until it gets initial state from server</a>
+ <a href="netgame_join.html#Program states for client join" target="_top">Program states for client join</a>
+ <a href="netgame_join.html#Client initializes network" target="_top">Client initializes network</a>
+ <a href="netgame_join.html#Client sends 'cjon' packet" target="_top">Client sends 'cjon' packet</a>
+ <a href="netgame_join.html#Server receives 'cjon' packet and replies with 'sjon' packet" target="_top">Server receives 'cjon' packet and replies with 'sjon' packet</a>
+ <a href="netgame_join.html#Client receives 'sjon' packet" target="_top">Client receives 'sjon' packet</a>
+ <a href="netgame_join.html#Client setup" target="_top">Client setup</a>
+ <a href="netgame_join.html#Client waits for initial state from server" target="_top">Client waits for initial state from server</a>
  <a href="netgame_join.html#Client chase and lock" target="_top">Client chase and lock</a>
- <a href="netgame_join.html#Packets used for join" target="_top">Packets used for join</a>
+ <a href="netgame_join.html#Ending a client netgame" target="_top">Ending a client netgame</a>
  <a href="netgame_join.html#Setting up netgame" target="_top">Setting up netgame</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
 <mh7>Overview</mh7>
 <mh3>
-The client requests to join.
+The client initializes the network and requests to join.
 The server sends a join invitation with all the game details.
 The client waits for initial state from the server.
 The client chases until it locks and the server sets it active.
 
 </mh3>
 
-<a name="Client sends CJON"></a>
-<mh7>Client sends CJON</mh7>
+
+
+<a name="Program states for client join"></a>
+<mh7>Program states for client join</mh7>
+
 <mh3>
-When a client wants to join, it sends a 'CJON' packet to the server, requesting to join.</mh3>
-<pre><code class="language-cpp">Packet("CJON");
+The program states used by a joining client are:
+
+24 - client start new game
+23 - client wait for join invitation
+22 - client level setup
+21 - client wait for initial state
+11 - main game loop
+
+if at any point in this process an error occurs or the game ends, it goes to:
+
+25 - client exit
+
+</mh3>
+
+
+<a name="Client initializes network"></a>
+<mh7>Client initializes network</mh7>
+
+
+<mh3>
+When a client game is started, the first thing that happens is the network initialization.
+
+This requires the server IP or hostname.
+
+If the connection is succesfully setup and a response is received from the server, we proceed to the next step.
+</mh3>
+<pre><code class="language-cpp">   //---------------------------------------
+   // 24 - client new game
+   //---------------------------------------
+   if (program_state == 24)
+   {
+      if (!client_init())
+      {
+         new_program_state = 25;
+         return;
+      }
+      for (int p=0; p < NUM_PLAYERS; p++) init_player(p, 1); // full player reset
+      players[0].active = 1;
+      new_program_state = 23;
+   }
+
+int client_init(void)
+{
+   if (!ClientInitNetwork(m_serveraddress)) return 0;
+   printf("sending cjon\n");
+   Packet("cjon");
+   PacketPut1ByteInt(players[0].color); // requested color
+   PacketAddString(local_hostname);
+   ClientSend(packetbuffer, packetsize);
+   return 1;
+}
+
+int ClientInitNetwork(const char *serveraddress)
+{
+   if(NetworkInit())
+   {
+      sprintf(msg, "Error: failed to initialize network");
+      return 0;
+   }
+   if (TCP)
+   {
+      ServerConn = net_openconn(NetworkDriver, NULL);
+      if(!ServerConn)
+      {
+         sprintf(msg, "Error: Client failed to create netconnection (TCP)");
+         return 0;
+      }
+      if(net_connect(ServerConn, serveraddress))
+      {
+         sprintf(msg, "Error: Client failed to set netconnection target: server[%s] (TCP)", serveraddress);
+         net_closeconn(ServerConn);
+         return 0;
+      }
+      sprintf(msg, "Client network initialized: server[%s] (TCP)", serveraddress);
+   }
+   else // UDP
+   {
+      ServerChannel = net_openchannel(NetworkDriver, "");
+      if (ServerChannel == NULL)
+      {
+         sprintf(msg, "Error: Client failed to create netchannel (UDP)");
+         return 0;
+      }
+      if (net_assigntarget(ServerChannel, serveraddress))
+      {
+         sprintf(msg, "Error: Client failed to set netchannel target: server[%s] (UDP)", serveraddress);
+         return 0;
+      }
+      sprintf(msg, "Client network (UDP) initialized: server:%s local address%s", serveraddress, net_getlocaladdress(ServerChannel));
+   }
+
+   // Check for reply from server
+   int tries = 1;        // number of times to try
+   float try_delay = 1;  // delay between tries
+   int got_reply = 0;
+
+   while (!got_reply)
+   {
+      printf("ClientCheckResponse %d\n", tries);
+      int ccr = ClientCheckResponse();
+      if (ccr == 1)
+      {
+         got_reply = 1;
+         sprintf(msg,"Got reply from server");
+      }
+      if (ccr == 0)
+      {
+         al_rest(try_delay);
+         if (++tries > 2)
+         {
+            sprintf(msg,"Did not get reply from server");
+            return 0;
+         }
+      }
+      if (ccr == -1)
+      {
+         sprintf(msg,"TCP response Error!");
+         return 0;
+      }
+      if (ccr == -2)
+      {
+         sprintf(msg,"Cancelled");
+         return 0;
+      }
+   }
+   return 1;
+}
+
+int ClientCheckResponse(void) // check for a repsonse from the server
+{
+   if (TCP)
+   {
+      int x = net_poll_connect(ServerConn);
+      if (x == 0) return 0; // no response yet
+   	  if (x >  0) return 1; // good response
+   	  if (x <  0) // error
+      {
+         net_closeconn(ServerConn);
+   		 return -1;
+   	  }
+   }
+   else // UDP
+   {
+      char address[32];
+      Packet("1234");
+      ClientSend(packetbuffer, packetsize);
+      printf("Sent initial packet 1234 to server\nWaiting for reply");
+
+      int done = 10;
+      while (done)
+      {
+         printf(".");
+         packetsize = net_receive(ServerChannel, packetbuffer, 1024, address);
+         if (packetsize)
+         {
+            set_packetpos(0);
+            if (PacketRead("5678"))
+            {
+               printf("got response 5678: %s\n", address);
+               net_assigntarget(ServerChannel, address);
+               return 1;
+            }
+         }
+         al_rest(.1);
+         done--;
+      }
+      printf("no response\n");
+   }
+   return 0;
+}
+</code></pre>
+
+
+
+
+<a name="Client sends 'cjon' packet"></a>
+<mh7>Client sends 'cjon' packet</mh7>
+<mh3>
+Now that we have connection to the server, the client sends a 'cjon' packet, requesting to join.</mh3>
+<pre><code class="language-cpp">Packet("cjon");
 PacketPut1ByteInt(players[0].color); // requested color
 PacketAddString(local_hostname);
 ClientSend(packetbuffer, packetsize);
 </code></pre>
 
-<a name="Server receives CJON and replies with SJON"></a>
-<mh7>Server receives CJON and replies with SJON</mh7>
+<a name="Server receives 'cjon' packet and replies with 'sjon' packet"></a>
+<mh7>Server receives 'cjon' packet and replies with 'sjon' packet</mh7>
 <mh3>
-The server sets up a client player structure and replies with an 'SJON' packet.</mh3>
-<pre><code class="language-cpp">init_player(cn, 1);
-players[cn].color = color;
-players[cn].control_method = 2; // server client remote view only
-players1[cn].who = who;
-players1[cn].server_last_sdak_rx_frame_num = frame_num + 200;
-players1[cn].game_move_entry_pos = game_move_entry_pos;
+When the server receives a 'cjon' packet, it checks to see if it has an available slot for the client.
 
-Packet("SJON"); // reply with SJON
-PacketPut2ByteInt(play_level);
-PacketPut4ByteInt(frame_num);
-PacketPut4ByteInt(game_move_entry_pos);
-PacketPut1ByteInt(frame_speed);
-PacketPut1ByteInt(cn);
-PacketPut1ByteInt(color);
-PacketPut1ByteInt(deathmatch_pbullets);
-PacketPut1ByteInt(deathmatch_pbullets_damage);
-PacketPut1ByteInt(suicide_pbullets);
-</code></pre>
-
-
-<a name="Client blocks until it receives SJON"></a>
-<mh7>Client blocks until it receives SJON</mh7>
-<mh3>
-When the client receives SJON, it sets up the local and server player structures:</mh3>
-<pre><code class="language-cpp">play_level = PacketGet2ByteInt(); 
-int server_SJON_frame_num =  PacketGet4ByteInt(); 
-players1[cp].game_move_entry_pos =  PacketGet4ByteInt(); 
-frame_speed = PacketGet1ByteInt();    
-int cp = PacketGet1ByteInt();     // client player number
-players[cp].color = PacketGet1ByteInt();  // client player color
-deathmatch_pbullets = PacketGet1ByteInt();
-deathmatch_pbullets_damage = PacketGet1ByteInt();
-suicide_pbullets = PacketGet1ByteInt();
-
-for (int p=0; p < NUM_PLAYERS; p++) init_player(p, 1); // initialize all players
-
-players[0].active = 1;          // server is alway player 0 and active when on a client
-players[0].control_method = 2;  // server is remote view when on a client
-
-active_local_player = cp;       // client local player
-players[cp].control_method = 4; 
-</code></pre>
-
-
-<a name="Client blocks until it gets initial state from server"></a>
-<mh7>Client blocks until it gets initial state from server</mh7>
-<mh3>
-On the client in the function 'client_control()': </mh3>
-<pre><code class="language-cpp">if (frame_num == 0) client_block_until_initial_state_received();
-
-void client_block_until_initial_state_received(void)
+If the server is full, it replies with an 'sjon' packet indicating the server is full.
+</mh3>
+<pre><code class="language-cpp">void server_proc_cjon_packet(int who)
 {
-   reset_states();
-   int done = 0;
-   while (!done)
+   int color = PacketGet1ByteInt();
+   char temp_name[16];
+   PacketReadString(temp_name);
+
+   if (LOG_NET_join)
    {
-      if ((packetsize = ClientReceive(packetbuffer)) && (PacketRead("stdf"))) done = client_process_stdf_packet();
-      proc_controllers();
-      if (key[ALLEGRO_KEY_ESCAPE]) fast_exit(64); // in case we get trapped here and need a way out
+      sprintf(msg,"Server received join request from %s requesting color:%d", temp_name, color);
+      add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+      add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
    }
-   set_frame_nums(client_state_dif_dst);
-   client_apply_diff();
 
-   // set holdoff 200 frames in future so client won't try to drop while syncing
-   players1[p].client_last_sdat_rx_frame_num = frame_num + 200;
+   // find empty player slot
+   int cn = 99;
+   for (int p=0; p < NUM_PLAYERS; p++)
+      if ((players[p].active == 0) && (players[p].control_method == 0))
+      {
+         cn = p;
+         break;
+      }
+   if (cn == 99) // no empty player slots found
+   {
+      if (LOG_NET_join)
+      {
+         sprintf(msg, "Reply sent: 'SERVER FULL'");
+         add_log_entry_position_text(11, 0, 76, 10, msg, "|", " ");
+         add_log_entry_centered_text(11, 0, 76, "", "+", "-");
+      }
 
-   // send ack up to this point so server won't try to send us previous game moves
-   Packet("sdak");
-   PacketPut1ByteInt(p);
-   PacketPut4ByteInt(frame_num);
-   PacketPut4ByteInt(players1[p].game_move_entry_pos); // new entry pos
-   PacketPut4ByteInt(players1[p].stdf_late);
-   PacketPut4ByteInt(players1[p].frames_skipped);
-   ClientSend(packetbuffer, packetsize);
+      Packet("sjon");    // reply with sjon
+      PacketPut2ByteInt(0);
+      PacketPut4ByteInt(0);
+      PacketPut1ByteInt(0);
+      PacketPut1ByteInt(99); // send sjon with player 99 to indicate server full
+      PacketPut1ByteInt(0);
+      PacketPut2ByteInt(0);
+      PacketPut1ByteInt(0);
+      ServerSendTo(packetbuffer, packetsize, who, 0);
+   }
+</code></pre>
+
+<mh3>
+If the server is not full, it proceeds with the join process.
+
+First it checks if it can use the requested color.
+
+Then the server sets up a client player structure and replies with an 'sjon' packet.</mh3>
+
+</mh3>
+<pre><code class="language-cpp">   else // empty player slot found, proceed with join
+   {
+      // try to use requested color, unless already used by another player
+      while (is_player_color_used(color)) if (++color > 15) color = 1;
+      init_player(cn, 1);
+      set_player_start_pos(cn, 0);
+      players[cn].color = color;
+      players[cn].control_method = 2; //server client view only
+      players1[cn].who = who;
+      players1[cn].server_last_stak_rx_frame_num = frame_num + 200;
+      sprintf(players1[cn].hostname, "%s", temp_name);
+
+      add_game_move(frame_num, 3, cn, color); // add a game move type 3 to mark when client started join
+
+      Packet("sjon"); // reply with sjon
+      PacketPut2ByteInt(play_level);
+      PacketPut4ByteInt(frame_num);
+      PacketPut1ByteInt(cn);
+      PacketPut1ByteInt(color);
+      PacketPut1ByteInt(deathmatch_pbullets);
+      PacketPut2ByteInt(deathmatch_pbullets_damage+1000);
+      PacketPut1ByteInt(suicide_pbullets);
+      ServerSendTo(packetbuffer, packetsize, who, cn);
+   }
 }
 </code></pre>
+
+
+<a name="Client receives 'sjon' packet"></a>
+<mh7>Client receives 'sjon' packet</mh7>
+<mh3>
+After the client sends the 'cjon' packet, it waits for a reply from the server.
+
+When the client receives the 'sjon' packet, it sets up the local player structure and moves to the next phase of joining.
+</mh3>
+<pre><code class="language-cpp">   //---------------------------------------
+   // 23 - client wait for join
+   //---------------------------------------
+   if (program_state == 23)
+   {
+      client_fast_packet_loop();
+      client_read_packet_buffer();
+      if (key[ALLEGRO_KEY_ESCAPE][1]) new_program_state = 25; // give them an escape option
+   }
+
+void client_process_sjon_packet(void)
+{
+   int pl = PacketGet2ByteInt();   // play level
+   int server_sjon_frame_num  =  PacketGet4ByteInt();
+   int p = PacketGet1ByteInt();      // client player number
+   int color = PacketGet1ByteInt();  // client player color
+   int dmp = PacketGet1ByteInt();    // deathmatch_pbullets
+   int dmd = PacketGet2ByteInt();    // deathmatch_pbullets_damage
+   int spb = PacketGet1ByteInt();    // suicide_pbullets
+
+   if (p == 99) // server full, join denied
+   {
+      sprintf(msg,"Server replied with 'SERVER FULL'\n");
+      printf("%s", msg);
+      if (LOG_NET_join) add_log_entry2(11, active_local_player, msg);
+      new_program_state = 25;
+   }
+   else // join allowed
+   {
+      ima_client = 1;
+      active_local_player = p;
+      players[p].control_method = 4;
+      players[p].color = color;
+      strncpy(players1[0].hostname, m_serveraddress, 16);
+      strncpy(players1[p].hostname, local_hostname, 16);
+      deathmatch_pbullets = dmp;
+      deathmatch_pbullets_damage = dmd-1000;
+      suicide_pbullets = spb;
+      play_level = pl;
+      new_program_state = 22;
+   }
+}
+</code></pre>
+
+<a name="Client setup"></a>
+<mh7>Client setup</mh7>
+<mh3>
+Here the client loads the level, sets up for the game, then moves to the next step.
+</mh3>
+
+<pre><code class="language-cpp">   //---------------------------------------
+   // 22 - client level setup
+   //---------------------------------------
+   if (program_state == 22)
+   {
+      if (!load_level(play_level, 0))
+      {
+         new_program_state = 25;
+         return;
+      }
+      for (int p=0; p < NUM_PLAYERS; p++) set_player_start_pos(p, 0);
+
+      clear_game_moves();
+      set_frame_nums(0);
+      reset_states();
+      clear_bullets();
+      clear_bmsg();
+      clear_keys();
+      clear_pm_events();
+      show_player_join_quit_timer = 0;
+      start_music(0);
+      init_timestamps();
+      new_program_state = 21;
+   }
+</code></pre>
+
+
+
+<a name="Client waits for initial state from server"></a>
+<mh7>Client waits for initial state from server</mh7>
+<mh3>
+Once the client receives the initial state from the server, it goes to state 11, which is the normal game loop.
+</mh3>
+<pre><code class="language-cpp">   //---------------------------------------
+   // 21 - client wait for intial state
+   //---------------------------------------
+   if (program_state == 21)
+   {
+      client_fast_packet_loop();
+      client_read_packet_buffer();
+      client_apply_dif();
+
+      if (key[ALLEGRO_KEY_ESCAPE][3]) program_state = 25;
+
+      sprintf(msg, "Waiting for game state from server");
+      float stretch = ( (float)SCREEN_W / ((strlen(msg)+2)*8));
+      rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, 10, stretch, 0, 1);
+
+      al_flip_display();
+
+      if (frame_num > 0)
+      {
+         printf("got initial state for frame:%d\n", frame_num);
+         int p = active_local_player;
+
+         // set holdoff 200 frames in future so client won't try to drop while syncing
+         players1[p].client_last_stdf_rx_frame_num = frame_num + 200;
+
+         if (LOG_NET_join) add_log_entry_header(11, p, "Game state updated - starting chase and lock", 1);
+         program_state = 11;
+      }
+   }
+}
+</code></pre>
+
+
 
 <a name="Client chase and lock"></a>
 <mh7>Client chase and lock</mh7>
 <mh3>
-After the initial state is received, the client does not block anymore.
-The client game starts running from the initial state received from the server.
-The client player is not active yet, but still processes packets from the server.
-In particular, sdat packets are used to adjust the client's timer until it catches up and locks with the server.
-</mh3>
-<pre><code class="language-cpp">void client_process_sdat_packet(void)
-{
-   int sdat_frame_num = PacketGet4ByteInt();
-   players1[p].client_sync = sdat_frame_num - frame_num;
-   int fps_chase = frame_speed + (players1[p].client_sync - server_lead_frames)*2;
-   al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
+We are now in the regular game loop (state 11). However the client player is not active yet.
 
-   Packet("sdak"); // send acknowledgement of sdat
-   PacketPut4ByteInt(frame_num);
-   ClientSend(packetbuffer, packetsize);
-}</code></pre>
-<mh3>
-The server monitors the client's sync on its side when it receives the client's acknowledgements.
-When the client's sync is within limits, the server sets the client active by entering a special game move.
-This game move is synced back the the client, and when the client executes it, the client becomes active.
+The client will run the game with its local player inactive, adjusting its timer to chase and lock with the server.
+
+Once the server determines the client has locked, it sets the client active.
 </mh3>
-<pre><code class="language-cpp">if(PacketRead("sdak"))
+<pre><code class="language-cpp">void server_lock_client(int p)
 {
-   int client_fn = PacketGet4ByteInt();
-   players1[p].server_sync = frame_num - client_fn;
-   if ((players[p].active == 0) && (players[p].control_method == 2) && (players1[p].server_sync < 4) && (players1[p].server_sync > -2))
+   if ((!players[p].active) && (players[p].control_method == 2)) // inactive client chasing for lock
+   {
+      if ((players1[p].dsync > -0.2) && (players1[p].dsync < 0.03)) players1[p].sync_stabilization_holdoff++; // -200 to +30
+      else players1[p].sync_stabilization_holdoff = 0;
+   }
+   if (players1[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
    {
       add_game_move(frame_num + 4, 1, p, players[p].color);
+      players1[p].sync_stabilization_holdoff = 0;
+
+      sprintf(msg,"Player:%d has locked and will become active in 4 frames!", p);
+      if (LOG_NET_join) add_log_entry_header(11, 0, msg, 0);
    }
+}</code></pre>
+
+<a name="Ending a client netgame"></a>
+<mh7>Ending a client netgame</mh7>
+
+<mh3>
+If an error occurs, or the client netgame ends, we go to state 25 to properly shutdown the network and clean up.
+</mh3>
+<pre><code class="language-cpp">   //---------------------------------------
+   // 25 - client exit
+   //---------------------------------------
+   if (program_state == 25) // client exit
+   {
+      client_exit();
+      new_program_state = 1;
+   }
+
+void client_exit(void)
+{
+   ClientExitNetwork();
+   ima_client = 0;
+   // reset player data
+   for (int p=0; p < NUM_PLAYERS; p++) init_player(p, 1);
+   players[0].active = 1; // local_control
+   active_local_player = 0;
+   load_config(); // to get color back
+}
+
+void ClientExitNetwork(void)
+{
+   sprintf(msg, "Shutting down the client network");
+   if (TCP)
+   {
+      if(ServerConn) net_closeconn(ServerConn);
+   	  ServerConn = NULL;
+   }
+   else // UDP
+   {
+      if(ServerChannel) net_closechannel(ServerChannel);
+      ServerChannel = NULL;
+   }
+   net_shutdown();
 }
 </code></pre>
-   
             
-            
-<br><a name="Packets used for join"></a>
-<mh7>Packets used for join</mh7>
-<br>            
-
-<pk0>Packet: 'CJON'</pk0>
-<pk1>description: 'client join'
-direction: client to server
-- 1 byte (requested color)
-- 16 bytes (client hostname)
-</pk1><br>
-        
-<pk0>Packet: 'SJON'</pk0>
-<pk1>description: 'server join'
-direction: server to client
-- 2 bytes (play level)
-- 4 bytes (server frame_num)
-- 4 bytes (server game_move entry position)
-- 1 byte (frame speed)
-- 1 byte (player number)
-- 1 byte (player color)
-- 1 byte (deathmatch_pbullets)
-- 1 byte (deathmatch_pbullets_damage)
-- 1 byte (suicide_pbullets)
-</pk1>        
 
 
 <br><a name="Setting up netgame"></a>
 <mh7>Setting up netgame</mh7>
 
 <mh3>
-The netgame is only designed to work in a LAN, not the internet.    
-    
-To join a netgame the client needs to know the IP or hostname of the server.
+To join a netgame, the client needs to know the IP or hostname of the server.
     
 The server does not need to know anything about the client.
     
@@ -262,13 +589,17 @@ Then try to ping each other by typing:
 If that works then all you need to do is make sure the client has the server's IP or hostname set.
     
 You can do this three different ways:
-- in the game from 'options menu' -> 'netgame options'
+- in the game from the 'netgame' tab in 'settings'.
 - open the config file 'pm.cfg' and edit the entry 'server_IP='    
-- from a command prompt start the game in client mode with 'pm -c [hostname or IP]'    
+- from the console or a command prompt window, start the game in client mode with 'pm -c [hostname or IP]'
 
-Start the server game running with 'Host Network Game', then start the client(s) with 'Join Network Game'
+Once you have ensured the client has the server's IP or hostname:
+
+Start the server with 'Host Network Game', then start the clients with 'Join Network Game'
     
 In a few seconds the client will join.
+
+Enjoy!
 
 </mh3>
 
@@ -290,7 +621,7 @@ In a few seconds the client will join.
 
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">
-                Copyright &copy; 2022, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                Copyright &copy; 2023, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
                 </div>
 </footer>
 

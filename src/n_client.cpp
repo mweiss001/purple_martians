@@ -273,7 +273,7 @@ void client_process_sjon_packet(void)
       sprintf(msg,"Server replied with 'SERVER FULL'\n");
       printf("%s", msg);
       if (LOG_NET_join) add_log_entry2(11, active_local_player, msg);
-      new_program_state = 1;
+      new_program_state = 25;
    }
    else // join allowed
    {

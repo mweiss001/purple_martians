@@ -39,12 +39,21 @@
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
 <div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
-<div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div></mdw_lhs_nav>
+
+<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+
+</mdw_lhs_nav>
 
         </nav>
 
@@ -61,7 +70,7 @@
 
 <mh3><hr><mdw_file_toc> <a href="netgame_fast_packet_loop.html#Overview" target="_top">Overview</a>
  <a href="netgame_fast_packet_loop.html#Data structure" target="_top">Data structure</a>
- <a href="netgame_fast_packet_loop.html#Where it is called" target="_top">Where it is called</a>
+ <a href="netgame_fast_packet_loop.html#Where fast_packet_loop is called" target="_top">Where fast_packet_loop is called</a>
  <a href="netgame_fast_packet_loop.html#Server fast packet loop" target="_top">Server fast packet loop</a>
  <a href="netgame_fast_packet_loop.html#Server read packet buffer" target="_top">Server read packet buffer</a>
  <a href="netgame_fast_packet_loop.html#Client fast packet loop" target="_top">Client fast packet loop</a>
@@ -81,7 +90,7 @@ This gives a much finer time of arrival than just knowing what frame it was rece
 With just frame numbers, the smallest time I could measure was 25ms, which is an eternity in computer and network time. 
 
 If fast_packet_loop does not immediately process a packet, it stores it in a buffer with its timestamp.
-Then when the main game loop runs, the server or client process all the packets waiting in the buffer.
+Then when the main game loop runs, the server or client will process all packets waiting in the buffer.
 
 </mh3>    
 
@@ -122,8 +131,8 @@ void init_packet_buffer(void)
 
 
 
-<a name="Where it is called"></a>
-<mh7>Where it is called</mh7>
+<a name="Where fast_packet_loop is called"></a>
+<mh7>Where fast_packet_loop is called</mh7>
 
 <mh3>
 It is called outside the game loop, so it is not constrained to running at 40 fps.
@@ -334,7 +343,7 @@ In the game loop (which runs at 40 fps), the client processes all packets stored
 
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">
-                Copyright &copy; 2022, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                Copyright &copy; 2023, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
                 </div>
 </footer>
 

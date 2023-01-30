@@ -581,17 +581,14 @@ void serial_key_check(int key)
 
    }
 
-   if (ima_client)
+   sprintf(tst, "fakekey");
+   tl = strlen(tst);
+   if (skc_index > tl-1)
    {
-      sprintf(tst, "fakekey");
-      tl = strlen(tst);
-      if (skc_index > tl-1)
+      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
       {
-         if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-         {
-            players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
-            printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
-         }
+         players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
+         printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
       }
    }
 

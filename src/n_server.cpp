@@ -467,17 +467,11 @@ void server_exit(void)
    players[0].active = 1;
 }
 
-
 // send stdf to a specific client
 void server_send_stdf(int p)
 {
-
    // if last_ack_state_frame == 0 set base to all zeros
-   if (srv_client_state_frame_num[p][0] == 0)
-   {
-      memset(srv_client_state[p][0], 0, STATE_SIZE);
-      //base0 = 1;
-   }
+   if (srv_client_state_frame_num[p][0] == 0) memset(srv_client_state[p][0], 0, STATE_SIZE);
 
    char dif[STATE_SIZE];
    char cmp[STATE_SIZE];
@@ -539,23 +533,25 @@ void server_send_stdf(int p)
 
 void server_send_stdf(void)
 {
-   players1[0].server_send_dif = 0;
-
-   // send to all clients
-   for (int p=1; p<NUM_PLAYERS; p++)
-      if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
+   if (players1[0].server_send_dif)
+   {
+      players1[0].server_send_dif = 0;
+      // send to all clients
+      for (int p=1; p<NUM_PLAYERS; p++)
+         if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
+   }
 }
 
 
-void server_rewind(void)
+void server_create_new_state(void)
 {
    int s1 = players1[0].server_state_freq;
-//   int s2 = players1[0].s2;
-//   int s3 = s1+s2;
 
    // is it time to make a new dif and send to clients?
    if (frame_num >= srv_client_state_frame_num[0][1] + s1)
    {
+      int ff = frame_num - srv_client_state_frame_num[0][1];  // should almost always equal s1, unless s1 is changing
+
       // rewind and fast forward from last stdf state to apply missed game moves received late
       if (LOG_NET_stdf)
       {
@@ -567,7 +563,7 @@ void server_rewind(void)
       frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
       state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
 
-      loop_frame(s1);
+      loop_frame(ff);
       // save state as a base for next rewind
       game_vars_to_state(srv_client_state[0][1]);
       srv_client_state_frame_num[0][1] = frame_num;
@@ -578,7 +574,6 @@ void server_rewind(void)
          sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
          add_log_entry2(27, 0, msg);
       }
-//      loop_frame(s2);
       if (LOG_TMR_rwnd) add_log_TMR(al_get_time() - t0, "rwnd", 0);
       players1[0].server_send_dif = 1;
    }
@@ -696,8 +691,8 @@ void server_proc_stak_packet(void)
    if (ack_frame_num == srv_client_state_frame_num[p][1]) // check to make sure we have a copy of acknowledged state
    {
       // acknowledged state is new base state
-      memcpy(srv_client_state[p][0], srv_client_state[p][1], STATE_SIZE); // copy 1 to 0
-      srv_client_state_frame_num[p][0] = ack_frame_num; // new frame_num
+      memcpy(srv_client_state[p][0], srv_client_state[p][1], STATE_SIZE);  // copy 1 to 0
+      srv_client_state_frame_num[p][0] = srv_client_state_frame_num[p][1];
       sprintf(tmsg2, "set new base");
    }
    else // we don't have a copy of acknowledged state !!!
@@ -889,7 +884,7 @@ void server_control()
 {
    ServerListen(); // listen for new client connections
    server_read_packet_buffer();
-   server_rewind();            // to replay and apply late client input
+   server_create_new_state();  // to replay and apply late client input
    server_proc_player_drop();  // check to see if we need to drop clients
    if (LOG_NET_player_array) log_player_array2();
    for (int p=0; p<NUM_PLAYERS; p++) if (players[p].active) process_bandwidth_counters(p);

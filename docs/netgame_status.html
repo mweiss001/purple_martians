@@ -39,12 +39,21 @@
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
 <div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
-<div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div></mdw_lhs_nav>
+
+<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+
+</mdw_lhs_nav>
 			
         </nav>
 
@@ -59,203 +68,98 @@
 <mh3><hr></mh3>
 <mh8>Netgame - Status</mh8>
 <mh3><hr><mdw_file_toc> <a href="netgame_status.html#Overview" target="_top">Overview</a>
- <a href="netgame_status.html#server_sync" target="_top">server_sync</a>
- <a href="netgame_status.html#client_sync" target="_top">client_sync</a>
- <a href="netgame_status.html#server_game_moves_sync" target="_top">server_game_moves_sync</a>
- <a href="netgame_status.html#client_game_moves_sync" target="_top">client_game_moves_sync</a>
+ <a href="netgame_status.html#dsync and dsync_avg" target="_top">dsync and dsync_avg</a>
+ <a href="netgame_status.html#ping and ping_avg" target="_top">ping and ping_avg</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
 <mh7>Overview</mh7>
 <mh3>
-These variables are used to track the status of the netgame.
+These variables are used to control and monitor the status of netgame.
 </mh3>    
-    
 
 
+<br><a name="dsync and dsync_avg"></a>
+<mh7>dsync and dsync_avg</mh7>
 
-
-
-<br><a name="server_sync"></a>
-<mh7>server_sync</mh7>
 
 
 <br><me1>Description</me1>
 <mh3>
-When the server gets an "sdak" packet from a client, it contains the client frame_num.
+The timing offset between the client and the server.
 
-The server keeps track of server_sync for each client like this:
-players1[p].server_sync = frame_num - client_fn;     // set server_sync in player struct
-</mh3>
+Calculated by clients. Clients also calculate a rolling average of dsync called dsync_avg.
 
-<br><me1>Variables</me1>
-<mh3>
-Server: 
-players1[p].server_sync (for each client) 
-</mh3>
-
-<br><me1>Code</me1>
-<pre><code class="language-cpp">if(PacketRead("sdak"))
-{
-   int p = PacketGet1ByteInt();
-   int client_fn = PacketGet4ByteInt();
-   players1[p].server_sync = frame_num - client_fn;     // set server_sync in player struct
-}</code></pre>
-
-<mh3>
-server_sync is used to control when clients come active, when joining.
-</mh3>
-<pre><code class="language-cpp">if ((players[p].control_method == 2) && (players1[p].server_sync < 4) && (players1[p].server_sync > -2))
-{
-   add_game_move(frame_num + 4, 1, p, players[p].color); // player becomes active in 4 frame! 
-}</code></pre>
-
-<mh3>
-server_sync is also used to drop clients when their sync goes bad.
-</mh3>
-<pre><code class="language-cpp">void proc_player_drop(void)
-{
-   for (int p=1; p < NUM_PLAYERS; p++)
-      if (players[p].control_method == 2)
-      {
-         if ((players[p].active) && (players1[p].server_sync > 100)) // drop player
-         {
-            add_game_move(frame_num + 4, 1, p, 71); // make client inactive (reason sync > 100)
-         }
-      }
-}</code></pre>
-
-
-
-
-<br><a name="client_sync"></a>
-<mh7>client_sync</mh7>
-
-<br><me1>Description</me1>
-<mh3>
-When the client receives an sdat packet, the frame_num sent by the server is compared the client's frame_num.
-
-players1[p].client_sync = sdat_frame_num - frame_num;
-
-This is used by the client to adjust its fps_timer, to stay 1 frame behind the server.
+Clients also send dsync to the server with 'stak' packets, so the server also has a dsync value for each client.
 </mh3>
 
 <br><me1>Variables</me1>
 <mh3>
 Client:
-players1[p].client_sync (only for local client player)
+players1[p].dsync  
+players1[p].dsync_avg 
+
+Server:
+players1[p].dsync
 </mh3>
 
 <br><me1>Code</me1>
-<pre><code class="language-cpp">if(PacketRead("sdat"))
-{
-   int sdat_frame_num = PacketGet4ByteInt();
-   players1[p].client_sync = sdat_frame_num - frame_num;
-   int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
-   al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
-}</code></pre>
+<mh3>
+When the client receives an 'stdf' packet from the server, it calculates dsync and dsync_avg like this: <a href="netgame_client_timing_sync.html#Client receives 'stdf' packet" target="_top">Client receives 'stdf' packet</a>
+
+The client uses dsync_avg to adjust it's timing offset with reference to the server like this:  <a href="netgame_client_timing_sync.html#Adjust client timer" target="_top">Adjust client timer</a>
+
+The server uses dsync to control when joining clients become active like this: <a href="netgame_join.html#Client chase and lock" target="_top">Client chase and lock</a>
+</mh3>
 
 
 
 
-<br><a name="server_game_moves_sync"></a>
-<mh7>server_game_moves_sync</mh7>
+
+<br><a name="ping and ping_avg"></a>
+<mh7>ping and ping_avg</mh7>
 
 <br><me1>Description</me1>
 <mh3>
-When the server receives a 'cdat' packet with a client's game_move data, it is supposed to be tagged with a future frame_num.
-This is required so that there is time to sync the game_move back to the clients before its frame_num expires.
+The round trip ping response times between the client and the server.
 
-server_game_moves_sync is how many frames the client's game_move data is ahead of the server's frame num.
+Clients calculate and store their own ping time, as well a a rolling average 'ping_avg'.
 
-If it is greater than zero, this is normal.
-
-If it is exactly zero, the game_moves are arriving on the exact frame they are needed.  This is cutting it very close.
-
-If it is less than zero:
-- the game move is late and will be discarded
-- server_game_moves_sync_err will be incremented
-- the move data is discarded (it will be as if the client never made the move)
-- this should not make the game go out of sync as all players states will still be the same
-
+The server calculates and stores ping times for each client.
 </mh3>
 
-<br><me1>Variables</me1>
-<mh3>
-Server: (for each player)
-players1[p].server_game_move_sync = 0;
-players1[p].server_game_move_sync_min = 99;
-players1[p].server_game_move_sync_err = 0;
-
-Client:
-players1[p].serr_c_sync_err
-
-players1[p].server_game_move_sync_err is synced back to the client with the 'serr' packet, where it is saved as players1[p].serr_c_sync_err. 
-That way the client can know that the server dropped one of their 'cdat' packets because it was received too late.
-
-</mh3>
-
-<br><me1>Code</me1>
-<pre><code class="language-cpp">if(PacketRead("cdat"))
-{
-   int p = PacketGet1ByteInt();
-   int fn = PacketGet4ByteInt();
-   int cm = PacketGet1ByteInt();
-
-   // how far ahead is the client's frame_num for this move, compared to server's frame_num
-   int c_sync = players1[p].server_game_move_sync = fn - frame_num;
-
-   // keep track of the minimum c_sync
-   if (c_sync < players1[p].server_game_move_sync_min) players1[p].server_game_move_sync_min = c_sync;
-
-   if (c_sync >= 0) add_game_move(fn, 5, p, cm); // add to game_move array
-   else                                          // unless late, then drop and inc error
-   {
-      players1[p].server_game_move_sync_err++;
-      Packet("serr"); // server error
-      PacketPut1ByteInt(p);
-      PacketPut1ByteInt(1); // error type 1
-      PacketPut4ByteInt(frame_num);
-      PacketPut4ByteInt(c_sync);
-      PacketPut4ByteInt(players1[p].server_game_move_sync_err);
-      ServerSendTo(packetbuffer, packetsize, who, p);
-   }
-}</code></pre>
-
-
-
-<br><a name="client_game_moves_sync"></a>
-<mh7>client_game_moves_sync</mh7>
-
-<br><me1>Description</me1>
-<mh3>
-When a client receives an 'sdat' packet with game_moves, they are entered in the client's game_move array.
-If their frame_num is earlier than the client's current frame_num an error is flagged.
-
-This means that the client has received a game_move that happened in the past.
-The move will be applied on the server, but will never be applied on the client because it was received too late.
-
-This will definitely cause the client to go out of sync.
-
-</mh3>
 
 <br><me1>Variables</me1>
 <mh3>
 Client:
-players1[p].client_game_move_sync;
-players1[p].client_game_move_sync_min;
-players1[p].client_game_move_sync_err;
+players1[p].ping  
+players1[p].ping_avg 
+
+Server:
+players1[p].ping
 </mh3>
 
 <br><me1>Code</me1>
+<mh3>
+The method of calculating ping is described here: <a href="netgame_ping.html" target="_top">ping</a>
 
-<pre><code class="language-cpp">cs = g0 - passcount;                                    // client_game_moves_sync
-players[p].client_game_moves_sync = cs;                 // set in player struct
-if (cs < 0 ) players[p].client_game_moves_sync_err++;   // check for error
-if (cs < players[p].client_game_moves_sync_min)
-   players[p].client_game_moves_sync_min = cs;          // check and set min  
+The method of the client calculating the rolling average is described here: <a href="netgame_ping.html#Client calculates the rolling average of its ping time" target="_top">ping rolling average</a>
+
+The client uses the ping average to set client_chase_offset here:<a href="netgame_ping.html#Client uses 'ping_avg' time to set 'client_chase_offset'" target="_top">client_chase_offset</a>
+
+The server finds the maximum client ping and uses it to set 'server_state_freq' as desribed here:  <a href="netgame_ping.html#Server uses 'server_max_client_ping' to set 'server_state_freq'" target="_top">server_state_freq</a>
+</mh3>
+
+
+
+
+
+
+
+
+
+<pre><code class="language-cpp">
 </code></pre>
-
 
 
 
@@ -269,7 +173,7 @@ if (cs < players[p].client_game_moves_sync_min)
 
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">
-                Copyright &copy; 2022, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                Copyright &copy; 2023, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
                 </div>
 </footer>
 

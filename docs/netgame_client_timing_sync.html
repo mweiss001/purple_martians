@@ -39,12 +39,21 @@
 <div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
 <div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
 <div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
-<div style="text-align: center;"><a href="netgame_main.html" target="_top">Netgame - Main</a></div>    
-<div style="text-align: center;"><a href="netgame_state.html" target="_top">Netgame - State</a></div>    
-<div style="text-align: center;"><a href="netgame_join.html" target="_top">Netgame - Join</a></div>    
-<div style="text-align: center;"><a href="netgame_status.html" target="_top">Netgame - Status</a></div>    
-<div style="text-align: center;"><a href="netgame_config.html" target="_top">Netgame - Config</a></div>    
-<div style="text-align: center;"><a href="netgame_packets.html" target="_top">Netgame - Packets</a></div></mdw_lhs_nav>
+
+<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+
+</mdw_lhs_nav>
 
         </nav>
 
@@ -62,7 +71,7 @@
  <a href="netgame_client_timing_sync.html#Server sends 'stdf' packet" target="_top">Server sends 'stdf' packet</a>
  <a href="netgame_client_timing_sync.html#Client receives 'stdf' packet" target="_top">Client receives 'stdf' packet</a>
  <a href="netgame_client_timing_sync.html#Calculate the rolling average of dysnc" target="_top">Calculate the rolling average of dysnc</a>
- <a href="netgame_client_timing_sync.html#Determine the target offset" target="_top">Determine the target offset</a>
+ <a href="netgame_client_timing_sync.html#Determine the setpoint" target="_top">Determine the setpoint</a>
  <a href="netgame_client_timing_sync.html#Adjust client timer" target="_top">Adjust client timer</a>
 </mdw_file_toc><hr></mh3>
 
@@ -184,19 +193,19 @@ Instead we run it through a rolling average algorithm and use that instead.
 </code></pre>
 
 
-<br><a name="Determine the target offset"></a>
-<mh7>Determine the target offset</mh7>
+<br><a name="Determine the setpoint"></a>
+<mh7>Determine the setpoint</mh7>
 
 <mh3>    
-Now we have a measured value, 'dsync_avg', that describes what our timing offset actually is.
+Now that we have a measured value, 'dsync_avg', the next step is to determine the setpoint (what we want it to be).
 
-The next step is to determine what we want it to be (our setpoint). This is called 'client_chase_offset'.
+This value is called 'client_chase_offset'.
 
-The first step in that process involves measuring the return ping time to the server. (This is covered <a href="netgame_ping.html" target="_top">here</a>)
+The first step is to measure the round trip ping time to the server. (This is covered <a href="netgame_ping.html" target="_top">here</a>)
 
-When we have the <a href="netgame_ping.html#Client calculates the rolling average of its ping time" target="_top">average ping time</a> from client to server and back, we use it to set the <a href="netgame_ping.html#Client uses 'ping_avg' time to set 'client_chase_offset'" target="_top">client_chase_offset</a>.
+When we have the <a href="netgame_ping.html#Client calculates the rolling average of its ping time" target="_top">average ping time</a>, we use it to set '<a href="netgame_ping.html#Client uses 'ping_avg' time to set 'client_chase_offset'" target="_top">client_chase_offset</a>'.
 
-For more details, click the links.
+For more details, click the links in the text.
 </mh3>
 
 
@@ -208,6 +217,8 @@ For more details, click the links.
 At this point we have a measured value and a setpoint.
 
 Next the client timer is adjusted to make the measured value approach the setpoint.
+
+I was experimenting with implementing a <a href="https://www.google.com/search?q=pid+control+loop" target="_top">PID control loop</a>  here, but found it was not needed, so I just use the proportional term.
 </mh3>
 
 
@@ -236,17 +247,17 @@ Next the client timer is adjusted to make the measured value approach the setpoi
 }
 </code></pre>
 
-<mh3>I was experimenting with implementing a PID control loop here, but found it was not needed, so I just do straight proportional.
+
+
+
+<mh3>
 
 </mh3>
 
 
-
-
-
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">
-                Copyright &copy; 2022, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                Copyright &copy; 2023, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
                 </div>
 </footer>
 

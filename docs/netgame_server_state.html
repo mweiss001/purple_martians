@@ -1,0 +1,416 @@
+<!doctype html>
+<title>Netgame - Server State</title>
+
+<html>
+
+    <script src="prism.js"></script>
+    <link href = "themes/prism.css" rel="stylesheet" />
+    <link href = "css/mdw.css"      rel="stylesheet" type = "text/css" />
+
+    
+    <body>
+
+        <nav class="col-1">
+
+<mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
+<div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
+<div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
+<div style="text-align: center;"><a href="index.html#Demo Video" target="_top">Demo Video</a></div>    
+<div style="text-align: center;"><a href="index.html#Features" target="_top">Features</a></div>    
+<div style="text-align: center;"><a href="index.html#Created by" target="_top">Created by</a></div>    
+<div style="text-align: center;"><a href="index.html#Created with" target="_top">Created with</a></div>    
+<div style="text-align: center;"><a href="index.html#License" target="_top">License</a></div>    
+<div style="text-align: center;"><a href="index.html#Supported Systems" target="_top">Supported Systems</a></div>    
+<div style="text-align: center;"><a href="index.html#External Links" target="_top">External Links</a></div>    
+<div style="text-align: center;"><a href="index.html#Older Versions" target="_top">Older Versions</a></div>    
+<div style="text-align: center;"><a href="index.html#History" target="_top">History</a></div>    
+
+<br><div style="text-align: center;">Technical Descriptions</div><hr>    
+<div style="text-align: center;"><a href="project_organization.html" target="_top">Project Organization</a></div>    
+<div style="text-align: center;"><a href="logo.html" target="_top">Logo</a></div>    
+<div style="text-align: center;"><a href="timers.html" target="_top">Timers</a></div>    
+<div style="text-align: center;"><a href="events.html" target="_top">Events</a></div>    
+<div style="text-align: center;"><a href="input.html" target="_top">Input</a></div>    
+<div style="text-align: center;"><a href="level_done.html" target="_top">Level Done</a></div>    
+<div style="text-align: center;"><a href="game_moves_array.html" target="_top">Game Moves Array</a></div>    
+<div style="text-align: center;"><a href="sound.html" target="_top">Sound</a></div>    
+<div style="text-align: center;"><a href="display.html" target="_top">Display</a></div>    
+<div style="text-align: center;"><a href="tiles.html" target="_top">Tiles</a></div>    
+<div style="text-align: center;"><a href="block_flags.html" target="_top">Block Flags</a></div>    
+<div style="text-align: center;"><a href="bullets.html" target="_top">Bullets</a></div>    
+<div style="text-align: center;"><a href="level_array.html" target="_top">Level Array</a></div>    
+
+<div style="text-align: center;"><a href="netgame_main.html"                  target="_top">Netgame - Main</a></div>    
+<div style="text-align: center;"><a href="netgame_state_and_dif.html"         target="_top">Netgame - State and Dif</a></div>    
+<div style="text-align: center;"><a href="netgame_server_state.html"          target="_top">Netgame - Server State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_state.html"          target="_top">Netgame - Client State</a></div>    
+<div style="text-align: center;"><a href="netgame_client_control_change.html" target="_top">Netgame - Client Control Change</a></div>    
+<div style="text-align: center;"><a href="netgame_client_timing_sync.html"    target="_top">Netgame - Client Timing Sync</a></div>    
+<div style="text-align: center;"><a href="netgame_fast_packet_loop.html"      target="_top">Netgame - Fast Packet Loop</a></div>    
+<div style="text-align: center;"><a href="netgame_ping.html"                  target="_top">Netgame - Ping</a></div>    
+<div style="text-align: center;"><a href="netgame_packets.html"               target="_top">Netgame - Packets</a></div>    
+<div style="text-align: center;"><a href="netgame_config.html"                target="_top">Netgame - Config</a></div>    
+<div style="text-align: center;"><a href="netgame_join.html"                  target="_top">Netgame - Join</a></div>    
+<div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
+
+</mdw_lhs_nav>
+
+        </nav>
+
+        
+        <div class="col-2">
+
+            <header>
+                <mh11>Purple Martians</mh11><hr>
+                <mh12>Technical Code Descriptions</mh12><hr>
+            </header>
+
+<mh3><hr></mh3>
+<mh8>Netgame - Server State</mh8>
+<mh3><hr><mdw_file_toc> <a href="netgame_server_state.html#Overview" target="_top">Overview</a>
+ <a href="netgame_server_state.html#Server checks if it is time to make a new state" target="_top">Server checks if it is time to make a new state</a>
+ <a href="netgame_server_state.html#Server sends dif to all clients" target="_top">Server sends dif to all clients</a>
+ <a href="netgame_server_state.html#Server sends dif to a specific client" target="_top">Server sends dif to a specific client</a>
+ <a href="netgame_server_state.html#Server receives acknowledge packet 'stak' from client" target="_top">Server receives acknowledge packet 'stak' from client</a>
+</mdw_file_toc><hr></mh3>
+
+<a name="Overview"></a>
+<mh7>Overview</mh7>
+
+
+<mh3>
+The server periodically sends the entire game state to clients in the form of a compressed dif. (See <a href="netgame_state_and_dif.html" target="_top">states and difs</a>).
+
+How often that happens is determined by the variable: 'server_state_freq' which is set here: <a href="netgame_ping.html#Server uses 'server_max_client_ping' to set 'server_state_freq'" target="_top">server_state_freq</a>
+
+The minimum value for 'server_state_freq' is 2, which would send dif's every 2 frames.
+1 is possible, but never used, that would send difs every frame, with no time for the client to acknowldege.
+There would be no common base for difs, so every dif would be based on zero and be the maximum size.
+See <a href="netgame_state_and_dif.html#State compression methods" target="_top">State compression methods</a> and also <a href="netgame_client_state.html#Check for dif based on state zero" target="_top">Check for dif based on state zero</a>
+
+Before sending a dif, the server rewinds to the last saved state and replays to the current frame.
+This is done so that late client input that was not applied to the server's game state has a chance to be applied before it is lost forever.
+
+Then the server makes a new base state, overwriting the old one.
+
+Then the server makes and send difs for each client, based on the last acknowledged state for that client.
+
+</mh3>    
+    
+
+<a name="Server checks if it is time to make a new state"></a>
+<mh7>Server checks if it is time to make a new state</mh7>
+
+<mh3>
+Every frame the server checks if the last state it has saved is older than 'server_state_freq'
+</mh3>    
+
+<pre><code class="language-cpp">void server_create_new_state(void)
+{
+   int s1 = players1[0].server_state_freq;
+
+   // is it time to make a new dif and send to clients?
+   if (frame_num >= srv_client_state_frame_num[0][1] + s1)
+   {
+</code></pre>
+
+<mh3>If yes, then it is time to make a new one.
+
+The first thing it does is rewind to the previous state. This is achieved by simply loading the previous state.
+</mh3>    
+
+<pre><code class="language-cpp">      int ff = frame_num - srv_client_state_frame_num[0][1];  // should almost always equal s1, unless s1 is changing
+      frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
+      state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
+</code></pre>
+
+
+
+<mh3>
+Then it replays to the current frame to apply any late input from clients that was missed the first time around.
+</mh3>    
+
+<pre><code class="language-cpp">      loop_frame(ff);
+</code></pre>
+
+
+
+<mh3>
+Then it overwrites the old saved state with the new one and updates the frame_num.
+</mh3>    
+
+<pre><code class="language-cpp">      game_vars_to_state(srv_client_state[0][1]);
+      srv_client_state_frame_num[0][1] = frame_num;
+</code></pre>
+
+<mh3>
+Then it sets the flag that indicates it is time to send difs to clients.
+</mh3>    
+
+<pre><code class="language-cpp">      players1[0].server_send_dif = 1;
+</code></pre>
+
+
+<mh3>
+This is the entire function:
+</mh3>    
+
+<pre><code class="language-cpp">void server_create_new_state(void)
+{
+   int s1 = players1[0].server_state_freq;
+   // is it time to make a new dif and send to clients?
+   if (frame_num >= srv_client_state_frame_num[0][1] + s1)
+   {
+      int ff = frame_num - srv_client_state_frame_num[0][1];  // should almost always equal s1, unless s1 is changing
+      // rewind and fast forward from last stdf state to apply missed game moves received late
+      frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
+      state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
+
+      loop_frame(ff);
+      // save state as a base for next rewind
+      game_vars_to_state(srv_client_state[0][1]);
+      srv_client_state_frame_num[0][1] = frame_num;
+
+      players1[0].server_send_dif = 1;
+   }
+}
+</code></pre>
+
+<a name="Server sends dif to all clients"></a>
+<mh7>Server sends dif to all clients</mh7>
+
+
+<mh3>
+In the game loop, 'server_send_stdf()' is called after 'move()' but before 'draw()'
+</mh3>    
+
+<pre><code class="language-cpp">            if (players[0].level_done_mode) process_level_done_mode();
+            else move_frame();
+            server_send_stdf();
+            if (proc_frame_skip()) draw_frame();
+			
+void server_send_stdf(void)
+{
+   if (players1[0].server_send_dif)
+   {
+      players1[0].server_send_dif = 0;
+      // send to all clients
+      for (int p=1; p < NUM_PLAYERS; p++)
+         if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
+   }
+}
+</code></pre>
+
+
+
+
+
+
+
+<a name="Server sends dif to a specific client"></a>
+<mh7>Server sends dif to a specific client</mh7>
+
+
+<mh3>
+The first thing the server does is check the last acknowledged frame we have for that specific client.
+
+This is the state that we will base the dif on, and the state the client will need to apply the dif when received.
+
+If the last acknowledged frame is zero, it means we do not have a base in common with the client and will have to reset the base to zero.
+</mh3>    
+
+
+
+<pre><code class="language-cpp">void server_send_stdf(int p)
+{
+   if (srv_client_state_frame_num[p][0] == 0) memset(srv_client_state[p][0], 0, STATE_SIZE);
+</code></pre>
+
+
+<mh3>
+Next we declare two temporary char arrays for building and compressing the dif.
+</mh3>
+
+
+<pre><code class="language-cpp">   char dif[STATE_SIZE];
+   char cmp[STATE_SIZE];
+</code></pre>
+
+
+<mh3>
+Then we overwrite the server's client slot 1 with the current saved state and frame_num.
+</mh3>
+
+
+<pre><code class="language-cpp">   game_vars_to_state(srv_client_state[p][1]);
+   srv_client_state_frame_num[p][1] = frame_num;
+</code></pre>
+
+
+<mh3>
+Next we make a dif from the client's old state (slot 0) and the new state (slot 1).
+</mh3>
+
+<pre><code class="language-cpp">   get_state_dif(srv_client_state[p][0], srv_client_state[p][1], dif, STATE_SIZE);
+</code></pre>
+
+<mh3>
+Then we compress 'dif' and put the result in 'cmp'.
+</mh3>
+
+<pre><code class="language-cpp">   uLongf destLen= sizeof(cmp);
+   compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)dif, sizeof(dif), zlib_cmp);
+   int cmp_size = destLen;
+</code></pre>
+
+
+<mh3>
+Next we determine how many packets we need, based on the size of 'cmp'.
+</mh3>
+
+<pre><code class="language-cpp">   int num_packets = (cmp_size / 1000) + 1;
+   players1[p].cmp_dif_size = cmp_size;
+   players1[p].num_dif_packets = num_packets;
+</code></pre>
+
+
+<mh3>
+Lastly we break it into pieces and send it.
+</mh3>
+
+<pre><code class="language-cpp">   int start_byte = 0;
+   for (int packet_num=0; packet_num < num_packets; packet_num++)
+   {
+      int packet_data_size = 1000; // default size
+      if (start_byte + packet_data_size > cmp_size) packet_data_size = cmp_size - start_byte; // last piece is smaller
+
+      Packet("stdf");
+      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+      PacketPut1ByteInt(packet_num);
+      PacketPut1ByteInt(num_packets);
+      PacketPut4ByteInt(start_byte);
+      PacketPut4ByteInt(packet_data_size);
+      memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
+      packetsize += packet_data_size;
+      ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+      start_byte+=1000;
+   }
+}
+</code></pre>
+
+
+<mh3>
+This is the entire function:
+</mh3>    
+
+<pre><code class="language-cpp">void server_send_stdf(int p)
+{
+   if (srv_client_state_frame_num[p][0] == 0) memset(srv_client_state[p][0], 0, STATE_SIZE);
+
+   char dif[STATE_SIZE];
+   char cmp[STATE_SIZE];
+
+   // put current state in client's state slot 1
+   game_vars_to_state(srv_client_state[p][1]);
+
+   // put current frame_num
+   srv_client_state_frame_num[p][1] = frame_num;
+
+   // make a new dif from base and current
+   get_state_dif(srv_client_state[p][0], srv_client_state[p][1], dif, STATE_SIZE);
+
+   // compress dif to cmp
+   uLongf destLen= sizeof(cmp);
+   compress2((Bytef*)cmp, (uLongf*)&destLen, (Bytef*)dif, sizeof(dif), zlib_cmp);
+   int cmp_size = destLen;
+
+   // break compressed dif into smaller pieces
+   int num_packets = (cmp_size / 1000) + 1;
+
+   players1[p].cmp_dif_size = cmp_size;
+   players1[p].num_dif_packets = num_packets;
+
+   int start_byte = 0;
+   for (int packet_num=0; packet_num < num_packets; packet_num++)
+   {
+      int packet_data_size = 1000; // default size
+      if (start_byte + packet_data_size > cmp_size) packet_data_size = cmp_size - start_byte; // last piece is smaller
+
+      Packet("stdf");
+      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+      PacketPut1ByteInt(packet_num);
+      PacketPut1ByteInt(num_packets);
+      PacketPut4ByteInt(start_byte);
+      PacketPut4ByteInt(packet_data_size);
+      memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
+      packetsize += packet_data_size;
+      ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+      start_byte+=1000;
+   }
+}
+</code></pre>
+
+
+
+
+<a name="Server receives acknowledge packet 'stak' from client"></a>
+<mh7>Server receives acknowledge packet 'stak' from client</mh7>
+
+<mh3>
+When the server receives an acknowledge packet 'stak' from client, the server checks if it has a copy of the new base the client just acknowledged.
+</mh3>
+
+<pre><code class="language-cpp">void server_proc_stak_packet(void)
+{
+   int p                        = PacketGet1ByteInt();
+   int ack_frame_num            = PacketGet4ByteInt();
+   int client_frame_num         = PacketGet4ByteInt();
+   players1[p].frames_skipped   = PacketGet4ByteInt();
+   players1[p].client_chase_fps = PacketGetDouble();
+   players1[p].dsync            = PacketGetDouble();
+
+   server_lock_client(p);
+   
+   players1[p].server_last_stak_rx_frame_num = frame_num; // this is used to see if client is still alive
+
+   if (ack_frame_num == srv_client_state_frame_num[p][1]) // check to make sure we have a copy of acknowledged state
+   {
+</code></pre>
+
+
+
+<mh3>
+If it does, the server moves the newly acknowledged state from slot 1 to slot 0. This is the new base state for this client.
+</mh3>
+
+<pre><code class="language-cpp">      // acknowledged state is new base state
+      memcpy(srv_client_state[p][0], srv_client_state[p][1], STATE_SIZE); // copy 1 to 0
+      srv_client_state_frame_num[p][0] = srv_client_state_frame_num[p][1];
+</code></pre>
+
+
+<mh3>
+If the server does not have a copy of the client's acknowledged state, it is forced to reset the base to zero's.
+</mh3>
+
+
+<pre><code class="language-cpp">else // we don't have a copy of acknowledged state !!!
+   {
+      memset(srv_client_state[p][0], 0, STATE_SIZE); // reset base to all zero
+      srv_client_state_frame_num[p][0] = 0;
+   }
+</code></pre>
+
+
+               <footer>                <mh11>Purple Martians</mh11><hr>
+                <div id="copyright">
+                Copyright &copy; 2023, by <a href="mailto:mweiss001@gmail.com"> Michael David Weiss</a>
+                </div>
+</footer>
+
+        </div>
+    </body>
+
+</html>

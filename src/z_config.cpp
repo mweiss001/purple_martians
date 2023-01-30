@@ -82,14 +82,10 @@ void save_config(void)
       asci(SOUND, st_scaler)
 
       al_set_config_value(cfg, "NETWORK", "server_IP", m_serveraddress);
-
       asci(NETWORK, TCP)
       asci(NETWORK, deathmatch_pbullets)
       asci(NETWORK, deathmatch_pbullets_damage)
       asci(NETWORK, suicide_pbullets)
-      asci(NETWORK, zlib_cmp)
-
-      asci(NETWORK, players1[0].server_state_freq)
 
       asci(LOGGING, LOG_NET)
       asci(LOGGING, LOG_NET_join)
@@ -211,11 +207,6 @@ void load_config(void)
    agci(NETWORK, deathmatch_pbullets, 0)
    agci(NETWORK, deathmatch_pbullets_damage, 5)
    agci(NETWORK, suicide_pbullets, 0)
-   agci(NETWORK, zlib_cmp, 7)
-
-
-   agci(NETWORK, players1[0].server_state_freq, 3)
-
 
    agci(LOGGING, LOG_NET, 0)
    agci(LOGGING, LOG_NET_player_array, 0)
