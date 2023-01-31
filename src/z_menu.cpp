@@ -1243,7 +1243,7 @@ void edit_server_name(int type, int x, int y)
       // frame text
       al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, palette_color[15], 1);
 
-      rtextout_centre(NULL, fst, tx, ty1+1, 15, 1, 0, 1);
+      rtextout_centre(font, NULL, fst, tx, ty1+1, 15, 1, 0, 1);
 
       if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, 15, 0);
       else show_cursor(fst, cursor_pos, tx, ty1-3, 15, 1);

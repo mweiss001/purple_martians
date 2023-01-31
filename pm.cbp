@@ -128,8 +128,8 @@
 		<Unit filename="src/z_menu.cpp" />
 		<Unit filename="src/z_mwGraph.cpp" />
 		<Unit filename="src/z_mwGraph.h" />
-		<Unit filename="src/z_ping_buffer.cpp" />
-		<Unit filename="src/z_ping_buffer.h" />
+		<Unit filename="src/z_mwRollingAverage.cpp" />
+		<Unit filename="src/z_mwRollingAverage.h" />
 		<Unit filename="src/z_player.cpp" />
 		<Unit filename="src/z_player.h" />
 		<Unit filename="src/z_qGraph.cpp" />

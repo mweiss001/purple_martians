@@ -523,6 +523,7 @@ void server_send_stdf(int p)
       PacketPut1ByteInt(num_packets);
       PacketPut4ByteInt(start_byte);
       PacketPut4ByteInt(packet_data_size);
+      PacketPut1ByteInt(players1[p].late_cdats_last_sec);
       memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
       packetsize += packet_data_size;
       ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
@@ -615,40 +616,29 @@ void server_proc_cdat_packet(double timestamp)
    int p = PacketGet1ByteInt();
    int cdat_frame_num = PacketGet4ByteInt();
    int cm = PacketGet1ByteInt();
-   players1[p].server_game_move_sync = cdat_frame_num - frame_num;
 
    players1[p].client_cdat_packets_tx++;
 
+   // calculate game_move_sync
+   players1[p].server_game_move_sync = cdat_frame_num - frame_num;
 
-   double cd = timestamp_frame_start - timestamp;
-
-   int gc = players1[p].server_game_move_sync;
-
-   double dd = ((double)gc*0.025) + cd;
-
-   players1[p].game_move_dsync = dd;
-   players1[p].game_move_dsync_avg_last_sec_tally += dd;
+   // calculate game_move_dsync
+   players1[p].game_move_dsync = ( (double) players1[p].server_game_move_sync * 0.025) + timestamp_frame_start - timestamp;
+   players1[p].game_move_dsync_avg_last_sec_tally += players1[p].game_move_dsync;
    players1[p].game_move_dsync_avg_last_sec_count +=1;
-
-
-
-   //printf("[%d]cdat %d  gc:%d %f %fms \n", frame_num, cdat_frame_num, gc, cd, dd*1000);
-
-//   printf("%f %f %f\n" ,players1[p].game_move_dsync_avg_last_sec_tally, players1[p].game_move_dsync_avg_last_sec_count, players1[p].game_move_dsync_avg_last_sec);
-
 
    // check to see if earlier than the last stdf state
    if (cdat_frame_num < srv_client_state_frame_num[0][1])
    {
       players1[p].late_cdats_last_sec_tally++;
       players1[p].late_cdats++;
-      printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_client_state_frame_num[0][1], players1[p].late_cdats);
-
-
+      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, players1[p].server_game_move_sync);
    }
-   else add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
-
-   sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d]\n", p, cdat_frame_num, players1[p].server_game_move_sync, game_move_entry_pos);
+   else
+   {
+      add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
+      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, players1[p].server_game_move_sync, game_move_entry_pos);
+   }
    if (LOG_NET_cdat) add_log_entry2(35, p, msg);
 }
 

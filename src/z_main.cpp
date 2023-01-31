@@ -175,6 +175,7 @@ ALLEGRO_TIMER * fps_timer;  // used to control the speed of the game
 ALLEGRO_TIMER * mnu_timer;  // used to control the speed of the menu
 ALLEGRO_TIMER * sec_timer;  // used to count the actual frames per second
 ALLEGRO_TIMER * png_timer;  // used to control the speed client pings
+ALLEGRO_TIMER * mou_timer;  // used to control hiding the mouse cursor
 
 
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -746,9 +747,10 @@ int initial_setup(void)
    // --- timers ---------------------
    // create timers
    fps_timer = al_create_timer(1/(float)frame_speed);
-   sec_timer = al_create_timer(1);
+   sec_timer = al_create_timer(1);    // 1s
    mnu_timer = al_create_timer(.008); // 125 fps
    png_timer = al_create_timer(.5);   // 2 fps
+   mou_timer = al_create_timer(5);    // 5s
 
 
    // register timer event source
@@ -756,12 +758,14 @@ int initial_setup(void)
    al_register_event_source(event_queue, al_get_timer_event_source(fps_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(sec_timer));
    al_register_event_source(event_queue, al_get_timer_event_source(png_timer));
+   al_register_event_source(event_queue, al_get_timer_event_source(mou_timer));
 
    // start timers
    al_start_timer(fps_timer);
    al_start_timer(sec_timer);
    al_start_timer(mnu_timer);
    al_start_timer(png_timer);
+   al_start_timer(mou_timer);
 
    load_sound();
 

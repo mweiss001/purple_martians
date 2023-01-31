@@ -975,7 +975,7 @@ void proc_scale_factor_change(void)
 }
 
 
-void rtextout_centre(ALLEGRO_BITMAP *dbmp, char *txt1, int x, int y, int col, float scale, int rot, float op)
+void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, int rot, float op)
 {
    // draws rotated stretched text
    // used in many places
@@ -984,7 +984,7 @@ void rtextout_centre(ALLEGRO_BITMAP *dbmp, char *txt1, int x, int y, int col, fl
    al_set_target_bitmap(temp);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
-   al_draw_text(font0, palette_color[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
+   al_draw_text(f, palette_color[col], sw/2, 0, ALLEGRO_ALIGN_CENTRE, txt1);
 
    if (dbmp != NULL) al_set_target_bitmap(dbmp);
    else al_set_target_backbuffer(display);

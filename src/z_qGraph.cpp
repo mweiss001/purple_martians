@@ -59,6 +59,10 @@ void qGraph::draw_graph(int x, int y)
    float gx13 = gx1 + (gx2-gx1)*1/4;
    float gx23 = gx1 + (gx2-gx1)*3/4;
 
+
+   float gx16 = gx1 + (gx2-gx1)*1/6;
+   float gx56 = gx1 + (gx2-gx1)*5/6;
+
    float gy1 = y;
    float gy2 = y+height;
    float gyc = (gy1 + gy2)/2;
@@ -67,7 +71,14 @@ void qGraph::draw_graph(int x, int y)
    al_draw_rectangle(       gx1, gy1, gx2, gy2, palette_color[fc], 0);  // frame
    al_draw_line(            gx1, gyc, gx2, gyc, palette_color[fc], 0);  // center line
 
-   if (type == 1) al_draw_textf(font, palette_color[series[0].color], gxc, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[0].name, series[0].data[0]);
+   //if (type == 1) al_draw_textf(font, palette_color[series[0].color], gxc, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[0].name, series[0].data[0]);
+
+   if (type == 1)
+   {
+      al_draw_textf(font, palette_color[series[1].color], gx16, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[1].name, series[1].data[0]);
+      al_draw_textf(font, palette_color[series[2].color], gx56, gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[2].name, series[2].data[0]);
+      al_draw_textf(font, palette_color[series[3].color], gxc,  gyc-4,  ALLEGRO_ALIGN_CENTER, "%s:%0.0f%%", series[3].name, series[3].data[0]);
+   }
 
    if (type == 2)
    {
@@ -101,9 +112,6 @@ void qGraph::draw_graph(int x, int y)
 
    if (type == 2)
    {
-//      y_axis_min = -40;
-//      y_axis_max = 40;
-
       y_axis_min = ymin - 2;
       y_axis_max = ymax + 2;
 
