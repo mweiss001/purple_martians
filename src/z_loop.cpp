@@ -6,8 +6,9 @@
 #include "z_log.h"
 #include "z_settings.h"
 #include "z_player.h"
-#include "z_ping_buffer.h"
 #include "n_netgame.h"
+#include "z_mwRollingAverage.h"
+
 
 void proc_events(ALLEGRO_EVENT ev)
 {
@@ -26,6 +27,11 @@ void proc_events(ALLEGRO_EVENT ev)
       mouse_dx = ev.mouse.dx;
       mouse_dy = ev.mouse.dy;
       mouse_dz = ev.mouse.dz;
+
+      al_set_timer_count(mou_timer, 0);
+      al_show_mouse_cursor(display);
+
+
    }
    if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
    {
@@ -98,6 +104,7 @@ void proc_events(ALLEGRO_EVENT ev)
       if (ev.timer.source == fps_timer) program_update = 1;
       if (ev.timer.source == sec_timer) program_update_1s = 1;
       if (ev.timer.source == png_timer) players1[active_local_player].client_ping_flag = 1;
+      if (ev.timer.source == mou_timer) al_hide_mouse_cursor(display);
    }
 }
 
@@ -408,7 +415,7 @@ void proc_program_state(void)
 
       sprintf(msg, "Waiting for game state from server");
       float stretch = ( (float)SCREEN_W / ((strlen(msg)+2)*8));
-      rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, 10, stretch, 0, 1);
+      rtextout_centre(font0, NULL, msg, SCREEN_W/2, SCREEN_H/2, 10, stretch, 0, 1);
 
       al_flip_display();
 
@@ -868,8 +875,15 @@ void main_loop(void)
 
             double pt = al_get_time() - timestamp_frame_start;
             if (LOG_TMR_cpu) add_log_TMR(pt, "cpu", 0);
-            double cpu = (pt/0.025)*100;
-            qG[0].add_data(0, cpu);
+
+
+            mwRA[0].add_data((pt/0.025)*100);
+            qG[0].add_data(0, mwRA[0].last_input);
+            qG[0].add_data(1, mwRA[0].mn);
+            qG[0].add_data(2, mwRA[0].mx);
+            qG[0].add_data(3, mwRA[0].avg);
+
+
 
 
 //            // speed test... draw every frame

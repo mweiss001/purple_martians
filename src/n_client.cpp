@@ -2,9 +2,8 @@
 #include "pm.h"
 #include "z_log.h"
 #include "z_player.h"
-#include "z_ping_buffer.h"
 #include "n_netgame.h"
-
+#include "z_mwRollingAverage.h"
 
 // n_network.h
 extern int NetworkDriver;
@@ -234,16 +233,14 @@ int client_init(void)
     // initialize driver with server address
    if (!ClientInitNetwork(m_serveraddress)) return 0;
 
-   ping_buffer_clear();
-   dysnc_buffer_clear();
-
+   mwRA[1].initialize(); // ping rolling average
+   mwRA[2].initialize(); // dsync rolling average
 
    printf("sending cjon\n");
    Packet("cjon");
    PacketPut1ByteInt(players[0].color); // requested color
    PacketAddString(local_hostname);
    ClientSend(packetbuffer, packetsize);
-
 
    if (LOG_NET_join)
    {
@@ -345,7 +342,7 @@ void client_send_stak(void)
    PacketPut4ByteInt(frame_num);
    PacketPut4ByteInt(players1[p].frames_skipped);
    PacketPutDouble(players1[p].client_chase_fps);
-   PacketPutDouble(players1[p].dsync);
+   PacketPutDouble(players1[p].dsync_avg);
    ClientSend(packetbuffer, packetsize);
 }
 
@@ -536,6 +533,7 @@ void client_process_stdf_packet(double timestamp)
    int max_seq = PacketGet1ByteInt();
    int sb = PacketGet4ByteInt();
    int sz = PacketGet4ByteInt();
+   players1[p].late_cdats_last_sec = PacketGet1ByteInt();
 
    sprintf(msg, "rx stdf piece [%d of %d] [%d to %d] st:%4d sz:%4d \n", seq+1, max_seq, src, dst, sb, sz);
    if (LOG_NET_stdf_all_packets) add_log_entry2(28, p, msg);
@@ -547,12 +545,15 @@ void client_process_stdf_packet(double timestamp)
       players1[p].client_last_stdf_rx_frame_num = frame_num;      // client keeps track of last stdf rx'd and quits if too long
       players1[p].dsync = al_get_time() - timestamp;              // time between when the packet was received into the packet buffer and now
       players1[p].dsync += (double) client_sync * 0.025;          // combine with client_sync
-      dsync_array_add();
+
+      mwRA[2].add_data(players1[p].dsync); // send to rolling average
+      players1[p].dsync_avg = mwRA[2].avg;
+
       client_timer_adjust();
    }
 
 
-   memcpy(client_state_buffer + sb, packetbuffer+22, sz);     // put the piece of data in the buffer
+   memcpy(client_state_buffer + sb, packetbuffer+23, sz);     // put the piece of data in the buffer
    client_state_buffer_pieces[seq] = dst;                     // mark it with destination frame_num
 
    int complete = 1;                                          // did we just get the last packet? (yes by default)
@@ -657,7 +658,7 @@ void client_proc_player_drop(void)
    {
       sprintf(msg, "SERVER ENDED GAME!");
       float stretch = ( (float)SCREEN_W / (strlen(msg)*8)) - 1;
-      rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, players[p].color, stretch, 0, 1);
+      rtextout_centre(font0, NULL, msg, SCREEN_W/2, SCREEN_H/2, players[p].color, stretch, 0, 1);
       al_flip_display();
       tsw();
       players1[p].quit_reason = 92;
@@ -683,7 +684,7 @@ void client_proc_player_drop(void)
 
          sprintf(msg, "LOST SERVER CONNECTION!");
          float stretch = ( (float)SCREEN_W / (strlen(msg)*8)) - 1;
-         rtextout_centre(NULL, msg, SCREEN_W/2, SCREEN_H/2, players[p].color, stretch, 0, 1);
+         rtextout_centre(font0, NULL, msg, SCREEN_W/2, SCREEN_H/2, players[p].color, stretch, 0, 1);
          al_flip_display();
          tsw();
          players1[p].quit_reason = 75;
@@ -698,6 +699,8 @@ void client_proc_player_drop(void)
 
 void client_fast_packet_loop(void)
 {
+   int p = active_local_player;
+
    while ((packetsize = ClientReceive(packetbuffer)))
    {
       double timestamp = al_get_time();
@@ -707,10 +710,20 @@ void client_fast_packet_loop(void)
          double t0 = PacketGetDouble();
          double t1 = PacketGetDouble();
          double t2 = al_get_time();
-         players1[active_local_player].ping = t2 - t0;
-         //printf("%d rx pong [%3.1f ms] - send pang\n", frame_num, players1[active_local_player].ping * 1000);
+         players1[p].ping = t2 - t0;
+         //printf("%d rx pong [%3.1f ms] - send pang\n", frame_num, players1[p].ping * 1000);
 
-         ping_array_add(players1[active_local_player].ping);
+         mwRA[1].add_data(players1[p].ping); // send to rolling average
+         players1[p].ping_avg = mwRA[1].avg;
+
+         if (players1[p].client_chase_offset_mode) players1[p].client_chase_offset = - players1[p].ping_avg + players1[p].client_chase_offset_auto_offset;
+
+         sprintf(msg, "ping [%3.2f] avg[%3.2f]\n", players1[p].ping*1000, players1[p].ping_avg*1000);
+         //printf(msg);
+         if (LOG_NET_client_ping) add_log_entry2(37, p, msg);
+
+         sprintf(msg, "tmst ping:[%5.2f] pavg:[%5.2f]\n", players1[p].ping*1000, players1[p].ping_avg*1000);
+         if (LOG_TMR_client_ping) if (frame_num) add_log_entry2(44, 0, msg);
 
          Packet("pang");
          PacketPutDouble(t1);

@@ -20,16 +20,14 @@ I think my hotkey L is triggering level editor on client....disabled for now, te
 it did, disabled again....
 
 
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
 
 
-can I let client know when late cdats happen, so I might adjust offset to prevent it??
-
-
-
+move/hide the client offset controls, but still make them possible to use for testing
+somehow in settings
+same thing with the server frequency thing..
 
 
 

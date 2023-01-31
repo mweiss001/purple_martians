@@ -313,6 +313,9 @@ extern ALLEGRO_TIMER * fps_timer;
 extern ALLEGRO_TIMER * sec_timer;
 extern ALLEGRO_TIMER * mnu_timer;
 extern ALLEGRO_TIMER * png_timer;
+extern ALLEGRO_TIMER * mou_timer;
+
+
 extern ALLEGRO_EVENT_QUEUE *event_queue;
 extern ALLEGRO_DISPLAY *display;
 extern ALLEGRO_COLOR palette_color[256];
@@ -1230,7 +1233,7 @@ void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, f
 void draw_level(void);
 void frame_and_title(int show_players);
 void proc_scale_factor_change(void);
-void rtextout_centre(ALLEGRO_BITMAP *dbmp, char *txt1, int x, int y, int col, float scale, int rot, float op);
+void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, int rot, float op);
 void draw_percent_barc(int cx, int y, int width, int height, int percent, int c1, int c2, int fc);
 void draw_percent_bar(int cx, int y, int width, int height, int percent);
 void draw_percent_bar_line(int cx, int y, int width, int height, int rise, int color, int percent);

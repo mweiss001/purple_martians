@@ -9160,11 +9160,325 @@ I don't actually overwrite the old state until I get an ack for the new one....
 
 OK, just leave it....
 
+experiment with zlib_cmp...I would really like to see it in real time...
+i still like 7 the best
 
 
 
 
-experiment with zlib...I would really like to see it in real time...
+
+
+
+
+can I make a general rolling average algorithm...
+
+then just make instances of it?
+
+what would that look like?
+a class
+
+
+OK, I think I have the class done, now how to patch it in...
+
+lets do cpu...
+
+I need to choose which one I'm going to use and initialize it somewhere....you don't even have to initialize!
+
+make cpu graph show inst and avg...but make text use avg...
+
+looking good...
+
+I add data in loop..
+I draw in graph screen overlay
+
+I am spending far too much time on this...
+be done with CPU...
+in the very middle: CPU: just liek it used to be, then min and max on each side...
+CPU is done!!
+
+
+now redo ping with new RollingAverage
+
+0 = CPU
+1 = PING
+2 = DSYNC
+right in ping array was where the avg was used...move it...done
+
+I think ping is done
+next dsync..done...
+
+now remove ping_buffer and all traces of it...done...
+
+nice...now I have a nice rolling average I can use when I want...
+
+I should send dsync _avg to server instead of raw...done
+
+remove the adjustments to s1..just comment out..done
+but then I would like to be able to view state_freq...put it in debug grid....done
+
+
+
+
+
+
+can I let client know when late cdats happen, so I might adjust offset to prevent it??
+the only way would be to add it to stdf packet and that is pretty much full...
+I think I use 1022/1024 bytes already
+
+
+      Packet("stdf");
+      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+      PacketPut1ByteInt(packet_num);
+      PacketPut1ByteInt(num_packets);
+      PacketPut4ByteInt(start_byte);
+      PacketPut4ByteInt(packet_data_size);
+      memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
+      packetsize += packet_data_size;
+      ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
+      start_byte+=1000;
+
+
+4 stdf
+4
+4
+1
+1
+4
+4
+1000
+--
+1022
+
+do I need 4 bytes for start_byte and packet data size?
+
+
+what is tha max the could be
+
+well packet_data_size would be 1000 max
+
+what is the data range of a 2byte int?
+
+2^16 = 63356
+or +/- 32768
+
+what is the max data size we are prepared to handle? do I have a limit somewhere?
+
+I'm putting it in a buffer the size of a state so that is not a limit...
+
+I don't see anything on the server that would limit it...
+it just breaks it into 1000byte pieces...
+
+ok, i only use 1 byte for num_packets so I have a limit of 256 there....
+
+on the client, I have client_state_buffer_pieces[i]
+
+int  client_state_buffer_pieces[16];   // to mark packet pieces as received
+
+so there is my only limit so far and it would be trivial to increase...
+
+start_byte could be 16,000 if I used 16 packets...
+still easily fit into 2 bytes...
+
+should I do it?
+
+reduce to 2 bytes...
+
+then I would have 6 extra...
+what do I want to send?  how about late_cdats_last_sec...
+what is the max that could be?
+40 fps could be 40 late cdats...hell I could just use 1 byte for that...
+lets just do that...done
+
+OK now client has late_cdats_last_sec...what is he going to do about it?
+
+when not zero, show a warning on the screen in red...
+
+can I make rtextout_centre take an arbitrary font?
+
+11 occurances...
+9 uses...2 i just used...
+converted...also that fixed edit server name having the wrong font...
+
+I think I will just put this error message on the bottom frame...I like it there better....done...
+
+
+
+
+
+
+make the mouse disappear if not moved and and appear if moved
+I could put this in the event processing loop...
+
+make a 5s timer...
+if the event timer fires (times out), hide the mouse...
+if the mouse is moved, show the mouse and reset timer
+this worked on my first try...
+
+   mou_timer = al_create_timer(5);    // 5s
+   // register timer event source
+   al_register_event_source(event_queue, al_get_timer_event_source(mou_timer));
+   // start timers
+   al_start_timer(mou_timer);
+
+   if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
+   {
+      al_set_timer_count(mou_timer, 0);
+      al_show_mouse_cursor(display);
+   }
+   if (ev.timer.source == mou_timer) al_hide_mouse_cursor(display);
+
+done......
+
+it is 5:44PM on Jan 30, 2023
+
+I took today opff work due to being sick with a headache...
+
+got a lot done...
+
+next up on the things to do, test more with shitty networks...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
