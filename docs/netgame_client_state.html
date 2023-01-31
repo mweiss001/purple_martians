@@ -116,8 +116,9 @@ The source and destination frame of 'client_state_dif' are updated to mark it as
    int max_seq = PacketGet1ByteInt();
    int sb = PacketGet4ByteInt();
    int sz = PacketGet4ByteInt();
+   players1[p].late_cdats_last_sec = PacketGet1ByteInt();
 
-   memcpy(client_state_buffer + sb, packetbuffer+22, sz);  // put the piece of data in the buffer
+   memcpy(client_state_buffer + sb, packetbuffer+23, sz);  // put the piece of data in the buffer
    client_state_buffer_pieces[seq] = dst;                  // mark it with destination frame_num
 
    int complete = 1;                                          // did we just get the last packet? (yes by default)

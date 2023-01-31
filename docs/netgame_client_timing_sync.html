@@ -69,8 +69,7 @@
 <mh8>Netgame - Client Timing Sync</mh8>
 <mh3><hr><mdw_file_toc> <a href="netgame_client_timing_sync.html#Client Timing Sync" target="_top">Client Timing Sync</a>
  <a href="netgame_client_timing_sync.html#Server sends 'stdf' packet" target="_top">Server sends 'stdf' packet</a>
- <a href="netgame_client_timing_sync.html#Client receives 'stdf' packet" target="_top">Client receives 'stdf' packet</a>
- <a href="netgame_client_timing_sync.html#Calculate the rolling average of dysnc" target="_top">Calculate the rolling average of dysnc</a>
+ <a href="netgame_client_timing_sync.html#Client receives 'stdf' packet and calculates dsync" target="_top">Client receives 'stdf' packet and calculates dsync</a>
  <a href="netgame_client_timing_sync.html#Determine the setpoint" target="_top">Determine the setpoint</a>
  <a href="netgame_client_timing_sync.html#Adjust client timer" target="_top">Adjust client timer</a>
 </mdw_file_toc><hr></mh3>
@@ -88,6 +87,7 @@ The time difference between the client and server is called dsync.
 
 Clients are responsible for measuring dsync and maintaining their timing offset with relation to the server.
 
+Clients use the 'stdf' packet sent from the server as the timing reference.
 </mh3>
 
 
@@ -109,12 +109,7 @@ That information is used by the client to measure its timing relation to the ser
 <pre><code class="language-cpp">Packet("stdf");
 PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
 PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
-PacketPut1ByteInt(packet_num);
-PacketPut1ByteInt(num_packets);
-PacketPut4ByteInt(start_byte);
-PacketPut4ByteInt(packet_data_size);
-memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
-packetsize += packet_data_size;
+....
 ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
 </code></pre>
 
@@ -122,90 +117,57 @@ ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
 
 
 
-<br><a name="Client receives 'stdf' packet"></a>
-<mh7>Client receives 'stdf' packet</mh7>
+<br><a name="Client receives 'stdf' packet and calculates dsync"></a>
+<mh7>Client receives 'stdf' packet and calculates dsync</mh7>
 
 
 
 <mh3>    
-When the client receives an 'stdf' packet, it uses the destination frame and its own local frame number to make a crude integer sync.
-This sync only has a resolution of 1 frame (25ms).
+When the client receives an 'stdf' packet, it uses the destination frame and its own local frame number to make a simple frame based integer sync.
 </mh3>
 <pre><code class="language-cpp">void client_process_stdf_packet(double timestamp)
 {
-   int p = active_local_player;
    int src = PacketGet4ByteInt();
    int dst = PacketGet4ByteInt();
-   int seq = PacketGet1ByteInt();
-   int max_seq = PacketGet1ByteInt();
-   int sb = PacketGet4ByteInt();
-   int sz = PacketGet4ByteInt();
 
    int client_sync = dst - frame_num;                             // crude integer sync based on frame numbers
 </code></pre>
 
+<mh3>This is called 'client_sync' and only has a resolution of 1 frame (25ms).
 
-
-
-<mh3>    
+    
 The passed variable 'timestamp' was recorded by the <a href="netgame_fast_packet_loop.html#Client fast packet loop" target="_top">fast packet loop</a> when the packet was actually received.
 
 This is used to give timing information less than one frame.
 
 The two are combined and the result is 'dsync'.
 </mh3>
-<pre><code class="language-cpp">players1[p].dsync = al_get_time() - timestamp;              // time between when the packet was received into the packet buffer and now
-players1[p].dsync += (double) client_sync * 0.025;          // combine with client_sync
+<pre><code class="language-cpp">   if (players1[p].client_last_stdf_rx_frame_num != frame_num)    // first stdf received for this frame
+   {
+      players1[p].dsync = al_get_time() - timestamp;              // time between when the packet was received into the packet buffer and now
+      players1[p].dsync += (double) client_sync * 0.025;          // combine with client_sync
 </code></pre>
-
-
-
-<br><a name="Calculate the rolling average of dysnc"></a>
-<mh7>Calculate the rolling average of dysnc</mh7>
-
-<mh3>    
-Because the value of dsync can rapidly change based on network conditions, we don't want to adjust our speed based on this raw value.
-
-Instead we run it through a rolling average algorithm and use that instead.
-</mh3>
-
-<pre><code class="language-cpp">void dsync_array_add(void)
-{
-   int p = active_local_player;
-   
-   dsync_array[dsync_index] = players1[p].dsync; // put it where dsync_index points
-   dsync_index++;
-   dsync_num_filled++;
-   if (dsync_index > 7) dsync_index = 0;
-
-   // find number of used entries
-   int ul = 8; // default
-   if (dsync_num_filled < 8) ul = dsync_num_filled;
-
-   // add up the entries
-   double tally = 0;
-   for (int i=0; i < ul; i++)
-      tally += dsync_array[i];
-
-   // get the average
-   players1[p].dsync_avg = tally / (ul);
-}
-</code></pre>
-
+<mh3> Then dsync is <a href="rolling_average.html" target="_top">averaged</a> and 'client_timer_adjust()' is called.</mh3>
+<pre><code class="language-cpp">      mwRA[2].add_data(players1[p].dsync); // send to rolling average
+      players1[p].dsync_avg = mwRA[2].avg;
+      client_timer_adjust();
+   }</code></pre>
 
 <br><a name="Determine the setpoint"></a>
 <mh7>Determine the setpoint</mh7>
 
 <mh3>    
-Now that we have a measured value, 'dsync_avg', the next step is to determine the setpoint (what we want it to be).
+Before we adjust the timer, we need two things:
 
-This value is called 'client_chase_offset'.
+- a measured value, 'dsync_avg', which we just calculated
 
-The first step is to measure the round trip ping time to the server. (This is covered <a href="netgame_ping.html" target="_top">here</a>)
+- a setpoint (what we want the value to be)
 
-When we have the <a href="netgame_ping.html#Client calculates the rolling average of its ping time" target="_top">average ping time</a>, we use it to set '<a href="netgame_ping.html#Client uses 'ping_avg' time to set 'client_chase_offset'" target="_top">client_chase_offset</a>'.
+The setpoint is called 'client_chase_offset', and it is set from the average ping time as described here:
 
-For more details, click the links in the text.
+<a href="netgame_ping.html" target="_top">How ping is calulated.</a>
+
+<a href="netgame_ping.html#Client uses 'ping_avg' time to set 'client_chase_offset'" target="_top">How ping is used to set client_chase_offset.</a>.
 </mh3>
 
 

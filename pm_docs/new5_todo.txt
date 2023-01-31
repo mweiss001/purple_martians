@@ -32,6 +32,8 @@ same thing with the server frequency thing..
 
 
 
+
+
 make a way to force x axis to show either frames or sec..
 make a way to measure on graph
 like CTRL SHIFT DRAG will display info about box size

@@ -73,8 +73,10 @@
  <a href="netgame_ping.html#Client receives 'pong' and sends 'pang'" target="_top">Client receives 'pong' and sends 'pang'</a>
  <a href="netgame_ping.html#Client calculates the rolling average of its ping time" target="_top">Client calculates the rolling average of its ping time</a>
  <a href="netgame_ping.html#Client uses 'ping_avg' time to set 'client_chase_offset'" target="_top">Client uses 'ping_avg' time to set 'client_chase_offset'</a>
+ <a href="netgame_ping.html#What this adjustment accomplishes" target="_top">What this adjustment accomplishes</a>
  <a href="netgame_ping.html#Server receives 'pang'" target="_top">Server receives 'pang'</a>
- <a href="netgame_ping.html#Server uses 'server_max_client_ping' to set 'server_state_freq'" target="_top">Server uses 'server_max_client_ping' to set 'server_state_freq'</a>
+ <a href="netgame_ping.html#Server uses 'server_max_client_ping' to adjust 'server_state_freq'" target="_top">Server uses 'server_max_client_ping' to adjust 'server_state_freq'</a>
+ <a href="netgame_ping.html#What the adjustment accomplishes" target="_top">What the adjustment accomplishes</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
@@ -175,7 +177,8 @@ Then immediately replies with a 'pang' packet that contains the timestamp from t
          double t2 = al_get_time();
          players1[active_local_player].ping = t2 - t0;
 
-         ping_array_add(players1[active_local_player].ping);
+         mwRA[1].add_data(players1[p].ping); // send to rolling average
+         players1[p].ping_avg = mwRA[1].avg;
 
          Packet("pang");
          PacketPutDouble(t1);
@@ -189,25 +192,10 @@ Then immediately replies with a 'pang' packet that contains the timestamp from t
 <mh3>
 Because ping times fluctuate based on network conditions, we don't want to use the raw value.
 
-Instead we run it through a rolling average algorithm and use that instead.
+Instead we run it through a <a href="rolling_average.html" target="_top">rolling average</a> algorithm and use that instead.
 </mh3>    
-<pre><code class="language-cpp">void ping_array_add(double ping)
-{
-   ping_array[ping_index] = ping; // always put it where ping_index points
-   if (++ping_index > 7) ping_index = 0;
-   ping_num_filled++;
-  
-   // find number of used entries
-   int ul = 8; // default
-   if (ping_num_filled < 8) ul = ping_num_filled;
-
-   // add up the entries
-   double tally = 0;
-   for (int i=0; i < ul; i++)
-      tally += ping_array[i];
-
-   // get the average
-   players1[p].ping_avg = tally / (ul);
+<pre><code class="language-cpp">         mwRA[1].add_data(players1[p].ping); // send to rolling average
+         players1[p].ping_avg = mwRA[1].avg;
 </code></pre>
 
 <a name="Client uses 'ping_avg' time to set 'client_chase_offset'"></a>
@@ -215,8 +203,10 @@ Instead we run it through a rolling average algorithm and use that instead.
 <pre><code class="language-cpp">   if (players1[p].client_chase_offset_mode) players1[p].client_chase_offset = - players1[p].ping_avg + players1[p].client_chase_offset_auto_offset;
 }</code></pre>
 
-<mh3>What this does is:
+<a name="What this adjustment accomplishes"></a>
+<mh7>What this adjustment accomplishes</mh7>
 
+<mh3>
 'client_chase_offset' is used by the client_timing_sync algorith as the target setpoint for dsync (the target amount of time offset between the client and the server)
 
 Ideally, when pings are low, the client and server will run closer to each other.
@@ -249,8 +239,8 @@ The server also keeps track of the maximum ping time for all clients and stores 
 </code></pre>
 
 
-<a name="Server uses 'server_max_client_ping' to set 'server_state_freq'"></a>
-<mh7>Server uses 'server_max_client_ping' to set 'server_state_freq'</mh7>
+<a name="Server uses 'server_max_client_ping' to adjust 'server_state_freq'"></a>
+<mh7>Server uses 'server_max_client_ping' to adjust 'server_state_freq'</mh7>
 <mh3>
 In the 1 Hz timer loop, the server uses 'server_max_client_ping' to set 'server_state_freq'.
 
@@ -267,14 +257,25 @@ Then 'server_max_client_ping' is reset to zero.
          players1[0].server_state_freq = 2 + mcp/20; // use client max ping to set server_state_freq
 </code></pre>
 
+
+<a name="What the adjustment accomplishes"></a>
+<mh7>What the adjustment accomplishes</mh7>
+
 <mh3>
-What this does is:
+When ping times are low, the server can send states more often, which is desirable.
 
-As the ping increases, the time between the server sending states to clients, also increases.
+As ping times increase, there is not enough time for the server to send a state and get a reply before its time to send the next state.
+So the time in between sending states is increased.
 
-When ping times are lower, the server can send states more often, which is desireable.
+If the next state is sent before a reply is recieved, the dif base will be lost.
+Client and server will no longer have a common base to make dif's and will have to resort to making difs from a zero state.
+These dif's are considerably (5-10 times) larger.
 
-But as the ping times increase, there is not enough time to send a state and get a reply before its time to send the next state.
+The minimum value for server_state_freq is 2, which corresponds to sending states every 2 frames.
+
+This will only work in a LAN where ping times are very low.
+
+Values of 3-5 are typically for the amount of lag over the internet.
 
 </mh3>    
 

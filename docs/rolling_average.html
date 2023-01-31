@@ -1,5 +1,5 @@
 <!doctype html>
-<title>Netgame - Packets</title>
+<title>Netgame - Rolling Average</title>
 
 <html>
 
@@ -11,7 +11,7 @@
     <body>
 
         <nav class="col-1">
-    
+
 <mdw_lhs_nav><div style="text-align: center;">Navigation</div><hr>    
 <div style="text-align: center;"><a href="index.html" target="_top">Home</a></div>    
 <div style="text-align: center;"><a href="index.html#Description" target="_top">Description</a></div>    
@@ -54,7 +54,7 @@
 <div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
 
 </mdw_lhs_nav>
-            
+
         </nav>
 
         
@@ -66,85 +66,91 @@
             </header>
 
 <mh3><hr></mh3>
-<mh8>Netgame - Packets</mh8>
-<mh3><hr><mdw_file_toc> <a href="netgame_packets.html#Overview" target="_top">Overview</a>
+<mh8>Netgame - Rolling Average</mh8>
+<mh3><hr><mdw_file_toc> <a href="rolling_average.html#Overview" target="_top">Overview</a>
+ <a href="rolling_average.html#Usage" target="_top">Usage</a>
+ <a href="rolling_average.html#Code" target="_top">Code</a>
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
 <mh7>Overview</mh7>
+
 <mh3>
-These are all of the packet types used in netgame.
+Sometime a measured variable has fluctuations that make it unsuitable to use for control purposes.
+
+Or other times, you want to display a variable, but it changes so fast it appears blurred as it switches from one value to another.
+
+This method provides a rolling average of the last 8 values.
+
 </mh3>    
-<br>
-<pk0>Packet: 'cdat'</pk0>
-<pk1>description: 'client data'
-direction: client to server
-- 1 byte  (player)
-- 4 bytes (frame_num)
-- 1 byte  (comp move of control change)
-</pk1><br>
 
-<pk0>Packet: 'stdf'</pk0>
-<pk1>description: 'state dif'
-direction: server to client
-- 4 bytes (source frame_num)
-- 4 bytes (destination frame_num)
-- 1 byte  (packet sequence num)
-- 1 byte  (packet sequence total)
-- 4 bytes (data start byte)
-- 4 bytes (data size)
-- 1 byte  (late cdats last second)
-</pk1><br>
+<a name="Usage"></a>
+<mh7>Usage</mh7>
 
-<pk0>Packet: 'stak'</pk0>
-<pk1>description: 'state acknowledge'
-direction: client to server
-- 1 byte  (player)
-- 4 bytes (client_stae_base_fraem_num)
-- 4 bytes (client frame_num)
-- 4 bytes (frames_skipped)
-- 8 bytes double (client_chase_fps)
-- 8 bytes double (dsync)
-</pk1><br>
-
-<pk0>Packet: 'cjon'</pk0>
-<pk1>description: 'client join'
-direction: client to server
-- 1 byte   (requested color)
-- 16 bytes (client hostname)
-</pk1><br>
-        
-<pk0>Packet: 'sjon'</pk0>
-<pk1>description: 'server join'
-direction: server to client
-- 2 bytes (play level)
-- 4 bytes (server frame_num)
-- 1 byte  (player number)
-- 1 byte  (player color)
-- 1 byte  (deathmatch_pbullets)
-- 2 byte  (deathmatch_pbullets_damage)
-- 1 byte  (suicide_pbullets)
-</pk1><br>        
+<pre><code class="language-cpp">double ping = t2 - t0;          // calculate ping
+mwRA[1].add_data(ping);  
+       // send to rolling average
+double ping_avg = mwRA[1].avg;  // retrieve average
+</code></pre>
 
 
-<pk0>Packet: 'ping'</pk0>
-<pk1>description: 'ping'
-direction: client to server
-- 8 bytes double (ping timestamp)
-</pk1><br>        
+<mh3>
+As an added bonus, you can also retrieve:
 
-<pk0>Packet: 'pong'</pk0>
-<pk1>description: 'pong'
-direction: server to client
-- 8 bytes double (ping timestamp)
-- 8 bytes double (pong timestamp)
-</pk1><br>        
+The most recently added value:
+mwRA[].last_input
 
-<pk0>Packet: 'pang'</pk0>
-<pk1>description: 'pang'
-direction: client to server
-- 8 bytes double (pong timestamp)
-</pk1>
+The minimum value of the values stored:
+mwRA[].mn
+
+The maximum value of the values stored:
+mwRA[].mx
+
+</mh3>    
+
+
+<a name="Code"></a>
+<mh7>Code</mh7>
+
+<pre><code class="language-cpp">class mwRollingAverage
+{
+   public:
+   mwRollingAverage();
+   void initialize(void);
+   void add_data(double d);
+   double arr[8];
+   int    num_filled;
+   int    index;
+   double last_input;
+   double avg;
+   double mn;
+   double mx;
+};
+extern mwRollingAverage mwRA[4];
+
+void mwRollingAverage::add_data(double d)
+{
+   last_input = d;
+
+   arr[index] = d;  // put new entries where index points
+   if (++index > 7) index = 0;
+   num_filled++;
+
+   int ul = 8; // find number of valid entries, 8 by default unless not filled yet
+   if (num_filled < 8) ul = num_filled;
+
+   mn = 99999999;  // min
+   mx = -99999999; // max
+   double tally = 0;
+   for (int i=0; i<ul; i++) // cycle all the valid entries
+   {
+      tally += arr[i];
+      if (arr[i] < mn) mn = arr[i]; // min
+      if (arr[i] > mx) mx = arr[i]; // max
+   }
+   avg = tally / ul; // average
+}
+</code></pre>
 
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">

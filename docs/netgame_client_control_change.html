@@ -115,12 +115,30 @@ Otherwise the client's control change is added to the server's game moves array.
    int p = PacketGet1ByteInt();
    int cdat_frame_num = PacketGet4ByteInt();
    int cm = PacketGet1ByteInt();
+
+   players1[p].client_cdat_packets_tx++;
+
+   // calculate game_move_sync
+   players1[p].server_game_move_sync = cdat_frame_num - frame_num;
+
+   // calculate game_move_dsync
+   players1[p].game_move_dsync = ( (double) players1[p].server_game_move_sync * 0.025) + timestamp_frame_start - timestamp;
+   players1[p].game_move_dsync_avg_last_sec_tally += players1[p].game_move_dsync;
+   players1[p].game_move_dsync_avg_last_sec_count +=1;
+
    // check to see if earlier than the last stdf state
    if (cdat_frame_num < srv_client_state_frame_num[0][1])
    {
-      printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_client_state_frame_num[0][1], players1[p].late_cdats);
+      players1[p].late_cdats_last_sec_tally++;
+      players1[p].late_cdats++;
+      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, players1[p].server_game_move_sync);
    }
-   else add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
+   else
+   {
+      add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
+      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, players1[p].server_game_move_sync, game_move_entry_pos);
+   }
+   if (LOG_NET_cdat) add_log_entry2(35, p, msg);
 }</code></pre>
 
                <footer>                <mh11>Purple Martians</mh11><hr>
