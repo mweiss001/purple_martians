@@ -291,6 +291,7 @@ Lastly we break it into pieces and send it.
       PacketPut1ByteInt(num_packets);
       PacketPut4ByteInt(start_byte);
       PacketPut4ByteInt(packet_data_size);
+      PacketPut1ByteInt(players1[p].late_cdats_last_sec);
       memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
       packetsize += packet_data_size;
       ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
