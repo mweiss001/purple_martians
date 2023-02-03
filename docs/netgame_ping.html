@@ -207,7 +207,7 @@ Instead we run it through a <a href="rolling_average.html" target="_top">rolling
 <mh7>What this adjustment accomplishes</mh7>
 
 <mh3>
-'client_chase_offset' is used by the client_timing_sync algorith as the target setpoint for dsync (the target amount of time offset between the client and the server)
+'client_chase_offset' is used by the client_timing_sync algorithm as the target setpoint for dsync (the target amount of time offset between the client and the server)
 
 Ideally, when pings are low, the client and server will run closer to each other.
 
@@ -262,14 +262,14 @@ Then 'server_max_client_ping' is reset to zero.
 <mh7>What the adjustment accomplishes</mh7>
 
 <mh3>
-When ping times are low, the server can send states more often, which is desirable.
+When ping times are low, the <a href="netgame_server_state.html" target="_top">server can send states</a> more often, which is desirable.
 
-As ping times increase, there is not enough time for the server to send a state and get a reply before its time to send the next state.
+As ping times increase, there is not enough time for the server to send a state and get a reply before it's time to send the next state.
 So the time in between sending states is increased.
 
-If the next state is sent before a reply is recieved, the dif base will be lost.
-Client and server will no longer have a common base to make dif's and will have to resort to making difs from a zero state.
-These dif's are considerably (5-10 times) larger.
+If the next state is sent before a reply is received, the dif base will be lost.
+Client and server will no longer have a common base to make difs and will have to resort to making difs from a zero state.
+These difs are considerably (5-10 times) larger.
 
 The minimum value for server_state_freq is 2, which corresponds to sending states every 2 frames.
 

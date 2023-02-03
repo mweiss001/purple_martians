@@ -8219,7 +8219,6 @@ cancel:
 sudo tc qdisc del dev eno1 root
 
 
-
 How can I use netem on incoming traffic?
 
 You need to use the Intermediate Functional Block pseudo-device IFB . This network device allows attaching queuing discplines to incoming packets.
@@ -9342,51 +9341,106 @@ next up on the things to do, test more with shitty networks...
 
 
 
+there is some stuff that should be cleaned up in program states...
 
+when client exits, it has its own special state 25 where it cleans up, then goes to state 1.
 
+server does not have this...just goes to 1...
 
+in 1:
+         if (new_program_state == 1) // game menu or fast exit
+         {
+            if (ima_server) server_exit();
+            if (ima_client) client_exit();
 
+            if (autosave_log_on_game_exit) save_log_file();
+            if (autosave_game_on_game_exit) blind_save_game_moves(2);
 
+            stop_sound();
+            if (program_state != 3) stamp();
 
+            program_state = old_program_state; // go back to the state that called 0,1,2 or 3
+         }
+      }
+      new_program_state = 0;
 
+in 25:
 
+   //---------------------------------------
+   // 25 - client exit
+   //---------------------------------------
+   if (program_state == 25) // client exit
+   {
+      client_exit();
+      new_program_state = 1;
+   }
 
+in the interests of making them both them same...
 
+should I make them both like client, or both like server??
 
 
 
+both like client...
 
+add a new state then..
 
+19 is server_exit
 
+now find places where the server would exit...
 
 
+I think I still want to keep:
 
+         if (new_program_state == 1) // game menu or fast exit
+         {
+            if (ima_server) server_exit();
+            if (ima_client) client_exit();
 
 
+and use 19 and 25 for errors in setup...
 
+not sure what I gained here...at least its more consistant looking
 
 
+now back to doc...where was I? server_setup...??
 
 
 
 
 
+I have an urge to figure out more exactly what is going on with the timing loop in netgame...
 
 
+I can picture the server making and sending the state on a specific frame
 
+I will draw a rectangle with time on the y axis like normal
 
+then I will draw a rectangle below it show the clients frame and the offset is determined ny the ping and offset...
 
+I need pictures, diagrams..
 
 
 
+go back to your data...
 
+when you increase offset evetually you get late cdat on the server, right?? yes...
 
 
 
+that would mean that increasing offset, makes the clients less ahead of the server..
 
+dsync > 0   client gets difs for future frames
+dysnc = 0   client gets difs exactly when needed for current frame_and_title
+dsync < 0   client gets difs for past frames
 
+as the dsync decreases the client has to rewind, meaning that it got a past dif, meaning that the client is further ahead of the server...
 
+dsync > 0   client is further behind
+dysnc = 0   client gets difs exactly when needed for current frame_and_title
+dsync < 0   client is further ahead
 
+so... when offset increases, the client is further behind, until late cdats happen
 
 
 
@@ -9394,118 +9448,79 @@ next up on the things to do, test more with shitty networks...
 
 
 
+could I actually do these graphs in real time, based on the real data??
 
+server would should a rectangle the size of stdf freq frames...
+server would show when it got stak replies and cdats...
 
 
 
+I would need persistant data over the course of a state
 
+sending a new state would reset the variable...
 
+start_frame_num
+start_frame_ms
+num_frames
+num_ms
 
+sdak_rx_ms - how many milliseconds to get the reply from the client
+cdat_rx_ms - cdat offset from frame start...
 
 
+do I already do this with sgms? server game move sync?
+measure how far off the cdats are from when they are needed?
 
+I do...
 
+on the sever, I maeasure that and it it always the neagtive of dysnc on the server
 
+for ping 0..clients dsync 10 gmav -10
 
+so I already have this...
 
+what am I trying to figure out here?
 
+Do i just want some nice pictures to help me understand?
 
 
+from the server's point of view:
 
+see the entire state to state block.
+see when sdaks come back..
+see when client input arrives..
+see how far the client is running ahead/behind
 
+from the client's point of view..
+show timing relation to server, (dsync)
 
+I don't think I am getting anything new here...
 
+this is all information I already have...
 
+I think the most important thing is to set state_freq first.
+make that as fast as possible, without getting base resets
+right now I am just setting that based on ping...
 
+would it be any better if I set it based on how long it takes to get stak replies?
+they are pretty much the same thing as pings...??
 
+then after that set the client offset...
 
+I really can't see any improvements to be made...
 
+I think I might be getting a little lost here...
 
+I think I need to officially stop messing with the netgame stuff...
+I am afraid that there might be a few improvements I could do that if I don't do it now I never will...
 
+the only improvement I could possibly think of, is when in the loop are dif's made and sent...
 
+I went down that rabbit hole once, it was very complicated and I never came to any resolution...
 
+at most, I could save part of a frame in time...maybe...
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+here is the old description:
 
 In the game loop, 'server_send_stdf()' is called after 'move()' but before 'draw()'
 
@@ -9576,6 +9591,121 @@ basically I would be changing the states behaviuor from:
 frame:100 starting state
 to:
 frame:100 ending state
+
+
+
+OK this is the final time we go over this:
+
+
+frame++ (100)
+
+server control
+ - check for client input and put in game moves array (could get client input for 100 here)
+ - time to make state? rewind and replay then make new state for 100 (before any processing of 100)
+
+local input for 100
+game moves array input
+
+move 100
+
+send stdf for 100 (pre move)
+
+draw 100
+
+
+the first thing I notice is that there is no reason to wait until after move to send the state
+nothing about the state will change...
+
+the second thing...
+the rewind, replay, and make state are at the start of the frame after the previous frame pause...
+
+
+a thought....
+
+----------------
+
+top of frame
+
+frame++
+
+if it is time to make a new state:
+
+at the start of the frame:
+- check for more client input
+- do the rewind
+
+do local and game move input...
+
+move the frame
+
+make the state and send it with the frame number for the next frame
+
+draw the frame
+
+----------
+
+
+all that would be required to make this change is:
+- move the part where the state gets made to the send part
+- date the frame to the future...
+
+a state would still refer to a frame that has not been processed yet...
+the starting state of a frame...
+
+the benefit would be that I am not waiting till the next frame to send a state from the previous...
+
+
+I think I have convinced myself to do this:
+
+I was very easy to implement...
+
+
+the first thing I noticed is that late cdats happen at the normal +10 offset...
+
+changing to -10 fixed that..
+
+that would make sense as my timing has shifted by the entire wait period...
+
+
+should I redo all my time testing? yes
+
+
+put back the manual adjust of state_freq...
+
+
+
+I am loving this new way....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

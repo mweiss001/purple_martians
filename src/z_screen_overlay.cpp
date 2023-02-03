@@ -790,50 +790,50 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
       if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_sgrid", 0);
 
 
-//      // -----------------------------------------------------
-//      // server buttons to display and change s1 and s2
-//      // -----------------------------------------------------
-//      if (LOG_TMR_scrn_overlay) lts = al_get_time();
-//      int csx1 = cx;
-//      int csw = 80;
-//      int csx2 = csx1 + csw;
-//      int csy1 = cy + 20;
-//      int csh = 36;
-//      int csy2 = csy1 + csh;
-//      int color = 13;
-//
-//
+      // -----------------------------------------------------
+      // server buttons to display and change s1 and s2
+      // -----------------------------------------------------
+      if (LOG_TMR_scrn_overlay) lts = al_get_time();
+      int csx1 = cx;
+      int csw = 80;
+      int csx2 = csx1 + csw;
+      int csy1 = cy + 20;
+      int csh = 36;
+      int csy2 = csy1 + csh;
+      int color = 13;
+
+
 
       // non blocking buttons!
 
-//      al_show_mouse_cursor(display);
-//
-//      al_draw_filled_rectangle(csx1, csy1, csx2, csy2, palette_color[color+224]); // erase background
-//      al_draw_rectangle(csx1, csy1, csx2, csy2, palette_color[color], 1);         // frame
-//
-//      int ya = 0, btw = 16;
-//      int csy3 = csy1 + 3;
-//
-//      ya = csy3;
-//      static int b1_pres = 0;
-//      if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
-//      {
-//         if (b1_pres == 0) players1[p].server_state_freq--;
-//         if (players1[p].server_state_freq < 1) players1[p].server_state_freq = 1;
-//         b1_pres = 1;
-//      }
-//      else b1_pres = 0;
-//
-//      ya = csy3;
-//      static int b2_pres = 0;
-//      if (mdw_buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
-//      {
-//         if (b2_pres == 0) players1[p].server_state_freq++;
-//         b2_pres = 1;
-//      }
-//      else b2_pres = 0;
-//      al_draw_textf(font, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", players1[p].server_state_freq);
-//
+      al_show_mouse_cursor(display);
+
+      al_draw_filled_rectangle(csx1, csy1, csx2, csy2, palette_color[color+224]); // erase background
+      al_draw_rectangle(csx1, csy1, csx2, csy2, palette_color[color], 1);         // frame
+
+      int ya = 0, btw = 16;
+      int csy3 = csy1 + 3;
+
+      ya = csy3;
+      static int b1_pres = 0;
+      if (mdw_buttont_nb(csx1+2, ya, csx1+2+btw, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "-"))
+      {
+         if (b1_pres == 0) players1[p].server_state_freq--;
+         if (players1[p].server_state_freq < 1) players1[p].server_state_freq = 1;
+         b1_pres = 1;
+      }
+      else b1_pres = 0;
+
+      ya = csy3;
+      static int b2_pres = 0;
+      if (mdw_buttont_nb(csx2-btw-4, ya, csx2-2, 16,  0,0,0,0,  0,color,15, 0,  1,0,1,0, "+"))
+      {
+         if (b2_pres == 0) players1[p].server_state_freq++;
+         b2_pres = 1;
+      }
+      else b2_pres = 0;
+      al_draw_textf(font, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", players1[p].server_state_freq);
+
 //
 //
 //

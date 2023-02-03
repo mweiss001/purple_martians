@@ -1540,6 +1540,8 @@ void init_player(int p, int t)
       players1[p].server_last_stak_rx_frame_num = 0;
       players1[p].client_last_stdf_rx_frame_num = 0;
 
+      players1[p].server_state_freq = 2;
+
       players1[p].cmp_dif_size = 0;
       players1[p].made_active_holdoff = 0;
 

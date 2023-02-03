@@ -1,5 +1,5 @@
 <!doctype html>
-<title>Netgame - Rolling Average</title>
+<title>Netgame - Control and Monitoring</title>
 
 <html>
 
@@ -54,7 +54,7 @@
 <div style="text-align: center;"><a href="netgame_status.html"                target="_top">Netgame - Status</a></div>    
 
 </mdw_lhs_nav>
-
+			
         </nav>
 
         
@@ -66,90 +66,156 @@
             </header>
 
 <mh3><hr></mh3>
-<mh8>Netgame - Rolling Average</mh8>
-<mh3><hr><mdw_file_toc> <a href="rolling_average.html#Overview" target="_top">Overview</a>
- <a href="rolling_average.html#Usage" target="_top">Usage</a>
- <a href="rolling_average.html#Code" target="_top">Code</a>
+<mh8>Netgame - Control and Monitoring</mh8>
+<mh3><hr><mdw_file_toc>
+
 </mdw_file_toc><hr></mh3>
 
 <a name="Overview"></a>
 <mh7>Overview</mh7>
-
 <mh3>
-Sometime a measured variable has fluctuations that make it unsuitable to use for control purposes.
-
-Or other times, you want to display a variable, but it changes so fast it appears blurred as it switches from one value to another.
-
-This method provides a rolling average of the last 8 values.
-
+These variables are used to control and monitor the status of netgame.
 </mh3>    
 
-<a name="Usage"></a>
-<mh7>Usage</mh7>
 
-<pre><code class="language-cpp">double ping = t2 - t0;          // calculate ping
-mwRA[1].add_data(ping);         // send to rolling average
-double ping_avg = mwRA[1].avg;  // retrieve average
-</code></pre>
+<br><a name="dsync and dsync_avg"></a>
+<mh7>dsync and dsync_avg</mh7>
 
 
 
-<a name="Code"></a>
-<mh7>Code</mh7>
+<br><me1>Description</me1>
+<mh3>
+The timing offset between the client and the server.
 
-<pre><code class="language-cpp">class mwRollingAverage
+Negative values are when the client is ahead of the server.
+
+Positive values are when the client is behind the server.
+
+Calculated by clients when receiving 'stdf' packet.
+
+Clients also calculate a rolling average of dsync called dsync_avg.
+
+Clients also send dsync to the server with 'stak' packets, so the server also has a dsync value for each client.
+</mh3>
+
+<br><me1>Variables</me1>
+<mh3>
+Client:
+players1[p].dsync  
+players1[p].dsync_avg 
+
+Server:
+players1[p].dsync
+</mh3>
+
+<br><me1>Code</me1>
+<mh3>
+When the client receives an 'stdf' packet from the server, it calculates dsync and dsync_avg like this: <a href="netgame_client_timing_sync.html#Client receives 'stdf' packet" target="_top">Client receives 'stdf' packet</a>
+
+The client uses dsync_avg to adjust it's timing offset with reference to the server like this:  <a href="netgame_client_timing_sync.html#Adjust client timer" target="_top">Adjust client timer</a>
+
+The server uses dsync to control when joining clients become active like this: <a href="netgame_join.html#Client chase and lock" target="_top">Client chase and lock</a>
+</mh3>
+
+
+
+
+
+<br><a name="ping and ping_avg"></a>
+<mh7>ping and ping_avg</mh7>
+
+<br><me1>Description</me1>
+<mh3>
+The round trip ping response times between the client and the server.
+
+Clients calculate and store their own ping time, as well a a rolling average 'ping_avg'.
+
+The server calculates and stores ping times for each client.
+</mh3>
+
+
+<br><me1>Variables</me1>
+<mh3>
+Client:
+players1[p].ping  
+players1[p].ping_avg 
+
+Server:
+players1[p].ping
+</mh3>
+
+<br><me1>Code</me1>
+<mh3>
+The method of calculating ping is described here: <a href="netgame_ping.html" target="_top">ping</a>
+
+The method of the client calculating the rolling average is described here: <a href="netgame_ping.html#Client calculates the rolling average of its ping time" target="_top">ping rolling average</a>
+
+The client uses the ping average to set client_chase_offset here:<a href="netgame_ping.html#Client uses 'ping_avg' time to set 'client_chase_offset'" target="_top">client_chase_offset</a>
+
+The server finds the maximum client ping and uses it to set 'server_state_freq' as described here:  <a href="netgame_ping.html#Server uses 'server_max_client_ping' to set 'server_state_freq'" target="_top">server_state_freq</a>
+</mh3>
+
+
+
+
+
+<br><a name="Server Game Move Sync"></a>
+<mh7>Server Game Move Sync</mh7>
+
+<br><me1>Description</me1>
+<mh3>
+Measure the time between when a cdat is recieved on the server and the frame when it needs to be applied.
+
+When a cdat is received, the frame number is compared to the current server frame number.
+
+The server calculates and stores this for each client.
+</mh3>
+
+
+<br><me1>Variables</me1>
+<mh3>
+On the server, per client:
+players1[p].server_game_move_sync
+players1[p].game_move_dsync
+players1[p].game_move_dsync_avg_last_sec
+</mh3>
+
+<br><me1>Code</me1>
+<mh3>
+
+</mh3>
+
+<pre><code class="language-cpp">void server_proc_cdat_packet(double timestamp)
 {
-   public:
-   mwRollingAverage();
-   void initialize(void);
-   void add_data(double d);
-   double arr[8];
-   int    num_filled;
-   int    index;
-   double last_input;
-   double avg;
-   double mn;
-   double mx;
-};
-extern mwRollingAverage mwRA[4];
+   int p = PacketGet1ByteInt();
+   int cdat_frame_num = PacketGet4ByteInt();
+   int cm = PacketGet1ByteInt();
 
-void mwRollingAverage::add_data(double d)
-{
-   last_input = d;
+   players1[p].client_cdat_packets_tx++;
 
-   arr[index] = d;  // put new entries where index points
-   if (++index > 7) index = 0;
-   num_filled++;
+   // calculate game_move_sync
+   players1[p].server_game_move_sync = cdat_frame_num - frame_num;
 
-   int ul = 8; // find number of valid entries, 8 by default unless not filled yet
-   if (num_filled < 8) ul = num_filled;
+   // calculate game_move_dsync
+   players1[p].game_move_dsync = ( (double) players1[p].server_game_move_sync * 0.025) + timestamp_frame_start - timestamp;
+   players1[p].game_move_dsync_avg_last_sec_tally += players1[p].game_move_dsync;
+   players1[p].game_move_dsync_avg_last_sec_count +=1;
 
-   mn = 99999999;  // min
-   mx = -99999999; // max
-   double tally = 0;
-   for (int i=0; i < ul; i++) // cycle all the valid entries
+   // check to see if earlier than the last stdf state
+   if (cdat_frame_num < srv_client_state_frame_num[0][1])
    {
-      tally += arr[i];
-      if (arr[i] < mn) mn = arr[i]; // min
-      if (arr[i] > mx) mx = arr[i]; // max
+      players1[p].late_cdats_last_sec_tally++;
+      players1[p].late_cdats++;
+      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, players1[p].server_game_move_sync);
    }
-   avg = tally / ul; // average
+   else
+   {
+      add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
+      sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] gmep:[%d] - entered\n", p, cdat_frame_num, players1[p].server_game_move_sync, game_move_entry_pos);
+   }
+   if (LOG_NET_cdat) add_log_entry2(35, p, msg);
 }
 </code></pre>
-
-<mh3>
-As an added bonus, you can also retrieve:
-
-The most recently added value:
-mwRA[].last_input
-
-The minimum value of the values stored:
-mwRA[].mn
-
-The maximum value of the values stored:
-mwRA[].mx
-
-</mh3>    
 
                <footer>                <mh11>Purple Martians</mh11><hr>
                 <div id="copyright">

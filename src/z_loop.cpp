@@ -433,6 +433,95 @@ void proc_program_state(void)
    }
 
 
+
+
+   //---------------------------------------
+   // 20 - server new game
+   //---------------------------------------
+   if (program_state == 20)
+   {
+      if (!server_init())
+      {
+         server_exit();
+         new_program_state = 19;
+         return;
+      }
+
+      play_level = start_level;
+      if (!load_level(play_level, 0))
+      {
+         new_program_state = 19;
+         return;
+      }
+
+      // reset players
+      for (int p=0; p<NUM_PLAYERS; p++)
+      {
+         init_player(p, 1);           // full reset (start modes 1, 2, 3, 9)
+         set_player_start_pos(p, 0);  // get starting position for all players, active or not
+      }
+      players[0].active = 1;
+      players[0].control_method = 3;
+
+
+      clear_game_moves(); // clear game moves array, except for demo mode
+      set_frame_nums(0);
+      reset_states();
+      clear_bullets();
+      clear_bmsg();
+      clear_keys();
+      clear_pm_events();
+
+      game_vars_to_state(srv_client_state[0][1]);
+      srv_client_state_frame_num[0][1] = frame_num;
+      if (LOG_NET_stdf)
+      {
+         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+         add_log_entry2(27, 0, msg);
+      }
+
+      add_game_move(0, 0, 0, play_level);       // [00] game_start
+
+      // save colors in game moves array
+      for (int p=0; p<NUM_PLAYERS; p++)
+         if (players[p].active) add_game_move(0, 1, p, players[p].color); // 1 - player_state and color
+
+      if (LOG_NET)
+      {
+         sprintf(msg,"LEVEL %d STARTED", play_level);
+         add_log_entry_header(10, 0, msg, 3);
+      }
+
+      show_player_join_quit_timer = 0;
+      start_music(0); // rewind and start theme
+      init_timestamps();
+      program_state = 11;
+   }
+
+   //---------------------------------------
+   // 19 - server exit
+   //---------------------------------------
+   if (program_state == 19) // server exit
+   {
+      server_exit();
+      new_program_state = 1;
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    //---------------------------------------
    // 10 - single player new game
    //---------------------------------------
@@ -633,73 +722,6 @@ void proc_program_state(void)
    }
 
 
-   //---------------------------------------
-   // server new game
-   //---------------------------------------
-   if (program_state == 20)
-   {
-      play_level = start_level;
-
-      if (!load_level(play_level, 0))
-      {
-         new_program_state = 1;
-         return;
-      }
-
-      // reset players
-      for (int p=0; p<NUM_PLAYERS; p++)
-      {
-         init_player(p, 1);           // full reset (start modes 1, 2, 3, 9)
-         set_player_start_pos(p, 0);  // get starting position for all players, active or not
-      }
-      players[0].active = 1;
-
-      clear_game_moves(); // clear game moves array, except for demo mode
-
-
-      set_frame_nums(0);
-      reset_states();
-      clear_bullets();
-      clear_bmsg();
-      clear_keys();
-      clear_pm_events();
-
-
-      if (!server_init())
-      {
-         server_exit();
-         new_program_state = 1;
-         return;
-      }
-
-      players[0].control_method = 3;
-      game_vars_to_state(srv_client_state[0][1]);
-      srv_client_state_frame_num[0][1] = frame_num;
-
-      if (LOG_NET_stdf)
-      {
-         //   printf("saved server state[1]:%d\n\n", frame_num);
-         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
-         add_log_entry2(27, 0, msg);
-      }
-
-      add_game_move(0, 0, 0, play_level);       // [00] game_start
-
-      // save colors in game moves array
-      for (int p=0; p<NUM_PLAYERS; p++)
-         if (players[p].active) add_game_move(0, 1, p, players[p].color); // [01] player_state and color
-
-      if (LOG_NET)
-      {
-         sprintf(msg,"LEVEL %d STARTED", play_level);
-         add_log_entry_header(10, 0, msg, 3);
-      }
-
-      show_player_join_quit_timer = 0;
-      start_music(0); // rewind and start theme
-      init_timestamps();
-      program_state = 11;
-   }
 
 }
 
@@ -922,7 +944,7 @@ void main_loop(void)
                int mcp = players1[0].server_max_client_ping*1000;
                players1[0].server_max_client_ping = 0;
                if (mcp > 100) mcp = 100;
-               players1[0].server_state_freq = 2 + mcp/20; // use max_client_ping to set server_state_freq
+//               players1[0].server_state_freq = 2 + mcp/20; // use max_client_ping to set server_state_freq
 
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (players[p].control_method == 2)

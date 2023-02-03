@@ -408,8 +408,130 @@ memcpy(&out,arr2,sizeof(out));
 
 void temp_test(void)
 {
+
    al_set_target_backbuffer(display);
    al_clear_to_color(palette_color[0]);
+
+
+   // netgame frame timing
+
+   // two time scales
+   // top for server
+   // bottom for client
+
+   // draw static frame number scale on top // 100 - 110
+
+   // draw rect fron server last state till current server frame number
+
+
+
+   int quit = 0;
+
+
+   int s_ls = 100;     // server last state frame_num
+   int s_fn = 100;     // server frame_num
+   int s_ms = 2500;    // server ms_num
+
+   int s_freq = 3;
+
+
+   int ping = 0;
+
+   int co = 10-ping; // client offset
+
+
+   int stl_x = 100; // server time legend x
+   int stl_y = 100; // server time legend y
+   int fw = 100; // frame width
+
+   int stl_base_frame = 100;
+
+
+   int ctl_x = 100; // client time legend x
+   int ctl_y = 200; // client time legend y
+
+
+   while (!quit)
+   {
+      al_draw_textf(font, palette_color[15], 10, 10, 0, "%d server current frame", s_fn);
+      al_draw_textf(font, palette_color[15], 10, 18, 0, "%d server last state frame", s_ls);
+      al_draw_textf(font, palette_color[15], 10, 26, 0, "%d server currrent ms", s_ms);
+
+      al_draw_textf(font, palette_color[15], 10, 36, 0, "%d ping ms", ping);
+      al_draw_textf(font, palette_color[15], 10, 44, 0, "%d client offset ms", co);
+
+      // draw server time legend
+      for (int i=0; i<10; i++)
+      {
+         int x1 = stl_x + i * fw;
+         al_draw_textf(font, palette_color[15], x1, stl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
+         al_draw_line(x1, stl_y+10, x1, stl_y+20, palette_color[15], 1);
+      }
+
+      // draw client time legend
+      for (int i=0; i<10; i++)
+      {
+         int x1 = (stl_x + i * fw) + co*fw / 25;
+
+         al_draw_textf(font, palette_color[15], x1, ctl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
+         al_draw_line(x1, ctl_y+10, x1, ctl_y+20, palette_color[15], 1);
+      }
+
+      // draw rect from server last frame num to current ms_num
+      int x1 = stl_x + (s_ls - stl_base_frame) * fw;  // (last state - base frame) x frame width
+      int x2 = stl_x + ((s_ms - stl_base_frame*25) * fw)/25;  // ((current ms - base frame*25) x frame width)/25
+      al_draw_rectangle(x1, stl_y+20, x2, stl_y+30, palette_color[15], 1);
+
+      // mark current server time with line
+      al_draw_line(x2, stl_y-20, x2, ctl_y+120, palette_color[15], 1);
+      al_draw_textf(f3, palette_color[15], x2, stl_y-30, ALLEGRO_ALIGN_CENTER, "now");
+
+
+      // mark server last state with line
+      al_draw_line(x1, stl_y-10, x1, ctl_y+120, palette_color[15], 1);
+      al_draw_textf(f3, palette_color[15], x1, stl_y-20, ALLEGRO_ALIGN_CENTER, "last state");
+
+
+
+
+
+
+      if (key[ALLEGRO_KEY_SPACE][1]) s_ms++; // step time by 1ms
+      if ((s_ms / 25) >= s_ls+s_freq) s_ls += s_freq;       // check if time to make a new state
+
+      s_fn = s_ms / 25;
+
+
+
+
+
+      al_flip_display();
+      al_clear_to_color(palette_color[0]);
+      proc_controllers();
+      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   /*
+
+
 
 
 // netgame simulation
@@ -608,7 +730,7 @@ void temp_test(void)
    }
 
 
-
+*/
 
 
 

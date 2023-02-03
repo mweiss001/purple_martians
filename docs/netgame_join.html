@@ -56,10 +56,8 @@
 </mdw_lhs_nav>
             
         </nav>
-
-        
+      
         <div class="col-2">
-
             <header>
                 <mh11>Purple Martians</mh11><hr>
                 <mh12>Technical Code Descriptions</mh12><hr>
@@ -120,7 +118,7 @@ When a client game is started, the first thing that happens is the network initi
 
 This requires the server IP or hostname.
 
-If the connection is succesfully setup and a response is received from the server, we proceed to the next step.
+If the connection is successfully setup and a response is received from the server, we proceed to the next step.
 </mh3>
 <pre><code class="language-cpp">   //---------------------------------------
    // 24 - client new game
@@ -224,7 +222,7 @@ int ClientInitNetwork(const char *serveraddress)
    return 1;
 }
 
-int ClientCheckResponse(void) // check for a repsonse from the server
+int ClientCheckResponse(void) // check for a response from the server
 {
    if (TCP)
    {
@@ -457,7 +455,7 @@ Here the client loads the level, sets up for the game, then moves to the next st
 Once the client receives the initial state from the server, it goes to state 11, which is the normal game loop.
 </mh3>
 <pre><code class="language-cpp">   //---------------------------------------
-   // 21 - client wait for intial state
+   // 21 - client wait for initial state
    //---------------------------------------
    if (program_state == 21)
    {

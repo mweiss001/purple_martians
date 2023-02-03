@@ -122,7 +122,7 @@ These are the different modes:
 </mh3>
 <pre><code class="language-cpp">level_done_mode = 9; // set up players seek xinc, yinc and direction
 level_done_mode = 8; // all players move to the exit
-level_done_mode = 7; // all players rotate and shirink into the exit
+level_done_mode = 7; // all players rotate and shrink into the exit
 level_done_mode = 6; // not used, place holder for future features
 level_done_mode = 5; // skippable 15s delay while level end stats show
 level_done_mode = 4; // not used, place holder for future features
@@ -138,7 +138,7 @@ level_done_mode = 0; // normal game play
 <mh3>    
 The procedure is initiated by setting 'level_done_mode'.
 
-It can only be started from mode 0, to prevent retriggering.
+It can only be started from mode 0, to prevent re-triggering.
 
 'Exits' start on mode 9.
 
@@ -445,7 +445,7 @@ The server cannot just immediately load a new level, the clients will be stuck o
 
 So we set a timer for 10 frames in the future when the new level loading will take effect.
 
-This is enough time for the data to propogate to the client, so they can load the new level also and follow the server.
+This is enough time for the data to propagate to the client, so they can load the new level also and follow the server.
 </mh3>
 
 <pre><code class="language-cpp">void process_level_done_mode(void)

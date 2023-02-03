@@ -79,13 +79,13 @@
 <mh7>Client Timing Sync</mh7>
 
 <mh3>    
-Timing is critical in netgame. The server is the master timing source, and runs at 40fps.
+Timing is critical in netgame. The server and client must have a tightly controlled timing relationship.
 
-Clients adjust their speed to maintain a slight lead ahead of the server.
+The server is the master timing source, and runs at 40 frames per second.
+
+Clients are responsible for measuring and maintaining their timing offset with the server.
 
 The time difference between the client and server is called dsync.
-
-Clients are responsible for measuring dsync and maintaining their timing offset with relation to the server.
 
 Clients use the 'stdf' packet sent from the server as the timing reference.
 </mh3>
@@ -101,9 +101,9 @@ The server sends 'stdf' packets to clients on a regular basis. Usually only a fe
 
 These stdf packets contain pieces of a compressed dif state, and a header that describes the contents.
 
-From that header, the destination frame number is the frame on the server when the dif was created and sent.
+From that header, the destination frame number is the current frame number on the server when the dif was created and sent.
 
-That information is used by the client to measure its timing relation to the server.
+That is what the client uses to measure its timing relation to the server.
 </mh3>
 
 <pre><code class="language-cpp">Packet("stdf");
@@ -123,7 +123,7 @@ ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
 
 
 <mh3>    
-When the client receives an 'stdf' packet, it uses the destination frame and its own local frame number to make a simple frame based integer sync.
+When the client receives an 'stdf' packet, it uses the server's frame_num and its own local frame_num to make a simple frame based integer sync.
 </mh3>
 <pre><code class="language-cpp">void client_process_stdf_packet(double timestamp)
 {
