@@ -75,7 +75,7 @@
  <a href="netgame_state_and_dif.html#Combining game state variables into 'state'" target="_top">Combining game state variables into 'state'</a>
  <a href="netgame_state_and_dif.html#'state' variables" target="_top">'state' variables</a>
  <a href="netgame_state_and_dif.html#State compression methods" target="_top">State compression methods</a>
- <a href="netgame_state_and_dif.html#The diferential method" target="_top">The diferential method</a>
+ <a href="netgame_state_and_dif.html#The differential method" target="_top">The differential method</a>
 </mdw_file_toc><hr></mh3>
 
 
@@ -117,12 +117,12 @@ total    :112928
 
 <mh3>
 The game state variables are copied into a character array with memcpy.
-This is so that thay can be processed as a single chunk of data, rather than individually.
+This is so that they can be processed as a single chunk of data, rather than individually.
 
 I refer to these large chunks of data as 'states'.
 They contain the entire game state for a specific frame.
 
-This is how data is put into a 'state', and how it is retreived:
+This is how data is put into a 'state', and how it is retrieved:
 </mh3>
 
 <pre><code class="language-cpp">#define STATE_SIZE 112928
@@ -203,13 +203,13 @@ A Massively Spiffy Yet Delicately Unobtrusive Compression Library
 
 zlib alone will compress the 100K to approximately 6-8K.
 
-Using a diferential method before compressing with zlib results in approximately 500-1100 bytes.
+Using a differential method before compressing with zlib results in approximately 500-1100 bytes.
 </mh3>
-<br><a name="The diferential method"></a>
-<mh7>The diferential method</mh7>
+<br><a name="The differential method"></a>
+<mh7>The differential method</mh7>
 
 <mh3>
-The diferential method subtracts one state from another, resulting in a state that only contains differences between the the two.
+The differential method subtracts one state from another, resulting in a state that only contains differences between the the two.
 
 Whenever the two states have the same value, the dif will have a zero. Only changed values are non-zero.
 

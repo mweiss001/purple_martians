@@ -131,9 +131,7 @@ int get_delta(int f0, int type0, int f1, int type1, double &res)
 int ServerInitNetwork() // Initialize the server
 {
    init_packet_buffer();
-
-
-	if(NetworkInit())
+   if(NetworkInit())
    {
       sprintf(msg, "Error: failed to initialize network\n");
       printf("%s", msg);
@@ -141,10 +139,10 @@ int ServerInitNetwork() // Initialize the server
       if (LOG_NET) add_log_entry2(10, 0, msg);
       return -1;
    }
-  if (TCP)
-  {
-   	ListenConn = net_openconn(NetworkDriver, "");
-   	if(!ListenConn)
+   if (TCP)
+   {
+      ListenConn = net_openconn(NetworkDriver, "");
+      if(!ListenConn)
       {
          sprintf(msg, "Error: failed to open listening connection\n");
          printf("%s", msg);
@@ -152,7 +150,7 @@ int ServerInitNetwork() // Initialize the server
          if (LOG_NET) add_log_entry2(10, 0, msg);
          return -1;
       }
-   	if(net_listen(ListenConn))
+      if(net_listen(ListenConn))
       {
          sprintf(msg, "Error: cannot listen\n");
          printf("%s", msg);
@@ -173,38 +171,35 @@ int ServerInitNetwork() // Initialize the server
          if (LOG_NET) add_log_entry2(10, 0, msg);
          return -1;
       }
-
       if (net_assigntarget(ListenChannel, ""))
       {
          sprintf(msg, "Error: failed to assign target to listening channel\n");
          printf("%s", msg);
          m_err(msg);
          if (LOG_NET) add_log_entry2(10, 0, msg);
-   		net_closechannel(ListenChannel);
-   		return -1;
-   	}
+         net_closechannel(ListenChannel);
+         return -1;
+      }
       sprintf(msg, "Network initialized - channel mode (UDP)");
       // printf("Local address of channel%s\n", net_getlocaladdress (ListenChannel));
-
-   } // end of UDP
-
+   }
    printf("%s\n", msg);
    if (LOG_NET) add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-	return 0;
+   return 0;
 }
 
 
-void ServerListen() // Check for connecting clients (0 = ok, got new connection, 1 = no new connection yet
+void ServerListen()
 {
-  if (TCP)
-  {
-   	NET_CONN *newconn;
-   	newconn = net_poll_listen (ListenConn);
-   	if(newconn == NULL) return;
+   if (TCP) // listen for connections
+   {
+      NET_CONN *newconn;
+      newconn = net_poll_listen (ListenConn);
+      if(newconn == NULL) return;
       else
       {
-      	ClientConn[ClientNum] = newconn;
-      	ClientNum++;
+         ClientConn[ClientNum] = newconn;
+         ClientNum++;
          sprintf(msg, "Connection received from %s", net_getpeer (newconn));
          printf("%s\n", msg);
 
@@ -215,17 +210,11 @@ void ServerListen() // Check for connecting clients (0 = ok, got new connection,
             add_log_entry_centered_text(10, 0, 76, "", "+", "-");
          }
       }
-   } // end of if TCP
-
-
-   else // UDP
+   }
+   else // UDP - listen for channels
    {
-      // printf("server listen\n");
-
-     	char address[32];
-
+      char address[32];
       packetsize = net_receive(ListenChannel, packetbuffer, 1024, address);
-
       if (packetsize)
       {
          set_packetpos(0);
@@ -262,7 +251,7 @@ void ServerListen() // Check for connecting clients (0 = ok, got new connection,
             ClientNum++;
          }
       }
-   } // end of UDP
+   }
 }
 
 
@@ -537,6 +526,18 @@ void server_send_stdf(void)
    if (players1[0].server_send_dif)
    {
       players1[0].server_send_dif = 0;
+
+      // save state as a base for next rewind
+      game_vars_to_state(srv_client_state[0][1]);
+      srv_client_state_frame_num[0][1] = frame_num+1;
+
+      if (LOG_NET_stdf)
+      {
+         //printf("saved server state[1]:%d\n", frame_num);
+         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+         add_log_entry2(27, 0, msg);
+      }
+
       // send to all clients
       for (int p=1; p<NUM_PLAYERS; p++)
          if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
@@ -565,18 +566,16 @@ void server_create_new_state(void)
       state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
 
       loop_frame(ff);
-      // save state as a base for next rewind
-      game_vars_to_state(srv_client_state[0][1]);
-      srv_client_state_frame_num[0][1] = frame_num;
 
-      if (LOG_NET_stdf)
-      {
-         //printf("saved server state[1]:%d\n", frame_num);
-         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
-         add_log_entry2(27, 0, msg);
-      }
       if (LOG_TMR_rwnd) add_log_TMR(al_get_time() - t0, "rwnd", 0);
+
       players1[0].server_send_dif = 1;
+
+
+
+
+
+
    }
 }
 

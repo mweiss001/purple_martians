@@ -81,28 +81,30 @@
 <mh3>
 Netgame is a method I use to synchronize a multiplayer Purple Martians game across different computers.
 
-It is simple, robust, works over the internet as well as LAN, works identically on linux and windows.
+It is simple, robust, and works identically on linux and windows.
 
 It uses a server-client model, with 1 server and up to 7 clients.
 
 Like the rest of the Purple Martians project, it is based entirely on free software.
 And the exact same source code is used to make both the windows and the linux versions.
 
-I personally developed this entire method and implementation, except for the low level libraries used:
+I developed this method by trial and error. I explored and abandoned many different approaches. 
 
-libnet 0.10.2
+All code is entirely my own, except for the low level libraries used:
+
+<a href="https://libnet.sourceforge.net/libnet.html" target="_top">libnet 0.10.2</a>
 A generic interface to a variety of network drivers.
 Copyright (C) 1997-1999 Chad Catlett and George Foot
 
-zlib
+<a href="https://www.zlib.net/" target="_top">zlib</a>
 A Massively Spiffy Yet Delicately Unobtrusive Compression Library
 (Also Free, Not to Mention Unencumbered by Patents)
 
-I know there are many better implemenations out there. Other authors have done it much better than I did.
+I know there are many better implementations of network multiplayer out there. Other authors have done it much more thoroughly than I.
 
 I did this because I wanted to. I wanted to see if I could do it on my own.
 
-I love coding, and working with fast packet exchanges, trying to syncronize running systems fascinates me!
+I love programming. Figuring out how synchronize running systems over networks was especially difficult and rewarding.
 
 </mh3>    
 
@@ -114,28 +116,26 @@ I love coding, and working with fast packet exchanges, trying to syncronize runn
 This is the latest iteration of netgame as of 2023
 
 The biggest change in this latest version is that I have completely abandoned syncing game moves between server and client.
-The only method used now is sending the server's game state to the clients.
-
-Just like before, the server is the absolute authority. 
+The only method used now is sending the server's <a href="netgame_state_and_dif.html" target="_top">game state</a> to the clients.
 
 The old version had client's inputs go through the server and return before they were applied.
-The unescapable lag caused by this approach was one of the main reasons I abandoned it.
-The other reason is that it is not neccesary, I can accomplish everything without it.
+The inescapable lag caused by this approach was one of the main reasons I abandoned it.
+
+Now netgame will work over the internet, where before it would only work on a LAN with very low ping times.
 
 In this version, clients run independently in between receiving new states from the server.
 
-When a client's controls change, they are applied to the clients local game state, saved locally on the client, and sent to the server.
+When <a href="netgame_client_control_change.html" target="_top">client's controls change</a>, they are applied to the client's local game state, saved locally on the client, and sent to the server.
 
+The clients run slightly <a href="netgame_client_timing_sync.html" target="_top">ahead of the server in time</a>. That means that when a client receives a state from the server, it will most likely be in past.
 
-The clients run slightly ahead of the server in time. That means that when a client receives a state from the server, it will most likely be in past.
-
-The client handles this by rewinding and replaying to the current frame. The rewinding is simply applying a state from the past.
-When the client replays, it also re-applies its locally stored moves for frames beyond what the server has sent.
+Clients handle this by rewinding and replaying to the current frame. The rewind is simply applying a state from the past.
+When the client replays, it re-applies its locally stored moves for frames beyond what the server has sent.
 
 Because the server is running behind the clients, game moves from clients will most likely be received too late to be applied.
 The server stores them in the the game moves array, even though they are in the past.
 
-When the server sends states to clients, the server first rewinds and replays to apply the clients moves that arrived too late.
+When the server sends states to clients, the server first rewinds and replays to apply the client's moves that arrived too late.
 
 The end result is that the client's corrections when receiving server states are minimal.
 

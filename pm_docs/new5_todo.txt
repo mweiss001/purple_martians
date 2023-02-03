@@ -513,6 +513,22 @@ netgame_main (or overview) the main landing page that gives the highest level de
 netgame_status..started
 
 
+
+netgame_server_setup
+like join, but from the client's side....
+
+maybe join should be more like client_join...
+
+
+
+
+
+
+
+
+
+
+
 links:
 fpl
 client to dsync..done

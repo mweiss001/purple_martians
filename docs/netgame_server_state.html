@@ -81,10 +81,10 @@
 <mh3>
 The server periodically sends the entire game state to clients in the form of a compressed dif. (See <a href="netgame_state_and_dif.html" target="_top">states and difs</a>).
 
-How often that happens is determined by the variable: 'server_state_freq' which is set here: <a href="netgame_ping.html#Server uses 'server_max_client_ping' to set 'server_state_freq'" target="_top">server_state_freq</a>
+How often that happens is determined by the variable: 'server_state_freq' which is set here: <a href="netgame_ping.html#Server uses 'server_max_client_ping' to adjust 'server_state_freq'" target="_top">server_state_freq</a>
 
-The minimum value for 'server_state_freq' is 2, which would send dif's every 2 frames.
-1 is possible, but never used, that would send difs every frame, with no time for the client to acknowldege.
+The minimum value for 'server_state_freq' is 2, which would send difs every 2 frames.
+1 is possible, but never used, that would send difs every frame, with no time for the client to acknowledge.
 There would be no common base for difs, so every dif would be based on zero and be the maximum size.
 See <a href="netgame_state_and_dif.html#State compression methods" target="_top">State compression methods</a> and also <a href="netgame_client_state.html#Check for dif based on state zero" target="_top">Check for dif based on state zero</a>
 

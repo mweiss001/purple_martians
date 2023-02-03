@@ -88,42 +88,448 @@ normal 3
 
 
 
+I decide to get rid of s2
+
+I took some measurements:
+
+
+LAN (100ms) 50in 50out
+state_freq:5
+base resets never
+late cdats start at -76
+
+LAN (100ms) 50in 50out
+state_freq:4
+base resets always
+late cdats start at -76
 
 
 
-'state' refers the the entire game state, typically put into a char array of size STATE_SIZE
-'dif' is when 2 states are subtracted, resulting in the diference between the 2
+LAN (90ms) 45in 45out
+state_freq:5
+base resets never
+late cdats start at -66
 
-difs are then compressed, optionally broken into packet sized pieces and sent from server to clients
-
-when a client has all the pieces of a dif, and the state on which it is based,
-it applies the dif to its base state, recreating the server state..
-
-
-
-
-
-
+LAN (90ms) 45in 45out
+state_freq:4
+base resets (16 on)
+-90 to -76
+-66 to -50
+late cdats start at -66
 
 
 
+LAN (80ms) 40in 40out
+state_freq:5
+base resets never from -100 to +40
+late cdats start at -56
 
-
-
-
-
-
-
-
-
-
-
-
-
+LAN (80ms) 40in 40out
+state_freq:4
+base resets (7 on)
+-81 to -74
+-56 to -49
+-31 to -24
+-6 to +1
+late cdats start at -31
 
 
 
 
+LAN (70ms) 35in 35out
+state_freq:4
+base resets: never from -100 to 0
+late cdats start at -46
+
+LAN (70ms) 35in 35out
+state_freq:3
+base resets: (20 on)
+-95 to -75
+-70 to -50
+-55 to -25
+-20 to 0
+late cdats start at -46
+
+
+LAN (60ms) 30in 30out
+state_freq:4
+base resets: never
+late cdats start at -36
+
+LAN (60ms) 30in 30out
+state_freq:3
+base resets: (9 on)
+-86 to -75
+-61 to -49
+-36 to -25
+-11 to 0
+late cdats start at -36
+
+
+
+LAN (50ms) 25in 25out
+state_freq:4
+base resets: never
+late cdats start at -26
+
+LAN (50ms) 25in 25out
+state_freq:3
+base resets: (2 on)
+-76 to -75
+-51 to -50
+-26 to -25
+-1 to 0
+late cdats start at -26
+
+
+LAN (40ms) 20in 20out
+state_freq:3
+base resets: never
+late cdats start at -16
+
+LAN (40ms) 20in 20out
+state_freq:2
+base resets: (16 on)
+91-75
+66-50
+41-25
+16-0
+late cdats start at -16
+
+
+LAN (30ms) 15in 15out
+state_freq:3
+base resets: never
+late cdats start at -6
+
+LAN (30ms) 15in 15out
+state_freq:2
+base resets: (6 on)
+-81 to -75
+-56 to -50
+-31 to -25
+-6 to 0
+late cdats start at -6
+
+
+LAN (20ms) 10in 10out
+state_freq:2
+base resets: never
+late cdats start at +4
+
+LAN (20ms) 10in 10out
+state_freq:1
+base resets: (21 on)
+-96 to -75
+-71 to -50
+-46 to -25
+-21 to 0
+late cdats start at +4
+
+
+LAN (10ms) 5in 5out
+state_freq:2
+base resets: never
+late cdats start at +14
+
+LAN (10ms) 5in 5out
+state_freq:1
+base resets: (11 on)
+-86 to -75
+-61 to -50
+-36 to -25
+-11 to 0
+late cdats start at +14
+
+LAN (0ms) 0in 0out
+state_freq:2
+base resets: never
+late cdats start at +24
+
+LAN (0ms) 0in 0out
+state_freq:1
+base resets: (2 on)
+-76 to -75
+-51 to -50
+-26 to -25
+-1 to 0
+late cdats start at +24
+
+what is the correlation of those two variables?
+
+ping 100 needs s1:5 offset < -76  (4 + 25)
+ping 90  needs s1:5 offset < -66  (4 + 16)
+ping 80  needs s1:5 offset < -56  (4 + 7)
+ping 70  needs s1:4 offset < -46  (3 + 20)
+ping 60  needs s1:4 offset < -36  (3 + 9)
+ping 50  needs s1:4 offset < -26  (3 + 2)
+ping 40  needs s1:3 offset < -16  (2 + 16)
+ping 30  needs s1:3 offset < -6   (2 + 6)
+ping 20  needs s1:2 offset < +4   (1 + 21)
+ping 10  needs s1:2 offset < +14  (1 + 11)
+ping  0  needs s1:2 offset < +24  (1 + 2)
+
+so, given an input, ping, formula for state_freq
+
+                    ping/20
+ 0 < ping < 20 = 2    0
+20 < ping < 40 = 3    1
+40 < ping < 60 = 4    2
+60 < ping < 80 = 5    3
+
+state_freq: = 2 + (ping/20)
+
+will never be less than 2
+
+formula for offset
+
+ping  offset
+0  -> 10
+10 -> 0
+20 -> -10
+30 -> -20
+
+offset = (10-ping)
+
+I can easily do this on the client
+offset = (10-ping)
+
+
+
+
+
+
+
+
+when you increase offset evetually you get late cdat on the server, right?? yes...
+
+that would mean that increasing offset, makes the clients less ahead of the server..
+
+dsync > 0   client gets difs for future frames
+dysnc = 0   client gets difs exactly when needed for current frame_and_title
+dsync < 0   client gets difs for past frames 
+
+as the dsync decreases the client has to rewind, meaning that it got a past dif, meaning that the client is further ahead of the server...
+
+dsync > 0   client is further behind
+dysnc = 0   client gets difs exactly when needed for current frame_and_title
+dsync < 0   client is further ahead
+
+so... when offset increases, the client is further behind, until late cdats happen
+
+
+
+
+
+
+new test...
+
+set up 40ms delay on outgoing traffic:
+--------------------------------------
+sudo tc qdisc add dev eno1 root netem delay 40ms
+
+cancel:
+--------------------------------------
+sudo tc qdisc del dev eno1 root
+
+
+How can I use netem on incoming traffic?
+
+You need to use the Intermediate Functional Block pseudo-device IFB . This network device allows attaching queuing discplines to incoming packets.
+
+ # modprobe ifb
+ # ip link set dev ifb0 up
+ # tc qdisc add dev eth0 ingress
+ # tc filter add dev eth0 parent ffff: \
+   protocol ip u32 match u32 0 0 flowid 1:1 action mirred egress redirect dev ifb0
+ # tc qdisc add dev ifb0 root netem delay 750ms
+
+
+
+set up 40ms delay on incoming traffic:
+--------------------------------------
+sudo modprobe ifb
+sudo ip link set dev ifb0 up
+sudo tc qdisc add dev eno1 ingress
+sudo tc filter add dev eno1 parent ffff: protocol ip u32 match u32 0 0 flowid 1:1 action mirred egress redirect dev ifb0
+sudo tc qdisc add dev ifb0 root netem delay 40ms
+
+cancel:
+--------------------------------------
+sudo tc qdisc del dev ifb0 root
+
+
+
+
+
+
+LAN (0ms) 0in 0out
+sudo tc qdisc change dev eno1 root netem delay 0ms
+sudo tc qdisc change dev ifb0 root netem delay 0ms
+state_freq:2
+base resets: never
+late cdats start at -1
+state_freq:1
+base resets: never
+late cdats start at -1
+
+LAN (10ms) 5in 5out
+sudo tc qdisc change dev eno1 root netem delay 5ms
+sudo tc qdisc change dev ifb0 root netem delay 5ms
+state_freq:2
+base resets: never
+late cdats start at -11
+state_freq:1
+base resets: never
+late cdats start at -11
+
+LAN (20ms) 10in 10out
+sudo tc qdisc change dev eno1 root netem delay 10ms
+sudo tc qdisc change dev ifb0 root netem delay 10ms
+state_freq:2
+base resets: never
+late cdats start at -21
+state_freq:1
+base resets: never
+late cdats start at -21
+
+LAN (30ms) 15in 15out
+sudo tc qdisc change dev eno1 root netem delay 15ms
+sudo tc qdisc change dev ifb0 root netem delay 15ms
+state_freq:2
+base resets: never
+late cdats start at -31
+state_freq:1
+base resets: (on 6)
+-81 to -75
+-56 to -50
+-31 to -25
+late cdats start at -31
+
+LAN (40ms) 20in 20out
+sudo tc qdisc change dev eno1 root netem delay 20ms
+sudo tc qdisc change dev ifb0 root netem delay 20ms
+state_freq:2
+base resets: never
+late cdats start at -41
+state_freq:1
+base resets: (on 16)
+-91 to -75
+-66 to -50
+-41 to -23
+late cdats start at -41
+
+LAN (50ms) 25in 25out
+sudo tc qdisc change dev eno1 root netem delay 25ms
+sudo tc qdisc change dev ifb0 root netem delay 25ms
+state_freq:3
+base resets: never
+late cdats start at -51
+state_freq:2
+base resets: (on 2)
+-102 to -101
+-78 to -76
+-52 to -51
+late cdats start at -51
+
+LAN (60ms) 30in 30out
+sudo tc qdisc change dev eno1 root netem delay 30ms
+sudo tc qdisc change dev ifb0 root netem delay 30ms
+state_freq:3
+base resets: never
+late cdats start at -61
+state_freq:2
+base resets: (on 11)
+-86 to -75
+-61 to -50
+late cdats start at -61
+
+LAN (70ms) 35in 35out
+sudo tc qdisc change dev eno1 root netem delay 35ms
+sudo tc qdisc change dev ifb0 root netem delay 35ms
+state_freq:3
+base resets: never
+late cdats start at -72
+state_freq:2
+base resets: (21 on)
+-122 to -101
+-97 to -76
+late cdats start at -71
+
+LAN (80ms) 40in 40out
+sudo tc qdisc change dev eno1 root netem delay 40ms
+sudo tc qdisc change dev ifb0 root netem delay 40ms
+state_freq:4
+base resets: never
+late cdats start at -81
+state_freq:3
+base resets: (7 on)
+-107 to -101
+-82 to -75
+late cdats start at -81
+
+
+new correlation
+ping 80  needs s1:4 offset < -90  (3 + 7)
+ping 70  needs s1:3 offset < -80  (2 + 21)
+ping 60  needs s1:3 offset < -70  (2 + 11)
+ping 50  needs s1:3 offset < -60  (2 + 2)
+ping 40  needs s1:2 offset < -50  (1 + 16)
+ping 30  needs s1:2 offset < -40  (1 + 6)
+ping 20  needs s1:1 offset < -30  (-)
+ping 10  needs s1:1 offset < -20  (-)
+ping  0  needs s1:1 offset < -10  (-)
+
+formula for s1:
+
+0  1
+10 1
+20 1
+30 2
+40 2
+50 3
+60 3
+70 3
+80 4
+
+looks like its when the 25, 50, 75 threshold is crossed...
+
+1 < 25
+2 < 50
+3 < 75
+4 < 100
+
+1 + (ping / 25)
+
+to make it err a little on the side of caution:
+
+1 + ((ping+10) / 25)
+
+formula for offset: -10 - ping
+
+
+
+
+
+
+old correlation
+ping 100 needs s1:5 offset < -76  (4 + 25)
+ping 90  needs s1:5 offset < -66  (4 + 16)
+ping 80  needs s1:5 offset < -56  (4 + 7)
+ping 70  needs s1:4 offset < -46  (3 + 20)
+ping 60  needs s1:4 offset < -36  (3 + 9)
+ping 50  needs s1:4 offset < -26  (3 + 2)
+ping 40  needs s1:3 offset < -16  (2 + 16)
+ping 30  needs s1:3 offset < -6   (2 + 6)
+ping 20  needs s1:2 offset < +4   (1 + 21)
+ping 10  needs s1:2 offset < +14  (1 + 11)
+ping  0  needs s1:2 offset < +24  (1 + 2)
+
+old state_freq: = 2 + (ping/20)
+will never be less than 2
+
+old formula for offset
+offset = (10-ping)
 
 
 
@@ -136,6 +542,12 @@ it applies the dif to its base state, recreating the server state..
 
 
 
+
+
+
+
+
+ 
 
 
 
