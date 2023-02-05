@@ -4,6 +4,7 @@
 #include "z_log.h"
 #include "z_player.h"
 #include "n_netgame.h"
+#include "mwTally.h"
 
 struct player players[NUM_PLAYERS];
 struct player1 players1[NUM_PLAYERS];
@@ -1508,8 +1509,6 @@ void init_player(int p, int t)
       players1[p].last_health_adjust = 0;
       players1[p].potential_bomb_damage = 0;
 
-      players1[p].frames_skipped = 0;
-
       players[p].level_done_mode = 0;
       players[p].level_done_timer = 0;
       players[p].level_done_ack = 0;
@@ -1526,6 +1525,7 @@ void init_player(int p, int t)
       players1[p].client_cdat_packets_tx = 0;
 
       players1[p].late_cdats = 0;
+      mwT[0].initialize(); // initialize tally
 
       players1[p].client_chase_fps = 0;
       players1[p].server_game_move_sync = 0;
@@ -1546,16 +1546,19 @@ void init_player(int p, int t)
       players1[p].made_active_holdoff = 0;
 
       players1[p].client_chase_offset = 0.0;
-      players1[p].client_chase_offset_auto_offset = 0.01;
+      players1[p].client_chase_offset_auto_offset = -0.01;
       players1[p].client_chase_offset_mode = 1;
 
       players1[p].xcor_reset_frame = 0;
       players1[p].xcor_max = 0;
 
+      players1[p].ping = 0;
+      players1[p].ping_avg = 0;
+      mwT[4].initialize(); // initialize max tally
+
+      mwT[3].initialize(); // initialize tally
       players1[p].game_move_dsync = 0;
       players1[p].game_move_dsync_avg_last_sec = 0;
-      players1[p].game_move_dsync_avg_last_sec_tally = 0;
-      players1[p].game_move_dsync_avg_last_sec_count = 0;
    }
 
    if (t == 23) // clear bandwidth counters

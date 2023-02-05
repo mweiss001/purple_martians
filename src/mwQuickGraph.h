@@ -1,10 +1,10 @@
-// z_qGraph.h
+// mwQuickGraph.h
 
-class qGraph
+class mwQuickGraph
 {
    public:
 
-   qGraph(); // default constructor
+   mwQuickGraph(); // default constructor
    void initialize(int t);
 
    int width;
@@ -28,7 +28,7 @@ class qGraph
    data_series series[4] = {0};
 
 };
-extern qGraph qG[10];
+extern mwQuickGraph mwQG[10];
 
 
 

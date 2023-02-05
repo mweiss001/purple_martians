@@ -1,10 +1,14 @@
-// z_mwRollingAverage.cpp
-
+// mwRollingAverage.cpp
 
 #include "pm.h"
-#include "z_mwRollingAverage.h"
+#include "mwRollingAverage.h"
+#include <limits>
+
 
 mwRollingAverage mwRA[4];
+
+mwRollingAverage RA[20];
+
 
 mwRollingAverage::mwRollingAverage()
 {
@@ -33,8 +37,9 @@ void mwRollingAverage::add_data(double d)
    int ul = 8; // find number of valid entries, 8 by default unless not filled yet
    if (num_filled < 8) ul = num_filled;
 
-   mn = 99999999;  // min
-   mx = -99999999; // max
+   mn = std::numeric_limits<double>::max();
+   mx = std::numeric_limits<double>::lowest();
+
    double tally = 0;
    for (int i=0; i<ul; i++) // cycle all the valid entries
    {

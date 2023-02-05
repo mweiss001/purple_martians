@@ -169,22 +169,16 @@ void cm_redraw_level_editor_background(void)
 
    al_flip_display();
    proc_scale_factor_change();
-   proc_controllers();
 
-   int df = proc_frame_skip();
+   while (!program_update) proc_controllers();
 
-   while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+   program_update = 0;
 
-   if (frame_num <  al_get_timer_count(fps_timer)) set_frame_nums(frame_num); // set fps_timer count to frame_num
+   get_new_background(0);
+   draw_lifts();
+   draw_items();
+   draw_enemies();
 
-   if (df)
-   {
-      get_new_background(0);
-      draw_lifts();
-      draw_items();
-      draw_enemies();
-   }
-   else al_set_target_bitmap(level_buffer);
 
 
    if (mW[8].level_editor_mode == 1) // edit menu

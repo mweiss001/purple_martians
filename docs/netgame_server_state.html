@@ -69,8 +69,9 @@
 <mh8>Netgame - Server State</mh8>
 <mh3><hr><mdw_file_toc> <a href="netgame_server_state.html#Overview" target="_top">Overview</a>
  <a href="netgame_server_state.html#Server checks if it is time to make a new state" target="_top">Server checks if it is time to make a new state</a>
- <a href="netgame_server_state.html#Server sends dif to all clients" target="_top">Server sends dif to all clients</a>
- <a href="netgame_server_state.html#Server sends dif to a specific client" target="_top">Server sends dif to a specific client</a>
+ <a href="netgame_server_state.html#Server rewinds and replays" target="_top">Server rewinds and replays</a>
+ <a href="netgame_server_state.html#Server creates new state" target="_top">Server creates new state</a>
+ <a href="netgame_server_state.html#Server sends dif to each client" target="_top">Server sends dif to each client</a>
  <a href="netgame_server_state.html#Server receives acknowledge packet 'stak' from client" target="_top">Server receives acknowledge packet 'stak' from client</a>
 </mdw_file_toc><hr></mh3>
 
@@ -83,17 +84,12 @@ The server periodically sends the entire game state to clients in the form of a 
 
 How often that happens is determined by the variable: 'server_state_freq' which is set here: <a href="netgame_ping.html#Server uses 'server_max_client_ping' to adjust 'server_state_freq'" target="_top">server_state_freq</a>
 
-The minimum value for 'server_state_freq' is 2, which would send difs every 2 frames.
-1 is possible, but never used, that would send difs every frame, with no time for the client to acknowledge.
-There would be no common base for difs, so every dif would be based on zero and be the maximum size.
-See <a href="netgame_state_and_dif.html#State compression methods" target="_top">State compression methods</a> and also <a href="netgame_client_state.html#Check for dif based on state zero" target="_top">Check for dif based on state zero</a>
+Before creating a new state, the server rewinds to the last saved state and replays to the current frame.
+This is to apply late client input that was not applied when received, because it was late.
 
-Before sending a dif, the server rewinds to the last saved state and replays to the current frame.
-This is done so that late client input that was not applied to the server's game state has a chance to be applied before it is lost forever.
+Next the server creates a new base state, overwriting its old one.
 
-Then the server makes a new base state, overwriting the old one.
-
-Then the server makes and send difs for each client, based on the last acknowledged state for that client.
+Then the server sends a dif to each client, based on the last acknowledged state for that client.
 
 </mh3>    
     
@@ -102,28 +98,29 @@ Then the server makes and send difs for each client, based on the last acknowled
 <mh7>Server checks if it is time to make a new state</mh7>
 
 <mh3>
-Every frame the server checks if the last state it has saved is older than 'server_state_freq'
+Every frame the server checks if the current frame is equal or greater than the last state it has saved plus 'server_state_freq'
 </mh3>    
 
-<pre><code class="language-cpp">void server_create_new_state(void)
+<pre><code class="language-cpp">void server_rewind(void)
 {
    int s1 = players1[0].server_state_freq;
-
-   // is it time to make a new dif and send to clients?
-   if (frame_num >= srv_client_state_frame_num[0][1] + s1)
+   if (frame_num >= srv_client_state_frame_num[0][1] + s1)   // is it time to create a new state?
    {
 </code></pre>
 
-<mh3>If yes, then it is time to make a new one.
 
-The first thing it does is rewind to the previous state. This is achieved by simply loading the previous state.
+<a name="Server rewinds and replays"></a>
+<mh7>Server rewinds and replays</mh7>
+<mh3>
+If it is time to make a new state, first the server rewinds and replays to apply late client input.
+
+Rewinding is achieved by simply loading the previous state.
 </mh3>    
 
-<pre><code class="language-cpp">      int ff = frame_num - srv_client_state_frame_num[0][1];  // should almost always equal s1, unless s1 is changing
-      frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
+<pre><code class="language-cpp">      int ff = frame_num - srv_client_state_frame_num[0][1];  // almost always equals s1, unless s1 has changed
       state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
+      frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
 </code></pre>
-
 
 
 <mh3>
@@ -133,82 +130,84 @@ Then it replays to the current frame to apply any late input from clients that w
 <pre><code class="language-cpp">      loop_frame(ff);
 </code></pre>
 
-
-
 <mh3>
-Then it overwrites the old saved state with the new one and updates the frame_num.
-</mh3>    
-
-<pre><code class="language-cpp">      game_vars_to_state(srv_client_state[0][1]);
-      srv_client_state_frame_num[0][1] = frame_num;
-</code></pre>
-
-<mh3>
-Then it sets the flag that indicates it is time to send difs to clients.
+Then it sets the flag 'players1[0].server_send_dif'.
 </mh3>    
 
 <pre><code class="language-cpp">      players1[0].server_send_dif = 1;
 </code></pre>
 
-
 <mh3>
 This is the entire function:
 </mh3>    
 
-<pre><code class="language-cpp">void server_create_new_state(void)
+<pre><code class="language-cpp">void server_rewind(void)
 {
    int s1 = players1[0].server_state_freq;
-   // is it time to make a new dif and send to clients?
-   if (frame_num >= srv_client_state_frame_num[0][1] + s1)
+   if (frame_num >= srv_client_state_frame_num[0][1] + s1)    // is it time to create a new state?
    {
-      int ff = frame_num - srv_client_state_frame_num[0][1];  // should almost always equal s1, unless s1 is changing
-      // rewind and fast forward from last stdf state to apply missed game moves received late
-      frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
-      state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
+      int ff = frame_num - srv_client_state_frame_num[0][1];  // almost always equals s1, unless s1 has changed
 
+      // rewind and fast forward from last state to apply late client input
+      state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
+      frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
       loop_frame(ff);
-      // save state as a base for next rewind
-      game_vars_to_state(srv_client_state[0][1]);
-      srv_client_state_frame_num[0][1] = frame_num;
 
       players1[0].server_send_dif = 1;
    }
 }
 </code></pre>
 
-<a name="Server sends dif to all clients"></a>
-<mh7>Server sends dif to all clients</mh7>
-
 
 <mh3>
-In the game loop, 'server_send_stdf()' is called after 'move()' but before 'draw()'
+Then game loop continues.
+
+The server does not make the new state until after input for this frame has been processed and move_frame() has been called.
 </mh3>    
 
-<pre><code class="language-cpp">            if (players[0].level_done_mode) process_level_done_mode();
-            else move_frame();
-            server_send_stdf();
-            if (proc_frame_skip()) draw_frame();
-			
-void server_send_stdf(void)
+
+<pre><code class="language-cpp">            proc_player_input();
+            proc_game_moves_array();
+            move_frame();
+
+            server_create_new_state();
+
+            draw_frame();
+</code></pre>
+
+<a name="Server creates new state"></a>
+<mh7>Server creates new state</mh7>
+
+<mh3>
+If the flag is set, the server creates a new state from the current frame, but sets its frame number to the next frame.
+
+This state is created at the end of the current frame, so it is the starting point for the next frame.
+
+Whenever a state is loaded, it is loaded at the start of a frame, before any processing of that frame has been done yet.
+</mh3>    
+
+<pre><code class="language-cpp">void server_create_new_state(void)
 {
    if (players1[0].server_send_dif)
    {
       players1[0].server_send_dif = 0;
-      // send to all clients
-      for (int p=1; p < NUM_PLAYERS; p++)
-         if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
+
+      game_vars_to_state(srv_client_state[0][1]);
+      srv_client_state_frame_num[0][1] = frame_num + 1;
+</code></pre>
+
+<mh3>
+Then the server calls 'server_send_dif()' for each client:
+</mh3>    
+<pre><code class="language-cpp">      for (int p=1; p < NUM_PLAYERS; p++)
+         if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_dif(p);
    }
 }
 </code></pre>
 
 
-
-
-
-
-
-<a name="Server sends dif to a specific client"></a>
-<mh7>Server sends dif to a specific client</mh7>
+<a name="Server sends dif to each client"></a>
+<mh7>Server sends dif to each client</mh7>
 
 
 <mh3>
@@ -221,7 +220,7 @@ If the last acknowledged frame is zero, it means we do not have a base in common
 
 
 
-<pre><code class="language-cpp">void server_send_stdf(int p)
+<pre><code class="language-cpp">void server_send_dif(int p)
 {
    if (srv_client_state_frame_num[p][0] == 0) memset(srv_client_state[p][0], 0, STATE_SIZE);
 </code></pre>
@@ -305,7 +304,7 @@ Lastly we break it into pieces and send it.
 This is the entire function:
 </mh3>    
 
-<pre><code class="language-cpp">void server_send_stdf(int p)
+<pre><code class="language-cpp">void server_send_dif(int p)
 {
    if (srv_client_state_frame_num[p][0] == 0) memset(srv_client_state[p][0], 0, STATE_SIZE);
 
@@ -345,6 +344,7 @@ This is the entire function:
       PacketPut1ByteInt(num_packets);
       PacketPut4ByteInt(start_byte);
       PacketPut4ByteInt(packet_data_size);
+      PacketPut1ByteInt(players1[p].late_cdats_last_sec);
       memcpy(packetbuffer+packetsize, cmp+start_byte, packet_data_size);
       packetsize += packet_data_size;
       ServerSendTo(packetbuffer, packetsize, players1[p].who, p);

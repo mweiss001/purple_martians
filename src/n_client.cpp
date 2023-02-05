@@ -3,7 +3,7 @@
 #include "z_log.h"
 #include "z_player.h"
 #include "n_netgame.h"
-#include "z_mwRollingAverage.h"
+#include "mwRollingAverage.h"
 
 // n_network.h
 extern int NetworkDriver;
@@ -340,7 +340,6 @@ void client_send_stak(void)
    PacketPut1ByteInt(p);
    PacketPut4ByteInt(client_state_base_frame_num);
    PacketPut4ByteInt(frame_num);
-   PacketPut4ByteInt(players1[p].frames_skipped);
    PacketPutDouble(players1[p].client_chase_fps);
    PacketPutDouble(players1[p].dsync_avg);
    ClientSend(packetbuffer, packetsize);
@@ -356,7 +355,7 @@ void client_apply_dif(void)
    }
    else
    {
-      if (client_state_dif_src - frame_num > 100)
+      if ((client_state_dif_src - frame_num > 100) && (frame_num != 0))
       {
          sprintf(msg, "dif_src is > 100 frames in the future - src:%d frame_num:%d\n", client_state_dif_src, frame_num);
          if (LOG_NET_dif_not_applied) add_log_entry2(31, p, msg);
@@ -406,9 +405,6 @@ void client_apply_dif(void)
                   // make a copy of players x pos
                   float oldpx = al_fixtof(players[p].PX);
 
-
-
-
                   // apply dif to base state
                   apply_state_dif(client_state_base, client_state_dif, STATE_SIZE);
 
@@ -431,10 +427,7 @@ void client_apply_dif(void)
 
 
 
-
-
-
-
+                  t0 = al_get_time();
 
                   // compare old_l to l and redraw changed tiles
                   al_set_target_bitmap(level_background);
@@ -447,6 +440,9 @@ void client_apply_dif(void)
                            al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
                         }
 
+                  add_log_TMR(al_get_time() - t0, "oldl", 0);
+
+
                   // fix control methods
                   players[0].control_method = 2; // on client, server is mode 2
                   if (players[p].control_method == 2) players[p].control_method = 4;
@@ -454,17 +450,6 @@ void client_apply_dif(void)
 
                   // update frame_num and client base frame_num
                   frame_num = client_state_base_frame_num = client_state_dif_dst;
-
-                  // for initial state only
-                  if (frame_num == 0)
-                  {
-                     set_frame_nums(client_state_dif_dst);
-
-                     printf("Nevr gets here...prove me wrong!!!!\n");
-
-                  }
-
-
 
                   players1[p].client_last_dif_applied = frame_num;
 
@@ -644,9 +629,6 @@ void process_bandwidth_counters(int p)
       players1[p].tx_packets_tally = 0;
       players1[p].rx_bytes_tally = 0;
       players1[p].rx_packets_tally = 0;
-
-//      players1[p].moves_skipped_last_tally = players1[p].moves_skipped - players1[p].moves_skipped_tally;
-//      players1[p].moves_skipped_tally = players1[p].moves_skipped;
    }
 }
 

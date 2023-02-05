@@ -1,4 +1,4 @@
-// z_mwRollingAverage.h
+// mwRollingAverage.h
 
 class mwRollingAverage
 {
@@ -19,6 +19,6 @@ class mwRollingAverage
 };
 extern mwRollingAverage mwRA[4];
 
-
+extern mwRollingAverage RA[20];
 
 

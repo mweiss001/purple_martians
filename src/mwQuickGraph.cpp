@@ -1,16 +1,16 @@
-// z_qGraph.cpp
+// mwQuickGraph.cpp
 
 #include "pm.h"
-#include "z_qGraph.h"
+#include "mwQuickGraph.h"
 
-qGraph qG[10];
+mwQuickGraph mwQG[10];
 
-qGraph::qGraph()
+mwQuickGraph::mwQuickGraph()
 {
    initialize(1);
 }
 
-void qGraph::initialize(int typ)
+void mwQuickGraph::initialize(int typ)
 {
    width = 200;
    height = 20;
@@ -31,7 +31,7 @@ void qGraph::initialize(int typ)
 }
 
 
-void qGraph::add_data(int s, double d)
+void mwQuickGraph::add_data(int s, double d)
 {
    // slide all the data down
    for (int i=width-1; i>0; i--)
@@ -41,7 +41,7 @@ void qGraph::add_data(int s, double d)
 }
 
 
-void qGraph::draw_graph(int x, int y)
+void mwQuickGraph::draw_graph(int x, int y)
 {
 
 

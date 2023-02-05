@@ -1737,6 +1737,12 @@ int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
 {
    int y2 = y1+bts-2;
    int ret = 0;
+
+
+   if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
+      al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
+
+
    // is mouse pressed on this button?
    if ((mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
    {

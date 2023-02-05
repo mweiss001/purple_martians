@@ -1,4 +1,4 @@
-// z_mwGraph.h
+// mwGraph.h
 
 class mwGraph
 {
@@ -247,7 +247,7 @@ class mwGraph
    bool mouse_on_scrollbar;
 
 };
-extern mwGraph mG[10];
+extern mwGraph mwG[10];
 
 
 

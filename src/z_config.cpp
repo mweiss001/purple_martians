@@ -87,6 +87,10 @@ void save_config(void)
       asci(NETWORK, deathmatch_pbullets_damage)
       asci(NETWORK, suicide_pbullets)
 
+      asci(NETWORK, players1[0].server_state_freq_mode)
+
+
+
       asci(LOGGING, LOG_NET)
       asci(LOGGING, LOG_NET_join)
       asci(LOGGING, LOG_NET_player_array)
@@ -132,6 +136,65 @@ void save_config(void)
       asci(DEMO, autosave_game_on_level_done)
       asci(DEMO, autosave_game_on_game_exit)
       ascf(DEMO, demo_mode_overlay_opacity)
+
+
+      // cpu
+      asci(OVERLAY, overlay_grid[0][0]);
+      asci(OVERLAY, overlay_grid[0][1]);
+      asci(OVERLAY, overlay_grid[0][2]);
+      asci(OVERLAY, overlay_grid[0][3]);
+
+      // display
+      asci(OVERLAY, overlay_grid[1][0]);
+      asci(OVERLAY, overlay_grid[1][1]);
+      asci(OVERLAY, overlay_grid[1][2]);
+      asci(OVERLAY, overlay_grid[1][3]);
+
+      // draw profile
+      asci(OVERLAY, overlay_grid[2][0]);
+      asci(OVERLAY, overlay_grid[2][1]);
+      asci(OVERLAY, overlay_grid[2][2]);
+      asci(OVERLAY, overlay_grid[2][3]);
+
+      // debug grid
+      asci(OVERLAY, overlay_grid[3][0]);
+      asci(OVERLAY, overlay_grid[3][1]);
+      asci(OVERLAY, overlay_grid[3][2]);
+      asci(OVERLAY, overlay_grid[3][3]);
+
+      // sync graph
+      asci(OVERLAY, overlay_grid[4][0]);
+      asci(OVERLAY, overlay_grid[4][1]);
+      asci(OVERLAY, overlay_grid[4][2]);
+      asci(OVERLAY, overlay_grid[4][3]);
+
+      // sync adjust
+      asci(OVERLAY, overlay_grid[5][0]);
+      asci(OVERLAY, overlay_grid[5][1]);
+      asci(OVERLAY, overlay_grid[5][2]);
+      asci(OVERLAY, overlay_grid[5][3]);
+
+      // state freq adj
+      asci(OVERLAY, overlay_grid[6][0]);
+      asci(OVERLAY, overlay_grid[6][1]);
+      asci(OVERLAY, overlay_grid[6][2]);
+      asci(OVERLAY, overlay_grid[6][3]);
+
+      // bandwidth stats
+      asci(OVERLAY, overlay_grid[7][0]);
+      asci(OVERLAY, overlay_grid[7][1]);
+      asci(OVERLAY, overlay_grid[7][2]);
+      asci(OVERLAY, overlay_grid[7][3]);
+
+      // misc
+      asci(OVERLAY, overlay_grid[8][0]);
+      asci(OVERLAY, overlay_grid[8][1]);
+      asci(OVERLAY, overlay_grid[8][2]);
+      asci(OVERLAY, overlay_grid[8][3]);
+
+
+
+
    }
    al_save_config_file("pm.cfg", cfg);
    al_destroy_config(cfg);
@@ -208,6 +271,9 @@ void load_config(void)
    agci(NETWORK, deathmatch_pbullets_damage, 5)
    agci(NETWORK, suicide_pbullets, 0)
 
+   agci(NETWORK, players1[0].server_state_freq_mode, 1)
+
+
    agci(LOGGING, LOG_NET, 0)
    agci(LOGGING, LOG_NET_player_array, 0)
    agci(LOGGING, LOG_NET_join, 0)
@@ -252,6 +318,69 @@ void load_config(void)
    agci(DEMO, autosave_game_on_level_done, 0)
    agci(DEMO, autosave_game_on_game_exit, 0)
    agcf(DEMO, demo_mode_overlay_opacity, 0.1)
+
+
+   // cpu
+   agci(OVERLAY, overlay_grid[0][0], 0);
+   agci(OVERLAY, overlay_grid[0][1], 1);
+   agci(OVERLAY, overlay_grid[0][2], 1);
+   agci(OVERLAY, overlay_grid[0][3], 1);
+
+   // display
+   agci(OVERLAY, overlay_grid[1][0], 0);
+   agci(OVERLAY, overlay_grid[1][1], 0);
+   agci(OVERLAY, overlay_grid[1][2], 1);
+   agci(OVERLAY, overlay_grid[1][3], 1);
+
+   // draw profile
+   agci(OVERLAY, overlay_grid[2][0], 0);
+   agci(OVERLAY, overlay_grid[2][1], 0);
+   agci(OVERLAY, overlay_grid[2][2], 0);
+   agci(OVERLAY, overlay_grid[2][3], 0);
+
+   // debug grid
+   agci(OVERLAY, overlay_grid[3][0], 0);
+   agci(OVERLAY, overlay_grid[3][1], 0);
+   agci(OVERLAY, overlay_grid[3][2], 0);
+   agci(OVERLAY, overlay_grid[3][3], 1);
+
+   // sync graph
+   agci(OVERLAY, overlay_grid[4][0], 0);
+   agci(OVERLAY, overlay_grid[4][1], 0);
+   agci(OVERLAY, overlay_grid[4][2], 0);
+   agci(OVERLAY, overlay_grid[4][3], 1);
+
+   // sync adjust
+   agci(OVERLAY, overlay_grid[5][0], 0);
+   agci(OVERLAY, overlay_grid[5][1], 0);
+   agci(OVERLAY, overlay_grid[5][2], 0);
+   agci(OVERLAY, overlay_grid[5][3], 0);
+
+   // state freq adj
+   agci(OVERLAY, overlay_grid[6][0], 0);
+   agci(OVERLAY, overlay_grid[6][1], 0);
+   agci(OVERLAY, overlay_grid[6][2], 0);
+   agci(OVERLAY, overlay_grid[6][3], 0);
+
+   // bandwidth stats
+   agci(OVERLAY, overlay_grid[7][0], 0);
+   agci(OVERLAY, overlay_grid[7][1], 0);
+   agci(OVERLAY, overlay_grid[7][2], 0);
+   agci(OVERLAY, overlay_grid[7][3], 0);
+
+   // misc
+   agci(OVERLAY, overlay_grid[8][0], 0);
+   agci(OVERLAY, overlay_grid[8][1], 0);
+   agci(OVERLAY, overlay_grid[8][2], 1);
+   agci(OVERLAY, overlay_grid[8][3], 1);
+
+
+
+
+
+
+
+
 
    al_destroy_config(cfg);
    save_config();

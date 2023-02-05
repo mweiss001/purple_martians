@@ -67,12 +67,9 @@ int load_visual_level_select_done = 0;
 
 // frame_speed, frames per second, frame_num stuff
 int speed_testing = 0;
-int actual_fps;
-int last_fps_frame_num = 0;
 int frame_speed = 40;
 int frame_num;
 int speed_control_lock = 1;
-
 
 // some global strings
 char level_filename[80];
@@ -384,7 +381,7 @@ int level_editor_running = 0;
 int help_screens_running = 0;
 int visual_level_select_running = 0;
 
-int show_debug_overlay = 1;
+int show_debug_overlay = 0;
 
 int show_player_join_quit_timer = 0;
 int show_player_join_quit_player = 0;

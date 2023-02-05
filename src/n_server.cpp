@@ -3,6 +3,8 @@
 #include "z_log.h"
 #include "z_player.h"
 #include "n_netgame.h"
+#include "mwTally.h"
+
 
 // n_network.h
 extern int NetworkDriver;
@@ -110,22 +112,6 @@ int get_delta(int f0, int type0, int f1, int type1, double &res)
    if (t1 == -1) printf("did not find timestamp type:%d for frame:%d\n", type1, f1);
    return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 int ServerInitNetwork() // Initialize the server
@@ -439,10 +425,7 @@ int server_init(void)
    Packet("JUNK");
    ServerBroadcast(packetbuffer, packetsize);
 
-   players[0].control_method = 3; // server_local_control
    ima_server = 1;
-   strncpy(players1[0].hostname, local_hostname, 16);
-
    return 1;
 }
 
@@ -456,8 +439,65 @@ void server_exit(void)
    players[0].active = 1;
 }
 
-// send stdf to a specific client
-void server_send_stdf(int p)
+
+
+
+
+void server_rewind(void)
+{
+   int s1 = players1[0].server_state_freq;
+
+   if (frame_num >= srv_client_state_frame_num[0][1] + s1)    // is it time to create a new state?
+   {
+      int ff = frame_num - srv_client_state_frame_num[0][1];  // almost always equals s1, unless s1 has changed
+
+      // rewind and fast forward from last state to apply late client input
+
+      if (LOG_NET_stdf)
+      {
+         sprintf(msg, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
+         //printf(msg);
+         add_log_entry2(27, 0, msg);
+      }
+
+      if (LOG_TMR_rwnd) t0 = al_get_time();
+
+      state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
+      frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
+
+      loop_frame(ff);
+
+      if (LOG_TMR_rwnd) add_log_TMR(al_get_time() - t0, "rwnd", 0);
+
+      players1[0].server_send_dif = 1;
+   }
+}
+
+void server_create_new_state(void)
+{
+   if (players1[0].server_send_dif)
+   {
+      players1[0].server_send_dif = 0;
+
+      // save state as a base for next rewind
+      game_vars_to_state(srv_client_state[0][1]);
+      srv_client_state_frame_num[0][1] = frame_num+1;
+
+      if (LOG_NET_stdf)
+      {
+         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+         //printf(msg);
+         add_log_entry2(27, 0, msg);
+      }
+
+      // send to all clients
+      for (int p=1; p<NUM_PLAYERS; p++)
+         if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_dif(p);
+   }
+}
+
+
+void server_send_dif(int p) // send dif to a specific client
 {
    // if last_ack_state_frame == 0 set base to all zeros
    if (srv_client_state_frame_num[p][0] == 0) memset(srv_client_state[p][0], 0, STATE_SIZE);
@@ -521,63 +561,6 @@ void server_send_stdf(int p)
 }
 
 
-void server_send_stdf(void)
-{
-   if (players1[0].server_send_dif)
-   {
-      players1[0].server_send_dif = 0;
-
-      // save state as a base for next rewind
-      game_vars_to_state(srv_client_state[0][1]);
-      srv_client_state_frame_num[0][1] = frame_num+1;
-
-      if (LOG_NET_stdf)
-      {
-         //printf("saved server state[1]:%d\n", frame_num);
-         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
-         add_log_entry2(27, 0, msg);
-      }
-
-      // send to all clients
-      for (int p=1; p<NUM_PLAYERS; p++)
-         if ((players[p].control_method == 2) || (players[p].control_method == 8)) server_send_stdf(p);
-   }
-}
-
-
-void server_create_new_state(void)
-{
-   int s1 = players1[0].server_state_freq;
-
-   // is it time to make a new dif and send to clients?
-   if (frame_num >= srv_client_state_frame_num[0][1] + s1)
-   {
-      int ff = frame_num - srv_client_state_frame_num[0][1];  // should almost always equal s1, unless s1 is changing
-
-      // rewind and fast forward from last stdf state to apply missed game moves received late
-      if (LOG_NET_stdf)
-      {
-         // printf("\n%d rewind to:%d\n", frame_num, srv_stdf_state_frame_num[1]);
-         sprintf(msg, "stdf rewind to:%d\n", srv_client_state_frame_num[0][1]);
-         add_log_entry2(27, 0, msg);
-      }
-      if (LOG_TMR_rwnd) t0 = al_get_time();
-      frame_num = srv_client_state_frame_num[0][1]; // set rewind frame num
-      state_to_game_vars(srv_client_state[0][1]);   // apply rewind state
-
-      loop_frame(ff);
-
-      if (LOG_TMR_rwnd) add_log_TMR(al_get_time() - t0, "rwnd", 0);
-
-      players1[0].server_send_dif = 1;
-
-
-
-
-
-
-   }
-}
 
 
 void server_proc_player_drop(void)
@@ -623,14 +606,13 @@ void server_proc_cdat_packet(double timestamp)
 
    // calculate game_move_dsync
    players1[p].game_move_dsync = ( (double) players1[p].server_game_move_sync * 0.025) + timestamp_frame_start - timestamp;
-   players1[p].game_move_dsync_avg_last_sec_tally += players1[p].game_move_dsync;
-   players1[p].game_move_dsync_avg_last_sec_count +=1;
+   mwT[3].add_data(players1[p].game_move_dsync); // add to average tally
 
    // check to see if earlier than the last stdf state
    if (cdat_frame_num < srv_client_state_frame_num[0][1])
    {
-      players1[p].late_cdats_last_sec_tally++;
       players1[p].late_cdats++;
+      mwT[0].add_data(1); // add to tally
       sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, players1[p].server_game_move_sync);
    }
    else
@@ -658,14 +640,23 @@ void server_lock_client(int p)
    }
 }
 
-void server_proc_stak_packet(void)
+void server_proc_stak_packet(double timestamp)
 {
-   int p                        = PacketGet1ByteInt();
-   int ack_frame_num            = PacketGet4ByteInt();
-   int client_frame_num         = PacketGet4ByteInt();
-   players1[p].frames_skipped   = PacketGet4ByteInt();
-   players1[p].client_chase_fps = PacketGetDouble();
-   players1[p].dsync            = PacketGetDouble();
+   int p                                    = PacketGet1ByteInt();
+   int ack_frame_num                        = PacketGet4ByteInt();
+   int client_frame_num                     = PacketGet4ByteInt();
+   players1[p].client_chase_fps             = PacketGetDouble();
+   players1[p].dsync                        = PacketGetDouble();
+
+
+
+
+
+   // calculate stak_sync
+   int stak_sync = frame_num - srv_client_state_frame_num[0][1];
+
+   // calculate stak_dsync
+   players1[p].stak_dsync = ( (double) stak_sync * 0.025) + timestamp_frame_start - timestamp;
 
    server_lock_client(p);
 
@@ -787,7 +778,6 @@ void server_proc_cjon_packet(int who)
 int get_player_num_from_who(int who)
 {
    for(int p=0; p<NUM_PLAYERS; p++)
-//      if ((players[p].active) && (players1[p].who == who)) return p;
       if (players1[p].who == who) return p;
    return -1;
 }
@@ -823,7 +813,8 @@ void server_fast_packet_loop(void)
             double t1 = al_get_time();
             players1[p].ping = t1 - t0;
             //printf("rx pang from p:%d [%3.1f ms]\n", p, players1[p].ping*1000);
-            if (players1[p].ping > players1[0].server_max_client_ping) players1[0].server_max_client_ping = players1[p].ping;
+            mwT[4].add_data(players1[p].ping); // add to max tally
+//            if (players1[p].ping > players1[0].server_max_client_ping) players1[0].server_max_client_ping = players1[p].ping;
          }
       }
 
@@ -862,7 +853,7 @@ void server_read_packet_buffer(void)
          set_packetpos(4);
 
          if (packet_buffers[i].type == 1) server_proc_cdat_packet(packet_buffers[i].timestamp);
-         if (packet_buffers[i].type == 2) server_proc_stak_packet();
+         if (packet_buffers[i].type == 2) server_proc_stak_packet(packet_buffers[i].timestamp);
          if (packet_buffers[i].type == 3) server_proc_cjon_packet(packet_buffers[i].who);
 
          packet_buffers[i].active = 0;
@@ -871,10 +862,10 @@ void server_read_packet_buffer(void)
 
 void server_control()
 {
-   ServerListen(); // listen for new client connections
+   ServerListen();               // listen for new client connections
    server_read_packet_buffer();
-   server_create_new_state();  // to replay and apply late client input
-   server_proc_player_drop();  // check to see if we need to drop clients
+   server_rewind();              // to replay and apply late client input
+   server_proc_player_drop();    // check to see if we need to drop clients
    if (LOG_NET_player_array) log_player_array2();
    for (int p=0; p<NUM_PLAYERS; p++) if (players[p].active) process_bandwidth_counters(p);
 }

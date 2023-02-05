@@ -2,6 +2,10 @@
 
 extern int settings_current_page;
 
+extern int overlay_grid[10][4];
+
+
+
 //void set_all_logging(int v);
 int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int num);
 //void cfp_draw_player(int pco, int x, int y);

@@ -1,9 +1,9 @@
-// z_mwGraph.cpp
+// mwGraph.cpp
 
 #include "pm.h"
-#include "z_mwGraph.h"
+#include "mwGraph.h"
 
-mwGraph mG[10];
+mwGraph mwG[10];
 
 mwGraph::mwGraph()
 {
@@ -205,7 +205,7 @@ void mwGraph::draw_series_legend(void)
    if (series_legend_slave)
    {
       for (int s=0; s<20; s++)
-         series[s].active = mG[series_legend_slave-100].series[s].active;
+         series[s].active = mwG[series_legend_slave-100].series[s].active;
    }
    if (series_legend_draw_on)
    {
@@ -956,8 +956,8 @@ void mwGraph::y_axis_get_size_and_arrange_pos(void)
 
    if (x_axis_slave) // force plot x1, x2 to match master
    {
-      plot_x1 = mG[x_axis_slave - 100].plot_x1;
-      plot_x2 = mG[x_axis_slave - 100].plot_x2;
+      plot_x1 = mwG[x_axis_slave - 100].plot_x1;
+      plot_x2 = mwG[x_axis_slave - 100].plot_x2;
    }
    else  // calculate plot x1 by adding all the things padding it
    {
@@ -1405,7 +1405,7 @@ void mwGraph::proc_plot_mouse_cursor_crosshairs(double mx1, double my1)
    if (linked_group_id)
    {
       for (int g=0; g<10; g++)
-         if (mG[g].linked_group_id == linked_group_id) mG[g].x_axis_cursor_pos = x;
+         if (mwG[g].linked_group_id == linked_group_id) mwG[g].x_axis_cursor_pos = x;
    }
    al_set_clipping_rectangle(plot_x1 * display_transform_double, plot_y1 * display_transform_double, plot_w * display_transform_double, plot_h * display_transform_double);
    al_draw_line(plot_x1, y, plot_x2, y, palette_color[col+64], 0);
@@ -1564,7 +1564,7 @@ void mwGraph::proc_plot_area(int draw_only)
                if ((mouse_x > graph_x1) && (mouse_x < graph_x2) && (mouse_y > graph_y1) && (mouse_y < graph_y2))
                {
                   for (int g=0; g<10; g++) // set all linked x_axis_cursor_pos to invalid
-                     if (mG[g].linked_group_id == linked_group_id) mG[g].x_axis_cursor_pos = 99999; // set all linked cursors to not valid
+                     if (mwG[g].linked_group_id == linked_group_id) mwG[g].x_axis_cursor_pos = 99999; // set all linked cursors to not valid
                }
                if (x_axis_cursor_pos > -99998)
                   al_draw_line(x_axis_cursor_pos, plot_y1, x_axis_cursor_pos, plot_y2, palette_color[15], 0); // draw if valid
@@ -1652,9 +1652,9 @@ void mwGraph::y_axis_proc_scrollbar(int draw_only)
    if (y_axis_slave >= 100)
    {
       int c = y_axis_slave - 100;
-      y_axis_min = mG[c].y_axis_min;
-      y_axis_max = mG[c].y_axis_max;
-      y_axis_rng = mG[c].y_axis_rng;
+      y_axis_min = mwG[c].y_axis_min;
+      y_axis_max = mwG[c].y_axis_max;
+      y_axis_rng = mwG[c].y_axis_rng;
    }
    int sb = y_axis_draw_scrollbar(0);
    if ((sb) && (!draw_only) && (y_axis_scrollbar_draw_on) && (mouse_b[1][0]))
@@ -1798,9 +1798,9 @@ void mwGraph::x_axis_proc_scrollbar(int draw_only)
    if (x_axis_slave >= 100)
    {
       int c = x_axis_slave - 100;
-      x_axis_min = mG[c].x_axis_min;
-      x_axis_max = mG[c].x_axis_max;
-      x_axis_rng = mG[c].x_axis_rng;
+      x_axis_min = mwG[c].x_axis_min;
+      x_axis_max = mwG[c].x_axis_max;
+      x_axis_rng = mwG[c].x_axis_rng;
       x_axis_scrollbar_draw_on = 0; // don't show if slave, what's the point?
    }
    int sb = x_axis_draw_scrollbar(0);

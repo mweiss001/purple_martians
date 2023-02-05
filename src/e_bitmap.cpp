@@ -437,7 +437,7 @@ void animation_sequence_editor(void)
 
       if ((key[ALLEGRO_KEY_ESCAPE][3]) || (mouse_b[2][3])) quit = 1;
    }
-   set_frame_nums(0);
+   frame_num = 0;
 }
 
 

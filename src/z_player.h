@@ -92,54 +92,39 @@ struct player1 // not synced between server and client
 
    int fake_keypress_mode;
 
-   int frames_skipped;
-   int frames_skipped_last_sec;
-   int frames_skipped_last_sec_tally;
-
-   int timer_adjust;
-   int timer_adjust_last_sec;
-   int timer_adjust_last_sec_tally;
-
-
    int who; // for network id of clients
    char hostname[16];
 
    int server_last_stak_rx_frame_num; // used by server to see if client is still responding
-
    int client_last_stdf_rx_frame_num; // used by client to see if server is still responding
-
-   int server_send_dif; // used by server to determine which frame to send dif
+   int server_send_dif;               // used by server to determine which frame to send dif
 
    int client_rewind; // for client to keep track of how many frames it needed to rewind
-
    int client_move_lag;
-
    int client_base_resets;
    int client_last_dif_applied;
 
    int client_ping_flag;
-   double server_max_client_ping;
 
    double ping;
    double ping_avg;
+
    double dsync;
    double dsync_avg;
+
+   double client_chase_fps;
+   double stak_dsync;
 
    float xcor_max;
    int xcor_reset_frame;
 
-   double client_chase_offset;
-   double client_chase_offset_auto_offset;
-   int client_chase_offset_mode; // 0 = manual, 1 = auto
-
-   int last_gm_index;
-   int last_gm_frame_num;
-   int last_gm_comp_move;
-
-   double client_chase_fps;
-   int server_game_move_sync;
-
    int client_cdat_packets_tx;
+   int late_cdats;
+   int late_cdats_last_sec;
+   int server_game_move_sync;
+   double game_move_dsync;
+   double game_move_dsync_avg_last_sec;
+
 
    int made_active_holdoff;
    int sync_stabilization_holdoff;
@@ -148,22 +133,20 @@ struct player1 // not synced between server and client
    int quit_frame;
    int quit_reason;
 
-   // server rewind and stdf frequencies
+   // server stdf frequency
    int server_state_freq;
+   int server_state_freq_mode; // 0 = manual, 1 = auto
 
-   // used only to display on server screen overlay in client grid
+   // used only to display in server debug grid
    int num_dif_packets;
    int cmp_dif_size;
 
-   int late_cdats;
-   int late_cdats_last_sec;
-   int late_cdats_last_sec_tally;
 
-   double game_move_dsync; // current value
-   double game_move_dsync_max;
-   double game_move_dsync_avg_last_sec;
-   double game_move_dsync_avg_last_sec_tally;
-   double game_move_dsync_avg_last_sec_count;
+   double client_chase_offset;
+   double client_chase_offset_auto_offset;
+   int client_chase_offset_mode; // 0 = manual, 1 = auto
+
+
 
    // bandwidth counters and tallies
 
