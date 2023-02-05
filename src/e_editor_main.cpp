@@ -864,7 +864,7 @@ int edit_menu(int el)
    sort_enemy();
    sort_item(1);
    em_set_swbl();
-   set_frame_nums(0);
+   frame_num = 0;
 
    clear_keys();
 

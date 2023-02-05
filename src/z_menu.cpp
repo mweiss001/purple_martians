@@ -510,7 +510,6 @@ void help(const char *topic)
    al_destroy_bitmap(selection_window);
    al_destroy_bitmap(hlift);
    help_screens_running = 0;
-   set_frame_nums(0);
 }
 
 void menu_setup(void)

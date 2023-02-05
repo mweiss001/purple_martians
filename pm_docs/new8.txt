@@ -9676,6 +9676,1068 @@ put back the manual adjust of state_freq...
 
 I am loving this new way....
 
+on the server I monitor cdsync and gmav
+they can both run in low single didgits
+
+
+I was working on some tools to help me understand in finer detail what is happening with
+the different offsets and state_frequency settings...
+
+I still kind of want to understand this better.
+
+
+I was wondering if I could remove the ping stuff...
+the only reason is to simplify things...
+
+I was thinking of using the stdf-stak exchange..
+then the server could calculate ping and send it to clients..
+
+but...
+client only replies when applying the dif..
+
+nevermind...it is fine the way that it is..
+
+
+
+
+Could I show a nice rectangular graphical representaition on the server...
+Show the width of the state_freq
+show when cdats mostly come in
+show the client sync
+show when sdak was recieved...
+
+does this even make any sense?
+
+the data I would need to keep..
+
+once per state save
+
+start frame
+end frame
+when was stak rx'd (in finer resolution than 1 frame)
+client offset
+all the client cdat sync times..
+
+I could just start with frame and stak rx...
+
+make stak rx time and use fine detail
+
+
+I made stak_dsync and am testing..
+
+
+something weird..
+
+on LAN (ping < 1)
+state_freq = 1
+
+no matter how I adjust client offset, I never get base resets...
+saem with 20ms
+
+lets try 30..finally I get some..
+
+stak_dsync is not what I think it should be
+
+I want it to be a positive number in ms
+of how far after the frame start i receive stak...
+it will probably be very similar to raw ping
+
+I don't seem to be getting anywhere with this
+
+
+OK lets do something easier, maybe...make a class for last_sec...
+
+what uses it?
+
+lots...
+late_cdats_last_sec
+game_move_dsync_avg_last_sec
+frames_skipped_last_sec
+timer_adjust_last_sec
+
+bandwidth counters..
+also do frame as well as last sec..
+
+what does each one have in common?
+they need a tally, a running total
+
+optional:
+number of entries
+average
+min
+max
+
+OK do it...
+first what are you going to call it?
+
+mwPerSecond
+
+
+while implementing, I realized, it doesn't have to be per second
+it could be any arbitrary period..
+whenever calc is called
+
+also I realized I want to fix the naming of my classes
+
+I want them all to begin with mw then use CamelCase
+
+what do I have so far?
+
+e_mWindow
+z_mwGraph
+z_qGraph
+z_mwRollingAverage
+z_mwPerSecond
+
+
+this is what I want:
+
+mwWindow
+mwGraph mwG[]
+mwQuickGraph mwQG[]
+mwRollingAverage mwRA[]
+mwTally mwT[]
+
+I want the file name for the cpp and h to be the same as the class name...
+
+start with an easy one: qGrapgh
+
+remove files from project
+rename
+add files to project
+
+done:
+mwGraph mwG[]
+mwQuickGraph mwQG[]
+mwRollingAverage mwRA[]
+mwTally mwT[]
+
+window is huge...do it later...
+
+
+i think tally is ready to implement...
+
+lets try late_cdats_last_sec...
+
+it looks like there are 3 varaibles used in player struct..
+
+   int late_cdats;
+   int late_cdats_last_sec;
+   int late_cdats_last_sec_tally;
+
+I will keep:
+   int late_cdats;
+   int late_cdats_last_sec;
+
+
+this is where I add:
+
+      players1[p].late_cdats++;
+      //players1[p].late_cdats_last_sec_tally++;
+      mwT[0].add_data(1);
+
+this is where I initialize:
+
+      players1[p].late_cdats = 0;
+      mwT[0].initialize();
+
+this is where I tally:
+                     players1[p].late_cdats_last_sec = mwT[0].get_tally();
+                     //players1[p].late_cdats_last_sec = players1[p].late_cdats_last_sec_tally;
+                     //players1[p].late_cdats_last_sec_tally = 0;
+
+
+
+OK this one works...
+
+now these:
+
+mwT[1]
+
+   int frames_skipped;
+   int frames_skipped_last_sec;
+   int frames_skipped_last_sec_tally;
+
+mwT[2]
+   int timer_adjust;
+   int timer_adjust_last_sec;
+   int timer_adjust_last_sec_tally;
+
+
+
+            players1[active_local_player].frames_skipped_last_sec = mwT[1].get_tally();
+//            players1[active_local_player].frames_skipped_last_sec = players1[active_local_player].frames_skipped_last_sec_tally;
+//            players1[active_local_player].frames_skipped_last_sec_tally = 0;
+
+            players1[active_local_player].timer_adjust_last_sec = mwT[2].get_tally();
+//            players1[active_local_player].timer_adjust_last_sec = players1[active_local_player].timer_adjust_last_sec_tally;
+//            players1[active_local_player].timer_adjust_last_sec_tally = 0;
+
+
+
+      players1[p].frames_skipped = 0;
+      players1[p].frames_skipped_last_sec = 0;
+      mwT[1].initialize();
+
+      players1[p].timer_adjust = 0;
+      players1[p].timer_adjust_last_sec = 0;
+      mwT[2].initialize();
+
+
+those two are done...this is going well...
+can't wait to do more...
+
+
+
+now for a more difficlut one
+
+mwT[3].initialize();
+
+
+game_move_dsync_avg_last_sec
+
+   double game_move_dsync; // current value
+   double game_move_dsync_max; // never used
+   double game_move_dsync_avg_last_sec;
+   double game_move_dsync_avg_last_sec_tally;
+   double game_move_dsync_avg_last_sec_count;
+
+
+                     if (players1[p].game_move_dsync_avg_last_sec_count > 0)
+                     {
+                        players1[p].game_move_dsync_avg_last_sec = players1[p].game_move_dsync_avg_last_sec_tally / players1[p].game_move_dsync_avg_last_sec_count;
+                        players1[p].game_move_dsync_avg_last_sec_tally = 0;
+                        players1[p].game_move_dsync_avg_last_sec_count = 0;
+                     }
+
+   // calculate game_move_dsync
+   players1[p].game_move_dsync = ( (double) players1[p].server_game_move_sync * 0.025) + timestamp_frame_start - timestamp;
+   mwT[3].add_data(players1[p].game_move_dsync);
+//   players1[p].game_move_dsync_avg_last_sec_tally += players1[p].game_move_dsync;
+//   players1[p].game_move_dsync_avg_last_sec_count +=1;
+
+
+
+                     players1[p].game_move_dsync_avg_last_sec = mwT[3].get_avg();
+//                     if (players1[p].game_move_dsync_avg_last_sec_count > 0)
+//                     {
+//                        players1[p].game_move_dsync_avg_last_sec = players1[p].game_move_dsync_avg_last_sec_tally / players1[p].game_move_dsync_avg_last_sec_count;
+//                        players1[p].game_move_dsync_avg_last_sec_tally = 0;
+//                        players1[p].game_move_dsync_avg_last_sec_count = 0;
+//                     }
+
+
+
+server max client ping...
+mwT[4].initialize();
+
+               if (players1[0].server_state_freq_mode == 1) // 0 = manual, 1 = auto
+               {
+                  int mcp = players1[0].server_max_client_ping*1000;
+                  players1[0].server_max_client_ping = 0;
+                  if (mcp > 100) mcp = 100;
+                  //players1[0].server_state_freq = 2 + mcp/20; // use max_client_ping to set server_state_freq
+                  players1[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
+               }
+
+
+OK I think I have all those done:
+
+should I test them??
+
+what about bandwidth?
+leave for now...
+
+
+
+I am thinking about reanmeing functions in server send state...
+
+
+now:
+void server_create_new_state(void) // rewids and sets flag
+
+void server_send_stdf(void) // craetes new state
+
+void server_send_stdf(int p) // send stdf to a specific client
+
+
+new:
+
+server_rewind...done
+server_create_new_state..done
+server_send_dif..done
+
+
+
+I want to do some tests...
+
+with lots of clients..
+
+
+I was a little concerned when running a game with 40ms lag
+I saw what looked like quite huge corrections.
+On one client to another.
+Viewing a client with fake key on another client looked very jumpy...
+
+
+
+
+OK I have some serious bugs here
+
+
+some clients simply cannot connect:
+they either fail at sync with a high number till they time out
+or they never get the initial state...
+
+why? what is going on??
+
+
+it looks like they have a very high cpu..
+
+it looks like draw it taking >20ms
+
+but then clients cannot connect after that
+
+and on server
+
+state_freq is an enormous number....
+
+log when it is set...
+
+or just print...
+
+fixed a bug the tally max code used by max client_ping
+now if no enries, the max returned is zero, not min double!
+
+deploy to server and test...better
+
+
+Now running profile on client
+draw
+8 ms lift
+7 ms screen overlay
+2 ms item
+
+this is on level 13 which has 15 lifts...not even close to a max...
+
+also it seems to take a long time to chase...
+
+
+
+on client, the time inbetween init state and first timer adjust
+
+1-3 frame
+
+level 150
+m36   3f -6
+      2f +3
+
+4230l 1f +39
+      1f +25
+
+
+
+level 13
+m36   2f +5
+      2f +12
+
+
+4230l 1f +177
+      3f +175
+
+I can't see what might be causing this in the logs or profile
+
+
+could it be redraw tiles in client_apply_dif?
+profile it...does not look like the culprit
+
+are you sure about this?
+
+the time in between the initial state received and the first timer adjust...
+
+look at timer_adjust...it never fires....
+
+I just had a client that never connected. could not catch up...
+It looks like when it is trying to go faster, it has even less time process the frame...
+but more importantly, I don't think that skip drawing frame ever triggers!
+
+
+old:
+int proc_frame_skip(void)
+{
+   if ((frame_num+1) < al_get_timer_count(fps_timer)) // skip drawing frame
+   {
+      players1[active_local_player].frames_skipped++;
+      mwT[1].add_data(1); // add to tally
+      //players1[active_local_player].frames_skipped_last_sec_tally++;
+      printf("Skipped drawing frame:%d\n", frame_num);
+      return 0;
+   }
+   return 1;
+}
+
+   if ((frame_num+0) < al_get_timer_count(fps_timer)) // skip drawing frame
+
+
+it appears that in single player and client that fn is one less than timer
+
+do I care?
+
+i use the raw timer event to flag that it is time to process a frame...
+
+
+should I keep them in sync? should timer always match the current frame?
+
+
+the only thing I use the actual timer value for is deciding if I skip drawing
+
+void set_frame_nums(int fn)
+{
+   // reset frame_num and fps_timer count
+	frame_num = fn;
+   al_set_timer_count(fps_timer, fn);
+   reset_animation_sequence_frame_nums(fn);
+}
+
+
+at the start of loop i check to see if the counter is too far ahead
+
+void proc_timer_adjust(void)
+{
+   if (al_get_timer_count(fps_timer) > frame_num+1)
+   {
+      players1[active_local_player].timer_adjust++;
+      mwT[2].add_data(1); // add to tally
+      al_set_timer_count(fps_timer, frame_num+1);
+      printf("Adjusted timer - fn:%d timer:%d\n", frame_num, (int) al_get_timer_count(fps_timer));
+   }
+}
+
+
+then later in the loop if check it again to see if I skip drawing:
+
+int proc_frame_skip(void)
+{
+   if ((frame_num+1) < al_get_timer_count(fps_timer)) // skip drawing frame
+   {
+      players1[active_local_player].frames_skipped++;
+      mwT[1].add_data(1); // add to tally
+      //players1[active_local_player].frames_skipped_last_sec_tally++;
+      printf("Skipped drawing frame:%d\n", frame_num);
+      return 0;
+   }
+   return 1;
+}
+
+
+these conflict and are unccesarily complicated...
+
+do it once..
+
+
+
+int proc_frame_skip(void)
+{
+   if (al_get_timer_count(fps_timer) > frame_num) // skip drawing frame
+   {
+      al_set_timer_count(fps_timer, frame_num); // set timer to current frame
+      players1[active_local_player].frames_skipped++;
+      mwT[1].add_data(1); // add to tally
+      //printf("Skipped drawing frame:%d\n", frame_num);
+      return 0;
+   }
+   return 1;
+}
+
+this has the effect of forcing timer to always have the value of frame number
+
+the timer will fire and event an increment the timer
+
+the loop will increment frame_num
+
+if, while processing the loop, the timer increments again, the loop will not be drawn
+
+if, when starting the loop the timer is ahead of frame, frame will still be processed, but draw will be skipped.
+
+when the test to draw is performed, if timer is ahead, it will be set to current......is this part necessary?
+wont that speed up the game enough to catch up?
+
+I want to try this without the reset timer...
+
+the one thing I am not checking for is if the timer is behind frame_num
+we don't want to stop or slow the game to catch up to the timer (i think?)
+so we should move the timer ahead to the actual frame_num...
+not sure if this ever happens though...
+
+first:
+comment out timer adjust (it never fired anyway)...
+change
+int proc_frame_skip(void)
+{
+   int draw_frame = 1;
+   if (al_get_timer_count(fps_timer) > frame_num)
+   {
+      draw_frame = 0;
+      players1[active_local_player].frames_skipped++;
+      mwT[1].add_data(1); // add to tally
+      //printf("Skipped drawing frame:%d\n", frame_num);
+   }
+   al_set_timer_count(fps_timer, frame_num); // set timer to current frame
+   return draw_frame;
+}
+
+frame_num is the reference.
+set the timer from this, not the other way around
+
+why do I get to a place where clients cannot join server?
+the only thing I can do is reset the server
+clients stall at waiting for initial state...
+
+client log shows that they cannot apply dif from over 100 frames in the future..
+if (client_state_dif_src - frame_num > 100)
+fixed...
+if ((client_state_dif_src - frame_num > 100) && (frame_num != 0))
+
+
+now I want to make a much more minimal overlay
+just show cpu and fsls in border...
+done
+
+still at 70% cpu on level 13
+state_freq and zlib_cmp make no difference...
+
+its still draw lift at 8ms
+
+can I improve on that?
+removed draw lift lines and got about 4ms
+
+removed the drawing of 10 shrinking rounded filled rectangles
+less than 1ms
+
+I know it looks nice, but is there a less expensive way of drawing it?
+
+same with lift lines...is every frame neccesary?
+
+maybe I could measure if lifts draw time > 5ms then go to a simpler draw method...
+
+draw lift lines every other frame...
+
+etc...
+
+go back to the original method of drawing lift lines
+only when drawing background..
+
+when do I do this:
+
+switches, bombs, keys, block manip, client_apply_dif
+
+I don't know if I can go back to this...
+I just checked and I don't think lift lines ever change...
+
+why is this such a change, did I not notice it before?
+
+maybe I could make a global reduce cpu thingy..
+
+don't I already have that with drawing less??
+
+
+I think I broke stuff!
+
+client does not play nice on cleint anymore  :(
+
+I like it on m36 0ms...
+and on e6430...
+
+but on 4230j it does not seem to skip frames gracefully...
+
+
+to test this....
+
+
+make a function that adds delay in the draw stuff.
+like pct_y
+
+seems to work ok in single player...
+but the terminology is a liitle off
+
+FPS set..good
+FPS actual..not really..
+FPS skipped..just skipped drawing is all, not actually skipped...
+
+have a look at this...
+
+on the 1 Hz timer:
+actual_fps = frame_num - last_fps_frame_num;
+last_fps_frame_num = frame_num;
+
+why? what good is this?
+
+just use:
+frames_skipped_drawing_total
+frames_skipped_drawing_last_sec
+done...
+
+maybe actual fps had some use in speed testing?
+it just records the number of times the game loop has been processed in the last 1s
+
+something funny is going on...why does it record less when a frame skip happens?
+
+when I change the timer count, do I also reset when the tick happens?
+
+i think I should not be correcting the timer
+
+
+when timer > frame then skip
+
+but if i don't do any corections it will be the same next frame....
+
+
+how about this:
+
+at the start of the game loop:
+fn++
+timer event has fired and incremented timer_fn
+
+before anything else...
+if we are already behind at this point:
+correct timer to match frame
+flag this frame as not to be drawn
+
+if we are on the same frame:
+process as normal
+
+then test to see if we are behind after processing...
+if so, skip drawing, but do not correct timer..
+
+so there will be two types:
+
+one at frame start
+one after processing
+
+give this a try...
+
+no luck...
+
+
+I have made a big mess here...
+this should not be complicated....
+
+
+
+can I do a timestamp when the event fires then compare it with when the frame starts..
+
+print timestamp on 1Hz timer...see if that is actually 1Hz
+it is not...maybe its my stupid way of calling al_rest...
+
+I should do something else to pause...
+
+same with 40hz
+
+
+
+am I all fucked up here?
+
+timers do not seem to be firing when I think they should
+
+I could be that I am doing things that pause them more than the period of the timer....
+
+
+for example, if draw takes more that 25ms how do I handle that?
+
+my network code needs the rest of the stuff to run at 40hz
+
+
+even if I draw every other frame, when I do draw, the draw time being over 25ms will mess up my nice timing...
+
+
+could I figure out a way to split the draw between 2 frames?
+
+
+I think I should just put all this back together and abandon the idea of skipping draw frames for now....
+It just does not work nicely
+
+if I go over 80% cpu, I should enable econ_draw...
+
+
+
+how much can I remove?
+
+do I even care at all what the timer count is?
+
+all I need is the timer event firing...
+
+I'm gonna say no and remove it...
+
+
+
+fix animation sequence...you know what I mean..
+
+this has been this this way for over 25 years
+
+I don't want to embed frame numbers in it anymore..
+
+how does it work now?
+
+   // 2 = frame_num of last seq change
+   // 3 = seq change delay count
+
+what I need to do is:
+
+make 2 the tally count and inc evey frame
+if 2 > 3 then next shape and 2 = 0;
+
+old:
+void update_animation(void)
+{
+   // 0 = current shape
+   // 1 = current shape index
+   // 2 = frame_num of last seq change
+   // 3 = seq change delay count
+   // 4 = num of shapes in seq (15 shapes max)
+   // 5 = shape 0
+   // 19 = shape 14
+
+  // printf("update_animation :%d\n", frame_num);
+
+
+   for (int y=0; y<NUM_ANS; y++)
+      if (zz[4][y] != 0)
+         if ((frame_num - zz[2][y]) > zz[3][y])
+         {
+            zz[2][y] = frame_num;                     // set counter
+            zz[1][y]++;                               // next bitmap
+            if (zz[1][y] > zz[4][y]) zz[1][y] = 0;    // is bitmap past end?
+            zz[0][y] = zz[ 5 + zz[1][y] ] [y];        // put shape in 0
+         }
+}
+
+new:
+
+void update_animation(void)
+{
+   // 0 = current shape
+   // 1 = current shape index
+   // 2 = count tally
+   // 3 = seq change delay count
+   // 4 = num of shapes in seq (15 shapes max)
+   // 5 = shape 0
+   // 19 = shape 14
+
+   // printf("update_animation :%d\n", frame_num);
+
+   for (int y=0; y<NUM_ANS; y++)
+      if (zz[4][y] != 0)
+      {
+         if ((++zz[2][y]) > zz[3][y])
+         {
+            zz[2][y] = 0;                             // reset tally
+            zz[1][y]++;                               // next bitmap
+            if (zz[1][y] > zz[4][y]) zz[1][y] = 0;    // is bitmap past end?
+            zz[0][y] = zz[ 5 + zz[1][y] ] [y];        // put shape in 0
+         }
+      }
+}
+
+yay that has been there for far too long!
+
+next I want to get rid of set_frame_nums();
+
+at least in the game for now...done
+
+now is there anything that reads timer?
+
+yes, some stuff in level editor...I want to get rid of it too...
+
+these no longer exist:
+al_get_timer_count
+al_set_timer_count
+set_frame_nums()
+proc_frame_skip()
+
+so much simpler...
+
+now I have removed all safeguards against cpu > 100%
+
+bad things will happen!!
+
+what do you want to do?
+
+put draw in economy mode...
+
+draw half the things one frame and half the next...but where do I draw the line?
+
+
+   get_new_background(1);
+   draw_lifts();
+   draw_items();
+   draw_enemies();
+   draw_ebullets();
+   draw_pbullets();
+   draw_players();
+   get_new_screen_buffer(0, 0, 0);
+   draw_screen_overlay();
+   al_flip_display();
+
+
+
+
+everything has to:
+
+   get_new_background(1);
+   get_new_screen_buffer(0, 0, 0);
+   al_flip_display();
+
+
+optional
+   draw_lifts();
+   draw_items();
+   draw_enemies();
+   draw_ebullets();
+   draw_pbullets();
+   draw_players();
+   draw_screen_overlay();
+
+
+int draw_seq[20]
+
+0 = always
+1 = odd frames
+2 = even frames
+
+
+
+I am tempted to make a acreen overlay that shows these times:
+
+then go through the list from max to min and put one in each column...
+
+
+
+I want to max this a class
+
+mwDrawSequence
+
+mwDS
+
+only one instance
+
+has an array for times, min, max, avg and draw sequence
+
+everytime something is actually drawn the time is measured
+
+
+it look horrible!!
+
+lets rethink this:
+
+
+odd:
+   sprintf(name_long[0], "get_new_background");
+
+   optional...
+
+   sprintf(name_long[7], "get_new_screen_buffer");
+
+   optional...
+
+   sprintf(name_long[9], "al_flip_display");
+
+even
+
+   optional...
+
+   sprintf(name_long[7], "get_new_screen_buffer");
+
+   optional...
+
+   sprintf(name_long[9], "al_flip_display");
+
+
+There is a lot of flickering no matter what I do.
+
+I could make screen_overlay use its own bitmap.....
+
+it is one of the biggest culprits
+
+and in screen overlay, QuickGraph uses a lot
+
+measure it..
+
+or just disable it...
+
+
+I think I am just going to leave stuff the way it is.
+
+sure the screen overlay take lots of cpu, but you can just turn it off...
+
+lets test...
+
+
+
+
+I would like to make things optional in the debug screens
+
+make a grid in settings:
+
+number of debug levels across the top
+
+things that can be shown is a list to the left
+
+then a grid of check boxes.
+
+different one for client and server:
+
+
+
+server:
+
+CPU graph
+screen info
+debug grid
+bandwidth
+draw timers
+adjustment buttons
+
+
+put text cpu in bottom display for all...far right...done
+
+
+                    mode 0 mode 1 mode 2 mode 3
+debug grid
+cpu graph
+sync graph
+display info
+bandwidth stats
+draw timers
+adjustment buttons
+fps
+player pos
+
+
+overlay_grid[10][4]
+
+overlay_grid[0][0]  debug grid on for mode 0
+overlay_grid[0][1]  debug grid on for mode 1
+overlay_grid[0][2]  debug grid on for mode 2
+overlay_grid[0][3]  debug grid on for mode 3
+
+overlay_grid[1][3]  cpu graph on for mode 0
+...
+...
+
+
+can set the number of modes from 2 to 4
+
+
+
+
+I think I have most of the client server stuff done...
+
+there is also file play and demo mode to straighten out
+
+push for now...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

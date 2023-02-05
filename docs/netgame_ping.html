@@ -254,7 +254,7 @@ Then 'server_max_client_ping' is reset to zero.
          int mcp = players1[0].server_max_client_ping*1000;
          players1[0].server_max_client_ping = 0;
          if (mcp > 100) mcp = 100;
-         players1[0].server_state_freq = 2 + mcp/20; // use client max ping to set server_state_freq
+         players1[0].server_state_freq = 1 + mcp/25; // use client max ping to set server_state_freq
 </code></pre>
 
 
@@ -271,11 +271,11 @@ If the next state is sent before a reply is received, the dif base will be lost.
 Client and server will no longer have a common base to make difs and will have to resort to making difs from a zero state.
 These difs are considerably (5-10 times) larger.
 
-The minimum value for server_state_freq is 2, which corresponds to sending states every 2 frames.
+The minimum value for server_state_freq is 1, which corresponds to sending states every frame.
 
 This will only work in a LAN where ping times are very low.
 
-Values of 3-5 are typically for the amount of lag over the internet.
+Values of 2-5 are typical for the amount of lag over the internet.
 
 </mh3>    
 

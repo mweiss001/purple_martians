@@ -65,7 +65,6 @@ void pm_copy_misc(const char* filepath)
 
 
 
-
 void copy_files_to_clients(int type)
 {
    char sys_cmd[500];
@@ -92,11 +91,11 @@ void copy_files_to_clients(int type)
 //   sprintf(client[num_clients++], "\\\\4230j\\pm_client30");  // win 7
 
    sprintf(client[num_clients++], "\\\\e6430\\pm_client24");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
-//   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
-//   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
+   sprintf(client[num_clients++], "\\\\4230y\\pm_client18");  // win 7
+   sprintf(client[num_clients++], "\\\\4230i\\pm_client25");  // win 7
+   sprintf(client[num_clients++], "\\\\4230l\\pm_client29");  // win 7
+   sprintf(client[num_clients++], "\\\\4230jj\\pm_client28"); // win 7
+   sprintf(client[num_clients++], "\\\\4230h\\pm_client26");  // win 7
 
 
 //   sprintf(client[num_clients++], "\\\\e6400\\pm_client27");  // win 7 (wifi and slow)
@@ -118,7 +117,6 @@ void copy_files_to_clients(int type)
          pm_delete_all(client[c]);
          pm_copy_levels(client[c]);
          pm_copy_misc(client[c]);
-         pm_copy_cfg(client[c]);
          pm_copy_exe(client[c]);
       }
       if (type == 4) // del all and copy absolutely everything0
@@ -128,6 +126,14 @@ void copy_files_to_clients(int type)
          printf("%s\n",sys_cmd);
          system(sys_cmd);
       }
+      if (type == 5) // cfg only
+      {
+         pm_copy_cfg(client[c]);
+      }
+
+
+
+
    }
 }
 
@@ -139,6 +145,8 @@ void proc_command_line_args1(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-tl") == 0 ) { copy_files_to_clients(2); exit(0); } // exe and levels
       if (strcmp(argument_array[1],"-tr") == 0 ) { copy_files_to_clients(3); exit(0); } // del all and copy like release
       if (strcmp(argument_array[1],"-ta") == 0 ) { copy_files_to_clients(4); exit(0); } // del all and copy absolutely everything
+
+      if (strcmp(argument_array[1],"-tc") == 0 ) { copy_files_to_clients(5); exit(0); } // cfg only
 
       if (strcmp(argument_array[1],"-tu") == 0 ) { pm_copy_src("\\\\scat\\pm_client726"); exit(0); } // copy src dir only to specific linux machine
 
@@ -189,7 +197,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          printf(" -tr       (deletes all on clients, then copies all needed for release, eg: 'pm.exe -tr')\n");
          printf(" -ta       (deletes all on clients, then copies everything, eg: 'pm.exe -ta')\n");
          printf(" -ts       (copies exe to all clients then runs server mode locally, eg: 'pm.exe -ts')\n");
-
+         printf(" -tc       (copies config only eg: 'pm.exe -tc')\n");
 
 
          fast_exit(0);
@@ -423,7 +431,7 @@ void temp_test(void)
 
    // draw rect fron server last state till current server frame number
 
-
+/*
 
    int quit = 0;
 
@@ -517,7 +525,7 @@ void temp_test(void)
 
 
 
-
+*/
 
 
 

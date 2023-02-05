@@ -8,6 +8,14 @@
 
 int settings_current_page = 0;
 
+int overlay_grid[10][4] = {0};
+
+
+
+
+
+
+
 
 
 void set_all_logging(int v)
@@ -149,12 +157,12 @@ void settings_pages(int set_page)
    sprintf(st[7].title,  "Viewport");
    sprintf(st[8].title,  "Profiling");
    sprintf(st[9].title,  "Logging");
-   sprintf(st[10].title, "Test 5");
+   sprintf(st[10].title, "Overlay");
    sprintf(st[11].title, "Test 6");
    sprintf(st[12].title, "Test 7");
    sprintf(st[13].title, "Test 8");
    sprintf(st[14].title, "Test 9");
-   int num_pages = 10;
+   int num_pages = 11;
 
    char title[80] = {0};
    sprintf(title, "Settings");
@@ -696,6 +704,7 @@ void settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, players1[0].server_state_freq_mode, "State Frequency Auto Adjust", tc, 15);
 
 
 
@@ -1010,11 +1019,96 @@ void settings_pages(int set_page)
 
 
 
+// ---------------------------------------------------------------
+//  10 - overlay
+// ---------------------------------------------------------------
+      if (page == 10)
+      {
+         int line_spacing = 10;
+         int xa = cfp_x1 + 10;
+         int xb = cfp_x2 - 10;
+         int ya = cfp_y1 + 10;
+         int bts = 10;
+         int tc = 13;
+         int fc = 15;
+
+         al_draw_text(font, palette_color[tc], xb-130,     ya, 0, "Mode  0  1  2  3");
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -=7;
+         al_draw_text(font, palette_color[tc], xa,     ya, 0, "CPU graph");
+         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[0][0],  "", tc, fc);
+         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[0][1],  "", tc, fc);
+         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[0][2],  "", tc, fc);
+         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[0][3],  "", tc, fc);
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -=7;
+         al_draw_text(font, palette_color[tc], xa,     ya, 0, "display info");
+         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[1][0],  "", tc, fc);
+         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[1][1],  "", tc, fc);
+         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[1][2],  "", tc, fc);
+         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[1][3],  "", tc, fc);
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -=7;
+         al_draw_text(font, palette_color[tc], xa,     ya, 0, "drawing profile timers");
+         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[2][0],  "", tc, fc);
+         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[2][1],  "", tc, fc);
+         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[2][2],  "", tc, fc);
+         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[2][3],  "", tc, fc);
+
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -=7;
+         al_draw_text(font, palette_color[tc], xa,     ya, 0, "debug grid (client, server)");
+         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[3][0],  "", tc, fc);
+         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[3][1],  "", tc, fc);
+         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[3][2],  "", tc, fc);
+         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[3][3],  "", tc, fc);
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -=7;
+
+         al_draw_text(font, palette_color[tc], xa,     ya, 0, "sync graph (client only)");
+         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[4][0],  "", tc, fc);
+         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[4][1],  "", tc, fc);
+         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[4][2],  "", tc, fc);
+         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[4][3],  "", tc, fc);
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -=7;
+
+         al_draw_text(font, palette_color[tc], xa,     ya, 0, "sync adjust (client only)");
+         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[5][0],  "", tc, fc);
+         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[5][1],  "", tc, fc);
+         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[5][2],  "", tc, fc);
+         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[5][3],  "", tc, fc);
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -=7;
+
+         al_draw_text(font, palette_color[tc], xa,     ya, 0, "state freq adj (server only)");
+         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[6][0],  "", tc, fc);
+         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[6][1],  "", tc, fc);
+         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[6][2],  "", tc, fc);
+         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[6][3],  "", tc, fc);
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -=7;
+
+         al_draw_text(font, palette_color[tc], xa,     ya, 0, "bandwidth stats (client, server)");
+         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[7][0],  "", tc, fc);
+         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[7][1],  "", tc, fc);
+         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[7][2],  "", tc, fc);
+         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[7][3],  "", tc, fc);
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -=7;
+
+         al_draw_text(font, palette_color[tc], xa,     ya, 0, "miscellaneous");
+         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[8][0],  "", tc, fc);
+         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[8][1],  "", tc, fc);
+         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[8][2],  "", tc, fc);
+         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[8][3],  "", tc, fc);
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -=7;
 
 
-
-
-
+      }
 
 
 

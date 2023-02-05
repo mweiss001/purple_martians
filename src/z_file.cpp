@@ -383,7 +383,7 @@ int load_level(int level_to_load, int load_only)
             }
          level_check();
          init_level_background(0); // draw blocks on level_background
-         reset_animation_sequence_frame_nums(0);
+         reset_animation_sequences();
          set_player_start_pos(0, 0);
       }
       return 1;

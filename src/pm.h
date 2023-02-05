@@ -199,12 +199,9 @@ extern int load_visual_level_select_done;
 
 // frame_speed, frames per second, frame_num stuff
 extern int speed_testing;
-extern int actual_fps;
-extern int last_fps_frame_num;
 extern int frame_speed;
 extern int speed_control_lock;
 extern int frame_num;
-
 
 // some global strings
 extern char level_filename[80];
@@ -920,13 +917,13 @@ void ServerSendTo(void *data, int len, int who, int player);
 void server_flush(void);
 int  server_init(void);
 void server_exit(void);
-void server_send_stdf(int p);
-void server_send_stdf(void);
+void server_send_dif(int p);
 void server_create_new_state(void);
+void server_rewind(void);
 void server_send_sdat(void);
 void server_proc_player_drop(void);
 void server_proc_cdat_packet(double timestamp);
-void server_proc_stak_packet(void);
+void server_proc_stak_packet(double timestamp);
 void server_proc_cjon_packet(int who);
 void server_control();
 void server_fast_packet_loop(void);
@@ -1060,8 +1057,8 @@ void m_err(const char * err_msg);
 void window_title(void);
 int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy);
 void tsw(void);
-void set_frame_nums(int fn);
-void reset_animation_sequence_frame_nums(int fn);
+
+void reset_animation_sequences(void);
 void update_animation(void);
 al_fixed get_rot_from_xyinc(int EN);
 al_fixed get_rot_from_PXY(int EN, int p);
@@ -1196,8 +1193,6 @@ int has_player_acknowledged(int p);
 int have_all_players_acknowledged(void);
 void proc_level_done_mode(void);
 void proc_program_state(void);
-void proc_timer_adjust(void);
-int proc_frame_skip(void);
 void process_level_done_mode(void);
 void main_loop(void);
 
@@ -1246,8 +1241,6 @@ void show_level_done(void);
 void draw_screen_overlay(void);
 void set_player_joint_quit_display(int p, int type, int time);
 void show_player_join_quit(void);
-void draw_fps_display(int show_type);
-void draw_speed_test_data(void);
 void draw_top_display(void);
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
 void clear_bmsg(void);

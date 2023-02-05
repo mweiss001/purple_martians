@@ -1,13 +1,15 @@
 // z_loop.cpp
 #include "pm.h"
 
-#include "z_qGraph.h"
+#include "mwQuickGraph.h"
 #include "z_sound.h"
 #include "z_log.h"
 #include "z_settings.h"
 #include "z_player.h"
 #include "n_netgame.h"
-#include "z_mwRollingAverage.h"
+#include "mwRollingAverage.h"
+#include "mwTally.h"
+#include "mwDrawSequence.h"
 
 
 void proc_events(ALLEGRO_EVENT ev)
@@ -145,36 +147,65 @@ void proc_event_queue(void)
 
 void draw_frame(void)
 {
+   mwDS.draw();
+
+}
+void old_draw_frame(void)
+{
    double t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
-   if ((LOG_TMR_draw_tot) || (LOG_TMR_draw_all)) t0 = al_get_time();
+   //if ((LOG_TMR_draw_tot) || (LOG_TMR_draw_all)) t0 = al_get_time();
+   t0 = al_get_time();
+
    get_new_background(1);
-   if (LOG_TMR_draw_all) t1 = al_get_time();
+   t1 = al_get_time();
+   mwDS.add(0, t1-t0);
+
    draw_lifts();
-   if (LOG_TMR_draw_all) t2 = al_get_time();
+   t2 = al_get_time();
+   mwDS.add(1, t2-t1);
+
    draw_items();
-   if (LOG_TMR_draw_all) t3 = al_get_time();
+   t3 = al_get_time();
+   mwDS.add(2, t3-t2);
+
    draw_enemies();
-   if (LOG_TMR_draw_all) t4 = al_get_time();
+   t4 = al_get_time();
+   mwDS.add(3, t4-t3);
+
    draw_ebullets();
-   if (LOG_TMR_draw_all) t5 = al_get_time();
+   t5 = al_get_time();
+   mwDS.add(4, t5-t4);
+
    draw_pbullets();
-   if (LOG_TMR_draw_all) t6 = al_get_time();
+   t6 = al_get_time();
+   mwDS.add(5, t6-t5);
+
    draw_players();
-   if (LOG_TMR_draw_all) t7 = al_get_time();
+   t7 = al_get_time();
+   mwDS.add(6, t7-t6);
+
    get_new_screen_buffer(0, 0, 0);
-   if (LOG_TMR_draw_all) t8 = al_get_time();
+   t8 = al_get_time();
+   mwDS.add(7, t8-t7);
+
    draw_screen_overlay();
-   if (LOG_TMR_draw_all) t9 = al_get_time();
+   t9 = al_get_time();
+   mwDS.add(8, t9-t8);
+
    al_flip_display();
+   t10 = al_get_time();
+   mwDS.add(9, t10-t9);
    if (LOG_TMR_draw_all)
    {
-      t10 = al_get_time();
       sprintf(msg, "tmst d-bkgr:[%0.4f] d-lift:[%0.4f] d-item:[%0.4f] d-enem:[%0.4f] d-ebul:[%0.4f] d-pbul:[%0.4f] d-plyr:[%0.4f] d-buff:[%0.4f] d-ovrl:[%0.4f] d-flip:[%0.4f] d-totl:[%0.4f]\n",
       (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t7-t6)*1000, (t8-t7)*1000, (t9-t8)*1000, (t10-t9)*1000, (t10-t0)*1000);
       //printf("\n%s\n", msg);
       add_log_entry2(44, 0, msg);
    }
-   if (LOG_TMR_draw_tot) add_log_TMR(al_get_time() - t0, "draw", 0);
+   if (LOG_TMR_draw_tot) add_log_TMR(t10 - t0, "draw", 0);
+
+   mwDS.add(10, t10-t0);
+
 }
 
 
@@ -341,11 +372,11 @@ void proc_program_state(void)
          return;
       }
 
-      // set up qGraph here
-      // set up qGraph here
-      qG[0].initialize(1);
-      qG[1].initialize(2);
-      qG[2].initialize(2);
+      // set up mwQuickGraph here
+      // set up mwQuickGraph here
+      mwQG[0].initialize(1);
+      mwQG[1].initialize(2);
+      mwQG[2].initialize(2);
 
       for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1); // full reset
       players[0].active = 1;
@@ -383,7 +414,7 @@ void proc_program_state(void)
 
       clear_game_moves();
 
-      set_frame_nums(0);
+      frame_num = 0;
       reset_states();
       clear_bullets();
       clear_bmsg();
@@ -460,12 +491,14 @@ void proc_program_state(void)
          init_player(p, 1);           // full reset (start modes 1, 2, 3, 9)
          set_player_start_pos(p, 0);  // get starting position for all players, active or not
       }
+
       players[0].active = 1;
       players[0].control_method = 3;
+      strncpy(players1[0].hostname, local_hostname, 16);
 
 
       clear_game_moves(); // clear game moves array, except for demo mode
-      set_frame_nums(0);
+      frame_num = 0;
       reset_states();
       clear_bullets();
       clear_bmsg();
@@ -543,22 +576,22 @@ void proc_program_state(void)
 
       clear_game_moves(); // clear game moves array, except for demo mode
 
-      set_frame_nums(0);
       clear_bullets();
       clear_bmsg();
       clear_keys();
       clear_pm_events();
 
       stimp();
+      frame_num = 0;
       show_player_join_quit_timer = 0;
       start_music(0); // rewind and start theme
 
       init_timestamps();
       program_state = 11;
 
-      // set up qGraph here
-      qG[0].initialize(1);
-      qG[1].initialize(2);
+      // set up mwQuickGraph here
+      mwQG[0].initialize(1);
+      mwQG[1].initialize(2);
 
 
    }
@@ -631,7 +664,7 @@ void proc_program_state(void)
       clear_game_moves(); // clear game moves array, except for demo mode
 
 
-      set_frame_nums(0);
+      frame_num = 0;
       reset_states();
       clear_bullets();
       clear_bmsg();
@@ -680,7 +713,6 @@ void proc_program_state(void)
    //---------------------------------------
    if (program_state == 13)
    {
-      set_frame_nums(frame_num); // set fps_timer count to frame_num
       start_music(1); // resume theme
       stimp();
       program_state = 11;
@@ -708,7 +740,7 @@ void proc_program_state(void)
       players[0].active = 1;
       players[0].control_method = 1; // rungame demo mode
 
-      set_frame_nums(0);
+      frame_num = 0;
       clear_bullets();
       clear_bmsg();
       clear_keys();
@@ -720,39 +752,12 @@ void proc_program_state(void)
       init_timestamps();
       program_state = 11;
    }
-
-
-
 }
 
 
-
-
-
-// ----------------------------------------------------------
-// Is the timer too far ahead of current frame?
-// Must be done before call to move_frame()
-// ----------------------------------------------------------
-void proc_timer_adjust(void)
-{
-   if (al_get_timer_count(fps_timer) > frame_num+1)
-   {
-      players1[active_local_player].timer_adjust++;
-      players1[active_local_player].timer_adjust_last_sec_tally++;
-      al_set_timer_count(fps_timer, frame_num+1);
-      //printf("Adjusted timer - fn:%d timer:%d\n", frame_num, al_get_timer_count(fps_timer));
-   }
-}
 
 int proc_frame_skip(void)
 {
-   if ((frame_num+1) < al_get_timer_count(fps_timer)) // skip drawing frame
-   {
-      players1[active_local_player].frames_skipped++;
-      players1[active_local_player].frames_skipped_last_sec_tally++;
-      //printf("Skipped drawing frame:%d\n", frame_num);
-      return 0;
-   }
    return 1;
 }
 
@@ -869,18 +874,12 @@ void main_loop(void)
             frame_num++;
             update_animation();
 
-
             timestamp_frame_start = al_get_time();
 
-            proc_timer_adjust();
             proc_scale_factor_change();
-
-
 
             if (ima_server) server_control();
             if (ima_client) client_control();
-
-
 
             proc_player_input();
             proc_game_moves_array();
@@ -888,36 +887,20 @@ void main_loop(void)
             if (players[0].level_done_mode) process_level_done_mode();
             else move_frame();
 
-
             if (LOG_TMR_sdif) t0 = al_get_time();
-            server_send_stdf();
+            server_create_new_state();
             if (LOG_TMR_sdif) add_log_TMR(al_get_time() - t0, "sdif", 0);
 
-            if (proc_frame_skip()) draw_frame();
+            draw_frame();
 
             double pt = al_get_time() - timestamp_frame_start;
             if (LOG_TMR_cpu) add_log_TMR(pt, "cpu", 0);
 
-
             mwRA[0].add_data((pt/0.025)*100);
-            qG[0].add_data(0, mwRA[0].last_input);
-            qG[0].add_data(1, mwRA[0].mn);
-            qG[0].add_data(2, mwRA[0].mx);
-            qG[0].add_data(3, mwRA[0].avg);
-
-
-
-
-//            // speed test... draw every frame
-//            proc_frame_skip();
-//            draw_frame();
-//            // speed test...draw no frames...maybe 1 in 1000
-//            proc_frame_skip();
-//            if (frame_num)
-//            {
-//               if ((frame_num % 10000)==0) draw_frame();
-//            }
-
+            mwQG[0].add_data(0, mwRA[0].last_input);
+            mwQG[0].add_data(1, mwRA[0].mn);
+            mwQG[0].add_data(2, mwRA[0].mx);
+            mwQG[0].add_data(3, mwRA[0].avg);
 
          }
       }
@@ -938,37 +921,24 @@ void main_loop(void)
          program_update_1s = 0;
          if (program_state == 11) // game loop running
          {
-
             if (ima_server)
             {
-               int mcp = players1[0].server_max_client_ping*1000;
-               players1[0].server_max_client_ping = 0;
-               if (mcp > 100) mcp = 100;
-//               players1[0].server_state_freq = 2 + mcp/20; // use max_client_ping to set server_state_freq
+               if (players1[0].server_state_freq_mode == 1) // 0 = manual, 1 = auto
+               {
+                  int mcp = mwT[4].get_max()*1000;
+                  if (mcp > 100) mcp = 100;
+                  players1[0].server_state_freq = 1 + mcp/25; // use max_client_ping to set server_state_freq
 
+
+
+               }
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (players[p].control_method == 2)
                   {
-                     players1[p].late_cdats_last_sec = players1[p].late_cdats_last_sec_tally;
-                     players1[p].late_cdats_last_sec_tally = 0;
-
-                     if (players1[p].game_move_dsync_avg_last_sec_count > 0)
-                     {
-                        players1[p].game_move_dsync_avg_last_sec = players1[p].game_move_dsync_avg_last_sec_tally / players1[p].game_move_dsync_avg_last_sec_count;
-                        players1[p].game_move_dsync_avg_last_sec_tally = 0;
-                        players1[p].game_move_dsync_avg_last_sec_count = 0;
-                     }
+                     players1[p].late_cdats_last_sec = mwT[0].get_tally();
+                     players1[p].game_move_dsync_avg_last_sec = mwT[3].get_avg();
                   }
             }
-
-
-            players1[active_local_player].frames_skipped_last_sec = players1[active_local_player].frames_skipped_last_sec_tally;
-            players1[active_local_player].frames_skipped_last_sec_tally = 0;
-
-            players1[active_local_player].timer_adjust_last_sec = players1[active_local_player].timer_adjust_last_sec_tally;
-            players1[active_local_player].timer_adjust_last_sec_tally = 0;
-            actual_fps = frame_num - last_fps_frame_num;
-            last_fps_frame_num = frame_num;
          }
       }
    }

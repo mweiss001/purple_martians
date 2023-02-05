@@ -431,19 +431,11 @@ void tsw(void)
    while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
 }
 
-void set_frame_nums(int fn)
-{
-   // reset frame_num and fps_timer count
-	frame_num = fn;
-   al_set_timer_count(fps_timer, fn);
-   reset_animation_sequence_frame_nums(fn);
-}
-
-void reset_animation_sequence_frame_nums(int fn)
+void reset_animation_sequences(void)
 {
    for (int c=0; c<NUM_ANS; c++)
    {
-     zz[2][c] = fn;       // reset the frame_nums
+     zz[2][c] = 0;        // reset the tally
      zz[1][c] = 0;        // set the bitmap index to 0
      zz[0][c] = zz[5][c]; // put the first shape in 0
    }
@@ -453,24 +445,25 @@ void update_animation(void)
 {
    // 0 = current shape
    // 1 = current shape index
-   // 2 = frame_num of last seq change
+   // 2 = count tally
    // 3 = seq change delay count
    // 4 = num of shapes in seq (15 shapes max)
    // 5 = shape 0
    // 19 = shape 14
 
-  // printf("update_animation :%d\n", frame_num);
-
+   // printf("update_animation :%d\n", frame_num);
 
    for (int y=0; y<NUM_ANS; y++)
       if (zz[4][y] != 0)
-         if ((frame_num - zz[2][y]) > zz[3][y])
+      {
+         if ((++zz[2][y]) > zz[3][y])
          {
-            zz[2][y] = frame_num;                     // set counter
+            zz[2][y] = 0;                             // reset tally
             zz[1][y]++;                               // next bitmap
             if (zz[1][y] > zz[4][y]) zz[1][y] = 0;    // is bitmap past end?
             zz[0][y] = zz[ 5 + zz[1][y] ] [y];        // put shape in 0
          }
+      }
 }
 
 al_fixed get_rot_from_xyinc(int EN)
