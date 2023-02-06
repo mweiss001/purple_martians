@@ -240,64 +240,58 @@ void ServerListen()
    }
 }
 
-
-
-
-
-
-
 // Receive data from a client, and store in provided array
 // (must have room for 1024 bytes). Returns the size of the stored data
 int ServerReceive(void *data, int *sender)
 {
    if (TCP)
    {
-      for(int n=0; n<ClientNum; n++)
+      for (int n=0; n<ClientNum; n++)
       {
-   	   if(ClientConn[n])
+   	   if (ClientConn[n])
          {
-   		   int l = net_receive_rdm(ClientConn[n], data, 1024);
-   			if(l > 0)
+   		   int len = net_receive_rdm(ClientConn[n], data, 1024);
+   			if (len > 0)
             {
                // add to server's counts
-               players1[0].rx_current_bytes_for_this_frame += l;
+               players1[0].rx_current_bytes_for_this_frame += len;
                players1[0].rx_current_packets_for_this_frame++;
                // use n (who) to get player number
-               for(int p=0; p<NUM_PLAYERS; p++)
+               for (int p=0; p<NUM_PLAYERS; p++)
                   if ((players[p].active) && (players1[p].who == n))
                   {
                      // add to client's counts
-                     players1[p].rx_current_bytes_for_this_frame += l;
+                     players1[p].rx_current_bytes_for_this_frame += len;
                      players1[p].rx_current_packets_for_this_frame++;
                   }
-   				if(sender) *sender = n;
-   				return l;
+   				if (sender) *sender = n;
+   				return len;
    			}
    		}
       }
    } // end of if TCP
    else // UDP
    {
-      for(int n=0; n<ClientNum; n++)
+      for (int n=0; n<ClientNum; n++)
       {
-   		if(ClientChannel[n])
+   		if (ClientChannel[n])
          {
-            int l = net_receive(ClientChannel[n], data, 1024, NULL);
-   			if(l > 0)
+            int len = net_receive(ClientChannel[n], data, 1024, NULL);
+   			if (len > 0)
             {
                // add to server's counts
-               players1[0].rx_current_bytes_for_this_frame += l;
+               players1[0].rx_current_bytes_for_this_frame += len;
                players1[0].rx_current_packets_for_this_frame++;
                // use n (who) to get player number
-               for(int p=0; p<NUM_PLAYERS; p++)
+               for (int p=0; p<NUM_PLAYERS; p++)
                   if ((players[p].active) && (players1[p].who == n))
                   {
                      // add to client's counts
-                     players1[p].rx_current_bytes_for_this_frame += l;
+                     players1[p].rx_current_bytes_for_this_frame += len;
                      players1[p].rx_current_packets_for_this_frame++;
                   }
-   				if(sender) *sender = n;
-   				return l;
+   				if (sender) *sender = n;
+   				return len;
    			}
    		}
       }
@@ -307,7 +301,7 @@ int ServerReceive(void *data, int *sender)
 
 void ServerBroadcast(void *data, int len)
 {
-   for(int n = 0; n < ClientNum; n++)
+   for (int n=0; n<ClientNum; n++)
    {
       if (TCP)
       {
@@ -606,13 +600,15 @@ void server_proc_cdat_packet(double timestamp)
 
    // calculate game_move_dsync
    players1[p].game_move_dsync = ( (double) players1[p].server_game_move_sync * 0.025) + timestamp_frame_start - timestamp;
-   mwT[3].add_data(players1[p].game_move_dsync); // add to average tally
+
+   mwT_game_move_dsync_avg_last_sec[p].add_data(players1[p].game_move_dsync); // add to average tally
+
 
    // check to see if earlier than the last stdf state
    if (cdat_frame_num < srv_client_state_frame_num[0][1])
    {
       players1[p].late_cdats++;
-      mwT[0].add_data(1); // add to tally
+      mwT_late_cdats_last_sec[p].add_data(1); // add to tally
       sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d] late - droppped\n", p, cdat_frame_num, players1[p].server_game_move_sync);
    }
    else

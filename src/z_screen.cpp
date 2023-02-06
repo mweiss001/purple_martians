@@ -812,7 +812,6 @@ void init_level_background(int type) // fill level_background with block tiles
    if (type == 2)
    {
       int sq = frame_num % 40;
-
       if (sq == 0)  init_level_background2(0,  10);
       if (sq == 4)  init_level_background2(10, 20);
       if (sq == 8)  init_level_background2(20, 30);
@@ -823,17 +822,8 @@ void init_level_background(int type) // fill level_background with block tiles
       if (sq == 28) init_level_background2(70, 80);
       if (sq == 32) init_level_background2(80, 90);
       if (sq == 36) init_level_background2(90, 100);
-
    }
-
-
-
 }
-
-
-
-
-
 
 
 
@@ -889,6 +879,27 @@ void draw_level(void) // draws the map on the menu screen
    else al_draw_text(font, palette_color[10], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
 }
 
+
+int get_contrasting_color(int color)
+{
+   if (color == 15) return 10;
+   if (color == 14) return 2;
+   if (color == 13) return 8;
+   if (color == 12) return 15;
+   if (color == 11) return 15;
+   if (color == 10) return 15;
+   if (color == 9) return 15;
+   if (color == 8) return 15;
+   if (color == 7) return 15;
+   if (color == 6) return 15;
+   if (color == 5) return 15;
+   if (color == 4) return 15;
+   if (color == 3) return 15;
+   if (color == 2) return 15;
+   if (color == 1) return 15;
+   if (color == 0) return 15;
+}
+
 void frame_and_title(int show_players)
 {
    int p = active_local_player;
@@ -901,8 +912,13 @@ void frame_and_title(int show_players)
    // draw the title on top on the border
    draw_title(SCREEN_W/2, 2, 322, 32, color);
 
+
+
+   int tc = get_contrasting_color(color);
+
+
    // draw the version text centered on the bottom of the border
-   al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "Version %s", pm_version_string);
+   al_draw_textf(font, palette_color[tc], SCREEN_W/2, SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "Version %s", pm_version_string);
 
    if (show_players)
    {

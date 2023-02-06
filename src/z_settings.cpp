@@ -10,6 +10,9 @@ int settings_current_page = 0;
 
 int overlay_grid[10][4] = {0};
 
+int number_of_debug_overlay_modes = 2;
+
+
 
 
 
@@ -117,6 +120,16 @@ int cfp_draw_line(int xa, int xb, int ya, int line_spacing, int col)
    return ya;
 }
 
+void cfp_4tog(int xa, int xb, int &ya, int bts, int tc, int fc, int line_spacing, int index, const char * name)
+{
+   ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+   ya -=7;
+   al_draw_text(font, palette_color[tc], xa,     ya, 0, name);
+   for (int i=0; i<4; i++)
+      mdw_togglec(xb-86+(i*24), ya, xb-72+(i*24), bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[index][i],  "", tc, fc);
+}
+
+
 struct settings_tab
 {
    char title[80];
@@ -210,7 +223,8 @@ void settings_pages(int set_page)
          al_draw_text(font, palette_color[b], SCREEN_W/2, 14+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[7][c]);
       }
 
-      proc_controllers();
+      while (!menu_update) proc_event_queue();
+      menu_update = 0;
 
       al_draw_filled_rectangle(cf_x1, cf_y1, cf_x2, cf_y2, palette_color[fc+224]); // erase everything
 
@@ -290,7 +304,7 @@ void settings_pages(int set_page)
          draw_tab(st, mouse_on_tab, fc, tc); // draw the tab the mouse is on
          if (mouse_b[1][0])
          {
-            while (mouse_b[1][0]) proc_controllers();
+            while (mouse_b[1][0]) proc_event_queue();
             settings_current_page = page = mouse_on_tab;
          }
       }
@@ -341,7 +355,7 @@ void settings_pages(int set_page)
             cfp_draw_player(i, xa+px1, ya+py1);
             if ( (mouse_x > (xa + px1)) && (mouse_x < (xa + px1 + spacing)) && (mouse_y > (ya + py1)) && (mouse_y < (ya + py1 +22)) && (mouse_b[1][0]))
             {
-               while (mouse_b[1][0]) proc_controllers();
+               while (mouse_b[1][0]) proc_event_queue();
                players[0].color = i;
             }
             px1 += spacing;
@@ -411,7 +425,7 @@ void settings_pages(int set_page)
          if (mdw_buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Show now"))
          {
              splash_screen();
-             while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+             while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue();
          }
          ya -=2;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -1024,7 +1038,7 @@ void settings_pages(int set_page)
 // ---------------------------------------------------------------
       if (page == 10)
       {
-         int line_spacing = 10;
+         int line_spacing = 14;
          int xa = cfp_x1 + 10;
          int xb = cfp_x2 - 10;
          int ya = cfp_y1 + 10;
@@ -1032,97 +1046,51 @@ void settings_pages(int set_page)
          int tc = 13;
          int fc = 15;
 
+
+
+         al_draw_text(font, palette_color[fc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Debug Overlay Modes");
+         ya +=4;
+         int y3 = ya + line_spacing;
+         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
+         ya -=7;
+
          al_draw_text(font, palette_color[tc], xb-130,     ya, 0, "Mode  0  1  2  3");
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         ya -=7;
-         al_draw_text(font, palette_color[tc], xa,     ya, 0, "CPU graph");
-         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[0][0],  "", tc, fc);
-         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[0][1],  "", tc, fc);
-         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[0][2],  "", tc, fc);
-         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[0][3],  "", tc, fc);
+         cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 0, "CPU graph");
+         cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 1, "display info");
+         cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 2, "drawing profile timers");
+         cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 3, "debug grid (client, server)");
+         cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 4, "sync graph (client only)");
+         cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 5, "sync adjust (client only");
+         cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 6, "state freq adj (server only)");
+         cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 7, "bandwidth stats (client, server)");
+         cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 8, "miscellaneous");
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         ya -=7;
-         al_draw_text(font, palette_color[tc], xa,     ya, 0, "display info");
-         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[1][0],  "", tc, fc);
-         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[1][1],  "", tc, fc);
-         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[1][2],  "", tc, fc);
-         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[1][3],  "", tc, fc);
 
+
+         // show which modes are inactive
+         int x1 = xb-86;
+         int x2 = x1 + number_of_debug_overlay_modes * 24 - 8;
+         int x3 = xb+1;
+         int y4 = ya - line_spacing;
+
+
+         rectangle_with_diagonal_lines(x2+1, y3, x3, y4, 4, 10, 10+64, 1);
+         al_draw_rectangle(x1, y3, x2, y4, palette_color[11], 1);
+
+
+         bts = 20;
+         mdw_slideri(xb-140, ya, xb, bts,  0,0,0,0,  0,11,15,15, 0,0,0,0, number_of_debug_overlay_modes, 4, 2, 1, "Active modes:");
+         if (mdw_buttont(xa+20, ya, xa+200, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Reset to Defaults"))
+         {
+            for (int i=0; i<10; i++)
+               for (int j=0; j<4; j++)
+                  overlay_grid[i][j] = 0;
+            overlay_grid[0][1] = 1;
+            number_of_debug_overlay_modes = 2;
+         }
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         ya -=7;
-         al_draw_text(font, palette_color[tc], xa,     ya, 0, "drawing profile timers");
-         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[2][0],  "", tc, fc);
-         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[2][1],  "", tc, fc);
-         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[2][2],  "", tc, fc);
-         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[2][3],  "", tc, fc);
-
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         ya -=7;
-         al_draw_text(font, palette_color[tc], xa,     ya, 0, "debug grid (client, server)");
-         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[3][0],  "", tc, fc);
-         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[3][1],  "", tc, fc);
-         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[3][2],  "", tc, fc);
-         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[3][3],  "", tc, fc);
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         ya -=7;
-
-         al_draw_text(font, palette_color[tc], xa,     ya, 0, "sync graph (client only)");
-         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[4][0],  "", tc, fc);
-         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[4][1],  "", tc, fc);
-         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[4][2],  "", tc, fc);
-         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[4][3],  "", tc, fc);
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         ya -=7;
-
-         al_draw_text(font, palette_color[tc], xa,     ya, 0, "sync adjust (client only)");
-         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[5][0],  "", tc, fc);
-         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[5][1],  "", tc, fc);
-         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[5][2],  "", tc, fc);
-         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[5][3],  "", tc, fc);
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         ya -=7;
-
-         al_draw_text(font, palette_color[tc], xa,     ya, 0, "state freq adj (server only)");
-         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[6][0],  "", tc, fc);
-         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[6][1],  "", tc, fc);
-         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[6][2],  "", tc, fc);
-         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[6][3],  "", tc, fc);
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         ya -=7;
-
-         al_draw_text(font, palette_color[tc], xa,     ya, 0, "bandwidth stats (client, server)");
-         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[7][0],  "", tc, fc);
-         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[7][1],  "", tc, fc);
-         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[7][2],  "", tc, fc);
-         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[7][3],  "", tc, fc);
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         ya -=7;
-
-         al_draw_text(font, palette_color[tc], xa,     ya, 0, "miscellaneous");
-         mdw_togglec(xb-86, ya, xb-72, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[8][0],  "", tc, fc);
-         mdw_togglec(xb-62, ya, xb-48, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[8][1],  "", tc, fc);
-         mdw_togglec(xb-38, ya, xb-24, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[8][2],  "", tc, fc);
-         mdw_togglec(xb-14, ya, xb-0, bts,   0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[8][3],  "", tc, fc);
-         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         ya -=7;
-
-
       }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1133,7 +1101,7 @@ void settings_pages(int set_page)
 
       if (key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+         while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue();
          quit = 1;
       }
    }

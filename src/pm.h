@@ -147,7 +147,6 @@
 // ------------------------------------------------
 
 
-
 extern float tmaj_i;
 
 
@@ -157,6 +156,7 @@ extern int old_program_state;
 extern int older_program_state;
 extern int program_update;
 extern int program_update_1s;
+extern int menu_update;
 extern int top_menu_sel;
 extern int main_loop_exit;
 
@@ -202,6 +202,12 @@ extern int speed_testing;
 extern int frame_speed;
 extern int speed_control_lock;
 extern int frame_num;
+
+
+extern int eco_draw;
+
+
+
 
 // some global strings
 extern char level_filename[80];
@@ -974,7 +980,6 @@ void proc_game_moves_array(void);
 void serial_key_check(int key);
 void proc_events(ALLEGRO_EVENT ev);
 void proc_player_input(void);
-void proc_controllers(void);
 
 // z_display.h
 void show_bitmap_flags(int flags);
@@ -997,7 +1002,7 @@ void proc_display_change_fromfs(void);
 
 // z_enemy.h
 int enemy_data(int x_pos, int y_pos);
-void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color);
+void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode);
 void draw_enemy(int e, int custom, int cx, int cy);
 void draw_enemies(void);
 void proc_enemy_collision_with_pbullet(int e);
@@ -1160,7 +1165,6 @@ void draw_title(int tx, int ty, int ttw, int tth, int color);
 void draw_large_text_overlay(int type, int color);
 void idw(int txt, int x, int y, float x_scale, float y_scale);
 void splash_screen(void);
-void splash_toggle(void);
 void mspline(float *par, ALLEGRO_COLOR col, int thickness);
 void mfspline(float *par, int col, int thickness);
 void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness);
@@ -1186,6 +1190,7 @@ int main(int argument_count, char **argument_array);
 void proc_events(ALLEGRO_EVENT ev);
 void proc_keys_held(void);
 void proc_event_queue(void);
+void proc_event_queue_menu(void);
 void draw_frame(void);
 void move_frame(void);
 void loop_frame(int);
@@ -1226,6 +1231,7 @@ void init_level_background(int);
 void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
 void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor);
 void draw_level(void);
+int get_contrasting_color(int color);
 void frame_and_title(int show_players);
 void proc_scale_factor_change(void);
 void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, int rot, float op);
@@ -1239,9 +1245,16 @@ int dif_from_now_to_nl();
 void show_player_stat_box(int tx, int y, int p);
 void show_level_done(void);
 void draw_screen_overlay(void);
-void set_player_joint_quit_display(int p, int type, int time);
+void set_player_join_quit_display(int p, int type, int time);
 void show_player_join_quit(void);
-void draw_top_display(void);
+
+void draw_top_frame(int p);
+void draw_bottom_frame(int p);
+void draw_common_debug_overlay(int p, int &cx, int &cy);
+void draw_server_debug_overlay(int p, int &cx, int &cy);
+void draw_client_debug_overlay(int p, int &cx, int &cy);
+void draw_demo_debug_overlay(int p, int &cx, int &cy);
+
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
 void clear_bmsg(void);
 int bmsg_show_text(const char *txt, int col, int bmsg_length);

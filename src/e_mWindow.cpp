@@ -170,7 +170,7 @@ void cm_redraw_level_editor_background(void)
    al_flip_display();
    proc_scale_factor_change();
 
-   while (!program_update) proc_controllers();
+   while (!program_update) proc_event_queue();
 
    program_update = 0;
 
@@ -828,7 +828,7 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int have_focus, in
 
             if (mouse_b[1][0])
             {
-               while (mouse_b[1][0]) proc_controllers();     // wait for release
+               while (mouse_b[1][0]) proc_event_queue();     // wait for release
                int pn = PDEi[ret][0];
                if (pn < 200)
                {
@@ -884,7 +884,7 @@ void cm_draw_selection_window(int x1, int x2, int y1, int y2, int have_focus, in
 
          if ((mouse_b[1][0]) || (mouse_b[2][0]))
          {
-            while (mouse_b[1][0]) proc_controllers(); // wait for release
+            while (mouse_b[1][0]) proc_event_queue(); // wait for release
             mW[1].draw_item_type = 1;
             mW[1].draw_item_num = ret;
          }

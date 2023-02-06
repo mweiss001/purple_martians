@@ -21,6 +21,63 @@ it did, disabled again....
 
 
 
+trigger demo, possible to get stuck by killing enemies in box too soon..fixed
+
+warp does not return you to the right place anymore
+
+how was it supposed to work?
+
+when warping to a level and the level you are warping from is > 1
+save the level you are warping from in warp_level_location
+
+then, in the new level, when set_player_start_pos(int p, int cont) is called...
+it tries to match warp_level_location (if not zero)
+
+this all works great, the problem is that set_player_start_pos is called many times...
+
+start program
+p0
+
+single player start 9x
+p0
+p0-7
+
+its called when loading level only for player 0;
+then later for all players
+
+i'm afraid to remove it from load level, it might break things...
+
+compromise...
+don't do it for level done for player 0
+
+no...commented out in load_level...till it breaks stuff...
+
+level done shows briefly when using warp
+
+I can reduce the time, but what if it breaks things in network level done?
+
+I'm getting a stimp in single player
+
+
+
+
+
+
+
+
+funny stuff in level editor, since messing with proc_frame_delay
+hard to exit with ESC
+
+how does the loop work in level editor anyway?
+
+
+is proc_controllers() still used?
+
+
+
+
+
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------

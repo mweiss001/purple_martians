@@ -78,8 +78,6 @@ static bool draw_multiline_cb(int line_num, const char *line, int size, void *ex
 
 void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, int cursor_blink, char *f)
 {
-
-
    // set where we will draw
    if (custom) al_set_target_backbuffer(display);
    else al_set_target_bitmap(level_buffer);
@@ -116,16 +114,25 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
    int frame_width = get_frame_size(i);
 
 
+
+
    if (frame_width == 0)
    {
       if (level_editor_running) al_draw_rectangle(x1, y1, x2, y2, palette_color[15], 1);
    }
    else al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[fc+13*16]);  // background
 
+
+   if ((eco_draw) && (frame_width > 1)) frame_width = 1;
+
    if (frame_width == 1)
    {
       al_draw_rectangle(x1, y1, x2, y2, palette_color[fc], 1);
    }
+
+
+
+
    if (frame_width == 2)
    {
       for (int a=0; a<frame_width; a++)
@@ -165,6 +172,13 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
       //al_draw_textf(font, palette_color[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
    }
 
+
+
+
+
+
+
+
    // figure out what line height to use so that text is justified vertically
    float line_height = 7.9; // initial line height
 
@@ -193,7 +207,6 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
 
    float y3 = y1+frame_width+line_height/2-3.5;
 
-//   int y3 = y1+frame_width+line_height/2-4;
 
    if (sp < 1)
    {
@@ -201,8 +214,6 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
       y3 = y1+sp/2;
 
    }
-
-
 
    al_draw_multiline_text(font, palette_color[tc], xc, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
 
@@ -1830,12 +1841,16 @@ void proc_rocket_collision(int p, int i)
 
 void proc_warp_collision(int p, int i)
 {
-
    if (players[0].level_done_mode == 0)
    {
       if (play_level > 1) warp_level_location = play_level;
-      players[0].level_done_mode = 3;
+//      players[0].level_done_mode = 3;
+//      players[0].level_done_timer = 0;
+
+      players[0].level_done_mode = 2;
       players[0].level_done_timer = 0;
+
+
       players[0].level_done_x = al_fixtoi(itemf[i][0]);
       players[0].level_done_y = al_fixtoi(itemf[i][1]);
       players[0].level_done_player = p;
@@ -2201,7 +2216,7 @@ void draw_trigger(int i, int x, int y)
       float y1 = item[i][7];
       float x2 = x1 + item[i][8];
       float y2 = y1 + item[i][9];
-      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96);
+      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
    }
 }
 
@@ -2293,7 +2308,7 @@ void draw_block_manip(int i, int x, int y)
       float y1 = item[i][7];
       float x2 = x1 + item[i][8];
       float y2 = y1 + item[i][9];
-      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96);
+      rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
    }
 }
 
@@ -2519,7 +2534,7 @@ void draw_block_damage(int i, int x, int y, int custom)
       {
          int col = 11;
          if (FLAGS & PM_ITEM_DAMAGE_CURR) col = 10;
-         rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96);
+         rectangle_with_diagonal_lines(x1, y1, x2, y2, 10, col, col+96, 0);
       }
 
       if (draw_mode == 2) // spikey floor

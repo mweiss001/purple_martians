@@ -515,17 +515,17 @@ void temp_test(void)
 
       al_flip_display();
       al_clear_to_color(palette_color[0]);
-      proc_controllers();
+      proc_event_queue();
       if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 
    }
 
-
-
-
-
-
 */
+
+
+
+
+
 
 
 
@@ -732,7 +732,7 @@ void temp_test(void)
       al_flip_display();
 
       al_clear_to_color(palette_color[0]);
-      proc_controllers();
+      proc_event_queue();
       if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 
    }
@@ -818,7 +818,7 @@ void temp_test(void)
 //
 //
 //      al_flip_display();
-//      proc_controllers();
+//      proc_event_queue();
 //      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 //   }
 //
@@ -859,7 +859,7 @@ void temp_test(void)
 //
 //
 //      al_flip_display();
-//      proc_controllers();
+//      proc_event_queue();
 //      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 //   }
 
@@ -1091,14 +1091,14 @@ void show_level_done(void);
    int quit = 0;
    while (!quit)
    {
-      proc_controllers();
+      proc_event_queue();
       al_clear_to_color(al_map_rgb(0,0,0));
       show_level_done();
       al_flip_display();
 
       while ((key[ALLEGRO_KEY_ESCAPE][0]) || (mouse_b[2][0]))
       {
-         proc_controllers();
+         proc_event_queue();
          quit = 1;
       }
       if (key[ALLEGRO_KEY_1][3]) players[1].active = !players[1].active;

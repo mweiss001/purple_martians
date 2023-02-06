@@ -1933,7 +1933,7 @@ void ovw_process_mouse(void)
 
    if (mouse_b[2][0])
    {
-      while (mouse_b[2][0]) proc_controllers();
+      while (mouse_b[2][0]) proc_event_queue();
       set_windows(1);
    }
 }
@@ -2018,7 +2018,7 @@ void ovw_process_keypress(void)
                get_new_screen_buffer(3, 0, 0);
                mW[7].draw(1);
             }
-            while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers(); // wait for release
+            while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue(); // wait for release
             lift_setup(); // reset all lifts to step 0
          }
       }

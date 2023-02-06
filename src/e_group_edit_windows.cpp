@@ -508,7 +508,7 @@ void ge_show_obj_list(int x, int y, int *ew, int *eh, int have_focus, int moving
          {
             if (SHFT()) // remove item from list
             {
-               while (mouse_b[1][0]) proc_controllers();
+               while (mouse_b[1][0]) proc_event_queue();
                ge_remove_obj_list_item(mpl);
             }
             else // keep mouse for drag swap
@@ -751,7 +751,7 @@ void ge_process_mouse(void)
       }
       else
       {
-         while (mouse_b[1][0]) proc_controllers();
+         while (mouse_b[1][0]) proc_event_queue();
 
          // is mouse on item
          for (int i=0; i<500; i++)
@@ -779,7 +779,7 @@ void ge_process_mouse(void)
    }
    if (mouse_b[2][0])
    {
-      while (mouse_b[2][0]) proc_controllers();
+      while (mouse_b[2][0]) proc_event_queue();
       set_windows(1);
    }
 }

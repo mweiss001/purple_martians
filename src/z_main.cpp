@@ -28,8 +28,8 @@ int old_program_state = 0;
 int older_program_state = 0;
 int program_update = 0;
 int program_update_1s = 0;
+int menu_update = 0;;
 int top_menu_sel = 3;
-
 int main_loop_exit = 0;
 
 int pm_event[1000];
@@ -70,6 +70,11 @@ int speed_testing = 0;
 int frame_speed = 40;
 int frame_num;
 int speed_control_lock = 1;
+int eco_draw = 0;
+
+
+
+
 
 // some global strings
 char level_filename[80];

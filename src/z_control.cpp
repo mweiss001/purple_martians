@@ -241,7 +241,7 @@ void test_keys(int x, int sy)
       if (players[0].menu) al_draw_text(font, c2, x, y, ALLEGRO_ALIGN_CENTRE, "MENU" );
 
       al_flip_display();
-      proc_controllers();
+      proc_event_queue_menu();
       if (key[ALLEGRO_KEY_F11][0]) quit = 1;
    }
 }
@@ -384,6 +384,11 @@ void function_key_check(void)
          printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
       }
 
+
+      if (key[ALLEGRO_KEY_F2][3]) eco_draw = !eco_draw;
+
+
+
       if (key[ALLEGRO_KEY_F4][3])
       {
          if (autosave_game_on_game_exit) blind_save_game_moves(3);
@@ -432,24 +437,14 @@ void function_key_check(void)
 
       if (key[ALLEGRO_KEY_F10][2])
       {
-         if (++show_debug_overlay > 3) show_debug_overlay = 0;
-
-//
-//         if (show_debug_overlay)  show_debug_overlay = 0;
-//         else
-//         {
-//            #ifdef RELEASE
-//            if (SHFT() && CTRL())
-//            #endif
-//            show_debug_overlay = 1;
-//         }
-//
-
-
+         if (++show_debug_overlay >= number_of_debug_overlay_modes) show_debug_overlay = 0;
       }
    } // end of if not game exit
 
    if (key[ALLEGRO_KEY_F11][2] && SHFT()) init_level_background(0);
+
+
+
 
    if (key[ALLEGRO_KEY_UP][   2]) pct_y--;
    if (key[ALLEGRO_KEY_DOWN][ 2]) pct_y++;
@@ -516,7 +511,7 @@ void rungame_key_check(int p)
       players[0].active = 1;
       load_config();
 
-      while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+      while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue();
 
       new_program_state = 1;
       if (old_program_state == 2) old_program_state = older_program_state; // don't send back to demo mode
@@ -720,7 +715,7 @@ void proc_player_active_game_move(int x)
       // if player 0 is file play all added players will be too
       if (players[0].control_method == 1) players[p].control_method = 1;
 
-      set_player_joint_quit_display(p, 1, 60);
+      set_player_join_quit_display(p, 1, 60);
 
       game_event(80, 0, 0, p, 0, 0, 0);
 
@@ -814,7 +809,7 @@ void proc_player_inactive_game_move(int x)
 //         players[p].control_method = 9; // prevent re-use of this player number in this level
 //         players1[p].who = 99;
       }
-      set_player_joint_quit_display(p, 0, 60);
+      set_player_join_quit_display(p, 0, 60);
       game_event(81, 0, 0, p, 0, 0, 0);
    }
 }
@@ -900,29 +895,4 @@ void proc_player_input(void)
       }
 }
 
-void proc_controllers(void)
-{
-   int menu_timer_block=1;
-   key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
-   key_pressed_ASCII = 0;
 
-   while (menu_timer_block)
-   {
-      while (!al_is_event_queue_empty(event_queue))
-      {
-         ALLEGRO_EVENT ev;
-         if (al_get_next_event(event_queue, &ev))
-         {
-            if ((ev.type == ALLEGRO_EVENT_TIMER) && (ev.timer.source == mnu_timer)) menu_timer_block = 0;
-            else proc_events(ev);
-         }
-      }
-   }
-
-   proc_keys_held();
-   function_key_check();
-
-   // only do key check for active local player
-   clear_controls(active_local_player);
-   set_controls_from_player_key_check(active_local_player);
-}

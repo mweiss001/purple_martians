@@ -461,7 +461,7 @@ void help(const char *topic)
       } // end of cycle lines
 
 
-      proc_controllers();
+      proc_event_queue();
       if (key[ALLEGRO_KEY_ESCAPE][0])  quit = 1;
       if (key[ALLEGRO_KEY_UP][0])   line --;
       if (key[ALLEGRO_KEY_DOWN][0]) line ++;
@@ -503,7 +503,7 @@ void help(const char *topic)
       while ((key[ALLEGRO_KEY_ESCAPE][0]) || (mouse_b[2][0]))
       {
          quit = 1;
-         proc_controllers();
+         proc_event_queue();
       }
    }  // end of while not quit
    al_destroy_bitmap(status_window);
@@ -737,19 +737,19 @@ int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function doe
 
       if (mouse_b[1][0])
       {
-         while (mouse_b[1][0]) proc_controllers();
+         while (mouse_b[1][0]) proc_event_queue();
          selection = highlight;
       }
 
       if (mouse_b[2][0])
       {
-         while (mouse_b[2][0]) proc_controllers();
+         while (mouse_b[2][0]) proc_event_queue();
          selection = 0;
       }
 
       if (key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+         while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue();
          selection = 0; // default position for back
       }
 
@@ -780,7 +780,15 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       al_set_target_backbuffer(display);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0, 0, 0));
-      proc_controllers();
+
+
+      while (!menu_update) proc_event_queue_menu();
+      menu_update = 0;
+
+
+
+
+
 
       frame_and_title(1);
       mdw_an();
@@ -929,7 +937,7 @@ int pmenu(int menu_num, int bg_color)
          }
          last_list_item = c-1;
          al_flip_display();
-         proc_controllers();
+         proc_event_queue();
          highlight = 2;
          if ( (mouse_x > (kx - 100)) && (mouse_x < (kx+100)) )
             if ( (mouse_y > ky ) && (mouse_y < ky + ((last_list_item+1)*8)) )
@@ -977,7 +985,7 @@ int pmenu(int menu_num, int bg_color)
          last_list_item = c-1;
 
          al_flip_display();
-         proc_controllers();
+         proc_event_queue();
 
          //show_mouse(screen);
          highlight = 2;
@@ -1101,7 +1109,7 @@ int edit_pmsg_text(int c, int new_msg)
 //      al_draw_rectangle(xa, by1-30, xb, by1-10, palette_color[15], 1);
 //      al_draw_textf(font, palette_color[15], xa, by1-20, 0, "%d/%d %d", cursor_pos, char_count, strlen(f));
 
-      proc_controllers();
+      proc_event_queue();
 
       if (key[ALLEGRO_KEY_HOME][0])  cursor_pos = 0;
       if (key[ALLEGRO_KEY_END][0])   cursor_pos = char_count;
@@ -1124,7 +1132,7 @@ int edit_pmsg_text(int c, int new_msg)
       if (key[ALLEGRO_KEY_LEFT][3])
       {
          //al_rest(0.02);
-         while (key[ALLEGRO_KEY_LEFT][3]) proc_controllers();               // wait for release
+         while (key[ALLEGRO_KEY_LEFT][3]) proc_event_queue();               // wait for release
 
          if ((SHFT()) && (CTRL()))
          {
@@ -1219,7 +1227,7 @@ void edit_server_name(int type, int x, int y)
    int old_cp=0;
    int blink_count = 3;
    int blink_counter = 0;
-   while (key[ALLEGRO_KEY_ENTER][0]) proc_controllers();
+   while (key[ALLEGRO_KEY_ENTER][0]) proc_event_queue();
    int quit = 0;
    while (!quit)
    {
@@ -1256,7 +1264,7 @@ void edit_server_name(int type, int x, int y)
       }
 
       al_rest(.08);
-      proc_controllers();
+      proc_event_queue();
       if (key[ALLEGRO_KEY_RIGHT][0])
       {
          if (++cursor_pos > char_count) cursor_pos = char_count;
@@ -1350,7 +1358,7 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
          blink_counter = 0;
       }
 
-      proc_controllers();
+      proc_event_queue();
       if (key[ALLEGRO_KEY_RIGHT][0])
       {
          if (++cursor_pos >= char_count) cursor_pos = char_count-1;

@@ -13,6 +13,7 @@ int active_local_player = 0;
 
 void set_player_start_pos(int p, int cont)
 {
+   //printf("set player:%d start pos\n", p);
    int found = 0;
    if (warp_level_location)
    {
@@ -204,7 +205,7 @@ void proc_player_health(int p)
 
       players[p].stat_respawns++;
 
-      set_player_joint_quit_display(p, 3, 60);
+      set_player_join_quit_display(p, 3, 60);
 
       players1[p].health_display = 200;
       players[p].paused = 100;
@@ -1525,7 +1526,7 @@ void init_player(int p, int t)
       players1[p].client_cdat_packets_tx = 0;
 
       players1[p].late_cdats = 0;
-      mwT[0].initialize(); // initialize tally
+      mwT_late_cdats_last_sec[p].initialize(); // initialize tally
 
       players1[p].client_chase_fps = 0;
       players1[p].server_game_move_sync = 0;
@@ -1556,9 +1557,9 @@ void init_player(int p, int t)
       players1[p].ping_avg = 0;
       mwT[4].initialize(); // initialize max tally
 
-      mwT[3].initialize(); // initialize tally
       players1[p].game_move_dsync = 0;
       players1[p].game_move_dsync_avg_last_sec = 0;
+      mwT_game_move_dsync_avg_last_sec[p].initialize(); // initialize tally
    }
 
    if (t == 23) // clear bandwidth counters

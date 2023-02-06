@@ -21,9 +21,13 @@ int enemy_data(int x_pos, int y_pos)
 }
 
 
-void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color)
+void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode)
 {
-   al_set_clipping_rectangle(x1, y1, x2-x1, y2-y1);
+   int d = display_transform_double;
+   if (!clip_mode) d = 1;
+
+   al_set_clipping_rectangle(x1*d, y1*d, (x2-x1)*d, (y2-y1)*d);
+
    // find largest dimension
    float xd = x2-x1;
    float yd = y2-y1;
@@ -193,11 +197,11 @@ void draw_enemy(int e, int custom, int cx, int cy)
       // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
       int q = Ei[e][4];
       if ((q == 1) || (q == 3))
-         rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
+         rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64, 0); // trigger box
       if ((q == 2) || (q == 3))
       {
-         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // source
-         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64); // destination
+         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64, 0); // source
+         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
       }
    }
 

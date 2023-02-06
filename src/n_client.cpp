@@ -151,7 +151,7 @@ int ClientCheckResponse(void) // check for a repsonse from the server
       int done = 10;
       while (done)
       {
-         proc_controllers();
+         proc_event_queue();
          if (key[ALLEGRO_KEY_ESCAPE][1]) return -2;
 
          printf(".");
@@ -182,8 +182,11 @@ int ClientReceive(void *data)
    int len;
    if (TCP) len = net_receive_rdm(ServerConn, data, 1024);
    else    	len = net_receive(ServerChannel, data, 1024, NULL);
-   players1[active_local_player].rx_current_bytes_for_this_frame+= len;
-   players1[active_local_player].rx_current_packets_for_this_frame++;
+   if (len > 0)
+   {
+      players1[active_local_player].rx_current_bytes_for_this_frame+= len;
+      players1[active_local_player].rx_current_packets_for_this_frame++;
+   }
 	return len;
 }
 void ClientSend(void *data, int len)
@@ -570,25 +573,21 @@ void client_process_stdf_packet(double timestamp)
 void process_bandwidth_counters(int p)
 {
    // get maximums per frame
-   if (players1[p].tx_current_packets_for_this_frame > players1[p].tx_max_packets_per_frame)
-      players1[p].tx_max_packets_per_frame = players1[p].tx_current_packets_for_this_frame;
-   if (players1[p].tx_current_bytes_for_this_frame > players1[p].tx_max_bytes_per_frame)
-      players1[p].tx_max_bytes_per_frame = players1[p].tx_current_bytes_for_this_frame;
-   if (players1[p].rx_current_packets_for_this_frame > players1[p].rx_max_packets_per_frame)
-      players1[p].rx_max_packets_per_frame = players1[p].rx_current_packets_for_this_frame;
-   if (players1[p].rx_current_bytes_for_this_frame > players1[p].rx_max_bytes_per_frame)
-      players1[p].rx_max_bytes_per_frame = players1[p].rx_current_bytes_for_this_frame;
+   if (players1[p].tx_current_packets_for_this_frame > players1[p].tx_max_packets_per_frame) players1[p].tx_max_packets_per_frame = players1[p].tx_current_packets_for_this_frame;
+   if (players1[p].tx_current_bytes_for_this_frame >   players1[p].tx_max_bytes_per_frame)   players1[p].tx_max_bytes_per_frame =   players1[p].tx_current_bytes_for_this_frame;
+   if (players1[p].rx_current_packets_for_this_frame > players1[p].rx_max_packets_per_frame) players1[p].rx_max_packets_per_frame = players1[p].rx_current_packets_for_this_frame;
+   if (players1[p].rx_current_bytes_for_this_frame >   players1[p].rx_max_bytes_per_frame)   players1[p].rx_max_bytes_per_frame =   players1[p].rx_current_bytes_for_this_frame;
 
    // get totals
-   players1[p].tx_total_bytes += players1[p].tx_current_bytes_for_this_frame;
+   players1[p].tx_total_bytes   += players1[p].tx_current_bytes_for_this_frame;
    players1[p].tx_total_packets += players1[p].tx_current_packets_for_this_frame;
-   players1[p].rx_total_bytes += players1[p].rx_current_bytes_for_this_frame;
+   players1[p].rx_total_bytes   += players1[p].rx_current_bytes_for_this_frame;
    players1[p].rx_total_packets += players1[p].rx_current_packets_for_this_frame;
 
    // add to tallies
-   players1[p].tx_bytes_tally += players1[p].tx_current_bytes_for_this_frame;
+   players1[p].tx_bytes_tally   += players1[p].tx_current_bytes_for_this_frame;
    players1[p].tx_packets_tally += players1[p].tx_current_packets_for_this_frame;
-   players1[p].rx_bytes_tally += players1[p].rx_current_bytes_for_this_frame;
+   players1[p].rx_bytes_tally   += players1[p].rx_current_bytes_for_this_frame;
    players1[p].rx_packets_tally += players1[p].rx_current_packets_for_this_frame;
 
    // reset counts for this frame
@@ -600,19 +599,15 @@ void process_bandwidth_counters(int p)
    if (frame_num % 40 == 0) // tally freq = 40 frames = 1s
    {
       // get maximums per tally
-      if (players1[p].tx_bytes_per_tally > players1[p].tx_max_bytes_per_tally)
-         players1[p].tx_max_bytes_per_tally = players1[p].tx_bytes_per_tally;
-      if (players1[p].rx_bytes_per_tally > players1[p].rx_max_bytes_per_tally)
-         players1[p].rx_max_bytes_per_tally = players1[p].rx_bytes_per_tally;
-      if (players1[p].tx_packets_per_tally > players1[p].tx_max_packets_per_tally)
-         players1[p].tx_max_packets_per_tally = players1[p].tx_packets_per_tally;
-      if (players1[p].rx_packets_per_tally > players1[p].rx_max_packets_per_tally)
-         players1[p].rx_max_packets_per_tally = players1[p].rx_packets_per_tally;
+      if (players1[p].tx_bytes_per_tally >   players1[p].tx_max_bytes_per_tally)   players1[p].tx_max_bytes_per_tally =   players1[p].tx_bytes_per_tally;
+      if (players1[p].rx_bytes_per_tally >   players1[p].rx_max_bytes_per_tally)   players1[p].rx_max_bytes_per_tally =   players1[p].rx_bytes_per_tally;
+      if (players1[p].tx_packets_per_tally > players1[p].tx_max_packets_per_tally) players1[p].tx_max_packets_per_tally = players1[p].tx_packets_per_tally;
+      if (players1[p].rx_packets_per_tally > players1[p].rx_max_packets_per_tally) players1[p].rx_max_packets_per_tally = players1[p].rx_packets_per_tally;
 
       // stick in variables for display
-      players1[p].tx_bytes_per_tally = players1[p].tx_bytes_tally;
+      players1[p].tx_bytes_per_tally   = players1[p].tx_bytes_tally;
       players1[p].tx_packets_per_tally = players1[p].tx_packets_tally;
-      players1[p].rx_bytes_per_tally = players1[p].rx_bytes_tally;
+      players1[p].rx_bytes_per_tally   = players1[p].rx_bytes_tally;
       players1[p].rx_packets_per_tally = players1[p].rx_packets_tally;
 
       if (LOG_NET_bandwidth)

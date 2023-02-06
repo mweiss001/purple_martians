@@ -248,7 +248,7 @@ int get_new_lift_step(int lift, int step)
    {
       al_rest(0.02);
       al_flip_display();
-      proc_controllers();
+      proc_event_queue();
       if ((mouse_b[2][0]) || (key[ALLEGRO_KEY_ESCAPE][0])) quit = 99;
 
       al_draw_textf(font, palette_color[fc], xc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
@@ -378,7 +378,8 @@ void step_popup_menu(int lift, int step)
 
    al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
    al_set_mouse_xy(display, smx * display_transform_double, smy * display_transform_double);
-   proc_controllers(); // to deal with mouse warp
+
+   proc_event_queue(); // to deal with mouse warp
 
    // full menu
    sprintf(global_string[6][0],"Lift:%d Step:%d", lift+1, step);
