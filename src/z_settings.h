@@ -3,6 +3,7 @@
 extern int settings_current_page;
 
 extern int overlay_grid[10][4];
+extern int number_of_debug_overlay_modes;
 
 
 

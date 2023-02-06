@@ -196,7 +196,8 @@ void splash_screen(void)
    mdw_an_seq = 0;
    set_map_var();
    int quit = 0;
-   proc_controllers();
+
+   proc_event_queue();
 
    draw_large_text_overlay(1, 8);
 
@@ -206,7 +207,9 @@ void splash_screen(void)
    if (!quit)
       for (int i=0; i<220; i++)
       {
-         proc_controllers();
+         while (!menu_update) proc_event_queue();
+         menu_update = 0;
+
          if (key_pressed_ASCII)
          {
             quit = 1;
@@ -228,7 +231,8 @@ void splash_screen(void)
    if (!quit)
       for (int i=0; i<120; i++)
       {
-         proc_controllers();
+         while (!menu_update) proc_event_queue();
+         menu_update = 0;
          if (key_pressed_ASCII)
          {
             quit = 1;
@@ -246,7 +250,8 @@ void splash_screen(void)
       al_clear_to_color(al_map_rgb(0,0,0));
       quit = mdw_an2();
       al_flip_display();
-      proc_controllers();
+      while (!menu_update) proc_event_queue();
+      menu_update = 0;
       if (key_pressed_ASCII) quit = 1;
    }
 
@@ -254,23 +259,6 @@ void splash_screen(void)
    al_flip_display();
 
    mdw_an_seq = 0;
-}
-
-void splash_toggle(void)
-{
-   load_config();
-
-   if (show_splash_screen)
-   {
-      show_splash_screen = 0;
-      save_config();
-   }
-   else
-   {
-      show_splash_screen = 1;
-      save_config();
-      splash_screen(); // show it now....
-   }
 }
 
 
@@ -781,12 +769,13 @@ void spline_test(void)
       draw_mdw(SCREEN_W/2, SCREEN_H/2, x_scale, y_scale, th);
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
-      proc_controllers();
 
-    //  al_rest(0.02);
+      while (!menu_update) proc_event_queue();
+      menu_update = 0;
+
       if (key[ALLEGRO_KEY_ESCAPE][0])
       {
-         while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+         while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue();
          quit = 1;
       }
 
@@ -811,19 +800,18 @@ void redraw_spline(int s)
 
 void spline_adjust(void)
 {
+   al_show_mouse_cursor(display);
+
    int current_spline = 0;
    seed_mdw();
    fill_mdw();
    int quit = 0;
    while (!quit)
    {
-      al_hide_mouse_cursor(display);
+      al_clear_to_color(al_map_rgb(0,0,0));
       redraw_spline(current_spline);
       al_flip_display();
-      al_clear_to_color(al_map_rgb(0,0,0));
-      al_show_mouse_cursor(display);
-      proc_controllers();
-      al_rest(0.02);
+      proc_event_queue();
 
       int mx = mouse_x-200;
       int my = mouse_y-200;
@@ -836,14 +824,11 @@ void spline_adjust(void)
             al_draw_circle(points[current_spline][i]+200, points[current_spline][i+1]+200, 6, palette_color[10], 2);
             while (mouse_b[1][0])
             {
-               al_hide_mouse_cursor(display);
-               redraw_spline(current_spline);
-               al_flip_display();
                al_clear_to_color(al_map_rgb(0,0,0));
+               redraw_spline(current_spline);
                al_draw_circle(points[current_spline][i]+200, points[current_spline][i+1]+200, 6, palette_color[10], 3);
-               al_show_mouse_cursor(display);
-               proc_controllers();
-               al_rest(0.02);
+               al_flip_display();
+               proc_event_queue();
 
                points[current_spline][i] = mouse_x-200;
                points[current_spline][i+1] = mouse_y-200;
@@ -863,7 +848,7 @@ void spline_adjust(void)
       }
       while ((key[ALLEGRO_KEY_ESCAPE][0]) || (mouse_b[2][0]))
       {
-         proc_controllers();
+         proc_event_queue();
          quit = 1;
       }
    }

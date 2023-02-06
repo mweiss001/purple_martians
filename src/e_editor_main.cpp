@@ -599,7 +599,7 @@ void em_process_mouse(void)
    if (mouse_b[1][0])
    {
       // don't allow drag draw selection unless draw type is block
-      if (mW[1].draw_item_type != 1) while (mouse_b[1][0]) proc_controllers();
+      if (mW[1].draw_item_type != 1) while (mouse_b[1][0]) proc_event_queue();
 
       int din = mW[1].draw_item_num; // shorter variable name
       switch (mW[1].draw_item_type)

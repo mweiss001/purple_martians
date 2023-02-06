@@ -977,11 +977,11 @@ void zfs_draw_enemy_ft(int e)
       // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
       int q = ft_Ei[e][4];
       if ((q == 1) || (q == 3))
-         rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64); // trigger box
+         rectangle_with_diagonal_lines(tx1, ty1, tx2, ty2, 8, tc1, tc1+64, 0); // trigger box
       if ((q == 2) || (q == 3))
       {
-         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64); // source
-         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64); // destination
+         rectangle_with_diagonal_lines(sx1, sy1, sx2, sy2, 8, sc1, sc1+64, 0); // source
+         rectangle_with_diagonal_lines(dx1, dy1, dx2, dy2, 8, dc1, dc1+64, 0); // destination
       }
    }
 }
@@ -1043,12 +1043,12 @@ void zfs_process_mouse(void)
    {
       if (mW[4].copy_mode)
       {
-         while (mouse_b[1][0]) proc_controllers();
+         while (mouse_b[1][0]) proc_event_queue();
          zfs_do_fcopy(gx, gy);
       }
       if (mW[4].brf_mode)
       {
-         while (mouse_b[1][0])proc_controllers();
+         while (mouse_b[1][0])proc_event_queue();
          zfs_do_brf(gx, gy, mW[1].draw_item_num);
       }
       if ((!mW[4].copy_mode) && (!mW[4].brf_mode)) cm_get_new_box(); // get new selection
@@ -1056,7 +1056,7 @@ void zfs_process_mouse(void)
 
    if (mouse_b[2][0])
    {
-      while (mouse_b[2][0]) proc_controllers();
+      while (mouse_b[2][0]) proc_event_queue();
       set_windows(1);
    }
 }

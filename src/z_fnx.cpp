@@ -428,7 +428,7 @@ void tsw(void)
          }
       }
    }
-   while (key[ALLEGRO_KEY_ESCAPE][0]) proc_controllers();
+   while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue();
 }
 
 void reset_animation_sequences(void)

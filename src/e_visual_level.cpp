@@ -282,10 +282,10 @@ void compare_all(void)
                      num_matches++;
                    }
                }
-               proc_controllers();
+               proc_event_queue_menu();
                if (key[ALLEGRO_KEY_ESCAPE][3]) x1 = num_levs; // break out of inner loop
             } // next level (inner loop)
-         proc_controllers();
+         proc_event_queue_menu();
          if (key[ALLEGRO_KEY_ESCAPE][3]) x = num_levs;  // break out of outer loop
    } // next level (outer loop)
 
@@ -373,7 +373,7 @@ void level_viewer(void)
 
    while (!quit)
    {
-      proc_controllers();
+      proc_event_queue_menu();
 
       if (redraw)
       {
@@ -401,7 +401,7 @@ void level_viewer(void)
       {
          if (load_level(cur, 0)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
          al_flip_display();
-         while (key[ALLEGRO_KEY_S][0]) proc_controllers();
+         while (key[ALLEGRO_KEY_S][0]) proc_event_queue_menu();
          redraw = 1;
       }
 
@@ -420,12 +420,12 @@ void level_viewer(void)
             if (load_level(cur, 0)) draw_level2(NULL, 0, 0, 1000, 1, 1, 1, 1, 0);
             al_flip_display();
             redraw = 1;
-            while (mouse_b[1][0]) proc_controllers();
+            while (mouse_b[1][0]) proc_event_queue_menu();
          }
 
          if (mouse_b[2][0]) // copy current to selected
          {
-            while (mouse_b[2][0]) proc_controllers();
+            while (mouse_b[2][0]) proc_event_queue_menu();
             if ((cur != 0) && (sel !=0) && (cur != sel))
             {
                if (load_level(cur, 0) == 1) // cur exists
@@ -642,7 +642,7 @@ int visual_level_select(void)
    int p = active_local_player;
    int fc = players[p].color; // frame color
 
-   while ( (key[ALLEGRO_KEY_ENTER][0]) || (players[0].fire) || (players[0].jump) ) proc_controllers();;
+   while ( (key[ALLEGRO_KEY_ENTER][0]) || (players[0].fire) || (players[0].jump) ) proc_event_queue_menu();;
 
    if (!load_visual_level_select_done) load_visual_level_select();
 
@@ -718,12 +718,12 @@ int visual_level_select(void)
 
 
 
-      proc_controllers();
+      proc_event_queue_menu();
 
       if (((key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) && (left_held == 0))
       {
          left_held = 1;
-         while ((key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) proc_controllers();
+         while ((key[ALLEGRO_KEY_LEFT][0]) || (players[0].left)) proc_event_queue_menu();
          if (--grid_sel_col < 0) grid_sel_col = 0;
          vl_redraw = 1;
       }
@@ -732,7 +732,7 @@ int visual_level_select(void)
       if (((key[ALLEGRO_KEY_UP][0]) || (players[0].up)) && (up_held == 0))
       {
          up_held = 1;
-         while ((key[ALLEGRO_KEY_UP][0]) || (players[0].up)) proc_controllers();
+         while ((key[ALLEGRO_KEY_UP][0]) || (players[0].up)) proc_event_queue_menu();
          if (--grid_sel_row < 0) grid_sel_row = 0;
          vl_redraw = 1;
       }
@@ -741,7 +741,7 @@ int visual_level_select(void)
       if (((key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) && (right_held == 0))
       {
          right_held = 1;
-         while ((key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) proc_controllers();
+         while ((key[ALLEGRO_KEY_RIGHT][0]) || (players[0].right)) proc_event_queue_menu();
          if (++grid_sel_col > grid_cols-1) grid_sel_col = grid_cols-1;
          // don't allow select of empty level
          if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_col--;
@@ -752,7 +752,7 @@ int visual_level_select(void)
       if (((key[ALLEGRO_KEY_DOWN][0]) || (players[0].down)) && (down_held == 0))
       {
          down_held = 1;
-         while ((key[ALLEGRO_KEY_DOWN][0]) || (players[0].down)) proc_controllers();
+         while ((key[ALLEGRO_KEY_DOWN][0]) || (players[0].down)) proc_event_queue_menu();
          if (++grid_sel_row > grid_rows-1) grid_sel_row = grid_rows-1;
          // don't allow select of empty level
          if (le[(grid_sel_row * grid_cols) + grid_sel_col] == 0) grid_sel_row--;
@@ -774,7 +774,7 @@ int visual_level_select(void)
 
       if ( (key[ALLEGRO_KEY_ENTER][3]) || (players[0].fire) || (players[0].jump) )
       {
-         while ((players[0].jump) || (players[0].fire)) proc_controllers();
+         while ((players[0].jump) || (players[0].fire)) proc_event_queue_menu();
          quit = 1;
       }
       if (key[ALLEGRO_KEY_ESCAPE][3])

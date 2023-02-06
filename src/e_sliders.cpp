@@ -97,7 +97,7 @@ float get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int
    }
    else
    {
-      proc_controllers();
+      proc_event_queue();
       al_flip_display();
    }
 
@@ -132,7 +132,7 @@ float get_slider_position3(float f, float sul, float sll, float sinc, int q4, in
    }
    else
    {
-      proc_controllers();
+      proc_event_queue();
       al_flip_display();
    }
    if (mouse_dz)
@@ -589,7 +589,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
-      while (mouse_b[1][0]) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_event_queue(); // wait for release
       press = 1;
    }
 
@@ -1293,7 +1293,7 @@ int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
 
    if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
-      while (mouse_b[1][0]) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_event_queue(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1314,7 +1314,7 @@ int mdw_buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, 
 
    if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
-//      while (mouse_b[1][0]) proc_controllers(); // wait for release
+//      while (mouse_b[1][0]) proc_event_queue(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1354,7 +1354,7 @@ int mdw_buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, in
 
    if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
-      while (mouse_b[1][0]) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_event_queue(); // wait for release
       ret = 1;
    }
    if (q6) y1+=bts;
@@ -1374,7 +1374,7 @@ void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    int press = 0;
    if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
-      while (mouse_b[1][0]) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_event_queue(); // wait for release
       press = 1;
    }
 
@@ -1651,7 +1651,7 @@ void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    // is mouse pressed on button?
    if ((!q7) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (mouse_b[1][0]))
    {
-      while (mouse_b[1][0]) proc_controllers();
+      while (mouse_b[1][0]) proc_event_queue();
       int color = (int)(1+(mouse_x-x1)/b);
 
       if (bn == 2) // text color
@@ -1700,7 +1700,7 @@ int mdw_toggle(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
    // is mouse pressed on this button?
    if ((mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
    {
-      while (mouse_b[1][0]) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_event_queue(); // wait for release
       var = ! var;
    }
    if (var)
@@ -1738,15 +1738,15 @@ int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    int y2 = y1+bts-2;
    int ret = 0;
 
-
-   if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
+   // debug show mouse detection area
+//   if ((mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
+//      al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
 
 
    // is mouse pressed on this button?
    if ((mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2) && (!q7))
    {
-      while (mouse_b[1][0]) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_event_queue(); // wait for release
       var = ! var;
    }
 
@@ -1825,7 +1825,7 @@ int mdw_togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
    // is mouse pressed on this button?
    if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
-      while (mouse_b[1][0]) proc_controllers(); // wait for release
+      while (mouse_b[1][0]) proc_event_queue(); // wait for release
       var ^= flag;
    }
    if (var & flag)

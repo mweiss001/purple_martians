@@ -10638,6 +10638,860 @@ push for now...
 
 
 
+I want to straighten out the functions in screen overlay
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void show_player_stat_box(int tx, int y, int p)
+void show_level_done(void)
+void draw_screen_overlay(void)
+void set_player_joint_quit_display(int p, int type, int time)
+void show_player_join_quit(void)
+void sdg_show_column(int col, int &x, int y)
+void sdg_show(int x, int y) // server debug grid
+void cdg_show(int x, int y) // client debug grid
+
+void draw_top_frame(int p)
+
+void draw_common_debug_overlay(int p, int &cx, int &cy)
+void draw_server_debug_overlay(int p, int &cx, int &cy)
+void draw_client_debug_overlay(int p, int &cx, int &cy)
+
+void draw_top_display(void)
+
+
+
+The very top is
+
+void draw_screen_overlay(void)
+
+it calls:
+
+   show_level_done();
+   draw_top_display();
+   draw_bmsg();
+   show_player_join_quit();
+
+
+I want it to also call:
+
+draw_top_frame
+draw_bottom_frame
+
+void draw_common_debug_overlay(int p, int &cx, int &cy)
+void draw_server_debug_overlay(int p, int &cx, int &cy)
+void draw_client_debug_overlay(int p, int &cx, int &cy)
+
+
+and remove top_display...
+
+
+
+I want to combine draw_top display text stuff and debug display stuff...
+
+can I call it
+draw_on_screen_overlay
+
+it will have sections for server, client, file, common
+it will call debug overlays
+misc text overlays
+waiiting to join
+demo mode overlay...
+
+just rename top_display to draw_on_screen_overlay
+
+
+
+
+that was a lot of rearranging...hopefully it's better now:
+
+void draw_screen_overlay(void)
+{
+   int p = active_local_player;
+   int cx = BORDER_WIDTH;
+   int cy = BORDER_WIDTH+72;
+
+   al_set_target_backbuffer(display);
+
+   if (LOG_TMR_scrn_overlay) t0 = al_get_time();
+
+   show_level_done();
+
+   draw_bmsg();
+
+   show_player_join_quit();
+
+   draw_top_frame(p);
+   draw_bottom_frame(p);
+
+   draw_common_debug_overlay(p, cx, cy);
+
+   if (ima_server)                     draw_server_debug_overlay(p, cx, cy);
+   if (ima_client)                     draw_client_debug_overlay(p, cx, cy);
+   if (players[0].control_method == 1) draw_demo_debug_overlay(p, cx, cy);
+
+   if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - t0, "scrn_overlay_all", 0);
+}
+
+do some testing and make sure demo mode is working
+display stuff draws on border...fixed...
+demo mode misc...good..
+
+single player..good
+
+fix pos and backgrounf for draw profile timers..done..
+test client...
+fix bandwidth...done
+why is packets per sec rx so high?? fixed
+
+what about the space after the debug grid?
+if not used can be move everything else up?
+
+I guess it all depends on what order I draw things in..
+
+first:
+debug grid
+specific misc
+
+last:
+display
+timers
+bandwidth
+
+
+common does in this order:
+display
+profile
+cpu
+
+client does in this order:
+debug grid
+sync graph
+snyc adjust
+misc
+bandwidth
+
+server does in this order:
+debug grid
+adjust
+misc
+bandwidth
+
+demo does in this order:
+misc
+
+
+so if I just switch common to after specific, then make debug grid part of the cy stuff....
+
+
+OK this is all looking good
+
+If everything is on, this is the order it shows in:
+debug grid
+misc
+bandwidth
+display
+profile
+
+I just have server left to do:
+make debug grid like client..done...
+
+server adjust widget... where should i put it?
+
+on the right like client?
+
+just above cpu...done..
+
+
+the only thing I still want to test is where late cdats are drawn in flashing on bottom frame...
+
+I need to manually adjust offset till I get late..done and it lokks great..
+
+in demo mode stuff overwrites the player array...fixed...
+
+now in settings:
+make a default button
+reduce the number of debug states
+
+the samllest screen size that the entire settings thing fits on is 400x400..
+
+
+I am finally done with all this debug overlay stuff...it looks pretty good too.
+
+Now to clean up that mess I made with the drawing....
+
+In loop it is fine, just one call to mwDW
+
+The class takes care of
+drawing
+profiling and averaging
+printing screen overlay of results
+plus all the optional stuff that didn't work out as planned
+
+It all looks good...logging annd overlay work...the rest has been disabled...
+
+
+An important question I need to ask?  Do you feel lucky, punk?
+
+I have disabled all frame skipping.  I expect bad things to happen if cpu hits 100%.
+
+What actually happens? Should I try to do something about it?
+
+My rationale was mostly this:
+
+99% of the time, the reason we will not be able to draw is that the draw function takes too long.
+It is exceeding rare that the other part of the code is the limiting factor.
+
+I still want to do soemthing about it though...
+
+But what?
+
+I have made it possible to disable with fine control all the bad things in screen overlay.
+
+What about drawing every other frame, just doing the frame skip like we used to?
+I can have a mode where I draw thing as simple as possible..
+
+I would like to automatically play all the demo levels and record info about what timing profiles they have...
+not every frame, but lets say the average of the last 10s
+
+then I could try out some new economical draw routines
+
+One that comes to mind right away is lifts.
+
+I could draw lifts using much less resource than I do now.
+
+
+I should just make a global int eco_draw...
+
+be able to toggle it on and off and see what I can do...
+
+I have made a global;
+extern int eco_draw;
+saved in config
+toggle with F2
+display on bottom frame...
+
+yay!
+
+now lets test it in draw lifts..
+
+
+level 155 with 39 lifts with 37 steps each
+1400 circles
+
+4.7 ms 3 circles
+2.4 ms 1 circle
+1.3 ms 0 circles
+
+stick in on 0 for now and test rects..
+
+0.19 1      filled rect
+0.20 1      filled rounded rect
+0.51 10 not-filled rounded rects and 1 filled not-rounded
+
+that is quite an impressive change..
+
+total:
+4.96 original
+0.99 eco
+
+5 times faster...
+
+
+lets try this shit on a 4230
+level 13
+8.5 ms original
+1.5 ms eco_draw
+
+level 155
+125 ms original
+26 ms eco_draw
+
+nice... now what else can I try to eco?
+
+I think pmsg are a resource hog....
+
+lets make a test level...copy 1...
+
+level 154 has 105 messages
+1.99 ms original
+1.62 ms force all frame sizes over 1 to be 1
+
+when the text is commented out
+0.58 orig
+0.19 eco
+
+1.44 for text alone
+
+
+what can I do?
+
+I could draw them only once...
+make a bitmap, draw the frame and text, then just draw the bitmap in the future...
+
+maybe I could pre_calc line_height, so I don't have to do it every time
+
+
+removing just the call to al_draw_multiline_text:
+0.65 orig
+0.28 eco_draw
+
+1.34 just for al_draw_multiline_text:
+
+I don't think that I can optimize this any further...
+unless I predraw on bitmaps...
+
+test on 4230...
+level 154 with draw disabled
+15 ms orig
+5 ms eco_draw
+
+draw enabled:
+29 ms orig
+19 ms eco_draw
+
+it takes 14ms to draw text alone...
+
+
+what are some other candidates?
+
+things that draw rectangles, especially rect with diag lines
+make a level with block damages and 10x10 rects...
+
+level 157
+50 block damage with 10x10 rect with diag...
+1.15  ms orig
+thats not too bad....
+33 ms on 4230
+
+
+what about vinepods?
+they draw the entire vine every frame
+level 158
+10 vinepods
+0.01 stationary
+1.46 when fully extended
+
+4230:
+0.2 ms stationary
+41  ms when fully extended
+
+what about explosions??
+
+figure out how to tell how much cpu time an explosion takes
+- time drawing the circles
+- time erasing blocks
+
+so far the only thing I have been able to eco draw is
+lifts
+lift_lines
+message frames
+
+
+
+I am thinking that I should just say fuck it to the old 4230...I don't care if the game will run on it.
+
+I still need to do something though when cpu hits 100%
+
+what specs are the 4230's
+
+64 bit win7 sp1
+core2 T5500 @ 1.66GHz
+2G RAM
+Intel Mobile 945 Express
+256M video memory
+
+
+
+
+
+
+
+testing...
+
+
+e6403 server on eidnet
+ping 25-30
+
+
+client 1 - m36
+getting late cdats, no matter what offset I use
+
+client 2 - scat
+getting late cdats on server, but server never show any for late cdats last sec..
+and client does not show any because lcls is what is being sent back and server thinks it is zero...
+
+
+on server cdsy is about -35 for both clients, this seems normal
+gmav of 4-8 for m36 and follows offset changes
+but gmav is always zero for scat?
+
+am i missing some things here, only done for first client?
+
+the game is jumpy as ecxpected, late cdats and all...
+
+but why?
+
+
+I am using a tally for late_cdats last sec, and guess what?...I need one for each player
+
+make them then...
+extern mwTally mwT_late_cdat_last_sec[8];
+
+extern mwTally mwT_game_move_dsync_avg_last_sec[8];
+
+
+
+I think the late cdats can be explained by gmav
+
+
+when offset is 10+ping sometimes it varies and you get late cdats
+increasing to 20 gave more of a buffer and no more late...
+well they were very rare....
+
+look into this more...
+
+I'm thinking that with state_freq 2 there is a pretty small window that client input can arrive in...
+
+I want to make some logs and investigate...
+
+make a function that returns a complimetary contrasting color.
+
+use when you want to draw on the frame...
+
+test it with version...looks good, now used whenever I draw on the frame.. I like it better that the yellow I was using before..
+
+
+
+
+
+
+
+I want to get rid of the old proc_controllers();
+
+136 matches..
+
+I think most of the time, I am waiting for input, or a key to be released ...
+
+in those case, a straight replacement with proc_event_queue would work...
+
+other times, the menu_timer_block thing is being used...
+
+
+down to 135...
+
+
+I going to do a global replace for things like... while () proc_controllers()
+
+proc_controllers()
+proc_event_queue()
+proc_event_queue_menu()
+
+
+this is a replacement for when I want a timer
+
+      while (!program_update) proc_event_queue();
+      program_update = 0;
+
+but then I'll never get the 3's to fire.. use 0 instead
+
+
+
+in visual_level I also want the controls to be checked
+
+add these two lines to peq...
+no, I don't think I will...
+   // only do key check for active local player
+
+
+   clear_controls(active_local_player);
+   set_controls_from_player_key_check(active_local_player);
+
+   if I want to do that I'll just make a wrapper
+   that does both...
+
+   for menu and visual level select...
+
+
+    while (!menu_update) proc_event_queue();
+    menu_update = 0;
+
+
+
+
+e_bitmap.cpp done and checked
+e_fnx.cpp done and checked
+e_lift.cpp done
+e_pde.cpp done
+e_sliders.cpp done
+e_visual_level.cpp
+mwGraph.cpp
+z_args.cpp done
+z_log.cpp done
+z_log.cpp done  // can't cancel splash screen??
+
+
+edit_pmsg_text looks a little funny
+
+
+0   - proc_controllers()
+147 - proc_event_queue()
+17  - proc_event_queue_menu()
+
+officially gone!!!
+void proc_controllers(void)
+{
+   int menu_timer_block=1;
+   key[ALLEGRO_KEY_PRINTSCREEN][0] = 0; // hack to make PRINTSCREEN key work properly
+   key_pressed_ASCII = 0;
+
+   while (menu_timer_block)
+   {
+      while (!al_is_event_queue_empty(event_queue))
+      {
+         ALLEGRO_EVENT ev;
+         if (al_get_next_event(event_queue, &ev))
+         {
+            if ((ev.type == ALLEGRO_EVENT_TIMER) && (ev.timer.source == mnu_timer)) menu_timer_block = 0;
+            else proc_events(ev);
+         }
+      }
+   }
+
+   proc_keys_held();
+   function_key_check();
+
+   // only do key check for active local player
+   clear_controls(active_local_player);
+   set_controls_from_player_key_check(active_local_player);
+}
+
+
+key_pressed_ASCII does not work as 'press any key' beacuse it only has a value for the frame it was pressed on..
+
+I can't use it to cancel splash screen anymore until i added a hack
+
+when the event happens, I now also trigger the menu_update and it works!!
+
+   if (ev.type == ALLEGRO_EVENT_KEY_CHAR)
+   {
+      key_pressed_ASCII = ev.keyboard.unichar;
+      serial_key_check(key_pressed_ASCII);
+      menu_update = 1;
+      //printf("key_pressed_ASCII:%d\n", key_pressed_ASCII);
+   }
+
+go the fuck to bed!!
+
+
+20230205 11:46 PM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

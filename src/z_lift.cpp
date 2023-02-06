@@ -168,8 +168,15 @@ void draw_lift_line(int l)
                {
                   col = (lift_steps[l][s].type >> 28) & 15;
                   al_draw_line( px, py, nx, ny, palette_color[col], 1);
-                  for (int c=3; c>=0; c--)
-                     al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
+                  if (eco_draw)
+                  {
+                     // al_draw_filled_circle(nx, ny, 2, palette_color[col]);
+                  }
+                  else
+                  {
+                     for (int c=3; c>=0; c--)
+                        al_draw_filled_circle(nx, ny, c, palette_color[(col - 96) + c*48]);
+                  }
                }
 
                px = nx;
@@ -208,12 +215,22 @@ void draw_lift(int l, int x1, int y1, int x2, int y2)
 
    if ((lifts[l].flags & PM_LIFT_NO_DRAW) && (level_editor_running)) col = 0;
 
-   int a;
-   for (a=0; a<10; a++)
-     al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[col + ((9 - a)*16)], 2 ); // faded outer shell
+   if (eco_draw)
+   {
+      al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[col]);
+      //al_draw_filled_rounded_rectangle(x1, y1, x2, y2, 4, 4, palette_color[col] );
+      al_draw_text(font0, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[l].lift_name); // name
+   }
+   else
+   {
+      int a;
+      for (a=0; a<10; a++)
+        al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[col + ((9 - a)*16)], 2 ); // faded outer shell
 
-   al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[col] );                            // solid core
-   al_draw_text(font0, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[l].lift_name); // name
+      al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[col] );                            // solid core
+      al_draw_text(font0, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[l].lift_name); // name
+   }
+
 
   // printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
 
@@ -241,6 +258,7 @@ void draw_lifts()
          int y1 = lifts[l].y1;
          int y2 = lifts[l].y2;
          draw_lift(l, x1, y1, x2, y2);
+
 
          // show if player is riding this lift
          int p = is_player_riding_lift(l);
@@ -287,6 +305,17 @@ void draw_lifts()
             }
          }
       }
+
+
+
+
+
+
+
+
+
+
+
    }  // end of iterate lifts
 }
 

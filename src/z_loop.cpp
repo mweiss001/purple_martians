@@ -64,6 +64,7 @@ void proc_events(ALLEGRO_EVENT ev)
    {
       key_pressed_ASCII = ev.keyboard.unichar;
       serial_key_check(key_pressed_ASCII);
+      menu_update = 1;
       //printf("key_pressed_ASCII:%d\n", key_pressed_ASCII);
    }
    if (ev.type == ALLEGRO_EVENT_JOYSTICK_AXIS)
@@ -107,6 +108,7 @@ void proc_events(ALLEGRO_EVENT ev)
       if (ev.timer.source == sec_timer) program_update_1s = 1;
       if (ev.timer.source == png_timer) players1[active_local_player].client_ping_flag = 1;
       if (ev.timer.source == mou_timer) al_hide_mouse_cursor(display);
+      if (ev.timer.source == mnu_timer) menu_update = 1;
    }
 }
 
@@ -145,71 +147,31 @@ void proc_event_queue(void)
    function_key_check();
 }
 
+void proc_event_queue_menu(void)
+{
+   proc_event_queue();
+
+   // do this so that the game keys can be used in menus and visual level select
+   clear_controls(active_local_player);
+   set_controls_from_player_key_check(active_local_player);
+}
+
+
+
 void draw_frame(void)
 {
    mwDS.draw();
-
+//   get_new_background(1);
+//   draw_lifts();
+//   draw_items();
+//   draw_enemies();
+//   draw_ebullets();
+//   draw_pbullets();
+//   draw_players();
+//   get_new_screen_buffer(0, 0, 0);
+//   draw_screen_overlay();
+//   al_flip_display();
 }
-void old_draw_frame(void)
-{
-   double t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
-   //if ((LOG_TMR_draw_tot) || (LOG_TMR_draw_all)) t0 = al_get_time();
-   t0 = al_get_time();
-
-   get_new_background(1);
-   t1 = al_get_time();
-   mwDS.add(0, t1-t0);
-
-   draw_lifts();
-   t2 = al_get_time();
-   mwDS.add(1, t2-t1);
-
-   draw_items();
-   t3 = al_get_time();
-   mwDS.add(2, t3-t2);
-
-   draw_enemies();
-   t4 = al_get_time();
-   mwDS.add(3, t4-t3);
-
-   draw_ebullets();
-   t5 = al_get_time();
-   mwDS.add(4, t5-t4);
-
-   draw_pbullets();
-   t6 = al_get_time();
-   mwDS.add(5, t6-t5);
-
-   draw_players();
-   t7 = al_get_time();
-   mwDS.add(6, t7-t6);
-
-   get_new_screen_buffer(0, 0, 0);
-   t8 = al_get_time();
-   mwDS.add(7, t8-t7);
-
-   draw_screen_overlay();
-   t9 = al_get_time();
-   mwDS.add(8, t9-t8);
-
-   al_flip_display();
-   t10 = al_get_time();
-   mwDS.add(9, t10-t9);
-   if (LOG_TMR_draw_all)
-   {
-      sprintf(msg, "tmst d-bkgr:[%0.4f] d-lift:[%0.4f] d-item:[%0.4f] d-enem:[%0.4f] d-ebul:[%0.4f] d-pbul:[%0.4f] d-plyr:[%0.4f] d-buff:[%0.4f] d-ovrl:[%0.4f] d-flip:[%0.4f] d-totl:[%0.4f]\n",
-      (t1-t0)*1000, (t2-t1)*1000, (t3-t2)*1000, (t4-t3)*1000, (t5-t4)*1000, (t6-t5)*1000, (t7-t6)*1000, (t8-t7)*1000, (t9-t8)*1000, (t10-t9)*1000, (t10-t0)*1000);
-      //printf("\n%s\n", msg);
-      add_log_entry2(44, 0, msg);
-   }
-   if (LOG_TMR_draw_tot) add_log_TMR(t10 - t0, "draw", 0);
-
-   mwDS.add(10, t10-t0);
-
-}
-
-
-
 
 void move_frame(void)
 {
@@ -698,7 +660,7 @@ void proc_program_state(void)
          add_log_entry_header(10, 0, msg, 3);
       }
 
-      // only do fancy zoom into level if not in netgame
+      // only do fancy zoom into level if not in netgame  .. also warp if I can figure out how to do that here
       if ((!ima_client) && (!ima_server)) stimp();
 
       show_player_join_quit_timer = 0;
@@ -765,7 +727,7 @@ void process_level_done_mode(void)
 {
    if (players[0].level_done_mode == 9) // pause players and set up exit xyincs
    {
-      set_player_joint_quit_display(players[0].level_done_player, 2, 60);
+      set_player_join_quit_display(players[0].level_done_player, 2, 60);
 
       for (int p=0; p<NUM_PLAYERS; p++)
          if (players[p].active)
@@ -935,8 +897,8 @@ void main_loop(void)
                for (int p=1; p<NUM_PLAYERS; p++)
                   if (players[p].control_method == 2)
                   {
-                     players1[p].late_cdats_last_sec = mwT[0].get_tally();
-                     players1[p].game_move_dsync_avg_last_sec = mwT[3].get_avg();
+                     players1[p].late_cdats_last_sec = mwT_late_cdats_last_sec[p].get_tally();
+                     players1[p].game_move_dsync_avg_last_sec = mwT_game_move_dsync_avg_last_sec[p].get_avg();
                   }
             }
          }

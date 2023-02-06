@@ -820,7 +820,7 @@ int log_file_viewer(int type)
 
          if (mouse_b[1][0])
          {
-            while (mouse_b[1][0]) proc_controllers();
+            while (mouse_b[1][0]) proc_event_queue();
             first_line = sbmy; // set new log line pos
          }
       }
@@ -924,7 +924,7 @@ int log_file_viewer(int type)
 
       al_flip_display();
 
-      proc_controllers();
+      proc_event_queue();
 
       int k = key_pressed_ASCII;
       if ((k > 36) && (k < 45)) k+=11; // convert number pad number to regular numbers
@@ -1038,7 +1038,7 @@ void run_ping_graph(void)
             al_draw_filled_rectangle(sx1, sy1, sx2, sy2, palette_color[10]);
 
             al_flip_display();
-            proc_controllers();
+            proc_event_queue();
             al_clear_to_color(al_map_rgb(0, 0, 0));
          }
       }
@@ -1051,7 +1051,7 @@ void run_ping_graph(void)
       mwG[1].proc_graph();
 
       al_flip_display();
-      proc_controllers();
+      proc_event_queue();
       if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
@@ -1275,7 +1275,7 @@ void graph_test(void)
 
             al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[10]);
             al_flip_display();
-            proc_controllers();
+            proc_event_queue();
             al_clear_to_color(al_map_rgb(0, 0, 0));
          }
       }
@@ -1290,7 +1290,7 @@ void graph_test(void)
       mwG[1].proc_graph();
 
       al_flip_display();
-      proc_controllers();
+      proc_event_queue();
       if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
@@ -1363,7 +1363,7 @@ void run_bandwidth_graph(int both)
                mwG[1].draw_graph(1);
                al_draw_filled_rectangle(sx1, sy1, sx2, sy2, palette_color[10]);
                al_flip_display();
-               proc_controllers();
+               proc_event_queue();
                al_clear_to_color(al_map_rgb(0, 0, 0));
             }
          }
@@ -1381,7 +1381,7 @@ void run_bandwidth_graph(int both)
          mwG[0].proc_graph();
       }
       al_flip_display();
-      proc_controllers();
+      proc_event_queue();
       if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
@@ -1536,7 +1536,7 @@ void run_client_server_sync_graph(void)
 
             al_draw_filled_rectangle(sx1, s0y1, sx2, s0y2, palette_color[10]);
             al_flip_display();
-            proc_controllers();
+            proc_event_queue();
             al_clear_to_color(al_map_rgb(0, 0, 0));
          }
       }
@@ -1565,7 +1565,7 @@ void run_client_server_sync_graph(void)
 
             al_draw_filled_rectangle(sx1, s1y1, sx2, s1y2, palette_color[10]);
             al_flip_display();
-            proc_controllers();
+            proc_event_queue();
             al_clear_to_color(al_map_rgb(0, 0, 0));
          }
       }
@@ -1579,7 +1579,7 @@ void run_client_server_sync_graph(void)
       mwG[2].proc_graph();
 
       al_flip_display();
-      proc_controllers();
+      proc_event_queue();
       if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
@@ -1694,7 +1694,7 @@ void run_profile_graph(void)
       mwG[0].proc_graph();
 
       al_flip_display();
-      proc_controllers();
+      proc_event_queue();
       if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
@@ -2214,7 +2214,7 @@ void run_timestamp_graph(void)
 
 
       al_flip_display();
-      proc_controllers();
+      proc_event_queue();
       if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }

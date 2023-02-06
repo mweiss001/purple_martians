@@ -20,16 +20,13 @@ void mwDrawSequence::initialize(void)
 {
    for (int i=0; i<20; i++)
    {
-      seq[i][0] = 0;
+      seq[i][0] = 1; // always on now
       seq[i][1] = 0;
       time_cur[i] = 0;
       time_avg[i] = 0;
       time_min[i] = 0;
       time_max[i] = 0;
-
       RA[i].initialize();
-
-
    }
 
    sprintf(name_long[0], "get_new_background");
@@ -43,13 +40,12 @@ void mwDrawSequence::initialize(void)
    sprintf(name_long[8], "draw_screen_overlay");
    sprintf(name_long[9], "al_flip_display");
    sprintf(name_long[10], "total draw time");
-
 }
 
 void mwDrawSequence::add(int s, double v)
 {
    RA[s].add_data(v);
-   calc();
+   // calc();
 }
 
 
@@ -77,7 +73,6 @@ void mwDrawSequence::calc(void)
    seq[6][1] = 0;
    seq[8][1] = 0;
 
-
    // set actual based on current frame num
    int oe = frame_num % 2; // odd/even  0 = even 1 = odd
 
@@ -96,44 +91,34 @@ void mwDrawSequence::draw(void)
    t0 = al_get_time();
 
    if (seq[0][0]) get_new_background(1);
-   t1 = al_get_time();
-   mwDS.add(0, t1-t0);
+   t1 = al_get_time(); add(0, t1-t0);
 
    if (seq[1][0]) draw_lifts();
-   t2 = al_get_time();
-   mwDS.add(1, t2-t1);
+   t2 = al_get_time(); add(1, t2-t1);
 
    if (seq[2][0]) draw_items();
-   t3 = al_get_time();
-   mwDS.add(2, t3-t2);
+   t3 = al_get_time(); add(2, t3-t2);
 
    if (seq[3][0]) draw_enemies();
-   t4 = al_get_time();
-   mwDS.add(3, t4-t3);
+   t4 = al_get_time(); add(3, t4-t3);
 
    if (seq[4][0]) draw_ebullets();
-   t5 = al_get_time();
-   mwDS.add(4, t5-t4);
+   t5 = al_get_time(); add(4, t5-t4);
 
    if (seq[5][0]) draw_pbullets();
-   t6 = al_get_time();
-   mwDS.add(5, t6-t5);
+   t6 = al_get_time(); add(5, t6-t5);
 
    if (seq[6][0]) draw_players();
-   t7 = al_get_time();
-   mwDS.add(6, t7-t6);
+   t7 = al_get_time(); add(6, t7-t6);
 
    get_new_screen_buffer(0, 0, 0);
-   t8 = al_get_time();
-   mwDS.add(7, t8-t7);
+   t8 = al_get_time(); add(7, t8-t7);
 
    if (seq[8][0]) draw_screen_overlay();
-   t9 = al_get_time();
-   mwDS.add(8, t9-t8);
+   t9 = al_get_time(); add(8, t9-t8);
 
    al_flip_display();
-   t10 = al_get_time();
-   mwDS.add(9, t10-t9);
+   t10 = al_get_time(); add(9, t10-t9); add(10, t10-t0);
 
    if (LOG_TMR_draw_all)
    {
@@ -142,12 +127,8 @@ void mwDrawSequence::draw(void)
       //printf("\n%s\n", msg);
       add_log_entry2(44, 0, msg);
    }
-   if (LOG_TMR_draw_tot) add_log_TMR(t10 - t0, "draw", 0);
-
-   mwDS.add(10, t10-t0);
-
+   if (LOG_TMR_draw_tot) add_log_TMR(t10-t0, "draw", 0);
 }
-
 
 char * mwDrawSequence::get_line(int s)
 {
@@ -157,14 +138,9 @@ char * mwDrawSequence::get_line(int s)
 
 void mwDrawSequence::show_text(int x, int y)
 {
-
-
+   al_draw_filled_rectangle(x, y, x+240, y+100, palette_color[0]);
    for (int i=0; i<11; i++)
-   {
-      al_draw_textf(font, palette_color[15], x+180, y+i*8, 0, "%s", get_line(i));
-   }
-
-
+      al_draw_textf(font, palette_color[15], 1+x, 1+y+i*9, 0, "%s", get_line(i));
 
 //
 //   al_draw_filled_rectangle(x, y, x+340, y+90, palette_color[0]);

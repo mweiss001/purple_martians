@@ -61,6 +61,10 @@ void save_config(void)
       asci(SCREEN, saved_display_transform_double)
       asci(SCREEN, display_transform_double_max)
 
+      asci(SCREEN, eco_draw)
+
+
+
       asci(GAME, players[0].color)
       asci(GAME, start_level)
       asci(GAME, viewport_mode)
@@ -192,7 +196,7 @@ void save_config(void)
       asci(OVERLAY, overlay_grid[8][2]);
       asci(OVERLAY, overlay_grid[8][3]);
 
-
+      asci(OVERLAY, number_of_debug_overlay_modes);
 
 
    }
@@ -236,6 +240,12 @@ void load_config(void)
    if (!show_splash_screen) splash_screen_done = 1;
 
    agci(SCREEN, bottom_msg_on, 1)
+
+
+   agci(SCREEN, eco_draw, 0)
+
+
+
 
    agci(GAME, start_level, 1)
    set_start_level(start_level);
@@ -320,17 +330,21 @@ void load_config(void)
    agcf(DEMO, demo_mode_overlay_opacity, 0.1)
 
 
+
+
+
+
    // cpu
    agci(OVERLAY, overlay_grid[0][0], 0);
    agci(OVERLAY, overlay_grid[0][1], 1);
-   agci(OVERLAY, overlay_grid[0][2], 1);
-   agci(OVERLAY, overlay_grid[0][3], 1);
+   agci(OVERLAY, overlay_grid[0][2], 0);
+   agci(OVERLAY, overlay_grid[0][3], 0);
 
    // display
    agci(OVERLAY, overlay_grid[1][0], 0);
    agci(OVERLAY, overlay_grid[1][1], 0);
-   agci(OVERLAY, overlay_grid[1][2], 1);
-   agci(OVERLAY, overlay_grid[1][3], 1);
+   agci(OVERLAY, overlay_grid[1][2], 0);
+   agci(OVERLAY, overlay_grid[1][3], 0);
 
    // draw profile
    agci(OVERLAY, overlay_grid[2][0], 0);
@@ -342,13 +356,13 @@ void load_config(void)
    agci(OVERLAY, overlay_grid[3][0], 0);
    agci(OVERLAY, overlay_grid[3][1], 0);
    agci(OVERLAY, overlay_grid[3][2], 0);
-   agci(OVERLAY, overlay_grid[3][3], 1);
+   agci(OVERLAY, overlay_grid[3][3], 0);
 
    // sync graph
    agci(OVERLAY, overlay_grid[4][0], 0);
    agci(OVERLAY, overlay_grid[4][1], 0);
    agci(OVERLAY, overlay_grid[4][2], 0);
-   agci(OVERLAY, overlay_grid[4][3], 1);
+   agci(OVERLAY, overlay_grid[4][3], 0);
 
    // sync adjust
    agci(OVERLAY, overlay_grid[5][0], 0);
@@ -371,9 +385,10 @@ void load_config(void)
    // misc
    agci(OVERLAY, overlay_grid[8][0], 0);
    agci(OVERLAY, overlay_grid[8][1], 0);
-   agci(OVERLAY, overlay_grid[8][2], 1);
-   agci(OVERLAY, overlay_grid[8][3], 1);
+   agci(OVERLAY, overlay_grid[8][2], 0);
+   agci(OVERLAY, overlay_grid[8][3], 0);
 
+   agci(OVERLAY, number_of_debug_overlay_modes, 2);
 
 
 
