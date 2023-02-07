@@ -205,7 +205,7 @@ void loop_frame(int times) // used for fast forwarding after rewind
    for (int i=0; i<times; i++)
    {
       proc_game_moves_array();
-      if (players[0].level_done_mode) process_level_done_mode();
+      if (players[0].level_done_mode) proc_level_done_mode();
       else move_frame();
       frame_num++;
    }
@@ -717,13 +717,7 @@ void proc_program_state(void)
 }
 
 
-
-int proc_frame_skip(void)
-{
-   return 1;
-}
-
-void process_level_done_mode(void)
+void proc_level_done_mode(void)
 {
    if (players[0].level_done_mode == 9) // pause players and set up exit xyincs
    {
@@ -846,7 +840,7 @@ void main_loop(void)
             proc_player_input();
             proc_game_moves_array();
 
-            if (players[0].level_done_mode) process_level_done_mode();
+            if (players[0].level_done_mode) proc_level_done_mode();
             else move_frame();
 
             if (LOG_TMR_sdif) t0 = al_get_time();

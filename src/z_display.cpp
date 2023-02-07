@@ -1,7 +1,7 @@
 // z_display.cpp
 
 #include "pm.h"
-#include "e_mWindow.h"
+#include "mwWindow.h"
 
 
 /*  setup and control of the display

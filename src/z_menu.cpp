@@ -1,6 +1,6 @@
 // z_menu.cpp
 #include "pm.h"
-#include "e_mWindow.h"
+#include "mwWindow.h"
 #include "z_player.h"
 #include "n_netgame.h"
 
@@ -862,7 +862,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
 
 
       // shortcut keys
-      //if (key[ALLEGRO_KEY_L][0])                      return 8; // level editor
+      if (key[ALLEGRO_KEY_L][0])                      return 8; // level editor
       if (key[ALLEGRO_KEY_O][0] && SHFT() && CTRL() ) return 7; // settings
 
       if (key[ALLEGRO_KEY_PGDN][0])   highlight = last_list_item;

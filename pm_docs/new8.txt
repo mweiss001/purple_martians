@@ -11213,604 +11213,82 @@ go the fuck to bed!!
 20230205 11:46 PM
 
 
+20230207 4:52 AM
 
+still can't escape from level editor
 
+145 - proc_event_queue()
 
+what are my key array things?
+0 = pressed
+1 = pressed last frame
+2 - just pressed this frame
+3 - just released this frame
 
 
+do I need to document the program flow for level editor?
 
+I would be nice...
+and I can rename mWindow also...
 
+done..now mwWindow
+decided not to change all >500 referneces to mW[] that can stay
 
 
 
+so what is the process of level editor?
 
+it is started by calling:
+edit_menu(start_level)
 
+edit_menu sets some stuff up, then does this loop
 
+   while (mW[8].active)
+   {
+      cm_redraw_level_editor_background();
+      if (!mw_cycle_windows(0)) cm_process_mouse();
+      cm_process_keypress();
+   }
 
 
+cm_redraw_level_editor_background();
+- proc_event_queue
+- does the delay (currently by calling proc_event_queue and waiting on program_update)
+- gets new background
+- draws lifts, enemies, items
+- draws overlay specific to mode
+- gets new screen buffer
 
 
+if (!mw_cycle_windows(0)) cm_process_mouse();
+- processes and draws all active windows for this mode
+- if the mouse is not on any window, process mouse for background
 
 
 
+cm_process_keypress();
+custom handler for em and ovw
+but mostly all ESC tries to quit the entire level editor
 
+I have simplified this now...
+- still have a custom handler for em and ovw
+- in any other mode ESC quits
+that seems to work good now
 
+removed up and down from ovw
 
+em_keypress custom...all it did was check for hotkeys for lists...removed...
 
+so now it is even simpler:
+cm_process_keypress();
+- runs custom handler for ovm
+- checks for ESC in all modes for quit
+- runs the exit dialog for last chance to abort or save before quit
 
 
+I think that is all I have time for today...
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+add this to level_editor_process.txt and push...
 
 
 

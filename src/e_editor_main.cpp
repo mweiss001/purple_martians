@@ -1,6 +1,6 @@
 // e_editor_main.cpp
 #include "pm.h"
-#include "e_mWindow.h"
+#include "mwWindow.h"
 
 
 
@@ -828,18 +828,6 @@ void em_process_mouse(void)
    } // end of mouse_b[2][0]
 }
 
-
-void em_process_keypress(void)
-{
-   if (key[ALLEGRO_KEY_I][3]) show_all_items();
-   if (key[ALLEGRO_KEY_E][3]) show_all_enemies();
-   if (key[ALLEGRO_KEY_V][3]) show_all_events();
-   if (key[ALLEGRO_KEY_L][3]) show_all_lifts();
-   if (key[ALLEGRO_KEY_S][3]) level_check();
-   if (key[ALLEGRO_KEY_P][3]) show_all_pmsg();
-
-   if (key[ALLEGRO_KEY_ESCAPE][3]) mW[8].active = 0;
-}
 
 int edit_menu(int el)
 {

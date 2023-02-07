@@ -96,8 +96,6 @@
 		<Unit filename="src/e_group_edit_windows.cpp" />
 		<Unit filename="src/e_item.cpp" />
 		<Unit filename="src/e_lift.cpp" />
-		<Unit filename="src/e_mWindow.cpp" />
-		<Unit filename="src/e_mWindow.h" />
 		<Unit filename="src/e_object_viewer_windows.cpp" />
 		<Unit filename="src/e_pde.cpp" />
 		<Unit filename="src/e_sliders.cpp" />
@@ -113,6 +111,8 @@
 		<Unit filename="src/mwRollingAverage.h" />
 		<Unit filename="src/mwTally.cpp" />
 		<Unit filename="src/mwTally.h" />
+		<Unit filename="src/mwWindow.cpp" />
+		<Unit filename="src/mwWindow.h" />
 		<Unit filename="src/n_client.cpp" />
 		<Unit filename="src/n_netgame.cpp" />
 		<Unit filename="src/n_netgame.h" />

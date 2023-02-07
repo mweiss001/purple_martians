@@ -633,7 +633,6 @@ void em_show_draw_item_cursor(void);
 void em_show_item_info(int x, int y, int color, int type, int num);
 void em_find_point_item(void);
 void em_process_mouse(void);
-void em_process_keypress(void);
 int edit_menu(int el);
 
 // e_editor_zfs.h
@@ -754,7 +753,7 @@ int draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d);
 void draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc, int d);
 int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_step, int d);
 
-// e_mWindows.h
+// mwWindows.h
 void cm_get_block_position_on_map();
 void cm_process_scrolledge(void);
 void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
@@ -1198,7 +1197,7 @@ int has_player_acknowledged(int p);
 int have_all_players_acknowledged(void);
 void proc_level_done_mode(void);
 void proc_program_state(void);
-void process_level_done_mode(void);
+void proc_level_done_mode(void);
 void main_loop(void);
 
 // z_menu.h

@@ -1,7 +1,7 @@
 // e_group_edit_windows.cpp
 
 #include "pm.h"
-#include "e_mWindow.h"
+#include "mwWindow.h"
 
 #define NUM_OBJ 600
 
