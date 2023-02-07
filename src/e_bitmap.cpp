@@ -291,8 +291,7 @@ int select_bitmap_ans(int zzindx)
    int quit = 0;
    while (!quit)
    {
-      while (!program_update) proc_event_queue();
-      program_update = 0;
+      proc_event_queue();
 
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
@@ -329,19 +328,14 @@ int select_bitmap_ans(int zzindx)
 
          al_draw_rectangle(518, 640.5, 640.5, 662.5, palette_color[13], 1);
 
-         if (mouse_b[1][0])
+         if (mouse_b[1][3])
          {
-            while (mouse_b[1][0]) proc_event_queue();
             bmp_index = pointer;
             return 1;
          }
       }
+      if ((key[ALLEGRO_KEY_ESCAPE][3]) || (mouse_b[2][3])) quit = 1;
 
-      while ((key[ALLEGRO_KEY_ESCAPE][0]) || (mouse_b[2][0]))
-      {
-         proc_event_queue();
-         quit = 1;
-      }
    }
    return -1;
 }
@@ -359,13 +353,17 @@ void animation_sequence_editor(void)
 
    while (!quit)
    {
-      while (!program_update) proc_event_queue();
-      program_update = 0;
+
+      proc_event_queue();
+
+      if (program_update)
+      {
+         update_animation();
+         program_update = 0;
+      }
 
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
-
-      update_animation();
 
       sprintf(msg, "Animation Sequence Editor");
       int l = 2+strlen(msg)*4;

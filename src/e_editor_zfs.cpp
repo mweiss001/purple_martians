@@ -1,7 +1,7 @@
 // e_editor_zfs.cpp
 
 #include "pm.h"
-#include "e_mWindow.h"
+#include "mwWindow.h"
 
 
 int ft_level_header[20];

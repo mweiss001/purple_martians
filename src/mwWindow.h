@@ -1,7 +1,7 @@
-// e_mWindow.h
+// mwWindow.h
 
 
-class mWindow
+class mwWindow
 {
    public:
    int x1, y1, x2, y2, w, h;
@@ -67,7 +67,7 @@ class mWindow
    int th_sel;
 
 
-   mWindow(); // default constructor
+   mwWindow(); // default constructor
    void set_pos(int, int);
    void set_size(int, int);
    void draw(int draw_only);
@@ -79,4 +79,4 @@ class mWindow
 };
 
 #define NUM_MW 10
-extern mWindow mW[NUM_MW];
+extern mwWindow mW[NUM_MW];

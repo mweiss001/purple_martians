@@ -1,7 +1,7 @@
 // e_sliders.cpp
 
 #include "pm.h"
-#include "e_mWindow.h"
+#include "mwWindow.h"
 
 char smsg[80];
 int bw = 3; // slider adjustment bar width
@@ -986,13 +986,13 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 310) // block 1 select...
    {
-      int tn = item[num][10]&1023; //block 1
+      int tn = item[num][10]&1023; // block 1
       sprintf(smsg, "Block 1: %d", tn);
       if (press) item[num][10] = select_bitmap(item[num][10]);
    }
    if (bn == 311) // block 2 select...
    {
-      int tn = item[num][11]&1023; //block 1
+      int tn = item[num][11]&1023; // block 2
       sprintf(smsg, "Block 2: %d", tn);
       if (press) item[num][11] = select_bitmap(item[num][11]);
    }

@@ -1,6 +1,6 @@
 // e_object_viewer_windows.cpp
 #include "pm.h"
-#include "e_mWindow.h"
+#include "mwWindow.h"
 
 int create_obj(int obt, int type, int num)
 {
@@ -1972,7 +1972,6 @@ void ovw_check_if_valid(int type)
    }
 }
 
-
 void ovw_process_keypress(void)
 {
    int mb = mW[7].mb;
@@ -1987,12 +1986,9 @@ void ovw_process_keypress(void)
       lifts[mW[7].num].current_step = step;
    }
 
-   if (key[ALLEGRO_KEY_ESCAPE][3]) mW[8].active = 0;
-   if (key[ALLEGRO_KEY_DELETE][3]) mb = 20;
-   if (key[ALLEGRO_KEY_RIGHT][3])  mb = 21;
-   if (key[ALLEGRO_KEY_LEFT][3])   mb = 22;
-   if (key[ALLEGRO_KEY_UP][3])     mb = 26;
-   if (key[ALLEGRO_KEY_DOWN][3])   mb = 27;
+   while (key[ALLEGRO_KEY_DELETE][0]) { proc_event_queue(); mb = 20; }
+   while (key[ALLEGRO_KEY_RIGHT][0])  { proc_event_queue(); mb = 21; }
+   while (key[ALLEGRO_KEY_LEFT][0])   { proc_event_queue(); mb = 22; }
 
    switch(mb)
    {
@@ -2057,52 +2053,6 @@ void ovw_process_keypress(void)
          if ((mW[7].obt==3) && (--mW[7].num < e_first_num[type])) mW[7].num++;
          if ((mW[7].obt==2) && (--mW[7].num < item_first_num[type])) mW[7].num++;
          if ((mW[7].obt==4) && (--mW[7].num < 0)) mW[7].num++;
-      break;
-      case 26: // up
-      {
-         if (mW[7].obt == 2)  // prev item type
-         {
-            do
-            {
-               type--;
-               if (type < 1) type = 20;
-            } while (item_num_of_type[type] == 0);
-            mW[7].num = item_first_num[type];
-         }
-         if (mW[7].obt == 3) // prev enemy type
-         {
-            while (e_num_of_type[--type] == 0)
-               if (type < 3) type = 20;
-            mW[7].num = e_first_num[type];
-         }
-         if (mW[7].obt == 4) // prev lift step
-         {
-            if (--step < 0) step = 0;
-         }
-      }
-      break;
-      case 27: // down
-      {
-         if (mW[7].obt == 2) // next obj type
-         {
-            do
-            {
-               type++;
-               if (type > 20) type = 1;
-            } while (item_num_of_type[type] == 0);
-            mW[7].num = item_first_num[type];
-         }
-         if (mW[7].obt == 3) // next obj type
-         {
-            while (e_num_of_type[++type] == 0)
-               if (type > 20) type = 1;
-            mW[7].num = e_first_num[type];
-         }
-         if (mW[7].obt == 4) // next lift step
-         {
-            if (++step > (lifts[lift].num_steps-1)) step = (lifts[lift].num_steps-1);
-         }
-      }
       break;
    } // end of switch (mb)
 }

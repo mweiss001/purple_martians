@@ -1,8 +1,8 @@
-// e_mWindow.cpp
+// mwWindow.cpp
 #include "pm.h"
-#include "e_mWindow.h"
+#include "mwWindow.h"
 
-mWindow mW[NUM_MW];
+mwWindow mW[NUM_MW];
 
 
 
@@ -141,12 +141,14 @@ void cm_process_mouse(void)
 
 void cm_process_keypress(void)
 {
-   if (mW[8].level_editor_mode == 1) em_process_keypress();
    if (mW[8].level_editor_mode == 4) ovw_process_keypress();
-   if ((mW[8].level_editor_mode == 2) || (mW[8].level_editor_mode == 3) || (mW[8].level_editor_mode == 9)) // zfs, ge or th
+
+   while (key[ALLEGRO_KEY_ESCAPE][0])
    {
-      if (key[ALLEGRO_KEY_ESCAPE][3]) mW[8].active = 0;
+      mW[8].active = 0;
+      proc_event_queue();
    }
+
    if (mW[8].active == 0)
    {
       int ret = exit_level_editor_dialog();
@@ -171,7 +173,6 @@ void cm_redraw_level_editor_background(void)
    proc_scale_factor_change();
 
    while (!program_update) proc_event_queue();
-
    program_update = 0;
 
    get_new_background(0);
@@ -1111,7 +1112,7 @@ int mw_cycle_windows(int draw_only)
    return mouse_on_window;
 }
 
-mWindow::mWindow()
+mwWindow::mwWindow()
 {
    x1 = 0;
    y1 = 0;
@@ -1148,7 +1149,7 @@ mWindow::mWindow()
 }
 
 
-void mWindow::check_offscreen(void)
+void mwWindow::check_offscreen(void)
 {
    int change = 0;
    if (x1<1) {x1=1; change=1;}
@@ -1158,7 +1159,7 @@ void mWindow::check_offscreen(void)
    if (change) set_pos(x1, y1);
 }
 
-void mWindow::process_mouse(void)
+void mwWindow::process_mouse(void)
 {
    if (!hidden)
    {
@@ -1299,7 +1300,7 @@ void mWindow::process_mouse(void)
 }
 
 
-void mWindow::set_focus(int n)
+void mwWindow::set_focus(int n)
 {
    mW[n].have_focus = 1;
 
@@ -1323,7 +1324,7 @@ void mWindow::set_focus(int n)
    }
 }
 
-void mWindow::draw(int draw_only)
+void mwWindow::draw(int draw_only)
 {
    // erase background
    if ((!hidden) && (index != 8)) al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[0]);
@@ -1458,27 +1459,27 @@ void mWindow::draw(int draw_only)
 
 
 }
-int mWindow::detect_mouse(void)
+int mwWindow::detect_mouse(void)
 {
    if ((mouse_x >= x1) && (mouse_x <= x2) && (mouse_y >= y1) && (mouse_y <= y2) && (!hidden)) return 1;
    else return 0;
 }
 
 
-void mWindow::set_title(const char* st)
+void mwWindow::set_title(const char* st)
 {
    sprintf(title, "%s", st);
 }
 
 
-void mWindow::set_pos(int sx, int sy)
+void mwWindow::set_pos(int sx, int sy)
 {
    x1 = sx;
    y1 = sy;
    x2 = x1 + w;
    y2 = y1 + h;
 }
-void mWindow::set_size(int sw, int sh)
+void mwWindow::set_size(int sw, int sh)
 {
    w = sw;
    h = sh;

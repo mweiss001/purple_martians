@@ -633,17 +633,21 @@ void add_game_move(int frame, int type, int data1, int data2)
    // ----------------------------------------------------------------------------------------
    if ((type == 5) && (data2 & PM_COMPMOVE_MENU))  // menu key
    {
-      if ((active_local_player == 0) && (players[0].control_method == 0)) // single player mode
+      // ----------------------------------------------------------------------------------------
+      // single player mode quit
+      // ----------------------------------------------------------------------------------------
+      if ((active_local_player == 0) && (players[0].control_method == 0))
       {
-         // eat this keypress and pretend it never happened
+         // do not enter game move, just exit to menu
          new_program_state = 1;
-
          resume_allowed = 1;
-         return; // to exit immediately
+         return;
       }
-      if ((active_local_player == 0) && (players[0].control_method == 3) && (data1 == 0)) // local server quitting
+      // ----------------------------------------------------------------------------------------
+      // local server quitting
+      // ----------------------------------------------------------------------------------------
+      if ((ima_server) && (data1 == 0))
       {
-         //printf("local server quitting f:%d\n", frame_num);
          // first set all connected clients to inactive
          for (int p=1; p<NUM_PLAYERS; p++)
             if (players[p].control_method == 2)
@@ -653,20 +657,33 @@ void add_game_move(int frame, int type, int data1, int data2)
             }
          // then set server to inactive in future
          add_game_move2(frame + 10, 2, 0, 64); // type 2 - player inactive
-         return; // to exit immediately
+         return;
+      }
+      // ----------------------------------------------------------------------------------------
+      // remote client quitting (server only)
+      // ----------------------------------------------------------------------------------------
+      if ((ima_server) && (data1 > 0))
+      {
+         add_game_move2(frame + 2, 2, data1, 64); // type 2 - player inactive
+         return;
+      }
+      // ----------------------------------------------------------------------------------------
+      // local client quitting (client only)
+      // ----------------------------------------------------------------------------------------
+      if (ima_client)
+      {
+         add_game_move2(frame + 4, 2, data1, 64); // type 2 - player inactive
+         return;
       }
 
-      if ((active_local_player == 0) && (players[0].control_method == 3) && (data1 > 0)) // remote client quitting
-      {
-         //printf("remote client quitting\n");
-         // set client inactive
-         add_game_move2(frame + 2, 2, data1, 64); // type 2 - player inactive
-         return; // to exit immediately
-      }
-      // everything else
-      // printf("everything else\n");
-      add_game_move2(frame + 4, 2, data1, 64); // type 2 - player inactive
-      return; // to exit immediately
+      sprintf(msg, "Error: menu key not handled...should never get here");
+      m_err(msg);
+
+      // ----------------------------------------------------------------------------------------
+      // all other types of quitting
+      // ----------------------------------------------------------------------------------------
+//      add_game_move2(frame + 4, 2, data1, 64); // type 2 - player inactive
+//      return;
    }
 
    // ----------------------------------------------------------------------------------------
