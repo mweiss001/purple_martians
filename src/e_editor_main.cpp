@@ -802,7 +802,7 @@ void em_process_mouse(void)
             }
          break;
          case 5: break; // menu divider
-         case 6: set_windows(2); break;   // zoom full screen
+         case 6: set_windows(2); break;   // edit selection
          case 7: set_windows(3); break;   // group edit
          case 8: set_windows(9); break;   // tile helper
          case 9: mW[1].active = 1; break; // status_window
@@ -844,15 +844,17 @@ int edit_menu(int el)
    load_mW();
    mW[8].active = 1;      // this is used to quit so it needs to be turned back on
 //   mW[8].level_editor_mode = 1; // force start in main edit mode
-   if (!el) load_level_prompt(); // load prompt
-   else load_level(el, 0);       // blind load
+
+
+   if (el) load_level(el, 0); // blind load
+   else load_level_prompt();  // load prompt
+
    mW[1].draw_item_type = 1;
    mW[1].draw_item_num  = 0;
    load_PDE();
    sort_enemy();
    sort_item(1);
    em_set_swbl();
-   frame_num = 0;
 
    clear_keys();
 

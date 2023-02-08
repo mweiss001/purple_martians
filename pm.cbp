@@ -88,8 +88,8 @@
 		<Unit filename="pm_docs/new5_todo.txt" />
 		<Unit filename="pm_docs/new8.txt" />
 		<Unit filename="src/e_bitmap.cpp" />
+		<Unit filename="src/e_edit_selection.cpp" />
 		<Unit filename="src/e_editor_main.cpp" />
-		<Unit filename="src/e_editor_zfs.cpp" />
 		<Unit filename="src/e_enemy.cpp" />
 		<Unit filename="src/e_fnx.cpp" />
 		<Unit filename="src/e_glt.cpp" />

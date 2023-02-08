@@ -635,7 +635,7 @@ void menu_setup(void)
    strcpy (global_string[2][3], "View ---");
    strcpy (global_string[2][4], "Delete ---");
    strcpy (global_string[2][5], "------------------------");
-   strcpy (global_string[2][6], "Zoom Full Screen");
+   strcpy (global_string[2][6], "Edit Selection");
    strcpy (global_string[2][7], "Group Edit");
    strcpy (global_string[2][8], "Tile Helper");
    strcpy (global_string[2][9], "Show Status Window");

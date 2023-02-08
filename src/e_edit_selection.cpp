@@ -1,4 +1,4 @@
-// e_editor_zfs.cpp
+// e_edit_selection.cpp
 
 #include "pm.h"
 #include "mwWindow.h"
@@ -17,7 +17,7 @@ int ft_lift[NUM_LIFTS][6];
 int ft_ls[NUM_LIFTS][40][6];
 
 
-void zfs_pointer_text(int x1, int x2, int y, int mouse_on_window)
+void es_pointer_text(int x1, int x2, int y, int mouse_on_window)
 {
    int xc = (x1+x2)/2;
 
@@ -87,7 +87,7 @@ void zfs_pointer_text(int x1, int x2, int y, int mouse_on_window)
    al_draw_textf(font, palette_color[7], xc, y+53, ALLEGRO_ALIGN_CENTER, " %d Lifts ", lib);
 }
 
-void zfs_do_brf(int x, int y, int flood_block)
+void es_do_brf(int x, int y, int flood_block)
 {
    int show_progress = 0;
    int f[100][100] = {0};   // array of blocks to mark
@@ -150,7 +150,7 @@ void zfs_do_brf(int x, int y, int flood_block)
    }
 }
 
-void zfs_clear_ft(void)
+void es_clear_ft(void)
 {
    for (int x=0; x<20; x++) // level_header
       ft_level_header[x] = 0;
@@ -177,7 +177,7 @@ void zfs_clear_ft(void)
    }
 }
 
-int zfs_load_selection(void)
+int es_load_selection(void)
 {
    FILE *filepntr;
    int loop, ch, c, x, y;
@@ -186,7 +186,7 @@ int zfs_load_selection(void)
    sprintf(sel_filename,"sel\\");
    if (mw_file_select("Load Selection", sel_filename, ".sel", 0))
    {
-      zfs_clear_ft();
+      es_clear_ft();
       if (!al_filename_exists(sel_filename))
       {
          sprintf(msg, "Can't Find %s ", sel_filename);
@@ -335,7 +335,7 @@ int zfs_load_selection(void)
 
 }
 
-void zfs_save_selection(int save)
+void es_save_selection(int save)
 {
    int b, c, x, y;
    int eib=0;
@@ -351,7 +351,7 @@ void zfs_save_selection(int save)
    al_fixed fx2 = al_itofix(x2);
    al_fixed fy2 = al_itofix(y2);
 
-   zfs_clear_ft();
+   es_clear_ft();
 
    // blocks
    for (x=0; x<(bx2-bx1+1); x++)
@@ -527,7 +527,7 @@ void zfs_save_selection(int save)
    }
 }
 
-void zfs_do_fcopy(int qx1, int qy1)
+void es_do_fcopy(int qx1, int qy1)
 {
    // printf("do fcopy\n");
 
@@ -759,7 +759,7 @@ void zfs_do_fcopy(int qx1, int qy1)
    init_level_background(0);
 }
 
-void zfs_do_clear(void)
+void es_do_clear(void)
 {
    int x1 = bx1*20;
    int y1 = by1*20;
@@ -818,7 +818,7 @@ void set_block_with_flag_filters(int x, int y, int tn)
    }
 }
 
-int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
+int es_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
 {
    int d = 1;
    if (have_focus) d = 0;
@@ -829,14 +829,14 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
    if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Move Selection"))
    {
       mW[4].copy_mode = 1;
-      zfs_save_selection(0); // just puts in ft_
-      zfs_draw_fsel();
-      zfs_do_clear();
+      es_save_selection(0); // just puts in ft_
+      es_draw_fsel();
+      es_do_clear();
       al_set_target_backbuffer(display);
    }
    if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Clear Selection"))
    {
-      zfs_do_clear();
+      es_do_clear();
       al_set_target_backbuffer(display);
    }
 
@@ -847,22 +847,22 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
       else
       {
          mW[4].copy_mode = 1;
-         zfs_save_selection(0); // puts selection in ft_ only
-         zfs_draw_fsel();
+         es_save_selection(0); // puts selection in ft_ only
+         es_draw_fsel();
       }
    }
 
    yfb+=bts/2; // spacing between groups
 
-   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Save To Disk")) zfs_save_selection(1); // puts in ft_ and saves to disk
+   if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Save To Disk")) es_save_selection(1); // puts in ft_ and saves to disk
    if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Load From Disk"))
    {
-      if (zfs_load_selection())
+      if (es_load_selection())
       {
          mW[4].copy_mode = 1;
          mW[4].sw = ft_level_header[8];
          mW[4].sh = ft_level_header[9];
-         zfs_draw_fsel();
+         es_draw_fsel();
       }
    }
    if (mW[1].draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
@@ -898,7 +898,7 @@ int zfs_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
 }
 
 
-void zfs_draw_item_ft(int i)
+void es_draw_item_ft(int i)
 {
    int x = ft_item[i][4];
    int y = ft_item[i][5];
@@ -935,7 +935,7 @@ void zfs_draw_item_ft(int i)
 }
 
 
-void zfs_draw_enemy_ft(int e)
+void es_draw_enemy_ft(int e)
 {
    int type = ft_Ei[e][0];
    int EXint = al_fixtoi(ft_Efi[e][0]);
@@ -987,7 +987,7 @@ void zfs_draw_enemy_ft(int e)
 }
 
 
-void zfs_draw_lifts_ft()
+void es_draw_lifts_ft()
 {
    for (int l=0; l<ft_level_header[5]; l++)
    {
@@ -1009,7 +1009,7 @@ void zfs_draw_lifts_ft()
 }
 
 
-void zfs_draw_fsel(void)
+void es_draw_fsel(void)
 {
    al_destroy_bitmap(ft_bmp);
    ft_bmp = al_create_bitmap(mW[4].sw*20, mW[4].sh*20);
@@ -1026,30 +1026,30 @@ void zfs_draw_fsel(void)
 
    // draw items
    for (int i=0; i<500; i++)
-      if ((ft_item[i][0]) && (obj_filter[2][ft_item[i][0]])) zfs_draw_item_ft(i);
+      if ((ft_item[i][0]) && (obj_filter[2][ft_item[i][0]])) es_draw_item_ft(i);
 
    // draw enemies
    for (int e=0; e<100; e++)
-      if ((ft_Ei[e][0]) && (obj_filter[3][ft_Ei[e][0]])) zfs_draw_enemy_ft(e);
+      if ((ft_Ei[e][0]) && (obj_filter[3][ft_Ei[e][0]])) es_draw_enemy_ft(e);
 
    // draw lifts
-   if (obj_filter[4][1]) zfs_draw_lifts_ft();
+   if (obj_filter[4][1]) es_draw_lifts_ft();
 
 }
 
-void zfs_process_mouse(void)
+void es_process_mouse(void)
 {
    if (mouse_b[1][0])
    {
       if (mW[4].copy_mode)
       {
          while (mouse_b[1][0]) proc_event_queue();
-         zfs_do_fcopy(gx, gy);
+         es_do_fcopy(gx, gy);
       }
       if (mW[4].brf_mode)
       {
          while (mouse_b[1][0])proc_event_queue();
-         zfs_do_brf(gx, gy, mW[1].draw_item_num);
+         es_do_brf(gx, gy, mW[1].draw_item_num);
       }
       if ((!mW[4].copy_mode) && (!mW[4].brf_mode)) cm_get_new_box(); // get new selection
    }
