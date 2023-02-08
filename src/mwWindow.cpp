@@ -133,7 +133,7 @@ void cm_redraw_level_editor_background(int mode)
 void cm_process_mouse(void)
 {
    if (mW[8].level_editor_mode == 1) em_process_mouse();
-   if (mW[8].level_editor_mode == 2) zfs_process_mouse();
+   if (mW[8].level_editor_mode == 2) es_process_mouse();
    if (mW[8].level_editor_mode == 3) ge_process_mouse();
    if (mW[8].level_editor_mode == 4) ovw_process_mouse();
    if (mW[8].level_editor_mode == 9) th_process_mouse();
@@ -470,7 +470,7 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
    x1+= 12;
 
    if (mW[8].level_editor_mode == 1) sprintf(msg, "Mode:Main Edit");
-   if (mW[8].level_editor_mode == 2) sprintf(msg, "Mode:Zoom Fullscreen");
+   if (mW[8].level_editor_mode == 2) sprintf(msg, "Mode:Edit Selection");
    if (mW[8].level_editor_mode == 3) sprintf(msg, "Mode:Group Edit");
    if (mW[8].level_editor_mode == 4) sprintf(msg, "Mode:Object Viewer");
    if (mW[8].level_editor_mode == 9) sprintf(msg, "Mode:Tile Helper");
@@ -479,7 +479,7 @@ void cm_process_menu_bar(int have_focus, int moving, int draw_only)
    {
       strcpy (global_string[5][0],msg);
       strcpy (global_string[5][1],"Mode:Main Edit");
-      strcpy (global_string[5][2],"Mode:Zoom Fullscreen");
+      strcpy (global_string[5][2],"Mode:Edit Selection");
       strcpy (global_string[5][3],"Mode:Group Edit");
       strcpy (global_string[5][4],"Mode:Object Viewer");
       strcpy (global_string[5][5],"Mode:Tile Helper");
@@ -607,7 +607,7 @@ int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int
    }
 
 
-   if (refresh_selection) zfs_draw_fsel();
+   if (refresh_selection) es_draw_fsel();
    return y2;
 }
 
@@ -925,7 +925,7 @@ void set_windows(int mode)
 
       mW[4].set_pos(700, 100);
       mW[4].set_size(160, 250);
-      mW[4].set_title("zfs");
+      mW[4].set_title("not zfs - es");
       mW[4].active = 0;
       mW[4].index = 4;
       mW[4].layer = 3;
@@ -1247,8 +1247,8 @@ void mwWindow::process_mouse(void)
 
             if ((mW[3].filter_mode == 3) && (mW[4].copy_mode))
             {
-              zfs_save_selection(0);
-              zfs_draw_fsel();
+              es_save_selection(0);
+              es_draw_fsel();
             }
          }
          if (index == 1) // status window
@@ -1387,13 +1387,13 @@ void mwWindow::draw(int draw_only)
       y2 = 1 + cm_draw_filter_buttons(x1+1, x2-1, y1+1, filter_mode, have_focus, moving);
       h = y2 - y1;
    }
-   if (index == 4) // zfs
+   if (index == 4) // edit selection
    {
-      titlex("Zoom Full Screen", 15, 13, x1, x2, y1+1);
+      titlex("Edit Selection", 15, 13, x1, x2, y1+1);
       int mow = is_mouse_on_any_window();
-      zfs_pointer_text(x1+1, x2-1, y1+20, mow);
+      es_pointer_text(x1+1, x2-1, y1+20, mow);
 
-      int sy2 = zfs_draw_buttons(x1+1, x2-1, y1+110, have_focus, moving);
+      int sy2 = es_draw_buttons(x1+1, x2-1, y1+110, have_focus, moving);
       set_size(w, sy2-y1-1);
 
       int fc = 13;

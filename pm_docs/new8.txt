@@ -11294,12 +11294,37 @@ add this to level_editor_process.txt and push...
 
 
 
+I think there is something in zz animation sequence used by enemy killed that I need to fix...done
+
+I want a new name for zoom full screen
+
+how about selection edit?
+
+main edit
+selection edit
+group edit
+object viewer
+tile helper
 
 
+I like it...
+
+how to rename:
+
+file:
+
+old e_editor_zfs
+new e_edit_selection
 
 
+the prefices I have...
 
+em
+ge
+ovw
+use es where I used to use zfs
 
+I think it is all done...
 
 
 

@@ -541,21 +541,12 @@ void enemy_player_hit_proc(int e)
 void enemy_killed(int e)
 {
    int na, dl;
-   int ht = Ei[e][31]; // hit type
-   int hbm = 1; // health bonus multiplier
-   if (ht == 1) hbm = 1; // bullet
-   if (ht == 2) hbm = 2; // explosion
+   int hbm = 1;                 // default health bonus multiplier x1
+   if (Ei[e][31] == 2) hbm = 2; // explosion x2
 
    Efi[e][2] = al_itofix(0); // xinc
    Efi[e][3] = al_itofix(0); // yinc
 
-   // almost all do this but not enough to do by default
-   int a = Ei[e][0];
-   if (a==3 || a==4 || a==5 || a==6 || a==7 || a==8 || a==9 || a==12 || a==13)
-   {
-      Efi[e][4] = al_itofix(0);  // cant hurt anymore
-      Ei[e][25]*=hbm; // health bonus
-   }
    switch (Ei[e][0])
    {
       case 3: // archwagon
@@ -564,29 +555,19 @@ void enemy_killed(int e)
          Ei[e][24] = 929+(hbm-1)*32; // shape
          Efi[e][11] = al_ftofix(1.08); // scale multiplier
          Efi[e][13] = al_itofix(0);// 255/dl/2; rot inc
-
-         zz[0][na] = zz[5][na]; // set shape
-         zz[1][na] = 0;         // point to zero
-         zz[2][na] = frame_num; // set counter
-         zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
       case 4: // bouncer
-         na = Ei[e][3]; //new ans
+         if (Ei[e][3] == 29) Ei[e][3] = 46;
+         if (Ei[e][3] == 14) Ei[e][3] = 13;
+//         na = Ei[e][3]; //new ans
+//         if (na == 29) na = 46;
+//         if (na == 14) na = 13;
+//         Ei[e][3] = na; // new ans
          dl = Ei[e][30] = 20; // death_loop_wait;  set delay
          Ei[e][24] = 928+(hbm-1)*32; // shape
          Efi[e][11] = al_ftofix(1.03); // scale multiplier
          Efi[e][13] = al_itofix(2); // 255/dl/2;  rot inc
-
-         if (na == 29) na = 46;
-         if (na == 14) na = 13;
-         Ei[e][3] = na; // new ans
-
-         zz[0][na] = zz[5][na]; // set shape
-         zz[1][na] = 0;         // point to zero
-         zz[2][na] = frame_num; // set counter
-         zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
-
       case 5: //jump worm
          na = Ei[e][3] = 79;  // new ans
          dl = Ei[e][30] = 20; // death_loop_wait; set delay
@@ -594,24 +575,13 @@ void enemy_killed(int e)
          Efi[e][11] = al_ftofix(.96); // scale multiplier
          Efi[e][13] = al_itofix(20); // 255/dl/2;  rot inc
          Efi[e][3] = al_ftofix(-2); // yinc
-         zz[0][na] = zz[5][na]; // set shape
-         zz[1][na] = 0;         // point to zero
-         zz[2][na] = frame_num; // set counter
-         zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
-
-
       case 6: // cannon
          na = Ei[e][3] = 37;  // new ans
          dl = Ei[e][30] = 20; // death_loop_wait; set delay
          Ei[e][24] = 930+(hbm-1)*32; // shape
          Efi[e][11] = al_ftofix(1.08); // scale multiplier
          Efi[e][13] = al_itofix(1); // 255/dl/2;  rot inc
-
-         zz[0][na] = zz[5][na]; // set shape
-         zz[1][na] = 0;         // point to zero
-         zz[2][na] = frame_num; // set counter
-         zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
       case 7: case 13: // podzilla, vinepod
          na = Ei[e][3] = 45;  // new ans
@@ -620,11 +590,6 @@ void enemy_killed(int e)
          Efi[e][12] = al_ftofix(2.8); // initial scale
          Efi[e][11] = al_ftofix(.94); // scale multiplier
          Efi[e][13] = al_itofix(0);  // 255/dl/2;  rot inc
-
-         zz[0][na] = zz[5][na]; // set shape
-         zz[1][na] = 0;         // point to zero
-         zz[2][na] = frame_num; // set counter
-         zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
       case 8: // trakbot
          na = Ei[e][3] = 44;  // new ans
@@ -632,11 +597,6 @@ void enemy_killed(int e)
          Ei[e][24] = 931+(hbm-1)*32; // shape
          Efi[e][11] = al_ftofix(1.00); // scale multiplier
          Efi[e][13] = al_ftofix(255/dl*3/4); // rot inc
-
-         zz[0][na] = zz[5][na]; // set shape
-         zz[1][na] = 0;         // point to zero
-         zz[2][na] = frame_num; // set counter
-         zz[3][na] = dl / (zz[4][na]+1); // set ans timer
       break;
       case 9: // cloner
          na = Ei[e][3] = 105;  // new ans
@@ -644,25 +604,6 @@ void enemy_killed(int e)
          Ei[e][24] = 934+(hbm-1)*32; // shape
          Efi[e][11] = al_ftofix(.98); // scale multiplier
          Efi[e][13] = al_ftofix(306/dl); // rot inc
-         zz[0][na] = zz[5][na]; // set shape
-         zz[1][na] = 0;         // point to zero
-         zz[2][na] = frame_num; // set counter
-         zz[3][na] = dl / zz[4][na]; // set ans timer
-      break;
-
-
-      case 10: // field
-         na = Ei[e][3] = 105;  // new ans
-         dl = Ei[e][30] = 40; // death_loop_wait; set delay
-         Ei[e][24] = 934+(hbm-1)*32; // shape
-         Efi[e][11] = al_ftofix(.98); // scale multiplier
-         Efi[e][13] = al_ftofix(306/dl); // rot inc
-         zz[0][na] = zz[5][na]; // set shape
-         zz[1][na] = 0;         // point to zero
-         zz[2][na] = frame_num; // set counter
-         zz[3][na] = dl / zz[4][na]; // set ans timer
-      break;
-      case 11: // none for block walker
       break;
       case 12: // flapper
          na = Ei[e][3] = 63;  // new ans
@@ -670,20 +611,24 @@ void enemy_killed(int e)
          Ei[e][24] = 933+(hbm-1)*32; // shape
          Efi[e][11] = al_ftofix(1.04); // scale multiplier
          Efi[e][13] = al_itofix(0); // rot inc
-
-         zz[0][na] = zz[5][na]; // set shape
-         zz[1][na] = 0;         // point to zero
-         zz[2][na] = frame_num; // set counter
-         zz[3][na] = dl / zz[4][na]; // set ans timer
       break;
 
    } // end of switch
 
    // almost all do this but not enough to do by default
-   if (a==3 || a==4 || a==5 || a==6 || a==7 || a==8 || a==9 || a==10 || a==12 || a==13)
+   int a = Ei[e][0];
+   if (a==3 || a==4 || a==5 || a==6 || a==7 || a==8 || a==9 || a==12 || a==13)
    {
-      if (ht == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
-      if (ht == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
+      zz[0][na] = zz[5][na]; // set shape
+      zz[1][na] = 0;         // point to zero
+      zz[2][na] = 0;         // set counter
+      zz[3][na] = dl / zz[4][na]; // set ans timer
+
+      Efi[e][4] = al_itofix(0);  // cant hurt anymore
+      Ei[e][25]*=hbm;            // health bonus
+
+      if (hbm == 1) game_event(60, 0, 0, Ei[e][26], e, 0, 0);
+      if (hbm == 2) game_event(62, 0, 0, Ei[e][26], e, 0, 0);
       Ei[e][0] = 99; // set type to death loop
    }
 }
@@ -2196,10 +2141,6 @@ void enemy_block_walker(int e)
    int EXint = al_fixtoi(Efi[e][0]);
    int EYint = al_fixtoi(Efi[e][1]);
 
-//   if (frame_num == 1023) printf("enemy num:%d\n", e);
-
-
-
    enemy_player_hit_proc(e);
 
 
@@ -2217,10 +2158,7 @@ void enemy_block_walker(int e)
       al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, palette_color[0]);
       al_draw_bitmap(btile[168], ex*20, ey*20, 0);
 
-
-//      if ((frame_num == 1023) && (e == 10)) printf("test e1\n");
       game_event(60, 0, 0, Ei[e][26], e, 0, 0);
-//      if ((frame_num == 1023) && (e == 10)) printf("test e2\n");
 
 
       Ei[e][0] = 0;
