@@ -1,4 +1,4 @@
-// e_group_edit_windows.cpp
+// e_group_edit.cpp
 
 #include "pm.h"
 #include "mwWindow.h"

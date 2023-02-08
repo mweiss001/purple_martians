@@ -296,7 +296,7 @@ int create_trigger(int i)
       if (!get_block_range("Trigger Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else object_viewerw(2, i);
+   else object_viewer(2, i);
    return 1;
 }
 
@@ -319,7 +319,7 @@ int create_block_manip(int i)
       if (!get_block_range("Block Manip Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else object_viewerw(2, i);
+   else object_viewer(2, i);
    return 1;
 }
 
@@ -344,7 +344,7 @@ int create_block_damage(int i)
       if (!get_block_range("Block Damage Rectangle", &item[i][6], &item[i][7], &item[i][8], &item[i][9], 1)) bad = 1;
    }
    if (bad) return 0;
-   else object_viewerw(2, i);
+   else object_viewer(2, i);
    return 1;
 }
 
@@ -464,7 +464,7 @@ int create_pmsg(int c)
    if (!bad) if (!edit_pmsg_text(c, 1)) bad = 1; // get text of message
 
    if (bad) return 0;
-   else object_viewerw(2, c);
+   else object_viewer(2, c);
    return 1;
 }
 

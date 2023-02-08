@@ -20,9 +20,6 @@ I think my hotkey L is triggering level editor on client....disabled for now, te
 it did, disabled again....
 
 
-
-trigger demo, possible to get stuck by killing enemies in box too soon..fixed
-
 warp does not return you to the right place anymore
 
 how was it supposed to work?
@@ -62,16 +59,16 @@ I'm getting a stimp in single player
 
 
 
+in group edit jumpworms do not show icon in list windows
 
 
 
-funny stuff in level editor, since messing with proc_frame_delay
-hard to exit with ESC
-
-how does the loop work in level editor anyway?
 
 
-is proc_controllers() still used?
+
+
+
+
 
 
 

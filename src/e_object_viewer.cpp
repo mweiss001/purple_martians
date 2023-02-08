@@ -1,4 +1,4 @@
-// e_object_viewer_windows.cpp
+// e_object_viewer.cpp
 #include "pm.h"
 #include "mwWindow.h"
 
@@ -23,7 +23,7 @@ int create_obj(int obt, int type, int num)
          int e = create_pod();
          if ((e>=0) && (e<99) && (Ei[e][0] == 7))
          {
-            object_viewerw(3, e);
+            object_viewer(3, e);
             num = e;
          }
       }
@@ -32,7 +32,7 @@ int create_obj(int obt, int type, int num)
          int e = create_cloner();
          if ((e>=0) && (e<99) && (Ei[e][0] == 9))
          {
-            object_viewerw(3, e);
+            object_viewer(3, e);
             num = e;
          }
       }
@@ -41,7 +41,7 @@ int create_obj(int obt, int type, int num)
          int e = create_vinepod();
          if ((e>=0) && (e<99) && (Ei[e][0] == 13))
          {
-            object_viewerw(3, e);
+            object_viewer(3, e);
             num = e;
          }
       }
@@ -50,7 +50,7 @@ int create_obj(int obt, int type, int num)
    if (obt == 4) create_lift();
    return num;  // return number of created obj or sent_num if bad create
 }
-void ovw_get_size(void)
+void ov_get_size(void)
 {
    int obt = mW[7].obt;
    int num = mW[7].num;
@@ -58,7 +58,7 @@ void ovw_get_size(void)
    if (obt == 2) type = item[num][0];
    if (obt == 3) type = Ei[num][0];
 
-   ovw_check_if_valid(type);
+   ov_check_if_valid(type);
 
 
 
@@ -138,7 +138,7 @@ void set_switch_tile(int i)
 }
 
 
-void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
+void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
 {
    int obt = mW[7].obt;
    int num = mW[7].num;
@@ -390,7 +390,7 @@ void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight)
    for (int x=1; x<mW[7].num_legend_lines; x++)// draw text lines
       al_draw_text(font, palette_color[legend_color[x]], xc, y2-26+(3-mW[7].num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 }
-void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving, int draw_only)
+void ov_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving, int draw_only)
 {
    int obt = mW[7].obt;
    int n = mW[7].num;
@@ -981,7 +981,7 @@ void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving
       mW[7].set_size(mW[7].w, mW[7].h);
    }
 }
-void ovw_draw_overlays(int legend_highlight)
+void ov_draw_overlays(int legend_highlight)
 {
    int obt = mW[7].obt;
    int num = mW[7].num;
@@ -1318,7 +1318,7 @@ void ovw_draw_overlays(int legend_highlight)
       } // end of switch case
    }
 }
-void ovw_process_mouse(void)
+void ov_process_mouse(void)
 {
 
    int lift=0, step=0;
@@ -1939,40 +1939,40 @@ void ovw_process_mouse(void)
 }
 
 
-void ovw_set_to_0(void)
+void ov_set_to_0(void)
 {
    mW[7].obt = 2;
    mW[7].num = 0;
    if (item[mW[7].num][0] == 0) set_windows(1);
 }
 
-void ovw_check_if_valid(int type)
+void ov_check_if_valid(int type)
 {
    //printf("valid? obt:%d num:%d\n", mW[7].obt, mW[7].num);
 
-   if (mW[7].obt==0) ovw_set_to_0();
+   if (mW[7].obt==0) ov_set_to_0();
 
    if (mW[7].obt==2)
    {
-      if (item_num_of_type[type] < 1) ovw_set_to_0();
-      if (item[mW[7].num][0] != type) ovw_set_to_0();
-      if (item[mW[7].num][0] == 0) ovw_set_to_0();
+      if (item_num_of_type[type] < 1) ov_set_to_0();
+      if (item[mW[7].num][0] != type) ov_set_to_0();
+      if (item[mW[7].num][0] == 0) ov_set_to_0();
    }
    if (mW[7].obt==3)
    {
-      if (e_num_of_type[type] < 1) ovw_set_to_0();
-      if (Ei[mW[7].num][0] != type) ovw_set_to_0();
+      if (e_num_of_type[type] < 1) ov_set_to_0();
+      if (Ei[mW[7].num][0] != type) ov_set_to_0();
    }
 
    if (mW[7].obt==4)
    {
       //printf("num:%d num_lifts:%d\n", mW[7].num, num_lifts);
-      if (mW[7].num >= num_lifts) ovw_set_to_0();
-      if (num_lifts < 1) ovw_set_to_0();
+      if (mW[7].num >= num_lifts) ov_set_to_0();
+      if (num_lifts < 1) ov_set_to_0();
    }
 }
 
-void ovw_process_keypress(void)
+void ov_process_keypress(void)
 {
    int mb = mW[7].mb;
    int type=0, lift=0, step=0;
@@ -2010,7 +2010,7 @@ void ovw_process_keypress(void)
             {
                for (int t=0; t<2; t++) move_lifts(1);  // move lifts for 2 frames
                cm_redraw_level_editor_background(0);
-               ovw_draw_overlays(0);
+               ov_draw_overlays(0);
                get_new_screen_buffer(3, 0, 0);
                mW[7].draw(1);
             }
@@ -2028,20 +2028,20 @@ void ovw_process_keypress(void)
             erase_item(mW[7].num);
             sort_item(1);
             if (mW[7].num >= item_first_num[type]+item_num_of_type[type]) mW[7].num--;
-            ovw_check_if_valid(type);
+            ov_check_if_valid(type);
          }
          if (mW[7].obt == 3)
          {
             Ei[mW[7].num][0] = 0;
             sort_enemy();
             if (mW[7].num >= e_first_num[type]+e_num_of_type[type]) mW[7].num--;
-            ovw_check_if_valid(type);
+            ov_check_if_valid(type);
          }
          if (mW[7].obt == 4)
          {
             erase_lift(mW[7].num);
             if (--mW[7].num < 0) mW[7].num = 0;      // set to prev lift or zero
-            ovw_check_if_valid(0);
+            ov_check_if_valid(0);
          }
       break;
       case 21: // next
@@ -2057,7 +2057,7 @@ void ovw_process_keypress(void)
    } // end of switch (mb)
 }
 
-void object_viewerw(int obt, int num)
+void object_viewer(int obt, int num)
 {
    mW[7].obt = obt;
    mW[7].num = num;

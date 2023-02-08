@@ -635,7 +635,7 @@ void em_find_point_item(void);
 void em_process_mouse(void);
 int edit_menu(int el);
 
-// e_editor_zfs.h
+// e_selection edit.h
 void es_pointer_text(int x1, int x2, int y, int mouse_on_window);
 void es_do_brf(int x, int y, int flood_block);
 void es_clear_ft(void);
@@ -701,7 +701,7 @@ void show_block_list(void);
 void remove_unused_tiles(void);
 void global_level(void);
 
-// e_group_edit_windows.h
+// e_group_edit.h
 void ge_init_data(void);
 void ge_set_valid_controls(void);
 void ge_add_to_obj_list(int t, int i);
@@ -771,18 +771,18 @@ int is_mouse_on_any_window(void);
 int mw_get_max_layer(void);
 int mw_cycle_windows(int draw_only);
 
-// e_object_viewer_windows.h
+// e_object_viewer.h
 int create_obj(int obt, int type, int num);
-void ovw_get_size(void);
+void ov_get_size(void);
 void set_switch_tile(int i);
-void ovw_title(int x1, int x2, int y1, int y2, int legend_highlight);
-void ovw_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving, int draw_only);
-void ovw_draw_overlays(int legend_highlight);
-void ovw_process_mouse(void);
-void ovw_set_to_0(void);
-void ovw_check_if_valid(int type);
-void ovw_process_keypress(void);
-void object_viewerw(int obt, int num);
+void ov_title(int x1, int x2, int y1, int y2, int legend_highlight);
+void ov_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving, int draw_only);
+void ov_draw_overlays(int legend_highlight);
+void ov_process_mouse(void);
+void ov_set_to_0(void);
+void ov_check_if_valid(int type);
+void ov_process_keypress(void);
+void object_viewer(int obt, int num);
 
 // e_pde.h
 int load_PDE();

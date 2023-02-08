@@ -1,8 +1,9 @@
 High level description of the process for level editor
 
 
-I is started by calling:
+It is started by calling:
 edit_menu(start_level)
+
 
 edit_menu sets some stuff up, then does this loop
 
@@ -16,7 +17,9 @@ edit_menu sets some stuff up, then does this loop
 
 cm_redraw_level_editor_background();
 - proc_event_queue
-- does the delay (currently by calling proc_event_queue and waiting on program_update)
+- only draws if program_update set 
+
+- flips display
 - gets new background
 - draws lifts, enemies, items
 - draws overlay specific to mode
@@ -28,8 +31,51 @@ if (!mw_cycle_windows(0)) cm_process_mouse();
 - if the mouse is not on any window, process mouse for background
 
 
+
 cm_process_keypress();
 - runs custom handler for ovm
 - checks for ESC in all modes for quit
 - runs the exit dialog for last chance to abort or save before quit
+
+
+
+
+
+
+
+
+
+mw_cycle_windows(0) in more detail:
+
+
+   for (int a=0; a<NUM_MW; a++) mW[a].check_offscreen();
+
+
+draw windows in order, top last, detecting mouse on window as we go
+
+  // at this point, all windows have been drawn in order
+  // and 'mouse_on_window' is set to the top window that has the mouse on it
+
+
+process the window that has focus 
+
+mW[a].process_mouse();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
