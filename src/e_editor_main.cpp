@@ -770,7 +770,7 @@ void em_process_mouse(void)
             }
          break;
          case 3:  // view
-            if (mW[1].point_item_type > 1) object_viewerw(mW[1].point_item_type, mW[1].point_item_num);
+            if (mW[1].point_item_type > 1) object_viewer(mW[1].point_item_type, mW[1].point_item_num);
          break;
          case 4:  // delete
             switch (mW[1].point_item_type)

@@ -36,7 +36,7 @@ class mwWindow
    int collapsed;
    int filter_mode;
 
-   // mW[4] - zfs window only
+   // mW[4] - selection edit window only
    int copy_mode;
    int brf_mode;
    int sw;

@@ -11326,6 +11326,62 @@ use es where I used to use zfs
 
 I think it is all done...
 
+rename group_edit_windows to just group_edit
+that was easy, I think it was mostly just the filename...
+
+now object_viewer_windows to just object_viewer
+
+done...
+
+now I have:
+e_editor_main.cpp
+e_edit_selection.cpp
+e_group_edit.cpp
+e_object_viewer.cpp
+
+and the prefixes:
+em_
+es_
+ge_
+ov_
+
+
+
+changed the behaviour of cm_redraw_level_editor_background..
+
+old:
+proc_event_queue and block, waiting for program_update
+draw
+
+new:
+proc_event_queue
+if program_update, draw
+no blocking...
+
+seems to work good
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -90,7 +90,7 @@ void cm_process_scrolledge(void)
 
 // this function draws a box at full scale on level buffer
 // even if the top left and bottom right corners are switched
-// used by zfs, ge and em
+// used by se, ge and em
 void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text)
 {
    if (x1 > x2) swap_int(&x1, &x2);
@@ -103,7 +103,7 @@ void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, 
    al_draw_text(font, palette_color[color], x1*20+2, y1*20-11,  0, text);
 }
 
-// used by zfs, ge and em
+// used by se, ge and em
 // blocks while mouse b1 is pressed
 void cm_get_new_box(void)
 {
@@ -135,13 +135,13 @@ void cm_process_mouse(void)
    if (mW[8].level_editor_mode == 1) em_process_mouse();
    if (mW[8].level_editor_mode == 2) es_process_mouse();
    if (mW[8].level_editor_mode == 3) ge_process_mouse();
-   if (mW[8].level_editor_mode == 4) ovw_process_mouse();
+   if (mW[8].level_editor_mode == 4) ov_process_mouse();
    if (mW[8].level_editor_mode == 9) th_process_mouse();
 }
 
 void cm_process_keypress(void)
 {
-   if (mW[8].level_editor_mode == 4) ovw_process_keypress();
+   if (mW[8].level_editor_mode == 4) ov_process_keypress();
 
    while (key[ALLEGRO_KEY_ESCAPE][0])
    {
@@ -161,174 +161,184 @@ void cm_process_keypress(void)
 
 void cm_redraw_level_editor_background(void)
 {
-   process_flash_color();
 
-   int mouse_on_window = is_mouse_on_any_window();
+//   while (!program_update) proc_event_queue();
+//   program_update = 0;
 
-   cm_process_scrolledge();
-
-   if ((!mouse_on_window) || (mW[8].level_editor_mode == 0) || (mW[8].level_editor_mode == 4)) cm_get_block_position_on_map();
-
-   al_flip_display();
-   proc_scale_factor_change();
-
-   while (!program_update) proc_event_queue();
-   program_update = 0;
-
-   get_new_background(0);
-   draw_lifts();
-   draw_items();
-   draw_enemies();
-
-
-
-   if (mW[8].level_editor_mode == 1) // edit menu
+   proc_event_queue();
+   if (program_update)
    {
-      if (!mouse_on_window) em_show_draw_item_cursor();
-   }
+      program_update = 0;
 
-   if (mW[8].level_editor_mode == 2) // zfs
-   {
-      // show selection
-      if (!mW[4].copy_mode) cm_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
+      al_flip_display();
 
-      // only show if mouse not on window
-      if (!mouse_on_window)
+      int mouse_on_window = is_mouse_on_any_window();
+      if ((!mouse_on_window) || (mW[8].level_editor_mode == 0) || (mW[8].level_editor_mode == 4)) cm_get_block_position_on_map();
+
+
+      process_flash_color();
+
+
+      cm_process_scrolledge();
+
+
+      proc_scale_factor_change();
+
+      update_animation();
+
+      get_new_background(0);
+      draw_lifts();
+      draw_items();
+      draw_enemies();
+
+
+
+      if (mW[8].level_editor_mode == 1) // edit menu
       {
-         if (mW[4].brf_mode) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
-         if (mW[4].copy_mode)
+         if (!mouse_on_window) em_show_draw_item_cursor();
+      }
+
+      if (mW[8].level_editor_mode == 2) // selection edit
+      {
+         // show selection
+         if (!mW[4].copy_mode) cm_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
+
+         // only show if mouse not on window
+         if (!mouse_on_window)
          {
-            if (ft_bmp)
+            if (mW[4].brf_mode) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
+            if (mW[4].copy_mode)
             {
-               al_draw_bitmap(ft_bmp, gx*20, gy*20, 0);
-               cm_show_level_buffer_block_rect(gx, gy, gx+mW[4].sw-1, gy+mW[4].sh-1, 10, "paste");
+               if (ft_bmp)
+               {
+                  al_draw_bitmap(ft_bmp, gx*20, gy*20, 0);
+                  cm_show_level_buffer_block_rect(gx, gy, gx+mW[4].sw-1, gy+mW[4].sh-1, 10, "paste");
+               }
+               else mW[4].copy_mode = 0;
             }
-            else mW[4].copy_mode = 0;
          }
       }
-   }
-   if (mW[8].level_editor_mode == 3) // ge
-   {
-      int x=0, y=0;
-
-      // show selection frame
-      if (mW[5].show_sel_frame) cm_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
-      else if (!mouse_on_window) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
-
-      // mark objects on map that are capable of being added to list
-      for (int i=0; i<500; i++)
+      if (mW[8].level_editor_mode == 3) // ge
       {
-         int type = (item[i][0]);
-         if ((type) && (obj_filter[2][type]))
-         {
-            x = item[i][4];
-            y = item[i][5];
-            al_draw_rectangle(x, y, x+20, y+20, palette_color[13], 1);
-         }
-      }
-      for (int e=0; e<100; e++)
-      {
-         int type = (Ei[e][0]);
-         if ((type) && (obj_filter[3][type]))
-         {
-            x = al_fixtoi(Efi[e][0]);
-            y = al_fixtoi(Efi[e][1]);
-            al_draw_rectangle(x, y, x+20, y+20, palette_color[13], 1);
-         }
-      }
+         int x=0, y=0;
 
-      // is mouse on obj already in list?
-      if (!mouse_on_window)
+         // show selection frame
+         if (mW[5].show_sel_frame) cm_show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
+         else if (!mouse_on_window) crosshairs_full(gx*20+10, gy*20+10, 15, 1);
+
+         // mark objects on map that are capable of being added to list
+         for (int i=0; i<500; i++)
+         {
+            int type = (item[i][0]);
+            if ((type) && (obj_filter[2][type]))
+            {
+               x = item[i][4];
+               y = item[i][5];
+               al_draw_rectangle(x, y, x+20, y+20, palette_color[13], 1);
+            }
+         }
+         for (int e=0; e<100; e++)
+         {
+            int type = (Ei[e][0]);
+            if ((type) && (obj_filter[3][type]))
+            {
+               x = al_fixtoi(Efi[e][0]);
+               y = al_fixtoi(Efi[e][1]);
+               al_draw_rectangle(x, y, x+20, y+20, palette_color[13], 1);
+            }
+         }
+
+         // is mouse on obj already in list?
+         if (!mouse_on_window)
+            for (int i=0; i<NUM_OBJ; i++)
+            {
+               obj_list[i][2] = 0; // turn off highlight by default
+               if (obj_list[i][0])
+               {
+                  int typ = obj_list[i][0];
+                  int num = obj_list[i][1];
+                  if (typ == 2) // item
+                  {
+                     x = item[num][4]/20;
+                     y = item[num][5]/20;
+                  }
+                  if (typ == 3) // enemy
+                  {
+                     x = al_fixtoi(Efi[num][0]/20);
+                     y = al_fixtoi(Efi[num][1]/20);
+                  }
+                  if ((gx == x) && (gy == y)) obj_list[i][2] = 1; // turn on highlight for this list item
+               }
+            }
+
+         // mark objects on map that have already been added to list
          for (int i=0; i<NUM_OBJ; i++)
          {
-            obj_list[i][2] = 0; // turn off highlight by default
             if (obj_list[i][0])
             {
                int typ = obj_list[i][0];
                int num = obj_list[i][1];
-               if (typ == 2) // item
+               if (typ == 2)
                {
-                  x = item[num][4]/20;
-                  y = item[num][5]/20;
+                  x = item[num][4];
+                  y = item[num][5];
                }
-               if (typ == 3) // enemy
+               if (typ == 3)
                {
-                  x = al_fixtoi(Efi[num][0]/20);
-                  y = al_fixtoi(Efi[num][1]/20);
+                  x = al_fixtoi(Efi[num][0]);
+                  y = al_fixtoi(Efi[num][1]);
                }
-               if ((gx == x) && (gy == y)) obj_list[i][2] = 1; // turn on highlight for this list item
+               if (obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, palette_color[flash_color], 1); // highlight
+               else                al_draw_rectangle(x,   y,   x+20,   y+20,   palette_color[10], 1);
             }
-         }
-
-      // mark objects on map that have already been added to list
-      for (int i=0; i<NUM_OBJ; i++)
-      {
-         if (obj_list[i][0])
-         {
-            int typ = obj_list[i][0];
-            int num = obj_list[i][1];
-            if (typ == 2)
-            {
-               x = item[num][4];
-               y = item[num][5];
-            }
-            if (typ == 3)
-            {
-               x = al_fixtoi(Efi[num][0]);
-               y = al_fixtoi(Efi[num][1]);
-            }
-            if (obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, palette_color[flash_color], 1); // highlight
-            else                al_draw_rectangle(x,   y,   x+20,   y+20,   palette_color[10], 1);
          }
       }
-   }
 
-   if (mW[8].level_editor_mode == 4) // ov
-   {
-      // if current object is message, show all messages
-      if ((mW[7].obt == 2) && (item[mW[7].num][0] == 10))
+      if (mW[8].level_editor_mode == 4) // ov
       {
-         for (int i=0; i<500; i++)
-            if (item[i][0] == 10) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
+         // if current object is message, show all messages
+         if ((mW[7].obt == 2) && (item[mW[7].num][0] == 10))
+         {
+            for (int i=0; i<500; i++)
+               if (item[i][0] == 10) draw_pop_message(i, 0, 0, 0, 0, 0, msg);
+         }
+
+         // if mouse on legend line, show highlight
+         mW[7].legend_line = 0;
+         int y1_legend = mW[7].y2 - 34 + (5-mW[7].num_legend_lines)*8; // legend pos
+         int y2_legend = y1_legend + (mW[7].num_legend_lines-1)*8;
+         if ((mouse_x > mW[7].x1) && (mouse_x < mW[7].x2) && (mouse_y > y1_legend) && (mouse_y < y2_legend)) // is mouse on legend
+            mW[7].legend_line = ((mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
+
+         ov_draw_overlays(mW[7].legend_line);
+
       }
 
-      // if mouse on legend line, show highlight
-      mW[7].legend_line = 0;
-      int y1_legend = mW[7].y2 - 34 + (5-mW[7].num_legend_lines)*8; // legend pos
-      int y2_legend = y1_legend + (mW[7].num_legend_lines-1)*8;
-      if ((mouse_x > mW[7].x1) && (mouse_x < mW[7].x2) && (mouse_y > y1_legend) && (mouse_y < y2_legend)) // is mouse on legend
-         mW[7].legend_line = ((mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
 
-      ovw_draw_overlays(mW[7].legend_line);
-
-   }
-
-
-   if (mW[8].level_editor_mode == 9) // th
-   {
-      // show marked blocks
-      for (int x=0; x<100; x++)
-         for (int y=0; y<100; y++)
-         {
-            if (thl[x][y])
+      if (mW[8].level_editor_mode == 9) // th
+      {
+         // show marked blocks
+         for (int x=0; x<100; x++)
+            for (int y=0; y<100; y++)
             {
-               //int col = 10;
-               int c = flash_color+64;
-               int c2 = flash_color2+64;
-               al_draw_rectangle(x*20+0.5, y*20+0.5, x*20+20, y*20+20,   palette_color[c2], 0);
-               al_draw_line(x*20, y*20, x*20+20, y*20+20,   palette_color[c], 0);
-               al_draw_line(x*20+20, y*20, x*20, y*20+20,   palette_color[c], 0);
+               if (thl[x][y])
+               {
+                  //int col = 10;
+                  int c = flash_color+64;
+                  int c2 = flash_color2+64;
+                  al_draw_rectangle(x*20+0.5, y*20+0.5, x*20+20, y*20+20,   palette_color[c2], 0);
+                  al_draw_line(x*20, y*20, x*20+20, y*20+20,   palette_color[c], 0);
+                  al_draw_line(x*20+20, y*20, x*20, y*20+20,   palette_color[c], 0);
 
 
 
 
 
+               }
             }
-         }
+      }
+      if (mW[8].level_editor_mode) get_new_screen_buffer(3, 0, 0);
    }
-
-
-   if (mW[8].level_editor_mode) get_new_screen_buffer(3, 0, 0);
 }
 
 
@@ -925,7 +935,7 @@ void set_windows(int mode)
 
       mW[4].set_pos(700, 100);
       mW[4].set_size(160, 250);
-      mW[4].set_title("not zfs - es");
+      mW[4].set_title("selection edit");
       mW[4].active = 0;
       mW[4].index = 4;
       mW[4].layer = 3;
@@ -982,7 +992,7 @@ void set_windows(int mode)
       mW[1].active = 1; // status
       mW[2].active = 1; // select
       mW[3].active = 0; // filter
-      mW[4].active = 0; // zfs
+      mW[4].active = 0; // selection edit
       mW[5].active = 0; // ge list
       mW[6].active = 0; // ge controls
       mW[7].active = 0; // viewer
@@ -990,13 +1000,13 @@ void set_windows(int mode)
       mW[9].active = 0; // tile helper
    }
 
-   if (mode == 2) // zfs
+   if (mode == 2) // selection edit
    {
       mW[1].active = 0; // status
       mW[2].active = 0; // select
       mW[3].active = 1; // filter
       mW[3].filter_mode = 3;
-      mW[4].active = 1; // zfs
+      mW[4].active = 1; // selection edit
       mW[4].copy_mode = 0;
       mW[4].brf_mode = 0;
       mW[5].active = 0; // ge list
@@ -1011,7 +1021,7 @@ void set_windows(int mode)
       mW[2].active = 0; // select
       mW[3].active = 1; // filter
       mW[3].filter_mode = 1;
-      mW[4].active = 0; // zfs
+      mW[4].active = 0; // selection edit
       mW[5].active = 1; // ge list
       mW[5].show_sel_frame = 1;
       mW[6].active = 1; // ge controls
@@ -1026,7 +1036,7 @@ void set_windows(int mode)
       mW[2].active = 0; // select
       mW[3].active = 1; // filter
       mW[3].filter_mode = 2;
-      mW[4].active = 0; // zfs
+      mW[4].active = 0; // selection edit
       mW[5].active = 0; // ge list
       mW[6].active = 0; // ge controls
       mW[7].active = 1; // viewer
@@ -1039,7 +1049,7 @@ void set_windows(int mode)
       mW[1].active = 0; // status
       mW[2].active = 0; // select
       mW[3].active = 0; // filter
-      mW[4].active = 0; // zfs
+      mW[4].active = 0; // selection edit
       mW[5].active = 0; // ge list
       mW[6].active = 0; // ge controls
       mW[7].active = 0; // viewer
@@ -1414,12 +1424,7 @@ void mwWindow::draw(int draw_only)
 
    //   al_draw_textf(font, palette_color[color], x1+2, y1-38, 0, "w:%d h:%d", w, h);
 
-
    }
-
-
-
-
 
 
    if (index == 5) // ge list
@@ -1445,9 +1450,9 @@ void mwWindow::draw(int draw_only)
    }
    if (index == 7) // object viewer
    {
-      ovw_get_size();
-      ovw_title(x1, x2, y1, y2, legend_line);
-      ovw_draw_buttons(x1, y1, x2, y2, have_focus, moving, draw_only);
+      ov_get_size();
+      ov_title(x1, x2, y1, y2, legend_line);
+      ov_draw_buttons(x1, y1, x2, y2, have_focus, moving, draw_only);
    }
 
    if (index == 8) // top menu

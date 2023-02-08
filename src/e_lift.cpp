@@ -194,7 +194,7 @@ int create_lift(void)
 
          insert_steps_until_quit(lift, step);
 
-         object_viewerw(4, num_lifts-1);
+         object_viewer(4, num_lifts-1);
 
          return 1;
       }
