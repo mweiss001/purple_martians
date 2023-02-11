@@ -1,6 +1,7 @@
 // z_menu.cpp
 #include "pm.h"
 #include "mwWindow.h"
+#include "mwWindowManager.h"
 #include "z_player.h"
 #include "n_netgame.h"
 
@@ -600,16 +601,17 @@ void menu_setup(void)
 
 
 
-
-
    enemy_tile[3]  = 496;
    enemy_tile[4]  = 508;
+   enemy_tile[5]  = 706;
    enemy_tile[6]  = 415;
    enemy_tile[7]  = 374;
    enemy_tile[8]  = 384;
    enemy_tile[9]  = 550;
+   enemy_tile[10] = 550;
    enemy_tile[11] = 866;
    enemy_tile[12] = 159;
+   enemy_tile[13] = 374;
 
 
    strcpy (color_name[0],  "Zombie");
@@ -698,8 +700,8 @@ int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function doe
 
    while (selection == 999)
    {
-      cm_redraw_level_editor_background();
-      mw_cycle_windows(1);
+      mwWM.redraw_level_editor_background();
+      mwWM.cycle_windows(1);
 
       // draw menu title
       int mt = strlen(global_string[menu_num][0])*8;
@@ -1067,11 +1069,11 @@ int edit_pmsg_text(int c, int new_msg)
    char f[1800];
    int quit = 0;
 
-   int xa = mW[7].x1;
-   int xb = mW[7].x2;
+   int xa = mwWM.mW[7].x1;
+   int xb = mwWM.mW[7].x2;
 
    int smx = (xa+xb)/2;  // x center
-   int smy = mW[7].pop_msg_viewer_pos;
+   int smy = mwWM.mW[7].pop_msg_viewer_pos;
 
    int bad=0;
 

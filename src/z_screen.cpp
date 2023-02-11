@@ -2,6 +2,7 @@
 
 #include "pm.h"
 #include "mwWindow.h"
+#include "mwWindowManager.h"
 #include "z_player.h"
 
 
@@ -775,7 +776,7 @@ void init_level_background2(int s, int e)
       for (int y=0; y<100; y++)
       {
          al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
-         if ((level_editor_running) && (mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+         if ((level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
       }
 }
 
@@ -790,7 +791,7 @@ void init_level_background(int type) // fill level_background with block tiles
          for (int y=0; y<100; y++)
          {
             al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
-            if ((level_editor_running) && (mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+            if ((level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
          }
 
    }
@@ -805,7 +806,7 @@ void init_level_background(int type) // fill level_background with block tiles
             for (int y=0; y<100; y++)
             {
                al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
-               if ((level_editor_running) && (mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
+               if ((level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
             }
       }
    }

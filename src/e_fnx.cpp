@@ -1,6 +1,8 @@
 // e_fnx.cpp
 
 #include "pm.h"
+#include "mwWindowManager.h"
+
 
 /*
 
@@ -299,7 +301,7 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
    int ret = 0;
    while (!quit)
    {
-      cm_redraw_level_editor_background(0);
+      mwWM.redraw_level_editor_background(0);
       crosshairs_full(gx*20+10, gy*20+10, 15, 1);
       get_new_screen_buffer(3, 0, 0);
 
@@ -317,7 +319,7 @@ int get_block_range(const char *txt, int *x1, int *y1, int *x2, int *y2, int typ
 
       if (mouse_b[1][0])
       {
-         cm_get_new_box();
+         mwWM.get_new_box();
          *x1 = bx1*20;
          *y1 = by1*20;
          *x2 = (bx2-bx1)*20+20;
@@ -550,7 +552,7 @@ int getxy(const char *txt, int obj_type, int sub_type, int num)
 
    while(!quit)
    {
-      cm_redraw_level_editor_background(0);
+      mwWM.redraw_level_editor_background(0);
 
       crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 
@@ -1082,7 +1084,7 @@ int get_trigger_item(int obj_type, int sub_type, int num )
 
    while(!quit)
    {
-      cm_redraw_level_editor_background(0);
+      mwWM.redraw_level_editor_background(0);
       crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 
       if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, palette_color[10], 2);
@@ -1156,7 +1158,7 @@ int get_item(int obj_type, int sub_type, int num )
 
    while(!quit)
    {
-      cm_redraw_level_editor_background(0);
+      mwWM.redraw_level_editor_background(0);
       crosshairs_full(gx*20+10, gy*20+10, 15, 1);
 
       if (mouse_on_item) al_draw_line(x2, y2, itx+10, ity+10, palette_color[10], 2);

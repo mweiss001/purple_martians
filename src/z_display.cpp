@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwWindow.h"
-
+#include "mwWindowManager.h"
 
 /*  setup and control of the display
 
@@ -204,7 +204,7 @@ void set_saved_display_transform(int sdt)
 
    // adjust window positions
    for (int a=0; a<NUM_MW; a++)
-      mW[a].set_pos(mW[a].x1/sfa, mW[a].y1/sfa);
+      mwWM.mW[a].set_pos(mwWM.mW[a].x1/sfa, mwWM.mW[a].y1/sfa);
 
 
 }
@@ -228,7 +228,7 @@ void cycle_display_transform(void)
 
    // adjust window positions
    for (int a=0; a<NUM_MW; a++)
-      mW[a].set_pos(mW[a].x1/sfa, mW[a].y1/sfa);
+      mwWM.mW[a].set_pos(mwWM.mW[a].x1/sfa, mwWM.mW[a].y1/sfa);
 
 }
 

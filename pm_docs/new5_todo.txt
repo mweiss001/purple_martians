@@ -56,23 +56,7 @@ I can reduce the time, but what if it breaks things in network level done?
 I'm getting a stimp in single player
 
 
-
-
-
 in group edit jumpworms do not show icon in list windows
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ---------------------------------------------------------
@@ -80,35 +64,10 @@ in group edit jumpworms do not show icon in list windows
 ---------------------------------------------------------
 
 
-
-move/hide the client offset controls, but still make them possible to use for testing
-somehow in settings
-same thing with the server frequency thing..
-
-
-I like how I have done server_state_freq
-I added mode so it is either manual or auto.
-can be changed in settings
-saved in config
-when auto, control is not shown in screen overlay...
-
-now what about cco?
-
-I also have mode...should I save it in config?
-
-I want a way that I can use these, but not anyone else...
-
-I might have to revist this...
-
-
-
-
 I would be nice be be able to do tc and netem things from within my program..
 but I would need to figure out how to do that as non-root
 
-If I did I could even do cool things like run training sessions with differnt network settings...
-
-
+If I did I could even do cool things like run training sessions with different network settings...
 
 
 

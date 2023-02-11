@@ -2,6 +2,8 @@
 
 #include "pm.h"
 #include "mwWindow.h"
+#include "mwWindowManager.h"
+
 
 char smsg[80];
 int bw = 3; // slider adjustment bar width
@@ -92,8 +94,8 @@ float get_slider_position2(float sul, float sll, float sinc, int q4 ,int x1, int
 {
    if (q4)
    {
-      cm_redraw_level_editor_background();
-      mw_cycle_windows(1);
+      mwWM.redraw_level_editor_background();
+      mwWM.cycle_windows(1);
    }
    else
    {
@@ -127,8 +129,8 @@ float get_slider_position3(float f, float sul, float sll, float sinc, int q4, in
 {
    if (q4)
    {
-      cm_redraw_level_editor_background();
-      mw_cycle_windows(1);
+      mwWM.redraw_level_editor_background();
+      mwWM.cycle_windows(1);
    }
    else
    {
@@ -727,8 +729,8 @@ int mdw_button(int x1, int &y1, int x2, int bts,
 
    if (bn == 57)
    {
-      int o = mW[7].obt;
-      int n = mW[7].num;
+      int o = mwWM.mW[7].obt;
+      int n = mwWM.mW[7].num;
       int t = 0;
       sprintf(smsg,"?? Help");
 

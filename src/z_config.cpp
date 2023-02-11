@@ -198,6 +198,7 @@ void save_config(void)
 
       asci(OVERLAY, number_of_debug_overlay_modes);
 
+      asci(LEVEL_EDITOR, autosave_level_editor_state);
 
    }
    al_save_config_file("pm.cfg", cfg);
@@ -390,12 +391,7 @@ void load_config(void)
 
    agci(OVERLAY, number_of_debug_overlay_modes, 2);
 
-
-
-
-
-
-
+   agci(LEVEL_EDITOR, autosave_level_editor_state, 0);
 
    al_destroy_config(cfg);
    save_config();

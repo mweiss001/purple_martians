@@ -299,7 +299,6 @@ extern char *key_names[];
 extern bool key[ALLEGRO_KEY_MAX][4];
 extern int key_pressed_ASCII;
 
-extern float mouse_loop_pause;
 
 extern int mouse_x;
 extern int mouse_y;
@@ -551,7 +550,7 @@ extern int display_transform_double_max;
 extern int saved_display_transform_double;
 extern int show_dtd;
 
-
+extern int autosave_level_editor_state;
 extern int level_editor_running;
 extern int help_screens_running;
 extern int visual_level_select_running;
@@ -644,7 +643,7 @@ void es_save_selection(int save);
 void es_do_fcopy(int qx1, int qy1);
 void es_do_clear(void);
 void set_block_with_flag_filters(int x, int y, int tn);
-int es_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving);
+int es_draw_buttons(int x3, int x4, int yfb, int draw_only);
 void es_draw_item_ft(int i);
 void es_draw_enemy_ft(int e);
 void es_draw_lifts_ft();
@@ -711,8 +710,8 @@ void ge_swap_obj_list_items(int i1, int i2);
 void ge_enemy_initial_position_random(int e, int csw);
 void ge_item_initial_position_random(int i, int csw);
 int ge_draw_list_items(int x1, int y1, int flash_color, int ni);
-void ge_show_obj_list(int x, int y, int *ew, int *eh, int have_focus, int moving);
-int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving, int hidden, int draw_only);
+void ge_show_obj_list(int x, int y, int *ew, int *eh, int draw_only);
+int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int draw_only);
 void ge_add_selection_to_list(int set_filters);
 void ge_process_mouse(void);
 
@@ -753,30 +752,18 @@ int draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d);
 void draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc, int d);
 int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_step, int d);
 
-// mwWindows.h
-void cm_get_block_position_on_map();
-void cm_process_scrolledge(void);
-void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
-void cm_get_new_box(void);
-void cm_redraw_level_editor_background(int mode);
-void cm_process_mouse(void);
-void cm_process_keypress(void);
-void cm_redraw_level_editor_background(void);
-void cm_process_menu_bar(int have_focus, int moving, int draw_only);
-int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int have_focus, int moving);
-void cm_draw_status_window(int x1, int x2, int y1, int y2, int have_focus, int moving);
-void cm_draw_selection_window(int x1, int x2, int y1, int y2, int have_focus, int moving);
-void set_windows(int mode);
-int is_mouse_on_any_window(void);
-int mw_get_max_layer(void);
-int mw_cycle_windows(int draw_only);
+// e_window_commom.h
+void cm_process_menu_bar(int draw_only);
+int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int draw_only);
+void cm_draw_status_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
+void cm_draw_selection_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
 
 // e_object_viewer.h
 int create_obj(int obt, int type, int num);
 void ov_get_size(void);
 void set_switch_tile(int i);
 void ov_title(int x1, int x2, int y1, int y2, int legend_highlight);
-void ov_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving, int draw_only);
+void ov_draw_buttons(int x1, int y1, int x2, int y2, int draw_only);
 void ov_draw_overlays(int legend_highlight);
 void ov_process_mouse(void);
 void ov_set_to_0(void);
@@ -833,7 +820,7 @@ int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
 
 // e_tile_helper.h
 void th_replace(int type);
-int th_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving);
+int th_draw_buttons(int x3, int x4, int yfb, int draw_only);
 int th_compare_tile(int rb, int cb, int group);
 void th_find_connected(int x, int y, int group);
 void th_process_mouse(void);

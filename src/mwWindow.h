@@ -1,5 +1,6 @@
 // mwWindow.h
-
+#ifndef mwWindow_H
+#define mwWindow_H
 
 class mwWindow
 {
@@ -57,15 +58,12 @@ class mwWindow
    int pop_msg_viewer_pos;
 
    // mW[8] - top menu only
-   int level_editor_mode;
-
 
    // mW[9] - tile helper only
    int th_add_del;
    int th_match;
    int th_group;
    int th_sel;
-
 
    mwWindow(); // default constructor
    void set_pos(int, int);
@@ -75,8 +73,5 @@ class mwWindow
    void set_title(const char*);
    void process_mouse(void);
    void check_offscreen(void);
-   void set_focus(int);
 };
-
-#define NUM_MW 10
-extern mwWindow mW[NUM_MW];
+#endif

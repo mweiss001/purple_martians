@@ -157,8 +157,6 @@ int skc_index = 0;
 bool key[ALLEGRO_KEY_MAX][4];
 int key_pressed_ASCII;
 
-float mouse_loop_pause = 0;
-
 int mouse_x = 0;
 int mouse_y = 0;
 int mouse_z = 0;
@@ -378,10 +376,7 @@ int saved_display_transform_double = -1;
 int show_dtd = 0;
 
 
-
-
-
-
+int autosave_level_editor_state = 0;
 int level_editor_running = 0;
 int help_screens_running = 0;
 int visual_level_select_running = 0;
