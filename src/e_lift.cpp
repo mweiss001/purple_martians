@@ -2,7 +2,7 @@
 
 #include "pm.h"
 #include "mwWindow.h"
-
+#include "mwWindowManager.h"
 
 al_fixed lift_get_distance_to_previous_move_step(int lift, int step)
 {
@@ -188,8 +188,8 @@ int create_lift(void)
 
          set_lift_to_step(lift, 0); // set step 0 for lift
 
-         cm_redraw_level_editor_background();  // do this twice to get proper window height
-         cm_redraw_level_editor_background();
+         mwWM.redraw_level_editor_background();  // do this twice to get proper window height
+         mwWM.redraw_level_editor_background();
 
 
          insert_steps_until_quit(lift, step);
@@ -225,7 +225,7 @@ int get_new_lift_step(int lift, int step)
    // position the menu on top of the step we are inserting before
 //   int sty = 53 + (step + 9) * bts;
 
-   int sty = mW[7].y1 + 44 + (step + 10) * bts;
+   int sty = mwWM.mW[7].y1 + 44 + (step + 10) * bts;
 
    if (sty > SCREEN_H-60) sty = SCREEN_H-60;
 
@@ -236,7 +236,7 @@ int get_new_lift_step(int lift, int step)
    int fc = 14; // frame color
    int tc = 15; // text color
 
-   int xc = (mW[7].x1 + mW[7].x2)/2;
+   int xc = (mwWM.mW[7].x1 + mwWM.mW[7].x2)/2;
 
    al_draw_filled_rectangle(xc-98, sty-8, xc+96, sty2, palette_color[fc+192]); // erase to background color
    al_draw_rectangle       (xc-98, sty-8, xc+96, sty2, palette_color[fc], 1); // frame
@@ -308,16 +308,16 @@ int insert_lift_step(int lift, int step) // inserts a step in 'lift' before 'ste
          lift_steps[lift][x+1].type = lift_steps[lift][x].type;
       }
       clear_lift_step(lift, step);
-      int step_ty = mW[7].y1+ 38 + 7 * bts;
-      draw_steps(mW[7].x1+1, mW[7].x2-1, step_ty, lift, step, step, 1);     // show lift steps
+      int step_ty = mwWM.mW[7].y1+ 38 + 7 * bts;
+      draw_steps(mwWM.mW[7].x1+1, mwWM.mW[7].x2-1, step_ty, lift, step, step, 1);     // show lift steps
       if (get_new_lift_step(lift, step) == 99) // cancelled
       {
          delete_lift_step(lift, step);
          ret = 0;
       }
       else ret = 1;
-      cm_redraw_level_editor_background();  // do this twice to get proper window height
-      cm_redraw_level_editor_background();
+      mwWM.redraw_level_editor_background();  // do this twice to get proper window height
+      mwWM.redraw_level_editor_background();
 
    }
    return ret;

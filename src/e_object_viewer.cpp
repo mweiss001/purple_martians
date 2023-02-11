@@ -1,6 +1,7 @@
 // e_object_viewer.cpp
 #include "pm.h"
 #include "mwWindow.h"
+#include "mwWindowManager.h"
 
 int create_obj(int obt, int type, int num)
 {
@@ -52,8 +53,8 @@ int create_obj(int obt, int type, int num)
 }
 void ov_get_size(void)
 {
-   int obt = mW[7].obt;
-   int num = mW[7].num;
+   int obt = mwWM.mW[7].obt;
+   int num = mwWM.mW[7].num;
    int type=0, w=300;
    if (obt == 2) type = item[num][0];
    if (obt == 3) type = Ei[num][0];
@@ -92,7 +93,7 @@ void ov_get_size(void)
 
    if (obt == 4)                   w = 300; // lift
 
-   mW[7].set_size(w, mW[7].h);
+   mwWM.mW[7].set_size(w, mwWM.mW[7].h);
 }
 
 
@@ -140,8 +141,8 @@ void set_switch_tile(int i)
 
 void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
 {
-   int obt = mW[7].obt;
-   int num = mW[7].num;
+   int obt = mwWM.mW[7].obt;
+   int num = mwWM.mW[7].num;
    int type=0;
    if (obt == 2) type = item[num][0];
    if (obt == 3) type = Ei[num][0];
@@ -159,7 +160,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
    int legend_color[6];
 
    // default number of legend lines and colors
-   mW[7].num_legend_lines = 3;
+   mwWM.mW[7].num_legend_lines = 3;
    legend_color[0] = 7;   // legend color
    legend_color[1] = 13;  // location color
    legend_color[2] = 14;  // yellow
@@ -183,7 +184,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
 
    if (obt == 4)  // lifts
    {
-      mW[7].num_legend_lines = 0;
+      mwWM.mW[7].num_legend_lines = 0;
       al_draw_rectangle(xc-94, yt, xc+94, yt+22, palette_color[15], 1);
       al_draw_textf(font, palette_color[13], xc, yt+8, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",num+1, num_lifts);
    }
@@ -201,11 +202,11 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
          break;
          case 4:
-            mW[7].num_legend_lines = 2;
+            mwWM.mW[7].num_legend_lines = 2;
             sprintf(lmsg[1],"Bouncer Location");
          break;
          case 5:
-            mW[7].num_legend_lines = 2;
+            mwWM.mW[7].num_legend_lines = 2;
             sprintf(lmsg[1],"JumpWorm Location");
          break;
          case 6: // cannon
@@ -214,7 +215,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
          break;
          case 7: // podzilla
-            mW[7].num_legend_lines = 4;
+            mwWM.mW[7].num_legend_lines = 4;
             sprintf(lmsg[1],"Podzilla Location");
             sprintf(lmsg[2],"Extended Postion");
             sprintf(lmsg[3],"Trigger Box");
@@ -227,7 +228,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
          break;
          case 9: // cloner
-            mW[7].num_legend_lines = 5;
+            mwWM.mW[7].num_legend_lines = 5;
             sprintf(lmsg[1],"Cloner Location");
             sprintf(lmsg[2],"Source Area");
             sprintf(lmsg[3],"Destination Area");
@@ -237,11 +238,11 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 4 ? legend_color[4] = flash_color : legend_color[4] = 14;
          break;
          case 11:
-            mW[7].num_legend_lines = 2;
+            mwWM.mW[7].num_legend_lines = 2;
             sprintf(lmsg[1],"Block Walker Location");
          break;
          case 12: // flapper
-            mW[7].num_legend_lines = 4;
+            mwWM.mW[7].num_legend_lines = 4;
             sprintf(lmsg[1],"Flapper Location");
             sprintf(lmsg[2],"Bullet Proximity");
             sprintf(lmsg[3],"Height Above Player");
@@ -250,7 +251,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
          break;
 
          case 13: // vinepod
-            mW[7].num_legend_lines = 6;
+            mwWM.mW[7].num_legend_lines = 6;
             sprintf(lmsg[1],"Vinepod Location");
             sprintf(lmsg[2],"Extended Position");
             sprintf(lmsg[3],"Control Point 1");
@@ -300,11 +301,11 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
          }
          break;
          case 2:
-             mW[7].num_legend_lines = 2;
+             mwWM.mW[7].num_legend_lines = 2;
              sprintf(lmsg[1],"Bonus Location");
          break;
          case 3:
-             mW[7].num_legend_lines = 2;
+             mwWM.mW[7].num_legend_lines = 2;
              sprintf(lmsg[1],"Exit Location");
          break;
          case 4: // key
@@ -313,15 +314,15 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
          break;
          case 5:
-             mW[7].num_legend_lines = 2;
+             mwWM.mW[7].num_legend_lines = 2;
              sprintf(lmsg[1],"Start Location");
          break;
          case 6:
-             mW[7].num_legend_lines = 2;
+             mwWM.mW[7].num_legend_lines = 2;
              sprintf(lmsg[1],"Orb Location");
          break;
          case 7:
-             mW[7].num_legend_lines = 2;
+             mwWM.mW[7].num_legend_lines = 2;
              sprintf(lmsg[1],"Mine Location");
          break;
          case 8:
@@ -335,13 +336,13 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
          break;
          case 10:
-            mW[7].num_legend_lines = 3;
+            mwWM.mW[7].num_legend_lines = 3;
             sprintf(lmsg[1],"Scroll Location");
             sprintf(lmsg[2],"Message Area");
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 10;
             if (item[num][2] & PM_ITEM_PMSG_TRIGGER_BOX)
             {
-               mW[7].num_legend_lines = 4;
+               mwWM.mW[7].num_legend_lines = 4;
                sprintf(lmsg[3],"Trigger Area");
                legend_highlight == 3 ? legend_color[3] = flash_color : legend_color[3] = 14;
             }
@@ -352,7 +353,7 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
             legend_highlight == 2 ? legend_color[2] = flash_color : legend_color[2] = 14;
          break;
          case 12:
-             mW[7].num_legend_lines = 2;
+             mwWM.mW[7].num_legend_lines = 2;
              sprintf(lmsg[1],"Warp Location");
          break;
          case 14: // switch
@@ -380,29 +381,27 @@ void ov_title(int x1, int x2, int y1, int y2, int legend_highlight)
 
    al_draw_rectangle(x1, y1, x2, y2, palette_color[13], 1);  // outline entire window
 
-   if (mW[7].num_legend_lines > 0)
+   if (mwWM.mW[7].num_legend_lines > 0)
    {
-      al_draw_text(font, palette_color[legend_color[0]], xc, y2-36+ (4-mW[7].num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
-      al_draw_rectangle(xc-100, y2-38+ (4-mW[7].num_legend_lines)*8, xc+100, y2-1, palette_color[13], 1); // big frame
-      al_draw_rectangle(xc-100, y2-38+ (4-mW[7].num_legend_lines)*8, xc+100, y2-28+ (4-mW[7].num_legend_lines)*8, palette_color[13], 1); // top frame
+      al_draw_text(font, palette_color[legend_color[0]], xc, y2-36+ (4-mwWM.mW[7].num_legend_lines)*8, ALLEGRO_ALIGN_CENTER, "Legend");
+      al_draw_rectangle(xc-100, y2-38+ (4-mwWM.mW[7].num_legend_lines)*8, xc+100, y2-1, palette_color[13], 1); // big frame
+      al_draw_rectangle(xc-100, y2-38+ (4-mwWM.mW[7].num_legend_lines)*8, xc+100, y2-28+ (4-mwWM.mW[7].num_legend_lines)*8, palette_color[13], 1); // top frame
    }
 
-   for (int x=1; x<mW[7].num_legend_lines; x++)// draw text lines
-      al_draw_text(font, palette_color[legend_color[x]], xc, y2-26+(3-mW[7].num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
+   for (int x=1; x<mwWM.mW[7].num_legend_lines; x++)// draw text lines
+      al_draw_text(font, palette_color[legend_color[x]], xc, y2-26+(3-mwWM.mW[7].num_legend_lines+x)*8, ALLEGRO_ALIGN_CENTER, lmsg[x]);
 }
-void ov_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving, int draw_only)
+void ov_draw_buttons(int x1, int y1, int x2, int y2, int d)
 {
-   int obt = mW[7].obt;
-   int n = mW[7].num;
+   int obt = mwWM.mW[7].obt;
+   int n = mwWM.mW[7].num;
    int type=0;
    if (obt == 2) type = item[n][0];
    if (obt == 3) type = Ei[n][0];
-   int d = 1;
-   if (have_focus) d = 0;
-   if (moving) d = 1;
-   if (draw_only) d = 1;
 
-   mW[7].mb = 0;
+
+
+   mwWM.mW[7].mb = 0;
 
 
    // button x position
@@ -426,17 +425,17 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving,
    // --- Common ---------------------------------------
    // --------------------------------------------------
    int lc = 6; // lock_color;
-   if (mW[7].viewer_lock) lc = 7;
+   if (mwWM.mW[7].viewer_lock) lc = 7;
 
-   if (mdw_buttont(xa,  ya, x27-1, bts,                0,0,0,0,  0, 9,15,0, 1,0,0,d, "Prev")) mW[7].mb = 22;
-       mdw_toggle( x27, ya, x57-1, bts,                0,0,0,0,  0,lc,15,0, 1,0,0,d, mW[7].viewer_lock, "Unlocked", "Locked", 15, 15, 6, 7);
-   if (mdw_buttont(x57, ya, xb,    bts,                0,0,0,0,  0, 9,15,0, 1,0,1,d, "Next")) mW[7].mb = 21;
+   if (mdw_buttont(xa,  ya, x27-1, bts,                0,0,0,0,  0, 9,15,0, 1,0,0,d, "Prev")) mwWM.mW[7].mb = 22;
+       mdw_toggle( x27, ya, x57-1, bts,                0,0,0,0,  0,lc,15,0, 1,0,0,d, mwWM.mW[7].viewer_lock, "Unlocked", "Locked", 15, 15, 6, 7);
+   if (mdw_buttont(x57, ya, xb,    bts,                0,0,0,0,  0, 9,15,0, 1,0,1,d, "Next")) mwWM.mW[7].mb = 21;
 
-   if (obt == 4) { if (mdw_buttont(xa, ya, x13-1, bts, 0,0,0,0,  0,13,15,0, 1,0,0,d, "Run Lifts")) mW[7].mb = 18; }
-   else          { if (mdw_buttont(xa, ya, x13-1, bts, 0,0,0,0,  0,13,15,0, 1,0,0,d, "Move"))      mW[7].mb = 18; }
+   if (obt == 4) { if (mdw_buttont(xa, ya, x13-1, bts, 0,0,0,0,  0,13,15,0, 1,0,0,d, "Run Lifts")) mwWM.mW[7].mb = 18; }
+   else          { if (mdw_buttont(xa, ya, x13-1, bts, 0,0,0,0,  0,13,15,0, 1,0,0,d, "Move"))      mwWM.mW[7].mb = 18; }
 
-   if (mdw_buttont(x13, ya, x23-1, bts,                0,0,0,0,  0,14,15,0, 1,0,0,d, "Create")) mW[7].mb = 19;
-   if (mdw_buttont(x23, ya, xb,    bts,                0,0,0,0,  0,10,15,0, 1,0,1,d, "Delete")) mW[7].mb = 20;
+   if (mdw_buttont(x13, ya, x23-1, bts,                0,0,0,0,  0,14,15,0, 1,0,0,d, "Create")) mwWM.mW[7].mb = 19;
+   if (mdw_buttont(x23, ya, xb,    bts,                0,0,0,0,  0,10,15,0, 1,0,1,d, "Delete")) mwWM.mW[7].mb = 20;
 
    if (mdw_buttont( xa, ya, x14-1, bts,                0,0,0,0,  0,1,15,0,  1,0,0,d, "Help")) help("Viewer Basics");
    mdw_button(     x14, ya, xb,    bts,               57,0,0,0,  0,1,15,0,  1,0,1,d);         // object specific help
@@ -458,7 +457,7 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving,
       mdw_buttonp(       xa, ya, xb, bts, 500,0,0,0,    0,13,15,0,  1,0,1,d, lifts[lift].mode); // MODE
       if (lifts[lift].mode)
          mdw_slideri(xa, ya, xb, bts, 0,0,0,0,      0,13,15,15, 1,0,1,d, lifts[lift].val2, 2000, 1, 1,  "Reset Timer:");
-      if (mdw_button(    xa, ya, xb, bts, 504,lift,0,0, 0, 4,15,0,  1,0,1,d)) mW[7].mb = 26; // lift name
+      if (mdw_button(    xa, ya, xb, bts, 504,lift,0,0, 0, 4,15,0,  1,0,1,d)) mwWM.mW[7].mb = 26; // lift name
       ya+=bts;
 
       // list of step buttons
@@ -491,8 +490,8 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving,
       int yld = ycs + draw_current_step_buttons(xa, xb, ycs, lift, step, d);
 
 
-      mW[7].h = yld - mW[7].y1-1; // global variable for height of ovw when variable due to lift
-      mW[7].set_size(mW[7].w, mW[7].h);
+      mwWM.mW[7].h = yld - mwWM.mW[7].y1-1; // global variable for height of ovw when variable due to lift
+      mwWM.mW[7].set_size(mwWM.mW[7].w, mwWM.mW[7].h);
 
       yld += bts;
 
@@ -516,7 +515,7 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving,
          draw_lift(lift, x1, y1, x2, y2);
       }
 
-      if (mW[7].mb == 26)
+      if (mwWM.mW[7].mb == 26)
       {
          char fst[80];
          strcpy(fst, lifts[lift].lift_name);
@@ -839,9 +838,9 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving,
             if (mdw_buttont(xa, ya, xb, bts, 0,0,0,0,   0,15,13, 0,  1,0,1,d, "Edit Message")) edit_pmsg_text(n, 0);
             ya+=bts*2; // leave space for OK and Cancel buttons
             // draw the current one last to ensure it is on top
-            mW[7].pop_msg_viewer_pos = ya+bts/2+2;
+            mwWM.mW[7].pop_msg_viewer_pos = ya+bts/2+2;
 
-            draw_pop_message(n, 1, (xa+xb)/2, mW[7].pop_msg_viewer_pos, 0, 0, pmsgtext[n]); // show the message
+            draw_pop_message(n, 1, (xa+xb)/2, mwWM.mW[7].pop_msg_viewer_pos, 0, 0, pmsgtext[n]); // show the message
 
             ya+=bts*8;
          break;
@@ -976,15 +975,15 @@ void ov_draw_buttons(int x1, int y1, int x2, int y2, int have_focus, int moving,
    // set height
    if (obt != 4)
    {
-      int llo = (3 - mW[7].num_legend_lines)*8; // legend line offset
-      mW[7].h = ya-y1+32-llo;
-      mW[7].set_size(mW[7].w, mW[7].h);
+      int llo = (3 - mwWM.mW[7].num_legend_lines)*8; // legend line offset
+      mwWM.mW[7].h = ya-y1+32-llo;
+      mwWM.mW[7].set_size(mwWM.mW[7].w, mwWM.mW[7].h);
    }
 }
 void ov_draw_overlays(int legend_highlight)
 {
-   int obt = mW[7].obt;
-   int num = mW[7].num;
+   int obt = mwWM.mW[7].obt;
+   int num = mwWM.mW[7].num;
 
    al_set_target_bitmap(level_buffer);
 
@@ -1322,9 +1321,9 @@ void ov_process_mouse(void)
 {
 
    int lift=0, step=0;
-   if (mW[7].obt == 4)
+   if (mwWM.mW[7].obt == 4)
    {
-      lift = mW[7].num;
+      lift = mwWM.mW[7].num;
       step = lifts[lift].current_step;
    }
 
@@ -1375,17 +1374,17 @@ void ov_process_mouse(void)
          int type = Ei[b][0];
 
          // check to see if we can set this object to be the current object
-         if ((hx>ex+msn) && (hx<ex+msp) && (hy>ey+msn) && (hy<ey+msp) && (!mW[7].viewer_lock) && (!key[MAP_LOCK_KEY][0]) && (obj_filter[3][type]))
+         if ((hx>ex+msn) && (hx<ex+msp) && (hy>ey+msn) && (hy<ey+msp) && (!mwWM.mW[7].viewer_lock) && (!key[MAP_LOCK_KEY][0]) && (obj_filter[3][type]))
          {
             // set this enemy to current object
-            mW[7].obt = 3;
-            mW[7].num = b;
+            mwWM.mW[7].obt = 3;
+            mwWM.mW[7].num = b;
             mouse_move = 1;
             mouse_on_obj = 1;
          }
 
          // if this object is already current object
-         if ((hx>ex+msn) && (hx<ex+msp) && (hy>ey+msn) && (hy<ey+msp) && (mW[7].obt == 3) && (mW[7].num == b))
+         if ((hx>ex+msn) && (hx<ex+msp) && (hy>ey+msn) && (hy<ey+msp) && (mwWM.mW[7].obt == 3) && (mwWM.mW[7].num == b))
          {
             mouse_move = 1;
             mouse_on_obj = 1;
@@ -1393,9 +1392,9 @@ void ov_process_mouse(void)
       }
 
    // if current object is enemy, check for secondaries
-   if (mW[7].obt == 3)
+   if (mwWM.mW[7].obt == 3)
    {
-      int b = mW[7].num;
+      int b = mwWM.mW[7].num;
       int type = Ei[b][0];
       if ((type == 3) || (type == 6) || (type == 8) || (type == 12)) // archwagon, cannon, trakbot and flapper bullet prox
       {
@@ -1472,14 +1471,14 @@ void ov_process_mouse(void)
       }
       if (type == 9) // cloner source and destination boxes
       {
-         int w = Ei[mW[7].num][19];     // width
-         int h = Ei[mW[7].num][20];     // height
-         int x1 = Ei[mW[7].num][15];    // source box
-         int y1 = Ei[mW[7].num][16];
+         int w = Ei[mwWM.mW[7].num][19];     // width
+         int h = Ei[mwWM.mW[7].num][20];     // height
+         int x1 = Ei[mwWM.mW[7].num][15];    // source box
+         int y1 = Ei[mwWM.mW[7].num][16];
          int x2 = x1 + w - 1;
          int y2 = y1 + h - 1;
-         int x3 = Ei[mW[7].num][17];    // dest box
-         int y3 = Ei[mW[7].num][18];
+         int x3 = Ei[mwWM.mW[7].num][17];    // dest box
+         int y3 = Ei[mwWM.mW[7].num][18];
          if ((hx>x1-mst) && (hx<x1+mst) && (hy>y1-mst) && (hy<y1+mst)) // source upper left corner (move)
          {
             mouse_on_csb_ul = 1;
@@ -1509,16 +1508,16 @@ void ov_process_mouse(void)
          int iy = item[b][5];
          int type = item[b][0];
          // check to see if we can set this object to be the current object
-         if ((hx>ix+msn) && (hx<ix+msp) && (hy>iy+msn) && (hy<iy+msp) && (!mW[7].viewer_lock) && (!key[MAP_LOCK_KEY][0]) && (obj_filter[2][type]))
+         if ((hx>ix+msn) && (hx<ix+msp) && (hy>iy+msn) && (hy<iy+msp) && (!mwWM.mW[7].viewer_lock) && (!key[MAP_LOCK_KEY][0]) && (obj_filter[2][type]))
          {
             // set this item to current object
-            mW[7].obt = 2;
-            mW[7].num = b;
+            mwWM.mW[7].obt = 2;
+            mwWM.mW[7].num = b;
             mouse_move = 1;
             mouse_on_obj = 1;
          }
          // if this object is already current object
-         if ((hx>ix+msn) && (hx<ix+msp) && (hy>iy+msn) && (hy<iy+msp) && (mW[7].obt == 2) && (mW[7].num == b))
+         if ((hx>ix+msn) && (hx<ix+msp) && (hy>iy+msn) && (hy<iy+msp) && (mwWM.mW[7].obt == 2) && (mwWM.mW[7].num == b))
          {
             mouse_move = 1;
             mouse_on_obj = 1;
@@ -1526,9 +1525,9 @@ void ov_process_mouse(void)
       }
 
    // if current object is item, check for secondaries
-   if (mW[7].obt == 2)
+   if (mwWM.mW[7].obt == 2)
    {
-      int b = mW[7].num;
+      int b = mwWM.mW[7].num;
       int type = item[b][0];
 
 
@@ -1560,12 +1559,12 @@ void ov_process_mouse(void)
       }
       if ((type == 8) || (type == 11)) // bomb or rocket
       {
-         float x0 = (float) item[mW[7].num][4]+10; // get center of item location
-         float y0 = (float) item[mW[7].num][5]+10;
+         float x0 = (float) item[mwWM.mW[7].num][4]+10; // get center of item location
+         float y0 = (float) item[mwWM.mW[7].num][5]+10;
          float fx = (float) hx;
          float fy = (float) hy;
          float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse to item
-         float bdr = (float) item[mW[7].num][7]; // bomb damage radius
+         float bdr = (float) item[mwWM.mW[7].num][7]; // bomb damage radius
          float dif = dst-bdr; // difference
          if ((dif < 3 ) && (dif > -3))  // mouse is on blast radius circle
          {
@@ -1575,9 +1574,9 @@ void ov_process_mouse(void)
       }
       if (type == 15) // sproingy
       {
-         int x1 = item[mW[7].num][4];
-         int y1 = item[mW[7].num][5];
-         int y2 = y1 - al_fixtoi(get_sproingy_jump_height(mW[7].num));
+         int x1 = item[mwWM.mW[7].num][4];
+         int y1 = item[mwWM.mW[7].num][5];
+         int y2 = y1 - al_fixtoi(get_sproingy_jump_height(mwWM.mW[7].num));
 
          if ((hx>x1+msn) && (hx<x1+msp) && (hy>y2+msn) && (hy<y2+msp))
          {
@@ -1587,10 +1586,10 @@ void ov_process_mouse(void)
       }
       if ((type == 4) || (type == 9) || (type == 10) || (type == 14) || (type == 16) || (type == 17)) // key, switch, trigger, manip, damage, msg trigger
       {
-         int x1 = item[mW[7].num][6];
-         int y1 = item[mW[7].num][7];
-         int x2 = x1 + item[mW[7].num][8];
-         int y2 = y1 + item[mW[7].num][9];
+         int x1 = item[mwWM.mW[7].num][6];
+         int y1 = item[mwWM.mW[7].num][7];
+         int x2 = x1 + item[mwWM.mW[7].num][8];
+         int y2 = y1 + item[mwWM.mW[7].num][9];
 
          if ((hx>x1-mst) && (hx<x1+mst) && (hy>y1-mst) && (hy<y1+mst)) // upper left corner (move)
          {
@@ -1611,7 +1610,7 @@ void ov_process_mouse(void)
    mouse_on_lift = 0;
    if (obj_filter[4][1])
    {
-      if ((!key[MAP_LOCK_KEY][0]) && (!mW[7].viewer_lock)) // no lock...check all lifts and steps
+      if ((!key[MAP_LOCK_KEY][0]) && (!mwWM.mW[7].viewer_lock)) // no lock...check all lifts and steps
       {
          for (int x=0; x<num_lifts; x++)  // cycle lifts
             for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
@@ -1624,8 +1623,8 @@ void ov_process_mouse(void)
                   if ((hx > nx - w)  && (hx < nx + w) && (hy > ny - h)  && (hy < ny + h)) // is mouse on this step ?
                   {
                      mouse_on_lift = 1;
-                     mW[7].obt = 4;
-                     mW[7].num = x;
+                     mwWM.mW[7].obt = 4;
+                     mwWM.mW[7].num = x;
                      lift = x;
                      step = y;
                      set_lift_to_step(lift, step);   // set current step in current lift
@@ -1633,7 +1632,7 @@ void ov_process_mouse(void)
                }
       }
 
-      if (((key[MAP_LOCK_KEY][0]) || (mW[7].viewer_lock)) && (mW[7].obt == 4)) // locked, but locked to current lift
+      if (((key[MAP_LOCK_KEY][0]) || (mwWM.mW[7].viewer_lock)) && (mwWM.mW[7].obt == 4)) // locked, but locked to current lift
       {
          int x = lift; // check only current lift
          for (int y=0; y<lifts[x].num_steps; y++)  // cycle steps
@@ -1679,7 +1678,7 @@ void ov_process_mouse(void)
       int lsox=0, lsoy=0;
       if (mouse_on_lift)
       {
-         int l = mW[7].num;
+         int l = mwWM.mW[7].num;
          int s = lifts[l].current_step;
          lsox = (gx - lift_steps[l][s].x/20);
          lsoy = (gy - lift_steps[l][s].y/20);
@@ -1691,9 +1690,9 @@ void ov_process_mouse(void)
          if (mouse_on_obj)
          {
             //printf("mouse pressed on obj\n");
-            if (mW[7].obt == 2) // move item
+            if (mwWM.mW[7].obt == 2) // move item
             {
-               int n = mW[7].num;
+               int n = mwWM.mW[7].num;
                int it = item[n][0]; // item_type
 
                // get offset of move
@@ -1722,54 +1721,54 @@ void ov_process_mouse(void)
                    }
                }
             }
-            if (mW[7].obt == 3) // move enemy
+            if (mwWM.mW[7].obt == 3) // move enemy
             {
                // get offset of move
-               int x_off = gx - al_fixtoi(Efi[mW[7].num][0]) / 20;
-               int y_off = gy - al_fixtoi(Efi[mW[7].num][1]) / 20;
+               int x_off = gx - al_fixtoi(Efi[mwWM.mW[7].num][0]) / 20;
+               int y_off = gy - al_fixtoi(Efi[mwWM.mW[7].num][1]) / 20;
 
                // set new position
-               Efi[mW[7].num][0] = al_itofix(gx*20);
-               Efi[mW[7].num][1] = al_itofix(gy*20);
+               Efi[mwWM.mW[7].num][0] = al_itofix(gx*20);
+               Efi[mwWM.mW[7].num][1] = al_itofix(gy*20);
 
                if (SHFT()) // move stuff also
                {
                   // move podzilla's trigger box too
-                  if (Ei[mW[7].num][0] == 7)
+                  if (Ei[mwWM.mW[7].num][0] == 7)
                   {
-                     Ei[mW[7].num][11] += x_off*20;
-                     Ei[mW[7].num][12] += y_off*20;
+                     Ei[mwWM.mW[7].num][11] += x_off*20;
+                     Ei[mwWM.mW[7].num][12] += y_off*20;
                   }
 
                   // move vinepod's stuff also
-                  if (Ei[mW[7].num][0] == 13)
+                  if (Ei[mwWM.mW[7].num][0] == 13)
                   {
                      // control point and extended pos
-                     Ei[mW[7].num][5] += x_off*20;
-                     Ei[mW[7].num][6] += y_off*20;
-                     Ei[mW[7].num][7] += x_off*20;
-                     Ei[mW[7].num][8] += y_off*20;
-                     Ei[mW[7].num][9] += x_off*20;
-                     Ei[mW[7].num][10] += y_off*20;
+                     Ei[mwWM.mW[7].num][5] += x_off*20;
+                     Ei[mwWM.mW[7].num][6] += y_off*20;
+                     Ei[mwWM.mW[7].num][7] += x_off*20;
+                     Ei[mwWM.mW[7].num][8] += y_off*20;
+                     Ei[mwWM.mW[7].num][9] += x_off*20;
+                     Ei[mwWM.mW[7].num][10] += y_off*20;
 
                      // trigger box
-                     Ei[mW[7].num][11] += x_off*20;
-                     Ei[mW[7].num][12] += y_off*20;
+                     Ei[mwWM.mW[7].num][11] += x_off*20;
+                     Ei[mwWM.mW[7].num][12] += y_off*20;
                   }
 
                   // move cloner's stuff too
-                  if (Ei[mW[7].num][0] == 9)
+                  if (Ei[mwWM.mW[7].num][0] == 9)
                   {
-                     Ei[mW[7].num][11] += x_off*20; // trigger box
-                     Ei[mW[7].num][12] += y_off*20;
-                     Ei[mW[7].num][15] += x_off*20; // source
-                     Ei[mW[7].num][16] += y_off*20;
-                     Ei[mW[7].num][17] += x_off*20; // dest
-                     Ei[mW[7].num][18] += y_off*20;
+                     Ei[mwWM.mW[7].num][11] += x_off*20; // trigger box
+                     Ei[mwWM.mW[7].num][12] += y_off*20;
+                     Ei[mwWM.mW[7].num][15] += x_off*20; // source
+                     Ei[mwWM.mW[7].num][16] += y_off*20;
+                     Ei[mwWM.mW[7].num][17] += x_off*20; // dest
+                     Ei[mwWM.mW[7].num][18] += y_off*20;
                   }
                }
             }
-            if (mW[7].obt == 4) // lift
+            if (mwWM.mW[7].obt == 4) // lift
             {
                if (mouse_move)
                {
@@ -1792,52 +1791,52 @@ void ov_process_mouse(void)
          }
          if (mouse_on_podx)
          {
-            Efi[mW[7].num][5] = al_itofix(gx * 20);
-            Efi[mW[7].num][6] = al_itofix(gy * 20);
-            recalc_pod(mW[7].num);
+            Efi[mwWM.mW[7].num][5] = al_itofix(gx * 20);
+            Efi[mwWM.mW[7].num][6] = al_itofix(gy * 20);
+            recalc_pod(mwWM.mW[7].num);
          }
          if (mouse_on_vpodx)
          {
-            Ei[mW[7].num][9]  = gx * 20;
-            Ei[mW[7].num][10] = gy * 20;
+            Ei[mwWM.mW[7].num][9]  = gx * 20;
+            Ei[mwWM.mW[7].num][10] = gy * 20;
          }
          if (mouse_on_vpod1)
          {
-            Ei[mW[7].num][5] = gx * 20;
-            Ei[mW[7].num][6] = gy * 20;
+            Ei[mwWM.mW[7].num][5] = gx * 20;
+            Ei[mwWM.mW[7].num][6] = gy * 20;
          }
          if (mouse_on_vpod2)
          {
-            Ei[mW[7].num][7] = gx * 20;
-            Ei[mW[7].num][8] = gy * 20;
+            Ei[mwWM.mW[7].num][7] = gx * 20;
+            Ei[mwWM.mW[7].num][8] = gy * 20;
          }
 
 
          if (mouse_on_tb_ul) // move trigger box from ul
          {
             //printf("mouse pressed on tb_ul\n");
-            Ei[mW[7].num][11] = gx*20;
-            Ei[mW[7].num][12] = gy*20;
+            Ei[mwWM.mW[7].num][11] = gx*20;
+            Ei[mwWM.mW[7].num][12] = gy*20;
          }
          if (mouse_on_tb_lr)  // resize trigger box from lr
          {
             // prevent lr corner from being less than ul corner
-            if (gx < Ei[mW[7].num][11]/20) gx = Ei[mW[7].num][11]/20;
-            if (gy < Ei[mW[7].num][12]/20) gy = Ei[mW[7].num][12]/20;
+            if (gx < Ei[mwWM.mW[7].num][11]/20) gx = Ei[mwWM.mW[7].num][11]/20;
+            if (gy < Ei[mwWM.mW[7].num][12]/20) gy = Ei[mwWM.mW[7].num][12]/20;
             // set new postion
-            Ei[mW[7].num][13] = gx*20 - Ei[mW[7].num][11];
-            Ei[mW[7].num][14] = gy*20 - Ei[mW[7].num][12];
+            Ei[mwWM.mW[7].num][13] = gx*20 - Ei[mwWM.mW[7].num][11];
+            Ei[mwWM.mW[7].num][14] = gy*20 - Ei[mwWM.mW[7].num][12];
          }
          if (mouse_on_msg_ul) // move msg
          {
-            set_int_3216(item[mW[7].num][10], hx, hy);
+            set_int_3216(item[mwWM.mW[7].num][10], hx, hy);
          }
 
          if (mouse_on_msg_lr) // move msg
          {
             int mx=0, my=0, mw=0, mh=0;
-            get_int_3216(item[mW[7].num][10], mx, my);
-            get_int_3216(item[mW[7].num][11], mw, mh);
+            get_int_3216(item[mwWM.mW[7].num][10], mx, my);
+            get_int_3216(item[mwWM.mW[7].num][11], mw, mh);
 
             // don't allow lr to be less than ul
             if (hx < mx+8) hx = mx+8;
@@ -1847,7 +1846,7 @@ void ov_process_mouse(void)
             mw = hx - mx;
             mh = hy - my;
 
-            set_int_3216(item[mW[7].num][11], mw, mh);
+            set_int_3216(item[mwWM.mW[7].num][11], mw, mh);
 
 
 
@@ -1859,131 +1858,131 @@ void ov_process_mouse(void)
             //al_hide_mouse_cursor(display);
             //item[mW[7].num][7] -= mouse_dy/2;
             int get_sp(float jh);
-            float y0 = (float) item[mW[7].num][5]+10;
+            float y0 = (float) item[mwWM.mW[7].num][5]+10;
             float fy = (float) hy;
-            item[mW[7].num][7] = get_sp(y0-fy);
+            item[mwWM.mW[7].num][7] = get_sp(y0-fy);
 
             // bounds check
-            if (item[mW[7].num][7] < 40) item[mW[7].num][7] = 40;
-            if (item[mW[7].num][7] > 200) item[mW[7].num][7] = 200;
+            if (item[mwWM.mW[7].num][7] < 40) item[mwWM.mW[7].num][7] = 40;
+            if (item[mwWM.mW[7].num][7] > 200) item[mwWM.mW[7].num][7] = 200;
          }
          if (mouse_on_bmb) // adjust bomb blast radius
          {
-            float x0 = (float) item[mW[7].num][4]+10; // get center of item location
-            float y0 = (float) item[mW[7].num][5]+10;
+            float x0 = (float) item[mwWM.mW[7].num][4]+10; // get center of item location
+            float y0 = (float) item[mwWM.mW[7].num][5]+10;
             float fx = (float) hx;
             float fy = (float) hy;
             float dist = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse to item
-            item[mW[7].num][7] = (int) dist;
+            item[mwWM.mW[7].num][7] = (int) dist;
          }
          if (mouse_on_trk) // adjust trakbot bulet prox
          {
-            float x0 = al_fixtof(Efi[mW[7].num][0])+10; // get center of item location
-            float y0 = al_fixtof(Efi[mW[7].num][1])+10;
+            float x0 = al_fixtof(Efi[mwWM.mW[7].num][0])+10; // get center of item location
+            float y0 = al_fixtof(Efi[mwWM.mW[7].num][1])+10;
             float fx = (float) hx;
             float fy = (float) hy;
             float dst = sqrt(pow((x0-fx), 2) + pow((y0-fy), 2)); // distance from mouse
-            Ei[mW[7].num][17] = (int) dst;
+            Ei[mwWM.mW[7].num][17] = (int) dst;
          }
          // ranges for key, trigger, manip and damage
          if (mouse_on_kbr_ul) // move block range from ul
          {
             // set new position
-            item[mW[7].num][6] = gx*20;
-            item[mW[7].num][7] = gy*20;
+            item[mwWM.mW[7].num][6] = gx*20;
+            item[mwWM.mW[7].num][7] = gy*20;
          }
          if (mouse_on_kbr_lr) // adjust block range from lr
          {
             // don't allow lr to be less than ul
-            if (gx < item[mW[7].num][6]/20) gx = item[mW[7].num][6]/20;
-            if (gy < item[mW[7].num][7]/20) gy = item[mW[7].num][7]/20;
+            if (gx < item[mwWM.mW[7].num][6]/20) gx = item[mwWM.mW[7].num][6]/20;
+            if (gy < item[mwWM.mW[7].num][7]/20) gy = item[mwWM.mW[7].num][7]/20;
 
             // set new position
-            item[mW[7].num][8] = gx*20 - item[mW[7].num][6];
-            item[mW[7].num][9] = gy*20 - item[mW[7].num][7];
+            item[mwWM.mW[7].num][8] = gx*20 - item[mwWM.mW[7].num][6];
+            item[mwWM.mW[7].num][9] = gy*20 - item[mwWM.mW[7].num][7];
          }
          if (mouse_on_csb_ul) // move cloner source box from ul
          {
-            Ei[mW[7].num][15] = gx*20; // set new postion
-            Ei[mW[7].num][16] = gy*20;
+            Ei[mwWM.mW[7].num][15] = gx*20; // set new postion
+            Ei[mwWM.mW[7].num][16] = gy*20;
          } // end of mouse csb_ul
          if (mouse_on_csb_lr) // resize box from lr
          {
             // get ul corner
-            int x1 = Ei[mW[7].num][15]/20;
-            int y1 = Ei[mW[7].num][16]/20;
+            int x1 = Ei[mwWM.mW[7].num][15]/20;
+            int y1 = Ei[mwWM.mW[7].num][16]/20;
 
             // prevent lr corner from being less than ul corner
             if (gx < x1+1) gx = x1+1;
             if (gy < y1+1) gy = y1+1;
 
             // set new sizes
-            Ei[mW[7].num][19] = (gx-x1)*20;
-            Ei[mW[7].num][20] = (gy-y1)*20;
+            Ei[mwWM.mW[7].num][19] = (gx-x1)*20;
+            Ei[mwWM.mW[7].num][20] = (gy-y1)*20;
          } // end of mouse csb_lr
 
          if (mouse_on_cdb_ul) // cloner destination ul
          {
-            Ei[mW[7].num][17] = gx*20; // set new postion
-            Ei[mW[7].num][18] = gy*20;
+            Ei[mwWM.mW[7].num][17] = gx*20; // set new postion
+            Ei[mwWM.mW[7].num][18] = gy*20;
          }
-         cm_redraw_level_editor_background();
+         mwWM.redraw_level_editor_background();
       } // end of while mouse_b[1][0] pressed
    } // end of if mouse_b[1][0] pressed
 
    if (mouse_b[2][0])
    {
       while (mouse_b[2][0]) proc_event_queue();
-      set_windows(1);
+      mwWM.set_windows(1);
    }
 }
 
 
 void ov_set_to_0(void)
 {
-   mW[7].obt = 2;
-   mW[7].num = 0;
-   if (item[mW[7].num][0] == 0) set_windows(1);
+   mwWM.mW[7].obt = 2;
+   mwWM.mW[7].num = 0;
+   if (item[mwWM.mW[7].num][0] == 0) mwWM.set_windows(1);
 }
 
 void ov_check_if_valid(int type)
 {
    //printf("valid? obt:%d num:%d\n", mW[7].obt, mW[7].num);
 
-   if (mW[7].obt==0) ov_set_to_0();
+   if (mwWM.mW[7].obt==0) ov_set_to_0();
 
-   if (mW[7].obt==2)
+   if (mwWM.mW[7].obt==2)
    {
       if (item_num_of_type[type] < 1) ov_set_to_0();
-      if (item[mW[7].num][0] != type) ov_set_to_0();
-      if (item[mW[7].num][0] == 0) ov_set_to_0();
+      if (item[mwWM.mW[7].num][0] != type) ov_set_to_0();
+      if (item[mwWM.mW[7].num][0] == 0) ov_set_to_0();
    }
-   if (mW[7].obt==3)
+   if (mwWM.mW[7].obt==3)
    {
       if (e_num_of_type[type] < 1) ov_set_to_0();
-      if (Ei[mW[7].num][0] != type) ov_set_to_0();
+      if (Ei[mwWM.mW[7].num][0] != type) ov_set_to_0();
    }
 
-   if (mW[7].obt==4)
+   if (mwWM.mW[7].obt==4)
    {
       //printf("num:%d num_lifts:%d\n", mW[7].num, num_lifts);
-      if (mW[7].num >= num_lifts) ov_set_to_0();
+      if (mwWM.mW[7].num >= num_lifts) ov_set_to_0();
       if (num_lifts < 1) ov_set_to_0();
    }
 }
 
 void ov_process_keypress(void)
 {
-   int mb = mW[7].mb;
+   int mb = mwWM.mW[7].mb;
    int type=0, lift=0, step=0;
-   if (mW[7].obt == 2) type = item[mW[7].num][0];
-   if (mW[7].obt == 3) type = Ei[mW[7].num][0];
-   if (mW[7].obt == 4)
+   if (mwWM.mW[7].obt == 2) type = item[mwWM.mW[7].num][0];
+   if (mwWM.mW[7].obt == 3) type = Ei[mwWM.mW[7].num][0];
+   if (mwWM.mW[7].obt == 4)
    {
-      lift = mW[7].num;
-      step = lifts[mW[7].num].current_step;
+      lift = mwWM.mW[7].num;
+      step = lifts[mwWM.mW[7].num].current_step;
       set_lift_to_step(lift, step);   // set current step in current lift
-      lifts[mW[7].num].current_step = step;
+      lifts[mwWM.mW[7].num].current_step = step;
    }
 
    while (key[ALLEGRO_KEY_DELETE][0]) { proc_event_queue(); mb = 20; }
@@ -1994,25 +1993,27 @@ void ov_process_keypress(void)
    {
       case 18: // move
       {
-         if (mW[7].obt==2)
+         if (mwWM.mW[7].obt==2)
          {
             sprintf(msg,"%s", item_name[type]);
-            getxy(msg,mW[7].obt, type, mW[7].num);
+            getxy(msg, mwWM.mW[7].obt, type, mwWM.mW[7].num);
          }
-         if (mW[7].obt==3)
+         if (mwWM.mW[7].obt==3)
          {
             sprintf(msg,"%s", enemy_name[type][0]);
-            getxy(msg,mW[7].obt, type, mW[7].num);
+            getxy(msg, mwWM.mW[7].obt, type, mwWM.mW[7].num);
          }
-         if (mW[7].obt==4)
+         if (mwWM.mW[7].obt==4)
          {
             while (!key[ALLEGRO_KEY_ESCAPE][0])
             {
-               for (int t=0; t<2; t++) move_lifts(1);  // move lifts for 2 frames
-               cm_redraw_level_editor_background(0);
-               ov_draw_overlays(0);
-               get_new_screen_buffer(3, 0, 0);
-               mW[7].draw(1);
+               if (mwWM.redraw_level_editor_background())
+               {
+                  for (int t=0; t<2; t++) move_lifts(1);  // move lifts for 2 frames
+                  ov_draw_overlays(0);
+                  get_new_screen_buffer(3, 0, 0);
+                  mwWM.cycle_windows(1); // draw only
+               }
             }
             while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue(); // wait for release
             lift_setup(); // reset all lifts to step 0
@@ -2020,47 +2021,47 @@ void ov_process_keypress(void)
       }
       break;
       case 19:
-         mW[7].num = create_obj(mW[7].obt, type, mW[7].num);
+         mwWM.mW[7].num = create_obj(mwWM.mW[7].obt, type, mwWM.mW[7].num);
       break;
       case 20: // delete
-         if (mW[7].obt== 2)
+         if (mwWM.mW[7].obt== 2)
          {
-            erase_item(mW[7].num);
+            erase_item(mwWM.mW[7].num);
             sort_item(1);
-            if (mW[7].num >= item_first_num[type]+item_num_of_type[type]) mW[7].num--;
+            if (mwWM.mW[7].num >= item_first_num[type]+item_num_of_type[type]) mwWM.mW[7].num--;
             ov_check_if_valid(type);
          }
-         if (mW[7].obt == 3)
+         if (mwWM.mW[7].obt == 3)
          {
-            Ei[mW[7].num][0] = 0;
+            Ei[mwWM.mW[7].num][0] = 0;
             sort_enemy();
-            if (mW[7].num >= e_first_num[type]+e_num_of_type[type]) mW[7].num--;
+            if (mwWM.mW[7].num >= e_first_num[type]+e_num_of_type[type]) mwWM.mW[7].num--;
             ov_check_if_valid(type);
          }
-         if (mW[7].obt == 4)
+         if (mwWM.mW[7].obt == 4)
          {
-            erase_lift(mW[7].num);
-            if (--mW[7].num < 0) mW[7].num = 0;      // set to prev lift or zero
+            erase_lift(mwWM.mW[7].num);
+            if (--mwWM.mW[7].num < 0) mwWM.mW[7].num = 0;      // set to prev lift or zero
             ov_check_if_valid(0);
          }
       break;
       case 21: // next
-         if ((mW[7].obt==2) && (++mW[7].num >= item_first_num[type] + item_num_of_type[type])) mW[7].num--;
-         if ((mW[7].obt==3) && (++mW[7].num >= e_first_num[type] + e_num_of_type[type])) mW[7].num--;
-         if ((mW[7].obt==4) && (++mW[7].num > num_lifts-1)) mW[7].num--;
+         if ((mwWM.mW[7].obt==2) && (++mwWM.mW[7].num >= item_first_num[type] + item_num_of_type[type])) mwWM.mW[7].num--;
+         if ((mwWM.mW[7].obt==3) && (++mwWM.mW[7].num >= e_first_num[type] + e_num_of_type[type])) mwWM.mW[7].num--;
+         if ((mwWM.mW[7].obt==4) && (++mwWM.mW[7].num > num_lifts-1)) mwWM.mW[7].num--;
       break;
       case 22: // previous
-         if ((mW[7].obt==3) && (--mW[7].num < e_first_num[type])) mW[7].num++;
-         if ((mW[7].obt==2) && (--mW[7].num < item_first_num[type])) mW[7].num++;
-         if ((mW[7].obt==4) && (--mW[7].num < 0)) mW[7].num++;
+         if ((mwWM.mW[7].obt==3) && (--mwWM.mW[7].num < e_first_num[type])) mwWM.mW[7].num++;
+         if ((mwWM.mW[7].obt==2) && (--mwWM.mW[7].num < item_first_num[type])) mwWM.mW[7].num++;
+         if ((mwWM.mW[7].obt==4) && (--mwWM.mW[7].num < 0)) mwWM.mW[7].num++;
       break;
    } // end of switch (mb)
 }
 
 void object_viewer(int obt, int num)
 {
-   mW[7].obt = obt;
-   mW[7].num = num;
-   set_windows(4); // object viewer
+   mwWM.mW[7].obt = obt;
+   mwWM.mW[7].num = num;
+   mwWM.set_windows(4); // object viewer
 //   al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
 }

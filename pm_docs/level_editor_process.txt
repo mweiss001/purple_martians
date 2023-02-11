@@ -1,42 +1,128 @@
+------------------------------------------------------
 High level description of the process for level editor
+------------------------------------------------------
+
+Data structure:
+
+class mwWindowManager
+contains 10
+class mwWindow
 
 
-It is started by calling:
-edit_menu(start_level)
+There is one static instance of mwWindowManager
+
+declared in mwWindowManager.cpp
+mwWindowManager mwWM;
+
+and externed in mwWindowManager.h
+extern mwWindowManager mwWM;
 
 
-edit_menu sets some stuff up, then does this loop
-
-   while (mW[8].active)
-   {
-      cm_redraw_level_editor_background();
-      if (!mw_cycle_windows(0)) cm_process_mouse();
-      cm_process_keypress();
-   }
 
 
-cm_redraw_level_editor_background();
+Started by calling: edit_menu(start_level)
+
+------------------------------------------------------
+int edit_menu(start_level);
+------------------------------------------------------
+
+which calls the loop method of mwWindowManager:
+
+int edit_menu(int edit_level)
+{
+   mwWM.loop(edit_level);
+   return last_level_loaded;
+}
+
+
+------------------------------------------------------
+void mwWindowManager::loop(int edit_level)
+-----------------------------------------------------
+
+sets some stuff up, then does this loop
+
+while (active)
+{
+   redraw_level_editor_background();
+   if (!cycle_windows(0)) process_mouse();
+   process_keypress();
+}
+
+
+------------------------------------------------------
+int mwWindowManager::redraw_level_editor_background(void)
+------------------------------------------------------
 - proc_event_queue
 - only draws if program_update set 
 
+draw does the following:
 - flips display
 - gets new background
 - draws lifts, enemies, items
 - draws overlay specific to mode
 - gets new screen buffer
 
-
-if (!mw_cycle_windows(0)) cm_process_mouse();
+------------------------------------------------------
+if (!cycle_windows(0)) process_mouse();
+------------------------------------------------------
 - processes and draws all active windows for this mode
 - if the mouse is not on any window, process mouse for background
 
+the draw() function is where most of functionality of each window happens
+the exceptions are:
+- moving and resizing the window
+- mouse b2 menu
+these are handled by process_mouse()
 
-
-cm_process_keypress();
-- runs custom handler for ovm
+------------------------------------------------------
+process_keypress();
+------------------------------------------------------
+- runs custom handler for ovm keyboard input
 - checks for ESC in all modes for quit
 - runs the exit dialog for last chance to abort or save before quit
 
+------------------------------------------------------
+int mwWindowManager::cycle_windows(int draw_only)
+------------------------------------------------------
+
+first all the windows are checked and corrected if they are offscreen
+for (int a=0; a<NUM_MW; a++) mW[a].check_offscreen();
+
+then the windows are all drawn in order, from the bottom to the top
+and as each one is drawn and processed, check if the mouse is on the window
+
+at this point, all windows have been drawn in order
+and 'mouse_on_window' is set to the top window that has the mouse on it
+
+then all windows are set to not have focus
+
+then the window that has 'mouse_on_window' set, is set to have focus
+
+then mW[a].process_mouse() is called for the window that has focus
+
+
+------------------------------------------------------
+mW[].draw()
+------------------------------------------------------
+the only thing that calls .draw() is mw_cycle_windows(int draw_only)
+
+the parameter 'draw_only' in conjunction with 'have_focus' and 'moving'
+are used to set d, which is passed to each specfic windows draw code
+
+int d = 1;
+if (have_focus) d = 0;
+if (moving) d = 1;
+if (draw_only) d = 1;
+
+this means that only the window that has focus gets to do anything but draw itself
+
+calls to cycle_windows(int draw_only)
+- 1 call in mwWindowManager::loop (main loop) (draw_only = 0)
+- 2 calls when moving or resizing windows     (draw_only = 1)
+- 1 call when blocked in tmenu                (draw_only = 1)
+- 1 call when re-arranging ge list items      (draw_only = 1)
+- 1 call running lifts                        (draw_only = 1)
+- sliders has 2 calls when moving slider bars (draw_only = 1)
 
 
 
@@ -45,21 +131,66 @@ cm_process_keypress();
 
 
 
-mw_cycle_windows(0) in more detail:
 
 
-   for (int a=0; a<NUM_MW; a++) mW[a].check_offscreen();
 
 
-draw windows in order, top last, detecting mouse on window as we go
-
-  // at this point, all windows have been drawn in order
-  // and 'mouse_on_window' is set to the top window that has the mouse on it
 
 
-process the window that has focus 
 
-mW[a].process_mouse();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

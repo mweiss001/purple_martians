@@ -101,6 +101,7 @@
 		<Unit filename="src/e_sliders.cpp" />
 		<Unit filename="src/e_tile_helper.cpp" />
 		<Unit filename="src/e_visual_level.cpp" />
+		<Unit filename="src/e_window_common.cpp" />
 		<Unit filename="src/mwDrawSequence.cpp" />
 		<Unit filename="src/mwDrawSequence.h" />
 		<Unit filename="src/mwGraph.cpp" />
@@ -113,6 +114,8 @@
 		<Unit filename="src/mwTally.h" />
 		<Unit filename="src/mwWindow.cpp" />
 		<Unit filename="src/mwWindow.h" />
+		<Unit filename="src/mwWindowManager.cpp" />
+		<Unit filename="src/mwWindowManager.h" />
 		<Unit filename="src/n_client.cpp" />
 		<Unit filename="src/n_netgame.cpp" />
 		<Unit filename="src/n_netgame.h" />

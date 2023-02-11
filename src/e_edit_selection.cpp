@@ -2,6 +2,7 @@
 
 #include "pm.h"
 #include "mwWindow.h"
+#include "mwWindowManager.h"
 
 
 int ft_level_header[20];
@@ -471,8 +472,8 @@ void es_save_selection(int save)
    ft_level_header[4] = eib; // num_of_enemies
    ft_level_header[5] = lib; // num_of_lifts
 
-   mW[4].sw = ft_level_header[8] =  bx2-bx1+1; // width
-   mW[4].sh = ft_level_header[9] =  by2-by1+1; // height
+   mwWM.mW[4].sw = ft_level_header[8] =  bx2-bx1+1; // width
+   mwWM.mW[4].sh = ft_level_header[9] =  by2-by1+1; // height
 
    //printf("finished copying to ft - i:%d e:%d l:%d\n", iib, eib, lib);
 
@@ -538,8 +539,8 @@ void es_do_fcopy(int qx1, int qy1)
    int erase_out_of_bounds_main = 0;  // 0 = adjust
 
    // blocks
-   for (x=0; x<mW[4].sw; x++)
-      for (y=0; y<mW[4].sh; y++)
+   for (x=0; x<mwWM.mW[4].sw; x++)
+      for (y=0; y<mwWM.mW[4].sh; y++)
          if ((qx1+x >= 0) && (qx1+x < 100) && (qy1+y >= 0) && (qy1+y < 100))
             set_block_with_flag_filters(qx1+x, qy1+y, ft_l[x][y]);
 
@@ -818,17 +819,13 @@ void set_block_with_flag_filters(int x, int y, int tn)
    }
 }
 
-int es_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
+int es_draw_buttons(int x3, int x4, int yfb, int d)
 {
-   int d = 1;
-   if (have_focus) d = 0;
-   if (moving) d = 1;
    int bts = 16;
    int col=0;
-
    if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Move Selection"))
    {
-      mW[4].copy_mode = 1;
+      mwWM.mW[4].copy_mode = 1;
       es_save_selection(0); // just puts in ft_
       es_draw_fsel();
       es_do_clear();
@@ -840,13 +837,13 @@ int es_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
       al_set_target_backbuffer(display);
    }
 
-   mW[4].copy_mode ? col=10 : col=9;
+   mwWM.mW[4].copy_mode ? col=10 : col=9;
    if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Paste Selection"))
    {
-      if (mW[4].copy_mode) mW[4].copy_mode = 0;
+      if (mwWM.mW[4].copy_mode) mwWM.mW[4].copy_mode = 0;
       else
       {
-         mW[4].copy_mode = 1;
+         mwWM.mW[4].copy_mode = 1;
          es_save_selection(0); // puts selection in ft_ only
          es_draw_fsel();
       }
@@ -859,20 +856,20 @@ int es_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
    {
       if (es_load_selection())
       {
-         mW[4].copy_mode = 1;
-         mW[4].sw = ft_level_header[8];
-         mW[4].sh = ft_level_header[9];
+         mwWM.mW[4].copy_mode = 1;
+         mwWM.mW[4].sw = ft_level_header[8];
+         mwWM.mW[4].sh = ft_level_header[9];
          es_draw_fsel();
       }
    }
-   if (mW[1].draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
+   if (mwWM.mW[1].draw_item_type == 1) // don't even show these 3 buttons unless draw item type is block
    {
       yfb+=bts/2; // spacing between groups
       if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Block Fill"))
       {
          for (int x=bx1; x<bx2+1; x++)
             for (int y=by1; y<by2+1; y++)
-               set_block_with_flag_filters(x, y, mW[1].draw_item_num);
+               set_block_with_flag_filters(x, y, mwWM.mW[1].draw_item_num);
          init_level_background(0);
          al_set_target_backbuffer(display);
       }
@@ -880,19 +877,19 @@ int es_draw_buttons(int x3, int x4, int yfb, int have_focus, int moving)
       {
          for (int x=bx1; x<bx2+1; x++)
          {
-            set_block_with_flag_filters(x, by1, mW[1].draw_item_num);
-            set_block_with_flag_filters(x, by2, mW[1].draw_item_num);
+            set_block_with_flag_filters(x, by1, mwWM.mW[1].draw_item_num);
+            set_block_with_flag_filters(x, by2, mwWM.mW[1].draw_item_num);
          }
          for (int y=by1; y<by2+1; y++)
          {
-            set_block_with_flag_filters(bx1, y, mW[1].draw_item_num);
-            set_block_with_flag_filters(bx2, y, mW[1].draw_item_num);
+            set_block_with_flag_filters(bx1, y, mwWM.mW[1].draw_item_num);
+            set_block_with_flag_filters(bx2, y, mwWM.mW[1].draw_item_num);
          }
          init_level_background(0);
          al_set_target_backbuffer(display);
       }
-      mW[4].brf_mode ? col=10 : col=9;
-      if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Block Floodfill")) mW[4].brf_mode = !mW[4].brf_mode;
+      mwWM.mW[4].brf_mode ? col=10 : col=9;
+      if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,col,15,0, 1,0,1,d, "Block Floodfill")) mwWM.mW[4].brf_mode = !mwWM.mW[4].brf_mode;
    }
    return yfb;
 }
@@ -1012,16 +1009,16 @@ void es_draw_lifts_ft()
 void es_draw_fsel(void)
 {
    al_destroy_bitmap(ft_bmp);
-   ft_bmp = al_create_bitmap(mW[4].sw*20, mW[4].sh*20);
+   ft_bmp = al_create_bitmap(mwWM.mW[4].sw*20, mwWM.mW[4].sh*20);
    al_set_target_bitmap(ft_bmp);
    al_clear_to_color(al_map_rgba(0,0,0,0));
 
    // draw blocks
    if (obj_filter[1][1])
    {
-      for (int x=0; x<mW[4].sw; x++)
-         for (int y=0; y<mW[4].sh; y++)
-            if (mW[1].show_non_default_blocks) draw_block_non_default_flags(ft_l[x][y], x*20, y*20);
+      for (int x=0; x<mwWM.mW[4].sw; x++)
+         for (int y=0; y<mwWM.mW[4].sh; y++)
+            if (mwWM.mW[1].show_non_default_blocks) draw_block_non_default_flags(ft_l[x][y], x*20, y*20);
    }
 
    // draw items
@@ -1041,22 +1038,22 @@ void es_process_mouse(void)
 {
    if (mouse_b[1][0])
    {
-      if (mW[4].copy_mode)
+      if (mwWM.mW[4].copy_mode)
       {
          while (mouse_b[1][0]) proc_event_queue();
          es_do_fcopy(gx, gy);
       }
-      if (mW[4].brf_mode)
+      if (mwWM.mW[4].brf_mode)
       {
          while (mouse_b[1][0])proc_event_queue();
-         es_do_brf(gx, gy, mW[1].draw_item_num);
+         es_do_brf(gx, gy, mwWM.mW[1].draw_item_num);
       }
-      if ((!mW[4].copy_mode) && (!mW[4].brf_mode)) cm_get_new_box(); // get new selection
+      if ((!mwWM.mW[4].copy_mode) && (!mwWM.mW[4].brf_mode)) mwWM.get_new_box(); // get new selection
    }
 
    if (mouse_b[2][0])
    {
       while (mouse_b[2][0]) proc_event_queue();
-      set_windows(1);
+      mwWM.set_windows(1);
    }
 }

@@ -1,7 +1,7 @@
 // z_file.cpp
 #include "pm.h"
 #include "z_log.h"
-#include "mwWindow.h"
+#include "mwWindowManager.h"
 #include "z_player.h"
 #include "n_netgame.h"
 
@@ -108,7 +108,7 @@ void save_mW(void)
    FILE *fp = fopen("bitmaps/mW.pm", "wb");
    if (fp)
    {
-      fwrite(mW, sizeof(mW), 1, fp);
+      fwrite(&mwWM, sizeof(mwWM), 1, fp);
       fclose(fp);
    }
    else printf("error saving mW.pm\n");
@@ -120,14 +120,21 @@ void load_mW(void)
    FILE *fp = fopen("bitmaps/mW.pm", "rb");
    if (fp)
    {
-      fread(mW, sizeof(mW), 1, fp);
+      fread(&mwWM, sizeof(mwWM), 1, fp);
       fclose(fp);
    }
    else
    {
-      printf("error loading mW.pm -- recreating\n");
-      save_mW();
+      //printf("error loading mW.pm -- recreating\n");
+      //save_mW();
+      printf("error loading mW.pm -- using defaults\n");
+      //save_mW();
    }
+
+   // delete it...
+
+   char sys_cmd[500];
+   sprintf(sys_cmd, "del bitmaps/mW.pm"); printf("%s\n",sys_cmd); system(sys_cmd);
 
 }
 

@@ -1,5 +1,6 @@
 // e_bitmap.cpp
 #include "pm.h"
+#include "mwWindowManager.h"
 
 void color_shiftc(ALLEGRO_BITMAP *b, int sc, int cs, int x, int y)
 {
@@ -235,7 +236,7 @@ int select_bitmap(int tn)
    int quit = 0;
    while (!quit)
    {
-      cm_redraw_level_editor_background(0);
+      mwWM.redraw_level_editor_background(0);
       crosshairs_full(gx*20+10, gy*20+10, 15, 1);
       get_new_screen_buffer(3, 0, 0);
 

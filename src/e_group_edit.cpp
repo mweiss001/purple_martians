@@ -2,6 +2,7 @@
 
 #include "pm.h"
 #include "mwWindow.h"
+#include "mwWindowManager.h"
 
 #define NUM_OBJ 600
 
@@ -464,11 +465,8 @@ int ge_draw_list_items(int x1, int y1, int flash_color, int ni)
    return xt;
 }
 
-void ge_show_obj_list(int x, int y, int *ew, int *eh, int have_focus, int moving)
+void ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
 {
-   int d = 1;
-   if (have_focus) d = 0;
-   if (moving) d = 1;
 
    // find number of items in list
    int ni = 0;
@@ -516,29 +514,25 @@ void ge_show_obj_list(int x, int y, int *ew, int *eh, int have_focus, int moving
                int old_mpl = mpl;
                while (mouse_b[1][0])
                {
-                  cm_redraw_level_editor_background();
+                  mwWM.redraw_level_editor_background();
+                  get_new_screen_buffer(3, 0, 0);
+                  mwWM.cycle_windows(1); // draw only
+
                   mpl = ((mouse_y - yf1 + fs)/8)-4;             // get raw list item
                   if ((mpl < -1) || (mpl > ni-1)) mpl = -1;     // ensure valid list item
-                  if (mpl != -1)                                // mouse is on valid list item
-                  {
-                     al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, palette_color[10], 1); // draw rectangle around list item pointer
-                     ge_swap_obj_list_items(old_mpl, mpl); // do the swap
-                     mW[5].draw(0);
-                  }
+                  if (mpl != -1) al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, palette_color[10], 1); // if mouse is on valid list item, draw rectangle around list item pointer
                }
+               if (mpl != -1) ge_swap_obj_list_items(old_mpl, mpl); // if mouse is on valid list item, do the swap
             } // mouse b1 held
          } // mouse_b[1][0] pressed
       } // mouse on valid list item
    } // mouse on obj list
 }
 
-int ge_show_controls(int x, int y, int *ew, int *eh, int have_focus, int moving, int hidden, int draw_only)
+int ge_show_controls(int x, int y, int *ew, int *eh, int hidden, int d)
 {
    int nc = 0; // number of valid controls
-   int d = 1;
-   if (have_focus) d = 0;
-   if (moving) d = 1;
-   if (draw_only) d = 1;
+
 
    int by = y;
    int bts = 16;
@@ -744,9 +738,9 @@ void ge_process_mouse(void)
 {
    if (mouse_b[1][0])
    {
-      if (mW[5].show_sel_frame) // get new selection rectangle
+      if (mwWM.mW[5].show_sel_frame) // get new selection rectangle
       {
-         cm_get_new_box();
+         mwWM.get_new_box();
          if (SHFT()) ge_add_selection_to_list(1); // add everything in selection to list and set filters...
       }
       else
@@ -780,6 +774,6 @@ void ge_process_mouse(void)
    if (mouse_b[2][0])
    {
       while (mouse_b[2][0]) proc_event_queue();
-      set_windows(1);
+      mwWM.set_windows(1);
    }
 }

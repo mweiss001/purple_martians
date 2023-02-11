@@ -11361,6 +11361,378 @@ no blocking...
 seems to work good
 
 
+I want to make the file mwWindow only have functions from that specific class
+
+any common files put in a seperate file e_mw_common.cpp
+
+
+what calls draw?
+.draw(
+only one thing:
+- cycle windows
+
+
+how about from within the class? none!
+
+nice! so there is only one single point of entry...
+
+well cycle windows probbaly has many, it draws them all...
+
+calls to cycle_windows(int draw_only)
+- 1 call in editor_main (main loop)           (draw_only = 0)
+- 2 calls when moving or resizing windows     (draw_only = 1)
+- 1 call when blocked in tmenu                (draw_only = 1)
+- 1 call when re-arranging ge list items      (draw_only = 1)
+- 1 call running lifts                        (draw_only = 1)
+- sliders has 2 calls when moving slider bars (draw_only = 1)
+
+OK, this is all coming together....
+
+
+
+
+
+
+
+I was thinking about making a mwWindowManager class to handle all of the windows as a group...
+
+I am not sure what I would gain from that...
+
+what functions would be a part of it:
+
+void cm_get_block_position_on_map();
+void cm_process_scrolledge(void);
+void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
+void cm_get_new_box(void);
+void cm_redraw_level_editor_background(int mode);
+void cm_process_mouse(void);
+void cm_process_keypress(void);
+int cm_redraw_level_editor_background(void);
+void set_windows(int mode);
+int is_mouse_on_any_window(void);
+int mw_get_max_layer(void);
+int mw_cycle_windows(int draw_only);
+
+
+not these:
+void cm_process_menu_bar(int draw_only);
+int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int draw_only);
+void cm_draw_status_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
+void cm_draw_selection_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
+
+
+
+that is actually quite an impressive list of functions that could all be rolled into a class..
+as far as the data is concerned, it's almost entirely just the window objects..
+
+
+imagine that...
+
+the entirety of level editor in one class, one instance of that class, one object...
+it is very tempting...
+
+
+there is already very few globals for level editor...
+
+one thing I am anticpating having problems with (because I have run into it before)
+I want to make mwWindowManager contain the array of mwWindows
+
+It should be possible, but I get errors about muliple definitions whenever I try.
+
+I think I could solve it by using pointers to objects, but I have been trying to stay away from dynamically creating things...
+
+started making the frameworks...
+
+
+make an array of 10 pointers to mwWindows
+
+when I construct a new mwWindowManager, dynamically allocate the 10 mwWindows
+
+
+this is what I have so far:
+
+
+// mwWindowManager.h
+class mwWindow{};
+#define NUM_MW 10
+class mwWindowManager
+{
+   public:
+    mwWindowManager();  // constructor
+    ~mwWindowManager(); // destructor
+//    mwWindow * mwW;
+    mwWindow * mwW[10];
+};
+
+// mwWindowManager.cpp
+#include "pm.h"
+#include "mwWindowManager.h"
+mwWindowManager::mwWindowManager()  // constructor
+{
+   //mwW = new mwWindow[10];
+   for (int i=0; i<10; i++)
+      mwW[i] = new mwWindow;
+}
+mwWindowManager::~mwWindowManager()  // destructor
+{
+   //delete [] mwW;
+   for (int i=0; i<10; i++)
+      delete mwW[i];
+}
+
+what next?
+
+
+where do I create and destroy mwWindowManager?
+
+at the start and end of edit menu
+
+statically allocated at the start:
+mwWindowManager mwWM;
+
+it should automatically get destroyed when it goes out of scope
+
+
+I'm still getting stupid multiple definition errors...
+
+I'm going to experiment with header guards...
+
+maybe I don't have to use dynamic after all??
+
+
+
+
+
+Use header guards in all your header file and declare a global variable in .c file and declare extern to that global variable in a header file.
+
+#ifndef HEADER_FILE_NAME_H    /* if not defined already */
+#define HEADER_FILE_NAME_H
+extern wchar_t szClassName[];
+#endif
+
+
+omg that was excactly what I was looking for!
+
+now I can use statically define varaibles...
+
+
+create at the start of edit menu:
+mwWindowManager mwWM;
+
+class mwWindowManager
+{
+   public:
+   mwWindowManager();  // constructor
+   ~mwWindowManager(); // destructor
+   mwWindow mwW[10];
+};
+
+now what?
+
+start copying things over?
+
+   void cm_get_block_position_on_map(void);
+   void cm_process_scrolledge(void);
+   void cm_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color, const char * text);
+   void cm_get_new_box(void);
+   void cm_redraw_level_editor_background(int mode);
+   void cm_process_mouse(void);
+   void cm_process_keypress(void);
+   int cm_redraw_level_editor_background(void);
+
+   void set_windows(int mode);
+   int is_mouse_on_any_window(void);
+   int mw_get_max_layer(void);
+   int mw_cycle_windows(int draw_only);
+
+all these have been added
+
+
+now what?
+
+make my own loop()
+i can even call it loop...done
+
+started renaming functions that are part of the class...
+could be easier if I comment out the old ones and find out where they are used...
+did a shit load of that...
+now its mostly all patched in...
+
+did it get any simpler?
+
+still need to clean up some stuff...
+
+pm.h defines for all removed functions in e_window common..done
+
+what to do with the 4 functions left in that file...bite the bullet and move all to the class?
+right now window manager class is 600 lines
+
+170 menu
+80 filter
+50 status
+200 selection
+-----
+520 lines
+
+the window varaibles are all long now, especially outisde of class like mwWM.mW[4].blah
+'mwWM.mW' is used 420 times in the project
+
+some things make better sense as part of the manager class like:
+set_focus.done
+level_editor_mode.done
+
+can I reimplement the saving?
+
+20230211
+move level_editor_mode from mwWM.mW[8].level_editor_mode to mwWM.level_editor_mode
+done...
+
+save_mW..done
+
+I am using while (mW[8].active) to control when the entire level_editor process ends
+
+what if I change it to something that window manager owns? active..done..
+
+OK now that I have all that done...I want to continue with the documenting of the level editor process...
+
+first what have I changed?..fixed all
+
+fixed enemy shapes not all showing in ge list
+
+but ge_controls never show...why?..deleted mw.pm and all good..
+
+
+maybe I could make a menu option:
+
+auto save level editor state
+reset level editor saved state
+
+and maybe also if level editor crashes on entry to reset state..
+
+under the view menu:
+
+Autosave level editor state
+Reset level editor state
+
+done...but did not do the auto reset if something went wrong...too hard to tell??
+how about I have a variable that gets set when level editor starts
+and reset when level editor ends normally
+
+then next time it starts if it did not exit noramlly the prviuos time, reset state..
+
+I could manually save this in config
+level_editor_exit_flag
+
+at start:
+
+if set to 1, reset state
+set to 1 and save
+
+at normal exit
+set to 0 and save
+
+
+or:
+
+at start, delete mw.pm
+only save if normal exit..
+this looks a lot simpler
+
+whenever I do a load, delete it there...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
