@@ -11638,64 +11638,532 @@ at start, delete mw.pm
 only save if normal exit..
 this looks a lot simpler
 
-whenever I do a load, delete it there...
+whenever I do a load, delete it there...done...
+hard to test, eh?
+
+
+what next?
+
+can I make these part of the window manager class? yes..done
+
+
+// ------------------------------------------------
+// ----- level editor unsorted --------------------
+// ------------------------------------------------
+extern int swbl[NUM_SPRITES][2];
+
+extern int bx1;  // selection window
+extern int by1;
+extern int bx2;
+extern int by2;
+
+extern int gx; // mouse position relative to scaled level background
+extern int gy;
+extern int hx;
+extern int hy;
+
+
+#define NUM_OBJ 600
+// list of objects to edit as a group
+extern int obj_list[NUM_OBJ][3];
+extern int obj_filter[5][20];
+
+
+extern int swbl[NUM_SPRITES][2]; ..done..moved to mw class
+extern int obj_list[NUM_OBJ][3]; ..done
+extern int obj_filter[5][20];..done
+extern int gx; done
+extern int gy; done
+
+extern int bx1;  // selection window
+extern int by1;
+extern int bx2;
+extern int by2;
+
+all done...
+
+
+make logo its own class...
+mwLogo
+
+I have two very close function I would like to merge:
+an is for menu
+an3 is for help
+
+can I start using it yet?
+
+I want to put these globals in the class...
+
+extern int mdw_an_seq;   // mdw animation sequence number
+extern float points[9][8];  // for mdw logo
+
+extern int mdw_map_logo_x;
+extern int mdw_map_logo_y;
+extern int mdw_map_logo_th;
+extern float mdw_map_logo_scale;
+
+extern float mdw_splash_logo_x;
+extern float mdw_splash_logo_y;
+extern int mdw_splash_logo_th;
+extern float mdw_splash_logo_scale;
+
+extern float mdw_logo_scale_dec;
+extern float mdw_logo_x_dec;
+extern float mdw_logo_y_dec;
+
+
+I have gotten rid of the old file z_logo.cpp
+
+I forget to take adjust and test!!!..fixed
+
+
+now work on the globals
+
+extern int mdw_an_seq;   // mdw animation sequence number
+extern float points[9][8];  // for mdw logo
+
+extern int mdw_map_logo_x;
+extern int mdw_map_logo_y;
+extern int mdw_map_logo_th;
+extern float mdw_map_logo_scale;
+
+extern float mdw_splash_logo_x;
+extern float mdw_splash_logo_y;
+extern int mdw_splash_logo_th;
+extern float mdw_splash_logo_scale;
+
+extern float mdw_logo_scale_dec;
+extern float mdw_logo_x_dec;
+extern float mdw_logo_y_dec;
+those are all done...
+
+
+I should put these in the .cpp and .h for logo...
+
+not the class? why not?
+
+int show_splash_screen = 1;
+int splash_screen_done = 0;
+put in class and done...
+
+I think I am all done with logo...
+
+
+what about bottom message?
+
+that is a good candidate for a class...
+
+mwBottomMessage
+mwBM
+
+make it declare, create and destroy its own bitmaps...
+
+
+   // bottom msg bitmaps
+   for (int x=0; x<20; x++)
+   {
+      bmsg_bmp[x] = al_create_bitmap(800, 20);
+      al_set_target_bitmap(bmsg_bmp[x]);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+      bmsg_bmp2[x] = bmsg_bmp[x];
+   }
+
+
+actually that does not work...
+I can declare pointers in the class, but if I try to create bitmaps at the same time it dies,
+probably because allegro is not initialized yet.
+
+So I just create them when I create all the other bitmaps, and it works...
+
+all the fuinctions have been moved to the class and erased from screen_overlay..
+
+now I have three more variables to add to the class:
+
+extern int bottom_msg_on;
+extern int bottom_msg;
+extern int bmsg_index;
+
+done...
+
+
+now how about demo mode?
+
+mwDemoMode
+mWDM
+
+
+// ------------------------------------------------
+// ----------------- demo mode --------------------
+// ------------------------------------------------
+extern ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
+extern int demo_played[100];
+extern int num_demo_filenames;
+extern int demo_mode_loaded;
+extern int demo_mode_on;
+extern int demo_mode_countdown;
+extern int demo_mode_countdown_val;
+extern int demo_mode_countdown_reset;
+extern int demo_mode_enabled;
+extern int demo_mode_last_frame;
+extern int demo_mode_config_enable;
+extern float demo_mode_overlay_opacity;
+
+I think demo mode is done...
+
+now demo mode starts immediately??
+
+
+// ------------------------------------------------
+// ----------------- demo mode --------------------
+// ------------------------------------------------
+ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
+int demo_played[100];
+int num_demo_filenames = 0;
+int demo_mode_loaded = 0;
+int demo_mode_enabled = 1;
+int demo_mode_on = 0;
+int demo_mode_countdown_val;
+int demo_mode_countdown_reset = 2400;
+int demo_mode_last_frame = 0;
+int demo_mode_config_enable = 1;
+float demo_mode_overlay_opacity = 0.1;
+
+
+demo is now done...
+
+
+OK the huge one:
+display
+
+mwDisplay
+mwD
+
+created the class and copied all these functions in:
+
+   void show_bitmap_flags(int flags);
+   void show_pixel_format(int df);
+   void show_display_flags(int flags);
+   void show_display_options(void);
+   void show_display_orienation(void);
+   void show_fullscreen_modes(void);
+   void auto_set_display_transform_double(void);
+   void set_saved_display_transform(int sdt);
+   void cycle_display_transform(void);
+   void set_display_transform();
+   void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head);
+   void show_display_adapters(void);
+   int init_display(void);
+   void proc_display_change(void);
+   void save_display_window_position(void);
+   void proc_display_change_tofs(void);
+   void proc_display_change_fromfs(void);
+
+
+it compiles and works!!
+
+now for all these varaibles:
+
+
+extern int desktop_width;
+extern int desktop_height;
+
+extern int disp_x_curr; // current (either wind in windowed mode or full in fullscreen mode)
+extern int disp_y_curr;
+extern int disp_w_curr;
+extern int disp_h_curr;
+
+extern int disp_x_wind; // windowed
+extern int disp_y_wind;
+extern int disp_w_wind;
+extern int disp_h_wind;
+
+extern int disp_x_full; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+extern int disp_y_full;
+extern int disp_w_full;
+extern int disp_h_full;
+
+extern int SCREEN_W;
+extern int SCREEN_H;
+extern int WX;
+extern int WY;
+extern int fullscreen;
+extern int display_adapter_num;
+extern float WX_shift_speed;
+
+extern int viewport_mode;
+extern int viewport_show_hyst;
+extern float viewport_x_div;
+extern float viewport_y_div;
+
+// used to only redraw a region of background to increase fps
+extern int level_display_region_x;
+extern int level_display_region_y;
+extern int level_display_region_w;
+extern int level_display_region_h;
+
+extern int display_transform_double;
+extern int display_transform_double_max;
+extern int saved_display_transform_double;
+extern int show_dtd;
+
+make a method to replace these:
+         if (mwD.fullscreen) mwD.proc_display_change_fromfs();
+         else                mwD.proc_display_change_tofs();
+done...
+
+make my own set_clipping_rect...done
+al_set_clipping_rectangle
+
+more vars?
+
+extern float scale_factor;
+extern float scale_factor_current;
+extern float scale_factor_inc;
+extern int show_scale_factor;
+extern int scale_factor_holdoff;
+
+done...
+what about set_scale_factor?..done
+what about proc_scale_factor_change()?..done
+
+
+any more?
+
+I'm thinking about adding these:
+
+// position and size of map on menu screen
+extern int menu_map_size;
+extern int menu_map_x;
+extern int menu_map_y;
+
+
+I have something similar in logo
+
+   float mdw_map_logo_x;
+   float mdw_map_logo_y;
+   float mdw_map_logo_scale;
+
+   float mdw_splash_logo_x;
+   float mdw_splash_logo_y;
+   float mdw_splash_logo_scale;
+
+
+and I have a function that sets all this up:
+
+void set_map_var(void)
+{
+   // determine menu_map_size and position
+   int y_size = mwD.SCREEN_H-160;
+   int x_size = mwD.SCREEN_W-260;
+   if (y_size < x_size) menu_map_size = y_size;
+   else menu_map_size = x_size;
+   if (menu_map_size < 10) menu_map_size = 10;
+   menu_map_x = mwD.SCREEN_W/2-(menu_map_size/2);
+   menu_map_y = 140;
+
+   // splash screen logo position
+   mwL.mdw_splash_logo_x = mwD.SCREEN_W/2;
+   mwL.mdw_splash_logo_y = mwD.SCREEN_H/2;
+
+   // splash screen logo size
+   float min_d = mwD.SCREEN_H;  // find miniumum dimension
+   if (mwD.SCREEN_W < mwD.SCREEN_H) min_d = mwD.SCREEN_W;
+   mwL.mdw_splash_logo_scale = min_d / 500; // 400 is the exact size, make it bigger for padding
+
+   // map screen logo position and size
+   float sp = menu_map_x - BORDER_WIDTH;    // how much space do I have between the map and the screen edge?
+   mwL.mdw_map_logo_scale = sp / 500; // 400 is the exact size, make it bigger for padding
+   mwL.mdw_map_logo_x = BORDER_WIDTH + sp/2;
+   mwL.mdw_map_logo_y = menu_map_y + mwL.mdw_map_logo_scale * 200; // align top of logo with top of map
+
+   // this is the link from splash to map
+   mwL.mdw_logo_scale_dec = (mwL.mdw_splash_logo_scale - mwL.mdw_map_logo_scale) / 320;
+   mwL.mdw_logo_x_dec = (mwL.mdw_splash_logo_x - mwL.mdw_map_logo_x) / 320;
+   mwL.mdw_logo_y_dec = (mwL.mdw_splash_logo_y - mwL.mdw_map_logo_y) / 320;
+
+//   printf("slx %f sly %f\n", mdw_splash_logo_x, mdw_splash_logo_y );
+//   printf("mlx %d mly %d\n", mdw_map_logo_x, mdw_map_logo_y );
+//   printf("xdec %f ydec %f\n", mdw_logo_x_dec, mdw_logo_y_dec );
+//   printf("xdec %f ydec %f\n", mdw_logo_x_dec*320, mdw_logo_y_dec*320 );
+}
+
+this leads me to the place where I figure out what goes in display, screen, and bitmaps
+
+display - for all the setup
+screen - for actually drawing on the screen
+
+screen should have:
+all the level draw functions
+all the screen overlay things
+
+screen should not have:
+create and load bitmaps
+rebuild bitmaps
+load fonts
+
+what if I renamed e_bitmap to e_bitmap_tools or something like that...done
+
+then make a class mwBitmap mwB
+this class will have all the bitmap pointer declarations
+have methods to create load, rebuild bitmaps
+might as well stick fonts in there too...
+
+
+done and I have moved
+
+   void convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bmp_filename, int char_size);
+   void load_fonts(void);
+   void create_bitmaps(void);
+   void rebuild_bitmaps(void);
+
+and it runs...
+what else?
+load tiles is in file.cpp and it called after more stuff is set up...
+
+timestamps...just get it out of the way...done
+packetbuffer..just make a header for n_packet.cpp and stick it in there..done
+
+I might leave it there..
+
+what variables do I have?
+
+extern ALLEGRO_FONT *font0;
+extern ALLEGRO_FONT *font;
+extern ALLEGRO_FONT *font2;
+extern ALLEGRO_FONT *f1;
+extern ALLEGRO_FONT *f2;
+extern ALLEGRO_FONT *f3;
+
+extern ALLEGRO_BITMAP *tilemap;
+extern ALLEGRO_BITMAP *btilemap;
+extern ALLEGRO_BITMAP *ptilemap;
+extern ALLEGRO_BITMAP *dtilemap;
+extern ALLEGRO_BITMAP *M_tilemap;
+extern ALLEGRO_BITMAP *M_btilemap;
+extern ALLEGRO_BITMAP *M_ptilemap;
+extern ALLEGRO_BITMAP *M_dtilemap;
+
+extern ALLEGRO_BITMAP *tile[NUM_SPRITES];
+extern ALLEGRO_BITMAP *btile[NUM_SPRITES];
+
+extern int sa[NUM_SPRITES][2];
+
+extern ALLEGRO_BITMAP *player_tile[16][32];
+extern ALLEGRO_BITMAP *door_tile[2][16][8];
+
+extern ALLEGRO_BITMAP *level_background;
+extern ALLEGRO_BITMAP *level_buffer;
 
 
 
+extern ALLEGRO_BITMAP *ft_bmp;  //  file temp paste bmp
+
+extern ALLEGRO_BITMAP *logo_ichael;
+extern ALLEGRO_BITMAP *logo_avid;
+extern ALLEGRO_BITMAP *logo_eiss;
+extern int logo_text_bitmaps_create;
+
+extern ALLEGRO_BITMAP *text_title;
+extern int text_title_bitmaps_create;
+extern int text_title_draw_color;
+
+extern ALLEGRO_BITMAP *large_text_overlay_bitmap;
+extern int large_text_overlay_state;
+
+
+do the fonts, but also name them better:
+
+extern ALLEGRO_FONT *font0; // built-in thick 8x8
+extern ALLEGRO_FONT *font;  // pristine, my new fav 8x8
+extern ALLEGRO_FONT *font2; // pristine, in 16x16 format for bmsg
+extern ALLEGRO_FONT *f1;    // achafont
+extern ALLEGRO_FONT *f2;    // saucer
+extern ALLEGRO_FONT *f3;    // pixel gosub
+
+what will they be now:
+
+mF.bltn
+mF.pr8
+mF.pr16
+mF.sauc
+mF.acha
+mF.pixl
+
+I want them to have their own class file mwFont mF
+ok that's done.. now the grueling task of replacing all font references...
+
+font0 mF.bltn  .done
+font  mF.pr8
+font2 mF.pr16  .done
+f1    mF.acha  .done
+f2    mF.sauc  .done
+f3    mF.pixl  .done
+
+font has 667 occurances!!
+
+I am all done with fonts...
+
+add these to mwBitmap
+
+extern ALLEGRO_BITMAP *tilemap;
+extern ALLEGRO_BITMAP *btilemap;
+extern ALLEGRO_BITMAP *ptilemap;
+extern ALLEGRO_BITMAP *dtilemap;
+extern ALLEGRO_BITMAP *M_tilemap;
+extern ALLEGRO_BITMAP *M_btilemap;
+extern ALLEGRO_BITMAP *M_ptilemap;
+extern ALLEGRO_BITMAP *M_dtilemap;
+
+extern ALLEGRO_BITMAP *tile[NUM_SPRITES];
+extern ALLEGRO_BITMAP *btile[NUM_SPRITES];
+
+extern ALLEGRO_BITMAP *player_tile[16][32];
+extern ALLEGRO_BITMAP *door_tile[2][16][8];
+
+extern ALLEGRO_BITMAP *level_background;
+extern ALLEGRO_BITMAP *level_buffer;
 
 
 
+   ALLEGRO_BITMAP *tilemap;
+   ALLEGRO_BITMAP *btilemap;
+   ALLEGRO_BITMAP *ptilemap;
+   ALLEGRO_BITMAP *dtilemap;
+   ALLEGRO_BITMAP *M_tilemap;
+   ALLEGRO_BITMAP *M_btilemap;
+   ALLEGRO_BITMAP *M_ptilemap;
+   ALLEGRO_BITMAP *M_dtilemap;
+
+   ALLEGRO_BITMAP *tile[NUM_SPRITES];
+   ALLEGRO_BITMAP *btile[NUM_SPRITES];
+
+   ALLEGRO_BITMAP *player_tile[16][32];
+   ALLEGRO_BITMAP *door_tile[2][16][8];
+
+   ALLEGRO_BITMAP *level_background;
+   ALLEGRO_BITMAP *level_buffer;
 
 
+bitmaps has quite a lot done...
+
+I could still put more like:
+
+extern ALLEGRO_BITMAP *ft_bmp;  //  file temp paste bmp
+
+extern ALLEGRO_BITMAP *logo_ichael;
+extern ALLEGRO_BITMAP *logo_avid;
+extern ALLEGRO_BITMAP *logo_eiss;
+extern int logo_text_bitmaps_create;
+
+extern ALLEGRO_BITMAP *text_title;
+extern int text_title_bitmaps_create;
+extern int text_title_draw_color;
+
+extern ALLEGRO_BITMAP *large_text_overlay_bitmap;
+extern int large_text_overlay_state;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+but I am not sure they belong...
 
 
 

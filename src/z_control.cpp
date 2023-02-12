@@ -4,6 +4,9 @@
 #include "z_settings.h"
 #include "z_player.h"
 #include "n_netgame.h"
+#include "mwDemoMode.h"
+#include "mwDisplay.h"
+#include "mwFont.h"
 
 char *key_names[] =
 {
@@ -215,30 +218,30 @@ void test_keys(int x, int sy)
 
       al_draw_filled_rectangle(x-190, y, x+190, y+170, palette_color[0]); // erase background
 
-      al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------" );
-      al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Test your controller setup here.");
-      al_draw_text(font, c3, x, y+=8, ALLEGRO_ALIGN_CENTRE, "(F11 to quit)");
-      al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------");
-      al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Test how pressing multiple");
-      al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "controls affects other controls.");
-      al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------");
-      al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Keyboards widely differ in the number");
-      al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "keys that can be detected at one time.");
-      al_draw_text(font, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------" );
+      al_draw_text(mF.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------" );
+      al_draw_text(mF.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Test your controller setup here.");
+      al_draw_text(mF.pr8, c3, x, y+=8, ALLEGRO_ALIGN_CENTRE, "(F11 to quit)");
+      al_draw_text(mF.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------");
+      al_draw_text(mF.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Test how pressing multiple");
+      al_draw_text(mF.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "controls affects other controls.");
+      al_draw_text(mF.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------");
+      al_draw_text(mF.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "Keyboards widely differ in the number");
+      al_draw_text(mF.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "keys that can be detected at one time.");
+      al_draw_text(mF.pr8, c1, x, y+=8, ALLEGRO_ALIGN_CENTRE, "----------------------------------------" );
       y +=24;
-      if (players[0].up) al_draw_text(font, c2, x, y, ALLEGRO_ALIGN_CENTRE, "UP" );
+      if (players[0].up) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "UP" );
       y +=8;
-      if (players[0].down) al_draw_text(font, c2, x, y, ALLEGRO_ALIGN_CENTRE, "DOWN" );
+      if (players[0].down) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "DOWN" );
       y +=8;
-      if (players[0].left) al_draw_text(font, c2, x, y, ALLEGRO_ALIGN_CENTRE, "LEFT" );
+      if (players[0].left) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "LEFT" );
       y +=8;
-      if (players[0].right) al_draw_text(font, c2, x, y, ALLEGRO_ALIGN_CENTRE, "RIGHT");
+      if (players[0].right) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "RIGHT");
       y +=8;
-      if (players[0].jump) al_draw_text(font, c2, x, y, ALLEGRO_ALIGN_CENTRE, "JUMP" );
+      if (players[0].jump) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "JUMP" );
       y +=8;
-      if (players[0].fire) al_draw_text(font, c2, x, y, ALLEGRO_ALIGN_CENTRE, "FIRE" );
+      if (players[0].fire) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "FIRE" );
       y +=8;
-      if (players[0].menu) al_draw_text(font, c2, x, y, ALLEGRO_ALIGN_CENTRE, "MENU" );
+      if (players[0].menu) al_draw_text(mF.pr8, c2, x, y, ALLEGRO_ALIGN_CENTRE, "MENU" );
 
       al_flip_display();
       proc_event_queue_menu();
@@ -395,9 +398,9 @@ void function_key_check(void)
          if (autosave_log_on_program_exit) save_log_file();
       }
 
-      if (key[ALLEGRO_KEY_F5][0]) set_scale_factor(scale_factor * .90, 0);
-      if (key[ALLEGRO_KEY_F6][0]) set_scale_factor(scale_factor * 1.1, 0);
-      if ((key[ALLEGRO_KEY_F5][0]) && (key[ALLEGRO_KEY_F6][0])) set_scale_factor(1, 1);
+      if (key[ALLEGRO_KEY_F5][0]) mwD.set_scale_factor(mwD.scale_factor * .90, 0);
+      if (key[ALLEGRO_KEY_F6][0]) mwD.set_scale_factor(mwD.scale_factor * 1.1, 0);
+      if ((key[ALLEGRO_KEY_F5][0]) && (key[ALLEGRO_KEY_F6][0])) mwD.set_scale_factor(1, 1);
 
 
 
@@ -453,18 +456,14 @@ void function_key_check(void)
 
    if (key[ALLEGRO_KEY_F12][2])
    {
-      if (SHFT() && CTRL()) cycle_display_transform();
-      else
-      {
-         if (fullscreen) proc_display_change_fromfs();
-         else            proc_display_change_tofs();
-      }
+      if (SHFT() && CTRL()) mwD.cycle_display_transform();
+      else mwD.toggle_fullscreen();
    }
 
 
    if (key[ALLEGRO_KEY_PRINTSCREEN][2])
    {
-      ALLEGRO_BITMAP *ss_bmp = al_create_bitmap(disp_w_curr, disp_h_curr);
+      ALLEGRO_BITMAP *ss_bmp = al_create_bitmap(mwD.disp_w_curr, mwD.disp_h_curr);
       al_set_target_bitmap(ss_bmp);
       al_draw_bitmap(al_get_backbuffer(display), 0, 0, 0);
 
@@ -498,11 +497,11 @@ void rungame_key_check(int p)
       if (++active_local_player > 7) active_local_player = 0;
 
    // if games_moves doesn't end with level_done kill it after 4 seconds
-   if (frame_num > demo_mode_last_frame + 160) new_program_state = 1;
+   if (frame_num > mwDM.demo_mode_last_frame + 160) new_program_state = 1;
 
    if ((key[ALLEGRO_KEY_ESCAPE][0]) || (key[ALLEGRO_KEY_ENTER][0]) || (key[ALLEGRO_KEY_SPACE][0]))
    {
-      demo_mode_on = 0;
+      mwDM.demo_mode_on = 0;
 
       // set all players inactive
       for (int p=0; p<NUM_PLAYERS; p++) players[p].active = 0;
@@ -542,23 +541,6 @@ void serial_key_check(int key)
    }
 
 
-   sprintf(tst, "bmsgon");
-   tl = strlen(tst);
-   if (skc_index > tl-1)
-   {
-      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-          bottom_msg_on = 1;
-   }
-
-   sprintf(tst, "bmsgoff");
-   tl = strlen(tst);
-   if (skc_index > tl-1)
-   {
-      if (memcmp((skc + skc_index-tl), tst, tl) == 0)
-          bottom_msg_on = 0;
-   }
-
-
    sprintf(tst, "ston");
    tl = strlen(tst);
    if (skc_index > tl-1)
@@ -584,23 +566,6 @@ void serial_key_check(int key)
       {
          players1[active_local_player].fake_keypress_mode =! players1[active_local_player].fake_keypress_mode;
          printf("fake keypress mode:%d\n", players1[active_local_player].fake_keypress_mode);
-      }
-   }
-
-   if (level_editor_running)
-   {
-      sprintf(tst, "mdwa");
-      tl = strlen(tst);
-      if (skc_index > tl-1)
-      {
-         if (memcmp((skc + skc_index-tl), tst, tl) == 0) spline_adjust();
-      }
-
-      sprintf(tst, "mdwt");
-      tl = strlen(tst);
-      if (skc_index > tl-1)
-      {
-         if (memcmp((skc + skc_index-tl), tst, tl) == 0) spline_test();
       }
    }
 }

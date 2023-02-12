@@ -1,5 +1,7 @@
 // e_pde.cpp
 #include "pm.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
 
 int load_PDE()
 {
@@ -169,18 +171,18 @@ void PDE_edit_text(int EN)
       // erase background
       al_draw_filled_rectangle(0, 20, 256, 180, palette_color[0]);
       al_draw_rectangle(0, 20, 256, 180, palette_color[14], 1);
-      al_draw_text(font, palette_color[14], 128, 12,  ALLEGRO_ALIGN_CENTER, "Text Edit Mode");
+      al_draw_text(mF.pr8, palette_color[14], 128, 12,  ALLEGRO_ALIGN_CENTER, "Text Edit Mode");
 
       // redraw all the text
       for (int x=0; x<20; x++)
-         al_draw_text(font, palette_color[15], 0, 20+(x*8), 0, PDEt[EN][x]);
+         al_draw_text(mF.pr8, palette_color[15], 0, 20+(x*8), 0, PDEt[EN][x]);
 
       // mark the text entry position
       al_draw_filled_rectangle((tx*8), 20+(ty1*8), (tx*8)+8, 20+(ty1*8)+8, palette_color[138]);
       msg[0] = PDEt[EN][ty1][tx];
       if (msg[0] == (char)NULL) msg[0] = 32;
       msg[1] = (char)NULL;
-      al_draw_text(font, palette_color[10], (tx*8), 20+(ty1*8), 0, msg);
+      al_draw_text(mF.pr8, palette_color[10], (tx*8), 20+(ty1*8), 0, msg);
       al_flip_display();
 
 
@@ -313,14 +315,14 @@ void predefined_enemies(void)
             if (a < NUM_SPRITES) b = a; // bmp
             if (a > 999) b = zz[5][a-1000]; // ans
 
-            al_draw_bitmap(tile[b], 0,0,0);
+            al_draw_bitmap(mwB.tile[b], 0,0,0);
 
             for (int x=0; x<20; x++)
-               al_draw_text(font, palette_color[15], 0, 20+(x*8), 0, PDEt[EN][x]);
+               al_draw_text(mF.pr8, palette_color[15], 0, 20+(x*8), 0, PDEt[EN][x]);
 
             if (rt < 99)
             {
-               al_draw_textf(font, palette_color[15], 40, 0, 0, "Predefined Enemy %d", EN);
+               al_draw_textf(mF.pr8, palette_color[15], 40, 0, 0, "Predefined Enemy %d", EN);
                for (int x=0; x<16; x++)
                {
                   sprintf(msg,"F[%d]:", x);
@@ -333,7 +335,7 @@ void predefined_enemies(void)
             }
             if ((rt > 99) && (rt < 200))
             {
-               al_draw_textf(font, palette_color[15], 40, 0, 0, "Predefined Item %d", EN);
+               al_draw_textf(mF.pr8, palette_color[15], 40, 0, 0, "Predefined Item %d", EN);
                for (int x=0; x<16; x++)
                {
                   sprintf(msg,"I[%d]:", x);
@@ -342,7 +344,7 @@ void predefined_enemies(void)
             }
             if (rt > 199)
             {
-               al_draw_textf(font, palette_color[15], 40, 0, 0, "Special Creator %d", EN);
+               al_draw_textf(mF.pr8, palette_color[15], 40, 0, 0, "Special Creator %d", EN);
 
 
                for (int x=0; x<16; x++)

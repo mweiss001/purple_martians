@@ -1,27 +1,73 @@
-// z_display.cpp
+// mwDisplay.cpp
 
 #include "pm.h"
+#include "mwDisplay.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
-
-/*  setup and control of the display
-
-init_display() is called from setup
-
-proc_screen_change_tofs()
-proc_screen_change_fromfs()
-are both called from z_control when F12 is pressed
-
-When an event from the display 'ALLEGRO_EVENT_DISPLAY_RESIZE' is received the function:
-proc_window_resize_event(int x, int y, int w, int h)
-is called
-
-if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
-
-*/
+#include "mwBitmap.h"
 
 
-void show_bitmap_flags(int flags)
+mwDisplay mwD;
+
+mwDisplay::mwDisplay()
+{
+   //initialize();
+}
+
+void mwDisplay::initialize(void)
+{
+   init_display();
+}
+
+void mwDisplay::mw_set_clipping_rect(float x, float y, float w, float h)
+{
+   al_set_clipping_rectangle(x * display_transform_double, y * display_transform_double, w * display_transform_double, h * display_transform_double);
+}
+
+
+void mwDisplay::set_scale_factor(float new_scale_factor, int instant)
+{
+   if ((scale_factor_holdoff <= 0) || (instant))
+   {
+      scale_factor = new_scale_factor;
+      scale_factor_holdoff = 10;
+      // enforce max and min
+      if (scale_factor < .2) scale_factor = .2;
+      if (scale_factor > 40) scale_factor = 40;
+      show_scale_factor = 80;
+      save_config();
+      if (instant) scale_factor_current = scale_factor;
+   }
+}
+
+void mwDisplay::proc_scale_factor_change(void)
+{
+   if (show_scale_factor    > 0) show_scale_factor--;
+   if (scale_factor_holdoff > 0) scale_factor_holdoff--;
+   if (scale_factor_current < scale_factor)
+   {
+       // try to scale the inc, larger as scale_factor gets larger
+       float inc = scale_factor_inc * scale_factor_current / 3;
+       scale_factor_current += inc;
+       // if we overshoot set to exact to prevent oscillation
+       if (scale_factor_current > scale_factor) scale_factor_current = scale_factor;
+   }
+   if (scale_factor_current > scale_factor)
+   {
+       // try to scale the inc, larger as scale_factor gets larger
+       float inc = scale_factor_inc * scale_factor_current / 3;
+       scale_factor_current -= inc;
+       // if we overshoot set to exact to prevent oscillation
+       if (scale_factor_current < scale_factor) scale_factor_current = scale_factor;
+   }
+}
+
+
+
+
+
+
+void mwDisplay::show_bitmap_flags(int flags)
 {
    printf("bitmap flags:\n");
    if (flags & ALLEGRO_MEMORY_BITMAP)       printf("ALLEGRO_MEMORY_BITMAP\n");
@@ -35,7 +81,7 @@ void show_bitmap_flags(int flags)
    if (flags & ALLEGRO_MIPMAP)              printf("ALLEGRO_MIPMAP\n");
 }
 
-void show_pixel_format(int df)
+void mwDisplay::show_pixel_format(int df)
 {
    printf("pixel format:");
    if (df ==  0) printf("ALLEGRO_PIXEL_FORMAT_ANY\n");
@@ -71,7 +117,7 @@ void show_pixel_format(int df)
    if (df == 30) printf("ALLEGRO_PIXEL_FORMAT_COMPRESSED_RGBA_DXT5\n");
 }
 
-void show_display_flags(int flags)
+void mwDisplay::show_display_flags(int flags)
 {
    printf("display flags:\n");
    if (flags & ALLEGRO_WINDOWED)                   printf("ALLEGRO_WINDOWED\n");
@@ -91,7 +137,7 @@ void show_display_flags(int flags)
    if (flags & ALLEGRO_OPENGL_ES_PROFILE)          printf("ALLEGRO_OPENGL_ES_PROFILE\n");
 }
 
-void show_display_options(void)
+void mwDisplay::show_display_options(void)
 {
    printf("display options\n");
    printf("ALLEGRO_RED_SIZE:%d\n",               al_get_display_option(display, ALLEGRO_RED_SIZE));
@@ -131,7 +177,7 @@ void show_display_options(void)
    printf("ALLEGRO_DISPLAY_OPTIONS_COUNT:%d\n",  al_get_display_option(display, ALLEGRO_DISPLAY_OPTIONS_COUNT));
 }
 
-void show_display_orienation(void)
+void mwDisplay::show_display_orienation(void)
 {
    int dor = al_get_display_orientation(display);
    if (dor ==  0) printf("ALLEGRO_DISPLAY_ORIENTATION_UNKNOWN\n");
@@ -146,7 +192,7 @@ void show_display_orienation(void)
    if (dor == 32) printf("ALLEGRO_DISPLAY_ORIENTATION_FACE_DOWN\n");
 }
 
-void show_fullscreen_modes(void)
+void mwDisplay::show_fullscreen_modes(void)
 {
    printf("available fullscreen modes:\n");
    int nd = al_get_num_display_modes();
@@ -166,7 +212,7 @@ void show_fullscreen_modes(void)
 
 
 
-void auto_set_display_transform_double(void)
+void mwDisplay::auto_set_display_transform_double(void)
 {
    display_transform_double = 1;
 
@@ -188,7 +234,7 @@ void auto_set_display_transform_double(void)
 
 
 
-void set_saved_display_transform(int sdt)
+void mwDisplay::set_saved_display_transform(int sdt)
 {
    float old_display_transform_double = display_transform_double;
 
@@ -210,7 +256,7 @@ void set_saved_display_transform(int sdt)
 }
 
 
-void cycle_display_transform(void)
+void mwDisplay::cycle_display_transform(void)
 {
    float old_display_transform_double = display_transform_double;
 
@@ -232,7 +278,7 @@ void cycle_display_transform(void)
 
 }
 
-void set_display_transform()
+void mwDisplay::set_display_transform()
 {
    if (!saved_display_transform_double) auto_set_display_transform_double();
    else display_transform_double = saved_display_transform_double;
@@ -240,16 +286,16 @@ void set_display_transform()
    show_dtd = 80;
 
    al_set_target_backbuffer(display);
-   SCREEN_W = disp_w_curr/display_transform_double;
-   SCREEN_H = disp_h_curr/display_transform_double;
+   mwD.SCREEN_W = disp_w_curr/display_transform_double;
+   mwD.SCREEN_H = disp_h_curr/display_transform_double;
    ALLEGRO_TRANSFORM trans;
    al_identity_transform(&trans);
-   al_orthographic_transform(&trans, 0, 0, -1.0, SCREEN_W, SCREEN_H, 1.0);
+   al_orthographic_transform(&trans, 0, 0, -1.0, mwD.SCREEN_W, mwD.SCREEN_H, 1.0);
    al_use_projection_transform(&trans);
    set_map_var();
 }
 
-void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head)
+void mwDisplay::show_disp_values(int fs, int disp, int curr, int wind, int full, char *head)
 {
    printf("\n%s\n", head);
 
@@ -268,13 +314,13 @@ void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head
    if (wind) printf("wind - x:%4d y:%4d w:%4d h:%4d\n", disp_x_wind, disp_y_wind, disp_w_wind, disp_h_wind);
    if (full) printf("full - x:%4d y:%4d w:%4d h:%4d\n", disp_x_full, disp_y_full, disp_w_full, disp_h_full);
 
-   //  printf("0:%4d 0:%4d w:%4d h:%4d - scrn\n", 0, 0, SCREEN_W, SCREEN_H);
+   //  printf("0:%4d 0:%4d w:%4d h:%4d - scrn\n", 0, 0, mwD.SCREEN_W, mwD.SCREEN_H);
 }
 
 
 
 
-void show_display_adapters(void)
+void mwDisplay::show_display_adapters(void)
 {
    int num_adapters = al_get_num_video_adapters();
    printf("%d adapters found...\n", num_adapters);
@@ -301,7 +347,7 @@ void show_display_adapters(void)
 
 
 
-int init_display(void)
+int mwDisplay::init_display(void)
 {
 
    int num_adapters = al_get_num_video_adapters();
@@ -423,7 +469,7 @@ int init_display(void)
 //   printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
 
    //printf("init screen\n");
-   create_bitmaps();
+   mwB.create_bitmaps();
    make_palette();
    return 1;
 }
@@ -432,7 +478,7 @@ int init_display(void)
 
 
 
-void proc_display_change(void)
+void mwDisplay::proc_display_change(void)
 {
    al_acknowledge_resize(display);                              // important that this is here, later and it does not work as intended
    al_get_window_position(display, &disp_x_curr, &disp_y_curr); // set my local variables with the system ones
@@ -453,7 +499,7 @@ void proc_display_change(void)
       disp_h_wind = disp_h_curr;
    }
    set_display_transform();
-   rebuild_bitmaps();
+   mwB.rebuild_bitmaps();
    save_config();
    //show_disp_values(0, 1, 1, 1, 0, "get var and process_screen_change end");
    window_title();
@@ -461,7 +507,7 @@ void proc_display_change(void)
 }
 
 
-void save_display_window_position(void)
+void mwDisplay::save_display_window_position(void)
 {
    // this is automatically done when display is resized or switched to fullscreen
    // but not when the window is just moved
@@ -476,7 +522,14 @@ void save_display_window_position(void)
    }
 }
 
-void proc_display_change_tofs(void)
+
+void mwDisplay::toggle_fullscreen(void)
+{
+   if (fullscreen) proc_display_change_fromfs();
+   else            proc_display_change_tofs();
+}
+
+void mwDisplay::proc_display_change_tofs(void)
 {
    //printf("\n-----------to fullscreen------------\n");
    fullscreen = 1;
@@ -494,8 +547,7 @@ void proc_display_change_tofs(void)
    proc_display_change();
 }
 
-
-void proc_display_change_fromfs(void)
+void mwDisplay::proc_display_change_fromfs(void)
 {
    //printf("\n-----------to windowed--------------\n");
    fullscreen = 0;
@@ -508,3 +560,5 @@ void proc_display_change_fromfs(void)
    al_set_window_position(display, disp_x_wind, disp_y_wind);
    proc_display_change();
 }
+
+

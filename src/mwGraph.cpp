@@ -2,6 +2,9 @@
 
 #include "pm.h"
 #include "mwGraph.h"
+#include "mwDisplay.h"
+#include "mwFont.h"
+
 
 mwGraph mwG[10];
 
@@ -168,8 +171,8 @@ void mwGraph::draw_graph(int draw_only)
    // al_draw_rectangle(graph_x1, graph_y1, graph_x2, graph_y2, palette_color[10], 1); // frame entire graph area for testing
    // debug - show axis range values
    // al_draw_filled_rectangle(              10, 10, 600, 30, palette_color[0]); // erase background
-   // al_draw_textf(font, palette_color[15], 10, 10, 0, "x_axis_min:%5.1f  x_axis_max:%5.1f  x_axis_rng:%5.1f", x_axis_min, x_axis_max, x_axis_rng);
-   // al_draw_textf(font, palette_color[15], 10, 18, 0, "y_axis_min:%5.1f  y_axis_max:%5.1f  y_axis_rng:%5.1f", y_axis_min, y_axis_max, y_axis_rng);
+   // al_draw_textf(mF.pr8, palette_color[15], 10, 10, 0, "x_axis_min:%5.1f  x_axis_max:%5.1f  x_axis_rng:%5.1f", x_axis_min, x_axis_max, x_axis_rng);
+   // al_draw_textf(mF.pr8, palette_color[15], 10, 18, 0, "y_axis_min:%5.1f  y_axis_max:%5.1f  y_axis_rng:%5.1f", y_axis_min, y_axis_max, y_axis_rng);
 }
 
 
@@ -209,13 +212,13 @@ void mwGraph::draw_series_legend(void)
    }
    if (series_legend_draw_on)
    {
-      ALLEGRO_FONT *f = font;
+      ALLEGRO_FONT *f = mF.pr8;
       series_legend_x1 = plot_x1+16;
       series_legend_y1 = plot_y1+16;
 
       if (series_legend_size == 0)
       {
-         f = f3;
+         f = mF.pixl;
          series_legend_x1 = plot_x1+8;
          series_legend_y1 = plot_y1+8;
       }
@@ -543,13 +546,13 @@ void mwGraph::draw_title(int set_size_only)
          title_draw_size = 0;
          int pad = 2;
          int bx, by, bw, bh;
-         mw_get_text_dimensions(font, title_text, bx, by, bw, bh);
+         mw_get_text_dimensions(mF.pr8, title_text, bx, by, bw, bh);
          if (!set_size_only)
          {
             ALLEGRO_BITMAP* t = al_create_bitmap(bw+4+pad*2, bh+4+pad*2);
             al_set_target_bitmap(t);
             al_clear_to_color(palette_color[0]);
-            al_draw_text(font, palette_color[title_text_color], 2+pad-bx, 2+pad-by, 0, title_text);
+            al_draw_text(mF.pr8, palette_color[title_text_color], 2+pad-bx, 2+pad-by, 0, title_text);
 
             for(float a=0.5; a<2.5; a+=0.5)
                al_draw_rounded_rectangle(a, a, bw+4+pad*2-a, bh+4+pad*2-a, 1, 1, palette_color[title_frame_color+(int)(a*64)], 1.5);
@@ -565,7 +568,7 @@ void mwGraph::draw_title(int set_size_only)
       {
          int pad = 1;
          int bx, by, bw, bh;
-         mw_get_text_dimensions(font, title_text, bx, by, bw, bh);
+         mw_get_text_dimensions(mF.pr8, title_text, bx, by, bw, bh);
          title_draw_size = bh+2+pad*2;
 
          if (!set_size_only)
@@ -573,7 +576,7 @@ void mwGraph::draw_title(int set_size_only)
             ALLEGRO_BITMAP* t = al_create_bitmap(bw+2+pad*2, bh+2+pad*2);
             al_set_target_bitmap(t);
             al_clear_to_color(palette_color[0]);
-            al_draw_text(font, palette_color[title_text_color], 1+pad-bx, 1+pad-by, 0, title_text);
+            al_draw_text(mF.pr8, palette_color[title_text_color], 1+pad-bx, 1+pad-by, 0, title_text);
             al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[title_frame_color], 1);
 
             al_set_target_backbuffer(display);
@@ -658,12 +661,12 @@ void mwGraph::x_axis_draw_legend(int set_size_only)
    {
       int pad = 1;
       sprintf(msg, "%s [%s]", x_axis_legend_name, x_axis_legend_units);
-      ALLEGRO_FONT *f = font;
-      if (x_axis_legend_font) f = f3;
+      ALLEGRO_FONT *f = mF.pr8;
+      if (x_axis_legend_font) f = mF.pixl;
       int bx, by, bw, bh;
       mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
-      if (bw > plot_w) f = f3; // if legend is too big for area, try smaller font
+      if (bw > plot_w) f = mF.pixl; // if legend is too big for area, try smaller font
       mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
       x_axis_legend_draw_size = bh+2+pad*2+1;
@@ -677,7 +680,7 @@ void mwGraph::x_axis_draw_legend(int set_size_only)
          al_draw_rounded_rectangle(0.5, 0.5, bw+2+pad*2-0.5, bh+2+pad*2-0.5, 1, 1, palette_color[x_axis_legend_frame_color], 1);
          al_set_target_backbuffer(display);
          int xc = plot_x1+plot_w/2;
-         al_set_clipping_rectangle(graph_x1 * display_transform_double, graph_y1 * display_transform_double, graph_w * display_transform_double, graph_h * display_transform_double);
+         mwD.mw_set_clipping_rect(graph_x1, graph_y1, graph_w, graph_h);
          al_draw_rotated_bitmap(t, 0, 0, xc-bw/2, x_axis_legend_draw_y, 0, 0);
          al_reset_clipping_rectangle();
          al_destroy_bitmap(t);
@@ -688,8 +691,8 @@ void mwGraph::x_axis_draw_legend(int set_size_only)
 void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
 {
    double lx = 0, ly = 0;
-   ALLEGRO_FONT *f = font;
-   if (x_axis_grid_label_font) f = f3;
+   ALLEGRO_FONT *f = mF.pr8;
+   if (x_axis_grid_label_font) f = mF.pixl;
    int bx, by, bw, bh;
    mw_get_text_dimensions(f, "1234", bx, by, bw, bh);
    x_axis_grid_label_text_size = bh;
@@ -749,7 +752,7 @@ void mwGraph::x_axis_draw_gridlines_and_labels(int set_size_only)
          int number_of_major_gridlines = (sx_axis_rng/x_gl_span);
 
          //al_draw_filled_rectangle              (plot_x1-12, plot_y2+50, x_axis_label_y1, plot_y2+58, palette_color[0]);
-         // al_draw_textf(font, palette_color[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
+         // al_draw_textf(mF.pr8, palette_color[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
 
 
          int mj_col = x_axis_grid_label_color+128;
@@ -815,12 +818,12 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
       if (strlen(y_axis_legend_units) < 1) sprintf(msg, "%s", y_axis_legend_name);
 
 
-      ALLEGRO_FONT *f = font;
-      if (y_axis_legend_font) f = f3;
+      ALLEGRO_FONT *f = mF.pr8;
+      if (y_axis_legend_font) f = mF.pixl;
       int bx, by, bw, bh;
       mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
-      if (bw > plot_h) f = f3; // if legend is too big for area, try smaller font
+      if (bw > plot_h) f = mF.pixl; // if legend is too big for area, try smaller font
       mw_get_text_dimensions(f, msg, bx, by, bw, bh);
 
       y_axis_legend_draw_size = bh+2+pad*2;
@@ -835,7 +838,7 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
 
          al_set_target_backbuffer(display);
          int yc = plot_y2 - (plot_y2 - plot_y1) /2;
-         al_set_clipping_rectangle(graph_x1 * display_transform_double, graph_y1 * display_transform_double, graph_w * display_transform_double, graph_h * display_transform_double);
+         mwD.mw_set_clipping_rect(graph_x1, graph_y1, graph_w, graph_h);
          al_draw_rotated_bitmap(t, 0, 0, y_axis_legend_draw_x, yc+bw/2, -ALLEGRO_PI/2, 0);
          al_reset_clipping_rectangle();
          al_destroy_bitmap(t);
@@ -845,8 +848,8 @@ void mwGraph::y_axis_draw_legend(int set_size_only)
 
 void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
 {
-   ALLEGRO_FONT *f = font;
-   if (y_axis_grid_label_font) f = f3;
+   ALLEGRO_FONT *f = mF.pr8;
+   if (y_axis_grid_label_font) f = mF.pixl;
    int bx, by, bw, bh;
 
    if (y_axis_grid_draw_on)
@@ -895,7 +898,7 @@ void mwGraph::y_axis_draw_gridlines_and_labels(int set_size_only)
          int number_of_major_gridlines = (sy_axis_rng/y_gl_span);
 
          //al_draw_filled_rectangle              (plot_x1-12, plot_y2+50, x_axis_label_y1, plot_y2+58, palette_color[0]);
-         // al_draw_textf(font, palette_color[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
+         // al_draw_textf(mF.pr8, palette_color[15], plot_x1+50, plot_y2-42, 0, "gspan:%-3.5f  num of major gridlines:%d", x_gl_span, (int) (sx_axis_rng/x_gl_span));
 
          // minor gridlines with no labels
          if ((number_of_major_gridlines > 10) && (number_of_major_gridlines < 16))
@@ -1219,7 +1222,8 @@ void mwGraph::draw_plot_area(void)
    int lines_drawn = 0;
    int segments_drawn = 0;
    double st = al_get_time();
-   al_set_clipping_rectangle(plot_x1 * display_transform_double, plot_y1 * display_transform_double, plot_w * display_transform_double, plot_h * display_transform_double);
+   mwD.mw_set_clipping_rect(plot_x1, plot_y1, plot_w, plot_h);
+
    for (int s=0; s<20; s++)
       if ((series[s].active) && (series[s].num_data))
       {
@@ -1261,7 +1265,7 @@ void mwGraph::draw_plot_area(void)
             }
          }
       }
-   if (plot_show_performance) al_draw_textf(font, palette_color[15], plot_x1+4, plot_y1+4, 0, "plot time:%3.2f ms  lines drawn:%d segments drawn:%d", (al_get_time() - st)*1000, lines_drawn, segments_drawn);
+   if (plot_show_performance) al_draw_textf(mF.pr8, palette_color[15], plot_x1+4, plot_y1+4, 0, "plot time:%3.2f ms  lines drawn:%d segments drawn:%d", (al_get_time() - st)*1000, lines_drawn, segments_drawn);
    al_reset_clipping_rectangle();
 }
 
@@ -1393,21 +1397,21 @@ void mwGraph::proc_plot_mouse_cursor_crosshairs(double mx1, double my1)
       y = plot_y2 - (series[s].data[i][1]-y_axis_min) * plot_h / y_axis_rng;
       col = 14;
       al_draw_circle(x, y, 4, palette_color[col], 1);
-      draw_point_data(x, y, series[s].data[i][0], series[s].data[i][1], col, font, s);
+      draw_point_data(x, y, series[s].data[i][0], series[s].data[i][1], col, mF.pr8, s);
    }
    else // show mouse position
    {
       col = 15;
       x = mouse_x;
       y = mouse_y;
-      draw_point_data(x, y, mx1, my1, col, f3, -1);
+      draw_point_data(x, y, mx1, my1, col, mF.pixl, -1);
    }
    if (linked_group_id)
    {
       for (int g=0; g<10; g++)
          if (mwG[g].linked_group_id == linked_group_id) mwG[g].x_axis_cursor_pos = x;
    }
-   al_set_clipping_rectangle(plot_x1 * display_transform_double, plot_y1 * display_transform_double, plot_w * display_transform_double, plot_h * display_transform_double);
+   mwD.mw_set_clipping_rect(plot_x1, plot_y1, plot_w, plot_h);
    al_draw_line(plot_x1, y, plot_x2, y, palette_color[col+64], 0);
    al_draw_line(x, plot_y1, x, plot_y2, palette_color[col+64], 0);
    al_reset_clipping_rectangle();
@@ -1452,8 +1456,8 @@ void mwGraph::proc_plot_area(int draw_only)
                      convert_sxy_to_gxy(mouse_x, mouse_y, mx2, my2);
                      {
                         draw_graph(1);
-                        al_set_clipping_rectangle(plot_x1 * display_transform_double, plot_y1 * display_transform_double, plot_w * display_transform_double, plot_h * display_transform_double);
-                        al_draw_textf(font, palette_color[14], rmx, rmy -10, 0, "[SHIFT] + draw box zooms to new area");
+                        mwD.mw_set_clipping_rect(plot_x1, plot_y1, plot_w, plot_h);
+                        al_draw_textf(mF.pr8, palette_color[14], rmx, rmy -10, 0, "[SHIFT] + draw box zooms to new area");
                         al_draw_rectangle(rmx, rmy, mouse_x, mouse_y, palette_color[14], 1);
                         al_reset_clipping_rectangle();
                         al_flip_display();

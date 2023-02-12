@@ -4,265 +4,26 @@
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "z_player.h"
+#include "mwLogo.h"
+#include "mwBottomMessage.h"
+#include "mwDemoMode.h"
+#include "mwDisplay.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
 
-
-void convert_ttf_to_bitmap_font(const char* ttf_filename, const char* bmp_filename, int char_size)
-{
-   // converts ttf fonts to bitmap font to draw faster and have consistant size
-   sprintf(msg, "bitmaps/%s", ttf_filename);
-   ALLEGRO_FONT *cf = al_load_ttf_font(msg, char_size, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
-   if(!cf)
-   {
-      sprintf(msg, "Failed to load font from bitmaps/%s", ttf_filename);
-      m_err("Failed to load font from bitmaps/Pristine.ttf");
-   }
-   else printf("loaded font %s\n", msg);
-
-   int bw = 1;                 // border width
-   int step0 = char_size+bw;   // step size between char
-   int step1 = char_size;      // char size
-   int bmp_w = (16 * step0) + bw;
-   int bmp_h = (6  * step0) + bw;
-
-   ALLEGRO_BITMAP *b = al_create_bitmap(bmp_w, bmp_h);
-   al_set_target_bitmap(b);
-
-   al_clear_to_color(al_map_rgb(255, 0, 0));  // set entire bitmap to red, this will be the background color separating the glyphs
-
-   int y = bw;
-   for (int b=32; b<128; b+=16)
-   {
-      int x = bw;
-      for (int a=0; a<16; a++)
-      {
-         al_draw_filled_rectangle(x+a*step0, y, x+a*step0+step1, y+step1, al_map_rgb(0, 0, 0)); // clear glyph background
-         al_draw_textf(cf, al_map_rgb(255, 255, 255), x+a*step0, y, 0, "%c", a+b);
-      }
-      y+=step0;
-   }
-   al_convert_mask_to_alpha(b, al_map_rgb(0, 0, 0)); // does not actually save in bmp format :(
-   al_set_target_backbuffer(display);
-   al_draw_bitmap(b, 0, 0, 0);
-   sprintf(msg, "bitmaps/%s", bmp_filename);
-   al_save_bitmap(msg, b);
-   al_destroy_font(cf);
-}
-
-
-
-
-
-
-
-void load_fonts(void)
-{
-   al_destroy_font(font0);
-   font0 = al_create_builtin_font();
-   if(!font0)
-   {
-      sprintf(msg, "Failed to create_builtin_font");
-      m_err(msg);
-      printf("%s\n", msg);
-      exit(0);
-   }
-   //else printf("created builtin font\n");
-
-//   al_destroy_font(font);
-//   font = al_load_ttf_font("bitmaps/Pristine.ttf", 8, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
-//   if(!font) m_err("Failed to load font from bitmaps/Pristine.ttf");
-//   //else printf("loaded font Pristine.ttf\n");
-
-//   al_destroy_font(font2);
-//   font2 = al_load_ttf_font("bitmaps/Pristine.ttf", 16, ALLEGRO_TTF_NO_KERNING | ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_AUTOHINT);
-//   if(!font2) m_err("Failed to load font from bitmaps/Pristine.ttf");
-//   //else printf("loaded font Pristine.ttf\n");
-
-   // now we get pristine font from bitmap in the interest of drawing faster
-   ALLEGRO_BITMAP* tmp = al_load_bitmap("bitmaps/Pristine_8.bmp");
-   if (!tmp) m_err((char*)"Can't load bitmaps//Pristine_8.bmp");
-   else
-   {
-      al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
-
-      al_destroy_font(font);
-      int ranges[] = {32, 127};
-      font = al_grab_font_from_bitmap(tmp, 1, ranges);
-      if (!font) m_err("Failed to load font from bitmaps/Pristine_8.bmp");
-      al_destroy_bitmap(tmp);
-   }
-
-   // pristine 16x16 version
-   tmp = al_load_bitmap("bitmaps/Pristine_16.bmp");
-   if (!tmp) m_err((char*)"Can't load bitmaps//Pristine_16.bmp");
-   else
-   {
-      al_convert_mask_to_alpha(tmp, al_map_rgb(0, 0, 0)) ;
-
-      al_destroy_font(font2);
-      int ranges[] = {32, 127};
-      font2 = al_grab_font_from_bitmap(tmp, 1, ranges);
-      if (!font2) m_err("Failed to load font from bitmaps/Pristine_16.bmp");
-      al_destroy_bitmap(tmp);
-   }
-
-   al_destroy_font(f1);
-   f1 = al_load_ttf_font("bitmaps/Achafont.ttf", 240, 0);
-   if(!f1) m_err("Failed to load font from bitmaps/Achafont.ttf");
-   //else printf("loaded font Achafont.ttf\n");
-
-   int sfs = al_get_display_option(display, ALLEGRO_MAX_BITMAP_SIZE) / 20;
-   //printf("Saucer font size:%d\n", sfs);
-   al_destroy_font(f2);
-   f2 = al_load_ttf_font("bitmaps/SaucerBB.ttf", sfs, 0);
-   if(!f2) m_err("Failed to load font from bitmaps/SaucerBB.ttf");
-   //else printf("loaded font SaucerBB.ttf.ttf\n");
-
-   al_destroy_font(f3);
-   f3 = al_load_ttf_font("bitmaps/PixelGosub.otf", 7, ALLEGRO_TTF_MONOCHROME | ALLEGRO_TTF_NO_KERNING);
-   if(!f3) m_err("Failed to load font from bitmaps/PixelGosub.otf");
-   //else printf("loaded font PixelGosub.otf\n");
-}
-
-
-
-
-
-// done at start only now
-void create_bitmaps(void)
-{
-   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-
-   // create memory bitmaps as temp storage for restoring tilemaps after screen change
-   al_set_new_bitmap_flags(ALLEGRO_MEMORY_BITMAP);
-   M_tilemap  = al_create_bitmap(640,640);
-   M_btilemap = al_create_bitmap(640,640);
-   M_ptilemap = al_create_bitmap(480,320);
-   M_dtilemap = al_create_bitmap(160,640);
-
-   al_set_target_bitmap(M_tilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   al_set_target_bitmap(M_btilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   al_set_target_bitmap(M_ptilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   al_set_target_bitmap(M_dtilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-//   printf("M_tilemap\n");
-//   show_pixel_format(al_get_bitmap_format(M_tilemap));
-//   show_bitmap_flags(al_get_bitmap_flags(M_tilemap));
-
-   // create tilemap bitmaps
-   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-   tilemap  = al_create_bitmap(640, 640);
-   btilemap = al_create_bitmap(640, 640);
-   ptilemap = al_create_bitmap(480, 320);
-   dtilemap = al_create_bitmap(160, 640);
-
-   al_set_target_bitmap(tilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   al_set_target_bitmap(btilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   al_set_target_bitmap(ptilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   al_set_target_bitmap(dtilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-
-//   printf("tilemap\n");
-//   show_pixel_format(al_get_bitmap_format(tilemap));
-//   show_bitmap_flags(al_get_bitmap_flags(tilemap));
-
-
-   // create level_background and level_buffer bitmaps
-//   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-// al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_16_NO_ALPHA);
-//   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-   level_background = al_create_bitmap(2000,2000);
-   al_set_target_bitmap(level_background);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-   level_buffer = al_create_bitmap(2000,2000);
-   al_set_target_bitmap(level_buffer);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-//   printf("level_background\n");
-//   show_pixel_format(al_get_bitmap_format(level_background));
-//   show_bitmap_flags(al_get_bitmap_flags(level_background));
-
-   // reset defaults to use for new bitmaps
-//   al_set_new_bitmap_format(ALLEGRO_PIXEL_FORMAT_ANY_32_WITH_ALPHA);
-//   al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_VIDEO_BITMAP);
-
-   // bottom msg bitmaps
-   for (int x=0; x<20; x++)
-   {
-      bmsg_bmp[x] = al_create_bitmap(800, 20);
-      al_set_target_bitmap(bmsg_bmp[x]);
-      al_clear_to_color(al_map_rgba(0,0,0,0));
-      bmsg_bmp2[x] = bmsg_bmp[x];
-   }
-   bmsg_temp = al_create_bitmap(800, 20); // create a temp bitmap to build a single line
-   al_set_target_bitmap(bmsg_temp);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-
-}
-
-
-
-
-void rebuild_bitmaps(void)
-{
-   //printf("rebuild bitmaps\n");
-
-   // rebuild main tiles
-   al_set_target_bitmap(tilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap(M_tilemap, 0, 0, 0);
-
-   // rebuild block tiles
-   al_set_target_bitmap(btilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap(M_btilemap, 0, 0, 0);
-
-   // rebuild player tiles
-   al_set_target_bitmap(ptilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap(M_ptilemap, 0, 0, 0);
-
-   // rebuild door tiles
-   al_set_target_bitmap(dtilemap);
-   al_clear_to_color(al_map_rgba(0,0,0,0));
-   al_draw_bitmap(M_dtilemap, 0, 0, 0);
-
-   init_level_background(0);
-   set_display_transform();
-   load_fonts();
-   logo_text_bitmaps_create = 1;
-   large_text_overlay_state = 0;
-   text_title_bitmaps_create = 1;
-   set_map_var();
-   load_visual_level_select_done = 0;
-}
 
 void get_new_background(int full)
 {
-   al_set_target_bitmap(level_buffer);
-   if (full) al_draw_bitmap(level_background, 0, 0, 0);
+   al_set_target_bitmap(mwB.level_buffer);
+   if (full) al_draw_bitmap(mwB.level_background, 0, 0, 0);
    else
    {
       // this only grabs the visible region, in the interests of speed
-      int x = level_display_region_x - 20; if (x < 0) x = 0;
-      int y = level_display_region_y - 20; if (y < 0) y = 0;
-      int w = level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
-      int h = level_display_region_h + 40; if (y+h > 2000) h = 2000-y;
-      al_draw_bitmap_region(level_background, x, y, w, h, x, y, 0);
+      int x = mwD.level_display_region_x - 20; if (x < 0) x = 0;
+      int y = mwD.level_display_region_y - 20; if (y < 0) y = 0;
+      int w = mwD.level_display_region_w + 40; if (x+w > 2000) w = 2000-x;
+      int h = mwD.level_display_region_h + 40; if (y+h > 2000) h = 2000-y;
+      al_draw_bitmap_region(mwB.level_background, x, y, w, h, x, y, 0);
    }
 }
 
@@ -276,8 +37,8 @@ void stimp(void) // transition from menu to game
 
    // find the size of the source screen from actual screen size and scaler
    int bw = BORDER_WIDTH;
-   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
-   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
+   int SW = (int)( (float)(mwD.SCREEN_W - bw *2) / mwD.scale_factor_current);
+   int SH = (int)( (float)(mwD.SCREEN_H - bw *2) / mwD.scale_factor_current);
 
    if (SW > 2000) SW = 2000;
    if (SH > 2000) SH = 2000;
@@ -290,31 +51,31 @@ void stimp(void) // transition from menu to game
    // this method has a hysteresis rectangle in the middle of the screen where there is no scroll
    int x_size = SW / 18; // larger number is smaller window
    int y_size = SH / 18;
-   if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size;
-   if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size;
-   if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size;
-   if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size;
+   if (mwD.WX < PX - SW/2 - x_size) mwD.WX = PX - SW/2 - x_size;
+   if (mwD.WX > PX - SW/2 + x_size) mwD.WX = PX - SW/2 + x_size;
+   if (mwD.WY < PY - SH/2 - y_size) mwD.WY = PY - SH/2 - y_size;
+   if (mwD.WY > PY - SH/2 + y_size) mwD.WY = PY - SH/2 + y_size;
 
    // correct for edges
-   if (WX < 0) WX = 0;
-   if (WY < 0) WY = 0;
-   if (WX > (2000 - SW)) WX = 2000 - SW;
-   if (WY > (2000 - SH)) WY = 2000 - SH;
+   if (mwD.WX < 0) mwD.WX = 0;
+   if (mwD.WY < 0) mwD.WY = 0;
+   if (mwD.WX > (2000 - SW)) mwD.WX = 2000 - SW;
+   if (mwD.WY > (2000 - SH)) mwD.WY = 2000 - SH;
 
    // this is where the player will be when stimp is done and the level starts
    PX = al_fixtoi(players[alp].PX);
    PY = al_fixtoi(players[alp].PY);
 
-   float px_final = (PX-WX) * scale_factor_current + bw;
-   float py_final = (PY-WY) * scale_factor_current + bw;
+   float px_final = (PX-mwD.WX) * mwD.scale_factor_current + bw;
+   float py_final = (PY-mwD.WY) * mwD.scale_factor_current + bw;
 
 
    // offset if entire level is smaller than screen
-   int sbw = SCREEN_W-bw*2;
-   int sbh = SCREEN_H-bw*2;
+   int sbw = mwD.SCREEN_W-bw*2;
+   int sbh = mwD.SCREEN_H-bw*2;
 
    // how big is the entire level after scale factor is applied?
-   int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
+   int sls = (int) ((float)2000 * mwD.scale_factor_current); // sls = scaled level size
 
    // is the entire level smaller than the screen buffer width?
    if (sls < sbw)
@@ -333,13 +94,13 @@ void stimp(void) // transition from menu to game
 
 
    // this is the menu map's position and size
-   y_size = SCREEN_H-160;
-   x_size = SCREEN_W-260;
+   y_size = mwD.SCREEN_H-160;
+   x_size = mwD.SCREEN_W-260;
    int size;
    if (y_size < x_size) size = y_size;
    else size = x_size;
    if (size < 10) size = 10;
-   int mx = SCREEN_W/2-(size/2);
+   int mx = mwD.SCREEN_W/2-(size/2);
    int my = 140;
 
    // get the players position on the menu map
@@ -348,7 +109,7 @@ void stimp(void) // transition from menu to game
 
 
    float sc = (float)size / 2000;
-   float scf = scale_factor_current;
+   float scf = mwD.scale_factor_current;
    // do the scale increment as a percent change so that the zoom speed is constant
    // use the compound interest formula to find the percent change per step I need
    float a, per = 1.000;
@@ -389,8 +150,8 @@ void stamp(void) // transition from game to menu
 
    // find the size of the source screen from actual screen size and scaler
    int bw = BORDER_WIDTH;
-   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
-   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
+   int SW = (int)( (float)(mwD.SCREEN_W - bw *2) / mwD.scale_factor_current);
+   int SH = (int)( (float)(mwD.SCREEN_H - bw *2) / mwD.scale_factor_current);
    if (SW > 2000) SW = 2000;
    if (SH > 2000) SH = 2000;
 
@@ -403,30 +164,30 @@ void stamp(void) // transition from game to menu
    int x_size = SW / 18; // larger number is smaller window
    int y_size = SH / 18;
 
-   if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size;
-   if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size;
-   if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size;
-   if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size;
+   if (mwD.WX < PX - SW/2 - x_size) mwD.WX = PX - SW/2 - x_size;
+   if (mwD.WX > PX - SW/2 + x_size) mwD.WX = PX - SW/2 + x_size;
+   if (mwD.WY < PY - SH/2 - y_size) mwD.WY = PY - SH/2 - y_size;
+   if (mwD.WY > PY - SH/2 + y_size) mwD.WY = PY - SH/2 + y_size;
 
    // correct for edges
-   if (WX < 0) WX = 0;
-   if (WY < 0) WY = 0;
-   if (WX > (2000 - SW)) WX = 2000 - SW;
-   if (WY > (2000 - SH)) WY = 2000 - SH;
+   if (mwD.WX < 0) mwD.WX = 0;
+   if (mwD.WY < 0) mwD.WY = 0;
+   if (mwD.WX > (2000 - SW)) mwD.WX = 2000 - SW;
+   if (mwD.WY > (2000 - SH)) mwD.WY = 2000 - SH;
 
    // this is where the player will be when stimp is done and the level starts
    PX = al_fixtoi(players[alp].PX);
    PY = al_fixtoi(players[alp].PY);
 
-   float px_final = (PX-WX) * scale_factor_current + bw;
-   float py_final = (PY-WY) * scale_factor_current + bw;
+   float px_final = (PX-mwD.WX) * mwD.scale_factor_current + bw;
+   float py_final = (PY-mwD.WY) * mwD.scale_factor_current + bw;
 
    // offset if entire level is smaller than screen
-   int sbw = SCREEN_W-bw*2;
-   int sbh = SCREEN_H-bw*2;
+   int sbw = mwD.SCREEN_W-bw*2;
+   int sbh = mwD.SCREEN_H-bw*2;
 
    // how big is the entire level after scale factor is applied?
-   int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
+   int sls = (int) ((float)2000 * mwD.scale_factor_current); // sls = scaled level size
 
    // is the entire level smaller than the screen buffer width?
    if (sls < sbw)
@@ -449,20 +210,20 @@ void stamp(void) // transition from game to menu
 
 
    // this is the menu map's position and size
-   y_size = SCREEN_H-160;
-   x_size = SCREEN_W-260;
+   y_size = mwD.SCREEN_H-160;
+   x_size = mwD.SCREEN_W-260;
    int size;
    if (y_size < x_size) size = y_size;
    else size = x_size;
    if (size < 10) size = 10;
-   int mx = SCREEN_W/2-(size/2);
+   int mx = mwD.SCREEN_W/2-(size/2);
    int my = 140;
 
    // get the players position on the menu map
    int map_px = mx + PX * size / 2000;
    int map_py = my + PY * size / 2000;
 
-   float sc = scale_factor_current;
+   float sc = mwD.scale_factor_current;
    float scf = (float)size / 2000;
 
    // do the scale increment as a percent change so that the zoom speed is constant
@@ -507,12 +268,12 @@ void stamp(void) // transition from game to menu
 void draw_hyst_rect(void)
 {
    int bw = BORDER_WIDTH;
-   float x_size = (SCREEN_W-bw*2) * viewport_x_div/2; // larger number is smaller window
-   float y_size = (SCREEN_H-bw*2) * viewport_y_div/2;
-   float hx1 = SCREEN_W/2 - x_size;
-   float hx2 = SCREEN_W/2 + x_size;
-   float hy1 = SCREEN_H/2 - y_size;
-   float hy2 = SCREEN_H/2 + y_size;
+   float x_size = (mwD.SCREEN_W-bw*2) * mwD.viewport_x_div/2; // larger number is smaller window
+   float y_size = (mwD.SCREEN_H-bw*2) * mwD.viewport_y_div/2;
+   float hx1 = mwD.SCREEN_W/2 - x_size;
+   float hx2 = mwD.SCREEN_W/2 + x_size;
+   float hy1 = mwD.SCREEN_H/2 - y_size;
+   float hy2 = mwD.SCREEN_H/2 + y_size;
    al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 0);
 }
 
@@ -540,7 +301,7 @@ void get_new_screen_buffer(int type, int x, int y)
 
    // draw frame in local player's color
    for (int x = 0; x < BORDER_WIDTH; x++)
-      al_draw_rectangle(x+0.5f, x+0.5f, (SCREEN_W-1-x)+0.5f, (SCREEN_H-1-x)+0.5f,  palette_color[c + (x * 16)], 1);
+      al_draw_rectangle(x+0.5f, x+0.5f, (mwD.SCREEN_W-1-x)+0.5f, (mwD.SCREEN_H-1-x)+0.5f,  palette_color[c + (x * 16)], 1);
 
 
 
@@ -548,11 +309,11 @@ void get_new_screen_buffer(int type, int x, int y)
    int bw = BORDER_WIDTH;
    int sbx = bw;
    int sby = bw;
-   int sbw = SCREEN_W-bw*2;
-   int sbh = SCREEN_H-bw*2;
+   int sbw = mwD.SCREEN_W-bw*2;
+   int sbh = mwD.SCREEN_H-bw*2;
 
    // how big is the entire level after scale factor is applied?
-   int sls = (int) ((float)2000 * scale_factor_current); // sls = scaled level size
+   int sls = (int) ((float)2000 * mwD.scale_factor_current); // sls = scaled level size
 
 
    // is the entire level smaller than the screen buffer width?
@@ -572,8 +333,8 @@ void get_new_screen_buffer(int type, int x, int y)
    }
 
    // find the size of the source screen from actual screen size and scaler
-   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
-   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
+   int SW = (int)( (float)(mwD.SCREEN_W - bw *2) / mwD.scale_factor_current);
+   int SH = (int)( (float)(mwD.SCREEN_H - bw *2) / mwD.scale_factor_current);
    if (SW > 2000) SW = 2000;
    if (SH > 2000) SH = 2000;
 
@@ -598,35 +359,35 @@ void get_new_screen_buffer(int type, int x, int y)
 
    if (type != 3)
    {
-      if (viewport_mode == 0) // this method always has the player in the middle of the screen
+      if (mwD.viewport_mode == 0) // this method always has the player in the middle of the screen
       {
-         WX = PX - SW/2 -10; // set window from PX, PY
-         WY = PY - SH/2 -10;
+         mwD.WX = PX - SW/2 -10; // set window from PX, PY
+         mwD.WY = PY - SH/2 -10;
       }
       else // scroll hysteresis (a rectangle in the middle of the screen where there is no scroll)
       {
-         x_size = SW * viewport_x_div/2;
-         y_size = SH * viewport_y_div/2;
+         x_size = SW * mwD.viewport_x_div/2;
+         y_size = SH * mwD.viewport_y_div/2;
 
-         if (viewport_mode == 2) // like mode 1 but gradual move
+         if (mwD.viewport_mode == 2) // like mode 1 but gradual move
          {
             int look_shift_speed = 4;
 
-            if (players[p].left_right) WX_shift_speed+=.5;
-            else WX_shift_speed-=.5;
+            if (players[p].left_right) mwD.WX_shift_speed+=.5;
+            else mwD.WX_shift_speed-=.5;
 
-            if (WX_shift_speed > 2) WX_shift_speed = 2;
-            if (WX_shift_speed < -2) WX_shift_speed = -2;
+            if (mwD.WX_shift_speed > 2)  mwD.WX_shift_speed = 2;
+            if (mwD.WX_shift_speed < -2) mwD.WX_shift_speed = -2;
 
-            WX+=WX_shift_speed;
+            mwD.WX+=mwD.WX_shift_speed;
 
-            if (players[p].up) WY-=look_shift_speed;
-            if (players[p].down) WY+=look_shift_speed;
+            if (players[p].up) mwD.WY-=look_shift_speed;
+            if (players[p].down) mwD.WY+=look_shift_speed;
          }
-         if (WX < PX - SW/2 - x_size) WX = PX - SW/2 - x_size; // hit right edge
-         if (WX > PX - SW/2 + x_size) WX = PX - SW/2 + x_size; // hit left edge
-         if (WY < PY - SH/2 - y_size) WY = PY - SH/2 - y_size; // hit bottom edge
-         if (WY > PY - SH/2 + y_size) WY = PY - SH/2 + y_size; // hit top edge
+         if (mwD.WX < PX - SW/2 - x_size) mwD.WX = PX - SW/2 - x_size; // hit right edge
+         if (mwD.WX > PX - SW/2 + x_size) mwD.WX = PX - SW/2 + x_size; // hit left edge
+         if (mwD.WY < PY - SH/2 - y_size) mwD.WY = PY - SH/2 - y_size; // hit bottom edge
+         if (mwD.WY > PY - SH/2 + y_size) mwD.WY = PY - SH/2 + y_size; // hit top edge
 
       }
    }
@@ -636,54 +397,47 @@ void get_new_screen_buffer(int type, int x, int y)
    int clamp_x1 = 0;
    int clamp_y0 = 0;
    int clamp_y1 = 0;
-   if (WX < 0)           { WX = 0;         clamp_x0 = 1; }
-   if (WY < 0)           { WY = 0;         clamp_y0 = 1; }
-   if (WX > (2000 - SW)) { WX = 2000 - SW; clamp_x1 = 1; }
-   if (WY > (2000 - SH)) { WY = 2000 - SH; clamp_y1 = 1; }
-   //if (WX < 0) WX = 0;
-   //if (WY < 0) WY = 0;
-   //if (WX > (2000 - SW)) WX = 2000 - SW;
-   //if (WY > (2000 - SH)) WY = 2000 - SH;
-
-
-
+   if (mwD.WX < 0)           { mwD.WX = 0;         clamp_x0 = 1; }
+   if (mwD.WY < 0)           { mwD.WY = 0;         clamp_y0 = 1; }
+   if (mwD.WX > (2000 - SW)) { mwD.WX = 2000 - SW; clamp_x1 = 1; }
+   if (mwD.WY > (2000 - SH)) { mwD.WY = 2000 - SH; clamp_y1 = 1; }
 
    // used by get_new_background to only get what is needed
-   level_display_region_x = WX;
-   level_display_region_y = WY;
-   level_display_region_w = SW;
-   level_display_region_h = SH;
+   mwD.level_display_region_x = mwD.WX;
+   mwD.level_display_region_y = mwD.WY;
+   mwD.level_display_region_w = SW;
+   mwD.level_display_region_h = SH;
 
    // this is what all the previous calculations have been building up to:
-   al_draw_scaled_bitmap(level_buffer, WX, WY, SW, SH, sbx, sby, sbw, sbh, 0);
+   al_draw_scaled_bitmap(mwB.level_buffer, mwD.WX, mwD.WY, SW, SH, sbx, sby, sbw, sbh, 0);
 
   //printf("WX:%d, WY:%d, SW:%d, SH:%d, sbx:%d, sby:%d, sbw:%d, sbh:%d\n", WX, WY, SW, SH, sbx, sby, sbw, sbh);
 
 
 
-   if (viewport_show_hyst)
+   if (mwD.viewport_show_hyst)
    {
-      float hx1 = SCREEN_W/2 - x_size * scale_factor_current;
-      float hx2 = SCREEN_W/2 + x_size * scale_factor_current;
-      float hy1 = SCREEN_H/2 - y_size * scale_factor_current;
-      float hy2 = SCREEN_H/2 + y_size * scale_factor_current;
-      if (viewport_mode == 0) {hx2+=20* scale_factor_current; hy2+=20* scale_factor_current;}
+      float hx1 = mwD.SCREEN_W/2 - x_size * mwD.scale_factor_current;
+      float hx2 = mwD.SCREEN_W/2 + x_size * mwD.scale_factor_current;
+      float hy1 = mwD.SCREEN_H/2 - y_size * mwD.scale_factor_current;
+      float hy2 = mwD.SCREEN_H/2 + y_size * mwD.scale_factor_current;
+      if (mwD.viewport_mode == 0) {hx2+=20* mwD.scale_factor_current; hy2+=20* mwD.scale_factor_current;}
       if (clamp_x0) hx1 = 0;
       if (clamp_y0) hy1 = 0;
-      if (clamp_x1) hx2 = SCREEN_W;
-      if (clamp_y1) hy2 = SCREEN_H;
+      if (clamp_x1) hx2 = mwD.SCREEN_W;
+      if (clamp_y1) hy2 = mwD.SCREEN_H;
       al_draw_rectangle(hx1, hy1, hx2, hy2, palette_color[10], 0);
    }
 
    // in level editor mode, if the level is smaller than the screen edges, draw a thin line to show where it ends...
    if (type == 3)
    {
-      sbw = SCREEN_W-bw*2; // recalc these beacuse they have been modified
-      sbh = SCREEN_H-bw*2;
+      sbw = mwD.SCREEN_W-bw*2; // recalc these beacuse they have been modified
+      sbh = mwD.SCREEN_H-bw*2;
       int xdraw = 0;
       int ydraw = 0;
-      int xl=SCREEN_W-bw; // default screen edge positions
-      int yl=SCREEN_H-bw;
+      int xl=mwD.SCREEN_W-bw; // default screen edge positions
+      int yl=mwD.SCREEN_H-bw;
       if (sls < sbw)
       {
          xl = sbx+sls;
@@ -704,35 +458,33 @@ void get_new_screen_buffer(int type, int x, int y)
 void set_map_var(void)
 {
    // determine menu_map_size and position
-   int y_size = SCREEN_H-160;
-   int x_size = SCREEN_W-260;
+   int y_size = mwD.SCREEN_H-160;
+   int x_size = mwD.SCREEN_W-260;
    if (y_size < x_size) menu_map_size = y_size;
    else menu_map_size = x_size;
    if (menu_map_size < 10) menu_map_size = 10;
-   menu_map_x = SCREEN_W/2-(menu_map_size/2);
+   menu_map_x = mwD.SCREEN_W/2-(menu_map_size/2);
    menu_map_y = 140;
 
    // splash screen logo position
-   mdw_splash_logo_x = SCREEN_W/2;
-   mdw_splash_logo_y = SCREEN_H/2;
+   mwL.mdw_splash_logo_x = mwD.SCREEN_W/2;
+   mwL.mdw_splash_logo_y = mwD.SCREEN_H/2;
 
    // splash screen logo size
-   int min_d = SCREEN_H;  // find miniumum dimension
-   if (SCREEN_W < SCREEN_H) min_d = SCREEN_W;
-   mdw_splash_logo_scale = (float) min_d / 500; // 400 is the exact size, make it bigger for padding
-   mdw_splash_logo_th = 2;
+   float min_d = mwD.SCREEN_H;  // find miniumum dimension
+   if (mwD.SCREEN_W < mwD.SCREEN_H) min_d = mwD.SCREEN_W;
+   mwL.mdw_splash_logo_scale = min_d / 500; // 400 is the exact size, make it bigger for padding
 
    // map screen logo position and size
-   int sp = menu_map_x - BORDER_WIDTH;    // how much space do I have between the map and the screen edge?
-   mdw_map_logo_scale = (float) sp / 500; // 400 is the exact size, make it bigger for padding
-   mdw_map_logo_th = mdw_splash_logo_th;  // same thickness as splash
-   mdw_map_logo_x = BORDER_WIDTH + sp/2;
-   mdw_map_logo_y = menu_map_y + (int) (mdw_map_logo_scale * 200); // align top of logo with top of map
+   float sp = menu_map_x - BORDER_WIDTH;    // how much space do I have between the map and the screen edge?
+   mwL.mdw_map_logo_scale = sp / 500; // 400 is the exact size, make it bigger for padding
+   mwL.mdw_map_logo_x = BORDER_WIDTH + sp/2;
+   mwL.mdw_map_logo_y = menu_map_y + mwL.mdw_map_logo_scale * 200; // align top of logo with top of map
 
    // this is the link from splash to map
-   mdw_logo_scale_dec = (mdw_splash_logo_scale - mdw_map_logo_scale) / 320;
-   mdw_logo_x_dec = (mdw_splash_logo_x - (float)mdw_map_logo_x) / 320;
-   mdw_logo_y_dec = (mdw_splash_logo_y - (float)mdw_map_logo_y) / 320;
+   mwL.mdw_logo_scale_dec = (mwL.mdw_splash_logo_scale - mwL.mdw_map_logo_scale) / 320;
+   mwL.mdw_logo_x_dec = (mwL.mdw_splash_logo_x - mwL.mdw_map_logo_x) / 320;
+   mwL.mdw_logo_y_dec = (mwL.mdw_splash_logo_y - mwL.mdw_map_logo_y) / 320;
 
 //   printf("slx %f sly %f\n", mdw_splash_logo_x, mdw_splash_logo_y );
 //   printf("mlx %d mly %d\n", mdw_map_logo_x, mdw_map_logo_y );
@@ -740,20 +492,6 @@ void set_map_var(void)
 //   printf("xdec %f ydec %f\n", mdw_logo_x_dec*320, mdw_logo_y_dec*320 );
 }
 
-void set_scale_factor(float new_scale_factor, int instant)
-{
-   if ((scale_factor_holdoff <= 0) || (instant))
-   {
-      scale_factor = new_scale_factor;
-      scale_factor_holdoff = 10;
-      // enforce max and min
-      if (scale_factor < .2) scale_factor = .2;
-      if (scale_factor > 40) scale_factor = 40;
-      show_scale_factor = 80;
-      save_config();
-      if (instant) scale_factor_current = scale_factor;
-   }
-}
 
 void mark_non_default_block(int x, int y)
 {
@@ -770,12 +508,12 @@ void mark_non_default_block(int x, int y)
 
 void init_level_background2(int s, int e)
 {
-   al_set_target_bitmap(level_background);
+   al_set_target_bitmap(mwB.level_background);
    al_draw_filled_rectangle(s*20, 0, e*20, 2000, al_map_rgb(0,0,0));
    for (int x=s; x<e; x++)
       for (int y=0; y<100; y++)
       {
-         al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+         al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
          if ((level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
       }
 }
@@ -785,12 +523,12 @@ void init_level_background(int type) // fill level_background with block tiles
    //printf("init_level_background\n");
    if (type == 0)
    {
-      al_set_target_bitmap(level_background);
+      al_set_target_bitmap(mwB.level_background);
       al_clear_to_color(al_map_rgb(0,0,0));
       for (int x=0; x<100; x++)
          for (int y=0; y<100; y++)
          {
-            al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+            al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
             if ((level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
          }
 
@@ -800,12 +538,12 @@ void init_level_background(int type) // fill level_background with block tiles
    {
       if (frame_num % 40 == 0)
       {
-         al_set_target_bitmap(level_background);
+         al_set_target_bitmap(mwB.level_background);
          al_clear_to_color(al_map_rgb(0,0,0));
          for (int x=0; x<100; x++)
             for (int y=0; y<100; y++)
             {
-               al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+               al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
                if ((level_editor_running) && (mwWM.mW[1].show_non_default_blocks)) mark_non_default_block(x, y);
             }
       }
@@ -851,7 +589,7 @@ void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int item
    }
    if (b == NULL) al_set_target_backbuffer(display);
    else al_set_target_bitmap(b);
-   al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mx, my, ms, ms, 0);
+   al_draw_scaled_bitmap(mwB.level_buffer, 0, 0, 2000, 2000, mx, my, ms, ms, 0);
 }
 
 void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, float scale_factor)
@@ -860,7 +598,7 @@ void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, f
    int size = (int)(scale_factor * 2000);
    int mgx = screen_x - (int) (level_x * scale_factor);  // start x pos on level
    int mgy = screen_y - (int) (level_y * scale_factor);  // start y pos on level
-   al_draw_scaled_bitmap(level_buffer, 0, 0, 2000, 2000, mgx, mgy, size, size, 0);
+   al_draw_scaled_bitmap(mwB.level_buffer, 0, 0, 2000, 2000, mgx, mgy, size, size, 0);
 }
 
 void draw_level(void) // draws the map on the menu screen
@@ -870,14 +608,14 @@ void draw_level(void) // draws the map on the menu screen
 
    draw_level2(NULL, menu_map_x, menu_map_y, menu_map_size, blocks, 1, 1, 1, 1);
 
-   int text_x = SCREEN_W / 2;
+   int text_x = mwD.SCREEN_W / 2;
    int text_y = menu_map_y - 16;
-   al_draw_textf(font, palette_color[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", start_level );
+   al_draw_textf(mF.pr8, palette_color[11], text_x, text_y, ALLEGRO_ALIGN_CENTRE, " Level %d ", start_level );
    text_y += 8;
 
-   if (resume_allowed) al_draw_text(font, palette_color[14], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  (paused)  ");
-   else if (valid_level_loaded) al_draw_text(font, palette_color[9], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  start level  ");
-   else al_draw_text(font, palette_color[10], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
+   if (resume_allowed) al_draw_text(mF.pr8, palette_color[14], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  (paused)  ");
+   else if (valid_level_loaded) al_draw_text(mF.pr8, palette_color[9], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  start level  ");
+   else al_draw_text(mF.pr8, palette_color[10], text_x, text_y, ALLEGRO_ALIGN_CENTRE, "  not found !  ");
 }
 
 
@@ -909,10 +647,10 @@ void frame_and_title(int show_players)
 
    // draw the border
    for (int x = 0; x < BORDER_WIDTH; x++)
-      al_draw_rectangle(x+0.5f, x+0.5f, (SCREEN_W-1-x)+0.5f, (SCREEN_H-1-x)+0.5f,  palette_color[color + (x * 16)], 1);
+      al_draw_rectangle(x+0.5f, x+0.5f, (mwD.SCREEN_W-1-x)+0.5f, (mwD.SCREEN_H-1-x)+0.5f,  palette_color[color + (x * 16)], 1);
 
    // draw the title on top on the border
-   draw_title(SCREEN_W/2, 2, 322, 32, color);
+   draw_title(mwD.SCREEN_W/2, 2, 322, 32, color);
 
 
 
@@ -920,7 +658,7 @@ void frame_and_title(int show_players)
 
 
    // draw the version text centered on the bottom of the border
-   al_draw_textf(font, palette_color[tc], SCREEN_W/2, SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "Version %s", pm_version_string);
+   al_draw_textf(mF.pr8, palette_color[tc], mwD.SCREEN_W/2, mwD.SCREEN_H-10, ALLEGRO_ALIGN_CENTRE, "Version %s", pm_version_string);
 
    if (show_players)
    {
@@ -930,7 +668,7 @@ void frame_and_title(int show_players)
       float flsc = 5;                         // initial scale
       float y_pos = 20;                       // initial y position
       float y_step = 20 / lim;                // inc to raise 20
-      float x_pos = SCREEN_W/2 - 180;         // initial x position
+      float x_pos = mwD.SCREEN_W/2 - 180;         // initial x position
       int dist = (int)x_pos - BORDER_WIDTH;   // how much space do I have?
       // how much space will it take based on how many to draw ???
       float x_sp = (dist - 240) / (lim-1);     // spacing to stretch row to screen edge
@@ -942,7 +680,7 @@ void frame_and_title(int show_players)
          x_pos -= 11*flsc;                   // spacing based on scale
          x_pos -= x_sp;                      // extra spacing stretch row to edge of screen
          flsc *= .78;                        // reduce scale by 78%
-         al_draw_scaled_rotated_bitmap(player_tile[color][1], 0, 0, x+10, y+10, flsc, flsc, 0, 0);
+         al_draw_scaled_rotated_bitmap(mwB.player_tile[color][1], 0, 0, x+10, y+10, flsc, flsc, 0, 0);
          if (++color > 15) color = 1;        // cycle through players colors
       }
 
@@ -950,8 +688,8 @@ void frame_and_title(int show_players)
       flsc = 5;                               // initial scale
       y_pos = 20;                             // initial y position
       y_step = 20 / lim;                      // inc to raise 20
-      x_pos = SCREEN_W/2 + 80;                // initial x position
-      dist = (SCREEN_W - BORDER_WIDTH) - (int)x_pos;   // how much space do I have?
+      x_pos = mwD.SCREEN_W/2 + 80;                // initial x position
+      dist = (mwD.SCREEN_W - BORDER_WIDTH) - (int)x_pos;   // how much space do I have?
       // how much space will it take based on how many to draw ???
       x_sp = (dist - 360) / (lim-1);          // spacing to stretch row to screen edge
       for (float a=0; a<lim; a++)
@@ -963,34 +701,13 @@ void frame_and_title(int show_players)
          x_pos += x_sp;                       // extra spacing stretch row to edge of screen
          flsc *= .78;                         // reduce scale by 78%
          x_sp += .5;                          // hack to make things line up on right hand side of screen
-         al_draw_scaled_rotated_bitmap(player_tile[color][1], 0, 0, x+10, y+10, flsc, flsc, 0, ALLEGRO_FLIP_HORIZONTAL);
+         al_draw_scaled_rotated_bitmap(mwB.player_tile[color][1], 0, 0, x+10, y+10, flsc, flsc, 0, ALLEGRO_FLIP_HORIZONTAL);
          if (++color > 15) color = 1;        // cycle through players colors
       }
    }
 }
 
 
-void proc_scale_factor_change(void)
-{
-   if (show_scale_factor > 0) show_scale_factor--;
-   if (scale_factor_holdoff > 0) scale_factor_holdoff--;
-   if (scale_factor_current < scale_factor)
-   {
-       // try to scale the inc, larger as scale_factor gets larger
-       float inc = scale_factor_inc * scale_factor_current/3;
-       scale_factor_current += inc;
-       // if we overshoot set to exact to prevent oscillation
-       if (scale_factor_current > scale_factor) scale_factor_current = scale_factor;
-   }
-   if (scale_factor_current > scale_factor)
-   {
-       // try to scale the inc, larger as scale_factor gets larger
-       float inc = scale_factor_inc * scale_factor_current/3;
-       scale_factor_current -= inc;
-       // if we overshoot set to exact to prevent oscillation
-       if (scale_factor_current < scale_factor) scale_factor_current = scale_factor;
-   }
-}
 
 
 void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, int rot, float op)
@@ -1011,6 +728,155 @@ void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, in
    al_draw_tinted_scaled_rotated_bitmap(temp, al_map_rgba_f(op, op, op, op), sw/2, 4, x, y, scale, scale, frot, 0);
    al_destroy_bitmap(temp);
 }
+
+
+
+
+
+
+void draw_title(int x, int y, int w, int h, int color)
+{
+   sprintf(msg, "%s Martians!", color_name[color]); // overwrite with color name
+   int bbx1, bby1, bbw1, bbh1;
+   al_get_text_dimensions(mF.sauc, msg, &bbx1, &bby1, &bbw1, &bbh1);
+   if ((text_title_bitmaps_create) || (text_title_draw_color != color))
+   {
+      text_title_bitmaps_create = 0;
+      text_title_draw_color = color;
+      al_destroy_bitmap(text_title);
+      text_title = al_create_bitmap(bbw1,bbh1);
+
+      if(!text_title)
+      {
+         sprintf(msg, "Error creating text_title %d %d\n", bbw1,bbh1);
+         m_err(msg);
+      }
+      //else printf("created text_title %d %d\n", bbw1,bbh1);
+      al_set_target_bitmap(text_title);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+      al_draw_text(mF.sauc, palette_color[color], 0-bbx1, 0-bby1, 0, msg);
+   }
+   al_set_target_backbuffer(display);
+   al_draw_scaled_bitmap(text_title, 0, 0, bbw1, bbh1, x-w/2, y, w, h, 0);
+}
+
+void draw_large_text_overlay(int type, int color)
+{
+   char m1[80] = {0};
+   char m2[80] = {0};
+   int rebuild = 0;
+
+   if ((type == 1) && (large_text_overlay_state != 1))
+   {
+      sprintf(m1, "PURPLE");
+      sprintf(m2, "MARTIANS");
+      large_text_overlay_state = 1;
+      rebuild = 1;
+   }
+
+   if ((type == 2) && (large_text_overlay_state != 2))
+   {
+      color = players[active_local_player].color;
+      sprintf(m1, "LEVEL");
+      sprintf(m2, "DONE");
+      large_text_overlay_state = 2;
+      rebuild = 1;
+   }
+
+   if ((type == 3) && (large_text_overlay_state != 3))
+   {
+      sprintf(m1, "DEMO");
+      sprintf(m2, "MODE");
+      large_text_overlay_state = 3;
+      rebuild = 1;
+   }
+
+   if (rebuild)
+   {
+
+      int bbx1, bby1, bbw1, bbh1;
+      int bbx2, bby2, bbw2, bbh2;
+      al_get_text_dimensions(mF.sauc, m1, &bbx1, &bby1, &bbw1, &bbh1);
+      al_get_text_dimensions(mF.sauc, m2, &bbx2, &bby2, &bbw2, &bbh2);
+      // get max w and h
+      float bbw3 = bbw1; if (bbw2 > bbw1) bbw3 = bbw2;
+      float bbh3 = bbh1; if (bbh2 > bbh1) bbh3 = bbh2;
+
+   //   printf("m1:%s  m2:%s \n",m1, m2);
+   //   printf("bbx1:%4d bby1:%4d bbw1:%4d bbh1:%4d\n",bbx1, bby1, bbw1, bbh1);
+   //   printf("bbx2:%4d bby2:%4d bbw2:%4d bbh2:%4d\n",bbx2, bby2, bbw2, bbh2);
+
+
+      ALLEGRO_BITMAP *t1 = al_create_bitmap(bbw3, bbh3);
+      al_set_target_bitmap(t1);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+      al_draw_text(mF.sauc, palette_color[color], 0-bbx1 + (bbw3-bbw1)/2, 0-bby1, 0, m1);
+
+      ALLEGRO_BITMAP *t2 = al_create_bitmap(bbw3, bbh3);
+      al_set_target_bitmap(t2);
+      al_clear_to_color(al_map_rgba(0,0,0,0));
+      al_draw_text(mF.sauc, palette_color[color], 0-bbx2 + (bbw3-bbw2)/2, 0-bby2, 0, m2);
+
+      int xs = mwD.SCREEN_W*7/8; // x size
+      int ys = mwD.SCREEN_H*3/8; // y size
+
+      int x1 = (mwD.SCREEN_W - xs)/2;
+      int x2 = xs;
+
+      int yu1 = mwD.SCREEN_H*1/4 - ys/2;
+      int yu2 = ys;
+
+      int yl1 = mwD.SCREEN_H*3/4 - ys/2;
+      int yl2 = ys;
+
+      al_destroy_bitmap(large_text_overlay_bitmap);
+      large_text_overlay_bitmap = al_create_bitmap(mwD.SCREEN_W, mwD.SCREEN_H);
+
+      al_set_target_bitmap(large_text_overlay_bitmap);
+      al_clear_to_color(al_map_rgb(0,0,0));
+
+
+      al_draw_scaled_bitmap(t1, 0, 0, bbw3, bbh3, x1, yu1, x2, yu2, 0);
+      al_draw_scaled_bitmap(t2, 0, 0, bbw3, bbh3, x1, yl1, x2, yl2, 0);
+
+      al_destroy_bitmap(t1);
+      al_destroy_bitmap(t2);
+   }
+
+
+   float opa = 1.0;
+   if (type == 2) opa = 0.5;
+   if (type == 3) opa = mwDM.demo_mode_overlay_opacity;
+//   if (type == 3) opa = 0.05;
+   ALLEGRO_COLOR fc = al_map_rgba_f(opa, opa, opa, opa);
+   al_set_target_backbuffer(display);
+   al_draw_tinted_bitmap(large_text_overlay_bitmap, fc, 0, 0, 0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void draw_percent_barc(int cx, int y, int width, int height, int percent, int c1, int c2, int fc)
 {

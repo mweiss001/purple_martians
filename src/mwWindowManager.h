@@ -5,6 +5,8 @@
 
 #define NUM_MW 10
 
+#define NUM_OBJ 600
+
 class mwWindowManager
 {
    public:
@@ -15,6 +17,21 @@ class mwWindowManager
 
    int active;
 
+   int swbl[NUM_SPRITES][2];
+
+   int obj_list[NUM_OBJ][3];
+   int obj_filter[5][20];
+
+
+   int gx; // mouse position relative to scaled level background
+   int gy;
+   int hx;
+   int hy;
+
+   int bx1;  // selection window
+   int by1;
+   int bx2;
+   int by2;
 
    void initialize(int edit_level);
    void set_windows(int mode);

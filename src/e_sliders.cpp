@@ -3,6 +3,10 @@
 #include "pm.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
+#include "mwDisplay.h"
+#include "e_bitmap_tools.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
 
 
 char smsg[80];
@@ -72,8 +76,8 @@ void draw_slider_text(int x1, int y1, int x2, int y2, int q2, int q5)
 {
    int xt = (x2+x1)/2;
    int yt = y1 + (y2-y1-8)/2;
-   if (q5) al_draw_text(font, palette_color[q2], x1+4, yt, 0, smsg);
-   else    al_draw_text(font, palette_color[q2], xt, yt, ALLEGRO_ALIGN_CENTER, smsg);
+   if (q5) al_draw_text(mF.pr8, palette_color[q2], x1+4, yt, 0, smsg);
+   else    al_draw_text(mF.pr8, palette_color[q2], xt, yt, ALLEGRO_ALIGN_CENTER, smsg);
 }
 
 float get_slider_position(float sdx, float sul, float sll, int x1, int y1, int x2, int y2)
@@ -204,7 +208,7 @@ void mdw_slider0(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
       if ((mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
       {
          draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-         al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
+         al_draw_text(mF.pr8, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
          if (mouse_b[3][0]) // only when initially clicked
          {
@@ -297,7 +301,7 @@ void mdw_sliderf(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
+      al_draw_text(mF.pr8, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
       if (mouse_b[3][0])
       {
@@ -340,7 +344,7 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    if ((!q7) && (mouse_x > dsx-bw) && (mouse_x < dsx+bw) && (mouse_y > y1) && (mouse_y < y2))
    {
       draw_slider_bar(sdx, sul, sll, x1+bw+1, y1, x2-bw-1, y2, 2, q3); // draw highlighted bar
-      al_draw_text(font, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
+      al_draw_text(mF.pr8, palette_color[q2], (x2+x1)/2, (y2+y1)/2-4, ALLEGRO_ALIGN_CENTER, smsg);
 
       if (mouse_b[3][0])
       {
@@ -349,7 +353,7 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
             var = get_slider_position3(var, sul, sll, sinc, q4, x1, y1, x2, y2);
             sprintf(smsg, "%s%3.2f", txt, var);
             draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, var, sul, sll, 2);
-            if (bn == 1) scale_factor_current = scale_factor;
+            if (bn == 1) mwD.scale_factor_current = mwD.scale_factor;
          }
       }
       if (mouse_b[1][0])
@@ -359,7 +363,7 @@ void mdw_sliderd(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
             var = get_slider_position2(sul, sll, sinc, q4, x1, y1, x2, y2);
             sprintf(smsg, "%s%3.2f", txt, var);
             draw_slider(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7, var, sul, sll, 1);
-            if (bn == 1) scale_factor_current = scale_factor;
+            if (bn == 1) mwD.scale_factor_current = mwD.scale_factor;
          }
       }
    }
@@ -1249,12 +1253,12 @@ int mdw_button(int x1, int &y1, int x2, int bts,
    if (bn == 13)
    {
       float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-      al_draw_rotated_bitmap(tile[zz[0][Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      al_draw_rotated_bitmap(mwB.tile[zz[0][Ei[num][5]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
    if (bn == 14)
    {
       float rot = al_fixtof(al_fixmul(Efi[num][14], al_fixtorad_r));
-      al_draw_rotated_bitmap(tile[zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
+      al_draw_rotated_bitmap(mwB.tile[zz[0][Ei[num][6]]], 10, 10, (x2+x1)/2+60, (y2+y1)/2, rot, 0);
    }
 
    if (bn == 310)
@@ -1264,7 +1268,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, palette_color[0]);
-      al_draw_bitmap(btile[tn&1023], x, y, 0);
+      al_draw_bitmap(mwB.btile[tn&1023], x, y, 0);
    }
 
    if (bn == 311)
@@ -1274,7 +1278,7 @@ int mdw_button(int x1, int &y1, int x2, int bts,
       int y = (y2+y1)/2-10;
 
       al_draw_filled_rectangle(x-1, y-1, x+21, y+21, palette_color[0]);
-      al_draw_bitmap(btile[tn&1023], x, y, 0);
+      al_draw_bitmap(mwB.btile[tn&1023], x, y, 0);
    }
    if (q6) y1+=bts;
    return retval;
@@ -1352,7 +1356,7 @@ int mdw_buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, in
    // draw tile
    int x = x1+14;
    al_draw_filled_rectangle(x-1, y1+0, x+21, y1+22, palette_color[0]);
-   al_draw_bitmap(btile[tn], x, y1+1, 0);
+   al_draw_bitmap(mwB.btile[tn], x, y1+1, 0);
 
    if ((!q7) && (mouse_b[1][0]) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
    {
@@ -1775,7 +1779,7 @@ int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int
    if (var) al_draw_filled_rectangle(rx1, ry1, rx2, ry2, palette_color[frame_col]);
    else     al_draw_rectangle(       rx1, ry1, rx2, ry2, palette_color[frame_col], 1);
 
-   al_draw_text(font, palette_color[text_col], mtx, mty, 0, t);
+   al_draw_text(mF.pr8, palette_color[text_col], mtx, mty, 0, t);
 
    if (var) ret = 1;
    else ret = 0;

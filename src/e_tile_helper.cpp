@@ -2,6 +2,7 @@
 #include "pm.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
+#include "mwFont.h"
 
 void th_replace(int type)
 {
@@ -397,7 +398,7 @@ int th_draw_buttons(int x3, int x4, int yfb, int d)
    for (int a=0; a<100; a++)
       for (int b=0; b<100; b++)
         if (thl[a][b]) marked_count++;
-   al_draw_textf(font, palette_color[15], (x3+x4)/2, yfb -34, ALLEGRO_ALIGN_CENTER, "Number of Tiles Marked: %d", marked_count);
+   al_draw_textf(mF.pr8, palette_color[15], (x3+x4)/2, yfb -34, ALLEGRO_ALIGN_CENTER, "Number of Tiles Marked: %d", marked_count);
 
    if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Clear All Marks"))
    {
@@ -556,17 +557,17 @@ void th_process_mouse(void)
       while (mouse_b[1][0]) proc_event_queue();
 
       // add or del single tile at the specific location
-      if (mwWM.mW[9].th_match == 0) thl[gx][gy] = mwWM.mW[9].th_add_del;
+      if (mwWM.mW[9].th_match == 0) thl[mwWM.gx][mwWM.gy] = mwWM.mW[9].th_add_del;
 
       // add or del only connected tiles that match
-      if (mwWM.mW[9].th_match == 2) th_find_connected(gx, gy, mwWM.mW[9].th_group);
+      if (mwWM.mW[9].th_match == 2) th_find_connected(mwWM.gx, mwWM.gy, mwWM.mW[9].th_group);
 
       // add or del all tiles that match
       if (mwWM.mW[9].th_match == 1)
       {
          for (int x=0; x<100; x++)
             for (int y=0; y<100; y++)
-               if (th_compare_tile(l[gx][gy], l[x][y], mwWM.mW[9].th_group)) thl[x][y] = mwWM.mW[9].th_add_del;
+               if (th_compare_tile(l[mwWM.gx][mwWM.gy], l[x][y], mwWM.mW[9].th_group)) thl[x][y] = mwWM.mW[9].th_add_del;
       }
    }
 

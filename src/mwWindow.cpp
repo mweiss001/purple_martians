@@ -2,6 +2,8 @@
 #include "pm.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
+#include "mwDisplay.h"
+#include "mwFont.h"
 
 mwWindow::mwWindow()
 {
@@ -69,8 +71,8 @@ void mwWindow::check_offscreen(void)
    int change = 0;
    if (x1<1) {x1=1; change=1;}
    if (y1<1) {y1=1; change=1;}
-   if (x1>SCREEN_W-100) {x1=SCREEN_W-100; change=1;}
-   if (y1>SCREEN_H-100) {y1=SCREEN_H-100; change=1;}
+   if (x1>mwD.SCREEN_W-100) {x1=mwD.SCREEN_W-100; change=1;}
+   if (y1>mwD.SCREEN_H-100) {y1=mwD.SCREEN_H-100; change=1;}
    if (change) set_pos(x1, y1);
 }
 
@@ -135,28 +137,28 @@ void mwWindow::process_mouse(void)
                 case 2:
                    for (int i=0; i<5; i++)
                       for (int j=0; j<20; j++)
-                         obj_filter[i][j] = 1;
+                         mwWM.obj_filter[i][j] = 1;
                 break;
                 case 3:
                    for (int j=0; j<20; j++)
-                      obj_filter[2][j] = 1;
+                      mwWM.obj_filter[2][j] = 1;
                 break;
                 case 4:
                    for (int j=0; j<20; j++)
-                      obj_filter[3][j] = 1;
+                      mwWM.obj_filter[3][j] = 1;
                 break;
                 case 5:
                 for (int i=0; i<5; i++)
                    for (int j=0; j<20; j++)
-                      obj_filter[i][j] = 0;
+                      mwWM.obj_filter[i][j] = 0;
                 break;
                 case 6:
                    for (int j=0; j<20; j++)
-                      obj_filter[2][j] = 0;
+                      mwWM.obj_filter[2][j] = 0;
                 break;
                 case 7:
                    for (int j=0; j<20; j++)
-                      obj_filter[3][j] = 0;
+                      mwWM.obj_filter[3][j] = 0;
                 break;
             }
 
@@ -229,15 +231,15 @@ void mwWindow::draw(int draw_only)
       al_draw_rectangle(x1, y1, x2, y1+11, palette_color[color], 1);
 
       // title
-      al_draw_textf(font, palette_color[color], x1+2, y1+2, 0, "title:%s", title);
+      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+2, 0, "title:%s", title);
 
-      al_draw_textf(font, palette_color[color], x1+2, y1+12, 0, "index:%d", index);
+      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+12, 0, "index:%d", index);
 
-      al_draw_textf(font, palette_color[color], x1+2, y1+22, 0, "layer:%d", layer);
-      al_draw_textf(font, palette_color[color], x1+2, y1+30, 0, "focus:%d", have_focus);
+      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+22, 0, "layer:%d", layer);
+      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+30, 0, "focus:%d", have_focus);
 
-      al_draw_textf(font, palette_color[color], x1+2, y1+38, 0, "x1:%d x2:%d w:%d", x1, x2, w);
-      al_draw_textf(font, palette_color[color], x1+2, y1+46, 0, "y1:%d y2:%d h:%d", y1, y2, h);
+      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+38, 0, "x1:%d x2:%d w:%d", x1, x2, w);
+      al_draw_textf(mF.pr8, palette_color[color], x1+2, y1+46, 0, "y1:%d y2:%d h:%d", y1, y2, h);
 
       al_draw_rectangle(x1, y1, x2, y2, palette_color[10], 1);
 

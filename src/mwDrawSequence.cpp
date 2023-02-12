@@ -7,7 +7,7 @@
 #include <limits>
 
 #include "mwRollingAverage.h"
-
+#include "mwFont.h"
 
 mwDrawSequence mwDS;
 
@@ -140,7 +140,7 @@ void mwDrawSequence::show_text(int x, int y)
 {
    al_draw_filled_rectangle(x, y, x+240, y+100, palette_color[0]);
    for (int i=0; i<11; i++)
-      al_draw_textf(font, palette_color[15], 1+x, 1+y+i*9, 0, "%s", get_line(i));
+      al_draw_textf(mF.pr8, palette_color[15], 1+x, 1+y+i*9, 0, "%s", get_line(i));
 
 //
 //   al_draw_filled_rectangle(x, y, x+340, y+90, palette_color[0]);
@@ -153,9 +153,9 @@ void mwDrawSequence::show_text(int x, int y)
 //      col = 15;
 //      if ((i == 0) || (i == 7) || (i == 9)) col = 13;
 //      tot += RA[i].avg;
-//      al_draw_textf(font, palette_color[col], x, y+i*8, 0, "%3.3f", RA[i].avg*1000);
+//      al_draw_textf(mF.pr8, palette_color[col], x, y+i*8, 0, "%3.3f", RA[i].avg*1000);
 //   }
-//   al_draw_textf(font, palette_color[15], x, y+10*8, 0, "%3.3f", tot*1000);
+//   al_draw_textf(mF.pr8, palette_color[15], x, y+10*8, 0, "%3.3f", tot*1000);
 //
 //   // show odd only
 //   tot = 0;
@@ -165,11 +165,11 @@ void mwDrawSequence::show_text(int x, int y)
 //      if ((i == 0) || (i == 7) || (i == 9)) col = 13;
 //      if ((seq[i][1] == 1) || (col == 13))
 //      {
-//         al_draw_textf(font, palette_color[col], x+60, y+i*8, 0, "%3.3f", RA[i].avg*1000);
+//         al_draw_textf(mF.pr8, palette_color[col], x+60, y+i*8, 0, "%3.3f", RA[i].avg*1000);
 //         tot += RA[i].avg;
 //      }
 //   }
-//   al_draw_textf(font, palette_color[15], x+60, y+10*8, 0, "%3.3f", tot*1000);
+//   al_draw_textf(mF.pr8, palette_color[15], x+60, y+10*8, 0, "%3.3f", tot*1000);
 //
 //   // show even only
 //   tot = 0;
@@ -179,11 +179,11 @@ void mwDrawSequence::show_text(int x, int y)
 //      if ((i == 0) || (i == 7) || (i == 9)) col = 13;
 //      if ((seq[i][1] == 2) || (col == 13))
 //      {
-//         al_draw_textf(font, palette_color[col], x+120, y+i*8, 0, "%3.3f", RA[i].avg*1000);
+//         al_draw_textf(mF.pr8, palette_color[col], x+120, y+i*8, 0, "%3.3f", RA[i].avg*1000);
 //         tot += RA[i].avg;
 //      }
 //   }
-//   al_draw_textf(font, palette_color[15], x+120, y+10*8, 0, "%3.3f", tot*1000);
+//   al_draw_textf(mF.pr8, palette_color[15], x+120, y+10*8, 0, "%3.3f", tot*1000);
 //
 //
 //   // show names
@@ -191,7 +191,7 @@ void mwDrawSequence::show_text(int x, int y)
 //   {
 //      col = 15;
 //      if ((i == 0) || (i == 7) || (i == 9)) col = 13;
-//      al_draw_textf(font, palette_color[col], x+180, y+i*8, 0, "- %s", name_long[i]);
+//      al_draw_textf(mF.pr8, palette_color[col], x+180, y+i*8, 0, "- %s", name_long[i]);
 //   }
 //
 

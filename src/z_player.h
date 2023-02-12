@@ -1,4 +1,6 @@
 // z_player.h
+#ifndef z_player_H
+#define z_player_H
 
 
 extern struct player players[NUM_PLAYERS];
@@ -211,4 +213,4 @@ void init_player(int p, int t);
 void fill_player_tile(void);
 
 
-
+#endif // z_player_H

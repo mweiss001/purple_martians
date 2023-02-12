@@ -2,18 +2,21 @@
 #include "pm.h"
 #include "z_log.h"
 #include "z_player.h"
-
+#include "mwDisplay.h"
+#include "mwTimeStamp.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
 
 int enemy_data(int x_pos, int y_pos)
 {
    sort_enemy();
-   al_draw_textf(font, palette_color[4], x_pos, y_pos, 0, "%-2d Enemies", num_enemy); y_pos += 8;
-   al_draw_text(font, palette_color[4], x_pos, y_pos,  0, "----------"); y_pos += 8;
+   al_draw_textf(mF.pr8, palette_color[4], x_pos, y_pos, 0, "%-2d Enemies", num_enemy); y_pos += 8;
+   al_draw_text(mF.pr8, palette_color[4], x_pos, y_pos,  0, "----------"); y_pos += 8;
    for (int c=1; c<16; c++)
    {
       if (e_num_of_type[c]) // not zero
       {
-         al_draw_textf(font, palette_color[10], x_pos, y_pos,   0, "%-2d %s", e_num_of_type[c], enemy_name[c][0]);
+         al_draw_textf(mF.pr8, palette_color[10], x_pos, y_pos,   0, "%-2d %s", e_num_of_type[c], enemy_name[c][0]);
          y_pos += 8;
       }
    }
@@ -23,7 +26,7 @@ int enemy_data(int x_pos, int y_pos)
 
 void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int spacing, int frame_color, int line_color, int clip_mode)
 {
-   int d = display_transform_double;
+   int d = mwD.display_transform_double;
    if (!clip_mode) d = 1;
 
    al_set_clipping_rectangle(x1*d, y1*d, (x2-x1)*d, (y2-y1)*d);
@@ -105,7 +108,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
                lsa = !lsa;   // toggle leaf side
                float ang = atan2(ylen, xlen); // get the angle of a tangent line at this point
                if (lsa) ang+= ALLEGRO_PI;
-               al_draw_scaled_rotated_bitmap(tile[311], 10, 20, x1, y1, ls, ls, ang, 0);
+               al_draw_scaled_rotated_bitmap(mwB.tile[311], 10, 20, x1, y1, ls, ls, ang, 0);
             }
          }
 
@@ -135,11 +138,11 @@ void draw_enemy(int e, int custom, int cx, int cy)
    float sc = al_fixtof(Efi[e][12]);
 
    if ((type == 13) && (Ei[e][15] != 0)) // different rotation point for vinepod
-      al_draw_scaled_rotated_bitmap(tile[tn], 10, 3, EXint+10, EYint+10, sc, sc, rot, flags);
-   else al_draw_scaled_rotated_bitmap(tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
+      al_draw_scaled_rotated_bitmap(mwB.tile[tn], 10, 3, EXint+10, EYint+10, sc, sc, rot, flags);
+   else al_draw_scaled_rotated_bitmap(mwB.tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
 
    // if enemy is expiring show how many seconds it has left
-   if ((!level_editor_running) && (Ei[e][27])) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+   if ((!level_editor_running) && (Ei[e][27])) al_draw_textf(mF.pixl, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
 
    if ((type == 9) && (!custom)) // cloner
    {
@@ -191,7 +194,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
          // show vertical red green bar animation sequence
         // int b = (Ei[e][7] * 10) / (Ei[e][6]+1);
         // int t = zz[5+b][53];
-        // al_draw_scaled_rotated_bitmap(tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, ALLEGRO_FLIP_VERTICAL);
+        // al_draw_scaled_rotated_bitmap(mwB.tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, ALLEGRO_FLIP_VERTICAL);
       }
 
       // show box mode (0=none) (1=trig only) (2=src/dst only) (3=all)
@@ -269,7 +272,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
 /*
    if (Ei[e][0] == 3) // archwagon
    {
-      al_draw_textf(font, palette_color[15], EXint+30, EYint+10, 0, "%d", Ei[e][5]);
+      al_draw_textf(mF.pr8, palette_color[15], EXint+30, EYint+10, 0, "%d", Ei[e][5]);
    }
 */
 
@@ -368,7 +371,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
 
 void draw_enemies(void)
 {
-   al_set_target_bitmap(level_buffer);
+   al_set_target_bitmap(mwB.level_buffer);
    for (int e=0; e<100; e++)
       if (Ei[e][0])  // if enemy active
          draw_enemy(e, 0, 0, 0);
@@ -410,7 +413,7 @@ void proc_enemy_collision_with_pbullet(int e)
 
 void move_enemies()
 {
-   if (LOG_TMR_move_enem) init_timestamps();
+   if (LOG_TMR_move_enem) mwTS.init_timestamps();
    num_enemy = 0; // count enemies
    for (int e=0; e<100; e++)
       if (Ei[e][0])
@@ -452,17 +455,17 @@ void move_enemies()
             case 13: enemy_vinepod(e);  break;
             case 99: enemy_deathcount(e); break;
          }
-         if (LOG_TMR_move_enem) add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
+         if (LOG_TMR_move_enem) mwTS.add_timestamp(103, e, Ei[e][0], al_get_time()-t0, 0);
       }
    if (LOG_TMR_move_enem)
    {
       // tally up all the times for each enemy type
       double tmr_tally[100][3] = {0};
       for (int i=0; i<10000; i++)
-         if (timestamps[i].type == 103)
+         if (mwTS.timestamps[i].type == 103)
          {
-            tmr_tally[timestamps[i].frame2][0] +=1;                 // add to number of this type tally
-            tmr_tally[timestamps[i].frame2][1] += timestamps[i].t1; // add to time tally
+            tmr_tally[mwTS.timestamps[i].frame2][0] +=1;                 // add to number of this type tally
+            tmr_tally[mwTS.timestamps[i].frame2][1] += mwTS.timestamps[i].t1; // add to time tally
          }
       // build log entry
       char t[512] = {0};
@@ -2154,9 +2157,9 @@ void enemy_block_walker(int e)
 
       l[ex][ey] |= PM_BTILE_BREAKABLE_PBUL;
 
-      al_set_target_bitmap(level_background);
+      al_set_target_bitmap(mwB.level_background);
       al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, palette_color[0]);
-      al_draw_bitmap(btile[168], ex*20, ey*20, 0);
+      al_draw_bitmap(mwB.btile[168], ex*20, ey*20, 0);
 
       game_event(60, 0, 0, Ei[e][26], e, 0, 0);
 

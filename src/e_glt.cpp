@@ -1,7 +1,9 @@
 // e_glt.cpp
 
 #include "pm.h"
-
+#include "mwDisplay.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
 
 int blt[NUM_SPRITES];
 void show_block_list(void)
@@ -9,17 +11,17 @@ void show_block_list(void)
    int y = 0;
    int count_unique = 0;
 
-   al_draw_filled_rectangle(200, 0, SCREEN_W-1, SCREEN_H-1, palette_color[0]);
+   al_draw_filled_rectangle(200, 0, mwD.SCREEN_W-1, mwD.SCREEN_H-1, palette_color[0]);
    for (int z=0; z<NUM_SPRITES; z++)
       if (blt[z])
       {
          count_unique++;
-         al_draw_bitmap(tile[z], 180, y, 0);
-         //al_draw_textf(font, palette_color[11], 200, 10+y, 0, "sa%d   block# %d   count %d ",sa[z][0],  z, blt[z] );
-         al_draw_textf(font, palette_color[11], 200, y, 0, "block:%d count:%d ", z, blt[z] );
+         al_draw_bitmap(mwB.tile[z], 180, y, 0);
+         //al_draw_textf(mF.pr8, palette_color[11], 200, 10+y, 0, "sa%d   block# %d   count %d ",sa[z][0],  z, blt[z] );
+         al_draw_textf(mF.pr8, palette_color[11], 200, y, 0, "block:%d count:%d ", z, blt[z] );
          printf("block:%d count:%d\n", z, blt[z] );
          y+=20;
-         if (y > SCREEN_H-20)
+         if (y > mwD.SCREEN_H-20)
          {
             al_flip_display();
             al_clear_to_color(al_map_rgb(0,0,0));
@@ -42,7 +44,7 @@ void remove_unused_tiles(void)
    {
       if (blt[z] == 0) // block is not used
       {
-         al_set_target_bitmap(btile[z]);
+         al_set_target_bitmap(mwB.btile[z]);
          al_clear_to_color(al_map_rgb(0,0,0));
       }
    }
@@ -51,7 +53,7 @@ void remove_unused_tiles(void)
    al_set_target_bitmap(temp);
    for (int y = 0; y < 32; y++)
       for (int x = 0; x < 32; x++)
-         al_draw_bitmap(btile[y*32 + x], (x*20), (y*20), 0);
+         al_draw_bitmap(mwB.btile[y*32 + x], (x*20), (y*20), 0);
 
    al_save_bitmap("bitmaps/tempb_tiles.bmp", temp);
    al_destroy_bitmap(temp);
@@ -119,9 +121,9 @@ void global_level(void)
       al_flip_display();
 
       // progress bar
-      draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, (x+1)*100 / num_levs);
-      al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
-      al_draw_textf(font, palette_color[11], 10, 10+x*8, 0, "lev:%d", le[x]);
+      draw_percent_bar(mwD.SCREEN_W/2, mwD.SCREEN_H/2, mwD.SCREEN_W-200, 20, (x+1)*100 / num_levs);
+      al_draw_text(mF.pr8, palette_color[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+7 , ALLEGRO_ALIGN_CENTER, "Doing glt...");
+      al_draw_textf(mF.pr8, palette_color[11], 10, 10+x*8, 0, "lev:%d", le[x]);
       load_level(le[x], 1);
 
 
@@ -142,7 +144,7 @@ void global_level(void)
       {
          save_level(le[x]);
          al_set_target_backbuffer(display);
-         al_draw_textf(font, palette_color[10], 110, 10+x*8, 0, "lev:%d", le[x]);
+         al_draw_textf(mF.pr8, palette_color[10], 110, 10+x*8, 0, "lev:%d", le[x]);
       }
    } // end of level iterate
 

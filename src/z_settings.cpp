@@ -5,6 +5,12 @@
 #include "z_settings.h"
 #include "z_player.h"
 #include "n_netgame.h"
+#include "mwLogo.h"
+#include "mwBottomMessage.h"
+#include "mwDemoMode.h"
+#include "mwDisplay.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
 
 int settings_current_page = 0;
 
@@ -68,38 +74,38 @@ int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int num
    al_draw_filled_rectangle(x-1, y-1, xc, ya + bts*7, palette_color[13+224]); // erase background
    al_draw_rectangle       (x-1, y-1, xc, ya + bts*7, palette_color[15], 0);  // frame
 
-   if (num == 0) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Up ---- set new control");
-   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Up ---- %s", key_names[players1[0].up_key]);
+   if (num == 0) al_draw_textf(mF.pr8, palette_color[10], tx, ya+yo, 0, "Up ---- set new control");
+   else          al_draw_textf(mF.pr8, palette_color[tc], tx, ya+yo, 0, "Up ---- %s", key_names[players1[0].up_key]);
    if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].up_key = my_readkey(x, y, tc, bts, 0);
    ya+=bts;
 
-   if (num == 1) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Down -- set new control");
-   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Down -- %s", key_names[players1[0].down_key]);
+   if (num == 1) al_draw_textf(mF.pr8, palette_color[10], tx, ya+yo, 0, "Down -- set new control");
+   else          al_draw_textf(mF.pr8, palette_color[tc], tx, ya+yo, 0, "Down -- %s", key_names[players1[0].down_key]);
    if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].down_key = my_readkey(x, y, tc, bts, 1);
    ya+=bts;
 
-   if (num == 2) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Left -- set new control");
-   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Left -- %s", key_names[players1[0].left_key]);
+   if (num == 2) al_draw_textf(mF.pr8, palette_color[10], tx, ya+yo, 0, "Left -- set new control");
+   else          al_draw_textf(mF.pr8, palette_color[tc], tx, ya+yo, 0, "Left -- %s", key_names[players1[0].left_key]);
    if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].left_key = my_readkey(x, y, tc, bts, 2);
    ya+=bts;
 
-   if (num == 3) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Right - set new control");
-   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Right - %s", key_names[players1[0].right_key]);
+   if (num == 3) al_draw_textf(mF.pr8, palette_color[10], tx, ya+yo, 0, "Right - set new control");
+   else          al_draw_textf(mF.pr8, palette_color[tc], tx, ya+yo, 0, "Right - %s", key_names[players1[0].right_key]);
    if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].right_key = my_readkey(x, y, tc, bts, 3);
    ya+=bts;
 
-   if (num == 4) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Jump -- set new control");
-   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Jump -- %s", key_names[players1[0].jump_key]);
+   if (num == 4) al_draw_textf(mF.pr8, palette_color[10], tx, ya+yo, 0, "Jump -- set new control");
+   else          al_draw_textf(mF.pr8, palette_color[tc], tx, ya+yo, 0, "Jump -- %s", key_names[players1[0].jump_key]);
    if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].jump_key = my_readkey(x, y, tc, bts, 4);
    ya+=bts;
 
-   if (num == 5) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Fire -- set new control");
-   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Fire -- %s", key_names[players1[0].fire_key]);
+   if (num == 5) al_draw_textf(mF.pr8, palette_color[10], tx, ya+yo, 0, "Fire -- set new control");
+   else          al_draw_textf(mF.pr8, palette_color[tc], tx, ya+yo, 0, "Fire -- %s", key_names[players1[0].fire_key]);
    if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].fire_key = my_readkey(x, y, tc, bts, 5);
    ya+=bts;
 
-   if (num == 6) al_draw_textf(font, palette_color[10], tx, ya+yo, 0, "Menu -- set new control");
-   else          al_draw_textf(font, palette_color[tc], tx, ya+yo, 0, "Menu -- %s", key_names[players1[0].menu_key]);
+   if (num == 6) al_draw_textf(mF.pr8, palette_color[10], tx, ya+yo, 0, "Menu -- set new control");
+   else          al_draw_textf(mF.pr8, palette_color[tc], tx, ya+yo, 0, "Menu -- %s", key_names[players1[0].menu_key]);
    if ((show_buttons) && (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,1,0,0, "new")))    players1[0].menu_key = my_readkey(x, y, tc, bts, 6);
    ya+=bts;
 
@@ -108,8 +114,8 @@ int redraw_all_controls(int x, int y, int bts, int tc, int show_buttons, int num
 
 void cfp_draw_player(int pco, int x, int y)
 {
-   al_draw_bitmap(player_tile[pco][1], x, y, 0 );
-   al_draw_text(font, palette_color[pco], x+22, y+7, 0, color_name[pco]);
+   al_draw_bitmap(mwB.player_tile[pco][1], x, y, 0 );
+   al_draw_text(mF.pr8, palette_color[pco], x+22, y+7, 0, color_name[pco]);
 }
 
 int cfp_draw_line(int xa, int xb, int ya, int line_spacing, int col)
@@ -124,7 +130,7 @@ void cfp_4tog(int xa, int xb, int &ya, int bts, int tc, int fc, int line_spacing
 {
    ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
    ya -=7;
-   al_draw_text(font, palette_color[tc], xa,     ya, 0, name);
+   al_draw_text(mF.pr8, palette_color[tc], xa,     ya, 0, name);
    for (int i=0; i<4; i++)
       mdw_togglec(xb-86+(i*24), ya, xb-72+(i*24), bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, overlay_grid[index][i],  "", tc, fc);
 }
@@ -150,7 +156,7 @@ void draw_tab(struct settings_tab st[], int p, int col, int text_color)
    int bc = col+192; if (bc > 256) bc = 0; //  tab background color
    al_draw_filled_polygon(*v, 4, palette_color[bc]);
    al_draw_polygon(*v, 4, ALLEGRO_LINE_JOIN_ROUND, palette_color[col], 1.0, 0);
-   al_draw_text(font, palette_color[text_color], st[p].x1+4, st[p].y1+3, 0, st[p].title);
+   al_draw_text(mF.pr8, palette_color[text_color], st[p].x1+4, st[p].y1+3, 0, st[p].title);
 }
 
 void settings_pages(int set_page)
@@ -190,16 +196,16 @@ void settings_pages(int set_page)
       al_show_mouse_cursor(display);
       // entire area, including title, tabs, and page
       int cf_w = 400;
-      int cf_x1 = (SCREEN_W - cf_w)/2;
+      int cf_x1 = (mwD.SCREEN_W - cf_w)/2;
       int cf_x2 = cf_x1 + cf_w;
 
       int cf_h = 400;
       int cf_y1 = menu_map_y - 61; // line up exactly with the menu item "Settings"
       int cf_y2 = cf_y1 + cf_h;
 
-      if (cf_y2 > SCREEN_H)     // if bottom is past bottom of screen
+      if (cf_y2 > mwD.SCREEN_H)     // if bottom is past bottom of screen
       {
-         cf_y2 = SCREEN_H;      // bottom is bottom of screen
+         cf_y2 = mwD.SCREEN_H;      // bottom is bottom of screen
          cf_y1 = cf_y2 - cf_h;
 
          if (cf_y1 < 0)         // if top is past top of screen
@@ -215,12 +221,12 @@ void settings_pages(int set_page)
       al_flip_display();
       al_clear_to_color(al_map_rgb(0, 0, 0));
       frame_and_title(1);
-      mdw_an();
+      mwL.mdw_an(mwL.mdw_map_logo_x, mwL.mdw_map_logo_y, mwL.mdw_map_logo_scale);
       for (int c=0; c<7; c++)       // show first 7 menu items
       {
          int b = 15;
          if ((!resume_allowed) && (c==4)) b+=80; // dimmer if can't resume
-         al_draw_text(font, palette_color[b], SCREEN_W/2, 14+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[7][c]);
+         al_draw_text(mF.pr8, palette_color[b], mwD.SCREEN_W/2, 14+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[7][c]);
       }
 
       while (!menu_update) proc_event_queue();
@@ -230,7 +236,7 @@ void settings_pages(int set_page)
 
       // figure out the title size
       int bx, by, bw, bh;
-      al_get_text_dimensions(font, title, &bx, &by, &bw, &bh);
+      al_get_text_dimensions(mF.pr8, title, &bx, &by, &bw, &bh);
       float title_w = bw + 12;
       float title_x1 = cf_x1 + (cf_w - title_w) / 2;
       float title_x2 = title_x1 + title_w;
@@ -252,7 +258,7 @@ void settings_pages(int set_page)
       for (int i=0; i<num_pages; i++)
       {
          int bx, by, bw, bh; // set size of tab based on text size
-         al_get_text_dimensions(font, st[i].title, &bx, &by, &bw, &bh);
+         al_get_text_dimensions(mF.pr8, st[i].title, &bx, &by, &bw, &bh);
          bh = 8 + 5; // force 8 because with descender, text height is sometimes different and things don't line up
          bw += 8;
 
@@ -286,7 +292,7 @@ void settings_pages(int set_page)
       // frame and draw title, this needs to go on top of previous frame
       for (int a=0; a<frame_width; a++)
          al_draw_rounded_rectangle(title_x1+a, title_y1+a, title_x2-a, title_y2-a, 4, 4, palette_color[fc+a*48], 1.5);
-      al_draw_text(font, palette_color[tc], title_xc, title_ty, ALLEGRO_ALIGN_CENTER, title);
+      al_draw_text(mF.pr8, palette_color[tc], title_xc, title_ty, ALLEGRO_ALIGN_CENTER, title);
 
       // draw and process tabs
       int mouse_on_tab = -1;
@@ -341,7 +347,7 @@ void settings_pages(int set_page)
          // ---------------------------------------
 
          ya+=7;
-         al_draw_text(font, palette_color[tc], xa,     ya, 0, "Current player color:");
+         al_draw_text(mF.pr8, palette_color[tc], xa,     ya, 0, "Current player color:");
          cfp_draw_player(players[0].color,     xa+180, ya-7);
 
          ya+=13;
@@ -419,18 +425,18 @@ void settings_pages(int set_page)
          // ---------------------------------------
          x1a = cfp_x1 + 10;
          x1b = x1a + 250;
-         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, show_splash_screen, "Show splash screen on startup", tc, tc);
+         mdw_togglec(x1a, ya, x1b, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,0,0, mwL.show_splash_screen, "Show splash screen on startup", tc, tc);
          x1a = x1b + 30;
          x1b = x1a + 74;
          if (mdw_buttont(x1a, ya, x1b, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Show now"))
          {
-             splash_screen();
+             mwL.splash_screen();
              while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue();
          }
          ya -=2;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, bottom_msg_on, "Show bottom message display", tc, 15);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0,0,0,0, 1,0,1,0, mwBM.bottom_msg_on, "Show bottom message display", tc, 15);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -484,26 +490,26 @@ void settings_pages(int set_page)
          sprintf(msg, "Server IP Address:%s", m_serveraddress);
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,-1,fc, 0,  1,0,1,0, msg))  edit_server_name(1, cfp_txc, ya);
          ya+=4;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Clients need the server name");
-         al_draw_text(font, palette_color[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "or IP address set here.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Clients need the server name");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "or IP address set here.");
 
          ya+=18;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
          mdw_toggle( xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, TCP, "Packet type:UDP", "Packet type:TCP", fc, fc, -1, -1);
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The type of packet used to communicate.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The type of packet used to communicate.");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, deathmatch_pbullets, "Deathmatch player bullets", fc, fc);
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's bullets affect other players?");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's bullets affect other players?");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
 
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, suicide_pbullets, "Suicide player bullets", fc, fc);
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's bullets affect themselves?");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Do player's bullets affect themselves?");
 
          ya+=10;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
@@ -511,8 +517,8 @@ void settings_pages(int set_page)
 
          mdw_slideri(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, deathmatch_pbullets_damage, 100, -10, 1, "Player bullet damage:");
          ya+=4;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The amount of damage player's bullets");
-         al_draw_text(font, palette_color[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "do to other players and themselves.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The amount of damage player's bullets");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya+8, ALLEGRO_ALIGN_CENTER, "do to other players and themselves.");
 
          ya+=18;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, fc);
@@ -533,11 +539,11 @@ void settings_pages(int set_page)
          int e = 9;    // normal
 
          ya+=5+line_spacing;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Display Transform Double is a method to");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Display Transform Double is a method to");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "enlarge text. On high resolution displays");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "enlarge text. On high resolution displays");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "the text may become too small to read.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "the text may become too small to read.");
          ya+=9;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -545,8 +551,8 @@ void settings_pages(int set_page)
          ya+=2;
 
 
-         if (saved_display_transform_double == 0) sprintf(msg, "Current Mode: %d [Auto]", display_transform_double);
-         else                                     sprintf(msg, "Current Mode: %d [Static]", display_transform_double);
+         if (mwD.saved_display_transform_double == 0) sprintf(msg, "Current Mode: %d [Auto]", mwD.display_transform_double);
+         else                                       sprintf(msg, "Current Mode: %d [Static]", mwD.display_transform_double);
          mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,6,tc, 0,  1,0,1,0, msg);
 
 
@@ -555,38 +561,38 @@ void settings_pages(int set_page)
 
 
          ya+=2;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In auto mode, a reasonable value is set");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In auto mode, a reasonable value is set");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "automatically, depending on the current");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "automatically, depending on the current");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen resolution or window size.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen resolution or window size.");
          ya+=12 + line_spacing;
 
-         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Set to Auto Mode")) set_saved_display_transform(0);
+         if (mdw_buttont(xa+60, ya, xb-60, bts,  0,0,0,0,  0,fc,tc, 0,  1,0,1,0, "Set to Auto Mode")) mwD.set_saved_display_transform(0);
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          ya+=2;
 
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In static mode you can set a permanent");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "In static mode you can set a permanent");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "value as well as the maximum values when");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "value as well as the maximum values when");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "cycling through with CTRL-SHIFT-F12.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "cycling through with CTRL-SHIFT-F12.");
          ya+=12;
 
-         mdw_slideri(xa+20, ya, xb-20, bts,  0,0,0,0,  0,7,15,15, 0,0,1,0, display_transform_double_max, 10, 2, 1, "Maximum Value:");
+         mdw_slideri(xa+20, ya, xb-20, bts,  0,0,0,0,  0,7,15,15, 0,0,1,0, mwD.display_transform_double_max, 10, 2, 1, "Maximum Value:");
 
          ya +=4;
 
          xb = xa+180;
 
-         static int newval = display_transform_double;
-         mdw_slideri(xa+20, ya, xb, bts,  0,0,0,0,  0,e,15,15, 0,0,0,0, newval, display_transform_double_max, 1, 1, "New Value:");
+         static int newval = mwD.display_transform_double;
+         mdw_slideri(xa+20, ya, xb, bts,  0,0,0,0,  0,e,15,15, 0,0,0,0, newval, mwD.display_transform_double_max, 1, 1, "New Value:");
 
          xa = xa+200;
          xb = cfp_x2 - 30;
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,e,15, 0,  1,0,1,0, "Set New Value Now")) set_saved_display_transform(newval);
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,e,15, 0,  1,0,1,0, "Set New Value Now")) mwD.set_saved_display_transform(newval);
 
          xa = cfp_x1 + 10;
          xb = cfp_x2 - 10;
@@ -599,9 +605,9 @@ void settings_pages(int set_page)
 
          if (mdw_buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
          {
-            display_transform_double_max = 3;
-            set_saved_display_transform(0);
-            newval = display_transform_double;
+            mwD.display_transform_double_max = 3;
+            mwD.set_saved_display_transform(0);
+            newval = mwD.display_transform_double;
          }
 
 
@@ -658,14 +664,14 @@ void settings_pages(int set_page)
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, demo_mode_config_enable, "Autoplay random demo at program start", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mwDM.demo_mode_config_enable, "Autoplay random demo at program start", tc, fc);
          ya -=2;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         float old_demo_mode_overlay_opacity = demo_mode_overlay_opacity;
-         mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, demo_mode_overlay_opacity, 0.8, 0, .01, "Demo mode overlay opacity:");
-         if (old_demo_mode_overlay_opacity != demo_mode_overlay_opacity) save_config();
+         float old_demo_mode_overlay_opacity = mwDM.demo_mode_overlay_opacity;
+         mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwDM.demo_mode_overlay_opacity, 0.8, 0, .01, "Demo mode overlay opacity:");
+         if (old_demo_mode_overlay_opacity != mwDM.demo_mode_overlay_opacity) save_config();
 
          mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, test_opacity, "Test demo mode overlay opacity", tc, fc);
          ya +=8;
@@ -712,8 +718,8 @@ void settings_pages(int set_page)
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
 
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline adjust")) spline_adjust();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline test")) spline_test();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline adjust")) mwL.spline_adjust();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Spline test")) mwL.spline_test();
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
@@ -743,24 +749,24 @@ void settings_pages(int set_page)
          int ya = cfp_y1;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Sends info to the console");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Sends info to the console");
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show vars")) show_var_sizes();
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "hostname")) get_hostname(1);
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'tilemap'"))   show_bitmap_flags(al_get_bitmap_flags(tilemap));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'M_tilemap'")) show_bitmap_flags(al_get_bitmap_flags(M_tilemap));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'tilemap'")) show_pixel_format(al_get_bitmap_format(tilemap));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'M_tilemap'")) show_pixel_format(al_get_bitmap_format(M_tilemap));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'display'")) show_pixel_format(al_get_display_format(display));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display flags")) show_display_flags(al_get_display_flags(display));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display options")) show_display_options();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display orienation")) show_display_orienation();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'mwB.tilemap'"))   mwD.show_bitmap_flags(al_get_bitmap_flags(mwB.tilemap));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show bitmap flags 'mwB.M_tilemap'")) mwD.show_bitmap_flags(al_get_bitmap_flags(mwB.M_tilemap));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'mwB.tilemap'"))   mwD.show_pixel_format(al_get_bitmap_format(mwB.tilemap));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'mwB.M_tilemap'")) mwD.show_pixel_format(al_get_bitmap_format(mwB.M_tilemap));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show pixel format 'display'"))   mwD.show_pixel_format(al_get_display_format(display));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display flags"))            mwD.show_display_flags(al_get_display_flags(display));
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display options"))          mwD.show_display_options();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display orienation"))       mwD.show_display_orienation();
          if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show refesh rate")) printf("refresh rate:%d\n", al_get_display_refresh_rate(display));
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes")) show_fullscreen_modes();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters")) show_display_adapters();
-         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics")) show_code_stats();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show fullscreen modes"))         mwD.show_fullscreen_modes();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show display adapters"))         mwD.show_display_adapters();
+         if (mdw_buttont(xa, ya, xb, bts,  0,0,0,0,  0,12,15, 0,  1,0,1,0, "Show code statistics"))          show_code_stats();
 
 //         ya -=2;
 //         ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
@@ -780,70 +786,70 @@ void settings_pages(int set_page)
          int ya = cfp_y1;
 
          ya+=4+line_spacing;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The viewport is the visible area of the level.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The viewport is the visible area of the level.");
          ya+=16;
 
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The player is usually near the center");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The player is usually near the center");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "and the level scrolls to follow the player.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "and the level scrolls to follow the player.");
 
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The hysteresis rectangle is an area in the");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The hysteresis rectangle is an area in the");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "center where the player can move without");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "center where the player can move without");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "causing the level to scroll");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "causing the level to scroll");
 
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          ya +=1;
-         mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, viewport_x_div, 1, 0.01, .01, "Hysteresis scale x:");
-         mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, viewport_y_div, 1, 0.01, .01, "Hysteresis scale y:");
+         mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwD.viewport_x_div, 1, 0.01, .01, "Hysteresis scale x:");
+         mdw_sliderd(xa, ya, xb, bts,  0,0,0,0,  0,12,fc,fc,  0,0,1,0, mwD.viewport_y_div, 1, 0.01, .01, "Hysteresis scale y:");
 
-         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, viewport_show_hyst, "Show Hysteresis Rectangle", tc, fc);
+         mdw_togglec(xa, ya, xb, bts,  0,0,0,0,  0, 0, 0, 0,  1,0,1,0, mwD.viewport_show_hyst, "Show Hysteresis Rectangle", tc, fc);
 
          ya-=6;
 
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Show it to help with adjustment, and leave");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Show it to help with adjustment, and leave");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "it on while playing to see how it works.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "it on while playing to see how it works.");
 
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
-         mdw_buttonp(xa+80, ya, xb-80, bts,  20,0,0,0,  0, 8, fc, 0,  1,0,1,0, viewport_mode);
+         mdw_buttonp(xa+80, ya, xb-80, bts,  20,0,0,0,  0, 8, fc, 0,  1,0,1,0, mwD.viewport_mode);
 
          ya+=4;
 
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Instant mode moves the viewport instantly.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Instant mode moves the viewport instantly.");
          ya+=20;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Gradual mode moves the viewport gradually.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Gradual mode moves the viewport gradually.");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "It also moves the way you are facing.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "It also moves the way you are facing.");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Including up and down.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Including up and down.");
          ya+=20;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Static mode disables the hystersis rectangle.");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Static mode disables the hystersis rectangle.");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The player is always in the center of the");
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "The player is always in the center of the");
          ya+=12;
-         al_draw_text(font, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen. (Except near the level boundaries).");
-         if (viewport_show_hyst) draw_hyst_rect();
+         al_draw_text(mF.pr8, palette_color[tc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "screen. (Except near the level boundaries).");
+         if (mwD.viewport_show_hyst) draw_hyst_rect();
 
          ya +=8;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
 
          if (mdw_buttont(xa+90, ya, xb-90, bts,  0,0,0,0,  0,11,15, 0,  1,0,1,0, "Reset all to defaults"))
          {
-            viewport_mode = 1;
-            viewport_show_hyst = 0;
-            viewport_x_div = 0.33;
-            viewport_y_div = 0.33;
+            mwD.viewport_mode = 1;
+            mwD.viewport_show_hyst = 0;
+            mwD.viewport_x_div = 0.33;
+            mwD.viewport_y_div = 0.33;
          }
 
       }
@@ -1048,13 +1054,13 @@ void settings_pages(int set_page)
 
 
 
-         al_draw_text(font, palette_color[fc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Debug Overlay Modes");
+         al_draw_text(mF.pr8, palette_color[fc], cfp_txc, ya, ALLEGRO_ALIGN_CENTER, "Debug Overlay Modes");
          ya +=4;
          int y3 = ya + line_spacing;
          ya = cfp_draw_line(xa-6, xb+6, ya, line_spacing, tc);
          ya -=7;
 
-         al_draw_text(font, palette_color[tc], xb-130,     ya, 0, "Mode  0  1  2  3");
+         al_draw_text(mF.pr8, palette_color[tc], xb-130,     ya, 0, "Mode  0  1  2  3");
          cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 0, "CPU graph");
          cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 1, "display info");
          cfp_4tog(xa, xb, ya, bts, tc, fc, line_spacing, 2, "drawing profile timers");

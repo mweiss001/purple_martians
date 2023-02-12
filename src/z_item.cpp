@@ -3,25 +3,25 @@
 #include "pm.h"
 #include "z_sound.h"
 #include "z_player.h"
-
-
+#include "mwFont.h"
+#include "mwBitmap.h"
 
 int item_data(int x, int y)
 {
    int inum = sort_item(0);
-                               al_draw_textf(font, palette_color[12], x, y, 0, "%d Items",      inum);                 y+=8;
-                               al_draw_textf(font, palette_color[12], x, y, 0, "--------");                            y+=8;
-                               al_draw_textf(font, palette_color[13], x, y, 0, "%d Starts",     item_num_of_type[5]);  y+=8;
-                               al_draw_textf(font, palette_color[13], x, y, 0, "%d Exits",      item_num_of_type[3]);  y+=8;
-   if (item_num_of_type[12]) { al_draw_textf(font, palette_color[10], x, y, 0, "%d Warps",      item_num_of_type[12]); y+=8; }
-   if (item_num_of_type[1])  { al_draw_textf(font, palette_color[13], x, y, 0, "%d Doors",      item_num_of_type[1]);  y+=8; }
-   if (item_num_of_type[4])  { al_draw_textf(font, palette_color[13], x, y, 0, "%d Keys",       item_num_of_type[4]);  y+=8; }
-   if (item_num_of_type[14]) { al_draw_textf(font, palette_color[13], x, y, 0, "%d Switches",   item_num_of_type[14]); y+=8; }
-   if (item_num_of_type[15]) { al_draw_textf(font, palette_color[13], x, y, 0, "%d Sproingies", item_num_of_type[15]); y+=8; }
-   if (item_num_of_type[8])  { al_draw_textf(font, palette_color[14], x, y, 0, "%d Bombs",      item_num_of_type[8]);  y+=8; }
-   if (item_num_of_type[11]) { al_draw_textf(font, palette_color[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
-   if (item_num_of_type[7])  { al_draw_textf(font, palette_color[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
-   if (item_num_of_type[6])  { al_draw_textf(font, palette_color[14], x, y, 0, "%d Orbs",       item_num_of_type[6]);  y+=8; }
+                               al_draw_textf(mF.pr8, palette_color[12], x, y, 0, "%d Items",      inum);                 y+=8;
+                               al_draw_textf(mF.pr8, palette_color[12], x, y, 0, "--------");                            y+=8;
+                               al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Starts",     item_num_of_type[5]);  y+=8;
+                               al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Exits",      item_num_of_type[3]);  y+=8;
+   if (item_num_of_type[12]) { al_draw_textf(mF.pr8, palette_color[10], x, y, 0, "%d Warps",      item_num_of_type[12]); y+=8; }
+   if (item_num_of_type[1])  { al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Doors",      item_num_of_type[1]);  y+=8; }
+   if (item_num_of_type[4])  { al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Keys",       item_num_of_type[4]);  y+=8; }
+   if (item_num_of_type[14]) { al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Switches",   item_num_of_type[14]); y+=8; }
+   if (item_num_of_type[15]) { al_draw_textf(mF.pr8, palette_color[13], x, y, 0, "%d Sproingies", item_num_of_type[15]); y+=8; }
+   if (item_num_of_type[8])  { al_draw_textf(mF.pr8, palette_color[14], x, y, 0, "%d Bombs",      item_num_of_type[8]);  y+=8; }
+   if (item_num_of_type[11]) { al_draw_textf(mF.pr8, palette_color[14], x, y, 0, "%d Rockets",    item_num_of_type[11]); y+=8; }
+   if (item_num_of_type[7])  { al_draw_textf(mF.pr8, palette_color[14], x, y, 0, "%d Mines",      item_num_of_type[7]);  y+=8; }
+   if (item_num_of_type[6])  { al_draw_textf(mF.pr8, palette_color[14], x, y, 0, "%d Orbs",       item_num_of_type[6]);  y+=8; }
 
    for (int c=1; c<20; c++)
       if ((c!= 1) && (c !=3) && (c!= 4) && (c != 5) && (c != 6) && (c!= 7) && (c!= 8) && (c!= 9) && (c!= 11) && (c!= 12) && (c!= 14) && (c!= 15) && (c!= 16) && (c!= 17) )
@@ -31,7 +31,7 @@ int item_data(int x, int y)
             if (c ==  0) sprintf(msg, "%d type 0      ", item_num_of_type[c]);
             if (c ==  2) sprintf(msg, "%d Bonus       ", item_num_of_type[c]);
             if (c == 10) sprintf(msg, "%d Messages    ", item_num_of_type[c]);
-            al_draw_text(font, palette_color[3], x, y, 0, msg);
+            al_draw_text(mF.pr8, palette_color[3], x, y, 0, msg);
             y+=8;
          }
    return y;
@@ -80,7 +80,7 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
 {
    // set where we will draw
    if (custom) al_set_target_backbuffer(display);
-   else al_set_target_bitmap(level_buffer);
+   else al_set_target_bitmap(mwB.level_buffer);
 
    // make a copy of the string
    char pt[500];
@@ -164,12 +164,12 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
       if (pt[cursor_pos] == 10) sprintf(msg, "LF");
       if (pt[cursor_pos] == 32) sprintf(msg, "SPACE");
 
-      al_draw_textf(font, palette_color[15], xc+4, y2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
+      al_draw_textf(mF.pr8, palette_color[15], xc+4, y2+2, ALLEGRO_ALIGN_CENTRE, "%d/%d/500 [%s] ", cursor_pos, (int) strlen(pt), msg);
 
-//      al_draw_textf(font, palette_color[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
+//      al_draw_textf(mF.pr8, palette_color[15], xc+4, y1+2, ALLEGRO_ALIGN_CENTRE, "[%s] %d/%d/500", msg, cursor_pos, (int) strlen(pt));
 
-//      al_draw_textf(font, palette_color[15], x2-60, y2-9, 0, "[%s]", msg);
-      //al_draw_textf(font, palette_color[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
+//      al_draw_textf(mF.pr8, palette_color[15], x2-60, y2-9, 0, "[%s]", msg);
+      //al_draw_textf(mF.pr8, palette_color[15], xc+4, y1-20, ALLEGRO_ALIGN_CENTRE, "x:%d y:%d w:%d h:%d", x1, y1, w, h);
    }
 
 
@@ -187,7 +187,7 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
    // do_multiline callback to figure out number of lines that will be used
    DRAW_CUSTOM_LINE_EXTRA extra;
    extra.num_lines = 0;
-   al_do_multiline_text(font, max_text_width, pt, draw_multiline_cb, (void *)&extra);
+   al_do_multiline_text(mF.pr8, max_text_width, pt, draw_multiline_cb, (void *)&extra);
 
    float sp=0; // space between text_height and frame_height
    float text_height = 0;
@@ -201,8 +201,8 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
    } while ((sp > 2) && (line_height < 100));
 
 
-//   al_draw_textf(font, palette_color[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
-//   al_draw_textf(font, palette_color[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
+//   al_draw_textf(mF.pr8, palette_color[15], xc+4, y2+20, ALLEGRO_ALIGN_CENTRE, "lh:%2.1f nl:%d th:%2.1f", line_height, extra.num_lines, text_height);
+//   al_draw_textf(mF.pr8, palette_color[15], xc+4, y2+28, ALLEGRO_ALIGN_CENTRE, "fh:%d fh-fw:%d sp:%2.1f", h, h - frame_width*2, sp);
 
 
    float y3 = y1+frame_width+line_height/2-3.5;
@@ -215,7 +215,7 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
 
    }
 
-   al_draw_multiline_text(font, palette_color[tc], xc, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
+   al_draw_multiline_text(mF.pr8, palette_color[tc], xc, y3, max_text_width, line_height, ALLEGRO_ALIGN_CENTRE, pt);
 
    if (cursor_blink)
    {
@@ -235,7 +235,7 @@ void draw_pop_message(int i, int custom, int xpos_c, int ypos, int cursor_pos, i
       }
       else pt[cursor_pos] = 95;
 
-      al_draw_multiline_text(font, palette_color[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
+      al_draw_multiline_text(mF.pr8, palette_color[10], xc+cursor_on_special*8, y3, max_text_width, line_height,  ALLEGRO_ALIGN_CENTRE, pt);
    }
 
 //      // crosshairs for alignment
@@ -257,13 +257,13 @@ void draw_door(int i, int x, int y, int custom)
    {
       int shape = item[i][1];       // get shape
       int si = shape-448;           // convert to index to bitmap sequence
-      tmp = door_tile[1][col][si];
+      tmp = mwB.door_tile[1][col][si];
    }
    else if (item[i][13] == 1083) // new style doors
    {
       int an = zz[1][83];             // cheat and use shape index from base door animation sequence
       if (item[i][8] == 0) an = 7-an; // exit only, run the sequence backwards
-      tmp = door_tile[0][col][an];
+      tmp = mwB.door_tile[0][col][an];
    }
    else if (item[i][13] == 0) drawn = 1;
 
@@ -288,14 +288,14 @@ void draw_door(int i, int x, int y, int custom)
                // bigger door when player touching it
                al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, x-5, y-6, 30, 26, 0 );
 
-               if (item[i][8] == 0) al_draw_scaled_bitmap(tile[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
-               else al_draw_scaled_bitmap(tile[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
+               if (item[i][8] == 0) al_draw_scaled_bitmap(mwB.tile[1015], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // OUT
+               else al_draw_scaled_bitmap(mwB.tile[1014], 0, 0, 20, 20, x-5, y-6, 30, 26, 0); // IN
 
                if (item[i][11] == 1) // enter with <up>
-                  al_draw_text(font, palette_color[15],  x+3, y-14, 0, "up");
+                  al_draw_text(mF.pr8, palette_color[15],  x+3, y-14, 0, "up");
 
                if (item[i][11] == 2) // enter with <down>
-                  al_draw_text(font, palette_color[15],  x-5, y-14, 0, "down");
+                  al_draw_text(mF.pr8, palette_color[15],  x-5, y-14, 0, "down");
                drawn = 1;
             }
       }
@@ -304,8 +304,8 @@ void draw_door(int i, int x, int y, int custom)
    {
       al_draw_bitmap(tmp, x, y, 0); // if not drawn yet
 
-      if (item[i][8] == 0) al_draw_bitmap(tile[1015], x, y, 0); // OUT
-      else al_draw_bitmap(tile[1014], x, y, 0); // IN
+      if (item[i][8] == 0) al_draw_bitmap(mwB.tile[1015], x, y, 0); // OUT
+      else al_draw_bitmap(mwB.tile[1014], x, y, 0); // IN
    }
 
 }
@@ -599,7 +599,7 @@ void draw_lit_bomb(int i)
    if (item[i][6] == 3) // remote detonator
    {
       // draw bomb
-      al_draw_bitmap(tile[538], x, y, 0);
+      al_draw_bitmap(mwB.tile[538], x, y, 0);
 
       // get detonator position relative to player
       int p = item[i][13];
@@ -608,7 +608,7 @@ void draw_lit_bomb(int i)
       int py = al_fixtoi(players[p].PY) + -1;
 
       // draw detonator
-      al_draw_bitmap(tile[539], px, py, 0);
+      al_draw_bitmap(mwB.tile[539], px, py, 0);
 
       // draw a line connecting detonator and bomb
       al_draw_line(x+10, y+10, px+10, py+8, palette_color[207], 0);
@@ -625,7 +625,7 @@ void draw_lit_bomb(int i)
       int si = (int)(r * (float)num_seq_shapes);  // ratio * number of shapes
       int shape = zz[5+si][fuse_seq];             // get shape to draw
       //printf("ratio:%f shape_index:%d\n", r, si);
-      al_draw_bitmap(tile[shape], x, y, 0);
+      al_draw_bitmap(mwB.tile[shape], x, y, 0);
 
       // show countdown clock
       float cr = 6; // clock radius
@@ -651,7 +651,7 @@ void draw_lit_bomb(int i)
       float max_scale = item[i][7] / 10;         // max scale = damage / 10
       float sc = .5 + (r) * max_scale;
       //printf("ratio:%f shape_index:%d scale:%f \n", r, si, sc);
-      al_draw_scaled_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
+      al_draw_scaled_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, sc, sc, 0, 0);
 
       // show damage range circle
       al_draw_circle(x+10, y+10, (float)item[i][7]*r-8, palette_color[10], 1);
@@ -664,7 +664,7 @@ void draw_lit_bomb(int i)
    bomb_players(i, 1, item[i][7], itemf[i][0], itemf[i][1]); // mark players in damage range
 
    // debug show sequence numbers
-   //al_draw_textf(font, palette_color[15], x, y-20, 0, "%d / %d  %f ", item[i][8], item[i][9], (float)item[i][8]/(float)item[i][9]);
+   //al_draw_textf(mF.pr8, palette_color[15], x, y-20, 0, "%d / %d  %f ", item[i][8], item[i][9], (float)item[i][8]/(float)item[i][9]);
 }
 
 void draw_rocket_lines(int i)
@@ -680,7 +680,7 @@ void draw_rocket_lines(int i)
    if (speed < 2000) speed = 2000; // if moving too slow, lines won't be drawn
 
    // temp show speed
-   //al_draw_textf(font, palette_color[10], al_fixtof(fxi)+30, al_fixtof(fyi)+10, ALLEGRO_ALIGN_CENTER, "%d" ,speed );
+   //al_draw_textf(mF.pr8, palette_color[10], al_fixtof(fxi)+30, al_fixtof(fyi)+10, ALLEGRO_ALIGN_CENTER, "%d" ,speed );
 
 
    al_fixed angle = al_itofix((item[i][10]-640) / 10);  // angle
@@ -775,12 +775,12 @@ void draw_item(int i, int custom, int cx, int cy)
    if (type == 16) { draw_block_manip(i, x, y);          drawn = 1; }
    if (type == 17) { draw_block_damage(i, x, y, custom); drawn = 1; }
 
-   if ((type == 8) && (item[i][11]) ) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
+   if ((type == 8) && (item[i][11]) ) al_draw_bitmap(mwB.tile[440], x, y, 0); // bomb sticky spikes
 
    if (type == 99)
    {
       draw_lit_bomb(i);
-      if ((item[i][11]) && (item[i][6] != 2)) al_draw_bitmap(tile[440], x, y, 0);  // bomb sticky spikes
+      if ((item[i][11]) && (item[i][6] != 2)) al_draw_bitmap(mwB.tile[440], x, y, 0);  // bomb sticky spikes
       drawn = 1;
    }
 
@@ -794,7 +794,7 @@ void draw_item(int i, int custom, int cx, int cy)
       // stretch the key
       float sc = 1 + 4*((10 - (float)item[i][11]) / 10);
       float rot = al_fixtof(al_fixmul(al_itofix(item[i][10]/10), al_fixtorad_r));
-      al_draw_scaled_rotated_bitmap(tile[shape],10, 10, x+10, y+10, sc, sc, rot, 0);
+      al_draw_scaled_rotated_bitmap(mwB.tile[shape],10, 10, x+10, y+10, sc, sc, rot, 0);
       drawn = 1;
 
       // draw a collapsing rectangle
@@ -819,7 +819,7 @@ void draw_item(int i, int custom, int cx, int cy)
       ((type == 4) && (item[i][11] > 0))) // moving key
    {
       float rot = al_fixtof(al_fixmul(al_itofix(item[i][10]/10), al_fixtorad_r));
-      al_draw_rotated_bitmap(tile[shape], 10, 10, x+10, y+10, rot, 0);
+      al_draw_rotated_bitmap(mwB.tile[shape], 10, 10, x+10, y+10, rot, 0);
       drawn = 1;
    }
 
@@ -829,24 +829,24 @@ void draw_item(int i, int custom, int cx, int cy)
    {
       if (number_of_starts > 1)
       {
-         al_draw_bitmap(tile[shape], x, y, 0);
-         al_draw_textf(f3, palette_color[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", item[i][7]);
+         al_draw_bitmap(mwB.tile[shape], x, y, 0);
+         al_draw_textf(mF.pixl, palette_color[12], x+10, y-4, ALLEGRO_ALIGN_CENTER, "%d", item[i][7]);
          drawn = 1;
       }
    }
 
    if (type == 3) // exit
    {
-      al_draw_bitmap(tile[399], x, y, 0); // 'exit' text not shown
+      al_draw_bitmap(mwB.tile[399], x, y, 0); // 'exit' text not shown
       if (frame_num % 60 > 30)
-         al_draw_text(f3, palette_color[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
+         al_draw_text(mF.pixl, palette_color[10], x+11, y-2, ALLEGRO_ALIGN_CENTER, "EXIT");
 
       int exit_enemys_left = num_enemy - item[i][8];
       if (exit_enemys_left > 0) // locked
       {
-         al_draw_bitmap(tile[366], x, y, 0); // show lock
+         al_draw_bitmap(mwB.tile[366], x, y, 0); // show lock
          if (frame_num % 60 < 30)
-            al_draw_textf(f3, palette_color[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
+            al_draw_textf(mF.pixl, palette_color[14], x+11, y-2, ALLEGRO_ALIGN_CENTER, "%d", exit_enemys_left);
 
       }
       drawn = 1;
@@ -862,7 +862,7 @@ void draw_item(int i, int custom, int cx, int cy)
    }
 
    // default draw if nothing else has drawn it up to now
-   if (!drawn) al_draw_bitmap(tile[shape], x, y, 0);
+   if (!drawn) al_draw_bitmap(mwB.tile[shape], x, y, 0);
 
 
 
@@ -870,14 +870,14 @@ void draw_item(int i, int custom, int cx, int cy)
    {
       // if item is expiring show how many seconds left it has
       if ((item[i][14]>10) && (type != 9) && (type != 16) && (type != 17))
-         al_draw_textf(f3, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
+         al_draw_textf(mF.pixl, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
    }
 }
 
 
 void draw_items(void)
 {
-   al_set_target_bitmap(level_buffer);
+   al_set_target_bitmap(mwB.level_buffer);
 
    for (int i=0; i<500; i++)
       if ((item[i][0]) && (item[i][0] != 10)) draw_item(i, 0, 0, 0);
@@ -947,7 +947,7 @@ void proc_switch_block_range(int i, int action)
 
    if (action == 1)
    {
-      al_set_target_bitmap(level_background);
+      al_set_target_bitmap(mwB.level_background);
       for (int x=x1; x<x2; x++)
          for (int y=y1; y<y2; y++)
          {
@@ -1461,11 +1461,11 @@ void draw_orb(int i, int x, int y)
       if (percent > 0)
       {
          draw_percent_barc(x+xo, y+yo, 7, 7,  percent, c1, c2, -1);
-         al_draw_rotated_bitmap(tile[417], 10, 10, x+10, y+10, a, 0);
+         al_draw_rotated_bitmap(mwB.tile[417], 10, 10, x+10, y+10, a, 0);
          drawn = 1;
       }
    }
-   if (!drawn) al_draw_rotated_bitmap(tile[item[i][1]], 10, 10, x+10, y+10, a, 0);
+   if (!drawn) al_draw_rotated_bitmap(mwB.tile[item[i][1]], 10, 10, x+10, y+10, a, 0);
 }
 void proc_orb_collision(int p, int i)
 {
@@ -1874,7 +1874,7 @@ void proc_switch_collision(int p, int i)
          if (item[i][1] > 111) item[i][1] -= 16;
          else item[i][1] += 16;
 
-         al_set_target_bitmap(level_background);
+         al_set_target_bitmap(mwB.level_background);
          proc_switch_block_range(i, 1);
       }
    }
@@ -2205,7 +2205,7 @@ void draw_trigger(int i, int x, int y)
 {
    if (level_editor_running)
    {
-      al_draw_bitmap(tile[991], x, y, 0); // draw item shape in level editor, invisible when game running
+      al_draw_bitmap(mwB.tile[991], x, y, 0); // draw item shape in level editor, invisible when game running
       if (item[i][3] & PM_ITEM_TRIGGER_LIFT_ON) set_item_trigger_location_from_lift(i, 1); // snap to lift here because main function wont be called while in level editor
    }
 
@@ -2244,7 +2244,7 @@ void proc_block_manip(int i)
    int et = item[i][1]; // pm_event trigger we are looking for
    if (pm_event[et])
    {
-      al_set_target_bitmap(level_background);
+      al_set_target_bitmap(mwB.level_background);
       int x1 = item[i][6]/20;
       int y1 = item[i][7]/20;
       int x2 = x1 + item[i][8]/20;
@@ -2261,7 +2261,7 @@ void proc_block_manip(int i)
             {
                l[x][y] = block1;
                al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-               al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
+               al_draw_bitmap(mwB.btile[block1&1023], x*20, y*20, 0 );
             }
 
             if (mode == 2) // set all block2 to block 1
@@ -2270,7 +2270,7 @@ void proc_block_manip(int i)
                {
                   l[x][y] = block1;
                   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                  al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
+                  al_draw_bitmap(mwB.btile[block1&1023], x*20, y*20, 0 );
                }
             }
 
@@ -2280,13 +2280,13 @@ void proc_block_manip(int i)
                {
                   l[x][y] = block2;
                   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                  al_draw_bitmap(btile[block2&1023], x*20, y*20, 0 );
+                  al_draw_bitmap(mwB.btile[block2&1023], x*20, y*20, 0 );
                }
                else if (l[x][y] == block2)
                {
                   l[x][y] = block1;
                   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                  al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
+                  al_draw_bitmap(mwB.btile[block1&1023], x*20, y*20, 0 );
                }
             }
          }
@@ -2299,7 +2299,7 @@ void draw_block_manip(int i, int x, int y)
 {
    if (level_editor_running)
    {
-      al_draw_bitmap(tile[989], x, y, 0); // draw item shape in level editor, invisible when game running
+      al_draw_bitmap(mwB.tile[989], x, y, 0); // draw item shape in level editor, invisible when game running
    }
    if (item[i][2]) // draw mode on
    {
@@ -2522,7 +2522,7 @@ void draw_block_damage(int i, int x, int y, int custom)
 
    if (level_editor_running)
    {
-      al_draw_bitmap(tile[988], x0, y0, 0); // draw item shape in level editor, invisible when game running
+      al_draw_bitmap(mwB.tile[988], x0, y0, 0); // draw item shape in level editor, invisible when game running
       if (FLAGS & PM_ITEM_DAMAGE_LIFT_ON) set_item_damage_location_from_lift(i, 1); // set this here only when level editor is running
    }
 
@@ -2542,7 +2542,7 @@ void draw_block_damage(int i, int x, int y, int custom)
          int tn = 808;
          if (FLAGS & PM_ITEM_DAMAGE_CURR) tn = 807;
          for (int hx = x1; hx<x2; hx+=20)
-            al_draw_bitmap(tile[tn], hx, y2-20, 0); // draw spikes only on bottom row
+            al_draw_bitmap(mwB.tile[tn], hx, y2-20, 0); // draw spikes only on bottom row
       }
    }
 
@@ -2567,8 +2567,8 @@ void draw_block_damage(int i, int x, int y, int custom)
 
          if (mode == 2) col = 11;
          if (mode == 3) col = 10;
-         if (timer_draw_mode1) al_draw_textf(f3,   palette_color[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode1) al_draw_textf(mF.pixl,   palette_color[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
 
       }
       if ((timer_draw_mode3) || (timer_draw_mode4)) // percent bar
@@ -2620,8 +2620,8 @@ void draw_block_damage(int i, int x, int y, int custom)
       }
 
 
-      if (timer_draw_mode1) al_draw_textf(f3,   palette_color[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
-      if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+      if (timer_draw_mode1) al_draw_textf(mF.pixl,   palette_color[col], x0+10, y0+4, ALLEGRO_ALIGN_CENTER, "%d", tts);
+      if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
       if (timer_draw_mode3) draw_percent_bar(x0+9, y0+5, 32, 8,  percent);
       if (timer_draw_mode4) draw_percent_bar(x0+9, y0+1, 64, 16, percent);
    }

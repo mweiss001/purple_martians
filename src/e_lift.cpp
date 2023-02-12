@@ -3,6 +3,9 @@
 #include "pm.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
+#include "mwDisplay.h"
+#include "e_bitmap_tools.h"
+#include "mwFont.h"
 
 al_fixed lift_get_distance_to_previous_move_step(int lift, int step)
 {
@@ -28,7 +31,7 @@ void show_all_lifts(void)
    int text_pos = 0;
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
-   al_draw_textf(font, palette_color[13], 10, text_pos*8, 0, "number of lifts:%d", num_lifts);
+   al_draw_textf(mF.pr8, palette_color[13], 10, text_pos*8, 0, "number of lifts:%d", num_lifts);
    text_pos++;
    for (int l=0; l<num_lifts; l++) // iterate lifts
    {
@@ -45,7 +48,7 @@ void show_all_lifts(void)
 
       int col  = lifts[l].color;
       sprintf(msg,"lift:%-2d  x:%-4d y:%-4d w:%-4d h:%-4d x2:%-4d y2:%-4d mode:%d v1:%d v2:%d col:%-2d ns:%-2d  name:%s  ", l, x1, y1, w, h, x2, y2, mode, v1, v2, col, lifts[l].num_steps, lifts[l].lift_name);
-      al_draw_text(font, palette_color[10], 10, text_pos*8, 0, msg);
+      al_draw_text(mF.pr8, palette_color[10], 10, text_pos*8, 0, msg);
       text_pos++;
 
       for (int s=0; s<lifts[l].num_steps; s++) // iterate steps
@@ -80,7 +83,7 @@ void show_all_lifts(void)
 //         sprintf(msg," step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s), ls:%d lsd:%d step_color:%d", s, x, y, w, h, val, type, typemsg, ls, al_fixtoi(lsd), step_color);
 //         sprintf(msg," step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) step_color:%d", s, x, y, w, h, val, type, typemsg, step_color);
          printBits(4, &lift_steps[l][s].type);
-         al_draw_textf(font, palette_color[color], 10, text_pos*8, 0, " step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) col:%2d b:%s", s, x, y, w, h, val, type, typemsg, step_color, msg);
+         al_draw_textf(mF.pr8, palette_color[color], 10, text_pos*8, 0, " step:%-2d x:%-4d y:%-4d w:%-4d h:%-4d val:%-4d type:%d (%s) col:%2d b:%s", s, x, y, w, h, val, type, typemsg, step_color, msg);
          text_pos++;
       }
    }
@@ -227,7 +230,7 @@ int get_new_lift_step(int lift, int step)
 
    int sty = mwWM.mW[7].y1 + 44 + (step + 10) * bts;
 
-   if (sty > SCREEN_H-60) sty = SCREEN_H-60;
+   if (sty > mwD.SCREEN_H-60) sty = mwD.SCREEN_H-60;
 
    int num_of_step_types = 5;
    int sth = (num_of_step_types * 12) + 17;
@@ -241,7 +244,7 @@ int get_new_lift_step(int lift, int step)
    al_draw_filled_rectangle(xc-98, sty-8, xc+96, sty2, palette_color[fc+192]); // erase to background color
    al_draw_rectangle       (xc-98, sty-8, xc+96, sty2, palette_color[fc], 1); // frame
 
-   al_set_mouse_xy(display, xc * display_transform_double, (sty+24) * display_transform_double); // position the mouse
+   al_set_mouse_xy(display, xc * mwD.display_transform_double, (sty+24) * mwD.display_transform_double); // position the mouse
 
    int quit = 0;
    while (!quit)
@@ -251,9 +254,9 @@ int get_new_lift_step(int lift, int step)
       proc_event_queue();
       if ((mouse_b[2][0]) || (key[ALLEGRO_KEY_ESCAPE][0])) quit = 99;
 
-      al_draw_textf(font, palette_color[fc], xc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
+      al_draw_textf(mF.pr8, palette_color[fc], xc, sty-6, ALLEGRO_ALIGN_CENTER, "Insert New Step %d", step);
 
-      al_draw_text(font, palette_color[tc], xc, sty+5, ALLEGRO_ALIGN_CENTER, "Select Step Type");
+      al_draw_text(mF.pr8, palette_color[tc], xc, sty+5, ALLEGRO_ALIGN_CENTER, "Select Step Type");
       al_draw_rectangle(xc-98, sty+3, xc+96, sty+14, palette_color[fc], 1); // frame
 
 
@@ -371,13 +374,13 @@ void step_popup_menu(int lift, int step)
    int smx = mouse_x;
    int smy = mouse_y;
 
-   if (smx > SCREEN_W-100) smx = SCREEN_W-100;
-   if (smy > SCREEN_H-100) smy = SCREEN_H-100;
+   if (smx > mwD.SCREEN_W-100) smx = mwD.SCREEN_W-100;
+   if (smy > mwD.SCREEN_H-100) smy = mwD.SCREEN_H-100;
    if (smx < 100) smx = 100;
    if (smy < 30) smy = 30;
 
    al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_DEFAULT);
-   al_set_mouse_xy(display, smx * display_transform_double, smy * display_transform_double);
+   al_set_mouse_xy(display, smx * mwD.display_transform_double, smy * mwD.display_transform_double);
 
    proc_event_queue(); // to deal with mouse warp
 
@@ -537,7 +540,7 @@ int draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d)
    int y2 = ya-bts+(fs*2);
    for (int q=0; q<fs; q++)
       al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, palette_color[10+(q*16)], 1);
-   al_draw_text(font, palette_color[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "Current Step Details");
+   al_draw_text(mF.pr8, palette_color[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "Current Step Details");
    return y2-y1+2; // return how much y space was used
 }
 
@@ -595,7 +598,7 @@ int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_
    int ci = 16; //color inc
    for (int q=0; q<fs; q++)
       al_draw_rectangle(x1+q, y1+q, x2-q, y2-q, palette_color[12+32+(q*ci)], 1);
-   al_draw_text(font, palette_color[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "List of Steps");
+   al_draw_text(mF.pr8, palette_color[15], (x1+x2)/2, y1+2, ALLEGRO_ALIGN_CENTER, "List of Steps");
 
    return fs*2 + (lifts[lift].num_steps + 1) * bts; // return how much y space was used
 }

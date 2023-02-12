@@ -9,6 +9,11 @@
 #include "mwRollingAverage.h"
 #include "mwDrawSequence.h"
 #include "z_settings.h"
+#include "mwBottomMessage.h"
+#include "mwDemoMode.h"
+#include "mwDisplay.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
 
 void show_player_stat_box(int tx, int y, int p)
 {
@@ -22,34 +27,34 @@ void show_player_stat_box(int tx, int y, int p)
    int c = 15;
 
    if ((ima_server) || (ima_client))
-      al_draw_textf(font, palette_color[c], tx+2, y, 0, "Player:%d [%s]", p, players1[p].hostname);
-   else al_draw_textf(font, palette_color[c], tx+2, y, 0, "Player:%d", p);
+      al_draw_textf(mF.pr8, palette_color[c], tx+2, y, 0, "Player:%d [%s]", p, players1[p].hostname);
+   else al_draw_textf(mF.pr8, palette_color[c], tx+2, y, 0, "Player:%d", p);
    if (players[0].level_done_mode == 5)
    {
       if (!players[p].level_done_ack)
       {
          c = flash_color;
          int pay = 16;
-         al_draw_textf(font, palette_color[c], tx+158, y+pay, 0, "press");
-         al_draw_textf(font, palette_color[c], tx+158, y+pay+8, 0, " any");
+         al_draw_textf(mF.pr8, palette_color[c], tx+158, y+pay, 0, "press");
+         al_draw_textf(mF.pr8, palette_color[c], tx+158, y+pay+8, 0, " any");
          int tl = players[0].level_done_timer/40;
-         if (tl > 9) al_draw_textf(font, palette_color[c], tx+154, y+pay+18, 0, "  %2d", tl);
-         else        al_draw_textf(font, palette_color[c], tx+158, y+pay+18, 0, "  %d", tl);
+         if (tl > 9) al_draw_textf(mF.pr8, palette_color[c], tx+154, y+pay+18, 0, "  %2d", tl);
+         else        al_draw_textf(mF.pr8, palette_color[c], tx+158, y+pay+18, 0, "  %d", tl);
       }
-      else al_draw_textf(font, palette_color[15], tx+158, y+20, 0, "ready");
+      else al_draw_textf(mF.pr8, palette_color[15], tx+158, y+20, 0, "ready");
    }
 
 
    y += 12;
 
-   al_draw_bitmap(player_tile[players[p].color][1], tx+2, y, 0); // draw shape
+   al_draw_bitmap(mwB.player_tile[players[p].color][1], tx+2, y, 0); // draw shape
 
 
    c = 15;
-   al_draw_textf(font, palette_color[15], tx+24, y, 0, "Deaths:%d", players[p].stat_respawns); y+=8;
-   al_draw_textf(font, palette_color[15], tx+24, y, 0, "Shots:%d", players[p].stat_bullets_fired); y+=8;
-   al_draw_textf(font, palette_color[15], tx+24, y, 0, "Enemy Hits:%d", players[p].stat_enemy_hits); y+=8;
-   al_draw_textf(font, palette_color[15], tx+24, y, 0, "Purple Coins:%d/%d", players[p].stat_purple_coins, number_of_purple_coins); y+=8;
+   al_draw_textf(mF.pr8, palette_color[15], tx+24, y, 0, "Deaths:%d", players[p].stat_respawns); y+=8;
+   al_draw_textf(mF.pr8, palette_color[15], tx+24, y, 0, "Shots:%d", players[p].stat_bullets_fired); y+=8;
+   al_draw_textf(mF.pr8, palette_color[15], tx+24, y, 0, "Enemy Hits:%d", players[p].stat_enemy_hits); y+=8;
+   al_draw_textf(mF.pr8, palette_color[15], tx+24, y, 0, "Purple Coins:%d/%d", players[p].stat_purple_coins, number_of_purple_coins); y+=8;
 
 }
 
@@ -60,8 +65,8 @@ void show_level_done(void)
       draw_large_text_overlay(2, 0);
       process_flash_color();
 
-      int x = SCREEN_W/2;
-      int y = SCREEN_H/2;
+      int x = mwD.SCREEN_W/2;
+      int y = mwD.SCREEN_H/2;
 
       int np = 0; // number of active players
       for (int p=0; p<NUM_PLAYERS; p++) if (players[p].active) np++;
@@ -170,11 +175,11 @@ void show_player_join_quit(void)
       if (jq == 2) sprintf(msg, "Player %d found the exit!", p);
       if (jq == 3) sprintf(msg, "Player %d DIED!", p);
 
-      float stretch = ( (float)SCREEN_W / (strlen(msg)*8)) - 1; // (SCREEN_W / text length*8) -1
+      float stretch = ( (float)mwD.SCREEN_W / (strlen(msg)*8)) - 1; // (mwD.SCREEN_W / text length*8) -1
       float ratio = (float)t / 60;
 
-      int y_pos = SCREEN_H/2;
-      int y_pos_move = SCREEN_H/2;
+      int y_pos = mwD.SCREEN_H/2;
+      int y_pos_move = mwD.SCREEN_H/2;
 
       if (ratio > .6)
       {
@@ -191,7 +196,7 @@ void show_player_join_quit(void)
            y_pos += (int)(ra2 * y_pos_move);
       }
       if (stretch < .1) stretch = .1;
-      rtextout_centre(font0, NULL, msg, SCREEN_W/2, y_pos, color, stretch, 0, .5);
+      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, y_pos, color, stretch, 0, .5);
    }
 }
 
@@ -205,176 +210,176 @@ void sdg_show_column(int col, int &x, int y)
 
    if (col == 1) // player number
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[p]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[p]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%d]", p);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%d]", p);
       }
       x+=3*8;
    }
 
    if (col == 2) // active
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[a]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[a]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%d]", players[p].active);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%d]", players[p].active);
       }
       x+=3*8;
    }
 
    if (col == 3) // color
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[co]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[co]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = players[p].color;
          if (players[p].active == 0) color = color2;
 
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%2d]", players[p].color);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%2d]", players[p].color);
       }
       x+=4*8;
    }
 
    if (col == 4) // control method
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[m]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[m]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%d]", players[p].control_method);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%d]", players[p].control_method);
       }
       x+=3*8;
    }
 
    if (col == 5) // who
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[wh]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[wh]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%d]", players1[p].who);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%d]", players1[p].who);
       }
       x+=4*8;
    }
 
    if (col == 6) // server_state_freq
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[f]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[f]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
-         if (p == 0) al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%d]", players1[p].server_state_freq);
-         else        al_draw_textf(font, palette_color[color], x, y+=8, 0, "[ ]");
+         if (p == 0) al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%d]", players1[p].server_state_freq);
+         else        al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[ ]");
       }
       x+=3*8;
    }
 
    if (col == 7) // client chase fps
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[chas]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[chas]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4.1f]", players1[p].client_chase_fps);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4.1f]", players1[p].client_chase_fps);
       }
       x+=6*8;
    }
 
    if (col == 8) // server_game_move_sync
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[sgms]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[sgms]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].server_game_move_sync);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].server_game_move_sync);
       }
       x+=6*8;
    }
 
    if (col == 9) // client_base_resets
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[base]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[base]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].client_base_resets);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].client_base_resets);
       }
       x+=6*8;
    }
 
    if (col == 10) // dif src
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[start]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[start]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%5d]", srv_client_state_frame_num[p][0]);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%5d]", srv_client_state_frame_num[p][0]);
       }
       x+=7*8;
    }
    if (col == 11) // dif dst
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[destn]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[destn]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%5d]", srv_client_state_frame_num[p][1]);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%5d]", srv_client_state_frame_num[p][1]);
       }
       x+=7*8;
    }
    if (col == 12) // number of packets
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[p]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[p]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%d]", players1[p].num_dif_packets);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%d]", players1[p].num_dif_packets);
       }
       x+=3*8;
    }
    if (col == 13) // dif size
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[difs]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[difs]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].cmp_dif_size);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].cmp_dif_size);
       }
       x+=6*8;
    }
    if (col == 14) // tx kB/sec
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[tkbs]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[tkbs]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4.1f]", (float)players1[p].tx_bytes_per_tally/1000);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4.1f]", (float)players1[p].tx_bytes_per_tally/1000);
       }
       x+=6*8;
    }
 
    if (col == 15) // rx kB/sec
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[rkbs]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[rkbs]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4.1f]", (float)players1[p].rx_bytes_per_tally/1000);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4.1f]", (float)players1[p].rx_bytes_per_tally/1000);
       }
       x+=6*8;
    }
@@ -389,22 +394,22 @@ void sdg_show_column(int col, int &x, int y)
          if (p == 0)
          {
             sprintf(msg, "[%s] <-- server (me!)", players1[p].hostname);
-            al_draw_text(font, palette_color[players[p].color], x, y, 0, msg);
+            al_draw_text(mF.pr8, palette_color[players[p].color], x, y, 0, msg);
          }
          if ((players[p].active) && (players[p].control_method == 2))
          {
             sprintf(msg, "[%s] <-- active client", players1[p].hostname);
-            al_draw_text(font, palette_color[players[p].color], x, y, 0, msg);
+            al_draw_text(mF.pr8, palette_color[players[p].color], x, y, 0, msg);
          }
          if ((!players[p].active) && (players[p].control_method == 2))
          {
             sprintf(msg, "[%s] <-- syncing client", players1[p].hostname);
-            al_draw_text(font, palette_color[players[p].color], x, y, 0, msg);
+            al_draw_text(mF.pr8, palette_color[players[p].color], x, y, 0, msg);
          }
          if (players[p].control_method == 9)
          {
             sprintf(msg, "[%s] <-- used client", players1[p].hostname);
-            al_draw_text(font, palette_color[players[p].color], x, y, 0, msg);
+            al_draw_text(mF.pr8, palette_color[players[p].color], x, y, 0, msg);
          }
       }
    }
@@ -424,92 +429,92 @@ void sdg_show_column(int col, int &x, int y)
             if (players[p].control_method == 9) sprintf(msg, "[%s] <-- used client", players1[p].hostname);
             if (p == active_local_player) sprintf(msg, "[%s] <-- local client (me)", players1[p].hostname);
          }
-         al_draw_text(font, palette_color[players[p].color], x, y, 0, msg);
+         al_draw_text(mF.pr8, palette_color[players[p].color], x, y, 0, msg);
       }
    }
 
    if (col == 20) // server stak_sync
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[stsy]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[stsy]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4.1f]", players1[p].stak_dsync*1000);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4.1f]", players1[p].stak_dsync*1000);
       }
       x+=6*8;
    }
 
    if (col == 23) // late cdats
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[lcdt]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[lcdt]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].late_cdats);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].late_cdats);
       }
       x+=6*8;
    }
 
    if (col == 24) // late cdats last second
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[lcls]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[lcls]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].late_cdats_last_sec);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].late_cdats_last_sec);
       }
       x+=6*8;
    }
 
    if (col == 25) // client dsync
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[cdsy]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[cdsy]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4.0f]", players1[p].dsync*1000);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4.0f]", players1[p].dsync*1000);
       }
       x+=6*8;
    }
 
    if (col == 26) // client game move sync avg last sec
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[gmav]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[gmav]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4.0f]", players1[p].game_move_dsync_avg_last_sec*1000);
+         al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4.0f]", players1[p].game_move_dsync_avg_last_sec*1000);
       }
       x+=6*8;
    }
 
    if (col == 27) // ping
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[ping]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[ping]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         if (p == 0) al_draw_textf(font, palette_color[color], x, y+=8, 0, "[    ]");
-         else        al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4.1f]", players1[p].ping*1000);
+         if (p == 0) al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[    ]");
+         else        al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4.1f]", players1[p].ping*1000);
       }
       x+=6*8;
    }
 
    if (col == 28) // client rewind
    {
-      al_draw_text(font, palette_color[color], x, y+=8, 0, "[crwd]");
+      al_draw_text(mF.pr8, palette_color[color], x, y+=8, 0, "[crwd]");
       for (int p=0; p<NUM_PLAYERS; p++)
       {
          if (players[p].active == 1) color = color1;
          if (players[p].active == 0) color = color2;
-         if (p == 0) al_draw_textf(font, palette_color[color], x, y+=8, 0, "[    ]");
-         else        al_draw_textf(font, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].client_rewind);
+         if (p == 0) al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[    ]");
+         else        al_draw_textf(mF.pr8, palette_color[color], x, y+=8, 0, "[%4d]", players1[p].client_rewind);
       }
       x+=6*8;
    }
@@ -564,15 +569,15 @@ void draw_common_debug_overlay(int p, int &cx, int &cy)
    if (overlay_grid[1][show_debug_overlay]) // display
    {
       al_draw_filled_rectangle(cx, cy, cx+168, cy+47, palette_color[0]); cy+=2;
-      al_draw_textf(font, palette_color[15], cx+1, cy, 0, "display: %d x %d ", al_get_display_width(display), al_get_display_height(display)); cy+=9;
-      al_draw_textf(font, palette_color[15], cx+1, cy, 0, "screen : %d x %d", SCREEN_W, SCREEN_H); cy+=9;
-      if (saved_display_transform_double == 0) al_draw_textf(font, palette_color[15], cx+1, cy, 0, "double:%d [auto]", display_transform_double);
-      else                                     al_draw_textf(font, palette_color[15], cx+1, cy, 0, "double:%d [static]", display_transform_double);
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "display: %d x %d ", al_get_display_width(display), al_get_display_height(display)); cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "screen : %d x %d", mwD.SCREEN_W, mwD.SCREEN_H); cy+=9;
+      if (mwD.saved_display_transform_double == 0) al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "double:%d [auto]", mwD.display_transform_double);
+      else                                         al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "double:%d [static]", mwD.display_transform_double);
       cy+=9;
-      al_draw_textf(font, palette_color[15], cx+1, cy, 0, "scale_factor:%3.2f", scale_factor); cy+=9;
-      al_draw_textf(font, palette_color[15], cx+1, cy, 0, "frames per second:%d", frame_speed); cy+=9;
-      //al_draw_textf(font, palette_color[15], cx+1, cy, 0, "px:%d     py:%d", al_fixtoi(players[p].PX), al_fixtoi(players[p].PY)); cy+=9;
-      //al_draw_textf(font, palette_color[15], cx+1, cy, 0, "pxinc:%1.2f  pyinc:%1.2f", al_fixtof(players[p].xinc), al_fixtof(players[p].yinc)); cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "scale_factor:%3.2f", mwD.scale_factor); cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "frames per second:%d", frame_speed); cy+=9;
+      //al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "px:%d     py:%d", al_fixtoi(players[p].PX), al_fixtoi(players[p].PY)); cy+=9;
+      //al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "pxinc:%1.2f  pyinc:%1.2f", al_fixtof(players[p].xinc), al_fixtof(players[p].yinc)); cy+=9;
       if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_dbgcom", 0);
       cy +=4;
    }
@@ -609,7 +614,7 @@ void draw_common_debug_overlay(int p, int &cx, int &cy)
 
       mwQG[0].width = 200;
       mwQG[0].height = 36;
-      mwQG[0].draw_graph(SCREEN_W-228, SCREEN_H-56);
+      mwQG[0].draw_graph(mwD.SCREEN_W-228, mwD.SCREEN_H-56);
    }
 
 
@@ -641,11 +646,11 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
          // -----------------------------------------------------
          if (LOG_TMR_scrn_overlay) lts = al_get_time();
 
-         int csx1 = SCREEN_W-BORDER_WIDTH-96;
+         int csx1 = mwD.SCREEN_W-BORDER_WIDTH-96;
          int csw = 80;
          int csx2 = csx1 + csw;
 
-         int csy1 = SCREEN_H-36-60;
+         int csy1 = mwD.SCREEN_H-36-60;
          int csh = 36;
          int csy2 = csy1 + csh;
 
@@ -679,7 +684,7 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
             b2_pres = 1;
          }
          else b2_pres = 0;
-         al_draw_textf(font, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", players1[p].server_state_freq);
+         al_draw_textf(mF.pr8, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "s1:%d", players1[p].server_state_freq);
 
          csy3+=17;
 
@@ -701,7 +706,7 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
             b4_pres = 1;
          }
          else b4_pres = 0;
-         al_draw_textf(font, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "zc:%d", zlib_cmp);
+         al_draw_textf(mF.pr8, palette_color[15], csx1+csw/2, csy3+2, ALLEGRO_ALIGN_CENTER, "zc:%d", zlib_cmp);
       }
 
       if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - lts, "scov_sbutt", 0);
@@ -711,8 +716,8 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
    if (overlay_grid[8][show_debug_overlay])  // misc
    {
       al_draw_filled_rectangle(cx, cy, cx+204, cy+20, palette_color[0]); cy+=2;
-      al_draw_textf(font, palette_color[15], cx+1, cy, 0, "total game moves:%d", game_move_entry_pos); cy+=9;
-      al_draw_textf(font, palette_color[15], cx+1, cy, 0, "state frequency:%d", players1[p].server_state_freq); cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "total game moves:%d", game_move_entry_pos); cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "state frequency:%d", players1[p].server_state_freq); cy+=9;
       cy +=4;
    }
 
@@ -726,7 +731,7 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
       for(int p=0; p<NUM_PLAYERS; p++)
          if (players[p].active)
          {
-            al_draw_textf(font, palette_color[15], cx, cy, 0, "p:%d bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]",
+            al_draw_textf(mF.pr8, palette_color[15], cx, cy, 0, "p:%d bandwidth (B/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]",
             p, players1[p].tx_bytes_per_tally, players1[p].tx_max_bytes_per_tally, players1[p].rx_bytes_per_tally, players1[p].rx_max_bytes_per_tally);
             cy+=9;
          }
@@ -735,7 +740,7 @@ void draw_server_debug_overlay(int p, int &cx, int &cy)
       for(int p=0; p<NUM_PLAYERS; p++)
          if (players[p].active)
          {
-            al_draw_textf(font, palette_color[15], cx, cy, 0, "p:%d packets   (p/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]",
+            al_draw_textf(mF.pr8, palette_color[15], cx, cy, 0, "p:%d packets   (p/s) TX cur:[%5d] max:[%5d] RX cur:[%5d] max:[%5d]",
             p, players1[p].tx_packets_per_tally, players1[p].tx_max_packets_per_tally, players1[p].rx_packets_per_tally, players1[p].rx_max_packets_per_tally);
             cy+=9;
          }
@@ -748,7 +753,7 @@ void draw_demo_debug_overlay(int p, int &cx, int &cy)
    double tt;
 
    if (LOG_TMR_scrn_overlay) tt = al_get_time();
-   if (demo_mode_on) draw_large_text_overlay(3, 15);
+   if (mwDM.demo_mode_on) draw_large_text_overlay(3, 15);
    if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_demo_ov", 0);
 
    if (overlay_grid[8][show_debug_overlay]) // misc
@@ -758,16 +763,16 @@ void draw_demo_debug_overlay(int p, int &cx, int &cy)
 
       al_draw_filled_rectangle(cx, cy, cx+150, cy+32+nap*9, palette_color[0]);
 
-      al_draw_textf(font, palette_color[15], cx+1, cy+1, 0, "Running Saved Game "); cy+=9;
-      al_draw_textf(font, palette_color[15], cx+1, cy+1, 0, "Time:[%d%%] ", frame_num*100/demo_mode_last_frame); cy+=9;
-      al_draw_textf(font, palette_color[15], cx+1, cy+1, 0, "Moves:[%d%%] ", (game_move_current_pos * 100) / game_move_entry_pos); cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy+1, 0, "Running Saved Game "); cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy+1, 0, "Time:[%d%%] ", frame_num*100/mwDM.demo_mode_last_frame); cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy+1, 0, "Moves:[%d%%] ", (game_move_current_pos * 100) / game_move_entry_pos); cy+=9;
       cy+=4;
       for (int ap=0; ap<NUM_PLAYERS; ap++)
          if (players[ap].active)
          {
             if (ap == active_local_player) sprintf(msg, "Player:%d <- active", ap);
             else                           sprintf(msg, "Player:%d", ap);
-            al_draw_text(font, palette_color[players[ap].color], cx+1, cy+1, 0, msg);
+            al_draw_text(mF.pr8, palette_color[players[ap].color], cx+1, cy+1, 0, msg);
             cy+=9;
          }
       cy+=4;
@@ -782,10 +787,10 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
    {
       int color = players[p].color;
       sprintf(msg, "Please wait for server syncronization");
-      rtextout_centre(font0, NULL, msg, SCREEN_W/2, SCREEN_H/2-32, color, 2, 0, 1);
+      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2-32, color, 2, 0, 1);
 
       sprintf(msg, "[%2.1f]", abs(players1[p].client_chase_offset - players1[p].dsync)*1000);
-      rtextout_centre(font0, NULL, msg, SCREEN_W/2, SCREEN_H/2, color, 4, 0, 1);
+      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, color, 4, 0, 1);
    }
    if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_client", 0);
 
@@ -824,7 +829,7 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
 
       mwQG[1].width = 200;
       mwQG[1].height = 40;
-      mwQG[1].draw_graph(SCREEN_W-228, SCREEN_H-36-48-20);
+      mwQG[1].draw_graph(mwD.SCREEN_W-228, mwD.SCREEN_H-36-48-20);
 
       if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_sync", 0);
    }
@@ -835,10 +840,10 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       // client sync display and adjustment buttons
       // ----------------------------------
       if (LOG_TMR_scrn_overlay) tt = al_get_time();
-      int csx1 = SCREEN_W - 160;
+      int csx1 = mwD.SCREEN_W - 160;
       int csw = 140;
       int csx2 = csx1 + csw;
-      int csy1 = SCREEN_H-36-48-20-60;
+      int csy1 = mwD.SCREEN_H-36-48-20-60;
       int csh = 52;
       int csy2 = csy1 + csh;
       int color = 13;
@@ -846,7 +851,7 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       al_show_mouse_cursor(display);
       al_draw_filled_rectangle(csx1, csy1, csx2, csy2, palette_color[color+224]); // erase background
       al_draw_rectangle(csx1, csy1, csx2, csy2, palette_color[color], 1);    // frame
-      al_draw_textf(font, palette_color[15], csx1+csw/2, csy1+2, ALLEGRO_ALIGN_CENTER, "Sync:%+3.0fms", ts*1000);
+      al_draw_textf(mF.pr8, palette_color[15], csx1+csw/2, csy1+2, ALLEGRO_ALIGN_CENTER, "Sync:%+3.0fms", ts*1000);
       // graph
       int csy3 = csy1 + 12;
       int csy4 = csy3 + 12;
@@ -859,8 +864,8 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
 
 
       al_draw_rectangle(csx3, csy3, csx4, csy4, palette_color[color], 1);
-      al_draw_textf(f3, palette_color[color], csx3, csy3-11, ALLEGRO_ALIGN_CENTER, "-50");
-      al_draw_textf(f3, palette_color[color], csx4, csy3-11, ALLEGRO_ALIGN_CENTER, "+25");
+      al_draw_textf(mF.pixl, palette_color[color], csx3, csy3-11, ALLEGRO_ALIGN_CENTER, "-50");
+      al_draw_textf(mF.pixl, palette_color[color], csx4, csy3-11, ALLEGRO_ALIGN_CENTER, "+25");
 
       // convert from -0.025 to +0.025 from 0 to csw2
       double gr = -0.050; // graph start
@@ -929,9 +934,9 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
       else b3_pres = 0;
 
       if (players1[p].client_chase_offset_mode)
-         al_draw_textf(font, palette_color[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "ping offset:%+3.0fms", players1[p].client_chase_offset_auto_offset*1000);
+         al_draw_textf(mF.pr8, palette_color[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "ping offset:%+3.0fms", players1[p].client_chase_offset_auto_offset*1000);
       else
-         al_draw_textf(font, palette_color[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", players1[p].client_chase_offset*1000);
+         al_draw_textf(mF.pr8, palette_color[15], csx1+csw/2, csy1+26, ALLEGRO_ALIGN_CENTER, "offset:%+3.0fms", players1[p].client_chase_offset*1000);
 
       if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_cbut", 0);
 
@@ -941,10 +946,10 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
    if (overlay_grid[8][show_debug_overlay]) // misc
    {
       al_draw_filled_rectangle(cx, cy, cx+204, cy+38, palette_color[0]); cy+=2;
-      al_draw_textf(font, palette_color[15], cx+1, cy, 0, "local moves:%d", game_move_entry_pos); cy+=9;
-      al_draw_textf(font, palette_color[15], cx+1, cy, 0, "move lag:%d", players1[p].client_move_lag);  cy+=9;
-      al_draw_textf(font, palette_color[15], cx+1, cy, 0, "max x correction:%3.1f", players1[p].xcor_max);  cy+=9;
-      al_draw_textf(font, palette_color[15], cx+1, cy, 0, "late cdats last second:%d", players1[p].late_cdats_last_sec);  cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "local moves:%d", game_move_entry_pos); cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "move lag:%d", players1[p].client_move_lag);  cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "max x correction:%3.1f", players1[p].xcor_max);  cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx+1, cy, 0, "late cdats last second:%d", players1[p].late_cdats_last_sec);  cy+=9;
       cy +=4;
    }
 
@@ -952,14 +957,14 @@ void draw_client_debug_overlay(int p, int &cx, int &cy)
    {
       al_draw_filled_rectangle(cx, cy, cx+274, cy+60, palette_color[0]); cy+=2;
 
-      al_draw_textf(font, palette_color[15], cx, cy, 0, "bandwidth (bytes per second)");   cy+=9;
-      al_draw_textf(font, palette_color[15], cx, cy, 0, "TX currrent:[%d] max:[%d]", players1[p].tx_bytes_per_tally, players1[p].tx_max_bytes_per_tally);   cy+=9;
-      al_draw_textf(font, palette_color[15], cx, cy, 0, "RX currrent:[%d] max:[%d]", players1[p].rx_bytes_per_tally, players1[p].rx_max_bytes_per_tally);   cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx, cy, 0, "bandwidth (bytes per second)");   cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx, cy, 0, "TX currrent:[%d] max:[%d]", players1[p].tx_bytes_per_tally, players1[p].tx_max_bytes_per_tally);   cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx, cy, 0, "RX currrent:[%d] max:[%d]", players1[p].rx_bytes_per_tally, players1[p].rx_max_bytes_per_tally);   cy+=9;
 
       cy +=4;
-      al_draw_textf(font, palette_color[15], cx, cy, 0, "packets per second");   cy+=9;
-      al_draw_textf(font, palette_color[15], cx, cy, 0, "TX currrent:[%d] max:[%d]", players1[p].tx_packets_per_tally, players1[p].tx_max_packets_per_tally);   cy+=9;
-      al_draw_textf(font, palette_color[15], cx, cy, 0, "RX currrent:[%d] max:[%d]", players1[p].rx_packets_per_tally, players1[p].rx_max_packets_per_tally);   cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx, cy, 0, "packets per second");   cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx, cy, 0, "TX currrent:[%d] max:[%d]", players1[p].tx_packets_per_tally, players1[p].tx_max_packets_per_tally);   cy+=9;
+      al_draw_textf(mF.pr8, palette_color[15], cx, cy, 0, "RX currrent:[%d] max:[%d]", players1[p].rx_packets_per_tally, players1[p].rx_max_packets_per_tally);   cy+=9;
       cy +=4;
    }
 }
@@ -977,41 +982,41 @@ void draw_top_frame(int p)
    // ----------------------------------
    if (LOG_TMR_scrn_overlay) tt = al_get_time();
 
-   if (SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",                play_level, frame_num/40, num_enemy); // special case for narrow screens
+   if (mwD.SCREEN_W < 600) sprintf(msg,"Lv:%d Tm:%d En:%d ",                play_level, frame_num/40, num_enemy); // special case for narrow screens
    else                sprintf(msg,"Level:%d | Time:%d | Enemies:%d  ", play_level, frame_num/40, num_enemy);
-   al_draw_text(font, palette_color[tc], tdx, tdy+2,  0, msg);
+   al_draw_text(mF.pr8, palette_color[tc], tdx, tdy+2,  0, msg);
    tdx += strlen(msg)*8;
 
    // draw health bar
    draw_percent_bar(tdx+44, tdy, 88, 10, al_fixtoi(players[p].LIFE));
-   al_draw_textf(font, palette_color[16], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", al_fixtoi(players[p].LIFE));
+   al_draw_textf(mF.pr8, palette_color[16], tdx+44, tdy+2, ALLEGRO_ALIGN_CENTRE,"Health:%-2d", al_fixtoi(players[p].LIFE));
    tdx += 88;
 
 
    // draw purple coins
-   al_draw_scaled_bitmap(tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
+   al_draw_scaled_bitmap(mwB.tile[197], 0, 0, 19, 19, tdx+8, tdy+1, 10, 10, 0);
    // spin_shape(197, tdx+5, tdy-3, 0, 0, 19, 19, 0.6, 0.5, 60);
-   al_draw_textf(font, palette_color[tc], tdx+17, tdy+2, 0, ":%d/%d", players[active_local_player].stat_purple_coins, number_of_purple_coins);
+   al_draw_textf(mF.pr8, palette_color[tc], tdx+17, tdy+2, 0, ":%d/%d", players[active_local_player].stat_purple_coins, number_of_purple_coins);
 
 
 
 
-   if (show_scale_factor > 0)
+   if (mwD.show_scale_factor > 0)
    {
-      al_draw_textf(font, palette_color[tc], SCREEN_W*2/3, 2, ALLEGRO_ALIGN_CENTER, "Scale:%-3.2f", scale_factor);
+      al_draw_textf(mF.pr8, palette_color[tc], mwD.SCREEN_W*2/3, 2, ALLEGRO_ALIGN_CENTER, "Scale:%-3.2f", mwD.scale_factor);
    }
-   if (show_dtd > 0)
+   if (mwD.show_dtd > 0)
    {
-      show_dtd --;
-      if (saved_display_transform_double) al_draw_textf(font, palette_color[tc],SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [f]", display_transform_double);
-      else                                al_draw_textf(font, palette_color[tc],SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [a]", display_transform_double);
+      mwD.show_dtd --;
+      if (mwD.saved_display_transform_double) al_draw_textf(mF.pr8, palette_color[tc],mwD.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [f]", mwD.display_transform_double);
+      else                                    al_draw_textf(mF.pr8, palette_color[tc],mwD.SCREEN_W*4/5, 2, ALLEGRO_ALIGN_CENTER, "dtd:%d [a]", mwD.display_transform_double);
    }
    if (LOG_TMR_scrn_overlay) add_log_TMR(al_get_time() - tt, "scov_top_frm", 0);
 }
 
 void draw_bottom_frame(int p)
 {
-   int bdy = SCREEN_H - 10;
+   int bdy = mwD.SCREEN_H - 10;
    int bdx = BORDER_WIDTH;
    int ts = 0;  // text spacing
 
@@ -1024,25 +1029,25 @@ void draw_bottom_frame(int p)
    // draw common info on bottom frame
    // ----------------------------------
 
-   int bdx2 = SCREEN_W - BORDER_WIDTH;
+   int bdx2 = mwD.SCREEN_W - BORDER_WIDTH;
 
    sprintf(msg, " cpu:% 2.0f%%", mwRA[0].mx);
    bdx2 -= strlen(msg)*8;
-   al_draw_text(font, palette_color[tc], bdx2, bdy, 0, msg);
+   al_draw_text(mF.pr8, palette_color[tc], bdx2, bdy, 0, msg);
 
    sprintf(msg, " dbg:%d ", show_debug_overlay);
    bdx2 -= strlen(msg)*8;
-   al_draw_text(font, palette_color[tc], bdx2, bdy, 0, msg);
+   al_draw_text(mF.pr8, palette_color[tc], bdx2, bdy, 0, msg);
 
    sprintf(msg, " eco:%d ", eco_draw);
    bdx2 -= strlen(msg)*8;
-   al_draw_text(font, palette_color[tc], bdx2, bdy, 0, msg);
+   al_draw_text(mF.pr8, palette_color[tc], bdx2, bdy, 0, msg);
 
 
    if (ima_server)
    {
       sprintf(msg, "Netgame Server (%s) ", players1[p].hostname );
-      al_draw_text(font, palette_color[tc], bdx, bdy, 0, msg);
+      al_draw_text(mF.pr8, palette_color[tc], bdx, bdy, 0, msg);
       ts += strlen(msg)*8;
 
        // calculate num of clients
@@ -1052,7 +1057,7 @@ void draw_bottom_frame(int p)
 
       // sprintf(msg, "[clients:%d] [moves:%d]", num_clients, game_move_entry_pos);
       sprintf(msg, " clients:%d ", num_clients);
-      al_draw_text(font, palette_color[tc], bdx + ts, bdy, 0, msg);
+      al_draw_text(mF.pr8, palette_color[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
 
       // total bandwidth
@@ -1063,29 +1068,29 @@ void draw_bottom_frame(int p)
          float ftb = (float)tb/1000;
          sprintf(msg, "(%3.1fkB/s)", ftb);
       }
-      al_draw_text(font, palette_color[tc], bdx + ts, bdy, 0, msg);
+      al_draw_text(mF.pr8, palette_color[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
    }
 
    if (ima_client)
    {
       sprintf(msg, "Netgame Client (%s) ", local_hostname );
-      al_draw_text(font, palette_color[tc], bdx, bdy, 0, msg);
+      al_draw_text(mF.pr8, palette_color[tc], bdx, bdy, 0, msg);
       ts += strlen(msg)*8;
 
       sprintf(msg, " ping:%3.1f ", players1[p].ping * 1000);
-      al_draw_text(font, palette_color[tc], bdx + ts, bdy, 0, msg);
+      al_draw_text(mF.pr8, palette_color[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
 
       sprintf(msg, " sync:%3.1f ", players1[p].dsync*1000);
-      al_draw_text(font, palette_color[tc], bdx + ts, bdy, 0, msg);
+      al_draw_text(mF.pr8, palette_color[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
 
       if (players1[p].late_cdats_last_sec)
       {
          sprintf(msg, "Warning! Late cdats:%d%% ", (players1[p].late_cdats_last_sec*100)/40);
          bdx2 -= strlen(msg)*8;
-         al_draw_text(font, palette_color[flash_color], bdx2, bdy, 0, msg);
+         al_draw_text(mF.pr8, palette_color[flash_color], bdx2, bdy, 0, msg);
          process_flash_color();
          process_flash_color();
       }
@@ -1093,11 +1098,11 @@ void draw_bottom_frame(int p)
    if (players[0].control_method == 1) // file play
    {
       sprintf(msg, "Running Saved Game ");
-      al_draw_text(font, palette_color[tc], bdx, bdy, 0, msg);
+      al_draw_text(mF.pr8, palette_color[tc], bdx, bdy, 0, msg);
       ts += strlen(msg)*8;
 
-      sprintf(msg, "[%d%%] ", frame_num*100/demo_mode_last_frame);
-      al_draw_text(font, palette_color[tc], bdx + ts, bdy, 0, msg);
+      sprintf(msg, "[%d%%] ", frame_num*100/mwDM.demo_mode_last_frame);
+      al_draw_text(mF.pr8, palette_color[tc], bdx + ts, bdy, 0, msg);
       ts += strlen(msg)*8;
    }
 }
@@ -1114,7 +1119,7 @@ void draw_screen_overlay(void)
 
    show_level_done();
 
-   draw_bmsg();
+   mwBM.draw();
 
    show_player_join_quit();
 
@@ -1174,7 +1179,7 @@ void draw_screen_overlay(void)
 
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
 {
-   if (bottom_msg_on) new_bmsg(ev, x, y, z1, z2, z3, z4); // pass everything to new_bmgs and do it there
+   if (mwBM.bottom_msg_on) mwBM.add(ev, x, y, z1, z2, z3, z4); // send event to bmsg add
    if (sound_on)
    {
          /*  sample numbers
@@ -1233,421 +1238,4 @@ void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4)
          break;
       }
    }
-}
-
-
-
-void clear_bmsg(void)
-{
-   for (int c=0; c<20; c++)
-   {
-      al_set_target_bitmap(bmsg_bmp[c]);
-      al_clear_to_color(al_map_rgba(0,0,0,0));
-   }
-   bmsg_index = 0;
-   bottom_msg = 0;
-
-  for (int i=0; i<10; i++)
-     game_event_retrigger_holdoff[i] = 0;
-}
-
-int bmsg_show_text(const char *txt, int col, int bmsg_length)
-{
-   al_draw_text(font2, palette_color[col], bmsg_length, 2, ALLEGRO_ALIGN_INTEGER, txt);
-   //printf("%d %s\n",frame_num, txt);
-   return (strlen(txt)*16);
-}
-
-int bmsg_draw_tile(int tn, int bmsg_length)
-{
-   al_draw_bitmap(tile[tn], bmsg_length, 0, 0);
-   return 20;
-}
-
-int bmsg_draw_tile2(int tn, int bmsg_length, int xo, int yo)
-{
-   al_draw_bitmap(tile[tn], bmsg_length+xo, +yo, 0);
-   return 20;
-}
-
-
-int bmsg_draw_player(int p, int bmsg_length)
-{
-   int len = 0;
-   if (0) // 'Player x'
-   {
-      sprintf(msg, "Player %d", p);
-      len += bmsg_show_text(msg, players[p].color, bmsg_length);
-   }
-
-   if (1) // player tile
-   {
-      al_draw_bitmap(player_tile[players[p].color][1], bmsg_length + len, 0, 0); // draw shape
-      len += 20;
-   }
-   if (0) // 'Player x' and tile
-   {
-      sprintf(msg, "Player %d ", p);
-      len += bmsg_show_text(msg, players[p].color, bmsg_length + len);
-      al_draw_bitmap(player_tile[players[p].color][1], bmsg_length + len, 0, 0); // draw shape
-      len += 20;
-   }
-   return len;
-}
-
-int bmsg_draw_enemy(int e_type, int bmsg_length)
-{
-   int len = 0;
-   if (0) // enemy name
-   {
-      sprintf(msg, "%s", enemy_name[e_type][0]);
-      len += bmsg_show_text(msg, 15, bmsg_length);
-   }
-   if (1) // enemy tile
-   {
-      bmsg_draw_tile(enemy_tile[e_type], bmsg_length);
-      len = 20;
-   }
-   if (0) // name and tile
-   {
-      sprintf(msg, "%s ", enemy_name[e_type][0]);
-      len += bmsg_show_text(msg, 15, bmsg_length);
-      bmsg_draw_tile(enemy_tile[e_type], bmsg_length+len);
-      len +=20;
-   }
-   if (0) // tile and name
-   {
-      bmsg_draw_tile(enemy_tile[e_type], bmsg_length);
-      len +=20;
-      sprintf(msg, " %s", enemy_name[e_type][0]);
-      len += bmsg_show_text(msg, 15, bmsg_length+len);
-   }
-   return len;
-}
-
-int bmsg_show_health(int h, int bmsg_length)
-{
-   int col = 9; // green
-   if (h < 0) col = 10; // red
-   if (h == 0) col = 13; // blue
-   sprintf(msg, " Health %+d", h);
-   bmsg_length += bmsg_show_text(msg, col, bmsg_length);
-   return (strlen(msg)*16);
-}
-
-void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4)
-{
-   if (LOG_TMR_bmsg_add) t0 = al_get_time();
-
-   // event retrigger holdoff for these events that can repeat every frame
-   if (ev == 3) // exit
-   {
-      if (game_event_retrigger_holdoff[1] < frame_num) game_event_retrigger_holdoff[1] = frame_num + 60;
-      else ev = 0;
-   }
-   if (ev == 50) // mine
-   {
-      if (game_event_retrigger_holdoff[2] < frame_num) game_event_retrigger_holdoff[2] = frame_num + 20;
-      else ev = 0;
-   }
-   if (ev == 59) // raw damage that needs to be tallied
-   {
-      int p = z1;
-      float damage = (float)item[z2][15] / 100; // damage from item 17 - block damage
-
-      if (players1[p].block_damage_holdoff < frame_num) // triggered and not in holdoff
-      {
-         players1[p].block_damage_holdoff = frame_num + 20; // set holdoff
-         players1[p].block_damage_tally = damage; // init tally with current damage
-      }
-      if (players1[p].block_damage_holdoff > frame_num) // triggered and in holdoff
-      {
-         players1[p].block_damage_tally += damage; // inc tally with current damage
-      }
-     ev = 0; // this is handled by player health that emits event 58
-   }
-
-   if ((ev != 0) && (ev != 1) && (ev != 4) && (ev != 15) && (ev != 22) && (ev != 31) && (ev != 31) ) // events that don't have bmsg handler
-   {
-      int bmsg_length = 0; // keep a running total
-      int custom_drawn = 0;
-
-      al_set_target_bitmap(bmsg_temp);
-      al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-
-      bmsg_length += bmsg_draw_player(z1, bmsg_length); // all bmsg start with player
-
-      if (ev == 5) // player went through a door
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" went through a door", 15, bmsg_length);
-      }
-      if (ev == 24) // player lit bomb
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" lit a bomb ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_tile(465, bmsg_length);
-         sprintf(msg, " with %d sec fuse",  z3);
-         bmsg_length += bmsg_show_text(msg, 15, bmsg_length);
-      }
-      if (ev == 25) // player armed a bomb with a remote detonator
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" armed a bomb ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_tile(538, bmsg_length);
-         bmsg_length += bmsg_show_text(" with remote detonator ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_tile(539, bmsg_length);
-      }
-      if (ev == 26) // player lit rocket
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" lit a rocket ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_tile(249, bmsg_length);
-      }
-      if (ev == 3) // player tried to exit
-      {
-         custom_drawn = 1;
-         if (z3 == 1) sprintf(msg, " tried to exit with 1 enemy left");
-         else sprintf(msg, " tried to exit with %d enemies left",  z3);
-         bmsg_length += bmsg_show_text(msg, 15, bmsg_length);
-      }
-      if (ev == 2) // key
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" got a ", 15, bmsg_length);
-
-         int c1 =0;  // color
-         int tn = 0; // tile_numer
-         int k = item[z2][1] - 1039;
-         char tmsg[20] = {0};
-
-         if (k == 0) { sprintf(tmsg, "red");    c1 = 10; tn = 272; } // red
-         if (k == 1) { sprintf(tmsg, "green");  c1 = 11; tn = 279; } // green
-         if (k == 2) { sprintf(tmsg, "blue");   c1 = 13; tn = 288; } // blue
-         if (k == 3) { sprintf(tmsg, "purple"); c1 = 8;  tn = 295; } // purple
-
-         bmsg_length += bmsg_show_text(tmsg, c1, bmsg_length);
-         bmsg_length += bmsg_show_text(" key ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_tile2(tn, bmsg_length, -10, 0);
-      }
-
-      if (ev == 30) // switch
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" flipped a switch ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_tile2(item[z2][1], bmsg_length, -10, -2);
-      }
-
-      if (ev == 40) // player got shot by another player
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" got shot by ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_player(z2, bmsg_length);
-         bmsg_length += bmsg_show_health(-z4, bmsg_length);
-      }
-      if (ev == 41) // player shot themself
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" shot themself!", 15, bmsg_length);
-         bmsg_length += bmsg_show_health(-z4, bmsg_length);
-      }
-      if (ev == 43) // player got shot by enemy
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" got shot by ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_enemy(z2, bmsg_length);
-         bmsg_length += bmsg_show_health(-z4, bmsg_length);
-      }
-      if (ev == 44) // player got shot by bullet
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" got hit by ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_enemy(Ei[z2][0], bmsg_length);
-         bmsg_length += bmsg_show_health(-z4, bmsg_length);
-      }
-      if (ev == 50) // player hit a mine
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" hit a mine ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_tile(456, bmsg_length);
-         bmsg_length += bmsg_show_health(-z4, bmsg_length);
-      }
-      if (ev == 52) // player exploded another player
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" exploded ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_player(z2, bmsg_length);
-         bmsg_length += bmsg_show_health(-z4, bmsg_length);
-      }
-      if (ev == 53) // player exploded themself
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" exploded themself ", 15, bmsg_length);
-         bmsg_length += bmsg_show_health(-z4, bmsg_length);
-      }
-      if (ev == 54) // player got squished
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" got squished ", 15, bmsg_length);
-         bmsg_length += bmsg_show_health(-z4, bmsg_length);
-      }
-      if (ev == 56) // player got stuck
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" got stuck ", 15, bmsg_length);
-         bmsg_length += bmsg_show_health(-z4, bmsg_length);
-      }
-
-      if (ev == 58) // player lost health from block damage
-      {
-         custom_drawn = 1;
-         int damage = (int) players1[z1].block_damage_tally;
-         int type = item[players1[z1].block_damage_item_number][2];
-         if (type == 2) bmsg_length += bmsg_show_text(" was hurt by spikey floor ", 15, bmsg_length);
-         else           bmsg_length += bmsg_show_text(" was hurt by block damage ", 15, bmsg_length);
-         bmsg_length += bmsg_show_health(-damage, bmsg_length);
-      }
-
-      if (ev == 60) // player killed enemy with a bullet
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" killed ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_enemy(Ei[z2][0], bmsg_length);
-         bmsg_length += bmsg_show_text(" with a bullet.", 15, bmsg_length);
-      }
-      if (ev == 62) // player killed enemy with explosion
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" killed ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_enemy(Ei[z2][0], bmsg_length);
-         bmsg_length += bmsg_show_text(" with explosion!", 15, bmsg_length);
-      }
-      if (ev == 70) // player got a free man
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" got a free man! ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_tile(265, bmsg_length);
-      }
-
-      if (ev == 71) // player got a purple coin
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" got a purple coin! ", 15, bmsg_length);
-         bmsg_length += bmsg_draw_tile(265, bmsg_length);
-      }
-
-      if (ev == 72) // player got a health bonus
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" picked up a Health Bonus! ", 15, bmsg_length);
-         int bt = 320;
-         if (z3 == 1023) bt = 304;
-         if (z3 == 1027) bt = 240;
-         if (z3 == 1035) bt = 320;
-         bmsg_length += bmsg_draw_tile(bt, bmsg_length);
-         bmsg_length += bmsg_show_health(z4, bmsg_length);
-      }
-      if (ev == 80) // player joined
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" joined!", 15, bmsg_length);
-      }
-      if (ev == 81) // player quit
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" quit!", 15, bmsg_length);
-      }
-      if (ev == 90) // player died
-      {
-         custom_drawn = 1;
-         bmsg_length += bmsg_show_text(" died!", 15, bmsg_length);
-      }
-      if (custom_drawn) // caught by one of the handlers here
-      {
-         bottom_msg = 100; // start the timer
-         if (++bmsg_index > 19) bmsg_index = 0;
-
-         al_set_target_bitmap(bmsg_bmp[bmsg_index]);
-         al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-         al_draw_bitmap(bmsg_temp, (400 - (bmsg_length/2)), 0, 0);
-         al_set_target_backbuffer(display);
-
-         // convert array to array2 to re-arrange order...this does not actually copy anything except pointers!
-         int tc = 0;
-         // cycle from 1-index to 1-min
-         for (int c=bmsg_index; c>=0; c--)
-         {
-            bmsg_bmp2[tc] = bmsg_bmp[c];
-            tc++;
-         }
-         // cycle from 1-max to 1-index
-         for (int c=19; c>bmsg_index; c--)
-         {
-            bmsg_bmp2[tc] = bmsg_bmp[c];
-            tc++;
-         }
-      }
-      else
-      {
-         printf(" no bmsg handler for event:%d\n",ev);
-        // 1-shoot 4-exit 15-jump 22-explosion 31-sproingy
-      }
-   }
-   if (LOG_TMR_bmsg_add) add_log_TMR(al_get_time() - t0, "bmsg_add4", 0);
-}
-
-void draw_bmsg()
-{
-   if (LOG_TMR_bmsg_draw) t0 = al_get_time();
-   if (bottom_msg_on)
-   {
-//      bottom_msg = 100; // always draw
-      if (bottom_msg > 0)
-      {
-         bottom_msg--;
-
-         int nb = 8;  // number of bottom message lines to display (max 20)
-
-         int dfb = 2000 - al_fixtoi(players[active_local_player].PY); // player distance from bottom of level
-         if (dfb < 300)  nb = 4;
-         if (dfb < 200)  nb = 2;
-
-         int sw = 800; // string length in pixels
-         int sh = 20;  // string height in pixels
-         float x = SCREEN_W/2 - 10;
-
-         float io = 1.0; // initial opacity
-         float fo = 0.1; // final opacity
-         float oss = (io - fo) / (float) nb;  // opacity step
-         float co = io; // current opacity
-
-         float ivs = 0.5; // initial v size
-         float fvs = 0.1; // final v size
-         float vss = (ivs - fvs) / (float) nb;  // v size step
-         float cvs = ivs; // current v size
-         float y = SCREEN_H - ivs*20 - 1;
-
-         float ihs = 0.5; // initial h size
-         float fhs = 0.1; // final h size
-         float hss = (ihs - fhs) / (float) nb;  // v size step
-         float chs = ihs; // current v size
-
-         for (int m=0; m<nb; m++)
-         {
-            float dw = chs * sw;
-            float dh = cvs * sh;
-            ALLEGRO_COLOR col = al_map_rgba_f(co, co, co, co);
-            al_draw_tinted_scaled_bitmap(bmsg_bmp2[m], col, 0, 0, sw, sh, x-dw/2, y, dw, dh, 0);
-            co -= oss;
-            cvs -= vss;
-            chs -= hss;
-            y -= dh;
-         }
-         // draw bounding box to show what size it is
-//         float tvs = (sw/2)*ivs;
-//         al_draw_rectangle(x-tvs, SCREEN_H,  x+tvs, y, palette_color[15], 1);
-
-      }
-   }
-   if (LOG_TMR_bmsg_draw) add_log_TMR(al_get_time() - t0, "bmsg_draw", 0);
 }

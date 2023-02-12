@@ -6,7 +6,10 @@
 #include "z_settings.h"
 #include "z_player.h"
 #include "n_netgame.h"
-
+#include "mwLogo.h"
+#include "mwBottomMessage.h"
+#include "mwDemoMode.h"
+#include "mwDisplay.h"
 
 
 #define STRINGIFY_HELPER(x) #x
@@ -48,18 +51,18 @@ void save_config(void)
    }
    else
    {
-      asci(SCREEN, disp_x_wind)
-      asci(SCREEN, disp_h_wind)
-      asci(SCREEN, disp_w_wind)
-      asci(SCREEN, disp_h_wind)
-      ascf(SCREEN, scale_factor)
-      asci(SCREEN, fullscreen)
-      asci(SCREEN, display_adapter_num)
-      asci(SCREEN, show_splash_screen)
-      asci(SCREEN, bottom_msg_on)
+      asci(SCREEN, mwD.disp_x_wind)
+      asci(SCREEN, mwD.disp_h_wind)
+      asci(SCREEN, mwD.disp_w_wind)
+      asci(SCREEN, mwD.disp_h_wind)
+      ascf(SCREEN, mwD.scale_factor)
+      asci(SCREEN, mwD.fullscreen)
+      asci(SCREEN, mwD.display_adapter_num)
+      asci(SCREEN, mwL.show_splash_screen)
+      asci(SCREEN, mwBM.bottom_msg_on)
 
-      asci(SCREEN, saved_display_transform_double)
-      asci(SCREEN, display_transform_double_max)
+      asci(SCREEN, mwD.saved_display_transform_double)
+      asci(SCREEN, mwD.display_transform_double_max)
 
       asci(SCREEN, eco_draw)
 
@@ -67,10 +70,10 @@ void save_config(void)
 
       asci(GAME, players[0].color)
       asci(GAME, start_level)
-      asci(GAME, viewport_mode)
-      asci(GAME, viewport_show_hyst)
-      ascf(GAME, viewport_x_div)
-      ascf(GAME, viewport_y_div)
+      asci(GAME, mwD.viewport_mode)
+      asci(GAME, mwD.viewport_show_hyst)
+      ascf(GAME, mwD.viewport_x_div)
+      ascf(GAME, mwD.viewport_y_div)
       asci(GAME, settings_current_page)
       asci(GAME, speed_control_lock)
 
@@ -136,10 +139,10 @@ void save_config(void)
       asci(LOGGING, autosave_log_on_game_exit)
       asci(LOGGING, autosave_log_on_level_done)
 
-      asci(DEMO, demo_mode_config_enable)
+      asci(DEMO, mwDM.demo_mode_config_enable)
       asci(DEMO, autosave_game_on_level_done)
       asci(DEMO, autosave_game_on_game_exit)
-      ascf(DEMO, demo_mode_overlay_opacity)
+      ascf(DEMO, mwDM.demo_mode_overlay_opacity)
 
 
       // cpu
@@ -224,24 +227,23 @@ void load_config(void)
 
    const char* val;
 
-   agci(SCREEN, disp_x_wind, 100)
-   agci(SCREEN, disp_y_wind, 100)
-   agci(SCREEN, disp_w_wind, 800)
-   agci(SCREEN, disp_h_wind, 600)
-   agci(SCREEN, fullscreen, 1)
-   agci(SCREEN, display_adapter_num, 0)
-   agci(SCREEN, show_splash_screen, 1)
-   agci(SCREEN, display_transform_double_max, 3)
-   agci(SCREEN, saved_display_transform_double, 0)
+   agci(SCREEN, mwD.disp_x_wind, 100)
+   agci(SCREEN, mwD.disp_y_wind, 100)
+   agci(SCREEN, mwD.disp_w_wind, 800)
+   agci(SCREEN, mwD.disp_h_wind, 600)
+   agci(SCREEN, mwD.fullscreen, 1)
+   agci(SCREEN, mwD.display_adapter_num, 0)
+   agci(SCREEN, mwL.show_splash_screen, 1)
+   agci(SCREEN, mwD.display_transform_double_max, 3)
+   agci(SCREEN, mwD.saved_display_transform_double, 0)
 
-   agcf(SCREEN, scale_factor, 1.0)
-   set_scale_factor(/*scale_factor*/ 1.0, 1);
+   agcf(SCREEN, mwD.scale_factor, 1.0)
+   mwD.set_scale_factor(/*scale_factor*/ 1.0, 1);
 
-   agci(SCREEN, show_splash_screen, 1)
-   if (!show_splash_screen) splash_screen_done = 1;
+   agci(SCREEN, mwL.show_splash_screen, 1)
+   if (!mwL.show_splash_screen) mwL.splash_screen_done = 1;
 
-   agci(SCREEN, bottom_msg_on, 1)
-
+   agci(SCREEN, mwBM.bottom_msg_on, 1)
 
    agci(SCREEN, eco_draw, 0)
 
@@ -254,10 +256,10 @@ void load_config(void)
    agci(GAME, players[0].color, 8)
    set_player_color(0, players[0].color);
 
-   agci(GAME, viewport_mode, 1)
-   agci(GAME, viewport_show_hyst, 0)
-   agcf(GAME, viewport_x_div, 0.33)
-   agcf(GAME, viewport_y_div, 0.33)
+   agci(GAME, mwD.viewport_mode, 1)
+   agci(GAME, mwD.viewport_show_hyst, 0)
+   agcf(GAME, mwD.viewport_x_div, 0.33)
+   agcf(GAME, mwD.viewport_y_div, 0.33)
    agci(GAME, settings_current_page, 0)
    agci(GAME, speed_control_lock, 1)
 
@@ -325,10 +327,10 @@ void load_config(void)
    agci(LOGGING, autosave_log_on_game_exit, 0)
    agci(LOGGING, autosave_log_on_level_done, 0)
 
-   agci(DEMO, demo_mode_config_enable, 1)
+   agci(DEMO, mwDM.demo_mode_config_enable, 1)
    agci(DEMO, autosave_game_on_level_done, 0)
    agci(DEMO, autosave_game_on_game_exit, 0)
-   agcf(DEMO, demo_mode_overlay_opacity, 0.1)
+   agcf(DEMO, mwDM.demo_mode_overlay_opacity, 0.1)
 
 
 

@@ -3,7 +3,12 @@
 #include "z_log.h"
 #include "z_player.h"
 #include "n_netgame.h"
+#include "n_packet.h"
 #include "mwRollingAverage.h"
+#include "mwDisplay.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
+
 
 // n_network.h
 extern int NetworkDriver;
@@ -433,14 +438,14 @@ void client_apply_dif(void)
                   t0 = al_get_time();
 
                   // compare old_l to l and redraw changed tiles
-                  al_set_target_bitmap(level_background);
+                  al_set_target_bitmap(mwB.level_background);
                   for (int x=0; x<100; x++)
                      for (int y=0; y<100; y++)
                         if (l[x][y] != old_l[x][y])
                         {
                            // printf("dif at x:%d y:%d\n", x, y);
                            al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-                           al_draw_bitmap(btile[l[x][y] & 1023], x*20, y*20, 0);
+                           al_draw_bitmap(mwB.btile[l[x][y] & 1023], x*20, y*20, 0);
                         }
 
                   add_log_TMR(al_get_time() - t0, "oldl", 0);
@@ -634,8 +639,8 @@ void client_proc_player_drop(void)
    if (players[p].control_method == 8)
    {
       sprintf(msg, "SERVER ENDED GAME!");
-      float stretch = ( (float)SCREEN_W / (strlen(msg)*8)) - 1;
-      rtextout_centre(font0, NULL, msg, SCREEN_W/2, SCREEN_H/2, players[p].color, stretch, 0, 1);
+      float stretch = ( (float)mwD.SCREEN_W / (strlen(msg)*8)) - 1;
+      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, players[p].color, stretch, 0, 1);
       al_flip_display();
       tsw();
       players1[p].quit_reason = 92;
@@ -660,8 +665,8 @@ void client_proc_player_drop(void)
          }
 
          sprintf(msg, "LOST SERVER CONNECTION!");
-         float stretch = ( (float)SCREEN_W / (strlen(msg)*8)) - 1;
-         rtextout_centre(font0, NULL, msg, SCREEN_W/2, SCREEN_H/2, players[p].color, stretch, 0, 1);
+         float stretch = ( (float)mwD.SCREEN_W / (strlen(msg)*8)) - 1;
+         rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, players[p].color, stretch, 0, 1);
          al_flip_display();
          tsw();
          players1[p].quit_reason = 75;

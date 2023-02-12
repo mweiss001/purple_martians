@@ -4,24 +4,17 @@
 #include "z_sound.h"
 #include "z_log.h"
 #include "z_player.h"
-
-
+#include "mwDemoMode.h"
+#include "mwDisplay.h"
+#include "mwBitmap.h"
+#include "mwFont.h"
 
 // --------------- Global Variables ---------------
 // all global variables should be declared here and externed in pm.h
 
-
-
 float tmaj_i = 0;
 
-
-
 int program_state = 0;
-// 0 = starting
-// 1 = game menu
-// 2 = demo mode
-// 3 = settings
-// 11 = game loop
 
 int new_program_state = 0;
 int old_program_state = 0;
@@ -31,7 +24,6 @@ int program_update_1s = 0;
 int menu_update = 0;;
 int top_menu_sel = 3;
 int main_loop_exit = 0;
-
 int pm_event[1000];
 
 // temp testing variables
@@ -39,17 +31,6 @@ int pct_x = 0;
 int pct_y = 0;
 
 double t0=0;
-
-int tx1=0;
-int ty1=0;
-int ttc1=0;
-float ttfloat1=0;
-
-int tx2=0;
-int ty2=0;
-int ttc2=0;
-float ttfloat2=0;
-
 
 int level_header[20] = {0};
 
@@ -73,9 +54,6 @@ int speed_control_lock = 1;
 int eco_draw = 0;
 
 
-
-
-
 // some global strings
 char level_filename[80];
 char local_hostname[80];
@@ -87,10 +65,8 @@ char global_string[20][25][80];
 char msg[1024];
 char color_name[16][20];
 
-
 // animation sequence array
 int zz[20][NUM_ANS];
-
 
 // ------------------------------------------------
 // ------------ game moves array ------------------
@@ -99,52 +75,8 @@ int game_moves[GAME_MOVES_SIZE][4];
 int game_move_entry_pos = 0;
 int game_move_current_pos = 0; // for savegame running only
 
-// ------------------------------------------------
-// ------------- screen messages ------------------
-// ------------------------------------------------
-int bottom_msg_on = 1;
-int bottom_msg = 0;
-int bmsg_index = 0;
-ALLEGRO_BITMAP *bmsg_bmp[20] = {NULL};
-ALLEGRO_BITMAP *bmsg_bmp2[20] = {NULL};
 int   game_event_retrigger_holdoff[10];
 float game_event_retrigger_holdoff_tally[10];
-
-ALLEGRO_BITMAP *bmsg_temp;
-
-
-// ------------------------------------------------
-// ----- level editor unsorted --------------------
-// ------------------------------------------------
-
-int obj_filter[5][20] = {0};
-int swbl[NUM_SPRITES][2];
-
-int bx1=10;  // global selection window
-int by1=10;
-int bx2=40;
-int by2=30;
-
-int gx=0; // absolute mouse position relative to scaled level background
-int gy=0;
-int hx=0;
-int hy=0;
-
-
-// ------------------------------------------------
-// ----------------- demo mode --------------------
-// ------------------------------------------------
-ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
-int demo_played[100];
-int num_demo_filenames = 0;
-int demo_mode_loaded = 0;
-int demo_mode_enabled = 1;
-int demo_mode_on = 0;
-int demo_mode_countdown_val;
-int demo_mode_countdown_reset = 2400;
-int demo_mode_last_frame = 0;
-int demo_mode_config_enable = 1;
-float demo_mode_overlay_opacity = 0.1;
 
 // ------------------------------------------------
 // ----------------- mouse and keys ---------------
@@ -184,12 +116,6 @@ ALLEGRO_COLOR palette_color[256];
 int flash_color = 0;
 int flash_color2 = 0;
 int flash_counter = 0;
-ALLEGRO_FONT *font0 = NULL;
-ALLEGRO_FONT *font = NULL;
-ALLEGRO_FONT *font2 = NULL;
-ALLEGRO_FONT *f1 = NULL;
-ALLEGRO_FONT *f2 = NULL;
-ALLEGRO_FONT *f3 = NULL;
 
 ALLEGRO_JOYSTICK *joy0 = NULL;
 ALLEGRO_JOYSTICK *joy1 = NULL;
@@ -197,28 +123,7 @@ ALLEGRO_JOYSTICK *joy1 = NULL;
 // ------------------------------------------------
 // ----------------- bitmaps ----------------------
 // ------------------------------------------------
-
-ALLEGRO_BITMAP *tilemap = NULL;
-ALLEGRO_BITMAP *btilemap = NULL;
-ALLEGRO_BITMAP *ptilemap = NULL;
-ALLEGRO_BITMAP *dtilemap = NULL;
-ALLEGRO_BITMAP *M_tilemap = NULL;
-ALLEGRO_BITMAP *M_btilemap = NULL;
-ALLEGRO_BITMAP *M_ptilemap = NULL;
-ALLEGRO_BITMAP *M_dtilemap = NULL;
-
-
-ALLEGRO_BITMAP *tile[NUM_SPRITES] = {NULL};
-ALLEGRO_BITMAP *btile[NUM_SPRITES] = {NULL};
-
 int sa[NUM_SPRITES][2]; // shape attributes
-
-ALLEGRO_BITMAP *player_tile[16][32] = {NULL};
-ALLEGRO_BITMAP *door_tile[2][16][8] = {NULL};
-
-
-ALLEGRO_BITMAP *level_background = NULL;
-ALLEGRO_BITMAP *level_buffer = NULL;
 
 ALLEGRO_BITMAP *ft_bmp = NULL;  //  file temp paste bmp
 
@@ -235,22 +140,6 @@ int text_title_draw_color = -1;
 ALLEGRO_BITMAP *large_text_overlay_bitmap;
 int large_text_overlay_state = 0;
 
-
-
-
-
-
-struct packet_buffer packet_buffers[200];
-struct timestamp timestamps[10000];
-int timestamps_index = 0;
-double timestamp_frame_start = 0;
-
-
-
-
-
-
-
 // ------------------------------------------------
 // ---------------- lifts -----------------------
 // ------------------------------------------------
@@ -261,14 +150,10 @@ struct lift_step lift_steps[NUM_LIFTS][40];
 int num_lifts;
 char lift_step_type_name[10][10];
 
-
-
 // bullets
 int pbullet[50][6];
 int pm_bullet_collision_box = 8;
 struct ebullet ebullets[50];
-
-
 
 // ------------------------------------------------
 // ---------------- level -------------------------
@@ -277,8 +162,6 @@ int l[100][100];
 int thl[100][100] = {0}; // tile helper
 
 int warp_level_location = 0;
-
-
 
 int start_level;
 int play_level;
@@ -297,8 +180,6 @@ int item_first_num[30];
 char item_name[30][40];
 char pmsgtext[500][500] = {0};
 
-
-
 // enemies
 int Ei[100][32];        // enemy ints
 al_fixed Efi[100][16];  // enemy fixeds
@@ -314,68 +195,6 @@ int PDEi[100][32];
 al_fixed PDEfx[100][16];
 char PDEt[100][20][40];
 
-
-
-
-
-
-
-
-
-// ------------------------------------------------
-// ---------------- display -----------------------
-// ------------------------------------------------
-
-int desktop_width;
-int desktop_height;
-
-
-int disp_x_curr; // either wind in windowed mode or full fullscreen mode)
-int disp_y_curr;
-int disp_w_curr;
-int disp_h_curr;
-
-int disp_x_wind; // windowed
-int disp_y_wind;
-int disp_w_wind;
-int disp_h_wind;
-
-int disp_x_full; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
-int disp_y_full;
-int disp_w_full;
-int disp_h_full;
-
-int SCREEN_W;
-int SCREEN_H;
-int WX;
-int WY;
-int fullscreen = 1;
-int display_adapter_num = 0;
-float WX_shift_speed = 0;
-
-int viewport_mode = 1;
-int viewport_show_hyst = 0;
-float viewport_x_div = 8;
-float viewport_y_div = 12;
-
-
-
-
-
-
-
-// used to only redraw a region of background to increase fps
-int level_display_region_x;
-int level_display_region_y;
-int level_display_region_w;
-int level_display_region_h;
-
-int display_transform_double = 1;
-int display_transform_double_max = 3;
-int saved_display_transform_double = -1;
-int show_dtd = 0;
-
-
 int autosave_level_editor_state = 0;
 int level_editor_running = 0;
 int help_screens_running = 0;
@@ -387,57 +206,15 @@ int show_player_join_quit_timer = 0;
 int show_player_join_quit_player = 0;
 int show_player_join_quit_jq = 0;
 
-float scale_factor = 1.0;
-float scale_factor_current  = 1.0;
-float scale_factor_inc = 0.03;
-int show_scale_factor = 0;
-int scale_factor_holdoff = 0;
-
-
-int show_splash_screen = 1;
-int splash_screen_done = 0;
-
-int mdw_an_seq = 0;   // mdw animation sequence number
-float points[9][8];   // for mdw logo
-int mdw_map_logo_x = 100;
-int mdw_map_logo_y = 140;
-int mdw_map_logo_th = 1;
-float mdw_map_logo_scale = .3;
-
-float mdw_splash_logo_x;
-float mdw_splash_logo_y;
-int mdw_splash_logo_th;
-float mdw_splash_logo_scale;
-
-float mdw_logo_scale_dec;
-float mdw_logo_x_dec;
-float mdw_logo_y_dec;
-
 // position and size of map on menu screen
 int menu_map_x;
 int menu_map_y;
 int menu_map_size;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void final_wrapup(void)
 {
-   save_display_window_position();
+   mwD.save_display_window_position();
 
    al_destroy_audio_stream(pm_theme_stream);
 /*
@@ -512,7 +289,6 @@ void fast_exit(int why)
    exit(0);
 }
 
-
 void show_system_id(void)
 {
    int j = al_get_system_id();
@@ -527,8 +303,6 @@ void show_system_id(void)
    if (j == ALLEGRO_SYSTEM_ID_SDL)         printf("System ID: SDL\n");
 }
 
-
-
 void set_exe_path(void)
 {
    ALLEGRO_PATH *ep = al_get_standard_path(ALLEGRO_EXENAME_PATH);
@@ -537,7 +311,6 @@ void set_exe_path(void)
    //printf("Current Directory: %s\n", al_get_current_directory());
    al_destroy_path(ep);
 }
-
 
 void set_and_get_versions(void)
 {
@@ -560,75 +333,19 @@ void set_and_get_versions(void)
    get_hostname(0);
 }
 
-
 void get_desktop_resolution()
 {
    ALLEGRO_MONITOR_INFO aminfo;
    al_get_monitor_info(0, &aminfo);
-   desktop_width  = aminfo.x2 - aminfo.x1;
-   desktop_height = aminfo.y2 - aminfo.y1;
-   printf("Desktop Resolution: %dx%d\n", desktop_width, desktop_height);
+   mwD.desktop_width  = aminfo.x2 - aminfo.x1;
+   mwD.desktop_height = aminfo.y2 - aminfo.y1;
+   printf("Desktop Resolution: %dx%d\n", mwD.desktop_width, mwD.desktop_height);
 
-   disp_x_full = 0; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
-   disp_y_full = 0;
-   disp_w_full = desktop_width;
-   disp_h_full = desktop_height;
+   mwD.disp_x_full = 0; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
+   mwD.disp_y_full = 0;
+   mwD.disp_w_full = mwD.desktop_width;
+   mwD.disp_h_full = mwD.desktop_height;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int initial_setup(void)
 {
@@ -653,7 +370,7 @@ int initial_setup(void)
    }
 
    // --- display --------------------
-   if (!init_display())
+   if (!mwD.init_display())
    {
       m_err("Failed to initialize display.\n");
       return 0;
@@ -680,7 +397,6 @@ int initial_setup(void)
       return 0;
    }
 
-
    if(!al_init_font_addon())
    {
       m_err("Failed to initialize font addon.\n");
@@ -692,8 +408,7 @@ int initial_setup(void)
       m_err("Failed to initialize ttf addon.\n");
       return 0;
    }
-   load_fonts();
-
+   mF.initialize();
 
    // --- keyboard -------------------
    if (!al_install_keyboard())
@@ -739,7 +454,7 @@ int initial_setup(void)
    }
 
    load_tiles();
-   al_set_display_icon(display, tile[401]);
+   al_set_display_icon(display, mwB.tile[401]);
 
    // --- timers ---------------------
    // create timers
@@ -748,7 +463,6 @@ int initial_setup(void)
    mnu_timer = al_create_timer(.008); // 125 fps
    png_timer = al_create_timer(.5);   // 2 fps
    mou_timer = al_create_timer(5);    // 5s
-
 
    // register timer event source
    al_register_event_source(event_queue, al_get_timer_event_source(mnu_timer));
@@ -766,24 +480,15 @@ int initial_setup(void)
 
    load_sound();
 
-   seed_mdw();  // for mdw logo
-   fill_mdw();
-
    // init players
    for (int p=1; p<NUM_PLAYERS; p++) players[p].color = 0; // all but player[0] which we got from config file
    for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
    players[0].active = 1;
 
-   demo_mode_enabled = demo_mode_config_enable; // set only at startup from cofing file
+   mwDM.demo_mode_enabled = mwDM.demo_mode_config_enable; // set only at startup from cofing file
 
    return 1;
 }
-
-
-
-
-
-
 
 int main(int argument_count, char **argument_array)
 {
@@ -802,5 +507,3 @@ int main(int argument_count, char **argument_array)
    final_wrapup();
    exit(0);
 }
-
-
