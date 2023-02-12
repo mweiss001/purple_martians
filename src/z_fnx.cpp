@@ -3,6 +3,9 @@
 #include "z_log.h"
 #include "z_player.h"
 #include "n_netgame.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
+
 
 int check_and_draw(double x1, double y1, double line_length, double line_xinc, double line_yinc, double za, double zb, int col, float thickness, int &segments_drawn, int &lco)
 {
@@ -235,8 +238,8 @@ void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float 
 
    ALLEGRO_COLOR c2 = al_map_rgba_f(dim, dim, dim, 1.0); // show dimmer on back side
 
-   if (flags == 0) al_draw_scaled_bitmap(       tile[tn],     tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
-   else            al_draw_tinted_scaled_bitmap(tile[tn], c2, tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
+   if (flags == 0) al_draw_scaled_bitmap(       mwB.tile[tn],     tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
+   else            al_draw_tinted_scaled_bitmap(mwB.tile[tn], c2, tsx, tsy, tsw, tsh, x+xo, y+yo, xs, ys, flags);
 
 }
 
@@ -245,9 +248,9 @@ void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float 
 void change_block(int x, int y, int block)
 {
    l[x][y] = block;
-   al_set_target_bitmap(level_background);
+   al_set_target_bitmap(mwB.level_background);
    al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
-   al_draw_bitmap(btile[block & 1023], x*20, y*20, 0);
+   al_draw_bitmap(mwB.btile[block & 1023], x*20, y*20, 0);
 }
 
 void clear_game_moves(void)
@@ -305,9 +308,9 @@ void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, 
    al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
 
    // then override for my nefarious purposes!
-   if (f == f3)    { by = 4; bh = 5; }
-   if (f == font)  { by = 0; bh = 8; bx = 0; bw = 8*strlen(txt); }
-   if (f == font0) { by = 0; bh = 8; }
+   if (f == mF.pixl)    { by = 4; bh = 5; }
+   if (f == mF.pr8)  { by = 0; bh = 8; bx = 0; bw = 8*strlen(txt); }
+   if (f == mF.bltn) { by = 0; bh = 8; }
 }
 
 void make_palette(void)
@@ -368,7 +371,7 @@ void make_palette(void)
 //   for (int a=0; a<16; a++)
 //      for (int b=0; b<16; b++)
 //         al_draw_filled_rectangle(a*sz, b*sz, a*sz+sz, b*sz+sz, palette_color[b*16+a]);
-//   al_draw_text(font, palette_color[9], 400, 400, ALLEGRO_ALIGN_CENTRE, "Hello World");
+//   al_draw_text(mF.pr8, palette_color[9], 400, 400, ALLEGRO_ALIGN_CENTRE, "Hello World");
 
 }
 
@@ -384,9 +387,9 @@ void window_title(void)
 {
 //   sprintf(msg, "Purple Martians");
    sprintf(msg, "Purple Martians %s", pm_version_string);
-//   sprintf(msg, "Purple Martians %s   [%d x %d]", pm_version_string, SCREEN_W, SCREEN_H);
-//   sprintf(msg, "%d x %d", SCREEN_W, SCREEN_H);
-//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", pm_version_string, SCREEN_W, SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
+//   sprintf(msg, "Purple Martians %s   [%d x %d]", pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H);
+//   sprintf(msg, "%d x %d", mwD.SCREEN_W, mwD.SCREEN_H);
+//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
    al_set_window_title(display, msg);
 }
 
@@ -1639,7 +1642,7 @@ void show_var_sizes(void)
 //extern ALLEGRO_BITMAP *M_ptilemap;
 //extern ALLEGRO_BITMAP *M_dtilemap;
 //
-//extern ALLEGRO_BITMAP *tile[NUM_SPRITES];
+//extern ALLEGRO_BITMAP *mwB.tile[NUM_SPRITES];
 //extern ALLEGRO_BITMAP *btile[NUM_SPRITES];
 //
 //extern int sa[NUM_SPRITES][2];
@@ -1649,11 +1652,6 @@ void show_var_sizes(void)
 //
 //extern ALLEGRO_BITMAP *level_background;
 //extern ALLEGRO_BITMAP *level_buffer;
-
-
-
-
-
 
 
 }
@@ -1685,230 +1683,6 @@ void var_to_pml(char * b) // for save level
    offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
    offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
 }
-
-
-
-int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra)
-{
-   if (num_demo_filenames > 99) return 0; // only get 100 max
-   demo_FS_filenames[num_demo_filenames] = al_create_fs_entry(al_get_fs_entry_name(fs));
-   demo_played[num_demo_filenames] = 0;
-   num_demo_filenames++;
-   return ALLEGRO_FOR_EACH_FS_ENTRY_OK;
-}
-
-void demo_mode(void)
-{
-   if (!demo_mode_loaded)
-   {
-      num_demo_filenames = 0;
-
-      char fname[1024];
-      sprintf(fname, "savegame/demo");
-
-      //printf("fname:%s\n", fname);
-
-      // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
-      ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
-      sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
-
-      //printf("FS_fname:%s\n", fname);
-
-      // iterate levels in demo folder and put in filename array
-      al_for_each_fs_entry(FS_fname, fill_demo_array, NULL);
-
-
-      //printf("\nDemo mode. List of demo files found\n");
-   //   for (int i=0; i< num_demo_filenames; i++)
-   //     printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
-
-      demo_mode_loaded = 1;
-   }
-
-   demo_mode_on = 1;
-
-
-   int debug_print = 0;
-
-   if (num_demo_filenames == 0)
-   {
-      printf("No demo files found.\n");
-      demo_mode_on = 0;
-   }
-
-   int prev_lev = -1, lev, pass = 1;
-
-   if (num_demo_filenames > 1)
-   {
-      // have all levels this pass been played?
-      int all_played = 1;
-      for (int i=0; i< num_demo_filenames; i++)
-         if (demo_played[i] < pass) all_played = 0;
-      if (all_played == 1) pass++; // next pass
-
-      lev = -1;
-      while (lev < 0)
-      {
-         lev = rand() % num_demo_filenames;      // get random index
-
-//            printf("Pass:%d Level:%d\n", pass, lev);
-
-         if (debug_print) printf("\nNew random level:%d", lev);
-
-         if (demo_played[lev] >= pass) // already been played this pass
-         {
-            if (debug_print) printf("  -  already been played this pass");
-            lev = -1;
-         }
-         if (prev_lev == lev)         // just previously played
-         {
-            if (debug_print) printf("  -  just previously played");
-            lev = -1;
-         }
-         if (debug_print) printf("\n");
-
-
-         if (debug_print) for (int i=0; i< num_demo_filenames; i++) printf("demo_played[%d] - %d \n", i, demo_played[i]);
-
-//            if (debug_print) for (int i=0; i< num_demo_filenames; i++) printf("demo_played[%d] - %d \n", i, demo_played[i]);
-
-      }
-      demo_played[lev] = pass;
-      prev_lev = lev;
-   }
-   else lev = 0;
-
-   if (load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
-   {
-      printf("pass:%d - playing demo level:%d\n", pass, play_level);
-      new_program_state = 14;
-      old_program_state = 2;
-   }
-   else
-   {
-      demo_mode_on = 0;
-      new_program_state = 1;
-      old_program_state = 1;
-   }
-}
-
-
-
-
-
-
-/*
-
-
-   if (!demo_mode_loaded)
-   {
-
-      demo_mode_on = 1;
-      num_demo_filenames = 0;
-
-      char fname[1024];
-      sprintf(fname, "savegame/demo");
-
-      //printf("fname:%s\n", fname);
-
-      // convert to 'ALLEGRO_FS_ENTRY' (also makes fully qualified path)
-      ALLEGRO_FS_ENTRY *FS_fname = al_create_fs_entry(fname);
-      sprintf(fname, "%s", al_get_fs_entry_name(FS_fname));
-
-      //printf("FS_fname:%s\n", fname);
-
-      // iterate levels in demo folder and put in filename array
-      al_for_each_fs_entry(FS_fname, fill_demo_array, NULL);
-
-
-      //printf("\nDemo mode. List of demo files found\n");
-   //   for (int i=0; i< num_demo_filenames; i++)
-   //     printf("%s\n", al_get_fs_entry_name(demo_FS_filenames[i]));
-
-      demo_mode_loaded = 1;
-   }
-
-
-   int debug_print = 0;
-
-
-   if (num_demo_filenames == 0)
-   {
-      printf("No demo files found.\n");
-      demo_mode_on = 0;
-   }
-
-   int prev_lev = -1, lev, pass = 1;
-   while (demo_mode_on)
-   {
-      if (num_demo_filenames > 1)
-      {
-         // have all levels this pass been played?
-         int all_played = 1;
-         for (int i=0; i< num_demo_filenames; i++)
-            if (demo_played[i] < pass) all_played = 0;
-         if (all_played == 1) pass++; // next pass
-
-         lev = -1;
-         while (lev < 0)
-         {
-            lev = rand() % num_demo_filenames;      // get random index
-
-//            printf("Pass:%d Level:%d\n", pass, lev);
-
-            if (debug_print) printf("\nNew random level:%d", lev);
-
-            if (demo_played[lev] >= pass) // already been played this pass
-            {
-               if (debug_print) printf("  -  already been played this pass");
-               lev = -1;
-            }
-            if (prev_lev == lev)         // just previously played
-            {
-               if (debug_print) printf("  -  just previously played");
-               lev = -1;
-            }
-            if (debug_print) printf("\n");
-
-
-            if (debug_print) for (int i=0; i< num_demo_filenames; i++) printf("demo_played[%d] - %d \n", i, demo_played[i]);
-
-//            if (debug_print) for (int i=0; i< num_demo_filenames; i++) printf("demo_played[%d] - %d \n", i, demo_played[i]);
-
-         }
-         demo_played[lev] = pass;
-         prev_lev = lev;
-      }
-      else lev = 0;
-
-
-      if (load_gm(al_get_fs_entry_name(demo_FS_filenames[lev])))
-      {
-         printf("pass:%d - playing demo level:%d\n", pass, play_level);
-
-         //new_program_state = 14;
-         //game_loop(9); // demo game
-      }
-      else demo_mode_on = 0;
-   }
-
-   load_level(start_level, 0);
-
-   // reset player data
-   for (int p=0; p<NUM_PLAYERS; p++) init_player(p, 1);
-   players[0].active = 1;
-   active_local_player = 0;
-   load_config(); // restore player color from config file
-   erase_log();
-}
-
-
-*/
-
-
-
-
-
 
 
 

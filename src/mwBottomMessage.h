@@ -1,0 +1,35 @@
+// mwBottomMessage.h
+#include "z_player.h"
+#include "z_log.h"
+
+class mwBottomMessage
+{
+   public:
+
+   ALLEGRO_BITMAP *bmsg_bmp[20];
+   ALLEGRO_BITMAP *bmsg_bmp2[20];
+   ALLEGRO_BITMAP *bmsg_temp;
+
+   int bottom_msg_on;
+   int bottom_msg_timer;
+   int bmsg_index;
+
+
+   mwBottomMessage(); // default constructor
+   void initialize(void);
+
+   void add(int ev, int x, int y, int z1, int z2, int z3, int z4);
+
+   int draw_text(const char *txt, int col, int bmsg_length);
+   int draw_tile(int tn, int bmsg_length);
+   int draw_tile2(int tn, int bmsg_length, int xo, int yo);
+   int draw_player(int p, int bmsg_length);
+   int draw_health(int h, int bmsg_length);
+   int draw_enemy(int e_type, int bmsg_length);
+
+   void draw();
+
+};
+extern mwBottomMessage mwBM;
+
+

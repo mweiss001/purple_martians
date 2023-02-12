@@ -2,6 +2,8 @@
 
 #include "pm.h"
 #include "z_player.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
 
 int construct_lift(int l, char* lift_name)
 {
@@ -219,7 +221,7 @@ void draw_lift(int l, int x1, int y1, int x2, int y2)
    {
       al_draw_filled_rectangle(x1, y1, x2, y2, palette_color[col]);
       //al_draw_filled_rounded_rectangle(x1, y1, x2, y2, 4, 4, palette_color[col] );
-      al_draw_text(font0, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[l].lift_name); // name
+      al_draw_text(mF.bltn, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[l].lift_name); // name
    }
    else
    {
@@ -228,15 +230,15 @@ void draw_lift(int l, int x1, int y1, int x2, int y2)
         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[col + ((9 - a)*16)], 2 ); // faded outer shell
 
       al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[col] );                            // solid core
-      al_draw_text(font0, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[l].lift_name); // name
+      al_draw_text(mF.bltn, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, lifts[l].lift_name); // name
    }
 
 
   // printf("x1:%d y1:%d x2:%d y2:%d\n", x1, y1, x2, y2);
 
-//   al_draw_textf(font, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", lifts[l].current_step, lifts[l].val1);    // debug name
+//   al_draw_textf(mF.pr8, palette_color[col+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", lifts[l].current_step, lifts[l].val1);    // debug name
 
-//   al_draw_textf(font, palette_color[15], (x1+x2)/2, (y1+y2)/2 - 16, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", lifts[l].current_step, lifts[l].val1);    // debug name
+//   al_draw_textf(mF.pr8, palette_color[15], (x1+x2)/2, (y1+y2)/2 - 16, ALLEGRO_ALIGN_CENTRE, "s:%d v:%d", lifts[l].current_step, lifts[l].val1);    // debug name
 
 
 }
@@ -244,7 +246,7 @@ void draw_lift(int l, int x1, int y1, int x2, int y2)
 
 void draw_lifts()
 {
-   al_set_target_bitmap(level_buffer);
+   al_set_target_bitmap(mwB.level_buffer);
 
    for (int l=0; l<num_lifts; l++) draw_lift_line(l);
 
@@ -290,7 +292,7 @@ void draw_lifts()
             {
                case 2: // timer wait
                   if (lifts[l].limit_counter > 0)
-                     al_draw_textf(font, palette_color[color+64], (x1 + x2)/2 + 2, lifts[l].y1 - 8, ALLEGRO_ALIGN_CENTRE, "%d", lifts[l].limit_counter);
+                     al_draw_textf(mF.pr8, palette_color[color+64], (x1 + x2)/2 + 2, lifts[l].y1 - 8, ALLEGRO_ALIGN_CENTRE, "%d", lifts[l].limit_counter);
                break;
                case 3: // prox wait
                {

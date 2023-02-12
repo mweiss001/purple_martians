@@ -1,6 +1,8 @@
 // mwWindowManager.cpp
 #include "pm.h"
 #include "mwWindowManager.h"
+#include "mwDisplay.h"
+#include "mwFont.h"
 
 mwWindowManager mwWM;
 
@@ -10,6 +12,13 @@ void mwWindowManager::initialize(int edit_level)
 
    mW[1].draw_item_type = 1;
    mW[1].draw_item_num  = 0;
+
+   bx1=10;  // global selection window
+   by1=10;
+   bx2=40;
+   by2=30;
+
+
 
 
    // set all filters on
@@ -57,11 +66,11 @@ void mwWindowManager::get_block_position_on_map(void)
    float my1 = mouse_y-BORDER_WIDTH;
 
    // divide that by bs to get how many blocks we are into the map
-   float mx2 = mx1 / (scale_factor_current * 20);
-   float my2 = my1 / (scale_factor_current * 20);
+   float mx2 = mx1 / (mwD.scale_factor_current * 20);
+   float my2 = my1 / (mwD.scale_factor_current * 20);
    // get block position of WX
-   float mx3 = (float)WX / 20;
-   float my3 = (float)WY / 20;
+   float mx3 = (float)mwD.WX / 20;
+   float my3 = (float)mwD.WY / 20;
 
    // add
    float mx4 = mx3 + mx2;
@@ -81,12 +90,12 @@ void mwWindowManager::get_block_position_on_map(void)
    my1 = mouse_y-BORDER_WIDTH;
 
    // scale
-   mx2 = mx1 / scale_factor_current;
-   my2 = my1 / scale_factor_current;
+   mx2 = mx1 / mwD.scale_factor_current;
+   my2 = my1 / mwD.scale_factor_current;
 
    // get position of WX
-   mx3 = (float)WX;
-   my3 = (float)WY;
+   mx3 = (float)mwD.WX;
+   my3 = (float)mwD.WY;
 
    // add
    mx4 = mx3 + mx2;
@@ -104,31 +113,31 @@ void mwWindowManager::get_block_position_on_map(void)
 void mwWindowManager::process_scrolledge(void)
 {
    int bw = BORDER_WIDTH;
-   int swb = SCREEN_W-bw;
-   int shb = SCREEN_H-bw;
+   int swb = mwD.SCREEN_W-bw;
+   int shb = mwD.SCREEN_H-bw;
 
-   if (mouse_y > shb) WY+=(mouse_y - shb)*2; // scroll down
-   if (mouse_x > swb) WX+=(mouse_x - swb)*2; // scroll right
-   if (mouse_x < bw)  WX-=(bw - mouse_x)*2;  // scroll left
-   if (mouse_y < 4)   WY-=(4  - mouse_y)*7;  // scroll up (is different because of menu)
+   if (mouse_y > shb) mwD.WY+=(mouse_y - shb)*2; // scroll down
+   if (mouse_x > swb) mwD.WX+=(mouse_x - swb)*2; // scroll right
+   if (mouse_x < bw)  mwD.WX-=(bw - mouse_x)*2;  // scroll left
+   if (mouse_y < 4)   mwD.WY-=(4  - mouse_y)*7;  // scroll up (is different because of menu)
 
    // find the size of the source screen from actual screen size and scaler
-   int SW = (int)( (float)(SCREEN_W - bw *2) / scale_factor_current);
-   int SH = (int)( (float)(SCREEN_H - bw *2) / scale_factor_current);
+   int SW = (int)( (float)(mwD.SCREEN_W - bw *2) / mwD.scale_factor_current);
+   int SH = (int)( (float)(mwD.SCREEN_H - bw *2) / mwD.scale_factor_current);
    if (SW > 2000) SW = 2000;
    if (SH > 2000) SH = 2000;
 
    // correct for edges
-   if (WX < 0) WX = 0;
-   if (WY < 0) WY = 0;
-   if (WX > (2000 - SW)) WX = 2000 - SW;
-   if (WY > (2000 - SH)) WY = 2000 - SH;
+   if (mwD.WX < 0) mwD.WX = 0;
+   if (mwD.WY < 0) mwD.WY = 0;
+   if (mwD.WX > (2000 - SW)) mwD.WX = 2000 - SW;
+   if (mwD.WY > (2000 - SH)) mwD.WY = 2000 - SH;
 
    // used by get_new_background to only get what is needed
-   level_display_region_x = WX;
-   level_display_region_y = WY;
-   level_display_region_w = SW;
-   level_display_region_h = SH;
+   mwD.level_display_region_x = mwD.WX;
+   mwD.level_display_region_y = mwD.WY;
+   mwD.level_display_region_w = SW;
+   mwD.level_display_region_h = SH;
 }
 
 // this function draws a box at full scale on level buffer
@@ -143,7 +152,7 @@ void mwWindowManager::show_level_buffer_block_rect(int x1, int y1, int x2, int y
    int dsty = y1*20;
    if (dsty == 0) dsty = 1;
    al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, palette_color[14], 1);
-   al_draw_text(font, palette_color[color], x1*20+2, y1*20-11,  0, text);
+   al_draw_text(mF.pr8, palette_color[color], x1*20+2, y1*20-11,  0, text);
 }
 
 // used by se, ge and em
@@ -218,7 +227,7 @@ int mwWindowManager::redraw_level_editor_background(void)
       update_animation();
 
       process_scrolledge();
-      proc_scale_factor_change();
+      mwD.proc_scale_factor_change();
 
       get_new_background(0);
       draw_lifts();
@@ -234,7 +243,7 @@ int mwWindowManager::redraw_level_editor_background(void)
       if (level_editor_mode == 2) // selection edit
       {
          // show selection
-         if (!mW[4].copy_mode) show_level_buffer_block_rect(bx1, by1, bx2, by2, 14, "selection");
+         if (!mW[4].copy_mode) show_level_buffer_block_rect(mwWM.bx1, by1, bx2, by2, 14, "selection");
 
          // only show if mouse not on window
          if (!mouse_on_window)
@@ -285,11 +294,11 @@ int mwWindowManager::redraw_level_editor_background(void)
          if (!mouse_on_window)
             for (int i=0; i<NUM_OBJ; i++)
             {
-               obj_list[i][2] = 0; // turn off highlight by default
-               if (obj_list[i][0])
+               mwWM.obj_list[i][2] = 0; // turn off highlight by default
+               if (mwWM.obj_list[i][0])
                {
-                  int typ = obj_list[i][0];
-                  int num = obj_list[i][1];
+                  int typ = mwWM.obj_list[i][0];
+                  int num = mwWM.obj_list[i][1];
                   if (typ == 2) // item
                   {
                      x = item[num][4]/20;
@@ -300,17 +309,17 @@ int mwWindowManager::redraw_level_editor_background(void)
                      x = al_fixtoi(Efi[num][0]/20);
                      y = al_fixtoi(Efi[num][1]/20);
                   }
-                  if ((gx == x) && (gy == y)) obj_list[i][2] = 1; // turn on highlight for this list item
+                  if ((gx == x) && (gy == y)) mwWM.obj_list[i][2] = 1; // turn on highlight for this list item
                }
             }
 
          // mark objects on map that have already been added to list
          for (int i=0; i<NUM_OBJ; i++)
          {
-            if (obj_list[i][0])
+            if (mwWM.obj_list[i][0])
             {
-               int typ = obj_list[i][0];
-               int num = obj_list[i][1];
+               int typ = mwWM.obj_list[i][0];
+               int num = mwWM.obj_list[i][1];
                if (typ == 2)
                {
                   x = item[num][4];
@@ -321,7 +330,7 @@ int mwWindowManager::redraw_level_editor_background(void)
                   x = al_fixtoi(Efi[num][0]);
                   y = al_fixtoi(Efi[num][1]);
                }
-               if (obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, palette_color[flash_color], 1); // highlight
+               if (mwWM.obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, palette_color[flash_color], 1); // highlight
                else                al_draw_rectangle(x,   y,   x+20,   y+20,   palette_color[10], 1);
             }
          }
@@ -434,7 +443,7 @@ void mwWindowManager::set_windows(int mode)
       mW[8].layer = 7;
       mW[8].active = 1;
       mW[8].set_pos(0, 0);
-      mW[8].set_size(SCREEN_W, BORDER_WIDTH);
+      mW[8].set_size(mwD.SCREEN_W, BORDER_WIDTH);
       mW[8].set_title("top menu");
       mW[8].moveable = 0;
 
@@ -530,8 +539,8 @@ int mwWindowManager::is_mouse_on_any_window(void)
    if (mouse_x < BORDER_WIDTH) mow = 1;
    if (mouse_y < BORDER_WIDTH) mow = 1;
 
-   if (mouse_x > SCREEN_W - BORDER_WIDTH) mow = 1;
-   if (mouse_y > SCREEN_H - BORDER_WIDTH) mow = 1;
+   if (mouse_x > mwD.SCREEN_W - BORDER_WIDTH) mow = 1;
+   if (mouse_y > mwD.SCREEN_H - BORDER_WIDTH) mow = 1;
 
 
    return mow;

@@ -4,7 +4,11 @@
 #include "mwWindowManager.h"
 #include "z_player.h"
 #include "n_netgame.h"
-
+#include "mwLogo.h"
+#include "mwDemoMode.h"
+#include "mwDisplay.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
 
 char help_string[5000][200];
 
@@ -67,7 +71,7 @@ void chop_first_x_char(char *str, int n)
 
 void help(const char *topic)
 {
-//   if (SCREEN_H < 480) return;       // wont work with SCREEN_H < 480
+//   if (mwD.SCREEN_H < 480) return;       // wont work with mwD.SCREEN_H < 480
    help_screens_running = 1;
    int num_of_lines = load_help();
    char section_names[60][80];
@@ -165,20 +169,20 @@ void help(const char *topic)
       al_set_target_backbuffer(display);
       al_clear_to_color(al_map_rgb(0,0,0));
 
-      int dx = SCREEN_W/2 - 320;
-      //int xo  = (SCREEN_W - 640) / 2;   // x offset (distance from left screen edge to start of help screen)
-      int lpp = (SCREEN_H - 40)  / 8;   // lines per page
+      int dx = mwD.SCREEN_W/2 - 320;
+      //int xo  = (mwD.SCREEN_W - 640) / 2;   // x offset (distance from left screen edge to start of help screen)
+      int lpp = (mwD.SCREEN_H - 40)  / 8;   // lines per page
 
       last_pos = num_of_lines - lpp - 2;
 
       for (int x=0; x<16; x++)
-         al_draw_rectangle(dx+x, x, dx+639-x, SCREEN_H-1-x, palette_color[fc+(x*16)], 1);
+         al_draw_rectangle(dx+x, x, dx+639-x, mwD.SCREEN_H-1-x, palette_color[fc+(x*16)], 1);
 
-      al_draw_text(font, palette_color[ftc], dx+320,                    2, ALLEGRO_ALIGN_CENTRE, "Purple Martians Help");
-      al_draw_text(font, palette_color[ftc], dx+16,                     2, 0, "<UP><DOWN>");
-      al_draw_text(font, palette_color[ftc], dx+640-(11*8)-16,          2, 0, "<ESC>-quits");
-      al_draw_text(font, palette_color[ftc], dx+16,            SCREEN_H-9, 0, "<PAGEUP><PAGEDOWN>");
-      al_draw_text(font, palette_color[ftc], dx+640-(11*8)-16, SCREEN_H-9, 0, "<HOME><END>");
+      al_draw_text(mF.pr8, palette_color[ftc], dx+320,                    2, ALLEGRO_ALIGN_CENTRE, "Purple Martians Help");
+      al_draw_text(mF.pr8, palette_color[ftc], dx+16,                     2, 0, "<UP><DOWN>");
+      al_draw_text(mF.pr8, palette_color[ftc], dx+640-(11*8)-16,          2, 0, "<ESC>-quits");
+      al_draw_text(mF.pr8, palette_color[ftc], dx+16,            mwD.SCREEN_H-9, 0, "<PAGEUP><PAGEDOWN>");
+      al_draw_text(mF.pr8, palette_color[ftc], dx+640-(11*8)-16, mwD.SCREEN_H-9, 0, "<HOME><END>");
 
       for (int c=0; c<lpp; c++) // cycle lines
       {
@@ -201,7 +205,8 @@ void help(const char *topic)
 
             if (strncmp(msg, "<title>", 7) == 0) // show title
             {
-                al_set_clipping_rectangle((dx+12)*display_transform_double, (12*display_transform_double), (639-12*2)*display_transform_double, (SCREEN_H-12*2)*display_transform_double);
+                //al_set_clipping_rectangle((dx+12)*mwD.display_transform_double, (12*mwD.display_transform_double), (639-12*2)*mwD.display_transform_double, (mwD.SCREEN_H-12*2)*mwD.display_transform_double);
+                mwD.mw_set_clipping_rect(dx+12, 12, 639-12*2, mwD.SCREEN_H-12*2);
                 draw_title(dx+sxc+10, sy, 360, 64, 8);
                 msg[0]= 0;
                 al_reset_clipping_rectangle();
@@ -214,7 +219,7 @@ void help(const char *topic)
                   al_draw_line(dx+x, 28+(c*8)+x, dx+639-x, 28+(c*8)+x, palette_color[sc+(x*16)], 1 );
                   al_draw_line(dx+x, 28+(c*8)-x, dx+639-x, 28+(c*8)-x, palette_color[sc+(x*16)], 1 );
                }
-               al_draw_text(font, palette_color[stc], dx+320, 24+(c*8),  ALLEGRO_ALIGN_CENTER, msg);
+               al_draw_text(mF.pr8, palette_color[stc], dx+320, 24+(c*8),  ALLEGRO_ALIGN_CENTER, msg);
                msg[0]= 0;
             }
             if (strncmp(msg, "<end of file>", 13) == 0)
@@ -224,7 +229,7 @@ void help(const char *topic)
                   al_draw_line(dx+x, 28+(c*8)+x, dx+639-x, 28+(c*8)+x, palette_color[sc+(x*16)], 1 );
                   al_draw_line(dx+x, 28+(c*8)-x, dx+639-x, 28+(c*8)-x, palette_color[sc+(x*16)], 1 );
                }
-               al_draw_text(font, palette_color[stc], dx+320, 24+(c*8),  ALLEGRO_ALIGN_CENTER, msg);
+               al_draw_text(mF.pr8, palette_color[stc], dx+320, 24+(c*8),  ALLEGRO_ALIGN_CENTER, msg);
                c = lpp;   // end the cycle lines loop to prevent drawing unitialized lines
                msg[0]= 0;
             }
@@ -243,28 +248,14 @@ void help(const char *topic)
                 al_draw_bitmap(selection_window, dx+sxc-161, sy, 0 );
                 msg[0]= 0;
             }
-
-            if (strncmp(msg, "<mdw>", 5) == 0) // show mdw logo
-            {
-               float sc = .5;
-               int xo = (int)(200 * sc)+16;
-               mdw_an3(dx+320 + sxc-xo, sy+xo+16, sc, 3);
-               mdw_an3(dx+320 - sxc+xo, sy+xo+16, sc, 3);
-               mdw_an3(dx+sxc, sy+50, .1, 1);
-               mdw_an3(dx+sxc, sy+200, .2, 1);
-               float bs = (float)640 / (float)560;
-               mdw_an3(dx+sxc, sy+500, bs, 5);
-               msg[0]= 0;
-            }
             if (strncmp(msg, "<mdw1>", 6) == 0) // show mdw logo
             {
-               al_set_clipping_rectangle((dx+12)*display_transform_double, (12*display_transform_double), (639-12*2)*display_transform_double, (SCREEN_H-12*2)*display_transform_double);
+               mwD.mw_set_clipping_rect(dx+12, 12, 639-12*2, mwD.SCREEN_H-12*2);
+               //al_set_clipping_rectangle((dx+12)*mwD.display_transform_double, (12*mwD.display_transform_double), (639-12*2)*mwD.display_transform_double, (mwD.SCREEN_H-12*2)*mwD.display_transform_double);
                float sc = .25;
                int xo = (int)(200 * sc)+16;
-//               mdw_an3(dx+320 + sxc-xo, sy+xo+16-140, sc, 2);
-//               mdw_an3(dx+320 - sxc+xo, sy+xo+16-140, sc, 2);
-               mdw_an3(dx+320 + sxc-xo, sy+50, sc, 2);
-               mdw_an3(dx+320 - sxc+xo, sy+50, sc, 2);
+               mwL.mdw_an(dx+320 + sxc-xo, sy+50, sc);
+               mwL.mdw_an(dx+320 - sxc+xo, sy+50, sc);
                msg[0]= 0;
                al_reset_clipping_rectangle();
             }
@@ -275,7 +266,7 @@ void help(const char *topic)
                 buff2[2] = msg[5];
                 buff2[3] = 0;
                 int ans = zz[0][atoi(buff2)];
-                al_draw_bitmap(tile[ans], dx+sxc, sy, 0 );
+                al_draw_bitmap(mwB.tile[ans], dx+sxc, sy, 0 );
                 msg[0]= 0;
             }
 
@@ -290,7 +281,7 @@ void help(const char *topic)
                 //printf("s:'%s' i:%d\n", buff2, atoi(buff2));
 
                 int ans = zz[0][atoi(buff2)];
-                al_draw_bitmap(btile[ans], dx+sx, sy, 0 );
+                al_draw_bitmap(mwB.btile[ans], dx+sx, sy, 0 );
 
                 chop_first_x_char(msg, 6);
                 xindent +=24;
@@ -302,7 +293,7 @@ void help(const char *topic)
                 buff2[1] = msg[3];
                 buff2[2] = 0;
                 int ans = zz[0][atoi(buff2)];
-                al_draw_bitmap(tile[ans], dx+sx, sy, 0 );
+                al_draw_bitmap(mwB.tile[ans], dx+sx, sy, 0 );
 
                 chop_first_x_char(msg, 5);
                 xindent +=24;
@@ -317,7 +308,7 @@ void help(const char *topic)
                 buff2[3] = 0;
                 int health = atoi(buff2);
                 draw_percent_bar(dx+sxc+10, sy, 88, 10, health);
-                al_draw_textf(font, palette_color[14], dx+sxc+10, sy+2, ALLEGRO_ALIGN_CENTER, "Health:%-2d", health);
+                al_draw_textf(mF.pr8, palette_color[14], dx+sxc+10, sy+2, ALLEGRO_ALIGN_CENTER, "Health:%-2d", health);
                 msg[0]= 0;
             }
             if (strncmp(msg, "<pc", 3) == 0) // <pcxx> show player and color text (centered)
@@ -327,8 +318,8 @@ void help(const char *topic)
                 buff2[2] = 0;
                 int pco = atoi(buff2);
                 int ans = zz[1][9];
-                al_draw_bitmap(player_tile[pco][ans], dx+sxc-40, sy, 0 );
-                al_draw_text(font, palette_color[pco], dx+sxc+24-40, sy+7, 0, color_name[pco]);
+                al_draw_bitmap(mwB.player_tile[pco][ans], dx+sxc-40, sy, 0 );
+                al_draw_text(mF.pr8, palette_color[pco], dx+sxc+24-40, sy+7, 0, color_name[pco]);
                 msg[0]= 0;
             }
             if (strncmp(msg, "<p", 2) == 0) // <pxx> show player (left just)
@@ -339,7 +330,7 @@ void help(const char *topic)
                 buff2[2] = 0;
                 int pco = atoi(buff2);
                 int ans = zz[1][9];
-                al_draw_bitmap(player_tile[pco][ans], dx+sx, sy, 0 );
+                al_draw_bitmap(mwB.player_tile[pco][ans], dx+sx, sy, 0 );
                 chop_first_x_char(msg, 5);
                 xindent +=24;
             }
@@ -351,7 +342,7 @@ void help(const char *topic)
                buff2[2] = msg[5];
                buff2[3] = 0;
                int ans = atoi(buff2);
-               al_draw_bitmap(btile[ans], dx+sx, sy, 0 );
+               al_draw_bitmap(mwB.btile[ans], dx+sx, sy, 0 );
                chop_first_x_char(msg, 7);
                xindent +=24;
             }
@@ -363,7 +354,7 @@ void help(const char *topic)
                buff2[2] = msg[4];
                buff2[3] = 0;
                int ans = atoi(buff2);
-               al_draw_bitmap(tile[ans], dx+sx, sy, 0 );
+               al_draw_bitmap(mwB.tile[ans], dx+sx, sy, 0 );
                chop_first_x_char(msg, 6);
                xindent +=24;
             }
@@ -377,7 +368,7 @@ void help(const char *topic)
                   buff2[2] = msg[5+z*3];
                   buff2[3] = 0;
                   int ans = atoi(buff2);
-                  al_draw_bitmap(btile[ans], dx+sx+(z*20), sy, 0 );
+                  al_draw_bitmap(mwB.btile[ans], dx+sx+(z*20), sy, 0 );
                }
                msg[0]= 0;
             }
@@ -455,8 +446,8 @@ void help(const char *topic)
                txt[nexttag] = 0;                  // terminate 'txt' with NULL to shorten string
                chop_first_x_char(msg, nexttag);   // remove this from the beginning of 'msg'
             }
-            if (just) al_draw_text(font, palette_color[color], dx+320,          24+(c*8), ALLEGRO_ALIGN_CENTER, txt );
-            else      al_draw_text(font, palette_color[color], dx+20 + xindent, 24+(c*8)+tay, 0, txt );
+            if (just) al_draw_text(mF.pr8, palette_color[color], dx+320,          24+(c*8), ALLEGRO_ALIGN_CENTER, txt );
+            else      al_draw_text(mF.pr8, palette_color[color], dx+20 + xindent, 24+(c*8)+tay, 0, txt );
             xindent += strlen(txt) * 8;
          } // end of while nexttag != -1
       } // end of cycle lines
@@ -480,7 +471,7 @@ void help(const char *topic)
       // limits
       if (line < 0)  line = 0;
       if (line > last_pos)  line = last_pos;
-      if (got_num) al_draw_textf(font, palette_color[ftc], dx+320, SCREEN_H-9, ALLEGRO_ALIGN_CENTER, "jump to section %1d_", got_num-48);
+      if (got_num) al_draw_textf(mF.pr8, palette_color[ftc], dx+320, mwD.SCREEN_H-9, ALLEGRO_ALIGN_CENTER, "jump to section %1d_", got_num-48);
       if (key_pressed_ASCII)
       {
           int k = key_pressed_ASCII;
@@ -707,7 +698,7 @@ int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function doe
       int mt = strlen(global_string[menu_num][0])*8;
       al_draw_filled_rectangle(x1-2, y1-2, x1+mt+2, y1+yh, palette_color[pc+128]);
       al_draw_rectangle(       x1-2, y1-2, x1+mt+2, y1+yh, palette_color[15], 1);
-      al_draw_text(font, palette_color[15], x1, y1+1, 0, global_string[menu_num][0]);
+      al_draw_text(mF.pr8, palette_color[15], x1, y1+1, 0, global_string[menu_num][0]);
 
       // erase menu background
       al_draw_filled_rectangle(x1-2, y1+12, x2, y2, palette_color[pc+128+48]);
@@ -718,11 +709,11 @@ int tmenu(int menu_num, int menu_pos, int x1, int y1)  // this menu function doe
       {
          int b = 15+48; // default text color
          int h = 15;    // highlight text color
-         al_draw_text(font, palette_color[b], x1, y1+(c*12)+2, 0, global_string[menu_num][c]);
+         al_draw_text(mF.pr8, palette_color[b], x1, y1+(c*12)+2, 0, global_string[menu_num][c]);
          if (c == highlight)
          {
             al_draw_filled_rectangle(            x1-2, y1+(c*12), x2, y1+(c*12)+11, palette_color[h+128]);
-            al_draw_text(font, palette_color[h], x1,   y1+(c*12)+2, 0, global_string[menu_num][c]);
+            al_draw_text(mF.pr8, palette_color[h], x1,   y1+(c*12)+2, 0, global_string[menu_num][c]);
             al_draw_rectangle(                   x1-2, y1+(c*12), x2, y1+(c*12)+11, palette_color[h], 1);
          }
       }
@@ -764,7 +755,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
 {
    y+=4;
 
-   demo_mode_countdown_val = demo_mode_countdown_reset;
+   mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
 
    int highlight = menu_pos;
    int selection = 999;
@@ -788,29 +779,26 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       menu_update = 0;
 
 
-
-
-
-
       frame_and_title(1);
-      mdw_an();
+      mwL.mdw_an(mwL.mdw_map_logo_x, mwL.mdw_map_logo_y, mwL.mdw_map_logo_scale);
 
 
-      int mx = SCREEN_W/2;
+
+      int mx = mwD.SCREEN_W/2;
       if (menu_num == 7)
       {
          draw_level(); // only draw map on main menu
 
-         if (resume_allowed) demo_mode_enabled = 0;
-         if (demo_mode_enabled)
+         if (resume_allowed) mwDM.demo_mode_enabled = 0;
+         if (mwDM.demo_mode_enabled)
          {
-            if (--demo_mode_countdown_val < 0)
+            if (--mwDM.demo_mode_countdown_val < 0)
             {
-               demo_mode_countdown_val = demo_mode_countdown_reset;
-               demo_mode_enabled = 0;
+               mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
+               mwDM.demo_mode_enabled = 0;
                return 9;
             }
-            sprintf(global_string[7][9], "Demo Mode (%d)", demo_mode_countdown_val / 100);
+            sprintf(global_string[7][9], "Demo Mode (%d)", mwDM.demo_mode_countdown_val / 100);
          }
          else sprintf(global_string[7][9], "Demo Mode");
       }
@@ -827,7 +815,7 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
             int sl = strlen(global_string[menu_num][c]) * 4;
             al_draw_rectangle(mx-sl-2+0.5f, y+(c*10)-1+0.5f, mx+sl+0.5f, y+(c*10)+9+0.5f, palette_color[b+80], 1);
          }
-         al_draw_text(font, palette_color[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[menu_num][c]);
+         al_draw_text(mF.pr8, palette_color[b], mx, y+(c*10)+1, ALLEGRO_ALIGN_CENTRE, global_string[menu_num][c]);
          c++;
       }
       last_list_item = c-1;
@@ -849,16 +837,16 @@ int zmenu(int menu_num, int menu_pos, int y)  // this menu function does not pas
       {
          if (++highlight > last_list_item) highlight = last_list_item;
          down_held = 1;
-         demo_mode_countdown_val = demo_mode_countdown_reset;
-         demo_mode_enabled = 0;
+         mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
+         mwDM.demo_mode_enabled = 0;
       }
       if ( (!(key[ALLEGRO_KEY_DOWN][0])) && (!(players[0].down))) down_held = 0;
       if (((key[ALLEGRO_KEY_UP][0]) || (players[0].up)) && (up_held == 0))
       {
          if (--highlight < 2) highlight = 2;
          up_held = 1;
-         demo_mode_countdown_val = demo_mode_countdown_reset;
-         demo_mode_enabled = 0;
+         mwDM.demo_mode_countdown_val = mwDM.demo_mode_countdown_reset;
+         mwDM.demo_mode_enabled = 0;
       }
       if ( (!(key[ALLEGRO_KEY_UP][0])) && (!(players[0].up))) up_held = 0;
 
@@ -893,13 +881,13 @@ int pmenu(int menu_num, int bg_color)
 
    int kx = mouse_x;
    if (kx < 100) kx = 100;
-   if (kx > SCREEN_W-100) kx = SCREEN_W-100;
+   if (kx > mwD.SCREEN_W-100) kx = mwD.SCREEN_W-100;
 
    int up = 0;
    int ky = mouse_y-20;
-   if (menu_num == 2) if (ky > SCREEN_H - 160) up=1; // main editor menu
-   if (menu_num == 6) if (ky > SCREEN_H - 60) up=1;  // lift step menu
-   if (menu_num == 5) if (ky > SCREEN_H - 80) up=1;  // generic menu
+   if (menu_num == 2) if (ky > mwD.SCREEN_H - 160) up=1; // main editor menu
+   if (menu_num == 6) if (ky > mwD.SCREEN_H - 60) up=1;  // lift step menu
+   if (menu_num == 5) if (ky > mwD.SCREEN_H - 80) up=1;  // generic menu
 
    if (!up) // normal version
    {
@@ -934,7 +922,7 @@ int pmenu(int menu_num, int bg_color)
             w = sl*4;
 
             if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky+(c*8), kx+w, ky+(c*8)+8, palette_color[0]);
-            al_draw_text(font, palette_color[b], kx, ky+(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
+            al_draw_text(mF.pr8, palette_color[b], kx, ky+(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
             c++;
          }
          last_list_item = c-1;
@@ -952,7 +940,7 @@ int pmenu(int menu_num, int bg_color)
    {
       if (menu_num == 5) ky += 18;  // generic menu
       else ky = mouse_y+12; // to put mouse on default button
-      if (ky > SCREEN_H) ky = SCREEN_H;
+      if (ky > mwD.SCREEN_H) ky = mwD.SCREEN_H;
       do   // until selection is made
       {
          al_rest(0.02);
@@ -981,7 +969,7 @@ int pmenu(int menu_num, int bg_color)
             if (c == highlight) b=9;
             int w = strlen(global_string[menu_num][c])*4;
             if (bg_color == 0) al_draw_filled_rectangle(kx-w, ky-(c*8), kx+w, ky-(c*8)+8, palette_color[0]);
-            al_draw_text(font, palette_color[b], kx, ky-(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
+            al_draw_text(mF.pr8, palette_color[b], kx, ky-(c*8),  ALLEGRO_ALIGN_CENTER, global_string[menu_num][c]);
             c++;
          }
          last_list_item = c-1;
@@ -1049,12 +1037,12 @@ void show_cursor(char *f, int cursor_pos, int xpos_c, int ypos, int cursor_color
    if (restore) // black background, text color text
    {
       al_draw_filled_rectangle(x, y, x+8, y+8, palette_color[0]);
-      al_draw_text(font, palette_color[cursor_color], x, y, 0, msg);
+      al_draw_text(mF.pr8, palette_color[cursor_color], x, y, 0, msg);
    }
    else // red background, black text
    {
       al_draw_filled_rectangle(x, y, x+8, y+8, palette_color[10]);
-      al_draw_text(font, palette_color[0], x, y, 0, msg);
+      al_draw_text(mF.pr8, palette_color[0], x, y, 0, msg);
    }
 }
 
@@ -1109,7 +1097,7 @@ int edit_pmsg_text(int c, int new_msg)
 
 //      al_draw_filled_rectangle(xa, by1-30, xb, by1-10, palette_color[0]);
 //      al_draw_rectangle(xa, by1-30, xb, by1-10, palette_color[15], 1);
-//      al_draw_textf(font, palette_color[15], xa, by1-20, 0, "%d/%d %d", cursor_pos, char_count, strlen(f));
+//      al_draw_textf(mF.pr8, palette_color[15], xa, by1-20, 0, "%d/%d %d", cursor_pos, char_count, strlen(f));
 
       proc_event_queue();
 
@@ -1233,8 +1221,8 @@ void edit_server_name(int type, int x, int y)
    int quit = 0;
    while (!quit)
    {
-      int tx = SCREEN_W/2;
-      int ty1 = SCREEN_H/2;
+      int tx = mwD.SCREEN_W/2;
+      int ty1 = mwD.SCREEN_H/2;
       int w = (char_count+1)*4;
 
       if (type == 1)
@@ -1248,11 +1236,11 @@ void edit_server_name(int type, int x, int y)
       // clear text background
       al_draw_filled_rectangle(tx-w-8, ty1-4-2, tx+w+18, ty1+4+3, palette_color[0]);
 
-      al_draw_text(font, palette_color[15], tx, ty1-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
+      al_draw_text(mF.pr8, palette_color[15], tx, ty1-14, ALLEGRO_ALIGN_CENTER, "Set Server IP or Hostname");
       // frame text
       al_draw_rectangle       (tx-w-1, ty1-4-1, tx+w+6, ty1+6, palette_color[15], 1);
 
-      rtextout_centre(font, NULL, fst, tx, ty1+1, 15, 1, 0, 1);
+      rtextout_centre(mF.pr8, NULL, fst, tx, ty1+1, 15, 1, 0, 1);
 
       if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1-3, 15, 0);
       else show_cursor(fst, cursor_pos, tx, ty1-3, 15, 1);
@@ -1346,7 +1334,7 @@ int edit_lift_name(int lift, int y1, int x1, char *fst)
       for (a=0; a<10; a++)
         al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[color + ((9 - a)*16)], 2 );
       al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
-      al_draw_text(font, palette_color[color+160], tx, ty1, ALLEGRO_ALIGN_CENTRE, fst);
+      al_draw_text(mF.pr8, palette_color[color+160], tx, ty1, ALLEGRO_ALIGN_CENTRE, fst);
 
 
       if (blink_counter++ < blink_count) show_cursor(fst, cursor_pos, tx, ty1, 15, 0);

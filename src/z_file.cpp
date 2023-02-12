@@ -4,7 +4,8 @@
 #include "mwWindowManager.h"
 #include "z_player.h"
 #include "n_netgame.h"
-
+#include "mwDemoMode.h"
+#include "mwBitmap.h"
 
 FILE *filepntr;
 
@@ -125,16 +126,15 @@ void load_mW(void)
    }
    else
    {
-      //printf("error loading mW.pm -- recreating\n");
-      //save_mW();
       printf("error loading mW.pm -- using defaults\n");
-      //save_mW();
    }
 
    // delete it...
 
    char sys_cmd[500];
-   sprintf(sys_cmd, "del bitmaps/mW.pm"); printf("%s\n",sys_cmd); system(sys_cmd);
+   sprintf(sys_cmd, "del bitmaps\\mW.pm");
+   //printf("%s\n",sys_cmd);
+   system(sys_cmd);
 
 }
 
@@ -143,8 +143,8 @@ int load_tiles(void)
    int load_error = 0;
 
    // get main tiles
-   tilemap = al_load_bitmap("bitmaps/tiles.bmp");
-   if (!tilemap)
+   mwB.tilemap = al_load_bitmap("bitmaps/tiles.bmp");
+   if (!mwB.tilemap)
    {
       m_err("Can't load tiles from bitmaps/tiles.bmp");
       load_error = 1;
@@ -152,19 +152,19 @@ int load_tiles(void)
    else
    {
       //printf("load good\n");
-      al_convert_mask_to_alpha(tilemap, al_map_rgb(0, 0, 0)) ;
-      al_set_target_bitmap(M_tilemap);
-      al_draw_bitmap(tilemap, 0, 0, 0);
+      al_convert_mask_to_alpha(mwB.tilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(mwB.M_tilemap);
+      al_draw_bitmap(mwB.tilemap, 0, 0, 0);
       for (int y=0; y<32; y++)
          for (int x=0; x<32; x++)
-            tile[y*32 + x] = al_create_sub_bitmap(tilemap, x*20, y*20, 20, 20);
+            mwB.tile[y*32 + x] = al_create_sub_bitmap(mwB.tilemap, x*20, y*20, 20, 20);
    }
 
 
 
    // get block tiles
-   btilemap = al_load_bitmap("bitmaps/block_tiles.bmp");
-   if (!btilemap)
+   mwB.btilemap = al_load_bitmap("bitmaps/block_tiles.bmp");
+   if (!mwB.btilemap)
    {
       m_err("Can't load tiles from bitmaps/block_tiles.bmp");
       load_error = 1;
@@ -172,12 +172,12 @@ int load_tiles(void)
    else
    {
       //printf("load good\n");
-      al_convert_mask_to_alpha(btilemap, al_map_rgb(0, 0, 0)) ;
-      al_set_target_bitmap(M_btilemap);
-      al_draw_bitmap(btilemap, 0, 0, 0);
+      al_convert_mask_to_alpha(mwB.btilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(mwB.M_btilemap);
+      al_draw_bitmap(mwB.btilemap, 0, 0, 0);
       for (int y=0; y<32; y++)
          for (int x=0; x<32; x++)
-            btile[y*32 + x] = al_create_sub_bitmap(btilemap, x*20, y*20, 20, 20);
+            mwB.btile[y*32 + x] = al_create_sub_bitmap(mwB.btilemap, x*20, y*20, 20, 20);
    }
 
 
@@ -185,8 +185,8 @@ int load_tiles(void)
 
 
    // get player tiles
-   ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
-   if (!ptilemap)
+   mwB.ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
+   if (!mwB.ptilemap)
    {
       m_err("Can't load tiles from bitmaps/player_tiles.bmp");
       load_error = 1;
@@ -194,18 +194,18 @@ int load_tiles(void)
    else
    {
       //printf("load good\n");
-      al_convert_mask_to_alpha(ptilemap, al_map_rgb(0, 0, 0)) ;
-      al_set_target_bitmap(M_ptilemap);
-      al_draw_bitmap(ptilemap, 0, 0, 0);
+      al_convert_mask_to_alpha(mwB.ptilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(mwB.M_ptilemap);
+      al_draw_bitmap(mwB.ptilemap, 0, 0, 0);
       for (int a=0; a<16; a++)
          for (int b=0; b<24; b++)
-            player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
+            mwB.player_tile[a][b] = al_create_sub_bitmap(mwB.ptilemap, b*20, a*20, 20, 20);
 
    }
 
    // get door tiles
-   dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
-   if (!dtilemap)
+   mwB.dtilemap = al_load_bitmap("bitmaps/door_tiles.bmp");
+   if (!mwB.dtilemap)
    {
       m_err("Can't load tiles from bitmaps/door_tiles.bmp");
       load_error = 1;
@@ -213,14 +213,14 @@ int load_tiles(void)
    else
    {
       //printf("load good\n");
-      al_convert_mask_to_alpha(dtilemap, al_map_rgb(0, 0, 0)) ;
-      al_set_target_bitmap(M_dtilemap);
-      al_draw_bitmap(dtilemap, 0, 0, 0);
+      al_convert_mask_to_alpha(mwB.dtilemap, al_map_rgb(0, 0, 0)) ;
+      al_set_target_bitmap(mwB.M_dtilemap);
+      al_draw_bitmap(mwB.dtilemap, 0, 0, 0);
       for (int a=0; a<16; a++)
          for (int b=0; b<8; b++)
          {
-            door_tile[0][a][b] = al_create_sub_bitmap(dtilemap, b*20,     a*20, 20, 20);
-            door_tile[1][a][b] = al_create_sub_bitmap(dtilemap, b*20, 320+a*20, 20, 20);
+            mwB.door_tile[0][a][b] = al_create_sub_bitmap(mwB.dtilemap, b*20,     a*20, 20, 20);
+            mwB.door_tile[1][a][b] = al_create_sub_bitmap(mwB.dtilemap, b*20, 320+a*20, 20, 20);
          }
    }
 
@@ -835,8 +835,8 @@ int load_gm(const char *sfname )
             }
          fclose(filepntr);
          play_level = game_moves[0][3]; // set play level
-         demo_mode_last_frame = game_moves[game_move_entry_pos-1][0];
-         //printf("dmlf:%d\n", demo_mode_last_frame );
+         mwDM.demo_mode_last_frame = game_moves[game_move_entry_pos-1][0];
+         //printf("dmlf:%d\n", mwDM.demo_mode_last_frame );
          return 1;
       }
    }

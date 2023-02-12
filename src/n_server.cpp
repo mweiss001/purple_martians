@@ -3,8 +3,9 @@
 #include "z_log.h"
 #include "z_player.h"
 #include "n_netgame.h"
+#include "n_packet.h"
 #include "mwTally.h"
-
+#include "mwTimeStamp.h"
 
 // n_network.h
 extern int NetworkDriver;
@@ -17,101 +18,6 @@ NET_CONN *ClientConn[MAX_CLIENTS] = {NULL, };        // array of connections for
 NET_CHANNEL *ListenChannel = NULL;                   // listen channel
 NET_CHANNEL *ClientChannel[MAX_CLIENTS] = {NULL, };  // array of channels for each client
 
-
-void init_packet_buffer(void)
-{
-   for (int i=0; i<200; i++)
-   {
-      packet_buffers[i].active = 0;
-      packet_buffers[i].type = 0;
-      packet_buffers[i].timestamp = 0;
-      packet_buffers[i].who = 0;
-      packet_buffers[i].packetsize = 0;
-      packet_buffers[i].data[0] = 0;
-   }
-}
-
-
-void init_timestamps(void)
-{
-   timestamps_index = 0;
-   for (int i=0; i<10000; i++)
-   {
-
-      timestamps[i].frame0 = 0;
-      timestamps[i].frame1 = 0;
-      timestamps[i].frame2 = 0;
-      timestamps[i].type   = 0;
-      timestamps[i].t0     = 0;
-      timestamps[i].t1     = 0;
-      timestamps[i].t2     = 0;
-   }
-}
-
-
-void add_timestamp(int type, int f1, int f2, double t1, double t2)
-{
-   if (timestamps_index < 9998)
-   {
-      timestamps[timestamps_index].frame0 = frame_num;
-      timestamps[timestamps_index].frame1 = f1;
-      timestamps[timestamps_index].frame2 = f2;
-      timestamps[timestamps_index].type   = type;
-      timestamps[timestamps_index].t0     = al_get_time();
-      timestamps[timestamps_index].t1     = t1;
-      timestamps[timestamps_index].t2     = t2;
-
-      timestamps_index++;
-   }
-}
-
-int get_timestamp(int f, int type, double &res)
-{
-   for (int i=timestamps_index; i>=0; i--)
-   {
-      if ((timestamps[i].frame0 == f) && (timestamps[i].type == type))
-      {
-         res = timestamps[i].t0;
-         return 1;
-      }
-   }
-   return 0;
-}
-
-
-
-int get_newest_timestamp(int type, double &res)
-{
-   for (int i=timestamps_index; i>=0; i--)
-   {
-      if (timestamps[i].type == type)
-      {
-         res = timestamps[i].t0;
-         return 1;
-      }
-   }
-   return 0;
-}
-
-
-
-int get_delta(int f0, int type0, int f1, int type1, double &res)
-{
-   double t0 = -1, t1 = -1;
-   for (int i=timestamps_index; i>=0; i--)
-   {
-      if ((timestamps[i].frame0 == f0) && (timestamps[i].type == type0)) t0 = timestamps[i].t0;
-      if ((timestamps[i].frame0 == f1) && (timestamps[i].type == type1)) t1 = timestamps[i].t0;
-   }
-   if ((t0 != -1) && (t1 != -1))
-   {
-      res = t1-t0;
-      return 1;
-   }
-   if (t0 == -1) printf("did not find timestamp type:%d for frame:%d\n", type0, f0);
-   if (t1 == -1) printf("did not find timestamp type:%d for frame:%d\n", type1, f1);
-   return 0;
-}
 
 
 int ServerInitNetwork() // Initialize the server
@@ -599,7 +505,7 @@ void server_proc_cdat_packet(double timestamp)
    players1[p].server_game_move_sync = cdat_frame_num - frame_num;
 
    // calculate game_move_dsync
-   players1[p].game_move_dsync = ( (double) players1[p].server_game_move_sync * 0.025) + timestamp_frame_start - timestamp;
+   players1[p].game_move_dsync = ( (double) players1[p].server_game_move_sync * 0.025) + mwTS.timestamp_frame_start - timestamp;
 
    mwT_game_move_dsync_avg_last_sec[p].add_data(players1[p].game_move_dsync); // add to average tally
 
@@ -652,7 +558,7 @@ void server_proc_stak_packet(double timestamp)
    int stak_sync = frame_num - srv_client_state_frame_num[0][1];
 
    // calculate stak_dsync
-   players1[p].stak_dsync = ( (double) stak_sync * 0.025) + timestamp_frame_start - timestamp;
+   players1[p].stak_dsync = ( (double) stak_sync * 0.025) + mwTS.timestamp_frame_start - timestamp;
 
    server_lock_client(p);
 

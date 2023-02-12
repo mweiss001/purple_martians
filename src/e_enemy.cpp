@@ -1,7 +1,8 @@
 // e_enemy.cpp
 
 #include "pm.h"
-
+#include "mwDisplay.h"
+#include "mwFont.h"
 
 void erase_enemy(int e)
 {
@@ -93,8 +94,8 @@ void show_level_data(void)
    {
       y_pos = enemy_data(x_pos, y_pos) + 8;
       y_pos = item_data(x_pos, y_pos) + 8;
-      al_draw_textf(font, palette_color[15], x_pos, y_pos,   0, "%d Lifts  ", num_lifts);
-      al_draw_text(font, palette_color[15], x_pos, y_pos+8,  0, "-------");
+      al_draw_textf(mF.pr8, palette_color[15], x_pos, y_pos,   0, "%d Lifts  ", num_lifts);
+      al_draw_text(mF.pr8, palette_color[15], x_pos, y_pos+8,  0, "-------");
    }
    al_flip_display();
    tsw(); // wait for keypress
@@ -124,14 +125,14 @@ void show_all_enemies(void)
       al_draw_scaled_bitmap(tmp, 0, 0, 20, 20, 0, text_pos, rh, rh, 0);
 
 
-      al_draw_line(0, text_pos, SCREEN_W, text_pos, palette_color[15+128], 0);
+      al_draw_line(0, text_pos, mwD.SCREEN_W, text_pos, palette_color[15+128], 0);
 
 
       int tp1 = text_pos+(rh-16)/2;
       int tp2 = tp1+8;
       int tpc = (tp1+tp2)/2;
 
-      al_draw_textf(font, palette_color[14], rh+2, tpc, 0, "[%2d]",e);
+      al_draw_textf(mF.pr8, palette_color[14], rh+2, tpc, 0, "[%2d]",e);
       strcpy(msg,"");
       for (int j=0; j<32; j++)
       {
@@ -139,7 +140,7 @@ void show_all_enemies(void)
          sprintf(msg2,"[%d] ", Ei[e][j]);
          strcat(msg, msg2);
       }
-      al_draw_text(font, palette_color[13], 54, tp1, 0, msg);
+      al_draw_text(mF.pr8, palette_color[13], 54, tp1, 0, msg);
       strcpy(msg,"");
       for (int j=0; j<16; j++)
       {
@@ -147,9 +148,9 @@ void show_all_enemies(void)
          sprintf(msg2,"[%3.2f] ", al_fixtof(Efi[e][j]));
          strcat(msg, msg2);
       }
-      al_draw_text(font, palette_color[9], 54, tp2, 0, msg);
+      al_draw_text(mF.pr8, palette_color[9], 54, tp2, 0, msg);
       text_pos +=rh;
-      if (text_pos > SCREEN_H - 10)
+      if (text_pos > mwD.SCREEN_H - 10)
       {
          al_flip_display();
          tsw(); // wait for keypress

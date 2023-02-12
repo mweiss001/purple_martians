@@ -1,11 +1,27 @@
 // n_packet.cpp
-
 #include "pm.h"
+#include "n_packet.h"
+
+struct packet_buffer packet_buffers[200];
 
 // global memory buffer for the current network packet
 char packetbuffer[1024];
 int packetsize;
 static int packetpos;
+
+
+void init_packet_buffer(void)
+{
+   for (int i=0; i<200; i++)
+   {
+      packet_buffers[i].active = 0;
+      packet_buffers[i].type = 0;
+      packet_buffers[i].timestamp = 0;
+      packet_buffers[i].who = 0;
+      packet_buffers[i].packetsize = 0;
+      packet_buffers[i].data[0] = 0;
+   }
+}
 
 
 void set_packetpos(int pos)

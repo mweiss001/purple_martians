@@ -56,12 +56,22 @@ I can reduce the time, but what if it breaks things in network level done?
 I'm getting a stimp in single player
 
 
-in group edit jumpworms do not show icon in list windows
-
-
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
+
+
+
+I would like to do some more global cleanup...
+
+another good candidate is display, screen, etc...
+
+
+
+
+
+
+
 
 
 I would be nice be be able to do tc and netem things from within my program..

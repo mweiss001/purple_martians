@@ -2,7 +2,7 @@
 #include "pm.h"
 #include "z_log.h"
 #include "n_netgame.h"
-
+#include "mwLogo.h"
 
 
 
@@ -231,7 +231,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-ts") == 0 )  // copy to clients and run server
       {
          copy_files_to_clients(1); // pm.exe and levels only
-         show_splash_screen = 0;
+         mwL.show_splash_screen = 0;
          play_level = start_level;
          new_program_state = 20;
          return;
@@ -252,14 +252,14 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       // no server specified; use the one from the config file
       if (strcmp(argument_array[1],"-c") == 0 )
       {
-         show_splash_screen = 0;
+         mwL.show_splash_screen = 0;
          new_program_state = 24;
          return;
       }
       // no start level specified; use play level from config file
       if (strcmp(argument_array[1],"-s") == 0 )
       {
-         show_splash_screen = 0;
+         mwL.show_splash_screen = 0;
          play_level = start_level;
          new_program_state = 20;
          return;
@@ -267,7 +267,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
 
       if (strcmp(argument_array[1],"-f") == 0 )
       {
-         show_splash_screen = 0;
+         mwL.show_splash_screen = 0;
          if (load_gm("-"))
          {
             new_program_state = 14;
@@ -280,7 +280,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       int pl = atoi(argument_array[1]);
       if ((pl > 0) && (pl < 400))
       {
-         show_splash_screen = 0;
+         mwL.show_splash_screen = 0;
          play_level = pl;
          set_start_level(pl);
          printf("started game on level:%d\n", play_level);
@@ -296,7 +296,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
 
          if (load_gm(argument_array[1]))
          {
-            show_splash_screen = 0;
+            mwL.show_splash_screen = 0;
             new_program_state = 14;
             return;
          }
@@ -326,7 +326,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       }
       if (strcmp(argument_array[1],"-c") == 0 )
       {
-         show_splash_screen = 0;
+         mwL.show_splash_screen = 0;
          sprintf(m_serveraddress, "%s", argument_array[2]);
          save_config();
          new_program_state = 24;
@@ -334,7 +334,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       }
       if (strcmp(argument_array[1],"-s") == 0 )
       {
-         show_splash_screen = 0;
+         mwL.show_splash_screen = 0;
          play_level = atoi(argument_array[2]);
          new_program_state = 20;
          return;
@@ -461,18 +461,18 @@ void temp_test(void)
 
    while (!quit)
    {
-      al_draw_textf(font, palette_color[15], 10, 10, 0, "%d server current frame", s_fn);
-      al_draw_textf(font, palette_color[15], 10, 18, 0, "%d server last state frame", s_ls);
-      al_draw_textf(font, palette_color[15], 10, 26, 0, "%d server currrent ms", s_ms);
+      al_draw_textf(mF.pr8, palette_color[15], 10, 10, 0, "%d server current frame", s_fn);
+      al_draw_textf(mF.pr8, palette_color[15], 10, 18, 0, "%d server last state frame", s_ls);
+      al_draw_textf(mF.pr8, palette_color[15], 10, 26, 0, "%d server currrent ms", s_ms);
 
-      al_draw_textf(font, palette_color[15], 10, 36, 0, "%d ping ms", ping);
-      al_draw_textf(font, palette_color[15], 10, 44, 0, "%d client offset ms", co);
+      al_draw_textf(mF.pr8, palette_color[15], 10, 36, 0, "%d ping ms", ping);
+      al_draw_textf(mF.pr8, palette_color[15], 10, 44, 0, "%d client offset ms", co);
 
       // draw server time legend
       for (int i=0; i<10; i++)
       {
          int x1 = stl_x + i * fw;
-         al_draw_textf(font, palette_color[15], x1, stl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
+         al_draw_textf(mF.pr8, palette_color[15], x1, stl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
          al_draw_line(x1, stl_y+10, x1, stl_y+20, palette_color[15], 1);
       }
 
@@ -481,7 +481,7 @@ void temp_test(void)
       {
          int x1 = (stl_x + i * fw) + co*fw / 25;
 
-         al_draw_textf(font, palette_color[15], x1, ctl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
+         al_draw_textf(mF.pr8, palette_color[15], x1, ctl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
          al_draw_line(x1, ctl_y+10, x1, ctl_y+20, palette_color[15], 1);
       }
 
@@ -492,12 +492,12 @@ void temp_test(void)
 
       // mark current server time with line
       al_draw_line(x2, stl_y-20, x2, ctl_y+120, palette_color[15], 1);
-      al_draw_textf(f3, palette_color[15], x2, stl_y-30, ALLEGRO_ALIGN_CENTER, "now");
+      al_draw_textf(mF.pixl, palette_color[15], x2, stl_y-30, ALLEGRO_ALIGN_CENTER, "now");
 
 
       // mark server last state with line
       al_draw_line(x1, stl_y-10, x1, ctl_y+120, palette_color[15], 1);
-      al_draw_textf(f3, palette_color[15], x1, stl_y-20, ALLEGRO_ALIGN_CENTER, "last state");
+      al_draw_textf(mF.pixl, palette_color[15], x1, stl_y-20, ALLEGRO_ALIGN_CENTER, "last state");
 
 
 
@@ -640,14 +640,14 @@ void temp_test(void)
       if ((!cr) && (!sr)) sprintf(cmsg, "Normal Move");
       if ((!cr) && (sr))  sprintf(cmsg, "paused");
       if (cr) cmc = 10;
-      al_draw_textf(font, palette_color[cmc], 400, 0, 0, "Client %s",cmsg);
+      al_draw_textf(mF.pr8, palette_color[cmc], 400, 0, 0, "Client %s",cmsg);
 
 
       int smc = 15;
       if ((!cr) && (!sr)) sprintf(smsg, "Normal Move");
       if (cr)             sprintf(smsg, "paused");
       if ((sr) && (!cr))  smc = 10;
-      al_draw_textf(font, palette_color[smc], 0, 0, 0, "Server %s", smsg);
+      al_draw_textf(mF.pr8, palette_color[smc], 0, 0, 0, "Server %s", smsg);
 
 
       if (key[ALLEGRO_KEY_SPACE][3])
@@ -674,7 +674,7 @@ void temp_test(void)
       {
          int sc = 15;
          if (i == sfn) sc = 10;
-         al_draw_textf(font, palette_color[sc], 0,   10+(i-100)*ls, 0, "%3d", i);
+         al_draw_textf(mF.pr8, palette_color[sc], 0,   10+(i-100)*ls, 0, "%3d", i);
       }
 
       // draw client column
@@ -682,7 +682,7 @@ void temp_test(void)
       {
          int sc = 15;
          if (i+1 == cfn) sc = 10;
-         al_draw_textf(font, palette_color[sc], 400, 10+(i-100)*ls, 0, "%3d", i+1);
+         al_draw_textf(mF.pr8, palette_color[sc], 400, 10+(i-100)*ls, 0, "%3d", i+1);
       }
 
 
@@ -694,38 +694,38 @@ void temp_test(void)
       al_draw_rectangle(0, lsy1-1, 100, lsy3-1, palette_color[15], 1);
       //al_draw_rectangle(0, lsy2-1, 200, lsy3-1, palette_color[15], 1);
 
-      al_draw_textf(font, palette_color[9], 102, lsy1, 0, "last state:%d", last_state);
+      al_draw_textf(mF.pr8, palette_color[9], 102, lsy1, 0, "last state:%d", last_state);
       al_draw_rectangle(0, lsy1-1, 240, lsy1+ls-1, palette_color[9], 1);
 
 
       // current frame server
       int cfy1 = 10+(sfn-100)*ls-2;
-      al_draw_textf(font, palette_color[10], 260, cfy1, 0, "current frame");
+      al_draw_textf(mF.pr8, palette_color[10], 260, cfy1, 0, "current frame");
       al_draw_line(0, cfy1+ls/2, 262, cfy1+ls/2, palette_color[10], 1);
 
       // current frame client
       cfy1 = 10+(cfn-101)*ls-2;
-      al_draw_textf(font, palette_color[10], 660, cfy1, 0, "current frame");
+      al_draw_textf(mF.pr8, palette_color[10], 660, cfy1, 0, "current frame");
       al_draw_line(400, cfy1+ls/2, 662, cfy1+ls/2, palette_color[10], 1);
 
 
       if ((sr != 4) && (sr != 0))
       {
-         al_draw_textf(font, palette_color[8], 102, lsy2, 0, "s1");
+         al_draw_textf(mF.pr8, palette_color[8], 102, lsy2, 0, "s1");
          al_draw_rectangle(0, lsy2-1, 200, lsy2+ls-1, palette_color[8], 1);
       }
 
       if ((sr) && (!cr))
       {
          int yp = 10+(sfn_b4_rewind-100)*ls;
-         al_draw_textf(font, palette_color[13], 102, yp, 0, "fn before rewind");
+         al_draw_textf(mF.pr8, palette_color[13], 102, yp, 0, "fn before rewind");
          al_draw_rectangle(0, yp-1, 240, yp+ls-1, palette_color[13], 1);
       }
 
       if (cr)
       {
          int yp = 10+(cfn_b4_rewind-101)*ls;
-         al_draw_textf(font, palette_color[13], 502, yp, 0, "fn before rewind");
+         al_draw_textf(mF.pr8, palette_color[13], 502, yp, 0, "fn before rewind");
          al_draw_rectangle(400, yp-1, 640, yp+ls-1, palette_color[13], 1);
       }
 
@@ -762,13 +762,13 @@ void temp_test(void)
 
 
 
-//   ALLEGRO_FONT *f = font;
+//   ALLEGRO_FONT *f = mF.pr8;
 //   for (int j=0; j<3; j++)
 //      for (int i=0; i<3; i++)
 //      {
-//         if (i == 0) f = font;
+//         if (i == 0) f = mF.pr8;
 //         if (i == 1) f = font0;
-//         if (i == 2) f = f3;
+//         if (i == 2) f = mF.pixl;
 //
 //         draw_text_in_box("Hellg", f, 100, 100 + i*20 + j*100, 10, j);
 //         draw_text_in_box("Hello", f, 150, 100 + i*20 + j*100, 10, j);
@@ -794,7 +794,7 @@ void temp_test(void)
 //
 //      int lco = 0;
 //
-//      al_draw_textf(font, palette_color[15], 10, 10, 0, "a:%d b:%d c:%d  t:%d", a, b, c, a+b+c);
+//      al_draw_textf(mF.pr8, palette_color[15], 10, 10, 0, "a:%d b:%d c:%d  t:%d", a, b, c, a+b+c);
 //
 //
 //      lco = 0;
@@ -835,7 +835,7 @@ void temp_test(void)
 //
 //      int lco = 0;
 //
-//      al_draw_textf(font, palette_color[15], 10, 10, 0, "a:%d b:%d t:%d", a, b, a+b);
+//      al_draw_textf(mF.pr8, palette_color[15], 10, 10, 0, "a:%d b:%d t:%d", a, b, a+b);
 //
 //
 //      lco = 0;
@@ -1013,7 +1013,7 @@ void temp_test(void)
 //      int y = 0;
 //
 //      for (int a=b; a<b+128; a++)
-//         al_draw_textf(font, palette_color[15], x, y+=8, 0, "%d-[%c] %d-[%c]", a, a, a+128, a+128);
+//         al_draw_textf(mF.pr8, palette_color[15], x, y+=8, 0, "%d-[%c] %d-[%c]", a, a, a+128, a+128);
 //      al_flip_display();
 //      tsw();
 //   }
@@ -1115,8 +1115,6 @@ void show_level_done(void);
 //   char tst[20];
 //   printf("sizeof %d\n", sizeof(tst));
 
-   //spline_test();
-   //spline_adjust();
 
 
    //tile_editor();

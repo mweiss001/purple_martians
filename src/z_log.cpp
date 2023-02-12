@@ -3,7 +3,8 @@
 #include "z_log.h"
 #include "mwGraph.h"
 #include "z_player.h"
-
+#include "mwDisplay.h"
+#include "mwFont.h"
 
 
 
@@ -530,7 +531,7 @@ int load_log_lines_array_from_static_file(const char* f)
 
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
-   al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s", f);
+   al_draw_textf(mF.pr8, palette_color[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s", f);
    al_flip_display();
 
    FILE *filepntr=fopen(f,"r");
@@ -745,7 +746,7 @@ int log_file_viewer(int type)
          if (type == 99) // bad tags on this line
          {
             sprintf(msg, "i[%d] t[%d] p[%d] pc[%d] (bad tags)- %s", i, type, p, pc, log_lines[i]);
-            al_draw_text(font, palette_color[color], 0, ty1+=8, 0, msg);
+            al_draw_text(mF.pr8, palette_color[color], 0, ty1+=8, 0, msg);
          }
          else
          {
@@ -758,13 +759,13 @@ int log_file_viewer(int type)
             color = tags[type][1];
             if ((tags[type][0]) && (lp[p][0])) // tag and player filter
             {
-                al_draw_text(font, palette_color[color], 0, ty1+=8, 0, msg);
+                al_draw_text(mF.pr8, palette_color[color], 0, ty1+=8, 0, msg);
                 last_line = i;
                 if ((int)strlen(msg) > max_line_length) max_line_length = strlen(msg);
             }
          }
          if (++i >= num_lines) done = 1; // no more lines
-         if (ty1 > SCREEN_H - 20) done = 1; // no more screen
+         if (ty1 > mwD.SCREEN_H - 20) done = 1; // no more screen
       }
 
 
@@ -781,7 +782,7 @@ int log_file_viewer(int type)
       int sbx1 = xpos;
       int sbx2 = sbx1+8;
       int sby1 = 8;
-      int sby2 = SCREEN_H - 10;
+      int sby2 = mwD.SCREEN_H - 10;
       int sbh = sby2-sby1;
       al_draw_rectangle(sbx1, sby1, sbx2, sby2+2, palette_color[sbc1], 1);
 
@@ -803,8 +804,8 @@ int log_file_viewer(int type)
       //al_draw_rectangle(sbx1+1, sby1+sbby1+1, sbx2-1, sby1+sbby2, palette_color[sbc3], 1);
       al_draw_filled_rectangle(sbx1+1, sby1+sbby1+1, sbx2-1, sby1+sbby2, palette_color[sbc3]);
 
-      al_draw_textf(f3, palette_color[sbc3], sbx2+4, sby1+sbby1-8, 0, "%d", first_line);
-      al_draw_textf(f3, palette_color[sbc3], sbx2+4, sby1+sbby2-1, 0, "%d", last_line);
+      al_draw_textf(mF.pixl, palette_color[sbc3], sbx2+4, sby1+sbby1-8, 0, "%d", first_line);
+      al_draw_textf(mF.pixl, palette_color[sbc3], sbx2+4, sby1+sbby2-1, 0, "%d", last_line);
 
       if ((mouse_x > sbx1) && (mouse_x < sbx2))
       {
@@ -816,7 +817,7 @@ int log_file_viewer(int type)
 
          // frame number of that log line
          int fn   = log_lines_int[sbmy][2];
-         al_draw_textf(f3, palette_color[15], sbx2+4, mouse_y-8, 0, "%d - frame:%d %ds %dm", sbmy, fn, fn/40, fn/2400);
+         al_draw_textf(mF.pixl, palette_color[15], sbx2+4, mouse_y-8, 0, "%d - frame:%d %ds %dm", sbmy, fn, fn/40, fn/2400);
 
          if (mouse_b[1][0])
          {
@@ -838,22 +839,22 @@ int log_file_viewer(int type)
 
       int ly = 4;
       sprintf(msg, "Current Log");
-      al_draw_text(font, palette_color[15], xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, palette_color[15], xpos, ly+=8, 0, msg);
 
       sprintf(msg, "%s", fnam);
-      al_draw_text(font, palette_color[15], xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, palette_color[15], xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Starting frame...[%d]", start_pc);
-      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, palette_color[15],xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Ending frame.....[%d]", end_pc);
-      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, palette_color[15],xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Total lines......[%d]", num_lines);
-      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, palette_color[15],xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Visible lines....[%d]", vis_lines);
-      al_draw_text(font, palette_color[15],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, palette_color[15],xpos, ly+=8, 0, msg);
 
       // show tag labels
       ly+=8;
@@ -872,7 +873,7 @@ int log_file_viewer(int type)
             tags[i][4] = ly; ly+=8;
             // set the ypos
             sprintf(msg, "%c %s %s num:[%d]", tags[i][3], ctags[i], tmsg, tags[i][2]);
-            al_draw_text(font, palette_color[col], xpos, ly, 0, msg);
+            al_draw_text(mF.pr8, palette_color[col], xpos, ly, 0, msg);
          }
       }
 
@@ -889,25 +890,25 @@ int log_file_viewer(int type)
             sprintf(tmsg,"off");
             col = 127; //grey
          }
-         al_draw_textf(font, palette_color[col], xpos, ly+=8, 0, "%d plyr:%d %s num:[%d]", i, i, tmsg, lp[i][1]);
+         al_draw_textf(mF.pr8, palette_color[col], xpos, ly+=8, 0, "%d plyr:%d %s num:[%d]", i, i, tmsg, lp[i][1]);
       }
 
       // current display
       ly+=8;
       sprintf(msg, "Current Display");
-      al_draw_text(font, palette_color[11],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, palette_color[11],xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Lines......[%d] to [%d]", first_line, last_line);
-      al_draw_text(font, palette_color[11],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, palette_color[11],xpos, ly+=8, 0, msg);
 
       int first_frame = log_lines_int[first_line][2];
       int last_frame = log_lines_int[last_line][2];
 
       sprintf(msg, "Frames.....[%d] to [%d]", first_frame, last_frame);
-      al_draw_text(font, palette_color[11],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, palette_color[11],xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Seconds....[%d] to [%d]", first_frame/40, last_frame/40);
-      al_draw_text(font, palette_color[11],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, palette_color[11],xpos, ly+=8, 0, msg);
 
       ly+=20;
 
@@ -1003,7 +1004,7 @@ void run_ping_graph(void)
    mwG[1].x_axis_grid_label_draw_on = 0;
    mwG[1].linked_group_id = 17;
 
-   int split_pos = SCREEN_H/2; // initial
+   int split_pos = mwD.SCREEN_H/2; // initial
    int sb = 1; // split_bar_size
    int sg = 2; // space between graphs
    int quit = 0;
@@ -1013,7 +1014,7 @@ void run_ping_graph(void)
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
       int sx1 = mwG[0].plot_x1;
-      int sx2 = SCREEN_W;
+      int sx2 = mwD.SCREEN_W;
       int sy1 = split_pos - sb -1;
       int sy2 = split_pos + sb;
 
@@ -1025,13 +1026,13 @@ void run_ping_graph(void)
          while (mouse_b[1][0])
          {
             split_pos = mouse_y;
-            if (split_pos < SCREEN_H*1/4) split_pos = SCREEN_H*1/4;
-            if (split_pos > SCREEN_H*3/4) split_pos = SCREEN_H*3/4;
+            if (split_pos < mwD.SCREEN_H*1/4) split_pos = mwD.SCREEN_H*1/4;
+            if (split_pos > mwD.SCREEN_H*3/4) split_pos = mwD.SCREEN_H*3/4;
             sy1 = split_pos - sb -1;
             sy2 = split_pos + sb;
 
-            mwG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
-            mwG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
+            mwG[0].set_graph_pos(0, split_pos+sg, mwD.SCREEN_W, mwD.SCREEN_H);
+            mwG[1].set_graph_pos(0, 0,            mwD.SCREEN_W, split_pos-sg);
             mwG[0].draw_graph(1);
             mwG[1].draw_graph(1);
 
@@ -1043,10 +1044,10 @@ void run_ping_graph(void)
          }
       }
 
-//      mwG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
+//      mwG[0].set_graph_pos(0,0, mwD.SCREEN_W, mwD.SCREEN_H);
 
-      mwG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
-      mwG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
+      mwG[0].set_graph_pos(0, split_pos+sg, mwD.SCREEN_W, mwD.SCREEN_H);
+      mwG[1].set_graph_pos(0, 0,            mwD.SCREEN_W, split_pos-sg);
       mwG[0].proc_graph();
       mwG[1].proc_graph();
 
@@ -1130,7 +1131,7 @@ void graph_test(void)
 
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
-   al_draw_textf(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s       ", fnam);
+   al_draw_textf(mF.pr8, palette_color[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s       ", fnam);
    al_flip_display();
 
 
@@ -1248,7 +1249,7 @@ void graph_test(void)
 
 
    int quit = 0;
-   int split_pos = SCREEN_H/2;
+   int split_pos = mwD.SCREEN_H/2;
    int sb = 1;  // split_bar_size
    int sg = 4; // space between graphs
 
@@ -1257,23 +1258,23 @@ void graph_test(void)
       al_set_target_backbuffer(display);
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[15]);
+      al_draw_filled_rectangle(0, split_pos-sb, mwD.SCREEN_W, split_pos+sb, palette_color[15]);
       if ((mouse_y > split_pos-sb) && (mouse_y < split_pos+sb))
       {
          al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
-         al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[14]);
+         al_draw_filled_rectangle(0, split_pos-sb, mwD.SCREEN_W, split_pos+sb, palette_color[14]);
          while (mouse_b[1][0])
          {
             split_pos = mouse_y;
-            if (split_pos < SCREEN_H*1/4) split_pos = SCREEN_H*1/4;
-            if (split_pos > SCREEN_H*3/4) split_pos = SCREEN_H*3/4;
+            if (split_pos < mwD.SCREEN_H*1/4) split_pos = mwD.SCREEN_H*1/4;
+            if (split_pos > mwD.SCREEN_H*3/4) split_pos = mwD.SCREEN_H*3/4;
 
-            mwG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
-            mwG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
+            mwG[1].set_graph_pos(0, 0,            mwD.SCREEN_W, split_pos-sg);
+            mwG[0].set_graph_pos(0, split_pos+sg, mwD.SCREEN_W, mwD.SCREEN_H);
             mwG[0].draw_graph(1);
             mwG[1].draw_graph(1);
 
-            al_draw_filled_rectangle(0, split_pos-sb, SCREEN_W, split_pos+sb, palette_color[10]);
+            al_draw_filled_rectangle(0, split_pos-sb, mwD.SCREEN_W, split_pos+sb, palette_color[10]);
             al_flip_display();
             proc_event_queue();
             al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -1281,9 +1282,9 @@ void graph_test(void)
       }
 
 
-//      mwG[0].set_graph_pos(0,0, SCREEN_W, SCREEN_H);
-      mwG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
-      mwG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
+//      mwG[0].set_graph_pos(0,0, mwD.SCREEN_W, mwD.SCREEN_H);
+      mwG[1].set_graph_pos(0, 0,            mwD.SCREEN_W, split_pos-sg);
+      mwG[0].set_graph_pos(0, split_pos+sg, mwD.SCREEN_W, mwD.SCREEN_H);
 
 
       mwG[0].proc_graph();
@@ -1328,7 +1329,7 @@ void run_bandwidth_graph(int both)
       mwG[1].x_axis_grid_label_draw_on = 0;
    }
 
-   int split_pos = SCREEN_H/2; // initial
+   int split_pos = mwD.SCREEN_H/2; // initial
    int sb = 1; // split_bar_size
    int sg = 2; // space between graphs
    int quit = 0;
@@ -1339,7 +1340,7 @@ void run_bandwidth_graph(int both)
       if (both)
       {
          int sx1 = mwG[0].plot_x1;
-         int sx2 = SCREEN_W;
+         int sx2 = mwD.SCREEN_W;
          int sy1 = split_pos - sb -1;
          int sy2 = split_pos + sb;
 
@@ -1352,13 +1353,13 @@ void run_bandwidth_graph(int both)
             while (mouse_b[1][0])
             {
                split_pos = mouse_y;
-               if (split_pos < SCREEN_H*1/4) split_pos = SCREEN_H*1/4;
-               if (split_pos > SCREEN_H*3/4) split_pos = SCREEN_H*3/4;
+               if (split_pos < mwD.SCREEN_H*1/4) split_pos = mwD.SCREEN_H*1/4;
+               if (split_pos > mwD.SCREEN_H*3/4) split_pos = mwD.SCREEN_H*3/4;
                sy1 = split_pos - sb -1;
                sy2 = split_pos + sb;
 
-               mwG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
-               mwG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
+               mwG[0].set_graph_pos(0, split_pos+sg, mwD.SCREEN_W, mwD.SCREEN_H);
+               mwG[1].set_graph_pos(0, 0,            mwD.SCREEN_W, split_pos-sg);
                mwG[0].draw_graph(1);
                mwG[1].draw_graph(1);
                al_draw_filled_rectangle(sx1, sy1, sx2, sy2, palette_color[10]);
@@ -1370,14 +1371,14 @@ void run_bandwidth_graph(int both)
       }
       if (both)
       {
-         mwG[0].set_graph_pos(0, split_pos+sg, SCREEN_W, SCREEN_H);
-         mwG[1].set_graph_pos(0, 0,            SCREEN_W, split_pos-sg);
+         mwG[0].set_graph_pos(0, split_pos+sg, mwD.SCREEN_W, mwD.SCREEN_H);
+         mwG[1].set_graph_pos(0, 0,            mwD.SCREEN_W, split_pos-sg);
          mwG[0].proc_graph();
          mwG[1].proc_graph();
       }
       else
       {
-         mwG[0].set_graph_pos(0, 0, SCREEN_W, SCREEN_H);
+         mwG[0].set_graph_pos(0, 0, mwD.SCREEN_W, mwD.SCREEN_H);
          mwG[0].proc_graph();
       }
       al_flip_display();
@@ -1490,7 +1491,7 @@ void run_client_server_sync_graph(void)
    mwG[1].linked_group_id = 17;
 
 
-   int otsh = (SCREEN_H-30) / 10; // one tenth screen height
+   int otsh = (mwD.SCREEN_H-30) / 10; // one tenth screen height
    int split_pos0 = otsh;   // initial
    int split_pos1 = otsh*5; // initial
 
@@ -1505,7 +1506,7 @@ void run_client_server_sync_graph(void)
 
       // 2 draggable resize bars!!
       int sx1 = mwG[0].plot_x1;
-      int sx2 = SCREEN_W;
+      int sx2 = mwD.SCREEN_W;
       int s0y1 = split_pos0 - sb -1;
       int s0y2 = split_pos0 + sb;
       int s1y1 = split_pos1 - sb -1;
@@ -1526,9 +1527,9 @@ void run_client_server_sync_graph(void)
             s0y1 = split_pos0 - sb -1;
             s0y2 = split_pos0 + sb;
 
-            mwG[0].set_graph_pos(0, 0,             SCREEN_W, split_pos0-sg);
-            mwG[2].set_graph_pos(0, split_pos0+sg, SCREEN_W, split_pos1-sg);
-            mwG[1].set_graph_pos(0, split_pos1+sg, SCREEN_W, SCREEN_H);
+            mwG[0].set_graph_pos(0, 0,             mwD.SCREEN_W, split_pos0-sg);
+            mwG[2].set_graph_pos(0, split_pos0+sg, mwD.SCREEN_W, split_pos1-sg);
+            mwG[1].set_graph_pos(0, split_pos1+sg, mwD.SCREEN_W, mwD.SCREEN_H);
 
             mwG[0].draw_graph(1);
             mwG[1].draw_graph(1);
@@ -1555,9 +1556,9 @@ void run_client_server_sync_graph(void)
             s1y1 = split_pos1 - sb -1;
             s1y2 = split_pos1 + sb;
 
-            mwG[0].set_graph_pos(0, 0,             SCREEN_W, split_pos0-sg);
-            mwG[2].set_graph_pos(0, split_pos0+sg, SCREEN_W, split_pos1-sg);
-            mwG[1].set_graph_pos(0, split_pos1+sg, SCREEN_W, SCREEN_H);
+            mwG[0].set_graph_pos(0, 0,             mwD.SCREEN_W, split_pos0-sg);
+            mwG[2].set_graph_pos(0, split_pos0+sg, mwD.SCREEN_W, split_pos1-sg);
+            mwG[1].set_graph_pos(0, split_pos1+sg, mwD.SCREEN_W, mwD.SCREEN_H);
 
             mwG[0].draw_graph(1);
             mwG[1].draw_graph(1);
@@ -1570,9 +1571,9 @@ void run_client_server_sync_graph(void)
          }
       }
 
-      mwG[0].set_graph_pos(0, 0,             SCREEN_W, split_pos0-sg);
-      mwG[2].set_graph_pos(0, split_pos0+sg, SCREEN_W, split_pos1-sg);
-      mwG[1].set_graph_pos(0, split_pos1+sg, SCREEN_W, SCREEN_H);
+      mwG[0].set_graph_pos(0, 0,             mwD.SCREEN_W, split_pos0-sg);
+      mwG[2].set_graph_pos(0, split_pos0+sg, mwD.SCREEN_W, split_pos1-sg);
+      mwG[1].set_graph_pos(0, split_pos1+sg, mwD.SCREEN_W, mwD.SCREEN_H);
 
       mwG[0].proc_graph();
       mwG[1].proc_graph();
@@ -1690,7 +1691,7 @@ void run_profile_graph(void)
       al_set_target_backbuffer(display);
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      mwG[0].set_graph_pos(0, 0, SCREEN_W, SCREEN_H);
+      mwG[0].set_graph_pos(0, 0, mwD.SCREEN_W, mwD.SCREEN_H);
       mwG[0].proc_graph();
 
       al_flip_display();
@@ -2203,12 +2204,12 @@ void run_timestamp_graph(void)
       al_set_target_backbuffer(display);
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      mwG[0].set_graph_pos(0, 0, SCREEN_W, SCREEN_H);
+      mwG[0].set_graph_pos(0, 0, mwD.SCREEN_W, mwD.SCREEN_H);
       mwG[0].proc_graph();
 
 
-//      mwG[0].set_graph_pos(0, SCREEN_H/2, SCREEN_W, SCREEN_H);
-//      mwG[1].set_graph_pos(0, 0,          SCREEN_W, SCREEN_H/2);
+//      mwG[0].set_graph_pos(0, mwD.SCREEN_H/2, mwD.SCREEN_W, mwD.SCREEN_H);
+//      mwG[1].set_graph_pos(0, 0,          mwD.SCREEN_W, mwD.SCREEN_H/2);
 //      mwG[0].proc_graph();
 //      mwG[1].proc_graph();
 

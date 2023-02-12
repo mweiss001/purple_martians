@@ -10,22 +10,28 @@
 #include "mwRollingAverage.h"
 #include "mwTally.h"
 #include "mwDrawSequence.h"
+#include "mwLogo.h"
+#include "mwBottomMessage.h"
+#include "mwDemoMode.h"
+#include "mwDisplay.h"
+#include "mwTimeStamp.h"
+#include "mwFont.h"
 
 
 void proc_events(ALLEGRO_EVENT ev)
 {
-   if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) proc_display_change();
+   if (ev.type == ALLEGRO_EVENT_DISPLAY_RESIZE) mwD.proc_display_change();
    if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
    if (ev.type == ALLEGRO_EVENT_MOUSE_WARPED)
    {
-      mouse_x = ev.mouse.x / display_transform_double;
-      mouse_y = ev.mouse.y / display_transform_double;
+      mouse_x = ev.mouse.x / mwD.display_transform_double;
+      mouse_y = ev.mouse.y / mwD.display_transform_double;
    }
    if (ev.type == ALLEGRO_EVENT_MOUSE_AXES)
    {
-      mouse_x = ev.mouse.x / display_transform_double;
-      mouse_y = ev.mouse.y / display_transform_double;
-      mouse_z = ev.mouse.z / display_transform_double;
+      mouse_x = ev.mouse.x / mwD.display_transform_double;
+      mouse_y = ev.mouse.y / mwD.display_transform_double;
+      mouse_z = ev.mouse.z / mwD.display_transform_double;
       mouse_dx = ev.mouse.dx;
       mouse_dy = ev.mouse.dy;
       mouse_dz = ev.mouse.dz;
@@ -233,7 +239,7 @@ int have_all_players_acknowledged(void)
 void game_menu(void)
 {
    old_program_state = 1;
-   if (!splash_screen_done) { splash_screen(); splash_screen_done = 1; }
+   if (!mwL.splash_screen_done) { mwL.splash_screen(); mwL.splash_screen_done = 1; }
    if (!resume_allowed) load_level(start_level, 0);
    if (top_menu_sel < 3) top_menu_sel = 3;
    while (top_menu_sel != 1)
@@ -310,7 +316,7 @@ void proc_program_state(void)
    }
    if (program_state == 0) main_loop_exit = 1; // quit
    if (program_state == 1) game_menu();  // game menu (this blocks)
-   if (program_state == 2) demo_mode();  // demo mode
+   if (program_state == 2) mwDM.demo_mode();  // demo mode
    if (program_state == 3) settings_pages(-1);  // this blocks
 
    //---------------------------------------
@@ -379,7 +385,7 @@ void proc_program_state(void)
       frame_num = 0;
       reset_states();
       clear_bullets();
-      clear_bmsg();
+      mwBM.initialize();
       clear_keys();
       clear_pm_events();
 
@@ -391,7 +397,7 @@ void proc_program_state(void)
 
       show_player_join_quit_timer = 0;
       start_music(0);
-      init_timestamps();
+      mwTS.init_timestamps();
       new_program_state = 21;
    }
 
@@ -407,8 +413,8 @@ void proc_program_state(void)
       if (key[ALLEGRO_KEY_ESCAPE][3]) program_state = 25;
 
       sprintf(msg, "Waiting for game state from server");
-      float stretch = ( (float)SCREEN_W / ((strlen(msg)+2)*8));
-      rtextout_centre(font0, NULL, msg, SCREEN_W/2, SCREEN_H/2, 10, stretch, 0, 1);
+      float stretch = ( (float)mwD.SCREEN_W / ((strlen(msg)+2)*8));
+      rtextout_centre(mF.bltn, NULL, msg, mwD.SCREEN_W/2, mwD.SCREEN_H/2, 10, stretch, 0, 1);
 
       al_flip_display();
 
@@ -463,7 +469,7 @@ void proc_program_state(void)
       frame_num = 0;
       reset_states();
       clear_bullets();
-      clear_bmsg();
+      mwBM.initialize();
       clear_keys();
       clear_pm_events();
 
@@ -489,7 +495,7 @@ void proc_program_state(void)
 
       show_player_join_quit_timer = 0;
       start_music(0); // rewind and start theme
-      init_timestamps();
+      mwTS.init_timestamps();
       program_state = 11;
    }
 
@@ -539,7 +545,7 @@ void proc_program_state(void)
       clear_game_moves(); // clear game moves array, except for demo mode
 
       clear_bullets();
-      clear_bmsg();
+      mwBM.initialize();
       clear_keys();
       clear_pm_events();
 
@@ -548,7 +554,7 @@ void proc_program_state(void)
       show_player_join_quit_timer = 0;
       start_music(0); // rewind and start theme
 
-      init_timestamps();
+      mwTS.init_timestamps();
       program_state = 11;
 
       // set up mwQuickGraph here
@@ -629,7 +635,7 @@ void proc_program_state(void)
       frame_num = 0;
       reset_states();
       clear_bullets();
-      clear_bmsg();
+      mwBM.initialize();
       clear_keys();
       clear_pm_events();
 
@@ -665,7 +671,7 @@ void proc_program_state(void)
 
       show_player_join_quit_timer = 0;
       start_music(0); // rewind and start theme
-      init_timestamps();
+      mwTS.init_timestamps();
       program_state = 11;
    }
 
@@ -704,14 +710,14 @@ void proc_program_state(void)
 
       frame_num = 0;
       clear_bullets();
-      clear_bmsg();
+      mwBM.initialize();
       clear_keys();
       clear_pm_events();
 
       show_player_join_quit_timer = 0;
       start_music(0); // rewind and start theme
       stimp();
-      init_timestamps();
+      mwTS.init_timestamps();
       program_state = 11;
    }
 }
@@ -830,9 +836,9 @@ void main_loop(void)
             frame_num++;
             update_animation();
 
-            timestamp_frame_start = al_get_time();
+            mwTS.timestamp_frame_start = al_get_time();
 
-            proc_scale_factor_change();
+            mwD.proc_scale_factor_change();
 
             if (ima_server) server_control();
             if (ima_client) client_control();
@@ -849,7 +855,7 @@ void main_loop(void)
 
             draw_frame();
 
-            double pt = al_get_time() - timestamp_frame_start;
+            double pt = al_get_time() - mwTS.timestamp_frame_start;
             if (LOG_TMR_cpu) add_log_TMR(pt, "cpu", 0);
 
             mwRA[0].add_data((pt/0.025)*100);

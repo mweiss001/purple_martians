@@ -146,9 +146,7 @@
 // ------------------------------------------------
 // ------------------------------------------------
 
-
 extern float tmaj_i;
-
 
 extern int program_state;
 extern int new_program_state;
@@ -168,22 +166,9 @@ extern int pct_y;
 
 extern double t0;
 
-extern int tx1;
-extern int ty1;
-extern int ttc1;
-extern float ttfloat1;
-
-extern int tx2;
-extern int ty2;
-extern int ttc2;
-extern float ttfloat2;
-
-
 #define PML_SIZE 384960
 
 extern int level_header[20];
-
-
 
 // ------------------------------------------------
 // ----- visual level select ----------------------
@@ -202,11 +187,6 @@ extern int speed_testing;
 extern int frame_speed;
 extern int speed_control_lock;
 extern int frame_num;
-
-
-extern int eco_draw;
-
-
 
 
 // some global strings
@@ -230,60 +210,8 @@ extern int game_moves[GAME_MOVES_SIZE][4];
 extern int game_move_entry_pos;
 extern int game_move_current_pos;
 
-
-// ------------------------------------------------
-// ------------- screen messages ------------------
-// ------------------------------------------------
-extern int bottom_msg_on;
-extern int bottom_msg;
-extern int bmsg_index;
-extern ALLEGRO_BITMAP *bmsg_bmp[20];
-extern ALLEGRO_BITMAP *bmsg_bmp2[20];
-extern ALLEGRO_BITMAP *bmsg_temp;
 extern int game_event_retrigger_holdoff[10];
 extern float game_event_retrigger_holdoff_tally[10];
-
-
-// ------------------------------------------------
-// ----- level editor unsorted --------------------
-// ------------------------------------------------
-extern int swbl[NUM_SPRITES][2];
-
-extern int bx1;  // selection window
-extern int by1;
-extern int bx2;
-extern int by2;
-
-extern int gx; // mouse position relative to scaled level background
-extern int gy;
-extern int hx;
-extern int hy;
-
-#define NUM_OBJ 600
-// list of objects to edit as a group
-extern int obj_list[NUM_OBJ][3];
-extern int obj_filter[5][20];
-
-
-
-// ------------------------------------------------
-// ----------------- demo mode --------------------
-// ------------------------------------------------
-extern ALLEGRO_FS_ENTRY *demo_FS_filenames[100];
-extern int demo_played[100];
-extern int num_demo_filenames;
-extern int demo_mode_loaded;
-
-
-extern int demo_mode_on;
-extern int demo_mode_countdown;
-extern int demo_mode_countdown_val;
-extern int demo_mode_countdown_reset;
-extern int demo_mode_enabled;
-extern int demo_mode_last_frame;
-extern int demo_mode_config_enable;
-extern float demo_mode_overlay_opacity;
-
 
 // ------------------------------------------------
 // ----------------- mouse and keys ---------------
@@ -294,11 +222,9 @@ extern float demo_mode_overlay_opacity;
 extern char skc[64]; // serial key check
 extern int skc_index;
 
-
 extern char *key_names[];
 extern bool key[ALLEGRO_KEY_MAX][4];
 extern int key_pressed_ASCII;
-
 
 extern int mouse_x;
 extern int mouse_y;
@@ -317,45 +243,20 @@ extern ALLEGRO_TIMER * mnu_timer;
 extern ALLEGRO_TIMER * png_timer;
 extern ALLEGRO_TIMER * mou_timer;
 
-
 extern ALLEGRO_EVENT_QUEUE *event_queue;
 extern ALLEGRO_DISPLAY *display;
 extern ALLEGRO_COLOR palette_color[256];
 extern int flash_color;
 extern int flash_color2;
 extern int flash_counter;
-extern ALLEGRO_FONT *font0;
-extern ALLEGRO_FONT *font;
-extern ALLEGRO_FONT *font2;
-extern ALLEGRO_FONT *f1;
-extern ALLEGRO_FONT *f2;
-extern ALLEGRO_FONT *f3;
+
 extern ALLEGRO_JOYSTICK *joy0;
 extern ALLEGRO_JOYSTICK *joy1;
 
 // ------------------------------------------------
 // ----------------- bitmaps ----------------------
 // ------------------------------------------------
-
-extern ALLEGRO_BITMAP *tilemap;
-extern ALLEGRO_BITMAP *btilemap;
-extern ALLEGRO_BITMAP *ptilemap;
-extern ALLEGRO_BITMAP *dtilemap;
-extern ALLEGRO_BITMAP *M_tilemap;
-extern ALLEGRO_BITMAP *M_btilemap;
-extern ALLEGRO_BITMAP *M_ptilemap;
-extern ALLEGRO_BITMAP *M_dtilemap;
-
-extern ALLEGRO_BITMAP *tile[NUM_SPRITES];
-extern ALLEGRO_BITMAP *btile[NUM_SPRITES];
-
 extern int sa[NUM_SPRITES][2];
-
-extern ALLEGRO_BITMAP *player_tile[16][32];
-extern ALLEGRO_BITMAP *door_tile[2][16][8];
-
-extern ALLEGRO_BITMAP *level_background;
-extern ALLEGRO_BITMAP *level_buffer;
 
 extern ALLEGRO_BITMAP *ft_bmp;  //  file temp paste bmp
 
@@ -370,36 +271,6 @@ extern int text_title_draw_color;
 
 extern ALLEGRO_BITMAP *large_text_overlay_bitmap;
 extern int large_text_overlay_state;
-
-extern struct packet_buffer packet_buffers[200];
-struct packet_buffer
-{
-   int active;
-   int type;
-   double timestamp;
-   int who;
-   int packetsize;
-   char data[1024];
-};
-
-
-extern double timestamp_frame_start;
-
-extern int timestamps_index;
-extern struct timestamp timestamps[10000];
-struct timestamp
-{
-   int frame0;
-   int frame1;
-   int frame2;
-   int type;
-   double t0;
-   double t1;
-   double t2;
-};
-
-
-
 
 // ------------------------------------------------
 // ---------------- lifts -----------------------
@@ -508,48 +379,6 @@ extern al_fixed PDEfx[100][16];
 extern char PDEt[100][20][40];
 
 
-extern int desktop_width;
-extern int desktop_height;
-
-extern int disp_x_curr; // current (either wind in windowed mode or full in fullscreen mode)
-extern int disp_y_curr;
-extern int disp_w_curr;
-extern int disp_h_curr;
-
-extern int disp_x_wind; // windowed
-extern int disp_y_wind;
-extern int disp_w_wind;
-extern int disp_h_wind;
-
-extern int disp_x_full; // fullscreen  (set to 0, 0, desktop_width, desktop_height and never change)
-extern int disp_y_full;
-extern int disp_w_full;
-extern int disp_h_full;
-
-extern int SCREEN_W;
-extern int SCREEN_H;
-extern int WX;
-extern int WY;
-extern int fullscreen;
-extern int display_adapter_num;
-extern float WX_shift_speed;
-
-extern int viewport_mode;
-extern int viewport_show_hyst;
-extern float viewport_x_div;
-extern float viewport_y_div;
-
-// used to only redraw a region of background to increase fps
-extern int level_display_region_x;
-extern int level_display_region_y;
-extern int level_display_region_w;
-extern int level_display_region_h;
-
-extern int display_transform_double;
-extern int display_transform_double_max;
-extern int saved_display_transform_double;
-extern int show_dtd;
-
 extern int autosave_level_editor_state;
 extern int level_editor_running;
 extern int help_screens_running;
@@ -561,36 +390,13 @@ extern int show_player_join_quit_timer;
 extern int show_player_join_quit_player;
 extern int show_player_join_quit_jq;
 
-extern float scale_factor;
-extern float scale_factor_current;
-extern float scale_factor_inc;
-extern int show_scale_factor;
-
-extern int scale_factor_holdoff;
-
-extern int show_splash_screen;
-extern int splash_screen_done;
-
-extern int mdw_an_seq;   // mdw animation sequence number
-extern float points[9][8];  // for mdw logo
-extern int mdw_map_logo_x;
-extern int mdw_map_logo_y;
-extern int mdw_map_logo_th;
-extern float mdw_map_logo_scale;
-
-extern float mdw_splash_logo_x;
-extern float mdw_splash_logo_y;
-extern int mdw_splash_logo_th;
-extern float mdw_splash_logo_scale;
-
-extern float mdw_logo_scale_dec;
-extern float mdw_logo_x_dec;
-extern float mdw_logo_y_dec;
+extern int eco_draw;
 
 // position and size of map on menu screen
 extern int menu_map_size;
 extern int menu_map_x;
 extern int menu_map_y;
+
 
 // ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
@@ -601,28 +407,6 @@ extern int menu_map_y;
 // ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
-
-// e_bitmap.h
-void color_shiftc(ALLEGRO_BITMAP *b, int sc, int cs, int x, int y);
-void color_shift4(ALLEGRO_BITMAP *b, int sc, int cs1, int cs2, int cs3, int cs4);
-void color_shift3(ALLEGRO_BITMAP *b, int sc, int cs1, int cs2, int cs3);
-void color_shift2(ALLEGRO_BITMAP *b, int sc, int cs1, int cs2);
-void color_shift(ALLEGRO_BITMAP *b, int sc, int cs);
-void colorize_tile(void);
-void combine_tile(void);
-int select_bitmap(int tn);
-int select_bitmap_ans(int zzindx);
-void animation_sequence_editor(void);
-void redraw_grid(int x, int y, int current_selection);
-void draw_flag_text(int x, int y, int ys, int col, int last_flag_show);
-int draw_flag_rects(int tn, int x, int y, int w, int h, int ys, int last_flag_show);
-void draw_and_proc_flag_rects_for_sa(int tn, int x, int y, int w, int h, int ys);
-void draw_flags(int x1, int y1, int* num, int *mpow, int view_only, int clear_background, int ignore_mpow);
-void draw_flag_rects_multiple(int bx1, int by1, int bx2, int by2, int x, int y, int w, int h, int ys, int con, int cof, int highlight);
-void edit_btile_attributes(void);
-void draw_gridlines_and_frame(int x1, int y1, int x2, int y2, int fd, int fc, int fw, int gd, int gc, int gw);
-int draw_and_process_button(int x, int y, const char * text, int c1, int c2, int center);
-void copy_tiles(void);
 
 // e_editor_main.h
 void em_set_swbl(void);
@@ -752,7 +536,7 @@ int draw_current_step_buttons(int x1, int x2, int y, int l, int s, int d);
 void draw_step_button(int xa, int xb, int ty1, int ty2, int l, int s, int rc, int d);
 int draw_steps(int x1, int x2, int y, int lift, int current_step, int highlight_step, int d);
 
-// e_window_commom.h
+// e_window_common.h
 void cm_process_menu_bar(int draw_only);
 int cm_draw_filter_buttons(int x1, int x2, int y1, int mode, int draw_only);
 void cm_draw_status_window(int x1, int x2, int y1, int y2, int draw_only, int have_focus);
@@ -804,8 +588,6 @@ int mdw_button(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
 int mdw_buttont(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
 int mdw_buttont_nb(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
 
-
-
 int mdw_buttontt(int x1, int &y1, int x2, int bts, int tn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, const char* txt);
 void mdw_buttonp(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7, int &var);
 void mdw_colsel(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7);
@@ -816,7 +598,6 @@ int mdw_togglf(int x1, int &y1, int x2, int bts, int bn, int num, int type, int 
 
 int mdw_togglec(int x1, int &y1, int x2, int bts, int bn, int num, int type, int obt, int q0, int q1, int q2, int q3, int q4, int q5, int q6, int q7,
                int &var, const char* t, int text_col, int frame_col);
-
 
 // e_tile_helper.h
 void th_replace(int type);
@@ -841,7 +622,6 @@ int visual_level_select(void);
 // n_client.h
 void client_read_packet_buffer(void);
 void client_fast_packet_loop(void);
-
 int  ClientInitNetwork(const char *serveraddress);
 void ClientExitNetwork(void);
 int  ClientCheckResponse(void);
@@ -870,10 +650,8 @@ int NetworkInit();
 // n_packet.h
 extern char packetbuffer[1024];
 extern int packetsize;
-
 void set_packetpos(int pos);
 int get_packetpos(void);
-
 void Packet(const char *id);
 int PacketRead(const char *id);
 void PacketAddByte(char b);
@@ -891,15 +669,7 @@ int PacketGet4ByteInt(void);
 void PacketPutDouble(double);
 double PacketGetDouble(void);
 
-
 //n_server.h
-
-void init_timestamps(void);
-void add_timestamp(int type, int f1, int f2, double t1, double t2);
-int get_timestamp(int f, int type, double &res);
-int get_delta(int f0, int type0, int f1, int type1, double &res);
-int get_newest_timestamp(int type, double &res);
-
 int ServerInitNetwork(void);
 void ServerExitNetwork(void);
 void ServerListen(void);
@@ -966,25 +736,6 @@ void proc_game_moves_array(void);
 void serial_key_check(int key);
 void proc_events(ALLEGRO_EVENT ev);
 void proc_player_input(void);
-
-// z_display.h
-void show_bitmap_flags(int flags);
-void show_pixel_format(int df);
-void show_display_flags(int flags);
-void show_display_options(void);
-void show_display_orienation(void);
-void show_fullscreen_modes(void);
-void auto_set_display_transform_double(void);
-void set_saved_display_transform(int sdt);
-void cycle_display_transform(void);
-void set_display_transform();
-void show_disp_values(int fs, int disp, int curr, int wind, int full, char *head);
-void show_display_adapters(void);
-int init_display(void);
-void proc_display_change(void);
-void save_display_window_position(void);
-void proc_display_change_tofs(void);
-void proc_display_change_fromfs(void);
 
 // z_enemy.h
 int enemy_data(int x_pos, int y_pos);
@@ -1073,8 +824,6 @@ al_fixed is_down_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 al_fixed is_left_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir);
 void show_var_sizes(void);
-int fill_demo_array(ALLEGRO_FS_ENTRY *fs, void * extra);
-void demo_mode(void);
 
 // z_item.h
 int item_data(int x, int y);
@@ -1145,24 +894,6 @@ void set_lift_xyinc(int d, int step);
 int lift_check_prox(int l, int pd);
 void move_lifts(int ignore_prox);
 
-// z_logo.h
-void mw_text(ALLEGRO_FONT *tf, int col, float x_pc, const char * txt);
-void draw_title(int tx, int ty, int ttw, int tth, int color);
-void draw_large_text_overlay(int type, int color);
-void idw(int txt, int x, int y, float x_scale, float y_scale);
-void splash_screen(void);
-void mspline(float *par, ALLEGRO_COLOR col, int thickness);
-void mfspline(float *par, int col, int thickness);
-void draw_mdw(int x, int y, float x_scale, float y_scale, int line_thickness);
-void seed_mdw(void);
-void fill_mdw(void);
-void mdw_an3(int x, int y, float sc, int th);
-int mdw_an2(void);
-void mdw_an(void);
-void spline_test(void);
-void redraw_spline(int s);
-void spline_adjust(void);
-
 // z_main.h
 void final_wrapup(void);
 void fast_exit(int why);
@@ -1200,18 +931,13 @@ int edit_pmsg_text(int c, int new_msg);
 void edit_server_name(int type, int x, int y);
 int edit_lift_name(int lift, int step_ty, int bts, char *fst);
 
-
 // z_screen.h
-void load_fonts(void);
-void create_bitmaps(void);
-void rebuild_bitmaps(void);
 void get_new_background(int full);
 void stimp(void);
 void stamp(void);
 void draw_hyst_rect(void);
 void get_new_screen_buffer(int type, int x, int y);
 void set_map_var(void);
-void set_scale_factor(float new_scale_factor, int instant);
 void mark_non_default_block(int x, int y);
 void init_level_background(int);
 void draw_level2(ALLEGRO_BITMAP *b, int mx, int my, int ms, int blocks, int items, int enemies, int lifts, int players);
@@ -1219,8 +945,9 @@ void draw_level_centered(int screen_x, int screen_y, int level_x, int level_y, f
 void draw_level(void);
 int get_contrasting_color(int color);
 void frame_and_title(int show_players);
-void proc_scale_factor_change(void);
 void rtextout_centre(ALLEGRO_FONT *f, ALLEGRO_BITMAP *dbmp, const char *txt1, int x, int y, int col, float scale, int rot, float op);
+void draw_title(int tx, int ty, int ttw, int tth, int color);
+void draw_large_text_overlay(int type, int color);
 void draw_percent_barc(int cx, int y, int width, int height, int percent, int c1, int c2, int fc);
 void draw_percent_bar(int cx, int y, int width, int height, int percent);
 void draw_percent_bar_line(int cx, int y, int width, int height, int rise, int color, int percent);
@@ -1233,21 +960,10 @@ void show_level_done(void);
 void draw_screen_overlay(void);
 void set_player_join_quit_display(int p, int type, int time);
 void show_player_join_quit(void);
-
 void draw_top_frame(int p);
 void draw_bottom_frame(int p);
 void draw_common_debug_overlay(int p, int &cx, int &cy);
 void draw_server_debug_overlay(int p, int &cx, int &cy);
 void draw_client_debug_overlay(int p, int &cx, int &cy);
 void draw_demo_debug_overlay(int p, int &cx, int &cy);
-
 void game_event(int ev, int x, int y, int z1, int z2, int z3, int z4);
-void clear_bmsg(void);
-int bmsg_show_text(const char *txt, int col, int bmsg_length);
-int bmsg_draw_tile(int tn, int bmsg_length);
-int bmsg_draw_tile2(int tn, int bmsg_length, int xo, int yo);
-int bmsg_draw_player(int p, int bmsg_length);
-int bmsg_draw_enemy(int e_type, int bmsg_length);
-int bmsg_show_health(int h, int bmsg_length);
-void new_bmsg(int ev, int x, int y, int z1, int z2, int z3, int z4);
-void draw_bmsg();

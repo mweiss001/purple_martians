@@ -1,6 +1,9 @@
 // e_editor_main.cpp
 #include "pm.h"
 #include "mwWindow.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
+
 
 #ifndef CLASS_MWWINDOWS_DEFINED
 #include "mwWindowManager.h"
@@ -11,7 +14,7 @@ void em_set_swbl(void)
    mwWM.mW[2].swbn = 0;
    for (int c=0; c<NUM_SPRITES; c++)
    {
-      swbl[c][0] = swbl[c][1] = 0;                    // erase
+      mwWM.swbl[c][0] = mwWM.swbl[c][1] = 0;                    // erase
       if (sa[c][0] & PM_BTILE_SHOW_SELECT_WIN)
       {
          if ((c == 384) || (c == 416) || (c == 448) || (c == 480) || (c == 512) || (c == 576) || (c == 608) || (c == 640)|| (c == 672)|| (c == 704)) // start new line
@@ -20,8 +23,8 @@ void em_set_swbl(void)
             if (off < 16) mwWM.mW[2].swbn += off;
          }
 
-         swbl[mwWM.mW[2].swbn][0] = c | sa[c][0];                // add to list with default flags
-         swbl[mwWM.mW[2].swbn][0] &= ~PM_BTILE_SHOW_SELECT_WIN;  // clear flag
+         mwWM.swbl[mwWM.mW[2].swbn][0] = c | sa[c][0];                // add to list with default flags
+         mwWM.swbl[mwWM.mW[2].swbn][0] &= ~PM_BTILE_SHOW_SELECT_WIN;  // clear flag
          mwWM.mW[2].swbn++;
       }
    }
@@ -360,12 +363,12 @@ void em_set_block_range(void)
          fsy[i][j] |= draw_item_flags;
 
 
-   if ((bx2==bx1) && (by2==by1)) l[bx1][by1] = mwWM.mW[1].draw_item_num; // single block 1 x 1
+   if ((mwWM.bx2==mwWM.bx1) && (mwWM.by2==mwWM.by1)) l[mwWM.bx1][mwWM.by1] = mwWM.mW[1].draw_item_num; // single block 1 x 1
 
-   if ((bx2==bx1) && (by2-by1>0)) // vertical line 1 x >1
+   if ((mwWM.bx2==mwWM.bx1) && (mwWM.by2-mwWM.by1>0)) // vertical line 1 x >1
    {
-      int a = bx1;
-      for (int b=by1; b<by2+1; b++) // cycle the range
+      int a = mwWM.bx1;
+      for (int b=mwWM.by1; b<mwWM.by2+1; b++) // cycle the range
       {
          l[a][b] = mwWM.mW[1].draw_item_num; // set draw item as default
          for (int x=0; x<20; x++)
@@ -374,16 +377,16 @@ void em_set_block_range(void)
                if (((mwWM.mW[1].draw_item_num&1023) >= (fsy[x][0]&1023)) && ((mwWM.mW[1].draw_item_num&1023) <= (fsy[x][1]&1023)))
                {
                   l[a][b] = fsy[x][2]; // default
-                  if (b == by1) l[a][b] = fsy[x][3]; // left end cap
-                  if (b == by2) l[a][b] = fsy[x][4]; // right end cap
+                  if (b == mwWM.by1) l[a][b] = fsy[x][3]; // left end cap
+                  if (b == mwWM.by2) l[a][b] = fsy[x][4]; // right end cap
                }
             }
       }
    }
-   if ((bx2-bx1>0) && (by2==by1)) // horizontal line >1 x 1
+   if ((mwWM.bx2-mwWM.bx1>0) && (mwWM.by2==mwWM.by1)) // horizontal line >1 x 1
    {
-      int b = by1;
-      for (int a=bx1; a<bx2+1; a++) // cycle the range
+      int b = mwWM.by1;
+      for (int a=mwWM.bx1; a<mwWM.bx2+1; a++) // cycle the range
       {
          l[a][b] = mwWM.mW[1].draw_item_num; // set draw item as default
          for (int x=0; x<20; x++)
@@ -393,18 +396,18 @@ void em_set_block_range(void)
                if (((mwWM.mW[1].draw_item_num&1023) >= (fsx[x][0]&1023)) && ((mwWM.mW[1].draw_item_num&1023) <= (fsx[x][1]&1023)))
                {
                   l[a][b] = fsx[x][2]; // default
-                  if (a == bx1) l[a][b] = fsx[x][3]; // left end cap
-                  if (a == bx2) l[a][b] = fsx[x][4]; // right end cap
+                  if (a == mwWM.bx1) l[a][b] = fsx[x][3]; // left end cap
+                  if (a == mwWM.bx2) l[a][b] = fsx[x][4]; // right end cap
                }
             }
          }
       }
    }
-   if ((bx2-bx1>0) && (by2-by1>0)) // box shape with corners >1 x >1
+   if ((mwWM.bx2-mwWM.bx1>0) && (mwWM.by2-mwWM.by1>0)) // box shape with corners >1 x >1
    {
       int special_handler = 0;
-      for (int a=bx1; a<bx2+1; a++)       // cycle the range
-         for (int b=by1; b<by2+1; b++)
+      for (int a=mwWM.bx1; a<mwWM.bx2+1; a++)       // cycle the range
+         for (int b=mwWM.by1; b<mwWM.by2+1; b++)
             for (int x=0; x<20; x++)
                if (fsd[x][0]&1023)
                {
@@ -413,20 +416,20 @@ void em_set_block_range(void)
                      special_handler = 1;
 
                      if (fsd[x][9] != -1) l[a][b] = fsd[x][9];   // default block
-                     if (b == by1)        l[a][b] = fsd[x][16];  // upper horizontal through
-                     if (b == by2)        l[a][b] = fsd[x][17];  // lower horizontal through
+                     if (b == mwWM.by1)        l[a][b] = fsd[x][16];  // upper horizontal through
+                     if (b == mwWM.by2)        l[a][b] = fsd[x][17];  // lower horizontal through
 
 
-                     if (a == bx1)
+                     if (a == mwWM.bx1)
                      {
-                        if (b == by1)      l[a][b] = fsd[x][10];  // upper-right corner
-                        else if (b == by2) l[a][b] = fsd[x][12];  // lower-right corner
+                        if (b == mwWM.by1)      l[a][b] = fsd[x][10];  // upper-right corner
+                        else if (b == mwWM.by2) l[a][b] = fsd[x][12];  // lower-right corner
                         else               l[a][b] = fsd[x][14];  // right vertical through
                      }
-                     if (a == bx2)
+                     if (a == mwWM.bx2)
                      {
-                        if (b == by1)      l[a][b] = fsd[x][11];  // upper-left corner
-                        else if (b == by2) l[a][b] = fsd[x][13];  // lower-left corner
+                        if (b == mwWM.by1)      l[a][b] = fsd[x][11];  // upper-left corner
+                        else if (b == mwWM.by2) l[a][b] = fsd[x][13];  // lower-left corner
                         else               l[a][b] = fsd[x][15];  // left vertical through
                      }
                   }
@@ -451,8 +454,8 @@ char* em_get_text_description_of_block_based_on_flags(int flags)
 
 void em_show_draw_item_cursor(void)
 {
-   int x = gx;
-   int y = gy;
+   int x = mwWM.gx;
+   int y = mwWM.gy;
    if (mwWM.mW[1].point_item_type > -1) // if mouse pointer on window, do not show draw item
    {
       int type = mwWM.mW[1].draw_item_type;
@@ -461,7 +464,7 @@ void em_show_draw_item_cursor(void)
       {
          case 1: // block
             if (mwWM.mW[1].show_non_default_blocks) draw_block_non_default_flags(num, x*20, y*20);
-            else al_draw_bitmap(btile[num&1023], x*20, y*20, 0);
+            else al_draw_bitmap(mwB.btile[num&1023], x*20, y*20, 0);
          break;
          case 2: // item
             draw_item(num, 1, x*20, y*20);
@@ -472,9 +475,9 @@ void em_show_draw_item_cursor(void)
          case 5: // PDE
             int a = PDEi[num][1]; // bmp or ans
             if (a > 999) a = zz[5][a-1000]; // ans
-            al_draw_bitmap(tile[a], x*20, y*20, 0);
+            al_draw_bitmap(mwB.tile[a], x*20, y*20, 0);
 
-            if ((PDEi[num][0] == 108) && (PDEi[num][11])) al_draw_bitmap(tile[440], x*20, y*20, 0); // bomb sticky spikes
+            if ((PDEi[num][0] == 108) && (PDEi[num][11])) al_draw_bitmap(mwB.tile[440], x*20, y*20, 0); // bomb sticky spikes
 
 
 
@@ -491,21 +494,21 @@ void em_show_item_info(int x, int y, int color, int type, int num)
    {
       case 1:
          if (mwWM.mW[1].show_non_default_blocks) draw_block_non_default_flags(num, x, y);
-         else al_draw_bitmap(btile[num&1023], x, y, 0);
-         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "Block #%d",num&1023);
-         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%s", em_get_text_description_of_block_based_on_flags(num) );
+         else al_draw_bitmap(mwB.btile[num&1023], x, y, 0);
+         al_draw_textf(mF.pr8, palette_color[color], x+22, y+2, 0, "Block #%d",num&1023);
+         al_draw_textf(mF.pr8, palette_color[color], x+22, y+12, 0, "%s", em_get_text_description_of_block_based_on_flags(num) );
       break;
       case 2:
          draw_item(num, 1, x, y);
          a = item[num][0]; // type
-         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", item_name[a]);
-         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - item_first_num[a], item_num_of_type[a]);
+         al_draw_textf(mF.pr8, palette_color[color], x+22, y+2, 0, "%s", item_name[a]);
+         al_draw_textf(mF.pr8, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - item_first_num[a], item_num_of_type[a]);
       break;
       case 3:
          draw_enemy(num, 1, x, y);
          a = Ei[num][0]; // type
-         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", enemy_name[a][0]);
-         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - e_first_num[a], e_num_of_type[a]);
+         al_draw_textf(mF.pr8, palette_color[color], x+22, y+2, 0, "%s", enemy_name[a][0]);
+         al_draw_textf(mF.pr8, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - e_first_num[a], e_num_of_type[a]);
       break;
       case 4:
       {
@@ -514,20 +517,20 @@ void em_show_item_info(int x, int y, int color, int type, int num)
          if (width > 140) width = 140;
          for (a=0; a<10; a++)
             al_draw_rectangle(x+a, y+a, x+(width)-1-a, y+19-a, palette_color[col+((9-a)*16)], 1 );
-         al_draw_text(font, palette_color[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, lifts[num].lift_name);
+         al_draw_text(mF.pr8, palette_color[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, lifts[num].lift_name);
       }
       break;
       case 5:
          a = PDEi[num][1]; // bmp or ans
          if (a < NUM_SPRITES) b = a; // bmp
          if (a > 999) b = zz[5][a-1000]; // ans
-         al_draw_bitmap(tile[b], x, y, 0);
+         al_draw_bitmap(mwB.tile[b], x, y, 0);
 
-         if ((PDEi[num][0] == 108) && (PDEi[num][11])) al_draw_bitmap(tile[440], x, y, 0); // bomb sticky spikes
+         if ((PDEi[num][0] == 108) && (PDEi[num][11])) al_draw_bitmap(mwB.tile[440], x, y, 0); // bomb sticky spikes
 
          a = Ei[num][0]; // type
-         al_draw_text(font, palette_color[color], x+22, y+2, 0, "Special Item");
-         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%s", PDEt[num][1]);
+         al_draw_text(mF.pr8, palette_color[color], x+22, y+2, 0, "Special Item");
+         al_draw_textf(mF.pr8, palette_color[color], x+22, y+12, 0, "%s", PDEt[num][1]);
       break;
    }
 }
@@ -536,7 +539,7 @@ void em_find_point_item(void)
 {
    // find point item
    mwWM.mW[1].point_item_type = 1; // block by default
-   mwWM.mW[1].point_item_num = l[gx][gy];
+   mwWM.mW[1].point_item_num = l[mwWM.gx][mwWM.gy];
 
    int max_ob = 20;                  // max objects to find
    int ob = 0;                       // objects found
@@ -551,7 +554,7 @@ void em_find_point_item(void)
       {
          int x = item[i][4];
          int y = item[i][5];
-         if ( (hx >= x) && (hx <= x+19) && (hy > y) && (hy < y+19) && (ob < max_ob))
+         if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 2;
              mo[ob][1] = i;
@@ -563,7 +566,7 @@ void em_find_point_item(void)
       {
          int x = al_fixtoi(Efi[e][0]);
          int y = al_fixtoi(Efi[e][1]);
-         if ( (hx >= x) && (hx <= x+19) && (hy > y) && (hy < y+19) && (ob < max_ob))
+         if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
          {
              mo[ob][0] = 3;
              mo[ob][1] = e;
@@ -574,15 +577,15 @@ void em_find_point_item(void)
    {
       int x = lifts[l].x1;
       int y = lifts[l].y1;
-      if ( (hx >= x) && (hx <= x+19) && (hy > y) && (hy < y+19) && (ob < max_ob))
+      if ( (mwWM.hx >= x) && (mwWM.hx <= x+19) && (mwWM.hy > y) && (mwWM.hy < y+19) && (ob < max_ob))
       {
           mo[ob][0] = 4;
           mo[ob][1] = l;
           ob++;
       }
    }
-   //al_draw_textf(font, palette_color[15], 100, 100, 0, "mouse is on: %d objects", ob);
-   //for (int a=0; a<ob; a++) al_draw_textf(font, palette_color[15], 100, 108+a*8, 0, "%d %d ", mo[a][0], mo[a][1]);
+   //al_draw_textf(mF.pr8, palette_color[15], 100, 100, 0, "mouse is on: %d objects", ob);
+   //for (int a=0; a<ob; a++) al_draw_textf(mF.pr8, palette_color[15], 100, 108+a*8, 0, "%d %d ", mo[a][0], mo[a][1]);
 
    // which one is the winner?
    if (ob)
@@ -592,7 +595,7 @@ void em_find_point_item(void)
       int of = mm / ss;              // convert to offset into ob array
       mwWM.mW[1].point_item_type = mo[of][0];
       mwWM.mW[1].point_item_num  = mo[of][1];
-      //al_draw_textf(font, palette_color[11], 100, 92, 0, "mm:%2d ss:%2d of:%2d  ", mm, ss, of);
+      //al_draw_textf(mF.pr8, palette_color[11], 100, 92, 0, "mm:%2d ss:%2d of:%2d  ", mm, ss, of);
    }
 }
 
@@ -608,8 +611,8 @@ void em_process_mouse(void)
       {
          case 1:  // block
          {
-            bx1 = gx;
-            by1 = gy;
+            mwWM.bx1 = mwWM.gx;
+            mwWM.by1 = mwWM.gy;
             mwWM.get_new_box();
             em_set_block_range();
             init_level_background(0);
@@ -618,8 +621,8 @@ void em_process_mouse(void)
          case 2:  // item
          {
             int type = item[din][0];
-            int ofx = gx*20 - item[din][4]; // get offset of move in 2000 format
-            int ofy = gy*20 - item[din][5];
+            int ofx = mwWM.gx*20 - item[din][4]; // get offset of move in 2000 format
+            int ofy = mwWM.gy*20 - item[din][5];
             int c = get_empty_item(); // get a place to put it
 
             printf("din:%d c:%d\n", din, c);
@@ -647,8 +650,8 @@ void em_process_mouse(void)
          {
             int type = Ei[din][0];
 
-            int ofx = gx*20 - al_fixtoi(Efi[din][0]); // get offset of move in 2000 format
-            int ofy = gy*20 - al_fixtoi(Efi[din][1]);
+            int ofx = mwWM.gx*20 - al_fixtoi(Efi[din][0]); // get offset of move in 2000 format
+            int ofy = mwWM.gy*20 - al_fixtoi(Efi[din][1]);
 
             int c = get_empty_enemy(type); // get a place to put it
             if (c == -1)  break;
@@ -713,8 +716,8 @@ void em_process_mouse(void)
             for (int x=0; x<16; x++) // item
                item[d][x] = PDEi[din][x];
             item[d][0] -= 100;
-            item[d][4] = gx*20;
-            item[d][5] = gy*20;
+            item[d][4] = mwWM.gx*20;
+            item[d][5] = mwWM.gy*20;
             if (item[d][0] == 4)
             {
                itemf[d][0] = al_itofix(item[d][4]);
@@ -729,8 +732,8 @@ void em_process_mouse(void)
             if (d == -1)  break;
             for (int x=0; x<32; x++) Ei[d][x]  = PDEi[din][x];
             for (int x=0; x<16; x++) Efi[d][x] = PDEfx[din][x];
-            Efi[d][0] = al_itofix(gx*20);  // set new x,y
-            Efi[d][1] = al_itofix(gy*20);
+            Efi[d][0] = al_itofix(mwWM.gx*20);  // set new x,y
+            Efi[d][1] = al_itofix(mwWM.gy*20);
             sort_enemy();
          }
          break;
@@ -778,7 +781,7 @@ void em_process_mouse(void)
             switch (mwWM.mW[1].point_item_type)
             {
                case 1: // delete block
-                    l[gx][gy] = 0;
+                    l[mwWM.gx][mwWM.gy] = 0;
                break;
                case 2: // delete item
                   if ((mwWM.mW[1].draw_item_type == 2) && (mwWM.mW[1].draw_item_num == mwWM.mW[1].point_item_num)) // are you deleting the draw item?

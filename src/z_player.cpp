@@ -5,6 +5,10 @@
 #include "z_player.h"
 #include "n_netgame.h"
 #include "mwTally.h"
+#include "mwFont.h"
+#include "mwBitmap.h"
+
+
 
 struct player players[NUM_PLAYERS];
 struct player1 players1[NUM_PLAYERS];
@@ -874,7 +878,7 @@ int is_player_within_rope_reach(int p)
    int by = AY / 20;
    am = AY % 20;
 
-   //al_draw_textf(font, palette_color[15], AX, AY-20, 0, "%d", am );
+   //al_draw_textf(mF.pr8, palette_color[15], AX, AY-20, 0, "%d", am );
    int good_height = 0;
 
    if (am < 5) // this block only
@@ -1225,7 +1229,7 @@ void draw_player(int p)
 {
    if (players[p].active)
    {
-      al_set_target_bitmap(level_buffer);
+      al_set_target_bitmap(mwB.level_buffer);
       get_players_shape(p);
       int AX = al_fixtoi(players[p].PX);
       int AY = al_fixtoi(players[p].PY);
@@ -1239,7 +1243,7 @@ void draw_player(int p)
    //   printf("color:%d shape:%d\n", players[p].color, players[p].shape );
 
 
-      al_draw_scaled_rotated_bitmap(player_tile[players[p].color][players[p].shape], 10, 10, AX+10, AY+10, scale, scale, rot, flags);
+      al_draw_scaled_rotated_bitmap(mwB.player_tile[players[p].color][players[p].shape], 10, 10, AX+10, AY+10, scale, scale, rot, flags);
 
 
 
@@ -1254,7 +1258,7 @@ void draw_player(int p)
       /*
 
 
-      al_draw_textf(font, palette_color[15], AX+10, AY-30, ALLEGRO_ALIGN_CENTER, "X:%d Y:%d", AX, AY);
+      al_draw_textf(mF.pr8, palette_color[15], AX+10, AY-30, ALLEGRO_ALIGN_CENTER, "X:%d Y:%d", AX, AY);
 
 
       if (players[p].on_ladder)
@@ -1285,7 +1289,7 @@ void draw_player(int p)
       int by = AY / 20;
       am = AY % 20;
 
-      al_draw_textf(font, palette_color[15], AX, AY-20, 0, "%d", am );
+      al_draw_textf(mF.pr8, palette_color[15], AX, AY-20, 0, "%d", am );
 
       int good_height = 0;
 
@@ -1300,10 +1304,10 @@ void draw_player(int p)
       }
 
       if (good_height)
-         if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-           if (timer_draw_mode2) al_draw_textf(font, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+           if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
     for (int x=bx1; x<=bx2; x++)
       {
          al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, palette_color[8], 1);
@@ -1321,7 +1325,7 @@ void draw_player(int p)
          if ((pp < st) && (pp > st-sp*8))
          {
             int seq = (st-players[p].paused) / sp;
-            al_draw_bitmap(tile[952+seq], AX, AY, flags);
+            al_draw_bitmap(mwB.tile[952+seq], AX, AY, flags);
          }
       }
 
@@ -1335,8 +1339,8 @@ void draw_player(int p)
 
          // show last health adjustment
          int h = players1[p].last_health_adjust; // last health adjust
-         if (h > 0) al_draw_textf(f3, palette_color[11], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
-         if (h < 0) al_draw_textf(f3, palette_color[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
+         if (h > 0) al_draw_textf(mF.pixl, palette_color[11], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
+         if (h < 0) al_draw_textf(mF.pixl, palette_color[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
 
          // show potential bomb damage
          int dmg = players1[p].potential_bomb_damage; // potential bomb damage
@@ -1350,10 +1354,10 @@ void draw_player(int p)
                draw_percent_bar_range(AX+10, AY-6, 16, 3, 10, nh, ch);
 
                // show damage amount
-               al_draw_textf(f3, palette_color[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);
+               al_draw_textf(mF.pixl, palette_color[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);
 
                // draw a tiny bomb picture
-               al_draw_scaled_rotated_bitmap(tile[464], 10, 10,  AX+20, AY-12, .5, .5, 0, 0);
+               al_draw_scaled_rotated_bitmap(mwB.tile[464], 10, 10,  AX+20, AY-12, .5, .5, 0, 0);
             }
          }
       }
@@ -1605,20 +1609,20 @@ void fill_player_tile(void)
 
    if (0) // load from disk
    {
-      ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
-      if (!ptilemap) m_err((char*)"Can't load tiles from bitmaps/player_tiles.bmp");
+      mwB.ptilemap = al_load_bitmap("bitmaps/player_tiles.bmp");
+      if (!mwB.ptilemap) m_err((char*)"Can't load tiles from bitmaps/player_tiles.bmp");
       else
       {
          //printf("load good\n");
-         al_convert_mask_to_alpha(ptilemap, al_map_rgb(0, 0, 0)) ;
+         al_convert_mask_to_alpha(mwB.ptilemap, al_map_rgb(0, 0, 0)) ;
 
-         al_set_target_bitmap(M_ptilemap);
-         al_draw_bitmap(ptilemap, 0, 0, 0);
+         al_set_target_bitmap(mwB.M_ptilemap);
+         al_draw_bitmap(mwB.ptilemap, 0, 0, 0);
 
          // create sub bitmaps
          for (a=0; a<16; a++)
             for (b=0; b<24; b++)
-               player_tile[a][b] = al_create_sub_bitmap(ptilemap, b*20, a*20, 20, 20);
+               mwB.player_tile[a][b] = al_create_sub_bitmap(mwB.ptilemap, b*20, a*20, 20, 20);
       }
    }
 
@@ -1627,41 +1631,41 @@ void fill_player_tile(void)
    {
        for (a=0; a<16; a++)
           for (b=0; b<32; b++)
-             player_tile[a][b] = al_create_bitmap(20,20);
+             mwB.player_tile[a][b] = al_create_bitmap(20,20);
 
    // fill the player_tile array
       for (a=0; a<16; a++) // set all to default shapes
       {
-         al_set_target_bitmap(player_tile[a][0]); al_draw_bitmap(tile[400], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][1]); al_draw_bitmap(tile[401], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][2]); al_draw_bitmap(tile[402], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][3]); al_draw_bitmap(tile[403], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][4]); al_draw_bitmap(tile[404], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][5]); al_draw_bitmap(tile[405], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][0]); al_draw_bitmap(mwB.tile[400], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][1]); al_draw_bitmap(mwB.tile[401], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][2]); al_draw_bitmap(mwB.tile[402], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][3]); al_draw_bitmap(mwB.tile[403], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][4]); al_draw_bitmap(mwB.tile[404], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][5]); al_draw_bitmap(mwB.tile[405], 0, 0, 0);
 
-         al_set_target_bitmap(player_tile[a][6]); al_draw_bitmap(tile[368], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][7]); al_draw_bitmap(tile[369], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][8]); al_draw_bitmap(tile[370], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][9]); al_draw_bitmap(tile[371], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][10]); al_draw_bitmap(tile[372], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][11]); al_draw_bitmap(tile[373], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][6]); al_draw_bitmap(mwB.tile[368], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][7]); al_draw_bitmap(mwB.tile[369], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][8]); al_draw_bitmap(mwB.tile[370], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][9]); al_draw_bitmap(mwB.tile[371], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][10]); al_draw_bitmap(mwB.tile[372], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][11]); al_draw_bitmap(mwB.tile[373], 0, 0, 0);
 
-         al_set_target_bitmap(player_tile[a][12]); al_draw_bitmap(tile[432], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][13]); al_draw_bitmap(tile[433], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][14]); al_draw_bitmap(tile[434], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][15]); al_draw_bitmap(tile[435], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][16]); al_draw_bitmap(tile[436], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][17]); al_draw_bitmap(tile[437], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][12]); al_draw_bitmap(mwB.tile[432], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][13]); al_draw_bitmap(mwB.tile[433], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][14]); al_draw_bitmap(mwB.tile[434], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][15]); al_draw_bitmap(mwB.tile[435], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][16]); al_draw_bitmap(mwB.tile[436], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][17]); al_draw_bitmap(mwB.tile[437], 0, 0, 0);
 
-         al_set_target_bitmap(player_tile[a][18]); al_draw_bitmap(tile[755], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][18]); al_draw_bitmap(mwB.tile[755], 0, 0, 0);
 
-         al_set_target_bitmap(player_tile[a][19]); al_draw_bitmap(tile[438], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][19]); al_draw_bitmap(mwB.tile[438], 0, 0, 0);
 
-         al_set_target_bitmap(player_tile[a][20]); al_draw_bitmap(tile[606], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][21]); al_draw_bitmap(tile[607], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][20]); al_draw_bitmap(mwB.tile[606], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][21]); al_draw_bitmap(mwB.tile[607], 0, 0, 0);
 
-         al_set_target_bitmap(player_tile[a][22]); al_draw_bitmap(tile[638], 0, 0, 0);
-         al_set_target_bitmap(player_tile[a][23]); al_draw_bitmap(tile[639], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][22]); al_draw_bitmap(mwB.tile[638], 0, 0, 0);
+         al_set_target_bitmap(mwB.player_tile[a][23]); al_draw_bitmap(mwB.tile[639], 0, 0, 0);
 
       }
 
@@ -1671,13 +1675,13 @@ void fill_player_tile(void)
          int cs = -8 + a; // color shift (-8 to get from base to 0, then add player num for color)
          for (b=0; b<24; b++) //cycle 19 bitmaps for one color
          {
-            al_set_target_bitmap(player_tile[a][b]);
-            al_lock_bitmap(player_tile[a][b],al_get_bitmap_format(player_tile[a][b]),ALLEGRO_LOCK_READWRITE);
+            al_set_target_bitmap(mwB.player_tile[a][b]);
+            al_lock_bitmap(mwB.player_tile[a][b],al_get_bitmap_format(mwB.player_tile[a][b]),ALLEGRO_LOCK_READWRITE);
 
             for (x=0; x<20; x++)
                for (y=0; y<20; y++)
                {
-                  ALLEGRO_COLOR p = al_get_pixel(player_tile[a][b], x, y);
+                  ALLEGRO_COLOR p = al_get_pixel(mwB.player_tile[a][b], x, y);
                     float D = 0.1;
                     if (  (abs(p.r - palette_color[8].r) < D) &&
                           (abs(p.g - palette_color[8].g) < D) &&
@@ -1691,8 +1695,8 @@ void fill_player_tile(void)
                           (abs(p.g - palette_color[136].g) < D) &&
                           (abs(p.b - palette_color[136].b) < D) ) al_put_pixel(x, y, palette_color[(136+cs)]);
                }
-           al_unlock_bitmap(player_tile[a][b]);
-           al_convert_mask_to_alpha(player_tile[a][b], al_map_rgb(0, 0, 0)) ;
+           al_unlock_bitmap(mwB.player_tile[a][b]);
+           al_convert_mask_to_alpha(mwB.player_tile[a][b], al_map_rgb(0, 0, 0)) ;
          }
       }
    }
@@ -1703,7 +1707,7 @@ void fill_player_tile(void)
        al_set_target_backbuffer(display);
        for (a=0; a<16; a++)
           for (b=0; b<24; b++)
-             al_draw_bitmap(player_tile[a][b], b*20, a*20, 0);
+             al_draw_bitmap(mwB.player_tile[a][b], b*20, a*20, 0);
        al_flip_display();
        tsw();
 
@@ -1715,17 +1719,17 @@ void fill_player_tile(void)
    if (0)
    {
        // save to disk
-       al_set_target_bitmap(ptilemap);
+       al_set_target_bitmap(mwB.ptilemap);
        for (a=0; a<16; a++)
           for (b=0; b<24; b++)
-             al_draw_bitmap(player_tile[a][b], b*20, a*20, 0);
+             al_draw_bitmap(mwB.player_tile[a][b], b*20, a*20, 0);
 
        al_set_target_backbuffer(display);
-       al_draw_bitmap(ptilemap, 0, 0, 0);
+       al_draw_bitmap(mwB.ptilemap, 0, 0, 0);
 
        al_flip_display();
 
-       al_save_bitmap("bitmaps/player_tiles.bmp", ptilemap);
+       al_save_bitmap("bitmaps/player_tiles.bmp", mwB.ptilemap);
 
        tsw();
    }
