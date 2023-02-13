@@ -2,6 +2,9 @@
 
 #include "pm.h"
 
+#include "n_network.h"
+
+
 int NetworkDriver = -1;
 
 // Initialize libnet and setup a driver to use. Returns 0 on success.

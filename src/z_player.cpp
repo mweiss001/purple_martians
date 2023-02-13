@@ -7,6 +7,19 @@
 #include "mwTally.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "z_lift.h"
+#include "z_bullets.h"
+#include "mwColor.h"
+#include "mwInput.h"
+#include "mwDisplay.h"
+#include "mwProgramState.h"
+#include "z_menu.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "z_level.h"
+#include "z_fnx.h"
+#include "z_screen.h"
+#include "z_screen_overlay.h"
 
 
 
@@ -185,7 +198,7 @@ void set_player_start_pos(int p, int cont)
 
 void proc_player_health(int p)
 {
-   if ((frame_num) && (frame_num == players1[p].block_damage_holdoff)) game_event(58, 0, 0, p, 0, 0, 0);
+   if ((mwPS.frame_num) && (mwPS.frame_num == players1[p].block_damage_holdoff)) game_event(58, 0, 0, p, 0, 0, 0);
 
    if (players[p].old_LIFE != players[p].LIFE)
    {
@@ -223,7 +236,7 @@ void proc_player_xy_move_test(int p)
 {
    al_fixed m = al_ftofix(0.5);
 
-   if (key[ALLEGRO_KEY_LCTRL][0]) m *= 4;
+   if (mI.key[ALLEGRO_KEY_LCTRL][0]) m *= 4;
 
    if (players[p].up) players[p].PY -= m;
    if (players[p].down) players[p].PY += m;
@@ -621,7 +634,7 @@ void proc_player_paused(int p)
                players[p].PX  = itemf[li][0];
                players[p].PY  = itemf[li][1];
                // set destination key held to prevent immediate retriggering
-               item[li][10] = frame_num;
+               item[li][10] = mwPS.frame_num;
             }
           }
       } // end of mode 2
@@ -653,7 +666,7 @@ void proc_player_paused(int p)
                int li = item[x][9]; // linked item number
                if (item[li][13] == 448)
                   item[li][1] = 448;   // restore door shape
-               item[li][10] = frame_num;   // key hold off
+               item[li][10] = mwPS.frame_num;   // key hold off
 
             }
             players[p].paused = 0;  // the entire thing is done
@@ -878,7 +891,7 @@ int is_player_within_rope_reach(int p)
    int by = AY / 20;
    am = AY % 20;
 
-   //al_draw_textf(mF.pr8, palette_color[15], AX, AY-20, 0, "%d", am );
+   //al_draw_textf(mF.pr8, mC.pc[15], AX, AY-20, 0, "%d", am );
    int good_height = 0;
 
    if (am < 5) // this block only
@@ -992,7 +1005,7 @@ void proc_player_ladder_move(int p)
                al_fixed tm = is_up_solidfm(al_itofix(tx), players[p].PY, m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d px:%d opx:%d tx:%d x+u\n", frame_num, px, old_px, tx );
+                  //printf("%d px:%d opx:%d tx:%d x+u\n", mwPS.frame_num, px, old_px, tx );
                   players[p].PX = al_itofix(tx); // set x to passed by pos
                   players[p].PY -= m; // move in y
                   tx = px+1; // break out of loop
@@ -1003,7 +1016,7 @@ void proc_player_ladder_move(int p)
                al_fixed tm = is_down_solidfm(al_itofix(tx), players[p].PY, m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d px:%d opx:%d tx:%d x+d\n", frame_num, px, old_px, tx );
+                  //printf("%d px:%d opx:%d tx:%d x+d\n", mwPS.frame_num, px, old_px, tx );
                   players[p].PX = al_itofix(tx); // set x to passed by pos
                   players[p].PY += m; // move in y
                   tx = px+1; // break out of loop
@@ -1020,7 +1033,7 @@ void proc_player_ladder_move(int p)
                al_fixed tm = is_up_solidfm(al_itofix(tx), players[p].PY, m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d px:%d opx:%d tx:%d x-u\n", frame_num, px, old_px, tx );
+                  //printf("%d px:%d opx:%d tx:%d x-u\n", mwPS.frame_num, px, old_px, tx );
                   players[p].PX = al_itofix(tx); // set x to passed by pos
                   players[p].PY -= m; // move in y
                   tx = old_px+1; // break out of loop
@@ -1031,7 +1044,7 @@ void proc_player_ladder_move(int p)
                al_fixed tm = is_down_solidfm(al_itofix(tx), players[p].PY, m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d px:%d opx:%d tx:%d x-d\n", frame_num, px, old_px, tx );
+                  //printf("%d px:%d opx:%d tx:%d x-d\n", mwPS.frame_num, px, old_px, tx );
                   players[p].PX = al_itofix(tx); // set x to passed by pos
                   players[p].PY += m; // move in y
                   tx = old_px+1; // break out of loop
@@ -1054,7 +1067,7 @@ void proc_player_ladder_move(int p)
                al_fixed tm = is_right_solidfm(players[p].PX, al_itofix(ty1), m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d py:%d opy:%d ty1:%d y+r\n", frame_num, py, old_py, ty1 );
+                  //printf("%d py:%d opy:%d ty1:%d y+r\n", mwPS.frame_num, py, old_py, ty1 );
                   players[p].PY = al_itofix(ty1); // set y to passed by pos
                   players[p].PX += m; // move in x
                   ty1 = py+1; // break out of loop
@@ -1065,7 +1078,7 @@ void proc_player_ladder_move(int p)
                al_fixed tm = is_left_solidfm(players[p].PX, al_itofix(ty1),  m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d py:%d opy:%d ty1:%d y+l\n", frame_num, py, old_py, ty1 );
+                  //printf("%d py:%d opy:%d ty1:%d y+l\n", mwPS.frame_num, py, old_py, ty1 );
                   players[p].PY = al_itofix(ty1); // set y to passed by pos
                   players[p].PX -= m; // move in x
                   ty1 = py+1; // break out of loop
@@ -1082,7 +1095,7 @@ void proc_player_ladder_move(int p)
                al_fixed tm = is_right_solidfm(players[p].PX, al_itofix(ty1), m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d py:%d opy:%d ty1:%d y-r\n", frame_num, py, old_py, ty1 );
+                  //printf("%d py:%d opy:%d ty1:%d y-r\n", mwPS.frame_num, py, old_py, ty1 );
                   players[p].PY = al_itofix(ty1); // set y to passed by pos
                   players[p].PX += m; // move in x
                   ty1 = old_py+1; // break out of loop
@@ -1093,7 +1106,7 @@ void proc_player_ladder_move(int p)
                al_fixed tm = is_left_solidfm(players[p].PX, al_itofix(ty1),  m, 0);
                if (tm > al_itofix(0))
                {
-                  //printf("%d py:%d opy:%d ty1:%d y-l\n", frame_num, py, old_py, ty1 );
+                  //printf("%d py:%d opy:%d ty1:%d y-l\n", mwPS.frame_num, py, old_py, ty1 );
                   players[p].PY = al_itofix(ty1); // set y to passed by pos
                   players[p].PX -= m; // move in x
                   ty1 = old_py+1; // break out of loop
@@ -1258,14 +1271,14 @@ void draw_player(int p)
       /*
 
 
-      al_draw_textf(mF.pr8, palette_color[15], AX+10, AY-30, ALLEGRO_ALIGN_CENTER, "X:%d Y:%d", AX, AY);
+      al_draw_textf(mF.pr8, mC.pc[15], AX+10, AY-30, ALLEGRO_ALIGN_CENTER, "X:%d Y:%d", AX, AY);
 
 
       if (players[p].on_ladder)
-         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+19, 0.5+AY+19, palette_color[11], 1);
+         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+19, 0.5+AY+19, mC.pc[11], 1);
 
       if (players[p].on_rope)
-         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+17, 0.5+AY+19, palette_color[10], 1);
+         al_draw_rectangle(0.5+AX, 0.5+AY, 0.5+AX+17, 0.5+AY+19, mC.pc[10], 1);
 
 
       // detect block that player is on...
@@ -1289,7 +1302,7 @@ void draw_player(int p)
       int by = AY / 20;
       am = AY % 20;
 
-      al_draw_textf(mF.pr8, palette_color[15], AX, AY-20, 0, "%d", am );
+      al_draw_textf(mF.pr8, mC.pc[15], AX, AY-20, 0, "%d", am );
 
       int good_height = 0;
 
@@ -1304,14 +1317,14 @@ void draw_player(int p)
       }
 
       if (good_height)
-         if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-         if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
-           if (timer_draw_mode2) al_draw_textf(mF.pr8, palette_color[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+         if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
+           if (timer_draw_mode2) al_draw_textf(mF.pr8, mC.pc[col], x0+10, y0+6, ALLEGRO_ALIGN_CENTER, "%d", tts);
     for (int x=bx1; x<=bx2; x++)
       {
-         al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, palette_color[8], 1);
-         if (l[x][by] == 19) al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, palette_color[11], 1);
+         al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mC.pc[8], 1);
+         if (l[x][by] == 19) al_draw_rectangle(0.5+x*20, 0.5+by*20, 0.5+(x*20)+19, 0.5+(by*20)+19, mC.pc[11], 1);
       }
 
 */
@@ -1339,8 +1352,8 @@ void draw_player(int p)
 
          // show last health adjustment
          int h = players1[p].last_health_adjust; // last health adjust
-         if (h > 0) al_draw_textf(mF.pixl, palette_color[11], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
-         if (h < 0) al_draw_textf(mF.pixl, palette_color[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
+         if (h > 0) al_draw_textf(mF.pixl, mC.pc[11], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
+         if (h < 0) al_draw_textf(mF.pixl, mC.pc[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", h);
 
          // show potential bomb damage
          int dmg = players1[p].potential_bomb_damage; // potential bomb damage
@@ -1348,13 +1361,13 @@ void draw_player(int p)
          {
             int nh = ch - dmg; // new health
             if (nh < 0) nh = 0;
-            if (frame_num % 20 < 10)
+            if (mwPS.frame_num % 20 < 10)
             {
                // draw segment from new health to current health
                draw_percent_bar_range(AX+10, AY-6, 16, 3, 10, nh, ch);
 
                // show damage amount
-               al_draw_textf(mF.pixl, palette_color[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);
+               al_draw_textf(mF.pixl, mC.pc[10], AX+10, AY-16, ALLEGRO_ALIGN_CENTER, "%+d", -dmg);
 
                // draw a tiny bomb picture
                al_draw_scaled_rotated_bitmap(mwB.tile[464], 10, 10,  AX+20, AY-12, .5, .5, 0, 0);
@@ -1410,7 +1423,7 @@ void get_players_shape(int p)
       // 3 is rope move
       int pos = (x/3) % 2;
       players[p].shape = 20 + pos;
-      /// printf("f:%d x:%d pos:%d, shape:%d\n", frame_num, x, pos, shape );
+      /// printf("f:%d x:%d pos:%d, shape:%d\n", mwPS.frame_num, x, pos, shape );
    }
 
    if (players[p].on_ladder)
@@ -1422,7 +1435,7 @@ void get_players_shape(int p)
       // 3 is ladder move
       int pos = (y/3) % 2;
       players[p].shape = 22 + pos;
-      //printf("f:%d y:%d pos:%d, shape:%d\n", frame_num, y, pos, shape );
+      //printf("f:%d y:%d pos:%d, shape:%d\n", mwPS.frame_num, y, pos, shape );
    }
 }
 
@@ -1683,17 +1696,17 @@ void fill_player_tile(void)
                {
                   ALLEGRO_COLOR p = al_get_pixel(mwB.player_tile[a][b], x, y);
                     float D = 0.1;
-                    if (  (abs(p.r - palette_color[8].r) < D) &&
-                          (abs(p.g - palette_color[8].g) < D) &&
-                          (abs(p.b - palette_color[8].b) < D) ) al_put_pixel(x, y, palette_color[(8+cs)]);
+                    if (  (abs(p.r - mC.pc[8].r) < D) &&
+                          (abs(p.g - mC.pc[8].g) < D) &&
+                          (abs(p.b - mC.pc[8].b) < D) ) al_put_pixel(x, y, mC.pc[(8+cs)]);
 
-                    if (  (abs(p.r - palette_color[56].r) < D) &&
-                          (abs(p.g - palette_color[56].g) < D) &&
-                          (abs(p.b - palette_color[56].b) < D) ) al_put_pixel(x, y, palette_color[(56+cs)]);
+                    if (  (abs(p.r - mC.pc[56].r) < D) &&
+                          (abs(p.g - mC.pc[56].g) < D) &&
+                          (abs(p.b - mC.pc[56].b) < D) ) al_put_pixel(x, y, mC.pc[(56+cs)]);
 
-                    if (  (abs(p.r - palette_color[136].r) < D) &&
-                          (abs(p.g - palette_color[136].g) < D) &&
-                          (abs(p.b - palette_color[136].b) < D) ) al_put_pixel(x, y, palette_color[(136+cs)]);
+                    if (  (abs(p.r - mC.pc[136].r) < D) &&
+                          (abs(p.g - mC.pc[136].g) < D) &&
+                          (abs(p.b - mC.pc[136].b) < D) ) al_put_pixel(x, y, mC.pc[(136+cs)]);
                }
            al_unlock_bitmap(mwB.player_tile[a][b]);
            al_convert_mask_to_alpha(mwB.player_tile[a][b], al_map_rgb(0, 0, 0)) ;

@@ -3,6 +3,14 @@
 #include "pm.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
+#include "mwColor.h"
+#include "z_menu.h"
+#include "z_item.h"
+#include "z_level.h"
+#include "e_fnx.h"
+#include "e_object_viewer.h"
+#include "z_fnx.h"
+
 
 void show_all_items(void)
 {
@@ -42,7 +50,7 @@ void show_all_items(void)
          if (j == 5) sprintf(msg2,"[%-4d] ", item[i][j]);
          strcat(msg, msg2);
       }
-      al_draw_text(mF.pr8, palette_color[13], rh+2, text_pos+(rh-8)/2, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[13], rh+2, text_pos+(rh-8)/2, 0, msg);
       text_pos +=rh;
       if (text_pos > mwD.SCREEN_H - 10)
       {
@@ -394,7 +402,7 @@ void show_all_pmsg(void)
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
 
-   al_draw_text(mF.pr8, palette_color[15], 20, text_pos, 0, "List of pop messages:");
+   al_draw_text(mF.pr8, mC.pc[15], 20, text_pos, 0, "List of pop messages:");
    text_pos +=8;
 
    for (int i=0; i<500; i++)
@@ -418,14 +426,14 @@ void show_all_pmsg(void)
          }
          if (lines == 1) mll = tlc;
 
-         al_draw_textf(mF.pr8, palette_color[14], 20, text_pos+=8, 0, "Item:%-2d len:%-3d lines:%-2d max length:%-2d", i, len, lines, mll);
+         al_draw_textf(mF.pr8, mC.pc[14], 20, text_pos+=8, 0, "Item:%-2d len:%-3d lines:%-2d max length:%-2d", i, len, lines, mll);
 
          for (int j=0; j<len; j++)
          {
             int col = 15;
             if ((pmsgtext[i][j] < 32) || (pmsgtext[i][j] > 126)) col = 10; // bad char
             if (pmsgtext[i][j] == 10) col = 9; // LF
-            al_draw_textf(mF.pr8, palette_color[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsgtext[i][j], pmsgtext[i][j] );
+            al_draw_textf(mF.pr8, mC.pc[col], 20, text_pos+=8, 0, "[%2d][%3d] - %c", j, pmsgtext[i][j], pmsgtext[i][j] );
 
             if (text_pos > mwD.SCREEN_H - 20)
             {

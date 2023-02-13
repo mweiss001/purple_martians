@@ -3,8 +3,30 @@
 #include "mwWindowManager.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
+#include "z_lift.h"
+#include "e_tile_helper.h"
+#include "e_pde.h"
+#include "mwColor.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "mwBitmap.h"
+#include "mwProgramState.h"
+#include "z_menu.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "z_level.h"
+#include "e_edit_selection.h"
+#include "e_editor_main.h"
+#include "e_fnx.h"
+#include "e_group_edit.h"
+#include "e_object_viewer.h"
+#include "z_file.h"
+#include "z_screen.h"
+
 
 mwWindowManager mwWM;
+
+extern ALLEGRO_BITMAP *ft_bmp;  //  file temp paste bmp
 
 void mwWindowManager::initialize(int edit_level)
 {
@@ -25,23 +47,24 @@ void mwWindowManager::initialize(int edit_level)
    for (int i=0; i<5; i++)
       for (int j=0; j<20; j++) obj_filter[i][j] = 1;
 
-   if (edit_level) load_level(edit_level, 0); // load passed level
+   if (edit_level) load_level(edit_level, 0, 0); // load passed level
    else load_level_prompt();                  // prompt for level
+
 
    load_PDE();
    sort_enemy();
    sort_item(1);
    em_set_swbl();
 
-   clear_keys();
+   mI.initialize();
 }
 
 void mwWindowManager::loop(int edit_level)
 {
-   level_editor_running = 1;
+   mwPS.level_editor_running = 1;
    al_show_mouse_cursor(display);
    initialize(edit_level);
-   if (autosave_level_editor_state) load_mW();
+   if (mwPS.autosave_level_editor_state) load_mW();
    active = 1;
 
 
@@ -52,8 +75,8 @@ void mwWindowManager::loop(int edit_level)
       process_keypress();
    }
 
-   if (autosave_level_editor_state) save_mW();
-   level_editor_running = 0;
+   if (mwPS.autosave_level_editor_state) save_mW();
+   mwPS.level_editor_running = 0;
    resume_allowed = 0;
    al_hide_mouse_cursor(display);
 }
@@ -62,8 +85,8 @@ void mwWindowManager::get_block_position_on_map(void)
 {
    // x, y in 0-99 scale
    // the mouse position past the border width is how far we are into the scaled map
-   float mx1 = mouse_x-BORDER_WIDTH;
-   float my1 = mouse_y-BORDER_WIDTH;
+   float mx1 = mI.mouse_x-BORDER_WIDTH;
+   float my1 = mI.mouse_y-BORDER_WIDTH;
 
    // divide that by bs to get how many blocks we are into the map
    float mx2 = mx1 / (mwD.scale_factor_current * 20);
@@ -86,8 +109,8 @@ void mwWindowManager::get_block_position_on_map(void)
 
    // hx, hy in 0-1999 scale
    // the mouse position past the border width is how far we are into the scaled map
-   mx1 = mouse_x-BORDER_WIDTH;
-   my1 = mouse_y-BORDER_WIDTH;
+   mx1 = mI.mouse_x-BORDER_WIDTH;
+   my1 = mI.mouse_y-BORDER_WIDTH;
 
    // scale
    mx2 = mx1 / mwD.scale_factor_current;
@@ -116,10 +139,10 @@ void mwWindowManager::process_scrolledge(void)
    int swb = mwD.SCREEN_W-bw;
    int shb = mwD.SCREEN_H-bw;
 
-   if (mouse_y > shb) mwD.WY+=(mouse_y - shb)*2; // scroll down
-   if (mouse_x > swb) mwD.WX+=(mouse_x - swb)*2; // scroll right
-   if (mouse_x < bw)  mwD.WX-=(bw - mouse_x)*2;  // scroll left
-   if (mouse_y < 4)   mwD.WY-=(4  - mouse_y)*7;  // scroll up (is different because of menu)
+   if (mI.mouse_y > shb) mwD.WY+=(mI.mouse_y - shb)*2; // scroll down
+   if (mI.mouse_x > swb) mwD.WX+=(mI.mouse_x - swb)*2; // scroll right
+   if (mI.mouse_x < bw)  mwD.WX-=(bw - mI.mouse_x)*2;  // scroll left
+   if (mI.mouse_y < 4)   mwD.WY-=(4  - mI.mouse_y)*7;  // scroll up (is different because of menu)
 
    // find the size of the source screen from actual screen size and scaler
    int SW = (int)( (float)(mwD.SCREEN_W - bw *2) / mwD.scale_factor_current);
@@ -151,8 +174,8 @@ void mwWindowManager::show_level_buffer_block_rect(int x1, int y1, int x2, int y
    if (dstx == 0) dstx = 1;
    int dsty = y1*20;
    if (dsty == 0) dsty = 1;
-   al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, palette_color[14], 1);
-   al_draw_text(mF.pr8, palette_color[color], x1*20+2, y1*20-11,  0, text);
+   al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, mC.pc[14], 1);
+   al_draw_text(mF.pr8, mC.pc[color], x1*20+2, y1*20-11,  0, text);
 }
 
 // used by se, ge and em
@@ -161,7 +184,7 @@ void mwWindowManager::get_new_box(void)
 {
    bx2 = bx1 = gx; // set both corners to initial position
    by2 = by1 = gy;
-   while (mouse_b[1][0])
+   while (mI.mouse_b[1][0])
    {
       bx2 = gx;
       by2 = gy;
@@ -186,10 +209,10 @@ void mwWindowManager::process_keypress(void)
 {
    if (level_editor_mode == 4) ov_process_keypress();
 
-   while (key[ALLEGRO_KEY_ESCAPE][0])
+   while (mI.key[ALLEGRO_KEY_ESCAPE][0])
    {
       active = 0;
-      proc_event_queue();
+      mwEQ.proc_event_queue();
    }
 
    if (active == 0)
@@ -212,10 +235,10 @@ int mwWindowManager::redraw_level_editor_background(void)
 {
    int drawn = 0;
 
-   proc_event_queue();
-   if (program_update)
+   mwEQ.proc_event_queue();
+   if (mwEQ.program_update)
    {
-      program_update = 0;
+      mwEQ.program_update = 0;
       drawn = 1;
 
       al_flip_display();
@@ -223,8 +246,8 @@ int mwWindowManager::redraw_level_editor_background(void)
       int mouse_on_window = is_mouse_on_any_window();
       if ((!mouse_on_window) || (level_editor_mode == 0) || (level_editor_mode == 4)) get_block_position_on_map();
 
-      process_flash_color();
-      update_animation();
+      mC.process_flash_color();
+      mwB.update_animation();
 
       process_scrolledge();
       mwD.proc_scale_factor_change();
@@ -276,7 +299,7 @@ int mwWindowManager::redraw_level_editor_background(void)
             {
                x = item[i][4];
                y = item[i][5];
-               al_draw_rectangle(x, y, x+20, y+20, palette_color[13], 1);
+               al_draw_rectangle(x, y, x+20, y+20, mC.pc[13], 1);
             }
          }
          for (int e=0; e<100; e++)
@@ -286,7 +309,7 @@ int mwWindowManager::redraw_level_editor_background(void)
             {
                x = al_fixtoi(Efi[e][0]);
                y = al_fixtoi(Efi[e][1]);
-               al_draw_rectangle(x, y, x+20, y+20, palette_color[13], 1);
+               al_draw_rectangle(x, y, x+20, y+20, mC.pc[13], 1);
             }
          }
 
@@ -330,8 +353,8 @@ int mwWindowManager::redraw_level_editor_background(void)
                   x = al_fixtoi(Efi[num][0]);
                   y = al_fixtoi(Efi[num][1]);
                }
-               if (mwWM.obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, palette_color[flash_color], 1); // highlight
-               else                al_draw_rectangle(x,   y,   x+20,   y+20,   palette_color[10], 1);
+               if (mwWM.obj_list[i][2]) al_draw_rectangle(x-2, y-2, x+20+2, y+20+2, mC.Flash1, 1); // highlight
+               else                al_draw_rectangle(x,   y,   x+20,   y+20,   mC.pc[10], 1);
             }
          }
       }
@@ -349,8 +372,8 @@ int mwWindowManager::redraw_level_editor_background(void)
          mW[7].legend_line = 0;
          int y1_legend = mW[7].y2 - 34 + (5-mW[7].num_legend_lines)*8; // legend pos
          int y2_legend = y1_legend + (mW[7].num_legend_lines-1)*8;
-         if ((mouse_x > mW[7].x1) && (mouse_x < mW[7].x2) && (mouse_y > y1_legend) && (mouse_y < y2_legend)) // is mouse on legend
-            mW[7].legend_line = ((mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
+         if ((mI.mouse_x > mW[7].x1) && (mI.mouse_x < mW[7].x2) && (mI.mouse_y > y1_legend) && (mI.mouse_y < y2_legend)) // is mouse on legend
+            mW[7].legend_line = ((mI.mouse_y - y1_legend) / 8) + 1; // which legend line are we on?
 
          ov_draw_overlays(mW[7].legend_line);
 
@@ -366,11 +389,11 @@ int mwWindowManager::redraw_level_editor_background(void)
                if (thl[x][y])
                {
                   //int col = 10;
-                  int c = flash_color+64;
-                  int c2 = flash_color2+64;
-                  al_draw_rectangle(x*20+0.5, y*20+0.5, x*20+20, y*20+20,   palette_color[c2], 0);
-                  al_draw_line(x*20, y*20, x*20+20, y*20+20,   palette_color[c], 0);
-                  al_draw_line(x*20+20, y*20, x*20, y*20+20,   palette_color[c], 0);
+                  int c = mC.flash_color+64;
+                  int c2 = mC.flash_color2+64;
+                  al_draw_rectangle(x*20+0.5, y*20+0.5, x*20+20, y*20+20,   mC.pc[c2], 0);
+                  al_draw_line(x*20, y*20, x*20+20, y*20+20,   mC.pc[c], 0);
+                  al_draw_line(x*20+20, y*20, x*20, y*20+20,   mC.pc[c], 0);
                }
             }
       }
@@ -536,11 +559,11 @@ int mwWindowManager::is_mouse_on_any_window(void)
    for (int a=0; a<NUM_MW; a++)
       if ((mW[a].active) && (mW[a].detect_mouse())) mow = 1;
 
-   if (mouse_x < BORDER_WIDTH) mow = 1;
-   if (mouse_y < BORDER_WIDTH) mow = 1;
+   if (mI.mouse_x < BORDER_WIDTH) mow = 1;
+   if (mI.mouse_y < BORDER_WIDTH) mow = 1;
 
-   if (mouse_x > mwD.SCREEN_W - BORDER_WIDTH) mow = 1;
-   if (mouse_y > mwD.SCREEN_H - BORDER_WIDTH) mow = 1;
+   if (mI.mouse_x > mwD.SCREEN_W - BORDER_WIDTH) mow = 1;
+   if (mI.mouse_y > mwD.SCREEN_H - BORDER_WIDTH) mow = 1;
 
 
    return mow;

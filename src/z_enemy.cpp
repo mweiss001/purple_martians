@@ -1,22 +1,43 @@
 // z_enemy.cpp
 #include "pm.h"
+#include "z_enemy.h"
 #include "z_log.h"
 #include "z_player.h"
 #include "mwDisplay.h"
 #include "mwTimeStamp.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "z_lift.h"
+#include "z_bullets.h"
+#include "mwColor.h"
+#include "mwProgramState.h"
+#include "z_menu.h"
+#include "z_item.h"
+#include "z_level.h"
+#include "z_fnx.h"
+#include "z_screen_overlay.h"
+
+
+
+// enemies
+int Ei[100][32];        // enemy ints
+al_fixed Efi[100][16];  // enemy fixeds
+int e_num_of_type[50];
+int e_first_num[50];
+char enemy_name[100][2][40] = {0};
+int num_enemy;
+int enemy_tile[20];
 
 int enemy_data(int x_pos, int y_pos)
 {
    sort_enemy();
-   al_draw_textf(mF.pr8, palette_color[4], x_pos, y_pos, 0, "%-2d Enemies", num_enemy); y_pos += 8;
-   al_draw_text(mF.pr8, palette_color[4], x_pos, y_pos,  0, "----------"); y_pos += 8;
+   al_draw_textf(mF.pr8, mC.pc[4], x_pos, y_pos, 0, "%-2d Enemies", num_enemy); y_pos += 8;
+   al_draw_text(mF.pr8, mC.pc[4], x_pos, y_pos,  0, "----------"); y_pos += 8;
    for (int c=1; c<16; c++)
    {
       if (e_num_of_type[c]) // not zero
       {
-         al_draw_textf(mF.pr8, palette_color[10], x_pos, y_pos,   0, "%-2d %s", e_num_of_type[c], enemy_name[c][0]);
+         al_draw_textf(mF.pr8, mC.pc[10], x_pos, y_pos,   0, "%-2d %s", e_num_of_type[c], enemy_name[c][0]);
          y_pos += 8;
       }
    }
@@ -37,8 +58,8 @@ void rectangle_with_diagonal_lines(float x1, float y1, float x2, float y2, int s
    float ld = xd;
    if (yd > ld) ld = yd;
    for (float k=-ld; k<ld; k+=spacing)
-      al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, palette_color[line_color], 0);
-   al_draw_rectangle(x1+0.5, y1+0.5, x2-0.5, y2-0.5, palette_color[frame_color], 1);
+      al_draw_line(x1+k, y1-k, x1+ld+k, y1+ld-k, mC.pc[line_color], 0);
+   al_draw_rectangle(x1+0.5, y1+0.5, x2-0.5, y2-0.5, mC.pc[frame_color], 1);
    al_reset_clipping_rectangle();
 }
 
@@ -56,7 +77,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
 
    if ((type == 13) && (!custom))
    {
-      ALLEGRO_COLOR c2 = palette_color[9+128];
+      ALLEGRO_COLOR c2 = mC.pc[9+128];
 
       // put variables in spline array
       float pnts[8];
@@ -142,7 +163,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
    else al_draw_scaled_rotated_bitmap(mwB.tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
 
    // if enemy is expiring show how many seconds it has left
-   if ((!level_editor_running) && (Ei[e][27])) al_draw_textf(mF.pixl, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+   if ((!mwPS.level_editor_running) && (Ei[e][27])) al_draw_textf(mF.pixl, mC.pc[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
 
    if ((type == 9) && (!custom)) // cloner
    {
@@ -193,7 +214,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
 
          // show vertical red green bar animation sequence
         // int b = (Ei[e][7] * 10) / (Ei[e][6]+1);
-        // int t = zz[5+b][53];
+        // int t = mwB.zz[5+b][53];
         // al_draw_scaled_rotated_bitmap(mwB.tile[t], 10, 10, EXint+10, EYint+10, .5, .5, 0, ALLEGRO_FLIP_VERTICAL);
       }
 
@@ -216,22 +237,9 @@ void draw_enemy(int e, int custom, int cx, int cy)
       int y1 = al_fixtoi(Efi[e][1]);
       int x2 = x1 + 20;
       int y2 = y1 + 20;
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[14], 1);
-
+      al_draw_rectangle(x1, y1, x2, y2, mC.pc[14], 1);
    }
-
 */
-
-   #ifdef SHOW_POD_CLONER_TRIGGER_BOX
-   if ((Ei[e][0] == 7) || (Ei[e][0] == 9))// show podzilla or cloner trigger box
-   {
-      int x1 = Ei[e][11] * 20;
-      int y1 = Ei[e][12] * 20;
-      int x2 = Ei[e][13] * 20 + 20;
-      int y2 = Ei[e][14] * 20 + 20;
-      al_draw_rectangle(x1, y1, x2, y2, palette_color[14], 1);
-   }
-   #endif
 
    #ifdef SHOW_CANNON_COLLISION_BOX
    if (Ei[e][0] == 6) // cannon
@@ -263,7 +271,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
             // if player in collision box color = red
             if ((px > ex1) && (px < ex2) && (py > ey1) && (py < ey2)) color = 10;
       }
-      al_draw_rectangle(x1-il, y1-il, x1+il, y1+il, palette_color[color], 1);
+      al_draw_rectangle(x1-il, y1-il, x1+il, y1+il, mC.pc[color], 1);
    }
    #endif
 
@@ -272,7 +280,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
 /*
    if (Ei[e][0] == 3) // archwagon
    {
-      al_draw_textf(mF.pr8, palette_color[15], EXint+30, EYint+10, 0, "%d", Ei[e][5]);
+      al_draw_textf(mF.pr8, mC.pc[15], EXint+30, EYint+10, 0, "%d", Ei[e][5]);
    }
 */
 
@@ -286,26 +294,26 @@ void draw_enemy(int e, int custom, int cx, int cy)
       int y1 = base - Ei[e][21];
       int y2 = base + Ei[e][21];
 
-      al_draw_line(EXint-140, base, EXint+140, base, palette_color[11], 1);
-      al_draw_rectangle(EXint-40, y1, EXint+40, y2, palette_color[11], 1);
+      al_draw_line(EXint-140, base, EXint+140, base, mC.pc[11], 1);
+      al_draw_rectangle(EXint-40, y1, EXint+40, y2, mC.pc[11], 1);
 
       // draw height above player
       int hab =  Ei[e][20];
-      al_draw_line(EXint-40, base+hab, EXint+40, base+hab, palette_color[12], 1);
+      al_draw_line(EXint-40, base+hab, EXint+40, base+hab, mC.pc[12], 1);
 
 //            // draw trigger box
 //            int width =  Ei[e][17];
 //            int height = Ei[e][18];
 //            int depth =  Ei[e][19];
-//            al_draw_rectangle(EXint-width+10, EYint-height, EXint+width+10, EYint+depth, palette_color[14], 1);
+//            al_draw_rectangle(EXint-width+10, EYint-height, EXint+width+10, EYint+depth, mC.pc[14], 1);
 
 
       int prox = Ei[e][17];
       int color = 14; // default circle color
-      //al_draw_circle(EXint+10, EYint+10, prox, palette_color[color], 1);
+      //al_draw_circle(EXint+10, EYint+10, prox, mC.pc[color], 1);
 
-      if (Efi[e][2] > al_itofix(0)) al_draw_pieslice(EXint+10, EYint+10, prox, 0.785, -1.571,    palette_color[color], 1);
-      else al_draw_pieslice(EXint+10, EYint+10, prox, 3.927, -1.571,    palette_color[color], 1);
+      if (Efi[e][2] > al_itofix(0)) al_draw_pieslice(EXint+10, EYint+10, prox, 0.785, -1.571,    mC.pc[color], 1);
+      else al_draw_pieslice(EXint+10, EYint+10, prox, 3.927, -1.571,    mC.pc[color], 1);
 
 
 
@@ -337,10 +345,10 @@ void draw_enemy(int e, int custom, int cx, int cy)
          // mark player with blue crosshairs
          int px = al_fixtoi(players[p].PX)+10;
          int py = al_fixtoi(players[p].PY)+10;
-         al_draw_line(px-20, py, px+20, py, palette_color[13], 1);
-         al_draw_line(px, py-20, px, py+20, palette_color[13], 1);
+         al_draw_line(px-20, py, px+20, py, mC.pc[13], 1);
+         al_draw_line(px, py-20, px, py+20, mC.pc[13], 1);
       }
-      al_draw_circle(EXint+10, EYint+10, prox, palette_color[color], 1);
+      al_draw_circle(EXint+10, EYint+10, prox, mC.pc[color], 1);
    }
    #endif
 
@@ -349,7 +357,7 @@ void draw_enemy(int e, int custom, int cx, int cy)
 
       int prox = Ei[e][17];
       int color = 14; // default circle color
-      al_draw_circle(EXint+10, EYint+10, prox, palette_color[color], 1);
+      al_draw_circle(EXint+10, EYint+10, prox, mC.pc[color], 1);
 
 */
 
@@ -400,8 +408,14 @@ void proc_enemy_collision_with_pbullet(int e)
 
          // check for collision with player's bullets
 
+         printf("test\n");
+
+
          if ((ex > bx1) && (ex < bx2) && (ey > by1) && (ey < by2))
          {
+
+            printf("hit!\n");
+
             int p = pbullet[c][1];   // player number that shot bullet
             Ei[e][31] = 1;           // flag that this enemy got shot with bullet
             Ei[e][26] = p;           // number of player's bullet that hit enemy
@@ -431,7 +445,7 @@ void move_enemies()
                Efi[e][4] = al_itofix(0);  // cant hurt anymore
                Ei[e][29] = 0;             // no collision box
                int sq = 10-ttl;
-               Ei[e][1] = zz[5+sq][74];
+               Ei[e][1] = mwB.zz[5+sq][74];
             }
             if (ttl == 1) Ei[e][0] = 0; // kill instantly
             Ei[e][27]--;
@@ -494,7 +508,7 @@ void enemy_deathcount(int e)
    Efi[e][0] += Efi[e][2]; // xinc
    Efi[e][1] += Efi[e][3]; // yinc
 
-   Ei[e][1] = zz[0][ Ei[e][3] ]; // draw current ans shape
+   Ei[e][1] = mwB.zz[0][ Ei[e][3] ]; // draw current ans shape
    // dec and check countdown timer
    if (--Ei[e][30] < 0) // create bonus
    {
@@ -622,10 +636,10 @@ void enemy_killed(int e)
    int a = Ei[e][0];
    if (a==3 || a==4 || a==5 || a==6 || a==7 || a==8 || a==9 || a==12 || a==13)
    {
-      zz[0][na] = zz[5][na]; // set shape
-      zz[1][na] = 0;         // point to zero
-      zz[2][na] = 0;         // set counter
-      zz[3][na] = dl / zz[4][na]; // set ans timer
+      mwB.zz[0][na] = mwB.zz[5][na]; // set shape
+      mwB.zz[1][na] = 0;         // point to zero
+      mwB.zz[2][na] = 0;         // set counter
+      mwB.zz[3][na] = dl / mwB.zz[4][na]; // set ans timer
 
       Efi[e][4] = al_itofix(0);  // cant hurt anymore
       Ei[e][25]*=hbm;            // health bonus
@@ -775,7 +789,7 @@ void enemy_flapper(int e)
 
    // shape offset
    int so = (int)(f/16.66); // 100/6 = 16.66
-   Ei[e][1] = zz[8+so][Ei[e][3]];
+   Ei[e][1] = mwB.zz[8+so][Ei[e][3]];
 
    //convert 0-100 to 0-256 to get fixed binary angle
    al_fixed th = al_ftofix(f * 2.56);
@@ -948,7 +962,7 @@ void enemy_cloner(int e)
    int x5 = Ei[e][11] + Ei[e][13] + 10;
    int y5 = Ei[e][12] + Ei[e][14] + 10;
 
-   Ei[e][1] = zz[0][105]; // default shape
+   Ei[e][1] = mwB.zz[0][105]; // default shape
 
    if (Ei[e][31] && (Ei[e][30] == 0)) // hit and not invincible
    {
@@ -964,12 +978,12 @@ void enemy_cloner(int e)
    Ei[e][2] = 0;  // flip mode
 
 //   int b = (Ei[e][7] * 7) / (Ei[e][6]+1);
-//   Ei[e][1] = zz[5+b][106];
+//   Ei[e][1] = mwB.zz[5+b][106];
 
    int b = (Ei[e][7] * 9) / (Ei[e][6]+1);
-   Ei[e][1] = zz[5+b][107];
+   Ei[e][1] = mwB.zz[5+b][107];
 
-   if (Ei[e][8] == 2) Ei[e][1] = zz[0][105]; // to make something happen for immed
+   if (Ei[e][8] == 2) Ei[e][1] = mwB.zz[0][105]; // to make something happen for immed
 
 //   printf("%d %d %d \n", b, Ei[e][7], Ei[e][6]);
 
@@ -1426,25 +1440,25 @@ void enemy_trakbot(int e)
    {
       int ex = al_fixtoi(Efi[e][0]);
       int s = ex % 6;
-      Ei[e][1] = zz[10-s][b];
+      Ei[e][1] = mwB.zz[10-s][b];
    }
    if ((mode == 1) || (mode == 5)) // y- rwall up and lwall up
    {
       int ey = al_fixtoi(Efi[e][1]);
       int s = ey % 6;
-      Ei[e][1] = zz[5+s][b];
+      Ei[e][1] = mwB.zz[5+s][b];
    }
    if ((mode == 2) || (mode == 4)) // x- ceil left or floor left
    {
       int ex = al_fixtoi(Efi[e][0]);
       int s = ex % 6;
-      Ei[e][1] = zz[5+s][b];
+      Ei[e][1] = mwB.zz[5+s][b];
    }
    if ((mode == 3) || (mode == 7)) // y+ lwall down or rwall down
    {
       int ey = al_fixtoi(Efi[e][1]);
       int s = ey % 6;
-      Ei[e][1] = zz[10-s][b];
+      Ei[e][1] = mwB.zz[10-s][b];
    }
 }
 
@@ -1528,11 +1542,11 @@ void enemy_podzilla(int e)
    }
 
    // set shape based on how far it has retracted
-   int ns = zz[4][15]; // number of shapes
+   int ns = mwB.zz[4][15]; // number of shapes
    float v = (float)Ei[e][6] / (float)Ei[e][7]; // ratio
    int s = v*ns;
    //printf("v:%f, 6:%f  7:%f  s:%d\n", v, (float)Ei[e][6], (float)Ei[e][7], s);
-   Ei[e][1] = zz[5+s][15];
+   Ei[e][1] = mwB.zz[5+s][15];
 
    // set rotation
    if (!Ei[e][5]) Efi[e][14] = get_rot_from_xyinc(e);              // rotate to face direction of movement
@@ -1635,11 +1649,11 @@ void enemy_vinepod(int e)
    }
 
    // set shape based on how far it has extended
-   int ns = zz[4][15]; // number of shapes
+   int ns = mwB.zz[4][15]; // number of shapes
    float v = (float)Ei[e][16] / (float)Ei[e][17]; // ratio
    int s = v*ns;
    //printf("v:%f, 6:%f  7:%f  s:%d\n", v, (float)Ei[e][6], (float)Ei[e][7], s);
-   Ei[e][1] = zz[5+s][15];
+   Ei[e][1] = mwB.zz[5+s][15];
 
 
    // put variables in spline array
@@ -1842,28 +1856,28 @@ void enemy_bouncer(int e)
    Efi[e][14] = get_rot_from_xyinc(e);
 
 
-   // set the bitmap from frame_num mod by animation sequence
+   // set the bitmap from mwPS.frame_num mod by animation sequence
 
    // animation sequence number
    int ans = Ei[e][3];
 
    // number of shapes in animation sequence
-   int ns = zz[4][ans];
+   int ns = mwB.zz[4][ans];
 
    // number of frames for each shape
-   int nf = zz[3][ans]+1;
+   int nf = mwB.zz[3][ans]+1;
 
    // total sequence length in frames
    int tsl = nf * ns;
 
-   // get mod of frame_num
-   int pm = frame_num % tsl;
+   // get mod of mwPS.frame_num
+   int pm = mwPS.frame_num % tsl;
 
    // get shape number from mod
    int ss = pm / nf;
 
    // set shape in enemy array
-   Ei[e][1] = zz[5+ss][ans];
+   Ei[e][1] = mwB.zz[5+ss][ans];
 }
 
 
@@ -1936,18 +1950,18 @@ void enemy_archwagon(int e)
 
    // set the bitmap and drawing mode
    int b = Ei[e][3]; // ans
-   int c = zz[4][b]; // num_of_shapes in seq
+   int c = mwB.zz[4][b]; // num_of_shapes in seq
 
    // animate with h move
    if (Ei[e][2] == 1) // right
    {
       int x = (EXint/3) % c;
-      Ei[e][1] = zz[x+5][b];
+      Ei[e][1] = mwB.zz[x+5][b];
    }
    if (Ei[e][2] == 0) // left
    {
       int x = (EXint/3) % c;
-      Ei[e][1] = zz[5+c-x][b];
+      Ei[e][1] = mwB.zz[5+c-x][b];
    }
 }
 
@@ -2116,8 +2130,8 @@ void walker_archwagon_common(int e)
 
    if ((on_solid) || (on_lift))
    {
-      // frame_num jump
-      if ((Ei[e][6] > 0) && ((frame_num % Ei[e][6]) == 1)) Ei[e][5] = -160;
+      // mwPS.frame_num jump
+      if ((Ei[e][6] > 0) && ((mwPS.frame_num % Ei[e][6]) == 1)) Ei[e][5] = -160;
 
       // check for jump if player passes above
       if (Ei[e][7] > 0)
@@ -2158,7 +2172,7 @@ void enemy_block_walker(int e)
       l[ex][ey] |= PM_BTILE_BREAKABLE_PBUL;
 
       al_set_target_bitmap(mwB.level_background);
-      al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, palette_color[0]);
+      al_draw_filled_rectangle(ex*20, ey*20, ex*20+20, ey*20+20, mC.pc[0]);
       al_draw_bitmap(mwB.btile[168], ex*20, ey*20, 0);
 
       game_event(60, 0, 0, Ei[e][26], e, 0, 0);
@@ -2173,11 +2187,11 @@ void enemy_block_walker(int e)
 
    // set the bitmap and drawing mode
    int b = Ei[e][3];     // ans
-   int c = zz[4][b];     // num_of_shapes in seq
+   int c = mwB.zz[4][b];     // num_of_shapes in seq
 
    // animate with h move
    int x = (EXint/2) % c;
-   Ei[e][1] = zz[x+5][b];
+   Ei[e][1] = mwB.zz[x+5][b];
 }
 
 
@@ -2224,7 +2238,7 @@ void enemy_jumpworm(int e)
 
    int sd = Ei[e][4]; // ground speed divider
 
-   int c = frame_num % (10*sd);
+   int c = mwPS.frame_num % (10*sd);
    int mf = 0; // move frame
    if (c % sd == 0) mf = 1;
 
@@ -2377,8 +2391,8 @@ void enemy_jumpworm(int e)
    // timed jump and jump when player passes above
    if ((on_solid) || (on_lift))
    {
-      // frame_num jump
-      if ((Ei[e][6] > 0) && ((frame_num % Ei[e][6]) == 1)) attempt_jump = 1;
+      // mwPS.frame_num jump
+      if ((Ei[e][6] > 0) && ((mwPS.frame_num % Ei[e][6]) == 1)) attempt_jump = 1;
 
       // check for jump if player passes above
       if (Ei[e][7] > 0)

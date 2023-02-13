@@ -7,6 +7,11 @@ class mwLogo
    mwLogo(); // default constructor
    void initialize(void);
 
+   ALLEGRO_BITMAP *logo_ichael;
+   ALLEGRO_BITMAP *logo_avid;
+   ALLEGRO_BITMAP *logo_eiss;
+   int logo_text_bitmaps_create;
+
    int mdw_an_seq;      // animation sequence number
    float points[9][8];  // array of points for splines
 
@@ -41,6 +46,16 @@ class mwLogo
    float mdw_logo_scale_dec;
    float mdw_logo_x_dec;
    float mdw_logo_y_dec;
+
+
+
+   // might as well store these here too
+   int menu_map_size;
+   int menu_map_x;
+   int menu_map_y;
+
+
+
 
    int show_splash_screen = 1;
    int splash_screen_done = 0;

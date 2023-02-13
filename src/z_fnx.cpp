@@ -1,10 +1,27 @@
 // z_fnx.cpp
 #include "pm.h"
+#include "z_fnx.h"
 #include "z_log.h"
 #include "z_player.h"
 #include "n_netgame.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "z_lift.h"
+#include "z_bullets.h"
+#include "mwGameMovesArray.h"
+#include "mwColor.h"
+#include "mwPMEvent.h"
+#include "mwInput.h"
+#include "mwDisplay.h"
+#include "mwEventQueue.h"
+#include "z_menu.h"
+#include "mwProgramState.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "z_level.h"
+#include "z_config.h"
+#include "z_main.h"
+
 
 
 int check_and_draw(double x1, double y1, double line_length, double line_xinc, double line_yinc, double za, double zb, int col, float thickness, int &segments_drawn, int &lco)
@@ -41,7 +58,7 @@ int check_and_draw(double x1, double y1, double line_length, double line_xinc, d
       double xb = x1 + zb * line_xinc;
       double yb = y1 + zb * line_yinc;
       if (debug_print) printf("%s   drawn at za:%3.0f zb:%3.0f\n", t, za, zb);
-      al_draw_line(xa, ya, xb, yb, palette_color[col], thickness);
+      al_draw_line(xa, ya, xb, yb, mC.pc[col], thickness);
       segments_drawn++;
    }
    return end_adj;
@@ -58,7 +75,7 @@ int mw_draw_line3(double x1, double y1, double x2, double y2, float thickness, i
    int segments_drawn = 0;
 
    int color_span = c0_val + c1_val + c2_val;
-   if ((color_span < 1) || ((c1_col == 0) && (c2_col == 0))) al_draw_line(x1, y1, x2, y2, palette_color[c0_col], thickness);
+   if ((color_span < 1) || ((c1_col == 0) && (c2_col == 0))) al_draw_line(x1, y1, x2, y2, mC.pc[c0_col], thickness);
    else
    {
       if (debug_print) printf("lco:%d color_span:%d\n", line_color_offset, color_span); // line_color_offset is in pixels, from 0 to color_span
@@ -123,7 +140,7 @@ int mw_draw_line2(double x1, double y1, double x2, double y2, float thickness, i
    int segments_drawn = 0;
 
    int color_span = c0_val + c1_val;
-   if ((color_span < 1) || (c1_col == 0)) al_draw_line(x1, y1, x2, y2, palette_color[c0_col], thickness);
+   if ((color_span < 1) || (c1_col == 0)) al_draw_line(x1, y1, x2, y2, mC.pc[c0_col], thickness);
    else
    {
       if (debug_print) printf("lco:%d color_span:%d\n", line_color_offset, color_span); // line_color_offset is in pixels, from 0 to color_span
@@ -172,6 +189,48 @@ int mw_draw_line2(double x1, double y1, double x2, double y2, float thickness, i
 
 
 
+
+
+
+
+
+
+
+
+
+
+void set_start_level(int s)
+{
+   start_level = s;
+   if (start_level < 1) start_level = 1;
+   if (start_level > 399) start_level = 399;
+   sprintf(global_string[7][2], "Start Level (%d)", start_level);
+   resume_allowed = 0;
+   save_config();
+}
+
+void set_player_color(int p, int c)
+{
+   players[p].color = c;
+   if (players[p].color < 1) players[p].color = 1;
+   if (players[p].color > 15) players[p].color = 15;
+}
+void set_speed(void)
+{
+   al_set_timer_speed(mwEQ.fps_timer, 1/(float)mwPS.frame_speed);
+}
+
+
+
+
+
+
+
+
+
+
+
+
 int round20(int val) // pass it an int and it will round it to the nearest 20
 {
    int m = val%20;
@@ -189,7 +248,7 @@ void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float 
    float ct3 = ct1*3;   // 60
    float ct4 = ct;      // 80
 
-   int tm = frame_num % cti; // get a number from 0 to cti than increments every frame
+   int tm = mwPS.frame_num % cti; // get a number from 0 to cti than increments every frame
 
    float tmr = (int) tm;
 
@@ -249,18 +308,10 @@ void change_block(int x, int y, int block)
 {
    l[x][y] = block;
    al_set_target_bitmap(mwB.level_background);
-   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+   al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
    al_draw_bitmap(mwB.btile[block & 1023], x*20, y*20, 0);
 }
 
-void clear_game_moves(void)
-{
-   for (int x=0; x<GAME_MOVES_SIZE; x++)
-      for (int y=0; y<4; y++)
-         game_moves[x][y] = 0;
-   game_move_entry_pos = 0;
-   game_move_current_pos = 0;
-}
 
 void get_hostname(int print)
 {
@@ -272,35 +323,17 @@ void get_hostname(int print)
    int ch = fgetc(fp);
    while((ch != '\n') && (ch != EOF))
    {
-      local_hostname[loop] = ch;
+      mwPS.local_hostname[loop] = ch;
       loop++;
       ch = fgetc(fp);
    }
-   local_hostname[loop] = 0;
+   mwPS.local_hostname[loop] = 0;
 
-   if (print) printf("Local hostname:%s\n", local_hostname);
+   if (print) printf("Local hostname:%s\n", mwPS.local_hostname);
 
    fclose(fp);
 }
 
-//void process_flash_color(void)
-//{
-//   if (++flash_counter > 16) flash_counter = 1;
-//   if ((flash_counter > 0)  && (flash_counter < 5))  { flash_color = 10; flash_color2 = 15; }
-//   if ((flash_counter > 4)  && (flash_counter < 9))  { flash_color = 14; flash_color2 = 11; }
-//   if ((flash_counter > 8)  && (flash_counter < 13)) { flash_color = 15; flash_color2 = 10; }
-//   if ((flash_counter > 12) && (flash_counter < 17)) { flash_color = 11; flash_color2 = 14; }
-//}
-
-
-void process_flash_color(void)
-{
-   if (++flash_counter > 32) flash_counter = 1;
-   if ((flash_counter > 0)  && (flash_counter < 9))   { flash_color = 10; flash_color2 = 15; }
-   if ((flash_counter > 8)  && (flash_counter < 15))  { flash_color = 14; flash_color2 = 11; }
-   if ((flash_counter > 16)  && (flash_counter < 23)) { flash_color = 15; flash_color2 = 10; }
-   if ((flash_counter > 24) && (flash_counter < 33))  { flash_color = 11; flash_color2 = 14; }
-}
 
 void mw_get_text_dimensions(ALLEGRO_FONT *f, const char* txt, int &bx, int &by, int &bw, int &bh)
 {
@@ -317,28 +350,28 @@ void make_palette(void)
 {
    // printf("make palette\n");
 
-   palette_color[0]  = al_map_rgb(  0,   0,   0); // black
-   palette_color[1]  = al_map_rgb(191, 108, 232); // alt purple 1
-   palette_color[2]  = al_map_rgb(136,  32, 172); // alt purple 2
-   palette_color[3]  = al_map_rgb( 60, 127, 255); // alt blue
-   palette_color[4]  = al_map_rgb(224,  28,  72); // alt red
-   palette_color[5]  = al_map_rgb(255,   0, 232); // pink
-   palette_color[6]  = al_map_rgb(255, 191, 127); // taan
-   palette_color[7]  = al_map_rgb(255, 127,   0); // orange
-   palette_color[8]  = al_map_rgb(127,   0, 255); // original purple
-   palette_color[9]  = al_map_rgb(  0, 255, 127); // alt green
-   palette_color[10] = al_map_rgb(255,   0,   0); // red
-   palette_color[11] = al_map_rgb(  0, 255,   0); // green
-   palette_color[12] = al_map_rgb(  0,   0, 255); // blue
-   palette_color[13] = al_map_rgb(  0, 255, 255); // lt blue
-   palette_color[14] = al_map_rgb(255, 255,   0); // yellow
-   palette_color[15] = al_map_rgb(255, 255, 255); // white
+   mC.pc[0]  = al_map_rgb(  0,   0,   0); // black
+   mC.pc[1]  = al_map_rgb(191, 108, 232); // alt purple 1
+   mC.pc[2]  = al_map_rgb(136,  32, 172); // alt purple 2
+   mC.pc[3]  = al_map_rgb( 60, 127, 255); // alt blue
+   mC.pc[4]  = al_map_rgb(224,  28,  72); // alt red
+   mC.pc[5]  = al_map_rgb(255,   0, 232); // pink
+   mC.pc[6]  = al_map_rgb(255, 191, 127); // taan
+   mC.pc[7]  = al_map_rgb(255, 127,   0); // orange
+   mC.pc[8]  = al_map_rgb(127,   0, 255); // original purple
+   mC.pc[9]  = al_map_rgb(  0, 255, 127); // alt green
+   mC.pc[10] = al_map_rgb(255,   0,   0); // red
+   mC.pc[11] = al_map_rgb(  0, 255,   0); // green
+   mC.pc[12] = al_map_rgb(  0,   0, 255); // blue
+   mC.pc[13] = al_map_rgb(  0, 255, 255); // lt blue
+   mC.pc[14] = al_map_rgb(255, 255,   0); // yellow
+   mC.pc[15] = al_map_rgb(255, 255, 255); // white
 
    // special case reversed white (0)
    for (int x=1; x<16; x++)
    {
       int c = (x+1)*16 - 1;
-      palette_color[x*16]  = al_map_rgb(c, c, c);
+      mC.pc[x*16]  = al_map_rgb(c, c, c);
    }
 
    // all the other base colors from 1-15
@@ -346,32 +379,32 @@ void make_palette(void)
    {
       // extract r, g, b in float format
       float r, g, b;
-      al_unmap_rgb_f(palette_color[a], &r, &g, &b);
+      al_unmap_rgb_f(mC.pc[a], &r, &g, &b);
 
       for (int x=1; x<16; x++)
       {
          float nr = r * (1 - ((float)x/15));
          float ng = g * (1 - ((float)x/15));
          float nb = b * (1 - ((float)x/15));
-         palette_color[a+x*16]  = al_map_rgb_f(nr, ng, nb);
+         mC.pc[a+x*16]  = al_map_rgb_f(nr, ng, nb);
       }
    }
 
 //   for (int x=0; x<16; x++)
 //   {
 //      unsigned char ur, ug, ub;
-//      al_unmap_rgb(palette_color[a+x*16], &ur, &ug, &ub);
+//      al_unmap_rgb(mC.pc[a+x*16], &ur, &ug, &ub);
 //      printf("%2d %3d r:%3d g:%3d b:%3d \n", x, a+x*16, ur, ug, ub );
 //   }
 //   for (int x=0; x<16; x++)
-//   al_draw_line(10, 10+x*2, 200, 10+x*2, palette_color[10+x*16], 2);
+//   al_draw_line(10, 10+x*2, 200, 10+x*2, mC.pc[10+x*16], 2);
 //   int sz = 16;
-//   al_draw_rectangle(0, 0, 17*sz, 17*sz, palette_color[15], 2);
+//   al_draw_rectangle(0, 0, 17*sz, 17*sz, mC.pc[15], 2);
 //
 //   for (int a=0; a<16; a++)
 //      for (int b=0; b<16; b++)
-//         al_draw_filled_rectangle(a*sz, b*sz, a*sz+sz, b*sz+sz, palette_color[b*16+a]);
-//   al_draw_text(mF.pr8, palette_color[9], 400, 400, ALLEGRO_ALIGN_CENTRE, "Hello World");
+//         al_draw_filled_rectangle(a*sz, b*sz, a*sz+sz, b*sz+sz, mC.pc[b*16+a]);
+//   al_draw_text(mF.pr8, mC.pc[9], 400, 400, ALLEGRO_ALIGN_CENTRE, "Hello World");
 
 }
 
@@ -386,10 +419,10 @@ void m_err(const char * err_msg)
 void window_title(void)
 {
 //   sprintf(msg, "Purple Martians");
-   sprintf(msg, "Purple Martians %s", pm_version_string);
-//   sprintf(msg, "Purple Martians %s   [%d x %d]", pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H);
+   sprintf(msg, "Purple Martians %s", mwPS.pm_version_string);
+//   sprintf(msg, "Purple Martians %s   [%d x %d]", mwPS.pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H);
 //   sprintf(msg, "%d x %d", mwD.SCREEN_W, mwD.SCREEN_H);
-//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
+//   sprintf(msg, "Purple Martians %s   S[%d x %d]  A[%d x %d]   [%d]", mwPS.pm_version_string, mwD.SCREEN_W, mwD.SCREEN_H,  disp_w_curr, disp_h_curr, display_transform_double);
    al_set_window_title(display, msg);
 }
 
@@ -417,57 +450,23 @@ int is_block_empty(int x, int y, int test_block, int test_item, int test_enemy)
 
 void tsw(void)
 {
-   al_flush_event_queue(event_queue);
+   al_flush_event_queue(mwEQ.event_queue);
    int quit = 0;
    while(!quit)
    {
-      while (!al_is_event_queue_empty(event_queue))
+      while (!al_is_event_queue_empty(mwEQ.event_queue))
       {
          ALLEGRO_EVENT ev;
-         if (al_get_next_event(event_queue, &ev))
+         if (al_get_next_event(mwEQ.event_queue, &ev))
          {
              if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) fast_exit(0);
              if (ev.type == ALLEGRO_EVENT_KEY_DOWN) quit = 1;
          }
       }
    }
-   while (key[ALLEGRO_KEY_ESCAPE][0]) proc_event_queue();
+   while (mI.key[ALLEGRO_KEY_ESCAPE][0]) mwEQ.proc_event_queue();
 }
 
-void reset_animation_sequences(void)
-{
-   for (int c=0; c<NUM_ANS; c++)
-   {
-     zz[2][c] = 0;        // reset the tally
-     zz[1][c] = 0;        // set the bitmap index to 0
-     zz[0][c] = zz[5][c]; // put the first shape in 0
-   }
-}
-
-void update_animation(void)
-{
-   // 0 = current shape
-   // 1 = current shape index
-   // 2 = count tally
-   // 3 = seq change delay count
-   // 4 = num of shapes in seq (15 shapes max)
-   // 5 = shape 0
-   // 19 = shape 14
-
-   // printf("update_animation :%d\n", frame_num);
-
-   for (int y=0; y<NUM_ANS; y++)
-      if (zz[4][y] != 0)
-      {
-         if ((++zz[2][y]) > zz[3][y])
-         {
-            zz[2][y] = 0;                             // reset tally
-            zz[1][y]++;                               // next bitmap
-            if (zz[1][y] > zz[4][y]) zz[1][y] = 0;    // is bitmap past end?
-            zz[0][y] = zz[ 5 + zz[1][y] ] [y];        // put shape in 0
-         }
-      }
-}
 
 al_fixed get_rot_from_xyinc(int EN)
 {
@@ -1562,6 +1561,8 @@ al_fixed is_right_solidfm(al_fixed fx, al_fixed fy, al_fixed fmove, int dir)
 
 void show_var_sizes(void)
 {
+   int level_header[20] = {0};
+
    printf("\nVariables used to save levels in pml format\n\n");
 
    printf("level_header:%6d\n",  (int)sizeof(level_header) );
@@ -1597,7 +1598,7 @@ void show_var_sizes(void)
    printf("l        :%6d\n", (int)sizeof(l)            );
    printf("pbullet  :%6d\n", (int)sizeof(pbullet)      );
    printf("ebullets :%6d\n", (int)sizeof(ebullets)     );
-   printf("pm_event :%6d\n", (int)sizeof(pm_event)     );
+   printf("pm_event :%6d\n", (int)sizeof(mwPME.event)  );
 
    sz = 0;
    sz+= sizeof(players)      ;
@@ -1609,14 +1610,14 @@ void show_var_sizes(void)
    sz+= sizeof(l)            ;
    sz+= sizeof(pbullet)      ;
    sz+= sizeof(ebullets)     ;
-   sz+= sizeof(pm_event)     ;
+   sz+= sizeof(mwPME.event)  ;
    printf("---------:------\n");
    printf("total    :%6d\n",  sz );
 
 
    printf("\nOther Large Variables\n\n");
 
-   sz = (int)sizeof(game_moves);
+   sz = (int)sizeof(mwGMA.game_moves);
    printf("game_moves    :%6d  %6dK  %6dM \n", sz, sz/1000, sz/1000000 );
 
    sz = (int)sizeof(log_msg);
@@ -1645,7 +1646,7 @@ void show_var_sizes(void)
 //extern ALLEGRO_BITMAP *mwB.tile[NUM_SPRITES];
 //extern ALLEGRO_BITMAP *btile[NUM_SPRITES];
 //
-//extern int sa[NUM_SPRITES][2];
+//extern int mwB.sa[NUM_SPRITES][2];
 //
 //extern ALLEGRO_BITMAP *player_tile[16][32];
 //extern ALLEGRO_BITMAP *door_tile[2][16][8];
@@ -1654,34 +1655,6 @@ void show_var_sizes(void)
 //extern ALLEGRO_BITMAP *level_buffer;
 
 
-}
-
-
-
-void pml_to_var(char * b) // for load level
-{
-   int sz = 0, offset = 0;
-   sz = sizeof(level_header); memcpy(level_header, b+offset, sz); offset += sz;
-   sz = sizeof(l);            memcpy(l,            b+offset, sz); offset += sz;
-   sz = sizeof(item);         memcpy(item,         b+offset, sz); offset += sz;
-   sz = sizeof(Ei);           memcpy(Ei,           b+offset, sz); offset += sz;
-   sz = sizeof(Efi);          memcpy(Efi,          b+offset, sz); offset += sz;
-   sz = sizeof(lifts);        memcpy(lifts,        b+offset, sz); offset += sz;
-   sz = sizeof(lift_steps);   memcpy(lift_steps,   b+offset, sz); offset += sz;
-   sz = sizeof(pmsgtext);     memcpy(pmsgtext,     b+offset, sz); offset += sz;
-}
-
-void var_to_pml(char * b) // for save level
-{
-   int sz = 0, offset = 0;
-   offset += sz; sz = sizeof(level_header); memcpy(b+offset, level_header, sz);
-   offset += sz; sz = sizeof(l);            memcpy(b+offset, l,            sz);
-   offset += sz; sz = sizeof(item);         memcpy(b+offset, item,         sz);
-   offset += sz; sz = sizeof(Ei);           memcpy(b+offset, Ei,           sz);
-   offset += sz; sz = sizeof(Efi);          memcpy(b+offset, Efi,          sz);
-   offset += sz; sz = sizeof(lifts);        memcpy(b+offset, lifts,        sz);
-   offset += sz; sz = sizeof(lift_steps);   memcpy(b+offset, lift_steps,   sz);
-   offset += sz; sz = sizeof(pmsgtext);     memcpy(b+offset, pmsgtext,     sz);
 }
 
 

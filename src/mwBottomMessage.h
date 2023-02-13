@@ -14,6 +14,8 @@ class mwBottomMessage
    int bottom_msg_timer;
    int bmsg_index;
 
+   int game_event_retrigger_holdoff[10];
+   float game_event_retrigger_holdoff_tally[10];
 
    mwBottomMessage(); // default constructor
    void initialize(void);
@@ -31,5 +33,8 @@ class mwBottomMessage
 
 };
 extern mwBottomMessage mwBM;
+
+
+
 
 

@@ -32,7 +32,5 @@ class mwTimeStamp
 
 };
 extern mwTimeStamp mwTS;
-
-
-
+extern double t0;
 

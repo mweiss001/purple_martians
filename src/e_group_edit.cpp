@@ -1,10 +1,23 @@
 // e_group_edit.cpp
 
 #include "pm.h"
+#include "e_group_edit.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "mwFont.h"
 #include "mwBitmap.h"
+#include "mwWidgets.h"
+#include "mwColor.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "z_menu.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "e_fnx.h"
+#include "z_fnx.h"
+#include "z_screen.h"
+
+
 
 
 // predefined things that can be group editted
@@ -399,24 +412,24 @@ void ge_item_initial_position_random(int i, int csw)
    else printf("could not find empty block space for item\n");
 }
 
-int ge_draw_list_items(int x1, int y1, int flash_color, int ni)
+int ge_draw_list_items(int x1, int y1, int ni)
 {
    int xt = x1; // to keep track of pos as we expand in the x axis
    if (ni == 0)
    {
-      al_draw_text(mF.pr8, palette_color[15], xt, y1, 0, "<empty>");
+      al_draw_text(mF.pr8, mC.pc[15], xt, y1, 0, "<empty>");
       xt+=56;
    }
    else
    {
       // column headers
-      al_draw_text(mF.pr8, palette_color[15], xt, y1, 0, " #");  xt+=24;
-      al_draw_text(mF.pr8, palette_color[15], xt, y1, 0, "S");   xt+=16;
-      al_draw_text(mF.pr8, palette_color[15], xt, y1, 0, "num"); xt+=32;
+      al_draw_text(mF.pr8, mC.pc[15], xt, y1, 0, " #");  xt+=24;
+      al_draw_text(mF.pr8, mC.pc[15], xt, y1, 0, "S");   xt+=16;
+      al_draw_text(mF.pr8, mC.pc[15], xt, y1, 0, "num"); xt+=32;
       for (int ge_num=0; ge_num<40; ge_num++)
          if ((ge_data[ge_num].valid) && (!ge_data[ge_num].collapsed) && (ge_data[ge_num].vartyp != 5) && (ge_data[ge_num].vartyp != 6))
          {
-            al_draw_textf(mF.pr8, palette_color[15], xt, y1, 0, "%.4s", ge_data[ge_num].name);
+            al_draw_textf(mF.pr8, mC.pc[15], xt, y1, 0, "%.4s", ge_data[ge_num].name);
             xt+=40;
          }
 
@@ -428,18 +441,18 @@ int ge_draw_list_items(int x1, int y1, int flash_color, int ni)
             int type = mwWM.obj_list[i][0];
             int num = mwWM.obj_list[i][1];
             int col = 15;
-            if (mwWM.obj_list[i][2]) col = flash_color;
+            if (mwWM.obj_list[i][2]) col = mC.flash_color;
 
             xt = x1; // to keep track of pos as we expand in the x axis
 
-            al_draw_textf(mF.pr8, palette_color[col], xt, y1, 0, "%2d",i); xt+=24; // list item number
+            al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d",i); xt+=24; // list item number
 
             int tn = 0;
             if (type == 2) tn = item_tile[item[num][0]];
             if (type == 3) tn = enemy_tile[Ei[num][0]];
             al_draw_scaled_bitmap(mwB.tile[tn], 0, 0, 20, 20, xt, y1, 8, 8, 0); xt+=16; // bitmap
 
-            al_draw_textf(mF.pr8, palette_color[col], xt, y1, 0, "%3d", num); xt+=32; // object number
+            al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%3d", num); xt+=32; // object number
 
             // valid variables
             for (int ge_num=0; ge_num<40; ge_num++)
@@ -448,10 +461,10 @@ int ge_draw_list_items(int x1, int y1, int flash_color, int ni)
                   int vt = ge_data[ge_num].vartyp;
                   int vn = ge_data[ge_num].varnum;
 
-                  if (vt == 2) al_draw_textf(mF.pr8, palette_color[col], xt, y1, 0, "%2d", item[num][vn]);
-                  if (vt == 3) al_draw_textf(mF.pr8, palette_color[col], xt, y1, 0, "%2d", Ei[num][vn]);
-                  if (vt == 4) al_draw_textf(mF.pr8, palette_color[col], xt, y1, 0, "%2.1f", al_fixtof(Efi[num][vn]));
-                  if (vt == 5) al_draw_textf(mF.pr8, palette_color[col], xt, y1, 0, "%2d", Ei[num][2]);
+                  if (vt == 2) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d", item[num][vn]);
+                  if (vt == 3) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d", Ei[num][vn]);
+                  if (vt == 4) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2.1f", al_fixtof(Efi[num][vn]));
+                  if (vt == 5) al_draw_textf(mF.pr8, mC.pc[col], xt, y1, 0, "%2d", Ei[num][2]);
                   xt+=40;
                }
          }
@@ -476,7 +489,7 @@ void ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
    int yf1 = y;
    int yf2 = y + (ni+1)*8 + fs*2;
 
-   x2 = ge_draw_list_items(x1, y1, flash_color, ni);
+   x2 = ge_draw_list_items(x1, y1, ni);
 
    *ew = (x2+fs) - x ; // actual width
    *eh = yf2 - y;      // actual height
@@ -484,41 +497,41 @@ void ge_show_obj_list(int x, int y, int *ew, int *eh, int d)
    // draw frame around list
    int ci = 16; //color inc
    for (int q=0; q<fs; q++)
-      al_draw_rectangle(x1-fs+q, yf1+q, x2+fs-q, yf2-q, palette_color[12+32+(q*ci)], 1);
-   al_draw_textf(mF.pr8, palette_color[15], (x1+x2)/2, yf1+2, ALLEGRO_ALIGN_CENTER, "%d Objects", ni);
+      al_draw_rectangle(x1-fs+q, yf1+q, x2+fs-q, yf2-q, mC.pc[12+32+(q*ci)], 1);
+   al_draw_textf(mF.pr8, mC.pc[15], (x1+x2)/2, yf1+2, ALLEGRO_ALIGN_CENTER, "%d Objects", ni);
 
-   if ((!d) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > yf1) && (mouse_y < yf2)) // detect if mouse is on list
+   if ((!d) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > yf1) && (mI.mouse_y < yf2)) // detect if mouse is on list
    {
       for (int o=0; o<NUM_OBJ; o++) mwWM.obj_list[o][2] = 0; // clear all highlights
-      int mpl = ((mouse_y - yf1 + fs)/8)-4;             // get raw list item
+      int mpl = ((mI.mouse_y - yf1 + fs)/8)-4;             // get raw list item
       if ((mpl < -1) || (mpl > ni-1)) mpl = -1;         // ensure valid list item
       if (mpl != -1)                                    // mouse is on valid list item
       {
          mwWM.obj_list[mpl][2] = 1;                          // mark this item as highlighted
-         al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, palette_color[10], 1); // draw rectangle around list item
-         if (mouse_b[1][0])
+         al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, mC.pc[10], 1); // draw rectangle around list item
+         if (mI.mouse_b[1][0])
          {
-            if (SHFT()) // remove item from list
+            if (mI.SHFT()) // remove item from list
             {
-               while (mouse_b[1][0]) proc_event_queue();
+               while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
                ge_remove_obj_list_item(mpl);
             }
             else // keep mouse for drag swap
             {
                int old_mpl = mpl;
-               while (mouse_b[1][0])
+               while (mI.mouse_b[1][0])
                {
                   mwWM.redraw_level_editor_background();
                   get_new_screen_buffer(3, 0, 0);
                   mwWM.cycle_windows(1); // draw only
 
-                  mpl = ((mouse_y - yf1 + fs)/8)-4;             // get raw list item
+                  mpl = ((mI.mouse_y - yf1 + fs)/8)-4;             // get raw list item
                   if ((mpl < -1) || (mpl > ni-1)) mpl = -1;     // ensure valid list item
-                  if (mpl != -1) al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, palette_color[10], 1); // if mouse is on valid list item, draw rectangle around list item pointer
+                  if (mpl != -1) al_draw_rectangle(x1+1, yf1+fs+(mpl+1)*8, x2-1, yf1+fs+(mpl+2)*8, mC.pc[10], 1); // if mouse is on valid list item, draw rectangle around list item pointer
                }
                if (mpl != -1) ge_swap_obj_list_items(old_mpl, mpl); // if mouse is on valid list item, do the swap
             } // mouse b1 held
-         } // mouse_b[1][0] pressed
+         } // mI.mouse_b[1][0] pressed
       } // mouse on valid list item
    } // mouse on obj list
 }
@@ -730,16 +743,16 @@ void ge_add_selection_to_list(int set_filters)
 
 void ge_process_mouse(void)
 {
-   if (mouse_b[1][0])
+   if (mI.mouse_b[1][0])
    {
       if (mwWM.mW[5].show_sel_frame) // get new selection rectangle
       {
          mwWM.get_new_box();
-         if (SHFT()) ge_add_selection_to_list(1); // add everything in selection to list and set filters...
+         if (mI.SHFT()) ge_add_selection_to_list(1); // add everything in selection to list and set filters...
       }
       else
       {
-         while (mouse_b[1][0]) proc_event_queue();
+         while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
 
          // is mouse on item
          for (int i=0; i<500; i++)
@@ -765,9 +778,9 @@ void ge_process_mouse(void)
          }
       }
    }
-   if (mouse_b[2][0])
+   if (mI.mouse_b[2][0])
    {
-      while (mouse_b[2][0]) proc_event_queue();
+      while (mI.mouse_b[2][0]) mwEQ.proc_event_queue();
       mwWM.set_windows(1);
    }
 }

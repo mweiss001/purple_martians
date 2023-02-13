@@ -5,19 +5,26 @@
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "mwBitmap.h"
+#include "mwProgramState.h"
+#include "z_menu.h"
+#include "z_config.h"
+#include "z_fnx.h"
+#include "z_screen.h"
 
+
+
+
+
+
+ALLEGRO_DISPLAY *display = NULL;
 
 mwDisplay mwD;
 
-mwDisplay::mwDisplay()
-{
-   //initialize();
-}
 
-void mwDisplay::initialize(void)
-{
-   init_display();
-}
+
+
+
+
 
 void mwDisplay::mw_set_clipping_rect(float x, float y, float w, float h)
 {
@@ -222,9 +229,9 @@ void mwDisplay::auto_set_display_transform_double(void)
    if (disp_w_curr < 1024) display_transform_double = 1;
    if (disp_h_curr < 700)  display_transform_double = 1;
 
-//   if (level_editor_running) display_transform_double = 1;
+//   if (mwPS.level_editor_running) display_transform_double = 1;
 
-   if (help_screens_running)
+   if (mwPS.help_screens_running)
    {
       if (disp_w_curr > 1279) display_transform_double = 2;
       if (disp_w_curr < 1280) display_transform_double = 1;
@@ -349,6 +356,7 @@ void mwDisplay::show_display_adapters(void)
 
 int mwDisplay::init_display(void)
 {
+   scale_factor_inc = 0.03;
 
    int num_adapters = al_get_num_video_adapters();
    // printf("%d adapters found...\n", num_adapters);

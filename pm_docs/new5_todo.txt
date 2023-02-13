@@ -56,19 +56,10 @@ I can reduce the time, but what if it breaks things in network level done?
 I'm getting a stimp in single player
 
 
+
 ---------------------------------------------------------
 ------------------------ To Do --------------------------
 ---------------------------------------------------------
-
-
-
-I would like to do some more global cleanup...
-
-another good candidate is display, screen, etc...
-
-
-
-
 
 
 

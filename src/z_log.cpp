@@ -5,12 +5,14 @@
 #include "z_player.h"
 #include "mwDisplay.h"
 #include "mwFont.h"
-
-
-
-
-
-
+#include "mwWidgets.h"
+#include "mwGameMovesArray.h"
+#include "mwColor.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "z_menu.h"
+#include "mwProgramState.h"
+#include "z_level.h"
 
 // ------------------------------------------------
 // ----------------- logging ----------------------
@@ -101,13 +103,13 @@ void log_bandwidth_stats(int p)
    sprintf(msg,"max tx bytes per frame....[%d]", players1[p].tx_max_bytes_per_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg tx bytes per frame....[%d]", players1[p].tx_total_bytes / frame_num);
+   sprintf(msg,"avg tx bytes per frame....[%d]", players1[p].tx_total_bytes / mwPS.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx bytes per second...[%d]", players1[p].tx_max_bytes_per_tally);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg tx bytes per sec......[%d]", (players1[p].tx_total_bytes *40)/ frame_num);
+   sprintf(msg,"avg tx bytes per sec......[%d]", (players1[p].tx_total_bytes *40)/ mwPS.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total tx packets..........[%d]", players1[p].tx_total_packets);
@@ -126,13 +128,13 @@ void log_bandwidth_stats(int p)
    sprintf(msg,"max rx bytes per frame....[%d]", players1[p].rx_max_bytes_per_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg rx bytes per frame....[%d]", players1[p].rx_total_bytes / frame_num);
+   sprintf(msg,"avg rx bytes per frame....[%d]", players1[p].rx_total_bytes / mwPS.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"max rx bytes per second...[%d]", players1[p].rx_max_bytes_per_tally);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"avg rx bytes per sec......[%d]", (players1[p].rx_total_bytes *40)/ frame_num);
+   sprintf(msg,"avg rx bytes per sec......[%d]", (players1[p].rx_total_bytes *40)/ mwPS.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
    sprintf(msg,"total rx packets..........[%d]", players1[p].rx_total_packets);
@@ -191,9 +193,9 @@ void log_time_date_stamp(void)
 void log_versions(void)
 {
    add_log_entry_centered_text(10, 0, 76, "", "+", "-");
-   sprintf(msg, "Purple Martians Version %s", pm_version_string);
+   sprintf(msg, "Purple Martians Version %s", mwPS.pm_version_string);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
-   add_log_entry_position_text(10, 0, 76, 10, al_version_string, "|", " ");
+   add_log_entry_position_text(10, 0, 76, 10, mwPS.al_version_string, "|", " ");
    log_time_date_stamp();
    add_log_entry_centered_text(10, 0, 76, "", "+", "-");
 }
@@ -250,12 +252,12 @@ void log_ending_stats(int p)
    sprintf(msg,"Client %d (%s) ending stats", p, players1[p].hostname);
    add_log_entry_header(10, p, msg, 0);
 
-   sprintf(msg,"total game frames.........[%d]", frame_num);
+   sprintf(msg,"total game frames.........[%d]", mwPS.frame_num);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
    sprintf(msg,"frame when client joined..[%d]", players1[p].join_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-   if (players1[p].quit_frame == 0) players1[p].quit_frame = frame_num;
+   if (players1[p].quit_frame == 0) players1[p].quit_frame = mwPS.frame_num;
    sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
    add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
@@ -276,7 +278,7 @@ void log_ending_stats(int p)
 
 void log_ending_stats_server()
 {
-   sprintf(msg,"Server (%s) ending stats", local_hostname);
+   sprintf(msg,"Server (%s) ending stats", mwPS.local_hostname);
    add_log_entry_header(10, 0, msg, 0);
 
    add_log_entry_centered_text(10, 0, 76, "", "+", "-");
@@ -284,16 +286,16 @@ void log_ending_stats_server()
    sprintf(msg,"level.....................[%d]", play_level);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"total frames..............[%d]", frame_num);
+   sprintf(msg,"total frames..............[%d]", mwPS.frame_num);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"total moves...............[%d]", game_move_entry_pos);
+   sprintf(msg,"total moves...............[%d]", mwGMA.game_move_entry_pos);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"total time (seconds)......[%d]", frame_num/40);
+   sprintf(msg,"total time (seconds)......[%d]", mwPS.frame_num/40);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
-   sprintf(msg,"total time (minutes)......[%d]", frame_num/40/60);
+   sprintf(msg,"total time (minutes)......[%d]", mwPS.frame_num/40/60);
    add_log_entry_position_text(10, 0, 76, 10, msg, "|", " ");
 
    log_bandwidth_stats(0);
@@ -310,7 +312,7 @@ void log_ending_stats_server()
          sprintf(msg,"frame when client joined..[%d]", players1[p].join_frame);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
-         if (players1[p].quit_frame == 0) players1[p].quit_frame = frame_num;
+         if (players1[p].quit_frame == 0) players1[p].quit_frame = mwPS.frame_num;
          sprintf(msg,"frame when client quit....[%d]", players1[p].quit_frame);
          add_log_entry_position_text(10, p, 76, 10, msg, "|", " ");
 
@@ -351,7 +353,7 @@ void save_log_file(void)
    strftime(filename, sizeof(filename), "logs/%Y%m%d-%H%M%S", timenow);
 
    char lh[16];
-   strncpy(lh, local_hostname, 16); // to remove compiler error in case local_hostname is too long
+   strncpy(lh, mwPS.local_hostname, 16); // to remove compiler error in case local_hostname is too long
 
    char ph[80];
    sprintf(ph, "-[%d][%s].txt", play_level, lh );
@@ -389,7 +391,7 @@ void save_log_file(void)
 void add_log_entry2(int type, int player, const char *txt)
 {
    char tmsg[200];
-   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, frame_num, txt);
+   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mwPS.frame_num, txt);
    // strcat(log_msg, tmsg);
 
    if ((log_msg_pos + strlen(tmsg)) >= NUM_LOG_CHAR)
@@ -531,7 +533,7 @@ int load_log_lines_array_from_static_file(const char* f)
 
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
-   al_draw_textf(mF.pr8, palette_color[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s", f);
+   al_draw_textf(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s", f);
    al_flip_display();
 
    FILE *filepntr=fopen(f,"r");
@@ -565,7 +567,7 @@ int load_log_lines_array_from_static_file(const char* f)
       log_lines_int[i][0] = atoi(res);
       get_tag_text(log_lines[i], res, 0); // get second tag - player
       log_lines_int[i][1] = atoi(res);
-      get_tag_text(log_lines[i], res, 0); // get third tag - frame_num
+      get_tag_text(log_lines[i], res, 0); // get third tag - mwPS.frame_num
       log_lines_int[i][2] = atoi(res);
    }
    return num_lines;
@@ -695,7 +697,7 @@ int log_file_viewer(int type)
    for (int i=0; i<num_lines; i++)
       if (log_lines_int[i][2] > end_pc) end_pc = log_lines_int[i][2];
 
-   int first_line = 0; // the top frame_num line on the screen
+   int first_line = 0; // the top mwPS.frame_num line on the screen
    int quit = 0;
 
    // find players in this file
@@ -746,7 +748,7 @@ int log_file_viewer(int type)
          if (type == 99) // bad tags on this line
          {
             sprintf(msg, "i[%d] t[%d] p[%d] pc[%d] (bad tags)- %s", i, type, p, pc, log_lines[i]);
-            al_draw_text(mF.pr8, palette_color[color], 0, ty1+=8, 0, msg);
+            al_draw_text(mF.pr8, mC.pc[color], 0, ty1+=8, 0, msg);
          }
          else
          {
@@ -759,7 +761,7 @@ int log_file_viewer(int type)
             color = tags[type][1];
             if ((tags[type][0]) && (lp[p][0])) // tag and player filter
             {
-                al_draw_text(mF.pr8, palette_color[color], 0, ty1+=8, 0, msg);
+                al_draw_text(mF.pr8, mC.pc[color], 0, ty1+=8, 0, msg);
                 last_line = i;
                 if ((int)strlen(msg) > max_line_length) max_line_length = strlen(msg);
             }
@@ -784,7 +786,7 @@ int log_file_viewer(int type)
       int sby1 = 8;
       int sby2 = mwD.SCREEN_H - 10;
       int sbh = sby2-sby1;
-      al_draw_rectangle(sbx1, sby1, sbx2, sby2+2, palette_color[sbc1], 1);
+      al_draw_rectangle(sbx1, sby1, sbx2, sby2+2, mC.pc[sbc1], 1);
 
       // position indicator
 
@@ -801,27 +803,27 @@ int log_file_viewer(int type)
       // enforce minimum size
       if ((sbby2 - sbby1) < 2) sbby2 = sbby1 + 2;
 
-      //al_draw_rectangle(sbx1+1, sby1+sbby1+1, sbx2-1, sby1+sbby2, palette_color[sbc3], 1);
-      al_draw_filled_rectangle(sbx1+1, sby1+sbby1+1, sbx2-1, sby1+sbby2, palette_color[sbc3]);
+      //al_draw_rectangle(sbx1+1, sby1+sbby1+1, sbx2-1, sby1+sbby2, mC.pc[sbc3], 1);
+      al_draw_filled_rectangle(sbx1+1, sby1+sbby1+1, sbx2-1, sby1+sbby2, mC.pc[sbc3]);
 
-      al_draw_textf(mF.pixl, palette_color[sbc3], sbx2+4, sby1+sbby1-8, 0, "%d", first_line);
-      al_draw_textf(mF.pixl, palette_color[sbc3], sbx2+4, sby1+sbby2-1, 0, "%d", last_line);
+      al_draw_textf(mF.pixl, mC.pc[sbc3], sbx2+4, sby1+sbby1-8, 0, "%d", first_line);
+      al_draw_textf(mF.pixl, mC.pc[sbc3], sbx2+4, sby1+sbby2-1, 0, "%d", last_line);
 
-      if ((mouse_x > sbx1) && (mouse_x < sbx2))
+      if ((mI.mouse_x > sbx1) && (mI.mouse_x < sbx2))
       {
-         //al_draw_rectangle(sbx1, sby1, sbx2, sby2, palette_color[sbc2], 1); // highlight scroll bar
+         //al_draw_rectangle(sbx1, sby1, sbx2, sby2, mC.pc[sbc2], 1); // highlight scroll bar
 
-         float my = mouse_y - sby1; // mouse offset from start of scroll bar
+         float my = mI.mouse_y - sby1; // mouse offset from start of scroll bar
          float mp = my / (float)sbh; // percent of mouse to scroll bar height
-         int sbmy = num_lines * (float) mp; // log line that mouse_y corresponds to
+         int sbmy = num_lines * (float) mp; // log line that mI.mouse_y corresponds to
 
          // frame number of that log line
          int fn   = log_lines_int[sbmy][2];
-         al_draw_textf(mF.pixl, palette_color[15], sbx2+4, mouse_y-8, 0, "%d - frame:%d %ds %dm", sbmy, fn, fn/40, fn/2400);
+         al_draw_textf(mF.pixl, mC.pc[15], sbx2+4, mI.mouse_y-8, 0, "%d - frame:%d %ds %dm", sbmy, fn, fn/40, fn/2400);
 
-         if (mouse_b[1][0])
+         if (mI.mouse_b[1][0])
          {
-            while (mouse_b[1][0]) proc_event_queue();
+            while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
             first_line = sbmy; // set new log line pos
          }
       }
@@ -839,22 +841,22 @@ int log_file_viewer(int type)
 
       int ly = 4;
       sprintf(msg, "Current Log");
-      al_draw_text(mF.pr8, palette_color[15], xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[15], xpos, ly+=8, 0, msg);
 
       sprintf(msg, "%s", fnam);
-      al_draw_text(mF.pr8, palette_color[15], xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[15], xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Starting frame...[%d]", start_pc);
-      al_draw_text(mF.pr8, palette_color[15],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[15],xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Ending frame.....[%d]", end_pc);
-      al_draw_text(mF.pr8, palette_color[15],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[15],xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Total lines......[%d]", num_lines);
-      al_draw_text(mF.pr8, palette_color[15],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[15],xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Visible lines....[%d]", vis_lines);
-      al_draw_text(mF.pr8, palette_color[15],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[15],xpos, ly+=8, 0, msg);
 
       // show tag labels
       ly+=8;
@@ -873,7 +875,7 @@ int log_file_viewer(int type)
             tags[i][4] = ly; ly+=8;
             // set the ypos
             sprintf(msg, "%c %s %s num:[%d]", tags[i][3], ctags[i], tmsg, tags[i][2]);
-            al_draw_text(mF.pr8, palette_color[col], xpos, ly, 0, msg);
+            al_draw_text(mF.pr8, mC.pc[col], xpos, ly, 0, msg);
          }
       }
 
@@ -890,25 +892,25 @@ int log_file_viewer(int type)
             sprintf(tmsg,"off");
             col = 127; //grey
          }
-         al_draw_textf(mF.pr8, palette_color[col], xpos, ly+=8, 0, "%d plyr:%d %s num:[%d]", i, i, tmsg, lp[i][1]);
+         al_draw_textf(mF.pr8, mC.pc[col], xpos, ly+=8, 0, "%d plyr:%d %s num:[%d]", i, i, tmsg, lp[i][1]);
       }
 
       // current display
       ly+=8;
       sprintf(msg, "Current Display");
-      al_draw_text(mF.pr8, palette_color[11],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[11],xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Lines......[%d] to [%d]", first_line, last_line);
-      al_draw_text(mF.pr8, palette_color[11],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[11],xpos, ly+=8, 0, msg);
 
       int first_frame = log_lines_int[first_line][2];
       int last_frame = log_lines_int[last_line][2];
 
       sprintf(msg, "Frames.....[%d] to [%d]", first_frame, last_frame);
-      al_draw_text(mF.pr8, palette_color[11],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[11],xpos, ly+=8, 0, msg);
 
       sprintf(msg, "Seconds....[%d] to [%d]", first_frame/40, last_frame/40);
-      al_draw_text(mF.pr8, palette_color[11],xpos, ly+=8, 0, msg);
+      al_draw_text(mF.pr8, mC.pc[11],xpos, ly+=8, 0, msg);
 
       ly+=20;
 
@@ -925,9 +927,9 @@ int log_file_viewer(int type)
 
       al_flip_display();
 
-      proc_event_queue();
+      mwEQ.proc_event_queue();
 
-      int k = key_pressed_ASCII;
+      int k = mI.key_pressed_ASCII;
       if ((k > 36) && (k < 45)) k+=11; // convert number pad number to regular numbers
       if ((k > 47) && (k < 56))        // numbers 0-7 toggle players
       {
@@ -941,29 +943,29 @@ int log_file_viewer(int type)
             if (tags[i][3] == k) tags[i][0] = !tags[i][0]; // toggle tag on/off
       }
 
-      if (key[ALLEGRO_KEY_UP  ][3]) first_line--;
-      if (key[ALLEGRO_KEY_DOWN][3]) first_line++;
+      if (mI.key[ALLEGRO_KEY_UP  ][3]) first_line--;
+      if (mI.key[ALLEGRO_KEY_DOWN][3]) first_line++;
 
-      if (key[ALLEGRO_KEY_PGUP][3])
+      if (mI.key[ALLEGRO_KEY_PGUP][3])
       {
-         if (CTRL()) first_line -= 1000;
-         else if (SHFT()) first_line -= 100;
+         if (mI.CTRL()) first_line -= 1000;
+         else if (mI.SHFT()) first_line -= 100;
          else first_line-=10;
       }
-      if (key[ALLEGRO_KEY_PGDN][3])
+      if (mI.key[ALLEGRO_KEY_PGDN][3])
       {
-         if (CTRL()) first_line += 1000;
-         else if (SHFT()) first_line += 100;
+         if (mI.CTRL()) first_line += 1000;
+         else if (mI.SHFT()) first_line += 100;
          else first_line+=10;
       }
 
-      if (key[ALLEGRO_KEY_HOME][3]) first_line = 0;
-      if (key[ALLEGRO_KEY_END ][3]) first_line = num_lines-1;
+      if (mI.key[ALLEGRO_KEY_HOME][3]) first_line = 0;
+      if (mI.key[ALLEGRO_KEY_END ][3]) first_line = num_lines-1;
 
       if (first_line < 0) first_line = 0;
       if (first_line > num_lines-1) first_line = num_lines-1;
 
-      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 
    } // end of log file viewer
    al_hide_mouse_cursor(display);
@@ -1018,14 +1020,14 @@ void run_ping_graph(void)
       int sy1 = split_pos - sb -1;
       int sy2 = split_pos + sb;
 
-      al_draw_filled_rectangle(sx1, sy1, sx2, sy2, palette_color[15+192]);
-      if ((mouse_y >= sy1) && (mouse_y <= sy2) && (mouse_x > sx1) && (mouse_x < sx2))
+      al_draw_filled_rectangle(sx1, sy1, sx2, sy2, mC.pc[15+192]);
+      if ((mI.mouse_y >= sy1) && (mI.mouse_y <= sy2) && (mI.mouse_x > sx1) && (mI.mouse_x < sx2))
       {
          al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
-         al_draw_filled_rectangle(sx1, sy1, sx2, sy2, palette_color[15+64]);
-         while (mouse_b[1][0])
+         al_draw_filled_rectangle(sx1, sy1, sx2, sy2, mC.pc[15+64]);
+         while (mI.mouse_b[1][0])
          {
-            split_pos = mouse_y;
+            split_pos = mI.mouse_y;
             if (split_pos < mwD.SCREEN_H*1/4) split_pos = mwD.SCREEN_H*1/4;
             if (split_pos > mwD.SCREEN_H*3/4) split_pos = mwD.SCREEN_H*3/4;
             sy1 = split_pos - sb -1;
@@ -1036,10 +1038,10 @@ void run_ping_graph(void)
             mwG[0].draw_graph(1);
             mwG[1].draw_graph(1);
 
-            al_draw_filled_rectangle(sx1, sy1, sx2, sy2, palette_color[10]);
+            al_draw_filled_rectangle(sx1, sy1, sx2, sy2, mC.pc[10]);
 
             al_flip_display();
-            proc_event_queue();
+            mwEQ.proc_event_queue();
             al_clear_to_color(al_map_rgb(0, 0, 0));
          }
       }
@@ -1052,8 +1054,8 @@ void run_ping_graph(void)
       mwG[1].proc_graph();
 
       al_flip_display();
-      proc_event_queue();
-      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
 
@@ -1131,7 +1133,7 @@ void graph_test(void)
 
    al_set_target_backbuffer(display);
    al_clear_to_color(al_map_rgb(0,0,0));
-   al_draw_textf(mF.pr8, palette_color[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s       ", fnam);
+   al_draw_textf(mF.pr8, mC.pc[15], mwD.SCREEN_W/2, mwD.SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Log File:%s       ", fnam);
    al_flip_display();
 
 
@@ -1258,14 +1260,14 @@ void graph_test(void)
       al_set_target_backbuffer(display);
       al_clear_to_color(al_map_rgb(0, 0, 0));
 
-      al_draw_filled_rectangle(0, split_pos-sb, mwD.SCREEN_W, split_pos+sb, palette_color[15]);
-      if ((mouse_y > split_pos-sb) && (mouse_y < split_pos+sb))
+      al_draw_filled_rectangle(0, split_pos-sb, mwD.SCREEN_W, split_pos+sb, mC.pc[15]);
+      if ((mI.mouse_y > split_pos-sb) && (mI.mouse_y < split_pos+sb))
       {
          al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
-         al_draw_filled_rectangle(0, split_pos-sb, mwD.SCREEN_W, split_pos+sb, palette_color[14]);
-         while (mouse_b[1][0])
+         al_draw_filled_rectangle(0, split_pos-sb, mwD.SCREEN_W, split_pos+sb, mC.pc[14]);
+         while (mI.mouse_b[1][0])
          {
-            split_pos = mouse_y;
+            split_pos = mI.mouse_y;
             if (split_pos < mwD.SCREEN_H*1/4) split_pos = mwD.SCREEN_H*1/4;
             if (split_pos > mwD.SCREEN_H*3/4) split_pos = mwD.SCREEN_H*3/4;
 
@@ -1274,9 +1276,9 @@ void graph_test(void)
             mwG[0].draw_graph(1);
             mwG[1].draw_graph(1);
 
-            al_draw_filled_rectangle(0, split_pos-sb, mwD.SCREEN_W, split_pos+sb, palette_color[10]);
+            al_draw_filled_rectangle(0, split_pos-sb, mwD.SCREEN_W, split_pos+sb, mC.pc[10]);
             al_flip_display();
-            proc_event_queue();
+            mwEQ.proc_event_queue();
             al_clear_to_color(al_map_rgb(0, 0, 0));
          }
       }
@@ -1291,8 +1293,8 @@ void graph_test(void)
       mwG[1].proc_graph();
 
       al_flip_display();
-      proc_event_queue();
-      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
 
@@ -1344,15 +1346,15 @@ void run_bandwidth_graph(int both)
          int sy1 = split_pos - sb -1;
          int sy2 = split_pos + sb;
 
-         al_draw_filled_rectangle(sx1, sy1, sx2, sy2, palette_color[15+192]);
-         if ((mouse_y >= sy1) && (mouse_y <= sy2) && (mouse_x > sx1) && (mouse_x < sx2))
+         al_draw_filled_rectangle(sx1, sy1, sx2, sy2, mC.pc[15+192]);
+         if ((mI.mouse_y >= sy1) && (mI.mouse_y <= sy2) && (mI.mouse_x > sx1) && (mI.mouse_x < sx2))
          {
             al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
-            al_draw_filled_rectangle(sx1, sy1, sx2, sy2, palette_color[15+64]);
+            al_draw_filled_rectangle(sx1, sy1, sx2, sy2, mC.pc[15+64]);
 
-            while (mouse_b[1][0])
+            while (mI.mouse_b[1][0])
             {
-               split_pos = mouse_y;
+               split_pos = mI.mouse_y;
                if (split_pos < mwD.SCREEN_H*1/4) split_pos = mwD.SCREEN_H*1/4;
                if (split_pos > mwD.SCREEN_H*3/4) split_pos = mwD.SCREEN_H*3/4;
                sy1 = split_pos - sb -1;
@@ -1362,9 +1364,9 @@ void run_bandwidth_graph(int both)
                mwG[1].set_graph_pos(0, 0,            mwD.SCREEN_W, split_pos-sg);
                mwG[0].draw_graph(1);
                mwG[1].draw_graph(1);
-               al_draw_filled_rectangle(sx1, sy1, sx2, sy2, palette_color[10]);
+               al_draw_filled_rectangle(sx1, sy1, sx2, sy2, mC.pc[10]);
                al_flip_display();
-               proc_event_queue();
+               mwEQ.proc_event_queue();
                al_clear_to_color(al_map_rgb(0, 0, 0));
             }
          }
@@ -1382,8 +1384,8 @@ void run_bandwidth_graph(int both)
          mwG[0].proc_graph();
       }
       al_flip_display();
-      proc_event_queue();
-      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
 
@@ -1511,15 +1513,15 @@ void run_client_server_sync_graph(void)
       int s0y2 = split_pos0 + sb;
       int s1y1 = split_pos1 - sb -1;
       int s1y2 = split_pos1 + sb;
-      al_draw_filled_rectangle(sx1, s0y1, sx2, s0y2, palette_color[15+192]);
-      al_draw_filled_rectangle(sx1, s1y1, sx2, s1y2, palette_color[15+192]);
-      if ((mouse_y >= s0y1) && (mouse_y <= s0y2) && (mouse_x > sx1) && (mouse_x < sx2))
+      al_draw_filled_rectangle(sx1, s0y1, sx2, s0y2, mC.pc[15+192]);
+      al_draw_filled_rectangle(sx1, s1y1, sx2, s1y2, mC.pc[15+192]);
+      if ((mI.mouse_y >= s0y1) && (mI.mouse_y <= s0y2) && (mI.mouse_x > sx1) && (mI.mouse_x < sx2))
       {
          al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
-         al_draw_filled_rectangle(sx1, s0y1, sx2, s0y2, palette_color[15+64]);
-         while (mouse_b[1][0])
+         al_draw_filled_rectangle(sx1, s0y1, sx2, s0y2, mC.pc[15+64]);
+         while (mI.mouse_b[1][0])
          {
-            split_pos0 = mouse_y;
+            split_pos0 = mI.mouse_y;
             if (split_pos0 < otsh) split_pos0 = otsh;
             if (split_pos0 > (9 * otsh)) split_pos0 = (9 * otsh);
             if (split_pos0 > (split_pos1 - otsh)) split_pos0 = split_pos1 - otsh;
@@ -1535,20 +1537,20 @@ void run_client_server_sync_graph(void)
             mwG[1].draw_graph(1);
             mwG[2].draw_graph(1);
 
-            al_draw_filled_rectangle(sx1, s0y1, sx2, s0y2, palette_color[10]);
+            al_draw_filled_rectangle(sx1, s0y1, sx2, s0y2, mC.pc[10]);
             al_flip_display();
-            proc_event_queue();
+            mwEQ.proc_event_queue();
             al_clear_to_color(al_map_rgb(0, 0, 0));
          }
       }
 
-      if ((mouse_y >= s1y1) && (mouse_y <= s1y2) && (mouse_x > sx1) && (mouse_x < sx2))
+      if ((mI.mouse_y >= s1y1) && (mI.mouse_y <= s1y2) && (mI.mouse_x > sx1) && (mI.mouse_x < sx2))
       {
          al_set_system_mouse_cursor(display, ALLEGRO_SYSTEM_MOUSE_CURSOR_RESIZE_N);
-         al_draw_filled_rectangle(sx1, s1y1, sx2, s1y2, palette_color[15+64]);
-         while (mouse_b[1][0])
+         al_draw_filled_rectangle(sx1, s1y1, sx2, s1y2, mC.pc[15+64]);
+         while (mI.mouse_b[1][0])
          {
-            split_pos1 = mouse_y;
+            split_pos1 = mI.mouse_y;
             if (split_pos1 < otsh) split_pos1 = otsh;
             if (split_pos1 < (split_pos0 + otsh)) split_pos1 = split_pos0 + otsh;
             if (split_pos1 > (9 * otsh)) split_pos1 = 9 * otsh;
@@ -1564,9 +1566,9 @@ void run_client_server_sync_graph(void)
             mwG[1].draw_graph(1);
             mwG[2].draw_graph(1);
 
-            al_draw_filled_rectangle(sx1, s1y1, sx2, s1y2, palette_color[10]);
+            al_draw_filled_rectangle(sx1, s1y1, sx2, s1y2, mC.pc[10]);
             al_flip_display();
-            proc_event_queue();
+            mwEQ.proc_event_queue();
             al_clear_to_color(al_map_rgb(0, 0, 0));
          }
       }
@@ -1580,8 +1582,8 @@ void run_client_server_sync_graph(void)
       mwG[2].proc_graph();
 
       al_flip_display();
-      proc_event_queue();
-      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
 
@@ -1695,8 +1697,8 @@ void run_profile_graph(void)
       mwG[0].proc_graph();
 
       al_flip_display();
-      proc_event_queue();
-      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
 
@@ -1877,7 +1879,7 @@ void load_profile_graph(int choose)
          int type = atoi(res);
          get_tag_text(buff, res, 0); // get second tag - player
          //int p = atoi(res);
-         get_tag_text(buff, res, 0); // get third tag - frame_num
+         get_tag_text(buff, res, 0); // get third tag - mwPS.frame_num
          double fn = atof(res);
 
          if (type == 44) // tmst
@@ -2215,8 +2217,8 @@ void run_timestamp_graph(void)
 
 
       al_flip_display();
-      proc_event_queue();
-      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
    }
 }
 
@@ -2440,7 +2442,7 @@ void mw_code_stat(struct code_stat &cs)
 
 void show_code_stats(void)
 {
-   struct code_stat cs[100] = {0};
+   struct code_stat cs[200] = {0};
 
    char fname[1024];
    sprintf(fname, "src/");
@@ -2472,19 +2474,19 @@ void show_code_stats(void)
    // do the totals
    for (int i=0; i<num_filenames; i++)
    {
-      cs[99].lines +=            cs[i].lines;
-      cs[99].chars +=            cs[i].chars;
-      cs[99].blank_chars +=      cs[i].blank_chars;
-      cs[99].blanks +=           cs[i].blanks;
-      cs[99].code +=             cs[i].code;
-      cs[99].comment +=          cs[i].comment;
-      cs[99].comment_only +=     cs[i].comment_only;
-      cs[99].code_only +=        cs[i].code_only;
-      cs[99].code_and_comment += cs[i].code_and_comment;
-      cs[99].max_line_length +=  cs[i].max_line_length;
+      cs[199].lines +=            cs[i].lines;
+      cs[199].chars +=            cs[i].chars;
+      cs[199].blank_chars +=      cs[i].blank_chars;
+      cs[199].blanks +=           cs[i].blanks;
+      cs[199].code +=             cs[i].code;
+      cs[199].comment +=          cs[i].comment;
+      cs[199].comment_only +=     cs[i].comment_only;
+      cs[199].code_only +=        cs[i].code_only;
+      cs[199].code_and_comment += cs[i].code_and_comment;
+      cs[199].max_line_length +=  cs[i].max_line_length;
    }
-//   sprintf(cs[99].name, "Total");
-   sprintf(cs[99].name, "%d files", num_filenames);
+//   sprintf(cs[199].name, "Total");
+   sprintf(cs[199].name, "%d files", num_filenames);
 
    time_t now = time(NULL);
    struct tm *timenow = localtime(&now);
@@ -2494,6 +2496,8 @@ void show_code_stats(void)
    printf("[%6s][%6s][%6s][%6s][%6s][%6s][%6s]\n", "total", "code", "cd_onl", "commnt", "cm_onl", "cd+cm", "blank");
    printf("--------------------------------------------------------\n");
 
+  // int init_max = cs[199].code; // save this because we erase it when sorting by code size
+
    if (0) // list sorted alphabetically (or how file iterator chose them)
    {
       for (int i=0; i<num_filenames; i++)
@@ -2501,6 +2505,7 @@ void show_code_stats(void)
    }
    else  // list sorted by code size
    {
+
       int cur_s = 1;  // current max size
       int i = 0; // current max size index
       while (cur_s)
@@ -2520,7 +2525,8 @@ void show_code_stats(void)
       }
    }
 
-   int i = 99;
+   int i = 199;
+//   cs[i].code = init_max;
    printf("-------------------------------------------------------- - totals\n");
    printf("[%6d][%6d][%6d][%6d][%6d][%6d][%6d] - %s\n", cs[i].lines, cs[i].code, cs[i].code_only, cs[i].comment, cs[i].comment_only, cs[i].code_and_comment, cs[i].blanks, cs[i].name);
 

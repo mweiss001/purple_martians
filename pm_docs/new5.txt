@@ -322,28 +322,28 @@ all I need is the seed for each color...
 
 make an array of colors:
 
-ALLEGRO_COLOR palette_color[256];
-palette_color[0]  = al_map_rgb(  0,   0,    0); // black
-palette_color[1]  = al_map_rgb(191, 108,  232); // alt purple 1
-palette_color[2]  = al_map_rgb(136,  32,  172); // alt purple 2
-palette_color[3]  = al_map_rgb(60,  127,  255); // alt blue
-palette_color[4]  = al_map_rgb(224,  28,   72); // alt red
-palette_color[5]  = al_map_rgb(255,   0,  232); // pink
-palette_color[6]  = al_map_rgb(255,  191, 127); // taan
-palette_color[7]  = al_map_rgb(255,  127,   0); // orange
-palette_color[8]  = al_map_rgb(127,    0, 255); // original purple
-palette_color[9]  = al_map_rgb(  0,  255, 127); // alt green
-palette_color[10] = al_map_rgb(255,    0,   0); // red
-palette_color[11] = al_map_rgb(  0,  255,   0); // green
-palette_color[12] = al_map_rgb(  0,    0, 255); // blue
-palette_color[13] = al_map_rgb(  0,  255, 255); // lt blue
-palette_color[14] = al_map_rgb(255,  255,   0); // yellow
-palette_color[15] = al_map_rgb(255,  255, 255); // white
+ALLEGRO_COLOR mC.pc[256];
+mC.pc[0]  = al_map_rgb(  0,   0,    0); // black
+mC.pc[1]  = al_map_rgb(191, 108,  232); // alt purple 1
+mC.pc[2]  = al_map_rgb(136,  32,  172); // alt purple 2
+mC.pc[3]  = al_map_rgb(60,  127,  255); // alt blue
+mC.pc[4]  = al_map_rgb(224,  28,   72); // alt red
+mC.pc[5]  = al_map_rgb(255,   0,  232); // pink
+mC.pc[6]  = al_map_rgb(255,  191, 127); // taan
+mC.pc[7]  = al_map_rgb(255,  127,   0); // orange
+mC.pc[8]  = al_map_rgb(127,    0, 255); // original purple
+mC.pc[9]  = al_map_rgb(  0,  255, 127); // alt green
+mC.pc[10] = al_map_rgb(255,    0,   0); // red
+mC.pc[11] = al_map_rgb(  0,  255,   0); // green
+mC.pc[12] = al_map_rgb(  0,    0, 255); // blue
+mC.pc[13] = al_map_rgb(  0,  255, 255); // lt blue
+mC.pc[14] = al_map_rgb(255,  255,   0); // yellow
+mC.pc[15] = al_map_rgb(255,  255, 255); // white
 
 for (int x=1; x<16; x++)
 {
    int c = (x+1)*16 - 1;
-   palette_color[x*16]  = al_map_rgb(c, c, c);
+   mC.pc[x*16]  = al_map_rgb(c, c, c);
 }
 
 this is my old fade proc
@@ -382,9 +382,9 @@ I really need to figure out keyboard input
 
 make an event loop...done...
 
-it looks like the example i followed show an easy way to re-implement the old key[KEY_*] fucntionality
+it looks like the example i followed show an easy way to re-implement the old mI.key[KEY_*] fucntionality
 
-first of all i need to create key[256] with names for all the actual keys
+first of all i need to create mI.key[256] with names for all the actual keys
 
 i want to reuse as much as possible....
 
@@ -398,11 +398,11 @@ pressed_keys[key_code] = true;
 ---------------
 create my own array like:
 
-bool key[ALLEGRO_KEY_MAX];
+bool mI.key[ALLEGRO_KEY_MAX];
 
 now in my event loop get key downs and up events, run function to set my array
 
-the only thing i won't be able to do is while(key[KEY_ESC]);
+the only thing i won't be able to do is while(mI.key[KEY_ESC]);
 
 unless i process in that loop..
 
@@ -1930,9 +1930,9 @@ lifts is all done except for text...
 replace all alert with native msg...
 
 
-//      gui_fg_color = palette_color[14];  gui_bg_color = palette_color[14+224];
+//      gui_fg_color = mC.pc[14];  gui_bg_color = mC.pc[14+224];
 //      alert("Error creating lift step:", (char)NULL, "40 steps is the maximum", "OK", (char)NULL, (char)NULL, (char)NULL);
-//      gui_fg_color = palette_color[9]; gui_bg_color = palette_color[0];
+//      gui_fg_color = mC.pc[9]; gui_bg_color = mC.pc[0];
 
          al_show_native_message_box(display,
                "Error", "No creator exists for the current item type",
@@ -2346,7 +2346,7 @@ in add game move special move exit is entered instead of escape
 player state change to incative
 in proc game move for local client become inactive...
 this is the problem:
-while (key[ALLEGRO_KEY_ESCAPE]); // wait for release, but send cdat first
+while (mI.key[ALLEGRO_KEY_ESCAPE]); // wait for release, but send cdat first
 do i even need this???
 
 
@@ -4659,7 +4659,7 @@ proc_frame_delay();  <- to here
 
 hope this doesn't break anything!
 
-Rename passcount to frame_num...done
+Rename passcount to mwPS.frame_num...done
 
 rename event to game_event...done
 
@@ -4669,9 +4669,9 @@ rename event to game_event...done
 in proc_controller()
 
 change
-if (key[ALLEGRO_KEY_PRINTSCREEN]) key[ALLEGRO_KEY_PRINTSCREEN] = 0; // special exception to make PRINTSCREEN work
+if (mI.key[ALLEGRO_KEY_PRINTSCREEN]) mI.key[ALLEGRO_KEY_PRINTSCREEN] = 0; // special exception to make PRINTSCREEN work
 to
-key[ALLEGRO_KEY_PRINTSCREEN] = 0; // special exception to make PRINTSCREEN work
+mI.key[ALLEGRO_KEY_PRINTSCREEN] = 0; // special exception to make PRINTSCREEN work
 
 also this line:
 
@@ -4767,7 +4767,7 @@ int proc_controllers()
    int done = 0;
    int menu_timer_wait = 1;
 
-   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work
+   mI.key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work
    Key_pressed_ASCII = 0;
 
    if (!fullscreen) // detect if window was moved
@@ -4821,7 +4821,7 @@ int proc_controllers()
    int ret = 0;
    int menu_timer_block = 1;
 
-   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
+   mI.key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
    Key_pressed_ASCII = 0;
 
    if (!fullscreen) // detect if window was moved
@@ -5054,13 +5054,13 @@ old:
 extern char chdf[STATE_SIZE];          // for client chdf building
 extern int chdf_pieces[16];
 extern char clientl_chdf[STATE_SIZE];  // last ack state for diffing
-extern int clientl_chdf_id;            // frame_num id
+extern int clientl_chdf_id;            // mwPS.frame_num id
 
 new:
 extern char client_state_buffer[STATE_SIZE];  // for client chdf building
 extern int  client_state_buffer_pieces[16];   // to mark pieces as received
 extern char client_state_base[STATE_SIZE];    // last ack state for diffing
-extern int  client_state_base_frame_num;      // frame_num id
+extern int  client_state_base_frame_num;      // mwPS.frame_num id
 
 chdf to client_state_buffer..done
 chdf_pieces to client_state_buffer_pieces..done
@@ -5095,7 +5095,7 @@ dif_id[1] to dif_dst..done
 old:
 // server chdf
 extern char client_chdf[8][2][STATE_SIZE];
-extern int client_chdf_id[8][2]; // frame_num id
+extern int client_chdf_id[8][2]; // mwPS.frame_num id
 
 new:
 extern char srv_client_state[8][2][STATE_SIZE];
@@ -5110,13 +5110,13 @@ final variable list:
 #define STATE_SIZE 104640
 // server's copies of client states
 extern char srv_client_state[8][2][STATE_SIZE];
-extern int srv_client_state_frame_num[8][2]; // frame_num id
+extern int srv_client_state_frame_num[8][2]; // mwPS.frame_num id
 
 // local client's states
 extern char client_state_buffer[STATE_SIZE];  // for client chdf building
 extern int  client_state_buffer_pieces[16];   // to mark pieces as received
 extern char client_state_base[STATE_SIZE];    // last ack state for diffing
-extern int  client_state_base_frame_num;      // frame_num id
+extern int  client_state_base_frame_num;      // mwPS.frame_num id
 
 extern char dif[STATE_SIZE];  // used by client and server
 extern int dif_src;  // client only
@@ -5224,17 +5224,17 @@ void server_send_sdat(void)
             {
                players1[p].server_last_sdat_sent_start = start_entry;
                players1[p].server_last_sdat_sent_num = num_entries;
-               players1[p].server_last_sdat_sent_frame_num = frame_num;
+               players1[p].server_last_sdat_sent_frame_num = mwPS.frame_num;
 
                Packet("sdat");
                PacketPut1ByteInt(p);
-               PacketPut4ByteInt(frame_num);
+               PacketPut4ByteInt(mwPS.frame_num);
                PacketPut4ByteInt(start_entry);
                PacketPut1ByteInt(num_entries);
 
                for (int x=start_entry; x<start_entry + num_entries; x++)
                {
-                  PacketPut4ByteInt(game_moves[x][0]); // frame_num
+                  PacketPut4ByteInt(game_moves[x][0]); // mwPS.frame_num
                   PacketPut1ByteInt(game_moves[x][1]); // type
                   PacketPut1ByteInt(game_moves[x][2]); // data 1
                   PacketPut1ByteInt(game_moves[x][3]); // data 2
@@ -5252,14 +5252,14 @@ void server_send_sdat(void)
          }
 
 
-         else if (frame_num > players1[p].server_last_sdat_sent_frame_num + 19) // send even if no data, every 20 frames for sync
+         else if (mwPS.frame_num > players1[p].server_last_sdat_sent_frame_num + 19) // send even if no data, every 20 frames for sync
          {
-            players1[p].server_last_sdat_sent_frame_num = frame_num;
+            players1[p].server_last_sdat_sent_frame_num = mwPS.frame_num;
             int start_entry = players1[p].game_move_entry_pos;
 
             Packet("sdat");
             PacketPut1ByteInt(p);
-            PacketPut4ByteInt(frame_num);
+            PacketPut4ByteInt(mwPS.frame_num);
             PacketPut4ByteInt(start_entry);
             PacketPut1ByteInt(0);
             ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
@@ -5324,7 +5324,7 @@ old:
                   Packet("serr"); // server error
                   PacketPut1ByteInt(p);
                   PacketPut1ByteInt(1); // error type 1
-                  PacketPut4ByteInt(frame_num);
+                  PacketPut4ByteInt(mwPS.frame_num);
                   PacketPut4ByteInt(c_sync);
                   PacketPut4ByteInt(players1[p].server_game_move_sync_err);
                   ServerSendTo(packetbuffer, packetsize, who, p);
@@ -5361,7 +5361,7 @@ new:
 
                   Packet("serr"); // server error
                   PacketPut1ByteInt(1); // error type 1
-                  PacketPut4ByteInt(frame_num);
+                  PacketPut4ByteInt(mwPS.frame_num);
                   PacketPut4ByteInt(c_sync);
                   PacketPut4ByteInt(players1[p].server_game_move_sync_err);
                   ServerSendTo(packetbuffer, packetsize, who, p);
@@ -5397,7 +5397,7 @@ old:
             players1[p].client_sdat_packets_rx++; // total sdat packets rx'd
 
             // this used to be a function , client timer adjust
-            players1[p].client_sync = sdat_frame_num - frame_num;
+            players1[p].client_sync = sdat_frame_num - mwPS.frame_num;
             int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
 
 
@@ -5413,7 +5413,7 @@ new:
          players1[p].client_sdat_packets_rx++; // total sdat packets rx'd
 
          // this used to be a function , client timer adjust
-         players1[p].client_sync = sdat_frame_num - frame_num;
+         players1[p].client_sync = sdat_frame_num - mwPS.frame_num;
          int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
 
 
@@ -5611,10 +5611,10 @@ extern int srv_client_state_frame_num[8][2];
 extern char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
 extern int  client_state_buffer_pieces[16];   // to mark packet pieces as received
 extern char client_state_base[STATE_SIZE];    // last ack state
-extern int  client_state_base_frame_num;      // last ack state frame_num
+extern int  client_state_base_frame_num;      // last ack state mwPS.frame_num
 extern char client_state_dif[STATE_SIZE];     // uncompressed dif
-extern int  client_state_dif_src;             // uncompressed dif src frame_num
-extern int  client_state_dif_dst;             // uncompressed dif dst frame_num
+extern int  client_state_dif_src;             // uncompressed dif src mwPS.frame_num
+extern int  client_state_dif_dst;             // uncompressed dif dst mwPS.frame_num
 
 
 
@@ -5634,7 +5634,7 @@ i want to move client_block_until_good_stdf_received(void)
 to right after block for SJON rx
 
 removed from main clinet loop:
-if (frame_num == 0) client_block_until_good_stdf_received();
+if (mwPS.frame_num == 0) client_block_until_good_stdf_received();
 
 added right after SJON rx:
 client_block_until_good_stdf_received();
@@ -6433,7 +6433,7 @@ replaced memmove with memcpy...
 Can this be made simpler?
 
    // check to see if frame_nums match and its time to apply dif
-   if (frame_num == client_state_dif_dst) // current frame_num is dif destination
+   if (mwPS.frame_num == client_state_dif_dst) // current mwPS.frame_num is dif destination
    {
       if (client_state_base_frame_num != client_state_dif_src)  // stored base state does NOT match dif source
       {
@@ -6457,7 +6457,7 @@ Can this be made simpler?
 how about this?
 
    // check to see if frame_nums match and its time to apply dif
-   if (frame_num == client_state_dif_dst) // current frame_num is dif destination
+   if (mwPS.frame_num == client_state_dif_dst) // current mwPS.frame_num is dif destination
    {
       // if server has sent dif from src == 0, reset our base to 0
       if (client_state_dif_src == 0)
@@ -6479,7 +6479,7 @@ simplify this:
 
    if (start_mode < 3) // normal or run game
    {
-      frame_num = 0;
+      mwPS.frame_num = 0;
       if (!load_level(play_level,0))
       {
          game_exit = 1;
@@ -6491,7 +6491,7 @@ simplify this:
    if (start_mode == 3) // new level after level done
    {
       stamp();
-      frame_num = 0;
+      mwPS.frame_num = 0;
       if (!load_level(play_level,0))
       {
          game_exit = 1;
@@ -6504,7 +6504,7 @@ done:
 
    if (start_mode == 3) stamp(); // new level after level done
 
-	frame_num = 0;
+	mwPS.frame_num = 0;
 	if (!load_level(play_level,0))
 	{
 		game_exit = 1;
@@ -6600,7 +6600,7 @@ i think I can get rid of 2 and 3 specifics...done
 
    if (t == 3) // netplay join
    {
-      players1[p].server_last_sdak_rx_frame_num = frame_num + 200;
+      players1[p].server_last_sdak_rx_frame_num = mwPS.frame_num + 200;
    }
 
 now change the 2 calls to 3 to 2's..done
@@ -6665,7 +6665,7 @@ init_player(cn, 1);
 players[cn].color = color;
 players[cn].control_method = 2; //server client view only
 players1[cn].who = who;
-players1[cn].server_last_sdak_rx_frame_num = frame_num + 200;
+players1[cn].server_last_sdak_rx_frame_num = mwPS.frame_num + 200;
 players1[cn].game_move_entry_pos = game_move_entry_pos; // so server wont try to sync any moves less than this
 
 
@@ -6680,7 +6680,7 @@ if ((players[p].active == 0) && (val > 0) && (val < 16))
 	init_player(p, 1);
 	players[p].active = 1;
 	players[p].color = val;
-	players1[p].join_frame = frame_num;
+	players1[p].join_frame = mwPS.frame_num;
 
 
 
@@ -6725,7 +6725,7 @@ when client quits...player lost server connection
 this was missing:
 void client_process_sdat_packet(void)
 {
-   players1[p].client_last_sdat_rx_frame_num = frame_num;
+   players1[p].client_last_sdat_rx_frame_num = mwPS.frame_num;
 
 seems to work good now...
 
@@ -6812,7 +6812,7 @@ init_player(cn, 1);
 players[cn].color = color;
 players[cn].control_method = 2; //server client view only
 players1[cn].who = who;
-players1[cn].server_last_sdak_rx_frame_num = frame_num + 200;
+players1[cn].server_last_sdak_rx_frame_num = mwPS.frame_num + 200;
 players1[cn].game_move_entry_pos = game_move_entry_pos; // so server wont try to sync any moves less than this
 
 
@@ -7105,7 +7105,7 @@ init_player(cn, 1);
 players[cn].color = color;
 players[cn].control_method = 2; //server client view only
 players1[cn].who = who;
-players1[cn].server_last_sdak_rx_frame_num = frame_num + 200;
+players1[cn].server_last_sdak_rx_frame_num = mwPS.frame_num + 200;
 players1[cn].game_move_entry_pos = game_move_entry_pos; // so server wont try to sync any moves less than this
 
 
@@ -7156,7 +7156,7 @@ in start_mode common set to 0
 in item collision door and warp, set to 1
 
 in single player control:
-if (level_done == 1) add_game_move(frame_num, 6, 0, 0);
+if (level_done == 1) add_game_move(mwPS.frame_num, 6, 0, 0);
 
 in server_local_control(int p)
 if (level_done == 1) add_game_move(fn, 6, 0, 0);
@@ -7251,7 +7251,7 @@ old:
    if ((!players1[p].made_active_holdoff) && (players[p].active == 0) && (players[p].control_method == 2) && (players1[p].server_sync < 4) && (players1[p].server_sync > -2))
    {
       players1[p].made_active_holdoff = 6;
-      add_game_move(frame_num + 4, 1, p, players[p].color);
+      add_game_move(mwPS.frame_num + 4, 1, p, players[p].color);
       sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
       if (L_LOGGING_NETPLAY_JOIN) add_log_entry2(11, p, msg);
    }
@@ -7264,7 +7264,7 @@ if ((!players[p].active) && (players[p].control_method == 2)) // inactive client
    if (players1[p].made_active_holdoff) players1[p].made_active_holdoff--;
    else if ((players1[p].server_sync < 4) && (players1[p].server_sync > -2))
    {
-      add_game_move(frame_num + 4, 1, p, players[p].color);
+      add_game_move(mwPS.frame_num + 4, 1, p, players[p].color);
       players1[p].made_active_holdoff = 6;
       sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
       if (L_LOGGING_NETPLAY_JOIN) add_log_entry2(11, p, msg);
@@ -7285,11 +7285,11 @@ all modes:
 set_comp_move_from_player_key_check(p);
 
 // if menu key ignore everything else and set to 127
-if (key[players1[p].menu_key])  cm = 127;
-if (key[ALLEGRO_KEY_ESCAPE])    cm = 127;
+if (mI.key[players1[p].menu_key])  cm = 127;
+if (mI.key[ALLEGRO_KEY_ESCAPE])    cm = 127;
 
 
-when this comp_move is sent to add_game_move(frame_num, 5, p, players1[p].comp_move);
+when this comp_move is sent to add_game_move(mwPS.frame_num, 5, p, players1[p].comp_move);
 
 it is converted to a special player state move:
 
@@ -7400,16 +7400,16 @@ void server_proc_player_drop(void)
       {
          if ((players[p].active) && (players1[p].server_sync > 100))
          {
-            //printf("[%4d] server_sync:[%4d] drop p:%d \n", frame_num, players1[p].server_sync, p);
-            add_game_move(frame_num + 4, 1, p, 71); // make client inactive (reason sync > 100)
+            //printf("[%4d] server_sync:[%4d] drop p:%d \n", mwPS.frame_num, players1[p].server_sync, p);
+            add_game_move(mwPS.frame_num + 4, 1, p, 71); // make client inactive (reason sync > 100)
 
             sprintf(msg,"Server dropped player:%d (server sync > 100)", p);
             if (L_LOGGING_NETPLAY) add_log_entry_header(10, p, msg, 1);
          }
-         if (players1[p].server_last_sdak_rx_frame_num + 100 < frame_num)
+         if (players1[p].server_last_sdak_rx_frame_num + 100 < mwPS.frame_num)
          {
-            //printf("[%4d][%4d] drop p:%d \n", frame_num, players1[p].server_last_sdak_rx_frame_num, p);
-            add_game_move(frame_num + 4, 1, p, 71); // make client inactive (reason no sdak for 100 frames)
+            //printf("[%4d][%4d] drop p:%d \n", mwPS.frame_num, players1[p].server_last_sdak_rx_frame_num, p);
+            add_game_move(mwPS.frame_num + 4, 1, p, 71); // make client inactive (reason no sdak for 100 frames)
 
             sprintf(msg,"Server dropped player:%d (last sdat rx > 100)", p);
             if (L_LOGGING_NETPLAY) add_log_entry_header(10, p, msg, 1);
@@ -7677,7 +7677,7 @@ should force...
 
 does this happen every time? yes...
 
-fixed that on client by setting frame_num after initial stdf rx, but before dif applied...
+fixed that on client by setting mwPS.frame_num after initial stdf rx, but before dif applied...
 
 now:
 
@@ -7866,7 +7866,7 @@ client
 ------
 first clock is 1146 after level start
 1147 waiting for game state
-1150 214 frame_num updated
+1150 214 mwPS.frame_num updated
 1166 215 rx sdat and already 20 frames late
 
 need more clocks on client...
@@ -7921,14 +7921,14 @@ what if I made timer adjust twice as much adjust?
 
 old
    // client timer adjust
-   players1[p].client_sync = sdat_frame_num - frame_num;
+   players1[p].client_sync = sdat_frame_num - mwPS.frame_num;
    int fps_chase = frame_speed + players1[p].client_sync - server_lead_frames;
    if (fps_chase < 4) fps_chase = 4; // never let this go negative
    al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
 
 new
    // client timer adjust
-   players1[p].client_sync = sdat_frame_num - frame_num;
+   players1[p].client_sync = sdat_frame_num - mwPS.frame_num;
    int fps_chase = frame_speed + (players1[p].client_sync - server_lead_frames)*2;
    if (fps_chase < 4) fps_chase = 4; // never let this go negative
    al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
@@ -10165,13 +10165,13 @@ if rocket is going slow enough the guide lines do not show...fixed
 
 how about showing when a object is about to expire
 a very small number that shows how many seconds left
-if (item[i][14]) al_draw_textf(f3, palette_color[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
+if (item[i][14]) al_draw_textf(f3, mC.pc[15], x+10, y-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (item[i][14] - 10) / 40);
 
 done...it was one line
 
 now do the same for enemies ..done
 
-if (Ei[e][27]) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+if (Ei[e][27]) al_draw_textf(f3, mC.pc[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
 
 
 
@@ -11121,12 +11121,12 @@ zcontrol at the end...
             {
                if (players[p].control_method == 0) // local single player control
                {
-                  if (level_done_trig) add_game_move(frame_num, 6, 0, 0); // insert level done into game move
+                  if (level_done_trig) add_game_move(mwPS.frame_num, 6, 0, 0); // insert level done into game move
                   set_comp_move_from_player_key_check(p); // but don't set controls !!!
                   if (players1[p].comp_move != players1[p].old_comp_move)
                   {
                      players1[p].old_comp_move = players1[p].comp_move;
-                     add_game_move(frame_num, 5, p, players1[p].comp_move);
+                     add_game_move(mwPS.frame_num, 5, p, players1[p].comp_move);
                   }
                }
                if (players[p].control_method == 1) rungame_key_check(p, ret); // run game from file
@@ -11572,7 +11572,7 @@ old
    if (start_mode == 7) // resume single player game
    {
       start_music(1); // resume theme
-      set_frame_nums(frame_num); // set fps_timer count to frame_num
+      set_frame_nums(mwPS.frame_num); // set fps_timer count to mwPS.frame_num
       stimp();
       return;
    }
@@ -11582,7 +11582,7 @@ new
    {
       start_music(1); // resume theme
       stimp();
-      set_frame_nums(frame_num); // set fps_timer count to frame_num
+      set_frame_nums(mwPS.frame_num); // set fps_timer count to mwPS.frame_num
       return;
    }
 
@@ -12385,13 +12385,13 @@ game_event_retrigger_holdoff[10][1]
 
    if (ev == 3) // exit
    {
-      if (game_event_retrigger_holdoff[1] < frame_num)  game_event_retrigger_holdoff[1] = frame_num + 60;
+      if (game_event_retrigger_holdoff[1] < mwPS.frame_num)  game_event_retrigger_holdoff[1] = mwPS.frame_num + 60;
       else ev = 0;
    }
 
    if (ev == 50) // mine
    {
-      if (game_event_retrigger_holdoff[2] < frame_num)  game_event_retrigger_holdoff[2] = frame_num + 20;
+      if (game_event_retrigger_holdoff[2] < mwPS.frame_num)  game_event_retrigger_holdoff[2] = mwPS.frame_num + 20;
       else ev = 0;
    }
 
@@ -12591,21 +12591,21 @@ fixed a bug in this function...
 when displaying percentages near zero it did not look perfect
 the white frame was overwriting the start...
 
-old: al_draw_rectangle(x+0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, palette_color[15], 1); //  white frame
-new: al_draw_rectangle(x-0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, palette_color[15], 1); //  white frame
+old: al_draw_rectangle(x+0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, mC.pc[15], 1); //  white frame
+new: al_draw_rectangle(x-0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, mC.pc[15], 1); //  white frame
 all that for one pixel!
 
 void draw_percent_bar(int cx, int y, int width, int height, int percent)
 {
    int x = cx - width/2; // get x from center
-   al_draw_filled_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, palette_color[10]); //  all red to start
+   al_draw_filled_rectangle(x+0.5f, y+0.5f, x + width+0.5f, y + height+0.5f, mC.pc[10]); //  all red to start
    if (percent > 0)
    {
       int w2 = (int) (width * ((float)percent/100)); // how much green
-      al_draw_filled_rectangle(x+0.5f, y+0.5f, x + w2+0.5f, y + height+0.5f, palette_color[11]); //  green
+      al_draw_filled_rectangle(x+0.5f, y+0.5f, x + w2+0.5f, y + height+0.5f, mC.pc[11]); //  green
    }
-// al_draw_rectangle(x+0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, palette_color[15], 1); //  white frame
-   al_draw_rectangle(x-0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, palette_color[15], 1); //  white frame
+// al_draw_rectangle(x+0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, mC.pc[15], 1); //  white frame
+   al_draw_rectangle(x-0.5f, y+0.5f, x+width+0.5f, y+height+0.5f, mC.pc[15], 1); //  white frame
 }
 
 
@@ -12983,8 +12983,8 @@ if ((obt == 3) && (type == 10)) // field boxes
       mouse_on_ftb_ul = 1;
       mouse_on_extra = 1;
       for (int a=0; a<4; a++)
-         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
-      al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[14], 1);                 // mark ul corner
+         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, mC.pc[14+a*64], 1); // mark entire trigger box
+      al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, mC.pc[14], 1);                 // mark ul corner
       mouse_move = 1;
    }
    if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // lower right corner
@@ -12992,8 +12992,8 @@ if ((obt == 3) && (type == 10)) // field boxes
       mouse_on_ftb_lr = 1;
       mouse_on_extra = 1;
       for (int a=0; a<4; a++)
-         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
-      al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, palette_color[14], 1);                 // mark lr corner
+         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, mC.pc[14+a*64], 1); // mark entire trigger box
+      al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, mC.pc[14], 1);                 // mark lr corner
       mouse_adj = 1;
    }
 
@@ -13007,8 +13007,8 @@ if ((obt == 3) && (type == 10)) // field boxes
       mouse_on_fdb_ul = 1;
       mouse_on_extra = 1;
       for (int a=0; a<4; a++)
-         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
-      al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, palette_color[14], 1);                 // mark ul corner
+         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, mC.pc[14+a*64], 1); // mark entire trigger box
+      al_draw_rectangle(x1*db, y1*db, x1*db+db, y1*db+db, mC.pc[14], 1);                 // mark ul corner
       mouse_move = 1;
    }
    if ((!mouse_on_extra) && (mx == x2+1) && (my == y2+1))  // lower right corner
@@ -13016,8 +13016,8 @@ if ((obt == 3) && (type == 10)) // field boxes
       mouse_on_fdb_lr = 1;
       mouse_on_extra = 1;
       for (int a=0; a<4; a++)
-         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, palette_color[14+a*64], 1); // mark entire trigger box
-      al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, palette_color[14], 1);                 // mark lr corner
+         al_draw_rectangle(x1*db+a, y1*db+a, x2*db+db-a, y2*db+db-a, mC.pc[14+a*64], 1); // mark entire trigger box
+      al_draw_rectangle(x2*db, y2*db, x2*db+db, y2*db+db, mC.pc[14], 1);                 // mark lr corner
       mouse_adj = 1;
    }
 }
@@ -13147,9 +13147,9 @@ case 10: // field
    Ei[e][24] = 934+(ht-1)*32; // shape
    Efi[e][11] = al_ftofix(.98); // scale multiplier
    Efi[e][13] = al_ftofix(306/dl); // rot inc
-   zz[0][na] = zz[5][na]; // set shape
+   mwB.zz[0][na] = zz[5][na]; // set shape
    zz[1][na] = 0;         // point to zero
-   zz[2][na] = frame_num; // set counter
+   zz[2][na] = mwPS.frame_num; // set counter
    zz[3][na] = dl / zz[4][na]; // set ans timer
 break;
 
@@ -14223,7 +14223,7 @@ void draw_enemies(void)
              al_draw_scaled_rotated_bitmap(tile[tn], 10, 10, EXint+10, EYint+10, sc, sc, rot, flags);
 
              // if enemy is expiring show how many seconds it has left
-             if (Ei[e][27]) al_draw_textf(f3, palette_color[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
+             if (Ei[e][27]) al_draw_textf(f3, mC.pc[15], EXint+10, EYint-10, ALLEGRO_ALIGN_CENTER, "%d", 1 + (Ei[e][27] - 10) / 40);
          }
 
 
@@ -14467,14 +14467,14 @@ in events
       int e = z2;
       float damage = al_fixtof(Efi[z2][4]
 
-      if (player1[p].field_damage_holdoff < frame_num) // triggered and not in holdoff
+      if (player1[p].field_damage_holdoff < mwPS.frame_num) // triggered and not in holdoff
       {
-         player1[p].field_damage_holdoff = frame_num + 20; // set holdoff
+         player1[p].field_damage_holdoff = mwPS.frame_num + 20; // set holdoff
          player1[p].field_damage_tally = damage; // init tally with current damage
          ev = 0; // don't let this event do anything
       }
 
-      if (player1[p].field_damage_holdoff > frame_num) // triggered and in holdoff
+      if (player1[p].field_damage_holdoff > mwPS.frame_num) // triggered and in holdoff
       {
          player1[p].field_damage_tally += damage; // inc tally with current damage
          ev = 0; // don't let this event do anything
@@ -14519,14 +14519,14 @@ if (ev == 57) // damage field raw
    float damage = al_fixtof(Efi[z2][4]);
    players1[p].field_damage_enemy_number = e;
 
-   if (players1[p].field_damage_holdoff < frame_num) // triggered and not in holdoff
+   if (players1[p].field_damage_holdoff < mwPS.frame_num) // triggered and not in holdoff
    {
-      players1[p].field_damage_holdoff = frame_num + 20; // set holdoff
+      players1[p].field_damage_holdoff = mwPS.frame_num + 20; // set holdoff
       players1[p].field_damage_tally = damage; // init tally with current damage
       ev = 0; // don't let this event do anything
    }
 
-   if (players1[p].field_damage_holdoff > frame_num) // triggered and in holdoff
+   if (players1[p].field_damage_holdoff > mwPS.frame_num) // triggered and in holdoff
    {
       players1[p].field_damage_tally += damage; // inc tally with current damage
       ev = 0; // don't let this event do anything
@@ -14537,7 +14537,7 @@ where event 58 is triggered:
 
 void proc_player_health(int p)
 {
-   if (players1[p].field_damage_holdoff == frame_num) game_event(58, 0, 0, p, 0, 0, 0);
+   if (players1[p].field_damage_holdoff == mwPS.frame_num) game_event(58, 0, 0, p, 0, 0, 0);
 
 where event 57 is triggered:
 
@@ -14942,10 +14942,10 @@ void process_trigger(int i)
          item[i][3] &= ~PM_ITEM_TRIGGER_PREV;    // clear previous trigger flag
 
 
-   if (item[i][3] & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", frame_num);
-   if (item[i][3] & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", frame_num);
-   if (item[i][3] & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", frame_num);
-   if (item[i][3] & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", frame_num);
+   if (item[i][3] & PM_ITEM_TRIGGER_CURR) printf("%d - CURR\n", mwPS.frame_num);
+   if (item[i][3] & PM_ITEM_TRIGGER_PREV) printf("%d - PREV\n", mwPS.frame_num);
+   if (item[i][3] & PM_ITEM_TRIGGER_TGON) printf("%d - TGON\n", mwPS.frame_num);
+   if (item[i][3] & PM_ITEM_TRIGGER_TGOF) printf("%d - TGOF\n", mwPS.frame_num);
 
    printf("\n");
 
@@ -15600,10 +15600,10 @@ int get_trigger_item(const char *txt, int obj_type, int sub_type, int num )
    while(!quit)
    {
       // show text line
-      al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
-      al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
-      al_draw_text(font, palette_color[14], txc, 120, ALLEGRO_ALIGN_CENTER, "Cancel");
-      al_draw_text(font, palette_color[9],  txc, 128, ALLEGRO_ALIGN_CENTER, "with right mouse button");
+      al_draw_text(font, mC.pc[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(font, mC.pc[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
+      al_draw_text(font, mC.pc[14], txc, 120, ALLEGRO_ALIGN_CENTER, "Cancel");
+      al_draw_text(font, mC.pc[9],  txc, 128, ALLEGRO_ALIGN_CENTER, "with right mouse button");
 
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
@@ -15611,8 +15611,8 @@ int get_trigger_item(const char *txt, int obj_type, int sub_type, int num )
 
       proc_controllers();
 
-      dx = mouse_x/db;
-      dy = mouse_y/db;
+      dx = mI.mouse_x/db;
+      dy = mI.mouse_y/db;
 
       draw_bs(14);      // show bullseye map
 
@@ -15639,8 +15639,8 @@ int get_trigger_item(const char *txt, int obj_type, int sub_type, int num )
       {
          crosshairs(0, 0, itx, ity, 14); // draw the selected item position
          int o = db/2;
-         al_draw_line(x2*db+o, y2*db+o, itx*db+o, ity*db+o, palette_color[14], 1);
-         al_draw_textf(font, palette_color[15], txc, 180, ALLEGRO_ALIGN_CENTER, " Item:%d ", ret_item);
+         al_draw_line(x2*db+o, y2*db+o, itx*db+o, ity*db+o, mC.pc[14], 1);
+         al_draw_textf(font, mC.pc[15], txc, 180, ALLEGRO_ALIGN_CENTER, " Item:%d ", ret_item);
       }
       else
       {
@@ -15657,7 +15657,7 @@ int get_trigger_item(const char *txt, int obj_type, int sub_type, int num )
          proc_controllers();
          quit = 1;
       }
-      while ((mouse_b2) || (key[ALLEGRO_KEY_ESCAPE]))
+      while ((mouse_b2) || (mI.key[ALLEGRO_KEY_ESCAPE]))
       {
          proc_controllers();
          quit =1;
@@ -16275,7 +16275,7 @@ void spin_shape(int tn, int x, int y, int tsx, int tsy, int tsw, int tsh, float 
    float ct3 = ct1*3;   // 60
    float ct4 = ct;      // 80
 
-   int tm = frame_num % cti; // get a number from 0 to cti than increments every frame
+   int tm = mwPS.frame_num % cti; // get a number from 0 to cti than increments every frame
 
    float tmr = (int) tm;
 
@@ -16727,12 +16727,12 @@ int process_select_window(int draw_only)
    // blocks top bar frame and text
    if (select_window_block_on)
    {
-      al_draw_filled_rectangle(swx1, syb, swx2, syb+12, palette_color[9+192]);
-      al_draw_rectangle(       swx1, syb, swx2, syb+12, palette_color[9], 1);
-      al_draw_text(font, palette_color[9], swx1+2,  syb+2, 0, "Block Selection ");
-      al_draw_text(font, palette_color[9], swx2-9,  syb+2, 0, "X");
-      al_draw_text(font, palette_color[9], swx2-25, syb+2, 0, "-");
-      al_draw_text(font, palette_color[9], swx2-41, syb+2, 0, "+");
+      al_draw_filled_rectangle(swx1, syb, swx2, syb+12, mC.pc[9+192]);
+      al_draw_rectangle(       swx1, syb, swx2, syb+12, mC.pc[9], 1);
+      al_draw_text(font, mC.pc[9], swx1+2,  syb+2, 0, "Block Selection ");
+      al_draw_text(font, mC.pc[9], swx2-9,  syb+2, 0, "X");
+      al_draw_text(font, mC.pc[9], swx2-25, syb+2, 0, "-");
+      al_draw_text(font, mC.pc[9], swx2-41, syb+2, 0, "+");
 
       for (c=0; c<16*swnbl_cur; c++)
          al_draw_bitmap(btile[swbl[c][0]], swx1+(c-((c/16)*16) )*20+1, swy1+select_window_block_y+1+14+(c/16*20), 0 );   <-----------------
@@ -16759,7 +16759,7 @@ void draw_item_info(int x, int y, int color, int type, int num)
    {
       case 1:
          al_draw_bitmap(btile[num], x, y, 0);   <----------------
-         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "Block #%d",num);
+         al_draw_textf(font, mC.pc[color], x+22, y+2, 0, "Block #%d",num);
 
 
 
@@ -18295,7 +18295,7 @@ how will I do that?
             if (mode == 1) // set all blocks to block 1
             {
                l[x][y] = block1;
-               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
             }
 
@@ -18304,7 +18304,7 @@ how will I do that?
                if (l[x][y] == block2)
                {
                   l[x][y] = block1;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                   al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
                }
             }
@@ -18314,13 +18314,13 @@ how will I do that?
                if (l[x][y] == block1)
                {
                   l[x][y] = block2;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                   al_draw_bitmap(btile[block2&1023], x*20, y*20, 0 );
                }
                else if (l[x][y] == block2)
                {
                   l[x][y] = block1;
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                   al_draw_bitmap(btile[block1&1023], x*20, y*20, 0 );
                }
             }
@@ -18332,7 +18332,7 @@ how will I do that?
             if (mode == 1) // set all blocks to block 1
             {
                l[x][y] = block1 | sa[block1][0]; // replace block (use default flags)
-               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+               al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                al_draw_bitmap(btile[block1], x*20, y*20, 0 );
             }
 
@@ -18341,7 +18341,7 @@ how will I do that?
                if ((l[x][y]&1023) == block2)
                {
                   l[x][y] = block1 | sa[block1][0]; // replace block
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                   al_draw_bitmap(btile[block1], x*20, y*20, 0 );
                }
             }
@@ -18351,13 +18351,13 @@ how will I do that?
                if ((l[x][y]&1023) == block1)
                {
                   l[x][y] = block2 | sa[block2][0];
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                   al_draw_bitmap(btile[block2], x*20, y*20, 0 );
                }
                else if ((l[x][y]&1023) == block2)
                {
                   l[x][y] = block1 | sa[block1][0];
-                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, palette_color[0]);
+                  al_draw_filled_rectangle(x*20, y*20, x*20+20, y*20+20, mC.pc[0]);
                   al_draw_bitmap(btile[block1], x*20, y*20, 0 );
                }
             }
@@ -20195,13 +20195,13 @@ void draw_lift(int l, int x1, int y1, int x2, int y2)
 
    // faded outer shell
    for (a=0; a<10; a++)
-     al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, palette_color[color + ((9 - a)*16)], 2 );
+     al_draw_rounded_rectangle(x1+a, y1+a, x2-a, y2-a, 4, 4, mC.pc[color + ((9 - a)*16)], 2 );
 
    // solid core
-   al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, palette_color[color] );
+   al_draw_filled_rectangle(x1+a, y1+a, x2-a, y2-a, mC.pc[color] );
 
    // name
-    al_draw_textf(font, palette_color[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "step:%d val:%2d", lifts[l].current_step, lifts[l].val1);
+    al_draw_textf(font, mC.pc[color+160], (x1+x2)/2, (y1+y2)/2 - 3, ALLEGRO_ALIGN_CENTRE, "step:%d val:%2d", lifts[l].current_step, lifts[l].val1);
 }
 
 
@@ -20211,8 +20211,8 @@ removed this from void highlight_current_lift(int l)
    // draw lift
    int a;
    for (a=0; a<10; a++)
-      al_draw_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, palette_color[color+ (9-a)*16], 1 );
-   al_draw_filled_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, palette_color[color] );
+      al_draw_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, mC.pc[color+ (9-a)*16], 1 );
+   al_draw_filled_rectangle((x1+a)*db/20, (y1+a)*db/20, (x2-a)*db/20, (y2-a)*db/20, mC.pc[color] );
 
 //   if ((lifts[l].width == 1) && (lifts[l].height > 1)) // rotate lift name for vertical lifts
 //      rtextout_centre(NULL, lifts[l].lift_name, ((x1+x2)/2)*db/20, ((y1+y2)/2)*db/20, color+160, (float)db/20, 64, 1);
@@ -20244,20 +20244,20 @@ void draw_item_info(int x, int y, int color, int type, int num)
    {
       case 1:
          al_draw_bitmap(btile[num&1023], x, y, 0);
-         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "Block #%d",num&1023);
-         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%s", get_text_description_of_block_based_on_flags(num) );
+         al_draw_textf(font, mC.pc[color], x+22, y+2, 0, "Block #%d",num&1023);
+         al_draw_textf(font, mC.pc[color], x+22, y+12, 0, "%s", get_text_description_of_block_based_on_flags(num) );
       break;
       case 2:
          draw_item_shape(num, x, y);
          a = item[num][0]; // type
-         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", item_name[a]);
-         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - item_first_num[a],item_num_of_type[a]);
+         al_draw_textf(font, mC.pc[color], x+22, y+2, 0, "%s", item_name[a]);
+         al_draw_textf(font, mC.pc[color], x+22, y+12, 0, "%d of %d", 1+num - item_first_num[a],item_num_of_type[a]);
       break;
       case 3:
          draw_enemy_shape(num, x, y);
          a = Ei[num][0]; // type
-         al_draw_textf(font, palette_color[color], x+22, y+2, 0, "%s", enemy_name[a]);
-         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%d of %d", 1+num - e_first_num[a],e_num_of_type[a]);
+         al_draw_textf(font, mC.pc[color], x+22, y+2, 0, "%s", enemy_name[a]);
+         al_draw_textf(font, mC.pc[color], x+22, y+12, 0, "%d of %d", 1+num - e_first_num[a],e_num_of_type[a]);
       break;
       case 4:
       {
@@ -20265,12 +20265,12 @@ void draw_item_info(int x, int y, int color, int type, int num)
          int width = lifts[num].width;
          if (width > 140) width = 140;
          for (a=0; a<10; a++)
-            al_draw_rectangle(x+a, y+a, x+(width)-1-a, y+19-a, palette_color[col+((9-a)*16)], 1 );
+            al_draw_rectangle(x+a, y+a, x+(width)-1-a, y+19-a, mC.pc[col+((9-a)*16)], 1 );
 
 //         if ((lifts[num].width == 1) && (lifts[num].height > 1)) // rotate lift name for vertical lifts
   //          rtextout_centre(NULL, lifts[num].lift_name, x+(width*10), y, color+160, 1, 64, 1 );
     //     else
-            al_draw_text(font, palette_color[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, lifts[num].lift_name);
+            al_draw_text(font, mC.pc[col+160], x+(width/2), y+6, ALLEGRO_ALIGN_CENTER, lifts[num].lift_name);
       }
       break;
       case 5:
@@ -20279,8 +20279,8 @@ void draw_item_info(int x, int y, int color, int type, int num)
          if (a > 999) b = zz[5][a-1000]; // ans
          al_draw_bitmap(tile[b], x, y, 0);
          a = Ei[num][0]; // type
-         al_draw_text(font, palette_color[color], x+22, y+2, 0, "Special Item");
-         al_draw_textf(font, palette_color[color], x+22, y+12, 0, "%s", PDEt[num][1]);
+         al_draw_text(font, mC.pc[color], x+22, y+2, 0, "Special Item");
+         al_draw_textf(font, mC.pc[color], x+22, y+12, 0, "%s", PDEt[num][1]);
       break;
    }
 
@@ -20323,10 +20323,10 @@ i draw step button 0 at  ya + (a*bts) a = 1;
 
 so back in lift viewer I calculate the mouse highlight step with:
 
-if ((mouse_x > xa + 10) && (mouse_x < xb - 10))         // mouse on step buttons
+if ((mI.mouse_x > xa + 10) && (mI.mouse_x < xb - 10))         // mouse on step buttons
 {
    int step0_y_offset = ysb + 14 + bts;
-   int step = (mouse_y step0_y_offset) / bts;           // calculate step that mouse is on
+   int step = (mI.mouse_y step0_y_offset) / bts;           // calculate step that mouse is on
    if ((step >= 0) && (step < lifts[lift].num_steps))   // is step valid
 
 
@@ -20620,12 +20620,12 @@ load in edit menu..
 
    if (level_editor_running)
    {
-      if (key[ALLEGRO_KEY_B])
+      if (mI.key[ALLEGRO_KEY_B])
       {
-         while (key[ALLEGRO_KEY_B]) proc_controllers();
+         while (mI.key[ALLEGRO_KEY_B]) proc_controllers();
 
 
-         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         if ((mI.key[ALLEGRO_KEY_LSHIFT]) || (mI.key[ALLEGRO_KEY_RSHIFT]))
          {
             printf("save bookmark\n");
 
@@ -20649,10 +20649,10 @@ start with lift...
 added to lift viewer and it works...
 
 
-      if (key[ALLEGRO_KEY_B])
+      if (mI.key[ALLEGRO_KEY_B])
       {
-         while (key[ALLEGRO_KEY_B]) proc_controllers();
-         if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+         while (mI.key[ALLEGRO_KEY_B]) proc_controllers();
+         if ((mI.key[ALLEGRO_KEY_LSHIFT]) || (mI.key[ALLEGRO_KEY_RSHIFT]))
          {
             printf("save bookmark\n");
 
@@ -20673,9 +20673,9 @@ added to lift viewer and it works...
       }
 
 now edit menu:
-if (key[ALLEGRO_KEY_B])
+if (mI.key[ALLEGRO_KEY_B])
 {
-   while (key[ALLEGRO_KEY_B]) proc_controllers();
+   while (mI.key[ALLEGRO_KEY_B]) proc_controllers();
    printf("load bookmark\n");
    if (bookmark_level == last_level_loaded)
    {
@@ -20687,10 +20687,10 @@ if (key[ALLEGRO_KEY_B])
 works...
 
 now obj viewer
-if (key[ALLEGRO_KEY_B])
+if (mI.key[ALLEGRO_KEY_B])
 {
-   while (key[ALLEGRO_KEY_B]) proc_controllers();
-   if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+   while (mI.key[ALLEGRO_KEY_B]) proc_controllers();
+   if ((mI.key[ALLEGRO_KEY_LSHIFT]) || (mI.key[ALLEGRO_KEY_RSHIFT]))
    {
       printf("save bookmark\n");
       bookmark_level = last_level_loaded;
@@ -20724,10 +20724,10 @@ if (key[ALLEGRO_KEY_B])
 works
 
 the only thing that doesn't work yet is lift_viewer to 2 or 3
-if (key[ALLEGRO_KEY_B])
+if (mI.key[ALLEGRO_KEY_B])
 {
-   while (key[ALLEGRO_KEY_B]) proc_controllers();
-   if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT]))
+   while (mI.key[ALLEGRO_KEY_B]) proc_controllers();
+   if ((mI.key[ALLEGRO_KEY_LSHIFT]) || (mI.key[ALLEGRO_KEY_RSHIFT]))
    {
       printf("save bookmark\n");
 
@@ -22540,10 +22540,10 @@ int ovw_process_scrolledge(void)
    int scrolledge=10;
    int old_wx = wx;
    int old_wy = wy;
-   if (mouse_x < scrolledge) wx--;           // scroll left
-   if (mouse_x > SCREEN_W-scrolledge) wx++;  // scroll right
-   if (mouse_y < scrolledge) wy--;           // scroll up
-   if (mouse_y > SCREEN_H-scrolledge) wy++;  // scroll down
+   if (mI.mouse_x < scrolledge) wx--;           // scroll left
+   if (mI.mouse_x > SCREEN_W-scrolledge) wx++;  // scroll right
+   if (mI.mouse_y < scrolledge) wy--;           // scroll up
+   if (mI.mouse_y > SCREEN_H-scrolledge) wy++;  // scroll down
 
    int rx = 100 - (SCREEN_W/20);
    int ry = 100 - (SCREEN_H/20);
@@ -22958,21 +22958,21 @@ this is harder than it should be:
 
          float bs = scale_factor_current * 20; // block size
 
-         float xpos = (float) (WX+mouse_x-BORDER_WIDTH);
+         float xpos = (float) (WX+mI.mouse_x-BORDER_WIDTH);
 
          float fgx = xpos/bs;
          int gx = (int) fgx;
 
-         float fgy = (WY+mouse_y-BORDER_WIDTH)/bs;
+         float fgy = (WY+mI.mouse_y-BORDER_WIDTH)/bs;
          int gy = (int) fgy;
 
-         printf("mx:%d WX:%d wx+mx:%d wx+mx-bw:%d sfc:%2.1f bs:%2.1f fgx:%2.1f gx:%d\n", mouse_x, WX, WX+mouse_x, WX+mouse_x-BORDER_WIDTH, scale_factor_current, bs, fgx, gx);
+         printf("mx:%d WX:%d wx+mx:%d wx+mx-bw:%d sfc:%2.1f bs:%2.1f fgx:%2.1f gx:%d\n", mI.mouse_x, WX, WX+mI.mouse_x, WX+mI.mouse_x-BORDER_WIDTH, scale_factor_current, bs, fgx, gx);
 //         printf("gx:%d gy:%d\n", gx, gy);
 
          // now reverse calc to draw on screen
          float sgx = gx*bs - WX+BORDER_WIDTH;
          float sgy = gy*bs - WY+BORDER_WIDTH;
-         al_draw_rectangle(sgx, sgy, sgx+bs, sgy+bs, palette_color[14], 1);
+         al_draw_rectangle(sgx, sgy, sgx+bs, sgy+bs, mC.pc[14], 1);
 
 
 this does not work:
@@ -22994,7 +22994,7 @@ this works....
 
 
             // the mouse position past the border width is how far we are into the scaled map
-            float mx1 = mouse_x-BORDER_WIDTH;
+            float mx1 = mI.mouse_x-BORDER_WIDTH;
 
             // divide that by bs to get how many blocks we are into the map
             float mx2 = mx1 / bs;
@@ -23009,7 +23009,7 @@ this works....
 
 
             // the mouse position past the border width is how far we are into the scaled map
-            float my1 = mouse_y-BORDER_WIDTH;
+            float my1 = mI.mouse_y-BORDER_WIDTH;
 
             // divide that by bs to get how many blocks we are into the map
             float my2 = my1 / bs;
@@ -23028,14 +23028,14 @@ this works....
 
 /*
 
-            float my1 = (mouse_y-BORDER_WIDTH) * scale_factor_current;
+            float my1 = (mI.mouse_y-BORDER_WIDTH) * scale_factor_current;
             float my2 = (WY + my1) / 20;
             int gy = (int) my2;
 */
 //            printf("mx1:%2.1f mx2:%2.1f mx3:%2.1f mx4:%2.1f gx:%d\n", mx1, mx2, mx3, mx4, gx);
 
 
-//         printf("mx:%d WX:%d wx+mx:%d wx+mx-bw:%d sfc:%2.1f gx:%d\n", mouse_x, WX, WX+mouse_x, WX+mouse_x-BORDER_WIDTH, scale_factor_current, gx);
+//         printf("mx:%d WX:%d wx+mx:%d wx+mx-bw:%d sfc:%2.1f gx:%d\n", mI.mouse_x, WX, WX+mI.mouse_x, WX+mI.mouse_x-BORDER_WIDTH, scale_factor_current, gx);
          printf("gx:%d gy:%d\n", gx, gy);
 
          // now reverse calc to draw on screen
@@ -23044,7 +23044,7 @@ this works....
 
          float sgx = BORDER_WIDTH + (gx-WX/20) * bs;
          float sgy = BORDER_WIDTH + (gy-WY/20) * bs;
-         al_draw_rectangle(sgx, sgy, sgx+bs, sgy+bs, palette_color[14], 1);
+         al_draw_rectangle(sgx, sgy, sgx+bs, sgy+bs, mC.pc[14], 1);
 
 
 
@@ -23059,8 +23059,8 @@ I gave up all this bullshit and just draw directly on the level buffer like this
 
 
          printf("WX:%d mx1:%2.1f mx2:%2.1f mx3:%2.1f mx4:%2.1f gx:%d\n", WX, mx1, mx2, mx3, mx4, gx);
-//         printf("mx:%d WX:%d wx+mx:%d wx+mx-bw:%d sfc:%2.1f gx:%d\n", mouse_x, WX, WX+mouse_x, WX+mouse_x-BORDER_WIDTH, scale_factor_current, gx);
-//         printf("mx:%d WX:%d sfc:%2.1f gx:%d\n", mouse_x, WX, scale_factor_current, gx);
+//         printf("mx:%d WX:%d wx+mx:%d wx+mx-bw:%d sfc:%2.1f gx:%d\n", mI.mouse_x, WX, WX+mI.mouse_x, WX+mI.mouse_x-BORDER_WIDTH, scale_factor_current, gx);
+//         printf("mx:%d WX:%d sfc:%2.1f gx:%d\n", mI.mouse_x, WX, scale_factor_current, gx);
 //         printf("gx:%d gy:%d\n", gx, gy);
 
          // now reverse calc to draw on screen
@@ -23092,7 +23092,7 @@ I gave up all this bullshit and just draw directly on the level buffer like this
          int sgx2 = (int)(sgx + bs + 1);
          int sgy2 = (int)(sgy + bs + 1);
 
-         al_draw_rectangle(sgx1, sgy1, sgx2, sgy2, palette_color[14], 1);
+         al_draw_rectangle(sgx1, sgy1, sgx2, sgy2, mC.pc[14], 1);
 
 
 
@@ -23155,8 +23155,8 @@ void ob_get_block_position_on_map(int*x, int*y)
    // scaled block size
    float bs = scale_factor_current * 20;
    // the mouse position past the border width is how far we are into the scaled map
-   float mx1 = mouse_x-BORDER_WIDTH;
-   float my1 = mouse_y-BORDER_WIDTH;
+   float mx1 = mI.mouse_x-BORDER_WIDTH;
+   float my1 = mI.mouse_y-BORDER_WIDTH;
    // divide that by bs to get how many blocks we are into the map
    float mx2 = mx1 / bs;
    float my2 = my1 / bs;
@@ -23460,19 +23460,19 @@ int getbox(const char *txt, int obj_type, int sub_type, int num )
    while (!quit)
    {
       proc_controllers();
-      int dx = mouse_x/db;
-      int dy = mouse_y/db;
+      int dx = mI.mouse_x/db;
+      int dy = mI.mouse_y/db;
 
       title_obj(obj_type, sub_type, num, 0, 15);
 
       // show text line
-      al_draw_text(font, palette_color[9],  txc, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
-      al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
-      al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
-      al_draw_text(font, palette_color[9],  txc, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
-      al_draw_text(font, palette_color[9],  txc, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
-      al_draw_text(font, palette_color[14], txc, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC> or");
-      al_draw_text(font, palette_color[9],  txc, 138, ALLEGRO_ALIGN_CENTER, "the right mouse button");
+      al_draw_text(font, mC.pc[9],  txc, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
+      al_draw_text(font, mC.pc[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(font, mC.pc[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
+      al_draw_text(font, mC.pc[9],  txc, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
+      al_draw_text(font, mC.pc[9],  txc, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
+      al_draw_text(font, mC.pc[14], txc, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC> or");
+      al_draw_text(font, mC.pc[9],  txc, 138, ALLEGRO_ALIGN_CENTER, "the right mouse button");
 
       if (bs_on) draw_bs(15);
 
@@ -23480,7 +23480,7 @@ int getbox(const char *txt, int obj_type, int sub_type, int num )
          draw_cloner_boxes(num);
 
       // show block cursor
-      if ((dx<100) && (dy < 100)) al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[127-32], 1); // show which block is selected
+      if ((dx<100) && (dy < 100)) al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, mC.pc[127-32], 1); // show which block is selected
 
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
@@ -23488,21 +23488,21 @@ int getbox(const char *txt, int obj_type, int sub_type, int num )
       if (mouse_b1)
       {
          quit = 1;
-         bx1 = mouse_x/db;
-         by1 = mouse_y/db;
+         bx1 = mI.mouse_x/db;
+         by1 = mI.mouse_y/db;
          while (mouse_b1) // trap while b1 is held
          {
             proc_controllers();
             title_obj(obj_type, sub_type, num, 0, 15);
 
             // show text line
-            al_draw_text(font, palette_color[9],  txc, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
-            al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
-            al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
-            al_draw_text(font, palette_color[9],  txc, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
-            al_draw_text(font, palette_color[9],  txc, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
-            al_draw_text(font, palette_color[14], txc, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC> or");
-            al_draw_text(font, palette_color[9],  txc, 138, ALLEGRO_ALIGN_CENTER, "the right mouse button");
+            al_draw_text(font, mC.pc[9],  txc, 72,  ALLEGRO_ALIGN_CENTER, "Draw a new");
+            al_draw_text(font, mC.pc[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
+            al_draw_text(font, mC.pc[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "by clicking and");
+            al_draw_text(font, mC.pc[9],  txc, 96,  ALLEGRO_ALIGN_CENTER, "dragging with the");
+            al_draw_text(font, mC.pc[9],  txc, 104, ALLEGRO_ALIGN_CENTER, "left mouse button");
+            al_draw_text(font, mC.pc[14], txc, 130, ALLEGRO_ALIGN_CENTER, "Cancel with <ESC> or");
+            al_draw_text(font, mC.pc[9],  txc, 138, ALLEGRO_ALIGN_CENTER, "the right mouse button");
 
             if (bs_on) draw_bs(15);
 
@@ -23511,10 +23511,10 @@ int getbox(const char *txt, int obj_type, int sub_type, int num )
 
 
             // show selection rectangle
-            bx2 = (mouse_x/db)+1;
-            by2 = (mouse_y/db)+1;
+            bx2 = (mI.mouse_x/db)+1;
+            by2 = (mI.mouse_y/db)+1;
             al_set_clipping_rectangle(0, 0, display_transform_double*db*100-1, display_transform_double*db*100-1);
-            al_draw_rectangle((bx1)*db, (by1)*db, (bx2)*db, (by2)*db, palette_color[15], 1);
+            al_draw_rectangle((bx1)*db, (by1)*db, (bx2)*db, (by2)*db, mC.pc[15], 1);
             al_reset_clipping_rectangle();
 
             al_flip_display();
@@ -23551,7 +23551,7 @@ int getbox(const char *txt, int obj_type, int sub_type, int num )
          while (mouse_b2) proc_controllers(); // wait for release
          return 0;
       }
-      if (key[ALLEGRO_KEY_ESCAPE])
+      if (mI.key[ALLEGRO_KEY_ESCAPE])
       {
          return 0;
       }
@@ -23640,8 +23640,8 @@ int old_getxy(const char *txt, int obj_type, int sub_type, int num )
 
    while(!quit)
    {
-      dx = mouse_x/db;
-      dy = mouse_y/db;
+      dx = mI.mouse_x/db;
+      dy = mI.mouse_y/db;
 
       if ((dx < 100) && (dy < 100)) // if mouse on map
       {
@@ -23665,7 +23665,7 @@ int old_getxy(const char *txt, int obj_type, int sub_type, int num )
                   show_big();
                   draw_bs(14);            // show bullseye map
                   al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-                  al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[127-32], 1); // draw box to show cursor
+                  al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, mC.pc[127-32], 1); // draw box to show cursor
                   al_reset_clipping_rectangle();
                }
             break;
@@ -23676,7 +23676,7 @@ int old_getxy(const char *txt, int obj_type, int sub_type, int num )
                show_big();
                draw_bs(14);            // show bullseye map
                al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-               al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[127-32], 1); // draw box to show cursor
+               al_draw_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, mC.pc[127-32], 1); // draw box to show cursor
                al_reset_clipping_rectangle();
             break;
             case 99: // move pod extended
@@ -23691,9 +23691,9 @@ int old_getxy(const char *txt, int obj_type, int sub_type, int num )
                int px = al_fixtoi(Efi[num][5])*db/20;
                int py = al_fixtoi(Efi[num][6])*db/20;
                al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-               al_draw_rectangle(ex, ey, ex+db-1, ey+db-1, palette_color[13], 1);           // draw box to show pod location
-               al_draw_filled_rectangle(px, py, px+db-1, py+db-1, palette_color[10]);       // draw box to show pod extended
-               al_draw_line(ex+db/2, ey+db/2, px+db/2, py+db/2, palette_color[10], 1); // connect with line
+               al_draw_rectangle(ex, ey, ex+db-1, ey+db-1, mC.pc[13], 1);           // draw box to show pod location
+               al_draw_filled_rectangle(px, py, px+db-1, py+db-1, mC.pc[10]);       // draw box to show pod extended
+               al_draw_line(ex+db/2, ey+db/2, px+db/2, py+db/2, mC.pc[10], 1); // connect with line
                al_reset_clipping_rectangle();
             }
             break;
@@ -23715,9 +23715,9 @@ int old_getxy(const char *txt, int obj_type, int sub_type, int num )
                int ix = item[num][4]*db/20;
                int iy = item[num][5]*db/20;
                al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-               al_draw_rectangle(ix, iy, ix+db-1, iy+db-1, palette_color[13], 1);                     // show rocket location
-               al_draw_filled_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[10]);   // show cursor
-               al_draw_line(ix+db/2, iy+db/2, dx*db+db/2, dy*db+db/2, palette_color[10], 1);     // connect with line
+               al_draw_rectangle(ix, iy, ix+db-1, iy+db-1, mC.pc[13], 1);                     // show rocket location
+               al_draw_filled_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, mC.pc[10]);   // show cursor
+               al_draw_line(ix+db/2, iy+db/2, dx*db+db/2, dy*db+db/2, mC.pc[10], 1);     // connect with line
                al_reset_clipping_rectangle();
             }
             break;
@@ -23729,9 +23729,9 @@ int old_getxy(const char *txt, int obj_type, int sub_type, int num )
                int ex = al_fixtoi(Efi[num][0])*db/20;
                int ey = al_fixtoi(Efi[num][1])*db/20;
                al_set_clipping_rectangle(1, 1, display_transform_double*db*100-2, display_transform_double*db*100-2);
-               al_draw_rectangle(ex, ey, ex+db-1, ey+db-1, palette_color[13], 1);                   // draw box to show enemy location
-               al_draw_filled_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, palette_color[10]); // draw box to show cursor
-               al_draw_line(ex+db/2, ey+db/2, dx*db+db/2, dy*db+db/2, palette_color[10], 1);   // connect with line
+               al_draw_rectangle(ex, ey, ex+db-1, ey+db-1, mC.pc[13], 1);                   // draw box to show enemy location
+               al_draw_filled_rectangle(dx*db, dy*db, (dx+1)*db-1, (dy+1)*db-1, mC.pc[10]); // draw box to show cursor
+               al_draw_line(ex+db/2, ey+db/2, dx*db+db/2, dy*db+db/2, mC.pc[10], 1);   // connect with line
                al_reset_clipping_rectangle();
 
             }
@@ -23758,10 +23758,10 @@ int old_getxy(const char *txt, int obj_type, int sub_type, int num )
       al_set_target_backbuffer(display);
 
       // show text line
-      al_draw_text(font, palette_color[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
-      al_draw_text(font, palette_color[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
-      al_draw_text(font, palette_color[14], txc, 120, ALLEGRO_ALIGN_CENTER, "Cancel");
-      al_draw_text(font, palette_color[9],  txc, 128, ALLEGRO_ALIGN_CENTER, "with right mouse button");
+      al_draw_text(font, mC.pc[10], txc, 80,  ALLEGRO_ALIGN_CENTER, txt);
+      al_draw_text(font, mC.pc[9],  txc, 88,  ALLEGRO_ALIGN_CENTER, "with left mouse button");
+      al_draw_text(font, mC.pc[14], txc, 120, ALLEGRO_ALIGN_CENTER, "Cancel");
+      al_draw_text(font, mC.pc[9],  txc, 128, ALLEGRO_ALIGN_CENTER, "with right mouse button");
 
       al_flip_display();
       al_clear_to_color(al_map_rgb(0,0,0));
@@ -23781,7 +23781,7 @@ int old_getxy(const char *txt, int obj_type, int sub_type, int num )
          quit = 1;
          retval = 2;  // b2 xy
       }
-      while (key[ALLEGRO_KEY_ESCAPE])
+      while (mI.key[ALLEGRO_KEY_ESCAPE])
       {
          proc_controllers();
          quit = 1;
@@ -23876,29 +23876,29 @@ this is all that is left....
 
 void title_obj(int obj_type, int sub_type, int num, int legend_highlight, int highlight_color)
 {
-   al_draw_rectangle(0, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);         // outline screen
-   al_draw_rectangle(0, 0, 100*db-1, 100*db-1, palette_color[13], 1);              // outline map
-   al_draw_rectangle(100*db-1, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);  // outline side panel
+   al_draw_rectangle(0, 0,  SCREEN_W-1, SCREEN_H-1, mC.pc[13], 1);         // outline screen
+   al_draw_rectangle(0, 0, 100*db-1, 100*db-1, mC.pc[13], 1);              // outline map
+   al_draw_rectangle(100*db-1, 0,  SCREEN_W-1, SCREEN_H-1, mC.pc[13], 1);  // outline side panel
 
    show_big();
    title("Lift Viewer",  0, 15, 13);
 
    int lift = sub_type;
-   al_draw_rectangle(txc-90, 20, txc+90, 43, palette_color[15], 1);
-   al_draw_textf(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",lift+1, num_lifts);
+   al_draw_rectangle(txc-90, 20, txc+90, 43, mC.pc[15], 1);
+   al_draw_textf(font, mC.pc[13], txc, 29, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",lift+1, num_lifts);
 }
 
 moved to e_lifts.cpp and renamed:
 
 void title_lift(int lift)
 {
-   al_draw_rectangle(0, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);         // outline screen
-   al_draw_rectangle(0, 0, 100*db-1, 100*db-1, palette_color[13], 1);              // outline map
-   al_draw_rectangle(100*db-1, 0,  SCREEN_W-1, SCREEN_H-1, palette_color[13], 1);  // outline side panel
+   al_draw_rectangle(0, 0,  SCREEN_W-1, SCREEN_H-1, mC.pc[13], 1);         // outline screen
+   al_draw_rectangle(0, 0, 100*db-1, 100*db-1, mC.pc[13], 1);              // outline map
+   al_draw_rectangle(100*db-1, 0,  SCREEN_W-1, SCREEN_H-1, mC.pc[13], 1);  // outline side panel
    show_big();
    title("Lift Viewer",  0, 15, 13);
-   al_draw_rectangle(txc-90, 20, txc+90, 43, palette_color[15], 1);
-   al_draw_textf(font, palette_color[13], txc, 29, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",lift+1, num_lifts);
+   al_draw_rectangle(txc-90, 20, txc+90, 43, mC.pc[15], 1);
+   al_draw_textf(font, mC.pc[13], txc, 29, ALLEGRO_ALIGN_CENTER, "Lift %d of %d",lift+1, num_lifts);
 }
 
 now all of object_viewer() is commented out....removed from project...yay!!
@@ -24073,7 +24073,7 @@ lift color does not update when changing step color, need to redraw something...
 
 
 test add lift steps and shit like that for updating screen...
-pop-up menu for insert step....fixed that, I think..just made its position mouse_x and mouse_y
+pop-up menu for insert step....fixed that, I think..just made its position mI.mouse_x and mI.mouse_y
 
 
 20220504 6:31 AM
@@ -24746,7 +24746,7 @@ int edit_menu(int el)
    sort_item();
    set_swbl();
    set_frame_nums(0);
-   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) key[k] = 0; // clear_key array
+   for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++) mI.key[k] = 0; // clear_key array
    int quit=0, mouse_pointer_on_window=0;
    int gx=0, gy=0, hx=0, hy=0;
    if (!el) load_level_prompt(); // load prompt
@@ -24850,10 +24850,10 @@ frx - tfx-frw-2
       fry  -=2;
       fry2 +=4;
 
-      if ((mouse_x > frx) && (mouse_x < frx2) && (mouse_y > fry) && (mouse_y < fry2))
+      if ((mI.mouse_x > frx) && (mI.mouse_x < frx2) && (mI.mouse_y > fry) && (mI.mouse_y < fry2))
       {
          *mpow = 1;
-         al_draw_rectangle(frx, fry, frx2, fry2, palette_color[14], 1);
+         al_draw_rectangle(frx, fry, frx2, fry2, mC.pc[14], 1);
       }
    }
 
@@ -25081,7 +25081,7 @@ new:
 
 
 old:
-               if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+               if ((mI.key[ALLEGRO_KEY_LSHIFT]) || (mI.key[ALLEGRO_KEY_RSHIFT])) // move stuff also
                {
                   // move podzilla's trigger box too
                   if (Ei[num][0] == 7)
@@ -25101,7 +25101,7 @@ old:
 
 
 new:
-               if ((key[ALLEGRO_KEY_LSHIFT]) || (key[ALLEGRO_KEY_RSHIFT])) // move stuff also
+               if ((mI.key[ALLEGRO_KEY_LSHIFT]) || (mI.key[ALLEGRO_KEY_RSHIFT])) // move stuff also
                {
                   // move podzilla's trigger box too
                   if (Ei[num][0] == 7)
@@ -25764,8 +25764,8 @@ void get_new_box(void) // keep the mouse !!
       process_scrolledge();
       update_editor_background();
 
-      bx2 = (mouse_x)/20+wx; // set both with mouse pointer
-      by2 = (mouse_y)/20+wy;
+      bx2 = (mI.mouse_x)/20+wx; // set both with mouse pointer
+      by2 = (mI.mouse_y)/20+wy;
 
       x2 = bx2;  // set with mouse
       y2 = by2;
@@ -25783,9 +25783,9 @@ void get_new_box(void) // keep the mouse !!
       if (y2>99) y2 = 99;
 
       // show the selection rectangle
-      al_draw_rectangle((x1-wx)*20, (y1-wy)*20, (x2-wx)*20+19, (y2-wy)*20+19, palette_color[127], 1);
-      al_draw_textf(font, palette_color[15], 100, 20, 0, " x1:%d y2:%d ", x1, y1);
-      al_draw_textf(font, palette_color[15], 100, 28, 0, " x2:%d y2:%d ", x2, y2);
+      al_draw_rectangle((x1-wx)*20, (y1-wy)*20, (x2-wx)*20+19, (y2-wy)*20+19, mC.pc[127], 1);
+      al_draw_textf(font, mC.pc[15], 100, 20, 0, " x1:%d y2:%d ", x1, y1);
+      al_draw_textf(font, mC.pc[15], 100, 28, 0, " x2:%d y2:%d ", x2, y2);
 
    }
    // swap bx1 and bx2 if neccesary
@@ -25831,9 +25831,9 @@ void ge_draw_box(void)
    if (dstx == 0) dstx = 1;
    int dsty = y1*20;
    if (dsty == 0) dsty = 1;
-   al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, palette_color[14], 1);
-   al_draw_text(font, palette_color[14], x1*20+2, y1*20+3,  0, "selection");
-   //al_draw_textf(font, palette_color[14], x1*20+2, y1*20+3,  0, "selection bx1:%d by1:%d bx2:%d by2:%d", bx1, by1, bx2, by2);
+   al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, mC.pc[14], 1);
+   al_draw_text(font, mC.pc[14], x1*20+2, y1*20+3,  0, "selection");
+   //al_draw_textf(font, mC.pc[14], x1*20+2, y1*20+3,  0, "selection bx1:%d by1:%d bx2:%d by2:%d", bx1, by1, bx2, by2);
 }
 
 void zfs_show_level_buffer_block_rect(bx1, by1, bx2, by2, int color, "selection")
@@ -25846,8 +25846,8 @@ void zfs_show_level_buffer_block_rect(int x1, int y1, int x2, int y2, int color,
    if (dstx == 0) dstx = 1;
    int dsty = y1*20;
    if (dsty == 0) dsty = 1;
-   al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, palette_color[14], 1);
-   al_draw_text(font, palette_color[color], x1*20+2, y1*20-11,  0, text);
+   al_draw_rectangle(dstx, dsty, (x2*20)+19, (y2*20)+19, mC.pc[14], 1);
+   al_draw_text(font, mC.pc[color], x1*20+2, y1*20-11,  0, text);
 }
 done...
 now there is only one....
@@ -26903,12 +26903,12 @@ int mdw_buttont2(int x1, int &y1, int x2, int bts, int bn, int num, int type, in
    {
       sprintf(smsg, "%s", txt);
       draw_slider_frame(x1, y1, x2, y2, q0, q1, q2, q3, q4, q5, q6, q7); // draw button frame
-      if (q5) al_draw_text(font, palette_color[q2], x1+4,      y1+bts/2-3, 0,                    smsg);
-      else    al_draw_text(font, palette_color[q2], (x2+x1)/2, y1+bts/2-3, ALLEGRO_ALIGN_CENTER, smsg);
+      if (q5) al_draw_text(font, mC.pc[q2], x1+4,      y1+bts/2-3, 0,                    smsg);
+      else    al_draw_text(font, mC.pc[q2], (x2+x1)/2, y1+bts/2-3, ALLEGRO_ALIGN_CENTER, smsg);
 
    }
 
-   if ((!q7) && (mouse_b1) && (mouse_x > x1) && (mouse_x < x2) && (mouse_y > y1) && (mouse_y < y2))
+   if ((!q7) && (mouse_b1) && (mI.mouse_x > x1) && (mI.mouse_x < x2) && (mI.mouse_y > y1) && (mI.mouse_y < y2))
    {
       while (mouse_b1) proc_controllers(); // wait for release
       ret = 1;
@@ -27394,7 +27394,7 @@ cycle tile xinc
 
 
 this works:
-int cycle = frame_num % 6;
+int cycle = mwPS.frame_num % 6;
 
 if (cycle < 3) ...move
 
@@ -27411,7 +27411,7 @@ I just made a 6 tile version...
 704-709
 
 
-int cycle = frame_num % 10;
+int cycle = mwPS.frame_num % 10;
 if (cycle < 5) ...move
 
 // moving (expanding)
@@ -27446,7 +27446,7 @@ when collisions happen, it must be in the move phase, because that is the only t
 when that happens, I want to stop expanding and have the tail contract
 then when the tail is fully retracted, then turn around and start from 0...
 
-I might be able to do this with a cycle offset from frame_num
+I might be able to do this with a cycle offset from mwPS.frame_num
 
 I need some more variables...
 13 change dir on next cycle 0
@@ -27996,7 +27996,7 @@ figure out how you can pause a netgame...
 it must come from the server...
 
 I am thinking about letting the game run and just pausing all the players, enemies, lifts, bullets, etc...
-some of that depends on frame_num and the netgame code does also...
+some of that depends on mwPS.frame_num and the netgame code does also...
 
 if I only freeze at the end of the game that can be handled...
 
@@ -28116,13 +28116,13 @@ and the flag is cleared
          {
             if (level_done_trig)
             {
-               add_game_move(frame_num, 6, 0, 0); // insert level done into game move
+               add_game_move(mwPS.frame_num, 6, 0, 0); // insert level done into game move
                level_done_trig = 0;
             }
 
 void server_local_control(int p)
 {
-   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+   int fn = mwPS.frame_num + control_lead_frames;               // add control_lead_frames to mwPS.frame_num
    set_comp_move_from_player_key_check(p);
    if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
    {
@@ -28141,9 +28141,9 @@ then in proc game moves the game move is read...
 
 void proc_game_move(void)
 {
-   // this function looks in the game_moves array for an exact frame_num match
+   // this function looks in the game_moves array for an exact mwPS.frame_num match
    // this only processes system moves, not regular game_moves
-   // its likely that an exact frame_num match won't be found and nothing will be done
+   // its likely that an exact mwPS.frame_num match won't be found and nothing will be done
    // if multiple frame_nums match they all will be processed
 
    int ll;
@@ -28151,9 +28151,9 @@ void proc_game_move(void)
    else ll = game_move_entry_pos - 100; // every other mode can just look back 100
    if (ll < 0) ll = 0; // don't look back past zero!
 
-   for (int x=game_move_entry_pos; x>ll; x--)  // look back for frame_num
+   for (int x=game_move_entry_pos; x>ll; x--)  // look back for mwPS.frame_num
    {
-      if (game_moves[x][0] == frame_num)
+      if (game_moves[x][0] == mwPS.frame_num)
       {
          switch (game_moves[x][1])
          {
@@ -28190,7 +28190,7 @@ void proc_player_paused(int p)
       {
          if (--players[0].paused < 1)
          {
-            int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+            int fn = mwPS.frame_num + control_lead_frames;               // add control_lead_frames to mwPS.frame_num
             add_game_move(fn, 7, 0, 0);
          }
       }
@@ -28297,13 +28297,13 @@ void proc_player_input(int ret)
             if (level_done_mode == 4)
             {
                level_done_mode = 3;
-               add_game_move(frame_num, 6, 0, 0); // insert level done into game move
+               add_game_move(mwPS.frame_num, 6, 0, 0); // insert level done into game move
             }
 
 
 void server_local_control(int p)
 {
-   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+   int fn = mwPS.frame_num + control_lead_frames;               // add control_lead_frames to mwPS.frame_num
    set_comp_move_from_player_key_check(p);
    if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
    {
@@ -28392,7 +28392,7 @@ then make a separate function to process this..
 
 
       {
-            int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+            int fn = mwPS.frame_num + control_lead_frames;               // add control_lead_frames to mwPS.frame_num
             add_game_move(fn, 7, 0, 0);
 
          }
@@ -28435,7 +28435,7 @@ void proc_player_input(int ret)
             if (level_done_mode == 4)
             {
                level_done_mode = 3;
-               add_game_move(frame_num, 6, 0, 0); // insert level done into game move
+               add_game_move(mwPS.frame_num, 6, 0, 0); // insert level done into game move
             }
 
 
@@ -28443,7 +28443,7 @@ In netgame, only server processes it:
 
 void server_local_control(int p)
 {
-   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+   int fn = mwPS.frame_num + control_lead_frames;               // add control_lead_frames to mwPS.frame_num
    if (level_done_mode == 4)
    {
       level_done_mode = 3;
@@ -28607,13 +28607,13 @@ void proc_player_input(int ret)
             if (level_done_mode == 8)
             {
                level_done_mode = 7;
-               add_game_move(frame_num,     6, 0, 1); // insert level done into game move
-               add_game_move(frame_num+120, 6, 0, 2);
+               add_game_move(mwPS.frame_num,     6, 0, 1); // insert level done into game move
+               add_game_move(mwPS.frame_num+120, 6, 0, 2);
             }
 
 void server_local_control(int p)
 {
-   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+   int fn = mwPS.frame_num + control_lead_frames;               // add control_lead_frames to mwPS.frame_num
    if (level_done_mode == 8)
    {
       level_done_mode = 7;
@@ -28624,7 +28624,7 @@ void server_local_control(int p)
 
 void proc_game_move(void)
 {
-   if (game_moves[x][0] == frame_num)
+   if (game_moves[x][0] == mwPS.frame_num)
    {
       switch (game_moves[x][1])
       {
@@ -28788,7 +28788,7 @@ void server_local_control(int p)
 void start_level_done(int p)
 {
    level_done_mode = 7;
-   int fn = frame_num + control_lead_frames;
+   int fn = mwPS.frame_num + control_lead_frames;
    add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
    add_game_move(fn+100, 6, 0, 2); // insert level done 2 into game move
    add_game_move(fn+200, 7, 0, 0); // insert next level into game move
@@ -28841,7 +28841,7 @@ void proc_player_input(int ret)
                if (players1[p].comp_move != players1[p].old_comp_move)
                {
                   players1[p].old_comp_move = players1[p].comp_move;
-                  add_game_move(frame_num, 5, p, players1[p].comp_move);
+                  add_game_move(mwPS.frame_num, 5, p, players1[p].comp_move);
                }
             }
 
@@ -28865,7 +28865,7 @@ void proc_level_done_mode(void)
             if (!has_player_acknowledged(p)) aa = 0;
       if (aa)
       {
-         int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+         int fn = mwPS.frame_num + control_lead_frames;               // add control_lead_frames to mwPS.frame_num
          add_game_move(fn, 7, 0, 0); // insert next level into game move
          level_done_mode = 4;
       }
@@ -28873,7 +28873,7 @@ void proc_level_done_mode(void)
 
 int has_player_acknowledged(int p)
 {
-   for (int x=game_move_entry_pos; x>0; x--)  // look back for frame_num
+   for (int x=game_move_entry_pos; x>0; x--)  // look back for mwPS.frame_num
       if ((game_moves[x][1] == 8) && (game_moves[x][2] == p)) return 1;
    return 0;
 }
@@ -28888,7 +28888,7 @@ single player and server have a special cases to enter ack
                if (players1[p].comp_move != players1[p].old_comp_move)
                {
                   players1[p].old_comp_move = players1[p].comp_move;
-                  if (players1[p].comp_move) add_game_move(frame_num, 8, p, 0); // insert player ack
+                  if (players1[p].comp_move) add_game_move(mwPS.frame_num, 8, p, 0); // insert player ack
                }
             }
 
@@ -28913,7 +28913,7 @@ modify this:
                if (players1[p].comp_move != players1[p].old_comp_move)
                {
                   players1[p].old_comp_move = players1[p].comp_move;
-                  add_game_move(frame_num, 5, p, players1[p].comp_move);
+                  add_game_move(mwPS.frame_num, 5, p, players1[p].comp_move);
                }
             }
             if (level_done_mode == 5)
@@ -28922,12 +28922,12 @@ modify this:
                if (players1[p].comp_move != players1[p].old_comp_move)
                {
                   players1[p].old_comp_move = players1[p].comp_move;
-                  if (players1[p].comp_move) add_game_move(frame_num, 8, p, 0); // insert player ack
+                  if (players1[p].comp_move) add_game_move(mwPS.frame_num, 8, p, 0); // insert player ack
                }
             }
 
 
-            if (level_done_mode == 5) if (players1[p].comp_move) add_game_move(frame_num, 8, p, 0); // insert player ack
+            if (level_done_mode == 5) if (players1[p].comp_move) add_game_move(mwPS.frame_num, 8, p, 0); // insert player ack
 
 
 
@@ -29464,7 +29464,7 @@ void client_local_control(int p)
          players1[p].old_comp_move = players1[p].comp_move;
          Packet("cdat");
          PacketPut1ByteInt(p);
-         PacketPut4ByteInt(frame_num + control_lead_frames); // add control_lead_frames to frame_num
+         PacketPut4ByteInt(mwPS.frame_num + control_lead_frames); // add control_lead_frames to mwPS.frame_num
          PacketPut1ByteInt(players1[p].comp_move);
          ClientSend(packetbuffer, packetsize);
 
@@ -29801,7 +29801,7 @@ in server mode when processing level done 1, send a state to all clients....
 
 void server_send_stdf(void)
 {
-   if ((frame_num > 1) && (level_done_mode == 0))
+   if ((mwPS.frame_num > 1) && (level_done_mode == 0))
 
    for (int p=1; p<NUM_PLAYERS; p++)
       if ((players[p].active) && (players[p].control_method == 2))
@@ -30014,7 +30014,7 @@ client adjusts when rxing sdat
 client needs to respond with actual fps in sdak...
 
    // client timer adjust
-   players1[p].client_sync = sdat_frame_num - frame_num;
+   players1[p].client_sync = sdat_frame_num - mwPS.frame_num;
    int fps_chase = frame_speed + (players1[p].client_sync - server_lead_frames)*2;
    if (fps_chase < 4) fps_chase = 4; // never let this go negative
    al_set_timer_speed(fps_timer, ( 1 / (float) fps_chase));
@@ -30140,7 +30140,7 @@ if ((!players[p].active) && (players[p].control_method == 2)) // inactive client
    if (players1[p].made_active_holdoff) players1[p].made_active_holdoff--;
    else if ((players1[p].server_sync < 4) && (players1[p].server_sync > -2))
    {
-      add_game_move(frame_num + 4, 1, p, players[p].color);
+      add_game_move(mwPS.frame_num + 4, 1, p, players[p].color);
       players1[p].made_active_holdoff = 6;
       sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
       if (L_LOGGING_NETPLAY_JOIN) add_log_entry2(11, p, msg);
@@ -30157,7 +30157,7 @@ if ((!players[p].active) && (players[p].control_method == 2)) // inactive client
 
 if (players1[p].sync_stabilization_holdoff > 20) // we have been stable for over 20 frames
 {
-   add_game_move(frame_num + 4, 1, p, players[p].color);
+   add_game_move(mwPS.frame_num + 4, 1, p, players[p].color);
    players1[p].sync_stabilization_holdoff = 0;
    sprintf(msg,"Player:%d has locked and will become active in 4 frames!\n", p);
    if (L_LOGGING_NETPLAY_JOIN) add_log_entry2(11, p, msg);
@@ -30665,7 +30665,7 @@ this does not flicker:
 
          al_set_target_backbuffer(display);
          draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, pc );
-         al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating level icon grid");
+         al_draw_text(font, mC.pc[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Creating level icon grid");
          al_flip_display();
 
       }
@@ -30682,13 +30682,13 @@ this does:
             int col = 11;
             if (!load_level(level, 0)) col = 10;
             else draw_level2(le_temp, mx*ms, my*ms, ms, 1, 1, 1, 1, 0);
-            al_draw_textf(font, palette_color[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
+            al_draw_textf(font, mC.pc[col], mx*ms +ms/2, my*ms+ms/2, ALLEGRO_ALIGN_CENTER, "%d", level);
 
             // show progress bar
             int pc = level*100 / 400;
             al_set_target_backbuffer(display);
             draw_percent_bar(SCREEN_W/2, SCREEN_H/2, SCREEN_W-200, 20, pc );
-            al_draw_text(font, palette_color[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Levels");
+            al_draw_text(font, mC.pc[15], SCREEN_W/2, SCREEN_H/2+6, ALLEGRO_ALIGN_CENTER, "Loading Levels");
             al_flip_display();
          }
 
@@ -30811,7 +30811,7 @@ would it make it easier if lift lines were drawn when lift is drawn...always...e
 yes did that...
 getxy...done
 
-now all I need to to find where frame_num gets ahead of itself...
+now all I need to to find where mwPS.frame_num gets ahead of itself...
 like in add lift steps
 
 maybe I can remove the draw frame wait entirely....now that init level background is gone...
@@ -30820,7 +30820,7 @@ i just did this instead:
 
    proc_frame_delay();
 
-   if (frame_num <  al_get_timer_count(fps_timer)) set_frame_nums(frame_num); // set fps_timer count to frame_num
+   if (mwPS.frame_num <  al_get_timer_count(fps_timer)) set_frame_nums(mwPS.frame_num); // set fps_timer count to mwPS.frame_num
 
    if (draw_frame)
    {
@@ -30862,7 +30862,7 @@ figure this out later maybe, for now just set timer to 2 or use always on event
 bmsg has some spurious messages
 always starts with damage field
 ev 58
-if ((frame_num) && (frame_num == players1[p].field_damage_holdoff)) game_event(58, 0, 0, p, 0, 0, 0);
+if ((mwPS.frame_num) && (mwPS.frame_num == players1[p].field_damage_holdoff)) game_event(58, 0, 0, p, 0, 0, 0);
 fixed by not doing when frame num == 0....
 
 purple coin shows as free man
@@ -30899,7 +30899,7 @@ there is a progress screen overlay...if it is over 100% kill the level...
 
    if (players[0].control_method == 1) // file play
    {
-      // find last gm with frame_num !=0
+      // find last gm with mwPS.frame_num !=0
       int last_pc = 0;
       for (int g = game_move_entry_pos; g>0; g--)
          if (game_moves[g][0] != 0)
@@ -30932,7 +30932,7 @@ use it in screen overlay done..
 use it in rungame key check...done
 
    // in run game mode and past the end of the file
-   if ((players[p].control_method == 1) && (frame_num > demo_mode_last_pc)) clear_controls(p);
+   if ((players[p].control_method == 1) && (mwPS.frame_num > demo_mode_last_pc)) clear_controls(p);
 
 should be all done now...
 
@@ -31525,7 +31525,7 @@ void proc_warp_collision(int p, int i)
 void start_level_done(int p, int t1, int t2)
 {
    level_done_mode = 7;
-   int fn = frame_num + control_lead_frames;
+   int fn = mwPS.frame_num + control_lead_frames;
    add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
 
    add_game_move(fn+t1,  6, 0, 2); // insert level done 2 into game move
@@ -31538,7 +31538,7 @@ void start_level_done(int p, int t1, int t2)
 
 void server_local_control(int p)
 {
-   int fn = frame_num + control_lead_frames;               // add control_lead_frames to frame_num
+   int fn = mwPS.frame_num + control_lead_frames;               // add control_lead_frames to mwPS.frame_num
    set_comp_move_from_player_key_check(p);
    if (level_done_mode == 8) start_level_done(p, 80, 800);
    if (level_done_mode == 9) start_level_done(p, 10, 40);
@@ -31755,7 +31755,7 @@ I would like to make some leaves on the vine as it extends..done
             float xo = cos(ang) * 20;
             float yo = sin(ang) * 20;
 
-            al_draw_line(x1-xo, y1-yo, x1+xo, y1+yo, palette_color[11], 0);
+            al_draw_line(x1-xo, y1-yo, x1+xo, y1+yo, mC.pc[11], 0);
 
 
             ang += ALLEGRO_PI/2;
@@ -31763,7 +31763,7 @@ I would like to make some leaves on the vine as it extends..done
             xo = cos(ang) * 20;
             yo = sin(ang) * 20;
 
-            al_draw_line(x1-xo, y1-yo, x1+xo, y1+yo, palette_color[10], 0);
+            al_draw_line(x1-xo, y1-yo, x1+xo, y1+yo, mC.pc[10], 0);
 
 
             // I have xlen a ylen aleady
@@ -31783,7 +31783,7 @@ I would like to make some leaves on the vine as it extends..done
 //            if (lsa) ra+= ALLEGRO_PI;
 //
 
-            al_draw_circle(x1+xo, y1+yo, 3, palette_color[10], 0);
+            al_draw_circle(x1+xo, y1+yo, 3, mC.pc[10], 0);
 //
 
                // how far off the vine is each leaf
@@ -31795,7 +31795,7 @@ I would like to make some leaves on the vine as it extends..done
 //
 //           al_draw_scaled_rotated_bitmap(tile[311], 10, 20, x1+xo, y1+yo, .6, .6, ra, 0);
 //
-//           //al_draw_textf(f3, palette_color[15], x1+xo, y1+yo, 0,"%2.1f", ra );
+//           //al_draw_textf(f3, mC.pc[15], x1+xo, y1+yo, 0,"%2.1f", ra );
 
 
 
@@ -33394,7 +33394,7 @@ it looks like all log generation passes through this one function:
 void add_log_entry2(int type, int player, const char *txt)
 {
    char tmsg[200];
-   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, frame_num, txt);
+   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mwPS.frame_num, txt);
    // strcat(log_msg, tmsg);
    memcpy(log_msg + log_msg_pos, tmsg, strlen(tmsg));
    log_msg_pos += strlen(tmsg);
@@ -33408,7 +33408,7 @@ void add_log_entry2(int type, int player, const char *txt)
 void add_log_entry2(int type, int player, const char *txt)
 {
    char tmsg[200];
-   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, frame_num, txt);
+   sprintf(tmsg, "[%2d][%d][%d]%s", type, player, mwPS.frame_num, txt);
    // strcat(log_msg, tmsg);
 
    if ((log_msg_pos + strlen(tmsg) >= NUM_LOG_CHAR)
@@ -33477,7 +33477,7 @@ void server_control() // this is the main server loop to process packet send and
 
    if (L_LOGGING_NETPLAY_PLAYER_ARRAY)
 
-   if (frame_num == 0) reset_states(); // for stdf
+   if (mwPS.frame_num == 0) reset_states(); // for stdf
    ServerListen();      // listen for new client connections
    int who;
 
@@ -33761,7 +33761,7 @@ void set_controls_from_game_move(int p)
    int found = 0;
    for (int g=game_move_entry_pos; g>0; g--)  // look back from entry pos
       if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
-         if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
+         if (game_moves[g][0] <= mwPS.frame_num) // check to make sure its not in the future
          {
             set_controls_from_comp_move(g);
             game_move_current_pos = g; // for savegame running only
@@ -33772,7 +33772,7 @@ void set_controls_from_game_move(int p)
 
 
    // in run game mode and past the end of the file
-   if ((players[p].control_method == 1) && (frame_num > demo_mode_last_pc)) clear_controls(p);
+   if ((players[p].control_method == 1) && (mwPS.frame_num > demo_mode_last_pc)) clear_controls(p);
 
 
 I need to rethink this....
@@ -34485,13 +34485,13 @@ every 4 frames...
 
 
 
-         if (frame_num > players1[p].server_last_sdat_sent_frame_num + players1[p].server_sdat_sync_freq)
+         if (mwPS.frame_num > players1[p].server_last_sdat_sent_frame_num + players1[p].server_sdat_sync_freq)
          {
-            players1[p].server_last_sdat_sent_frame_num = frame_num;
+            players1[p].server_last_sdat_sent_frame_num = mwPS.frame_num;
             int start_entry = players1[p].game_move_entry_pos;
 
             Packet("sdat");
-            PacketPut4ByteInt(frame_num);
+            PacketPut4ByteInt(mwPS.frame_num);
             PacketPut4ByteInt(start_entry);
             PacketPut1ByteInt(0);
             ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
@@ -34507,8 +34507,8 @@ is that it? frame_number?
 im sure stdf already does that
 
       Packet("stdf");
-      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src frame_num
-      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][0]); // src mwPS.frame_num
+      PacketPut4ByteInt(srv_client_state_frame_num[p][1]); // dst mwPS.frame_num
       PacketPut1ByteInt(packet_num);
       PacketPut1ByteInt(num_packets);
       PacketPut4ByteInt(start_byte);
@@ -34518,14 +34518,14 @@ im sure stdf already does that
 
       ServerSendTo(packetbuffer, packetsize, players1[p].who, p);
 
-it does not...unless dst frame_num counts.....it does!!
+it does not...unless dst mwPS.frame_num counts.....it does!!
 
 so no changes needed there.....
 
 
    Packet("sdak"); // send acknowledgement of game moves received
    PacketPut1ByteInt(p);
-   PacketPut4ByteInt(frame_num);
+   PacketPut4ByteInt(mwPS.frame_num);
    PacketPut4ByteInt(nep);
    PacketPut4ByteInt(players1[p].stdf_late);
    PacketPut4ByteInt(players1[p].frames_skipped);
@@ -34536,7 +34536,7 @@ so no changes needed there.....
    if (L_LOGGING_NETPLAY_sdak) add_log_entry2(39, p, msg);
 
 nep is not needed
-frame_num is probably used on the server to see how far the client is lagging
+mwPS.frame_num is probably used on the server to see how far the client is lagging
 stdf_late - does that even matter anymore? they will all be late
 frames_skipped - is nice but hardly necessary
 fps_chase - same...
@@ -34558,9 +34558,9 @@ rename variable to stak....
 
 add stuff from sdak to stak on server
 
-already has frame_num...
-but can I use it? it is ack for dif, not necessarily the clients current frame_num.....
-added frame_num
+already has mwPS.frame_num...
+but can I use it? it is ack for dif, not necessarily the clients current mwPS.frame_num.....
+added mwPS.frame_num
 
 lets add the rest of the stuff then kill sdak and sdat...done...
 
@@ -34635,7 +34635,7 @@ send that state based on zero
 
 just because a client has acked a state, does not mean that the server didn't have more input after that
 maybe I could keep track on the server
-what frame has been rendered to (just frame_num)
+what frame has been rendered to (just mwPS.frame_num)
 when a cdat with earlier frame is rx'd, set new var, earliest frame not rx'd
 
 
@@ -34786,7 +34786,7 @@ void server_proc_cdat_packet(void)
    int p = PacketGet1ByteInt();
    int cdat_frame_num = PacketGet4ByteInt();
    int cm = PacketGet1ByteInt();
-   players1[p].server_game_move_sync = cdat_frame_num - frame_num;
+   players1[p].server_game_move_sync = cdat_frame_num - mwPS.frame_num;
    sprintf(msg, "rx cdat p:%d fn:[%d] sync:[%d]\n", p, cdat_frame_num, players1[p].server_game_move_sync);
    add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
 
@@ -35127,7 +35127,7 @@ lose dif corr on stak....
       Packet("stak");
       PacketPut1ByteInt(p);
       PacketPut4ByteInt(client_state_dif_dst);
-      PacketPut4ByteInt(frame_num);
+      PacketPut4ByteInt(mwPS.frame_num);
       PacketPut4ByteInt(players1[p].frames_skipped);
       PacketPut4ByteInt(players1[p].client_chase_fps);
 
@@ -35355,7 +35355,7 @@ this is the original...
 void server_send_stdf(int p)
 {
 
-  // printf("stdf:%d %d\n", frame_num, p);
+  // printf("stdf:%d %d\n", mwPS.frame_num, p);
 
    int last_ack_state_frame = srv_client_state_frame_num[p][0];
 
@@ -35374,10 +35374,10 @@ void server_send_stdf(int p)
    // in this case the dif will be from last_ack_state to current
    else
    {
-      int saved_current_frame_num = frame_num;               // save old current frame
+      int saved_current_frame_num = mwPS.frame_num;               // save old current frame
 
 
-      players1[p].server_rewind_frames = frame_num - srv_client_state_frame_num[p][0];
+      players1[p].server_rewind_frames = mwPS.frame_num - srv_client_state_frame_num[p][0];
 
 
 
@@ -35387,10 +35387,10 @@ void server_send_stdf(int p)
 
 
 
-      frame_num = srv_client_state_frame_num[p][0];          // rewind
+      mwPS.frame_num = srv_client_state_frame_num[p][0];          // rewind
       state_to_game_vars(srv_client_state[p][0]);
 
-      while (frame_num < saved_current_frame_num) loop_frame(); // fast forward
+      while (mwPS.frame_num < saved_current_frame_num) loop_frame(); // fast forward
 
    }
 
@@ -35399,8 +35399,8 @@ void server_send_stdf(int p)
    char dif[STATE_SIZE];
    char cmp[STATE_SIZE];
 
-   // set dif dest to current frame_num
-   srv_client_state_frame_num[p][1] = frame_num;
+   // set dif dest to current mwPS.frame_num
+   srv_client_state_frame_num[p][1] = mwPS.frame_num;
 
    // get current state
    game_vars_to_state(srv_client_state[p][1]);
@@ -35466,8 +35466,8 @@ void server_send_stdf(int p)
    // put current state in client's state slot 1
    game_vars_to_state(srv_stdf_state[0]);
 
-   // put current frame_num
-   srv_stdf_state_frame_num[0] = frame_num;
+   // put current mwPS.frame_num
+   srv_stdf_state_frame_num[0] = mwPS.frame_num;
 
 
 
@@ -35633,7 +35633,7 @@ when rx cdat....
 [35][7][13771]rx cdat p:7 fn:[13770] sync:[-1] gmep:[13772]
 [35][1][13772]rx cdat p:1 fn:[13771] sync:[-1] gmep:[13774]
 
-it looks like gmep is being set to frame_num...but why? and where???
+it looks like gmep is being set to mwPS.frame_num...but why? and where???
 
 
 for the purposes of reproducing, can I start with gmep at 99990?
@@ -35703,14 +35703,14 @@ void set_controls_from_comp_move(int p, int comp_move)
 void set_comp_move_from_player_key_check(int p) // but don't set controls !!!
 {
    int cm = 0;
-   if (key[players1[p].left_key])  cm |= PM_COMPMOVE_LEFT;
-   if (key[players1[p].right_key]) cm += PM_COMPMOVE_RIGHT;
-   if (key[players1[p].up_key])    cm += PM_COMPMOVE_UP;
-   if (key[players1[p].down_key])  cm += PM_COMPMOVE_DOWN;
-   if (key[players1[p].jump_key])  cm += PM_COMPMOVE_JUMP;
-   if (key[players1[p].fire_key])  cm += PM_COMPMOVE_FIRE;
-   if (key[players1[p].menu_key])  cm |= PM_COMPMOVE_MENU;
-   if (key[ALLEGRO_KEY_ESCAPE])    cm |= PM_COMPMOVE_MENU;
+   if (mI.key[players1[p].left_key])  cm |= PM_COMPMOVE_LEFT;
+   if (mI.key[players1[p].right_key]) cm += PM_COMPMOVE_RIGHT;
+   if (mI.key[players1[p].up_key])    cm += PM_COMPMOVE_UP;
+   if (mI.key[players1[p].down_key])  cm += PM_COMPMOVE_DOWN;
+   if (mI.key[players1[p].jump_key])  cm += PM_COMPMOVE_JUMP;
+   if (mI.key[players1[p].fire_key])  cm += PM_COMPMOVE_FIRE;
+   if (mI.key[players1[p].menu_key])  cm |= PM_COMPMOVE_MENU;
+   if (mI.key[ALLEGRO_KEY_ESCAPE])    cm |= PM_COMPMOVE_MENU;
    players1[p].comp_move = cm;
 }
 
@@ -35924,7 +35924,7 @@ if (players[0].level_done_mode == 5)
       int aa = 1; // yes by default, set to no if any have not ack
       for (int p=0; p<NUM_PLAYERS; p++)
          if ((players[p].active) && (!has_player_acknowledged(p))) aa = 0;
-      if (aa) add_game_move(frame_num, 7, 0, 0); // insert next level into game move
+      if (aa) add_game_move(mwPS.frame_num, 7, 0, 0); // insert next level into game move
    }
 
 
@@ -35933,7 +35933,7 @@ if (players[0].level_done_mode == 8) start_level_done(p, 80, 800);
 void start_level_done(int p, int t1, int t2)
 {
    players[0].level_done_mode = 7;
-   int fn = frame_num;
+   int fn = mwPS.frame_num;
    add_game_move(fn,     6, 0, 1); // insert level done 1 into game move
    add_game_move(fn+t1,  6, 0, 2); // insert level done 2 into game move
    add_game_move(fn+t2,  7, 0, 0); // insert next level into game move
@@ -36051,7 +36051,7 @@ when next_level gm is processed..
 this will get sync to clients
 
 in all players:
-monitor for ldm4 and frame_num
+monitor for ldm4 and mwPS.frame_num
 
 
 
@@ -36396,7 +36396,7 @@ void server_control() // this is the main server loop to process packet send and
 {
    if (L_LOGGING_NETPLAY_PLAYER_ARRAY) log_player_array2();
 
-   if (frame_num == 0) reset_states(); // for stdf
+   if (mwPS.frame_num == 0) reset_states(); // for stdf
 
 
 there must be a better place to reset_states
@@ -36488,7 +36488,7 @@ when add game_moves get a quit from local server:
 
       if ((active_local_player == 0) && (players[0].control_method == 3) && (data1 == 0)) // local server quitting
       {
-         printf("local server quitting f:%d\n", frame_num);
+         printf("local server quitting f:%d\n", mwPS.frame_num);
          // first set all connected clients to inactive
          for (int p=1; p<NUM_PLAYERS; p++)
             if (players[p].control_method == 2)
@@ -36789,7 +36789,7 @@ void add_game_move(int frame, int type, int data1, int data2)
       }
       if ((active_local_player == 0) && (players[0].control_method == 3) && (data1 == 0)) // local server quitting
       {
-         printf("local server quitting f:%d\n", frame_num);
+         printf("local server quitting f:%d\n", mwPS.frame_num);
          // first set all connected clients to inactive
          for (int p=1; p<NUM_PLAYERS; p++)
             if (players[p].control_method == 2)
@@ -37634,7 +37634,7 @@ for starters, there are 2 methods..
 
 void set_controls_from_game_move(int p)
 - called once per frame per player
-- looks gme with greatest frame_num that is <= current frame_num
+- looks gme with greatest mwPS.frame_num that is <= current mwPS.frame_num
 
 
 void proc_game_move(void)
@@ -37642,7 +37642,7 @@ void proc_game_move(void)
 - only concerned with exact frame matches
 
 
-- I cannot guarantee that the game_moves array has all frame_num in order
+- I cannot guarantee that the game_moves array has all mwPS.frame_num in order
 
 - I don't want to search the entire game_moves array every time
 
@@ -37718,7 +37718,7 @@ apply special moves only when exact match is found
 apply game moves only when exact match is found (otherwise don't touch controls)
 
 
-this will be a big change from clearing and finding most recent from current frame_num back and applying
+this will be a big change from clearing and finding most recent from current mwPS.frame_num back and applying
 
 
 make a function like this to replace both
@@ -37727,7 +37727,7 @@ modifiy current_pos to never go back...
 
 I did this and it works for all modes so far:
 
-// this function processes all entries in the game_moves array that match current frame_num
+// this function processes all entries in the game_moves array that match current mwPS.frame_num
 void proc_game_moves_array(void)
 {
    int start_index = game_move_current_pos + 100;
@@ -37738,7 +37738,7 @@ void proc_game_moves_array(void)
 
    for (int x=start_index; x>=end_index; x--)  // search backwards from start_index to end_index
    {
-      if (game_moves[x][0] == frame_num) // found frame number that matches current frame
+      if (game_moves[x][0] == mwPS.frame_num) // found frame number that matches current frame
       {
          if (x > game_move_current_pos) game_move_current_pos = x; // index of last used gm - keep this at the most recent one, never go back
          switch (game_moves[x][1])
@@ -37782,7 +37782,7 @@ void loop_frame(void)
 //         set_controls_from_game_move(p); // common for all players
 
    move_frame();
-   frame_num++;
+   mwPS.frame_num++;
 }
 
 
@@ -37802,7 +37802,7 @@ void proc_player_input(int ret)
                if (players1[p].comp_move != players1[p].old_comp_move)
                {
                   players1[p].old_comp_move = players1[p].comp_move;
-                  add_game_move(frame_num, 5, p, players1[p].comp_move);
+                  add_game_move(mwPS.frame_num, 5, p, players1[p].comp_move);
                }
             }
          }
@@ -37824,7 +37824,7 @@ void proc_player_input(int ret)
 int proc_controllers()
 {
    int ret=0, menu_timer_block=1;
-   key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
+   mI.key[ALLEGRO_KEY_PRINTSCREEN] = 0; // hack to make PRINTSCREEN key work properly
    key_pressed_ASCII = 0;
 
 
@@ -37862,9 +37862,9 @@ int proc_controllers()
 //
 //void proc_game_move(void)
 //{
-//   // this function looks in the game_moves array for an exact frame_num match
+//   // this function looks in the game_moves array for an exact mwPS.frame_num match
 //   // this only processes system moves, not regular game_moves
-//   // its likely that no exact frame_num match will be found and nothing will be done
+//   // its likely that no exact mwPS.frame_num match will be found and nothing will be done
 //   // if multiple frame_nums match they all will be processed
 //
 //   int ll;
@@ -37872,9 +37872,9 @@ int proc_controllers()
 //   else ll = game_move_entry_pos - 100; // every other mode can just look back 100
 //   if (ll < 0) ll = 0; // don't look back past zero!
 //
-//   for (int x=game_move_entry_pos; x>=ll; x--)  // look back for frame_num
+//   for (int x=game_move_entry_pos; x>=ll; x--)  // look back for mwPS.frame_num
 //   {
-//      if (game_moves[x][0] == frame_num)
+//      if (game_moves[x][0] == mwPS.frame_num)
 //      {
 //         switch (game_moves[x][1])
 //         {
@@ -37903,7 +37903,7 @@ int proc_controllers()
 //   }
 //
 //
-////   sprintf(msg, "f:%d p:%d scfgm gmep:%d gmcp:%d gmsi:%d", frame_num, p, game_move_entry_pos, game_move_current_pos, gme_search_index);
+////   sprintf(msg, "f:%d p:%d scfgm gmep:%d gmcp:%d gmsi:%d", mwPS.frame_num, p, game_move_entry_pos, game_move_current_pos, gme_search_index);
 ////   add_log_entry2(10, p, msg);
 ////
 ////   printf("%s\n", msg);
@@ -37911,7 +37911,7 @@ int proc_controllers()
 //   int found = 0;
 //   for (int g=gme_search_index; g>0; g--)  // look back from entry pos
 //      if ((game_moves[g][1] == 5) && (game_moves[g][2] == p)) // find first that matches type and p
-//         if (game_moves[g][0] <= frame_num) // check to make sure its not in the future
+//         if (game_moves[g][0] <= mwPS.frame_num) // check to make sure its not in the future
 //         {
 //            set_controls_from_comp_move(p, game_moves[g][3]);
 //
@@ -37926,7 +37926,7 @@ int proc_controllers()
 //   if (!found) clear_controls(p); // if no match found (no move entry for player in entire game move array)
 //
 //   // in run game mode and past the end of the file
-//   if ((players[p].control_method == 1) && (frame_num > demo_mode_last_frame)) clear_controls(p);
+//   if ((players[p].control_method == 1) && (mwPS.frame_num > demo_mode_last_frame)) clear_controls(p);
 //
 //   // do not allow any controls in this mode
 //   if (players[0].level_done_mode) clear_controls(p);
@@ -37968,7 +37968,7 @@ if (players[p].control_method == 0) // local single player control
       if (players1[p].comp_move != players1[p].old_comp_move)
       {
          players1[p].old_comp_move = players1[p].comp_move;
-         add_game_move(frame_num, 5, p, players1[p].comp_move);
+         add_game_move(mwPS.frame_num, 5, p, players1[p].comp_move);
       }
    }
 }
@@ -37987,7 +37987,7 @@ void server_local_control(int p)
       if (players1[p].comp_move != players1[p].old_comp_move) // players controls have changed
       {
          players1[p].old_comp_move = players1[p].comp_move;
-         add_game_move(frame_num, 5, p, players1[p].comp_move);
+         add_game_move(mwPS.frame_num, 5, p, players1[p].comp_move);
       }
    }
 }
@@ -38011,7 +38011,7 @@ void client_local_control(int p)
       {
          Packet("cdat");
          PacketPut1ByteInt(p);
-         PacketPut4ByteInt(frame_num);
+         PacketPut4ByteInt(mwPS.frame_num);
          PacketPut1ByteInt(players1[p].comp_move);
          ClientSend(packetbuffer, packetsize);
 
@@ -38046,14 +38046,14 @@ void proc_player_input(int ret)
                   players1[p].old_comp_move = players1[p].comp_move;
 
                   // in single player and server mode, add to game moves array
-                  if ((cm == 0) || (cm == 3)) add_game_move(frame_num, 5, p, players1[p].comp_move);
+                  if ((cm == 0) || (cm == 3)) add_game_move(mwPS.frame_num, 5, p, players1[p].comp_move);
 
                   // in client mode, send cdat packet, and apply move directly to controls
                   if (cm == 3)
                   {
                      Packet("cdat");
                      PacketPut1ByteInt(p);
-                     PacketPut4ByteInt(frame_num);
+                     PacketPut4ByteInt(mwPS.frame_num);
                      PacketPut1ByteInt(players1[p].comp_move);
                      ClientSend(packetbuffer, packetsize);
 
@@ -38177,10 +38177,10 @@ gets the controls for that state, then plays forward...
 
 how does it normally work? move then frame inc? compare with loop_frame
 normal:
-move, then call to proc_frame_delay that incs frame_num
+move, then call to proc_frame_delay that incs mwPS.frame_num
 
 loop_frame
-move then manually inc frame_num
+move then manually inc mwPS.frame_num
 
 added int last_gm_index to player1
 
@@ -38232,7 +38232,7 @@ where in the loop is the server doing the rewind?
 server_control();                       <-- rewind and send stdf
 proc_controllers();                     <-- proc game_move
 move_frame();
-if (proc_frame_delay()) draw_frame();   <-- inc frame_num
+if (proc_frame_delay()) draw_frame();   <-- inc mwPS.frame_num
 
 
 what if the server is sending stuff based on a fresh frame num that nothing has happened for yet?
@@ -38285,24 +38285,24 @@ then draw frame which incs frame num
 
 the rewind sets the frame back to the start
 
-then calls loop frame which does the move, then incs frame_num
+then calls loop frame which does the move, then incs mwPS.frame_num
 this means that when it ends up on the same frame num as it starts, it has not actually done the move for that frame...
 
 this seems very much like what the probem is...
 
 how to fix...
 
-do one extra then dec frame_num ?
+do one extra then dec mwPS.frame_num ?
 
 
-         while (frame_num <= saved_current_frame_num) loop_frame(); // fast forward
+         while (mwPS.frame_num <= saved_current_frame_num) loop_frame(); // fast forward
 
 
 
       }
-      frame_num--;
+      mwPS.frame_num--;
 
-      printf("rw2:%d\n", frame_num);
+      printf("rw2:%d\n", mwPS.frame_num);
 
 
 
@@ -38456,7 +38456,7 @@ ok maybe that has been fixed...it seems to work...
 
 clean up the code...
 
-moved frame_num++ to the start of loop_frame
+moved mwPS.frame_num++ to the start of loop_frame
 
 removed inc, dec and tests from rewind
 
@@ -38735,7 +38735,7 @@ this could work....
 then don't reject late unless how old??
 
 
-start stdf send when frame_num = srv_stdf_state_frame_num + 6;
+start stdf send when mwPS.frame_num = srv_stdf_state_frame_num + 6;
 
 rewind to srv_stdf_state_frame_num
 
@@ -38756,7 +38756,7 @@ the one from now is the one I will send to clients
 
 changed back to array of 4 for both
 
-lets make 0 the most current (highest frame_num) and 1 the older one
+lets make 0 the most current (highest mwPS.frame_num) and 1 the older one
 
 
 
@@ -38764,35 +38764,35 @@ lets make 0 the most current (highest frame_num) and 1 the older one
 void server_send_stdf(void)
 {
 
-   if (frame_num == 0)
+   if (mwPS.frame_num == 0)
    {
       game_vars_to_state(srv_stdf_state[1]);
-      srv_stdf_state_frame_num[1] = frame_num;
-      printf("saved server state[1]:%d\n\n", frame_num);
+      srv_stdf_state_frame_num[1] = mwPS.frame_num;
+      printf("saved server state[1]:%d\n\n", mwPS.frame_num);
    }
 
 
    // is it time to make a new dif and send to clients?
-   if (frame_num == srv_stdf_state_frame_num[1] + 6)
+   if (mwPS.frame_num == srv_stdf_state_frame_num[1] + 6)
    {
-      printf("\n%d rewind to:%d\n", frame_num, srv_stdf_state_frame_num[1]);
+      printf("\n%d rewind to:%d\n", mwPS.frame_num, srv_stdf_state_frame_num[1]);
 
       // rewind and fast forward from last stdf state to apply missed game moves received late
 
-      // int saved_current_frame_num = frame_num; // save old current frame
+      // int saved_current_frame_num = mwPS.frame_num; // save old current frame
 
-      frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
+      mwPS.frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
       state_to_game_vars(srv_stdf_state[1]);   // rewind state
 
-      printf("loaded server state[1]:%d\n", frame_num);
+      printf("loaded server state[1]:%d\n", mwPS.frame_num);
 
       loop_frame();
       loop_frame();
       loop_frame();
 
       game_vars_to_state(srv_stdf_state[1]);
-      srv_stdf_state_frame_num[1] = frame_num;
-      printf("saved server state[1]:%d\n", frame_num);
+      srv_stdf_state_frame_num[1] = mwPS.frame_num;
+      printf("saved server state[1]:%d\n", mwPS.frame_num);
 
       loop_frame();
       loop_frame();
@@ -38801,9 +38801,9 @@ void server_send_stdf(void)
       // rewind and replay is done, now save this state as a base for next time
 
       game_vars_to_state(srv_stdf_state[0]);
-      srv_stdf_state_frame_num[0] = frame_num;
+      srv_stdf_state_frame_num[0] = mwPS.frame_num;
 
-      printf("saved server state[0]:%d\n\n", frame_num);
+      printf("saved server state[0]:%d\n\n", mwPS.frame_num);
 
       // send dif based on this state to all clients
       for (int p=1; p<NUM_PLAYERS; p++)
@@ -38876,7 +38876,7 @@ lets remove it and save a copy here just in case
 
 
 
-// this function processes all entries in the game_moves array that match current frame_num
+// this function processes all entries in the game_moves array that match current mwPS.frame_num
 void proc_game_moves_array(void)
 {
    // search entire range
@@ -38915,9 +38915,9 @@ void proc_game_moves_array(void)
       int t = game_moves[x][1]; // type
       int p = game_moves[x][2]; // player
       int c = game_moves[x][3]; // cm
-      if ((f <= frame_num) && (t == 5)) // frame in range and type game move
+      if ((f <= mwPS.frame_num) && (t == 5)) // frame in range and type game move
       {
-         if (f > players1[p].last_gm_frame_num) // max frame_num
+         if (f > players1[p].last_gm_frame_num) // max mwPS.frame_num
          {
             players1[p].last_gm_frame_num = f;
             players1[p].last_gm_index = x;
@@ -38925,7 +38925,7 @@ void proc_game_moves_array(void)
          }
       }
 
-      if (game_moves[x][0] == frame_num) // found frame number that matches current frame
+      if (game_moves[x][0] == mwPS.frame_num) // found frame number that matches current frame
       {
          if (x > game_move_current_pos) game_move_current_pos = x; // index of last used gm - keep this at the most recent one, never go back
          switch (game_moves[x][1])
@@ -38949,7 +38949,7 @@ void proc_game_moves_array(void)
          int cm = get_comp_move_from_players_controls(p);
          if (cm != players1[p].last_gm_comp_move)
          {
-            printf("game_move correction! p:%d f:%d gmfn:%d\n", p, frame_num, players1[p].last_gm_frame_num);
+            printf("game_move correction! p:%d f:%d gmfn:%d\n", p, mwPS.frame_num, players1[p].last_gm_frame_num);
          }
 
          set_controls_from_comp_move(p, players1[p].last_gm_comp_move);
@@ -38971,11 +38971,11 @@ One thing that occurs to me:
 
 I do no checking of the destination frame of the difs.
 
-In the old method, I would hold on to it until dst matched current frame_num
+In the old method, I would hold on to it until dst matched current mwPS.frame_num
 but I seem to not check for that in this new method.
 
 I just apply it as soon as I get it?
-And I nevee check frame_num?
+And I nevee check mwPS.frame_num?
 
 What if I get it late or early?
 
@@ -39139,12 +39139,12 @@ rewind amount probably greater than stdf_freq..
 this is the old way:
 
    // is it time to make a new dif and send to clients?
-   if (frame_num == srv_stdf_state_frame_num[1] + 4)
+   if (mwPS.frame_num == srv_stdf_state_frame_num[1] + 4)
    {
 
 
 new way:
-if (frame_num == srv_stdf_state_frame_num[0] + stdf_freq)
+if (mwPS.frame_num == srv_stdf_state_frame_num[0] + stdf_freq)
 
 rewind stdf_rewind
 
@@ -39157,16 +39157,16 @@ int s2 = stdf_freq; // 2 or 3 work good
 int s3 = s1+s2;
 
 // is it time to make a new dif and send to clients?
-if (frame_num == srv_stdf_state_frame_num[1] + s3)
+if (mwPS.frame_num == srv_stdf_state_frame_num[1] + s3)
 {
 
    // rewind and fast forward from last stdf state to apply missed game moves received late
-   frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
+   mwPS.frame_num = srv_stdf_state_frame_num[1]; // rewind frame num
    state_to_game_vars(srv_stdf_state[1]);   // rewind state
 
    if (L_LOGGING_NETPLAY_stdf)
    {
-     // printf("\n%d rewind to:%d\n", frame_num, srv_stdf_state_frame_num[1]);
+     // printf("\n%d rewind to:%d\n", mwPS.frame_num, srv_stdf_state_frame_num[1]);
       sprintf(msg, "stdf rewind to:%d\n", srv_stdf_state_frame_num[1]);
       add_log_entry2(27, 0, msg);
    }
@@ -39175,12 +39175,12 @@ if (frame_num == srv_stdf_state_frame_num[1] + s3)
 
    // save state[1] as a base for next rewind
    game_vars_to_state(srv_stdf_state[1]);
-   srv_stdf_state_frame_num[1] = frame_num;
+   srv_stdf_state_frame_num[1] = mwPS.frame_num;
 
    if (L_LOGGING_NETPLAY_stdf)
    {
-      //printf("saved server state[1]:%d\n", frame_num);
-      sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+      //printf("saved server state[1]:%d\n", mwPS.frame_num);
+      sprintf(msg, "stdf saved server state[1]:%d\n", mwPS.frame_num);
       add_log_entry2(27, 0, msg);
    }
 
@@ -39188,7 +39188,7 @@ if (frame_num == srv_stdf_state_frame_num[1] + s3)
 
    // save state[0] as a base for sending client difs
    game_vars_to_state(srv_stdf_state[0]);
-   srv_stdf_state_frame_num[0] = frame_num;
+   srv_stdf_state_frame_num[0] = mwPS.frame_num;
 
 
 
@@ -39296,18 +39296,18 @@ normal...
 [41][0][14]move frame:14
 
 
-change it so that instead of comparing frame_num to earliest
+change it so that instead of comparing mwPS.frame_num to earliest
 compare to most recent...
 
    // is it time to make a new dif and send to clients?
 
 old:
-   if (frame_num == srv_stdf_state_frame_num[1] + s3)
+   if (mwPS.frame_num == srv_stdf_state_frame_num[1] + s3)
    {
 
 new:
    // is it time to make a new dif and send to clients?
-   if (frame_num == srv_stdf_state_frame_num[0] + s2)
+   if (mwPS.frame_num == srv_stdf_state_frame_num[0] + s2)
    {
 
 
@@ -39879,7 +39879,7 @@ because that is the state at the start of that frame, not the end...
 
    if (cdat_frame_num <= srv_stdf_state_frame_num[1])
    {
-      printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", frame_num, p, cdat_frame_num, srv_stdf_state_frame_num[1], players1[p].late_cdats);
+      printf("[%d]late cdat dropped p:%d c:%d  state:%d  tally:%d\n", mwPS.frame_num, p, cdat_frame_num, srv_stdf_state_frame_num[1], players1[p].late_cdats);
       players1[p].late_cdats++;
    }
    else add_game_move(cdat_frame_num, 5, p, cm); // add to game_move array
@@ -40915,7 +40915,7 @@ static void *thread_func(ALLEGRO_THREAD *thr, void *arg)
 
       while((packetsize = ServerReceive(packetbuffer, &who)))
       {
-         printf("Packet rx on frame:%d\n", frame_num);
+         printf("Packet rx on frame:%d\n", mwPS.frame_num);
          if(PacketRead("cdat")) server_proc_cdat_packet();
          if(PacketRead("stak")) server_proc_stak_packet();
          if(PacketRead("cjon")) server_proc_cjon_packet(who);
@@ -40937,7 +40937,7 @@ static void *thread_func(void *arg)
       int who;
       while((packetsize = ServerReceive(packetbuffer, &who)))
       {
-         printf("Packet rx on frame:%d\n", frame_num);
+         printf("Packet rx on frame:%d\n", mwPS.frame_num);
 
          if(PacketRead("cdat")) server_proc_cdat_packet();
          if(PacketRead("stak")) server_proc_stak_packet();
@@ -41394,7 +41394,7 @@ static void *thread_func(void *arg)
       int who;
       while((packetsize = ServerReceive(packetbuffer, &who)))
       {
-         printf("Packet rx on frame:%d\n", frame_num);
+         printf("Packet rx on frame:%d\n", mwPS.frame_num);
 
          if(PacketRead("cdat")) server_proc_cdat_packet();
          if(PacketRead("stak")) server_proc_stak_packet();
@@ -41530,7 +41530,7 @@ each of those things will handle its own drawing, or skip if need be
 will this actually make things simpler and easier?
 
 i really want to get rid of the menu_timer block hack and waiting in proc frame delay
-while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+while (mwPS.frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
 
 
 I think I should do it...
@@ -41548,13 +41548,13 @@ maybe later...
 char skc[64];
 int skc_index = 0;
 
-bool key[ALLEGRO_KEY_MAX];
+bool mI.key[ALLEGRO_KEY_MAX];
 int key_pressed_ASCII;
 
 float mouse_loop_pause = 0;
 
-int mouse_x = 0;
-int mouse_y = 0;
+int mI.mouse_x = 0;
+int mI.mouse_y = 0;
 int mouse_z = 0;
 int mouse_dx = 0;
 int mouse_dy = 0;
@@ -41639,10 +41639,10 @@ maybe I could just use the goddamn events that do that exactly...no they don't..
 
 maybe I could add something to my key array thing...
 
-bool key[ALLEGRO_KEY_MAX];
+bool mI.key[ALLEGRO_KEY_MAX];
 
 
-bool key[ALLEGRO_KEY_MAX][4];
+bool mI.key[ALLEGRO_KEY_MAX][4];
 
 key[][0]; // current state of key
 key[][1]; // previous state of key
@@ -41654,18 +41654,18 @@ now I can tell if held by 0 and 1 true
 
 this is how I used to check for just pressed
 
-if ((key[ALLEGRO_KEY_F1]) && (!KEY_F1_held))
+if ((mI.key[ALLEGRO_KEY_F1]) && (!KEY_F1_held))
 {
    KEY_F1_held = 1;
    // do stuff
 }
-if (!key[ALLEGRO_KEY_F1]) KEY_F1_held = 0;
+if (!mI.key[ALLEGRO_KEY_F1]) KEY_F1_held = 0;
 
 
 
 this is how I do it now
 
-if (key[ALLEGRO_KEY_F1][2])
+if (mI.key[ALLEGRO_KEY_F1][2])
 {
    // do stuff
 }
@@ -41687,13 +41687,13 @@ void proc_keys_held(void)
 {
    for (int k = ALLEGRO_KEY_A; k < ALLEGRO_KEY_MAX; k++)
    {
-      if ((key[k][0] == true) && (key[k][1] == false)) key[k][2] = true; // just pressed
-      else key[k][2] = false;
+      if ((mI.key[k][0] == true) && (mI.key[k][1] == false)) mI.key[k][2] = true; // just pressed
+      else mI.key[k][2] = false;
 
-      if ((key[k][0] == false) && (key[k][1] == true)) key[k][3] = true; // just released
-      else key[k][3] = false;
+      if ((mI.key[k][0] == false) && (mI.key[k][1] == true)) mI.key[k][3] = true; // just released
+      else mI.key[k][3] = false;
 
-      key[k][1] = key[k][0]; // previous for next time
+      mI.key[k][1] = mI.key[k][0]; // previous for next time
    }
 }
 
@@ -41847,7 +41847,7 @@ int mouse_b4 = 0;
 
 new:
 
-int mouse_b[5][4] = { 0 };
+int mI.mouse_b[5][4] = { 0 };
 
 5 because I want to call them by their original numbers
 
@@ -41858,15 +41858,15 @@ mouse_b3 12 occurances
 mouse_b4 4 occurances
 
 
-replace mouse_b1 with mouse_b[1][0]
-replace mouse_b2 with mouse_b[2][0]
+replace mouse_b1 with mI.mouse_b[1][0]
+replace mouse_b2 with mI.mouse_b[2][0]
 
 
 this all done...
 
 now continue with key replacement
 
-I have been through all occurances op key[ and I think they are all fixed...
+I have been through all occurances op mI.key[ and I think they are all fixed...
 
 
 now back to proc_controllers
@@ -42006,7 +42006,7 @@ when are frame numbers updated?
 
 now that I time the main loop with the timer, am I off by one frame??
 
-proc_frame_delay() increments frame_num and runs update_animation
+proc_frame_delay() increments mwPS.frame_num and runs update_animation
 then determines whether or not to draw frame
 
 move this all to loop for now....
@@ -42015,10 +42015,10 @@ now how can i tell if I need to skip drawing?
 
 timer fires
 move frame
-frame_num++
+mwPS.frame_num++
 
 
-//      if (frame_num <=  al_get_timer_count(fps_timer)) // skip drawing frame
+//      if (mwPS.frame_num <=  al_get_timer_count(fps_timer)) // skip drawing frame
 
 
 //      {
@@ -42026,7 +42026,7 @@ frame_num++
 //         players1[active_local_player].frames_skipped++;
 //      }
 //      else draw_frame = 1;
-//      while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+//      while (mwPS.frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
 
 
 
@@ -42034,7 +42034,7 @@ frame_num++
 OK now I have decison to be made...
 if the game cannot keep up, even with not drawing, what do I do??
 
-correct the timer or correct the frame_num...
+correct the timer or correct the mwPS.frame_num...
 
 correct the timer...and make a note, just like when skipping drawing...
 
@@ -42045,8 +42045,8 @@ this was also in proc_frame_delay()
    if (al_get_timer_count(sec_timer) > 0)
    {
       al_set_timer_count(sec_timer, 0); // reset_second_timer
-      actual_fps = frame_num - last_fps_frame_num;
-      last_fps_frame_num = frame_num;
+      actual_fps = mwPS.frame_num - last_fps_frame_num;
+      last_fps_frame_num = mwPS.frame_num;
       frames_skipped_last_second = (players1[active_local_player].frames_skipped - last_frames_skipped);
       last_frames_skipped = players1[active_local_player].frames_skipped;
    }
@@ -42081,8 +42081,8 @@ then remove all old methods..done
 
 what about this?
 
-      actual_fps = frame_num - last_fps_frame_num;
-      last_fps_frame_num = frame_num;
+      actual_fps = mwPS.frame_num - last_fps_frame_num;
+      last_fps_frame_num = mwPS.frame_num;
 
 put it in the same place...
 
@@ -42288,7 +42288,7 @@ how can I use a timer in level editor??
 I guess it doesn't matter if it blocks there...
 
 added this line...
-while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+while (mwPS.frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
 
 later I want to try to do it without blocking....
 
@@ -42457,31 +42457,31 @@ this is what used to be in loop.cpp I am getting rid of it......
 int proc_frame_delay(void)
 {
    int draw_frame = 0;
-   frame_num++;
+   mwPS.frame_num++;
    update_animation();
    if (al_get_timer_count(sec_timer) > 0)
    {
       al_set_timer_count(sec_timer, 0); // reset_second_timer
-      actual_fps = frame_num - last_fps_frame_num;
-      last_fps_frame_num = frame_num;
+      actual_fps = mwPS.frame_num - last_fps_frame_num;
+      last_fps_frame_num = mwPS.frame_num;
    }
 
-//   printf("fn:%d timer:%d\n", frame_num, al_get_timer_count(fps_timer));
+//   printf("fn:%d timer:%d\n", mwPS.frame_num, al_get_timer_count(fps_timer));
 
 //   if (speed_testing) // draw every frame no matter how fast or slow it is
 //   {
 //      draw_frame = 1;
-//      al_set_timer_count(fps_timer, frame_num);
+//      al_set_timer_count(fps_timer, mwPS.frame_num);
 //   }
 //   else
 //   {
-//      if (frame_num <=  al_get_timer_count(fps_timer)) // skip drawing frame
+//      if (mwPS.frame_num <=  al_get_timer_count(fps_timer)) // skip drawing frame
 //      {
 //         draw_frame = 0;
 //         players1[active_local_player].frames_skipped++;
 //      }
 //      else draw_frame = 1;
-//      while (frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
+//      while (mwPS.frame_num > al_get_timer_count(fps_timer)); // delay if too far ahead so timer catches up
 //   }
 
    draw_frame = 1;
@@ -42507,7 +42507,7 @@ void proc_start_mode(int start_mode)
    {
       start_music(1); // resume theme
       stimp();
-      set_frame_nums(frame_num); // set fps_timer count to frame_num
+      set_frame_nums(mwPS.frame_num); // set fps_timer count to mwPS.frame_num
       return;
    }
 
@@ -42615,11 +42615,11 @@ void proc_start_mode(int start_mode)
    {
       players[0].control_method = 3;
       game_vars_to_state(srv_stdf_state[1]);
-      srv_stdf_state_frame_num[1] = frame_num;
+      srv_stdf_state_frame_num[1] = mwPS.frame_num;
       if (L_LOGGING_NETPLAY_stdf)
       {
-         //   printf("saved server state[1]:%d\n\n", frame_num);
-         sprintf(msg, "stdf saved server state[1]:%d\n", frame_num);
+         //   printf("saved server state[1]:%d\n\n", mwPS.frame_num);
+         sprintf(msg, "stdf saved server state[1]:%d\n", mwPS.frame_num);
          add_log_entry2(27, 0, msg);
       }
    }
@@ -42751,7 +42751,7 @@ void add_timestamp(int type, int f1, int f2, double t1, double t2)
 {
    if (timestamps_index < 9998)
    {
-      timestamps[i].frame0 = frame_num;
+      timestamps[i].frame0 = mwPS.frame_num;
       timestamps[i].frame1 = f1;
       timestamps[i].frame2 = f2;
       timestamps[i].type   = type;
@@ -42775,7 +42775,7 @@ the way it currently is...frame is incremented, then draw happens...
 I would like the frame_inc to be the very last thing done...
 just because that seems like the best way to order it...
 
-is there anything in draw that cares about frame_num?..probably no...
+is there anything in draw that cares about mwPS.frame_num?..probably no...
 
 
 
@@ -42785,14 +42785,14 @@ so I propose to change this:
 if (proc_frame_skip()) draw_frame();
 int proc_frame_skip(void)
 {
-   frame_num++;
+   mwPS.frame_num++;
    update_animation();
 
-   if (frame_num < al_get_timer_count(fps_timer)) // skip drawing frame
+   if (mwPS.frame_num < al_get_timer_count(fps_timer)) // skip drawing frame
    {
       players1[active_local_player].frames_skipped++;
       players1[active_local_player].frames_skipped_last_sec_tally++;
-      //printf("Skipped drawing frame:%d\n", frame_num);
+      //printf("Skipped drawing frame:%d\n", mwPS.frame_num);
       return 0;
    }
    return 1;
@@ -42807,16 +42807,16 @@ to this:
 
 if (proc_frame_skip()) draw_frame();
 
-   frame_num++;
+   mwPS.frame_num++;
    update_animation();
 
 int proc_frame_skip(void)
 {
-   if ((frame_num+1) < al_get_timer_count(fps_timer)) // skip drawing frame
+   if ((mwPS.frame_num+1) < al_get_timer_count(fps_timer)) // skip drawing frame
    {
       players1[active_local_player].frames_skipped++;
       players1[active_local_player].frames_skipped_last_sec_tally++;
-      //printf("Skipped drawing frame:%d\n", frame_num);
+      //printf("Skipped drawing frame:%d\n", mwPS.frame_num);
       return 0;
    }
    return 1;
@@ -42877,9 +42877,9 @@ void server_control() // main server loop to process packet send and receive
 {
    ServerListen(); // listen for new client connections
 
-   if (frame_num > 100)
+   if (mwPS.frame_num > 100)
    {
-      if ((frame_num % 80) == 0)
+      if ((mwPS.frame_num % 80) == 0)
       {
          for (int p=1; p<NUM_PLAYERS; p++)
             if (players[p].control_method == 2)

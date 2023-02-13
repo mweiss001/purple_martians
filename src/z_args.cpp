@@ -1,11 +1,19 @@
 // z_args.cpp
 #include "pm.h"
+#include "z_args.h"
 #include "z_log.h"
 #include "n_netgame.h"
 #include "mwLogo.h"
-
-
-
+#include "mwColor.h"
+#include "mwDisplay.h"
+#include "z_menu.h"
+#include "mwProgramState.h"
+#include "z_level.h"
+#include "e_editor_main.h"
+#include "z_config.h"
+#include "z_file.h"
+#include "z_fnx.h"
+#include "z_main.h"
 
 
 void pm_copy_src(const char* filepath)
@@ -233,7 +241,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          copy_files_to_clients(1); // pm.exe and levels only
          mwL.show_splash_screen = 0;
          play_level = start_level;
-         new_program_state = 20;
+         mwPS.new_program_state = 20;
          return;
       }
 
@@ -253,7 +261,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       if (strcmp(argument_array[1],"-c") == 0 )
       {
          mwL.show_splash_screen = 0;
-         new_program_state = 24;
+         mwPS.new_program_state = 24;
          return;
       }
       // no start level specified; use play level from config file
@@ -261,7 +269,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
       {
          mwL.show_splash_screen = 0;
          play_level = start_level;
-         new_program_state = 20;
+         mwPS.new_program_state = 20;
          return;
       }
 
@@ -270,7 +278,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          mwL.show_splash_screen = 0;
          if (load_gm("-"))
          {
-            new_program_state = 14;
+            mwPS.new_program_state = 14;
             return;
          }
       }
@@ -284,7 +292,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          play_level = pl;
          set_start_level(pl);
          printf("started game on level:%d\n", play_level);
-         new_program_state = 10;
+         mwPS.new_program_state = 10;
       }
       else
       {
@@ -297,7 +305,7 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          if (load_gm(argument_array[1]))
          {
             mwL.show_splash_screen = 0;
-            new_program_state = 14;
+            mwPS.new_program_state = 14;
             return;
          }
       }
@@ -329,14 +337,14 @@ void proc_command_line_args2(int argument_count, char **argument_array)
          mwL.show_splash_screen = 0;
          sprintf(m_serveraddress, "%s", argument_array[2]);
          save_config();
-         new_program_state = 24;
+         mwPS.new_program_state = 24;
          return;
       }
       if (strcmp(argument_array[1],"-s") == 0 )
       {
          mwL.show_splash_screen = 0;
          play_level = atoi(argument_array[2]);
-         new_program_state = 20;
+         mwPS.new_program_state = 20;
          return;
       }
    } // end of argument_count == 3
@@ -391,21 +399,21 @@ memcpy(&out,arr2,sizeof(out));
 //   if (type == 0) // the regular method
 //   {
 //      al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
-//      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
-//      al_draw_textf(f, palette_color[color], x+2, y+2, 0, txt);
+//      al_draw_rectangle(x, y, x+bw+4, y+bh+4, mC.pc[color], 1);
+//      al_draw_textf(f, mC.pc[color], x+2, y+2, 0, txt);
 //   }
 //   if (type == 1) // use bx, by to offset text
 //   {
 //      al_get_text_dimensions(f, txt, &bx, &by, &bw, &bh);
-//      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
-//      al_draw_textf(f, palette_color[color], x+2-bx, y+2-by, 0, txt);
+//      al_draw_rectangle(x, y, x+bw+4, y+bh+4, mC.pc[color], 1);
+//      al_draw_textf(f, mC.pc[color], x+2-bx, y+2-by, 0, txt);
 //   }
 //
 //   if (type == 2) // use my method to force by offset and bh size
 //   {
 //      mw_get_text_dimensions(f, txt, bx, by, bw, bh);
-//      al_draw_rectangle(x, y, x+bw+4, y+bh+4, palette_color[color], 1);
-//      al_draw_textf(f, palette_color[color], x+2-bx, y+2-by, 0, txt);
+//      al_draw_rectangle(x, y, x+bw+4, y+bh+4, mC.pc[color], 1);
+//      al_draw_textf(f, mC.pc[color], x+2-bx, y+2-by, 0, txt);
 //   }
 //
 //}
@@ -418,7 +426,7 @@ void temp_test(void)
 {
 
    al_set_target_backbuffer(display);
-   al_clear_to_color(palette_color[0]);
+   al_clear_to_color(mC.pc[0]);
 
 
    // netgame frame timing
@@ -436,8 +444,8 @@ void temp_test(void)
    int quit = 0;
 
 
-   int s_ls = 100;     // server last state frame_num
-   int s_fn = 100;     // server frame_num
+   int s_ls = 100;     // server last state mwPS.frame_num
+   int s_fn = 100;     // server mwPS.frame_num
    int s_ms = 2500;    // server ms_num
 
    int s_freq = 3;
@@ -461,19 +469,19 @@ void temp_test(void)
 
    while (!quit)
    {
-      al_draw_textf(mF.pr8, palette_color[15], 10, 10, 0, "%d server current frame", s_fn);
-      al_draw_textf(mF.pr8, palette_color[15], 10, 18, 0, "%d server last state frame", s_ls);
-      al_draw_textf(mF.pr8, palette_color[15], 10, 26, 0, "%d server currrent ms", s_ms);
+      al_draw_textf(mF.pr8, mC.pc[15], 10, 10, 0, "%d server current frame", s_fn);
+      al_draw_textf(mF.pr8, mC.pc[15], 10, 18, 0, "%d server last state frame", s_ls);
+      al_draw_textf(mF.pr8, mC.pc[15], 10, 26, 0, "%d server currrent ms", s_ms);
 
-      al_draw_textf(mF.pr8, palette_color[15], 10, 36, 0, "%d ping ms", ping);
-      al_draw_textf(mF.pr8, palette_color[15], 10, 44, 0, "%d client offset ms", co);
+      al_draw_textf(mF.pr8, mC.pc[15], 10, 36, 0, "%d ping ms", ping);
+      al_draw_textf(mF.pr8, mC.pc[15], 10, 44, 0, "%d client offset ms", co);
 
       // draw server time legend
       for (int i=0; i<10; i++)
       {
          int x1 = stl_x + i * fw;
-         al_draw_textf(mF.pr8, palette_color[15], x1, stl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
-         al_draw_line(x1, stl_y+10, x1, stl_y+20, palette_color[15], 1);
+         al_draw_textf(mF.pr8, mC.pc[15], x1, stl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
+         al_draw_line(x1, stl_y+10, x1, stl_y+20, mC.pc[15], 1);
       }
 
       // draw client time legend
@@ -481,30 +489,30 @@ void temp_test(void)
       {
          int x1 = (stl_x + i * fw) + co*fw / 25;
 
-         al_draw_textf(mF.pr8, palette_color[15], x1, ctl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
-         al_draw_line(x1, ctl_y+10, x1, ctl_y+20, palette_color[15], 1);
+         al_draw_textf(mF.pr8, mC.pc[15], x1, ctl_y, ALLEGRO_ALIGN_CENTER, "%d", stl_base_frame+i);
+         al_draw_line(x1, ctl_y+10, x1, ctl_y+20, mC.pc[15], 1);
       }
 
       // draw rect from server last frame num to current ms_num
       int x1 = stl_x + (s_ls - stl_base_frame) * fw;  // (last state - base frame) x frame width
       int x2 = stl_x + ((s_ms - stl_base_frame*25) * fw)/25;  // ((current ms - base frame*25) x frame width)/25
-      al_draw_rectangle(x1, stl_y+20, x2, stl_y+30, palette_color[15], 1);
+      al_draw_rectangle(x1, stl_y+20, x2, stl_y+30, mC.pc[15], 1);
 
       // mark current server time with line
-      al_draw_line(x2, stl_y-20, x2, ctl_y+120, palette_color[15], 1);
-      al_draw_textf(mF.pixl, palette_color[15], x2, stl_y-30, ALLEGRO_ALIGN_CENTER, "now");
+      al_draw_line(x2, stl_y-20, x2, ctl_y+120, mC.pc[15], 1);
+      al_draw_textf(mF.pixl, mC.pc[15], x2, stl_y-30, ALLEGRO_ALIGN_CENTER, "now");
 
 
       // mark server last state with line
-      al_draw_line(x1, stl_y-10, x1, ctl_y+120, palette_color[15], 1);
-      al_draw_textf(mF.pixl, palette_color[15], x1, stl_y-20, ALLEGRO_ALIGN_CENTER, "last state");
+      al_draw_line(x1, stl_y-10, x1, ctl_y+120, mC.pc[15], 1);
+      al_draw_textf(mF.pixl, mC.pc[15], x1, stl_y-20, ALLEGRO_ALIGN_CENTER, "last state");
 
 
 
 
 
 
-      if (key[ALLEGRO_KEY_SPACE][1]) s_ms++; // step time by 1ms
+      if (mI.key[ALLEGRO_KEY_SPACE][1]) s_ms++; // step time by 1ms
       if ((s_ms / 25) >= s_ls+s_freq) s_ls += s_freq;       // check if time to make a new state
 
       s_fn = s_ms / 25;
@@ -514,9 +522,9 @@ void temp_test(void)
 
 
       al_flip_display();
-      al_clear_to_color(palette_color[0]);
-      proc_event_queue();
-      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      al_clear_to_color(mC.pc[0]);
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 
    }
 
@@ -640,17 +648,17 @@ void temp_test(void)
       if ((!cr) && (!sr)) sprintf(cmsg, "Normal Move");
       if ((!cr) && (sr))  sprintf(cmsg, "paused");
       if (cr) cmc = 10;
-      al_draw_textf(mF.pr8, palette_color[cmc], 400, 0, 0, "Client %s",cmsg);
+      al_draw_textf(mF.pr8, mC.pc[cmc], 400, 0, 0, "Client %s",cmsg);
 
 
       int smc = 15;
       if ((!cr) && (!sr)) sprintf(smsg, "Normal Move");
       if (cr)             sprintf(smsg, "paused");
       if ((sr) && (!cr))  smc = 10;
-      al_draw_textf(mF.pr8, palette_color[smc], 0, 0, 0, "Server %s", smsg);
+      al_draw_textf(mF.pr8, mC.pc[smc], 0, 0, 0, "Server %s", smsg);
 
 
-      if (key[ALLEGRO_KEY_SPACE][3])
+      if (mI.key[ALLEGRO_KEY_SPACE][3])
       {
          if (cr) // when in cr mode pause server
          {
@@ -674,7 +682,7 @@ void temp_test(void)
       {
          int sc = 15;
          if (i == sfn) sc = 10;
-         al_draw_textf(mF.pr8, palette_color[sc], 0,   10+(i-100)*ls, 0, "%3d", i);
+         al_draw_textf(mF.pr8, mC.pc[sc], 0,   10+(i-100)*ls, 0, "%3d", i);
       }
 
       // draw client column
@@ -682,7 +690,7 @@ void temp_test(void)
       {
          int sc = 15;
          if (i+1 == cfn) sc = 10;
-         al_draw_textf(mF.pr8, palette_color[sc], 400, 10+(i-100)*ls, 0, "%3d", i+1);
+         al_draw_textf(mF.pr8, mC.pc[sc], 400, 10+(i-100)*ls, 0, "%3d", i+1);
       }
 
 
@@ -691,49 +699,49 @@ void temp_test(void)
       int lsy2 = 10+(last_state+s1 -100)*ls;
       int lsy3 = 10+(last_state+s3 -100)*ls;
 
-      al_draw_rectangle(0, lsy1-1, 100, lsy3-1, palette_color[15], 1);
-      //al_draw_rectangle(0, lsy2-1, 200, lsy3-1, palette_color[15], 1);
+      al_draw_rectangle(0, lsy1-1, 100, lsy3-1, mC.pc[15], 1);
+      //al_draw_rectangle(0, lsy2-1, 200, lsy3-1, mC.pc[15], 1);
 
-      al_draw_textf(mF.pr8, palette_color[9], 102, lsy1, 0, "last state:%d", last_state);
-      al_draw_rectangle(0, lsy1-1, 240, lsy1+ls-1, palette_color[9], 1);
+      al_draw_textf(mF.pr8, mC.pc[9], 102, lsy1, 0, "last state:%d", last_state);
+      al_draw_rectangle(0, lsy1-1, 240, lsy1+ls-1, mC.pc[9], 1);
 
 
       // current frame server
       int cfy1 = 10+(sfn-100)*ls-2;
-      al_draw_textf(mF.pr8, palette_color[10], 260, cfy1, 0, "current frame");
-      al_draw_line(0, cfy1+ls/2, 262, cfy1+ls/2, palette_color[10], 1);
+      al_draw_textf(mF.pr8, mC.pc[10], 260, cfy1, 0, "current frame");
+      al_draw_line(0, cfy1+ls/2, 262, cfy1+ls/2, mC.pc[10], 1);
 
       // current frame client
       cfy1 = 10+(cfn-101)*ls-2;
-      al_draw_textf(mF.pr8, palette_color[10], 660, cfy1, 0, "current frame");
-      al_draw_line(400, cfy1+ls/2, 662, cfy1+ls/2, palette_color[10], 1);
+      al_draw_textf(mF.pr8, mC.pc[10], 660, cfy1, 0, "current frame");
+      al_draw_line(400, cfy1+ls/2, 662, cfy1+ls/2, mC.pc[10], 1);
 
 
       if ((sr != 4) && (sr != 0))
       {
-         al_draw_textf(mF.pr8, palette_color[8], 102, lsy2, 0, "s1");
-         al_draw_rectangle(0, lsy2-1, 200, lsy2+ls-1, palette_color[8], 1);
+         al_draw_textf(mF.pr8, mC.pc[8], 102, lsy2, 0, "s1");
+         al_draw_rectangle(0, lsy2-1, 200, lsy2+ls-1, mC.pc[8], 1);
       }
 
       if ((sr) && (!cr))
       {
          int yp = 10+(sfn_b4_rewind-100)*ls;
-         al_draw_textf(mF.pr8, palette_color[13], 102, yp, 0, "fn before rewind");
-         al_draw_rectangle(0, yp-1, 240, yp+ls-1, palette_color[13], 1);
+         al_draw_textf(mF.pr8, mC.pc[13], 102, yp, 0, "fn before rewind");
+         al_draw_rectangle(0, yp-1, 240, yp+ls-1, mC.pc[13], 1);
       }
 
       if (cr)
       {
          int yp = 10+(cfn_b4_rewind-101)*ls;
-         al_draw_textf(mF.pr8, palette_color[13], 502, yp, 0, "fn before rewind");
-         al_draw_rectangle(400, yp-1, 640, yp+ls-1, palette_color[13], 1);
+         al_draw_textf(mF.pr8, mC.pc[13], 502, yp, 0, "fn before rewind");
+         al_draw_rectangle(400, yp-1, 640, yp+ls-1, mC.pc[13], 1);
       }
 
       al_flip_display();
 
-      al_clear_to_color(palette_color[0]);
-      proc_event_queue();
-      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+      al_clear_to_color(mC.pc[0]);
+      mwEQ.proc_event_queue();
+      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 
    }
 
@@ -794,7 +802,7 @@ void temp_test(void)
 //
 //      int lco = 0;
 //
-//      al_draw_textf(mF.pr8, palette_color[15], 10, 10, 0, "a:%d b:%d c:%d  t:%d", a, b, c, a+b+c);
+//      al_draw_textf(mF.pr8, mC.pc[15], 10, 10, 0, "a:%d b:%d c:%d  t:%d", a, b, c, a+b+c);
 //
 //
 //      lco = 0;
@@ -818,8 +826,8 @@ void temp_test(void)
 //
 //
 //      al_flip_display();
-//      proc_event_queue();
-//      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+//      mwEQ.proc_event_queue();
+//      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 //   }
 //
 
@@ -835,7 +843,7 @@ void temp_test(void)
 //
 //      int lco = 0;
 //
-//      al_draw_textf(mF.pr8, palette_color[15], 10, 10, 0, "a:%d b:%d t:%d", a, b, a+b);
+//      al_draw_textf(mF.pr8, mC.pc[15], 10, 10, 0, "a:%d b:%d t:%d", a, b, a+b);
 //
 //
 //      lco = 0;
@@ -859,8 +867,8 @@ void temp_test(void)
 //
 //
 //      al_flip_display();
-//      proc_event_queue();
-//      if (key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
+//      mwEQ.proc_event_queue();
+//      if (mI.key[ALLEGRO_KEY_ESCAPE][3]) quit = 1;
 //   }
 
 
@@ -919,8 +927,8 @@ void temp_test(void)
 //v[3][1] = 100;
 //
 //
-//al_draw_filled_rectangle(20,20,40,40, palette_color[10]);
-//al_draw_filled_polygon(*v, 4, palette_color[14]);
+//al_draw_filled_rectangle(20,20,40,40, mC.pc[10]);
+//al_draw_filled_polygon(*v, 4, mC.pc[14]);
 //
 //al_flip_display();
 //
@@ -1013,7 +1021,7 @@ void temp_test(void)
 //      int y = 0;
 //
 //      for (int a=b; a<b+128; a++)
-//         al_draw_textf(mF.pr8, palette_color[15], x, y+=8, 0, "%d-[%c] %d-[%c]", a, a, a+128, a+128);
+//         al_draw_textf(mF.pr8, mC.pc[15], x, y+=8, 0, "%d-[%c] %d-[%c]", a, a, a+128, a+128);
 //      al_flip_display();
 //      tsw();
 //   }
@@ -1077,7 +1085,7 @@ printf("--- %d  %d\n", tc, fc);
 
 
 /*
-   load_level(start_level, 0);
+   load_level(start_level, 0, 0);
    group_edit();
 
 */
@@ -1091,23 +1099,23 @@ void show_level_done(void);
    int quit = 0;
    while (!quit)
    {
-      proc_event_queue();
+      mwEQ.proc_event_queue();
       al_clear_to_color(al_map_rgb(0,0,0));
       show_level_done();
       al_flip_display();
 
-      while ((key[ALLEGRO_KEY_ESCAPE][0]) || (mouse_b[2][0]))
+      while ((mI.key[ALLEGRO_KEY_ESCAPE][0]) || (mI.mouse_b[2][0]))
       {
-         proc_event_queue();
+         mwEQ.proc_event_queue();
          quit = 1;
       }
-      if (key[ALLEGRO_KEY_1][3]) players[1].active = !players[1].active;
-      if (key[ALLEGRO_KEY_2][3]) players[2].active = !players[2].active;
-      if (key[ALLEGRO_KEY_3][3]) players[3].active = !players[3].active;
-      if (key[ALLEGRO_KEY_4][3]) players[4].active = !players[4].active;
-      if (key[ALLEGRO_KEY_5][3]) players[5].active = !players[5].active;
-      if (key[ALLEGRO_KEY_6][3]) players[6].active = !players[6].active;
-      if (key[ALLEGRO_KEY_7][3]) players[7].active = !players[7].active;
+      if (mI.key[ALLEGRO_KEY_1][3]) players[1].active = !players[1].active;
+      if (mI.key[ALLEGRO_KEY_2][3]) players[2].active = !players[2].active;
+      if (mI.key[ALLEGRO_KEY_3][3]) players[3].active = !players[3].active;
+      if (mI.key[ALLEGRO_KEY_4][3]) players[4].active = !players[4].active;
+      if (mI.key[ALLEGRO_KEY_5][3]) players[5].active = !players[5].active;
+      if (mI.key[ALLEGRO_KEY_6][3]) players[6].active = !players[6].active;
+      if (mI.key[ALLEGRO_KEY_7][3]) players[7].active = !players[7].active;
    }
 
 */
@@ -1133,7 +1141,7 @@ void show_level_done(void);
 
 
 //   al_show_mouse_cursor(display);
-//   load_level(start_level, 0);
+//   load_level(start_level, 0, 0);
 //   lift_viewer(4);
 
 }

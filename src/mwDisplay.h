@@ -57,10 +57,6 @@ class mwDisplay
    void set_scale_factor(float new_scale_factor, int instant);
    void proc_scale_factor_change(void);
 
-
-   mwDisplay(); // default constructor
-   void initialize(void);
-
    void mw_set_clipping_rect(float x, float y, float w, float h);
 
 
@@ -90,6 +86,6 @@ class mwDisplay
 
 };
 extern mwDisplay mwD;
-
+extern ALLEGRO_DISPLAY *display;
 
 

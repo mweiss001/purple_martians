@@ -2,6 +2,11 @@
 
 #include "pm.h"
 #include "mwFont.h"
+#include "mwDisplay.h"
+#include "z_menu.h"
+#include "z_fnx.h"
+
+
 
 mwFont mF;
 

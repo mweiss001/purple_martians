@@ -1,8 +1,21 @@
 // e_tile_helper.cpp
 #include "pm.h"
+#include "e_tile_helper.h"
 #include "mwWindow.h"
 #include "mwWindowManager.h"
 #include "mwFont.h"
+#include "mwWidgets.h"
+#include "mwColor.h"
+#include "mwInput.h"
+#include "mwEventQueue.h"
+#include "z_level.h"
+#include "e_fnx.h"
+#include "z_screen.h"
+
+
+
+
+int thl[100][100] = {0}; // tile helper
 
 void th_replace(int type)
 {
@@ -398,7 +411,7 @@ int th_draw_buttons(int x3, int x4, int yfb, int d)
    for (int a=0; a<100; a++)
       for (int b=0; b<100; b++)
         if (thl[a][b]) marked_count++;
-   al_draw_textf(mF.pr8, palette_color[15], (x3+x4)/2, yfb -34, ALLEGRO_ALIGN_CENTER, "Number of Tiles Marked: %d", marked_count);
+   al_draw_textf(mF.pr8, mC.pc[15], (x3+x4)/2, yfb -34, ALLEGRO_ALIGN_CENTER, "Number of Tiles Marked: %d", marked_count);
 
    if (mdw_buttont(x3, yfb, x4, bts, 0,0,0,0, 0,9,15,0, 1,0,1,d, "Clear All Marks"))
    {
@@ -430,7 +443,7 @@ int th_draw_buttons(int x3, int x4, int yfb, int d)
 
    // draw a rectangle and title around this group of buttons
    titlex("Modify Which Tiles Are Marked", 15, 14, x3, x4, yfb_old-16);
-   al_draw_rectangle(x3, yfb_old-16, x4, yfb-1, palette_color[14], 1);
+   al_draw_rectangle(x3, yfb_old-16, x4, yfb-1, mC.pc[14], 1);
 
 
    yfb+=bts*2; // spacing between groups
@@ -448,7 +461,7 @@ int th_draw_buttons(int x3, int x4, int yfb, int d)
 
    // draw a rectangle and title around this group of buttons
    titlex("Change Marked Tiles", 15, 10, x3, x4, yfb_old-16);
-   al_draw_rectangle(x3, yfb_old-16, x4, yfb-1, palette_color[10], 1);
+   al_draw_rectangle(x3, yfb_old-16, x4, yfb-1, mC.pc[10], 1);
 
    if (choice) th_replace(choice);
    return yfb;
@@ -552,9 +565,9 @@ void th_find_connected(int x, int y, int group)
 
 void th_process_mouse(void)
 {
-   if (mouse_b[1][0])
+   if (mI.mouse_b[1][0])
    {
-      while (mouse_b[1][0]) proc_event_queue();
+      while (mI.mouse_b[1][0]) mwEQ.proc_event_queue();
 
       // add or del single tile at the specific location
       if (mwWM.mW[9].th_match == 0) thl[mwWM.gx][mwWM.gy] = mwWM.mW[9].th_add_del;
@@ -571,9 +584,9 @@ void th_process_mouse(void)
       }
    }
 
-   if (mouse_b[2][0])
+   if (mI.mouse_b[2][0])
    {
-      while (mouse_b[2][0]) proc_event_queue();
+      while (mI.mouse_b[2][0]) mwEQ.proc_event_queue();
       mwWM.set_windows(1);
    }
 }

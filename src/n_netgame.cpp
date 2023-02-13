@@ -3,6 +3,18 @@
 #include "pm.h"
 #include "z_player.h"
 #include "n_netgame.h"
+#include "z_lift.h"
+#include "z_bullets.h"
+#include "mwPMEvent.h"
+#include "z_item.h"
+#include "z_enemy.h"
+#include "z_level.h"
+
+
+
+
+
+
 
 // ------------------------------------------------
 // ----------------- netgame ----------------------
@@ -24,39 +36,39 @@ int srv_client_state_frame_num[8][2];
 char client_state_buffer[STATE_SIZE];  // buffer for building compressed dif from packet pieces
 int  client_state_buffer_pieces[16];   // to mark packet pieces as received
 char client_state_base[STATE_SIZE];    // last ack state
-int  client_state_base_frame_num;      // last ack state frame_num
+int  client_state_base_frame_num;      // last ack state mwPS.frame_num
 char client_state_dif[STATE_SIZE];     // uncompressed dif
-int  client_state_dif_src;             // uncompressed dif src frame_num
-int  client_state_dif_dst;             // uncompressed dif dst frame_num
+int  client_state_dif_src;             // uncompressed dif src mwPS.frame_num
+int  client_state_dif_dst;             // uncompressed dif dst mwPS.frame_num
 
 void game_vars_to_state(char * b)
 {
    int sz = 0, offset = 0;
-   offset += sz; sz = sizeof(players);  memcpy(b+offset, players,  sz);
-   offset += sz; sz = sizeof(Ei);       memcpy(b+offset, Ei,       sz);
-   offset += sz; sz = sizeof(Efi);      memcpy(b+offset, Efi,      sz);
-   offset += sz; sz = sizeof(item);     memcpy(b+offset, item,     sz);
-   offset += sz; sz = sizeof(itemf);    memcpy(b+offset, itemf,    sz);
-   offset += sz; sz = sizeof(lifts);    memcpy(b+offset, lifts,    sz);
-   offset += sz; sz = sizeof(l);        memcpy(b+offset, l,        sz);
-   offset += sz; sz = sizeof(pbullet);  memcpy(b+offset, pbullet,  sz);
-   offset += sz; sz = sizeof(ebullets); memcpy(b+offset, ebullets, sz);
-   offset += sz; sz = sizeof(pm_event); memcpy(b+offset, pm_event, sz);
+   offset += sz; sz = sizeof(players);     memcpy(b+offset, players,  sz);
+   offset += sz; sz = sizeof(Ei);          memcpy(b+offset, Ei,       sz);
+   offset += sz; sz = sizeof(Efi);         memcpy(b+offset, Efi,      sz);
+   offset += sz; sz = sizeof(item);        memcpy(b+offset, item,     sz);
+   offset += sz; sz = sizeof(itemf);       memcpy(b+offset, itemf,    sz);
+   offset += sz; sz = sizeof(lifts);       memcpy(b+offset, lifts,    sz);
+   offset += sz; sz = sizeof(l);           memcpy(b+offset, l,        sz);
+   offset += sz; sz = sizeof(pbullet);     memcpy(b+offset, pbullet,  sz);
+   offset += sz; sz = sizeof(ebullets);    memcpy(b+offset, ebullets, sz);
+   offset += sz; sz = sizeof(mwPME.event); memcpy(b+offset, mwPME.event, sz);
 }
 
 void state_to_game_vars(char * b)
 {
    int sz = 0, offset = 0;
-   sz = sizeof(players);  memcpy(players,  b+offset, sz); offset += sz;
-   sz = sizeof(Ei);       memcpy(Ei,       b+offset, sz); offset += sz;
-   sz = sizeof(Efi);      memcpy(Efi,      b+offset, sz); offset += sz;
-   sz = sizeof(item);     memcpy(item,     b+offset, sz); offset += sz;
-   sz = sizeof(itemf);    memcpy(itemf,    b+offset, sz); offset += sz;
-   sz = sizeof(lifts);    memcpy(lifts,    b+offset, sz); offset += sz;
-   sz = sizeof(l);        memcpy(l,        b+offset, sz); offset += sz;
-   sz = sizeof(pbullet);  memcpy(pbullet,  b+offset, sz); offset += sz;
-   sz = sizeof(ebullets); memcpy(ebullets, b+offset, sz); offset += sz;
-   sz = sizeof(pm_event); memcpy(pm_event, b+offset, sz); offset += sz;
+   sz = sizeof(players);     memcpy(players,     b+offset, sz); offset += sz;
+   sz = sizeof(Ei);          memcpy(Ei,          b+offset, sz); offset += sz;
+   sz = sizeof(Efi);         memcpy(Efi,         b+offset, sz); offset += sz;
+   sz = sizeof(item);        memcpy(item,        b+offset, sz); offset += sz;
+   sz = sizeof(itemf);       memcpy(itemf,       b+offset, sz); offset += sz;
+   sz = sizeof(lifts);       memcpy(lifts,       b+offset, sz); offset += sz;
+   sz = sizeof(l);           memcpy(l,           b+offset, sz); offset += sz;
+   sz = sizeof(pbullet);     memcpy(pbullet,     b+offset, sz); offset += sz;
+   sz = sizeof(ebullets);    memcpy(ebullets,    b+offset, sz); offset += sz;
+   sz = sizeof(mwPME.event); memcpy(mwPME.event, b+offset, sz); offset += sz;
 }
 
 void get_state_dif(char *a, char *b, char *c, int size)
@@ -80,11 +92,11 @@ void reset_states(void)
 {
    // reset base state on client
    memset(client_state_base, 0, STATE_SIZE);
-   client_state_base_frame_num = 0;  // frame_num id
+   client_state_base_frame_num = 0;  // mwPS.frame_num id
 
-   // reset dif buffer and frame_num
+   // reset dif buffer and mwPS.frame_num
    memset(client_state_dif, 0, STATE_SIZE);
-   client_state_dif_src = -1; // -1 will never match a frame_num
+   client_state_dif_src = -1; // -1 will never match a mwPS.frame_num
    client_state_dif_dst = -1;
 
    // reset buffer and frame_nums used to build compressed state from packets
